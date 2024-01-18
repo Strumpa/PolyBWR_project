@@ -1,0 +1,58 @@
+! CLE-2000 procedure to treat BWR Pin as presented in :
+! "OECD/NEA Burnup Credit Criticality Benchmarks
+! Phase IIIB: Burnup Calculations of BWR Fuel Assemblies
+! for Storage and Transport, Feb 2002, Hiroshi OKUNO, Yoshitaka NAITO* and Kenya SUYAMA
+
+************************************************************************
+*  case PIN_1 : NO VOID                                                *
+*  295-group JEF3.1 DRAGLIB                                            *
+*  DISTRIBUTED SELF-SHIELDING                                          *
+*  Author: R. Guasch, adapted from A. Hebert, L. Ghasabyan.            *                                        *
+************************************************************************
+
+! STRUCTURES and MODULES
+
+LINKED_LIST GEOM TRACK_SS TRACK LIBRARY LIBRARY2 SYS FLUX
+  StepList BURNUP EDIOBJ ;
+SEQ_ASCII UOX_TBH ;
+SEQ_BINARY TF_EXC ;
+
+SEQ_ASCII FIG.ps :: FILE './PIN_FIG.ps' ; 
+
+!Files to save for post treatment using _FILENAME convention
+SEQ_ASCII _BURN :: FILE './_BURN_rowland.txt' ;
+SEQ_ASCII _LIBR :: FILE './_LIB_rowland.txt' ;
+SEQ_ASCII _EDIT :: FILE './_EDIT_rowland.txt' ;
+
+! Declation of modules called
+MODULE LIB: GEO: SYBILT: G2S: SALT: MAC: USS:
+  ASM: FLU: DELETE: UTL: EVO: GREP:
+  EDI: END: ;
+
+! IIIB Benchmark uses UOX fuel : A. Santamarina recs: 4 zones in fuel
+INTEGER COMB01 COMB02 COMB03 COMB04 CLAD MODE :=
+        1 2 3 4 5 6 ; !  DISTRIBUTED SELF-SHIELDING 
+
+INTEGER an2d := 12 ;  ! ANGULAR QUADRATURE PARAMETER
+REAL densur := 20.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
+
+! Calculating the Santamarina radii : 50%/30%/15%/5% of vol
+REAL RCOMB1 RCOMB2 RCOMB3 RCOMB4 ;
+EVALUATE RCOMB4 := 0.529 ;
+EVALUATE RCOMB1 := 0.5 SQRT RCOMB4 * ;
+EVALUATE RCOMB2 := 0.8 SQRT RCOMB4 * ;
+EVALUATE RCOMB3 := 0.95 SQRT RCOMB4 * ;
+
+REAL Kinf1 Keff1 ;
+
+! Defining the IIIB PIN GEOMETRY
+
+GEOM := GEO: :: CARCEL 5
+  X- REFL X+ REFL
+  Y- REFL Y+ REFL
+  RADIUS 0.0 <<RCOMB1>> <<RCOMB2>>
+             <<RCOMB3>> <<RCOMB4>> 0.615
+  MIX <<COMB01>> <<COMB02>>
+      <<COMB03>> <<COMB04>> <<CLAD>> <<MODE>>
+  MESHX 0.0 1.6300 MESHY 0.0 1.6300
+;
