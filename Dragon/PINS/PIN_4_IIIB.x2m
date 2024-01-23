@@ -20,9 +20,9 @@ SEQ_BINARY TF_EXC ;
 SEQ_ASCII FIG.ps :: FILE './PIN_FIG.ps' ; 
 
 !Files to save for post treatment using _FILENAME convention
-SEQ_ASCII _BURN :: FILE './_BURN_rowland.txt' ;
-SEQ_ASCII _LIBR :: FILE './_LIB_rowland.txt' ;
-SEQ_ASCII _EDIT :: FILE './_EDIT_rowland.txt' ;
+SEQ_ASCII _BURN :: FILE './_BURN_4.txt' ;
+SEQ_ASCII _LIBR :: FILE './_LIB_4.txt' ;
+SEQ_ASCII _EDIT :: FILE './_EDIT_4.txt' ;
 
 ! Declation of modules called
 MODULE LIB: GEO: SYBILT: G2S: SALT: MAC: USS:

@@ -20,9 +20,9 @@ SEQ_BINARY TF_EXC ;
 SEQ_ASCII FIG.ps :: FILE './PIN_G_FIG.ps' ; 
 
 !Files to save for post treatment using _FILENAME convention
-SEQ_ASCII _BURN :: FILE './_BURN_rowland.txt' ;
-SEQ_ASCII _LIBR :: FILE './_LIB_rowland.txt' ;
-SEQ_ASCII _EDIT :: FILE './_EDIT_rowland.txt' ;
+SEQ_ASCII _BURN :: FILE './_BURN_G.txt' ;
+SEQ_ASCII _LIBR :: FILE './_LIB_G.txt' ;
+SEQ_ASCII _EDIT :: FILE './_EDIT_G.txt' ;
 
 ! Declation of modules called
 MODULE LIB: GEO: SYBILT: G2S: SALT: MAC: USS:
@@ -112,7 +112,7 @@ LIBRARY := LIB: ::
   MIX <<COMB03>> COMB <<COMB01>> 1.0
   MIX <<COMB04>> COMB <<COMB01>> 1.0
   MIX <<COMB05>> COMB <<COMB01>> 1.0
-  MIX <<COMB05>> COMB <<COMB01>> 1.0
+  MIX <<COMB06>> COMB <<COMB01>> 1.0
   
   MIX <<CLAD>> 559.0 NOEV ! Zircalloy4 = Cr+Fe+Z 
     Cr50    = Cr50    3.2975E-6
