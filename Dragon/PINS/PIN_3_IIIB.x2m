@@ -48,8 +48,8 @@ REAL void_factor := 0;
 ! Evaluating water density based on voiding factor 
 REAL H_dens O_dens;
 
-EVALUATE H_dens := 1 void_factor - 4.9316E-2 *
-EVALUATE O_dens := 1 void_factor - 2.4658E-2 *
+EVALUATE H_dens := 1 void_factor - 4.9316E-2 * ;
+EVALUATE O_dens := 1 void_factor - 2.4658E-2 * ;
 
 REAL Kinf1 Keff1 ;
 
