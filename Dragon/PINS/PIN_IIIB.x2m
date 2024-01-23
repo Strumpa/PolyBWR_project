@@ -43,7 +43,7 @@ EVALUATE RCOMB1 := 0.5 SQRT RCOMB4 * ;
 EVALUATE RCOMB2 := 0.8 SQRT RCOMB4 * ;
 EVALUATE RCOMB3 := 0.95 SQRT RCOMB4 * ;
 
-! Choice of Void factor in %/100
+! Choice of Void factor in %/100 --> this method might not be right 
 REAL void_factor := 0; 
 ! Evaluating water density based on voiding factor 
 REAL H_dens O_dens;
@@ -119,7 +119,7 @@ LIBRARY := LIB: ::
     Zr96    = Zr96    1.2035E-3
   MIX <<MODE>> 559.0 NOEV ! Density dependent on void factor
     H1      = H1_H2O H_dens
-    O16     = O16    2.4658E-2
+    O16     = O16    O_dens
 ;
 
 ! SELF-SHIELDING & FLUX
@@ -128,4 +128,135 @@ LIBRARY2 := USS: LIBRARY TRACK_SS :: EDIT 1 TRAN PASS 3 GRMIN 52 ;
 SYS := ASM: LIBRARY2 TRACK TF_EXC :: EDIT 1 PIJ ;
 FLUX := FLU: SYS LIBRARY2 TRACK :: EDIT 1 TYPE K ;
 
-! KEEP GOING from here next time !!!
+! Step1 before 23/01/2024
+
+! Edition of microlib ?
+
+EDIOBJ := EDI: FLUX LIBRARY2 TRACK ::
+  EDIT 5
+  MICR 11 U235 U238 Pu238 Pu239
+    Pu240 Pu241 Pu242 Am241 Am243
+    Cm242 Cm244
+  TAKE MIX 1 0 0 0 1 1 1
+  COND
+  SAVE ON FUEL
+;
+
+! KEEP GOING from here next time
+
+REAL    Norm_f2 := 26.5 ; ! POWER NORM 26.5 W/g : assembly specific power (?)
+INTEGER istep :=  1 ;
+INTEGER nstep := 45 ;
+INTEGER nauto := 45 ;
+INTEGER iauto :=  1 ;
+INTEGER valstep valauto ;
+REAL    evobeg evoend step2 stepauto ;
+
+StepList := UTL: :: CREA 'ListBU' <<nstep>> =
+    30.00     50.00     75.00    150.00    250.00
+   500.00    750.00   1000.00   2000.00   2500.00
+  3000.00   3500.00   4000.00   4500.00   5000.00
+  5500.00   6000.00   6500.00   7000.00   7500.00
+  8000.00   8500.00   9000.00   9500.00  10000.00
+ 11000.00  12000.00  13000.00  14000.00  15000.00
+ 16000.00  17000.00  18000.00  19000.00  20000.00
+ 22000.00  24000.00  26000.00  28000.00  30000.00
+ 32000.00  34000.00  36000.00  38000.00  40000.00
+;
+
+StepList := UTL: :: CREA 'ListAutop' <<nstep>> =
+    30.00     50.00     75.00    150.00    250.00
+   500.00    750.00   1000.00   2000.00   2500.00
+  3000.00   3500.00   4000.00   4500.00   5000.00
+  5500.00   6000.00   6500.00   7000.00   7500.00
+  8000.00   8500.00   9000.00   9500.00  10000.00
+ 11000.00  12000.00  13000.00  14000.00  15000.00
+ 16000.00  17000.00  18000.00  19000.00  20000.00
+ 22000.00  24000.00  26000.00  28000.00  30000.00
+ 32000.00  34000.00  36000.00  38000.00  40000.00
+;
+GREP: FLUX :: GETVAL 'K-EFFECTIVE  ' 1 1 1 >>Keff1<< ;
+ECHO "+++ Burnup=" 0.0 " Keff=" Keff1 ;
+
+EVALUATE evoend := 0. ;
+WHILE istep nstep <= DO
+
+  GREP: StepList :: GETVAL 'ListBU' <<istep>> >>step2<< ;
+
+  EVALUATE evobeg := evoend ;
+  EVALUATE evoend := step2 Norm_f2 / ;
+
+  ECHO "BURNUP step" istep "between" evobeg "and" evoend "day:" ;
+
+  IF istep 1 = THEN
+    BURNUP LIBRARY2 := EVO: LIBRARY2 FLUX TRACK ::
+      EDIT 2
+      DEPL <<evobeg>> <<evoend>> DAY POWR <<Norm_f2>>
+      KAPS EXTR NSAT NODI
+      GLOB
+    ;
+
+  ELSE
+    BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX TRACK ::
+      EDIT 2
+      DEPL <<evobeg>> <<evoend>> DAY POWR <<Norm_f2>>
+      KAPS EXTR NSAT NODI
+      GLOB
+    ;
+
+  ENDIF ;
+
+  
+  GREP: StepList :: GETVAL 'ListAutop' <<iauto>> >>stepauto<< ;
+  EVALUATE valstep := step2 R_TO_I ;
+  EVALUATE valauto := stepauto R_TO_I ;
+
+    IF valstep valauto = THEN
+
+    ECHO "StepAuto:" stepauto "MWj/t" ;
+    ECHO "Self-shielding calculation" istep "at" evoend "DAY:" ;
+
+    LIBRARY2 := USS: LIBRARY LIBRARY2 TRACK_SS ::
+      EDIT 1 TRAN PASS 3 GRMIN 52 ;
+
+  ENDIF ;
+
+  IF iauto nauto < THEN
+    EVALUATE iauto := iauto 1 + ;
+  ENDIF ;
+  
+  ECHO "step2=" step2 "evoend=" evoend ;
+  SYS := DELETE: SYS ;
+  SYS := ASM: LIBRARY2 TRACK TF_EXC :: EDIT 1 PIJ ;
+
+  FLUX := FLU: FLUX SYS LIBRARY2 TRACK :: EDIT 1 TYPE K ;
+
+  EDIOBJ := EDI: EDIOBJ FLUX LIBRARY2 TRACK ::
+    EDIT 5
+    MICR 11 U235 U238 Pu238 Pu239
+      Pu240 Pu241 Pu242 Am241 Am243
+      Cm242 Cm244
+    TAKE MIX 1 0 0 0 1 1 1
+    COND
+    SAVE ON FUEL
+  ;
+  GREP: FLUX :: GETVAL 'K-INFINITY  ' 1 1 1 >>Kinf1<<
+    GETVAL 'K-EFFECTIVE ' 1 1 1 >>Keff1<< ;
+
+  ECHO "+++ Burnup=" step2 " Keff=" Keff1 ;
+
+  BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX TRACK :: EDIT 2
+    SAVE <<evoend>> DAY POWR <<Norm_f2>> ;
+
+  EVALUATE istep := istep 1 + ;
+ENDWHILE ;
+
+_BURN := BURNUP ;
+_LIBR := LIBRARY2 ;
+_EDIT := EDIOBJ ;
+
+ECHO "PIN_A completed" ;
+
+END: ;
+QUIT .
+
