@@ -255,7 +255,7 @@ _BURN := BURNUP ;
 _LIBR := LIBRARY2 ;
 _EDIT := EDIOBJ ;
 
-ECHO "PIN_A completed" ;
+ECHO "PIN_1_IIIB completed" ;
 
 END: ;
 QUIT .
