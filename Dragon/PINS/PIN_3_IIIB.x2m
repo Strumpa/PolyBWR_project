@@ -4,7 +4,7 @@
 ! for Storage and Transport, Feb 2002, Hiroshi OKUNO, Yoshitaka NAITO* and Kenya SUYAMA
 
 ************************************************************************
-*  case PIN_1 : UOX fuel, NO Gd, NO VOID: can change                   *
+*  case PIN_3 : UOX fuel, NO Gd, NO VOID: can change                   *
 *  295-group JEF3.1 DRAGLIB                                            *
 *  DISTRIBUTED SELF-SHIELDING                                          *
 *  Author: R. Guasch, adapted from A. Hebert, L. Ghasabyan.            *
@@ -93,12 +93,12 @@ LIBRARY := LIB: ::
 
   MIXS LIB: DRAGON FIL: DLIB_295
 
-  MIX <<COMB01>> 900.0
-    O16     = O16    4.5504E-2
-    U234    = U234   1.0443E-5 1 IRSET PT 1
-    U235    = U235   1.1284E-3 1 IRSET PT 1
-    U236    = U236   6.9317E-6 1 IRSET PT 1 !Question about ssh of U234 and U236
-    U238    = U238   2.1606E-2 1 IRSET PT 1
+  MIX <<COMB01>> 900.0 ! fuel compo for PIN_3
+    O16     = O16    4.5494E-2
+    U234    = U234   6.2468E-6 1 IRSET PT 1
+    U235    = U235   6.9087E-4 1 IRSET PT 1
+    U236    = U236   4.3570E-6 1 IRSET PT 1 !Question about ssh of U234 and U236
+    U238    = U238   2.2046E-2 1 IRSET PT 1
   MIX <<COMB02>> COMB <<COMB01>> 1.0
   MIX <<COMB03>> COMB <<COMB01>> 1.0
   MIX <<COMB04>> COMB <<COMB01>> 1.0
