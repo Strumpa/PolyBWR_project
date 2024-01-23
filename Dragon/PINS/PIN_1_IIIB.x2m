@@ -67,7 +67,7 @@ GEOM := GEO: :: CARCEL 5
 
 !Tracking for Self shielding and MOC with SYBILT: and SALT:
 TRACK_SS := SYBILT: GEOM ::
-  TITLE 'PIN_IIIB BENCHMARK'
+  TITLE 'PIN_1_IIIB BENCHMARK'
   MAXR 20 QUA2 20 3 DP01 MAXZ 200000 ;
 
 UOX_PIN FIG.ps := G2S: GEOM :: DRAWNOD ;
@@ -242,7 +242,7 @@ WHILE istep nstep <= DO
     COND
     SAVE ON FUEL
     ;
-    
+
   GREP: FLUX :: GETVAL 'K-INFINITY  ' 1 1 1 >>Kinf1<<
     GETVAL 'K-EFFECTIVE ' 1 1 1 >>Keff1<< ;
 
