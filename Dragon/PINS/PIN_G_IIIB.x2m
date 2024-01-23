@@ -4,7 +4,7 @@
 ! for Storage and Transport, Feb 2002, Hiroshi OKUNO, Yoshitaka NAITO* and Kenya SUYAMA
 
 ************************************************************************
-*  case PIN_1 : UOX fuel, NO Gd, NO VOID: can change                   *
+*  case PIN_G : UOX fuel, NO Gd, NO VOID: can change                   *
 *  295-group JEF3.1 DRAGLIB                                            *
 *  DISTRIBUTED SELF-SHIELDING                                          *
 *  Author: R. Guasch, adapted from A. Hebert, L. Ghasabyan.            *
@@ -17,7 +17,7 @@ LINKED_LIST GEOM TRACK_SS TRACK LIBRARY LIBRARY2 SYS FLUX
 SEQ_ASCII UOX_PIN ;
 SEQ_BINARY TF_EXC ;
 
-SEQ_ASCII FIG.ps :: FILE './PIN_FIG.ps' ; 
+SEQ_ASCII FIG.ps :: FILE './PIN_G_FIG.ps' ; 
 
 !Files to save for post treatment using _FILENAME convention
 SEQ_ASCII _BURN :: FILE './_BURN_rowland.txt' ;
@@ -70,7 +70,7 @@ GEOM := GEO: :: CARCEL 7
 
 !Tracking for Self shielding and MOC with SYBILT: and SALT:
 TRACK_SS := SYBILT: GEOM ::
-  TITLE 'PIN_IIIB BENCHMARK'
+  TITLE 'PIN_G_IIIB BENCHMARK'
   MAXR 20 QUA2 20 3 DP01 MAXZ 200000 ;
 
 UOX_PIN FIG.ps := G2S: GEOM :: DRAWNOD ;
@@ -254,7 +254,7 @@ WHILE istep nstep <= DO
     COND
     SAVE ON FUEL
     ;
-    
+
   GREP: FLUX :: GETVAL 'K-INFINITY  ' 1 1 1 >>Kinf1<<
     GETVAL 'K-EFFECTIVE ' 1 1 1 >>Keff1<< ;
 
@@ -270,7 +270,7 @@ _BURN := BURNUP ;
 _LIBR := LIBRARY2 ;
 _EDIT := EDIOBJ ;
 
-ECHO "PIN_1_IIIB completed" ;
+ECHO "PIN_G_IIIB completed" ;
 
 END: ;
 QUIT .
