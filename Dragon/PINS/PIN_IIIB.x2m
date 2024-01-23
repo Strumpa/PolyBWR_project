@@ -43,6 +43,14 @@ EVALUATE RCOMB1 := 0.5 SQRT RCOMB4 * ;
 EVALUATE RCOMB2 := 0.8 SQRT RCOMB4 * ;
 EVALUATE RCOMB3 := 0.95 SQRT RCOMB4 * ;
 
+! Choice of Void factor in %/100
+REAL void_factor := 0; 
+! Evaluating water density based on voiding factor 
+REAL H_dens O_dens;
+
+EVALUATE H_dens := 1 void_factor - 4.9316E-2 *
+EVALUATE O_dens := 1 void_factor - 2.4658E-2 *
+
 REAL Kinf1 Keff1 ;
 
 ! Defining the IIIB PIN GEOMETRY
@@ -109,8 +117,8 @@ LIBRARY := LIB: ::
     Zr92    = Zr92    7.3714E-3 2 IRSET PT 1
     Zr94    = Zr94    7.4703E-3
     Zr96    = Zr96    1.2035E-3
-  MIX <<MODE>> 559.0 NOEV ! VOID = 0%
-    H1      = H1_H2O 4.9316E-2
+  MIX <<MODE>> 559.0 NOEV ! Density dependent on void factor
+    H1      = H1_H2O H_dens
     O16     = O16    2.4658E-2
 ;
 
