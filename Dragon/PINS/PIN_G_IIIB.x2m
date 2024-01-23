@@ -224,7 +224,7 @@ WHILE istep nstep <= DO
   EVALUATE valstep := step2 R_TO_I ;
   EVALUATE valauto := stepauto R_TO_I ;
 
-    IF valstep valauto = THEN
+  IF valstep valauto = THEN
 
     ECHO "StepAuto:" stepauto "MWj/t" ;
     ECHO "Self-shielding calculation" istep "at" evoend "DAY:" ;
