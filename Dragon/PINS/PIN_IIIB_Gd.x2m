@@ -14,7 +14,7 @@
 
 LINKED_LIST GEOM TRACK_SS TRACK LIBRARY LIBRARY2 SYS FLUX
   StepList BURNUP EDIOBJ ;
-SEQ_ASCII UOX_PIN ;
+SEQ_ASCII UGd_PIN ;
 SEQ_BINARY TF_EXC ;
 
 SEQ_ASCII FIG.ps :: FILE './PIN_Gd_FIG.ps' ; 
@@ -23,6 +23,9 @@ SEQ_ASCII FIG.ps :: FILE './PIN_Gd_FIG.ps' ;
 SEQ_ASCII _BURN :: FILE './_BURN_Gd.txt' ;
 SEQ_ASCII _LIBR :: FILE './_LIB_Gd.txt' ;
 SEQ_ASCII _EDIT :: FILE './_EDIT_Gd.txt' ;
+
+! Choice of Void factor in % 
+INTEGER void_factor := 0; !40 or 70 supported
 
 ! Declation of modules called
 MODULE LIB: GEO: SYBILT: G2S: SALT: MAC: USS:
@@ -46,9 +49,7 @@ EVALUATE RCOMB3 := 0.6 SQRT RCOMB6 * ;
 EVALUATE RCOMB4 := 0.8 SQRT RCOMB6 * ;
 EVALUATE RCOMB5 := 0.95 SQRT RCOMB6 * ;
 
-! Choice of Void factor in %/100 --> this method might not be right 
-INTEGER void_factor := 0; !40 or 70 supported
-! Evaluating water density based on voiding factor 
+! Defining water density based on voiding factor 
 IF void_factor 0 = THEN
   REAL H_dens := 4.9316E-2 ;
   REAL O_dens := 2.4658E-2 ;
@@ -78,9 +79,9 @@ TRACK_SS := SYBILT: GEOM ::
   TITLE 'PIN_G_IIIB BENCHMARK'
   MAXR 20 QUA2 20 3 DP01 MAXZ 200000 ;
 
-UOX_PIN FIG.ps := G2S: GEOM :: DRAWNOD ;
+UGd_PIN FIG.ps := G2S: GEOM :: DRAWNOD ;
 
-TRACK TF_EXC := SALT: UOX_PIN ::
+TRACK TF_EXC := SALT: UGd_PIN ::
   EDIT 3
   ALLG
   TSPC <<an2d>> <<densur>> REND
@@ -275,7 +276,7 @@ _BURN := BURNUP ;
 _LIBR := LIBRARY2 ;
 _EDIT := EDIOBJ ;
 
-ECHO "PIN_G_IIIB completed" ;
+ECHO "PIN_IIIB_Gd completed" ;
 
 END: ;
 QUIT .
