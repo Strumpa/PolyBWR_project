@@ -17,7 +17,7 @@ LINKED_LIST GEOM TRACK_SS TRACK LIBRARY LIBRARY2 SYS FLUX
 SEQ_ASCII UOX_PIN ;
 SEQ_BINARY TF_EXC ;
 
-SEQ_ASCII FIG.ps :: FILE './PIN_FIG.ps' ; 
+SEQ_ASCII FIG.ps :: FILE './PIN_FIG.ps' ;
 
 !Files to save for post treatment using _FILENAME convention
 SEQ_ASCII _BURN :: FILE './_BURN_1.txt' ;
@@ -82,7 +82,7 @@ TRACK TF_EXC := SALT: UOX_PIN ::
 
 LIBRARY := LIB: ::
   EDIT 1
-  NMIX 6    ! MAXIMUM OF MATERIAL MIXTURES
+  NMIX 6    !  MAXIMUM OF MATERIAL MIXTURES
   PT
   CTRA APOL ! APOLLO TYPE TRANSPORT CORRECTION
   ANIS 2
@@ -145,7 +145,7 @@ EDIOBJ := EDI: FLUX LIBRARY2 TRACK ::
 
 ! KEEP GOING from here next time
 
-REAL    Norm_f2 := 26.5 ; ! POWER NORM 26.5 W/g : assembly specific power (?)
+REAL    Norm_f2 := 26.5 ; ! POWER NORM 26.5 W/g : assembly specific power 
 INTEGER istep :=  1 ;
 INTEGER nstep := 45 ;
 INTEGER nauto := 45 ;
@@ -165,7 +165,7 @@ StepList := UTL: :: CREA 'ListBU' <<nstep>> =
  32000.00  34000.00  36000.00  38000.00  40000.00
 ;
 
-StepList := UTL: :: CREA 'ListAutop' <<nstep>> =
+StepList := UTL: StepList :: CREA 'ListAutop' <<nauto>> =
     30.00     50.00     75.00    150.00    250.00
    500.00    750.00   1000.00   2000.00   2500.00
   3000.00   3500.00   4000.00   4500.00   5000.00
@@ -234,14 +234,14 @@ WHILE istep nstep <= DO
 
   EDIOBJ := EDI: EDIOBJ FLUX LIBRARY2 TRACK ::
     EDIT 5
-    MICR 12 U234 U235 U236 U238 
-        Pu238 Pu239 Pu240 Pu241 Pu242 
+    MICR 12 U234 U235 U236 U238
+        Pu238 Pu239 Pu240 Pu241 Pu242
         Am241 Am243
         Np237
     TAKE MIX 1 1 1 1 0 0
     COND
     SAVE ON FUEL
-    ;
+  ;
 
   GREP: FLUX :: GETVAL 'K-INFINITY  ' 1 1 1 >>Kinf1<<
     GETVAL 'K-EFFECTIVE ' 1 1 1 >>Keff1<< ;
