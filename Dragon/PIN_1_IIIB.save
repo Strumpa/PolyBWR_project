@@ -1,0 +1,23 @@
+#!/bin/sh
+#
+if [ $# = 0 ]
+   then
+   echo "usage: PIN_1_IIIB.save directory" 1>&2
+   exit 1
+fi
+echo "access PIN_1_IIIB.save"
+MACH=`uname -s`
+Sysx="`echo $MACH | cut -b -6`"
+if [ $Sysx = "CYGWIN" ]; then
+   MACH=`uname -o`
+elif [ $Sysx = "AIX" ]; then
+   MACH=`uname -s`
+else
+   MACH=`uname -sm | sed 's/[ ]/_/'`
+fi
+ls -l
+mv _BURN_1.txt $1/"$MACH"
+mv _LIB_1.txt $1/"$MACH"
+mv _EDIT_1.txt $1/"$MACH"
+mv PIN_FIG.ps $1/"$MACH"
+echo "PIN_1_IIIB.save completed"
