@@ -30,8 +30,6 @@ gunzip "$pos"/draglibJeff3p1p1SHEM295.gz
 fi
 if [ -f "$pos"/draglibJeff3p1p1SHEM295 ]
 then
-ln -s "$pos"/draglibJeff3p1p1SHEM295 DLIB_295 
-fi
-ln -s "$1"/data/UOX_TBH_eighth_1level_proc/UOX_TBH.dat .
-ls -l
+ln -s "$pos"/draglibJeff3p1p1SHEM295 DLIB_295
 echo "PIN_1_IIIB access script terminated"
+fi

@@ -44,12 +44,12 @@ EVALUATE RCOMB2 := 0.8 SQRT RCOMB4 * ;
 EVALUATE RCOMB3 := 0.95 SQRT RCOMB4 * ;
 
 ! Choice of Void factor in %/100 --> this method might not be right 
-REAL void_factor := 0; 
+REAL void_factor := 0.0; 
 ! Evaluating water density based on voiding factor 
 REAL H_dens O_dens;
 
-EVALUATE H_dens := 1 void_factor - 4.9316E-2 * ;
-EVALUATE O_dens := 1 void_factor - 2.4658E-2 * ;
+EVALUATE H_dens := 1.0 void_factor - 4.9316E-2 * ;
+EVALUATE O_dens := 1.0 void_factor - 2.4658E-2 * ;
 
 REAL Kinf1 Keff1 ;
 
@@ -118,8 +118,8 @@ LIBRARY := LIB: ::
     Zr94    = Zr94    7.4703E-3
     Zr96    = Zr96    1.2035E-3
   MIX <<MODE>> 559.0 NOEV ! Density dependent on void factor
-    H1      = H1_H2O H_dens
-    O16     = O16    O_dens
+    H1      = H1_H2O <<H_dens>>
+    O16     = O16    <<O_dens>>
 ;
 
 ! SELF-SHIELDING & FLUX
@@ -166,7 +166,7 @@ StepList := UTL: :: CREA 'ListBU' <<nstep>> =
  32000.00  34000.00  36000.00  38000.00  40000.00
 ;
 
-StepList := UTL: :: CREA 'ListAutop' <<nstep>> =
+StepList := UTL: StepList :: CREA 'ListAutop' <<nauto>> =
     30.00     50.00     75.00    150.00    250.00
    500.00    750.00   1000.00   2000.00   2500.00
   3000.00   3500.00   4000.00   4500.00   5000.00
