@@ -17,17 +17,20 @@ LINKED_LIST GEOM TRACK_SS TRACK LIBRARY LIBRARY2 SYS FLUX
 SEQ_ASCII UOX_PIN ;
 SEQ_BINARY TF_EXC ;
 
-SEQ_ASCII FIG.ps :: FILE './PIN_FIG.ps' ;
+SEQ_ASCII FIG.ps :: FILE './PIN_UOX_FIG.ps' ;
 
 !Files to save for post treatment using _FILENAME convention
-SEQ_ASCII _BURN :: FILE './_BURN_1.txt' ;
-SEQ_ASCII _LIBR :: FILE './_LIB_1.txt' ;
-SEQ_ASCII _EDIT :: FILE './_EDIT_1.txt' ;
+SEQ_ASCII _BURN :: FILE './_BURN_UOX.txt' ;
+SEQ_ASCII _LIBR :: FILE './_LIB_UOX.txt' ;
+SEQ_ASCII _EDIT :: FILE './_EDIT_UOX.txt' ;
+
+STRING Library := "DLIB_295" ;
 
 ! Declation of modules called
 MODULE LIB: GEO: SYBILT: G2S: SALT: MAC: USS:
   ASM: FLU: DELETE: UTL: EVO: GREP:
   EDI: END: ;
+PROCEDURE Mix_UOX ;
 
 ! IIIB Benchmark uses UOX fuel : A. Santamarina recs: 4 zones in fuel
 INTEGER COMB01 COMB02 COMB03 COMB04 CLAD MODE :=
@@ -80,7 +83,8 @@ TRACK TF_EXC := SALT: UOX_PIN ::
 
 ! LIBRARY definitions for XS
 
-LIBRARY := LIB: ::
+LIBRARY := Mix_UOX :: <<Library>> <<Option>> <<H_dens>> <<O_dens>>;
+(*LIBRARY := LIB: ::
   EDIT 1
   NMIX 6    !  MAXIMUM OF MATERIAL MIXTURES
   PT
@@ -120,7 +124,7 @@ LIBRARY := LIB: ::
   MIX <<MODE>> 559.0 NOEV ! Density dependent on void factor
     H1      = H1_H2O <<H_dens>>
     O16     = O16    <<O_dens>>
-;
+;*)
 
 ! SELF-SHIELDING & FLUX
 

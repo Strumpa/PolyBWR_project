@@ -2,7 +2,7 @@
 #
 if [ $# = 0 ]
    then
-   echo "usage: PIN_1_IIIB.save directory" 1>&2
+   echo "usage: PIN_IIIB_UOX.save directory" 1>&2
    exit 1
 fi
 echo "access PIN_1_IIIB.save"
@@ -16,8 +16,8 @@ else
    MACH=`uname -sm | sed 's/[ ]/_/'`
 fi
 ls -l
-mv _BURN_1.txt $1/"$MACH"
-mv _LIB_1.txt $1/"$MACH"
-mv _EDIT_1.txt $1/"$MACH"
-mv PIN_FIG.ps $1/"$MACH"
-echo "PIN_1_IIIB.save completed"
+mv _BURN_UOX.txt $1/"$MACH"
+mv _LIB_UOX.txt $1/"$MACH"
+mv _EDIT_UOX.txt $1/"$MACH"
+mv PIN_UOX_FIG.ps $1/"$MACH"
+echo "PIN_IIIB_UOX.save completed"
