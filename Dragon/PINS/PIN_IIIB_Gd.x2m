@@ -17,12 +17,12 @@ LINKED_LIST GEOM TRACK_SS TRACK LIBRARY LIBRARY2 SYS FLUX
 SEQ_ASCII UOX_PIN ;
 SEQ_BINARY TF_EXC ;
 
-SEQ_ASCII FIG.ps :: FILE './PIN_G_FIG.ps' ; 
+SEQ_ASCII FIG.ps :: FILE './PIN_Gd_FIG.ps' ; 
 
 !Files to save for post treatment using _FILENAME convention
-SEQ_ASCII _BURN :: FILE './_BURN_G.txt' ;
-SEQ_ASCII _LIBR :: FILE './_LIB_G.txt' ;
-SEQ_ASCII _EDIT :: FILE './_EDIT_G.txt' ;
+SEQ_ASCII _BURN :: FILE './_BURN_Gd.txt' ;
+SEQ_ASCII _LIBR :: FILE './_LIB_Gd.txt' ;
+SEQ_ASCII _EDIT :: FILE './_EDIT_Gd.txt' ;
 
 ! Declation of modules called
 MODULE LIB: GEO: SYBILT: G2S: SALT: MAC: USS:
