@@ -89,7 +89,9 @@ TRACK TF_EXC := SALT: UOX_PIN ::
 
 ! LIBRARY definitions for XS
 
-LIBRARY := Mix_UOX :: <<Library>> <<Option>> <<H_dens>> <<O_dens>> ;
+LIBRARY := Mix_UOX :: <<Library>> <<Option>> <<H_dens>> <<O_dens>> 
+    <<COMB01>> <<COMB02>> <<COMB03>> <<COMB04>> <<CLAD>> <<MODE>>
+;
 
 ! SELF-SHIELDING & FLUX
 

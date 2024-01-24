@@ -8,7 +8,8 @@
 
 *  Procedure called as:
 *
-*  LIBRARY := Mix_UOX :: <<Library>> <<Option>> <<H_dens>> <<O_dens>>;
+*  LIBRARY := Mix_UOX :: <<Library>> <<Option>> <<H_dens>> <<O_dens>> 
+*          <<COMB01>> <<COMB02>> <<COMB03>> <<COMB04>> <<CLAD>> <<MODE>>;
 *
 *  Where library is SHEM295 and option is either 1, 2, 3 or 4 depending on IIIB compositions
 *  Output data  :
@@ -25,11 +26,11 @@ INTEGER Option ;
 :: >>Option<< ;
 REAL H_dens O_dens ;
 :: >>H_dens<< >>O_dens<< ;
+INTEGER COMB01 COMB02 COMB03 COMB04 CLAD MODE ;
+:: >>COMB01<< >>COMB02<< >>COMB03<< >>COMB04<< >>CLAD<< >>MODE<< ;
 
 MODULE  LIB: UTL: DELETE: END: ABORT: ;
 
-INTEGER COMB01 COMB02 COMB03 COMB04 CLAD MODE :=
-        1 2 3 4 5 6 ;
 
 IF Option 1 = THEN 
   LIBRARY := LIB: ::
