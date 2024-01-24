@@ -4,7 +4,7 @@
 ! for Storage and Transport, Feb 2002, Hiroshi OKUNO, Yoshitaka NAITO* and Kenya SUYAMA
 
 ************************************************************************
-*  case PIN_1 : UOX fuel, NO Gd, NO VOID: can change                   *
+*  case PIN cell: UOX fuel (1,2,3,4), NO Gd, NO VOID: can change       *
 *  295-group JEF3.1 DRAGLIB                                            *
 *  DISTRIBUTED SELF-SHIELDING                                          *
 *  Author: R. Guasch, adapted from A. Hebert, L. Ghasabyan.            *
@@ -25,6 +25,7 @@ SEQ_ASCII _LIBR :: FILE './_LIB_UOX.txt' ;
 SEQ_ASCII _EDIT :: FILE './_EDIT_UOX.txt' ;
 
 STRING Library := "DLIB_295" ;
+INTEGER Option := 1 ; ! Option to choose fuel composition (IIIB Benchmark pins)
 
 ! Declation of modules called
 MODULE LIB: GEO: SYBILT: G2S: SALT: MAC: USS:
@@ -32,7 +33,7 @@ MODULE LIB: GEO: SYBILT: G2S: SALT: MAC: USS:
   EDI: END: ;
 PROCEDURE Mix_UOX ;
 
-! IIIB Benchmark uses UOX fuel : A. Santamarina recs: 4 zones in fuel
+! IIIB Benchmark uses UOX fuel : A.  Santamarina recs: 4 zones in fuel
 INTEGER COMB01 COMB02 COMB03 COMB04 CLAD MODE :=
         1 2 3 4 5 6 ; !  DISTRIBUTED SELF-SHIELDING 
 
@@ -46,13 +47,18 @@ EVALUATE RCOMB1 := 0.5 SQRT RCOMB4 * ;
 EVALUATE RCOMB2 := 0.8 SQRT RCOMB4 * ;
 EVALUATE RCOMB3 := 0.95 SQRT RCOMB4 * ;
 
-! Choice of Void factor in %/100 this method might not be right 
-REAL voidf := 0.0 ;
+! Choice of Void factor in %/100 --> this method might not be right 
+INTEGER void_factor := 0; !40 or 70 supported
 ! Evaluating water density based on voiding factor 
-REAL H_dens O_dens ;
-
-EVALUATE H_dens := 1.0 voidf - 4.9316E-2 * ;
-EVALUATE O_dens := 1.0 voidf - 2.4658E-2 * ;
+IF void_factor 0 = THEN
+  REAL H_dens := 4.9316E-2 ;
+  REAL O_dens := 2.4658E-2 ;
+IF void_factor 40 = THEN
+  REAL H_dens := 3.0588E-2 ;
+  REAL O_dens := 1.5294E-2 ;
+IF void_factor 70 = THEN
+  REAL H_dens := 1.6542E-2 ;
+  REAL O_dens := 8.2712E-3 ;
 
 REAL Kinf1 Keff1 ;
 
@@ -83,48 +89,7 @@ TRACK TF_EXC := SALT: UOX_PIN ::
 
 ! LIBRARY definitions for XS
 
-LIBRARY := Mix_UOX :: <<Library>> <<Option>> <<H_dens>> <<O_dens>>;
-(*LIBRARY := LIB: ::
-  EDIT 1
-  NMIX 6    !  MAXIMUM OF MATERIAL MIXTURES
-  PT
-  CTRA APOL ! APOLLO TYPE TRANSPORT CORRECTION
-  ANIS 2
-  ADED 4 NELAS N4N N2N N3N
-  CALENDF 3 PT      ! CALENDF TYPE PROBABILITY TABLES
-
-  DEPL LIB: DRAGON FIL: DLIB_295
-
-  MIXS LIB: DRAGON FIL: DLIB_295
-
-  MIX <<COMB01>> 900.0
-    O16     = O16    4.5504E-2
-    U234    = U234   1.0443E-5 1 IRSET PT 1
-    U235    = U235   1.1284E-3 1 IRSET PT 1
-    U236    = U236   6.9317E-6 1 IRSET PT 1 !Question about ssh of U234 and U236
-    U238    = U238   2.1606E-2 1 IRSET PT 1
-  MIX <<COMB02>> COMB <<COMB01>> 1.0
-  MIX <<COMB03>> COMB <<COMB01>> 1.0
-  MIX <<COMB04>> COMB <<COMB01>> 1.0
-  
-  MIX <<CLAD>> 559.0 NOEV ! Zircalloy4 = Cr+Fe+Z 
-    Cr50    = Cr50    3.2975E-6
-    Cr52    = Cr52    6.3588E-5
-    Cr53    = Cr53    7.2104E-6
-    Cr54    = Cr54    1.7948E-6
-    Fe54    = Fe54    8.6728E-6
-    Fe56    = Fe56    1.3614E-4
-    Fe57    = Fe57    3.1442E-6
-    Fe58    = Fe58    4.1843E-7
-    Zr90    = Zr90    2.2114E-2 2 IRSET PT 1
-    Zr91    = Zr91    4.8226E-3 2 IRSET PT 1
-    Zr92    = Zr92    7.3714E-3 2 IRSET PT 1
-    Zr94    = Zr94    7.4703E-3
-    Zr96    = Zr96    1.2035E-3
-  MIX <<MODE>> 559.0 NOEV ! Density dependent on void factor
-    H1      = H1_H2O <<H_dens>>
-    O16     = O16    <<O_dens>>
-;*)
+LIBRARY := Mix_UOX :: <<Library>> <<Option>> <<H_dens>> <<O_dens>> ;
 
 ! SELF-SHIELDING & FLUX
 
