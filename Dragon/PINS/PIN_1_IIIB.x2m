@@ -43,13 +43,13 @@ EVALUATE RCOMB1 := 0.5 SQRT RCOMB4 * ;
 EVALUATE RCOMB2 := 0.8 SQRT RCOMB4 * ;
 EVALUATE RCOMB3 := 0.95 SQRT RCOMB4 * ;
 
-! Choice of Void factor in %/100 --> this method might not be right 
-REAL void_factor := 0; 
+! Choice of Void factor in %/100 this method might not be right 
+REAL voidf := 0.0 ;
 ! Evaluating water density based on voiding factor 
-REAL H_dens O_dens;
+REAL H_dens O_dens ;
 
-EVALUATE H_dens := 1 void_factor - 4.9316E-2 * ;
-EVALUATE O_dens := 1 void_factor - 2.4658E-2 * ;
+EVALUATE H_dens := 1.0 voidf - 4.9316E-2 * ;
+EVALUATE O_dens := 1.0 voidf - 2.4658E-2 * ;
 
 REAL Kinf1 Keff1 ;
 
@@ -118,8 +118,8 @@ LIBRARY := LIB: ::
     Zr94    = Zr94    7.4703E-3
     Zr96    = Zr96    1.2035E-3
   MIX <<MODE>> 559.0 NOEV ! Density dependent on void factor
-    H1      = H1_H2O H_dens
-    O16     = O16    O_dens
+    H1      = H1_H2O <<H_dens>>
+    O16     = O16    <<O_dens>>
 ;
 
 ! SELF-SHIELDING & FLUX
@@ -130,7 +130,7 @@ FLUX := FLU: SYS LIBRARY2 TRACK :: EDIT 1 TYPE K ;
 
 ! Step1 before 23/01/2024
 
-! Edition of microlib ?
+! Edition of microlib 
 
 EDIOBJ := EDI: FLUX LIBRARY2 TRACK ::
   EDIT 5
