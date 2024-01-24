@@ -4,7 +4,7 @@
 ! for Storage and Transport, Feb 2002, Hiroshi OKUNO, Yoshitaka NAITO* and Kenya SUYAMA
 
 ************************************************************************
-*  case PIN_G : UOX fuel, Gd, NO VOID: can change                      *
+*  case PIN_G : UOX fuel, Gd, can change VOID factor                   *
 *  295-group JEF3.1 DRAGLIB                                            *
 *  DISTRIBUTED SELF-SHIELDING                                          *
 *  Author: R. Guasch, adapted from A. Hebert, L. Ghasabyan.            *
