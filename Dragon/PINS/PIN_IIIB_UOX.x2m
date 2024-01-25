@@ -49,17 +49,20 @@ EVALUATE RCOMB1 := 0.5 SQRT RCOMB4 * ;
 EVALUATE RCOMB2 := 0.8 SQRT RCOMB4 * ;
 EVALUATE RCOMB3 := 0.95 SQRT RCOMB4 * ;
 
+REAL H_dens O_dens ;
 ! Evaluating water density based on voiding factor 
 IF void_factor 0 = THEN
-  REAL H_dens := 4.9316E-2 ;
-  REAL O_dens := 2.4658E-2 ;
+  H_dens := 4.9316E-2 ;
+  O_dens := 2.4658E-2 ;
+ENDIF;
 IF void_factor 40 = THEN
-  REAL H_dens := 3.0588E-2 ;
-  REAL O_dens := 1.5294E-2 ;
+  H_dens := 3.0588E-2 ;
+  O_dens := 1.5294E-2 ;
+ENDIF;
 IF void_factor 70 = THEN
-  REAL H_dens := 1.6542E-2 ;
-  REAL O_dens := 8.2712E-3 ;
-
+  H_dens := 1.6542E-2 ;
+  O_dens := 8.2712E-3 ;
+ENDIF;
 REAL Kinf1 Keff1 ;
 
 ! Defining the IIIB PIN GEOMETRY
