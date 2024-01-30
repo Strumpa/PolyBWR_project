@@ -24,8 +24,6 @@ SEQ_ASCII _BURN :: FILE './_BURN_Gd.txt' ;
 SEQ_ASCII _LIBR :: FILE './_LIB_Gd.txt' ;
 SEQ_ASCII _EDIT :: FILE './_EDIT_Gd.txt' ;
 
-! Choice of Void factor in % 
-INTEGER void_factor := 0; !40 or 70 supported
 
 ! Declation of modules called
 MODULE LIB: GEO: SYBILT: G2S: SALT: MAC: USS:
@@ -41,7 +39,7 @@ INTEGER an2d := 12 ;  ! ANGULAR QUADRATURE PARAMETER
 REAL densur := 20.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
 
 ! Calculating the Santamarina radii : 20%/20%/20%/20%15%/5% of vol
-REAL RCOMB1 RCOMB2 RCOMB3 RCOMB4 ;
+REAL RCOMB1 RCOMB2 RCOMB3 RCOMB4 RCOMB5 RCOMB6 ;
 EVALUATE RCOMB6 := 0.529 ;
 EVALUATE RCOMB1 := 0.2 SQRT RCOMB6 * ;
 EVALUATE RCOMB2 := 0.4 SQRT RCOMB6 * ;
@@ -49,16 +47,11 @@ EVALUATE RCOMB3 := 0.6 SQRT RCOMB6 * ;
 EVALUATE RCOMB4 := 0.8 SQRT RCOMB6 * ;
 EVALUATE RCOMB5 := 0.95 SQRT RCOMB6 * ;
 
-! Defining water density based on voiding factor 
-IF void_factor 0 = THEN
-  REAL H_dens := 4.9316E-2 ;
-  REAL O_dens := 2.4658E-2 ;
-IF void_factor 40 = THEN
-  REAL H_dens := 3.0588E-2 ;
-  REAL O_dens := 1.5294E-2 ;
-IF void_factor 70 = THEN
-  REAL H_dens := 1.6542E-2 ;
-  REAL O_dens := 8.2712E-3 ;
+REAL H_dens := 4.9316E-2 ;
+REAL O_dens := 2.4658E-2 ;
+! Evaluating water density based on voiding factor, 
+! for 40% H_dens is 3.0588E-2 and O_dens is 1.5294E-2
+! for 70% H_dens is 1.6542E-2, O_dens is 8.2712E-3
 
 REAL Kinf1 Keff1 ;
 
@@ -280,4 +273,3 @@ ECHO "PIN_IIIB_Gd completed" ;
 
 END: ;
 QUIT .
-

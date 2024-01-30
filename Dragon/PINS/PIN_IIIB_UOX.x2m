@@ -4,7 +4,7 @@
 ! for Storage and Transport, Feb 2002, Hiroshi OKUNO, Yoshitaka NAITO* and Kenya SUYAMA
 
 ************************************************************************
-*  case PIN cell: UOX fuel (1,2,3,4), NO Gd, NO VOID: can change       *
+*  case PIN cell: UOX fuel (1,2,3,4), No Gd, NO VOID: can change       *
 *  295-group JEF3.1 DRAGLIB                                            *
 *  DISTRIBUTED SELF-SHIELDING                                          *
 *  Author: R. Guasch, adapted from A. Hebert, L. Ghasabyan.            *
@@ -25,9 +25,7 @@ SEQ_ASCII _LIBR :: FILE './_LIB_UOX.txt' ;
 SEQ_ASCII _EDIT :: FILE './_EDIT_UOX.txt' ;
 
 STRING Library := "DLIB_295" ;
-INTEGER Option := 1 ; ! Option to choose fuel composition (IIIB Benchmark pins)
-! Choice of Void factor in % --> taking densities from IIIB Benchmark
-INTEGER void_factor := 0; !40 or 70 supported
+INTEGER Option := 4 ; ! Option to choose fuel composition (IIIB Benchmark pins)
 
 ! Declation of modules called
 MODULE LIB: GEO: SYBILT: G2S: SALT: MAC: USS:
@@ -35,7 +33,7 @@ MODULE LIB: GEO: SYBILT: G2S: SALT: MAC: USS:
   EDI: END: ;
 PROCEDURE Mix_UOX ;
 
-! IIIB Benchmark uses UOX fuel : A.  Santamarina recs: 4 zones in fuel
+! IIIB Benchmark uses UOX fuel : A. Santamarina recs: 4 zones in fuel
 INTEGER COMB01 COMB02 COMB03 COMB04 CLAD MODE :=
         1 2 3 4 5 6 ; !  DISTRIBUTED SELF-SHIELDING 
 
@@ -49,20 +47,12 @@ EVALUATE RCOMB1 := 0.5 SQRT RCOMB4 * ;
 EVALUATE RCOMB2 := 0.8 SQRT RCOMB4 * ;
 EVALUATE RCOMB3 := 0.95 SQRT RCOMB4 * ;
 
-REAL H_dens O_dens ;
-! Evaluating water density based on voiding factor 
-IF void_factor 0 = THEN
-  H_dens := 4.9316E-2 ;
-  O_dens := 2.4658E-2 ;
-ENDIF;
-IF void_factor 40 = THEN
-  H_dens := 3.0588E-2 ;
-  O_dens := 1.5294E-2 ;
-ENDIF;
-IF void_factor 70 = THEN
-  H_dens := 1.6542E-2 ;
-  O_dens := 8.2712E-3 ;
-ENDIF;
+REAL H_dens := 4.9316E-2 ;
+REAL O_dens := 2.4658E-2 ;
+! Evaluating water density based on voiding factor, 
+! for 40% H_dens is 3.0588E-2 and O_dens is 1.5294E-2
+! for 70% H_dens is 1.6542E-2, O_dens is 8.2712E-3
+
 REAL Kinf1 Keff1 ;
 
 ! Defining the IIIB PIN GEOMETRY
