@@ -74,7 +74,7 @@ IF Option 1 = THEN
     H1      = H1_H2O <<H_dens>>
     O16     = O16    <<O_dens>>
   ;
-
+ENDIF ;
 IF Option 2 = THEN 
   LIBRARY := LIB: ::
   EDIT 1
@@ -117,7 +117,7 @@ IF Option 2 = THEN
     H1      = H1_H2O <<H_dens>>
     O16     = O16    <<O_dens>>
   ;
-
+ENDIF ;
 IF Option 3 = THEN
   LIBRARY := LIB: ::
   EDIT 1
@@ -160,6 +160,7 @@ IF Option 3 = THEN
     H1      = H1_H2O <<H_dens>>
     O16     = O16    <<O_dens>>
   ;
+ENDIF ;
 IF Option 4 = THEN
   LIBRARY := LIB: ::
   EDIT 1
@@ -202,6 +203,6 @@ IF Option 4 = THEN
     H1      = H1_H2O <<H_dens>>
     O16     = O16    <<O_dens>>
   ;
-
+ENDIF ;
 END: ;
 QUIT .
