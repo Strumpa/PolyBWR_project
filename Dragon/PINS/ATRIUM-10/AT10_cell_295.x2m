@@ -1,8 +1,8 @@
 ************************************************************************
-*  case PIN_1 AT-10                                                    *
+*  case PIN_AT10_1                                                     *
 *  295-group JEF3.1.1 DRAGLIB                                          *
 *  DISTRIBUTED SELF-SHIELDING                                          *
-*  Author: A. Hebert                                                   *
+*  Author: R.Guasch adapted from A. Hebert and M. Hursin               *
 ************************************************************************
 
 ! STRUCTURES and MODULES
