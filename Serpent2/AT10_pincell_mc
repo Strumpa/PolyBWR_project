@@ -20,7 +20,7 @@ cell 2 0  outside   10
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % --- 4. Material Definitions
-% fuel 900K 3.2%
+% fuel 750K 3.2%
 mat fuel1 sum burn 1 tmp 750     
  92234.06c   5.15910E-06
  92235.06c   5.67035E-04
@@ -176,7 +176,8 @@ set powdens 30.E-3
 
 % --- Depletion steps:
 
-dep butot 0.1
+dep butot 
+        0.1
         0.5
         1
         1.5
