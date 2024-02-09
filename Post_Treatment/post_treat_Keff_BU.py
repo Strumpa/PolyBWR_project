@@ -48,7 +48,7 @@ def plotter_function(x_data, y_data, colors, labels, markers):
 
 
 
-input_file = "AT-10_pin.txt"
+input_file = "AT-10_pin.result"
 BU,Keff = extract_Bu_Keff_Dragon(load_data(input_file))
 
 print(BU)
