@@ -27,34 +27,54 @@ def extract_Bu_Keff_Dragon(lines):
     Burnup, Keff = np.array(Burnup), np.array(Keff)
     return Burnup, Keff
 
-def plotter_function(x_data, y_data, colors, labels, markers):
+def plotter_function(x_data, y_data, colors, labels, markers, mfc, linestyles):
     """
     Plotter using matplotlib used to present results
     x_data : np.array to represent x-axis values on a 2D plot
     y_data : collection of np.arrays to represent y-axis values on a 2D plot, allowing for multiple plots
     to add : custom inupts to choose legends etc
+    mec = marker edge color
+    mfc = marker face color
     """
     fig, ax = plt.subplots(dpi=500)
     for i in range(len(y_data)):
-        ax.plot(x_data, y_data[i], color=colors[i], label=labels[i], marker=markers[i], markersize = 2, mfc = "red", mec="red",linestyle="--", lw=1)
-    ax.grid(lw=0.5, color='b', linestyle="--")        
+        ax.plot(x_data, y_data[i], color=colors[i], label=labels[i], marker=markers[i], markersize = 3, mfc = mfc[i], mec=mfc[i],linestyle=linestyles[i], lw=1)
+    ax.grid(lw=0.5, color='gray', linestyle="--")        
     ax.set_xlabel("Exposure (MWd/kg)")
     ax.set_ylabel("Keff Dragon5")
     ax.legend(loc="best")
     fig.set_size_inches([8,5])
-    fig.savefig('Keff_AT10_pincell.png',dpi = 500)
+    ax.set_title("Keff AT-10 Pincell, moderator discretiztion comparison")
+    fig.savefig('Keff_AT10_pincell_Compared.png',dpi = 500)
 
 
 
+"""
+Loading plottable data
+"""
 
-
-input_file = "AT-10_pin.result"
+input_file = "AT-10_pin_NXT_subdivmode.result"
 BU,Keff = extract_Bu_Keff_Dragon(load_data(input_file))
+
+base_input_file = "AT-10_pin.result"
+BU,base_Keff = extract_Bu_Keff_Dragon(load_data(base_input_file))
 
 print(BU)
 print(Keff)
+print(base_Keff)
 
 Bu_renorm = BU/10**3
 print(Bu_renorm)
 
-plotter_function(Bu_renorm, [Keff], ["slateblue"], ["Nominal AT10 Pincell Keff"], ["D"])
+"""
+Options to customize plot
+"""
+colors = ["red", "blue"]
+labels = ["AT-10 pincell Keff, moderator subdivided", "AT-10 pincell Keff, flux on SS geom"]
+markers = ["D", "X"]
+mfc = ["red", "blue"]
+linestyles=["--", "-."]
+"""
+What to plot 
+"""
+plotter_function(Bu_renorm, [Keff, base_Keff], colors, labels, markers, mfc, linestyles)
