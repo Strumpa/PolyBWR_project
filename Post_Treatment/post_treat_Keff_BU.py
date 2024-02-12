@@ -27,9 +27,11 @@ def extract_Bu_Keff_Dragon(lines):
     Burnup, Keff = np.array(Burnup), np.array(Keff)
     return Burnup, Keff
 
-def plotter_function(x_data, y_data, colors, labels, markers, mfc, linestyles):
+def plotter_function(name, title, x_data, y_data, colors, labels, markers, mfc, linestyles):
     """
     Plotter using matplotlib used to present results
+    name : name of the png file to save
+    title : graph title
     x_data : np.array to represent x-axis values on a 2D plot
     y_data : collection of np.arrays to represent y-axis values on a 2D plot, allowing for multiple plots
     to add : custom inupts to choose legends etc
@@ -44,8 +46,8 @@ def plotter_function(x_data, y_data, colors, labels, markers, mfc, linestyles):
     ax.set_ylabel("Keff Dragon5")
     ax.legend(loc="best")
     fig.set_size_inches([8,5])
-    ax.set_title("Keff AT-10 Pincell, moderator discretiztion comparison")
-    fig.savefig('Keff_AT10_pincell_Compared.png',dpi = 500)
+    ax.set_title(title)
+    fig.savefig(name,dpi = 500)
 
 
 
@@ -69,6 +71,8 @@ print(Bu_renorm)
 """
 Options to customize plot
 """
+name = "Keff_AT10_pincell_Compared.png"
+title = "Keff AT-10 Pincell, moderator discretiztion comparison"
 colors = ["red", "blue"]
 labels = ["AT-10 pincell Keff, moderator subdivided", "AT-10 pincell Keff, flux on SS geom"]
 markers = ["D", "X"]
@@ -77,4 +81,4 @@ linestyles=["--", "-."]
 """
 What to plot 
 """
-plotter_function(Bu_renorm, [Keff, base_Keff], colors, labels, markers, mfc, linestyles)
+plotter_function(name, title, Bu_renorm, [Keff, base_Keff], colors, labels, markers, mfc, linestyles)
