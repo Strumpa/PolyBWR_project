@@ -128,6 +128,7 @@ BU,Keff_subdiv_NXT_TSPC = extract_Bu_Keff_Dragon(load_data(input_file))
 input_file = "Dragon5\\AT-10_pin_NXT_subdivmode_TISO.result"
 BU,Keff_subdiv_NXT_TISO = extract_Bu_Keff_Dragon(load_data(input_file))
 
+
 input_file_subdiv_SALT = "Dragon5\\AT-10_pin_SALT_subdivmode.result"
 BU,Keff_subdiv_SALT = extract_Bu_Keff_Dragon(load_data(input_file_subdiv_SALT))
 
@@ -148,9 +149,9 @@ Options to customize plot
 """
 name = "Kinf_AT10_pincell_Compared.png"
 title = "Kinf AT-10 Pincell, moderator discretiztion comparison"
-colors = ["red", "magenta", "blue", "purple"]
+colors = ["red", "magenta","blue", "purple"]
 labels = ["AT-10 pincell Kinf NXT, TSPC moderator subdivided", "AT-10 pincell Kinf NXT, TISO moderator subdivided","AT-10 pincell Kinf SALT, moderator subdivided", "AT-10 pincell Kinf SALT, flux on SSH geom"]
-markers = ["D","o","X",">"]
+markers = ["D","o","*","X",">"]
 mfc = ["red", "magenta","blue", "purple"]
 linestyles=["--", "-.","--", "-."]
 """
@@ -165,10 +166,17 @@ Serpent2_plotter("Kinf_AT10_pincell_serpent2.png", "Kinf AT-10 Pincell, Serprent
 delta_rho_NXT_subdiv_TSPC, stdv_rho1 = compute_reactivity_diff(Keff_subdiv_NXT_TSPC, Keff_Serp2, stdv)
 delta_rho_NXT_subdiv_TISO, stdv_rho4 = compute_reactivity_diff(Keff_subdiv_NXT_TISO, Keff_Serp2, stdv)
 
+
 delta_rho_SALT_subdiv, stdv_rho2 = compute_reactivity_diff(Keff_subdiv_SALT, Keff_Serp2, stdv)
 delta_rho_SALT_initial, stdv_rho3 = compute_reactivity_diff(base_Keff, Keff_Serp2, stdv)
 
 
 error_plotter("Error_reactiv_Dragon5vsSepr2", "Evolution of $\\Delta\\rho$ (pcm) in Burnup", Bu_renorm, [delta_rho_NXT_subdiv_TSPC, delta_rho_NXT_subdiv_TISO, delta_rho_SALT_subdiv, delta_rho_SALT_initial], stdv, colors, labels, markers, mfc, linestyles)
 
-print((1/base_Keff-1/Keff_subdiv_SALT)*1e5)
+
+input_file = "Dragon5\\AT-10_pin_NXT_subdivmode_TISO_morelines.result"
+BU,Keff_subdiv_NXT_TISO_morelines = extract_Bu_Keff_Dragon(load_data(input_file))
+print(len(Keff_subdiv_NXT_TISO_morelines))
+delta_rho_NXT_subdiv_TISO_morelines, stdv_rho5 = compute_reactivity_diff(Keff_subdiv_NXT_TISO_morelines, Keff_Serp2, stdv)
+print((1/Keff_subdiv_NXT_TISO-1/Keff_subdiv_NXT_TISO_morelines)*1e5)
+error_plotter("testing_more_lines.png", "Kinf AT10 Pincell, fine tracking parameter", Bu_renorm, [delta_rho_NXT_subdiv_TISO_morelines, delta_rho_NXT_subdiv_TISO], stdv_rho5, ["red", "blue"], ["AT-10 pincell Kinf NXT TISO, finer tracking", "AT-10 pincell Kinf NXT TISO, coarser tracking"], ["D", ">"], ["red", "blue"], ["--","--"])
