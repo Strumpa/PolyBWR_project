@@ -89,10 +89,10 @@ def Serpent2_plotter(name, title, x_data, y_data, stdv, colors, labels, markers,
 def error_plotter(name, title, x_data, y_data, stdv, colors, labels, markers, mfc, linestyles):
     fig, ax = plt.subplots(dpi=500)
     for i in range(len(y_data)):
-        ax.errorbar(x_data, y_data[i], yerr=stdv, color=colors[i], label=labels[i], marker=markers[i], markersize = 2, mfc = mfc[i], mec=mfc[i],linestyle=linestyles[i], lw=1)
+        ax.plot(x_data, y_data[i], color=colors[i], label=labels[i], marker=markers[i], markersize = 2, mfc = mfc[i], mec=mfc[i],linestyle=linestyles[i], lw=1)
     ax.grid(lw=0.5, color='gray', linestyle="--")        
     ax.set_xlabel("Exposure (MWd/kg)")
-    ax.set_ylabel("$\\Delta\\rho Dragon5 - Serpent2 (pcm)$")
+    ax.set_ylabel("$\\Delta\\rho$ Dragon5 - Serpent2 (pcm)")
     ax.legend(loc="best")
     fig.set_size_inches([8,5])
     ax.set_title(title)
@@ -105,59 +105,66 @@ def compute_reactivity_diff(Dragon5_kinfs, Serpent2_kinfs, stdv):
     Serpent2_kinfs : np array of Serpent2 Kinf
     stdv : np array containing standrad deviations for Serpent2 Kinfs
     """
-    delta_rho = ((Dragon5_kinfs-1)/(Dragon5_kinfs)-(Serpent2_kinfs-1)/(Serpent2_kinfs))
+    delta_rho = ((Dragon5_kinfs-1)/(Dragon5_kinfs)-(Serpent2_kinfs-1)/(Serpent2_kinfs))*100000
     print(delta_rho)
-    stdv = (stdv/Serpent2_kinfs) #converting to pcm values
+    stdv = (stdv/Serpent2_kinfs)*100000 #converting to pcm values
     print(stdv)
     return delta_rho, stdv
 
+"""
+voided_40_results = "Dragon5\\AT-10_pin_void.result"
+BU,Keff_void = extract_Bu_Keff_Dragon(load_data(voided_40_results))
+Bu_renorm = BU/10**3
 
+Dragon5_plotter("Kinf_AT10_pincell_40void.png","Kinf AT-10 Pincell, 40% void", Bu_renorm, [Keff_void], ["red"], ["Kinf AT-10 Pincell 40% void"], ["D"], ["red"], ["--"])
+"""
 
 """
 Loading plottable data
 """
 
 input_file = "Dragon5\\AT-10_pin_NXT_subdivmode.result"
-BU,Keff_subdiv = extract_Bu_Keff_Dragon(load_data(input_file))
+BU,Keff_subdiv_NXT = extract_Bu_Keff_Dragon(load_data(input_file))
+
+input_file_subdiv_SALT = "Dragon5\\AT-10_pin_SALT_subdivmode.result"
+BU,Keff_subdiv_SALT = extract_Bu_Keff_Dragon(load_data(input_file_subdiv_SALT))
 
 base_input_file = "Dragon5\\AT-10_pin.result"
 BU,base_Keff = extract_Bu_Keff_Dragon(load_data(base_input_file))
 
-print(BU)
-print(Keff_subdiv)
-print(base_Keff)
 
 Bu_renorm = BU/10**3
 print(Bu_renorm)
+
+
+#Serpent2 reference data.
+serpent_2_nom_results = "Serpent2\\AT10_pincell_mc_res.m"
+Keff_Serp2,stdv = extract_Keff_Serpent(load_data(serpent_2_nom_results))
 
 """
 Options to customize plot
 """
 name = "Kinf_AT10_pincell_Compared.png"
 title = "Kinf AT-10 Pincell, moderator discretiztion comparison"
-colors = ["red", "blue"]
-labels = ["AT-10 pincell Kinf, moderator subdivided", "Kinf AT-10 pincell, flux on SSH geom"]
-markers = ["D", "X"]
-mfc = ["red", "blue"]
-linestyles=["--", "-."]
+colors = ["red", "blue", "purple"]
+labels = ["AT-10 pincell Kinf NXT, moderator subdivided", "AT-10 pincell Kinf SALT, moderator subdivided", "AT-10 pincell Kinf SALT, flux on SSH geom"]
+markers = ["D","X",">"]
+mfc = ["red", "blue", "purple"]
+linestyles=["--", "--", "-."]
 """
 What to plot 
 """
-Dragon5_plotter(name, title, Bu_renorm, [Keff_subdiv, base_Keff], colors, labels, markers, mfc, linestyles)
+Dragon5_plotter(name, title, Bu_renorm, [Keff_subdiv_NXT, Keff_subdiv_SALT, base_Keff], colors, labels, markers, mfc, linestyles)
 
-voided_40_results = "Dragon5\\AT-10_pin_void.result"
-BU,Keff_void = extract_Bu_Keff_Dragon(load_data(voided_40_results))
-Bu_renorm = BU/10**3
-
-Dragon5_plotter("Kinf_AT10_pincell_40void.png","Kinf AT-10 Pincell, 40% void", Bu_renorm, [Keff_void], ["red"], ["Kinf AT-10 Pincell 40% void"], ["D"], ["red"], ["--"])
-
-
-serpent_2_nom_results = "Serpent2\\AT10_pincell_mc_res.m"
-Keff_Serp2,stdv = extract_Keff_Serpent(load_data(serpent_2_nom_results))
 
 Serpent2_plotter("Kinf_AT10_pincell_serpent2.png", "Kinf AT-10 Pincell, Serprent2 reference results", Bu_renorm, [Keff_Serp2], stdv, ["purple"], ["Nominal Serpent2 Keff"], ["."], ["red"], ["-."])
 
-delta_rho_SALT_initial, stdv = compute_reactivity_diff(base_Keff, Keff_Serp2, stdv)
-delta_rho_NXT_subdiv, stdv = compute_reactivity_diff(Keff_subdiv, Keff_Serp2, stdv)
 
-error_plotter("Error_reactiv_Dragon5vsSepr2", "$Evolution of \\Delta\\rho (pcm) in Burnup$", Bu_renorm, [delta_rho_SALT_initial, delta_rho_NXT_subdiv], stdv, colors, labels, markers, mfc, linestyles)
+delta_rho_NXT_subdiv, stdv_rho1 = compute_reactivity_diff(Keff_subdiv_NXT, Keff_Serp2, stdv)
+delta_rho_SALT_subdiv, stdv_rho2 = compute_reactivity_diff(Keff_subdiv_SALT, Keff_Serp2, stdv)
+delta_rho_SALT_initial, stdv_rho3 = compute_reactivity_diff(base_Keff, Keff_Serp2, stdv)
+
+
+error_plotter("Error_reactiv_Dragon5vsSepr2", "Evolution of $\\Delta\\rho$ (pcm) in Burnup", Bu_renorm, [delta_rho_NXT_subdiv, delta_rho_SALT_subdiv,delta_rho_SALT_initial], stdv, colors, labels, markers, mfc, linestyles)
+
+print((1/base_Keff-1/Keff_subdiv_SALT)*1e5)
