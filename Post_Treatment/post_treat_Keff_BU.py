@@ -74,7 +74,7 @@ Options to customize plot
 name = "Keff_AT10_pincell_Compared.png"
 title = "Keff AT-10 Pincell, moderator discretiztion comparison"
 colors = ["red", "blue"]
-labels = ["AT-10 pincell Keff, moderator subdivided", "AT-10 pincell Keff, flux on SS geom"]
+labels = ["AT-10 pincell Keff, moderator subdivided", "Keff AT-10 pincell, flux on SSH geom"]
 markers = ["D", "X"]
 mfc = ["red", "blue"]
 linestyles=["--", "-."]
@@ -82,3 +82,9 @@ linestyles=["--", "-."]
 What to plot 
 """
 plotter_function(name, title, Bu_renorm, [Keff, base_Keff], colors, labels, markers, mfc, linestyles)
+
+voided_40_results = "AT-10_pin_void"
+BU,Keff = extract_Bu_Keff_Dragon(load_data(voided_40_results))
+Bu_renorm = BU/10**3
+
+plotter_function("Keff_AT10_pincell_40void.png","Keff AT-10 Pincell, 40% void",Bu_renorm, [Keff], ["red"], ["Keff AT-10 Pincell 40% void"], ["D"], ["red"], ["--"])
