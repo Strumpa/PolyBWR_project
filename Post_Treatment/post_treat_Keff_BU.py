@@ -150,10 +150,12 @@ Options to customize plot
 name = "Kinf_AT10_pincell_Compared.png"
 title = "Kinf AT-10 Pincell, moderator discretiztion comparison"
 colors = ["red", "magenta","blue", "purple"]
-labels = ["AT-10 pincell Kinf NXT, TSPC moderator subdivided", "AT-10 pincell Kinf NXT, TISO moderator subdivided","AT-10 pincell Kinf SALT, moderator subdivided", "AT-10 pincell Kinf SALT, flux on SSH geom"]
+labels = ["Kinf NXT, TSPC, moderator subdivided", "Kinf NXT, TISO, moderator subdivided","Kinf SALT, TSPC, moderator subdivided", "Kinf SALT, TSPC, flux on SSH geom"]
 markers = ["D","o","*","X",">"]
 mfc = ["red", "magenta","blue", "purple"]
 linestyles=["--", "-.","--", "-."]
+
+error_labels = ["Error on "+label for label in labels]
 """
 What to plot 
 """
@@ -171,7 +173,7 @@ delta_rho_SALT_subdiv, stdv_rho2 = compute_reactivity_diff(Keff_subdiv_SALT, Kef
 delta_rho_SALT_initial, stdv_rho3 = compute_reactivity_diff(base_Keff, Keff_Serp2, stdv)
 
 
-error_plotter("Error_reactiv_Dragon5vsSepr2", "Evolution of $\\Delta\\rho$ (pcm) in Burnup", Bu_renorm, [delta_rho_NXT_subdiv_TSPC, delta_rho_NXT_subdiv_TISO, delta_rho_SALT_subdiv, delta_rho_SALT_initial], stdv, colors, labels, markers, mfc, linestyles)
+error_plotter("Error_reactiv_Dragon5vsSepr2", "Evolution of $\\Delta\\rho$ (pcm) in Burnup", Bu_renorm, [delta_rho_NXT_subdiv_TSPC, delta_rho_NXT_subdiv_TISO, delta_rho_SALT_subdiv, delta_rho_SALT_initial], stdv, colors, error_labels, markers, mfc, linestyles)
 
 
 input_file = "Dragon5\\AT-10_pin_NXT_subdivmode_TISO_morelines.result"
@@ -179,4 +181,11 @@ BU,Keff_subdiv_NXT_TISO_morelines = extract_Bu_Keff_Dragon(load_data(input_file)
 print(len(Keff_subdiv_NXT_TISO_morelines))
 delta_rho_NXT_subdiv_TISO_morelines, stdv_rho5 = compute_reactivity_diff(Keff_subdiv_NXT_TISO_morelines, Keff_Serp2, stdv)
 print((1/Keff_subdiv_NXT_TISO-1/Keff_subdiv_NXT_TISO_morelines)*1e5)
-error_plotter("testing_more_lines.png", "Kinf AT10 Pincell, fine tracking parameter", Bu_renorm, [delta_rho_NXT_subdiv_TISO_morelines, delta_rho_NXT_subdiv_TISO], stdv_rho5, ["red", "blue"], ["AT-10 pincell Kinf NXT TISO, finer tracking", "AT-10 pincell Kinf NXT TISO, coarser tracking"], ["D", ">"], ["red", "blue"], ["--","--"])
+error_plotter("testing_more_lines.png", "Kinf AT10 Pincell, fine tracking parameters", Bu_renorm, [delta_rho_NXT_subdiv_TISO_morelines, delta_rho_NXT_subdiv_TISO], stdv_rho5, ["red", "blue"], ["error on Kinf NXT TISO, finer tracking", "error on Kinf NXT TISO, coarser tracking"], ["D", ">"], ["red", "blue"], ["--","--"])
+
+
+BU,Keff_SALT_MAV = extract_Bu_Keff_Dragon(load_data("Dragon5\\AT-10_pin_MAV.result"))
+BU,Keff_SALT_MOC_MAV = extract_Bu_Keff_Dragon(load_data("Dragon5\\AT-10_pin_MOC.result"))
+delta_rho_SALT_MAV,stdv_MAV = compute_reactivity_diff(Keff_SALT_MAV, Keff_Serp2, stdv)
+delta_rho_SALT_MOC,stdv_MOC = compute_reactivity_diff(Keff_SALT_MOC_MAV, Keff_Serp2, stdv)
+error_plotter("MAV_discretization_compared.png","Kinf AT10 Pincell, Windmill vs annular discretization", Bu_renorm, [delta_rho_NXT_subdiv_TISO, delta_rho_SALT_MAV, delta_rho_SALT_MOC], stdv_MAV, ["magenta", "black", "blue"], ["error on Kinf NXT, TISO, annular subdiv", "error on Kinf SALT, TSPC, MAV, Pij", "error on Kinf SALT, TSPC, MAV, MOC"], ["o","D","x"], ["magenta","black", "blue"], ["--","--","--"])
