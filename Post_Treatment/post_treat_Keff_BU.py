@@ -123,9 +123,9 @@ Dragon5_plotter("Kinf_AT10_pincell_40void.png","Kinf AT-10 Pincell, 40% void", B
 Loading plottable data
 """
 
-input_file = "Dragon5\\AT-10_pin_NXT_subdivmode_TSPC.result"
+input_file = "Dragon5\\AT-10_pin_NXT_TSPC_subdiv.result"
 BU,Keff_subdiv_NXT_TSPC = extract_Bu_Keff_Dragon(load_data(input_file))
-input_file = "Dragon5\\AT-10_pin_NXT_subdivmode_TISO.result"
+input_file = "Dragon5\\AT-10_pin_NXT_TISO_subdiv.result"
 BU,Keff_subdiv_NXT_TISO = extract_Bu_Keff_Dragon(load_data(input_file))
 
 
