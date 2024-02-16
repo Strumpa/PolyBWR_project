@@ -229,7 +229,7 @@ print("\n")
 print("------------------------- SYBILT+SYBILT PIJ --------------------------")
 print("\n")
 
-Keff_221_subdiv = 1.242957 #SYBILT SSH, SALT FLX, PIJ annular discretization. 
+Keff_221_subdiv = 1.242957 #SYBILT SSH, SYBILT FLX, PIJ annular discretization. 
 delta_221_subdiv = (1/Keff_Serp2[0]-1/Keff_221_subdiv)*1e5
 
 print(f"Error $\\Delta\\rho$ vs Serpent2 for SYBILT+SYBILT, PIJ on annular geom is {delta_221_subdiv:.1f} pcm")
@@ -242,17 +242,34 @@ print("\n")
 print("------------------------- SYBILT+NXT PIJ --------------------------")
 print("\n")
 
-Keff_231_subdiv = 1.191973 #SYBILT SSH, SALT FLX, PIJ annular discretization. 
+Keff_231_subdiv = 1.191973 #SYBILT SSH, NXT FLX, PIJ annular discretization. 
 delta_231_subdiv = (1/Keff_Serp2[0]-1/Keff_231_subdiv)*1e5
 
 print(f"Error $\\Delta\\rho$ vs Serpent2 for SYBILT+NXT, PIJ on annular geom is {delta_231_subdiv:.1f} pcm")
 
-print("------------------------- SYBILT+NXT MOC --------------------------")
+print("------------------------- SYBILT+NXT MOC TSPC --------------------------")
 print("\n")
 
-Keff_232_subdiv = 1.234716 #SYBILT SSH, SALT FLX, PIJ annular discretization. 
+Keff_232_subdiv = 1.234716 #SYBILT SSH, NXT FLX, MOC annular discretization. 
 delta_232_subdiv = (1/Keff_Serp2[0]-1/Keff_232_subdiv)*1e5
 
-print(f"Error $\\Delta\\rho$ vs Serpent2 for SYBILT+NXT, MOC on annular geom is {delta_232_subdiv:.1f} pcm")
+print(f"Error $\\Delta\\rho$ vs Serpent2 for SYBILT+NXT, MOC TSPC on annular geom is {delta_232_subdiv:.1f} pcm")
+
+print("------------------------- SYBILT+NXT MOC TISO --------------------------")
+print("\n")
+
+Keff_232_subdiv_TISO = 1.240296 #SYBILT SSH, NXT FLX, MOC annular discretization. 
+delta_232_subdiv_TISO = (1/Keff_Serp2[0]-1/Keff_232_subdiv_TISO)*1e5
+
+print(f"Error $\\Delta\\rho$ vs Serpent2 for SYBILT+NXT, MOC TISO on annular geom is {delta_232_subdiv_TISO:.1f} pcm")
+
+print("------------------------- SYBILT+NXT PIJ TISO --------------------------")
+print("\n")
+
+Keff_231_subdiv_TISO = 1.240595 #SYBILT SSH, NXT FLX, PIJ annular discretization. 
+delta_231_subdiv_TISO = (1/Keff_Serp2[0]-1/Keff_231_subdiv_TISO)*1e5
+
+print(f"Error $\\Delta\\rho$ vs Serpent2 for SYBILT+NXT, PIJ TISO on annular geom is {delta_231_subdiv_TISO:.1f} pcm")
+
 
 
