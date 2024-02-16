@@ -6,7 +6,7 @@
 *                                                                         *
 * Author : R. Guasch, adapted from A. Hebert and A. Canbakan              *
 *                                                                         *
-*                                                                         *  
+*                                                                         *
 * Dragon Procedure called as :                                            *
 * GEOMSS := Geom_SS :: <<Rcomb1>> <<Rcomb2>> <<Rcomb3>> <<Rcomb4>>        *
 *        <<Rgap>> <<Rclad>> <<pitch>>;                                    *
