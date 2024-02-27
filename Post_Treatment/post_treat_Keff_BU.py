@@ -123,12 +123,8 @@ Dragon5_plotter("Kinf_AT10_pincell_40void.png","Kinf AT-10 Pincell, 40% void", B
 Loading plottable data
 """
 
-input_file = "Dragon5\\AT-10_pin_NXT_TSPC_subdiv.result"
-BU,Keff_subdiv_NXT_TSPC = extract_Bu_Keff_Dragon(load_data(input_file))
-input_file = "Dragon5\\AT-10_pin_NXT_TISO_subdiv.result"
-BU,Keff_subdiv_NXT_TISO = extract_Bu_Keff_Dragon(load_data(input_file))
-
-
+input_file = "Dragon5\\AT-10_pin.result"
+BU,Keff_SALT_MAV = extract_Bu_Keff_Dragon(load_data(input_file))
 
 Bu_renorm = BU/10**3
 print(Bu_renorm)
@@ -142,7 +138,7 @@ Keff_Serp2,stdv = extract_Keff_Serpent(load_data(serpent_2_nom_results))
 Options to customize plot
 """
 name = "Kinf_AT10_pincell_Compared.png"
-title = "Kinf AT-10 Pincell, moderator discretiztion comparison"
+title = "Kinf AT-10 Pincell"
 colors = ["red", "magenta","blue", "purple"]
 labels = ["Kinf NXT, TSPC, moderator subdivided", "Kinf NXT, TISO, moderator subdivided","Kinf SALT, TSPC, moderator subdivided", "Kinf SALT, TSPC, flux on SSH geom"]
 markers = ["D","o","*","X",">"]
@@ -151,125 +147,130 @@ linestyles=["--", "-.","--", "-."]
 
 error_labels = ["Error on "+label for label in labels]
 
-"""
-t=0 results : checking consistency between SALT, SIBYLT and NXT, PIJ or MOC, single cell calculations
-
-Keff_ijk, i = SSH option, j = FLX option, k = Solver option
-i,j = [1,2,3] = [SALT, SYBILT, NXT], k = 1,2 = PIJ, MOC
-
-MAV = windmill discretization, subdiv = annular region in mode
-"""
-print(f"Keff Seprent2 at t=0 is : {Keff_Serp2[0]}")
-print("Starting from Lucas and Mathias' work SALT+SALT")
-print("\n")
-print("------------------------- SALT+SALT MOC--------------------------")
-print("\n")
-# SALT MOC : 2 geoms
-Keff_112_MAV = 1.243044 #SALT SSH, SALT FLX, MOC Windmill discretization. 
-delta_112_MAV = (1/Keff_Serp2[0]-1/Keff_112_MAV)*1e5
-
-Keff_112_subdiv = 1.243066 #SALT SSH, SALT FLX, MOC annular discretization. 
-delta_112_subdiv = (1/Keff_Serp2[0]-1/Keff_112_subdiv)*1e5
-
-
-print(f"Error $\\Delta\\rho$ vs Serpent2 for SALT+SALT, MOC on MAV geom is {delta_112_MAV:.1f} pcm")
-print(f"Error $\\Delta\\rho$ vs Serpent2 for SALT+SALT, MOC on annular geom is {delta_112_subdiv:.1f} pcm")
-
-
-print("------------------------- SALT+SALT PIJ--------------------------")
-print("\n")
-# SALT PIJ : 2 geoms
-#MAV
-Keff_111_MAV = 1.243356 #SALT SSH, SALT FLX, PIJ annular discretization. 
-delta_111_MAV = (1/Keff_Serp2[0]-1/Keff_111_MAV)*1e5
-#Annular subdiv
-Keff_111_subdiv = 1.243379 #SALT SSH, SALT FLX, PIJ annular discretization. 
-delta_111_subdiv = (1/Keff_Serp2[0]-1/Keff_111_subdiv)*1e5
+Serpent2_plotter("Kinf_Serp2_AT10_pin_1", "Kinf AT10 pin 1, Serpent2 BU evolution", Bu_renorm, Keff_Serp2, stdv, ["red"], ["Nominal Kinf, pin 1"], ["x"], ["red"], ["--"])
 
 
 
-print(f"Error $\\Delta\\rho$ vs Serpent2 for SALT+SALT, PIJ on MAV geom is {delta_111_MAV:.1f} pcm")
-print(f"Error $\\Delta\\rho$ vs Serpent2 for SALT+SALT, PIJ on annular geom is {delta_111_subdiv:.1f} pcm")
+def compare_t0_results() :
+    """
+    t=0 results : checking consistency between SALT, SIBYLT and NXT, PIJ or MOC, single cell calculations
 
-print("\n")
-print("------------------------- Now switching to SYBILT+SALT --------------------------")
-print("\n")
-# SYBILT SSH, SALT :
-print("------------------------- SYBILT+SALT MOC --------------------------")
-print("\n")
-#SALT MOC :
-Keff_212_MAV = 1.242813 #SYBILT SSH, SALT FLX, MOC Windmill discretization. 
-delta_212_MAV = (1/Keff_Serp2[0]-1/Keff_212_MAV)*1e5
+    Keff_ijk, i = SSH option, j = FLX option, k = Solver option
+    i,j = [1,2,3] = [SALT, SYBILT, NXT], k = 1,2 = PIJ, MOC
 
-Keff_212_subdiv = 1.242834 #SYBILT SSH, SALT FLX, MOC annular discretization. 
-delta_212_subdiv = (1/Keff_Serp2[0]-1/Keff_212_subdiv)*1e5
-
-print(f"Error $\\Delta\\rho$ vs Serpent2 for SYBILT+SALT, MOC on MAV geom is {delta_212_MAV:.1f} pcm")
-print(f"Error $\\Delta\\rho$ vs Serpent2 for SYBILT+SALT, MOC on annular geom is {delta_212_subdiv:.1f} pcm")
-
-#SALT PIJ :
-print("\n")
-print("------------------------- SYBILT+SALT PIJ --------------------------")
-print("\n")
-Keff_211_SS = 1.243221 ##Check this out but error greater than PIJ windmill
-Keff_211_MAV = 1.243125 #SYBILT SSH, SALT FLX, PIJ Windmill discretization. 
-delta_211_MAV = (1/Keff_Serp2[0]-1/Keff_211_MAV)*1e5
-
-Keff_211_subdiv = 1.243147 #SYBILT SSH, SALT FLX, PIJ annular discretization. 
-delta_211_subdiv = (1/Keff_Serp2[0]-1/Keff_211_subdiv)*1e5
-
-print(f"Error $\\Delta\\rho$ vs Serpent2 for SYBILT+SALT, PIJ on MAV geom is {delta_211_MAV:.1f} pcm")
-print(f"Error $\\Delta\\rho$ vs Serpent2 for SYBILT+SALT, PIJ on annular geom is {delta_211_subdiv:.1f} pcm")
-
-print("\n")
-print("------------------------- Now switching to SYBILT+SYBILT --------------------------")
-print("\n")
-# SYBILT SSH, SYBILT :
-# Only PIJ available, No MAV available <-- Invalid type of sectorization :
-print("------------------------- SYBILT+SYBILT PIJ --------------------------")
-print("\n")
-
-Keff_221_subdiv = 1.242957 #SYBILT SSH, SYBILT FLX, PIJ annular discretization. 
-delta_221_subdiv = (1/Keff_Serp2[0]-1/Keff_221_subdiv)*1e5
-
-print(f"Error $\\Delta\\rho$ vs Serpent2 for SYBILT+SYBILT, PIJ on annular geom is {delta_221_subdiv:.1f} pcm")
-
-print("\n")
-print("------------------------- Now switching to SYBILT+NXT --------------------------")
-print("\n")
-# SYBILT SSH, NXT Flux:
-# PIJ and MOC available, No MAV available <-- Invalid type of sectorization :
-print("------------------------- SYBILT+NXT PIJ --------------------------")
-print("\n")
-
-Keff_231_subdiv = 1.191973 #SYBILT SSH, NXT FLX, PIJ annular discretization. 
-delta_231_subdiv = (1/Keff_Serp2[0]-1/Keff_231_subdiv)*1e5
-
-print(f"Error $\\Delta\\rho$ vs Serpent2 for SYBILT+NXT, PIJ on annular geom is {delta_231_subdiv:.1f} pcm")
-
-print("------------------------- SYBILT+NXT MOC TSPC --------------------------")
-print("\n")
-
-Keff_232_subdiv = 1.234716 #SYBILT SSH, NXT FLX, MOC annular discretization. 
-delta_232_subdiv = (1/Keff_Serp2[0]-1/Keff_232_subdiv)*1e5
-
-print(f"Error $\\Delta\\rho$ vs Serpent2 for SYBILT+NXT, MOC TSPC on annular geom is {delta_232_subdiv:.1f} pcm")
-
-print("------------------------- SYBILT+NXT MOC TISO --------------------------")
-print("\n")
-
-Keff_232_subdiv_TISO = 1.240296 #SYBILT SSH, NXT FLX, MOC annular discretization. 
-delta_232_subdiv_TISO = (1/Keff_Serp2[0]-1/Keff_232_subdiv_TISO)*1e5
-
-print(f"Error $\\Delta\\rho$ vs Serpent2 for SYBILT+NXT, MOC TISO on annular geom is {delta_232_subdiv_TISO:.1f} pcm")
-
-print("------------------------- SYBILT+NXT PIJ TISO --------------------------")
-print("\n")
-
-Keff_231_subdiv_TISO = 1.240595 #SYBILT SSH, NXT FLX, PIJ annular discretization. 
-delta_231_subdiv_TISO = (1/Keff_Serp2[0]-1/Keff_231_subdiv_TISO)*1e5
-
-print(f"Error $\\Delta\\rho$ vs Serpent2 for SYBILT+NXT, PIJ TISO on annular geom is {delta_231_subdiv_TISO:.1f} pcm")
-
-
+    MAV = windmill discretization, subdiv = annular region in mode
+    """
+    print(f"Keff Seprent2 at t=0 is : {Keff_Serp2[0]}")
+    print("Starting from Lucas and Mathias' work SALT+SALT")
+    print("\n")
+    print("------------------------- SALT+SALT MOC--------------------------")
+    print("\n")
+    # SALT MOC : 2 geoms
+    Keff_112_MAV = 1.243044 #SALT SSH, SALT FLX, MOC Windmill discretization. 
+    delta_112_MAV = (1/Keff_Serp2[0]-1/Keff_112_MAV)*1e5
+    
+    Keff_112_subdiv = 1.243066 #SALT SSH, SALT FLX, MOC annular discretization. 
+    delta_112_subdiv = (1/Keff_Serp2[0]-1/Keff_112_subdiv)*1e5
+    
+    
+    print(f"Error $\\Delta\\rho$ vs Serpent2 for SALT+SALT, MOC on MAV geom is {delta_112_MAV:.1f} pcm")
+    print(f"Error $\\Delta\\rho$ vs Serpent2 for SALT+SALT, MOC on annular geom is {delta_112_subdiv:.1f} pcm")
+    
+    
+    print("------------------------- SALT+SALT PIJ--------------------------")
+    print("\n")
+    # SALT PIJ : 2 geoms
+    #MAV
+    Keff_111_MAV = 1.243356 #SALT SSH, SALT FLX, PIJ annular discretization. 
+    delta_111_MAV = (1/Keff_Serp2[0]-1/Keff_111_MAV)*1e5
+    #Annular subdiv
+    Keff_111_subdiv = 1.243379 #SALT SSH, SALT FLX, PIJ annular discretization. 
+    delta_111_subdiv = (1/Keff_Serp2[0]-1/Keff_111_subdiv)*1e5
+    
+    
+    
+    print(f"Error $\\Delta\\rho$ vs Serpent2 for SALT+SALT, PIJ on MAV geom is {delta_111_MAV:.1f} pcm")
+    print(f"Error $\\Delta\\rho$ vs Serpent2 for SALT+SALT, PIJ on annular geom is {delta_111_subdiv:.1f} pcm")
+    
+    print("\n")
+    print("------------------------- Now switching to SYBILT+SALT --------------------------")
+    print("\n")
+    # SYBILT SSH, SALT :
+    print("------------------------- SYBILT+SALT MOC --------------------------")
+    print("\n")
+    #SALT MOC :
+    Keff_212_MAV = 1.242813 #SYBILT SSH, SALT FLX, MOC Windmill discretization. 
+    delta_212_MAV = (1/Keff_Serp2[0]-1/Keff_212_MAV)*1e5
+    
+    Keff_212_subdiv = 1.242834 #SYBILT SSH, SALT FLX, MOC annular discretization. 
+    delta_212_subdiv = (1/Keff_Serp2[0]-1/Keff_212_subdiv)*1e5
+    
+    print(f"Error $\\Delta\\rho$ vs Serpent2 for SYBILT+SALT, MOC on MAV geom is {delta_212_MAV:.1f} pcm")
+    print(f"Error $\\Delta\\rho$ vs Serpent2 for SYBILT+SALT, MOC on annular geom is {delta_212_subdiv:.1f} pcm")
+    
+    #SALT PIJ :
+    print("\n")
+    print("------------------------- SYBILT+SALT PIJ --------------------------")
+    print("\n")
+    Keff_211_SS = 1.243221 ##Check this out but error greater than PIJ windmill
+    Keff_211_MAV = 1.243125 #SYBILT SSH, SALT FLX, PIJ Windmill discretization. 
+    delta_211_MAV = (1/Keff_Serp2[0]-1/Keff_211_MAV)*1e5
+    
+    Keff_211_subdiv = 1.243147 #SYBILT SSH, SALT FLX, PIJ annular discretization. 
+    delta_211_subdiv = (1/Keff_Serp2[0]-1/Keff_211_subdiv)*1e5
+    
+    print(f"Error $\\Delta\\rho$ vs Serpent2 for SYBILT+SALT, PIJ on MAV geom is {delta_211_MAV:.1f} pcm")
+    print(f"Error $\\Delta\\rho$ vs Serpent2 for SYBILT+SALT, PIJ on annular geom is {delta_211_subdiv:.1f} pcm")
+    
+    print("\n")
+    print("------------------------- Now switching to SYBILT+SYBILT --------------------------")
+    print("\n")
+    # SYBILT SSH, SYBILT :
+    # Only PIJ available, No MAV available <-- Invalid type of sectorization :
+    print("------------------------- SYBILT+SYBILT PIJ --------------------------")
+    print("\n")
+    
+    Keff_221_subdiv = 1.242957 #SYBILT SSH, SYBILT FLX, PIJ annular discretization. 
+    delta_221_subdiv = (1/Keff_Serp2[0]-1/Keff_221_subdiv)*1e5
+    
+    print(f"Error $\\Delta\\rho$ vs Serpent2 for SYBILT+SYBILT, PIJ on annular geom is {delta_221_subdiv:.1f} pcm")
+    
+    print("\n")
+    print("------------------------- Now switching to SYBILT+NXT --------------------------")
+    print("\n")
+    # SYBILT SSH, NXT Flux:
+    # PIJ and MOC available, No MAV available <-- Invalid type of sectorization :
+    print("------------------------- SYBILT+NXT PIJ --------------------------")
+    print("\n")
+    
+    Keff_231_subdiv = 1.191973 #SYBILT SSH, NXT FLX, PIJ annular discretization. 
+    delta_231_subdiv = (1/Keff_Serp2[0]-1/Keff_231_subdiv)*1e5
+    
+    print(f"Error $\\Delta\\rho$ vs Serpent2 for SYBILT+NXT, PIJ on annular geom is {delta_231_subdiv:.1f} pcm")
+    
+    print("------------------------- SYBILT+NXT MOC TSPC --------------------------")
+    print("\n")
+    
+    Keff_232_subdiv = 1.234716 #SYBILT SSH, NXT FLX, MOC annular discretization. 
+    delta_232_subdiv = (1/Keff_Serp2[0]-1/Keff_232_subdiv)*1e5
+    
+    print(f"Error $\\Delta\\rho$ vs Serpent2 for SYBILT+NXT, MOC TSPC on annular geom is {delta_232_subdiv:.1f} pcm")
+    
+    print("------------------------- SYBILT+NXT MOC TISO --------------------------")
+    print("\n")
+    
+    Keff_232_subdiv_TISO = 1.240296 #SYBILT SSH, NXT FLX, MOC annular discretization. 
+    delta_232_subdiv_TISO = (1/Keff_Serp2[0]-1/Keff_232_subdiv_TISO)*1e5
+    
+    print(f"Error $\\Delta\\rho$ vs Serpent2 for SYBILT+NXT, MOC TISO on annular geom is {delta_232_subdiv_TISO:.1f} pcm")
+    
+    print("------------------------- SYBILT+NXT PIJ TISO --------------------------")
+    print("\n")
+    
+    Keff_231_subdiv_TISO = 1.240595 #SYBILT SSH, NXT FLX, PIJ annular discretization. 
+    delta_231_subdiv_TISO = (1/Keff_Serp2[0]-1/Keff_231_subdiv_TISO)*1e5
+    
+    print(f"Error $\\Delta\\rho$ vs Serpent2 for SYBILT+NXT, PIJ TISO on annular geom is {delta_231_subdiv_TISO:.1f} pcm")
+    
+    
 
