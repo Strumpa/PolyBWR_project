@@ -123,7 +123,7 @@ Dragon5_plotter("Kinf_AT10_pincell_40void.png","Kinf AT-10 Pincell, 40% void", B
 Loading plottable data
 """
 
-input_file = "Dragon5\\AT-10_pin.result"
+input_file = "Dragon5\\AT-10_pin_SALT.result"
 BU,Keff_SALT_MAV = extract_Bu_Keff_Dragon(load_data(input_file))
 
 Bu_renorm = BU/10**3
@@ -147,9 +147,11 @@ linestyles=["--", "-.","--", "-."]
 
 error_labels = ["Error on "+label for label in labels]
 
-Serpent2_plotter("Kinf_Serp2_AT10_pin_1", "Kinf AT10 pin 1, Serpent2 BU evolution", Bu_renorm, Keff_Serp2, stdv, ["red"], ["Nominal Kinf, pin 1"], ["x"], ["red"], ["--"])
+Serpent2_plotter("Kinf_Serp2_AT10_pin_1", "Kinf AT10 pin 1, Serpent2 BU evolution", Bu_renorm, [Keff_Serp2], stdv, ["red"], ["Nominal Kinf, pin 1"], ["x"], ["red"], ["--"])
 
+delta_rho,stdv = compute_reactivity_diff(Keff_SALT_MAV, Keff_Serp2, stdv)
 
+error_plotter("Error_Kinf_AT10_pin1_SALT_MAV", "Error on Kinf of AT10 pin vs Burnup", Bu_renorm, [delta_rho], stdv, ["blue"], ["Error on Kinf, Dragon5 vs Serpent2, windmill disretization"], ["D"], ["red"], ["-."])
 
 def compare_t0_results() :
     """
