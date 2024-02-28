@@ -1,0 +1,226 @@
+
+% --- 1. Pin definition
+
+pin 1
+fuel7  0.313602
+fuel6  0.396678
+fuel5  0.43227
+fuel1  0.4435
+gap   0.4520
+clad   0.5140
+H2O   
+
+surf 10 sqc 0.0 0.0 0.6475
+cell 1 0  fill 1   -10
+cell 2 0  outside   10
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% --- 4. Material Definitions
+% fuel 750K 3.2%
+mat fuel1 sum burn 1 tmp 750     
+ 92234.06c   5.15910E-06
+ 92235.06c   5.67035E-04
+ 92238.06c   2.27631E-02
+  8016.06c   4.66705E-02
+
+mat fuel5 sum burn 1 tmp 750    
+ 92234.06c   5.15910E-06
+ 92235.06c   5.67035E-04
+ 92238.06c   2.27631E-02
+  8016.06c   4.66705E-02
+
+mat fuel6 sum burn 1 tmp 750   
+ 92234.06c   5.15910E-06
+ 92235.06c   5.67035E-04
+ 92238.06c   2.27631E-02
+  8016.06c   4.66705E-02
+
+mat fuel7 sum burn 1  tmp 750   
+ 92234.06c   5.15910E-06
+ 92235.06c   5.67035E-04
+ 92238.06c   2.27631e-02
+  8016.06c   4.66705e-02
+     
+% helium
+mat gap sum tmp 750
+       2004.06c 1.50456e-04	
+% clad 559K
+mat clad -6.55  tmp 559  
+     28060.03c -1.472672e-04
+     40094.03c -1.755744e-01
+     26058.03c -3.949349e-06
+     50112.03c -1.325870e-04
+     50116.03c -2.058423e-03
+     40096.03c -2.888887e-02
+     24050.03c -4.173687e-05
+     40092.03c -1.695587e-01
+     50114.03c -9.182450e-05
+     50117.03c -1.096647e-03
+     40091.03c -1.097236e-01
+     50122.03c -6.894095e-04
+      8017.03c -5.058471e-07
+     50124.03c -8.762916e-04
+     24054.03c -2.453364e-05
+     28062.03c -2.109210e-05
+     24053.03c -9.673587e-05
+     50115.03c -4.771906e-05
+     28061.03c -6.508475e-06
+     28064.03c -5.544228e-06
+     24052.03c -8.369936e-04
+      8016.03c -1.249494e-03
+     40090.03c -4.976045e-01
+     50120.03c -4.771539e-03
+     28058.03c -3.695879e-04
+     26054.03c -7.621504e-05
+     26057.03c -2.916498e-05
+     26056.03c -1.240671e-03
+     50118.03c -3.487981e-03
+     50119.03c -1.247577e-03
+     
+% moderator 559K
+mat H2O sum tms 559  moder lwtr 1001
+      8016.03c 2.47298E-02
+      1001.03c 4.94546E-02
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% --- 5. Serpent parameters
+
+% --- 5.1 Thermal scattering data for light water:
+
+therm  lwtr 0 lwj3.09t lwj3.11t
+
+    
+% --- 5.2 Cross section data library file path:
+
+set acelib "../xs/jeff311/sss_jeff311u.data"
+set declib "../xs/jeff311/sss_jeff311.dec"
+set nfylib "../xs/jeff311/sss_jeff311.nfy"
+
+% --- Unresolved resonance range:
+
+set ures 1
+
+
+
+% --- 5.3 Boundary condition:
+
+set bc 2
+
+% --- 5.3.2 Symmetry condition :
+set sym 8
+
+% --- 5.4 Neutron population and criticality cycles:
+set pop     2000   500   20 % plot test
+%set pop  100000   500   50 % quick keff test
+%set pop 200000  500  50 % keff within 2 pcm
+%set pop 1000000 10000  200 % keff within 0.7 pcm
+% --- Additional options
+set nfg 2 0.625E-6
+plot 3 500 500
+set opti 4
+set gcu 0
+
+% --- Cut-offs:
+
+set fpcut 1E-9
+set stabcut 1E-12
+set ttacut 1E-18
+set xsfcut 1E-6
+
+% --- Options for burnup calculation:
+
+set bumode  2  % TTA / CRAM
+set pcc     1  % Predictor-corrector calculation on
+
+
+% --- Depletion steps:
+% Depletion steps given in units of total burnup
+set inventory % recovered from OECD/NEA benchmark
+U234
+U235
+U236
+U238
+Pu238
+Pu239
+Pu240
+Pu241
+Pu242
+Am241
+Am243
+Np237
+Mo95
+Tc99
+Ru101
+Rh103
+Ag109
+Cs133
+Sm147
+Sm149
+Sm150
+Sm151
+Sm152
+Nd143
+Nd145
+Eu153
+Eu155
+Gd155
+Gd156
+Gd157
+Gd158
+Ne131
+set powdens 38.6E-3
+
+% --- Depletion steps:
+
+dep butot 
+        0.1
+        0.5
+        1
+        1.5
+        2
+        2.5
+        3
+        3.5
+        4
+        4.5
+        5
+        5.5
+        6
+        6.5
+        7
+        7.5
+        8
+        8.5
+        9
+        9.5
+        10
+        10.5
+        11
+        11.5
+        12
+        12.5
+        13
+        13.5
+        14
+        14.5
+        15
+        15.5
+        16
+        16.5
+        17.5
+        20.
+        22.5
+        25
+        27.5
+        30
+        32.5
+        35
+        37.5
+        40
+
+
+
