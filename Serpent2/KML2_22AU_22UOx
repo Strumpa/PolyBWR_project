@@ -1,0 +1,334 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Author  : M.François
+% Date    : 2023_09_12
+% Title   : KML2_22AU_22UOx
+%
+% Purpose : Serpent2 code for hexagonal pin cell
+% Code    : Serpent2 
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% --- Problem title:
+set title "KML2_22AU_22UOx Pin cell benchmark"
+
+% --- Cross section library file path:
+
+set acelib "../xs/jeff311/sss_jeff311u.data"
+
+% --- Decay data library
+
+set declib "../xs/jeff311/sss_jeff311.dec"
+
+% --- Neutron-induced fission yield library
+
+set nfylib "../xs/jeff311/sss_jeff311.nfy"
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Pin cell geometry
+%
+% fuel pin -> 4 rings, radii: 0.18925cm, 0.3028cm, 0.359575cm, 0.3785cm discretization of fuel according to M. Santa Marina (4 for UOx pin cell and 6 for Gd pin cell)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+pin 1
+hole       0.075
+UOx_A      0.189250
+UOx_B      0.302800
+UOx_C      0.359575
+UOx_D      0.378500
+gap        0.3865
+clad       0.45500000
+water
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Surface definition and hexagonal geometry
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+surf 11 hexyc 0.0 0.0 0.6375
+cell 1 0  fill 1   -11
+cell 2 0  outside   11
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Material definition and composition
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%hole
+mat hole     sum  tmp 560.0
+ 2004.03c    1.00000E-8 
+
+%fuel
+mat UOx_A   sum  burn 1 tmp 900.0
+92235.09c    5.09820E-4
+92238.09c    2.23776E-2
+ 8016.09c    4.57747E-2
+
+mat UOx_B   sum  burn 1 tmp 900.0
+92235.09c    5.09820E-4
+92238.09c    2.23776E-2
+ 8016.09c    4.57747E-2
+
+mat UOx_C   sum  burn 1 tmp 900.0
+92235.09c    5.09820E-4
+92238.09c    2.23776E-2
+ 8016.09c    4.57747E-2
+
+mat UOx_D   sum  burn 1 tmp 900.0
+92235.09c    5.09820E-4
+92238.09c    2.23776E-2
+ 8016.09c    4.57747E-2
+
+% moderator
+mat water sum  tmp 560.0 moder lwtr 1001 
+ 8016.03c  2.54871E-2
+ 1001.03c  5.08204E-2
+ 5010.03c  1.02048E-5
+ 5011.03c  4.10756E-5
+
+%clad
+mat clad  sum  tmp 600.0
+40090.06c 2.20052E-2
+40091.06c 4.74596E-3
+40092.06c 7.17541E-3
+40094.06c 7.11667E-3
+40096.06c 1.12260E-3
+41093.06c 4.18189E-4
+72174.06c 1.07216E-8
+72176.06c 3.48463E-7
+72177.06c 1.22523E-6
+72178.06c 1.78690E-6
+72179.06c 8.87146E-7
+72180.06c 2.27225E-6 
+
+%gap
+mat gap  sum  tmp 560.0
+ 2004.03c    1.00000E-8
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Thermal scattering data for light water
+% lwj3: jeff-3.1  11t: 573.6K
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+therm lwtr lwj3.11t
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% reflective boundary condition:
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+set bc 2
+
+%%%%%%%%%%%%%%%%%%%%%
+%
+% Isotope temperature
+%
+%%%%%%%%%%%%%%%%%%%%%
+
+mat U235  1.0 tmp 900.0 92235.09c 1.0
+mat U238  1.0 tmp 900.0 92238.09c 1.0
+mat Pu239 1.0 tmp 900.0 94239.09c 1.0
+mat Pu241 1.0 tmp 900.0 94241.09c 1.0
+mat Xe135 1.0 tmp 900.0 54135.09c 1.0
+mat Sm149 1.0 tmp 900.0 62149.09c 1.0
+mat O16f  1.0 tmp 900.0 8016.09c  1.0
+mat O16m  1.0 tmp 560.0 8016.03c  1.0
+mat H1    1.0 tmp 560.0 1001.03c  1.0
+mat He4   1.0 tmp 560.0 2004.03c  1.0
+mat Nb93  1.0 tmp 600.0 41093.06c 1.0
+mat Hf174 1.0 tmp 600.0 72174.06c 1.0
+mat Hf176 1.0 tmp 600.0 72176.06c 1.0
+mat Hf177 1.0 tmp 600.0 72177.06c 1.0
+mat Hf178 1.0 tmp 600.0 72178.06c 1.0
+mat Hf179 1.0 tmp 600.0 72179.06c 1.0
+mat Hf180 1.0 tmp 600.0 72180.06c 1.0
+mat Zr90  1.0 tmp 600.0 40090.06c 1.0
+mat Zr91  1.0 tmp 600.0 40091.06c 1.0
+mat Zr92  1.0 tmp 600.0 40092.06c 1.0
+mat Zr94  1.0 tmp 600.0 40094.06c 1.0
+mat Zr96  1.0 tmp 600.0 40096.06c 1.0
+mat B10   1.0 tmp 560.0 5010.03c  1.0
+mat B11   1.0 tmp 560.0 5011.03c  1.0
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% energy grid for the detectors (2g)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+ene 2 1 1.1E-11 6.25E-7 1.9640E+1
+
+det _FLUX_2G         de 2  
+
+set ures no
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%             FUEL POWER 2 GROUPS (detectors)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+det _PIN_A   de 2   dm UOx_A
+    dr 102 U235
+    dr 102 U238
+    dr 102 Pu239
+    dr 102 Pu241
+    dr -6 U235
+    dr -6 U238
+    dr -6 Pu239
+    dr -6 Pu241
+det _PIN_B   de 2   dm UOx_B
+    dr 102 U235
+    dr 102 U238
+    dr 102 Pu239
+    dr 102 Pu241
+    dr -6 U235
+    dr -6 U238
+    dr -6 Pu239
+    dr -6 Pu241
+det _PIN_C   de 2   dm UOx_C
+    dr 102 U235
+    dr 102 U238
+    dr 102 Pu239
+    dr 102 Pu241
+    dr -6 U235
+    dr -6 U238
+    dr -6 Pu239
+    dr -6 Pu241
+det _PIN_D   de 2   dm UOx_D
+    dr 102 U235
+    dr 102 U238
+    dr 102 Pu239
+    dr 102 Pu241
+    dr -6 U235
+    dr -6 U238
+    dr -6 Pu239
+    dr -6 Pu241
+
+% end of detectors definition
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Different input options (Wiki Serpent)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+set bumode 2  % CRAM method
+set pcc 1     % Predictor-corrector calculation on
+set powdens 36.8577E-3
+set gcu 0
+set sym 6
+set nfg 2 0.625E-6
+set pop 16000 500 20
+plot 3 500 500
+mesh 3 500 500
+
+% end of options 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Isotope asked in results file
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+set inventory
+922350
+922360
+922380
+932370
+942380
+942390
+942400
+942410
+942420
+952410
+952421
+952430
+962420
+962430
+962440
+962450
+601450
+601480
+541350
+451030
+551330
+641540
+641550
+641560
+641570
+420950
+430990
+441010
+471090
+621470
+621490
+621500
+621510
+621520
+631530
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Definition of BU points
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%
+
+dep butot     
+ 0.03
+ 0.05
+ 0.075
+ 0.15
+ 0.25
+ 0.5
+ 0.75
+ 1.0
+ 2.0
+ 2.5
+ 3.0
+ 3.5
+ 4.0
+ 4.5
+ 5.0
+ 5.5
+ 6.0
+ 6.5
+ 7.0
+ 7.5
+ 8.0
+ 8.5
+ 9.0
+ 9.5
+ 10.0
+ 11.0
+ 12.0
+ 13.0
+ 14.0
+ 15.0
+ 16.0
+ 17.0
+ 18.0
+ 19.0
+ 20.0
+ 22.0
+ 24.0
+ 26.0
+ 28.0
+ 30.0
+ 32.0
+ 36.0
+ 40.0
+ 44.0
+ 48.0
+ 52.0
+ 56.0
+ 60.0
+
+% for more informations go to Wiki Serpent VTT 
