@@ -123,7 +123,7 @@ Dragon5_plotter("Kinf_AT10_pincell_40void.png","Kinf AT-10 Pincell, 40% void", B
 Loading plottable data
 """
 
-input_file = "Dragon5\\AT-10_pin_SALT.result"
+input_file = "Dragon5\\AT-10_pin1_SALT.result"
 BU,Keff_SALT_MAV = extract_Bu_Keff_Dragon(load_data(input_file))
 
 Bu_renorm = BU/10**3
