@@ -123,11 +123,14 @@ Dragon5_plotter("Kinf_AT10_pincell_40void.png","Kinf AT-10 Pincell, 40% void", B
 Loading plottable data
 """
 
-input_file = "Dragon5\\AT-10_pin1_SALT.result"
+input_file = "Dragon5\\CASMO5_BU_mesh\\AT10_24UOX_SALT.result"
 BU,Keff_SALT_MAV = extract_Bu_Keff_Dragon(load_data(input_file))
 
 Bu_renorm = BU/10**3
 print(Bu_renorm)
+
+BU,Keff_NXT_TISO_subdiv = extract_Bu_Keff_Dragon(load_data("Dragon5\\CASMO5_BU_mesh\\AT10_24UOX_NXT_TISO.result"))
+BU,Keff_NXT_TSPC_subdiv = extract_Bu_Keff_Dragon(load_data("Dragon5\\CASMO5_BU_mesh\\AT10_24UOX_NXT_TSPC.result"))
 
 
 #Serpent2 reference data.
@@ -139,19 +142,21 @@ Options to customize plot
 """
 name = "Kinf_AT10_pincell_Compared.png"
 title = "Kinf AT-10 Pincell"
-colors = ["red", "magenta","blue", "purple"]
-labels = ["Kinf NXT, TSPC, moderator subdivided", "Kinf NXT, TISO, moderator subdivided","Kinf SALT, TSPC, moderator subdivided", "Kinf SALT, TSPC, flux on SSH geom"]
-markers = ["D","o","*","X",">"]
-mfc = ["red", "magenta","blue", "purple"]
-linestyles=["--", "-.","--", "-."]
+colors = ["red", "blue", "purple"]
+labels = ["Kinf NXT, TISO, moderator subdivided","Kinf NXT, TSPC, moderator subdivided","Kinf SALT, TSPC, Windmill sectorization"]
+markers = ["D","X","*"]
+mfc = ["red","blue","purple"]
+linestyles=["--", "-.","--"]
 
 error_labels = ["Error on "+label for label in labels]
 
 Serpent2_plotter("Kinf_Serp2_AT10_pin_1", "Kinf AT10 pin 1, Serpent2 BU evolution", Bu_renorm, [Keff_Serp2], stdv, ["red"], ["Nominal Kinf, pin 1"], ["x"], ["red"], ["--"])
 
-delta_rho,stdv = compute_reactivity_diff(Keff_SALT_MAV, Keff_Serp2, stdv)
+delta_rho_SALT,stdv = compute_reactivity_diff(Keff_SALT_MAV, Keff_Serp2, stdv)
+delta_rho_NXT_TISO,stdv = compute_reactivity_diff(Keff_NXT_TISO_subdiv, Keff_Serp2, stdv)
+delta_rho_NXT_TSPC,stdv = compute_reactivity_diff(Keff_NXT_TSPC_subdiv, Keff_Serp2, stdv)
 
-error_plotter("Error_Kinf_AT10_pin1_SALT_MAV", "Error on Kinf of AT10 pin vs Burnup", Bu_renorm, [delta_rho], stdv, ["blue"], ["Error on Kinf, Dragon5 vs Serpent2, windmill disretization"], ["D"], ["red"], ["-."])
+error_plotter("Error_Kinf_AT10_24UOX_CASMO_5_BUsteps.png", "Error on Kinf of AT10 24UOX pin vs Burnup", Bu_renorm, [delta_rho_NXT_TISO,delta_rho_NXT_TSPC,delta_rho_SALT], stdv, colors, error_labels, markers, mfc, linestyles)
 
 def compare_t0_results() :
     """
@@ -275,4 +280,4 @@ def compare_t0_results() :
     print(f"Error $\\Delta\\rho$ vs Serpent2 for SYBILT+NXT, PIJ TISO on annular geom is {delta_231_subdiv_TISO:.1f} pcm")
     
     
-
+compare_t0_results()
