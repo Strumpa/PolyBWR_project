@@ -173,7 +173,7 @@ def compare_t0_results() :
     print("------------------------- SALT+SALT MOC--------------------------")
     print("\n")
     # SALT MOC : 2 geoms
-    Keff_112_MAV = 1.243044 #SALT SSH, SALT FLX, MOC Windmill discretization. 
+    Keff_112_MAV = 1.243045 #SALT SSH, SALT FLX, MOC Windmill discretization. 
     delta_112_MAV = (1/Keff_Serp2[0]-1/Keff_112_MAV)*1e5
     
     Keff_112_subdiv = 1.243066 #SALT SSH, SALT FLX, MOC annular discretization. 
