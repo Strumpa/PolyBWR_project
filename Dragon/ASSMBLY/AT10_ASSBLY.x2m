@@ -38,9 +38,3 @@ Geo_G2S FIG.ps := G2S: Geom_test :: DRAWNOD ;
 ECHO "Geometry test completed" ;
 
 END: ;
-
-
-
-
-
-
