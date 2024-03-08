@@ -80,15 +80,15 @@ ELSEIF name_geom 'AT10_UOX' = THEN
     MESHX 0.0 <<pitch>> MESHY 0.0 <<pitch>>
   ;
 
-  GEOM_SS := GEO: :: CARCEL 6 
-    X- REFL X+ REFL
-    Y- REFL Y+ REFL
-    RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
-               <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
-    MIX <<COMB0101>> <<COMB0102>> <<COMB0103>> <<COMB0104>>
-        <<GAP>> <<CLAD>> <<MODE>>
-    MESHX 0.0 <<pitch>> MESHY 0.0 <<pitch>>
-  ;
+  !GEOM_SS := GEO: :: CARCEL 6 
+  !  X- REFL X+ REFL
+  !  Y- REFL Y+ REFL
+  !  RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
+  !             <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
+  !  MIX <<COMB0101>> <<COMB0102>> <<COMB0103>> <<COMB0104>>
+  !      <<GAP>> <<CLAD>> <<MODE>>
+  !  MESHX 0.0 <<pitch>> MESHY 0.0 <<pitch>>
+  !;
 ELSEIF name_geom 'AT10_24UOX' = THEN
   EVALUATE Rcomb4 := 0.4435 ;
   EVALUATE Rcomb1 := 0.313602 ;
@@ -124,7 +124,7 @@ ELSEIF name_geom 'AT10_32UOX' = THEN
             21 22 23 24 5 6 7 ; !  DISTRIBUTED SELF-SHIELDING
  
 
-  GEOM := GEO: :: CARCEL 6 
+  GEOM := GEO: CARCEL 6 
     X- REFL X+ REFL
     Y- REFL Y+ REFL
     SECT 4 6
@@ -147,7 +147,7 @@ ELSEIF name_geom 'AT10_42UOX' = THEN
             31 32 33 34 5 6 7 ; !  DISTRIBUTED SELF-SHIELDING
  
 
-  GEOM := GEO: :: CARCEL 6 
+  GEOM := GEO: CARCEL 6 
     X- REFL X+ REFL
     Y- REFL Y+ REFL
     SECT 4 6
