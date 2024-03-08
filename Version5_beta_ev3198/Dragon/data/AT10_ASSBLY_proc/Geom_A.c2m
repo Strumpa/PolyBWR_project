@@ -170,8 +170,8 @@ IF name_geom "AT10_ASSBLY_test" = THEN
 
   GEOM := GEO: :: CAR2D 5 5 
     EDIT 10
-    X- REFL X+ REFL
-    Y- REFL Y+ REFL
+    X- REFL X+ DIAG
+    Y- REFL Y+ DIAG
     CELL
     WTC  
     WL3  C05 
