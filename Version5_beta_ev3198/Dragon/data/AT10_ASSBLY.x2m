@@ -26,7 +26,7 @@ STRING geo_name := "AT10_ASSBLY_test" ;
 
 Geom_test := Geom_A :: <<geo_name>> ;
 
-Geo_G2S FIG.ps := G2S: Geom_test :: DRAWNOD ;
+Geo_G2S FIG.ps := G2S: Geom_test :: EDIT 10 DRAWNOD ;
 
 !TRACK TRACK_EXC := SALT: Geo_G2S ::
 !  EDIT 10

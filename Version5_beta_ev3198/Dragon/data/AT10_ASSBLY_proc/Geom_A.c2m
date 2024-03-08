@@ -170,12 +170,12 @@ IF name_geom "AT10_ASSBLY_test" = THEN
 
   GEOM := GEO: :: CAR2D 5 5 
     EDIT 10
-    X- REFL X+ DIAG
-    Y- REFL Y+ DIAG
+    X- REFL X+ REFL
+    Y- REFL Y+ REFL
     CELL
     WTC  
     WL3  C05 
-    WL2  C04 CHNL 
+    WL2  C04 CHNL
     WL1  C01 C02 C03 
     WBC1 WB1 WB2 WB3 WBC2
     MESHX 0.0 <<X1>> <<X2>> <<X3>> <<X4>> <<Pitch_A>>
@@ -189,24 +189,24 @@ IF name_geom "AT10_ASSBLY_test" = THEN
       ;
     ::: WBC1 := GEO: CAR2D 3 3
         MESHX 0.0 <<W_gap>> <<x_step>> <<X1>>
-        MESHX 0.0 <<W_gap>> <<x_step>> <<Y1>>
+        MESHY 0.0 <<W_gap>> <<x_step>> <<Y1>>
         MIX <<MODE>> <<MODE>> <<MODE>> 
             <<MODE>> <<BOX>> <<BOX>>
              <<MODE>> <<BOX>> <<COOL>>
       ;
     ::: WL3 := GEO: CAR2D 3 1
         MESHX 0.0 <<W_gap>> <<x_step>> <<X1>>
-        MESHX 0.0 <<L3>>
+        MESHY 0.0 <<L3>>
         MIX <<MODE>> <<BOX>> <<COOL>>
       ;
     ::: WL2 := GEO: CAR2D 3 1
         MESHX 0.0 <<W_gap>> <<x_step>> <<X1>>
-        MESHX 0.0 <<L2>>
+        MESHY 0.0 <<L2>>
         MIX <<MODE>> <<BOX>> <<COOL>>
       ; 
     ::: WL1 := GEO: CAR2D 3 1
         MESHX 0.0 <<W_gap>> <<x_step>> <<X1>>
-        MESHX 0.0 <<L1>>
+        MESHY 0.0 <<L1>>
         MIX <<MODE>> <<BOX>> <<COOL>>
       ; 
     ::: WB1 := GEO: CAR2D 1 3
@@ -244,7 +244,7 @@ IF name_geom "AT10_ASSBLY_test" = THEN
                    RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
                    <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
                    MIX <<COMB0101>> <<COMB0102>> <<COMB0103>> <<COMB0104>>
-                       <<GAP>> <<CLAD>
+                       <<GAP>> <<CLAD>>
                        <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                        <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                        <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
@@ -255,7 +255,7 @@ IF name_geom "AT10_ASSBLY_test" = THEN
                    RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
                    <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
                    MIX <<COMB0201>> <<COMB0202>> <<COMB0203>> <<COMB0204>>
-                       <<GAP>> <<CLAD>
+                       <<GAP>> <<CLAD>>
                        <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                        <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                        <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
@@ -266,7 +266,7 @@ IF name_geom "AT10_ASSBLY_test" = THEN
                    RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
                    <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
                    MIX <<COMB0301>> <<COMB0302>> <<COMB0303>> <<COMB0304>>
-                   <<GAP>> <<CLAD>
+                   <<GAP>> <<CLAD>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
@@ -277,7 +277,7 @@ IF name_geom "AT10_ASSBLY_test" = THEN
                    RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
                    <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
                    MIX <<COMB0401>> <<COMB0402>> <<COMB0403>> <<COMB0404>>
-                   <<GAP>> <<CLAD>
+                   <<GAP>> <<CLAD>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
@@ -288,7 +288,7 @@ IF name_geom "AT10_ASSBLY_test" = THEN
                    RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
                    <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
                    MIX <<COMB0501>> <<COMB0502>> <<COMB0503>> <<COMB0504>>
-                   <<GAP>> <<CLAD>
+                   <<GAP>> <<CLAD>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
@@ -299,14 +299,14 @@ IF name_geom "AT10_ASSBLY_test" = THEN
                    RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
                    <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
                    MIX <<COMB0601>> <<COMB0602>> <<COMB0603>> <<COMB0604>>
-                   <<GAP>> <<CLAD>
+                   <<GAP>> <<CLAD>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
                    MESHX 0.0 <<pitch>> MESHY 0.0 <<pitch>>
              ;
-        ::: C7 := GEO: :: CARCEL 8
-                  SECT 6 6 
+        ::: C7 := GEO: CARCEL 8
+                  SECT 4 8 
                   RADIUS 0.0 <<RcombGd1>> <<RcombGd2>> <<RcombGd3>> <<RcombGd4>>
                              <<RcombGd5>> <<RcombGd6>> <<Rgap>> <<Rclad>> 
                   MIX <<COMB0701>> <<COMB0702>> <<COMB0703>> <<COMB0704>> <<COMB0705>> <<COMB0706>>
@@ -316,6 +316,7 @@ IF name_geom "AT10_ASSBLY_test" = THEN
                   MESHX 0.0 <<pitch>> MESHY 0.0 <<pitch>>
              ; 
     ;
+    ECHO "C05 done" ;
     ::: C04 := GEO: CAR2D 4 3 
         CELL
         C6 C7 C6 C6
@@ -328,7 +329,7 @@ IF name_geom "AT10_ASSBLY_test" = THEN
                    RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
                    <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
                    MIX <<COMB0401>> <<COMB0402>> <<COMB0403>> <<COMB0404>>
-                   <<GAP>> <<CLAD>
+                   <<GAP>> <<CLAD>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
@@ -339,7 +340,7 @@ IF name_geom "AT10_ASSBLY_test" = THEN
                    RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
                    <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
                    MIX <<COMB0501>> <<COMB0502>> <<COMB0503>> <<COMB0504>>
-                   <<GAP>> <<CLAD>
+                   <<GAP>> <<CLAD>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
@@ -350,23 +351,24 @@ IF name_geom "AT10_ASSBLY_test" = THEN
                    RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
                    <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
                    MIX <<COMB0601>> <<COMB0602>> <<COMB0603>> <<COMB0604>>
-                   <<GAP>> <<CLAD>
+                   <<GAP>> <<CLAD>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
                    MESHX 0.0 <<pitch>> MESHY 0.0 <<pitch>>
              ;
-        ::: C7 := GEO: :: CARCEL 8
-                  SECT 6 6 
+        ::: C7 := GEO: CARCEL 8
+                  SECT 4 8 
                   RADIUS 0.0 <<RcombGd1>> <<RcombGd2>> <<RcombGd3>> <<RcombGd4>>
                              <<RcombGd5>> <<RcombGd6>> <<Rgap>> <<Rclad>> 
                   MIX <<COMB0701>> <<COMB0702>> <<COMB0703>> <<COMB0704>> <<COMB0705>> <<COMB0706>>
-                      <<GAP>> <<CLAD>> 
+                      <<GAP>> <<CLAD>>
                       <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                       <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                   MESHX 0.0 <<pitch>> MESHY 0.0 <<pitch>>
              ; 
       ;
+    ECHO "C04 done" ;
     ::: C01 := GEO: CAR2D 4 3
         CELL
         C3 C7 C6 C6
@@ -379,7 +381,7 @@ IF name_geom "AT10_ASSBLY_test" = THEN
                    RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
                    <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
                    MIX <<COMB0101>> <<COMB0102>> <<COMB0103>> <<COMB0104>>
-                   <<GAP>> <<CLAD>
+                   <<GAP>> <<CLAD>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
@@ -390,7 +392,7 @@ IF name_geom "AT10_ASSBLY_test" = THEN
                    RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
                    <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
                    MIX <<COMB0201>> <<COMB0202>> <<COMB0203>> <<COMB0204>>
-                   <<GAP>> <<CLAD>
+                   <<GAP>> <<CLAD>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
@@ -401,7 +403,7 @@ IF name_geom "AT10_ASSBLY_test" = THEN
                    RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
                    <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
                    MIX <<COMB0301>> <<COMB0302>> <<COMB0303>> <<COMB0304>>
-                   <<GAP>> <<CLAD>
+                   <<GAP>> <<CLAD>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
@@ -412,7 +414,7 @@ IF name_geom "AT10_ASSBLY_test" = THEN
                    RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
                    <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
                    MIX <<COMB0401>> <<COMB0402>> <<COMB0403>> <<COMB0404>>
-                   <<GAP>> <<CLAD>
+                   <<GAP>> <<CLAD>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
@@ -423,7 +425,7 @@ IF name_geom "AT10_ASSBLY_test" = THEN
                    RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
                    <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
                    MIX <<COMB0501>> <<COMB0502>> <<COMB0503>> <<COMB0504>>
-                   <<GAP>> <<CLAD>
+                   <<GAP>> <<CLAD>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
@@ -434,14 +436,14 @@ IF name_geom "AT10_ASSBLY_test" = THEN
                    RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
                    <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
                    MIX <<COMB0601>> <<COMB0602>> <<COMB0603>> <<COMB0604>>
-                   <<GAP>> <<CLAD>
+                   <<GAP>> <<CLAD>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
                    MESHX 0.0 <<pitch>> MESHY 0.0 <<pitch>>
              ;
-        ::: C7 := GEO: :: CARCEL 8
-                  SECT 6 6 
+        ::: C7 := GEO: CARCEL 8
+                  SECT 4 8 
                   RADIUS 0.0 <<RcombGd1>> <<RcombGd2>> <<RcombGd3>> <<RcombGd4>>
                              <<RcombGd5>> <<RcombGd6>> <<Rgap>> <<Rclad>> 
                   MIX <<COMB0701>> <<COMB0702>> <<COMB0703>> <<COMB0704>> <<COMB0705>> <<COMB0706>>
@@ -451,7 +453,8 @@ IF name_geom "AT10_ASSBLY_test" = THEN
                   MESHX 0.0 <<pitch>> MESHY 0.0 <<pitch>>
              ; 
       ;
-    ::: C02 := CAR2D 3 3 
+    ECHO "C01 done" ;
+    ::: C02 := GEO: CAR2D 3 3 
         CELL
         C4 C3 C4
         C6 C7 C4 
@@ -463,7 +466,7 @@ IF name_geom "AT10_ASSBLY_test" = THEN
                    RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
                    <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
                    MIX <<COMB0301>> <<COMB0302>> <<COMB0303>> <<COMB0304>>
-                   <<GAP>> <<CLAD>
+                   <<GAP>> <<CLAD>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
@@ -474,7 +477,7 @@ IF name_geom "AT10_ASSBLY_test" = THEN
                    RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
                    <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
                    MIX <<COMB0401>> <<COMB0402>> <<COMB0403>> <<COMB0404>>
-                   <<GAP>> <<CLAD>
+                   <<GAP>> <<CLAD>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
@@ -485,14 +488,14 @@ IF name_geom "AT10_ASSBLY_test" = THEN
                    RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
                    <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
                    MIX <<COMB0601>> <<COMB0602>> <<COMB0603>> <<COMB0604>>
-                   <<GAP>> <<CLAD>
+                   <<GAP>> <<CLAD>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
                    MESHX 0.0 <<pitch>> MESHY 0.0 <<pitch>>
              ;
-        ::: C7 := GEO: :: CARCEL 8
-                  SECT 6 6 
+        ::: C7 := GEO: CARCEL 8
+                  SECT 4 8 
                   RADIUS 0.0 <<RcombGd1>> <<RcombGd2>> <<RcombGd3>> <<RcombGd4>>
                              <<RcombGd5>> <<RcombGd6>> <<Rgap>> <<Rclad>> 
                   MIX <<COMB0701>> <<COMB0702>> <<COMB0703>> <<COMB0704>> <<COMB0705>> <<COMB0706>>
@@ -502,7 +505,8 @@ IF name_geom "AT10_ASSBLY_test" = THEN
                   MESHX 0.0 <<pitch>> MESHY 0.0 <<pitch>>
              ; 
       ;
-    ::: C03 := CAR2D 3 3
+    ECHO "C02 done" ;
+    ::: C03 := GEO: CAR2D 3 3
         CELL
         C4 C8 C3
         C8 C4 C2 
@@ -514,7 +518,7 @@ IF name_geom "AT10_ASSBLY_test" = THEN
                    RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
                    <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
                    MIX <<COMB0101>> <<COMB0102>> <<COMB0103>> <<COMB0104>>
-                   <<GAP>> <<CLAD>
+                   <<GAP>> <<CLAD>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
@@ -525,7 +529,7 @@ IF name_geom "AT10_ASSBLY_test" = THEN
                    RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
                    <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
                    MIX <<COMB0201>> <<COMB0202>> <<COMB0203>> <<COMB0204>>
-                   <<GAP>> <<CLAD>
+                   <<GAP>> <<CLAD>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
@@ -536,7 +540,7 @@ IF name_geom "AT10_ASSBLY_test" = THEN
                    RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
                    <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
                    MIX <<COMB0301>> <<COMB0302>> <<COMB0303>> <<COMB0304>>
-                   <<GAP>> <<CLAD>
+                   <<GAP>> <<CLAD>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
@@ -547,14 +551,14 @@ IF name_geom "AT10_ASSBLY_test" = THEN
                    RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
                    <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
                    MIX <<COMB0401>> <<COMB0402>> <<COMB0403>> <<COMB0404>>
-                   <<GAP>> <<CLAD>
+                   <<GAP>> <<CLAD>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
                    MESHX 0.0 <<pitch>> MESHY 0.0 <<pitch>>
              ;
-         ::: C8 := GEO: :: CARCEL 8
-                  SECT 6 6 
+         ::: C8 := GEO: CARCEL 8
+                  SECT 4 8 
                   RADIUS 0.0 <<RcombGd1>> <<RcombGd2>> <<RcombGd3>> <<RcombGd4>>
                              <<RcombGd5>> <<RcombGd6>> <<Rgap>> <<Rclad>> 
                   MIX <<COMB0801>> <<COMB0802>> <<COMB0803>> <<COMB0804>> <<COMB0805>> <<COMB0806>>
@@ -564,7 +568,8 @@ IF name_geom "AT10_ASSBLY_test" = THEN
                   MESHX 0.0 <<pitch>> MESHY 0.0 <<pitch>>
              ; 
       ;
-    ::: CHNL := CAR2D 5 5
+      ECHO "C03 done" ;
+    ::: CHNL := GEO: CAR2D 5 5
         MESHX 0.0 <<XCHNL1>> <<XCHNL2>> <<XCHNL3>> <<XCHNL4>> <<XCHNL5>>
         MESHY 0.0 <<XCHNL1>> <<XCHNL2>> <<XCHNL3>> <<XCHNL4>> <<XCHNL5>>
         MIX <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
