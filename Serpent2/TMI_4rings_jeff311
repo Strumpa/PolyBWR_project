@@ -1,0 +1,198 @@
+
+% --- 1. Surface Definitions
+
+surf    1    cylz    0 0 0.46955
+surf   15    cylz    0 0 0.457661
+surf   16    cylz    0 0 0.419978 
+surf   17    cylz    0 0 0.332022 
+surf    2    cylz    0 0 0.4791
+surf    3    cylz    0 0 0.5464
+surf    4    sqc     0 0 0.72135
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% --- 2. Cell Definitions
+
+cell     1    0  fuel1      -1 15
+cell     15   0  fuel5     -15 16
+cell     16   0  fuel6     -16 17
+cell     17   0  fuel7        -17
+cell     2    0  gap         1  -2
+cell     3    0  clad        2  -3
+cell     4    0  H2O         3  -4
+
+cell    1000  0  outside   4
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% --- 4. Material Definitions
+% fuel 900K 3.2%
+mat fuel1 sum vol 0.034631697 burn 1
+      8016.09c 4.58853E-02
+     92234.09c 1.16615E-05
+     92235.09c 1.12634E-03
+     92238.09c 2.18066E-02
+
+mat fuel5 sum vol 0.103898974 burn 1
+      8016.09c 4.58853E-02
+     92234.09c 1.16615E-05
+     92235.09c 1.12634E-03
+     92238.09c 2.18066E-02
+
+mat fuel6 sum vol 0.207794086 burn 1
+      8016.09c 4.58853E-02
+     92234.09c 1.16615E-05
+     92235.09c 1.12634E-03
+     92238.09c 2.18066E-02
+
+mat fuel7 sum vol 0.346324803 burn 1
+      8016.09c 4.58853E-02
+     92234.09c 1.16615E-05
+     92235.09c 1.12634E-03
+     92238.09c 2.18066E-02
+     
+% helium
+mat gap sum     
+     2004.06c 1.50454E-04 	
+% clad 600K
+mat clad  sum
+     40090.06c   2.18861E-02 
+     40091.06c   4.77281E-03 
+     40092.06c   7.29520E-03 
+     40094.06c   7.39298E-03 
+     40096.06c   1.19120E-03 
+     50112.06c    4.58919E-06
+     50114.06c    3.12140E-06
+     50115.06c    1.71902E-06
+     50116.06c    7.02136E-05
+     50117.06c    3.71715E-05
+     50118.06c    1.16936E-04
+     50119.06c    4.15297E-05
+     50120.06c    1.57158E-04
+     50122.06c    2.23603E-05
+     50124.06c    2.80567E-05
+     26054.06c    8.61277E-06
+     26056.06c    1.36243E-04
+     26057.06c    3.26800E-06
+     26058.06c    4.15954E-07
+     24050.06c    3.29821E-06
+     24052.06c    6.36525E-05
+     24053.06c    7.21572E-06
+     24054.06c    1.79434E-06
+     72174.06c    3.40671E-09
+     72176.06c    1.14960E-07
+     72177.06c    4.11474E-07
+     72178.06c    5.99647E-07
+     72179.06c    3.03980E-07
+     72180.06c    7.78889E-07
+     
+% moderator 600K
+mat H2O   sum   moder lwtr 1001  tms 600
+     1001.06c  5.00405E-02
+     8016.06c  2.50240E-02
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% --- 5. Serpent parameters
+
+% --- 5.1 Thermal scattering data for light water:
+
+therm  lwtr 0 lwj3.11t  lwj3.13t
+
+    
+
+% --- 5.2 Cross section data library file path:
+
+set acelib "../xs/jeff311/sss_jeff311u.data"
+set declib "../xs/jeff311/sss_jeff311.dec"
+set nfylib "../xs/jeff311/sss_jeff311.nfy"
+
+% --- Unresolved resonance range:
+
+set ures 1
+
+
+
+% --- 5.3 Boundary condition:
+
+set bc 2
+
+% --- 5.4 Neutron population and criticality cycles:
+%set pop     2000   500   20 % plot test
+%set pop  100000   500   50 % quick keff test
+set pop 200000  500  50 % keff within 2 pcm
+%set pop 1000000 10000  200 % keff within 0.7 pcm
+
+% --- Cut-offs:
+
+set fpcut   0.0
+set stabcut 1.0E-14
+set ttacut  1.0E-18
+
+% --- Options for burnup calculation:
+
+set bumode  2  % TTA / CRAM
+set pcc     1  % Predictor-corrector calculation on
+
+
+% --- Depletion steps:
+% Depletion steps given in units of total burnup
+set inventory ALL
+set powdens 33.57E-3
+dep butot
+           0.01     
+           0.04 
+           0.1  
+           0.2  
+           0.35 
+           0.5  
+           0.75 
+           1.0  
+           1.25 
+           1.5  
+           2.0
+           2.5  
+           3.0  
+           3.5  
+           4.0  
+           4.5  
+           5.0  
+           5.5  
+           6.0  
+           6.5  
+           7.0  
+           7.5  
+           8.0 
+           9.0  
+           10.0 
+           11.0 
+           12.0 
+           13.0 
+           14.0
+           15.0 
+           16.0 
+           17.0 
+           18.0 
+           19.0 
+           20.0
+           21.0 
+           22.0 
+           23.0 
+           24.0 
+           25.0 
+           26.0
+           27.0 
+           28.0 
+           29.0 
+           30.0 
+           32.0
+           34.0
+           36.0
+           38.0
+           40.0
+           42.0
+           44.0
+           46.0
+           48.0
+           50.0
+
