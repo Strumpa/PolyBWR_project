@@ -1,0 +1,25 @@
+************************************************************************
+*  case PIN 1 of AT10                                                  *
+*  295-group JEF3.1.1 DRAGLIB                                          *
+*  DISTRIBUTED SELF-SHIELDING                                          *
+*  Author: R.Guasch adapted from L. Fede and M. François               *
+*  Purpose : MACRO procedure to run comparative study between :        *
+*           - SALT, NXT, SYBILT tracking modules                       *
+*           - TSPC and TISO keywords in NXT                            *                        
+*           - PIJ and MOC approach                                     *
+*  Composition = Pin1 of ATRIUM10 at t=0, no evolution                 *
+************************************************************************
+
+! PROCEDURES 
+PROCEDURE SALT_MAV SALT_SUB SYBNXT_ISO SYBNXT_SPC SYBSYB SYBNXT_PIJ ;
+
+SYBNXT_PIJ ; ! PIJ with TISO keyword in NXT
+SALT_MAV ;
+SALT_SUB ;
+SYBNXT_ISO ;
+SYBNXT_SPC ;
+SYBSYB ;
+
+ECHO "AT10 cell tracking comparison completed" ;
+
+QUIT "LIST" .
