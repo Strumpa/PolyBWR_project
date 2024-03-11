@@ -1,37 +1,41 @@
 ************************************************************************************************************************
 *                                                                                                                      *
-* Procedure :  SYBNXT_SPC.c2m                                                                                          *
+* Procedure :  NXT_TSPC.c2m                                                                                            *
 * Purpose   :  Tracking SYBILT for SS and NXT TSPC for FLX + MOC Flux calculation                                      *
 * Author    :  R. Guasch                                                                                               *
 *                                                                                                                      *
-* CALL      :   SYBNXT_SPC                                                                                             *
+* CALL      :  NXT_TSPC                                                                                                *
 *                                                                                                                      *
 ************************************************************************************************************************
 
 * ---
 * STRUCTURES AND MODULES
 * ---
-MODULE MCCGT: SYBILT: NXT: USS: ASM: FLU: GREP: END: ;
+MODULE MCCGT: SYBILT: NXT: TLM: USS: ASM: FLU: GREP: END: ;
 
 * ---
 * PROCEDURES
-PROCEDURE Mix_Cell Geom_FLX Geom_SS ; 
+PROCEDURE Mix_Cell Geom_C ; 
 * ---
 
-LINKED_LIST  GEOMSS TRACK_SS GEOMFLX_sub TRACK LIBRARY LIBRARY2 SYS FLUX ;
+LINKED_LIST GEOM GEOM_SS TRACK_SS TRACK LIBRARY LIBRARY2 SYS FLUX ;
+
 SEQ_BINARY TF_EXC ;
+SEQ_ASCII TLM_F :: FILE 'tracks_NXT.m' ;
 
 
-
-INTEGER COMB0101 COMB0102 COMB0103 COMB0104 GAP CLAD MODE :=
-        1 2 3 4 5 6 7 ; !  DISTRIBUTED SELF-SHIELDING 
-
-! Geometric Parameter definition : 
-REAL Rcomb1 Rcomb2 Rcomb3 Rcomb4 := 0.313602 0.396678 0.43227 0.4435 ;
-REAL Rgap Rclad pitch := 0.4520 0.5140 1.295 ;
-REAL Rmode := 0.64 ;
+STRING geo_name := "AT10_UOX_simple" ; !"AT10_UOX_Gd2O3"
+STRING cell_name := "AT10_24UOX" ; ! "AT10_24/32/42/45/48/50UOX" for UOX pins (1 to 6), 
+! "AT10_45Gd" / "AT10_42Gd" for AT10_UOX_Gd2O3 pins (7,8)
 
 REAL Kinf1 Keff1 ;
+
+! GEOMETRY DEFINITION
+GEOM GEOM_SS := Geom_C :: <<geo_name>> ;
+
+! XS MIX DEFINITION
+LIBRARY := Mix_Cell :: J311_295 <<cell_name>> ;
+
 
 * ---
 * TRACKING PARAMETERS FOR SSH
@@ -42,8 +46,8 @@ INTEGER nseg := 5 ;
 * ---
 * TRACKING PARAMETERS FOR MOC FLX
 * ---
-INTEGER an2d := 18 ;  ! ANGULAR QUADRATURE PARAMETER
-REAL densur := 35.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
+INTEGER an2d := 12 ;  ! ANGULAR QUADRATURE PARAMETER 18 
+REAL densur := 10.0 ; ! DENSITY OF INTEGRATION LINES CM^-1 35.0
 
 * polar angles for MCCGT:
 INTEGER nmu := 4 ;
@@ -53,17 +57,11 @@ INTEGER mcu := 50000 ;
 
 ! GEOMETRY DEFINITION
 
-GEOMSS := Geom_SS :: <<Rcomb1>> <<Rcomb2>> <<Rcomb3>> <<Rcomb4>> 
-    <<Rgap>> <<Rclad>> <<pitch>> ;
-
-GEOMFLX_sub := Geom_FLX :: <<Rcomb1>> <<Rcomb2>> <<Rcomb3>> <<Rcomb4>>
-        <<Rgap>> <<Rclad>> <<Rmode>> <<pitch>> ;
-
 * ---
 * SELF-SHIELDING TRACKING
 * ---
 
-TRACK_SS := SYBILT: GEOMSS ::
+TRACK_SS := SYBILT: GEOM_SS ::
     TITLE 'TRACKING FOR PINCELL SS'
     MAXR 50 QUA2 <<iqua2>> <<nseg>> DP01 MAXZ 200000 
 ;
@@ -73,10 +71,19 @@ TRACK_SS := SYBILT: GEOMSS ::
 * FLUX CALC TRACKING
 * ---
 
-TRACK TF_EXC := NXT: GEOMFLX_sub ::
-  EDIT 0
+TRACK TF_EXC := NXT: GEOM ::
+  EDIT 100
   ALLG
-  TSPC EQW2 <<an2d>> <<densur>> REND
+  !TSPC EQW2 <<an2d>> <<densur>> REND
+  LONG
+  TISO EQW <<an2d>> <<densur>> REND
+;
+
+TLM_F := TLM: TRACK TF_EXC ::
+  EDIT 10
+  NTPO 1
+  DIRECTIONS
+  DIR 0
 ;
 
 * MOC tracking
@@ -84,11 +91,6 @@ TRACK := MCCGT: TRACK TF_EXC ::
   EDIT 0
   CACB <<nmu>> AAC 80 TMT EPSI 1E-5 MCU <<mcu>>
 ;
-
-
-! XS LIBRARY
-LIBRARY := Mix_Cell :: J311_295 <<COMB0101>> <<COMB0102>> <<COMB0103>> <<COMB0104>> 
-                                <<GAP>> <<CLAD>> <<MODE>> ;
 
 
 ! UNIVERSAL SELF-SHIELDING 
@@ -104,9 +106,8 @@ FLUX := FLU: LIBRARY2 SYS TRACK TF_EXC ::
 
 GREP: FLUX :: GETVAL 'K-EFFECTIVE  ' 1 1 1 >>Keff1<< ;
 ECHO "SS tracking = SYBILT and FLX tracking = NXT TSPC, MOC used on subdivided geom  Keff4=" Keff1 ;
-!ECHO "SS tracking = SYBILT and FLX tracking = NXT TSPC, PIJ used on subdivided geom  Keff4=" Keff1 ;
 
-ECHO "AT10SYBNXT_SPC completed" ;
+ECHO "AT10_24UOX NXT TSPC completed" ;
 
 
 END: ;

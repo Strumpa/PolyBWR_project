@@ -1,49 +1,48 @@
 ************************************************************************************************************************
 *                                                                                                                      *
-* Procedure :  SALT_MAV.c2m                                                                                            *
+* Procedure :  SALT_TSPC.c2m                                                                                           *
 * Purpose   :  Tracking and figure printing for pin cells + MOC Flux calculation, SALT tracking on windmill cell       *
 * Author    :  R. Guasch adapted from L.Fede                                                                           *
 *                                                                                                                      *
-* CALL      :   SALT_MAV                                                                                               *
+* CALL      :   SALT_TSPC                                                                                              *
 *                                                                                                                      *
 ************************************************************************************************************************
+
+STRING geo_name := "AT10_UOX" ; !"AT10_UOX_Gd2O3"
+STRING cell_name := "AT10_24UOX" ; ! "AT10_24/32/42/45/48/50UOX" for UOX pins (1 to 6), 
+! "AT10_45Gd" / "AT10_42Gd" for AT10_UOX_Gd2O3 pins (7,8)
+
 
 * ---
 * STRUCTURES AND MODULES
 * ---
-MODULE G2S: MCCGT: SALT: USS: ASM: FLU: GREP: END: DELETE: ;
+MODULE G2S: TLM: MCCGT: SYBILT: SALT: USS: ASM: FLU: GREP: END: DELETE: ;
 
 * ---
 * PROCEDURES
-PROCEDURE Mix_Cell Geom_MAV Geom_SS ; 
+PROCEDURE Mix_Cell Geom_C_SALT Geom_C ; 
 * ---
 
-LINKED_LIST GEOMFLX_MAV GEOMSS TRACK_SS TRACK LIBRARY LIBRARY2 SYS FLUX ;
+LINKED_LIST GEOM GEOM_SS TRACK_SS TRACK LIBRARY LIBRARY2 SYS FLUX ;
 
 SEQ_ASCII UOX_TBH_SS ;
 SEQ_ASCII UOX_TBH_FLX ;
 SEQ_BINARY TF_EXC ;
 SEQ_BINARY TF_EXC_SS ;
 
-SEQ_ASCII FIG_SS.ps :: FILE './PIN_AT10_FIG_SS.ps' ;
+SEQ_ASCII TLM_F :: FILE 'tracks_SALT.m' ;
+
+
 SEQ_ASCII FIG_FLX.ps :: FILE './PIN_AT10_FIG_FLX.ps' ;
 
-INTEGER COMB0101 COMB0102 COMB0103 COMB0104 GAP CLAD MODE :=
-        1 2 3 4 5 6 7 ; !  DISTRIBUTED SELF-SHIELDING 
-
-! Geometric Parameter definition : 
-REAL Rcomb1 Rcomb2 Rcomb3 Rcomb4 := 0.313602 0.396678 0.43227 0.4435 ;
-REAL Rgap Rclad pitch := 0.4520 0.5140 1.295 ;
-REAL Rmode := 0.64 ;
-
-
 REAL Kinf1 Keff1 ;
+
 
 * ---
 * TRACKING PARAMETERS FOR SSH
 * ---
-INTEGER an2d_SS := 12 ;
-REAL densur_SS := 20.0 ;
+INTEGER iqua2 := 24 ;
+INTEGER nseg := 5 ;
 
 * ---
 * TRACKING PARAMETERS FOR MOC FLX
@@ -58,37 +57,41 @@ INTEGER nmu := 4 ;
 INTEGER mcu := 50000 ;
 
 ! GEOMETRY DEFINITION
+GEOM GEOM_SS := Geom_C_SALT :: <<geo_name>> ; 
 
-GEOMSS := Geom_SS :: <<Rcomb1>> <<Rcomb2>> <<Rcomb3>> <<Rcomb4>> 
-    <<Rgap>> <<Rclad>> <<pitch>> ;
-
-GEOMFLX_MAV := Geom_MAV :: <<Rcomb1>> <<Rcomb2>> <<Rcomb3>> <<Rcomb4>>
-        <<Rgap>> <<Rclad>> <<pitch>> ;
-
+! XS MIX DEFINITION
+LIBRARY := Mix_Cell :: J311_295 <<cell_name>> ;
 
 * ---
 * SELF-SHIELDING TRACKING
 * ---
-UOX_TBH_SS FIG_SS.ps := G2S: GEOMSS :: ;
 
-TRACK_SS TF_EXC_SS := SALT: UOX_TBH_SS ::
-  EDIT 0
-  ALLG
-  TSPC <<an2d_SS>> <<densur_SS>> REND
-  !TISO EQW <<an2d>> <<densur>> REND
+
+
+TRACK_SS := SYBILT: GEOM_SS ::
+    TITLE 'TRACKING FOR PINCELL SS'
+    MAXR 50 QUA2 <<iqua2>> <<nseg>> DP01 MAXZ 200000 
 ;
 
 
 * ---
 * FLUX CALC TRACKING
 * ---
-UOX_TBH_FLX FIG_FLX.ps := G2S: GEOMFLX_MAV :: ;
+UOX_TBH_FLX FIG_FLX.ps := G2S: GEOM :: ;
 
 TRACK TF_EXC := SALT: UOX_TBH_FLX ::
-  EDIT 0
+  EDIT 10
   ALLG
-  TSPC EQW2 <<an2d>> <<densur>> REND
-  !TISO EQW <<an2d>> <<densur>> REND
+  !TSPC EQW2 <<an2d>> <<densur>> REND
+  TISO EQW <<an2d>> <<densur>> REND
+  LONG
+;
+
+TLM_F := TLM: TRACK TF_EXC ::
+  EDIT 10
+  NTPO 1
+  DIRECTIONS
+  DIR 0
 ;
 
 * MOC tracking
@@ -98,13 +101,9 @@ TRACK := MCCGT: TRACK TF_EXC ::
 ;
 
 
-! LIBRARY
-LIBRARY := Mix_Cell :: J311_295 <<COMB0101>> <<COMB0102>> <<COMB0103>> <<COMB0104>> 
-                                <<GAP>> <<CLAD>> <<MODE>> ;
-
 
 ! UNIVERSAL SELF-SHIELDING 
-LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
+LIBRARY2 := USS: LIBRARY TRACK_SS  ::
           EDIT 0
           PASS 2
           GRMIN 52
@@ -116,8 +115,8 @@ FLUX := FLU: LIBRARY2 SYS TRACK TF_EXC ::
 
 
 GREP: FLUX :: GETVAL 'K-EFFECTIVE  ' 1 1 1 >>Keff1<< ;
-ECHO "SS tracking = SALT and FLX tracking = SALT, MOC used on sectorized (MAV) geom: Keff1=" Keff1 ;
+ECHO "SS tracking = SYBILT and FLX tracking = SALT, MOC used on subdivided geom: Keff1=" Keff1 ;
 
-ECHO "AT10SALT_MAV completed" ;
+ECHO "AT10_24UOX SALT TISO completed" ;
 
 END: ;

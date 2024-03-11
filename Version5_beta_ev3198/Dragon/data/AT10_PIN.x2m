@@ -75,7 +75,7 @@ COMPO := BU_C_SALT LIBRARY TRACK TF_EXC TRACK_SS TF_EXC_SS StepList :: <<Multico
 !COMPO  := BU_C_SYBNXT LIBRARY TRACK TF_EXC TRACK_SS StepList 
 !       :: <<Multicompo>> <<geo_name>> <<compo_name>> <<OptionSolve>> ;
 
-ECHO "AT10_24UOX_SALT_TISO completed" ;
+ECHO "AT10_24UOX_SALT_TSPC completed" ;
 
 END: ;
 
