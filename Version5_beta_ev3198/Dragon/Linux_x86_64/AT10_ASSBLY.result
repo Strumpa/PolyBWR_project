@@ -29,9 +29,7 @@ Geo_G2S FIG.ps := G2S: Geom_test :: EDIT 10 DRAWNOD ;                           
 !;                                                                                                                         0028
 ECHO "Geometry test completed" ;                                                                                           0029
 END: ;                                                                                                                     0030
-QUIT .                                                                                                                  IMPLICIT
- 
- DDDDDD   RRRRRR     AAA     GGGGG    OOOOO   NN     NN
+QUIT .                                                                                                                  IMPLICIT DDDDDD   RRRRRR     AAA     GGGGG    OOOOO   NN     NN
  DDDDDDD  RRRRRRR   AAAAA   GGGGGGG  OOOOOOO  NNN    NN
  DD   DD  RR   RR  AA   AA  GG       OO   OO  NNNN   NN
  DD   DD  RRRRRR   AA   AA  GG  GGG  OO   OO  NN NN  NN
@@ -58,138 +56,11 @@ QUIT .                                                                          
 
 
 
-->@BEGIN MODULE : GEO:        
-->@DESCRIPTION  : Geometry definition                                                     
-->@CREDITS      : A. Hebert                                                               
-->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
-                  GNU LESSER GENERAL PUBLIC LICENSE
 
- CREATION OF A LEVEL  2 GEOMETRY ON THE DIRECTORY NAMED 'C1          ' OF THE LCM OBJECT 'Geom_test   ' WITH TYPE 2-D RECT. CELL  .
-
- STATE VECTOR:
- ITYPE     20   (2-D RECT. CELL  )
- LR         2   (NUMBER OF TUBES)
- LX         1   (X-DIMENSION INDEX)
- LY         1   (Y-DIMENSION INDEX)
- LZ         0   (Z-DIMENSION INDEX)
- LREG       3   (NUMBER OF REGIONS)
- MAXMIX     3   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
- ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
- ISUB2      0   (NUMBER OF SUB GEOMETRIES)
- IMERGE     0   (1=CELL-MERGING/0=ELSE)
- ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
- IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
- ICLUST     0   (NUMBER OF CLUSTER RINGS)
- ISECT      0   (TYPE OF SECTORIZATION)
- JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
- IPIN       0   (PIN LOCATION OPTION)
-
- CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'A           ' OF THE LCM OBJECT 'Geom_test   ' WITH TYPE 2-D RECT. CELL  .
-
- STATE VECTOR:
- ITYPE     20   (2-D RECT. CELL  )
- LR         1   (NUMBER OF TUBES)
- LX         1   (X-DIMENSION INDEX)
- LY         1   (Y-DIMENSION INDEX)
- LZ         0   (Z-DIMENSION INDEX)
- LREG       2   (NUMBER OF REGIONS)
- MAXMIX     2   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
- ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
- ISUB2      0   (NUMBER OF SUB GEOMETRIES)
- IMERGE     0   (1=CELL-MERGING/0=ELSE)
- ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
- IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
- ICLUST     0   (NUMBER OF CLUSTER RINGS)
- ISECT      0   (TYPE OF SECTORIZATION)
- JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
- IPIN       0   (PIN LOCATION OPTION)
-
- CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'B           ' OF THE LCM OBJECT 'Geom_test   ' WITH TYPE CARTESIAN 2-D   .
-
- STATE VECTOR:
- ITYPE      5   (CARTESIAN 2-D   )
- LR         0   (NUMBER OF TUBES)
- LX         1   (X-DIMENSION INDEX)
- LY         1   (Y-DIMENSION INDEX)
- LZ         0   (Z-DIMENSION INDEX)
- LREG       1   (NUMBER OF REGIONS)
- MAXMIX     1   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
- ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
- ISUB2      0   (NUMBER OF SUB GEOMETRIES)
- IMERGE     0   (1=CELL-MERGING/0=ELSE)
- ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
- IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
- ICLUST     0   (NUMBER OF CLUSTER RINGS)
- ISECT      0   (TYPE OF SECTORIZATION)
- JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
- IPIN       0   (PIN LOCATION OPTION)
-
- CREATION OF A LEVEL  2 GEOMETRY ON THE DIRECTORY NAMED 'C2          ' OF THE LCM OBJECT 'Geom_test   ' WITH TYPE CARTESIAN 2-D   .
-
- STATE VECTOR:
- ITYPE      5   (CARTESIAN 2-D   )
- LR         0   (NUMBER OF TUBES)
- LX         1   (X-DIMENSION INDEX)
- LY         2   (Y-DIMENSION INDEX)
- LZ         0   (Z-DIMENSION INDEX)
- LREG       2   (NUMBER OF REGIONS)
- MAXMIX     2   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
- ISUB1      1   (1=COMMAND CELL IS USED/0=ELSE)
- ISUB2      2   (NUMBER OF SUB GEOMETRIES)
- IMERGE     0   (1=CELL-MERGING/0=ELSE)
- ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
- IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
- ICLUST     0   (NUMBER OF CLUSTER RINGS)
- ISECT      0   (TYPE OF SECTORIZATION)
- JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
- IPIN       0   (PIN LOCATION OPTION)
-
- CREATION OF A LEVEL  2 GEOMETRY ON THE DIRECTORY NAMED 'C3          ' OF THE LCM OBJECT 'Geom_test   ' WITH TYPE 2-D RECT. CELL  .
-
- STATE VECTOR:
- ITYPE     20   (2-D RECT. CELL  )
- LR         1   (NUMBER OF TUBES)
- LX         1   (X-DIMENSION INDEX)
- LY         1   (Y-DIMENSION INDEX)
- LZ         0   (Z-DIMENSION INDEX)
- LREG       2   (NUMBER OF REGIONS)
- MAXMIX     4   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
- ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
- ISUB2      0   (NUMBER OF SUB GEOMETRIES)
- IMERGE     0   (1=CELL-MERGING/0=ELSE)
- ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
- IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
- ICLUST     0   (NUMBER OF CLUSTER RINGS)
- ISECT      0   (TYPE OF SECTORIZATION)
- JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
- IPIN       0   (PIN LOCATION OPTION)
-
- CREATION OF A LEVEL  1 GEOMETRY ON THE DIRECTORY NAMED '/           ' OF THE LCM OBJECT 'Geom_test   ' WITH TYPE CARTESIAN 2-D   .
-
- STATE VECTOR:
- ITYPE      5   (CARTESIAN 2-D   )
- LR         0   (NUMBER OF TUBES)
- LX         3   (X-DIMENSION INDEX)
- LY         3   (Y-DIMENSION INDEX)
- LZ         0   (Z-DIMENSION INDEX)
- LREG       6   (NUMBER OF REGIONS)
- MAXMIX     4   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
- ISUB1      1   (1=COMMAND CELL IS USED/0=ELSE)
- ISUB2      3   (NUMBER OF SUB GEOMETRIES)
- IMERGE     0   (1=CELL-MERGING/0=ELSE)
- ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
- IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
- ICLUST     0   (NUMBER OF CLUSTER RINGS)
- ISECT      0   (TYPE OF SECTORIZATION)
- JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
- IPIN       0   (PIN LOCATION OPTION)
-->@END MODULE   : GEO:        
--->>MODULE GEO:        : TIME SPENT=        0.000 MEMORY USAGE= 1.160E+03
-. ------------------------------------------------------------------------------------------------------------------------ .
-->@BEGIN MODULE : G2S:        
-->@DESCRIPTION  : Generate a surfacic file in SALOME format from a DRAGON geometry        
-->@CREDITS      : G. Civario                                                              
-->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
-                  GNU LESSER GENERAL PUBLIC LICENSE
-   MESHX        -> xA          
- G2S: error, incoherent geometry(1)
+ 
+! objstk: INVALID EMBEDDED MODULES, REVIEW SYNTAX
+* GAN-2000 VERS 2.1 * ERROR FOUND FOR THIS LINE                                                                            LINE
+::: CHNL := GEO: CAR2D 3 3                                                                                                 0149
+! objpil: ERROR CODE IN >>objstk<< ERROR NUMBER (5002)
+cle2000_c: BAD OBJECTS _MAIN.c2m FILE (ERROR CODE) IRC=5002
+ DRAGON: kernel error (code=  666).

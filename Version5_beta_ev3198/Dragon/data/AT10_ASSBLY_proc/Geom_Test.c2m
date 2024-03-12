@@ -4,59 +4,170 @@ MODULE GEO: ;
 *----
 PARAMETER GEON2 ::
 ::: LINKED_LIST GEON2 ; ;
-REAL mesh1 := 0.37 ;
-REAL mesh2 := mesh1 0.52 + ;
-REAL mesh3 := mesh2 0.74 + ;
-REAL mesh4 := mesh3 0.52 + ;
-REAL mesh5 := mesh4 0.74 + ;
-REAL mesh6 := mesh5 0.52 + ;
-REAL mesh7 := mesh6 0.74 + ;
-REAL mesh8 := mesh7 0.52 + ;
-REAL mesh9 := mesh8 0.74 + ;
-REAL mesh10 := mesh9 0.52 + ;
-REAL mesh11 := mesh10 0.74 + ;
-REAL mesh12 := mesh11 0.52 + ;
-REAL mesh13 := mesh12 0.74 + ;
-REAL mesh14 := mesh13 0.52 + ;
-REAL mesh15 := mesh14 0.74 + ;
-REAL mesh16 := mesh15 0.52 + ;
-REAL mesh17 := mesh16 0.74 + ;
-REAL mesh18 := mesh17 0.26 + ;
+
 *
-GEON2 := GEO: :: CAR2D 3 3 
+GEON2 := GEO: :: CAR2D 5 5 
   EDIT 10
   X- DIAG X+ REFL
   Y- REFL Y+ DIAG
-  CELL C1 C2 C3
-          C2 C3
-             C1
-  MESHX 0.0 1.0 2.0 3.0
-  MESHY 0.0 1.0 2.0 3.0
-    ::: C1 := GEO: CARCEL 2 
-        EDIT 10
-        RADIUS 0.0 0.2 0.22
+    WBC1 WB1 WB2 WB3 WBC2
+          C01 C02 C03 WR1
+             CHNL C04 WR2
+                  C05 WR3
+                      WTC
+  MESHX 0.0 1.0 2.0 3.0 4.0 5.0
+  MESHY 0.0 1.0 2.0 3.0 4.0 5.0
+    ::: WBC1 := GEO: CAR2D 3 3 
+        MESHX 0.0 0.3333 0.6666 1.0
+        MESHY 0.0 0.3333 0.6666 1.0
+        MIX 70 70 70 70 60 60 70 60 7 ;
+    ::: WTC := GEO: CAR2D 3 3 
+        MESHX 0.0 0.3333 0.6666 1.0
+        MESHY 0.0 0.3333 0.6666 1.0
+        MIX 7 60 70 60 60 70 70 70 70 ;
+    ::: WB1 := GEO: CAR2D 1 3
         MESHX 0.0 1.0
-        MESHY 0.0 1.0
-        MIX 1 2 3 ;
-    ::: C2 := GEO: CAR2D 1 2 
-        EDIT 10
-        CELL A B
+        MESHY 0.0 0.3333 0.6666 1.0
+        MIX 70 60 7
+      ;
+    ::: WB2 := GEO: CAR2D 1 3
         MESHX 0.0 1.0
-        MESHY 0.0 0.5 1.0 
-        ::: A := GEO: CARCEL 1 
+        MESHY 0.0 0.3333 0.6666 1.0
+        MIX 70 60 7
+      ;
+    ::: WB3 := GEO: CAR2D 1 3
+        MESHX 0.0 1.0
+        MESHY 0.0 0.3333 0.6666 1.0
+        MIX 70 60 7
+      ;
+    ::: WBC2 := GEO: CAR2D 3 3 
+        MESHX 0.0 0.3333 0.6666 1.0
+        MESHY 0.0 0.3333 0.6666 1.0
+        MIX 70 70 70 60 60 70 7 60 70 
+    ;
+    ECHO "After corners and bottom" ;
+    ::: C01 := GEO: CAR2D 4 4
+        EDIT 10
+        CELL
+        C1 C2 C3 C5
+        C2 C4 C7 C6 
+        C3 C7 C6 C6
+        C5 C6 C6 C6
+        MESHX 0.0 0.25 0.50 0.75 1.0
+        MESHY 0.0 0.25 0.50 0.75 1.0
+        ::: C1 := GEO: CARCEL 1
+                RADIUS 0.0 0.05
+                MIX 1 2
+                MESHX 0.0 0.2
+                MESHY 0.0 0.2
+            ;
+        ::: C2 := GEO: C1 MIX 1 2 ;
+        ::: C3 := GEO: C1 MIX 1 2 ;
+        ::: C4 := GEO: C1 MIX 1 2 ;
+        ::: C5 := GEO: C1 MIX 1 2 ;
+        ::: C6 := GEO: C1 MIX 1 2 ;
+        ::: C7 := GEO: C1 MIX 1 2 ;
+    ;
+    ECHO "After C01" ;
+    ::: C02 := GEO: CAR2D 3 4 
+        CELL 
+        C6 C5 C4
+        C7 C6 C6 
+        C6 C7 C6
+        C6 C6 C7
+        MESHX 0.0 0.3333 0.6666 1.0
+        MESHY 0.0 0.25 0.5 0.75 1.0
+        ::: C6 := GEO: CARCEL 1
             RADIUS 0.0 0.1
             MIX 1 2
-            MESHX 0.0 0.1 
-            MESHY 0.0 0.5 
+            MESHX 0.0 0.3333
+            MESHY 0.0 0.25
             ;
-        ::: B := GEO: CAR2D 1 1
-            MESHX 0.0 1.0
-            MESHY 0.0 0.5
-            MIX 1 ;
+        ::: C4 := GEO: C6 ;
+        ::: C5 := GEO: C6 ;
+        ::: C7 := GEO: C6 ;
+    ;
+    ECHO "After C02" ;
+    ::: C03 := GEO: CAR2D 3 4
+        CELL
+        C3 C2 C1
+        C7 C4 C2
+        C6 C7 C3
+        C6 C5 C4
+        MESHX 0.0 0.3333 0.6666 1.0
+        MESHY 0.0 0.25 0.5 0.75 1.0
+        ::: C1 := GEO: CARCEL 1
+        RADIUS 0.0 0.1 
+        MIX 1 2
+        MESHX 0.0 0.3333
+        MESHY 0.0 0.25
         ;
-    ::: C3 := GEO: CARCEL 1 
+        ::: C2 := GEO: C1 MIX 1 2 ;
+        ::: C3 := GEO: C1 MIX 1 2 ;
+        ::: C4 := GEO: C1 MIX 1 2 ;
+        ::: C5 := GEO: C1 MIX 1 2 ;
+        ::: C6 := GEO: C1 MIX 1 2 ;
+        ::: C7 := GEO: C1 MIX 1 2 ;
+    ;
+    ECHO "After C03" ;
+    ::: C04 := GEO: CAR2D 3 3
+        CELL
+        C4 C6 C4
+        C3 C7 C4
+        C4 C4 C4
+        MESHX 0.0 0.33 0.66 1.0
+        MESHY 0.0 0.33 0.66 1.0
+        ::: C3 := GEO: CARCEL 1
         RADIUS 0.0 0.1
-        MESHX 0.0 1.0
-        MESHY 0.0 1.0 
-        MIX 3 4 ;
+        MIX 1 2
+        MESHX 0.0 0.33333
+        MESHY 0.0 0.33333
+        ;
+        ::: C4 := GEO: C3 MIX 1 2 ;
+        ::: C6 := GEO: C3 MIX 1 2 ;
+        ::: C7 := GEO: C3 MIX 1 2 ;
+    ;
+    ECHO "After C04" ;
+    ::: C05 := GEO: CAR2D 3 3 
+        CELL
+        C4 C8 C3 
+        C8 C4 C2
+        C3 C2 C1 
+        MESHX 0.0 0.33 0.66 1.0
+        MESHY 0.0 0.33 0.66 1.0
+        C1 := GEO: CARCEL 1
+        RADIUS 0.0 0.1
+        MIX 1 2
+        MESHX 0.0 0.33333
+        MESHY 0.0 0.33333
+        ;
+        ::: C2 := GEO: C1 MIX 1 2 ;
+        ::: C3 := GEO: C1 MIX 1 2 ;
+        ::: C4 := GEO: C1 MIX 1 2 ;
+        ::: C8 := GEO: C1 MIX 1 2 ;
+    ;
+    ECHO "After C05" ;
+    ::: CHNL := GEO: CAR2D 3 3
+        MESHX 0.0 0.3333 0.6666 1.0
+        MESHY 0.0 0.3333 0.6666 1.0
+        MIX 70 70 70 70 70 70 70 70 70
+    ;
+    ::: WR1 := GEO: CAR2D 3 1
+        MESHX 0.0 0.3333 0.6666 1.0
+        MESHY 0.0 1.0
+        MIX 7 60 70
+    ;
+    ::: WR2 := GEO: CAR2D 3 1
+        MESHX 0.0 0.3333 0.6666 1.0
+        MESHY 0.0 1.0
+        MIX 7 60 70 
+    ;
+    ::: WR3 := GEO: CAR2D 3 1
+        MESHX 0.0 0.3333 0.6666 1.0
+        MESHY 0.0 1.0
+        MIX 7 60 70 
+    ; 
+
+
+
 ;

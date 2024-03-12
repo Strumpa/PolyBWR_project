@@ -170,14 +170,14 @@ IF name_geom "AT10_ASSBLY_test" = THEN
 
   GEOM := GEO: :: CAR2D 5 5 
     EDIT 10
-    X- REFL X+ REFL
-    Y- REFL Y+ REFL
+    X- DIAG X+ REFL
+    Y- REFL Y+ DIAG
     CELL
     WBC1 WB1 WB2 WB3 WBC2
-    WL1  C01 C02 C03
-    WL2  C04 CHNL
-    WL3  C05 
-    WTC
+          C01 C02 C03 WR1
+             CHNL C04 WR2
+                  C05 WR3
+                      WTC
 
     MESHX 0.0 <<X1>> <<X2>> <<X3>> <<X4>> <<Pitch_A>>
     MESHY 0.0 <<Y1>> <<Y2>> <<Y3>> <<Y4>> <<Pitch_A>>
@@ -188,7 +188,7 @@ IF name_geom "AT10_ASSBLY_test" = THEN
             <<MODE>> <<BOX>> <<BOX>> 
             <<MODE>> <<MODE>> <<MODE>>
       ;
-    ::: WBC1 := GEO: CAR2D 3 3
+    ::: WBC1 := GEO: 
         MESHX 0.0 <<W_gap>> <<x_step>> <<X1>>
         MESHY 0.0 <<W_gap>> <<x_step>> <<Y1>>
         MIX <<MODE>> <<MODE>> <<MODE>> 
