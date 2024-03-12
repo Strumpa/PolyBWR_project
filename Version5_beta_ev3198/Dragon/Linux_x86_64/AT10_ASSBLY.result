@@ -10,26 +10,55 @@
 *                                                                                                                          0009
 *                                                                                                                          0010
 MODULE GEO: G2S: SALT: TLM: NXT: END: ;                                                                                    0011
-PROCEDURE Geom_A Geom_Test ;                                                                                               0012
-LINKED_LIST Geom_test TRACK ;                                                                                              0013
-SEQ_ASCII Geo_G2S ;                                                                                                        0014
-SEQ_BINARY TRACK_EXC ;                                                                                                     0015
-SEQ_ASCII FIG.ps :: FILE './FIG_test.ps' ;                                                                                 0016
-INTEGER an2d := 12 ;  ! ANGULAR QUADRATURE PARAMETER                                                                       0017
-REAL densur := 10.0 ; ! DENSITY OF INTEGRATION LINES CM^-1                                                                 0018
-STRING geo_name := "AT10_ASSBLY_test" ;                                                                                    0019
-!Geom_test := Geom_A :: <<geo_name>> ;                                                                                     0020
-Geom_test := Geom_Test ;                                                                                                   0021
-Geo_G2S FIG.ps := G2S: Geom_test :: EDIT 10 DRAWNOD ;                                                                      0022
-!TRACK TRACK_EXC := SALT: Geo_G2S ::                                                                                       0023
-!  EDIT 10                                                                                                                 0024
-!  ALLG                                                                                                                    0025
-!  TSPC EQW2 <<an2d>> <<densur>>                                                                                           0026
-!  LONG                                                                                                                    0027
-!;                                                                                                                         0028
-ECHO "Geometry test completed" ;                                                                                           0029
-END: ;                                                                                                                     0030
-QUIT .                                                                                                                  IMPLICIT DDDDDD   RRRRRR     AAA     GGGGG    OOOOO   NN     NN
+PROCEDURE Geom_A Geom_Test TRK_A_SALT ;                                                                                    0012
+LINKED_LIST GEOM GEOM_SS TRACK TRACK_SS ;                                                                                  0013
+SEQ_ASCII Geo_G2S GeoSS_G2S ;                                                                                              0014
+SEQ_BINARY TRACK_EXC TRACKSS_EXC ;                                                                                         0015
+SEQ_ASCII FIG_main.ps :: FILE './FIG_main.ps' ;                                                                            0016
+SEQ_ASCII FIG_SS.ps :: FILE './FIG_selfshielding.ps' ;                                                                     0017
+SEQ_ASCII TLM_F :: FILE 'tracks_SALT_ASSBLY.m' ;                                                                           0018
+SEQ_ASCII TLM_SS :: FILE 'tracks_SALT_SS_ASSBLY.m' ;                                                                       0019
+INTEGER an2d := 8 ;  ! ANGULAR QUADRATURE PARAMETER                                                                        0020
+REAL densur := 5.0 ; ! DENSITY OF INTEGRATION LINES CM^-1                                                                  0021
+INTEGER an2d_ss := 8 ;  ! ANGULAR QUADRATURE PARAMETER                                                                     0022
+REAL densur_ss := 5.0 ; ! DENSITY OF INTEGRATION LINES CM^-1                                                               0023
+STRING geo_name := "AT10_ASSBLY_test" ;                                                                                    0024
+! 3 level BWR geometry definition                                                                                          0025
+GEOM GEOM_SS := Geom_A :: <<geo_name>> ;                                                                                   0026
+!Geom_test := Geom_Test ;                                                                                                  0027
+! Call to trackin module                                                                                                   0028
+Geo_G2S FIG_main.ps TRACK TRACK_EXC GeoSS_G2S FIG_SS.ps TRACK_SS TRACKSS_EXC := TRK_A_SALT GEOM GEOM_SS ;                  0029
+!Geo_G2S FIG_main.ps := G2S: Geom_main :: EDIT 1 ;                                                                         0030
+!GeoSS_G2S FIG_SS.ps := G2S: Geom_SS :: EDIT 1 ;                                                                           0031
+!TRACK TRACK_EXC := SALT: Geo_G2S ::                                                                                       0032
+!  EDIT 10                                                                                                                 0033
+!  ALLG                                                                                                                    0034
+!  TSPC EQW2 <<an2d>> <<densur>> REND                                                                                      0035
+!  LONG                                                                                                                    0036
+!;                                                                                                                         0037
+!TRACK_SS TRACKSS_EXC := SALT: GeoSS_G2S ::                                                                                0038
+!  EDIT 10                                                                                                                 0039
+!  ALLG                                                                                                                    0040
+!  TSPC EQW2 <<an2d_ss>> <<densur_ss>>                                                                                     0041
+!  LONG                                                                                                                    0042
+!;                                                                                                                         0043
+TLM_F := TLM: TRACK TRACK_EXC ::                                                                                           0044
+EDIT 10                                                                                                                    0045
+NTPO 1                                                                                                                     0046
+DIRECTIONS                                                                                                                 0047
+DIR 0                                                                                                                      0048
+;                                                                                                                          0049
+TLM_SS := TLM: TRACK_SS TRACKSS_EXC ::                                                                                     0050
+EDIT 10                                                                                                                    0051
+NTPO 1                                                                                                                     0052
+DIRECTIONS                                                                                                                 0053
+DIR 0                                                                                                                      0054
+;                                                                                                                          0055
+ECHO "Geometry tracking completed" ;                                                                                       0056
+END: ;                                                                                                                     0057
+QUIT .                                                                                                                  IMPLICIT
+ 
+ DDDDDD   RRRRRR     AAA     GGGGG    OOOOO   NN     NN
  DDDDDDD  RRRRRRR   AAAAA   GGGGGGG  OOOOOOO  NNN    NN
  DD   DD  RR   RR  AA   AA  GG       OO   OO  NNNN   NN
  DD   DD  RRRRRR   AA   AA  GG  GGG  OO   OO  NN NN  NN
@@ -56,11 +85,2891 @@ QUIT .                                                                          
 
 
 
+->@BEGIN MODULE : GEO:        
+->@DESCRIPTION  : Geometry definition                                                     
+->@CREDITS      : A. Hebert                                                               
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
 
- 
-! objstk: INVALID EMBEDDED MODULES, REVIEW SYNTAX
-* GAN-2000 VERS 2.1 * ERROR FOUND FOR THIS LINE                                                                            LINE
-::: CHNL := GEO: CAR2D 3 3                                                                                                 0149
-! objpil: ERROR CODE IN >>objstk<< ERROR NUMBER (5002)
-cle2000_c: BAD OBJECTS _MAIN.c2m FILE (ERROR CODE) IRC=5002
- DRAGON: kernel error (code=  666).
+ CREATION OF A LEVEL  2 GEOMETRY ON THE DIRECTORY NAMED 'WTC         ' OF THE LCM OBJECT 'GEOM        ' WITH TYPE CARTESIAN 2-D   .
+
+ STATE VECTOR:
+ ITYPE      5   (CARTESIAN 2-D   )
+ LR         0   (NUMBER OF TUBES)
+ LX         3   (X-DIMENSION INDEX)
+ LY         3   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG       9   (NUMBER OF REGIONS)
+ MAXMIX    70   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  2 GEOMETRY ON THE DIRECTORY NAMED 'WBC1        ' OF THE LCM OBJECT 'GEOM        ' WITH TYPE CARTESIAN 2-D   .
+
+ STATE VECTOR:
+ ITYPE      5   (CARTESIAN 2-D   )
+ LR         0   (NUMBER OF TUBES)
+ LX         3   (X-DIMENSION INDEX)
+ LY         3   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG       9   (NUMBER OF REGIONS)
+ MAXMIX    70   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  2 GEOMETRY ON THE DIRECTORY NAMED 'WR3         ' OF THE LCM OBJECT 'GEOM        ' WITH TYPE CARTESIAN 2-D   .
+
+ STATE VECTOR:
+ ITYPE      5   (CARTESIAN 2-D   )
+ LR         0   (NUMBER OF TUBES)
+ LX         3   (X-DIMENSION INDEX)
+ LY         1   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG       3   (NUMBER OF REGIONS)
+ MAXMIX    70   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  2 GEOMETRY ON THE DIRECTORY NAMED 'WR2         ' OF THE LCM OBJECT 'GEOM        ' WITH TYPE CARTESIAN 2-D   .
+
+ STATE VECTOR:
+ ITYPE      5   (CARTESIAN 2-D   )
+ LR         0   (NUMBER OF TUBES)
+ LX         3   (X-DIMENSION INDEX)
+ LY         1   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG       3   (NUMBER OF REGIONS)
+ MAXMIX    70   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  2 GEOMETRY ON THE DIRECTORY NAMED 'WR1         ' OF THE LCM OBJECT 'GEOM        ' WITH TYPE CARTESIAN 2-D   .
+
+ STATE VECTOR:
+ ITYPE      5   (CARTESIAN 2-D   )
+ LR         0   (NUMBER OF TUBES)
+ LX         3   (X-DIMENSION INDEX)
+ LY         1   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG       3   (NUMBER OF REGIONS)
+ MAXMIX    70   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  2 GEOMETRY ON THE DIRECTORY NAMED 'WB1         ' OF THE LCM OBJECT 'GEOM        ' WITH TYPE CARTESIAN 2-D   .
+
+ STATE VECTOR:
+ ITYPE      5   (CARTESIAN 2-D   )
+ LR         0   (NUMBER OF TUBES)
+ LX         1   (X-DIMENSION INDEX)
+ LY         3   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG       3   (NUMBER OF REGIONS)
+ MAXMIX    70   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  2 GEOMETRY ON THE DIRECTORY NAMED 'WB2         ' OF THE LCM OBJECT 'GEOM        ' WITH TYPE CARTESIAN 2-D   .
+
+ STATE VECTOR:
+ ITYPE      5   (CARTESIAN 2-D   )
+ LR         0   (NUMBER OF TUBES)
+ LX         1   (X-DIMENSION INDEX)
+ LY         3   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG       3   (NUMBER OF REGIONS)
+ MAXMIX    70   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  2 GEOMETRY ON THE DIRECTORY NAMED 'WB3         ' OF THE LCM OBJECT 'GEOM        ' WITH TYPE CARTESIAN 2-D   .
+
+ STATE VECTOR:
+ ITYPE      5   (CARTESIAN 2-D   )
+ LR         0   (NUMBER OF TUBES)
+ LX         1   (X-DIMENSION INDEX)
+ LY         3   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG       3   (NUMBER OF REGIONS)
+ MAXMIX    70   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  2 GEOMETRY ON THE DIRECTORY NAMED 'WBC2        ' OF THE LCM OBJECT 'GEOM        ' WITH TYPE CARTESIAN 2-D   .
+
+ STATE VECTOR:
+ ITYPE      5   (CARTESIAN 2-D   )
+ LR         0   (NUMBER OF TUBES)
+ LX         3   (X-DIMENSION INDEX)
+ LY         3   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+>|After Sides and corners                                                                                                 |>0194
+>|C01 done                                                                                                                |>0256
+ LREG       9   (NUMBER OF REGIONS)
+ MAXMIX    70   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C1          ' OF THE LCM OBJECT 'GEOM        ' WITH TYPE 2-D RECT. CELL  .
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C2          ' OF THE LCM OBJECT 'GEOM        ' WITH TYPE 2-D RECT. CELL  .
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C3          ' OF THE LCM OBJECT 'GEOM        ' WITH TYPE 2-D RECT. CELL  .
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C4          ' OF THE LCM OBJECT 'GEOM        ' WITH TYPE 2-D RECT. CELL  .
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C5          ' OF THE LCM OBJECT 'GEOM        ' WITH TYPE 2-D RECT. CELL  .
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C6          ' OF THE LCM OBJECT 'GEOM        ' WITH TYPE 2-D RECT. CELL  .
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C7          ' OF THE LCM OBJECT 'GEOM        ' WITH TYPE 2-D RECT. CELL  .
+
+ CREATION OF A LEVEL  2 GEOMETRY ON THE DIRECTORY NAMED 'C01         ' OF THE LCM OBJECT 'GEOM        ' WITH TYPE CARTESIAN 2-D   .
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C6          ' OF THE LCM OBJECT 'GEOM        ' WITH TYPE 2-D RECT. CELL  .
+
+ STATE VECTOR:
+ ITYPE     20   (2-D RECT. CELL  )
+ LR         6   (NUMBER OF TUBES)
+ LX         1   (X-DIMENSION INDEX)
+ LY         1   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG      18   (NUMBER OF REGIONS)
+ MAXMIX    44   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      4   (TYPE OF SECTORIZATION)
+ JSECT      6   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C5          ' OF THE LCM OBJECT 'GEOM        ' WITH TYPE 2-D RECT. CELL  .
+
+ STATE VECTOR:
+ ITYPE     20   (2-D RECT. CELL  )
+ LR         6   (NUMBER OF TUBES)
+ LX         1   (X-DIMENSION INDEX)
+ LY         1   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG      18   (NUMBER OF REGIONS)
+ MAXMIX    54   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      4   (TYPE OF SECTORIZATION)
+ JSECT      6   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C4          ' OF THE LCM OBJECT 'GEOM        ' WITH TYPE 2-D RECT. CELL  .
+
+ STATE VECTOR:
+ ITYPE     20   (2-D RECT. CELL  )
+ LR         6   (NUMBER OF TUBES)
+ LX         1   (X-DIMENSION INDEX)
+ LY         1   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG      18   (NUMBER OF REGIONS)
+ MAXMIX    64   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      4   (TYPE OF SECTORIZATION)
+ JSECT      6   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C7          ' OF THE LCM OBJECT 'GEOM        ' WITH TYPE 2-D RECT. CELL  .
+>|C02 done                                                                                                                |>0299
+
+ STATE VECTOR:
+ ITYPE     20   (2-D RECT. CELL  )
+ LR         8   (NUMBER OF TUBES)
+ LX         1   (X-DIMENSION INDEX)
+ LY         1   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG      20   (NUMBER OF REGIONS)
+ MAXMIX    76   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      4   (TYPE OF SECTORIZATION)
+ JSECT      8   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  2 GEOMETRY ON THE DIRECTORY NAMED 'C02         ' OF THE LCM OBJECT 'GEOM        ' WITH TYPE CARTESIAN 2-D   .
+
+ STATE VECTOR:
+ ITYPE      5   (CARTESIAN 2-D   )
+ LR         0   (NUMBER OF TUBES)
+ LX         3   (X-DIMENSION INDEX)
+ LY         4   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG      12   (NUMBER OF REGIONS)
+ MAXMIX    76   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      1   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      4   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C1          ' OF THE LCM OBJECT 'GEOM        ' WITH TYPE 2-D RECT. CELL  .
+
+ STATE VECTOR:
+ ITYPE     20   (2-D RECT. CELL  )
+ LR         6   (NUMBER OF TUBES)
+ LX         1   (X-DIMENSION INDEX)
+ LY         1   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG      18   (NUMBER OF REGIONS)
+ MAXMIX     7   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      4   (TYPE OF SECTORIZATION)
+ JSECT      6   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C2          ' OF THE LCM OBJECT 'GEOM        ' WITH TYPE 2-D RECT. CELL  .
+
+ STATE VECTOR:
+ ITYPE     20   (2-D RECT. CELL  )
+ LR         6   (NUMBER OF TUBES)
+ LX         1   (X-DIMENSION INDEX)
+ LY         1   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG      18   (NUMBER OF REGIONS)
+ MAXMIX    24   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      4   (TYPE OF SECTORIZATION)
+ JSECT      6   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C3          ' OF THE LCM OBJECT 'GEOM        ' WITH TYPE 2-D RECT. CELL  .
+
+ STATE VECTOR:
+ ITYPE     20   (2-D RECT. CELL  )
+ LR         6   (NUMBER OF TUBES)
+ LX         1   (X-DIMENSION INDEX)
+ LY         1   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG      18   (NUMBER OF REGIONS)
+ MAXMIX    34   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      4   (TYPE OF SECTORIZATION)
+ JSECT      6   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C4          ' OF THE LCM OBJECT 'GEOM        ' WITH TYPE 2-D RECT. CELL  .
+
+ STATE VECTOR:
+>|C03 done                                                                                                                |>0360
+ ITYPE     20   (2-D RECT. CELL  )
+ LR         6   (NUMBER OF TUBES)
+ LX         1   (X-DIMENSION INDEX)
+ LY         1   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG      18   (NUMBER OF REGIONS)
+ MAXMIX    44   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      4   (TYPE OF SECTORIZATION)
+ JSECT      6   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C5          ' OF THE LCM OBJECT 'GEOM        ' WITH TYPE 2-D RECT. CELL  .
+
+ STATE VECTOR:
+ ITYPE     20   (2-D RECT. CELL  )
+ LR         6   (NUMBER OF TUBES)
+ LX         1   (X-DIMENSION INDEX)
+ LY         1   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG      18   (NUMBER OF REGIONS)
+ MAXMIX    54   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      4   (TYPE OF SECTORIZATION)
+ JSECT      6   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C6          ' OF THE LCM OBJECT 'GEOM        ' WITH TYPE 2-D RECT. CELL  .
+
+ STATE VECTOR:
+ ITYPE     20   (2-D RECT. CELL  )
+ LR         6   (NUMBER OF TUBES)
+ LX         1   (X-DIMENSION INDEX)
+ LY         1   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG      18   (NUMBER OF REGIONS)
+ MAXMIX    64   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      4   (TYPE OF SECTORIZATION)
+ JSECT      6   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C7          ' OF THE LCM OBJECT 'GEOM        ' WITH TYPE 2-D RECT. CELL  .
+
+ STATE VECTOR:
+ ITYPE     20   (2-D RECT. CELL  )
+ LR         8   (NUMBER OF TUBES)
+ LX         1   (X-DIMENSION INDEX)
+ LY         1   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG      20   (NUMBER OF REGIONS)
+ MAXMIX    76   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      4   (TYPE OF SECTORIZATION)
+ JSECT      8   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  2 GEOMETRY ON THE DIRECTORY NAMED 'C03         ' OF THE LCM OBJECT 'GEOM        ' WITH TYPE CARTESIAN 2-D   .
+
+ STATE VECTOR:
+ ITYPE      5   (CARTESIAN 2-D   )
+ LR         0   (NUMBER OF TUBES)
+ LX         3   (X-DIMENSION INDEX)
+ LY         4   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG      12   (NUMBER OF REGIONS)
+ MAXMIX    76   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      1   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      7   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C3          ' OF THE LCM OBJECT 'GEOM        ' WITH TYPE 2-D RECT. CELL  .
+
+ STATE VECTOR:
+ ITYPE     20   (2-D RECT. CELL  )
+>|C04 done                                                                                                                |>0402
+ LR         6   (NUMBER OF TUBES)
+ LX         1   (X-DIMENSION INDEX)
+ LY         1   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG      18   (NUMBER OF REGIONS)
+ MAXMIX    34   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      4   (TYPE OF SECTORIZATION)
+ JSECT      6   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C4          ' OF THE LCM OBJECT 'GEOM        ' WITH TYPE 2-D RECT. CELL  .
+
+ STATE VECTOR:
+ ITYPE     20   (2-D RECT. CELL  )
+ LR         6   (NUMBER OF TUBES)
+ LX         1   (X-DIMENSION INDEX)
+ LY         1   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG      18   (NUMBER OF REGIONS)
+ MAXMIX    44   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      4   (TYPE OF SECTORIZATION)
+ JSECT      6   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C6          ' OF THE LCM OBJECT 'GEOM        ' WITH TYPE 2-D RECT. CELL  .
+
+ STATE VECTOR:
+ ITYPE     20   (2-D RECT. CELL  )
+ LR         6   (NUMBER OF TUBES)
+ LX         1   (X-DIMENSION INDEX)
+ LY         1   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG      18   (NUMBER OF REGIONS)
+ MAXMIX    64   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      4   (TYPE OF SECTORIZATION)
+ JSECT      6   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C7          ' OF THE LCM OBJECT 'GEOM        ' WITH TYPE 2-D RECT. CELL  .
+
+ STATE VECTOR:
+ ITYPE     20   (2-D RECT. CELL  )
+ LR         8   (NUMBER OF TUBES)
+ LX         1   (X-DIMENSION INDEX)
+ LY         1   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG      20   (NUMBER OF REGIONS)
+ MAXMIX    76   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      4   (TYPE OF SECTORIZATION)
+ JSECT      8   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  2 GEOMETRY ON THE DIRECTORY NAMED 'C04         ' OF THE LCM OBJECT 'GEOM        ' WITH TYPE CARTESIAN 2-D   .
+
+ STATE VECTOR:
+ ITYPE      5   (CARTESIAN 2-D   )
+ LR         0   (NUMBER OF TUBES)
+ LX         3   (X-DIMENSION INDEX)
+ LY         3   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG       9   (NUMBER OF REGIONS)
+ MAXMIX    76   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      1   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      4   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C1          ' OF THE LCM OBJECT 'GEOM        ' WITH TYPE 2-D RECT. CELL  .
+
+ STATE VECTOR:
+ ITYPE     20   (2-D RECT. CELL  )
+ LR         6   (NUMBER OF TUBES)
+ LX         1   (X-DIMENSION INDEX)
+ LY         1   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG      18   (NUMBER OF REGIONS)
+ MAXMIX     7   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      4   (TYPE OF SECTORIZATION)
+ JSECT      6   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C2          ' OF THE LCM OBJECT 'GEOM        ' WITH TYPE 2-D RECT. CELL  .
+
+ STATE VECTOR:
+ ITYPE     20   (2-D RECT. CELL  )
+ LR         6   (NUMBER OF TUBES)
+ LX         1   (X-DIMENSION INDEX)
+ LY         1   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG      18   (NUMBER OF REGIONS)
+ MAXMIX    24   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      4   (TYPE OF SECTORIZATION)
+ JSECT      6   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C3          ' OF THE LCM OBJECT 'GEOM        ' WITH TYPE 2-D RECT. CELL  .
+
+ STATE VECTOR:
+ ITYPE     20   (2-D RECT. CELL  )
+ LR         6   (NUMBER OF TUBES)
+ LX         1   (X-DIMENSION INDEX)
+ LY         1   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG      18   (NUMBER OF REGIONS)
+ MAXMIX    34   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      4   (TYPE OF SECTORIZATION)
+ JSECT      6   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C4          ' OF THE LCM OBJECT 'GEOM        ' WITH TYPE 2-D RECT. CELL  .
+
+ STATE VECTOR:
+ ITYPE     20   (2-D RECT. CELL  )
+ LR         6   (NUMBER OF TUBES)
+ LX         1   (X-DIMENSION INDEX)
+ LY         1   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG      18   (NUMBER OF REGIONS)
+ MAXMIX    44   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      4   (TYPE OF SECTORIZATION)
+ JSECT      6   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C8          ' OF THE LCM OBJECT 'GEOM        ' WITH TYPE 2-D RECT. CELL  .
+
+ STATE VECTOR:
+ ITYPE     20   (2-D RECT. CELL  )
+ LR         8   (NUMBER OF TUBES)
+ LX         1   (X-DIMENSION INDEX)
+ LY         1   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG      20   (NUMBER OF REGIONS)
+ MAXMIX    86   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      4   (TYPE OF SECTORIZATION)
+ JSECT      8   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  2 GEOMETRY ON THE DIRECTORY NAMED 'C05         ' OF THE LCM OBJECT 'GEOM        ' WITH TYPE CARTESIAN 2-D   .
+
+ STATE VECTOR:
+ ITYPE      5   (CARTESIAN 2-D   )
+ LR         0   (NUMBER OF TUBES)
+ LX         3   (X-DIMENSION INDEX)
+>|C05 done                                                                                                                |>0450
+>|CHNL done                                                                                                               |>0460
+ LY         3   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG       9   (NUMBER OF REGIONS)
+ MAXMIX    86   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      1   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      5   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  2 GEOMETRY ON THE DIRECTORY NAMED 'CHNL        ' OF THE LCM OBJECT 'GEOM        ' WITH TYPE CARTESIAN 2-D   .
+
+ STATE VECTOR:
+ ITYPE      5   (CARTESIAN 2-D   )
+ LR         0   (NUMBER OF TUBES)
+ LX         5   (X-DIMENSION INDEX)
+ LY         5   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG      25   (NUMBER OF REGIONS)
+ MAXMIX    70   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  1 GEOMETRY ON THE DIRECTORY NAMED '/           ' OF THE LCM OBJECT 'GEOM        ' WITH TYPE CARTESIAN 2-D   .
+
+ STATE VECTOR:
+ ITYPE      5   (CARTESIAN 2-D   )
+ LR         0   (NUMBER OF TUBES)
+ LX         5   (X-DIMENSION INDEX)
+ LY         5   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG      15   (NUMBER OF REGIONS)
+ MAXMIX    86   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      1   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2     15   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+->@END MODULE   : GEO:        
+-->>MODULE GEO:        : TIME SPENT=        0.013 MEMORY USAGE= 1.232E+03
+->@BEGIN MODULE : GEO:        
+->@DESCRIPTION  : Geometry definition                                                     
+->@CREDITS      : A. Hebert                                                               
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+
+ CREATION OF A LEVEL  2 GEOMETRY ON THE DIRECTORY NAMED 'WTC         ' OF THE LCM OBJECT 'GEOM_SS     ' WITH TYPE CARTESIAN 2-D   .
+
+ STATE VECTOR:
+ ITYPE      5   (CARTESIAN 2-D   )
+ LR         0   (NUMBER OF TUBES)
+ LX         3   (X-DIMENSION INDEX)
+ LY         3   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG       9   (NUMBER OF REGIONS)
+ MAXMIX    70   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  2 GEOMETRY ON THE DIRECTORY NAMED 'WBC1        ' OF THE LCM OBJECT 'GEOM_SS     ' WITH TYPE CARTESIAN 2-D   .
+
+ STATE VECTOR:
+ ITYPE      5   (CARTESIAN 2-D   )
+ LR         0   (NUMBER OF TUBES)
+ LX         3   (X-DIMENSION INDEX)
+ LY         3   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG       9   (NUMBER OF REGIONS)
+ MAXMIX    70   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  2 GEOMETRY ON THE DIRECTORY NAMED 'WR3         ' OF THE LCM OBJECT 'GEOM_SS     ' WITH TYPE CARTESIAN 2-D   .
+
+ STATE VECTOR:
+ ITYPE      5   (CARTESIAN 2-D   )
+ LR         0   (NUMBER OF TUBES)
+ LX         3   (X-DIMENSION INDEX)
+ LY         1   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG       3   (NUMBER OF REGIONS)
+ MAXMIX    70   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  2 GEOMETRY ON THE DIRECTORY NAMED 'WR2         ' OF THE LCM OBJECT 'GEOM_SS     ' WITH TYPE CARTESIAN 2-D   .
+
+ STATE VECTOR:
+ ITYPE      5   (CARTESIAN 2-D   )
+ LR         0   (NUMBER OF TUBES)
+ LX         3   (X-DIMENSION INDEX)
+ LY         1   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG       3   (NUMBER OF REGIONS)
+ MAXMIX    70   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  2 GEOMETRY ON THE DIRECTORY NAMED 'WR1         ' OF THE LCM OBJECT 'GEOM_SS     ' WITH TYPE CARTESIAN 2-D   .
+
+ STATE VECTOR:
+ ITYPE      5   (CARTESIAN 2-D   )
+ LR         0   (NUMBER OF TUBES)
+ LX         3   (X-DIMENSION INDEX)
+ LY         1   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG       3   (NUMBER OF REGIONS)
+ MAXMIX    70   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+>|After Sides and corners                                                                                                 |>0525
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  2 GEOMETRY ON THE DIRECTORY NAMED 'WB1         ' OF THE LCM OBJECT 'GEOM_SS     ' WITH TYPE CARTESIAN 2-D   .
+
+ STATE VECTOR:
+ ITYPE      5   (CARTESIAN 2-D   )
+ LR         0   (NUMBER OF TUBES)
+ LX         1   (X-DIMENSION INDEX)
+ LY         3   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG       3   (NUMBER OF REGIONS)
+ MAXMIX    70   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  2 GEOMETRY ON THE DIRECTORY NAMED 'WB2         ' OF THE LCM OBJECT 'GEOM_SS     ' WITH TYPE CARTESIAN 2-D   .
+
+ STATE VECTOR:
+ ITYPE      5   (CARTESIAN 2-D   )
+ LR         0   (NUMBER OF TUBES)
+ LX         1   (X-DIMENSION INDEX)
+ LY         3   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG       3   (NUMBER OF REGIONS)
+ MAXMIX    70   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  2 GEOMETRY ON THE DIRECTORY NAMED 'WB3         ' OF THE LCM OBJECT 'GEOM_SS     ' WITH TYPE CARTESIAN 2-D   .
+
+ STATE VECTOR:
+ ITYPE      5   (CARTESIAN 2-D   )
+ LR         0   (NUMBER OF TUBES)
+ LX         1   (X-DIMENSION INDEX)
+ LY         3   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG       3   (NUMBER OF REGIONS)
+ MAXMIX    70   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  2 GEOMETRY ON THE DIRECTORY NAMED 'WBC2        ' OF THE LCM OBJECT 'GEOM_SS     ' WITH TYPE CARTESIAN 2-D   .
+
+ STATE VECTOR:
+ ITYPE      5   (CARTESIAN 2-D   )
+ LR         0   (NUMBER OF TUBES)
+ LX         3   (X-DIMENSION INDEX)
+ LY         3   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG       9   (NUMBER OF REGIONS)
+ MAXMIX    70   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C1          ' OF THE LCM OBJECT 'GEOM_SS     ' WITH TYPE 2-D RECT. CELL  .
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C2          ' OF THE LCM OBJECT 'GEOM_SS     ' WITH TYPE 2-D RECT. CELL  .
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C3          ' OF THE LCM OBJECT 'GEOM_SS     ' WITH TYPE 2-D RECT. CELL  .
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C4          ' OF THE LCM OBJECT 'GEOM_SS     ' WITH TYPE 2-D RECT. CELL  .
+>|C01 done                                                                                                                |>0565
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C5          ' OF THE LCM OBJECT 'GEOM_SS     ' WITH TYPE 2-D RECT. CELL  .
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C6          ' OF THE LCM OBJECT 'GEOM_SS     ' WITH TYPE 2-D RECT. CELL  .
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C7          ' OF THE LCM OBJECT 'GEOM_SS     ' WITH TYPE 2-D RECT. CELL  .
+
+ CREATION OF A LEVEL  2 GEOMETRY ON THE DIRECTORY NAMED 'C01         ' OF THE LCM OBJECT 'GEOM_SS     ' WITH TYPE CARTESIAN 2-D   .
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C6          ' OF THE LCM OBJECT 'GEOM_SS     ' WITH TYPE 2-D RECT. CELL  .
+
+ STATE VECTOR:
+ ITYPE     20   (2-D RECT. CELL  )
+ LR         6   (NUMBER OF TUBES)
+ LX         1   (X-DIMENSION INDEX)
+ LY         1   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG       7   (NUMBER OF REGIONS)
+ MAXMIX    44   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C5          ' OF THE LCM OBJECT 'GEOM_SS     ' WITH TYPE 2-D RECT. CELL  .
+
+ STATE VECTOR:
+ ITYPE     20   (2-D RECT. CELL  )
+ LR         6   (NUMBER OF TUBES)
+ LX         1   (X-DIMENSION INDEX)
+ LY         1   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG       7   (NUMBER OF REGIONS)
+ MAXMIX    54   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C4          ' OF THE LCM OBJECT 'GEOM_SS     ' WITH TYPE 2-D RECT. CELL  .
+
+ STATE VECTOR:
+ ITYPE     20   (2-D RECT. CELL  )
+ LR         6   (NUMBER OF TUBES)
+ LX         1   (X-DIMENSION INDEX)
+ LY         1   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG       7   (NUMBER OF REGIONS)
+ MAXMIX    64   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C7          ' OF THE LCM OBJECT 'GEOM_SS     ' WITH TYPE 2-D RECT. CELL  .
+
+ STATE VECTOR:
+ ITYPE     20   (2-D RECT. CELL  )
+ LR         8   (NUMBER OF TUBES)
+ LX         1   (X-DIMENSION INDEX)
+ LY         1   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG       9   (NUMBER OF REGIONS)
+ MAXMIX    76   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  2 GEOMETRY ON THE DIRECTORY NAMED 'C02         ' OF THE LCM OBJECT 'GEOM_SS     ' WITH TYPE CARTESIAN 2-D   .
+
+ STATE VECTOR:
+ ITYPE      5   (CARTESIAN 2-D   )
+ LR         0   (NUMBER OF TUBES)
+ LX         3   (X-DIMENSION INDEX)
+ LY         4   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+>|C02 done                                                                                                                |>0595
+ LREG      12   (NUMBER OF REGIONS)
+ MAXMIX    76   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      1   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      4   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C1          ' OF THE LCM OBJECT 'GEOM_SS     ' WITH TYPE 2-D RECT. CELL  .
+
+ STATE VECTOR:
+ ITYPE     20   (2-D RECT. CELL  )
+ LR         6   (NUMBER OF TUBES)
+ LX         1   (X-DIMENSION INDEX)
+ LY         1   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG       7   (NUMBER OF REGIONS)
+ MAXMIX     7   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C2          ' OF THE LCM OBJECT 'GEOM_SS     ' WITH TYPE 2-D RECT. CELL  .
+
+ STATE VECTOR:
+ ITYPE     20   (2-D RECT. CELL  )
+ LR         6   (NUMBER OF TUBES)
+ LX         1   (X-DIMENSION INDEX)
+ LY         1   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG       7   (NUMBER OF REGIONS)
+ MAXMIX    24   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C3          ' OF THE LCM OBJECT 'GEOM_SS     ' WITH TYPE 2-D RECT. CELL  .
+
+ STATE VECTOR:
+ ITYPE     20   (2-D RECT. CELL  )
+ LR         6   (NUMBER OF TUBES)
+ LX         1   (X-DIMENSION INDEX)
+ LY         1   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG       7   (NUMBER OF REGIONS)
+ MAXMIX    34   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C4          ' OF THE LCM OBJECT 'GEOM_SS     ' WITH TYPE 2-D RECT. CELL  .
+
+ STATE VECTOR:
+ ITYPE     20   (2-D RECT. CELL  )
+ LR         6   (NUMBER OF TUBES)
+ LX         1   (X-DIMENSION INDEX)
+ LY         1   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG       7   (NUMBER OF REGIONS)
+ MAXMIX    44   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C5          ' OF THE LCM OBJECT 'GEOM_SS     ' WITH TYPE 2-D RECT. CELL  .
+
+ STATE VECTOR:
+ ITYPE     20   (2-D RECT. CELL  )
+ LR         6   (NUMBER OF TUBES)
+ LX         1   (X-DIMENSION INDEX)
+ LY         1   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG       7   (NUMBER OF REGIONS)
+>|C03 done                                                                                                                |>0634
+ MAXMIX    54   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C6          ' OF THE LCM OBJECT 'GEOM_SS     ' WITH TYPE 2-D RECT. CELL  .
+
+ STATE VECTOR:
+ ITYPE     20   (2-D RECT. CELL  )
+ LR         6   (NUMBER OF TUBES)
+ LX         1   (X-DIMENSION INDEX)
+ LY         1   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG       7   (NUMBER OF REGIONS)
+ MAXMIX    64   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C7          ' OF THE LCM OBJECT 'GEOM_SS     ' WITH TYPE 2-D RECT. CELL  .
+
+ STATE VECTOR:
+ ITYPE     20   (2-D RECT. CELL  )
+ LR         8   (NUMBER OF TUBES)
+ LX         1   (X-DIMENSION INDEX)
+ LY         1   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG       9   (NUMBER OF REGIONS)
+ MAXMIX    76   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  2 GEOMETRY ON THE DIRECTORY NAMED 'C03         ' OF THE LCM OBJECT 'GEOM_SS     ' WITH TYPE CARTESIAN 2-D   .
+
+ STATE VECTOR:
+ ITYPE      5   (CARTESIAN 2-D   )
+ LR         0   (NUMBER OF TUBES)
+ LX         3   (X-DIMENSION INDEX)
+ LY         4   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG      12   (NUMBER OF REGIONS)
+ MAXMIX    76   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      1   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      7   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C3          ' OF THE LCM OBJECT 'GEOM_SS     ' WITH TYPE 2-D RECT. CELL  .
+
+ STATE VECTOR:
+ ITYPE     20   (2-D RECT. CELL  )
+ LR         6   (NUMBER OF TUBES)
+ LX         1   (X-DIMENSION INDEX)
+ LY         1   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG       7   (NUMBER OF REGIONS)
+ MAXMIX    34   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C4          ' OF THE LCM OBJECT 'GEOM_SS     ' WITH TYPE 2-D RECT. CELL  .
+
+ STATE VECTOR:
+ ITYPE     20   (2-D RECT. CELL  )
+ LR         6   (NUMBER OF TUBES)
+ LX         1   (X-DIMENSION INDEX)
+ LY         1   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG       7   (NUMBER OF REGIONS)
+ MAXMIX    44   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+>|C04 done                                                                                                                |>0663
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C6          ' OF THE LCM OBJECT 'GEOM_SS     ' WITH TYPE 2-D RECT. CELL  .
+
+ STATE VECTOR:
+ ITYPE     20   (2-D RECT. CELL  )
+ LR         6   (NUMBER OF TUBES)
+ LX         1   (X-DIMENSION INDEX)
+ LY         1   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG       7   (NUMBER OF REGIONS)
+ MAXMIX    64   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C7          ' OF THE LCM OBJECT 'GEOM_SS     ' WITH TYPE 2-D RECT. CELL  .
+
+ STATE VECTOR:
+ ITYPE     20   (2-D RECT. CELL  )
+ LR         8   (NUMBER OF TUBES)
+ LX         1   (X-DIMENSION INDEX)
+ LY         1   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG       9   (NUMBER OF REGIONS)
+ MAXMIX    76   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  2 GEOMETRY ON THE DIRECTORY NAMED 'C04         ' OF THE LCM OBJECT 'GEOM_SS     ' WITH TYPE CARTESIAN 2-D   .
+
+ STATE VECTOR:
+ ITYPE      5   (CARTESIAN 2-D   )
+ LR         0   (NUMBER OF TUBES)
+ LX         3   (X-DIMENSION INDEX)
+ LY         3   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG       9   (NUMBER OF REGIONS)
+ MAXMIX    76   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      1   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      4   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C1          ' OF THE LCM OBJECT 'GEOM_SS     ' WITH TYPE 2-D RECT. CELL  .
+
+ STATE VECTOR:
+ ITYPE     20   (2-D RECT. CELL  )
+ LR         6   (NUMBER OF TUBES)
+ LX         1   (X-DIMENSION INDEX)
+ LY         1   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG       7   (NUMBER OF REGIONS)
+ MAXMIX     7   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C2          ' OF THE LCM OBJECT 'GEOM_SS     ' WITH TYPE 2-D RECT. CELL  .
+
+ STATE VECTOR:
+ ITYPE     20   (2-D RECT. CELL  )
+ LR         6   (NUMBER OF TUBES)
+ LX         1   (X-DIMENSION INDEX)
+ LY         1   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG       7   (NUMBER OF REGIONS)
+ MAXMIX    24   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+>|C05 done                                                                                                                |>0695
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C3          ' OF THE LCM OBJECT 'GEOM_SS     ' WITH TYPE 2-D RECT. CELL  .
+
+ STATE VECTOR:
+ ITYPE     20   (2-D RECT. CELL  )
+ LR         6   (NUMBER OF TUBES)
+ LX         1   (X-DIMENSION INDEX)
+ LY         1   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG       7   (NUMBER OF REGIONS)
+ MAXMIX    34   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C4          ' OF THE LCM OBJECT 'GEOM_SS     ' WITH TYPE 2-D RECT. CELL  .
+
+ STATE VECTOR:
+ ITYPE     20   (2-D RECT. CELL  )
+ LR         6   (NUMBER OF TUBES)
+ LX         1   (X-DIMENSION INDEX)
+ LY         1   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG       7   (NUMBER OF REGIONS)
+ MAXMIX    44   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C8          ' OF THE LCM OBJECT 'GEOM_SS     ' WITH TYPE 2-D RECT. CELL  .
+
+ STATE VECTOR:
+ ITYPE     20   (2-D RECT. CELL  )
+ LR         8   (NUMBER OF TUBES)
+ LX         1   (X-DIMENSION INDEX)
+ LY         1   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG       9   (NUMBER OF REGIONS)
+ MAXMIX    86   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  2 GEOMETRY ON THE DIRECTORY NAMED 'C05         ' OF THE LCM OBJECT 'GEOM_SS     ' WITH TYPE CARTESIAN 2-D   .
+
+ STATE VECTOR:
+ ITYPE      5   (CARTESIAN 2-D   )
+ LR         0   (NUMBER OF TUBES)
+ LX         3   (X-DIMENSION INDEX)
+ LY         3   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG       9   (NUMBER OF REGIONS)
+ MAXMIX    86   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      1   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      5   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  2 GEOMETRY ON THE DIRECTORY NAMED 'CHNL        ' OF THE LCM OBJECT 'GEOM_SS     ' WITH TYPE CARTESIAN 2-D   .
+
+ STATE VECTOR:
+ ITYPE      5   (CARTESIAN 2-D   )
+ LR         0   (NUMBER OF TUBES)
+ LX         5   (X-DIMENSION INDEX)
+ LY         5   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG      25   (NUMBER OF REGIONS)
+ MAXMIX    70   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      0   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2      0   (NUMBER OF SUB GEOMETRIES)
+>|CHNL done                                                                                                               |>0705
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  1 GEOMETRY ON THE DIRECTORY NAMED '/           ' OF THE LCM OBJECT 'GEOM_SS     ' WITH TYPE CARTESIAN 2-D   .
+
+ STATE VECTOR:
+ ITYPE      5   (CARTESIAN 2-D   )
+ LR         0   (NUMBER OF TUBES)
+ LX         5   (X-DIMENSION INDEX)
+ LY         5   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG      15   (NUMBER OF REGIONS)
+ MAXMIX    86   (MAX. NB. OF MIXTURES/0=TRANSPARENT GEOMETRY)
+ ISUB1      1   (1=COMMAND CELL IS USED/0=ELSE)
+ ISUB2     15   (NUMBER OF SUB GEOMETRIES)
+ IMERGE     0   (1=CELL-MERGING/0=ELSE)
+ ISPLIT     0   (1=MESH-SPLITTING/0=ELSE)
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+->@END MODULE   : GEO:        
+-->>MODULE GEO:        : TIME SPENT=        0.011 MEMORY USAGE= 2.960E+02
+>|Test GEOM and GEOMSS done                                                                                               |>0707
+->@BEGIN MODULE : G2S:        
+->@DESCRIPTION  : Generate a surfacic file in SALOME format from a DRAGON geometry        
+->@CREDITS      : G. Civario                                                              
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+ fin   : prepareData lgMaxGig=           2
+ g2s_segArc: plot domain=( 0.0000000E+00: 1.5240000E+01, 0.0000000E+00: 1.5240000E+01)
+   At end of G2S:
+             1719 segs or arcs
+              924 nodes
+                3 boundary conditions other than default
+->@END MODULE   : G2S:        
+-->>MODULE G2S:        : TIME SPENT=        0.249 MEMORY USAGE= 3.688E+04
+->@BEGIN MODULE : SALT:       
+->@DESCRIPTION  : Track calculations from a SALOME surfacic file                          
+->@CREDITS      : A. Hebert, X. Warin                                                     
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+->@END MODULE   : SALT:       
+-->>MODULE SALT:       : TIME SPENT=        0.430 MEMORY USAGE= 4.164E+03
+->@BEGIN MODULE : MCCGT:      
+->@DESCRIPTION  : Method of characteristics in 2- and 3-D                                 
+->@CREDITS      : I. Suslov, R. Roy, R. Le Tellier, A. Hebert                             
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+->@END MODULE   : MCCGT:      
+-->>MODULE MCCGT:      : TIME SPENT=        0.042 MEMORY USAGE= 0.000E+00
+->@BEGIN MODULE : G2S:        
+->@DESCRIPTION  : Generate a surfacic file in SALOME format from a DRAGON geometry        
+->@CREDITS      : G. Civario                                                              
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+ fin   : prepareData lgMaxGig=           2
+ g2s_segArc: plot domain=( 0.0000000E+00: 1.5240000E+01, 0.0000000E+00: 1.5240000E+01)
+   At end of G2S:
+              622 segs or arcs
+              413 nodes
+                3 boundary conditions other than default
+->@END MODULE   : G2S:        
+-->>MODULE G2S:        : TIME SPENT=        0.052 MEMORY USAGE= 0.000E+00
+->@BEGIN MODULE : SALT:       
+->@DESCRIPTION  : Track calculations from a SALOME surfacic file                          
+->@CREDITS      : A. Hebert, X. Warin                                                     
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+->@END MODULE   : SALT:       
+-->>MODULE SALT:       : TIME SPENT=        0.086 MEMORY USAGE= 9.072E+03
+->@BEGIN MODULE : TLM:        
+->@DESCRIPTION  : Generate matlab line tracking file                                      
+->@CREDITS      : C. Plamondon, G. Marleau                                                
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+(* Output from --TLMGET-- follows 
+   Output from --TLMGET-- completed *)
+(* Output from --TLM   -- follows 
+   NREG =       924
+   NSUR =         3
+   NANGL=        72
+   NDIM =         2
+   ITGEO=         0          *)
+(* Output from --TLMGEO-- follows 
+   Output from --TLMGEO-- completed *)
+(* Output from --TLMDIR-- follows 
+ Processing lines for region =        1
+ Processing lines for region =        2
+ Processing lines for region =        3
+ Processing lines for region =        4
+ Processing lines for region =        5
+ Processing lines for region =        6
+ Processing lines for region =        7
+ Processing lines for region =        8
+ Processing lines for region =        9
+ Processing lines for region =       10
+ Processing lines for region =       11
+ Processing lines for region =       12
+ Processing lines for region =       13
+ Processing lines for region =       14
+ Processing lines for region =       15
+ Processing lines for region =       16
+ Processing lines for region =       17
+ Processing lines for region =       18
+ Processing lines for region =       19
+ Processing lines for region =       20
+ Processing lines for region =       21
+ Processing lines for region =       22
+ Processing lines for region =       23
+ Processing lines for region =       24
+ Processing lines for region =       25
+ Processing lines for region =       26
+ Processing lines for region =       27
+ Processing lines for region =       28
+ Processing lines for region =       29
+ Processing lines for region =       30
+ Processing lines for region =       31
+ Processing lines for region =       32
+ Processing lines for region =       33
+ Processing lines for region =       34
+ Processing lines for region =       35
+ Processing lines for region =       36
+ Processing lines for region =       37
+ Processing lines for region =       38
+ Processing lines for region =       39
+ Processing lines for region =       40
+ Processing lines for region =       41
+ Processing lines for region =       42
+ Processing lines for region =       43
+ Processing lines for region =       44
+ Processing lines for region =       45
+ Processing lines for region =       46
+ Processing lines for region =       47
+ Processing lines for region =       48
+ Processing lines for region =       49
+ Processing lines for region =       50
+ Processing lines for region =       51
+ Processing lines for region =       52
+ Processing lines for region =       53
+ Processing lines for region =       54
+ Processing lines for region =       55
+ Processing lines for region =       56
+ Processing lines for region =       57
+ Processing lines for region =       58
+ Processing lines for region =       59
+ Processing lines for region =       60
+ Processing lines for region =       61
+ Processing lines for region =       62
+ Processing lines for region =       63
+ Processing lines for region =       64
+ Processing lines for region =       65
+ Processing lines for region =       66
+ Processing lines for region =       67
+ Processing lines for region =       68
+ Processing lines for region =       69
+ Processing lines for region =       70
+ Processing lines for region =       71
+ Processing lines for region =       72
+ Processing lines for region =       73
+ Processing lines for region =       74
+ Processing lines for region =       75
+ Processing lines for region =       76
+ Processing lines for region =       77
+ Processing lines for region =       78
+ Processing lines for region =       79
+ Processing lines for region =       80
+ Processing lines for region =       81
+ Processing lines for region =       82
+ Processing lines for region =       83
+ Processing lines for region =       84
+ Processing lines for region =       85
+ Processing lines for region =       86
+ Processing lines for region =       87
+ Processing lines for region =       88
+ Processing lines for region =       89
+ Processing lines for region =       90
+ Processing lines for region =       91
+ Processing lines for region =       92
+ Processing lines for region =       93
+ Processing lines for region =       94
+ Processing lines for region =       95
+ Processing lines for region =       96
+ Processing lines for region =       97
+ Processing lines for region =       98
+ Processing lines for region =       99
+ Processing lines for region =      100
+ Processing lines for region =      101
+ Processing lines for region =      102
+ Processing lines for region =      103
+ Processing lines for region =      104
+ Processing lines for region =      105
+ Processing lines for region =      106
+ Processing lines for region =      107
+ Processing lines for region =      108
+ Processing lines for region =      109
+ Processing lines for region =      110
+ Processing lines for region =      111
+ Processing lines for region =      112
+ Processing lines for region =      113
+ Processing lines for region =      114
+ Processing lines for region =      115
+ Processing lines for region =      116
+ Processing lines for region =      117
+ Processing lines for region =      118
+ Processing lines for region =      119
+ Processing lines for region =      120
+ Processing lines for region =      121
+ Processing lines for region =      122
+ Processing lines for region =      123
+ Processing lines for region =      124
+ Processing lines for region =      125
+ Processing lines for region =      126
+ Processing lines for region =      127
+ Processing lines for region =      128
+ Processing lines for region =      129
+ Processing lines for region =      130
+ Processing lines for region =      131
+ Processing lines for region =      132
+ Processing lines for region =      133
+ Processing lines for region =      134
+ Processing lines for region =      135
+ Processing lines for region =      136
+ Processing lines for region =      137
+ Processing lines for region =      138
+ Processing lines for region =      139
+ Processing lines for region =      140
+ Processing lines for region =      141
+ Processing lines for region =      142
+ Processing lines for region =      143
+ Processing lines for region =      144
+ Processing lines for region =      145
+ Processing lines for region =      146
+ Processing lines for region =      147
+ Processing lines for region =      148
+ Processing lines for region =      149
+ Processing lines for region =      150
+ Processing lines for region =      151
+ Processing lines for region =      152
+ Processing lines for region =      153
+ Processing lines for region =      154
+ Processing lines for region =      155
+ Processing lines for region =      156
+ Processing lines for region =      157
+ Processing lines for region =      158
+ Processing lines for region =      159
+ Processing lines for region =      160
+ Processing lines for region =      161
+ Processing lines for region =      162
+ Processing lines for region =      163
+ Processing lines for region =      164
+ Processing lines for region =      165
+ Processing lines for region =      166
+ Processing lines for region =      167
+ Processing lines for region =      168
+ Processing lines for region =      169
+ Processing lines for region =      170
+ Processing lines for region =      171
+ Processing lines for region =      172
+ Processing lines for region =      173
+ Processing lines for region =      174
+ Processing lines for region =      175
+ Processing lines for region =      176
+ Processing lines for region =      177
+ Processing lines for region =      178
+ Processing lines for region =      179
+ Processing lines for region =      180
+ Processing lines for region =      181
+ Processing lines for region =      182
+ Processing lines for region =      183
+ Processing lines for region =      184
+ Processing lines for region =      185
+ Processing lines for region =      186
+ Processing lines for region =      187
+ Processing lines for region =      188
+ Processing lines for region =      189
+ Processing lines for region =      190
+ Processing lines for region =      191
+ Processing lines for region =      192
+ Processing lines for region =      193
+ Processing lines for region =      194
+ Processing lines for region =      195
+ Processing lines for region =      196
+ Processing lines for region =      197
+ Processing lines for region =      198
+ Processing lines for region =      199
+ Processing lines for region =      200
+ Processing lines for region =      201
+ Processing lines for region =      202
+ Processing lines for region =      203
+ Processing lines for region =      204
+ Processing lines for region =      205
+ Processing lines for region =      206
+ Processing lines for region =      207
+ Processing lines for region =      208
+ Processing lines for region =      209
+ Processing lines for region =      210
+ Processing lines for region =      211
+ Processing lines for region =      212
+ Processing lines for region =      213
+ Processing lines for region =      214
+ Processing lines for region =      215
+ Processing lines for region =      216
+ Processing lines for region =      217
+ Processing lines for region =      218
+ Processing lines for region =      219
+ Processing lines for region =      220
+ Processing lines for region =      221
+ Processing lines for region =      222
+ Processing lines for region =      223
+ Processing lines for region =      224
+ Processing lines for region =      225
+ Processing lines for region =      226
+ Processing lines for region =      227
+ Processing lines for region =      228
+ Processing lines for region =      229
+ Processing lines for region =      230
+ Processing lines for region =      231
+ Processing lines for region =      232
+ Processing lines for region =      233
+ Processing lines for region =      234
+ Processing lines for region =      235
+ Processing lines for region =      236
+ Processing lines for region =      237
+ Processing lines for region =      238
+ Processing lines for region =      239
+ Processing lines for region =      240
+ Processing lines for region =      241
+ Processing lines for region =      242
+ Processing lines for region =      243
+ Processing lines for region =      244
+ Processing lines for region =      245
+ Processing lines for region =      246
+ Processing lines for region =      247
+ Processing lines for region =      248
+ Processing lines for region =      249
+ Processing lines for region =      250
+ Processing lines for region =      251
+ Processing lines for region =      252
+ Processing lines for region =      253
+ Processing lines for region =      254
+ Processing lines for region =      255
+ Processing lines for region =      256
+ Processing lines for region =      257
+ Processing lines for region =      258
+ Processing lines for region =      259
+ Processing lines for region =      260
+ Processing lines for region =      261
+ Processing lines for region =      262
+ Processing lines for region =      263
+ Processing lines for region =      264
+ Processing lines for region =      265
+ Processing lines for region =      266
+ Processing lines for region =      267
+ Processing lines for region =      268
+ Processing lines for region =      269
+ Processing lines for region =      270
+ Processing lines for region =      271
+ Processing lines for region =      272
+ Processing lines for region =      273
+ Processing lines for region =      274
+ Processing lines for region =      275
+ Processing lines for region =      276
+ Processing lines for region =      277
+ Processing lines for region =      278
+ Processing lines for region =      279
+ Processing lines for region =      280
+ Processing lines for region =      281
+ Processing lines for region =      282
+ Processing lines for region =      283
+ Processing lines for region =      284
+ Processing lines for region =      285
+ Processing lines for region =      286
+ Processing lines for region =      287
+ Processing lines for region =      288
+ Processing lines for region =      289
+ Processing lines for region =      290
+ Processing lines for region =      291
+ Processing lines for region =      292
+ Processing lines for region =      293
+ Processing lines for region =      294
+ Processing lines for region =      295
+ Processing lines for region =      296
+ Processing lines for region =      297
+ Processing lines for region =      298
+ Processing lines for region =      299
+ Processing lines for region =      300
+ Processing lines for region =      301
+ Processing lines for region =      302
+ Processing lines for region =      303
+ Processing lines for region =      304
+ Processing lines for region =      305
+ Processing lines for region =      306
+ Processing lines for region =      307
+ Processing lines for region =      308
+ Processing lines for region =      309
+ Processing lines for region =      310
+ Processing lines for region =      311
+ Processing lines for region =      312
+ Processing lines for region =      313
+ Processing lines for region =      314
+ Processing lines for region =      315
+ Processing lines for region =      316
+ Processing lines for region =      317
+ Processing lines for region =      318
+ Processing lines for region =      319
+ Processing lines for region =      320
+ Processing lines for region =      321
+ Processing lines for region =      322
+ Processing lines for region =      323
+ Processing lines for region =      324
+ Processing lines for region =      325
+ Processing lines for region =      326
+ Processing lines for region =      327
+ Processing lines for region =      328
+ Processing lines for region =      329
+ Processing lines for region =      330
+ Processing lines for region =      331
+ Processing lines for region =      332
+ Processing lines for region =      333
+ Processing lines for region =      334
+ Processing lines for region =      335
+ Processing lines for region =      336
+ Processing lines for region =      337
+ Processing lines for region =      338
+ Processing lines for region =      339
+ Processing lines for region =      340
+ Processing lines for region =      341
+ Processing lines for region =      342
+ Processing lines for region =      343
+ Processing lines for region =      344
+ Processing lines for region =      345
+ Processing lines for region =      346
+ Processing lines for region =      347
+ Processing lines for region =      348
+ Processing lines for region =      349
+ Processing lines for region =      350
+ Processing lines for region =      351
+ Processing lines for region =      352
+ Processing lines for region =      353
+ Processing lines for region =      354
+ Processing lines for region =      355
+ Processing lines for region =      356
+ Processing lines for region =      357
+ Processing lines for region =      358
+ Processing lines for region =      359
+ Processing lines for region =      360
+ Processing lines for region =      361
+ Processing lines for region =      362
+ Processing lines for region =      363
+ Processing lines for region =      364
+ Processing lines for region =      365
+ Processing lines for region =      366
+ Processing lines for region =      367
+ Processing lines for region =      368
+ Processing lines for region =      369
+ Processing lines for region =      370
+ Processing lines for region =      371
+ Processing lines for region =      372
+ Processing lines for region =      373
+ Processing lines for region =      374
+ Processing lines for region =      375
+ Processing lines for region =      376
+ Processing lines for region =      377
+ Processing lines for region =      378
+ Processing lines for region =      379
+ Processing lines for region =      380
+ Processing lines for region =      381
+ Processing lines for region =      382
+ Processing lines for region =      383
+ Processing lines for region =      384
+ Processing lines for region =      385
+ Processing lines for region =      386
+ Processing lines for region =      387
+ Processing lines for region =      388
+ Processing lines for region =      389
+ Processing lines for region =      390
+ Processing lines for region =      391
+ Processing lines for region =      392
+ Processing lines for region =      393
+ Processing lines for region =      394
+ Processing lines for region =      395
+ Processing lines for region =      396
+ Processing lines for region =      397
+ Processing lines for region =      398
+ Processing lines for region =      399
+ Processing lines for region =      400
+ Processing lines for region =      401
+ Processing lines for region =      402
+ Processing lines for region =      403
+ Processing lines for region =      404
+ Processing lines for region =      405
+ Processing lines for region =      406
+ Processing lines for region =      407
+ Processing lines for region =      408
+ Processing lines for region =      409
+ Processing lines for region =      410
+ Processing lines for region =      411
+ Processing lines for region =      412
+ Processing lines for region =      413
+ Processing lines for region =      414
+ Processing lines for region =      415
+ Processing lines for region =      416
+ Processing lines for region =      417
+ Processing lines for region =      418
+ Processing lines for region =      419
+ Processing lines for region =      420
+ Processing lines for region =      421
+ Processing lines for region =      422
+ Processing lines for region =      423
+ Processing lines for region =      424
+ Processing lines for region =      425
+ Processing lines for region =      426
+ Processing lines for region =      427
+ Processing lines for region =      428
+ Processing lines for region =      429
+ Processing lines for region =      430
+ Processing lines for region =      431
+ Processing lines for region =      432
+ Processing lines for region =      433
+ Processing lines for region =      434
+ Processing lines for region =      435
+ Processing lines for region =      436
+ Processing lines for region =      437
+ Processing lines for region =      438
+ Processing lines for region =      439
+ Processing lines for region =      440
+ Processing lines for region =      441
+ Processing lines for region =      442
+ Processing lines for region =      443
+ Processing lines for region =      444
+ Processing lines for region =      445
+ Processing lines for region =      446
+ Processing lines for region =      447
+ Processing lines for region =      448
+ Processing lines for region =      449
+ Processing lines for region =      450
+ Processing lines for region =      451
+ Processing lines for region =      452
+ Processing lines for region =      453
+ Processing lines for region =      454
+ Processing lines for region =      455
+ Processing lines for region =      456
+ Processing lines for region =      457
+ Processing lines for region =      458
+ Processing lines for region =      459
+ Processing lines for region =      460
+ Processing lines for region =      461
+ Processing lines for region =      462
+ Processing lines for region =      463
+ Processing lines for region =      464
+ Processing lines for region =      465
+ Processing lines for region =      466
+ Processing lines for region =      467
+ Processing lines for region =      468
+ Processing lines for region =      469
+ Processing lines for region =      470
+ Processing lines for region =      471
+ Processing lines for region =      472
+ Processing lines for region =      473
+ Processing lines for region =      474
+ Processing lines for region =      475
+ Processing lines for region =      476
+ Processing lines for region =      477
+ Processing lines for region =      478
+ Processing lines for region =      479
+ Processing lines for region =      480
+ Processing lines for region =      481
+ Processing lines for region =      482
+ Processing lines for region =      483
+ Processing lines for region =      484
+ Processing lines for region =      485
+ Processing lines for region =      486
+ Processing lines for region =      487
+ Processing lines for region =      488
+ Processing lines for region =      489
+ Processing lines for region =      490
+ Processing lines for region =      491
+ Processing lines for region =      492
+ Processing lines for region =      493
+ Processing lines for region =      494
+ Processing lines for region =      495
+ Processing lines for region =      496
+ Processing lines for region =      497
+ Processing lines for region =      498
+ Processing lines for region =      499
+ Processing lines for region =      500
+ Processing lines for region =      501
+ Processing lines for region =      502
+ Processing lines for region =      503
+ Processing lines for region =      504
+ Processing lines for region =      505
+ Processing lines for region =      506
+ Processing lines for region =      507
+ Processing lines for region =      508
+ Processing lines for region =      509
+ Processing lines for region =      510
+ Processing lines for region =      511
+ Processing lines for region =      512
+ Processing lines for region =      513
+ Processing lines for region =      514
+ Processing lines for region =      515
+ Processing lines for region =      516
+ Processing lines for region =      517
+ Processing lines for region =      518
+ Processing lines for region =      519
+ Processing lines for region =      520
+ Processing lines for region =      521
+ Processing lines for region =      522
+ Processing lines for region =      523
+ Processing lines for region =      524
+ Processing lines for region =      525
+ Processing lines for region =      526
+ Processing lines for region =      527
+ Processing lines for region =      528
+ Processing lines for region =      529
+ Processing lines for region =      530
+ Processing lines for region =      531
+ Processing lines for region =      532
+ Processing lines for region =      533
+ Processing lines for region =      534
+ Processing lines for region =      535
+ Processing lines for region =      536
+ Processing lines for region =      537
+ Processing lines for region =      538
+ Processing lines for region =      539
+ Processing lines for region =      540
+ Processing lines for region =      541
+ Processing lines for region =      542
+ Processing lines for region =      543
+ Processing lines for region =      544
+ Processing lines for region =      545
+ Processing lines for region =      546
+ Processing lines for region =      547
+ Processing lines for region =      548
+ Processing lines for region =      549
+ Processing lines for region =      550
+ Processing lines for region =      551
+ Processing lines for region =      552
+ Processing lines for region =      553
+ Processing lines for region =      554
+ Processing lines for region =      555
+ Processing lines for region =      556
+ Processing lines for region =      557
+ Processing lines for region =      558
+ Processing lines for region =      559
+ Processing lines for region =      560
+ Processing lines for region =      561
+ Processing lines for region =      562
+ Processing lines for region =      563
+ Processing lines for region =      564
+ Processing lines for region =      565
+ Processing lines for region =      566
+ Processing lines for region =      567
+ Processing lines for region =      568
+ Processing lines for region =      569
+ Processing lines for region =      570
+ Processing lines for region =      571
+ Processing lines for region =      572
+ Processing lines for region =      573
+ Processing lines for region =      574
+ Processing lines for region =      575
+ Processing lines for region =      576
+ Processing lines for region =      577
+ Processing lines for region =      578
+ Processing lines for region =      579
+ Processing lines for region =      580
+ Processing lines for region =      581
+ Processing lines for region =      582
+ Processing lines for region =      583
+ Processing lines for region =      584
+ Processing lines for region =      585
+ Processing lines for region =      586
+ Processing lines for region =      587
+ Processing lines for region =      588
+ Processing lines for region =      589
+ Processing lines for region =      590
+ Processing lines for region =      591
+ Processing lines for region =      592
+ Processing lines for region =      593
+ Processing lines for region =      594
+ Processing lines for region =      595
+ Processing lines for region =      596
+ Processing lines for region =      597
+ Processing lines for region =      598
+ Processing lines for region =      599
+ Processing lines for region =      600
+ Processing lines for region =      601
+ Processing lines for region =      602
+ Processing lines for region =      603
+ Processing lines for region =      604
+ Processing lines for region =      605
+ Processing lines for region =      606
+ Processing lines for region =      607
+ Processing lines for region =      608
+ Processing lines for region =      609
+ Processing lines for region =      610
+ Processing lines for region =      611
+ Processing lines for region =      612
+ Processing lines for region =      613
+ Processing lines for region =      614
+ Processing lines for region =      615
+ Processing lines for region =      616
+ Processing lines for region =      617
+ Processing lines for region =      618
+ Processing lines for region =      619
+ Processing lines for region =      620
+ Processing lines for region =      621
+ Processing lines for region =      622
+ Processing lines for region =      623
+ Processing lines for region =      624
+ Processing lines for region =      625
+ Processing lines for region =      626
+ Processing lines for region =      627
+ Processing lines for region =      628
+ Processing lines for region =      629
+ Processing lines for region =      630
+ Processing lines for region =      631
+ Processing lines for region =      632
+ Processing lines for region =      633
+ Processing lines for region =      634
+ Processing lines for region =      635
+ Processing lines for region =      636
+ Processing lines for region =      637
+ Processing lines for region =      638
+ Processing lines for region =      639
+ Processing lines for region =      640
+ Processing lines for region =      641
+ Processing lines for region =      642
+ Processing lines for region =      643
+ Processing lines for region =      644
+ Processing lines for region =      645
+ Processing lines for region =      646
+ Processing lines for region =      647
+ Processing lines for region =      648
+ Processing lines for region =      649
+ Processing lines for region =      650
+ Processing lines for region =      651
+ Processing lines for region =      652
+ Processing lines for region =      653
+ Processing lines for region =      654
+ Processing lines for region =      655
+ Processing lines for region =      656
+ Processing lines for region =      657
+ Processing lines for region =      658
+ Processing lines for region =      659
+ Processing lines for region =      660
+ Processing lines for region =      661
+ Processing lines for region =      662
+ Processing lines for region =      663
+ Processing lines for region =      664
+ Processing lines for region =      665
+ Processing lines for region =      666
+ Processing lines for region =      667
+ Processing lines for region =      668
+ Processing lines for region =      669
+ Processing lines for region =      670
+ Processing lines for region =      671
+ Processing lines for region =      672
+ Processing lines for region =      673
+ Processing lines for region =      674
+ Processing lines for region =      675
+ Processing lines for region =      676
+ Processing lines for region =      677
+ Processing lines for region =      678
+ Processing lines for region =      679
+ Processing lines for region =      680
+ Processing lines for region =      681
+ Processing lines for region =      682
+ Processing lines for region =      683
+ Processing lines for region =      684
+ Processing lines for region =      685
+ Processing lines for region =      686
+ Processing lines for region =      687
+ Processing lines for region =      688
+ Processing lines for region =      689
+ Processing lines for region =      690
+ Processing lines for region =      691
+ Processing lines for region =      692
+ Processing lines for region =      693
+ Processing lines for region =      694
+ Processing lines for region =      695
+ Processing lines for region =      696
+ Processing lines for region =      697
+ Processing lines for region =      698
+ Processing lines for region =      699
+ Processing lines for region =      700
+ Processing lines for region =      701
+ Processing lines for region =      702
+ Processing lines for region =      703
+ Processing lines for region =      704
+ Processing lines for region =      705
+ Processing lines for region =      706
+ Processing lines for region =      707
+ Processing lines for region =      708
+ Processing lines for region =      709
+ Processing lines for region =      710
+ Processing lines for region =      711
+ Processing lines for region =      712
+ Processing lines for region =      713
+ Processing lines for region =      714
+ Processing lines for region =      715
+ Processing lines for region =      716
+ Processing lines for region =      717
+ Processing lines for region =      718
+ Processing lines for region =      719
+ Processing lines for region =      720
+ Processing lines for region =      721
+ Processing lines for region =      722
+ Processing lines for region =      723
+ Processing lines for region =      724
+ Processing lines for region =      725
+ Processing lines for region =      726
+ Processing lines for region =      727
+ Processing lines for region =      728
+ Processing lines for region =      729
+ Processing lines for region =      730
+ Processing lines for region =      731
+ Processing lines for region =      732
+ Processing lines for region =      733
+ Processing lines for region =      734
+ Processing lines for region =      735
+ Processing lines for region =      736
+ Processing lines for region =      737
+ Processing lines for region =      738
+ Processing lines for region =      739
+ Processing lines for region =      740
+ Processing lines for region =      741
+ Processing lines for region =      742
+ Processing lines for region =      743
+ Processing lines for region =      744
+ Processing lines for region =      745
+ Processing lines for region =      746
+ Processing lines for region =      747
+ Processing lines for region =      748
+ Processing lines for region =      749
+ Processing lines for region =      750
+ Processing lines for region =      751
+ Processing lines for region =      752
+ Processing lines for region =      753
+ Processing lines for region =      754
+ Processing lines for region =      755
+ Processing lines for region =      756
+ Processing lines for region =      757
+ Processing lines for region =      758
+ Processing lines for region =      759
+ Processing lines for region =      760
+ Processing lines for region =      761
+ Processing lines for region =      762
+ Processing lines for region =      763
+ Processing lines for region =      764
+ Processing lines for region =      765
+ Processing lines for region =      766
+ Processing lines for region =      767
+ Processing lines for region =      768
+ Processing lines for region =      769
+ Processing lines for region =      770
+ Processing lines for region =      771
+ Processing lines for region =      772
+ Processing lines for region =      773
+ Processing lines for region =      774
+ Processing lines for region =      775
+ Processing lines for region =      776
+ Processing lines for region =      777
+ Processing lines for region =      778
+ Processing lines for region =      779
+ Processing lines for region =      780
+ Processing lines for region =      781
+ Processing lines for region =      782
+ Processing lines for region =      783
+ Processing lines for region =      784
+ Processing lines for region =      785
+ Processing lines for region =      786
+ Processing lines for region =      787
+ Processing lines for region =      788
+ Processing lines for region =      789
+ Processing lines for region =      790
+ Processing lines for region =      791
+ Processing lines for region =      792
+ Processing lines for region =      793
+ Processing lines for region =      794
+ Processing lines for region =      795
+ Processing lines for region =      796
+ Processing lines for region =      797
+ Processing lines for region =      798
+ Processing lines for region =      799
+ Processing lines for region =      800
+ Processing lines for region =      801
+ Processing lines for region =      802
+ Processing lines for region =      803
+ Processing lines for region =      804
+ Processing lines for region =      805
+ Processing lines for region =      806
+ Processing lines for region =      807
+ Processing lines for region =      808
+ Processing lines for region =      809
+ Processing lines for region =      810
+ Processing lines for region =      811
+ Processing lines for region =      812
+ Processing lines for region =      813
+ Processing lines for region =      814
+ Processing lines for region =      815
+ Processing lines for region =      816
+ Processing lines for region =      817
+ Processing lines for region =      818
+ Processing lines for region =      819
+ Processing lines for region =      820
+ Processing lines for region =      821
+ Processing lines for region =      822
+ Processing lines for region =      823
+ Processing lines for region =      824
+ Processing lines for region =      825
+ Processing lines for region =      826
+ Processing lines for region =      827
+ Processing lines for region =      828
+ Processing lines for region =      829
+ Processing lines for region =      830
+ Processing lines for region =      831
+ Processing lines for region =      832
+ Processing lines for region =      833
+ Processing lines for region =      834
+ Processing lines for region =      835
+ Processing lines for region =      836
+ Processing lines for region =      837
+ Processing lines for region =      838
+ Processing lines for region =      839
+ Processing lines for region =      840
+ Processing lines for region =      841
+ Processing lines for region =      842
+ Processing lines for region =      843
+ Processing lines for region =      844
+ Processing lines for region =      845
+ Processing lines for region =      846
+ Processing lines for region =      847
+ Processing lines for region =      848
+ Processing lines for region =      849
+ Processing lines for region =      850
+ Processing lines for region =      851
+ Processing lines for region =      852
+ Processing lines for region =      853
+ Processing lines for region =      854
+ Processing lines for region =      855
+ Processing lines for region =      856
+ Processing lines for region =      857
+ Processing lines for region =      858
+ Processing lines for region =      859
+ Processing lines for region =      860
+ Processing lines for region =      861
+ Processing lines for region =      862
+ Processing lines for region =      863
+ Processing lines for region =      864
+ Processing lines for region =      865
+ Processing lines for region =      866
+ Processing lines for region =      867
+ Processing lines for region =      868
+ Processing lines for region =      869
+ Processing lines for region =      870
+ Processing lines for region =      871
+ Processing lines for region =      872
+ Processing lines for region =      873
+ Processing lines for region =      874
+ Processing lines for region =      875
+ Processing lines for region =      876
+ Processing lines for region =      877
+ Processing lines for region =      878
+ Processing lines for region =      879
+ Processing lines for region =      880
+ Processing lines for region =      881
+ Processing lines for region =      882
+ Processing lines for region =      883
+ Processing lines for region =      884
+ Processing lines for region =      885
+ Processing lines for region =      886
+ Processing lines for region =      887
+ Processing lines for region =      888
+ Processing lines for region =      889
+ Processing lines for region =      890
+ Processing lines for region =      891
+ Processing lines for region =      892
+ Processing lines for region =      893
+ Processing lines for region =      894
+ Processing lines for region =      895
+ Processing lines for region =      896
+ Processing lines for region =      897
+ Processing lines for region =      898
+ Processing lines for region =      899
+ Processing lines for region =      900
+ Processing lines for region =      901
+ Processing lines for region =      902
+ Processing lines for region =      903
+ Processing lines for region =      904
+ Processing lines for region =      905
+ Processing lines for region =      906
+ Processing lines for region =      907
+ Processing lines for region =      908
+ Processing lines for region =      909
+ Processing lines for region =      910
+ Processing lines for region =      911
+ Processing lines for region =      912
+ Processing lines for region =      913
+ Processing lines for region =      914
+ Processing lines for region =      915
+ Processing lines for region =      916
+ Processing lines for region =      917
+ Processing lines for region =      918
+ Processing lines for region =      919
+ Processing lines for region =      920
+ Processing lines for region =      921
+ Processing lines for region =      922
+ Processing lines for region =      923
+ Processing lines for region =      924
+   Output from --TLMDIR-- completed *)
+->@END MODULE   : TLM:        
+-->>MODULE TLM:        : TIME SPENT=       24.680 MEMORY USAGE= 0.000E+00
+->@BEGIN MODULE : TLM:        
+->@DESCRIPTION  : Generate matlab line tracking file                                      
+->@CREDITS      : C. Plamondon, G. Marleau                                                
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+(* Output from --TLMGET-- follows 
+   Output from --TLMGET-- completed *)
+(* Output from --TLM   -- follows 
+   NREG =       413
+   NSUR =         3
+   NANGL=        48
+   NDIM =         2
+   ITGEO=         0          *)
+(* Output from --TLMGEO-- follows 
+   Output from --TLMGEO-- completed *)
+(* Output from --TLMDIR-- follows 
+ Processing lines for region =        1
+ Processing lines for region =        2
+ Processing lines for region =        3
+ Processing lines for region =        4
+ Processing lines for region =        5
+ Processing lines for region =        6
+ Processing lines for region =        7
+ Processing lines for region =        8
+ Processing lines for region =        9
+ Processing lines for region =       10
+ Processing lines for region =       11
+ Processing lines for region =       12
+ Processing lines for region =       13
+ Processing lines for region =       14
+ Processing lines for region =       15
+ Processing lines for region =       16
+ Processing lines for region =       17
+ Processing lines for region =       18
+ Processing lines for region =       19
+ Processing lines for region =       20
+ Processing lines for region =       21
+ Processing lines for region =       22
+ Processing lines for region =       23
+ Processing lines for region =       24
+ Processing lines for region =       25
+ Processing lines for region =       26
+ Processing lines for region =       27
+ Processing lines for region =       28
+ Processing lines for region =       29
+ Processing lines for region =       30
+ Processing lines for region =       31
+ Processing lines for region =       32
+ Processing lines for region =       33
+ Processing lines for region =       34
+ Processing lines for region =       35
+ Processing lines for region =       36
+ Processing lines for region =       37
+ Processing lines for region =       38
+ Processing lines for region =       39
+ Processing lines for region =       40
+ Processing lines for region =       41
+ Processing lines for region =       42
+ Processing lines for region =       43
+ Processing lines for region =       44
+ Processing lines for region =       45
+ Processing lines for region =       46
+ Processing lines for region =       47
+ Processing lines for region =       48
+ Processing lines for region =       49
+ Processing lines for region =       50
+ Processing lines for region =       51
+ Processing lines for region =       52
+ Processing lines for region =       53
+ Processing lines for region =       54
+ Processing lines for region =       55
+ Processing lines for region =       56
+ Processing lines for region =       57
+ Processing lines for region =       58
+ Processing lines for region =       59
+ Processing lines for region =       60
+ Processing lines for region =       61
+ Processing lines for region =       62
+ Processing lines for region =       63
+ Processing lines for region =       64
+ Processing lines for region =       65
+ Processing lines for region =       66
+ Processing lines for region =       67
+ Processing lines for region =       68
+ Processing lines for region =       69
+ Processing lines for region =       70
+ Processing lines for region =       71
+ Processing lines for region =       72
+ Processing lines for region =       73
+ Processing lines for region =       74
+ Processing lines for region =       75
+ Processing lines for region =       76
+ Processing lines for region =       77
+ Processing lines for region =       78
+ Processing lines for region =       79
+ Processing lines for region =       80
+ Processing lines for region =       81
+ Processing lines for region =       82
+ Processing lines for region =       83
+ Processing lines for region =       84
+ Processing lines for region =       85
+ Processing lines for region =       86
+ Processing lines for region =       87
+ Processing lines for region =       88
+ Processing lines for region =       89
+ Processing lines for region =       90
+ Processing lines for region =       91
+ Processing lines for region =       92
+ Processing lines for region =       93
+ Processing lines for region =       94
+ Processing lines for region =       95
+ Processing lines for region =       96
+ Processing lines for region =       97
+ Processing lines for region =       98
+ Processing lines for region =       99
+ Processing lines for region =      100
+ Processing lines for region =      101
+ Processing lines for region =      102
+ Processing lines for region =      103
+ Processing lines for region =      104
+ Processing lines for region =      105
+ Processing lines for region =      106
+ Processing lines for region =      107
+ Processing lines for region =      108
+ Processing lines for region =      109
+ Processing lines for region =      110
+ Processing lines for region =      111
+ Processing lines for region =      112
+ Processing lines for region =      113
+ Processing lines for region =      114
+ Processing lines for region =      115
+ Processing lines for region =      116
+ Processing lines for region =      117
+ Processing lines for region =      118
+ Processing lines for region =      119
+ Processing lines for region =      120
+ Processing lines for region =      121
+ Processing lines for region =      122
+ Processing lines for region =      123
+ Processing lines for region =      124
+ Processing lines for region =      125
+ Processing lines for region =      126
+ Processing lines for region =      127
+ Processing lines for region =      128
+ Processing lines for region =      129
+ Processing lines for region =      130
+ Processing lines for region =      131
+ Processing lines for region =      132
+ Processing lines for region =      133
+ Processing lines for region =      134
+ Processing lines for region =      135
+ Processing lines for region =      136
+ Processing lines for region =      137
+ Processing lines for region =      138
+ Processing lines for region =      139
+ Processing lines for region =      140
+ Processing lines for region =      141
+ Processing lines for region =      142
+ Processing lines for region =      143
+ Processing lines for region =      144
+ Processing lines for region =      145
+ Processing lines for region =      146
+ Processing lines for region =      147
+ Processing lines for region =      148
+ Processing lines for region =      149
+ Processing lines for region =      150
+ Processing lines for region =      151
+ Processing lines for region =      152
+ Processing lines for region =      153
+ Processing lines for region =      154
+ Processing lines for region =      155
+ Processing lines for region =      156
+ Processing lines for region =      157
+ Processing lines for region =      158
+ Processing lines for region =      159
+ Processing lines for region =      160
+ Processing lines for region =      161
+ Processing lines for region =      162
+ Processing lines for region =      163
+ Processing lines for region =      164
+ Processing lines for region =      165
+ Processing lines for region =      166
+ Processing lines for region =      167
+ Processing lines for region =      168
+ Processing lines for region =      169
+ Processing lines for region =      170
+ Processing lines for region =      171
+ Processing lines for region =      172
+ Processing lines for region =      173
+ Processing lines for region =      174
+ Processing lines for region =      175
+ Processing lines for region =      176
+ Processing lines for region =      177
+ Processing lines for region =      178
+ Processing lines for region =      179
+ Processing lines for region =      180
+ Processing lines for region =      181
+ Processing lines for region =      182
+ Processing lines for region =      183
+ Processing lines for region =      184
+ Processing lines for region =      185
+ Processing lines for region =      186
+ Processing lines for region =      187
+ Processing lines for region =      188
+ Processing lines for region =      189
+ Processing lines for region =      190
+ Processing lines for region =      191
+ Processing lines for region =      192
+ Processing lines for region =      193
+ Processing lines for region =      194
+ Processing lines for region =      195
+ Processing lines for region =      196
+ Processing lines for region =      197
+ Processing lines for region =      198
+ Processing lines for region =      199
+ Processing lines for region =      200
+ Processing lines for region =      201
+ Processing lines for region =      202
+ Processing lines for region =      203
+ Processing lines for region =      204
+ Processing lines for region =      205
+ Processing lines for region =      206
+ Processing lines for region =      207
+ Processing lines for region =      208
+ Processing lines for region =      209
+ Processing lines for region =      210
+ Processing lines for region =      211
+ Processing lines for region =      212
+ Processing lines for region =      213
+ Processing lines for region =      214
+ Processing lines for region =      215
+ Processing lines for region =      216
+ Processing lines for region =      217
+ Processing lines for region =      218
+ Processing lines for region =      219
+ Processing lines for region =      220
+ Processing lines for region =      221
+ Processing lines for region =      222
+ Processing lines for region =      223
+ Processing lines for region =      224
+ Processing lines for region =      225
+ Processing lines for region =      226
+ Processing lines for region =      227
+ Processing lines for region =      228
+ Processing lines for region =      229
+ Processing lines for region =      230
+ Processing lines for region =      231
+ Processing lines for region =      232
+ Processing lines for region =      233
+ Processing lines for region =      234
+ Processing lines for region =      235
+ Processing lines for region =      236
+ Processing lines for region =      237
+ Processing lines for region =      238
+ Processing lines for region =      239
+ Processing lines for region =      240
+ Processing lines for region =      241
+ Processing lines for region =      242
+ Processing lines for region =      243
+ Processing lines for region =      244
+ Processing lines for region =      245
+ Processing lines for region =      246
+ Processing lines for region =      247
+ Processing lines for region =      248
+ Processing lines for region =      249
+ Processing lines for region =      250
+ Processing lines for region =      251
+ Processing lines for region =      252
+ Processing lines for region =      253
+ Processing lines for region =      254
+ Processing lines for region =      255
+ Processing lines for region =      256
+ Processing lines for region =      257
+ Processing lines for region =      258
+ Processing lines for region =      259
+ Processing lines for region =      260
+ Processing lines for region =      261
+ Processing lines for region =      262
+ Processing lines for region =      263
+ Processing lines for region =      264
+ Processing lines for region =      265
+ Processing lines for region =      266
+ Processing lines for region =      267
+ Processing lines for region =      268
+ Processing lines for region =      269
+ Processing lines for region =      270
+ Processing lines for region =      271
+ Processing lines for region =      272
+ Processing lines for region =      273
+ Processing lines for region =      274
+ Processing lines for region =      275
+ Processing lines for region =      276
+ Processing lines for region =      277
+ Processing lines for region =      278
+ Processing lines for region =      279
+ Processing lines for region =      280
+ Processing lines for region =      281
+ Processing lines for region =      282
+ Processing lines for region =      283
+ Processing lines for region =      284
+ Processing lines for region =      285
+ Processing lines for region =      286
+ Processing lines for region =      287
+ Processing lines for region =      288
+ Processing lines for region =      289
+ Processing lines for region =      290
+ Processing lines for region =      291
+ Processing lines for region =      292
+ Processing lines for region =      293
+ Processing lines for region =      294
+ Processing lines for region =      295
+ Processing lines for region =      296
+ Processing lines for region =      297
+ Processing lines for region =      298
+ Processing lines for region =      299
+ Processing lines for region =      300
+ Processing lines for region =      301
+ Processing lines for region =      302
+ Processing lines for region =      303
+ Processing lines for region =      304
+ Processing lines for region =      305
+ Processing lines for region =      306
+ Processing lines for region =      307
+ Processing lines for region =      308
+ Processing lines for region =      309
+ Processing lines for region =      310
+ Processing lines for region =      311
+ Processing lines for region =      312
+ Processing lines for region =      313
+ Processing lines for region =      314
+ Processing lines for region =      315
+ Processing lines for region =      316
+ Processing lines for region =      317
+ Processing lines for region =      318
+ Processing lines for region =      319
+ Processing lines for region =      320
+ Processing lines for region =      321
+ Processing lines for region =      322
+ Processing lines for region =      323
+ Processing lines for region =      324
+ Processing lines for region =      325
+ Processing lines for region =      326
+ Processing lines for region =      327
+ Processing lines for region =      328
+ Processing lines for region =      329
+ Processing lines for region =      330
+ Processing lines for region =      331
+ Processing lines for region =      332
+ Processing lines for region =      333
+ Processing lines for region =      334
+ Processing lines for region =      335
+ Processing lines for region =      336
+ Processing lines for region =      337
+ Processing lines for region =      338
+ Processing lines for region =      339
+ Processing lines for region =      340
+ Processing lines for region =      341
+ Processing lines for region =      342
+ Processing lines for region =      343
+ Processing lines for region =      344
+ Processing lines for region =      345
+ Processing lines for region =      346
+ Processing lines for region =      347
+ Processing lines for region =      348
+ Processing lines for region =      349
+ Processing lines for region =      350
+ Processing lines for region =      351
+ Processing lines for region =      352
+ Processing lines for region =      353
+ Processing lines for region =      354
+ Processing lines for region =      355
+ Processing lines for region =      356
+ Processing lines for region =      357
+ Processing lines for region =      358
+ Processing lines for region =      359
+ Processing lines for region =      360
+ Processing lines for region =      361
+ Processing lines for region =      362
+ Processing lines for region =      363
+ Processing lines for region =      364
+ Processing lines for region =      365
+ Processing lines for region =      366
+ Processing lines for region =      367
+ Processing lines for region =      368
+ Processing lines for region =      369
+ Processing lines for region =      370
+ Processing lines for region =      371
+ Processing lines for region =      372
+ Processing lines for region =      373
+ Processing lines for region =      374
+ Processing lines for region =      375
+ Processing lines for region =      376
+ Processing lines for region =      377
+ Processing lines for region =      378
+ Processing lines for region =      379
+ Processing lines for region =      380
+ Processing lines for region =      381
+ Processing lines for region =      382
+ Processing lines for region =      383
+ Processing lines for region =      384
+ Processing lines for region =      385
+ Processing lines for region =      386
+ Processing lines for region =      387
+ Processing lines for region =      388
+ Processing lines for region =      389
+ Processing lines for region =      390
+ Processing lines for region =      391
+ Processing lines for region =      392
+ Processing lines for region =      393
+ Processing lines for region =      394
+ Processing lines for region =      395
+ Processing lines for region =      396
+ Processing lines for region =      397
+ Processing lines for region =      398
+ Processing lines for region =      399
+ Processing lines for region =      400
+ Processing lines for region =      401
+ Processing lines for region =      402
+ Processing lines for region =      403
+ Processing lines for region =      404
+ Processing lines for region =      405
+ Processing lines for region =      406
+ Processing lines for region =      407
+ Processing lines for region =      408
+ Processing lines for region =      409
+ Processing lines for region =      410
+ Processing lines for region =      411
+ Processing lines for region =      412
+ Processing lines for region =      413
+   Output from --TLMDIR-- completed *)
+->@END MODULE   : TLM:        
+-->>MODULE TLM:        : TIME SPENT=        5.145 MEMORY USAGE= 0.000E+00
+>|Geometry tracking completed                                                                                             |>0056
+
+ normal end of execution for dragon 5  Version 5.0.10 ($Revision: 3198 $)              
+ check for warning in listing
+ before assuming your run was successful
