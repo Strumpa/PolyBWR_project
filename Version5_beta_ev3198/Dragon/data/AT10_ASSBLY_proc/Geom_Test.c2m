@@ -1,0 +1,62 @@
+MODULE GEO: ;
+*----
+*  Input geometry data
+*----
+PARAMETER GEON2 ::
+::: LINKED_LIST GEON2 ; ;
+REAL mesh1 := 0.37 ;
+REAL mesh2 := mesh1 0.52 + ;
+REAL mesh3 := mesh2 0.74 + ;
+REAL mesh4 := mesh3 0.52 + ;
+REAL mesh5 := mesh4 0.74 + ;
+REAL mesh6 := mesh5 0.52 + ;
+REAL mesh7 := mesh6 0.74 + ;
+REAL mesh8 := mesh7 0.52 + ;
+REAL mesh9 := mesh8 0.74 + ;
+REAL mesh10 := mesh9 0.52 + ;
+REAL mesh11 := mesh10 0.74 + ;
+REAL mesh12 := mesh11 0.52 + ;
+REAL mesh13 := mesh12 0.74 + ;
+REAL mesh14 := mesh13 0.52 + ;
+REAL mesh15 := mesh14 0.74 + ;
+REAL mesh16 := mesh15 0.52 + ;
+REAL mesh17 := mesh16 0.74 + ;
+REAL mesh18 := mesh17 0.26 + ;
+*
+GEON2 := GEO: :: CAR2D 3 3 
+  EDIT 10
+  X- DIAG X+ REFL
+  Y- REFL Y+ DIAG
+  CELL C1 C2 C3
+          C2 C3
+             C1
+  MESHX 0.0 1.0 2.0 3.0
+  MESHY 0.0 1.0 2.0 3.0
+    ::: C1 := GEO: CARCEL 2 
+        EDIT 10
+        RADIUS 0.0 0.2 0.22
+        MESHX 0.0 1.0
+        MESHY 0.0 1.0
+        MIX 1 2 3 ;
+    ::: C2 := GEO: CAR2D 1 2 
+        EDIT 10
+        CELL A B
+        MESHX 0.0 1.0
+        MESHY 0.0 0.5 1.0 
+        ::: A := GEO: CARCEL 1 
+            RADIUS 0.0 0.1
+            MIX 1 2
+            MESHX 0.0 0.1 
+            MESHY 0.0 0.5 
+            ;
+        ::: B := GEO: CAR2D 1 1
+            MESHX 0.0 1.0
+            MESHY 0.0 0.5
+            MIX 1 ;
+        ;
+    ::: C3 := GEO: CARCEL 1 
+        RADIUS 0.0 0.1
+        MESHX 0.0 1.0
+        MESHY 0.0 1.0 
+        MIX 3 4 ;
+;

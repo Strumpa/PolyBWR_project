@@ -12,7 +12,7 @@
 
 MODULE GEO: G2S: SALT: TLM: NXT: END: ;
 
-PROCEDURE Geom_A ;
+PROCEDURE Geom_A Geom_Test ;
 
 LINKED_LIST Geom_test TRACK ;
 SEQ_ASCII Geo_G2S ;
@@ -24,7 +24,8 @@ REAL densur := 10.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
 
 STRING geo_name := "AT10_ASSBLY_test" ;
 
-Geom_test := Geom_A :: <<geo_name>> ;
+!Geom_test := Geom_A :: <<geo_name>> ;
+Geom_test := Geom_Test ;
 
 Geo_G2S FIG.ps := G2S: Geom_test :: EDIT 10 DRAWNOD ;
 

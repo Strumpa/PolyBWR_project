@@ -170,14 +170,15 @@ IF name_geom "AT10_ASSBLY_test" = THEN
 
   GEOM := GEO: :: CAR2D 5 5 
     EDIT 10
-    X- REFL X+ DIAG
-    Y- REFL Y+ DIAG
+    X- REFL X+ REFL
+    Y- REFL Y+ REFL
     CELL
-    WTC  
-    WL3  C05 
-    WL2  C04 CHNL
-    WL1  C01 C02 C03 
     WBC1 WB1 WB2 WB3 WBC2
+    WL1  C01 C02 C03
+    WL2  C04 CHNL
+    WL3  C05 
+    WTC
+
     MESHX 0.0 <<X1>> <<X2>> <<X3>> <<X4>> <<Pitch_A>>
     MESHY 0.0 <<Y1>> <<Y2>> <<Y3>> <<Y4>> <<Pitch_A>>
     ::: WTC := GEO: CAR2D 3 3
