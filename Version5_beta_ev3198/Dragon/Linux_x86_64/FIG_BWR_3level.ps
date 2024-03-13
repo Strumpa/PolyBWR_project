@@ -1,0 +1,2757 @@
+%!PS-Adobe-3.0
+%%Title: psplot.ps
+%%CreationDate: 20240312 144241.604
+%%Creator: PSPLOT PostScript Plotting Package
+%%Pages: (atend)
+%%EndComments
+%Library Creator: Kevin E. Kohler <kevin@ocean.nova.edu>
+%%BeginProlog
+/inch {72 mul} bind def
+/Ah {moveto lineto lineto stroke} def
+/Ar {moveto 2 copy lineto 4 -2 roll
+ moveto lineto lineto stroke } def
+/arcit {S /A2 exch def /A1 exch def /Rad exch def
+ /Yc exch def /Xc exch def
+ Xc Rad A1 cos mul add Yc Rad A1 sin mul add
+ moveto newpath
+ Xc Yc Rad A1 A2 arc stroke} def
+/C {/Rad exch def /Yc exch def /Xc exch def
+ Xc Yc Rad 0 360 arc closepath
+ } def
+/c0sf {closepath 0 setgray fill} def
+/cf {closepath fill} def
+/Cs {closepath stroke} def
+/Cln {newpath 3 1 roll
+ moveto {lineto} repeat clip newpath
+ } def
+/Cs {closepath stroke} def
+/Fb {newpath moveto
+ Dx 0 rlineto 0 Dy rlineto Dx neg 0 rlineto closepath
+ fill } def
+/Fbn { newpath 3 1 roll moveto {lineto} repeat
+ closepath fill } def
+/Fbnc { newpath 3 1 roll moveto
+ {lineto} repeat closepath fill } def
+/L /lineto load def
+/Lend {/Strlen exch stringwidth pop def} def
+/Lendi {/Strlen exch stringwidth pop 1.5 mul def} def
+/Lends {/Strlen exch stringwidth pop 1.1 mul def} def
+/Lenssd {/Strlenss exch stringwidth pop 3 mul 4 div def} def
+/LSM {2 copy lineto stroke moveto} def
+/lsm {Xp Yp lineto stroke mover} def
+/M /moveto load def
+/mover {Xp Yp moveto} def
+/Np {newpath} def
+/S /stroke load def
+/Sc {setrgbcolor} def
+/Sg {setgray} def
+/Setf {Curfnt exch scalefont setfont} def
+/SM {stroke moveto} def
+/sm {stroke mover} def
+/Slw {72.0000 mul setlinewidth} def
+/Slw0 {.24 setlinewidth} bind def
+%Line Breaking Procedure
+/TurnLineFL
+ { /T exch def /spacewidth space stringwidth pop def
+ /currentw 0 def /wordspace_count 0 def
+ /restart 0 def /remainder T def
+ {remainder space search
+ {/nextword exch def pop
+ /remainder exch def
+ /nextwordwidth nextword stringwidth pop def
+ currentw nextwordwidth add lw gt
+ {T restart wordspace_count restart sub
+ getinterval showline
+ /restart wordspace_count def
+ /currentw nextwordwidth spacewidth add def
+ }
+ {/currentw currentw nextwordwidth add
+ spacewidth add def
+ }
+ ifelse
+ /wordspace_count wordspace_count
+ nextword length add 1 add def
+ }
+ {pop exit}
+ ifelse
+ } loop
+ /lrem remainder stringwidth pop def
+ currentw lrem add lw gt
+ {T restart wordspace_count restart sub
+ getinterval showline remainder showline}
+ {/lastchar T length def
+ T restart lastchar restart sub getinterval
+ lm y moveto show}
+ ifelse
+ } def
+ /parms {/y exch def /lm exch def /rm exch def
+ /leading exch def /pointsize exch def
+ /lw rm lm sub def
+ findfont pointsize scalefont setfont
+ /showline {lm y moveto show
+ /y y leading sub def} def
+ lm y moveto } def
+/Xposd {/Xpos exch def} def
+/Xposjd {/Xpos exch Xpos exch Strlen mul sub def} def
+/xydef {/Xp Xpos def /Yp Ypos def} def
+%/Xypd {/Yp exch def /Xp exch def} def
+/Xypos0d {/Xpos0 Xpres def /Ypos0 Ypres def} def
+/Xyprset {dup /Xpres exch cos Strlen mul Xpos add def
+ /Ypres exch sin Strlen mul Ypos add def} def
+/Xyprset0 {dup /Xpres exch cos Strlen mul Xpos0 add def
+ /Ypres exch sin Strlen mul Ypos0 add def} def
+/Yposd {/Ypos exch def} def
+/Yposjd {/Ypos exch Ypos exch Strlen mul sub def} def
+/space ( ) def
+%%EndProlog
+%%Page: 1 1
+/Curfnt /Helvetica findfont def
+ 12 Setf
+ 1.000 1.000 scale
+ 1.000 1.000 scale
+ 0.740 0.740 scale
+ 192.96 192.96 translate
+Slw0
+ 0.000 Sg
+ 0.000 0.000 0.000 Sc
+ 0.00 0.00 SM
+ 0.00 0.00 translate
+ 0.00 0.00 SM
+ 126.00 0.00 LSM
+S
+ 8 Setf
+ 63.00 Xposd
+ 0.00 Yposd
+(1) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (1) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 63.00 Xposd
+ 0.00 Yposd
+(0) Lend
+xydef mover -90.0 rotate (0) show 90.0 rotate
+ -90.0 Xyprset
+ 126.00 0.00 SM
+ 162.00 0.00 LSM
+S
+ 144.00 Xposd
+ 0.00 Yposd
+(2) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (2) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 144.00 Xposd
+ 0.00 Yposd
+(0) Lend
+xydef mover -90.0 rotate (0) show 90.0 rotate
+ -90.0 Xyprset
+ 0.00 0.00 SM
+ 0.00 126.00 LSM
+S
+ 0.00 Xposd
+ 63.00 Yposd
+(0) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (0) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 0.00 Xposd
+ 63.00 Yposd
+(1) Lend
+xydef mover 0.0 rotate (1) show -0.0 rotate
+ 0.0 Xyprset
+ 0.00 126.00 SM
+ 0.00 162.00 LSM
+S
+ 0.00 Xposd
+ 144.00 Yposd
+(0) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (0) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 0.00 Xposd
+ 144.00 Yposd
+(2) Lend
+xydef mover 0.0 rotate (2) show -0.0 rotate
+ 0.0 Xyprset
+ 0.00 0.00 126.00 0.00 90.00 arcit
+S
+ 89.10 Xposd
+ 89.10 Yposd
+(1) Lend 0.707 Xposjd 0.707 Yposjd
+xydef mover 45.0 rotate (1) show -45.0 rotate
+ 45.0 Xyprset
+S
+ 89.10 Xposd
+ 89.10 Yposd
+(2) Lend
+xydef mover 45.0 rotate (2) show -45.0 rotate
+ 45.0 Xyprset
+ 162.00 54.00 SM
+ 270.00 54.00 LSM
+S
+ 216.00 Xposd
+ 54.00 Yposd
+(13) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (13) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 216.00 Xposd
+ 54.00 Yposd
+(3) Lend
+xydef mover -90.0 rotate (3) show 90.0 rotate
+ -90.0 Xyprset
+ 162.00 0.00 SM
+ 162.00 54.00 LSM
+S
+ 162.00 Xposd
+ 27.00 Yposd
+(2) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (2) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 162.00 Xposd
+ 27.00 Yposd
+(3) Lend
+xydef mover 0.0 rotate (3) show -0.0 rotate
+ 0.0 Xyprset
+ 270.00 0.00 SM
+ 270.00 54.00 LSM
+S
+ 270.00 Xposd
+ 27.00 Yposd
+(3) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (3) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 270.00 Xposd
+ 27.00 Yposd
+(6) Lend
+xydef mover 0.0 rotate (6) show -0.0 rotate
+ 0.0 Xyprset
+ 187.20 0.00 SM
+ 244.80 0.00 LSM
+S
+ 216.00 Xposd
+ 0.00 Yposd
+(5) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (5) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 216.00 Xposd
+ 0.00 Yposd
+(0) Lend
+xydef mover -90.0 rotate (0) show 90.0 rotate
+ -90.0 Xyprset
+ 216.00 0.00 28.80 0.00 180.00 arcit
+S
+ 216.00 Xposd
+ 28.80 Yposd
+(5) Lend -0.000 Xposjd 1.000 Yposjd
+xydef mover 90.0 rotate (5) show -90.0 rotate
+ 90.0 Xyprset
+S
+ 216.00 Xposd
+ 28.80 Yposd
+(4) Lend
+xydef mover 90.0 rotate (4) show -90.0 rotate
+ 90.0 Xyprset
+ 162.00 0.00 SM
+ 172.80 0.00 LSM
+S
+ 167.40 Xposd
+ 0.00 Yposd
+(3) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (3) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 167.40 Xposd
+ 0.00 Yposd
+(0) Lend
+xydef mover -90.0 rotate (0) show 90.0 rotate
+ -90.0 Xyprset
+ 172.80 0.00 SM
+ 187.20 0.00 LSM
+S
+ 180.00 Xposd
+ 0.00 Yposd
+(4) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (4) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 180.00 Xposd
+ 0.00 Yposd
+(0) Lend
+xydef mover -90.0 rotate (0) show 90.0 rotate
+ -90.0 Xyprset
+ 244.80 0.00 SM
+ 259.20 0.00 LSM
+S
+ 252.00 Xposd
+ 0.00 Yposd
+(4) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (4) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 252.00 Xposd
+ 0.00 Yposd
+(0) Lend
+xydef mover -90.0 rotate (0) show 90.0 rotate
+ -90.0 Xyprset
+ 259.20 0.00 SM
+ 270.00 0.00 LSM
+S
+ 264.60 Xposd
+ 0.00 Yposd
+(3) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (3) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 264.60 Xposd
+ 0.00 Yposd
+(0) Lend
+xydef mover -90.0 rotate (0) show 90.0 rotate
+ -90.0 Xyprset
+ 216.00 0.00 43.20 0.00 180.00 arcit
+S
+ 216.00 Xposd
+ 43.20 Yposd
+(4) Lend -0.000 Xposjd 1.000 Yposjd
+xydef mover 90.0 rotate (4) show -90.0 rotate
+ 90.0 Xyprset
+S
+ 216.00 Xposd
+ 43.20 Yposd
+(3) Lend
+xydef mover 90.0 rotate (3) show -90.0 rotate
+ 90.0 Xyprset
+ 270.00 54.00 SM
+ 378.00 54.00 LSM
+S
+ 324.00 Xposd
+ 54.00 Yposd
+(14) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (14) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 324.00 Xposd
+ 54.00 Yposd
+(6) Lend
+xydef mover -90.0 rotate (6) show 90.0 rotate
+ -90.0 Xyprset
+ 378.00 0.00 SM
+ 378.00 54.00 LSM
+S
+ 378.00 Xposd
+ 27.00 Yposd
+(6) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (6) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 378.00 Xposd
+ 27.00 Yposd
+(9) Lend
+xydef mover 0.0 rotate (9) show -0.0 rotate
+ 0.0 Xyprset
+ 295.20 0.00 SM
+ 352.80 0.00 LSM
+S
+ 324.00 Xposd
+ 0.00 Yposd
+(8) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (8) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 324.00 Xposd
+ 0.00 Yposd
+(0) Lend
+xydef mover -90.0 rotate (0) show 90.0 rotate
+ -90.0 Xyprset
+ 324.00 0.00 28.80 0.00 180.00 arcit
+S
+ 324.00 Xposd
+ 28.80 Yposd
+(8) Lend -0.000 Xposjd 1.000 Yposjd
+xydef mover 90.0 rotate (8) show -90.0 rotate
+ 90.0 Xyprset
+S
+ 324.00 Xposd
+ 28.80 Yposd
+(7) Lend
+xydef mover 90.0 rotate (7) show -90.0 rotate
+ 90.0 Xyprset
+ 270.00 0.00 SM
+ 280.80 0.00 LSM
+S
+ 275.40 Xposd
+ 0.00 Yposd
+(6) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (6) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 275.40 Xposd
+ 0.00 Yposd
+(0) Lend
+xydef mover -90.0 rotate (0) show 90.0 rotate
+ -90.0 Xyprset
+ 280.80 0.00 SM
+ 295.20 0.00 LSM
+S
+ 288.00 Xposd
+ 0.00 Yposd
+(7) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (7) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 288.00 Xposd
+ 0.00 Yposd
+(0) Lend
+xydef mover -90.0 rotate (0) show 90.0 rotate
+ -90.0 Xyprset
+ 352.80 0.00 SM
+ 367.20 0.00 LSM
+S
+ 360.00 Xposd
+ 0.00 Yposd
+(7) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (7) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 360.00 Xposd
+ 0.00 Yposd
+(0) Lend
+xydef mover -90.0 rotate (0) show 90.0 rotate
+ -90.0 Xyprset
+ 367.20 0.00 SM
+ 378.00 0.00 LSM
+S
+ 372.60 Xposd
+ 0.00 Yposd
+(6) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (6) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 372.60 Xposd
+ 0.00 Yposd
+(0) Lend
+xydef mover -90.0 rotate (0) show 90.0 rotate
+ -90.0 Xyprset
+ 324.00 0.00 43.20 0.00 180.00 arcit
+S
+ 324.00 Xposd
+ 43.20 Yposd
+(7) Lend -0.000 Xposjd 1.000 Yposjd
+xydef mover 90.0 rotate (7) show -90.0 rotate
+ 90.0 Xyprset
+S
+ 324.00 Xposd
+ 43.20 Yposd
+(6) Lend
+xydef mover 90.0 rotate (6) show -90.0 rotate
+ 90.0 Xyprset
+ 378.00 54.00 SM
+ 486.00 54.00 LSM
+S
+ 432.00 Xposd
+ 54.00 Yposd
+(15) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (15) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 432.00 Xposd
+ 54.00 Yposd
+(9) Lend
+xydef mover -90.0 rotate (9) show 90.0 rotate
+ -90.0 Xyprset
+ 486.00 0.00 SM
+ 486.00 54.00 LSM
+S
+ 486.00 Xposd
+ 27.00 Yposd
+(9) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (9) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 486.00 Xposd
+ 27.00 Yposd
+(12) Lend
+xydef mover 0.0 rotate (12) show -0.0 rotate
+ 0.0 Xyprset
+ 403.20 0.00 SM
+ 460.80 0.00 LSM
+S
+ 432.00 Xposd
+ 0.00 Yposd
+(11) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (11) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 432.00 Xposd
+ 0.00 Yposd
+(0) Lend
+xydef mover -90.0 rotate (0) show 90.0 rotate
+ -90.0 Xyprset
+ 432.00 0.00 28.80 0.00 180.00 arcit
+S
+ 432.00 Xposd
+ 28.80 Yposd
+(11) Lend -0.000 Xposjd 1.000 Yposjd
+xydef mover 90.0 rotate (11) show -90.0 rotate
+ 90.0 Xyprset
+S
+ 432.00 Xposd
+ 28.80 Yposd
+(10) Lend
+xydef mover 90.0 rotate (10) show -90.0 rotate
+ 90.0 Xyprset
+ 378.00 0.00 SM
+ 388.80 0.00 LSM
+S
+ 383.40 Xposd
+ 0.00 Yposd
+(9) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (9) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 383.40 Xposd
+ 0.00 Yposd
+(0) Lend
+xydef mover -90.0 rotate (0) show 90.0 rotate
+ -90.0 Xyprset
+ 388.80 0.00 SM
+ 403.20 0.00 LSM
+S
+ 396.00 Xposd
+ 0.00 Yposd
+(10) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (10) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 396.00 Xposd
+ 0.00 Yposd
+(0) Lend
+xydef mover -90.0 rotate (0) show 90.0 rotate
+ -90.0 Xyprset
+ 460.80 0.00 SM
+ 475.20 0.00 LSM
+S
+ 468.00 Xposd
+ 0.00 Yposd
+(10) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (10) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 468.00 Xposd
+ 0.00 Yposd
+(0) Lend
+xydef mover -90.0 rotate (0) show 90.0 rotate
+ -90.0 Xyprset
+ 475.20 0.00 SM
+ 486.00 0.00 LSM
+S
+ 480.60 Xposd
+ 0.00 Yposd
+(9) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (9) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 480.60 Xposd
+ 0.00 Yposd
+(0) Lend
+xydef mover -90.0 rotate (0) show 90.0 rotate
+ -90.0 Xyprset
+ 432.00 0.00 43.20 0.00 180.00 arcit
+S
+ 432.00 Xposd
+ 43.20 Yposd
+(10) Lend -0.000 Xposjd 1.000 Yposjd
+xydef mover 90.0 rotate (10) show -90.0 rotate
+ 90.0 Xyprset
+S
+ 432.00 Xposd
+ 43.20 Yposd
+(9) Lend
+xydef mover 90.0 rotate (9) show -90.0 rotate
+ 90.0 Xyprset
+ 0.00 162.00 SM
+ 54.00 162.00 LSM
+S
+ 27.00 Xposd
+ 162.00 Yposd
+(24) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (24) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 27.00 Xposd
+ 162.00 Yposd
+(2) Lend
+xydef mover -90.0 rotate (2) show 90.0 rotate
+ -90.0 Xyprset
+ 0.00 270.00 SM
+ 54.00 270.00 LSM
+S
+ 27.00 Xposd
+ 270.00 Yposd
+(41) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (41) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 27.00 Xposd
+ 270.00 Yposd
+(24) Lend
+xydef mover -90.0 rotate (24) show 90.0 rotate
+ -90.0 Xyprset
+ 54.00 162.00 SM
+ 54.00 270.00 LSM
+S
+ 54.00 Xposd
+ 216.00 Yposd
+(24) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (24) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 54.00 Xposd
+ 216.00 Yposd
+(25) Lend
+xydef mover 0.0 rotate (25) show -0.0 rotate
+ 0.0 Xyprset
+ 0.00 187.20 SM
+ 0.00 244.80 LSM
+S
+ 0.00 Xposd
+ 216.00 Yposd
+(0) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (0) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 0.00 Xposd
+ 216.00 Yposd
+(34) Lend
+xydef mover 0.0 rotate (34) show -0.0 rotate
+ 0.0 Xyprset
+ 0.00 216.00 28.80 -90.00 90.00 arcit
+S
+ 28.80 Xposd
+ 216.00 Yposd
+(34) Lend 1.000 Xposjd
+xydef mover (34) show
+ 0.0 Xyprset
+S
+ 28.80 Xposd
+ 216.00 Yposd
+(29) Lend
+xydef mover (29) show
+ 0.0 Xyprset
+ 0.00 162.00 SM
+ 0.00 172.80 LSM
+S
+ 0.00 Xposd
+ 167.40 Yposd
+(0) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (0) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 0.00 Xposd
+ 167.40 Yposd
+(24) Lend
+xydef mover 0.0 rotate (24) show -0.0 rotate
+ 0.0 Xyprset
+ 0.00 172.80 SM
+ 0.00 187.20 LSM
+S
+ 0.00 Xposd
+ 180.00 Yposd
+(0) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (0) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 0.00 Xposd
+ 180.00 Yposd
+(29) Lend
+xydef mover 0.0 rotate (29) show -0.0 rotate
+ 0.0 Xyprset
+ 0.00 244.80 SM
+ 0.00 259.20 LSM
+S
+ 0.00 Xposd
+ 252.00 Yposd
+(0) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (0) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 0.00 Xposd
+ 252.00 Yposd
+(29) Lend
+xydef mover 0.0 rotate (29) show -0.0 rotate
+ 0.0 Xyprset
+ 0.00 259.20 SM
+ 0.00 270.00 LSM
+S
+ 0.00 Xposd
+ 264.60 Yposd
+(0) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (0) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 0.00 Xposd
+ 264.60 Yposd
+(24) Lend
+xydef mover 0.0 rotate (24) show -0.0 rotate
+ 0.0 Xyprset
+ 0.00 216.00 43.20 -90.00 90.00 arcit
+S
+ 43.20 Xposd
+ 216.00 Yposd
+(29) Lend 1.000 Xposjd
+xydef mover (29) show
+ 0.0 Xyprset
+S
+ 43.20 Xposd
+ 216.00 Yposd
+(24) Lend
+xydef mover (24) show
+ 0.0 Xyprset
+ 0.00 378.00 SM
+ 54.00 378.00 LSM
+S
+ 27.00 Xposd
+ 378.00 Yposd
+(60) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (60) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 27.00 Xposd
+ 378.00 Yposd
+(41) Lend
+xydef mover -90.0 rotate (41) show 90.0 rotate
+ -90.0 Xyprset
+ 54.00 270.00 SM
+ 54.00 378.00 LSM
+S
+ 54.00 Xposd
+ 324.00 Yposd
+(41) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (41) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 54.00 Xposd
+ 324.00 Yposd
+(42) Lend
+xydef mover 0.0 rotate (42) show -0.0 rotate
+ 0.0 Xyprset
+ 0.00 295.20 SM
+ 0.00 352.80 LSM
+S
+ 0.00 Xposd
+ 324.00 Yposd
+(0) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (0) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 0.00 Xposd
+ 324.00 Yposd
+(53) Lend
+xydef mover 0.0 rotate (53) show -0.0 rotate
+ 0.0 Xyprset
+ 0.00 324.00 28.80 -90.00 90.00 arcit
+S
+ 28.80 Xposd
+ 324.00 Yposd
+(53) Lend 1.000 Xposjd
+xydef mover (53) show
+ 0.0 Xyprset
+S
+ 28.80 Xposd
+ 324.00 Yposd
+(47) Lend
+xydef mover (47) show
+ 0.0 Xyprset
+ 0.00 270.00 SM
+ 0.00 280.80 LSM
+S
+ 0.00 Xposd
+ 275.40 Yposd
+(0) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (0) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 0.00 Xposd
+ 275.40 Yposd
+(41) Lend
+xydef mover 0.0 rotate (41) show -0.0 rotate
+ 0.0 Xyprset
+ 0.00 280.80 SM
+ 0.00 295.20 LSM
+S
+ 0.00 Xposd
+ 288.00 Yposd
+(0) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (0) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 0.00 Xposd
+ 288.00 Yposd
+(47) Lend
+xydef mover 0.0 rotate (47) show -0.0 rotate
+ 0.0 Xyprset
+ 0.00 352.80 SM
+ 0.00 367.20 LSM
+S
+ 0.00 Xposd
+ 360.00 Yposd
+(0) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (0) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 0.00 Xposd
+ 360.00 Yposd
+(47) Lend
+xydef mover 0.0 rotate (47) show -0.0 rotate
+ 0.0 Xyprset
+ 0.00 367.20 SM
+ 0.00 378.00 LSM
+S
+ 0.00 Xposd
+ 372.60 Yposd
+(0) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (0) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 0.00 Xposd
+ 372.60 Yposd
+(41) Lend
+xydef mover 0.0 rotate (41) show -0.0 rotate
+ 0.0 Xyprset
+ 0.00 324.00 43.20 -90.00 90.00 arcit
+S
+ 43.20 Xposd
+ 324.00 Yposd
+(47) Lend 1.000 Xposjd
+xydef mover (47) show
+ 0.0 Xyprset
+S
+ 43.20 Xposd
+ 324.00 Yposd
+(41) Lend
+xydef mover (41) show
+ 0.0 Xyprset
+ 0.00 486.00 SM
+ 54.00 486.00 LSM
+S
+ 27.00 Xposd
+ 486.00 Yposd
+(77) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (77) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 27.00 Xposd
+ 486.00 Yposd
+(60) Lend
+xydef mover -90.0 rotate (60) show 90.0 rotate
+ -90.0 Xyprset
+ 54.00 378.00 SM
+ 54.00 486.00 LSM
+S
+ 54.00 Xposd
+ 432.00 Yposd
+(60) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (60) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 54.00 Xposd
+ 432.00 Yposd
+(61) Lend
+xydef mover 0.0 rotate (61) show -0.0 rotate
+ 0.0 Xyprset
+ 0.00 403.20 SM
+ 0.00 460.80 LSM
+S
+ 0.00 Xposd
+ 432.00 Yposd
+(0) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (0) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 0.00 Xposd
+ 432.00 Yposd
+(70) Lend
+xydef mover 0.0 rotate (70) show -0.0 rotate
+ 0.0 Xyprset
+ 0.00 432.00 28.80 -90.00 90.00 arcit
+S
+ 28.80 Xposd
+ 432.00 Yposd
+(70) Lend 1.000 Xposjd
+xydef mover (70) show
+ 0.0 Xyprset
+S
+ 28.80 Xposd
+ 432.00 Yposd
+(65) Lend
+xydef mover (65) show
+ 0.0 Xyprset
+ 0.00 378.00 SM
+ 0.00 388.80 LSM
+S
+ 0.00 Xposd
+ 383.40 Yposd
+(0) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (0) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 0.00 Xposd
+ 383.40 Yposd
+(60) Lend
+xydef mover 0.0 rotate (60) show -0.0 rotate
+ 0.0 Xyprset
+ 0.00 388.80 SM
+ 0.00 403.20 LSM
+S
+ 0.00 Xposd
+ 396.00 Yposd
+(0) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (0) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 0.00 Xposd
+ 396.00 Yposd
+(65) Lend
+xydef mover 0.0 rotate (65) show -0.0 rotate
+ 0.0 Xyprset
+ 0.00 460.80 SM
+ 0.00 475.20 LSM
+S
+ 0.00 Xposd
+ 468.00 Yposd
+(0) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (0) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 0.00 Xposd
+ 468.00 Yposd
+(65) Lend
+xydef mover 0.0 rotate (65) show -0.0 rotate
+ 0.0 Xyprset
+ 0.00 475.20 SM
+ 0.00 486.00 LSM
+S
+ 0.00 Xposd
+ 480.60 Yposd
+(0) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (0) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 0.00 Xposd
+ 480.60 Yposd
+(60) Lend
+xydef mover 0.0 rotate (60) show -0.0 rotate
+ 0.0 Xyprset
+ 0.00 432.00 43.20 -90.00 90.00 arcit
+S
+ 43.20 Xposd
+ 432.00 Yposd
+(65) Lend 1.000 Xposjd
+xydef mover (65) show
+ 0.0 Xyprset
+S
+ 43.20 Xposd
+ 432.00 Yposd
+(60) Lend
+xydef mover (60) show
+ 0.0 Xyprset
+ 162.00 162.00 SM
+ 270.00 162.00 LSM
+S
+ 216.00 Xposd
+ 162.00 Yposd
+(26) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (26) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 216.00 Xposd
+ 162.00 Yposd
+(13) Lend
+xydef mover -90.0 rotate (13) show 90.0 rotate
+ -90.0 Xyprset
+ 162.00 270.00 SM
+ 270.00 270.00 LSM
+S
+ 216.00 Xposd
+ 270.00 Yposd
+(43) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (43) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 216.00 Xposd
+ 270.00 Yposd
+(26) Lend
+xydef mover -90.0 rotate (26) show 90.0 rotate
+ -90.0 Xyprset
+ 162.00 162.00 SM
+ 162.00 270.00 LSM
+S
+ 162.00 Xposd
+ 216.00 Yposd
+(25) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (25) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 162.00 Xposd
+ 216.00 Yposd
+(26) Lend
+xydef mover 0.0 rotate (26) show -0.0 rotate
+ 0.0 Xyprset
+ 270.00 162.00 SM
+ 270.00 270.00 LSM
+S
+ 270.00 Xposd
+ 216.00 Yposd
+(26) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (26) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 270.00 Xposd
+ 216.00 Yposd
+(27) Lend
+xydef mover 0.0 rotate (27) show -0.0 rotate
+ 0.0 Xyprset
+Np 216.00 216.00 28.80 C stroke
+S
+ 244.80 Xposd
+ 216.00 Yposd
+(36) Lend 1.000 Xposjd
+xydef mover (36) show
+ 0.0 Xyprset
+S
+ 244.80 Xposd
+ 216.00 Yposd
+(31) Lend
+xydef mover (31) show
+ 0.0 Xyprset
+Np 216.00 216.00 43.20 C stroke
+S
+ 259.20 Xposd
+ 216.00 Yposd
+(31) Lend 1.000 Xposjd
+xydef mover (31) show
+ 0.0 Xyprset
+S
+ 259.20 Xposd
+ 216.00 Yposd
+(26) Lend
+xydef mover (26) show
+ 0.0 Xyprset
+ 270.00 162.00 SM
+ 378.00 162.00 LSM
+S
+ 324.00 Xposd
+ 162.00 Yposd
+(27) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (27) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 324.00 Xposd
+ 162.00 Yposd
+(14) Lend
+xydef mover -90.0 rotate (14) show 90.0 rotate
+ -90.0 Xyprset
+ 270.00 270.00 SM
+ 378.00 270.00 LSM
+S
+ 324.00 Xposd
+ 270.00 Yposd
+(44) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (44) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 324.00 Xposd
+ 270.00 Yposd
+(27) Lend
+xydef mover -90.0 rotate (27) show 90.0 rotate
+ -90.0 Xyprset
+ 378.00 162.00 SM
+ 378.00 270.00 LSM
+S
+ 378.00 Xposd
+ 216.00 Yposd
+(27) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (27) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 378.00 Xposd
+ 216.00 Yposd
+(28) Lend
+xydef mover 0.0 rotate (28) show -0.0 rotate
+ 0.0 Xyprset
+Np 324.00 216.00 28.80 C stroke
+S
+ 352.80 Xposd
+ 216.00 Yposd
+(37) Lend 1.000 Xposjd
+xydef mover (37) show
+ 0.0 Xyprset
+S
+ 352.80 Xposd
+ 216.00 Yposd
+(32) Lend
+xydef mover (32) show
+ 0.0 Xyprset
+Np 324.00 216.00 43.20 C stroke
+S
+ 367.20 Xposd
+ 216.00 Yposd
+(32) Lend 1.000 Xposjd
+xydef mover (32) show
+ 0.0 Xyprset
+S
+ 367.20 Xposd
+ 216.00 Yposd
+(27) Lend
+xydef mover (27) show
+ 0.0 Xyprset
+ 378.00 162.00 SM
+ 486.00 162.00 LSM
+S
+ 432.00 Xposd
+ 162.00 Yposd
+(28) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (28) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 432.00 Xposd
+ 162.00 Yposd
+(15) Lend
+xydef mover -90.0 rotate (15) show 90.0 rotate
+ -90.0 Xyprset
+ 378.00 270.00 SM
+ 486.00 270.00 LSM
+S
+ 432.00 Xposd
+ 270.00 Yposd
+(45) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (45) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 432.00 Xposd
+ 270.00 Yposd
+(28) Lend
+xydef mover -90.0 rotate (28) show 90.0 rotate
+ -90.0 Xyprset
+Np 432.00 216.00 28.80 C stroke
+S
+ 460.80 Xposd
+ 216.00 Yposd
+(38) Lend 1.000 Xposjd
+xydef mover (38) show
+ 0.0 Xyprset
+S
+ 460.80 Xposd
+ 216.00 Yposd
+(33) Lend
+xydef mover (33) show
+ 0.0 Xyprset
+Np 432.00 216.00 43.20 C stroke
+S
+ 475.20 Xposd
+ 216.00 Yposd
+(33) Lend 1.000 Xposjd
+xydef mover (33) show
+ 0.0 Xyprset
+S
+ 475.20 Xposd
+ 216.00 Yposd
+(28) Lend
+xydef mover (28) show
+ 0.0 Xyprset
+ 162.00 378.00 SM
+ 270.00 378.00 LSM
+S
+ 216.00 Xposd
+ 378.00 Yposd
+(62) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (62) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 216.00 Xposd
+ 378.00 Yposd
+(43) Lend
+xydef mover -90.0 rotate (43) show 90.0 rotate
+ -90.0 Xyprset
+ 162.00 270.00 SM
+ 162.00 378.00 LSM
+S
+ 162.00 Xposd
+ 324.00 Yposd
+(42) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (42) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 162.00 Xposd
+ 324.00 Yposd
+(43) Lend
+xydef mover 0.0 rotate (43) show -0.0 rotate
+ 0.0 Xyprset
+ 270.00 270.00 SM
+ 270.00 378.00 LSM
+S
+ 270.00 Xposd
+ 324.00 Yposd
+(43) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (43) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 270.00 Xposd
+ 324.00 Yposd
+(44) Lend
+xydef mover 0.0 rotate (44) show -0.0 rotate
+ 0.0 Xyprset
+Np 216.00 324.00 28.80 C stroke
+S
+ 244.80 Xposd
+ 324.00 Yposd
+(55) Lend 1.000 Xposjd
+xydef mover (55) show
+ 0.0 Xyprset
+S
+ 244.80 Xposd
+ 324.00 Yposd
+(49) Lend
+xydef mover (49) show
+ 0.0 Xyprset
+Np 216.00 324.00 43.20 C stroke
+S
+ 259.20 Xposd
+ 324.00 Yposd
+(49) Lend 1.000 Xposjd
+xydef mover (49) show
+ 0.0 Xyprset
+S
+ 259.20 Xposd
+ 324.00 Yposd
+(43) Lend
+xydef mover (43) show
+ 0.0 Xyprset
+ 270.00 378.00 SM
+ 378.00 378.00 LSM
+S
+ 324.00 Xposd
+ 378.00 Yposd
+(63) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (63) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 324.00 Xposd
+ 378.00 Yposd
+(44) Lend
+xydef mover -90.0 rotate (44) show 90.0 rotate
+ -90.0 Xyprset
+ 378.00 270.00 SM
+ 378.00 378.00 LSM
+S
+ 378.00 Xposd
+ 324.00 Yposd
+(44) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (44) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 378.00 Xposd
+ 324.00 Yposd
+(45) Lend
+xydef mover 0.0 rotate (45) show -0.0 rotate
+ 0.0 Xyprset
+Np 324.00 324.00 28.80 C stroke
+S
+ 352.80 Xposd
+ 324.00 Yposd
+(56) Lend 1.000 Xposjd
+xydef mover (56) show
+ 0.0 Xyprset
+S
+ 352.80 Xposd
+ 324.00 Yposd
+(50) Lend
+xydef mover (50) show
+ 0.0 Xyprset
+Np 324.00 324.00 43.20 C stroke
+S
+ 367.20 Xposd
+ 324.00 Yposd
+(50) Lend 1.000 Xposjd
+xydef mover (50) show
+ 0.0 Xyprset
+S
+ 367.20 Xposd
+ 324.00 Yposd
+(44) Lend
+xydef mover (44) show
+ 0.0 Xyprset
+ 378.00 378.00 SM
+ 486.00 378.00 LSM
+S
+ 432.00 Xposd
+ 378.00 Yposd
+(64) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (64) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 432.00 Xposd
+ 378.00 Yposd
+(45) Lend
+xydef mover -90.0 rotate (45) show 90.0 rotate
+ -90.0 Xyprset
+Np 432.00 324.00 28.80 C stroke
+S
+ 460.80 Xposd
+ 324.00 Yposd
+(57) Lend 1.000 Xposjd
+xydef mover (57) show
+ 0.0 Xyprset
+S
+ 460.80 Xposd
+ 324.00 Yposd
+(51) Lend
+xydef mover (51) show
+ 0.0 Xyprset
+Np 432.00 324.00 43.20 C stroke
+S
+ 475.20 Xposd
+ 324.00 Yposd
+(51) Lend 1.000 Xposjd
+xydef mover (51) show
+ 0.0 Xyprset
+S
+ 475.20 Xposd
+ 324.00 Yposd
+(45) Lend
+xydef mover (45) show
+ 0.0 Xyprset
+ 162.00 378.00 SM
+ 162.00 486.00 LSM
+S
+ 162.00 Xposd
+ 432.00 Yposd
+(61) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (61) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 162.00 Xposd
+ 432.00 Yposd
+(62) Lend
+xydef mover 0.0 rotate (62) show -0.0 rotate
+ 0.0 Xyprset
+ 270.00 378.00 SM
+ 270.00 486.00 LSM
+S
+ 270.00 Xposd
+ 432.00 Yposd
+(62) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (62) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 270.00 Xposd
+ 432.00 Yposd
+(63) Lend
+xydef mover 0.0 rotate (63) show -0.0 rotate
+ 0.0 Xyprset
+Np 216.00 432.00 28.80 C stroke
+S
+ 244.80 Xposd
+ 432.00 Yposd
+(72) Lend 1.000 Xposjd
+xydef mover (72) show
+ 0.0 Xyprset
+S
+ 244.80 Xposd
+ 432.00 Yposd
+(67) Lend
+xydef mover (67) show
+ 0.0 Xyprset
+Np 216.00 432.00 43.20 C stroke
+S
+ 259.20 Xposd
+ 432.00 Yposd
+(67) Lend 1.000 Xposjd
+xydef mover (67) show
+ 0.0 Xyprset
+S
+ 259.20 Xposd
+ 432.00 Yposd
+(62) Lend
+xydef mover (62) show
+ 0.0 Xyprset
+ 378.00 378.00 SM
+ 378.00 486.00 LSM
+S
+ 378.00 Xposd
+ 432.00 Yposd
+(63) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (63) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 378.00 Xposd
+ 432.00 Yposd
+(64) Lend
+xydef mover 0.0 rotate (64) show -0.0 rotate
+ 0.0 Xyprset
+Np 324.00 432.00 28.80 C stroke
+S
+ 352.80 Xposd
+ 432.00 Yposd
+(73) Lend 1.000 Xposjd
+xydef mover (73) show
+ 0.0 Xyprset
+S
+ 352.80 Xposd
+ 432.00 Yposd
+(68) Lend
+xydef mover (68) show
+ 0.0 Xyprset
+Np 324.00 432.00 43.20 C stroke
+S
+ 367.20 Xposd
+ 432.00 Yposd
+(68) Lend 1.000 Xposjd
+xydef mover (68) show
+ 0.0 Xyprset
+S
+ 367.20 Xposd
+ 432.00 Yposd
+(63) Lend
+xydef mover (63) show
+ 0.0 Xyprset
+Np 432.00 432.00 28.80 C stroke
+S
+ 460.80 Xposd
+ 432.00 Yposd
+(74) Lend 1.000 Xposjd
+xydef mover (74) show
+ 0.0 Xyprset
+S
+ 460.80 Xposd
+ 432.00 Yposd
+(69) Lend
+xydef mover (69) show
+ 0.0 Xyprset
+Np 432.00 432.00 43.20 C stroke
+S
+ 475.20 Xposd
+ 432.00 Yposd
+(69) Lend 1.000 Xposjd
+xydef mover (69) show
+ 0.0 Xyprset
+S
+ 475.20 Xposd
+ 432.00 Yposd
+(64) Lend
+xydef mover (64) show
+ 0.0 Xyprset
+ 162.00 54.00 SM
+ 162.00 162.00 LSM
+S
+ 162.00 Xposd
+ 108.00 Yposd
+(2) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (2) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 162.00 Xposd
+ 108.00 Yposd
+(13) Lend
+xydef mover 0.0 rotate (13) show -0.0 rotate
+ 0.0 Xyprset
+ 270.00 54.00 SM
+ 270.00 162.00 LSM
+S
+ 270.00 Xposd
+ 108.00 Yposd
+(13) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (13) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 270.00 Xposd
+ 108.00 Yposd
+(14) Lend
+xydef mover 0.0 rotate (14) show -0.0 rotate
+ 0.0 Xyprset
+Np 216.00 108.00 28.80 C stroke
+S
+ 244.80 Xposd
+ 108.00 Yposd
+(19) Lend 1.000 Xposjd
+xydef mover (19) show
+ 0.0 Xyprset
+S
+ 244.80 Xposd
+ 108.00 Yposd
+(16) Lend
+xydef mover (16) show
+ 0.0 Xyprset
+Np 216.00 108.00 43.20 C stroke
+S
+ 259.20 Xposd
+ 108.00 Yposd
+(16) Lend 1.000 Xposjd
+xydef mover (16) show
+ 0.0 Xyprset
+S
+ 259.20 Xposd
+ 108.00 Yposd
+(13) Lend
+xydef mover (13) show
+ 0.0 Xyprset
+ 378.00 54.00 SM
+ 378.00 162.00 LSM
+S
+ 378.00 Xposd
+ 108.00 Yposd
+(14) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (14) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 378.00 Xposd
+ 108.00 Yposd
+(15) Lend
+xydef mover 0.0 rotate (15) show -0.0 rotate
+ 0.0 Xyprset
+Np 324.00 108.00 28.80 C stroke
+S
+ 352.80 Xposd
+ 108.00 Yposd
+(20) Lend 1.000 Xposjd
+xydef mover (20) show
+ 0.0 Xyprset
+S
+ 352.80 Xposd
+ 108.00 Yposd
+(17) Lend
+xydef mover (17) show
+ 0.0 Xyprset
+Np 324.00 108.00 43.20 C stroke
+S
+ 367.20 Xposd
+ 108.00 Yposd
+(17) Lend 1.000 Xposjd
+xydef mover (17) show
+ 0.0 Xyprset
+S
+ 367.20 Xposd
+ 108.00 Yposd
+(14) Lend
+xydef mover (14) show
+ 0.0 Xyprset
+Np 432.00 108.00 28.80 C stroke
+S
+ 460.80 Xposd
+ 108.00 Yposd
+(21) Lend 1.000 Xposjd
+xydef mover (21) show
+ 0.0 Xyprset
+S
+ 460.80 Xposd
+ 108.00 Yposd
+(18) Lend
+xydef mover (18) show
+ 0.0 Xyprset
+Np 432.00 108.00 43.20 C stroke
+S
+ 475.20 Xposd
+ 108.00 Yposd
+(18) Lend 1.000 Xposjd
+xydef mover (18) show
+ 0.0 Xyprset
+S
+ 475.20 Xposd
+ 108.00 Yposd
+(15) Lend
+xydef mover (15) show
+ 0.0 Xyprset
+ 54.00 162.00 SM
+ 162.00 162.00 LSM
+S
+ 108.00 Xposd
+ 162.00 Yposd
+(25) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (25) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 108.00 Xposd
+ 162.00 Yposd
+(2) Lend
+xydef mover -90.0 rotate (2) show 90.0 rotate
+ -90.0 Xyprset
+ 54.00 270.00 SM
+ 162.00 270.00 LSM
+S
+ 108.00 Xposd
+ 270.00 Yposd
+(42) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (42) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 108.00 Xposd
+ 270.00 Yposd
+(25) Lend
+xydef mover -90.0 rotate (25) show 90.0 rotate
+ -90.0 Xyprset
+Np 108.00 216.00 28.80 C stroke
+S
+ 136.80 Xposd
+ 216.00 Yposd
+(35) Lend 1.000 Xposjd
+xydef mover (35) show
+ 0.0 Xyprset
+S
+ 136.80 Xposd
+ 216.00 Yposd
+(30) Lend
+xydef mover (30) show
+ 0.0 Xyprset
+Np 108.00 216.00 43.20 C stroke
+S
+ 151.20 Xposd
+ 216.00 Yposd
+(30) Lend 1.000 Xposjd
+xydef mover (30) show
+ 0.0 Xyprset
+S
+ 151.20 Xposd
+ 216.00 Yposd
+(25) Lend
+xydef mover (25) show
+ 0.0 Xyprset
+ 54.00 378.00 SM
+ 162.00 378.00 LSM
+S
+ 108.00 Xposd
+ 378.00 Yposd
+(61) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (61) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 108.00 Xposd
+ 378.00 Yposd
+(42) Lend
+xydef mover -90.0 rotate (42) show 90.0 rotate
+ -90.0 Xyprset
+Np 108.00 324.00 28.80 C stroke
+S
+ 136.80 Xposd
+ 324.00 Yposd
+(54) Lend 1.000 Xposjd
+xydef mover (54) show
+ 0.0 Xyprset
+S
+ 136.80 Xposd
+ 324.00 Yposd
+(48) Lend
+xydef mover (48) show
+ 0.0 Xyprset
+Np 108.00 324.00 43.20 C stroke
+S
+ 151.20 Xposd
+ 324.00 Yposd
+(48) Lend 1.000 Xposjd
+xydef mover (48) show
+ 0.0 Xyprset
+S
+ 151.20 Xposd
+ 324.00 Yposd
+(42) Lend
+xydef mover (42) show
+ 0.0 Xyprset
+Np 108.00 432.00 28.80 C stroke
+S
+ 136.80 Xposd
+ 432.00 Yposd
+(71) Lend 1.000 Xposjd
+xydef mover (71) show
+ 0.0 Xyprset
+S
+ 136.80 Xposd
+ 432.00 Yposd
+(66) Lend
+xydef mover (66) show
+ 0.0 Xyprset
+Np 108.00 432.00 43.20 C stroke
+S
+ 151.20 Xposd
+ 432.00 Yposd
+(66) Lend 1.000 Xposjd
+xydef mover (66) show
+ 0.0 Xyprset
+S
+ 151.20 Xposd
+ 432.00 Yposd
+(61) Lend
+xydef mover (61) show
+ 0.0 Xyprset
+ 486.00 0.00 SM
+ 522.00 0.00 LSM
+S
+ 504.00 Xposd
+ 0.00 Yposd
+(12) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (12) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 504.00 Xposd
+ 0.00 Yposd
+(0) Lend
+xydef mover -90.0 rotate (0) show 90.0 rotate
+ -90.0 Xyprset
+ 486.00 126.00 SM
+ 522.00 126.00 LSM
+S
+ 504.00 Xposd
+ 126.00 Yposd
+(22) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (22) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 504.00 Xposd
+ 126.00 Yposd
+(12) Lend
+xydef mover -90.0 rotate (12) show 90.0 rotate
+ -90.0 Xyprset
+ 486.00 54.00 SM
+ 486.00 126.00 LSM
+S
+ 486.00 Xposd
+ 90.00 Yposd
+(15) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (15) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 486.00 Xposd
+ 90.00 Yposd
+(12) Lend
+xydef mover 0.0 rotate (12) show -0.0 rotate
+ 0.0 Xyprset
+ 54.00 486.00 SM
+ 126.00 486.00 LSM
+S
+ 90.00 Xposd
+ 486.00 Yposd
+(77) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (77) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 90.00 Xposd
+ 486.00 Yposd
+(61) Lend
+xydef mover -90.0 rotate (61) show 90.0 rotate
+ -90.0 Xyprset
+ 0.00 486.00 SM
+ 0.00 522.00 LSM
+S
+ 0.00 Xposd
+ 504.00 Yposd
+(0) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (0) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 0.00 Xposd
+ 504.00 Yposd
+(77) Lend
+xydef mover 0.0 rotate (77) show -0.0 rotate
+ 0.0 Xyprset
+ 126.00 486.00 SM
+ 126.00 522.00 LSM
+S
+ 126.00 Xposd
+ 504.00 Yposd
+(77) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (77) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 126.00 Xposd
+ 504.00 Yposd
+(78) Lend
+xydef mover 0.0 rotate (78) show -0.0 rotate
+ 0.0 Xyprset
+ 486.00 486.00 SM
+ 522.00 486.00 LSM
+S
+ 504.00 Xposd
+ 486.00 Yposd
+(83) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (83) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 504.00 Xposd
+ 486.00 Yposd
+(75) Lend
+xydef mover -90.0 rotate (75) show 90.0 rotate
+ -90.0 Xyprset
+ 486.00 486.00 SM
+ 486.00 522.00 LSM
+S
+ 486.00 Xposd
+ 504.00 Yposd
+(82) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (82) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 486.00 Xposd
+ 504.00 Yposd
+(83) Lend
+xydef mover 0.0 rotate (83) show -0.0 rotate
+ 0.0 Xyprset
+ 522.00 522.00 21.60 180.00 -90.00 arcit
+S
+ 506.73 Xposd
+ 506.73 Yposd
+(89) Lend -0.707 Xposjd -0.707 Yposjd
+xydef mover 225.0 rotate (89) show -225.0 rotate
+ 225.0 Xyprset
+S
+ 506.73 Xposd
+ 506.73 Yposd
+(83) Lend
+xydef mover 225.0 rotate (83) show -225.0 rotate
+ 225.0 Xyprset
+ 486.00 198.00 SM
+ 522.00 198.00 LSM
+S
+ 504.00 Xposd
+ 198.00 Yposd
+(39) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (39) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 504.00 Xposd
+ 198.00 Yposd
+(22) Lend
+xydef mover -90.0 rotate (22) show 90.0 rotate
+ -90.0 Xyprset
+ 486.00 126.00 SM
+ 486.00 162.00 LSM
+S
+ 486.00 Xposd
+ 144.00 Yposd
+(15) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (15) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 486.00 Xposd
+ 144.00 Yposd
+(22) Lend
+xydef mover 0.0 rotate (22) show -0.0 rotate
+ 0.0 Xyprset
+ 522.00 162.00 21.60 90.00 -90.00 arcit
+S
+ 500.40 Xposd
+ 162.00 Yposd
+(23) Lend -1.000 Xposjd -0.000 Yposjd
+xydef mover 180.0 rotate (23) show -180.0 rotate
+ 180.0 Xyprset
+S
+ 500.40 Xposd
+ 162.00 Yposd
+(22) Lend
+xydef mover 180.0 rotate (22) show -180.0 rotate
+ 180.0 Xyprset
+ 126.00 486.00 SM
+ 162.00 486.00 LSM
+S
+ 144.00 Xposd
+ 486.00 Yposd
+(78) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (78) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 144.00 Xposd
+ 486.00 Yposd
+(61) Lend
+xydef mover -90.0 rotate (61) show 90.0 rotate
+ -90.0 Xyprset
+ 198.00 486.00 SM
+ 198.00 522.00 LSM
+S
+ 198.00 Xposd
+ 504.00 Yposd
+(78) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (78) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 198.00 Xposd
+ 504.00 Yposd
+(79) Lend
+xydef mover 0.0 rotate (79) show -0.0 rotate
+ 0.0 Xyprset
+ 162.00 522.00 21.60 180.00 0.00 arcit
+S
+ 162.00 Xposd
+ 500.40 Yposd
+(84) Lend 0.000 Xposjd -1.000 Yposjd
+xydef mover 270.0 rotate (84) show -270.0 rotate
+ 270.0 Xyprset
+S
+ 162.00 Xposd
+ 500.40 Yposd
+(78) Lend
+xydef mover 270.0 rotate (78) show -270.0 rotate
+ 270.0 Xyprset
+ 486.00 270.00 SM
+ 522.00 270.00 LSM
+S
+ 504.00 Xposd
+ 270.00 Yposd
+(46) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (46) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 504.00 Xposd
+ 270.00 Yposd
+(39) Lend
+xydef mover -90.0 rotate (39) show 90.0 rotate
+ -90.0 Xyprset
+ 486.00 198.00 SM
+ 486.00 270.00 LSM
+S
+ 486.00 Xposd
+ 234.00 Yposd
+(28) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (28) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 486.00 Xposd
+ 234.00 Yposd
+(39) Lend
+xydef mover 0.0 rotate (39) show -0.0 rotate
+ 0.0 Xyprset
+ 522.00 234.00 21.60 90.00 -90.00 arcit
+S
+ 500.40 Xposd
+ 234.00 Yposd
+(40) Lend -1.000 Xposjd -0.000 Yposjd
+xydef mover 180.0 rotate (40) show -180.0 rotate
+ 180.0 Xyprset
+S
+ 500.40 Xposd
+ 234.00 Yposd
+(39) Lend
+xydef mover 180.0 rotate (39) show -180.0 rotate
+ 180.0 Xyprset
+ 198.00 486.00 SM
+ 270.00 486.00 LSM
+S
+ 234.00 Xposd
+ 486.00 Yposd
+(79) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (79) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 234.00 Xposd
+ 486.00 Yposd
+(62) Lend
+xydef mover -90.0 rotate (62) show 90.0 rotate
+ -90.0 Xyprset
+ 270.00 486.00 SM
+ 270.00 522.00 LSM
+S
+ 270.00 Xposd
+ 504.00 Yposd
+(79) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (79) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 270.00 Xposd
+ 504.00 Yposd
+(80) Lend
+xydef mover 0.0 rotate (80) show -0.0 rotate
+ 0.0 Xyprset
+ 234.00 522.00 21.60 180.00 0.00 arcit
+S
+ 234.00 Xposd
+ 500.40 Yposd
+(85) Lend 0.000 Xposjd -1.000 Yposjd
+xydef mover 270.0 rotate (85) show -270.0 rotate
+ 270.0 Xyprset
+S
+ 234.00 Xposd
+ 500.40 Yposd
+(79) Lend
+xydef mover 270.0 rotate (79) show -270.0 rotate
+ 270.0 Xyprset
+ 486.00 342.00 SM
+ 522.00 342.00 LSM
+S
+ 504.00 Xposd
+ 342.00 Yposd
+(58) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (58) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 504.00 Xposd
+ 342.00 Yposd
+(46) Lend
+xydef mover -90.0 rotate (46) show 90.0 rotate
+ -90.0 Xyprset
+ 486.00 270.00 SM
+ 486.00 342.00 LSM
+S
+ 486.00 Xposd
+ 306.00 Yposd
+(45) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (45) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 486.00 Xposd
+ 306.00 Yposd
+(46) Lend
+xydef mover 0.0 rotate (46) show -0.0 rotate
+ 0.0 Xyprset
+ 522.00 306.00 21.60 90.00 -90.00 arcit
+S
+ 500.40 Xposd
+ 306.00 Yposd
+(52) Lend -1.000 Xposjd -0.000 Yposjd
+xydef mover 180.0 rotate (52) show -180.0 rotate
+ 180.0 Xyprset
+S
+ 500.40 Xposd
+ 306.00 Yposd
+(46) Lend
+xydef mover 180.0 rotate (46) show -180.0 rotate
+ 180.0 Xyprset
+ 270.00 486.00 SM
+ 342.00 486.00 LSM
+S
+ 306.00 Xposd
+ 486.00 Yposd
+(80) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (80) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 306.00 Xposd
+ 486.00 Yposd
+(63) Lend
+xydef mover -90.0 rotate (63) show 90.0 rotate
+ -90.0 Xyprset
+ 342.00 486.00 SM
+ 342.00 522.00 LSM
+S
+ 342.00 Xposd
+ 504.00 Yposd
+(80) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (80) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 342.00 Xposd
+ 504.00 Yposd
+(81) Lend
+xydef mover 0.0 rotate (81) show -0.0 rotate
+ 0.0 Xyprset
+ 306.00 522.00 21.60 180.00 0.00 arcit
+S
+ 306.00 Xposd
+ 500.40 Yposd
+(86) Lend 0.000 Xposjd -1.000 Yposjd
+xydef mover 270.0 rotate (86) show -270.0 rotate
+ 270.0 Xyprset
+S
+ 306.00 Xposd
+ 500.40 Yposd
+(80) Lend
+xydef mover 270.0 rotate (80) show -270.0 rotate
+ 270.0 Xyprset
+ 486.00 414.00 SM
+ 522.00 414.00 LSM
+S
+ 504.00 Xposd
+ 414.00 Yposd
+(75) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (75) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 504.00 Xposd
+ 414.00 Yposd
+(58) Lend
+xydef mover -90.0 rotate (58) show 90.0 rotate
+ -90.0 Xyprset
+ 486.00 378.00 SM
+ 486.00 414.00 LSM
+S
+ 486.00 Xposd
+ 396.00 Yposd
+(64) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (64) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 486.00 Xposd
+ 396.00 Yposd
+(58) Lend
+xydef mover 0.0 rotate (58) show -0.0 rotate
+ 0.0 Xyprset
+ 522.00 378.00 21.60 90.00 -90.00 arcit
+S
+ 500.40 Xposd
+ 378.00 Yposd
+(59) Lend -1.000 Xposjd -0.000 Yposjd
+xydef mover 180.0 rotate (59) show -180.0 rotate
+ 180.0 Xyprset
+S
+ 500.40 Xposd
+ 378.00 Yposd
+(58) Lend
+xydef mover 180.0 rotate (58) show -180.0 rotate
+ 180.0 Xyprset
+ 378.00 486.00 SM
+ 414.00 486.00 LSM
+S
+ 396.00 Xposd
+ 486.00 Yposd
+(81) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (81) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 396.00 Xposd
+ 486.00 Yposd
+(64) Lend
+xydef mover -90.0 rotate (64) show 90.0 rotate
+ -90.0 Xyprset
+ 414.00 486.00 SM
+ 414.00 522.00 LSM
+S
+ 414.00 Xposd
+ 504.00 Yposd
+(81) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (81) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 414.00 Xposd
+ 504.00 Yposd
+(82) Lend
+xydef mover 0.0 rotate (82) show -0.0 rotate
+ 0.0 Xyprset
+ 378.00 522.00 21.60 180.00 0.00 arcit
+S
+ 378.00 Xposd
+ 500.40 Yposd
+(87) Lend 0.000 Xposjd -1.000 Yposjd
+xydef mover 270.0 rotate (87) show -270.0 rotate
+ 270.0 Xyprset
+S
+ 378.00 Xposd
+ 500.40 Yposd
+(81) Lend
+xydef mover 270.0 rotate (81) show -270.0 rotate
+ 270.0 Xyprset
+ 486.00 414.00 SM
+ 486.00 486.00 LSM
+S
+ 486.00 Xposd
+ 450.00 Yposd
+(64) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (64) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 486.00 Xposd
+ 450.00 Yposd
+(75) Lend
+xydef mover 0.0 rotate (75) show -0.0 rotate
+ 0.0 Xyprset
+ 522.00 450.00 21.60 90.00 -90.00 arcit
+S
+ 500.40 Xposd
+ 450.00 Yposd
+(76) Lend -1.000 Xposjd -0.000 Yposjd
+xydef mover 180.0 rotate (76) show -180.0 rotate
+ 180.0 Xyprset
+S
+ 500.40 Xposd
+ 450.00 Yposd
+(75) Lend
+xydef mover 180.0 rotate (75) show -180.0 rotate
+ 180.0 Xyprset
+ 414.00 486.00 SM
+ 486.00 486.00 LSM
+S
+ 450.00 Xposd
+ 486.00 Yposd
+(82) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (82) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 450.00 Xposd
+ 486.00 Yposd
+(64) Lend
+xydef mover -90.0 rotate (64) show 90.0 rotate
+ -90.0 Xyprset
+ 450.00 522.00 21.60 180.00 0.00 arcit
+S
+ 450.00 Xposd
+ 500.40 Yposd
+(88) Lend 0.000 Xposjd -1.000 Yposjd
+xydef mover 270.0 rotate (88) show -270.0 rotate
+ 270.0 Xyprset
+S
+ 450.00 Xposd
+ 500.40 Yposd
+(82) Lend
+xydef mover 270.0 rotate (82) show -270.0 rotate
+ 270.0 Xyprset
+ 486.00 162.00 SM
+ 486.00 198.00 LSM
+S
+ 486.00 Xposd
+ 180.00 Yposd
+(28) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (28) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 486.00 Xposd
+ 180.00 Yposd
+(22) Lend
+xydef mover 0.0 rotate (22) show -0.0 rotate
+ 0.0 Xyprset
+ 486.00 342.00 SM
+ 486.00 378.00 LSM
+S
+ 486.00 Xposd
+ 360.00 Yposd
+(45) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (45) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 486.00 Xposd
+ 360.00 Yposd
+(58) Lend
+xydef mover 0.0 rotate (58) show -0.0 rotate
+ 0.0 Xyprset
+ 162.00 486.00 SM
+ 198.00 486.00 LSM
+S
+ 180.00 Xposd
+ 486.00 Yposd
+(78) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (78) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 180.00 Xposd
+ 486.00 Yposd
+(62) Lend
+xydef mover -90.0 rotate (62) show 90.0 rotate
+ -90.0 Xyprset
+ 342.00 486.00 SM
+ 378.00 486.00 LSM
+S
+ 360.00 Xposd
+ 486.00 Yposd
+(81) Lend -0.000 Xposjd -1.000 Yposjd
+xydef mover -90.0 rotate (81) show 90.0 rotate
+ -90.0 Xyprset
+S
+ 360.00 Xposd
+ 486.00 Yposd
+(63) Lend
+xydef mover -90.0 rotate (63) show 90.0 rotate
+ -90.0 Xyprset
+ 522.00 0.00 SM
+ 522.00 126.00 LSM
+S
+ 522.00 Xposd
+ 63.00 Yposd
+(12) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (12) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 522.00 Xposd
+ 63.00 Yposd
+(0) Lend
+xydef mover 0.0 rotate (0) show -0.0 rotate
+ 0.0 Xyprset
+ 522.00 126.00 SM
+ 522.00 140.40 LSM
+S
+ 522.00 Xposd
+ 133.20 Yposd
+(22) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (22) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 522.00 Xposd
+ 133.20 Yposd
+(0) Lend
+xydef mover 0.0 rotate (0) show -0.0 rotate
+ 0.0 Xyprset
+ 522.00 486.00 SM
+ 522.00 500.40 LSM
+S
+ 522.00 Xposd
+ 493.20 Yposd
+(83) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (83) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 522.00 Xposd
+ 493.20 Yposd
+(0) Lend
+xydef mover 0.0 rotate (0) show -0.0 rotate
+ 0.0 Xyprset
+ 522.00 198.00 SM
+ 522.00 212.40 LSM
+S
+ 522.00 Xposd
+ 205.20 Yposd
+(39) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (39) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 522.00 Xposd
+ 205.20 Yposd
+(0) Lend
+xydef mover 0.0 rotate (0) show -0.0 rotate
+ 0.0 Xyprset
+ 522.00 140.40 SM
+ 522.00 183.60 LSM
+S
+ 522.00 Xposd
+ 162.00 Yposd
+(23) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (23) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 522.00 Xposd
+ 162.00 Yposd
+(0) Lend
+xydef mover 0.0 rotate (0) show -0.0 rotate
+ 0.0 Xyprset
+ 522.00 183.60 SM
+ 522.00 198.00 LSM
+S
+ 522.00 Xposd
+ 190.80 Yposd
+(22) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (22) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 522.00 Xposd
+ 190.80 Yposd
+(0) Lend
+xydef mover 0.0 rotate (0) show -0.0 rotate
+ 0.0 Xyprset
+ 522.00 500.40 SM
+ 522.00 522.00 LSM
+S
+ 522.00 Xposd
+ 511.20 Yposd
+(89) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (89) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 522.00 Xposd
+ 511.20 Yposd
+(0) Lend
+xydef mover 0.0 rotate (0) show -0.0 rotate
+ 0.0 Xyprset
+ 522.00 270.00 SM
+ 522.00 284.40 LSM
+S
+ 522.00 Xposd
+ 277.20 Yposd
+(46) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (46) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 522.00 Xposd
+ 277.20 Yposd
+(0) Lend
+xydef mover 0.0 rotate (0) show -0.0 rotate
+ 0.0 Xyprset
+ 522.00 212.40 SM
+ 522.00 255.60 LSM
+S
+ 522.00 Xposd
+ 234.00 Yposd
+(40) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (40) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 522.00 Xposd
+ 234.00 Yposd
+(0) Lend
+xydef mover 0.0 rotate (0) show -0.0 rotate
+ 0.0 Xyprset
+ 522.00 255.60 SM
+ 522.00 270.00 LSM
+S
+ 522.00 Xposd
+ 262.80 Yposd
+(39) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (39) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 522.00 Xposd
+ 262.80 Yposd
+(0) Lend
+xydef mover 0.0 rotate (0) show -0.0 rotate
+ 0.0 Xyprset
+ 522.00 342.00 SM
+ 522.00 356.40 LSM
+S
+ 522.00 Xposd
+ 349.20 Yposd
+(58) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (58) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 522.00 Xposd
+ 349.20 Yposd
+(0) Lend
+xydef mover 0.0 rotate (0) show -0.0 rotate
+ 0.0 Xyprset
+ 522.00 284.40 SM
+ 522.00 327.60 LSM
+S
+ 522.00 Xposd
+ 306.00 Yposd
+(52) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (52) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 522.00 Xposd
+ 306.00 Yposd
+(0) Lend
+xydef mover 0.0 rotate (0) show -0.0 rotate
+ 0.0 Xyprset
+ 522.00 327.60 SM
+ 522.00 342.00 LSM
+S
+ 522.00 Xposd
+ 334.80 Yposd
+(46) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (46) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 522.00 Xposd
+ 334.80 Yposd
+(0) Lend
+xydef mover 0.0 rotate (0) show -0.0 rotate
+ 0.0 Xyprset
+ 522.00 414.00 SM
+ 522.00 428.40 LSM
+S
+ 522.00 Xposd
+ 421.20 Yposd
+(75) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (75) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 522.00 Xposd
+ 421.20 Yposd
+(0) Lend
+xydef mover 0.0 rotate (0) show -0.0 rotate
+ 0.0 Xyprset
+ 522.00 356.40 SM
+ 522.00 399.60 LSM
+S
+ 522.00 Xposd
+ 378.00 Yposd
+(59) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (59) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 522.00 Xposd
+ 378.00 Yposd
+(0) Lend
+xydef mover 0.0 rotate (0) show -0.0 rotate
+ 0.0 Xyprset
+ 522.00 399.60 SM
+ 522.00 414.00 LSM
+S
+ 522.00 Xposd
+ 406.80 Yposd
+(58) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (58) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 522.00 Xposd
+ 406.80 Yposd
+(0) Lend
+xydef mover 0.0 rotate (0) show -0.0 rotate
+ 0.0 Xyprset
+ 522.00 428.40 SM
+ 522.00 471.60 LSM
+S
+ 522.00 Xposd
+ 450.00 Yposd
+(76) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (76) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 522.00 Xposd
+ 450.00 Yposd
+(0) Lend
+xydef mover 0.0 rotate (0) show -0.0 rotate
+ 0.0 Xyprset
+ 522.00 471.60 SM
+ 522.00 486.00 LSM
+S
+ 522.00 Xposd
+ 478.80 Yposd
+(75) Lend 1.000 Xposjd 0.000 Yposjd
+xydef mover 0.0 rotate (75) show -0.0 rotate
+ 0.0 Xyprset
+S
+ 522.00 Xposd
+ 478.80 Yposd
+(0) Lend
+xydef mover 0.0 rotate (0) show -0.0 rotate
+ 0.0 Xyprset
+ 522.00 522.00 SM
+ 500.40 522.00 LSM
+S
+ 511.20 Xposd
+ 522.00 Yposd
+(89) Lend -0.000 Xposjd 1.000 Yposjd
+xydef mover 90.0 rotate (89) show -90.0 rotate
+ 90.0 Xyprset
+S
+ 511.20 Xposd
+ 522.00 Yposd
+(0) Lend
+xydef mover 90.0 rotate (0) show -90.0 rotate
+ 90.0 Xyprset
+ 126.00 522.00 SM
+ 0.00 522.00 LSM
+S
+ 63.00 Xposd
+ 522.00 Yposd
+(77) Lend -0.000 Xposjd 1.000 Yposjd
+xydef mover 90.0 rotate (77) show -90.0 rotate
+ 90.0 Xyprset
+S
+ 63.00 Xposd
+ 522.00 Yposd
+(0) Lend
+xydef mover 90.0 rotate (0) show -90.0 rotate
+ 90.0 Xyprset
+ 486.00 522.00 SM
+ 471.60 522.00 LSM
+S
+ 478.80 Xposd
+ 522.00 Yposd
+(82) Lend -0.000 Xposjd 1.000 Yposjd
+xydef mover 90.0 rotate (82) show -90.0 rotate
+ 90.0 Xyprset
+S
+ 478.80 Xposd
+ 522.00 Yposd
+(0) Lend
+xydef mover 90.0 rotate (0) show -90.0 rotate
+ 90.0 Xyprset
+ 500.40 522.00 SM
+ 486.00 522.00 LSM
+S
+ 493.20 Xposd
+ 522.00 Yposd
+(83) Lend -0.000 Xposjd 1.000 Yposjd
+xydef mover 90.0 rotate (83) show -90.0 rotate
+ 90.0 Xyprset
+S
+ 493.20 Xposd
+ 522.00 Yposd
+(0) Lend
+xydef mover 90.0 rotate (0) show -90.0 rotate
+ 90.0 Xyprset
+ 198.00 522.00 SM
+ 183.60 522.00 LSM
+S
+ 190.80 Xposd
+ 522.00 Yposd
+(78) Lend -0.000 Xposjd 1.000 Yposjd
+xydef mover 90.0 rotate (78) show -90.0 rotate
+ 90.0 Xyprset
+S
+ 190.80 Xposd
+ 522.00 Yposd
+(0) Lend
+xydef mover 90.0 rotate (0) show -90.0 rotate
+ 90.0 Xyprset
+ 270.00 522.00 SM
+ 255.60 522.00 LSM
+S
+ 262.80 Xposd
+ 522.00 Yposd
+(79) Lend -0.000 Xposjd 1.000 Yposjd
+xydef mover 90.0 rotate (79) show -90.0 rotate
+ 90.0 Xyprset
+S
+ 262.80 Xposd
+ 522.00 Yposd
+(0) Lend
+xydef mover 90.0 rotate (0) show -90.0 rotate
+ 90.0 Xyprset
+ 342.00 522.00 SM
+ 327.60 522.00 LSM
+S
+ 334.80 Xposd
+ 522.00 Yposd
+(80) Lend -0.000 Xposjd 1.000 Yposjd
+xydef mover 90.0 rotate (80) show -90.0 rotate
+ 90.0 Xyprset
+S
+ 334.80 Xposd
+ 522.00 Yposd
+(0) Lend
+xydef mover 90.0 rotate (0) show -90.0 rotate
+ 90.0 Xyprset
+ 414.00 522.00 SM
+ 399.60 522.00 LSM
+S
+ 406.80 Xposd
+ 522.00 Yposd
+(81) Lend -0.000 Xposjd 1.000 Yposjd
+xydef mover 90.0 rotate (81) show -90.0 rotate
+ 90.0 Xyprset
+S
+ 406.80 Xposd
+ 522.00 Yposd
+(0) Lend
+xydef mover 90.0 rotate (0) show -90.0 rotate
+ 90.0 Xyprset
+ 471.60 522.00 SM
+ 428.40 522.00 LSM
+S
+ 450.00 Xposd
+ 522.00 Yposd
+(88) Lend -0.000 Xposjd 1.000 Yposjd
+xydef mover 90.0 rotate (88) show -90.0 rotate
+ 90.0 Xyprset
+S
+ 450.00 Xposd
+ 522.00 Yposd
+(0) Lend
+xydef mover 90.0 rotate (0) show -90.0 rotate
+ 90.0 Xyprset
+ 428.40 522.00 SM
+ 414.00 522.00 LSM
+S
+ 421.20 Xposd
+ 522.00 Yposd
+(82) Lend -0.000 Xposjd 1.000 Yposjd
+xydef mover 90.0 rotate (82) show -90.0 rotate
+ 90.0 Xyprset
+S
+ 421.20 Xposd
+ 522.00 Yposd
+(0) Lend
+xydef mover 90.0 rotate (0) show -90.0 rotate
+ 90.0 Xyprset
+ 183.60 522.00 SM
+ 140.40 522.00 LSM
+S
+ 162.00 Xposd
+ 522.00 Yposd
+(84) Lend -0.000 Xposjd 1.000 Yposjd
+xydef mover 90.0 rotate (84) show -90.0 rotate
+ 90.0 Xyprset
+S
+ 162.00 Xposd
+ 522.00 Yposd
+(0) Lend
+xydef mover 90.0 rotate (0) show -90.0 rotate
+ 90.0 Xyprset
+ 140.40 522.00 SM
+ 126.00 522.00 LSM
+S
+ 133.20 Xposd
+ 522.00 Yposd
+(78) Lend -0.000 Xposjd 1.000 Yposjd
+xydef mover 90.0 rotate (78) show -90.0 rotate
+ 90.0 Xyprset
+S
+ 133.20 Xposd
+ 522.00 Yposd
+(0) Lend
+xydef mover 90.0 rotate (0) show -90.0 rotate
+ 90.0 Xyprset
+ 255.60 522.00 SM
+ 212.40 522.00 LSM
+S
+ 234.00 Xposd
+ 522.00 Yposd
+(85) Lend -0.000 Xposjd 1.000 Yposjd
+xydef mover 90.0 rotate (85) show -90.0 rotate
+ 90.0 Xyprset
+S
+ 234.00 Xposd
+ 522.00 Yposd
+(0) Lend
+xydef mover 90.0 rotate (0) show -90.0 rotate
+ 90.0 Xyprset
+ 212.40 522.00 SM
+ 198.00 522.00 LSM
+S
+ 205.20 Xposd
+ 522.00 Yposd
+(79) Lend -0.000 Xposjd 1.000 Yposjd
+xydef mover 90.0 rotate (79) show -90.0 rotate
+ 90.0 Xyprset
+S
+ 205.20 Xposd
+ 522.00 Yposd
+(0) Lend
+xydef mover 90.0 rotate (0) show -90.0 rotate
+ 90.0 Xyprset
+ 327.60 522.00 SM
+ 284.40 522.00 LSM
+S
+ 306.00 Xposd
+ 522.00 Yposd
+(86) Lend -0.000 Xposjd 1.000 Yposjd
+xydef mover 90.0 rotate (86) show -90.0 rotate
+ 90.0 Xyprset
+S
+ 306.00 Xposd
+ 522.00 Yposd
+(0) Lend
+xydef mover 90.0 rotate (0) show -90.0 rotate
+ 90.0 Xyprset
+ 284.40 522.00 SM
+ 270.00 522.00 LSM
+S
+ 277.20 Xposd
+ 522.00 Yposd
+(80) Lend -0.000 Xposjd 1.000 Yposjd
+xydef mover 90.0 rotate (80) show -90.0 rotate
+ 90.0 Xyprset
+S
+ 277.20 Xposd
+ 522.00 Yposd
+(0) Lend
+xydef mover 90.0 rotate (0) show -90.0 rotate
+ 90.0 Xyprset
+ 399.60 522.00 SM
+ 356.40 522.00 LSM
+S
+ 378.00 Xposd
+ 522.00 Yposd
+(87) Lend -0.000 Xposjd 1.000 Yposjd
+xydef mover 90.0 rotate (87) show -90.0 rotate
+ 90.0 Xyprset
+S
+ 378.00 Xposd
+ 522.00 Yposd
+(0) Lend
+xydef mover 90.0 rotate (0) show -90.0 rotate
+ 90.0 Xyprset
+ 356.40 522.00 SM
+ 342.00 522.00 LSM
+S
+ 349.20 Xposd
+ 522.00 Yposd
+(81) Lend -0.000 Xposjd 1.000 Yposjd
+xydef mover 90.0 rotate (81) show -90.0 rotate
+ 90.0 Xyprset
+S
+ 349.20 Xposd
+ 522.00 Yposd
+(0) Lend
+xydef mover 90.0 rotate (0) show -90.0 rotate
+ 90.0 Xyprset
+stroke showpage
+%%Trailer
+%%Pages: 1
+%%EOF
