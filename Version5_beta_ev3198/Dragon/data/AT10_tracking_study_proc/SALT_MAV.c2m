@@ -75,6 +75,7 @@ TRACK_SS TF_EXC_SS := SALT: UOX_TBH_SS ::
   EDIT 0
   ALLG
   TSPC <<an2d_SS>> <<densur_SS>> REND
+  !TISO EQW <<an2d>> <<densur>> REND
 ;
 
 
@@ -87,6 +88,7 @@ TRACK TF_EXC := SALT: UOX_TBH_FLX ::
   EDIT 0
   ALLG
   TSPC EQW2 <<an2d>> <<densur>> REND
+  !TISO EQW <<an2d>> <<densur>> REND
 ;
 
 * MOC tracking

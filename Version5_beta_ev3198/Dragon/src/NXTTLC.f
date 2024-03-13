@@ -884,6 +884,7 @@
             IF(IPRINT .GE. 10) THEN
               IANGL=NBDR-1
               WRITE(IOUT,9000) NAMSBR,IREG,IANGL
+* changed previous line from WRITE(IOUT,9000) NAMSBR,IREG,NBDR
             ENDIF
             DVNOR(IREG,IDIR)=DONE
             IF(IDIR .EQ. 1) THEN
