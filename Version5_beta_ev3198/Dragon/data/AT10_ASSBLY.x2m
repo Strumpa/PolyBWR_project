@@ -12,7 +12,7 @@
 
 MODULE GEO: G2S: SALT: TLM: NXT: END: ;
 
-PROCEDURE Geom_A Geom_Test TRK_A_SALT Mix_ASSBLY ;
+PROCEDURE Geom_A Geom_2LvL TRK_A_SALT Mix_ASSBLY ;
 
 LINKED_LIST GEOM GEOM_SS TRACK TRACK_SS LIBRARY ;
 SEQ_ASCII Geo_G2S GeoSS_G2S ;
@@ -32,22 +32,22 @@ STRING geo_name := "AT10_ASSBLY_test" ; ! Geometry choice for tests and benchmar
 STRING assbly_opt := "AT10_nominal" ; ! option to choose from possible mixes, 0% (nominal), 40% and 80% void fraction
 
 ! 3 level BWR geometry definition
-GEOM GEOM_SS := Geom_A :: <<geo_name>> ;
-!Geom_test := Geom_Test ;
+!GEOM GEOM_SS := Geom_A :: <<geo_name>> ;
+GEOM := Geom_2LvL ;
 
 ! Call to trackin module
-Geo_G2S FIG_main.ps TRACK TRACK_EXC GeoSS_G2S FIG_SS.ps TRACK_SS TRACKSS_EXC := TRK_A_SALT GEOM GEOM_SS ;
+!Geo_G2S FIG_main.ps TRACK TRACK_EXC GeoSS_G2S FIG_SS.ps TRACK_SS TRACKSS_EXC := TRK_A_SALT GEOM GEOM_SS ;
 
-!Geo_G2S FIG_main.ps := G2S: Geom_main :: EDIT 1 ;
+Geo_G2S FIG_main.ps := G2S: GEOM :: EDIT 1 ;
 !GeoSS_G2S FIG_SS.ps := G2S: Geom_SS :: EDIT 1 ;
 
-LIBRARY := Mix_ASSBLY :: J311_295 <<assbly_opt>> ;
-!TRACK TRACK_EXC := SALT: Geo_G2S ::
-!  EDIT 10
-!  ALLG
-!  TSPC EQW2 <<an2d>> <<densur>> REND
-!  LONG
-!;
+!LIBRARY := Mix_ASSBLY :: J311_295 <<assbly_opt>> ;
+TRACK TRACK_EXC := SALT: Geo_G2S ::
+  EDIT 10
+  ALLG
+  TSPC EQW2 <<an2d>> <<densur>> REND
+  LONG
+;
 !TRACK_SS TRACKSS_EXC := SALT: GeoSS_G2S ::
 !  EDIT 10
 !  ALLG
@@ -62,12 +62,12 @@ TLM_F := TLM: TRACK TRACK_EXC ::
   DIR 0
 ;
 
-TLM_SS := TLM: TRACK_SS TRACKSS_EXC ::
-  EDIT 10
-  NTPO 1
-  DIRECTIONS
-  DIR 0
-;
+!TLM_SS := TLM: TRACK_SS TRACKSS_EXC ::
+!  EDIT 10
+!  NTPO 1
+!  DIRECTIONS
+!  DIR 0
+!;
 
 ECHO "Geometry tracking completed" ;
 
