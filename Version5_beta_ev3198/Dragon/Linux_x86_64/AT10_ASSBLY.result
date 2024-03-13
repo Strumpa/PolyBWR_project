@@ -814,7 +814,7 @@ QUIT .                                                                          
  JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
  IPIN       0   (PIN LOCATION OPTION)
 ->@END MODULE   : GEO:        
--->>MODULE GEO:        : TIME SPENT=        0.014 MEMORY USAGE= 1.216E+03
+-->>MODULE GEO:        : TIME SPENT=        0.033 MEMORY USAGE= 5.320E+02
 ->@BEGIN MODULE : GEO:        
 ->@DESCRIPTION  : Geometry definition                                                     
 ->@CREDITS      : A. Hebert                                                               
@@ -1544,7 +1544,7 @@ QUIT .                                                                          
  JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
  IPIN       0   (PIN LOCATION OPTION)
 ->@END MODULE   : GEO:        
--->>MODULE GEO:        : TIME SPENT=        0.012 MEMORY USAGE= 2.960E+02
+-->>MODULE GEO:        : TIME SPENT=        0.031 MEMORY USAGE= 2.160E+02
 >|Test GEOM and GEOMSS done                                                                                               |>0707
 ->@BEGIN MODULE : G2S:        
 ->@DESCRIPTION  : Generate a surfacic file in SALOME format from a DRAGON geometry        
@@ -1558,21 +1558,21 @@ QUIT .                                                                          
               924 nodes
                 3 boundary conditions other than default
 ->@END MODULE   : G2S:        
--->>MODULE G2S:        : TIME SPENT=        0.243 MEMORY USAGE= 3.682E+04
+-->>MODULE G2S:        : TIME SPENT=        0.248 MEMORY USAGE= 3.638E+04
 ->@BEGIN MODULE : SALT:       
 ->@DESCRIPTION  : Track calculations from a SALOME surfacic file                          
 ->@CREDITS      : A. Hebert, X. Warin                                                     
 ->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
                   GNU LESSER GENERAL PUBLIC LICENSE
 ->@END MODULE   : SALT:       
--->>MODULE SALT:       : TIME SPENT=        0.416 MEMORY USAGE= 3.056E+03
+-->>MODULE SALT:       : TIME SPENT=        0.374 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : MCCGT:      
 ->@DESCRIPTION  : Method of characteristics in 2- and 3-D                                 
 ->@CREDITS      : I. Suslov, R. Roy, R. Le Tellier, A. Hebert                             
 ->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
                   GNU LESSER GENERAL PUBLIC LICENSE
 ->@END MODULE   : MCCGT:      
--->>MODULE MCCGT:      : TIME SPENT=        0.042 MEMORY USAGE= 0.000E+00
+-->>MODULE MCCGT:      : TIME SPENT=        0.038 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : G2S:        
 ->@DESCRIPTION  : Generate a surfacic file in SALOME format from a DRAGON geometry        
 ->@CREDITS      : G. Civario                                                              
@@ -1585,14 +1585,14 @@ QUIT .                                                                          
               413 nodes
                 3 boundary conditions other than default
 ->@END MODULE   : G2S:        
--->>MODULE G2S:        : TIME SPENT=        0.050 MEMORY USAGE= 0.000E+00
+-->>MODULE G2S:        : TIME SPENT=        0.069 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : SALT:       
 ->@DESCRIPTION  : Track calculations from a SALOME surfacic file                          
 ->@CREDITS      : A. Hebert, X. Warin                                                     
 ->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
                   GNU LESSER GENERAL PUBLIC LICENSE
 ->@END MODULE   : SALT:       
--->>MODULE SALT:       : TIME SPENT=        0.084 MEMORY USAGE= 9.000E+03
+-->>MODULE SALT:       : TIME SPENT=        0.085 MEMORY USAGE= 9.504E+03
 ->@BEGIN MODULE : TLM:        
 ->@DESCRIPTION  : Generate matlab line tracking file                                      
 ->@CREDITS      : C. Plamondon, G. Marleau                                                
@@ -2535,7 +2535,7 @@ QUIT .                                                                          
  Processing lines for region =      924
    Output from --TLMDIR-- completed *)
 ->@END MODULE   : TLM:        
--->>MODULE TLM:        : TIME SPENT=       24.448 MEMORY USAGE= 0.000E+00
+-->>MODULE TLM:        : TIME SPENT=       25.357 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : TLM:        
 ->@DESCRIPTION  : Generate matlab line tracking file                                      
 ->@CREDITS      : C. Plamondon, G. Marleau                                                
@@ -2967,7 +2967,7 @@ QUIT .                                                                          
  Processing lines for region =      413
    Output from --TLMDIR-- completed *)
 ->@END MODULE   : TLM:        
--->>MODULE TLM:        : TIME SPENT=        5.148 MEMORY USAGE= 0.000E+00
+-->>MODULE TLM:        : TIME SPENT=        5.040 MEMORY USAGE= 0.000E+00
 >|Geometry tracking completed                                                                                             |>0056
 
  normal end of execution for dragon 5  Version 5.0.10 ($Revision: 3198 $)              
