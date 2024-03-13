@@ -17,7 +17,7 @@ MODULE  GEO: END: ;
 
 REAL Pitch_A W_gap := 15.24 0.75 ; ! Assembly pitch and water gap thickness
 REAL Box_out Box_in Box_thi := 13.74 13.4 0.17 ; ! Outer box outer, inner sides and thickness
-REAL Chan_out Chan_in Chan_thi := 3.5 3.34 0.16 ; ! Channel box outer, inner sides and thickness
+REAL Chan_out Chan_in Chan_thi := 3.5 3.34 0.08 ; ! Channel box outer, inner sides and thickness
 
 
 ! UOX Pincell scale data
@@ -131,11 +131,11 @@ REAL Xmax_CHNL Xmin_CHNL ;
 EVALUATE Xmax_CHNL := Box_in 2.0 / 3_Pitch_C - XtraMode - ;
 EVALUATE Xmin_CHNL := Box_in 2.0 / -1.0 * 4_Pitch_C + XtraMode + ; 
 REAL XCHNL1 XCHNL2 XCHNL3 XCHNL4 XCHNL5 ;
-EVALUATE XCHNL1 := Xmax_CHNL Xmin_CHNL - 2.0 / ;
+EVALUATE XCHNL1 := L2 Chan_out - 2.0 / ;
 EVALUATE XCHNL2 := XCHNL1 Chan_thi + ;
 EVALUATE XCHNL3 := XCHNL2 Chan_in + ;
 EVALUATE XCHNL4 := XCHNL3 Chan_thi + ;
-EVALUATE XCHNL5 := XCHNL4 XCHNL1 + ;
+EVALUATE XCHNL5 := L2 ;
 
 GEOM := GEO: :: CAR2D 5 5 
     EDIT 10
