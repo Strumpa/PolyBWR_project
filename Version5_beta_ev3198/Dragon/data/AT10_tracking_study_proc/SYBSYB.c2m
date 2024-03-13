@@ -83,7 +83,7 @@ SYS := ASM: LIBRARY2 TRACK :: PIJ EDIT 0 ;
             EDIT 1 TYPE K B1 SIGS ;
 
 GREP: FLUX :: GETVAL 'K-EFFECTIVE  ' 1 1 1 >>Keff1<< ;
-ECHO "SS tracking = SYBILT and FLX tracking = SYBILT, SYBILT used on subdivided geom Keff5=" Keff1 ;
+ECHO "SS tracking = SYBILT and FLX tracking = SYBILT, SYBILT used on subdivided geom Keff7=" Keff1 ;
 
 ECHO "AT10SYBSYB completed" ;
 

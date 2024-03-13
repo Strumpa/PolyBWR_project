@@ -113,7 +113,7 @@ FLUX := FLU: LIBRARY2 SYS TRACK TF_EXC ::
         EDIT 1 TYPE K B1 SIGS ;
 
 GREP: FLUX :: GETVAL 'K-EFFECTIVE  ' 1 1 1 >>Keff1<< ;
-ECHO "SS tracking = SALT and FLX tracking = SALT, MOC used on subdivided geom: Keff2=" Keff1 ;
+ECHO "SS tracking = SALT and FLX tracking = SALT, MOC used on subdivided geom: Keff4=" Keff1 ;
 
 ECHO "AT10SALT_SUB completed" ;
 

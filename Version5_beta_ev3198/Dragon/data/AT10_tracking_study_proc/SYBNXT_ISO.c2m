@@ -100,7 +100,7 @@ FLUX := FLU: LIBRARY2 SYS TRACK TF_EXC ::
         EDIT 1 TYPE K B1 SIGS ;
 
 GREP: FLUX :: GETVAL 'K-EFFECTIVE  ' 1 1 1 >>Keff1<< ;
-ECHO "SS tracking = SYBILT and FLX tracking = NXT TISO, MOC used on subdivided geom Keff3=" Keff1 ;
+ECHO "SS tracking = SYBILT and FLX tracking = NXT TISO, MOC used on subdivided geom Keff5=" Keff1 ;
 
 ECHO "AT10SYBNXT_ISO completed" ;
 

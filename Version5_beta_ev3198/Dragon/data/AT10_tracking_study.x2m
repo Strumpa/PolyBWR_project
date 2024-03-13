@@ -14,12 +14,12 @@
 PROCEDURE SALT_MAV SALT_SUB SYBNXT_ISO SYBNXT_SPC SYBSYB SYBNXT_PIJ SALT_ISO ;
 
 SALT_ISO ;
-!SYBNXT_PIJ ; ! PIJ with TISO keyword in NXT
-!SALT_MAV ; ! MOC with TSPC in SALT
-!SALT_SUB ; ! MOC with TSPC in SALT, different sectorization
-!SYBNXT_ISO ; ! MOC with TISO in NXT
-!SYBNXT_SPC ; ! MOC with TSPC in NXT
-!SYBSYB ; ! PIJ with only SYBILT
+SYBNXT_PIJ ; ! PIJ with TISO keyword in NXT
+SALT_MAV ; ! MOC with TSPC in SALT
+SALT_SUB ; ! MOC with TSPC in SALT, different sectorization
+SYBNXT_ISO ; ! MOC with TISO in NXT
+SYBNXT_SPC ; ! MOC with TSPC in NXT
+SYBSYB ; ! PIJ with only SYBILT
 
 ECHO "AT10 cell tracking comparison completed" ;
 

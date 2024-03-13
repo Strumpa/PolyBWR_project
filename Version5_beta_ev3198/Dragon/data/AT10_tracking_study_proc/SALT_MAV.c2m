@@ -25,8 +25,8 @@ SEQ_ASCII UOX_TBH_FLX ;
 SEQ_BINARY TF_EXC ;
 SEQ_BINARY TF_EXC_SS ;
 
-SEQ_ASCII FIG_SS.ps :: FILE './PIN_AT10_FIG_SS.ps' ;
-SEQ_ASCII FIG_FLX.ps :: FILE './PIN_AT10_FIG_FLX.ps' ;
+SEQ_ASCII FIG_SS_M.ps :: FILE './PIN_AT10_FIG_SS_M.ps' ;
+SEQ_ASCII FIG_FLX_M.ps :: FILE './PIN_AT10_FIG_FLX_M.ps' ;
 
 INTEGER COMB0101 COMB0102 COMB0103 COMB0104 GAP CLAD MODE :=
         1 2 3 4 5 6 7 ; !  DISTRIBUTED SELF-SHIELDING 
@@ -69,7 +69,7 @@ GEOMFLX_MAV := Geom_MAV :: <<Rcomb1>> <<Rcomb2>> <<Rcomb3>> <<Rcomb4>>
 * ---
 * SELF-SHIELDING TRACKING
 * ---
-UOX_TBH_SS FIG_SS.ps := G2S: GEOMSS :: ;
+UOX_TBH_SS FIG_SS_M.ps := G2S: GEOMSS :: ;
 
 TRACK_SS TF_EXC_SS := SALT: UOX_TBH_SS ::
   EDIT 0
@@ -82,7 +82,7 @@ TRACK_SS TF_EXC_SS := SALT: UOX_TBH_SS ::
 * ---
 * FLUX CALC TRACKING
 * ---
-UOX_TBH_FLX FIG_FLX.ps := G2S: GEOMFLX_MAV :: ;
+UOX_TBH_FLX FIG_FLX_M.ps := G2S: GEOMFLX_MAV :: ;
 
 TRACK TF_EXC := SALT: UOX_TBH_FLX ::
   EDIT 0
@@ -116,7 +116,7 @@ FLUX := FLU: LIBRARY2 SYS TRACK TF_EXC ::
 
 
 GREP: FLUX :: GETVAL 'K-EFFECTIVE  ' 1 1 1 >>Keff1<< ;
-ECHO "SS tracking = SALT and FLX tracking = SALT, MOC used on sectorized (MAV) geom: Keff1=" Keff1 ;
+ECHO "SS tracking = SALT and FLX tracking = SALT RSPC, MOC used on sectorized (MAV) geom: Keff3=" Keff1 ;
 
 ECHO "AT10SALT_MAV completed" ;
 

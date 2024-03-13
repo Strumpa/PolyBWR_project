@@ -177,7 +177,6 @@
 *  print routine openning output header if required
 *  and initialize various parameters.
 *----
-      WRITE(IOUT, 9106) NBDR
       IF(IPRINT .GE. 2) THEN
         WRITE(IOUT,6000) NAMSBR
       ENDIF
@@ -232,12 +231,10 @@
 *  and track starting point in TRKOR2
 *----
           DWGT=DNSANG(IANGL)
-          WRITE(IOUT,9104) DWGT
           DAWGT=DWGT*DDENWT(IANGL)
           DO IDIR=1,NDIM
             ANGLED(IDIR)=DANGLT(IDIR,IANGL)
             TRKOR2(IDIR)=DEPART(IDIR,1,IANGL)
-            WRITE(IOUT, 9105) TRKOR2(IDIR)
           ENDDO
           IF(ISCAN .EQ. 1) THEN
             IF(ITXY(1) .EQ. 0) THEN
@@ -623,10 +620,8 @@
                     NBREG=NBREG+1
                     VCONT=DLENGT(ISEG)*DWGT*FACVOL
                     DVNOR(IREG,1)=DVNOR(IREG,1)+VCONT
-                    WRITE(IOUT, 9107) IREG
                     IF(NBDR .GT. 1) THEN
                       II=KANGL(IND)
-                      WRITE(IOUT, 9108) II
                       IF(II .GT. 2*NBANGL) II=II-2*NBANGL
                       IF(DANGLT(1,II).EQ.DZERO) THEN
                         VCONTA=DHALF*DLENGT(ISEG)*DAWGT
@@ -879,12 +874,10 @@
           WRITE(IOUT,6030) IREG,SURVOL(IREG),DVNOR(IREG,1)
         ENDIF
         DO IDIR=1,NBDR
-          WRITE(IOUT,9103) NAMSBR,IREG,IDIR,DVNOR(IREG,IDIR)
           IF(DVNOR(IREG,IDIR) .EQ. DZERO) THEN
             IF(IPRINT .GE. 10) THEN
               IANGL=NBDR-1
               WRITE(IOUT,9000) NAMSBR,IREG,IANGL
-* changed previous line from WRITE(IOUT,9000) NAMSBR,IREG,NBDR
             ENDIF
             DVNOR(IREG,IDIR)=DONE
             IF(IDIR .EQ. 1) THEN
@@ -1045,10 +1038,4 @@
  9102 FORMAT(1X,' ***** Error in ',A6,'***** for line ',I8/
      >       7X,'Positions (current and reference ) =',1P,2D20.12/
      >       7X,'Absolute error = ',D21.14)
- 9103 FORMAT(A6, I5, I5, F10.4)
- 9104 FORMAT(F10.7)
- 9105 FORMAT(F10.7)
- 9106 FORMAT(' number of directions is : ', I5)
- 9107 FORMAT(' ireg is :', I5)
- 9108 FORMAT(' kangle is :', I5)
       END
