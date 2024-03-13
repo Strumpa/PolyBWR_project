@@ -1,4 +1,4 @@
-## Python3 Script ProcessSerpCompo
+## Python3 Script ProcessComposition tool
 # Author : R. Guasch
 # Purpose : dealing with Serpent2 isotope codes and converting to Dragon5 LIB: MIX format
 
@@ -24,12 +24,12 @@ class Compo_Processor:
         for line in lines:
             if "--" not in line:
                 isos_code_adens[line.split("  ")[0].split(".")[0][1:]] = line.split("  ")[3]
-                print(line.split("  ")[0].split(".")[0])
-                print(line.split("  ")[3])
+                #print(line.split("  ")[0].split(".")[0])
+                #print(line.split("  ")[3])
         isos_code_adens.pop("Nuclide")
         isos_code_adens.pop("")
-        print(len(isos_code_adens))
-        print(len(self.association_dict))
+        #print(len(isos_code_adens))
+        #print(len(self.association_dict))
         self.compo = isos_code_adens
     def check_consistency(self):
         incompatible_isos = []
@@ -74,23 +74,23 @@ class Compo_Processor:
     
 
 
-Processor = Compo_Processor("BOX_compo.txt")
+Processor = Compo_Processor("compo_data/BOX_compo.txt")
 Processor.check_consistency()
 Processor.iso_code_to_nuclide()
 Processor.print_to_Dragon5_format()
 
-compo_fuel1 = {"U234": 5.15910E-06, "U235": 5.67035E-04, "U238": 2.27631E-02}
-compo_fuel2 = {"U234": 7.039170e-06, "U235": 7.560370e-04, "U238": 2.257430e-02}
-compo_fuel3 = {"U234": 9.163680e-06, "U235": 9.686590e-04, "U238": 2.236200e-02}
-compo_fuel4 = {"U234": 9.991530e-06, "U235": 1.051340e-03, "U238": 2.227940e-02}
-compo_fuel5 = {"U234": 1.058330e-05, "U235": 1.110400e-03, "U238": 2.222040e-02}
-compo_fuel6 = {"U234": 1.117530e-05, "U235": 1.169460e-03, "U238": 2.216140e-02}
-compo_fuel7 = {"U234": 9.451580e-06, "U235": 9.945290e-04, "U238": 2.107540e-02}
-compo_fuel8 = {"U234": 8.668470E-06, "U235": 9.163120E-04, "U238": 2.115350E-02}
-percentages = [Processor.get_enrichment(compo_fuel1), Processor.get_enrichment(compo_fuel2), Processor.get_enrichment(compo_fuel3),
-               Processor.get_enrichment(compo_fuel4), Processor.get_enrichment(compo_fuel5), Processor.get_enrichment(compo_fuel6),
-               Processor.get_enrichment(compo_fuel7), Processor.get_enrichment(compo_fuel8)]
-print(percentages)
+#compo_fuel1 = {"U234": 5.15910E-06, "U235": 5.67035E-04, "U238": 2.27631E-02}
+#compo_fuel2 = {"U234": 7.039170e-06, "U235": 7.560370e-04, "U238": 2.257430e-02}
+#compo_fuel3 = {"U234": 9.163680e-06, "U235": 9.686590e-04, "U238": 2.236200e-02}
+#compo_fuel4 = {"U234": 9.991530e-06, "U235": 1.051340e-03, "U238": 2.227940e-02}
+#compo_fuel5 = {"U234": 1.058330e-05, "U235": 1.110400e-03, "U238": 2.222040e-02}
+#compo_fuel6 = {"U234": 1.117530e-05, "U235": 1.169460e-03, "U238": 2.216140e-02}
+#compo_fuel7 = {"U234": 9.451580e-06, "U235": 9.945290e-04, "U238": 2.107540e-02}
+#compo_fuel8 = {"U234": 8.668470E-06, "U235": 9.163120E-04, "U238": 2.115350E-02}
+#percentages = [Processor.get_enrichment(compo_fuel1), Processor.get_enrichment(compo_fuel2), Processor.get_enrichment(compo_fuel3),
+#               Processor.get_enrichment(compo_fuel4), Processor.get_enrichment(compo_fuel5), Processor.get_enrichment(compo_fuel6),
+#               Processor.get_enrichment(compo_fuel7), Processor.get_enrichment(compo_fuel8)]
+#print(percentages)
 
 
 

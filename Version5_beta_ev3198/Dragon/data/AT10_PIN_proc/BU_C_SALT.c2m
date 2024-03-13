@@ -31,7 +31,7 @@ STRING name_geom name_compo ;
 * ---
 MODULE  DELETE: USS: ASM: FLU: EVO: GREP: COMPO:
         EDI: END: ;
-LINKED_LIST SYS FLUX BURNUP FIG EDIBU LIBRARY2 ;
+LINKED_LIST SYS FLUX BURNUP EDIBU LIBRARY2 ;
 SEQ_ASCII _COMPO :: FILE <<name_compo>> ;
 
 ************************************************************************

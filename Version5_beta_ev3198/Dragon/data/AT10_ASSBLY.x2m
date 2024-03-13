@@ -10,17 +10,21 @@
 * 
 
 
-MODULE GEO: G2S: SALT: TLM: NXT: END: ;
+MODULE GEO: G2S: SALT: TLM: NXT: USS: ASM: FLU: GREP: END: ;
 
 PROCEDURE Geom_A Geom_Test TRK_A_SALT Mix_ASSBLY ;
 
 LINKED_LIST GEOM GEOM_SS TRACK TRACK_SS LIBRARY ;
+
+LINKED_LIST LIBRARY2 SYS FLUX ;
+
 SEQ_ASCII Geo_G2S GeoSS_G2S ;
 SEQ_BINARY TRACK_EXC TRACKSS_EXC ;
 SEQ_ASCII FIG_main.ps :: FILE './FIG_main.ps' ;
 SEQ_ASCII FIG_SS.ps :: FILE './FIG_selfshielding.ps' ;
 SEQ_ASCII TLM_F :: FILE 'tracks_SALT_ASSBLY.m' ;
 SEQ_ASCII TLM_SS :: FILE 'tracks_SALT_SS_ASSBLY.m' ;
+REAL Kinf ;
 
 INTEGER an2d := 8 ;  ! ANGULAR QUADRATURE PARAMETER
 REAL densur := 5.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
@@ -34,26 +38,16 @@ STRING assbly_opt := "AT10_nominal" ; ! option to choose from possible mixes, 0%
 ! 3 level BWR geometry definition
 GEOM GEOM_SS := Geom_A :: <<geo_name>> ;
 !Geom_test := Geom_Test ;
+ECHO "3 level Geometry generated" ;
 
 ! Call to trackin module
 Geo_G2S FIG_main.ps TRACK TRACK_EXC GeoSS_G2S FIG_SS.ps TRACK_SS TRACKSS_EXC := TRK_A_SALT GEOM GEOM_SS ;
 
-!Geo_G2S FIG_main.ps := G2S: Geom_main :: EDIT 1 ;
-!GeoSS_G2S FIG_SS.ps := G2S: Geom_SS :: EDIT 1 ;
+ECHO "Geometry tracking with G2S: -> SALT: completed" ;
 
 LIBRARY := Mix_ASSBLY :: J311_295 <<assbly_opt>> ;
-!TRACK TRACK_EXC := SALT: Geo_G2S ::
-!  EDIT 10
-!  ALLG
-!  TSPC EQW2 <<an2d>> <<densur>> REND
-!  LONG
-!;
-!TRACK_SS TRACKSS_EXC := SALT: GeoSS_G2S ::
-!  EDIT 10
-!  ALLG
-!  TSPC EQW2 <<an2d_ss>> <<densur_ss>>
-!  LONG
-!;
+
+ECHO "Mixes for ASSBLY :" assbly_opt " retrieved"  ;
 
 TLM_F := TLM: TRACK TRACK_EXC ::
   EDIT 10
@@ -69,7 +63,30 @@ TLM_SS := TLM: TRACK_SS TRACKSS_EXC ::
   DIR 0
 ;
 
-ECHO "Geometry tracking completed" ;
+************************************************************************
+*  BEGIN SELF SHIELDING CALCULATIO                                     *
+************************************************************************
+
+LIBRARY2 := USS: LIBRARY TRACK_SS TRACKSS_EXC ::
+            EDIT 0
+            PASS 2
+            GRMIN 52
+         ;
+
+************************************************************************
+*  BEGIN MOC FLUX CALCULATION                                          *
+************************************************************************
+
+SYS := ASM: LIBRARY2 TRACK TRACK_EXC :: ARM EDIT 0 ; 
+
+FLUX := FLU: LIBRARY2 SYS TRACK TRACK_EXC :: 
+             EDIT 1 TYPE K B1 SIGS 
+      ;
+GREP: FLUX :: GETVAL 'K-INFINITY  ' 1 1 1 >>Kinf<< ;
+
+ECHO assbly_opt " t=0 calculation completed, Kinf = " Kinf ;
+
+
 
 END: ;
 

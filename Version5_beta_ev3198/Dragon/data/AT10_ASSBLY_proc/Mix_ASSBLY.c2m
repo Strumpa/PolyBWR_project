@@ -69,10 +69,11 @@ INTEGER BOX MODE ;
 EVALUATE BOX MODE := 60 70 ;
 
 IF compos_opt "AT10_nominal" = THEN 
+  ECHO "in IF AT10_nominal" ;
   
   LIBRARY := LIB: ::
     EDIT 0
-    NMIX 41    ! MAXIMUM OF MATERIAL MIXTURES
+    NMIX 100    ! MAXIMUM OF MATERIAL MIXTURES
     PT
     ANIS 2
     ADED 4 NELAS N4N N2N N3N
@@ -292,7 +293,7 @@ IF compos_opt "AT10_nominal" = THEN
 ELSEIF compos_opt "AT10_void_40" = THEN
     LIBRARY := LIB: ::
     EDIT 0
-    NMIX 41    ! MAXIMUM OF MATERIAL MIXTURES
+    NMIX 100    ! MAXIMUM OF MATERIAL MIXTURES
     PT
     ANIS 2
     ADED 4 NELAS N4N N2N N3N
@@ -498,7 +499,7 @@ ELSEIF compos_opt "AT10_void_40" = THEN
     He4      = He4 1.50456E-04
 
   MIX <<MODE>> 559.0 NOEV
-    H1      = H1_H2O 3.06532E-02 ! 40 % void moderator
+    H1      = H1_H2O 3.06532E-02 ! 40% void fraction moderator
     O16     = O16    1.53282E-02
 
   MIX <<COOL>> 559.0 NOEV
