@@ -75,7 +75,6 @@ TRACK_SS TF_EXC_SS := SALT: UOX_TBH_SS ::
   EDIT 0
   ALLG
   TSPC <<an2d_SS>> <<densur_SS>> REND
-  !TISO EQW <<an2d>> <<densur>> REND
 ;
 
 
@@ -88,7 +87,6 @@ TRACK TF_EXC := SALT: UOX_TBH_FLX ::
   EDIT 0
   ALLG
   TSPC EQW2 <<an2d>> <<densur>> REND
-  !TISO EQW <<an2d>> <<densur>> REND
 ;
 
 * MOC tracking
@@ -116,8 +114,8 @@ FLUX := FLU: LIBRARY2 SYS TRACK TF_EXC ::
 
 
 GREP: FLUX :: GETVAL 'K-EFFECTIVE  ' 1 1 1 >>Keff1<< ;
-ECHO "SS tracking = SALT and FLX tracking = SALT RSPC, MOC used on sectorized (MAV) geom: Keff3=" Keff1 ;
+ECHO "SS tracking = SALT and FLX tracking = SALT TSPC, MOC used on sectorized (MAV) geom: Keff3=" Keff1 ;
 
-ECHO "AT10SALT_MAV completed" ;
+ECHO "SALT_MAV completed" ;
 
 END: ;

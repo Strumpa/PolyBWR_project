@@ -75,6 +75,7 @@ TRACK TF_EXC := NXT: GEOMFLX_sub ::
   EDIT 0
   ALLG
   TISO EQW <<an2d>> <<densur>> REND
+  LONG
 ;
 
 * MOC tracking
@@ -102,7 +103,7 @@ FLUX := FLU: LIBRARY2 SYS TRACK TF_EXC ::
 GREP: FLUX :: GETVAL 'K-EFFECTIVE  ' 1 1 1 >>Keff1<< ;
 ECHO "SS tracking = SYBILT and FLX tracking = NXT TISO, MOC used on subdivided geom Keff5=" Keff1 ;
 
-ECHO "AT10SYBNXT_ISO completed" ;
+ECHO "SYBNXT_ISO completed" ;
 
 
 END: ;

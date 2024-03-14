@@ -59,7 +59,7 @@ QUIT "LIST" .                                                                   
 
  CREATION OF A LEVEL  1 GEOMETRY ON THE DIRECTORY NAMED '/           ' OF THE LCM OBJECT 'GEOMSS      ' WITH TYPE 2-D RECT. CELL  .
 ->@END MODULE   : GEO:        
--->>MODULE GEO:        : TIME SPENT=        0.000 MEMORY USAGE= 1.480E+02
+-->>MODULE GEO:        : TIME SPENT=        0.000 MEMORY USAGE= 1.440E+02
 . ------------------------------------------------------------------------------------------------------------------------ .
 ->@BEGIN MODULE : GEO:        
 ->@DESCRIPTION  : Geometry definition                                                     
@@ -83,14 +83,14 @@ QUIT "LIST" .                                                                   
                 7 nodes
                 4 boundary conditions other than default
 ->@END MODULE   : G2S:        
--->>MODULE G2S:        : TIME SPENT=        0.027 MEMORY USAGE= 2.954E+04
+-->>MODULE G2S:        : TIME SPENT=        0.028 MEMORY USAGE= 2.954E+04
 ->@BEGIN MODULE : SALT:       
 ->@DESCRIPTION  : Track calculations from a SALOME surfacic file                          
 ->@CREDITS      : A. Hebert, X. Warin                                                     
 ->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
                   GNU LESSER GENERAL PUBLIC LICENSE
 ->@END MODULE   : SALT:       
--->>MODULE SALT:       : TIME SPENT=        0.007 MEMORY USAGE= 0.000E+00
+-->>MODULE SALT:       : TIME SPENT=        0.006 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : G2S:        
 ->@DESCRIPTION  : Generate a surfacic file in SALOME format from a DRAGON geometry        
 ->@CREDITS      : G. Civario                                                              
@@ -124,7 +124,7 @@ QUIT "LIST" .                                                                   
 ->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
                   GNU LESSER GENERAL PUBLIC LICENSE
 ->@END MODULE   : LIB:        
--->>MODULE LIB:        : TIME SPENT=        5.957 MEMORY USAGE= 7.658E+04
+-->>MODULE LIB:        : TIME SPENT=        6.393 MEMORY USAGE= 7.770E+04
 ->@BEGIN MODULE : USS:        
 ->@DESCRIPTION  : Self-shielding by subgroup method                                       
 ->@CREDITS      : A. Hebert                                                               
@@ -141,28 +141,19 @@ QUIT "LIST" .                                                                   
          NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  3
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  4
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  4
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  5
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  5
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  6
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  6
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
          NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  7
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
          NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  8
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  9
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION 10
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION 11
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
          NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  1
@@ -174,37 +165,28 @@ QUIT "LIST" .                                                                   
          NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  3
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  4
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  4
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  5
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  5
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  6
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  6
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
          NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  7
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
          NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  8
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  9
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION 10
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION 11
 ->@END MODULE   : USS:        
--->>MODULE USS:        : TIME SPENT=        5.681 MEMORY USAGE= 5.479E+04
+-->>MODULE USS:        : TIME SPENT=        3.397 MEMORY USAGE= 6.450E+04
 ->@BEGIN MODULE : ASM:        
 ->@DESCRIPTION  : To built system matrices (CP and IC)                                    
 ->@CREDITS      : A. Hebert, G. Marleau, R. Roy                                           
 ->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
                   GNU LESSER GENERAL PUBLIC LICENSE
 ->@END MODULE   : ASM:        
--->>MODULE ASM:        : TIME SPENT=        0.209 MEMORY USAGE= 7.600E+01
+-->>MODULE ASM:        : TIME SPENT=        0.221 MEMORY USAGE= 7.600E+01
 ->@BEGIN MODULE : FLU:        
 ->@DESCRIPTION  : Solve the flux equations                                                
 ->@CREDITS      : R. Roy, A. Hebert, G. Marleau                                           
@@ -238,7 +220,7 @@ QUIT "LIST" .                                                                   
  UNKNOWN OUTER TOLERANCE     =  5.000E-05
  UNKNOWN INNER TOLERANCE     =  5.000E-05
 
- OUT(  0) EIG: PRC= 1.00E+00 TAR= 1.00E-05 KEFF= 1.619598E-01 BUCK= 0.00000E+00
+ OUT(  0) EIG: PRC= 1.00E+00 TAR= 1.00E-05 KEFF= 1.619597E-01 BUCK= 0.00000E+00
 
  B1DIF: DIFFUSION COEFFICIENT CALCULATION.
           M O C PARAMETERS:  NON CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                         
@@ -250,17 +232,17 @@ QUIT "LIST" .                                                                   
           IN(  3) FLX: PRC= 1.13E-01 TAR= 5.00E-05 IGDEB=           12 ACCE=     1.00000
                   FIRST UNCONVERGED GROUP PRC= 0.70E-04
           M O C PARAMETERS:  NON CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                         
-          IN(  4) FLX: PRC= 1.51E-02 TAR= 5.00E-05 IGDEB=           17 ACCE=     1.11025
+          IN(  4) FLX: PRC= 1.51E-02 TAR= 5.00E-05 IGDEB=           17 ACCE=     1.11022
                   FIRST UNCONVERGED GROUP PRC= 0.72E-04
           M O C PARAMETERS:  NON CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                         
-          IN(  5) FLX: PRC= 5.42E-03 TAR= 5.00E-05 IGDEB=           19 ACCE=     1.24832
+          IN(  5) FLX: PRC= 5.43E-03 TAR= 5.00E-05 IGDEB=           19 ACCE=     1.24917
                   FIRST UNCONVERGED GROUP PRC= 0.51E-04
           M O C PARAMETERS:  NON CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                         
-          IN(  6) FLX: PRC= 1.18E-03 TAR= 5.00E-05 IGDEB=          105 ACCE=     1.14394
-                  FIRST UNCONVERGED GROUP PRC= 0.27E-03
+          IN(  6) FLX: PRC= 1.14E-03 TAR= 5.00E-05 IGDEB=          105 ACCE=     1.13657
+                  FIRST UNCONVERGED GROUP PRC= 0.26E-03
           M O C PARAMETERS:  NON CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                         
-          IN(  7) FLX: PRC= 1.49E-04 TAR= 5.00E-05 IGDEB=          166 ACCE=     1.00000
-                  FIRST UNCONVERGED GROUP PRC= 0.69E-04
+          IN(  7) FLX: PRC= 1.44E-04 TAR= 5.00E-05 IGDEB=          166 ACCE=     1.00000
+                  FIRST UNCONVERGED GROUP PRC= 0.66E-04
  FLU2DR: NO LEAKAGE-> REBALANCING ON
  FLU2DR: CPU TIME=        5. INTERNAL CONVERGENCE *NOT* REACHED AFTER     7 ITERATIONS.
 
@@ -272,11 +254,11 @@ QUIT "LIST" .                                                                   
         MIGRATION AREA =  5.51864E+01
 
  OUT(  1) EIG: PRC= 8.69E-01 TAR= 1.00E-05 KEFF= 1.239949E+00 BUCK= 0.00000E+00
- OUT(  1) FLX:                             FNOR= 8.064845E-01 ACCE=     1.00000
+ OUT(  1) FLX:                             FNOR= 8.064846E-01 ACCE=     1.00000
           M O C PARAMETERS:  NON CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                         
           IN(  1) FLX: PRC= 7.82E-04 TAR= 5.00E-05 IGDEB=            1 ACCE=     1.00000
           M O C PARAMETERS:  NON CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                         
-          IN(  2) FLX: PRC= 2.66E-05 TAR= 5.00E-05 IGDEB=          296 ACCE=     1.00000
+          IN(  2) FLX: PRC= 2.63E-05 TAR= 5.00E-05 IGDEB=          296 ACCE=     1.00000
  FLU2DR: NO LEAKAGE-> REBALANCING ON
  FLU2DR: CPU TIME=        1. INTERNAL CONVERGENCE       REACHED AFTER     2 ITERATIONS.
 
@@ -287,28 +269,28 @@ QUIT "LIST" .                                                                   
         K-INFINITE =  1.239939
         MIGRATION AREA =  5.51880E+01
 
- OUT(  2) EIG: PRC= 8.07E-06 TAR= 1.00E-05 KEFF= 1.239939E+00 BUCK= 0.00000E+00
+ OUT(  2) EIG: PRC= 7.91E-06 TAR= 1.00E-05 KEFF= 1.239939E+00 BUCK= 0.00000E+00
  OUT(  2) FLX: PRC= 7.78E-04 TAR= 5.00E-05 FNOR= 8.064910E-01 ACCE=     1.00000
           M O C PARAMETERS:  NON CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                         
-          IN(  1) FLX: PRC= 1.18E-05 TAR= 5.00E-05 IGDEB=          296 ACCE=     1.00000
+          IN(  1) FLX: PRC= 1.15E-05 TAR= 5.00E-05 IGDEB=          296 ACCE=     1.00000
  FLU2DR: NO LEAKAGE-> REBALANCING ON
  FLU2DR: CPU TIME=        0. INTERNAL CONVERGENCE       REACHED AFTER     1 ITERATIONS.
 
  B1DIF: SOLUTION OF B1   EQUATIONS WITH TYPE K   
         NUMBER OF ITERATIONS =  1
         BUCKLING =  0.00000E+00
-        K-EFFECTIVE =  1.239939  (  1.239939 )
+        K-EFFECTIVE =  1.239940  (  1.239939 )
         K-INFINITE =  1.239939
         MIGRATION AREA =  5.51880E+01
 
- OUT(  3) EIG: PRC= 5.77E-08 TAR= 1.00E-05 KEFF= 1.239939E+00 BUCK= 0.00000E+00
- OUT(  3) FLX: PRC= 1.19E-05 TAR= 5.00E-05 FNOR= 8.064911E-01 ACCE=     1.00000
- FLU2DR: CPU TIME=        5. EXTERNAL CONVERGENCE       REACHED AFTER     3 ITERATIONS.
+ OUT(  3) EIG: PRC= 6.67E-08 TAR= 1.00E-05 KEFF= 1.239940E+00 BUCK= 0.00000E+00
+ OUT(  3) FLX: PRC= 1.19E-05 TAR= 5.00E-05 FNOR= 8.064909E-01 ACCE=     1.00000
+ FLU2DR: CPU TIME=        6. EXTERNAL CONVERGENCE       REACHED AFTER     3 ITERATIONS.
 
- ++ TRACKING CALLED=  10 TIMES FINAL KINF= 1.239939E+00 FINAL KEFF= 1.239939E+00 B2= 0.00000E+00 PRECISION= 5.77E-08
+ ++ TRACKING CALLED=  10 TIMES FINAL KINF= 1.239939E+00 FINAL KEFF= 1.239940E+00 B2= 0.00000E+00 PRECISION= 6.67E-08
  ++ TOTAL NUMBER OF FLUX CALCULATIONS=      2800
 ->@END MODULE   : FLU:        
--->>MODULE FLU:        : TIME SPENT=        5.478 MEMORY USAGE= 2.440E+02
+-->>MODULE FLU:        : TIME SPENT=        5.854 MEMORY USAGE= 2.440E+02
 ->@BEGIN MODULE : GREP:       
 ->@DESCRIPTION  : No description available for this module                                
 ->@CREDITS      : No author provided for this module                                      
@@ -316,8 +298,8 @@ QUIT "LIST" .                                                                   
                   GNU LESSER GENERAL PUBLIC LICENSE
 -->>module GREP:       : time spent=        0.000 memory usage= 1.200E+01
 ->@END MODULE   : GREP:       
->|SS tracking = SALT and FLX tracking = SALT TISO, MOC used on sectorized (MAV) geom: Keff1=  1.239939e+00                |>0088
->|AT10SALT_MAV completed                                                                                                  |>0089
+>|SS tracking = SALT and FLX tracking = SALT TISO, MOC used on sectorized (MAV) geom: Keff1=  1.239940e+00                |>0087
+>|AT10SALT_MAV completed                                                                                                  |>0088
 <|SYBNXT_PIJ ;                                                                                                            |<0015
 ->@BEGIN MODULE : GEO:        
 ->@DESCRIPTION  : Geometry definition                                                     
@@ -327,7 +309,7 @@ QUIT "LIST" .                                                                   
 
  CREATION OF A LEVEL  1 GEOMETRY ON THE DIRECTORY NAMED '/           ' OF THE LCM OBJECT 'GEOMSS      ' WITH TYPE 2-D RECT. CELL  .
 ->@END MODULE   : GEO:        
--->>MODULE GEO:        : TIME SPENT=        0.000 MEMORY USAGE= 0.000E+00
+-->>MODULE GEO:        : TIME SPENT=        0.001 MEMORY USAGE= 0.000E+00
 . ------------------------------------------------------------------------------------------------------------------------ .
 ->@BEGIN MODULE : GEO:        
 ->@DESCRIPTION  : Geometry definition                                                     
@@ -337,7 +319,7 @@ QUIT "LIST" .                                                                   
 
  CREATION OF A LEVEL  1 GEOMETRY ON THE DIRECTORY NAMED '/           ' OF THE LCM OBJECT 'GEOMFLX_sub ' WITH TYPE 2-D RECT. CELL  .
 ->@END MODULE   : GEO:        
--->>MODULE GEO:        : TIME SPENT=        0.001 MEMORY USAGE= 0.000E+00
+-->>MODULE GEO:        : TIME SPENT=        0.000 MEMORY USAGE= 0.000E+00
 . ------------------------------------------------------------------------------------------------------------------------ .
 ->@BEGIN MODULE : SYBILT:     
 ->@DESCRIPTION  : Sybil 2-D tracking                                                      
@@ -406,7 +388,7 @@ QUIT "LIST" .                                                                   
  IBIHET      0   (0/1=DOUBLE HETEROGENEITY IS NOT/IS ACTIVE)
  EPSJ   5.00E-06 (FLUX-CURRENT ITERATION EPSILON)
 ->@END MODULE   : SYBILT:     
--->>MODULE SYBILT:     : TIME SPENT=        0.000 MEMORY USAGE= 1.200E+02
+-->>MODULE SYBILT:     : TIME SPENT=        0.001 MEMORY USAGE= 1.200E+02
 ->@BEGIN MODULE : NXT:        
 ->@DESCRIPTION  : New excell tracking in 2- and 3-D                                       
 ->@CREDITS      : G. Marleau                                                              
@@ -420,7 +402,7 @@ QUIT "LIST" .                                                                   
 ->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
                   GNU LESSER GENERAL PUBLIC LICENSE
 ->@END MODULE   : LIB:        
--->>MODULE LIB:        : TIME SPENT=        5.577 MEMORY USAGE= 0.000E+00
+-->>MODULE LIB:        : TIME SPENT=        5.998 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : USS:        
 ->@DESCRIPTION  : Self-shielding by subgroup method                                       
 ->@CREDITS      : A. Hebert                                                               
@@ -437,28 +419,19 @@ QUIT "LIST" .                                                                   
          NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  3
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  4
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  4
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  5
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  5
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  6
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  6
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
          NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  7
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
          NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  8
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  9
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION 10
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION 11
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
          NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  1
@@ -470,37 +443,28 @@ QUIT "LIST" .                                                                   
          NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  3
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  4
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  4
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  5
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  5
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  6
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  6
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
          NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  7
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
          NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  8
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  9
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION 10
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION 11
 ->@END MODULE   : USS:        
--->>MODULE USS:        : TIME SPENT=       14.001 MEMORY USAGE= 7.200E+01
+-->>MODULE USS:        : TIME SPENT=        8.155 MEMORY USAGE= 7.200E+01
 ->@BEGIN MODULE : ASM:        
 ->@DESCRIPTION  : To built system matrices (CP and IC)                                    
 ->@CREDITS      : A. Hebert, G. Marleau, R. Roy                                           
 ->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
                   GNU LESSER GENERAL PUBLIC LICENSE
 ->@END MODULE   : ASM:        
--->>MODULE ASM:        : TIME SPENT=        0.407 MEMORY USAGE= 4.000E+00
+-->>MODULE ASM:        : TIME SPENT=        0.377 MEMORY USAGE= 4.000E+00
 ->@BEGIN MODULE : FLU:        
 ->@DESCRIPTION  : Solve the flux equations                                                
 ->@CREDITS      : R. Roy, A. Hebert, G. Marleau                                           
@@ -534,15 +498,15 @@ QUIT "LIST" .                                                                   
  UNKNOWN OUTER TOLERANCE     =  5.000E-05
  UNKNOWN INNER TOLERANCE     =  5.000E-05
 
- OUT(  0) EIG: PRC= 1.00E+00 TAR= 1.00E-05 KEFF= 1.618602E-01 BUCK= 0.00000E+00
+ OUT(  0) EIG: PRC= 1.00E+00 TAR= 1.00E-05 KEFF= 1.618601E-01 BUCK= 0.00000E+00
 
  B1DIF: DIFFUSION COEFFICIENT CALCULATION.
           IN(  1) FLX: PRC= 3.38E+01 TAR= 5.00E-05 IGDEB=            1 ACCE=     1.00000
           IN(  2) FLX: PRC= 6.18E-02 TAR= 5.00E-05 IGDEB=          209 ACCE=     1.00000
                   FIRST UNCONVERGED GROUP PRC= 0.55E-04
           IN(  3) FLX: PRC= 1.65E-03 TAR= 5.00E-05 IGDEB=          211 ACCE=     1.00000
-                  FIRST UNCONVERGED GROUP PRC= 0.66E-04
-          IN(  4) FLX: PRC= 5.52E-05 TAR= 5.00E-05 IGDEB=          288 ACCE=     1.04133
+                  FIRST UNCONVERGED GROUP PRC= 0.67E-04
+          IN(  4) FLX: PRC= 5.54E-05 TAR= 5.00E-05 IGDEB=          288 ACCE=     1.04125
                   FIRST UNCONVERGED GROUP PRC= 0.53E-04
  FLU2DR: NO LEAKAGE-> REBALANCING ON
  FLU2DR: CPU TIME=        0. INTERNAL CONVERGENCE *NOT* REACHED AFTER     4 ITERATIONS.
@@ -550,27 +514,27 @@ QUIT "LIST" .                                                                   
  B1DIF: SOLUTION OF B1   EQUATIONS WITH TYPE K   
         NUMBER OF ITERATIONS =  1
         BUCKLING =  0.00000E+00
-        K-EFFECTIVE =  1.240366  (  1.240366 )
-        K-INFINITE =  1.240366
+        K-EFFECTIVE =  1.240367  (  1.240367 )
+        K-INFINITE =  1.240367
         MIGRATION AREA =  5.51801E+01
 
- OUT(  1) EIG: PRC= 8.70E-01 TAR= 1.00E-05 KEFF= 1.240366E+00 BUCK= 0.00000E+00
- OUT(  1) FLX:                             FNOR= 8.062135E-01 ACCE=     1.00000
+ OUT(  1) EIG: PRC= 8.70E-01 TAR= 1.00E-05 KEFF= 1.240367E+00 BUCK= 0.00000E+00
+ OUT(  1) FLX:                             FNOR= 8.062132E-01 ACCE=     1.00000
           IN(  1) FLX: PRC= 7.88E-04 TAR= 5.00E-05 IGDEB=            1 ACCE=     1.00000
-          IN(  2) FLX: PRC= 6.30E-07 TAR= 5.00E-05 IGDEB=          296 ACCE=     1.00000
+          IN(  2) FLX: PRC= 7.28E-07 TAR= 5.00E-05 IGDEB=          296 ACCE=     1.00000
  FLU2DR: NO LEAKAGE-> REBALANCING ON
  FLU2DR: CPU TIME=        0. INTERNAL CONVERGENCE       REACHED AFTER     2 ITERATIONS.
 
  B1DIF: SOLUTION OF B1   EQUATIONS WITH TYPE K   
         NUMBER OF ITERATIONS =  1
         BUCKLING =  0.00000E+00
-        K-EFFECTIVE =  1.240356  (  1.240356 )
-        K-INFINITE =  1.240356
+        K-EFFECTIVE =  1.240357  (  1.240357 )
+        K-INFINITE =  1.240357
         MIGRATION AREA =  5.51816E+01
 
- OUT(  2) EIG: PRC= 7.93E-06 TAR= 1.00E-05 KEFF= 1.240356E+00 BUCK= 0.00000E+00
- OUT(  2) FLX: PRC= 7.80E-04 TAR= 5.00E-05 FNOR= 8.062199E-01 ACCE=     1.00000
-          IN(  1) FLX: PRC= 1.70E-06 TAR= 5.00E-05 IGDEB=          296 ACCE=     1.00000
+ OUT(  2) EIG: PRC= 7.93E-06 TAR= 1.00E-05 KEFF= 1.240357E+00 BUCK= 0.00000E+00
+ OUT(  2) FLX: PRC= 7.80E-04 TAR= 5.00E-05 FNOR= 8.062196E-01 ACCE=     1.00000
+          IN(  1) FLX: PRC= 1.71E-06 TAR= 5.00E-05 IGDEB=          296 ACCE=     1.00000
  FLU2DR: NO LEAKAGE-> REBALANCING ON
  FLU2DR: CPU TIME=        0. INTERNAL CONVERGENCE       REACHED AFTER     1 ITERATIONS.
 
@@ -581,14 +545,14 @@ QUIT "LIST" .                                                                   
         K-INFINITE =  1.240357
         MIGRATION AREA =  5.51816E+01
 
- OUT(  3) EIG: PRC= 2.04E-07 TAR= 1.00E-05 KEFF= 1.240357E+00 BUCK= 0.00000E+00
- OUT(  3) FLX: PRC= 1.91E-06 TAR= 5.00E-05 FNOR= 8.062197E-01 ACCE=     1.00000
+ OUT(  3) EIG: PRC= 1.29E-07 TAR= 1.00E-05 KEFF= 1.240357E+00 BUCK= 0.00000E+00
+ OUT(  3) FLX: PRC= 1.62E-06 TAR= 5.00E-05 FNOR= 8.062197E-01 ACCE=     1.00000
  FLU2DR: CPU TIME=        0. EXTERNAL CONVERGENCE       REACHED AFTER     3 ITERATIONS.
 
- ++ TRACKING CALLED=   7 TIMES FINAL KINF= 1.240357E+00 FINAL KEFF= 1.240357E+00 B2= 0.00000E+00 PRECISION= 2.04E-07
+ ++ TRACKING CALLED=   7 TIMES FINAL KINF= 1.240357E+00 FINAL KEFF= 1.240357E+00 B2= 0.00000E+00 PRECISION= 1.29E-07
  ++ TOTAL NUMBER OF FLUX CALCULATIONS=      1647
 ->@END MODULE   : FLU:        
--->>MODULE FLU:        : TIME SPENT=        0.097 MEMORY USAGE= 0.000E+00
+-->>MODULE FLU:        : TIME SPENT=        0.094 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : GREP:       
 ->@DESCRIPTION  : No description available for this module                                
 ->@CREDITS      : No author provided for this module                                      
@@ -607,7 +571,7 @@ QUIT "LIST" .                                                                   
 
  CREATION OF A LEVEL  1 GEOMETRY ON THE DIRECTORY NAMED '/           ' OF THE LCM OBJECT 'GEOMSS      ' WITH TYPE 2-D RECT. CELL  .
 ->@END MODULE   : GEO:        
--->>MODULE GEO:        : TIME SPENT=        0.001 MEMORY USAGE= 0.000E+00
+-->>MODULE GEO:        : TIME SPENT=        0.000 MEMORY USAGE= 0.000E+00
 . ------------------------------------------------------------------------------------------------------------------------ .
 ->@BEGIN MODULE : GEO:        
 ->@DESCRIPTION  : Geometry definition                                                     
@@ -617,7 +581,7 @@ QUIT "LIST" .                                                                   
 
  CREATION OF A LEVEL  1 GEOMETRY ON THE DIRECTORY NAMED '/           ' OF THE LCM OBJECT 'GEOMFLX_MAV ' WITH TYPE 2-D RECT. CELL  .
 ->@END MODULE   : GEO:        
--->>MODULE GEO:        : TIME SPENT=        0.001 MEMORY USAGE= 0.000E+00
+-->>MODULE GEO:        : TIME SPENT=        0.000 MEMORY USAGE= 0.000E+00
 . ------------------------------------------------------------------------------------------------------------------------ .
 ->@BEGIN MODULE : G2S:        
 ->@DESCRIPTION  : Generate a surfacic file in SALOME format from a DRAGON geometry        
@@ -631,7 +595,7 @@ QUIT "LIST" .                                                                   
                 7 nodes
                 4 boundary conditions other than default
 ->@END MODULE   : G2S:        
--->>MODULE G2S:        : TIME SPENT=        0.006 MEMORY USAGE= 0.000E+00
+-->>MODULE G2S:        : TIME SPENT=        0.005 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : SALT:       
 ->@DESCRIPTION  : Track calculations from a SALOME surfacic file                          
 ->@CREDITS      : A. Hebert, X. Warin                                                     
@@ -672,7 +636,7 @@ QUIT "LIST" .                                                                   
 ->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
                   GNU LESSER GENERAL PUBLIC LICENSE
 ->@END MODULE   : LIB:        
--->>MODULE LIB:        : TIME SPENT=        5.683 MEMORY USAGE= 1.770E+04
+-->>MODULE LIB:        : TIME SPENT=        6.013 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : USS:        
 ->@DESCRIPTION  : Self-shielding by subgroup method                                       
 ->@CREDITS      : A. Hebert                                                               
@@ -689,28 +653,19 @@ QUIT "LIST" .                                                                   
          NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  3
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  4
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  4
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  5
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  5
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  6
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  6
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
          NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  7
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
          NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  8
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  9
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION 10
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION 11
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
          NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  1
@@ -722,37 +677,28 @@ QUIT "LIST" .                                                                   
          NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  3
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  4
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  4
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  5
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  5
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  6
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  6
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
          NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  7
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
          NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  8
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  9
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION 10
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION 11
 ->@END MODULE   : USS:        
--->>MODULE USS:        : TIME SPENT=       61.255 MEMORY USAGE= 4.000E+00
+-->>MODULE USS:        : TIME SPENT=       36.217 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : ASM:        
 ->@DESCRIPTION  : To built system matrices (CP and IC)                                    
 ->@CREDITS      : A. Hebert, G. Marleau, R. Roy                                           
 ->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
                   GNU LESSER GENERAL PUBLIC LICENSE
 ->@END MODULE   : ASM:        
--->>MODULE ASM:        : TIME SPENT=        0.178 MEMORY USAGE= 0.000E+00
+-->>MODULE ASM:        : TIME SPENT=        0.186 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : FLU:        
 ->@DESCRIPTION  : Solve the flux equations                                                
 ->@CREDITS      : R. Roy, A. Hebert, G. Marleau                                           
@@ -786,7 +732,7 @@ QUIT "LIST" .                                                                   
  UNKNOWN OUTER TOLERANCE     =  5.000E-05
  UNKNOWN INNER TOLERANCE     =  5.000E-05
 
- OUT(  0) EIG: PRC= 1.00E+00 TAR= 1.00E-05 KEFF= 1.619181E-01 BUCK= 0.00000E+00
+ OUT(  0) EIG: PRC= 1.00E+00 TAR= 1.00E-05 KEFF= 1.619180E-01 BUCK= 0.00000E+00
 
  B1DIF: DIFFUSION COEFFICIENT CALCULATION.
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
@@ -798,16 +744,16 @@ QUIT "LIST" .                                                                   
           IN(  3) FLX: PRC= 1.17E-01 TAR= 5.00E-05 IGDEB=           12 ACCE=     1.00000
                   FIRST UNCONVERGED GROUP PRC= 0.57E-04
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
-          IN(  4) FLX: PRC= 1.69E-02 TAR= 5.00E-05 IGDEB=           17 ACCE=     1.09181
-                  FIRST UNCONVERGED GROUP PRC= 0.50E-04
+          IN(  4) FLX: PRC= 1.69E-02 TAR= 5.00E-05 IGDEB=           18 ACCE=     1.09181
+                  FIRST UNCONVERGED GROUP PRC= 0.88E-04
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
-          IN(  5) FLX: PRC= 4.75E-03 TAR= 5.00E-05 IGDEB=           27 ACCE=     1.22060
+          IN(  5) FLX: PRC= 4.77E-03 TAR= 5.00E-05 IGDEB=           27 ACCE=     1.22221
                   FIRST UNCONVERGED GROUP PRC= 0.76E-04
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
-          IN(  6) FLX: PRC= 9.22E-04 TAR= 5.00E-05 IGDEB=          105 ACCE=     1.14405
+          IN(  6) FLX: PRC= 9.15E-04 TAR= 5.00E-05 IGDEB=          105 ACCE=     1.14144
                   FIRST UNCONVERGED GROUP PRC= 0.23E-03
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
-          IN(  7) FLX: PRC= 1.25E-04 TAR= 5.00E-05 IGDEB=          167 ACCE=     1.00000
+          IN(  7) FLX: PRC= 1.24E-04 TAR= 5.00E-05 IGDEB=          167 ACCE=     1.00000
                   FIRST UNCONVERGED GROUP PRC= 0.12E-03
  FLU2DR: NO LEAKAGE-> REBALANCING ON
  FLU2DR: CPU TIME=        4. INTERNAL CONVERGENCE *NOT* REACHED AFTER     7 ITERATIONS.
@@ -820,23 +766,23 @@ QUIT "LIST" .                                                                   
         MIGRATION AREA =  5.52351E+01
 
  OUT(  1) EIG: PRC= 8.70E-01 TAR= 1.00E-05 KEFF= 1.242813E+00 BUCK= 0.00000E+00
- OUT(  1) FLX:                             FNOR= 8.046263E-01 ACCE=     1.00000
+ OUT(  1) FLX:                             FNOR= 8.046262E-01 ACCE=     1.00000
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
           IN(  1) FLX: PRC= 6.93E-04 TAR= 5.00E-05 IGDEB=            1 ACCE=     1.00000
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
-          IN(  2) FLX: PRC= 2.98E-05 TAR= 5.00E-05 IGDEB=          296 ACCE=     1.00000
+          IN(  2) FLX: PRC= 2.97E-05 TAR= 5.00E-05 IGDEB=          296 ACCE=     1.00000
  FLU2DR: NO LEAKAGE-> REBALANCING ON
  FLU2DR: CPU TIME=        0. INTERNAL CONVERGENCE       REACHED AFTER     2 ITERATIONS.
 
  B1DIF: SOLUTION OF B1   EQUATIONS WITH TYPE K   
         NUMBER OF ITERATIONS =  1
         BUCKLING =  0.00000E+00
-        K-EFFECTIVE =  1.242803  (  1.242803 )
-        K-INFINITE =  1.242803
+        K-EFFECTIVE =  1.242804  (  1.242804 )
+        K-INFINITE =  1.242804
         MIGRATION AREA =  5.52366E+01
 
- OUT(  2) EIG: PRC= 7.75E-06 TAR= 1.00E-05 KEFF= 1.242803E+00 BUCK= 0.00000E+00
- OUT(  2) FLX: PRC= 6.88E-04 TAR= 5.00E-05 FNOR= 8.046325E-01 ACCE=     1.00000
+ OUT(  2) EIG: PRC= 7.60E-06 TAR= 1.00E-05 KEFF= 1.242804E+00 BUCK= 0.00000E+00
+ OUT(  2) FLX: PRC= 6.88E-04 TAR= 5.00E-05 FNOR= 8.046323E-01 ACCE=     1.00000
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
           IN(  1) FLX: PRC= 1.25E-05 TAR= 5.00E-05 IGDEB=          296 ACCE=     1.00000
  FLU2DR: NO LEAKAGE-> REBALANCING ON
@@ -845,18 +791,18 @@ QUIT "LIST" .                                                                   
  B1DIF: SOLUTION OF B1   EQUATIONS WITH TYPE K   
         NUMBER OF ITERATIONS =  1
         BUCKLING =  0.00000E+00
-        K-EFFECTIVE =  1.242803  (  1.242803 )
-        K-INFINITE =  1.242803
+        K-EFFECTIVE =  1.242804  (  1.242804 )
+        K-INFINITE =  1.242804
         MIGRATION AREA =  5.52366E+01
 
- OUT(  3) EIG: PRC= 1.18E-08 TAR= 1.00E-05 KEFF= 1.242803E+00 BUCK= 0.00000E+00
- OUT(  3) FLX: PRC= 1.26E-05 TAR= 5.00E-05 FNOR= 8.046325E-01 ACCE=     1.00000
- FLU2DR: CPU TIME=        4. EXTERNAL CONVERGENCE       REACHED AFTER     3 ITERATIONS.
+ OUT(  3) EIG: PRC= 9.88E-08 TAR= 1.00E-05 KEFF= 1.242804E+00 BUCK= 0.00000E+00
+ OUT(  3) FLX: PRC= 1.27E-05 TAR= 5.00E-05 FNOR= 8.046322E-01 ACCE=     1.00000
+ FLU2DR: CPU TIME=        5. EXTERNAL CONVERGENCE       REACHED AFTER     3 ITERATIONS.
 
- ++ TRACKING CALLED=  10 TIMES FINAL KINF= 1.242803E+00 FINAL KEFF= 1.242803E+00 B2= 0.00000E+00 PRECISION= 1.18E-08
- ++ TOTAL NUMBER OF FLUX CALCULATIONS=      2792
+ ++ TRACKING CALLED=  10 TIMES FINAL KINF= 1.242804E+00 FINAL KEFF= 1.242804E+00 B2= 0.00000E+00 PRECISION= 9.88E-08
+ ++ TOTAL NUMBER OF FLUX CALCULATIONS=      2791
 ->@END MODULE   : FLU:        
--->>MODULE FLU:        : TIME SPENT=        4.349 MEMORY USAGE= 1.600E+01
+-->>MODULE FLU:        : TIME SPENT=        4.513 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : GREP:       
 ->@DESCRIPTION  : No description available for this module                                
 ->@CREDITS      : No author provided for this module                                      
@@ -864,8 +810,8 @@ QUIT "LIST" .                                                                   
                   GNU LESSER GENERAL PUBLIC LICENSE
 -->>module GREP:       : time spent=        0.000 memory usage= 0.000E+00
 ->@END MODULE   : GREP:       
->|SS tracking = SALT and FLX tracking = SALT RSPC, MOC used on sectorized (MAV) geom: Keff3=  1.242803e+00                |>0089
->|AT10SALT_MAV completed                                                                                                  |>0090
+>|SS tracking = SALT and FLX tracking = SALT TSPC, MOC used on sectorized (MAV) geom: Keff3=  1.242804e+00                |>0087
+>|SALT_MAV completed                                                                                                      |>0088
 <|SALT_SUB ;                                                                                                              |<0017
 ->@BEGIN MODULE : GEO:        
 ->@DESCRIPTION  : Geometry definition                                                     
@@ -899,7 +845,7 @@ QUIT "LIST" .                                                                   
                 7 nodes
                 4 boundary conditions other than default
 ->@END MODULE   : G2S:        
--->>MODULE G2S:        : TIME SPENT=        0.014 MEMORY USAGE= 1.094E+04
+-->>MODULE G2S:        : TIME SPENT=        0.017 MEMORY USAGE= 1.620E+04
 ->@BEGIN MODULE : SALT:       
 ->@DESCRIPTION  : Track calculations from a SALOME surfacic file                          
 ->@CREDITS      : A. Hebert, X. Warin                                                     
@@ -940,7 +886,7 @@ QUIT "LIST" .                                                                   
 ->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
                   GNU LESSER GENERAL PUBLIC LICENSE
 ->@END MODULE   : LIB:        
--->>MODULE LIB:        : TIME SPENT=        5.826 MEMORY USAGE= 1.776E+04
+-->>MODULE LIB:        : TIME SPENT=        6.206 MEMORY USAGE= 1.776E+04
 ->@BEGIN MODULE : USS:        
 ->@DESCRIPTION  : Self-shielding by subgroup method                                       
 ->@CREDITS      : A. Hebert                                                               
@@ -957,28 +903,19 @@ QUIT "LIST" .                                                                   
          NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  3
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  4
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  4
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  5
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  5
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  6
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  6
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
          NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  7
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
          NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  8
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  9
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION 10
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION 11
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
          NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  1
@@ -990,37 +927,28 @@ QUIT "LIST" .                                                                   
          NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  3
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  4
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  4
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  5
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  5
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  6
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  6
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
          NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  7
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
          NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  8
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  9
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION 10
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION 11
 ->@END MODULE   : USS:        
--->>MODULE USS:        : TIME SPENT=       61.985 MEMORY USAGE= 0.000E+00
+-->>MODULE USS:        : TIME SPENT=       36.717 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : ASM:        
 ->@DESCRIPTION  : To built system matrices (CP and IC)                                    
 ->@CREDITS      : A. Hebert, G. Marleau, R. Roy                                           
 ->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
                   GNU LESSER GENERAL PUBLIC LICENSE
 ->@END MODULE   : ASM:        
--->>MODULE ASM:        : TIME SPENT=        0.184 MEMORY USAGE= 0.000E+00
+-->>MODULE ASM:        : TIME SPENT=        0.255 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : FLU:        
 ->@DESCRIPTION  : Solve the flux equations                                                
 ->@CREDITS      : R. Roy, A. Hebert, G. Marleau                                           
@@ -1054,7 +982,7 @@ QUIT "LIST" .                                                                   
  UNKNOWN OUTER TOLERANCE     =  5.000E-05
  UNKNOWN INNER TOLERANCE     =  5.000E-05
 
- OUT(  0) EIG: PRC= 1.00E+00 TAR= 1.00E-05 KEFF= 1.619181E-01 BUCK= 0.00000E+00
+ OUT(  0) EIG: PRC= 1.00E+00 TAR= 1.00E-05 KEFF= 1.619180E-01 BUCK= 0.00000E+00
 
  B1DIF: DIFFUSION COEFFICIENT CALCULATION.
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
@@ -1066,30 +994,30 @@ QUIT "LIST" .                                                                   
           IN(  3) FLX: PRC= 1.17E-01 TAR= 5.00E-05 IGDEB=           12 ACCE=     1.00000
                   FIRST UNCONVERGED GROUP PRC= 0.57E-04
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
-          IN(  4) FLX: PRC= 1.84E-02 TAR= 5.00E-05 IGDEB=           18 ACCE=     1.07602
+          IN(  4) FLX: PRC= 1.84E-02 TAR= 5.00E-05 IGDEB=           18 ACCE=     1.07601
                   FIRST UNCONVERGED GROUP PRC= 0.71E-04
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
-          IN(  5) FLX: PRC= 2.35E-03 TAR= 5.00E-05 IGDEB=          103 ACCE=     1.09725
-                  FIRST UNCONVERGED GROUP PRC= 0.72E-04
+          IN(  5) FLX: PRC= 2.37E-03 TAR= 5.00E-05 IGDEB=          103 ACCE=     1.09839
+                  FIRST UNCONVERGED GROUP PRC= 0.73E-04
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
-          IN(  6) FLX: PRC= 2.06E-04 TAR= 5.00E-05 IGDEB=          142 ACCE=     0.93827
+          IN(  6) FLX: PRC= 2.07E-04 TAR= 5.00E-05 IGDEB=          142 ACCE=     0.93601
                   FIRST UNCONVERGED GROUP PRC= 0.51E-04
  FLU2DR: NO LEAKAGE-> REBALANCING ON
- FLU2DR: CPU TIME=        3. INTERNAL CONVERGENCE *NOT* REACHED AFTER     6 ITERATIONS.
+ FLU2DR: CPU TIME=        4. INTERNAL CONVERGENCE *NOT* REACHED AFTER     6 ITERATIONS.
 
  B1DIF: SOLUTION OF B1   EQUATIONS WITH TYPE K   
         NUMBER OF ITERATIONS =  1
         BUCKLING =  0.00000E+00
-        K-EFFECTIVE =  1.242834  (  1.242834 )
-        K-INFINITE =  1.242834
+        K-EFFECTIVE =  1.242835  (  1.242835 )
+        K-INFINITE =  1.242835
         MIGRATION AREA =  5.52343E+01
 
- OUT(  1) EIG: PRC= 8.70E-01 TAR= 1.00E-05 KEFF= 1.242834E+00 BUCK= 0.00000E+00
- OUT(  1) FLX:                             FNOR= 8.046124E-01 ACCE=     1.00000
+ OUT(  1) EIG: PRC= 8.70E-01 TAR= 1.00E-05 KEFF= 1.242835E+00 BUCK= 0.00000E+00
+ OUT(  1) FLX:                             FNOR= 8.046121E-01 ACCE=     1.00000
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
           IN(  1) FLX: PRC= 6.96E-04 TAR= 5.00E-05 IGDEB=            1 ACCE=     1.00000
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
-          IN(  2) FLX: PRC= 3.07E-05 TAR= 5.00E-05 IGDEB=          296 ACCE=     1.00000
+          IN(  2) FLX: PRC= 3.08E-05 TAR= 5.00E-05 IGDEB=          296 ACCE=     1.00000
  FLU2DR: NO LEAKAGE-> REBALANCING ON
  FLU2DR: CPU TIME=        0. INTERNAL CONVERGENCE       REACHED AFTER     2 ITERATIONS.
 
@@ -1100,28 +1028,28 @@ QUIT "LIST" .                                                                   
         K-INFINITE =  1.242825
         MIGRATION AREA =  5.52358E+01
 
- OUT(  2) EIG: PRC= 7.24E-06 TAR= 1.00E-05 KEFF= 1.242825E+00 BUCK= 0.00000E+00
+ OUT(  2) EIG: PRC= 7.66E-06 TAR= 1.00E-05 KEFF= 1.242825E+00 BUCK= 0.00000E+00
  OUT(  2) FLX: PRC= 6.88E-04 TAR= 5.00E-05 FNOR= 8.046182E-01 ACCE=     1.00000
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
-          IN(  1) FLX: PRC= 8.73E-06 TAR= 5.00E-05 IGDEB=          296 ACCE=     1.00000
+          IN(  1) FLX: PRC= 8.62E-06 TAR= 5.00E-05 IGDEB=          296 ACCE=     1.00000
  FLU2DR: NO LEAKAGE-> REBALANCING ON
  FLU2DR: CPU TIME=        0. INTERNAL CONVERGENCE       REACHED AFTER     1 ITERATIONS.
 
  B1DIF: SOLUTION OF B1   EQUATIONS WITH TYPE K   
         NUMBER OF ITERATIONS =  1
         BUCKLING =  0.00000E+00
-        K-EFFECTIVE =  1.242825  (  1.242825 )
-        K-INFINITE =  1.242825
+        K-EFFECTIVE =  1.242826  (  1.242826 )
+        K-INFINITE =  1.242826
         MIGRATION AREA =  5.52358E+01
 
- OUT(  3) EIG: PRC= 5.57E-08 TAR= 1.00E-05 KEFF= 1.242825E+00 BUCK= 0.00000E+00
- OUT(  3) FLX: PRC= 8.62E-06 TAR= 5.00E-05 FNOR= 8.046182E-01 ACCE=     1.00000
+ OUT(  3) EIG: PRC= 8.29E-08 TAR= 1.00E-05 KEFF= 1.242826E+00 BUCK= 0.00000E+00
+ OUT(  3) FLX: PRC= 8.84E-06 TAR= 5.00E-05 FNOR= 8.046182E-01 ACCE=     1.00000
  FLU2DR: CPU TIME=        4. EXTERNAL CONVERGENCE       REACHED AFTER     3 ITERATIONS.
 
- ++ TRACKING CALLED=   9 TIMES FINAL KINF= 1.242825E+00 FINAL KEFF= 1.242825E+00 B2= 0.00000E+00 PRECISION= 5.57E-08
+ ++ TRACKING CALLED=   9 TIMES FINAL KINF= 1.242826E+00 FINAL KEFF= 1.242826E+00 B2= 0.00000E+00 PRECISION= 8.29E-08
  ++ TOTAL NUMBER OF FLUX CALCULATIONS=      2524
 ->@END MODULE   : FLU:        
--->>MODULE FLU:        : TIME SPENT=        4.145 MEMORY USAGE= 0.000E+00
+-->>MODULE FLU:        : TIME SPENT=        4.295 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : GREP:       
 ->@DESCRIPTION  : No description available for this module                                
 ->@CREDITS      : No author provided for this module                                      
@@ -1129,309 +1057,9 @@ QUIT "LIST" .                                                                   
                   GNU LESSER GENERAL PUBLIC LICENSE
 -->>module GREP:       : time spent=        0.000 memory usage= 0.000E+00
 ->@END MODULE   : GREP:       
->|SS tracking = SALT and FLX tracking = SALT, MOC used on subdivided geom: Keff4=  1.242825e+00                           |>0087
->|AT10SALT_SUB completed                                                                                                  |>0088
+>|SS tracking = SALT and FLX tracking = SALT, MOC used on subdivided geom: Keff4=  1.242826e+00                           |>0087
+>|SALT_SUB completed                                                                                                      |>0088
 <|SYBNXT_ISO ;                                                                                                            |<0018
-->@BEGIN MODULE : GEO:        
-->@DESCRIPTION  : Geometry definition                                                     
-->@CREDITS      : A. Hebert                                                               
-->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
-                  GNU LESSER GENERAL PUBLIC LICENSE
-
- CREATION OF A LEVEL  1 GEOMETRY ON THE DIRECTORY NAMED '/           ' OF THE LCM OBJECT 'GEOMSS      ' WITH TYPE 2-D RECT. CELL  .
-->@END MODULE   : GEO:        
--->>MODULE GEO:        : TIME SPENT=        0.000 MEMORY USAGE= 0.000E+00
-. ------------------------------------------------------------------------------------------------------------------------ .
-->@BEGIN MODULE : GEO:        
-->@DESCRIPTION  : Geometry definition                                                     
-->@CREDITS      : A. Hebert                                                               
-->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
-                  GNU LESSER GENERAL PUBLIC LICENSE
-
- CREATION OF A LEVEL  1 GEOMETRY ON THE DIRECTORY NAMED '/           ' OF THE LCM OBJECT 'GEOMFLX_sub ' WITH TYPE 2-D RECT. CELL  .
-->@END MODULE   : GEO:        
--->>MODULE GEO:        : TIME SPENT=        0.001 MEMORY USAGE= 0.000E+00
-. ------------------------------------------------------------------------------------------------------------------------ .
-->@BEGIN MODULE : SYBILT:     
-->@DESCRIPTION  : Sybil 2-D tracking                                                      
-->@CREDITS      : A. Hebert                                                               
-->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
-                  GNU LESSER GENERAL PUBLIC LICENSE
-
- CARTESIAN MULTICELL OPTION (EURYDICE-2) BASED ON GEOMETRY LOCATED IN 'GEOMSS      '.
-
-
- NUMBER OF CELLS ALONG THE X-AXIS =   1
-                 ALONG THE Y-AXIS =   1     AVAILABLE STORAGE MAXPTS =  50
- NUMBER OF MERGED VOLUMES =    7
- NUMBER OF DISTINCT PHYSICAL MIXTURES =    7
-
-
-     GENERATING CELL   RADIUS
-
-    1 'GEOMSS      '   0.00000E+00 3.13602E-01 3.96678E-01 4.32270E-01 4.43500E-01 4.52000E-01 5.14000E-01
-                       A = 1.29500E+00   B = 1.29500E+00
-
-
- INFINITE DOMAIN.
-
-
- DP-1 APPROXIMATION AROUND EACH CARTESIAN CELL.
-
- QUADRATURE PARAMETERS:
- HETEROGENEOUS CELLS   -    ANGLES   NA = 24 IN (0,PI/4)
-                          SEGMENTS   NX =  5
-
- HOMOGENEOUS CELLS     -    ANGLES   NH =  5
-
- CYLINDRICAL CELLS     -  SEGMENTS   MR =  5
-
-
-
- TOTAL NUMBER OF CELLS IN THE DOMAIN =      1
- TOTAL NUMBER OF MERGED CELLS =      1
- TOTAL NUMBER OF GENERATING CELLS =      1     AVAILABLE STORAGE MAXCEL =     50
-
-
- TOTAL NUMBER OF DISTINCT OUT-CURRENTS =     12
- TOTAL NUMBER OF OUT-CURRENTS SURROUNDING ALL THE CELLS =     12     AVAILABLE STORAGE MAXJ =    200
-
-
- SYBEUR: MAXIMUM STORAGE REQUIRED BY THE TRACKS =    6628 +  27489        AVAILABLE STORAGE MAXZ =  200000
-
-
- SYBEUR: EXACT STORAGE REQUIRED BY THE TRACKS =   2232 INT +   8223 REAL        ACCURACY =  6.370E-06
-
-
- NUMBER OF VOLUMES =      7     AVAILABLE STORAGE MAXBLK =     50
-
-
- STATE VECTOR:
- NREG        7   (NUMBER OF REGIONS)
- NUN         7   (NUMBER OF FLUX UNKNOWNS)
- ILK         1   (0=LEAKAGE PRESENT/1=LEAKAGE ABSENT)
- NBMIX       7   (MAXIMUM NUMBER OF MIXTURES USED)
- NSURF       0   (NUMBER OF OUTER SURFACES)
- ITG         4   (TYPE OF GEOMETRY)
- MAXZ   200000   (TRACKING LENGTH)
- MAXJ      200   (INTERNAL STORAGE LENGTH FOR CURRENTS)
- NUNCUR     12   (NUMBER OF ADDITIONAL INTERFACE CURRENT COMPONENTS)
- IBIHET      0   (0/1=DOUBLE HETEROGENEITY IS NOT/IS ACTIVE)
- EPSJ   5.00E-06 (FLUX-CURRENT ITERATION EPSILON)
-->@END MODULE   : SYBILT:     
--->>MODULE SYBILT:     : TIME SPENT=        0.000 MEMORY USAGE= 0.000E+00
-->@BEGIN MODULE : NXT:        
-->@DESCRIPTION  : New excell tracking in 2- and 3-D                                       
-->@CREDITS      : G. Marleau                                                              
-->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
-                  GNU LESSER GENERAL PUBLIC LICENSE
-->@END MODULE   : NXT:        
--->>MODULE NXT:        : TIME SPENT=        0.012 MEMORY USAGE= 0.000E+00
-->@BEGIN MODULE : MCCGT:      
-->@DESCRIPTION  : Method of characteristics in 2- and 3-D                                 
-->@CREDITS      : I. Suslov, R. Roy, R. Le Tellier, A. Hebert                             
-->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
-                  GNU LESSER GENERAL PUBLIC LICENSE
-->@END MODULE   : MCCGT:      
--->>MODULE MCCGT:      : TIME SPENT=        0.002 MEMORY USAGE= 0.000E+00
-->@BEGIN MODULE : LIB:        
-->@DESCRIPTION  : Microscopic xs-library processing                                       
-->@CREDITS      : A. Hebert, G. Marleau                                                   
-->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
-                  GNU LESSER GENERAL PUBLIC LICENSE
-->@END MODULE   : LIB:        
--->>MODULE LIB:        : TIME SPENT=        5.750 MEMORY USAGE= 0.000E+00
-->@BEGIN MODULE : USS:        
-->@DESCRIPTION  : Self-shielding by subgroup method                                       
-->@CREDITS      : A. Hebert                                                               
-->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
-                  GNU LESSER GENERAL PUBLIC LICENSE
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  1
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  2
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  3
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  4
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  5
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  6
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  7
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  8
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  9
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION 10
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION 11
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  1
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  2
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  3
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  4
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  5
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  6
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  7
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  8
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  9
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION 10
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION 11
-->@END MODULE   : USS:        
--->>MODULE USS:        : TIME SPENT=       14.280 MEMORY USAGE= 1.200E+01
-->@BEGIN MODULE : ASM:        
-->@DESCRIPTION  : To built system matrices (CP and IC)                                    
-->@CREDITS      : A. Hebert, G. Marleau, R. Roy                                           
-->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
-                  GNU LESSER GENERAL PUBLIC LICENSE
-->@END MODULE   : ASM:        
--->>MODULE ASM:        : TIME SPENT=        0.192 MEMORY USAGE= 1.000E+02
-->@BEGIN MODULE : FLU:        
-->@DESCRIPTION  : Solve the flux equations                                                
-->@CREDITS      : R. Roy, A. Hebert, G. Marleau                                           
-->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
-                  GNU LESSER GENERAL PUBLIC LICENSE
-
-
-
-
- P. I. M.    SOLUTION TO TRANSPORT EQUATION
-
- CALCULATION TYPE            =     K-EFF
- FORWARD/BACKWARD OPTION     =    DIRECT
- (AN)ISOTROPY OPTION         = ISOTROPIC
- LEAKAGE TYPE                =      B1  
- LEAKAGE OPTION              =      SIGS
- BUCKLING                    =   IMPOSED
- INITIAL TOTAL BUCKLING      =  0.00000E+00
- FLUX SOLUTION DOOR          =    MCCG  
- NB. OF GROUPS               =       295
- NB. OF REGIONS              =         8
- NB. OF UNKNOWNS PER GROUP   =        12
- NB. OF LEAKAGE ZONES        =         1
- MAX. OUTER ITERATIONS       =       401
- MAX. THERMAL ITERATIONS     =       590
- ACCELERATION SCHEME         =( 3 FREE, 3 ACCELERATED)
- REBALANCING OPTION          = ON 
- SELF-SCATTERING REDUCTION   = ON 
- FUNDAMENTAL MODE            = ON 
- EIGENVALUE TOLERANCE        =  1.000E-05
- UNKNOWN OUTER TOLERANCE     =  5.000E-05
- UNKNOWN INNER TOLERANCE     =  5.000E-05
-
- OUT(  0) EIG: PRC= 1.00E+00 TAR= 1.00E-05 KEFF= 1.618602E-01 BUCK= 0.00000E+00
-
- B1DIF: DIFFUSION COEFFICIENT CALCULATION.
-          M O C PARAMETERS:  NON CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                         
-          IN(  1) FLX: PRC= 3.39E+01 TAR= 5.00E-05 IGDEB=            1 ACCE=     1.00000
-          M O C PARAMETERS:  NON CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                         
-          IN(  2) FLX: PRC= 8.54E-01 TAR= 5.00E-05 IGDEB=            2 ACCE=     1.00000
-                  FIRST UNCONVERGED GROUP PRC= 0.17E-01
-          M O C PARAMETERS:  NON CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                         
-          IN(  3) FLX: PRC= 1.10E-01 TAR= 5.00E-05 IGDEB=           12 ACCE=     1.00000
-                  FIRST UNCONVERGED GROUP PRC= 0.61E-04
-          M O C PARAMETERS:  NON CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                         
-          IN(  4) FLX: PRC= 1.79E-02 TAR= 5.00E-05 IGDEB=           18 ACCE=     1.06929
-                  FIRST UNCONVERGED GROUP PRC= 0.66E-04
-          M O C PARAMETERS:  NON CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                         
-          IN(  5) FLX: PRC= 1.51E-03 TAR= 5.00E-05 IGDEB=          105 ACCE=     1.06175
-                  FIRST UNCONVERGED GROUP PRC= 0.35E-03
-          M O C PARAMETERS:  NON CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                         
-          IN(  6) FLX: PRC= 1.26E-04 TAR= 5.00E-05 IGDEB=          167 ACCE=     0.96248
-                  FIRST UNCONVERGED GROUP PRC= 0.13E-03
- FLU2DR: NO LEAKAGE-> REBALANCING ON
- FLU2DR: CPU TIME=        4. INTERNAL CONVERGENCE *NOT* REACHED AFTER     6 ITERATIONS.
-
- B1DIF: SOLUTION OF B1   EQUATIONS WITH TYPE K   
-        NUMBER OF ITERATIONS =  1
-        BUCKLING =  0.00000E+00
-        K-EFFECTIVE =  1.240067  (  1.240067 )
-        K-INFINITE =  1.240067
-        MIGRATION AREA =  5.51783E+01
-
- OUT(  1) EIG: PRC= 8.69E-01 TAR= 1.00E-05 KEFF= 1.240067E+00 BUCK= 0.00000E+00
- OUT(  1) FLX:                             FNOR= 8.064079E-01 ACCE=     1.00000
-          M O C PARAMETERS:  NON CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                         
-          IN(  1) FLX: PRC= 7.43E-04 TAR= 5.00E-05 IGDEB=            1 ACCE=     1.00000
-          M O C PARAMETERS:  NON CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                         
-          IN(  2) FLX: PRC= 3.01E-05 TAR= 5.00E-05 IGDEB=          296 ACCE=     1.00000
- FLU2DR: NO LEAKAGE-> REBALANCING ON
- FLU2DR: CPU TIME=        1. INTERNAL CONVERGENCE       REACHED AFTER     2 ITERATIONS.
-
- B1DIF: SOLUTION OF B1   EQUATIONS WITH TYPE K   
-        NUMBER OF ITERATIONS =  1
-        BUCKLING =  0.00000E+00
-        K-EFFECTIVE =  1.240058  (  1.240058 )
-        K-INFINITE =  1.240058
-        MIGRATION AREA =  5.51798E+01
-
- OUT(  2) EIG: PRC= 7.48E-06 TAR= 1.00E-05 KEFF= 1.240058E+00 BUCK= 0.00000E+00
- OUT(  2) FLX: PRC= 7.35E-04 TAR= 5.00E-05 FNOR= 8.064139E-01 ACCE=     1.00000
-          M O C PARAMETERS:  NON CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                         
-          IN(  1) FLX: PRC= 7.99E-06 TAR= 5.00E-05 IGDEB=          296 ACCE=     1.00000
- FLU2DR: NO LEAKAGE-> REBALANCING ON
- FLU2DR: CPU TIME=        0. INTERNAL CONVERGENCE       REACHED AFTER     1 ITERATIONS.
-
- B1DIF: SOLUTION OF B1   EQUATIONS WITH TYPE K   
-        NUMBER OF ITERATIONS =  1
-        BUCKLING =  0.00000E+00
-        K-EFFECTIVE =  1.240058  (  1.240058 )
-        K-INFINITE =  1.240058
-        MIGRATION AREA =  5.51798E+01
-
- OUT(  3) EIG: PRC= 9.26E-08 TAR= 1.00E-05 KEFF= 1.240058E+00 BUCK= 0.00000E+00
- OUT(  3) FLX: PRC= 8.20E-06 TAR= 5.00E-05 FNOR= 8.064139E-01 ACCE=     1.00000
- FLU2DR: CPU TIME=        5. EXTERNAL CONVERGENCE       REACHED AFTER     3 ITERATIONS.
-
- ++ TRACKING CALLED=   9 TIMES FINAL KINF= 1.240058E+00 FINAL KEFF= 1.240058E+00 B2= 0.00000E+00 PRECISION= 9.26E-08
- ++ TOTAL NUMBER OF FLUX CALCULATIONS=      2522
-->@END MODULE   : FLU:        
--->>MODULE FLU:        : TIME SPENT=        4.618 MEMORY USAGE= 1.200E+01
-->@BEGIN MODULE : GREP:       
-->@DESCRIPTION  : No description available for this module                                
-->@CREDITS      : No author provided for this module                                      
-->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
-                  GNU LESSER GENERAL PUBLIC LICENSE
--->>module GREP:       : time spent=        0.000 memory usage= 0.000E+00
-->@END MODULE   : GREP:       
->|SS tracking = SYBILT and FLX tracking = NXT TISO, MOC used on subdivided geom Keff5=  1.240058e+00                      |>0079
->|AT10SYBNXT_ISO completed                                                                                                |>0080
-<|SYBNXT_SPC ;                                                                                                            |<0019
 ->@BEGIN MODULE : GEO:        
 ->@DESCRIPTION  : Geometry definition                                                     
 ->@CREDITS      : A. Hebert                                                               
@@ -1525,10 +1153,8 @@ QUIT "LIST" .                                                                   
 ->@CREDITS      : G. Marleau                                                              
 ->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
                   GNU LESSER GENERAL PUBLIC LICENSE
- ***** Warning in NXTTLC*****
-        regions not tracked for some directions
 ->@END MODULE   : NXT:        
--->>MODULE NXT:        : TIME SPENT=        0.009 MEMORY USAGE= 2.000E+01
+-->>MODULE NXT:        : TIME SPENT=        0.012 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : MCCGT:      
 ->@DESCRIPTION  : Method of characteristics in 2- and 3-D                                 
 ->@CREDITS      : I. Suslov, R. Roy, R. Le Tellier, A. Hebert                             
@@ -1542,7 +1168,7 @@ QUIT "LIST" .                                                                   
 ->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
                   GNU LESSER GENERAL PUBLIC LICENSE
 ->@END MODULE   : LIB:        
--->>MODULE LIB:        : TIME SPENT=        5.907 MEMORY USAGE= 0.000E+00
+-->>MODULE LIB:        : TIME SPENT=        6.221 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : USS:        
 ->@DESCRIPTION  : Self-shielding by subgroup method                                       
 ->@CREDITS      : A. Hebert                                                               
@@ -1559,28 +1185,19 @@ QUIT "LIST" .                                                                   
          NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  3
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  4
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  4
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  5
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  5
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  6
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  6
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
          NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  7
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
          NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  8
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  9
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION 10
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION 11
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
          NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  1
@@ -1592,13 +1209,273 @@ QUIT "LIST" .                                                                   
          NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  3
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  4
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  4
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  5
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  5
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  6
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  6
+
+ USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  7
+
+ USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  8
+->@END MODULE   : USS:        
+-->>MODULE USS:        : TIME SPENT=        8.151 MEMORY USAGE= 0.000E+00
+->@BEGIN MODULE : ASM:        
+->@DESCRIPTION  : To built system matrices (CP and IC)                                    
+->@CREDITS      : A. Hebert, G. Marleau, R. Roy                                           
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+->@END MODULE   : ASM:        
+-->>MODULE ASM:        : TIME SPENT=        0.193 MEMORY USAGE= 0.000E+00
+->@BEGIN MODULE : FLU:        
+->@DESCRIPTION  : Solve the flux equations                                                
+->@CREDITS      : R. Roy, A. Hebert, G. Marleau                                           
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+
+
+
+
+ P. I. M.    SOLUTION TO TRANSPORT EQUATION
+
+ CALCULATION TYPE            =     K-EFF
+ FORWARD/BACKWARD OPTION     =    DIRECT
+ (AN)ISOTROPY OPTION         = ISOTROPIC
+ LEAKAGE TYPE                =      B1  
+ LEAKAGE OPTION              =      SIGS
+ BUCKLING                    =   IMPOSED
+ INITIAL TOTAL BUCKLING      =  0.00000E+00
+ FLUX SOLUTION DOOR          =    MCCG  
+ NB. OF GROUPS               =       295
+ NB. OF REGIONS              =         8
+ NB. OF UNKNOWNS PER GROUP   =        12
+ NB. OF LEAKAGE ZONES        =         1
+ MAX. OUTER ITERATIONS       =       401
+ MAX. THERMAL ITERATIONS     =       590
+ ACCELERATION SCHEME         =( 3 FREE, 3 ACCELERATED)
+ REBALANCING OPTION          = ON 
+ SELF-SCATTERING REDUCTION   = ON 
+ FUNDAMENTAL MODE            = ON 
+ EIGENVALUE TOLERANCE        =  1.000E-05
+ UNKNOWN OUTER TOLERANCE     =  5.000E-05
+ UNKNOWN INNER TOLERANCE     =  5.000E-05
+
+ OUT(  0) EIG: PRC= 1.00E+00 TAR= 1.00E-05 KEFF= 1.618601E-01 BUCK= 0.00000E+00
+
+ B1DIF: DIFFUSION COEFFICIENT CALCULATION.
+          M O C PARAMETERS:  NON CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                         
+          IN(  1) FLX: PRC= 3.39E+01 TAR= 5.00E-05 IGDEB=            1 ACCE=     1.00000
+          M O C PARAMETERS:  NON CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                         
+          IN(  2) FLX: PRC= 8.54E-01 TAR= 5.00E-05 IGDEB=            2 ACCE=     1.00000
+                  FIRST UNCONVERGED GROUP PRC= 0.17E-01
+          M O C PARAMETERS:  NON CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                         
+          IN(  3) FLX: PRC= 1.10E-01 TAR= 5.00E-05 IGDEB=           12 ACCE=     1.00000
+                  FIRST UNCONVERGED GROUP PRC= 0.62E-04
+          M O C PARAMETERS:  NON CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                         
+          IN(  4) FLX: PRC= 1.79E-02 TAR= 5.00E-05 IGDEB=           18 ACCE=     1.06927
+                  FIRST UNCONVERGED GROUP PRC= 0.66E-04
+          M O C PARAMETERS:  NON CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                         
+          IN(  5) FLX: PRC= 1.54E-03 TAR= 5.00E-05 IGDEB=          105 ACCE=     1.06028
+                  FIRST UNCONVERGED GROUP PRC= 0.34E-03
+          M O C PARAMETERS:  NON CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                         
+          IN(  6) FLX: PRC= 1.39E-04 TAR= 5.00E-05 IGDEB=          167 ACCE=     0.97218
+                  FIRST UNCONVERGED GROUP PRC= 0.14E-03
+ FLU2DR: NO LEAKAGE-> REBALANCING ON
+ FLU2DR: CPU TIME=        4. INTERNAL CONVERGENCE *NOT* REACHED AFTER     6 ITERATIONS.
+
+ B1DIF: SOLUTION OF B1   EQUATIONS WITH TYPE K   
+        NUMBER OF ITERATIONS =  1
+        BUCKLING =  0.00000E+00
+        K-EFFECTIVE =  1.240067  (  1.240067 )
+        K-INFINITE =  1.240067
+        MIGRATION AREA =  5.51783E+01
+
+ OUT(  1) EIG: PRC= 8.69E-01 TAR= 1.00E-05 KEFF= 1.240067E+00 BUCK= 0.00000E+00
+ OUT(  1) FLX:                             FNOR= 8.064078E-01 ACCE=     1.00000
+          M O C PARAMETERS:  NON CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                         
+          IN(  1) FLX: PRC= 7.43E-04 TAR= 5.00E-05 IGDEB=            1 ACCE=     1.00000
+          M O C PARAMETERS:  NON CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                         
+          IN(  2) FLX: PRC= 3.01E-05 TAR= 5.00E-05 IGDEB=          296 ACCE=     1.00000
+ FLU2DR: NO LEAKAGE-> REBALANCING ON
+ FLU2DR: CPU TIME=        1. INTERNAL CONVERGENCE       REACHED AFTER     2 ITERATIONS.
+
+ B1DIF: SOLUTION OF B1   EQUATIONS WITH TYPE K   
+        NUMBER OF ITERATIONS =  1
+        BUCKLING =  0.00000E+00
+        K-EFFECTIVE =  1.240058  (  1.240058 )
+        K-INFINITE =  1.240058
+        MIGRATION AREA =  5.51798E+01
+
+ OUT(  2) EIG: PRC= 7.27E-06 TAR= 1.00E-05 KEFF= 1.240058E+00 BUCK= 0.00000E+00
+ OUT(  2) FLX: PRC= 7.35E-04 TAR= 5.00E-05 FNOR= 8.064137E-01 ACCE=     1.00000
+          M O C PARAMETERS:  NON CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                         
+          IN(  1) FLX: PRC= 5.36E-06 TAR= 5.00E-05 IGDEB=          296 ACCE=     1.00000
+ FLU2DR: NO LEAKAGE-> REBALANCING ON
+ FLU2DR: CPU TIME=        0. INTERNAL CONVERGENCE       REACHED AFTER     1 ITERATIONS.
+
+ B1DIF: SOLUTION OF B1   EQUATIONS WITH TYPE K   
+        NUMBER OF ITERATIONS =  1
+        BUCKLING =  0.00000E+00
+        K-EFFECTIVE =  1.240058  (  1.240058 )
+        K-INFINITE =  1.240058
+        MIGRATION AREA =  5.51798E+01
+
+ OUT(  3) EIG: PRC= 7.92E-08 TAR= 1.00E-05 KEFF= 1.240058E+00 BUCK= 0.00000E+00
+ OUT(  3) FLX: PRC= 5.44E-06 TAR= 5.00E-05 FNOR= 8.064137E-01 ACCE=     1.00000
+ FLU2DR: CPU TIME=        4. EXTERNAL CONVERGENCE       REACHED AFTER     3 ITERATIONS.
+
+ ++ TRACKING CALLED=   9 TIMES FINAL KINF= 1.240058E+00 FINAL KEFF= 1.240058E+00 B2= 0.00000E+00 PRECISION= 7.92E-08
+ ++ TOTAL NUMBER OF FLUX CALCULATIONS=      2522
+->@END MODULE   : FLU:        
+-->>MODULE FLU:        : TIME SPENT=        4.297 MEMORY USAGE= 0.000E+00
+->@BEGIN MODULE : GREP:       
+->@DESCRIPTION  : No description available for this module                                
+->@CREDITS      : No author provided for this module                                      
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+-->>module GREP:       : time spent=        0.000 memory usage= 0.000E+00
+->@END MODULE   : GREP:       
+>|SS tracking = SYBILT and FLX tracking = NXT TISO, MOC used on subdivided geom Keff5=  1.240058e+00                      |>0080
+>|SYBNXT_ISO completed                                                                                                    |>0081
+<|SYBNXT_SPC ;                                                                                                            |<0019
+->@BEGIN MODULE : GEO:        
+->@DESCRIPTION  : Geometry definition                                                     
+->@CREDITS      : A. Hebert                                                               
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+
+ CREATION OF A LEVEL  1 GEOMETRY ON THE DIRECTORY NAMED '/           ' OF THE LCM OBJECT 'GEOMSS      ' WITH TYPE 2-D RECT. CELL  .
+->@END MODULE   : GEO:        
+-->>MODULE GEO:        : TIME SPENT=        0.000 MEMORY USAGE= 0.000E+00
+. ------------------------------------------------------------------------------------------------------------------------ .
+->@BEGIN MODULE : GEO:        
+->@DESCRIPTION  : Geometry definition                                                     
+->@CREDITS      : A. Hebert                                                               
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+
+ CREATION OF A LEVEL  1 GEOMETRY ON THE DIRECTORY NAMED '/           ' OF THE LCM OBJECT 'GEOMFLX_sub ' WITH TYPE 2-D RECT. CELL  .
+->@END MODULE   : GEO:        
+-->>MODULE GEO:        : TIME SPENT=        0.000 MEMORY USAGE= 0.000E+00
+. ------------------------------------------------------------------------------------------------------------------------ .
+->@BEGIN MODULE : SYBILT:     
+->@DESCRIPTION  : Sybil 2-D tracking                                                      
+->@CREDITS      : A. Hebert                                                               
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+
+ CARTESIAN MULTICELL OPTION (EURYDICE-2) BASED ON GEOMETRY LOCATED IN 'GEOMSS      '.
+
+
+ NUMBER OF CELLS ALONG THE X-AXIS =   1
+                 ALONG THE Y-AXIS =   1     AVAILABLE STORAGE MAXPTS =  50
+ NUMBER OF MERGED VOLUMES =    7
+ NUMBER OF DISTINCT PHYSICAL MIXTURES =    7
+
+
+     GENERATING CELL   RADIUS
+
+    1 'GEOMSS      '   0.00000E+00 3.13602E-01 3.96678E-01 4.32270E-01 4.43500E-01 4.52000E-01 5.14000E-01
+                       A = 1.29500E+00   B = 1.29500E+00
+
+
+ INFINITE DOMAIN.
+
+
+ DP-1 APPROXIMATION AROUND EACH CARTESIAN CELL.
+
+ QUADRATURE PARAMETERS:
+ HETEROGENEOUS CELLS   -    ANGLES   NA = 24 IN (0,PI/4)
+                          SEGMENTS   NX =  5
+
+ HOMOGENEOUS CELLS     -    ANGLES   NH =  5
+
+ CYLINDRICAL CELLS     -  SEGMENTS   MR =  5
+
+
+
+ TOTAL NUMBER OF CELLS IN THE DOMAIN =      1
+ TOTAL NUMBER OF MERGED CELLS =      1
+ TOTAL NUMBER OF GENERATING CELLS =      1     AVAILABLE STORAGE MAXCEL =     50
+
+
+ TOTAL NUMBER OF DISTINCT OUT-CURRENTS =     12
+ TOTAL NUMBER OF OUT-CURRENTS SURROUNDING ALL THE CELLS =     12     AVAILABLE STORAGE MAXJ =    200
+
+
+ SYBEUR: MAXIMUM STORAGE REQUIRED BY THE TRACKS =    6628 +  27489        AVAILABLE STORAGE MAXZ =  200000
+
+
+ SYBEUR: EXACT STORAGE REQUIRED BY THE TRACKS =   2232 INT +   8223 REAL        ACCURACY =  6.370E-06
+
+
+ NUMBER OF VOLUMES =      7     AVAILABLE STORAGE MAXBLK =     50
+
+
+ STATE VECTOR:
+ NREG        7   (NUMBER OF REGIONS)
+ NUN         7   (NUMBER OF FLUX UNKNOWNS)
+ ILK         1   (0=LEAKAGE PRESENT/1=LEAKAGE ABSENT)
+ NBMIX       7   (MAXIMUM NUMBER OF MIXTURES USED)
+ NSURF       0   (NUMBER OF OUTER SURFACES)
+ ITG         4   (TYPE OF GEOMETRY)
+ MAXZ   200000   (TRACKING LENGTH)
+ MAXJ      200   (INTERNAL STORAGE LENGTH FOR CURRENTS)
+ NUNCUR     12   (NUMBER OF ADDITIONAL INTERFACE CURRENT COMPONENTS)
+ IBIHET      0   (0/1=DOUBLE HETEROGENEITY IS NOT/IS ACTIVE)
+ EPSJ   5.00E-06 (FLUX-CURRENT ITERATION EPSILON)
+->@END MODULE   : SYBILT:     
+-->>MODULE SYBILT:     : TIME SPENT=        0.000 MEMORY USAGE= 0.000E+00
+->@BEGIN MODULE : NXT:        
+->@DESCRIPTION  : New excell tracking in 2- and 3-D                                       
+->@CREDITS      : G. Marleau                                                              
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+ ***** Warning in NXTTLC*****
+        regions not tracked for some directions
+->@END MODULE   : NXT:        
+-->>MODULE NXT:        : TIME SPENT=        0.010 MEMORY USAGE= 2.000E+01
+->@BEGIN MODULE : MCCGT:      
+->@DESCRIPTION  : Method of characteristics in 2- and 3-D                                 
+->@CREDITS      : I. Suslov, R. Roy, R. Le Tellier, A. Hebert                             
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+->@END MODULE   : MCCGT:      
+-->>MODULE MCCGT:      : TIME SPENT=        0.000 MEMORY USAGE= 0.000E+00
+->@BEGIN MODULE : LIB:        
+->@DESCRIPTION  : Microscopic xs-library processing                                       
+->@CREDITS      : A. Hebert, G. Marleau                                                   
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+->@END MODULE   : LIB:        
+-->>MODULE LIB:        : TIME SPENT=        6.033 MEMORY USAGE= 0.000E+00
+->@BEGIN MODULE : USS:        
+->@DESCRIPTION  : Self-shielding by subgroup method                                       
+->@CREDITS      : A. Hebert                                                               
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+
+ USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
+         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  1
+
+ USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
+         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  2
+
+ USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
+         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  3
+
+ USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  4
+
+ USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  5
+
+ USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  6
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
          NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  7
@@ -1607,22 +1484,37 @@ QUIT "LIST" .                                                                   
          NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  8
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  9
+         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  1
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION 10
+         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  2
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION 11
+         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  3
+
+ USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  4
+
+ USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  5
+
+ USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  6
+
+ USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  7
+
+ USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  8
 ->@END MODULE   : USS:        
--->>MODULE USS:        : TIME SPENT=       14.336 MEMORY USAGE= 0.000E+00
+-->>MODULE USS:        : TIME SPENT=        8.151 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : ASM:        
 ->@DESCRIPTION  : To built system matrices (CP and IC)                                    
 ->@CREDITS      : A. Hebert, G. Marleau, R. Roy                                           
 ->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
                   GNU LESSER GENERAL PUBLIC LICENSE
 ->@END MODULE   : ASM:        
--->>MODULE ASM:        : TIME SPENT=        0.229 MEMORY USAGE= 0.000E+00
+-->>MODULE ASM:        : TIME SPENT=        0.217 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : FLU:        
 ->@DESCRIPTION  : Solve the flux equations                                                
 ->@CREDITS      : R. Roy, A. Hebert, G. Marleau                                           
@@ -1656,7 +1548,7 @@ QUIT "LIST" .                                                                   
  UNKNOWN OUTER TOLERANCE     =  5.000E-05
  UNKNOWN INNER TOLERANCE     =  5.000E-05
 
- OUT(  0) EIG: PRC= 1.00E+00 TAR= 1.00E-05 KEFF= 1.618602E-01 BUCK= 0.00000E+00
+ OUT(  0) EIG: PRC= 1.00E+00 TAR= 1.00E-05 KEFF= 1.618601E-01 BUCK= 0.00000E+00
 
  B1DIF: DIFFUSION COEFFICIENT CALCULATION.
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
@@ -1666,19 +1558,19 @@ QUIT "LIST" .                                                                   
                   FIRST UNCONVERGED GROUP PRC= 0.20E-01
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
           IN(  3) FLX: PRC= 1.83E-01 TAR= 5.00E-05 IGDEB=           12 ACCE=     1.00000
-                  FIRST UNCONVERGED GROUP PRC= 0.74E-04
-          M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
-          IN(  4) FLX: PRC= 2.79E-02 TAR= 5.00E-05 IGDEB=           16 ACCE=     1.10435
                   FIRST UNCONVERGED GROUP PRC= 0.58E-04
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
-          IN(  5) FLX: PRC= 7.01E-03 TAR= 5.00E-05 IGDEB=           19 ACCE=     1.19958
-                  FIRST UNCONVERGED GROUP PRC= 0.54E-04
+          IN(  4) FLX: PRC= 2.80E-02 TAR= 5.00E-05 IGDEB=           16 ACCE=     1.10386
+                  FIRST UNCONVERGED GROUP PRC= 0.66E-04
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
-          IN(  6) FLX: PRC= 1.28E-03 TAR= 5.00E-05 IGDEB=          104 ACCE=     1.03823
+          IN(  5) FLX: PRC= 6.97E-03 TAR= 5.00E-05 IGDEB=           19 ACCE=     1.19857
+                  FIRST UNCONVERGED GROUP PRC= 0.53E-04
+          M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
+          IN(  6) FLX: PRC= 1.29E-03 TAR= 5.00E-05 IGDEB=          104 ACCE=     1.04482
                   FIRST UNCONVERGED GROUP PRC= 0.11E-03
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
-          IN(  7) FLX: PRC= 1.48E-04 TAR= 5.00E-05 IGDEB=          167 ACCE=     1.00000
-                  FIRST UNCONVERGED GROUP PRC= 0.15E-03
+          IN(  7) FLX: PRC= 1.56E-04 TAR= 5.00E-05 IGDEB=          167 ACCE=     1.00000
+                  FIRST UNCONVERGED GROUP PRC= 0.16E-03
  FLU2DR: NO LEAKAGE-> REBALANCING ON
  FLU2DR: CPU TIME=        8. INTERNAL CONVERGENCE *NOT* REACHED AFTER     7 ITERATIONS.
 
@@ -1692,11 +1584,11 @@ QUIT "LIST" .                                                                   
  OUT(  1) EIG: PRC= 8.69E-01 TAR= 1.00E-05 KEFF= 1.234430E+00 BUCK= 0.00000E+00
  OUT(  1) FLX:                             FNOR= 8.100905E-01 ACCE=     1.00000
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
-          IN(  1) FLX: PRC= 8.86E-04 TAR= 5.00E-05 IGDEB=            1 ACCE=     1.00000
+          IN(  1) FLX: PRC= 8.88E-04 TAR= 5.00E-05 IGDEB=            1 ACCE=     1.00000
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
-          IN(  2) FLX: PRC= 4.17E-05 TAR= 5.00E-05 IGDEB=          296 ACCE=     1.00000
+          IN(  2) FLX: PRC= 4.19E-05 TAR= 5.00E-05 IGDEB=          296 ACCE=     1.00000
  FLU2DR: NO LEAKAGE-> REBALANCING ON
- FLU2DR: CPU TIME=        3. INTERNAL CONVERGENCE       REACHED AFTER     2 ITERATIONS.
+ FLU2DR: CPU TIME=        2. INTERNAL CONVERGENCE       REACHED AFTER     2 ITERATIONS.
 
  B1DIF: SOLUTION OF B1   EQUATIONS WITH TYPE K   
         NUMBER OF ITERATIONS =  1
@@ -1705,10 +1597,10 @@ QUIT "LIST" .                                                                   
         K-INFINITE =  1.234417
         MIGRATION AREA =  5.60745E+01
 
- OUT(  2) EIG: PRC= 1.07E-05 TAR= 1.00E-05 KEFF= 1.234417E+00 BUCK= 0.00000E+00
- OUT(  2) FLX:                             FNOR= 8.100991E-01 ACCE=     1.00000
+ OUT(  2) EIG: PRC= 1.03E-05 TAR= 1.00E-05 KEFF= 1.234417E+00 BUCK= 0.00000E+00
+ OUT(  2) FLX:                             FNOR= 8.100989E-01 ACCE=     1.00000
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
-          IN(  1) FLX: PRC= 4.42E-06 TAR= 5.00E-05 IGDEB=          296 ACCE=     1.00000
+          IN(  1) FLX: PRC= 4.50E-06 TAR= 5.00E-05 IGDEB=          296 ACCE=     1.00000
  FLU2DR: NO LEAKAGE-> REBALANCING ON
  FLU2DR: CPU TIME=        1. INTERNAL CONVERGENCE       REACHED AFTER     1 ITERATIONS.
 
@@ -1719,14 +1611,14 @@ QUIT "LIST" .                                                                   
         K-INFINITE =  1.234417
         MIGRATION AREA =  5.60745E+01
 
- OUT(  3) EIG: PRC= 8.49E-09 TAR= 1.00E-05 KEFF= 1.234417E+00 BUCK= 0.00000E+00
- OUT(  3) FLX: PRC= 4.33E-06 TAR= 5.00E-05 FNOR= 8.100991E-01 ACCE=     1.00000
+ OUT(  3) EIG: PRC= 5.07E-08 TAR= 1.00E-05 KEFF= 1.234417E+00 BUCK= 0.00000E+00
+ OUT(  3) FLX: PRC= 4.67E-06 TAR= 5.00E-05 FNOR= 8.100988E-01 ACCE=     1.00000
  FLU2DR: CPU TIME=       12. EXTERNAL CONVERGENCE       REACHED AFTER     3 ITERATIONS.
 
- ++ TRACKING CALLED=  10 TIMES FINAL KINF= 1.234417E+00 FINAL KEFF= 1.234417E+00 B2= 0.00000E+00 PRECISION= 8.49E-09
+ ++ TRACKING CALLED=  10 TIMES FINAL KINF= 1.234417E+00 FINAL KEFF= 1.234417E+00 B2= 0.00000E+00 PRECISION= 5.07E-08
  ++ TOTAL NUMBER OF FLUX CALCULATIONS=      2802
 ->@END MODULE   : FLU:        
--->>MODULE FLU:        : TIME SPENT=       12.003 MEMORY USAGE= 0.000E+00
+-->>MODULE FLU:        : TIME SPENT=       11.618 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : GREP:       
 ->@DESCRIPTION  : No description available for this module                                
 ->@CREDITS      : No author provided for this module                                      
@@ -1734,8 +1626,8 @@ QUIT "LIST" .                                                                   
                   GNU LESSER GENERAL PUBLIC LICENSE
 -->>module GREP:       : time spent=        0.000 memory usage= 0.000E+00
 ->@END MODULE   : GREP:       
->|SS tracking = SYBILT and FLX tracking = NXT TSPC, MOC used on subdivided geom  Keff6=  1.234417e+00                     |>0079
->|AT10SYBNXT_SPC completed                                                                                                |>0081
+>|SS tracking = SYBILT and FLX tracking = NXT TSPC, MOC used on subdivided geom  Keff6=  1.234417e+00                     |>0080
+>|AT10SYBNXT_SPC completed                                                                                                |>0082
 <|SYBSYB ;                                                                                                                |<0020
 ->@BEGIN MODULE : GEO:        
 ->@DESCRIPTION  : Geometry definition                                                     
@@ -1892,14 +1784,14 @@ QUIT "LIST" .                                                                   
  IBIHET      0   (0/1=DOUBLE HETEROGENEITY IS NOT/IS ACTIVE)
  EPSJ   5.00E-06 (FLUX-CURRENT ITERATION EPSILON)
 ->@END MODULE   : SYBILT:     
--->>MODULE SYBILT:     : TIME SPENT=        0.000 MEMORY USAGE= 0.000E+00
+-->>MODULE SYBILT:     : TIME SPENT=        0.001 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : LIB:        
 ->@DESCRIPTION  : Microscopic xs-library processing                                       
 ->@CREDITS      : A. Hebert, G. Marleau                                                   
 ->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
                   GNU LESSER GENERAL PUBLIC LICENSE
 ->@END MODULE   : LIB:        
--->>MODULE LIB:        : TIME SPENT=        5.806 MEMORY USAGE= 0.000E+00
+-->>MODULE LIB:        : TIME SPENT=        6.062 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : USS:        
 ->@DESCRIPTION  : Self-shielding by subgroup method                                       
 ->@CREDITS      : A. Hebert                                                               
@@ -1916,28 +1808,19 @@ QUIT "LIST" .                                                                   
          NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  3
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  4
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  4
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  5
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  5
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  6
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  6
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
          NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  7
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
          NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  8
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  9
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION 10
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION 11
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
          NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  1
@@ -1949,37 +1832,28 @@ QUIT "LIST" .                                                                   
          NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  3
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  4
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  4
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  5
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  5
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  6
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  6
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
          NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  7
 
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
          NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  8
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  9
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION 10
-
- USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
-         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION 11
 ->@END MODULE   : USS:        
--->>MODULE USS:        : TIME SPENT=       14.234 MEMORY USAGE= 0.000E+00
+-->>MODULE USS:        : TIME SPENT=        8.183 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : ASM:        
 ->@DESCRIPTION  : To built system matrices (CP and IC)                                    
 ->@CREDITS      : A. Hebert, G. Marleau, R. Roy                                           
 ->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
                   GNU LESSER GENERAL PUBLIC LICENSE
 ->@END MODULE   : ASM:        
--->>MODULE ASM:        : TIME SPENT=        2.719 MEMORY USAGE= 0.000E+00
+-->>MODULE ASM:        : TIME SPENT=        2.673 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : FLU:        
 ->@DESCRIPTION  : Solve the flux equations                                                
 ->@CREDITS      : R. Roy, A. Hebert, G. Marleau                                           
@@ -2013,7 +1887,7 @@ QUIT "LIST" .                                                                   
  UNKNOWN OUTER TOLERANCE     =  5.000E-05
  UNKNOWN INNER TOLERANCE     =  5.000E-05
 
- OUT(  0) EIG: PRC= 1.00E+00 TAR= 1.00E-05 KEFF= 1.618602E-01 BUCK= 0.00000E+00
+ OUT(  0) EIG: PRC= 1.00E+00 TAR= 1.00E-05 KEFF= 1.618601E-01 BUCK= 0.00000E+00
 
  B1DIF: DIFFUSION COEFFICIENT CALCULATION.
           IN(  1) FLX: PRC= 3.38E+01 TAR= 5.00E-05 IGDEB=            1 ACCE=     1.00000
@@ -2021,8 +1895,8 @@ QUIT "LIST" .                                                                   
                   FIRST UNCONVERGED GROUP PRC= 0.59E-04
           IN(  3) FLX: PRC= 1.76E-03 TAR= 5.00E-05 IGDEB=          210 ACCE=     1.00000
                   FIRST UNCONVERGED GROUP PRC= 0.51E-04
-          IN(  4) FLX: PRC= 5.87E-05 TAR= 5.00E-05 IGDEB=          287 ACCE=     1.04488
-                  FIRST UNCONVERGED GROUP PRC= 0.51E-04
+          IN(  4) FLX: PRC= 5.95E-05 TAR= 5.00E-05 IGDEB=          287 ACCE=     1.04449
+                  FIRST UNCONVERGED GROUP PRC= 0.52E-04
  FLU2DR: NO LEAKAGE-> REBALANCING ON
  FLU2DR: CPU TIME=        0. INTERNAL CONVERGENCE *NOT* REACHED AFTER     4 ITERATIONS.
 
@@ -2036,7 +1910,7 @@ QUIT "LIST" .                                                                   
  OUT(  1) EIG: PRC= 8.70E-01 TAR= 1.00E-05 KEFF= 1.242731E+00 BUCK= 0.00000E+00
  OUT(  1) FLX:                             FNOR= 8.046794E-01 ACCE=     1.00000
           IN(  1) FLX: PRC= 8.75E-04 TAR= 5.00E-05 IGDEB=            1 ACCE=     1.00000
-          IN(  2) FLX: PRC= 6.04E-07 TAR= 5.00E-05 IGDEB=          296 ACCE=     1.00000
+          IN(  2) FLX: PRC= 1.05E-06 TAR= 5.00E-05 IGDEB=          296 ACCE=     1.00000
  FLU2DR: NO LEAKAGE-> REBALANCING ON
  FLU2DR: CPU TIME=        0. INTERNAL CONVERGENCE       REACHED AFTER     2 ITERATIONS.
 
@@ -2047,9 +1921,9 @@ QUIT "LIST" .                                                                   
         K-INFINITE =  1.242719
         MIGRATION AREA =  5.52048E+01
 
- OUT(  2) EIG: PRC= 9.37E-06 TAR= 1.00E-05 KEFF= 1.242719E+00 BUCK= 0.00000E+00
- OUT(  2) FLX: PRC= 8.65E-04 TAR= 5.00E-05 FNOR= 8.046870E-01 ACCE=     1.00000
-          IN(  1) FLX: PRC= 1.79E-06 TAR= 5.00E-05 IGDEB=          296 ACCE=     1.00000
+ OUT(  2) EIG: PRC= 9.29E-06 TAR= 1.00E-05 KEFF= 1.242719E+00 BUCK= 0.00000E+00
+ OUT(  2) FLX: PRC= 8.65E-04 TAR= 5.00E-05 FNOR= 8.046868E-01 ACCE=     1.00000
+          IN(  1) FLX: PRC= 2.04E-06 TAR= 5.00E-05 IGDEB=          296 ACCE=     1.00000
  FLU2DR: NO LEAKAGE-> REBALANCING ON
  FLU2DR: CPU TIME=        0. INTERNAL CONVERGENCE       REACHED AFTER     1 ITERATIONS.
 
@@ -2060,14 +1934,14 @@ QUIT "LIST" .                                                                   
         K-INFINITE =  1.242719
         MIGRATION AREA =  5.52048E+01
 
- OUT(  3) EIG: PRC= 1.89E-07 TAR= 1.00E-05 KEFF= 1.242719E+00 BUCK= 0.00000E+00
- OUT(  3) FLX: PRC= 1.64E-06 TAR= 5.00E-05 FNOR= 8.046871E-01 ACCE=     1.00000
+ OUT(  3) EIG: PRC= 1.14E-07 TAR= 1.00E-05 KEFF= 1.242719E+00 BUCK= 0.00000E+00
+ OUT(  3) FLX: PRC= 1.79E-06 TAR= 5.00E-05 FNOR= 8.046869E-01 ACCE=     1.00000
  FLU2DR: CPU TIME=        0. EXTERNAL CONVERGENCE       REACHED AFTER     3 ITERATIONS.
 
- ++ TRACKING CALLED=   7 TIMES FINAL KINF= 1.242719E+00 FINAL KEFF= 1.242719E+00 B2= 0.00000E+00 PRECISION= 1.89E-07
+ ++ TRACKING CALLED=   7 TIMES FINAL KINF= 1.242719E+00 FINAL KEFF= 1.242719E+00 B2= 0.00000E+00 PRECISION= 1.14E-07
  ++ TOTAL NUMBER OF FLUX CALCULATIONS=      1648
 ->@END MODULE   : FLU:        
--->>MODULE FLU:        : TIME SPENT=        0.095 MEMORY USAGE= 0.000E+00
+-->>MODULE FLU:        : TIME SPENT=        0.093 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : GREP:       
 ->@DESCRIPTION  : No description available for this module                                
 ->@CREDITS      : No author provided for this module                                      

@@ -21,7 +21,7 @@ PROCEDURE Mix_Cell Geom_C ;
 LINKED_LIST GEOM GEOM_SS TRACK_SS TRACK LIBRARY LIBRARY2 SYS FLUX ;
 
 SEQ_BINARY TF_EXC ;
-SEQ_ASCII TLM_F :: FILE 'tracks_NXT.m' ;
+SEQ_ASCII TLM_F :: FILE 'tracks_NXT_TISO.m' ;
 
 
 STRING geo_name := "AT10_UOX_simple" ; !"AT10_UOX_Gd2O3"
@@ -46,8 +46,8 @@ INTEGER nseg := 5 ;
 * ---
 * TRACKING PARAMETERS FOR MOC FLX
 * ---
-INTEGER an2d := 12 ;  ! ANGULAR QUADRATURE PARAMETER 18 
-REAL densur := 10.0 ; ! DENSITY OF INTEGRATION LINES CM^-1 35.0
+INTEGER an2d := 18 ;  ! ANGULAR QUADRATURE PARAMETER 18 
+REAL densur := 35.0 ; ! DENSITY OF INTEGRATION LINES CM^-1 35.0
 
 * polar angles for MCCGT:
 INTEGER nmu := 4 ;
@@ -74,9 +74,8 @@ TRACK_SS := SYBILT: GEOM_SS ::
 TRACK TF_EXC := NXT: GEOM ::
   EDIT 100
   ALLG
-  !TSPC EQW2 <<an2d>> <<densur>> REND
-  LONG
   TISO EQW <<an2d>> <<densur>> REND
+  LONG
 ;
 
 TLM_F := TLM: TRACK TF_EXC ::
@@ -105,7 +104,7 @@ FLUX := FLU: LIBRARY2 SYS TRACK TF_EXC ::
         EDIT 1 TYPE K B1 SIGS ;
 
 GREP: FLUX :: GETVAL 'K-EFFECTIVE  ' 1 1 1 >>Keff1<< ;
-ECHO "SS tracking = SYBILT and FLX tracking = NXT TSPC, MOC used on subdivided geom  Keff4=" Keff1 ;
+ECHO "SS tracking = SYBILT and FLX tracking = NXT TISO, MOC on simple geom  Keff1=" Keff1 ;
 
 ECHO "AT10_24UOX NXT TSPC completed" ;
 

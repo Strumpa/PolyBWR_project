@@ -16,8 +16,8 @@ else
    MACH=`uname -sm | sed 's/[ ]/_/'`
 fi
 ls -l
-mv tracks_NXT.m $1/"$MACH"
+mv tracks_NXT_TSPC.m $1/"$MACH"
 mv PIN_AT10_FIG_SS.ps $1/"$MACH"
 mv PIN_AT10_FIG_FLX.ps $1/"$MACH"
-echo "AT-10_pin.save completed"
+echo "NXT_TSPC.save completed"
 

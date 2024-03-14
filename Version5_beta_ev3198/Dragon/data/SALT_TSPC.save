@@ -19,5 +19,5 @@ ls -l
 mv tracks_SALT.m $1/"$MACH"
 mv PIN_AT10_FIG_SS.ps $1/"$MACH"
 mv PIN_AT10_FIG_FLX.ps $1/"$MACH"
-echo "AT-10_pin.save completed"
+echo "SALT_TSPC.save completed"
 

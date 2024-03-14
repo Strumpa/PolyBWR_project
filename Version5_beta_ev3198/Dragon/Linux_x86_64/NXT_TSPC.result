@@ -1,0 +1,1459 @@
+* CLE-2000 VERS 3.0 * R.ROY, EPM COPYRIGHT 1999 *                                                                          LINE
+************************************************************************************************************************   0001
+*                                                                                                                      *   0002
+* Procedure :  NXT_TSPC.c2m                                                                                            *   0003
+* Purpose   :  Tracking SYBILT for SS and NXT TSPC for FLX + MOC Flux calculation                                      *   0004
+* Author    :  R. Guasch                                                                                               *   0005
+*                                                                                                                      *   0006
+* CALL      :  NXT_TSPC                                                                                                *   0007
+*                                                                                                                      *   0008
+************************************************************************************************************************   0009
+* ---                                                                                                                      0010
+* STRUCTURES AND MODULES                                                                                                   0011
+* ---                                                                                                                      0012
+MODULE MCCGT: SYBILT: NXT: TLM: USS: ASM: FLU: GREP: END: ;                                                                0013
+* ---                                                                                                                      0014
+* PROCEDURES                                                                                                               0015
+PROCEDURE Mix_Cell Geom_C ;                                                                                                0016
+* ---                                                                                                                      0017
+LINKED_LIST GEOM GEOM_SS TRACK_SS TRACK LIBRARY LIBRARY2 SYS FLUX ;                                                        0018
+SEQ_BINARY TF_EXC ;                                                                                                        0019
+SEQ_ASCII TLM_F :: FILE 'tracks_NXT_TSPC.m' ;                                                                              0020
+STRING geo_name := "AT10_UOX" ; !"AT10_UOX_Gd2O3"                                                                          0021
+STRING cell_name := "AT10_24UOX" ; ! "AT10_24/32/42/45/48/50UOX" for UOX pins (1 to 6),                                    0022
+! "AT10_45Gd" / "AT10_42Gd" for AT10_UOX_Gd2O3 pins (7,8)                                                                  0023
+REAL Kinf1 Keff1 ;                                                                                                         0024
+! GEOMETRY DEFINITION                                                                                                      0025
+GEOM GEOM_SS := Geom_C :: <<geo_name>> ;                                                                                   0026
+! XS MIX DEFINITION                                                                                                        0027
+LIBRARY := Mix_Cell :: J311_295 <<cell_name>> ;                                                                            0028
+* ---                                                                                                                      0029
+* TRACKING PARAMETERS FOR SSH                                                                                              0030
+* ---                                                                                                                      0031
+INTEGER iqua2 := 24 ;                                                                                                      0032
+INTEGER nseg := 5 ;                                                                                                        0033
+* ---                                                                                                                      0034
+* TRACKING PARAMETERS FOR MOC FLX                                                                                          0035
+* ---                                                                                                                      0036
+INTEGER an2d := 18 ;  ! ANGULAR QUADRATURE PARAMETER 18                                                                    0037
+REAL densur := 35.0 ; ! DENSITY OF INTEGRATION LINES CM^-1 35.0                                                            0038
+* polar angles for MCCGT:                                                                                                  0039
+INTEGER nmu := 4 ;                                                                                                         0040
+* size allocation for MCCGT:                                                                                               0041
+INTEGER mcu := 50000 ;                                                                                                     0042
+! GEOMETRY DEFINITION                                                                                                      0043
+* ---                                                                                                                      0044
+* SELF-SHIELDING TRACKING                                                                                                  0045
+* ---                                                                                                                      0046
+TRACK_SS := SYBILT: GEOM_SS ::                                                                                             0047
+TITLE 'TRACKING FOR PINCELL SS'                                                                                            0048
+MAXR 50 QUA2 <<iqua2>> <<nseg>> DP01 MAXZ 200000                                                                           0049
+;                                                                                                                          0050
+* ---                                                                                                                      0051
+* FLUX CALC TRACKING                                                                                                       0052
+* ---                                                                                                                      0053
+TRACK TF_EXC := NXT: GEOM ::                                                                                               0054
+EDIT 100                                                                                                                   0055
+ALLG                                                                                                                       0056
+TSPC EQW2 <<an2d>> <<densur>> REND                                                                                         0057
+LONG                                                                                                                       0058
+!TISO EQW <<an2d>> <<densur>> REND                                                                                         0059
+;                                                                                                                          0060
+TLM_F := TLM: TRACK TF_EXC ::                                                                                              0061
+EDIT 10                                                                                                                    0062
+NTPO 1                                                                                                                     0063
+DIRECTIONS                                                                                                                 0064
+DIR 0                                                                                                                      0065
+;                                                                                                                          0066
+* MOC tracking                                                                                                             0067
+TRACK := MCCGT: TRACK TF_EXC ::                                                                                            0068
+EDIT 0                                                                                                                     0069
+CACB <<nmu>> AAC 80 TMT EPSI 1E-5 MCU <<mcu>>                                                                              0070
+;                                                                                                                          0071
+! UNIVERSAL SELF-SHIELDING                                                                                                 0072
+LIBRARY2 := USS: LIBRARY TRACK_SS ::                                                                                       0073
+EDIT 0                                                                                                                     0074
+PASS 2                                                                                                                     0075
+GRMIN 52                                                                                                                   0076
+;                                                                                                                          0077
+SYS := ASM: LIBRARY2 TRACK TF_EXC :: ARM EDIT 0 ;                                                                          0078
+FLUX := FLU: LIBRARY2 SYS TRACK TF_EXC ::                                                                                  0079
+EDIT 1 TYPE K B1 SIGS ;                                                                                                    0080
+GREP: FLUX :: GETVAL 'K-EFFECTIVE  ' 1 1 1 >>Keff1<< ;                                                                     0081
+ECHO "SS tracking = SYBILT and FLX tracking = NXT TSPC, MOC used on subdivided geom  Keff4=" Keff1 ;                       0082
+ECHO "AT10_24UOX NXT TSPC completed" ;                                                                                     0083
+END: ;                                                                                                                     0084
+QUIT .                                                                                                                  IMPLICIT
+ 
+ DDDDDD   RRRRRR     AAA     GGGGG    OOOOO   NN     NN
+ DDDDDDD  RRRRRRR   AAAAA   GGGGGGG  OOOOOOO  NNN    NN
+ DD   DD  RR   RR  AA   AA  GG       OO   OO  NNNN   NN
+ DD   DD  RRRRRR   AA   AA  GG  GGG  OO   OO  NN NN  NN
+ DD   DD  RRRR     AAAAAAA  GG  GGG  OO   OO  NN  NN NN
+ DD   DD  RR RR    AAAAAAA  GG   GG  OO   OO  NN   NNNN
+ DDDDDDD  RR  RR   AA   AA  GGGGGGG  OOOOOOO  NN    NNN
+ DDDDDD   RR   RR  AA   AA   GGGGG    OOOOO   NN     NN
+
+ VERSION dragon 5  Version 5.0.10 ($Revision: 3198 $)                  $Date: 2024-03-06 07:29:43 -0500 (Wed, 06 Mar 2024) $           
+ GROUPE D'ANALYSE NUCLEAIRE
+ ECOLE POLYTECHNIQUE DE MONTREAL
+
+
+
+ COPYRIGHT NOTICE FOR THIS VERSION OF dragon:
+ --------------------------------------------
+ Copyright (C) 2002 Ecole Polytechnique de Montreal 
+ This library is free software; you can redistribute it
+ and/or modify it under the terms of the GNU Lesser General
+ Public License as published by the Free Software Foundation;
+ either version 2.1 of the License, or (at your option) any
+ later version 
+
+
+
+
+->@BEGIN MODULE : GEO:        
+->@DESCRIPTION  : Geometry definition                                                     
+->@CREDITS      : A. Hebert                                                               
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+
+ CREATION OF A LEVEL  1 GEOMETRY ON THE DIRECTORY NAMED '/           ' OF THE LCM OBJECT 'GEOM        ' WITH TYPE 2-D RECT. CELL  .
+->@END MODULE   : GEO:        
+-->>MODULE GEO:        : TIME SPENT=        0.000 MEMORY USAGE= 1.480E+02
+->@BEGIN MODULE : GEO:        
+->@DESCRIPTION  : Geometry definition                                                     
+->@CREDITS      : A. Hebert                                                               
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+
+ CREATION OF A LEVEL  1 GEOMETRY ON THE DIRECTORY NAMED '/           ' OF THE LCM OBJECT 'GEOM_SS     ' WITH TYPE 2-D RECT. CELL  .
+->@END MODULE   : GEO:        
+-->>MODULE GEO:        : TIME SPENT=        0.000 MEMORY USAGE= 8.000E+00
+->@BEGIN MODULE : LIB:        
+->@DESCRIPTION  : Microscopic xs-library processing                                       
+->@CREDITS      : A. Hebert, G. Marleau                                                   
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+->@END MODULE   : LIB:        
+-->>MODULE LIB:        : TIME SPENT=        6.311 MEMORY USAGE= 1.075E+05
+->@BEGIN MODULE : SYBILT:     
+->@DESCRIPTION  : Sybil 2-D tracking                                                      
+->@CREDITS      : A. Hebert                                                               
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+
+ CARTESIAN MULTICELL OPTION (EURYDICE-2) BASED ON GEOMETRY LOCATED IN 'GEOM_SS     '.
+
+
+ NUMBER OF CELLS ALONG THE X-AXIS =   1
+                 ALONG THE Y-AXIS =   1     AVAILABLE STORAGE MAXPTS =  50
+ NUMBER OF MERGED VOLUMES =    7
+ NUMBER OF DISTINCT PHYSICAL MIXTURES =    7
+
+
+     GENERATING CELL   RADIUS
+
+    1 'GEOM_SS     '   0.00000E+00 3.13602E-01 3.96678E-01 4.32270E-01 4.43500E-01 4.52000E-01 5.14000E-01
+                       A = 1.29500E+00   B = 1.29500E+00
+
+
+ INFINITE DOMAIN.
+
+
+ DP-1 APPROXIMATION AROUND EACH CARTESIAN CELL.
+
+ QUADRATURE PARAMETERS:
+ HETEROGENEOUS CELLS   -    ANGLES   NA = 24 IN (0,PI/4)
+                          SEGMENTS   NX =  5
+
+ HOMOGENEOUS CELLS     -    ANGLES   NH =  5
+
+ CYLINDRICAL CELLS     -  SEGMENTS   MR =  5
+
+
+
+ TOTAL NUMBER OF CELLS IN THE DOMAIN =      1
+ TOTAL NUMBER OF MERGED CELLS =      1
+ TOTAL NUMBER OF GENERATING CELLS =      1     AVAILABLE STORAGE MAXCEL =     50
+
+
+ TOTAL NUMBER OF DISTINCT OUT-CURRENTS =     12
+ TOTAL NUMBER OF OUT-CURRENTS SURROUNDING ALL THE CELLS =     12     AVAILABLE STORAGE MAXJ =    200
+
+
+ SYBEUR: MAXIMUM STORAGE REQUIRED BY THE TRACKS =    6628 +  27489        AVAILABLE STORAGE MAXZ =  200000
+
+
+ SYBEUR: EXACT STORAGE REQUIRED BY THE TRACKS =   2232 INT +   8223 REAL        ACCURACY =  6.370E-06
+
+
+ NUMBER OF VOLUMES =      7     AVAILABLE STORAGE MAXBLK =     50
+
+
+ STATE VECTOR:
+ NREG        7   (NUMBER OF REGIONS)
+ NUN         7   (NUMBER OF FLUX UNKNOWNS)
+ ILK         1   (0=LEAKAGE PRESENT/1=LEAKAGE ABSENT)
+ NBMIX       7   (MAXIMUM NUMBER OF MIXTURES USED)
+ NSURF       0   (NUMBER OF OUTER SURFACES)
+ ITG         4   (TYPE OF GEOMETRY)
+ MAXZ   200000   (TRACKING LENGTH)
+ MAXJ      200   (INTERNAL STORAGE LENGTH FOR CURRENTS)
+ NUNCUR     12   (NUMBER OF ADDITIONAL INTERFACE CURRENT COMPONENTS)
+ IBIHET      0   (0/1=DOUBLE HETEROGENEITY IS NOT/IS ACTIVE)
+ EPSJ   5.00E-06 (FLUX-CURRENT ITERATION EPSILON)
+->@END MODULE   : SYBILT:     
+-->>MODULE SYBILT:     : TIME SPENT=        0.000 MEMORY USAGE= 0.000E+00
+->@BEGIN MODULE : NXT:        
+->@DESCRIPTION  : New excell tracking in 2- and 3-D                                       
+->@CREDITS      : G. Marleau                                                              
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+(* Output from --NXTACG-- follows 
+
+ Analysis of geometry begins
+
+(* Output from --NXTBCG-- follows 
+BC[[         1]]={   -1,    2,    1,    1,        1.0000000000}
+BC[[         2]]={   -2,    2,    1,    2,        1.0000000000}
+BC[[         3]]={   -3,    2,    1,    3,        1.0000000000}
+BC[[         4]]={   -4,    2,    1,    4,        1.0000000000}
+BC[[         5]]={   -5,    0,    0,    5,        0.0000000000}
+BC[[         6]]={   -6,    0,    0,    6,        0.0000000000}
+   Output from --NXTBCG-- completed *)
+(* Output from --NXTCUA-- follows 
+ Cells in assembly
+ IX=              1
+X/Y
+ IY=      1 0000001
+
+ Cell rotations in assembly
+ IX=              1
+X/Y
+ IY=      1      +A
+
+ Symmetrized cell     X    Y    Z    D
+ Cell 0000001         0    0    0    0
+
+ External faces      -X   +X   -Y   +Y   -Z   +Z   ND
+ Cell 0000001         1    1    1    1              1
+
+ Coupled  faces      -X   +X   -Y   +Y   -Z   +Z  
+ Cell 0000001         1    1    1    1
+   Output from --NXTCUA-- completed *)
+(* Output from --NXTGMD-- follows 
+   Output from --NXTGMD-- completed *)
+(* Output from --NXTMCD-- follows 
+ Processing CELL    =  0001     /           
+ Global cell processing 
+(* Output from --NXTEGI-- follows 
+ Geometry type =        20
+ Original mesh dimensions =
+ X=        1 Y=        1 Z=        0 R=        7
+ Number of regions =       8
+ MESHX =
+    0.000000000    0.000000000    1.294999957
+ SPLTX =
+              1
+ MESHY =
+    0.000000000    0.000000000    1.294999957
+ SPLTY =
+              1
+ RADIUS=
+    0.000000000    0.313602000    0.396678001    0.432269990    0.443500012
+    0.451999992    0.513999999    0.600000024
+ SPLTR =
+              1              1              1              1              1
+              1              1
+ MIX   =
+              1              2              3              4              5
+              6              7              7
+ HMIX  =
+              1              2              3              4              5
+              6              7              7
+   Output from --NXTEGI-- completed *)
+(* Output from --NXTRIS-- follows 
+  DIMENSIONS =         1         1         0         8
+ MESHX =
+    0.000000000    1.294999957    0.000000000
+ SPLTX =
+              1
+ MESHY =
+    0.000000000    1.294999957    0.000000000
+ SPLTY =
+              1
+ MESHR =
+    0.000000000    0.000000000    0.313602000    0.396678001    0.432269990
+    0.443500012    0.451999992    0.513999999    0.600000024
+ SPLTR =
+              1              1              1              1              1
+              1              1
+ MIX   =
+              1              2              3              4              5
+              6              7              7
+ HMIX  =
+              1              2              3              4              5
+              6              7              7
+   Output from --NXTRIS-- completed *)
+(* Output from --NXTSGI-- follows 
+  DIMENSIONS =         1         1         0         7
+ MESHX =
+    0.000000000   -0.647499979    0.647499979
+ SPLTX =
+              1
+ MESHY =
+    0.000000000   -0.647499979    0.647499979
+ SPLTY =
+              1
+ MESHR =
+    0.000000000    0.000000000    0.313602000    0.396678001    0.432269990
+    0.443500012    0.451999992    0.513999999    0.600000024
+ SPLTR =
+              1              1              1              1              1
+              1              1
+  DIMENSIONS =         1         1         0         7
+ MESHX =
+    0.000000000   -0.647499979    0.647499979
+ MESHY =
+    0.000000000   -0.647499979    0.647499979
+ MESHR =
+    0.000000000    0.000000000    0.313602000    0.396678001    0.432269990
+    0.443500012    0.451999992    0.513999999    0.600000024
+Regions and surfaces before symmetries
+ Regions ID
+              1              2              3              4              5
+              6              7              8
+ Surfaces ID
+              1              2              3              4
+Symmetries =              0              0              0              0
+  DIMENSIONS =         1         1         0         7
+ MESHX =
+    0.000000000   -0.647499979    0.647499979
+ MESHY =
+    0.000000000   -0.647499979    0.647499979
+ MESHR =
+    0.000000000    0.000000000    0.313602000    0.396678001    0.432269990
+    0.443500012    0.451999992    0.513999999    0.600000024
+Regions and surfaces after symmetries
+ Regions ID
+              1              2              3              4              5
+              6              7              8
+ Surfaces ID
+              1              2              3              4
+   Output from --NXTSGI-- completed *)
+(* Output from --NXTVOL-- follows 
+ Original regions ID
+              1              2              3              4              5
+              6              7              8
+ Original surfaces ID
+              1              2              3              4
+(* Output from --NXTVCC-- follows 
+    CENTERXY={
+        0.0000000000,        0.0000000000
+};
+      RADIAL={
+        0.3136020005,        0.3966780007,        0.4322699904,        0.4435000122,
+        0.4519999921,        0.5139999986,        0.6000000238
+};
+       MESHX={
+       -0.6474999785,        0.6474999785
+};
+       MESHY={
+       -0.6474999785,        0.6474999785
+};
+      SurVol={
+        -4,         1,        -2,         1,         0,         0,    0.1294999957D+01,
+        -3,         1,        -1,         1,         0,         0,    0.1294999957D+01,
+        -2,        -2,         1,         1,         0,         0,    0.1294999957D+01,
+        -1,        -1,         1,         1,         0,         0,    0.1294999957D+01,
+         0,         0,         0,         0,         0,         0,    0.0000000000D+00,
+         1,         0,         0,         0,         0,         0,    0.0000000000D+00,
+         2,         0,         0,         0,         0,         0,    0.0000000000D+00,
+         3,         0,         0,         0,         0,         0,    0.0000000000D+00,
+         4,         0,         0,         0,         0,         0,    0.0000000000D+00,
+         5,         0,         0,         0,         0,         0,    0.0000000000D+00,
+         6,         0,         0,         0,         0,         0,    0.0000000000D+00,
+         7,         0,         0,         0,         0,         0,    0.0000000000D+00,
+         8,         1,         1,         1,         0,         0,    0.1677024889D+01
+};
+      SurVol={
+        -4,         1,        -2,         1,         0,         0,    0.1294999957D+01,
+        -3,         1,        -1,         1,         0,         0,    0.1294999957D+01,
+        -2,        -2,         1,         1,         0,         0,    0.1294999957D+01,
+        -1,        -1,         1,         1,         0,         0,    0.1294999957D+01,
+         0,         0,         0,         0,         0,         0,    0.0000000000D+00,
+         1,         1,         1,         1,         1,         0,    0.3089637456D+00,
+         2,         1,         1,         1,         2,         0,    0.1853766537D+00,
+         3,         1,         1,         1,         3,         0,    0.9268926191D-01,
+         4,         1,         1,         1,         4,         0,    0.3089730032D-01,
+         5,         1,         1,         1,         5,         0,    0.2391296165D-01,
+         6,         1,         1,         1,         6,         0,    0.1881562849D+00,
+         7,         1,         1,         1,         7,         0,    0.3009772371D+00,
+         8,         1,         1,         1,         0,         0,    0.5460514437D+00
+};
+   Output from --NXTVCC-- completed *)
+ Final regions ID
+              1              2              3              4              5
+              6              7              8
+ Final surfaces ID
+              1              2              3              4
+   Output from --NXTVOL-- completed *)
+(* Output from --NXTRCS-- follows 
+ Original surfaces ID
+              1              2              3              4
+ Final surfaces ID
+              1              2              3              4
+   Output from --NXTRCS-- completed *)
+   Output from --NXTMCD-- completed *)
+(* Output from --NXTCVS-- follows 
+(* Output from --NXTAVS-- follows 
+   Output from --NXTAVS-- completed *)
+   Output from --NXTCVS-- completed *)
+(* Output from --NXTBRT-- follows 
+   Output from --NXTBRT-- completed *)
+(* Output from --NXTAGM-- follows 
+Surface Merge              4
+        -1        -1        -1    0.1294999957E+01
+        -2        -2        -2    0.1294999957E+01
+        -3        -3        -3    0.1294999957E+01
+        -4        -4        -4    0.1294999957E+01
+Region Merge               8
+         1         1         1    0.3089637456E+00
+         2         2         2    0.1853766537E+00
+         3         3         3    0.9268926191E-01
+         4         4         4    0.3089730032E-01
+         5         5         5    0.2391296165E-01
+         6         6         6    0.1881562849E+00
+         7         7         7    0.3009772371E+00
+         8         8         7    0.5460514437E+00
+   Output from --NXTAGM-- completed *)
+ Number of regions before merge =         8
+ Number of regions after merge  =         8
+ Number of surfaces before merge=         4
+ Number of surfaces after merge =         4
+
+ Analysis of geometry completed:
+
+   Output from --NXTACG-- completed *)
+(* Output from --NXTTCG-- follows 
+
+ Tracking of geometry begins:
+
+ Number of regions before merge =         8
+ Number of regions after merge  =         8
+ Number of surfaces before merge=         4
+ Number of surfaces after merge =         4
+(* Output from --NXTXYZ-- follows 
+ Geometry width in X =    1.294999957084656
+ Geometry width in Y =    1.294999957084656
+   Output from --NXTXYZ-- completed *)
+(* Output from --NXTQAC-- follows 
+  NDIM  =       2 AZMQUA=       8 NANGL =      18 NBANGL=      18 ITYPBC=       0
+ NXTQAC: Tracking directions and weights 
+      Angle   Segments                                       Directions and weight
+          1          1         18          2         38          0.05547001962252          0.99846035320541          0.05494259404234
+          2          2         17          2         38          0.11684124756740          0.99315060432288          0.04133236197939
+          3          3         16          2         38          0.18428853505019          0.98287218693432          0.04567544650211
+          4          4         15          2         38          0.25766265056033          0.96623493960125          0.05018982656610
+          5          5         14          2         38          0.33633639699816          0.94174191159484          0.05468735217052
+          6          6         13          2         38          0.41905817746175          0.90795938450045          0.05890340614153
+          7          7         12          2         38          0.50387102552409          0.86377890089843          0.06251240453484
+          8          8         11          2         38          0.58817169767505          0.80873608430319          0.06517097406826
+          9          9         10          2         38          0.66896473162245          0.74329414624717          0.06658563399489
+         10         10          9          2         38          0.74329414624717          0.66896473162245          0.06658563399489
+         11         11          8          2         38          0.80873608430319          0.58817169767505          0.06517097406826
+         12         12          7          2         38          0.86377890089843          0.50387102552409          0.06251240453484
+         13         13          6          2         38          0.90795938450045          0.41905817746175          0.05890340614153
+         14         14          5          2         38          0.94174191159484          0.33633639699816          0.05468735217052
+         15         15          4          2         38          0.96623493960125          0.25766265056033          0.05018982656610
+         16         16          3          2         38          0.98287218693432          0.18428853505019          0.04567544650211
+         17         17          2          2         38          0.99315060432288          0.11684124756740          0.04133236197939
+         18         18          1          2         38          0.99846035320541          0.05547001962252          0.05494259404234
+   Output from --NXTQAC-- completed *)
+(* Output from --NXTQSC-- follows 
+ Spatial tracking information :
+ Tracking density and number of points=         1    0.000328894027991         58
+ Track direction         =   0.055470019622523     0.998460353205412
+ Track starting point    =  -0.059769228788523     0.003320512710473
+ Track displacement      =   0.023907691515409    -0.001328205084189
+ Tracking density and number of points=         2    0.000260582305384         58
+ Track direction         =   0.116841247567397     0.993150604322876
+ Track starting point    =  -0.137750279849164     0.016205915276372
+ Track displacement      =   0.025045505427121    -0.002946530050250
+ Tracking density and number of points=         3    0.000302794772052         58
+ Track direction         =   0.184288535050185     0.982872186934322
+ Track starting point    =  -0.221534583853476     0.041537734472527
+ Track displacement      =   0.026062892218056    -0.004886792290885
+ Tracking density and number of points=         4    0.000348895751953         58
+ Track direction         =   0.257662650560332     0.966234939601246
+ Track starting point    =  -0.308973018806505     0.082392805015068
+ Track displacement      =   0.026867219026653    -0.007164591740441
+ Tracking density and number of points=         5    0.000396989726054         58
+ Track direction         =   0.336336396998156     0.941741911594837
+ Track starting point    =  -0.396508282485950     0.141610100887839
+ Track displacement      =   0.027345398792135    -0.009766213854334
+ Tracking density and number of points=         6    0.000443968325024         58
+ Track direction         =   0.419058177461747     0.907959384500452
+ Track starting point    =  -0.479044699571966     0.221097553648600
+ Track displacement      =   0.027373982832684    -0.012634145922777
+ Tracking density and number of points=         7    0.000485597070197         58
+ Track direction         =   0.503871025524086     0.863778900898433
+ Track starting point    =  -0.550207235652548     0.320954220797320
+ Track displacement      =   0.026839377348905    -0.015656303453528
+ Tracking density and number of points=         8    0.000517078947256         58
+ Track direction         =   0.588171697675046     0.808736084303189
+ Track starting point    =  -0.603166646678168     0.438666652129577
+ Track displacement      =   0.025666665816092    -0.018666666048067
+ Tracking density and number of points=         9    0.000534108832337         58
+ Track direction         =   0.668964731622450     0.743294146247166
+ Track starting point    =  -0.631998137435421     0.568798323691879
+ Track displacement      =   0.023848986318318    -0.021464087686486
+ Tracking density and number of points=        10    0.000534108832337         58
+ Track direction         =   0.743294146247166     0.668964731622450
+ Track starting point    =  -0.633190586751337     0.703545096390375
+ Track displacement      =   0.021464087686486    -0.023848986318318
+ Tracking density and number of points=        11    0.000517078947256         58
+ Track direction         =   0.808736084303189     0.588171697675046
+ Track starting point    =  -0.606666646562181     0.834166639022999
+ Track displacement      =   0.018666666048067    -0.025666665816092
+ Tracking density and number of points=        12    0.000485597070197         58
+ Track direction         =   0.863778900898433     0.503871025524086
+ Track starting point    =  -0.555798772600237     0.952797895886120
+ Track displacement      =   0.015656303453528    -0.026839377348905
+ Tracking density and number of points=        13    0.000443968325024         58
+ Track direction         =   0.907959384500452     0.419058177461747
+ Track starting point    =  -0.486414618026919     1.053898339058325
+ Track displacement      =   0.012634145922777    -0.027373982832684
+ Tracking density and number of points=        14    0.000396989726054         58
+ Track direction         =   0.941741911594837     0.336336396998156
+ Track starting point    =  -0.405297874954851     1.134834049873582
+ Track displacement      =   0.009766213854334    -0.027345398792135
+ Tracking density and number of points=        15    0.000348895751953         58
+ Track direction         =   0.966234939601246     0.257662650560332
+ Track starting point    =  -0.318824332449611     1.195591246686041
+ Track displacement      =   0.007164591740441    -0.026867219026653
+ Tracking density and number of points=        16    0.000302794772052         58
+ Track direction         =   0.982872186934322     0.184288535050185
+ Track starting point    =  -0.232122633817061     1.237987380357658
+ Track displacement      =   0.004886792290885    -0.026062892218056
+ Tracking density and number of points=        17    0.000260582305384         58
+ Track direction         =   0.993150604322876     0.116841247567397
+ Track starting point    =  -0.148799767537600     1.264798024069598
+ Track displacement      =   0.002946530050250    -0.025045505427121
+ Tracking density and number of points=        18    0.000328894027991         58
+ Track direction         =   0.998460353205412     0.055470019622523
+ Track starting point    =  -0.071058972004132     1.279061496074383
+ Track displacement      =   0.001328205084189    -0.023907691515409
+   Output from --NXTQSC-- completed *)
+ Maximum length of a line =      8064
+(* Output from --NXTTLC-- follows 
+ Direction =     1  Scan =    2    1   18   18  Weight =   0.000328894027991
+ Directions and starting point =   0.055470019622523   0.998460353205412  -0.059769228788523   0.003320512710473
+ Direction =     2  Scan =    2    2   17   34  Weight =   0.000260582305384
+ Directions and starting point =   0.116841247567397   0.993150604322876  -0.137750279849164   0.016205915276372
+ Direction =     3  Scan =    2    3   16   48  Weight =   0.000302794772052
+ Directions and starting point =   0.184288535050185   0.982872186934322  -0.221534583853476   0.041537734472527
+ Direction =     4  Scan =    2    4   15   60  Weight =   0.000348895751953
+ Directions and starting point =   0.257662650560332   0.966234939601246  -0.308973018806505   0.082392805015068
+ Direction =     5  Scan =    2    5   14   70  Weight =   0.000396989726054
+ Directions and starting point =   0.336336396998156   0.941741911594837  -0.396508282485950   0.141610100887839
+ Direction =     6  Scan =    2    6   13   78  Weight =   0.000443968325024
+ Directions and starting point =   0.419058177461747   0.907959384500452  -0.479044699571966   0.221097553648600
+ Direction =     7  Scan =    2    7   12   84  Weight =   0.000485597070197
+ Directions and starting point =   0.503871025524086   0.863778900898433  -0.550207235652548   0.320954220797320
+ Direction =     8  Scan =    2    8   11   88  Weight =   0.000517078947256
+ Directions and starting point =   0.588171697675046   0.808736084303189  -0.603166646678168   0.438666652129577
+ Direction =     9  Scan =    2    9   10   90  Weight =   0.000534108832337
+ Directions and starting point =   0.668964731622450   0.743294146247166  -0.631998137435421   0.568798323691879
+ Direction =    10  Scan =    2   10    9   90  Weight =   0.000534108832337
+ Directions and starting point =   0.743294146247166   0.668964731622450  -0.633190586751337   0.703545096390375
+ Direction =    11  Scan =    2   11    8   88  Weight =   0.000517078947256
+ Directions and starting point =   0.808736084303189   0.588171697675046  -0.606666646562181   0.834166639022999
+ Direction =    12  Scan =    2   12    7   84  Weight =   0.000485597070197
+ Directions and starting point =   0.863778900898433   0.503871025524086  -0.555798772600237   0.952797895886120
+ Direction =    13  Scan =    2   13    6   78  Weight =   0.000443968325024
+ Directions and starting point =   0.907959384500452   0.419058177461747  -0.486414618026919   1.053898339058325
+ Direction =    14  Scan =    2   14    5   70  Weight =   0.000396989726054
+ Directions and starting point =   0.941741911594837   0.336336396998156  -0.405297874954851   1.134834049873582
+ Direction =    15  Scan =    2   15    4   60  Weight =   0.000348895751953
+ Directions and starting point =   0.966234939601246   0.257662650560332  -0.318824332449611   1.195591246686041
+ Direction =    16  Scan =    2   16    3   48  Weight =   0.000302794772052
+ Directions and starting point =   0.982872186934322   0.184288535050185  -0.232122633817061   1.237987380357658
+ Direction =    17  Scan =    2   17    2   34  Weight =   0.000260582305384
+ Directions and starting point =   0.993150604322876   0.116841247567397  -0.148799767537600   1.264798024069598
+ Direction =    18  Scan =    2   18    1   18  Weight =   0.000328894027991
+ Directions and starting point =   0.998460353205412   0.055470019622523  -0.071058972004132   1.279061496074383
+ Normalization volumes  =         1    3.0896374562D-01    3.0875685271D-01
+ ***** Warning in NXTTLC*****
+       For region        1 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        1 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        1 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        1 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        1 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        1 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        1 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        1 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        1 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        1 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        1 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        1 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        1 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        1 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        1 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        1 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        1 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        1 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        1 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        1 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        1 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        1 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        1 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        1 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        1 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        1 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        1 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        1 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        1 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        1 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        1 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        1 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        1 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        1 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        1 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        1 no crossing by angle       72
+ Normalization volumes  =         2    1.8537665366D-01    1.8590529157D-01
+ ***** Warning in NXTTLC*****
+       For region        2 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        2 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        2 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        2 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        2 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        2 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        2 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        2 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        2 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        2 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        2 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        2 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        2 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        2 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        2 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        2 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        2 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        2 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        2 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        2 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        2 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        2 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        2 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        2 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        2 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        2 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        2 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        2 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        2 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        2 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        2 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        2 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        2 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        2 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        2 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        2 no crossing by angle       72
+ Normalization volumes  =         3    9.2689261908D-02    9.2447538922D-02
+ ***** Warning in NXTTLC*****
+       For region        3 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        3 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        3 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        3 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        3 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        3 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        3 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        3 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        3 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        3 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        3 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        3 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        3 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        3 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        3 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        3 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        3 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        3 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        3 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        3 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        3 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        3 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        3 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        3 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        3 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        3 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        3 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        3 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        3 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        3 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        3 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        3 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        3 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        3 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        3 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        3 no crossing by angle       72
+ Normalization volumes  =         4    3.0897300315D-02    3.0169057060D-02
+ ***** Warning in NXTTLC*****
+       For region        4 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        4 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        4 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        4 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        4 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        4 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        4 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        4 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        4 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        4 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        4 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        4 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        4 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        4 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        4 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        4 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        4 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        4 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        4 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        4 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        4 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        4 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        4 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        4 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        4 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        4 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        4 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        4 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        4 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        4 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        4 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        4 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        4 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        4 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        4 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        4 no crossing by angle       72
+ Normalization volumes  =         5    2.3912961653D-02    2.4333466601D-02
+ ***** Warning in NXTTLC*****
+       For region        5 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        5 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        5 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        5 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        5 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        5 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        5 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        5 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        5 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        5 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        5 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        5 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        5 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        5 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        5 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        5 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        5 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        5 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        5 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        5 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        5 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        5 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        5 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        5 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        5 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        5 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        5 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        5 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        5 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        5 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        5 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        5 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        5 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        5 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        5 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        5 no crossing by angle       72
+ Normalization volumes  =         6    1.8815628493D-01    1.8888938738D-01
+ ***** Warning in NXTTLC*****
+       For region        6 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        6 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        6 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        6 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        6 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        6 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        6 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        6 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        6 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        6 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        6 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        6 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        6 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        6 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        6 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        6 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        6 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        6 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        6 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        6 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        6 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        6 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        6 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        6 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        6 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        6 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        6 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        6 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        6 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        6 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        6 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        6 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        6 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        6 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        6 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        6 no crossing by angle       72
+ Normalization volumes  =         7    3.0097723709D-01    2.9980881756D-01
+ ***** Warning in NXTTLC*****
+       For region        7 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        7 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        7 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        7 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        7 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        7 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        7 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        7 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        7 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        7 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        7 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        7 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        7 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        7 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        7 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        7 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        7 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        7 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        7 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        7 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        7 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        7 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        7 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        7 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        7 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        7 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        7 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        7 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        7 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        7 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        7 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        7 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        7 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        7 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        7 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        7 no crossing by angle       72
+ Normalization volumes  =         8    5.4605144368D-01    5.4671447706D-01
+ ***** Warning in NXTTLC*****
+       For region        8 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        8 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        8 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        8 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        8 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        8 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        8 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        8 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        8 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        8 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        8 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        8 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        8 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        8 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        8 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        8 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        8 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        8 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        8 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        8 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        8 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        8 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        8 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        8 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        8 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        8 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        8 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        8 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        8 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        8 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        8 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        8 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        8 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        8 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        8 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+       For region        8 no crossing by angle       72
+ ***** Warning in NXTTLC*****
+        regions not tracked for some directions
+ Normalization surfaces =         1    1.2949999571D+00    1.2960819954D+00
+ Normalization surfaces =         2    1.2949999571D+00    1.2960819954D+00
+ Normalization surfaces =         3    1.2949999571D+00    1.2960819954D+00
+ Normalization surfaces =         4    1.2949999571D+00    1.2960819954D+00
+ Global RMS, maximum and average errors (%) on region volumes :     1.07727     2.41387    -0.07628
+ Normalisation factors and relative errors (%) for region        1 with volume        0.3089637456
+     1.0006700836    -0.06701
+ Normalisation factors and relative errors (%) for region        2 with volume        0.1853766537
+     0.9971564128     0.28436
+ Normalisation factors and relative errors (%) for region        3 with volume        0.0926892619
+     1.0026147044    -0.26147
+ Normalisation factors and relative errors (%) for region        4 with volume        0.0308973003
+     1.0241387477    -2.41387
+ Normalisation factors and relative errors (%) for region        5 with volume        0.0239129617
+     0.9827190694     1.72809
+ Normalisation factors and relative errors (%) for region        6 with volume        0.1881562849
+     0.9961188797     0.38811
+ Normalisation factors and relative errors (%) for region        7 with volume        0.3009772371
+     1.0038972154    -0.38972
+ Normalisation factors and relative errors (%) for region        8 with volume        0.5460514437
+     0.9987872401     0.12128
+ Global RMS, maximum and average errors (%) on surface areas  :     0.08349     0.08349     0.08349
+ Normalisation factors and relative error (%) for surface       -1 with area          1.2949999571
+     0.9991651467     0.08349
+ Normalisation factors and relative error (%) for surface       -2 with area          1.2949999571
+     0.9991651467     0.08349
+ Normalisation factors and relative error (%) for surface       -3 with area          1.2949999571
+     0.9991651467     0.08349
+ Normalisation factors and relative error (%) for surface       -4 with area          1.2949999571
+     0.9991651467     0.08349
+   Output from --NXTTLC-- completed *)
+(* Output from --NXTCVM-- follows 
+ Surface Merge           4
+        -1        -2        -3        -4
+ Region Merge           8
+         1         2         3         4         5
+         6         7         8
+   Output from --NXTCVM-- completed *)
+(* Output from --NXTSQD-- follows 
+   Output from --NXTSQD-- completed *)
+(* Output from --NXTTNS-- follows 
+   Output from --NXTTNS-- completed *)
+
+ Tracking of geometry completed
+
+   Output from --NXTTCG-- completed *)
+
+ STATE VECTOR:
+ NREG          8   (NUMBER OF REGIONS)
+ KPN           8   (NUMBER OF UNKNOWNS)
+ ILK           1   (0=LEAKAGE PRESENT/1=LEAKAGE ABSENT)
+ NBMIX         7   (MAXIMUM NUMBER OF MIXTURES USED)
+ NSURF         4   (NUMBER OF OUTER SURFACES)
+ NANI          1   (1=P0 CROSS SECTIONS/2=P1 CROSS SECTIONS/...)
+ GEOT          4   (TYPE OF GEOMETRY)
+ NORM         -1   (NORMALIZATION OPTION 1=ABSENT/0=GLOBAL/-1=NORMALIZATION BY ANGLE)
+ TRKT          1   (TRACKING TYPE 0=FINITE/1=CYCLIC)
+ BOUND        -1   (BOUNDARY CONDITIONS TYPE 0=ISOTROPIC/1=SPECULAR)
+ NANG         18   (NUMBER OF TRACKING ANGLES)
+ ASYM          1   (ANGULAR SYMMETRY FACTOR)
+ POLQUA        1   (POLAR ANGLE QUADRATURE TYPE)
+ POLOAQ        9   (POLAR ANGLE QUADRATURE ORDER)
+ AZMQUA        8   (AZIMUTHAL OR SOLID ANGULAR QUADRATURE TYPE)
+ NDIM          0   (NUMBER OF DIMENSIONS)
+ NPOINT        0   (NUMBER OF TRACKING POINTS ON A LINE)
+ MAXSGL     8064   (MAXIMUM LENGTH OF A TRACK)
+ NTLINE       54   (TOTAL NUMBER OF TRACKS GENERATED)
+ NBTDIR        0   (TOTAL NUMBER OF TRACK DIRECTIONS PROCESSED)
+ NANGL        72   (NUMBER OF TRACK DIRECTION ANGLES CONSIDERED IN THE INTEGRATION)
+ INSB          1   (VECTORIZATION OPTION)
+ ITRACK        1   (-1=MONTE-CARLO/0=DESACTIVATES TRACKING FILE BUILD/1=ACTIVATES TRACKING FILE BUILD)
+ IBIHET        0   (0/1=DOUBLE HETEROGENEITY IS NOT/IS ACTIVE)
+->@END MODULE   : NXT:        
+-->>MODULE NXT:        : TIME SPENT=        0.010 MEMORY USAGE= 0.000E+00
+->@BEGIN MODULE : TLM:        
+->@DESCRIPTION  : Generate matlab line tracking file                                      
+->@CREDITS      : C. Plamondon, G. Marleau                                                
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+(* Output from --TLMGET-- follows 
+   Output from --TLMGET-- completed *)
+(* Output from --TLM   -- follows 
+   NREG =         8
+   NSUR =         4
+   NANGL=        72
+   NDIM =         2
+   ITGEO=         0          *)
+(* Output from --TLMGEO-- follows 
+   Output from --TLMGEO-- completed *)
+(* Output from --TLMDIR-- follows 
+ Processing lines for region =        1
+ Processing lines for region =        2
+ Processing lines for region =        3
+ Processing lines for region =        4
+ Processing lines for region =        5
+ Processing lines for region =        6
+ Processing lines for region =        7
+ Processing lines for region =        8
+   Output from --TLMDIR-- completed *)
+->@END MODULE   : TLM:        
+-->>MODULE TLM:        : TIME SPENT=        0.077 MEMORY USAGE= 0.000E+00
+->@BEGIN MODULE : MCCGT:      
+->@DESCRIPTION  : Method of characteristics in 2- and 3-D                                 
+->@CREDITS      : I. Suslov, R. Roy, R. Le Tellier, A. Hebert                             
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+->@END MODULE   : MCCGT:      
+-->>MODULE MCCGT:      : TIME SPENT=        0.000 MEMORY USAGE= 0.000E+00
+->@BEGIN MODULE : USS:        
+->@DESCRIPTION  : Self-shielding by subgroup method                                       
+->@CREDITS      : A. Hebert                                                               
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+
+ USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
+         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  1
+
+ USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
+         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  2
+
+ USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
+         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  3
+
+ USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  4
+
+ USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  5
+
+ USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  6
+
+ USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  7
+
+ USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  8
+
+ USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
+         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  1
+
+ USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
+         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  2
+
+ USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
+         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  3
+
+ USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  4
+
+ USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  5
+
+ USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  6
+
+ USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  7
+
+ USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  8
+->@END MODULE   : USS:        
+-->>MODULE USS:        : TIME SPENT=        8.441 MEMORY USAGE= 6.520E+04
+->@BEGIN MODULE : ASM:        
+->@DESCRIPTION  : To built system matrices (CP and IC)                                    
+->@CREDITS      : A. Hebert, G. Marleau, R. Roy                                           
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+->@END MODULE   : ASM:        
+-->>MODULE ASM:        : TIME SPENT=        0.219 MEMORY USAGE= 2.000E+02
+->@BEGIN MODULE : FLU:        
+->@DESCRIPTION  : Solve the flux equations                                                
+->@CREDITS      : R. Roy, A. Hebert, G. Marleau                                           
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+
+
+
+
+ P. I. M.    SOLUTION TO TRANSPORT EQUATION
+
+ CALCULATION TYPE            =     K-EFF
+ FORWARD/BACKWARD OPTION     =    DIRECT
+ (AN)ISOTROPY OPTION         = ISOTROPIC
+ LEAKAGE TYPE                =      B1  
+ LEAKAGE OPTION              =      SIGS
+ BUCKLING                    =   IMPOSED
+ INITIAL TOTAL BUCKLING      =  0.00000E+00
+ FLUX SOLUTION DOOR          =    MCCG  
+ NB. OF GROUPS               =       295
+ NB. OF REGIONS              =         8
+ NB. OF UNKNOWNS PER GROUP   =         8
+ NB. OF LEAKAGE ZONES        =         1
+ MAX. OUTER ITERATIONS       =       401
+ MAX. THERMAL ITERATIONS     =       590
+ ACCELERATION SCHEME         =( 3 FREE, 3 ACCELERATED)
+ REBALANCING OPTION          = ON 
+ SELF-SCATTERING REDUCTION   = ON 
+ FUNDAMENTAL MODE            = ON 
+ EIGENVALUE TOLERANCE        =  1.000E-05
+ UNKNOWN OUTER TOLERANCE     =  5.000E-05
+ UNKNOWN INNER TOLERANCE     =  5.000E-05
+
+ OUT(  0) EIG: PRC= 1.00E+00 TAR= 1.00E-05 KEFF= 1.618601E-01 BUCK= 0.00000E+00
+
+ B1DIF: DIFFUSION COEFFICIENT CALCULATION.
+          M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
+          IN(  1) FLX: PRC= 3.36E+01 TAR= 5.00E-05 IGDEB=            1 ACCE=     1.00000
+          M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
+          IN(  2) FLX: PRC= 8.69E-01 TAR= 5.00E-05 IGDEB=            2 ACCE=     1.00000
+                  FIRST UNCONVERGED GROUP PRC= 0.19E-01
+          M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
+          IN(  3) FLX: PRC= 1.83E-01 TAR= 5.00E-05 IGDEB=           12 ACCE=     1.00000
+                  FIRST UNCONVERGED GROUP PRC= 0.66E-04
+          M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
+          IN(  4) FLX: PRC= 2.83E-02 TAR= 5.00E-05 IGDEB=           16 ACCE=     1.10132
+                  FIRST UNCONVERGED GROUP PRC= 0.58E-04
+          M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
+          IN(  5) FLX: PRC= 5.71E-03 TAR= 5.00E-05 IGDEB=           27 ACCE=     1.15082
+                  FIRST UNCONVERGED GROUP PRC= 0.61E-04
+          M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
+          IN(  6) FLX: PRC= 1.13E-03 TAR= 5.00E-05 IGDEB=          104 ACCE=     1.06443
+                  FIRST UNCONVERGED GROUP PRC= 0.10E-03
+          M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
+          IN(  7) FLX: PRC= 1.49E-04 TAR= 5.00E-05 IGDEB=          167 ACCE=     1.00000
+                  FIRST UNCONVERGED GROUP PRC= 0.15E-03
+ FLU2DR: NO LEAKAGE-> REBALANCING ON
+ FLU2DR: CPU TIME=        8. INTERNAL CONVERGENCE *NOT* REACHED AFTER     7 ITERATIONS.
+
+ B1DIF: SOLUTION OF B1   EQUATIONS WITH TYPE K   
+        NUMBER OF ITERATIONS =  1
+        BUCKLING =  0.00000E+00
+        K-EFFECTIVE =  1.234421  (  1.234421 )
+        K-INFINITE =  1.234421
+        MIGRATION AREA =  5.60728E+01
+
+ OUT(  1) EIG: PRC= 8.69E-01 TAR= 1.00E-05 KEFF= 1.234421E+00 BUCK= 0.00000E+00
+ OUT(  1) FLX:                             FNOR= 8.100965E-01 ACCE=     1.00000
+          M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
+          IN(  1) FLX: PRC= 8.83E-04 TAR= 5.00E-05 IGDEB=            1 ACCE=     1.00000
+          M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
+          IN(  2) FLX: PRC= 4.14E-05 TAR= 5.00E-05 IGDEB=          296 ACCE=     1.00000
+ FLU2DR: NO LEAKAGE-> REBALANCING ON
+ FLU2DR: CPU TIME=        2. INTERNAL CONVERGENCE       REACHED AFTER     2 ITERATIONS.
+
+ B1DIF: SOLUTION OF B1   EQUATIONS WITH TYPE K   
+        NUMBER OF ITERATIONS =  1
+        BUCKLING =  0.00000E+00
+        K-EFFECTIVE =  1.234408  (  1.234408 )
+        K-INFINITE =  1.234408
+        MIGRATION AREA =  5.60747E+01
+
+ OUT(  2) EIG: PRC= 1.03E-05 TAR= 1.00E-05 KEFF= 1.234408E+00 BUCK= 0.00000E+00
+ OUT(  2) FLX:                             FNOR= 8.101049E-01 ACCE=     1.00000
+          M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
+          IN(  1) FLX: PRC= 4.08E-06 TAR= 5.00E-05 IGDEB=          296 ACCE=     1.00000
+ FLU2DR: NO LEAKAGE-> REBALANCING ON
+ FLU2DR: CPU TIME=        1. INTERNAL CONVERGENCE       REACHED AFTER     1 ITERATIONS.
+
+ B1DIF: SOLUTION OF B1   EQUATIONS WITH TYPE K   
+        NUMBER OF ITERATIONS =  1
+        BUCKLING =  0.00000E+00
+        K-EFFECTIVE =  1.234408  (  1.234408 )
+        K-INFINITE =  1.234408
+        MIGRATION AREA =  5.60747E+01
+
+ OUT(  3) EIG: PRC= 1.27E-07 TAR= 1.00E-05 KEFF= 1.234408E+00 BUCK= 0.00000E+00
+ OUT(  3) FLX: PRC= 4.16E-06 TAR= 5.00E-05 FNOR= 8.101050E-01 ACCE=     1.00000
+ FLU2DR: CPU TIME=       12. EXTERNAL CONVERGENCE       REACHED AFTER     3 ITERATIONS.
+
+ ++ TRACKING CALLED=  10 TIMES FINAL KINF= 1.234408E+00 FINAL KEFF= 1.234408E+00 B2= 0.00000E+00 PRECISION= 1.27E-07
+ ++ TOTAL NUMBER OF FLUX CALCULATIONS=      2794
+->@END MODULE   : FLU:        
+-->>MODULE FLU:        : TIME SPENT=       11.794 MEMORY USAGE= 2.480E+02
+->@BEGIN MODULE : GREP:       
+->@DESCRIPTION  : No description available for this module                                
+->@CREDITS      : No author provided for this module                                      
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+-->>module GREP:       : time spent=        0.001 memory usage= 1.200E+01
+->@END MODULE   : GREP:       
+>|SS tracking = SYBILT and FLX tracking = NXT TSPC, MOC used on subdivided geom  Keff4=  1.234408e+00                     |>0082
+>|AT10_24UOX NXT TSPC completed                                                                                           |>0083
+
+ normal end of execution for dragon 5  Version 5.0.10 ($Revision: 3198 $)              
+ check for warning in listing
+ before assuming your run was successful
