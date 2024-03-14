@@ -29,7 +29,7 @@ SEQ_ASCII TLM_F :: FILE 'tracks_SALT_C.m' ;
 
 
 INTEGER an2d := 8 ;  ! ANGULAR QUADRATURE PARAMETER
-REAL densur := 10.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
+REAL densur := 5.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
 
 ECHO "performing SALT tracking in TRTM_C_SALT" ;
 * ---
