@@ -373,7 +373,7 @@ QUIT .                                                                          
  JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
  IPIN       0   (PIN LOCATION OPTION)
 ->@END MODULE   : GEO:        
--->>MODULE GEO:        : TIME SPENT=        0.005 MEMORY USAGE= 2.440E+02
+-->>MODULE GEO:        : TIME SPENT=        0.004 MEMORY USAGE= 1.176E+03
 . ------------------------------------------------------------------------------------------------------------------------ .
 >|3 level Geometry generated                                                                                              |>0031
 ->@BEGIN MODULE : G2S:        
@@ -388,7 +388,7 @@ QUIT .                                                                          
                89 nodes
                 3 boundary conditions other than default
 ->@END MODULE   : G2S:        
--->>MODULE G2S:        : TIME SPENT=        0.039 MEMORY USAGE= 3.056E+04
+-->>MODULE G2S:        : TIME SPENT=        0.184 MEMORY USAGE= 3.086E+04
 ->@BEGIN MODULE : SALT:       
 ->@DESCRIPTION  : Track calculations from a SALOME surfacic file                          
 ->@CREDITS      : A. Hebert, X. Warin                                                     
@@ -9239,7 +9239,7 @@ END
  ITRACK        1   (-1=MONTE-CARLO/0=DESACTIVATES TRACKING FILE BUILD/1=ACTIVATES TRACKING FILE BUILD)
  IBIHET        0   (0/1=DOUBLE HETEROGENEITY IS NOT/IS ACTIVE)
 ->@END MODULE   : SALT:       
--->>MODULE SALT:       : TIME SPENT=        0.022 MEMORY USAGE= 0.000E+00
+-->>MODULE SALT:       : TIME SPENT=        0.091 MEMORY USAGE= 0.000E+00
 >|Geometry tracking with G2S: -> SALT: completed                                                                          |>0041
 >|in IF AT10_nominal                                                                                                      |>0056
 ->@BEGIN MODULE : LIB:        
@@ -9248,7 +9248,7 @@ END
 ->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
                   GNU LESSER GENERAL PUBLIC LICENSE
 ->@END MODULE   : LIB:        
--->>MODULE LIB:        : TIME SPENT=       11.924 MEMORY USAGE= 1.197E+05
+-->>MODULE LIB:        : TIME SPENT=      143.980 MEMORY USAGE= 1.889E+05
 >|Mixes for ASSBLY : AT10_nominal  retrieved                                                                              |>0043
 ->@BEGIN MODULE : TLM:        
 ->@DESCRIPTION  : Generate matlab line tracking file                                      
@@ -9357,7 +9357,7 @@ END
  Processing lines for region =       89
    Output from --TLMDIR-- completed *)
 ->@END MODULE   : TLM:        
--->>MODULE TLM:        : TIME SPENT=        0.019 MEMORY USAGE= 4.400E+01
+-->>MODULE TLM:        : TIME SPENT=        0.112 MEMORY USAGE= 0.000E+00
 
  normal end of execution for dragon 5  Version 5.0.10 ($Revision: 3198 $)              
  check for warning in listing

@@ -83,7 +83,7 @@ SYS := ASM: LIBRARY2 TRACK TF_EXC :: ARM EDIT 0 ;                               
 FLUX := FLU: LIBRARY2 SYS TRACK TF_EXC ::                                                                                  0082
 EDIT 1 TYPE K B1 SIGS ;                                                                                                    0083
 GREP: FLUX :: GETVAL 'K-EFFECTIVE  ' 1 1 1 >>Keff1<< ;                                                                     0084
-ECHO "SS tracking = SYBILT and FLX tracking = SALT, MOC used on simple geom: Keff1=" Keff1 ;                               0085
+ECHO "SS tracking = SYBILT and FLX tracking = SALT TSPC, MOC on simple geom: Keff1=" Keff1 ;                               0085
 ECHO "AT10_24UOX SALT TSPC completed" ;                                                                                    0086
 END: ;                                                                                                                     0087
 QUIT .                                                                                                                  IMPLICIT
@@ -123,7 +123,7 @@ QUIT .                                                                          
 
  CREATION OF A LEVEL  1 GEOMETRY ON THE DIRECTORY NAMED '/           ' OF THE LCM OBJECT 'GEOM        ' WITH TYPE 2-D RECT. CELL  .
 ->@END MODULE   : GEO:        
--->>MODULE GEO:        : TIME SPENT=        0.000 MEMORY USAGE= 1.440E+02
+-->>MODULE GEO:        : TIME SPENT=        0.001 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : GEO:        
 ->@DESCRIPTION  : Geometry definition                                                     
 ->@CREDITS      : A. Hebert                                                               
@@ -132,14 +132,14 @@ QUIT .                                                                          
 
  CREATION OF A LEVEL  1 GEOMETRY ON THE DIRECTORY NAMED '/           ' OF THE LCM OBJECT 'GEOM_SS     ' WITH TYPE 2-D RECT. CELL  .
 ->@END MODULE   : GEO:        
--->>MODULE GEO:        : TIME SPENT=        0.001 MEMORY USAGE= 8.000E+00
+-->>MODULE GEO:        : TIME SPENT=        0.000 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : LIB:        
 ->@DESCRIPTION  : Microscopic xs-library processing                                       
 ->@CREDITS      : A. Hebert, G. Marleau                                                   
 ->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
                   GNU LESSER GENERAL PUBLIC LICENSE
 ->@END MODULE   : LIB:        
--->>MODULE LIB:        : TIME SPENT=        6.447 MEMORY USAGE= 1.076E+05
+-->>MODULE LIB:        : TIME SPENT=       79.935 MEMORY USAGE= 1.729E+05
 ->@BEGIN MODULE : SYBILT:     
 ->@DESCRIPTION  : Sybil 2-D tracking                                                      
 ->@CREDITS      : A. Hebert                                                               
@@ -207,7 +207,7 @@ QUIT .                                                                          
  IBIHET      0   (0/1=DOUBLE HETEROGENEITY IS NOT/IS ACTIVE)
  EPSJ   5.00E-06 (FLUX-CURRENT ITERATION EPSILON)
 ->@END MODULE   : SYBILT:     
--->>MODULE SYBILT:     : TIME SPENT=        0.000 MEMORY USAGE= 0.000E+00
+-->>MODULE SYBILT:     : TIME SPENT=        0.001 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : G2S:        
 ->@DESCRIPTION  : Generate a surfacic file in SALOME format from a DRAGON geometry        
 ->@CREDITS      : G. Civario                                                              
@@ -220,7 +220,7 @@ QUIT .                                                                          
                 7 nodes
                 4 boundary conditions other than default
 ->@END MODULE   : G2S:        
--->>MODULE G2S:        : TIME SPENT=        0.007 MEMORY USAGE= 0.000E+00
+-->>MODULE G2S:        : TIME SPENT=        0.010 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : SALT:       
 ->@DESCRIPTION  : Track calculations from a SALOME surfacic file                          
 ->@CREDITS      : A. Hebert, X. Warin                                                     
@@ -25969,7 +25969,7 @@ END
  ITRACK        1   (-1=MONTE-CARLO/0=DESACTIVATES TRACKING FILE BUILD/1=ACTIVATES TRACKING FILE BUILD)
  IBIHET        0   (0/1=DOUBLE HETEROGENEITY IS NOT/IS ACTIVE)
 ->@END MODULE   : SALT:       
--->>MODULE SALT:       : TIME SPENT=        0.062 MEMORY USAGE= 0.000E+00
+-->>MODULE SALT:       : TIME SPENT=        0.136 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : TLM:        
 ->@DESCRIPTION  : Generate matlab line tracking file                                      
 ->@CREDITS      : C. Plamondon, G. Marleau                                                
@@ -25995,14 +25995,14 @@ END
  Processing lines for region =        7
    Output from --TLMDIR-- completed *)
 ->@END MODULE   : TLM:        
--->>MODULE TLM:        : TIME SPENT=        0.055 MEMORY USAGE= 0.000E+00
+-->>MODULE TLM:        : TIME SPENT=        0.129 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : MCCGT:      
 ->@DESCRIPTION  : Method of characteristics in 2- and 3-D                                 
 ->@CREDITS      : I. Suslov, R. Roy, R. Le Tellier, A. Hebert                             
 ->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
                   GNU LESSER GENERAL PUBLIC LICENSE
 ->@END MODULE   : MCCGT:      
--->>MODULE MCCGT:      : TIME SPENT=        0.000 MEMORY USAGE= 0.000E+00
+-->>MODULE MCCGT:      : TIME SPENT=        0.001 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : USS:        
 ->@DESCRIPTION  : Self-shielding by subgroup method                                       
 ->@CREDITS      : A. Hebert                                                               
@@ -26057,14 +26057,14 @@ END
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
          NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  8
 ->@END MODULE   : USS:        
--->>MODULE USS:        : TIME SPENT=        8.268 MEMORY USAGE= 6.546E+04
+-->>MODULE USS:        : TIME SPENT=       30.813 MEMORY USAGE= 6.457E+04
 ->@BEGIN MODULE : ASM:        
 ->@DESCRIPTION  : To built system matrices (CP and IC)                                    
 ->@CREDITS      : A. Hebert, G. Marleau, R. Roy                                           
 ->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
                   GNU LESSER GENERAL PUBLIC LICENSE
 ->@END MODULE   : ASM:        
--->>MODULE ASM:        : TIME SPENT=        0.148 MEMORY USAGE= 1.880E+02
+-->>MODULE ASM:        : TIME SPENT=        0.706 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : FLU:        
 ->@DESCRIPTION  : Solve the flux equations                                                
 ->@CREDITS      : R. Roy, A. Hebert, G. Marleau                                           
@@ -26098,7 +26098,7 @@ END
  UNKNOWN OUTER TOLERANCE     =  5.000E-05
  UNKNOWN INNER TOLERANCE     =  5.000E-05
 
- OUT(  0) EIG: PRC= 1.00E+00 TAR= 1.00E-05 KEFF= 1.618601E-01 BUCK= 0.00000E+00
+ OUT(  0) EIG: PRC= 1.00E+00 TAR= 1.00E-05 KEFF= 1.618671E-01 BUCK= 0.00000E+00
 
  B1DIF: DIFFUSION COEFFICIENT CALCULATION.
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
@@ -26110,70 +26110,69 @@ END
           IN(  3) FLX: PRC= 1.17E-01 TAR= 5.00E-05 IGDEB=           12 ACCE=     1.00000
                   FIRST UNCONVERGED GROUP PRC= 0.56E-04
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
-          IN(  4) FLX: PRC= 1.95E-02 TAR= 5.00E-05 IGDEB=           18 ACCE=     1.06762
+          IN(  4) FLX: PRC= 1.95E-02 TAR= 5.00E-05 IGDEB=           18 ACCE=     1.06759
                   FIRST UNCONVERGED GROUP PRC= 0.61E-04
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
-          IN(  5) FLX: PRC= 1.77E-03 TAR= 5.00E-05 IGDEB=          103 ACCE=     1.05532
+          IN(  5) FLX: PRC= 1.73E-03 TAR= 5.00E-05 IGDEB=          103 ACCE=     1.05765
                   FIRST UNCONVERGED GROUP PRC= 0.54E-04
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
-          IN(  6) FLX: PRC= 8.87E-05 TAR= 5.00E-05 IGDEB=          167 ACCE=     0.96273
-                  FIRST UNCONVERGED GROUP PRC= 0.89E-04
+          IN(  6) FLX: PRC= 4.31E-05 TAR= 5.00E-05 IGDEB=          296 ACCE=     0.93473
  FLU2DR: NO LEAKAGE-> REBALANCING ON
- FLU2DR: CPU TIME=        3. INTERNAL CONVERGENCE *NOT* REACHED AFTER     6 ITERATIONS.
+ FLU2DR: CPU TIME=       12. INTERNAL CONVERGENCE       REACHED AFTER     6 ITERATIONS.
 
  B1DIF: SOLUTION OF B1   EQUATIONS WITH TYPE K   
         NUMBER OF ITERATIONS =  1
         BUCKLING =  0.00000E+00
-        K-EFFECTIVE =  1.242681  (  1.242681 )
-        K-INFINITE =  1.242681
-        MIGRATION AREA =  5.52282E+01
+        K-EFFECTIVE =  1.242919  (  1.242919 )
+        K-INFINITE =  1.242919
+        MIGRATION AREA =  5.52392E+01
 
- OUT(  1) EIG: PRC= 8.70E-01 TAR= 1.00E-05 KEFF= 1.242681E+00 BUCK= 0.00000E+00
- OUT(  1) FLX:                             FNOR= 8.047119E-01 ACCE=     1.00000
+ OUT(  1) EIG: PRC= 8.70E-01 TAR= 1.00E-05 KEFF= 1.242919E+00 BUCK= 0.00000E+00
+ OUT(  1) FLX:                             FNOR= 8.045574E-01 ACCE=     1.00000
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
           IN(  1) FLX: PRC= 7.04E-04 TAR= 5.00E-05 IGDEB=            1 ACCE=     1.00000
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
-          IN(  2) FLX: PRC= 3.15E-05 TAR= 5.00E-05 IGDEB=          296 ACCE=     1.00000
+          IN(  2) FLX: PRC= 3.16E-05 TAR= 5.00E-05 IGDEB=          296 ACCE=     1.00000
  FLU2DR: NO LEAKAGE-> REBALANCING ON
- FLU2DR: CPU TIME=        0. INTERNAL CONVERGENCE       REACHED AFTER     2 ITERATIONS.
+ FLU2DR: CPU TIME=        2. INTERNAL CONVERGENCE       REACHED AFTER     2 ITERATIONS.
 
  B1DIF: SOLUTION OF B1   EQUATIONS WITH TYPE K   
         NUMBER OF ITERATIONS =  1
         BUCKLING =  0.00000E+00
-        K-EFFECTIVE =  1.242671  (  1.242671 )
-        K-INFINITE =  1.242671
-        MIGRATION AREA =  5.52297E+01
+        K-EFFECTIVE =  1.242910  (  1.242910 )
+        K-INFINITE =  1.242910
+        MIGRATION AREA =  5.52407E+01
 
- OUT(  2) EIG: PRC= 7.71E-06 TAR= 1.00E-05 KEFF= 1.242671E+00 BUCK= 0.00000E+00
- OUT(  2) FLX: PRC= 6.96E-04 TAR= 5.00E-05 FNOR= 8.047181E-01 ACCE=     1.00000
+ OUT(  2) EIG: PRC= 7.70E-06 TAR= 1.00E-05 KEFF= 1.242910E+00 BUCK= 0.00000E+00
+ OUT(  2) FLX: PRC= 6.96E-04 TAR= 5.00E-05 FNOR= 8.045636E-01 ACCE=     1.00000
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
-          IN(  1) FLX: PRC= 5.72E-07 TAR= 5.00E-05 IGDEB=          296 ACCE=     1.00000
+          IN(  1) FLX: PRC= 9.40E-06 TAR= 5.00E-05 IGDEB=          296 ACCE=     1.00000
  FLU2DR: NO LEAKAGE-> REBALANCING ON
- FLU2DR: CPU TIME=        0. INTERNAL CONVERGENCE       REACHED AFTER     1 ITERATIONS.
+ FLU2DR: CPU TIME=        1. INTERNAL CONVERGENCE       REACHED AFTER     1 ITERATIONS.
 
  B1DIF: SOLUTION OF B1   EQUATIONS WITH TYPE K   
         NUMBER OF ITERATIONS =  1
         BUCKLING =  0.00000E+00
-        K-EFFECTIVE =  1.242671  (  1.242671 )
-        K-INFINITE =  1.242671
-        MIGRATION AREA =  5.52297E+01
+        K-EFFECTIVE =  1.242910  (  1.242910 )
+        K-INFINITE =  1.242910
+        MIGRATION AREA =  5.52407E+01
 
- OUT(  3) EIG: PRC= 1.86E-08 TAR= 1.00E-05 KEFF= 1.242671E+00 BUCK= 0.00000E+00
- OUT(  3) FLX: PRC= 3.50E-07 TAR= 5.00E-05 FNOR= 8.047181E-01 ACCE=     1.00000
- FLU2DR: CPU TIME=        3. EXTERNAL CONVERGENCE       REACHED AFTER     3 ITERATIONS.
+ OUT(  3) EIG: PRC= 3.70E-08 TAR= 1.00E-05 KEFF= 1.242910E+00 BUCK= 0.00000E+00
+ OUT(  3) FLX: PRC= 9.07E-06 TAR= 5.00E-05 FNOR= 8.045636E-01 ACCE=     1.00000
+ FLU2DR: CPU TIME=       15. EXTERNAL CONVERGENCE       REACHED AFTER     3 ITERATIONS.
 
- ++ TRACKING CALLED=   9 TIMES FINAL KINF= 1.242671E+00 FINAL KEFF= 1.242671E+00 B2= 0.00000E+00 PRECISION= 1.86E-08
+ ++ TRACKING CALLED=   9 TIMES FINAL KINF= 1.242910E+00 FINAL KEFF= 1.242910E+00 B2= 0.00000E+00 PRECISION= 3.70E-08
  ++ TOTAL NUMBER OF FLUX CALCULATIONS=      2524
 ->@END MODULE   : FLU:        
--->>MODULE FLU:        : TIME SPENT=        3.424 MEMORY USAGE= 2.440E+02
+-->>MODULE FLU:        : TIME SPENT=       14.639 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : GREP:       
 ->@DESCRIPTION  : No description available for this module                                
 ->@CREDITS      : No author provided for this module                                      
 ->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
                   GNU LESSER GENERAL PUBLIC LICENSE
--->>module GREP:       : time spent=        0.000 memory usage= 1.200E+01
+-->>module GREP:       : time spent=        0.000 memory usage= 0.000E+00
 ->@END MODULE   : GREP:       
->|SS tracking = SYBILT and FLX tracking = SALT, MOC used on simple geom: Keff1=  1.242671e+00                             |>0085
+>|SS tracking = SYBILT and FLX tracking = SALT TSPC, MOC on simple geom: Keff1=  1.242910e+00                             |>0085
 >|AT10_24UOX SALT TSPC completed                                                                                          |>0086
 
  normal end of execution for dragon 5  Version 5.0.10 ($Revision: 3198 $)              
