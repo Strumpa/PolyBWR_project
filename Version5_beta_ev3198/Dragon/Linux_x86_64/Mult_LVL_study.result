@@ -1,0 +1,178 @@
+* CLE-2000 VERS 3.0 * R.ROY, EPM COPYRIGHT 1999 *                                                                          LINE
+* Deck Mult_LVL_study.x2m                                                                                                  0001
+* CLE-2000 script                                                                                                          0002
+* Author : R. Guasch                                                                                                       0003
+* Purpose : Run "non-regression" tests for tracking between instances of Version5_beta_ev3198/Dragon                       0004
+* Noticed potential discrepencies in TLM: outputs                                                                          0005
+* same src/ was used, different machine/compiler ?                                                                         0006
+*                                                                                                                          0007
+* Tests consists of a sequence of SALT/NXT then TLM for 1, 2, 3 level geoms,                                               0008
+* Collected in the following CLE-2000 procedures :                                                                         0009
+*                                                                                                                          0010
+* TRTM_C_NXT : NXT TSPC tracking on pincell "AT10_C_simple" geometry, TLM output.                                          0011
+* TRTM_C_SALT : SALT TSPC tracking on "AT10_C_simple" geometry, TLM output.                                                0012
+* TRTM_A_NXT : NXT TSPC tracking on input : 1st level assembly geometry, TLM output.                                       0013
+* TRTM_A_SALT : SALT TSPC tracking on input : 1st level assembly geometry, TLM output.                                     0014
+* The same 2 tracking procedures are used Geo_A_2lvl and Geo_A_3lvl                                                        0015
+* TRTM stands for TRack and TLM Matlab output                                                                              0016
+*                                                                                                                          0017
+**** PROCEDURES                                                                                                            0018
+!PROCEDURE Geo_C_simple TRTM_C_NXT TRTM_C_SALT Geo_A_1lvl TRTM_A_NXT TRTM_A_SALT Geo_A_2lvl Geo_A_3lvl ;                   0019
+PROCEDURE Geo_C_simple TRTM_C_SALT Geo_A_1lvl Geo_A_2lvl Geo_A_3lvl ;                                                      0020
+**** MODULES                                                                                                               0021
+MODULE GEO: G2S: SALT: NXT: TLM: END: ;                                                                                    0022
+LINKED_LIST GEOM_C GEOM_A1 GEOM_A_l2 GEOM_A_l3 TRTM_A_SALT ;                                                               0023
+!GEOM_C := Geo_C_simple ;                                                                                                  0024
+GEOM_A1 := Geo_A_1lvl ;                                                                                                    0025
+!GEOM_A_l2 := Geo_A_2lvl ;                                                                                                 0026
+!GEOM_A_l3 := Geo_A_3lvl ;                                                                                                 0027
+TRTM_C_SALT GEOM_A1 ;                                                                                                      0028
+ECHO "after processing cell" ;                                                                                             0029
+!TRTM_A_SALT GEOM_A1 ;                                                                                                     0030
+END: ;                                                                                                                     0031
+QUIT .                                                                                                                     0032
+ 
+ DDDDDD   RRRRRR     AAA     GGGGG    OOOOO   NN     NN
+ DDDDDDD  RRRRRRR   AAAAA   GGGGGGG  OOOOOOO  NNN    NN
+ DD   DD  RR   RR  AA   AA  GG       OO   OO  NNNN   NN
+ DD   DD  RRRRRR   AA   AA  GG  GGG  OO   OO  NN NN  NN
+ DD   DD  RRRR     AAAAAAA  GG  GGG  OO   OO  NN  NN NN
+ DD   DD  RR RR    AAAAAAA  GG   GG  OO   OO  NN   NNNN
+ DDDDDDD  RR  RR   AA   AA  GGGGGGG  OOOOOOO  NN    NNN
+ DDDDDD   RR   RR  AA   AA   GGGGG    OOOOO   NN     NN
+
+ VERSION dragon 5  Version 5.0.10 ($Revision: 3198 $)                  $Date: 2024-03-06 07:29:43 -0500 (Wed, 06 Mar 2024) $           
+ GROUPE D'ANALYSE NUCLEAIRE
+ ECOLE POLYTECHNIQUE DE MONTREAL
+
+
+
+ COPYRIGHT NOTICE FOR THIS VERSION OF dragon:
+ --------------------------------------------
+ Copyright (C) 2002 Ecole Polytechnique de Montreal 
+ This library is free software; you can redistribute it
+ and/or modify it under the terms of the GNU Lesser General
+ Public License as published by the Free Software Foundation;
+ either version 2.1 of the License, or (at your option) any
+ later version 
+
+
+
+
+->@BEGIN MODULE : GEO:        
+->@DESCRIPTION  : Geometry definition                                                     
+->@CREDITS      : A. Hebert                                                               
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+
+ CREATION OF A LEVEL  1 GEOMETRY ON THE DIRECTORY NAMED '/           ' OF THE LCM OBJECT 'GEOM_A1     ' WITH TYPE CARTESIAN 2-D   .
+->@END MODULE   : GEO:        
+-->>MODULE GEO:        : TIME SPENT=        0.001 MEMORY USAGE= 0.000E+00
+>|1 level GEOM_A generation done                                                                                          |>0062
+>|performing SALT tracking in TRTM_C_SALT                                                                                 |>0027
+->@BEGIN MODULE : G2S:        
+->@DESCRIPTION  : Generate a surfacic file in SALOME format from a DRAGON geometry        
+->@CREDITS      : G. Civario                                                              
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+ fin   : prepareData lgMaxGig=           1
+ g2s_segArc: plot domain=( 0.0000000E+00: 1.5240000E+01, 0.0000000E+00: 1.5240000E+01)
+   At end of G2S:
+               35 segs or arcs
+               15 nodes
+                3 boundary conditions other than default
+->@END MODULE   : G2S:        
+-->>MODULE G2S:        : TIME SPENT=        0.022 MEMORY USAGE= 3.075E+04
+->@BEGIN MODULE : SALT:       
+->@DESCRIPTION  : Track calculations from a SALOME surfacic file                          
+->@CREDITS      : A. Hebert, X. Warin                                                     
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+ SALACG: specular boundary conditions
+ SAL100: TYPGEO=           7  NBFOLD=           0
+
+
+     domain checkout:
+     elements are in contact for distance <   1.0000E-04
+
+
+ SAL110: after unfolding -- NB_ELEM=          35
+
+
+          2D geometry
+          ===========
+
+      15  regions
+       0  external surfaces
+
+
+ SALACG: typgeo=           7  nbfold=           0
+
+ SALACG: TYPGEO=    7 NBFOLD=    0
+ number of regions,surfaces,nodes          15           3          15
+ --------------------
+ VOLUME  0.000000D+00 0.000000D+00 0.000000D+00 0.000000D+00 6.555125D-01
+         5.931100D+00 4.448324D+00 4.448325D+00 1.311026D+00 1.341620D+01
+         2.012430D+01 2.012430D+01 5.931104D+00 7.546610D+00 1.509322D+01
+         4.448328D+00 7.546614D+00 4.448329D+00 6.555135D-01
+ --------------------
+ MATALB     -3    -2    -1     0     1     2     3     4     5     6
+             7     8     9    10    11    12    13    14    15
+ --------------------
+ KEYMRG     -3    -2    -1     0     1     2     3     4     5     6
+             7     8     9    10    11    12    13    14    15
+ --------------------
+ ICODE      -1    -2    -3    -4     0     0
+ --------------------
+ GALBED  1.000000E+00 1.000000E+00 1.000000E+00 0.000000E+00 0.000000E+00
+         0.000000E+00
+(* Output from --SALTCG-- follows 
+ Tracking of geometry begins:
+ Number of regions before merge =        15
+ Number of regions after merge  =        15
+ Number of surfaces before merge=         3
+ Number of surfaces after merge =         3
+ SALTLC: Global RMS, maximum and average errors (%) on region volumes :     0.02720     0.05880     0.00825
+ Tracking of geometry completed
+   Output from --SALTCG-- completed *)
+->@END MODULE   : SALT:       
+-->>MODULE SALT:       : TIME SPENT=        0.011 MEMORY USAGE= 0.000E+00
+->@BEGIN MODULE : TLM:        
+->@DESCRIPTION  : Generate matlab line tracking file                                      
+->@CREDITS      : C. Plamondon, G. Marleau                                                
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+(* Output from --TLMGET-- follows 
+   Output from --TLMGET-- completed *)
+(* Output from --TLM   -- follows 
+   NREG =        15
+   NSUR =         3
+   NANGL=        32
+   NDIM =         2
+   ITGEO=         0          *)
+(* Output from --TLMGEO-- follows 
+   Output from --TLMGEO-- completed *)
+(* Output from --TLMDIR-- follows 
+ Processing lines for region =        1
+ Processing lines for region =        2
+ Processing lines for region =        3
+ Processing lines for region =        4
+ Processing lines for region =        5
+ Processing lines for region =        6
+ Processing lines for region =        7
+ Processing lines for region =        8
+ Processing lines for region =        9
+ Processing lines for region =       10
+ Processing lines for region =       11
+ Processing lines for region =       12
+ Processing lines for region =       13
+ Processing lines for region =       14
+ Processing lines for region =       15
+   Output from --TLMDIR-- completed *)
+->@END MODULE   : TLM:        
+-->>MODULE TLM:        : TIME SPENT=        0.097 MEMORY USAGE= 0.000E+00
+>|after processing cell                                                                                                   |>0029
+
+ normal end of execution for dragon 5  Version 5.0.10 ($Revision: 3198 $)              
+ check for warning in listing
+ before assuming your run was successful
