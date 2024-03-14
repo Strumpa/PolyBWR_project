@@ -1,20 +1,24 @@
-* --------------------------------
-*    INPUT & OUTPUT PARAMETERS
-* --------------------------------
-PARAMETER GEOM ::
-::: LINKED_LIST GEOM ; ;
-!::: LINKED_LIST GEOM_SS ; ;
-
-
 *----
 *  TEST CASE TDCM32
 *  MACROSCOPIC CROSS SECTIONS
 *  SIMPLE BWR WITH PIJ (SPECULAR BC)
 *----
+* Taken and adapted from salmacro_proc/TDCM32.c2m
+
+
+
+* --------------------------------
+*    INPUT & OUTPUT PARAMETERS
+* --------------------------------
+PARAMETER GEOM ::
+::: LINKED_LIST GEOM ; ;
+
+
+
 *  Define STRUCTURES and MODULES used
 *----
-!LINKED_LIST MACRO GEOM TRACK PIJ FLUX ;
-MODULE MAC: GEO: G2S: SALT: ASM: FLU: END: ;
+
+MODULE GEO: END: ;
 
 GEOM := GEO: ::
      CAR2D 2 2
@@ -74,3 +78,4 @@ GEOM := GEO: ::
 ;
 
 END: ;
+QUIT .

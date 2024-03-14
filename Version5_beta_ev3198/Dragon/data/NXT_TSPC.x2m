@@ -24,7 +24,7 @@ SEQ_BINARY TF_EXC ;
 SEQ_ASCII TLM_F :: FILE 'tracks_NXT_TSPC.m' ;
 
 
-STRING geo_name := "AT10_UOX" ; !"AT10_UOX_Gd2O3"
+STRING geo_name := "AT10_UOX_simple" ; !"AT10_UOX_Gd2O3"
 STRING cell_name := "AT10_24UOX" ; ! "AT10_24/32/42/45/48/50UOX" for UOX pins (1 to 6), 
 ! "AT10_45Gd" / "AT10_42Gd" for AT10_UOX_Gd2O3 pins (7,8)
 

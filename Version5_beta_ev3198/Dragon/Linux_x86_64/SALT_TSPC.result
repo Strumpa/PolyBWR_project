@@ -139,7 +139,7 @@ QUIT .                                                                          
 ->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
                   GNU LESSER GENERAL PUBLIC LICENSE
 ->@END MODULE   : LIB:        
--->>MODULE LIB:        : TIME SPENT=       79.935 MEMORY USAGE= 1.729E+05
+-->>MODULE LIB:        : TIME SPENT=       30.508 MEMORY USAGE= 1.727E+05
 ->@BEGIN MODULE : SYBILT:     
 ->@DESCRIPTION  : Sybil 2-D tracking                                                      
 ->@CREDITS      : A. Hebert                                                               
@@ -220,7 +220,7 @@ QUIT .                                                                          
                 7 nodes
                 4 boundary conditions other than default
 ->@END MODULE   : G2S:        
--->>MODULE G2S:        : TIME SPENT=        0.010 MEMORY USAGE= 0.000E+00
+-->>MODULE G2S:        : TIME SPENT=        0.009 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : SALT:       
 ->@DESCRIPTION  : Track calculations from a SALOME surfacic file                          
 ->@CREDITS      : A. Hebert, X. Warin                                                     
@@ -25969,7 +25969,7 @@ END
  ITRACK        1   (-1=MONTE-CARLO/0=DESACTIVATES TRACKING FILE BUILD/1=ACTIVATES TRACKING FILE BUILD)
  IBIHET        0   (0/1=DOUBLE HETEROGENEITY IS NOT/IS ACTIVE)
 ->@END MODULE   : SALT:       
--->>MODULE SALT:       : TIME SPENT=        0.136 MEMORY USAGE= 0.000E+00
+-->>MODULE SALT:       : TIME SPENT=        0.053 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : TLM:        
 ->@DESCRIPTION  : Generate matlab line tracking file                                      
 ->@CREDITS      : C. Plamondon, G. Marleau                                                
@@ -25995,14 +25995,14 @@ END
  Processing lines for region =        7
    Output from --TLMDIR-- completed *)
 ->@END MODULE   : TLM:        
--->>MODULE TLM:        : TIME SPENT=        0.129 MEMORY USAGE= 0.000E+00
+-->>MODULE TLM:        : TIME SPENT=        0.059 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : MCCGT:      
 ->@DESCRIPTION  : Method of characteristics in 2- and 3-D                                 
 ->@CREDITS      : I. Suslov, R. Roy, R. Le Tellier, A. Hebert                             
 ->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
                   GNU LESSER GENERAL PUBLIC LICENSE
 ->@END MODULE   : MCCGT:      
--->>MODULE MCCGT:      : TIME SPENT=        0.001 MEMORY USAGE= 0.000E+00
+-->>MODULE MCCGT:      : TIME SPENT=        0.000 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : USS:        
 ->@DESCRIPTION  : Self-shielding by subgroup method                                       
 ->@CREDITS      : A. Hebert                                                               
@@ -26057,14 +26057,14 @@ END
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
          NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  8
 ->@END MODULE   : USS:        
--->>MODULE USS:        : TIME SPENT=       30.813 MEMORY USAGE= 6.457E+04
+-->>MODULE USS:        : TIME SPENT=       10.788 MEMORY USAGE= 6.462E+04
 ->@BEGIN MODULE : ASM:        
 ->@DESCRIPTION  : To built system matrices (CP and IC)                                    
 ->@CREDITS      : A. Hebert, G. Marleau, R. Roy                                           
 ->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
                   GNU LESSER GENERAL PUBLIC LICENSE
 ->@END MODULE   : ASM:        
--->>MODULE ASM:        : TIME SPENT=        0.706 MEMORY USAGE= 0.000E+00
+-->>MODULE ASM:        : TIME SPENT=        0.182 MEMORY USAGE= 2.640E+02
 ->@BEGIN MODULE : FLU:        
 ->@DESCRIPTION  : Solve the flux equations                                                
 ->@CREDITS      : R. Roy, A. Hebert, G. Marleau                                           
@@ -26118,7 +26118,7 @@ END
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
           IN(  6) FLX: PRC= 4.31E-05 TAR= 5.00E-05 IGDEB=          296 ACCE=     0.93473
  FLU2DR: NO LEAKAGE-> REBALANCING ON
- FLU2DR: CPU TIME=       12. INTERNAL CONVERGENCE       REACHED AFTER     6 ITERATIONS.
+ FLU2DR: CPU TIME=        4. INTERNAL CONVERGENCE       REACHED AFTER     6 ITERATIONS.
 
  B1DIF: SOLUTION OF B1   EQUATIONS WITH TYPE K   
         NUMBER OF ITERATIONS =  1
@@ -26134,7 +26134,7 @@ END
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
           IN(  2) FLX: PRC= 3.16E-05 TAR= 5.00E-05 IGDEB=          296 ACCE=     1.00000
  FLU2DR: NO LEAKAGE-> REBALANCING ON
- FLU2DR: CPU TIME=        2. INTERNAL CONVERGENCE       REACHED AFTER     2 ITERATIONS.
+ FLU2DR: CPU TIME=        1. INTERNAL CONVERGENCE       REACHED AFTER     2 ITERATIONS.
 
  B1DIF: SOLUTION OF B1   EQUATIONS WITH TYPE K   
         NUMBER OF ITERATIONS =  1
@@ -26148,7 +26148,7 @@ END
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
           IN(  1) FLX: PRC= 9.40E-06 TAR= 5.00E-05 IGDEB=          296 ACCE=     1.00000
  FLU2DR: NO LEAKAGE-> REBALANCING ON
- FLU2DR: CPU TIME=        1. INTERNAL CONVERGENCE       REACHED AFTER     1 ITERATIONS.
+ FLU2DR: CPU TIME=        0. INTERNAL CONVERGENCE       REACHED AFTER     1 ITERATIONS.
 
  B1DIF: SOLUTION OF B1   EQUATIONS WITH TYPE K   
         NUMBER OF ITERATIONS =  1
@@ -26159,18 +26159,18 @@ END
 
  OUT(  3) EIG: PRC= 3.70E-08 TAR= 1.00E-05 KEFF= 1.242910E+00 BUCK= 0.00000E+00
  OUT(  3) FLX: PRC= 9.07E-06 TAR= 5.00E-05 FNOR= 8.045636E-01 ACCE=     1.00000
- FLU2DR: CPU TIME=       15. EXTERNAL CONVERGENCE       REACHED AFTER     3 ITERATIONS.
+ FLU2DR: CPU TIME=        5. EXTERNAL CONVERGENCE       REACHED AFTER     3 ITERATIONS.
 
  ++ TRACKING CALLED=   9 TIMES FINAL KINF= 1.242910E+00 FINAL KEFF= 1.242910E+00 B2= 0.00000E+00 PRECISION= 3.70E-08
  ++ TOTAL NUMBER OF FLUX CALCULATIONS=      2524
 ->@END MODULE   : FLU:        
--->>MODULE FLU:        : TIME SPENT=       14.639 MEMORY USAGE= 0.000E+00
+-->>MODULE FLU:        : TIME SPENT=        4.984 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : GREP:       
 ->@DESCRIPTION  : No description available for this module                                
 ->@CREDITS      : No author provided for this module                                      
 ->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
                   GNU LESSER GENERAL PUBLIC LICENSE
--->>module GREP:       : time spent=        0.000 memory usage= 0.000E+00
+-->>module GREP:       : time spent=        0.001 memory usage= 0.000E+00
 ->@END MODULE   : GREP:       
 >|SS tracking = SYBILT and FLX tracking = SALT TSPC, MOC on simple geom: Keff1=  1.242910e+00                             |>0085
 >|AT10_24UOX SALT TSPC completed                                                                                          |>0086
