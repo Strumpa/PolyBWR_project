@@ -59,12 +59,14 @@ GEOM_D := GEO: :: CAR2D 2 2
         ::: C4 := GEO: C1 ;
     ;
 * Tracking both Geomtries with NXT specular tracking
+ECHO "NXT tracking of LVL2" ;
 TRACK TRACKF := NXT: GEOM ::
   EDIT 10
   ALLG
   TSPC EQW2 <<an2d>> <<densur>> REND
   LONG
 ; 
+ECHO "NXT tracking of LVL2 DIAG" ;
 TRACK_D TRACKF_D := NXT: GEOM_D ::
   EDIT 10
   ALLG
@@ -89,7 +91,7 @@ TLM_NF2D := TLM: TRACK_D TRACKF_D ::
 * Switching the geometry to a surfacic representation
 GeoG2S LVL2.ps := G2S: GEOM :: ;
 GeoG2S_D LVL2D.ps := G2S: GEOM_D :: ;
-
+ECHO "SALT tracking of LVL2" ;
 * Tracking the surfacic equivalent geometries with SALT specular tracking
 TRACK_S TRACKF_S := SALT: GeoG2S ::
   EDIT 10
@@ -97,7 +99,7 @@ TRACK_S TRACKF_S := SALT: GeoG2S ::
   TSPC EQW2 <<an2d>> <<densur>> REND
   LONG
 ;
-
+ECHO "SALT tracking of LVL2 DIAG" ;
 TRACK_S_D TRACKF_S_D := SALT: GeoG2S_D ::
   EDIT 10
   ALLG

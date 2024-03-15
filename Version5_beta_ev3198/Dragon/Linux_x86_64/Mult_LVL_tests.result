@@ -66,6 +66,7 @@ QUIT .                                                                          
  CREATION OF A LEVEL  1 GEOMETRY ON THE DIRECTORY NAMED '/           ' OF THE LCM OBJECT 'GEOM_D      ' WITH TYPE CARTESIAN 2-D   .
 ->@END MODULE   : GEO:        
 -->>MODULE GEO:        : TIME SPENT=        0.000 MEMORY USAGE= 0.000E+00
+>|NXT tracking of LVL1                                                                                                    |>0039
 ->@BEGIN MODULE : NXT:        
 ->@DESCRIPTION  : New excell tracking in 2- and 3-D                                       
 ->@CREDITS      : G. Marleau                                                              
@@ -381,7 +382,8 @@ X/Y
  ITRACK        1   (-1=MONTE-CARLO/0=DESACTIVATES TRACKING FILE BUILD/1=ACTIVATES TRACKING FILE BUILD)
  IBIHET        0   (0/1=DOUBLE HETEROGENEITY IS NOT/IS ACTIVE)
 ->@END MODULE   : NXT:        
--->>MODULE NXT:        : TIME SPENT=        0.002 MEMORY USAGE= 2.832E+03
+-->>MODULE NXT:        : TIME SPENT=        0.005 MEMORY USAGE= 2.844E+03
+>|NXT tracking of LVL1 DIAG                                                                                               |>0046
 ->@BEGIN MODULE : NXT:        
 ->@DESCRIPTION  : New excell tracking in 2- and 3-D                                       
 ->@CREDITS      : G. Marleau                                                              
@@ -694,7 +696,7 @@ X/Y
 (* Output from --TLMDIR-- follows 
    Output from --TLMDIR-- completed *)
 ->@END MODULE   : TLM:        
--->>MODULE TLM:        : TIME SPENT=        0.000 MEMORY USAGE= 0.000E+00
+-->>MODULE TLM:        : TIME SPENT=        0.001 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : G2S:        
 ->@DESCRIPTION  : Generate a surfacic file in SALOME format from a DRAGON geometry        
 ->@CREDITS      : G. Civario                                                              
@@ -707,7 +709,7 @@ X/Y
                 4 nodes
                 4 boundary conditions other than default
 ->@END MODULE   : G2S:        
--->>MODULE G2S:        : TIME SPENT=        0.014 MEMORY USAGE= 2.980E+04
+-->>MODULE G2S:        : TIME SPENT=        0.015 MEMORY USAGE= 2.937E+04
 ->@BEGIN MODULE : G2S:        
 ->@DESCRIPTION  : Generate a surfacic file in SALOME format from a DRAGON geometry        
 ->@CREDITS      : G. Civario                                                              
@@ -720,7 +722,8 @@ X/Y
                 3 nodes
                 3 boundary conditions other than default
 ->@END MODULE   : G2S:        
--->>MODULE G2S:        : TIME SPENT=        0.010 MEMORY USAGE= 0.000E+00
+-->>MODULE G2S:        : TIME SPENT=        0.009 MEMORY USAGE= 3.600E+02
+>|SALT tracking of LVL1                                                                                                   |>0070
 ->@BEGIN MODULE : SALT:       
 ->@DESCRIPTION  : Track calculations from a SALOME surfacic file                          
 ->@CREDITS      : A. Hebert, X. Warin                                                     
@@ -2139,6 +2142,7 @@ END
  IBIHET        0   (0/1=DOUBLE HETEROGENEITY IS NOT/IS ACTIVE)
 ->@END MODULE   : SALT:       
 -->>MODULE SALT:       : TIME SPENT=        0.004 MEMORY USAGE= 2.392E+03
+>|SALT tracking of LVL1 DIAG                                                                                              |>0077
 ->@BEGIN MODULE : SALT:       
 ->@DESCRIPTION  : Track calculations from a SALOME surfacic file                          
 ->@CREDITS      : A. Hebert, X. Warin                                                     
@@ -3996,7 +4000,7 @@ END
    Output from --TLMDIR-- completed *)
 ->@END MODULE   : TLM:        
 -->>MODULE TLM:        : TIME SPENT=        0.002 MEMORY USAGE= 0.000E+00
->|LVL1 procedure completed, full and DIAG cases                                                                           |>0093
+>|LVL1 procedure completed, full and DIAG cases                                                                           |>0097
 ->@BEGIN MODULE : GEO:        
 ->@DESCRIPTION  : Geometry definition                                                     
 ->@CREDITS      : A. Hebert                                                               
@@ -4027,6 +4031,7 @@ END
  CREATION OF A LEVEL  1 GEOMETRY ON THE DIRECTORY NAMED '/           ' OF THE LCM OBJECT 'GEOM_D      ' WITH TYPE CARTESIAN 2-D   .
 ->@END MODULE   : GEO:        
 -->>MODULE GEO:        : TIME SPENT=        0.001 MEMORY USAGE= 0.000E+00
+>|NXT tracking of LVL2                                                                                                    |>0051
 ->@BEGIN MODULE : NXT:        
 ->@DESCRIPTION  : New excell tracking in 2- and 3-D                                       
 ->@CREDITS      : G. Marleau                                                              
@@ -4784,6 +4789,7 @@ X/Y
  IBIHET        0   (0/1=DOUBLE HETEROGENEITY IS NOT/IS ACTIVE)
 ->@END MODULE   : NXT:        
 -->>MODULE NXT:        : TIME SPENT=        0.002 MEMORY USAGE= 0.000E+00
+>|NXT tracking of LVL2 DIAG                                                                                               |>0058
 ->@BEGIN MODULE : NXT:        
 ->@DESCRIPTION  : New excell tracking in 2- and 3-D                                       
 ->@CREDITS      : G. Marleau                                                              
@@ -5316,7 +5322,7 @@ X/Y
  ITRACK        1   (-1=MONTE-CARLO/0=DESACTIVATES TRACKING FILE BUILD/1=ACTIVATES TRACKING FILE BUILD)
  IBIHET        0   (0/1=DOUBLE HETEROGENEITY IS NOT/IS ACTIVE)
 ->@END MODULE   : NXT:        
--->>MODULE NXT:        : TIME SPENT=        0.002 MEMORY USAGE= 0.000E+00
+-->>MODULE NXT:        : TIME SPENT=        0.001 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : TLM:        
 ->@DESCRIPTION  : Generate matlab line tracking file                                      
 ->@CREDITS      : C. Plamondon, G. Marleau                                                
@@ -5335,7 +5341,7 @@ X/Y
 (* Output from --TLMDIR-- follows 
    Output from --TLMDIR-- completed *)
 ->@END MODULE   : TLM:        
--->>MODULE TLM:        : TIME SPENT=        0.002 MEMORY USAGE= 0.000E+00
+-->>MODULE TLM:        : TIME SPENT=        0.003 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : TLM:        
 ->@DESCRIPTION  : Generate matlab line tracking file                                      
 ->@CREDITS      : C. Plamondon, G. Marleau                                                
@@ -5367,7 +5373,7 @@ X/Y
                16 nodes
                 4 boundary conditions other than default
 ->@END MODULE   : G2S:        
--->>MODULE G2S:        : TIME SPENT=        0.010 MEMORY USAGE= 8.760E+03
+-->>MODULE G2S:        : TIME SPENT=        0.009 MEMORY USAGE= 8.692E+03
 ->@BEGIN MODULE : G2S:        
 ->@DESCRIPTION  : Generate a surfacic file in SALOME format from a DRAGON geometry        
 ->@CREDITS      : G. Civario                                                              
@@ -5380,7 +5386,8 @@ X/Y
                10 nodes
                 3 boundary conditions other than default
 ->@END MODULE   : G2S:        
--->>MODULE G2S:        : TIME SPENT=        0.006 MEMORY USAGE= 0.000E+00
+-->>MODULE G2S:        : TIME SPENT=        0.008 MEMORY USAGE= 0.000E+00
+>|SALT tracking of LVL2                                                                                                   |>0081
 ->@BEGIN MODULE : SALT:       
 ->@DESCRIPTION  : Track calculations from a SALOME surfacic file                          
 ->@CREDITS      : A. Hebert, X. Warin                                                     
@@ -7252,7 +7259,8 @@ END
  ITRACK        1   (-1=MONTE-CARLO/0=DESACTIVATES TRACKING FILE BUILD/1=ACTIVATES TRACKING FILE BUILD)
  IBIHET        0   (0/1=DOUBLE HETEROGENEITY IS NOT/IS ACTIVE)
 ->@END MODULE   : SALT:       
--->>MODULE SALT:       : TIME SPENT=        0.006 MEMORY USAGE= 2.096E+03
+-->>MODULE SALT:       : TIME SPENT=        0.004 MEMORY USAGE= 2.164E+03
+>|SALT tracking of LVL2 DIAG                                                                                              |>0089
 ->@BEGIN MODULE : SALT:       
 ->@DESCRIPTION  : Track calculations from a SALOME surfacic file                          
 ->@CREDITS      : A. Hebert, X. Warin                                                     
@@ -9487,7 +9495,7 @@ END
 (* Output from --TLMDIR-- follows 
    Output from --TLMDIR-- completed *)
 ->@END MODULE   : TLM:        
--->>MODULE TLM:        : TIME SPENT=        0.002 MEMORY USAGE= 0.000E+00
+-->>MODULE TLM:        : TIME SPENT=        0.004 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : TLM:        
 ->@DESCRIPTION  : Generate matlab line tracking file                                      
 ->@CREDITS      : C. Plamondon, G. Marleau                                                
@@ -9507,7 +9515,7 @@ END
    Output from --TLMDIR-- completed *)
 ->@END MODULE   : TLM:        
 -->>MODULE TLM:        : TIME SPENT=        0.002 MEMORY USAGE= 0.000E+00
->|LVL2 procedure completed, full and DIAG cases                                                                           |>0105
+>|LVL2 procedure completed, full and DIAG cases                                                                           |>0109
 ->@BEGIN MODULE : GEO:        
 ->@DESCRIPTION  : Geometry definition                                                     
 ->@CREDITS      : A. Hebert                                                               
@@ -9542,6 +9550,7 @@ END
  CREATION OF A LEVEL  1 GEOMETRY ON THE DIRECTORY NAMED '/           ' OF THE LCM OBJECT 'GEOM_D      ' WITH TYPE CARTESIAN 2-D   .
 ->@END MODULE   : GEO:        
 -->>MODULE GEO:        : TIME SPENT=        0.001 MEMORY USAGE= 0.000E+00
+>|NXT tracking of LVL3                                                                                                    |>0068
 ->@BEGIN MODULE : NXT:        
 ->@DESCRIPTION  : New excell tracking in 2- and 3-D                                       
 ->@CREDITS      : G. Marleau                                                              
@@ -10299,6 +10308,7 @@ X/Y
  IBIHET        0   (0/1=DOUBLE HETEROGENEITY IS NOT/IS ACTIVE)
 ->@END MODULE   : NXT:        
 -->>MODULE NXT:        : TIME SPENT=        0.002 MEMORY USAGE= 0.000E+00
+>|NXT tracking of LVL3                                                                                                    |>0075
 ->@BEGIN MODULE : NXT:        
 ->@DESCRIPTION  : New excell tracking in 2- and 3-D                                       
 ->@CREDITS      : G. Marleau                                                              
@@ -10831,7 +10841,7 @@ X/Y
  ITRACK        1   (-1=MONTE-CARLO/0=DESACTIVATES TRACKING FILE BUILD/1=ACTIVATES TRACKING FILE BUILD)
  IBIHET        0   (0/1=DOUBLE HETEROGENEITY IS NOT/IS ACTIVE)
 ->@END MODULE   : NXT:        
--->>MODULE NXT:        : TIME SPENT=        0.002 MEMORY USAGE= 0.000E+00
+-->>MODULE NXT:        : TIME SPENT=        0.001 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : TLM:        
 ->@DESCRIPTION  : Generate matlab line tracking file                                      
 ->@CREDITS      : C. Plamondon, G. Marleau                                                
@@ -10869,7 +10879,7 @@ X/Y
 (* Output from --TLMDIR-- follows 
    Output from --TLMDIR-- completed *)
 ->@END MODULE   : TLM:        
--->>MODULE TLM:        : TIME SPENT=        0.002 MEMORY USAGE= 0.000E+00
+-->>MODULE TLM:        : TIME SPENT=        0.003 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : G2S:        
 ->@DESCRIPTION  : Generate a surfacic file in SALOME format from a DRAGON geometry        
 ->@CREDITS      : G. Civario                                                              
@@ -10882,7 +10892,7 @@ X/Y
                32 nodes
                 4 boundary conditions other than default
 ->@END MODULE   : G2S:        
--->>MODULE G2S:        : TIME SPENT=        0.008 MEMORY USAGE= 0.000E+00
+-->>MODULE G2S:        : TIME SPENT=        0.007 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : G2S:        
 ->@DESCRIPTION  : Generate a surfacic file in SALOME format from a DRAGON geometry        
 ->@CREDITS      : G. Civario                                                              
@@ -10895,7 +10905,8 @@ X/Y
                20 nodes
                 3 boundary conditions other than default
 ->@END MODULE   : G2S:        
--->>MODULE G2S:        : TIME SPENT=        0.008 MEMORY USAGE= 0.000E+00
+-->>MODULE G2S:        : TIME SPENT=        0.009 MEMORY USAGE= 0.000E+00
+>|SALT tracking of LVL3                                                                                                   |>0099
 ->@BEGIN MODULE : SALT:       
 ->@DESCRIPTION  : Track calculations from a SALOME surfacic file                          
 ->@CREDITS      : A. Hebert, X. Warin                                                     
@@ -13455,7 +13466,8 @@ END
  ITRACK        1   (-1=MONTE-CARLO/0=DESACTIVATES TRACKING FILE BUILD/1=ACTIVATES TRACKING FILE BUILD)
  IBIHET        0   (0/1=DOUBLE HETEROGENEITY IS NOT/IS ACTIVE)
 ->@END MODULE   : SALT:       
--->>MODULE SALT:       : TIME SPENT=        0.005 MEMORY USAGE= 4.000E+00
+-->>MODULE SALT:       : TIME SPENT=        0.006 MEMORY USAGE= 4.000E+00
+>|SALT tracking of LVL3 DIAG                                                                                              |>0106
 ->@BEGIN MODULE : SALT:       
 ->@DESCRIPTION  : Track calculations from a SALOME surfacic file                          
 ->@CREDITS      : A. Hebert, X. Warin                                                     
@@ -16367,7 +16379,7 @@ END
  ITRACK        1   (-1=MONTE-CARLO/0=DESACTIVATES TRACKING FILE BUILD/1=ACTIVATES TRACKING FILE BUILD)
  IBIHET        0   (0/1=DOUBLE HETEROGENEITY IS NOT/IS ACTIVE)
 ->@END MODULE   : SALT:       
--->>MODULE SALT:       : TIME SPENT=        0.007 MEMORY USAGE= 0.000E+00
+-->>MODULE SALT:       : TIME SPENT=        0.006 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : TLM:        
 ->@DESCRIPTION  : Generate matlab line tracking file                                      
 ->@CREDITS      : C. Plamondon, G. Marleau                                                
@@ -16405,8 +16417,8 @@ END
 (* Output from --TLMDIR-- follows 
    Output from --TLMDIR-- completed *)
 ->@END MODULE   : TLM:        
--->>MODULE TLM:        : TIME SPENT=        0.003 MEMORY USAGE= 0.000E+00
->|LVL3 procedure completed, full and DIAG cases                                                                           |>0122
+-->>MODULE TLM:        : TIME SPENT=        0.004 MEMORY USAGE= 0.000E+00
+>|LVL3 procedure completed, full and DIAG cases                                                                           |>0126
 >|Multi-level geometry tests completed                                                                                    |>0018
 
  normal end of execution for dragon 5  Version 5.0.10 ($Revision: 3198 $)              
