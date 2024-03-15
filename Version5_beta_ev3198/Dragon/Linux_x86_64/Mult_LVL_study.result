@@ -119,7 +119,7 @@ QUIT .                                                                          
 
  CREATION OF A LEVEL  1 GEOMETRY ON THE DIRECTORY NAMED '/           ' OF THE LCM OBJECT 'GEOM_A2     ' WITH TYPE CARTESIAN 2-D   .
 ->@END MODULE   : GEO:        
--->>MODULE GEO:        : TIME SPENT=        0.003 MEMORY USAGE= 1.220E+03
+-->>MODULE GEO:        : TIME SPENT=        0.001 MEMORY USAGE= 1.172E+03
 >|2 level GEOM_A generation done                                                                                          |>0179
 ->@BEGIN MODULE : GEO:        
 ->@DESCRIPTION  : Geometry definition                                                     
@@ -850,7 +850,7 @@ QUIT .                                                                          
  JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
  IPIN       0   (PIN LOCATION OPTION)
 ->@END MODULE   : GEO:        
--->>MODULE GEO:        : TIME SPENT=        0.017 MEMORY USAGE= 1.520E+02
+-->>MODULE GEO:        : TIME SPENT=        0.008 MEMORY USAGE= 2.040E+02
 >|3 level GEOM_A generation done                                                                                          |>0355
 ->@BEGIN MODULE : GEO:        
 ->@DESCRIPTION  : Geometry definition                                                     
@@ -876,7 +876,7 @@ QUIT .                                                                          
 
  CREATION OF A LEVEL  1 GEOMETRY ON THE DIRECTORY NAMED '/           ' OF THE LCM OBJECT 'GEO_BWR     ' WITH TYPE CARTESIAN 2-D   .
 ->@END MODULE   : GEO:        
--->>MODULE GEO:        : TIME SPENT=        0.000 MEMORY USAGE= 2.600E+02
+-->>MODULE GEO:        : TIME SPENT=        0.001 MEMORY USAGE= 0.000E+00
 >|performing SALT tracking in TRTM_C_SALT                                                                                 |>0027
 ->@BEGIN MODULE : G2S:        
 ->@DESCRIPTION  : Generate a surfacic file in SALOME format from a DRAGON geometry        
@@ -890,7 +890,7 @@ QUIT .                                                                          
                15 nodes
                 3 boundary conditions other than default
 ->@END MODULE   : G2S:        
--->>MODULE G2S:        : TIME SPENT=        0.015 MEMORY USAGE= 2.938E+04
+-->>MODULE G2S:        : TIME SPENT=        0.010 MEMORY USAGE= 2.976E+04
 ->@BEGIN MODULE : SALT:       
 ->@DESCRIPTION  : Track calculations from a SALOME surfacic file                          
 ->@CREDITS      : A. Hebert, X. Warin                                                     
@@ -944,7 +944,7 @@ QUIT .                                                                          
  Tracking of geometry completed
    Output from --SALTCG-- completed *)
 ->@END MODULE   : SALT:       
--->>MODULE SALT:       : TIME SPENT=        0.004 MEMORY USAGE= 0.000E+00
+-->>MODULE SALT:       : TIME SPENT=        0.003 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : TLM:        
 ->@DESCRIPTION  : Generate matlab line tracking file                                      
 ->@CREDITS      : C. Plamondon, G. Marleau                                                
@@ -978,7 +978,7 @@ QUIT .                                                                          
  Processing lines for region =       15
    Output from --TLMDIR-- completed *)
 ->@END MODULE   : TLM:        
--->>MODULE TLM:        : TIME SPENT=        0.049 MEMORY USAGE= 0.000E+00
+-->>MODULE TLM:        : TIME SPENT=        0.039 MEMORY USAGE= 0.000E+00
 >|after processing cell                                                                                                   |>0030
 ->@BEGIN MODULE : G2S:        
 ->@DESCRIPTION  : Generate a surfacic file in SALOME format from a DRAGON geometry        
@@ -992,7 +992,7 @@ QUIT .                                                                          
                15 nodes
                 3 boundary conditions other than default
 ->@END MODULE   : G2S:        
--->>MODULE G2S:        : TIME SPENT=        0.009 MEMORY USAGE= 1.992E+03
+-->>MODULE G2S:        : TIME SPENT=        0.008 MEMORY USAGE= 1.620E+03
 ->@BEGIN MODULE : G2S:        
 ->@DESCRIPTION  : Generate a surfacic file in SALOME format from a DRAGON geometry        
 ->@CREDITS      : G. Civario                                                              
@@ -1005,7 +1005,7 @@ QUIT .                                                                          
               103 nodes
                 3 boundary conditions other than default
 ->@END MODULE   : G2S:        
--->>MODULE G2S:        : TIME SPENT=        0.019 MEMORY USAGE= 1.088E+03
+-->>MODULE G2S:        : TIME SPENT=        0.020 MEMORY USAGE= 1.056E+03
 ->@BEGIN MODULE : G2S:        
 ->@DESCRIPTION  : Generate a surfacic file in SALOME format from a DRAGON geometry        
 ->@CREDITS      : G. Civario                                                              
@@ -1018,7 +1018,7 @@ QUIT .                                                                          
               413 nodes
                 3 boundary conditions other than default
 ->@END MODULE   : G2S:        
--->>MODULE G2S:        : TIME SPENT=        0.051 MEMORY USAGE= 3.168E+03
+-->>MODULE G2S:        : TIME SPENT=        0.046 MEMORY USAGE= 3.168E+03
 ->@BEGIN MODULE : SALT:       
 ->@DESCRIPTION  : Track calculations from a SALOME surfacic file                          
 ->@CREDITS      : A. Hebert, X. Warin                                                     
@@ -1072,7 +1072,7 @@ QUIT .                                                                          
  Tracking of geometry completed
    Output from --SALTCG-- completed *)
 ->@END MODULE   : SALT:       
--->>MODULE SALT:       : TIME SPENT=        0.005 MEMORY USAGE= 4.224E+03
+-->>MODULE SALT:       : TIME SPENT=        0.003 MEMORY USAGE= 2.308E+03
 ->@BEGIN MODULE : SALT:       
 ->@DESCRIPTION  : Track calculations from a SALOME surfacic file                          
 ->@CREDITS      : A. Hebert, X. Warin                                                     
@@ -1162,7 +1162,7 @@ QUIT .                                                                          
  Tracking of geometry completed
    Output from --SALTCG-- completed *)
 ->@END MODULE   : SALT:       
--->>MODULE SALT:       : TIME SPENT=        0.008 MEMORY USAGE= 1.920E+02
+-->>MODULE SALT:       : TIME SPENT=        0.007 MEMORY USAGE= 1.320E+02
 ->@BEGIN MODULE : SALT:       
 ->@DESCRIPTION  : Track calculations from a SALOME surfacic file                          
 ->@CREDITS      : A. Hebert, X. Warin                                                     
@@ -1376,7 +1376,7 @@ QUIT .                                                                          
  Tracking of geometry completed
    Output from --SALTCG-- completed *)
 ->@END MODULE   : SALT:       
--->>MODULE SALT:       : TIME SPENT=        0.019 MEMORY USAGE= 4.356E+03
+-->>MODULE SALT:       : TIME SPENT=        0.016 MEMORY USAGE= 7.920E+02
 ->@BEGIN MODULE : TLM:        
 ->@DESCRIPTION  : Generate matlab line tracking file                                      
 ->@CREDITS      : C. Plamondon, G. Marleau                                                
@@ -1410,7 +1410,7 @@ QUIT .                                                                          
  Processing lines for region =       15
    Output from --TLMDIR-- completed *)
 ->@END MODULE   : TLM:        
--->>MODULE TLM:        : TIME SPENT=        0.042 MEMORY USAGE= 0.000E+00
+-->>MODULE TLM:        : TIME SPENT=        0.038 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : TLM:        
 ->@DESCRIPTION  : Generate matlab line tracking file                                      
 ->@CREDITS      : C. Plamondon, G. Marleau                                                
@@ -1532,7 +1532,7 @@ QUIT .                                                                          
  Processing lines for region =      103
    Output from --TLMDIR-- completed *)
 ->@END MODULE   : TLM:        
--->>MODULE TLM:        : TIME SPENT=        0.133 MEMORY USAGE= 0.000E+00
+-->>MODULE TLM:        : TIME SPENT=        0.122 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : TLM:        
 ->@DESCRIPTION  : Generate matlab line tracking file                                      
 ->@CREDITS      : C. Plamondon, G. Marleau                                                
@@ -1964,7 +1964,7 @@ QUIT .                                                                          
  Processing lines for region =      413
    Output from --TLMDIR-- completed *)
 ->@END MODULE   : TLM:        
--->>MODULE TLM:        : TIME SPENT=        0.808 MEMORY USAGE= 0.000E+00
+-->>MODULE TLM:        : TIME SPENT=        0.711 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : MAC:        
 ->@DESCRIPTION  : Macroscopic xs processor                                                
 ->@CREDITS      : G. Marleau                                                              
@@ -2035,7 +2035,7 @@ QUIT .                                                                          
                89 nodes
                 4 boundary conditions other than default
 ->@END MODULE   : G2S:        
--->>MODULE G2S:        : TIME SPENT=        0.013 MEMORY USAGE= 0.000E+00
+-->>MODULE G2S:        : TIME SPENT=        0.012 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : SALT:       
 ->@DESCRIPTION  : Track calculations from a SALOME surfacic file                          
 ->@CREDITS      : A. Hebert, X. Warin                                                     
@@ -2123,7 +2123,7 @@ QUIT .                                                                          
  Tracking of geometry completed
    Output from --SALTCG-- completed *)
 ->@END MODULE   : SALT:       
--->>MODULE SALT:       : TIME SPENT=        0.005 MEMORY USAGE= 0.000E+00
+-->>MODULE SALT:       : TIME SPENT=        0.004 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : TLM:        
 ->@DESCRIPTION  : Generate matlab line tracking file                                      
 ->@CREDITS      : C. Plamondon, G. Marleau                                                
@@ -2231,7 +2231,7 @@ QUIT .                                                                          
  Processing lines for region =       89
    Output from --TLMDIR-- completed *)
 ->@END MODULE   : TLM:        
--->>MODULE TLM:        : TIME SPENT=        0.073 MEMORY USAGE= 0.000E+00
+-->>MODULE TLM:        : TIME SPENT=        0.077 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : ASM:        
 ->@DESCRIPTION  : To built system matrices (CP and IC)                                    
 ->@CREDITS      : A. Hebert, G. Marleau, R. Roy                                           
@@ -2258,7 +2258,7 @@ QUIT .                                                                          
  IBFP         0   (0/1/2: FOKKER-PLANCK SOLUTION OFF/ON/ON)
  DOOR             (EXCELL      )
 ->@END MODULE   : ASM:        
--->>MODULE ASM:        : TIME SPENT=        0.043 MEMORY USAGE= 0.000E+00
+-->>MODULE ASM:        : TIME SPENT=        0.024 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : FLU:        
 ->@DESCRIPTION  : Solve the flux equations                                                
 ->@CREDITS      : R. Roy, A. Hebert, G. Marleau                                           
@@ -2311,7 +2311,7 @@ QUIT .                                                                          
  ++ TRACKING CALLED=   5 TIMES FINAL KINF= 1.039986E+00 FINAL KEFF= 1.039985E+00 B2= 0.00000E+00 PRECISION= 8.23E-07
  ++ TOTAL NUMBER OF FLUX CALCULATIONS=         5
 ->@END MODULE   : FLU:        
--->>MODULE FLU:        : TIME SPENT=        0.001 MEMORY USAGE= 0.000E+00
+-->>MODULE FLU:        : TIME SPENT=        0.000 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : GREP:       
 ->@DESCRIPTION  : No description available for this module                                
 ->@CREDITS      : No author provided for this module                                      
