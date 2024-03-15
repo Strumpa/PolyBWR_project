@@ -876,7 +876,8 @@
         DO IDIR=1,NBDR
           IF(DVNOR(IREG,IDIR) .EQ. DZERO) THEN
             IF(IPRINT .GE. 10) THEN
-              IANGL=NBDR-1
+*              IANGL=NBDR-1 to me this is wrong, cause DVNOR=0 for ireg and idir, so either IANGLE=IDIR-1 or IDIR
+               IANGL=IDIR-1
               WRITE(IOUT,9000) NAMSBR,IREG,IANGL
             ENDIF
             DVNOR(IREG,IDIR)=DONE
