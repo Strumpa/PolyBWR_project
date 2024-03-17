@@ -165,3 +165,95 @@ use the existing directory Linux_x86_64
 RunDirectory: /tmp/rundir31
 use little endian libraries
 AT-10_pin access script terminated
+End of execution. Total execution time: 0h 29min 15s
+access AT-10_pin.save
+total 34564
+-rw-r--r--. 1 p117902 IGN      902 Mar 17 01:03 assertS.c2m
+-rw-r--r--. 1 p117902 IGN      798 Mar 17 01:03 assertV.c2m
+-rw-r--r--. 1 p117902 IGN  4715654 Mar 17 01:33 AT10_PIN.result
+-rw-r--r--. 1 p117902 IGN     7980 Mar 17 01:03 BU_C_SALT.c2m
+-rw-r--r--. 1 p117902 IGN    24550 Mar 17 01:04 BU_C_SALT.l2m
+-rw-------. 1 p117902 IGN    34768 Mar 17 01:04 BU_C_SALT.o2m
+-rw-r--r--. 1 p117902 IGN     8315 Mar 17 01:03 BU_C_SYBNXT.c2m
+-rwxr-xr-x. 1 p117902 IGN 23835256 Mar 17 01:03 code
+-rw-r--r--. 1 p117902 IGN  6421399 Mar 17 01:33 COMPO_AT10_7
+-rw-r--r--. 1 p117902 IGN     4355 Mar 17 01:03 Geom_C.c2m
+-rw-r--r--. 1 p117902 IGN     4618 Mar 17 01:03 Geom_C_SALT.c2m
+-rw-r--r--. 1 p117902 IGN    12930 Mar 17 01:03 Geom_C_SALT.l2m
+-rw-------. 1 p117902 IGN    18224 Mar 17 01:03 Geom_C_SALT.o2m
+lrwxrwxrwx. 1 p117902 IGN      114 Mar 17 01:03 J311_295 -> /home/p117902/working_dir/BWR_project/Version5_beta_ev3198/Dragon/../../libraries/l_endian/draglibJeff3p1p1SHEM295
+-rw-r--r--. 1 p117902 IGN    18619 Mar 17 01:03 Mix_Cell.c2m
+-rw-r--r--. 1 p117902 IGN    75650 Mar 17 01:03 Mix_Cell.l2m
+-rw-------. 1 p117902 IGN   111848 Mar 17 01:03 Mix_Cell.o2m
+-rw-r--r--. 1 p117902 IGN     4349 Mar 17 01:03 mydata
+-rw-r--r--. 1 p117902 IGN     4745 Mar 17 01:04 PIN_AT10_FIG_FLX.ps
+-rw-r--r--. 1 p117902 IGN     3819 Mar 17 01:04 PIN_AT10_FIG_SS.ps
+-rw-r--r--. 1 p117902 IGN     2464 Mar 17 01:03 TRK_C_SALT.c2m
+-rw-r--r--. 1 p117902 IGN     8322 Mar 17 01:04 TRK_C_SALT.l2m
+-rw-------. 1 p117902 IGN    11456 Mar 17 01:04 TRK_C_SALT.o2m
+-rw-r--r--. 1 p117902 IGN     1604 Mar 17 01:03 TRK_C_SYB.c2m
+-rw-r--r--. 1 p117902 IGN     2458 Mar 17 01:03 TRK_C_SYBNXT.c2m
+AT-10_pin.save completed
+the listing is located on ./Linux_x86_64
+>|+++ Burnup=  6.000000e+04  Kinf=  8.417885e-01  at step 80                                                              |>0166
+->@BEGIN MODULE : EQU:        
+->@DESCRIPTION  : No description available for this module                                
+->@CREDITS      : No author provided for this module                                      
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+
+ DRVEQU: A LCM OBJECT NAMED 'COMPO       ' WAS EXPORTED TO FILE '_COMPO      '.
+-->>module EQU:        : time spent=        0.167 memory usage= 1.800E+02
+->@END MODULE   : EQU:        
+>|AT10_24UOX_SALT_TSPC completed                                                                                          |>0066
+
+ normal end of execution for dragon 5  Version 5.0.10 ($Revision: 3198 $)              
+ check for warning in listing
+ before assuming your run was successful
+End of execution. Total execution time: 11h 23min 54s
+access AT-10_pin.save
+total 189544
+-rw-r--r--. 1 p117902 IGN       902 Mar 17 01:01 assertS.c2m
+-rw-r--r--. 1 p117902 IGN       798 Mar 17 01:01 assertV.c2m
+-rw-r--r--. 1 p117902 IGN 169631924 Mar 17 12:25 AT10_ASSBLY.result
+-rwxr-xr-x. 1 p117902 IGN  23835256 Mar 17 01:01 code
+-rw-r--r--. 1 p117902 IGN     67526 Mar 17 01:01 FIG_main.ps
+-rw-r--r--. 1 p117902 IGN     25271 Mar 17 01:01 FIG_selfshielding.ps
+-rw-r--r--. 1 p117902 IGN      7654 Mar 17 01:01 Geom_A2.c2m
+-rw-r--r--. 1 p117902 IGN     31993 Mar 17 01:01 Geom_A.c2m
+-rw-r--r--. 1 p117902 IGN     91387 Mar 17 01:01 Geom_A.l2m
+-rw-------. 1 p117902 IGN    141176 Mar 17 01:01 Geom_A.o2m
+-rw-r--r--. 1 p117902 IGN      9627 Mar 17 01:01 Geom_C.c2m
+-rw-r--r--. 1 p117902 IGN     19598 Mar 17 01:01 Geom_Test.c2m
+lrwxrwxrwx. 1 p117902 IGN       114 Mar 17 01:01 J311_295 -> /home/p117902/working_dir/BWR_project/Version5_beta_ev3198/Dragon/../../libraries/l_endian/draglibJeff3p1p1SHEM295
+-rw-r--r--. 1 p117902 IGN     15768 Mar 17 01:01 Mix_ASSBLY.c2m
+-rw-r--r--. 1 p117902 IGN     59010 Mar 17 01:01 Mix_ASSBLY.l2m
+-rw-------. 1 p117902 IGN     87972 Mar 17 01:01 Mix_ASSBLY.o2m
+-rw-r--r--. 1 p117902 IGN      2194 Mar 17 01:01 mydata
+-rw-r--r--. 1 p117902 IGN      1805 Mar 17 01:01 TRK_A_SALT.c2m
+-rw-r--r--. 1 p117902 IGN      8962 Mar 17 01:01 TRK_A_SALT.l2m
+-rw-------. 1 p117902 IGN     11832 Mar 17 01:01 TRK_A_SALT.o2m
+mv: cannot stat ‘tracks_SALT_ASSBLY.m’: No such file or directory
+mv: cannot stat ‘tracks_SALT_SS_ASSBLY.m’: No such file or directory
+AT10_ASSBLY.save completed
+the listing is located on ./Linux_x86_64
+ ++ TOTAL NUMBER OF FLUX CALCULATIONS=     30266
+->@END MODULE   : FLU:        
+-->>MODULE FLU:        : TIME SPENT=    18183.416 MEMORY USAGE= 0.000E+00
+->@BEGIN MODULE : GREP:       
+->@DESCRIPTION  : No description available for this module                                
+->@CREDITS      : No author provided for this module                                      
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+-->>module GREP:       : time spent=        0.016 memory usage= 0.000E+00
+->@END MODULE   : GREP:       
+>|AT10_nominal  t=0 calculation completed, Kinf =   1.056329e+00                                                          |>0049
+
+ normal end of execution for dragon 5  Version 5.0.10 ($Revision: 3198 $)              
+ check for warning in listing
+ before assuming your run was successful
+execute AT10_ASSBLY with Dragon on system Linux_x86_64 with custom compiler
+use the existing directory Linux_x86_64
+RunDirectory: /tmp/rundir2
+use little endian libraries
+AT10_ASSBLY access script terminated

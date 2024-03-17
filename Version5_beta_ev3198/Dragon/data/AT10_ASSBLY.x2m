@@ -28,7 +28,7 @@ REAL Kinf ;
 
 
 STRING geo_name := "AT10_ASSBLY_test" ; ! Geometry choice for tests and benchmarks
-STRING assbly_opt := "AT10_nominal" ; ! "AT10_void_40" option to choose from possible mixes, 0%, 40% and 80% void
+STRING assbly_opt := "AT10_void_40" ; ! "AT10_void_40" option to choose from possible mixes, 0%, 40% and 80% void
 
 ! 3 level BWR geometry definition
 GEOM GEOM_SS := Geom_A :: <<geo_name>> ;
