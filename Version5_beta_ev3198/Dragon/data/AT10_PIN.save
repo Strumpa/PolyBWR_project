@@ -16,7 +16,7 @@ else
    MACH=`uname -sm | sed 's/[ ]/_/'`
 fi
 ls -l
-mv COMPO_AT10_1 $1/"$MACH"
+mv COMPO_AT10_7 $1/"$MACH"
 mv PIN_AT10_FIG_SS.ps $1/"$MACH"
 mv PIN_AT10_FIG_FLX.ps $1/"$MACH"
 echo "AT-10_pin.save completed"
