@@ -36,8 +36,8 @@ STRING geo_name := "AT10_ASSBLY_test" ; ! Geometry choice for tests and benchmar
 STRING assbly_opt := "AT10_nominal" ; ! option to choose from possible mixes, 0% (nominal), 40% and 80% void fraction
 
 ! 3 level BWR geometry definition
-!GEOM GEOM_SS := Geom_A :: <<geo_name>> ;
-GEOM := Geom_A2 ;
+GEOM GEOM_SS := Geom_A :: <<geo_name>> ;
+!GEOM := Geom_A2 ;
 ECHO "3 level Geometry generated" ;
 
 ! Call to trackin module
