@@ -111,5 +111,7 @@ def convert_to_UTL_lists(ListBU, ListAUTOP, ListCOMPO):
 
 ListBU, ListAUTOP, ListCOMP = getLists("CASMO-5")
 convert_to_UTL_lists(ListBU, ListAUTOP, ListCOMP)
+ListBU, ListAUTOP, ListCOMP = getLists("UOx_autop5")
+convert_to_UTL_lists(ListBU, ListAUTOP, ListCOMP)
 ListBU, ListAUTOP, ListCOMP = getLists("Gd_autop3")
 convert_to_UTL_lists(ListBU, ListAUTOP, ListCOMP)
