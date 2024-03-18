@@ -257,3 +257,45 @@ use the existing directory Linux_x86_64
 RunDirectory: /tmp/rundir2
 use little endian libraries
 AT10_ASSBLY access script terminated
+End of execution. Total execution time: 10h 43min 1s
+access AT-10_pin.save
+total 189532
+-rw-r--r--. 1 p117902 IGN       902 Mar 17 13:06 assertS.c2m
+-rw-r--r--. 1 p117902 IGN       798 Mar 17 13:06 assertV.c2m
+-rw-r--r--. 1 p117902 IGN 169622078 Mar 17 23:49 AT10_ASSBLY.result
+-rwxr-xr-x. 1 p117902 IGN  23835256 Mar 17 13:06 code
+-rw-r--r--. 1 p117902 IGN     67526 Mar 17 13:06 FIG_main.ps
+-rw-r--r--. 1 p117902 IGN     25271 Mar 17 13:06 FIG_selfshielding.ps
+-rw-r--r--. 1 p117902 IGN      7654 Mar 17 13:06 Geom_A2.c2m
+-rw-r--r--. 1 p117902 IGN     31993 Mar 17 13:06 Geom_A.c2m
+-rw-r--r--. 1 p117902 IGN     91387 Mar 17 13:06 Geom_A.l2m
+-rw-------. 1 p117902 IGN    141176 Mar 17 13:06 Geom_A.o2m
+-rw-r--r--. 1 p117902 IGN      9627 Mar 17 13:06 Geom_C.c2m
+-rw-r--r--. 1 p117902 IGN     19598 Mar 17 13:06 Geom_Test.c2m
+lrwxrwxrwx. 1 p117902 IGN       114 Mar 17 13:06 J311_295 -> /home/p117902/working_dir/BWR_project/Version5_beta_ev3198/Dragon/../../libraries/l_endian/draglibJeff3p1p1SHEM295
+-rw-r--r--. 1 p117902 IGN     15768 Mar 17 13:06 Mix_ASSBLY.c2m
+-rw-r--r--. 1 p117902 IGN     59010 Mar 17 13:06 Mix_ASSBLY.l2m
+-rw-------. 1 p117902 IGN     87972 Mar 17 13:06 Mix_ASSBLY.o2m
+-rw-r--r--. 1 p117902 IGN      2194 Mar 17 13:06 mydata
+-rw-r--r--. 1 p117902 IGN      1805 Mar 17 13:06 TRK_A_SALT.c2m
+-rw-r--r--. 1 p117902 IGN      8962 Mar 17 13:06 TRK_A_SALT.l2m
+-rw-------. 1 p117902 IGN     11832 Mar 17 13:06 TRK_A_SALT.o2m
+mv: cannot stat ‘tracks_SALT_ASSBLY.m’: No such file or directory
+mv: cannot stat ‘tracks_SALT_SS_ASSBLY.m’: No such file or directory
+AT10_ASSBLY.save completed
+the listing is located on ./Linux_x86_64
+ ++ TOTAL NUMBER OF FLUX CALCULATIONS=     25659
+->@END MODULE   : FLU:        
+-->>MODULE FLU:        : TIME SPENT=    15550.201 MEMORY USAGE= 0.000E+00
+->@BEGIN MODULE : GREP:       
+->@DESCRIPTION  : No description available for this module                                
+->@CREDITS      : No author provided for this module                                      
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+-->>module GREP:       : time spent=        0.059 memory usage= 0.000E+00
+->@END MODULE   : GREP:       
+>|AT10_void_40  t=0 calculation completed, Kinf =   1.048074e+00                                                          |>0049
+
+ normal end of execution for dragon 5  Version 5.0.10 ($Revision: 3198 $)              
+ check for warning in listing
+ before assuming your run was successful

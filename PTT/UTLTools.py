@@ -3,7 +3,7 @@
 # Purpose : handle issues with generating UTL compatible lists for Dragon5 BU calculations
 #
 
-
+import matplotlib.pyplot as plt
 #
 
 def getLists(burnup_points):
