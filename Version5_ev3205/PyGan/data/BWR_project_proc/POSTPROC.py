@@ -251,16 +251,16 @@ def POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
 
             if k == 0: # Comparaison des Keff
                 plt.ylabel('Keff')
-                save_name=name_geom+'_DRAGON5_Keff'
-                fig_name=name_geom+' - Keff'
+                save_name=name_mix+'_DRAGON5_Keff'
+                fig_name=name_mix+' - Keff'
             else : # Erreur sur isotopes
                 plt.ylabel('Concentration atomique (a/barn.cm)')
-                save_name=name_geom+'_DRAGON5_'+isotopes_SOUHAITES[k-1]
-                fig_name=name_geom+' - '+isotopes_SOUHAITES[k-1]
+                save_name=name_mix+'_DRAGON5_'+isotopes_SOUHAITES[k-1]
+                fig_name=name_mix+' - '+isotopes_SOUHAITES[k-1]
 
             plt.title(fig_name)
             os.chdir(path+'/'+SAVE_DIR)
-            plt.savefig(save_name+'.'+form,bbox_inches = 'tight', format=form, dpi=1200) #enregistrement des figures dans le repertoire des resultats
+            #plt.savefig(save_name+'.'+form,bbox_inches = 'tight', format=form, dpi=1200) #enregistrement des figures dans le repertoire des resultats
             plt.savefig(save_name+'.png',bbox_inches = 'tight') #enregistrement des figures dans le repertoire des resultats
             os.chdir(path)
             plt.close('all')
