@@ -72,7 +72,7 @@ TYPE = 'HYBRIDE'
 #           - 'ATRIUM-10XM_NL24-2'
 #           - 'ATRIUM-10XM NL24-2_ctrl'
 name_geom = 'AT10_UOX' # 'AT10_UOX_Gd2O3'
-name_mix = "AT10_24UOX"
+name_mix = "AT10_50UOX"
 tracking_module = "SALT"
 #
 # Multicompo = 1 if you want to generate a MULTICOMPO object 
