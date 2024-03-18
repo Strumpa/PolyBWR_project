@@ -45,11 +45,11 @@ def POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
     #print("$$$ ---------- path = ",path)
 
     # --- Création du répertoire de stockage de résultats 
-    a=os.path.exists('BWRresults_PyGan_'+name_geom+'_'+name_mix)
+    a=os.path.exists('BWRresults_PyGan_'+name_geom)
     if a==False:
-        os.mkdir('BWRresults_PyGan_'+name_geom+'_'+name_mix)
+        os.mkdir('BWRresults_PyGan_'+name_geom)
 
-    SAVE_DIR='BWRresults_PyGan_'+name_geom+'_'+name_mix+'/'+suffixe+'_postprocess'
+    SAVE_DIR='BWRresults_PyGan_'+name_geom+'/'+name_mix+'_'+suffixe+'_postprocess'
 
     a=os.path.exists(SAVE_DIR)
     if a==False:

@@ -71,23 +71,23 @@ TYPE = 'HYBRIDE'
 # - assemblies : 
 #           - 'ATRIUM-10XM_NL24-2'
 #           - 'ATRIUM-10XM NL24-2_ctrl'
-name_geom = 'AT10_UOX' # 'AT10_UOX_Gd2O3'
-name_mix = "AT10_50UOX"
+name_geom = 'AT10_UOX_Gd2O3' # 'AT10_UOX_Gd2O3'
+name_mix = "AT10_45Gd"
 tracking_module = "SALT"
 #
 # Multicompo = 1 if you want to generate a MULTICOMPO object 
 #            = 0 either
 Multicompo = 1
 #
-# suffixe = suffixe added to name_geom for creation of figures, MULTICOMPO and BU vector
-suffixe = '_LIVRABLE_TEST'
 #
 # burnup_points = string to use predefine burnup points matching with SERPENT2 results
 #        - 'test' : short depletion to test the code
 #        - 'UOx'  : used for UOx fuel without Gd poison
 #        - 'Gd'   : used for UOx fuel with Gd poison
 #        - 'free' : modify the burnup points as you wish
-burnup_points = 'UOx_autop5'
+burnup_points = 'Gd_autop3'
+# suffixe = suffixe added to name_geom for creation of figures, MULTICOMPO and BU vector
+suffixe = tracking_module+"_"+burnup_points
 #
 # AUTOP: self-shielding parameter
 #        - 'ALL'

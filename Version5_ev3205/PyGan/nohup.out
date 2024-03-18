@@ -141,3 +141,287 @@ lrwxrwxrwx. 1 p117902 IGN   108 Mar 18 16:01 J311_295 -> /home/p117902/working_d
 -rw-r--r--. 1 p117902 IGN  1613 Mar 18 16:01 TRK_C_SALT.py
 -rw-r--r--. 1 p117902 IGN  2416 Mar 18 16:01 TRK_C_SYBNXT.c2m
 -rw-r--r--. 1 p117902 IGN  1229 Mar 18 16:01 TRK_C_SYBNXT.py
+SERPENT Serpent 2.1.32 found in /home/p117902/working_dir/BWR_project/Version5_ev3205/PyGan/data/serpent4PyGan_results/AT10_50UOX_mc_res.m, but version 2.1.31 is defined in settings
+  Attemping to read anyway. Please report strange behaviors/failures to developers.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+Traceback (most recent call last):
+  File "mydata", line 268, in <module>
+    _
+NameError: name '_' is not defined
+End of execution. Total execution time: 0h 14min 31s
+$$$ ----- BWR.save : script begin
+cp: omitting directory ‘./BWRresults_PyGan_AT10_UOX’
+cp: omitting directory ‘./BWRresults_PyGan_AT10_UOX’
+$$$ ----- BWR.save : script finish
+the listing is located on ./Linux_x86_64
+    2    (   3)  inpu_val0003   ( 1)  TRACK
+    3    (   5)  inpu_val0004   ( 0)  TF_EXC
+    4    (   3)  inpu_val0005   ( 1)  TRACK_SS
+    5    (   5)  inpu_val0006   ( 0)  TF_EXC_SS
+    6    (   3)  inpu_val0007   ( 1)  burnup_steps
+    7    (  11)  inpu_val0008         val = 1
+    8    (  13)  inpu_val0009         val = 'AT10_UOX'
+    9    (  13)  inpu_val0010         val = './_COMPO_AT10_UOX_AT10_50UOX_LIVRABLE_TEST'
+
+ access= 0:creation mode / 1:modification mode / 2:read-only mode
+
+$$$ -------- POSTPROC.py : DRAGON5 figures 
+$$$ -------- POSTPROC.py : Serpent2 figures 
+$$$ -------- POSTPROC.py : Comparison DRAGON5 / Serpent2 figures 
+cle2000_dealloc: deallocate a cle2000 object
+execute BWR_project with PyGan on system Linux_x86_64
+use the existing directory Linux_x86_64
+RunDirectory: /tmp/rundir6
+Python version= 3.6
+use little endian libraries
+AT-10_pin access script terminated
+total 128
+-rwxr-xr-x. 1 p117902 IGN   449 Mar 18 16:21 assertS.py
+-rwxr-xr-x. 1 p117902 IGN   486 Mar 18 16:21 assertV.py
+-rw-r--r--. 1 p117902 IGN  7984 Mar 18 16:21 BU_C.c2m
+-rw-r--r--. 1 p117902 IGN  1152 Mar 18 16:21 BU_C.py
+-rw-r--r--. 1 p117902 IGN  4355 Mar 18 16:21 GEO_C_NXT.c2m
+-rw-r--r--. 1 p117902 IGN   981 Mar 18 16:21 GEO_C_NXT.py
+-rw-r--r--. 1 p117902 IGN  4618 Mar 18 16:21 GEO_C_SALT.c2m
+-rw-r--r--. 1 p117902 IGN   983 Mar 18 16:21 GEO_C_SALT.py
+-rw-r--r--. 1 p117902 IGN 15799 Mar 18 16:21 getLists.py
+lrwxrwxrwx. 1 p117902 IGN   108 Mar 18 16:21 J311_295 -> /home/p117902/working_dir/BWR_project/Version5_ev3205/PyGan/../../libraries/l_endian/draglibJeff3p1p1SHEM295
+-rw-r--r--. 1 p117902 IGN 18619 Mar 18 16:21 MIX_C.c2m
+-rw-r--r--. 1 p117902 IGN   900 Mar 18 16:21 MIX_C.py
+-rw-r--r--. 1 p117902 IGN  9782 Mar 18 16:21 mydata
+-rw-r--r--. 1 p117902 IGN 14678 Mar 18 16:21 POSTPROC.py
+-rw-r--r--. 1 p117902 IGN  2464 Mar 18 16:21 TRK_C_SALT.c2m
+-rw-r--r--. 1 p117902 IGN  1613 Mar 18 16:21 TRK_C_SALT.py
+-rw-r--r--. 1 p117902 IGN  2416 Mar 18 16:21 TRK_C_SYBNXT.c2m
+-rw-r--r--. 1 p117902 IGN  1229 Mar 18 16:21 TRK_C_SYBNXT.py
+SERPENT Serpent 2.1.32 found in /home/p117902/working_dir/BWR_project/Version5_ev3205/PyGan/data/serpent4PyGan_results/AT10_50UOX_mc_res.m, but version 2.1.31 is defined in settings
+  Attemping to read anyway. Please report strange behaviors/failures to developers.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+Traceback (most recent call last):
+  File "mydata", line 268, in <module>
+    _
+NameError: name '_' is not defined
+End of execution. Total execution time: 0h 14min 28s
+$$$ ----- BWR.save : script begin
+$$$ ----- BWR.save : script finish
+the listing is located on ./Linux_x86_64
+    2    (   3)  inpu_val0003   ( 1)  TRACK
+    3    (   5)  inpu_val0004   ( 0)  TF_EXC
+    4    (   3)  inpu_val0005   ( 1)  TRACK_SS
+    5    (   5)  inpu_val0006   ( 0)  TF_EXC_SS
+    6    (   3)  inpu_val0007   ( 1)  burnup_steps
+    7    (  11)  inpu_val0008         val = 1
+    8    (  13)  inpu_val0009         val = 'AT10_UOX'
+    9    (  13)  inpu_val0010         val = './_COMPO_AT10_UOX_AT10_50UOXSALT_UOx_autop5'
+
+ access= 0:creation mode / 1:modification mode / 2:read-only mode
+
+$$$ -------- POSTPROC.py : DRAGON5 figures 
+$$$ -------- POSTPROC.py : Serpent2 figures 
+$$$ -------- POSTPROC.py : Comparison DRAGON5 / Serpent2 figures 
+cle2000_dealloc: deallocate a cle2000 object
+execute BWR_project with PyGan on system Linux_x86_64
+use the existing directory Linux_x86_64
+RunDirectory: /tmp/rundir6
+Python version= 3.6
+use little endian libraries
+AT-10_pin access script terminated
+total 128
+-rwxr-xr-x. 1 p117902 IGN   449 Mar 18 16:39 assertS.py
+-rwxr-xr-x. 1 p117902 IGN   486 Mar 18 16:39 assertV.py
+-rw-r--r--. 1 p117902 IGN  7984 Mar 18 16:39 BU_C.c2m
+-rw-r--r--. 1 p117902 IGN  1152 Mar 18 16:39 BU_C.py
+-rw-r--r--. 1 p117902 IGN  4355 Mar 18 16:39 GEO_C_NXT.c2m
+-rw-r--r--. 1 p117902 IGN   981 Mar 18 16:39 GEO_C_NXT.py
+-rw-r--r--. 1 p117902 IGN  4618 Mar 18 16:39 GEO_C_SALT.c2m
+-rw-r--r--. 1 p117902 IGN   983 Mar 18 16:39 GEO_C_SALT.py
+-rw-r--r--. 1 p117902 IGN 15799 Mar 18 16:39 getLists.py
+lrwxrwxrwx. 1 p117902 IGN   108 Mar 18 16:39 J311_295 -> /home/p117902/working_dir/BWR_project/Version5_ev3205/PyGan/../../libraries/l_endian/draglibJeff3p1p1SHEM295
+-rw-r--r--. 1 p117902 IGN 18619 Mar 18 16:39 MIX_C.c2m
+-rw-r--r--. 1 p117902 IGN   900 Mar 18 16:39 MIX_C.py
+-rw-r--r--. 1 p117902 IGN  9782 Mar 18 16:39 mydata
+-rw-r--r--. 1 p117902 IGN 14678 Mar 18 16:39 POSTPROC.py
+-rw-r--r--. 1 p117902 IGN  2464 Mar 18 16:39 TRK_C_SALT.c2m
+-rw-r--r--. 1 p117902 IGN  1613 Mar 18 16:39 TRK_C_SALT.py
+-rw-r--r--. 1 p117902 IGN  2416 Mar 18 16:39 TRK_C_SYBNXT.c2m
+-rw-r--r--. 1 p117902 IGN  1229 Mar 18 16:39 TRK_C_SYBNXT.py
+SERPENT Serpent 2.1.32 found in /home/p117902/working_dir/BWR_project/Version5_ev3205/PyGan/data/serpent4PyGan_results/AT10_24UOX_mc_res.m, but version 2.1.31 is defined in settings
+  Attemping to read anyway. Please report strange behaviors/failures to developers.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+Traceback (most recent call last):
+  File "mydata", line 268, in <module>
+    _
+NameError: name '_' is not defined
+End of execution. Total execution time: 0h 14min 33s
+$$$ ----- BWR.save : script begin
+$$$ ----- BWR.save : script finish
+the listing is located on ./Linux_x86_64
+    2    (   3)  inpu_val0003   ( 1)  TRACK
+    3    (   5)  inpu_val0004   ( 0)  TF_EXC
+    4    (   3)  inpu_val0005   ( 1)  TRACK_SS
+    5    (   5)  inpu_val0006   ( 0)  TF_EXC_SS
+    6    (   3)  inpu_val0007   ( 1)  burnup_steps
+    7    (  11)  inpu_val0008         val = 1
+    8    (  13)  inpu_val0009         val = 'AT10_UOX'
+    9    (  13)  inpu_val0010         val = './_COMPO_AT10_UOX_AT10_24UOXSALT_UOx_autop5'
+
+ access= 0:creation mode / 1:modification mode / 2:read-only mode
+
+$$$ -------- POSTPROC.py : DRAGON5 figures 
+$$$ -------- POSTPROC.py : Serpent2 figures 
+$$$ -------- POSTPROC.py : Comparison DRAGON5 / Serpent2 figures 
+cle2000_dealloc: deallocate a cle2000 object
+execute BWR_project with PyGan on system Linux_x86_64
+use the existing directory Linux_x86_64
+RunDirectory: /tmp/rundir6
+Python version= 3.6
+use little endian libraries
+AT-10_pin access script terminated
+total 128
+-rwxr-xr-x. 1 p117902 IGN   449 Mar 18 16:59 assertS.py
+-rwxr-xr-x. 1 p117902 IGN   486 Mar 18 16:59 assertV.py
+-rw-r--r--. 1 p117902 IGN  7984 Mar 18 16:59 BU_C.c2m
+-rw-r--r--. 1 p117902 IGN  1152 Mar 18 16:59 BU_C.py
+-rw-r--r--. 1 p117902 IGN  4355 Mar 18 16:59 GEO_C_NXT.c2m
+-rw-r--r--. 1 p117902 IGN   981 Mar 18 16:59 GEO_C_NXT.py
+-rw-r--r--. 1 p117902 IGN  4618 Mar 18 16:59 GEO_C_SALT.c2m
+-rw-r--r--. 1 p117902 IGN   983 Mar 18 16:59 GEO_C_SALT.py
+-rw-r--r--. 1 p117902 IGN 15799 Mar 18 16:59 getLists.py
+lrwxrwxrwx. 1 p117902 IGN   108 Mar 18 16:59 J311_295 -> /home/p117902/working_dir/BWR_project/Version5_ev3205/PyGan/../../libraries/l_endian/draglibJeff3p1p1SHEM295
+-rw-r--r--. 1 p117902 IGN 18619 Mar 18 16:59 MIX_C.c2m
+-rw-r--r--. 1 p117902 IGN   900 Mar 18 16:59 MIX_C.py
+-rw-r--r--. 1 p117902 IGN  9802 Mar 18 16:59 mydata
+-rw-r--r--. 1 p117902 IGN 14678 Mar 18 16:59 POSTPROC.py
+-rw-r--r--. 1 p117902 IGN  2464 Mar 18 16:59 TRK_C_SALT.c2m
+-rw-r--r--. 1 p117902 IGN  1613 Mar 18 16:59 TRK_C_SALT.py
+-rw-r--r--. 1 p117902 IGN  2416 Mar 18 16:59 TRK_C_SYBNXT.c2m
+-rw-r--r--. 1 p117902 IGN  1229 Mar 18 16:59 TRK_C_SYBNXT.py
