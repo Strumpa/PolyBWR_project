@@ -28,12 +28,14 @@ from POSTPROC import *
 # --- CELL
 # GEOMETRY class
 from GEO_C_SALT import *
+from GEO_C_NXT import *
 # MIXTURES class
 from MIX_C import *
 # TRACKING class
 from TRK_C_SALT import *
+from TRK_C_SYBNXT import *
 # BU DEPLETION class
-from BU_C_SALT import *
+from BU_C import *
 
 # --- OTHERS
 from getLists import *
@@ -186,8 +188,8 @@ if case == 'CELL' :
             [pyUOX_TBH,pyFIG,pyTRACK,pyTF_EXC,pyUOX_TBH_SS,pyFIG_SS,pyTRACK_SS,pyTF_EXC_SS] = TRK_C_SALT("UOX_TBH",name_fig,"TRACK","TF_EXC","UOX_TBH_SS",name_fig_SS,"TRACK_SS","TF_EXC_SS",pyGEOM,pyGEOM_SS)
 
             # ---------- BU DEPLETION
-            pyCOMPO = BU_C_SALT("COMPO",pyMIX,pyTRACK,pyTF_EXC,pyTRACK_SS,pyTF_EXC_SS,StepList,Multicompo,name_geom,name_compo)
-"""
+            pyCOMPO = BU_C("COMPO",pyMIX,pyTRACK,pyTF_EXC,pyTRACK_SS,pyTF_EXC_SS,StepList,Multicompo,name_geom,name_compo)
+
     elif tracking_module == "SYBNXT":
 
                         # ---------- GEOMETRY
@@ -197,12 +199,12 @@ if case == 'CELL' :
             pyMIX = MIX_C("LIBRARY",Library,name_geom)
 
             # ---------- TRACKING
-            [pyUOX_TBH,pyFIG,pyTRACK,pyTF_EXC,pyUOX_TBH_SS,pyFIG_SS,pyTRACK_SS,pyTF_EXC_SS] = TRK_C_SYNX("UOX_TBH",name_fig,"TRACK","TF_EXC","UOX_TBH_SS",name_fig_SS,"TRACK_SS","TF_EXC_SS",pyGEOM,pyGEOM_SS)
+            [pyUOX_TBH,pyFIG,pyTRACK,pyTF_EXC,pyUOX_TBH_SS,pyFIG_SS,pyTRACK_SS,pyTF_EXC_SS] = TRK_C_SYBNXT("UOX_TBH",name_fig,"TRACK","TF_EXC","UOX_TBH_SS",name_fig_SS,"TRACK_SS","TF_EXC_SS",pyGEOM,pyGEOM_SS)
 
             # ---------- BU DEPLETION
-            pyCOMPO = BU_C_NXT("COMPO",pyMIX,pyTRACK,pyTF_EXC,pyTRACK_SS,pyTF_EXC_SS,StepList,Multicompo,name_geom,name_compo)
+            pyCOMPO = BU_C("COMPO",pyMIX,pyTRACK,pyTF_EXC,pyTRACK_SS,pyTF_EXC_SS,StepList,Multicompo,name_geom,name_compo)
 
-
+"""
 # --------------------------------------
 #               ASSEMBLIES                
 # --------------------------------------

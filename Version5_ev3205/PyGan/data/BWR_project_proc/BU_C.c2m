@@ -1,6 +1,6 @@
 ********************************************************************************************************************
 *                                                                                                                  *
-* Procedure :  BU_C_SALT.c2m                                                                                   *
+* Procedure :  BU_C.c2m                                                                                            *
 * Purpose   :  Depletion calculus for AT10 pin cells                                                               *
 * Author    :  R.Guasch adapted from L.Fede                                                                        *
 *                                                                                                                  *

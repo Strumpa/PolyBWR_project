@@ -1,0 +1,5 @@
+execute AT10_ASSBLY with Dragon on system Linux_x86_64 with custom compiler
+use the existing directory Linux_x86_64
+RunDirectory: /tmp/rundir11
+use little endian libraries
+AT10_ASSBLY access script terminated

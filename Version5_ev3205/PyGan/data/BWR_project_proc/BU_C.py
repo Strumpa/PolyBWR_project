@@ -10,7 +10,7 @@
 import lifo
 import cle2000
 
-def BU_C_SALT(namCOMPO,pyMIX,pyTRACK,pyTF_EXC,pyTRACK_SS,pyTF_EXC_SS,StepList,Multicompo,name_geom,name_compo):
+def BU_C(namCOMPO,pyMIX,pyTRACK,pyTF_EXC,pyTRACK_SS,pyTF_EXC_SS,StepList,Multicompo,name_geom,name_compo):
 
   # Lifo
   myLifo=lifo.new()
@@ -27,7 +27,7 @@ def BU_C_SALT(namCOMPO,pyMIX,pyTRACK,pyTF_EXC,pyTRACK_SS,pyTF_EXC_SS,StepList,Mu
   myLifo.lib()
 
   # Execution 
-  calcBWR = cle2000.new('BU_C_SALT',myLifo,1)
+  calcBWR = cle2000.new('BU_C',myLifo,1)
   calcBWR.exec()
 
   # Recover
