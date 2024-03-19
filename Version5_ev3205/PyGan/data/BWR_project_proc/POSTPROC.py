@@ -260,7 +260,7 @@ def POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
 
             plt.title(fig_name)
             os.chdir(path+'/'+SAVE_DIR)
-            #plt.savefig(save_name+'.'+form,bbox_inches = 'tight', format=form, dpi=1200) #enregistrement des figures dans le repertoire des resultats
+            plt.savefig(save_name+'.'+form,bbox_inches = 'tight', format=form, dpi=1200) #enregistrement des figures dans le repertoire des resultats
             plt.savefig(save_name+'.png',bbox_inches = 'tight') #enregistrement des figures dans le repertoire des resultats
             os.chdir(path)
             plt.close('all')
@@ -280,12 +280,12 @@ def POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
 
             if k == 0: # Comparaison des Keff
                 plt.ylabel('Keff')
-                save_name=name_geom+'_Serpent2_Keff'
-                fig_name=name_geom+' - Keff'
+                save_name=name_mix+'_Serpent2_Keff'
+                fig_name=name_mix+' - Keff'
             else : # Erreur sur isotopes
                 plt.ylabel('Concentration atomique (a/barn.cm)')
-                save_name=name_geom+'_Serpent2_'+isotopes_SOUHAITES[k-1]
-                fig_name=name_geom+' - '+isotopes_SOUHAITES[k-1]
+                save_name=name_mix+'_Serpent2_'+isotopes_SOUHAITES[k-1]
+                fig_name=name_mix+' - '+isotopes_SOUHAITES[k-1]
 
             plt.title(fig_name)
             os.chdir(path+'/'+SAVE_DIR)
@@ -341,14 +341,14 @@ def POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
                 plt.plot([0,60000],[300,300],'r-.') # limite +300pcm
                 plt.plot([0,60000],[-300,-300],'r-.') # limite -300pcm
                 plt.ylabel('\u0394 Keff (pcm)')
-                save_name=name_geom+'_ERROR_Keff'
-                fig_name=name_geom+' - \u0394 Keff'
+                save_name=name_mix+'_ERROR_Keff'
+                fig_name=name_mix+' - \u0394 Keff'
             else : # Erreur sur isotopes
                 plt.plot([0,60000],[2,2],'r-.') # limite +2%
                 plt.plot([0,60000],[-2,-2],'r-.') # limite -2%
                 plt.ylabel('Erreur relative (%)')
-                save_name=name_geom+'_ERROR_'+isotopes_SOUHAITES[k-1]
-                fig_name=name_geom+' - \u0394 '+isotopes_SOUHAITES[k-1]
+                save_name=name_mix+'_ERROR_'+isotopes_SOUHAITES[k-1]
+                fig_name=name_mix+' - \u0394 '+isotopes_SOUHAITES[k-1]
 
             plt.title(fig_name)
             os.chdir(path+'/'+SAVE_DIR)
