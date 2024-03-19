@@ -1,5 +1,7 @@
 *.png
 *.o
+*.a
+*.mod
 *.m
 *.ps
 *.dat
