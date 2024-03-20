@@ -62,7 +62,7 @@ def POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
     isotopes_SOUHAITES=['U235','U236','U238','Pu239','Pu240','Pu241','Pu242','Gd155','Gd157','Xe135','Sm149']
 
     # Chemin d'accès aux résultats Serpent2 dans Resultats_serpent4PyGan
-    SERPENT_path='/home/p117902/working_dir/BWR_project/Version5_ev3205/PyGan/data/serpent4PyGan_results/'
+    SERPENT_path='/home/p117902/Serpent2/Linux_x86_64'
 
 
 

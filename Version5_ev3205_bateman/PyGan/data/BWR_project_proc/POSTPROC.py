@@ -332,6 +332,8 @@ def POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
 
             plt.figure()
             plt.figure(figsize=SIZE)
+            print(k)
+            print(ERROR[k+1])
             plt.plot(ERROR[0],ERROR[k+1],'2-',linewidth=1)
             plt.xlabel('BU (MWj/t)')
             plt.grid()
@@ -344,6 +346,8 @@ def POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
                 save_name=name_mix+'_ERROR_Keff'
                 fig_name=name_mix+' - \u0394 Keff'
             else : # Erreur sur isotopes
+                print(isotopes_SOUHAITES[k-1])
+                print(isotopes_SOUHAITES)
                 plt.plot([0,60000],[2,2],'r-.') # limite +2%
                 plt.plot([0,60000],[-2,-2],'r-.') # limite -2%
                 plt.ylabel('Erreur relative (%)')
