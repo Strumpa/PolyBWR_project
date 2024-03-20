@@ -876,7 +876,7 @@
         DO IDIR=1,NBDR
           IF(DVNOR(IREG,IDIR) .EQ. DZERO) THEN
             IF(IPRINT .GE. 10) THEN
-*              IANGL=NBDR-1
+*              IANGL=NBDR-1  to me this is wrong, cause DVNOR=0 for ireg and idir, so either IANGLE=IDIR-1 or IDIR
               IANGL=IDIR-1 
               WRITE(IOUT,9000) NAMSBR,IREG,IANGL
 *              WRITE(IOUT,9000) NAMSBR,IREG,IDIR
@@ -1040,4 +1040,5 @@
  9102 FORMAT(1X,' ***** Error in ',A6,'***** for line ',I8/
      >       7X,'Positions (current and reference ) =',1P,2D20.12/
      >       7X,'Absolute error = ',D21.14)
+ 9500 FORMAT()
       END
