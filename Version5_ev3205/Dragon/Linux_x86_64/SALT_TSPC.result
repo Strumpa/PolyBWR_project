@@ -57,7 +57,7 @@ MAXR 50 QUA2 <<iqua2>> <<nseg>> DP01 MAXZ 200000                                
 * ---                                                                                                                      0056
 UOX_TBH_FLX FIG_FLX.ps := G2S: GEOM :: ;                                                                                   0057
 TRACK TF_EXC := SALT: UOX_TBH_FLX ::                                                                                       0058
-EDIT 10                                                                                                                    0059
+EDIT 100                                                                                                                   0059
 ALLG                                                                                                                       0060
 TSPC EQW2 <<an2d>> <<densur>> REND                                                                                         0061
 LONG                                                                                                                       0062
@@ -139,7 +139,7 @@ QUIT .                                                                          
 ->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
                   GNU LESSER GENERAL PUBLIC LICENSE
 ->@END MODULE   : LIB:        
--->>MODULE LIB:        : TIME SPENT=        6.227 MEMORY USAGE= 1.097E+05
+-->>MODULE LIB:        : TIME SPENT=        5.858 MEMORY USAGE= 1.121E+05
 ->@BEGIN MODULE : SYBILT:     
 ->@DESCRIPTION  : Sybil 2-D tracking                                                      
 ->@CREDITS      : A. Hebert                                                               
@@ -405,6 +405,10 @@ END
  Number of regions after merge  =         7
  Number of surfaces before merge=         4
  Number of surfaces after merge =         4
+(* Output from --NXTXYZ-- follows 
+ Geometry width in X =    1.295000000000000
+ Geometry width in Y =    1.295000000000000
+   Output from --NXTXYZ-- completed *)
 (* Output from --NXTQAC-- follows 
   NDIM  =       2 AZMQUA=       8 NANGL =       8 NBANGL=       8 ITYPBC=       0
  NXTQAC: Tracking directions and weights 
@@ -2664,6 +2668,15 @@ END
  dvnor :   0.95486144719811084        1.3926467238942455        1.2214736281549012        1.1680645484284580        1.0233744602380705       0.83162335829747114        1.0461431820990785     
  iphi=          33
  dvnor :    1.0261078838680175       0.81596316155835158        1.4561417839586015        1.4054557741845901        1.2773447169373329       0.78488006186149861        1.1284379114717213     
+(* Output from --NXTCVM-- follows 
+ Surface Merge           4
+        -1        -2        -3        -4
+ Region Merge           7
+         1         2         3         4         5
+         6         7
+   Output from --NXTCVM-- completed *)
+(* Output from --NXTTNS-- follows 
+   Output from --NXTTNS-- completed *)
  Tracking of geometry completed
    Output from --SALTCG-- completed *)
 
@@ -2693,7 +2706,7 @@ END
  ITRACK        1   (-1=MONTE-CARLO/0=DESACTIVATES TRACKING FILE BUILD/1=ACTIVATES TRACKING FILE BUILD)
  IBIHET        0   (0/1=DOUBLE HETEROGENEITY IS NOT/IS ACTIVE)
 ->@END MODULE   : SALT:       
--->>MODULE SALT:       : TIME SPENT=        0.007 MEMORY USAGE= 2.000E+01
+-->>MODULE SALT:       : TIME SPENT=        0.006 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : TLM:        
 ->@DESCRIPTION  : Generate matlab line tracking file                                      
 ->@CREDITS      : C. Plamondon, G. Marleau                                                
@@ -2781,14 +2794,14 @@ END
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
          NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  8
 ->@END MODULE   : USS:        
--->>MODULE USS:        : TIME SPENT=        9.095 MEMORY USAGE= 6.605E+04
+-->>MODULE USS:        : TIME SPENT=        8.577 MEMORY USAGE= 6.403E+04
 ->@BEGIN MODULE : ASM:        
 ->@DESCRIPTION  : To built system matrices (CP and IC)                                    
 ->@CREDITS      : A. Hebert, G. Marleau, R. Roy                                           
 ->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
                   GNU LESSER GENERAL PUBLIC LICENSE
 ->@END MODULE   : ASM:        
--->>MODULE ASM:        : TIME SPENT=        0.018 MEMORY USAGE= 2.640E+02
+-->>MODULE ASM:        : TIME SPENT=        0.013 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : FLU:        
 ->@DESCRIPTION  : Solve the flux equations                                                
 ->@CREDITS      : R. Roy, A. Hebert, G. Marleau                                           
@@ -2889,7 +2902,7 @@ END
  ++ TRACKING CALLED=   9 TIMES FINAL KINF= 1.239573E+00 FINAL KEFF= 1.239573E+00 B2= 0.00000E+00 PRECISION= 3.05E-08
  ++ TOTAL NUMBER OF FLUX CALCULATIONS=      2522
 ->@END MODULE   : FLU:        
--->>MODULE FLU:        : TIME SPENT=        0.444 MEMORY USAGE= 0.000E+00
+-->>MODULE FLU:        : TIME SPENT=        0.370 MEMORY USAGE= 3.840E+02
 ->@BEGIN MODULE : GREP:       
 ->@DESCRIPTION  : No description available for this module                                
 ->@CREDITS      : No author provided for this module                                      

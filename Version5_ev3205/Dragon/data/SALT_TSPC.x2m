@@ -80,7 +80,7 @@ TRACK_SS := SYBILT: GEOM_SS ::
 UOX_TBH_FLX FIG_FLX.ps := G2S: GEOM :: ;
 
 TRACK TF_EXC := SALT: UOX_TBH_FLX ::
-  EDIT 10
+  EDIT 100
   ALLG
   TSPC EQW2 <<an2d>> <<densur>> REND
   LONG
