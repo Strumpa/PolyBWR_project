@@ -1,0 +1,2905 @@
+* CLE-2000 VERS 3.0 * R.ROY, EPM COPYRIGHT 1999 *                                                                          LINE
+************************************************************************************************************************   0001
+*                                                                                                                      *   0002
+* Procedure :  SALT_TSPC.c2m                                                                                           *   0003
+* Purpose   :  Tracking and figure printing for pin cells + MOC Flux calculation, SALT tracking on windmill cell       *   0004
+* Author    :  R. Guasch adapted from L.Fede                                                                           *   0005
+*                                                                                                                      *   0006
+* CALL      :   SALT_TSPC                                                                                              *   0007
+*                                                                                                                      *   0008
+************************************************************************************************************************   0009
+STRING geo_name := "AT10_UOX_simple" ; !"AT10_UOX_Gd2O3"                                                                   0010
+STRING cell_name := "AT10_24UOX" ; ! "AT10_24/32/42/45/48/50UOX" for UOX pins (1 to 6),                                    0011
+! "AT10_45Gd" / "AT10_42Gd" for AT10_UOX_Gd2O3 pins (7,8)                                                                  0012
+* ---                                                                                                                      0013
+* STRUCTURES AND MODULES                                                                                                   0014
+* ---                                                                                                                      0015
+MODULE G2S: TLM: MCCGT: SYBILT: SALT: USS: ASM: FLU: GREP: END: DELETE: ;                                                  0016
+* ---                                                                                                                      0017
+* PROCEDURES                                                                                                               0018
+PROCEDURE Mix_Cell Geom_C_SALT Geom_C ;                                                                                    0019
+* ---                                                                                                                      0020
+LINKED_LIST GEOM GEOM_SS TRACK_SS TRACK LIBRARY LIBRARY2 SYS FLUX ;                                                        0021
+SEQ_ASCII UOX_TBH_SS ;                                                                                                     0022
+SEQ_ASCII UOX_TBH_FLX ;                                                                                                    0023
+SEQ_BINARY TF_EXC ;                                                                                                        0024
+SEQ_BINARY TF_EXC_SS ;                                                                                                     0025
+SEQ_ASCII TLM_F :: FILE 'tracks_SALT_TSPC.m' ;                                                                             0026
+SEQ_ASCII FIG_FLX.ps :: FILE './PIN_AT10_FIG_FLX.ps' ;                                                                     0027
+REAL Kinf1 Keff1 ;                                                                                                         0028
+* ---                                                                                                                      0029
+* TRACKING PARAMETERS FOR SSH                                                                                              0030
+* ---                                                                                                                      0031
+INTEGER iqua2 := 24 ;                                                                                                      0032
+INTEGER nseg := 5 ;                                                                                                        0033
+* ---                                                                                                                      0034
+* TRACKING PARAMETERS FOR MOC FLX                                                                                          0035
+* ---                                                                                                                      0036
+INTEGER an2d := 8 ;  ! ANGULAR QUADRATURE PARAMETER                                                                        0037
+REAL densur := 5.0 ; ! DENSITY OF INTEGRATION LINES CM^-1                                                                  0038
+* polar angles for MCCGT:                                                                                                  0039
+INTEGER nmu := 4 ;                                                                                                         0040
+* size allocation for MCCGT:                                                                                               0041
+INTEGER mcu := 50000 ;                                                                                                     0042
+! GEOMETRY DEFINITION                                                                                                      0043
+GEOM GEOM_SS := Geom_C :: <<geo_name>> ;                                                                                   0044
+! XS MIX DEFINITION                                                                                                        0045
+LIBRARY := Mix_Cell :: J311_295 <<cell_name>> ;                                                                            0046
+* ---                                                                                                                      0047
+* SELF-SHIELDING TRACKING                                                                                                  0048
+* ---                                                                                                                      0049
+TRACK_SS := SYBILT: GEOM_SS ::                                                                                             0050
+TITLE 'TRACKING FOR PINCELL SS'                                                                                            0051
+MAXR 50 QUA2 <<iqua2>> <<nseg>> DP01 MAXZ 200000                                                                           0052
+;                                                                                                                          0053
+* ---                                                                                                                      0054
+* FLUX CALC TRACKING                                                                                                       0055
+* ---                                                                                                                      0056
+UOX_TBH_FLX FIG_FLX.ps := G2S: GEOM :: ;                                                                                   0057
+TRACK TF_EXC := SALT: UOX_TBH_FLX ::                                                                                       0058
+EDIT 10                                                                                                                    0059
+ALLG                                                                                                                       0060
+TSPC EQW2 <<an2d>> <<densur>> REND                                                                                         0061
+LONG                                                                                                                       0062
+;                                                                                                                          0063
+TLM_F := TLM: TRACK TF_EXC ::                                                                                              0064
+EDIT 10                                                                                                                    0065
+NTPO 1                                                                                                                     0066
+DIRECTIONS                                                                                                                 0067
+DIR 0                                                                                                                      0068
+;                                                                                                                          0069
+* MOC tracking                                                                                                             0070
+TRACK := MCCGT: TRACK TF_EXC ::                                                                                            0071
+EDIT 0                                                                                                                     0072
+CACB <<nmu>> AAC 80 TMT EPSI 1E-5 MCU <<mcu>>                                                                              0073
+;                                                                                                                          0074
+! UNIVERSAL SELF-SHIELDING                                                                                                 0075
+LIBRARY2 := USS: LIBRARY TRACK_SS  ::                                                                                      0076
+EDIT 0                                                                                                                     0077
+PASS 2                                                                                                                     0078
+GRMIN 52                                                                                                                   0079
+;                                                                                                                          0080
+SYS := ASM: LIBRARY2 TRACK TF_EXC :: ARM EDIT 0 ;                                                                          0081
+FLUX := FLU: LIBRARY2 SYS TRACK TF_EXC ::                                                                                  0082
+EDIT 1 TYPE K B1 SIGS ;                                                                                                    0083
+GREP: FLUX :: GETVAL 'K-EFFECTIVE  ' 1 1 1 >>Keff1<< ;                                                                     0084
+ECHO "SS tracking = SYBILT and FLX tracking = SALT TSPC, MOC on simple geom: Keff1=" Keff1 ;                               0085
+ECHO "AT10_24UOX SALT TSPC completed" ;                                                                                    0086
+END: ;                                                                                                                     0087
+QUIT .                                                                                                                  IMPLICIT
+ 
+ DDDDDD   RRRRRR     AAA     GGGGG    OOOOO   NN     NN
+ DDDDDDD  RRRRRRR   AAAAA   GGGGGGG  OOOOOOO  NNN    NN
+ DD   DD  RR   RR  AA   AA  GG       OO   OO  NNNN   NN
+ DD   DD  RRRRRR   AA   AA  GG  GGG  OO   OO  NN NN  NN
+ DD   DD  RRRR     AAAAAAA  GG  GGG  OO   OO  NN  NN NN
+ DD   DD  RR RR    AAAAAAA  GG   GG  OO   OO  NN   NNNN
+ DDDDDDD  RR  RR   AA   AA  GGGGGGG  OOOOOOO  NN    NNN
+ DDDDDD   RR   RR  AA   AA   GGGGG    OOOOO   NN     NN
+
+ VERSION dragon 5  Version 5.0.10 ($Revision: 3196 $)                  $Date: 2024-03-06 07:25:15 -0500 (Wed, 06 Mar 2024) $           
+ GROUPE D'ANALYSE NUCLEAIRE
+ ECOLE POLYTECHNIQUE DE MONTREAL
+
+
+
+ COPYRIGHT NOTICE FOR THIS VERSION OF dragon:
+ --------------------------------------------
+ Copyright (C) 2002 Ecole Polytechnique de Montreal 
+ This library is free software; you can redistribute it
+ and/or modify it under the terms of the GNU Lesser General
+ Public License as published by the Free Software Foundation;
+ either version 2.1 of the License, or (at your option) any
+ later version 
+
+
+
+
+->@BEGIN MODULE : GEO:        
+->@DESCRIPTION  : Geometry definition                                                     
+->@CREDITS      : A. Hebert                                                               
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+
+ CREATION OF A LEVEL  1 GEOMETRY ON THE DIRECTORY NAMED '/           ' OF THE LCM OBJECT 'GEOM        ' WITH TYPE 2-D RECT. CELL  .
+->@END MODULE   : GEO:        
+-->>MODULE GEO:        : TIME SPENT=        0.001 MEMORY USAGE= 0.000E+00
+->@BEGIN MODULE : GEO:        
+->@DESCRIPTION  : Geometry definition                                                     
+->@CREDITS      : A. Hebert                                                               
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+
+ CREATION OF A LEVEL  1 GEOMETRY ON THE DIRECTORY NAMED '/           ' OF THE LCM OBJECT 'GEOM_SS     ' WITH TYPE 2-D RECT. CELL  .
+->@END MODULE   : GEO:        
+-->>MODULE GEO:        : TIME SPENT=        0.000 MEMORY USAGE= 0.000E+00
+->@BEGIN MODULE : LIB:        
+->@DESCRIPTION  : Microscopic xs-library processing                                       
+->@CREDITS      : A. Hebert, G. Marleau                                                   
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+->@END MODULE   : LIB:        
+-->>MODULE LIB:        : TIME SPENT=        6.227 MEMORY USAGE= 1.097E+05
+->@BEGIN MODULE : SYBILT:     
+->@DESCRIPTION  : Sybil 2-D tracking                                                      
+->@CREDITS      : A. Hebert                                                               
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+
+ CARTESIAN MULTICELL OPTION (EURYDICE-2) BASED ON GEOMETRY LOCATED IN 'GEOM_SS     '.
+
+
+ NUMBER OF CELLS ALONG THE X-AXIS =   1
+                 ALONG THE Y-AXIS =   1     AVAILABLE STORAGE MAXPTS =  50
+ NUMBER OF MERGED VOLUMES =    7
+ NUMBER OF DISTINCT PHYSICAL MIXTURES =    7
+
+
+     GENERATING CELL   RADIUS
+
+    1 'GEOM_SS     '   0.00000E+00 3.13602E-01 3.96678E-01 4.32270E-01 4.43500E-01 4.52000E-01 5.14000E-01
+                       A = 1.29500E+00   B = 1.29500E+00
+
+
+ INFINITE DOMAIN.
+
+
+ DP-1 APPROXIMATION AROUND EACH CARTESIAN CELL.
+
+ QUADRATURE PARAMETERS:
+ HETEROGENEOUS CELLS   -    ANGLES   NA = 24 IN (0,PI/4)
+                          SEGMENTS   NX =  5
+
+ HOMOGENEOUS CELLS     -    ANGLES   NH =  5
+
+ CYLINDRICAL CELLS     -  SEGMENTS   MR =  5
+
+
+
+ TOTAL NUMBER OF CELLS IN THE DOMAIN =      1
+ TOTAL NUMBER OF MERGED CELLS =      1
+ TOTAL NUMBER OF GENERATING CELLS =      1     AVAILABLE STORAGE MAXCEL =     50
+
+
+ TOTAL NUMBER OF DISTINCT OUT-CURRENTS =     12
+ TOTAL NUMBER OF OUT-CURRENTS SURROUNDING ALL THE CELLS =     12     AVAILABLE STORAGE MAXJ =    200
+
+
+ SYBEUR: MAXIMUM STORAGE REQUIRED BY THE TRACKS =    6628 +  27489        AVAILABLE STORAGE MAXZ =  200000
+
+
+ SYBEUR: EXACT STORAGE REQUIRED BY THE TRACKS =   2232 INT +   8223 REAL        ACCURACY =  6.370E-06
+
+
+ NUMBER OF VOLUMES =      7     AVAILABLE STORAGE MAXBLK =     50
+
+
+ STATE VECTOR:
+ NREG        7   (NUMBER OF REGIONS)
+ NUN         7   (NUMBER OF FLUX UNKNOWNS)
+ ILK         1   (0=LEAKAGE PRESENT/1=LEAKAGE ABSENT)
+ NBMIX       7   (MAXIMUM NUMBER OF MIXTURES USED)
+ NSURF       0   (NUMBER OF OUTER SURFACES)
+ ITG         4   (TYPE OF GEOMETRY)
+ MAXZ   200000   (TRACKING LENGTH)
+ MAXJ      200   (INTERNAL STORAGE LENGTH FOR CURRENTS)
+ NUNCUR     12   (NUMBER OF ADDITIONAL INTERFACE CURRENT COMPONENTS)
+ IBIHET      0   (0/1=DOUBLE HETEROGENEITY IS NOT/IS ACTIVE)
+ EPSJ   5.00E-06 (FLUX-CURRENT ITERATION EPSILON)
+->@END MODULE   : SYBILT:     
+-->>MODULE SYBILT:     : TIME SPENT=        0.001 MEMORY USAGE= 0.000E+00
+->@BEGIN MODULE : G2S:        
+->@DESCRIPTION  : Generate a surfacic file in SALOME format from a DRAGON geometry        
+->@CREDITS      : G. Civario                                                              
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+ fin   : prepareData lgMaxGig=           1
+ g2s_segArc: plot domain=( 0.0000000E+00: 1.2950000E+00, 0.0000000E+00: 1.2950000E+00)
+   At end of G2S:
+               10 segs or arcs
+                7 nodes
+                4 boundary conditions other than default
+->@END MODULE   : G2S:        
+-->>MODULE G2S:        : TIME SPENT=        0.005 MEMORY USAGE= 0.000E+00
+->@BEGIN MODULE : SALT:       
+->@DESCRIPTION  : Track calculations from a SALOME surfacic file                          
+->@CREDITS      : A. Hebert, X. Warin                                                     
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+ SALACG: specular boundary conditions
+ SAL100: TYPGEO=           6  NBFOLD=           0
+
+
+     domain checkout:
+     elements are in contact for distance <   1.0000E-04
+
+
+ SAL110: after unfolding -- NB_ELEM=          10
+--cut---------------------------------------------------------------------------
+BEGIN
+* typgeo nbfold nbnode nbelem nbmacr nbreg
+      6      0      7     10      1      7
+* index  kndex  prec
+      0      0      1
+* eps         eps0
+   1.000000047E-03   9.999999747E-06
+* num_of_region/mesh
+      1      2      3      4      5      6      7
+* name_of_geometry
+   GEOM
+* macro_order_index_per_flux_region
+      1      1      1      1      1      1      1
+ elem =     1
+*type    node-   node+
+     1     0     1
+*cx            cy            ex_or_R       ey_or_theta1  theta2
+   0.000000000E+00   0.000000000E+00   1.295000000E+00   0.000000000E+00   1.295000000E+00
+ elem =     2
+*type    node-   node+
+     1     1     0
+*cx            cy            ex_or_R       ey_or_theta1  theta2
+   0.000000000E+00   1.295000000E+00   1.295000000E+00   0.000000000E+00   1.295000000E+00
+ elem =     3
+*type    node-   node+
+     1     1     0
+*cx            cy            ex_or_R       ey_or_theta1  theta2
+   0.000000000E+00   0.000000000E+00   0.000000000E+00   1.295000000E+00   1.295000000E+00
+ elem =     4
+*type    node-   node+
+     1     0     1
+*cx            cy            ex_or_R       ey_or_theta1  theta2
+   1.295000000E+00   0.000000000E+00   0.000000000E+00   1.295000000E+00   1.295000000E+00
+ elem =     5
+*type    node-   node+
+     2     7     6
+*cx            cy            ex_or_R       ey_or_theta1  theta2
+   6.474999800E-01   6.474999800E-01   3.136020000E-01   0.000000000E+00   6.283185482E+00
+ elem =     6
+*type    node-   node+
+     2     6     5
+*cx            cy            ex_or_R       ey_or_theta1  theta2
+   6.474999800E-01   6.474999800E-01   3.966780000E-01   0.000000000E+00   6.283185482E+00
+ elem =     7
+*type    node-   node+
+     2     5     4
+*cx            cy            ex_or_R       ey_or_theta1  theta2
+   6.474999800E-01   6.474999800E-01   4.322699900E-01   0.000000000E+00   6.283185482E+00
+ elem =     8
+*type    node-   node+
+     2     4     3
+*cx            cy            ex_or_R       ey_or_theta1  theta2
+   6.474999800E-01   6.474999800E-01   4.435000100E-01   0.000000000E+00   6.283185482E+00
+ elem =     9
+*type    node-   node+
+     2     3     2
+*cx            cy            ex_or_R       ey_or_theta1  theta2
+   6.474999800E-01   6.474999800E-01   4.519999900E-01   0.000000000E+00   6.283185482E+00
+ elem =    10
+*type    node-   node+
+     2     2     1
+*cx            cy            ex_or_R       ey_or_theta1  theta2
+   6.474999800E-01   6.474999800E-01   5.140000000E-01   0.000000000E+00   6.283185482E+00
+*defaul  nbbcda  allsur  divsur  ndivsur
+       0       4       0       0       0
+*albedo  deltasur
+   0.000000000E+00   0.000000000E+00
+ particular boundary condition number           1
+*type    nber
+       4       1
+*elems(1,nber)
+       1
+*cx      cy      angle
+   0.000000000E+00   0.000000000E+00   0.000000000E+00
+ particular boundary condition number           2
+*type    nber
+       4       1
+*elems(1,nber)
+       2
+*cx      cy      angle
+   0.000000000E+00   1.295000000E+00   0.000000000E+00
+ particular boundary condition number           3
+*type    nber
+       4       1
+*elems(1,nber)
+       3
+*cx      cy      angle
+   0.000000000E+00   0.000000000E+00   9.000000000E+01
+ particular boundary condition number           4
+*type    nber
+       4       1
+*elems(1,nber)
+       4
+*cx      cy      angle
+   1.295000000E+00   0.000000000E+00   9.000000000E+01
+* mil(nbreg)
+      7      6      5      4      3      2      1
+END
+--cut---------------------------------------------------------------------------
+ SALACG: typgeo=           6  nbfold=           0
+
+ SALACG: TYPGEO=    6 NBFOLD=    0
+
+
+ LCMLIB: CONTENT OF ACTIVE DIRECTORY '/           ' OF THE TABLE    'TRACK       ':
+
+     BLOCK NAME----------    LENGTH    TYPE
+
+        1  'SIGNATURE   '         3    CHARACTER       ='L_TRACK     '
+        2  'TRACK-TYPE  '         3    CHARACTER       ='EXCELL      '
+        3  'FUNC-TABLES '        -1    DIRECTORY       
+        4  'STATE-VECTOR'        40    INTEGER         
+        5  'EXCELTRACKOP'        40    REAL            
+        6  'TITLE       '        18    CHARACTER       
+        7  'GEOMETRY    '        -1    DIRECTORY       
+
+
+ TOTAL NUMBER OF WORDS ON DIRECTORY '/           ' =       104
+
+
+
+ LCMLIB: CONTENT OF ACTIVE DIRECTORY 'GEOMETRY    ' OF THE TABLE    'TRACK       ':
+
+     BLOCK NAME----------    LENGTH    TYPE
+
+        1  'NB_ELEM     '         1    INTEGER         
+        2  'NIPAR       '         1    INTEGER         
+        3  'IPAR        '        30    INTEGER         
+        4  'RPAR        '        60    DOUBLE PRECISION
+        5  'ISURF2_ELEM '        10    INTEGER         
+        6  'NB_NODE     '         1    INTEGER         
+        7  'VOL_NODE    '         7    DOUBLE PRECISION
+        8  'NB_SURF2    '         1    INTEGER         
+        9  'NPERIM_MAC2 '         1    INTEGER         
+       10  'PERIM_MAC2  '         4    INTEGER         
+       11  'PPERIM_MAC2 '         7    INTEGER         
+       12  'PERIM_NODE  '        16    INTEGER         
+       13  'PPERIM_NODE '         8    INTEGER         
+       14  'BC_DATA_DIM2'         1    INTEGER         
+       15  'BC_DATA     '        30    DOUBLE PRECISION
+       16  'NB_BC2      '         1    INTEGER         
+       17  'TYPE_BC2    '         4    INTEGER         
+       18  'IDATA_BC2   '         4    INTEGER         
+
+
+ TOTAL NUMBER OF WORDS ON DIRECTORY 'GEOMETRY    ' =       187
+
+ number of regions,surfaces,nodes           7           4           7
+ --------------------
+ VOLUME  0.000000D+00 0.000000D+00 0.000000D+00 0.000000D+00 0.000000D+00
+         8.470288D-01 1.881563D-01 2.391296D-02 3.089730D-02 9.268927D-02
+         1.853767D-01 3.089637D-01
+ --------------------
+ MATALB     -4    -3    -2    -1     0     7     6     5     4     3
+             2     1
+ --------------------
+ KEYMRG     -4    -3    -2    -1     0     1     2     3     4     5
+             6     7
+ --------------------
+ ICODE      -1    -2    -3    -4     0     0
+ --------------------
+ GALBED  1.000000E+00 1.000000E+00 1.000000E+00 1.000000E+00 0.000000E+00
+         0.000000E+00
+(* Output from --SALTCG-- follows 
+ Tracking of geometry begins:
+ Number of regions before merge =         7
+ Number of regions after merge  =         7
+ Number of surfaces before merge=         4
+ Number of surfaces after merge =         4
+(* Output from --NXTQAC-- follows 
+  NDIM  =       2 AZMQUA=       8 NANGL =       8 NBANGL=       8 ITYPBC=       0
+ NXTQAC: Tracking directions and weights 
+      Angle   Segments                                       Directions and weight
+          1          1          8          2         18          0.12403473458921          0.99227787671367          0.12816895694347
+          2          2          7          2         18          0.27472112789738          0.96152394764082          0.10800019348987
+          3          1          2          2          6          0.44721359549996          0.89442719099992          0.12619117973982
+          4          4          5          2         18          0.62469504755442          0.78086880944303          0.13763966982684
+          5          5          4          2         18          0.78086880944303          0.62469504755442          0.13763966982684
+          6          2          1          2          6          0.89442719099992          0.44721359549996          0.12619117973982
+          7          7          2          2         18          0.96152394764082          0.27472112789738          0.10800019348987
+          8          8          1          2         18          0.99227787671367          0.12403473458921          0.12816895694347
+   Output from --NXTQAC-- completed *)
+
+ SALTCG: CYCLIC ANGULAR QUADRATURE
+        ANGLE        COSINES----------------   WEIGHT           CYCLIC PARAMETERS
+    1   8.2875E+01   1.2403E-01   9.9228E-01   3.2042E-02        1   8
+    2   7.4055E+01   2.7472E-01   9.6152E-01   2.7000E-02        2   7
+    3   6.3435E+01   4.4721E-01   8.9443E-01   3.1548E-02        1   2
+    4   5.1340E+01   6.2470E-01   7.8087E-01   3.4410E-02        4   5
+    5   3.8660E+01   7.8087E-01   6.2470E-01   3.4410E-02        5   4
+    6   2.6565E+01   8.9443E-01   4.4721E-01   3.1548E-02        2   1
+    7   1.5945E+01   9.6152E-01   2.7472E-01   2.7000E-02        7   2
+    8   7.1250E+00   9.9228E-01   1.2403E-01   3.2042E-02        8   1
+    9   1.7287E+02  -9.9228E-01   1.2403E-01   3.2042E-02        1   8
+   10   1.6405E+02  -9.6152E-01   2.7472E-01   2.7000E-02        2   7
+   11   1.5343E+02  -8.9443E-01   4.4721E-01   3.1548E-02        1   2
+   12   1.4134E+02  -7.8087E-01   6.2470E-01   3.4410E-02        4   5
+   13   1.2866E+02  -6.2470E-01   7.8087E-01   3.4410E-02        5   4
+   14   1.1657E+02  -4.4721E-01   8.9443E-01   3.1548E-02        2   1
+   15   1.0595E+02  -2.7472E-01   9.6152E-01   2.7000E-02        7   2
+   16   9.7125E+01  -1.2403E-01   9.9228E-01   3.2042E-02        8   1
+   17  -9.7125E+01  -1.2403E-01  -9.9228E-01   3.2042E-02        1   8
+   18  -1.0595E+02  -2.7472E-01  -9.6152E-01   2.7000E-02        2   7
+   19  -1.1657E+02  -4.4721E-01  -8.9443E-01   3.1548E-02        1   2
+   20  -1.2866E+02  -6.2470E-01  -7.8087E-01   3.4410E-02        4   5
+   21  -1.4134E+02  -7.8087E-01  -6.2470E-01   3.4410E-02        5   4
+   22  -1.5343E+02  -8.9443E-01  -4.4721E-01   3.1548E-02        2   1
+   23  -1.6405E+02  -9.6152E-01  -2.7472E-01   2.7000E-02        7   2
+   24  -1.7287E+02  -9.9228E-01  -1.2403E-01   3.2042E-02        8   1
+   25  -7.1250E+00   9.9228E-01  -1.2403E-01   3.2042E-02        1   8
+   26  -1.5945E+01   9.6152E-01  -2.7472E-01   2.7000E-02        2   7
+   27  -2.6565E+01   8.9443E-01  -4.4721E-01   3.1548E-02        1   2
+   28  -3.8660E+01   7.8087E-01  -6.2470E-01   3.4410E-02        4   5
+   29  -5.1340E+01   6.2470E-01  -7.8087E-01   3.4410E-02        5   4
+   30  -6.3435E+01   4.4721E-01  -8.9443E-01   3.1548E-02        2   1
+   31  -7.4055E+01   2.7472E-01  -9.6152E-01   2.7000E-02        7   2
+   32  -8.2875E+01   1.2403E-01  -9.9228E-01   3.2042E-02        8   1
+                                       DSUM=   1.0000E+00
+ Maximum length of a line =    100000
+ SAL240_4_2: beginning of track=   8.0937499999999996E-002   0.0000000000000000     
+ SAL240_4_2: beginning of track=  0.24281249999999996        1.2949999999999999     
+ SAL240_4_2: beginning of track=  0.40468749999999998        0.0000000000000000     
+ SAL240_4_2: beginning of track=  0.56656249999999997        1.2949999999999999     
+ SAL240_4_2: beginning of track=  0.72843749999999996        0.0000000000000000     
+ SAL240_4_2: beginning of track=  0.89031250000000006        1.2949999999999999     
+ SAL240_4_2: beginning of track=   1.0521875000000001        0.0000000000000000     
+ SAL240_4_2: beginning of track=   1.2140625000000000        1.2949999999999999     
+ SAL240_4_2: beginning of track=   1.2949999716968752       0.64749999999999686     
+ SAL240_4_2: beginning of track=   1.2140625291875975        0.0000000000000000     
+ SAL240_4_2: beginning of track=   1.0521876441690416        1.2949999999999999     
+ SAL240_4_2: beginning of track=  0.89031275915048580        0.0000000000000000     
+ SAL240_4_2: beginning of track=  0.72843787413192995        1.2949999999999999     
+ SAL240_4_2: beginning of track=  0.56656298911337399        0.0000000000000000     
+ SAL240_4_2: beginning of track=  0.40468810409481815        1.2949999999999999     
+ SAL240_4_2: beginning of track=  0.24281321907626227        0.0000000000000000     
+ SAL240_4_2: beginning of track=   8.0938334057706396E-002   1.2949999999999999     
+ SAL240_4_2: beginning of track=  -2.8302813259717396E-008  0.64749286760750269     
+
+
+   TRAJECTORY
+   ==========
+
+   DELX =   6.4749E-01      EX EY =   1.2403E-01  9.9228E-01
+   WITH SMALL =   1.0000E-10     (  1.4464E+00 DEGREES )
+   ANGLE # AND WEIGHT      0  5.1468E-03
+   NBER OF SUB-TRAJ     =     18
+   NBER OF ELEM IN TRAJ =    138
+
+
+                    SURF   PHI   PSI     SINPHI       COSPHI
+                    ----   ---   ---     ------       ------
+
+   SUB-TRAJECTORIES:
+
+   NBER  NBER OF ELEM   ANGLE
+   ----  ------------   -----
+     1*         3          1
+     2*        11         32
+     3*        13          1
+     4*        13         32
+     5*        13          1
+     6*        11         32
+     7*         3          1
+     8*         1         32
+     9*         1         17
+    10*         3         16
+    11*        11         17
+    12*        13         16
+    13*        13         17
+    14*        13         16
+    15*        11         17
+    16*         3         16
+    17*         1         17
+    18*         1         32
+
+   TRAJECTORY:
+   NBER     REG   LENGTH   ELEM     REG   LENGTH   ELEM     REG   LENGTH   ELEM
+   ----     ---   ------   ----     ---   ------   ----     ---   ------   ----
+
+     1*      1  5.34E-01     10      2  3.58E-01     10      1  4.13E-01      2
+     4*      1  2.91E-01     10      2  8.33E-02      9      3  1.22E-02      8
+     7*      4  1.65E-02      7      5  5.65E-02      6      6  4.65E-01      6
+    10*      5  5.65E-02      7      4  1.65E-02      8      3  1.22E-02      9
+    13*      2  8.33E-02     10      1  2.11E-01      1      1  1.84E-01     10
+    16*      2  6.58E-02      9      3  9.11E-03      8      4  1.21E-02      7
+    19*      5  3.86E-02      6      6  9.34E-02      5      7  5.39E-01      5
+    22*      6  9.34E-02      6      5  3.86E-02      7      4  1.21E-02      8
+    25*      3  9.11E-03      9      2  6.58E-02     10      1  1.44E-01      2
+    28*      1  1.39E-01     10      2  6.20E-02      9      3  8.50E-03      8
+    31*      4  1.12E-02      7      5  3.56E-02      6      6  8.31E-02      5
+    34*      7  6.27E-01      5      6  8.31E-02      6      5  3.56E-02      7
+    37*      4  1.12E-02      8      3  8.50E-03      9      2  6.20E-02     10
+    40*      1  1.39E-01      1      1  1.44E-01     10      2  6.58E-02      9
+    43*      3  9.11E-03      8      4  1.21E-02      7      5  3.86E-02      6
+    46*      6  9.34E-02      5      7  5.39E-01      5      6  9.34E-02      6
+    49*      5  3.86E-02      7      4  1.21E-02      8      3  9.11E-03      9
+    52*      2  6.58E-02     10      1  1.84E-01      2      1  2.11E-01     10
+    55*      2  8.33E-02      9      3  1.22E-02      8      4  1.65E-02      7
+    58*      5  5.65E-02      6      6  4.65E-01      6      5  5.65E-02      7
+    61*      4  1.65E-02      8      3  1.22E-02      9      2  8.33E-02     10
+    64*      1  2.91E-01      1      1  4.13E-01     10      2  3.58E-01     10
+    67*      1  5.34E-01      2      1  6.53E-01      4      1  6.53E-01      1
+    70*      1  5.34E-01     10      2  3.58E-01     10      1  4.13E-01      2
+    73*      1  2.91E-01     10      2  8.33E-02      9      3  1.22E-02      8
+    76*      4  1.65E-02      7      5  5.65E-02      6      6  4.65E-01      6
+    79*      5  5.65E-02      7      4  1.65E-02      8      3  1.22E-02      9
+    82*      2  8.33E-02     10      1  2.11E-01      1      1  1.84E-01     10
+    85*      2  6.58E-02      9      3  9.11E-03      8      4  1.21E-02      7
+    88*      5  3.86E-02      6      6  9.34E-02      5      7  5.39E-01      5
+    91*      6  9.34E-02      6      5  3.86E-02      7      4  1.21E-02      8
+    94*      3  9.11E-03      9      2  6.58E-02     10      1  1.44E-01      2
+    97*      1  1.39E-01     10      2  6.20E-02      9      3  8.50E-03      8
+   100*      4  1.12E-02      7      5  3.56E-02      6      6  8.31E-02      5
+   103*      7  6.27E-01      5      6  8.31E-02      6      5  3.56E-02      7
+   106*      4  1.12E-02      8      3  8.50E-03      9      2  6.20E-02     10
+   109*      1  1.39E-01      1      1  1.44E-01     10      2  6.58E-02      9
+   112*      3  9.11E-03      8      4  1.21E-02      7      5  3.86E-02      6
+   115*      6  9.34E-02      5      7  5.39E-01      5      6  9.34E-02      6
+   118*      5  3.86E-02      7      4  1.21E-02      8      3  9.11E-03      9
+   121*      2  6.58E-02     10      1  1.84E-01      2      1  2.11E-01     10
+   124*      2  8.33E-02      9      3  1.22E-02      8      4  1.65E-02      7
+   127*      5  5.65E-02      6      6  4.65E-01      6      5  5.65E-02      7
+   130*      4  1.65E-02      8      3  1.22E-02      9      2  8.33E-02     10
+   133*      1  2.91E-01      1      1  4.13E-01     10      2  3.58E-01     10
+   136*      1  5.34E-01      2      1  6.53E-01      3      1  6.53E-01      1
+
+
+     1*           3          1
+   -> surface           1
+  JPHI=           1  NAOLD=           0  NA=           1   -> surface           1
+          1*     1  5.34E-01     10
+          2*     2  3.58E-01     10
+          3*     1  4.13E-01      2
+     2*          11         32
+  JPHI=          32  NAOLD=           1  NA=           4   -> surface           3
+          1*     1  2.91E-01     10
+          2*     2  8.33E-02      9
+          3*     3  1.22E-02      8
+          4*     4  1.65E-02      7
+          5*     5  5.65E-02      6
+          6*     6  4.65E-01      6
+          7*     5  5.65E-02      7
+          8*     4  1.65E-02      8
+          9*     3  1.22E-02      9
+         10*     2  8.33E-02     10
+         11*     1  2.11E-01      1
+     3*          13          1
+  JPHI=           1  NAOLD=           4  NA=           1   -> surface           1
+          1*     1  1.84E-01     10
+          2*     2  6.58E-02      9
+          3*     3  9.11E-03      8
+          4*     4  1.21E-02      7
+          5*     5  3.86E-02      6
+          6*     6  9.34E-02      5
+          7*     7  5.39E-01      5
+          8*     6  9.34E-02      6
+          9*     5  3.86E-02      7
+         10*     4  1.21E-02      8
+         11*     3  9.11E-03      9
+         12*     2  6.58E-02     10
+         13*     1  1.44E-01      2
+     4*          13         32
+  JPHI=          32  NAOLD=           1  NA=           4   -> surface           3
+          1*     1  1.39E-01     10
+          2*     2  6.20E-02      9
+          3*     3  8.50E-03      8
+          4*     4  1.12E-02      7
+          5*     5  3.56E-02      6
+          6*     6  8.31E-02      5
+          7*     7  6.27E-01      5
+          8*     6  8.31E-02      6
+          9*     5  3.56E-02      7
+         10*     4  1.12E-02      8
+         11*     3  8.50E-03      9
+         12*     2  6.20E-02     10
+         13*     1  1.39E-01      1
+     5*          13          1
+  JPHI=           1  NAOLD=           4  NA=           1   -> surface           1
+          1*     1  1.44E-01     10
+          2*     2  6.58E-02      9
+          3*     3  9.11E-03      8
+          4*     4  1.21E-02      7
+          5*     5  3.86E-02      6
+          6*     6  9.34E-02      5
+          7*     7  5.39E-01      5
+          8*     6  9.34E-02      6
+          9*     5  3.86E-02      7
+         10*     4  1.21E-02      8
+         11*     3  9.11E-03      9
+         12*     2  6.58E-02     10
+         13*     1  1.84E-01      2
+     6*          11         32
+  JPHI=          32  NAOLD=           1  NA=           4   -> surface           3
+          1*     1  2.11E-01     10
+          2*     2  8.33E-02      9
+          3*     3  1.22E-02      8
+          4*     4  1.65E-02      7
+          5*     5  5.65E-02      6
+          6*     6  4.65E-01      6
+          7*     5  5.65E-02      7
+          8*     4  1.65E-02      8
+          9*     3  1.22E-02      9
+         10*     2  8.33E-02     10
+         11*     1  2.91E-01      1
+     7*           3          1
+  JPHI=           1  NAOLD=           4  NA=           1   -> surface           1
+          1*     1  4.13E-01     10
+          2*     2  3.58E-01     10
+          3*     1  5.34E-01      2
+     8*           1         32
+  JPHI=          32  NAOLD=           1  NA=           4   -> surface           3
+          1*     1  6.53E-01      4
+     9*           1         17
+  JPHI=          17  NAOLD=           4  NA=           3   -> surface           4
+          1*     1  6.53E-01      1
+    10*           3         16
+  JPHI=          16  NAOLD=           3  NA=           2   -> surface           1
+          1*     1  5.34E-01     10
+          2*     2  3.58E-01     10
+          3*     1  4.13E-01      2
+    11*          11         17
+  JPHI=          17  NAOLD=           2  NA=           3   -> surface           3
+          1*     1  2.91E-01     10
+          2*     2  8.33E-02      9
+          3*     3  1.22E-02      8
+          4*     4  1.65E-02      7
+          5*     5  5.65E-02      6
+          6*     6  4.65E-01      6
+          7*     5  5.65E-02      7
+          8*     4  1.65E-02      8
+          9*     3  1.22E-02      9
+         10*     2  8.33E-02     10
+         11*     1  2.11E-01      1
+    12*          13         16
+  JPHI=          16  NAOLD=           3  NA=           2   -> surface           1
+          1*     1  1.84E-01     10
+          2*     2  6.58E-02      9
+          3*     3  9.11E-03      8
+          4*     4  1.21E-02      7
+          5*     5  3.86E-02      6
+          6*     6  9.34E-02      5
+          7*     7  5.39E-01      5
+          8*     6  9.34E-02      6
+          9*     5  3.86E-02      7
+         10*     4  1.21E-02      8
+         11*     3  9.11E-03      9
+         12*     2  6.58E-02     10
+         13*     1  1.44E-01      2
+    13*          13         17
+  JPHI=          17  NAOLD=           2  NA=           3   -> surface           3
+          1*     1  1.39E-01     10
+          2*     2  6.20E-02      9
+          3*     3  8.50E-03      8
+          4*     4  1.12E-02      7
+          5*     5  3.56E-02      6
+          6*     6  8.31E-02      5
+          7*     7  6.27E-01      5
+          8*     6  8.31E-02      6
+          9*     5  3.56E-02      7
+         10*     4  1.12E-02      8
+         11*     3  8.50E-03      9
+         12*     2  6.20E-02     10
+         13*     1  1.39E-01      1
+    14*          13         16
+  JPHI=          16  NAOLD=           3  NA=           2   -> surface           1
+          1*     1  1.44E-01     10
+          2*     2  6.58E-02      9
+          3*     3  9.11E-03      8
+          4*     4  1.21E-02      7
+          5*     5  3.86E-02      6
+          6*     6  9.34E-02      5
+          7*     7  5.39E-01      5
+          8*     6  9.34E-02      6
+          9*     5  3.86E-02      7
+         10*     4  1.21E-02      8
+         11*     3  9.11E-03      9
+         12*     2  6.58E-02     10
+         13*     1  1.84E-01      2
+    15*          11         17
+  JPHI=          17  NAOLD=           2  NA=           3   -> surface           3
+          1*     1  2.11E-01     10
+          2*     2  8.33E-02      9
+          3*     3  1.22E-02      8
+          4*     4  1.65E-02      7
+          5*     5  5.65E-02      6
+          6*     6  4.65E-01      6
+          7*     5  5.65E-02      7
+          8*     4  1.65E-02      8
+          9*     3  1.22E-02      9
+         10*     2  8.33E-02     10
+         11*     1  2.91E-01      1
+    16*           3         16
+  JPHI=          16  NAOLD=           3  NA=           2   -> surface           1
+          1*     1  4.13E-01     10
+          2*     2  3.58E-01     10
+          3*     1  5.34E-01      2
+    17*           1         17
+  JPHI=          17  NAOLD=           2  NA=           3   -> surface           3
+          1*     1  6.53E-01      3
+    18*           1         32
+  JPHI=          32  NAOLD=           3  NA=           4   -> surface           2
+          1*     1  6.53E-01      1
+ SALTLC: EXCELT entry with         174 segments:
+          -1           1           2           1          -3          -3           1           2           3           4           5           6           5           4           3           2           1          -1          -1           1           2           3           4           5           6           7           6           5           4           3           2           1          -3          -3           1           2           3           4           5           6           7           6           5           4           3           2           1          -1          -1           1           2           3           4           5           6           7           6           5           4           3           2           1          -3          -3           1           2           3           4           5           6           5           4           3           2           1          -1          -1           1           2           1          -3          -3           1          -4          -4           1          -1          -1           1           2           1          -3          -3           1           2           3           4           5           6           5           4           3           2           1          -1          -1           1           2           3           4           5           6           7           6           5           4           3           2           1          -3          -3           1           2           3           4           5           6           7           6           5           4           3           2           1          -1          -1           1           2           3           4           5           6           7           6           5           4           3           2           1          -3          -3           1           2           3           4           5           6           5           4           3           2           1          -1          -1           1           2           1          -3          -3           1          -2          -2           1          -1
+  0.50000000000000000       0.53390870402919877       0.35772925626469432       0.41344001271193442       0.50000000000000000       0.50000000000000000       0.29145407996350159        8.3275028195067713E-002   1.2203594678145468E-002   1.6529387574629628E-002   5.6527525914739529E-002  0.46541126572989788        5.6527525914739585E-002   1.6529387574629573E-002   1.2203594678145524E-002   8.3275028195067657E-002  0.21114155458726344       0.50000000000000000       0.50000000000000000       0.18435934653807023        6.5760862296278810E-002   9.1061671345783468E-003   1.2071679153102088E-002   3.8616596313523266E-002   9.3359094354407701E-002  0.53868668209665849        9.3359094354407812E-002   3.8616596313523210E-002   1.2071679153102144E-002   9.1061671345782358E-003   6.5760862296278866E-002  0.14420314586731831       0.50000000000000000       0.50000000000000000       0.13853900386777718        6.2000009999999994E-002   8.4999800000000736E-003   1.1230019999999952E-002   3.5591990000000129E-002   8.3076000000000150E-002  0.62720399999999832        8.3076000000000150E-002   3.5591990000000073E-002   1.1230020000000007E-002   8.4999800000000181E-003   6.2000009999999994E-002  0.13853896913805153       0.50000000000000000       0.50000000000000000       0.14420311264005348        6.5760864074596415E-002   9.1061674254261926E-003   1.2071679559013893E-002   3.8616597793477314E-002   9.3359099685477842E-002  0.53868664067397676        9.3359099685477842E-002   3.8616597793477370E-002   1.2071679559013893E-002   9.1061674254262481E-003   6.5760864074596359E-002  0.18435940261581396       0.50000000000000000       0.50000000000000000       0.21114162506759793        8.3275037558119158E-002   1.2203596478722156E-002   1.6529390255732079E-002   5.6527537962159591E-002  0.46541114244437920        5.6527537962159646E-002   1.6529390255732024E-002   1.2203596478722156E-002   8.3275037558119158E-002  0.29145408098438452       0.50000000000000000       0.50000000000000000       0.41344006162398372       0.35772906913558700       0.53390884224625679       0.50000000000000000       0.50000000000000000       0.65253898650291353       0.50000000000000000       0.50000000000000000       0.65253897937206695       0.50000000000000000       0.50000000000000000       0.53390902331663936       0.35772855059943492       0.41344038482806589       0.50000000000000000       0.50000000000000000       0.29145426952161091        8.3275079212861813E-002   1.2203604489206654E-002   1.6529402183539599E-002   5.6527591559280443E-002  0.46541059396662177        5.6527591559280388E-002   1.6529402183539710E-002   1.2203604489206599E-002   8.3275079212861758E-002  0.21114174036613043       0.50000000000000000       0.50000000000000000       0.18435948659870816        6.5760880506791741E-002   9.1061701129490080E-003   1.2071683309762826E-002   3.8616611468705375E-002   9.3359148946211723E-002  0.53868625791580493        9.3359148946211667E-002   3.8616611468705320E-002   1.2071683309762937E-002   9.1061701129488970E-003   6.5760880506791741E-002  0.14420322554078591       0.50000000000000000       0.50000000000000000       0.13853905523467813        6.2000010000026418E-002   8.4999800000042924E-003   1.1230020000005725E-002   3.5591990000020779E-002   8.3076000000066097E-002  0.62720399999936682        8.3076000000066264E-002   3.5591990000020668E-002   1.1230020000005780E-002   8.4999800000042369E-003   6.2000010000026418E-002  0.13853890350984852       0.50000000000000000       0.50000000000000000       0.14420300140017933        6.5760834359733567E-002   9.1061625654938472E-003   1.2071672776416686E-002   3.8616573064137183E-002   9.3359010605831461E-002  0.53868733282782766        9.3359010605831516E-002   3.8616573064137127E-002   1.2071672776416631E-002   9.1061625654939027E-003   6.5760834359733455E-002  0.18435911777290781       0.50000000000000000       0.50000000000000000       0.21114117847362723        8.3274892317380278E-002   1.2203568547988430E-002   1.6529348666203481E-002   5.6527351081599120E-002  0.46541305486472168        5.6527351081599286E-002   1.6529348666203314E-002   1.2203568547988430E-002   8.3274892317380278E-002  0.29145340417944859       0.50000000000000000       0.50000000000000000       0.41343802919707029       0.35773340654662023       0.53390652300044950       0.50000000000000000       0.50000000000000000       0.65254616727032255       0.50000000000000000       0.50000000000000000       0.65253179860457966       0.50000000000000000     
+ SALTLC:  ANGLE EX EY =   1.4464E+00  1.2403E-01  9.9228E-01
+
+ SAL240_4_2: beginning of track=   9.2499999999999999E-002   0.0000000000000000     
+ SAL240_4_2: beginning of track=  0.46249999999999997        1.2949999999999999     
+ SAL240_4_2: beginning of track=  0.83249999999999991        0.0000000000000000     
+ SAL240_4_2: beginning of track=   1.2024999999999997        1.2949999999999999     
+ SAL240_4_2: beginning of track=   1.2949999575453124       0.97124999999999395     
+ SAL240_4_2: beginning of track=   1.0175000493860644        0.0000000000000000     
+ SAL240_4_2: beginning of track=  0.64750017184039810        1.2949999999999999     
+ SAL240_4_2: beginning of track=  0.27750029429473178        0.0000000000000000     
+ SAL240_4_2: beginning of track=  -4.2454746607134553E-008  0.97125135147462949     
+ SAL240_4_2: beginning of track=   9.2499510182735278E-002   1.2949999999999999     
+ SAL240_4_2: beginning of track=  0.46249926527407403        0.0000000000000000     
+ SAL240_4_2: beginning of track=  0.83249902036541279        1.2949999999999999     
+ SAL240_4_2: beginning of track=   1.2024987754567515        0.0000000000000000     
+ SAL240_4_2: beginning of track=   1.2949999858482406       0.32375450019942525     
+ SAL240_4_2: beginning of track=   1.0175013634598296        1.2949999999999999     
+ SAL240_4_2: beginning of track=  0.64750148591416301        0.0000000000000000     
+ SAL240_4_2: beginning of track=  0.27750160836849641        1.2949999999999999     
+ SAL240_4_2: beginning of track=  -1.4151302393794474E-008  0.32374404926566602     
+
+
+   TRAJECTORY
+   ==========
+
+   DELX =   3.2374E-01      EX EY =   2.7472E-01  9.6152E-01
+   WITH SMALL =   1.0000E-10     (  1.2925E+00 DEGREES )
+   ANGLE # AND WEIGHT      0  4.8028E-03
+   NBER OF SUB-TRAJ     =     18
+   NBER OF ELEM IN TRAJ =    130
+
+
+                    SURF   PHI   PSI     SINPHI       COSPHI
+                    ----   ---   ---     ------       ------
+
+   SUB-TRAJECTORIES:
+
+   NBER  NBER OF ELEM   ANGLE
+   ----  ------------   -----
+     1*        11          2
+     2*        13         31
+     3*        11          2
+     4*         1         31
+     5*         1         18
+     6*        13         15
+     7*        13         18
+     8*         1         15
+     9*         1          2
+    10*        11         31
+    11*        13          2
+    12*        11         31
+    13*         1          2
+    14*         1         15
+    15*        13         18
+    16*        13         15
+    17*         1         18
+    18*         1         31
+
+   TRAJECTORY:
+   NBER     REG   LENGTH   ELEM     REG   LENGTH   ELEM     REG   LENGTH   ELEM
+   ----     ---   ------   ----     ---   ------   ----     ---   ------   ----
+
+     1*      1  4.04E-01     10      2  9.22E-02      9      3  1.40E-02      8
+     4*      4  1.93E-02      7      5  7.01E-02      6      6  3.51E-01      6
+     7*      5  7.01E-02      7      4  1.93E-02      8      3  1.40E-02      9
+    10*      2  9.22E-02     10      1  2.01E-01      2      1  1.59E-01     10
+    13*      2  6.20E-02      9      3  8.50E-03      8      4  1.12E-02      7
+    16*      5  3.56E-02      6      6  8.31E-02      5      7  6.27E-01      5
+    19*      6  8.31E-02      6      5  3.56E-02      7      4  1.12E-02      8
+    22*      3  8.50E-03      9      2  6.20E-02     10      1  1.59E-01      1
+    25*      1  2.01E-01     10      2  9.22E-02      9      3  1.40E-02      8
+    28*      4  1.93E-02      7      5  7.01E-02      6      6  3.51E-01      6
+    31*      5  7.01E-02      7      4  1.93E-02      8      3  1.40E-02      9
+    34*      2  9.22E-02     10      1  4.04E-01      2      1  3.37E-01      4
+    37*      1  1.01E+00      1      1  2.42E-01     10      2  6.67E-02      9
+    40*      3  9.26E-03      8      4  1.23E-02      7      5  3.94E-02      6
+    43*      6  9.63E-02      5      7  5.17E-01      5      6  9.63E-02      6
+    46*      5  3.94E-02      7      4  1.23E-02      8      3  9.26E-03      9
+    49*      2  6.67E-02     10      1  1.40E-01      2      1  1.40E-01     10
+    52*      2  6.67E-02      9      3  9.26E-03      8      4  1.23E-02      7
+    55*      5  3.94E-02      6      6  9.63E-02      5      7  5.17E-01      5
+    58*      6  9.63E-02      6      5  3.94E-02      7      4  1.23E-02      8
+    61*      3  9.26E-03      9      2  6.67E-02     10      1  2.42E-01      1
+    64*      1  1.01E+00      3      1  3.37E-01      2      1  4.04E-01     10
+    67*      2  9.22E-02      9      3  1.40E-02      8      4  1.93E-02      7
+    70*      5  7.01E-02      6      6  3.51E-01      6      5  7.01E-02      7
+    73*      4  1.93E-02      8      3  1.40E-02      9      2  9.22E-02     10
+    76*      1  2.01E-01      1      1  1.59E-01     10      2  6.20E-02      9
+    79*      3  8.50E-03      8      4  1.12E-02      7      5  3.56E-02      6
+    82*      6  8.31E-02      5      7  6.27E-01      5      6  8.31E-02      6
+    85*      5  3.56E-02      7      4  1.12E-02      8      3  8.50E-03      9
+    88*      2  6.20E-02     10      1  1.59E-01      2      1  2.01E-01     10
+    91*      2  9.22E-02      9      3  1.40E-02      8      4  1.93E-02      7
+    94*      5  7.01E-02      6      6  3.51E-01      6      5  7.01E-02      7
+    97*      4  1.93E-02      8      3  1.40E-02      9      2  9.22E-02     10
+   100*      1  4.04E-01      1      1  3.37E-01      4      1  1.01E+00      2
+   103*      1  2.42E-01     10      2  6.67E-02      9      3  9.26E-03      8
+   106*      4  1.23E-02      7      5  3.94E-02      6      6  9.63E-02      5
+   109*      7  5.17E-01      5      6  9.63E-02      6      5  3.94E-02      7
+   112*      4  1.23E-02      8      3  9.26E-03      9      2  6.67E-02     10
+   115*      1  1.40E-01      1      1  1.40E-01     10      2  6.67E-02      9
+   118*      3  9.26E-03      8      4  1.23E-02      7      5  3.94E-02      6
+   121*      6  9.63E-02      5      7  5.17E-01      5      6  9.63E-02      6
+   124*      5  3.94E-02      7      4  1.23E-02      8      3  9.26E-03      9
+   127*      2  6.67E-02     10      1  2.42E-01      2      1  1.01E+00      3
+   130*      1  3.37E-01      1
+
+
+     1*          11          2
+   -> surface           1
+  JPHI=           2  NAOLD=           0  NA=           1   -> surface           1
+          1*     1  4.04E-01     10
+          2*     2  9.22E-02      9
+          3*     3  1.40E-02      8
+          4*     4  1.93E-02      7
+          5*     5  7.01E-02      6
+          6*     6  3.51E-01      6
+          7*     5  7.01E-02      7
+          8*     4  1.93E-02      8
+          9*     3  1.40E-02      9
+         10*     2  9.22E-02     10
+         11*     1  2.01E-01      2
+     2*          13         31
+  JPHI=          31  NAOLD=           1  NA=           4   -> surface           3
+          1*     1  1.59E-01     10
+          2*     2  6.20E-02      9
+          3*     3  8.50E-03      8
+          4*     4  1.12E-02      7
+          5*     5  3.56E-02      6
+          6*     6  8.31E-02      5
+          7*     7  6.27E-01      5
+          8*     6  8.31E-02      6
+          9*     5  3.56E-02      7
+         10*     4  1.12E-02      8
+         11*     3  8.50E-03      9
+         12*     2  6.20E-02     10
+         13*     1  1.59E-01      1
+     3*          11          2
+  JPHI=           2  NAOLD=           4  NA=           1   -> surface           1
+          1*     1  2.01E-01     10
+          2*     2  9.22E-02      9
+          3*     3  1.40E-02      8
+          4*     4  1.93E-02      7
+          5*     5  7.01E-02      6
+          6*     6  3.51E-01      6
+          7*     5  7.01E-02      7
+          8*     4  1.93E-02      8
+          9*     3  1.40E-02      9
+         10*     2  9.22E-02     10
+         11*     1  4.04E-01      2
+     4*           1         31
+  JPHI=          31  NAOLD=           1  NA=           4   -> surface           3
+          1*     1  3.37E-01      4
+     5*           1         18
+  JPHI=          18  NAOLD=           4  NA=           3   -> surface           4
+          1*     1  1.01E+00      1
+     6*          13         15
+  JPHI=          15  NAOLD=           3  NA=           2   -> surface           1
+          1*     1  2.42E-01     10
+          2*     2  6.67E-02      9
+          3*     3  9.26E-03      8
+          4*     4  1.23E-02      7
+          5*     5  3.94E-02      6
+          6*     6  9.63E-02      5
+          7*     7  5.17E-01      5
+          8*     6  9.63E-02      6
+          9*     5  3.94E-02      7
+         10*     4  1.23E-02      8
+         11*     3  9.26E-03      9
+         12*     2  6.67E-02     10
+         13*     1  1.40E-01      2
+     7*          13         18
+  JPHI=          18  NAOLD=           2  NA=           3   -> surface           3
+          1*     1  1.40E-01     10
+          2*     2  6.67E-02      9
+          3*     3  9.26E-03      8
+          4*     4  1.23E-02      7
+          5*     5  3.94E-02      6
+          6*     6  9.63E-02      5
+          7*     7  5.17E-01      5
+          8*     6  9.63E-02      6
+          9*     5  3.94E-02      7
+         10*     4  1.23E-02      8
+         11*     3  9.26E-03      9
+         12*     2  6.67E-02     10
+         13*     1  2.42E-01      1
+     8*           1         15
+  JPHI=          15  NAOLD=           3  NA=           2   -> surface           1
+          1*     1  1.01E+00      3
+     9*           1          2
+  JPHI=           2  NAOLD=           2  NA=           1   -> surface           2
+          1*     1  3.37E-01      2
+    10*          11         31
+  JPHI=          31  NAOLD=           1  NA=           4   -> surface           3
+          1*     1  4.04E-01     10
+          2*     2  9.22E-02      9
+          3*     3  1.40E-02      8
+          4*     4  1.93E-02      7
+          5*     5  7.01E-02      6
+          6*     6  3.51E-01      6
+          7*     5  7.01E-02      7
+          8*     4  1.93E-02      8
+          9*     3  1.40E-02      9
+         10*     2  9.22E-02     10
+         11*     1  2.01E-01      1
+    11*          13          2
+  JPHI=           2  NAOLD=           4  NA=           1   -> surface           1
+          1*     1  1.59E-01     10
+          2*     2  6.20E-02      9
+          3*     3  8.50E-03      8
+          4*     4  1.12E-02      7
+          5*     5  3.56E-02      6
+          6*     6  8.31E-02      5
+          7*     7  6.27E-01      5
+          8*     6  8.31E-02      6
+          9*     5  3.56E-02      7
+         10*     4  1.12E-02      8
+         11*     3  8.50E-03      9
+         12*     2  6.20E-02     10
+         13*     1  1.59E-01      2
+    12*          11         31
+  JPHI=          31  NAOLD=           1  NA=           4   -> surface           3
+          1*     1  2.01E-01     10
+          2*     2  9.22E-02      9
+          3*     3  1.40E-02      8
+          4*     4  1.93E-02      7
+          5*     5  7.01E-02      6
+          6*     6  3.51E-01      6
+          7*     5  7.01E-02      7
+          8*     4  1.93E-02      8
+          9*     3  1.40E-02      9
+         10*     2  9.22E-02     10
+         11*     1  4.04E-01      1
+    13*           1          2
+  JPHI=           2  NAOLD=           4  NA=           1   -> surface           1
+          1*     1  3.37E-01      4
+    14*           1         15
+  JPHI=          15  NAOLD=           1  NA=           2   -> surface           4
+          1*     1  1.01E+00      2
+    15*          13         18
+  JPHI=          18  NAOLD=           2  NA=           3   -> surface           3
+          1*     1  2.42E-01     10
+          2*     2  6.67E-02      9
+          3*     3  9.26E-03      8
+          4*     4  1.23E-02      7
+          5*     5  3.94E-02      6
+          6*     6  9.63E-02      5
+          7*     7  5.17E-01      5
+          8*     6  9.63E-02      6
+          9*     5  3.94E-02      7
+         10*     4  1.23E-02      8
+         11*     3  9.26E-03      9
+         12*     2  6.67E-02     10
+         13*     1  1.40E-01      1
+    16*          13         15
+  JPHI=          15  NAOLD=           3  NA=           2   -> surface           1
+          1*     1  1.40E-01     10
+          2*     2  6.67E-02      9
+          3*     3  9.26E-03      8
+          4*     4  1.23E-02      7
+          5*     5  3.94E-02      6
+          6*     6  9.63E-02      5
+          7*     7  5.17E-01      5
+          8*     6  9.63E-02      6
+          9*     5  3.94E-02      7
+         10*     4  1.23E-02      8
+         11*     3  9.26E-03      9
+         12*     2  6.67E-02     10
+         13*     1  2.42E-01      2
+    17*           1         18
+  JPHI=          18  NAOLD=           2  NA=           3   -> surface           3
+          1*     1  1.01E+00      3
+    18*           1         31
+  JPHI=          31  NAOLD=           3  NA=           4   -> surface           2
+          1*     1  3.37E-01      1
+ SALTLC: EXCELT entry with         166 segments:
+          -1           1           2           3           4           5           6           5           4           3           2           1          -3          -3           1           2           3           4           5           6           7           6           5           4           3           2           1          -1          -1           1           2           3           4           5           6           5           4           3           2           1          -3          -3           1          -4          -4           1          -1          -1           1           2           3           4           5           6           7           6           5           4           3           2           1          -3          -3           1           2           3           4           5           6           7           6           5           4           3           2           1          -1          -1           1          -2          -2           1          -3          -3           1           2           3           4           5           6           5           4           3           2           1          -1          -1           1           2           3           4           5           6           7           6           5           4           3           2           1          -3          -3           1           2           3           4           5           6           5           4           3           2           1          -1          -1           1          -4          -4           1          -3          -3           1           2           3           4           5           6           7           6           5           4           3           2           1          -1          -1           1           2           3           4           5           6           7           6           5           4           3           2           1          -3          -3           1          -2          -2           1          -1
+  0.50000000000000000       0.40407436309368522        9.2170693143443394E-002   1.4001885984421869E-002   1.9270956123279004E-002   7.0081027193212631E-002  0.35091606363506811        7.0081027193212631E-002   1.9270956123279115E-002   1.4001885984421758E-002   9.2170693143443394E-002  0.20078077789942883       0.50000000000000000       0.50000000000000000       0.15941017849450489        6.2000009999999994E-002   8.4999799999999626E-003   1.1230020000000174E-002   3.5591990000000018E-002   8.3076000000000150E-002  0.62720399999999810        8.3076000000000150E-002   3.5591990000000073E-002   1.1230020000000063E-002   8.4999800000000181E-003   6.2000009999999994E-002  0.15941015102239217       0.50000000000000000       0.50000000000000000       0.20078075479475710        9.2170701852717640E-002   1.4001887837931215E-002   1.9270959019970668E-002   7.0081043091877571E-002  0.35091595222852479        7.0081043091877682E-002   1.9270959019970668E-002   1.4001887837931104E-002   9.2170701852717585E-002  0.40407443888861971       0.50000000000000000       0.50000000000000000       0.33670508237922492       0.50000000000000000       0.50000000000000000        1.0101152219070753       0.50000000000000000       0.50000000000000000       0.24199505793765358        6.6712373492264554E-002   9.2623824742351091E-003   1.2289994787598790E-002   3.9415705329920503E-002   9.6286510099855449E-002  0.51654306715666376        9.6286510099855338E-002   3.9415705329920558E-002   1.2289994787598846E-002   9.2623824742350536E-003   6.6712373492264554E-002  0.14034823841404265       0.50000000000000000       0.50000000000000000       0.14034820773746093        6.6712351644457213E-002   9.2623788736097001E-003   1.2289989748673014E-002   3.9415686812680262E-002   9.6286441097649833E-002  0.51654357533381412        9.6286441097649889E-002   3.9415686812680262E-002   1.2289989748672903E-002   9.2623788736096446E-003   6.6712351644457324E-002  0.24199481645069362       0.50000000000000000       0.50000000000000000        1.0101166274618825       0.50000000000000000       0.50000000000000000       0.33670366000407292       0.50000000000000000       0.50000000000000000       0.40407504498339086        9.2170881930182413E-002   1.4001926162096279E-002   1.9271018913570304E-002   7.0081371822391381E-002  0.35091364872846825        7.0081371822391436E-002   1.9271018913570359E-002   1.4001926162096279E-002   9.2170881930182358E-002  0.20078117086699365       0.50000000000000000       0.50000000000000000       0.15941034187878855        6.2000010000087535E-002   8.4999800000139514E-003   1.1230020000019270E-002   3.5591990000068185E-002   8.3076000000219308E-002  0.62720399999790533        8.3076000000219308E-002   3.5591990000068296E-002   1.1230020000019270E-002   8.4999800000138404E-003   6.2000010000087702E-002  0.15940992035782298       0.50000000000000000       0.50000000000000000       0.20078013595597211        9.2170375029074325E-002   1.4001818283395084E-002   1.9270850319234367E-002   7.0080446484155456E-002  0.35092013286104995        7.0080446484155484E-002   1.9270850319234339E-002   1.4001818283395084E-002   9.2170375029074325E-002  0.40407301318659311       0.50000000000000000       0.50000000000000000       0.33670974583664981       0.50000000000000000       0.50000000000000000        1.0101105416291507       0.50000000000000000       0.50000000000000000       0.24199591941967680        6.6712447668853869E-002   9.2623946989043304E-003   1.2290011895518704E-002   3.9415768198792778E-002   9.6286744373348387E-002  0.51654134181888534        9.6286744373348498E-002   3.9415768198792722E-002   1.2290011895518593E-002   9.2623946989044970E-003   6.6712447668853647E-002  0.14034830096671155       0.50000000000000000       0.50000000000000000       0.14034806016088958        6.6712276167336437E-002   9.2623664346159762E-003   1.2289972340819855E-002   3.9415622841653730E-002   9.6286202717960234E-002  0.51654533092183730        9.6286202717960179E-002   3.9415622841653786E-002   1.2289972340819855E-002   9.2623664346159762E-003   6.6712276167336437E-002  0.24199402378861035       0.50000000000000000       0.50000000000000000        1.0101214107640506       0.50000000000000000       0.50000000000000000       0.33669889352209970       0.50000000000000000     
+ SALTLC:  ANGLE EX EY =   1.2925E+00  2.7472E-01  9.6152E-01
+
+ SAL240_4_2: beginning of track=  0.16187499999999999        0.0000000000000000     
+ SAL240_4_2: beginning of track=  0.80937499999999996        1.2949999999999999     
+ SAL240_4_2: beginning of track=   1.2949999858484373       0.32374999999999832     
+ SAL240_4_2: beginning of track=   1.1331250212273429        0.0000000000000000     
+ SAL240_4_2: beginning of track=  0.48562516274296180        1.2949999999999999     
+ SAL240_4_2: beginning of track=  -1.4151538996198809E-008  0.32374946224052908     
+
+
+   TRAJECTORY
+   ==========
+
+   DELX =   3.2375E-01      EX EY =   4.4721E-01  8.9443E-01
+   WITH SMALL =   1.0000E-10     (  1.1071E+00 DEGREES )
+   ANGLE # AND WEIGHT      0  9.1353E-03
+   NBER OF SUB-TRAJ     =      6
+   NBER OF ELEM IN TRAJ =     42
+
+
+                    SURF   PHI   PSI     SINPHI       COSPHI
+                    ----   ---   ---     ------       ------
+
+   SUB-TRAJECTORIES:
+
+   NBER  NBER OF ELEM   ANGLE
+   ----  ------------   -----
+     1*        13          3
+     2*         7         30
+     3*         1         19
+     4*        13         14
+     5*         7         19
+     6*         1         30
+
+   TRAJECTORY:
+   NBER     REG   LENGTH   ELEM     REG   LENGTH   ELEM     REG   LENGTH   ELEM
+   ----     ---   ------   ----     ---   ------   ----     ---   ------   ----
+
+     1*      1  3.03E-01     10      2  6.50E-02      9      3  8.98E-03      8
+     4*      4  1.19E-02      7      5  3.80E-02      6      6  9.11E-02      5
+     7*      7  5.56E-01      5      6  9.11E-02      6      5  3.80E-02      7
+    10*      4  1.19E-02      8      3  8.98E-03      9      2  6.50E-02     10
+    13*      1  1.58E-01      2      1  2.32E-01     10      2  1.50E-01      9
+    16*      3  3.55E-02      8      4  1.79E-01      8      3  3.55E-02      9
+    19*      2  1.50E-01     10      1  3.04E-01      4      1  3.62E-01      1
+    22*      1  3.03E-01     10      2  6.50E-02      9      3  8.98E-03      8
+    25*      4  1.19E-02      7      5  3.80E-02      6      6  9.11E-02      5
+    28*      7  5.56E-01      5      6  9.11E-02      6      5  3.80E-02      7
+    31*      4  1.19E-02      8      3  8.98E-03      9      2  6.50E-02     10
+    34*      1  1.58E-01      2      1  2.32E-01     10      2  1.50E-01      9
+    37*      3  3.55E-02      8      4  1.79E-01      8      3  3.55E-02      9
+    40*      2  1.50E-01     10      1  3.04E-01      3      1  3.62E-01      1
+
+
+     1*          13          3
+   -> surface           1
+  JPHI=           3  NAOLD=           0  NA=           1   -> surface           1
+          1*     1  3.03E-01     10
+          2*     2  6.50E-02      9
+          3*     3  8.98E-03      8
+          4*     4  1.19E-02      7
+          5*     5  3.80E-02      6
+          6*     6  9.11E-02      5
+          7*     7  5.56E-01      5
+          8*     6  9.11E-02      6
+          9*     5  3.80E-02      7
+         10*     4  1.19E-02      8
+         11*     3  8.98E-03      9
+         12*     2  6.50E-02     10
+         13*     1  1.58E-01      2
+     2*           7         30
+  JPHI=          30  NAOLD=           1  NA=           4   -> surface           3
+          1*     1  2.32E-01     10
+          2*     2  1.50E-01      9
+          3*     3  3.55E-02      8
+          4*     4  1.79E-01      8
+          5*     3  3.55E-02      9
+          6*     2  1.50E-01     10
+          7*     1  3.04E-01      4
+     3*           1         19
+  JPHI=          19  NAOLD=           4  NA=           3   -> surface           4
+          1*     1  3.62E-01      1
+     4*          13         14
+  JPHI=          14  NAOLD=           3  NA=           2   -> surface           1
+          1*     1  3.03E-01     10
+          2*     2  6.50E-02      9
+          3*     3  8.98E-03      8
+          4*     4  1.19E-02      7
+          5*     5  3.80E-02      6
+          6*     6  9.11E-02      5
+          7*     7  5.56E-01      5
+          8*     6  9.11E-02      6
+          9*     5  3.80E-02      7
+         10*     4  1.19E-02      8
+         11*     3  8.98E-03      9
+         12*     2  6.50E-02     10
+         13*     1  1.58E-01      2
+     5*           7         19
+  JPHI=          19  NAOLD=           2  NA=           3   -> surface           3
+          1*     1  2.32E-01     10
+          2*     2  1.50E-01      9
+          3*     3  3.55E-02      8
+          4*     4  1.79E-01      8
+          5*     3  3.55E-02      9
+          6*     2  1.50E-01     10
+          7*     1  3.04E-01      3
+     6*           1         30
+  JPHI=          30  NAOLD=           3  NA=           4   -> surface           2
+          1*     1  3.62E-01      1
+ SALTLC: EXCELT entry with          54 segments:
+          -1           1           2           3           4           5           6           7           6           5           4           3           2           1          -3          -3           1           2           3           4           3           2           1          -4          -4           1          -1          -1           1           2           3           4           5           6           7           6           5           4           3           2           1          -3          -3           1           2           3           4           3           2           1          -2          -2           1          -1
+  0.50000000000000000       0.30313291166750966        6.5003186637308197E-002   8.9826184650930174E-003   1.1899437334340790E-002   3.7990512585692859E-002   9.1132287355643826E-002  0.55635745521741664        9.1132287355643715E-002   3.7990512585692970E-002   1.1899437334340845E-002   8.9826184650929619E-003   6.5003186637308197E-002  0.15834756379003045       0.50000000000000000       0.50000000000000000       0.23192048752217231       0.14977381815141955        3.5461511504436105E-002  0.17918619433426783        3.5461511504436105E-002  0.14977381815141963       0.30431317040518396       0.50000000000000000       0.50000000000000000       0.36196348803585088       0.50000000000000000       0.50000000000000000       0.30313296290601932        6.5003192180607738E-002   8.9826193663026244E-003   1.1899438589397293E-002   3.7990517133918544E-002   9.1132303330291431E-002  0.55635732574382168        9.1132303330291431E-002   3.7990517133918544E-002   1.1899438589397238E-002   8.9826193663027354E-003   6.5003192180607683E-002  0.15834752229253479       0.50000000000000000       0.50000000000000000       0.23192025954842954       0.14977339104632059        3.5461201306038470E-002  0.17918838217278865        3.5461201306038470E-002  0.14977339104632059       0.30431323891496020       0.50000000000000000       0.50000000000000000       0.36196290262441244       0.50000000000000000     
+ SAL240_4_2: beginning of track=  0.48562499999999997        0.0000000000000000     
+ SAL240_4_2: beginning of track=   1.1331249999999999        1.2949999999999999     
+ SAL240_4_2: beginning of track=   1.2949999575453124       0.97124999999999517     
+ SAL240_4_2: beginning of track=  0.80937506368202883        0.0000000000000000     
+ SAL240_4_2: beginning of track=  0.16187520519764764        1.2949999999999999     
+ SAL240_4_2: beginning of track=  -4.2454666504543326E-008  0.97124951884678523     
+
+
+   TRAJECTORY
+   ==========
+
+   DELX =   9.7125E-01      EX EY =   4.4721E-01  8.9443E-01
+   WITH SMALL =   1.0000E-10     (  1.1071E+00 DEGREES )
+   ANGLE # AND WEIGHT      0  9.1353E-03
+   NBER OF SUB-TRAJ     =      6
+   NBER OF ELEM IN TRAJ =     42
+
+
+                    SURF   PHI   PSI     SINPHI       COSPHI
+                    ----   ---   ---     ------       ------
+
+   SUB-TRAJECTORIES:
+
+   NBER  NBER OF ELEM   ANGLE
+   ----  ------------   -----
+     1*        13          3
+     2*         1         30
+     3*         7         19
+     4*        13         14
+     5*         1         19
+     6*         7         30
+
+   TRAJECTORY:
+   NBER     REG   LENGTH   ELEM     REG   LENGTH   ELEM     REG   LENGTH   ELEM
+   ----     ---   ------   ----     ---   ------   ----     ---   ------   ----
+
+     1*      1  1.58E-01     10      2  6.50E-02      9      3  8.98E-03      8
+     4*      4  1.19E-02      7      5  3.80E-02      6      6  9.11E-02      5
+     7*      7  5.56E-01      5      6  9.11E-02      6      5  3.80E-02      7
+    10*      4  1.19E-02      8      3  8.98E-03      9      2  6.50E-02     10
+    13*      1  3.03E-01      2      1  3.62E-01      4      1  3.04E-01     10
+    16*      2  1.50E-01      9      3  3.55E-02      8      4  1.79E-01      8
+    19*      3  3.55E-02      9      2  1.50E-01     10      1  2.32E-01      1
+    22*      1  1.58E-01     10      2  6.50E-02      9      3  8.98E-03      8
+    25*      4  1.19E-02      7      5  3.80E-02      6      6  9.11E-02      5
+    28*      7  5.56E-01      5      6  9.11E-02      6      5  3.80E-02      7
+    31*      4  1.19E-02      8      3  8.98E-03      9      2  6.50E-02     10
+    34*      1  3.03E-01      2      1  3.62E-01      3      1  3.04E-01     10
+    37*      2  1.50E-01      9      3  3.55E-02      8      4  1.79E-01      8
+    40*      3  3.55E-02      9      2  1.50E-01     10      1  2.32E-01      1
+
+
+     1*          13          3
+   -> surface           1
+  JPHI=           3  NAOLD=           0  NA=           1   -> surface           1
+          1*     1  1.58E-01     10
+          2*     2  6.50E-02      9
+          3*     3  8.98E-03      8
+          4*     4  1.19E-02      7
+          5*     5  3.80E-02      6
+          6*     6  9.11E-02      5
+          7*     7  5.56E-01      5
+          8*     6  9.11E-02      6
+          9*     5  3.80E-02      7
+         10*     4  1.19E-02      8
+         11*     3  8.98E-03      9
+         12*     2  6.50E-02     10
+         13*     1  3.03E-01      2
+     2*           1         30
+  JPHI=          30  NAOLD=           1  NA=           4   -> surface           3
+          1*     1  3.62E-01      4
+     3*           7         19
+  JPHI=          19  NAOLD=           4  NA=           3   -> surface           4
+          1*     1  3.04E-01     10
+          2*     2  1.50E-01      9
+          3*     3  3.55E-02      8
+          4*     4  1.79E-01      8
+          5*     3  3.55E-02      9
+          6*     2  1.50E-01     10
+          7*     1  2.32E-01      1
+     4*          13         14
+  JPHI=          14  NAOLD=           3  NA=           2   -> surface           1
+          1*     1  1.58E-01     10
+          2*     2  6.50E-02      9
+          3*     3  8.98E-03      8
+          4*     4  1.19E-02      7
+          5*     5  3.80E-02      6
+          6*     6  9.11E-02      5
+          7*     7  5.56E-01      5
+          8*     6  9.11E-02      6
+          9*     5  3.80E-02      7
+         10*     4  1.19E-02      8
+         11*     3  8.98E-03      9
+         12*     2  6.50E-02     10
+         13*     1  3.03E-01      2
+     5*           1         19
+  JPHI=          19  NAOLD=           2  NA=           3   -> surface           3
+          1*     1  3.62E-01      3
+     6*           7         30
+  JPHI=          30  NAOLD=           3  NA=           4   -> surface           2
+          1*     1  3.04E-01     10
+          2*     2  1.50E-01      9
+          3*     3  3.55E-02      8
+          4*     4  1.79E-01      8
+          5*     3  3.55E-02      9
+          6*     2  1.50E-01     10
+          7*     1  2.32E-01      1
+ SALTLC: EXCELT entry with          54 segments:
+          -1           1           2           3           4           5           6           7           6           5           4           3           2           1          -3          -3           1          -4          -4           1           2           3           4           3           2           1          -1          -1           1           2           3           4           5           6           7           6           5           4           3           2           1          -3          -3           1          -2          -2           1           2           3           4           3           2           1          -1
+  0.50000000000000000       0.15834751537595856        6.5003187434555354E-002   8.9826185947066151E-003   1.1899437514845235E-002   3.7990513239826718E-002   9.1132289653145737E-002  0.55635743659629422        9.1132289653145682E-002   3.7990513239826829E-002   1.1899437514845124E-002   8.9826185947066151E-003   6.5003187434555354E-002  0.30313297058470190       0.50000000000000000       0.50000000000000000       0.36196350385777831       0.50000000000000000       0.50000000000000000       0.30431314095592410       0.14977380824982123        3.5461504313032299E-002  0.17918624505508030        3.5461504313032299E-002  0.14977380824982123       0.23192045297084163       0.50000000000000000       0.50000000000000000       0.15834753045540328        6.5003180763032964E-002   8.9826175100746752E-003   1.1899436004348340E-002   3.7990507765905235E-002   9.1132270427197570E-002  0.55635759242153759        9.1132270427197626E-002   3.7990507765905179E-002   1.1899436004348396E-002   8.9826175100746752E-003   6.5003180763032908E-002  0.30313280432535272       0.50000000000000000       0.50000000000000000       0.36196402598147159       0.50000000000000000       0.50000000000000000       0.30431309220285319       0.14977419575270295        3.5461785753486130E-002  0.17918426007492316        3.5461785753486130E-002  0.14977419575270295       0.23192065833753361       0.50000000000000000     
+ SALTLC:  ANGLE EX EY =   1.1071E+00  4.4721E-01  8.9443E-01
+
+ SAL240_4_2: beginning of track=  0.12950000000000000        0.0000000000000000     
+ SAL240_4_2: beginning of track=   1.1655000000000000        1.2949999999999999     
+ SAL240_4_2: beginning of track=   1.2949999504695311        1.1331249999999944     
+ SAL240_4_2: beginning of track=  0.38850011292946179        0.0000000000000000     
+ SAL240_4_2: beginning of track=  -2.1227353735886467E-008  0.48562522819396897     
+ SAL240_4_2: beginning of track=  0.64749956413194376        1.2949999999999999     
+ SAL240_4_2: beginning of track=   1.2949999787726927       0.48562416505763711     
+ SAL240_4_2: beginning of track=  0.90650085560324256        0.0000000000000000     
+ SAL240_4_2: beginning of track=  -4.9530542223230611E-008   1.1331266787295882     
+ SAL240_4_2: beginning of track=  0.12949851465252593        1.2949999999999999     
+ SAL240_4_2: beginning of track=   1.1654977719787334        0.0000000000000000     
+ SAL240_4_2: beginning of track=   1.2949999929240918       0.16187790107144207     
+ SAL240_4_2: beginning of track=  0.38850280115970787        1.2949999999999999     
+ SAL240_4_2: beginning of track=  -3.5378741825020654E-008  0.80937123745206496     
+ SAL240_4_2: beginning of track=  0.64749672249839674        0.0000000000000000     
+ SAL240_4_2: beginning of track=   1.2949999646209018       0.80937938698556289     
+ SAL240_4_2: beginning of track=  0.90650354383440557        1.2949999999999999     
+ SAL240_4_2: beginning of track=  -7.0755787479059862E-009  0.16187036713125497     
+
+
+   TRAJECTORY
+   ==========
+
+   DELX =   1.6187E-01      EX EY =   6.2470E-01  7.8087E-01
+   WITH SMALL =   1.0000E-10     (  8.9606E-01 DEGREES )
+   ANGLE # AND WEIGHT      0  6.9592E-03
+   NBER OF SUB-TRAJ     =     18
+   NBER OF ELEM IN TRAJ =    122
+
+
+                    SURF   PHI   PSI     SINPHI       COSPHI
+                    ----   ---   ---     ------       ------
+
+   SUB-TRAJECTORIES:
+
+   NBER  NBER OF ELEM   ANGLE
+   ----  ------------   -----
+     1*        13          4
+     2*         1         29
+     3*        13         20
+     4*         1         13
+     5*         9          4
+     6*         9         29
+     7*         1         20
+     8*        13         13
+     9*         1          4
+    10*        13         29
+    11*         1          4
+    12*        13         13
+    13*         1         20
+    14*         9         29
+    15*         9          4
+    16*         1         13
+    17*        13         20
+    18*         1         29
+
+   TRAJECTORY:
+   NBER     REG   LENGTH   ELEM     REG   LENGTH   ELEM     REG   LENGTH   ELEM
+   ----     ---   ------   ----     ---   ------   ----     ---   ------   ----
+
+     1*      1  3.15E-01     10      2  6.20E-02      9      3  8.50E-03      8
+     4*      4  1.12E-02      7      5  3.56E-02      6      6  8.31E-02      5
+     7*      7  6.27E-01      5      6  8.31E-02      6      5  3.56E-02      7
+    10*      4  1.12E-02      8      3  8.50E-03      9      2  6.20E-02     10
+    13*      1  3.15E-01      2      1  2.07E-01      4      1  3.11E-01     10
+    16*      2  6.83E-02      9      3  9.53E-03      8      4  1.27E-02      7
+    19*      5  4.08E-02      6      6  1.02E-01      5      7  4.79E-01      5
+    22*      6  1.02E-01      6      5  4.08E-02      7      4  1.27E-02      8
+    25*      3  9.53E-03      9      2  6.83E-02     10      1  1.95E-01      1
+    28*      1  6.22E-01      3      1  2.14E-01     10      2  1.15E-01      9
+    31*      3  1.98E-02      8      4  2.94E-02      7      5  3.05E-01      7
+    34*      4  2.94E-02      8      3  1.98E-02      9      2  1.15E-01     10
+    37*      1  1.88E-01      2      1  1.88E-01     10      2  1.15E-01      9
+    40*      3  1.98E-02      8      4  2.94E-02      7      5  3.05E-01      7
+    43*      4  2.94E-02      8      3  1.98E-02      9      2  1.15E-01     10
+    46*      1  2.14E-01      4      1  6.22E-01      1      1  1.95E-01     10
+    49*      2  6.83E-02      9      3  9.53E-03      8      4  1.27E-02      7
+    52*      5  4.08E-02      6      6  1.02E-01      5      7  4.79E-01      5
+    55*      6  1.02E-01      6      5  4.08E-02      7      4  1.27E-02      8
+    58*      3  9.53E-03      9      2  6.83E-02     10      1  3.11E-01      3
+    61*      1  2.07E-01      2      1  3.15E-01     10      2  6.20E-02      9
+    64*      3  8.50E-03      8      4  1.12E-02      7      5  3.56E-02      6
+    67*      6  8.31E-02      5      7  6.27E-01      5      6  8.31E-02      6
+    70*      5  3.56E-02      7      4  1.12E-02      8      3  8.50E-03      9
+    73*      2  6.20E-02     10      1  3.15E-01      1      1  2.07E-01      4
+    76*      1  3.11E-01     10      2  6.83E-02      9      3  9.53E-03      8
+    79*      4  1.27E-02      7      5  4.08E-02      6      6  1.02E-01      5
+    82*      7  4.79E-01      5      6  1.02E-01      6      5  4.08E-02      7
+    85*      4  1.27E-02      8      3  9.53E-03      9      2  6.83E-02     10
+    88*      1  1.95E-01      2      1  6.22E-01      3      1  2.14E-01     10
+    91*      2  1.15E-01      9      3  1.98E-02      8      4  2.94E-02      7
+    94*      5  3.05E-01      7      4  2.94E-02      8      3  1.98E-02      9
+    97*      2  1.15E-01     10      1  1.88E-01      1      1  1.88E-01     10
+   100*      2  1.15E-01      9      3  1.98E-02      8      4  2.94E-02      7
+   103*      5  3.05E-01      7      4  2.94E-02      8      3  1.98E-02      9
+   106*      2  1.15E-01     10      1  2.14E-01      4      1  6.22E-01      2
+   109*      1  1.95E-01     10      2  6.83E-02      9      3  9.53E-03      8
+   112*      4  1.27E-02      7      5  4.08E-02      6      6  1.02E-01      5
+   115*      7  4.79E-01      5      6  1.02E-01      6      5  4.08E-02      7
+   118*      4  1.27E-02      8      3  9.53E-03      9      2  6.83E-02     10
+   121*      1  3.11E-01      3      1  2.07E-01      1
+
+
+     1*          13          4
+   -> surface           1
+  JPHI=           4  NAOLD=           0  NA=           1   -> surface           1
+          1*     1  3.15E-01     10
+          2*     2  6.20E-02      9
+          3*     3  8.50E-03      8
+          4*     4  1.12E-02      7
+          5*     5  3.56E-02      6
+          6*     6  8.31E-02      5
+          7*     7  6.27E-01      5
+          8*     6  8.31E-02      6
+          9*     5  3.56E-02      7
+         10*     4  1.12E-02      8
+         11*     3  8.50E-03      9
+         12*     2  6.20E-02     10
+         13*     1  3.15E-01      2
+     2*           1         29
+  JPHI=          29  NAOLD=           1  NA=           4   -> surface           3
+          1*     1  2.07E-01      4
+     3*          13         20
+  JPHI=          20  NAOLD=           4  NA=           3   -> surface           4
+          1*     1  3.11E-01     10
+          2*     2  6.83E-02      9
+          3*     3  9.53E-03      8
+          4*     4  1.27E-02      7
+          5*     5  4.08E-02      6
+          6*     6  1.02E-01      5
+          7*     7  4.79E-01      5
+          8*     6  1.02E-01      6
+          9*     5  4.08E-02      7
+         10*     4  1.27E-02      8
+         11*     3  9.53E-03      9
+         12*     2  6.83E-02     10
+         13*     1  1.95E-01      1
+     4*           1         13
+  JPHI=          13  NAOLD=           3  NA=           2   -> surface           1
+          1*     1  6.22E-01      3
+     5*           9          4
+  JPHI=           4  NAOLD=           2  NA=           1   -> surface           2
+          1*     1  2.14E-01     10
+          2*     2  1.15E-01      9
+          3*     3  1.98E-02      8
+          4*     4  2.94E-02      7
+          5*     5  3.05E-01      7
+          6*     4  2.94E-02      8
+          7*     3  1.98E-02      9
+          8*     2  1.15E-01     10
+          9*     1  1.88E-01      2
+     6*           9         29
+  JPHI=          29  NAOLD=           1  NA=           4   -> surface           3
+          1*     1  1.88E-01     10
+          2*     2  1.15E-01      9
+          3*     3  1.98E-02      8
+          4*     4  2.94E-02      7
+          5*     5  3.05E-01      7
+          6*     4  2.94E-02      8
+          7*     3  1.98E-02      9
+          8*     2  1.15E-01     10
+          9*     1  2.14E-01      4
+     7*           1         20
+  JPHI=          20  NAOLD=           4  NA=           3   -> surface           4
+          1*     1  6.22E-01      1
+     8*          13         13
+  JPHI=          13  NAOLD=           3  NA=           2   -> surface           1
+          1*     1  1.95E-01     10
+          2*     2  6.83E-02      9
+          3*     3  9.53E-03      8
+          4*     4  1.27E-02      7
+          5*     5  4.08E-02      6
+          6*     6  1.02E-01      5
+          7*     7  4.79E-01      5
+          8*     6  1.02E-01      6
+          9*     5  4.08E-02      7
+         10*     4  1.27E-02      8
+         11*     3  9.53E-03      9
+         12*     2  6.83E-02     10
+         13*     1  3.11E-01      3
+     9*           1          4
+  JPHI=           4  NAOLD=           2  NA=           1   -> surface           2
+          1*     1  2.07E-01      2
+    10*          13         29
+  JPHI=          29  NAOLD=           1  NA=           4   -> surface           3
+          1*     1  3.15E-01     10
+          2*     2  6.20E-02      9
+          3*     3  8.50E-03      8
+          4*     4  1.12E-02      7
+          5*     5  3.56E-02      6
+          6*     6  8.31E-02      5
+          7*     7  6.27E-01      5
+          8*     6  8.31E-02      6
+          9*     5  3.56E-02      7
+         10*     4  1.12E-02      8
+         11*     3  8.50E-03      9
+         12*     2  6.20E-02     10
+         13*     1  3.15E-01      1
+    11*           1          4
+  JPHI=           4  NAOLD=           4  NA=           1   -> surface           1
+          1*     1  2.07E-01      4
+    12*          13         13
+  JPHI=          13  NAOLD=           1  NA=           2   -> surface           4
+          1*     1  3.11E-01     10
+          2*     2  6.83E-02      9
+          3*     3  9.53E-03      8
+          4*     4  1.27E-02      7
+          5*     5  4.08E-02      6
+          6*     6  1.02E-01      5
+          7*     7  4.79E-01      5
+          8*     6  1.02E-01      6
+          9*     5  4.08E-02      7
+         10*     4  1.27E-02      8
+         11*     3  9.53E-03      9
+         12*     2  6.83E-02     10
+         13*     1  1.95E-01      2
+    13*           1         20
+  JPHI=          20  NAOLD=           2  NA=           3   -> surface           3
+          1*     1  6.22E-01      3
+    14*           9         29
+  JPHI=          29  NAOLD=           3  NA=           4   -> surface           2
+          1*     1  2.14E-01     10
+          2*     2  1.15E-01      9
+          3*     3  1.98E-02      8
+          4*     4  2.94E-02      7
+          5*     5  3.05E-01      7
+          6*     4  2.94E-02      8
+          7*     3  1.98E-02      9
+          8*     2  1.15E-01     10
+          9*     1  1.88E-01      1
+    15*           9          4
+  JPHI=           4  NAOLD=           4  NA=           1   -> surface           1
+          1*     1  1.88E-01     10
+          2*     2  1.15E-01      9
+          3*     3  1.98E-02      8
+          4*     4  2.94E-02      7
+          5*     5  3.05E-01      7
+          6*     4  2.94E-02      8
+          7*     3  1.98E-02      9
+          8*     2  1.15E-01     10
+          9*     1  2.14E-01      4
+    16*           1         13
+  JPHI=          13  NAOLD=           1  NA=           2   -> surface           4
+          1*     1  6.22E-01      2
+    17*          13         20
+  JPHI=          20  NAOLD=           2  NA=           3   -> surface           3
+          1*     1  1.95E-01     10
+          2*     2  6.83E-02      9
+          3*     3  9.53E-03      8
+          4*     4  1.27E-02      7
+          5*     5  4.08E-02      6
+          6*     6  1.02E-01      5
+          7*     7  4.79E-01      5
+          8*     6  1.02E-01      6
+          9*     5  4.08E-02      7
+         10*     4  1.27E-02      8
+         11*     3  9.53E-03      9
+         12*     2  6.83E-02     10
+         13*     1  3.11E-01      3
+    18*           1         29
+  JPHI=          29  NAOLD=           3  NA=           4   -> surface           2
+          1*     1  2.07E-01      1
+ SALTLC: EXCELT entry with         158 segments:
+          -1           1           2           3           4           5           6           7           6           5           4           3           2           1          -3          -3           1          -4          -4           1           2           3           4           5           6           7           6           5           4           3           2           1          -1          -1           1          -2          -2           1           2           3           4           5           4           3           2           1          -3          -3           1           2           3           4           5           4           3           2           1          -4          -4           1          -1          -1           1           2           3           4           5           6           7           6           5           4           3           2           1          -2          -2           1          -3          -3           1           2           3           4           5           6           7           6           5           4           3           2           1          -1          -1           1          -4          -4           1           2           3           4           5           6           7           6           5           4           3           2           1          -3          -3           1          -2          -2           1           2           3           4           5           4           3           2           1          -1          -1           1           2           3           4           5           4           3           2           1          -4          -4           1          -3          -3           1           2           3           4           5           6           7           6           5           4           3           2           1          -2          -2           1          -1
+  0.50000000000000000       0.31520456063627683        6.2000009999999994E-002   8.4999800000000181E-003   1.1230020000000007E-002   3.5591990000000018E-002   8.3076000000000039E-002  0.62720399999999987        8.3076000000000150E-002   3.5591989999999907E-002   1.1230019999999952E-002   8.4999800000000736E-003   6.2000009999999994E-002  0.31520461685883094       0.50000000000000000       0.50000000000000000       0.20730114718688847       0.50000000000000000       0.50000000000000000       0.31116061679964924        6.8310014023700516E-002   9.5274055216310050E-003   1.2661767765664633E-002   4.0791376279746272E-002  0.10157524678861041       0.47934602237454282       0.10157524678861030        4.0791376279746272E-002   1.2661767765664633E-002   9.5274055216310050E-003   6.8310014023700572E-002  0.19486966888740867       0.50000000000000000       0.50000000000000000       0.62190369029669812       0.50000000000000000       0.50000000000000000       0.21374373615486009       0.11542760511598460        1.9842874209204719E-002   2.9415763356796742E-002  0.30492587843940655        2.9415763356796854E-002   1.9842874209204719E-002  0.11542760511598460       0.18846319876267326       0.50000000000000000       0.50000000000000000       0.18846289000655930       0.11542713113346664        1.9842732127831719E-002   2.9415484681032389E-002  0.30492932459357835        2.9415484681032389E-002   1.9842732127831691E-002  0.11542713113346664       0.21374374971472199       0.50000000000000000       0.50000000000000000       0.62190224182853593       0.50000000000000000       0.50000000000000000       0.19486994726980467        6.8309948624477090E-002   9.5273946014063915E-003   1.2661752409948823E-002   4.0791319060494213E-002  0.10157501967121807       0.47934754840700466       0.10157501967121807        4.0791319060494213E-002   1.2661752409948823E-002   9.5273946014064470E-003   6.8309948624477035E-002  0.31116151125505842       0.50000000000000000       0.50000000000000000       0.20729893937159971       0.50000000000000000       0.50000000000000000       0.31520551976175992        6.2000010000269778E-002   8.4999800000428172E-003   1.1230020000059238E-002   3.5591990000209739E-002   8.3076000000674943E-002  0.62720399999355470        8.3076000000674860E-002   3.5591990000209850E-002   1.1230020000059127E-002   8.4999800000429282E-003   6.2000010000269667E-002  0.31520319379274175       0.50000000000000000       0.50000000000000000       0.20730480437695609       0.50000000000000000       0.50000000000000000       0.31115917055470127        6.8310159216745381E-002   9.5274297656814388E-003   1.2661801856983623E-002   4.0791503312680444E-002  0.10157575101605193       0.47934263442295993       0.10157575101605198        4.0791503312680444E-002   1.2661801856983623E-002   9.5274297656814388E-003   6.8310159216745325E-002  0.19486891534723794       0.50000000000000000       0.50000000000000000       0.62190812948760732       0.50000000000000000       0.50000000000000000       0.21374381454128344       0.11542920629724307        1.9843354189369278E-002   2.9416704795724502E-002  0.30491423688165364        2.9416704795724474E-002   1.9843354189369278E-002  0.11542920629724310       0.18846419055242622       0.50000000000000000       0.50000000000000000       0.18846177206155362       0.11542549358617427        1.9842241264531491E-002   2.9414521926230619E-002  0.30494123065289536        2.9414521926230508E-002   1.9842241264531602E-002  0.11542549358617427       0.21374369276535332       0.50000000000000000       0.50000000000000000       0.62189777998352458       0.50000000000000000       0.50000000000000000       0.19487078468409669        6.8309807049329097E-002   9.5273709615064650E-003   1.2661719168190810E-002   4.0791195193472296E-002  0.10157452801446087       0.47935085193511950       0.10157452801446087        4.0791195193472296E-002   1.2661719168190810E-002   9.5273709615064650E-003   6.8309807049329041E-002  0.31116298439359336       0.50000000000000000       0.50000000000000000       0.20729521422005864       0.50000000000000000     
+ SALTLC:  ANGLE EX EY =   8.9606E-01  6.2470E-01  7.8087E-01
+
+ SAL240_4_2: beginning of track=  0.16187499999999999        0.0000000000000000     
+ SAL240_4_2: beginning of track=   1.2949999603756248       0.90649999999999542     
+ SAL240_4_2: beginning of track=  0.80937487334350000        1.2949999999999999     
+ SAL240_4_2: beginning of track=  -2.8303134502749572E-008  0.64750021736798324     
+ SAL240_4_2: beginning of track=  0.80937553351403757        0.0000000000000000     
+ SAL240_4_2: beginning of track=   1.2949999830181496       0.38849943393756486     
+ SAL240_4_2: beginning of track=  0.16187366621475785        1.2949999999999999     
+ SAL240_4_2: beginning of track=  -5.0945674678892772E-008   1.1655011366532875     
+ SAL240_4_2: beginning of track=   1.2949999943392945       0.12950183857057096     
+ SAL240_4_2: beginning of track=   1.1331226090927067        0.0000000000000000     
+ SAL240_4_2: beginning of track=  -3.9624270142812890E-008  0.90649759989547651     
+ SAL240_4_2: beginning of track=  0.48562813457171755        1.2949999999999999     
+ SAL240_4_2: beginning of track=   1.2949999716967551       0.64750273974206629     
+ SAL240_4_2: beginning of track=  0.48562140196502451        0.0000000000000000     
+ SAL240_4_2: beginning of track=  -1.6981746148170274E-008  0.38849705194684964     
+ SAL240_4_2: beginning of track=   1.1331286680846959        1.2949999999999999     
+ SAL240_4_2: beginning of track=   1.2949999490542465        1.1655029344677514     
+ SAL240_4_2: beginning of track=  -5.6607469406388944E-009  0.12950278955585193     
+
+
+   TRAJECTORY
+   ==========
+
+   DELX =   1.2950E-01      EX EY =   7.8087E-01  6.2470E-01
+   WITH SMALL =   1.0000E-10     (  6.7474E-01 DEGREES )
+   ANGLE # AND WEIGHT      0  6.9592E-03
+   NBER OF SUB-TRAJ     =     18
+   NBER OF ELEM IN TRAJ =    122
+
+
+                    SURF   PHI   PSI     SINPHI       COSPHI
+                    ----   ---   ---     ------       ------
+
+   SUB-TRAJECTORIES:
+
+   NBER  NBER OF ELEM   ANGLE
+   ----  ------------   -----
+     1*        13          5
+     2*         1         12
+     3*         9         21
+     4*         9         28
+     5*         1          5
+     6*        13         12
+     7*         1         21
+     8*        13         28
+     9*         1         21
+    10*        13         12
+    11*         1          5
+    12*         9         28
+    13*         9         21
+    14*         1         12
+    15*        13          5
+    16*         1         28
+    17*        13         21
+    18*         1         28
+
+   TRAJECTORY:
+   NBER     REG   LENGTH   ELEM     REG   LENGTH   ELEM     REG   LENGTH   ELEM
+   ----     ---   ------   ----     ---   ------   ----     ---   ------   ----
+
+     1*      1  3.11E-01     10      2  6.83E-02      9      3  9.53E-03      8
+     4*      4  1.27E-02      7      5  4.08E-02      6      6  1.02E-01      5
+     7*      7  4.79E-01      5      6  1.02E-01      6      5  4.08E-02      7
+    10*      4  1.27E-02      8      3  9.53E-03      9      2  6.83E-02     10
+    13*      1  1.95E-01      4      1  6.22E-01      2      1  2.14E-01     10
+    16*      2  1.15E-01      9      3  1.98E-02      8      4  2.94E-02      7
+    19*      5  3.05E-01      7      4  2.94E-02      8      3  1.98E-02      9
+    22*      2  1.15E-01     10      1  1.88E-01      3      1  1.88E-01     10
+    25*      2  1.15E-01      9      3  1.98E-02      8      4  2.94E-02      7
+    28*      5  3.05E-01      7      4  2.94E-02      8      3  1.98E-02      9
+    31*      2  1.15E-01     10      1  2.14E-01      1      1  6.22E-01      4
+    34*      1  1.95E-01     10      2  6.83E-02      9      3  9.53E-03      8
+    37*      4  1.27E-02      7      5  4.08E-02      6      6  1.02E-01      5
+    40*      7  4.79E-01      5      6  1.02E-01      6      5  4.08E-02      7
+    43*      4  1.27E-02      8      3  9.53E-03      9      2  6.83E-02     10
+    46*      1  3.11E-01      2      1  2.07E-01      3      1  3.15E-01     10
+    49*      2  6.20E-02      9      3  8.50E-03      8      4  1.12E-02      7
+    52*      5  3.56E-02      6      6  8.31E-02      5      7  6.27E-01      5
+    55*      6  8.31E-02      6      5  3.56E-02      7      4  1.12E-02      8
+    58*      3  8.50E-03      9      2  6.20E-02     10      1  3.15E-01      4
+    61*      1  2.07E-01      1      1  3.11E-01     10      2  6.83E-02      9
+    64*      3  9.53E-03      8      4  1.27E-02      7      5  4.08E-02      6
+    67*      6  1.02E-01      5      7  4.79E-01      5      6  1.02E-01      6
+    70*      5  4.08E-02      7      4  1.27E-02      8      3  9.53E-03      9
+    73*      2  6.83E-02     10      1  1.95E-01      3      1  6.22E-01      2
+    76*      1  2.14E-01     10      2  1.15E-01      9      3  1.98E-02      8
+    79*      4  2.94E-02      7      5  3.05E-01      7      4  2.94E-02      8
+    82*      3  1.98E-02      9      2  1.15E-01     10      1  1.88E-01      4
+    85*      1  1.88E-01     10      2  1.15E-01      9      3  1.98E-02      8
+    88*      4  2.94E-02      7      5  3.05E-01      7      4  2.94E-02      8
+    91*      3  1.98E-02      9      2  1.15E-01     10      1  2.14E-01      1
+    94*      1  6.22E-01      3      1  1.95E-01     10      2  6.83E-02      9
+    97*      3  9.53E-03      8      4  1.27E-02      7      5  4.08E-02      6
+   100*      6  1.02E-01      5      7  4.79E-01      5      6  1.02E-01      6
+   103*      5  4.08E-02      7      4  1.27E-02      8      3  9.53E-03      9
+   106*      2  6.83E-02     10      1  3.11E-01      2      1  2.07E-01      4
+   109*      1  3.15E-01     10      2  6.20E-02      9      3  8.50E-03      8
+   112*      4  1.12E-02      7      5  3.56E-02      6      6  8.31E-02      5
+   115*      7  6.27E-01      5      6  8.31E-02      6      5  3.56E-02      7
+   118*      4  1.12E-02      8      3  8.50E-03      9      2  6.20E-02     10
+   121*      1  3.15E-01      3      1  2.07E-01      1
+
+
+     1*          13          5
+   -> surface           1
+  JPHI=           5  NAOLD=           0  NA=           1   -> surface           1
+          1*     1  3.11E-01     10
+          2*     2  6.83E-02      9
+          3*     3  9.53E-03      8
+          4*     4  1.27E-02      7
+          5*     5  4.08E-02      6
+          6*     6  1.02E-01      5
+          7*     7  4.79E-01      5
+          8*     6  1.02E-01      6
+          9*     5  4.08E-02      7
+         10*     4  1.27E-02      8
+         11*     3  9.53E-03      9
+         12*     2  6.83E-02     10
+         13*     1  1.95E-01      4
+     2*           1         12
+  JPHI=          12  NAOLD=           1  NA=           2   -> surface           4
+          1*     1  6.22E-01      2
+     3*           9         21
+  JPHI=          21  NAOLD=           2  NA=           3   -> surface           3
+          1*     1  2.14E-01     10
+          2*     2  1.15E-01      9
+          3*     3  1.98E-02      8
+          4*     4  2.94E-02      7
+          5*     5  3.05E-01      7
+          6*     4  2.94E-02      8
+          7*     3  1.98E-02      9
+          8*     2  1.15E-01     10
+          9*     1  1.88E-01      3
+     4*           9         28
+  JPHI=          28  NAOLD=           3  NA=           4   -> surface           2
+          1*     1  1.88E-01     10
+          2*     2  1.15E-01      9
+          3*     3  1.98E-02      8
+          4*     4  2.94E-02      7
+          5*     5  3.05E-01      7
+          6*     4  2.94E-02      8
+          7*     3  1.98E-02      9
+          8*     2  1.15E-01     10
+          9*     1  2.14E-01      1
+     5*           1          5
+  JPHI=           5  NAOLD=           4  NA=           1   -> surface           1
+          1*     1  6.22E-01      4
+     6*          13         12
+  JPHI=          12  NAOLD=           1  NA=           2   -> surface           4
+          1*     1  1.95E-01     10
+          2*     2  6.83E-02      9
+          3*     3  9.53E-03      8
+          4*     4  1.27E-02      7
+          5*     5  4.08E-02      6
+          6*     6  1.02E-01      5
+          7*     7  4.79E-01      5
+          8*     6  1.02E-01      6
+          9*     5  4.08E-02      7
+         10*     4  1.27E-02      8
+         11*     3  9.53E-03      9
+         12*     2  6.83E-02     10
+         13*     1  3.11E-01      2
+     7*           1         21
+  JPHI=          21  NAOLD=           2  NA=           3   -> surface           3
+          1*     1  2.07E-01      3
+     8*          13         28
+  JPHI=          28  NAOLD=           3  NA=           4   -> surface           2
+          1*     1  3.15E-01     10
+          2*     2  6.20E-02      9
+          3*     3  8.50E-03      8
+          4*     4  1.12E-02      7
+          5*     5  3.56E-02      6
+          6*     6  8.31E-02      5
+          7*     7  6.27E-01      5
+          8*     6  8.31E-02      6
+          9*     5  3.56E-02      7
+         10*     4  1.12E-02      8
+         11*     3  8.50E-03      9
+         12*     2  6.20E-02     10
+         13*     1  3.15E-01      4
+     9*           1         21
+  JPHI=          21  NAOLD=           4  NA=           3   -> surface           4
+          1*     1  2.07E-01      1
+    10*          13         12
+  JPHI=          12  NAOLD=           3  NA=           2   -> surface           1
+          1*     1  3.11E-01     10
+          2*     2  6.83E-02      9
+          3*     3  9.53E-03      8
+          4*     4  1.27E-02      7
+          5*     5  4.08E-02      6
+          6*     6  1.02E-01      5
+          7*     7  4.79E-01      5
+          8*     6  1.02E-01      6
+          9*     5  4.08E-02      7
+         10*     4  1.27E-02      8
+         11*     3  9.53E-03      9
+         12*     2  6.83E-02     10
+         13*     1  1.95E-01      3
+    11*           1          5
+  JPHI=           5  NAOLD=           2  NA=           1   -> surface           2
+          1*     1  6.22E-01      2
+    12*           9         28
+  JPHI=          28  NAOLD=           1  NA=           4   -> surface           3
+          1*     1  2.14E-01     10
+          2*     2  1.15E-01      9
+          3*     3  1.98E-02      8
+          4*     4  2.94E-02      7
+          5*     5  3.05E-01      7
+          6*     4  2.94E-02      8
+          7*     3  1.98E-02      9
+          8*     2  1.15E-01     10
+          9*     1  1.88E-01      4
+    13*           9         21
+  JPHI=          21  NAOLD=           4  NA=           3   -> surface           4
+          1*     1  1.88E-01     10
+          2*     2  1.15E-01      9
+          3*     3  1.98E-02      8
+          4*     4  2.94E-02      7
+          5*     5  3.05E-01      7
+          6*     4  2.94E-02      8
+          7*     3  1.98E-02      9
+          8*     2  1.15E-01     10
+          9*     1  2.14E-01      1
+    14*           1         12
+  JPHI=          12  NAOLD=           3  NA=           2   -> surface           1
+          1*     1  6.22E-01      3
+    15*          13          5
+  JPHI=           5  NAOLD=           2  NA=           1   -> surface           2
+          1*     1  1.95E-01     10
+          2*     2  6.83E-02      9
+          3*     3  9.53E-03      8
+          4*     4  1.27E-02      7
+          5*     5  4.08E-02      6
+          6*     6  1.02E-01      5
+          7*     7  4.79E-01      5
+          8*     6  1.02E-01      6
+          9*     5  4.08E-02      7
+         10*     4  1.27E-02      8
+         11*     3  9.53E-03      9
+         12*     2  6.83E-02     10
+         13*     1  3.11E-01      2
+    16*           1         28
+  JPHI=          28  NAOLD=           1  NA=           4   -> surface           3
+          1*     1  2.07E-01      4
+    17*          13         21
+  JPHI=          21  NAOLD=           4  NA=           3   -> surface           4
+          1*     1  3.15E-01     10
+          2*     2  6.20E-02      9
+          3*     3  8.50E-03      8
+          4*     4  1.12E-02      7
+          5*     5  3.56E-02      6
+          6*     6  8.31E-02      5
+          7*     7  6.27E-01      5
+          8*     6  8.31E-02      6
+          9*     5  3.56E-02      7
+         10*     4  1.12E-02      8
+         11*     3  8.50E-03      9
+         12*     2  6.20E-02     10
+         13*     1  3.15E-01      3
+    18*           1         28
+  JPHI=          28  NAOLD=           3  NA=           4   -> surface           2
+          1*     1  2.07E-01      1
+ SALTLC: EXCELT entry with         158 segments:
+          -1           1           2           3           4           5           6           7           6           5           4           3           2           1          -4          -4           1          -3          -3           1           2           3           4           5           4           3           2           1          -2          -2           1           2           3           4           5           4           3           2           1          -1          -1           1          -4          -4           1           2           3           4           5           6           7           6           5           4           3           2           1          -3          -3           1          -2          -2           1           2           3           4           5           6           7           6           5           4           3           2           1          -4          -4           1          -1          -1           1           2           3           4           5           6           7           6           5           4           3           2           1          -2          -2           1          -3          -3           1           2           3           4           5           4           3           2           1          -4          -4           1           2           3           4           5           4           3           2           1          -1          -1           1          -2          -2           1           2           3           4           5           6           7           6           5           4           3           2           1          -3          -3           1          -4          -4           1           2           3           4           5           6           7           6           5           4           3           2           1          -2          -2           1          -1
+  0.50000000000000000       0.31116059375581129        6.8310011413918681E-002   9.5274050858551451E-003   1.2661767152888470E-002   4.0791373996387992E-002  0.10157523772538335       0.47934608327147865       0.10157523772538335        4.0791373996387881E-002   1.2661767152888581E-002   9.5274050858551451E-003   6.8310011413918570E-002  0.19486976253206212       0.50000000000000000       0.50000000000000000       0.62190350952134243       0.50000000000000000       0.50000000000000000       0.21374374050066125       0.11542751741578416        1.9842847920033879E-002   2.9415711793554955E-002  0.30492651607511934        2.9415711793555066E-002   1.9842847920033768E-002  0.11542751741578416       0.18846309040910481       0.50000000000000000       0.50000000000000000       0.18846293781589518       0.11542722752239865        1.9842761021357402E-002   2.9415541352095120E-002  0.30492862378425445        2.9415541352095120E-002   1.9842761021357402E-002  0.11542722752239865       0.21374368903681551       0.50000000000000000       0.50000000000000000       0.62190267133980504       0.50000000000000000       0.50000000000000000       0.19486987567091540        6.8309968276011102E-002   9.5273978827775663E-003   1.2661757024121201E-002   4.0791336254055455E-002  0.10157508791665765       0.47934708985605956       0.10157508791665765        4.0791336254055455E-002   1.2661757024121201E-002   9.5273978827775663E-003   6.8309968276011046E-002  0.31116135194114564       0.50000000000000000       0.50000000000000000       0.20729939561391852       0.50000000000000000       0.50000000000000000       0.31520533546862739        6.2000010000183847E-002   8.4999800000291614E-003   1.1230020000040475E-002   3.5591990000143015E-002   8.3076000000460032E-002  0.62720399999560628        8.3076000000460115E-002   3.5591990000143015E-002   1.1230020000040364E-002   8.4999800000292725E-003   6.2000010000183736E-002  0.31520344332690065       0.50000000000000000       0.50000000000000000       0.20730415829748927       0.50000000000000000       0.50000000000000000       0.31115942149216169        6.8310132499360798E-002   9.5274253044626001E-003   1.2661795583739033E-002   4.0791479936961084E-002  0.10157565823138398       0.47934325784971782       0.10157565823138395        4.0791479936961167E-002   1.2661795583738922E-002   9.5274253044627111E-003   6.8310132499360687E-002  0.19486900153623765       0.50000000000000000       0.50000000000000000       0.62190741952472672       0.50000000000000000       0.50000000000000000       0.21374381269713696       0.11542894086014166        1.9843274619334300E-002   2.9416548724516489E-002  0.30491616676509320        2.9416548724516489E-002   1.9843274619334328E-002  0.11542894086014166       0.18846406887165634       0.50000000000000000       0.50000000000000000       0.18846199629719074       0.11542581481876435        1.9842337554546896E-002   2.9414710782788012E-002  0.30493889507197036        2.9414710782787901E-002   1.9842337554546785E-002  0.11542581481876446       0.21374361724855495       0.50000000000000000       0.50000000000000000       0.62189879033317919       0.50000000000000000       0.50000000000000000       0.19487058315831518        6.8309846135868824E-002   9.5273774880861861E-003   1.2661728345681023E-002   4.0791229391057837E-002  0.10157466375226520       0.47934993988624863       0.10157466375226520        4.0791229391057948E-002   1.2661728345680912E-002   9.5273774880861861E-003   6.8309846135868879E-002  0.31116253622538759       0.50000000000000000       0.50000000000000000       0.20729644974648420       0.50000000000000000       0.50000000000000000       0.31520641022949869        6.2000010000677674E-002   8.4999800001077652E-003   1.1230020000148722E-002   3.5591990000527263E-002   8.3076000001696348E-002  0.62720399998380094        8.3076000001696237E-002   3.5591990000527263E-002   1.1230020000148777E-002   8.4999800001077097E-003   6.2000010000677785E-002  0.31520281801929700       0.50000000000000000       0.50000000000000000       0.20730561265506114       0.50000000000000000     
+ SALTLC:  ANGLE EX EY =   6.7474E-01  7.8087E-01  6.2470E-01
+
+ SAL240_4_2: beginning of track=  0.32374999999999998        0.0000000000000000     
+ SAL240_4_2: beginning of track=   1.2949999787726563       0.48562499999999753     
+ SAL240_4_2: beginning of track=  -4.9530462120639385E-008   1.1331248478707032     
+ SAL240_4_2: beginning of track=  0.32375025472813135        1.2949999999999999     
+ SAL240_4_2: beginning of track=   1.2949999646210881       0.80937512736406203     
+ SAL240_4_2: beginning of track=  -7.0757814052413437E-009  0.16187500353789003     
+
+
+   TRAJECTORY
+   ==========
+
+   DELX =   1.6188E-01      EX EY =   8.9443E-01  4.4721E-01
+   WITH SMALL =   1.0000E-10     (  4.6365E-01 DEGREES )
+   ANGLE # AND WEIGHT      0  9.1353E-03
+   NBER OF SUB-TRAJ     =      6
+   NBER OF ELEM IN TRAJ =     42
+
+
+                    SURF   PHI   PSI     SINPHI       COSPHI
+                    ----   ---   ---     ------       ------
+
+   SUB-TRAJECTORIES:
+
+   NBER  NBER OF ELEM   ANGLE
+   ----  ------------   -----
+     1*         7          6
+     2*        13         11
+     3*         1          6
+     4*         7         27
+     5*        13         22
+     6*         1         27
+
+   TRAJECTORY:
+   NBER     REG   LENGTH   ELEM     REG   LENGTH   ELEM     REG   LENGTH   ELEM
+   ----     ---   ------   ----     ---   ------   ----     ---   ------   ----
+
+     1*      1  3.04E-01     10      2  1.50E-01      9      3  3.55E-02      8
+     4*      4  1.79E-01      8      3  3.55E-02      9      2  1.50E-01     10
+     7*      1  2.32E-01      4      1  1.58E-01     10      2  6.50E-02      9
+    10*      3  8.98E-03      8      4  1.19E-02      7      5  3.80E-02      6
+    13*      6  9.11E-02      5      7  5.56E-01      5      6  9.11E-02      6
+    16*      5  3.80E-02      7      4  1.19E-02      8      3  8.98E-03      9
+    19*      2  6.50E-02     10      1  3.03E-01      3      1  3.62E-01      2
+    22*      1  3.04E-01     10      2  1.50E-01      9      3  3.55E-02      8
+    25*      4  1.79E-01      8      3  3.55E-02      9      2  1.50E-01     10
+    28*      1  2.32E-01      4      1  1.58E-01     10      2  6.50E-02      9
+    31*      3  8.98E-03      8      4  1.19E-02      7      5  3.80E-02      6
+    34*      6  9.11E-02      5      7  5.56E-01      5      6  9.11E-02      6
+    37*      5  3.80E-02      7      4  1.19E-02      8      3  8.98E-03      9
+    40*      2  6.50E-02     10      1  3.03E-01      3      1  3.62E-01      1
+
+
+     1*           7          6
+   -> surface           1
+  JPHI=           6  NAOLD=           0  NA=           1   -> surface           1
+          1*     1  3.04E-01     10
+          2*     2  1.50E-01      9
+          3*     3  3.55E-02      8
+          4*     4  1.79E-01      8
+          5*     3  3.55E-02      9
+          6*     2  1.50E-01     10
+          7*     1  2.32E-01      4
+     2*          13         11
+  JPHI=          11  NAOLD=           1  NA=           2   -> surface           4
+          1*     1  1.58E-01     10
+          2*     2  6.50E-02      9
+          3*     3  8.98E-03      8
+          4*     4  1.19E-02      7
+          5*     5  3.80E-02      6
+          6*     6  9.11E-02      5
+          7*     7  5.56E-01      5
+          8*     6  9.11E-02      6
+          9*     5  3.80E-02      7
+         10*     4  1.19E-02      8
+         11*     3  8.98E-03      9
+         12*     2  6.50E-02     10
+         13*     1  3.03E-01      3
+     3*           1          6
+  JPHI=           6  NAOLD=           2  NA=           1   -> surface           2
+          1*     1  3.62E-01      2
+     4*           7         27
+  JPHI=          27  NAOLD=           1  NA=           4   -> surface           3
+          1*     1  3.04E-01     10
+          2*     2  1.50E-01      9
+          3*     3  3.55E-02      8
+          4*     4  1.79E-01      8
+          5*     3  3.55E-02      9
+          6*     2  1.50E-01     10
+          7*     1  2.32E-01      4
+     5*          13         22
+  JPHI=          22  NAOLD=           4  NA=           3   -> surface           4
+          1*     1  1.58E-01     10
+          2*     2  6.50E-02      9
+          3*     3  8.98E-03      8
+          4*     4  1.19E-02      7
+          5*     5  3.80E-02      6
+          6*     6  9.11E-02      5
+          7*     7  5.56E-01      5
+          8*     6  9.11E-02      6
+          9*     5  3.80E-02      7
+         10*     4  1.19E-02      8
+         11*     3  8.98E-03      9
+         12*     2  6.50E-02     10
+         13*     1  3.03E-01      3
+     6*           1         27
+  JPHI=          27  NAOLD=           3  NA=           4   -> surface           2
+          1*     1  3.62E-01      1
+ SALTLC: EXCELT entry with          54 segments:
+          -1           1           2           3           4           3           2           1          -4          -4           1           2           3           4           5           6           7           6           5           4           3           2           1          -2          -2           1          -3          -3           1           2           3           4           3           2           1          -4          -4           1           2           3           4           5           6           7           6           5           4           3           2           1          -2          -2           1          -1
+  0.50000000000000000       0.30431309597227557       0.14977375043013119        3.5461462319390735E-002  0.17918654123566413        3.5461462319390735E-002  0.14977375043013119       0.23192044886635199       0.50000000000000000       0.50000000000000000       0.15834753056741901        6.5003185270200770E-002   8.9826182428336399E-003   1.1899437024814552E-002   3.7990511463994014E-002   9.1132283415922499E-002  0.55635748714863587        9.1132283415922499E-002   3.7990511463994014E-002   1.1899437024814552E-002   8.9826182428336399E-003   6.5003185270200770E-002  0.30313283985893424       0.50000000000000000       0.50000000000000000       0.36196384402922743       0.50000000000000000       0.50000000000000000       0.30431312261252919       0.14977403378366802        3.5461668116061690E-002  0.17918508976029524        3.5461668116061718E-002  0.14977403378366805       0.23192061060634284       0.50000000000000000       0.50000000000000000       0.15834755508122278        6.5003183393650188E-002   8.9826179377510140E-003   1.1899436599945412E-002   3.7990509924301863E-002   9.1132278008091872E-002  0.55635753097880247        9.1132278008091872E-002   3.7990509924301918E-002   1.1899436599945468E-002   8.9826179377508475E-003   6.5003183393650299E-002  0.30313290137650017       0.50000000000000000       0.50000000000000000       0.36196351176874131       0.50000000000000000     
+ SAL240_4_2: beginning of track=  0.97124999999999995        0.0000000000000000     
+ SAL240_4_2: beginning of track=   1.2949999929242186       0.16187499999999916     
+ SAL240_4_2: beginning of track=  -3.5378899920779361E-008  0.80937485494648620     
+ SAL240_4_2: beginning of track=  0.97125025472812798        1.2949999999999999     
+ SAL240_4_2: beginning of track=   1.2949999504695255        1.1331251273640583     
+ SAL240_4_2: beginning of track=  -2.1227344243479607E-008  0.48562501061366742     
+
+
+   TRAJECTORY
+   ==========
+
+   DELX =   4.8563E-01      EX EY =   8.9443E-01  4.4721E-01
+   WITH SMALL =   1.0000E-10     (  4.6365E-01 DEGREES )
+   ANGLE # AND WEIGHT      0  9.1353E-03
+   NBER OF SUB-TRAJ     =      6
+   NBER OF ELEM IN TRAJ =     42
+
+
+                    SURF   PHI   PSI     SINPHI       COSPHI
+                    ----   ---   ---     ------       ------
+
+   SUB-TRAJECTORIES:
+
+   NBER  NBER OF ELEM   ANGLE
+   ----  ------------   -----
+     1*         1          6
+     2*        13         11
+     3*         7          6
+     4*         1         27
+     5*        13         22
+     6*         7         27
+
+   TRAJECTORY:
+   NBER     REG   LENGTH   ELEM     REG   LENGTH   ELEM     REG   LENGTH   ELEM
+   ----     ---   ------   ----     ---   ------   ----     ---   ------   ----
+
+     1*      1  3.62E-01      4      1  3.03E-01     10      2  6.50E-02      9
+     4*      3  8.98E-03      8      4  1.19E-02      7      5  3.80E-02      6
+     7*      6  9.11E-02      5      7  5.56E-01      5      6  9.11E-02      6
+    10*      5  3.80E-02      7      4  1.19E-02      8      3  8.98E-03      9
+    13*      2  6.50E-02     10      1  1.58E-01      3      1  2.32E-01     10
+    16*      2  1.50E-01      9      3  3.55E-02      8      4  1.79E-01      8
+    19*      3  3.55E-02      9      2  1.50E-01     10      1  3.04E-01      2
+    22*      1  3.62E-01      4      1  3.03E-01     10      2  6.50E-02      9
+    25*      3  8.98E-03      8      4  1.19E-02      7      5  3.80E-02      6
+    28*      6  9.11E-02      5      7  5.56E-01      5      6  9.11E-02      6
+    31*      5  3.80E-02      7      4  1.19E-02      8      3  8.98E-03      9
+    34*      2  6.50E-02     10      1  1.58E-01      3      1  2.32E-01     10
+    37*      2  1.50E-01      9      3  3.55E-02      8      4  1.79E-01      8
+    40*      3  3.55E-02      9      2  1.50E-01     10      1  3.04E-01      1
+
+
+     1*           1          6
+   -> surface           1
+  JPHI=           6  NAOLD=           0  NA=           1   -> surface           1
+          1*     1  3.62E-01      4
+     2*          13         11
+  JPHI=          11  NAOLD=           1  NA=           2   -> surface           4
+          1*     1  3.03E-01     10
+          2*     2  6.50E-02      9
+          3*     3  8.98E-03      8
+          4*     4  1.19E-02      7
+          5*     5  3.80E-02      6
+          6*     6  9.11E-02      5
+          7*     7  5.56E-01      5
+          8*     6  9.11E-02      6
+          9*     5  3.80E-02      7
+         10*     4  1.19E-02      8
+         11*     3  8.98E-03      9
+         12*     2  6.50E-02     10
+         13*     1  1.58E-01      3
+     3*           7          6
+  JPHI=           6  NAOLD=           2  NA=           1   -> surface           2
+          1*     1  2.32E-01     10
+          2*     2  1.50E-01      9
+          3*     3  3.55E-02      8
+          4*     4  1.79E-01      8
+          5*     3  3.55E-02      9
+          6*     2  1.50E-01     10
+          7*     1  3.04E-01      2
+     4*           1         27
+  JPHI=          27  NAOLD=           1  NA=           4   -> surface           3
+          1*     1  3.62E-01      4
+     5*          13         22
+  JPHI=          22  NAOLD=           4  NA=           3   -> surface           4
+          1*     1  3.03E-01     10
+          2*     2  6.50E-02      9
+          3*     3  8.98E-03      8
+          4*     4  1.19E-02      7
+          5*     5  3.80E-02      6
+          6*     6  9.11E-02      5
+          7*     7  5.56E-01      5
+          8*     6  9.11E-02      6
+          9*     5  3.80E-02      7
+         10*     4  1.19E-02      8
+         11*     3  8.98E-03      9
+         12*     2  6.50E-02     10
+         13*     1  1.58E-01      3
+     6*           7         27
+  JPHI=          27  NAOLD=           3  NA=           4   -> surface           2
+          1*     1  2.32E-01     10
+          2*     2  1.50E-01      9
+          3*     3  3.55E-02      8
+          4*     4  1.79E-01      8
+          5*     3  3.55E-02      9
+          6*     2  1.50E-01     10
+          7*     1  3.04E-01      1
+ SALTLC: EXCELT entry with          54 segments:
+          -1           1          -4          -4           1           2           3           4           5           6           7           6           5           4           3           2           1          -2          -2           1           2           3           4           3           2           1          -3          -3           1          -4          -4           1           2           3           4           5           6           7           6           5           4           3           2           1          -2          -2           1           2           3           4           3           2           1          -1
+  0.50000000000000000       0.36196350385777853       0.50000000000000000       0.50000000000000000       0.30313294457308837        6.5003189083720714E-002   8.9826188628218118E-003   1.1899437888232223E-002   3.7990514592951552E-002   9.1132294405700365E-002  0.55635739807711115        9.1132294405700365E-002   3.7990514592951496E-002   1.1899437888232223E-002   8.9826188628218673E-003   6.5003189083720769E-002  0.15834749191539410       0.50000000000000000       0.50000000000000000       0.23192033994373495       0.14977356865989311        3.5461330302801186E-002  0.17918747235079624        3.5461330302801186E-002  0.14977356865989311       0.30431322570293329       0.50000000000000000       0.50000000000000000       0.36196321906307349       0.50000000000000000       0.50000000000000000       0.30313301540821214        6.5003190396158095E-002   8.9826190761932434E-003   1.1899438185380751E-002   3.7990515669794389E-002   9.1132298187874827E-002  0.55635736742280573        9.1132298187874938E-002   3.7990515669794223E-002   1.1899438185380695E-002   8.9826190761932989E-003   6.5003190396158206E-002  0.15834751748025708       0.50000000000000000       0.50000000000000000       0.23192040854998452       0.14977371656953858        3.5461437726954592E-002  0.17918671468606118        3.5461437726954592E-002  0.14977371656953858       0.30431310347718599       0.50000000000000000     
+ SALTLC:  ANGLE EX EY =   4.6365E-01  8.9443E-01  4.4721E-01
+
+ SAL240_4_2: beginning of track=  0.32374999999999998        0.0000000000000000     
+ SAL240_4_2: beginning of track=   1.2949999878700893       0.27749999999999858     
+ SAL240_4_2: beginning of track=  -2.8303119514738739E-008  0.64749987407997367     
+ SAL240_4_2: beginning of track=   1.2949999555236658        1.0174998821665735     
+ SAL240_4_2: beginning of track=  0.32374922166380354        1.2949999999999999     
+ SAL240_4_2: beginning of track=  -5.2562957542079403E-008   1.2025002529952746     
+ SAL240_4_2: beginning of track=   1.2949999636102467       0.83250048288595468     
+ SAL240_4_2: beginning of track=  -2.0216544785456314E-008  0.46250061573735568     
+ SAL240_4_2: beginning of track=   1.2949999959566589        9.2500854869865368E-002
+ SAL240_4_2: beginning of track=  0.97124689676356180        0.0000000000000000     
+ SAL240_4_2: beginning of track=  -1.2129867957288987E-008  0.27749902152055894     
+ SAL240_4_2: beginning of track=   1.2949999716969176       0.64749902498623157     
+ SAL240_4_2: beginning of track=  -4.4476290983475053E-008   1.0174988944452992     
+ SAL240_4_2: beginning of track=  0.97125382496516366        1.2949999999999999     
+ SAL240_4_2: beginning of track=   1.2949999474370057        1.2025010928471842     
+ SAL240_4_2: beginning of track=  -3.6389775248668599E-008  0.83250098541084472     
+ SAL240_4_2: beginning of track=   1.2949999797834395       0.46250097501376475     
+ SAL240_4_2: beginning of track=  -4.0433410924967106E-009   9.2500858335587383E-002
+
+
+   TRAJECTORY
+   ==========
+
+   DELX =   9.2501E-02      EX EY =   9.6152E-01  2.7472E-01
+   WITH SMALL =   1.0000E-10     (  2.7830E-01 DEGREES )
+   ANGLE # AND WEIGHT      0  4.8028E-03
+   NBER OF SUB-TRAJ     =     18
+   NBER OF ELEM IN TRAJ =    130
+
+
+                    SURF   PHI   PSI     SINPHI       COSPHI
+                    ----   ---   ---     ------       ------
+
+   SUB-TRAJECTORIES:
+
+   NBER  NBER OF ELEM   ANGLE
+   ----  ------------   -----
+     1*         1          7
+     2*        13         10
+     3*        13          7
+     4*         1         10
+     5*         1         23
+     6*        11         26
+     7*        13         23
+     8*        11         26
+     9*         1         23
+    10*         1         10
+    11*        13          7
+    12*        13         10
+    13*         1          7
+    14*         1         26
+    15*        11         23
+    16*        13         26
+    17*        11         23
+    18*         1         26
+
+   TRAJECTORY:
+   NBER     REG   LENGTH   ELEM     REG   LENGTH   ELEM     REG   LENGTH   ELEM
+   ----     ---   ------   ----     ---   ------   ----     ---   ------   ----
+
+     1*      1  1.01E+00      4      1  2.42E-01     10      2  6.67E-02      9
+     4*      3  9.26E-03      8      4  1.23E-02      7      5  3.94E-02      6
+     7*      6  9.63E-02      5      7  5.17E-01      5      6  9.63E-02      6
+    10*      5  3.94E-02      7      4  1.23E-02      8      3  9.26E-03      9
+    13*      2  6.67E-02     10      1  1.40E-01      3      1  1.40E-01     10
+    16*      2  6.67E-02      9      3  9.26E-03      8      4  1.23E-02      7
+    19*      5  3.94E-02      6      6  9.63E-02      5      7  5.17E-01      5
+    22*      6  9.63E-02      6      5  3.94E-02      7      4  1.23E-02      8
+    25*      3  9.26E-03      9      2  6.67E-02     10      1  2.42E-01      4
+    28*      1  1.01E+00      2      1  3.37E-01      3      1  4.04E-01     10
+    31*      2  9.22E-02      9      3  1.40E-02      8      4  1.93E-02      7
+    34*      5  7.01E-02      6      6  3.51E-01      6      5  7.01E-02      7
+    37*      4  1.93E-02      8      3  1.40E-02      9      2  9.22E-02     10
+    40*      1  2.01E-01      4      1  1.59E-01     10      2  6.20E-02      9
+    43*      3  8.50E-03      8      4  1.12E-02      7      5  3.56E-02      6
+    46*      6  8.31E-02      5      7  6.27E-01      5      6  8.31E-02      6
+    49*      5  3.56E-02      7      4  1.12E-02      8      3  8.50E-03      9
+    52*      2  6.20E-02     10      1  1.59E-01      3      1  2.01E-01     10
+    55*      2  9.22E-02      9      3  1.40E-02      8      4  1.93E-02      7
+    58*      5  7.01E-02      6      6  3.51E-01      6      5  7.01E-02      7
+    61*      4  1.93E-02      8      3  1.40E-02      9      2  9.22E-02     10
+    64*      1  4.04E-01      4      1  3.37E-01      1      1  1.01E+00      3
+    67*      1  2.42E-01     10      2  6.67E-02      9      3  9.26E-03      8
+    70*      4  1.23E-02      7      5  3.94E-02      6      6  9.63E-02      5
+    73*      7  5.17E-01      5      6  9.63E-02      6      5  3.94E-02      7
+    76*      4  1.23E-02      8      3  9.26E-03      9      2  6.67E-02     10
+    79*      1  1.40E-01      4      1  1.40E-01     10      2  6.67E-02      9
+    82*      3  9.26E-03      8      4  1.23E-02      7      5  3.94E-02      6
+    85*      6  9.63E-02      5      7  5.17E-01      5      6  9.63E-02      6
+    88*      5  3.94E-02      7      4  1.23E-02      8      3  9.26E-03      9
+    91*      2  6.67E-02     10      1  2.42E-01      3      1  1.01E+00      2
+    94*      1  3.37E-01      4      1  4.04E-01     10      2  9.22E-02      9
+    97*      3  1.40E-02      8      4  1.93E-02      7      5  7.01E-02      6
+   100*      6  3.51E-01      6      5  7.01E-02      7      4  1.93E-02      8
+   103*      3  1.40E-02      9      2  9.22E-02     10      1  2.01E-01      3
+   106*      1  1.59E-01     10      2  6.20E-02      9      3  8.50E-03      8
+   109*      4  1.12E-02      7      5  3.56E-02      6      6  8.31E-02      5
+   112*      7  6.27E-01      5      6  8.31E-02      6      5  3.56E-02      7
+   115*      4  1.12E-02      8      3  8.50E-03      9      2  6.20E-02     10
+   118*      1  1.59E-01      4      1  2.01E-01     10      2  9.22E-02      9
+   121*      3  1.40E-02      8      4  1.93E-02      7      5  7.01E-02      6
+   124*      6  3.51E-01      6      5  7.01E-02      7      4  1.93E-02      8
+   127*      3  1.40E-02      9      2  9.22E-02     10      1  4.04E-01      3
+   130*      1  3.37E-01      1
+
+
+     1*           1          7
+   -> surface           1
+  JPHI=           7  NAOLD=           0  NA=           1   -> surface           1
+          1*     1  1.01E+00      4
+     2*          13         10
+  JPHI=          10  NAOLD=           1  NA=           2   -> surface           4
+          1*     1  2.42E-01     10
+          2*     2  6.67E-02      9
+          3*     3  9.26E-03      8
+          4*     4  1.23E-02      7
+          5*     5  3.94E-02      6
+          6*     6  9.63E-02      5
+          7*     7  5.17E-01      5
+          8*     6  9.63E-02      6
+          9*     5  3.94E-02      7
+         10*     4  1.23E-02      8
+         11*     3  9.26E-03      9
+         12*     2  6.67E-02     10
+         13*     1  1.40E-01      3
+     3*          13          7
+  JPHI=           7  NAOLD=           2  NA=           1   -> surface           2
+          1*     1  1.40E-01     10
+          2*     2  6.67E-02      9
+          3*     3  9.26E-03      8
+          4*     4  1.23E-02      7
+          5*     5  3.94E-02      6
+          6*     6  9.63E-02      5
+          7*     7  5.17E-01      5
+          8*     6  9.63E-02      6
+          9*     5  3.94E-02      7
+         10*     4  1.23E-02      8
+         11*     3  9.26E-03      9
+         12*     2  6.67E-02     10
+         13*     1  2.42E-01      4
+     4*           1         10
+  JPHI=          10  NAOLD=           1  NA=           2   -> surface           4
+          1*     1  1.01E+00      2
+     5*           1         23
+  JPHI=          23  NAOLD=           2  NA=           3   -> surface           3
+          1*     1  3.37E-01      3
+     6*          11         26
+  JPHI=          26  NAOLD=           3  NA=           4   -> surface           2
+          1*     1  4.04E-01     10
+          2*     2  9.22E-02      9
+          3*     3  1.40E-02      8
+          4*     4  1.93E-02      7
+          5*     5  7.01E-02      6
+          6*     6  3.51E-01      6
+          7*     5  7.01E-02      7
+          8*     4  1.93E-02      8
+          9*     3  1.40E-02      9
+         10*     2  9.22E-02     10
+         11*     1  2.01E-01      4
+     7*          13         23
+  JPHI=          23  NAOLD=           4  NA=           3   -> surface           4
+          1*     1  1.59E-01     10
+          2*     2  6.20E-02      9
+          3*     3  8.50E-03      8
+          4*     4  1.12E-02      7
+          5*     5  3.56E-02      6
+          6*     6  8.31E-02      5
+          7*     7  6.27E-01      5
+          8*     6  8.31E-02      6
+          9*     5  3.56E-02      7
+         10*     4  1.12E-02      8
+         11*     3  8.50E-03      9
+         12*     2  6.20E-02     10
+         13*     1  1.59E-01      3
+     8*          11         26
+  JPHI=          26  NAOLD=           3  NA=           4   -> surface           2
+          1*     1  2.01E-01     10
+          2*     2  9.22E-02      9
+          3*     3  1.40E-02      8
+          4*     4  1.93E-02      7
+          5*     5  7.01E-02      6
+          6*     6  3.51E-01      6
+          7*     5  7.01E-02      7
+          8*     4  1.93E-02      8
+          9*     3  1.40E-02      9
+         10*     2  9.22E-02     10
+         11*     1  4.04E-01      4
+     9*           1         23
+  JPHI=          23  NAOLD=           4  NA=           3   -> surface           4
+          1*     1  3.37E-01      1
+    10*           1         10
+  JPHI=          10  NAOLD=           3  NA=           2   -> surface           1
+          1*     1  1.01E+00      3
+    11*          13          7
+  JPHI=           7  NAOLD=           2  NA=           1   -> surface           2
+          1*     1  2.42E-01     10
+          2*     2  6.67E-02      9
+          3*     3  9.26E-03      8
+          4*     4  1.23E-02      7
+          5*     5  3.94E-02      6
+          6*     6  9.63E-02      5
+          7*     7  5.17E-01      5
+          8*     6  9.63E-02      6
+          9*     5  3.94E-02      7
+         10*     4  1.23E-02      8
+         11*     3  9.26E-03      9
+         12*     2  6.67E-02     10
+         13*     1  1.40E-01      4
+    12*          13         10
+  JPHI=          10  NAOLD=           1  NA=           2   -> surface           4
+          1*     1  1.40E-01     10
+          2*     2  6.67E-02      9
+          3*     3  9.26E-03      8
+          4*     4  1.23E-02      7
+          5*     5  3.94E-02      6
+          6*     6  9.63E-02      5
+          7*     7  5.17E-01      5
+          8*     6  9.63E-02      6
+          9*     5  3.94E-02      7
+         10*     4  1.23E-02      8
+         11*     3  9.26E-03      9
+         12*     2  6.67E-02     10
+         13*     1  2.42E-01      3
+    13*           1          7
+  JPHI=           7  NAOLD=           2  NA=           1   -> surface           2
+          1*     1  1.01E+00      2
+    14*           1         26
+  JPHI=          26  NAOLD=           1  NA=           4   -> surface           3
+          1*     1  3.37E-01      4
+    15*          11         23
+  JPHI=          23  NAOLD=           4  NA=           3   -> surface           4
+          1*     1  4.04E-01     10
+          2*     2  9.22E-02      9
+          3*     3  1.40E-02      8
+          4*     4  1.93E-02      7
+          5*     5  7.01E-02      6
+          6*     6  3.51E-01      6
+          7*     5  7.01E-02      7
+          8*     4  1.93E-02      8
+          9*     3  1.40E-02      9
+         10*     2  9.22E-02     10
+         11*     1  2.01E-01      3
+    16*          13         26
+  JPHI=          26  NAOLD=           3  NA=           4   -> surface           2
+          1*     1  1.59E-01     10
+          2*     2  6.20E-02      9
+          3*     3  8.50E-03      8
+          4*     4  1.12E-02      7
+          5*     5  3.56E-02      6
+          6*     6  8.31E-02      5
+          7*     7  6.27E-01      5
+          8*     6  8.31E-02      6
+          9*     5  3.56E-02      7
+         10*     4  1.12E-02      8
+         11*     3  8.50E-03      9
+         12*     2  6.20E-02     10
+         13*     1  1.59E-01      4
+    17*          11         23
+  JPHI=          23  NAOLD=           4  NA=           3   -> surface           4
+          1*     1  2.01E-01     10
+          2*     2  9.22E-02      9
+          3*     3  1.40E-02      8
+          4*     4  1.93E-02      7
+          5*     5  7.01E-02      6
+          6*     6  3.51E-01      6
+          7*     5  7.01E-02      7
+          8*     4  1.93E-02      8
+          9*     3  1.40E-02      9
+         10*     2  9.22E-02     10
+         11*     1  4.04E-01      3
+    18*           1         26
+  JPHI=          26  NAOLD=           3  NA=           4   -> surface           2
+          1*     1  3.37E-01      1
+ SALTLC: EXCELT entry with         166 segments:
+          -1           1          -4          -4           1           2           3           4           5           6           7           6           5           4           3           2           1          -2          -2           1           2           3           4           5           6           7           6           5           4           3           2           1          -4          -4           1          -3          -3           1          -2          -2           1           2           3           4           5           6           5           4           3           2           1          -4          -4           1           2           3           4           5           6           7           6           5           4           3           2           1          -2          -2           1           2           3           4           5           6           5           4           3           2           1          -4          -4           1          -1          -1           1          -2          -2           1           2           3           4           5           6           7           6           5           4           3           2           1          -4          -4           1           2           3           4           5           6           7           6           5           4           3           2           1          -2          -2           1          -3          -3           1          -4          -4           1           2           3           4           5           6           5           4           3           2           1          -2          -2           1           2           3           4           5           6           7           6           5           4           3           2           1          -4          -4           1           2           3           4           5           6           5           4           3           2           1          -2          -2           1          -1
+  0.50000000000000000        1.0101152471376720       0.50000000000000000       0.50000000000000000       0.24199502565196807        6.6712367948949969E-002   9.2623815606697191E-003   1.2289993509101871E-002   3.9415700631650119E-002   9.6286492592326800E-002  0.51654319609343957        9.6286492592326800E-002   3.9415700631650119E-002   1.2289993509101926E-002   9.2623815606696636E-003   6.6712367948949913E-002  0.14034818903000656       0.50000000000000000       0.50000000000000000       0.14034820670077719        6.6712359569995106E-002   9.2623801797769856E-003   1.2289991576599768E-002   3.9415693530016505E-002   9.6286466128966131E-002  0.51654339098683721        9.6286466128966186E-002   3.9415693530016505E-002   1.2289991576599935E-002   9.2623801797768746E-003   6.6712359569995217E-002  0.24199497929426084       0.50000000000000000       0.50000000000000000        1.0101159851328394       0.50000000000000000       0.50000000000000000       0.33670426448718432       0.50000000000000000       0.50000000000000000       0.40407481819608776        9.2170820839456102E-002   1.4001913160731683E-002   1.9270998594828503E-002   7.0081260301258996E-002  0.35091443018392043        7.0081260301259052E-002   1.9270998594828503E-002   1.4001913160731627E-002   9.2170820839456047E-002  0.20078108272907236       0.50000000000000000       0.50000000000000000       0.15941028715295014        6.2000010000039962E-002   8.4999800000062908E-003   1.1230020000008833E-002   3.5591990000031215E-002   8.3076000000099626E-002  0.62720399999904630        8.3076000000099848E-002   3.5591990000031049E-002   1.1230020000008778E-002   8.4999800000063463E-003   6.2000010000039907E-002  0.15940997087782624       0.50000000000000000       0.50000000000000000       0.20078032139804963        9.2170472036803897E-002   1.4001838928529853E-002   1.9270882583697219E-002   7.0080623568172212E-002  0.35091889196695492        7.0080623568172240E-002   1.9270882583697135E-002   1.4001838928529908E-002   9.2170472036803952E-002  0.40407343566144482       0.50000000000000000       0.50000000000000000       0.33670829717842021       0.50000000000000000       0.50000000000000000        1.0101119944925501       0.50000000000000000       0.50000000000000000       0.24199562016043036        6.6712420172924058E-002   9.2623901674381837E-003   1.2290005553918348E-002   3.9415744894420068E-002   9.6286657532257014E-002  0.51654198137061469        9.6286657532256958E-002   3.9415744894420124E-002   1.2290005553918348E-002   9.2623901674382392E-003   6.6712420172924114E-002  0.14034830395918840       0.50000000000000000       0.50000000000000000       0.14034811663792957        6.6712307727061826E-002   9.2623716358100072E-003   1.2289979619673597E-002   3.9415649590251789E-002   9.6286302393042034E-002  0.51654459684672349        9.6286302393042089E-002   3.9415649590251678E-002   1.2289979619673708E-002   9.2623716358100072E-003   6.6712307727061770E-002  0.24199433102412765       0.50000000000000000       0.50000000000000000        1.0101192714175291       0.50000000000000000       0.50000000000000000       0.33670110435540768       0.50000000000000000       0.50000000000000000       0.40407567624268892        9.2171018078755829E-002   1.4001955137351363E-002   1.9271064196593191E-002   7.0081620362807073E-002  0.35091190715354714        7.0081620362807073E-002   1.9271064196593191E-002   1.4001955137351363E-002   9.2171018078755884E-002  0.20078140954410389       0.50000000000000000       0.50000000000000000       0.15941045672611118        6.2000010000123451E-002   8.4999800000196690E-003   1.1230020000027097E-002   3.5591990000096108E-002   8.3076000000309125E-002  0.62720399999704768        8.3076000000309125E-002   3.5591990000096052E-002   1.1230020000027152E-002   8.4999800000197245E-003   6.2000010000123451E-002  0.15940991063852361       0.50000000000000000       0.50000000000000000       0.20078013878619516        9.2170410022711424E-002   1.4001825730720174E-002   1.9270861958000207E-002   7.0080510363649484E-002  0.35091968523286732        7.0080510363649373E-002   1.9270861958000318E-002   1.4001825730720063E-002   9.2170410022711480E-002  0.40407330196292957       0.50000000000000000       0.50000000000000000       0.33670820676792390       0.50000000000000000     
+ SALTLC:  ANGLE EX EY =   2.7830E-01  9.6152E-01  2.7472E-01
+
+ SAL240_4_2: beginning of track=  0.64749999999999996        0.0000000000000000     
+ SAL240_4_2: beginning of track=   1.2949999964621093        8.0937499999999551E-002
+ SAL240_4_2: beginning of track=  -1.0613666837772096E-008  0.24281238457631804     
+ SAL240_4_2: beginning of track=   1.2949999823105518       0.40468738590302439     
+ SAL240_4_2: beginning of track=  -2.4765224287959242E-008  0.56656226871039783     
+ SAL240_4_2: beginning of track=   1.2949999681589943       0.72843727180604678     
+ SAL240_4_2: beginning of track=  -3.8916781741615836E-008  0.89031215284447518     
+ SAL240_4_2: beginning of track=   1.2949999540074366        1.0521871577090671     
+ SAL240_4_2: beginning of track=  -5.3068339195272429E-008   1.2140620369785506     
+ SAL240_4_2: beginning of track=  0.64750365110325658        1.2949999999999999     
+ SAL240_4_2: beginning of track=   1.2949999469316205        1.2140629563879017     
+ SAL240_4_2: beginning of track=  -4.5992593372679025E-008   1.0521878480400020     
+ SAL240_4_2: beginning of track=   1.2949999610831882       0.89031284229092367     
+ SAL240_4_2: beginning of track=  -3.1841025802115119E-008  0.72843773217407837     
+ SAL240_4_2: beginning of track=   1.2949999752347556       0.56656272819394771     
+ SAL240_4_2: beginning of track=  -1.7689458224612320E-008  0.40468761630815719     
+ SAL240_4_2: beginning of track=   1.2949999893863231       0.24281261409697411     
+ SAL240_4_2: beginning of track=  -3.5378906471095206E-009   8.0937500442237964E-002
+
+
+   TRAJECTORY
+   ==========
+
+   DELX =   8.0938E-02      EX EY =   9.9228E-01  1.2403E-01
+   WITH SMALL =   1.0000E-10     (  1.2435E-01 DEGREES )
+   ANGLE # AND WEIGHT      0  5.1468E-03
+   NBER OF SUB-TRAJ     =     18
+   NBER OF ELEM IN TRAJ =    138
+
+
+                    SURF   PHI   PSI     SINPHI       COSPHI
+                    ----   ---   ---     ------       ------
+
+   SUB-TRAJECTORIES:
+
+   NBER  NBER OF ELEM   ANGLE
+   ----  ------------   -----
+     1*         1          8
+     2*         3          9
+     3*        11          8
+     4*        13          9
+     5*        13          8
+     6*        13          9
+     7*        11          8
+     8*         3          9
+     9*         1          8
+    10*         1         25
+    11*         3         24
+    12*        11         25
+    13*        13         24
+    14*        13         25
+    15*        13         24
+    16*        11         25
+    17*         3         24
+    18*         1         25
+
+   TRAJECTORY:
+   NBER     REG   LENGTH   ELEM     REG   LENGTH   ELEM     REG   LENGTH   ELEM
+   ----     ---   ------   ----     ---   ------   ----     ---   ------   ----
+
+     1*      1  6.53E-01      4      1  5.34E-01     10      2  3.58E-01     10
+     4*      1  4.13E-01      3      1  2.91E-01     10      2  8.33E-02      9
+     7*      3  1.22E-02      8      4  1.65E-02      7      5  5.65E-02      6
+    10*      6  4.65E-01      6      5  5.65E-02      7      4  1.65E-02      8
+    13*      3  1.22E-02      9      2  8.33E-02     10      1  2.11E-01      4
+    16*      1  1.84E-01     10      2  6.58E-02      9      3  9.11E-03      8
+    19*      4  1.21E-02      7      5  3.86E-02      6      6  9.34E-02      5
+    22*      7  5.39E-01      5      6  9.34E-02      6      5  3.86E-02      7
+    25*      4  1.21E-02      8      3  9.11E-03      9      2  6.58E-02     10
+    28*      1  1.44E-01      3      1  1.39E-01     10      2  6.20E-02      9
+    31*      3  8.50E-03      8      4  1.12E-02      7      5  3.56E-02      6
+    34*      6  8.31E-02      5      7  6.27E-01      5      6  8.31E-02      6
+    37*      5  3.56E-02      7      4  1.12E-02      8      3  8.50E-03      9
+    40*      2  6.20E-02     10      1  1.39E-01      4      1  1.44E-01     10
+    43*      2  6.58E-02      9      3  9.11E-03      8      4  1.21E-02      7
+    46*      5  3.86E-02      6      6  9.34E-02      5      7  5.39E-01      5
+    49*      6  9.34E-02      6      5  3.86E-02      7      4  1.21E-02      8
+    52*      3  9.11E-03      9      2  6.58E-02     10      1  1.84E-01      3
+    55*      1  2.11E-01     10      2  8.33E-02      9      3  1.22E-02      8
+    58*      4  1.65E-02      7      5  5.65E-02      6      6  4.65E-01      6
+    61*      5  5.65E-02      7      4  1.65E-02      8      3  1.22E-02      9
+    64*      2  8.33E-02     10      1  2.91E-01      4      1  4.13E-01     10
+    67*      2  3.58E-01     10      1  5.34E-01      3      1  6.53E-01      2
+    70*      1  6.53E-01      4      1  5.34E-01     10      2  3.58E-01     10
+    73*      1  4.13E-01      3      1  2.91E-01     10      2  8.33E-02      9
+    76*      3  1.22E-02      8      4  1.65E-02      7      5  5.65E-02      6
+    79*      6  4.65E-01      6      5  5.65E-02      7      4  1.65E-02      8
+    82*      3  1.22E-02      9      2  8.33E-02     10      1  2.11E-01      4
+    85*      1  1.84E-01     10      2  6.58E-02      9      3  9.11E-03      8
+    88*      4  1.21E-02      7      5  3.86E-02      6      6  9.34E-02      5
+    91*      7  5.39E-01      5      6  9.34E-02      6      5  3.86E-02      7
+    94*      4  1.21E-02      8      3  9.11E-03      9      2  6.58E-02     10
+    97*      1  1.44E-01      3      1  1.39E-01     10      2  6.20E-02      9
+   100*      3  8.50E-03      8      4  1.12E-02      7      5  3.56E-02      6
+   103*      6  8.31E-02      5      7  6.27E-01      5      6  8.31E-02      6
+   106*      5  3.56E-02      7      4  1.12E-02      8      3  8.50E-03      9
+   109*      2  6.20E-02     10      1  1.39E-01      4      1  1.44E-01     10
+   112*      2  6.58E-02      9      3  9.11E-03      8      4  1.21E-02      7
+   115*      5  3.86E-02      6      6  9.34E-02      5      7  5.39E-01      5
+   118*      6  9.34E-02      6      5  3.86E-02      7      4  1.21E-02      8
+   121*      3  9.11E-03      9      2  6.58E-02     10      1  1.84E-01      3
+   124*      1  2.11E-01     10      2  8.33E-02      9      3  1.22E-02      8
+   127*      4  1.65E-02      7      5  5.65E-02      6      6  4.65E-01      6
+   130*      5  5.65E-02      7      4  1.65E-02      8      3  1.22E-02      9
+   133*      2  8.33E-02     10      1  2.91E-01      4      1  4.13E-01     10
+   136*      2  3.58E-01     10      1  5.34E-01      3      1  6.53E-01      1
+
+
+     1*           1          8
+   -> surface           1
+  JPHI=           8  NAOLD=           0  NA=           1   -> surface           1
+          1*     1  6.53E-01      4
+     2*           3          9
+  JPHI=           9  NAOLD=           1  NA=           2   -> surface           4
+          1*     1  5.34E-01     10
+          2*     2  3.58E-01     10
+          3*     1  4.13E-01      3
+     3*          11          8
+  JPHI=           8  NAOLD=           2  NA=           1   -> surface           2
+          1*     1  2.91E-01     10
+          2*     2  8.33E-02      9
+          3*     3  1.22E-02      8
+          4*     4  1.65E-02      7
+          5*     5  5.65E-02      6
+          6*     6  4.65E-01      6
+          7*     5  5.65E-02      7
+          8*     4  1.65E-02      8
+          9*     3  1.22E-02      9
+         10*     2  8.33E-02     10
+         11*     1  2.11E-01      4
+     4*          13          9
+  JPHI=           9  NAOLD=           1  NA=           2   -> surface           4
+          1*     1  1.84E-01     10
+          2*     2  6.58E-02      9
+          3*     3  9.11E-03      8
+          4*     4  1.21E-02      7
+          5*     5  3.86E-02      6
+          6*     6  9.34E-02      5
+          7*     7  5.39E-01      5
+          8*     6  9.34E-02      6
+          9*     5  3.86E-02      7
+         10*     4  1.21E-02      8
+         11*     3  9.11E-03      9
+         12*     2  6.58E-02     10
+         13*     1  1.44E-01      3
+     5*          13          8
+  JPHI=           8  NAOLD=           2  NA=           1   -> surface           2
+          1*     1  1.39E-01     10
+          2*     2  6.20E-02      9
+          3*     3  8.50E-03      8
+          4*     4  1.12E-02      7
+          5*     5  3.56E-02      6
+          6*     6  8.31E-02      5
+          7*     7  6.27E-01      5
+          8*     6  8.31E-02      6
+          9*     5  3.56E-02      7
+         10*     4  1.12E-02      8
+         11*     3  8.50E-03      9
+         12*     2  6.20E-02     10
+         13*     1  1.39E-01      4
+     6*          13          9
+  JPHI=           9  NAOLD=           1  NA=           2   -> surface           4
+          1*     1  1.44E-01     10
+          2*     2  6.58E-02      9
+          3*     3  9.11E-03      8
+          4*     4  1.21E-02      7
+          5*     5  3.86E-02      6
+          6*     6  9.34E-02      5
+          7*     7  5.39E-01      5
+          8*     6  9.34E-02      6
+          9*     5  3.86E-02      7
+         10*     4  1.21E-02      8
+         11*     3  9.11E-03      9
+         12*     2  6.58E-02     10
+         13*     1  1.84E-01      3
+     7*          11          8
+  JPHI=           8  NAOLD=           2  NA=           1   -> surface           2
+          1*     1  2.11E-01     10
+          2*     2  8.33E-02      9
+          3*     3  1.22E-02      8
+          4*     4  1.65E-02      7
+          5*     5  5.65E-02      6
+          6*     6  4.65E-01      6
+          7*     5  5.65E-02      7
+          8*     4  1.65E-02      8
+          9*     3  1.22E-02      9
+         10*     2  8.33E-02     10
+         11*     1  2.91E-01      4
+     8*           3          9
+  JPHI=           9  NAOLD=           1  NA=           2   -> surface           4
+          1*     1  4.13E-01     10
+          2*     2  3.58E-01     10
+          3*     1  5.34E-01      3
+     9*           1          8
+  JPHI=           8  NAOLD=           2  NA=           1   -> surface           2
+          1*     1  6.53E-01      2
+    10*           1         25
+  JPHI=          25  NAOLD=           1  NA=           4   -> surface           3
+          1*     1  6.53E-01      4
+    11*           3         24
+  JPHI=          24  NAOLD=           4  NA=           3   -> surface           4
+          1*     1  5.34E-01     10
+          2*     2  3.58E-01     10
+          3*     1  4.13E-01      3
+    12*          11         25
+  JPHI=          25  NAOLD=           3  NA=           4   -> surface           2
+          1*     1  2.91E-01     10
+          2*     2  8.33E-02      9
+          3*     3  1.22E-02      8
+          4*     4  1.65E-02      7
+          5*     5  5.65E-02      6
+          6*     6  4.65E-01      6
+          7*     5  5.65E-02      7
+          8*     4  1.65E-02      8
+          9*     3  1.22E-02      9
+         10*     2  8.33E-02     10
+         11*     1  2.11E-01      4
+    13*          13         24
+  JPHI=          24  NAOLD=           4  NA=           3   -> surface           4
+          1*     1  1.84E-01     10
+          2*     2  6.58E-02      9
+          3*     3  9.11E-03      8
+          4*     4  1.21E-02      7
+          5*     5  3.86E-02      6
+          6*     6  9.34E-02      5
+          7*     7  5.39E-01      5
+          8*     6  9.34E-02      6
+          9*     5  3.86E-02      7
+         10*     4  1.21E-02      8
+         11*     3  9.11E-03      9
+         12*     2  6.58E-02     10
+         13*     1  1.44E-01      3
+    14*          13         25
+  JPHI=          25  NAOLD=           3  NA=           4   -> surface           2
+          1*     1  1.39E-01     10
+          2*     2  6.20E-02      9
+          3*     3  8.50E-03      8
+          4*     4  1.12E-02      7
+          5*     5  3.56E-02      6
+          6*     6  8.31E-02      5
+          7*     7  6.27E-01      5
+          8*     6  8.31E-02      6
+          9*     5  3.56E-02      7
+         10*     4  1.12E-02      8
+         11*     3  8.50E-03      9
+         12*     2  6.20E-02     10
+         13*     1  1.39E-01      4
+    15*          13         24
+  JPHI=          24  NAOLD=           4  NA=           3   -> surface           4
+          1*     1  1.44E-01     10
+          2*     2  6.58E-02      9
+          3*     3  9.11E-03      8
+          4*     4  1.21E-02      7
+          5*     5  3.86E-02      6
+          6*     6  9.34E-02      5
+          7*     7  5.39E-01      5
+          8*     6  9.34E-02      6
+          9*     5  3.86E-02      7
+         10*     4  1.21E-02      8
+         11*     3  9.11E-03      9
+         12*     2  6.58E-02     10
+         13*     1  1.84E-01      3
+    16*          11         25
+  JPHI=          25  NAOLD=           3  NA=           4   -> surface           2
+          1*     1  2.11E-01     10
+          2*     2  8.33E-02      9
+          3*     3  1.22E-02      8
+          4*     4  1.65E-02      7
+          5*     5  5.65E-02      6
+          6*     6  4.65E-01      6
+          7*     5  5.65E-02      7
+          8*     4  1.65E-02      8
+          9*     3  1.22E-02      9
+         10*     2  8.33E-02     10
+         11*     1  2.91E-01      4
+    17*           3         24
+  JPHI=          24  NAOLD=           4  NA=           3   -> surface           4
+          1*     1  4.13E-01     10
+          2*     2  3.58E-01     10
+          3*     1  5.34E-01      3
+    18*           1         25
+  JPHI=          25  NAOLD=           3  NA=           4   -> surface           2
+          1*     1  6.53E-01      1
+ SALTLC: EXCELT entry with         174 segments:
+          -1           1          -4          -4           1           2           1          -2          -2           1           2           3           4           5           6           5           4           3           2           1          -4          -4           1           2           3           4           5           6           7           6           5           4           3           2           1          -2          -2           1           2           3           4           5           6           7           6           5           4           3           2           1          -4          -4           1           2           3           4           5           6           7           6           5           4           3           2           1          -2          -2           1           2           3           4           5           6           5           4           3           2           1          -4          -4           1           2           1          -2          -2           1          -3          -3           1          -4          -4           1           2           1          -2          -2           1           2           3           4           5           6           5           4           3           2           1          -4          -4           1           2           3           4           5           6           7           6           5           4           3           2           1          -2          -2           1           2           3           4           5           6           7           6           5           4           3           2           1          -4          -4           1           2           3           4           5           6           7           6           5           4           3           2           1          -2          -2           1           2           3           4           5           6           5           4           3           2           1          -4          -4           1           2           1          -2          -2           1          -1
+  0.50000000000000000       0.65253898650291386       0.50000000000000000       0.50000000000000000       0.53390885377379416       0.35772894488289642       0.41344015652202581       0.50000000000000000       0.50000000000000000       0.29145415973819683        8.3275052975323893E-002   1.2203599443552926E-002   1.6529394670437403E-002   5.6527557799454953E-002  0.46541093944240886        5.6527557799454953E-002   1.6529394670437458E-002   1.2203599443552759E-002   8.3275052975324115E-002  0.21114167474394829       0.50000000000000000       0.50000000000000000       0.18435942446543674        6.5760870962676909E-002   9.1061685519874258E-003   1.2071681131260226E-002   3.8616603525886362E-002   9.3359120334685741E-002  0.53868648022863685        9.3359120334685741E-002   3.8616603525886362E-002   1.2071681131260226E-002   9.1061685519873703E-003   6.5760870962677020E-002  0.14420314720996172       0.50000000000000000       0.50000000000000000       0.13853901743863267        6.2000010000005823E-002   8.4999800000009618E-003   1.1230020000001284E-002   3.5591990000004570E-002   8.3076000000014527E-002  0.62720399999986065        8.3076000000014583E-002   3.5591990000004570E-002   1.1230020000001284E-002   8.4999800000009618E-003   6.2000010000005767E-002  0.13853898052523261       0.50000000000000000       0.50000000000000000       0.14420307073513339        6.5760849700934987E-002   9.1061650745816181E-003   1.2071676278138543E-002   3.8616585831409256E-002   9.3359056595890277E-002  0.53868697548234667        9.3359056595890277E-002   3.8616585831409311E-002   1.2071676278138488E-002   9.1061650745815625E-003   6.5760849700935098E-002  0.18435921347595130       0.50000000000000000       0.50000000000000000       0.21114139114425393        8.3274965298173853E-002   1.2203582582661854E-002   1.6529369564163177E-002   5.6527444985524533E-002  0.46541209390846605        5.6527444985524533E-002   1.6529369564163066E-002   1.2203582582662076E-002   8.3274965298173687E-002  0.29145380231170170       0.50000000000000000       0.50000000000000000       0.41343908372237170       0.35773118221179856       0.53390764645948241       0.50000000000000000       0.50000000000000000       0.65254271950118259       0.50000000000000000       0.50000000000000000       0.65253530698597362       0.50000000000000000       0.50000000000000000       0.53390995823416276       0.35772692931229422       0.41344104623969902       0.50000000000000000       0.50000000000000000       0.29145444172688956        8.3275108777990325E-002   1.2203610174779944E-002   1.6529410649499143E-002   5.6527629600749696E-002  0.46541020467576133        5.6527629600749640E-002   1.6529410649499199E-002   1.2203610174779889E-002   8.3275108777990381E-002  0.21114185454765622       0.50000000000000000       0.50000000000000000       0.18435951447730425        6.5760878702338044E-002   9.1061698178265260E-003   1.2071682897885294E-002   3.8616609967000004E-002   9.3359143536785538E-002  0.53868629994727724        9.3359143536785649E-002   3.8616609966999893E-002   1.2071682897885183E-002   9.1061698178265260E-003   6.5760878702338099E-002  0.14420316377960243       0.50000000000000000       0.50000000000000000       0.13853902953090691        6.2000010000008154E-002   8.4999800000012948E-003   1.1230020000001839E-002   3.5591990000006457E-002   8.3076000000020633E-002  0.62720399999980270        8.3076000000020578E-002   3.5591990000006568E-002   1.1230020000001728E-002   8.4999800000014059E-003   6.2000010000007988E-002  0.13853897556386108       0.50000000000000000       0.50000000000000000       0.14420307824351308        6.5760853375848471E-002   9.1061656756219467E-003   1.2071677116959556E-002   3.8616588889750281E-002   9.3359067612599711E-002  0.53868688988190727        9.3359067612599655E-002   3.8616588889750336E-002   1.2071677116959612E-002   9.1061656756218912E-003   6.5760853375848360E-002  0.18435928884257266       0.50000000000000000       0.50000000000000000       0.21114149592115825        8.3275004455180268E-002   1.2203590112809082E-002   1.6529380776733105E-002   5.6527495368689284E-002  0.46541157831866875        5.6527495368689284E-002   1.6529380776733160E-002   1.2203590112809026E-002   8.3275004455180213E-002  0.29145397516629878       0.50000000000000000       0.50000000000000000       0.41343980514827194       0.35772959437888674       0.53390857704409245       0.50000000000000000       0.50000000000000000       0.65253899006835214       0.50000000000000000     
+ SALTLC:  ANGLE EX EY =   1.2435E-01  9.9228E-01  1.2403E-01
+
+ SALTLC: Global RMS, maximum and average errors (%) on region volumes :    17.24260    40.16687     7.42377
+ iphi=           1
+ facnrm :    1.0261044025626558       0.81596531979018128        1.4561422465020812        1.4054562743797578        1.2773453483813848       0.78487936280251880        1.1284380888714780     
+ iphi=           2
+ facnrm :   0.95485729980806877        1.3926456688990698        1.2214724286117582        1.1680632849370087        1.0233729374759133       0.83162390275773823        1.0461453754215460     
+ iphi=           3
+ facnrm :    1.0756658549423059       0.75633928004721895       0.46452142543680319       0.26282653867954070        2.1063935264479077        1.7561758561500840       0.95889014083394930     
+ iphi=           4
+ facnrm :    1.0201767815602745        1.0831163819189340       0.87922221801191747       0.80082578269949378       0.54287255815048907        1.6011737513872735       0.96328243795225821     
+ iphi=           5
+ facnrm :    1.0201770186110226        1.0831157009636025       0.87922122304442596       0.80082455810138797       0.54287360896929060        1.6011730427486663       0.96328295495541316     
+ iphi=           6
+ facnrm :    1.0756659024517983       0.75633906961604136       0.46452097100538875       0.26282693603430812        2.1063935328635748        1.7561758639818836       0.95889013515678090     
+ iphi=           7
+ facnrm :   0.95485785606002505        1.3926456192651822        1.2214723438097874        1.1680631828592742        1.0233727611921661       0.83162426583177984        1.0461450885971235     
+ iphi=           8
+ facnrm :    1.0261046346282698       0.81596628422069539        1.4561419638601449        1.4054559727268681        1.2773449814088069       0.78487967306956063        1.1284381768790144     
+ iphi=           9
+ facnrm :    1.0261067307057896       0.81596414115328741        1.4561414968621154        1.4054554677771816        1.2773443441791541       0.78488037701917146        1.1284380008640695     
+ iphi=          10
+ facnrm :   0.95486015308266337        1.3926464967766443        1.2214733633118295        1.1680642664959699        1.0233741080525811       0.83162355413852640        1.0461435633961709     
+ iphi=          11
+ facnrm :    1.0756661653902286       0.75633830927447776       0.46451933366759546       0.26282836607846255        2.1063935200321762        1.7561758483181817       0.95889014651117499     
+ iphi=          12
+ facnrm :    1.0201798746677744        1.0831079349530073       0.87920957547864786       0.80081007888551181       0.54288659570292630        1.6011683176085381       0.96328640225614970     
+ iphi=          13
+ facnrm :    1.0201815062550204        1.0831074908062253       0.87920889742966479       0.80080923044385954       0.54288737814867372        1.6011681803335414       0.96328650240444880     
+ iphi=          14
+ facnrm :    1.0756662239581112       0.75633784771009649       0.46451833455762814       0.26282924052109619        2.1063935521106303        1.7561758874773752       0.95889011812522551     
+ iphi=          15
+ facnrm :   0.95486144719811084        1.3926467238942455        1.2214736281549012        1.1680645484284580        1.0233744602380705       0.83162335829747114        1.0461431820990785     
+ iphi=          16
+ facnrm :    1.0261078838680175       0.81596316155835158        1.4561417839586017        1.4054557741845901        1.2773447169373329       0.78488006186149861        1.1284379114717213     
+ iphi=           1
+ dvnor :    0.0000000000000000        0.0000000000000000        0.0000000000000000        0.0000000000000000        0.0000000000000000        0.0000000000000000        0.0000000000000000     
+ iphi=           2
+ dvnor :    1.0261044025626558       0.81596531979018128        1.4561422465020812        1.4054562743797578        1.2773453483813848       0.78487936280251880        1.1284380888714780     
+ iphi=           3
+ dvnor :   0.95485729980806877        1.3926456688990700        1.2214724286117582        1.1680632849370087        1.0233729374759133       0.83162390275773823        1.0461453754215460     
+ iphi=           4
+ dvnor :    1.0756658549423059       0.75633928004721895       0.46452142543680319       0.26282653867954070        2.1063935264479077        1.7561758561500840       0.95889014083394919     
+ iphi=           5
+ dvnor :    1.0201767815602745        1.0831163819189340       0.87922221801191747       0.80082578269949378       0.54287255815048907        1.6011737513872735       0.96328243795225821     
+ iphi=           6
+ dvnor :    1.0201770186110226        1.0831157009636025       0.87922122304442596       0.80082455810138797       0.54287360896929060        1.6011730427486663       0.96328295495541316     
+ iphi=           7
+ dvnor :    1.0756659024517983       0.75633906961604136       0.46452097100538881       0.26282693603430812        2.1063935328635748        1.7561758639818836       0.95889013515678079     
+ iphi=           8
+ dvnor :   0.95485785606002505        1.3926456192651822        1.2214723438097874        1.1680631828592742        1.0233727611921661       0.83162426583177984        1.0461450885971235     
+ iphi=           9
+ dvnor :    1.0261046346282698       0.81596628422069539        1.4561419638601449        1.4054559727268681        1.2773449814088069       0.78487967306956063        1.1284381768790144     
+ iphi=          10
+ dvnor :    1.0261067307057896       0.81596414115328741        1.4561414968621154        1.4054554677771816        1.2773443441791541       0.78488037701917146        1.1284380008640695     
+ iphi=          11
+ dvnor :   0.95486015308266337        1.3926464967766443        1.2214733633118295        1.1680642664959699        1.0233741080525811       0.83162355413852640        1.0461435633961709     
+ iphi=          12
+ dvnor :    1.0756661653902286       0.75633830927447776       0.46451933366759546       0.26282836607846255        2.1063935200321762        1.7561758483181817       0.95889014651117510     
+ iphi=          13
+ dvnor :    1.0201798746677744        1.0831079349530073       0.87920957547864786       0.80081007888551181       0.54288659570292630        1.6011683176085381       0.96328640225614981     
+ iphi=          14
+ dvnor :    1.0201815062550204        1.0831074908062253       0.87920889742966479       0.80080923044385954       0.54288737814867372        1.6011681803335416       0.96328650240444880     
+ iphi=          15
+ dvnor :    1.0756662239581112       0.75633784771009649       0.46451833455762814       0.26282924052109619        2.1063935521106303        1.7561758874773752       0.95889011812522540     
+ iphi=          16
+ dvnor :   0.95486144719811084        1.3926467238942455        1.2214736281549012        1.1680645484284580        1.0233744602380705       0.83162335829747114        1.0461431820990785     
+ iphi=          17
+ dvnor :    1.0261078838680175       0.81596316155835158        1.4561417839586015        1.4054557741845901        1.2773447169373329       0.78488006186149861        1.1284379114717213     
+ iphi=          18
+ dvnor :    1.0261044025626558       0.81596531979018128        1.4561422465020812        1.4054562743797578        1.2773453483813848       0.78487936280251880        1.1284380888714780     
+ iphi=          19
+ dvnor :   0.95485729980806877        1.3926456688990700        1.2214724286117582        1.1680632849370087        1.0233729374759133       0.83162390275773823        1.0461453754215460     
+ iphi=          20
+ dvnor :    1.0756658549423059       0.75633928004721895       0.46452142543680319       0.26282653867954070        2.1063935264479077        1.7561758561500840       0.95889014083394919     
+ iphi=          21
+ dvnor :    1.0201767815602745        1.0831163819189340       0.87922221801191747       0.80082578269949378       0.54287255815048907        1.6011737513872735       0.96328243795225821     
+ iphi=          22
+ dvnor :    1.0201770186110226        1.0831157009636025       0.87922122304442596       0.80082455810138797       0.54287360896929060        1.6011730427486663       0.96328295495541316     
+ iphi=          23
+ dvnor :    1.0756659024517983       0.75633906961604136       0.46452097100538881       0.26282693603430812        2.1063935328635748        1.7561758639818836       0.95889013515678079     
+ iphi=          24
+ dvnor :   0.95485785606002505        1.3926456192651822        1.2214723438097874        1.1680631828592742        1.0233727611921661       0.83162426583177984        1.0461450885971235     
+ iphi=          25
+ dvnor :    1.0261046346282698       0.81596628422069539        1.4561419638601449        1.4054559727268681        1.2773449814088069       0.78487967306956063        1.1284381768790144     
+ iphi=          26
+ dvnor :    1.0261067307057896       0.81596414115328741        1.4561414968621154        1.4054554677771816        1.2773443441791541       0.78488037701917146        1.1284380008640695     
+ iphi=          27
+ dvnor :   0.95486015308266337        1.3926464967766443        1.2214733633118295        1.1680642664959699        1.0233741080525811       0.83162355413852640        1.0461435633961709     
+ iphi=          28
+ dvnor :    1.0756661653902286       0.75633830927447776       0.46451933366759546       0.26282836607846255        2.1063935200321762        1.7561758483181817       0.95889014651117510     
+ iphi=          29
+ dvnor :    1.0201798746677744        1.0831079349530073       0.87920957547864786       0.80081007888551181       0.54288659570292630        1.6011683176085381       0.96328640225614981     
+ iphi=          30
+ dvnor :    1.0201815062550204        1.0831074908062253       0.87920889742966479       0.80080923044385954       0.54288737814867372        1.6011681803335416       0.96328650240444880     
+ iphi=          31
+ dvnor :    1.0756662239581112       0.75633784771009649       0.46451833455762814       0.26282924052109619        2.1063935521106303        1.7561758874773752       0.95889011812522540     
+ iphi=          32
+ dvnor :   0.95486144719811084        1.3926467238942455        1.2214736281549012        1.1680645484284580        1.0233744602380705       0.83162335829747114        1.0461431820990785     
+ iphi=          33
+ dvnor :    1.0261078838680175       0.81596316155835158        1.4561417839586015        1.4054557741845901        1.2773447169373329       0.78488006186149861        1.1284379114717213     
+ Tracking of geometry completed
+   Output from --SALTCG-- completed *)
+
+ STATE VECTOR:
+ NREG          7   (NUMBER OF REGIONS)
+ KPN           7   (NUMBER OF UNKNOWNS)
+ ILK           1   (0=LEAKAGE PRESENT/1=LEAKAGE ABSENT)
+ NBMIX         7   (MAXIMUM NUMBER OF MIXTURES USED)
+ NSURF         4   (NUMBER OF OUTER SURFACES)
+ NANI          1   (1=P0 CROSS SECTIONS/2=P1 CROSS SECTIONS/...)
+ GEOT          4   (TYPE OF GEOMETRY)
+ NORM         -1   (NORMALIZATION OPTION 1=ABSENT/0=GLOBAL/-1=NORMALIZATION BY ANGLE)
+ TRKT          1   (TRACKING TYPE 0=FINITE/1=CYCLIC)
+ BOUND        -1   (BOUNDARY CONDITIONS TYPE 0=ISOTROPIC/1=SPECULAR)
+ NANG          8   (NUMBER OF TRACKING ANGLES)
+ ASYM          1   (ANGULAR SYMMETRY FACTOR)
+ POLQUA        1   (POLAR ANGLE QUADRATURE TYPE)
+ POLOAQ        0   (POLAR ANGLE QUADRATURE ORDER)
+ AZMQUA        8   (AZIMUTHAL OR SOLID ANGULAR QUADRATURE TYPE)
+ NDIM          2   (NUMBER OF DIMENSIONS)
+ NPOINT        0   (NUMBER OF TRACKING POINTS ON A LINE)
+ MAXSGL   100000   (MAXIMUM LENGTH OF A TRACK)
+ NTLINE       10   (TOTAL NUMBER OF TRACKS GENERATED)
+ NBTDIR        0   (TOTAL NUMBER OF TRACK DIRECTIONS PROCESSED)
+ NANGL        32   (NUMBER OF TRACK DIRECTION ANGLES CONSIDERED IN THE INTEGRATION)
+ INSB          1   (VECTORIZATION OPTION)
+ ITRACK        1   (-1=MONTE-CARLO/0=DESACTIVATES TRACKING FILE BUILD/1=ACTIVATES TRACKING FILE BUILD)
+ IBIHET        0   (0/1=DOUBLE HETEROGENEITY IS NOT/IS ACTIVE)
+->@END MODULE   : SALT:       
+-->>MODULE SALT:       : TIME SPENT=        0.007 MEMORY USAGE= 2.000E+01
+->@BEGIN MODULE : TLM:        
+->@DESCRIPTION  : Generate matlab line tracking file                                      
+->@CREDITS      : C. Plamondon, G. Marleau                                                
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+(* Output from --TLMGET-- follows 
+   Output from --TLMGET-- completed *)
+(* Output from --TLM   -- follows 
+   NREG =         7
+   NSUR =         4
+   NANGL=        32
+   NDIM =         2
+   ITGEO=         0          *)
+(* Output from --TLMGEO-- follows 
+   Output from --TLMGEO-- completed *)
+(* Output from --TLMDIR-- follows 
+ Processing lines for region =        1
+ Processing lines for region =        2
+ Processing lines for region =        3
+ Processing lines for region =        4
+ Processing lines for region =        5
+ Processing lines for region =        6
+ Processing lines for region =        7
+   Output from --TLMDIR-- completed *)
+->@END MODULE   : TLM:        
+-->>MODULE TLM:        : TIME SPENT=        0.004 MEMORY USAGE= 0.000E+00
+->@BEGIN MODULE : MCCGT:      
+->@DESCRIPTION  : Method of characteristics in 2- and 3-D                                 
+->@CREDITS      : I. Suslov, R. Roy, R. Le Tellier, A. Hebert                             
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+->@END MODULE   : MCCGT:      
+-->>MODULE MCCGT:      : TIME SPENT=        0.000 MEMORY USAGE= 0.000E+00
+->@BEGIN MODULE : USS:        
+->@DESCRIPTION  : Self-shielding by subgroup method                                       
+->@CREDITS      : A. Hebert                                                               
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+
+ USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
+         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  1
+
+ USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
+         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  2
+
+ USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
+         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  3
+
+ USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  4
+
+ USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  5
+
+ USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  6
+
+ USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  7
+
+ USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  8
+
+ USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
+         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  1
+
+ USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
+         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  2
+
+ USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
+         NUMBER OF CORRELATED FUEL MIXTURES=   4 IN RESONANT REGION  3
+
+ USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  4
+
+ USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  5
+
+ USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  6
+
+ USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  7
+
+ USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
+         NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  8
+->@END MODULE   : USS:        
+-->>MODULE USS:        : TIME SPENT=        9.095 MEMORY USAGE= 6.605E+04
+->@BEGIN MODULE : ASM:        
+->@DESCRIPTION  : To built system matrices (CP and IC)                                    
+->@CREDITS      : A. Hebert, G. Marleau, R. Roy                                           
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+->@END MODULE   : ASM:        
+-->>MODULE ASM:        : TIME SPENT=        0.018 MEMORY USAGE= 2.640E+02
+->@BEGIN MODULE : FLU:        
+->@DESCRIPTION  : Solve the flux equations                                                
+->@CREDITS      : R. Roy, A. Hebert, G. Marleau                                           
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+
+
+
+
+ P. I. M.    SOLUTION TO TRANSPORT EQUATION
+
+ CALCULATION TYPE            =     K-EFF
+ FORWARD/BACKWARD OPTION     =    DIRECT
+ (AN)ISOTROPY OPTION         = ISOTROPIC
+ LEAKAGE TYPE                =      B1  
+ LEAKAGE OPTION              =      SIGS
+ BUCKLING                    =   IMPOSED
+ INITIAL TOTAL BUCKLING      =  0.00000E+00
+ FLUX SOLUTION DOOR          =    MCCG  
+ NB. OF GROUPS               =       295
+ NB. OF REGIONS              =         7
+ NB. OF UNKNOWNS PER GROUP   =         7
+ NB. OF LEAKAGE ZONES        =         1
+ MAX. OUTER ITERATIONS       =       401
+ MAX. THERMAL ITERATIONS     =       590
+ ACCELERATION SCHEME         =( 3 FREE, 3 ACCELERATED)
+ REBALANCING OPTION          = ON 
+ SELF-SCATTERING REDUCTION   = ON 
+ FUNDAMENTAL MODE            = ON 
+ EIGENVALUE TOLERANCE        =  1.000E-05
+ UNKNOWN OUTER TOLERANCE     =  5.000E-05
+ UNKNOWN INNER TOLERANCE     =  5.000E-05
+
+ OUT(  0) EIG: PRC= 1.00E+00 TAR= 1.00E-05 KEFF= 1.618601E-01 BUCK= 0.00000E+00
+
+ B1DIF: DIFFUSION COEFFICIENT CALCULATION.
+          M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
+          IN(  1) FLX: PRC= 3.41E+01 TAR= 5.00E-05 IGDEB=            1 ACCE=     1.00000
+          M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
+          IN(  2) FLX: PRC= 8.49E-01 TAR= 5.00E-05 IGDEB=            2 ACCE=     1.00000
+                  FIRST UNCONVERGED GROUP PRC= 0.11E-01
+          M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
+          IN(  3) FLX: PRC= 1.31E-01 TAR= 5.00E-05 IGDEB=           13 ACCE=     1.00000
+                  FIRST UNCONVERGED GROUP PRC= 0.75E-04
+          M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
+          IN(  4) FLX: PRC= 2.22E-02 TAR= 5.00E-05 IGDEB=           19 ACCE=     1.07076
+                  FIRST UNCONVERGED GROUP PRC= 0.90E-04
+          M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
+          IN(  5) FLX: PRC= 2.03E-03 TAR= 5.00E-05 IGDEB=          103 ACCE=     1.06667
+                  FIRST UNCONVERGED GROUP PRC= 0.66E-04
+          M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
+          IN(  6) FLX: PRC= 1.20E-04 TAR= 5.00E-05 IGDEB=          167 ACCE=     0.95359
+                  FIRST UNCONVERGED GROUP PRC= 0.12E-03
+ FLU2DR: NO LEAKAGE-> REBALANCING ON
+ FLU2DR: CPU TIME=        0. INTERNAL CONVERGENCE *NOT* REACHED AFTER     6 ITERATIONS.
+
+ B1DIF: SOLUTION OF B1   EQUATIONS WITH TYPE K   
+        NUMBER OF ITERATIONS =  1
+        BUCKLING =  0.00000E+00
+        K-EFFECTIVE =  1.239584  (  1.239584 )
+        K-INFINITE =  1.239584
+        MIGRATION AREA =  5.52352E+01
+
+ OUT(  1) EIG: PRC= 8.69E-01 TAR= 1.00E-05 KEFF= 1.239584E+00 BUCK= 0.00000E+00
+ OUT(  1) FLX:                             FNOR= 8.067222E-01 ACCE=     1.00000
+          M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
+          IN(  1) FLX: PRC= 6.83E-04 TAR= 5.00E-05 IGDEB=            1 ACCE=     1.00000
+          M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
+          IN(  2) FLX: PRC= 3.62E-05 TAR= 5.00E-05 IGDEB=          296 ACCE=     1.00000
+ FLU2DR: NO LEAKAGE-> REBALANCING ON
+ FLU2DR: CPU TIME=        0. INTERNAL CONVERGENCE       REACHED AFTER     2 ITERATIONS.
+
+ B1DIF: SOLUTION OF B1   EQUATIONS WITH TYPE K   
+        NUMBER OF ITERATIONS =  1
+        BUCKLING =  0.00000E+00
+        K-EFFECTIVE =  1.239573  (  1.239573 )
+        K-INFINITE =  1.239573
+        MIGRATION AREA =  5.52367E+01
+
+ OUT(  2) EIG: PRC= 9.01E-06 TAR= 1.00E-05 KEFF= 1.239573E+00 BUCK= 0.00000E+00
+ OUT(  2) FLX: PRC= 6.86E-04 TAR= 5.00E-05 FNOR= 8.067294E-01 ACCE=     1.00000
+          M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
+          IN(  1) FLX: PRC= 9.30E-06 TAR= 5.00E-05 IGDEB=          296 ACCE=     1.00000
+ FLU2DR: NO LEAKAGE-> REBALANCING ON
+ FLU2DR: CPU TIME=        0. INTERNAL CONVERGENCE       REACHED AFTER     1 ITERATIONS.
+
+ B1DIF: SOLUTION OF B1   EQUATIONS WITH TYPE K   
+        NUMBER OF ITERATIONS =  1
+        BUCKLING =  0.00000E+00
+        K-EFFECTIVE =  1.239573  (  1.239573 )
+        K-INFINITE =  1.239573
+        MIGRATION AREA =  5.52367E+01
+
+ OUT(  3) EIG: PRC= 3.05E-08 TAR= 1.00E-05 KEFF= 1.239573E+00 BUCK= 0.00000E+00
+ OUT(  3) FLX: PRC= 9.06E-06 TAR= 5.00E-05 FNOR= 8.067294E-01 ACCE=     1.00000
+ FLU2DR: CPU TIME=        0. EXTERNAL CONVERGENCE       REACHED AFTER     3 ITERATIONS.
+
+ ++ TRACKING CALLED=   9 TIMES FINAL KINF= 1.239573E+00 FINAL KEFF= 1.239573E+00 B2= 0.00000E+00 PRECISION= 3.05E-08
+ ++ TOTAL NUMBER OF FLUX CALCULATIONS=      2522
+->@END MODULE   : FLU:        
+-->>MODULE FLU:        : TIME SPENT=        0.444 MEMORY USAGE= 0.000E+00
+->@BEGIN MODULE : GREP:       
+->@DESCRIPTION  : No description available for this module                                
+->@CREDITS      : No author provided for this module                                      
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+-->>module GREP:       : time spent=        0.000 memory usage= 0.000E+00
+->@END MODULE   : GREP:       
+>|SS tracking = SYBILT and FLX tracking = SALT TSPC, MOC on simple geom: Keff1=  1.239573e+00                             |>0085
+>|AT10_24UOX SALT TSPC completed                                                                                          |>0086
+
+ normal end of execution for dragon 5  Version 5.0.10 ($Revision: 3196 $)              
+ check for warning in listing
+ before assuming your run was successful

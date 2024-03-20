@@ -876,8 +876,10 @@
         DO IDIR=1,NBDR
           IF(DVNOR(IREG,IDIR) .EQ. DZERO) THEN
             IF(IPRINT .GE. 10) THEN
-              IANGL=NBDR-1
+*              IANGL=NBDR-1
+              IANGL=IDIR-1 
               WRITE(IOUT,9000) NAMSBR,IREG,IANGL
+*              WRITE(IOUT,9000) NAMSBR,IREG,IDIR
             ENDIF
             DVNOR(IREG,IDIR)=DONE
             IF(IDIR .EQ. 1) THEN
