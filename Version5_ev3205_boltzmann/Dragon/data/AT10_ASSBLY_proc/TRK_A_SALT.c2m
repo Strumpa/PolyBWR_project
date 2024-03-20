@@ -73,7 +73,7 @@ TRACK := MCCGT: TRACK TF_EXC ::
 GeoSS_G2S FIG_SS.ps := G2S: GEOM_SS :: ;
 
 TRACK_SS TF_EXC_SS := SALT: GeoSS_G2S ::
-  EDIT 0
+  EDIT 10
   ALLG
   TSPC <<an2d_SS>> <<densur_SS>> REND
   LONG

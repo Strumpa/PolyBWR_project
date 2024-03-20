@@ -71,8 +71,17 @@ TYPE = 'HYBRIDE'
 # - assemblies : 
 #           - 'ATRIUM-10XM_NL24-2'
 #           - 'ATRIUM-10XM NL24-2_ctrl'
-name_geom = 'AT10_UOX_Gd2O3' # 'AT10_UOX_Gd2O3'
-name_mix = "AT10_45Gd"
+"""
+cases = ["AT10_24UOX", "AT10_32UOX", "AT10_42UOX", "AT10_45UOX", "AT10_48UOX", "AT10_50UOX", "AT10_45Gd", "AT10_42Gd"]
+for mix in cases:
+	if "Gd" in mix:
+		name_geom='AT10_UOX_Gd2O3'
+
+	else:
+		name_geom="AT10_UOX"
+"""
+name_geom = 'AT10_UOX' # 'AT10_UOX_Gd2O3'
+name_mix = "AT10_24UOX"
 tracking_module = "SALT"
 #
 # Multicompo = 1 if you want to generate a MULTICOMPO object 
@@ -85,7 +94,7 @@ Multicompo = 1
 #        - 'UOx'  : used for UOx fuel without Gd poison
 #        - 'Gd'   : used for UOx fuel with Gd poison
 #        - 'free' : modify the burnup points as you wish
-burnup_points = 'UOx_autop5'
+burnup_points = 'UOx_autop5' #"Gd_autop3" <-- try more of these
 # suffixe = suffixe added to name_geom for creation of figures, MULTICOMPO and BU vector
 suffixe = tracking_module+"_"+burnup_points
 #
