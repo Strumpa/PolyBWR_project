@@ -22,12 +22,12 @@ Version5_ev3205/Ganlib/lib
 Version5_ev3205/Trivac/bin
 Version5_ev3205/Trivac/lib
 
-Version5_ev3210/Donjon/data/pincell_mphy_thm_proc/_ACompo
-Version5_ev3210/Donjon/data/history_mphy_proc/
-Version5_ev3210/Donjon/data/ssrcell_thm_proc/
-Version5_ev3210/Donjon/data/1Sap_vs_3Sap_proc/
-Version5_ev3210/Ganlib/bin
-Version5_ev3210/Ganlib/lib
-Version5_ev3210/Trivac/bin
-Version5_ev3210/Trivac/lib
+Version5_*/Donjon/data/pincell_mphy_thm_proc/_ACompo
+Version5_*/Donjon/data/history_mphy_proc/
+Version5_*/Donjon/data/ssrcell_thm_proc/
+Version5_*/Donjon/data/1Sap_vs_3Sap_proc/
+Version5_*/Ganlib/bin
+Version5_*/Ganlib/lib
+Version5_*/Trivac/bin
+Version5_*/Trivac/lib
 
