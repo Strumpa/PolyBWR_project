@@ -35,7 +35,7 @@ INTEGER nseg := 5 ;                                                             
 * ---                                                                                                                      0034
 * TRACKING PARAMETERS FOR MOC FLX                                                                                          0035
 * ---                                                                                                                      0036
-INTEGER an2d := 6 ;  ! ANGULAR QUADRATURE PARAMETER 18                                                                     0037
+INTEGER an2d := 2 ;  ! ANGULAR QUADRATURE PARAMETER 18                                                                     0037
 REAL densur := 5.0 ; ! DENSITY OF INTEGRATION LINES CM^-1 35.0                                                             0038
 * polar angles for MCCGT:                                                                                                  0039
 INTEGER nmu := 4 ;                                                                                                         0040
@@ -136,7 +136,7 @@ QUIT .                                                                          
 ->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
                   GNU LESSER GENERAL PUBLIC LICENSE
 ->@END MODULE   : LIB:        
--->>MODULE LIB:        : TIME SPENT=        4.782 MEMORY USAGE= 1.097E+05
+-->>MODULE LIB:        : TIME SPENT=       62.270 MEMORY USAGE= 1.730E+05
 ->@BEGIN MODULE : SYBILT:     
 ->@DESCRIPTION  : Sybil 2-D tracking                                                      
 ->@CREDITS      : A. Hebert                                                               
@@ -204,7 +204,7 @@ QUIT .                                                                          
  IBIHET      0   (0/1=DOUBLE HETEROGENEITY IS NOT/IS ACTIVE)
  EPSJ   5.00E-06 (FLUX-CURRENT ITERATION EPSILON)
 ->@END MODULE   : SYBILT:     
--->>MODULE SYBILT:     : TIME SPENT=        0.000 MEMORY USAGE= 0.000E+00
+-->>MODULE SYBILT:     : TIME SPENT=        0.001 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : NXT:        
 ->@DESCRIPTION  : New excell tracking in 2- and 3-D                                       
 ->@CREDITS      : G. Marleau                                                              
@@ -445,336 +445,905 @@ Region Merge               7
  Geometry width in X =    1.294999957084656
  Geometry width in Y =    1.294999957084656
    Output from --NXTXYZ-- completed *)
- ***** Warning in NXTTCG *****
-       Number of speculular angles requested :         6
-       For values >          2 and <          8 use          8
 (* Output from --NXTQAC-- follows 
-  NDIM  =       2 AZMQUA=       8 NANGL =       8 NBANGL=       8 ITYPBC=       0
+  NDIM  =       2 AZMQUA=       8 NANGL =       2 NBANGL=       2 ITYPBC=       0
  NXTQAC: Tracking directions and weights 
       Angle   Segments                                       Directions and weight
-          1          1          8          2         18          0.12403473458921          0.99227787671367          0.12816895694347
-          2          2          7          2         18          0.27472112789738          0.96152394764082          0.10800019348987
-          3          1          2          2          6          0.44721359549996          0.89442719099992          0.12619117973982
-          4          4          5          2         18          0.62469504755442          0.78086880944303          0.13763966982684
-          5          5          4          2         18          0.78086880944303          0.62469504755442          0.13763966982684
-          6          2          1          2          6          0.89442719099992          0.44721359549996          0.12619117973982
-          7          7          2          2         18          0.96152394764082          0.27472112789738          0.10800019348987
-          8          8          1          2         18          0.99227787671367          0.12403473458921          0.12816895694347
+          1          1          2          2          6          0.44721359549996          0.89442719099992          0.50000000000000
+          2          2          1          2          6          0.89442719099992          0.44721359549996          0.50000000000000
    Output from --NXTQAC-- completed *)
 (* Output from --NXTQSC-- follows 
  Spatial tracking information :
- Tracking density and number of points=         1    0.005146783907287         10
- Track direction         =   0.124034734589208     0.992277876713668
- Track starting point    =  -0.079692305051363     0.009961538131420
- Track displacement      =   0.159384610102727    -0.019923076262841
- Tracking density and number of points=         2    0.004802820563892         10
- Track direction         =   0.274721127897378     0.961523947640823
- Track starting point    =  -0.256556595271488     0.073301884363282
- Track displacement      =   0.171037730180992    -0.048867922908855
- Tracking density and number of points=         3    0.006090213341451         10
+ Tracking density and number of points=         1    0.024130899457505         10
  Track direction         =   0.447213595499958     0.894427190999916
  Track starting point    =  -0.431666652361552     0.215833326180776
  Track displacement      =   0.172666660944621    -0.086333330472310
- Tracking density and number of points=         4    0.006959234270237         10
- Track direction         =   0.624695047554424     0.780868809443030
- Track starting point    =  -0.552743884121500     0.442195107297200
- Track displacement      =   0.157926824034714    -0.126341459227771
- Tracking density and number of points=         5    0.006959234270237         10
- Track direction         =   0.780868809443030     0.624695047554424
- Track starting point    =  -0.568536566524971     0.710670708156214
- Track displacement      =   0.126341459227771    -0.157926824034714
- Tracking density and number of points=         6    0.006090213341451         10
+ Tracking density and number of points=         2    0.024130899457505         10
  Track direction         =   0.894427190999916     0.447213595499958
  Track starting point    =  -0.474833317597707     0.949666635195414
  Track displacement      =   0.086333330472310    -0.172666660944621
- Tracking density and number of points=         7    0.004802820563892         10
- Track direction         =   0.961523947640823     0.274721127897378
- Track starting point    =  -0.317641498907557     1.111745246176450
- Track displacement      =   0.048867922908855    -0.171037730180992
- Tracking density and number of points=         8    0.005146783907287         10
- Track direction         =   0.992277876713668     0.124034734589208
- Track starting point    =  -0.149423071971306     1.195384575770451
- Track displacement      =   0.019923076262841    -0.159384610102727
    Output from --NXTQSC-- completed *)
- Maximum length of a line =      3328
+ Maximum length of a line =       832
 (* Output from --NXTTLC-- follows 
- Direction =     1  Scan =    2    1    8    8  Weight =   0.005146783907287
- Directions and starting point =   0.124034734589208   0.992277876713668  -0.079692305051363   0.009961538131420
- Direction =     2  Scan =    2    2    7   14  Weight =   0.004802820563892
- Directions and starting point =   0.274721127897378   0.961523947640823  -0.256556595271488   0.073301884363282
- Direction =     3  Scan =    2    1    2    2  Weight =   0.006090213341451
+NSCAN =        2
+ Direction =     1  Scan =    2    1    2    2  Weight =   0.024130899457505
  Directions and starting point =   0.447213595499958   0.894427190999916  -0.431666652361552   0.215833326180776
- Direction =     4  Scan =    2    4    5   20  Weight =   0.006959234270237
- Directions and starting point =   0.624695047554424   0.780868809443030  -0.552743884121500   0.442195107297200
- Direction =     5  Scan =    2    5    4   20  Weight =   0.006959234270237
- Directions and starting point =   0.780868809443030   0.624695047554424  -0.568536566524971   0.710670708156214
- Direction =     6  Scan =    2    2    1    2  Weight =   0.006090213341451
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0116
+II=KANGLE(IND) =        1 and IND =        1
+ DVNOR in reg =        7 for direction =        2 added contribution VCONTA=     0.0233
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0166
+II=KANGLE(IND) =        8 and IND =        2
+ DVNOR in reg =        7 for direction =        5 added contribution VCONTA=     0.0332
+ DVNOR in reg =        6 for direction =        1 added contribution VCONTA=     0.0033
+II=KANGLE(IND) =        8 and IND =        2
+ DVNOR in reg =        6 for direction =        5 added contribution VCONTA=     0.0065
+ DVNOR in reg =        5 for direction =        1 added contribution VCONTA=     0.0005
+II=KANGLE(IND) =        8 and IND =        2
+ DVNOR in reg =        5 for direction =        5 added contribution VCONTA=     0.0009
+ DVNOR in reg =        4 for direction =        1 added contribution VCONTA=     0.0006
+II=KANGLE(IND) =        8 and IND =        2
+ DVNOR in reg =        4 for direction =        5 added contribution VCONTA=     0.0012
+ DVNOR in reg =        3 for direction =        1 added contribution VCONTA=     0.0019
+II=KANGLE(IND) =        8 and IND =        2
+ DVNOR in reg =        3 for direction =        5 added contribution VCONTA=     0.0039
+ DVNOR in reg =        2 for direction =        1 added contribution VCONTA=     0.0048
+II=KANGLE(IND) =        8 and IND =        2
+ DVNOR in reg =        2 for direction =        5 added contribution VCONTA=     0.0096
+ DVNOR in reg =        1 for direction =        1 added contribution VCONTA=     0.0239
+II=KANGLE(IND) =        8 and IND =        2
+ DVNOR in reg =        1 for direction =        5 added contribution VCONTA=     0.0477
+ DVNOR in reg =        2 for direction =        1 added contribution VCONTA=     0.0048
+II=KANGLE(IND) =        8 and IND =        2
+ DVNOR in reg =        2 for direction =        5 added contribution VCONTA=     0.0096
+ DVNOR in reg =        3 for direction =        1 added contribution VCONTA=     0.0019
+II=KANGLE(IND) =        8 and IND =        2
+ DVNOR in reg =        3 for direction =        5 added contribution VCONTA=     0.0039
+ DVNOR in reg =        4 for direction =        1 added contribution VCONTA=     0.0006
+II=KANGLE(IND) =        8 and IND =        2
+ DVNOR in reg =        4 for direction =        5 added contribution VCONTA=     0.0012
+ DVNOR in reg =        5 for direction =        1 added contribution VCONTA=     0.0005
+II=KANGLE(IND) =        8 and IND =        2
+ DVNOR in reg =        5 for direction =        5 added contribution VCONTA=     0.0009
+ DVNOR in reg =        6 for direction =        1 added contribution VCONTA=     0.0033
+II=KANGLE(IND) =        8 and IND =        2
+ DVNOR in reg =        6 for direction =        5 added contribution VCONTA=     0.0065
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0073
+II=KANGLE(IND) =        8 and IND =        2
+ DVNOR in reg =        7 for direction =        5 added contribution VCONTA=     0.0146
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0092
+II=KANGLE(IND) =        1 and IND =        3
+ DVNOR in reg =        7 for direction =        2 added contribution VCONTA=     0.0185
+ DVNOR in reg =        6 for direction =        1 added contribution VCONTA=     0.0050
+II=KANGLE(IND) =        1 and IND =        3
+ DVNOR in reg =        6 for direction =        2 added contribution VCONTA=     0.0101
+ DVNOR in reg =        5 for direction =        1 added contribution VCONTA=     0.0008
+II=KANGLE(IND) =        1 and IND =        3
+ DVNOR in reg =        5 for direction =        2 added contribution VCONTA=     0.0016
+ DVNOR in reg =        4 for direction =        1 added contribution VCONTA=     0.0012
+II=KANGLE(IND) =        1 and IND =        3
+ DVNOR in reg =        4 for direction =        2 added contribution VCONTA=     0.0023
+ DVNOR in reg =        3 for direction =        1 added contribution VCONTA=     0.0050
+II=KANGLE(IND) =        1 and IND =        3
+ DVNOR in reg =        3 for direction =        2 added contribution VCONTA=     0.0100
+ DVNOR in reg =        2 for direction =        1 added contribution VCONTA=     0.0088
+II=KANGLE(IND) =        1 and IND =        3
+ DVNOR in reg =        2 for direction =        2 added contribution VCONTA=     0.0176
+ DVNOR in reg =        3 for direction =        1 added contribution VCONTA=     0.0050
+II=KANGLE(IND) =        1 and IND =        3
+ DVNOR in reg =        3 for direction =        2 added contribution VCONTA=     0.0100
+ DVNOR in reg =        4 for direction =        1 added contribution VCONTA=     0.0012
+II=KANGLE(IND) =        1 and IND =        3
+ DVNOR in reg =        4 for direction =        2 added contribution VCONTA=     0.0023
+ DVNOR in reg =        5 for direction =        1 added contribution VCONTA=     0.0008
+II=KANGLE(IND) =        1 and IND =        3
+ DVNOR in reg =        5 for direction =        2 added contribution VCONTA=     0.0016
+ DVNOR in reg =        6 for direction =        1 added contribution VCONTA=     0.0050
+II=KANGLE(IND) =        1 and IND =        3
+ DVNOR in reg =        6 for direction =        2 added contribution VCONTA=     0.0101
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0162
+II=KANGLE(IND) =        1 and IND =        3
+ DVNOR in reg =        7 for direction =        2 added contribution VCONTA=     0.0325
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0116
+II=KANGLE(IND) =        4 and IND =        4
+ DVNOR in reg =        7 for direction =        5 added contribution VCONTA=     0.0233
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0166
+II=KANGLE(IND) =        5 and IND =        5
+ DVNOR in reg =        7 for direction =        2 added contribution VCONTA=     0.0332
+ DVNOR in reg =        6 for direction =        1 added contribution VCONTA=     0.0033
+II=KANGLE(IND) =        5 and IND =        5
+ DVNOR in reg =        6 for direction =        2 added contribution VCONTA=     0.0065
+ DVNOR in reg =        5 for direction =        1 added contribution VCONTA=     0.0005
+II=KANGLE(IND) =        5 and IND =        5
+ DVNOR in reg =        5 for direction =        2 added contribution VCONTA=     0.0009
+ DVNOR in reg =        4 for direction =        1 added contribution VCONTA=     0.0006
+II=KANGLE(IND) =        5 and IND =        5
+ DVNOR in reg =        4 for direction =        2 added contribution VCONTA=     0.0012
+ DVNOR in reg =        3 for direction =        1 added contribution VCONTA=     0.0019
+II=KANGLE(IND) =        5 and IND =        5
+ DVNOR in reg =        3 for direction =        2 added contribution VCONTA=     0.0039
+ DVNOR in reg =        2 for direction =        1 added contribution VCONTA=     0.0048
+II=KANGLE(IND) =        5 and IND =        5
+ DVNOR in reg =        2 for direction =        2 added contribution VCONTA=     0.0096
+ DVNOR in reg =        1 for direction =        1 added contribution VCONTA=     0.0239
+II=KANGLE(IND) =        5 and IND =        5
+ DVNOR in reg =        1 for direction =        2 added contribution VCONTA=     0.0477
+ DVNOR in reg =        2 for direction =        1 added contribution VCONTA=     0.0048
+II=KANGLE(IND) =        5 and IND =        5
+ DVNOR in reg =        2 for direction =        2 added contribution VCONTA=     0.0096
+ DVNOR in reg =        3 for direction =        1 added contribution VCONTA=     0.0019
+II=KANGLE(IND) =        5 and IND =        5
+ DVNOR in reg =        3 for direction =        2 added contribution VCONTA=     0.0039
+ DVNOR in reg =        4 for direction =        1 added contribution VCONTA=     0.0006
+II=KANGLE(IND) =        5 and IND =        5
+ DVNOR in reg =        4 for direction =        2 added contribution VCONTA=     0.0012
+ DVNOR in reg =        5 for direction =        1 added contribution VCONTA=     0.0005
+II=KANGLE(IND) =        5 and IND =        5
+ DVNOR in reg =        5 for direction =        2 added contribution VCONTA=     0.0009
+ DVNOR in reg =        6 for direction =        1 added contribution VCONTA=     0.0033
+II=KANGLE(IND) =        5 and IND =        5
+ DVNOR in reg =        6 for direction =        2 added contribution VCONTA=     0.0065
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0073
+II=KANGLE(IND) =        5 and IND =        5
+ DVNOR in reg =        7 for direction =        2 added contribution VCONTA=     0.0146
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0092
+II=KANGLE(IND) =        4 and IND =        6
+ DVNOR in reg =        7 for direction =        5 added contribution VCONTA=     0.0185
+ DVNOR in reg =        6 for direction =        1 added contribution VCONTA=     0.0050
+II=KANGLE(IND) =        4 and IND =        6
+ DVNOR in reg =        6 for direction =        5 added contribution VCONTA=     0.0101
+ DVNOR in reg =        5 for direction =        1 added contribution VCONTA=     0.0008
+II=KANGLE(IND) =        4 and IND =        6
+ DVNOR in reg =        5 for direction =        5 added contribution VCONTA=     0.0016
+ DVNOR in reg =        4 for direction =        1 added contribution VCONTA=     0.0012
+II=KANGLE(IND) =        4 and IND =        6
+ DVNOR in reg =        4 for direction =        5 added contribution VCONTA=     0.0023
+ DVNOR in reg =        3 for direction =        1 added contribution VCONTA=     0.0050
+II=KANGLE(IND) =        4 and IND =        6
+ DVNOR in reg =        3 for direction =        5 added contribution VCONTA=     0.0100
+ DVNOR in reg =        2 for direction =        1 added contribution VCONTA=     0.0088
+II=KANGLE(IND) =        4 and IND =        6
+ DVNOR in reg =        2 for direction =        5 added contribution VCONTA=     0.0176
+ DVNOR in reg =        3 for direction =        1 added contribution VCONTA=     0.0050
+II=KANGLE(IND) =        4 and IND =        6
+ DVNOR in reg =        3 for direction =        5 added contribution VCONTA=     0.0100
+ DVNOR in reg =        4 for direction =        1 added contribution VCONTA=     0.0012
+II=KANGLE(IND) =        4 and IND =        6
+ DVNOR in reg =        4 for direction =        5 added contribution VCONTA=     0.0023
+ DVNOR in reg =        5 for direction =        1 added contribution VCONTA=     0.0008
+II=KANGLE(IND) =        4 and IND =        6
+ DVNOR in reg =        5 for direction =        5 added contribution VCONTA=     0.0016
+ DVNOR in reg =        6 for direction =        1 added contribution VCONTA=     0.0050
+II=KANGLE(IND) =        4 and IND =        6
+ DVNOR in reg =        6 for direction =        5 added contribution VCONTA=     0.0101
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0162
+II=KANGLE(IND) =        4 and IND =        6
+ DVNOR in reg =        7 for direction =        5 added contribution VCONTA=     0.0325
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0349
+II=KANGLE(IND) =        1 and IND =        1
+ DVNOR in reg =        7 for direction =        2 added contribution VCONTA=     0.0699
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0101
+II=KANGLE(IND) =        8 and IND =        2
+ DVNOR in reg =        7 for direction =        5 added contribution VCONTA=     0.0203
+ DVNOR in reg =        6 for direction =        1 added contribution VCONTA=     0.0030
+II=KANGLE(IND) =        8 and IND =        2
+ DVNOR in reg =        6 for direction =        5 added contribution VCONTA=     0.0060
+ DVNOR in reg =        5 for direction =        1 added contribution VCONTA=     0.0004
+II=KANGLE(IND) =        8 and IND =        2
+ DVNOR in reg =        5 for direction =        5 added contribution VCONTA=     0.0008
+ DVNOR in reg =        4 for direction =        1 added contribution VCONTA=     0.0005
+II=KANGLE(IND) =        8 and IND =        2
+ DVNOR in reg =        4 for direction =        5 added contribution VCONTA=     0.0011
+ DVNOR in reg =        3 for direction =        1 added contribution VCONTA=     0.0017
+II=KANGLE(IND) =        8 and IND =        2
+ DVNOR in reg =        3 for direction =        5 added contribution VCONTA=     0.0034
+ DVNOR in reg =        2 for direction =        1 added contribution VCONTA=     0.0040
+II=KANGLE(IND) =        8 and IND =        2
+ DVNOR in reg =        2 for direction =        5 added contribution VCONTA=     0.0080
+ DVNOR in reg =        1 for direction =        1 added contribution VCONTA=     0.0303
+II=KANGLE(IND) =        8 and IND =        2
+ DVNOR in reg =        1 for direction =        5 added contribution VCONTA=     0.0605
+ DVNOR in reg =        2 for direction =        1 added contribution VCONTA=     0.0040
+II=KANGLE(IND) =        8 and IND =        2
+ DVNOR in reg =        2 for direction =        5 added contribution VCONTA=     0.0080
+ DVNOR in reg =        3 for direction =        1 added contribution VCONTA=     0.0017
+II=KANGLE(IND) =        8 and IND =        2
+ DVNOR in reg =        3 for direction =        5 added contribution VCONTA=     0.0034
+ DVNOR in reg =        4 for direction =        1 added contribution VCONTA=     0.0005
+II=KANGLE(IND) =        8 and IND =        2
+ DVNOR in reg =        4 for direction =        5 added contribution VCONTA=     0.0011
+ DVNOR in reg =        5 for direction =        1 added contribution VCONTA=     0.0004
+II=KANGLE(IND) =        8 and IND =        2
+ DVNOR in reg =        5 for direction =        5 added contribution VCONTA=     0.0008
+ DVNOR in reg =        6 for direction =        1 added contribution VCONTA=     0.0030
+II=KANGLE(IND) =        8 and IND =        2
+ DVNOR in reg =        6 for direction =        5 added contribution VCONTA=     0.0060
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0101
+II=KANGLE(IND) =        8 and IND =        2
+ DVNOR in reg =        7 for direction =        5 added contribution VCONTA=     0.0203
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0349
+II=KANGLE(IND) =        1 and IND =        3
+ DVNOR in reg =        7 for direction =        2 added contribution VCONTA=     0.0699
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0349
+II=KANGLE(IND) =        4 and IND =        4
+ DVNOR in reg =        7 for direction =        5 added contribution VCONTA=     0.0699
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0101
+II=KANGLE(IND) =        5 and IND =        5
+ DVNOR in reg =        7 for direction =        2 added contribution VCONTA=     0.0203
+ DVNOR in reg =        6 for direction =        1 added contribution VCONTA=     0.0030
+II=KANGLE(IND) =        5 and IND =        5
+ DVNOR in reg =        6 for direction =        2 added contribution VCONTA=     0.0060
+ DVNOR in reg =        5 for direction =        1 added contribution VCONTA=     0.0004
+II=KANGLE(IND) =        5 and IND =        5
+ DVNOR in reg =        5 for direction =        2 added contribution VCONTA=     0.0008
+ DVNOR in reg =        4 for direction =        1 added contribution VCONTA=     0.0005
+II=KANGLE(IND) =        5 and IND =        5
+ DVNOR in reg =        4 for direction =        2 added contribution VCONTA=     0.0011
+ DVNOR in reg =        3 for direction =        1 added contribution VCONTA=     0.0017
+II=KANGLE(IND) =        5 and IND =        5
+ DVNOR in reg =        3 for direction =        2 added contribution VCONTA=     0.0034
+ DVNOR in reg =        2 for direction =        1 added contribution VCONTA=     0.0040
+II=KANGLE(IND) =        5 and IND =        5
+ DVNOR in reg =        2 for direction =        2 added contribution VCONTA=     0.0080
+ DVNOR in reg =        1 for direction =        1 added contribution VCONTA=     0.0303
+II=KANGLE(IND) =        5 and IND =        5
+ DVNOR in reg =        1 for direction =        2 added contribution VCONTA=     0.0605
+ DVNOR in reg =        2 for direction =        1 added contribution VCONTA=     0.0040
+II=KANGLE(IND) =        5 and IND =        5
+ DVNOR in reg =        2 for direction =        2 added contribution VCONTA=     0.0080
+ DVNOR in reg =        3 for direction =        1 added contribution VCONTA=     0.0017
+II=KANGLE(IND) =        5 and IND =        5
+ DVNOR in reg =        3 for direction =        2 added contribution VCONTA=     0.0034
+ DVNOR in reg =        4 for direction =        1 added contribution VCONTA=     0.0005
+II=KANGLE(IND) =        5 and IND =        5
+ DVNOR in reg =        4 for direction =        2 added contribution VCONTA=     0.0011
+ DVNOR in reg =        5 for direction =        1 added contribution VCONTA=     0.0004
+II=KANGLE(IND) =        5 and IND =        5
+ DVNOR in reg =        5 for direction =        2 added contribution VCONTA=     0.0008
+ DVNOR in reg =        6 for direction =        1 added contribution VCONTA=     0.0030
+II=KANGLE(IND) =        5 and IND =        5
+ DVNOR in reg =        6 for direction =        2 added contribution VCONTA=     0.0060
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0101
+II=KANGLE(IND) =        5 and IND =        5
+ DVNOR in reg =        7 for direction =        2 added contribution VCONTA=     0.0203
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0349
+II=KANGLE(IND) =        4 and IND =        6
+ DVNOR in reg =        7 for direction =        5 added contribution VCONTA=     0.0699
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0162
+II=KANGLE(IND) =        1 and IND =        1
+ DVNOR in reg =        7 for direction =        2 added contribution VCONTA=     0.0325
+ DVNOR in reg =        6 for direction =        1 added contribution VCONTA=     0.0050
+II=KANGLE(IND) =        1 and IND =        1
+ DVNOR in reg =        6 for direction =        2 added contribution VCONTA=     0.0101
+ DVNOR in reg =        5 for direction =        1 added contribution VCONTA=     0.0008
+II=KANGLE(IND) =        1 and IND =        1
+ DVNOR in reg =        5 for direction =        2 added contribution VCONTA=     0.0016
+ DVNOR in reg =        4 for direction =        1 added contribution VCONTA=     0.0012
+II=KANGLE(IND) =        1 and IND =        1
+ DVNOR in reg =        4 for direction =        2 added contribution VCONTA=     0.0023
+ DVNOR in reg =        3 for direction =        1 added contribution VCONTA=     0.0050
+II=KANGLE(IND) =        1 and IND =        1
+ DVNOR in reg =        3 for direction =        2 added contribution VCONTA=     0.0100
+ DVNOR in reg =        2 for direction =        1 added contribution VCONTA=     0.0088
+II=KANGLE(IND) =        1 and IND =        1
+ DVNOR in reg =        2 for direction =        2 added contribution VCONTA=     0.0176
+ DVNOR in reg =        3 for direction =        1 added contribution VCONTA=     0.0050
+II=KANGLE(IND) =        1 and IND =        1
+ DVNOR in reg =        3 for direction =        2 added contribution VCONTA=     0.0100
+ DVNOR in reg =        4 for direction =        1 added contribution VCONTA=     0.0012
+II=KANGLE(IND) =        1 and IND =        1
+ DVNOR in reg =        4 for direction =        2 added contribution VCONTA=     0.0023
+ DVNOR in reg =        5 for direction =        1 added contribution VCONTA=     0.0008
+II=KANGLE(IND) =        1 and IND =        1
+ DVNOR in reg =        5 for direction =        2 added contribution VCONTA=     0.0016
+ DVNOR in reg =        6 for direction =        1 added contribution VCONTA=     0.0050
+II=KANGLE(IND) =        1 and IND =        1
+ DVNOR in reg =        6 for direction =        2 added contribution VCONTA=     0.0101
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0092
+II=KANGLE(IND) =        1 and IND =        1
+ DVNOR in reg =        7 for direction =        2 added contribution VCONTA=     0.0185
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0073
+II=KANGLE(IND) =        8 and IND =        2
+ DVNOR in reg =        7 for direction =        5 added contribution VCONTA=     0.0146
+ DVNOR in reg =        6 for direction =        1 added contribution VCONTA=     0.0033
+II=KANGLE(IND) =        8 and IND =        2
+ DVNOR in reg =        6 for direction =        5 added contribution VCONTA=     0.0065
+ DVNOR in reg =        5 for direction =        1 added contribution VCONTA=     0.0005
+II=KANGLE(IND) =        8 and IND =        2
+ DVNOR in reg =        5 for direction =        5 added contribution VCONTA=     0.0009
+ DVNOR in reg =        4 for direction =        1 added contribution VCONTA=     0.0006
+II=KANGLE(IND) =        8 and IND =        2
+ DVNOR in reg =        4 for direction =        5 added contribution VCONTA=     0.0012
+ DVNOR in reg =        3 for direction =        1 added contribution VCONTA=     0.0019
+II=KANGLE(IND) =        8 and IND =        2
+ DVNOR in reg =        3 for direction =        5 added contribution VCONTA=     0.0039
+ DVNOR in reg =        2 for direction =        1 added contribution VCONTA=     0.0048
+II=KANGLE(IND) =        8 and IND =        2
+ DVNOR in reg =        2 for direction =        5 added contribution VCONTA=     0.0096
+ DVNOR in reg =        1 for direction =        1 added contribution VCONTA=     0.0239
+II=KANGLE(IND) =        8 and IND =        2
+ DVNOR in reg =        1 for direction =        5 added contribution VCONTA=     0.0477
+ DVNOR in reg =        2 for direction =        1 added contribution VCONTA=     0.0048
+II=KANGLE(IND) =        8 and IND =        2
+ DVNOR in reg =        2 for direction =        5 added contribution VCONTA=     0.0096
+ DVNOR in reg =        3 for direction =        1 added contribution VCONTA=     0.0019
+II=KANGLE(IND) =        8 and IND =        2
+ DVNOR in reg =        3 for direction =        5 added contribution VCONTA=     0.0039
+ DVNOR in reg =        4 for direction =        1 added contribution VCONTA=     0.0006
+II=KANGLE(IND) =        8 and IND =        2
+ DVNOR in reg =        4 for direction =        5 added contribution VCONTA=     0.0012
+ DVNOR in reg =        5 for direction =        1 added contribution VCONTA=     0.0005
+II=KANGLE(IND) =        8 and IND =        2
+ DVNOR in reg =        5 for direction =        5 added contribution VCONTA=     0.0009
+ DVNOR in reg =        6 for direction =        1 added contribution VCONTA=     0.0033
+II=KANGLE(IND) =        8 and IND =        2
+ DVNOR in reg =        6 for direction =        5 added contribution VCONTA=     0.0065
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0166
+II=KANGLE(IND) =        8 and IND =        2
+ DVNOR in reg =        7 for direction =        5 added contribution VCONTA=     0.0332
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0116
+II=KANGLE(IND) =        1 and IND =        3
+ DVNOR in reg =        7 for direction =        2 added contribution VCONTA=     0.0233
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0162
+II=KANGLE(IND) =        4 and IND =        4
+ DVNOR in reg =        7 for direction =        5 added contribution VCONTA=     0.0325
+ DVNOR in reg =        6 for direction =        1 added contribution VCONTA=     0.0050
+II=KANGLE(IND) =        4 and IND =        4
+ DVNOR in reg =        6 for direction =        5 added contribution VCONTA=     0.0101
+ DVNOR in reg =        5 for direction =        1 added contribution VCONTA=     0.0008
+II=KANGLE(IND) =        4 and IND =        4
+ DVNOR in reg =        5 for direction =        5 added contribution VCONTA=     0.0016
+ DVNOR in reg =        4 for direction =        1 added contribution VCONTA=     0.0012
+II=KANGLE(IND) =        4 and IND =        4
+ DVNOR in reg =        4 for direction =        5 added contribution VCONTA=     0.0023
+ DVNOR in reg =        3 for direction =        1 added contribution VCONTA=     0.0050
+II=KANGLE(IND) =        4 and IND =        4
+ DVNOR in reg =        3 for direction =        5 added contribution VCONTA=     0.0100
+ DVNOR in reg =        2 for direction =        1 added contribution VCONTA=     0.0088
+II=KANGLE(IND) =        4 and IND =        4
+ DVNOR in reg =        2 for direction =        5 added contribution VCONTA=     0.0176
+ DVNOR in reg =        3 for direction =        1 added contribution VCONTA=     0.0050
+II=KANGLE(IND) =        4 and IND =        4
+ DVNOR in reg =        3 for direction =        5 added contribution VCONTA=     0.0100
+ DVNOR in reg =        4 for direction =        1 added contribution VCONTA=     0.0012
+II=KANGLE(IND) =        4 and IND =        4
+ DVNOR in reg =        4 for direction =        5 added contribution VCONTA=     0.0023
+ DVNOR in reg =        5 for direction =        1 added contribution VCONTA=     0.0008
+II=KANGLE(IND) =        4 and IND =        4
+ DVNOR in reg =        5 for direction =        5 added contribution VCONTA=     0.0016
+ DVNOR in reg =        6 for direction =        1 added contribution VCONTA=     0.0050
+II=KANGLE(IND) =        4 and IND =        4
+ DVNOR in reg =        6 for direction =        5 added contribution VCONTA=     0.0101
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0092
+II=KANGLE(IND) =        4 and IND =        4
+ DVNOR in reg =        7 for direction =        5 added contribution VCONTA=     0.0185
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0073
+II=KANGLE(IND) =        5 and IND =        5
+ DVNOR in reg =        7 for direction =        2 added contribution VCONTA=     0.0146
+ DVNOR in reg =        6 for direction =        1 added contribution VCONTA=     0.0033
+II=KANGLE(IND) =        5 and IND =        5
+ DVNOR in reg =        6 for direction =        2 added contribution VCONTA=     0.0065
+ DVNOR in reg =        5 for direction =        1 added contribution VCONTA=     0.0005
+II=KANGLE(IND) =        5 and IND =        5
+ DVNOR in reg =        5 for direction =        2 added contribution VCONTA=     0.0009
+ DVNOR in reg =        4 for direction =        1 added contribution VCONTA=     0.0006
+II=KANGLE(IND) =        5 and IND =        5
+ DVNOR in reg =        4 for direction =        2 added contribution VCONTA=     0.0012
+ DVNOR in reg =        3 for direction =        1 added contribution VCONTA=     0.0019
+II=KANGLE(IND) =        5 and IND =        5
+ DVNOR in reg =        3 for direction =        2 added contribution VCONTA=     0.0039
+ DVNOR in reg =        2 for direction =        1 added contribution VCONTA=     0.0048
+II=KANGLE(IND) =        5 and IND =        5
+ DVNOR in reg =        2 for direction =        2 added contribution VCONTA=     0.0096
+ DVNOR in reg =        1 for direction =        1 added contribution VCONTA=     0.0239
+II=KANGLE(IND) =        5 and IND =        5
+ DVNOR in reg =        1 for direction =        2 added contribution VCONTA=     0.0477
+ DVNOR in reg =        2 for direction =        1 added contribution VCONTA=     0.0048
+II=KANGLE(IND) =        5 and IND =        5
+ DVNOR in reg =        2 for direction =        2 added contribution VCONTA=     0.0096
+ DVNOR in reg =        3 for direction =        1 added contribution VCONTA=     0.0019
+II=KANGLE(IND) =        5 and IND =        5
+ DVNOR in reg =        3 for direction =        2 added contribution VCONTA=     0.0039
+ DVNOR in reg =        4 for direction =        1 added contribution VCONTA=     0.0006
+II=KANGLE(IND) =        5 and IND =        5
+ DVNOR in reg =        4 for direction =        2 added contribution VCONTA=     0.0012
+ DVNOR in reg =        5 for direction =        1 added contribution VCONTA=     0.0005
+II=KANGLE(IND) =        5 and IND =        5
+ DVNOR in reg =        5 for direction =        2 added contribution VCONTA=     0.0009
+ DVNOR in reg =        6 for direction =        1 added contribution VCONTA=     0.0033
+II=KANGLE(IND) =        5 and IND =        5
+ DVNOR in reg =        6 for direction =        2 added contribution VCONTA=     0.0065
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0166
+II=KANGLE(IND) =        5 and IND =        5
+ DVNOR in reg =        7 for direction =        2 added contribution VCONTA=     0.0332
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0116
+II=KANGLE(IND) =        4 and IND =        6
+ DVNOR in reg =        7 for direction =        5 added contribution VCONTA=     0.0233
+NSCAN =        2
+ Direction =     2  Scan =    2    2    1    2  Weight =   0.024130899457505
  Directions and starting point =   0.894427190999916   0.447213595499958  -0.474833317597707   0.949666635195414
- Direction =     7  Scan =    2    7    2   14  Weight =   0.004802820563892
- Directions and starting point =   0.961523947640823   0.274721127897378  -0.317641498907557   1.111745246176450
- Direction =     8  Scan =    2    8    1    8  Weight =   0.005146783907287
- Directions and starting point =   0.992277876713668   0.124034734589208  -0.149423071971306   1.195384575770451
- Normalization volumes  =         1    3.0896374562D-01    3.0099343536D-01
- ***** Warning in NXTTLC*****
-       For region        1 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        1 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        1 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        1 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        1 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        1 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        1 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        1 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        1 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        1 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        1 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        1 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        1 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        1 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        1 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        1 no crossing by angle       32
- Normalization volumes  =         2    1.8537665366D-01    1.8576633144D-01
- ***** Warning in NXTTLC*****
-       For region        2 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        2 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        2 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        2 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        2 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        2 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        2 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        2 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        2 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        2 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        2 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        2 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        2 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        2 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        2 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        2 no crossing by angle       32
- Normalization volumes  =         3    9.2689261908D-02    1.1662003540D-01
- ***** Warning in NXTTLC*****
-       For region        3 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        3 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        3 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        3 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        3 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        3 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        3 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        3 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        3 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        3 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        3 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        3 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        3 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        3 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        3 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        3 no crossing by angle       32
- Normalization volumes  =         4    3.0897300315D-02    3.0147624534D-02
- ***** Warning in NXTTLC*****
-       For region        4 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        4 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        4 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        4 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        4 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        4 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        4 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        4 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        4 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        4 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        4 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        4 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        4 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        4 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        4 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        4 no crossing by angle       32
- Normalization volumes  =         5    2.3912961653D-02    2.1862461615D-02
- ***** Warning in NXTTLC*****
-       For region        5 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        5 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        5 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        5 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        5 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        5 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        5 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        5 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        5 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        5 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        5 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        5 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        5 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        5 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        5 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        5 no crossing by angle       32
- Normalization volumes  =         6    1.8815628493D-01    1.7566666414D-01
- ***** Warning in NXTTLC*****
-       For region        6 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        6 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        6 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        6 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        6 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        6 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        6 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        6 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        6 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        6 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        6 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        6 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        6 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        6 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        6 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        6 no crossing by angle       32
- Normalization volumes  =         7    8.4702868076D-01    8.4596833636D-01
- ***** Warning in NXTTLC*****
-       For region        7 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        7 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        7 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        7 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        7 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        7 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        7 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        7 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        7 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        7 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        7 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        7 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        7 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        7 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        7 no crossing by angle       32
- ***** Warning in NXTTLC*****
-       For region        7 no crossing by angle       32
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0116
+II=KANGLE(IND) =        2 and IND =        1
+ DVNOR in reg =        7 for direction =        3 added contribution VCONTA=     0.0233
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0162
+II=KANGLE(IND) =        7 and IND =        2
+ DVNOR in reg =        7 for direction =        4 added contribution VCONTA=     0.0325
+ DVNOR in reg =        6 for direction =        1 added contribution VCONTA=     0.0050
+II=KANGLE(IND) =        7 and IND =        2
+ DVNOR in reg =        6 for direction =        4 added contribution VCONTA=     0.0101
+ DVNOR in reg =        5 for direction =        1 added contribution VCONTA=     0.0008
+II=KANGLE(IND) =        7 and IND =        2
+ DVNOR in reg =        5 for direction =        4 added contribution VCONTA=     0.0016
+ DVNOR in reg =        4 for direction =        1 added contribution VCONTA=     0.0012
+II=KANGLE(IND) =        7 and IND =        2
+ DVNOR in reg =        4 for direction =        4 added contribution VCONTA=     0.0023
+ DVNOR in reg =        3 for direction =        1 added contribution VCONTA=     0.0050
+II=KANGLE(IND) =        7 and IND =        2
+ DVNOR in reg =        3 for direction =        4 added contribution VCONTA=     0.0100
+ DVNOR in reg =        2 for direction =        1 added contribution VCONTA=     0.0088
+II=KANGLE(IND) =        7 and IND =        2
+ DVNOR in reg =        2 for direction =        4 added contribution VCONTA=     0.0176
+ DVNOR in reg =        3 for direction =        1 added contribution VCONTA=     0.0050
+II=KANGLE(IND) =        7 and IND =        2
+ DVNOR in reg =        3 for direction =        4 added contribution VCONTA=     0.0100
+ DVNOR in reg =        4 for direction =        1 added contribution VCONTA=     0.0012
+II=KANGLE(IND) =        7 and IND =        2
+ DVNOR in reg =        4 for direction =        4 added contribution VCONTA=     0.0023
+ DVNOR in reg =        5 for direction =        1 added contribution VCONTA=     0.0008
+II=KANGLE(IND) =        7 and IND =        2
+ DVNOR in reg =        5 for direction =        4 added contribution VCONTA=     0.0016
+ DVNOR in reg =        6 for direction =        1 added contribution VCONTA=     0.0050
+II=KANGLE(IND) =        7 and IND =        2
+ DVNOR in reg =        6 for direction =        4 added contribution VCONTA=     0.0101
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0092
+II=KANGLE(IND) =        7 and IND =        2
+ DVNOR in reg =        7 for direction =        4 added contribution VCONTA=     0.0185
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0073
+II=KANGLE(IND) =        6 and IND =        3
+ DVNOR in reg =        7 for direction =        3 added contribution VCONTA=     0.0146
+ DVNOR in reg =        6 for direction =        1 added contribution VCONTA=     0.0033
+II=KANGLE(IND) =        6 and IND =        3
+ DVNOR in reg =        6 for direction =        3 added contribution VCONTA=     0.0065
+ DVNOR in reg =        5 for direction =        1 added contribution VCONTA=     0.0005
+II=KANGLE(IND) =        6 and IND =        3
+ DVNOR in reg =        5 for direction =        3 added contribution VCONTA=     0.0009
+ DVNOR in reg =        4 for direction =        1 added contribution VCONTA=     0.0006
+II=KANGLE(IND) =        6 and IND =        3
+ DVNOR in reg =        4 for direction =        3 added contribution VCONTA=     0.0012
+ DVNOR in reg =        3 for direction =        1 added contribution VCONTA=     0.0019
+II=KANGLE(IND) =        6 and IND =        3
+ DVNOR in reg =        3 for direction =        3 added contribution VCONTA=     0.0039
+ DVNOR in reg =        2 for direction =        1 added contribution VCONTA=     0.0048
+II=KANGLE(IND) =        6 and IND =        3
+ DVNOR in reg =        2 for direction =        3 added contribution VCONTA=     0.0096
+ DVNOR in reg =        1 for direction =        1 added contribution VCONTA=     0.0239
+II=KANGLE(IND) =        6 and IND =        3
+ DVNOR in reg =        1 for direction =        3 added contribution VCONTA=     0.0477
+ DVNOR in reg =        2 for direction =        1 added contribution VCONTA=     0.0048
+II=KANGLE(IND) =        6 and IND =        3
+ DVNOR in reg =        2 for direction =        3 added contribution VCONTA=     0.0096
+ DVNOR in reg =        3 for direction =        1 added contribution VCONTA=     0.0019
+II=KANGLE(IND) =        6 and IND =        3
+ DVNOR in reg =        3 for direction =        3 added contribution VCONTA=     0.0039
+ DVNOR in reg =        4 for direction =        1 added contribution VCONTA=     0.0006
+II=KANGLE(IND) =        6 and IND =        3
+ DVNOR in reg =        4 for direction =        3 added contribution VCONTA=     0.0012
+ DVNOR in reg =        5 for direction =        1 added contribution VCONTA=     0.0005
+II=KANGLE(IND) =        6 and IND =        3
+ DVNOR in reg =        5 for direction =        3 added contribution VCONTA=     0.0009
+ DVNOR in reg =        6 for direction =        1 added contribution VCONTA=     0.0033
+II=KANGLE(IND) =        6 and IND =        3
+ DVNOR in reg =        6 for direction =        3 added contribution VCONTA=     0.0065
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0166
+II=KANGLE(IND) =        6 and IND =        3
+ DVNOR in reg =        7 for direction =        3 added contribution VCONTA=     0.0332
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0116
+II=KANGLE(IND) =        7 and IND =        4
+ DVNOR in reg =        7 for direction =        4 added contribution VCONTA=     0.0233
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0162
+II=KANGLE(IND) =        2 and IND =        5
+ DVNOR in reg =        7 for direction =        3 added contribution VCONTA=     0.0325
+ DVNOR in reg =        6 for direction =        1 added contribution VCONTA=     0.0050
+II=KANGLE(IND) =        2 and IND =        5
+ DVNOR in reg =        6 for direction =        3 added contribution VCONTA=     0.0101
+ DVNOR in reg =        5 for direction =        1 added contribution VCONTA=     0.0008
+II=KANGLE(IND) =        2 and IND =        5
+ DVNOR in reg =        5 for direction =        3 added contribution VCONTA=     0.0016
+ DVNOR in reg =        4 for direction =        1 added contribution VCONTA=     0.0012
+II=KANGLE(IND) =        2 and IND =        5
+ DVNOR in reg =        4 for direction =        3 added contribution VCONTA=     0.0023
+ DVNOR in reg =        3 for direction =        1 added contribution VCONTA=     0.0050
+II=KANGLE(IND) =        2 and IND =        5
+ DVNOR in reg =        3 for direction =        3 added contribution VCONTA=     0.0100
+ DVNOR in reg =        2 for direction =        1 added contribution VCONTA=     0.0088
+II=KANGLE(IND) =        2 and IND =        5
+ DVNOR in reg =        2 for direction =        3 added contribution VCONTA=     0.0176
+ DVNOR in reg =        3 for direction =        1 added contribution VCONTA=     0.0050
+II=KANGLE(IND) =        2 and IND =        5
+ DVNOR in reg =        3 for direction =        3 added contribution VCONTA=     0.0100
+ DVNOR in reg =        4 for direction =        1 added contribution VCONTA=     0.0012
+II=KANGLE(IND) =        2 and IND =        5
+ DVNOR in reg =        4 for direction =        3 added contribution VCONTA=     0.0023
+ DVNOR in reg =        5 for direction =        1 added contribution VCONTA=     0.0008
+II=KANGLE(IND) =        2 and IND =        5
+ DVNOR in reg =        5 for direction =        3 added contribution VCONTA=     0.0016
+ DVNOR in reg =        6 for direction =        1 added contribution VCONTA=     0.0050
+II=KANGLE(IND) =        2 and IND =        5
+ DVNOR in reg =        6 for direction =        3 added contribution VCONTA=     0.0101
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0092
+II=KANGLE(IND) =        2 and IND =        5
+ DVNOR in reg =        7 for direction =        3 added contribution VCONTA=     0.0185
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0073
+II=KANGLE(IND) =        3 and IND =        6
+ DVNOR in reg =        7 for direction =        4 added contribution VCONTA=     0.0146
+ DVNOR in reg =        6 for direction =        1 added contribution VCONTA=     0.0033
+II=KANGLE(IND) =        3 and IND =        6
+ DVNOR in reg =        6 for direction =        4 added contribution VCONTA=     0.0065
+ DVNOR in reg =        5 for direction =        1 added contribution VCONTA=     0.0005
+II=KANGLE(IND) =        3 and IND =        6
+ DVNOR in reg =        5 for direction =        4 added contribution VCONTA=     0.0009
+ DVNOR in reg =        4 for direction =        1 added contribution VCONTA=     0.0006
+II=KANGLE(IND) =        3 and IND =        6
+ DVNOR in reg =        4 for direction =        4 added contribution VCONTA=     0.0012
+ DVNOR in reg =        3 for direction =        1 added contribution VCONTA=     0.0019
+II=KANGLE(IND) =        3 and IND =        6
+ DVNOR in reg =        3 for direction =        4 added contribution VCONTA=     0.0039
+ DVNOR in reg =        2 for direction =        1 added contribution VCONTA=     0.0048
+II=KANGLE(IND) =        3 and IND =        6
+ DVNOR in reg =        2 for direction =        4 added contribution VCONTA=     0.0096
+ DVNOR in reg =        1 for direction =        1 added contribution VCONTA=     0.0239
+II=KANGLE(IND) =        3 and IND =        6
+ DVNOR in reg =        1 for direction =        4 added contribution VCONTA=     0.0477
+ DVNOR in reg =        2 for direction =        1 added contribution VCONTA=     0.0048
+II=KANGLE(IND) =        3 and IND =        6
+ DVNOR in reg =        2 for direction =        4 added contribution VCONTA=     0.0096
+ DVNOR in reg =        3 for direction =        1 added contribution VCONTA=     0.0019
+II=KANGLE(IND) =        3 and IND =        6
+ DVNOR in reg =        3 for direction =        4 added contribution VCONTA=     0.0039
+ DVNOR in reg =        4 for direction =        1 added contribution VCONTA=     0.0006
+II=KANGLE(IND) =        3 and IND =        6
+ DVNOR in reg =        4 for direction =        4 added contribution VCONTA=     0.0012
+ DVNOR in reg =        5 for direction =        1 added contribution VCONTA=     0.0005
+II=KANGLE(IND) =        3 and IND =        6
+ DVNOR in reg =        5 for direction =        4 added contribution VCONTA=     0.0009
+ DVNOR in reg =        6 for direction =        1 added contribution VCONTA=     0.0033
+II=KANGLE(IND) =        3 and IND =        6
+ DVNOR in reg =        6 for direction =        4 added contribution VCONTA=     0.0065
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0166
+II=KANGLE(IND) =        3 and IND =        6
+ DVNOR in reg =        7 for direction =        4 added contribution VCONTA=     0.0332
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0349
+II=KANGLE(IND) =        2 and IND =        1
+ DVNOR in reg =        7 for direction =        3 added contribution VCONTA=     0.0699
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0349
+II=KANGLE(IND) =        7 and IND =        2
+ DVNOR in reg =        7 for direction =        4 added contribution VCONTA=     0.0699
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0101
+II=KANGLE(IND) =        6 and IND =        3
+ DVNOR in reg =        7 for direction =        3 added contribution VCONTA=     0.0203
+ DVNOR in reg =        6 for direction =        1 added contribution VCONTA=     0.0030
+II=KANGLE(IND) =        6 and IND =        3
+ DVNOR in reg =        6 for direction =        3 added contribution VCONTA=     0.0060
+ DVNOR in reg =        5 for direction =        1 added contribution VCONTA=     0.0004
+II=KANGLE(IND) =        6 and IND =        3
+ DVNOR in reg =        5 for direction =        3 added contribution VCONTA=     0.0008
+ DVNOR in reg =        4 for direction =        1 added contribution VCONTA=     0.0005
+II=KANGLE(IND) =        6 and IND =        3
+ DVNOR in reg =        4 for direction =        3 added contribution VCONTA=     0.0011
+ DVNOR in reg =        3 for direction =        1 added contribution VCONTA=     0.0017
+II=KANGLE(IND) =        6 and IND =        3
+ DVNOR in reg =        3 for direction =        3 added contribution VCONTA=     0.0034
+ DVNOR in reg =        2 for direction =        1 added contribution VCONTA=     0.0040
+II=KANGLE(IND) =        6 and IND =        3
+ DVNOR in reg =        2 for direction =        3 added contribution VCONTA=     0.0080
+ DVNOR in reg =        1 for direction =        1 added contribution VCONTA=     0.0303
+II=KANGLE(IND) =        6 and IND =        3
+ DVNOR in reg =        1 for direction =        3 added contribution VCONTA=     0.0605
+ DVNOR in reg =        2 for direction =        1 added contribution VCONTA=     0.0040
+II=KANGLE(IND) =        6 and IND =        3
+ DVNOR in reg =        2 for direction =        3 added contribution VCONTA=     0.0080
+ DVNOR in reg =        3 for direction =        1 added contribution VCONTA=     0.0017
+II=KANGLE(IND) =        6 and IND =        3
+ DVNOR in reg =        3 for direction =        3 added contribution VCONTA=     0.0034
+ DVNOR in reg =        4 for direction =        1 added contribution VCONTA=     0.0005
+II=KANGLE(IND) =        6 and IND =        3
+ DVNOR in reg =        4 for direction =        3 added contribution VCONTA=     0.0011
+ DVNOR in reg =        5 for direction =        1 added contribution VCONTA=     0.0004
+II=KANGLE(IND) =        6 and IND =        3
+ DVNOR in reg =        5 for direction =        3 added contribution VCONTA=     0.0008
+ DVNOR in reg =        6 for direction =        1 added contribution VCONTA=     0.0030
+II=KANGLE(IND) =        6 and IND =        3
+ DVNOR in reg =        6 for direction =        3 added contribution VCONTA=     0.0060
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0101
+II=KANGLE(IND) =        6 and IND =        3
+ DVNOR in reg =        7 for direction =        3 added contribution VCONTA=     0.0203
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0349
+II=KANGLE(IND) =        7 and IND =        4
+ DVNOR in reg =        7 for direction =        4 added contribution VCONTA=     0.0699
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0349
+II=KANGLE(IND) =        2 and IND =        5
+ DVNOR in reg =        7 for direction =        3 added contribution VCONTA=     0.0699
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0101
+II=KANGLE(IND) =        3 and IND =        6
+ DVNOR in reg =        7 for direction =        4 added contribution VCONTA=     0.0203
+ DVNOR in reg =        6 for direction =        1 added contribution VCONTA=     0.0030
+II=KANGLE(IND) =        3 and IND =        6
+ DVNOR in reg =        6 for direction =        4 added contribution VCONTA=     0.0060
+ DVNOR in reg =        5 for direction =        1 added contribution VCONTA=     0.0004
+II=KANGLE(IND) =        3 and IND =        6
+ DVNOR in reg =        5 for direction =        4 added contribution VCONTA=     0.0008
+ DVNOR in reg =        4 for direction =        1 added contribution VCONTA=     0.0005
+II=KANGLE(IND) =        3 and IND =        6
+ DVNOR in reg =        4 for direction =        4 added contribution VCONTA=     0.0011
+ DVNOR in reg =        3 for direction =        1 added contribution VCONTA=     0.0017
+II=KANGLE(IND) =        3 and IND =        6
+ DVNOR in reg =        3 for direction =        4 added contribution VCONTA=     0.0034
+ DVNOR in reg =        2 for direction =        1 added contribution VCONTA=     0.0040
+II=KANGLE(IND) =        3 and IND =        6
+ DVNOR in reg =        2 for direction =        4 added contribution VCONTA=     0.0080
+ DVNOR in reg =        1 for direction =        1 added contribution VCONTA=     0.0303
+II=KANGLE(IND) =        3 and IND =        6
+ DVNOR in reg =        1 for direction =        4 added contribution VCONTA=     0.0605
+ DVNOR in reg =        2 for direction =        1 added contribution VCONTA=     0.0040
+II=KANGLE(IND) =        3 and IND =        6
+ DVNOR in reg =        2 for direction =        4 added contribution VCONTA=     0.0080
+ DVNOR in reg =        3 for direction =        1 added contribution VCONTA=     0.0017
+II=KANGLE(IND) =        3 and IND =        6
+ DVNOR in reg =        3 for direction =        4 added contribution VCONTA=     0.0034
+ DVNOR in reg =        4 for direction =        1 added contribution VCONTA=     0.0005
+II=KANGLE(IND) =        3 and IND =        6
+ DVNOR in reg =        4 for direction =        4 added contribution VCONTA=     0.0011
+ DVNOR in reg =        5 for direction =        1 added contribution VCONTA=     0.0004
+II=KANGLE(IND) =        3 and IND =        6
+ DVNOR in reg =        5 for direction =        4 added contribution VCONTA=     0.0008
+ DVNOR in reg =        6 for direction =        1 added contribution VCONTA=     0.0030
+II=KANGLE(IND) =        3 and IND =        6
+ DVNOR in reg =        6 for direction =        4 added contribution VCONTA=     0.0060
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0101
+II=KANGLE(IND) =        3 and IND =        6
+ DVNOR in reg =        7 for direction =        4 added contribution VCONTA=     0.0203
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0092
+II=KANGLE(IND) =        2 and IND =        1
+ DVNOR in reg =        7 for direction =        3 added contribution VCONTA=     0.0185
+ DVNOR in reg =        6 for direction =        1 added contribution VCONTA=     0.0050
+II=KANGLE(IND) =        2 and IND =        1
+ DVNOR in reg =        6 for direction =        3 added contribution VCONTA=     0.0101
+ DVNOR in reg =        5 for direction =        1 added contribution VCONTA=     0.0008
+II=KANGLE(IND) =        2 and IND =        1
+ DVNOR in reg =        5 for direction =        3 added contribution VCONTA=     0.0016
+ DVNOR in reg =        4 for direction =        1 added contribution VCONTA=     0.0012
+II=KANGLE(IND) =        2 and IND =        1
+ DVNOR in reg =        4 for direction =        3 added contribution VCONTA=     0.0023
+ DVNOR in reg =        3 for direction =        1 added contribution VCONTA=     0.0050
+II=KANGLE(IND) =        2 and IND =        1
+ DVNOR in reg =        3 for direction =        3 added contribution VCONTA=     0.0100
+ DVNOR in reg =        2 for direction =        1 added contribution VCONTA=     0.0088
+II=KANGLE(IND) =        2 and IND =        1
+ DVNOR in reg =        2 for direction =        3 added contribution VCONTA=     0.0176
+ DVNOR in reg =        3 for direction =        1 added contribution VCONTA=     0.0050
+II=KANGLE(IND) =        2 and IND =        1
+ DVNOR in reg =        3 for direction =        3 added contribution VCONTA=     0.0100
+ DVNOR in reg =        4 for direction =        1 added contribution VCONTA=     0.0012
+II=KANGLE(IND) =        2 and IND =        1
+ DVNOR in reg =        4 for direction =        3 added contribution VCONTA=     0.0023
+ DVNOR in reg =        5 for direction =        1 added contribution VCONTA=     0.0008
+II=KANGLE(IND) =        2 and IND =        1
+ DVNOR in reg =        5 for direction =        3 added contribution VCONTA=     0.0016
+ DVNOR in reg =        6 for direction =        1 added contribution VCONTA=     0.0050
+II=KANGLE(IND) =        2 and IND =        1
+ DVNOR in reg =        6 for direction =        3 added contribution VCONTA=     0.0101
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0162
+II=KANGLE(IND) =        2 and IND =        1
+ DVNOR in reg =        7 for direction =        3 added contribution VCONTA=     0.0325
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0116
+II=KANGLE(IND) =        7 and IND =        2
+ DVNOR in reg =        7 for direction =        4 added contribution VCONTA=     0.0233
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0166
+II=KANGLE(IND) =        6 and IND =        3
+ DVNOR in reg =        7 for direction =        3 added contribution VCONTA=     0.0332
+ DVNOR in reg =        6 for direction =        1 added contribution VCONTA=     0.0033
+II=KANGLE(IND) =        6 and IND =        3
+ DVNOR in reg =        6 for direction =        3 added contribution VCONTA=     0.0065
+ DVNOR in reg =        5 for direction =        1 added contribution VCONTA=     0.0005
+II=KANGLE(IND) =        6 and IND =        3
+ DVNOR in reg =        5 for direction =        3 added contribution VCONTA=     0.0009
+ DVNOR in reg =        4 for direction =        1 added contribution VCONTA=     0.0006
+II=KANGLE(IND) =        6 and IND =        3
+ DVNOR in reg =        4 for direction =        3 added contribution VCONTA=     0.0012
+ DVNOR in reg =        3 for direction =        1 added contribution VCONTA=     0.0019
+II=KANGLE(IND) =        6 and IND =        3
+ DVNOR in reg =        3 for direction =        3 added contribution VCONTA=     0.0039
+ DVNOR in reg =        2 for direction =        1 added contribution VCONTA=     0.0048
+II=KANGLE(IND) =        6 and IND =        3
+ DVNOR in reg =        2 for direction =        3 added contribution VCONTA=     0.0096
+ DVNOR in reg =        1 for direction =        1 added contribution VCONTA=     0.0239
+II=KANGLE(IND) =        6 and IND =        3
+ DVNOR in reg =        1 for direction =        3 added contribution VCONTA=     0.0477
+ DVNOR in reg =        2 for direction =        1 added contribution VCONTA=     0.0048
+II=KANGLE(IND) =        6 and IND =        3
+ DVNOR in reg =        2 for direction =        3 added contribution VCONTA=     0.0096
+ DVNOR in reg =        3 for direction =        1 added contribution VCONTA=     0.0019
+II=KANGLE(IND) =        6 and IND =        3
+ DVNOR in reg =        3 for direction =        3 added contribution VCONTA=     0.0039
+ DVNOR in reg =        4 for direction =        1 added contribution VCONTA=     0.0006
+II=KANGLE(IND) =        6 and IND =        3
+ DVNOR in reg =        4 for direction =        3 added contribution VCONTA=     0.0012
+ DVNOR in reg =        5 for direction =        1 added contribution VCONTA=     0.0005
+II=KANGLE(IND) =        6 and IND =        3
+ DVNOR in reg =        5 for direction =        3 added contribution VCONTA=     0.0009
+ DVNOR in reg =        6 for direction =        1 added contribution VCONTA=     0.0033
+II=KANGLE(IND) =        6 and IND =        3
+ DVNOR in reg =        6 for direction =        3 added contribution VCONTA=     0.0065
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0073
+II=KANGLE(IND) =        6 and IND =        3
+ DVNOR in reg =        7 for direction =        3 added contribution VCONTA=     0.0146
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0092
+II=KANGLE(IND) =        7 and IND =        4
+ DVNOR in reg =        7 for direction =        4 added contribution VCONTA=     0.0185
+ DVNOR in reg =        6 for direction =        1 added contribution VCONTA=     0.0050
+II=KANGLE(IND) =        7 and IND =        4
+ DVNOR in reg =        6 for direction =        4 added contribution VCONTA=     0.0101
+ DVNOR in reg =        5 for direction =        1 added contribution VCONTA=     0.0008
+II=KANGLE(IND) =        7 and IND =        4
+ DVNOR in reg =        5 for direction =        4 added contribution VCONTA=     0.0016
+ DVNOR in reg =        4 for direction =        1 added contribution VCONTA=     0.0012
+II=KANGLE(IND) =        7 and IND =        4
+ DVNOR in reg =        4 for direction =        4 added contribution VCONTA=     0.0023
+ DVNOR in reg =        3 for direction =        1 added contribution VCONTA=     0.0050
+II=KANGLE(IND) =        7 and IND =        4
+ DVNOR in reg =        3 for direction =        4 added contribution VCONTA=     0.0100
+ DVNOR in reg =        2 for direction =        1 added contribution VCONTA=     0.0088
+II=KANGLE(IND) =        7 and IND =        4
+ DVNOR in reg =        2 for direction =        4 added contribution VCONTA=     0.0176
+ DVNOR in reg =        3 for direction =        1 added contribution VCONTA=     0.0050
+II=KANGLE(IND) =        7 and IND =        4
+ DVNOR in reg =        3 for direction =        4 added contribution VCONTA=     0.0100
+ DVNOR in reg =        4 for direction =        1 added contribution VCONTA=     0.0012
+II=KANGLE(IND) =        7 and IND =        4
+ DVNOR in reg =        4 for direction =        4 added contribution VCONTA=     0.0023
+ DVNOR in reg =        5 for direction =        1 added contribution VCONTA=     0.0008
+II=KANGLE(IND) =        7 and IND =        4
+ DVNOR in reg =        5 for direction =        4 added contribution VCONTA=     0.0016
+ DVNOR in reg =        6 for direction =        1 added contribution VCONTA=     0.0050
+II=KANGLE(IND) =        7 and IND =        4
+ DVNOR in reg =        6 for direction =        4 added contribution VCONTA=     0.0101
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0162
+II=KANGLE(IND) =        7 and IND =        4
+ DVNOR in reg =        7 for direction =        4 added contribution VCONTA=     0.0325
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0116
+II=KANGLE(IND) =        2 and IND =        5
+ DVNOR in reg =        7 for direction =        3 added contribution VCONTA=     0.0233
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0166
+II=KANGLE(IND) =        3 and IND =        6
+ DVNOR in reg =        7 for direction =        4 added contribution VCONTA=     0.0332
+ DVNOR in reg =        6 for direction =        1 added contribution VCONTA=     0.0033
+II=KANGLE(IND) =        3 and IND =        6
+ DVNOR in reg =        6 for direction =        4 added contribution VCONTA=     0.0065
+ DVNOR in reg =        5 for direction =        1 added contribution VCONTA=     0.0005
+II=KANGLE(IND) =        3 and IND =        6
+ DVNOR in reg =        5 for direction =        4 added contribution VCONTA=     0.0009
+ DVNOR in reg =        4 for direction =        1 added contribution VCONTA=     0.0006
+II=KANGLE(IND) =        3 and IND =        6
+ DVNOR in reg =        4 for direction =        4 added contribution VCONTA=     0.0012
+ DVNOR in reg =        3 for direction =        1 added contribution VCONTA=     0.0019
+II=KANGLE(IND) =        3 and IND =        6
+ DVNOR in reg =        3 for direction =        4 added contribution VCONTA=     0.0039
+ DVNOR in reg =        2 for direction =        1 added contribution VCONTA=     0.0048
+II=KANGLE(IND) =        3 and IND =        6
+ DVNOR in reg =        2 for direction =        4 added contribution VCONTA=     0.0096
+ DVNOR in reg =        1 for direction =        1 added contribution VCONTA=     0.0239
+II=KANGLE(IND) =        3 and IND =        6
+ DVNOR in reg =        1 for direction =        4 added contribution VCONTA=     0.0477
+ DVNOR in reg =        2 for direction =        1 added contribution VCONTA=     0.0048
+II=KANGLE(IND) =        3 and IND =        6
+ DVNOR in reg =        2 for direction =        4 added contribution VCONTA=     0.0096
+ DVNOR in reg =        3 for direction =        1 added contribution VCONTA=     0.0019
+II=KANGLE(IND) =        3 and IND =        6
+ DVNOR in reg =        3 for direction =        4 added contribution VCONTA=     0.0039
+ DVNOR in reg =        4 for direction =        1 added contribution VCONTA=     0.0006
+II=KANGLE(IND) =        3 and IND =        6
+ DVNOR in reg =        4 for direction =        4 added contribution VCONTA=     0.0012
+ DVNOR in reg =        5 for direction =        1 added contribution VCONTA=     0.0005
+II=KANGLE(IND) =        3 and IND =        6
+ DVNOR in reg =        5 for direction =        4 added contribution VCONTA=     0.0009
+ DVNOR in reg =        6 for direction =        1 added contribution VCONTA=     0.0033
+II=KANGLE(IND) =        3 and IND =        6
+ DVNOR in reg =        6 for direction =        4 added contribution VCONTA=     0.0065
+ DVNOR in reg =        7 for direction =        1 added contribution VCONTA=     0.0073
+II=KANGLE(IND) =        3 and IND =        6
+ DVNOR in reg =        7 for direction =        4 added contribution VCONTA=     0.0146
+ Normalization volumes  =         1    3.0896374562D-01    3.1191998301D-01
+ ***** Warning in NXTTLC*****
+       For region        1 no crossing by angle        5
+ ***** Warning in NXTTLC*****
+       For region        1 no crossing by angle        6
+ ***** Warning in NXTTLC*****
+       For region        1 no crossing by angle        7
+ ***** Warning in NXTTLC*****
+       For region        1 no crossing by angle        8
+ Normalization volumes  =         2    1.8537665366D-01    1.7910955535D-01
+ ***** Warning in NXTTLC*****
+       For region        2 no crossing by angle        5
+ ***** Warning in NXTTLC*****
+       For region        2 no crossing by angle        6
+ ***** Warning in NXTTLC*****
+       For region        2 no crossing by angle        7
+ ***** Warning in NXTTLC*****
+       For region        2 no crossing by angle        8
+ Normalization volumes  =         3    9.2689261908D-02    1.2463378030D-01
+ ***** Warning in NXTTLC*****
+       For region        3 no crossing by angle        5
+ ***** Warning in NXTTLC*****
+       For region        3 no crossing by angle        6
+ ***** Warning in NXTTLC*****
+       For region        3 no crossing by angle        7
+ ***** Warning in NXTTLC*****
+       For region        3 no crossing by angle        8
+ Normalization volumes  =         4    3.0897300315D-02    3.2402666385D-02
+ ***** Warning in NXTTLC*****
+       For region        4 no crossing by angle        5
+ ***** Warning in NXTTLC*****
+       For region        4 no crossing by angle        6
+ ***** Warning in NXTTLC*****
+       For region        4 no crossing by angle        7
+ ***** Warning in NXTTLC*****
+       For region        4 no crossing by angle        8
+ Normalization volumes  =         5    2.3912961653D-02    2.3524235292D-02
+ ***** Warning in NXTTLC*****
+       For region        5 no crossing by angle        5
+ ***** Warning in NXTTLC*****
+       For region        5 no crossing by angle        6
+ ***** Warning in NXTTLC*****
+       For region        5 no crossing by angle        7
+ ***** Warning in NXTTLC*****
+       For region        5 no crossing by angle        8
+ Normalization volumes  =         6    1.8815628493D-01    1.5671683846D-01
+ ***** Warning in NXTTLC*****
+       For region        6 no crossing by angle        5
+ ***** Warning in NXTTLC*****
+       For region        6 no crossing by angle        6
+ ***** Warning in NXTTLC*****
+       For region        6 no crossing by angle        7
+ ***** Warning in NXTTLC*****
+       For region        6 no crossing by angle        8
+ Normalization volumes  =         7    8.4702868076D-01    8.4871783006D-01
+ ***** Warning in NXTTLC*****
+       For region        7 no crossing by angle        5
+ ***** Warning in NXTTLC*****
+       For region        7 no crossing by angle        6
+ ***** Warning in NXTTLC*****
+       For region        7 no crossing by angle        7
+ ***** Warning in NXTTLC*****
+       For region        7 no crossing by angle        8
  ***** Warning in NXTTLC*****
         regions not tracked for some directions
- Normalization surfaces =         1    1.2949999571D+00    1.3005657551D+00
- Normalization surfaces =         2    1.2949999571D+00    1.3005657551D+00
- Normalization surfaces =         3    1.2949999571D+00    1.3005657551D+00
- Normalization surfaces =         4    1.2949999571D+00    1.3005657551D+00
- Global RMS, maximum and average errors (%) on region volumes :     9.04635    20.52029    -0.14556
+ Normalization surfaces =         1    1.2949999571D+00    1.3645702163D+00
+ Normalization surfaces =         2    1.2949999571D+00    1.3645702163D+00
+ Normalization surfaces =         3    1.2949999571D+00    1.3645702163D+00
+ Normalization surfaces =         4    1.2949999571D+00    1.3645702163D+00
+ Global RMS, maximum and average errors (%) on region volumes :    12.51790    25.63071     0.88722
  Normalisation factors and relative errors (%) for region        1 with volume        0.3089637456
-     1.0264800136    -2.64800
+     0.9905224495     0.94776
  Normalisation factors and relative errors (%) for region        2 with volume        0.1853766537
-     0.9979023229     0.20977
+     1.0349903069    -3.49903
  Normalisation factors and relative errors (%) for region        3 with volume        0.0926892619
-     0.7947970654    20.52029
+     0.7436929353    25.63071
  Normalisation factors and relative errors (%) for region        4 with volume        0.0308973003
-     1.0248668276    -2.48668
+     0.9535419076     4.64581
  Normalisation factors and relative errors (%) for region        5 with volume        0.0239129617
-     1.0937909040    -9.37909
+     1.0165245058    -1.65245
  Normalisation factors and relative errors (%) for region        6 with volume        0.1881562849
-     1.0710984116    -7.10984
+     1.2006130725   -20.06131
  Normalisation factors and relative errors (%) for region        7 with volume        0.8470286808
-     1.0012534091    -0.12534
- Global RMS, maximum and average errors (%) on surface areas  :     0.42795     0.42795     0.42795
+     0.9980097634     0.19902
+ Global RMS, maximum and average errors (%) on surface areas  :     5.09833     5.09833     5.09833
  Normalisation factors and relative error (%) for surface       -1 with area          1.2949999571
-     0.9957204793     0.42795
+     0.9490167246     5.09833
  Normalisation factors and relative error (%) for surface       -2 with area          1.2949999571
-     0.9957204793     0.42795
+     0.9490167246     5.09833
  Normalisation factors and relative error (%) for surface       -3 with area          1.2949999571
-     0.9957204793     0.42795
+     0.9490167246     5.09833
  Normalisation factors and relative error (%) for surface       -4 with area          1.2949999571
-     0.9957204793     0.42795
+     0.9490167246     5.09833
    Output from --NXTTLC-- completed *)
 (* Output from --NXTCVM-- follows 
  Surface Merge           4
@@ -803,17 +1372,17 @@ Region Merge               7
  NORM         -1   (NORMALIZATION OPTION 1=ABSENT/0=GLOBAL/-1=NORMALIZATION BY ANGLE)
  TRKT          1   (TRACKING TYPE 0=FINITE/1=CYCLIC)
  BOUND        -1   (BOUNDARY CONDITIONS TYPE 0=ISOTROPIC/1=SPECULAR)
- NANG          6   (NUMBER OF TRACKING ANGLES)
+ NANG          2   (NUMBER OF TRACKING ANGLES)
  ASYM          1   (ANGULAR SYMMETRY FACTOR)
  POLQUA        1   (POLAR ANGLE QUADRATURE TYPE)
- POLOAQ        4   (POLAR ANGLE QUADRATURE ORDER)
+ POLOAQ        1   (POLAR ANGLE QUADRATURE ORDER)
  AZMQUA        8   (AZIMUTHAL OR SOLID ANGULAR QUADRATURE TYPE)
  NDIM          0   (NUMBER OF DIMENSIONS)
  NPOINT        0   (NUMBER OF TRACKING POINTS ON A LINE)
- MAXSGL     3328   (MAXIMUM LENGTH OF A TRACK)
- NTLINE       12   (TOTAL NUMBER OF TRACKS GENERATED)
+ MAXSGL      832   (MAXIMUM LENGTH OF A TRACK)
+ NTLINE        6   (TOTAL NUMBER OF TRACKS GENERATED)
  NBTDIR        0   (TOTAL NUMBER OF TRACK DIRECTIONS PROCESSED)
- NANGL        32   (NUMBER OF TRACK DIRECTION ANGLES CONSIDERED IN THE INTEGRATION)
+ NANGL         8   (NUMBER OF TRACK DIRECTION ANGLES CONSIDERED IN THE INTEGRATION)
  INSB          1   (VECTORIZATION OPTION)
  ITRACK        1   (-1=MONTE-CARLO/0=DESACTIVATES TRACKING FILE BUILD/1=ACTIVATES TRACKING FILE BUILD)
  IBIHET        0   (0/1=DOUBLE HETEROGENEITY IS NOT/IS ACTIVE)
@@ -829,7 +1398,7 @@ Region Merge               7
 (* Output from --TLM   -- follows 
    NREG =         7
    NSUR =         4
-   NANGL=        32
+   NANGL=         8
    NDIM =         2
    ITGEO=         0          *)
 (* Output from --TLMGEO-- follows 
@@ -844,14 +1413,14 @@ Region Merge               7
  Processing lines for region =        7
    Output from --TLMDIR-- completed *)
 ->@END MODULE   : TLM:        
--->>MODULE TLM:        : TIME SPENT=        0.004 MEMORY USAGE= 0.000E+00
+-->>MODULE TLM:        : TIME SPENT=        0.001 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : MCCGT:      
 ->@DESCRIPTION  : Method of characteristics in 2- and 3-D                                 
 ->@CREDITS      : I. Suslov, R. Roy, R. Le Tellier, A. Hebert                             
 ->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
                   GNU LESSER GENERAL PUBLIC LICENSE
 ->@END MODULE   : MCCGT:      
--->>MODULE MCCGT:      : TIME SPENT=        0.000 MEMORY USAGE= 0.000E+00
+-->>MODULE MCCGT:      : TIME SPENT=        0.001 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : USS:        
 ->@DESCRIPTION  : Self-shielding by subgroup method                                       
 ->@CREDITS      : A. Hebert                                                               
@@ -906,14 +1475,14 @@ Region Merge               7
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
          NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  8
 ->@END MODULE   : USS:        
--->>MODULE USS:        : TIME SPENT=        8.826 MEMORY USAGE= 6.562E+04
+-->>MODULE USS:        : TIME SPENT=       19.608 MEMORY USAGE= 6.408E+04
 ->@BEGIN MODULE : ASM:        
 ->@DESCRIPTION  : To built system matrices (CP and IC)                                    
 ->@CREDITS      : A. Hebert, G. Marleau, R. Roy                                           
 ->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
                   GNU LESSER GENERAL PUBLIC LICENSE
 ->@END MODULE   : ASM:        
--->>MODULE ASM:        : TIME SPENT=        0.017 MEMORY USAGE= 0.000E+00
+-->>MODULE ASM:        : TIME SPENT=        0.010 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : FLU:        
 ->@DESCRIPTION  : Solve the flux equations                                                
 ->@CREDITS      : R. Roy, A. Hebert, G. Marleau                                           
@@ -947,75 +1516,75 @@ Region Merge               7
  UNKNOWN OUTER TOLERANCE     =  5.000E-05
  UNKNOWN INNER TOLERANCE     =  5.000E-05
 
- OUT(  0) EIG: PRC= 1.00E+00 TAR= 1.00E-05 KEFF= 1.618601E-01 BUCK= 0.00000E+00
+ OUT(  0) EIG: PRC= 1.00E+00 TAR= 1.00E-05 KEFF= 1.618671E-01 BUCK= 0.00000E+00
 
  B1DIF: DIFFUSION COEFFICIENT CALCULATION.
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
-          IN(  1) FLX: PRC= 3.01E+01 TAR= 5.00E-05 IGDEB=            1 ACCE=     1.00000
+          IN(  1) FLX: PRC= 2.85E+01 TAR= 5.00E-05 IGDEB=            1 ACCE=     1.00000
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
-          IN(  2) FLX: PRC= 8.63E-01 TAR= 5.00E-05 IGDEB=            2 ACCE=     1.00000
-                  FIRST UNCONVERGED GROUP PRC= 0.14E-01
+          IN(  2) FLX: PRC= 8.56E-01 TAR= 5.00E-05 IGDEB=            2 ACCE=     1.00000
+                  FIRST UNCONVERGED GROUP PRC= 0.25E-01
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
-          IN(  3) FLX: PRC= 1.47E-01 TAR= 5.00E-05 IGDEB=           13 ACCE=     1.00000
-                  FIRST UNCONVERGED GROUP PRC= 0.98E-04
+          IN(  3) FLX: PRC= 1.05E-01 TAR= 5.00E-05 IGDEB=            4 ACCE=     1.00000
+                  FIRST UNCONVERGED GROUP PRC= 0.81E-04
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
-          IN(  4) FLX: PRC= 2.34E-02 TAR= 5.00E-05 IGDEB=           18 ACCE=     1.08298
-                  FIRST UNCONVERGED GROUP PRC= 0.97E-04
+          IN(  4) FLX: PRC= 1.76E-02 TAR= 5.00E-05 IGDEB=           17 ACCE=     1.06439
+                  FIRST UNCONVERGED GROUP PRC= 0.52E-04
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
-          IN(  5) FLX: PRC= 2.70E-03 TAR= 5.00E-05 IGDEB=           80 ACCE=     1.09582
-                  FIRST UNCONVERGED GROUP PRC= 0.57E-04
+          IN(  5) FLX: PRC= 1.90E-03 TAR= 5.00E-05 IGDEB=          105 ACCE=     1.06646
+                  FIRST UNCONVERGED GROUP PRC= 0.26E-03
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
-          IN(  6) FLX: PRC= 3.17E-04 TAR= 5.00E-05 IGDEB=          104 ACCE=     0.98165
-                  FIRST UNCONVERGED GROUP PRC= 0.53E-04
+          IN(  6) FLX: PRC= 5.59E-05 TAR= 5.00E-05 IGDEB=          167 ACCE=     0.92231
+                  FIRST UNCONVERGED GROUP PRC= 0.56E-04
  FLU2DR: NO LEAKAGE-> REBALANCING ON
- FLU2DR: CPU TIME=        1. INTERNAL CONVERGENCE *NOT* REACHED AFTER     6 ITERATIONS.
+ FLU2DR: CPU TIME=        0. INTERNAL CONVERGENCE *NOT* REACHED AFTER     6 ITERATIONS.
 
  B1DIF: SOLUTION OF B1   EQUATIONS WITH TYPE K   
         NUMBER OF ITERATIONS =  1
         BUCKLING =  0.00000E+00
-        K-EFFECTIVE =  1.240205  (  1.240205 )
-        K-INFINITE =  1.240205
-        MIGRATION AREA =  5.59421E+01
+        K-EFFECTIVE =  1.260990  (  1.260990 )
+        K-INFINITE =  1.260990
+        MIGRATION AREA =  5.53420E+01
 
- OUT(  1) EIG: PRC= 8.69E-01 TAR= 1.00E-05 KEFF= 1.240205E+00 BUCK= 0.00000E+00
- OUT(  1) FLX:                             FNOR= 8.063185E-01 ACCE=     1.00000
+ OUT(  1) EIG: PRC= 8.72E-01 TAR= 1.00E-05 KEFF= 1.260990E+00 BUCK= 0.00000E+00
+ OUT(  1) FLX:                             FNOR= 7.930279E-01 ACCE=     1.00000
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
-          IN(  1) FLX: PRC= 4.43E-03 TAR= 5.00E-05 IGDEB=            1 ACCE=     1.00000
+          IN(  1) FLX: PRC= 1.08E-02 TAR= 5.00E-05 IGDEB=            1 ACCE=     1.00000
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
-          IN(  2) FLX: PRC= 2.12E-04 TAR= 5.00E-05 IGDEB=           17 ACCE=     1.00000
-                  FIRST UNCONVERGED GROUP PRC= 0.57E-04
+          IN(  2) FLX: PRC= 3.70E-04 TAR= 5.00E-05 IGDEB=            5 ACCE=     1.00000
+                  FIRST UNCONVERGED GROUP PRC= 0.55E-04
  FLU2DR: NO LEAKAGE-> REBALANCING ON
  FLU2DR: CPU TIME=        0. INTERNAL CONVERGENCE *NOT* REACHED AFTER     2 ITERATIONS.
 
  B1DIF: SOLUTION OF B1   EQUATIONS WITH TYPE K   
         NUMBER OF ITERATIONS =  1
         BUCKLING =  0.00000E+00
-        K-EFFECTIVE =  1.240161  (  1.240161 )
-        K-INFINITE =  1.240161
-        MIGRATION AREA =  5.59510E+01
+        K-EFFECTIVE =  1.261071  (  1.261071 )
+        K-INFINITE =  1.261071
+        MIGRATION AREA =  5.53456E+01
 
- OUT(  2) EIG: PRC= 3.49E-05 TAR= 1.00E-05 KEFF= 1.240161E+00 BUCK= 0.00000E+00
- OUT(  2) FLX:                             FNOR= 8.063467E-01 ACCE=     1.00000
+ OUT(  2) EIG: PRC= 6.44E-05 TAR= 1.00E-05 KEFF= 1.261071E+00 BUCK= 0.00000E+00
+ OUT(  2) FLX:                             FNOR= 7.929768E-01 ACCE=     1.00000
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
-          IN(  1) FLX: PRC= 1.99E-05 TAR= 5.00E-05 IGDEB=          296 ACCE=     1.00000
+          IN(  1) FLX: PRC= 3.22E-05 TAR= 5.00E-05 IGDEB=          296 ACCE=     1.00000
  FLU2DR: NO LEAKAGE-> REBALANCING ON
  FLU2DR: CPU TIME=        0. INTERNAL CONVERGENCE       REACHED AFTER     1 ITERATIONS.
 
  B1DIF: SOLUTION OF B1   EQUATIONS WITH TYPE K   
         NUMBER OF ITERATIONS =  1
         BUCKLING =  0.00000E+00
-        K-EFFECTIVE =  1.240161  (  1.240161 )
-        K-INFINITE =  1.240161
-        MIGRATION AREA =  5.59510E+01
+        K-EFFECTIVE =  1.261071  (  1.261071 )
+        K-INFINITE =  1.261071
+        MIGRATION AREA =  5.53457E+01
 
- OUT(  3) EIG: PRC= 9.83E-08 TAR= 1.00E-05 KEFF= 1.240161E+00 BUCK= 0.00000E+00
- OUT(  3) FLX: PRC= 1.98E-05 TAR= 5.00E-05 FNOR= 8.063467E-01 ACCE=     1.00000
- FLU2DR: CPU TIME=        1. EXTERNAL CONVERGENCE       REACHED AFTER     3 ITERATIONS.
+ OUT(  3) EIG: PRC= 2.56E-07 TAR= 1.00E-05 KEFF= 1.261071E+00 BUCK= 0.00000E+00
+ OUT(  3) FLX: PRC= 3.21E-05 TAR= 5.00E-05 FNOR= 7.929766E-01 ACCE=     1.00000
+ FLU2DR: CPU TIME=        0. EXTERNAL CONVERGENCE       REACHED AFTER     3 ITERATIONS.
 
- ++ TRACKING CALLED=   9 TIMES FINAL KINF= 1.240161E+00 FINAL KEFF= 1.240161E+00 B2= 0.00000E+00 PRECISION= 9.83E-08
- ++ TOTAL NUMBER OF FLUX CALCULATIONS=      2546
+ ++ TRACKING CALLED=   9 TIMES FINAL KINF= 1.261072E+00 FINAL KEFF= 1.261071E+00 B2= 0.00000E+00 PRECISION= 2.56E-07
+ ++ TOTAL NUMBER OF FLUX CALCULATIONS=      2531
 ->@END MODULE   : FLU:        
--->>MODULE FLU:        : TIME SPENT=        0.899 MEMORY USAGE= 0.000E+00
+-->>MODULE FLU:        : TIME SPENT=        0.496 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : GREP:       
 ->@DESCRIPTION  : No description available for this module                                
 ->@CREDITS      : No author provided for this module                                      
@@ -1023,7 +1592,7 @@ Region Merge               7
                   GNU LESSER GENERAL PUBLIC LICENSE
 -->>module GREP:       : time spent=        0.000 memory usage= 0.000E+00
 ->@END MODULE   : GREP:       
->|SS tracking = SYBILT and FLX tracking = NXT TSPC, MOC on simple geom  Keff1=  1.240161e+00                              |>0082
+>|SS tracking = SYBILT and FLX tracking = NXT TSPC, MOC on simple geom  Keff1=  1.261071e+00                              |>0082
 >|AT10_24UOX NXT TSPC completed                                                                                           |>0083
 
  normal end of execution for dragon 5  Version 5.0.10 ($Revision: 3196 $)              

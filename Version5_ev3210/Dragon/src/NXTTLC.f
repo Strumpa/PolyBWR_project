@@ -215,6 +215,7 @@
         ENDDO
         ITXY(3)=ITXY(1)*ITXY(2)
         NSCAN=NBSANG(3,IANGL)
+        WRITE(IOUT,9502) NSCAN
         NUMANG=NBSANG(4,IANGL)
         NPOINT=NBSANG(5,IANGL)
         ALLOCATE(TORIG(NDIM,NUMANG),KANGL(NUMANG))
@@ -620,8 +621,11 @@
                     NBREG=NBREG+1
                     VCONT=DLENGT(ISEG)*DWGT*FACVOL
                     DVNOR(IREG,1)=DVNOR(IREG,1)+VCONT
+                    WRITE(IOUT,9550) IREG,1,VCONT
                     IF(NBDR .GT. 1) THEN
                       II=KANGL(IND)
+                      WRITE(IOUT,9500) KANGL(IND),IND
+*                      WRITE(IOUT,9501) NBANGL = nb angles in 0 to pi/2
                       IF(II .GT. 2*NBANGL) II=II-2*NBANGL
                       IF(DANGLT(1,II).EQ.DZERO) THEN
                         VCONTA=DHALF*DLENGT(ISEG)*DAWGT
@@ -629,6 +633,7 @@
                         VCONTA=DLENGT(ISEG)*DAWGT
                       ENDIF
                       DVNOR(IREG,II+1)=DVNOR(IREG,II+1)+VCONTA
+                      WRITE(IOUT,9550) IREG,II+1,VCONTA
                     ENDIF
                     JSEG=JSEG+1
                     LENGTH(JSEG)=DLENGT(ISEG)
@@ -876,7 +881,8 @@
         DO IDIR=1,NBDR
           IF(DVNOR(IREG,IDIR) .EQ. DZERO) THEN
             IF(IPRINT .GE. 10) THEN
-              IANGL=NBDR-1
+*              IANGL=NBDR-1  to me this is wrong, cause DVNOR=0 for IREG and IDIR, so either IANGL=IDIR-1 or IDIR
+              IANGL=IDIR-1 
               WRITE(IOUT,9000) NAMSBR,IREG,IANGL
             ENDIF
             DVNOR(IREG,IDIR)=DONE
@@ -1038,4 +1044,8 @@
  9102 FORMAT(1X,' ***** Error in ',A6,'***** for line ',I8/
      >       7X,'Positions (current and reference ) =',1P,2D20.12/
      >       7X,'Absolute error = ',D21.14)
+ 9500 FORMAT("II=KANGLE(IND) = ", I8,' and IND = ', I8)
+ 9502 FORMAT("NSCAN = ", I8)
+ 9550 FORMAT(" DVNOR in reg = ",I8," for direction = ",I8,
+     >       " added contribution VCONTA= ", F10.4)
       END
