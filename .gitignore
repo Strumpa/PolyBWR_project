@@ -4,23 +4,9 @@
 *.ps
 *.eps
 *.mod
-
-Version5_beta_ev3198/Donjon/data/history_mphy_proc/
-Version5_beta_ev3198/Donjon/data/ssrcell_thm_proc/
-Version5_beta_ev3198/Donjon/data/1Sap_vs_3Sap_proc/
-Version5_beta_ev3198/Trivac/lib
-Version5_beta_ev3198/Trivac/bin
-Version5_beta_ev3198/Ganlib/bin
-Version5_beta_ev3198/Ganlib/lib
+*.a
 
 
-Version5_ev3205/Donjon/data/history_mphy_proc/
-Version5_ev3205/Donjon/data/ssrcell_thm_proc/
-Version5_ev3205/Donjon/data/1Sap_vs_3Sap_proc/
-Version5_ev3205/Ganlib/bin
-Version5_ev3205/Ganlib/lib
-Version5_ev3205/Trivac/bin
-Version5_ev3205/Trivac/lib
 
 Version5_*/Donjon/data/pincell_mphy_thm_proc/_ACompo
 Version5_*/Donjon/data/history_mphy_proc/
