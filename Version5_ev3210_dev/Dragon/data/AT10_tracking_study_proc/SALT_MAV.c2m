@@ -114,7 +114,7 @@ FLUX := FLU: LIBRARY2 SYS TRACK TF_EXC ::
 
 
 GREP: FLUX :: GETVAL 'K-EFFECTIVE  ' 1 1 1 >>Keff1<< ;
-ECHO "SS tracking = SALT and FLX tracking = SALT TSPC, MOC used on sectorized (MAV) geom: Keff3=" Keff1 ;
+ECHO "SS tracking = SALT and FLX tracking = SALT TSPC, MOC used on sectorized (MAV) geom: Keff2=" Keff1 ;
 
 ECHO "SALT_MAV completed" ;
 

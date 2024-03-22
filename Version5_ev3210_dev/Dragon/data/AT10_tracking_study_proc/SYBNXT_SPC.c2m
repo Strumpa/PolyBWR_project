@@ -76,7 +76,8 @@ TRACK_SS := SYBILT: GEOMSS ::
 TRACK TF_EXC := NXT: GEOMFLX_sub ::
   EDIT 0
   ALLG
-  TSPC EQW2 <<an2d>> <<densur>> REND
+  !TSPC EQW2 <<an2d>> <<densur>> REND
+  TSPC EQW2 <<an2d>> <<densur>>
   LONG
 ;
 
@@ -104,10 +105,9 @@ FLUX := FLU: LIBRARY2 SYS TRACK TF_EXC ::
         EDIT 1 TYPE K B1 SIGS ;
 
 GREP: FLUX :: GETVAL 'K-EFFECTIVE  ' 1 1 1 >>Keff1<< ;
-ECHO "SS tracking = SYBILT and FLX tracking = NXT TSPC, MOC used on subdivided geom  Keff6=" Keff1 ;
-!ECHO "SS tracking = SYBILT and FLX tracking = NXT TSPC, PIJ used on subdivided geom  Keff4=" Keff1 ;
+ECHO "SS tracking = SYBILT and FLX tracking = NXT TSPC no REND, MOC used on subdivided geom  Keff7=" Keff1 ;
 
-ECHO "AT10SYBNXT_SPC completed" ;
+ECHO "AT10SYBNXT_SPC_noREND completed" ;
 
 
 END: ;

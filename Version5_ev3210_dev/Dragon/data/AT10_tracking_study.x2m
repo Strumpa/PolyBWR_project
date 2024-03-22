@@ -11,15 +11,18 @@
 ************************************************************************
 
 ! PROCEDURES 
-PROCEDURE SALT_MAV SALT_SUB SYBNXT_ISO SYBNXT_SPC SYBSYB SYBNXT_PIJ SALT_ISO ;
+PROCEDURE SALT_MAV SALT_SUB SYBNXT_ISO SYBNXT_SPC SYBSYB SYBNXT_PIJ_I SYBNXT_PIJ_S SALT_ISO SYBNXT_SPCR ;
 
 SALT_ISO ;
-SYBNXT_PIJ ; ! PIJ with TISO keyword in NXT
 SALT_MAV ; ! MOC with TSPC in SALT
 SALT_SUB ; ! MOC with TSPC in SALT, different sectorization
+SYBNXT_PIJ_I ; ! PIJ with TISO keyword in NXT
+SYBNXT_PIJ_S ; ! PIJ with TSPC keyword in NXT
 SYBNXT_ISO ; ! MOC with TISO in NXT
-SYBNXT_SPC ; ! MOC with TSPC in NXT
+SYBNXT_SPC ; ! MOC with TSPC in NXT without REND option
+SYBNXT_SPCR ; ! MOC with REND option = directional dependent normalization of tracks 
 SYBSYB ; ! PIJ with only SYBILT
+
 
 ECHO "AT10 cell tracking comparison completed" ;
 
