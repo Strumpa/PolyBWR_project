@@ -16,14 +16,14 @@ PROCEDURE SPC_MOC SPC_MOC_R ISO_MOC ISO_MOC_R SPC_PIJ SPC_PIJ_R ISO_PIJ ISO_PIJ_
 
 MODULE END: ;
 
-ISO_MOC_R ;
-ISO_MOC ;
-ISO_PIJ_R ;
-ISO_PIJ ;
-SPC_MOC_R ;
-SPC_MOC ;
-SPC_PIJ_R ;
-SPC_PIJ ;
+!ISO_MOC_R ;
+!ISO_MOC ;
+!ISO_PIJ_R ;
+!ISO_PIJ ;
+SPC_MOC_R ; ! not converged after 20 mins
+!SPC_MOC ;
+!SPC_PIJ_R ;
+!SPC_PIJ ;
 
 ECHO "NXT tracking study run" ;
 END: ; 
