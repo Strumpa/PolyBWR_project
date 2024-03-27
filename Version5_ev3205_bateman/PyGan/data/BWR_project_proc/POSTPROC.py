@@ -62,7 +62,9 @@ def POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
     isotopes_SOUHAITES=['U235','U236','U238','Pu239','Pu240','Pu241','Pu242','Gd155','Gd157','Xe135','Sm149']
 
     # Chemin d'accès aux résultats Serpent2 dans Resultats_serpent4PyGan
-    SERPENT_path='/home/p117902/Serpent2/Linux_x86_64/'
+    
+    SERPENT_path='/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/' # results with new XS lib --> should fix deposited energy in Gd cases
+    #SERPENT_path='/home/p117902/Serpent2/Linux_x86_64/' # results with old XS lib
 
 
 
@@ -84,7 +86,9 @@ def POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
         lenBU_DRAGON=np.shape(ListeCOMPO)[0]
          
         ISOTOPES=pyCOMPO[DIR]['MIXTURES'][0]['CALCULATIONS'][0]['ISOTOPESDENS']
+        
         lenISOT_DRAGON=np.shape(ISOTOPES)[0]-1
+        print(lenISOT_DRAGON)
 
         DRAGON_BU=ListeCOMPO
         DRAGON_ISOTOPESDENS=np.zeros((lenISOT_DRAGON,lenBU_DRAGON))
@@ -213,11 +217,12 @@ def POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
     # -------------------------------
     if visu_DELTA==1 :
 
-        ERROR=np.zeros((lenISOT_DRAGON,lenBU_DRAGON))
+        ERROR=np.zeros((lenISOT_DRAGON+2,lenBU_DRAGON))
         #LE=np.shape(ERROR)
         #print('$$$ ------------------------ ERROR shape=',LE)
 
-        for k in range(lenISOT_DRAGON):
+        for k in range(lenISOT_DRAGON+2):
+            print(f"Getting error for isotope k={k}")
             for j in range(Nmin,lenBU_DRAGON):
                 #print('$$$ ----------------------- k=',k,'    j=',j)
                 #print('$$$ ----------------------- SERPENT_ALL[k][j]=',SERPENT_ALL[k][j])
@@ -327,13 +332,19 @@ def POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
 
     if visu_DELTA==1 :
         print('$$$ -------- POSTPROC.py : ERROR DRAGON5-Serpent2 figures ')
-
-        for k in range(lenISOT_DRAGON-1):
-
+        print(lenISOT_DRAGON)
+        print(len(isotopes_SOUHAITES))
+        print("Full error matrix is :")
+        print(ERROR) 
+        for k in range(lenISOT_DRAGON+1):
             plt.figure()
             plt.figure(figsize=SIZE)
             print(k)
-            print(ERROR[k+1])
+            print(isotopes_SOUHAITES[k-1])
+            if k !=0:
+                print(ERROR[k+1])
+            else:
+                print("keff")
             plt.plot(ERROR[0],ERROR[k+1],'2-',linewidth=1)
             plt.xlabel('BU (MWj/t)')
             plt.grid()
@@ -344,15 +355,17 @@ def POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
                 plt.plot([0,60000],[-300,-300],'r-.') # limite -300pcm
                 plt.ylabel('\u0394 Keff (pcm)')
                 save_name=name_mix+'_ERROR_Keff'
-                fig_name=name_mix+' - \u0394 Keff'
+                #fig_name=name_mix+' - \u0394 Keff'
+                fig_name=name_mix+' - \u0394 Keff New XS lib'
             else : # Erreur sur isotopes
-                print(isotopes_SOUHAITES[k-1])
                 print(isotopes_SOUHAITES)
+                print(isotopes_SOUHAITES[k-1])
                 plt.plot([0,60000],[2,2],'r-.') # limite +2%
                 plt.plot([0,60000],[-2,-2],'r-.') # limite -2%
                 plt.ylabel('Erreur relative (%)')
                 save_name=name_mix+'_ERROR_'+isotopes_SOUHAITES[k-1]
-                fig_name=name_mix+' - \u0394 '+isotopes_SOUHAITES[k-1]
+                #fig_name=name_mix+' - \u0394 '+isotopes_SOUHAITES[k-1]
+                fig_name=name_mix+' - \u0394 '+isotopes_SOUHAITES[k-1] + ' new XS lib'
 
             plt.title(fig_name)
             os.chdir(path+'/'+SAVE_DIR)

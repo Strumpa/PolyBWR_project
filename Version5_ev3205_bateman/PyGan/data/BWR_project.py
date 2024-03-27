@@ -80,8 +80,8 @@ for mix in cases:
 	else:
 		name_geom="AT10_UOX"
 """
-name_geom = 'AT10_UOX' # 'AT10_UOX_Gd2O3'
-name_mix = "AT10_24UOX"
+name_geom = 'AT10_UOX_Gd2O3' # 'AT10_UOX_Gd2O3'
+name_mix = "AT10_45Gd"
 tracking_module = "SALT"
 #
 # Multicompo = 1 if you want to generate a MULTICOMPO object 
@@ -119,9 +119,9 @@ Nmin = 0
 # 	= 1 if you want to plot and save the results
 # 	= 0 either
 # NB : if visu_XXX_Keff==1 or visu_XXX_BU==1 or visu_XXX_ISOTOPOESDENS==1 then visu_XXX must be equal to 1
-visu_DRAGON=1
-visu_SERPENT=1
-visu_COMP=1
+visu_DRAGON=0
+visu_SERPENT=0
+visu_COMP=0
 visu_DELTA=1
 #
 ########################################################################################################################################################################################
@@ -273,5 +273,3 @@ elif case == 'ASSEMBLY':
 # -----------------------------------
 
 POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
-
-_

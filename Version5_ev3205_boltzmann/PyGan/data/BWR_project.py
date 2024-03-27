@@ -264,5 +264,3 @@ elif case == 'ASSEMBLY':
 # -----------------------------------
 
 POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
-
-_
