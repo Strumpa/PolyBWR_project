@@ -1,5 +1,5 @@
 ## BWR_project
-PhD project aimed at extending Dragon5 capabilities to treat BWR assemblies, under the supervision of Prof. Alain Hébert.
+PhD project aimed at extending Dragon5 capabilities to treat Small Modular Reactors of BWR type, under the supervision of Prof. Alain Hébert.
 
 # Project structure
 
