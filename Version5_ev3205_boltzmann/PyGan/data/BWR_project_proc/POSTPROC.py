@@ -62,7 +62,12 @@ def POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
     isotopes_SOUHAITES=['U235','U236','U238','Pu239','Pu240','Pu241','Pu242','Gd155','Gd157','Xe135','Sm149']
 
     # Chemin d'accès aux résultats Serpent2
-    SERPENT_path='/home/p117902/Serpent2/Linux_x86_64'
+    burnup_points=suffixe.split("_")[1]
+    SERPENT_path=f'/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/{burnup_points}/'
+    if burnup_points != "UOx":
+        serpent_suffix = burnup_points+"_"
+    else:
+        serpent_suffix = ""
 
 
 
@@ -99,7 +104,8 @@ def POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
                 #print("$$$ ---------------- ISOTOPES ",j,"/",lenISOT_DRAGON," = ",pyCOMPO['EDIBU_HOM']['MIXTURES'][0]['CALCULATIONS'][k]['ISOTOPESDENS'][j])
                 DRAGON_ISOTOPESDENS[j][k]=pyCOMPO[DIR]['MIXTURES'][0]['CALCULATIONS'][k]['ISOTOPESDENS'][j]
 
-        #print('$$$ ---------------- DRAGON_BU =',DRAGON_BU)
+        print('$$$ ---------------- DRAGON_BU =',DRAGON_BU)
+        print('$$$ ---------------- LEN_DRAGON_BU =',len(DRAGON_BU))
         #print("$$$ ---------------- DRAGON_Keff = ",DRAGON_Keff)    
         #print("$$$ ---------------- DRAGON_ISOTOPESDENS = ",DRAGON_ISOTOPESDENS)
 
@@ -148,13 +154,13 @@ def POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
     if visu_SERPENT==1 or visu_COMP==1 or visu_DELTA==1 :
 
         # --- Keff
-        res=serpentTools.read(SERPENT_path+name_mix+"_mc_res.m")
+        res=serpentTools.read(SERPENT_path+name_mix+"_mc_"+serpent_suffix+"res.m")
         serpent_keff=res.resdata["absKeff"]
         np.savetxt('serpent_keff.txt',serpent_keff)
         SERPENT_keff=np.loadtxt('serpent_keff.txt',dtype=float)
             
         # --- BU
-        depFile = SERPENT_path+name_mix+'_mc_dep.m'
+        depFile = SERPENT_path+name_mix+'_mc_'+serpent_suffix+'dep.m'
         dep = serpentTools.read(depFile)
         fuel=dep.materials['total']
         serpent_BU=fuel.burnup
@@ -168,7 +174,7 @@ def POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
         SERPENT_ISOTOPESDENS=np.transpose(SERPENT_ISOTOPESDENS)
 
         Ls1=np.shape(SERPENT_BU)
-        #print('$$$ ---------------- SERPENT_BU shape =',Ls1)
+        print('$$$ ---------------- SERPENT_BU shape =',Ls1)
 
         Ls2=np.shape(SERPENT_keff)
         lenISOT_SERPENT2=Ls2[0]

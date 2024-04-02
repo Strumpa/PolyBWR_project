@@ -80,7 +80,7 @@ def getLists(burnup_points):
         ListeBU=[0.0]
         ListeAUTOP=[0.0]
         ListeCOMPO=[0.0]
-
+    print(f"Length of Burnup points list is : {len(ListeBU)}")
     return [ListeBU,ListeAUTOP,ListeCOMPO]
 
 
