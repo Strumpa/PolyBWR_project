@@ -10,10 +10,11 @@
 import numpy as np
 import math
 from GeometricTools import geom_PIN
+from MCNP_card import *
 
-# Class GeometryInterface()
+# Class DMLG_Interface()
 
-class GeometryInterface:
+class DMLG_Interface:
     def __init__(self, input_deck, type):
         """
         loading geometry object to be parsed according to :
@@ -23,25 +24,27 @@ class GeometryInterface:
         self.type = type
         self.input_deck = input_deck
         if type == "MCNP":
-            self.parseMCNP_Geom()
-            self.cleanupMCNPcards()
+            self.parseMCNP_deck()
+            self.createMCNPcard_objects()
         elif type == "Native_Dragon":
-            self.parseNative_Geom()
+            self.parseNative_deck()
         elif type == "Serpent2":
-            self.parseSerpent2_Geom()
+            self.parseSerpent2_deck()
         else:
             print("Error: invalid Geometry type to be parsed")
         
         
-    def parseMCNP_Geom(self):
+    def parseMCNP_deck(self):
         """
         parsing the MCNP input file
         Its main structure contains a defintion of "Cell Cards", "Surface Cards" and "Material Cards" 
         Each section has a dictionnary associated in order to store the info about each card.
-        The dictionnary's values are :
-        for Cell Cards : 
-        for Surface Cards :
-        for Material Cards : the material number/identifier
+        The dictionnarys are :
+        for Cell Cards : group of cells with associated data
+        for Surface Cards : group of surfaces with asociated data
+        for Material Cards : material name with associated data
+
+        Classes defining the proper data structure for each card/ group of cards are called in this function.
         """
         print(f"Parsing geometry of type : {self.type}, from input file : {self.input_deck}")
         # Define flags to track when to start/stop parsing each section
@@ -98,7 +101,7 @@ class GeometryInterface:
                             # Add line to current card's contents
                             current_contents.append(line.replace("  ", " ").replace("   ", " ").replace("    ", " ").replace("     ", " ").replace("      "," "))
 
-            # Store contents of the last card in each section
+            # Store contents of the last group of cards in each section
             if current_title and current_contents:
                 if parsing_cell_cards:
                     cell_cards[current_title] = current_contents.copy()
@@ -110,29 +113,44 @@ class GeometryInterface:
         self.Cell_Cards = cell_cards
         self.Surface_Cards = surface_cards
         self.Material_Cards = material_cards
+        #print(self.Surface_Cards)
 
-    def cleanupMCNPcards(self):
-        for cell in self.Cell_Cards.keys():
-            card=""
-            for line in self.Cell_Cards[cell]:
-                card+=line+" "
-            self.Cell_Cards[cell] = card
+    def createMCNPcard_objects(self):
+        for cell_group_name in self.Cell_Cards.keys():
+            self.Cell_Cards[cell_group_name] = MCNP_Cell_Card(1, cell_group_name, self.Cell_Cards[cell_group_name])
+        for surface_group_name in self.Surface_Cards.keys():
+            self.Surface_Cards[surface_group_name] = MCNP_Surface_Card(surface_group_name, self.Surface_Cards[surface_group_name],printlvl=True)
+    
+    def getMCNP_card_data(self, print_cells, print_surfaces, print_materials):
+        """
+        print_cells/surfaces/materials = boolean to specify print level
+        """
+        if print_cells:
+            for cellcard in self.Cell_Cards.values():
+                print(f"Cell card attrtibutes are : group of cells name = {cellcard.cells_group}, \n user defined cell numbers = {cellcard.cell_numbers}, \n material numbers : {cellcard.material_numbers} \n and material densities : {cellcard.material_densities} ")
+                print(f"neutron importance is : {cellcard.neutron_importance}")
+        if print_surfaces:
+            for surfcard in self.Surface_Cards.values():
+                print(f"Surface card attributes are : group of surfaces name : = {surfcard.surfaces_group}")
+        if print_materials:
+            print("Materials not implemented yet")
 
 
 
 
 
-
-
-    def parseNative_Geom(self):
+    def parseNative_deck(self):
         print("Native geom type not suported yet")
         return
 
-    def parseSerpent2_Geom(self):
+    def parseSerpent2_deck(self):
         print("Serpent2 geom type not supported yet")
         return
 
 
 input_f = "MCNP_AT10_sanitized.inp"
-AT10_CRTL_MCNP = GeometryInterface(input_f, type="MCNP")
-print(AT10_CRTL_MCNP.Cell_Cards)
+AT10_CRTL_MCNP = DMLG_Interface(input_f, type="MCNP")
+#print(AT10_CRTL_MCNP.Cell_Cards)
+AT10_CRTL_MCNP.getMCNP_card_data(print_cells=False, print_surfaces=False, print_materials=False)
+print(AT10_CRTL_MCNP.Cell_Cards['water box centered at ( 8.267, 6.973)'].surfaces)
+#print(AT10_CRTL_MCNP.Cell_Cards['water box centered at ( 8.267, 6.973)'].material_densities[2])
