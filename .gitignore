@@ -16,4 +16,14 @@ Version5_*/Ganlib/bin
 Version5_*/Ganlib/lib
 Version5_*/Trivac/bin
 Version5_*/Trivac/lib
+Version5_*/Utilib/src/libUtilib.a
+Version5_*/Utilib/lib/Linux_x86_64/libUtilib.a
+Version5_*/Trivac/src/libTrivac.a
+Version5_*/Trivac/src/Trivac
+Version5_*/Ganlib/src/libGanlib.a
+Version5_*/Ganlib/src/Ganlib
+Version5_*/Dragon/src/libDragon.a
+Version5_*/Dragon/bin/Linux_x86_64/Dragon
+Version5_*/Dragon/lib/Linux_x86_64/libDragon.a
+Version5_e*/Dragon/src/Dragon
 

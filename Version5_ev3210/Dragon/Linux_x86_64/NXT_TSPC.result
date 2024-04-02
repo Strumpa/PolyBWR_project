@@ -120,7 +120,7 @@ QUIT .                                                                          
 
  CREATION OF A LEVEL  1 GEOMETRY ON THE DIRECTORY NAMED '/           ' OF THE LCM OBJECT 'GEOM        ' WITH TYPE 2-D RECT. CELL  .
 ->@END MODULE   : GEO:        
--->>MODULE GEO:        : TIME SPENT=        0.000 MEMORY USAGE= 0.000E+00
+-->>MODULE GEO:        : TIME SPENT=        0.001 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : GEO:        
 ->@DESCRIPTION  : Geometry definition                                                     
 ->@CREDITS      : A. Hebert                                                               
@@ -136,7 +136,7 @@ QUIT .                                                                          
 ->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
                   GNU LESSER GENERAL PUBLIC LICENSE
 ->@END MODULE   : LIB:        
--->>MODULE LIB:        : TIME SPENT=        6.869 MEMORY USAGE= 1.086E+05
+-->>MODULE LIB:        : TIME SPENT=      110.297 MEMORY USAGE= 1.727E+05
 ->@BEGIN MODULE : SYBILT:     
 ->@DESCRIPTION  : Sybil 2-D tracking                                                      
 ->@CREDITS      : A. Hebert                                                               
@@ -204,7 +204,7 @@ QUIT .                                                                          
  IBIHET      0   (0/1=DOUBLE HETEROGENEITY IS NOT/IS ACTIVE)
  EPSJ   5.00E-06 (FLUX-CURRENT ITERATION EPSILON)
 ->@END MODULE   : SYBILT:     
--->>MODULE SYBILT:     : TIME SPENT=        0.000 MEMORY USAGE= 0.000E+00
+-->>MODULE SYBILT:     : TIME SPENT=        0.001 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : NXT:        
 ->@DESCRIPTION  : New excell tracking in 2- and 3-D                                       
 ->@CREDITS      : G. Marleau                                                              
@@ -1165,7 +1165,7 @@ Region Merge               7
  ITRACK        1   (-1=MONTE-CARLO/0=DESACTIVATES TRACKING FILE BUILD/1=ACTIVATES TRACKING FILE BUILD)
  IBIHET        0   (0/1=DOUBLE HETEROGENEITY IS NOT/IS ACTIVE)
 ->@END MODULE   : NXT:        
--->>MODULE NXT:        : TIME SPENT=        0.008 MEMORY USAGE= 0.000E+00
+-->>MODULE NXT:        : TIME SPENT=        0.025 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : TLM:        
 ->@DESCRIPTION  : Generate matlab line tracking file                                      
 ->@CREDITS      : C. Plamondon, G. Marleau                                                
@@ -1191,14 +1191,14 @@ Region Merge               7
  Processing lines for region =        7
    Output from --TLMDIR-- completed *)
 ->@END MODULE   : TLM:        
--->>MODULE TLM:        : TIME SPENT=        0.061 MEMORY USAGE= 0.000E+00
+-->>MODULE TLM:        : TIME SPENT=        0.149 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : MCCGT:      
 ->@DESCRIPTION  : Method of characteristics in 2- and 3-D                                 
 ->@CREDITS      : I. Suslov, R. Roy, R. Le Tellier, A. Hebert                             
 ->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
                   GNU LESSER GENERAL PUBLIC LICENSE
 ->@END MODULE   : MCCGT:      
--->>MODULE MCCGT:      : TIME SPENT=        0.001 MEMORY USAGE= 0.000E+00
+-->>MODULE MCCGT:      : TIME SPENT=        0.002 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : USS:        
 ->@DESCRIPTION  : Self-shielding by subgroup method                                       
 ->@CREDITS      : A. Hebert                                                               
@@ -1253,14 +1253,14 @@ Region Merge               7
  USSDRV: NUMBER OF CORRELATED RESONANT ISOTOPES=   1
          NUMBER OF CORRELATED FUEL MIXTURES=   1 IN RESONANT REGION  8
 ->@END MODULE   : USS:        
--->>MODULE USS:        : TIME SPENT=        8.395 MEMORY USAGE= 6.570E+04
+-->>MODULE USS:        : TIME SPENT=       31.296 MEMORY USAGE= 6.422E+04
 ->@BEGIN MODULE : ASM:        
 ->@DESCRIPTION  : To built system matrices (CP and IC)                                    
 ->@CREDITS      : A. Hebert, G. Marleau, R. Roy                                           
 ->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
                   GNU LESSER GENERAL PUBLIC LICENSE
 ->@END MODULE   : ASM:        
--->>MODULE ASM:        : TIME SPENT=        0.181 MEMORY USAGE= 0.000E+00
+-->>MODULE ASM:        : TIME SPENT=        0.540 MEMORY USAGE= 0.000E+00
 ->@BEGIN MODULE : FLU:        
 ->@DESCRIPTION  : Solve the flux equations                                                
 ->@CREDITS      : R. Roy, A. Hebert, G. Marleau                                           
@@ -1294,7 +1294,7 @@ Region Merge               7
  UNKNOWN OUTER TOLERANCE     =  5.000E-05
  UNKNOWN INNER TOLERANCE     =  5.000E-05
 
- OUT(  0) EIG: PRC= 1.00E+00 TAR= 1.00E-05 KEFF= 1.618601E-01 BUCK= 0.00000E+00
+ OUT(  0) EIG: PRC= 1.00E+00 TAR= 1.00E-05 KEFF= 1.618671E-01 BUCK= 0.00000E+00
 
  B1DIF: DIFFUSION COEFFICIENT CALCULATION.
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
@@ -1304,66 +1304,66 @@ Region Merge               7
                   FIRST UNCONVERGED GROUP PRC= 0.19E-01
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
           IN(  3) FLX: PRC= 1.83E-01 TAR= 5.00E-05 IGDEB=           12 ACCE=     1.00000
-                  FIRST UNCONVERGED GROUP PRC= 0.63E-04
-          M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
-          IN(  4) FLX: PRC= 2.99E-02 TAR= 5.00E-05 IGDEB=           16 ACCE=     1.08900
                   FIRST UNCONVERGED GROUP PRC= 0.57E-04
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
-          IN(  5) FLX: PRC= 4.07E-03 TAR= 5.00E-05 IGDEB=           80 ACCE=     1.10164
-                  FIRST UNCONVERGED GROUP PRC= 0.87E-04
+          IN(  4) FLX: PRC= 3.00E-02 TAR= 5.00E-05 IGDEB=           17 ACCE=     1.08870
+                  FIRST UNCONVERGED GROUP PRC= 0.77E-04
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
-          IN(  6) FLX: PRC= 6.18E-04 TAR= 5.00E-05 IGDEB=          104 ACCE=     0.97874
-                  FIRST UNCONVERGED GROUP PRC= 0.75E-04
+          IN(  5) FLX: PRC= 4.01E-03 TAR= 5.00E-05 IGDEB=           80 ACCE=     1.09979
+                  FIRST UNCONVERGED GROUP PRC= 0.85E-04
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
-          IN(  7) FLX: PRC= 3.82E-05 TAR= 5.00E-05 IGDEB=          296 ACCE=     1.00000
+          IN(  6) FLX: PRC= 6.22E-04 TAR= 5.00E-05 IGDEB=          104 ACCE=     0.98352
+                  FIRST UNCONVERGED GROUP PRC= 0.76E-04
+          M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
+          IN(  7) FLX: PRC= 4.16E-05 TAR= 5.00E-05 IGDEB=          296 ACCE=     1.00000
  FLU2DR: NO LEAKAGE-> REBALANCING ON
- FLU2DR: CPU TIME=        7. INTERNAL CONVERGENCE       REACHED AFTER     7 ITERATIONS.
+ FLU2DR: CPU TIME=       24. INTERNAL CONVERGENCE       REACHED AFTER     7 ITERATIONS.
 
  B1DIF: SOLUTION OF B1   EQUATIONS WITH TYPE K   
         NUMBER OF ITERATIONS =  1
         BUCKLING =  0.00000E+00
-        K-EFFECTIVE =  1.235174  (  1.235174 )
-        K-INFINITE =  1.235174
-        MIGRATION AREA =  5.60578E+01
+        K-EFFECTIVE =  1.235472  (  1.235472 )
+        K-INFINITE =  1.235472
+        MIGRATION AREA =  5.60696E+01
 
- OUT(  1) EIG: PRC= 8.69E-01 TAR= 1.00E-05 KEFF= 1.235174E+00 BUCK= 0.00000E+00
- OUT(  1) FLX:                             FNOR= 8.096023E-01 ACCE=     1.00000
+ OUT(  1) EIG: PRC= 8.69E-01 TAR= 1.00E-05 KEFF= 1.235472E+00 BUCK= 0.00000E+00
+ OUT(  1) FLX:                             FNOR= 8.094070E-01 ACCE=     1.00000
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
-          IN(  1) FLX: PRC= 9.14E-04 TAR= 5.00E-05 IGDEB=            1 ACCE=     1.00000
+          IN(  1) FLX: PRC= 9.16E-04 TAR= 5.00E-05 IGDEB=            1 ACCE=     1.00000
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
-          IN(  2) FLX: PRC= 4.39E-05 TAR= 5.00E-05 IGDEB=          296 ACCE=     1.00000
+          IN(  2) FLX: PRC= 4.38E-05 TAR= 5.00E-05 IGDEB=          296 ACCE=     1.00000
  FLU2DR: NO LEAKAGE-> REBALANCING ON
- FLU2DR: CPU TIME=        2. INTERNAL CONVERGENCE       REACHED AFTER     2 ITERATIONS.
+ FLU2DR: CPU TIME=        8. INTERNAL CONVERGENCE       REACHED AFTER     2 ITERATIONS.
 
  B1DIF: SOLUTION OF B1   EQUATIONS WITH TYPE K   
         NUMBER OF ITERATIONS =  1
         BUCKLING =  0.00000E+00
-        K-EFFECTIVE =  1.235161  (  1.235161 )
-        K-INFINITE =  1.235161
-        MIGRATION AREA =  5.60597E+01
+        K-EFFECTIVE =  1.235459  (  1.235459 )
+        K-INFINITE =  1.235459
+        MIGRATION AREA =  5.60715E+01
 
- OUT(  2) EIG: PRC= 1.07E-05 TAR= 1.00E-05 KEFF= 1.235161E+00 BUCK= 0.00000E+00
- OUT(  2) FLX:                             FNOR= 8.096110E-01 ACCE=     1.00000
+ OUT(  2) EIG: PRC= 1.05E-05 TAR= 1.00E-05 KEFF= 1.235459E+00 BUCK= 0.00000E+00
+ OUT(  2) FLX:                             FNOR= 8.094155E-01 ACCE=     1.00000
           M O C PARAMETERS:  CYCLIC - STIS 1 - SC SCHEME - TABULATED EXP                             
-          IN(  1) FLX: PRC= 4.34E-06 TAR= 5.00E-05 IGDEB=          296 ACCE=     1.00000
+          IN(  1) FLX: PRC= 4.42E-06 TAR= 5.00E-05 IGDEB=          296 ACCE=     1.00000
  FLU2DR: NO LEAKAGE-> REBALANCING ON
- FLU2DR: CPU TIME=        1. INTERNAL CONVERGENCE       REACHED AFTER     1 ITERATIONS.
+ FLU2DR: CPU TIME=        4. INTERNAL CONVERGENCE       REACHED AFTER     1 ITERATIONS.
 
  B1DIF: SOLUTION OF B1   EQUATIONS WITH TYPE K   
         NUMBER OF ITERATIONS =  1
         BUCKLING =  0.00000E+00
-        K-EFFECTIVE =  1.235161  (  1.235161 )
-        K-INFINITE =  1.235161
-        MIGRATION AREA =  5.60597E+01
+        K-EFFECTIVE =  1.235459  (  1.235459 )
+        K-INFINITE =  1.235459
+        MIGRATION AREA =  5.60715E+01
 
- OUT(  3) EIG: PRC= 1.99E-07 TAR= 1.00E-05 KEFF= 1.235161E+00 BUCK= 0.00000E+00
- OUT(  3) FLX: PRC= 4.68E-06 TAR= 5.00E-05 FNOR= 8.096108E-01 ACCE=     1.00000
- FLU2DR: CPU TIME=       10. EXTERNAL CONVERGENCE       REACHED AFTER     3 ITERATIONS.
+ OUT(  3) EIG: PRC= 2.17E-08 TAR= 1.00E-05 KEFF= 1.235459E+00 BUCK= 0.00000E+00
+ OUT(  3) FLX: PRC= 4.59E-06 TAR= 5.00E-05 FNOR= 8.094155E-01 ACCE=     1.00000
+ FLU2DR: CPU TIME=       36. EXTERNAL CONVERGENCE       REACHED AFTER     3 ITERATIONS.
 
- ++ TRACKING CALLED=  10 TIMES FINAL KINF= 1.235161E+00 FINAL KEFF= 1.235161E+00 B2= 0.00000E+00 PRECISION= 1.99E-07
- ++ TOTAL NUMBER OF FLUX CALCULATIONS=      2741
+ ++ TRACKING CALLED=  10 TIMES FINAL KINF= 1.235459E+00 FINAL KEFF= 1.235459E+00 B2= 0.00000E+00 PRECISION= 2.17E-08
+ ++ TOTAL NUMBER OF FLUX CALCULATIONS=      2740
 ->@END MODULE   : FLU:        
--->>MODULE FLU:        : TIME SPENT=        9.833 MEMORY USAGE= 0.000E+00
+-->>MODULE FLU:        : TIME SPENT=       36.432 MEMORY USAGE= 5.520E+02
 ->@BEGIN MODULE : GREP:       
 ->@DESCRIPTION  : No description available for this module                                
 ->@CREDITS      : No author provided for this module                                      
@@ -1371,7 +1371,7 @@ Region Merge               7
                   GNU LESSER GENERAL PUBLIC LICENSE
 -->>module GREP:       : time spent=        0.000 memory usage= 0.000E+00
 ->@END MODULE   : GREP:       
->|SS tracking = SYBILT and FLX tracking = NXT TSPC, MOC on simple geom  Keff1=  1.235161e+00                              |>0082
+>|SS tracking = SYBILT and FLX tracking = NXT TSPC, MOC on simple geom  Keff1=  1.235459e+00                              |>0082
 >|AT10_24UOX NXT TSPC completed                                                                                           |>0083
 
  normal end of execution for dragon 5  Version 5.0.10 ($Revision: 3196 $)              
