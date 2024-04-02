@@ -84,15 +84,20 @@ def getLists(burnup_points):
     return [ListeBU,ListeAUTOP,ListeCOMPO]
 
 
-def convert_to_UTL_lists(ListBU, ListAUTOP, ListCOMPO):
+def convert_to_UTL_lists(ListBU, ListAUTOP, ListCOMPO,Serpent):
     BU=""
     AUTOP=""
+    
+
     for i in range(len(ListBU)):
-        BU+=str(ListBU[i])
-        if i%10==0 and i!=0:
-            BU+="\n"
+        if Serpent==True:
+            BU+=str((ListBU[i]/1000))+"\n"
         else:
-            BU+=" "
+            BU+=str(ListBU[i])
+            if i%10==0 and i!=0:
+                BU+="\n"
+            else:
+                BU+=" "
     for i in range(len(ListAUTOP)):
         AUTOP+=str(ListAUTOP[i])
         if i%10==0 and i!=0:
@@ -109,7 +114,7 @@ def convert_to_UTL_lists(ListBU, ListAUTOP, ListCOMPO):
 
 
 
-ListBU, ListAUTOP, ListCOMP = getLists("CASMO-5")
-convert_to_UTL_lists(ListBU, ListAUTOP, ListCOMP)
-ListBU, ListAUTOP, ListCOMP = getLists("Gd_autop3")
-convert_to_UTL_lists(ListBU, ListAUTOP, ListCOMP)
+#ListBU, ListAUTOP, ListCOMP = getLists("CASMO-5")
+#convert_to_UTL_lists(ListBU, ListAUTOP, ListCOMP)
+ListBU, ListAUTOP, ListCOMP = getLists('UOx4_autop5') #'UOx4_autop5' for AT10_24UOX, 'UOx2_autop5' for others ?
+convert_to_UTL_lists(ListBU, ListAUTOP, ListCOMP, Serpent=True)
