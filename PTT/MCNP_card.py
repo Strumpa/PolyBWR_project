@@ -31,39 +31,20 @@ class MCNP_Cell_Card:
             print("Input cell format to supported yet")
             return
         self.cells_group = cell_group_name
-        self.cell_numbers = np.zeros(len(data))
-        self.material_numbers = np.zeros(len(data))
-        self.material_densities = np.zeros(len(data))
         self.surfaces = []
         self.neutron_importance=np.zeros(len(data))
-        """
-        pattern = r'[-+]?\d*\.\d+|\d+'
-        for i in range(len(data)):
-            extracted_data = re.findall(pattern, data[i])
-            #print(extracted_data)
-            self.cell_numbers[i] = int(extracted_data[0])
-            self.material_numbers[i] = int(extracted_data[1])
-            #print(i)
-            self.material_densities[i] = float(extracted_data[2])
-            self.surfaces.append(extracted_data[3:-2]) # for ith material in cell : append list of surfaces
-            self.neutron_importance[i]=int(extracted_data[-2])
-        """
-        for i in range(len(data)):
-            data[i]=data[i].replace("  ", " ").replace("   ", " ")
-            data[i] = data[i].split(" ")
-            #print(data[i])
-            cleaned_data=[]
-            for entry in data[i]:
-                if entry != '':
-                    cleaned_data.append(entry)
-            self.cell_numbers[i] = int(cleaned_data[0])
-            self.material_numbers[i] = int(cleaned_data[1])
-            self.material_densities[i] = float(cleaned_data[2])
-            self.surfaces.append(cleaned_data[3:-4]) # for ith material in cell : append list of surfaces
-            self.neutron_importance[i]=int(cleaned_data[-4][-1])
-            #print(cleaned_data)
-        
-        #self.surfaces=np.array(self.surfaces)
+        data=data.replace("  ", " ").replace("   ", " ")
+        data = data.split(" ")
+        cleaned_data=[]
+        for entry in data:
+            if entry != '' and data:
+                cleaned_data.append(entry)
+        self.cell_number = int(cleaned_data[0])
+        self.material_number = int(cleaned_data[1])
+        self.material_density = float(cleaned_data[2])
+        self.surfaces.append(cleaned_data[3:-4]) # for ith material in cell : append list of surfaces
+        self.neutron_importance=int(cleaned_data[-4][-1])
+
 class MCNP_Surface_Card:
     """
     Defintion of surface card object according to MCNP format
@@ -78,57 +59,48 @@ class MCNP_Surface_Card:
         self.surfaces_group = surface_group # just a comment from INP file, carried in for reference. Might need to get rid of later ?
         # need to determine surface type. Should be given by second entry of surface card, assuming N entry not used. 
         self.printlvl=printlvl
-        self.surface_type=[]
-        self.surface_number=np.zeros(len(data))
-        self.BC_type=[]
         self.surface_data=[]
-        #rint(data)
-        for i in range(len(data)):
-            data[i]=data[i].replace("  ", " ").replace("   ", " ")
-            data[i] = data[i].split(" ")
-            #print(data[i])
-            cleaned_data=[]
-            for entry in data[i]:
-                if entry != '':
-                    cleaned_data.append(entry) 
-            if self.printlvl:
-                print(f"cleaned up surface type is : {cleaned_data[0]}")
-            surface_number=cleaned_data[0]
-            if "*" in cleaned_data[0]:
-                self.BC_type.append("Reflective")
-                self.surface_number[i]=int(surface_number.replace("*",""))
-                print(self.surface_number[i])
-            elif "+" in cleaned_data[0]:
-                self.BC_type.append("White")
-                self.surface_number[i]=int(surface_number.replace("+",""))
-            else:
-                self.BC_type.append("Not a surface at a boundary")
-                self.surface_number[i]=int(surface_number)
-            self.surface_type.append(cleaned_data[1])
-            self.surface_data.append(cleaned_data[2:])
-            if self.printlvl:
-                print(f"cleaned up surface data is {cleaned_data[2:]}")
-        self.setSurfaceEquations()
+        data=data.replace("  ", " ").replace("   ", " ")
+        data = data.split(" ")
+        cleaned_data=[]
+        for entry in data:
+            if entry != '':
+                cleaned_data.append(entry) 
+        if self.printlvl:
+            print(f"cleaned up surface type is : {cleaned_data[0]}")
+        surface_number=cleaned_data[0]
+        if "*" in cleaned_data[0]:
+            self.BC_type="Reflective"
+            self.surface_number=int(surface_number.replace("*",""))
+        elif "+" in cleaned_data[0]:
+            self.BC_type="White"
+            self.surface_number=int(surface_number.replace("+",""))
+        else:
+            self.BC_type="Not a surface at a boundary"
+            self.surface_number=int(surface_number)
+        self.surface_type=cleaned_data[1]
+        self.surface_data=cleaned_data[2:]
+        if self.printlvl:
+            print(f"cleaned up surface data is {cleaned_data[2:]}")
+        self.setSurfaceEquation()
         
-    def setSurfaceEquations(self):
+    def setSurfaceEquation(self):
         """
         Retrieve ceofficients from recovered surface data and set the right form for the equation        
         """
-        for i in range(len(self.surface_number)):
-            if self.surface_type[i] == "p":
-                if self.printlvl:
-                    print(f"processing plane surface with equation given by Ax+By+Cz+D=0: A={self.surface_data[i][0]}, B={self.surface_data[i][1]}, C={self.surface_data[i][2]}, D={self.surface_data[i][3]}")
-            elif self.surface_type[i] == "px":
-                if self.printlvl:
-                    print(f"processing plane surface with equation given by x-D=0: D={self.surface_data[i][0]}")
-            elif self.surface_type[i] == "py":
-                if self.printlvl:
-                    print(f"processing plane surface with equation given by y-D=0: D={self.surface_data[i][0]}")
-            elif self.surface_type[i] == "pz":
-                if self.printlvl:
-                    print(f"processing plane surface with equation given by z-D=0: D={self.surface_data[i][0]}")
+        if self.surface_type == "p":
+            if self.printlvl:
+                print(f"processing plane surface with equation given by Ax+By+Cz+D=0: A={self.surface_data[0]}, B={self.surface_data[1]}, C={self.surface_data[2]}, D={self.surface_data[3]}")
+        elif self.surface_type == "px":
+            if self.printlvl:
+                print(f"processing plane surface with equation given by x-D=0: D={self.surface_data[0]}")
+        elif self.surface_type == "py":
+            if self.printlvl:
+                print(f"processing plane surface with equation given by y-D=0: D={self.surface_data[0]}")
+        elif self.surface_type == "pz":
+            if self.printlvl:
+                print(f"processing plane surface with equation given by z-D=0: D={self.surface_data[0]}")
 
 
 
 
-    

@@ -1,537 +1,1237 @@
 Parsing geometry of type : MCNP, from input file : MCNP_AT10_sanitized.inp
-cleaned up surface type is : *1
-1.0
-cleaned up surface data is ['0.00000']
-cleaned up surface type is : 2
-cleaned up surface data is ['0.35216']
-cleaned up surface type is : 3
-cleaned up surface data is ['0.75000']
-cleaned up surface type is : 4
-cleaned up surface data is ['0.92000']
-cleaned up surface type is : 5
-cleaned up surface data is ['1.14500']
-cleaned up surface type is : 6
-cleaned up surface data is ['2.44000']
-cleaned up surface type is : 7
-cleaned up surface data is ['3.73500']
-cleaned up surface type is : 8
-cleaned up surface data is ['5.03000']
-cleaned up surface type is : 9
-cleaned up surface data is ['6.32500']
-cleaned up surface type is : 10
-cleaned up surface data is ['7.62000']
-cleaned up surface type is : 11
-cleaned up surface data is ['8.91500']
-cleaned up surface type is : 12
-cleaned up surface data is ['10.21000']
-cleaned up surface type is : 13
-cleaned up surface data is ['11.50500']
-cleaned up surface type is : 14
-cleaned up surface data is ['12.80000']
-cleaned up surface type is : 15
-cleaned up surface data is ['14.09500']
-cleaned up surface type is : 16
-cleaned up surface data is ['14.32000']
-cleaned up surface type is : 17
-cleaned up surface data is ['14.49000']
-cleaned up surface type is : *18
-18.0
-cleaned up surface data is ['15.24000']
-cleaned up surface type is : *19
-19.0
-cleaned up surface data is ['0.00000']
-cleaned up surface type is : 20
-cleaned up surface data is ['0.75000']
-cleaned up surface type is : 21
-cleaned up surface data is ['0.92000']
-cleaned up surface type is : 22
-cleaned up surface data is ['1.14500']
-cleaned up surface type is : 23
-cleaned up surface data is ['2.44000']
-cleaned up surface type is : 24
-cleaned up surface data is ['3.73500']
-cleaned up surface type is : 25
-cleaned up surface data is ['5.03000']
-cleaned up surface type is : 26
-cleaned up surface data is ['6.32500']
-cleaned up surface type is : 27
-cleaned up surface data is ['7.62000']
-cleaned up surface type is : 28
-cleaned up surface data is ['8.91500']
-cleaned up surface type is : 29
-cleaned up surface data is ['10.21000']
-cleaned up surface type is : 30
-cleaned up surface data is ['11.50500']
-cleaned up surface type is : 31
-cleaned up surface data is ['12.80000']
-cleaned up surface type is : 32
-cleaned up surface data is ['14.09500']
-cleaned up surface type is : 33
-cleaned up surface data is ['14.32000']
-cleaned up surface type is : 34
-cleaned up surface data is ['14.49000']
-cleaned up surface type is : 35
-cleaned up surface data is ['14.88784']
-cleaned up surface type is : *36
-36.0
-cleaned up surface data is ['15.24000']
-processing plane surface with equation given by x-D=0: D=0.00000
-processing plane surface with equation given by x-D=0: D=0.35216
-processing plane surface with equation given by x-D=0: D=0.75000
-processing plane surface with equation given by x-D=0: D=0.92000
-processing plane surface with equation given by x-D=0: D=1.14500
-processing plane surface with equation given by x-D=0: D=2.44000
-processing plane surface with equation given by x-D=0: D=3.73500
-processing plane surface with equation given by x-D=0: D=5.03000
-processing plane surface with equation given by x-D=0: D=6.32500
-processing plane surface with equation given by x-D=0: D=7.62000
-processing plane surface with equation given by x-D=0: D=8.91500
-processing plane surface with equation given by x-D=0: D=10.21000
-processing plane surface with equation given by x-D=0: D=11.50500
-processing plane surface with equation given by x-D=0: D=12.80000
-processing plane surface with equation given by x-D=0: D=14.09500
-processing plane surface with equation given by x-D=0: D=14.32000
-processing plane surface with equation given by x-D=0: D=14.49000
-processing plane surface with equation given by x-D=0: D=15.24000
-processing plane surface with equation given by y-D=0: D=0.00000
-processing plane surface with equation given by y-D=0: D=0.75000
-processing plane surface with equation given by y-D=0: D=0.92000
-processing plane surface with equation given by y-D=0: D=1.14500
-processing plane surface with equation given by y-D=0: D=2.44000
-processing plane surface with equation given by y-D=0: D=3.73500
-processing plane surface with equation given by y-D=0: D=5.03000
-processing plane surface with equation given by y-D=0: D=6.32500
-processing plane surface with equation given by y-D=0: D=7.62000
-processing plane surface with equation given by y-D=0: D=8.91500
-processing plane surface with equation given by y-D=0: D=10.21000
-processing plane surface with equation given by y-D=0: D=11.50500
-processing plane surface with equation given by y-D=0: D=12.80000
-processing plane surface with equation given by y-D=0: D=14.09500
-processing plane surface with equation given by y-D=0: D=14.32000
-processing plane surface with equation given by y-D=0: D=14.49000
-processing plane surface with equation given by y-D=0: D=14.88784
-processing plane surface with equation given by y-D=0: D=15.24000
-cleaned up surface type is : *37
-37.0
-cleaned up surface data is ['1.00000', '1.00000', '0.00000', '15.24000']
-processing plane surface with equation given by Ax+By+Cz+D=0: A=1.00000, B=1.00000, C=0.00000, D=15.24000
-cleaned up surface type is : *38
-38.0
-cleaned up surface data is ['-50.00000']
-cleaned up surface type is : *39
-39.0
-cleaned up surface data is ['50.00000']
-processing plane surface with equation given by z-D=0: D=-50.00000
-processing plane surface with equation given by z-D=0: D=50.00000
-cleaned up surface type is : 40
-cleaned up surface data is ['1.79250', '1.79250', '0.44350', '$', 'FUE', 'm23']
-cleaned up surface type is : 41
-cleaned up surface data is ['1.79250', '1.79250', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 42
-cleaned up surface data is ['1.79250', '1.79250', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 43
-cleaned up surface data is ['3.08750', '1.79250', '0.44350', '$', 'FUE', 'm24']
-cleaned up surface type is : 44
-cleaned up surface data is ['3.08750', '1.79250', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 45
-cleaned up surface data is ['3.08750', '1.79250', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 46
-cleaned up surface data is ['4.38250', '1.79250', '0.44350', '$', 'FUE', 'm25']
-cleaned up surface type is : 47
-cleaned up surface data is ['4.38250', '1.79250', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 48
-cleaned up surface data is ['4.38250', '1.79250', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 49
-cleaned up surface data is ['5.67750', '1.79250', '0.44350', '$', 'FUE', 'm26']
-cleaned up surface type is : 50
-cleaned up surface data is ['5.67750', '1.79250', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 51
-cleaned up surface data is ['5.67750', '1.79250', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 52
-cleaned up surface data is ['6.97250', '1.79250', '0.44350', '$', 'FUE', 'm26']
-cleaned up surface type is : 53
-cleaned up surface data is ['6.97250', '1.79250', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 54
-cleaned up surface data is ['6.97250', '1.79250', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 55
-cleaned up surface data is ['8.26750', '1.79250', '0.44350', '$', 'FUE', 'm26']
-cleaned up surface type is : 56
-cleaned up surface data is ['8.26750', '1.79250', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 57
-cleaned up surface data is ['8.26750', '1.79250', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 58
-cleaned up surface data is ['9.56250', '1.79250', '0.44350', '$', 'FUE', 'm26']
-cleaned up surface type is : 59
-cleaned up surface data is ['9.56250', '1.79250', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 60
-cleaned up surface data is ['9.56250', '1.79250', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 61
-cleaned up surface data is ['10.85750', '1.79250', '0.44350', '$', 'FUE', 'm25']
-cleaned up surface type is : 62
-cleaned up surface data is ['10.85750', '1.79250', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 63
-cleaned up surface data is ['10.85750', '1.79250', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 64
-cleaned up surface data is ['12.15250', '1.79250', '0.44350', '$', 'FUE', 'm24']
-cleaned up surface type is : 65
-cleaned up surface data is ['12.15250', '1.79250', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 66
-cleaned up surface data is ['12.15250', '1.79250', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 67
-cleaned up surface data is ['13.44750', '1.79250', '0.44350', '$', 'FUE', 'm23']
-cleaned up surface type is : 68
-cleaned up surface data is ['13.44750', '1.79250', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 69
-cleaned up surface data is ['13.44750', '1.79250', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 70
-cleaned up surface data is ['1.79250', '3.08750', '0.44350', '$', 'FUE', 'm24']
-cleaned up surface type is : 71
-cleaned up surface data is ['1.79250', '3.08750', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 72
-cleaned up surface data is ['1.79250', '3.08750', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 73
-cleaned up surface data is ['3.08750', '3.08750', '0.44350', '$', 'FUE', 'm26']
-cleaned up surface type is : 74
-cleaned up surface data is ['3.08750', '3.08750', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 75
-cleaned up surface data is ['3.08750', '3.08750', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 76
-cleaned up surface data is ['4.38250', '3.08750', '0.44350', '$', 'FUE', 'm29']
-cleaned up surface type is : 77
-cleaned up surface data is ['4.38250', '3.08750', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 78
-cleaned up surface data is ['4.38250', '3.08750', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 79
-cleaned up surface data is ['5.67750', '3.08750', '0.44350', '$', 'FUE', 'm27']
-cleaned up surface type is : 80
-cleaned up surface data is ['5.67750', '3.08750', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 81
-cleaned up surface data is ['5.67750', '3.08750', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 82
-cleaned up surface data is ['6.97250', '3.08750', '0.44350', '$', 'FUE', 'm28']
-cleaned up surface type is : 83
-cleaned up surface data is ['6.97250', '3.08750', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 84
-cleaned up surface data is ['6.97250', '3.08750', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 85
-cleaned up surface data is ['8.26750', '3.08750', '0.44350', '$', 'FUE', 'm29']
-cleaned up surface type is : 86
-cleaned up surface data is ['8.26750', '3.08750', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 87
-cleaned up surface data is ['8.26750', '3.08750', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 88
-cleaned up surface data is ['9.56250', '3.08750', '0.44350', '$', 'FUE', 'm26']
-cleaned up surface type is : 89
-cleaned up surface data is ['9.56250', '3.08750', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 90
-cleaned up surface data is ['9.56250', '3.08750', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 91
-cleaned up surface data is ['10.85750', '3.08750', '0.44350', '$', 'FUE', 'm30']
-cleaned up surface type is : 92
-cleaned up surface data is ['10.85750', '3.08750', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 93
-cleaned up surface data is ['10.85750', '3.08750', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 94
-cleaned up surface data is ['12.15250', '3.08750', '0.44350', '$', 'FUE', 'm26']
-cleaned up surface type is : 95
-cleaned up surface data is ['12.15250', '3.08750', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 96
-cleaned up surface data is ['12.15250', '3.08750', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 97
-cleaned up surface data is ['1.79250', '4.38250', '0.44350', '$', 'FUE', 'm25']
-cleaned up surface type is : 98
-cleaned up surface data is ['1.79250', '4.38250', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 99
-cleaned up surface data is ['1.79250', '4.38250', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 100
-cleaned up surface data is ['3.08750', '4.38250', '0.44350', '$', 'FUE', 'm29']
-cleaned up surface type is : 101
-cleaned up surface data is ['3.08750', '4.38250', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 102
-cleaned up surface data is ['3.08750', '4.38250', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 103
-cleaned up surface data is ['4.38250', '4.38250', '0.44350', '$', 'FUE', 'm28']
-cleaned up surface type is : 104
-cleaned up surface data is ['4.38250', '4.38250', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 105
-cleaned up surface data is ['4.38250', '4.38250', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 106
-cleaned up surface data is ['5.67750', '4.38250', '0.44350', '$', 'FUE', 'm28']
-cleaned up surface type is : 107
-cleaned up surface data is ['5.67750', '4.38250', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 108
-cleaned up surface data is ['5.67750', '4.38250', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 109
-cleaned up surface data is ['6.97250', '4.38250', '0.44350', '$', 'FUE', 'm26']
-cleaned up surface type is : 110
-cleaned up surface data is ['6.97250', '4.38250', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 111
-cleaned up surface data is ['6.97250', '4.38250', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 112
-cleaned up surface data is ['8.26750', '4.38250', '0.44350', '$', 'FUE', 'm25']
-cleaned up surface type is : 113
-cleaned up surface data is ['8.26750', '4.38250', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 114
-cleaned up surface data is ['8.26750', '4.38250', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 115
-cleaned up surface data is ['9.56250', '4.38250', '0.44350', '$', 'FUE', 'm26']
-cleaned up surface type is : 116
-cleaned up surface data is ['9.56250', '4.38250', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 117
-cleaned up surface data is ['9.56250', '4.38250', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 118
-cleaned up surface data is ['10.85750', '4.38250', '0.44350', '$', 'FUE', 'm26']
-cleaned up surface type is : 119
-cleaned up surface data is ['10.85750', '4.38250', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 120
-cleaned up surface data is ['10.85750', '4.38250', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 121
-cleaned up surface data is ['1.79250', '5.67750', '0.44350', '$', 'FUE', 'm26']
-cleaned up surface type is : 122
-cleaned up surface data is ['1.79250', '5.67750', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 123
-cleaned up surface data is ['1.79250', '5.67750', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 124
-cleaned up surface data is ['3.08750', '5.67750', '0.44350', '$', 'FUE', 'm28']
-cleaned up surface type is : 125
-cleaned up surface data is ['3.08750', '5.67750', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 126
-cleaned up surface data is ['3.08750', '5.67750', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 127
-cleaned up surface data is ['4.38250', '5.67750', '0.44350', '$', 'FUE', 'm28']
-cleaned up surface type is : 128
-cleaned up surface data is ['4.38250', '5.67750', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 129
-cleaned up surface data is ['4.38250', '5.67750', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 130
-cleaned up surface data is ['5.67750', '5.67750', '0.44350', '$', 'FUE', 'm29']
-cleaned up surface type is : 131
-cleaned up surface data is ['5.67750', '5.67750', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 132
-cleaned up surface data is ['5.67750', '5.67750', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 133
-cleaned up surface data is ['1.79250', '6.97250', '0.44350', '$', 'FUE', 'm27']
-cleaned up surface type is : 134
-cleaned up surface data is ['1.79250', '6.97250', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 135
-cleaned up surface data is ['1.79250', '6.97250', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 136
-cleaned up surface data is ['3.08750', '6.97250', '0.44350', '$', 'FUE', 'm28']
-cleaned up surface type is : 137
-cleaned up surface data is ['3.08750', '6.97250', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 138
-cleaned up surface data is ['3.08750', '6.97250', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 139
-cleaned up surface data is ['4.38250', '6.97250', '0.44350', '$', 'FUE', 'm29']
-cleaned up surface type is : 140
-cleaned up surface data is ['4.38250', '6.97250', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 141
-cleaned up surface data is ['4.38250', '6.97250', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 142
-cleaned up surface data is ['5.67750', '6.97250', '0.44350', '$', 'FUE', 'm28']
-cleaned up surface type is : 143
-cleaned up surface data is ['5.67750', '6.97250', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 144
-cleaned up surface data is ['5.67750', '6.97250', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 145
-cleaned up surface data is ['1.79250', '8.26750', '0.44350', '$', 'FUE', 'm28']
-cleaned up surface type is : 146
-cleaned up surface data is ['1.79250', '8.26750', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 147
-cleaned up surface data is ['1.79250', '8.26750', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 148
-cleaned up surface data is ['3.08750', '8.26750', '0.44350', '$', 'FUE', 'm29']
-cleaned up surface type is : 149
-cleaned up surface data is ['3.08750', '8.26750', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 150
-cleaned up surface data is ['3.08750', '8.26750', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 151
-cleaned up surface data is ['4.38250', '8.26750', '0.44350', '$', 'FUE', 'm28']
-cleaned up surface type is : 152
-cleaned up surface data is ['4.38250', '8.26750', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 153
-cleaned up surface data is ['4.38250', '8.26750', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 154
-cleaned up surface data is ['5.67750', '8.26750', '0.44350', '$', 'FUE', 'm28']
-cleaned up surface type is : 155
-cleaned up surface data is ['5.67750', '8.26750', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 156
-cleaned up surface data is ['5.67750', '8.26750', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 157
-cleaned up surface data is ['1.79250', '9.56250', '0.44350', '$', 'FUE', 'm27']
-cleaned up surface type is : 158
-cleaned up surface data is ['1.79250', '9.56250', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 159
-cleaned up surface data is ['1.79250', '9.56250', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 160
-cleaned up surface data is ['3.08750', '9.56250', '0.44350', '$', 'FUE', 'm28']
-cleaned up surface type is : 161
-cleaned up surface data is ['3.08750', '9.56250', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 162
-cleaned up surface data is ['3.08750', '9.56250', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 163
-cleaned up surface data is ['4.38250', '9.56250', '0.44350', '$', 'FUE', 'm28']
-cleaned up surface type is : 164
-cleaned up surface data is ['4.38250', '9.56250', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 165
-cleaned up surface data is ['4.38250', '9.56250', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 166
-cleaned up surface data is ['5.67750', '9.56250', '0.44350', '$', 'FUE', 'm28']
-cleaned up surface type is : 167
-cleaned up surface data is ['5.67750', '9.56250', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 168
-cleaned up surface data is ['5.67750', '9.56250', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 169
-cleaned up surface data is ['1.79250', '10.85750', '0.44350', '$', 'FUE', 'm25']
-cleaned up surface type is : 170
-cleaned up surface data is ['1.79250', '10.85750', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 171
-cleaned up surface data is ['1.79250', '10.85750', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 172
-cleaned up surface data is ['3.08750', '10.85750', '0.44350', '$', 'FUE', 'm29']
-cleaned up surface type is : 173
-cleaned up surface data is ['3.08750', '10.85750', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 174
-cleaned up surface data is ['3.08750', '10.85750', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 175
-cleaned up surface data is ['4.38250', '10.85750', '0.44350', '$', 'FUE', 'm28']
-cleaned up surface type is : 176
-cleaned up surface data is ['4.38250', '10.85750', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 177
-cleaned up surface data is ['4.38250', '10.85750', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 178
-cleaned up surface data is ['1.79250', '12.15250', '0.44350', '$', 'FUE', 'm24']
-cleaned up surface type is : 179
-cleaned up surface data is ['1.79250', '12.15250', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 180
-cleaned up surface data is ['1.79250', '12.15250', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 181
-cleaned up surface data is ['3.08750', '12.15250', '0.44350', '$', 'FUE', 'm26']
-cleaned up surface type is : 182
-cleaned up surface data is ['3.08750', '12.15250', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 183
-cleaned up surface data is ['3.08750', '12.15250', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 184
-cleaned up surface data is ['1.79250', '13.44750', '0.44350', '$', 'FUE', 'm23']
-cleaned up surface type is : 185
-cleaned up surface data is ['1.79250', '13.44750', '0.45200', '$', 'HEL', 'm22']
-cleaned up surface type is : 186
-cleaned up surface data is ['1.79250', '13.44750', '0.51400', '$', 'CAN', 'm05']
-cleaned up surface type is : 187
-cleaned up surface data is ['6.59750', '$', 'MOD', 'm03', '(west)']
-cleaned up surface type is : 188
-cleaned up surface data is ['9.93750', '$', 'MOD', 'm03', '(east)']
-cleaned up surface type is : 189
-cleaned up surface data is ['5.30250', '$', 'MOD', 'm03', '(south)']
-cleaned up surface type is : 190
-cleaned up surface data is ['8.64250', '$', 'MOD', 'm03', '(north)']
-cleaned up surface type is : 191
-cleaned up surface data is ['6.51750', '$', 'BOX', 'm06', '(west)']
-cleaned up surface type is : 192
-cleaned up surface data is ['10.01750', '$', 'BOX', 'm06', '(east)']
-cleaned up surface type is : 193
-cleaned up surface data is ['5.22250', '$', 'BOX', 'm06', '(south)']
-cleaned up surface type is : 194
-cleaned up surface data is ['8.72250', '$', 'BOX', 'm06', '(north)']
-processing plane surface with equation given by x-D=0: D=6.59750
-processing plane surface with equation given by x-D=0: D=9.93750
-processing plane surface with equation given by y-D=0: D=5.30250
-processing plane surface with equation given by y-D=0: D=8.64250
-processing plane surface with equation given by x-D=0: D=6.51750
-processing plane surface with equation given by x-D=0: D=10.01750
-processing plane surface with equation given by y-D=0: D=5.22250
-processing plane surface with equation given by y-D=0: D=8.72250
-cleaned up surface type is : 195
-cleaned up surface data is ['2.82346', '$', 'MOD', 'm03']
-cleaned up surface type is : 196
-cleaned up surface data is ['3.40179', '$', 'CRS', 'm08']
-cleaned up surface type is : 197
-cleaned up surface data is ['3.98012', '$', 'CRS', 'm08']
-cleaned up surface type is : 198
-cleaned up surface data is ['4.55845', '$', 'CRS', 'm08']
-cleaned up surface type is : 199
-cleaned up surface data is ['5.13678', '$', 'CRS', 'm08']
-cleaned up surface type is : 200
-cleaned up surface data is ['5.71511', '$', 'CRS', 'm08']
-cleaned up surface type is : 201
-cleaned up surface data is ['6.29344', '$', 'CRS', 'm08']
-cleaned up surface type is : 202
-cleaned up surface data is ['6.87177', '$', 'CRS', 'm08']
-cleaned up surface type is : 203
-cleaned up surface data is ['7.45010', '$', 'CRS', 'm08']
-cleaned up surface type is : 204
-cleaned up surface data is ['8.02843', '$', 'CRS', 'm08']
-cleaned up surface type is : 205
-cleaned up surface data is ['8.60676', '$', 'CRS', 'm08']
-cleaned up surface type is : 206
-cleaned up surface data is ['9.18509', '$', 'CRS', 'm08']
-cleaned up surface type is : 207
-cleaned up surface data is ['9.76342', '$', 'CRS', 'm08']
-cleaned up surface type is : 208
-cleaned up surface data is ['10.34175', '$', 'CRS', 'm08']
-cleaned up surface type is : 209
-cleaned up surface data is ['10.92008', '$', 'CRS', 'm08']
-cleaned up surface type is : 210
-cleaned up surface data is ['11.49841', '$', 'CRS', 'm08']
-cleaned up surface type is : 211
-cleaned up surface data is ['12.07674', '$', 'CRS', 'm08']
-cleaned up surface type is : 212
-cleaned up surface data is ['12.65507', '$', 'CRS', 'm08']
-cleaned up surface type is : 213
-cleaned up surface data is ['13.23340', '$', 'CRS', 'm08']
-processing plane surface with equation given by y-D=0: D=2.82346
-processing plane surface with equation given by y-D=0: D=3.40179
-processing plane surface with equation given by y-D=0: D=3.98012
-processing plane surface with equation given by y-D=0: D=4.55845
-processing plane surface with equation given by y-D=0: D=5.13678
-processing plane surface with equation given by y-D=0: D=5.71511
-processing plane surface with equation given by y-D=0: D=6.29344
-processing plane surface with equation given by y-D=0: D=6.87177
-processing plane surface with equation given by y-D=0: D=7.45010
-processing plane surface with equation given by y-D=0: D=8.02843
-processing plane surface with equation given by y-D=0: D=8.60676
-processing plane surface with equation given by y-D=0: D=9.18509
-processing plane surface with equation given by y-D=0: D=9.76342
-processing plane surface with equation given by y-D=0: D=10.34175
-processing plane surface with equation given by y-D=0: D=10.92008
-processing plane surface with equation given by y-D=0: D=11.49841
-processing plane surface with equation given by y-D=0: D=12.07674
-processing plane surface with equation given by y-D=0: D=12.65507
-processing plane surface with equation given by y-D=0: D=13.23340
-cleaned up surface type is : 214
-cleaned up surface data is ['0.00000', '3.11263', '0.21082', '$', 'CRS', 'm08']
-cleaned up surface type is : 215
-cleaned up surface data is ['0.00000', '3.69096', '0.21082', '$', 'CRS', 'm08']
-cleaned up surface type is : 216
-cleaned up surface data is ['0.00000', '4.26929', '0.21082', '$', 'CRS', 'm08']
-cleaned up surface type is : 217
-cleaned up surface data is ['0.00000', '4.84762', '0.21082', '$', 'CRS', 'm08']
-cleaned up surface type is : 218
-cleaned up surface data is ['0.00000', '5.42595', '0.21082', '$', 'CRS', 'm08']
-cleaned up surface type is : 219
-cleaned up surface data is ['0.00000', '6.00428', '0.21082', '$', 'CRS', 'm08']
-cleaned up surface type is : 220
-cleaned up surface data is ['0.00000', '6.58261', '0.21082', '$', 'CRS', 'm08']
-cleaned up surface type is : 221
-cleaned up surface data is ['0.00000', '7.16094', '0.21082', '$', 'CRS', 'm08']
-cleaned up surface type is : 222
-cleaned up surface data is ['0.00000', '7.73927', '0.21082', '$', 'CRS', 'm08']
-cleaned up surface type is : 223
-cleaned up surface data is ['0.00000', '8.31760', '0.21082', '$', 'CRS', 'm08']
-cleaned up surface type is : 224
-cleaned up surface data is ['0.00000', '8.89593', '0.21082', '$', 'CRS', 'm08']
-cleaned up surface type is : 225
-cleaned up surface data is ['0.00000', '9.47426', '0.21082', '$', 'CRS', 'm08']
-cleaned up surface type is : 226
-cleaned up surface data is ['0.00000', '10.05259', '0.21082', '$', 'CRS', 'm08']
-cleaned up surface type is : 227
-cleaned up surface data is ['0.00000', '10.63092', '0.21082', '$', 'CRS', 'm08']
-cleaned up surface type is : 228
-cleaned up surface data is ['0.00000', '11.20925', '0.21082', '$', 'CRS', 'm08']
-cleaned up surface type is : 229
-cleaned up surface data is ['0.00000', '11.78758', '0.21082', '$', 'CRS', 'm08']
-cleaned up surface type is : 230
-cleaned up surface data is ['0.00000', '12.36591', '0.21082', '$', 'CRS', 'm08']
-cleaned up surface type is : 231
-cleaned up surface data is ['0.00000', '12.94424', '0.21082', '$', 'CRS', 'm08']
-[['187', '-188', '189', '-190', '-37', '38', '-39'], ['191', '-192', '193', '-194', '-37', '38', '-39', '#224'], ['9', '-12', '25', '-28', '-37', '38', '-39', '#224', '#225']]
+There are a total of 247 cell cards
+Cell card attrtibutes are : group of cells name = pin cell ( 1, 1), 
+ user defined cell numbers = 1 
+ material numbers : 23 
+ and material densities : -10.461 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 1, 1), 
+ user defined cell numbers = 2 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 1, 1), 
+ user defined cell numbers = 3 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 1, 1), 
+ user defined cell numbers = 4 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 2, 1), 
+ user defined cell numbers = 5 
+ material numbers : 24 
+ and material densities : -10.461 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 2, 1), 
+ user defined cell numbers = 6 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 2, 1), 
+ user defined cell numbers = 7 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 2, 1), 
+ user defined cell numbers = 8 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 3, 1), 
+ user defined cell numbers = 9 
+ material numbers : 25 
+ and material densities : -10.461 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 3, 1), 
+ user defined cell numbers = 10 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 3, 1), 
+ user defined cell numbers = 11 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 3, 1), 
+ user defined cell numbers = 12 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 4, 1), 
+ user defined cell numbers = 13 
+ material numbers : 26 
+ and material densities : -10.461 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 4, 1), 
+ user defined cell numbers = 14 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 4, 1), 
+ user defined cell numbers = 15 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 4, 1), 
+ user defined cell numbers = 16 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 5, 1), 
+ user defined cell numbers = 17 
+ material numbers : 26 
+ and material densities : -10.461 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 5, 1), 
+ user defined cell numbers = 18 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 5, 1), 
+ user defined cell numbers = 19 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 5, 1), 
+ user defined cell numbers = 20 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 6, 1), 
+ user defined cell numbers = 21 
+ material numbers : 26 
+ and material densities : -10.461 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 6, 1), 
+ user defined cell numbers = 22 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 6, 1), 
+ user defined cell numbers = 23 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 6, 1), 
+ user defined cell numbers = 24 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 7, 1), 
+ user defined cell numbers = 25 
+ material numbers : 26 
+ and material densities : -10.461 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 7, 1), 
+ user defined cell numbers = 26 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 7, 1), 
+ user defined cell numbers = 27 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 7, 1), 
+ user defined cell numbers = 28 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 8, 1), 
+ user defined cell numbers = 29 
+ material numbers : 25 
+ and material densities : -10.461 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 8, 1), 
+ user defined cell numbers = 30 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 8, 1), 
+ user defined cell numbers = 31 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 8, 1), 
+ user defined cell numbers = 32 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 9, 1), 
+ user defined cell numbers = 33 
+ material numbers : 24 
+ and material densities : -10.461 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 9, 1), 
+ user defined cell numbers = 34 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 9, 1), 
+ user defined cell numbers = 35 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 9, 1), 
+ user defined cell numbers = 36 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell (10, 1), 
+ user defined cell numbers = 37 
+ material numbers : 23 
+ and material densities : -10.461 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell (10, 1), 
+ user defined cell numbers = 38 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell (10, 1), 
+ user defined cell numbers = 39 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell (10, 1), 
+ user defined cell numbers = 40 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 1, 2), 
+ user defined cell numbers = 41 
+ material numbers : 24 
+ and material densities : -10.461 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 1, 2), 
+ user defined cell numbers = 42 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 1, 2), 
+ user defined cell numbers = 43 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 1, 2), 
+ user defined cell numbers = 44 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 2, 2), 
+ user defined cell numbers = 45 
+ material numbers : 26 
+ and material densities : -10.461 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 2, 2), 
+ user defined cell numbers = 46 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 2, 2), 
+ user defined cell numbers = 47 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 2, 2), 
+ user defined cell numbers = 48 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 3, 2), 
+ user defined cell numbers = 49 
+ material numbers : 29 
+ and material densities : -10.308 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 3, 2), 
+ user defined cell numbers = 50 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 3, 2), 
+ user defined cell numbers = 51 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 3, 2), 
+ user defined cell numbers = 52 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 4, 2), 
+ user defined cell numbers = 53 
+ material numbers : 27 
+ and material densities : -10.461 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 4, 2), 
+ user defined cell numbers = 54 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 4, 2), 
+ user defined cell numbers = 55 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 4, 2), 
+ user defined cell numbers = 56 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 5, 2), 
+ user defined cell numbers = 57 
+ material numbers : 28 
+ and material densities : -10.461 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 5, 2), 
+ user defined cell numbers = 58 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 5, 2), 
+ user defined cell numbers = 59 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 5, 2), 
+ user defined cell numbers = 60 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 6, 2), 
+ user defined cell numbers = 61 
+ material numbers : 29 
+ and material densities : -10.308 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 6, 2), 
+ user defined cell numbers = 62 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 6, 2), 
+ user defined cell numbers = 63 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 6, 2), 
+ user defined cell numbers = 64 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 7, 2), 
+ user defined cell numbers = 65 
+ material numbers : 26 
+ and material densities : -10.461 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 7, 2), 
+ user defined cell numbers = 66 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 7, 2), 
+ user defined cell numbers = 67 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 7, 2), 
+ user defined cell numbers = 68 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 8, 2), 
+ user defined cell numbers = 69 
+ material numbers : 30 
+ and material densities : -10.308 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 8, 2), 
+ user defined cell numbers = 70 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 8, 2), 
+ user defined cell numbers = 71 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 8, 2), 
+ user defined cell numbers = 72 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 9, 2), 
+ user defined cell numbers = 73 
+ material numbers : 26 
+ and material densities : -10.461 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 9, 2), 
+ user defined cell numbers = 74 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 9, 2), 
+ user defined cell numbers = 75 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 9, 2), 
+ user defined cell numbers = 76 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 1, 3), 
+ user defined cell numbers = 77 
+ material numbers : 25 
+ and material densities : -10.461 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 1, 3), 
+ user defined cell numbers = 78 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 1, 3), 
+ user defined cell numbers = 79 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 1, 3), 
+ user defined cell numbers = 80 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 2, 3), 
+ user defined cell numbers = 81 
+ material numbers : 29 
+ and material densities : -10.308 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 2, 3), 
+ user defined cell numbers = 82 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 2, 3), 
+ user defined cell numbers = 83 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 2, 3), 
+ user defined cell numbers = 84 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 3, 3), 
+ user defined cell numbers = 85 
+ material numbers : 28 
+ and material densities : -10.461 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 3, 3), 
+ user defined cell numbers = 86 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 3, 3), 
+ user defined cell numbers = 87 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 3, 3), 
+ user defined cell numbers = 88 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 4, 3), 
+ user defined cell numbers = 89 
+ material numbers : 28 
+ and material densities : -10.461 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 4, 3), 
+ user defined cell numbers = 90 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 4, 3), 
+ user defined cell numbers = 91 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 4, 3), 
+ user defined cell numbers = 92 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 5, 3), 
+ user defined cell numbers = 93 
+ material numbers : 26 
+ and material densities : -10.461 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 5, 3), 
+ user defined cell numbers = 94 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 5, 3), 
+ user defined cell numbers = 95 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 5, 3), 
+ user defined cell numbers = 96 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 6, 3), 
+ user defined cell numbers = 97 
+ material numbers : 25 
+ and material densities : -10.461 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 6, 3), 
+ user defined cell numbers = 98 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 6, 3), 
+ user defined cell numbers = 99 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 6, 3), 
+ user defined cell numbers = 100 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 7, 3), 
+ user defined cell numbers = 101 
+ material numbers : 26 
+ and material densities : -10.461 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 7, 3), 
+ user defined cell numbers = 102 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 7, 3), 
+ user defined cell numbers = 103 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 7, 3), 
+ user defined cell numbers = 104 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 8, 3), 
+ user defined cell numbers = 105 
+ material numbers : 26 
+ and material densities : -10.461 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 8, 3), 
+ user defined cell numbers = 106 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 8, 3), 
+ user defined cell numbers = 107 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 8, 3), 
+ user defined cell numbers = 108 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 1, 4), 
+ user defined cell numbers = 109 
+ material numbers : 26 
+ and material densities : -10.461 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 1, 4), 
+ user defined cell numbers = 110 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 1, 4), 
+ user defined cell numbers = 111 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 1, 4), 
+ user defined cell numbers = 112 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 2, 4), 
+ user defined cell numbers = 113 
+ material numbers : 28 
+ and material densities : -10.461 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 2, 4), 
+ user defined cell numbers = 114 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 2, 4), 
+ user defined cell numbers = 115 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 2, 4), 
+ user defined cell numbers = 116 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 3, 4), 
+ user defined cell numbers = 117 
+ material numbers : 28 
+ and material densities : -10.461 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 3, 4), 
+ user defined cell numbers = 118 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 3, 4), 
+ user defined cell numbers = 119 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 3, 4), 
+ user defined cell numbers = 120 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 4, 4), 
+ user defined cell numbers = 121 
+ material numbers : 29 
+ and material densities : -10.308 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 4, 4), 
+ user defined cell numbers = 122 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 4, 4), 
+ user defined cell numbers = 123 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 4, 4), 
+ user defined cell numbers = 124 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 1, 5), 
+ user defined cell numbers = 134 
+ material numbers : 27 
+ and material densities : -10.461 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 1, 5), 
+ user defined cell numbers = 135 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 1, 5), 
+ user defined cell numbers = 136 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 1, 5), 
+ user defined cell numbers = 137 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 2, 5), 
+ user defined cell numbers = 138 
+ material numbers : 28 
+ and material densities : -10.461 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 2, 5), 
+ user defined cell numbers = 139 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 2, 5), 
+ user defined cell numbers = 140 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 2, 5), 
+ user defined cell numbers = 141 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 3, 5), 
+ user defined cell numbers = 142 
+ material numbers : 29 
+ and material densities : -10.308 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 3, 5), 
+ user defined cell numbers = 143 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 3, 5), 
+ user defined cell numbers = 144 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 3, 5), 
+ user defined cell numbers = 145 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 4, 5), 
+ user defined cell numbers = 146 
+ material numbers : 28 
+ and material densities : -10.461 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 4, 5), 
+ user defined cell numbers = 147 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 4, 5), 
+ user defined cell numbers = 148 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 4, 5), 
+ user defined cell numbers = 149 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 1, 6), 
+ user defined cell numbers = 156 
+ material numbers : 28 
+ and material densities : -10.461 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 1, 6), 
+ user defined cell numbers = 157 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 1, 6), 
+ user defined cell numbers = 158 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 1, 6), 
+ user defined cell numbers = 159 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 2, 6), 
+ user defined cell numbers = 160 
+ material numbers : 29 
+ and material densities : -10.308 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 2, 6), 
+ user defined cell numbers = 161 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 2, 6), 
+ user defined cell numbers = 162 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 2, 6), 
+ user defined cell numbers = 163 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 3, 6), 
+ user defined cell numbers = 164 
+ material numbers : 28 
+ and material densities : -10.461 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 3, 6), 
+ user defined cell numbers = 165 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 3, 6), 
+ user defined cell numbers = 166 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 3, 6), 
+ user defined cell numbers = 167 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 4, 6), 
+ user defined cell numbers = 168 
+ material numbers : 28 
+ and material densities : -10.461 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 4, 6), 
+ user defined cell numbers = 169 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 4, 6), 
+ user defined cell numbers = 170 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 4, 6), 
+ user defined cell numbers = 171 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 1, 7), 
+ user defined cell numbers = 175 
+ material numbers : 27 
+ and material densities : -10.461 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 1, 7), 
+ user defined cell numbers = 176 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 1, 7), 
+ user defined cell numbers = 177 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 1, 7), 
+ user defined cell numbers = 178 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 2, 7), 
+ user defined cell numbers = 179 
+ material numbers : 28 
+ and material densities : -10.461 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 2, 7), 
+ user defined cell numbers = 180 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 2, 7), 
+ user defined cell numbers = 181 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 2, 7), 
+ user defined cell numbers = 182 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 3, 7), 
+ user defined cell numbers = 183 
+ material numbers : 28 
+ and material densities : -10.461 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 3, 7), 
+ user defined cell numbers = 184 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 3, 7), 
+ user defined cell numbers = 185 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 3, 7), 
+ user defined cell numbers = 186 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 4, 7), 
+ user defined cell numbers = 187 
+ material numbers : 28 
+ and material densities : -10.461 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 4, 7), 
+ user defined cell numbers = 188 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 4, 7), 
+ user defined cell numbers = 189 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 4, 7), 
+ user defined cell numbers = 190 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 1, 8), 
+ user defined cell numbers = 191 
+ material numbers : 25 
+ and material densities : -10.461 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 1, 8), 
+ user defined cell numbers = 192 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 1, 8), 
+ user defined cell numbers = 193 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 1, 8), 
+ user defined cell numbers = 194 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 2, 8), 
+ user defined cell numbers = 195 
+ material numbers : 29 
+ and material densities : -10.308 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 2, 8), 
+ user defined cell numbers = 196 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 2, 8), 
+ user defined cell numbers = 197 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 2, 8), 
+ user defined cell numbers = 198 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 3, 8), 
+ user defined cell numbers = 199 
+ material numbers : 28 
+ and material densities : -10.461 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 3, 8), 
+ user defined cell numbers = 200 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 3, 8), 
+ user defined cell numbers = 201 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 3, 8), 
+ user defined cell numbers = 202 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 1, 9), 
+ user defined cell numbers = 203 
+ material numbers : 24 
+ and material densities : -10.461 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 1, 9), 
+ user defined cell numbers = 204 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 1, 9), 
+ user defined cell numbers = 205 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 1, 9), 
+ user defined cell numbers = 206 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 2, 9), 
+ user defined cell numbers = 207 
+ material numbers : 26 
+ and material densities : -10.461 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 2, 9), 
+ user defined cell numbers = 208 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 2, 9), 
+ user defined cell numbers = 209 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 2, 9), 
+ user defined cell numbers = 210 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 1,10), 
+ user defined cell numbers = 211 
+ material numbers : 23 
+ and material densities : -10.461 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 1,10), 
+ user defined cell numbers = 212 
+ material numbers : 22 
+ and material densities : -0.001 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 1,10), 
+ user defined cell numbers = 213 
+ material numbers : 5 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = pin cell ( 1,10), 
+ user defined cell numbers = 214 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = inner water gap:   COO  m02, 
+ user defined cell numbers = 215 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = inner water gap:   COO  m02, 
+ user defined cell numbers = 216 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = inner water gap:   COO  m02, 
+ user defined cell numbers = 217 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = box wall:          BOX  m06, 
+ user defined cell numbers = 218 
+ material numbers : 6 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = box wall:          BOX  m06, 
+ user defined cell numbers = 219 
+ material numbers : 6 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = box wall:          BOX  m06, 
+ user defined cell numbers = 220 
+ material numbers : 6 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = outer water gaps:  MOD  m03, 
+ user defined cell numbers = 221 
+ material numbers : 3 
+ and material densities : -0.739605 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = outer water gaps:  MOD  m03, 
+ user defined cell numbers = 222 
+ material numbers : 3 
+ and material densities : -0.739605 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = outer water gaps:  MOD  m03, 
+ user defined cell numbers = 223 
+ material numbers : 3 
+ and material densities : -0.739605 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = water box centered at ( 8.267, 6.973), 
+ user defined cell numbers = 224 
+ material numbers : 3 
+ and material densities : -0.739605 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = water box centered at ( 8.267, 6.973), 
+ user defined cell numbers = 225 
+ material numbers : 6 
+ and material densities : -6.55 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = water box centered at ( 8.267, 6.973), 
+ user defined cell numbers = 226 
+ material numbers : 2 
+ and material densities : -0.458426 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = absorber cylinders of the cruciform control blade (south wing), 
+ user defined cell numbers = 227 
+ material numbers : 8 
+ and material densities : -7.9 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = absorber cylinders of the cruciform control blade (south wing), 
+ user defined cell numbers = 228 
+ material numbers : 8 
+ and material densities : -7.9 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = absorber cylinders of the cruciform control blade (south wing), 
+ user defined cell numbers = 229 
+ material numbers : 8 
+ and material densities : -7.9 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = absorber cylinders of the cruciform control blade (south wing), 
+ user defined cell numbers = 230 
+ material numbers : 8 
+ and material densities : -7.9 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = absorber cylinders of the cruciform control blade (south wing), 
+ user defined cell numbers = 231 
+ material numbers : 8 
+ and material densities : -7.9 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = absorber cylinders of the cruciform control blade (south wing), 
+ user defined cell numbers = 232 
+ material numbers : 8 
+ and material densities : -7.9 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = absorber cylinders of the cruciform control blade (south wing), 
+ user defined cell numbers = 233 
+ material numbers : 8 
+ and material densities : -7.9 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = absorber cylinders of the cruciform control blade (south wing), 
+ user defined cell numbers = 234 
+ material numbers : 8 
+ and material densities : -7.9 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = absorber cylinders of the cruciform control blade (south wing), 
+ user defined cell numbers = 235 
+ material numbers : 8 
+ and material densities : -7.9 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = absorber cylinders of the cruciform control blade (south wing), 
+ user defined cell numbers = 236 
+ material numbers : 8 
+ and material densities : -7.9 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = absorber cylinders of the cruciform control blade (south wing), 
+ user defined cell numbers = 237 
+ material numbers : 8 
+ and material densities : -7.9 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = absorber cylinders of the cruciform control blade (south wing), 
+ user defined cell numbers = 238 
+ material numbers : 8 
+ and material densities : -7.9 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = absorber cylinders of the cruciform control blade (south wing), 
+ user defined cell numbers = 239 
+ material numbers : 8 
+ and material densities : -7.9 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = absorber cylinders of the cruciform control blade (south wing), 
+ user defined cell numbers = 240 
+ material numbers : 8 
+ and material densities : -7.9 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = absorber cylinders of the cruciform control blade (south wing), 
+ user defined cell numbers = 241 
+ material numbers : 8 
+ and material densities : -7.9 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = absorber cylinders of the cruciform control blade (south wing), 
+ user defined cell numbers = 242 
+ material numbers : 8 
+ and material densities : -7.9 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = absorber cylinders of the cruciform control blade (south wing), 
+ user defined cell numbers = 243 
+ material numbers : 8 
+ and material densities : -7.9 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = absorber cylinders of the cruciform control blade (south wing), 
+ user defined cell numbers = 244 
+ material numbers : 8 
+ and material densities : -7.9 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = structure of the cruciform control blade (south wing), 
+ user defined cell numbers = 245 
+ material numbers : 3 
+ and material densities : -0.739605 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = structure of the cruciform control blade (south wing), 
+ user defined cell numbers = 246 
+ material numbers : 8 
+ and material densities : -7.9 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = structure of the cruciform control blade (south wing), 
+ user defined cell numbers = 247 
+ material numbers : 8 
+ and material densities : -7.9 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = structure of the cruciform control blade (south wing), 
+ user defined cell numbers = 248 
+ material numbers : 8 
+ and material densities : -7.9 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = structure of the cruciform control blade (south wing), 
+ user defined cell numbers = 249 
+ material numbers : 8 
+ and material densities : -7.9 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = structure of the cruciform control blade (south wing), 
+ user defined cell numbers = 250 
+ material numbers : 8 
+ and material densities : -7.9 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = structure of the cruciform control blade (south wing), 
+ user defined cell numbers = 251 
+ material numbers : 8 
+ and material densities : -7.9 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = structure of the cruciform control blade (south wing), 
+ user defined cell numbers = 252 
+ material numbers : 8 
+ and material densities : -7.9 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = structure of the cruciform control blade (south wing), 
+ user defined cell numbers = 253 
+ material numbers : 8 
+ and material densities : -7.9 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = structure of the cruciform control blade (south wing), 
+ user defined cell numbers = 254 
+ material numbers : 8 
+ and material densities : -7.9 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = structure of the cruciform control blade (south wing), 
+ user defined cell numbers = 255 
+ material numbers : 8 
+ and material densities : -7.9 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = structure of the cruciform control blade (south wing), 
+ user defined cell numbers = 256 
+ material numbers : 8 
+ and material densities : -7.9 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = structure of the cruciform control blade (south wing), 
+ user defined cell numbers = 257 
+ material numbers : 8 
+ and material densities : -7.9 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = structure of the cruciform control blade (south wing), 
+ user defined cell numbers = 258 
+ material numbers : 8 
+ and material densities : -7.9 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = structure of the cruciform control blade (south wing), 
+ user defined cell numbers = 259 
+ material numbers : 8 
+ and material densities : -7.9 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = structure of the cruciform control blade (south wing), 
+ user defined cell numbers = 260 
+ material numbers : 8 
+ and material densities : -7.9 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = structure of the cruciform control blade (south wing), 
+ user defined cell numbers = 261 
+ material numbers : 8 
+ and material densities : -7.9 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = structure of the cruciform control blade (south wing), 
+ user defined cell numbers = 262 
+ material numbers : 8 
+ and material densities : -7.9 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = structure of the cruciform control blade (south wing), 
+ user defined cell numbers = 263 
+ material numbers : 8 
+ and material densities : -7.9 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = structure of the cruciform control blade (south wing), 
+ user defined cell numbers = 264 
+ material numbers : 9 
+ and material densities : -7.9 
+neutron importance is : 1
+Cell card attrtibutes are : group of cells name = structure of the cruciform control blade (nw corner), 
+ user defined cell numbers = 265 
+ material numbers : 9 
+ and material densities : -7.9 
+neutron importance is : 1
