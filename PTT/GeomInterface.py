@@ -56,7 +56,9 @@ class DMLG_Interface:
         cell_cards = []
         surface_cards = []
         material_cards = []
-        titles = []
+        cell_titles = []
+        surface_titles = []
+        material_titles = []
 
         # Initialize variables to store current card title and contents
         current_title = None
@@ -82,48 +84,81 @@ class DMLG_Interface:
                     parsing_cell_cards = False
                     parsing_surface_cards = False
                     parsing_material_cards = True
-                elif line.startswith("c"):
-                    if parsing_cell_cards or parsing_surface_cards or parsing_material_cards:
+                elif "Tally Cards" in line:
+                    parsing_cell_cards = False
+                    parsing_surface_cards = False
+                    parsing_material_cards = False
+                
+                elif parsing_cell_cards or parsing_surface_cards:
+                    if line.startswith("c"):
                         #print("in current title")
                         if line.lstrip("c").strip():
                             current_title=line.lstrip("c").strip()
                     #print(current_title)
 
                 # Parse and store information from each section
-                elif parsing_cell_cards or parsing_surface_cards or parsing_material_cards and line:
+                elif parsing_cell_cards or parsing_surface_cards and line:
                     #print("in parsing")
                     # Store previous card's contents (if any) in the corresponding dictionary
                     if parsing_cell_cards:
                         #print("in parsing cell cards")
                         cell_cards.append(line.replace("  ", " ").replace("   "," "))
-                        titles.append(current_title)
+                        cell_titles.append(current_title)
                     elif parsing_surface_cards:
                         #print("in parsing surface cards")
                         surface_cards.append(line.replace("  ", " ").replace("   "," "))
-                        titles.append(current_title)
-                    elif parsing_material_cards:
-                        #print("in parsing material cards")
-                        material_cards.append(line.replace("  ", " ").replace("   "," "))
-                        titles.append(current_title)
+                        print(current_title)
+                        surface_titles.append(current_title)
+                elif parsing_material_cards and line:
+                    if line.startswith("m"):
+                        line=line.replace("  ", " ").replace("   "," ")
+                        current_title=line.split(" ")[0]
+                        material_titles.append(current_title)
+                    if not line.startswith("c"):
+                        line=line.replace("  ", " ").replace("   "," ")
+                        material_cards.append(line)
+                        
+
+ 
 
         self.Cell_Cards = self.clean_list(cell_cards)
         self.Surface_Cards = self.clean_list(surface_cards)
-        self.Material_Cards = self.clean_list(material_cards)
-        self.titles = self.clean_list(titles)
-
-
+        self.cell_titles = self.clean_list(cell_titles)
+        self.surface_titles = self.clean_list(surface_titles)
+        
+        self.Material_Cards = self.combine_list(material_cards) 
+        #print(self.Material_Cards)
+        #self.Material_Cards = self.clean_list(material_cards)
+        #self.material_titles = self.clean_list(material_titles)
+        
     def clean_list(self,list_):
         cleaned_list=[]
         for entry in list_:
             if entry != '':
                 cleaned_list.append(entry)
         return cleaned_list
+    def combine_list(self, list_):
+        combined_list=[]
+        current_list=[]
+        for sub_list in list_:
+            sub_list = sub_list.split(" ")
+            if sub_list[0][0]!="m" and current_list:
+                current_list.extend(sub_list)
+            else:
+                if current_list:
+                    combined_list.append(current_list)
+                current_list=sub_list
+        if current_list:
+            combined_list.append(current_list)
+        return combined_list
 
     def createMCNPcard_objects(self):
         for i in range(len(self.Cell_Cards)):
-            self.Cell_Cards[i] = MCNP_Cell_Card(1, self.titles[i], self.Cell_Cards[i])
+            self.Cell_Cards[i] = MCNP_Cell_Card(1, self.cell_titles[i], self.Cell_Cards[i])
         for i in range(len(self.Surface_Cards)):
-            self.Surface_Cards[i] = MCNP_Surface_Card(self.titles[i], self.Surface_Cards[i],printlvl=False)
+            self.Surface_Cards[i] = MCNP_Surface_Card(self.surface_titles[i], self.Surface_Cards[i],printlvl=False)
+        for i in range(len(self.Material_Cards)):
+            self.Material_Cards[i] = MCNP_Material_Card(self.Material_Cards[i], printlvl=True)
     
     def getMCNP_card_data(self, print_cells, print_surfaces, print_materials):
         """
@@ -135,12 +170,12 @@ class DMLG_Interface:
                 print(f"Cell card attrtibutes are : group of cells name = {cellcard.cells_group}, \n user defined cell numbers = {cellcard.cell_number} \n material numbers : {cellcard.material_number} \n and material densities : {cellcard.material_density} ")
                 print(f"neutron importance is : {cellcard.neutron_importance}")
         if print_surfaces:
-            print(f"There are a total of {len(self.Surface_Cards_Cards)} surface cards")
+            print(f"There are a total of {len(self.Surface_Cards)} surface cards")
             for surface_card in self.Surface_Cards:
                 print(f"Surface card attributes are : group of surfaces name : = {surface_card.surfaces_group}")
+                print(f"The corresonding surface equation is : {surface_card.surfaceEquation}")
         if print_materials:
-            print(f"There are a total of {len(self.Material_Cards)} cards")
-            print("Materials not implemented yet")
+            print(f"There are a total of {len(self.Material_Cards)} Material cards")
 
 
 
@@ -158,6 +193,6 @@ class DMLG_Interface:
 input_f = "MCNP_AT10_sanitized.inp"
 AT10_CRTL_MCNP = DMLG_Interface(input_f, type="MCNP")
 #print(AT10_CRTL_MCNP.Cell_Cards)
-AT10_CRTL_MCNP.getMCNP_card_data(print_cells=True, print_surfaces=False, print_materials=False)
+AT10_CRTL_MCNP.getMCNP_card_data(print_cells=False, print_surfaces=False, print_materials=True)
 #print(AT10_CRTL_MCNP.Cell_Cards)
 #print(AT10_CRTL_MCNP.Cell_Cards['water box centered at ( 8.267, 6.973)'].material_densities[2])

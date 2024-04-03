@@ -11,6 +11,7 @@
 
 import numpy as np
 import re
+import sympy
 from sympy import symbols, Eq
 from sympy.geometry import Plane
 #from sympy.geometry import Cylinder
@@ -55,7 +56,7 @@ class MCNP_Surface_Card:
     list = corresponding coefficients defining surface equation.
     printlvl = boolean to chose to print verbose
     """
-    def __init__(self, surface_group, data,printlvl):
+    def __init__(self, surface_group, data, printlvl):
         self.surfaces_group = surface_group # just a comment from INP file, carried in for reference. Might need to get rid of later ?
         # need to determine surface type. Should be given by second entry of surface card, assuming N entry not used. 
         self.printlvl=printlvl
@@ -91,16 +92,73 @@ class MCNP_Surface_Card:
         if self.surface_type == "p":
             if self.printlvl:
                 print(f"processing plane surface with equation given by Ax+By+Cz+D=0: A={self.surface_data[0]}, B={self.surface_data[1]}, C={self.surface_data[2]}, D={self.surface_data[3]}")
+            x,y,z = sympy.symbols('x y z')
+            self.surfaceEquation = float(self.surface_data[0])*x+float(self.surface_data[1])*y+float(self.surface_data[2])*z+float(self.surface_data[3])
         elif self.surface_type == "px":
             if self.printlvl:
                 print(f"processing plane surface with equation given by x-D=0: D={self.surface_data[0]}")
+            x = sympy.symbols('x')
+            self.surfaceEquation = x-float(self.surface_data[0])
         elif self.surface_type == "py":
             if self.printlvl:
                 print(f"processing plane surface with equation given by y-D=0: D={self.surface_data[0]}")
+            y = sympy.symbols('y')
+            self.surfaceEquation = y-float(self.surface_data[0])
         elif self.surface_type == "pz":
             if self.printlvl:
                 print(f"processing plane surface with equation given by z-D=0: D={self.surface_data[0]}")
+            z = sympy.symbols('z')
+            self.surfaceEquation = z-float(self.surface_data[0])    
+        elif self.surface_type == "c/z":
+            if self.printlvl:
+                print(f"processing cylindrical surface parallel to the z axis with equation given by (x-x1)^2+(y-y1)^2-R^2=0: center (x1={self.surface_data[0]},y1={self.surface_data[1]}) and radius r={self.surface_data[2]}")
+            x,y = sympy.symbols('x y')
+            self.surfaceEquation = (x-float(self.surface_data[0]))**2+(y-float(self.surface_data[1]))**2-float(self.surface_data[2])**2
+            self.surface_type = "Cylinder parallel to the z axis"
+            self.center = (self.surface_data[0],self.surface_data[1])
+            self.radius = self.surface_data[2]
+        elif self.surface_type == "c/x":
+            if self.printlvl:
+                print(f"processing cylindrical surface parallel to the x axis with equation given by (y-y1)^2+(z-z1)^2-R^2=0: center (y1={self.surface_data[0]},z1={self.surface_data[1]}) and radius r={self.surface_data[2]}")
+            self.surface_type = "Cylinder parallel to the x axis"
+            self.center = (self.surface_data[0],self.surface_data[1])
+            self.radius = self.surface_data[2]
+        elif self.surface_type == "c/y":
+            if self.printlvl:
+                print(f"processing cylindrical surface parallel to the x axis with equation given by (x-x1)^2+(z-z1)^2-R^2=0: center (x1={self.surface_data[0]},z1={self.surface_data[1]}) and radius r={self.surface_data[2]}")
+            self.surface_type = "Cylinder parallel to the y axis"
+            self.center = (self.surface_data[0],self.surface_data[1])
+            self.radius = self.surface_data[2]                         
+        else:
+            print(f"Surface of type {self.surface_type} is not supported yet")
 
+class MCNP_Material_Card:
+    def __init__(self, data, printlvl):
+        self.material_name = data[0]
+        self.printlvl = printlvl
+        #self.iso_codes = []
+        self.iso_densities = []
+        #data = data.pop(0)
+        cleaned_data=[]
+        for entry in data:
+            if entry != '':
+                cleaned_data.append(entry) 
+        data=cleaned_data
+        if "t" in data[0]:
+            self.iso_codes=['1001.50c', '8016.50c']
+            self.therm_lib = data[1]
+        else:
+            self.iso_codes = []
+            self.iso_densities = []
+            for i in range(1,len(data)):
+                if "c" in data[i]:
+                    self.iso_codes.append(data[i])
+                else:
+                    self.iso_densities.append(float(data[i]))
+        if self.printlvl:
+            print(self.iso_codes)
+            if self.iso_densities:
+                print(self.iso_densities)
 
 
 
