@@ -1,46 +1,60 @@
 import re
 
-def extract_numbers_from_list(input_list):
-    # Initialize lists to store extracted numbers, materials, densities, and additional info
-    numbers = []
-    materials = []
-    densities = []
-    additional_info = []
+def parse_material(text):
+    # Define patterns to extract relevant information
+    material_pattern = r'Material "(.*?)"'
+    property_patterns = {
+        'Atom density': r'Atom density ([\d.E-]+) 1/barn\*cm',
+        'Mass density': r'Mass density ([\d.E+]+) g/cm3',
+        'Volume': r'Volume ([\d.E-]+) cm3',
+        'Mass': r'Mass ([\d.E+]+) g'
+    }
 
-    # Define regex pattern to match numbers, materials, densities, and additional info
-    pattern = r'(?:#?\d+)\s+([-+]?\d+(\.\d+)?)\s+([-+]?\d+(\.\d+)?)\s+imp:n=1\s+\$(.*)'
+    # Initialize variables to store parsed data
+    materials = {}
+    current_material = None
 
-    for item in input_list:
-        # Find all matches in the string using regex
-        matches = re.match(pattern, item)
-        
-        if matches:
-            # Extract numbers, materials, densities, and additional info
-            number = float(matches.group(1))
-            material = int(matches.group(2))
-            density = float(matches.group(3))
-            info = matches.group(4).strip()  # Extract and strip whitespace from additional info
+    # Iterate through each line in the text
+    for line in text.split('\n'):
+        # Check if the line matches the material pattern
+        match_material = re.match(material_pattern, line)
+        if match_material:
+            material_name = match_material.group(1)
+            materials[material_name] = {}
+            current_material = materials[material_name]
+            continue
 
-            # Append extracted values to respective lists
-            numbers.append(number)
-            materials.append(material)
-            densities.append(density)
-            additional_info.append(info)
-        else:
-            print(f"No match found for item: {item}")
+        # Check if the line contains a property
+        for prop, pattern in property_patterns.items():
+            match_property = re.match(pattern, line)
+            if match_property and current_material is not None:
+                current_material[prop] = match_property.group(1)
+                break
 
-    return numbers, materials, densities, additional_info
+    return materials
 
-# Example usage:
-input_list = ['#25 23 -10.461000  -40  38 -39   imp:n=1  $ FUE m23',
-              '2 22  -0.001000  40 -41  38 -39   imp:n=1  $ HEL m22',
-              '3  5  -6.550000  41 -42  38 -39   imp:n=1  $ CAN m05',
-              '4  2  -0.458426  5  -6  22 -23  42  38 -39   imp:n=1  $ COO m02']
+# Example text to parse
+text = """
+Material "UOx_A":
 
-numbers, materials, densities, additional_info = extract_numbers_from_list(input_list)
+ - Material is burnable
+ - Material is included in majorant
+ - Material is included in geometry
+ - Atom density 7.00058E-02 1/barn*cm
+ - Mass density 1.04612E+01 g/cm3
+ - Volume 3.08964E-01 cm3
+ - Mass 3.23212E+00 g
+ - Photon emission rate 0.00000E+00 1/s
+ - Neutron emission rate 0.00000E+00 1/s
+ - 1582 nuclides in composition
+ - No nuclides associated with S(a,b) data
+ - 2.73 Mb of memory allocated for data
+"""
 
-# Print the extracted numbers, materials, densities, and additional info
-print("Numbers:", numbers)
-print("Materials:", materials)
-print("Densities:", densities)
-print("Additional Info:", additional_info)
+# Parse the text and print the results
+materials_info = parse_material(text)
+for material, properties in materials_info.items():
+    print(f"Material: {material}")
+    for prop, value in properties.items():
+        print(f"{prop}: {value}")
+    print()
