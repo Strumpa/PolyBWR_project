@@ -12,6 +12,3 @@
 *
 *  COMPO := FLX_C_SALT :: <<LIBRARY>> <<TRACK>> <<TF_EXC>> <<TRACK_SS>> <<pyTF_EXC_SS>> <<name_geom>> <<name_compo>> ;
 *
-*  Where library is JEFF3.1.1 SHEM295 and 
-*  Output data  :
-*    LIBRARY    : Microlib with table of probabilities
