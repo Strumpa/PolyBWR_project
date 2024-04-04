@@ -41,8 +41,7 @@ from BU_C import *
 from getLists import *
 
 
-
-########################################################################################################################################################################################
+##########################################################
 #                                                        #
 #   PARAMETERS OF FLUX CALCULATION : TO BE MODIFIED      #
 #                                                        #
@@ -56,10 +55,10 @@ Library = 'J311_295'
 #           - 'ALAMOS'
 #           - 'HYBRIDE'
 #           - 'NATIVE'
-TYPE = 'HYBRIDE'
+TYPE = 'NATIVE'
 #
-# name_geom = name_geom of the simulated case 
-# - cells :
+# name_geom = 'AT10_UOX' or 'AT10_UOX_Gd2O3' of the simulated case, different discretization for UOX and UOX+Gd2O3 cells.
+# - cells = name_mix:
 #           - 'AT10_24UOX'
 #           - 'AT10_32UOX'
 #           - 'AT10_42UOX'
