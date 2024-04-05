@@ -8,14 +8,11 @@
 ARCH = $(shell uname -m)
 ifeq ($(ARCH),aarch64)
   nbit =
-  summary = -ffpe-summary=none
 else
   ifeq (,$(filter $(ARCH),i386 i686))
     nbit = -m64
-    summary = -ffpe-summary=none
   else
     nbit = -m32
-    summary =
   endif
 endif
 
@@ -106,6 +103,23 @@ endif
 endif
 endif
 endif
+<<<<<<< .mine
+||||||| .r3234
+ifeq ($(fcompiler),gfortran)
+  FFLAGS += $(summary)
+  FFLAG77 += -frecord-marker=4 $(summary)
+endif
+=======
+ifeq ($(fcompiler),gfortran)
+  ifneq (,$(filter $(ARCH),i386 i686 x86_64))
+    summary =
+  else
+    summary = -ffpe-summary=none
+  endif
+  FFLAGS += $(summary)
+  FFLAG77 += -frecord-marker=4 $(summary)
+endif
+>>>>>>> .r3237
 
 ifeq ($(intel),1)
   FFLAGS = -fPIC

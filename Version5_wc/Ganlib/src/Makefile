@@ -8,14 +8,11 @@
 ARCH = $(shell uname -m)
 ifeq ($(ARCH),aarch64)
   nbit =
-  summary = -ffpe-summary=none
 else
   ifeq (,$(filter $(ARCH),i386 i686))
     nbit = -m64
-    summary = -ffpe-summary=none
   else
     nbit = -m32
-    summary =
   endif
 endif
 
@@ -112,6 +109,23 @@ endif
 endif
 endif
 endif
+<<<<<<< .mine
+||||||| .r3234
+ifeq ($(fcompiler),gfortran)
+  FFLAGS += -Wno-maybe-uninitialized $(summary)
+  FFLAG77 += -frecord-marker=4 $(summary)
+endif
+=======
+ifeq ($(fcompiler),gfortran)
+  ifneq (,$(filter $(ARCH),i386 i686 x86_64))
+    summary =
+  else
+    summary = -ffpe-summary=none
+  endif
+  FFLAGS += -Wno-maybe-uninitialized $(summary)
+  FFLAG77 += -frecord-marker=4 $(summary)
+endif
+>>>>>>> .r3237
 
 ifeq ($(intel),1)
   FFLAGS = -fPIC
@@ -126,7 +140,6 @@ else
 endif
 
 ifeq ($(hdf5),1)
-  CFLAGS += -DHDF5_LIB
   FLAGS += -DHDF5_LIB -I${HDF5_INC}
   FFLAGS += -I${HDF5_INC}
   LFLAGS += -L${HDF5_API} -lhdf5
