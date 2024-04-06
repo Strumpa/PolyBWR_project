@@ -69,7 +69,7 @@ TRACK_SS := SYBILT: GEOM_SS ::
 * ---
 UOX_TBH_FLX FIG_FLX4.ps := G2S: GEOM :: ;
 TRACK TF_EXC := SALT: UOX_TBH_FLX ::
-  EDIT 10
+  EDIT 1
   ALLG
   TISO EQW <<an2d>> <<densur>> REND
 ;

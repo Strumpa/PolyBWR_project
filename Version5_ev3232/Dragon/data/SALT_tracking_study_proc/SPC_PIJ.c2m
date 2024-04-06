@@ -65,9 +65,9 @@ TRACK_SS := SYBILT: GEOM_SS ::
 * ---
 * FLUX CALC TRACKING
 * ---
-UOX_TBH_FLX FIG_FLX7.ps := G2S: GEOM :: 
+UOX_TBH_FLX FIG_FLX7.ps := G2S: GEOM :: ;
 TRACK TF_EXC := SALT: UOX_TBH_FLX ::
-  EDIT 10
+  EDIT 1
   TSPC EQW2 <<an2d>> <<densur>>
 ;
 
