@@ -28,8 +28,10 @@ class DMLG_Interface:
         if self.type == "MCNP" and self.mode == 'input' :
             self.parseMCNP_input()
             self.createMCNPcard_objects()
-        elif self.type == "Native_Dragon" and self.mode == 'input' :
-            self.parseNative_input()
+        elif self.type == "Dragon" and self.mode == 'input' :
+            self.parseDragon_input()
+        elif self.type == "Dragon" and self.mode == 'output' :
+            self.parseDragon_output()
         elif self.type == "Serpent2" and self.mode == 'input' :
             self.parseSerpent2_input()
         elif self.type == "Serpent2" and self.mode == 'output' : 
@@ -177,6 +179,16 @@ class DMLG_Interface:
 
     def parseNative_input(self):
         print("Native geom type not suported yet")
+        return
+
+    def parseDragon_output(self):
+        """
+        parse Dragon output file for tracking outputs
+        """
+        print(f"Parsing {self.type} {self.mode} file, from input file : {self.input_deck}")
+
+        
+
         return
 
     def parseSerpent2_input(self):
