@@ -72,7 +72,7 @@ TRACK_SS := SYBILT: GEOM_SS ::
 * ---
 
 TRACK TF_EXC := NXT: GEOM ::
-  EDIT 100
+  EDIT 10
   ALLG
   TSPC EQW2 <<an2d>> <<densur>> REND
   LONG
