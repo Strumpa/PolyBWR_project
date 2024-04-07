@@ -41,16 +41,16 @@ GEOM GEOM_SS := Geom_A :: <<geo_name>> ;
 ECHO "3 level Geometry generated" ;
 
 ! Call to trackin module
-!Geo_G2S FIG_main.ps TRACK TRACK_EXC GeoSS_G2S FIG_SS.ps TRACK_SS TRACKSS_EXC := TRK_A_SALT GEOM GEOM_SS ;
+Geo_G2S FIG_main.ps TRACK TRACK_EXC GeoSS_G2S FIG_SS.ps TRACK_SS TRACKSS_EXC := TRK_A_SALT GEOM GEOM_SS ;
 
-Geo_G2S FIG_main.ps := G2S: GEOM :: ;
+!Geo_G2S FIG_main.ps := G2S: GEOM :: ;
 
-TRACK TRACK_EXC := SALT: Geo_G2S ::
-  EDIT 10
-  ALLG
-  TSPC EQW2 <<an2d>> <<densur>> REND
-  LONG
-;
+!TRACK TRACK_EXC := SALT: Geo_G2S ::
+!  EDIT 10
+!  ALLG
+!  TSPC EQW2 <<an2d>> <<densur>> REND
+!  LONG
+!;
 
 ECHO "Geometry tracking with G2S: -> SALT: completed" ;
 
