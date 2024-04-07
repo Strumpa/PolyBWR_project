@@ -63,7 +63,8 @@ def POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
 
     # Chemin d'accès aux résultats Serpent2
     burnup_points=suffixe.split("_")[1]
-    SERPENT_path=f'/home/p117902/working_dir/Serpent2/Linux_x86_64/{burnup_points}/'
+    SERPENT_path=f'/home/p117902/Serpent2/Linux_x86_64/' # path to Serpent2 results with sss_jeff311 library.
+    # SERPENT_path=f'/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/' for results with JEFF311_Pynjoy2016 acelib <--- working on fixing that.
     if burnup_points != "UOx":
         serpent_suffix = burnup_points+"_"
     else:
