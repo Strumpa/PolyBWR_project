@@ -10,7 +10,9 @@
 import numpy as np
 import math
 from GeometricTools import geom_PIN
-from MCNP_card import *
+import MCNP_cards as MCNP
+import Dragon5_geometry as D5
+import Serpent2_cards as S2
 
 # Class DMLG_Interface()
 
@@ -32,10 +34,12 @@ class DMLG_Interface:
             self.parseDragon_input()
         elif self.type == "Dragon" and self.mode == 'output' :
             self.parseDragon_output()
+            self.createDragon5_geometry()
         elif self.type == "Serpent2" and self.mode == 'input' :
             self.parseSerpent2_input()
         elif self.type == "Serpent2" and self.mode == 'output' : 
             self.parseSerpent2_output()
+            self.createSerpent2_output_cards()
         else:
             print("Error: invalid Geometry type to be parsed")
         
@@ -148,11 +152,11 @@ class DMLG_Interface:
 
     def createMCNPcard_objects(self):
         for i in range(len(self.Cell_Cards)):
-            self.Cell_Cards[i] = MCNP_Cell_Card(1, self.cell_titles[i], self.Cell_Cards[i])
+            self.Cell_Cards[i] = MCNP.MCNP_Cell_Card(1, self.cell_titles[i], self.Cell_Cards[i])
         for i in range(len(self.Surface_Cards)):
-            self.Surface_Cards[i] = MCNP_Surface_Card(self.surface_titles[i], self.Surface_Cards[i],printlvl=False)
+            self.Surface_Cards[i] = MCNP.MCNP_Surface_Card(self.surface_titles[i], self.Surface_Cards[i],printlvl=False)
         for i in range(len(self.Material_Cards)):
-            self.Material_Cards[i] = MCNP_Material_Card(self.Material_Cards[i], printlvl=True)
+            self.Material_Cards[i] = MCNP.MCNP_Material_Card(self.Material_Cards[i], printlvl=True)
     
     def getMCNP_card_data(self, print_cells, print_surfaces, print_materials):
         """
@@ -174,23 +178,60 @@ class DMLG_Interface:
         return
 
 
-
-
-
-    def parseNative_input(self):
+    def parseDragon_input(self):
         print("Native geom type not suported yet")
         return
 
     def parseDragon_output(self):
         """
         parse Dragon output file for tracking outputs
+        retrieve the analytical volumes calculated by the tracking module
         """
+        volume_data=[]
+        save_volume_values = False
+        module =""
         print(f"Parsing {self.type} {self.mode} file, from input file : {self.input_deck}")
+        with open(self.input_deck, 'r') as file:
+            lines = file.readlines()
+            for line in lines:
+            # Check if the line contains volume data
+                if "SALT" in self.input_deck:
+                    module="SALT"
+                    if line.strip().startswith("VOLUME"):
+                        # Split the line to extract volume values
+                        volume_values = line.split()[1:]  # Exclude the "VOLUME" keyword
+                        # Convert volume values to floats and append to volume_data list
+                        volume_data.extend([float(value.replace('D', 'E')) for value in volume_values])
+                        # Set the flag to True to start saving volume values
+                        save_volume_values = True
+                    elif line.strip().startswith("--------------------") and save_volume_values:
+                        # Stop saving volume values when encountering the "--------------------" delimiter
+                        save_volume_values = False
+                    elif save_volume_values:
+                        # Save volume values from lines below the delimiter
+                        volume_values = line.split()
+                        volume_data.extend([float(value.replace('D', 'E')) for value in volume_values])
 
+        #print(volume_data)
+        #self.Dragon5_data = D5.Dragon5_geom()
         
+        self.geometric_data = self.clean_vol_data(volume_data)
+        self.D5module = module
 
         return
+    def createDragon5_geometry(self):
 
+        self.Dragon5_geom = D5.Dragon5_geom(self.mode, self.D5module, self.geometric_data)
+        return
+    
+    def clean_vol_data(self, voldata):
+        cleaned_data = []
+        for vol in voldata:
+            if vol != 0.0 :
+                cleaned_data.append(vol)
+        return cleaned_data
+    
+    
     def parseSerpent2_input(self):
         print("Serpent2 geom type not supported yet")
         return
@@ -245,18 +286,16 @@ class DMLG_Interface:
                     material_data_[current_material]=line
                 """
         file.close()
-        print(materials)
-        print(material_data_)
+        #print(materials)
+        #print(material_data_)
+        self.Serpent2_output = material_data_
 
         return
-
-"""
-input_f = "MCNP_AT10_sanitized.inp"
-AT10_CRTL_MCNP = DMLG_Interface(input_f, type="MCNP",mode="input")
-#print(AT10_CRTL_MCNP.Cell_Cards)
-AT10_CRTL_MCNP.getMCNP_card_data(print_cells=False, print_surfaces=False, print_materials=True)
-#print(AT10_CRTL_MCNP.Cell_Cards)
-#print(AT10_CRTL_MCNP.Cell_Cards['water box centered at ( 8.267, 6.973)'].material_densities[2])
-"""
-cell_output = "Serpent2/data_AT10_24UOX_try/AT10_24UOX_mc.out"
-AT10_24UOX_cell = DMLG_Interface(cell_output, type="Serpent2",mode="output")
+    def createSerpent2_output_cards(self):
+        """
+        calling Serpent2 cards class to create associated serpent2 objects
+        """
+        self.Serpent2_cards=[]
+        for mat in self.Serpent2_output.keys():
+            self.Serpent2_cards.append(S2.S2_mat_card(mat, self.Serpent2_output[mat], "output"))
+        
