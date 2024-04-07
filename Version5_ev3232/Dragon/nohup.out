@@ -1,0 +1,50 @@
+execute AT10_ASSBLY with Dragon on system Linux_aarch64 with custom compiler
+use the existing directory Linux_aarch64
+RunDirectory: /tmp/rundir31
+use little endian libraries
+AT10_ASSBLY access script terminated
+End of execution. Total execution time: 0h 1min 0s
+access AT-10_pin.save
+total 227644
+-rw-r--r-- 1 p117902 IGN       902 Apr  7 12:53 assertS.c2m
+-rw-r--r-- 1 p117902 IGN       798 Apr  7 12:53 assertV.c2m
+-rw-r--r-- 1 p117902 IGN  95515159 Apr  7 12:54 AT10_ASSBLY.result
+-rwxr-xr-x 1 p117902 IGN  24838240 Apr  7 12:53 code
+-rw-r--r-- 1 p117902 IGN     67526 Apr  7 12:53 FIG_main.ps
+-rw-r--r-- 1 p117902 IGN      7654 Apr  7 12:53 Geom_A2.c2m
+-rw-r--r-- 1 p117902 IGN     31993 Apr  7 12:53 Geom_A.c2m
+-rw-r--r-- 1 p117902 IGN     91393 Apr  7 12:53 Geom_A.l2m
+-rw------- 1 p117902 IGN    141176 Apr  7 12:53 Geom_A.o2m
+-rw-r--r-- 1 p117902 IGN      9627 Apr  7 12:53 Geom_C.c2m
+-rw-r--r-- 1 p117902 IGN     19598 Apr  7 12:53 Geom_Test.c2m
+lrwxrwxrwx 1 p117902 IGN       113 Apr  7 12:53 J311_295 -> /home/p117902/working_dir/PolyBWR_project/Version5_ev3232/Dragon/../../libraries/l_endian/draglibJeff3p1p1SHEM295
+-rw-r--r-- 1 p117902 IGN     15768 Apr  7 12:53 Mix_ASSBLY.c2m
+-rw-r--r-- 1 p117902 IGN     59010 Apr  7 12:53 Mix_ASSBLY.l2m
+-rw------- 1 p117902 IGN     87972 Apr  7 12:53 Mix_ASSBLY.o2m
+-rw-r--r-- 1 p117902 IGN      2744 Apr  7 12:53 mydata
+-rw-r--r-- 1 p117902 IGN 112174288 Apr  7 12:54 tracks_SALT_ASSBLY.m
+-rw-r--r-- 1 p117902 IGN      1802 Apr  7 12:53 TRK_A_SALT.c2m
+mv: cannot stat 'tracks_SALT_SS_ASSBLY.m': No such file or directory
+mv: cannot stat 'FIG_selfshielding.ps': No such file or directory
+AT10_ASSBLY.save completed
+the listing is located on ./Linux_aarch64
+ Processing lines for region =      917
+ Processing lines for region =      918
+ Processing lines for region =      919
+ Processing lines for region =      920
+ Processing lines for region =      921
+ Processing lines for region =      922
+ Processing lines for region =      923
+ Processing lines for region =      924
+   Output from --TLMDIR-- completed *)
+->@END MODULE   : TLM:        
+-->>MODULE TLM:        : TIME SPENT=       12.171 MEMORY USAGE= 0.000E+00
+
+ normal end of execution for dragon 5  Version 5.0.10 ($Revision: 3196 $)              
+ check for warning in listing
+ before assuming your run was successful
+execute AT10_ASSBLY with Dragon on system Linux_aarch64 with custom compiler
+use the existing directory Linux_aarch64
+RunDirectory: /tmp/rundir30
+use little endian libraries
+AT10_ASSBLY access script terminated

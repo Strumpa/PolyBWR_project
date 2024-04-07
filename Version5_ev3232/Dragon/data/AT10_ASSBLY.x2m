@@ -26,11 +26,11 @@ SEQ_ASCII TLM_F :: FILE 'tracks_SALT_ASSBLY.m' ;
 SEQ_ASCII TLM_SS :: FILE 'tracks_SALT_SS_ASSBLY.m' ;
 REAL Kinf ;
 
-INTEGER an2d := 8 ;  ! ANGULAR QUADRATURE PARAMETER
-REAL densur := 1.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
+INTEGER an2d := 12 ;  ! ANGULAR QUADRATURE PARAMETER
+REAL densur := 25.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
 
-INTEGER an2d_ss := 8 ;  ! ANGULAR QUADRATURE PARAMETER
-REAL densur_ss := 1.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
+INTEGER an2d_ss := 18 ;  ! ANGULAR QUADRATURE PARAMETER
+REAL densur_ss := 45.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
 
 STRING geo_name := "AT10_ASSBLY_test" ; ! Geometry choice for tests and benchmarks
 STRING assbly_opt := "AT10_nominal" ; ! option to choose from possible mixes, 0% (nominal), 40% and 80% void fraction
@@ -59,7 +59,7 @@ LIBRARY := Mix_ASSBLY :: J311_295 <<assbly_opt>> ;
 ECHO "Mixes for ASSBLY :" assbly_opt " retrieved"  ;
 
 TLM_F := TLM: TRACK TRACK_EXC ::
-  EDIT 10
+  EDIT 1
   NTPO 1
   DIRECTIONS
   DIR 0
@@ -76,24 +76,24 @@ TLM_F := TLM: TRACK TRACK_EXC ::
 *  BEGIN SELF SHIELDING CALCULATIO                                     *
 ************************************************************************
 
-!LIBRARY2 := USS: LIBRARY TRACK_SS TRACKSS_EXC ::
-!            EDIT 0
-!            PASS 2
-!            GRMIN 52
-!         ;
+LIBRARY2 := USS: LIBRARY TRACK_SS TRACKSS_EXC ::
+            EDIT 0
+            PASS 2
+            GRMIN 52
+         ;
 
 ************************************************************************
 *  BEGIN MOC FLUX CALCULATION                                          *
 ************************************************************************
 
-!SYS := ASM: LIBRARY2 TRACK TRACK_EXC :: ARM EDIT 0 ; 
+SYS := ASM: LIBRARY2 TRACK TRACK_EXC :: ARM EDIT 0 ; 
 
-!FLUX := FLU: LIBRARY2 SYS TRACK TRACK_EXC :: 
-!             EDIT 1 TYPE K B1 SIGS 
-!      ;
-!GREP: FLUX :: GETVAL 'K-INFINITY  ' 1 1 1 >>Kinf<< ;
+FLUX := FLU: LIBRARY2 SYS TRACK TRACK_EXC :: 
+             EDIT 1 TYPE K B1 SIGS 
+      ;
+GREP: FLUX :: GETVAL 'K-INFINITY  ' 1 1 1 >>Kinf<< ;
 
-!ECHO assbly_opt " t=0 calculation completed, Kinf = " Kinf ;
+ECHO assbly_opt " t=0 calculation completed, Kinf = " Kinf ;
 
 
 
