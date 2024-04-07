@@ -8,6 +8,7 @@
 #          -w to execute in console (for debug purpose)
 #          -p to use PIP extension modules for lifo, lcm and cle2000
 #          -i name of python dataset (by default, use the last argument)
+#          -p number of parallel threads (=1 by default)
 #
 if [ $# = 0 ]
    then
@@ -28,7 +29,7 @@ for last; do : ; done
 mydata=${last}
 quiet=0
 term=0
-nomp=1
+nomp=0
 pip=0
 
 while getopts ":qwpi:" opt; do
@@ -40,6 +41,8 @@ while getopts ":qwpi:" opt; do
     p) pip=1
     ;;
     i) mydata=$OPTARG
+    ;;
+    p) nomp=$OPTARG
     ;;
     \?) echo "Invalid option -$OPTARG" >&2
     exit 1
@@ -117,10 +120,20 @@ if [ $quiet = 0 ]; then
   ls -l
 fi
 before=$(date +%s)
-if [ $term = 0 ]; then
-  python3 mydata >$xxx.result
+if [ $nomp = 0 ]; then
+  if [ $term = 0 ]; then
+    python3 mydata >$xxx.result
+  elif [ $term = 1 ]; then
+    python3 mydata
+  fi
 else
-  python3 mydata
+  echo 'number of OpenMP threads=' $nomp
+  export OMP_NUM_THREADS=$nomp
+  if [ $term = 0 ]; then
+    python3 mydata >$xxx.result
+  elif [ $term = 1 ]; then
+    python3 mydata
+  fi
 fi
 if [ $quiet = 0 ]; then
   time=$(( $(date +%s) - before))

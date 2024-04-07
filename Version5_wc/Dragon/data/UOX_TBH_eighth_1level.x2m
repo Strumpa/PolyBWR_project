@@ -5,7 +5,7 @@
 SEQ_ASCII UOX_TBH :: FILE './UOX_TBH.dat' ;
 LINKED_LIST GEOSS GEON1 TRACKSS TRACKN1 TRACKN2 LIBRARY LIBRARY2
             SYS FLUX EDITION LIBEQ ;
-MODULE SYBILT: G2S: TLM: SALT: MCCGT: USS: ASM: FLU: EDI: END: ;
+MODULE SYBILT: SALT: MCCGT: USS: ASM: FLU: EDI: END: ;
 REAL Rcomb1 Rcomb2 Rcomb3 Rcomb4 R_int_TG R_ext_TG R_int_TI R_ext_TI
      R_int_G R_ext_G Cote CoteL RmodeN1 ;
 REAL dens_mod_0 pbore_0 N_U5_UOX densU_UOX temp_comb_0 temp_mode_0
@@ -36,9 +36,7 @@ GEOSS := Geo_SS_32 :: <<Rcomb1>> <<Rcomb2>> <<Rcomb3>> <<Rcomb4>>
                       <<R_int_TG>> <<R_ext_TG>> <<R_int_TI>> 
                       <<R_ext_TI>> <<R_int_G>> <<R_ext_G>> <<Cote>>
                       <<CoteL>> ;
-SEQ_ASCII Fic_SAL ;
-SEQ_ASCII Fig_SS.ps :: FILE './UOX_TBH_FIG.ps' ;
-SEQ_ASCII TLM_F :: FILE 'tracks_SALT_UOXTBH.m' ;
+
 ************************************************************************
 *  END GEOMETRY                                                        *
 ************************************************************************
@@ -59,24 +57,6 @@ TRACKN2 TF_EXC := SALT: UOX_TBH ::
 ;
 TRACKN2 := MCCGT: TRACKN2 TF_EXC ::
   CACB 4 AAC 80 TMT EPSI 1E-5 MCU 10000 ;
-
-
-LINKED_LIST TRACK ;
-SEQ_BINARY TRACK_FIL ;
-! ADDING DUMMY TRACKING WITH CALL TO G2S->SALT on GEOMSS
-Fic_SAL Fig_SS.ps := G2S: GEOSS ;
-TRACK TRACK_FIL := SALT: Fic_SAL ::
-     EDIT 1
-     TSPC 4 10.0
-     LONG
-;
-TLM_F := TLM: TRACK TRACK_FIL ::
-  EDIT 1
-  NTPO 1
-  DIRECTIONS
-  DIR 0
-;
-
 ************************************************************************
 *  END TRACKING                                                        *
 ************************************************************************

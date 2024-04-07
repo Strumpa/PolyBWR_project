@@ -10,10 +10,11 @@ def main():
   incdir = os.path.join(get_python_lib(plat_specific=1), "numpy/core/include")
   mach = os.path.basename(os.getcwd())
   Code = os.environ.get("CODE_EMBEDDED", None) # Code selection
-  FortranLib = os.environ.get("FORTRANPATH", None) # directory with libgfortran.a
+  Compiler = os.environ.get("COMPILER", None) # Compiler selection
+  FortranLib = os.environ.get(Compiler, None) # directory with libgfortran.a
   HDF5Lib = os.environ.get("HDF5_API", None) # directory with libhdf5.a
   pylib = os.path.basename(get_config_var("LIBDIR")) # get lib or lib64
-  print("install Cle2000 binding to", Code, "on directory",mach, "pylib=",pylib)
+  print("install Cle2000 binding to", Code, "on directory",mach, "pylib=",pylib, "Compiler=",Compiler)
 
   if Code == "GANLIB":
     setup (name="Cle2000",

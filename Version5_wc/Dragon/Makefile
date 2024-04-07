@@ -12,7 +12,11 @@ endif
 ifeq ($(intel),1)
   fcompiler = intel
 else
-  fcompiler = custom
+  ifeq ($(nvidia),1)
+    fcompiler = nvidia
+  else
+    fcompiler = custom
+  endif
 endif
 all :
 	$(MAKE) -C src

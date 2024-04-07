@@ -62,6 +62,11 @@ cd ~/Version5_evn/Donjon/
 make intel=1
 make clean
 #
+# To configure Version5 components with Nvidia compiler using makefiles:
+cd ~/Version5_evn/Donjon/
+make nvidia=1
+make clean
+#
 # To build an HDF5-enabled version, simply write
 make hdf5=1
 #
@@ -73,6 +78,9 @@ make tests
 #
 # To execute the non-regression tests with Intel compiler:
 make tests intel=1
+#
+# To execute the non-regression tests with Nvidia compiler:
+make tests nvidia=1
 #
 # To execute the non-regression tests, including those requiring hdf5 support:
 make tests hdf5=1
@@ -100,6 +108,14 @@ cd ~/Version5_evn/Dragon/
 # To execute Dragon with Intel compiler:
 cd ~/Version5_evn/Dragon/
 ./rdragon -c intel iaea2d.x2m
+
+# To execute Dragon with Nvidia compiler:
+cd ~/Version5_evn/Dragon/
+./rdragon -c nvidia iaea2d.x2m
+
+# To execute Dragon with Nvidia compiler and 50 OpenMP threads:
+cd ~/Version5_evn/Dragon/
+./rdragon -c nvidia -p 50 iaea2d.x2m
 
 # To execute Donjon with custom compiler:
 cd ~/Version5_evn/Donjon/

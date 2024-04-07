@@ -19,7 +19,6 @@ endif
 DIRNAME = $(shell uname -sm | sed 's/[ ]/_/')
 OS = $(shell uname -s | cut -d"_" -f1)
 opt = -O -g
-ccompiler = gcc
 PREPRO = cpp
 ifeq ($(openmp),1)
   COMP = -fopenmp
@@ -30,8 +29,15 @@ endif
 
 ifeq ($(intel),1)
   fcompiler = ifort
+  ccompiler = gcc
 else
-  fcompiler = gfortran
+  ifeq ($(nvidia),1)
+    fcompiler = nvfortran
+    ccompiler = nvc
+  else
+    fcompiler = gfortran
+    ccompiler = gcc
+  endif
 endif
 
 ifeq ($(mpi),1)
@@ -53,15 +59,15 @@ else
 endif
 
 ifeq ($(OS),Darwin)
-ifeq ($(openmp),1)
-  ccompiler = gcc-12
-endif
+  ifeq ($(openmp),1)
+    ccompiler = gcc-12
+  endif
   F90 = $(fcompiler)
   C = $(ccompiler)
   FLAGS = -DLinux -DUnix
   CFLAGS = -Wall $(nbit) -fPIC
-  FFLAGS = -Wno-maybe-uninitialized $(nbit) -fPIC $(summary)
-  FFLAG77 = -Wall $(nbit) -fPIC $(summary) -frecord-marker=4
+  FFLAGS = $(nbit) -fPIC
+  FFLAG77 = -Wall $(nbit) -fPIC
   LFLAGS = $(nbit)
 else
 ifeq ($(OS),Linux)
@@ -69,8 +75,8 @@ ifeq ($(OS),Linux)
   C = $(ccompiler)
   FLAGS = -DLinux -DUnix
   CFLAGS = -Wall $(nbit) -fPIC
-  FFLAGS = -Wno-maybe-uninitialized $(nbit) -fPIC
-  FFLAG77 = -Wall $(nbit) -fPIC -frecord-marker=4
+  FFLAGS = $(nbit) -fPIC
+  FFLAG77 = -Wall $(nbit) -fPIC
   LFLAGS = $(nbit)
 else
 ifeq ($(OS),CYGWIN)
@@ -79,7 +85,7 @@ ifeq ($(OS),CYGWIN)
   FLAGS = -DLinux -DUnix
   CFLAGS = -Wall $(nbit) -fPIC
   FFLAGS = -Wall $(nbit) -fPIC
-  FFLAG77 = -Wall $(nbit) -fPIC -frecord-marker=4
+  FFLAG77 = -Wall $(nbit) -fPIC
   LFLAGS = $(nbit)
 else
 ifeq ($(OS),SunOS)
@@ -109,23 +115,18 @@ endif
 endif
 endif
 endif
-<<<<<<< .mine
-||||||| .r3234
-ifeq ($(fcompiler),gfortran)
-  FFLAGS += -Wno-maybe-uninitialized $(summary)
-  FFLAG77 += -frecord-marker=4 $(summary)
-endif
-=======
 ifeq ($(fcompiler),gfortran)
   ifneq (,$(filter $(ARCH),i386 i686 x86_64))
     summary =
   else
     summary = -ffpe-summary=none
   endif
+  ifeq ($(OS),Darwin)
+    summary = -ffpe-summary=none
+  endif
   FFLAGS += -Wno-maybe-uninitialized $(summary)
   FFLAG77 += -frecord-marker=4 $(summary)
 endif
->>>>>>> .r3237
 
 ifeq ($(intel),1)
   FFLAGS = -fPIC
@@ -134,9 +135,15 @@ ifeq ($(intel),1)
   bin = ../bin/$(DIRNAME)_intel
   lib_module = ../lib/$(DIRNAME)_intel/modules
 else
-  lib = ../lib/$(DIRNAME)
-  bin = ../bin/$(DIRNAME)
-  lib_module = ../lib/$(DIRNAME)/modules
+  ifeq ($(nvidia),1)
+    lib = ../lib/$(DIRNAME)_nvidia
+    bin = ../bin/$(DIRNAME)_nvidia
+    lib_module = ../lib/$(DIRNAME)_nvidia/modules
+  else
+    lib = ../lib/$(DIRNAME)
+    bin = ../bin/$(DIRNAME)
+    lib_module = ../lib/$(DIRNAME)/modules
+  endif
 endif
 
 ifeq ($(hdf5),1)
@@ -169,6 +176,9 @@ endif
 ifeq ($(intel),1)
 	@echo 'Ganlib: intel is defined'
 endif
+ifeq ($(nvidia),1)
+	@echo 'Ganlib: nvidia is defined'
+endif
 ifeq ($(hdf5),1)
 	@echo 'Ganlib: hdf5 is defined'
 endif
@@ -183,7 +193,7 @@ sub-make:
 	$(F90) $(FFLAGS) $(opt) $(COMP) -c temp.f90 -o $@
 	/bin/rm temp.f90
 %.o : %.f
-	/bin/rm -f temp.f
+	@/bin/rm -f temp.f
 	$(F90) $(FFLAG77) $(opt) $(COMP) -c $< -o $@
 %.o : %.F
 	$(PREPRO) -P -W -traditional $(FLAGS) $(FMPI) $< temp.f

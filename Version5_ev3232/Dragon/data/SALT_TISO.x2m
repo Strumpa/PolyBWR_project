@@ -82,6 +82,7 @@ UOX_TBH_FLX FIG_FLX.ps := G2S: GEOM :: ;
 TRACK TF_EXC := SALT: UOX_TBH_FLX ::
   EDIT 10
   ALLG
+  !TSPC EQW2 <<an2d>> <<densur>> REND
   TISO EQW <<an2d>> <<densur>> REND
   LONG
 ;

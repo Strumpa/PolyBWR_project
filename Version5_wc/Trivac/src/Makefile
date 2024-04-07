@@ -18,7 +18,6 @@ endif
 
 DIRNAME = $(shell uname -sm | sed 's/[ ]/_/')
 OS = $(shell uname -s | cut -d"_" -f1)
-ccompiler = gcc
 opt = -O -g
 ifeq ($(openmp),1)
   COMP = -fopenmp
@@ -28,8 +27,15 @@ endif
 
 ifeq ($(intel),1)
   fcompiler = ifort
+  ccompiler = gcc
 else
-  fcompiler = gfortran
+  ifeq ($(nvidia),1)
+    fcompiler = nvfortran
+    ccompiler = nvc
+  else
+    fcompiler = gfortran
+    ccompiler = gcc
+  endif
 endif
 
 ifeq ($(OS),AIX)
@@ -43,24 +49,24 @@ else
 endif
 
 ifeq ($(OS),Darwin)
-ifeq ($(openmp),1)
-  ccompiler = gcc-12
-endif
+  ifeq ($(openmp),1)
+    ccompiler = gcc-12
+  endif
   F90 = $(fcompiler)
-  FFLAGS = -Wall $(nbit) -fPIC $(summary)
-  FFLAG77 = -Wall $(nbit) -fPIC $(summary) -frecord-marker=4
+  FFLAGS = -Wall $(nbit) -fPIC
+  FFLAG77 = -Wall $(nbit) -fPIC
   LFLAGS = $(nbit)
 else
 ifeq ($(OS),Linux)
   F90 = $(fcompiler)
   FFLAGS = -Wall $(nbit) -fPIC
-  FFLAG77 = -Wall $(nbit) -fPIC -frecord-marker=4
+  FFLAG77 = -Wall $(nbit) -fPIC
   LFLAGS = $(nbit)
 else
 ifeq ($(OS),CYGWIN)
   F90 = $(fcompiler)
   FFLAGS = -Wall $(nbit) -fPIC
-  FFLAG77 = -Wall $(nbit) -fPIC -frecord-marker=4
+  FFLAG77 = -Wall $(nbit) -fPIC
   LFLAGS = $(nbit)
 else
 ifeq ($(OS),SunOS)
@@ -85,28 +91,18 @@ endif
 endif
 endif
 endif
-<<<<<<< .mine
-lib = ../lib/$(DIRNAME)
-libUtl = ../../Utilib/lib/$(DIRNAME)
-libGan = ../../Ganlib/lib/$(DIRNAME)
-bin = ../bin/$(DIRNAME)
-INCLUDE = -I../../Ganlib/lib/$(DIRNAME)/modules/
-||||||| .r3234
-ifeq ($(fcompiler),gfortran)
-  FFLAGS += $(summary)
-  FFLAG77 += -frecord-marker=4 $(summary)
-endif
-=======
 ifeq ($(fcompiler),gfortran)
   ifneq (,$(filter $(ARCH),i386 i686 x86_64))
     summary =
   else
     summary = -ffpe-summary=none
   endif
+  ifeq ($(OS),Darwin)
+    summary = -ffpe-summary=none
+  endif
   FFLAGS += $(summary)
   FFLAG77 += -frecord-marker=4 $(summary)
 endif
->>>>>>> .r3237
 
 ifeq ($(intel),1)
   FFLAGS = -fPIC
@@ -115,13 +111,21 @@ ifeq ($(intel),1)
   libUtl = ../../Utilib/lib/$(DIRNAME)_intel
   libGan = ../../Ganlib/lib/$(DIRNAME)_intel
   bin = ../bin/$(DIRNAME)_intel
-  INCLUDE = -I../../Ganlib/lib/$(DIRNAME)_intel/modules/ -I../../Utilib/lib/$(DIRNAME)_intel/modules/
+  INCLUDE = -I../../Ganlib/lib/$(DIRNAME)_intel/modules/
 else
-  lib = ../lib/$(DIRNAME)
-  libUtl = ../../Utilib/lib/$(DIRNAME)
-  libGan = ../../Ganlib/lib/$(DIRNAME)
-  bin = ../bin/$(DIRNAME)
-  INCLUDE = -I../../Ganlib/lib/$(DIRNAME)/modules/ -I../../Utilib/lib/$(DIRNAME)/modules
+  ifeq ($(nvidia),1)
+    lib = ../lib/$(DIRNAME)_nvidia
+    libUtl = ../../Utilib/lib/$(DIRNAME)_nvidia
+    libGan = ../../Ganlib/lib/$(DIRNAME)_nvidia
+    bin = ../bin/$(DIRNAME)_nvidia
+    INCLUDE = -I../../Ganlib/lib/$(DIRNAME)_nvidia/modules/
+  else
+    lib = ../lib/$(DIRNAME)
+    libUtl = ../../Utilib/lib/$(DIRNAME)
+    libGan = ../../Ganlib/lib/$(DIRNAME)
+    bin = ../bin/$(DIRNAME)
+    INCLUDE = -I../../Ganlib/lib/$(DIRNAME)/modules/
+  endif
 endif
 
 ifeq ($(hdf5),1)
@@ -144,6 +148,9 @@ ifeq ($(openmp),1)
 endif
 ifeq ($(intel),1)
 	@echo 'Trivac: intel is defined'
+endif
+ifeq ($(nvidia),1)
+	@echo 'Ganlib: nvidia is defined'
 endif
 ifeq ($(hdf5),1)
 	@echo 'Trivac: hdf5 is defined'
