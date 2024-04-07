@@ -36,6 +36,7 @@ from TRK_C_SALT import *
 from TRK_C_SYBNXT import *
 # BU DEPLETION class
 from BU_C import *
+from BU_C_SYBNXT import *
 
 # --- OTHERS
 from getLists import *
@@ -73,7 +74,7 @@ TYPE = 'HYBRIDE'
 #           - 'ATRIUM-10XM NL24-2_ctrl'
 name_geom = 'AT10_UOX' # 'AT10_UOX_Gd2O3'
 name_mix = "AT10_24UOX"
-tracking_module = "SALT"
+tracking_module = "SYBNXT" #"SALT"
 #
 # Multicompo = 1 if you want to generate a MULTICOMPO object 
 #            = 0 either
@@ -85,7 +86,7 @@ Multicompo = 1
 #        - 'UOx'  : used for UOx fuel without Gd poison
 #        - 'Gd'   : used for UOx fuel with Gd poison
 #        - 'free' : modify the burnup points as you wish
-burnup_points = 'UOx4_autop5'
+burnup_points = 'UOx_autop5'
 # suffixe = suffixe added to name_geom for creation of figures, MULTICOMPO and BU vector
 suffixe = tracking_module+"_"+burnup_points
 #
@@ -196,13 +197,13 @@ if case == 'CELL' :
             [pyGEOM,pyGEOM_SS] = GEO_C_NXT("GEOM","GEOM_SS",name_geom)
 
             # ---------- MIXTURES
-            pyMIX = MIX_C("LIBRARY",Library,name_geom)
+            pyMIX = MIX_C("LIBRARY",Library,name_mix)
 
             # ---------- TRACKING
-            [pyUOX_TBH,pyFIG,pyTRACK,pyTF_EXC,pyUOX_TBH_SS,pyFIG_SS,pyTRACK_SS,pyTF_EXC_SS] = TRK_C_SYBNXT("UOX_TBH",name_fig,"TRACK","TF_EXC","UOX_TBH_SS",name_fig_SS,"TRACK_SS","TF_EXC_SS",pyGEOM,pyGEOM_SS)
+            [pyTRACK,pyTF_EXC,pyTRACK_SS] = TRK_C_SYBNXT("TRACK","TF_EXC","TRACK_SS",pyGEOM,pyGEOM_SS)
 
             # ---------- BU DEPLETION
-            pyCOMPO = BU_C("COMPO",pyMIX,pyTRACK,pyTF_EXC,pyTRACK_SS,pyTF_EXC_SS,StepList,Multicompo,name_geom,name_compo)
+            pyCOMPO = BU_C_SYBNXT("COMPO",pyMIX,pyTRACK,pyTF_EXC,pyTRACK_SS,StepList,Multicompo,name_geom,name_compo)
 
 """
 # --------------------------------------

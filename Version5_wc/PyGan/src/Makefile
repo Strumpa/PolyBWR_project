@@ -5,10 +5,6 @@
 #
 #---------------------------------------------------------------------------
 #
-ifeq ($(FORTRANPATH),)
-  $(error FORTRANPATH is not set)
-endif
-
 DIRNAME = $(shell uname -sm | sed 's/[ ]/_/')
 OS = $(shell uname -s | cut -d"_" -f1)
 lib = ../lib/$(DIRNAME)
@@ -17,6 +13,26 @@ pylib = $(shell python3 ../../script/find_pylib.py)
 PYTHONPATH = $(pylib)/python
 $(info set PYTHONPATH="$(PYTHONPATH)")
 export PYTHONPATH
+
+ifeq ($(intel),1)
+  ifeq ($(INTELTOOLS),)
+    $(error INTELTOOLS is not set)
+  endif
+  COMPILER = INTELTOOLS
+else
+  ifeq ($(nvidia),1)
+    ifeq ($(NVTOOLS),)
+      $(error NVTOOLS is not set)
+    endif
+    COMPILER = NVTOOLS
+  else
+    ifeq ($(FORTRANPATH),)
+      $(error FORTRANPATH is not set)
+    endif
+    COMPILER = FORTRANPATH
+  endif
+endif
+export COMPILER
 
 all:
 	$(MAKE) donjon

@@ -18,7 +18,6 @@ endif
 
 DIRNAME = $(shell uname -sm | sed 's/[ ]/_/')
 OS = $(shell uname -s | cut -d"_" -f1)
-ccompiler = gcc
 opt = -O -g
 ifeq ($(openmp),1)
   COMP = -fopenmp
@@ -28,8 +27,15 @@ endif
 
 ifeq ($(intel),1)
   fcompiler = ifort
+  ccompiler = gcc
 else
-  fcompiler = gfortran
+  ifeq ($(nvidia),1)
+    fcompiler = nvfortran
+    ccompiler = nvc
+  else
+    fcompiler = gfortran
+    ccompiler = gcc
+  endif
 endif
 
 ifeq ($(OS),AIX)
@@ -43,28 +49,28 @@ else
 endif
 
 ifeq ($(OS),Darwin)
-ifeq ($(openmp),1)
-  ccompiler = gcc-12
-endif
+  ifeq ($(openmp),1)
+    ccompiler = gcc-12
+  endif
   F90 = $(fcompiler)
   C = $(ccompiler)
   CFLAGS = -Wall $(nbit) -fPIC
-  FFLAGS = -Wall $(nbit) -fPIC $(summary)
-  FFLAG77 = -Wall $(nbit) -fPIC $(summary) -frecord-marker=4
+  FFLAGS = -Wall $(nbit) -fPIC
+  FFLAG77 = -Wall $(nbit) -fPIC
 else
 ifeq ($(OS),Linux)
   F90 = $(fcompiler)
   C = $(ccompiler)
   CFLAGS = -Wall $(nbit) -fPIC
   FFLAGS = -Wall $(nbit) -fPIC
-  FFLAG77 = -Wall $(nbit) -fPIC -frecord-marker=4
+  FFLAG77 = -Wall $(nbit) -fPIC
 else
 ifeq ($(OS),CYGWIN)
   F90 = $(fcompiler)
   C = $(ccompiler)
   CFLAGS = -Wall $(nbit) -fPIC
   FFLAGS = -Wall $(nbit) -fPIC
-  FFLAG77 = -Wall $(nbit) -fPIC -frecord-marker=4
+  FFLAG77 = -Wall $(nbit) -fPIC
 else
 ifeq ($(OS),SunOS)
   F90 = f90
@@ -88,23 +94,18 @@ endif
 endif
 endif
 endif
-<<<<<<< .mine
-||||||| .r3234
-ifeq ($(fcompiler),gfortran)
-  FFLAGS += $(summary)
-  FFLAG77 += -frecord-marker=4 $(summary)
-endif
-=======
 ifeq ($(fcompiler),gfortran)
   ifneq (,$(filter $(ARCH),i386 i686 x86_64))
     summary =
   else
     summary = -ffpe-summary=none
   endif
+  ifeq ($(OS),Darwin)
+    summary = -ffpe-summary=none
+  endif
   FFLAGS += $(summary)
   FFLAG77 += -frecord-marker=4 $(summary)
 endif
->>>>>>> .r3237
 
 ifeq ($(intel),1)
   FFLAGS = -fPIC
@@ -112,8 +113,13 @@ ifeq ($(intel),1)
   lib = ../lib/$(DIRNAME)_intel
   lib_module = ../lib/$(DIRNAME)_intel/modules
 else
-  lib = ../lib/$(DIRNAME)
-  lib_module = ../lib/$(DIRNAME)/modules
+  ifeq ($(nvidia),1)
+    lib = ../lib/$(DIRNAME)_nvidia
+    lib_module = ../lib/$(DIRNAME)_nvidia/modules
+  else
+    lib = ../lib/$(DIRNAME)
+    lib_module = ../lib/$(DIRNAME)/modules
+  endif
 endif
 
 SRCC = $(shell ls *.c)
@@ -133,6 +139,9 @@ ifeq ($(openmp),1)
 endif
 ifeq ($(intel),1)
 	@echo 'Utilib: intel is defined'
+endif
+ifeq ($(nvidia),1)
+	@echo 'Utilib: nvidia is defined'
 endif
 	@echo "Utilib: python version=" ${python_version_major}
 %.o : %.c

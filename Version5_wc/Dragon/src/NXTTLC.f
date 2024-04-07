@@ -140,7 +140,7 @@
       INTEGER          ISINT,NBSEG,IPT,JSDIR,ISDIRX,IPTN
       DOUBLE PRECISION DHALF
       DOUBLE PRECISION AAA
-      INTEGER          IND,II
+      INTEGER          IND,II,JJ
       LOGICAL          LNEW
 *----
 *  Allocatable arrays (local)
@@ -231,7 +231,7 @@
 *  and track starting point in TRKOR2
 *----
           DWGT=DNSANG(IANGL)
-          DAWGT=DWGT*DDENWT(IANGL)
+          DAWGT=2.0D0*DWGT*DDENWT(IANGL)
           DO IDIR=1,NDIM
             ANGLED(IDIR)=DANGLT(IDIR,IANGL)
             TRKOR2(IDIR)=DEPART(IDIR,1,IANGL)
@@ -622,12 +622,18 @@
                     DVNOR(IREG,1)=DVNOR(IREG,1)+VCONT
                     IF(NBDR .GT. 1) THEN
                       II=KANGL(IND)
+                      IF(II .GT. 2*NBANGL) THEN
+                        JJ=II-2*NBANGL
+                      ELSE
+                        JJ=II+2*NBANGL
+                      ENDIF
                       IF(DANGLT(1,II).EQ.DZERO) THEN
                         VCONTA=DHALF*DLENGT(ISEG)*DAWGT
                       ELSE
                         VCONTA=DLENGT(ISEG)*DAWGT
                       ENDIF
                       DVNOR(IREG,II+1)=DVNOR(IREG,II+1)+VCONTA
+                      DVNOR(IREG,JJ+1)=DVNOR(IREG,JJ+1)+VCONTA
                     ENDIF
                     JSEG=JSEG+1
                     LENGTH(JSEG)=DLENGT(ISEG)

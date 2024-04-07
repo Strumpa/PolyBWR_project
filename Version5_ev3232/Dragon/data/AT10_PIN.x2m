@@ -60,22 +60,23 @@ StepList := UTL: StepList :: CREA 'ListCompo' <<ncompo>> =
 ;
 
 
-GEOM GEOM_SS := Geom_C_SALT :: <<geo_name>> ; 
+!GEOM GEOM_SS := Geom_C_SALT :: <<geo_name>> ; 
 
 
-LIBRARY := Mix_Cell :: J311_295 <<cell_name>> ;
+!LIBRARY := Mix_Cell :: J311_295 <<cell_name>> ;
 
 ! CALL THIS FOR SALT TRACKING FOR BOTH SSH AND FLX + MOC SOLUTION + BU EVOLUTION
-CELL FIG_FLX.ps TRACK TF_EXC CELL_SS FIG_SS.ps TRACK_SS TF_EXC_SS := TRK_C_SALT GEOM GEOM_SS ;
-COMPO := BU_C_SALT LIBRARY TRACK TF_EXC TRACK_SS TF_EXC_SS StepList :: <<Multicompo>> <<geo_name>> <<compo_name>> ; 
+!CELL FIG_FLX.ps TRACK TF_EXC CELL_SS FIG_SS.ps TRACK_SS TF_EXC_SS := TRK_C_SALT GEOM GEOM_SS ;
+!COMPO := BU_C_SALT LIBRARY TRACK TF_EXC TRACK_SS TF_EXC_SS StepList :: <<Multicompo>> <<geo_name>> <<compo_name>> ; 
 
 
-!GEOM GEOM_SS := Geom_C :: <<geo_name>> ;
-!TRACK TF_EXC TRACK_SS := TRK_C_SYBNXT GEOM GEOM_SS :: <<OptionSolve>> ;
-!COMPO  := BU_C_SYBNXT LIBRARY TRACK TF_EXC TRACK_SS StepList 
-!       :: <<Multicompo>> <<geo_name>> <<compo_name>> <<OptionSolve>> ;
+GEOM GEOM_SS := Geom_C :: <<geo_name>> ;
+LIBRARY := Mix_Cell :: J311_295 <<cell_name>> ;
+TRACK TF_EXC TRACK_SS := TRK_C_SYBNXT GEOM GEOM_SS :: <<OptionSolve>> ;
+COMPO  := BU_C_SYBNXT LIBRARY TRACK TF_EXC TRACK_SS StepList 
+       :: <<Multicompo>> <<geo_name>> <<compo_name>> <<OptionSolve>> ;
 
-ECHO "AT10_24UOX_SALT_TSPC completed" ;
+ECHO "AT10_24UOX_NXT_TSPC completed" ;
 
 END: ;
 

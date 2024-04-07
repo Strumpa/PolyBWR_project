@@ -75,17 +75,17 @@ STRING   MainCycle ;
 * Rod groups definition and rod map
 Fmap := ROD: Fmap ::
   EDIT 0 PARA "BARR" 1.
-  LINS 260 STEP 1.5875 NRFB 1
+  LINS 260. STEP 1.5875 NRFB 1
   RGRP 9  2
-    R   20 2. 101.6 3.
-    N1   0 2. 101.6 3.
-    N2   0 2. 101.6 3. 
-    SA   0 2. 101.6 3. 
-    SB   0 2. 101.6 3.
-    SC   0 2. 101.6 3.
-    SD   0 2. 101.6 3.
-    G1   0 0.
-    G2   0 0.
+    R   20. 2. 101.6 3.
+    N1   0. 2. 101.6 3.
+    N2   0. 2. 101.6 3. 
+    SA   0. 2. 101.6 3. 
+    SB   0. 2. 101.6 3.
+    SC   0. 2. 101.6 3.
+    SD   0. 2. 101.6 3.
+    G1   0. 0.
+    G2   0. 0.
   ENDRGRP
   RMAP 157
                            |   |   |
@@ -152,7 +152,7 @@ assertS Flux :: 'K-EFFECTIVE' 1 1.203020 ;
 * We want to change the insertion of the R group
 Fmap := ROD: Fmap ::
   RGRP 1
-    R   19
+    R   19.
   ENDRGRP
 ;
 

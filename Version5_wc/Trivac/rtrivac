@@ -8,10 +8,11 @@
 #          -q quiet execution for regression testing
 #          -w to execute in console (for debug purpose)
 #          -i name of x2m dataset (by default, use the last argument)
+#          -p number of parallel threads (=1 by default)
 #
 if [ $# = 0 ]
    then
-   echo "usage: rtrivac [-c:|-q|-w|-i:] <file.x2m>" 1>&2
+   echo "usage: rtrivac [-c:|-q|-w|-i:|-p:] <file.x2m>" 1>&2
    exit 1
 fi
 System=`uname -s`
@@ -29,7 +30,7 @@ mydata=${last}
 typ='custom'
 quiet=0
 term=0
-nomp=1
+nomp=0
 
 while getopts ":c:qwi:" opt; do
   case $opt in
@@ -40,6 +41,8 @@ while getopts ":c:qwi:" opt; do
     w) term=1
     ;;
     i) mydata=$OPTARG
+    ;;
+    p) nomp=$OPTARG
     ;;
     \?) echo "Invalid option -$OPTARG" >&2
     exit 1
@@ -95,6 +98,7 @@ else
 fi
 cp "$CodeDir"/data/$mydata ./mydata
 
+export NO_STOP_MESSAGE=1
 if [ -d "$CodeDir"/data/`echo $xxx`_proc ]; then
   cp "$CodeDir"/data/`echo $xxx`_proc/*.c2m . 2> /dev/null
 fi
@@ -112,10 +116,19 @@ if [ -f "$CodeDir"/data/assertV.c2m ]; then
   cp "$CodeDir"/data/assertV.c2m .
 fi
 before=$(date +%s)
-if [ $term = 0 ]; then
-  ./code <mydata >$xxx.result
-elif [ $term = 1 ]; then
-  ./code <mydata
+if [ $nomp = 0 ]; then
+  if [ $term = 0 ]; then
+    ./code <mydata >$xxx.result
+  elif [ $term = 1 ]; then
+    ./code <mydata
+  fi
+else
+  echo 'number of OpenMP threads=' $nomp
+  if [ $term = 0 ]; then
+    ./code -omp $nomp <mydata >$xxx.result
+  elif [ $term = 1 ]; then
+    ./code -omp $nomp <mydata
+  fi
 fi
 if [ $quiet = 0 ]; then
   time=$(( $(date +%s) - before))

@@ -22,9 +22,6 @@ PARAMETER TRACK    TF_EXC
 ::: LINKED_LIST GEOM ;
 ::: LINKED_LIST GEOM_SS  ; ;
 
-! Can be either MOC or PIJ, conditions the use of MCCGT:
-STRING OptionSolve ; 
-:: >>OptionSolve<< ; 
 
 * ---
 * STRUCTURES AND MODULES
@@ -64,8 +61,8 @@ TRACK TF_EXC := NXT: GEOM ::
 
 * MOC tracking
 TRACK := MCCGT: TRACK TF_EXC ::
-    EDIT 0
-    CACB <<nmu>> AAC 80 TMT EPSI 1E-5 MCU <<mcu>>
+  EDIT 0
+  CACB <<nmu>> AAC 80 TMT EPSI 1E-5 MCU <<mcu>>
 ;
 
 * ---
