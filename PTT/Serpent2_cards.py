@@ -31,22 +31,30 @@ class S2_mat_card:
 
 
 class S2_geom:
-    def __init__(self, name, S2_materials):
+    def __init__(self, name, S2_materials, nbDim):
         """
         name = name of the geometry, user defined
         S2_materials = list of S2_mat_card objects contained in the geometry
         """
+        
         self.Geo_name = name
         self.S2materials = S2_materials
+        self.nbDim=nbDim
+        if self.nbDim == 2:
+            self.units = "cm2"
+        elif self.nbDim ==3 :
+            self.units = "cm3"
+
+        print(f"The Serpent2 geometry being processed is {self.nbDim}-Dimensional, the 'volume' units associated are {self.units}")
         self.ComputeTotalFuelMass()
         self.ComputeTotalFuelVolume()
         self.ComputeTotalFuelMassDens()
         
 
     def getMaterialsandVolumes(self):
-        material_vol_dict = []
+        material_vol_dict = {}
         for material in self.S2materials:
-            material_vol_dict[material.mat_name]=material.volume 
+            material_vol_dict[material.mat_name]=material.volume
         return material_vol_dict
     
     
@@ -95,4 +103,16 @@ class S2_geom:
     
     def getTotalFuelMassDens(self):
         return self.TotalFuelMassDens
+    
+class S2_Material_Vol:
+    def __init__(self, name, data, nbDim):
+        self.mode = "MVol"
+        self.mat_vol_name = name
+        self.nbDim=nbDim
+        if self.nbDim == 2:
+            self.units = "cm2"
+        elif self.nbDim ==3 :
+            self.units = "cm3"
+        self.volume = data
+
         
