@@ -25,3 +25,6 @@ class Dragon5_geom:
             self.volumes[f"region {i+1}"] = data[i]
 
         print(self.volumes)
+    
+    def getVolumesAndRegions(self):
+        return self.volumes

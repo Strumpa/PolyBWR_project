@@ -12,5 +12,20 @@ AT10_24UOX_cell_serp = DMLG.DMLG_Interface(cell_serpent_output, type="Serpent2",
 cell_dragon_output = "../Version5_ev3232/Dragon/Linux_x86_64/SALT_TSPC.result"
 AT10_24UOX_cell_drag = DMLG.DMLG_Interface(cell_dragon_output, type="Dragon",mode="output")
 
-association_dict = {"UOx_A":1, "UOx_B":2, "UOx_C":3, "UOx_D":4, "gap":5, "clad":6, }
+material_assocoation_dict = {"UOx_A":1, "UOx_B":2, "UOx_C":3, "UOx_D":4, "gap":5, "clad":6, "H2O":7}
 print(AT10_24UOX_cell_serp.Serpent2_cards)
+AT10_24UOX_cell_serp.createSerpent2_geometry("AT10_24UOX_cell")
+print(f"Total fuel mass is : {AT10_24UOX_cell_serp.Serpent2_geom.getTotalFuelMass():.3f} g")
+print(f"Total fuel mass dens is : {AT10_24UOX_cell_serp.Serpent2_geom.getTotalFuelMassDens():.3f} g/cm3")
+def check_SerpentvsDragon_vols(Serpent2_case, Dragon5_case, material_assocoation_dict):
+    """
+    Serpent2_case : DMLG object corresponding to Serpent2 case
+    Dragon5_case : DMLG object corresponding to equivalent Dragon5 case
+    material_association_dict : dictionary associating Serpent2 materials to region numbers from Dragon5. 
+    """
+    D5_regions_volumes = Dragon5_case.Dragon5_geom.getVolumes()
+    Serpent2_regions_volumes = Serpent2_case.Serpent2_geom.getMaterialsandVolumes()
+
+
+    return
+

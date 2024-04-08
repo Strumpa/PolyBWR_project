@@ -43,7 +43,7 @@ class DMLG_Interface:
         else:
             print("Error: invalid Geometry type to be parsed")
         
-        
+    # MCNP related functions    
     def parseMCNP_input(self):
         """
         parsing the MCNP input file
@@ -177,7 +177,7 @@ class DMLG_Interface:
         
         return
 
-
+    #Dragon5 related functions
     def parseDragon_input(self):
         print("Native geom type not suported yet")
         return
@@ -220,7 +220,6 @@ class DMLG_Interface:
 
         return
     def createDragon5_geometry(self):
-
         self.Dragon5_geom = D5.Dragon5_geom(self.mode, self.D5module, self.geometric_data)
         return
     
@@ -231,7 +230,7 @@ class DMLG_Interface:
                 cleaned_data.append(vol)
         return cleaned_data
     
-    
+    # Serpent2 related functions
     def parseSerpent2_input(self):
         print("Serpent2 geom type not supported yet")
         return
@@ -298,4 +297,11 @@ class DMLG_Interface:
         self.Serpent2_cards=[]
         for mat in self.Serpent2_output.keys():
             self.Serpent2_cards.append(S2.S2_mat_card(mat, self.Serpent2_output[mat], "output"))
+    def createSerpent2_geometry(self, geo_name):
+        """
+        Create geometry object from Serpent2 cards. Useful functions for checking materials compositions and volumes are implemented in the S2_geom class
+        """
+
+        self.Serpent2_geom = S2.S2_geom(geo_name, self.Serpent2_cards)
+        return
         
