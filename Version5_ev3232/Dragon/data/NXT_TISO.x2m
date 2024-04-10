@@ -103,7 +103,7 @@ SYS := ASM: LIBRARY2 TRACK TF_EXC :: ARM EDIT 0 ;
 FLUX := FLU: LIBRARY2 SYS TRACK TF_EXC :: 
         EDIT 1 TYPE K B1 SIGS ;
 
-GREP: FLUX :: GETVAL 'K-EFFECTIVE  ' 1 1 1 >>Keff1<< ;
+GREP: FLUX :: GETVAL 'K-EFF  ' 1 1 1 >>Keff1<< ;
 ECHO "SS tracking = SYBILT and FLX tracking = NXT TISO, MOC on simple geom  Keff1=" Keff1 ;
 
 ECHO "AT10_24UOX NXT TSPC completed" ;
