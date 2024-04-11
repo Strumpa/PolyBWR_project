@@ -89,6 +89,7 @@ ifeq ($(OS),CYGWIN)
   LFLAGS = $(nbit)
 else
 ifeq ($(OS),SunOS)
+  fcompiler =
   F90 = f90
   C = cc
   PREPRO = /usr/lib/cpp
@@ -99,6 +100,7 @@ ifeq ($(OS),SunOS)
   LFLAGS = $(nbit)
 else
 ifeq ($(OS),AIX)
+  fcompiler =
   opt = -O4
   DIRNAME = AIX
   F90 = xlf90

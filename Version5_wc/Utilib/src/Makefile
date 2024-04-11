@@ -73,6 +73,7 @@ ifeq ($(OS),CYGWIN)
   FFLAG77 = -Wall $(nbit) -fPIC
 else
 ifeq ($(OS),SunOS)
+  fcompiler =
   F90 = f90
   C = cc
   CFLAGS = $(nbit)
@@ -80,6 +81,7 @@ ifeq ($(OS),SunOS)
   FFLAG77 = $(nbit) -s -ftrap=%none
 else
 ifeq ($(OS),AIX)
+  fcompiler =
   opt = -O4
   DIRNAME = AIX
   F90 = xlf90

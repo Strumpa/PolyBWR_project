@@ -153,6 +153,8 @@ assertS FLUX2 :: 'K-EFFECTIVE' 1 0.9144034 ;
 EDIT := OUT: FLUX2 TRACKN2 MACRO4G GEON2 ::
        EDIT 2 INTG IN
        ;
+
+ECHO "Error in TDCM46" ;
 ERROR: RCOND2 EDIT :: PICK ERASUM >>erra<< ;
 
 *----

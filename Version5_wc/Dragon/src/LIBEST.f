@@ -203,9 +203,9 @@
             ENDDO
          ENDDO
          DEALLOCATE(ENER,ISONRF)
-         PRINT *,"STERNHEIMER CORRECTION APPLYED TO ESTOPW"
+         WRITE(6,*) "STERNHEIMER CORRECTION APPLYED TO ESTOPW"
       ELSE
-         PRINT *,"STERNHEIMER CORRECTION NOT APPLYED TO ESTOPW"
+         WRITE(6,*) "STERNHEIMER CORRECTION NOT APPLYED TO ESTOPW"
       ENDIF
 *----
 *  SAVE STOPPING POWERS IN THE MACROLIB
@@ -215,20 +215,24 @@
             GAF(:NBMIX,LLL,1)=ESTOP(:NBMIX,LLL,1)+ESTOP(:NBMIX,LLL,2)
          ENDDO
          DO LLL=1,NGROUP
-         IF(MASKL(LLL)) THEN
-            KPLIB=IPGRP(LLL)
-            CALL LCMLEN(KPLIB,'ESTOPW',ILONG,ITYLCM)
-            IF(ILONG.GT.0) THEN
-               CALL XDRSET(GAF(1,LLL,2),NBMIX,0.0)
-               CALL XDRSET(GAF(1,LLL+1,2),NBMIX,0.0)
-               CALL LCMGET(KPLIB,'ESTOPW',GAF(1,LLL,2))
-               DO IBM=1,NBMIX
-                  IF(.NOT.MASK(IBM)) THEN
-                     GAF(IBM,LLL:LLL+1,1)=GAF(IBM,LLL:LLL+1,2)
-                  ENDIF
-               ENDDO
-            ENDIF
-            CALL LCMPUT(KPLIB,'ESTOPW',NBMIX*2,2,GAF(1,LLL:LLL+1,1))
+            IF(MASKL(LLL)) THEN
+               KPLIB=IPGRP(LLL)
+               CALL LCMLEN(KPLIB,'ESTOPW',ILONG,ITYLCM)
+               IF(ILONG.GT.0) THEN
+                 CALL XDRSET(GAF(1,LLL,2),NBMIX,0.0)
+                 CALL XDRSET(GAF(1,LLL+1,2),NBMIX,0.0)
+                 CALL LCMGET(KPLIB,'ESTOPW',GAF(1,LLL,2))
+                 DO IBM=1,NBMIX
+                   IF(.NOT.MASK(IBM)) THEN
+                      GAF(IBM,LLL:LLL+1,1)=GAF(IBM,LLL:LLL+1,2)
+                   ENDIF
+                 ENDDO
+               ENDIF
+               ALLOCATE(GA1(2*NBMIX))
+               GA1(:NBMIX)=GAF(:NBMIX,LLL,1)
+               GA1(NBMIX+1:2*NBMIX)=GAF(:NBMIX,LLL+1,1)
+               CALL LCMPUT(KPLIB,'ESTOPW',NBMIX*2,2,GA1)
+               DEALLOCATE(GA1)
             ENDIF
          ENDDO
       ENDIF

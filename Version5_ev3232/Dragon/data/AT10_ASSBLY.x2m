@@ -45,12 +45,6 @@ LIBRARY := Mix_ASSBLY :: J311_295 <<assbly_opt>> ;
 
 ECHO "Mixes for ASSBLY :" assbly_opt " retrieved"  ;
 
-TLM_F := TLM: TRACK TRACK_EXC ::
-  EDIT 1
-  NTPO 1
-  DIRECTIONS
-  DIR 0
-;
 
 ************************************************************************
 *  BEGIN SELF SHIELDING CALCULATION                                    *

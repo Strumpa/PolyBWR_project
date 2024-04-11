@@ -48,3 +48,157 @@ use the existing directory Linux_aarch64
 RunDirectory: /tmp/rundir30
 use little endian libraries
 AT10_ASSBLY access script terminated
+End of execution. Total execution time: 0h 1min 0s
+access AT-10_pin.save
+total 239212
+-rw-r--r-- 1 p117902 IGN       902 Apr  7 12:54 assertS.c2m
+-rw-r--r-- 1 p117902 IGN       798 Apr  7 12:54 assertV.c2m
+-rw-r--r-- 1 p117902 IGN  95478127 Apr  7 12:55 AT10_ASSBLY.result
+-rwxr-xr-x 1 p117902 IGN  24838240 Apr  7 12:54 code
+-rw-r--r-- 1 p117902 IGN     67526 Apr  7 12:54 FIG_main.ps
+-rw-r--r-- 1 p117902 IGN    393843 Apr  7 12:54 Geo_G2S
+-rw-r--r-- 1 p117902 IGN      7654 Apr  7 12:54 Geom_A2.c2m
+-rw-r--r-- 1 p117902 IGN     31993 Apr  7 12:54 Geom_A.c2m
+-rw-r--r-- 1 p117902 IGN     91393 Apr  7 12:54 Geom_A.l2m
+-rw------- 1 p117902 IGN    141176 Apr  7 12:54 Geom_A.o2m
+-rw-r--r-- 1 p117902 IGN      9627 Apr  7 12:54 Geom_C.c2m
+-rw-r--r-- 1 p117902 IGN     19598 Apr  7 12:54 Geom_Test.c2m
+lrwxrwxrwx 1 p117902 IGN       113 Apr  7 12:54 J311_295 -> /home/p117902/working_dir/PolyBWR_project/Version5_ev3232/Dragon/../../libraries/l_endian/draglibJeff3p1p1SHEM295
+-rw------- 1 p117902 IGN     16908 Apr  7 12:54 _main001
+-rw-r--r-- 1 p117902 IGN     15768 Apr  7 12:54 Mix_ASSBLY.c2m
+-rw-r--r-- 1 p117902 IGN     59010 Apr  7 12:55 Mix_ASSBLY.l2m
+-rw------- 1 p117902 IGN     87972 Apr  7 12:55 Mix_ASSBLY.o2m
+-rw-r--r-- 1 p117902 IGN      2732 Apr  7 12:54 mydata
+-rw-r--r-- 1 p117902 IGN  11463580 Apr  7 12:55 TRACK_EXC
+-rw-r--r-- 1 p117902 IGN 112174288 Apr  7 12:55 tracks_SALT_ASSBLY.m
+-rw-r--r-- 1 p117902 IGN      1802 Apr  7 12:54 TRK_A_SALT.c2m
+mv: cannot stat 'tracks_SALT_SS_ASSBLY.m': No such file or directory
+mv: cannot stat 'FIG_selfshielding.ps': No such file or directory
+AT10_ASSBLY.save completed
+the listing is located on ./Linux_aarch64
+   Output from --TLMGET-- completed *)
+(* Output from --TLM   -- follows 
+   NREG =       924
+   NSUR =         3
+   NANGL=        48
+   NDIM =         2
+   ITGEO=         0          *)
+(* Output from --TLMGEO-- follows 
+   Output from --TLMGEO-- completed *)
+(* Output from --TLMDIR-- follows 
+   Output from --TLMDIR-- completed *)
+->@END MODULE   : TLM:        
+-->>MODULE TLM:        : TIME SPENT=       12.219 MEMORY USAGE= 0.000E+00
+cle2000_c: LINKED_LIST *TRACK_SS* IS NOT DEFINED(2)
+ DRAGON: kernel error (code=  666).
+execute AT10_ASSBLY with Dragon on system Linux_aarch64 with custom compiler
+use the existing directory Linux_aarch64
+RunDirectory: /tmp/rundir2
+use little endian libraries
+AT10_ASSBLY access script terminated
+execute AT10_ASSBLY with Dragon on system Linux_aarch64 with custom compiler
+use the existing directory Linux_aarch64
+RunDirectory: /tmp/rundir3
+use little endian libraries
+AT10_ASSBLY access script terminated
+Terminated
+End of execution. Total execution time: 0h 23min 11s
+access AT-10_pin.save
+total 264848
+-rw-r--r-- 1 p117902 IGN       902 Apr 10 14:43 assertS.c2m
+-rw-r--r-- 1 p117902 IGN       798 Apr 10 14:43 assertV.c2m
+-rw-r--r-- 1 p117902 IGN  95477261 Apr 10 14:44 AT10_ASSBLY.result
+-rwxr-xr-x 1 p117902 IGN  24838240 Apr 10 14:43 code
+-rw-r--r-- 1 p117902 IGN     67526 Apr 10 14:43 FIG_main.ps
+-rw-r--r-- 1 p117902 IGN     25271 Apr 10 14:43 FIG_selfshielding.ps
+-rw-r--r-- 1 p117902 IGN    393843 Apr 10 14:43 Geo_G2S
+-rw-r--r-- 1 p117902 IGN      7654 Apr 10 14:43 Geom_A2.c2m
+-rw-r--r-- 1 p117902 IGN     31993 Apr 10 14:43 Geom_A.c2m
+-rw-r--r-- 1 p117902 IGN     91393 Apr 10 14:43 Geom_A.l2m
+-rw------- 1 p117902 IGN    141176 Apr 10 14:43 Geom_A.o2m
+-rw-r--r-- 1 p117902 IGN      9627 Apr 10 14:43 Geom_C.c2m
+-rw-r--r-- 1 p117902 IGN     19598 Apr 10 14:43 Geom_Test.c2m
+-rw-r--r-- 1 p117902 IGN    145261 Apr 10 14:43 GeoSS_G2S
+lrwxrwxrwx 1 p117902 IGN       113 Apr 10 14:43 J311_295 -> /home/p117902/working_dir/PolyBWR_project/Version5_ev3232/Dragon/../../libraries/l_endian/draglibJeff3p1p1SHEM295
+-rw------- 1 p117902 IGN     14276 Apr 10 14:43 _main001
+-rw-r--r-- 1 p117902 IGN     15768 Apr 10 14:43 Mix_ASSBLY.c2m
+-rw-r--r-- 1 p117902 IGN     59010 Apr 10 14:43 Mix_ASSBLY.l2m
+-rw------- 1 p117902 IGN     87972 Apr 10 14:43 Mix_ASSBLY.o2m
+-rw-r--r-- 1 p117902 IGN      2256 Apr 10 14:43 mydata
+-rw-r--r-- 1 p117902 IGN  11463580 Apr 10 14:43 TRACK_EXC
+-rw-r--r-- 1 p117902 IGN 112174288 Apr 10 14:44 tracks_SALT_ASSBLY.m
+-rw-r--r-- 1 p117902 IGN  26057228 Apr 10 14:43 TRACKSS_EXC
+-rw-r--r-- 1 p117902 IGN      1863 Apr 10 14:43 TRK_A_SALT.c2m
+-rw-r--r-- 1 p117902 IGN      8834 Apr 10 14:43 TRK_A_SALT.l2m
+-rw------- 1 p117902 IGN     11644 Apr 10 14:43 TRK_A_SALT.o2m
+mv: cannot stat 'tracks_SALT_SS_ASSBLY.m': No such file or directory
+AT10_ASSBLY.save completed
+the listing is located on ./Linux_aarch64
+                  GNU LESSER GENERAL PUBLIC LICENSE
+(* Output from --TLMGET-- follows 
+   Output from --TLMGET-- completed *)
+(* Output from --TLM   -- follows 
+   NREG =       924
+   NSUR =         3
+   NANGL=        48
+   NDIM =         2
+   ITGEO=         0          *)
+(* Output from --TLMGEO-- follows 
+   Output from --TLMGEO-- completed *)
+(* Output from --TLMDIR-- follows 
+   Output from --TLMDIR-- completed *)
+->@END MODULE   : TLM:        
+-->>MODULE TLM:        : TIME SPENT=       12.136 MEMORY USAGE= 0.000E+00
+Terminated
+End of execution. Total execution time: 53h 29min 41s
+access AT-10_pin.save
+total 264848
+-rw-r--r-- 1 p117902 IGN       902 Apr  8 12:39 assertS.c2m
+-rw-r--r-- 1 p117902 IGN       798 Apr  8 12:39 assertV.c2m
+-rw-r--r-- 1 p117902 IGN  95477261 Apr  8 12:40 AT10_ASSBLY.result
+-rwxr-xr-x 1 p117902 IGN  24838240 Apr  8 12:39 code
+-rw-r--r-- 1 p117902 IGN     67526 Apr  8 12:39 FIG_main.ps
+-rw-r--r-- 1 p117902 IGN     25271 Apr  8 12:39 FIG_selfshielding.ps
+-rw-r--r-- 1 p117902 IGN    393843 Apr  8 12:39 Geo_G2S
+-rw-r--r-- 1 p117902 IGN      7654 Apr  8 12:39 Geom_A2.c2m
+-rw-r--r-- 1 p117902 IGN     31993 Apr  8 12:39 Geom_A.c2m
+-rw-r--r-- 1 p117902 IGN     91393 Apr  8 12:39 Geom_A.l2m
+-rw------- 1 p117902 IGN    141176 Apr  8 12:39 Geom_A.o2m
+-rw-r--r-- 1 p117902 IGN      9627 Apr  8 12:39 Geom_C.c2m
+-rw-r--r-- 1 p117902 IGN     19598 Apr  8 12:39 Geom_Test.c2m
+-rw-r--r-- 1 p117902 IGN    145261 Apr  8 12:39 GeoSS_G2S
+lrwxrwxrwx 1 p117902 IGN       113 Apr  8 12:39 J311_295 -> /home/p117902/working_dir/PolyBWR_project/Version5_ev3232/Dragon/../../libraries/l_endian/draglibJeff3p1p1SHEM295
+-rw------- 1 p117902 IGN     14276 Apr  8 12:39 _main001
+-rw-r--r-- 1 p117902 IGN     15768 Apr  8 12:39 Mix_ASSBLY.c2m
+-rw-r--r-- 1 p117902 IGN     59010 Apr  8 12:39 Mix_ASSBLY.l2m
+-rw------- 1 p117902 IGN     87972 Apr  8 12:39 Mix_ASSBLY.o2m
+-rw-r--r-- 1 p117902 IGN      2256 Apr  8 12:39 mydata
+-rw-r--r-- 1 p117902 IGN  11463580 Apr  8 12:39 TRACK_EXC
+-rw-r--r-- 1 p117902 IGN 112174288 Apr  8 12:40 tracks_SALT_ASSBLY.m
+-rw-r--r-- 1 p117902 IGN  26057228 Apr  8 12:39 TRACKSS_EXC
+-rw-r--r-- 1 p117902 IGN      1863 Apr  8 12:39 TRK_A_SALT.c2m
+-rw-r--r-- 1 p117902 IGN      8834 Apr  8 12:39 TRK_A_SALT.l2m
+-rw------- 1 p117902 IGN     11644 Apr  8 12:39 TRK_A_SALT.o2m
+mv: cannot stat 'tracks_SALT_SS_ASSBLY.m': No such file or directory
+AT10_ASSBLY.save completed
+the listing is located on ./Linux_aarch64
+                  GNU LESSER GENERAL PUBLIC LICENSE
+(* Output from --TLMGET-- follows 
+   Output from --TLMGET-- completed *)
+(* Output from --TLM   -- follows 
+   NREG =       924
+   NSUR =         3
+   NANGL=        48
+   NDIM =         2
+   ITGEO=         0          *)
+(* Output from --TLMGEO-- follows 
+   Output from --TLMGEO-- completed *)
+(* Output from --TLMDIR-- follows 
+   Output from --TLMDIR-- completed *)
+->@END MODULE   : TLM:        
+-->>MODULE TLM:        : TIME SPENT=       15.162 MEMORY USAGE= 0.000E+00
+execute AT10_ASSBLY with Dragon on system Linux_aarch64 with custom compiler
+use the existing directory Linux_aarch64
+RunDirectory: /tmp/rundir2
+use little endian libraries
+AT10_ASSBLY access script terminated
