@@ -81,6 +81,7 @@ ifeq ($(OS),CYGWIN)
   LFLAGS = $(nbit)
 else
 ifeq ($(OS),SunOS)
+  fcompiler =
   MAKE = gmake
   F90 = f90
   C = cc
@@ -92,6 +93,7 @@ ifeq ($(OS),SunOS)
   LFLAGS = $(nbit)
 else
 ifeq ($(OS),AIX)
+  fcompiler =
   opt = -O4
   MAKE = gmake
   DIRNAME = AIX
