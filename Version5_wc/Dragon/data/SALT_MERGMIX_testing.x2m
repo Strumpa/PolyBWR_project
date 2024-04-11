@@ -1,0 +1,40 @@
+* Cle2000 script
+* SALT_MERGMIX_testing.x2m
+* Purpose : tracking dummy geometries with SALT using MERGMIX option
+* Geometries tested display a diagonal symmetry --> optential source of error ?
+* GEOM_C and GEOM_LVL1 are 1 level geometries.
+* GEOM_LVL2 and GEOM_LVL3 are 2 and 3 level geometries defined using the GEO: module.
+
+* Step 1 : simplified PINCELL with sectorized moderator : using MERGMIX should regroup the sectorized regions
+* as they all have mix number = 7
+
+
+MODULE GEO: SALT: G2S: TLM ;
+LINKED_LIST GEOM_C GEOM_LVL1 GEOM_LVL2 GEOM_LVL3 ;
+LINKED_LIST TRACK_C ;
+SEQ_ASCII Geo_G2S_C ;
+SEQ_BINARY TF_EXC_C ;
+SEQ_ASCII FIG_C.ps :: FILE './MergMix_test_FIG_C.ps' ;
+
+GEOM_C := GEO: :: CARCEL 3 
+    X- REFL X+ REFL
+    Y- REFL Y+ REFL
+    SECT 4 3
+    RADIUS 0.0 0.4435 0.4520 0.5140
+    MIX 1 2 3 7 7 7 7 7 7 7 7 7 7 7 7
+    MESHX 0.0 1.295 MESHY 0.0 1.295
+;
+
+! Converting to surfacic definition with G2S: 
+
+Geo_G2S_C FIG_C.ps := G2S: GEOM_C :: ;
+
+
+INTEGER an2d := 18 ;  ! ANGULAR QUADRATURE PARAMETER
+REAL densur := 35.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
+
+TRACK_C TF_EXC_C := SALT: Geo_G2S_C ::
+  EDIT 3
+  TSPC EQW2 <<an2d>> <<densur>> REND
+  MERGMIX
+;
