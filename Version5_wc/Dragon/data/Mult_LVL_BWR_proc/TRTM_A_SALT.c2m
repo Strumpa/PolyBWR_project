@@ -41,8 +41,8 @@ SEQ_ASCII TLM_F2 :: FILE 'tracks_SALT_A2.m' ;
 SEQ_ASCII TLM_F3 :: FILE 'tracks_SALT_A3.m' ;
 
 
-INTEGER an2d := 18 ;  ! ANGULAR QUADRATURE PARAMETER
-REAL densur := 35.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
+INTEGER an2d := 8 ;  ! ANGULAR QUADRATURE PARAMETER
+REAL densur := 5.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
 
 
 * ---
@@ -53,41 +53,38 @@ Geo_G2S_A2 FIG_A2.ps := G2S: GEOM_A2 :: ;
 Geo_G2S_A3 FIG_A3.ps := G2S: GEOM_A3 :: ;
 
 TRACK1 TF_EXC1 := SALT: Geo_G2S_A1 ::
-  EDIT 3
+  EDIT 1
   ALLG
-  TSPC EQW2 <<an2d>> <<densur>>
-  MERGMIX
+  TSPC EQW2 <<an2d>> <<densur>> REND
   LONG
 ;
 TRACK2 TF_EXC2 := SALT: Geo_G2S_A2 ::
-  EDIT 3
+  EDIT 1
   ALLG
-  TSPC EQW2 <<an2d>> <<densur>>
-  MERGMIX
+  TSPC EQW2 <<an2d>> <<densur>> REND
   LONG
 ;
 TRACK3 TF_EXC3 := SALT: Geo_G2S_A3 ::
-  EDIT 3
+  EDIT 1
   ALLG
-  TSPC EQW2 <<an2d>> <<densur>> 
-  MERGMIX
+  TSPC EQW2 <<an2d>> <<densur>> REND
   LONG
 ;
 
 TLM_F1 := TLM: TRACK1 TF_EXC1 ::
-  EDIT 1
+  EDIT 10
   NTPO 1
   DIRECTIONS
   DIR 0
 ;
 TLM_F2 := TLM: TRACK2 TF_EXC2 ::
-  EDIT 1
+  EDIT 10
   NTPO 1
   DIRECTIONS
   DIR 0
 ;
 TLM_F3 := TLM: TRACK3 TF_EXC3 ::
-  EDIT 1
+  EDIT 10
   NTPO 1
   DIRECTIONS
   DIR 0

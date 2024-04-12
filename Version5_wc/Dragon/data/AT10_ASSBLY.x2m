@@ -12,7 +12,7 @@
 
 MODULE GEO: G2S: SALT: TLM: NXT: USS: ASM: FLU: GREP: END: ;
 
-PROCEDURE Geom_A TRK_A_SALT Mix_ASSBLY ;
+PROCEDURE Geom_A Geom_A2 TRK_A_SALT Mix_ASSBLY ;
 
 LINKED_LIST GEOM GEOM_SS TRACK TRACK_SS LIBRARY ;
 
@@ -54,7 +54,7 @@ LIBRARY2 := USS: LIBRARY TRACK_SS TRACKSS_EXC ::
             EDIT 0
             PASS 2
             GRMIN 52
-        ;
+         ;
 
 ************************************************************************
 *  BEGIN MOC FLUX CALCULATION                                          *
