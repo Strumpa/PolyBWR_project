@@ -10,14 +10,13 @@
 # 
 
 class S2_mat_card:
-    """
-    Definition of Serpent2 output geometry object.
-    io_mode = output read or input read
-    data = dict with key = material name 
-                     values (Atom density, Mass density, Volume, Mass, + composition pairs (iso, a. dens))
-    """
-
     def __init__(self, name, data, io_mode):
+        """
+        Definition of Serpent2 output geometry object.
+        io_mode = output read or input read
+        data = dict with key = material name 
+        values (Atom density, Mass density, Volume, Mass, + composition pairs (iso, a. dens))
+        """
         self.io_mode = io_mode
         #print(data)
         self.mat_name = name
@@ -30,7 +29,7 @@ class S2_mat_card:
 
 
 
-class S2_geom:
+class S2_mat_properties:
     def __init__(self, name, S2_materials, nbDim):
         """
         name = name of the geometry, user defined
@@ -114,5 +113,28 @@ class S2_Material_Vol:
         elif self.nbDim ==3 :
             self.units = "cm3"
         self.volume = data
+        print(f"{self.mat_vol_name} with volume {self.volume} {self.units} processed")
+    
+class S2_geom:
+    def __init__(self, name, data, nbDim, height):
+        """
+        Minimal implementation of the S2 geometry :
+        at this stage only material volumes are taken to be included in data
+        """
+        self.geo_name = name
+        self.nbDim = nbDim
+        self.height = height
+        material_volumes = {}
+        #print(data)
+        #for mat in data.keys():
+        for elem in data:
+            if elem.mode == "MVol":
+                material_volumes[elem.mat_vol_name] = float(elem.volume)
+        self.material_volumes = dict(sorted(material_volumes.items(), key=lambda item: item[1]))
+        #print(len(self.material_volumes))
+    
+    def getOrderedMaterialVols(self):
+        return self.material_volumes
+
 
         
