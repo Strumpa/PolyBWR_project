@@ -202,3 +202,44 @@ use the existing directory Linux_aarch64
 RunDirectory: /tmp/rundir2
 use little endian libraries
 AT10_ASSBLY access script terminated
+Terminated
+End of execution. Total execution time: 40h 25min 59s
+access AT-10_pin.save
+total 24812
+-rw-r--r-- 1 p117902 IGN      902 Apr 10 18:12 assertS.c2m
+-rw-r--r-- 1 p117902 IGN      798 Apr 10 18:12 assertV.c2m
+-rw-r--r-- 1 p117902 IGN    56118 Apr 10 18:12 AT10_ASSBLY.result
+-rwxr-xr-x 1 p117902 IGN 24838240 Apr 10 18:12 code
+-rw------- 1 p117902 IGN   141176 Apr 10 18:12 _Geom_A002
+-rw-r--r-- 1 p117902 IGN     7654 Apr 10 18:12 Geom_A2.c2m
+-rw-r--r-- 1 p117902 IGN    32008 Apr 10 18:12 Geom_A.c2m
+-rw-r--r-- 1 p117902 IGN    91393 Apr 10 18:12 Geom_A.l2m
+-rw------- 1 p117902 IGN   141176 Apr 10 18:12 Geom_A.o2m
+-rw-r--r-- 1 p117902 IGN     9627 Apr 10 18:12 Geom_C.c2m
+-rw-r--r-- 1 p117902 IGN    19598 Apr 10 18:12 Geom_Test.c2m
+lrwxrwxrwx 1 p117902 IGN      113 Apr 10 18:12 J311_295 -> /home/p117902/working_dir/PolyBWR_project/Version5_ev3232/Dragon/../../libraries/l_endian/draglibJeff3p1p1SHEM295
+-rw------- 1 p117902 IGN    13148 Apr 10 18:12 _main001
+-rw-r--r-- 1 p117902 IGN    15768 Apr 10 18:12 Mix_ASSBLY.c2m
+-rw-r--r-- 1 p117902 IGN     2262 Apr 10 18:12 mydata
+-rw-r--r-- 1 p117902 IGN     1871 Apr 10 18:12 TRK_A_SALT.c2m
+mv: cannot stat 'tracks_SALT_ASSBLY.m': No such file or directory
+mv: cannot stat 'tracks_SALT_SS_ASSBLY.m': No such file or directory
+mv: cannot stat 'FIG_main.ps': No such file or directory
+mv: cannot stat 'FIG_selfshielding.ps': No such file or directory
+AT10_ASSBLY.save completed
+the listing is located on ./Linux_aarch64
+ IBIHET     0   (1=DOUBLE HETEROGENEITY/0=ELSE)
+ ICLUST     0   (NUMBER OF CLUSTER RINGS)
+ ISECT      0   (TYPE OF SECTORIZATION)
+ JSECT      0   (NUMBER OF NON-SECTORIZED ANNULII)
+ IPIN       0   (PIN LOCATION OPTION)
+
+ CREATION OF A LEVEL  3 GEOMETRY ON THE DIRECTORY NAMED 'C5          ' OF THE LCM OBJECT 'GEOM_SS     ' WITH TYPE 2-D RECT. CELL  .
+
+ STATE VECTOR:
+ ITYPE     20   (2-D RECT. CELL  )
+ LR         6   (NUMBER OF TUBES)
+ LX         1   (X-DIMENSION INDEX)
+ LY         1   (Y-DIMENSION INDEX)
+ LZ         0   (Z-DIMENSION INDEX)
+ LREG       7   (NUMBER OF REGIONS)

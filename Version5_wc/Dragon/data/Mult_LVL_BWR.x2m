@@ -25,7 +25,7 @@ MODULE GEO: G2S: SALT: NXT: TLM: END: ;
 
 LINKED_LIST GEOM_C GEOM_A1 GEOM_A2 GEOM_A3 GEO_BWR ; 
 
-!GEOM_C := Geo_C_simple ; 
+GEOM_C := Geo_C_simple ; 
 GEOM_A1 := Geo_A_1lvl ;
 GEOM_A2 := Geo_A_2lvl ;
 GEOM_A3 := Geo_A_3lvl ;
@@ -33,7 +33,7 @@ GEOM_A3 := Geo_A_3lvl ;
 GEO_BWR := Geo_TDCM32 ;
 
 
-!TRTM_C_SALT GEOM_A1 ;
+TRTM_C_SALT GEOM_A1 ;
 ECHO "after processing cell" ;
 TRTM_A_SALT GEOM_A1 GEOM_A2 GEOM_A3 ;
 
