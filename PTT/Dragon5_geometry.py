@@ -28,3 +28,9 @@ class Dragon5_geom:
     
     def getVolumesAndRegions(self):
         return self.volumes
+    def ComputeOrderedVolumesandRegions(self):
+        self.ordered_volumes = dict(sorted(self.volumes.items(), key=lambda item: item[1]))
+        print(len(self.ordered_volumes))
+    
+    def getOrderedVolumesandRegions(self):
+        return self.ordered_volumes

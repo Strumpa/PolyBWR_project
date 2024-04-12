@@ -22,7 +22,7 @@ class DMLG_Interface:
         loading geometry object to be parsed according to :
         input file (str) : path to file to be parsed
         type (str) : "MCNP", "Native", "Serpent2"
-        mode (str) : 'input' or 'output'
+        mode (str) : 'input' or 'output' or 'check volumes'
         """
         self.type = type
         self.input_deck = input_deck
@@ -38,8 +38,8 @@ class DMLG_Interface:
         elif self.type == "Serpent2" and self.mode == 'input' :
             self.parseSerpent2_input()
         elif self.type == "Serpent2" and self.mode == 'check_volumes' :
-            Mat_vols_data=self.parseSepent2_check_volumes()
-            self.createSerpent2_Material_volumes(Mat_vols_data)
+            self.parseSepent2_check_volumes()
+            self.createSerpent2_Material_volumes()
         elif self.type == "Serpent2" and self.mode == 'output' : 
             self.parseSerpent2_output()
             self.createSerpent2_output_cards()
@@ -218,8 +218,8 @@ class DMLG_Interface:
 
         self.geometric_data = self.clean_vol_data(volume_data)
         self.D5module = module
-
         return
+    
     def createDragon5_geometry(self):
         self.Dragon5_geom = D5.Dragon5_geom(self.mode, self.D5module, self.geometric_data)
         return
@@ -250,16 +250,16 @@ class DMLG_Interface:
                 line = line.replace("  ", " ")
                 print(line)  
                 if "% (0." in line :
-                    print(line.split(" "))
+                    #print(line.split(" "))
                     if float(line.split(" ")[2]) != 0.00000E+00:
                         mat_name=line.split(" ")[0]
                         mc_volume=line.split(" ")[2]
                         Material_Volumes[mat_name] = mc_volume
-        return Material_Volumes
-    def createSerpent2_Material_volumes(self, Material_Volumes_data):
+        self.Material_Volumes_data = Material_Volumes
+    def createSerpent2_Material_volumes(self):
         self.Material_Volumes = []
-        for material_vol in Material_Volumes_data.keys():
-            self.Material_Volumes.append(S2.S2_Material_Vol(material_vol,Material_Volumes_data[material_vol],nbDim=3))
+        for material_vol in self.Material_Volumes_data.keys():
+            self.Material_Volumes.append(S2.S2_Material_Vol(material_vol,self.Material_Volumes_data[material_vol],nbDim=3))
     def parseSerpent2_output(self):
         """
         parsing Serpent2 output file
@@ -311,17 +311,22 @@ class DMLG_Interface:
         """
         calling Serpent2 cards class to create associated serpent2 objects
         """
-        self.Serpent2_cards=[]
+        self.Serpent2_mat_cards=[]
         for mat in self.Serpent2_output.keys():
-            self.Serpent2_cards.append(S2.S2_mat_card(mat, self.Serpent2_output[mat], "output"))
-    def createSerpent2_geometry(self, geo_name, height=1):
+            self.Serpent2_mat_cards.append(S2.S2_mat_card(mat, self.Serpent2_output[mat], "output"))
+    def createS2_mat_properties(self, name):
         """
-        Create geometry object from Serpent2 cards. Useful functions for checking materials compositions and volumes are implemented in the S2_geom class
+        Create material properties object from Serpent2 cards. Useful functions for checking materials compositions and volumes are implemented in the S2_geom class
         """
-
-        self.Serpent2_geom = S2.S2_geom(geo_name, self.Serpent2_cards)
+        self.S2_mat_properties = S2.S2_mat_properties(name, self.Serpent2_mat_cards)
         return
+    def createS2_geom(self, name, height=1):
+        if height == 0:
+            ndim = 2
+        else:
+            ndim = 3
+        self.S2_geom = S2.S2_geom(name, self.Material_Volumes, ndim, height)
         
 
-assbly_serp_vols = "/home/loutre/Nuclear/PolyBWR_project/PTT/Serpent2/AT10_ASSBLY_mc.mvol"
-AT10_ASSBLY_vols = DMLG_Interface(assbly_serp_vols, type="Serpent2",mode="check_volumes")
+
+
