@@ -1,4 +1,5 @@
 import DMLGInterface as DMLG
+import GeometricTools as GeoT
 import numpy as np
 """
 input_f = "MCNP_AT10_sanitized.inp"
@@ -66,8 +67,12 @@ def check_SerpentvsDragon_vols(Serpent2_case, Dragon5_case, material_assocoation
             S2_vols = list(S2_material_volumes.values())
             D5_vols = list(D5_regions_volumes.values())
             for i in range(len(S2_vols)):
-                errors.append(D5_vols[i]-S2_vols[i])
-                rel_errors.append((D5_vols[i]-S2_vols[i])*100/S2_vols[i])
+                error = D5_vols[i]*2-S2_vols[i]/2
+                relative_error = (D5_vols[i]*2-S2_vols[i]/2)*100/S2_vols[i]
+                errors.append(error)
+                rel_errors.append(relative_error)
+                if abs(relative_error)>=0.01:
+                    print(f"Warning in region {list(S2_material_volumes.keys())[list(S2_material_volumes.values()).index(S2_vols[i])]}, with S2 volume {S2_vols[i]/2} and D5 volume {D5_vols[i]*2}")
             sum=0
             for err in errors:
                 sum+=err**2
@@ -78,6 +83,8 @@ def check_SerpentvsDragon_vols(Serpent2_case, Dragon5_case, material_assocoation
             rel_rms = np.sqrt(sum/len(rel_errors))
             print(f"Absolute errors on volumes are {errors}, with an RMS error of {rms}")
             print(f"Relative errors on volumes are {rel_errors} (%), with an RMS error of {rel_rms} (%)")
+        else:
+            print("Unconsistent definition of S2 material volumes vs D5 regions, cannot compare volumes")
 
 
 
@@ -87,13 +94,32 @@ def check_SerpentvsDragon_vols(Serpent2_case, Dragon5_case, material_assocoation
 
 #check_SerpentvsDragon_vols(AT10_24UOX_cell_serp, AT10_24UOX_cell_drag, material_assocoation_dict)
 
-assbly_serp_vols = "/home/loutre/RESEARCH/PolyBWR_project/PTT/Serpent2/AT10_ASSBLY_mc.mvol"
+assbly_serp_vols = "/home/loutre/Nuclear/PolyBWR_project/PTT/Serpent2/AT10_ASSBLY_mc.mvol"
 AT10_ASSBLY_Serp = DMLG.DMLG_Interface(assbly_serp_vols, type="Serpent2",mode="check_volumes")
 AT10_ASSBLY_Serp.createS2_geom("ATRIUM-10 bundle", 1)
 
-assbly_drag_vols = "/home/loutre/RESEARCH/PolyBWR_project/PTT/Dragon5/SALT_volumes.txt"
+assbly_drag_vols = "/home/loutre/Nuclear/PolyBWR_project/PTT/Dragon5/SALT_volumes.txt"
 AT10_ASSBLY_drag = DMLG.DMLG_Interface(assbly_drag_vols, type="Dragon",mode="output")
 AT10_ASSBLY_drag.Dragon5_geom.ComputeOrderedVolumesandRegions()
 check_SerpentvsDragon_vols(AT10_ASSBLY_Serp, AT10_ASSBLY_drag, material_assocoation_dict={})
 
+
+
+# Checking with geometric data : Analytical evaluation of volumes by geom_ASSBLY class :
+Channel_box_out = 2.3975+1.1025
+Channel_box_in = 2.3175+1.0225
+pitch_A=7.62*2
+Box_o = 6.87*2
+Box_i = 6.7*2
+Channel_box_xL_out = -1.1025
+Channel_box_XR_out = 2.3975
+pins_names=["24UOx", "32UOx", "42UOx", "45UOx", "48UOx", "50UOx", "45Gd", "42Gd"]
+
+pin_radii =[0.4435,0.4520,0.5140] # Fuel, gap, clad radii
+AT10_volume_check = GeoT.geom_ASSBLY(pitch_A,pins_names, Box_o, Channel_box_out, Box_i, Channel_box_in)
+AT10_volume_check.setPins(pin_radii[0], pin_radii[1], pin_radii[2])
+
+pins_number_dict={"24UOx": 4, "32UOx" : 8, "42UOx": 10, "45UOx": 21, "48UOx": 6, "50UOx":26, "45Gd": 7, "42Gd": 2}
+AT10_volume_check.setNumberofPins(pins_number_dict)
+AT10_volume_check.computeVolumes()
 
