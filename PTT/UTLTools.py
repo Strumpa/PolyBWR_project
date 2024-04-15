@@ -2,7 +2,7 @@
 # Author : R. Guasch, adapted from L. Fede's getLists()
 # Purpose : handle issues with generating UTL compatible lists for Dragon5 BU calculations
 #
-
+import numpy as np
 import matplotlib.pyplot as plt
 #
 

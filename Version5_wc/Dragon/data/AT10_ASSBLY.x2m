@@ -41,7 +41,7 @@ Geo_G2S FIG_main.ps TRACK TRACK_EXC GeoSS_G2S FIG_SS.ps TRACK_SS TRACKSS_EXC := 
 
 ECHO "Geometry tracking with G2S: -> SALT: completed" ;
 
-!LIBRARY := Mix_ASSBLY :: J311_295 <<assbly_opt>> ;
+LIBRARY := Mix_ASSBLY :: J311_295 <<assbly_opt>> ;
 
 ECHO "Mixes for ASSBLY :" assbly_opt " retrieved"  ;
 
@@ -50,22 +50,22 @@ ECHO "Mixes for ASSBLY :" assbly_opt " retrieved"  ;
 *  BEGIN SELF SHIELDING CALCULATION                                    *
 ************************************************************************
 
-!LIBRARY2 := USS: LIBRARY TRACK_SS TRACKSS_EXC ::
-!            EDIT 0
-!            PASS 2
-!            GRMIN 52
-!         ;
+LIBRARY2 := USS: LIBRARY TRACK_SS TRACKSS_EXC ::
+            EDIT 0
+            PASS 2
+            GRMIN 52
+         ;
 
 ************************************************************************
 *  BEGIN MOC FLUX CALCULATION                                          *
 ************************************************************************
 
-!SYS := ASM: LIBRARY2 TRACK TRACK_EXC :: ARM EDIT 0 ; 
+SYS := ASM: LIBRARY2 TRACK TRACK_EXC :: ARM EDIT 0 ; 
 
-!FLUX := FLU: LIBRARY2 SYS TRACK TRACK_EXC :: 
-!             EDIT 1 TYPE K B1 SIGS 
-!      ;
-!GREP: FLUX :: GETVAL 'K-INFINITY  ' 1 1 1 >>Kinf<< ;
+FLUX := FLU: LIBRARY2 SYS TRACK TRACK_EXC :: 
+             EDIT 1 TYPE K B1 SIGS 
+      ;
+GREP: FLUX :: GETVAL 'K-INFINITY  ' 1 1 1 >>Kinf<< ;
 
 ECHO assbly_opt " t=0 calculation completed, Kinf = " Kinf ;
 
