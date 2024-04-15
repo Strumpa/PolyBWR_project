@@ -161,7 +161,8 @@ class geom_ASSBLY:
         """
         self.pins = []
         for pin in self.pin_names:
-            if "Gd" or "GD" or "GADO" in pin:
+            if "Gd" in pin or "GD" in pin or "GADO" in pin :
+                print(f"creating pin {pin}")
                 self.pins.append(geom_PIN(pin, fuel_radius, gap_radius, clad_radius, isGd=True, height=1))
             else:
                 self.pins.append(geom_PIN(pin, fuel_radius, gap_radius, clad_radius, isGd=False, height=1))
@@ -227,12 +228,13 @@ class geom_PIN:
         volumes for Gd2O3 pins : 20%, 40%, 60%, 80%, 95% and 100%
         """
         if self.isGd==False:
-            radii=[(0.5**0.5)*self.outer_fuel_radius, (0.8**0.5)*self.outer_fuel_radius, (0.95**0.5)*self.outer_fuel_radius, self.outer_fuel_radius]
+            print(self.name)
+            self.pin_radii=[(0.5**0.5)*self.outer_fuel_radius, (0.8**0.5)*self.outer_fuel_radius, (0.95**0.5)*self.outer_fuel_radius, self.outer_fuel_radius]
             
         else :
-            radii=[(0.2**0.5)*self.outer_fuel_radius, (0.4**0.5)*self.outer_fuel_radius, (0.6**0.5)*self.outer_fuel_radius, 
+            self.pin_radii=[(0.2**0.5)*self.outer_fuel_radius, (0.4**0.5)*self.outer_fuel_radius, (0.6**0.5)*self.outer_fuel_radius, 
                       (0.8**0.5)*self.outer_fuel_radius, (0.95**0.5)*self.outer_fuel_radius, self.outer_fuel_radius]
-            self.pin_radii = radii
+        return
     
     def computePinVolumes(self):
         print("computing volumes for pins")
@@ -246,11 +248,12 @@ class geom_PIN:
             Area = np.pi*radius**2
             volumes.append(Area*self.height)
         for i in range(len(volumes)):
-            if self.isGd:
-                if i==0:
-                    self.volumes[self.name+"_"+key_dict[str(i+1)]] = volumes[i]
-                else:
-                    self.volumes[self.name+"_"+key_dict[str(i+1)]] = volumes[i]-volumes[i-1]
+            #if self.isGd:
+            if i==0:
+                self.volumes[self.name+"_"+key_dict[str(i+1)]] = volumes[i]
+            else:
+                self.volumes[self.name+"_"+key_dict[str(i+1)]] = volumes[i]-volumes[i-1]
+        print(self.volumes)
         return  
     
     def import_mixes(self):

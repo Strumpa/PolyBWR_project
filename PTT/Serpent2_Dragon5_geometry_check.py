@@ -94,11 +94,15 @@ def check_SerpentvsDragon_vols(Serpent2_case, Dragon5_case, material_assocoation
 
 #check_SerpentvsDragon_vols(AT10_24UOX_cell_serp, AT10_24UOX_cell_drag, material_assocoation_dict)
 
-assbly_serp_vols = "/home/loutre/Nuclear/PolyBWR_project/PTT/Serpent2/AT10_ASSBLY_mc.mvol"
+#assbly_serp_vols = "/home/loutre/Nuclear/PolyBWR_project/PTT/Serpent2/AT10_ASSBLY_mc.mvol"
+#assbly_drag_vols = "/home/loutre/Nuclear/PolyBWR_project/PTT/Dragon5/SALT_volumes.txt"
+assbly_serp_vols = "/home/loutre/RESEARCH/PolyBWR_project/PTT/Serpent2/AT10_ASSBLY_mc.mvol"
+assbly_drag_vols = "/home/loutre/RESEARCH/PolyBWR_project/PTT/Dragon5/SALT_volumes.txt"
+
 AT10_ASSBLY_Serp = DMLG.DMLG_Interface(assbly_serp_vols, type="Serpent2",mode="check_volumes")
 AT10_ASSBLY_Serp.createS2_geom("ATRIUM-10 bundle", 1)
 
-assbly_drag_vols = "/home/loutre/Nuclear/PolyBWR_project/PTT/Dragon5/SALT_volumes.txt"
+
 AT10_ASSBLY_drag = DMLG.DMLG_Interface(assbly_drag_vols, type="Dragon",mode="output")
 AT10_ASSBLY_drag.Dragon5_geom.ComputeOrderedVolumesandRegions()
 check_SerpentvsDragon_vols(AT10_ASSBLY_Serp, AT10_ASSBLY_drag, material_assocoation_dict={})
