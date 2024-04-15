@@ -117,13 +117,23 @@ Box_o = 6.87*2
 Box_i = 6.7*2
 Channel_box_xL_out = -1.1025
 Channel_box_XR_out = 2.3975
-pins_names=["24UOx", "32UOx", "42UOx", "45UOx", "48UOx", "50UOx", "45Gd", "42Gd"]
+pins_names=["24UOx", "32UOx", "42UOx", "45UOx", "48UOx", "50UOx", "45GADO", "42GADO"]
 
 pin_radii =[0.4435,0.4520,0.5140] # Fuel, gap, clad radii
 AT10_volume_check = GeoT.geom_ASSBLY(pitch_A,pins_names, Box_o, Channel_box_out, Box_i, Channel_box_in)
 AT10_volume_check.setPins(pin_radii[0], pin_radii[1], pin_radii[2])
 
-pins_number_dict={"24UOx": 4, "32UOx" : 8, "42UOx": 10, "45UOx": 21, "48UOx": 6, "50UOx":26, "45Gd": 7, "42Gd": 2}
+pins_number_dict={"24UOx": 4, "32UOx" : 8, "42UOx": 10, "45UOx": 21, "48UOx": 6, "50UOx":26, "45GADO": 14, "42GADO": 2}
 AT10_volume_check.setNumberofPins(pins_number_dict)
 AT10_volume_check.computeVolumes()
+Analytical_volumes = AT10_volume_check.Volumes
+print(Analytical_volumes)
+
+D5_regions_volumes = AT10_ASSBLY_drag.Dragon5_geom.getVolumesAndRegions()
+S2_regions_volumes = AT10_ASSBLY_Serp.S2_geom.getOrderedMaterialVols()
+
+for region_name in Analytical_volumes.keys():
+    S2_error = (S2_regions_volumes[region_name]/2 - Analytical_volumes[region_name])*100/Analytical_volumes[region_name]
+    print(f"Statistical error on volume of region {region_name} from Serpent2 is {S2_error}")
+    
 
