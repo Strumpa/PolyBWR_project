@@ -173,6 +173,10 @@ class geom_ASSBLY:
         pins_dict = dictionnay with keys = pins_names, values = number of each pin
         """
         self.numberOfPinsperType = pins_dict
+        total=0
+        for type in self.numberOfPinsperType.keys():
+            total+=self.numberOfPinsperType[type]
+        self.Total_Nb_Pins = total
         return
     
     def computeVolumes(self):
@@ -187,11 +191,10 @@ class geom_ASSBLY:
                 self.Volumes[node] = pin.volumes[node]*self.numberOfPinsperType[pin.name]
             #self.FuelVolumes[pin_type] = self.pins[pin_type].volumes*self.numberOfPinsperType[pin_type]  .volumes*self.numberOfPinsperType[pin_type]
             #print(self.pins[pin_type].height)
-        print(self.Volumes)
         
-        self.Volumes["box"] = self.Box_o**2-self.Box_i**2 + self.Chan_o**2 - self.Chan_i**2
-        self.Volumes["clad"] = np.pi*self.pins[0].clad_radius**2 - np.pi*self.pins[0].gap_radius**2
-        self.Volumes["gap"] = np.pi*self.pins[0].gap_radius**2 - np.pi*self.pins[0].outer_fuel_radius**2
+        self.Volumes["box"] = (self.Box_o**2-self.Box_i**2 + self.Chan_o**2 - self.Chan_i**2)
+        self.Volumes["clad"] = (np.pi*self.pins[0].clad_radius**2 - np.pi*self.pins[0].gap_radius**2) * self.Total_Nb_Pins
+        self.Volumes["gap"] = (np.pi*self.pins[0].gap_radius**2 - np.pi*self.pins[0].outer_fuel_radius**2) * self.Total_Nb_Pins
 
         return
     
@@ -253,7 +256,7 @@ class geom_PIN:
                 self.volumes[self.name+"_"+key_dict[str(i+1)]] = volumes[i]
             else:
                 self.volumes[self.name+"_"+key_dict[str(i+1)]] = volumes[i]-volumes[i-1]
-        print(self.volumes)
+        #print(self.volumes)
         return  
     
     def import_mixes(self):

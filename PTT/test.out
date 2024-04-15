@@ -122,41 +122,72 @@ Relative errors on volumes are [0.00048548402757260956, 0.0015292994352090442, -
 Processing PIN with label 24UOx
 24UOx
 computing volumes for pins
-{'24UOx_A': 0.30896346380902356, '24UOx_B': 0.18537807828541397, '24UOx_C': 0.09268903914270704, '24UOx_D': 0.03089634638090244}
 Processing PIN with label 32UOx
 32UOx
 computing volumes for pins
-{'32UOx_A': 0.30896346380902356, '32UOx_B': 0.18537807828541397, '32UOx_C': 0.09268903914270704, '32UOx_D': 0.03089634638090244}
 Processing PIN with label 42UOx
 42UOx
 computing volumes for pins
-{'42UOx_A': 0.30896346380902356, '42UOx_B': 0.18537807828541397, '42UOx_C': 0.09268903914270704, '42UOx_D': 0.03089634638090244}
 Processing PIN with label 45UOx
 45UOx
 computing volumes for pins
-{'45UOx_A': 0.30896346380902356, '45UOx_B': 0.18537807828541397, '45UOx_C': 0.09268903914270704, '45UOx_D': 0.03089634638090244}
 Processing PIN with label 48UOx
 48UOx
 computing volumes for pins
-{'48UOx_A': 0.30896346380902356, '48UOx_B': 0.18537807828541397, '48UOx_C': 0.09268903914270704, '48UOx_D': 0.03089634638090244}
 Processing PIN with label 50UOx
 50UOx
 computing volumes for pins
-{'50UOx_A': 0.30896346380902356, '50UOx_B': 0.18537807828541397, '50UOx_C': 0.09268903914270704, '50UOx_D': 0.03089634638090244}
-creating pin 45Gd
-Processing PIN with label 45Gd
+creating pin 45GADO
+Processing PIN with label 45GADO
 computing volumes for pins
-{'45Gd_A': 0.12358538552360938, '45Gd_B': 0.12358538552360947, '45Gd_C': 0.12358538552360937, '45Gd_D': 0.12358538552360931, '45Gd_E': 0.09268903914270704, '45Gd_F': 0.03089634638090244}
-creating pin 42Gd
-Processing PIN with label 42Gd
+creating pin 42GADO
+Processing PIN with label 42GADO
 computing volumes for pins
-{'42Gd_A': 0.12358538552360938, '42Gd_B': 0.12358538552360947, '42Gd_C': 0.12358538552360937, '42Gd_D': 0.12358538552360931, '42Gd_E': 0.09268903914270704, '42Gd_F': 0.03089634638090244}
 24UOx
 32UOx
 42UOx
 45UOx
 48UOx
 50UOx
-45Gd
-42Gd
-{'24UOx_A': 1.2358538552360943, '24UOx_B': 0.7415123131416559, '24UOx_C': 0.37075615657082817, '24UOx_D': 0.12358538552360976, '32UOx_A': 2.4717077104721885, '32UOx_B': 1.4830246262833118, '32UOx_C': 0.7415123131416563, '32UOx_D': 0.24717077104721952, '42UOx_A': 3.0896346380902355, '42UOx_B': 1.8537807828541397, '42UOx_C': 0.9268903914270704, '42UOx_D': 0.3089634638090244, '45UOx_A': 6.488232739989495, '45UOx_B': 3.892939643993693, '45UOx_C': 1.946469821996848, '45UOx_D': 0.6488232739989512, '48UOx_A': 1.8537807828541415, '48UOx_B': 1.1122684697124838, '48UOx_C': 0.5561342348562422, '48UOx_D': 0.18537807828541464, '50UOx_A': 8.033050059034613, '50UOx_B': 4.819830035420763, '50UOx_C': 2.409915017710383, '50UOx_D': 0.8033050059034634, '45Gd_A': 0.8650976986652656, '45Gd_B': 0.8650976986652663, '45Gd_C': 0.8650976986652656, '45Gd_D': 0.8650976986652652, '45Gd_E': 0.6488232739989492, '45Gd_F': 0.21627442466631708, '42Gd_A': 0.24717077104721877, '42Gd_B': 0.24717077104721893, '42Gd_C': 0.24717077104721874, '42Gd_D': 0.24717077104721863, '42Gd_E': 0.18537807828541408, '42Gd_F': 0.06179269276180488}
+45GADO
+42GADO
+{'24UOx_A': 1.2358538552360943, '24UOx_B': 0.7415123131416559, '24UOx_C': 0.37075615657082817, '24UOx_D': 0.12358538552360976, '32UOx_A': 2.4717077104721885, '32UOx_B': 1.4830246262833118, '32UOx_C': 0.7415123131416563, '32UOx_D': 0.24717077104721952, '42UOx_A': 3.0896346380902355, '42UOx_B': 1.8537807828541397, '42UOx_C': 0.9268903914270704, '42UOx_D': 0.3089634638090244, '45UOx_A': 6.488232739989495, '45UOx_B': 3.892939643993693, '45UOx_C': 1.946469821996848, '45UOx_D': 0.6488232739989512, '48UOx_A': 1.8537807828541415, '48UOx_B': 1.1122684697124838, '48UOx_C': 0.5561342348562422, '48UOx_D': 0.18537807828541464, '50UOx_A': 8.033050059034613, '50UOx_B': 4.819830035420763, '50UOx_C': 2.409915017710383, '50UOx_D': 0.8033050059034634, '45GADO_A': 1.7301953973305313, '45GADO_B': 1.7301953973305326, '45GADO_C': 1.7301953973305313, '45GADO_D': 1.7301953973305304, '45GADO_E': 1.2976465479978985, '45GADO_F': 0.43254884933263416, '42GADO_A': 0.24717077104721877, '42GADO_B': 0.24717077104721893, '42GADO_C': 0.24717077104721874, '42GADO_D': 0.24717077104721863, '42GADO_E': 0.18537807828541408, '42GADO_F': 0.06179269276180488, 'box': 10.321999999999996, 'clad': 17.122220316000785, 'gap': 2.176084627167553}
+Statisticall error on volume of region 24UOx_A from Serpent2 is 0.0009017865549811201
+Statisticall error on volume of region 24UOx_B from Serpent2 is 0.0023852413548196756
+Statisticall error on volume of region 24UOx_C from Serpent2 is -0.0013908254082312388
+Statisticall error on volume of region 24UOx_D from Serpent2 is 0.000497207972964823
+Statisticall error on volume of region 32UOx_A from Serpent2 is -0.00010965989938810634
+Statisticall error on volume of region 32UOx_B from Serpent2 is -0.0003119491901739141
+Statisticall error on volume of region 32UOx_C from Serpent2 is 0.00036234844601833654
+Statisticall error on volume of region 32UOx_D from Serpent2 is 0.002317811590829875
+Statisticall error on volume of region 42UOx_A from Serpent2 is 1.1713675135482162e-05
+Statisticall error on volume of region 42UOx_B from Serpent2 is -0.0011211063536674993
+Statisticall error on volume of region 42UOx_C from Serpent2 is 0.0010366460822555043
+Statisticall error on volume of region 42UOx_D from Serpent2 is 0.003410173761562381
+Statisticall error on volume of region 45UOx_A from Serpent2 is -0.0005046056577596541
+Statisticall error on volume of region 45UOx_B from Serpent2 is -0.0007614809476646466
+Statisticall error on volume of region 45UOx_C from Serpent2 is -0.0005046056577322761
+Statisticall error on volume of region 45UOx_D from Serpent2 is 0.002577897821952384
+Statisticall error on volume of region 48UOx_A from Serpent2 is -0.0019302635172658896
+Statisticall error on volume of region 48UOx_B from Serpent2 is -0.0021100762201746314
+Statisticall error on volume of region 48UOx_C from Serpent2 is -0.001660544462733093
+Statisticall error on volume of region 48UOx_D from Serpent2 is 0.004812712844947065
+Statisticall error on volume of region 50UOx_A from Serpent2 is 0.0006216936906807131
+Statisticall error on volume of region 50UOx_B from Serpent2 is -0.0013493301690014783
+Statisticall error on volume of region 50UOx_C from Serpent2 is -0.000415687288115293
+Statisticall error on volume of region 50UOx_D from Serpent2 is 0.0031114080396457255
+Statisticall error on volume of region 45GADO_A from Serpent2 is 0.00026602021227016976
+Statisticall error on volume of region 45GADO_B from Serpent2 is -0.00464671970903392
+Statisticall error on volume of region 45GADO_C from Serpent2 is -2.2964488980747463e-05
+Statisticall error on volume of region 45GADO_D from Serpent2 is 0.01153642356103028
+Statisticall error on volume of region 45GADO_E from Serpent2 is -0.005898986747715175
+Statisticall error on volume of region 45GADO_F from Serpent2 is 0.00153755289745593
+Statisticall error on volume of region 42GADO_A from Serpent2 is -0.0013233956445970413
+Statisticall error on volume of region 42GADO_B from Serpent2 is -0.00557147075303493
+Statisticall error on volume of region 42GADO_C from Serpent2 is -0.001525684935465946
+Statisticall error on volume of region 42GADO_D from Serpent2 is 0.00899335819004274
+Statisticall error on volume of region 42GADO_E from Serpent2 is -0.0008513872992325211
+Statisticall error on volume of region 42GADO_F from Serpent2 is 0.002115522299960971
+Statisticall error on volume of region box from Serpent2 is 3.441884982368245e-14
+Statisticall error on volume of region clad from Serpent2 is 0.0001733653618990668
+Statisticall error on volume of region gap from Serpent2 is 0.0007064446049151763
