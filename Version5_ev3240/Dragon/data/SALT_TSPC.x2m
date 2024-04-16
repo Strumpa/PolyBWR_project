@@ -104,7 +104,7 @@ TRACK := MCCGT: TRACK TF_EXC ::
 
 ! UNIVERSAL SELF-SHIELDING 
 LIBRARY2 := USS: LIBRARY TRACK_SS  ::
-          EDIT 0
+          EDIT 5
           PASS 2
           GRMIN 52
 ;
