@@ -14,7 +14,7 @@ import os
 path_to_ref = "/home/p117902/Serpent2/Linux_x86_64/"
 ref_name = "AT10_24UOX_mc"
 
-test_name='24UOX_test_1_mc' # name of the 
+test1_name='24UOX_test_1_mc' # name of the 
 
 path_to_test1 = f"/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/"
 isotopes_=['U235','U236','U238','Pu239','Pu240','Pu241','Pu242','Gd155','Gd157','Xe135','Sm149']
@@ -79,7 +79,7 @@ def load_Serpent_IsoDens(path_to_serpent2_res, case_name, isotope):
 #print("$$$ ---------------- SERPENT_Keff = ",SERPENT_Keff)    
 #print("$$$ ---------------- SERPENT_ISOTOPESDENS = ",SERPENT_ISOTOPESDENS)
 
-def plot_comparisons_keff(listBU, listsKeff, case_names, dpi):
+def plot_comparisons_keff(listBU, listsKeff, case_names, dpi, save_dir): # case_names[0] is the reference
     print('$$$ -------- POSTPROC.py : Serpent2 figures (Keff) ')
     fig,ax = plt.subplots(dpi=dpi)
     for i in range(len(case_names)):
@@ -88,16 +88,33 @@ def plot_comparisons_keff(listBU, listsKeff, case_names, dpi):
     ax.set_xlabel("BU (MWj/t)")
     ax.set_ylabel("Keff Serpent2")
     ax.set_title("Comparison of Keffs for PyNjoy2016 tests")
-    fig.savefig()
-def plot_comparisons_isotopeDens(listBU, listsIsoDens, case_names, isotope, dpi):
+    fig.savefig(save_dir+f"Keffs_comparison")
+
+def plot_comparisons_isotopeDens(listBU, listsIsoDens, case_names, isotope, dpi, save_dir):
     print('$$$ -------- POSTPROC.py : Serpent2 figures (Iso dens) ')
     fig,ax = plt.subplots(dpi=dpi)
     for i in range(len(case_names)):
-        ax.plot(listBU, listsIsoDens[i], label=f"Keff for {case_names[i]}")
+        ax.plot(listBU, listsIsoDens[i], label=f"Concentration of {isotope} for {case_names[i]}")
     ax.legend()
     ax.set_xlabel("BU (MWj/t)")
-    ax.set_ylabel("Isotope density")
-    ax.set_title("Comparison of Keffs for PyNjoy2016 tests")
+    ax.set_ylabel(f"Isotope density of {isotope} (a/b*cm)")
+    ax.set_title(f"Comparison of {isotope} density for PyNjoy2016 tests")
+    fig.savefig(save_dir+f"Evolution_{isotope}_comparison")
 
+
+reference_keffs=load_serpent2_keffs(path_to_ref, ref_name)
+test1_keffs=load_serpent2_keffs(path_to_test1, test1_name)
+
+serpBU=load_Serpent_BU(path_to_ref, ref_name)
+
+isotopes_data_ref = []
+isotopes_data_test1 =[]
+for iso in isotopes_:
+    isotopes_data_ref.append(load_Serpent_IsoDens(path_to_ref, ref_name, iso))
+    isotopes_data_test1.append(load_Serpent_IsoDens(path_to_test1, test1_name, iso))
+
+plot_comparisons_keff(serpBU,[reference_keffs, test1_name], ["AT10 24UOX, reference Serpent JEFF311", "AT10 24UOX, test 1, modified PyNjoy2016"],dpi=250, save_dir=SAVE_DIR)
+for iso_num in range(len(isotopes_)):
+    plot_comparisons_isotopeDens(serpBU, [isotopes_data_ref[iso_num], isotopes_data_test1[iso_num]], ["AT10 24UOX, reference", "AT10 24UOX, test 1, modified PyNjoy2016"], dpi=250, save_dir=SAVE_DIR)
 
 
