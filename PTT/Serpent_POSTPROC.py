@@ -119,7 +119,7 @@ def plot_error_to_ref(listBU, errors_keff, labels, save_dir):
     ax.set_xlabel("BU (MWj/t)")
     ax.set_ylabel(f"Error on Keff (pcm)")
     ax.set_title(f"Comparison of errors for PyNjoy2016 tests")
-    fig.savefig(save_dir+f"Evolution_{isotope}_comparison")
+    #fig.savefig(save_dir+f"Evolution_{isotope}_comparison")
 
 reference_keffs=load_serpent2_keffs(path_to_ref, ref_name)
 test1_keffs=load_serpent2_keffs(path_to_test1, test1_name)
