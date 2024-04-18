@@ -21,8 +21,7 @@ MODULE SAL_GEOMETRY_TYPES
   INTEGER :: FOUT0,F_GEO
   !
   !       types of elements
-  INTEGER, PARAMETER, DIMENSION(1:4) &
-       :: G_ELE_TYPE=(/(ITYPE,ITYPE=1,4)/)
+  INTEGER, PARAMETER, DIMENSION(1:4) :: G_ELE_TYPE=(/1,2,3,4/)
   ! 1 : segment element
   ! 2 : circle element
   ! 3 : arc of circle element
@@ -32,8 +31,7 @@ MODULE SAL_GEOMETRY_TYPES
   ! 2 : circle element
   ! 3 : arc of circle element
   !       types of boundary conditions
-  INTEGER, PARAMETER, DIMENSION(-1:7) &
-       :: G_BC_TYPE=(/-99,(ITYPE,ITYPE=0,-7,-1)/)
+  INTEGER, PARAMETER, DIMENSION(-1:7) :: G_BC_TYPE=(/-99,0,-1,-2,-3,-4,-5,-6,-7/)
   !-99 : internal surface: macro contact surface
   !  0 : external: vacuum or albedo (isotropic reflexion)
   ! -1 : external: specular reflexion
@@ -43,8 +41,7 @@ MODULE SAL_GEOMETRY_TYPES
   ! -4 : external: axial symmetry
   ! -5 : external: central symetry
   !       boundary condition length definition
-  INTEGER, PARAMETER, DIMENSION(-1:5) &
-       :: G_BC_LEN=(/1,1,1,2,5,5,2/)
+  INTEGER, PARAMETER, DIMENSION(-1:5) :: G_BC_LEN=(/1,1,1,2,5,5,2/)
   ! internal : albedo
   ! vacuum surface : albedo
   ! specular reflexion : none

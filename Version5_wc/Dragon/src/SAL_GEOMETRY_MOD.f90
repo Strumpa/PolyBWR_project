@@ -420,73 +420,71 @@ CONTAINS
     !
     !*    read real element data
 
-    SELECT CASE(TYPE)
-       CASE(G_ELE_TYPE(1))
-       NBER=4
-       CASE(G_ELE_TYPE(2))
-       NBER=3
-       CASE(G_ELE_TYPE(3))
-       NBER=5
-       ANGMAX=360._PDB
-    CASE DEFAULT
-       WRITE(FOUT0,'(1X,''==> SAL126: unknown type '',I3)') TYPE
-       CALL XABORT('SAL126: unknown element type')
-    END SELECT
+    IF(TYPE == G_ELE_TYPE(1)) THEN
+      NBER=4
+    ELSE IF(TYPE == G_ELE_TYPE(2)) THEN
+      NBER=3
+    ELSE IF(TYPE == G_ELE_TYPE(3)) THEN
+      NBER=5
+      ANGMAX=360._PDB
+    ELSE
+      WRITE(FOUT0,'(1X,''==> SAL126: unknown type '',I3)') TYPE
+      CALL XABORT('SAL126: unknown element type')
+    ENDIF
 
     CALL SALGET(RPAR,NBER,F_GEO,FOUT0,PREC,'real descriptors')
 
-    SELECT CASE(TYPE)
-       CASE(G_ELE_TYPE(1))
-       !        segment: compute length
-       RPAR(5)=SQRT(RPAR(3)*RPAR(3)+RPAR(4)*RPAR(4))
-       RPAR(6)=0._PDB
-       CASE(G_ELE_TYPE(2))
-       !        full circle: set angles
-       RPAR(4)=0._PDB
-       RPAR(5)=TWOPI
-       RPAR(6)=0._PDB
-       CASE(G_ELE_TYPE(3),G_ELE_TYPE(4))
-       !        check angles
-       PHI1=RPAR(NBER-1)
-       DELPHI=RPAR(NBER)
-       !        order angles in increasing values:
-       IF(DELPHI>0._PDB)THEN
-          IF(DELPHI>ANGMAX)THEN
-             WRITE(FOUT0,'(1X,''==> SAL126: DELPHI = '',1P,E12.4, &
-                  &'' > '',1P,E12.4,''  FOR TYPE'',I3)')DELPHI,ANGMAX,TYPE
-             CALL XABORT('SAL126: invalid value of delphi')
-          ENDIF
-          PHI2=PHI1+DELPHI
-       ELSE
-          IF(DELPHI<-ANGMAX)THEN
-             WRITE(FOUT0,'(1X,''==> SAL126: DELPHI = '',1P,E12.4, &
-                  &'' < '',1P,E12.4,''  FOR TYPE'',I3)')DELPHI,-ANGMAX,TYPE
-             CALL XABORT('SAL126: invalid value of delphi')
-          ENDIF
-          PHI2=PHI1
-          PHI1=PHI1+DELPHI
-       ENDIF
-       IF(TYPE==G_ELE_TYPE(3))THEN
-          !           arc of circle: put phi1 within 0 and 360.
-          IF(PHI1>360._PDB)THEN
-             IAUX=INT(PHI1/360._PDB)
-             DELPHI=360._PDB*IAUX
-             PHI2=PHI2-DELPHI
-             PHI1=PHI1-DELPHI
-          ELSEIF(PHI1<0._PDB)THEN
-             IAUX=INT((-PHI1+1.D-7)/360._PDB)+1
-             DELPHI=360._PDB*IAUX
-             PHI2=PHI2+DELPHI
-             PHI1=PHI1+DELPHI
-          ENDIF
-          RPAR(6)=0._PDB
-       ELSE
-          CALL XABORT('SAL126: unsupported option')
-       ENDIF
-       !        convert to radians
-       RPAR(NBER-1)=PHI1*(TWOPI/360._PDB)
-       RPAR(NBER)=PHI2*(TWOPI/360._PDB)
-    END SELECT
+    IF(TYPE == G_ELE_TYPE(1)) THEN
+      !        segment: compute length
+      RPAR(5)=SQRT(RPAR(3)*RPAR(3)+RPAR(4)*RPAR(4))
+      RPAR(6)=0._PDB
+    ELSE IF(TYPE == G_ELE_TYPE(2)) THEN
+      !        full circle: set angles
+      RPAR(4)=0._PDB
+      RPAR(5)=TWOPI
+      RPAR(6)=0._PDB
+    ELSE IF((TYPE == G_ELE_TYPE(3)).OR.(TYPE == G_ELE_TYPE(4))) THEN
+      !        check angles
+      PHI1=RPAR(NBER-1)
+      DELPHI=RPAR(NBER)
+      !        order angles in increasing values:
+      IF(DELPHI>0._PDB)THEN
+         IF(DELPHI>ANGMAX)THEN
+            WRITE(FOUT0,'(1X,''==> SAL126: DELPHI = '',1P,E12.4, &
+                 &'' > '',1P,E12.4,''  FOR TYPE'',I3)')DELPHI,ANGMAX,TYPE
+            CALL XABORT('SAL126: invalid value of delphi')
+         ENDIF
+         PHI2=PHI1+DELPHI
+      ELSE
+         IF(DELPHI<-ANGMAX)THEN
+            WRITE(FOUT0,'(1X,''==> SAL126: DELPHI = '',1P,E12.4, &
+                 &'' < '',1P,E12.4,''  FOR TYPE'',I3)')DELPHI,-ANGMAX,TYPE
+            CALL XABORT('SAL126: invalid value of delphi')
+         ENDIF
+         PHI2=PHI1
+         PHI1=PHI1+DELPHI
+      ENDIF
+      IF(TYPE==G_ELE_TYPE(3))THEN
+         !           arc of circle: put phi1 within 0 and 360.
+         IF(PHI1>360._PDB)THEN
+            IAUX=INT(PHI1/360._PDB)
+            DELPHI=360._PDB*IAUX
+            PHI2=PHI2-DELPHI
+            PHI1=PHI1-DELPHI
+         ELSEIF(PHI1<0._PDB)THEN
+            IAUX=INT((-PHI1+1.D-7)/360._PDB)+1
+            DELPHI=360._PDB*IAUX
+            PHI2=PHI2+DELPHI
+            PHI1=PHI1+DELPHI
+         ENDIF
+         RPAR(6)=0._PDB
+      ELSE
+         CALL XABORT('SAL126: unsupported option')
+      ENDIF
+      !        convert to radians
+      RPAR(NBER-1)=PHI1*(TWOPI/360._PDB)
+      RPAR(NBER)=PHI2*(TWOPI/360._PDB)
+    ENDIF
     !
   END SUBROUTINE SAL126
   !
@@ -1302,61 +1300,60 @@ CONTAINS
     RPAR_OLD(1:NRPAR)=RPAR(1:NRPAR)
     !
     MOV1=0._PDB; MOV2=0._PDB;
-    SELECT CASE(TYPE)
-       CASE(G_ELE_TYPE(1))
-       !*       segment :
-       !        compute the motions of two ends
-       DELX=X1-RPAR(1)
-       DELY=Y1-RPAR(2)
-       MOV1=SQRT(DELX*DELX+DELY*DELY)
-       DELX=X2-(RPAR(1)+RPAR(3))
-       DELY=Y2-(RPAR(2)+RPAR(4))
-       MOV2=SQRT(DELX*DELX+DELY*DELY)
-       !        set new ends, compute direction
-       RPAR(1)=X1
-       RPAR(2)=Y1
-       RPAR(3)=X2-X1
-       RPAR(4)=Y2-Y1
-       RPAR(5)=SQRT(RPAR(3)*RPAR(3)+RPAR(4)*RPAR(4))
-       CASE(G_ELE_TYPE(3))
-       !*       arc of circle :
-       !        get old radius
-       CX=RPAR(1); CY=RPAR(2)
-       !        compute the motion of two ends
-       R=RPAR(3)
-       THETA=RPAR(4)
-       DELX=CX+R*COS(THETA)-X1
-       DELY=CY+R*SIN(THETA)-Y1
-       MOV1=SQRT(DELX*DELX+DELY*DELY)
-       THETA=RPAR(5)
-       DELX=CX+R*COS(THETA)-X2
-       DELY=CY+R*SIN(THETA)-Y2
-       MOV2=SQRT(DELX*DELX+DELY*DELY)
-       !        compute new radius, new center and new angles
-       SX=X1-CX
-       SY=Y1-CY
-       !        get demi-vector from (x1,y1) to (x2,y2)
-       VX=(X2-X1)/2.0
-       VY=(Y2-Y1)/2.0
-       V2=VX*VX+VY*VY
-       !        get center closest to old center, change radius
-       !        compute new r
-       R=SQRT(V2+(SX*VY-SY*VX)**2/V2)
-       RPAR(3)=R
-       !        compute new center
-       DIST=1.0_PDB+(VX*SX+VY*SY)/V2
-       !        get new center and compute angles
-       CX=CX+VX*DIST
-       CY=CY+VY*DIST
-       RPAR(1)=CX
-       RPAR(2)=CY
-       THETA=SALACO((X1-CX)/R,Y1-CY)
-       RPAR(4)=THETA
-       THETA=SALACO((X2-CX)/R,Y2-CY)
-       RPAR(5)=THETA
-       !        if phi1 > phi2 put phi2 equal to phi2+twopi
-       IF(RPAR(4)>RPAR(5)) RPAR(5)=RPAR(5)+TWOPI
-    END SELECT
+    IF(TYPE == G_ELE_TYPE(1)) THEN
+      !*       segment :
+      !        compute the motions of two ends
+      DELX=X1-RPAR(1)
+      DELY=Y1-RPAR(2)
+      MOV1=SQRT(DELX*DELX+DELY*DELY)
+      DELX=X2-(RPAR(1)+RPAR(3))
+      DELY=Y2-(RPAR(2)+RPAR(4))
+      MOV2=SQRT(DELX*DELX+DELY*DELY)
+      !        set new ends, compute direction
+      RPAR(1)=X1
+      RPAR(2)=Y1
+      RPAR(3)=X2-X1
+      RPAR(4)=Y2-Y1
+      RPAR(5)=SQRT(RPAR(3)*RPAR(3)+RPAR(4)*RPAR(4))
+    ELSE IF(TYPE == G_ELE_TYPE(3)) THEN
+      !*       arc of circle :
+      !        get old radius
+      CX=RPAR(1); CY=RPAR(2)
+      !        compute the motion of two ends
+      R=RPAR(3)
+      THETA=RPAR(4)
+      DELX=CX+R*COS(THETA)-X1
+      DELY=CY+R*SIN(THETA)-Y1
+      MOV1=SQRT(DELX*DELX+DELY*DELY)
+      THETA=RPAR(5)
+      DELX=CX+R*COS(THETA)-X2
+      DELY=CY+R*SIN(THETA)-Y2
+      MOV2=SQRT(DELX*DELX+DELY*DELY)
+      !        compute new radius, new center and new angles
+      SX=X1-CX
+      SY=Y1-CY
+      !        get demi-vector from (x1,y1) to (x2,y2)
+      VX=(X2-X1)/2.0
+      VY=(Y2-Y1)/2.0
+      V2=VX*VX+VY*VY
+      !        get center closest to old center, change radius
+      !        compute new r
+      R=SQRT(V2+(SX*VY-SY*VX)**2/V2)
+      RPAR(3)=R
+      !        compute new center
+      DIST=1.0_PDB+(VX*SX+VY*SY)/V2
+      !        get new center and compute angles
+      CX=CX+VX*DIST
+      CY=CY+VY*DIST
+      RPAR(1)=CX
+      RPAR(2)=CY
+      THETA=SALACO((X1-CX)/R,Y1-CY)
+      RPAR(4)=THETA
+      THETA=SALACO((X2-CX)/R,Y2-CY)
+      RPAR(5)=THETA
+      !        if phi1 > phi2 put phi2 equal to phi2+twopi
+      IF(RPAR(4)>RPAR(5)) RPAR(5)=RPAR(5)+TWOPI
+    ENDIF
     IF(KNDEX/=0) THEN
        IF(MOV1>EPS.OR.MOV2>EPS) THEN
           WRITE(FOUT,'(/," old element ",I4," : ",6(1P,E13.4))') &
@@ -2713,9 +2710,14 @@ CONTAINS
     INTEGER :: INB,IMED
     INTEGER, DIMENSION(GG%NB_NODE) :: DATAIN
     !****
-    !     SUBROUTINE SAL160_2(NB_ELEM,IPAR,RPAR,VOL2,SURF2,ISURF2_ELEM, NB_SURF2)
-    CALL SAL160_2(GG%NB_ELEM,GG%IPAR,GG%RPAR,GG%VOL_NODE,GG%SURF2,GG%ISURF2_ELEM, &
+    !     SUBROUTINE SAL160_2(NB_ELEM,IPAR,RPAR,VOL2,ISURF2_ELEM,NB_SURF2,SURF2)
+    IF(GG%NB_SURF2==0) THEN
+      CALL SAL160_2(GG%NB_ELEM,GG%IPAR,GG%RPAR,GG%VOL_NODE,GG%ISURF2_ELEM, &
          GG%NB_SURF2)
+    ELSE
+      CALL SAL160_2(GG%NB_ELEM,GG%IPAR,GG%RPAR,GG%VOL_NODE,GG%ISURF2_ELEM, &
+         GG%NB_SURF2,GG%SURF2)
+    ENDIF
     !
     !*    read medium per region
     CALL SALGET(DATAIN,GG%NB_NODE,F_GEO,FOUT0,'media per node')
@@ -2736,7 +2738,7 @@ CONTAINS
     !
   END SUBROUTINE SAL160
   !
-  SUBROUTINE SAL160_2(NB_ELEM,IPAR,RPAR,VOL2,SURF2,ISURF2_ELEM,NB_SURF2)
+  SUBROUTINE SAL160_2(NB_ELEM,IPAR,RPAR,VOL2,ISURF2_ELEM,NB_SURF2,SURF2)
     !
     !---------------------------------------------------------------------
     !
@@ -2766,9 +2768,10 @@ CONTAINS
     INTEGER, INTENT(IN)                    :: NB_ELEM
     INTEGER, INTENT(IN),   DIMENSION(:,:)  :: IPAR
     REAL(PDB), INTENT(IN), DIMENSION(:,:)  :: RPAR
-    REAL(PDB), INTENT(OUT),  DIMENSION(:)  :: VOL2,SURF2
+    REAL(PDB), INTENT(OUT),  DIMENSION(:)  :: VOL2
     INTEGER, INTENT(IN),   DIMENSION(:)    :: ISURF2_ELEM
     INTEGER, INTENT(IN)                    :: NB_SURF2
+    REAL(PDB), INTENT(OUT), OPTIONAL,  DIMENSION(:)  :: SURF2
     !****
     INTEGER :: ELEM,NODEBC,NODE,ISURF
     LOGICAL :: LGBC
