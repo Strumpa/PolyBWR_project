@@ -126,11 +126,11 @@ class FDM_HeatConductionInFuelPin:
         self.D[0], self.D[-1] = D0, Dm1
         return
     
-    def resoudre_T(self):
+    def solve_T_in_pin(self):
         return np.linalg.solve(self.A, self.D) 
     
 class FVM_ConvectionInCanal:
-    def __init__(self, Lf, T_in, Q_flow, P_cool, I_z, canal_type, rc, rw):
+    def __init__(self, Lf, T_in, Q_flow, P_cool, I_z, canal_type, rf, rc, rw):
         """
         Lf = fuel rod length in m
         T_in = inlet water temperature K
@@ -138,6 +138,7 @@ class FVM_ConvectionInCanal:
         P_cal = coolant pressure in MPa, assumed to be constant along the axial profile.
         I_z = number of mesh elements on axial mesh
         canal_type = cylindrical or square, used to determine the cross sectional flow area in the canal and the hydraulic diameter
+        rf = fuel rod radius
         rc, rw = outer clad radius (m), outer canal radius (m) if type is cylindrical, if type = squaer rw is the radius of inscribed circle in the square canal, ie half the square's side.
 
         Important note : cross sectional flow area is assumed to constant along z axis. Would be interesting to expand this to treat variations in flow area as in :
@@ -148,8 +149,11 @@ class FVM_ConvectionInCanal:
         self.T_in = T_in
         self.Q_flow = Q_flow
         self.P_cool = P_cool
+        self.fuel_radius = rf
+        self.clad_radius = rc
+        self.wall_dist = rw
         initial_water_state_z0 = IAPWS97(P=P_cool,T=T_in)
-        self.h_z0 = initial_water_state_z0.h # returs enthalpy at z0 for given (P,T), this assumes 1 phase liquid water at z=0
+        self.h_z0 = initial_water_state_z0.h*10**3 # returs enthalpy at z0 for given (P,T), this assumes 1 phase liquid water at z=0, converted to J/kg
         self.canal_type = canal_type
         # Calculating mesh parameters.
         self.N_vol = I_z
@@ -159,11 +163,12 @@ class FVM_ConvectionInCanal:
         
         # calculation A_canal and DH depending on the canal type : idea would be to generalize to square section "CARCEL" to use results in DONJON5.
         if self.canal_type == "cylindrical":
-            self.A_canal = np.pi*rw**2 - np.pi*rc**2
-            self.DH = 4*self.A_canal / 2*np.pi*(rw + rc) # DH = 4*A/P where A = wetted cross sectional area and P is wetted perimeter = perimeter of fuel
+            self.A_canal = np.pi*self.wall_dist**2 - np.pi*self.clad_radius**2
+            self.P_wetted = 2*np.pi*(self.wall_dist + self.clad_radius)
+            self.DH = 4*self.A_canal / self.P_wetted # DH = 4*A/P where A = wetted cross sectional area and P is wetted perimeter = perimeter of fuel
         elif self.canal_type == "square":
-            self.A_canal = (2*rw)**2-np.pi*rc**2
-            self.DH = 4*self.A_canal / 2*(4*rw+np.pi*rc)
+            self.A_canal = (2*self.wall_dist)**2-np.pi*self.clad_radius**2
+            self.DH = 4*self.A_canal / 2*(4*self.wall_dist+np.pi*self.clad_radius)
 
 
         return
@@ -194,15 +199,32 @@ class FVM_ConvectionInCanal:
         
         return
     
-    def get_Fission_Power(self,iz):
+    def get_Fission_Power(self):
         """
         function to retrieve source term from axial profile used to model fission power distribution in the fuel rod
         """
-        return self.Power_profile[iz]
-
+        return self.Power_profile
     
-    def resoudre_h(self):
-        return np.linalg.solve(self.A, self.D) 
+    def solve_h_in_canal(self):
+        self.h_z = np.linalg.solve(self.A, self.D)
+        return self.h_z
+    
+
+        
+    def compute_T_surf(self):
+        N_MAX = 100000
+        self.T_surf = np.zeros(self.N_vol)
+        self.Hc = np.zeros(self.N_vol)
+        self.T_water = np.zeros(self.N_vol)
+        self.T_water[0] = self.T_in
+        for i in range(self.N_vol):
+            self.Hc[i] = (0.023)*(IAPWS97(P=self.P_cool, h=self.h_z[i]*10**-3).Liquid.Prandt)**0.4*(self.Q_flow*self.DH/(IAPWS97(P=self.P_cool, h=self.h_z[i]*10**-3).Liquid.mu))**0.8*IAPWS97(P=self.P_cool, h=self.h_z[i]*10**-3).Liquid.k/self.DH
+            self.T_water[i] = IAPWS97(P=self.P_cool, h=self.h_z[i]*10**-3).T
+            self.T_surf[i] = (np.pi*self.fuel_radius**2*self.get_Fission_Power()[i]/(2*np.pi*self.clad_radius)+self.Hc[i]*self.T_water[i])/self.Hc[i]
+            #for iteration in range(N_MAX):
+                
+
+        return self.T_surf
     
     def set_transitoire(self, t_tot, Tini, dt):
         self.t_tot, self.dt = t_tot, dt           
