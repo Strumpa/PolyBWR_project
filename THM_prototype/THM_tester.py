@@ -6,6 +6,7 @@ from THM_MONO import FDM_HeatConductionInFuelPin as FDM_Fuel
 from THM_MONO import FVM_ConvectionInCanal as FVM_Canal
 import numpy as np
 from iapws import IAPWS97
+import matplotlib.pyplot as plt
 
 #Cas 1 : base parameters
 # Parameters used to create object from FDM_HeatConductioninFuelpin class
@@ -34,9 +35,9 @@ Tsurf = T_in
 z=0
 
 
-def setup_Conduction_case(fuel_radius, I_f, gap_width, clad_width, I_c, z, Qfiss, k_fuel, k_clad, H_gap, T_surf):
+def run_Conduction_In_Fuel(fuel_radius, I_f, gap_width, clad_width, I_c, z, Qfiss, k_fuel, k_clad, H_gap, T_surf):
 
-    heat_conduction = FDM_Fuel(fuel_radius, I_f, gap_width, clad_width, I_c, Qfiss, k_fuel, k_clad, H_gap)
+    heat_conduction = FDM_Fuel(fuel_radius, I_f, gap_width, clad_width, I_c, Qfiss, k_fuel, k_clad, H_gap, z, T_surf)
 
     for i in range(1,heat_conduction.N_node-1):
         print(f"i in loop= {i}")
@@ -75,7 +76,7 @@ def setup_Conduction_case(fuel_radius, I_f, gap_width, clad_width, I_c, z, Qfiss
     A0[:2] = [heat_conduction.get_Di_half(0), -heat_conduction.get_Di_half(0)]
     Am1[-2:] = [-heat_conduction.get_Di_half(heat_conduction.N_node-2), heat_conduction.get_Di_half(heat_conduction.N_node-2)+heat_conduction.get_Ei_clad()]
     D0 = heat_conduction.deltaA_f*heat_conduction.Qfiss
-    Dm1 = heat_conduction.get_Ei_clad()*T_surf
+    Dm1 = heat_conduction.get_Ei_clad()*heat_conduction.T_surf
     heat_conduction.set_CL(A0, Am1, D0, Dm1)
 
     print(heat_conduction.A_mesh_bounds)
@@ -87,6 +88,9 @@ def setup_Conduction_case(fuel_radius, I_f, gap_width, clad_width, I_c, z, Qfiss
             line+=f"{elem:.3f}   "
         line += "  ]\n"
         print(line)
+    heat_conduction.solve_T_in_pin()
+    return heat_conduction
+
 
 
 
@@ -118,4 +122,20 @@ print(convection_test.h_z)
 
 Tsurf = convection_test.compute_T_surf()
 print(convection_test.T_water)
-print(Tsurf)
+temp_distrib = []
+for axial_plane_nb in range(convection_test.N_vol):
+    z = convection_test.z_mesh[axial_plane_nb]
+    T_surf = convection_test.T_surf[axial_plane_nb]
+    Qfiss = convection_test.get_Fission_Power()[i]
+    temp_distrib.append(run_Conduction_In_Fuel(fuel_radius, I_f, gap_width, clad_width, I_c, z, Qfiss, k_fuel, k_clad, H_gap, T_surf))
+    print(f"computed temp distrib at z={z}")
+    if z == 0.7:
+        fig,ax = plt.subplots(dpi=200)
+        ax.plot(np.sqrt(temp_distrib[-1].A_calculation_mesh/np.pi), temp_distrib[-1].T_distrib)
+        ax.legend()
+        ax.set_xlabel("Radial position")
+        ax.set_ylabel(f"Temperature in K")
+        ax.set_title(f"Temperature distribution in fuel rod at z = {z}, case 1")
+        fig.savefig(f"Case1_Figure_plane{axial_plane_nb}")
+
+

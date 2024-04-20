@@ -10,7 +10,7 @@ from iapws import IAPWS97
 
 
 class FDM_HeatConductionInFuelPin:
-    def __init__(self, r_fuel, I_f, gap_width, clad_width, I_c, Qfiss, kf, kc, Hgap):
+    def __init__(self, r_fuel, I_f, gap_width, clad_width, I_c, Qfiss, kf, kc, Hgap, z, T_surf):
         # Physical prameters
         self.r_f = r_fuel # fuel pin radius in meters
         self.I_f = I_f # number of mesh elements in the fuel
@@ -19,6 +19,8 @@ class FDM_HeatConductionInFuelPin:
         self.I_c = I_c # number of mesh elements in clad
         self.Qfiss = Qfiss # Fission power density in W/m^3
         self.Hg = Hgap # Heat transfer coefficient through gap W/m^2/K
+        self.z = z # corresponding height in m corresponding to axial discretization used in FVM_ConvectionInCanal class
+        self.T_surf = T_surf # Boundary condition outer clad surface temperature computed from FVM_ConvectionInCanal class 
         
         # compute relevant quantities to initialise object
         self.N_node = I_f + I_c +2
@@ -51,6 +53,7 @@ class FDM_HeatConductionInFuelPin:
         """
         self.A_mesh_bounds = []
         self.A_mesh_centers = []
+        self.A_calculation_mesh = []
         A_f = np.pi*self.r_f**2
         A_gf = np.pi*self.gap_r**2
         A_cgf = np.pi*self.clad_r**2
@@ -59,17 +62,22 @@ class FDM_HeatConductionInFuelPin:
             self.A_mesh_bounds.append(i*self.deltaA_f)
         for i in range(self.I_f):
             self.A_mesh_centers.append(i*self.deltaA_f+self.deltaA_f/2)
+            self.A_calculation_mesh.append(i*self.deltaA_f+self.deltaA_f/2)
     
         self.deltaA_g = A_gf-A_f
         self.A_mesh_bounds.append(self.A_mesh_bounds[-1]+self.deltaA_g)
         self.A_mesh_centers.append(self.A_mesh_centers[-1]+self.deltaA_f/2+self.deltaA_g/2) # last center in fuel + half of the fuel area step to get to the last fuel bound + half of the gap area step to get to the center of the gap
+        self.A_calculation_mesh.append(self.A_mesh_bounds[-1])
+        self.A_calculation_mesh.append(self.A_mesh_bounds[-1]+self.deltaA_g)
         self.deltaA_c = (A_cgf-A_gf)/self.I_c
         for i in range(self.I_c):
             self.A_mesh_bounds.append(self.A_mesh_bounds[-1]+self.deltaA_c)
         for i in range(self.I_c):
             self.A_mesh_centers.append(self.A_mesh_centers[-1]+self.deltaA_c)
+            self.A_calculation_mesh.append(self.A_mesh_centers[-1]+self.deltaA_c)
         self.A_mesh_centers = np.array(self.A_mesh_centers)
         self.A_mesh_bounds = np.array(self.A_mesh_bounds)
+        self.A_calculation_mesh = np.array(self.A_calculation_mesh)
         return
     
     def get_Di_half(self,i):
@@ -127,7 +135,8 @@ class FDM_HeatConductionInFuelPin:
         return
     
     def solve_T_in_pin(self):
-        return np.linalg.solve(self.A, self.D) 
+        self.T_distrib = np.linalg.solve(self.A, self.D)
+     
     
 class FVM_ConvectionInCanal:
     def __init__(self, Lf, T_in, Q_flow, P_cool, I_z, canal_type, rf, rc, rw):
