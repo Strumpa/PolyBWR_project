@@ -131,7 +131,10 @@ for axial_plane_nb in range(convection_test.N_vol):
     print(f"computed temp distrib at z={z}")
     if z == 0.7:
         fig,ax = plt.subplots(dpi=200)
-        ax.plot(np.sqrt(temp_distrib[-1].A_calculation_mesh/np.pi), temp_distrib[-1].T_distrib)
+        print(f"Calculation radial mesh is = {np.sqrt(2*temp_distrib[-1].A_calculation_mesh)}")
+        print(f"radii at centers are {temp_distrib[-1].radii_at_centers}")
+        print(f"radii at bounds are {temp_distrib[-1].radii_at_bounds}")
+        ax.scatter(np.sqrt(temp_distrib[-1].A_calculation_mesh*2), temp_distrib[-1].T_distrib, marker = "x", s=5)
         ax.legend()
         ax.set_xlabel("Radial position")
         ax.set_ylabel(f"Temperature in K")
