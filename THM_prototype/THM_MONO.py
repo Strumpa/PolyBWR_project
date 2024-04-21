@@ -28,8 +28,8 @@ class FDM_HeatConductionInFuelPin:
         self.D = np.zeros(self.N_node)
         self.compute_radii()
         self.compute_Area_meshes()
-        self.radii_at_centers = np.sqrt(self.A_mesh_centers/np.pi)
-        self.radii_at_bounds = np.sqrt(self.A_mesh_bounds/np.pi)
+        self.radii_at_centers = np.sqrt(self.A_mesh_centers*2)
+        self.radii_at_bounds = np.sqrt(self.A_mesh_bounds*2)
         self.kf = kf
         self.kc = kc
         # this array is probaby not needed here as one might assume that kf and kc
@@ -53,22 +53,20 @@ class FDM_HeatConductionInFuelPin:
         """
         self.A_mesh_bounds = []
         self.A_mesh_centers = []
-        self.A_calculation_mesh = []
-        A_f = np.pi*self.r_f**2
-        A_gf = np.pi*self.gap_r**2
-        A_cgf = np.pi*self.clad_r**2
+        #self.A_calculation_mesh = []
+        A_f = self.r_f**2/2
+        A_gf =self.gap_r**2/2
+        A_cgf = self.clad_r**2/2
         self.deltaA_f = A_f / self.I_f # base assumption is that delta_A is constant in each region --> delta A fuel = constant in fuel, delta A clad = constant in clad and 1 delta A gap.
         for i in range(self.I_f+1):
             self.A_mesh_bounds.append(i*self.deltaA_f)
         for i in range(self.I_f):
             self.A_mesh_centers.append(i*self.deltaA_f+self.deltaA_f/2)
-            self.A_calculation_mesh.append(i*self.deltaA_f+self.deltaA_f/2)
+            %self.A_calculation_mesh.append(i*self.deltaA_f+self.deltaA_f/2)
     
         self.deltaA_g = A_gf-A_f
         self.A_mesh_bounds.append(self.A_mesh_bounds[-1]+self.deltaA_g)
         self.A_mesh_centers.append(self.A_mesh_centers[-1]+self.deltaA_f/2+self.deltaA_g/2) # last center in fuel + half of the fuel area step to get to the last fuel bound + half of the gap area step to get to the center of the gap
-        self.A_calculation_mesh.append(self.A_mesh_bounds[-1])
-        self.A_calculation_mesh.append(self.A_mesh_bounds[-1]+self.deltaA_g)
         self.deltaA_c = (A_cgf-A_gf)/self.I_c
         for i in range(self.I_c):
             self.A_mesh_bounds.append(self.A_mesh_bounds[-1]+self.deltaA_c)
@@ -77,7 +75,18 @@ class FDM_HeatConductionInFuelPin:
             self.A_calculation_mesh.append(self.A_mesh_centers[-1]+self.deltaA_c)
         self.A_mesh_centers = np.array(self.A_mesh_centers)
         self.A_mesh_bounds = np.array(self.A_mesh_bounds)
-        self.A_calculation_mesh = np.array(self.A_calculation_mesh)
+        #self.A_calculation_mesh = np.array(self.A_calculation_mesh)
+        self.A_calculation_mesh = np.zeros(self.N_node)
+        for i in range(self.N_node):
+            if i < self.I_f:
+                self.A_calculation_mesh[i] = i*self.deltaA_f + self.deltaA_f/2
+            elif i == self.I_f:
+                self.A_calculation_mesh[i] = A_f
+            elif i == self.I_f+1:
+                self.A_calculation_mesh[i] = A_f + self.deltaA_g
+            elif i > self.I_f+1:
+                self.A_calculation_mesh[i] = self.A_calculation_mesh[i-1] + i*self.deltaA_c
+
         return
     
     def get_Di_half(self,i):
@@ -99,19 +108,19 @@ class FDM_HeatConductionInFuelPin:
         print(f"I in get_Ei_half is = {self.I_f}")
         Ei_half = 4*self.A_mesh_bounds[self.I_f]*self.k[self.I_f-1]/self.deltaA_f
         print(f"Area used in Ei_gap {self.A_mesh_bounds[self.I_f]}")
-        print(f"Theoretical area: {np.pi*self.r_f**2}")
+        print(f"Theoretical area: {self.r_f**2/2}")
         return Ei_half
     
     def get_Ei_clad(self):
         Ei_half = 4*self.A_mesh_bounds[-1]*self.k[-1]/self.deltaA_c
         print(f"Area used in Ei_clad {self.A_mesh_bounds[-1]}")
-        print(f"Theoretical area: {np.pi*self.clad_r**2}")
+        print(f"Theoretical area: {self.clad_r**2/2}")
         return Ei_half
     
     def get_Fi_gap(self):
         print(f"k used for FI3/2 {self.k[self.I_f+1]}")
         print(f"Area used in Fi gap is {self.A_mesh_bounds[self.I_f+1]}")
-        print(f"Theoretical area for Fi_gap is {np.pi*(self.gap_r)**2}")
+        print(f"Theoretical area for Fi_gap is {self.gap_r**2/2}")
         Fi_half = 4*self.A_mesh_bounds[self.I_f+1]*self.k[self.I_f+1]/self.deltaA_c
         print(f"Fi_half is {Fi_half}")
         return Fi_half
