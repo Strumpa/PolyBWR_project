@@ -1,4 +1,4 @@
-# Script used to create instances of THM classes and solve het conduction in fuel rod + convection
+# Script used to create instances of THM classes and solve convection + conduction in fuel rod.
 # author : R. Guasch
 # Purpose : prototyping for further developments in THM module of Donjon5
 
@@ -134,11 +134,31 @@ for axial_plane_nb in range(convection_test.N_vol):
         print(f"Calculation radial mesh is = {np.sqrt(2*temp_distrib[-1].A_calculation_mesh)}")
         print(f"radii at centers are {temp_distrib[-1].radii_at_centers}")
         print(f"radii at bounds are {temp_distrib[-1].radii_at_bounds}")
-        ax.scatter(np.sqrt(temp_distrib[-1].A_calculation_mesh*2), temp_distrib[-1].T_distrib, marker = "x", s=5)
-        ax.legend()
-        ax.set_xlabel("Radial position")
+        ax.scatter(temp_distrib[-1].plot_mesh, temp_distrib[-1].T_distrib, marker = "x", s=5, label="Radial temperature distribution in Fuel rod.")
+        #ax.scatter(np.sqrt(2*temp_distrib[-1].A_calculation_mesh), temp_distrib[-1].T_distrib, marker = "x", s=5, label="Radial temperature distribution in Fuel rod.")
+        ax.legend(loc = "best")
+        ax.grid()
+        ax.set_xlabel(f"Radial position in {temp_distrib[-1].plotting_units}")
         ax.set_ylabel(f"Temperature in K")
         ax.set_title(f"Temperature distribution in fuel rod at z = {z}, case 1")
         fig.savefig(f"Case1_Figure_plane{axial_plane_nb}")
-
+        print(f"calculation mesh converted to m is {np.sqrt(2*temp_distrib[-1].A_calculation_mesh)}")
+        print(f"gap radius is {temp_distrib[-1].gap_r}")
+        print(f"clad radius is {temp_distrib[-1].clad_r}")
+        colors = ["red", "yellow", "green", "blue"]
+        temp_distrib[-1].extend_to_canal_visu(rw = convection_test.wall_dist, Tw = convection_test.T_water[axial_plane_nb])
+        print(f"T_surf = {convection_test.T_surf[axial_plane_nb]} K and T_water = {convection_test.T_water[axial_plane_nb]} K")
+        print(temp_distrib[-1].T_distrib)
+        fig_filled, axs = plt.subplots(dpi=200)
+        for i in range(len(temp_distrib[-1].physical_regions_bounds)-1):
+            axs.fill_between(temp_distrib[-1].radii_at_bounds, temp_distrib[-1].T_distrib[1:], where=(temp_distrib[-1].radii_at_bounds>=temp_distrib[-1].physical_regions_bounds[i])&(temp_distrib[-1].radii_at_bounds<=temp_distrib[-1].physical_regions_bounds[i+1]), color = colors[i])
+        
+        #axs.fill_betweenx(y=temp_distrib[-1].T_distrib[1:], x1=temp_distrib[-1].radii_at_bounds, where=(temp_distrib[-1].radii_at_bounds<temp_distrib[-1].r_f), facecolor='red')
+        #axs.fill_betweenx(convection_test.T_surf[axial_plane_nb])
+        ax.legend(loc = "best")
+        ax.grid()
+        ax.set_xlabel(f"Radial position in {temp_distrib[-1].plotting_units}")
+        ax.set_ylabel(f"Temperature in K")
+        ax.set_title(f"Temperature distribution in fuel rod at z = {z}, case 1")
+        fig_filled.savefig(f"Case1_Figure_plane{axial_plane_nb}_colors")
 
