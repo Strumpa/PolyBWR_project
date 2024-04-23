@@ -39,9 +39,6 @@ class FDM_HeatConductionInFuelPin:
         self.initialise_plotting_mesh("m")
         self.physical_regions_bounds = [0, self.r_f, self.gap_r, self.clad_r]
         
-
-        
-        
         
     def initialize_ks(self):
         # this array is probaby not needed here as one might assume that kf and kc
@@ -76,14 +73,11 @@ class FDM_HeatConductionInFuelPin:
             self.A_mesh_bounds.append(i*self.deltaA_f)
         for i in range(self.I_f):
             self.A_mesh_centers.append(i*self.deltaA_f+self.deltaA_f/2)
-            #self.A_calculation_mesh.append(i*self.deltaA_f+self.deltaA_f/2)
     
         self.deltaA_g = A_gf-A_f
-        print(f"Delta_A in gap = {self.deltaA_g}")
         self.A_mesh_bounds.append(self.A_mesh_bounds[-1]+self.deltaA_g)
         self.A_mesh_centers.append(self.A_mesh_centers[-1]+self.deltaA_f/2+self.deltaA_g/2) # last center in fuel + half of the fuel area step to get to the last fuel bound + half of the gap area step to get to the center of the gap
         self.deltaA_c = (A_cgf-A_gf)/self.I_c
-        print(f"Delta_A in cald is ={self.deltaA_c}")
         for i in range(self.I_c):
             self.A_mesh_bounds.append(self.A_mesh_bounds[-1]+self.deltaA_c)
         for i in range(self.I_c):
@@ -91,10 +85,8 @@ class FDM_HeatConductionInFuelPin:
                 self.A_mesh_centers.append(self.A_mesh_centers[-1]+self.deltaA_c/2+self.deltaA_g/2)
             else:
                 self.A_mesh_centers.append(self.A_mesh_centers[-1]+self.deltaA_c)
-            #self.A_calculation_mesh.append(self.A_mesh_centers[-1]+self.deltaA_c)
         self.A_mesh_centers = np.array(self.A_mesh_centers)
         self.A_mesh_bounds = np.array(self.A_mesh_bounds)
-        #self.A_calculation_mesh = np.array(self.A_calculation_mesh)
         self.A_calculation_mesh = np.zeros(self.N_node)
         for i in range(self.N_node):
             if i < self.I_f:
@@ -104,10 +96,7 @@ class FDM_HeatConductionInFuelPin:
             elif i == self.I_f+1:
                 self.A_calculation_mesh[i] = A_f + self.deltaA_g
             elif i > self.I_f+1:
-                print(f"last elem in calculation mesh is {self.A_calculation_mesh[i-1]} ==> {np.sqrt(2*self.A_calculation_mesh[i-1])} m")
-                print(f"index used is {(i-(self.I_f+2))}")
                 self.A_calculation_mesh[i] = A_gf + self.deltaA_c/2 + (i-(self.I_f+2))*self.deltaA_c
-                print(f"A_gf = {A_gf}, r_gf = {np.sqrt(2*A_gf)}")
 
         return
     
@@ -117,11 +106,8 @@ class FDM_HeatConductionInFuelPin:
         return
     
     def get_Di_half(self,i):
-        print(f"i in get_Di_half is = {i}")
-        print("getting Di for interior fuel points")
         print(f"A_mesh_bounds is = {self.A_mesh_bounds[i+1]}")
         print(f"delta Af = {self.deltaA_f}")
-        print(f"k_i = {self.k}")
         print(self.I_f)
         if i > self.I_f+1:
             i=i-1
@@ -132,7 +118,6 @@ class FDM_HeatConductionInFuelPin:
         return Di_half
     
     def get_Ei_gap(self):
-        print(f"I in get_Ei_half is = {self.I_f}")
         Ei_half = 4*self.A_mesh_bounds[self.I_f]*self.k[self.I_f-1]/self.deltaA_f
         print(f"Area used in Ei_gap {self.A_mesh_bounds[self.I_f]}")
         print(f"Theoretical area: {self.r_f**2/2}")
@@ -145,11 +130,9 @@ class FDM_HeatConductionInFuelPin:
         return Ei_half
     
     def get_Fi_gap(self):
-        print(f"k used for FI3/2 {self.k[self.I_f+1]}")
         print(f"Area used in Fi gap is {self.A_mesh_bounds[self.I_f+1]}")
         print(f"Theoretical area for Fi_gap is {self.gap_r**2/2}")
         Fi_half = 4*self.A_mesh_bounds[self.I_f+1]*self.k[self.I_f+1]/self.deltaA_c
-        print(f"Fi_half is {Fi_half}")
         return Fi_half
     
     def get_Gi(self):
@@ -243,6 +226,7 @@ class FVM_ConvectionInCanal:
         self.wall_dist = rw
         initial_water_state_z0 = IAPWS97(P=P_cool,T=T_in)
         self.h_z0 = initial_water_state_z0.h*10**3 # returs enthalpy at z0 for given (P,T), this assumes 1 phase liquid water at z=0, converted to J/kg
+        print(f"first enthalpy is {self.h_z0}")
         self.canal_type = canal_type
         # Calculating mesh parameters.
         self.N_vol = I_z
@@ -278,11 +262,14 @@ class FVM_ConvectionInCanal:
         variation_type : string used to allow for constant, sinusoial or cosinusoidal axial profiles ("constant", "sine", "cosine" keywords allowed)
         """
         self.Power_profile = np.ones(self.N_vol)
+        self.q_fluid = np.ones(self.N_vol)
         if variation_type == "constant":
             self.Power_profile = amplitude*self.Power_profile
+            self.q_fluid = np.pi*self.fuel_radius**2*self.Power_profile
         elif variation_type == "sine":
             for i in range(self.N_vol):
                 self.Power_profile[i] = amplitude*np.sin(np.pi*self.z_mesh[i]/self.Lf)
+                self.q_fluid[i] = np.pi*self.fuel_radius**2*self.Power_profile[i]
         elif variation_type == "cosine":
             print("Keyword for cosine axial variation of fuel power not implemented yet")
         
@@ -295,6 +282,12 @@ class FVM_ConvectionInCanal:
         return self.Power_profile
     
     def solve_h_in_canal(self):
+        for row in self.A:
+            line = "[  "
+            for elem in row:
+                line+=f"{elem:.3f}   "
+            line += "  ]\n"
+            print(line)
         self.h_z = np.linalg.solve(self.A, self.D)
         return self.h_z
     
