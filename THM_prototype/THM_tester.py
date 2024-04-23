@@ -31,7 +31,6 @@ I_z = 10
 
 initial_water_z0 = IAPWS97(P=P_cool,T=T_in)
 h_ini = initial_water_z0.h 
-Tsurf = T_in
 z=0
 
 
@@ -40,7 +39,7 @@ def run_Conduction_In_Fuel(fuel_radius, I_f, gap_width, clad_width, I_c, z, Qfis
     heat_conduction = FDM_Fuel(fuel_radius, I_f, gap_width, clad_width, I_c, Qfiss, k_fuel, k_clad, H_gap, z, T_surf)
 
     for i in range(1,heat_conduction.N_node-1):
-        print(f"i in loop= {i}")
+
         if i<heat_conduction.I_f-1: # setting Aij and Di values for nodes inside the fuel 
             heat_conduction.set_ADi(i, 
                                 -heat_conduction.get_Di_half(i-1), 
@@ -66,7 +65,6 @@ def run_Conduction_In_Fuel(fuel_radius, I_f, gap_width, clad_width, I_c, z, Qfis
                                 -heat_conduction.get_Fi_gap(), 
                                 0)
         elif i>heat_conduction.I_f+1 : # setting Aij and Di for all elements in the clad, apart from the last one
-            print(f"i in interior clad elements is {i}")
             heat_conduction.set_ADi(i, 
                                 -heat_conduction.get_Di_half(i-1), 
                                 heat_conduction.get_Di_half(i-1)+heat_conduction.get_Di_half(i), 
@@ -77,11 +75,10 @@ def run_Conduction_In_Fuel(fuel_radius, I_f, gap_width, clad_width, I_c, z, Qfis
     Am1[-2:] = [-heat_conduction.get_Di_half(heat_conduction.N_node-2), heat_conduction.get_Di_half(heat_conduction.N_node-2)+heat_conduction.get_Ei_clad()]
     D0 = heat_conduction.deltaA_f*heat_conduction.Qfiss
     Dm1 = heat_conduction.get_Ei_clad()*heat_conduction.T_surf
+    print(f"Ei_clad = {heat_conduction.get_Ei_clad()}")
+    print(f"T_surf = {heat_conduction.T_surf}")
     heat_conduction.set_CL(A0, Am1, D0, Dm1)
-
-    print(heat_conduction.A_mesh_bounds)
-    print(np.sqrt(heat_conduction.A_mesh_bounds/np.pi))
-    print(heat_conduction.radii_at_bounds)    
+   
     for row in heat_conduction.A:
         line = "[  "
         for elem in row:
@@ -94,22 +91,19 @@ def run_Conduction_In_Fuel(fuel_radius, I_f, gap_width, clad_width, I_c, z, Qfis
 
 
 
-#setup_Conduction_case(fuel_radius, I_f, gap_width, clad_width, I_c, z, Qfiss, k_fuel, k_clad, H_gap, Tsurf)
-
-
 convection_test = FVM_Canal(Lf, T_in, Q_flow, P_cool, I_z, canal_type, rf=fuel_radius, rc=fuel_radius+gap_width+clad_width, rw=fuel_radius+gap_width+clad_width+canal_width)
 convection_test.set_Fission_Power(0.3e9, variation_type="constant")
 for i in range(1,convection_test.N_vol-1):
     convection_test.set_ADi(i,
-                            ci=-convection_test.Q_flow/convection_test.dz,
-                            ai=convection_test.Q_flow/convection_test.dz,
+                            ci=-1,
+                            ai=1,
                             bi=0,
-                            di = (np.pi*convection_test.fuel_radius**2/convection_test.A_canal)*convection_test.dz*convection_test.get_Fission_Power()[i])
+                            di = convection_test.q_fluid[i]*convection_test.dz/(convection_test.Q_flow*convection_test.A_canal))
 A0,Am1 = np.zeros(convection_test.N_vol), np.zeros(convection_test.N_vol)
-A0[0] = convection_test.Q_flow/convection_test.dz
-D0 = np.pi*(convection_test.fuel_radius**2/convection_test.A_canal)*convection_test.dz/2*convection_test.get_Fission_Power()[0]+convection_test.h_z0*convection_test.Q_flow/convection_test.dz
-Am1[-2:]=[-convection_test.Q_flow/convection_test.dz, convection_test.Q_flow/convection_test.dz]
-Dm1 = (np.pi*convection_test.fuel_radius**2/convection_test.A_canal)*convection_test.dz*convection_test.get_Fission_Power()[-1]
+A0[0] = 1
+D0 = convection_test.h_z0 + convection_test.q_fluid[i]*convection_test.dz/(2*convection_test.Q_flow*convection_test.A_canal)
+Am1[-2:]=[-1, 1]
+Dm1 = convection_test.q_fluid[i]*convection_test.dz/(convection_test.Q_flow*convection_test.A_canal)
 convection_test.set_CL(A0,Am1,D0,Dm1)
 for row in convection_test.A:
         line = "[  "
@@ -120,20 +114,24 @@ for row in convection_test.A:
 convection_test.h_z = convection_test.solve_h_in_canal()
 print(convection_test.h_z)
 
+
 Tsurf = convection_test.compute_T_surf()
-print(convection_test.T_water)
+print(f"T_surf = {Tsurf}")
+print(f"T_water = {convection_test.T_water}")
 temp_distrib = []
 for axial_plane_nb in range(convection_test.N_vol):
     z = convection_test.z_mesh[axial_plane_nb]
     T_surf = convection_test.T_surf[axial_plane_nb]
     Qfiss = convection_test.get_Fission_Power()[i]
     temp_distrib.append(run_Conduction_In_Fuel(fuel_radius, I_f, gap_width, clad_width, I_c, z, Qfiss, k_fuel, k_clad, H_gap, T_surf))
+    print(f"temperature disrtib at first z element is {temp_distrib[0].T_distrib}")
     print(f"computed temp distrib at z={z}")
     if z == 0.7:
         fig,ax = plt.subplots(dpi=200)
         print(f"Calculation radial mesh is = {np.sqrt(2*temp_distrib[-1].A_calculation_mesh)}")
         print(f"radii at centers are {temp_distrib[-1].radii_at_centers}")
         print(f"radii at bounds are {temp_distrib[-1].radii_at_bounds}")
+        print(f"A bounds used are : {temp_distrib[-1].A_mesh_bounds}")
         ax.scatter(temp_distrib[-1].plot_mesh, temp_distrib[-1].T_distrib, marker = "x", s=5, label="Radial temperature distribution in Fuel rod.")
         #ax.scatter(np.sqrt(2*temp_distrib[-1].A_calculation_mesh), temp_distrib[-1].T_distrib, marker = "x", s=5, label="Radial temperature distribution in Fuel rod.")
         ax.legend(loc = "best")
@@ -142,16 +140,13 @@ for axial_plane_nb in range(convection_test.N_vol):
         ax.set_ylabel(f"Temperature in K")
         ax.set_title(f"Temperature distribution in fuel rod at z = {z}, case 1")
         fig.savefig(f"Case1_Figure_plane{axial_plane_nb}")
-        print(f"calculation mesh converted to m is {np.sqrt(2*temp_distrib[-1].A_calculation_mesh)}")
-        print(f"gap radius is {temp_distrib[-1].gap_r}")
-        print(f"clad radius is {temp_distrib[-1].clad_r}")
         colors = ["red", "yellow", "green", "blue"]
         temp_distrib[-1].extend_to_canal_visu(rw = convection_test.wall_dist, Tw = convection_test.T_water[axial_plane_nb])
         print(f"T_surf = {convection_test.T_surf[axial_plane_nb]} K and T_water = {convection_test.T_water[axial_plane_nb]} K")
         print(temp_distrib[-1].T_distrib)
         fig_filled, axs = plt.subplots(dpi=200)
         for i in range(len(temp_distrib[-1].physical_regions_bounds)-1):
-            axs.fill_between(temp_distrib[-1].radii_at_bounds, temp_distrib[-1].T_distrib[1:], where=(temp_distrib[-1].radii_at_bounds>=temp_distrib[-1].physical_regions_bounds[i])&(temp_distrib[-1].radii_at_bounds<=temp_distrib[-1].physical_regions_bounds[i+1]), color = colors[i])
+            axs.fill_between(x=temp_distrib[-1].radii_at_bounds, y1=temp_distrib[-1].T_distrib[1:], y2=400*np.ones(len(temp_distrib[-1].radii_at_bounds)),where=(temp_distrib[-1].radii_at_bounds>=temp_distrib[-1].physical_regions_bounds[i])&(temp_distrib[-1].radii_at_bounds<=temp_distrib[-1].physical_regions_bounds[i+1]), color = colors[i])
         
         #axs.fill_betweenx(y=temp_distrib[-1].T_distrib[1:], x1=temp_distrib[-1].radii_at_bounds, where=(temp_distrib[-1].radii_at_bounds<temp_distrib[-1].r_f), facecolor='red')
         #axs.fill_betweenx(convection_test.T_surf[axial_plane_nb])
