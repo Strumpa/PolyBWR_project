@@ -10,16 +10,12 @@ from iapws import IAPWS97
 
 
 class FDM_HeatConductionInFuelPin:
-    def __init__(self, r_fuel, I_f, gap_width, clad_width, I_c, Qfiss, kf, kc, Hgap, z, T_surf):
+    def __init__(self, r_fuel, I_f, gap_r, clad_r, I_c, Qfiss, kf, kc, Hgap, z, T_surf):
         # Physical prameters
         self.r_f = r_fuel # fuel pin radius in meters
         self.I_f = I_f # number of mesh elements in the fuel
-        self.gap_w = gap_width # gap width in meters, used to determine mesh elements for constant surface discretization
-        self.clad_w = clad_width # clad width in meters, used to determine mesh elements for constant surface discretization
-
-        self.gap_r = self.r_f+self.gap_w
-        self.clad_r = self.gap_r + self.clad_w
-
+        self.gap_r = gap_r # gap radius in meters, used to determine mesh elements for constant surface discretization
+        self.clad_r = clad_r # clad radius in meters, used to determine mesh elements for constant surface discretization
 
         self.I_c = I_c # number of mesh elements in clad
         self.Qfiss = Qfiss # Fission power density in W/m^3
@@ -60,7 +56,6 @@ class FDM_HeatConductionInFuelPin:
         """
         self.A_mesh_bounds = []
         self.A_mesh_centers = []
-        #self.A_calculation_mesh = []
         A_f = self.r_f**2/2
         A_gf =self.gap_r**2/2
         A_cgf = self.clad_r**2/2
@@ -138,13 +133,13 @@ class FDM_HeatConductionInFuelPin:
     def get_Gi(self):
         return self.Hg*self.radii_at_centers[self.I_f]
     
-    def set_ADi(self, i, ci, ai, bi, di):
+    def set_ADi_cond(self, i, ci, ai, bi, di):
         # create lines for the tri-diagonal entries in
         self.A[i, i-1:i+2] = [ci, ai, bi]
         self.D[i] = di
         return
     
-    def set_CL(self, A0, Am1, D0, Dm1):
+    def set_CL_cond(self, A0, Am1, D0, Dm1):
         # I_and_half is the index for the I+1/2 element of th mesh which corresponds to the last point in the fuel.
         # conditions aux limites
         # A0 = A[0], Am1 = A[-1], A moins 1, 
@@ -201,17 +196,17 @@ class FDM_HeatConductionInFuelPin:
         self.radii_at_bounds = np.append(self.radii_at_bounds, [rw])
 
         
-class FVM_ConvectionInCanal:
+class FVM_ConvectionInCanal_MONO:
     def __init__(self, Lf, T_in, Q_flow, P_cool, I_z, canal_type, rf, rc, rw):
         """
         Lf = fuel rod length in m
         T_in = inlet water temperature K
         Q_flow = mass flux in kg/m^2/s, assumed to be constant along the axial profile.
-        P_cal = coolant pressure in MPa, assumed to be constant along the axial profile.
+        P_cool = coolant pressure in MPa, assumed to be constant along the axial profile.
         I_z = number of mesh elements on axial mesh
         canal_type = cylindrical or square, used to determine the cross sectional flow area in the canal and the hydraulic diameter
         rf = fuel rod radius
-        rc, rw = outer clad radius (m), outer canal radius (m) if type is cylindrical, if type = squaer rw is the radius of inscribed circle in the square canal, ie half the square's side.
+        rc, rw = outer clad radius (m), outer canal radius (m) if type is cylindrical, if type = square rw is the radius of inscribed circle in the square canal, ie half the square's side.
 
         Important note : cross sectional flow area is assumed to constant along z axis. Would be interesting to expand this to treat variations in flow area as in :
         THE MODELING OF ADVANCED BWR FUEL DESIGNS WITH THE NRC FUEL DEPLETION CODES PARCS/PATHS - A. WYSOCKI et al. August 2014
@@ -246,12 +241,12 @@ class FVM_ConvectionInCanal:
 
         return
     
-    def set_ADi(self, i, ci, ai, bi, di):
+    def set_ADi_conv(self, i, ci, ai, bi, di):
         self.A[i, i-1:i+2] = [ci, ai, bi]
         self.D[i] = di
         return
     
-    def set_CL(self, A0, Am1, D0, Dm1):
+    def set_CL_conv(self, A0, Am1, D0, Dm1):
         self.A[0], self.A[-1] = A0, Am1
         self.D[0], self.D[-1] = D0, Dm1
         return
@@ -277,7 +272,7 @@ class FVM_ConvectionInCanal:
     
     def get_Fission_Power(self):
         """
-        function to retrieve source term from axial profile used to model fission power distribution in the fuel rod
+        function to retrieve a given source term from the axial profile used to model fission power distribution in the fuel rod
         """
         return self.Power_profile
     
@@ -294,7 +289,6 @@ class FVM_ConvectionInCanal:
 
         
     def compute_T_surf(self):
-        N_MAX = 100000
         self.T_surf = np.zeros(self.N_vol)
         self.Hc = np.zeros(self.N_vol)
         self.T_water = np.zeros(self.N_vol)
@@ -303,9 +297,7 @@ class FVM_ConvectionInCanal:
             self.Hc[i] = (0.023)*(IAPWS97(P=self.P_cool, h=self.h_z[i]*10**-3).Liquid.Prandt)**0.4*(self.Q_flow*self.DH/(IAPWS97(P=self.P_cool, h=self.h_z[i]*10**-3).Liquid.mu))**0.8*IAPWS97(P=self.P_cool, h=self.h_z[i]*10**-3).Liquid.k/self.DH
             self.T_water[i] = IAPWS97(P=self.P_cool, h=self.h_z[i]*10**-3).T
             self.T_surf[i] = (np.pi*self.fuel_radius**2*self.get_Fission_Power()[i]/(2*np.pi*self.clad_radius)+self.Hc[i]*self.T_water[i])/self.Hc[i]
-            #for iteration in range(N_MAX):
-                
-
+    
         return self.T_surf
     
     def set_transitoire(self, t_tot, Tini, dt):
