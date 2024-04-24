@@ -1,4 +1,4 @@
-# Script used to create instances of THM classes and solve convection + conduction in fuel rod.
+# Used to create instances of THM class and solve convection + conduction in fuel rod.
 # author : R. Guasch
 # Purpose : prototyping for further developments in THM module of Donjon5
 
@@ -222,7 +222,6 @@ I_z1 = 10
 
 
 rw1=fuel_radius1+gap_width1+clad_width1+canal_width1 # canal radius
-print(f"rw = {rw1}")
 gap_rad1 = fuel_radius1+gap_width1
 clad_rad1 = gap_rad1+clad_width1
 plot_at_z1 = [0.7,0.8,0.9]
@@ -253,7 +252,6 @@ I_z2 = 100
 
 
 rw2=fuel_radius2+gap_width2+clad_width2+canal_width2 # canal radius
-print(f"rw = {rw2}")
 gap_rad2 = fuel_radius2+gap_width2
 clad_rad2 = gap_rad2+clad_width2
 plot_at_z2 = [0.7,0.8,0.9]
