@@ -1,5 +1,5 @@
 # Python3 class part of THM_prototype
-# uses : - setting up mesh centered finite difference solutino to heat conduction in fuel rod, FDM_ConductionInFuelPin
+# uses : - setting up mesh centered finite difference solution to heat conduction in fuel rod, FDM_ConductionInFuelPin
 #        - setting up finite volume discretization for solving heat convection in coolant, FVM_ConvectionInCanal
 # Author : R. Guasch
 # technical documentation : "Revisiting the simplified thermo-hydraulics module THM: in DONJON5 code" - A. Hébert, March 2018
