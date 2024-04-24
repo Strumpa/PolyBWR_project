@@ -188,9 +188,14 @@ class FDM_HeatConductionInFuelPin:
     
     def extend_to_canal_visu(self, rw, Tw):
         A_w = rw**2/2
+        print(f"A_w used is : {A_w}")
         deltA_w = A_w - self.A_mesh_bounds[-1] 
-        w_center = np.sqrt(2*(A_w + deltA_w/2)) 
+        print(f"deltaA_w used is : {deltA_w}")
+        w_center = np.sqrt(2*(self.A_mesh_bounds[-1] + deltA_w/2))
+        print(f"water center used is : {w_center}")
+        print(f"rw = {rw}") 
         self.plot_mesh = np.append(self.plot_mesh,[w_center])
+        print(f"plot mesh used is {self.plot_mesh}")
         self.physical_regions_bounds.append(rw)        
         self.T_distrib = np.append(self.T_distrib, [Tw])
         self.radii_at_bounds = np.append(self.radii_at_bounds, [rw])
