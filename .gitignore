@@ -10,6 +10,8 @@
 *.eps
 *.png
 
+*/__pycache__/
+
 Serpent2_para_bateman/src
 Serpent2_para_bateman/Linux_aarch64
 Serpent2_para_bateman/xs
