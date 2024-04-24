@@ -8,33 +8,6 @@ import numpy as np
 from iapws import IAPWS97
 import matplotlib.pyplot as plt
 
-#Cas 1 : base parameters
-# Parameters used to create object from FDM_HeatConductioninFuelpin class
-Qfiss = 0.3e9 # W/m^3
-fuel_radius = 5.6e-3 # m
-gap_width = 0.54e-3 # m
-clad_width = 0.38e-3 # m
-k_fuel = 5 # W/m/K
-H_gap = 10000 # W/m^2/K
-k_clad = 10 # W/m/K
-I_f = 8
-I_c = 3
-
-# Paramters used to create object from FVM_ConvectionInCanal class
-canal_type = "cylindrical"
-canal_width = 0.5e-3 # m
-Lf = 2 # m
-T_in = 500 # K
-Q_flow = 7000 # kg/m^2/s
-P_cool = 10.8 #MPa
-I_z = 10
-
-initial_water_z0 = IAPWS97(P=P_cool,T=T_in)
-h_ini = initial_water_z0.h 
-z=0
-
-rw=fuel_radius+gap_width+clad_width+canal_width
-
 class Version5_THM_prototype:
     def __init__(self, case_name, canal_radius, canal_type, fuel_rod_length, T_inlet, P_inlet, Q_flow, I_z, Qfiss, Qfiss_variation_type, fuel_radius, gap_radius, clad_radius, k_fuel, H_gap, k_clad, I_f, I_c, plot_at_z):
         """
@@ -76,7 +49,7 @@ class Version5_THM_prototype:
 
         # Prepare and solve 1D heat convection along the z direction in the canal.
         print("$$---------- Calling FVM_ConvectionInCanal_MONO class.")
-        print(f"Setting up heat convection solution along the axial dimension. zmax = {self.Lf} with {self.I_z} axial elements.")
+        print(f"Setting up heat convection solution along the axial dimension. zmax = {self.Lf} m with {self.I_z} axial elements.")
         self.convection_sol = FVM_Canal_MONO(self.Lf, self.T_in, self.Q_flow, self.P_cool, self.I_z, self.canal_type, 
                                         self.r_f, self.clad_r, self.r_w)
         self.convection_sol.set_Fission_Power(self.Q_fiss_amp, self.Q_fiss_variation_type)
@@ -90,27 +63,22 @@ class Version5_THM_prototype:
         # Prepare and solve 1D radial heat conduction in the fuel rod, given a Clad surface temperature as a bondary condition 
         self.SetupAndSolve_Conduction_at_all_z() # creates a list of 
         
-        # extend to Twater here.
+        # extend to Twater : adding a mesh point corresponding to the middle of the canal in the plotting array, add rw to the bounds array and add Twater to the results array
+        for index_z in range(len(self.convection_sol.z_mesh)):
+            self.T_distributions_axial[index_z].extend_to_canal_visu(rw = self.convection_sol.wall_dist, Tw = self.convection_sol.T_water[index_z])
          
         if self.plot_results:
             for z_val in self.plot_results:
-                if z_val in self.convection_sol.z_mesh:
-                    plane_indx = np.where(self.convection_sol.z_mesh==z_val)[0][0]
-                    self.plot_Temperature_at_z(z,plane_indx,self.T_distrib[plane_indx])
-                else: # Interpolate between nearest z values to obtain Temperature distribution at a given z.
-                    second_plane_indx = np.where(self.convection_sol.z_mesh>z_val)[0][0]
-                    first_plane_indx = second_plane_indx-1
-                    interp_T = (self.T_distrib[first_plane_indx]+self.T_distrib[second_plane_indx])/2
-                    self.plot_Temperature_at_z(z,plane_indx,interp_T)
+                self.plot_Temperature_at_z(z_val)
 
 
     def SetupAndSolve_Conduction_at_all_z(self):
-        self.T_distrib = []
+        self.T_distributions_axial = []
         for axial_plane_nb in range(self.convection_sol.N_vol):
             z = self.convection_sol.z_mesh[axial_plane_nb]
             T_surf = self.convection_sol.T_surf[axial_plane_nb]
             Qfiss = self.convection_sol.get_Fission_Power()[axial_plane_nb]
-            self.T_distrib.append(self.run_Conduction_In_Fuel_at_z(z,Qfiss,T_surf))
+            self.T_distributions_axial.append(self.run_Conduction_In_Fuel_at_z(z,Qfiss,T_surf))
 
 
         return
@@ -180,36 +148,114 @@ class Version5_THM_prototype:
         return heat_conduction
 
 
+    def plot_Temperature_at_z(self, z_val):
+        print(f"$$---------- Plotting Temperature distribution in rod + canal z = {z_val} m")
 
+        print(f"z_val is {z_val}")
+        print(f"z_mesh is {self.convection_sol.z_mesh}")
+        if z_val in self.convection_sol.z_mesh:
+            plane_index = int(np.where(self.convection_sol.z_mesh==z_val)[0][0])
+            Temperature_distrib_to_plot = self.T_distributions_axial[plane_index].T_distrib
+            plotting_mesh = self.T_distributions_axial[plane_index].plot_mesh
+            radii_at_bounds = self.T_distributions_axial[plane_index].radii_at_bounds
+            physical_regions_bounds = self.T_distributions_axial[plane_index].physical_regions_bounds
+            plotting_units = self.T_distributions_axial[plane_index].plotting_units
+            Tsurf = self.convection_sol.T_surf[plane_index]
+            Twater = self.convection_sol.T_water[plane_index]
+            Tcenter = self.T_distributions_axial[plane_index].T_center
+        else: # Interpolate between nearest z values to obtain Temperature distribution at a given z.
+            second_plane_index = np.where(self.convection_sol.z_mesh>z_val)[0][0]
+            first_plane_index = second_plane_index-1
+            plane_index = (first_plane_index+second_plane_index)/2
+            plotting_mesh = self.T_distributions_axial[first_plane_index].plot_mesh
+            radii_at_bounds = self.T_distributions_axial[first_plane_index].radii_at_bounds
+            physical_regions_bounds = self.T_distributions_axial[first_plane_index].physical_regions_bounds
+            Temperature_distrib_to_plot = self.T_distributions_axial[first_plane_index].T_distrib+(z_val-self.convection_sol.z_mesh[first_plane_index])*(self.T_distributions_axial[second_plane_index].T_distrib-self.T_distributions_axial[first_plane_index].T_distrib)/(self.convection_sol.z_mesh[second_plane_index]-self.convection_sol.z_mesh[first_plane_index])
+            plotting_units = self.T_distributions_axial[first_plane_index].plotting_units
+            Tsurf = self.convection_sol.T_surf[first_plane_index] + (z_val-self.convection_sol.z_mesh[first_plane_index])*(self.convection_sol.T_surf[second_plane_index]-self.convection_sol.T_surf[first_plane_index])/(self.convection_sol.z_mesh[second_plane_index]-self.convection_sol.z_mesh[first_plane_index])
+            Twater = self.convection_sol.T_water[first_plane_index] + (z_val-self.convection_sol.z_mesh[first_plane_index])*(self.convection_sol.T_water[second_plane_index]-self.convection_sol.T_water[first_plane_index])/(self.convection_sol.z_mesh[second_plane_index]-self.convection_sol.z_mesh[first_plane_index])
+            Tcenter = self.T_distributions_axial[first_plane_index].T_center + (z_val-self.convection_sol.z_mesh[first_plane_index])*(self.T_distributions_axial[second_plane_index].T_center-self.T_distributions_axial[first_plane_index].T_center)/(self.convection_sol.z_mesh[second_plane_index]-self.convection_sol.z_mesh[first_plane_index])
 
-   
-    def plot_Temperature_at_z(self, z, plane_index, Temperature_at_z):
         
-        fig,ax = plt.subplots(dpi=200)
-        print(f"Calculation radial mesh is = {np.sqrt(2*Temperature_at_z.A_calculation_mesh)}")
-        print(f"plot mesh is {self.Temperature_at_z.plot_mesh}")
-        ax.scatter(Temperature_at_z.plot_mesh, Temperature_at_z.T_distrib, marker = "x", s=5, label="Radial temperature distribution in Fuel rod.")
-        #ax.scatter(np.sqrt(2*self.Temperature_at_z.A_calculation_mesh), self.Temperature_at_z.T_distrib, marker = "x", s=5, label="Radial temperature distribution in Fuel rod.")
-        ax.legend(loc = "best")
-        ax.grid()
-        ax.set_xlabel(f"Radial position in {Temperature_at_z.plotting_units}")
-        ax.set_ylabel(f"Temperature in K")
-        ax.set_title(f"Temperature distribution in fuel rod at z = {z}, case 1")
-        fig.savefig(f"{self.name}_Figure_plane{plane_index}")
+        print(f"plot mesh is {plotting_mesh}")
+        print(plane_index)
+        if (isinstance(plane_index, int)):
+            plane_index_print = plane_index
+        else:
+            plane_index_print = str(plane_index).split(".")[0]+str(plane_index).split(".")[1]
+
         colors = ["red", "yellow", "green", "blue"]
-        Temperature_at_z.extend_to_canal_visu(rw = self.convection_sol.wall_dist, Tw = self.convection_sol.T_water[plane_index])
-        print(f"T_surf = {self.convection_sol.T_surf[plane_index]} K and T_water = {self.convection_sol.T_water[plane_index]} K")
-        print(f"radii at bounds {Temperature_at_z.radii_at_bounds}")
+        print(f"T_surf = {Tsurf} K and T_water = {Twater} K")
+        print(f"radii at bounds {radii_at_bounds}")
         fig_filled, axs = plt.subplots(dpi=200)
-        for i in range(len(Temperature_at_z.physical_regions_bounds)-1):
-            axs.fill_between(x=Temperature_at_z.radii_at_bounds, y1=Temperature_at_z.T_distrib[1:], y2=400*np.ones(len(Temperature_at_z.radii_at_bounds)),where=(Temperature_at_z.radii_at_bounds>=self.temp_distrib_to_plot.physical_regions_bounds[i])&(self.temp_distrib_to_plot.radii_at_bounds<=self.temp_distrib_to_plot.physical_regions_bounds[i+1]), color = colors[i])
-        
-        #axs.fill_betweenx(y=self.temp_distrib_to_plot.T_distrib[1:], x1=self.temp_distrib_to_plot.radii_at_bounds, where=(self.temp_distrib_to_plot.radii_at_bounds<self.temp_distrib_to_plot.r_f), facecolor='red')
-        #axs.fill_betweenx(self.convection_sol.T_surf[plane_index])
-        ax.legend(loc = "best")
-        ax.grid()
-        ax.set_xlabel(f"Radial position in {Temperature_at_z.plotting_units}")
-        ax.set_ylabel(f"Temperature in K")
-        ax.set_title(f"Temperature distribution in fuel rod at z = {z}, case 1")
-        fig_filled.savefig(f"{self.name}_Figure_plane{plane_index}_colors")
+        for i in range(len(physical_regions_bounds)-1):
+            axs.fill_between(x=radii_at_bounds, y1=(Tcenter+50)*np.ones(len(radii_at_bounds)), y2=(Twater-50)*np.ones(len(radii_at_bounds)),where=(radii_at_bounds>=physical_regions_bounds[i])&(radii_at_bounds<=physical_regions_bounds[i+1]), color = colors[i])
+        axs.scatter(plotting_mesh, Temperature_distrib_to_plot, marker = "x", s=5, label="Radial temperature distribution in Fuel rod.")
+        axs.legend(loc = "best")
+        axs.grid()
+        axs.set_xlabel(f"Radial position in {plotting_units}")
+        axs.set_ylabel(f"Temperature in K")
+        axs.set_title(f"Temperature distribution in fuel rod at z = {z_val}, {self.name}")
+        fig_filled.savefig(f"{self.name}_Figure_plane{plane_index_print}_colors")
 
+
+#Case 1 : base parameters
+# Parameters used to create object from FDM_HeatConductioninFuelpin class
+Qfiss1 = 0.3e9 # W/m^3
+fuel_radius1 = 5.6e-3 # m
+gap_width1 = 0.54e-3 # m
+clad_width1 = 0.38e-3 # m
+k_fuel1 = 5 # W/m/K
+H_gap1 = 10000 # W/m^2/K
+k_clad1 = 10 # W/m/K
+I_f1 = 8
+I_c1 = 3
+
+# Paramters used to create object from FVM_ConvectionInCanal class
+canal_type1 = "cylindrical"
+canal_width1 = 0.5e-3 # m
+Lf1 = 2 # m
+T_in1 = 500 # K
+Q_flow1 = 7000 # kg/m^2/s
+P_cool1 = 10.8 #MPa
+I_z1 = 10
+
+
+rw1=fuel_radius1+gap_width1+clad_width1+canal_width1 # canal radius
+print(f"rw = {rw1}")
+gap_rad1 = fuel_radius1+gap_width1
+clad_rad1 = gap_rad1+clad_width1
+plot_at_z1 = [0.7,0.8,0.9]
+case1 = Version5_THM_prototype("Case1_ENE6107A_project", rw1, "cylindrical", Lf1, T_in1, P_cool1, Q_flow1, I_z1, Qfiss1, "constant", 
+                               fuel_radius1, gap_rad1, clad_rad1, k_fuel1, H_gap1, k_clad1, I_f1, I_c1, plot_at_z1)
+
+
+#Case 2 : base parameters
+# Parameters used to create object from FDM_HeatConductioninFuelpin class
+Qfiss2 = 0.3e9 # W/m^3
+fuel_radius2 = 5.4e-3 # m
+gap_width2 = 0.6e-3 # m
+clad_width2 = 0.4e-3 # m
+k_fuel2 = 5 # W/m/K
+H_gap2 = 10000 # W/m^2/K
+k_clad2 = 15 # W/m/K
+I_f2 = 80
+I_c2 = 3
+
+# Paramters used to create object from FVM_ConvectionInCanal class
+canal_type2 = "cylindrical"
+canal_width2 = 0.35e-3 # m
+Lf2 = 2.5 # m
+T_in2 = 450 # K
+Q_flow2 = 7200 # kg/m^2/s
+P_cool2 = 10.8 #MPa
+I_z2 = 100
+
+
+rw2=fuel_radius2+gap_width2+clad_width2+canal_width2 # canal radius
+print(f"rw = {rw2}")
+gap_rad2 = fuel_radius2+gap_width2
+clad_rad2 = gap_rad2+clad_width2
+plot_at_z2 = [0.7,0.8,0.9]
+case2 = Version5_THM_prototype("Case2_ENE6107A_project", rw2, "cylindrical", Lf2, T_in2, P_cool2, Q_flow2, I_z2, Qfiss2, "sine", 
+                               fuel_radius2, gap_rad2, clad_rad2, k_fuel2, H_gap2, k_clad2, I_f2, I_c2, plot_at_z2)
