@@ -212,7 +212,7 @@ I_f1 = 8
 I_c1 = 3
 
 # Paramters used to create object from FVM_ConvectionInCanal class
-canal_type1 = "cylindrical"
+canal_type1 = "square"
 canal_width1 = 0.5e-3 # m
 Lf1 = 2 # m
 T_in1 = 500 # K
@@ -225,10 +225,16 @@ rw1=fuel_radius1+gap_width1+clad_width1+canal_width1 # canal radius
 gap_rad1 = fuel_radius1+gap_width1
 clad_rad1 = gap_rad1+clad_width1
 plot_at_z1 = [0.7,0.8,0.9]
-case1 = Version5_THM_prototype("Case1_ENE6107A_project", rw1, "cylindrical", Lf1, T_in1, P_cool1, Q_flow1, I_z1, Qfiss1, "constant", 
+case1 = Version5_THM_prototype("Case1_ENE6107A_project", rw1, canal_type1, Lf1, T_in1, P_cool1, Q_flow1, I_z1, Qfiss1, "constant", 
                                fuel_radius1, gap_rad1, clad_rad1, k_fuel1, H_gap1, k_clad1, I_f1, I_c1, plot_at_z1)
+print(f"case 1 T_surf is {case1.convection_sol.T_surf}")
+print(f"case 1 T_water is {case1.convection_sol.T_water}")
+print(f"case 1 h_z is {case1.convection_sol.h_z}")
+print(f"case 1 Hc is {case1.convection_sol.Hc}")
 
-
+state = IAPWS97(P=10.8,T=503.63)
+print(state.h)
+"""
 #Case 2 : base parameters
 # Parameters used to create object from FDM_HeatConductioninFuelpin class
 Qfiss2 = 0.3e9 # W/m^3
@@ -257,3 +263,4 @@ clad_rad2 = gap_rad2+clad_width2
 plot_at_z2 = [0.7,0.8,0.9]
 case2 = Version5_THM_prototype("Case2_ENE6107A_project", rw2, "cylindrical", Lf2, T_in2, P_cool2, Q_flow2, I_z2, Qfiss2, "sine", 
                                fuel_radius2, gap_rad2, clad_rad2, k_fuel2, H_gap2, k_clad2, I_f2, I_c2, plot_at_z2)
+"""
