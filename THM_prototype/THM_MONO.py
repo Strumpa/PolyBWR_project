@@ -262,14 +262,14 @@ class FVM_ConvectionInCanal_MONO:
         variation_type : string used to allow for constant, sinusoial or cosinusoidal axial profiles ("constant", "sine", "cosine" keywords allowed)
         """
         self.Power_profile = np.ones(self.N_vol)
-        self.q_fluid = np.ones(self.N_vol)
+        #self.q_fluid = np.ones(self.N_vol)
         if variation_type == "constant":
             self.Power_profile = amplitude*self.Power_profile
             self.q_fluid = np.pi*self.fuel_radius**2*self.Power_profile
         elif variation_type == "sine":
             for i in range(self.N_vol):
                 self.Power_profile[i] = amplitude*np.sin(np.pi*self.z_mesh[i]/self.Lf)
-                self.q_fluid[i] = np.pi*self.fuel_radius**2*self.Power_profile[i]
+            self.q_fluid = np.pi*self.fuel_radius**2*self.Power_profile
         elif variation_type == "cosine":
             print("Keyword for cosine axial variation of fuel power not implemented yet")
         

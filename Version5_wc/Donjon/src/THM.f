@@ -30,7 +30,7 @@
 * The THM: module specification is:
 * THERMO MAPFL := THM: [ THERMO ] MAPFL :: (descthm) ;
 * where
-*   THERMO : name of the \emph{thermo) object that will be created or updated 
+*   THERMO : name of the \emph{thermo} object that will be created or updated 
 *     by the THM: module. Object \emph{thermo} contains thermal-hydraulics 
 *     information set or computed by THM: in transient or in permanent 
 *     conditions such as the distribution of the enthalpy, the pressure, the 
