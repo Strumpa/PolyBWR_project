@@ -899,6 +899,8 @@
         FCOOL=(1.0-FPUISS)*RAPCOOL
         FFUEL=FPUISS*RAPFUEL
         HD=4.0*ACOOL/PM
+        WRITE(*,*) 'The value of A_canal is:', ACOOL
+        WRITE(*,*) 'The value of wetted perimeter is:', PM
         IF(HD.LE.0.) CALL XABORT('THM: NEGATIVE HYDRAULIC DIAMETER(1).')
 *----
 *  RECOVER STEADY-STATE RADII
