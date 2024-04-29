@@ -59,11 +59,7 @@ class FDM_HeatConductionInFuelPin:
         A_f = self.r_f**2/2
         A_gf =self.gap_r**2/2
         A_cgf = self.clad_r**2/2
-        print(f"Area of fuel = {A_f}")
-        print(f"Area of fuel+gap = {A_gf}")
-        print(f"Area of fuel+gap+clad = {A_cgf}")
         self.deltaA_f = A_f / self.I_f # base assumption is that delta_A is constant in each region --> delta A fuel = constant in fuel, delta A clad = constant in clad and 1 delta A gap.
-        print(f"Delta_Af = {self.deltaA_f}")
         for i in range(self.I_f+1):
             self.A_mesh_bounds.append(i*self.deltaA_f)
         for i in range(self.I_f):
@@ -101,32 +97,27 @@ class FDM_HeatConductionInFuelPin:
         return
     
     def get_Di_half(self,i):
-        print(f"A_mesh_bounds is = {self.A_mesh_bounds[i+1]}")
-        print(f"delta Af = {self.deltaA_f}")
         print(self.I_f)
         if i > self.I_f+1:
             i=i-1
             Di_half = 4*self.A_mesh_bounds[i+1]/((self.deltaA_c/self.k[i])+(self.deltaA_c/self.k[i+1]))
         else:
             Di_half = 4*self.A_mesh_bounds[i+1]/((self.deltaA_f/self.k[i])+(self.deltaA_f/self.k[i+1]))
-        print(f"D_half is = {Di_half}")
         return Di_half
     
-    def get_Ei_gap(self):
+    def get_Ei_fuel(self):
         Ei_half = 4*self.A_mesh_bounds[self.I_f]*self.k[self.I_f-1]/self.deltaA_f
-        print(f"Area used in Ei_gap {self.A_mesh_bounds[self.I_f]}")
-        print(f"Theoretical area: {self.r_f**2/2}")
+        return Ei_half
+    
+    def get_Ei_gap(self):
+        Ei_half = 4*self.A_mesh_bounds[self.I_f+1]*self.k[self.I_f+1]/self.deltaA_c
         return Ei_half
     
     def get_Ei_clad(self):
         Ei_half = 4*self.A_mesh_bounds[-1]*self.k[-1]/self.deltaA_c
-        print(f"Area used in Ei_clad {self.A_mesh_bounds[-1]}")
-        print(f"Theoretical area: {self.clad_r**2/2}")
         return Ei_half
     
     def get_Fi_gap(self):
-        print(f"Area used in Fi gap is {self.A_mesh_bounds[self.I_f+1]}")
-        print(f"Theoretical area for Fi_gap is {self.gap_r**2/2}")
         Fi_half = 4*self.A_mesh_bounds[self.I_f+1]*self.k[self.I_f+1]/self.deltaA_c
         return Fi_half
     
@@ -149,6 +140,12 @@ class FDM_HeatConductionInFuelPin:
         return
     
     def solve_T_in_pin(self):
+        for row in self.A:
+            line = "[  "
+            for elem in row:
+                line+=f"{elem:.3f}   "
+            line += "  ]\n"
+            print(line)
         self.T_distrib = np.linalg.solve(self.A, self.D)
         self.compute_T_center()
         T_distrib_with_center = np.zeros(self.N_node+1)
@@ -162,13 +159,14 @@ class FDM_HeatConductionInFuelPin:
         T_3_2 = (self.deltaA_f*self.k[0]*self.T_distrib[0]+self.deltaA_f*self.k[1]*self.T_distrib[1])/(self.deltaA_f*self.k[0]+self.deltaA_f*self.k[1])
         # using equation (46) of "Revisiting the simplified thermo-hydraulics module THM: in DONJON5 code" - A. Hébert, March 2018 to compute T_center.
         self.T_center = 2*self.T_distrib[0] - T_3_2
-        print(f"Computed T_3/2 is {T_3_2} K, T_1 = {self.T_distrib[0]} K, T_2 = {self.T_distrib[1]} K.")
-        print(f"Computed T_center (at r=0) = {self.T_center} K.")
         return
     def compute_T_eff(self):
         # using equation (45) of "Revisiting the simplified thermo-hydraulics module THM: in DONJON5 code" - A. Hébert, March 2018 to compute T_eff
         # This corresponds to the simplified correlation, the so-called Rowlands formula :
-        self.T_eff = (5/9)*self.T_surf + (4/9)*self.T_center
+        if len(self.T_distrib) == self.N_node:
+            self.T_eff = (5/9)*self.T_distrib[self.I_f] + (4/9)*self.T_center
+        elif len(self.T_distrib) == self.N_node+1:
+            self.T_eff = (5/9)*self.T_distrib[self.I_f+1] + (4/9)*self.T_center
         return
     
     def initialise_plotting_mesh(self, unit):
@@ -188,7 +186,6 @@ class FDM_HeatConductionInFuelPin:
     
     def extend_to_canal_visu(self, rw, Tw):
         A_w = rw**2/2
-        print(f"A_w used is : {A_w}")
         deltA_w = A_w - self.A_mesh_bounds[-1] 
         print(f"deltaA_w used is : {deltA_w}")
         w_center = np.sqrt(2*(self.A_mesh_bounds[-1] + deltA_w/2))
@@ -241,7 +238,11 @@ class FVM_ConvectionInCanal_MONO:
             self.DH = 4*self.A_canal / self.P_wetted # DH = 4*A/P where A = wetted cross sectional area and P is wetted perimeter = perimeter of fuel
         elif self.canal_type == "square":
             self.A_canal = (2*self.wall_dist)**2-np.pi*self.clad_radius**2
-            self.DH = 4*self.A_canal / 2*(4*self.wall_dist+np.pi*self.clad_radius)
+            self.P_wetted = 2*(4*self.wall_dist+np.pi*self.clad_radius)
+            self.DH = 4*self.A_canal / self.P_wetted
+        print(f"The calculated A_canal is : {self.A_canal} m^2, DH is {self.DH} m")
+        print(f"The wetted perimeter is {self.P_wetted} m, calculated in a {self.canal_type} type geometry.")
+
 
 
         return
@@ -270,6 +271,8 @@ class FVM_ConvectionInCanal_MONO:
             for i in range(self.N_vol):
                 self.Power_profile[i] = amplitude*np.sin(np.pi*self.z_mesh[i]/self.Lf)
             self.q_fluid = np.pi*self.fuel_radius**2*self.Power_profile
+            print("POWER PROFILE")
+            print(self.Power_profile)
         elif variation_type == "cosine":
             print("Keyword for cosine axial variation of fuel power not implemented yet")
         
@@ -299,9 +302,13 @@ class FVM_ConvectionInCanal_MONO:
         self.T_water = np.zeros(self.N_vol)
         self.T_water[0] = self.T_in
         for i in range(self.N_vol):
-            self.Hc[i] = (0.023)*(IAPWS97(P=self.P_cool, h=self.h_z[i]*10**-3).Liquid.Prandt)**0.4*(self.Q_flow*self.DH/(IAPWS97(P=self.P_cool, h=self.h_z[i]*10**-3).Liquid.mu))**0.8*IAPWS97(P=self.P_cool, h=self.h_z[i]*10**-3).Liquid.k/self.DH
+            Pr_number = IAPWS97(P=self.P_cool, h=self.h_z[i]*10**-3).Liquid.Prandt
+            Re_number = self.Q_flow*self.DH/(IAPWS97(P=self.P_cool, h=self.h_z[i]*10**-3).Liquid.mu)
+            k_fluid = IAPWS97(P=self.P_cool, h=self.h_z[i]*10**-3).Liquid.k
+            print(f"At axial slice = {i}, computed Reynold # = {Re_number}, computed Prandt # = {Pr_number}, k_fluid = {k_fluid}")
+            self.Hc[i] = (0.023)*(Pr_number)**0.4*(Re_number)**0.8*k_fluid/self.DH
             self.T_water[i] = IAPWS97(P=self.P_cool, h=self.h_z[i]*10**-3).T
-            self.T_surf[i] = (np.pi*self.fuel_radius**2*self.get_Fission_Power()[i]/(2*np.pi*self.clad_radius)+self.Hc[i]*self.T_water[i])/self.Hc[i]
+            self.T_surf[i] = (self.q_fluid[i]/(2*np.pi*self.clad_radius)/self.Hc[i]+self.T_water[i])
     
         return self.T_surf
     

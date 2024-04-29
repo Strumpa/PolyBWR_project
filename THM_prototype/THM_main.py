@@ -58,11 +58,13 @@ class Version5_THM_prototype:
         print("$---------- Solving for h(z) using the Finite Volumes Method.")
         self.convection_sol.h_z = self.convection_sol.solve_h_in_canal() # solving the enthalpy evolution in the canal
         print("$---------- Solving for T_surf(z) using the Dittus-Boelter correlation. Water Properties evaluated by IAPWS97")
-        self.Tsurf = self.convection_sol.compute_T_surf() # conputing and retrieving the clad surface temperatures obtained through the Dittus-Boelter correlation
+        self.Tsurf = self.convection_sol.compute_T_surf() # computing and retrieving the clad surface temperatures obtained through the Dittus-Boelter correlation
     
         # Prepare and solve 1D radial heat conduction in the fuel rod, given a Clad surface temperature as a bondary condition 
-        self.SetupAndSolve_Conduction_at_all_z() # creates a list of 
-        
+        self.SetupAndSolve_Conduction_at_all_z() # creates a list of Temperature distributions in the fuel rod given a surface temperature computed by solving the conection problem
+        self.get_TFuel_rowlands() # compute and store in the T_eff_fuel attribute the effective fuel temperature given by the Rowlands formula
+        self.get_Tfuel_surface() # store in the T_fuel_surface attribute the fuel surface temperature computed
+
         # extend to Twater : adding a mesh point corresponding to the middle of the canal in the plotting array, add rw to the bounds array and add Twater to the results array
         for index_z in range(len(self.convection_sol.z_mesh)):
             self.T_distributions_axial[index_z].extend_to_canal_visu(rw = self.convection_sol.wall_dist, Tw = self.convection_sol.T_water[index_z])
@@ -93,11 +95,15 @@ class Version5_THM_prototype:
                                     ai=1,
                                     bi=0,
                                     di = self.convection_sol.q_fluid[i]*self.convection_sol.dz/(self.convection_sol.Q_flow*self.convection_sol.A_canal))
+            print(self.convection_sol.q_fluid[i])
+            print(self.convection_sol.dz)
+            print(self.convection_sol.Q_flow)
+            print(self.convection_sol.A_canal)
         A0,Am1 = np.zeros(self.convection_sol.N_vol), np.zeros(self.convection_sol.N_vol)
         A0[0] = 1
-        D0 = self.convection_sol.h_z0 + self.convection_sol.q_fluid[i]*self.convection_sol.dz/(2*self.convection_sol.Q_flow*self.convection_sol.A_canal)
+        D0 = self.convection_sol.h_z0 + self.convection_sol.q_fluid[0]*self.convection_sol.dz/(2*self.convection_sol.Q_flow*self.convection_sol.A_canal)
         Am1[-2:]=[-1, 1]
-        Dm1 = self.convection_sol.q_fluid[i]*self.convection_sol.dz/(self.convection_sol.Q_flow*self.convection_sol.A_canal)
+        Dm1 = self.convection_sol.q_fluid[-1]*self.convection_sol.dz/(self.convection_sol.Q_flow*self.convection_sol.A_canal)
         self.convection_sol.set_CL_conv(A0,Am1,D0,Dm1)
         return
 
@@ -116,22 +122,28 @@ class Version5_THM_prototype:
             elif i==heat_conduction.I_f-1: # setting Aij and Di values for last fuel element
                 heat_conduction.set_ADi_cond(i,
                                 -heat_conduction.get_Di_half(i-1),
-                                (heat_conduction.get_Di_half(i-1)+heat_conduction.get_Ei_gap()),
-                                -heat_conduction.get_Ei_gap(),
+                                (heat_conduction.get_Di_half(i-1)+heat_conduction.get_Ei_fuel()),
+                                -heat_conduction.get_Ei_fuel(),
                                 heat_conduction.deltaA_f*heat_conduction.Qfiss)
             elif i==heat_conduction.I_f: # setting Aij and Di values first fuel / gap interface
                 heat_conduction.set_ADi_cond(i, 
-                                    -heat_conduction.get_Ei_gap(), 
-                                    heat_conduction.get_Ei_gap()+heat_conduction.get_Gi(), 
+                                    -heat_conduction.get_Ei_fuel(), 
+                                    heat_conduction.get_Ei_fuel()+heat_conduction.get_Gi(), 
                                     -heat_conduction.get_Gi(), 
                                     0)
-            elif i==heat_conduction.I_f+1: # setting Aij and Di values second gap / clad interface
+            elif i == heat_conduction.I_f+1: # setting Aij and Di values second gap / clad interface
                 heat_conduction.set_ADi_cond(i, 
                                     -heat_conduction.get_Gi(), 
                                     heat_conduction.get_Fi_gap()+heat_conduction.get_Gi(), 
                                     -heat_conduction.get_Fi_gap(), 
                                     0)
-            elif i>heat_conduction.I_f+1 : # setting Aij and Di for all elements in the clad, apart from the last one
+            elif i == heat_conduction.I_f+2: # Treating the first clad element interface with the gap.
+                heat_conduction.set_ADi_cond(i,
+                                             -heat_conduction.get_Ei_gap(),
+                                             (heat_conduction.get_Di_half(i)+heat_conduction.get_Ei_gap()),
+                                             -heat_conduction.get_Di_half(i),
+                                             0)
+            elif i>heat_conduction.I_f+2 : # setting Aij and Di for all elements in the clad, apart from the last one
                 heat_conduction.set_ADi_cond(i, 
                                     -heat_conduction.get_Di_half(i-1), 
                                     heat_conduction.get_Di_half(i-1)+heat_conduction.get_Di_half(i), 
@@ -146,6 +158,25 @@ class Version5_THM_prototype:
         print(f"$---------- Solving for T(r) using the Finite Difference Method, at z = {z}.")
         heat_conduction.solve_T_in_pin()
         return heat_conduction
+    
+    def get_TFuel_rowlands(self):
+        self.T_eff_fuel = np.zeros(self.convection_sol.N_vol)
+        for i in range(len(self.T_distributions_axial)):
+            self.T_distributions_axial[i].compute_T_eff()
+            T_eff_z = self.T_distributions_axial[i].T_eff
+            self.T_eff_fuel[i] = T_eff_z
+        return
+    def get_Tfuel_surface(self):
+        self.T_fuel_surface = np.zeros(self.convection_sol.N_vol)
+        for i in range(len(self.T_distributions_axial)):
+            if len(self.T_distributions_axial[i].T_distrib) == self.T_distributions_axial[i].N_node:
+                T_surf_fuel_z = self.T_distributions_axial[i].T_distrib[self.I_f]
+            else:
+                T_surf_fuel_z = self.T_distributions_axial[i].T_distrib[self.I_f+1]
+            self.T_fuel_surface[i] = T_surf_fuel_z
+        return
+
+
 
 
     def plot_Temperature_at_z(self, z_val):
@@ -167,6 +198,7 @@ class Version5_THM_prototype:
             second_plane_index = np.where(self.convection_sol.z_mesh>z_val)[0][0]
             first_plane_index = second_plane_index-1
             plane_index = (first_plane_index+second_plane_index)/2
+            print(f"plane index used is {plane_index}")
             plotting_mesh = self.T_distributions_axial[first_plane_index].plot_mesh
             radii_at_bounds = self.T_distributions_axial[first_plane_index].radii_at_bounds
             physical_regions_bounds = self.T_distributions_axial[first_plane_index].physical_regions_bounds
@@ -177,20 +209,18 @@ class Version5_THM_prototype:
             Tcenter = self.T_distributions_axial[first_plane_index].T_center + (z_val-self.convection_sol.z_mesh[first_plane_index])*(self.T_distributions_axial[second_plane_index].T_center-self.T_distributions_axial[first_plane_index].T_center)/(self.convection_sol.z_mesh[second_plane_index]-self.convection_sol.z_mesh[first_plane_index])
 
         
-        print(f"plot mesh is {plotting_mesh}")
-        print(plane_index)
+        
         if (isinstance(plane_index, int)):
             plane_index_print = plane_index
         else:
             plane_index_print = str(plane_index).split(".")[0]+str(plane_index).split(".")[1]
-
-        colors = ["red", "yellow", "green", "blue"]
-        print(f"T_surf = {Tsurf} K and T_water = {Twater} K")
-        print(f"radii at bounds {radii_at_bounds}")
+        print(f"at z = {z_val}, temp distrib is = {Temperature_distrib_to_plot}")
+        colors = ["lime", "bisque", "chocolate", "royalblue"]
+        labels = ["Fuel", "Gap", "Clad", "Water"]
         fig_filled, axs = plt.subplots(dpi=200)
         for i in range(len(physical_regions_bounds)-1):
-            axs.fill_between(x=radii_at_bounds, y1=(Tcenter+50)*np.ones(len(radii_at_bounds)), y2=(Twater-50)*np.ones(len(radii_at_bounds)),where=(radii_at_bounds>=physical_regions_bounds[i])&(radii_at_bounds<=physical_regions_bounds[i+1]), color = colors[i])
-        axs.scatter(plotting_mesh, Temperature_distrib_to_plot, marker = "x", s=5, label="Radial temperature distribution in Fuel rod.")
+            axs.fill_between(x=radii_at_bounds, y1=(Tcenter+50)*np.ones(len(radii_at_bounds)), y2=(Twater-50)*np.ones(len(radii_at_bounds)),where=(radii_at_bounds>=physical_regions_bounds[i])&(radii_at_bounds<=physical_regions_bounds[i+1]), color = colors[i], label = labels[i])
+        axs.scatter(plotting_mesh, Temperature_distrib_to_plot, marker = "D", color="black",s=10, label="Radial temperature distribution in Fuel rod.")
         axs.legend(loc = "best")
         axs.grid()
         axs.set_xlabel(f"Radial position in {plotting_units}")
@@ -212,7 +242,7 @@ I_f1 = 8
 I_c1 = 3
 
 # Paramters used to create object from FVM_ConvectionInCanal class
-canal_type1 = "square"
+canal_type1 = "cylindrical" #"square" #"cylindrical"
 canal_width1 = 0.5e-3 # m
 Lf1 = 2 # m
 T_in1 = 500 # K
@@ -227,14 +257,22 @@ clad_rad1 = gap_rad1+clad_width1
 plot_at_z1 = [0.7,0.8,0.9]
 case1 = Version5_THM_prototype("Case1_ENE6107A_project", rw1, canal_type1, Lf1, T_in1, P_cool1, Q_flow1, I_z1, Qfiss1, "constant", 
                                fuel_radius1, gap_rad1, clad_rad1, k_fuel1, H_gap1, k_clad1, I_f1, I_c1, plot_at_z1)
-print(f"case 1 T_surf is {case1.convection_sol.T_surf}")
-print(f"case 1 T_water is {case1.convection_sol.T_water}")
-print(f"case 1 h_z is {case1.convection_sol.h_z}")
-print(f"case 1 Hc is {case1.convection_sol.Hc}")
 
-state = IAPWS97(P=10.8,T=503.63)
+
+print(f"case 1 h_z is {case1.convection_sol.h_z} J/kg")
+print(f"case 1 T_water is {case1.convection_sol.T_water} K")
+print(f"case 1 Hc is {0.5*(case1.convection_sol.Hc[3]+case1.convection_sol.Hc[4])} W/m^2/K")
+print(f"q_fluid1 = {case1.convection_sol.q_fluid}")
+
+print(f"case 1 A_canal = {case1.convection_sol.A_canal} m^2")
+print(f"case 1 T_surf is {case1.convection_sol.T_surf} K")
+
+
+print(f"case 1 T_eff in fuel is {case1.T_eff_fuel} K")
+print(f"case 1 T_surf fuel is {case1.T_fuel_surface} K")
+state = IAPWS97(P=10.8,T=501.44)
 print(state.h)
-"""
+
 #Case 2 : base parameters
 # Parameters used to create object from FDM_HeatConductioninFuelpin class
 Qfiss2 = 0.3e9 # W/m^3
@@ -263,4 +301,17 @@ clad_rad2 = gap_rad2+clad_width2
 plot_at_z2 = [0.7,0.8,0.9]
 case2 = Version5_THM_prototype("Case2_ENE6107A_project", rw2, "cylindrical", Lf2, T_in2, P_cool2, Q_flow2, I_z2, Qfiss2, "sine", 
                                fuel_radius2, gap_rad2, clad_rad2, k_fuel2, H_gap2, k_clad2, I_f2, I_c2, plot_at_z2)
-"""
+
+print(f"case 2 h_z is {case2.convection_sol.h_z} J/kg")
+print(f"case 2 T_water is {(case2.convection_sol.T_water[35]+case2.convection_sol.T_water[36])/2} K")
+print(f"case 2 Hc is {0.5*(case2.convection_sol.Hc[35]+case2.convection_sol.Hc[36])} W/m^2/K")
+print(f"q_fluid2 = {case2.convection_sol.q_fluid}")
+
+print(f"case 2 A_canal = {case2.convection_sol.A_canal} m^2")
+print(f"case 2 T_surf is {(case2.convection_sol.T_surf[35]+case2.convection_sol.T_surf[36])/2} K")
+
+
+print(f"case 2 T_eff in fuel is {case2.T_eff_fuel} K")
+print(f"case 2 T_surf fuel is {case2.T_fuel_surface} K")
+plt.scatter(case2.convection_sol.z_mesh, case2.convection_sol.h_z)
+plt.savefig("test_enthalpy")

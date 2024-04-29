@@ -14,8 +14,8 @@ MODULE      GEO: RESINI: TRIVAT: TRIVAA: GREP: FIND0: NCR: FLUD: FLPOW:
 PROCEDURE   assertS ;
 SEQ_ASCII   _ACompo ;
 INTEGER     maxstep := 67 ;
-REAL        Fuelpwr := 38.425 ; ! W/g ou kW/kg ou MW/t
-REAL        Mass := 4.655149E-3 ; ! kg
+REAL        Fuelpwr := 30.0796 ; ! W/g ou kW/kg ou MW/t
+REAL        Mass := 1.91945 ; ! kg
 *----
 *  Calculation options
 *----
@@ -24,7 +24,7 @@ REAL   Tfuel := 900.0 ; (*fuel temperature (K)*)
 REAL   Tcool := 500.0 ; (*coolant temperature (K)*)
 REAL   Dfuel := 9.7413951 ; (*fuel density (g/cc)*)
 REAL   dens_mod_0 := 0.65 ;
-REAL   powi := 5.91E-2 ;
+REAL   powi := 5.91122E-2 ;
 ECHO "total reactor power=" powi "MW" ;
 
 *----
@@ -40,7 +40,7 @@ REAL Y1 Y2 ROOT YNEW ;
 LOGICAL CONV ;
 
 REAL maxh := 200.0 ;
-REAL Cote := 1.26  ;
+REAL Cote := 1.404  ;
 REAL z1 := maxh 10.0 / ;
 REAL z2 := maxh 10.0 / z1 + ;
 REAL z3 := maxh 10.0 / z2 + ;
@@ -130,10 +130,13 @@ UTL: Fmap :: STEP UP PARAM STEP AT 4 DIR IMPR P-NAME * ;
 Thm Fmap := THM: Fmap ::
     EDIT 100
     FPUISS 1.0
+    FLUID H2O
     INLET 10800000.0 (*Pa*) 500.0 (*K*)
-    INLET-Q 2.1268E-5 (*m2*) 0.14888 (*inlet mass flow rate kg/s*)
+    INLET-Q 2.126858226480293E-05 (*m2*) 0.14888 (*inlet mass flow rate kg/s*)
     HGAP 10000.0 (*W/m^2/K*)
     ASSMB 1 0
+    CONDF 0 5.0 KELVIN
+    CONDC 0 10.0 KELVIN
     RADIUS 5.60E-3 6.14E-3 6.52E-3 6.52E-3 (* m *)
     RODMESH 8 11
     MONO
@@ -146,5 +149,5 @@ UTL: Thm :: DIR DUMP ;
 
 
 
-ECHO "test pincell_mphy_thm.x2m completed" ;
+ECHO "test thm_prototype_case.x2m completed" ;
 END: ;
