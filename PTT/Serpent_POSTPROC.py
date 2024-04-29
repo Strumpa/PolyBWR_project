@@ -142,13 +142,15 @@ def plot_error_isoDens(listBU, errors_isoDens, iso, labels, cell, save_dir):
     plt.close("all")
 
 def postTreat_UOX():
-    cell = "AT10_24UOX"
-    path_to_ref = "/home/p117902/Serpent2/Linux_x86_64/"
+    cell = "AT10_24UOX_750K"
+    cell_temp = "AT10_24UOX_900K"
+    path_to_ref = "/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/"
     ref_name = "AT10_24UOX_mc"
+    ref_temp_name = 'AT10_24UOX_temp_mc'
 
     test1_name='24UOX_test_1_mc' # name of the tests' outputs
     test3_name='24UOX_test_3_mc'
-
+    test3_temp_name='24UOX_test_3_temp_mc'
     path_to_tests = f"/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/"
 
     # testing correct implementation of error calculations
@@ -160,6 +162,9 @@ def postTreat_UOX():
     reference_keffs=load_serpent2_keffs(path_to_ref, ref_name)
     test1_keffs=load_serpent2_keffs(path_to_tests, test1_name)
     test3_keffs=load_serpent2_keffs(path_to_tests, test3_name)
+    
+    ref_temp_keffs = load_serpent2_keffs(path_to_ref, ref_temp_name)
+    test3_temp_keffs = load_serpent2_keffs(path_to_tests, test3_temp_name)
 
     print(test1_keffs)
 
@@ -169,32 +174,46 @@ def postTreat_UOX():
     isotopes_data_ref = []
     isotopes_data_test1 = []
     isotopes_data_test3 = []
+    isotopes_data_ref_temp = []
+    isotopes_data_test3_temp = []
+    
     for iso in isotopes_:
         isotopes_data_ref.append(load_Serpent_IsoDens(path_to_ref, ref_name, iso))
+        isotopes_data_ref_temp.append(load_Serpent_IsoDens(path_to_ref, ref_temp_name, iso))
         isotopes_data_test1.append(load_Serpent_IsoDens(path_to_tests, test1_name, iso))
         isotopes_data_test3.append(load_Serpent_IsoDens(path_to_tests, test3_name, iso))
+        isotopes_data_test3_temp.append(load_Serpent_IsoDens(path_to_tests, test3_temp_name, iso))
 
     errors_keff = compute_errors_Keff_to_ref(reference_keffs, [test1_keffs,test3_keffs])
+    errors_keff_temp = compute_errors_Keff_to_ref(ref_temp_keffs, [test3_temp_keffs])
     errors_isodens_test1 = compute_error_isoDens(isotopes_data_ref, isotopes_data_test1)
     errors_isodens_test3 = compute_error_isoDens(isotopes_data_ref, isotopes_data_test3)
+    errors_isodens_test3_temp = compute_error_isoDens(isotopes_data_ref_temp, isotopes_data_test3_temp)
     print(errors_keff)
     print(len(errors_isodens_test1))
     print(len(isotopes_))
     print(len(isotopes_data_test1))
-    plot_comparisons_keff(serpBU,[reference_keffs, test1_keffs, test3_keffs], ["Serpent1 lib : sss_jeff311u", "Modified PyNjoy2016, no metastables", "PynJoy2016, metastables from Reference Serpent jeff311"], cell, dpi=250, save_dir=SAVE_DIR)
+    plot_comparisons_keff(serpBU,[reference_keffs, test1_keffs, test3_keffs, ref_temp_keffs, test3_temp_keffs], ["Serpent1 lib @750K", "PyNjoy2016, no metastables @750K", "PynJoy2016, metastables from Serpent1 lib @750K", "Serpent1 lib @900K", "PynJoy2016, metastables from Serpent1 lib @900K"], cell, dpi=250, save_dir=SAVE_DIR)
     for iso_num in range(len(isotopes_)):
         plot_comparisons_isotopeDens(serpBU, [isotopes_data_ref[iso_num], isotopes_data_test1[iso_num], isotopes_data_test3[iso_num]], ["Serpent1 lib : sss_jeff311u", "Test 1, modified PyNjoy2016, no metastables", "Test 3 : metastables from sss_jeff311u"], isotopes_[iso_num], cell,dpi=250, save_dir=SAVE_DIR)
+        plot_comparisons_isotopeDens(serpBU, [isotopes_data_ref_temp[iso_num], isotopes_data_test3_temp[iso_num]], ["Serpent1 lib, T=900K", "Test 3, T=900K"], isotopes_[iso_num], cell,dpi=250, save_dir=SAVE_DIR)
         plot_error_isoDens(serpBU, [errors_isodens_test1[iso_num], errors_isodens_test3[iso_num]], isotopes_[iso_num], [f"Test 1", "Test 3"], cell, save_dir=SAVE_DIR)
+        plot_error_isoDens(serpBU, [errors_isodens_test3_temp[iso_num]], isotopes_[iso_num], ["Test 3, T=900K"], cell_temp, save_dir=SAVE_DIR)
     plot_errorK_to_ref(serpBU, errors_keff, ["Test 1 vs sss_jeff311u", "Test 3 vs sss_jeff311u"], cell, save_dir=SAVE_DIR)
+    #plot_errorK_to_ref(serpBU, ["Test 1 vs sss_jeff311u", "Test 3 vs sss_jeff311u", "Test 3 vs sss_jeff311u @900K"], cell, save_dir=SAVE_DIR)
+    plot_errorK_to_ref(serpBU, errors_keff_temp, ["Test 3 vs sss_jeff311u, T=900K"], cell_temp, save_dir=SAVE_DIR)
 
 
 def postTreat_Gd():
-    cell = "AT10_45Gd"
-    path_to_ref = "/home/p117902/Serpent2/Linux_x86_64/"
+    cell = "AT10_45Gd_750K"
+    cell_temp = "AT10_45Gd_900K"
+    path_to_ref = "/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/"
     ref_name = "AT10_45Gd_mc"
+    ref_temp_name = "AT10_45Gd_temp_mc"
 
     test1_name='45Gd_test_1_mc' # name of the tests' outputs
     test3_name='45Gd_test_3_mc'
+    test3_temp_name = '45Gd_test_3_temp_mc'
 
     path_to_tests = f"/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/"
 
@@ -208,7 +227,9 @@ def postTreat_Gd():
     test1_keffs=load_serpent2_keffs(path_to_tests, test1_name)
     test3_keffs=load_serpent2_keffs(path_to_tests, test3_name)
 
-    print(test1_keffs)
+    ref_temp_keffs = load_serpent2_keffs(path_to_ref, ref_temp_name)
+    test3_temp_keffs = load_serpent2_keffs(path_to_tests, test3_temp_name)
+    
 
     serpBU=load_Serpent_BU(path_to_ref, ref_name)
     print(serpBU)
@@ -216,24 +237,33 @@ def postTreat_Gd():
     isotopes_data_ref = []
     isotopes_data_test1 = []
     isotopes_data_test3 = []
+    isotopes_data_ref_temp = []
+    isotopes_data_test3_temp = []
     for iso in isotopes_:
         isotopes_data_ref.append(load_Serpent_IsoDens(path_to_ref, ref_name, iso))
+        isotopes_data_ref_temp.append(load_Serpent_IsoDens(path_to_ref, ref_temp_name, iso))
         isotopes_data_test1.append(load_Serpent_IsoDens(path_to_tests, test1_name, iso))
         isotopes_data_test3.append(load_Serpent_IsoDens(path_to_tests, test3_name, iso))
+        isotopes_data_test3_temp.append(load_Serpent_IsoDens(path_to_tests, test3_temp_name, iso))
 
     errors_keff = compute_errors_Keff_to_ref(reference_keffs, [test1_keffs,test3_keffs])
+    errors_keff_temp = compute_errors_Keff_to_ref(ref_temp_keffs, [test3_temp_keffs])
     errors_isodens_test1 = compute_error_isoDens(isotopes_data_ref, isotopes_data_test1)
     errors_isodens_test3 = compute_error_isoDens(isotopes_data_ref, isotopes_data_test3)
+    errors_isodens_test3_temp = compute_error_isoDens(isotopes_data_ref_temp, isotopes_data_test3_temp)
     print(errors_keff)
     print(len(errors_isodens_test1))
     print(len(isotopes_))
     print(len(isotopes_data_test1))
-    plot_comparisons_keff(serpBU,[reference_keffs, test1_keffs, test3_keffs], ["Serpent1 lib : sss_jeff311u", "Modified PyNjoy2016, no metastables", "PynJoy2016, metastables from Reference Serpent jeff311"], cell, dpi=250, save_dir=SAVE_DIR)
+    plot_comparisons_keff(serpBU,[reference_keffs, test1_keffs, test3_keffs, ref_temp_keffs, test3_temp_keffs], ["Serpent1 lib @750K", "PyNjoy2016, no metastables @750K", "PynJoy2016, metastables from Serpent1 lib @750K", "Serpent1 lib @900K", "PynJoy2016, metastables from Serpent1 lib @900K"], cell, dpi=250, save_dir=SAVE_DIR)
     for iso_num in range(len(isotopes_)):
         plot_comparisons_isotopeDens(serpBU, [isotopes_data_ref[iso_num], isotopes_data_test1[iso_num], isotopes_data_test3[iso_num]], ["Serpent1 lib : sss_jeff311u", "Test 1, modified PyNjoy2016, no metastables", "Test 3 : metastables from sss_jeff311u"], isotopes_[iso_num], cell,dpi=250, save_dir=SAVE_DIR)
+        plot_comparisons_isotopeDens(serpBU, [isotopes_data_ref_temp[iso_num], isotopes_data_test3_temp[iso_num]], ["Serpent1 lib, T=900K", "Test 3, T=900K"], isotopes_[iso_num], cell,dpi=250, save_dir=SAVE_DIR)
         plot_error_isoDens(serpBU, [errors_isodens_test1[iso_num], errors_isodens_test3[iso_num]], isotopes_[iso_num], [f"Test 1", "Test 3"], cell, save_dir=SAVE_DIR)
+        plot_error_isoDens(serpBU, [errors_isodens_test3_temp[iso_num]], isotopes_[iso_num], ["Test 3, T=900K"], cell_temp, save_dir=SAVE_DIR)
     plot_errorK_to_ref(serpBU, errors_keff, ["Test 1 vs sss_jeff311u", "Test 3 vs sss_jeff311u"], cell, save_dir=SAVE_DIR)
-
+    #plot_errorK_to_ref(serpBU, ["Test 1 vs sss_jeff311u", "Test 3 vs sss_jeff311u", "Test 3 vs sss_jeff311u @900K"], cell, save_dir=SAVE_DIR)
+    plot_errorK_to_ref(serpBU, errors_keff_temp, ["Test 3 vs sss_jeff311u, T=900K"], cell_temp, save_dir=SAVE_DIR)
 
 postTreat_UOX()
 postTreat_Gd()
