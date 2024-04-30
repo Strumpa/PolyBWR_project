@@ -3,7 +3,13 @@
 
 import os, sys
 mach=os.environ['MACH']
-name = os.getcwd() + "/../PyGan/lib/" + mach + "/python"
+Compiler = os.environ.get("COMPILER", None) # Compiler selection
+if Compiler == "NVTOOLS":
+  name=os.getcwd() + "/../PyGan/lib/" + mach+"_nvidia" + "/python"
+elif Compiler == "INTELTOOLS":
+  name=os.getcwd() + "/../PyGan/lib/" + mach+"_intel" + "/python"
+else:
+  name=os.getcwd() + "/../PyGan/lib/" + mach + "/python"
 if os.path.isfile(name + "/easy-install.pth"):
   pythonpath = ""
   count = 0

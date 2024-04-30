@@ -120,7 +120,7 @@
         WW=0.0
         DO 40 INOR=1,NOR(IGRP)
         WW=WW+SIGP(INOR)
-        IF(RAND.LE.WW) THEN
+        IF(RAND.LE.WW+1.0E-6) THEN
           SIGT(IBIN)=SIGP(MAXNOR+INOR)
           SIGF(IBIN)=SIGP(2*MAXNOR+INOR)
           SIGS(IBIN)=SIGP(3*MAXNOR+INOR)

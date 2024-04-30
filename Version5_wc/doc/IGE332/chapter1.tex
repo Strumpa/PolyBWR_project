@@ -6824,9 +6824,13 @@ compatible with your operating system. On a OSX operating system, this variable 
 \begin{verbatim}
 export FORTRANPATH=/usr/local/lib/gcc/11/ # contains libgfortran.a
 \end{verbatim}
-\noindent On a Linux operating system, the environment variable is set as
+\noindent On a Linux {\tt x86_64} operating system, the environment variable is set as
 \begin{verbatim}
 export FORTRANPATH=/usr/lib/gcc/x86_64-redhat-linux/4.8.5/ # contains libgfortran.so
+\end{verbatim}
+\noindent On a Linux {\tt aarm} operating system, the environment variable is set as
+\begin{verbatim}
+export FORTRANPATH="/usr/lib/gcc/aarch64-linux-gnu/9/" # contains libgfortran.so
 \end{verbatim}
 
 \vskip 0.8cm

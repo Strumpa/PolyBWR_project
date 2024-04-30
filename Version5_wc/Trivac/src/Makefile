@@ -158,8 +158,8 @@ ifeq ($(hdf5),1)
 	@echo 'Trivac: hdf5 is defined'
 endif
 sub-make:
-	$(MAKE) openmp=$(openmp) intel=$(intel) -C ../../Utilib/src
-	$(MAKE) openmp=$(openmp) intel=$(intel) hdf5=$(hdf5) -C ../../Ganlib/src
+	$(MAKE) openmp=$(openmp) intel=$(intel) nvidia=$(nvidia) -C ../../Utilib/src
+	$(MAKE) openmp=$(openmp) intel=$(intel) nvidia=$(nvidia) hdf5=$(hdf5) -C ../../Ganlib/src
 %.o : %.f90
 	$(F90) $(FFLAGS) $(opt) $(COMP) $(INCLUDE) -c $< -o $@
 %.o : %.f

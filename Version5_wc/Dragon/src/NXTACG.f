@@ -69,6 +69,10 @@
 *----
       INTEGER          IPRISM
 *----
+*  Update for MERGMIX 
+*----
+      INTEGER          MRGMIX
+*----
 *  Allocatable arrays
 *----
       INTEGER, ALLOCATABLE, DIMENSION(:) :: IDIRR,ITURN,MERGE,KEYMRG,
@@ -190,6 +194,7 @@
         ILCELL=1
       ENDIF
       IPRISM=ISTATT(39)
+      MRGMIX=ISTATT(26)
 *----
 *  Read and analyze boundary conditions
 *----
@@ -337,7 +342,7 @@
       ALLOCATE(KEYMRG(-NFSUR:NFREG),MATALB(-NFSUR:NFREG,2))
       ALLOCATE(SURVOL(-NFSUR:NFREG))
       CALL NXTCVS(IPTRK ,IPRINT,NDIM  ,ITYPBC,NBOCEL,NFSUR ,
-     >            NFREG ,MXGSUR,MXGREG,KEYMRG,MATALB,SURVOL)
+     >            NFREG ,MXGSUR,MXGREG,MRGMIX,KEYMRG,MATALB,SURVOL)
 *----
 *  Create BC-REFL+TRAN vector
 *----

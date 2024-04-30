@@ -144,7 +144,6 @@
 *----
 *  Move origin to the (x,y) cell center
 *----
-        NS=0
         DO IDIR=1,2
           OT(IDIR)=ORITRK(IDIR)-DCMESH(IH,IDIR)
         ENDDO
@@ -179,6 +178,7 @@
 *----
 *  Test for U faces
 *----
+          NS=0
           DO ITF=1,2
             XY(ITF,1)=PUY+SLPUY*TINT(ITF,1)
             IF(ABS(XY(ITF,1)) .LE. SO2) THEN
@@ -316,6 +316,7 @@
 *----
 *  Test for U faces
 *----
+            NS=0
             DO ITF=1,2
               XY(ITF,1)=PUY+SLPUY*TINT(ITF,1)
               XY(ITF,2)=PZ+SLPZ*TINT(ITF,1)

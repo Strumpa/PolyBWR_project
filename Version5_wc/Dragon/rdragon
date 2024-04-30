@@ -1,18 +1,18 @@
 #!/bin/sh
 #
 # author : A. Hebert
-# use    : rdragon [-c:|-q|-w|-i:] <file.x2m>
+# use    : rdragon [-c:|-q|-w|-p:|-i:] <file.x2m>
 # note   : <file.x2m> must be located on directory ./data/
 #          If <file.access> exists, it is executed.
 #          -c name of compiler
 #          -q quiet execution for regression testing
 #          -w to execute in console (for debug purpose)
-#          -i name of x2m dataset (by default, use the last argument)
 #          -p number of parallel threads (=1 by default)
+#          -i name of x2m dataset (by default, use the last argument)
 #
 if [ $# = 0 ]
    then
-   echo "usage: rdragon [-c:|-q|-w|-i:] <file.x2m>" 1>&2
+   echo "usage: rdragon [-c:|-q|-w|-p:|-i:] <file.x2m>" 1>&2
    exit 1
 fi
 System=`uname -s`
@@ -32,7 +32,7 @@ quiet=0
 term=0
 nomp=0
 
-while getopts ":c:qwi:" opt; do
+while getopts ":c:qwi:p:" opt; do
   case $opt in
     c) typ="$OPTARG"
     ;;
@@ -40,9 +40,9 @@ while getopts ":c:qwi:" opt; do
     ;;
     w) term=1
     ;;
-    i) mydata=$OPTARG
-    ;;
     p) nomp=$OPTARG
+    ;;
+    i) mydata=$OPTARG
     ;;
     \?) echo "Invalid option -$OPTARG" >&2
     exit 1

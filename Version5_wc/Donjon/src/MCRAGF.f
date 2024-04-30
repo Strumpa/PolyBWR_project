@@ -1,6 +1,6 @@
 *DECK MCRAGF
       SUBROUTINE MCRAGF(IPMAC,IPMPO,IACCS,NMIL,NMIX,NGRP,NALBP,LALBG,
-     1 IMPX,NCAL,TERP,MIXC,NSURFD,HEDIT,VOLMI2,IDF)
+     1 LADFM,IMPX,NCAL,TERP,MIXC,NSURFD,HEDIT,VOLMI2,IDF)
 *
 *-----------------------------------------------------------------------
 *
@@ -11,7 +11,7 @@
 *Copyright:
 * Copyright (C) 2022 Ecole Polytechnique de Montreal
 *
-*Author(s): 
+*Author(s):
 * A. Hebert
 *
 *Parameters: input
@@ -23,6 +23,7 @@
 * NGRP    number of energy groups.
 * NALBP   number of physical albedos per energy group.
 * LALBG   type of physical albedos (.true.: diagonal; .false.: GxG).
+* LADFM   type of discontinuity factors (.true.: diagonal; .false.: GxG).
 * IMPX    print parameter (equal to zero for no print).
 * NCAL    number of elementary calculations in the MPO file.
 * TERP    interpolation factors.
@@ -48,7 +49,7 @@
       TYPE(C_PTR) IPMAC,IPMPO
       INTEGER IACCS,NMIL,NMIX,NGRP,NALBP,IMPX,NCAL,MIXC(NMIX),NSURFD,IDF
       REAL TERP(NCAL,NMIX),VOLMI2(NMIX)
-      LOGICAL LALBG
+      LOGICAL LALBG,LADFM
       CHARACTER(LEN=12) HEDIT
 *----
 *  LOCAL VARIABLES
@@ -106,22 +107,19 @@
         CALL LCMLEN(IPMAC,'VOLUME',ILONG,ITYLCM)
         IF(ILONG.EQ.0) CALL XABORT('MCRAGF: NO VOLUMES IN MACROLIB.')
         CALL LCMGET(IPMAC,'VOLUME',VOLMI2)
-        IF((NALBP.GT.0).AND.LALBG) THEN
-*         diagonal albedo matrix
-          ALLOCATE(ALBP(NALBP,NGRP))
+        IF(NALBP.GT.0) THEN
           CALL LCMLEN(IPMAC,'ALBEDO',ILONG,ITYLCM)
           IF(ILONG.EQ.NALBP*NGRP) THEN
+*           diagonal albedo matrix
+            ALLOCATE(ALBP(NALBP,NGRP))
             CALL LCMGET(IPMAC,'ALBEDO',ALBP)
             DO IBM=1,NMIX ! mixtures in Macrolib
               ALBP2(IBM,:NALBP,:NGRP)=ALBP(:NALBP,:NGRP)
             ENDDO
-          ENDIF
-          DEALLOCATE(ALBP)
-        ELSE IF(NALBP.GT.0) THEN
-*         GxG albedo matrix
-          ALLOCATE(ALBP_ERM(NALBP,NGRP,NGRP))
-          CALL LCMLEN(IPMAC,'ALBEDO',ILONG,ITYLCM)
-          IF(ILONG.EQ.NALBP*NGRP*NGRP) THEN
+            DEALLOCATE(ALBP)
+          ELSE IF(ILONG.EQ.NALBP*NGRP*NGRP) THEN
+*           GxG albedo matrix
+            ALLOCATE(ALBP_ERM(NALBP,NGRP,NGRP))
             CALL LCMGET(IPMAC,'ALBEDO',ALBP_ERM)
             DO IBM=1,NMIX ! mixtures in Macrolib
               ALBP2_E(IBM,:NALBP,:NGRP,:NGRP)=
@@ -147,9 +145,10 @@
           ENDIF
           CALL LCMGTC(IPMAC,'HADF',8,NSURFD,HADF)
           DO I=1,NSURFD
-            IF(IDF.EQ.2) THEN
+            CALL LCMLEN(IPMAC,HADF(I),ILONG,ITYLCM)
+            IF(ILONG.EQ.NMIX*NGRP) THEN
               CALL LCMGET(IPMAC,HADF(I),ADF2(1,1,I))
-            ELSE IF(IDF.EQ.4) THEN
+            ELSE IF(ILONG.EQ.NMIX*NGRP*NGRP) THEN
               CALL LCMGET(IPMAC,HADF(I),ADF2M(1,1,1,I))
             ENDIF
           ENDDO
@@ -188,6 +187,12 @@
           CALL hdf5_read_data(IPMPO,TRIM(RECNAM)//"SURF",SURF)
         ELSE
 *         temporary.....
+          CALL hdf5_info(IPMPO,"/geometry/geometry_0/COORDINATE",RANK,
+     &    TYPE,NBYTE,DIMSR)
+          IF(TYPE.EQ.99) THEN
+            CALL hdf5_list(IPMPO,"/geometry/geometry_0/")
+            CALL XABORT('MCRAGF: COORDINATE DATASET MISSING')
+          ENDIF
           CALL hdf5_read_data(IPMPO,"/geometry/geometry_0/COORDINATE",
      &    LG)
           ALLOCATE(SURF(NSURFD_OLD))
@@ -314,9 +319,30 @@
             ENDDO
           ENDIF
         ENDDO
-        DO I=1,NSURFD
-          CALL LCMPUT(IPMAC,HADF(I),NMIX*NGRP,2,ADF2(1,1,I))
-        ENDDO
+        IF(LADFM) THEN
+          DO I=1,NSURFD
+            CALL LCMPUT(IPMAC,HADF(I),NMIX*NGRP,2,ADF2(1,1,I))
+          ENDDO
+        ELSE
+*         write non-matrix DF into a matrix DF
+          DO I=1,NSURFD
+            DO IBM=1,NMIX
+              IF(MIXC(IBM).EQ.0) CYCLE
+              ADF2M(IBM,:NGRP,:NGRP,I)=0.0
+              IF(IDF.EQ.2) THEN
+                DO IGR=1,NGRP
+                  ADF2M(IBM,IGR,IGR,I)=ADF2(IBM,IGR,I)/AVGFL2(IBM,IGR)
+                ENDDO
+              ELSE IF(IDF.EQ.4) THEN
+                DO IGR=1,NGRP
+                  ADF2M(IBM,IGR,IGR,I)=ADF2(IBM,IGR,I)
+                ENDDO
+              ENDIF
+            ENDDO
+            CALL LCMPUT(IPMAC,HADF(I),NMIX*NGRP*NGRP,2,ADF2M(1,1,1,I))
+          ENDDO
+          IDF=4
+        ENDIF
         CALL LCMPUT(IPMAC,'AVG_FLUX',NMIX*NGRP,2,AVGFL2)
         CALL LCMSIX(IPMAC,' ',2)
         IF(IMPX.GT.1) THEN
@@ -343,7 +369,7 @@
             ENDDO
           ENDDO
           IF(NSURFD.GT.NSURFD_OLD) THEN
-            IF(NSURFD_OLD.NE.1) CALL XABORT('MCRAGF: INVALID NSURFD.')
+            IF(NSURFD_OLD.GT.2) CALL XABORT('MCRAGF: INVALID NSURFD.')
 *           assign the same matrix ADF to all sides.
             DO I=2,NSURFD
               ADF2M(IBM,:NGRP,:NGRP,I)=ADF2M(IBM,:NGRP,:NGRP,1)
@@ -358,8 +384,8 @@
         IF(IMPX.GT.1) THEN
           DO IBM=1,NMIX
             IF(MIXC(IBM).EQ.0) CYCLE
-            WRITE(6,'(/40H MCRAGF: DISCONTINUITY FACTORS - MIXTURE,I5)')
-     1      IBM
+            WRITE(6,'(/44H MCRAGF: MATRIX DISCONTINUITY FACTORS - MIXT,
+     1      3HURE,I5)') IBM
             DO I=1,NSURFD
               WRITE(6,'(1X,A,1H:,1P,(5X,10E12.4))') TRIM(HADF(I)),
      1        ((ADF2M(IBM,IGR,JGR,I),IGR=1,NGRP),JGR=1,NGRP)
@@ -384,7 +410,20 @@
             ALBP(IAL,IGR)=REAL((1.D0-DGAR1/DGAR2)/(1.D0+DGAR1/DGAR2))
           ENDDO
         ENDDO
-        CALL LCMPUT(IPMAC,'ALBEDO',NALBP*NGRP,2,ALBP)
+        IF(LADFM) THEN
+          CALL LCMPUT(IPMAC,'ALBEDO',NALBP*NGRP,2,ALBP)
+        ELSE
+*         write non-matrix albedo into a matrix albedo
+          ALLOCATE(ALBP_ERM(NALBP,NGRP,NGRP))
+          ALBP_ERM(:NALBP,:NGRP,:NGRP)=0.0
+          DO IGR=1,NGRP
+            DO IAL=1,NALBP
+              ALBP_ERM(IAL,IGR,IGR)=ALBP(IAL,IGR)
+            ENDDO
+          ENDDO
+          CALL LCMPUT(IPMAC,'ALBEDO',NALBP*NGRP*NGRP,2,ALBP_ERM)
+          DEALLOCATE(ALBP_ERM)
+        ENDIF
         DEALLOCATE(ALBP)
       ELSE IF(NALBP.GT.0) THEN
 *       GxG albedo matrix

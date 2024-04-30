@@ -186,7 +186,7 @@ ifeq ($(hdf5),1)
 	@echo 'Dragon: hdf5 is defined'
 endif
 sub-make:
-	$(MAKE) openmp=$(openmp) intel=$(intel) hdf5=$(hdf5) -C ../../Trivac/src
+	$(MAKE) openmp=$(openmp) intel=$(intel) nvidia=$(nvidia) hdf5=$(hdf5) -C ../../Trivac/src
 %.o : %.c
 	$(C) $(CFLAGS) $(opt) $(COMP) -c $< -o $@
 %.o : %.f90

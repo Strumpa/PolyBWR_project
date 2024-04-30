@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 """
 Subversion pre-commit hook which currently checks that the card-index
 information is consistent and correctly given.
@@ -9,6 +9,7 @@ import os, sys, pysvn
 
 def main(repos, txn):
   # Recover the transaction data:
+  print("pre-commit: repos=",repos)
   t = pysvn.Transaction( repos, txn )
   all_props = t.revproplist()
   message = t.revproplist()['svn:log']
