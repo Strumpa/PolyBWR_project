@@ -51,7 +51,7 @@ information (burnup, fuel/coolant temperatures, coolant density, etc). Keyword \
 $[$~\moc{EDIT} \dusa{iprint}~$]$ \\
 $[$~\moc{RES} $]~[$~\moc{PURE}~$]~[$~\moc{UPS}~$]$ \\
 $[~\{$~\moc{MACRO}~$|$~\moc{MICRO}~$\}~]~[~\{$~\moc{LINEAR}~$|$~\moc{CUBIC}~$\}~]~[$~\moc{LEAK}~\dusa{b2}~$]~[$~\moc{EQUI}~\dusa{text80}~$]~[$~\moc{MASL}~\dusa{text80}~$]$  \\
-$[$~\moc{NMIX} \dusa{nmixt}~$]$ \\
+$[$~\moc{NMIX} \dusa{nmixt}~$]~[$ \moc{MDF} $]$ \\
 $\{~[[$~\moc{MPO} \dusa{MPONAM} \dusa{NAMDIR} \dstr{MCRdescints}~$]]$ \\
 $~|~[[$~\moc{TABLE} \dusa{MPONAM} \dusa{NAMDIR} $[$ \dusa{namburn} $]$ \dstr{MCRdescints} ~$]]~\}$ \\
 $[$ \dstr{descdepl} $]$ \\
@@ -100,6 +100,8 @@ are not SPH-corrected.
 \item[\dusa{nmixt}] the maximum number of mixtures (a mixture is characterized by a distinct set of 
 macroscopic cross sections) the {\sc macrolib} may contain. The default value is \dusa{nmixt} $=0$ or the value recovered from \dusa{MLIB} if it appears on the RHS
 of structure \dstr{mcr\_data}.
+
+\item[\moc{MDF}] keyword used to store non-matrix discontinuity factors and albedos into $G\times G$ matrices. By default, non-matrix information is stored into vectors.
 
 \item[\moc{MPO}] keyword used to set \dusa{MPONAM} and to define each global parameter.
 

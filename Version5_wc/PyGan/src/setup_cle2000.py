@@ -15,6 +15,31 @@ def main():
   HDF5Lib = os.environ.get("HDF5_API", None) # directory with libhdf5.a
   pylib = os.path.basename(get_config_var("LIBDIR")) # get lib or lib64
   print("install Cle2000 binding to", Code, "on directory",mach, "pylib=",pylib, "Compiler=",Compiler)
+  if Compiler == "NVTOOLS":
+    libdir="../../lib/"+mach+"_nvidia"
+    libUtl="../../../Utilib/lib/"+mach+"_nvidia"
+    libTri="../../../Trivac/lib/"+mach+"_nvidia"
+    libDra="../../../Dragon/lib/"+mach+"_nvidia"
+    libDon="../../../Donjon/lib/"+mach+"_nvidia"
+    libNv=os.environ.get("NVTOOLS", None)+"/../lib"
+    extralink=["-lnvc","-lnvcpumath","-lnvf"]
+  elif Compiler == "INTELTOOLS":
+    libdir="../../lib/"+mach+"_intel"
+    libUtl="../../../Utilib/lib/"+mach+"_intel"
+    libTri="../../../Trivac/lib/"+mach+"_intel"
+    libDra="../../../Dragon/lib/"+mach+"_intel"
+    libDon="../../../Donjon/lib/"+mach+"_intel"
+    libNv=" "
+    extralink=[ ]
+  else:
+    libdir="../../lib/"+mach
+    libUtl="../../../Utilib/lib/"+mach
+    libTri="../../../Trivac/lib/"+mach
+    libDra="../../../Dragon/lib/"+mach
+    libDon="../../../Donjon/lib/"+mach
+    libNv=" "
+    extralink=[ ]
+  print("debug Compiler=",Compiler,"libdir=",libdir,"Code=",Code)
 
   if Code == "GANLIB":
     setup (name="Cle2000",
@@ -24,9 +49,10 @@ def main():
        author_email="alain.hebert@polymtl.ca",
        license="LGPL",
        ext_modules=[Extension('cle2000',sources=['cle2000module.c'],
+                     extra_link_args = extralink,
                      include_dirs=["../../../Ganlib/src",incdir],
-                     library_dirs=["../../lib/"+mach,FortranLib,HDF5Lib],
-                     runtime_library_dirs=[HDF5Lib],
+                     library_dirs=[libdir,FortranLib,HDF5Lib,libNv],
+                     runtime_library_dirs=[HDF5Lib,libNv],
                      libraries=["Ganlib","gfortran","hdf5"] ) ])
   elif Code == "TRIVAC":
     setup (name="Cle2000",
@@ -37,10 +63,10 @@ def main():
        license="LGPL",
        ext_modules=[Extension('cle2000',sources=['cle2000module.c'],
                      define_macros=[('__trivac__', None)],
+                     extra_link_args = extralink,
                      include_dirs=["../../../Ganlib/src",incdir],
-                     library_dirs=["../../lib/"+mach,FortranLib,HDF5Lib,
-                     "../../../Utilib/lib/"+mach,"../../../Trivac/lib/"+mach],
-                     runtime_library_dirs=[HDF5Lib],
+                     library_dirs=[libdir,FortranLib,HDF5Lib,libUtl,libTri,libNv],
+                     runtime_library_dirs=[HDF5Lib,libNv],
                      libraries=["Trivac","Utilib","Ganlib","gfortran","hdf5"] ) ])
   elif Code == "DRAGON":
     setup (name="Cle2000",
@@ -51,10 +77,10 @@ def main():
        license="LGPL",
        ext_modules=[Extension('cle2000',sources=['cle2000module.c'],
                      define_macros=[('__dragon__', None)],
+                     extra_link_args = extralink,
                      include_dirs=["../../../Ganlib/src",incdir],
-                     library_dirs=["../../lib/"+mach,FortranLib,HDF5Lib,"../../../Utilib/lib/"+mach
-                     ,"../../../Trivac/lib/"+mach,"../../../Dragon/lib/"+mach],
-                     runtime_library_dirs=[HDF5Lib],
+                     library_dirs=[libdir,FortranLib,HDF5Lib,libUtl,libTri,libDra,libNv],
+                     runtime_library_dirs=[HDF5Lib,libNv],
                      libraries=["Dragon","Trivac","Utilib","Ganlib","gfortran","hdf5"] ) ])
   elif Code == "DONJON":
     setup (name="Cle2000",
@@ -65,11 +91,10 @@ def main():
        license="LGPL",
        ext_modules=[Extension('cle2000',sources=['cle2000module.c'],
                      define_macros=[('__donjon__', None)],
+                     extra_link_args = extralink,
                      include_dirs=["../../../Ganlib/src",incdir],
-                     library_dirs=["../../lib/"+mach,FortranLib,HDF5Lib,
-                     "../../../Utilib/lib/"+mach,"../../../Trivac/lib/"+mach,
-                     "../../../Dragon/lib/"+mach,"../../../Donjon/lib/"+mach],
-                     runtime_library_dirs=[HDF5Lib],
+                     library_dirs=[libdir,FortranLib,HDF5Lib,libUtl,libTri,libDra,libDon,libNv],
+                     runtime_library_dirs=[HDF5Lib,libNv],
                      libraries=["Donjon","Dragon","Trivac","Utilib","Ganlib","gfortran","hdf5"] ) ])
   elif Code == "GANLIB_OMP":
     setup (name="Cle2000",
@@ -80,10 +105,10 @@ def main():
        license="LGPL",
        ext_modules=[Extension('cle2000',sources=['cle2000module.c'],
                      extra_f90_compile_args = ["-fopenmp"],
-                     extra_link_args = ["-lgomp"],
+                     extra_link_args = ["-lgomp"]+extralink,
                      include_dirs=["../../../Ganlib/src",incdir],
-                     library_dirs=["../../lib/"+mach,FortranLib,HDF5Lib],
-                     runtime_library_dirs=[HDF5Lib],
+                     library_dirs=[libdir,FortranLib,HDF5Lib,libNv],
+                     runtime_library_dirs=[HDF5Lib,libNv],
                      libraries=["Ganlib","gfortran","hdf5"] ) ])
   elif Code == "TRIVAC_OMP":
     setup (name="Cle2000",
@@ -95,11 +120,10 @@ def main():
        ext_modules=[Extension('cle2000',sources=['cle2000module.c'],
                      define_macros=[('__trivac__', None)],
                      extra_f90_compile_args = ["-fopenmp"],
-                     extra_link_args = ["-lgomp"],
+                     extra_link_args = ["-lgomp"]+extralink,
                      include_dirs=["../../../Ganlib/src",incdir],
-                     library_dirs=["../../lib/"+mach,FortranLib,HDF5Lib,
-                     "../../../Utilib/lib/"+mach,"../../../Trivac/lib/"+mach],
-                     runtime_library_dirs=[HDF5Lib],
+                     library_dirs=[libdir,FortranLib,HDF5Lib,libUtl,libTri,libNv],
+                     runtime_library_dirs=[HDF5Lib,libNv],
                      libraries=["Trivac","Utilib","Ganlib","gfortran","hdf5"] ) ])
   elif Code == "DRAGON_OMP":
     setup (name="Cle2000",
@@ -111,11 +135,10 @@ def main():
        ext_modules=[Extension('cle2000',sources=['cle2000module.c'],
                      define_macros=[('__dragon__', None)],
                      extra_f90_compile_args = ["-fopenmp"],
-                     extra_link_args = ["-lgomp"],
+                     extra_link_args = ["-lgomp"]+extralink,
                      include_dirs=["../../../Ganlib/src",incdir],
-                     library_dirs=["../../lib/"+mach,FortranLib,HDF5Lib,"../../../Utilib/lib/"+mach,
-                     "../../../Trivac/lib/"+mach,"../../../Dragon/lib/"+mach],
-                     runtime_library_dirs=[HDF5Lib],
+                     library_dirs=[libdir,FortranLib,HDF5Lib,libUtl,libTri,libDra,libNv],
+                     runtime_library_dirs=[HDF5Lib,libNv],
                      libraries=["Dragon","Trivac","Utilib","Ganlib","gfortran","hdf5"] ) ])
   elif Code == "DONJON_OMP":
     setup (name="Cle2000",
@@ -127,12 +150,10 @@ def main():
        ext_modules=[Extension('cle2000',sources=['cle2000module.c'],
                      define_macros=[('__donjon__', None)],
                      extra_f90_compile_args = ["-fopenmp"],
-                     extra_link_args = ["-lgomp"],
+                     extra_link_args = ["-lgomp"]+extralink,
                      include_dirs=["../../../Ganlib/src",incdir],
-                     library_dirs=["../../lib/"+mach,FortranLib,HDF5Lib,
-                     "../../../Utilib/lib/"+mach,"../../../Trivac/lib/"+mach,
-                     "../../../Dragon/lib/"+mach,"../../../Donjon/lib/"+mach],
-                     runtime_library_dirs=[HDF5Lib],
+                     library_dirs=[libdir,FortranLib,HDF5Lib,libUtl,libTri,libDra,libDon,libNv],
+                     runtime_library_dirs=[HDF5Lib,libNv],
                      libraries=["Donjon","Dragon","Trivac","Utilib","Ganlib","gfortran","hdf5"] ) ])
   else:
     raise ValueError(Code+" is not implemented for distutils bindings")

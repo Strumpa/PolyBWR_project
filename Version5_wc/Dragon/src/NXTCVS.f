@@ -1,6 +1,6 @@
 *DECK NXTCVS
       SUBROUTINE NXTCVS(IPTRK ,IPRINT,NDIM  ,ITYPBC,NBOCEL,
-     >                  NFSUR ,NFREG ,MXGSUR,MXGREG,
+     >                  NFSUR ,NFREG ,MXGSUR,MXGREG,MRGMIX,
      >                  KEYMRG,MATALB,SURVOL)
 *
 *----------
@@ -32,6 +32,7 @@
 * NFREG   final number of regions.
 * MXGSUR  maximum number of surfaces for any geometry.
 * MXGREG  maximum number of region for any geometry.
+* MRGMIX  option to merge by mixtures. Activated when MRGMIX is 1.
 *
 *Parameters: output
 * KEYMRG  global merging vector.
@@ -76,6 +77,11 @@
       CHARACTER        NAMREC*12
       DOUBLE PRECISION DFACC,DFACP
 *----
+*  Update for MERGMIX 
+*----
+      INTEGER          MRGMIX,MAXMIX,KMIX,IMIX
+      INTEGER, ALLOCATABLE, DIMENSION(:) :: IDMER
+*----
 *  Allocatable arrays
 *----
       INTEGER, ALLOCATABLE, DIMENSION(:) :: IDREG,IDSUR,MIX,MIXH
@@ -102,9 +108,6 @@
 *----
 *  Here there are no merge
 *----
-      DO ISV=-NFSUR,NFREG
-        KEYMRG(ISV)=ISV
-      ENDDO
       DO ICEL=1,NBOCEL
         ILEV=1
         IGEO=ICEL
@@ -189,6 +192,46 @@
 *----
 *  Save records on IPTRK
 *----
+      IF(MRGMIX .EQ. 0 ) THEN
+        DO ISV=-NFSUR,NFREG
+          KEYMRG(ISV)=ISV
+        ENDDO
+      ELSE
+*  Find maximum MIXTURE number
+        MAXMIX=0
+        DO ISV=1,NFREG
+          MAXMIX=MAX(MAXMIX,MATALB(ISV,1))
+        ENDDO
+        ALLOCATE(IDMER(0:MAXMIX))
+        CALL XDISET(IDMER,MAXMIX+1,0)
+        KMIX=0
+        DO IMIX=0,MAXMIX
+          DO ISV=1,NFREG
+            IF(MATALB(ISV,1) .EQ. IMIX) THEN
+              KMIX=KMIX+1
+              IDMER(IMIX)=KMIX
+              GO TO 100
+            ENDIF  
+          ENDDO
+ 100      CONTINUE
+        ENDDO
+        IF(IPRINT .GE. 10) THEN
+          WRITE(IOUT,6100) 
+          DO IMIX=0,MAXMIX
+            IF(IDMER(IMIX).NE.0) THEN
+              WRITE(IOUT,6101) IMIX,IDMER(IMIX)
+            ENDIF
+          ENDDO
+        ENDIF
+        DO ISV=-NFSUR,0
+          KEYMRG(ISV)=ISV
+        ENDDO
+        DO ISV=1,NFREG
+          IMIX=MATALB(ISV,1) 
+          KEYMRG(ISV)=IDMER(IMIX)
+        ENDDO
+        DEALLOCATE(IDMER)
+      ENDIF
       CALL LCMPUT(IPTRK ,'KEYMRG      ',NUNK  ,1,KEYMRG)
       CALL LCMPUT(IPTRK ,'MATALB      ',NUNK  ,1,MATALB(-NFSUR,1))
       CALL LCMPUT(IPTRK ,'HOMMATALB   ',NUNK  ,1,MATALB(-NFSUR,2))
@@ -207,4 +250,6 @@
 *----
  6000 FORMAT('(* Output from --',A6,'-- follows ')
  6001 FORMAT('   Output from --',A6,'-- completed *)')
+ 6100 FORMAT('Relation between mixture and region indices for MERGMIX') 
+ 6101 FORMAT('  Mixture ',I0,' is associated to region',I10) 
       END

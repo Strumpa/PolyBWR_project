@@ -88,6 +88,7 @@ ifeq ($(hdf5),1)
 	./rdonjon -c $(fcompiler) -q Equivalence_SPH_RT_MPO.x2m
 	./rdonjon -c $(fcompiler) -q SmallCore_rt_mpo.x2m
 	./rdonjon -c $(fcompiler) -q SmallCore_anm_mpo_mpo.x2m
+	./rdonjon -c $(fcompiler) -q SmallCore_anm_mpo_mpo_erm.x2m
 	./rdonjon -c $(fcompiler) -q UOX_5x5_TG6_sym8_multiDom_rt2.x2m
 	./rdonjon -c $(fcompiler) -q mpo_mco_refl.x2m
 	./rdonjon -c $(fcompiler) -q pincell_mpo_concat.x2m

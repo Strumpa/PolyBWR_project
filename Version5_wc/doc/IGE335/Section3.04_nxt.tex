@@ -48,6 +48,7 @@ $\{$ \moc{TISO} $[~\{$ \moc{EQW} $|$ \moc{GAUS} $|$ \moc{PNTN} $|$ \moc{SMS} $|$
 $~~~~~|$ \moc{TSPC} $[~\{$ \moc{EQW} $|$ \moc{MEDI} $|$ \moc{EQW2} $\}~]$ \dusa{nangl} \dusa{dens} $\}$ \\
 $[~\{$ \moc{NOTR} $|$ \moc{MC} $\}~]$\\
 $[$ \moc{NBSLIN} \dusa{nbslin} $]$ \\
+$[$ \moc{MERGMIX} $]$\\
 $[$ \moc{LONG} $]$\\
 $[$ \moc{PRIZ} \dusa{denspr} $]$ \\
 {\tt ;}
@@ -214,6 +215,8 @@ Monte-Carlo method. This option is similar to \moc{NOTR} with additional informa
 \item[\moc{NBSLIN}] keyword to set the maximum number of segments in a single tracking line.
 
 \item[\dusa{nbsl}] integer value representing the maximum number of segments in a single tracking line. The default value is \dusa{nbsl} = 100000.
+
+\item[\moc{MERGMIX}] keyword to specify that all regions belonging to the same mixture will be merged together. This option should only be used as an attempt to reduce CPU costs in resonance self-shielding calculations.
 
 \item[\moc{LONG}] keyword to specify that a ``long'' tracking file will be generated. This option is required if the tracking file is to be used by the \moc{TLM:} module (see \Sect{TLMData}).
 

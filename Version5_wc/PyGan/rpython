@@ -1,18 +1,19 @@
 #!/bin/sh
 #
 # author : A. Hebert
-# use    : rpython [-q|-w|-i:] <file.py>
+# use    : rpython [-c:|-q|-w|-e|-p:|-i:] <file.py>
 # note   : <file.py> must be located on directory ./data/
 #          If <file.access> exists, it is executed.
+#          -c name of compiler
 #          -q quiet execution for regression testing
 #          -w to execute in console (for debug purpose)
-#          -p to use PIP extension modules for lifo, lcm and cle2000
-#          -i name of python dataset (by default, use the last argument)
+#          -e to use PIP extension modules for lifo, lcm and cle2000
 #          -p number of parallel threads (=1 by default)
+#          -i name of python dataset (by default, use the last argument)
 #
 if [ $# = 0 ]
    then
-   echo "usage: rpython [-q|-w|-i:] <file.py>" 1>&2
+   echo "usage: rpython [-c:|-q|-w|-e|-p:|-i:] <file.py>" 1>&2
    exit 1
 fi
 System=`uname -s`
@@ -27,22 +28,25 @@ fi
 
 for last; do : ; done
 mydata=${last}
+typ='custom'
 quiet=0
 term=0
 nomp=0
 pip=0
 
-while getopts ":qwpi:" opt; do
+while getopts ":c:qwei:p:" opt; do
   case $opt in
+    c) typ="$OPTARG"
+    ;;
     q) quiet=1
     ;;
     w) term=1
     ;;
-    p) pip=1
-    ;;
-    i) mydata=$OPTARG
+    e) pip=1
     ;;
     p) nomp=$OPTARG
+    ;;
+    i) mydata=$OPTARG
     ;;
     \?) echo "Invalid option -$OPTARG" >&2
     exit 1
@@ -59,7 +63,7 @@ done
 xxx=`basename $mydata .py`
 Code=`basename "$PWD"`
 if [ $quiet = 0 ]; then
-  echo 'execute' $xxx 'with' $Code 'on system' $MACH
+  echo 'execute' $xxx 'with' $Code 'on system' $MACH 'with' $typ 'compiler'
 fi
 
 if [ -d "$MACH" ]; then
@@ -91,14 +95,25 @@ if [ $quiet = 0 ]; then
   echo "RunDirectory:" $Rundir
   echo "Python version= 3."$pyv
 fi
+
+if [ $typ = 'intel' ]; then
+  export COMPILER=INTELTOOLS
+elif [ $typ = 'nvidia' ]; then
+  export COMPILER=NVTOOLS
+else
+  export COMPILER=FORTRANPATH
+fi
 if [ $pip = 0 ]; then
   export PYTHONPATH="$(python3 ../script/set_pythonpath.py)"
 fi
+if [ $quiet = 0 ]; then
+  echo "PythonPath=" $PYTHONPATH
+fi
 export PYTHONMALLOC=debug
 cd $Rundir
-
 cp "$CodeDir"/data/$mydata ./mydata
 
+export NO_STOP_MESSAGE=1
 if [ -d "$CodeDir"/data/`echo $xxx`_proc ]; then
   cp "$CodeDir"/data/`echo $xxx`_proc/*.c2m . 2> /dev/null
   cp "$CodeDir"/data/`echo $xxx`_proc/*.py . 2> /dev/null

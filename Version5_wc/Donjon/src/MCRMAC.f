@@ -1,6 +1,6 @@
 *DECK MCRMAC
-      SUBROUTINE MCRMAC(IPMAC,IPMPO,IACCS,NMIL,NMIX,NGRP,IMPX,HEQUI,
-     1 HMASL,NCAL,HEDIT,NSURFD,NALBP,ILUPS,MIXC,TERP,LPURE,B2)
+      SUBROUTINE MCRMAC(IPMAC,IPMPO,IACCS,NMIL,NMIX,NGRP,LADFM,IMPX,
+     1 HEQUI,HMASL,NCAL,HEDIT,NSURFD,NALBP,ILUPS,MIXC,TERP,LPURE,B2)
 *
 *-----------------------------------------------------------------------
 *
@@ -21,6 +21,7 @@
 * NMIL    number of material mixtures in the MPO file.
 * NMIX    maximum number of material mixtures in the Macrolib.
 * NGRP    number of energy groups.
+* LADFM   type of discontinuity factors (.true.: diagonal; .false.: GxG).
 * IMPX    print parameter (equal to zero for no print).
 * HEQUI   keyword of SPH-factor set to be recovered.
 * HMASL   keyword of MASL data set to be recovered.
@@ -50,7 +51,7 @@
       INTEGER IACCS,NMIL,NMIX,NGRP,IMPX,NCAL,NSURFD,NALBP,ILUPS,
      1 MIXC(NMIX)
       REAL TERP(NCAL,NMIX),B2
-      LOGICAL LPURE
+      LOGICAL LADFM,LPURE
       CHARACTER(LEN=80) HEQUI,HMASL
       CHARACTER(LEN=12) HEDIT
 *----
@@ -319,7 +320,7 @@
           CALL XABORT('MCRMAC: INVALID NUMBER OF FISSILE ISOTOPES(3).')
         ELSE IF(ISTATE(7).NE.NDEL) THEN
           CALL XABORT('MCRMAC: INVALID NUMBER OF PRECURSOR GROUPS(3).')
-        ELSE IF(ISTATE(12).NE.IDF) THEN
+        ELSE IF(LADFM.AND.(ISTATE(12).NE.IDF)) THEN
           CALL XABORT('MCRMAC: INVALID TYPE OF ADF DIRECTORY.')
         ENDIF
       ENDIF
@@ -509,8 +510,8 @@
      &  DIMSR)
         IF(TYPE.NE.99) LALBG=.FALSE.
       ENDIF
-      CALL MCRAGF(IPMAC,IPMPO,IACCOLD,NMIL,NMIX,NGRP,NALBP,LALBG,IMPX,
-     1 NCAL,TERP,MIXC,NSURFD,HEDIT,VOLMI2,IDF)
+      CALL MCRAGF(IPMAC,IPMPO,IACCOLD,NMIL,NMIX,NGRP,NALBP,LALBG,LADFM,
+     1 IMPX,NCAL,TERP,MIXC,NSURFD,HEDIT,VOLMI2,IDF)
       IF(NSURFD.GT.0) THEN
         CALL LCMGET(IPMAC,'STATE-VECTOR',ISTATE)
         ISTATE(12)=IDF ! ADF information

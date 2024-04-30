@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 """
 Subversion post-commit hook which copy (append) the issue-tracking information
 to a new (or existing) card-index in the /issues/ directory. A commit of this

@@ -213,7 +213,7 @@
             ENDDO
           ENDIF
         ENDDO
-      else if(ISTATE(12).EQ.2) then
+      ELSE IF(ISTATE(12).EQ.2) then
         ! APOLLO3 case with 4 equisurf values
         CALL LCMSIX(IPMAC,'ADF',1)
         CALL LCMGET(IPMAC,'NTYPE',NSURFD)
@@ -243,8 +243,9 @@
         CALL LCMSIX(IPMAC,' ',2)
       ELSE IF(ISTATE(12).EQ.3) THEN
         CALL LCMSIX(IPMAC,'ADF',1)
-          CALL LCMGTC(IPMAC,'HADF',8,1,HADF(1))
-          CALL LCMGET(IPMAC,HADF(1),GAR2)
+        CALL LCMGET(IPMAC,'NTYPE',NSURFD)
+        CALL LCMGTC(IPMAC,'HADF',8,1,HADF(1))
+        CALL LCMGET(IPMAC,HADF(1),GAR2)
         CALL LCMSIX(IPMAC,' ',2)
         DO IBM=1,NMIX
           DO IGR=1,NG
@@ -263,7 +264,14 @@
         ENDDO
       ELSE IF(ISTATE(12).EQ.4) THEN
         CALL LCMSIX(IPMAC,'ADF',1)
-        CALL LCMGTC(IPMAC,'HADF',8,2,HADF)
+        CALL LCMGET(IPMAC,'NTYPE',NSURFD)
+        IF(IDIM.EQ.1) THEN
+          CALL LCMGTC(IPMAC,'HADF',8,2,HADF)
+        ELSE IF(IDIM.EQ.2) THEN
+          CALL LCMGTC(IPMAC,'HADF',8,4,HADF)
+        ELSE IF(IDIM.EQ.3) THEN
+          CALL LCMGTC(IPMAC,'HADF',8,6,HADF)
+        ENDIF
         CALL LCMGET(IPMAC,HADF(1),FDXM)
         CALL LCMGET(IPMAC,HADF(2),FDXP)
         DO JGR=1,NG

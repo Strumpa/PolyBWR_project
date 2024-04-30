@@ -22,6 +22,7 @@
 * IFIRST  set to 1 to indicate that the seed is being generated.
 *                 
 *Parameters: ouput
+* IFIRST  set to 1 to indicate that the seed is being generated.
 * RAND    random number between 0 and 1.
 *
 *Reference:                     

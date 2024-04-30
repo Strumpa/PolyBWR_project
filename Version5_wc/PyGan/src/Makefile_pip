@@ -5,27 +5,35 @@
 #
 #---------------------------------------------------------------------------
 #
-DIRNAME = $(shell uname -sm | sed 's/[ ]/_/')
 OS = $(shell uname -s | cut -d"_" -f1)
-lib = ../lib/$(DIRNAME)
-libGan = ../../Ganlib/lib/$(DIRNAME)
+ifeq ($(OS),AIX)
+  DIRNAME = AIX
+else
+  DIRNAME = $(shell uname -sm | sed 's/[ ]/_/')
+endif
 
 ifeq ($(intel),1)
   ifeq ($(INTELTOOLS),)
     $(error INTELTOOLS is not set)
   endif
   COMPILER = INTELTOOLS
+  lib = ../lib/$(DIRNAME)_intel
+  libGan = ../../Ganlib/lib/$(DIRNAME)_intel
 else
   ifeq ($(nvidia),1)
     ifeq ($(NVTOOLS),)
       $(error NVTOOLS is not set)
     endif
     COMPILER = NVTOOLS
+    lib = ../lib/$(DIRNAME)_nvidia
+    libGan = ../../Ganlib/lib/$(DIRNAME)_nvidia
   else
     ifeq ($(FORTRANPATH),)
       $(error FORTRANPATH is not set)
     endif
     COMPILER = FORTRANPATH
+    lib = ../lib/$(DIRNAME)
+    libGan = ../../Ganlib/lib/$(DIRNAME)
   endif
 endif
 export COMPILER
