@@ -15,7 +15,6 @@ import cle2000
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')
-from matplotlib import pyplot
 import matplotlib.pyplot as plt
 import serpentTools
 from serpentTools.settings import rc
