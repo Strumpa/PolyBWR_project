@@ -97,7 +97,6 @@ class FDM_HeatConductionInFuelPin:
         return
     
     def get_Di_half(self,i):
-        print(self.I_f)
         if i > self.I_f+1:
             i=i-1
             Di_half = 4*self.A_mesh_bounds[i+1]/((self.deltaA_c/self.k[i])+(self.deltaA_c/self.k[i+1]))
@@ -187,12 +186,8 @@ class FDM_HeatConductionInFuelPin:
     def extend_to_canal_visu(self, rw, Tw):
         A_w = rw**2/2
         deltA_w = A_w - self.A_mesh_bounds[-1] 
-        print(f"deltaA_w used is : {deltA_w}")
-        w_center = np.sqrt(2*(self.A_mesh_bounds[-1] + deltA_w/2))
-        print(f"water center used is : {w_center}")
-        print(f"rw = {rw}") 
+        w_center = np.sqrt(2*(self.A_mesh_bounds[-1] + deltA_w/2)) 
         self.plot_mesh = np.append(self.plot_mesh,[w_center])
-        print(f"plot mesh used is {self.plot_mesh}")
         self.physical_regions_bounds.append(rw)        
         self.T_distrib = np.append(self.T_distrib, [Tw])
         self.radii_at_bounds = np.append(self.radii_at_bounds, [rw])
@@ -221,6 +216,7 @@ class FVM_ConvectionInCanal_MONO:
         self.fuel_radius = rf
         self.clad_radius = rc
         self.wall_dist = rw
+        print(f"wall dist = {rw}")
         initial_water_state_z0 = IAPWS97(P=P_cool,T=T_in)
         self.h_z0 = initial_water_state_z0.h*10**3 # returs enthalpy at z0 for given (P,T), this assumes 1 phase liquid water at z=0, converted to J/kg
         print(f"first enthalpy is {self.h_z0}")
@@ -235,14 +231,15 @@ class FVM_ConvectionInCanal_MONO:
         if self.canal_type == "cylindrical":
             self.A_canal = np.pi*self.wall_dist**2 - np.pi*self.clad_radius**2
             self.P_wetted = 2*np.pi*(self.wall_dist + self.clad_radius)
-            self.DH = 4*self.A_canal / self.P_wetted # DH = 4*A/P where A = wetted cross sectional area and P is wetted perimeter = perimeter of fuel
+            print(f"Perimeter of clad = {2*np.pi*self.clad_radius}, perimeter of canal = {2*np.pi*self.wall_dist}")
         elif self.canal_type == "square":
             self.A_canal = (2*self.wall_dist)**2-np.pi*self.clad_radius**2
             self.P_wetted = 2*(4*self.wall_dist+np.pi*self.clad_radius)
-            self.DH = 4*self.A_canal / self.P_wetted
+            print(f"Perimeter of clad = {2*np.pi*self.clad_radius}, perimeter of canal = {4*self.wall_dist}")
+        self.DH = 4*self.A_canal / self.P_wetted # DH = 4*A/P where A = wetted cross sectional area and P is wetted perimeter = perimeter of fuel rod in contact with coolant + perimeter of canal in contact with coolant.
         print(f"The calculated A_canal is : {self.A_canal} m^2, DH is {self.DH} m")
         print(f"The wetted perimeter is {self.P_wetted} m, calculated in a {self.canal_type} type geometry.")
-
+        
 
 
         return
@@ -312,11 +309,5 @@ class FVM_ConvectionInCanal_MONO:
     
         return self.T_surf
     
-    def set_transitoire(self, t_tot, Tini, dt):
-        self.t_tot, self.dt = t_tot, dt           
-        self.N_temps = round(self.t_tot / self.dt) # pas de temps (timesteps), il faut etre un nombre entier
-        self.T = np.zeros((self.N_temps+1, self.N_vol)) # tableau 2D de temperature. 
-        self.T[0] = Tini # Tini est une liste
-        return 
 
     

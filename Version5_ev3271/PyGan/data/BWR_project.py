@@ -74,10 +74,10 @@ TYPE = 'HYBRIDE'
 #           - 'AT10_42Gd'
 # - assemblies : 
 #           - 'ATRIUM-10XM_NL24-2'
-#           - 'ATRIUM-10XM NL24-2_ctrl'
+#           - 'ATRIUM-10XM_NL24-2_ctrl'
 name_geom = 'AT10_UOX' # 'AT10_UOX_Gd2O3'
 name_mix = "AT10_24UOX"
-tracking_module = "SALT" #"SALT"
+tracking_module = "SYBNXT" #"SALT"
 #
 # Multicompo = 1 if you want to generate a MULTICOMPO object 
 #            = 0 either
@@ -267,4 +267,4 @@ elif case == 'ASSEMBLY':
 #    POST-PROCESSING OF GLOBAL VALUES
 # -----------------------------------
 
-#POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
+POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
