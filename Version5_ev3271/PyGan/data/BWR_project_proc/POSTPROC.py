@@ -48,7 +48,7 @@ def POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
     if a==False:
         os.mkdir('BWRresults_PyGan_'+name_geom)
 
-    SAVE_DIR='BWRresults_PyGan_'+name_geom+'/'+name_mix+'_'+suffixe+'_postprocess'
+    SAVE_DIR='BWRresults_PyGan_'+name_geom+'/'+name_mix+'_'+suffixe+'_postprocess/'
 
     a=os.path.exists(SAVE_DIR)
     if a==False:
@@ -89,7 +89,8 @@ def POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
         lenBU_DRAGON=np.shape(ListeCOMPO)[0]
          
         ISOTOPES=pyCOMPO[DIR]['MIXTURES'][0]['CALCULATIONS'][0]['ISOTOPESDENS']
-        lenISOT_DRAGON=np.shape(ISOTOPES)[0]-1
+        #lenISOT_DRAGON=np.shape(ISOTOPES)[0]-1
+        lenISOT_DRAGON=np.shape(ISOTOPES)[0]
 
         DRAGON_BU=ListeCOMPO
         DRAGON_ISOTOPESDENS=np.zeros((lenISOT_DRAGON,lenBU_DRAGON))
@@ -156,13 +157,13 @@ def POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
         # --- Keff
         #res=serpentTools.read(SERPENT_path+name_mix+"_mc_"+serpent_suffix+"res.m")
         # testing data from test3 : PyNjoy2016 xs + metastables from sss_jeff311u
-        res=serpentTools.read(SERPENT_path+"24UOX_test3_mc_res.m")
+        res=serpentTools.read(SERPENT_path+"24UOX_test_3_mc_res.m")
         serpent_keff=res.resdata["absKeff"]
         np.savetxt('serpent_keff.txt',serpent_keff)
         SERPENT_keff=np.loadtxt('serpent_keff.txt',dtype=float)
             
         # --- BU
-        depFile = SERPENT_path+"24UOX_test3_mc_res.m"
+        depFile = SERPENT_path+"24UOX_test_3_mc_dep.m"
         dep = serpentTools.read(depFile)
         fuel=dep.materials['total']
         serpent_BU=fuel.burnup
@@ -268,7 +269,7 @@ def POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
 
             plt.title(fig_name)
             os.chdir(path+'/'+SAVE_DIR)
-            plt.savefig(save_name+"_test3"+'.'+form,bbox_inches = 'tight', format=form, dpi=1200) #enregistrement des figures dans le repertoire des resultats
+            #plt.savefig(save_name+"_test3"+'.'+form,bbox_inches = 'tight', format=form, dpi=1200) #enregistrement des figures dans le repertoire des resultats
             plt.savefig(save_name+"_test3"+'.png',bbox_inches = 'tight') #enregistrement des figures dans le repertoire des resultats
             os.chdir(path)
             plt.close('all')
@@ -297,7 +298,7 @@ def POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
 
             plt.title(fig_name)
             os.chdir(path+'/'+SAVE_DIR)
-            plt.savefig(save_name+"_test3"+'.'+form,bbox_inches = 'tight', format=form, dpi=1200) #enregistrement des figures dans le repertoire des resultats
+            #plt.savefig(save_name+"_test3"+'.'+form,bbox_inches = 'tight', format=form, dpi=1200) #enregistrement des figures dans le repertoire des resultats
             plt.savefig(save_name+"_test3"+'.png',bbox_inches = 'tight') #enregistrement des figures dans le repertoire des resultats
             os.chdir(path)
             plt.close('all')
@@ -327,7 +328,7 @@ def POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
 
             plt.title(fig_name)
             os.chdir(path+'/'+SAVE_DIR)
-            plt.savefig(save_name+"_test3"+'.'+form,bbox_inches = 'tight', format=form, dpi=1200) #enregistrement des figures dans le repertoire des resultats
+            #plt.savefig(save_name+"_test3"+'.'+form,bbox_inches = 'tight', format=form, dpi=1200) #enregistrement des figures dans le repertoire des resultats
             plt.savefig(save_name+"_test3"+'.png',bbox_inches = 'tight') #enregistrement des figures dans le repertoire des resultats
             os.chdir(path)
             plt.close('all')
@@ -360,7 +361,7 @@ def POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
 
             plt.title(fig_name)
             os.chdir(path+'/'+SAVE_DIR)
-            plt.savefig(save_name+"_test3"+'.'+form,bbox_inches = 'tight', format=form, dpi=1200) #enregistrement des figures dans le repertoire des resultats
+            #plt.savefig(save_name+"_test3"+'.'+form,bbox_inches = 'tight', format=form, dpi=1200) #enregistrement des figures dans le repertoire des resultats
             plt.savefig(save_name+"_test3"+'.png',bbox_inches = 'tight') #enregistrement des figures dans le repertoire des resultats
             os.chdir(path)
             plt.close('all')
