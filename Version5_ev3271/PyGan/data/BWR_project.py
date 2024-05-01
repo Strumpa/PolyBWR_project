@@ -12,15 +12,18 @@
 #             IMPORTS            #
 #                                #
 ##################################
-import os, shutil, sys
+import sys
+#sys.path.append('/usr/local/lib/python3.8/dist-packages')
+import numpy as np
+import os, shutil
 import lifo
 import lcm
 import cle2000
-import numpy as np
 import matplotlib
-matplotlib.use('Agg')
+#matplotlib.use('Agg')
+
 #from matplotlib import pyplot
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 from assertS import *
 # POST-PROCESSING class
 from POSTPROC import *
@@ -162,7 +165,7 @@ StepList['ListAutop'] = np.array(ListeAUTOP, dtype='f')
 StepList['ListCompo'] = np.array(ListeCOMPO, dtype='f')
 StepList.close() # close without erasing
 #
-# Save BU evctor
+# Save BU vector
 os.chdir(path+'/'+'BWRresults_PyGan_'+name_geom)
 np.savetxt(name_BUvector+'_'+name_mix+'_BUvector.txt',ListeCOMPO)
 os.chdir(path)
@@ -264,4 +267,4 @@ elif case == 'ASSEMBLY':
 #    POST-PROCESSING OF GLOBAL VALUES
 # -----------------------------------
 
-POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
+#POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
