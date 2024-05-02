@@ -68,7 +68,7 @@ FLUX := FLU: LIBRARY2 SYS TRACK TRACK_EXC ::
 GREP: FLUX :: GETVAL 'K-INFINITY  ' 1 1 1 >>Kinf<< ;
 
 ECHO assbly_opt " t=0 calculation completed, Kinf = " Kinf ;
-
+!ECHO "tracking of Geom_A done" ;
 
 
 END: ;
