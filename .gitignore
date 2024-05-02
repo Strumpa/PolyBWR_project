@@ -12,6 +12,7 @@
 *.out
 
 */__pycache__/
+PTT/DMLG_proj/__pycache__/
 
 Serpent2_para_bateman/src
 Serpent2_para_bateman/Linux_aarch64
