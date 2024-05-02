@@ -22,7 +22,7 @@ print(f"Total fuel mass is : {AT10_24UOX_cell_serp.S2_mat_properties.getTotalFue
 print(f"Total fuel mass dens is : {AT10_24UOX_cell_serp.S2_mat_properties.getTotalFuelMassDens():.3f} g/cm3")
 """
 
-def check_SerpentvsDragon_vols(Serpent2_case, Dragon5_case, material_assocoation_dict):
+def check_SerpentvsDragon_vols(Serpent2_case, Dragon5_case, material_assocoation_dict={}):
     """
     Serpent2_case : DMLG object corresponding to Serpent2 case
     Dragon5_case : DMLG object corresponding to equivalent Dragon5 case
@@ -81,8 +81,8 @@ def check_SerpentvsDragon_vols(Serpent2_case, Dragon5_case, material_assocoation
             for rel_err in rel_errors:
                 sum+=rel_err**2
             rel_rms = np.sqrt(sum/len(rel_errors))
-            print(f"Absolute errors on volumes are {errors}, with an RMS error of {rms}")
-            print(f"Relative errors on volumes are {rel_errors} (%), with an RMS error of {rel_rms} (%)")
+            print(f"Absolute errors on volumes are {errors}, \n with an RMS error of {rms}")
+            print(f"Relative errors on volumes are {rel_errors} (%), \n with an RMS error of {rel_rms} (%)")
         else:
             print("Unconsistent definition of S2 material volumes vs D5 regions, cannot compare volumes")
 
@@ -94,10 +94,10 @@ def check_SerpentvsDragon_vols(Serpent2_case, Dragon5_case, material_assocoation
 
 #check_SerpentvsDragon_vols(AT10_24UOX_cell_serp, AT10_24UOX_cell_drag, material_assocoation_dict)
 
-#assbly_serp_vols = "/home/loutre/Nuclear/PolyBWR_project/PTT/Serpent2/AT10_ASSBLY_mc.mvol"
-#assbly_drag_vols = "/home/loutre/Nuclear/PolyBWR_project/PTT/Dragon5/SALT_volumes.txt"
-assbly_serp_vols = "/home/loutre/RESEARCH/PolyBWR_project/PTT/Serpent2/AT10_ASSBLY_mc.mvol"
-assbly_drag_vols = "/home/loutre/RESEARCH/PolyBWR_project/PTT/Dragon5/SALT_volumes.txt"
+assbly_serp_vols = "/home/loutre/Nuclear/PolyBWR_project/PTT/Serpent2/AT10_ASSBLY_mc.mvol"
+assbly_drag_vols = "/home/loutre/Nuclear/PolyBWR_project/PTT/Dragon5/SALT_volumes.txt"
+#assbly_serp_vols = "/home/loutre/RESEARCH/PolyBWR_project/PTT/Serpent2/AT10_ASSBLY_mc.mvol"
+#assbly_drag_vols = "/home/loutre/RESEARCH/PolyBWR_project/PTT/Dragon5/SALT_volumes.txt"
 
 AT10_ASSBLY_Serp = DMLG.DMLG_Interface(assbly_serp_vols, type="Serpent2",mode="check_volumes")
 AT10_ASSBLY_Serp.createS2_geom("ATRIUM-10 bundle", 1)
@@ -105,7 +105,7 @@ AT10_ASSBLY_Serp.createS2_geom("ATRIUM-10 bundle", 1)
 
 AT10_ASSBLY_drag = DMLG.DMLG_Interface(assbly_drag_vols, type="Dragon",mode="output")
 AT10_ASSBLY_drag.Dragon5_geom.ComputeOrderedVolumesandRegions()
-check_SerpentvsDragon_vols(AT10_ASSBLY_Serp, AT10_ASSBLY_drag, material_assocoation_dict={})
+check_SerpentvsDragon_vols(AT10_ASSBLY_Serp, AT10_ASSBLY_drag)
 
 
 
@@ -134,6 +134,6 @@ S2_regions_volumes = AT10_ASSBLY_Serp.S2_geom.getOrderedMaterialVols()
 
 for region_name in Analytical_volumes.keys():
     S2_error = (S2_regions_volumes[region_name]/2 - Analytical_volumes[region_name])*100/Analytical_volumes[region_name]
-    print(f"Statistical error on volume of region {region_name} from Serpent2 is {S2_error}")
+    print(f"Statistical error on volume of region {region_name} from Serpent2 is {S2_error:.03f} %")
     
 
