@@ -84,7 +84,7 @@ EVALUATE COMB0601 COMB0602 COMB0603 COMB0604 := 61 62 63 64 ;
 
 REAL RcombGd1 RcombGd2 RcombGd3 RcombGd4 RcombGd5 RcombGd6 ;
 EVALUATE RcombGd1 RcombGd2 RcombGd3 RcombGd4 RcombGd5 RcombGd6 
-         := 0.19834 0.28049 0.34353 0.39668 0.43227 0.4435 ;
+         := 0.198339 0.280494 0.343534 0.396678 0.43227 0.4435 ;
 
 ! Mix numbers C7 fuel
 INTEGER COMB0701 COMB0702 COMB0703 COMB0704 COMB0705 COMB0706 ;
@@ -302,7 +302,7 @@ IF name_geom "AT10_ASSBLY_test" = THEN
                    SECT 4 6
                    RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
                    <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
-                   MIX <<COMB0401>> <<COMB0402>> <<COMB0403>> <<COMB0404>>
+                   MIX <<COMB0601>> <<COMB0602>> <<COMB0603>> <<COMB0604>>
                    <<GAP>> <<CLAD>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>>
@@ -315,7 +315,7 @@ IF name_geom "AT10_ASSBLY_test" = THEN
                                <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                                <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
              ; 
-        ::: C4 := GEO: C6 MIX <<COMB0601>> <<COMB0602>> <<COMB0603>> <<COMB0604>>
+        ::: C4 := GEO: C6 MIX <<COMB0401>> <<COMB0402>> <<COMB0403>> <<COMB0404>>
                               <<GAP>> <<CLAD>>
                               <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                               <<COOL>> <<COOL>> <<COOL>> <<COOL>>
@@ -613,14 +613,14 @@ IF name_geom "AT10_ASSBLY_test" = THEN
         ::: C6 := GEO: CARCEL 6 
                    RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
                    <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
-                   MIX <<COMB0401>> <<COMB0402>> <<COMB0403>> <<COMB0404>>
+                   MIX <<COMB0601>> <<COMB0602>> <<COMB0603>> <<COMB0604>>
                    <<GAP>> <<CLAD>> <<COOL>> 
                    MESHX 0.0 <<pitch>> MESHY 0.0 <<pitch>>
              ;
         ::: C5 := GEO: C6 MIX <<COMB0501>> <<COMB0502>> <<COMB0503>> <<COMB0504>>
                                <<GAP>> <<CLAD>> <<COOL>>
              ; 
-        ::: C4 := GEO: C6 MIX <<COMB0601>> <<COMB0602>> <<COMB0603>> <<COMB0604>>
+        ::: C4 := GEO: C6 MIX <<COMB0401>> <<COMB0402>> <<COMB0403>> <<COMB0404>>
                               <<GAP>> <<CLAD>> <<COOL>> 
              ;
         ::: C7 := GEO: CARCEL 8
