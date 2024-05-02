@@ -302,7 +302,7 @@ IF name_geom "AT10_ASSBLY_test" = THEN
                    SECT 4 6
                    RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
                    <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
-                   MIX <<COMB0401>> <<COMB0402>> <<COMB0403>> <<COMB0404>>
+                   MIX <<COMB0601>> <<COMB0602>> <<COMB0603>> <<COMB0604>>
                    <<GAP>> <<CLAD>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                    <<COOL>> <<COOL>> <<COOL>> <<COOL>>
@@ -315,7 +315,7 @@ IF name_geom "AT10_ASSBLY_test" = THEN
                                <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                                <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
              ; 
-        ::: C4 := GEO: C6 MIX <<COMB0601>> <<COMB0602>> <<COMB0603>> <<COMB0604>>
+        ::: C4 := GEO: C6 MIX <<COMB0401>> <<COMB0402>> <<COMB0403>> <<COMB0404>>
                               <<GAP>> <<CLAD>>
                               <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                               <<COOL>> <<COOL>> <<COOL>> <<COOL>>
