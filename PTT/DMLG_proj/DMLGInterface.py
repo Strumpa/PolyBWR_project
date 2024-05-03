@@ -21,31 +21,56 @@ class DMLG_Interface:
         """
         loading geometry object to be parsed according to :
         input file (str) : path to file to be parsed
-        type (str) : "MCNP", "Native", "Serpent2"
+        type (str) : "MCNP", "Dragon", "Serpent2"
         mode (str) : 'input' or 'output' or 'check volumes'
         """
-        self.type = type
+        self.input_type = type
         self.input_deck = input_deck
         self.mode = mode
-        if self.type == "MCNP" and self.mode == 'input' :
+        if self.input_type == "MCNP" and self.mode == 'input' :
             self.parseMCNP_input()
             self.createMCNPcard_objects()
-        elif self.type == "Dragon" and self.mode == 'input' :
+        elif self.input_type == "Dragon" and self.mode == 'input' :
             self.parseDragon_input()
-        elif self.type == "Dragon" and self.mode == 'output' :
+        elif self.input_type == "Dragon" and self.mode == 'output' :
             self.parseDragon_output()
             self.createDragon5_geometry()
-        elif self.type == "Serpent2" and self.mode == 'input' :
+        elif self.input_type == "Serpent2" and self.mode == 'input' :
             self.parseSerpent2_input()
-        elif self.type == "Serpent2" and self.mode == 'check_volumes' :
+        elif self.input_type == "Serpent2" and self.mode == 'check_volumes' :
             self.parseSepent2_check_volumes()
             self.createSerpent2_Material_volumes()
-        elif self.type == "Serpent2" and self.mode == 'output' : 
+        elif self.input_type == "Serpent2" and self.mode == 'output' : 
             self.parseSerpent2_output()
             self.createSerpent2_output_cards()
         else:
             print("Error: invalid Geometry type to be parsed")
-        
+    
+    def choose_output(self, output_type):
+        if self.input_type == "MCNP" and output_type == "Serpent2":
+            MCNP_name = self.input_deck.split(".")[0]
+            Serpent2_name = MCNP_name + "_Serpent2_mc"
+            self.MCNP_case = MCNP.MCNP_case(MCNP_name, self.Cell_Cards, self.Surface_Cards, self.Material_Cards)
+            self.Serpent2_equiv_case = S2.S2_case(Serpent2_name, self.input_type, self.MCNP_case, mode="output")
+        elif self.input_type == "Serpent2" and output_type == "Dragon5":
+            """
+            S2_name = self.input_deck.split(".")[0]
+            Dragon5_name = S2_name + "_Dragon5.c2m"
+            self.Serpent2_case = S2.S2_case()
+            self.Dragon5_equiv_case = Dragon5.Dragon5_case()
+            """
+            print("Not implemented yet")
+            return
+        elif self.input_type == "MCNP" and output_type == "Dragon5":
+            """
+            MCNP_name = self.input_deck.split(".")[0]
+            Dragon5_name = MCNP_name + "_Dragon5.c2m"
+            self.MCNP_case = MCNP.MCNP_case(MCNP_name, self.Cell_Cards, self.Surface_Cards, self.Material_Cards)
+            self.Dragon5_equiv_case = D5.D5_case(Dragon5_name, self.input_type, self.MCNP_case)
+            """
+            print("Not implemented yet")
+            return
+
     # MCNP related functions    
     def parseMCNP_input(self):
         """
@@ -59,7 +84,7 @@ class DMLG_Interface:
 
         Classes defining the proper data structure for each card/ group of cards are called in this function.
         """
-        print(f"Parsing {self.type} {self.mode} file, from input file : {self.input_deck}")
+        print(f"Parsing {self.input_type} {self.mode} file, from input file : {self.input_deck}")
         # Define flags to track when to start/stop parsing each section
         parsing_cell_cards = False
         parsing_surface_cards = False
@@ -83,10 +108,12 @@ class DMLG_Interface:
 
                 # Check if the line indicates the start of a section
                 if "Cell  Cards" in line:
+                    print("Cell cards")
                     parsing_cell_cards = True
                     parsing_surface_cards = False
                     parsing_material_cards = False
                 elif "Surface Cards" in line:
+                    print("Surface cards")
                     parsing_cell_cards = False
                     parsing_surface_cards = True
                     parsing_material_cards = False
@@ -99,21 +126,23 @@ class DMLG_Interface:
                     parsing_surface_cards = False
                     parsing_material_cards = False
                 
-                elif parsing_cell_cards or parsing_surface_cards:
+                elif parsing_cell_cards or parsing_surface_cards and line:
                     if line.startswith("c"):
                         if line.lstrip("c").strip():
                             current_title=line.lstrip("c").strip()
+                            print(f"current title is {current_title}")
 
                 # Parse and store information from each section
-                elif parsing_cell_cards or parsing_surface_cards and line:
+                if parsing_cell_cards or parsing_surface_cards and line:
+                    #print(f"currently parsed line is = {line}")
                     # Store previous card's contents (if any) in the corresponding dictionary
-                    if parsing_cell_cards:
+                    if parsing_cell_cards and not line.startswith("c"):
                         cell_cards.append(line.replace("  ", " ").replace("   "," "))
                         cell_titles.append(current_title)
-                    elif parsing_surface_cards:
+                    elif parsing_surface_cards and not line.startswith("c"):
                         surface_cards.append(line.replace("  ", " ").replace("   "," "))
                         surface_titles.append(current_title)
-                elif parsing_material_cards and line:
+                if parsing_material_cards and line:
                     if line.startswith("m"):
                         line=line.replace("  ", " ").replace("   "," ")
                         current_title=line.split(" ")[0]
@@ -124,7 +153,9 @@ class DMLG_Interface:
         file.close()              
 
  
-
+        #print(f"Cell cards are : {cell_cards}")
+        #print(f"Surface cards are : {surface_cards}")
+        #print(f"Material cards are : {material_cards}")
         self.Cell_Cards = self.clean_list(cell_cards)
         self.Surface_Cards = self.clean_list(surface_cards)
         self.cell_titles = self.clean_list(cell_titles)
@@ -135,8 +166,10 @@ class DMLG_Interface:
     def clean_list(self,list_):
         cleaned_list=[]
         for entry in list_:
-            if entry != '' or entry !="\n":
-                cleaned_list.append(entry.strip())
+            if entry:
+                if entry != '' or entry !="\n":
+                    #print(f"entry is = {entry}")
+                    cleaned_list.append(entry.strip())
         return cleaned_list
     def combine_list(self, list_):
         combined_list=[]
@@ -154,6 +187,7 @@ class DMLG_Interface:
         return combined_list
 
     def createMCNPcard_objects(self):
+        print(f"cell cards are = {self.Cell_Cards}")
         for i in range(len(self.Cell_Cards)):
             self.Cell_Cards[i] = MCNP.MCNP_Cell_Card(1, self.cell_titles[i], self.Cell_Cards[i])
         for i in range(len(self.Surface_Cards)):
@@ -168,7 +202,7 @@ class DMLG_Interface:
         if print_cells:
             print(f"There are a total of {len(self.Cell_Cards)} cell cards")
             for cellcard in self.Cell_Cards:
-                print(f"Cell card attrtibutes are : group of cells name = {cellcard.cells_group}, \n user defined cell numbers = {cellcard.cell_number} \n material numbers : {cellcard.material_number} \n and material densities : {cellcard.material_density} ")
+                print(f"Cell card attrtibutes are : group of cells name = {cellcard.cell_name}, \n user defined cell number = {cellcard.cell_number} \n material number : {cellcard.material_number} \n and material densities : {cellcard.material_density} ")
                 print(f"neutron importance is : {cellcard.neutron_importance}")
         if print_surfaces:
             print(f"There are a total of {len(self.Surface_Cards)} surface cards")
@@ -193,7 +227,7 @@ class DMLG_Interface:
         volume_data=[]
         save_volume_values = False
         module =""
-        print(f"Parsing {self.type} {self.mode} file, from input file : {self.input_deck}")
+        print(f"Parsing {self.input_type} {self.mode} file, from input file : {self.input_deck}")
         with open(self.input_deck, 'r') as file:
             lines = file.readlines()
             for line in lines:
@@ -270,7 +304,7 @@ class DMLG_Interface:
         current_material=None
         parsing_new_mat = False
         parsing_same_mat = False
-        print(f"Parsing {self.type} {self.mode} file, from input file : {self.input_deck}")
+        print(f"Parsing {self.input_type} {self.mode} file, from input file : {self.input_deck}")
         with open(self.input_deck, 'r') as file:
             for line in file:
                 line = line.strip()  # Remove leading/trailing whitespace
@@ -313,7 +347,7 @@ class DMLG_Interface:
         """
         self.Serpent2_mat_cards=[]
         for mat in self.Serpent2_output.keys():
-            self.Serpent2_mat_cards.append(S2.S2_mat_card(mat, self.Serpent2_output[mat], "output"))
+            self.Serpent2_mat_cards.append(S2.S2_material_output(mat, self.Serpent2_output[mat]))
     def createS2_mat_properties(self, name):
         """
         Create material properties object from Serpent2 cards. Useful functions for checking materials compositions and volumes are implemented in the S2_geom class
