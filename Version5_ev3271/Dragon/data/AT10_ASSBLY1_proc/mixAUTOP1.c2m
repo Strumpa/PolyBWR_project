@@ -7,7 +7,7 @@
 
 *  Procedure called as:
 *
-*  LIBRARY2 := mixAUTOP1 LIBRARY TRACK_SS :: <<name_geom>> <<ssh_option>> ;
+*  LIBRARY2 := mixAUTOP1 LIBRARY TRACK_SS TF_SS_EXC :: <<name_geom>> <<ssh_option>> ;
 *
 *  Input data   :
 *    LIBRARY      : Initial library
@@ -17,10 +17,11 @@
 *    LIBRARY2     : Self-shieled library
 *---
 
-PARAMETER LIBRARY2 LIBRARY TRACK_SS ::
+PARAMETER LIBRARY2 LIBRARY TRACK_SS TF_SS_EXC ::
 ::: LINKED_LIST LIBRARY2 ;
 ::: LINKED_LIST LIBRARY ;
-::: LINKED_LIST TRACK_SS ; ; 
+::: LINKED_LIST TRACK_SS ;
+::: SEQ_BINARY TF_SS_EXC ; ; 
 
 
 STRING name_geom ;
@@ -73,9 +74,9 @@ EVALUATE COMB0801 COMB0802 COMB0803 COMB0804 COMB0805 COMB0806 := 81 82 83 84 85
 
 IF name_geom 'AT10_ASSBLY_test' = THEN
 
-   IF ssh_opt 'VVER_ALL' = THEN
+   IF ssh_option 'VVER_ALL' = THEN
 
-    LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
+    LIBRARY2 := USS: LIBRARY TRACK_SS TF_SS_EXC ::
             EDIT 1 PASS 2 GRMIN 52 NOTR MAXST 100
             CALC 
 * ALL CELLS
@@ -102,9 +103,9 @@ IF name_geom 'AT10_ASSBLY_test' = THEN
             ;
 
 
-   ELSEIF ssh_opt 'VVER_REGI' = THEN
+   ELSEIF ssh_option 'VVER_REGI' = THEN
 
-          LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
+          LIBRARY2 := USS: LIBRARY TRACK_SS TF_SS_EXC ::
             EDIT 1 PASS 2 GRMIN 52 NOTR MAXST 100
           CALC 
 * ALL CELLS

@@ -55,7 +55,7 @@ ECHO "Mixes for ASSBLY : " mix_opt " retrieved"  ;
 *  BEGIN SELF SHIELDING CALCULATION                                    *
 ************************************************************************
 ! AUTOP1 + ssh_opt = self shielding options used in VVER project for the treatement of 39AWU assembly.
-LIBRARY2 := mixAUTOP1 LIBRARY TRACK_SS :: <<geo_name>> <<ssh_opt>> ;
+LIBRARY2 := mixAUTOP1 LIBRARY TRACK_SS TRACKSS_EXC :: <<geo_name>> <<ssh_opt>> ;
 
 ************************************************************************
 *  BEGIN MOC FLUX CALCULATION                                          *
