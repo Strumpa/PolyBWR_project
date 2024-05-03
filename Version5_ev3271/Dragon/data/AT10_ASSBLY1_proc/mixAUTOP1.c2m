@@ -77,7 +77,7 @@ IF name_geom 'AT10_ASSBLY_test' = THEN
    IF ssh_option 'VVER_ALL' = THEN
 
     LIBRARY2 := USS: LIBRARY TRACK_SS TF_SS_EXC ::
-            EDIT 1 PASS 2 GRMIN 52 NOTR MAXST 100
+            EDIT 10 PASS 2 GRMIN 52 NOTR MAXST 100
             CALC 
 * ALL CELLS
                REGI W1 U235  ALL
@@ -106,7 +106,7 @@ IF name_geom 'AT10_ASSBLY_test' = THEN
    ELSEIF ssh_option 'VVER_REGI' = THEN
 
           LIBRARY2 := USS: LIBRARY TRACK_SS TF_SS_EXC ::
-            EDIT 1 PASS 2 GRMIN 52 NOTR MAXST 100
+            EDIT 10 PASS 2 GRMIN 52 NOTR MAXST 100
           CALC 
 * ALL CELLS
                REGI W1 U235  ALL
