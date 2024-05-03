@@ -16,22 +16,25 @@ from sympy import symbols, Eq
 from sympy.geometry import Plane
 #from sympy.geometry import Cylinder
 
+
 class MCNP_Cell_Card:
     """
     definition of cell cards from MCNP format
     """
-    def __init__(self, format, cell_group_name, data):
+    def __init__(self, format, cell_name, data):
         """
-        format = input format , only format  is supported
+        format = input format , only format 1 is supported. Data has to take the form (J, M, D, Geom, PARAMS)
+        Where J = cell number, M = material number, D = material density, Geom = list of surfaces defining the cell, PARAMS = list of parameters defining the cell
         cell name (str) (optional) : to be edited in case cell cards do not procide comments with cells' names
         data : list of lists parsed in "parseMCNP_deck", data will be accessed and used to intialize de cell cards' attributes
         """
+        #print(f"Processing cell card with data : {data}")
         if format == 1:
             self.format = format
         else:
             print("Input cell format to supported yet")
             return
-        self.cells_group = cell_group_name
+        self.cell_name = cell_name
         self.surfaces = []
         self.neutron_importance=np.zeros(len(data))
         data=data.replace("  ", " ").replace("   ", " ")
@@ -161,4 +164,18 @@ class MCNP_Material_Card:
                 print(self.iso_densities)
 
 
-
+class MCNP_case:
+    def __init__(self, name, cell_cards, surface_cards, material_cards):
+        """
+        MCNP card class structures in Python3
+        
+        Instances of this class are initialized in the DMLG_Interface class when parsing MCNP cards
+        Its attributes are the objects created from classes MCNP_Cell_Card, MCNP_Surface_Card and MCNP_Material_Card
+        """
+        self.name = name
+        print(f"Processing MCNP input case for {self.name}")
+        self.cell_cards = cell_cards
+        self.surface_cards = surface_cards
+        self.material_cards = material_cards
+        
+        return
