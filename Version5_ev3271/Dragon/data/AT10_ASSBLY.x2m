@@ -51,9 +51,72 @@ ECHO "Mixes for ASSBLY :" assbly_opt " retrieved"  ;
 ************************************************************************
 
 LIBRARY2 := USS: LIBRARY TRACK_SS TRACKSS_EXC ::
-            EDIT 0
-            PASS 2
-            GRMIN 52
+            EDIT 1 PASS 3 GRMIN 52
+          CALC 
+* ALL CELLS
+               REGI W1 U235  ALL
+               REGI W1 U236  ALL
+               REGI W1 Pu239 ALL
+               REGI W1 Pu240 ALL
+               REGI W1 Pu241 ALL
+               REGI W1 Pu242 ALL
+
+               REGI W1 Gd154 ALL
+               REGI W1 Gd155 ALL
+               REGI W1 Gd156 ALL
+               REGI W1 Gd157 ALL
+               REGI W1 Gd158 ALL
+
+               REGI W1 Zr90 ALL
+               REGI W1 Zr91 ALL
+               REGI W1 Zr92 ALL
+               REGI W1 Zr94 ALL
+               REGI W1 Zr96 ALL
+
+               REGI W1 U238 1
+               REGI W2 U238 2
+               REGI W3 U238 3
+               REGI W4 U238 4
+
+               REGI W1 U238 21
+               REGI W2 U238 22
+               REGI W3 U238 23
+               REGI W4 U238 24
+
+               REGI W1 U238 31
+               REGI W2 U238 32
+               REGI W3 U238 33
+               REGI W4 U238 34
+
+               REGI W1 U238 41
+               REGI W2 U238 42
+               REGI W3 U238 43
+               REGI W4 U238 44
+
+               REGI W1 U238 51
+               REGI W2 U238 52
+               REGI W3 U238 53
+               REGI W4 U238 54
+
+               REGI W1 U238 61
+               REGI W2 U238 62
+               REGI W3 U238 63
+               REGI W4 U238 64
+
+               REGI W1 U238 71
+               REGI W2 U238 72
+               REGI W3 U238 73
+               REGI W4 U238 74
+               REGI W4 U238 75
+               REGI W4 U238 76
+
+               REGI W1 U238 81
+               REGI W2 U238 82
+               REGI W3 U238 83
+               REGI W4 U238 84
+               REGI W4 U238 85
+               REGI W4 U238 86
+            ENDC
          ;
 
 ************************************************************************
@@ -68,7 +131,7 @@ FLUX := FLU: LIBRARY2 SYS TRACK TRACK_EXC ::
 GREP: FLUX :: GETVAL 'K-INFINITY  ' 1 1 1 >>Kinf<< ;
 
 ECHO assbly_opt " t=0 calculation completed, Kinf = " Kinf ;
-!ECHO "tracking of Geom_A done" ;
+ECHO "tracking of Geom_A done" ;
 
 
 END: ;
