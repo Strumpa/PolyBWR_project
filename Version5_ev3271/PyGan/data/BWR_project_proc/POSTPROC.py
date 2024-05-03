@@ -337,7 +337,7 @@ def POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
     if visu_DELTA==1 :
         print('$$$ -------- POSTPROC.py : ERROR DRAGON5-Serpent2 figures ')
 
-        for k in range(lenISOT_DRAGON-1):
+        for k in range(lenISOT_DRAGON): # -1 lenISOT_DRAGON-1 ?
 
             plt.figure()
             plt.figure(figsize=SIZE)
