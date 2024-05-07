@@ -231,13 +231,10 @@ class Serpent2_post_treatment:
 
 
 
-testsssssss = {"bob": 50, "alice": 50}
-print(testsssssss.keys())
-
 cell = "AT10_24UOX_750K"
 cell_temp = "AT10_24UOX_900K"
 path_to_data = "/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/"
-ref_T750_file_name = "AT10_24UOX_mc"
+ref_T750_file_name = "AT10_24UOX_mc" 
 ref_T900_file_name = 'AT10_24UOX_temp_mc'
 
 test1_file_name='24UOX_test_1_mc' # name of the tests' outputs
@@ -254,20 +251,19 @@ isotopes_=['U235','U236','U238','Pu239','Pu240','Pu241','Pu242','Gd155','Gd157',
 
 #postTreat_Tests(cell, path_to_data, path_to_data, isotopes_, [ref_T750_case_name, ref_T900_case_name], [test1_name, test3_name, test3_temp_name], SAVE_DIR)
 
-reference_case_sss_jeff311_750 = Serpent2_case(path_to_data, ref_T750_file_name, "Serpent1 jeff311, @750K", 750, "sss_jeff311u.data", isotopes_, SAVE_DIR)
-reference_case_sss_jeff311_900 = Serpent2_case(path_to_data, ref_T900_file_name, "Serpent1 jeff311, @900K", 900, "sss_jeff311u.data", isotopes_, SAVE_DIR)
+reference_case_sss_PyNjoy_750 = Serpent2_case(path_to_data, ref_T750_file_name, "PyNjoy @750K", 750, "sss_jeff311u.data", isotopes_, SAVE_DIR)
+#reference_case_sss_jeff311_900 = Serpent2_case(path_to_data, ref_T900_file_name, "Serpent1 jeff311, @900K", 900, "sss_jeff311u.data", isotopes_, SAVE_DIR)
 
 test1_case_Pynjoy_nometastables_750 = Serpent2_case(path_to_tests, test1_file_name, "PyNjoy2016, no metastables, @750K", 750, "JEFF311PynJoy2016", isotopes_, SAVE_DIR)
 test3_case_Pynjoy_metastables_from_sss1_750 = Serpent2_case(path_to_tests, test3_file_name, "PyNjoy2016 + meta stables from sss_jeff311u, @750K", 750, "JEFF311PynJoy2016", isotopes_, SAVE_DIR)
-test3_case_Pynjoy_metastables_from_sss1_900 = Serpent2_case(path_to_tests, test3_900_file_name, "PyNjoy2016 + meta stables from sss_jeff311u @900K", 900, "JEFF311PynJoy2016", isotopes_, SAVE_DIR)
+#test3_case_Pynjoy_metastables_from_sss1_900 = Serpent2_case(path_to_tests, test3_900_file_name, "PyNjoy2016 + meta stables from sss_jeff311u @900K", 900, "JEFF311PynJoy2016", isotopes_, SAVE_DIR)
 
-#compare_references = Serpent2_post_treatment("24UOX references", {reference_case_sss_jeff311_750:[reference_case_sss_jeff311_900]}, SAVE_DIR)
 
 #compare_tests_at_750 = Serpent2_post_treatment("24UOX tests 1 and 3", {reference_case_sss_jeff311_750:[test1_case_Pynjoy_nometastables_750, test3_case_Pynjoy_metastables_from_sss1_750]}, SAVE_DIR)
 #compare_tests_at_900 = Serpent2_post_treatment("24UOX test 3 900K", {reference_case_sss_jeff311_900:[test3_case_Pynjoy_metastables_from_sss1_900]}, SAVE_DIR)
-comparison_list = [reference_case_sss_jeff311_750, test1_case_Pynjoy_nometastables_750, reference_case_sss_jeff311_750, test3_case_Pynjoy_metastables_from_sss1_750, reference_case_sss_jeff311_900, test3_case_Pynjoy_metastables_from_sss1_900]
+comparison_list = [reference_case_sss_PyNjoy_750, test3_case_Pynjoy_metastables_from_sss1_750]
 
-compare_all_tests_to_ref = Serpent2_post_treatment("24UOX all tests", comparison_list, SAVE_DIR)
+compare_all_tests_to_ref = Serpent2_post_treatment("24UOX PyNjoy ref tests", comparison_list, SAVE_DIR)
 
 """
     
