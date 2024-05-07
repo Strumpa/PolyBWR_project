@@ -10,6 +10,7 @@
 *.eps
 *.png
 *.out
+*.pyc
 
 */__pycache__/
 PTT/DMLG_proj/__pycache__/
