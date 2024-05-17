@@ -57,6 +57,7 @@ Geo_G2S FIG_main.ps := G2S: GEOM :: ;
 TRACK TF_EXC := SALT: Geo_G2S ::
   EDIT 1
   ALLG
+  ANIS 2
   TSPC EQW2 <<an2d>> <<densur>> REND
   LONG
 ;
@@ -64,7 +65,7 @@ TRACK TF_EXC := SALT: Geo_G2S ::
 * MOC tracking
 TRACK := MCCGT: TRACK TF_EXC ::
   EDIT 0
-  CACB <<nmu>> AAC 80 TMT EPSI 1E-5 MCU <<mcu>>
+  OPP1 <<nmu>> AAC 80 TMT EPSI 1E-5 MCU <<mcu>> ! tried CACB but is limited to isotropic ?
 ;
 
 * ---

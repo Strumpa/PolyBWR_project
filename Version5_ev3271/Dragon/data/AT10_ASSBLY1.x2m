@@ -27,7 +27,7 @@ SEQ_ASCII TLM_SS :: FILE 'tracks_SALT_SS_ASSBLY.m' ;
 REAL Kinf ;
 
 
-STRING geo_name := "AT10_ASSBLY_test" ; ! Geometry choice for tests and benchmarks
+STRING geo_name := "AT10_ASSBLY_fine" ; ! Geometry choice for tests and benchmarks
 STRING mix_opt := "AT10_void_0" ; ! option to choose from possible mixes, 0%, 40% and 80% void fraction
 STRING ssh_opt := "VVER_REGI" ; ! option to choose from possible options of USS: module. 
 ! "VVER+(_ALL/REGI)" option is based on Lucas Fede's work on VVER assembly calculations as part of the Poly VVER Project.
@@ -64,7 +64,7 @@ LIBRARY2 := mixAUTOP1 LIBRARY TRACK_SS TRACKSS_EXC :: <<geo_name>> <<ssh_opt>> ;
 SYS := ASM: LIBRARY2 TRACK TRACK_EXC :: ARM EDIT 0 ; 
 
 FLUX := FLU: LIBRARY2 SYS TRACK TRACK_EXC :: 
-             EDIT 1 TYPE K B1 SIGS 
+             EDIT 1 TYPE K B1 SIGS ; 
       ;
 GREP: FLUX :: GETVAL 'K-INFINITY  ' 1 1 1 >>Kinf<< ;
 
