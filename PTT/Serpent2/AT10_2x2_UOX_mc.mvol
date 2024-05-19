@@ -1,0 +1,22 @@
+% --- Material volumes:
+
+% Produced Fri May 17 17:50:25 2024 by MC volume calculation routine by
+% sampling 10000000000 random points in the geometry.
+
+set mvol
+
+24UOx_A         1 3.08958E-01 % (0.000)
+24UOx_B         1 1.85373E-01 % (0.000)
+24UOx_C         1 9.26835E-02 % (0.000)
+24UOx_D         1 3.08952E-02 % (0.000)
+32UOx_A         1 6.17931E-01 % (0.000)
+32UOx_B         1 3.70746E-01 % (0.000)
+32UOx_C         1 1.85395E-01 % (0.000)
+32UOx_D         1 6.17839E-02 % (0.000)
+45UOx_A         1 3.08982E-01 % (0.000)
+45UOx_B         1 1.85379E-01 % (0.000)
+45UOx_C         1 9.26827E-02 % (0.000)
+45UOx_D         1 3.08920E-02 % (0.000)
+clad            0 7.52611E-01 % (0.000)
+cool            0 3.38812E+00 % (0.000)
+gap             0 9.56649E-02 % (0.000)

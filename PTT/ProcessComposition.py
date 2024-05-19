@@ -16,8 +16,7 @@ class Compo_Processor:
                         "26054": "Fe54", "26056": "Fe56", "26057": "Fe57", "26058": "Fe58",
                         "28058": "Ni58", "28060": "Ni60", "28061": "Ni61", "28062": "Ni62", "28064": "Ni64",
                         "40090": "Zr90", "40091": "Zr91", "40092": "Zr92", "40094": "Zr94", "40096": "Zr96",
-                        "50112": "Sn112", "50114": "Sn114", "50115": "Sn115", "50116": "Sn116","50117": "Sn117",  "50118": "Sn118", "50119": "Sn119", "50120": "Sn120", "50122": "Sn122", "50124": "Sn124"
-                                 }
+                        "50112": "Sn112", "50114": "Sn114", "50115": "Sn115", "50116": "Sn116","50117": "Sn117",  "50118": "Sn118", "50119": "Sn119", "50120": "Sn120", "50122": "Sn122", "50124": "Sn124" }
    
         lines = open(filename, "r")
         isos_code_adens = {}
@@ -74,7 +73,7 @@ class Compo_Processor:
     
 
 
-Processor = Compo_Processor("compo_data/BOX_compo.txt")
+Processor = Compo_Processor("compo_data/CLAD_compo.txt")
 Processor.check_consistency()
 Processor.iso_code_to_nuclide()
 Processor.print_to_Dragon5_format()

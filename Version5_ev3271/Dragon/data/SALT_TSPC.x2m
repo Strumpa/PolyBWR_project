@@ -83,7 +83,6 @@ TRACK TF_EXC := SALT: UOX_TBH_FLX ::
   EDIT 100
   ALLG
   TSPC EQW2 <<an2d>> <<densur>> REND
-  MERGMIX
   LONG
 ;
 
