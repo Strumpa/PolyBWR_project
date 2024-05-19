@@ -67,8 +67,8 @@ def check_SerpentvsDragon_vols(Serpent2_case, Dragon5_case, material_assocoation
             S2_vols = list(S2_material_volumes.values())
             D5_vols = list(D5_regions_volumes.values())
             for i in range(len(S2_vols)):
-                error = D5_vols[i]*2-S2_vols[i]/2
-                relative_error = (D5_vols[i]*2-S2_vols[i]/2)*100/S2_vols[i]
+                error = D5_vols[i]-S2_vols[i]
+                relative_error = (D5_vols[i]-S2_vols[i])*100/S2_vols[i]
                 errors.append(error)
                 rel_errors.append(relative_error)
                 if abs(relative_error)>=0.01:
@@ -99,12 +99,12 @@ def check_SerpentvsDragon_vols(Serpent2_case, Dragon5_case, material_assocoation
 #assbly_serp_vols = "/home/loutre/RESEARCH/PolyBWR_project/PTT/Serpent2/AT10_ASSBLY_mc.mvol"
 #assbly_drag_vols = "/home/loutre/RESEARCH/PolyBWR_project/PTT/Dragon5/SALT_volumes.txt"
 
-assbly_serp_vols = "../Serpent2/AT10_ASSBLY_mc.mvol"
-assbly_drag_vols = "../Dragon5/SALT_volumes.txt"
+assbly_serp_vols = "../Serpent2/AT10_2x2_UOX_mc.mvol"
+assbly_drag_vols = "../Dragon5/SALT_2x2_UOX_vols.txt"
 
 AT10_ASSBLY_Serp = DMLG.DMLG_Interface(assbly_serp_vols, type="Serpent2",mode="check_volumes")
-AT10_ASSBLY_Serp.createS2_geom("ATRIUM-10 bundle", 1)
-print(AT10_ASSBLY_Serp.S2_geom.getOrderedMaterialVols()["box"])
+AT10_ASSBLY_Serp.createS2_geom("ATRIUM-10 2x2 UOX bundle", 1)
+#print(AT10_ASSBLY_Serp.S2_geom.getOrderedMaterialVols()["box"])
 
 
 AT10_ASSBLY_drag = DMLG.DMLG_Interface(assbly_drag_vols, type="Dragon",mode="output")
@@ -112,7 +112,7 @@ AT10_ASSBLY_drag.Dragon5_geom.ComputeOrderedVolumesandRegions()
 check_SerpentvsDragon_vols(AT10_ASSBLY_Serp, AT10_ASSBLY_drag)
 
 
-
+"""
 # Checking with geometric data : Analytical evaluation of volumes by geom_ASSBLY class :
 Channel_box_out = 2.3975+1.1025
 Channel_box_in = 2.3175+1.0225
@@ -141,3 +141,4 @@ for region_name in Analytical_volumes.keys():
     print(f"Statistical error on volume of region {region_name} from Serpent2 is {S2_error:.03f} %")
     
 
+"""

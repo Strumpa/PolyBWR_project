@@ -75,6 +75,7 @@ TRACK_SS TF_EXC_SS := SALT: UOX_TBH_SS ::
   EDIT 0
   ALLG
   TSPC <<an2d_SS>> <<densur_SS>> REND
+  MERGMIX
 ;
 
 
