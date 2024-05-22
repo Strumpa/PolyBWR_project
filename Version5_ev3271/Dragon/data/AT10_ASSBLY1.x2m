@@ -1,0 +1,81 @@
+* DECK AT10_ASSBLY.x2m
+* Puropse : perform AT10 Assembly calculation
+* Author : R. Guasch
+* 
+* Testing Geometric definition, analysis and tracking capabilities for modules
+*         Geo:, NXT:, G2S:, SALT:
+*
+* Dependant on procedures : Geom_A.c2m
+*
+* 
+
+
+MODULE GEO: G2S: SALT: TLM: NXT: USS: ASM: FLU: GREP: END: ;
+
+PROCEDURE Geom_A Geom_A2 TRK_A_SALT Mix_ASSBLY1 mixAUTOP1 ;
+
+LINKED_LIST GEOM GEOM_SS TRACK TRACK_SS LIBRARY ;
+
+LINKED_LIST LIBRARY2 SYS FLUX ;
+
+SEQ_ASCII Geo_G2S GeoSS_G2S ;
+SEQ_BINARY TRACK_EXC TRACKSS_EXC ;
+SEQ_ASCII FIG_main.ps :: FILE './FIG_main.ps' ;
+SEQ_ASCII FIG_SS.ps :: FILE './FIG_selfshielding.ps' ;
+SEQ_ASCII TLM_F :: FILE 'tracks_SALT_ASSBLY.m' ;
+SEQ_ASCII TLM_SS :: FILE 'tracks_SALT_SS_ASSBLY.m' ;
+REAL Kinf ;
+
+
+STRING geo_name := "AT10_ASSBLY_fine" ; ! Geometry choice for tests and benchmarks
+STRING mix_opt := "AT10_void_0" ; ! option to choose from possible mixes, 0%, 40% and 80% void fraction
+STRING ssh_opt := "VVER_REGI" ; ! option to choose from possible options of USS: module. 
+! "VVER+(_ALL/REGI)" option is based on Lucas Fede's work on VVER assembly calculations as part of the Poly VVER Project.
+! "PWR+(_option)" option is based on A. Canabakan's work on the validation of reference calculations for PWRs.
+! to be determined : "BWR" option uses the optimized options for heterogeneous BWR fuel bundle.
+
+
+! 3 level BWR geometry definition
+GEOM GEOM_SS := Geom_A :: <<geo_name>> ;
+ECHO "3 level Geometry generated" ;
+
+! Call to trackin module
+Geo_G2S FIG_main.ps TRACK TRACK_EXC GeoSS_G2S FIG_SS.ps TRACK_SS TRACKSS_EXC := TRK_A_SALT GEOM GEOM_SS ;
+
+
+
+ECHO "Geometry tracking with G2S: -> SALT: completed" ;
+
+LIBRARY := Mix_ASSBLY1 :: J311_295 <<mix_opt>> ;
+
+ECHO "Mixes for ASSBLY : " mix_opt " retrieved"  ;
+
+
+************************************************************************
+*  BEGIN SELF SHIELDING CALCULATION                                    *
+************************************************************************
+! AUTOP1 + ssh_opt = self shielding options used in VVER project for the treatement of 39AWU assembly.
+LIBRARY2 := mixAUTOP1 LIBRARY TRACK_SS TRACKSS_EXC :: <<geo_name>> <<ssh_opt>> ;
+
+************************************************************************
+*  BEGIN MOC FLUX CALCULATION                                          *
+************************************************************************
+
+SYS := ASM: LIBRARY2 TRACK TRACK_EXC :: ARM EDIT 0 ; 
+
+FLUX := FLU: LIBRARY2 SYS TRACK TRACK_EXC :: 
+             EDIT 1 TYPE K B1 SIGS  
+      ;
+GREP: FLUX :: GETVAL 'K-INFINITY  ' 1 1 1 >>Kinf<< ;
+
+ECHO mix_opt " t=0 calculation completed, Kinf = " Kinf ;
+ECHO "tracking of Geom_A done" ;
+
+
+END: ;
+
+
+
+
+
+

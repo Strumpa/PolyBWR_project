@@ -12,14 +12,17 @@
 #             IMPORTS            #
 #                                #
 ##################################
-import os, shutil, sys
+import sys
+#sys.path.append('/usr/local/lib/python3.8/dist-packages')
+import numpy as np
+import os, shutil
 import lifo
 import lcm
 import cle2000
-import numpy as np
 import matplotlib
 matplotlib.use('Agg')
-#from matplotlib import pyplot
+
+from matplotlib import pyplot
 import matplotlib.pyplot as plt
 from assertS import *
 # POST-PROCESSING class
@@ -71,10 +74,10 @@ TYPE = 'HYBRIDE'
 #           - 'AT10_42Gd'
 # - assemblies : 
 #           - 'ATRIUM-10XM_NL24-2'
-#           - 'ATRIUM-10XM NL24-2_ctrl'
-name_geom = 'AT10_UOX' # 'AT10_UOX_Gd2O3'
-name_mix = "AT10_24UOX"
-tracking_module = "SYBNXT" #"SALT"
+#           - 'ATRIUM-10XM_NL24-2_ctrl'
+name_geom = 'AT10_UOX_Gd2O3' # 'AT10_UOX' # 
+name_mix = "AT10_45Gd" #"AT10_24UOX"
+tracking_module = "SALT" #"SALT"
 #
 # Multicompo = 1 if you want to generate a MULTICOMPO object 
 #            = 0 either
@@ -86,7 +89,7 @@ Multicompo = 1
 #        - 'UOx'  : used for UOx fuel without Gd poison
 #        - 'Gd'   : used for UOx fuel with Gd poison
 #        - 'free' : modify the burnup points as you wish
-burnup_points = 'UOx4_autop5'
+burnup_points = 'Gd_autop5' # 'UOx4_autop5' 'UOx2_autop5'
 # suffixe = suffixe added to name_geom for creation of figures, MULTICOMPO and BU vector
 suffixe = tracking_module+"_"+burnup_points
 #
@@ -162,7 +165,7 @@ StepList['ListAutop'] = np.array(ListeAUTOP, dtype='f')
 StepList['ListCompo'] = np.array(ListeCOMPO, dtype='f')
 StepList.close() # close without erasing
 #
-# Save BU evctor
+# Save BU vector
 os.chdir(path+'/'+'BWRresults_PyGan_'+name_geom)
 np.savetxt(name_BUvector+'_'+name_mix+'_BUvector.txt',ListeCOMPO)
 os.chdir(path)

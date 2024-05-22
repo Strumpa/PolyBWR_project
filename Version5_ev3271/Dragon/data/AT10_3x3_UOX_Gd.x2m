@@ -1,0 +1,409 @@
+* AT10_3x3_UOX_Gd.x2m, CLE-2000 script to call Dragon5
+* Purpose : Refining calculation scheme for BWR ATRIUM-10 type heterogeneous assemlies.
+* 3x3 pins, pins 1, 2, 3, 4, 6 = UOX, pin 7 = Gd.
+* Reference Serpen2 case : AT10_3x3_UOX_Gd_mc
+* No Burnup calculation 
+
+
+****************************************************************************
+************************** VARIABLES DEFINITION ****************************
+****************************************************************************
+
+MODULE GEO: G2S: NXT: SYBILT: SALT: TLM: MCCGT: LIB: USS: ASM: FLU: GREP: END: ;
+LINKED_LIST GEOM_3x3 GEOM_3x3_SS LIBRARY LIBRARY2 TRACK_SS TRACK SYS FLUX ;
+
+SEQ_ASCII Geo_G2S GeoSS_G2S ;
+
+SEQ_ASCII FIG_main.ps :: FILE './FIG_main_3.ps' ;
+SEQ_ASCII FIG_SS.ps :: FILE './FIG_selfshielding_3.ps' ;
+
+SEQ_BINARY TF_EXC TF_EXC_SS ;
+SEQ_ASCII TLM_F1 :: FILE 'tracks_SALT_FLX_3x3_UOX.m' ;
+SEQ_ASCII TLM_F2 :: FILE 'tracks_SALT_SSH_3x3_UOX.m' ;
+
+STRING Library := "J311_295" ;
+
+REAL Kinf ;
+
+****************************************************************************
+********************** GEOMETRY DEFINTION OF 2x2 UOX ***********************
+****************************************************************************
+REAL Pitch_C := 1.29500 ;
+REAL Rgap Rclad := 0.4520 0.5140 ;
+REAL Rcomb1 Rcomb2 Rcomb3 Rcomb4 ;
+EVALUATE Rcomb4 := 0.4435 ;
+EVALUATE Rcomb1 := 0.313602 ;
+EVALUATE Rcomb2 := 0.396678 ; 
+EVALUATE Rcomb3 := 0.43227 ;
+
+!Mix numbers for C1 fuel 
+INTEGER COMB0101 COMB0102 COMB0103 COMB0104 ;
+EVALUATE COMB0101 COMB0102 COMB0103 COMB0104 := 1 2 3 4 ;
+
+!Mix numbers for C2 fuel 
+INTEGER COMB0201 COMB0202 COMB0203 COMB0204 ;
+EVALUATE COMB0201 COMB0202 COMB0203 COMB0204 := 21 22 23 24 ;
+
+!Mix numbers for C3 fuel 
+INTEGER COMB0301 COMB0302 COMB0303 COMB0304 ;
+EVALUATE COMB0301 COMB0302 COMB0303 COMB0304 := 31 32 33 34 ;
+
+!Mix numbers for C4 fuel 
+INTEGER COMB0401 COMB0402 COMB0403 COMB0404 ;
+EVALUATE COMB0401 COMB0402 COMB0403 COMB0404 := 41 42 43 44 ;
+
+!Mix numbers for C6 fuel 
+INTEGER COMB0601 COMB0602 COMB0603 COMB0604 ;
+EVALUATE COMB0601 COMB0602 COMB0603 COMB0604 := 61 62 63 64 ;
+
+! UOX + Gd Pincell scale data
+
+REAL RcombGd1 RcombGd2 RcombGd3 RcombGd4 RcombGd5 RcombGd6 ;
+EVALUATE RcombGd1 RcombGd2 RcombGd3 RcombGd4 RcombGd5 RcombGd6 
+         := 0.19834 0.28049 0.34353 0.39668 0.43227 0.4435 ;
+
+! Mix numbers C7 fuel
+INTEGER COMB0701 COMB0702 COMB0703 COMB0704 COMB0705 COMB0706 ;
+EVALUATE COMB0701 COMB0702 COMB0703 COMB0704 COMB0705 COMB0706 := 71 72 73 74 75 76 ;
+
+! Pin level common mixes : Clad, Gap, Coolant (intra-pin water) :
+
+INTEGER GAP CLAD COOL ;
+EVALUATE GAP CLAD COOL := 5 6 7 ;
+
+! Multiples of cell pitch : used to define 2nd level geometry mesh 
+REAL 2_Pitch_C 3_Pitch_C 4_Pitch_C ;
+EVALUATE 2_Pitch_C := Pitch_C 2.0 * ;
+EVALUATE 3_Pitch_C := Pitch_C 3.0 * ;
+EVALUATE 4_Pitch_C := Pitch_C 4.0 * ;
+
+
+
+GEOM_3x3_SS := GEO: :: CAR2D 3 3
+    X- REFL X+ REFL 
+    Y- REFL Y+ REFL
+    CELL
+    C1 C2 C3
+    C2 C4 C7
+    C3 C7 C6
+    MESHX 0.0 <<Pitch_C>> <<2_Pitch_C>> <<3_Pitch_C>>
+    MESHX 0.0 <<Pitch_C>> <<2_Pitch_C>> <<3_Pitch_C>>
+    ::: C1 :=  GEO: CARCEL 6 
+                RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
+                <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
+                MIX <<COMB0101>> <<COMB0102>> <<COMB0103>> <<COMB0104>>
+                    <<GAP>> <<CLAD>> <<COOL>> 
+                    MESHX 0.0 <<Pitch_C>> MESHY 0.0 <<Pitch_C>>
+    ;
+    ::: C2 := GEO: C1 MIX <<COMB0201>> <<COMB0202>> <<COMB0203>> <<COMB0204>>
+                            <<GAP>> <<CLAD>> <<COOL>>
+    ;
+    ::: C3 := GEO: C1 MIX <<COMB0301>> <<COMB0302>> <<COMB0303>> <<COMB0304>>
+                            <<GAP>> <<CLAD>> <<COOL>>  
+    ;
+    ::: C4 := GEO: C1 MIX <<COMB0401>> <<COMB0402>> <<COMB0403>> <<COMB0404>>
+                            <<GAP>> <<CLAD>> <<COOL>>
+    ;
+    ::: C6 := GEO: C1 MIX <<COMB0601>> <<COMB0602>> <<COMB0603>> <<COMB0604>>
+                            <<GAP>> <<CLAD>> <<COOL>> 
+    ;
+    ::: C7 := GEO: CARCEL 8
+              RADIUS 0.0 <<RcombGd1>> <<RcombGd2>> <<RcombGd3>> <<RcombGd4>>
+                          <<RcombGd5>> <<RcombGd6>> <<Rgap>> <<Rclad>> 
+              MIX <<COMB0701>> <<COMB0702>> <<COMB0703>> <<COMB0704>> <<COMB0705>> <<COMB0706>>
+                  <<GAP>> <<CLAD>> <<COOL>>
+              MESHX 0.0 <<Pitch_C>> MESHY 0.0 <<Pitch_C>>
+    ; 
+;
+
+
+GEOM_3x3 := GEO: :: CAR2D 3 3
+    X- REFL X+ REFL 
+    Y- REFL Y+ REFL
+    CELL
+    C1 C2 C3
+    C2 C4 C7
+    C3 C7 C6
+    MESHX 0.0 <<Pitch_C>> <<2_Pitch_C>> <<3_Pitch_C>>
+    MESHX 0.0 <<Pitch_C>> <<2_Pitch_C>> <<3_Pitch_C>>
+    ::: C1 :=  GEO: CARCEL 6 
+                SECT 4 6
+                RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
+                <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
+                MIX <<COMB0101>> <<COMB0102>> <<COMB0103>> <<COMB0104>>
+                    <<GAP>> <<CLAD>>
+                    <<COOL>> <<COOL>> <<COOL>> <<COOL>>
+                    <<COOL>> <<COOL>> <<COOL>> <<COOL>>
+                    <<COOL>> <<COOL>> <<COOL>> <<COOL>>  
+                MESHX 0.0 <<Pitch_C>> MESHY 0.0 <<Pitch_C>>
+    ;
+    ::: C2 := GEO: C1 MIX <<COMB0201>> <<COMB0202>> <<COMB0203>> <<COMB0204>>
+                            <<GAP>> <<CLAD>> <<COOL>> <<COOL>> <<COOL>> <<COOL>>
+                            <<COOL>> <<COOL>> <<COOL>> <<COOL>>
+                            <<COOL>> <<COOL>> <<COOL>> <<COOL>>
+    ;
+    ::: C3 := GEO: C1 MIX <<COMB0301>> <<COMB0302>> <<COMB0303>> <<COMB0304>>
+                            <<GAP>> <<CLAD>> <<COOL>> <<COOL>> <<COOL>> <<COOL>>
+                            <<COOL>> <<COOL>> <<COOL>> <<COOL>>
+                            <<COOL>> <<COOL>> <<COOL>> <<COOL>>  
+    ;
+    ::: C4 := GEO: C1 MIX <<COMB0401>> <<COMB0402>> <<COMB0403>> <<COMB0404>>
+                            <<GAP>> <<CLAD>> 
+                            <<COOL>> <<COOL>> <<COOL>> <<COOL>>
+                            <<COOL>> <<COOL>> <<COOL>> <<COOL>>
+                            <<COOL>> <<COOL>> <<COOL>> <<COOL>>
+    ;
+    ::: C6 := GEO: C1 MIX <<COMB0601>> <<COMB0602>> <<COMB0603>> <<COMB0604>>
+                            <<GAP>> <<CLAD>>                            
+                            <<COOL>> <<COOL>> <<COOL>> <<COOL>>
+                            <<COOL>> <<COOL>> <<COOL>> <<COOL>>
+                            <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
+    ;
+    ::: C7 := GEO: CARCEL 8
+              SECT 4 8 
+              RADIUS 0.0 <<RcombGd1>> <<RcombGd2>> <<RcombGd3>> <<RcombGd4>>
+                          <<RcombGd5>> <<RcombGd6>> <<Rgap>> <<Rclad>> 
+              MIX <<COMB0701>> <<COMB0702>> <<COMB0703>> <<COMB0704>> <<COMB0705>> <<COMB0706>>
+                  <<GAP>> <<CLAD>> 
+                  <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>>
+                  <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>>
+              MESHX 0.0 <<Pitch_C>> MESHY 0.0 <<Pitch_C>>
+    ;
+    
+;
+
+****************************************************************************
+*********************** LIBRARY DEFINTION OF 2x2 UOX ***********************
+****************************************************************************
+
+
+LIBRARY := LIB: ::
+    EDIT 0
+    NMIX 150    ! MAXIMUM OF MATERIAL MIXTURES
+    RSE 1.0E-04
+    ANIS 3
+
+  DEPL LIB: DRAGON FIL: <<Library>>
+
+  MIXS LIB: DRAGON FIL: <<Library>>
+! C1 fuel compo "AT10_24UOX" :
+  MIX <<COMB0101>> 750.0
+    O16     = O16    4.66705E-02
+    U234    = U234   5.15910E-06 1
+    U235    = U235   5.67035E-04 1 
+    U238    = U238   2.27631E-02 1 
+  MIX <<COMB0102>> COMB <<COMB0101>> 1.0
+  MIX <<COMB0103>> COMB <<COMB0101>> 1.0
+  MIX <<COMB0104>> COMB <<COMB0101>> 1.0
+
+! C2 fuel compo "AT10_32UOX" :
+  MIX <<COMB0201>> 750.0
+    O16     = O16    4.667480E-02
+    U234    = U234   7.039170E-06 2
+    U235    = U235   7.560370E-04 2 
+    U238    = U238   2.257430E-02 2 
+  MIX <<COMB0202>> COMB <<COMB0201>> 1.0
+  MIX <<COMB0203>> COMB <<COMB0201>> 1.0
+  MIX <<COMB0204>> COMB <<COMB0201>> 1.0
+
+!C3 fuel compo "AT10_42UOX" :
+  MIX <<COMB0301>> 750.0
+    O16     = O16    4.667960E-02
+    U234    = U234   9.163680E-06 3 
+    U235    = U235   9.686590E-04 3 
+    U238    = U238   2.236200E-02 3
+  MIX <<COMB0302>> COMB <<COMB0301>> 1.0
+  MIX <<COMB0303>> COMB <<COMB0301>> 1.0
+  MIX <<COMB0304>> COMB <<COMB0301>> 1.0
+
+
+! C4 fuel compo "AT10_45UOX" :
+  MIX <<COMB0401>> 750.0
+    O16     = O16    4.668150E-02
+    U234    = U234   9.991530E-06 4
+    U235    = U235   1.051340E-03 4 
+    U238    = U238   2.227940E-02 4 
+  MIX <<COMB0402>> COMB <<COMB0401>> 1.0
+  MIX <<COMB0403>> COMB <<COMB0401>> 1.0
+  MIX <<COMB0404>> COMB <<COMB0401>> 1.0
+
+! C6 fuel compo "AT10_50UOX" :
+  MIX <<COMB0601>> 750.0
+    O16     = O16    4.668410E-02
+    U234    = U234   1.117530E-05 6 
+    U235    = U235   1.169460E-03 6 
+    U238    = U238   2.216140E-02 6
+  MIX <<COMB0602>> COMB <<COMB0601>> 1.0
+  MIX <<COMB0603>> COMB <<COMB0601>> 1.0
+  MIX <<COMB0604>> COMB <<COMB0601>> 1.0
+
+  ! C7 fuel compo "AT10_45Gd":
+  MIX <<COMB0701>> 750.0
+    O16     = O16    4.621410E-02
+    U234    = U234   9.451580E-06 7 
+    U235    = U235   9.945290E-04 7 
+    U238    = U238   2.107540E-02 7
+    Gd154    = Gd154   2.986510E-05 7
+    Gd155    = Gd155   2.027540E-04 7
+    Gd156    = Gd156   2.804310E-04 7
+    Gd157    = Gd157   2.143990E-04 7
+    Gd158    = Gd158   3.403000E-04 7
+    Gd160    = Gd160   2.994740E-04 7  
+  MIX <<COMB0702>> COMB <<COMB0701>> 1.0
+  MIX <<COMB0703>> COMB <<COMB0701>> 1.0
+  MIX <<COMB0704>> COMB <<COMB0701>> 1.0
+  MIX <<COMB0705>> COMB <<COMB0701>> 1.0
+  MIX <<COMB0706>> COMB <<COMB0701>> 1.0
+
+
+  MIX <<CLAD>> 559.0 NOEV
+    Zr90  = Zr90   2.18317E-02  10
+    Zr91  = Zr91   4.76096E-03  10
+    Zr92  = Zr92   7.27723E-03  10
+    Zr94  = Zr94   7.37482E-03  10
+    Zr96  = Zr96   1.18812E-03  10
+    Ni60  = Ni60   9.69262E-06
+    Fe58  = Fe58   2.68895E-07
+    Sn112  = Sn112   4.67343E-06
+    Sn116  = Sn116   7.00535E-05
+    Cr50  = Cr50   3.29613E-06
+    Sn114  = Sn114   3.17985E-06
+    Sn117  = Sn117   3.70020E-05
+    Sn122  = Sn122   2.23073E-05
+    Sn124  = Sn124   2.78961E-05
+    Cr54  = Cr54   1.79408E-06
+    Ni62  = Ni62   1.34344E-06
+    Cr53  = Cr53   7.20746E-06
+    Sn115  = Sn115   1.63812E-06
+    Ni61  = Ni61   4.21331E-07
+    Ni64  = Ni64   3.42085E-07
+    Cr52  = Cr52   6.35631E-05
+    Sn120  = Sn120   1.56970E-04
+    Ni58  = Ni58   2.51627E-05
+    Fe54  = Fe54   5.57337E-06
+    Fe57  = Fe57   2.02053E-06
+    Fe56  = Fe56   8.74901E-05
+    Sn118  = Sn118   1.16691E-04
+    Sn119  = Sn119   4.13864E-05
+
+  MIX <<GAP>> 750.0 NOEV
+    He4      = He4 1.50456E-04
+
+  MIX <<COOL>> 559.0 NOEV
+    H1      = H1_H2O 4.94546E-02 ! 0% void Coolant 
+    O16     = O16    2.47298E-02
+
+;
+
+****************************************************************************************
+********************* TRAKING GEOM_2x2/_SS FOR FLUX/SSH CALCULATION ********************
+****************************************************************************************
+
+* ---
+* TRACKING PARAMTERES
+* ---
+
+INTEGER an2d := 18 ;  ! ANGULAR QUADRATURE PARAMETER 
+REAL densur := 40.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
+
+INTEGER an2d_ss := 8 ;  ! ANGULAR QUADRATURE PARAMETER 
+REAL densur_ss := 15.0 ; ! DENSITY OF INTEGRATION LINES CM^-1 
+
+INTEGER iqua2 := 24 ;
+INTEGER nseg := 5 ;
+
+* polar angles for MCCGT:
+INTEGER nmu := 4 ;
+
+* size allocation for MCCGT:
+INTEGER mcu := 50000 ;
+
+* ---
+* FLUX CALC TRACKING
+* ---
+Geo_G2S FIG_main.ps := G2S: GEOM_3x3 :: ;
+
+TRACK TF_EXC := SALT: Geo_G2S ::
+  EDIT 1
+  ALLG
+  ANIS 3
+  TSPC EQW2 <<an2d>> <<densur>> REND LONG
+;
+
+TLM_F1 := TLM: TRACK TF_EXC ::
+  EDIT 10
+  NTPO 1
+  DIRECTIONS
+  DIR 0
+;
+
+* MOC tracking
+TRACK := MCCGT: TRACK TF_EXC ::
+  EDIT 1
+  CACB <<nmu>> AAC 80 TMT EPSI 1E-5 MCU <<mcu>> ! tried CACB but is limited to isotropic ?
+;
+
+* ---
+* SELF-SHIELDING TRACKING
+* ---
+GeoSS_G2S FIG_SS.ps := G2S: GEOM_3x3_SS :: ;
+
+TRACK_SS TF_EXC_SS := SALT: GeoSS_G2S ::
+  EDIT 1
+  ALLG
+  TSPC <<an2d_ss>> <<densur_ss>> REND LONG
+  MERGMIX
+;
+
+
+TLM_F2 := TLM: TRACK_SS TF_EXC_SS ::
+  EDIT 10
+  NTPO 1
+  DIRECTIONS
+  DIR 0
+;
+
+
+****************************************************************************************
+*********************** BEGIN SELF-SHIELDING CALCULATION WITH USS **********************
+****************************************************************************************
+
+
+
+
+LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
+        EDIT 10 PASS 3 GRMIN 52 MAXST 100
+        CALC
+            REGI W1 U235 ALL
+            REGI W1 U234 ALL
+            REGI W1 Zr90 ALL
+            REGI W1 Zr91 ALL
+            REGI W1 Zr92 ALL
+            REGI W1 Zr94 ALL
+            
+            REGI W1 U238 <<COMB0101>> <<COMB0102>> <<COMB0103>> <<COMB0104>>
+            REGI W2 U238 <<COMB0201>> <<COMB0202>> <<COMB0203>> <<COMB0204>>
+            REGI W3 U238 <<COMB0301>> <<COMB0302>> <<COMB0303>> <<COMB0304>>
+            REGI W4 U238 <<COMB0401>> <<COMB0402>> <<COMB0403>> <<COMB0404>>
+            REGI W6 U238 <<COMB0601>> <<COMB0402>> <<COMB0403>> <<COMB0404>>
+
+            REGI W7 U238 <<COMB0701>> <<COMB0702>> <<COMB0703>> <<COMB0704>> <<COMB0705>> <<COMB0706>>
+
+            REGI W8 Gd154 <<COMB0701>> <<COMB0702>> <<COMB0703>> <<COMB0704>> <<COMB0705>> <<COMB0706>>
+            REGI W8 Gd155 <<COMB0701>> <<COMB0702>> <<COMB0703>> <<COMB0704>> <<COMB0705>> <<COMB0706>>
+            REGI W8 Gd156 <<COMB0701>> <<COMB0702>> <<COMB0703>> <<COMB0704>> <<COMB0705>> <<COMB0706>>
+            REGI W8 Gd157 <<COMB0701>> <<COMB0702>> <<COMB0703>> <<COMB0704>> <<COMB0705>> <<COMB0706>>
+            REGI W8 Gd158 <<COMB0701>> <<COMB0702>> <<COMB0703>> <<COMB0704>> <<COMB0705>> <<COMB0706>>
+            REGI W8 Gd160 <<COMB0701>> <<COMB0702>> <<COMB0703>> <<COMB0704>> <<COMB0705>> <<COMB0706>>
+
+        ENDC
+      ;
+
+SYS := ASM: LIBRARY2 TRACK TF_EXC :: ARM EDIT 0 ; 
+
+FLUX := FLU: LIBRARY2 SYS TRACK TF_EXC :: 
+             EDIT 1 TYPE K  
+      ;
+GREP: FLUX :: GETVAL 'K-EFFECTIVE  ' 1 1 1 >>Kinf<< ;
+ECHO "SS tracking = SALT and FLX tracking = SALT TSPC, MOC on 2x2_UOX: Kinf=" Kinf ;
+END: ;
