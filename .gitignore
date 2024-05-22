@@ -9,6 +9,11 @@
 *.result
 *.eps
 *.png
+*.out
+*.pyc
+
+*/__pycache__/
+PTT/DMLG_proj/__pycache__/
 
 Serpent2_para_bateman/src
 Serpent2_para_bateman/Linux_aarch64
@@ -18,6 +23,8 @@ Version5_wc/.svn/
 
 Version5*/Donjon/data/history_mphy_proc/
 Version5*/Donjon/data/1Sap_vs_3Sap_proc/
+Version5*/Donjon/tests/data/
+Version5*/Donjon/tests/data/
 Version5*/Dragon/Linux_x86_64/
 Version5*/PyGan/Linux_x86_64/
 Version5*/Dragon/Linux_aarch64/
