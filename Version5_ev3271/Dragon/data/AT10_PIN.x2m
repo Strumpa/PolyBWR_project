@@ -3,7 +3,7 @@
 * Procedure :  AT-10_pin.x2m                                                                                           *
 * Purpose   :  Macro procedure to : 1. Generate pin geom                                                               *
 *                                   2. Generate tracking over geom                                                     *
-*                                   3. Perform t=0 to 40 MWd/kgU BU calculations                                       *
+*                                   3. Perform t=0 to 60 MWd/kgU BU calculations                                       *
 * Author    :  R. Guasch adapted from L.Fede                                                                           *
 *                                                                                                                      *
 * CALL      :  ./rdragon AT-10_pin.x2m                                                                                 *
