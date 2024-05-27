@@ -57,6 +57,7 @@ IF name_geom 'AT10_UOX' = THEN
  
 
   GEOM := GEO: :: CARCEL 7 
+    EDIT 1
     X- REFL X+ REFL
     Y- REFL Y+ REFL
     RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>

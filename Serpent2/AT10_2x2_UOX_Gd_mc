@@ -1,5 +1,5 @@
 % --- Bundle  :  ATRIUM-10XM NL24-2, 2x2 UOX for reference  -------------------
-set title "ATRIUM-10XM NL24-2, 3x3 UOX+Gd subset"      
+set title "ATRIUM-10XM NL24-2, 2x2 UOX+Gd subset"      
     
 % --- Cross section data library file path:
 
@@ -11,14 +11,6 @@ set nfylib "../xs/jeff311/sss_jeff311.nfy"
 
 % --- Fuel Pin definitions:
 
-pin 1
-24UOx_A  0.313602
-24UOx_B  0.396678
-24UOx_C  0.43227
-24UOx_D  0.4435
-gap   0.4520
-clad   0.5140
-cool
 
 
 pin 2
@@ -49,15 +41,6 @@ clad   0.5140
 cool  
 
 
-pin 6
-50UOx_A  0.313602
-50UOx_B  0.396678
-50UOx_C  0.43227
-50UOx_D  0.4435
-gap   0.4520
-clad   0.5140
-cool  
-
 pin 7
 45GADO_A  0.198339
 45GADO_B  0.280494
@@ -70,41 +53,16 @@ clad   0.5140
 cool  
 
 
-lat 10  1  0.0 0.0 3 3 1.295
-1 2 3 2 4 7 3 7 6   
+lat 10  1  0.0 0.0 2 2 1.295
+2 4 3 7  
 
-surf 1 sqc 0.0 0.0 1.9425
+surf 1 sqc 0.0 0.0 1.295
 
 cell 1 0 fill 10 -1
 cell 2 0 outside 1
 
 
 % --- Material definitions:
-% ---> pin 1
-mat 24UOx_A sum tmp 750  burn 1    
-    92234.05c   5.15910E-06
-    92235.05c   5.67035E-04
-    92238.05c   2.27631E-02
-    8016.05c    4.66705E-02
-
-mat 24UOx_B sum tmp 750  burn 1    
-    92234.05c   5.15910E-06
-    92235.05c   5.67035E-04
-    92238.05c   2.27631E-02
-    8016.05c    4.66705E-02
-
-mat 24UOx_C sum tmp 750  burn 1    
-    92234.05c   5.15910E-06
-    92235.05c   5.67035E-04
-    92238.05c   2.27631E-02
-    8016.05c    4.66705E-02
-
-mat 24UOx_D sum tmp 750  burn 1    
-    92234.05c   5.15910E-06
-    92235.05c   5.67035E-04
-    92238.05c   2.27631E-02
-    8016.05c    4.66705E-02
-
 
 %  ---> pin 2
 mat 32UOx_A sum tmp 750  burn 1    
@@ -130,8 +88,6 @@ mat 32UOx_D sum tmp 750  burn 1
     92238.05c   2.257430e-02
     92234.05c   7.039170e-06
     92235.05c   7.560370e-04
-
-
 
 %  ---> pin 3
 mat 42UOx_A sum tmp 750  burn 1   
@@ -182,28 +138,6 @@ mat 45UOx_D sum tmp 750  burn 1
     92234.05c   9.991530E-06
     92235.05c   1.051340E-03
 
-
-%  ---> pin 6
-mat 50UOx_A sum tmp 750  burn 1   
-     92234.05c 1.117530e-05
-     92235.05c 1.169460e-03
-      8016.05c 4.668410e-02
-     92238.05c 2.216140e-02
-mat 50UOx_B sum tmp 750  burn 1   
-     92234.05c 1.117530e-05
-     92235.05c 1.169460e-03
-      8016.05c 4.668410e-02
-     92238.05c 2.216140e-02
-mat 50UOx_C sum tmp 750  burn 1   
-     92234.05c 1.117530e-05
-     92235.05c 1.169460e-03
-      8016.05c 4.668410e-02
-     92238.05c 2.216140e-02
-mat 50UOx_D sum tmp 750  burn 1   
-     92234.05c 1.117530e-05
-     92235.05c 1.169460e-03
-      8016.05c 4.668410e-02
-     92238.05c 2.216140e-02
 
 % pin 7 ---> pin7 Gd loaded
 
@@ -307,8 +241,6 @@ mat clad -6.55  tmp 559
     26056.05c -1.240671e-03
     50118.05c -3.487981e-03
     50119.05c -1.247577e-03
-
-
 
 % --- Coolant (0% void fraction):
 mat cool sum tmp 559   moder lwtr 1001
