@@ -103,7 +103,7 @@ def POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
 
         print('$$$ ---------------- DRAGON_BU =',DRAGON_BU)
         print('$$$ ---------------- LEN_DRAGON_BU =',len(DRAGON_BU))
-        #print("$$$ ---------------- DRAGON_Keff = ",DRAGON_Keff)    
+        print("$$$ ---------------- DRAGON_Keff = ",DRAGON_Keff)    
         #print("$$$ ---------------- DRAGON_ISOTOPESDENS = ",DRAGON_ISOTOPESDENS)
 
         # --------- Liste des isotopes recuperes dans la Multicompo
@@ -192,7 +192,7 @@ def POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
             SERPENT_Keff[k]=SERPENT_keff[k][0]
 
         #print('$$$ ---------------- SERPENT_BU =',SERPENT_BU)
-        #print("$$$ ---------------- SERPENT_Keff = ",SERPENT_Keff)    
+        print("$$$ ---------------- SERPENT_Keff = ",SERPENT_Keff)    
         #print("$$$ ---------------- SERPENT_ISOTOPESDENS = ",SERPENT_ISOTOPESDENS)
 
         SERPENT_ALL=[
@@ -235,7 +235,7 @@ def POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
                         ERROR[k][j-Nmin]=0
                     else:
                         ERROR[k][j-Nmin]=100*(DRAGON_ALL[k][j]-SERPENT_ALL[k][j])/SERPENT_ALL[k][j]
-        #print("$$$ ---------------- ERROR",ERROR)
+        print("$$$ ---------------- ERROR Keff",ERROR[1])
 
 
     ################################################################

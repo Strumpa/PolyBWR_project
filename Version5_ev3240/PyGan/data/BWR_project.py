@@ -89,7 +89,7 @@ Multicompo = 1
 #        - 'UOx'  : used for UOx fuel without Gd poison
 #        - 'Gd'   : used for UOx fuel with Gd poison
 #        - 'free' : modify the burnup points as you wish
-burnup_points = 'Gd_autop5' # 'UOx4_autop5' 'UOx2_autop5'
+burnup_points = 'Gd_autop5'  # 'UOx4_autop5' 'UOx2_autop5' 'Gd_autop5'
 # suffixe = suffixe added to name_geom for creation of figures, MULTICOMPO and BU vector
 suffixe = tracking_module+"_"+burnup_points
 #
