@@ -123,12 +123,12 @@ GEOM_2x2 := GEO: :: CAR2D 2 2
                     <<COOL>> <<COOL>> <<COOL>> <<COOL>>  
                 MESHX 0.0 <<Pitch_C>> MESHY 0.0 <<Pitch_C>>
     ;
-    ::: C3 := GEO: C1 MIX <<COMB0301>> <<COMB0302>> <<COMB0303>> <<COMB0304>>
+    ::: C3 := GEO: C2 MIX <<COMB0301>> <<COMB0302>> <<COMB0303>> <<COMB0304>>
                             <<GAP>> <<CLAD>> <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                             <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                             <<COOL>> <<COOL>> <<COOL>> <<COOL>>  
     ;
-    ::: C4 := GEO: C1 MIX <<COMB0401>> <<COMB0402>> <<COMB0403>> <<COMB0404>>
+    ::: C4 := GEO: C2 MIX <<COMB0401>> <<COMB0402>> <<COMB0403>> <<COMB0404>>
                             <<GAP>> <<CLAD>> 
                             <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                             <<COOL>> <<COOL>> <<COOL>> <<COOL>>
@@ -159,17 +159,17 @@ LIBRARY := LIB: ::
     ANIS 3
 
   DEPL LIB: DRAGON FIL: <<Library>>
-
   MIXS LIB: DRAGON FIL: <<Library>>
+
 ! C1 fuel compo "AT10_24UOX" :
-  MIX <<COMB0101>> 750.0
-    O16     = O16    4.66705E-02
-    U234    = U234   5.15910E-06 1
-    U235    = U235   5.67035E-04 1 
-    U238    = U238   2.27631E-02 1 
-  MIX <<COMB0102>> COMB <<COMB0101>> 1.0
-  MIX <<COMB0103>> COMB <<COMB0101>> 1.0
-  MIX <<COMB0104>> COMB <<COMB0101>> 1.0
+!  MIX <<COMB0101>> 750.0
+!    O16     = O16    4.66705E-02
+!    U234    = U234   5.15910E-06 1
+!    U235    = U235   5.67035E-04 1 
+!    U238    = U238   2.27631E-02 1 
+!  MIX <<COMB0102>> COMB <<COMB0101>> 1.0
+!  MIX <<COMB0103>> COMB <<COMB0101>> 1.0
+!  MIX <<COMB0104>> COMB <<COMB0101>> 1.0
 
 ! C2 fuel compo "AT10_32UOX" :
   MIX <<COMB0201>> 750.0
@@ -203,14 +203,14 @@ LIBRARY := LIB: ::
   MIX <<COMB0404>> COMB <<COMB0401>> 1.0
 
 ! C6 fuel compo "AT10_50UOX" :
-  MIX <<COMB0601>> 750.0
-    O16     = O16    4.668410E-02
-    U234    = U234   1.117530E-05 6 
-    U235    = U235   1.169460E-03 6 
-    U238    = U238   2.216140E-02 6
-  MIX <<COMB0602>> COMB <<COMB0601>> 1.0
-  MIX <<COMB0603>> COMB <<COMB0601>> 1.0
-  MIX <<COMB0604>> COMB <<COMB0601>> 1.0
+!  MIX <<COMB0601>> 750.0
+!    O16     = O16    4.668410E-02
+!    U234    = U234   1.117530E-05 6 
+!    U235    = U235   1.169460E-03 6 
+!    U238    = U238   2.216140E-02 6
+!  MIX <<COMB0602>> COMB <<COMB0601>> 1.0
+!  MIX <<COMB0603>> COMB <<COMB0601>> 1.0
+!  MIX <<COMB0604>> COMB <<COMB0601>> 1.0
 
   ! C7 fuel compo "AT10_45Gd":
   MIX <<COMB0701>> 750.0
@@ -279,10 +279,10 @@ LIBRARY := LIB: ::
 * ---
 
 INTEGER an2d := 18 ;  ! ANGULAR QUADRATURE PARAMETER 
-REAL densur := 40.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
+REAL densur := 50.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
 
-INTEGER an2d_ss := 8 ;  ! ANGULAR QUADRATURE PARAMETER 
-REAL densur_ss := 15.0 ; ! DENSITY OF INTEGRATION LINES CM^-1 
+INTEGER an2d_ss := 12 ;  ! ANGULAR QUADRATURE PARAMETER 
+REAL densur_ss := 25.0 ; ! DENSITY OF INTEGRATION LINES CM^-1 
 
 INTEGER iqua2 := 24 ;
 INTEGER nseg := 5 ;
@@ -347,7 +347,7 @@ TLM_F2 := TLM: TRACK_SS TF_EXC_SS ::
 
 
 LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
-        EDIT 1 PASS 3 GRMIN 52 MAXST 50 TRAN
+        EDIT 1 PASS 3 MAXST 50
         CALC
             REGI W1 U235 ALL
             REGI W1 U234 ALL

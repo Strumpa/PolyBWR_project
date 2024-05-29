@@ -1,0 +1,75 @@
+* CLE2000 script to generate self-shielded Library object.
+* BWR Benchmark Gd cell : AT10_45Gd, alias C7.
+* Author : R. Guasch
+*  Procedure called as:
+*
+*  LIBRARY2 := mixAUTOP1 LIBRARY TRACK_SS TF_EXC_SS :: <<ssh_opt>> ;
+*
+*  Input data   :
+*    LIBRARY      : Initial library
+*    TRACK_SS     : Self-shielding tracking
+*
+*  Output data  :
+*    LIBRARY2     : Self-shieled library
+*---
+
+PARAMETER LIBRARY2 LIBRARY TRACK_SS TF_EXC_SS ::
+::: LINKED_LIST LIBRARY2 ;
+::: LINKED_LIST LIBRARY ;
+::: LINKED_LIST TRACK_SS ;
+::: SEQ_BINARY TF_EXC_SS ; ; 
+
+
+STRING ssh_opt ;
+:: >>ssh_opt<< ;
+
+MODULE USS: END: ;
+
+
+INTEGER COMB0701 COMB0702 COMB0703 COMB0704 COMB0705 COMB0706 GAP CLAD MODE ;
+EVALUATE COMB0701 COMB0702 COMB0703 COMB0704 COMB0705 COMB0706 GAP CLAD MODE :=
+          1 2 3 4 5 6 7 8 9 ;
+
+IF ssh_opt "RSE" = THEN 
+    LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
+        EDIT 1 PASS 4 MAXST 50
+        CALC
+            REGI W1 U235 ALL
+            REGI W1 U234 ALL
+            REGI W1 Zr90 ALL
+            REGI W1 Zr91 ALL
+            REGI W1 Zr92 ALL
+            REGI W1 Zr94 ALL
+
+            REGI W1 U238 ALL
+            
+            REGI W2 Gd154 <<COMB0701>> <<COMB0702>> <<COMB0703>> <<COMB0704>> <<COMB0705>> <<COMB0706>>
+            REGI W2 Gd155 <<COMB0701>> <<COMB0702>> <<COMB0703>> <<COMB0704>> <<COMB0705>> <<COMB0706>>
+            REGI W2 Gd156 <<COMB0701>> <<COMB0702>> <<COMB0703>> <<COMB0704>> <<COMB0705>> <<COMB0706>>
+            REGI W2 Gd157 <<COMB0701>> <<COMB0702>> <<COMB0703>> <<COMB0704>> <<COMB0705>> <<COMB0706>>
+            REGI W2 Gd158 <<COMB0701>> <<COMB0702>> <<COMB0703>> <<COMB0704>> <<COMB0705>> <<COMB0706>>
+            REGI W2 Gd160 <<COMB0701>> <<COMB0702>> <<COMB0703>> <<COMB0704>> <<COMB0705>> <<COMB0706>>
+        ENDC
+    ;
+ELSEIF ssh_opt "PT" = THEN
+       LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
+          EDIT 0 PASS 2 GRMIN 52
+          CALC
+            REGI W1 U235 ALL
+            REGI W1 U234 ALL
+            REGI W1 U238 ALL 
+            REGI W1 Zr90 ALL
+            REGI W1 Zr91 ALL
+            REGI W1 Zr92 ALL
+            REGI W1 Zr94 ALL
+
+            REGI W2 Gd154 ALL
+            REGI W2 Gd155 ALL
+            REGI W2 Gd156 ALL
+            REGI W2 Gd157 ALL
+            REGI W2 Gd158 ALL
+            REGI W2 Gd160 ALL        
+        ENDC
+       ;
+ENDIF ;
+
