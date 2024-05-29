@@ -127,7 +127,7 @@ GEOM_2x2 := GEO: :: CAR2D 2 2
 LIBRARY := LIB: ::
     EDIT 0
     NMIX 100    ! MAXIMUM OF MATERIAL MIXTURES
-    RSE 1.0E-04
+    RSE 1.0E-03
     ANIS 3
 
   DEPL LIB: DRAGON FIL: <<Library>>
@@ -260,24 +260,15 @@ GeoSS_G2S FIG_SS.ps := G2S: GEOM_2x2_SS :: ;
 TRACK_SS TF_EXC_SS := SALT: GeoSS_G2S ::
   EDIT 1
   ALLG
-  TSPC <<an2d_ss>> <<densur_ss>> REND LONG
+  TSPC <<an2d_ss>> <<densur_ss>> REND
   MERGMIX
 ;
 
 
-TLM_F2 := TLM: TRACK_SS TF_EXC_SS ::
-  EDIT 10
-  NTPO 1
-  DIRECTIONS
-  DIR 0
-;
-
 
 ****************************************************************************************
-*********************** BEGIN SELF-SHIELDING CALCULATION WITH USS **********************
+********************* BEGIN SELF-SHIELDING CALCULATION WITH USS/RSE ********************
 ****************************************************************************************
-
-
 
 
 LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
