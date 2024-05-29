@@ -1,11 +1,11 @@
 ************************************************************************************************************************
 *                                                                                                                      *
-* Procedure :  TRK_C.c2m --> TRK_C_SALT.c2m                                                                            *
-* Purpose   :  Tracking and figure printing for pin cells                                                              *
-* Author    :  R. Guasch adapted from L.Fede                                                                           *
+* Procedure :  TRK_C.c2m --> TRACK_NXTNXT.c2m                                                                          *
+* Purpose   :  NXT: tracking for AT10 pin cells, testing NXT SSH trackiong capabilities                                *
+* Author    :  R. Guasch                                                                                               *
 *                                                                                                                      *
 * CALL      :                                                                                                          *
-* UOX_TBH FIG1.ps TRACK TF_EXC UOX_TBH_SS FIG_SS.ps TRACK_SS TF_EXC_SS := TRK_C_SALT GEOM GEOM_SS                      *
+* TRACK TF_EXC TRACK_SS TF_EXC_SS := TRK_C_NXTNXT GEOM GEOM_SS                                                         *
 *                                                                                                                      *
 ************************************************************************************************************************
 
@@ -13,31 +13,28 @@
 * ---
 * INPUT & OUTPUT PARAMETERS
 * ---
-PARAMETER UOX_TBH    FIG1.ps   TRACK    TF_EXC
-          UOX_TBH_SS FIG_SS.ps TRACK_SS TF_EXC_SS
-          GEOM       GEOM_SS ::
-::: SEQ_ASCII UOX_TBH ;
-::: SEQ_ASCII FIG1.ps ;
+PARAMETER TRACK    TF_EXC
+          TRACK_SS TF_EXC_SS
+          GEOM  GEOM_SS ::
 ::: LINKED_LIST TRACK ;
 ::: SEQ_BINARY TF_EXC ;
-::: SEQ_ASCII UOX_TBH_SS ;
-::: SEQ_ASCII FIG_SS.ps ;
-::: LINKED_LIST TRACK_SS ;
 ::: SEQ_BINARY TF_EXC_SS ;
+::: LINKED_LIST TRACK_SS ;
 ::: LINKED_LIST GEOM ;
-::: LINKED_LIST GEOM_SS ; ;
+::: LINKED_LIST GEOM_SS  ; ;
+
 
 * ---
 * STRUCTURES AND MODULES
 * ---
-MODULE G2S: MCCGT: SALT: END: ;
+MODULE MCCGT: NXT: END: ;
 
 
-INTEGER an2d := 24 ;  ! ANGULAR QUADRATURE PARAMETER
-REAL densur := 50.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
-
-INTEGER an2d_SS := 12 ;
-REAL densur_SS := 25.0 ;
+* ---
+* NXT TRACKING PARAMETERS FOR FLX GEOM
+* ---
+INTEGER an2d := 18 ;  ! ANGULAR QUADRATURE PARAMETER
+REAL densur := 35.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
 
 * polar angles for MCCGT:
 INTEGER nmu := 4 ;
@@ -46,16 +43,22 @@ INTEGER nmu := 4 ;
 INTEGER mcu := 50000 ;
 
 * ---
+* NXT TRACKING PARAMETERS FOR SSH 
+* ---
+INTEGER an2d_SS := 6 ;  ! ANGULAR QUADRATURE PARAMETER
+REAL densur_SS := 5.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
+
+* ---
 * FLUX CALC TRACKING
 * ---
-UOX_TBH FIG1.ps := G2S: GEOM :: ;
 
-TRACK TF_EXC := SALT: UOX_TBH ::
+TRACK TF_EXC := NXT: GEOM ::
   EDIT 0
   ALLG
   ANIS 3
   TSPC EQW2 <<an2d>> <<densur>> REND
 ;
+
 
 * MOC tracking
 TRACK := MCCGT: TRACK TF_EXC ::
@@ -63,16 +66,14 @@ TRACK := MCCGT: TRACK TF_EXC ::
   CACB <<nmu>> AAC 80 TMT EPSI 1E-5 MCU <<mcu>>
 ;
 
+
 * ---
 * SELF-SHIELDING TRACKING
 * ---
-UOX_TBH_SS FIG_SS.ps := G2S: GEOM_SS :: ;
 
-TRACK_SS TF_EXC_SS := SALT: UOX_TBH_SS ::
-  EDIT 1
-  ALLG
-  ANIS 3
-  TSPC <<an2d_SS>> <<densur_SS>> REND
+TRACK_SS TF_EXC_SS := NXT: GEOM_SS ::
+  EDIT 0
+  TSPC EQW2 <<an2d>> <<densur>> 
   MERGMIX
 ;
 
