@@ -1,0 +1,99 @@
+************************************************************************************************************************
+*                                                                                                                      *
+* Procedure :  AT-10_pin.x2m                                                                                           *
+* Purpose   :  Macro procedure to : 1. Generate pin geom                                                               *
+*                                   2. Generate tracking over geom                                                     *
+*                                   3. Perform t=0 to 60 MWd/kgU BU calculations                                       *
+* Author    :  R. Guasch adapted from L.Fede                                                                           *
+*                                                                                                                      *
+* CALL      :  ./rdragon AT-10_pin.x2m                                                                                 *
+*                                                                                                                      *
+************************************************************************************************************************
+
+PROCEDURE Geom_C Geom_C_SALT Mix_Cell TRK_C_SALT TRK_C_SYBNXT BU_C_SYBNXT BU_C_SALT ; 
+
+************************************************************************
+*                          LOCAL PARAMETERS                            *
+************************************************************************
+MODULE UTL: GREP: DELETE: USS: ASM: FLU: END: ;
+LINKED_LIST GEOM GEOM_SS LIBRARY TRACK_SS TRACK SYS FLUX FIG  LIBRARY2 ;
+SEQ_ASCII CELL_SS ;
+SEQ_ASCII CELL ;
+SEQ_BINARY TF_EXC ;
+SEQ_BINARY TF_EXC_SS ;
+
+STRING geo_name := "AT10_UOX_Gd2O3" ; !"AT10_UOX_Gd2O3"
+STRING cell_name := "AT10_45Gd" ; ! "AT10_24/32/42/45/48/50UOX" for UOX pins (1 to 6), 
+! "AT10_45Gd" / "AT10_42Gd" for AT10_UOX_Gd2O3 pins (7,8)
+STRING compo_name := "COMPO_AT10_7" ; !Change according to pin number
+
+STRING OptionSolve := "MOC" ; !"MOC" or "PIJ"
+
+SEQ_ASCII FIG_SS.ps :: FILE './PIN_AT10_FIG_SS.ps' ;
+SEQ_ASCII FIG_FLX.ps :: FILE './PIN_AT10_FIG_FLX.ps' ;
+REAL Kinf ;
+
+INTEGER COMB0101 COMB0102 COMB0103 COMB0104 COMB0105 COMB0106 GAP CLAD MODE ;
+
+************************************************************************
+
+GEOM GEOM_SS := Geom_C_SALT :: <<geo_name>> ; 
+
+LIBRARY := Mix_Cell :: J311_295 <<cell_name>> ;
+
+! CALL THIS FOR SALT TRACKING FOR BOTH SSH AND FLX + MOC SOLUTION + BU EVOLUTION
+CELL FIG_FLX.ps TRACK TF_EXC CELL_SS FIG_SS.ps TRACK_SS TF_EXC_SS := TRK_C_SALT GEOM GEOM_SS ;
+
+IF geo_name "AT10_UOX_Gd2O3" = THEN
+    EVALUATE COMB0101 COMB0102 COMB0103 COMB0104 COMB0105 COMB0106 GAP CLAD MODE :=
+        1 2 3 4 5 6 7 8 9 ; !  DISTRIBUTED SELF-SHIELDING 
+
+    LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
+        EDIT 1 PASS 3 MAXST 20
+        CALC
+            REGI W1 U235 ALL
+            REGI W1 U234 ALL
+            REGI W1 Zr90 ALL
+            REGI W1 Zr91 ALL
+            REGI W1 Zr92 ALL
+            REGI W1 Zr94 ALL
+
+            REGI W1 U238 ALL
+            
+            REGI W2 Gd154 <<COMB0101>> <<COMB0102>> <<COMB0103>> <<COMB0104>> <<COMB0105>> <<COMB0106>>
+            REGI W2 Gd155 <<COMB0101>> <<COMB0102>> <<COMB0103>> <<COMB0104>> <<COMB0105>> <<COMB0106>>
+            REGI W2 Gd156 <<COMB0101>> <<COMB0102>> <<COMB0103>> <<COMB0104>> <<COMB0105>> <<COMB0106>>
+            REGI W2 Gd157 <<COMB0101>> <<COMB0102>> <<COMB0103>> <<COMB0104>> <<COMB0105>> <<COMB0106>>
+            REGI W2 Gd158 <<COMB0101>> <<COMB0102>> <<COMB0103>> <<COMB0104>> <<COMB0105>> <<COMB0106>>
+            REGI W2 Gd160 <<COMB0101>> <<COMB0102>> <<COMB0103>> <<COMB0104>> <<COMB0105>> <<COMB0106>>
+        ENDC
+    ;
+ELSEIF geo_name 'AT10_UOX' = THEN
+    EVALUATE COMB0101 COMB0102 COMB0103 COMB0104 GAP CLAD MODE :=
+        1 2 3 4 5 6 7 ; !  DISTRIBUTED SELF-SHIELDING
+    LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
+        EDIT 1 PASS 2 GRMIN 52
+        CALC
+            REGI W1 U235 ALL
+            REGI W1 U234 ALL
+            REGI W1 U238 ALL
+            REGI W1 Zr90 ALL
+            REGI W1 Zr91 ALL
+            REGI W1 Zr92 ALL
+            REGI W1 Zr94 ALL
+        ENDC
+    ;
+ENDIF ;
+
+SYS := ASM: LIBRARY2 TRACK TF_EXC :: ARM EDIT 0 ; 
+
+FLUX := FLU: LIBRARY2 SYS TRACK TF_EXC :: 
+        EDIT 1 TYPE K ;
+
+GREP: FLUX :: GETVAL 'K-EFFECTIVE  ' 1 1 1 >>Kinf<< ;
+ECHO "SS tracking = SALT and FLX tracking = SALT TSPC, MOC on AT10 Cell: Kinf=" Kinf ;
+
+END: ;
+
+QUIT .
+

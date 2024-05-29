@@ -229,7 +229,7 @@ def POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
                 if k==0: # Vecteur BU
                     ERROR[k][j-Nmin]=SERPENT_ALL[k][j]
                 elif k==1:  # Vecteur Keff --> erreur en pcm
-                    ERROR[k][j-Nmin]=1.0E+5*(DRAGON_ALL[k][j]-SERPENT_ALL[k][j])
+                    ERROR[k][j-Nmin]=(DRAGON_ALL[k][j]-SERPENT_ALL[k][j])*1e5
                 else: # Vecteur isotopique --> erreur en %
                     if SERPENT_ALL[k][j]==0:
                         ERROR[k][j-Nmin]=0
