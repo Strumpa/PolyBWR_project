@@ -8,6 +8,7 @@
 *  Input data   :
 *    LIBRARY      : Initial library
 *    TRACK_SS     : Self-shielding tracking
+*    TF_EXC_SS    : Self-shielding binary file
 *
 *  Output data  :
 *    LIBRARY2     : Self-shieled library
@@ -32,7 +33,7 @@ EVALUATE COMB0101 COMB0102 COMB0103 COMB0104 COMB0105 COMB0106 GAP CLAD MODE :=
 
 IF ssh_opt "RSE" = THEN 
     LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
-        EDIT 1 PASS 3 MAXST 20
+        EDIT 1 PASS 1 MAXST 20
         CALC
             REGI W1 U235 ALL
             REGI W1 U234 ALL
@@ -53,7 +54,7 @@ IF ssh_opt "RSE" = THEN
     ;
 ELSEIF ssh_opt "PT" = THEN
        LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
-          EDIT 0 PASS 2 GRMIN 52
+          EDIT 0 PASS 4 GRMIN 52 MAXST 50
           CALC
             REGI W1 U235 ALL
             REGI W1 U234 ALL
