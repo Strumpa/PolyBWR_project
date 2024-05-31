@@ -79,6 +79,13 @@ IF name_geom 'AT10_ASSBLY_fine' = THEN
             EDIT 10 PASS 3 MAXST 50 
             CALC 
                REGI W1 U238  ALL
+               REGI W1 U235  ALL
+               REGI W1 Zr90 ALL
+               REGI W1 Zr91 ALL
+               REGI W1 Zr92 ALL
+               REGI W1 Zr94 ALL
+               REGI W1 Zr96 ALL
+
             ENDC
             ;
 
