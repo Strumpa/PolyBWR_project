@@ -41,7 +41,7 @@ INTEGER an2d := 18 ;  ! ANGULAR QUADRATURE PARAMETER
 REAL densur := 45.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
 
 INTEGER an2d_ss := 8 ;  ! ANGULAR QUADRATURE PARAMETER #18
-REAL densur_ss := 10.0 ; ! DENSITY OF INTEGRATION LINES CM^-1 #30
+REAL densur_ss := 15.0 ; ! DENSITY OF INTEGRATION LINES CM^-1 #30
 
 * polar angles for MCCGT:
 INTEGER nmu := 4 ;
@@ -76,7 +76,7 @@ GeoSS_G2S FIG_SS.ps := G2S: GEOM_SS :: ;
 TRACK_SS TF_EXC_SS := SALT: GeoSS_G2S ::
   EDIT 1
   ALLG
-  TSPC <<an2d_ss>> <<densur_ss>> REND LONG
+  TSPC <<an2d_ss>> <<densur_ss>> REND
   MERGMIX
 ;
 

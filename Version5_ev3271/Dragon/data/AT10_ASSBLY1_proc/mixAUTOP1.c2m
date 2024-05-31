@@ -74,31 +74,11 @@ EVALUATE COMB0801 COMB0802 COMB0803 COMB0804 COMB0805 COMB0806 := 81 82 83 84 85
 
 IF name_geom 'AT10_ASSBLY_fine' = THEN
 
-   IF ssh_option 'VVER_ALL' = THEN
-   ! testing MAXST 10
+   IF ssh_option 'RSE' = THEN
     LIBRARY2 := USS: LIBRARY TRACK_SS TF_SS_EXC ::
-            EDIT 10 PASS 2 GRMIN 52 NOTR MAXST 20
+            EDIT 10 PASS 3 MAXST 50 
             CALC 
-* ALL CELLS
-               REGI W1 U235  ALL
                REGI W1 U238  ALL
-               REGI W1 Pu239 ALL
-               REGI W1 Pu240 ALL
-               REGI W1 Pu241 ALL
-               REGI W1 Pu242 ALL
-
-               REGI W1 Gd154 ALL
-               REGI W1 Gd155 ALL
-               REGI W1 Gd156 ALL
-               REGI W1 Gd157 ALL
-               REGI W1 Gd158 ALL
-
-               REGI W1 Zr90 ALL
-               REGI W1 Zr91 ALL
-               REGI W1 Zr92 ALL
-               REGI W1 Zr94 ALL
-               REGI W1 Zr96 ALL
-
             ENDC
             ;
 
