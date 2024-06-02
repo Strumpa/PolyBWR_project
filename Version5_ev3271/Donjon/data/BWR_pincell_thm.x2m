@@ -39,7 +39,7 @@ REAL keff11 keff12 keff1n ;
 REAL Y1 Y2 ROOT YNEW ;
 LOGICAL CONV ;
 
-REAL maxh := 80.0 ;
+REAL maxh := 453.0 ;
 REAL z1 := maxh 20.0 / ;
 REAL z2 := maxh 20.0 / z1 + ;
 REAL z3 := maxh 20.0 / z2 + ;
@@ -180,12 +180,14 @@ UTL: Thm :: DIR DUMP ;
 *--
 ECHO "Tcool =" Tcool ", DCool =" dens_mod_0 ;
 MicroF := NCR: Cpo Fmap ::
-       EDIT 10
+       EDIT 2
        MICRO LINEAR
        TABLE Cpo <<Dir>>
-         MIX 1
-               SET LINEAR 'DCool' <<dens_mod_0>>
-               SET LINEAR 'TCool' <<Tcool>>
+         MIX 1 INST-BURN
+               SET LINEAR 'burnup' MAP
+               SET CUBIC 'TFuel' <<Tfuel>>
+               SET CUBIC 'DCool' <<dens_mod_0>>
+               SET CUBIC 'TCool' <<Tcool>>
          ENDMIX
   ;
 MacroF := MicroF :: STEP UP 'MACROLIB' ;
@@ -195,7 +197,7 @@ Macro2 Matex := MACINI: Matex MacroF :: FUEL ;
 *--
 * Steady-state diffusion calculation
 *--
-System := TRIVAA: Macro2 Track ;
+System := TRIVAA: Macro2 Track :: EDIT 10 ;
 
 Flux := FLUD: System Track :: EDIT 1 ADI 4 ACCE 5 3 ;
 System MacroF Macro2 := DELETE: System MacroF Macro2 ;
@@ -205,5 +207,5 @@ ECHO "+++ Burnup= 0.0 Keff=" keff11 ;
 
 assertS Flux :: 'K-EFFECTIVE' 1 1.354165 ;
 
-ECHO "test pincell_mphy_thm.x2m completed" ;
+ECHO "test BWR_pincell_thm.x2m completed" ;
 END: ;
