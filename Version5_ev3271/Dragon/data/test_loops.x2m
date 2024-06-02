@@ -1,0 +1,71 @@
+************************************************************************
+*                          BEGIN DECLARATION                           *
+************************************************************************
+MODULE UTL: GREP: DELETE: COMPO: USS: ASM: FLU: EDI: END: ;
+LINKED_LIST GEOM GEOM_SS LIBRARY TRACK_SS TRACK SYS FLUX FIG LIBRARY2 ;
+LINKED_LIST COMPO EDIOBJ PARAMS ;
+SEQ_ASCII CELL_SS ;
+SEQ_ASCII CELL ;
+SEQ_BINARY TF_EXC ;
+SEQ_BINARY TF_EXC_SS ;
+
+STRING geo_name := "AT10_UOX" ; 
+STRING ssh_opt := "RSE" ; ! "PT", "RSE", "SUBG"
+STRING track_opt := "SALT" ; ! "SYBNXT" "SALT" "NXTNXT"
+
+SEQ_ASCII FIG_SS.ps :: FILE './PIN_AT10_FIG_SS.ps' ;
+SEQ_ASCII FIG_FLX.ps :: FILE './PIN_AT10_FIG_FLX.ps' ;
+SEQ_ASCII _COMPO :: FILE './COMPO_AT10_MPHYS' ;
+
+REAL Kinf ;
+
+************************************************************************
+*                      BEGIN PARAMETER DEFINITION                      *
+************************************************************************
+!INTEGER BU_steps := 49 ;
+INTEGER fuel_t_pts := 4 ;
+INTEGER cool_t_pts := 4 ;
+INTEGER cool_d_pts := 4 ;
+PARAMS := UTL: ::
+        CREA
+            fuel_temp <<fuel_t_pts>> = 
+                700.0 750.0 800.0 850.0
+        CREA 
+            cool_temp <<cool_t_pts>> =
+                520.0 559.0 600.0 650.0
+        CREA
+            cool_dens <<cool_d_pts>> =
+                0.7803 0.7673 0.7395 0.6499
+;
+
+
+
+************************************************************************
+*                       MAIN LOOP OVER SCENARIOS                       *
+************************************************************************
+REAL TFuel ;
+REAL TCool ;
+REAL DCool ;
+INTEGER Tfuel_step := 0 ;
+INTEGER Tcool_step := 0 ;
+INTEGER Dcool_step := 0 ;
+WHILE Tfuel_step fuel_t_pts < DO
+    EVALUATE Tfuel_step := Tfuel_step 1 + ;
+    WHILE Tcool_step cool_t_pts < DO
+        EVALUATE Tcool_step := Tcool_step 1 + ;
+        WHILE Dcool_step cool_d_pts < DO
+            EVALUATE Dcool_step := Dcool_step 1 + ;
+            ECHO "DCool_step =" Dcool_step ", Tcool_step =" Tcool_step ", Tfuel_step=" Tfuel_step ;
+            GREP: PARAMS :: GETVAL 'fuel_temp' <<Tfuel_step>> >>TFuel<< ;
+            GREP: PARAMS :: GETVAL 'cool_temp' <<Tcool_step>> >>TCool<< ;
+            GREP: PARAMS :: GETVAL 'cool_dens' <<Dcool_step>> >>DCool<< ;
+            ECHO "Begin State point calculation TFuel =" TFuel ", TCool =" TCool ", H2O density =" DCool ; 
+
+
+        EVALUATE Tcool_step := Tcool_step 1 + ;
+ENDWHILE ;
+
+
+END: ;
+QUIT .
+
