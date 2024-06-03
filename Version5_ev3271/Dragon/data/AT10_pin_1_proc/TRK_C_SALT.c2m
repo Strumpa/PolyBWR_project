@@ -75,6 +75,12 @@ TRACK_SS TF_EXC_SS := SALT: UOX_TBH_SS ::
   MERGMIX
 ;
 
+* MOC tracking for ssh + RSE
+TRACK_SS := MCCGT: TRACK_SS TF_EXC_SS ::
+  EDIT 0
+  CACB <<nmu>> AAC 80 TMT EPSI 1E-5 MCU <<mcu>>
+;
+
 
 END: ;
 QUIT .
