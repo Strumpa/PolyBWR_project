@@ -28,7 +28,8 @@ class MCNP_Cell_Card:
         cell name (str) (optional) : to be edited in case cell cards do not procide comments with cells' names
         data : list of lists parsed in "parseMCNP_deck", data will be accessed and used to intialize de cell cards' attributes
         """
-        #print(f"Processing cell card with data : {data}")
+        #print("$$$ DMLG: MCNP case")
+        #print("$$ Generating MCNP Cell Card object")
         if format == 1:
             self.format = format
         else:
@@ -60,6 +61,8 @@ class MCNP_Surface_Card:
     printlvl = boolean to chose to print verbose
     """
     def __init__(self, surface_group, data, printlvl):
+        #print("$$$ DMLG: MCNP case")
+        #print("$$ Generating MCNP Surface Card object")
         self.surfaces_group = surface_group # just a comment from INP file, carried in for reference. Might need to get rid of later ?
         # need to determine surface type. Should be given by second entry of surface card, assuming N entry not used. 
         self.printlvl=printlvl
@@ -118,30 +121,32 @@ class MCNP_Surface_Card:
             x,y = sympy.symbols('x y')
             self.surfaceEquation = (x-float(self.surface_data[0]))**2+(y-float(self.surface_data[1]))**2-float(self.surface_data[2])**2
             self.surface_type = "Cylinder parallel to the z axis"
-            self.center = (self.surface_data[0],self.surface_data[1])
-            self.radius = self.surface_data[2]
+            self.center = (float(self.surface_data[0]),float(self.surface_data[1]))
+            self.radius = float(self.surface_data[2])
         elif self.surface_type == "c/x":
             if self.printlvl:
                 print(f"processing cylindrical surface parallel to the x axis with equation given by (y-y1)^2+(z-z1)^2-R^2=0: center (y1={self.surface_data[0]},z1={self.surface_data[1]}) and radius r={self.surface_data[2]}")
             self.surface_type = "Cylinder parallel to the x axis"
-            self.center = (self.surface_data[0],self.surface_data[1])
-            self.radius = self.surface_data[2]
+            self.center = (float(self.surface_data[0]),float(self.surface_data[1]))
+            self.radius = float(self.surface_data[2])
         elif self.surface_type == "c/y":
             if self.printlvl:
                 print(f"processing cylindrical surface parallel to the x axis with equation given by (x-x1)^2+(z-z1)^2-R^2=0: center (x1={self.surface_data[0]},z1={self.surface_data[1]}) and radius r={self.surface_data[2]}")
             self.surface_type = "Cylinder parallel to the y axis"
-            self.center = (self.surface_data[0],self.surface_data[1])
-            self.radius = self.surface_data[2]                         
+            self.center = (float(self.surface_data[0]),float(self.surface_data[1]))
+            self.radius = float(self.surface_data[2])                      
         else:
             print(f"Surface of type {self.surface_type} is not supported yet")
 
 class MCNP_Material_Card:
     def __init__(self, data, printlvl):
+        #print("$$$ DMLG: MCNP case")
+        #print("$$ Generating MCNP Material Card object")
         self.material_name = data[0]
         self.printlvl = printlvl
-        #self.iso_codes = []
+        if self.printlvl:
+            print(f"Processing MCNP material card for {self.material_name}")
         self.iso_densities = []
-        #data = data.pop(0)
         cleaned_data=[]
         for entry in data:
             if entry != '':
@@ -159,9 +164,28 @@ class MCNP_Material_Card:
                 else:
                     self.iso_densities.append(float(data[i]))
         if self.printlvl:
-            print(self.iso_codes)
-            if self.iso_densities:
-                print(self.iso_densities)
+            print(f"isotope codes are : {self.iso_codes}")
+        if self.iso_densities:
+            if self.printlvl:
+                if self.iso_densities[0] < 0: # all of them have to carry the same sign
+                    print(f"isotopes mass fractions are : {self.iso_densities}")
+                else:
+                    print(f"isotopes atomic fractions are : {self.iso_densities}")
+            self.normalization_factor = np.abs(sum(self.iso_densities))
+            if self.printlvl:
+                print(f"Normalization factor is {self.normalization_factor}")
+            self.renormalizeDensities()
+        
+
+    def renormalizeDensities(self):
+        """
+        Renormalize isotopic fractions to new normalization factor
+        """
+        if self.printlvl:
+            print(f"Renormalizing isotopic fractions to new normalization factor {self.normalization_factor}")
+        self.iso_densities = [x/self.normalization_factor for x in self.iso_densities]
+        if self.printlvl:
+            print(f"New isotopic fractions are : {self.iso_densities}")
 
 
 class MCNP_case:
@@ -173,6 +197,8 @@ class MCNP_case:
         Its attributes are the objects created from classes MCNP_Cell_Card, MCNP_Surface_Card and MCNP_Material_Card
         """
         self.name = name
+        print("$$$ DMLG: MCNP case class initialized")
+        print("$$ Generating MCNP case object")
         print(f"Processing MCNP input case for {self.name}")
         self.cell_cards = cell_cards
         self.surface_cards = surface_cards

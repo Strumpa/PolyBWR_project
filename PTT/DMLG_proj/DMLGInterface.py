@@ -49,7 +49,7 @@ class DMLG_Interface:
     def choose_output(self, output_type):
         if self.input_type == "MCNP" and output_type == "Serpent2":
             MCNP_name = self.input_deck.split(".")[0]
-            Serpent2_name = MCNP_name + "_Serpent2_mc"
+            Serpent2_name = MCNP_name + "_to_Serpent2_mc"
             self.MCNP_case = MCNP.MCNP_case(MCNP_name, self.Cell_Cards, self.Surface_Cards, self.Material_Cards)
             self.Serpent2_equiv_case = S2.S2_case(Serpent2_name, self.input_type, self.MCNP_case, mode="output")
         elif self.input_type == "Serpent2" and output_type == "Dragon5":
@@ -108,20 +108,22 @@ class DMLG_Interface:
 
                 # Check if the line indicates the start of a section
                 if "Cell  Cards" in line:
-                    print("Cell cards")
+                    print("Parsing Cell cards")
                     parsing_cell_cards = True
                     parsing_surface_cards = False
                     parsing_material_cards = False
                 elif "Surface Cards" in line:
-                    print("Surface cards")
+                    print("Parsing Surface cards")
                     parsing_cell_cards = False
                     parsing_surface_cards = True
                     parsing_material_cards = False
                 elif "Material  Cards" in line:
+                    print("Parsing Material cards")
                     parsing_cell_cards = False
                     parsing_surface_cards = False
                     parsing_material_cards = True
                 elif "Tally Cards" in line:
+                    print("Parsing Tally cards")
                     parsing_cell_cards = False
                     parsing_surface_cards = False
                     parsing_material_cards = False
@@ -130,7 +132,7 @@ class DMLG_Interface:
                     if line.startswith("c"):
                         if line.lstrip("c").strip():
                             current_title=line.lstrip("c").strip()
-                            print(f"current title is {current_title}")
+                            #print(f"current title is {current_title}")
 
                 # Parse and store information from each section
                 if parsing_cell_cards or parsing_surface_cards and line:
@@ -151,11 +153,7 @@ class DMLG_Interface:
                         line=line.replace("  ", " ").replace("   "," ")
                         material_cards.append(line)
         file.close()              
-
- 
-        #print(f"Cell cards are : {cell_cards}")
-        #print(f"Surface cards are : {surface_cards}")
-        #print(f"Material cards are : {material_cards}")
+        # Clean the lists
         self.Cell_Cards = self.clean_list(cell_cards)
         self.Surface_Cards = self.clean_list(surface_cards)
         self.cell_titles = self.clean_list(cell_titles)
@@ -168,7 +166,6 @@ class DMLG_Interface:
         for entry in list_:
             if entry:
                 if entry != '' or entry !="\n":
-                    #print(f"entry is = {entry}")
                     cleaned_list.append(entry.strip())
         return cleaned_list
     def combine_list(self, list_):
@@ -281,10 +278,8 @@ class DMLG_Interface:
                 line = line.replace("        ", " ")
                 line = line.replace("    ", " ")
                 line = line.replace("   ", " ")
-                line = line.replace("  ", " ")
-                print(line)  
+                line = line.replace("  ", " ")  
                 if "% (0." in line :
-                    #print(line.split(" "))
                     if float(line.split(" ")[2]) != 0.00000E+00:
                         mat_name=line.split(" ")[0]
                         mc_volume=line.split(" ")[2]
@@ -327,17 +322,7 @@ class DMLG_Interface:
                         data = material_data_[current_material]
                     material_data_.pop(current_material)
                     material_data_[current_material]=data
-                """
-                if current_material in material_data_.keys():
-                    data=material_data_[current_material]+line
-                    material_data_.pop(current_material)
-                    material_data_[current_material]=data
-                elif line:
-                    material_data_[current_material]=line
-                """
         file.close()
-        #print(materials)
-        #print(material_data_)
         self.Serpent2_output = material_data_
 
         return
