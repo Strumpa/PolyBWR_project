@@ -216,11 +216,13 @@ class S2_case:
         Combine information about cells and surfaces to create bounding surfaces and boxes.
         """
         for cell in cell_cards:
-            print(cell.surface_ids)
-            for surf in cell.surface_ids:
-                print(surf)
-                cell.setSurfaces(self.getSurfacesFromIds(cell.surface_ids))
-                #print(f"Surface {surf.surface_id} of type {surf.surface_type} in group {surf.surface_group}")
+            #print(cell.surface_ids)
+            cell.setSurfaces(self.getSurfacesFromIds(cell.surface_ids))
+            surfaces = cell.getSurfaces()
+            print(f"cell of name {cell.cell_name} is bounded by : \n") 
+            for surf in surfaces:
+                print(f"surfaces of type {surf.surface_type}") 
+            #print(f"Surface {surf.surface_id} of type {surf.surface_type} in group {surf.surface_group}")
         # Keep working on this function to create bounding surfaces and boxes.
                 
         return cell_cards
@@ -392,9 +394,8 @@ class S2_cell:
         """
         Definition of Serpent2 cell object.
         Attributes are :
-        cell type, cell name, universe number, material, surfaces list
+        cell name, universe number, material, surfaces list
         """
-        #self.cell_type = cell_type
         self.cell_name = name
         self.universe_nb = universe_nb
         self.material = material
@@ -403,6 +404,10 @@ class S2_cell:
         print(f"Processing cell name : {self.cell_name}")
     def setSurfaces(self, surfaces):
         self.surfaces = surfaces
+        return
+    def getSurfaces(self):
+        return self.surfaces
+    
     
 class S2_pin:
     def __init__(self, pin_id, materials, radii, center):
@@ -437,6 +442,47 @@ class S2_surface:
             
         #self.surface_parameters = parameters # the parameter array definies the surface according to mathematical definition in "Serpent user manual"
         print(f"Processing surface {self.surface_id} of type {self.surface_type}")
+        return
+    
+
+    def setS2Surface_type(self, S2surf_type):
+        """
+        Intialized cell type attribute. For now only used for sqc, cuboid and cyl cells.
+        """
+        self.surf_type = S2surf_type
+        return
+
+    def setS2Surface_mesh(self, mesh_data):
+        """
+        function used to set the mesh data to be written to Serpent2 surface definition
+        """
+        if self.cell_type == "sqc":
+            """
+            2D square, assumed inifnite in the z direction
+            mesh data must take the form of a tuple (x0, y0, d) where x0 and y0 are the coordinates of the square's center and d is the half width of the square.
+            """
+            self.x0 = mesh_data[0] # square's center x coordinate
+            self.y0 = mesh_data[1] # square's center y coordinate
+            self.d = mesh_data[2] # square's half width
+        elif self.cell_type == "cuboid":
+            """
+            3D paralleliped
+            mesh data must take the form (x0, x1, y0, y1, z0, z1) where x=x0, x=x1, y=y0, y=y1, z=z0, z=z1 are the equations definiting the planes bounding the 3D cuboid
+            """
+            self.x0 = mesh_data[0]
+            self.x1 = mesh_data[1]
+            self.y0 = mesh_data[2]
+            self.y1 = mesh_data[3]
+            self.z0 = mesh_data[4]
+            self.z1 = mesh_data[5]
+        elif self.cell_type == "cyl" or self.cell_type == "cylz":
+            """
+            infinite cylinder centered in (x0,y0) of radius r, parallel to the z axis, truncated/bounded by 2 planes (z0, z1).
+            """
+            self.center = (mesh_data[0],mesh_data[1])
+            self.radius = mesh_data[2]
+            self.z0 = mesh_data[3]
+            self.z1 = mesh_data[4]
         return
 
 class S2_material:
