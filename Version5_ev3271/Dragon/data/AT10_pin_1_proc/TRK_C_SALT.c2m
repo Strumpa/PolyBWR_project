@@ -37,7 +37,7 @@ INTEGER an2d := 18 ;  ! ANGULAR QUADRATURE PARAMETER
 REAL densur := 35.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
 
 INTEGER an2d_SS := 12 ;
-REAL densur_SS := 20.0 ;
+REAL densur_SS := 15.0 ;
 
 * polar angles for MCCGT:
 INTEGER nmu := 4 ;

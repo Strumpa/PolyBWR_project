@@ -36,7 +36,7 @@ class MCNP_Cell_Card:
             print("Input cell format to supported yet")
             return
         self.cell_name = cell_name
-        self.surfaces = []
+        #self.surfaces = []
         self.neutron_importance=np.zeros(len(data))
         data=data.replace("  ", " ").replace("   ", " ")
         data = data.split(" ")
@@ -47,8 +47,35 @@ class MCNP_Cell_Card:
         self.cell_number = int(cleaned_data[0])
         self.material_number = int(cleaned_data[1])
         self.material_density = float(cleaned_data[2])
-        self.surfaces.append(cleaned_data[3:-4]) # for ith material in cell : append list of surfaces
+        self.surfaces=cleaned_data[3:-4] # for ith material in cell : append list of surfaces defining the cell
+        print("$$$ DMLG: MCNP case")
+        print(f"$$ self.surfaces is {self.surfaces}")
         self.neutron_importance=int(cleaned_data[-4][-1])
+        self.logicalRelationToSurfaces()
+    
+
+    def logicalRelationToSurfaces(self):
+        """
+        Function to determine the logical relation between the cell and its bounding surfaces
+        """
+        surfaces_with_markers = self.surfaces
+        surfaces_ = []
+        relations_dict = {"Complenent":[], "Intersection":[], "Union":[]}
+        for surface in surfaces_with_markers:
+            if ":" in surface:
+                print(f"Implement union of two surfaces")
+            elif "#" in surface:
+                print(f"$$ surface is {surface}")
+                print(f"Implement complement of surfaces")
+                surfaces_.append(surface.replace("#",""))
+                relations_dict["Complenent"].append(surface.replace("#",""))
+                print(f"surfaces are {surfaces_}")
+            else:
+                surfaces_.append(surface)
+                relations_dict["Intersection"].append(surface)
+        print(f"surfaces are {surfaces_}")
+        self.surfaces = surfaces_
+        return
 
 class MCNP_Surface_Card:
     """

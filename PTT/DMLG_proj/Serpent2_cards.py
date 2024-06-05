@@ -158,14 +158,14 @@ class S2_case:
         print("$$ Generating Serpent2 case object")
         print(f"Processing output data for {self.name}")
         if input_data_type == "MCNP" and self.mode == "output":
-            self.cell_cards, self.pins, self.surface_cards, self.material_cards, self.lattice_cards = self.convert_MCNP_to_S2(input_case)
+            self.cell_cards, self.pins, self.surface_cards, self.material_cards, self.lattice_cards = self.convert_from_MCNP(input_case)
         # attributes should be added to the class to allow for the creation of an output serpent2 case and write its equivalent text file.
 
         return
 
         
     
-    def convert_MCNP_to_S2(self, input_case):
+    def convert_from_MCNP(self, input_case):
         """
         This function converts an MCNP input case to a Serpent2 input case.
         """
@@ -197,22 +197,33 @@ class S2_case:
             print(f"Fuel pin {pin.pin_id} with materials {pin.materials} and radii {pin.radii}")
 
         # Analyse cartesian geometry to create the bounding surfaces and boxes  
-        self.cell_cards, self.surface_cards = self.AnalyseCartesianGeometry(cell_cards)
-        
+        self.cell_cards = self.AnalyseGeometry(cell_cards)
+        for cell in self.cell_cards:
+            print("$$$ Geometry analysis")
+            print(f"Cell name : {cell.cell_name} with universe number {cell.universe_nb} and material {cell.material}")
+            print(f"Cell surfaces are : {cell.surfaces}")
+
+
+
         # Combine info on fuel pins and surfaces to create the pin lattice.
         fuel_lattice_card = self.createLatticeFromPins(fuel_pins)
         print(f"Fuel lattice is {fuel_lattice_card}")
 
         return self.cell_cards, merged_pins, self.surface_cards, material_cards, lattice_cards
     
-    def AnalyseCartesianGeometry(self, cell_cards):
+    def AnalyseGeometry(self, cell_cards):
         """
         Combine information about cells and surfaces to create bounding surfaces and boxes.
         """
-        for surf in self.surface_cards:
-            print(f"Surface {surf.surface_id} of type {surf.surface_type} in group {surf.surface_group}")
-            # Keep working on this function to create bounding surfaces and boxes.
-        return cell_cards, self.surface_cards
+        for cell in cell_cards:
+            print(cell.surface_ids)
+            for surf in cell.surface_ids:
+                print(surf)
+                cell.setSurfaces(self.getSurfacesFromIds(cell.surface_ids))
+                #print(f"Surface {surf.surface_id} of type {surf.surface_type} in group {surf.surface_group}")
+        # Keep working on this function to create bounding surfaces and boxes.
+                
+        return cell_cards
 
 
     def createLatticeFromPins(self, pins, type="square",diagonal_symmetry=True, box = "none"):
@@ -272,9 +283,9 @@ class S2_case:
             list_radii = []
             for cell in pin_list:
                 #print(f"Processing cell {cell.cell_name}")
-                print(f"Cell surfaces are : {cell.surfaces[0]}")
+                print(f"Cell surfaces are : {cell.surfaces}")
                 materials.append(cell.material_number)
-                surfaceIds = cell.surfaces[0]
+                surfaceIds = cell.surfaces
                 pin_surfaces = self.getSurfacesFromIds(surfaceIds)
                 pin_radii,center = self.getRadiiandCenterFromSurfaces(pin_surfaces)
                 for rad in pin_radii:
@@ -377,7 +388,7 @@ class S2_lattice:
             print("Invalid lattice data : does not match nx*ny")
         return
 class S2_cell:
-    def __init__(self, name, universe_nb, material, surfaces_list):
+    def __init__(self, name, universe_nb, material, surfaces_id_list):
         """
         Definition of Serpent2 cell object.
         Attributes are :
@@ -387,9 +398,11 @@ class S2_cell:
         self.cell_name = name
         self.universe_nb = universe_nb
         self.material = material
-        self.surfaces = surfaces_list
+        self.surface_ids = surfaces_id_list
         
         print(f"Processing cell name : {self.cell_name}")
+    def setSurfaces(self, surfaces):
+        self.surfaces = surfaces
     
 class S2_pin:
     def __init__(self, pin_id, materials, radii, center):
