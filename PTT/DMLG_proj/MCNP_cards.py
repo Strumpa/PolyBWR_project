@@ -47,9 +47,9 @@ class MCNP_Cell_Card:
         self.cell_number = int(cleaned_data[0])
         self.material_number = int(cleaned_data[1])
         self.material_density = float(cleaned_data[2])
-        self.surfaces=cleaned_data[3:-4] # for ith material in cell : append list of surfaces defining the cell
+        self.surface_ids=cleaned_data[3:-4] # for ith material in cell : append list of surfaces defining the cell
         print("$$$ DMLG: MCNP case")
-        print(f"$$ self.surfaces is {self.surfaces}")
+        print(f"$$ self.surfaces is {self.surface_ids}")
         self.neutron_importance=int(cleaned_data[-4][-1])
         self.logicalRelationToSurfaces()
     
@@ -58,7 +58,7 @@ class MCNP_Cell_Card:
         """
         Function to determine the logical relation between the cell and its bounding surfaces
         """
-        surfaces_with_markers = self.surfaces
+        surfaces_with_markers = self.surface_ids
         surfaces_ = []
         relations_dict = {"Complenent":[], "Intersection":[], "Union":[]}
         for surface in surfaces_with_markers:
@@ -74,7 +74,7 @@ class MCNP_Cell_Card:
                 surfaces_.append(surface)
                 relations_dict["Intersection"].append(surface)
         print(f"surfaces are {surfaces_}")
-        self.surfaces = surfaces_
+        self.surface_ids = surfaces_
         return
 
 class MCNP_Surface_Card:
@@ -213,22 +213,32 @@ class MCNP_Material_Card:
         self.iso_densities = [x/self.normalization_factor for x in self.iso_densities]
         if self.printlvl:
             print(f"New isotopic fractions are : {self.iso_densities}")
+        return
+    def setMaterialDensity(self, density):
+        """
+        Set material density
+        """
+        self.material_density = density
+        return
 
 
 class MCNP_case:
-    def __init__(self, name, cell_cards, surface_cards, material_cards):
+    def __init__(self, name, lattice_type, cell_cards, surface_cards, material_cards, printlvl):
         """
         MCNP card class structures in Python3
         
         Instances of this class are initialized in the DMLG_Interface class when parsing MCNP cards
         Its attributes are the objects created from classes MCNP_Cell_Card, MCNP_Surface_Card and MCNP_Material_Card
+        lattice_type corresponds to the type of lattice described in the MCNP case
         """
         self.name = name
+        self.lattice_type = lattice_type
         print("$$$ DMLG: MCNP case class initialized")
         print("$$ Generating MCNP case object")
-        print(f"Processing MCNP input case for {self.name}")
+        if printlvl > 0:
+            print(f"Processing MCNP input case for {self.name}")
         self.cell_cards = cell_cards
         self.surface_cards = surface_cards
         self.material_cards = material_cards
-        
+
         return

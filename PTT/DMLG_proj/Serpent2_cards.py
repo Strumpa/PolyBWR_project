@@ -139,21 +139,24 @@ class S2_geom:
 
 
 class S2_case:
-    def __init__(self, name, input_data_type, input_case, mode):
+    def __init__(self, name, lattice_type, input_data_type, input_case, mode, printlvl=0):
         """
         name (str) : name of the S2_case to be output
         input_data = input data parsed from MCNP (or Dragon) input file to create equivalent Serpent2 case. Either MCNP_case object or Dragon5_case object as created from DMLG_Interface.
         input_data_type = type of input data (MCNP or Dragon)
+        lattice_type corresponds to the type of lattice described in the MCNP case
         """
+        self.lattice_type = lattice_type
+
         self.name = name
         self.input_data_type = input_data_type
         self.mode = mode
+        self.printlvl = printlvl
 
         self.pins = []
         self.cell_cards = []
         self.surface_cards = []
         self.material_cards = []
-        #self.lattice_card = []
         print("$$$ DMLG: Serpent2 case class initialized")
         print("$$ Generating Serpent2 case object")
         print(f"Processing output data for {self.name}")
@@ -169,73 +172,107 @@ class S2_case:
         """
         This function converts an MCNP input case to a Serpent2 input case.
         """
-        cell_cards = []
+        
+        # cards that require conversion
+        input_cell_cards = []
+        self.input_surface_cards = []
+
+        # creation of serpent2 specific cards
         fuel_pins = []
         cells_to_pins = []
-        self.surface_cards = []
-        material_cards = []
         lattice_cards = []
+
+        # metrial cards require minor modification to be converted
+        material_cards = []
+
+        material_density_dict = {}
+
 
         for cell in input_case.cell_cards:
             if "pin" in cell.cell_name:
                 cells_to_pins.append(cell)
+                material_density_dict[cell.material_number] = cell.material_density
             else:
-                cell_cards.append(S2_cell(cell.cell_name, 0, cell.material_number, cell.surfaces))
+                input_cell_cards.append(S2_cell(cell.cell_name, 0, cell.material_number, cell.surface_ids))
+                material_density_dict[cell.material_number] = cell.material_density
         for surface in input_case.surface_cards:
-            self.surface_cards.append(S2_surface(surface.surfaces_group, surface.surface_number, surface.surface_type, surface.surface_data))
+            self.input_surface_cards.append(S2_surface(surface.surfaces_group, surface.surface_number, surface.surface_type, surface.surface_data))
+
         for material in input_case.material_cards:
             if "t" in material.material_name:
                 material_cards.append(S2_material(material.material_name, 0, [], material.iso_codes, material.therm_lib))
             else:
-                material_cards.append(S2_material(material.material_name, "sum", [], material.iso_codes, material.iso_densities))
+                material_number = material.material_name.split("m")[1]
+                if material_number[0]=='0':
+                    material_number = material_number[1]
+                if self.printlvl > 1:
+                    print(f"Processing material {material.material_name} with density {material_density_dict[int(material_number)]}")
+                material_cards.append(S2_material(material.material_name, material_density_dict[int(material_number)], [], material.iso_codes, material.iso_densities))
+
 
         # Analyse cells to create fuel pins
         fuel_pins = self.group_cells_in_pins(cells_to_pins)
         merged_pins, mat_to_pins_dict = self.mergePins(fuel_pins)
-        print(f"Material to correpsonding dictionnary before merge is {mat_to_pins_dict}")
-        for pin in merged_pins:
-            print(f"Fuel pin {pin.pin_id} with materials {pin.materials} and radii {pin.radii}")
+    
+        if self.printlvl > 1:
+            print(f"Material to correpsonding dictionnary before merge is {mat_to_pins_dict}")
+            for pin in merged_pins:
+                print(f"Fuel pin {pin.pin_id} with materials {pin.materials} and radii {pin.radii}")
+        
+        merged_pins = self.renumberMergedPins(merged_pins)
 
+        for pin in merged_pins:
+            print(f"$$$$ Fuel pin {pin.pin_id} with materials {pin.materials} and radii {pin.radii}")
         # Analyse cartesian geometry to create the bounding surfaces and boxes  
-        self.cell_cards = self.AnalyseGeometry(cell_cards)
-        for cell in self.cell_cards:
-            print("$$$ Geometry analysis")
-            print(f"Cell name : {cell.cell_name} with universe number {cell.universe_nb} and material {cell.material}")
-            print(f"Cell surfaces are : {cell.surfaces}")
+        cell_cards, surface_cards = self.AnalyseMCNPGeometry(input_cell_cards)
+        if self.printlvl > 1:
+            for cell in cell_cards:
+                print("$$$ Geometry analysis")
+                print(f"Cell name : {cell.cell_name} with universe number {cell.universe_nb} and material {cell.material}")
+                print(f"Cell surfaces are : {cell.surfaces}")
 
 
 
         # Combine info on fuel pins and surfaces to create the pin lattice.
-        fuel_lattice_card = self.createLatticeFromPins(fuel_pins)
-        print(f"Fuel lattice is {fuel_lattice_card}")
+        fuel_lattice_card = self.createLatticeFromPins(merged_pins)
+        if self.printlvl > 1:
+            print(f"Fuel lattice is {fuel_lattice_card}")
 
-        return self.cell_cards, merged_pins, self.surface_cards, material_cards, lattice_cards
+        return cell_cards, merged_pins, surface_cards, material_cards, lattice_cards
     
-    def AnalyseGeometry(self, cell_cards):
+    def AnalyseMCNPGeometry(self, cell_cards):
         """
         Combine information about cells and surfaces to create bounding surfaces and boxes.
         """
         for cell in cell_cards:
             #print(cell.surface_ids)
-            cell.setSurfaces(self.getSurfacesFromIds(cell.surface_ids))
+            cell.setSurfaces(self.getSurfacesFromIds(cell.surface_ids, self.input_surface_cards))
             surfaces = cell.getSurfaces()
-            print(f"cell of name {cell.cell_name} is bounded by : \n") 
-            for surf in surfaces:
-                print(f"surfaces of type {surf.surface_type}") 
+            if self.printlvl > 0:
+                print(f"cell of name {cell.cell_name} is bounded by : \n") 
+                for surf in surfaces:
+                    print(f"surfaces of type {surf.surface_type}") 
             #print(f"Surface {surf.surface_id} of type {surf.surface_type} in group {surf.surface_group}")
         # Keep working on this function to create bounding surfaces and boxes.
-                
-        return cell_cards
+        surface_cards = self.input_surface_cards
+        return cell_cards, surface_cards
 
 
-    def createLatticeFromPins(self, pins, type="square",diagonal_symmetry=True, box = "none"):
+    def createLatticeFromPins(self, pins, type="square", diagonal_symmetry=True, box = "none"):
         """
         This function creates a lattice card from the fuel pins.
         assuming square BWR lattice.
         Need to figure out box indices.
         """
+        for pin in pins:
+            print(f"$ Creating lattice : Fuel pin {pin.pin_id} with materials {pin.materials} and radii {pin.radii}")
         pins_lat = self.sortPins(pins)
-        return pins_lat
+        pitch = pins[0].pitch
+        print(len(pins_lat))
+
+        lattice = S2_lattice("fuel", 0, type, 10, 10, pitch, pins_lat)
+        lattice.plot_lattice()
+        return lattice
 
 
     def sortPins(self, pins):
@@ -247,13 +284,13 @@ class S2_case:
             centers.append(pin.center)
         sorted_centers = sorted(centers, key=lambda center: (center[0],center[1]))
         
-        """
+        
         # Extract unique x and y coordinates
         unique_x = sorted(set(point[0] for point in sorted_centers))
         unique_y = sorted(set(point[1] for point in sorted_centers))
         
-        # Create a 2D array with None as placeholders
-        grid = [[None for _ in range(len(unique_y))] for _ in range(len(unique_x))]
+        # Create a 2D array with 0 as placeholders
+        grid = np.array([[0 for _ in range(len(unique_y))] for _ in range(len(unique_x))])
         
         # Populate the 2D array with the sorted points
         for x, y in sorted_centers:
@@ -262,11 +299,24 @@ class S2_case:
             for pin in pins:
                 if pin.center == (x,y):
                     grid[i][j] = pin.pin_id
-        return grid 
-        """
-        sorted_pins = [pin for center in sorted_centers for pin in pins if pin.center == center]
-        return sorted_pins
+        self.plot_lattice_test(grid, saveFlag=False)
+        transposed_grid = grid[::-1,::-1].T
+
+        self.plot_lattice_test(transposed_grid, saveFlag=False)
+        full_grid = np.zeros((len(transposed_grid), len(grid)))
+        for i in range(len(grid)):
+            for j in range(len(grid)):
+                if i+j == len(grid)-1:
+                    full_grid[i][j] = int(grid[i][j])
+                else:
+                    full_grid[i][j] = int(transposed_grid[i][j]+grid[i][j])
+
+        return full_grid
     
+
+
+
+
     def group_cells_in_pins(self, cells_to_pins):
         """
         This function groups the cells that go in fuel pins together to create fuel pins.
@@ -279,34 +329,68 @@ class S2_case:
         pins = []
         pin_number = 1
         for pin_name, pin_list in fuel_pin_groups.items():
-            print(f"Processing pin : {pin_name}")
+            if self.printlvl > 5:
+                print(f"Processing pin : {pin_name}")
             materials = []
             surfaceIds = []
-            list_radii = []
             for cell in pin_list:
-                #print(f"Processing cell {cell.cell_name}")
-                print(f"Cell surfaces are : {cell.surfaces}")
+                if self.printlvl > 5:
+                    print(f"Processing cell {cell.cell_name}")
+                    print(f"Cell surface identifiers are : {cell.surface_ids}")
                 materials.append(cell.material_number)
-                surfaceIds = cell.surfaces
-                pin_surfaces = self.getSurfacesFromIds(surfaceIds)
-                pin_radii,center = self.getRadiiandCenterFromSurfaces(pin_surfaces)
-                for rad in pin_radii:
-                    if rad not in list_radii:
-                        list_radii.append(rad)
-            print(f"radii are {list_radii}")
-            pins.append(S2_pin(pin_number, list(materials), list(list_radii), center))
+                surfaceIds.extend(cell.surface_ids)
+            pin_surfaces = self.getSurfacesFromIds(surfaceIds, self.input_surface_cards)
+            pin_radii, center, pitch, height, isOnSymmetryAxis  = self.getPinDataFromSurfaces(pin_surfaces)
+            #pin_radii,center = self.getPinDataFromSurfaces(pin_surfaces)
+
+            if self.printlvl > 5:
+                print(f"materials are {materials}")
+                print(f"radii are {pin_radii}")
+                print(f"pin surface Ids are {surfaceIds}")
+            pins.append(S2_pin(pin_number, list(materials), pin_radii, center, pitch, height, isOnSymmetryAxis))
             pin_number += 1
         return pins
+    
+    def renumberMergedPins(self, mergedPins):
+        """
+        This functions renumerates the merged fuel pins in order to number fuel rods in conscutive pin_ids.
+        """
+        print("$$$ in renumberMergedPins")
+        print(f"mergedPins length is {len(mergedPins)}")
+        print(f"mergedPins are {mergedPins}")
+        pin_numbers=[]
+        renumbered_ids= []
+        for pin in mergedPins:
+            if pin.pin_id not in pin_numbers:
+                pin_numbers.append(pin.pin_id)
+                renumbered_ids.append(pin.pin_id)
+                pin_numbers.sort()
+                renumbered_ids.sort()
+                if len(pin_numbers)>1:
+                    if pin_numbers[-1] > pin_numbers[-2]:
+                        renumbered_ids[-1] = renumbered_ids[-2]+1
+        
+            #pin_numbers.append(pin.pin_id)
+            print(f"pin_numbers are {renumbered_ids}")
+            for i in range(len(renumbered_ids)):
+                if pin.pin_id == pin_numbers[i]:
+                    pin.setPinId(renumbered_ids[i])
+
+        return mergedPins
     
     def mergePins(self, fuel_pins):
         """
         This function merges the fuel pins together to create a single pin per material aka fuel type.
         """
+        print("$$$ in mergePins")
         indep_mat_list=[]
         indep_pins = []
         correspondance_dict = {}
+        print(f"Fuelpins length is {len(fuel_pins)}")
+        i=0
         for pin in fuel_pins:
-            print(f"Fuel pin {pin.pin_id} with materials {pin.materials} and radii {pin.radii}")
+            if self.printlvl > 5:
+                print(f"Fuel pin {pin.pin_id} with materials {pin.materials} and radii {pin.radii}, i={i}")
             if pin.central_hole:
                 fuel_mat_idx = 1
             else:
@@ -317,6 +401,9 @@ class S2_case:
                 correspondance_dict[pin.materials[fuel_mat_idx]] = [pin.pin_id]
             else:
                 correspondance_dict[pin.materials[fuel_mat_idx]].append(pin.pin_id)
+                pin.setPinId(correspondance_dict[pin.materials[fuel_mat_idx]][0])
+                indep_pins.append(pin)
+            i+=1
         return indep_pins, correspondance_dict
 
     def print_cells_info(self, output_path, output_name):
@@ -329,7 +416,8 @@ class S2_case:
         output = open(output_path+output_name, "w")
 
         for pin in self.fuel_pins:
-            print(f"Fuel pin {pin.pin_id} with materials {pin.materials} and radii {pin.radii}")
+            if self.printlvl > 5:
+                print(f"Fuel pin {pin.pin_id} with materials {pin.materials} and radii {pin.radii}")
             output.write(f"pin {pin.pin_id}\n")
             if len(pin.materials) == len(pin.radii):
                 for i in range(len(pin.materials)):
@@ -339,33 +427,116 @@ class S2_case:
                     output.write(f"{pin.materials[i]} {pin.radii[i]}\n")
                 output.write(f"{pin.materials[-1]}")                
         for cell in self.cell_cards:
-            print(f"Cell name : {cell.cell_name} with universe number {cell.universe_nb} and material {cell.material}")
-            print(f"Cell surfaces are : {cell.surfaces}")
+            if self.printlvl > 5:
+                print(f"Cell name : {cell.cell_name} with universe number {cell.universe_nb} and material {cell.material}")
+                print(f"Cell surfaces are : {cell.surfaces}")
             output.write(f"{cell.cell_type} {cell.cell_name} {cell.universe_nb} {cell.material} {cell.surfaces}\n")
     
-    def getSurfacesFromIds(self, surface_ids):
+    def getSurfacesFromIds(self, surface_ids, surface_cards):
         """
         This function retrieves the surfaces from the cells of the fuel pin.
         """
         surfaces = []
         for surf in surface_ids:
-            for surface in self.surface_cards:
+            for surface in surface_cards:
                 if surface.surface_id == np.abs(int(surf)):
-                    surfaces.append(surface)
+                    if surface not in surfaces:
+                        surfaces.append(surface)
         return surfaces
     
     
-    def getRadiiandCenterFromSurfaces(self, surfaces):
+    def getPinDataFromSurfaces(self, surfaces):
         """
         This function retrieves the radii and center from the surfaces defining a cylinder.
         """
         radii = []
+        planes_x = []
+        planes_y = []
+        planes_z = []
+        planes_ = []
         for surface in surfaces:
             if "Cylinder" in surface.surface_type:
                 radii.append(surface.radius)
                 center = surface.center # assuming concentric cylinders
-                print(f"Center of the cylinder is {center}")
-        return radii, center
+                if self.printlvl > 5:
+                    print(f"Center of the cylinder is {center}")
+            elif "px" == surface.surface_type:
+                planes_x.append(float(surface.surface_data[0]))
+                if self.printlvl > 5:
+                    print(f"surface data is = {surface.surface_data}")
+            elif "py" == surface.surface_type:
+                planes_y.append(float(surface.surface_data[0]))
+                if self.printlvl > 5:
+                    print(f"surface data is = {surface.surface_data}")   
+            elif "pz" == surface.surface_type:
+                if float(surface.surface_data[0]) not in planes_z:
+                    planes_z.append(float(surface.surface_data[0]))
+                    if self.printlvl > 5:
+                        print(f"surface data is = {surface.surface_data}")
+            elif "p" == surface.surface_type: 
+                planes_=[float(surface.surface_data[0]), float(surface.surface_data[1]), float(surface.surface_data[2])]
+                if self.printlvl > 5:
+                        print(f"surface data is = {surface.surface_data}")
+        print(f"pincell planes are : {planes_x, planes_y, planes_z, planes_}")
+        if planes_x:
+            # check that there are only two planes
+            if len(planes_x) == 2:
+                pitch_x = abs(planes_x[1]-planes_x[0])
+            else:
+                print(f"Invalid number of planes in x direction for {self.lattice_type} pincell definition")
+        if planes_y:
+            # check that there are only two planes
+            if len(planes_y) == 2:
+                pitch_y = abs(planes_y[1]-planes_y[0])
+            else:
+                print(f"Invalid number of planes in y direction for {self.lattice_type} pincell definition")
+
+        print(planes_z)
+        if planes_z:
+            # check that there are only two planes
+            if len(planes_z) == 2:
+                height = abs(planes_z[1]-planes_z[0])
+            else:
+                print(f"Invalid number of planes in z direction for {self.lattice_type} pincell definition")
+        if planes_:
+            isOnSymmetryAxis = True
+        else:
+            isOnSymmetryAxis = False
+        print(pitch_x, pitch_y)
+        if np.abs(pitch_x-pitch_y)<=1e-8 :
+            pitch = pitch_x
+            print(f"Pitch is {pitch_x} cm")
+        else: 
+            print("Pitch in x and y directions are different, pincell is not a square")
+            #pitch = pitch_y
+
+        return radii, center, pitch, height, isOnSymmetryAxis
+    
+
+
+
+    def plot_lattice_test(self, grid, saveFlag=False):
+        """
+        write a function that plots the lattice with the fuel pins. Each pin has an associated color,
+        the pins are represented by a square. they have to be ordered in increating x and y coordinate.
+        """
+        import matplotlib.pyplot as plt
+        import matplotlib.patches as patches
+        fig, ax = plt.subplots()
+        for i in range(len(grid)):
+            for j in range(len(grid[i])):
+                if grid[i][j] != 0:
+                    rect = patches.Rectangle((i,j), 1, 1, linewidth=1, edgecolor='r', facecolor='none')
+                    ax.add_patch(rect)
+                    ax.text(i+0.5, j+0.5, str(grid[i][j]), ha='center', va='center')
+        ax.set_xlim(0, len(grid))
+        ax.set_ylim(0, len(grid[0]))
+        ax.set_aspect('equal')
+        if saveFlag:
+            plt.savefig(f"lattice_.png")
+        plt.show()
+        plt.close()
+        return
 
 
 class S2_lattice:
@@ -383,12 +554,35 @@ class S2_lattice:
         self.nx = nx
         self.ny = ny
         self.pitch = pitch
-        self.lattice = lattice
+        self.lattice_grid = lattice
         print(f"Processing lattice {self.lattice_name}")
         #check conformity of lattice data
-        if len(self.lattice) != self.nx*self.ny:
+        if len(self.lattice_grid[0]*self.lattice_grid[1]) != self.nx*self.ny:
             print("Invalid lattice data : does not match nx*ny")
         return
+    def plot_lattice(self):
+        """
+        write a function that plots the lattice with the fuel pins. Each pin has an associated color,
+        the pins are represented by a square. they have to be ordered in increating x and y coordinate.
+        """
+        import matplotlib.pyplot as plt
+        import matplotlib.patches as patches
+        fig, ax = plt.subplots()
+        for i in range(len(self.lattice_grid)):
+            for j in range(len(self.lattice_grid[i])):
+                if self.lattice_grid[i][j] != 0:
+                    rect = patches.Rectangle((i,j), 1, 1, linewidth=1, edgecolor='r', facecolor='none')
+                    ax.add_patch(rect)
+                    ax.text(i+0.5, j+0.5, int(self.lattice_grid[i][j]), ha='center', va='center')
+        ax.set_xlim(0, len(self.lattice_grid))
+        ax.set_ylim(0, len(self.lattice_grid[0]))
+        ax.set_aspect('equal')
+        plt.savefig(f"lattice_{self.lattice_name}.png")
+        plt.show()
+        plt.close()
+
+        return
+        
 class S2_cell:
     def __init__(self, name, universe_nb, material, surfaces_id_list):
         """
@@ -401,16 +595,15 @@ class S2_cell:
         self.material = material
         self.surface_ids = surfaces_id_list
         
-        print(f"Processing cell name : {self.cell_name}")
+        #print(f"Processing cell name : {self.cell_name}")
     def setSurfaces(self, surfaces):
         self.surfaces = surfaces
         return
     def getSurfaces(self):
         return self.surfaces
     
-    
 class S2_pin:
-    def __init__(self, pin_id, materials, radii, center):
+    def __init__(self, pin_id, materials, radii, center, pitch, height, isOnSymmetryAxis=False):
         """
         initializing fuel pin object.
         attributes are pin_id = universe number, materials = list of materials, radii = list of radii defining the fuel pin, pin center
@@ -419,8 +612,14 @@ class S2_pin:
         self.pin_id = pin_id
         self.materials = materials
         self.radii = radii
-        self.center = center 
-        print(f"Processing fuel pin {self.pin_id}")
+        self.center = center
+        self.pitch = pitch
+        self.height = height
+        self.isOnSymmetryAxis = isOnSymmetryAxis 
+        #print(f"Processing fuel pin {self.pin_id}")
+        return
+    def setPinId(self, pin_id):
+        self.pin_id = pin_id
         return
 class S2_surface:
     def __init__(self, surface_group, surface_id, type, surfaceData):
@@ -441,7 +640,7 @@ class S2_surface:
             self.surface_data = surfaceData
             
         #self.surface_parameters = parameters # the parameter array definies the surface according to mathematical definition in "Serpent user manual"
-        print(f"Processing surface {self.surface_id} of type {self.surface_type}")
+        #print(f"Processing surface {self.surface_id} of type {self.surface_type}")
         return
     
 
@@ -484,6 +683,10 @@ class S2_surface:
             self.z0 = mesh_data[3]
             self.z1 = mesh_data[4]
         return
+    
+    def setIsPincellSurface(self, isPincellSurface):
+        self.isPinCellSurface = isPincellSurface
+        return
 
 class S2_material:
     def __init__(self, name, dens, options, isotopes, data):
@@ -493,9 +696,6 @@ class S2_material:
         unit is an attribute that is deduced from the data
         """
         self.material_name = name
-        print(f"In S2 material definition : Processing material : {self.material_name}")
-        print(f"Associated isotopes are = {isotopes}")
-        print(f"Associated received data is = {data}")
         if "t" in self.material_name:
             self.mat_type = "thermalizer"
             self.dens = 0
@@ -522,7 +722,11 @@ class S2_material:
 
         # check that data has the same length as isotopes
         if len(data) != len(isotopes):
+            print(f"For material {self.material_name} data and isotopes do not have the same length")
             print("Data and isotopes do not have the same length")
             return
         
+        return
+    def setMaterialDensity(self, dens):
+        self.density = dens
         return

@@ -17,42 +17,49 @@ import Serpent2_cards as S2
 # Class DMLG_Interface()
 
 class DMLG_Interface:
-    def __init__(self, input_deck, type, mode):
+    def __init__(self, input_deck, code, mode, reactor_type):
         """
         loading geometry object to be parsed according to :
         input file (str) : path to file to be parsed
-        type (str) : "MCNP", "Dragon", "Serpent2"
+        code (str) : "MCNP", "Dragon", "Serpent2"
         mode (str) : 'input' or 'output' or 'check volumes'
         """
-        self.input_type = type
+        self.input_code = code
         self.input_deck = input_deck
         self.mode = mode
-        if self.input_type == "MCNP" and self.mode == 'input' :
+        self.reactor_type = reactor_type
+        if self.reactor_type == "BWR" or self.reactor_type == "PWR":
+            self.lattice_type = "Cartesian"
+        elif self.reactor_type == "VVER" or self.reactor_type == "SFR":
+            self.lattice_type = "Hexagonal" # not treated yet.
+            print("Hexagonal lattice not supported, Aborting DMLG treatment") 
+            return
+        if self.input_code == "MCNP" and self.mode == 'input' :
             self.parseMCNP_input()
             self.createMCNPcard_objects()
-        elif self.input_type == "Dragon" and self.mode == 'input' :
-            self.parseDragon_input()
-        elif self.input_type == "Dragon" and self.mode == 'output' :
+        elif self.input_code == "Dragon" and self.mode == 'input' :
+            self.parseDragon_input() # not implemented yet
+        elif self.input_code == "Dragon" and self.mode == 'output' :
             self.parseDragon_output()
             self.createDragon5_geometry()
-        elif self.input_type == "Serpent2" and self.mode == 'input' :
+        elif self.input_code == "Serpent2" and self.mode == 'input' :
             self.parseSerpent2_input()
-        elif self.input_type == "Serpent2" and self.mode == 'check_volumes' :
+        elif self.input_code == "Serpent2" and self.mode == 'check_volumes' :
             self.parseSepent2_check_volumes()
             self.createSerpent2_Material_volumes()
-        elif self.input_type == "Serpent2" and self.mode == 'output' : 
+        elif self.input_code == "Serpent2" and self.mode == 'output' : 
             self.parseSerpent2_output()
             self.createSerpent2_output_cards()
         else:
             print("Error: invalid Geometry type to be parsed")
     
-    def choose_output(self, output_type):
-        if self.input_type == "MCNP" and output_type == "Serpent2":
+    def choose_output(self, output_code, printlevel=0):
+        if self.input_code == "MCNP" and output_code == "Serpent2":
             MCNP_name = self.input_deck.split(".")[0]
             Serpent2_name = MCNP_name + "_to_Serpent2_mc"
-            self.MCNP_case = MCNP.MCNP_case(MCNP_name, self.Cell_Cards, self.Surface_Cards, self.Material_Cards)
-            self.Serpent2_equiv_case = S2.S2_case(Serpent2_name, self.input_type, self.MCNP_case, mode="output")
-        elif self.input_type == "Serpent2" and output_type == "Dragon5":
+            self.MCNP_case = MCNP.MCNP_case(MCNP_name, self.lattice_type, self.Cell_Cards, self.Surface_Cards, self.Material_Cards, printlevel)
+            self.Serpent2_equiv_case = S2.S2_case(Serpent2_name, self.lattice_type, self.input_code, self.MCNP_case, mode="output", printlvl=printlevel)
+        elif self.input_code == "Serpent2" and output_code == "Dragon5":
             """
             S2_name = self.input_deck.split(".")[0]
             Dragon5_name = S2_name + "_Dragon5.c2m"
@@ -61,12 +68,12 @@ class DMLG_Interface:
             """
             print("Not implemented yet")
             return
-        elif self.input_type == "MCNP" and output_type == "Dragon5":
+        elif self.input_code == "MCNP" and output_code == "Dragon5":
             """
             MCNP_name = self.input_deck.split(".")[0]
             Dragon5_name = MCNP_name + "_Dragon5.c2m"
             self.MCNP_case = MCNP.MCNP_case(MCNP_name, self.Cell_Cards, self.Surface_Cards, self.Material_Cards)
-            self.Dragon5_equiv_case = D5.D5_case(Dragon5_name, self.input_type, self.MCNP_case)
+            self.Dragon5_equiv_case = D5.D5_case(Dragon5_name, self.input_code, self.MCNP_case)
             """
             print("Not implemented yet")
             return
@@ -84,7 +91,7 @@ class DMLG_Interface:
 
         Classes defining the proper data structure for each card/ group of cards are called in this function.
         """
-        print(f"Parsing {self.input_type} {self.mode} file, from input file : {self.input_deck}")
+        print(f"Parsing {self.input_code} {self.mode} file, from input file : {self.input_deck}")
         # Define flags to track when to start/stop parsing each section
         parsing_cell_cards = False
         parsing_surface_cards = False
@@ -184,7 +191,7 @@ class DMLG_Interface:
         return combined_list
 
     def createMCNPcard_objects(self):
-        print(f"cell cards are = {self.Cell_Cards}")
+        #print(f"cell cards are = {self.Cell_Cards}")
         for i in range(len(self.Cell_Cards)):
             self.Cell_Cards[i] = MCNP.MCNP_Cell_Card(1, self.cell_titles[i], self.Cell_Cards[i])
         for i in range(len(self.Surface_Cards)):
@@ -224,7 +231,7 @@ class DMLG_Interface:
         volume_data=[]
         save_volume_values = False
         module =""
-        print(f"Parsing {self.input_type} {self.mode} file, from input file : {self.input_deck}")
+        print(f"Parsing {self.input_code} {self.mode} file, from input file : {self.input_deck}")
         with open(self.input_deck, 'r') as file:
             lines = file.readlines()
             for line in lines:
@@ -299,7 +306,7 @@ class DMLG_Interface:
         current_material=None
         parsing_new_mat = False
         parsing_same_mat = False
-        print(f"Parsing {self.input_type} {self.mode} file, from input file : {self.input_deck}")
+        print(f"Parsing {self.input_code} {self.mode} file, from input file : {self.input_deck}")
         with open(self.input_deck, 'r') as file:
             for line in file:
                 line = line.strip()  # Remove leading/trailing whitespace
