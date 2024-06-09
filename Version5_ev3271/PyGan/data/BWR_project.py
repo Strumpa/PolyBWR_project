@@ -28,6 +28,9 @@ from assertS import *
 # POST-PROCESSING class
 from POSTPROC import *
 
+# --- Homogeneous Cell
+from C7_hom import *
+
 # --- CELL
 # GEOMETRY class
 from GEO_C_SALT import *
@@ -75,8 +78,8 @@ TYPE = 'HYBRIDE'
 # - assemblies : 
 #           - 'ATRIUM-10XM_NL24-2'
 #           - 'ATRIUM-10XM_NL24-2_ctrl'
-name_geom = 'AT10_UOX' # 'AT10_UOX_Gd2O3'
-name_mix = "AT10_24UOX"
+name_geom = 'AT10_UOX_Gd_HOM' # 'AT10_UOX_Gd2O3'
+name_mix = "AT10_45Gd"
 tracking_module = "SALT" #"SALT"
 #
 # Multicompo = 1 if you want to generate a MULTICOMPO object 
@@ -126,7 +129,7 @@ visu_DELTA=1
 ###################################################
 #
 # case = 'CELL' / 'ASSEMBLY' - string used to determine wich python class must be called
-case = 'CELL'
+case = 'HOM_CELL'
 
 #
 # names for exportation
@@ -175,6 +178,14 @@ os.chdir(path)
 #             EXECUTION OF PROCEDURES             #
 #                                                 #
 ###################################################
+#
+# --------------------------------------
+#             HOMOGENEOUS CELL                 
+# --------------------------------------
+if case == 'HOM_CELL':
+		name_compo = "C7_homogeneous"
+		pyCOMPO = C7_hom("COMPO",name_compo)
+       
 #
 # --------------------------------------
 #                 CELL                 
