@@ -63,7 +63,12 @@ def POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
     # Chemin d'accès aux résultats Serpent2
     burnup_points=suffixe.split("_")[1]
     #SERPENT_path=f'/home/p117902/Serpent2/Linux_x86_64/' # path to Serpent2 results with sss_jeff311 library.
-    SERPENT_path=f'/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/PyNjoy2016_results/' #for results with JEFF311_Pynjoy2016 acelib <--- working on fixing that.
+    #SERPENT_path=f'/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/' #for results with JEFF311_Pynjoy2016 acelib <--- working on fixing that.
+    #SERPENT_path=f'/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/' 
+    if burnup_points != "UOx":
+        serpent_suffix = burnup_points+"_"
+    else:
+        serpent_suffix = ""
 
 
 
@@ -98,13 +103,13 @@ def POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
             DRAGON_Keff[k]=pyCOMPO[DIR]['MIXTURES'][0]['CALCULATIONS'][k]['K-EFFECTIVE']
             #print("$$$ ---------------- ISOTOPES BU step ",k,"/",lenBU_DRAGON," = ",pyCOMPO['EDIBU_HOM']['MIXTURES'][0]['CALCULATIONS'][k]['ISOTOPESDENS'])    
             for j in range(lenISOT_DRAGON):
-                #print("$$$ ---------------- ISOTOPES ",j,"/",lenISOT_DRAGON," = ",pyCOMPO['EDIBU_HOM']['MIXTURES'][0]['CALCULATIONS'][k]['ISOTOPESDENS'][j])
+                print("$$$ ---------------- ISOTOPES ",j,"/",lenISOT_DRAGON," = ",pyCOMPO['EDIBU']['MIXTURES'][0]['CALCULATIONS'][k]['ISOTOPESDENS'][j])
                 DRAGON_ISOTOPESDENS[j][k]=pyCOMPO[DIR]['MIXTURES'][0]['CALCULATIONS'][k]['ISOTOPESDENS'][j]
 
         print('$$$ ---------------- DRAGON_BU =',DRAGON_BU)
         print('$$$ ---------------- LEN_DRAGON_BU =',len(DRAGON_BU))
         print("$$$ ---------------- DRAGON_Keff = ",DRAGON_Keff)    
-        #print("$$$ ---------------- DRAGON_ISOTOPESDENS = ",DRAGON_ISOTOPESDENS)
+        print("$$$ ---------------- DRAGON_ISOTOPESDENS = ",DRAGON_ISOTOPESDENS)
 
         # --------- Liste des isotopes recuperes dans la Multicompo
         isotopes2=[]
@@ -151,7 +156,8 @@ def POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
     if visu_SERPENT==1 or visu_COMP==1 or visu_DELTA==1 :
 
         # --- Keff
-        res=serpentTools.read(SERPENT_path+name_mix+"_mc_res.m")
+        #res=serpentTools.read(SERPENT_path+name_mix+"_mc_"+serpent_suffix+"res.m")
+        res=serpentTools.read("/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/AT10_C7_hom_mc_res.m")
         # testing data from test3 : PyNjoy2016 xs + metastables from sss_jeff311u
         #res=serpentTools.read(SERPENT_path+"24UOX_test_3_mc_res.m")
         serpent_keff=res.resdata["absKeff"]
@@ -159,7 +165,8 @@ def POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
         SERPENT_keff=np.loadtxt('serpent_keff.txt',dtype=float)
             
         # --- BU
-        depFile = SERPENT_path+name_mix+"_mc_dep.m"
+        #depFile = SERPENT_path+name_mix+"_mc_"+serpent_suffix+"dep.m"
+        depFile = "/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/AT10_C7_hom_mc_dep.m"
         dep = serpentTools.read(depFile)
         fuel=dep.materials['total']
         serpent_BU=fuel.burnup
@@ -176,8 +183,8 @@ def POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
         print('$$$ ---------------- SERPENT_BU shape =',Ls1)
 
         Ls2=np.shape(SERPENT_keff)
-        lenISOT_SERPENT2=Ls2[0]
-        lenBU_SERPENT2=Ls2[1]
+        #lenISOT_SERPENT2=Ls2[0]
+        #lenBU_SERPENT2=Ls2[1]
         print('$$$ ---------------- SERPENT_keff shape =',Ls2)
 
         Ls=np.shape(SERPENT_ISOTOPESDENS)
@@ -191,9 +198,9 @@ def POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
             SERPENT_BU[k]=1000*SERPENT_BU[k]
             SERPENT_Keff[k]=SERPENT_keff[k][0]
 
-        #print('$$$ ---------------- SERPENT_BU =',SERPENT_BU)
+        print('$$$ ---------------- SERPENT_BU =',SERPENT_BU)
         print("$$$ ---------------- SERPENT_Keff = ",SERPENT_Keff)    
-        #print("$$$ ---------------- SERPENT_ISOTOPESDENS = ",SERPENT_ISOTOPESDENS)
+        print("$$$ ---------------- SERPENT_ISOTOPESDENS = ",SERPENT_ISOTOPESDENS)
 
         SERPENT_ALL=[
            SERPENT_BU,
@@ -218,26 +225,31 @@ def POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
     # -------------------------------
     if visu_DELTA==1 :
 
-        ERROR=np.zeros((lenISOT_DRAGON,lenBU_DRAGON))
-        #LE=np.shape(ERROR)
-        #print('$$$ ------------------------ ERROR shape=',LE)
+        ERROR=np.zeros((lenISOT_DRAGON+1,lenBU_DRAGON))
+        LE=np.shape(ERROR)
+        print('$$$ ------------------------ ERROR shape=',LE)
 
-        for k in range(lenISOT_DRAGON):
+        for k in range(lenISOT_DRAGON+1):
             for j in range(Nmin,lenBU_DRAGON):
                 #print('$$$ ----------------------- k=',k,'    j=',j)
                 #print('$$$ ----------------------- SERPENT_ALL[k][j]=',SERPENT_ALL[k][j])
                 if k==0: # Vecteur BU
                     ERROR[k][j-Nmin]=SERPENT_ALL[k][j]
                 elif k==1:  # Vecteur Keff --> erreur en pcm
-                    ERROR[k][j-Nmin]=(DRAGON_ALL[k][j]-SERPENT_ALL[k][j])*1e5
+                    print(f"j = {j}")
+                    print(f"Nmin = {Nmin}")
+                    ERROR[k][j-Nmin]=1.0E+5*(DRAGON_ALL[k][j]-SERPENT_ALL[k][j])
                 else: # Vecteur isotopique --> erreur en %
                     if SERPENT_ALL[k][j]==0:
                         ERROR[k][j-Nmin]=0
                     else:
+                        print(f"DRAGON_ALL[k][j] = {DRAGON_ALL[k][j]}")
+                        print(f"SERPENT_ALL[k][j] = {SERPENT_ALL[k][j]}")
                         ERROR[k][j-Nmin]=100*(DRAGON_ALL[k][j]-SERPENT_ALL[k][j])/SERPENT_ALL[k][j]
-        print("$$$ ---------------- ERROR Keff",ERROR[1])
+        print(f"$$$ ------ SHAPE ERROR - {np.shape(ERROR)}")
+        print("$$$ ---------------- ERROR",ERROR)
 
-
+        print(f"Len iso DRAGON = {lenISOT_DRAGON}, len iso Serp = {lenISOT_SERPENT}")
     ################################################################
     #             TRACE ET SAUVEGARDE DES FIGURES
     ################################################################
@@ -333,8 +345,8 @@ def POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
     if visu_DELTA==1 :
         print('$$$ -------- POSTPROC.py : ERROR DRAGON5-Serpent2 figures ')
 
-        for k in range(lenISOT_DRAGON-1): # -1 lenISOT_DRAGON-1 ?
-
+        for k in range(lenISOT_DRAGON): # -1 lenISOT_DRAGON-1 ?
+            
             plt.figure()
             plt.figure(figsize=SIZE)
             plt.plot(ERROR[0],ERROR[k+1],'2-',linewidth=1)
@@ -343,14 +355,16 @@ def POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
             plt.legend(LEGENDE_ERROR)
 
             if k == 0: # Erreur sur Keff
-                plt.plot([0,60000],[300,300],'r-.') # limite +300pcm
-                plt.plot([0,60000],[-300,-300],'r-.') # limite -300pcm
+                plt.plot([0,ListeCOMPO[-1]],[300,300],'r-.') # limite +300pcm
+                plt.plot([0,ListeCOMPO[-1]],[-300,-300],'r-.') # limite -300pcm
                 plt.ylabel('\u0394 Keff (pcm)')
                 save_name=name_mix+'_ERROR_Keff'
                 fig_name=name_mix+' - \u0394 Keff'
             else : # Erreur sur isotopes
-                plt.plot([0,60000],[2,2],'r-.') # limite +2%
-                plt.plot([0,60000],[-2,-2],'r-.') # limite -2%
+                print(f"Isotope k = {isotopes_SOUHAITES[k-1]}")
+                print(f"error to plot = {ERROR[k+1]}")
+                plt.plot([0,ListeCOMPO[-1]],[2,2],'r-.') # limite +2%
+                plt.plot([0,ListeCOMPO[-1]],[-2,-2],'r-.') # limite -2%
                 plt.ylabel('Erreur relative (%)')
                 save_name=name_mix+'_ERROR_'+isotopes_SOUHAITES[k-1]
                 fig_name=name_mix+' - \u0394 '+isotopes_SOUHAITES[k-1]
