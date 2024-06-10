@@ -20,13 +20,16 @@ import lifo
 import lcm
 import cle2000
 import matplotlib
-matplotlib.use('Agg')
+#matplotlib.use('Agg')
 
-from matplotlib import pyplot
-import matplotlib.pyplot as plt
+#from matplotlib import pyplot
+#import matplotlib.pyplot as plt
 from assertS import *
 # POST-PROCESSING class
 from POSTPROC import *
+
+# --- Homogeneous Cell
+from C7_hom import *
 
 # --- CELL
 # GEOMETRY class
@@ -75,8 +78,8 @@ TYPE = 'HYBRIDE'
 # - assemblies : 
 #           - 'ATRIUM-10XM_NL24-2'
 #           - 'ATRIUM-10XM_NL24-2_ctrl'
-name_geom = 'AT10_UOX_Gd2O3' # 'AT10_UOX' # 'AT10_UOX_Gd2O3'
-name_mix = "AT10_45Gd" #"AT10_24UOX" "AT10_45Gd"
+name_geom = 'AT10_UOX_Gd_HOM' # 'AT10_UOX_Gd2O3'
+name_mix = "AT10_45Gd"
 tracking_module = "SALT" #"SALT"
 #
 # Multicompo = 1 if you want to generate a MULTICOMPO object 
@@ -89,7 +92,7 @@ Multicompo = 1
 #        - 'UOx'  : used for UOx fuel without Gd poison
 #        - 'Gd'   : used for UOx fuel with Gd poison
 #        - 'free' : modify the burnup points as you wish
-burnup_points = 'Gd_autop5'  # 'UOx4_autop5' 'UOx2_autop5' 'Gd_autop5'
+burnup_points = 'Gd_BOC'
 # suffixe = suffixe added to name_geom for creation of figures, MULTICOMPO and BU vector
 suffixe = tracking_module+"_"+burnup_points
 #
@@ -126,7 +129,7 @@ visu_DELTA=1
 ###################################################
 #
 # case = 'CELL' / 'ASSEMBLY' - string used to determine wich python class must be called
-case = 'CELL'
+case = 'HOM_CELL'
 
 #
 # names for exportation
@@ -175,6 +178,15 @@ os.chdir(path)
 #             EXECUTION OF PROCEDURES             #
 #                                                 #
 ###################################################
+#
+# --------------------------------------
+#             HOMOGENEOUS CELL                 
+# --------------------------------------
+if case == 'HOM_CELL':
+	print("in case HOM")
+	name_compo = "C7_hom"
+	pyCOMPO = C7_hom("COMPO",StepList,name_compo)
+       
 #
 # --------------------------------------
 #                 CELL                 

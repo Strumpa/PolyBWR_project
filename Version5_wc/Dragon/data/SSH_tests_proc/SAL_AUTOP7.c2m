@@ -1,0 +1,68 @@
+* CLE2000 script to generate self-shielded Library object.
+* BWR Benchmark Gd cell : AT10_45Gd, alias C7.
+* Author : R. Guasch
+*  Procedure called as:
+*
+*  LIBRARY2 := SAL_AUTOP7 LIBRARY TRACK_SS TF_EXC_SS :: <<ssh_opt>> ;
+*
+*  Input data   :
+*    LIBRARY      : Initial library
+*    TRACK_SS     : Self-shielding tracking
+*    TF_EXC_SS    : Self-shielding binary file
+*
+*  Output data  :
+*    LIBRARY2     : Self-shieled library
+*---
+
+PARAMETER LIBRARY2 LIBRARY TRACK_SS TF_EXC_SS ::
+::: LINKED_LIST LIBRARY2 ;
+::: LINKED_LIST LIBRARY ;
+::: LINKED_LIST TRACK_SS ;
+::: SEQ_BINARY TF_EXC_SS ; ; 
+
+
+STRING ssh_opt ssh_sol ;
+:: >>ssh_opt<< >>ssh_sol<< ;
+
+MODULE USS: END: ;
+
+
+INTEGER COMB0101 COMB0102 COMB0103 COMB0104 COMB0105 COMB0106 GAP CLAD MODE ;
+EVALUATE COMB0101 COMB0102 COMB0103 COMB0104 COMB0105 COMB0106 GAP CLAD MODE :=
+    1 2 3 4 5 6 7 8 9 ; !  DISTRIBUTED SELF-SHIELDING 
+
+IF ssh_opt "RSE" = THEN 
+    IF ssh_sol "MOC" = THEN
+        LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
+            EDIT 1 PASS 3 MAXST 20 ARM
+            CALC
+                REGI W1 U238 ALL
+            ENDC
+        ;
+    ELSEIF ssh_sol "CP" = THEN
+        LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
+            EDIT 1 PASS 3 MAXST 20 PIJ
+            CALC
+                REGI W1 U238 ALL
+            ENDC
+        ;
+    ENDIF ;
+ELSEIF ssh_opt "PT" = THEN
+    IF ssh_sol "CP" = THEN
+       LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
+        EDIT 0 PASS 3 GRMIN 52 MAXST 50
+        CALC
+            REGI W1 U238 ALL
+        ENDC
+       ;
+    
+    ELSEIF ssh_sol "MOC" = THEN
+        LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
+            EDIT 0 PASS 3 GRMIN 52 MAXST 50 ARM
+            CALC
+                REGI W1 U238 ALL
+            ENDC
+        ;
+    ENDIF ;
+ENDIF ;
+
