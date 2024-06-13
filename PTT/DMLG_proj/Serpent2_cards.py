@@ -182,7 +182,7 @@ class S2_case:
         cells_to_pins = []
         lattice_cards = []
 
-        # metrial cards require minor modification to be converted
+        # material cards require minor modification to be converted
         material_cards = []
 
         material_density_dict = {}
