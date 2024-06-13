@@ -48,6 +48,7 @@ class MCNP_Cell_Card:
         self.material_number = int(cleaned_data[1])
         self.material_density = float(cleaned_data[2])
         self.surface_ids=cleaned_data[3:-4] # for ith material in cell : append list of surfaces defining the cell
+
         print("$$$ DMLG: MCNP case")
         print(f"$$ self.surfaces is {self.surface_ids}")
         self.neutron_importance=int(cleaned_data[-4][-1])
@@ -67,12 +68,12 @@ class MCNP_Cell_Card:
             elif "#" in surface:
                 print(f"$$ surface is {surface}")
                 print(f"Implement complement of surfaces")
-                surfaces_.append(surface.replace("#",""))
-                relations_dict["Complenent"].append(surface.replace("#",""))
+                surfaces_.append(int(surface.replace("#","")))
+                relations_dict["Complenent"].append(int(surface.replace("#","")))
                 print(f"surfaces are {surfaces_}")
             else:
-                surfaces_.append(surface)
-                relations_dict["Intersection"].append(surface)
+                surfaces_.append(int(surface))
+                relations_dict["Intersection"].append(int(surface))
         print(f"surfaces are {surfaces_}")
         self.surface_ids = surfaces_
         return
@@ -182,6 +183,7 @@ class MCNP_Material_Card:
         if "t" in data[0]:
             self.iso_codes=['1001.50c', '8016.50c']
             self.therm_lib = data[1]
+            self.material_id = 0
         else:
             self.iso_codes = []
             self.iso_densities = []
@@ -190,6 +192,7 @@ class MCNP_Material_Card:
                     self.iso_codes.append(data[i])
                 else:
                     self.iso_densities.append(float(data[i]))
+            self.material_id = int(self.material_name.replace("m",""))
         if self.printlvl:
             print(f"isotope codes are : {self.iso_codes}")
         if self.iso_densities:
@@ -223,7 +226,7 @@ class MCNP_Material_Card:
 
 
 class MCNP_case:
-    def __init__(self, name, lattice_type, cell_cards, surface_cards, material_cards, printlvl):
+    def __init__(self, name, lattice_type, cell_cards, surface_cards, material_cards, material_mumbering_dict, printlvl):
         """
         MCNP card class structures in Python3
         
@@ -240,5 +243,6 @@ class MCNP_case:
         self.cell_cards = cell_cards
         self.surface_cards = surface_cards
         self.material_cards = material_cards
+        self.material_numbering_dict = material_mumbering_dict
 
         return

@@ -139,7 +139,7 @@ class S2_geom:
 
 
 class S2_case:
-    def __init__(self, name, lattice_type, input_data_type, input_case, mode, printlvl=0):
+    def __init__(self, name, lattice_type, input_data_type, input_case=None, mode="input", printlvl=0):
         """
         name (str) : name of the S2_case to be output
         input_data = input data parsed from MCNP (or Dragon) input file to create equivalent Serpent2 case. Either MCNP_case object or Dragon5_case object as created from DMLG_Interface.
@@ -161,6 +161,8 @@ class S2_case:
         print("$$ Generating Serpent2 case object")
         print(f"Processing output data for {self.name}")
         if input_data_type == "MCNP" and self.mode == "output":
+            if input_case.material_numbering_dict:
+                self.material_numbering_dict = input_case.material_numbering_dict
             self.cell_cards, self.pins, self.surface_cards, self.material_cards, self.lattice_cards = self.convert_from_MCNP(input_case)
         # attributes should be added to the class to allow for the creation of an output serpent2 case and write its equivalent text file.
 
@@ -232,13 +234,14 @@ class S2_case:
                 print(f"Cell surfaces are : {cell.surfaces}")
 
 
-
+        """
         # Combine info on fuel pins and surfaces to create the pin lattice.
         fuel_lattice_card = self.createLatticeFromPins(merged_pins)
         if self.printlvl > 1:
             print(f"Fuel lattice is {fuel_lattice_card}")
-
-        return cell_cards, merged_pins, surface_cards, material_cards, lattice_cards
+        """
+        fuel_lattice_card = []
+        return cell_cards, merged_pins, surface_cards, material_cards, fuel_lattice_card
     
 
     def getCellDataFromSurfaces(self, surfaces):
@@ -341,21 +344,54 @@ class S2_case:
         """
         Combine information about cells and surfaces to create bounding surfaces and boxes.
         """
+        
         for cell in cell_cards:
             #print(cell.surface_ids)
             cell.setSurfaces(self.getSurfacesFromIds(cell.surface_ids, self.input_surface_cards))
             surfaces = cell.getSurfaces()
-            if self.printlvl > 0:
+            surf_ids = [cell.surface_ids[i] for i in range(len(cell.surface_ids))]
+            print(f"$$$$ Processing cell {cell.cell_name} with surface ids {surf_ids}")
+            if self.printlvl > 100:
                 print(f"$$ New cell of name {cell.cell_name} is bounded by : \n") 
                 for surf in surfaces:
                     print(f"surfaces of type {surf.surface_type}") 
             Cell_type, mesh_data = self.getCellDataFromSurfaces(surfaces)
 
-
             #print(f"Surface {surf.surface_id} of type {surf.surface_type} in group {surf.surface_group}")
         # Keep working on this function to create bounding surfaces and boxes.
         surface_cards = self.input_surface_cards
+        
+        material_to_cell = {}
+        # group cell acording to their associated material number
+        for cell in cell_cards:
+            if cell.material not in material_to_cell.keys():
+                material_to_cell[cell.material] = [cell]
+            else:
+                material_to_cell[cell.material].append(cell)
+        print(f"Material to cell dictionnary is {material_to_cell}")
+        new_dict = self.relabel_materials_in_cells(material_to_cell)
+        print(f"New material to cell dictionnary is {new_dict}")
+        for mat_name, cell_list in new_dict.items():
+            print(f"Material name is {mat_name}, with {len(cell_list)} cells")
         return cell_cards, surface_cards
+    
+
+    def relabel_materials_in_cells(self, material_to_cell):
+        """
+        This function renumbers the materials in the cells to have a continuous numbering of materials.
+        """
+        new_material_labelling = {}
+        for mat_name in self.material_numbering_dict.keys():
+            if self.material_numbering_dict[mat_name] in material_to_cell.keys():
+                for cell in material_to_cell[self.material_numbering_dict[mat_name]]:
+                    cell.material_name = mat_name
+                    if mat_name not in new_material_labelling.keys():
+                        new_material_labelling[mat_name] = [cell]
+                    else:
+                        new_material_labelling[mat_name].append(cell)
+
+
+        return new_material_labelling
 
 
 
@@ -813,6 +849,7 @@ class S2_material:
             self.options = options
             self.isotopes = isotopes
             self.data = data
+            self.material_id = 0
         else:    
             if dens == "sum" or dens == 0:
                 self.density = "sum"
@@ -830,6 +867,7 @@ class S2_material:
             self.options = options
             self.isotopes = isotopes
             self.data = data
+            self.material_id = int(self.material_name.split("m")[1])
 
         # check that data has the same length as isotopes
         if len(data) != len(isotopes):

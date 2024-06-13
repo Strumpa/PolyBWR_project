@@ -53,12 +53,12 @@ class DMLG_Interface:
         else:
             print("Error: invalid Geometry type to be parsed")
     
-    def choose_output(self, output_code, printlevel=0):
+    def choose_output(self, output_code, material_numbering_dict = {}, printlevel=0):
         if self.input_code == "MCNP" and output_code == "Serpent2":
             MCNP_name = self.input_deck.split(".")[0]
             Serpent2_name = MCNP_name + "_to_Serpent2_mc"
-            self.MCNP_case = MCNP.MCNP_case(MCNP_name, self.lattice_type, self.Cell_Cards, self.Surface_Cards, self.Material_Cards, printlevel)
-            self.Serpent2_equiv_case = S2.S2_case(Serpent2_name, self.lattice_type, self.input_code, self.MCNP_case, mode="output", printlvl=printlevel)
+            self.MCNP_case = MCNP.MCNP_case(MCNP_name, self.lattice_type, self.Cell_Cards, self.Surface_Cards, self.Material_Cards, material_numbering_dict, printlevel)
+            self.Serpent2_equiv_case = S2.S2_case(Serpent2_name, self.lattice_type, self.input_code, input_case=self.MCNP_case, mode="output", printlvl=printlevel)
         elif self.input_code == "Serpent2" and output_code == "Dragon5":
             """
             S2_name = self.input_deck.split(".")[0]
