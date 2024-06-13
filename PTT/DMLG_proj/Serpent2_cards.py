@@ -211,8 +211,8 @@ class S2_case:
 
 
         # Analyse cells to create fuel pins
-        fuel_pins = self.group_cells_in_pins(cells_to_pins)
-        merged_pins, mat_to_pins_dict = self.mergePins(fuel_pins)
+        fuel_pins = self.group_cells_in_pins(cells_to_pins) # create Serpent2 fuel pins (obj) from MCNP cells,
+        merged_pins, mat_to_pins_dict = self.mergePins(fuel_pins) # merge fuel pins with same material to create a single pin per material
     
         if self.printlvl > 1:
             print(f"Material to correpsonding dictionnary before merge is {mat_to_pins_dict}")
