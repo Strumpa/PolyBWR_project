@@ -88,7 +88,7 @@ class S2_mat_properties:
     def ComputeTotalFuelMass(self):
         fuel_mass = 0
         for material in self.S2materials:
-            if "UOx" in material.mat_name or "fuel" in material.mat_name or "FUEL" in material.mat_name:
+            if "UOx" in material.mat_name or "fuel" in material.mat_name or "FUEL" in material.mat_name or "UOX" in material.mat_name or "MOX" in material.mat_name or "GADO" in material.mat_name or "Gd" in material.mat_name:
                 fuel_mass+=material.mass
         self.TotalFuelMass=fuel_mass
         return
