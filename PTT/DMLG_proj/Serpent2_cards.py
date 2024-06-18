@@ -227,7 +227,7 @@ class S2_case:
             print(f"$$$$ Fuel pin {pin.pin_id} with materials {pin.materials} and radii {pin.radii}")
         # Analyse cartesian geometry to create the bounding surfaces and boxes  
         cell_cards, surface_cards = self.AnalyseMCNPGeometry(input_cell_cards)
-        if self.printlvl > 1:
+        if self.printlvl > 100:
             for cell in cell_cards:
                 print("$$$ Geometry analysis")
                 print(f"Cell name : {cell.cell_name} with universe number {cell.universe_nb} and material {cell.material}")
@@ -369,10 +369,17 @@ class S2_case:
             else:
                 material_to_cell[cell.material].append(cell)
         print(f"Material to cell dictionnary is {material_to_cell}")
-        new_dict = self.relabel_materials_in_cells(material_to_cell)
-        print(f"New material to cell dictionnary is {new_dict}")
-        for mat_name, cell_list in new_dict.items():
+        if self.material_numbering_dict:
+            print("Used input material relabelling")
+            material_to_cell = self.relabel_materials_in_cells(material_to_cell)
+        else: 
+            print("No input material relabelling")
+            print("Proceeding with default material numbering.")
+        print(f"New material to cell dictionnary is {material_to_cell}")
+        for mat_name, cell_list in material_to_cell.items():
             print(f"Material name is {mat_name}, with {len(cell_list)} cells")
+        self.mergeCellsByMat(material_to_cell)
+        
         return cell_cards, surface_cards
     
 
@@ -394,6 +401,49 @@ class S2_case:
         return new_material_labelling
 
 
+    def mergeCellsByMat(self, mat_to_cell):
+        """
+        mat_to_cell is a dictionary with keys = material numbers / labels and values = list of cells with the same material number.
+        This function merges cells in the lists (values) of cells corresponding to the same material number/label.
+        Merging only occurs for cells with the same material number/label and with shared boudning surfaces.
+        """
+
+        for mat in mat_to_cell.keys(): # iterate over all materials, cells are regrouped by material number in mat_to_cell dictionary
+            cells = mat_to_cell[mat] # retrive cells for a given material
+            new_cells = []
+            for cell1 in cells: # iterate over all cells with the same material
+                if not new_cells: # if new_cells is empty, add the first cell
+                    new_cells.append(cell1)
+                surf_c1 = cell1.surface_ids # get the list of signed integer surface ids
+                print(surf_c1)
+                for cell2 in cells:
+                    surf_c2 = cell2.surface_ids
+                    #if self.material_numbering_dict:
+                    common_surfaces = self.getCommonSurfaces(surf_c1, surf_c2)
+                    if common_surfaces:
+                        print(f"Common surfaces are {common_surfaces}")
+                        new_cells.append(cell2)
+
+
+                
+        
+        return
+    
+    def getCommonSurfaces(self, surf_ids_c1, surf_ids_c2):
+        """
+        This function checks if two cells have common bounding surfaces and returns the number of common surfaces.
+        """
+        counter = 0
+        common_surfaces = []
+        interfaces = []
+        for surf1 in surf_ids_c1:
+            for surf2 in surf_ids_c2:
+                if np.abs(surf1) == np.abs(surf2):
+                    counter += 1
+                    common_surfaces.append(surf1)
+                    if surf1 == -surf2:
+                        interfaces.append(np.abs(surf1))
+        return common_surfaces
 
 ### ------------------------------------ Lattice handling functions
 
