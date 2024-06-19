@@ -213,4 +213,4 @@ Ganlib: libGanlib.a GANMAIN.o $(bin)/
 	$(F90) $(opt) $(COMP) GANMAIN.o $(lib)/libGanlib.a $(LFLAGS) -o Ganlib
 	cp $@ $(bin)/$@
 clean:
-	/bin/rm -f *.o *.mod *.a sub-make temp.* Ganlib
+	/bin/rm -f *.o *.mod *.a sub-make temp.* Ganlib*

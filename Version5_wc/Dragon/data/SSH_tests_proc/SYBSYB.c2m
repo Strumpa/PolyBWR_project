@@ -20,7 +20,7 @@ STRING geo_name ssh_opt ;
 :: >>geo_name<< >>ssh_opt<< ;
 
 
-ECHO "BEGIN SYBSYB.c2m PROCEDURE FOR OPTIONS" geo_name " and " ssh_opt ;
+ECHO "BEGIN SYBSYB.c2m PROCEDURE FOR OPTIONS" geo_name "and" ssh_opt ;
 
 
 ************************************************************************
@@ -85,7 +85,7 @@ FLUX := FLU: LIBRARY2 SYS TRACK ::
 
 GREP: FLUX :: GETVAL 'K-EFFECTIVE  ' 1 1 1 >>Kinf<< ;
 ECHO  "END SYBSYB.c2m with : " ssh_opt "calculation with tracking : SSH = SYBILT, FLUX = SYBILT, PIJ Kinf=" Kinf ;
-
+ECHO geo_name ;
 
 END: ;
 

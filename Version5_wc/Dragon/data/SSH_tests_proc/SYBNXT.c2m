@@ -20,7 +20,7 @@ STRING geo_name ssh_opt ;
 :: >>geo_name<< >>ssh_opt<< ;
 
 
-ECHO "BEGIN SYBSYB.c2m PROCEDURE FOR OPTIONS" geo_name " and " ssh_opt ;
+ECHO "BEGIN SYBNXT.c2m PROCEDURE FOR OPTIONS" geo_name "and" ssh_opt ;
 
 
 ************************************************************************
@@ -63,11 +63,11 @@ INTEGER nseg_ss := 5 ;
 * ---
 
 TRACK TF_EXC := NXT: GEOM ::
-  EDIT 0
+  EDIT 1
   ALLG
-  ANIS 3
   TSPC EQW2 <<an2d>> <<densur>> REND
 ;
+
 * MOC tracking
 TRACK := MCCGT: TRACK TF_EXC ::
   EDIT 0
@@ -95,13 +95,17 @@ ENDIF ;
 
 
 ************************ BEGIN FLUX CALCULATION ************************
-SYS := ASM: LIBRARY2 TRACK :: ARM EDIT 0 ; 
+SYS := ASM: LIBRARY2 TRACK TF_EXC :: ARM EDIT 10 ; 
 
-FLUX := FLU: LIBRARY2 SYS TRACK :: 
+FLUX := FLU: LIBRARY2 SYS TRACK TF_EXC :: 
         EDIT 1 TYPE K ;
 
 GREP: FLUX :: GETVAL 'K-EFFECTIVE  ' 1 1 1 >>Kinf<< ;
 ECHO  "END SYBNXT.c2m with : " ssh_opt "calculation with tracking : SSH = SYBILT, FLUX = NXT, MOC Kinf=" Kinf ;
+ECHO geo_name ;
+
+LIBRARY LIBRARY2 := DELETE: LIBRARY LIBRARY2 ;
+FLUX := DELETE: FLUX ;
 
 
 END: ;

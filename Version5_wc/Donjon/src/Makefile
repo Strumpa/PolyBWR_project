@@ -52,7 +52,7 @@ endif
 
 ifeq ($(OS),Darwin)
   ifeq ($(openmp),1)
-    ccompiler = gcc-13
+    ccompiler = gcc-14
   endif
   F90 = $(fcompiler)
   C = $(ccompiler)
@@ -189,7 +189,7 @@ ifeq ($(hdf5),1)
 	@echo 'Donjon: hdf5 is defined'
 endif
 sub-make:
-	$(MAKE) openmp=$(openmp) intel=$(intel) hdf5=$(hdf5) -C ../../Dragon/src
+	$(MAKE) openmp=$(openmp) intel=$(intel) nvidia=$(nvidia) hdf5=$(hdf5) -C ../../Dragon/src
 %.o : %.c
 	$(C) $(CFLAGS) $(opt) $(COMP) -c $< -o $@
 %.o : %.f90

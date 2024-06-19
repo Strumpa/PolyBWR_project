@@ -21,7 +21,7 @@ SEQ_BINARY TF_EXC ;
 SEQ_BINARY TF_EXC_SS ;
 
 STRING geo_name := "AT10_UOX_Gd2O3" ; 
-STRING ssh_opt := "RSE" ; ! "PT", "RSE", "SUBG"
+STRING ssh_opt := "PT" ; ! "PT", "RSE", "SUBG"
 
 
 SEQ_ASCII FIG_SS.ps :: FILE './PIN_AT10_FIG_SS.ps' ;

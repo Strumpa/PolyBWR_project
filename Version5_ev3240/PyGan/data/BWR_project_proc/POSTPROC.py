@@ -63,12 +63,8 @@ def POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
     # Chemin d'accès aux résultats Serpent2
     burnup_points=suffixe.split("_")[1]
     #SERPENT_path=f'/home/p117902/Serpent2/Linux_x86_64/' # path to Serpent2 results with sss_jeff311 library.
-    #SERPENT_path=f'/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/' #for results with JEFF311_Pynjoy2016 acelib <--- working on fixing that.
+    SERPENT_path=f'/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/PyNjoy2016_results/' #for results with JEFF311_Pynjoy2016 acelib <--- working on fixing that.
     #SERPENT_path=f'/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/' 
-    if burnup_points != "UOx":
-        serpent_suffix = burnup_points+"_"
-    else:
-        serpent_suffix = ""
 
 
 
@@ -128,9 +124,9 @@ def POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
                 if isotopes_SOUHAITES[n]==isotopes[m]:
                     indices[n]=m
 
-        #print("$$$ ---------------- DRAGON isotopes = ",isotopes)
-        #print("$$$ ---------------- DRAGON isotopes souhaites = ",isotopes_SOUHAITES)
-        #print("$$$ ---------------- indices correspondances = ",indices)
+        print("$$$ ---------------- DRAGON isotopes = ",isotopes)
+        print("$$$ ---------------- DRAGON isotopes souhaites = ",isotopes_SOUHAITES)
+        print("$$$ ---------------- indices correspondances = ",indices)
             
         # Store in DRAGON_ALL
         DRAGON_ALL=[
@@ -156,8 +152,8 @@ def POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
     if visu_SERPENT==1 or visu_COMP==1 or visu_DELTA==1 :
 
         # --- Keff
-        #res=serpentTools.read(SERPENT_path+name_mix+"_mc_"+serpent_suffix+"res.m")
-        res=serpentTools.read("/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/AT10_C7_hom_mc_res.m")
+        res=serpentTools.read(SERPENT_path+name_mix+"_mc_res.m")
+        #res=serpentTools.read("/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/AT10_C7_hom_mc_res.m")
         # testing data from test3 : PyNjoy2016 xs + metastables from sss_jeff311u
         #res=serpentTools.read(SERPENT_path+"24UOX_test_3_mc_res.m")
         serpent_keff=res.resdata["absKeff"]
@@ -165,8 +161,8 @@ def POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
         SERPENT_keff=np.loadtxt('serpent_keff.txt',dtype=float)
             
         # --- BU
-        #depFile = SERPENT_path+name_mix+"_mc_"+serpent_suffix+"dep.m"
-        depFile = "/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/AT10_C7_hom_mc_dep.m"
+        depFile = SERPENT_path+name_mix+"_mc_dep.m"
+        #depFile = "/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/AT10_C7_hom_mc_dep.m"
         dep = serpentTools.read(depFile)
         fuel=dep.materials['total']
         serpent_BU=fuel.burnup
@@ -353,7 +349,9 @@ def POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
             plt.xlabel('BU (MWj/t)')
             plt.grid()
             plt.legend(LEGENDE_ERROR)
-
+            print(f"$$ ---- Liste Compo is {ListeCOMPO}")
+            #print(f"length error is {len(ERROR[0])}")
+            #print(f"le")
             if k == 0: # Erreur sur Keff
                 plt.plot([0,ListeCOMPO[-1]],[300,300],'r-.') # limite +300pcm
                 plt.plot([0,ListeCOMPO[-1]],[-300,-300],'r-.') # limite -300pcm

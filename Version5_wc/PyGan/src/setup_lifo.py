@@ -1,12 +1,14 @@
 #
 # python3 setup_lifo.py install --home=.
 #
-from distutils.core import setup, Extension
-from distutils.sysconfig import get_python_lib
+from sys import version_info
+if version_info[0] >= 3 and version_info[1] >= 12:
+  from setuptools import setup, Extension
+else:
+  from distutils.core import setup, Extension
 
 def main():
   import os
-  incdir = os.path.join(get_python_lib(plat_specific=1), "numpy/core/include")
   mach = os.path.basename(os.getcwd())
   Compiler = os.environ.get("COMPILER", None) # Compiler selection
   if Compiler == "NVTOOLS":
@@ -22,7 +24,7 @@ def main():
           author_email="alain.hebert@polymtl.ca",
           license="LGPL",
           ext_modules=[Extension("lifo", ["lifomodule.c"],
-                      include_dirs=["../../../Ganlib/src",incdir],
+                      include_dirs=["../../../Ganlib/src"],
                       library_dirs=[libdir],
                       libraries=["Ganlib"] ) ])
 
