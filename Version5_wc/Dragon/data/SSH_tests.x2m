@@ -6,7 +6,7 @@
 *           - study solution door to SSH solution.
 
 
-PROCEDURE SALSAL SYBSYB SYBNXT NXTNXT SYBSAL ;
+PROCEDURE SALSAL SYBSYB SYBNXT NXTNXT SYBSAL SALNXT NXTSAL ;
 MODULE G2S: MCCGT: SALT: FLU: GREP: DELETE: USS: ASM: END:  ;
 LINKED_LIST GEOM GEOM_SS LIBRARY LIBRARY2 TRACK_SS TRACK SYS FLUX ;
 ************************************************************************
@@ -27,55 +27,117 @@ STRING ssh_sol_2 := "MOC" ;
 ************************** SALT+SALT tests ************************
 *******************************************************************
 
-
-! UOX, RSE, CP :
+***********   UOX benchmark
+***  UOX, RSE, CP :
 SALSAL :: <<cellUOX>> <<ssh_opt_1>> <<ssh_sol_1>> ;
-! UOX, PT, CP
+
+***  UOX, PT, CP
 SALSAL :: <<cellUOX>> <<ssh_opt_2>> <<ssh_sol_1>> ;
-! UOX, RSE, MOC
+
+***  UOX, RSE, MOC
 SALSAL :: <<cellUOX>> <<ssh_opt_1>> <<ssh_sol_2>> ;
-! UOX, PT, MOC
+
+***  UOX, PT, MOC
 SALSAL :: <<cellUOX>> <<ssh_opt_2>> <<ssh_sol_2>> ;
 
-! UOX+Gd, RSE, CP :
+
+***********   UOX+Gd benchmark
+***  UOX+Gd, RSE, CP :
 SALSAL :: <<cellGd>> <<ssh_opt_1>> <<ssh_sol_1>> ;
-! UOX+Gd, PT, CP
+
+***  UOX+Gd, PT, CP
 SALSAL :: <<cellGd>> <<ssh_opt_2>> <<ssh_sol_1>> ;
-! UOX+Gd, RSE, MOC
+
+***  UOX+Gd, RSE, MOC
 SALSAL :: <<cellGd>> <<ssh_opt_1>> <<ssh_sol_2>> ;
-! UOX+Gd, PT, MOC
+
+***  UOX+Gd, PT, MOC
 SALSAL :: <<cellGd>> <<ssh_opt_2>> <<ssh_sol_2>> ;
 
 *******************************************************************
 ************************** SALT+NXT tests *************************
 *******************************************************************
 
-! to ass with a SALNXT procedure ?
+***********   UOX benchmark
+***  UOX, RSE, CP :
+SALNXT :: <<cellUOX>> <<ssh_opt_1>> <<ssh_sol_1>> ;
+***  UOX, PT, CP
+SALNXT :: <<cellUOX>> <<ssh_opt_2>> <<ssh_sol_1>> ;
+
+***  UOX, RSE, MOC
+SALNXT :: <<cellUOX>> <<ssh_opt_1>> <<ssh_sol_2>> ;
+***  UOX, PT, MOC
+SALNXT :: <<cellUOX>> <<ssh_opt_2>> <<ssh_sol_2>> ;
+
+***********   UOX+Gd benchmark
+***  UOX+Gd, RSE, CP :
+SALNXT :: <<cellGd>> <<ssh_opt_1>> <<ssh_sol_1>> ;
+***  UOX+Gd, PT, CP
+SALNXT :: <<cellGd>> <<ssh_opt_2>> <<ssh_sol_1>> ;
+***  UOX+Gd, RSE, MOC
+SALNXT :: <<cellGd>> <<ssh_opt_1>> <<ssh_sol_2>> ;
+***  UOX+Gd, PT, MOC
+SALNXT :: <<cellGd>> <<ssh_opt_2>> <<ssh_sol_2>> ;
+
+
+*******************************************************************
+************************** NXT+SALT tests *************************
+*******************************************************************
+
+***********   UOX benchmark
+***  UOX, RSE, CP :
+NXTSAL :: <<cellUOX>> <<ssh_opt_1>> <<ssh_sol_1>> ;
+***  UOX, PT, CP
+NXTSAL :: <<cellUOX>> <<ssh_opt_2>> <<ssh_sol_1>> ;
+
+***  UOX, RSE, MOC
+NXTSAL :: <<cellUOX>> <<ssh_opt_1>> <<ssh_sol_2>> ;
+***  UOX, PT, MOC
+NXTSAL :: <<cellUOX>> <<ssh_opt_2>> <<ssh_sol_2>> ;
+
+***********   UOX+Gd benchmark
+***  UOX+Gd, RSE, CP :
+NXTSAL :: <<cellGd>> <<ssh_opt_1>> <<ssh_sol_1>> ;
+***  UOX+Gd, PT, CP
+NXTSAL :: <<cellGd>> <<ssh_opt_2>> <<ssh_sol_1>> ;
+***  UOX+Gd, RSE, MOC
+NXTSAL :: <<cellGd>> <<ssh_opt_1>> <<ssh_sol_2>> ;
+***  UOX+Gd, PT, MOC
+NXTSAL :: <<cellGd>> <<ssh_opt_2>> <<ssh_sol_2>> ;
+
 
 
 *******************************************************************
 ************************ SYBILT+SYBILT tests **********************
 *******************************************************************
-! UOX, RSE
+
+***********   UOX benchmark
+***  UOX, RSE
 SYBSYB :: <<cellUOX>> <<ssh_opt_1>> ;
-! UOX, PT
+***  UOX, PT
 SYBSYB :: <<cellUOX>> <<ssh_opt_2>> ;
-! UOX+Gd, RSE
+
+***********   UOX+Gd benchmark
+***  UOX+Gd, RSE
 SYBSYB :: <<cellGd>> <<ssh_opt_1>> ;
-! UOX+Gd, PT
+***  UOX+Gd, PT
 SYBSYB :: <<cellGd>> <<ssh_opt_2>> ;
 
 
 *******************************************************************
 ************************* SYBILT+NXT tests ************************
 *******************************************************************
-! UOX, RSE
+
+***********   UOX benchmark
+***  UOX, RSE
 SYBNXT :: <<cellUOX>> <<ssh_opt_1>> ;
-! UOX, PT
+***  UOX, PT
 SYBNXT :: <<cellUOX>> <<ssh_opt_2>> ;
-! UOX+Gd, RSE
+
+***********   UOX+Gd benchmark
+***  UOX+Gd, RSE
 SYBNXT :: <<cellGd>> <<ssh_opt_1>> ;
-! UOX+Gd, PT
+***  UOX+Gd, PT
 SYBNXT :: <<cellGd>> <<ssh_opt_2>> ;
 
 
@@ -83,13 +145,17 @@ SYBNXT :: <<cellGd>> <<ssh_opt_2>> ;
 *******************************************************************
 ************************* SYBILT+SALT tests ***********************
 *******************************************************************
-! UOX, RSE
+
+***********   UOX benchmark
+***  UOX, RSE
 SYBSAL :: <<cellUOX>> <<ssh_opt_1>> ;
-! UOX, PT
+***  UOX, PT
 SYBSAL :: <<cellUOX>> <<ssh_opt_2>> ;
-! UOX+Gd, RSE
+
+***********   UOX+Gd benchmark
+***  UOX+Gd, RSE
 SYBSAL :: <<cellGd>> <<ssh_opt_1>> ;
-! UOX+Gd, PT
+***  UOX+Gd, PT
 SYBSAL :: <<cellGd>> <<ssh_opt_2>> ;
 
 
@@ -98,23 +164,25 @@ SYBSAL :: <<cellGd>> <<ssh_opt_2>> ;
 ************************** NXT+NXT tests **************************
 *******************************************************************
 
-
-! UOX, RSE, CP :
+***********   UOX benchmark
+***  UOX, RSE, CP :
 NXTNXT :: <<cellUOX>> <<ssh_opt_1>> <<ssh_sol_1>> ;
-! UOX, PT, CP
+***  UOX, PT, CP
 NXTNXT :: <<cellUOX>> <<ssh_opt_2>> <<ssh_sol_1>> ;
-! UOX, RSE, MOC
+
+***  UOX, RSE, MOC
 NXTNXT :: <<cellUOX>> <<ssh_opt_1>> <<ssh_sol_2>> ;
-! UOX, PT, MOC
+***  UOX, PT, MOC
 NXTNXT :: <<cellUOX>> <<ssh_opt_2>> <<ssh_sol_2>> ;
 
-! UOX+Gd, RSE, CP :
+***********   UOX+Gd benchmark
+***  UOX+Gd, RSE, CP :
 NXTNXT :: <<cellGd>> <<ssh_opt_1>> <<ssh_sol_1>> ;
-! UOX+Gd, PT, CP
+***  UOX+Gd, PT, CP
 NXTNXT :: <<cellGd>> <<ssh_opt_2>> <<ssh_sol_1>> ;
-! UOX+Gd, RSE, MOC
+***  UOX+Gd, RSE, MOC
 NXTNXT :: <<cellGd>> <<ssh_opt_1>> <<ssh_sol_2>> ;
-! UOX+Gd, PT, MOC
+***  UOX+Gd, PT, MOC
 NXTNXT :: <<cellGd>> <<ssh_opt_2>> <<ssh_sol_2>> ;
 
 

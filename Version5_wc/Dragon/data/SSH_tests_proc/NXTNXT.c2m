@@ -1,39 +1,33 @@
-* Cle2000 procedure : SALSAL.c2m
+* Cle2000 procedure : NXTNXT.c2m
 * Author : R. Guasch
-* Surpose : SALT+SALT tracking on pincell of "geoname" 
+* Surpose : MXTMXT tracking on pincell of "geoname" 
 *           with SSH method "ssh_opt" and SSH solution "ssh_sol"
 *
 
 ************************************************************************
 *********************** BEGIN DECLARATION ******************************
 ************************************************************************
-MODULE G2S: MCCGT: SALT: ASM: FLU: GREP: DELETE: END: ;
-PROCEDURE Geom_C_SALT Mix_C1 Mix_C7 SAL_AUTOP1 SAL_AUTOP7 ;
+MODULE MCCGT: NXT: ASM: FLU: GREP: DELETE: END: ;
+PROCEDURE Geom_C Mix_C1 Mix_C7 SAL_AUTOP1 SAL_AUTOP7 ;
 LINKED_LIST GEOM GEOM_SS LIBRARY LIBRARY2 TRACK_SS TRACK SYS FLUX ;
 
-SEQ_ASCII FIG_SS.ps ;
-SEQ_ASCII FIG_FLX.ps  ;
 SEQ_ASCII CELL_SS ;
 SEQ_ASCII CELL ;
 SEQ_BINARY TF_EXC ;
 SEQ_BINARY TF_EXC_SS ;
-SEQ_ASCII UOX_TBH_SS ;
-SEQ_ASCII UOX_TBH ;
 
 REAL Kinf ;
 STRING geo_name ssh_opt ssh_sol ;
 :: >>geo_name<< >>ssh_opt<< >>ssh_sol<< ;
 
 
-
-
-ECHO "BEGIN SALSAL.c2m PROCEDURE FOR OPTIONS" geo_name " and " ssh_opt ;
+ECHO "BEGIN NXTNXT.c2m PROCEDURE FOR OPTIONS" geo_name " and " ssh_opt ssh_sol ;
 
 
 ************************************************************************
 ************************  BEGIN GEOMETRY DEFINITION ********************
 
-GEOM GEOM_SS := Geom_C_SALT :: <<geo_name>> ;
+GEOM GEOM_SS := Geom_C :: <<geo_name>> ;
 
 *************************** RETRIVE DRAGLIB ****************************
 IF geo_name "AT10_UOX" = THEN
@@ -112,11 +106,12 @@ FLUX := FLU: LIBRARY2 SYS TRACK TF_EXC ::
         EDIT 1 TYPE K ;
 
 GREP: FLUX :: GETVAL 'K-EFFECTIVE  ' 1 1 1 >>Kinf<< ;
+
 ECHO  "END NXTNXT.c2m with : " ssh_opt ssh_sol "calculation with tracking : SSH = NXT, FLUX = NXT, MOC Kinf=" Kinf ;
+ECHO geo_name ;
 
 LIBRARY LIBRARY2 := DELETE: LIBRARY LIBRARY2 ;
 FLUX := DELETE: FLUX ;
-FIG_FLX.ps FIG_SS.ps := DELETE: FIG_FLX.ps FIG_SS.ps ;
 
 END: ;
 

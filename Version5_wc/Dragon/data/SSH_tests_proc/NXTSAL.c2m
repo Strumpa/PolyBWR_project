@@ -1,18 +1,18 @@
-* Cle2000 procedure : SALSAL.c2m
+* Cle2000 procedure : NXTSALT.c2m
 * Author : R. Guasch
-* Surpose : SALT+SALT tracking on pincell of "geoname" 
+* Surpose : NXT + SALT tracking on pincell of "geoname" 
 *           with SSH method "ssh_opt" and SSH solution "ssh_sol"
 *
 
 ************************************************************************
 *********************** BEGIN DECLARATION ******************************
 ************************************************************************
-MODULE G2S: MCCGT: SALT: ASM: FLU: GREP: DELETE: END: ;
-PROCEDURE Geom_C_SALT Mix_C1 Mix_C7 SAL_AUTOP1 SAL_AUTOP7 ;
+MODULE G2S: MCCGT: SALT: NXT: ASM: FLU: GREP: DELETE: END: ;
+PROCEDURE Geom_C Mix_C1 Mix_C7 SAL_AUTOP1 SAL_AUTOP7 ;
 LINKED_LIST GEOM GEOM_SS LIBRARY LIBRARY2 TRACK_SS TRACK SYS FLUX ;
 
 SEQ_ASCII FIG_SS.ps ;
-SEQ_ASCII FIG_FLX.ps  ;
+SEQ_ASCII FIG.ps  ;
 SEQ_ASCII CELL_SS ;
 SEQ_ASCII CELL ;
 SEQ_BINARY TF_EXC ;
@@ -25,13 +25,13 @@ STRING geo_name ssh_opt ssh_sol ;
 :: >>geo_name<< >>ssh_opt<< >>ssh_sol<< ;
 
 
-ECHO "BEGIN SALSAL.c2m PROCEDURE FOR OPTIONS" geo_name "and" ssh_opt ssh_sol ;
+ECHO "BEGIN NXTSAL.c2m PROCEDURE FOR OPTIONS" geo_name "and" ssh_opt ssh_sol ;
 
 
 ************************************************************************
 ************************  BEGIN GEOMETRY DEFINITION ********************
 
-GEOM GEOM_SS := Geom_C_SALT :: <<geo_name>> ;
+GEOM GEOM_SS := Geom_C :: <<geo_name>> ;
 
 *************************** RETRIVE DRAGLIB ****************************
 IF geo_name "AT10_UOX" = THEN
@@ -59,13 +59,16 @@ REAL densur_SS := 15.0 ;
 * ---
 * FLUX CALC TRACKING
 * ---
-UOX_TBH FIG_FLX.ps := G2S: GEOM :: ;
+
+UOX_TBH FIG.ps := G2S: GEOM :: ;
 
 TRACK TF_EXC := SALT: UOX_TBH ::
   EDIT 1
   ALLG
   TSPC EQW2 <<an2d>> <<densur>> REND
 ;
+
+
 
 * MOC tracking
 TRACK := MCCGT: TRACK TF_EXC ::
@@ -76,15 +79,13 @@ TRACK := MCCGT: TRACK TF_EXC ::
 * ---
 * SELF-SHIELDING TRACKING
 * ---
-UOX_TBH_SS FIG_SS.ps := G2S: GEOM_SS :: ;
 
-TRACK_SS TF_EXC_SS := SALT: UOX_TBH_SS ::
+TRACK_SS TF_EXC_SS := NXT: GEOM_SS ::
   EDIT 1
   ALLG
-  TSPC <<an2d_SS>> <<densur_SS>> REND
+  TSPC EQW2 <<an2d_SS>> <<densur_SS>> REND
   MERGMIX
 ;
-
 
 IF ssh_sol "MOC" = THEN
 * MOC tracking for ssh + RSE
@@ -94,6 +95,7 @@ TRACK_SS := MCCGT: TRACK_SS TF_EXC_SS ::
 ;
 
 ENDIF ;
+
 
 ************************ BEGIN SELF-SHIELDING **************************
 
@@ -112,12 +114,12 @@ FLUX := FLU: LIBRARY2 SYS TRACK TF_EXC ::
         EDIT 1 TYPE K ;
 
 GREP: FLUX :: GETVAL 'K-EFFECTIVE  ' 1 1 1 >>Kinf<< ;
-ECHO  "END SALSAL.c2m with : " ssh_opt ssh_sol "calculation with tracking : SSH = SALT, FLUX = SALT, MOC Kinf=" Kinf ;
+ECHO  "END NXTSAL.c2m with : " ssh_opt ssh_sol "calculation with tracking : SSH = NXT, FLUX = SALT, MOC Kinf=" Kinf ;
 ECHO geo_name ;
 
 LIBRARY LIBRARY2 := DELETE: LIBRARY LIBRARY2 ;
 FLUX := DELETE: FLUX ;
-FIG_FLX.ps FIG_SS.ps := DELETE: FIG_FLX.ps FIG_SS.ps ;
+FIG.ps := DELETE: FIG.ps ;
 
 END: ;
 

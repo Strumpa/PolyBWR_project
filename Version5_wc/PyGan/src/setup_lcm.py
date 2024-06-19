@@ -1,12 +1,17 @@
 #
 # python3 setup_lcm.py install --home=.
 #
-from distutils.core import setup, Extension
-from distutils.sysconfig import get_python_lib
+from sys import version_info
+if version_info[0] >= 3 and version_info[1] >= 12:
+  from setuptools import setup, Extension
+else:
+  from distutils.core import setup, Extension
+import sysconfig
+import numpy
 
 def main():
   import os
-  incdir = os.path.join(get_python_lib(plat_specific=1), "numpy/core/include")
+  incdir = os.path.join(os.path.split(os.path.abspath(numpy.__file__))[0], "core/include")
   mach = os.path.basename(os.getcwd())
   Compiler = os.environ.get("COMPILER", None) # Compiler selection
   if Compiler == "NVTOOLS":

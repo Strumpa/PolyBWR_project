@@ -88,48 +88,48 @@ pygan-ganlib: libGanlib.a sub-make-ganlib checkPython
 	mkdir -p $(DIRNAME)
 	cp *.[ch] $(DIRNAME)
 	cp *.py $(DIRNAME)
-	cd $(DIRNAME); ln -s setup_lcm.py setup.py; python3 -m pip install .; rm setup.py
-	cd $(DIRNAME); ln -s setup_lifo.py setup.py; python3 -m pip install .; rm setup.py
+	cd $(DIRNAME); ln -s setup_lcm.py setup.py; python3 -m pip install . --break-system-packages; rm setup.py
+	cd $(DIRNAME); ln -s setup_lifo.py setup.py; python3 -m pip install . --break-system-packages; rm setup.py
 ifdef openmp
-	export CODE_EMBEDDED=GANLIB_OMP; cd $(DIRNAME); ln -s setup_cle2000.py setup.py; python3 -m pip install .
+	export CODE_EMBEDDED=GANLIB_OMP; cd $(DIRNAME); ln -s setup_cle2000.py setup.py; python3 -m pip install . --break-system-packages
 else
-	export CODE_EMBEDDED=GANLIB; cd $(DIRNAME); ln -s setup_cle2000.py setup.py; python3 -m pip install .
+	export CODE_EMBEDDED=GANLIB; cd $(DIRNAME); ln -s setup_cle2000.py setup.py; python3 -m pip install . --break-system-packages
 endif
 	/bin/rm -r $(DIRNAME)
 pygan-trivac: libGanlib.a sub-make-trivac checkPython
 	mkdir -p $(DIRNAME)
 	cp *.[ch] $(DIRNAME)
 	cp *.py $(DIRNAME)
-	cd $(DIRNAME); ln -s setup_lcm.py setup.py; python3 -m pip install .; rm setup.py
-	cd $(DIRNAME); ln -s setup_lifo.py setup.py; python3 -m pip install .; rm setup.py
+	cd $(DIRNAME); ln -s setup_lcm.py setup.py; python3 -m pip install . --break-system-packages; rm setup.py
+	cd $(DIRNAME); ln -s setup_lifo.py setup.py; python3 -m pip install . --break-system-packages; rm setup.py
 ifdef openmp
-	export CODE_EMBEDDED=TRIVAC_OMP; cd $(DIRNAME); ln -s setup_cle2000.py setup.py; python3 -m pip install .
+	export CODE_EMBEDDED=TRIVAC_OMP; cd $(DIRNAME); ln -s setup_cle2000.py setup.py; python3 -m pip install . --break-system-packages
 else
-	export CODE_EMBEDDED=TRIVAC; cd $(DIRNAME); ln -s setup_cle2000.py setup.py; python3 -m pip install .
+	export CODE_EMBEDDED=TRIVAC; cd $(DIRNAME); ln -s setup_cle2000.py setup.py; python3 -m pip install . --break-system-packages
 endif
 	/bin/rm -r $(DIRNAME)
 pygan-dragon: libGanlib.a sub-make-dragon checkPython
 	mkdir -p $(DIRNAME)
 	cp *.[ch] $(DIRNAME)
 	cp *.py $(DIRNAME)
-	cd $(DIRNAME); ln -s setup_lcm.py setup.py; python3 -m pip install .; rm setup.py
-	cd $(DIRNAME); ln -s setup_lifo.py setup.py; python3 -m pip install .; rm setup.py
+	cd $(DIRNAME); ln -s setup_lcm.py setup.py; python3 -m pip install . --break-system-packages; rm setup.py
+	cd $(DIRNAME); ln -s setup_lifo.py setup.py; python3 -m pip install . --break-system-packages; rm setup.py
 ifdef openmp
-	export CODE_EMBEDDED=DRAGON_OMP; cd $(DIRNAME); ln -s setup_cle2000.py setup.py; python3 -m pip install .
+	export CODE_EMBEDDED=DRAGON_OMP; cd $(DIRNAME); ln -s setup_cle2000.py setup.py; python3 -m pip install . --break-system-packages
 else
-	export CODE_EMBEDDED=DRAGON; cd $(DIRNAME); ln -s setup_cle2000.py setup.py; python3 -m pip install .
+	export CODE_EMBEDDED=DRAGON; cd $(DIRNAME); ln -s setup_cle2000.py setup.py; python3 -m pip install . --break-system-packages
 endif
 	/bin/rm -r $(DIRNAME)
 pygan-donjon: libGanlib.a sub-make-donjon checkPython
 	mkdir -p $(DIRNAME)
 	cp *.[ch] $(DIRNAME)
 	cp *.py $(DIRNAME)
-	cd $(DIRNAME); ln -s setup_lcm.py setup.py; python3 -m pip install .; rm setup.py
-	cd $(DIRNAME); ln -s setup_lifo.py setup.py; python3 -m pip install .; rm setup.py
+	cd $(DIRNAME); ln -s setup_lcm.py setup.py; python3 -m pip install . --break-system-packages; rm setup.py
+	cd $(DIRNAME); ln -s setup_lifo.py setup.py; python3 -m pip install . --break-system-packages; rm setup.py
 ifdef openmp
-	export CODE_EMBEDDED=DONJON_OMP; cd $(DIRNAME); ln -s setup_cle2000.py setup.py; python3 -m pip install .
+	export CODE_EMBEDDED=DONJON_OMP; cd $(DIRNAME); ln -s setup_cle2000.py setup.py; python3 -m pip install . --break-system-packages
 else
-	export CODE_EMBEDDED=DONJON; cd $(DIRNAME); ln -s setup_cle2000.py setup.py; python3 -m pip install .
+	export CODE_EMBEDDED=DONJON; cd $(DIRNAME); ln -s setup_cle2000.py setup.py; python3 -m pip install . --break-system-packages
 endif
 	/bin/rm -r $(DIRNAME)
 clean:

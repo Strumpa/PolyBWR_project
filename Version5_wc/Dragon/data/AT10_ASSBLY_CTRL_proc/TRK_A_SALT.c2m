@@ -56,7 +56,7 @@ Geo_G2S FIG_main.ps := G2S: GEOM :: ;
 
 TRACK TF_EXC := SALT: Geo_G2S ::
   EDIT 1
-  ALLG BATCH 250
+  ALLG BATCH 100 ! keyword to specify the number of tracks assigned to each OpenMP core
   ANIS 3
   TSPC EQW2 <<an2d>> <<densur>> REND
   LONG

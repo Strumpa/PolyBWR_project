@@ -1,7 +1,7 @@
 #!/bin/env python3
 """ generation of pylib variable for use in Makefiles """
 
-from distutils.sysconfig import get_config_var
+from sysconfig import get_config_var
 pylib = get_config_var("LIBDIR")
 if pylib.find('lib64') >= 0:
     print('lib64')
