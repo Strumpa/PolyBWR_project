@@ -1,26 +1,12 @@
+# Python3 script used to check analytical vs serpent2 vs dragon5 volumes for 2x2 UOX sub-assembly ATRIUM-10 geometry.
+# Purpose : vaidate geometry definition and volume integration.
+# Author : R. Guasch
+# Date : 2024-06-19
+
 import DMLGInterface as DMLG
 import GeometricTools as GeoT
 import numpy as np
-"""
-input_f = "MCNP_AT10_sanitized.inp"
-AT10_CRTL_MCNP = DMLG_Interface(input_f, type="MCNP",mode="input")
-#print(AT10_CRTL_MCNP.Cell_Cards)
-AT10_CRTL_MCNP.getMCNP_card_data(print_cells=False, print_surfaces=False, print_materials=True)
-#print(AT10_CRTL_MCNP.Cell_Cards)
-#print(AT10_CRTL_MCNP.Cell_Cards['water box centered at ( 8.267, 6.973)'].material_densities[2])
 
-cell_serpent_output = "Serpent2/data_AT10_24UOX_try/AT10_24_test_mc.out"
-AT10_24UOX_cell_serp = DMLG.DMLG_Interface(cell_serpent_output, type="Serpent2",mode="output")
-cell_dragon_output = "../Version5_ev3232/Dragon/Linux_x86_64/SALT_TSPC.result"
-AT10_24UOX_cell_drag = DMLG.DMLG_Interface(cell_dragon_output, type="Dragon",mode="output")
-
-
-material_assocoation_dict = {"UOx_A":1, "UOx_B":2, "UOx_C":3, "UOx_D":4, "gap":5, "clad":6, "H2O":7}
-#print(AT10_24UOX_cell_serp.Serpent2_cards)
-AT10_24UOX_cell_serp.createS2_mat_properties("AT10_24UOX_cell",height=3.8E2)
-print(f"Total fuel mass is : {AT10_24UOX_cell_serp.S2_mat_properties.getTotalFuelMass():.3f} g")
-print(f"Total fuel mass dens is : {AT10_24UOX_cell_serp.S2_mat_properties.getTotalFuelMassDens():.3f} g/cm3")
-"""
 
 def check_SerpentvsDragon_vols(Serpent2_case, Dragon5_case, material_assocoation_dict={}):
     """
@@ -72,7 +58,7 @@ def check_SerpentvsDragon_vols(Serpent2_case, Dragon5_case, material_assocoation
                 errors.append(error)
                 rel_errors.append(relative_error)
                 if abs(relative_error)>=0.01:
-                    print(f"Warning in region {list(S2_material_volumes.keys())[list(S2_material_volumes.values()).index(S2_vols[i])]}, with S2 volume {S2_vols[i]/2} and D5 volume {D5_vols[i]*2}")
+                    print(f"Warning in region {list(S2_material_volumes.keys())[list(S2_material_volumes.values()).index(S2_vols[i])]}, with S2 volume {S2_vols[i]} and D5 volume {D5_vols[i]}")
             sum=0
             for err in errors:
                 sum+=err**2
@@ -92,53 +78,15 @@ def check_SerpentvsDragon_vols(Serpent2_case, Dragon5_case, material_assocoation
 
     return
 
-#check_SerpentvsDragon_vols(AT10_24UOX_cell_serp, AT10_24UOX_cell_drag, material_assocoation_dict)
-
-#assbly_serp_vols = "/home/loutre/Nuclear/PolyBWR_project/PTT/Serpent2/AT10_ASSBLY_mc.mvol"
-#assbly_drag_vols = "/home/loutre/Nuclear/PolyBWR_project/PTT/Dragon5/SALT_volumes.txt"
-#assbly_serp_vols = "/home/loutre/RESEARCH/PolyBWR_project/PTT/Serpent2/AT10_ASSBLY_mc.mvol"
-#assbly_drag_vols = "/home/loutre/RESEARCH/PolyBWR_project/PTT/Dragon5/SALT_volumes.txt"
 
 assbly_serp_vols = "../Serpent2/AT10_2x2_UOX_mc.mvol"
 assbly_drag_vols = "../Dragon5/SALT_2x2_UOX_vols.txt"
 
-AT10_ASSBLY_Serp = DMLG.DMLG_Interface(assbly_serp_vols, type="Serpent2",mode="check_volumes")
-AT10_ASSBLY_Serp.createS2_geom("ATRIUM-10 2x2 UOX bundle", 1)
-#print(AT10_ASSBLY_Serp.S2_geom.getOrderedMaterialVols()["box"])
+AT10_ASSBLY_Serp = DMLG.DMLG_Interface(assbly_serp_vols, code="Serpent2", mode="check_volumes")
+AT10_ASSBLY_Serp.createS2_geom("ATRIUM-10 2x2 UOX bundle", height=1)
 
 
-AT10_ASSBLY_drag = DMLG.DMLG_Interface(assbly_drag_vols, type="Dragon",mode="output")
+AT10_ASSBLY_drag = DMLG.DMLG_Interface(assbly_drag_vols, code="Dragon", mode="output")
 AT10_ASSBLY_drag.Dragon5_geom.ComputeOrderedVolumesandRegions()
 check_SerpentvsDragon_vols(AT10_ASSBLY_Serp, AT10_ASSBLY_drag)
 
-
-"""
-# Checking with geometric data : Analytical evaluation of volumes by geom_ASSBLY class :
-Channel_box_out = 2.3975+1.1025
-Channel_box_in = 2.3175+1.0225
-pitch_A=7.62*2
-Box_o = 6.87*2
-Box_i = 6.7*2
-Channel_box_xL_out = -1.1025
-Channel_box_XR_out = 2.3975
-pins_names=["24UOx", "32UOx", "42UOx", "45UOx", "48UOx", "50UOx", "45GADO", "42GADO"]
-
-pin_radii =[0.4435,0.4520,0.5140] # Fuel, gap, clad radii
-AT10_volume_check = GeoT.geom_ASSBLY(pitch_A,pins_names, Box_o, Channel_box_out, Box_i, Channel_box_in)
-AT10_volume_check.setPins(pin_radii[0], pin_radii[1], pin_radii[2])
-
-pins_number_dict={"24UOx": 4, "32UOx" : 8, "42UOx": 10, "45UOx": 21, "48UOx": 6, "50UOx":26, "45GADO": 14, "42GADO": 2}
-AT10_volume_check.setNumberofPins(pins_number_dict)
-AT10_volume_check.computeVolumes()
-Analytical_volumes = AT10_volume_check.Volumes
-print(Analytical_volumes)
-
-D5_regions_volumes = AT10_ASSBLY_drag.Dragon5_geom.getVolumesAndRegions()
-S2_regions_volumes = AT10_ASSBLY_Serp.S2_geom.getOrderedMaterialVols()
-
-for region_name in Analytical_volumes.keys():
-    S2_error = (S2_regions_volumes[region_name]/2 - Analytical_volumes[region_name])*100/Analytical_volumes[region_name]
-    print(f"Statistical error on volume of region {region_name} from Serpent2 is {S2_error:.03f} %")
-    
-
-"""

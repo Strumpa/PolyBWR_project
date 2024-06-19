@@ -130,7 +130,7 @@ class S2_geom:
         #for mat in data.keys():
         for elem in data:
             if elem.mode == "MVol":
-                material_volumes[elem.mat_vol_name] = float(elem.volume)
+                material_volumes[elem.mat_vol_name] = float(elem.volume)/self.height
         self.material_volumes = dict(sorted(material_volumes.items(), key=lambda item: item[1]))
         #print(len(self.material_volumes))
     

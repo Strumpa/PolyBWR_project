@@ -86,32 +86,21 @@ def get_equivalent_pt(rs, mx, Xp, my, Yp):
 
 
 
-"""
-rcomb6 = 0.4435
-
-radii=Santamarina_radii(rcomb6, isGd=True)
-print(radii)
-
-phi_k = EQW2_angles_calculator(8, 1.295, 1.295)
-print(phi_k)
-"""
 
 ## Geometry definition class
-
+# Used to check analytical volumes and compare with Serpent2/Dragon5 volumes
 class geom_ASSBLY:
     """
-    Class used to help define and check native 3 level definition of BWR Assemly geometries
+    Class used to help define and check 3 level definition of BWR Assemly geometries
     """
-    def __init__(self, pitch_A, C_list, Box_o, Chan_o, Box_i, Chan_i):
+    def __init__(self, pitch_A, C_list, Box_o, Chan_o, Box_i, Chan_i, controlled=False):
         """
         ALL dimensions in cm
         pitch_A : float, pitch for assembly 
         C_list = list of fuel pin cell object built from class geom_PIN (pins taken to be in CARCELs) assuming that the pin lattice is regular
-        Box_o/i, Chan_o/i : outer and inner dimensions for outer box and coolant channel
+        Box_o/i, Chan_o/i : outer and inner dimensions for outer box and moderator channel
         """
         self.pitch_A = pitch_A
-        #self.pitch_C = C_list[0].pitch()
-        #self.cell_list = C_list
         self.pin_names=C_list
         
         
@@ -120,6 +109,7 @@ class geom_ASSBLY:
         self.Box_i = Box_i
         self.Chan_o = Chan_o
         self.Chan_i = Chan_i
+        self.isControlled = controlled
         
         # Initializing gaps and thicknesses
         self.outer_Water_gap = (self.pitch_A - self.Box_o)/2.0
@@ -127,31 +117,6 @@ class geom_ASSBLY:
         self.chan_thickness = (self.Chan_o - self.Chan_i)/2.0
 
 
-        """
-        Cell_pitch = 1.295
-        L1 = Channel_box_xL_out+6.7
-        L3 = 6.7-Channel_box_XR_out
-        #Xtra_water = 2.0*6.7-10.0*Cell_pitch
-        Xtra_water = 0.45
-        print(Xtra_water)
-        sum = Water_gap + Box_thickness + Xtra_water + 10*Cell_pitch + Box_thickness + Water_gap
-        print(sum)
-        Xtra_water_side = Xtra_water/2.0
-        X1 = Water_gap+Box_thickness + Xtra_water_side
-        X2 = X1 + 4*Cell_pitch 
-        X3 = X2 + 3*Cell_pitch
-        X4 = X3 + 3*Cell_pitch
-        print(X3 + 3*Cell_pitch+Xtra_water_side)
-        X_points = [0.0, X1, X2, X3, X4, 2*7.62]
-        print(X_points)
-        print(X4+Xtra_water_side+Box_thickness+Water_gap)
-        
-
-        Xmax_box=6.7-3*Cell_pitch-Xtra_water_side
-        Xmin_box = -6.7+Xtra_water_side + 4*Cell_pitch
-
-        print(Xmax_box-Xmin_box)
-        """
     def setPins(self, fuel_radius, gap_radius, clad_radius):
         """
         pins_names = list of pin names
@@ -186,17 +151,48 @@ class geom_ASSBLY:
         """
         self.Volumes = {}
         for pin in self.pins:
-            print(pin.name)
             for node in pin.volumes.keys():
                 self.Volumes[node] = pin.volumes[node]*self.numberOfPinsperType[pin.name]
-            #self.FuelVolumes[pin_type] = self.pins[pin_type].volumes*self.numberOfPinsperType[pin_type]  .volumes*self.numberOfPinsperType[pin_type]
-            #print(self.pins[pin_type].height)
         
         self.Volumes["box"] = (self.Box_o**2-self.Box_i**2 + self.Chan_o**2 - self.Chan_i**2)
         self.Volumes["clad"] = (np.pi*self.pins[0].clad_radius**2 - np.pi*self.pins[0].gap_radius**2) * self.Total_Nb_Pins
         self.Volumes["gap"] = (np.pi*self.pins[0].gap_radius**2 - np.pi*self.pins[0].outer_fuel_radius**2) * self.Total_Nb_Pins
 
+        if self.isControlled:
+            if self.ctrl_cross_symmetry:
+                self.Volumes["ctrl_rod"] = self.nb_ctrl_rods*np.pi*self.ctrl_rod_radius**2/2
+                self.Volumes["ctrl_cross"] = 2*(self.cross_half_length-self.cross_half_width)*self.cross_half_width + self.cross_half_width**2 - self.Volumes["ctrl_rod"]
+            else:
+                self.Volumes["ctrl_rod"] = self.nb_ctrl_rods*np.pi*self.ctrl_rod_radius**2
+                self.Volumes["ctrl_cross"] = 4*(self.cross_half_length-self.cross_half_width)*self.cross_half_width + self.cross_half_width**2 - self.Volumes["ctrl_rod"]
+            self.Volumes["moder"] = self.pitch_A**2 - self.Box_o**2 + self.Chan_i**2 - self.Volumes["ctrl_rod"] - self.Volumes["ctrl_cross"]
+            # compute the sum of the existing volumes in order to compute the coolant volume
+            sum_vols = 0
+            for key in self.Volumes.keys():
+                sum_vols+=self.Volumes[key]
+        else:
+            self.Volumes["moder"] = self.pitch_A**2 - self.Box_o**2 + self.Chan_i**2
+            # compute the sum of the existing volumes in order to compute the coolant volume
+            sum_vols = 0
+            for key in self.Volumes.keys():
+                sum_vols+=self.Volumes[key]
+        self.Volumes["cool"] = self.pitch_A**2 - sum_vols
         return
+    
+    def setCtrlCross(self, cross_half_length, cross_half_width, nb_ctrl_rods, ctrl_rod_radius, ctrl_wings_symmetry):
+        """
+        cross_half_length, cross_half_width : float, dimensions of the control rod cross section
+        nb_ctrl_rods : integer, number of control rods
+        ctrl_rod_radius : float, radius of the control rod
+        ctrl_wings_symmetry : boolean to account for symmetry of the control rod wings, if True : only half the wings are defined, if False : full wings are defined as a cross.
+        """
+        self.ctrl_rod_radius = ctrl_rod_radius
+        self.cross_half_length = cross_half_length
+        self.cross_half_width = cross_half_width
+        self.nb_ctrl_rods = nb_ctrl_rods
+        self.ctrl_cross_symmetry = ctrl_wings_symmetry
+        return
+
     
 
 class geom_PIN:
