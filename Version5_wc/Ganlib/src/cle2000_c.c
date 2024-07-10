@@ -9,7 +9,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "cle2000.h"
-#define maxent 1000  /* maximum number of module arguments */
 
 int_32 cle2000_c(int_32 ilevel,
                  int_32 (*dummod)(char *, int_32, char (*)[13], int_32 *, int_32 *, lcm **, char (*)[73]),
@@ -31,12 +30,19 @@ int_32 cle2000_c(int_32 ilevel,
    int_32 jdispe, nentry, nmodul, ilogin, ityp, nitma;
    float_32 flott;
    double_64 dflot;
-   char hentry[maxent][13];
-   int_32 ientry[maxent], jentry[maxent];
-   lcm *kentry[maxent];
    char cmodul[13], hparam[73], text[73], cproce[73] = " ";
    char filinp[73], filobj[73], filout[73], filkdi[73];
    
+   double tk1 = 0;
+   if (ilevel == 1) cletim_c(&tk1);
+
+/* ALLOCATE maxent ARRAYS */
+   int_32 maxent = 1000;  /* maximum number of module arguments */
+   char (*hentry)[13] = malloc((int)maxent*13);
+   int_32 *ientry = malloc((int)maxent*sizeof(int_32));
+   int_32 *jentry = malloc((int)maxent*sizeof(int_32));
+   lcm **kentry = malloc((int)maxent*sizeof(*kentry));
+ 
 /* COMPILE MAIN INPUT INTO OBJECT FILE */
    if (strcmp(filenm, " ") == 0) {
       icinp = stdin;
@@ -212,8 +218,11 @@ L30:
             if (lobnew) {
                ++(nentry);
                if (nentry > maxent) {
-                  printf("%s: TOO MANY OBJECTS\n", nomsub);
-                  goto L666;
+                  maxent += 1000; /* increase maximum number of module arguments */
+                  hentry = realloc(hentry,(int)maxent*13);
+                  ientry = realloc(ientry,(int)maxent*sizeof(int_32));
+                  jentry = realloc(jentry,(int)maxent*sizeof(int_32));
+                  kentry = realloc(kentry,(int)maxent*sizeof(*kentry));
                }
                strcpy(hentry[nentry-1], text);
                jentry[nentry-1] = jdispe;
@@ -601,6 +610,17 @@ L100:
    if ((iprint > 0) && (ret_val == 0)) {
       printf("%s: SUCCESSFUL EXECUTION AT LEVEL %d\n", nomsub, (int)ilevel);
    }
+   if (ilevel == 1) {
+      double tk2;
+      cletim_c(&tk2);
+      printf("%s: cpu time= %.2f second\n", nomsub, tk2-tk1);
+   }
+
+/* DEALLOCATE maxent ARRAYS */
+   free(kentry);
+   free(jentry);
+   free(ientry);
+   free(hentry);
    return ret_val;
 L666:
    return 666;

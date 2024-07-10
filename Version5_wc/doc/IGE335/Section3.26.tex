@@ -72,7 +72,7 @@ The calling specifications are:
 \begin{DataStructure}{Structure \dstr{MPO:}}
 $\{$~\dusa{MPONAM} \moc{:=} \moc{MPO:} $[$ \dusa{MPONAM} $]~[$~\dusa{HMIC} $]$ \moc{::} \dstr{mpo\_data1} \\
 ~~$|$~\dusa{MPONAM} \moc{:=} \moc{MPO:} \dusa{MPONAM}~\dusa{EDINAM}~$[$ \dusa{BRNNAM} $]~[$ \dusa{HMIC1}~$[$~\dusa{HMIC2} $]~]$ \moc{::} \dstr{mpo\_data2} \\
-~~$|$~\dusa{MPONAM} \moc{:=} \moc{MPO:} \dusa{MPONAM} \dusa{MPORHS} \moc{::} \dstr{mpo\_data3} $\}$ \\
+~~$|$~\dusa{MPONAM} \moc{:=} \moc{MPO:} \dusa{MPONAM} $[[$ \dusa{MPORHS} $]]$ \moc{::} dstr{mpo\_data3} $\}$ \\
 \end{DataStructure}
 
 \noindent where
@@ -111,8 +111,8 @@ may be defined with {\sl global} parameters not defined in \dusa{MPORHS}.
 \item[\dusa{mpo\_data2}] input data structure containing information related to the recovery of an
 elementary calculation (see \Sect{descmpo2}).
 
-\item[\dusa{mpo\_data3}] input data structure containing information related to the catenation of a
-{\sl read-only} {\sc mpo} file (see \Sect{descmpo3}).
+\item[\dusa{mpo\_data3}] input data structure containing information related to the catenation of one or many
+{\sl read-only} {\sc mpo} file(s) (see \Sect{descmpo3}).
 
 \end{ListeDeDescription}
 

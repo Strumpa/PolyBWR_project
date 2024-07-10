@@ -5,10 +5,16 @@
 
 #include <stdlib.h>
 #include <time.h>
-#include "ganlib.h"
+#include "cle2000.h"
 
-void cletim_c(int_32 *sec, int_32 *nsec){
-   int_32 value = (int_32) clock();
-   *sec = value / CLOCKS_PER_SEC;
-   *nsec = (1000000 / CLOCKS_PER_SEC) * (value % CLOCKS_PER_SEC);
+#ifdef _OPENMP
+#include <omp.h>
+void cletim_c(double *sec){
+   *sec = omp_get_wtime();
 }
+#else
+void cletim_c(double *sec){
+   long value = (long) clock();
+   *sec = (double) (value / CLOCKS_PER_SEC);
+}
+#endif

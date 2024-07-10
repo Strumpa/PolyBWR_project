@@ -2,10 +2,10 @@
 #
 if [ $# = 0 ]
    then
-   echo "usage: AT10_ASSBLY.save directory" 1>&2
+   echo "usage: AT10_ASSBLY_CTRL.save directory" 1>&2
    exit 1
 fi
-echo "access AT-10_pin.save"
+echo "access AT10_ASSBLY_CTRL.save"
 MACH=`uname -s`
 Sysx="`echo $MACH | cut -b -6`"
 if [ $Sysx = "CYGWIN" ]; then
@@ -20,5 +20,5 @@ mv tracks_SALT_ASSBLY.m $1/"$MACH"
 mv tracks_SALT_SS_ASSBLY.m $1/"$MACH"
 mv FIG_main.ps $1/"$MACH"
 mv FIG_selfshielding.ps $1/"$MACH"
-echo "AT10_ASSBLY.save completed"
+echo "AT10_ASSBLY_CTRL.save completed"
 

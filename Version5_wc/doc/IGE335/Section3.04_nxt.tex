@@ -82,9 +82,9 @@ read once if the method of characteristics (MOC) is used.
 collision probability matrices are computed in many energy groups. The tracking
 file \dusa{TRKFIL} should {\sl not} be provided (default value if \dusa{TRKFIL} is not set).
 
-\item[\moc{BATCH}] keyword to specify the number of tracks assigned to each OpenMP core. The default value is \dusa{iquab}$=1$.
+\item[\moc{BATCH}] keyword to specify the number of tracks processed by each core for each energy group. OpenMP parallelization is processing each energy group on a different core. The default value is \dusa{nbatch} $=1$.
 
-\item[\dusa{nbatch}] the number of tracks assigned to each OpenMP core.
+\item[\dusa{nbatch}] the number of tracks processed by each core. Usually, a value \dusa{nbatch} $\ge 100$ is recommended.
 
 \item[\moc{QUAB}] keyword to specify the number of basis point for the
 numerical integration of each micro-structure in cases involving double

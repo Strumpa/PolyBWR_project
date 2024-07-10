@@ -55,6 +55,7 @@ typedef struct LIFO_NODE {     /* node in last-in-first-out (lifo) stack */
    char OSname[73];            /* physical filename */
 } lifo_node ;
 
+void cletim_c(double *);
 void cleopn(lifo **);
 lifo_node * clepop(lifo **);
 void clepush(lifo **, lifo_node *);

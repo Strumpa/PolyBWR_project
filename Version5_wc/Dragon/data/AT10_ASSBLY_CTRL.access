@@ -1,7 +1,7 @@
 #!/bin/sh
 if [ $# = 0 ]
    then
-   echo "usage: AT10_ASSBLY.access directory" 1>&2
+   echo "usage: AT10_ASSBLY_CTRL.access directory" 1>&2
    exit 1
 fi
 MACH=`uname -s`
@@ -31,5 +31,5 @@ fi
 if [ -f "$pos"/draglibJeff3p1p1SHEM295 ]
 then
 ln -s "$pos"/draglibJeff3p1p1SHEM295 J311_295
-echo "AT10_ASSBLY access script terminated"
+echo "AT10_ASSBLY_CTRL access script terminated"
 fi

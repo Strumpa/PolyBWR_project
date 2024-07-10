@@ -76,6 +76,7 @@ BWRF  :=  GEO: :: CAR3D  1  1  5
    ;
 
 TRKNAM := NXT: BWRF ::  
+     ALLG BATCH 100
      TISO 4 12.0 ;
   
 MICLIB := USS: MICLIB2 TRKNAM :: EDIT 2 ;

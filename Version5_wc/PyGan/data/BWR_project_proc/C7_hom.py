@@ -10,11 +10,12 @@
 import lifo
 import cle2000
 
-def C7_hom(namCOMPO,name_compo):
+def C7_hom(namCOMPO, StepList, name_compo):
 
   # Lifo
   myLifo=lifo.new()
   myLifo.pushEmpty(namCOMPO,"LCM")
+  myLifo.push(StepList)
   myLifo.push(name_compo)
   myLifo.lib()
 

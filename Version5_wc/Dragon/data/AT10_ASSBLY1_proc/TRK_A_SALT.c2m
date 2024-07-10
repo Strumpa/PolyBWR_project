@@ -56,7 +56,7 @@ Geo_G2S FIG_main.ps := G2S: GEOM :: ;
 
 TRACK TF_EXC := SALT: Geo_G2S ::
   EDIT 1
-  ALLG BATCH 250
+  ALLG BATCH 100
   ANIS 3
   TSPC EQW2 <<an2d>> <<densur>> REND
   LONG
@@ -75,7 +75,7 @@ GeoSS_G2S FIG_SS.ps := G2S: GEOM_SS :: ;
 
 TRACK_SS TF_EXC_SS := SALT: GeoSS_G2S ::
   EDIT 1
-  ALLG BATCH 40
+  ALLG BATCH 100
   TSPC <<an2d_ss>> <<densur_ss>> REND
   MERGMIX
 ;

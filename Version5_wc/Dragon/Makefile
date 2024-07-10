@@ -29,6 +29,7 @@ tests :
 	./rdragon -c $(fcompiler) -q tmacro.x2m
 	./rdragon -c $(fcompiler) -q VanDerGucht.x2m
 	./rdragon -c $(fcompiler) -q VanDerGucht-295.x2m
+	./rdragon -c $(fcompiler) -q uo2_295_kec1_openMP.x2m 
 	./rdragon -c $(fcompiler) -q tdraglib.x2m
 	./rdragon -c $(fcompiler) -q twimsE.x2m
 	./rdragon -c $(fcompiler) -q twlup.x2m
