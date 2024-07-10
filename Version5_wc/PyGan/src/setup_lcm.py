@@ -2,7 +2,9 @@
 # python3 setup_lcm.py install --home=.
 #
 from sys import version_info
-if version_info[0] >= 3 and version_info[1] >= 12:
+if version_info[0] == 3 and version_info[1] >= 12:
+  from setuptools import setup, Extension
+elif version_info[0] > 3:
   from setuptools import setup, Extension
 else:
   from distutils.core import setup, Extension

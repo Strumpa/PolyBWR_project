@@ -97,7 +97,7 @@ The calling specifications are:
 $\{$~~\dusa{SAPNAM} \moc{:=} \moc{SAP:} $[$ \dusa{SAPNAM} $]~[$~\dusa{HMIC} $]$ \moc{::} \dstr{saphyb\_data1} \\
 ~~~$|$~~~\dusa{SAPNAM} \moc{:=} \moc{SAP:} \dusa{SAPNAM}~\dusa{EDINAM}~$[$ \dusa{BRNNAM} $]~[$ \dusa{HMIC1}~$[$~\dusa{HMIC2} $]~]~[$ \dusa{FLUNAM} $]$\\
 ~~~~~~~~~~ \moc{::} \dstr{saphyb\_data2} \\
-~~~$|$~~~\dusa{SAPNAM} \moc{:=} \moc{SAP:} \dusa{SAPNAM} \dusa{SAPRHS} \moc{::} \dstr{saphyb\_data3} $\}$ \\
+~~~$|$~~~\dusa{SAPNAM} \moc{:=} \moc{SAP:} \dusa{SAPNAM} $[[$ \dusa{SAPRHS} $]]$ \moc{::} \dstr{saphyb\_data3} $\}$ \\
 \end{DataStructure}
 
 \noindent where
@@ -139,7 +139,7 @@ may be defined with {\sl global} parameters not defined in \dusa{SAPRHS}.
 \item[\dusa{saphyb\_data2}] input data structure containing information related to the recovery of an
 elementary calculation (see \Sect{descsap2}).
 
-\item[\dusa{saphyb\_data3}] input data structure containing information related to the catenation of a
+\item[\dusa{saphyb\_data3}] input data structure containing information related to the catenation of one or many
 {\sl read-only} {\sc saphyb} (see \Sect{descsap3}).
 
 \end{ListeDeDescription}

@@ -105,8 +105,8 @@ The calling specifications are:
 $\{$~~\dusa{CPONAM} \moc{:=} \moc{COMPO:} $[$ \dusa{CPONAM} $]$ \moc{::} \dstr{compo\_data1} \\
 $|$~~\dusa{CPONAM} \moc{:=} \moc{COMPO:} \dusa{CPONAM}~\dusa{EDINAM}~$[$ \dusa{EDINA2} $]~[$ \dusa{BRNNAM} $]~[$~\dusa{HMIC1}~$[$~\dusa{HMIC2} $]~]$ \\
 ~~~~~~~~~~~~~~ \moc{::} \dstr{compo\_data2} \\
-$|$~~\dusa{CPONAM} \moc{:=} \moc{COMPO:} \dusa{CPONAM} \dusa{CPORHS} \moc{::} \dstr{compo\_data3} \\
-$|$~~\moc{COMPO:} \dusa{CPONAM} \moc{::} \dstr{compo\_data4}~~$\}$ \\
+$|$~~\dusa{CPONAM} \moc{:=} \moc{COMPO:} \dusa{CPONAM} $[[$ \dusa{CPORHS} $]]$ \moc{::} \dstr{compo\_data3} \\
+$|$~~\moc{COMPO:} \dusa{CPONAM} \moc{::} \dstr{compo\_data4}~$\}$ \\
 \end{DataStructure}
 
 \noindent where
@@ -150,7 +150,7 @@ may be defined with {\sl global} parameters not defined in \dusa{CPORHS}.
 \item[\dusa{compo\_data2}] input data structure containing information related to the recovery of an
 elementary calculation (see \Sect{desccpo2}).
 
-\item[\dusa{compo\_data3}] input data structure containing information related to the catenation of a
+\item[\dusa{compo\_data3}] input data structure containing information related to the catenation of one or many
 {\sl read-only} {\sc multicompo} (see \Sect{desccpo3}).
 
 \item[\dusa{compo\_data4}] input data structure containing information related to the display of a

@@ -1,6 +1,6 @@
 *DECK SNSBFP
-      SUBROUTINE SNSBFP(IG,IPTRK,KPMACR,KPSYS,NANIS,IELEM,NLF,NREG,
-     1 NMAT,NUNKNO,NGRP,MATCOD,FLUX,QEXT)
+      SUBROUTINE SNSBFP(IG,IPTRK,KPMACR,KPSYS,NANIS,NLF,NREG,NMAT,
+     1 NUNKNO,NGRP,MATCOD,FLUX,QEXT)
 *
 *-----------------------------------------------------------------------
 *
@@ -23,11 +23,6 @@
 * KPMACR  pointer to the secondary-group related macrolib information.
 * KPSYS   pointer to the system matrix information.
 * NANIS   maximum cross section Legendre order.
-* IELEM   measure of order of the spatial approximation polynomial:
-*         =1 constant - only for HODD, classical diamond scheme 
-*         (default for HODD);
-*         =2 linear - default for DG;
-*         =3 parabolic.
 * NLF     number of Legendre components in the flux.
 * NREG    number of regions.
 * NMAT    number of mixtures.
@@ -48,7 +43,7 @@
 *  SUBROUTINE ARGUMENTS
 *----
       TYPE(C_PTR) IPTRK,KPMACR,KPSYS
-      INTEGER IG,NANIS,IELEM,NLF,NREG,NMAT,NUNKNO,NGRP,MATCOD(NREG)
+      INTEGER IG,NANIS,NLF,NREG,NMAT,NUNKNO,NGRP,MATCOD(NREG)
       REAL FLUX(NUNKNO,NGRP),QEXT(NUNKNO,NGRP)
 *----
 *  LOCAL VARIABLES

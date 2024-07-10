@@ -204,7 +204,7 @@
          ELSE
            IF(ITEX.EQ.6) THEN
 *            SORT THE ROOT CONVERGENCE HISTORY.
-             DO I=1,ITEX-1
+             DO I=2,ITEX-1
                WORKF=FFITX(ITEX-I)
                WORKB=B2ITX(ITEX-I)
                J=I
@@ -219,7 +219,7 @@
              ENDDO
            ENDIF
            J=0
-           DO I=ITEX-1,1,-1
+           DO I=ITEX-1,2,-1
              IF(FFITX(I)*FFITX(ITEX).LT.0.0) THEN
                J=I
                EXIT

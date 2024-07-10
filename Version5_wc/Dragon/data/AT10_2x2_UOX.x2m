@@ -9,7 +9,7 @@
 ************************** VARIABLES DEFINITION ****************************
 ****************************************************************************
 
-MODULE GEO: G2S: NXT: SYBILT: SALT: TLM: MCCGT: LIB: USS: ASM: FLU: GREP: END: ;
+MODULE GEO: G2S: NXT: SYBILT: SALT: MCCGT: LIB: USS: ASM: FLU: GREP: END: ;
 LINKED_LIST GEOM_2x2 GEOM_2x2_SS LIBRARY LIBRARY2 TRACK_SS TRACK SYS FLUX ;
 
 SEQ_ASCII Geo_G2S GeoSS_G2S ;
@@ -18,11 +18,8 @@ SEQ_ASCII FIG_main.ps :: FILE './FIG_main.ps' ;
 SEQ_ASCII FIG_SS.ps :: FILE './FIG_selfshielding.ps' ;
 
 SEQ_BINARY TF_EXC TF_EXC_SS ;
-SEQ_ASCII TLM_F1 :: FILE 'tracks_SALT_FLX_2x2_UOX.m' ;
-SEQ_ASCII TLM_F2 :: FILE 'tracks_SALT_SSH_2x2_UOX.m' ;
 
 STRING Library := "J311_295" ;
-STRING ssh_option := "VVER_ALL" ;
 
 REAL Kinf ;
 
@@ -127,7 +124,8 @@ GEOM_2x2 := GEO: :: CAR2D 2 2
 LIBRARY := LIB: ::
     EDIT 0
     NMIX 100    ! MAXIMUM OF MATERIAL MIXTURES
-    RSE 1.0E-03
+    !RSE 1.0E-02
+    PT
     ANIS 3
 
   DEPL LIB: DRAGON FIL: <<Library>>
@@ -216,10 +214,8 @@ INTEGER an2d := 18 ;  ! ANGULAR QUADRATURE PARAMETER
 REAL densur := 40.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
 
 INTEGER an2d_ss := 8 ;  ! ANGULAR QUADRATURE PARAMETER 
-REAL densur_ss := 25.0 ; ! DENSITY OF INTEGRATION LINES CM^-1 
+REAL densur_ss := 15.0 ; ! DENSITY OF INTEGRATION LINES CM^-1 
 
-INTEGER iqua2 := 24 ;
-INTEGER nseg := 5 ;
 
 * polar angles for MCCGT:
 INTEGER nmu := 4 ;
@@ -239,12 +235,6 @@ TRACK TF_EXC := SALT: Geo_G2S ::
   TSPC EQW2 <<an2d>> <<densur>> REND LONG
 ;
 
-TLM_F1 := TLM: TRACK TF_EXC ::
-  EDIT 10
-  NTPO 1
-  DIRECTIONS
-  DIR 0
-;
 
 * MOC tracking
 TRACK := MCCGT: TRACK TF_EXC ::
@@ -265,10 +255,10 @@ TRACK_SS TF_EXC_SS := SALT: GeoSS_G2S ::
 ;
 
 * MOC tracking for ssh ?
-TRACK_SS := MCCGT: TRACK_SS TF_EXC_SS ::
-  EDIT 1
-  CACB <<nmu>> AAC 80 TMT EPSI 1E-5 MCU <<mcu>> ! tried CACB but is limited to isotropic ?
-;
+!TRACK_SS := MCCGT: TRACK_SS TF_EXC_SS ::
+!  EDIT 1
+!  CACB <<nmu>> AAC 80 TMT EPSI 1E-5 MCU <<mcu>> ! tried CACB but is limited to isotropic ?
+!;
 
 
 
@@ -278,7 +268,7 @@ TRACK_SS := MCCGT: TRACK_SS TF_EXC_SS ::
 
 
 LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
-        EDIT 1 PASS 1 MAXST 20 ARM
+        EDIT 1 PASS 3 MAXST 20 !ARM
       ;
 
 SYS := ASM: LIBRARY2 TRACK TF_EXC :: ARM EDIT 0 ; 

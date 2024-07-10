@@ -92,17 +92,16 @@
       INTEGER, ALLOCATABLE, DIMENSION(:) :: NSEG,IANG
       INTEGER, ALLOCATABLE, DIMENSION(:,:) :: NOM
       REAL, ALLOCATABLE, DIMENSION(:,:,:) :: RHARM,TRHAR
-      DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:) :: T2D,WEITF,B
-      DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:,:) :: HTF,COEFI,FLUX,
-     1 PHIU
-      DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:,:,:) :: PHIV,DPHIV,
+      DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:) :: T2D,WEITF,B,FLUX
+      DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:,:) :: HTF,COEFI,PHIU,
      1 FLUV,DFLUV
-      DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:,:,:,:) :: STOT,DSTOT
+      DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:,:,:) :: PHIV,DPHIV
+      DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:,:,:) :: STOT,DSTOT
 *----
 *  SCRATCH STORAGE ALLOCATION
 *----
       ALLOCATE(NSEG(NBATCH),WEITF(NBATCH),IANG(NBATCH),NOM(NMAX,NBATCH),
-     1 HTF(NMAX,NBATCH),FLUX(KPN,NGEFF),PHIU(KPN,NGEFF))
+     1 HTF(NMAX,NBATCH),FLUX(KPN),PHIU(KPN,NGEFF))
 *---
 * Compute flux and currents for this tracking line
 *---
@@ -124,13 +123,13 @@
            IF(NSUB.NE.1) CALL XABORT('MCGFCF: NSUB.NE.1.')
          ENDDO
 *$OMP  PARALLEL DO
-*$OMP1 PRIVATE(IL1,OMEGA2,ZZZ,FLUX,II,B)
+*$OMP1 PRIVATE(IL1,OMEGA2,ZZZ,FLUX,ILINE,B)
 *$OMP2 REDUCTION(+:PHIU)
-         DO ILINE=(IBATCH-1)*NBATCH+1,MIN(IBATCH*NBATCH,NBTR)
-           IL1=ILINE-(IBATCH-1)*NBATCH
-           FLUX(:KPN,:NGEFF)=0.0D0
-           DO II=1,NGEFF
-             IF(NCONV(II)) THEN
+         DO II=1,NGEFF
+           IF(NCONV(II)) THEN
+             FLUX(:KPN)=0.0D0
+             DO ILINE=(IBATCH-1)*NBATCH+1,MIN(IBATCH*NBATCH,NBTR)
+               IL1=ILINE-(IBATCH-1)*NBATCH
 *                  MCGFFIR: 'Source Term Isolation' Strategy turned on
 *                  MCGFFIS: 'Source Term Isolation' Strategy turned off
 *                  MCGFFIT: 'MOCC/MCI' Iterative Strategy
@@ -141,12 +140,11 @@
                OMEGA2(3)=3.0D0*OMEGA2(3)
                CALL SUBFFI(SUBSCH,K,KPN,M,NSEG(IL1),HTF(1,IL1),
      1              NOM(1,IL1),NZON,SIGAL(0,II),S(1,II),NREG,KEYFLX,
-     2              KEYCUR,FLUX(1,II),B,WEITF(IL1),OMEGA2,IDIR,NSOUT,
-     3              XSI)
-             ENDIF
-           ENDDO
-           PHIU(:KPN,:NGEFF)=PHIU(:KPN,:NGEFF)+FLUX(:KPN,:NGEFF)
-         ENDDO ! ILINE
+     2              KEYCUR,FLUX,B,WEITF(IL1),OMEGA2,IDIR,NSOUT,XSI)
+             ENDDO ! ILINE
+             PHIU(:KPN,II)=PHIU(:KPN,II)+FLUX(:KPN)
+           ENDIF
+         ENDDO ! II
 *$OMP END PARALLEL DO
          ENDDO ! IBATCH
          ELSE
@@ -162,30 +160,30 @@
            IF(NSUB.NE.1) CALL XABORT('MCGFCF: NSUB.NE.1.')
          ENDDO
 *$OMP  PARALLEL DO
-*$OMP1 PRIVATE(IL1,OMEGA2,ZMUI,WEIGHT,I0,T2D,FLUX,IMU,II,B)
+*$OMP1 PRIVATE(IL1,OMEGA2,ZMUI,WEIGHT,I0,T2D,FLUX,IMU,ILINE,B)
 *$OMP2 REDUCTION(+:PHIU)
-         DO ILINE=(IBATCH-1)*NBATCH+1,MIN(IBATCH*NBATCH,NBTR)
-            IL1=ILINE-(IBATCH-1)*NBATCH
-            FLUX(:KPN,:NGEFF)=0.0D0
-            DO IMU=1,NMU
-               ZMUI=ZMU(IMU)
-               OMEGA2(1)=3.0D0*(CAZ1(IANG(IL1))/ZMUI)**2
-               OMEGA2(2)=3.0D0*(CAZ2(IANG(IL1))/ZMUI)**2
-               OMEGA2(3)=3.0D0*(1.0-1.0/ZMUI**2)
-               WEIGHT=WEITF(IL1)*DBLE(WZMU(IMU))
-               DO I0=2,NSEG(IL1)-1
-                 T2D(I0)=HTF(I0,IL1)*ZMUI
+         DO II=1,NGEFF            
+           IF(NCONV(II)) THEN
+             FLUX(:KPN)=0.0D0
+             DO ILINE=(IBATCH-1)*NBATCH+1,MIN(IBATCH*NBATCH,NBTR)
+               IL1=ILINE-(IBATCH-1)*NBATCH
+               DO IMU=1,NMU
+                 ZMUI=ZMU(IMU)
+                 OMEGA2(1)=3.0D0*(CAZ1(IANG(IL1))/ZMUI)**2
+                 OMEGA2(2)=3.0D0*(CAZ2(IANG(IL1))/ZMUI)**2
+                 OMEGA2(3)=3.0D0*(1.0-1.0/ZMUI**2)
+                 WEIGHT=WEITF(IL1)*DBLE(WZMU(IMU))
+                 DO I0=2,NSEG(IL1)-1
+                   T2D(I0)=HTF(I0,IL1)*ZMUI
+                 ENDDO
+                 CALL SUBFFI(SUBSCH,K,KPN,M,NSEG(IL1),T2D,NOM(1,IL1),
+     1                 NZON,SIGAL(0,II),S(1,II),NREG,KEYFLX,KEYCUR,
+     2                 FLUX,B,WEIGHT,OMEGA2,IDIR,NSOUT,XSI)
                ENDDO
-               DO II=1,NGEFF            
-                 IF(NCONV(II)) THEN
-                   CALL SUBFFI(SUBSCH,K,KPN,M,NSEG(IL1),T2D,NOM(1,IL1),
-     1                  NZON,SIGAL(0,II),S(1,II),NREG,KEYFLX,KEYCUR,
-     2                  FLUX(1,II),B,WEIGHT,OMEGA2,IDIR,NSOUT,XSI)
-                 ENDIF
-               ENDDO
-            ENDDO
-            PHIU(:KPN,:NGEFF)=PHIU(:KPN,:NGEFF)+FLUX(:KPN,:NGEFF)
-         ENDDO ! ILINE
+             ENDDO ! ILINE
+             PHIU(:KPN,II)=PHIU(:KPN,II)+FLUX(:KPN)
+           ENDIF
+         ENDDO ! II
 *$OMP END PARALLEL DO
          ENDDO ! IBATCH
          DEALLOCATE(T2D)
@@ -195,7 +193,7 @@
 *     ----------------------
 *     Anisotropic Scattering
 *     ----------------------
-         ALLOCATE(STOT(NMAX,NMU,NGEFF,2),B(2*NMAX))
+         ALLOCATE(STOT(NMAX,NMU,2),B(2*NMAX))
          ALLOCATE(RHARM(NMU,NFUNL,NBATCH),TRHAR(NMU,NFUNL,NMOD))
          IANG0=0
          IF(NDIM.EQ.3) THEN
@@ -221,54 +219,50 @@
          ENDDO
 *$OMP  PARALLEL DO
 *$OMP1 PRIVATE(IL1,TRHAR,NOMP,INDP,NOMM,INDM,STOT,NOMI,Q0,Q1,JF,IND)
-*$OMP2 PRIVATE(FLUX,I0,II,B)
+*$OMP2 PRIVATE(FLUX,I0,ILINE,B)
 *$OMP3 REDUCTION(+:PHIU)
-         DO ILINE=(IBATCH-1)*NBATCH+1,MIN(IBATCH*NBATCH,NBTR)
-           STOT(:NMAX,:NMU,:NGEFF,:2)=0.0D0
-           IL1=ILINE-(IBATCH-1)*NBATCH
-           FLUX(:KPN,:NGEFF)=0.0D0
-           DO 10 JF=1,NFUNL
-             TRHAR(1,JF,1)=ISGNR(1,JF)*RHARM(1,JF,IL1)
-             TRHAR(1,JF,NMOD)=ISGNR(NMOD,JF)*RHARM(1,JF,IL1)
- 10        CONTINUE
-           DO II=1,NGEFF            
+         DO II=1,NGEFF            
            IF(NCONV(II)) THEN
-*            incoming flux in + direction
-             NOMP=NOM(1,IL1)
-             INDP=KEYCUR(-NOMP)
-*            incoming flux in - direction
-             NOMM=NOM(NSEG(IL1),IL1)
-             INDM=KEYCUR(-NOMM)
-             STOT(1,1,II,1)=WEITF(IL1)*S(INDP,II)
-             STOT(NSEG(IL1),1,II,2)=WEITF(IL1)*S(INDM,II)
-*            regional sources   
-             DO I0=2,NSEG(IL1)-1
-               NOMI=NOM(I0,IL1)
-               Q0=0.0D0
-               Q1=0.0D0
-               DO JF=1,NFUNL
-                 IND=KEYFLX(NOMI,1,JF)         
-                 Q0=Q0+S(IND,II)*TRHAR(1,JF,1)
-                 Q1=Q1+S(IND,II)*TRHAR(1,JF,NMOD)
-               ENDDO                       
-               STOT(I0,1,II,1)=WEITF(IL1)*Q0
-               STOT(I0,1,II,2)=WEITF(IL1)*Q1
-             ENDDO
-           ENDIF
-           ENDDO
-           DO II=1,NGEFF
-            IF(NCONV(II)) THEN
+             FLUX(:KPN)=0.0D0
+             DO ILINE=(IBATCH-1)*NBATCH+1,MIN(IBATCH*NBATCH,NBTR)
+               IL1=ILINE-(IBATCH-1)*NBATCH
+               DO 10 JF=1,NFUNL
+                 TRHAR(1,JF,1)=ISGNR(1,JF)*RHARM(1,JF,IL1)
+                 TRHAR(1,JF,NMOD)=ISGNR(NMOD,JF)*RHARM(1,JF,IL1)
+ 10            CONTINUE
+               STOT(:NMAX,:NMU,:2)=0.0D0
+*              incoming flux in + direction
+               NOMP=NOM(1,IL1)
+               INDP=KEYCUR(-NOMP)
+*              incoming flux in - direction
+               NOMM=NOM(NSEG(IL1),IL1)
+               INDM=KEYCUR(-NOMM)
+               STOT(1,1,1)=WEITF(IL1)*S(INDP,II)
+               STOT(NSEG(IL1),1,2)=WEITF(IL1)*S(INDM,II)
+*              regional sources   
+               DO I0=2,NSEG(IL1)-1
+                 NOMI=NOM(I0,IL1)
+                 Q0=0.0D0
+                 Q1=0.0D0
+                 DO JF=1,NFUNL
+                   IND=KEYFLX(NOMI,1,JF)         
+                   Q0=Q0+S(IND,II)*TRHAR(1,JF,1)
+                   Q1=Q1+S(IND,II)*TRHAR(1,JF,NMOD)
+                 ENDDO                       
+                 STOT(I0,1,1)=WEITF(IL1)*Q0
+                 STOT(I0,1,2)=WEITF(IL1)*Q1
+               ENDDO
 *                   MCGFFAR: 'Source Term Isolation' Strategy turned on
 *                   MCGFFAS: 'Source Term Isolation' Strategy turned off
 *                   MCGFFAT: 'MOCC/MCI' Iterative Strategy
                CALL SUBFFA(SUBSCH,K,KPN,M,NSEG(IL1),HTF(1,IL1),
-     1              NOM(1,IL1),NZON,SIGAL(0,II),STOT(1,1,II,1),
-     2              STOT(1,1,II,2),NREG,1,NLF,NFUNL,NMOD,TRHAR,KEYFLX,
-     3              KEYCUR,1,FLUX(1,II),B,1,NMOD)
-            ENDIF
-           ENDDO
-           PHIU(:KPN,:NGEFF)=PHIU(:KPN,:NGEFF)+FLUX(:KPN,:NGEFF)
-         ENDDO ! ILINE
+     1              NOM(1,IL1),NZON,SIGAL(0,II),STOT(1,1,1),
+     2              STOT(1,1,2),NREG,1,NLF,NFUNL,NMOD,TRHAR,KEYFLX,
+     3              KEYCUR,1,FLUX,B,1,NMOD)
+             ENDDO ! ILINE
+             PHIU(:KPN,II)=PHIU(:KPN,II)+FLUX(:KPN)
+           ENDIF
+         ENDDO ! II
 *$OMP END PARALLEL DO
          ENDDO ! IBATCH
 *        ---
@@ -296,66 +290,62 @@
          ENDDO
 *$OMP  PARALLEL DO
 *$OMP1 PRIVATE(IL1,TRHAR,NOMP,INDP,NOMM,INDM,NOMI,IMU,WEIGHT,STOT,I0)
-*$OMP2 PRIVATE(JF,Q0,Q1,ZMUI,T2D,FLUX,II,B)
+*$OMP2 PRIVATE(JF,Q0,Q1,ZMUI,T2D,FLUX,ILINE,B)
 *$OMP3 REDUCTION(+:PHIU)
-         DO ILINE=(IBATCH-1)*NBATCH+1,MIN(IBATCH*NBATCH,NBTR)
-           STOT(:NMAX,:NMU,:NGEFF,:2)=0.0D0
-           IL1=ILINE-(IBATCH-1)*NBATCH
-           FLUX(:KPN,:NGEFF)=0.0D0
-           DO 25 JF=1,NFUNL
-           DO 20 IMU=1,NMU
-             TRHAR(IMU,JF,1)=ISGNR(1,JF)*RHARM(IMU,JF,IL1)
-             TRHAR(IMU,JF,NMOD)=ISGNR(NMOD,JF)*RHARM(IMU,JF,IL1)
- 20        CONTINUE
- 25        CONTINUE
-           DO II=1,NGEFF            
+         DO II=1,NGEFF            
            IF(NCONV(II)) THEN
-*            incoming flux in + direction
-             NOMP=NOM(1,IL1)
-             INDP=KEYCUR(-NOMP)
-*            incoming flux in - direction
-             NOMM=NOM(NSEG(IL1),IL1)
-             INDM=KEYCUR(-NOMM)
-             DO IMU=1,NMU
-               WEIGHT=WEITF(IL1)*DBLE(WZMU(IMU))
-               STOT(1,IMU,II,1)=WEIGHT*S(INDP,II)
-               STOT(NSEG(IL1),IMU,II,2)=WEIGHT*S(INDM,II)
-             ENDDO
-*            regional sources               
-             DO I0=2,NSEG(IL1)-1
-               NOMI=NOM(I0,IL1)
+             FLUX(:KPN)=0.0D0
+             DO ILINE=(IBATCH-1)*NBATCH+1,MIN(IBATCH*NBATCH,NBTR)
+               IL1=ILINE-(IBATCH-1)*NBATCH
+               DO 25 JF=1,NFUNL
+               DO 20 IMU=1,NMU
+                 TRHAR(IMU,JF,1)=ISGNR(1,JF)*RHARM(IMU,JF,IL1)
+                 TRHAR(IMU,JF,NMOD)=ISGNR(NMOD,JF)*RHARM(IMU,JF,IL1)
+ 20            CONTINUE
+ 25            CONTINUE
+               STOT(:NMAX,:NMU,:2)=0.0D0
+*              incoming flux in + direction
+               NOMP=NOM(1,IL1)
+               INDP=KEYCUR(-NOMP)
+*              incoming flux in - direction
+               NOMM=NOM(NSEG(IL1),IL1)
+               INDM=KEYCUR(-NOMM)
                DO IMU=1,NMU
-                 Q0=0.0D0
-                 Q1=0.0D0
                  WEIGHT=WEITF(IL1)*DBLE(WZMU(IMU))
-                 DO JF=1,NFUNL
-                   IND=KEYFLX(NOMI,1,JF)         
-                   Q0=Q0+S(IND,II)*TRHAR(IMU,JF,1)
-                   Q1=Q1+S(IND,II)*TRHAR(IMU,JF,NMOD)
-                 ENDDO                       
-                 STOT(I0,IMU,II,1)=WEIGHT*Q0
-                 STOT(I0,IMU,II,2)=WEIGHT*Q1
+                 STOT(1,IMU,1)=WEIGHT*S(INDP,II)
+                 STOT(NSEG(IL1),IMU,2)=WEIGHT*S(INDM,II)
                ENDDO
-             ENDDO
-           ENDIF
-           ENDDO
-           DO IMU=1,NMU
-             ZMUI=ZMU(IMU)
-             WEIGHT=WEITF(IL1)*DBLE(WZMU(IMU))
-             DO I=2,NSEG(IL1)-1
-               T2D(I)=HTF(I,IL1)*ZMUI
-             ENDDO
-             DO II=1,NGEFF            
-               IF(NCONV(II)) THEN
+*              regional sources               
+               DO I0=2,NSEG(IL1)-1
+                 NOMI=NOM(I0,IL1)
+                 DO IMU=1,NMU
+                   Q0=0.0D0
+                   Q1=0.0D0
+                   WEIGHT=WEITF(IL1)*DBLE(WZMU(IMU))
+                   DO JF=1,NFUNL
+                     IND=KEYFLX(NOMI,1,JF)         
+                     Q0=Q0+S(IND,II)*TRHAR(IMU,JF,1)
+                     Q1=Q1+S(IND,II)*TRHAR(IMU,JF,NMOD)
+                   ENDDO                       
+                   STOT(I0,IMU,1)=WEIGHT*Q0
+                   STOT(I0,IMU,2)=WEIGHT*Q1
+                 ENDDO
+               ENDDO
+               DO IMU=1,NMU
+                 ZMUI=ZMU(IMU)
+                 WEIGHT=WEITF(IL1)*DBLE(WZMU(IMU))
+                 DO I=2,NSEG(IL1)-1
+                   T2D(I)=HTF(I,IL1)*ZMUI
+                 ENDDO
                  CALL SUBFFA(SUBSCH,K,KPN,M,NSEG(IL1),T2D,NOM(1,IL1),
-     1                NZON,SIGAL(0,II),STOT(1,IMU,II,1),
-     2                STOT(1,IMU,II,2),NREG,NMU,NLF,NFUNL,NMOD,TRHAR,
-     3                KEYFLX,KEYCUR,IMU,FLUX(1,II),B,1,NMOD)
-               ENDIF
-             ENDDO
-           ENDDO
-           PHIU(:KPN,:NGEFF)=PHIU(:KPN,:NGEFF)+FLUX(:KPN,:NGEFF)
-         ENDDO ! ILINE
+     1                NZON,SIGAL(0,II),STOT(1,IMU,1),
+     2                STOT(1,IMU,2),NREG,NMU,NLF,NFUNL,NMOD,TRHAR,
+     3                KEYFLX,KEYCUR,IMU,FLUX,B,1,NMOD)
+               ENDDO
+             ENDDO ! ILINE
+             PHIU(:KPN,II)=PHIU(:KPN,II)+FLUX(:KPN)
+           ENDIF
+         ENDDO ! II
 *$OMP END PARALLEL DO
          ENDDO ! IBATCH
 *        ---
@@ -370,8 +360,8 @@
          ALLOCATE(B(6*NMAX))
          ALLOCATE(RHARM(NMU,NFUNLX,NBATCH),TRHAR(NMU,NFUNLX,NMOD))
          ALLOCATE(PHIV(NFUNLX,NREG,NGEFF),DPHIV(NDFUNLX,NREG,NGEFF))
-         ALLOCATE(FLUV(NFUNLX,NREG,NGEFF),DFLUV(NDFUNLX,NREG,NGEFF))
-         ALLOCATE(STOT(NMAX,NMU,NGEFF,2),DSTOT(NMAX,NMU,NGEFF,2))
+         ALLOCATE(FLUV(NFUNLX,NREG),DFLUV(NDFUNLX,NREG))
+         ALLOCATE(STOT(NMAX,NMU,2),DSTOT(NMAX,NMU,2))
          DO II=1,NGEFF            
            IF(NCONV(II)) THEN
              PHIV(:NFUNLX,:NREG,II)=0.0D0
@@ -404,24 +394,24 @@
          ENDDO
 *$OMP  PARALLEL DO
 *$OMP1 PRIVATE(IL1,JF,IMU,TRHAR,NOMP,INDP,NOMM,INDM,NOMI,STOT,DSTOT,I0)
-*$OMP2 PRIVATE(ZMUI,WEIGHT,T2D,FLUX,FLUV,DFLUV,II,B,Q0,Q1,Q0X,Q1X,Q0Y)
-*$OMP3 PRIVATE(Q1Y,IND,INDX,INDY)
+*$OMP2 PRIVATE(ZMUI,WEIGHT,T2D,FLUX,FLUV,DFLUV,ILINE,B,Q0,Q1,Q0X,Q1X)
+*$OMP3 PRIVATE(Q0Y,Q1Y,IND,INDX,INDY)
 *$OMP4 REDUCTION(+:PHIU,PHIV,DPHIV)
-         DO ILINE=(IBATCH-1)*NBATCH+1,MIN(IBATCH*NBATCH,NBTR)
-           STOT(:NMAX,:NMU,:NGEFF,:2)=0.0D0
-           DSTOT(:NMAX,:NMU,:NGEFF,:2)=0.0D0
-           IL1=ILINE-(IBATCH-1)*NBATCH
-           FLUX(:KPN,:NGEFF)=0.0D0
-           FLUV(:NFUNLX,:NREG,:NGEFF)=0.0D0
-           DFLUV(:NDFUNLX,:NREG,:NGEFF)=0.0D0
-           DO 35 JF=1,NFUNLX
-           DO 30 IMU=1,NMU
-             TRHAR(IMU,JF,1)=ISGNR(1,JF)*RHARM(IMU,JF,IL1)
-             TRHAR(IMU,JF,NMOD)=ISGNR(NMOD,JF)*RHARM(IMU,JF,IL1)
- 30        CONTINUE
- 35        CONTINUE
-           DO II=1,NGEFF            
-             IF(NCONV(II)) THEN
+         DO II=1,NGEFF            
+           IF(NCONV(II)) THEN
+             FLUX(:KPN)=0.0D0
+             FLUV(:NFUNLX,:NREG)=0.0D0
+             DFLUV(:NDFUNLX,:NREG)=0.0D0
+             DO ILINE=(IBATCH-1)*NBATCH+1,MIN(IBATCH*NBATCH,NBTR)
+               IL1=ILINE-(IBATCH-1)*NBATCH
+               DO 35 JF=1,NFUNLX
+               DO 30 IMU=1,NMU
+                 TRHAR(IMU,JF,1)=ISGNR(1,JF)*RHARM(IMU,JF,IL1)
+                 TRHAR(IMU,JF,NMOD)=ISGNR(NMOD,JF)*RHARM(IMU,JF,IL1)
+ 30            CONTINUE
+ 35            CONTINUE
+               STOT(:NMAX,:NMU,:2)=0.0D0
+               DSTOT(:NMAX,:NMU,:2)=0.0D0
 *              incoming flux in + direction
                NOMP=NOM(1,IL1)
                INDP=KEYCUR(-NOMP)
@@ -429,8 +419,8 @@
                NOMM=NOM(NSEG(IL1),IL1)
                INDM=KEYCUR(-NOMM)
                DO IMU=1,NMU
-                  STOT(1,IMU,II,1)=S(INDP,II)
-                  STOT(NSEG(IL1),IMU,II,2)=S(INDM,II)
+                  STOT(1,IMU,1)=S(INDP,II)
+                  STOT(NSEG(IL1),IMU,2)=S(INDM,II)
                ENDDO
 *              regional sources               
                DO I0=2,NSEG(IL1)-1
@@ -453,40 +443,35 @@
                      Q0Y=Q0Y+S(INDY,II)*TRHAR(IMU,JF,1)
                      Q1Y=Q1Y+S(INDY,II)*TRHAR(IMU,JF,NMOD)
                    ENDDO                       
-                   STOT(I0,IMU,II,1)=Q0
-                   STOT(I0,IMU,II,2)=Q1
-                   DSTOT(I0,IMU,II,1)=Q0X*CAZ1(IANG(IL1))+Q0Y*
+                   STOT(I0,IMU,1)=Q0
+                   STOT(I0,IMU,2)=Q1
+                   DSTOT(I0,IMU,1)=Q0X*CAZ1(IANG(IL1))+Q0Y*
      1             CAZ2(IANG(IL1))
-                   DSTOT(I0,IMU,II,2)=-Q1X*CAZ1(IANG(IL1))-Q1Y*
+                   DSTOT(I0,IMU,2)=-Q1X*CAZ1(IANG(IL1))-Q1Y*
      1             CAZ2(IANG(IL1))
                  ENDDO
                ENDDO
-             ENDIF
-           ENDDO
-           DO IMU=1,NMU
-             ZMUI=ZMU(IMU)
-             WEIGHT=WEITF(IL1)*DBLE(WZMU(IMU))
-             DO I0=2,NSEG(IL1)-1
-               T2D(I0)=HTF(I0,IL1)*ZMUI
-             ENDDO
-             DO II=1,NGEFF            
-               IF(NCONV(II)) THEN
+               DO IMU=1,NMU
+                 ZMUI=ZMU(IMU)
+                 WEIGHT=WEITF(IL1)*DBLE(WZMU(IMU))
+                 DO I0=2,NSEG(IL1)-1
+                   T2D(I0)=HTF(I0,IL1)*ZMUI
+                 ENDDO
 *                MCGFFAL: 'Source Term Isolation' Strategy turned off
                  CALL SUBLDC(SUBSCH,K,KPN,M,NSEG(IL1),T2D,NOM(1,IL1),
-     1               NZON,WEIGHT,SIGAL(0,II),STOT(1,IMU,II,1),
-     2               STOT(1,IMU,II,2),DSTOT(1,IMU,II,1),
-     3               DSTOT(1,IMU,II,2),NREG,NMU,NLF,NFUNLX,NMOD,
-     4               TRHAR,KEYCUR,IMU,B,1,NMOD,FLUX(1,II),FLUV(1,1,II),
-     5               DFLUV(1,1,II))
-               ENDIF
-             ENDDO
-           ENDDO
-           PHIU(:KPN,:NGEFF)=PHIU(:KPN,:NGEFF)+FLUX(:KPN,:NGEFF)
-           PHIV(:NFUNLX,:NREG,:NGEFF)=PHIV(:NFUNLX,:NREG,:NGEFF)+
-     1     FLUV(:NFUNLX,:NREG,:NGEFF)
-           DPHIV(:NDFUNLX,:NREG,:NGEFF)=DPHIV(:NDFUNLX,:NREG,:NGEFF)+
-     1     DFLUV(:NDFUNLX,:NREG,:NGEFF)
-         ENDDO ! ILINE
+     1               NZON,WEIGHT,SIGAL(0,II),STOT(1,IMU,1),
+     2               STOT(1,IMU,2),DSTOT(1,IMU,1),DSTOT(1,IMU,2),NREG,
+     3               NMU,NLF,NFUNLX,NMOD,TRHAR,KEYCUR,IMU,B,1,NMOD,
+     4               FLUX,FLUV,DFLUV)
+               ENDDO
+             ENDDO ! ILINE
+             PHIU(:KPN,II)=PHIU(:KPN,II)+FLUX(:KPN)
+             PHIV(:NFUNLX,:NREG,II)=PHIV(:NFUNLX,:NREG,II)+
+     1       FLUV(:NFUNLX,:NREG)
+             DPHIV(:NDFUNLX,:NREG,II)=DPHIV(:NDFUNLX,:NREG,II)+
+     1       DFLUV(:NDFUNLX,:NREG)
+           ENDIF
+         ENDDO ! II
 *$OMP END PARALLEL DO
          ENDDO ! IBATCH
          ALLOCATE(COEFI(2*NFUNLX,2*NFUNLX))

@@ -45,7 +45,7 @@
 *----
       PARAMETER (NSTATE=40,MAXPAR=50,MAXISO=800,NKEYS=8,NREAK=10,
      1 MAXMAC=2,MAXREA=50,MAXCAD=153)
-      TYPE(C_PTR) IPMPO,IPLB1,IPLB2,IPDEPL,IPEDIT,IPRHS
+      TYPE(C_PTR) IPMPO,IPLB1,IPLB2,IPDEPL,IPEDIT
       CHARACTER TEXT24*24,TEXT8*8,TEXT12*12,TEXT20*20,HSMPO*132,
      1 HSMG*131,HEDIT*12,CDIRO*12,RECNAM*72,HSIGN*12,KEYWRD(NKEYS)*4,
      2 NOMISO(MAXISO)*20,NOMEVO(MAXISO)*12,REANAM(NREAK)*20,
@@ -64,6 +64,7 @@
       CHARACTER(LEN=8), ALLOCATABLE, DIMENSION(:) :: PARFMT
       CHARACTER(LEN=24), ALLOCATABLE, DIMENSION(:) :: PARTYP,PARKEY,
      1 PARCAD,PARTYL,PARKEL,PARCAL
+      TYPE(C_PTR), ALLOCATABLE, DIMENSION(:) :: IPRHS
 *----
 *  DATA STATEMENTS
 *----
@@ -74,6 +75,10 @@
      2            'FissionSpectrum     ','Nexcess             ',
      3            'NuFission           ','Scattering          ',
      4            'CaptureEnergyCapture','FissionEnergyFission'/
+*----
+*  SCRATCH STORAGE ALLOCATION
+*----
+      ALLOCATE(IPRHS(NENTRY))
 *----
 *  PARAMETER VALIDATION.
 *----
@@ -108,7 +113,7 @@
       IPLB2=C_NULL_PTR
       IPDEPL=C_NULL_PTR
       IPEDIT=C_NULL_PTR
-      IPRHS=C_NULL_PTR
+      IPRHS(:NENTRY)=C_NULL_PTR
       DO 10 I=2,NENTRY
       IF(JENTRY(I).NE.2) CALL XABORT('MPO: READ-ONLY RHS EXPECTED.')
       IF(IENTRY(I).LE.2) THEN
@@ -125,7 +130,7 @@
             IPEDIT=KENTRY(I)
          ENDIF
       ELSE IF(IENTRY(I).EQ.6) THEN
-         IPRHS=KENTRY(I)
+         IPRHS(I)=KENTRY(I)
       ELSE
          CALL XABORT('MPO: LCM OR HDF5 OBJECTS EXPECTED AT RHS.')
       ENDIF
@@ -410,7 +415,7 @@
       IF(NLOC.GT.0) DEALLOCATE(PARCAL,PARADL,PARTYL,PARKEL)
       IF(NPAR.GT.0) DEALLOCATE(NVALUE,PARCAD,PARADR,PARTYP,PARFMT,
      1 PARKEY)
-      RETURN
+      GO TO 390
 * END OF MPO INITIALIZATION. **********************************
 *----
 *  INPUT AN ELEMENTARY CALCULATION. *******************************
@@ -520,7 +525,9 @@
         CALL hdf5_read_data(IPMPO,"/parameters/tree/NSTATEPOINT",NCALS)
       ENDIF
       READ(HEDIT,'(7X,I2)') ID
-      IF(C_ASSOCIATED(IPRHS)) GO TO 370 ! concatenation
+      IF(NENTRY.GE.2) THEN
+         IF(C_ASSOCIATED(IPRHS(2))) GO TO 370 ! concatenation
+      ENDIF
       IF(hdf5_group_exists(IPMPO,"/output/")) THEN
         CALL hdf5_read_data(IPMPO,"/output/NOUTPUT",NOUTPUT)
         CALL hdf5_read_data(IPMPO,"/output/OUPUTID",OUPUTID)
@@ -641,21 +648,29 @@
       CALL MPOGEP(IPMPO,IPDEPL,IPLB1,IPLB2,IPEDIT,HEDIT,IMPX,ITIM,NPAR,
      1 NLOC,MUPLET,LGNEW,NMIL,NG,NCALS)
       IF(NPAR.GT.0) DEALLOCATE(PARTYP,PARFMT,PARKEY)
-      RETURN
+      GO TO 390
 *----
 *  MPO CONCATENATION.
 *----
-  370 NG=0
-      CALL MPOTOC(IPRHS,HEDIT,IMPX,NREA,NBISO,NMIL,NPARR,NLOC,NISOF,
+  370 DO 380 I=2,NENTRY
+      IF(.NOT.C_ASSOCIATED(IPRHS(I))) GO TO 380
+      NG=0
+      CALL MPOTOC(IPRHS(I),HEDIT,IMPX,NREA,NBISO,NMIL,NPARR,NLOC,NISOF,
      1 NISOP,NISOS,NCALR,NG,NSURFD,NALBP,NPRC)
       IF(IMPX.GT.0) WRITE(6,470) NCALS+1,NCALS+NCALR
-*     ------------------------------------------------------
-      CALL MPOCAT(IPMPO,IPRHS,NPAR,MUPLET,LGNEW,LWARN,HEDIT)
-*     ------------------------------------------------------
+*     ---------------------------------------------------------
+      CALL MPOCAT(IPMPO,IPRHS(I),NPAR,MUPLET,LGNEW,LWARN,HEDIT)
+*     ---------------------------------------------------------
+      NCALS=NCALS+NCALR
+  380 CONTINUE
       IF(IMPX.GT.0) THEN
         CALL MPOTOC(IPMPO,HEDIT,IMPX,NREA,NBISO,NMIL,NPAR,NLOC,NISOF,
      1  NISOP,NISOS,NCALS,NG,NSURFD,NALBP,NPRC)
       ENDIF
+*----
+*  SCRATCH STORAGE DEALLOCATION
+*----
+  390 DEALLOCATE(IPRHS)
       RETURN
 *
   400 FORMAT(/6H MPO: ,A/6X,8HVERSION=,I3)

@@ -2,7 +2,7 @@
       SUBROUTINE EXCELP(  IPTRK, IFTRAK, IPRNTP, NREGIO,  NBMIX,   NANI,
      >                   MATCOD, VOLUME, NRENOR, XSSIGT, XSSIGW, NELPIJ,
      >                    IPIJK,    PIJ, LEAKSW,  NSBG,   NPSYS,   NPST,
-     >                   PROBKS, TITREC, NALBP,   ALBP)
+     >                   NBATCH, PROBKS, TITREC, NALBP,   ALBP)
 *
 *-----------------------------------------------------------------------
 *
@@ -41,9 +41,9 @@
 * NPSYS   non-converged energy group indices.
 * NPST    first dimension of matrix PROBKS.
 * TITREC  title.
+* NBATCH  number of tracks processed in each OpenMP core (default: =1).
 * NALBP   number of multigroup physical albedos.
 * ALBP    multigroup physical albedos.
-*
 *
 *Parameters: output
 * PIJ     reduced and symmetrized collision probabilities.
@@ -87,9 +87,9 @@
       CHARACTER         TITREC*72
       LOGICAL           LEAKSW
       TYPE(C_PTR)       IPTRK
-      INTEGER           IFTRAK, IPRNTP, NREGIO,  NBMIX,   NANI,
-     >                  MATCOD(NREGIO),NRENOR, NELPIJ,  IPIJK,   NSBG,
-     >                  NPSYS(NSBG), NPST,NALBP
+      INTEGER           IFTRAK, IPRNTP, NREGIO,  NBMIX, NANI,
+     >                  MATCOD(NREGIO), NRENOR, NELPIJ, IPIJK, NSBG,
+     >                  NPSYS(NSBG), NPST, NBATCH, NALBP
       REAL              VOLUME(NREGIO), XSSIGT(0:NBMIX,NSBG),
      >                  XSSIGW(0:NBMIX,NANI,NSBG),
      >                  PIJ(NELPIJ,IPIJK,NSBG), PROBKS(NPST,NSBG),
@@ -105,19 +105,19 @@
       INTEGER           MKI1, MKI2, MKI3, MKI4, MKI5
       PARAMETER       (MKI1=600,MKI2=600,MKI3=600,MKI4=600,MKI5=600)
       INTEGER           ILONG,ITYPE,ISTATE(NSTATE),ICODE(6)
-      INTEGER           NPROB,N2PROB,ISBG,KSBG,ITYPBC
+      INTEGER           NPROB,N2PRO,ISBG,KSBG,ITYPBC
       REAL              ALBEDO(6),EXTKOP(NSTATE),CUTOF,RCUTOF,ASCRP,
      >                  YGSS,XGSS(MXGAUS),WGSS(MXGAUS),WGSSX(MXGAUS),
      >                  FACT,ALBG(6)
       LOGICAL           SWNZBC, SWVOID, LPIJK, LSKIP
       CHARACTER         CTRKT*4, COMENT*80
-      DOUBLE PRECISION  WEIGHT,DANG0,DASCRP
+      DOUBLE PRECISION  DANG0,DASCRP
 *
       INTEGER           JJ,MSYM,IU,IL,ISOUT,IIN,I,J,IBM,IOP,INDPIJ,IJKS,
-     >                  NALLOC,ITRAK,IANG,NBSEG,IC,IPRT,ISPEC,IUN,KSPEC,
-     >                  LOPT,MXSEG,NALBG,NANGL,NCOMNT,NCOR,NCORT,NDIM,
-     >                  NGSS,NNREG,NREG,NSCRP,NSOUT,NTRK,NUNKNO,IVV,
-     >                  JGSS,JUN,IFMT,MXSUB,NSUB,ISA
+     >                  NALLOC,ITRAK,IANG,IC,IPRT,ISPEC,IUN,KSPEC,LOPT,
+     >                  MXSEG,NALBG,NANGL,NCOMNT,NCOR,NCORT,NDIM,NGSS,
+     >                  NNREG,NREG,NSCRP,NSOUT,NTRK,NUNKNO,IVV,JGSS,JUN,
+     >                  IFMT,MXSUB,ISA,IBATCH,IL1
 *----
 *  Variables for NXT: inline tracking
 *----
@@ -126,22 +126,20 @@
       DOUBLE PRECISION  DZERO,DONE,DTWO
       PARAMETER        (DZERO=0.0D0,DONE=1.0D0,DTWO=2.0D0)
       INTEGER           IEDIMG(NSTATE),NPOINT,NBUCEL,MXMSH,MAXPIN,
-     >                  MXGSUR,MXGREG,MAXMSH,NPLANE,NUCELL(3),IANGL
+     >                  MXGSUR,MXGREG,MAXMSH,NPLANE,NUCELL(3)
       CHARACTER         NAMREC*12
 *----
 *  Allocatable arrays
 *----
       INTEGER, ALLOCATABLE, DIMENSION(:) :: MATALB
       REAL, ALLOCATABLE, DIMENSION(:,:) :: VOLSUR
-      INTEGER, ALLOCATABLE, DIMENSION(:) :: NUMERO
-      DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:) :: LENGTH,DSV
+      DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:) :: DSV
       REAL, ALLOCATABLE, TARGET, DIMENSION(:,:) :: SIGTAL,SIGT00
       REAL, POINTER, DIMENSION(:,:) :: SIGT
 *-- NXT TRACKING
       INTEGER, ALLOCATABLE, DIMENSION(:,:) :: IUNFLD
-      DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:) :: DVNOR
+      DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:) :: DVNOR,DWGTRK
       DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:,:) :: DGMESH,DANGLT
-      DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:) :: DWGTRK
       DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:,:,:) :: DORITR
 *-- Temporary arrays
       INTEGER, ALLOCATABLE, DIMENSION(:) :: MATRT
@@ -151,6 +149,11 @@
      >                                               STAYIN,GOSOUT
       DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:,:) :: DPROB,DPROBX,
      > PCSCT
+*-- Tracking file arrays
+      INTEGER, ALLOCATABLE, DIMENSION(:) :: NCOIL1,NSUB,NBSEG
+      INTEGER, ALLOCATABLE, DIMENSION(:,:) :: NUMERO
+      DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:) :: WEIGHT
+      DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:,:) :: LENGTH
 *----
 *  Common blocks for Bickley functions
 *----
@@ -174,7 +177,7 @@
 *             KSPEC : KIND OF PIJ INTEGRATION (0:ISOTROPE,1:SPECULAR)
 *             CUTOF : MFP CUTOFF FOR SPECULAR INTEGRATION
 *----
-      CALL XDISET(ISTATE,NSTATE,0)
+      ISTATE(:NSTATE)=0
       CALL LCMGET(IPTRK,'STATE-VECTOR',ISTATE)
       KSPEC=ISTATE(10)
       CALL LCMGET(IPTRK,'EXCELTRACKOP',EXTKOP)
@@ -324,38 +327,46 @@
       ENDIF
 *
       NPROB = (NUNKNO*(NUNKNO+1))/2
-      N2PROB= NUNKNO*NUNKNO
+      N2PRO = NUNKNO*NUNKNO
       IF(IPRNTP .GT. 1) THEN
-         NALLOC=(2*N2PROB*NSBG)
-         IF(LPIJK) NALLOC=NALLOC+(2*N2PROB*NSBG)
+         NALLOC=(2*N2PRO*NSBG)
+         IF(LPIJK) NALLOC=NALLOC+(2*N2PRO*NSBG)
          WRITE(IOUT,6000) NALLOC/256
       ENDIF
-      ALLOCATE(DPROB(N2PROB,NSBG))
-      CALL XDDSET(DPROB,N2PROB*NSBG,0.0D0)
+      ALLOCATE(DPROB(N2PRO,NSBG))
+      DPROB(:N2PRO,:NSBG)=0.0D0
       IF(LPIJK)THEN
-        ALLOCATE(DPROBX(N2PROB,NSBG))
-        CALL XDDSET(DPROBX,N2PROB*NSBG,0.0D0)
+        ALLOCATE(DPROBX(N2PRO,NSBG))
+        DPROBX(:N2PRO,:NSBG)=0.0D0
       ELSE
         ALLOCATE(DPROBX(1,1))
       ENDIF
       IF(IPRNTP.GT.1) WRITE(IOUT,6001)
 *
       IF(IPRNTP .GE. 10) WRITE(IOUT,6010) MXSEG
-      ALLOCATE(NUMERO(MXSEG),LENGTH(MXSEG))
+*----
+*  BATCH TRACKING STORAGE ALLOCATION
+*----
+      ALLOCATE(NCOIL1(NBATCH),NSUB(NBATCH),NBSEG(NBATCH),WEIGHT(NBATCH),
+     1 NUMERO(MXSEG,NBATCH),LENGTH(MXSEG,NBATCH))
       IF( ISPEC.EQ.0 )THEN
 *----
 *  Standard tracking
 *----
          IF( NDIM.EQ.2 )THEN
            ALLOCATE(LOPATH(MXSEG))
-           DO ITRAK= 1, NTRK
+           DO IBATCH=1,(NTRK-1)/NBATCH+1
+           DO ITRAK=(IBATCH-1)*NBATCH+1,MIN(IBATCH*NBATCH,NTRK)
+             IL1=ITRAK-(IBATCH-1)*NBATCH
              IF(IFTRAK .NE. 0) THEN
 *----
 *  Read tracks from file
 *----
-               READ(IFTRAK)  NSUB,NBSEG,WEIGHT,IANG,
-     >         (NUMERO(IL),IL=1,NBSEG),(LENGTH(IL),IL=1,NBSEG)
-               IF(NSUB.NE.1) CALL XABORT('EXCELP: NSUB.NE.1.')
+               READ(IFTRAK)  NSUB(IL1),NBSEG(IL1),WEIGHT(IL1),IANG,
+     >         (NUMERO(IL,IL1),IL=1,NBSEG(IL1)),
+     >         (LENGTH(IL,IL1),IL=1,NBSEG(IL1))
+               IF(NSUB(IL1).NE.1) CALL XABORT('EXCELP: NSUB.NE.1.')
+               NCOIL1(IL1)=1
              ELSE
 *----
 *  Generate selected track
@@ -364,43 +375,82 @@
      >                     ITRAK ,MAXMSH,NSOUT ,NREG  ,NUCELL,NBUCEL,
      >                     MXGSUR,MXGREG,MAXPIN,MXSEG ,ITYPBC,IUNFLD,
      >                     MATALB,DSV   ,DGMESH,DANGLT,DVNOR ,DWGTRK,
-     >                     DORITR,NBSEG ,NCORT ,WEIGHT,NUMERO,LENGTH)
-               IF(NCORT .EQ. 0) GO TO 1005
+     >                     DORITR,NBSEG(IL1) ,NCORT ,WEIGHT(IL1),
+     >                     NUMERO(1,IL1),LENGTH(1,IL1))
+               NCOIL1(IL1)=NCORT
              ENDIF
-             CALL PIJI2D(NREG,NSOUT,NBSEG,NCOR,NSBG,SWVOID,SIGT,NPSYS,
-     >                   WEIGHT,LENGTH,NUMERO,LOPATH,DPROB,
-     >                   MKI1,BI1,PAS1,L1,
-     >                   MKI2,BI2,PAS2,XLIM2,L2,
-     >                   MKI3,BI3,PAS3,XLIM3)
-             IF(LPIJK)THEN
-               CALL PIJI2D(NREG,NSOUT,NBSEG,NCOR,NSBG,SWVOID,SIGT,NPSYS,
-     >                     WEIGHT,LENGTH,NUMERO,LOPATH,DPROBX,
-     >                     MKI3,BI3,PAS3,L3,
-     >                     MKI4,BI4,PAS4,XLIM4,L4,
-     >                     MKI5,BI5,PAS5,XLIM5)
-             ENDIF
- 1005        CONTINUE
            ENDDO
+*$OMP  PARALLEL DO
+*$OMP1 PRIVATE(IL1,ITRAK,LOPATH)
+          DO ISBG=1,NSBG
+             IF(NPSYS(ISBG).EQ.0) CYCLE
+             DO ITRAK=(IBATCH-1)*NBATCH+1,MIN(IBATCH*NBATCH,NTRK)
+               IL1=ITRAK-(IBATCH-1)*NBATCH
+               IF(NCOIL1(IL1).EQ.0) CYCLE
+               CALL PIJI2D(NREG,NSOUT,NBSEG(IL1),NCOR,SWVOID,
+     >                     SIGT(-NSOUT,ISBG),WEIGHT(IL1),LENGTH(1,IL1),
+     >                     NUMERO(1,IL1),LOPATH,DPROB(1,ISBG),
+     >                     MKI1,BI1,PAS1,L1,
+     >                     MKI2,BI2,PAS2,XLIM2,L2,
+     >                     MKI3,BI3,PAS3,XLIM3)
+             ENDDO ! ITRAK
+           ENDDO ! ISBG
+*$OMP END PARALLEL DO
+           IF(LPIJK)THEN
+*$OMP  PARALLEL DO
+*$OMP1 PRIVATE(IL1,ITRAK,LOPATH)
+             DO ISBG=1,NSBG
+               IF(NPSYS(ISBG).EQ.0) CYCLE
+               DO ITRAK=(IBATCH-1)*NBATCH+1,MIN(IBATCH*NBATCH,NTRK)
+                 IL1=ITRAK-(IBATCH-1)*NBATCH
+                 IF(NCOIL1(IL1).EQ.0) CYCLE
+                 CALL PIJI2D(NREG,NSOUT,NBSEG(IL1),NCOR,SWVOID,
+     >                       SIGT(-NSOUT,ISBG),WEIGHT(IL1),
+     >                       LENGTH(1,IL1),NUMERO(1,IL1),LOPATH,
+     >                       DPROBX(1,ISBG),MKI3,BI3,PAS3,L3,
+     >                       MKI4,BI4,PAS4,XLIM4,L4,
+     >                       MKI5,BI5,PAS5,XLIM5)
+               ENDDO ! ITRAK
+             ENDDO ! ISBG
+*$OMP END PARALLEL DO
+           ENDIF
+           ENDDO ! IBATCH
            DEALLOCATE(LOPATH)
          ELSE
            ALLOCATE(STAYIN(MXSEG),GOSOUT(MXSEG))
-           DO ITRAK= 1, NTRK
+           DO IBATCH=1,(NTRK-1)/NBATCH+1
+           DO ITRAK=(IBATCH-1)*NBATCH+1,MIN(IBATCH*NBATCH,NTRK)
+             IL1=ITRAK-(IBATCH-1)*NBATCH
              IF(IFTRAK .NE. 0) THEN
-               READ(IFTRAK)  NSUB,NBSEG,WEIGHT,IANG,
-     >         (NUMERO(IL),IL=1,NBSEG),(LENGTH(IL),IL=1,NBSEG)
-               IF(NSUB.NE.1) CALL XABORT('EXCELP: NSUB.NE.1.')
+               READ(IFTRAK)  NSUB(IL1),NBSEG(IL1),WEIGHT(IL1),IANG,
+     >         (NUMERO(IL,IL1),IL=1,NBSEG(IL1)),
+     >         (LENGTH(IL,IL1),IL=1,NBSEG(IL1))
+               IF(NSUB(IL1).NE.1) CALL XABORT('EXCELP: NSUB.NE.1.')
+               NCOIL1(IL1)=1
              ELSE
                CALL NXTTGS(IPTRK ,IPRNTP,NDIM  ,NANGL ,NPOINT,NTRK  ,
      >                     ITRAK ,MAXMSH,NSOUT ,NREG  ,NUCELL,NBUCEL,
      >                     MXGSUR,MXGREG,MAXPIN,MXSEG ,ITYPBC,IUNFLD,
      >                     MATALB,DSV   ,DGMESH,DANGLT,DVNOR ,DWGTRK,
-     >                     DORITR,NBSEG ,NCORT ,WEIGHT,NUMERO,LENGTH)
-               IF(NCORT .EQ. 0) GO TO 1015
+     >                     DORITR,NBSEG(IL1) ,NCORT ,WEIGHT(IL1),
+     >                     NUMERO(1,IL1),LENGTH(1,IL1))
+               NCOIL1(IL1)=NCORT
              ENDIF
-             CALL PIJI3D(NREG,NSOUT,NBSEG,NCOR,NSBG,SWVOID,SIGT,NPSYS,
-     >       WEIGHT,LENGTH,NUMERO,STAYIN,GOSOUT,DPROB)
- 1015        CONTINUE
            ENDDO
+*$OMP  PARALLEL DO
+*$OMP1 PRIVATE(IL1,ITRAK,STAYIN,GOSOUT)
+           DO ISBG=1,NSBG
+             IF(NPSYS(ISBG).EQ.0) CYCLE
+             DO ITRAK=(IBATCH-1)*NBATCH+1,MIN(IBATCH*NBATCH,NTRK)
+               IL1=ITRAK-(IBATCH-1)*NBATCH
+               IF(NCOIL1(IL1).EQ.0) CYCLE
+               CALL PIJI3D(NREG,NSOUT,NBSEG(IL1),NCOR,SWVOID,
+     >         SIGT(-NSOUT,ISBG),WEIGHT(IL1),LENGTH(1,IL1),
+     >         NUMERO(1,IL1),STAYIN,GOSOUT,DPROB(1,ISBG))
+             ENDDO ! ITRAK
+           ENDDO ! ISBG
+*$OMP END PARALLEL DO
+           ENDDO ! IBATCH
            DEALLOCATE(GOSOUT,STAYIN)
            IF(LPIJK) CALL XABORT(NAMSBR//': 3D PIJK NOT SUPPORTED')
          ENDIF
@@ -439,47 +489,89 @@
 *  Loop over tracks
 *  then loop over groups
 *----
-            DO ITRAK= 1, NTRK
+            DO IBATCH=1,(NTRK-1)/NBATCH+1
+            DO ITRAK=(IBATCH-1)*NBATCH+1,MIN(IBATCH*NBATCH,NTRK)
+              IL1=ITRAK-(IBATCH-1)*NBATCH
               IF(IFTRAK .NE. 0) THEN
-                READ(IFTRAK)  NSUB,NBSEG,WEIGHT,(IANGL,IL=1,NSUB),
-     >          (NUMERO(IL),IL=1,NBSEG),(LENGTH(IL),IL= 1,NBSEG)
+                READ(IFTRAK)  NSUB(IL1),NBSEG(IL1),WEIGHT(IL1),
+     >          (IANG,IL=1,NSUB(IL1)),(NUMERO(IL,IL1),IL=1,NBSEG(IL1)),
+     >          (LENGTH(IL,IL1),IL= 1,NBSEG(IL1))
+                NCOIL1(IL1)=1
               ELSE
                CALL NXTTGC(IPTRK ,IPRNTP,NDIM  ,NANGL ,NPOINT,NTRK  ,
      >                     ITRAK ,MAXMSH,NSOUT ,NREG  ,NUCELL,NBUCEL,
      >                     MXGSUR,MXGREG,MAXPIN,MXSEG ,ITYPBC,IUNFLD,
      >                     MATALB,DSV   ,DGMESH,DANGLT,DVNOR ,DWGTRK,
-     >                     DORITR,NBSEG ,NCORT ,WEIGHT,NUMERO,LENGTH)
-                IF(NCORT .EQ. 0) GO TO 1025
+     >                     DORITR,NBSEG(IL1) ,NCORT ,WEIGHT(IL1),
+     >                     NUMERO(1,IL1),LENGTH(1,IL1))
+                NCOIL1(IL1)=NCORT
               ENDIF
-              CALL PIJS2D(NREG,NSOUT,NBSEG,NSBG,WEIGHT,RCUTOF,NGSS,
-     >        SIGANG,XGSS,WGSS,NPSYS,LENGTH,NUMERO,STAYIN,GOSOUT,DPROB)
-              IF(LPIJK)THEN
-*               X-DIRECTION  PROBABILITIES CALCULATIONS ( PX=PY )
-                CALL PIJS2D(NREG,NSOUT,NBSEG,NSBG,WEIGHT,RCUTOF,NGSS,
-     >          SIGANG,XGSS,WGSSX,NPSYS,LENGTH,NUMERO,STAYIN,GOSOUT,
-     >          DPROBX)
-              ENDIF
- 1025         CONTINUE
             ENDDO
+*$OMP  PARALLEL DO
+*$OMP1 PRIVATE(IL1,ITRAK,STAYIN,GOSOUT)
+            DO ISBG=1,NSBG
+              IF(NPSYS(ISBG).EQ.0) CYCLE
+              DO ITRAK=(IBATCH-1)*NBATCH+1,MIN(IBATCH*NBATCH,NTRK)
+                IL1=ITRAK-(IBATCH-1)*NBATCH
+                IF(NCOIL1(IL1).EQ.0) CYCLE
+                CALL PIJS2D(NREG,NSOUT,NBSEG(IL1),WEIGHT(IL1),RCUTOF,
+     >          NGSS,SIGANG(1,-NSOUT,ISBG),XGSS,WGSS,LENGTH(1,IL1),
+     >          NUMERO(1,IL1),STAYIN,GOSOUT,DPROB(1,ISBG))
+              ENDDO ! ITRAK
+            ENDDO ! ISBG
+*$OMP END PARALLEL DO
+            IF(LPIJK)THEN
+*             X-DIRECTION  PROBABILITIES CALCULATIONS ( PX=PY )
+*$OMP  PARALLEL DO
+*$OMP1 PRIVATE(IL1,ITRAK,STAYIN,GOSOUT)
+              DO ISBG=1,NSBG
+                IF(NPSYS(ISBG).EQ.0) CYCLE
+                DO ITRAK=(IBATCH-1)*NBATCH+1,MIN(IBATCH*NBATCH,NTRK)
+                  IL1=ITRAK-(IBATCH-1)*NBATCH
+                  IF(NCOIL1(IL1).EQ.0) CYCLE
+                  CALL PIJS2D(NREG,NSOUT,NBSEG(IL1),WEIGHT(IL1),RCUTOF,
+     >            NGSS,SIGANG(1,-NSOUT,ISBG),XGSS,WGSSX,LENGTH(1,IL1),
+     >            NUMERO(1,IL1),STAYIN,GOSOUT,DPROBX(1,ISBG))
+                ENDDO ! ITRAK
+              ENDDO ! ISBG
+*$OMP END PARALLEL DO
+            ENDIF
+            ENDDO ! IBATCH
             DEALLOCATE(GOSOUT,STAYIN,SIGANG)
          ELSE
             ALLOCATE(STAYIN(MXSEG),GOSOUT(MXSEG))
-            DO ITRAK= 1, NTRK
+            DO IBATCH=1,(NTRK-1)/NBATCH+1
+            DO ITRAK=(IBATCH-1)*NBATCH+1,MIN(IBATCH*NBATCH,NTRK)
+              IL1=ITRAK-(IBATCH-1)*NBATCH
               IF(IFTRAK .NE. 0) THEN
-                READ(IFTRAK)  NSUB,NBSEG,WEIGHT,(IANGL,IL=1,NSUB),
-     >          (NUMERO(IL),IL=1,NBSEG),(LENGTH(IL),IL=1,NBSEG)
+                READ(IFTRAK)  NSUB(IL1),NBSEG(IL1),WEIGHT(IL1),
+     >          (IANG,IL=1,NSUB(IL1)),(NUMERO(IL,IL1),IL=1,NBSEG(IL1)),
+     >          (LENGTH(IL,IL1),IL=1,NBSEG(IL1))
+                NCOIL1(IL1)=1
               ELSE
                CALL NXTTGC(IPTRK ,IPRNTP,NDIM  ,NANGL ,NPOINT,NTRK  ,
      >                     ITRAK ,MAXMSH,NSOUT ,NREG  ,NUCELL,NBUCEL,
      >                     MXGSUR,MXGREG,MAXPIN,MXSEG ,ITYPBC,IUNFLD,
      >                     MATALB,DSV   ,DGMESH,DANGLT,DVNOR ,DWGTRK,
-     >                     DORITR,NBSEG ,NCORT ,WEIGHT,NUMERO,LENGTH)
-                IF(NBSEG .EQ. 0) GO TO 1035
+     >                     DORITR,NBSEG(IL1) ,NCORT ,WEIGHT(IL1),
+     >                     NUMERO(1,IL1),LENGTH(1,IL1))
+                NCOIL1(IL1)=NCORT
               ENDIF
-              CALL PIJS3D(NREG,NSOUT,NBSEG,NSBG,WEIGHT,RCUTOF,SIGT,
-     >        NPSYS,LENGTH,NUMERO,STAYIN,GOSOUT,DPROBX)
- 1035         CONTINUE
             ENDDO
+*$OMP  PARALLEL DO
+*$OMP1 PRIVATE(IL1,ITRAK,STAYIN,GOSOUT)
+            DO ISBG=1,NSBG
+              IF(NPSYS(ISBG).EQ.0) CYCLE
+              DO ITRAK=(IBATCH-1)*NBATCH+1,MIN(IBATCH*NBATCH,NTRK)
+                IL1=ITRAK-(IBATCH-1)*NBATCH
+                IF(NCOIL1(IL1).EQ.0) CYCLE
+                CALL PIJS3D(NREG,NSOUT,NBSEG(IL1),WEIGHT(IL1),RCUTOF,
+     >          SIGT(-NSOUT,ISBG),LENGTH(1,IL1),NUMERO(1,IL1),STAYIN,
+     >          GOSOUT,DPROBX(1,ISBG))
+              ENDDO ! ITRAK
+            ENDDO ! ISBG
+*$OMP END PARALLEL DO
+            ENDDO ! IBATCH
             DEALLOCATE(GOSOUT,STAYIN)
          ENDIF
       ENDIF
@@ -500,7 +592,10 @@
      >                 VOLSUR(-NSOUT,ISBG),.TRUE.,DPROBX(1,ISBG))
          ENDIF
  2050 CONTINUE
-      DEALLOCATE(LENGTH,NUMERO)
+*----
+*  BATCH TRACKING STORAGE DEALLOCATION
+*----
+      DEALLOCATE(LENGTH,NUMERO,WEIGHT,NBSEG,NSUB,NCOIL1)
 *----
 *  RENORMALIZE ALL ISOTROPIC PROBS WITH VARIOUS OPTIONS
 *----
@@ -632,7 +727,7 @@
          ENDIF
   160 CONTINUE
       CALL PIJD2R(NREG,NSOUT,DPROB(1,ISBG),FFACT,.FALSE.,NELPIJ,
-     >            N2PROB,PIJ(1,1,ISBG))
+     >            N2PRO,PIJ(1,1,ISBG))
 *----
 *  CHARGE PIJX AND PIJY MATRICES IN THE DRAGON SYMMETRIZED FORMAT
 *  ( PIJX=PIJY ), AND PIJZ CALCULATION ( PIJZ=3*PIJ-PIJX-PIJY )
@@ -640,7 +735,7 @@
 *----
       IF(LPIJK)THEN
         CALL PIJD2R(NREG,NSOUT,DPROBX(1,ISBG),FFACT,.TRUE.,NELPIJ,
-     >              N2PROB,PIJ(1,2,ISBG))
+     >              N2PRO,PIJ(1,2,ISBG))
         IVV=0
         DO 181 IUN=1,NREG
           IU=IUN

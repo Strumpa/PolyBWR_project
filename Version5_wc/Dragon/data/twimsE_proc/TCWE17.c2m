@@ -303,16 +303,20 @@ SORIN  := GEO: :: CAR2D 5 3
 *----
 *  Rod and GT absent
 *----
-TRACK Lines := NXT: SORINS :: EDIT 5 TISO 40 30.0   ;
+TRACK Lines := NXT: SORINS :: EDIT 3
+  ALLG BATCH 100 MERGMIX
+  TISO 40 30.0 ;
 MicLib := SHI: MicLib TRACK Lines   ;
-*TRACK Lines := DELETE: TRACK Lines ;
-*TRACK Lines := NXT: SORIN :: EDIT 5 TISO 40 30.0   ;
+TRACK Lines := DELETE: TRACK Lines ;
+TRACK Lines := NXT: SORIN :: EDIT 3
+  ALLG BATCH 100
+  TISO 40 30.0 ;
 FigReg.ps := PSP: TRACK :: TYPE REGI ;
 FigMix.ps := PSP: TRACK :: TYPE MIXT ;
 FigHom.ps := PSP: TRACK :: TYPE HMIX ;
 ASMPIJ := ASM: MicLib TRACK Lines :: PIJ ;
 FLUX := FLU: ASMPIJ MicLib TRACK :: TYPE K ;
-assertS FLUX :: 'K-EFFECTIVE' 1 1.047688 ;
+assertS FLUX :: 'K-EFFECTIVE' 1 1.039269 ;
 EDITION := EDI: FLUX MicLib TRACK ::
   EDIT 3 
   COND 0.625
