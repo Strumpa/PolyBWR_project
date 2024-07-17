@@ -17,7 +17,7 @@ import Serpent2_cards as S2
 # Class DMLG_Interface()
 
 class DMLG_Interface:
-    def __init__(self, input_deck, code, mode, reactor_type):
+    def __init__(self, input_deck, code, mode, reactor_type="BWR"):
         """
         loading geometry object to be parsed according to :
         input file (str) : path to file to be parsed
@@ -214,8 +214,7 @@ class DMLG_Interface:
                 print(f"Surface card attributes are : group of surfaces name : = {surface_card.surfaces_group}")
                 print(f"The corresonding surface equation is : {surface_card.surfaceEquation}")
         if print_materials:
-            print(f"There are a total of {len(self.Material_Cards)} Material cards")
-        
+            print(f"There are a total of {len(self.Material_Cards)} Material cards")     
         return
 
     #Dragon5 related functions
@@ -273,6 +272,7 @@ class DMLG_Interface:
     def parseSerpent2_input(self):
         print("Serpent2 geom type not supported yet")
         return
+    
     def parseSepent2_check_volumes(self):
         """
         parsing Serpent2 .mvol file containing material volumes MC evaluation obtained with -checkvolumes option
@@ -292,10 +292,14 @@ class DMLG_Interface:
                         mc_volume=line.split(" ")[2]
                         Material_Volumes[mat_name] = mc_volume
         self.Material_Volumes_data = Material_Volumes
+        return
+    
     def createSerpent2_Material_volumes(self):
         self.Material_Volumes = []
         for material_vol in self.Material_Volumes_data.keys():
             self.Material_Volumes.append(S2.S2_Material_Vol(material_vol,self.Material_Volumes_data[material_vol],nbDim=3))
+        return
+    
     def parseSerpent2_output(self):
         """
         parsing Serpent2 output file
@@ -331,8 +335,8 @@ class DMLG_Interface:
                     material_data_[current_material]=data
         file.close()
         self.Serpent2_output = material_data_
-
         return
+    
     def createSerpent2_output_cards(self):
         """
         calling Serpent2 cards class to create associated serpent2 objects
@@ -340,12 +344,15 @@ class DMLG_Interface:
         self.Serpent2_mat_cards=[]
         for mat in self.Serpent2_output.keys():
             self.Serpent2_mat_cards.append(S2.S2_material_output(mat, self.Serpent2_output[mat]))
+        return
+    
     def createS2_mat_properties(self, name):
         """
         Create material properties object from Serpent2 cards. Useful functions for checking materials compositions and volumes are implemented in the S2_geom class
         """
         self.S2_mat_properties = S2.S2_mat_properties(name, self.Serpent2_mat_cards)
         return
+    
     def createS2_geom(self, name, height=1):
         if height == 0:
             ndim = 2

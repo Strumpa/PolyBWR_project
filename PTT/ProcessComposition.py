@@ -11,7 +11,16 @@ class Compo_Processor:
         more code to isotopes to be added in order to allow for processing of all compos
         """
         self.association_dict = {
+                        "1001" : "H1", "1002" : "H2", "1003" : "H3",
+                        "2003" : "He3", "2004" : "He4",
+                        "3006" : "Li6", "3007" : "Li7",
+                        "4009" : "Be9",
+                        "5010" : "B10", "5011" : "B11",
+                        "6012" : "C12", "6013" : "C13", "6014" : "C14",
+                        "7014" : "N14", "7015" : "N15",
                         "8016" : "O16", "8017" : "O17", 
+                        "14028": "Si28", "14029": "Si29", "14030": "Si30",
+                        "25055": "Mn55",
                         "24050": "Cr50", "24052": "Cr52", "24053": "Cr53", "24054": "Cr54", 
                         "26054": "Fe54", "26056": "Fe56", "26057": "Fe57", "26058": "Fe58",
                         "28058": "Ni58", "28060": "Ni60", "28061": "Ni61", "28062": "Ni62", "28064": "Ni64",
@@ -23,15 +32,25 @@ class Compo_Processor:
         lines = open(filename, "r")
         isos_code_adens = {}
         for line in lines:
+            #print(line)
             if "--" not in line:
-                isos_code_adens[line.split("  ")[0].split(".")[0][1:]] = line.split("  ")[3]
+                line = line.strip()
+                print(line.split("   ")[0])
+                print(line.split("  "))
+                isos_code_adens[line.split("   ")[0].split(".")[0]] = line.split("  ")[3]
+                #print(isos_code_adens)
                 #print(line.split("  ")[0].split(".")[0])
                 #print(line.split("  ")[3])
+        print(isos_code_adens)
         isos_code_adens.pop("Nuclide")
-        isos_code_adens.pop("")
+        if "" in isos_code_adens.keys():
+            isos_code_adens.pop("")
+        if "sum" in isos_code_adens.keys():
+            isos_code_adens.pop("sum")
         #print(len(isos_code_adens))
         #print(len(self.association_dict))
         self.compo = isos_code_adens
+        print(self.compo)
     def check_consistency(self):
         incompatible_isos = []
         for iso_code in self.compo.keys():
@@ -75,7 +94,8 @@ class Compo_Processor:
     
 
 
-Processor = Compo_Processor("compo_data/CLAD_compo.txt")
+#Processor = Compo_Processor("compo_data/CLAD_compo.txt")
+Processor = Compo_Processor("compo_data/CROSS_compo.txt")
 Processor.check_consistency()
 Processor.iso_code_to_nuclide()
 Processor.print_to_Dragon5_format()
