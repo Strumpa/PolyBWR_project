@@ -110,8 +110,6 @@ class geom_ASSBLY:
         Box_o/i, Chan_o/i : outer and inner dimensions for outer box and coolant channel
         """
         self.pitch_A = pitch_A
-        #self.pitch_C = C_list[0].pitch()
-        #self.cell_list = C_list
         self.pin_names=C_list
         
         
@@ -127,31 +125,6 @@ class geom_ASSBLY:
         self.chan_thickness = (self.Chan_o - self.Chan_i)/2.0
 
 
-        """
-        Cell_pitch = 1.295
-        L1 = Channel_box_xL_out+6.7
-        L3 = 6.7-Channel_box_XR_out
-        #Xtra_water = 2.0*6.7-10.0*Cell_pitch
-        Xtra_water = 0.45
-        print(Xtra_water)
-        sum = Water_gap + Box_thickness + Xtra_water + 10*Cell_pitch + Box_thickness + Water_gap
-        print(sum)
-        Xtra_water_side = Xtra_water/2.0
-        X1 = Water_gap+Box_thickness + Xtra_water_side
-        X2 = X1 + 4*Cell_pitch 
-        X3 = X2 + 3*Cell_pitch
-        X4 = X3 + 3*Cell_pitch
-        print(X3 + 3*Cell_pitch+Xtra_water_side)
-        X_points = [0.0, X1, X2, X3, X4, 2*7.62]
-        print(X_points)
-        print(X4+Xtra_water_side+Box_thickness+Water_gap)
-        
-
-        Xmax_box=6.7-3*Cell_pitch-Xtra_water_side
-        Xmin_box = -6.7+Xtra_water_side + 4*Cell_pitch
-
-        print(Xmax_box-Xmin_box)
-        """
     def setPins(self, fuel_radius, gap_radius, clad_radius):
         """
         pins_names = list of pin names
@@ -203,7 +176,7 @@ class geom_PIN:
     """
     Class used to help defining BWR PIN geometry
     """
-    def __init__(self, label, fuel_radius, gap_radius, clad_radius, isGd, height):
+    def __init__(self, label, fuel_radius, gap_radius, clad_radius, isGd, height, pitch=None, sectorize=True):
         """
         Assuming square CARCEL pin geometry
         pitch, fuel_radius, gap_radius, clad_radius : float
@@ -215,8 +188,14 @@ class geom_PIN:
         self.isGd = isGd
         self.name = label
         self.height = height
+        self.isSectorized = sectorize
         print("Processing PIN with label "+ self.name)
-        self.computeSantamarinaradii()
+        if self.isSectorized:
+            self.computeSantamarinaradii()
+        else:
+            self.pin_radii = [self.outer_fuel_radius, self.gap_radius, self.clad_radius]
+        if pitch != None:
+            self.setCellPitch(pitch)
         self.computePinVolumes()
 
     def computeSantamarinaradii(self):
@@ -231,38 +210,59 @@ class geom_PIN:
         volumes for Gd2O3 pins : 20%, 40%, 60%, 80%, 95% and 100%
         """
         if self.isGd==False:
-            print(self.name)
-            self.pin_radii=[(0.5**0.5)*self.outer_fuel_radius, (0.8**0.5)*self.outer_fuel_radius, (0.95**0.5)*self.outer_fuel_radius, self.outer_fuel_radius]
+            self.pin_radii=[(0.5**0.5)*self.outer_fuel_radius, (0.8**0.5)*self.outer_fuel_radius, (0.95**0.5)*self.outer_fuel_radius, self.outer_fuel_radius, self.gap_radius, self.clad_radius]
             
         else :
             self.pin_radii=[(0.2**0.5)*self.outer_fuel_radius, (0.4**0.5)*self.outer_fuel_radius, (0.6**0.5)*self.outer_fuel_radius, 
-                      (0.8**0.5)*self.outer_fuel_radius, (0.95**0.5)*self.outer_fuel_radius, self.outer_fuel_radius]
+                      (0.8**0.5)*self.outer_fuel_radius, (0.95**0.5)*self.outer_fuel_radius, self.outer_fuel_radius, self.gap_radius, self.clad_radius]
         return
     
     def computePinVolumes(self):
         print("computing volumes for pins")
         volumes = []
         self.volumes = {}
-        if self.isGd:
-            key_dict = {"1":"A","2":"B","3":"C","4":"D","5":"E","6":"F"}
+        if self.isSectorized:
+            if self.isGd:
+                key_dict = {"1":"A","2":"B","3":"C","4":"D","5":"E","6":"F", "7":"Gap", "8":"Clad", "9":"Coolant"}
+            else:
+                key_dict = {"1":"A","2":"B","3":"C","4":"D", "5":"Gap", "6":"Clad", "7":"Coolant"}
         else:
-            key_dict = {"1":"A","2":"B","3":"C","4":"D"}
+            key_dict = {"1":"Fuel", "2":"Gap", "3":"Clad", "4":"Coolant"}
+
+        self.mix_to_name_connectivity_dict = key_dict
         for radius in self.pin_radii:
             Area = np.pi*radius**2
             volumes.append(Area*self.height)
+        if self.pitch != None:
+            volumes.append(self.pitch**2*self.height)
         for i in range(len(volumes)):
             #if self.isGd:
             if i==0:
                 self.volumes[self.name+"_"+key_dict[str(i+1)]] = volumes[i]
             else:
                 self.volumes[self.name+"_"+key_dict[str(i+1)]] = volumes[i]-volumes[i-1]
-        #print(self.volumes)
+        print(self.volumes)
         return  
     
-    def import_mixes(self):
+    def setCellPitch(self, pitch):
+        self.pitch = pitch
+        return
+    
+    
+    def setMixes(self, composition_dict):
         """
         idea would be to be able to import from Composition_Processor class to associate mixes with physical regions
+
+        composition_dict : dictionnary with keys = region names, values = dictionary with keys = isotope names, values = atomic densities
         """
+        # check the number of regions / mixes.
+        #print(self.volumes)
+        #print(compition_dict)
+        if len(self.volumes.keys()) != len(composition_dict.keys()):
+            print("Error : number of regions does not match number of mixes")
+            return
+        else:
+            self.mixes = composition_dict
         return
 
 

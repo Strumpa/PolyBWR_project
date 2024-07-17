@@ -1,16 +1,18 @@
-## Python3 Script ProcessComposition tool
+## Python3 Script Composition_handler tool
 # Author : R. Guasch
-# Purpose : dealing with Serpent2 isotope codes and converting to Dragon5 LIB: MIX format
+# Purpose : dealing with Serpent2 isotope codes and converting to Dragon5 LIB: MIX format,
+# This version is an extension of ProcesComposition.py, with additional functionalities to homogenize geometric features.
 
 class Compo_Processor:
-    def __init__(self, filename): 
+    def __init__(self, mix_name, filename): 
         """
         filename : text file to read from to convert Serpent2 composition to Dragon5 format
-        
-        
         more code to isotopes to be added in order to allow for processing of all compos
         """
+        self.mix_name = mix_name
         self.association_dict = {
+                        "1001" : "H1", "1002" : "H2", "1003" : "H3",
+                        "2003" : "He3", "2004" : "He4",
                         "8016" : "O16", "8017" : "O17", 
                         "24050": "Cr50", "24052": "Cr52", "24053": "Cr53", "24054": "Cr54", 
                         "26054": "Fe54", "26056": "Fe56", "26057": "Fe57", "26058": "Fe58",
@@ -23,15 +25,12 @@ class Compo_Processor:
         lines = open(filename, "r")
         isos_code_adens = {}
         for line in lines:
-            if "--" not in line:
-                isos_code_adens[line.split("  ")[0].split(".")[0][1:]] = line.split("  ")[3]
-                #print(line.split("  ")[0].split(".")[0])
-                #print(line.split("  ")[3])
-        isos_code_adens.pop("Nuclide")
-        isos_code_adens.pop("")
-        #print(len(isos_code_adens))
-        #print(len(self.association_dict))
+            line = " ".join(line.split())
+            if "--" not in line and "Nuclide" not in line:
+                isos_code_adens[line.split(" ")[0].split(".")[0]] = float(line.split(" ")[3])
+        isos_code_adens.pop("sum")
         self.compo = isos_code_adens
+    
     def check_consistency(self):
         incompatible_isos = []
         for iso_code in self.compo.keys():
@@ -57,7 +56,6 @@ class Compo_Processor:
 
         condition to add autop options ? To implement ?
         """
-        
         for iso in self.Ndens_isos.keys():
             print(str(iso)+"  = "+str(iso)+"   "+str((self.Ndens_isos[iso])))
 
@@ -72,26 +70,8 @@ class Compo_Processor:
         for iso in U_isotopic_compo.keys():
             Ntot_U += U_isotopic_compo[iso]
         return U_isotopic_compo["U235"]*100/(Ntot_U)
-    
 
-
-Processor = Compo_Processor("compo_data/CLAD_compo.txt")
-Processor.check_consistency()
-Processor.iso_code_to_nuclide()
-Processor.print_to_Dragon5_format()
-
-#compo_fuel1 = {"U234": 5.15910E-06, "U235": 5.67035E-04, "U238": 2.27631E-02}
-#compo_fuel2 = {"U234": 7.039170e-06, "U235": 7.560370e-04, "U238": 2.257430e-02}
-#compo_fuel3 = {"U234": 9.163680e-06, "U235": 9.686590e-04, "U238": 2.236200e-02}
-#compo_fuel4 = {"U234": 9.991530e-06, "U235": 1.051340e-03, "U238": 2.227940e-02}
-#compo_fuel5 = {"U234": 1.058330e-05, "U235": 1.110400e-03, "U238": 2.222040e-02}
-#compo_fuel6 = {"U234": 1.117530e-05, "U235": 1.169460e-03, "U238": 2.216140e-02}
-#compo_fuel7 = {"U234": 9.451580e-06, "U235": 9.945290e-04, "U238": 2.107540e-02}
-#compo_fuel8 = {"U234": 8.668470E-06, "U235": 9.163120E-04, "U238": 2.115350E-02}
-#percentages = [Processor.get_enrichment(compo_fuel1), Processor.get_enrichment(compo_fuel2), Processor.get_enrichment(compo_fuel3),
-#               Processor.get_enrichment(compo_fuel4), Processor.get_enrichment(compo_fuel5), Processor.get_enrichment(compo_fuel6),
-#               Processor.get_enrichment(compo_fuel7), Processor.get_enrichment(compo_fuel8)]
-#print(percentages)
+# Idea of class for library generation : write a class that takes a list of Compo_Processor objects and writes a Dragon5 LIB: structure definition or a Serpent2 material definition 
 
 
 
