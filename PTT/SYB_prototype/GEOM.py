@@ -62,8 +62,8 @@ class GEO:
         Plot the geometry
         """
         fig, ax = plt.subplots()
-        ax.set_xlim(self.xmin-0.5, self.xmax+0.5)
-        ax.set_ylim(self.ymin-0.5, self.ymax+0.5)
+        ax.set_xlim(self.xmin-0.2, self.xmax+0.2)
+        ax.set_ylim(self.ymin-0.2, self.ymax+0.2)
         ax.set_aspect('equal')
         ax.set_title(f"Geometry {self.name}")
         # Plot the bounding surfaces
@@ -89,7 +89,7 @@ class GEO:
 
 
 class CAR2D(GEO):
-    def __init__(self, name, level, lx, ly, lz, meshx, meshy, meshz):
+    def __init__(self, name, level, nx, ny, nz, meshx, meshy, meshz):
         """
         Definition of a 2D cartesian geometry according to the Dragon5 definition
         :param name: name of the geometry
@@ -101,9 +101,9 @@ class CAR2D(GEO):
         """
         super().__init__(name, level)
         self.type = "CAR2D"
-        self.lx = lx
-        self.ly = ly
-        self.lz = lz
+        self.nx = nx
+        self.ny = ny
+        self.nz = nz
         self.meshx = meshx
         self.meshy = meshy
         self.meshz = meshz
@@ -115,11 +115,11 @@ class CAR2D(GEO):
         self.zmin = self.meshz[0]
         self.zmax = self.meshz[-1]
 
-        self.number_of_regions = self.lx * self.ly
+        self.number_of_regions = self.nx * self.ny
 
-        if self.lx != len(self.meshx) - 1:
+        if self.nx != len(self.meshx) - 1:
             print("$$- CAR2D: Error in meshx definition")
-        if self.ly != len(self.meshy) - 1:
+        if self.ny != len(self.meshy) - 1:
             print("$$- CAR2D: Error in meshy definition")
 
         if self.level == 1 :
@@ -138,10 +138,10 @@ class CAR2D(GEO):
         """
         self.region_numbering = []
         self.volumes_of_regions = []
-        for i in range(1,self.lx+1):
-            for j in range(1,self.ly+1):
-                for k in range(1,self.lz+1):
-                    l = i+self.lx*(j-1+self.ly*(k-1))
+        for i in range(1,self.nx+1):
+            for j in range(1,self.ny+1):
+                for k in range(1,self.nz+1):
+                    l = i+self.nx*(j-1+self.ny*(k-1))
                     self.region_numbering.append([i, j, k, l]) # Equation 3.1 from NXT guide
                     self.volumes_of_regions.append([l,(self.meshx[i]-self.meshx[i-1])*(self.meshy[j]-self.meshy[j-1])*(self.meshz[k]-self.meshz[k-1])]) # Equation 3.2 from NXT guide
         self.region_numbering = np.array(self.region_numbering)
@@ -158,13 +158,13 @@ class CAR2D(GEO):
         """
         # at the xmin/max bounds :
         self.bounding_surfaces =[]
-        self.nxs = self.ly*self.lz # number of surfaces in x direction
+        self.nxs = self.ny*self.nz # number of surfaces in x direction
         self.surface_ids_xmin = []
         self.surface_ids_xmax = []
 
-        for j in range(1,self.ly+1):
-            for k in range(1,self.lz+1):
-                l = -(j+self.ly*(k-1))
+        for j in range(1,self.ny+1):
+            for k in range(1,self.nz+1):
+                l = -(j+self.ny*(k-1))
                 self.surface_ids_xmin.append(l)
                 self.surface_ids_xmax.append(l-self.nxs)
                 self.bounding_surfaces.append(["xmin", j, k, l,(self.meshy[j]-self.meshy[j-1])*(self.meshz[k]-self.meshz[k-1])])
@@ -174,13 +174,13 @@ class CAR2D(GEO):
         print(f"$$- CAR2D: Surface identifiers at xmax bound: {self.surface_ids_xmax}")
         
         # at the ymin/max bounds :
-        self.nys = self.lx*self.lz # number of surfaces in y direction
+        self.nys = self.nx*self.nz # number of surfaces in y direction
         self.surface_ids_ymin = []
         self.surface_ids_ymax = []
 
-        for i in range(1,self.lx+1):
-            for k in range(1,self.lz+1):
-                l = -(k+self.lz*(i-1))-2*self.nxs
+        for i in range(1,self.nx+1):
+            for k in range(1,self.nz+1):
+                l = -(k+self.nz*(i-1))-2*self.nxs
                 self.surface_ids_ymin.append(l)
                 self.surface_ids_ymax.append(l-self.nys)
                 self.bounding_surfaces.append([i, "ymin", k, l,(self.meshx[i]-self.meshx[i-1])*(self.meshz[k]-self.meshz[k-1])])
@@ -205,26 +205,26 @@ class CAR2D(GEO):
 
         self.all_surfaces = []
         self.all_surface_ids = []
-        self.number_of_x_oriented_surfaces = (self.lx+1)*(self.ly)
-        self.number_of_y_oriented_surfaces = (self.ly+1)*(self.lx)
-        print(f"$$- CAR2D: {self.lx},{self.ly}: Number of x oriented surfaces: {self.number_of_x_oriented_surfaces}")
-        print(f"$$- CAR2D: {self.lx},{self.ly}: Number of y oriented surfaces: {self.number_of_y_oriented_surfaces}")
+        self.number_of_x_oriented_surfaces = (self.nx+1)*(self.ny)
+        self.number_of_y_oriented_surfaces = (self.ny+1)*(self.nx)
+        print(f"$$- CAR2D: {self.nx},{self.ny}: Number of x oriented surfaces: {self.number_of_x_oriented_surfaces}")
+        print(f"$$- CAR2D: {self.nx},{self.ny}: Number of y oriented surfaces: {self.number_of_y_oriented_surfaces}")
 
         # x bounds
         print(f"$$- CAR2D: nxs = {self.nxs}, nys = {self.nys}")
-        for i in range(self.lx+1):
-            for j in range(1,self.ly+1):
-                for k in range(1,self.lz+1):
-                    l = (j+self.ly*(k-1))+i*self.nxs
+        for i in range(self.nx+1):
+            for j in range(1,self.ny+1):
+                for k in range(1,self.nz+1):
+                    l = (j+self.ny*(k-1))+i*self.nxs
                     self.all_surfaces.append([i, j, k, l])
                     self.all_surface_ids.append(l)
         # y bounds
         # Identified an issue with this as this way of numering inner surfaces produces a non-unique numbering, 
         # x and y oriented surfaces touching the symmetry axis are numbered twice. Find a way to avoid this ?
-        for j in range(self.ly+1):
-            for i in range(1,self.lx+1):
-                for k in range(1,self.lz+1):
-                    l = (k+self.lz*(i-1))+j*self.nys + self.number_of_x_oriented_surfaces
+        for j in range(self.ny+1):
+            for i in range(1,self.nx+1):
+                for k in range(1,self.nz+1):
+                    l = (k+self.nz*(i-1))+j*self.nys + self.number_of_x_oriented_surfaces
                     self.all_surfaces.append([i, j, k, l]) 
                     self.all_surface_ids.append(l)
 
@@ -321,7 +321,7 @@ class CAR2D(GEO):
 
 
     def describeGeo(self):
-        print(f"$$- CAR2D: Created geometry (GEO: CAR2D) object of name {self.name} and level {self.level}, with {self.lx} cells in x direction and {self.ly} cells in y direction")
+        print(f"$$- CAR2D: Created geometry (GEO: CAR2D) object of name {self.name} and level {self.level}, with {self.nx} cells in x direction and {self.ny} cells in y direction")
         print(f"$$- CAR2D: Region numbering from lower left corner to upper right corner: {self.region_numbering}, {self.number_of_regions} regions in total")
         print(f"$$- CAR2D: Region volumes: {self.volumes_of_regions}")
         print(f"$$- CAR2D: Outer surfaces: {self.bounding_surfaces}")

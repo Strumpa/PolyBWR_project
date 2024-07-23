@@ -21,7 +21,7 @@ AT10_C22 = CARCEL("C2", level = 3, lr = 6, radii = np.array([0.0, 0.313602, 0.39
 #AT10_3x3_cartesian = CAR2D("AT10_3x3", level = 1, lx = 3, ly = 3, lz = 1, meshx = np.array([0.0, 1.295, 2.0*1.295, 3.0*1.295]), meshy = np.array([0.0, 1.0*1.295, 2.0*1.295, 3.0*1.295]), meshz = np.array([0.0, 1.0]))
 #AT10_3x3_cartesian.describeGeo()
 
-Cartesian_2x2 = CAR2D("2x2", level=2, lx=2, ly=2, lz=1, meshx=np.array([0.0, 1.295, 2.0*1.295]), meshy=np.array([0.0, 1.0*1.295, 2*1.295]), meshz=np.array([0.0, 1.0]))
+Cartesian_2x2 = CAR2D("2x2", level=2, nx=2, ny=2, nz=1, meshx=np.array([0.0, 1.295, 2.0*1.295]), meshy=np.array([0.0, 1.0*1.295, 2*1.295]), meshz=np.array([0.0, 1.0]))
 #Cartesian_2x2.describeGeo()
 
 # Add cells
@@ -34,10 +34,10 @@ Cartesian_2x2.add_cell(AT10_C12, host_region=4)
 #Cartesian_2x2.describeGeo()
 Cartesian_2x2.buildConnectivityMap()
 
-#Cartesian_1x2 = CAR2D("1x2", level=1, lx=1, ly=2, lz=1, meshx=np.array([0.0, 1.295]), meshy=np.array([0.0, 1.0*1.295, 2*1.295]), meshz=np.array([0.0, 1.0]))
+#Cartesian_1x2 = CAR2D("1x2", level=1, nx=1, ny=2, nz=1, meshx=np.array([0.0, 1.295]), meshy=np.array([0.0, 1.0*1.295, 2*1.295]), meshz=np.array([0.0, 1.0]))
 #Cartesian_1x2.describeGeo()
 
-Cartesian_main_geom = CAR2D("Main", level=1, lx=1, ly=1, lz=1, meshx=np.array([0.0, 2.0*1.295]), meshy=np.array([0.0, 2.0*1.295]), meshz=np.array([0.0, 1.0]))
+Cartesian_main_geom = CAR2D("Main", level=1, nx=1, ny=1, nz=1, meshx=np.array([0.0, 2.0*1.295]), meshy=np.array([0.0, 2.0*1.295]), meshz=np.array([0.0, 1.0]))
 Cartesian_main_geom.add_cell(Cartesian_2x2, host_region=1)
 
 Cartesian_main_geom.buildConnectivityMap()
