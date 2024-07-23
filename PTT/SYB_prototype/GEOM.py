@@ -21,8 +21,8 @@ class GEO:
         self.host_region = host_region
         return
     
-    def setBoundingSurfaces(self, surfaces):
-        self.bounding_surfaces = surfaces
+    def setHostBoundingSurfaces(self, surfaces):
+        self.host_bounding_surfaces = surfaces
         return
     
     def setLevel(self, level):
@@ -47,20 +47,40 @@ class GEO:
             for cell in self.sub_geometries:
                 if cell.host_region == region:
                     print(f"$$- GEO: Checking cell {cell.name} with host region {cell.host_region}")
-                    tmp.append([self.level, region, cell.bounding_surfaces, cell.local_surface_numbering])
+                    tmp.append([self.level, region, cell.host_bounding_surfaces, cell.local_surface_numbering])
                     if cell.sub_geometries:
                         for sub_cell in cell.sub_geometries:
-                            tmp.append([cell.level, cell.host_region, sub_cell.bounding_surfaces, sub_cell.local_surface_numbering])
+                            tmp.append([cell.level, cell.host_region, sub_cell.host_bounding_surfaces, sub_cell.local_surface_numbering])
 
             self.connectivity_map.append(tmp)
 
         print(f"$$- GEO: Connectivity map between regions and cells: {self.connectivity_map}")
         return
     
+    def analyeLevels(self):
+        """
+        Analyze the levels of the geometry and its sub-geometries
+        """
+        print(f"$$- GEO: Analyzing levels of the geometry {self.name}")
+        print(f"$$- GEO: Level of the geometry: {self.level}")
+        self.max_level = []
+        if self.sub_geometries:
+            for cell in self.sub_geometries:
+                print(f"$$- GEO: Level of cell {cell.name}: {cell.level}")
+                if cell.sub_geometries:
+                    for sub_cell in cell.sub_geometries:
+                        print(f"$$- GEO: Level of sub-cell {sub_cell.name}: {sub_cell.level}")
+                        self.max_level.append(max(self.level, cell.level, sub_cell.level))
+
+        self.max_level = max(self.max_level)                        
+        return
+    
     def plotGeo(self):
         """
-        Plot the geometry
+        Recover information about the geometry then plot the geometry
         """
+
+
         fig, ax = plt.subplots()
         ax.set_xlim(self.xmin-0.2, self.xmax+0.2)
         ax.set_ylim(self.ymin-0.2, self.ymax+0.2)
@@ -70,20 +90,108 @@ class GEO:
         print(f"$$- GEO: Plotting bounding surfaces: {self.bounding_surfaces}")
 
         for i in range(len(self.bounding_surfaces)):
-            if i >=2:
-                ax.plot([self.bounding_surfaces[0], self.bounding_surfaces[1]], [self.bounding_surfaces[i], self.bounding_surfaces[i]], 'r-')
+            if self.bounding_surfaces[i][1]==self.ymin or self.bounding_surfaces[i][1]==self.ymax:
+                ax.plot([self.xmin, self.xmax], [self.bounding_surfaces[i][1], self.bounding_surfaces[i][1]], 'r-')
             else:
-                ax.plot([self.bounding_surfaces[i], self.bounding_surfaces[i]], [self.bounding_surfaces[2], self.bounding_surfaces[3]], 'r-')
-        
+                ax.plot([self.bounding_surfaces[i][0], self.bounding_surfaces[i][0]], [self.ymin, self.ymax], 'r-')
+        plt.savefig(f"GEO_{self.name}_lvl1.png")
+
         # Plot the inner surfaces
-        print(f"$$- GEO: Plotting inner surfaces: {self.inner_surfaces}")
-        for i in range(len(self.inner_surfaces)):
-            circle = plt.Circle((self.inner_surfaces[i][2], self.inner_surfaces[i][3]), self.inner_surfaces[i][1], fill=False)
-            ax.add_artist(circle)
-        plt.show()
-        plt.savefig(f"GEO_{self.name}.png")
+        if self.sub_geometries:
+            for i in range(len(self.sub_geometries)):
+                print(f"GEO_plot: i = {i}")
+                #self.sub_geometries[i].plotGeo() 
+                print(f"$$$- GEO: Sub-Geometry {self.sub_geometries[i].name} with level {self.sub_geometries[i].level}")
+                print(f"$$- GEO: Plotting inner bounding surfaces: {self.sub_geometries[i].bounding_surfaces}")
+                print(f"$$- GEO: Plotting inner surfaces: {self.sub_geometries[i].all_surfaces}")
+                for surf_id in range(len(self.sub_geometries[i].all_surfaces)):
+                    print(f"$$$- GEO: Surface {self.sub_geometries[i].all_surfaces[surf_id]}")
+                    is_x_oriented, a, b, c = self.sub_geometries[i].getSurfaceGeometricalData(self.sub_geometries[i].all_surfaces[surf_id][3])
+                    if is_x_oriented:
+                        x, y1, y2 = a, b, c
+                        ax.plot([x, x], [y1, y2], 'b-')
+                    else:
+                        y, x1, x2 = a, b, c
+                        ax.plot([x1, x2], [y, y], 'r-')
+                    plt.savefig(f"GEO_{self.name}_lvl2.png")
+                
+                if self.sub_geometries[i].sub_geometries:
+                    for j in range(len(self.sub_geometries[i].sub_geometries)):
+                        print(f"$$$- GEO: Sub-Geometry {self.sub_geometries[i].sub_geometries[j].name} with level {self.sub_geometries[i].sub_geometries[j].level}")
+                        print(f"$$- GEO: Plotting inner bounding surfaces: {self.sub_geometries[i].sub_geometries[j].host_bounding_surfaces}")
+                        # Need to find proper translation to bring the circle's centers at the right position
+                        x_displacements = []
+                        y_displacements = []
+                        for surf_index in range(len(self.sub_geometries[i].sub_geometries[j].host_bounding_surfaces)):
+                            print("surf_index is ", surf_index)
+                            print(f"surf_index in host surfaces = {self.sub_geometries[i].sub_geometries[j].host_bounding_surfaces[surf_index]}")
+                            print(f"At n-1 level : host region = {self.sub_geometries[i].sub_geometries[j].host_region}, with local surfaces {self.sub_geometries[i].all_surfaces}")
+                            print(f"surf_index in local surfaces = {self.sub_geometries[i].sub_geometries[j].local_surface_numbering[surf_index]}")
+                            # Recover data for the host bounding surfaces :
+                            is_x_oriented, a, b, c = self.sub_geometries[i].getSurfaceGeometricalData(self.sub_geometries[i].sub_geometries[j].host_bounding_surfaces[surf_index])
+                            if is_x_oriented:
+                                x, y1, y2 = a, b, c
+                                x_displacements.append(x)
+                            else:
+                                y, x1, x2 = a, b, c
+                                y_displacements.append(y)
+                        print(f"$$- GEO: for geometry {self.sub_geometries[i].sub_geometries[j].name}, x_displacements = {x_displacements}, y_displacement = {y_displacements}")
+                        print(f"$$- GEO: Plotting radial surfaces: {self.sub_geometries[i].sub_geometries[j].radial_surfaces}")
+                        for k in range(len(self.sub_geometries[i].sub_geometries[j].radial_surfaces)):
+                            if self.sub_geometries[i].sub_geometries[j].name == "C1":
+                                c = "darkorange"
+                            elif self.sub_geometries[i].sub_geometries[j].name == "C2":
+                                c = "darkgreen"
+                            elif self.sub_geometries[i].sub_geometries[j].name == "C3":
+                                c = "indigo"
+                            elif self.sub_geometries[i].sub_geometries[j].name == "C4":
+                                c = "red"
+                            elif self.sub_geometries[i].sub_geometries[j].name == "C6":
+                                c = "violet"
+                            elif self.sub_geometries[i].sub_geometries[j].name == "C7":
+                                c = "gold"
+                            
+                            circle = plt.Circle((self.sub_geometries[i].sub_geometries[j].radial_surfaces[k][2]+min(x_displacements), self.sub_geometries[i].sub_geometries[j].radial_surfaces[k][3]+min(y_displacements)), self.sub_geometries[i].sub_geometries[j].radial_surfaces[k][1], fill=False, color=c)
+                            ax.add_artist(circle)
+                
+            plt.savefig(f"GEO_{self.name}_lvl3.png")
+            plt.show()
+
         return
     
+    def getPosFromRegion(self, region):
+        """
+        Get the position of the region in the geometry
+        :param region: region number
+        :return: position of the region in the geometry
+        """
+        for i in range(len(self.region_numbering)):
+            if self.region_numbering[i][3] == region:
+                return self.region_numbering[i][0], self.region_numbering[i][1], self.region_numbering[i][2]
+        return
+    
+    def getBoundsFromPos(self, i, j, k):
+        """
+        Get the bounds of the region from its position
+        :param i: x position
+        :param j: y position
+        :param k: z position
+        :return: bounds of the region
+        """
+        return self.meshx[i-1], self.meshx[i], self.meshy[j-1], self.meshy[j], self.meshz[k-1], self.meshz[k]
+    
+    def translateToCoordinateSystem(self, x, y, region):
+        """
+        Translate the coordinates x and y to the coordinate system of the region
+        :param x: x coordinate
+        :param y: y coordinate
+        :param region: region number
+        :return: translated coordinates
+        """
+        i, j, k = self.getPosFromRegion(region)
+        return x - self.meshx[i-1], y - self.meshy[j-1]
+
+
 
 
 
@@ -114,6 +222,8 @@ class CAR2D(GEO):
         self.ymax = self.meshy[-1]
         self.zmin = self.meshz[0]
         self.zmax = self.meshz[-1]
+
+        self.origin = [self.xmin, self.ymin] # Origin of the geometry, lower left corner, assumung z invariance
 
         self.number_of_regions = self.nx * self.ny
 
@@ -167,8 +277,8 @@ class CAR2D(GEO):
                 l = -(j+self.ny*(k-1))
                 self.surface_ids_xmin.append(l)
                 self.surface_ids_xmax.append(l-self.nxs)
-                self.bounding_surfaces.append(["xmin", j, k, l,(self.meshy[j]-self.meshy[j-1])*(self.meshz[k]-self.meshz[k-1])])
-                self.bounding_surfaces.append(["xmax", j, k, l-self.nxs,(self.meshy[j]-self.meshy[j-1])*(self.meshz[k]-self.meshz[k-1])])
+                self.bounding_surfaces.append([self.xmin, j, k, l,(self.meshy[j]-self.meshy[j-1])*(self.meshz[k]-self.meshz[k-1])])
+                self.bounding_surfaces.append([self.xmax, j, k, l-self.nxs,(self.meshy[j]-self.meshy[j-1])*(self.meshz[k]-self.meshz[k-1])])
         
         print(f"$$- CAR2D: Surface identifiers at xmin bound: {self.surface_ids_xmin}")
         print(f"$$- CAR2D: Surface identifiers at xmax bound: {self.surface_ids_xmax}")
@@ -183,8 +293,8 @@ class CAR2D(GEO):
                 l = -(k+self.nz*(i-1))-2*self.nxs
                 self.surface_ids_ymin.append(l)
                 self.surface_ids_ymax.append(l-self.nys)
-                self.bounding_surfaces.append([i, "ymin", k, l,(self.meshx[i]-self.meshx[i-1])*(self.meshz[k]-self.meshz[k-1])])
-                self.bounding_surfaces.append([i, "ymax", k, l-self.nys,(self.meshx[i]-self.meshx[i-1])*(self.meshz[k]-self.meshz[k-1])])
+                self.bounding_surfaces.append([i, self.ymin, k, l,(self.meshx[i]-self.meshx[i-1])*(self.meshz[k]-self.meshz[k-1])])
+                self.bounding_surfaces.append([i, self.ymax, k, l-self.nys,(self.meshx[i]-self.meshx[i-1])*(self.meshz[k]-self.meshz[k-1])])
 
         print(f"$$- CAR2D: Surface identifiers at ymin bound: {self.surface_ids_ymin}")
         print(f"$$- CAR2D: Surface identifiers at ymax bound: {self.surface_ids_ymax}")
@@ -241,6 +351,7 @@ class CAR2D(GEO):
         :param cell: cell object to be added
         :param host_region: region where the cell is added
         """
+        
         if cell.level != self.level+1:
             print("$$- CAR2D: Error : cell level, must be 1 above the host geometry level")
             return
@@ -254,11 +365,10 @@ class CAR2D(GEO):
                 if correspondance_reg_to_surf[0] == host_region:
                     surfaces = correspondance_reg_to_surf[1]
                     print(f"$$- CAR2D: Surfaces bounding region {host_region}: {surfaces}")
-                    cell.setBoundingSurfaces(surfaces)
+                    cell.setHostBoundingSurfaces(surfaces)
                     break
             self.sub_geometries.append(cell)
             print(f"$$- CAR2D: Cell {cell.name} added to region {host_region} with bounds {bounds}")
-
 
         else:
             print(f"$$- CAR2D: Error : host region {host_region} not found in the geometry")
@@ -283,7 +393,18 @@ class CAR2D(GEO):
         :return: bounds of the region
         """
         return self.meshx[i-1], self.meshx[i], self.meshy[j-1], self.meshy[j], self.meshz[k-1], self.meshz[k]
-    
+
+    def getSurfacefromNumbering(self, surface_number):
+        """
+        Get the surface from its number
+        :param surface_number: number of the surface
+        :return: surface
+        """
+        for i in range(len(self.all_surfaces)):
+            if self.all_surfaces[i][3] == surface_number:
+                return self.all_surfaces[i]
+        return
+
     def associateSurfacesToRegions(self):
         """
         Each region in the nth level geometry is associated to a set of bounding surfaces. These can be the outer surfaces of the nth level geom
@@ -318,6 +439,36 @@ class CAR2D(GEO):
         print(f"$$- CAR2D: Region to surfaces: {self.region_to_surfaces}")
 
         return
+    
+    def getSurfaceGeometricalData(self, surface_number):
+        """
+        Get the geometrical data of the surface with the given number
+        :param surface_number: number of the surface
+        :return: geometrical data of the surface, combing the all_surfaces array and the mesh arrays
+        """
+        for i in range(len(self.all_surfaces)):
+            #print(f"Total number of surfaces: {len(self.all_surfaces)}")
+            #print("Total number of x oriented surfaces: ", self.number_of_x_oriented_surfaces)
+            #print("Total number of y oriented surfaces: ", self.number_of_y_oriented_surfaces)
+            if self.all_surfaces[i][3] == surface_number:
+                surface = self.all_surfaces[i]
+                print(f"$$- CAR2D: Surface {surface_number} found for surface {surface}")
+                if surface[3] <= self.number_of_x_oriented_surfaces:
+                    is_x_oriented = True
+                    x = self.meshx[surface[0]]
+                    y1 = self.meshy[surface[1]]
+                    y2 = self.meshy[surface[1]-1]
+                    print(f"$$- CAR2D: x-oriented surface {surface_number} with geometrical data: x = {x} from y1 = {y1} to y2 = {y2}")
+                    return is_x_oriented, x, y1, y2
+                else:
+                    is_x_oriented = False
+                    x1 = self.meshx[surface[0]-1]
+                    x2 = self.meshx[surface[0]]
+                    y = self.meshy[surface[1]]
+                    print(f"$$- CAR2D: y-oriented surface {surface_number} with geometrical data: y = {y} from x1 = {x1} to x2 = {x2}")
+                    return is_x_oriented, y, x1, x2
+        return
+
 
 
     def describeGeo(self):
@@ -332,7 +483,8 @@ class CAR2D(GEO):
                 print(f"$$- CAR2D: Surface i={self.bounding_surfaces[i][0]}, j={self.bounding_surfaces[i][1]}, k={self.bounding_surfaces[i][2]}, with label {self.bounding_surfaces[i][3]}, with area {self.bounding_surfaces[i][4]}")  
         print(f"$$- CAR2D: mesh in x direction: {self.meshx}")
         print(f"$$- CAR2D: mesh in y direction: {self.meshy}")
-        print(f"$$- CAR2D: Boundary conditions: {self.BoundaryConditions}")
+        if self.level == 1:
+            print(f"$$- CAR2D: Boundary conditions: {self.BoundaryConditions}")
 
         print("$$- CAR2D: Inner labelling of surfaces :")
         for i in range(len(self.all_surfaces)):
@@ -352,18 +504,18 @@ class CAR2D(GEO):
 
 
 class CARCEL(GEO):
-    def __init__(self, name, level, lr, radii, meshx, meshy):
+    def __init__(self, name, level, nr, radii, meshx, meshy):
         """
         Definition of a 2D cartesian geometry according to the Dragon5 definition
         :param name: name of the geometry
-        :param lr: number of cells in r direction
+        :param nr: number of cells in r direction
         :param radii: radii of the cells
         :param meshx: mesh in x direction : array of nx+1 values, bounds to the cartesian cell
         :param meshy: mesh in y direction : array of ny+1 values, bounds to the cartesian cell
         """
         super().__init__(name, level)
         self.type = "CARCEL"
-        self.lr = lr
+        self.nr = nr
         self.radii = radii
         self.meshx = meshx
         self.meshy = meshy
@@ -376,6 +528,8 @@ class CARCEL(GEO):
         self.ymin = self.meshy[0]
         self.ymax = self.meshy[-1]
 
+        self.origin = [self.xmin, self.ymin]
+
         # Trying to catch exceptions when creating the CARCEL geometry object
 
         if len(self.meshx) != 2 or len(self.meshy) != 2:
@@ -387,14 +541,14 @@ class CARCEL(GEO):
         if 2*self.radii[-1] > self.pitch_x or 2*self.radii[-1] > self.pitch_y:
             print("$$-CARCEL : Error in radii definition, outermost radius too large for the bounding cartesian box")
 
-        if self.lr != len(self.radii)-1:
+        if self.nr != len(self.radii)-1:
             print("$$-CARCEL : Error in radii definition")
 
 
         self.number_regions()
         self.number_outer_surfaces()
 
-        self.createInnerSurfaces()
+        self.createRadialSurfaces()
 
     def setHostRegion(self, host_region):
         if self.level == 1:
@@ -410,7 +564,7 @@ class CARCEL(GEO):
         In a CARCEL geometry, the regions are numbered from the center to the outermost region, from 1 to lr+1, SPLITX and SPLITY not compatible (aiming to build a simple self-shielding geometry)
         """
         self.regions = []
-        for i in range(self.lr+1):
+        for i in range(self.nr+1):
             self.regions.append(i+1)
         self.regions = np.array(self.regions)
         return
@@ -427,7 +581,7 @@ class CARCEL(GEO):
         
         return
 
-    def createInnerSurfaces(self):
+    def createRadialSurfaces(self):
         """
         The CARCEL object allows for a radial meshing, with the inner surfaces being defined as the interfaces between the regions
         These are the n-1 first regions in the numbering given by self.number_regions()
@@ -441,16 +595,16 @@ class CARCEL(GEO):
         This definition assumes that the geometry is not defined using the OFFCENTER or CLUSTER Dragon5 keywords.
         Will need to adapt this for defining the B4C cylinders of the AT10 control cross. 
         """
-        self.inner_surfaces = []
-        for i in range(self.lr):
-            self.inner_surfaces.append([i+1, self.radii[i+1], (self.xmax-self.xmin)/2, (self.ymax-self.ymin)/2])
-        self.inner_surfaces = np.array(self.inner_surfaces)
+        self.radial_surfaces = []
+        for i in range(self.nr):
+            self.radial_surfaces.append([i+1, self.radii[i+1], (self.xmax-self.xmin)/2, (self.ymax-self.ymin)/2])
+        self.radial_surfaces = np.array(self.radial_surfaces)
         return
 
     
 
     def describeGeo(self):
-        print(f"$$-CARCEL : Created geometry (GEO: CARCEL) object of name {self.name} and level {self.level}, with {self.lr} mesh points in r direction and radii {self.radii}")
+        print(f"$$-CARCEL : Created geometry (GEO: CARCEL) object of name {self.name} and level {self.level}, with {self.nr} mesh points in r direction and radii {self.radii}")
         print(f"$$-CARCEL : Regions numbering from center to outermost region: {self.regions}, {len(self.regions)} regions in total")
         print(f"$$-CARCEL : Outer surfaces (x/y): {self.local_bounding_surfaces}")
         print(f"$$-CARCEL : Bounding surface labelling : {self.local_surface_numbering}")
@@ -459,8 +613,8 @@ class CARCEL(GEO):
                 print(f"$$-CARCEL : Surface x={self.local_bounding_surfaces[i]}, with number {self.local_surface_numbering[i]}")
             else:
                 print(f"$$-CARCEL : Surface y={self.local_bounding_surfaces[i]}, with number {self.local_surface_numbering[i]}")
-        if self.createInnerSurfaces:
-            print(f"$$-CARCEL : Inner surfaces: {self.inner_surfaces}")
+        if self.radial_surfaces:
+            print(f"$$-CARCEL : Inner surfaces: {self.radial_surfaces}")
 
     def plotGeo(self):
         """
@@ -481,9 +635,9 @@ class CARCEL(GEO):
                 ax.plot([self.bounding_surfaces[i], self.bounding_surfaces[i]], [self.bounding_surfaces[2], self.bounding_surfaces[3]], 'r-')
         
         # Plot the inner surfaces
-        print(f"$$- GEO: Plotting inner surfaces: {self.inner_surfaces}")
-        for i in range(len(self.inner_surfaces)):
-            circle = plt.Circle((self.inner_surfaces[i][2], self.inner_surfaces[i][3]), self.inner_surfaces[i][1], fill=False)
+        print(f"$$- GEO: Plotting radial surfaces: {self.radial_surfaces}")
+        for i in range(len(self.radial_surfaces)):
+            circle = plt.Circle((self.radial_surfaces[i][2], self.radial_surfaces[i][3]), self.radial_surfaces[i][1], fill=False)
             ax.add_artist(circle)
         plt.savefig(f"GEO_{self.name}.png")
         plt.show()
