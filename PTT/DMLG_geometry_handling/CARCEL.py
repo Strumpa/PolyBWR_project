@@ -34,6 +34,7 @@ class CARCEL(GEO):
         self.ymax = self.meshy[-1]
 
         self.origin = [self.xmin, self.ymin]
+        self.center = [(self.xmax-self.xmin)/2, (self.ymax-self.ymin)/2]
 
         # Trying to catch exceptions when creating the CARCEL geometry object
 
@@ -54,6 +55,7 @@ class CARCEL(GEO):
         self.number_outer_surfaces()
 
         self.createRadialSurfaces()
+        self.bounding_surfaces = self.local_bounding_surfaces
 
     def setHostRegion(self, host_region):
         if self.level == 1:
@@ -72,6 +74,7 @@ class CARCEL(GEO):
         for i in range(self.nr+1):
             self.regions.append(i+1)
         self.regions = np.array(self.regions)
+        self.nb_regions = len(self.regions)
         return
     
     def number_outer_surfaces(self):

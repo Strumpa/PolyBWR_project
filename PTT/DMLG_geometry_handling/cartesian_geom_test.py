@@ -8,7 +8,7 @@ from CARCEL import CARCEL
 from CAR2D import CAR2D
 import numpy as np
 
-# Create a 2D cartesian cell geometry
+# Create a 2D cartesian cell geometries
                                                            # 0.0, Rcomb1,   Rcomb2,   Rcomb3,  Rcomb4, Rgap,   Rclad     
 AT10_C1 = CARCEL("C1", level = 3, nr = 6, radii = np.array([0.0, 0.313602, 0.396678, 0.43227, 0.4435, 0.4520, 0.5140]), meshx = np.array([0.0, 1.295]), meshy = np.array([0.0, 1.295]))
 AT10_C21 = CARCEL("C2", level = 3, nr = 6, radii = np.array([0.0, 0.313602, 0.396678, 0.43227, 0.4435, 0.4520, 0.5140]), meshx = np.array([0.0, 1.295]), meshy = np.array([0.0, 1.295]))

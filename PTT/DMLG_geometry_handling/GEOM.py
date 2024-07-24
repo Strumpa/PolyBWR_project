@@ -57,13 +57,13 @@ class GEO:
         print(f"$$- GEO: Connectivity map between regions and cells: {self.connectivity_map}")
         return
     
-    def analyeLevels(self):
+    def analyzeLevels(self):
         """
         Analyze the levels of the geometry and its sub-geometries
         """
         print(f"$$- GEO: Analyzing levels of the geometry {self.name}")
         print(f"$$- GEO: Level of the geometry: {self.level}")
-        self.max_level = []
+        self.max_level = [1]
         if self.sub_geometries:
             for cell in self.sub_geometries:
                 print(f"$$- GEO: Level of cell {cell.name}: {cell.level}")
