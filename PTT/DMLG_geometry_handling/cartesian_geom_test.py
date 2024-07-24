@@ -3,7 +3,9 @@
 # Date : 18 July 2024
 # Dependencies : GEOM.py
 
-from GEOM import *
+from GEOM import GEO
+from CARCEL import CARCEL
+from CAR2D import CAR2D
 import numpy as np
 
 # Create a 2D cartesian cell geometry

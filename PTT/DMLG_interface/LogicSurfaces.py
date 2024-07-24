@@ -1,6 +1,6 @@
 # Abstract relation class for surfaces.
 # Author : R. Guasch
-# Aim is to be classify surfaces according to their logical relations.
+# Aim is to be able to classify surfaces according to their logical relations.
 
 
 class LogicSurfaces:
