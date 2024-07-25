@@ -26,8 +26,8 @@
 ****************************************************************
 PARAMETER  MACRO2 OPTIM MACRO1 MACROGEOM TRACK ::
   ::: LINKED_LIST MACRO2 OPTIM MACRO1 MACROGEOM TRACK ; ;
-MODULE ASM: FLU: GREP: OUT: FPSPH: MAC: ERROR: DELETE: END: ;
-LINKED_LIST SYSTEM CALC EDIT ;
+MODULE ASM: FLU: GREP: OUT: FPSPH: MAC: ERROR: DELETE: DREF: END: UTL: ;
+LINKED_LIST SYSTEM CALC EDIT GPTA ;
 LOGICAL Conv ;
 REAL Keff fmin fmax epsout ;
 DOUBLE rmsval ;
@@ -41,6 +41,8 @@ INTEGER IterE IterEmax ;
 !****************************************
 
 MACRO2 := MACRO1 ;
+  
+UTL: MACRO2 :: DIR ;
 
 EVALUATE IterE := 0 ;
 REPEAT
@@ -55,7 +57,7 @@ REPEAT
   ECHO "#------------------------------" ;
 
   SYSTEM := ASM: MACRO2 TRACK :: EDIT 0 ARM ;
-  CALC := FLU: MACRO2 TRACK SYSTEM :: EDIT 1 TYPE K B0 SIGS ;
+  CALC := FLU: MACRO2 TRACK SYSTEM :: EDIT 1 TYPE K LKRD SIGS IDEM ;
       
   GREP: CALC :: GETVAL 'K-EFFECTIVE ' 1 >>Keff<< ;
 
@@ -76,7 +78,11 @@ REPEAT
        OUT-CONV-TST >>Conv<< >>rmsval<< ;
   ENDIF ;
   ECHO "outer iteration=" IterE "rmsval=" rmsval D_TO_R "Keff=" Keff "Conv=" Conv ;
-  EDIT SYSTEM CALC := DELETE: EDIT SYSTEM CALC ;
+  GPTA OPTIM := DREF: OPTIM CALC TRACK EDIT MACRO1 ::
+      EDIT 1 NODERIV RMS >>rmsval<< ;
+  ERROR: MACRO1 EDIT :: HREA 'NTOT0' ;
+  ECHO "outer iteration=" IterE "rmsval_gpt=" rmsval D_TO_R ;
+  GPTA EDIT SYSTEM CALC := DELETE: GPTA EDIT SYSTEM CALC ;
   MACRO2 := MACRO2 MACRO1 ;
   MACRO2 := MAC: MACRO2 OPTIM ;
 

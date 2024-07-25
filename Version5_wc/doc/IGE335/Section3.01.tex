@@ -22,8 +22,9 @@ The general format of the data for the \moc{MAC:} module is the following:
 $\{$ \dusa{MACLIB} \moc{:=} \moc{MAC:} $[$ \dusa{MACLIB} $]$ \moc{::} \dstr{descmacinp} \\
 \hspace*{0.2cm} $|$ \dusa{MICLIB} \moc{:=} \moc{MAC:} \dusa{MICLIB} \moc{::} \dstr{descmacinp} \\
 \hspace*{0.2cm} $|$ \dusa{MACLIB} \moc{:=} \moc{MAC:} $[$ \dusa{MACLIB} $]~[$ \dusa{OLDLIB} $]$ \moc{::} \dstr{descmacupd} \\
-\hspace*{0.2cm} $|$ \dusa{MACLIB} \moc{:=} \moc{MAC:} \dusa{MACLIB} \dusa{OPTIM} \moc{;} \\
-\hspace*{0.2cm} $\}$
+\hspace*{0.2cm} $|$ \dusa{MACLIB} \moc{:=} \moc{MAC:} \dusa{MACLIB} \dusa{OPTIM} \\
+\hspace*{0.2cm} $\}$ \\
+\moc{;} 
 \end{DataStructure}
 
 \noindent
@@ -82,8 +83,7 @@ $[$ \moc{ADD} $]$ \\
 $[[$ $\{$	\moc{READ} $[$ (\dusa{imat}(i), i=1,\dusa{nmixt}) $]$ \dusa{GOXSRN} $[$ \moc{DELE} $]$
 $|$	 \moc{READ}  \moc{INPUT} $[[$ \dstr{descxs} $]]$ $\}$ $]]$ \\
 $[[$ \moc{STEP} \dusa{istep} \moc{READ} \moc{INPUT} $[[$ \dstr{descxs} $]]~]]$ \\
-$[$ \moc{NORM} $]$ \\
-\moc{;}
+$[$ \moc{NORM} $]$
 \end{DataStructure}
 
 \noindent with
@@ -407,8 +407,7 @@ the form:
 $[$ \moc{EDIT} \dusa{iprint} $]$ \\
 $[$ \moc{NMIX} \dusa{nmixt} $]$ \\
 $[$ \moc{CTRA} \moc{OFF} $]$ \\
-$[[$ \moc{MIX} \dusa{numnew} $[$ \dusa{numold} $\{$ \moc{UPDL} $|$ \moc{OLDL} $\}$ $]$ $]]$ \\
-\moc{;}
+$[[$ \moc{MIX} \dusa{numnew} $[$ \dusa{numold} $\{$ \moc{UPDL} $|$ \moc{OLDL} $\}$ $]$ $]]$
 \end{DataStructure}
 
 \noindent with

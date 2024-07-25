@@ -52,7 +52,7 @@
      >                 MAXA=10000,MULT=2)
       TYPE(C_PTR)      IPDRL
       CHARACTER        HPRT*6,NAMLCM*12,NAMMY*12
-      LOGICAL          EMPTY,LCM
+      LOGICAL          EMPTY,LCM,LEXIST
       INTEGER          ILONG,MASTER(LMASTB),GENINX(LGENTB),NPZ(LPZ),
      >                 IA(MAXA)
       REAL             RA(MAXA)
@@ -83,6 +83,12 @@
         IF(NAMFIL.EQ.NAMLCM) THEN
            IPDRL=IPLIB
         ELSE
+           INQUIRE(FILE=TRIM(NAMFIL),EXIST=LEXIST)
+           IF(.NOT.LEXIST) THEN
+             WRITE(HSMG,'(17HLIBNRG: XSM FILE ,A,14H DOESNT EXIST.)')
+     >       TRIM(NAMFIL)
+             CALL XABORT(HSMG)
+           ENDIF
            CALL LCMOP(IPDRL,NAMFIL,2,2,0)
         ENDIF
         CALL LCMLEN(IPDRL,'ENERGY',LENGT,ITYLCM)

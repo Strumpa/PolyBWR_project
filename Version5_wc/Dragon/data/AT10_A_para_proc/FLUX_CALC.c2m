@@ -1,0 +1,41 @@
+* CLE2000 script to compute flux using MOC or CP
+* Author : R. Guasch
+* Date : 18 July 2024
+* Purpose : compare and optimize Dragon5 parallelization solutions.
+
+
+MODULE ASM: FLU: GREP: END: ;
+LINKED_LIST SYS FLUX ;
+
+PARAMETER LIBRARY2 TRACK TF_EXC ::
+::: LINKED_LIST LIBRARY2 ;
+::: LINKED_LIST TRACK ;
+::: SEQ_BINARY TF_EXC ; ; 
+
+STRING flx_sol ;
+:: >>flx_sol<< ;
+
+
+REAL Kinf ;
+
+
+IF flx_sol "MOC" = THEN
+      
+      SYS := ASM: LIBRARY2 TRACK TF_EXC :: ARM EDIT 0 ; 
+      FLUX := FLU: LIBRARY2 SYS TRACK TF_EXC :: 
+                  EDIT 1 TYPE K  
+            ;
+      GREP: FLUX :: GETVAL 'K-EFFECTIVE  ' 1 1 1 >>Kinf<< ;
+      ECHO "SS tracking = SALT and FLX tracking = SALT TSPC, MOC on 3x3_UOX_Gd: Kinf=" Kinf ;
+
+ELSEIF flx_sol "CP" = THEN
+
+      SYS := ASM: LIBRARY2 TRACK TF_EXC :: PIJ EDIT 0 ; 
+      FLUX := FLU: LIBRARY2 SYS TRACK TF_EXC :: 
+                  EDIT 1 TYPE K  
+            ;
+      GREP: FLUX :: GETVAL 'K-EFFECTIVE  ' 1 1 1 >>Kinf<< ;
+      ECHO "SS tracking = SALT and FLX tracking = SALT TSPC, CP on 3x3_UOX_Gd: Kinf=" Kinf ;
+
+ENDIF ;
+END: ;

@@ -26,28 +26,18 @@ def parse_output(path_to_file):
     with open(path_to_file, 'r') as file:
             parsing_new_test = False
             for line in file:
-                #print(line)
                 line = line.strip()  # Remove leading/trailing whitespace
                 if "PROCEDURE FOR OPTIONS" in line:
-                    #print("in Parsing procedure")
                     parsing_new_test = True
-                    #print(line)
                     procedure = line.split(" ")[1].split(".")[0]
-                    #print(f"procedure identified : {procedure}")
                     benchmark_cell = line.split(" ")[5]
-                    #print(benchmark_cell)
                     self_shielding_method = line.split(" ")[7]
-                    #print(self_shielding_method)
                     if procedure not in ["SYBSAL", "SYBNXT", "SYBSYB"]:
                         self_shielding_solution_door = line.split(" ")[8]
                     else:
                         self_shielding_solution_door = "IC"
-                    #print(self_shielding_solution_door)
                     test = ssh_test(procedure, benchmark_cell, self_shielding_method, self_shielding_solution_door)
-                #print(parsing_new_test)
                 if parsing_new_test and "TIME SPENT=" in line:
-                    #print("in Parsing time spent")
-                    #print(line)
                     line = line.replace("        ", " ")
                     line = line.replace("       ", " ")
                     line = line.replace("      ", " ")
@@ -355,5 +345,3 @@ for test in ssh_tests:
     print(f"Test with {test.Kinf} to test {test.proc}, {test.cell}, {test.ssh_opt}, {test.ssh_sol}")
 
 analyse_tests(ssh_tests, 1.24378E+00, 4.29394E-01)
-
-

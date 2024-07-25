@@ -8,7 +8,7 @@ HDF5_FILE CASEA :: FILE './Ass_3GLE_210-mpo.hdf' ;
 HDF5_FILE CASEB :: FILE './Ass_3GLE_210_8Gd-mpo.hdf' ;
 HDF5_FILE CASEC :: FILE './Ass_3GLE_320_16Gd-mpo.hdf' ;
 HDF5_FILE CASED :: FILE './Ass_3GLE_420_16Gd-mpo.hdf' ;
-HDF5_FILE REFL  :: FILE './MpoRefl.hdf' ;
+HDF5_FILE REFL  :: FILE './reflector_beavrs_DF-ANM_mpo.hdf' ;
 PROCEDURE assertS ;
 *----
 *  Local parameters
@@ -91,7 +91,7 @@ MACRO :=  MCR:  CASEA CASEB CASEC CASED REFL :: EDIT 3 MACRO NMIX 5
    MPO CASED output_0 MIX  4 SET 'BURN' 0.0 SET 'C_B10_WATER' <<N_B10>>
                       ENDMIX
    MPO REFL  output_0 MIX  5 FROM 2 SET 'C-BORE' <<densB1>> SET 'Method'
-                      'DF-NEM' SET 'Palier' 'EPR' ENDMIX
+                      'DF-ANM' SET 'Palier' 'BEAVRS' ENDMIX
 ;
 
 UTL: MACRO :: DIR IMPR STATE-VECTOR * STEP UP ADF DIR ;
@@ -103,7 +103,7 @@ UTL: MACRO :: DIR IMPR STATE-VECTOR * STEP UP ADF DIR ;
 FLUX := NSSF: TRACK MACRO ::
   EDIT 2 NUPD 100 1.0E-7 EXTE 500 1.0E-5 LEAK quadratic ;
 GREP: FLUX  :: GETVAL 'K-EFFECTIVE ' 1  >>keff1<< ;
-assertS FLUX :: 'K-EFFECTIVE' 1 1.074405 ;
+assertS FLUX :: 'K-EFFECTIVE' 1 1.072506 ;
 
 ECHO "test SmallCore_anm_mpo_mpo.x2m completed" ;
 END: ;

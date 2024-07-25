@@ -48,16 +48,10 @@
 *----
 *  ALLOCATABLE ARRAYS
 *----
-      REAL, ALLOCATABLE, DIMENSION(:) :: VREAL,SURF
-      REAL, ALLOCATABLE, DIMENSION(:,:) :: SURFLX,ALBP
-      REAL, ALLOCATABLE, DIMENSION(:,:,:) :: ALBP2
+      REAL, ALLOCATABLE, DIMENSION(:) :: SURF
+      REAL, ALLOCATABLE, DIMENSION(:,:) :: VREAL,ALBP
+      REAL, ALLOCATABLE, DIMENSION(:,:,:) :: DISFAC,ALBP2
       CHARACTER(LEN=8), ALLOCATABLE, DIMENSION(:) :: HADF
-*----
-*  CREATE GROUP flux.
-*----
-      WRITE(RECNAM,'(8H/output/,A,9H/statept_,I0,6H/flux/)')
-     1 TRIM(HEDIT),ICAL-1
-      CALL hdf5_create_group(IPMPO,TRIM(RECNAM))
 *----
 *  RECOVER DISCONTINUITY FACTOR INFORMATION FROM MACROLIB
 *----
@@ -66,14 +60,15 @@
       IF(ILONG.NE.0) THEN
         CALL LCMSIX(IPEDIT,'ADF',1)
         CALL LCMGET(IPEDIT,'NTYPE',NSURFD)
+        NGG=0
         IF((IDF.EQ.2).OR.(IDF.EQ.3)) THEN
-          ALLOCATE(SURFLX(NSURFD,NMIL*NG),SURF(NMIL*NG))
+          NGG=NG
         ELSE IF(IDF.EQ.4) THEN
-          ALLOCATE(SURFLX(NSURFD,NMIL*NG*NG),SURF(NMIL*NG*NG))
+          NGG=NG*NG
         ELSE
           CALL XABORT('MPOIDF: INVALID ADF OPTION.')
         ENDIF
-        ALLOCATE(HADF(NSURFD))
+        ALLOCATE(DISFAC(NSURFD,NGG,NMIL),SURF(NMIL*NGG),HADF(NSURFD))
         CALL LCMGTC(IPEDIT,'HADF',8,NSURFD,HADF)
         DO I=1,NSURFD
           CALL LCMLEN(IPEDIT,HADF(I),ILONG,ITYLCM)
@@ -88,10 +83,11 @@
             DO IMIL=1,NMIL
               DO IGR=1,NG
                 IF(FNORM.NE.1.0) THEN
-                  SURFLX(I,(IGR-1)*NMIL+IMIL)=SURF((IGR-1)*NMIL+IMIL)*
-     1            FNORM*1.0E13
+                  DISFAC(I,IGR,IMIL)=SURF((IGR-1)*NMIL+IMIL)*
+     1            FNORM*1.0E13*VOLMIL(IMIL)/FLXMIL(IMIL,IGR)
                 ELSE
-                  SURFLX(I,(IGR-1)*NMIL+IMIL)=SURF((IGR-1)*NMIL+IMIL)
+                  DISFAC(I,IGR,IMIL)=SURF((IGR-1)*NMIL+IMIL)*
+     1            VOLMIL(IMIL)/FLXMIL(IMIL,IGR)
                 ENDIF
               ENDDO
             ENDDO
@@ -106,7 +102,7 @@
             DO IMIL=1,NMIL
               DO IGR=1,NG
                 IOF=(IGR-1)*NMIL+IMIL
-                SURFLX(I,IOF)=SURF(IOF)*FLXMIL(IMIL,IGR)
+                DISFAC(I,IGR,IMIL)=SURF(IOF)
               ENDDO
             ENDDO
           ELSE IF(IDF.EQ.4) THEN
@@ -121,7 +117,7 @@
               DO IGR=1,NG
                 DO JGR=1,NG
                   IOF=((JGR-1)*NG+IGR-1)*NMIL+IMIL
-                  SURFLX(I,IOF)=SURF(IOF)*FLXMIL(IMIL,IGR)
+                  DISFAC(I,(JGR-1)*NG+IGR,IMIL)=SURF(IOF)
                 ENDDO
               ENDDO
             ENDDO
@@ -130,37 +126,43 @@
         DEALLOCATE(HADF,SURF)
         CALL LCMSIX(IPEDIT,' ',2)
 *----
+*  MOVE TO THE /statept_id/zone_id/discontinuity GROUP.
+*----
+        DO IMIL=1,NMIL
+          WRITE(RECNAM,'(8H/output/,A,9H/statept_,I0,6H/zone_,I0,
+     1    15H/discontinuity/)') TRIM(HEDIT),ICAL-1,IMIL-1
+          CALL hdf5_create_group(IPMPO,TRIM(RECNAM))
+          CALL hdf5_write_data(IPMPO,TRIM(RECNAM)//"NSURF",NSURFD)
+          IF((IDF.EQ.2).OR.(IDF.EQ.3)) THEN
+            ALLOCATE(VREAL(NSURFD,NG))
+            VREAL(:NSURFD,:NG)=DISFAC(:NSURFD,:NG,IMIL)
+            CALL hdf5_write_data(IPMPO,TRIM(RECNAM)//"DFACTOR",VREAL)
+          ELSE IF(IDF.EQ.4) THEN
+            ALLOCATE(VREAL(NSURFD,NG*NG))
+            VREAL(:NSURFD,:NG*NG)=DISFAC(:NSURFD,:NG*NG,IMIL)
+            CALL hdf5_write_data(IPMPO,TRIM(RECNAM)//"DFACTORGxG",VREAL)
+          ENDIF
+          DEALLOCATE(VREAL)
+        ENDDO
+        DEALLOCATE(DISFAC)
+      ENDIF
+*----
 *  MOVE TO THE /statept_id/flux GROUP.
 *----
-        ALLOCATE(SURF(NMIL*NSURFD))
-        SURF(:)=1.0
-        CALL hdf5_write_data(IPMPO,TRIM(RECNAM)//"NSURF",NSURFD)
-        CALL hdf5_write_data(IPMPO,TRIM(RECNAM)//"SURF",SURF)
-        IF((IDF.EQ.2).OR.(IDF.EQ.3)) THEN
-          CALL hdf5_write_data(IPMPO,TRIM(RECNAM)//"SURFFLUX",SURFLX)
-        ELSE IF(IDF.EQ.4) THEN
-          CALL hdf5_write_data(IPMPO,TRIM(RECNAM)//"SURFFLUXGxG",SURFLX)
-        ENDIF
-        ALLOCATE(VREAL(NMIL*NG))
-        DO IGR=1,NG
-          DO IMIL=1,NMIL
-            VREAL((IGR-1)*NMIL+IMIL)=FLXMIL(IMIL,IGR)*VOLMIL(IMIL)
-          ENDDO
-        ENDDO
-        CALL hdf5_write_data(IPMPO,TRIM(RECNAM)//"TOTALFLUX",VREAL)
-        DEALLOCATE(VREAL,SURF,SURFLX)
-      ENDIF
+      IF(NALBP.NE.0) THEN
+        WRITE(RECNAM,'(8H/output/,A,9H/statept_,I0,6H/flux/)')
+     1  TRIM(HEDIT),ICAL-1
+        CALL hdf5_create_group(IPMPO,TRIM(RECNAM))
 *----
 *  RECOVER AND SAVE ALBEDO INFORMATION
 *----
-      IF(NALBP.NE.0) THEN
         CALL hdf5_write_data(IPMPO,TRIM(RECNAM)//"NALBP",NALBP)
         CALL LCMLEN(IPEDIT,'ALBEDO',ILONG,ITYLCM)
         IF(ILONG.EQ.NALBP*NG) THEN
 *         diagonal physical albedos
           ALLOCATE(ALBP(NALBP,NG))
           CALL LCMGET(IPEDIT,'ALBEDO',ALBP)
-          CALL hdf5_write_data(IPMPO,TRIM(RECNAM)//"ALBEDOG",ALBP)
+          CALL hdf5_write_data(IPMPO,TRIM(RECNAM)//"ALBEDO",ALBP)
           DEALLOCATE(ALBP)
         ELSE IF(ILONG.EQ.NALBP*NG*NG) THEN
 *         matrix physical albedos

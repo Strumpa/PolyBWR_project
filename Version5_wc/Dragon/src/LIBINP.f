@@ -21,12 +21,12 @@
 *Parameters: input/output
 * MAXMIX  maximum value of NBMIX.
 * MAXED   maximum value of NEDMAC.
-* MAXISO  maximum number of isotopes permitted
+* MAXISO  maximum number of isotopes permitted.
 * IPLIB   pointer to the lattice microscopic cross section library
-*         (L_LIBRARY signature)
+*         (L_LIBRARY signature).
 * INDREC  type of action:
-*         =1 a new library is created; =2 the library is updated;
-*         =3 a read-only macrolib is copied in a new library.
+*         =1 a new microlib is created; =2 the microlib is updated;
+*         =3 a read-only macrolib is copied in the microlib.
 * IMPX    print flag.
 * NBISO   number of isotopes present in the calculation domain.
 * NGRO    number of energy groups.
@@ -40,20 +40,21 @@
 *         =0 direct problem; =1 adjoint problem.
 * ITIME   MATXS type of fission spectrum:
 *         =1 steady-state; =2 prompt.
-* NLIB    number of independent libraries.
+* NLIB    number of cross-section libraries.
 * NGF     number of fast groups without self-shielding.
 * IGRMAX  maximum group index with self-shielding.
 * NDEPL   number of depleting isotopes (used by EVO:).
 * NCOMB   number of depleting mixtures (used by EVO:).
-* NEDMAC  number of extra vector edits from matxs.
-* NBMIX   number of mixtures defined in the library.
+* NEDMAC  number of extra vector edits.
+* NBMIX   number of mixtures defined in the microlib.
 * NRES    number of resonant mixtures (used by SHI:, TONE: or USS:).
 * IPROC   type of microlib processing:
+*         =-1: skip temperature/dilution interpolation;
 *         =0: perform temperature/dilution interpolation;
 *         =1: perform temperature interpolation and compute physical
 *             probability tables;
 *         =2: perform temperature interpolation and build a
-*             temperature-independent draglib;
+*             temperature-independent microlib;
 *         =3: perform temperature interpolation and compute calendf-
 *             type mathematical probability tables based on bin-type
 *             cross-sections for total cross sections;
@@ -90,11 +91,12 @@
 *----
 *  LOCAL PARAMETERS
 *----
-      PARAMETER (IOUT=6,NHOBL=17,MAXPAR=5,NSTATE=40,MAXTRA=10000)
-      TYPE(C_PTR) JPLIB,IPMIC
+      PARAMETER (IOUT=6,NHOBL=17,MAXPAR=5,MAXLIB=20,NSTATE=40,
+     > MAXTRA=10000)
+      TYPE(C_PTR) JPLIB
       DOUBLE PRECISION DBLINP
-      CHARACTER TEXT4*4,TEXT8*8,TEXT12*12,HOBL(NHOBL)*8,HSMG*131,
-     >          NAMFIL*64,NAMFIL2*64,NAMLBT*8,NAMLCM*12,NAMMY*12
+      CHARACTER TEXT4*4,TEXT12*12,HOBL(NHOBL)*8,HSMG*131,NAMFIL*64,
+     >          NAMLBT*8,NAMLCM*12,NAMMY*12
       LOGICAL LNEW,EMPTY,LCM,LSET
       INTEGER KCHAR(2),ISTATE(NSTATE)
       REAL TMPDAY(3)
@@ -102,13 +104,14 @@
 *  ALLOCATABLE ARRAYS
 *----
       INTEGER, ALLOCATABLE, DIMENSION(:) :: ISOMIX,NTFG,LSHI,NIR,ILLIB,
-     > IEVOL,ITYP,INAME,KGAS,ISOMIX2
-      INTEGER, ALLOCATABLE, DIMENSION(:,:) :: ISONAM,ISONRF,ISHINA,
-     > ISONAM2,ISONRF2
-      INTEGER, ALLOCATABLE, DIMENSION(:,:,:) :: IHLIB
+     > IEVOL,ITYP,KGAS
+      INTEGER, ALLOCATABLE, DIMENSION(:,:) :: ISONAM,ISONRF
       REAL, ALLOCATABLE, DIMENSION(:) :: DENISO,DENMIX,TMPISO,SNISO,
-     > SBISO,GIR,TMPMIX,GSN,GSB,DENISO2,TMPISO2
+     > SBISO,GIR,TMPMIX,GSN,GSB
       LOGICAL, ALLOCATABLE, DIMENSION(:) :: MASK,MASKI,MASKL
+      CHARACTER(LEN=8), ALLOCATABLE, DIMENSION(:,:) :: HLIB
+      CHARACTER(LEN=12), ALLOCATABLE, DIMENSION(:) :: SHINA
+      CHARACTER(LEN=64), ALLOCATABLE, DIMENSION(:) :: HNAME
 *----
 *  DATA STATEMENTS
 *----
@@ -120,141 +123,31 @@
      >            'CSTR    '/
 *----
 *  SCRATCH STORAGE ALLOCATION
-*   ISONAM  alias name of each isotope
-*   ISONRF  library name of each isotope
-*   ISOMIX  mix number of each isotope. can be zero
-*   DENISO  density of each isotope
-*   DENMIX  mixture density
-*   MASK    mixture masks
-*   TMPISO  temperature of each isotope
-*   ISHINA  self-shielding name of each isotope
-*   SNISO   dilution cross section of each isotope. a value of 1.0E10
-*           is used for infinite dilution
-*   SBISO   dilution cross section of each isotope used with Livolant-
-*           Jeanpierre normalization
-*   NTFG    number of thermal groups where the thermal inelastic
-*           correction is applied
-*   LSHI    resonant region number associated with i-th isotope.
-*           Infinite dilution will be assumed if LSHI(I)=0. A negative
-*           value is indicating correlation of cross sections with all
-*           isotopes sharing the same LSHI value
-*   GIR     Goldstein-Cohen IR parameter of each isotope
-*   NIR     Goldstein-Cohen IR cutoff energy index. Use IR approximation
-*           for groups with index.ge.nir; Use library value if NIR=0
-*   MASKI   isotope masks
-*   TMPMIX  mixture temperature
-*   IHLIB   isotope options
-*   ILLIB   xs library index for each isotope (.le.NLIB)
-*   IEVOL   flag making an isotope non-depleting:
-*           =1 to force an isotope to be non-depleting;
-*           =2 to force an isotope to be depleting;
-*           =3 to force an isotope to be at saturation
-*   ITYP    isotopic type:
-*           =1: the isotope is not fissile and not a fission product;
-*           =2: the isotope is fissile; =3: is a fission product
-*   INAME   library name
-*   KGAS    state of mixture (used for stopping power correction):
-*           =0: solid or liquid;
-*           =1: gas
 *----
       ALLOCATE(ISONAM(3,MAXISO),ISONRF(3,MAXISO),ISOMIX(MAXISO),
-     > ISHINA(3,MAXISO),NTFG(MAXISO),LSHI(MAXISO),NIR(MAXISO),
-     > IHLIB(2,MAXISO,4),ILLIB(MAXISO),IEVOL(MAXISO),ITYP(MAXISO),
-     > KGAS(MAXMIX))
+     > NTFG(MAXISO),LSHI(MAXISO),NIR(MAXISO),ILLIB(MAXISO),I
+     > EVOL(MAXISO),ITYP(MAXISO),KGAS(MAXMIX))
       ALLOCATE(DENISO(MAXISO),DENMIX(MAXMIX),TMPISO(MAXISO),
      > SNISO(MAXISO),SBISO(MAXISO),GIR(MAXISO),TMPMIX(MAXMIX))
       ALLOCATE(MASK(MAXMIX),MASKI(MAXISO))
+      ALLOCATE(HNAME(MAXLIB))
+      ALLOCATE(HLIB(MAXISO,4),SHINA(MAXISO))
 *----
 *  INITIALIZATIONS.
 *----
       KEVOL=0
-      IF(NGT .NE. NGRO) THEN
-        WRITE(IOUT,400) NGT,NGRO
+      IF((NGT.NE.0).AND.(NGT.NE.NGRO)) THEN
+        WRITE(HSMG,400) NGT,NGRO
+        CALL XABORT(HSMG)
       ENDIF
       IF((INDREC.EQ.2).AND.(NBISO.GT.0)) THEN
 *        THE LIBRARY IS UPDATED. READ OLD LIBRARY INFORMATION.
-         IF(NBISO.GT.MAXISO) CALL XABORT('LIBINP: MAXISO OVERFLOW.')
-         IF(NBMIX.GT.MAXMIX) CALL XABORT('LIBINP: MAXMIX OVERFLOW.')
+         CALL LIBINF(IPLIB,MAXISO,MAXLIB,MAXED,MAXMIX,NBISO,NGRO,NL,
+     1   ITRANC,NLIB,NCOMB,NEDMAC,NBMIX,ISONAM,ISONRF,ISOMIX,DENISO,
+     2   TMPISO,SHINA,SNISO,SBISO,NTFG,LSHI,GIR,NIR,MASKI,HLIB,IEVOL,
+     3   ITYP,ILLIB,KGAS,DENMIX,HVECT,HNAME)
          NNMIX=NBMIX
-         CALL LCMGET(IPLIB,'STATE-VECTOR',ISTATE)
-         CALL LCMGET(IPLIB,'ISOTOPESUSED',ISONAM)
-         CALL LCMLEN(IPLIB,'ISOTOPERNAME',ILENG,ITYLCM)
-         IF(ILENG.GT.0) THEN
-            CALL LCMGET(IPLIB,'ISOTOPERNAME',ISONRF)
-         ELSE
-            CALL LCMGET(IPLIB,'ISOTOPESUSED',ISONRF)
-         ENDIF
-         TEXT4=' '
-         READ(TEXT4,'(A4)') IVOID
-         CALL XDISET(IHLIB,8*MAXISO,IVOID)
-         CALL XDISET(ILLIB,MAXISO,0)
-         CALL XDISET(ISHINA,3*MAXISO,IVOID)
-         CALL LCMLEN(IPLIB,'ILIBRARYTYPE',ILENG,ITYLCM)
-         IF(ILENG.GT.0) THEN
-            CALL LCMGET(IPLIB,'ILIBRARYTYPE',IHLIB(1,1,1))
-            CALL LCMGET(IPLIB,'ILIBRARYINDX',ILLIB)
-         ENDIF
-         CALL LCMLEN(IPLIB,'ISOTOPESNTFG',ILENG,ITYLCM)
-         IF(ILENG.GT.0) THEN
-            CALL LCMGET(IPLIB,'ISOTOPESNTFG',NTFG)
-            CALL LCMGET(IPLIB,'ISOTOPESCOH',IHLIB(1,1,2))
-            CALL LCMGET(IPLIB,'ISOTOPESINC',IHLIB(1,1,3))
-         ELSE
-            CALL XDISET(NTFG,MAXISO,0)
-         ENDIF
-         CALL LCMLEN(IPLIB,'ISOTOPESRESK',ILENG,ITYLCM)
-         IF(ILENG.GT.0) THEN
-            CALL LCMGET(IPLIB,'ISOTOPESRESK',IHLIB(1,1,4))
-         ELSE
-            NAMLBT=','
-            DO ISOT=1,NBISO
-               READ(NAMLBT,'(2A4)') IHLIB(1,ISOT,4),IHLIB(2,ISOT,4)
-            ENDDO
-         ENDIF
-         CALL LCMLEN(IPLIB,'ISOTOPESHIN',ILENG,ITYLCM)
-         IF(ILENG.GT.0) CALL LCMGET(IPLIB,'ISOTOPESHIN',ISHINA)
-         CALL LCMLEN(IPLIB,'ISOTOPESSHI',ILENG,ITYLCM)
-         IF(ILENG.GT.0) THEN
-            CALL LCMGET(IPLIB,'ISOTOPESSHI',LSHI)
-         ELSE
-            CALL XDISET(LSHI,MAXISO,0)
-         ENDIF
-         CALL LCMLEN(IPLIB,'ISOTOPESNIR',ILENG,ITYLCM)
-         IF(ILENG.GT.0) THEN
-            CALL LCMGET(IPLIB,'ISOTOPESGIR',GIR)
-            CALL LCMGET(IPLIB,'ISOTOPESNIR',NIR)
-         ELSE
-            CALL XDRSET(GIR,MAXISO,1.0)
-            CALL XDISET(NIR,MAXISO,0)
-         ENDIF
-         CALL LCMGET(IPLIB,'ISOTOPESDENS',DENISO)
-         CALL LCMGET(IPLIB,'ISOTOPESMIX',ISOMIX)
-         CALL LCMLEN(IPLIB,'ISOTOPESTEMP',ILENG,ITYLCM)
-         IF(ILENG.GT.0) THEN
-            CALL LCMGET(IPLIB,'ISOTOPESTEMP',TMPISO)
-         ELSE
-            CALL XDRSET(TMPISO,MAXISO,0.0)
-         ENDIF
-         CALL LCMLEN(IPLIB,'ISOTOPESTODO',ILENG,ITYLCM)
-         IF(ILENG.GT.0) THEN
-            CALL LCMGET(IPLIB,'ISOTOPESTODO',IEVOL)
-         ELSE
-            CALL XDISET(IEVOL,MAXISO,0)
-         ENDIF
-         CALL LCMLEN(IPLIB,'ISOTOPESTYPE',ILENG,ITYLCM)
-         IF(ILENG.GT.0) THEN
-            CALL LCMGET(IPLIB,'ISOTOPESTYPE',ITYP)
-         ELSE
-            CALL XDISET(ITYP,MAXISO,1)
-         ENDIF
-         CALL LCMLEN(IPLIB,'MIXTUREGAS',ILENG,ITYLCM)
-         IF(ILENG.EQ.NBMIX) THEN
-            CALL LCMGET(IPLIB,'MIXTUREGAS',KGAS)
-         ELSE
-            CALL XDISET(KGAS,NBMIX,0)
-         ENDIF
          DO 20 IIIMIX=1,MAXMIX
-         DENMIX(IIIMIX)=-1.0
          DO 10 IIISO=1,NBISO
          IF(ISOMIX(IIISO).EQ.IIIMIX) THEN
            TMPMIX(IIIMIX)=TMPISO(IIISO)
@@ -263,21 +156,15 @@
    10    CONTINUE
          TMPMIX(IIIMIX)=-1.0
    20    CONTINUE
-         IF(ISTATE(17).EQ.-1) THEN
-           CALL XDLSET(MASKI,NBISO,.TRUE.)
-         ELSE
-           CALL XDLSET(MASKI,NBISO,.FALSE.)
-         ENDIF
-         CALL XDRSET(SNISO,NBISO,0.0)
-         CALL XDRSET(SBISO,NBISO,0.0)
       ELSE
+         NBISO=0
          NELSN=0
          NNMIX=0
-         DO 30 IIIMIX=1,MAXMIX
-         DENMIX(IIIMIX)=-1.0
-         TMPMIX(IIIMIX)=-1.0
-         KGAS(IIIMIX)=0
-   30    CONTINUE
+         DO IIIMIX=1,MAXMIX
+           DENMIX(IIIMIX)=-1.0
+           TMPMIX(IIIMIX)=-1.0
+           KGAS(IIIMIX)=0
+         ENDDO
       ENDIF
 *----
 *  READ THE SPECIFICATION FOR EACH ISOTOPE.
@@ -313,20 +200,17 @@
          IF(INDIC.NE.3) CALL XABORT('LIBINP: CHARACTER DATA EXPECTED'//
      >   '(1).')
          CALL LIBNRG(IPLIB,NAMLBT,NAMFIL,NGRO,NGT)
-         ALLOCATE(INAME(16*(NLIB+1)))
-         IF(NLIB.GT.0) CALL LCMGET(IPLIB,'ILIBRARYNAME',INAME)
+         IF(NLIB.GT.0) CALL LCMGTC(IPLIB,'ILIBRARYNAME',64,NLIB,HNAME)
          DO 50 ILIB=1,NLIB
-           WRITE(NAMFIL2,'(16A4)') (INAME(16*(ILIB-1)+I),I=1,16)
-           IF(NAMFIL2.EQ.NAMFIL) THEN
+           IF(HNAME(ILIB).EQ.NAMFIL) THEN
              JLIB=ILIB
-             DEALLOCATE(INAME)
              GO TO 60
            ENDIF
    50    CONTINUE
          NLIB=NLIB+1
-         READ(NAMFIL,'(16A4)') (INAME(16*(NLIB-1)+I),I=1,16)
-         CALL LCMPUT(IPLIB,'ILIBRARYNAME',16*NLIB,3,INAME)
-         DEALLOCATE(INAME)
+         IF(NLIB.GT.MAXLIB) CALL XABORT('LIBINP: MAXLIB OVERFLOW.')
+         HNAME(NLIB)=NAMFIL
+         CALL LCMPTC(IPLIB,'ILIBRARYNAME',64,NLIB,HNAME)
          JLIB=NLIB
    60    CALL REDGET(INDIC,NITMA,FLOTT,TEXT12,DBLINP)
          IF(INDIC.NE.3) CALL XABORT('LIBINP: CHARACTER DATA EXPECTED'//
@@ -382,79 +266,13 @@
               IF(VOLFRA.EQ.0.0) CALL XABORT('LIBINP: INDIVIDUAL VOLUME'
      >        //' FRACTION OF 0.0 IS ILLEGAL.')
               CALL LIBCMB(MAXMIX,MAXISO,NBISO,NEWISO,NNMIX,MIXCMB,
-     1        VOLTOT,VOLFRA,DENMIX,ISONAM,ISONRF,ISHINA,ISOMIX,IHLIB,
+     1        VOLTOT,VOLFRA,DENMIX,ISONAM,ISONRF,SHINA,ISOMIX,HLIB,
      2        ILLIB,DENISO,TMPISO,LSHI,SNISO,SBISO,NTFG,NIR,GIR,MASKI,
      3        IEVOL,ITYP)
               GO TO 70
-           ELSE IF(TEXT12.EQ.'COPY') THEN
-*----
-*  THIS MIXTURE IS A COPY RECOVERED FROM NAMLBT='MICROLIB'.
-*----
-              IF(NAMLBT.NE.'MICROLIB') CALL XABORT('LIBINP: LIB: MICRO'
-     1        //'LIB EXPECTED.')
-              CALL LCMOP(IPMIC,NAMFIL(:12),2,2,0)
-              CALL LCMGET(IPMIC,'STATE-VECTOR',ISTATE)
-              NBMIX2=ISTATE(1)
-              NBISO2=ISTATE(2)
-              ALLOCATE(DENISO2(NBISO2),ISOMIX2(NBISO2),TMPISO2(NBISO2),
-     1        ISONAM2(3,NBISO2),ISONRF2(3,NBISO2))
-              CALL LCMGET(IPMIC,'ISOTOPESDENS',DENISO2)
-              CALL LCMGET(IPMIC,'ISOTOPESMIX',ISOMIX2)
-              CALL LCMGET(IPMIC,'ISOTOPESUSED',ISONAM2)
-              CALL LCMGET(IPMIC,'ISOTOPERNAME',ISONRF2)
-              CALL LCMLEN(IPMIC,'ISOTOPESTEMP',ILENG,ITYLCM)
-              IF(ILENG.GT.0) THEN
-                CALL LCMGET(IPMIC,'ISOTOPESTEMP',TMPISO2)
-              ELSE
-                CALL XDRSET(TMPISO2,NBISO2,0.0)
-              ENDIF
-              CALL LCMCL(IPMIC,1)
-              CALL REDGET(INDIC,MIXCMB,FLOTT,TEXT12,DBLINP)
-              IF(INDIC.NE.1) CALL XABORT('LIBINP: INTEGER DATA EXPEC'//
-     >        'TED(1).')
-              IF(MIXCMB.GT.NBMIX2) CALL XABORT('LIBINP: MIX2 OVERFLOW.')
-              DO 75 ISO=1,NBISO
-                IF((ISOMIX(ISO).EQ.NNMIX).AND.(MASKI(ISO))) THEN
-                  WRITE(HSMG,'(15HLIBINP: MIXTURE,I6,15H IS ALREADY DEF,
-     >            17HINED FOR ISOTOPE ,3A4,1H.)') NNMIX,(ISONAM(I,ISO),
-     >            I=1,3)
-                  CALL XABORT(HSMG)
-                ENDIF
-  75          CONTINUE
-              DO 76 ISO2=1,NBISO2
-                IF(ISOMIX2(ISO2).EQ.MIXCMB) THEN
-                  NBISO=NBISO+1
-                  IF(NBISO.GT.MAXISO) CALL XABORT('LIBINP: MAXISO OVER'
-     1            //'FLOW.')
-                  ISOMIX(NBISO)=NNMIX
-                  DENISO(NBISO)=DENISO2(ISO2)
-                  TMPISO(NBISO)=TMPISO(ISO2)
-                  SNISO(NBISO)=1.0E10
-                  ISONAM(:3,NBISO)=ISONAM2(:2,ISO2)
-                  WRITE(TEXT4,'(I4.4)') NNMIX
-                  READ(TEXT4,'(A4)') ISONAM(3,NBISO)
-                  ISONRF(:3,NBISO)=ISONAM2(:3,ISO2)
-                  READ(NAMLBT,'(2A4)') IHLIB(:2,NBISO,1)
-                  ILLIB(NBISO)=JLIB
-                  LSHI(NBISO)=0
-                  TEXT12=' '
-                  READ(TEXT12,'(3A4)') ISHINA(:3,NBISO)
-                  TEXT8=' '
-                  READ(TEXT8,'(2A4)') IHLIB(:2,NBISO,2)
-                  READ(TEXT8,'(2A4)') IHLIB(:2,NBISO,3)
-                  READ(TEXT8,'(2A4)') IHLIB(:2,NBISO,4)
-                  NTFG(NBISO)=0
-                  MASKI(NBISO)=.TRUE.
-                ENDIF
-  76          CONTINUE
-              DEALLOCATE(ISONRF2,ISONAM2,TMPISO2,ISOMIX2,DENISO2)
-              CALL REDGET(INDIC,NITMA,FLOTT,TEXT12,DBLINP)
-              IF(INDIC.NE.3) CALL XABORT('LIBINP: CHARACTER DATA EXP'//
-     >        'ECTED(3).')
-              GO TO 40
            ELSE
-             WRITE(HSMG,'(41HLIBINP: ONLY COMB OR COPY KEYWORD CAN FOL,
-     1       20HLOW MIXTURE NUMBER (,A,8H READED))') TEXT12
+             WRITE(HSMG,'(41HLIBINP: ONLY COMB KEYWORD CAN FOLLOW MIXT,
+     >       12HURE NUMBER (,A,8H READED))') TEXT12
              CALL XABORT(HSMG)
            ENDIF
          ELSE
@@ -527,11 +345,8 @@
       ENDIF
       READ(TEXT12,'(3A4)') (ISONAM(I0,NBISO),I0=1,3)
       READ(TEXT12,'(3A4)') (ISONRF(I0,NBISO),I0=1,3)
-      TEXT12=' '
-      READ(TEXT12,'(3A4)') (ISHINA(I0,NBISO),I0=1,3)
-      READ(TEXT12,'(2A4)') IHLIB(1,NBISO,2),IHLIB(2,NBISO,2)
-      READ(TEXT12,'(2A4)') IHLIB(1,NBISO,3),IHLIB(2,NBISO,3)
-      READ(TEXT12,'(2A4)') IHLIB(1,NBISO,4),IHLIB(2,NBISO,4)
+      SHINA(NBISO)=' '
+      HLIB(NBISO,2:4)=' '
       NTFG(NBISO)=0
       LSHI(NBISO)=0
       GIR(NBISO)=1.0
@@ -544,7 +359,7 @@
       ITYP(NBISO)=1
 *
    82 MASKI(NEWISO)=.TRUE.
-      READ(NAMLBT,'(2A4)') IHLIB(1,NEWISO,1),IHLIB(2,NEWISO,1)
+      HLIB(NEWISO,1)=NAMLBT
       ILLIB(NEWISO)=JLIB
       TMPISO(NEWISO)=TMPMIX(NNMIX)
       CALL REDGET(INDIC,NITMA,FLOTT,TEXT12,DBLINP)
@@ -594,7 +409,7 @@
          CALL REDGET(INDIC,NITMA,FLOTT,TEXT12,DBLINP)
          IF(INDIC.NE.3) CALL XABORT('LIBINP: CHARACTER DATA EXPECTED'//
      >   '(9).')
-         READ(TEXT12,'(3A4)') (ISHINA(I0,NEWISO),I0=1,3)
+         SHINA(NEWISO)=TEXT12
       ELSE IF(TEXT12.EQ.'THER') THEN
          CALL REDGET(INDIC,NTFG(NEWISO),FLOTT,TEXT12,DBLINP)
          IF(INDIC.NE.1) CALL XABORT('LIBINP: NUMBER OF THERMALIZED '//
@@ -602,15 +417,15 @@
          CALL REDGET(INDIC,NITMA,FLOTT,TEXT12,DBLINP)
          IF(INDIC.NE.3) CALL XABORT('LIBINP: CHARACTER DATA EXPECTED'//
      >   '(10).')
-         READ(TEXT12,'(2A4)') IHLIB(1,NEWISO,3),IHLIB(2,NEWISO,3)
+         HLIB(NEWISO,3)=TEXT12(:8)
       ELSE IF(TEXT12.EQ.'TCOH') THEN
          CALL REDGET(INDIC,NITMA,FLOTT,TEXT12,DBLINP)
          IF(INDIC.NE.3) CALL XABORT('LIBINP: CHARACTER DATA EXPECTED'//
      >   '(11).')
-         READ(TEXT12,'(2A4)') IHLIB(1,NEWISO,2),IHLIB(2,NEWISO,2)
+         HLIB(NEWISO,2)=TEXT12(:8)
       ELSE IF(TEXT12.EQ.'RESK') THEN
          TEXT12='RESK'
-         READ(TEXT12,'(2A4)') IHLIB(1,NEWISO,4),IHLIB(2,NEWISO,4)
+         HLIB(NEWISO,4)=TEXT12(:8)
       ELSE IF(TEXT12.EQ.'DBYE') THEN
          CALL REDGET(INDIC,NITMA,TMPISO(NEWISO),TEXT12,DBLINP)
          IF(INDIC.NE.2) CALL XABORT('LIBINP: REAL DATA EXPECTED.')
@@ -714,7 +529,7 @@
          NREAC=ISTATE(8)
          NPAR=ISTATE(9)
          CALL LIBEAD(IPLIB,MAXISO,MAXMIX,IMPX,NDEPL,NFISS,NSUPS,
-     1   NREAC,NPAR,NBISO,ISONAM,ISONRF,IHLIB,ILLIB,ISOMIX,TMPISO,
+     1   NREAC,NPAR,NBISO,ISONAM,ISONRF,HLIB,ILLIB,ISOMIX,TMPISO,
      2   IEVOL,ITYP,NCOMB)
          CALL LCMSIX(IPLIB,' ',2)
 *
@@ -723,11 +538,8 @@
          SBISO(ISOT)=1.0E10
          DENISO(ISOT)=0.0
          NTFG(ISOT)=0
-         TEXT12=' '
-         READ(TEXT12,'(3A4)') (ISHINA(I0,ISOT),I0=1,3)
-         READ(TEXT12,'(2A4)') IHLIB(1,ISOT,2),IHLIB(2,ISOT,2)
-         READ(TEXT12,'(2A4)') IHLIB(1,ISOT,3),IHLIB(2,ISOT,3)
-         READ(TEXT12,'(2A4)') IHLIB(1,ISOT,4),IHLIB(2,ISOT,4)
+         SHINA(ISOT)=' '
+         HLIB(ISOT,2:4)=' '
          LSHI(ISOT)=0
          GIR(ISOT)=1.0
          NIR(ISOT)=0
@@ -758,17 +570,14 @@
      >  GO TO 190
         IF((ISONRF(1,I).NE.ISONRF(1,J)).OR.(ISONRF(2,I).NE.ISONRF(2,J))
      >  .OR.(ISONRF(3,I).NE.ISONRF(3,J))) GO TO 190
-        IF((ISHINA(1,I).NE.ISHINA(1,J)).OR.(ISHINA(2,I).NE.ISHINA(2,J))
-     >  .OR.(ISHINA(3,I).NE.ISHINA(3,J))) GO TO 190
+        IF(SHINA(I).NE.SHINA(J)) GO TO 190
         IF((LSHI(I).NE.0).AND.(LSHI(J).NE.0).AND.(DENISO(I).EQ.0.0)
      >  .AND.(DENISO(J).NE.0.0)) GO TO 190
         IF((LSHI(I).NE.0).AND.(LSHI(J).NE.0).AND.(DENISO(I).NE.0.0)
      >  .AND.(DENISO(J).EQ.0.0)) GO TO 190
-        DO 186 IOP=1,4
-        DO 185 I0=1,2
-          IF(IHLIB(I0,I,IOP).NE.IHLIB(I0,J,IOP)) GO TO 190
-  185   CONTINUE
-  186   CONTINUE
+        DO 180 IOP=1,4
+        IF(HLIB(I,IOP).NE.HLIB(J,IOP)) GO TO 190
+  180   CONTINUE
         IF(ILLIB(I).NE.ILLIB(J)) GO TO 190
         IF((NTFG(I).NE.NTFG(J)).OR.(GIR(I).NE.GIR(J)).OR.
      >  (NIR(I).NE.NIR(J)).OR.(TMPISO(I).NE.TMPISO(J))) GO TO 190
@@ -791,16 +600,14 @@
            DZN=DENMIX(ISOMIX(I))
            IF(DZN.EQ.-1.0) THEN
              WRITE (IOUT,330) I,(ISONAM(I0,I),I0=1,3),(ISONRF(I0,I),
-     >       I0=1,3),IHLIB(1,I,1),IHLIB(2,I,1),ILLIB(I),ISOMIX(I),
-     >       DENISO(I),TMPISO(I),SNISO(I),LSHI(I),ISHINA(1,I),
-     >       ISHINA(2,I),NTFG(I),IHLIB(1,I,3),IHLIB(2,I,3),
-     >       IHLIB(1,I,4),IHLIB(2,I,4),IHLIB(1,I,2),IHLIB(2,I,2)
+     >       I0=1,3),HLIB(I,1),ILLIB(I),ISOMIX(I),DENISO(I),
+     >       TMPISO(I),SNISO(I),LSHI(I),SHINA(I),NTFG(I),HLIB(I,3),
+     >       HLIB(I,4),HLIB(I,2)
            ELSE
              WRITE (IOUT,340) I,(ISONAM(I0,I),I0=1,3),(ISONRF(I0,I),
-     >       I0=1,3),IHLIB(1,I,1),IHLIB(2,I,1),ILLIB(I),ISOMIX(I),
-     >       DZN,DENISO(I),TMPISO(I),SNISO(I),LSHI(I),ISHINA(1,I),
-     >       ISHINA(2,I),NTFG(I),IHLIB(1,I,3),IHLIB(2,I,3),IHLIB(1,I,4),
-     >       IHLIB(2,I,4),IHLIB(1,I,2),IHLIB(2,I,2)
+     >       I0=1,3),HLIB(I,1),ILLIB(I),ISOMIX(I),DZN,DENISO(I),
+     >       TMPISO(I),SNISO(I),LSHI(I),SHINA(I),NTFG(I),HLIB(I,3),
+     >       HLIB(I,4),HLIB(I,2)
            ENDIF
   210    CONTINUE
       ENDIF
@@ -867,13 +674,13 @@
       CALL LCMPUT(IPLIB,'ISOTOPESTODO',NBISO,1,IEVOL)
       CALL LCMPUT(IPLIB,'ISOTOPESTYPE',NBISO,1,ITYP)
       IF(NLIB.GT.0) THEN
-        CALL LCMPUT(IPLIB,'ILIBRARYTYPE',2*NBISO,3,IHLIB(1,1,1))
+        CALL LCMPTC(IPLIB,'ILIBRARYTYPE',8,NBISO,HLIB(1,1))
         CALL LCMPUT(IPLIB,'ILIBRARYINDX',NBISO,1,ILLIB)
-        CALL LCMPUT(IPLIB,'ISOTOPESCOH',2*NBISO,3,IHLIB(1,1,2))
-        CALL LCMPUT(IPLIB,'ISOTOPESINC',2*NBISO,3,IHLIB(1,1,3))
-        CALL LCMPUT(IPLIB,'ISOTOPESRESK',2*NBISO,3,IHLIB(1,1,4))
+        CALL LCMPTC(IPLIB,'ISOTOPESCOH',8,NBISO,HLIB(1,2))
+        CALL LCMPTC(IPLIB,'ISOTOPESINC',8,NBISO,HLIB(1,3))
+        CALL LCMPTC(IPLIB,'ISOTOPESRESK',8,NBISO,HLIB(1,4))
         CALL LCMPUT(IPLIB,'ISOTOPESNTFG',NBISO,1,NTFG)
-        CALL LCMPUT(IPLIB,'ISOTOPESHIN',3*NBISO,3,ISHINA)
+        CALL LCMPTC(IPLIB,'ISOTOPESHIN',12,NBISO,SHINA)
         CALL LCMPUT(IPLIB,'ISOTOPESSHI',NBISO,1,LSHI)
         CALL LCMPUT(IPLIB,'ISOTOPESDSN',NGIS,2,GSN)
         CALL LCMPUT(IPLIB,'ISOTOPESDSB',NGIS,2,GSB)
@@ -890,6 +697,7 @@
 *  CHECK FOR DUPLICATE ALIAS.
 *----
       DO 255 I=1,NBISO
+      IF(ISOMIX(I).EQ.0) GO TO 255
       DO 250 J=I+1,NBISO
       IF((ISOMIX(I).EQ.ISOMIX(J)).AND.(ISONRF(1,I).EQ.ISONRF(1,J))
      1   .AND.(ISONRF(2,I).EQ.ISONRF(2,J))
@@ -934,14 +742,10 @@
          IF(IPROC.EQ.6) WRITE(IOUT,306) SVDEPS
          IF(NEDMAC.GT.0) WRITE (IOUT,310) (I,HVECT(I),I=1,NEDMAC)
          IF(NLIB.GT.0) THEN
-            ALLOCATE(INAME(16*NLIB))
-            CALL LCMGET(IPLIB,'ILIBRARYNAME',INAME)
             WRITE(IOUT,315)
             DO 260 ILIB=1,NLIB
-            WRITE(NAMFIL,'(16A4)') (INAME(16*(ILIB-1)+I),I=1,16)
-            WRITE(IOUT,'(1X,I4,4H -- ,A)') ILIB,NAMFIL
+            WRITE(IOUT,'(1X,I4,4H -- ,A)') ILIB,HNAME(ILIB)
   260       CONTINUE
-            DEALLOCATE(INAME)
          ENDIF
       ENDIF
 *----
@@ -958,10 +762,9 @@
            IF(ISOMIX(I).EQ.0) GO TO 280
            IF(MASK(ISOMIX(I))) THEN
               WRITE (IOUT,380) I,(ISONAM(I0,I),I0=1,3),(ISONRF(I0,I),
-     >        I0=1,3),IHLIB(1,I,1),IHLIB(2,I,1),ILLIB(I),ISOMIX(I),
-     >        DENISO(I),TMPISO(I),SNISO(I),LSHI(I),ISHINA(1,I),
-     >        ISHINA(2,I),NTFG(I),IHLIB(1,I,3),IHLIB(2,I,3),
-     >        IHLIB(1,I,4),IHLIB(2,I,4),IHLIB(1,I,2),IHLIB(2,I,2)
+     >        I0=1,3),HLIB(I,1),ILLIB(I),ISOMIX(I),DENISO(I),
+     >        TMPISO(I),SNISO(I),LSHI(I),SHINA(I),NTFG(I),
+     >        HLIB(I,3),HLIB(I,4),HLIB(I,2)
            ENDIF
   280    CONTINUE
       ENDIF
@@ -987,10 +790,12 @@
 *----
 *  SCRATCH STORAGE DEALLOCATION
 *----
+      DEALLOCATE(HNAME)
       DEALLOCATE(MASKI,MASK)
+      DEALLOCATE(HLIB)
       DEALLOCATE(TMPMIX,GIR,SBISO,SNISO,TMPISO,DENMIX,DENISO)
-      DEALLOCATE(KGAS,ITYP,IEVOL,ILLIB,IHLIB,NIR,LSHI,NTFG,ISHINA,
-     > ISOMIX,ISONRF,ISONAM)
+      DEALLOCATE(KGAS,ITYP,IEVOL,ILLIB,NIR,LSHI,NTFG,ISOMIX,
+     > ISONRF,ISONAM)
       RETURN
 *
   300 FORMAT(/8H OPTIONS/8H -------/
@@ -1033,18 +838,18 @@
      2 'THERMAL CORRECTION'/' -------  ------------  ------------  --',
      3 '----------  ----  ----------  ----------  ---------  --------',
      4 '  ----------  ------------------')
-  330 FORMAT(1X,I7,2X,3A4,2X,3A4,2X,2A4,I4,2X,I4,1P,E12.4,12X,E11.3,
-     1 E10.2,I4,2X,2A4,I4,1X,6A4)
-  340 FORMAT(1X,I7,2X,3A4,2X,3A4,2X,2A4,I4,2X,I4,1P,2E12.4,E11.3,E10.2,
-     1 I4,2X,2A4,I4,1X,6A4)
+  330 FORMAT(1X,I7,2X,3A4,2X,3A4,2X,A8,I4,2X,I4,1P,E12.4,12X,E11.3,
+     1 E10.2,I4,2X,A8,I4,1X,3A8)
+  340 FORMAT(1X,I7,2X,3A4,2X,3A4,2X,A8,I4,2X,I4,1P,2E12.4,E11.3,E10.2,
+     1 I4,2X,A8,I4,1X,3A8)
   370 FORMAT(/58X,'NUMBER'/' SPEC     LOCAL NAME    ISOTOPE       FRO',
      1 'M LIBRARY  MIX   DENSITY     TEMP(K)    SIGZERO    SELF-SHIEL',
      2 '  THERMAL CORRECTION'/' -------  ------------  ------------  ',
      3 '------------  ----  ----------  ---------  ---------  -------',
      4 '---  ------------------')
-  380 FORMAT(1X,I7,2X,3A4,2X,3A4,2X,2A4,I4,2X,I4,1P,E12.4,2E11.3,I4,2X,
-     1 2A4,I4,1X,6A4)
+  380 FORMAT(1X,I7,2X,3A4,2X,3A4,2X,A8,I4,2X,I4,1P,E12.4,2E11.3,I4,2X,
+     1 A8,I4,1X,3A8)
   390 FORMAT(9HLIBINP: ',3A4,7H' AND ',3A4,24H' ARE BOTH ALIAS FOR THE,
      1 23H SAME LIBRARY ISOTOPE ',3A4,12H' IN MIXTURE,I5,1H.)
-  400 FORMAT(' Error in LIBINP : Invalid group structure',2I10)
+  400 FORMAT('LIBINP: Invalid group structure',2I10)
       END

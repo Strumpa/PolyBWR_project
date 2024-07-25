@@ -10,7 +10,7 @@
 ************************** VARIABLES DEFINITION ****************************
 ****************************************************************************
 
-MODULE GEO: G2S: NXT: SYBILT: SALT: TLM: MCCGT: LIB: USS: ASM: FLU: GREP: END: ;
+MODULE GEO: G2S: NXT: SYBILT: SALT: MCCGT: LIB: USS: ASM: FLU: GREP: END: ;
 LINKED_LIST GEOM_2x2 GEOM_2x2_SS LIBRARY LIBRARY2 TRACK_SS TRACK SYS FLUX ;
 
 SEQ_ASCII Geo_G2S GeoSS_G2S ;
@@ -19,8 +19,6 @@ SEQ_ASCII FIG_main.ps :: FILE './FIG_main_2.ps' ;
 SEQ_ASCII FIG_SS.ps :: FILE './FIG_selfshielding_2.ps' ;
 
 SEQ_BINARY TF_EXC TF_EXC_SS ;
-SEQ_ASCII TLM_F1 :: FILE 'tracks_SALT_FLX_2x2_UOX.m' ;
-SEQ_ASCII TLM_F2 :: FILE 'tracks_SALT_SSH_2x2_UOX.m' ;
 
 STRING Library := "J311_295" ;
 
@@ -259,8 +257,8 @@ LIBRARY := LIB: ::
 * TRACKING PARAMTERES
 * ---
 
-INTEGER an2d := 24 ;  ! ANGULAR QUADRATURE PARAMETER 
-REAL densur := 50.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
+INTEGER an2d := 18 ;  ! ANGULAR QUADRATURE PARAMETER 
+REAL densur := 35.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
 
 INTEGER an2d_ss := 8 ;  ! ANGULAR QUADRATURE PARAMETER 
 REAL densur_ss := 15.0 ; ! DENSITY OF INTEGRATION LINES CM^-1 
@@ -286,12 +284,6 @@ TRACK TF_EXC := SALT: Geo_G2S ::
   TSPC EQW2 <<an2d>> <<densur>> REND LONG
 ;
 
-TLM_F1 := TLM: TRACK TF_EXC ::
-  EDIT 0
-  NTPO 1
-  DIRECTIONS
-  DIR 0
-;
 
 * MOC tracking
 TRACK := MCCGT: TRACK TF_EXC ::

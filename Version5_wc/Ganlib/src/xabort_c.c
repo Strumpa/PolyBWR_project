@@ -18,5 +18,6 @@ version 2.1 of the License, or (at your option) any later version.
 
 void xabort_c(char *msg){
   printf(" %s\n",msg);
+  fflush(stdout);
   exit(1);
 }

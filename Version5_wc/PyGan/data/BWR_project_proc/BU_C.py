@@ -10,7 +10,7 @@
 import lifo
 import cle2000
 
-def BU_C(namCOMPO,pyMIX,pyTRACK,pyTF_EXC,pyTRACK_SS,pyTF_EXC_SS,StepList,Multicompo,name_geom,name_compo):
+def BU_C(namCOMPO, pyMIX, pyTRACK, pyTF_EXC, pyTRACK_SS, pyTF_EXC_SS, StepList, Multicompo, name_geom, name_compo, ssh_option, ssh_sol, flx_sol):
 
   # Lifo
   myLifo=lifo.new()
@@ -24,6 +24,10 @@ def BU_C(namCOMPO,pyMIX,pyTRACK,pyTF_EXC,pyTRACK_SS,pyTF_EXC_SS,StepList,Multico
   myLifo.push(Multicompo)
   myLifo.push(name_geom)
   myLifo.push(name_compo)
+  myLifo.push(ssh_option)
+  myLifo.push(ssh_sol)
+  myLifo.push(flx_sol)
+
   myLifo.lib()
 
   # Execution 

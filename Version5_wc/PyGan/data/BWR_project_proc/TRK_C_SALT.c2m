@@ -27,6 +27,9 @@ PARAMETER UOX_TBH    FIG1.ps   TRACK    TF_EXC
 ::: LINKED_LIST GEOM ;
 ::: LINKED_LIST GEOM_SS ; ;
 
+STRING ssh_sol flx_sol ;
+:: >>ssh_sol<< >>flx_sol<< ;
+
 * ---
 * STRUCTURES AND MODULES
 * ---
@@ -36,8 +39,8 @@ MODULE G2S: MCCGT: SALT: END: ;
 INTEGER an2d := 18 ;  ! ANGULAR QUADRATURE PARAMETER
 REAL densur := 35.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
 
-INTEGER an2d_SS := 12 ;
-REAL densur_SS := 20.0 ;
+INTEGER an2d_SS := 8 ;
+REAL densur_SS := 18.0 ;
 
 * polar angles for MCCGT:
 INTEGER nmu := 4 ;
@@ -54,14 +57,15 @@ TRACK TF_EXC := SALT: UOX_TBH ::
   EDIT 0
   ALLG
   TSPC EQW2 <<an2d>> <<densur>> REND
-  !TISO EQW <<an2d>> <<densur>> REND
 ;
 
-* MOC tracking
-TRACK := MCCGT: TRACK TF_EXC ::
-  EDIT 0
-  CACB <<nmu>> AAC 80 TMT EPSI 1E-5 MCU <<mcu>>
-;
+IF flx_sol "MOC" = THEN
+  * MOC tracking
+  TRACK := MCCGT: TRACK TF_EXC ::
+    EDIT 0
+    CACB <<nmu>> AAC 80 TMT EPSI 1E-5 MCU <<mcu>>
+  ;
+ENDIF ;
 
 * ---
 * SELF-SHIELDING TRACKING
@@ -73,6 +77,14 @@ TRACK_SS TF_EXC_SS := SALT: UOX_TBH_SS ::
   ALLG
   TSPC <<an2d_SS>> <<densur_SS>> REND
 ;
+
+IF ssh_sol "MOC" = THEN
+  * MOC tracking if selected for ssh sol
+  TRACK_SS := MCCGT: TRACK_SS TF_EXC_SS ::
+    EDIT 0
+    CACB <<nmu>> AAC 80 TMT EPSI 1E-5 MCU <<mcu>>
+  ;
+ENDIF ;
 
 END: ;
 QUIT .

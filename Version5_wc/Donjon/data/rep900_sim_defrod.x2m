@@ -54,6 +54,7 @@ INTEGER iPavX  := 17 ; ! assemblage 17 x 17
 REAL LPitch    := 1.26 ;
 REAL Lame      := 0.04 ;
 REAL dx        := 21.5 ;
+REAL pos       := 1.0 ;
 INTEGER MaxR   := iPavX iPavX * 33 * Splitx * Splitx * Splitz * ;
 GeoRes Matex := GeoCo  ::
    <<Splitx>> <<Splitz>> <<MaxR>> <<dx>> ;
@@ -74,7 +75,7 @@ STRING   MainCycle ;
 
 * Rod groups definition and rod map
 Fmap := ROD: Fmap ::
-  EDIT 0 PARA "BARR" 1.
+  EDIT 0 PARA "BARR" <<pos>>
   LINS 260. STEP 1.5875 NRFB 1
   RGRP 9  2
     R   20. 2. 101.6 3.

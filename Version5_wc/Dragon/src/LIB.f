@@ -19,8 +19,8 @@
 * NENTRY  number of LCM objects or files used by the operator.
 * HENTRY  name of each LCM object or file:
 *         HENTRY(1): create or modification type(L_LIBRARY)
-*         HENTRY(2): optional read-only type(L_MACROLIB) used to
-*                    initialize a new lattice code library.
+*         HENTRY(2): optional read-only type(L_LIBRARY, L_MACROLIB or
+*               L_BURNUP) used to initialize a new lattice code library.
 * IENTRY  type of each LCM object or file:
 *         =1 LCM memory object; =2 XSM file; =3 sequential binary file;
 *         =4 sequential ascii file.
@@ -43,9 +43,9 @@
 *----
 *  LOCAL VARIABLES
 *----
-      TYPE(C_PTR)  IPLIB,IPLIBX
+      TYPE(C_PTR)  IPLIB,IPLIBX,IPBURX
       INTEGER      IOUT,NSTATE,ILCMUP,ILCMDN,MAXED,MAXISD
-      CHARACTER    NAMSBR*6
+      CHARACTER    NAMSBR*6,HSMG*131
       PARAMETER   (IOUT=6,NSTATE=40,ILCMUP=1,ILCMDN=2,MAXED=50,
      >             MAXISD=300,NAMSBR='LIB   ')
 *----
@@ -58,14 +58,14 @@
 *----
 *  LOCAL PARAMETERS
 *----
-      CHARACTER    TEXT12*12,HSIGN*12,HVECT(MAXED)*8,HADD*8,HLIBX*12,
-     >             NAMLCM*12,NAMMY*12
+      CHARACTER    TEXT12*12,HSIGN*12,HVECT(MAXED)*8,HADD*8,NAMLCM*12,
+     >             NAMMY*12
       INTEGER      ISTATE(NSTATE),IPRINT,NBISOX,NBMIXX,MAXMIX,INDREC,
      >             NBISO,NGRO,NGT,NGF,NGFR,NL,ITRANC,ITIME,NLIB,NIDEPL,
-     >             NCOMB,NEDMAC,NBMIX,NRES,MAXISM,IEN,ILCMLN,ILCMTY,
-     >             IED,JED,KED,IDP,IBSTEP,MAXISO,NDEPL,NEDMA0,ITPROC,
-     >             ISOADD,NADDXS,IPROB,IPROC,IMAC,NDEL,NFISS,IPRECI,
-     >             STERN,STERNR
+     >             NCOMB,NEDMAC,NBMIX,NRES,MAXISM,ILCMLN,ILCMTY,IED,
+     >             JED,KED,IDP,IBSTEP,MAXISO,NDEPL,NEDMA0,ITPROC,ISOADD,
+     >             NADDXS,IPROB,IPROC,IMAC,NDEL,NFISS,IPRECI,STERN,
+     >             STERNR
       REAL         TMPDAY(3),DELT,TIMBRN,SVDEPS
       INTEGER      IKSTEP
       LOGICAL      LEXIST,EMPTY,LCM
@@ -90,8 +90,8 @@
       NBISOX=0
       NBMIXX=0
       IPLIBX=C_NULL_PTR
+      IPBURX=C_NULL_PTR
       IBSTEP=0
-      HLIBX=' '
       LEXIST=(JENTRY(1).EQ.1)
       IF(LEXIST) THEN
         CALL LCMINF(IPLIB,NAMLCM,NAMMY,EMPTY,ILCMLN,LCM)
@@ -125,87 +125,84 @@
         MAXISM=MAXISD
         IPRECI=4
         STERN=1
+      ENDIF
 *----
-*  TRY TO FIND A READ-ONLY MICROLIB OR MACROLIB TO COPY IN THE LIBRARY
+*  TRY TO FIND A READ-ONLY LCM OBJECT
 *----
-        DO 130 IEN=2,NENTRY
-          HSIGN=' '
-          IF(IENTRY(IEN) .LE. 2 .AND. JENTRY(IEN) .EQ. 2) THEN
-            CALL LCMLEN(KENTRY(IEN),'SIGNATURE',ILCMLN,ILCMTY)
-            IF(ILCMLN .GT. 0) THEN
-              CALL LCMGTC(KENTRY(IEN),'SIGNATURE',12,1,HSIGN)
-            ELSE
-              CALL LCMLEN(KENTRY(IEN),'MACROLIB',ILCMLN,ILCMTY)
-              IF(ILCMLN .NE. 0) THEN
-                CALL LCMSIX(KENTRY(IEN),'MACROLIB',1)
-                HSIGN='L_MACROLIB'
-              ENDIF
+      IF(NENTRY.GT.1) THEN
+        IF((IENTRY(2).LE.2) .AND.(JENTRY(2).EQ.2)) THEN
+          CALL LCMLEN(KENTRY(2),'SIGNATURE',ILCMLN,ILCMTY)
+          IF(ILCMLN.EQ.0) THEN
+            CALL LCMLIB(KENTRY(2))
+            WRITE(HSMG,'(A,30H: MISSING SIGNATURE IN OBJECT ,A,1H.)')
+     1      TRIM(NAMSBR),TRIM(HENTRY(2))
+            CALL XABORT(HSMG)
+          ENDIF
+          CALL LCMGTC(KENTRY(2),'SIGNATURE',12,1,HSIGN)
+          IF(HSIGN.EQ.'L_LIBRARY') THEN
+            IPLIBX=KENTRY(2)
+          ELSE IF(HSIGN.EQ.'L_BURNUP') THEN
+            IPBURX=KENTRY(2)
+          ELSE IF(HSIGN.EQ.'L_MACROLIB') THEN
+*----
+*  COPY A READ-ONLY MACROLIB IN IPLIB
+*----
+            CALL LCMEQU(KENTRY(2),IPLIB)
+            INDREC=3
+            CALL LCMGET(KENTRY(2),'STATE-VECTOR',ISTATE)
+            NGRO=ISTATE(1)
+            NGT=NGRO
+            MAXMIX=ISTATE(2)
+            NL=ISTATE(3)
+            NADDXS=ISTATE(5)
+            ITRANC=ISTATE(6)
+            NDEL=ISTATE(7)
+            IF(NGT.GT.0) THEN
+              ALLOCATE(ENER(2*NGT+1))
+              CALL LCMGET(KENTRY(2),'ENERGY',ENER)
+              CALL LCMGET(KENTRY(2),'DELTAU',ENER(NGT+2))
             ENDIF
-            IF(HSIGN.EQ.'L_LIBRARY') THEN
-              CALL LCMEQU(KENTRY(IEN),IPLIB)
-              LEXIST=.TRUE.
-              GO TO 140
-            ELSE IF(HSIGN.EQ.'L_MACROLIB') THEN
-              CALL LCMSIX(IPLIB,'MACROLIB',1)
-              CALL LCMEQU(KENTRY(IEN),IPLIB)
-              CALL LCMSIX(IPLIB,' ',2)
-              INDREC=3
-              CALL LCMGET(KENTRY(IEN),'STATE-VECTOR',ISTATE)
-              NGRO=ISTATE(1)
-              NGT=NGRO
-              MAXMIX=ISTATE(2)
-              NL=ISTATE(3)
-              NADDXS=ISTATE(5)
-              ITRANC=ISTATE(6)
-              NDEL=ISTATE(7)
-              IF(NGT .GT. 0) THEN
-                ALLOCATE(ENER(2*NGT+1))
-                CALL LCMGET(KENTRY(IEN),'ENERGY',ENER)
-                CALL LCMGET(KENTRY(IEN),'DELTAU',ENER(NGT+2))
-              ENDIF
-              CALL LCMSIX(IPLIB,'MACROLIB',ILCMUP)
-              CALL LCMEQU(KENTRY(IEN),IPLIB)
-              IF(NADDXS .NE. 0) THEN
-                IF(NADDXS .GT. MAXED-NEDMAC) CALL XABORT(NAMSBR//
-     >          ': TOO MANY EXTRA EDITS REQUESTED')
-                ALLOCATE(IADNAM(2*NADDXS))
-                CALL LCMGET(IPLIB,'ADDXSNAME-P0',IADNAM)
-                JED=0
-                DO 120 IED=1,NADDXS
-                  WRITE(HADD,'(2A4)') IADNAM(JED+1),IADNAM(JED+2)
-                  DO 100 KED=1,NEDMAC
-                    IF(HADD.EQ.HVECT(KED)) GO TO 110
- 100              CONTINUE
-                  NEDMAC=NEDMAC+1
-                  HVECT(NEDMAC)=HADD
- 110              CONTINUE
-                  JED=JED+2
- 120            CONTINUE
-                DEALLOCATE(IADNAM)
-              ENDIF
+            CALL LCMSIX(IPLIB,'MACROLIB',ILCMUP)
+            CALL LCMEQU(KENTRY(2),IPLIB)
+            IF(NADDXS.NE.0) THEN
+              IF(NADDXS .GT. MAXED-NEDMAC) CALL XABORT(NAMSBR//
+     >        ': TOO MANY EXTRA EDITS REQUESTED')
+              ALLOCATE(IADNAM(2*NADDXS))
+              CALL LCMGET(IPLIB,'ADDXSNAME-P0',IADNAM)
+              JED=0
+              DO 120 IED=1,NADDXS
+                WRITE(HADD,'(2A4)') IADNAM(JED+1),IADNAM(JED+2)
+                DO 100 KED=1,NEDMAC
+                  IF(HADD.EQ.HVECT(KED)) GO TO 110
+ 100            CONTINUE
+                NEDMAC=NEDMAC+1
+                HVECT(NEDMAC)=HADD
+ 110            CONTINUE
+                JED=JED+2
+ 120          CONTINUE
+              DEALLOCATE(IADNAM)
+            ENDIF
 *----
 *  WRITE ENERGY AND DELTAU ON MACROLIB
 *----
-              IF(NGT .GT. 0) THEN
-                CALL LCMPUT(IPLIB,'ENERGY',NGT+1,2,ENER)
-                CALL LCMPUT(IPLIB,'DELTAU',NGT,2,ENER(NGT+2))
-              ENDIF
-              CALL LCMSIX(IPLIB,'MACROLIB',ILCMDN)
-              IF(NGT .GT. 0) THEN
-                CALL LCMPUT(IPLIB,'ENERGY',NGT+1,2,ENER)
-                CALL LCMPUT(IPLIB,'DELTAU',NGT,2,ENER(NGT+2))
-                DEALLOCATE(ENER)
-              ENDIF
-              CALL LCMSIX(KENTRY(IEN),' ',0)
-              GO TO 140
+            IF(NGT.GT.0) THEN
+              CALL LCMPUT(IPLIB,'ENERGY',NGT+1,2,ENER)
+              CALL LCMPUT(IPLIB,'DELTAU',NGT,2,ENER(NGT+2))
             ENDIF
+            CALL LCMSIX(IPLIB,'MACROLIB',ILCMDN)
+            IF(NGT.GT.0) THEN
+              CALL LCMPUT(IPLIB,'ENERGY',NGT+1,2,ENER)
+              CALL LCMPUT(IPLIB,'DELTAU',NGT,2,ENER(NGT+2))
+              DEALLOCATE(ENER)
+            ENDIF
+            CALL LCMSIX(KENTRY(2),' ',0)
           ENDIF
- 130    CONTINUE
+        ENDIF
       ENDIF
 *----
 *  RECOVER STATE-VECTOR FROM EXISTING MICROLIB
 *----
- 140  IF(LEXIST) THEN
+      IF(LEXIST) THEN
         CALL LCMGTC(IPLIB,'SIGNATURE',12,1,HSIGN)
         IF(HSIGN.NE.'L_LIBRARY') THEN
           TEXT12=HENTRY(1)
@@ -247,9 +244,9 @@
 *----
 *  READ LIBRARY DATA
 *----
- 155  CALL REDGET(ITYPLU,INTLIR,REALIR,CARLIR,DBLLIR)
+ 130  CALL REDGET(ITYPLU,INTLIR,REALIR,CARLIR,DBLLIR)
       IF(ITYPLU .NE. 3) CALL XABORT(NAMSBR//': KEYWORD EXPECTED')
- 156  IF(CARLIR(1:4) .EQ. 'EDIT') THEN
+ 140  IF(CARLIR(1:4) .EQ. 'EDIT') THEN
 *---
 *  READ THE PRINT INDEX
 *----
@@ -365,7 +362,7 @@
         IF(ITYPLU.EQ.2) THEN
           SVDEPS=REALIR
         ELSE IF(ITYPLU.EQ.3) THEN
-          GO TO 156
+          GO TO 140
         ELSE
           CALL XABORT(NAMSBR//': REAL VALUE EXPECTED FOR RSE ACCURACY')
         ENDIF
@@ -394,31 +391,21 @@
           HVECT(NEDMAC)=CARLIR(:8)
  170    CONTINUE
       ELSE IF(CARLIR(1:4) .EQ. 'MIXS') THEN
-         ITPROC=1
-         GO TO 240
+        ITPROC=1
+        GO TO 240
       ELSE IF(CARLIR(1:4) .EQ. 'MAXS') THEN
         ITPROC=2
         IF(INDREC .NE. 2)  CALL XABORT(NAMSBR//
      >  ': MAXS CAN ONLY BE USE TO UPDATE '//
      >  'A LIBRARY - IT CANNOT CREATE A NEW LIBRARY')
 *----
-*  TRY TO FIND A SECOND READ-ONLY LIBRARY TO MODIFY
-*  ORIGINAL LIBRARY
+*  TRY TO FIND A SECOND READ-ONLY MICROLIB TO MODIFY ORIGINAL ONE
 *----
-        DO 180 IEN=2,NENTRY
-          IF(IENTRY(IEN) .LE. 2 .AND.
-     >       JENTRY(IEN) .EQ.2 ) THEN
-            CALL LCMGTC(KENTRY(IEN),'SIGNATURE',12,1,HSIGN)
-            IF(HSIGN.EQ.'L_LIBRARY') THEN
-              IPLIBX=KENTRY(IEN)
-              HLIBX=HENTRY(IEN)
-              CALL LCMGET(IPLIBX,'STATE-VECTOR',ISTATE)
-              NBMIXX=ISTATE(1)
-              NBISOX=ISTATE(2)
-            ENDIF
-          ENDIF
- 180    CONTINUE
-        IF(NBMIXX .EQ. 0) THEN
+        IF(C_ASSOCIATED(IPLIBX)) THEN
+          CALL LCMGET(IPLIBX,'STATE-VECTOR',ISTATE)
+          NBMIXX=ISTATE(1)
+          NBISOX=ISTATE(2)
+        ELSE
           NBMIXX=MAXMIX
           NBISOX=NBISO
           IPLIBX=IPLIB
@@ -437,29 +424,19 @@
         ENDIF
         GO TO 240
       ELSE IF(CARLIR(1:4) .EQ. 'BURN') THEN
+        IF(INDREC .NE. 2) THEN
+          CALL XABORT(NAMSBR//': BURN CAN ONLY BE USE TO UPDATE '//
+     >    'A LIBRARY - IT CANNOT CREATE A NEW LIBRARY')
+        ELSE IF(.NOT.C_ASSOCIATED(IPBURX)) THEN
+          CALL XABORT(NAMSBR//': BURNUP OBJECT MISSING')
+        ENDIF
         ITPROC=2
-        IF(INDREC .NE. 2) CALL XABORT(NAMSBR//
-     >  ': MAXS CAN ONLY BE USE TO UPDATE '//
-     >  'A LIBRARY - IT CANNOT CREATE A NEW LIBRARY')
-        DO 190 IEN=2,NENTRY
-          IF(IENTRY(IEN) .LE. 2 .AND.
-     >       JENTRY(IEN) .EQ. 2) THEN
-            CALL LCMGTC(KENTRY(IEN),'SIGNATURE',12,1,HSIGN)
-            IF(HSIGN.EQ.'L_BURNUP') THEN
-              IPLIBX=KENTRY(IEN)
-              HLIBX=HENTRY(IEN)
-              CALL LCMGET(IPLIBX,'STATE-VECTOR',ISTATE)
-              NDEPL=ISTATE(3)
-              NBISOX=ISTATE(4)
-              NBMIXX=ISTATE(8)
-              GO TO 200
-            ENDIF
-          ENDIF
- 190    CONTINUE
-        CALL XABORT(NAMSBR//': BURNUP FILE MISSING')
- 200    CONTINUE
+        CALL LCMGET(IPBURX,'STATE-VECTOR',ISTATE)
+        NDEPL=ISTATE(3)
+        NBISOX=ISTATE(4)
+        NBMIXX=ISTATE(8)
         ALLOCATE(BSTD(NDEPL))
-        CALL LCMGET(IPLIBX,'DEPL-TIMES  ',BSTD)
+        CALL LCMGET(IPBURX,'DEPL-TIMES  ',BSTD)
         CALL REDGET(ITYPLU,INTLIR,REALIR,CARLIR,DBLLIR)
         IF(ITYPLU .EQ. 3) CALL XABORT(NAMSBR//': INVALID BURNUP STEP')
         IF(ITYPLU .EQ. 2) THEN
@@ -503,6 +480,9 @@
         TMPDAY(3)=0.0
         IF(IPRINT .GE. 1) WRITE(IOUT,6000) IBSTEP,TMPDAY(1)
         GO TO 240
+      ELSE IF(CARLIR(1:4) .EQ. 'CATL') THEN
+        ITPROC=3
+        GO TO 240
       ELSE IF(CARLIR(1:1).EQ.';') THEN
 *       SAVE THE LIBRARY SPECIFIC INFORMATION.
         TEXT12='L_LIBRARY'
@@ -536,7 +516,7 @@
       ELSE
         CALL XABORT(NAMSBR//': '//CARLIR//' IS AN INVALID KEY-WORD.')
       ENDIF
-      GO TO 155
+      GO TO 130
 *----
 *  PROCESS THE LIB: MODULE INPUT DATA.
 *----
@@ -549,14 +529,17 @@
      >              ITIME ,NLIB  ,NGF   ,NGFR  ,NIDEPL,NCOMB ,
      >              NEDMAC,NBMIX ,NRES  ,IPROC ,IMAC  ,NDEL  ,
      >              ISOADD,MAXISM,HVECT ,IPRECI,SVDEPS,STERN)
-      ELSE IF(ITPROC .GE. 2) THEN
-*----
-*  ALLOCATE
-*----
+      ELSE IF(ITPROC .EQ. 2) THEN
         IF(NGRO .EQ. 0) CALL XABORT(NAMSBR//
      >  ': NUMBER OF GROUP REQUIRED FOR MAXS OF BURN')
-        CALL LIBMAC(IPLIB ,IPLIBX,IPRINT,MAXISO,NBISO ,NBISOX,
-     >              IBSTEP,NBMIX ,NBMIXX,NGRO  ,TMPDAY)
+        CALL LIBMAC(IPLIB ,IPLIBX,IPBURX,IPRINT,MAXISO,NBISO ,
+     >              NBISOX,IBSTEP,NBMIX ,NBMIXX,NGRO  ,TMPDAY)
+      ELSE IF(ITPROC .EQ. 3) THEN
+        ! catenate two microlibs
+        CALL LCMGET(IPLIBX,'STATE-VECTOR',ISTATE)
+        MAXISO=MAX(MAXISO,NBISO+ISTATE(2))
+        CALL LIBCTL(MAXMIX,MAXISO,IPLIB,IPLIBX,INDREC,IMAC,ISOADD,
+     >              NIDEPL,IPRINT,NBISO,NBMIX)
       ENDIF
   250 IF(IPRINT .GE. 5) CALL LCMLIB(IPLIB)
       RETURN

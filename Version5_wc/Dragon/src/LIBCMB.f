@@ -1,6 +1,6 @@
 *DECK LIBCMB
       SUBROUTINE LIBCMB(MAXMIX,MAXISO,NBISO,NEWISO,NNMIX,MIXCMB,VOLTOT,
-     >                  VOLFRA,DENMIX,ISONAM,ISONRF,ISHINA,ISOMIX,IHLIB,
+     >                  VOLFRA,DENMIX,ISONAM,ISONRF,SHINA,ISOMIX,HLIB,
      >                  ILLIB,DENISO,TMPISO,LSHI,SNISO,SBISO,NTFG,NIR,
      >                  GIR,MASKI,IEVOL,ITYP)
 *
@@ -30,9 +30,9 @@
 * DENMIX  density of each mixture.
 * ISONAM  name of isotopes.
 * ISONRF  reference name of isotopes.
-* ISHINA  self-shielding name of isotopes.
+* SHINA   self-shielding name of isotopes.
 * ISOMIX  mix number of each isotope.
-* IHLIB   isotope options.
+* HLIB    isotope options.
 * ILLIB   xs library index for each isotope.
 * DENISO  density of isotopes.
 * TMPISO  temperature of isotopes.
@@ -55,14 +55,15 @@
 *  SUBROUTINE ARGUMENTS
 *----
       INTEGER      MAXMIX,MAXISO,NBISO,NEWISO,NNMIX,MIXCMB,
-     >             ISONAM(3,MAXISO),ISONRF(3,MAXISO),ISHINA(3,MAXISO),
-     >             ISOMIX(MAXISO),IHLIB(2,MAXISO,4),ILLIB(MAXISO),
-     >             LSHI(MAXISO),NTFG(MAXISO),NIR(MAXISO),IEVOL(MAXISO),
-     >             ITYP(MAXISO)
+     >             ISONAM(3,MAXISO),ISONRF(3,MAXISO),ISOMIX(MAXISO),
+     >             ILLIB(MAXISO),LSHI(MAXISO),NTFG(MAXISO),NIR(MAXISO),
+     >             IEVOL(MAXISO),ITYP(MAXISO)
       LOGICAL      MASKI(MAXISO)
       REAL         VOLTOT,VOLFRA,DENMIX(MAXMIX),DENISO(MAXISO),
      >             TMPISO(MAXISO),SNISO(MAXISO),SBISO(MAXISO),
      >             GIR(MAXISO)
+      CHARACTER(LEN=12) SHINA(MAXISO)
+      CHARACTER(LEN=8) HLIB(MAXISO,4)
       DOUBLE PRECISION TOTWPC
 *----
 *  LOCAL PARAMETERS
@@ -206,12 +207,10 @@
           DO 120 ITC=1,3
             ISONAM(ITC,ISO2)=ISONAM(ITC,ISO)
             ISONRF(ITC,ISO2)=ISONRF(ITC,ISO)
-            ISHINA(ITC,ISO2)=ISHINA(ITC,ISO)
  120      CONTINUE
+          SHINA(ISO2)=SHINA(ISO)
           DO 140 ILC=1,4
-            DO 141 ITC=1,2
-              IHLIB(ITC,ISO2,ILC)=IHLIB(ITC,ISO,ILC)
- 141        CONTINUE
+            HLIB(ISO2,ILC)=HLIB(ISO,ILC)
  140      CONTINUE
           ILLIB(ISO2)=ILLIB(ISO)
         ENDIF

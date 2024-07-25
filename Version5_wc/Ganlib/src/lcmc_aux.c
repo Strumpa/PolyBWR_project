@@ -20,36 +20,36 @@
 
 static char AbortString[132];
 
-void lcmput_c(lcm **iplist,const char *nom,int_32 ilong,int_32 itype,int_32 *idata)
+void lcmput_c(lcm **iplist,const char *namp,int_32 ilong,int_32 itype,int_32 *idata)
 /*
  *----------------------------------------------------------------------
  *
- * COPY A BLOCK OF DATA FROM MEMORY INTO A TABLE.
+ * copy a block of data from memory into a table.
  *
- * INPUT PARAMETERS:
- *  IPLIST : ADDRESS OF THE TABLE.
- *    NAMP : CHARACTER*12 NAME OF THE CURRENT BLOCK.
- *   ILONG : NUMBER OF INFORMATION ELEMENTS STORED IN THE CURRENT BLOCK.
- *   ITYPE : TYPE OF INFORMATION ELEMENTS STORED IN THE CURRENT BLOCK.
- *           0: DIRECTORY                1: INTEGER
- *           2: SINGLE PRECISION         3: CHARACTER*4
- *           4: DOUBLE PRECISION         5: LOGICAL
- *           6: COMPLEX                 99: UNDEFINED
- *   IDATA : INFORMATION ELEMENTS. DIMENSION IDATA(ILONG)
+ * input parameters:
+ *  iplist : address of the table.
+ *    namp : character*12 name of the current block.
+ *   ilong : number of information elements stored in the current block.
+ *   itype : type of information elements stored in the current block.
+ *           0: directory                1: integer
+ *           2: single precision         3: character*4
+ *           4: double precision         5: logical
+ *           6: complex                 99: undefined
+ *   idata : information elements.
  *
  *----------------------------------------------------------------------
  */
 {
    if ((*iplist)->header == 200) {
       /* USE A XSM FILE. */
-      xsmput_c((xsm **)iplist,nom,ilong,itype,idata);
+      xsmput_c((xsm **)iplist,namp,ilong,itype,idata);
    } else {
       int_32 i, *iofdat;
       int_32 jlong = ilong;
       if (itype == 4 || itype == 6) jlong = 2*ilong;
       iofdat = (int_32 *)malloc(jlong*sizeof(int_32)); /* setara_c(jlong); */
       for (i = 0; i < jlong; ++i) iofdat[i] = idata[i];
-      lcmppd_c(iplist,nom,ilong,itype,iofdat);
+      lcmppd_c(iplist,namp,ilong,itype,iofdat);
    }
 }
 
@@ -57,18 +57,18 @@ void lcmpdl_c(lcm **iplist,int_32 iset,int_32 ilong,int_32 itype,int_32 *idata)
 /*
  *----------------------------------------------------------------------
  *
- * COPY A BLOCK OF DATA FROM MEMORY INTO A LIST.
+ * copy a block of data from memory into a list.
  *
- * INPUT PARAMETERS:
- *  IPLIST : ADDRESS OF THE LIST.
- *    ISET : POSITION OF THE SPECIFIC ELEMENT.
- *   ILONG : NUMBER OF INFORMATION ELEMENTS STORED IN THE CURRENT BLOCK.
- *   ITYPE : TYPE OF INFORMATION ELEMENTS STORED IN THE CURRENT BLOCK.
- *           0: DIRECTORY                1: INTEGER
- *           2: SINGLE PRECISION         3: CHARACTER*4
- *           4: DOUBLE PRECISION         5: LOGICAL
- *           6: COMPLEX                 99: UNDEFINED
- *   IDATA : INFORMATION ELEMENTS. DIMENSION IDATA(ILONG)
+ * input parameters:
+ *  iplist : address of the list.
+ *    iset : position of the specific element.
+ *   ilong : number of information elements stored in the current block.
+ *   itype : type of information elements stored in the current block.
+ *           0: directory                1: integer
+ *           2: single precision         3: character*4
+ *           4: double precision         5: logical
+ *           6: complex                 99: undefined
+ *   idata : information elements.
  *
  *----------------------------------------------------------------------
  */
@@ -91,13 +91,13 @@ void lcmpcd_c(lcm **iplist,const char *namp,int_32 ilong,char *hdata[])
 /*
  *----------------------------------------------------------------------
  *
- * COPY AN ARRAY OF C STRING VARIABLES FROM MEMORY INTO A TABLE.
+ * copy an array of c string variables from memory into a table.
  *
- * INPUT PARAMETERS:
- *  IPLIST : ADDRESS OF THE TABLE.
- *    NAMP : CHARACTER*12 NAME OF THE BLOCK.
- *   ILONG : DIMENSION OF THE STRING ARRAY.
- *   HDATA : ARRAY OF ILONG STRINGS.
+ * input parameters:
+ *  iplist : address of the table.
+ *    namp : character*12 name of the block.
+ *   ilong : dimension of the string array.
+ *   hdata : array of ilong strings.
  *
  *----------------------------------------------------------------------
  */
@@ -118,14 +118,14 @@ void lcmgcd_c(lcm **iplist,const char *namp,char *hdata[])
 /*
  *-----------------------------------------------------------------------
  *
- * COPY AN ARRAY OF C STRING VARIABLES FROM A TABLE INTO MEMORY.
+ * copy an array of c string variables from a table into memory.
  *
- * INPUT PARAMETERS:
- *  IPLIST : ADDRESS OF THE TABLE.
- *    NAMP : CHARACTER*12 NAME OF THE EXISTING BLOCK.
+ * input parameters:
+ *  iplist : address of the table.
+ *    namp : character*12 name of the existing block.
  *
- * OUTPUT PARAMETER:
- *   HDATA : ARRAY OF ILONG STRINGS (ALLOCATED BY LCMGCD).
+ * output parameter:
+ *   hdata : array of ilong strings (allocated by lcmgcd_c).
  *
  *-----------------------------------------------------------------------
  */
@@ -159,13 +159,13 @@ void lcmpcl_c(lcm **iplist,int_32 iset,int_32 ilong,char *hdata[])
 /*
  *----------------------------------------------------------------------
  *
- * COPY AN ARRAY OF C STRING VARIABLES FROM MEMORY INTO A LIST.
+ * copy an array of c string variables from memory into a list.
  *
- * INPUT PARAMETERS:
- *  IPLIST : ADDRESS OF THE TABLE.
- *    ISET : POSITION OF THE BLOCK IN THE LIST.
- *   ILONG : DIMENSION OF THE CHARACTER VARIABLE.
- *   HDATA : ARRAY OF ILONG STRINGS.
+ * input parameters:
+ *  iplist : address of the table.
+ *    iset : position of the block in the list.
+ *   ilong : dimension of the character variable.
+ *   hdata : array of ilong strings.
  *
  *----------------------------------------------------------------------
  */
@@ -186,14 +186,14 @@ void lcmgcl_c(lcm **iplist,int_32 iset,char *hdata[])
 /*
  *-----------------------------------------------------------------------
  *
- * COPY AN ARRAY OF C STRING VARIABLES FROM A LIST INTO MEMORY.
+ * copy an array of c string variables from a list into memory.
  *
- * INPUT PARAMETERS:
- *  IPLIST : ADDRESS OF THE TABLE.
- *    ISET : POSITION OF THE BLOCK IN THE LIST.
+ * input parameters:
+ *  iplist : address of the table.
+ *    iset : position of the block in the list.
  *
- * OUTPUT PARAMETER:
- *   HDATA : ARRAY OF ILONG STRINGS (ALLOCATED BY LCMGCL).
+ * output parameter:
+ *   hdata : array of ilong strings (allocated by lcmgcl_c).
  *
  *-----------------------------------------------------------------------
  */
@@ -227,12 +227,12 @@ void lcmpsd_c(lcm **iplist,const char *namp,char *hdata)
 /*
  *----------------------------------------------------------------------
  *
- * COPY A SINGLE C STRING VARIABLE FROM MEMORY INTO A TABLE.
+ * copy a single c string variable from memory into a table.
  *
- * INPUT PARAMETERS:
- *  IPLIST : ADDRESS OF THE TABLE.
- *    NAMP : CHARACTER*12 NAME OF THE BLOCK.
- *   HDATA : C STRING.
+ * input parameters:
+ *  iplist : address of the table.
+ *    namp : character*12 name of the block.
+ *   hdata : c string.
  *
  *----------------------------------------------------------------------
  */
@@ -248,14 +248,14 @@ char * lcmgsd_c(lcm **iplist,const char *namp)
 /*
  *-----------------------------------------------------------------------
  *
- * COPY A SINGLE C STRING VARIABLE FROM A TABLE INTO MEMORY.
+ * copy a single c string variable from a table into memory.
  *
- * INPUT PARAMETERS:
- *  IPLIST : ADDRESS OF THE TABLE.
- *    NAMP : CHARACTER*12 NAME OF THE EXISTING BLOCK.
+ * input parameters:
+ *  iplist : address of the table.
+ *    namp : character*12 name of the existing block.
  *
- * OUTPUT PARAMETER:
- *   lcmgsd_c : C STRING.
+ * output parameter:
+ *   lcmgsd_c : c string.
  *
  *-----------------------------------------------------------------------
  */
@@ -288,12 +288,12 @@ void lcmpsl_c(lcm **iplist,int_32 iset,char *hdata)
 /*
  *----------------------------------------------------------------------
  *
- * COPY A SINGLE C STRING VARIABLE FROM MEMORY INTO A LIST.
+ * copy a single c string variable from memory into a list.
  *
- * INPUT PARAMETERS:
- *  IPLIST : ADDRESS OF THE TABLE.
- *    ISET : POSITION OF THE BLOCK IN THE LIST.
- *   HDATA : C STRING.
+ * input parameters:
+ *  iplist : address of the table.
+ *    iset : position of the block in the list.
+ *   hdata : c string.
  *
  *----------------------------------------------------------------------
  */
@@ -309,14 +309,14 @@ char * lcmgsl_c(lcm **iplist,int_32 iset)
 /*
  *-----------------------------------------------------------------------
  *
- * COPY A SINGLE C STRING VARIABLE FROM A LIST INTO MEMORY.
+ * copy a single c string variable from a list into memory.
  *
- * INPUT PARAMETERS:
- *  IPLIST : ADDRESS OF THE TABLE.
- *    ISET : POSITION OF THE BLOCK IN THE LIST.
+ * input parameters:
+ *  iplist : address of the table.
+ *    iset : position of the block in the list.
  *
- * OUTPUT PARAMETER:
- *   lcmgsd_c : C STRING.
+ * output parameter:
+ *   lcmgsd_c : c string.
  *
  *-----------------------------------------------------------------------
  */

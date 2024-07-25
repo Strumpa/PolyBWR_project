@@ -53,6 +53,7 @@
       INTEGER I,J,NENERG,NGEOME,ID_G,ID_E,ID,IBM,NGRP2,RANK,TYPE,NBYTE,
      1 DIMSR(5)
       CHARACTER HSMG*131,RECNAM*80,HFORMAT*132
+      LOGICAL LNEW
       CHARACTER(LEN=100), ALLOCATABLE, DIMENSION(:) :: LIST
       INTEGER, ALLOCATABLE, DIMENSION(:) :: DIMS_MPO,ADDRISO
       INTEGER, ALLOCATABLE, DIMENSION(:,:) :: OUPUTID
@@ -151,16 +152,29 @@
       NISOS=NBISO-(NISOF+NISOP)
       DEALLOCATE(ADDRISO)
 *----
-*  SET NSURFD AND NALBP
+*  SET NSURFD
 *----
-      WRITE(RECNAM,'(8H/output/,A,15H/statept_0/flux)') TRIM(HEDIT)
       NSURFD=0
+      WRITE(RECNAM,'(8H/output/,A,32H/statept_0/zone_0/discontinuity/)')
+     & TRIM(HEDIT)
+      LNEW=hdf5_group_exists(IPMPO,TRIM(RECNAM))
+      IF(LNEW) THEN
+*       new specification
+        CALL hdf5_read_data(IPMPO,TRIM(RECNAM)//"NSURF",NSURFD)
+      ELSE
+*       old specification
+        WRITE(RECNAM,'(8H/output/,A,22H/statept_0/flux/NSURF/)')
+     &  TRIM(HEDIT)
+        CALL hdf5_info(IPMPO,TRIM(RECNAM),RANK,TYPE,NBYTE,DIMSR)
+        IF(TYPE.NE.99) CALL hdf5_read_data(IPMPO,TRIM(RECNAM),NSURFD)
+      ENDIF
+*----
+*  SET NALBP
+*----
+      WRITE(RECNAM,'(8H/output/,A,16H/statept_0/flux/)') TRIM(HEDIT)
       NALBP=0
-      CALL hdf5_info(IPMPO,TRIM(RECNAM)//"/NSURF",RANK,TYPE,NBYTE,DIMSR)
-      IF(TYPE.NE.99) CALL hdf5_read_data(IPMPO,TRIM(RECNAM)//"/NSURF",
-     1 NSURFD)
-      CALL hdf5_info(IPMPO,TRIM(RECNAM)//"/NALBP",RANK,TYPE,NBYTE,DIMSR)
-      IF(TYPE.NE.99) CALL hdf5_read_data(IPMPO,TRIM(RECNAM)//"/NALBP",
+      CALL hdf5_info(IPMPO,TRIM(RECNAM)//"NALBP",RANK,TYPE,NBYTE,DIMSR)
+      IF(TYPE.NE.99) CALL hdf5_read_data(IPMPO,TRIM(RECNAM)//"NALBP",
      1 NALBP)
 *----
 *  SET NPRC
