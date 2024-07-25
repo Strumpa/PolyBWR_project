@@ -5,8 +5,8 @@ characteristics of the host system. The physical characteristics of the input
 data is a collection of sequential records. These characters are by necessity
 {\sc ascii} characters. The logical organization of an input deck is in the form
 of a sequential structure of input variables presented in free format. This
-structure must be located in the first 72 columns of each record in the input
-stream. Characters located in column 73 and $\le$ 132 can be used to identify the
+structure must be located in the first 120 columns of each record in the input
+stream. Characters located in column 121 and $\le$ 132 can be used to identify the
 records and are treated as comments. An input variable can be defined in one of
 two ways.
 
@@ -73,7 +73,7 @@ must be replaced in the input deck by an integer variable,  ({\it
 energy}(igroup), igroup=1,{\it ngroup}+1) states that a vector containing {\it
 ngroup}+1 real elements is to be read while {\it FILE} must be replaced by a
 character variable, its maximum size being generally specified. 
-No character variable can exceed 72 character in length.
+No character variable can exceed 72 characters in length.
 
 \item The variables or structures surrounded by single square brackets `$[\;]$'
 are optional.

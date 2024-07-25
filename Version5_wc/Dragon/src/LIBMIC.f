@@ -138,8 +138,7 @@
            ENDIF
          ENDDO
          DO IML=1,NBML
-           IF((ISONRF(1,IMX).EQ.JSONAM(1,IML)).AND.
-     1        (ISONRF(2,IMX).EQ.JSONAM(2,IML))) THEN
+           IF(ISONRF(1,IMX).EQ.JSONAM(1,IML)) THEN
              WRITE(IOUT,'(22H POSSIBLE CANDIDATE: '',3A4,1H'')')
      1       JSONAM(:3,IML)
            ENDIF

@@ -1,6 +1,6 @@
 *DECK LIBEAD
       SUBROUTINE LIBEAD (IPLIB,MAXISO,MAXMIX,IMPX,NDEPL,NFISS,NSUPS,
-     1 NREAC,NPAR,NBISO,ISONAM,ISONRF,IHLIB,ILLIB,MIX,TN,IEVOL,ITYP,
+     1 NREAC,NPAR,NBISO,ISONAM,ISONRF,HLIB,ILLIB,MIX,TN,IEVOL,ITYP,
      2 NCOMB)
 *
 *-----------------------------------------------------------------------
@@ -32,7 +32,7 @@
 *         domain.
 * ISONAM  alias name of isotopes.
 * ISONRF  library name of isotopes.
-* IHLIB   isotope options.
+* HLIB    isotope options.
 * ILLIB   xs library index for each isotope.
 * MIX     mix number of each isotope (can be zero).
 * TN      temperature of each isotope.
@@ -51,9 +51,10 @@
 *----
       TYPE(C_PTR) IPLIB
       INTEGER MAXISO,MAXMIX,IMPX,NDEPL,NFISS,NSUPS,NREAC,NPAR,
-     1 NBISO,ISONAM(3,MAXISO),ISONRF(3,MAXISO),IHLIB(2,MAXISO,4),
-     2 ILLIB(MAXISO),MIX(MAXISO),IEVOL(MAXISO),ITYP(MAXISO),NCOMB
+     1 NBISO,ISONAM(3,MAXISO),ISONRF(3,MAXISO),ILLIB(MAXISO),
+     2 MIX(MAXISO),IEVOL(MAXISO),ITYP(MAXISO),NCOMB
       REAL TN(MAXISO)
+      CHARACTER(LEN=8) HLIB(MAXISO,4)
 *----
 *  LOCAL VARIABLES
 *----
@@ -191,9 +192,7 @@
             DO 95 I0=1,3
             ISONRF(I0,NBISO)=HGAR(I0,INUCL)
    95       CONTINUE
-            DO 96 I0=1,2
-            IHLIB(I0,NBISO,1)=IHLIB(I0,IFIRST,1)
-   96       CONTINUE
+            HLIB(NBISO,1)=HLIB(IFIRST,1)
             ILLIB(NBISO)=ILLIB(IFIRST)
             MIX(NBISO)=IBM
             TN(NBISO)=TN(IFIRST)

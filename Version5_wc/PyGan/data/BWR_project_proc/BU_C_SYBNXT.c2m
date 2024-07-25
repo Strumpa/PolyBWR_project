@@ -26,6 +26,9 @@ INTEGER Multicompo ;
 STRING name_geom name_compo ;
 :: >>name_geom<< >>name_compo<< ;
 
+STRING ssh_method ssh_sol flx_sol ;
+:: >>ssh_method<< >>ssh_sol<< >>flx_sol<< ;
+
 
 * ---
 * STRUCTURES AND MODULES

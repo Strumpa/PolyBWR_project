@@ -124,8 +124,7 @@ GEOM_2x2 := GEO: :: CAR2D 2 2
 LIBRARY := LIB: ::
     EDIT 0
     NMIX 100    ! MAXIMUM OF MATERIAL MIXTURES
-    !RSE 1.0E-02
-    PT
+    RSE 1.0E-02
     ANIS 3
 
   DEPL LIB: DRAGON FIL: <<Library>>
@@ -211,7 +210,7 @@ LIBRARY := LIB: ::
 * ---
 
 INTEGER an2d := 18 ;  ! ANGULAR QUADRATURE PARAMETER 
-REAL densur := 40.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
+REAL densur := 35.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
 
 INTEGER an2d_ss := 8 ;  ! ANGULAR QUADRATURE PARAMETER 
 REAL densur_ss := 15.0 ; ! DENSITY OF INTEGRATION LINES CM^-1 
@@ -255,10 +254,10 @@ TRACK_SS TF_EXC_SS := SALT: GeoSS_G2S ::
 ;
 
 * MOC tracking for ssh ?
-!TRACK_SS := MCCGT: TRACK_SS TF_EXC_SS ::
-!  EDIT 1
-!  CACB <<nmu>> AAC 80 TMT EPSI 1E-5 MCU <<mcu>> ! tried CACB but is limited to isotropic ?
-!;
+TRACK_SS := MCCGT: TRACK_SS TF_EXC_SS ::
+  EDIT 1
+  CACB <<nmu>> AAC 80 TMT EPSI 1E-5 MCU <<mcu>> ! tried CACB but is limited to isotropic ?
+;
 
 
 
@@ -268,7 +267,7 @@ TRACK_SS TF_EXC_SS := SALT: GeoSS_G2S ::
 
 
 LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
-        EDIT 1 PASS 3 MAXST 20 !ARM
+        EDIT 1 PASS 3 MAXST 20 ARM
       ;
 
 SYS := ASM: LIBRARY2 TRACK TF_EXC :: ARM EDIT 0 ; 

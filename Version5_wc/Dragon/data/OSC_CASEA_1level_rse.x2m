@@ -247,7 +247,7 @@ ECHO "+++ Burnup=" BUend " Kinf=" Kinf " at step" istep ;
   EVALUATE Tend := BUend Fuelpwr / ;
   
   BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX2 TRACKN2 ::
-   EDIT 3 DEPL <<Tbeg>> <<Tend>> DAY POWR <<Fuelpwr>> 
+   EDIT 1 DEPL <<Tbeg>> <<Tend>> DAY POWR <<Fuelpwr>> 
    EXPM 1.0E15 GLOB ;
   
  ENDIF ;

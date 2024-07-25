@@ -25,6 +25,9 @@ INTEGER Multicompo ;
 STRING name_geom name_compo ;
 :: >>name_geom<< >>name_compo<< ;
 
+STRING ssh_method ssh_sol flx_sol ;
+:: >>ssh_method<< >>ssh_sol<< >>flx_sol<< ;
+
 
 * ---
 * STRUCTURES AND MODULES
@@ -96,11 +99,37 @@ WHILE istep nstep < DO
 *----
   IF istep 1 = THEN
      ECHO ".perform self-shielding at" Tbeg "days" ;
-     LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
-        EDIT 0
-        PASS 2
-        GRMIN 52
-     ;
+     IF name_geom "AT10_UOX_Gd2O3" = THEN
+      IF ssh_sol "MOC" = THEN
+        LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
+            EDIT 0 PASS 3 GRMIN 52 ARM
+            !CALC
+            !  REGI W1 U238 ALL
+            !  REGI W1 Pu239 ALL
+            !  REGI W1 Pu240 ALL
+            !ENDC
+        ;
+      ELSE 
+        LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
+            EDIT 0 PASS 3 GRMIN 52 
+            !CALC
+            !  REGI W1 U238 ALL
+            !  REGI W1 Pu239 ALL
+            !  REGI W1 Pu240 ALL
+            !ENDC
+        ;
+      ENDIF ;
+     ELSE
+      IF ssh_sol "MOC" = THEN
+        LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
+            EDIT 0 PASS 3 GRMIN 52 ARM
+        ;
+      ELSE 
+        LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
+            EDIT 0 PASS 3 GRMIN 52 
+        ;
+      ENDIF ;
+     ENDIF ;
   ELSE
      GREP: StepList :: GETVAL "ListAutop" <<iauto>> >>BUautop<< ;
      GREP: StepList :: GETVAL "ListBU" <<istep>> >>BU<< ;
@@ -108,20 +137,50 @@ WHILE istep nstep < DO
      ECHO "BU is =" BU " and BUautop =" BUautop ;  
      IF BUautop BU = THEN
        ECHO "perform self-shielding at" Tbeg "days" ;
-       LIBRARY2 := USS: LIBRARY LIBRARY2 TRACK_SS TF_EXC_SS ::
-          EDIT 0
-          PASS 2
-          GRMIN 52
-       ;
+      IF name_geom "AT10_UOX_Gd2O3" = THEN
+        IF ssh_sol "MOC" = THEN
+          LIBRARY2 := USS: LIBRARY LIBRARY2 TRACK_SS TF_EXC_SS ::
+              EDIT 0 PASS 3 GRMIN 52 ARM
+              !CALC
+              !  REGI W1 U238 ALL
+              !  REGI W1 Pu239 ALL
+              !  REGI W1 Pu241 ALL
+              !ENDC
+          ;
+        ELSE
+          LIBRARY2 := USS: LIBRARY LIBRARY2 TRACK_SS TF_EXC_SS ::
+              EDIT 0 PASS 3 GRMIN 52
+              !CALC
+              !  REGI W1 U238 ALL
+              !  REGI W1 Pu239 ALL
+              !  REGI W1 Pu241 ALL
+              !ENDC
+          ;
+        ENDIF ;
+      ELSE
+        IF ssh_sol "MOC" = THEN
+          LIBRARY2 := USS: LIBRARY LIBRARY2 TRACK_SS TF_EXC_SS ::
+            EDIT 0 PASS 3 GRMIN 52 ARM
+          ;
+        ELSE
+          LIBRARY2 := USS: LIBRARY LIBRARY2 TRACK_SS TF_EXC_SS ::
+            EDIT 0 PASS 3 GRMIN 52 
+          ;
+        ENDIF ;
+      ENDIF ;
       EVALUATE iauto := iauto 1 + ;
       ECHO "iauto is = " iauto ;
     ENDIF ;
   ENDIF ;
 
 ************************************************************************
-*  BEGIN MOC FLUX CALCULATION                                          *
+*  BEGIN MOC/CP FLUX CALCULATION                                       *
 ************************************************************************
-  SYS := ASM: LIBRARY2 TRACK TF_EXC :: ARM EDIT 0 ;    
+  IF flx_sol "MOC" = THEN
+    SYS := ASM: LIBRARY2 TRACK TF_EXC :: ARM EDIT 0 ;   
+  ELSEIF flx_sol "CP" = THEN
+    SYS := ASM: LIBRARY2 TRACK TF_EXC :: PIJ EDIT 0 ; 
+  ENDIF ;
 
   IF istep 1 = THEN     
      FLUX := FLU: LIBRARY2 SYS TRACK TF_EXC :: 

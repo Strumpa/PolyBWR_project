@@ -9,7 +9,7 @@ LINKED_LIST REFL MACRO1 MACRO2 ADF1 ADF2 ;
 SEQ_ASCII _REFL :: FILE './_Multicompo_Refl_MCompRefl.txt' ;
 HDF5_FILE MPOREFL :: FILE './MpoRefl.hdf' ;
 REAL densB1 := 700.0 ; ! reference Boron concentration in ppm
-REAL value1 value2 value3 DELTA ;
+REAL value1 value2 DELTA ;
 
 ************************************************************************
 *  Multicompo reflector                                                *
@@ -18,7 +18,7 @@ REFL := _REFL ;
 MACRO1 :=  NCR:  REFL :: EDIT 2 MACRO NMIX 5
    COMPO REFL Radial MIX  5 FROM 2 SET 'C-BORE' <<densB1>> SET 'Method'
                      'DF-NEM' SET 'Palier' 'EPR' ENDMIX ;
-UTL: MACRO1 :: DUMP ;
+UTL: MACRO1 :: IMPR STATE-VECTOR * DUMP ;
 
 ************************************************************************
 *  MPO reflector                                                       *
@@ -27,7 +27,7 @@ UTL: MACRO1 :: DUMP ;
 MACRO2 :=  MCR:  MPOREFL :: EDIT 3 MACRO NMIX 5
    MPO MPOREFL output_0 MIX  5 FROM 2 SET 'C-BORE' <<densB1>> SET 'Method'
                       'DF-NEM' SET 'Palier' 'EPR' ENDMIX ;
-UTL: MACRO2 :: DUMP ;
+UTL: MACRO2 :: IMPR STATE-VECTOR * DUMP ;
 
 ************************************************************************
 *  statistics                                                          *
@@ -50,8 +50,6 @@ ADF1 := MACRO1 :: STEP UP ADF ;
 ADF2 := MACRO2 :: STEP UP ADF ;
 GREP: ADF1 :: GETVAL "FD_B" 5 >>value1<< ;
 GREP: ADF2 :: GETVAL "FD_00001" 5 >>value2<< ;
-GREP: ADF2 :: GETVAL "AVG_FLUX" 5 >>value3<< ;
-EVALUATE value2 := value2 value3 / ;
 ECHO "adf1=" value1 "adf2=" value2 ;
 EVALUATE DELTA := value1 value2 - value2 / ABS ;
 IF DELTA 5.0E-5 < THEN

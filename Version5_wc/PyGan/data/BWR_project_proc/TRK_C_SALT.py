@@ -10,7 +10,7 @@
 import lifo
 import cle2000
 
-def TRK_C_SALT(namUOX_TBH,namFIG,namTRACK,namTF_EXC,namUOX_TBH_SS,namFIG_SS,namTRACK_SS,namTF_EXC_SS,pyGEOM,pyGEOM_SS):
+def TRK_C_SALT(namUOX_TBH, namFIG, namTRACK, namTF_EXC, namUOX_TBH_SS, namFIG_SS, namTRACK_SS, namTF_EXC_SS, pyGEOM, pyGEOM_SS, ssh_sol, flx_sol):
   # Lifo
   myLifo=lifo.new()
 
@@ -26,6 +26,8 @@ def TRK_C_SALT(namUOX_TBH,namFIG,namTRACK,namTF_EXC,namUOX_TBH_SS,namFIG_SS,namT
 
   myLifo.push(pyGEOM)
   myLifo.push(pyGEOM_SS)
+  myLifo.push(ssh_sol)
+  myLifo.push(flx_sol)
 
   # Execution
   trackBWR = cle2000.new('TRK_C_SALT',myLifo,1)

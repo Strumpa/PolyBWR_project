@@ -10,7 +10,7 @@
 import lifo
 import cle2000
 
-def BU_C_SYBNXT(namCOMPO,pyMIX,pyTRACK,pyTF_EXC,pyTRACK_SS,StepList,Multicompo,name_geom,name_compo):
+def BU_C_SYBNXT(namCOMPO, pyMIX, pyTRACK, pyTF_EXC, pyTRACK_SS, StepList, Multicompo, name_geom, name_compo, ssh_option, ssh_sol, flx_sol):
 
   # Lifo
   myLifo=lifo.new()
@@ -23,6 +23,9 @@ def BU_C_SYBNXT(namCOMPO,pyMIX,pyTRACK,pyTF_EXC,pyTRACK_SS,StepList,Multicompo,n
   myLifo.push(Multicompo)
   myLifo.push(name_geom)
   myLifo.push(name_compo)
+  myLifo.push(ssh_option)
+  myLifo.push(ssh_sol)
+  myLifo.push(flx_sol)
   myLifo.lib()
 
   # Execution 

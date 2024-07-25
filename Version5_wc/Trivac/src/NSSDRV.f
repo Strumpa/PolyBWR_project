@@ -63,9 +63,9 @@
       PARAMETER (NSTATE=40)
       INTEGER ISTATE(NSTATE),ICODE(6)
       TYPE(C_PTR) JPMAC,KPMAC
+      CHARACTER HSMG*131
       CHARACTER(LEN=8) HADF(6)
       CHARACTER(LEN=72) TITLE
-      CHARACTER(LEN=132) HSMG
 *----
 *  ALLOCATABLE ARRAYS
 *----
@@ -75,7 +75,7 @@
       REAL, ALLOCATABLE, DIMENSION(:) :: XX,YY,ZZ,XXX,YYY,ZZZ,WORK,VOL
       REAL, ALLOCATABLE, DIMENSION(:,:) :: DIFF,SIGR,CHI,SIGF,QFR,ALBP,
      1 GAR2,GAR3
-      REAL, ALLOCATABLE, DIMENSION(:,:,:) :: BETA,SCAT,FDXM,FDXP
+      REAL, ALLOCATABLE, DIMENSION(:,:,:) :: BETA,SCAT,FDXM,FDXP,GAR4
       REAL, ALLOCATABLE, DIMENSION(:,:,:,:) :: FD
 *----
 *  SCRATCH STORAGE ALLOCATION
@@ -171,7 +171,7 @@
       ENDDO
       DEALLOCATE(IPOS,NJJ,IJJ,WORK)
       ALLOCATE(FDXM(NMIX,NG,NG),FDXP(NMIX,NG,NG),BETA(NALB,NG,NG),
-     > GAR2(NMIX,NG),GAR3(NMIX,NG))
+     > GAR2(NMIX,NG),GAR3(NMIX,NG),GAR4(NMIX,NG,NG))
       IF(NALB.GT.0) THEN
         CALL LCMLEN(IPMAC,'ALBEDO',ILONG,ITYLCM)
         IF(ILONG.EQ.NALB*NG) THEN
@@ -184,6 +184,7 @@
           DEALLOCATE(ALBP)
         ELSE IF(ILONG.EQ.NALB*NG*NG) THEN
           CALL LCMGET(IPMAC,'ALBEDO',BETA)
+          print *,'debug BETA=',BETA(:,:,:)
         ELSE
           CALL XABORT('NSSDRV: INVALID ALBEDO LENGTH.')
         ENDIF
@@ -198,108 +199,91 @@
       ENDIF
       FD(:,:,:,:)=0.0
       IF(LNODF.OR.ISTATE(12).EQ.0) THEN
-        DO IBM=1,NMIX
-          DO IGR=1,NG
-            FD(IBM,1:2,IGR,IGR)=1.0
-          ENDDO
-          IF(IDIM.GE.2) THEN
-            DO IGR=1,NG
-              FD(IBM,3:4,IGR,IGR)=1.0
-            ENDDO
-          ENDIF
-          IF(IDIM.EQ.3) THEN
-            DO IGR=1,NG
-              FD(IBM,5:6,IGR,IGR)=1.0
-            ENDDO
-          ENDIF
+        DO IGR=1,NG
+          FD(:NMIX,:2*IDIM,IGR,IGR)=1.0
         ENDDO
       ELSE IF(ISTATE(12).EQ.2) then
-        ! APOLLO3 case with 4 equisurf values
         CALL LCMSIX(IPMAC,'ADF',1)
         CALL LCMGET(IPMAC,'NTYPE',NSURFD)
         CALL LCMGET(IPMAC,'AVG_FLUX',GAR3)
         CALL LCMGTC(IPMAC,'HADF',8,NSURFD,HADF)
-        DO I=1,NSURFD
-          IF(HADF(I)(1:3).NE.'FD_') CYCLE
-          CALL LCMLEN(IPMAC,HADF(I),ILONG,ITYLCM)
-          IF(ILONG.NE.NG*NMIX) THEN
-            WRITE(HSMG,'(27HNSSDRV: INVALID LENGTH FOR ,A)') HADF(I)
-            CALL XABORT(HSMG)
-          ENDIF
-          CALL LCMGET(IPMAC,HADF(I),GAR2)
+        IF(NSURFD.EQ.1) THEN
+          CALL LCMGET(IPMAC,HADF(1),GAR2)
           DO IBM=1,NMIX
             DO IGR=1,NG
-              FD(IBM,I,IGR,IGR)=1.0
-              IF((GAR2(IBM,IGR).NE.0.0).AND.(HADF(I)(:3).EQ.'FD_')) THEN
-                IF(GAR3(IBM,IGR).NE.0.0) THEN
-                  FD(IBM,I,IGR,IGR)=GAR2(IBM,IGR)/GAR3(IBM,IGR)
-                ELSE
-                  CALL XABORT('NSSDRV: ZERO AVERAGED FLUX.')
-                ENDIF
-              ENDIF
+              FD(IBM,:2*IDIM,IGR,IGR)=GAR2(IBM,IGR)/GAR3(IBM,IGR)
             ENDDO
           ENDDO
-        ENDDO
+        ELSE IF(NSURFD.EQ.2*IDIM) THEN
+          DO I=1,NSURFD
+            IF(HADF(I)(1:3).NE.'FD_') THEN
+              WRITE(HSMG,'(7HNSSDRV:,A,28H FOUND; FD_ PREFIX EXPECTED.)
+     1        ') TRIM(HADF(I))
+              CALL XABORT(HSMG)
+            ENDIF
+            CALL LCMGET(IPMAC,HADF(I),GAR2)
+            DO IGR=1,NG
+              FD(:NMIX,I,IGR,IGR)=GAR2(:NMIX,IGR)/GAR3(:NMIX,IGR)
+            ENDDO
+          ENDDO
+        ELSE
+          WRITE(HSMG,'(12HNSSDRV: 1 OR,I3,25HDISCONTINUITY FACTORS EXP,
+     1    6HECTED.)') 2*IDIM
+          CALL XABORT(HSMG)
+        ENDIF
         CALL LCMSIX(IPMAC,' ',2)
       ELSE IF(ISTATE(12).EQ.3) THEN
         CALL LCMSIX(IPMAC,'ADF',1)
         CALL LCMGET(IPMAC,'NTYPE',NSURFD)
-        CALL LCMGTC(IPMAC,'HADF',8,1,HADF(1))
-        CALL LCMGET(IPMAC,HADF(1),GAR2)
-        CALL LCMSIX(IPMAC,' ',2)
-        DO IBM=1,NMIX
-          DO IGR=1,NG
-            FD(IBM,1:2,IGR,IGR)=GAR2(IBM,IGR)
+        CALL LCMGTC(IPMAC,'HADF',8,NSURFD,HADF)
+        IF(NSURFD.EQ.1) THEN
+          CALL LCMGET(IPMAC,HADF(1),GAR2)
+          DO IBM=1,NMIX
+            DO IGR=1,NG
+              FD(IBM,:2*IDIM,IGR,IGR)=GAR2(IBM,IGR)
+            ENDDO
           ENDDO
-          IF(IDIM.GE.2) THEN
+        ELSE IF(NSURFD.EQ.2*IDIM) THEN
+          DO I=1,NSURFD
+            IF(HADF(I)(1:3).NE.'FD_') THEN
+              WRITE(HSMG,'(7HNSSDRV:,A,28H FOUND; FD_ PREFIX EXPECTED.)
+     1        ') TRIM(HADF(I))
+              CALL XABORT(HSMG)
+            ENDIF
+            CALL LCMGET(IPMAC,HADF(I),GAR2)
             DO IGR=1,NG
-              FD(IBM,3:4,IGR,IGR)=GAR2(IBM,IGR)
+              FD(:NMIX,I,IGR,IGR)=GAR2(:NMIX,IGR)
             ENDDO
-          ENDIF
-          IF(IDIM.EQ.3) THEN
-            DO IGR=1,NG
-              FD(IBM,5:6,IGR,IGR)=GAR2(IBM,IGR)
-            ENDDO
-          ENDIF
-        ENDDO
+          ENDDO
+        ELSE
+          WRITE(HSMG,'(12HNSSDRV: 1 OR,I3,25HDISCONTINUITY FACTORS EXP,
+     1    6HECTED.)') 2*IDIM
+          CALL XABORT(HSMG)
+        ENDIF
+        CALL LCMSIX(IPMAC,' ',2)
       ELSE IF(ISTATE(12).EQ.4) THEN
+        ! matrix discontinuity factors
         CALL LCMSIX(IPMAC,'ADF',1)
         CALL LCMGET(IPMAC,'NTYPE',NSURFD)
-        IF(IDIM.EQ.1) THEN
-          CALL LCMGTC(IPMAC,'HADF',8,2,HADF)
-        ELSE IF(IDIM.EQ.2) THEN
-          CALL LCMGTC(IPMAC,'HADF',8,4,HADF)
-        ELSE IF(IDIM.EQ.3) THEN
-          CALL LCMGTC(IPMAC,'HADF',8,6,HADF)
+        IF(NSURFD.NE.2*IDIM) THEN
+          WRITE(HSMG,'(7HNSSDRV:,I3,30HDISCONTINUITY FACTORS EXPECTED)'
+     1    ) 2*IDIM
+          CALL XABORT(HSMG)
         ENDIF
-        CALL LCMGET(IPMAC,HADF(1),FDXM)
-        CALL LCMGET(IPMAC,HADF(2),FDXP)
-        DO JGR=1,NG
-          DO IGR=1,NG
-            FD(:NMIX,1,IGR,JGR)=FDXM(:NMIX,IGR,JGR)
-            FD(:NMIX,2,IGR,JGR)=FDXP(:NMIX,IGR,JGR)
+        CALL LCMGTC(IPMAC,'HADF',8,NSURFD,HADF)
+        DO I=1,NSURFD
+          IF((HADF(I)(1:4).NE.'ERM_').AND.(HADF(I)(1:3).NE.'FD_')) THEN
+            WRITE(HSMG,'(7HNSSDRV:,A,30H FOUND; ERM_ OR FD_ PREFIX EXP,
+     1      6HECTED.)') TRIM(HADF(I))
+            CALL XABORT(HSMG)
+          ENDIF
+          CALL LCMGET(IPMAC,HADF(I),GAR4)
+          DO JGR=1,NG
+            DO IGR=1,NG
+              FD(:NMIX,I,IGR,JGR)=GAR4(:NMIX,IGR,JGR)
+            ENDDO
           ENDDO
         ENDDO
-        IF(IDIM.GE.2) THEN
-          CALL LCMGET(IPMAC,HADF(3),FDXM)
-          CALL LCMGET(IPMAC,HADF(4),FDXP)
-          DO JGR=1,NG
-            DO IGR=1,NG
-              FD(:NMIX,3,IGR,JGR)=FDXM(:NMIX,IGR,JGR)
-              FD(:NMIX,4,IGR,JGR)=FDXP(:NMIX,IGR,JGR)
-            ENDDO
-          ENDDO
-        ENDIF
-        IF(IDIM.EQ.3) THEN
-          CALL LCMGET(IPMAC,HADF(5),FDXM)
-          CALL LCMGET(IPMAC,HADF(6),FDXP)
-          DO JGR=1,NG
-            DO IGR=1,NG
-              FD(:NMIX,5,IGR,JGR)=FDXM(:NMIX,IGR,JGR)
-              FD(:NMIX,6,IGR,JGR)=FDXP(:NMIX,IGR,JGR)
-            ENDDO
-          ENDDO
-        ENDIF
         CALL LCMSIX(IPMAC,' ',2)
       ELSE
         WRITE(6,'(13H NSSDRV: IDF=,I3)') ISTATE(12)
@@ -316,7 +300,7 @@
           ENDDO
         ENDDO
       ENDIF
-      DEALLOCATE(GAR3,GAR2,FDXP,FDXM)
+      DEALLOCATE(GAR4,GAR3,GAR2,FDXP,FDXM)
 *----
 *  COMPUTE THE FLUX AND STORE NODAL SOLUTION IN IPFLX
 *----

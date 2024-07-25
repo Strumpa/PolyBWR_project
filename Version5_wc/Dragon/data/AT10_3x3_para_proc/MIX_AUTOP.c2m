@@ -1,0 +1,58 @@
+* CLE2000 script to generate self-shielded Library
+* Author : R. Guasch
+
+*  Procedure called as:
+*
+*  LIBRARY2 := MIX_AUTOP LIBRARY TRACK_SS TF_SS_EXC :: <<ssh_method>> <<ssh_sol>> ;
+*
+*  Input data   :
+*    LIBRARY      : Initial library
+*    TRACK_SS     : Self-shielding tracking
+*
+*  Output data  :
+*    LIBRARY2     : Self-shieled library
+*---
+
+MODULE USS: ;
+
+PARAMETER LIBRARY2 LIBRARY TRACK_SS TF_EXC_SS ::
+::: LINKED_LIST LIBRARY2 ;
+::: LINKED_LIST LIBRARY ;
+::: LINKED_LIST TRACK_SS ;
+::: SEQ_BINARY TF_EXC_SS ; ; 
+
+
+STRING ssh_method ssh_sol ;
+:: >>ssh_method<< >>ssh_sol<< ;
+
+****************************************************************************************
+*********************** BEGIN SELF-SHIELDING CALCULATION WITH USS **********************
+****************************************************************************************
+IF ssh_method "RSE" = THEN
+    IF ssh_sol "MOC" = THEN
+        ECHO ssh_method ssh_sol ;
+        LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
+                EDIT 1 PASS 3 MAXST 20 ARM
+                CALC
+                    REGI W1 U238 ALL
+                ENDC
+            ;
+    ELSEIF ssh_sol "CP" = THEN
+        LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
+                EDIT 1 PASS 3 MAXST 20 PIJ
+                CALC
+                    REGI W1 U238 ALL
+                ENDC
+            ;
+    ENDIF ;
+
+ELSEIF ssh_method "PT" = THEN
+
+        LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
+                EDIT 1 PASS 3 MAXST 20
+                CALC
+                    REGI W1 U235 ALL
+                ENDC
+            ;
+
+ENDIF ;

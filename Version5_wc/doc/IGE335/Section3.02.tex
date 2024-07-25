@@ -1,40 +1,41 @@
 \subsection{The {\tt LIB:} module}\label{sect:LIBData}
 
-The general format of the input data for the \moc{LIB:} module is the
-following:
+The general format of the input data for the \moc{LIB:} module is the following:
+
+\vspace{-0.2cm}
 
 \begin{DataStructure}{Structure \dstr{LIB:}}
-\dusa{MICLIB} \moc{:=} \moc{LIB:} $[$ \dusa{MICLIB} $[$ \dusa{OLDLIB} $]$ $]$ 
+\dusa{MICLIB} \moc{:=} \moc{LIB:} $[$ \dusa{MICLIB} $]~[~\{$ \dusa{MICRHS} $|$ \dusa{MACRHS} $|$ \dusa{EVORHS} $\}~]$ 
 \moc{::} \dstr{desclib}
 \end{DataStructure}
+
+\vspace{-0.6cm}
 
 \noindent
 where
 
 \begin{ListeDeDescription}{mmmmmmmm}
 
-\item[\dusa{MICLIB}] {\tt character*12} name of the \dds{microlib} that will
-contain the internal library. If \dusa{MICLIB} appears on both LHS and RHS, it is
-updated; otherwise, it is created. 
+\item[\dusa{MICLIB}] {\tt character*12} name of the \dds{microlib} that will contain the internal
+library. If \dusa{MICLIB} appears on both LHS and RHS, it is updated; otherwise, it is created. 
 
-\item[\dusa{OLDLIB}] {\tt character*12} name of a read-only \dds{macrolib},
-\dds{microlib} or \dds{burnup} data structure. In the case where a \dds{macrolib}
-is considered, it is included directly in the \dusa{MICLIB} before
-updating it. If it is a second \dds{microlib} or a \dds{burnup}
-data structure, the number densities for the isotopes in file
-\dusa{MICLIB} will be replaced selectively by those found in \dusa{OLDLIB}.
+\item[\dusa{MICRHS}] {\tt character*12} name of a read-only \dds{microlib} data structure used by the
+\moc{CATL} or \moc{MAXS} option of \Sect{desclib}.
 
-\item[\dstr{desclib}] input structure for this module (see
-\Sect{desclib}).
+\item[\dusa{MACRHS}] {\tt character*12} name of a read-only \dds{macrolib} data structure to be included
+directly in \dusa{MICLIB} before updating it.
+
+\item[\dusa{EVORHS}] {\tt character*12} name of a read-only \dds{burnup} data structure used by the
+\moc{BURN} option of \Sect{desclib}. The number densities for the isotopes in file \dusa{MICLIB}
+will be replaced selectively by those found in \dusa{EVORHS}.
+
+\item[\dstr{desclib}] input structure for this module (see \Sect{desclib}).
 
 \end{ListeDeDescription}
 
-\vskip 0.2cm
-
 \subsubsection{Data input for module {\tt LIB:}}\label{sect:desclib}
 
-In the case where \dusa{OLDLIB} is absent or represents a \dds{macrolib},
-\dstr{desclib} takes the form:
+In the case where \dusa{MICRHS} is absent or represents a \dds{macrolib}, \dstr{desclib} takes the form:
 
 \begin{DataStructure}{Structure \dstr{desclib}}
 $[$ \moc{EDIT} \dusa{iprint} $]$ \\
@@ -45,8 +46,8 @@ $[$ \moc{CALENDF} \dusa{ipreci} $]$ \\
 $[$ \moc{CTRA} $\{$ \moc{NONE} $|$ \moc{APOL} $|$ \moc{WIMS} $|$ \moc{OLDW} $|$ \moc{LEAK} $\}$ $]$
 $[$ \moc{ANIS}  \dusa{naniso} $]$ \\
 $[$ \moc{STERN} \dusa{nstern} $]$ \\
-$[$ \moc{ADJ} $]$ \\
-$[$ \moc{PROM} $]$ \\ 
+$[$ \moc{ADJ} $]~[$ \moc{PROM} $]$ \\ 
+$[~\{$ \moc{CDEPCHN} $|$ \moc{RDEPCHN} $\}~]$ \\
 $[~\{$ \moc{SKIP} $|$ \moc{INTR} $|$ \moc{SUBG} $|$ \moc{PT} $|$ \moc{PTMC} $|$ \moc{PTSL} $|$ \moc{RSE} $[$ \dusa{svdeps} $]~|$ \moc{NEWL} $\}~]$ $[$
 \moc{MACR} $]$\\ 
 $[$ \moc{ADED} \dusa{nedit}  ( \dusa{HEDIT}(i), i=1,\dusa{nedit} ) $]$  \\
@@ -58,41 +59,48 @@ $[[$ \moc{MIXS} \moc{LIB:} \\
                   \moc{WIMSD4} $|$ \moc{WIMSE} $|$ \moc{WIMSAECL} $|$ \moc{NDAS} $|$    
                   \moc{APLIB1} $|$ \moc{APLIB2} \\
 \hskip 0.85cm  $|$ \moc{APXSM} $|$ \moc{APLIB3} $|$ \moc{MICROLIB} $\}$ \\
-\hskip 0.6cm  \moc{FIL:} \dusa{NAMEFIL} 
-$[[$ \dstr{descmix1} $]]$ $]]$
+\hskip 0.6cm  \moc{FIL:} \dusa{NAMEFIL} $[[$ \dstr{descmix1} $]]$ $]]$ \\
+{\tt ;}
 \end{DataStructure}
 
-\noindent It is possible to reset an existing microlib (i.e., \dusa{MICLIB} is present
-in the RHS) and to reprocess all the isotopes from the cross section libraries.
+\noindent It is possible to reset an existing  \dds{microlib} (i.e., \dusa{MICLIB} is present
+in both the LHS and RHS) and to reprocess all the isotopes from the cross section libraries.
 In this case, \dstr{desclib} takes the simplified form:
 
 \begin{DataStructure}{Structure \dstr{desclib}}
 $[$ \moc{EDIT} \dusa{iprint} $]$ \\
 $\{$ \moc{INTR} $|$ \moc{SUBG} $|$ \moc{PT} $|$ \moc{PTMC} $|$ \moc{PTSL} $|$ \moc{RSE} $[$ \dusa{svdeps} $]~|$ \moc{NEWL} $\}~[$ \moc{MACR} $]$ \\ 
-\moc{MIXS} {\tt ;}
+\moc{MIXS} \\
+{\tt ;}
 \end{DataStructure}
 
 \noindent
-Alternatively if \dusa{OLDLIB} is absent or represents a second \dds{microlib},
-\dstr{desclib} takes the form:
+If keyword \moc{CATL} is given, \dusa{MICLIB} is catenated with the RHS \dusa{LIBRHS} \dds{microlib} .
 
 \begin{DataStructure}{Structure \dstr{desclib}}
 $[$ \moc{EDIT} \dusa{iprint} $]$ \\
-\moc{MAXS} $[[$ \dstr{descmix2} $]]$ 
+$[$ \moc{MXIS} \dusa{nmisot} $]$ \\
+$[$ \moc{NMIX} \dusa{nmixt} $]$ \\
+$[~\{$ \moc{SKIP} $|$ \moc{MACR} $\}~]$
+$[~\{$ \moc{CDEPCHN} $|$ \moc{RDEPCHN} $\}~]$ \\
+$[$ \moc{DEPL} $\{$ \moc{LIB:} $\{$ \moc{DRAGON} $|$ \moc{WIMSD4} $|$ \moc{WIMSE} $|$ \moc{WIMSAECL} $|$ \moc{NDAS} $|$ \moc{APLIB3} $\}$ \moc{FIL:} \dusa{NAMEFIL} \\
+\hskip 0.6cm $|$ \moc{LIB:} $\{$ \moc{APLIB2} $|$ \moc{APXSM} $\}$ \moc{FIL:} \dusa{NAMEFIL} \dstr{descdeplA2} \\
+\hskip 0.6cm $|$ \dusa{ndepl} \dstr{descdepl} $\}$ $]$ \\
+\moc{CATL} $[[$ \dstr{descmix2} $]]$ \\
+{\tt ;}
 \end{DataStructure}
 
 \noindent
-Finally, if \dusa{OLDLIB} represents \dds{burnup} structure, \dstr{desclib} takes
-the form:
+Alternatively if keyword \moc{BURN} or \moc{MAXS} is given, \dstr{desclib} takes the form:
 
 \begin{DataStructure}{Structure \dstr{desclib}}
 $[$ \moc{EDIT} \dusa{iprint} $]$ \\
-\moc{BURN} $\{$ \dusa{iburn} $|$ \dusa{tburn} $\}$
-$[[$ \dstr{descmix2} $]]$ 
+$\{$ \moc{BURN} $\{$ \dusa{iburn} $|$ \dusa{tburn} $\}~|$ \moc{MAXS} $\}$
+$[[$ \dstr{descmix2} $]]$ \\
+{\tt ;}
 \end{DataStructure}
+\noindent where the RHS data structure is a \dds{burnup} (\dusa{EVORHS}) or a \dds{microlib} (\dusa{LIBRHS}) data structure. \dstr{desclib} options are:
 
-\noindent
-with
 \begin{ListeDeDescription}{mmmmmm}
 
 \item[\moc{EDIT}] keyword used to modify the print level \dusa{iprint}.
@@ -186,6 +194,10 @@ for the calculation of the fission spectrum. By default, the contribution due to
 delayed neutrons is considered. This option is only compatible with a
 \moc{MATXS} or \moc{MATXS2} format library.
 
+\item[\moc{CDEPCHN}] keyword to enable the automatic completion of burnup chains.
+
+\item[\moc{DDEPCHN}] keyword to avoid the automatic completion of burnup chains.
+
 \item[\moc{SKIP}] keyword to recover the user--defined microlib data without processing
 any library (i.e., without temperature and/or dilution interpolation).
 
@@ -214,9 +226,9 @@ using the bin-type cross-section data as input.\cite{nse2004}
 \item[\dusa{svdeps}] rank accuracy $\epsilon_{\rm svd}$ of the singular value decomposition. Singular values $w_i \le \epsilon_{\rm svd}\Delta u_{\rm elem}$ are set to zero.
 $\Delta u_{\rm elem}$ is the elementary lethargy width of the Autolib. The default value is \dusa{svdeps}=1.0 $\times 10^{-3}$.
 
-\item[\moc{NEWL}] keyword to activate the calculation of a {\sc draglib} library
-using the temperature-interpo\-la\-ted cross-section data as input. The bin-type
-cross-section data is processed.
+\item[\moc{NEWL}] keyword to activate the calculation of a microlib
+containing temperature-interpo\-la\-ted cross-section data. The bin-type
+cross-section data is also interpolated. Probability tables are not computed.
 
 \item[\moc{MACR}] keyword to force the calculation of the embedded
 macrolib. By default, the embedded macrolib is computed, {\sl except if} one of the
@@ -358,21 +370,30 @@ depletion chain (see \Sect{descdepl}).
 \item[\dstr{descdeplA2}] simplified input structure describing the
 depletion chain in cases where an APOLIB-2 or APOLIB-XSM file is used (see \Sect{descdepl}).
 
+\item[\moc{CATL}] keyword to perform the following operations:
+\vspace{-0.15cm}
+\begin{itemize}
+\item create a new microlib or recover an existing \dds{microlib} in modification mode,
+\item catenate with a RHS \dds{microlib} in read-only mode,
+\item create the embedded  \dds{macrolib}.
+\end{itemize}
+
 \item[\moc{MAXS}] keyword to specify that the mixture density on \dusa{MICLIB}
-are to be modified. If \dusa{OLDLIB} is present and \dstr{descmix2} is absent, a
+are to be modified. If \dusa{MICRHS} is present and \dstr{descmix2} is absent, a
 direct one to one correspondence between the isotope on both libraries is
-assumed. If \dusa{OLDLIB} and \dstr{descmix2} are present, only the
+assumed. If \dusa{MICRHS} and \dstr{descmix2} are present, only the
 mixture on the library file specified by \dstr{descmix2} are updated using
-information from the \dusa{OLDLIB}. If \dusa{OLDLIB} is absent and
+information from the \dusa{MICRHS}. If \dusa{MICRHS} is absent and
 \dstr{descmix2} is present, only the mixture on  \dusa{MICLIB} specified by
-\dstr{descmix2} are updated.
+\dstr{descmix2} are updated. This option is useful for implementing two-level
+computational schemes similar to REL-2005.
 
 \item[\moc{BURN}] keyword to specify that the mixture density on \dusa{MICLIB}
-are to be updated using information taken from \dusa{OLDLIB}. If \dstr{descmix2}
+are to be updated using information taken from \dusa{EVORHS}. If \dstr{descmix2}
 is absent, a direct one to one correspondence between the isotope on
-\dusa{OLDLIB} and \dusa{MICLIB}  is assumed. If  \dstr{descmix2} is present, only
+\dusa{EVORHS} and \dusa{MICLIB}  is assumed. If  \dstr{descmix2} is present, only
 the mixture specified by \dstr{descmix2} are updated using information from
-\dusa{OLDLIB}.
+\dusa{EVORHS}. This option is useful for performing branching calculations.
 
 \item[\dusa{iburn}] burnup step from the burnup file to use. This step must be
 already present on the burnup file.
@@ -395,8 +416,6 @@ named {\tt MICRO} by writing
 MICRO := LIB: MICRO :: MACR MIXS ;
 \end{verbatim}
 
-\clearpage
-
 \subsubsection{Depletion data structure}\label{sect:descdepl}
 
 The structure \dstr{descdepl} describes the heredity of the radioactive decay
@@ -412,6 +431,8 @@ $[[$ \dusa{NAMDPL} $[$ \dusa{izae} $]$ \\
 $[[$ \dusa{yield} \dusa{NAMPAR} $]]~]]~\}~]~]]$\\
 \moc{ENDCHAIN}
 \end{DataStructure}
+
+\vspace{-0.15cm}
 
 \noindent
 with:
@@ -533,8 +554,10 @@ the physical properties, such as the temperature and density, of a mixture.
 \hskip 2.0cm $[$ \moc{IRSET} $\{$ \dusa{gir} $|~\{$ \moc{PT} $|$ \moc{PTMC} $|$ \moc{PTSL}$\}~\}~\{$
 \dusa{nir} $|$ \moc{NONE} $\}~]~~[~\{$ \moc{NOEV} $|$ \moc{EVOL} $|$ \moc{SAT} $\}~]~]]$ \\
 \hskip 1.0cm $|$ \\
-\hskip 1.0cm \moc{COMB} $[[$ \dusa{mati} \dusa{relvol} $]]~|$ \moc{COPY} \dusa{numold} $\}$
+\hskip 1.0cm \moc{COMB} $[[$ \dusa{mati} \dusa{relvol} $]]~\}$
 \end{DataStructure}
+
+\vspace{-0.15cm}
 
 \noindent
 where:
@@ -723,12 +746,6 @@ is defined in such a way to be identical to an existing mixture with index 25.
     MIX 42 COMB 25 1.0
 \end{verbatim}
 
-\item[\moc{COPY}]  keyword to specify that mixture \dusa{matnum} in \dusa{MICLIB} is a copy of mixture \dusa{numold} in a
-{\sc microlib}-formatted object (type \moc{MICROLIB}) named \dusa{NAMEFIL}, previously produced by DRAGON. This option is
-useful to permute mixture indices before the flux calculation.
-
-\item[\dusa{numold}] mixture index existing in \moc{MICROLIB} object named \dusa{NAMEFIL}.
-
 \end{ListeDeDescription}
 
 Note that in the structure \dstr{descmix1} one only needs to describe the
@@ -815,6 +832,8 @@ The structure \dstr{descmix2} is used to describe the modifications in the isoto
 $[$ \dusa{NAMALI} \dusa{dens} $]~[~\{$ \moc{NOEV} $|$ \moc{EVOL} $\}~]$
 \end{DataStructure}
 
+\vspace{-0.15cm}
+
 \noindent
 where:
 
@@ -825,11 +844,11 @@ be updated.
 
 \item[\dusa{matnum}] mixture identifier on \dusa{MICLIB}. 
 
-\item[\dusa{matold}] mixture identifier on \dusa{OLDLIB}.
+\item[\dusa{matold}] mixture identifier on \dusa{MICRHS}. By default, \dusa{matold}]$=$\dusa{matnum}.
 
 \item[\dusa{relden}] relative density of updated mixture. The  concentration
 of each isotope in the mixture is to be multiplied by this factor whether it 
-comes from \dusa{MICLIB}, from \dusa{OLDLIB} or is
+comes from \dusa{MICLIB}, from \dusa{MICRHS} or is
 specified explicitly using \dusa{dens}. 
 
 \item[\dusa{NAMALI}] {\tt character*8} alias name for an isotope on

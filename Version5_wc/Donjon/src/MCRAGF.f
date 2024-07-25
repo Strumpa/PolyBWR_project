@@ -1,6 +1,6 @@
 *DECK MCRAGF
       SUBROUTINE MCRAGF(IPMAC,IPMPO,IACCS,NMIL,NMIX,NGRP,NALBP,LALBG,
-     1 LADFM,IMPX,NCAL,TERP,MIXC,NSURFD,HEDIT,VOLMI2,IDF)
+     1 LADFM,IMPX,NCAL,TERP,MIXC,NSURFD,HEDIT,VOSAP,VOLMI2,IDF)
 *
 *-----------------------------------------------------------------------
 *
@@ -29,9 +29,10 @@
 * TERP    interpolation factors.
 * MIXC    mixture index in the MPO file corresponding to each macrolib
 *         mixture. Equal to zero if a macrolib mixture is not updated.
-* NSURFD  number of ADF.
+* NSURFD  number of discontinuity factors.
 * HEDIT   name of output group for a (multigroup mesh, output geometry)
 *         couple (generally equal to 'output_0').
+* VOSAP   zone volumes in the MPO file.
 * VOLMI2  mixture volumes in the macrolib.
 *
 *Parameters: output
@@ -48,23 +49,24 @@
 *----
       TYPE(C_PTR) IPMAC,IPMPO
       INTEGER IACCS,NMIL,NMIX,NGRP,NALBP,IMPX,NCAL,MIXC(NMIX),NSURFD,IDF
-      REAL TERP(NCAL,NMIX),VOLMI2(NMIX)
+      REAL TERP(NCAL,NMIX),VOSAP(NMIL),VOLMI2(NMIX)
       LOGICAL LALBG,LADFM
       CHARACTER(LEN=12) HEDIT
 *----
 *  LOCAL VARIABLES
 *----
       REAL WEIGHT,FACTOR
-      CHARACTER RECNAM*80
+      CHARACTER RECNAM*80,HSMG*131
       INTEGER IKEFF,IKINF,I,IBM,IBMOLD,ICAL,IGR,JGR,ILONG,ITYLCM,IAL,
-     1 RANK,NBYTE,TYPE,TYPE2,TYPE4,DIMSR(5),IOF,NSURFD_OLD
+     1 RANK,NBYTE,TYPE,TYPE2,TYPE4,DIMSR(5),NSURFD_OLD,NITMA
+      LOGICAL LNEW
       DOUBLE PRECISION DGAR1,DGAR2
 *----
 *  ALLOCATABLE ARRAYS
 *----
-      REAL, ALLOCATABLE, DIMENSION(:) :: GAR4,ZKINF,ZKEFF,VREAL,SURF,LG
-      REAL, ALLOCATABLE, DIMENSION(:,:) :: GAR6,ALBP,AVGFL2,SURFLX
-      REAL, ALLOCATABLE, DIMENSION(:,:,:) :: ADF2,ALBP2,ALBP_ERM
+      REAL, ALLOCATABLE, DIMENSION(:) :: GAR4,ZKINF,ZKEFF,VREAL
+      REAL, ALLOCATABLE, DIMENSION(:,:) :: GAR6,ALBP,AVGFL2,DISFAC,VFLUX
+      REAL, ALLOCATABLE, DIMENSION(:,:,:) :: ADF2,ALBP2,ALBP_ERM,SFLUX
       REAL, ALLOCATABLE, DIMENSION(:,:,:,:) :: ADF2M,ALBP2_E
       CHARACTER(LEN=8), ALLOCATABLE, DIMENSION(:) :: HADF
 *----
@@ -80,19 +82,28 @@
       IKINF=0
       IKEFF=0
       IDF=0
+      LNEW=.TRUE.
       IF(NSURFD.GT.0) THEN
-        WRITE(RECNAM,'(8H/output/,A,16H/statept_0/flux/)') TRIM(HEDIT)
-        CALL hdf5_info(IPMPO,TRIM(RECNAM)//"SURFFLUX",RANK,TYPE2,NBYTE,
-     &  DIMSR)
-        CALL hdf5_info(IPMPO,TRIM(RECNAM)//"SURFFLUXGxG",RANK,TYPE4,
-     &  NBYTE,DIMSR)
-        IF(TYPE2.NE.99) THEN
-          IDF=2 ! boundary flux information
-        ELSE IF(TYPE4.NE.99) THEN
-          IDF=4 ! matrix discontinuity factor information
+        WRITE(RECNAM,'(8H/output/,A,32H/statept_0/zone_0/discontinuity/)
+     &  ') TRIM(HEDIT)
+        LNEW=hdf5_group_exists(IPMPO,TRIM(RECNAM))
+        IF(LNEW) THEN
+*         new specification
+          CALL hdf5_info(IPMPO,TRIM(RECNAM)//"DFACTOR",RANK,TYPE2,
+     &    NBYTE,DIMSR)
+          CALL hdf5_info(IPMPO,TRIM(RECNAM)//"DFACTORGxG",RANK,TYPE4,
+     &    NBYTE,DIMSR)
+          IF(TYPE2.NE.99) THEN
+            IDF=3 ! discontinuity factor information
+          ELSE IF(TYPE4.NE.99) THEN
+            IDF=4 ! matrix discontinuity factor information
+          ELSE
+            CALL hdf5_list(IPMPO,TRIM(RECNAM))
+            CALL XABORT('MCRAGF: UNABLE TO SET TYPE OF DF.')
+          ENDIF
         ELSE
-          CALL hdf5_list(IPMPO,TRIM(RECNAM))
-          CALL XABORT('MCRAGF: UNABLE TO SET TYPE OF DF.')
+*         old specification
+          IDF=3 ! discontinuity factor information
         ENDIF
         ADF2(:NMIX,:NGRP,:NSURFD)=0.0
         ADF2M(:NMIX,:NGRP,:NGRP,:NSURFD)=0.0
@@ -164,7 +175,7 @@
                 ALBP2_E(IBM,:NALBP,:NGRP,:NGRP)=0.0
               ENDIF
             ENDIF
-            IF((NSURFD.GT.0).AND.(IDF.EQ.2)) THEN
+            IF((NSURFD.GT.0).AND.(IDF.EQ.3)) THEN
               ADF2(IBM,:NGRP,:NSURFD)=0.0
             ELSE IF((NSURFD.GT.0).AND.(IDF.EQ.4)) THEN
               ADF2M(IBM,:NGRP,:NGRP,:NSURFD)=0.0
@@ -179,71 +190,79 @@
 *  OVERALL ELEMENTARY CALCULATION LOOP
 *----
       DO 40 ICAL=1,NCAL
-      WRITE(RECNAM,'(8H/output/,A,9H/statept_,I0,6H/flux/)')
-     & TRIM(HEDIT),ICAL-1
       IF(NSURFD_OLD.GT.0) THEN
-        CALL hdf5_info(IPMPO,TRIM(RECNAM)//"SURF",RANK,TYPE,NBYTE,DIMSR)
-        IF(TYPE.NE.99) THEN
-          CALL hdf5_read_data(IPMPO,TRIM(RECNAM)//"SURF",SURF)
-        ELSE
-*         temporary.....
-          CALL hdf5_info(IPMPO,"/geometry/geometry_0/COORDINATE",RANK,
-     &    TYPE,NBYTE,DIMSR)
-          IF(TYPE.EQ.99) THEN
-            CALL hdf5_list(IPMPO,"/geometry/geometry_0/")
-            CALL XABORT('MCRAGF: COORDINATE DATASET MISSING')
-          ENDIF
-          CALL hdf5_read_data(IPMPO,"/geometry/geometry_0/COORDINATE",
-     &    LG)
-          ALLOCATE(SURF(NSURFD_OLD))
-          SURF(:NSURFD_OLD)=LG(2)
-          DEALLOCATE(LG)
-        ENDIF
-        IF(IDF.EQ.2) THEN
-          CALL hdf5_read_data(IPMPO,TRIM(RECNAM)//"SURFFLUX",SURFLX)
-        ELSE IF(IDF.EQ.4) THEN
-          CALL hdf5_read_data(IPMPO,TRIM(RECNAM)//"SURFFLUXGxG",SURFLX)
-        ENDIF
-        CALL hdf5_read_data(IPMPO,TRIM(RECNAM)//"TOTALFLUX",VREAL)
-        DO 10 IBM=1,NMIX ! mixtures in Macrolib
-        IBMOLD=MIXC(IBM)
-        IF(IBMOLD.EQ.0) GO TO 10
-        WEIGHT=TERP(ICAL,IBM)
-        IF(WEIGHT.EQ.0.0) GO TO 10
-        IF(IDF.EQ.2) THEN
-          DO I=1,NSURFD_OLD
-            WRITE(HADF(I),'(3HFD_,I5.5)') I
-            DO IGR=1,NGRP
-              IOF=(IGR-1)*NMIL+IBMOLD
-              ADF2(IBM,IGR,I)=ADF2(IBM,IGR,I)+WEIGHT*SURFLX(I,IOF)/
-     &        SURF(I)
-            ENDDO
+        IF(LNEW) THEN
+          ALLOCATE(SFLUX(NMIL,NGRP**2,NSURFD_OLD),VFLUX(NMIL,NGRP))
+          DO IBMOLD=1,NMIL
+            WRITE(RECNAM,'(8H/output/,A,9H/statept_,I0,6H/zone_,I0,1H/)
+     &      ') TRIM(HEDIT),ICAL-1,IBMOLD-1
+            CALL hdf5_read_data(IPMPO,TRIM(RECNAM)//"ZONEFLUX",VREAL)
+            VFLUX(IBMOLD,:NGRP)=VREAL(:NGRP)/VOSAP(IBMOLD)
+            DEALLOCATE(VREAL)
+            WRITE(RECNAM,'(8H/output/,A,9H/statept_,I0,6H/zone_,I0,
+     &      15H/discontinuity/)') TRIM(HEDIT),ICAL-1,IBMOLD-1
+            CALL hdf5_read_data(IPMPO,TRIM(RECNAM)//"NSURF",NITMA)
+            IF(NITMA.NE.NSURFD_OLD) THEN
+              WRITE(HSMG,'(32HMCRAGF: THE NUMBER OF SURFACES (,I5,
+     &        12H) IN MIXTURE,I5,31H IS DIFFERENT FROM THE NUMBER (,I5,
+     &        15H) IN MIXTURE 1.)') NITMA,IBMOLD,NSURFD_OLD
+              CALL XABORT(HSMG)
+            ENDIF
+            IF(IDF.EQ.3) THEN
+              CALL hdf5_read_data(IPMPO,TRIM(RECNAM)//"DFACTOR",DISFAC)
+              DO I=1,NSURFD_OLD
+                SFLUX(IBMOLD,:NGRP,I)=DISFAC(I,:NGRP)
+              ENDDO
+              DEALLOCATE(DISFAC)
+            ELSE IF(IDF.EQ.4) THEN
+              CALL hdf5_read_data(IPMPO,TRIM(RECNAM)//"DFACTORGxG",
+     &        DISFAC)
+              DO I=1,NSURFD_OLD
+                SFLUX(IBMOLD,:NGRP**2,I)=DISFAC(I,:NGRP**2)
+              ENDDO
+              DEALLOCATE(DISFAC)
+            ENDIF
           ENDDO
-        ELSE IF(IDF.EQ.4) THEN
-          DO I=1,NSURFD_OLD
-            WRITE(HADF(I),'(3HFD_,I5.5)') I
-            DO JGR=1,NGRP
-              DO IGR=1,NGRP
-                IOF=((JGR-1)*NGRP+IGR-1)*NMIL+IBMOLD
-                ADF2M(IBM,IGR,JGR,I)=ADF2M(IBM,IGR,JGR,I)+WEIGHT*
-     &          SURFLX(I,IOF)/SURF(I)
+        ELSE
+          ALLOCATE(SFLUX(NMIL,NGRP,NSURFD_OLD),VFLUX(NMIL,NGRP))
+          CALL SPHMOL(IPMPO,ICAL,NMIL,NGRP,NSURFD_OLD,HEDIT,VOSAP,
+     &    SFLUX,VFLUX)
+        ENDIF
+        DO IBM=1,NMIX ! mixtures in Macrolib
+          IBMOLD=MIXC(IBM)
+          IF(IBMOLD.GT.NMIL) CALL XABORT('MCRAGF: NMIL OVERFLOW.')
+          IF(IBMOLD.EQ.0) CYCLE
+          WEIGHT=TERP(ICAL,IBM)
+          IF(WEIGHT.EQ.0.0) CYCLE
+          IF(IDF.EQ.3) THEN
+            DO I=1,NSURFD_OLD
+              WRITE(HADF(I),'(3HFD_,I5.5)') I
+              ADF2(IBM,:NGRP,I)=ADF2(IBM,:NGRP,I)+WEIGHT*
+     &        SFLUX(IBMOLD,:NGRP,I)*VFLUX(IBMOLD,:NGRP)
+            ENDDO
+          ELSE IF(IDF.EQ.4) THEN
+            DO I=1,NSURFD_OLD
+              WRITE(HADF(I),'(3HFD_,I5.5)') I
+              DO JGR=1,NGRP
+                DO IGR=1,NGRP
+                  ADF2M(IBM,IGR,JGR,I)=ADF2M(IBM,IGR,JGR,I)+WEIGHT*
+     &            SFLUX(IBMOLD,(JGR-1)*NGRP+IGR,I)*VFLUX(IBMOLD,IGR)
+                ENDDO
               ENDDO
             ENDDO
-          ENDDO
-        ENDIF
-        DO IGR=1,NGRP
-          IOF=(IGR-1)*NMIL+IBMOLD
-          AVGFL2(IBM,IGR)=AVGFL2(IBM,IGR)+WEIGHT*VREAL(IOF)/VOLMI2(IBM)
+          ENDIF
+          AVGFL2(IBM,:NGRP)=AVGFL2(IBM,:NGRP)+WEIGHT*VFLUX(IBMOLD,:NGRP)
         ENDDO
-   10   CONTINUE
-        DEALLOCATE(SURF,VREAL,SURFLX)
+        DEALLOCATE(VFLUX,SFLUX)
       ENDIF
 *----
 *  PROCESS PHYSICAL ALBEDO INFORMATION
 *----
+      WRITE(RECNAM,'(8H/output/,A,9H/statept_,I0,6H/flux/)')
+     & TRIM(HEDIT),ICAL-1
       IF((NALBP.GT.0).AND.LALBG) THEN
 *       diagonal albedo matrix
-        CALL hdf5_read_data(IPMPO,TRIM(RECNAM)//"ALBEDOG",ALBP)
+        CALL hdf5_read_data(IPMPO,TRIM(RECNAM)//"ALBEDO",ALBP)
         DO 20 IBM=1,NMIX ! mixtures in Macrolib
         IBMOLD=MIXC(IBM)
         IF(IBMOLD.EQ.0) GO TO 20
@@ -305,14 +324,17 @@
 *----
 *  SAVE ADF INFORMATION
 *----
-      IF((NSURFD.GT.0).AND.(IDF.EQ.2)) THEN
+      IF((NSURFD.GT.0).AND.(IDF.EQ.3)) THEN
         CALL LCMSIX(IPMAC,'ADF',1)
         CALL LCMPUT(IPMAC,'NTYPE',1,1,NSURFD)
         CALL LCMPTC(IPMAC,'HADF',8,NSURFD,HADF)
         DO IBM=1,NMIX
           IF(MIXC(IBM).EQ.0) CYCLE
+          DO IGR=1,NGRP
+            ADF2(IBM,IGR,:NSURFD)=ADF2(IBM,IGR,:NSURFD)/AVGFL2(IBM,IGR)
+          ENDDO
           IF(NSURFD.GT.NSURFD_OLD) THEN
-            IF(NSURFD_OLD.NE.1) CALL XABORT('MCRAGF: INVALID NSURFD.')
+            IF(NSURFD_OLD.GT.2) CALL XABORT('MCRAGF: INVALID NSURFD.')
 *           assign the same ADF to all sides.
             DO I=2,NSURFD
               ADF2(IBM,:NGRP,I)=ADF2(IBM,:NGRP,1)
@@ -329,9 +351,9 @@
             DO IBM=1,NMIX
               IF(MIXC(IBM).EQ.0) CYCLE
               ADF2M(IBM,:NGRP,:NGRP,I)=0.0
-              IF(IDF.EQ.2) THEN
+              IF(IDF.EQ.3) THEN
                 DO IGR=1,NGRP
-                  ADF2M(IBM,IGR,IGR,I)=ADF2(IBM,IGR,I)/AVGFL2(IBM,IGR)
+                  ADF2M(IBM,IGR,IGR,I)=ADF2(IBM,IGR,I)
                 ENDDO
               ELSE IF(IDF.EQ.4) THEN
                 DO IGR=1,NGRP
@@ -404,6 +426,7 @@
             DGAR1=0.0D0
             DGAR2=0.0D0
             DO IBM=1,NMIX
+              IF(VOLMI2(IBM).EQ.0.0) CYCLE
               DGAR1=DGAR1+ALBP2(IBM,IAL,IGR)*VOLMI2(IBM)
               DGAR2=DGAR2+VOLMI2(IBM)
             ENDDO
@@ -434,6 +457,7 @@
               DGAR1=0.0D0
               DGAR2=0.0D0
               DO IBM=1,NMIX
+                IF(VOLMI2(IBM).EQ.0.0) CYCLE
                 DGAR1=DGAR1+ALBP2_E(IBM,IAL,IGR,JGR)*VOLMI2(IBM)
                 DGAR2=DGAR2+VOLMI2(IBM)
               ENDDO

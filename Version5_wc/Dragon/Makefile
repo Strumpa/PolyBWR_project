@@ -33,9 +33,12 @@ tests :
 	./rdragon -c $(fcompiler) -q tdraglib.x2m
 	./rdragon -c $(fcompiler) -q twimsE.x2m
 	./rdragon -c $(fcompiler) -q twlup.x2m
+	./rdragon -c $(fcompiler) -q tndas.x2m
 	./rdragon -c $(fcompiler) -q tmatxs2.x2m
 	./rdragon -c $(fcompiler) -q trowland_shem295_jeff3.1.x2m
+	./rdragon -c $(fcompiler) -q lumpSS.x2m
 	./rdragon -c $(fcompiler) -q OSC_CASEA_1level_rse.x2m
+	./rdragon -c $(fcompiler) -q OSC_CASEA_2level_rse.x2m
 	./rdragon -c $(fcompiler) -q OSC_openMP_tiso.x2m
 	./rdragon -c $(fcompiler) -q sens.x2m
 	./rdragon -c $(fcompiler) -q testVVER7.x2m

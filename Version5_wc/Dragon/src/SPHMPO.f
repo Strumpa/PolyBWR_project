@@ -59,10 +59,10 @@
       INTEGER ISTATE(NSTATE)
       INTEGER I,NADDRXS,NREA,NISO,NISOM,ADDRZX,ADDRZI,IBM,ISO,ISOM,
      & NBISO,NBYTE,RANK,TYPE,DIMSR(5),NL,ILOC,NLOC,IPROF,JOFS,NL1,
-     & NL2,IPRC,NPRC,IOF,IOF1,IOF2,IGR,JGR,ITRANC,NED,IFISS,IGMAX,
-     & IGMIN,IPOSDE,IL,IREA,NSURFD,IDF,NALBP2,TYPE2,TYPE4
+     & NL2,IPRC,NPRC,IOF,IGR,JGR,ITRANC,NED,IFISS,IGMAX,IGMIN,
+     & IPOSDE,IL,IREA,NSURFD,IDF,NALBP2,TYPE2,TYPE4,NITMA
       REAL FLOTT,DEN,ZIL,FF,CSCAT
-      LOGICAL LSPH,LMASL,LSTRD,LDIFF,LHFACT
+      LOGICAL LSPH,LMASL,LSTRD,LDIFF,LHFACT,LNEW
       CHARACTER RECNAM*80,RECNA2*80,TEXT12*12,CM*2,HSMG*131
       TYPE(C_PTR) JPMAC,KPMAC
 *----
@@ -72,10 +72,11 @@
      & ADDRISO,LOCAD,FAG,ADR
       INTEGER, ALLOCATABLE, DIMENSION(:,:,:) :: ADDRXS
       REAL, ALLOCATABLE, DIMENSION(:) :: FLUXS,CONCEN,RDATAX,RVALO,
-     & FMASL,LAMBDAD,BETADF,INVEL,LAMB,VREAL,VFLUX,SURF,LG
+     & FMASL,LAMBDAD,BETADF,INVEL,LAMB,VREAL
       REAL, ALLOCATABLE, DIMENSION(:,:) :: NWT0,EFACT,CHID,SIGS0,TOTAL,
-     & DIFF,BETAR,INVELS,SURFLX,ALBP
-      REAL, ALLOCATABLE, DIMENSION(:,:,:) :: XS,SIGS,CHIRS,ALBP_ERM
+     & DIFF,BETAR,INVELS,DISFAC,ALBP,VFLUX
+      REAL, ALLOCATABLE, DIMENSION(:,:,:) :: XS,SIGS,CHIRS,ALBP_ERM,
+     & SFLUX
       REAL, ALLOCATABLE, DIMENSION(:,:,:,:) :: SS2D
       CHARACTER(LEN=8), ALLOCATABLE, DIMENSION(:) :: HEDI,HADF
       CHARACTER(LEN=24), ALLOCATABLE, DIMENSION(:) :: TEXT24,NOMREA,
@@ -205,99 +206,107 @@
         ENDIF
       ENDIF
 *----
-*  RECOVER DISCONTINUITY FACTOR INFORMATION
+*  SET NSURFD
 *----
       IDF=0
-      WRITE(RECNAM,'(8H/output/,A,9H/statept_,I0,6H/flux/)')
-     & TRIM(HEDIT),ICAL-1
-      CALL hdf5_info(IPMPO,TRIM(RECNAM)//"NSURF",RANK,TYPE,NBYTE,DIMSR)
-      IF(TYPE.NE.99) THEN
-        CALL hdf5_info(IPMPO,TRIM(RECNAM)//"SURFFLUX",RANK,TYPE2,NBYTE,
-     &  DIMSR)
-        CALL hdf5_info(IPMPO,TRIM(RECNAM)//"SURFFLUXGxG",RANK,TYPE4,
-     &  NBYTE,DIMSR)
-        IF(TYPE2.NE.99) THEN
-          IDF=2 ! boundary flux information
-          CALL hdf5_read_data(IPMPO,TRIM(RECNAM)//"SURFFLUX",SURFLX)
-        ELSE IF(TYPE4.NE.99) THEN
-          IDF=4 ! matrix discontinuity factor information
-          CALL hdf5_read_data(IPMPO,TRIM(RECNAM)//"SURFFLUXGxG",SURFLX)
-        ELSE
-          CALL hdf5_list(IPMPO,TRIM(RECNAM))
-          CALL XABORT('SPHMPO: UNABLE TO SET TYPE OF DF.')
-        ENDIF
+      NSURFD=0
+      WRITE(RECNAM,'(8H/output/,A,9H/statept_,I0,7H/zone_0,
+     & 15H/discontinuity/)') TRIM(HEDIT),ICAL-1
+      LNEW=hdf5_group_exists(IPMPO,TRIM(RECNAM))
+      IF(LNEW) THEN
+*       new specification
         CALL hdf5_read_data(IPMPO,TRIM(RECNAM)//"NSURF",NSURFD)
-        CALL hdf5_info(IPMPO,TRIM(RECNAM)//"SURF",RANK,TYPE,NBYTE,DIMSR)
-        IF(TYPE.NE.99) THEN
-          CALL hdf5_read_data(IPMPO,TRIM(RECNAM)//"SURF",SURF)
-          IF(DIMSR(1)/NSURFD.NE.NMIL) THEN
-            WRITE(HSMG,'(24HSPHMPO: INVALID LENGTH (,I5,11H) FOR SURF ,
-     &      14HGROUP. LENGTH=,I5,10H EXPECTED.)') DIMSR(1),NMIL*NSURFD
+      ELSE
+*       old specification
+        WRITE(RECNAM,'(8H/output/,A,9H/statept_,I0,12H/flux/NSURF/)')
+     &  TRIM(HEDIT),ICAL-1
+        CALL hdf5_info(IPMPO,TRIM(RECNAM),RANK,TYPE,NBYTE,DIMSR)
+        IF(TYPE.NE.99) CALL hdf5_read_data(IPMPO,TRIM(RECNAM),NSURFD)
+      ENDIF
+      IF(NSURFD.EQ.0) GO TO 10
+*----
+*  RECOVER DISCONTINUITY FACTOR INFORMATION
+*----
+      IF(LNEW) THEN
+*       new specification
+        ALLOCATE(SFLUX(NMIL,NGROUP**2,NSURFD),VFLUX(NMIL,NGROUP))
+        DO IBM=1,NMIL
+          WRITE(RECNAM,'(8H/output/,A,9H/statept_,I0,6H/zone_,I0,1H/)')
+     &    TRIM(HEDIT),ICAL-1,IBM-1
+          CALL hdf5_read_data(IPMPO,TRIM(RECNAM)//"ZONEFLUX",VREAL)
+          VFLUX(IBM,:NGROUP)=VREAL(:NGROUP)/VOSAP(IBM)
+          DEALLOCATE(VREAL)
+          WRITE(RECNAM,'(8H/output/,A,9H/statept_,I0,6H/zone_,I0,
+     &    15H/discontinuity/)') TRIM(HEDIT),ICAL-1,IBM-1
+          CALL hdf5_read_data(IPMPO,TRIM(RECNAM)//"NSURF",NITMA)
+          IF(NITMA.NE.NSURFD) THEN
+            WRITE(HSMG,'(32HSPHMPO: THE NUMBER OF SURFACES (,I5,
+     &      12H) IN MIXTURE,I5,31H IS DIFFERENT FROM THE NUMBER (,I5,
+     &      15H) IN MIXTURE 1.)') NITMA,IBM,NSURFD
             CALL XABORT(HSMG)
           ENDIF
-        ELSE
-*         temporary.....
-          CALL hdf5_read_data(IPMPO,"/geometry/geometry_0/COORDINATE",
-     &    LG)
-          ALLOCATE(SURF(NMIL*NSURFD))
-          SURF(:NMIL*NSURFD)=LG(2)
-          DEALLOCATE(LG)
-        ENDIF
-        CALL LCMSIX(IPMAC,'ADF',1)
-        CALL LCMPUT(IPMAC,'NTYPE',1,1,NSURFD)
-        CALL hdf5_read_data(IPMPO,TRIM(RECNAM)//"TOTALFLUX",VFLUX)
-        DO IGR=1,NGROUP
-          DO IBM=1,NMIL
-            IOF=(IGR-1)*NMIL+IBM
-            VFLUX(IOF)=VFLUX(IOF)/VOSAP(IBM)
-          ENDDO
+          CALL hdf5_info(IPMPO,TRIM(RECNAM)//"DFACTOR",RANK,TYPE2,
+     &    NBYTE,DIMSR)
+          CALL hdf5_info(IPMPO,TRIM(RECNAM)//"DFACTORGxG",RANK,TYPE4,
+     &    NBYTE,DIMSR)
+          IF(TYPE2.NE.99) THEN
+            IDF=3 ! discontinuity factor information
+            CALL hdf5_read_data(IPMPO,TRIM(RECNAM)//"DFACTOR",DISFAC)
+            DO I=1,NSURFD
+              SFLUX(IBM,:NGROUP,I)=DISFAC(I,:NGROUP)
+            ENDDO
+            DEALLOCATE(DISFAC)
+          ELSE IF(TYPE4.NE.99) THEN
+            IDF=4 ! matrix discontinuity factor information
+            CALL hdf5_read_data(IPMPO,TRIM(RECNAM)//"DFACTORGxG",DISFAC)
+            DO I=1,NSURFD
+              SFLUX(IBM,:NGROUP**2,I)=DISFAC(I,:NGROUP**2)
+            ENDDO
+            DEALLOCATE(DISFAC)
+          ELSE
+            CALL hdf5_list(IPMPO,TRIM(RECNAM))
+            CALL XABORT('SPHMPO: UNABLE TO SET TYPE OF DF.')
+          ENDIF
         ENDDO
-        CALL LCMPUT(IPMAC,'AVG_FLUX',NMIL*NGROUP,2,VFLUX)
-        ALLOCATE(HADF(NSURFD))
-        IF(IDF.EQ.2) THEN
-          ALLOCATE(VREAL(NMIL*NGROUP))
-          DO I=1,NSURFD
-            WRITE(HADF(I),'(3HFD_,I5.5)') I
-            DO IGR=1,NGROUP
-              DO IBM=1,NMIL
-                IOF=(IGR-1)*NMIL+IBM
-                VREAL(IOF)=SURFLX(I,IOF)/SURF((I-1)*NMIL+IBM)
-              ENDDO
-            ENDDO
-            CALL LCMPUT(IPMAC,HADF(I),NMIL*NGROUP,2,VREAL)
-          ENDDO
-          DEALLOCATE(VREAL)
-        ELSE IF(IDF.EQ.4) THEN
-          ALLOCATE(VREAL(NMIL*NGROUP*NGROUP))
-          DO I=1,NSURFD
-            WRITE(HADF(I),'(3HFD_,I5.5)') I
-            DO JGR=1,NGROUP
-              DO IGR=1,NGROUP
-                DO IBM=1,NMIL
-                  IOF1=(IGR-1)*NMIL+IBM
-                  IOF2=((JGR-1)*NGROUP+IGR-1)*NMIL+IBM
-                  VREAL(IOF2)=SURFLX(I,IOF2)/SURF((I-1)*NMIL+IBM)/
-     &            VFLUX(IOF1)
-                ENDDO
-              ENDDO
-            ENDDO
-            CALL LCMPUT(IPMAC,HADF(I),NMIL*NGROUP*NGROUP,2,VREAL)
-          ENDDO
-          DEALLOCATE(VREAL)
-        ENDIF
-        CALL LCMPTC(IPMAC,'HADF',8,NSURFD,HADF)
-        DEALLOCATE(VFLUX,HADF,SURF,SURFLX)
-        CALL LCMSIX(IPMAC,' ',2)
+      ELSE
+*       old specification
+        ALLOCATE(SFLUX(NMIL,NGROUP,NSURFD),VFLUX(NMIL,NGROUP))
+        IDF=3 ! discontinuity factor information
+        CALL SPHMOL(IPMPO,ICAL,NMIL,NGROUP,NSURFD,HEDIT,VOSAP,SFLUX,
+     1  VFLUX)
       ENDIF
+*----
+*  WRITE DISCONTINUITY FACTOR INFORMATION ON IPMAC
+*----
+      CALL LCMSIX(IPMAC,'ADF',1)
+      CALL LCMPUT(IPMAC,'NTYPE',1,1,NSURFD)
+      CALL LCMPUT(IPMAC,'AVG_FLUX',NMIL*NGROUP,2,VFLUX)
+      ALLOCATE(HADF(NSURFD))
+      IF((IDF.EQ.2).OR.(IDF.EQ.3)) THEN
+        DO I=1,NSURFD
+          WRITE(HADF(I),'(3HFD_,I5.5)') I
+          CALL LCMPUT(IPMAC,HADF(I),NMIL*NGROUP,2,SFLUX(1,1,I))
+        ENDDO
+      ELSE IF(IDF.EQ.4) THEN
+        DO I=1,NSURFD
+          WRITE(HADF(I),'(3HFD_,I5.5)') I
+          CALL LCMPUT(IPMAC,HADF(I),NMIL*NGROUP**2,2,SFLUX(1,1,I))
+        ENDDO
+      ENDIF
+      CALL LCMPTC(IPMAC,'HADF',8,NSURFD,HADF)
+      DEALLOCATE(VFLUX,SFLUX)
+      CALL LCMSIX(IPMAC,' ',2)
 *----
 *  RECOVER ALBEDO INFORMATION
 *----
-      CALL hdf5_info(IPMPO,TRIM(RECNAM)//"ALBEDOG",RANK,TYPE,NBYTE,
+   10 WRITE(RECNAM,'(8H/output/,A,9H/statept_,I0,6H/flux/)')
+     & TRIM(HEDIT),ICAL-1
+      CALL hdf5_info(IPMPO,TRIM(RECNAM)//"ALBEDO",RANK,TYPE,NBYTE,
      & DIMSR)
       IF(TYPE.NE.99) THEN
         CALL hdf5_read_data(IPMPO,TRIM(RECNAM)//"NALBP",NALBP2)
         IF(NALBP2.NE.NALBP) CALL XABORT('SPHMPO: INVALID NALBP(1).')
-        CALL hdf5_read_data(IPMPO,TRIM(RECNAM)//"ALBEDOG",ALBP)
+        CALL hdf5_read_data(IPMPO,TRIM(RECNAM)//"ALBEDO",ALBP)
         CALL LCMPUT(IPMAC,'ALBEDO',NALBP*NGROUP,2,ALBP)
         DEALLOCATE(ALBP)        
       ENDIF
@@ -497,7 +506,7 @@
             DEALLOCATE(VREAL)
             LDIFF=.TRUE.
             LSTRD=.FALSE.
-            GO TO 10
+            GO TO 20
           ENDIF
           CALL hdf5_info(IPMPO,TRIM(RECNAM)//"leakage/DB2",RANK,TYPE,
      &    NBYTE,DIMSR)
@@ -511,7 +520,7 @@
             LSTRD=.FALSE.
           ENDIF
         ENDIF
-   10   CONTINUE
+   20   CONTINUE
       ENDDO ! end of loop over mixtures
       IF(NALBP.GT.0) THEN
         SPH(NMIL+1:NMIL+NALBP,:NGROUP)=1.0 ! assigned to albedo function

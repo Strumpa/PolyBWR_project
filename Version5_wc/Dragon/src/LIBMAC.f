@@ -1,6 +1,6 @@
 *DECK LIBMAC
-      SUBROUTINE LIBMAC(IPLIB ,IPLIBX,IPRINT,MAXISO,NBISO ,NBISOX,
-     >                  IBSTEP,NBMIX ,NBMIXX,NGRO  ,TMPDAY)
+      SUBROUTINE LIBMAC(IPLIB ,IPLIBX,IPBURX,IPRINT,MAXISO,NBISO ,
+     >                  NBISOX,IBSTEP,NBMIX ,NBMIXX,NGRO  ,TMPDAY)
 *
 *-----------------------------------------------------------------------
 *
@@ -19,14 +19,15 @@
 *Parameters: input/output
 * IPLIB   pointer to the lattice microscopic cross section library
 *         (L_LIBRARY signature).
-* IPLIBX  pointer to the lattice old library density.
+* IPLIBX  pointer to the RHS microlib object.
+* IPBURX  pointer to the RHS burnup object.
 * IPRINT  print flag.
 * MAXISO  maximum number of isotopes permitted.
 * NBISO   number of isotopes present on IPLIB.
-* NBISOX  number of isotopes present on IPLIBX.
-* IBSTEP  burnup step on IPLIBX if 'BURN' option activated.
+* NBISOX  number of isotopes present on IPLIBX or IPBURX.
+* IBSTEP  burnup step on IPBURX if 'BURN' option activated.
 * NBMIX   number of mixtures defined on IPLIB.
-* NBMIXX  number of mixtures defined on IPLIBX.
+* NBMIXX  number of mixtures defined on IPLIBX or IPBURX.
 * NGRO    number of energy groups.
 * TMPDAY  time/burnup/irradiation stamp in days.
 *
@@ -40,7 +41,7 @@
 *----
 *  SUBROUTINE ARGUMENTS
 *----
-      TYPE(C_PTR)  IPLIB,IPLIBX
+      TYPE(C_PTR)  IPLIB,IPLIBX,IPBURX
       INTEGER      IPRINT,MAXISO,NBISO,NBISOX,IBSTEP,NBMIX,NBMIXX,NGRO
       REAL         TMPDAY(3)
 *----
@@ -73,9 +74,9 @@
 *   MIX     mix number of each isotope on IPLIB (can be zero).
 *   DEN     density of each isotope on IPLIB.
 *   DENMIX  density of mixture on IPLIB (can be -1.0).
-*   MIXIX   mix number of each isotope on IPLIBX (can be zero).
-*   DENIX   density of each isotope on IPLIBX.
-*   LOCUPD  location of IPLIB mixture in IPLIBX.
+*   MIXIX   mix index of each isotope on IPLIBX or IPBURX (can be zero).
+*   DENIX   density of each isotope on IPLIBX or IPBURX.
+*   LOCUPD  location of IPLIB mixture in IPLIBX or IPBURX.
 *   LISM    location in IPLIB of isotope associated with a mixture.
 *   DENMOD  modified density of each isotope on IPLIB.
 *   MASKM   mixture update mask.
@@ -139,11 +140,14 @@
  600    CONTINUE
       ENDIF
 *----
-*  READ ISOTOPE AND MIXTURE INFORMATION FROM IPLIBX
+*  READ ISOTOPE AND MIXTURE INFORMATION FROM IPLIBX OR IPBURX
 *----
       ITSTMP=2
       IF((IBSTEP.EQ.0).AND.(NBISOX.GT.0)) THEN
 *       READ FROM A MICROLIB.
+        IF(.NOT.C_ASSOCIATED(IPLIBX)) THEN
+          CALL XABORT(NAMSBR//': MICROLIB OBJECT MISSING')
+        ENDIF
         CALL LCMGET(IPLIBX,'ISOTOPESDENS',DENIX)
         CALL LCMGET(IPLIBX,'ISOTOPESMIX',MIXIX)
         CALL LCMGET(IPLIBX,'ISOTOPESUSED',ISONMX)
@@ -154,23 +158,27 @@
            CALL XDISET(IEVOLX,NBISOX,0)
         ENDIF
       ELSE IF((IBSTEP.GT.0).AND.(NBISOX.GT.0)) THEN
-*       READ FROM A BURNUP OBJECT.
-        WRITE(CARLIR,'(8HDEPL-DAT,I4.4)') IBSTEP
-        CALL LCMGET(IPLIBX,'ISOTOPESMIX',MIXIX)
-        CALL LCMGET(IPLIBX,'ISOTOPESUSED',ISONMX)
-        CALL LCMLEN(IPLIBX,'ISOTOPESTODO',ILONG,ITYLCM)
+*       READ FROM A MICROLIB OBJECT.
+        CALL LCMGET(IPLIB,'ISOTOPESMIX',MIXIX)
+        CALL LCMGET(IPLIB,'ISOTOPESUSED',ISONMX)
+        CALL LCMLEN(IPLIB,'ISOTOPESTODO',ILONG,ITYLCM)
         IF(ILONG.GT.0) THEN
-           CALL LCMGET(IPLIBX,'ISOTOPESTODO',IEVOLX)
+           CALL LCMGET(IPLIB,'ISOTOPESTODO',IEVOLX)
         ELSE
            CALL XDISET(IEVOLX,NBISOX,0)
         ENDIF
-        CALL LCMSIX(IPLIBX,CARLIR,1)
-        CALL LCMGET(IPLIBX,'ISOTOPESDENS',DENIX)
-        CALL LCMLEN(IPLIBX,'BURNUP-IRRAD',ILONG,ITYLCM)
-        IF(ILONG.EQ.2) THEN
-           CALL LCMGET(IPLIBX,'BURNUP-IRRAD',TMPDAY(2))
+*       READ FROM A BURNUP OBJECT.
+        IF(.NOT.C_ASSOCIATED(IPBURX)) THEN
+          CALL XABORT(NAMSBR//': BURNUP OBJECT MISSING')
         ENDIF
-        CALL LCMSIX(IPLIBX,' ',2)
+        WRITE(CARLIR,'(8HDEPL-DAT,I4.4)') IBSTEP
+        CALL LCMSIX(IPBURX,CARLIR,1)
+        CALL LCMGET(IPBURX,'ISOTOPESDENS',DENIX)
+        CALL LCMLEN(IPBURX,'BURNUP-IRRAD',ILONG,ITYLCM)
+        IF(ILONG.EQ.2) THEN
+           CALL LCMGET(IPBURX,'BURNUP-IRRAD',TMPDAY(2))
+        ENDIF
+        CALL LCMSIX(IPBURX,' ',2)
       ENDIF
       IF(IPRINT.GT.0) THEN
         WRITE(IOUT,6001) NGRO,NBISOX,NBMIX

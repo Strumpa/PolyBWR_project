@@ -47,7 +47,7 @@
       DOUBLE PRECISION DBLINP
       CHARACTER        NMDEPL(MAXR)*8,TEXT4*4,HSMG*131,CFILNA*64,
      >                 HHLIB*8,TEXT12*12,NAMLCM*12,NAMMY*12
-      LOGICAL          EMPTY,LCM
+      LOGICAL          EMPTY,LCM,LEXIST
       INTEGER          ISTATE(NSTATE)
 #if defined(HDF5_LIB)
       CHARACTER        CFILNA1*64,CFILNA2*64
@@ -99,6 +99,12 @@
           IF(TEXT12.EQ.NAMLCM) THEN
             IPDRL=IPLIB
           ELSE
+            INQUIRE(FILE=TRIM(TEXT12),EXIST=LEXIST)
+            IF(.NOT.LEXIST) THEN
+              WRITE(HSMG,'(17HLIBDEP: XSM FILE ,A,14H DOESNT EXIST.)')
+     >        TRIM(TEXT12)
+              CALL XABORT(HSMG)
+            ENDIF
             CALL LCMOP(IPDRL,TEXT12,2,2,0)
           ENDIF
           CALL LCMLEN(IPDRL,'DEPL-CHAIN',ILONG,ITYLCM)

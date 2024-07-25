@@ -52,6 +52,7 @@
           IF(ISONAM(1,ISOT).NE.ISONAM(1,JSOT)) CYCLE
           IF(ISONAM(2,ISOT).NE.ISONAM(2,JSOT)) CYCLE
           IF(ISONAM(3,ISOT).NE.ISONAM(3,JSOT)) CYCLE
+          IF(.NOT.C_ASSOCIATED(IPISO(JSOT))) CYCLE
           IPISO(ISOT)=IPISO(JSOT) ! set JSOT-th isotope
           GO TO 10
         ENDDO

@@ -27,6 +27,7 @@ import matplotlib
 from assertS import *
 # POST-PROCESSING class
 from POSTPROC import *
+from POSTPROC_hom import *
 
 # --- Homogeneous Cell
 from C7_hom import *
@@ -78,10 +79,16 @@ TYPE = 'HYBRIDE'
 # - assemblies : 
 #           - 'ATRIUM-10XM_NL24-2'
 #           - 'ATRIUM-10XM_NL24-2_ctrl'
-name_geom = 'AT10_UOX_Gd_HOM' # 'AT10_UOX_Gd2O3'
-#name_geom = 'AT10_UOX_Gd2O3'
-name_mix = "AT10_C7_hom_oldlib"
+
+#name_geom = 'AT10_UOX_Gd_HOM' # 'AT10_UOX_Gd2O3'
+name_geom = 'AT10_UOX_Gd2O3'
+
+#name_mix = "AT10_C7_hom_oldlib"
+name_mix = "AT10_45Gd"
 tracking_module = "SALT" #"SALT"
+ssh_method = "RSE"
+ssh_sol = "CP"
+flx_sol = "MOC"
 #
 # Multicompo = 1 if you want to generate a MULTICOMPO object 
 #            = 0 either
@@ -93,7 +100,7 @@ Multicompo = 1
 #        - 'UOx'  : used for UOx fuel without Gd poison
 #        - 'Gd'   : used for UOx fuel with Gd poison
 #        - 'free' : modify the burnup points as you wish
-burnup_points = 'Gd_BOC_fine'
+burnup_points = "Gd" #'Gd_BOC_fine'
 # suffixe = suffixe added to name_geom for creation of figures, MULTICOMPO and BU vector
 suffixe = tracking_module+"_"+burnup_points
 #
@@ -130,7 +137,7 @@ visu_DELTA=1
 ###################################################
 #
 # case = 'CELL' / 'ASSEMBLY' - string used to determine wich python class must be called
-case = 'HOM_CELL' #'HOM_CELL'
+case = 'CELL' #'HOM_CELL'
 
 #
 # names for exportation
@@ -184,7 +191,6 @@ os.chdir(path)
 #             HOMOGENEOUS CELL                 
 # --------------------------------------
 if case == 'HOM_CELL':
-	print("in case HOM")
 	name_compo = "C7_hom"
 	pyCOMPO = C7_hom("COMPO",StepList,name_compo)
        
@@ -196,30 +202,34 @@ if case == 'CELL' :
     if tracking_module == 'SALT':
 
             # ---------- GEOMETRY
-            [pyGEOM,pyGEOM_SS] = GEO_C_SALT("GEOM","GEOM_SS",name_geom)
+            [pyGEOM,pyGEOM_SS] = GEO_C_SALT("GEOM", "GEOM_SS", name_geom)
 
             # ---------- MIXTURES
-            pyMIX = MIX_C("LIBRARY",Library,name_mix)
+            pyMIX = MIX_C("LIBRARY", Library, name_mix, ssh_method)
 
             # ---------- TRACKING
-            [pyUOX_TBH,pyFIG,pyTRACK,pyTF_EXC,pyUOX_TBH_SS,pyFIG_SS,pyTRACK_SS,pyTF_EXC_SS] = TRK_C_SALT("UOX_TBH",name_fig,"TRACK","TF_EXC","UOX_TBH_SS",name_fig_SS,"TRACK_SS","TF_EXC_SS",pyGEOM,pyGEOM_SS)
+            [pyUOX_TBH,pyFIG,pyTRACK,pyTF_EXC,pyUOX_TBH_SS,pyFIG_SS,pyTRACK_SS,pyTF_EXC_SS] = TRK_C_SALT("UOX_TBH", name_fig, "TRACK", 
+																										 "TF_EXC", "UOX_TBH_SS", name_fig_SS,
+																										 "TRACK_SS", "TF_EXC_SS", pyGEOM,
+																										  pyGEOM_SS, ssh_sol, flx_sol)
 
             # ---------- BU DEPLETION
-            pyCOMPO = BU_C("COMPO",pyMIX,pyTRACK,pyTF_EXC,pyTRACK_SS,pyTF_EXC_SS,StepList,Multicompo,name_geom,name_compo)
+            pyCOMPO = BU_C("COMPO", pyMIX, pyTRACK, pyTF_EXC, pyTRACK_SS, pyTF_EXC_SS, StepList, Multicompo, 
+						   			name_geom, name_compo, ssh_method, ssh_sol, flx_sol)
 
     elif tracking_module == "SYBNXT":
 
                         # ---------- GEOMETRY
-            [pyGEOM,pyGEOM_SS] = GEO_C_NXT("GEOM","GEOM_SS",name_geom)
+            [pyGEOM,pyGEOM_SS] = GEO_C_NXT("GEOM", "GEOM_SS", name_geom)
 
             # ---------- MIXTURES
-            pyMIX = MIX_C("LIBRARY",Library,name_mix)
+            pyMIX = MIX_C("LIBRARY", Library, name_mix, ssh_method)
 
             # ---------- TRACKING
-            [pyTRACK,pyTF_EXC,pyTRACK_SS] = TRK_C_SYBNXT("TRACK","TF_EXC","TRACK_SS",pyGEOM,pyGEOM_SS)
+            [pyTRACK,pyTF_EXC,pyTRACK_SS] = TRK_C_SYBNXT("TRACK", "TF_EXC", "TRACK_SS", pyGEOM, pyGEOM_SS, ssh_sol, flx_sol)
 
             # ---------- BU DEPLETION
-            pyCOMPO = BU_C_SYBNXT("COMPO",pyMIX,pyTRACK,pyTF_EXC,pyTRACK_SS,StepList,Multicompo,name_geom,name_compo)
+            pyCOMPO = BU_C_SYBNXT("COMPO", pyMIX, pyTRACK, pyTF_EXC, pyTRACK_SS, StepList, Multicompo, name_geom, name_compo, ssh_sol, flx_sol)
 
 """
 # --------------------------------------
@@ -279,5 +289,7 @@ elif case == 'ASSEMBLY':
 # -----------------------------------
 #    POST-PROCESSING OF GLOBAL VALUES
 # -----------------------------------
-
-POSTPROC(pyCOMPO,ListeCOMPO,name_geom,name_mix,suffixe,VISU_param,form,Nmin)
+if case == 'CELL' or case == 'ASSEMBLY':
+	POSTPROC(pyCOMPO, ListeCOMPO, ListeAUTOP, name_geom, name_mix, suffixe, VISU_param, form, Nmin, ssh_method)
+elif case == 'HOM_CELL':
+	POSTPROC_hom(pyCOMPO, ListeCOMPO, ListeAUTOP, name_geom, name_mix, suffixe, VISU_param, form, Nmin)
