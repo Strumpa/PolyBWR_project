@@ -7,6 +7,11 @@ import DMLGInterface as DMLG
 import GeometricTools as GeoT
 import numpy as np
 
+# Exection parameters : 
+
+check_AT10_assbly = True
+check_AT10_assbly_ctrl = False
+
 
 def check_SerpentvsDragon_vols(Serpent2_case, Dragon5_case, material_assocoation_dict={}):
     """
@@ -79,77 +84,89 @@ def check_SerpentvsDragon_vols(Serpent2_case, Dragon5_case, material_assocoation
     return
 
 
+if check_AT10_assbly:
+    # Check un-controlled assembly volumes :
 
-# Check un-controlled assembly volumes :
+    assbly_serp_vols = "../Serpent2/AT10_ASSBLY_mc.mvol"
+    assbly_drag_vols = "../Dragon5/SALT_ASSBLY_vols.txt"
 
-assbly_serp_vols = "../Serpent2/AT10_ASSBLY_mc.mvol"
-assbly_drag_vols = "../Dragon5/SALT_ASSBLY_vols.txt"
-
-print("$$$ ---- Checking Dragon5 vs Serpent2 volumes for controlled assembly ---- $$$")
-AT10_ASSBLY_Serp = DMLG.DMLG_Interface(assbly_serp_vols, code="Serpent2", mode="check_volumes")
-AT10_ASSBLY_Serp.createS2_geom("ATRIUM-10 NL-24 UOX bundle", height=2)
-
-
-AT10_ASSBLY_drag = DMLG.DMLG_Interface(assbly_drag_vols, code="Dragon", mode="output")
-AT10_ASSBLY_drag.Dragon5_geom.ComputeOrderedVolumesandRegions()
-check_SerpentvsDragon_vols(AT10_ASSBLY_Serp, AT10_ASSBLY_drag)
+    print("$$$ ---- Checking Dragon5 vs Serpent2 volumes for controlled assembly ---- $$$")
+    AT10_ASSBLY_Serp = DMLG.DMLG_Interface(assbly_serp_vols, code="Serpent2", mode="check_volumes")
+    AT10_ASSBLY_Serp.createS2_geom("ATRIUM-10 NL-24 UOX bundle", height=2)
 
 
-print("$$$ ---- Checking Analytical vs Serpent2 volumes for un-controlled assembly ---- $$$")
-# Checking with geometric data : Analytical evaluation of volumes by geom_ASSBLY class :
-Channel_box_out = 2.3975+1.1025
-Channel_box_in = 2.3175+1.0225
-pitch_A=7.62*2
-Box_o = 6.87*2
-Box_i = 6.7*2
-Channel_box_xL_out = -1.1025
-Channel_box_XR_out = 2.3975
-pins_names=["24UOx", "32UOx", "42UOx", "45UOx", "48UOx", "50UOx", "45GADO", "42GADO"]
-
-pin_radii =[0.4435,0.4520,0.5140] # Fuel, gap, clad radii
-AT10_volume_check = GeoT.geom_ASSBLY(pitch_A,pins_names, Box_o, Channel_box_out, Box_i, Channel_box_in)
-AT10_volume_check.setPins(pin_radii[0], pin_radii[1], pin_radii[2])
-
-pins_number_dict={"24UOx": 4, "32UOx" : 8, "42UOx": 10, "45UOx": 21, "48UOx": 6, "50UOx":26, "45GADO": 14, "42GADO": 2}
-AT10_volume_check.setNumberofPins(pins_number_dict)
-AT10_volume_check.computeVolumes()
-Analytical_volumes = AT10_volume_check.Volumes
-
-D5_regions_volumes = AT10_ASSBLY_drag.Dragon5_geom.getVolumesAndRegions()
-S2_regions_volumes = AT10_ASSBLY_Serp.S2_geom.getOrderedMaterialVols()
-
-for region_name in Analytical_volumes.keys():
-    S2_error = (S2_regions_volumes[region_name] - Analytical_volumes[region_name])*100/Analytical_volumes[region_name]
-    print(f"Statistical error on volume of region {region_name} from Serpent2 is {S2_error:.03f} %")
-    
+    AT10_ASSBLY_drag = DMLG.DMLG_Interface(assbly_drag_vols, code="Dragon", mode="output")
+    AT10_ASSBLY_drag.Dragon5_geom.ComputeOrderedVolumesandRegions()
+    check_SerpentvsDragon_vols(AT10_ASSBLY_Serp, AT10_ASSBLY_drag)
 
 
-# Check controlled assembly volumes :
-print("$$$ ---- Checking Analytical vs Serpent2 volumes for controlled assembly ---- $$$")
-assbly_ctrl_serp_vols = "../Serpent2/AT10_ASSBLY_CTRL_mc.mvol"
+    print("$$$ ---- Checking Analytical vs Serpent2 volumes for un-controlled assembly ---- $$$")
+    # Checking with geometric data : Analytical evaluation of volumes by geom_ASSBLY class :
+    Channel_box_out = 2.3975+1.1025
+    Channel_box_in = 2.3175+1.0225
+    pitch_A=7.62*2
+    Box_o = 6.87*2
+    Box_i = 6.7*2
+    Channel_box_xL_out = -1.1025
+    Channel_box_XR_out = 2.3975
+
+    pins_names=["24UOx", "32UOx", "42UOx", "45UOx", "48UOx", "50UOx", "45GADO", "42GADO"]
+    pin_radii =[0.4435,0.4520,0.5140] # Fuel, gap, clad radii
+    AT10_volume_check = GeoT.geom_ASSBLY(pitch_A,pins_names, Box_o, Channel_box_out, Box_i, Channel_box_in)
+    AT10_volume_check.setPins(pin_radii[0], pin_radii[1], pin_radii[2])
+
+    pins_number_dict={"24UOx": 4, "32UOx" : 8, "42UOx": 10, "45UOx": 21, "48UOx": 6, "50UOx":26, "45GADO": 14, "42GADO": 2}
+    AT10_volume_check.setNumberofPins(pins_number_dict)
+    AT10_volume_check.computeVolumes()
+    Analytical_volumes = AT10_volume_check.Volumes
+
+    D5_regions_volumes = AT10_ASSBLY_drag.Dragon5_geom.getVolumesAndRegions()
+    S2_regions_volumes = AT10_ASSBLY_Serp.S2_geom.getOrderedMaterialVols()
+    print(f"Analytical volumes are {Analytical_volumes}")
+    print(f"Dragon5 volumes are {D5_regions_volumes}")
+    print(f"Serpent2 volumes are {S2_regions_volumes}")
+    for region_name in Analytical_volumes.keys():
+        if region_name in S2_regions_volumes.keys():
+            S2_error = (S2_regions_volumes[region_name] - Analytical_volumes[region_name])*100/Analytical_volumes[region_name]
+            print(f"Statistical error on volume of region {region_name} from Serpent2 is {S2_error:.03f} %")
+        
+
+if check_AT10_assbly_ctrl:
+    # Check controlled assembly volumes :
+    print("$$$ ---- Checking Analytical vs Serpent2 volumes for controlled assembly ---- $$$")
+    assbly_ctrl_serp_vols = "../Serpent2/AT10_ASSBLY_CTRL_mc_pitchissue.mvol"
+
+    Channel_box_out = 2.3975+1.1025
+    Channel_box_in = 2.3175+1.0225
+    pitch_A=7.62*2
+    Box_o = 6.87*2
+    Box_i = 6.7*2
+    Channel_box_xL_out = -1.1025
+    Channel_box_XR_out = 2.3975
 
 
-cross_half_length = 4.79654 + 7.62
-cross_half_width = 7.62 - 7.26784
-nb_ctrl_rods = 18*2
-ctrl_rod_radius = 0.21082
-ctrl_wings_symmetry = True
+    cross_half_length = 4.79654 + 7.62
+    cross_half_width = 7.62 - 7.26784
+    nb_ctrl_rods = 18*2
+    ctrl_rod_radius = 0.21082
+    ctrl_wings_symmetry = True
 
-# Analytical volumes for controlled assembly :
-AT10_CTRL_volume_check = GeoT.geom_ASSBLY(pitch_A,pins_names, Box_o, Channel_box_out, Box_i, Channel_box_in, controlled=True)
-AT10_CTRL_volume_check.setPins(pin_radii[0], pin_radii[1], pin_radii[2])
-AT10_CTRL_volume_check.setNumberofPins(pins_number_dict)
-AT10_CTRL_volume_check.setCtrlCross(cross_half_length, cross_half_width, nb_ctrl_rods, ctrl_rod_radius, ctrl_wings_symmetry)
-AT10_CTRL_volume_check.computeVolumes()
-Analytical_volumes_CTRL = AT10_CTRL_volume_check.Volumes
+    # Analytical volumes for controlled assembly :
+    AT10_CTRL_volume_check = GeoT.geom_ASSBLY(pitch_A,pins_names, Box_o, Channel_box_out, Box_i, Channel_box_in, controlled=True)
+    AT10_CTRL_volume_check.setPins(pin_radii[0], pin_radii[1], pin_radii[2])
+    AT10_CTRL_volume_check.setNumberofPins(pins_number_dict)
+    AT10_CTRL_volume_check.setCtrlCross(cross_half_length, cross_half_width, nb_ctrl_rods, ctrl_rod_radius, ctrl_wings_symmetry)
+    AT10_CTRL_volume_check.computeVolumes()
+    Analytical_volumes_CTRL = AT10_CTRL_volume_check.Volumes
 
 
-AT10_ASSBLY_CTRL_Serp = DMLG.DMLG_Interface(assbly_ctrl_serp_vols, code="Serpent2", mode="check_volumes")
-AT10_ASSBLY_CTRL_Serp.createS2_geom("ATRIUM-10 NL-24 Controlled UOX bundle", height=1)
-S2_regions_volumes_CTRL = AT10_ASSBLY_CTRL_Serp.S2_geom.getOrderedMaterialVols()
+    AT10_ASSBLY_CTRL_Serp = DMLG.DMLG_Interface(assbly_ctrl_serp_vols, code="Serpent2", mode="check_volumes")
+    AT10_ASSBLY_CTRL_Serp.createS2_geom("ATRIUM-10 NL-24 Controlled UOX bundle", height=1)
+    S2_regions_volumes_CTRL = AT10_ASSBLY_CTRL_Serp.S2_geom.getOrderedMaterialVols()
 
-for region_name in Analytical_volumes_CTRL.keys():
-    print(f"$ -- Seperent2 volume for region {region_name} is {S2_regions_volumes_CTRL[region_name]}")
-    print(f"$ -- Analytical volume for region {region_name} is {Analytical_volumes_CTRL[region_name]}")
-    S2_error = (S2_regions_volumes_CTRL[region_name] - Analytical_volumes_CTRL[region_name])*100/Analytical_volumes_CTRL[region_name]
-    print(f"Statistical error on volume of region {region_name} from Serpent2 is {S2_error:.03f} %")
+    for region_name in Analytical_volumes_CTRL.keys():
+        if region_name in S2_regions_volumes_CTRL.keys():
+            print(f"$ -- Seperent2 volume for region {region_name} is {S2_regions_volumes_CTRL[region_name]}")
+            print(f"$ -- Analytical volume for region {region_name} is {Analytical_volumes_CTRL[region_name]}")
+            S2_error = (S2_regions_volumes_CTRL[region_name] - Analytical_volumes_CTRL[region_name])*100/Analytical_volumes_CTRL[region_name]
+            print(f"Statistical error on volume of region {region_name} from Serpent2 is {S2_error:.03f} %")

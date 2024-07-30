@@ -212,12 +212,13 @@ class geom_PIN:
         self.name = label
         self.height = height
         self.isSectorized = sectorize
+        self.pitch = pitch
         print("Processing PIN with label "+ self.name)
         if self.isSectorized:
             self.computeSantamarinaradii()
         else:
             self.pin_radii = [self.outer_fuel_radius, self.gap_radius, self.clad_radius]
-        if pitch != None:
+        if self.pitch != None:
             self.setCellPitch(pitch)
         self.computePinVolumes()
 
@@ -244,6 +245,7 @@ class geom_PIN:
         print("computing volumes for pins")
         volumes = []
         self.volumes = {}
+        self.volume_names_to_radii = {}
         if self.isSectorized:
             if self.isGd:
                 key_dict = {"1":"A","2":"B","3":"C","4":"D","5":"E","6":"F", "7":"Gap", "8":"Clad", "9":"Coolant"}
@@ -262,9 +264,11 @@ class geom_PIN:
             #if self.isGd:
             if i==0:
                 self.volumes[self.name+"_"+key_dict[str(i+1)]] = volumes[i]
+                self.volume_names_to_radii[self.name+"_"+key_dict[str(i+1)]] = self.pin_radii[i]
             else:
                 self.volumes[self.name+"_"+key_dict[str(i+1)]] = volumes[i]-volumes[i-1]
-        print(self.volumes)
+                self.volume_names_to_radii[self.name+"_"+key_dict[str(i+1)]] = self.pin_radii[i]
+        print(f"$$$ -- In computePinVolumes() volumes are {self.volumes}")
         return  
     
     def setCellPitch(self, pitch):
