@@ -15,7 +15,7 @@ def create_exact_BWR_pin(name, fuel_radius, gap_radius, clad_radius, isGd, heigh
     geom_PIN requires arguments: label, fuel_radius, gap_radius, clad_radius, isGd, height
     """
     exact_pin = geom_PIN(name, fuel_radius, gap_radius, clad_radius, isGd, height, pitch, sectorize=False)
-    fuel_compo = Compo_Processor("45Gd_Fuel", path_to_composition_files+"FUEL_compo.txt")
+    fuel_compo = Compo_Processor("45Gd_Fuel", path_to_composition_files+"/45GADO_compo.txt")
     fuel_compo.check_consistency()
     fuel_compo.iso_code_to_nuclide()
     
@@ -60,7 +60,8 @@ def print_to_Dragon5_format(mix):
     print("$$$-- Output in Dragon5 format --$$$")
     for iso in mix.keys():
         #print(str(iso)+"  = "+str(iso)+"   "+str((mix[iso])))
-        print(f"{str(iso)}  = {str(iso)}   {str((mix[iso]))}")
+        #format_concentration = "{:.6E}".format(mix[iso])
+        print(f"{str(iso)}  = {str(iso)}   {mix[iso]:E}")
 
 def get_code_from_iso(dictionary, target_value):
     for key, value in dictionary.items():
@@ -87,10 +88,10 @@ def print_to_Serpent2_format(mix, suffix_for_temperature):
                         "92235": "U235", "92238": "U238", "92234": "U234", "92236": "U236"}
     for iso in mix.keys():
         iso_code = get_code_from_iso(association_dict, iso)
-        print(f"{str(iso_code)}{suffix_for_temperature} {str((mix[iso]))}")
+        print(f"{str(iso_code)}{suffix_for_temperature} {mix[iso]:e}")
 
 
-AT10_45Gd_pin = create_exact_BWR_pin("AT10_45Gd", 0.4435, 0.452, 0.514, isGd=True, height=1, pitch=1.295, path_to_composition_files="/home/loutre/RESEARCH/PolyBWR_project/PTT/compo_data/")
+AT10_45Gd_pin = create_exact_BWR_pin("AT10_45Gd", 0.4435, 0.452, 0.514, isGd=True, height=1, pitch=1.295, path_to_composition_files="../compo_data/")
 
 homogenized_45Gd = homogenize_pin(AT10_45Gd_pin, 1.295)
 

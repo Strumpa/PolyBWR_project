@@ -254,21 +254,37 @@ class geom_PIN:
         else:
             key_dict = {"1":"Fuel", "2":"Gap", "3":"Clad", "4":"Coolant"}
 
+        print(f"self.pin_radii = {self.pin_radii}")
         self.mix_to_name_connectivity_dict = key_dict
         for radius in self.pin_radii:
             Area = np.pi*radius**2
             volumes.append(Area*self.height)
         if self.pitch != None:
             volumes.append(self.pitch**2*self.height)
+
+
         for i in range(len(volumes)):
-            #if self.isGd:
-            if i==0:
-                self.volumes[self.name+"_"+key_dict[str(i+1)]] = volumes[i]
-                self.volume_names_to_radii[self.name+"_"+key_dict[str(i+1)]] = self.pin_radii[i]
+            print(i)
+            if self.pitch == None:
+                if i==0:
+                    self.volumes[self.name+"_"+key_dict[str(i+1)]] = volumes[i]
+                    self.volume_names_to_radii[self.name+"_"+key_dict[str(i+1)]] = self.pin_radii[i]
+                else:
+                    self.volumes[self.name+"_"+key_dict[str(i+1)]] = volumes[i]-volumes[i-1]
+                    self.volume_names_to_radii[self.name+"_"+key_dict[str(i+1)]] = self.pin_radii[i]
             else:
-                self.volumes[self.name+"_"+key_dict[str(i+1)]] = volumes[i]-volumes[i-1]
-                self.volume_names_to_radii[self.name+"_"+key_dict[str(i+1)]] = self.pin_radii[i]
-        print(f"$$$ -- In computePinVolumes() volumes are {self.volumes}")
+                if i==0:
+                    self.volumes[self.name+"_"+key_dict[str(i+1)]] = volumes[i]
+                    self.volume_names_to_radii[self.name+"_"+key_dict[str(i+1)]] = self.pin_radii[i]
+                elif i<len(volumes)-1:
+                    self.volumes[self.name+"_"+key_dict[str(i+1)]] = volumes[i]-volumes[i-1]
+                    self.volume_names_to_radii[self.name+"_"+key_dict[str(i+1)]] = self.pin_radii[i]
+                else:
+                    self.volumes[self.name+"_"+key_dict[str(i+1)]] = volumes[i]-volumes[i-1]
+                    self.volume_names_to_radii[self.name+"_"+key_dict[str(i+1)]] = self.pitch
+            
+
+            print(f"$$$ -- In computePinVolumes() volumes are {self.volumes}")
         return  
     
     def setCellPitch(self, pitch):
@@ -287,6 +303,10 @@ class geom_PIN:
         #print(compition_dict)
         if len(self.volumes.keys()) != len(composition_dict.keys()):
             print("Error : number of regions does not match number of mixes")
+            print(self.volumes)
+            print(f"len(self.volumes.keys())={len(self.volumes.keys())}")
+            print(composition_dict)
+            print(f"len(composition_dict.keys())={len(composition_dict.keys())}")
             return
         else:
             self.mixes = composition_dict
