@@ -98,4 +98,4 @@ homogenized_45Gd = homogenize_pin(AT10_45Gd_pin, 1.295)
 print(homogenized_45Gd)
 
 print_to_Dragon5_format(homogenized_45Gd)
-print_to_Serpent2_format(homogenized_45Gd, ".06c")
+print_to_Serpent2_format(homogenized_45Gd, ".05c")
