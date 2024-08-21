@@ -22,7 +22,7 @@ LOGICAL CONV ;
 
 IF iter 1 = THEN
   Thm Fmap := THM: Fmap ::
-    EDIT 5
+    EDIT 1
     TIME 0.0 (* s *)
     CONV 50 50 50 0.5 1.0E-3
     CRITFL 1.80E+6 (* W/m^2 *)
@@ -37,7 +37,7 @@ IF iter 1 = THEN
   ;
   
 ELSE
-  Thm Fmap := THM: Thm Fmap :: EDIT 5 ;
+  Thm Fmap := THM: Thm Fmap :: EDIT 1 ;
 ENDIF ;
 *--
 * Convergence test

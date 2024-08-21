@@ -1,8 +1,8 @@
 *DECK EDIHFD
-      SUBROUTINE EDIHFD(NGROUP,NGCOND,NREGIO,NMERGE,NBISO,NDEPL,NDFI,
-     >                  NDFP,NREAC,MATCOD,VOLUME,INADPL,ISONAM,ISONRF,
-     >                  IPISO,MIX,FLUXES,DEN,IDEPL,IGCOND,IMERGE,KDRI,
-     >                  RRD,FIYI,DECAY,YIELD,FIPI,PYIELD)
+      SUBROUTINE EDIHFD(IPRINT,NGROUP,NGCOND,NREGIO,NMERGE,NBISO,NDEPL,
+     >                  NDFI,NDFP,NREAC,MATCOD,VOLUME,INADPL,ISONAM,
+     >                  ISONRF,IPISO,MIX,FLUXES,DEN,IDEPL,IGCOND,IMERGE,
+     >                  KDRI,RRD,FIYI,DECAY,YIELD,FIPI,FIFP,PYIELD)
 *
 *-----------------------------------------------------------------------
 *
@@ -19,6 +19,7 @@
 *Author(s): A. Hebert
 *
 *Parameters: input
+* IPRINT  print index.
 * NGROUP  number of groups.
 * NGCOND  number of condensed groups.
 * NREGIO  number of regions.
@@ -48,6 +49,7 @@
 * DECAY   radioactive decay constants for saves isotopes.
 * YIELD   condensed fission product yield  (group ordered).
 * FIPI    fissile isotope index assigned to each microlib isotope.
+* FIFP    fission product index assigned to each microlib isotope.
 * PYIELD  condensed fission product yield (fissile isotope ordered).
 *
 *-----------------------------------------------------------------------
@@ -57,15 +59,15 @@
 *  SUBROUTINE ARGUMENTS
 *----
       TYPE(C_PTR) IPISO(NBISO)
-      INTEGER     NGROUP,NGCOND,NREGIO,NMERGE,NBISO,NDEPL,
+      INTEGER     IPRINT,NGROUP,NGCOND,NREGIO,NMERGE,NBISO,NDEPL,
      >            NDFI,NDFP,NREAC,MATCOD(NREGIO),INADPL(3,NDEPL),
      >            ISONAM(3,NBISO),ISONRF(3,NBISO),MIX(NBISO),
      >            IDEPL(NBISO),IGCOND(NGCOND),IMERGE(NREGIO),
-     >            KDRI(NREAC,NDEPL),FIPI(NBISO,NMERGE)
+     >            KDRI(NREAC,NDEPL),FIPI(NBISO,NMERGE),
+     >            FIFP(NBISO,NMERGE)
       REAL        VOLUME(NREGIO),FLUXES(NREGIO,NGROUP),DEN(NBISO),
      >            RRD(NDEPL),FIYI(NDFI,NDFP),DECAY(NBISO),
-     >            YIELD(NGCOND+1,NBISO,NMERGE),
-     >            PYIELD(NDFI,NBISO,NMERGE)
+     >            YIELD(NGCOND+1,NDFP,NMERGE),PYIELD(NDFI,NDFP,NMERGE)
 *----
 *  LOCAL VARIABLES
 *----
@@ -74,9 +76,13 @@
       CHARACTER   HNISOR*12,TEXT12*12,HSMG*131
       LOGICAL     L1,L2
       DOUBLE PRECISION GAR
+*----
+*  ALLOCATABLE ARRAYS
+*----
       INTEGER, ALLOCATABLE, DIMENSION(:) :: INDX
       REAL, ALLOCATABLE, DIMENSION(:) :: SIG
       REAL, ALLOCATABLE, DIMENSION(:,:) :: FIRA
+      CHARACTER(LEN=12), ALLOCATABLE, DIMENSION(:) :: HDFI,HDFP
 *----
 *  SCRATCH STORAGE ALLOCATION
 *   SIG     fission cross sections.
@@ -116,20 +122,11 @@
 *----
 *  MAIN ISOTOPIC LOOP
 *----
-      DO 46 IMR=1,NMERGE
-      DO 35 IBISO=1,NBISO
-        FIPI(IBISO,IMR)=0
-        DO 30 IFI=1,NDFI
-          PYIELD(IFI,IBISO,IMR)=0.0
-  30    CONTINUE
-  35  CONTINUE
-      DO 45 IGC=1,NGCOND+1
-        FIRA(IGC,IMR)=0.0
-        DO 40 IBISO=1,NBISO
-          YIELD(IGC,IBISO,IMR)=0.0
-  40    CONTINUE
-  45  CONTINUE
-  46  CONTINUE
+      FIPI(:NBISO,:NMERGE)=0
+      FIFP(:NBISO,:NMERGE)=0
+      PYIELD(:NDFI,:NDFP,:NMERGE)=0.0
+      YIELD(:NGCOND+1,:NDFP,:NMERGE)=0.0
+      FIRA(:NGCOND+1,:NMERGE)=0.0
       DO 100 ISO=1,NBISO
         IDPL=INDX(ISO)
         IF(IDPL.EQ.0) GO TO 100
@@ -167,10 +164,14 @@
                   IF(JDPL.EQ.0) GO TO 70
                   IF(MOD(KDRI(2,JDPL),100).EQ.5) THEN
                     ISOFP=KDRI(2,JDPL)/100
+                    IF(ISOFP.EQ.0) CALL XABORT('EDIHFD: ISOFP.EQ.0.')
+                    IF(ISOFP.GT.NDFP) CALL XABORT('EDIHFD: YIELD OVERF'
+     >              //'LOW.')
+                    FIFP(JSO,IMR)=ISOFP
                     DELTA=REAL(GAR)*FIYI(IFI,ISOFP)
-                    YIELD(1,JSO,IMR)=YIELD(1,JSO,IMR)+DELTA
-                    YIELD(IGC+1,JSO,IMR)=YIELD(IGC+1,JSO,IMR)+DELTA
-                    PYIELD(IFI,JSO,IMR)=FIYI(IFI,ISOFP)
+                    YIELD(1,ISOFP,IMR)=YIELD(1,ISOFP,IMR)+DELTA
+                    YIELD(IGC+1,ISOFP,IMR)=YIELD(IGC+1,ISOFP,IMR)+DELTA
+                    PYIELD(IFI,ISOFP,IMR)=FIYI(IFI,ISOFP)
                   ENDIF
   70            CONTINUE
                 FIRA(1,IMR)=FIRA(1,IMR)+REAL(GAR)
@@ -180,14 +181,45 @@
   90      CONTINUE
         ENDIF
  100  CONTINUE
+      IF(IPRINT.GT.2) THEN
+        ALLOCATE(HDFI(NDFI),HDFP(NDFP))
+        HDFI(:NDFI)=' '
+        HDFP(:NDFP)=' '
+        DO IFI=1,NDFI
+          DO ISO=1,NBISO
+            IF(FIPI(ISO,IMR).EQ.IFI) THEN
+              WRITE(HDFI(IFI),'(3A4)') ISONRF(:3,ISO)
+              EXIT
+            ENDIF
+          ENDDO
+        ENDDO
+        DO ISOFP=1,NDFP
+          DO ISO=1,NBISO
+            IF(FIFP(ISO,IMR).EQ.ISOFP) THEN
+              WRITE(HDFP(ISOFP),'(3A4)') ISONRF(:3,ISO)
+              EXIT
+            ENDIF
+          ENDDO
+        ENDDO
+        DO IMR=1,NMERGE
+          WRITE(6,'(41H EDIHFD: FISSION YIELDS IN MERGED MIXTURE,I5,
+     >    1H:/1X,12HFISSILE-----,3X,16HYIELDS----------)') IMR
+          WRITE(6,'(16X,10A13)') HDFP(:NDFP)
+          DO IFI=1,NDFI
+            WRITE(6,'(1X,A13,1P,10E13.4/(14X,10E13.4))') HDFI(IFI),
+     >      (PYIELD(IFI,ISOFP,IMR),ISOFP=1,NDFP)
+          ENDDO
+        ENDDO
+        DEALLOCATE(HDFP,HDFI)
+      ENDIF
 *----
 *  COMPUTE THE YIELDS
 *----
       DO 130 IMR=1,NMERGE
         DO 120 IGC=1,NGCOND+1
           IF(FIRA(IGC,IMR).NE.0.0) THEN
-            DO 110 ISO=1,NBISO
-              YIELD(IGC,ISO,IMR)=YIELD(IGC,ISO,IMR)/FIRA(IGC,IMR)
+            DO 110 ISOFP=1,NDFP
+              YIELD(IGC,ISOFP,IMR)=YIELD(IGC,ISOFP,IMR)/FIRA(IGC,IMR)
  110        CONTINUE
           ENDIF
  120    CONTINUE

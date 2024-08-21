@@ -41,7 +41,7 @@ IF ssh_opt "RSE" = THEN
   
   MIX <<COMB0101>> 750.0
     O16     = O16    4.621410E-02
-    U234    = U234   9.451580E-06 1 
+    U234    = U234   9.451580E-06 
     U235    = U235   9.945290E-04 1 
     U238    = U238   2.107540E-02 1
     Pu239   = Pu239  0.0        1
@@ -101,7 +101,6 @@ ELSEIF ssh_opt "PT" = THEN
       EDIT 0
       NMIX 20    ! MAXIMUM OF MATERIAL MIXTURES
       ANIS 3
-      CALENDF 3 
       ADED 4 NELAS N4N N2N N3N
       CALENDF 4 PT      ! CALENDF TYPE PROBABILITY TABLES
 
@@ -110,7 +109,7 @@ ELSEIF ssh_opt "PT" = THEN
 
     MIX <<COMB0101>> 750.0
       O16     = O16    4.621410E-02
-      U234    = U234   9.451580E-06 1 
+      U234    = U234   9.451580E-06  
       U235    = U235   9.945290E-04 1 
       U238    = U238   2.107540E-02 1
       Pu239   = Pu239  0.0        1

@@ -125,7 +125,7 @@ LIBRARY := LIB: ::
   ! C1 fuel compo "AT10_24UOX" :
   MIX <<COMB0101>> 750.0
     O16     = O16    4.66705E-02
-    U234    = U234   5.15910E-06 1
+    U234    = U234   5.15910E-06 
     U235    = U235   5.67035E-04 1 
     U238    = U238   2.27631E-02 1 
   MIX <<COMB0102>> COMB <<COMB0101>> 1.0
@@ -135,7 +135,7 @@ LIBRARY := LIB: ::
   !C2 fuel compo "AT10_32UOX" :
   MIX <<COMB0201>> 750.0
     O16     = O16    4.667480E-02
-    U234    = U234   7.039170E-06 2
+    U234    = U234   7.039170E-06 
     U235    = U235   7.560370E-04 2 
     U238    = U238   2.257430E-02 2 
   MIX <<COMB0202>> COMB <<COMB0201>> 1.0
@@ -145,7 +145,7 @@ LIBRARY := LIB: ::
   MIX <<CLAD>> 559.0 NOEV
     Zr90  = Zr90   2.18317E-02  6
     Zr91  = Zr91   4.76096E-03  6
-    Zr92  = Zr92   7.27723E-03 6
+    Zr92  = Zr92   7.27723E-03  6
     Zr94  = Zr94   7.37482E-03  6
     Zr96  = Zr96   1.18812E-03  6
     Ni60  = Ni60   9.69262E-06
@@ -211,6 +211,7 @@ TRACK TF_EXC := SALT: Geo_G2S ::
   EDIT 1
   ALLG
   ANIS 3
+  BATCH 150
   TSPC EQW2 <<an2d>> <<densur>> REND LONG
 ;
 
@@ -235,6 +236,7 @@ GeoSS_G2S FIG_SS.ps := G2S: GEOM_2x2_SS :: ;
 TRACK_SS TF_EXC_SS := SALT: GeoSS_G2S ::
   EDIT 1
   ALLG
+  BATCH 70
   TSPC <<an2d_ss>> <<densur_ss>> REND
   MERGMIX
 ;
@@ -248,18 +250,26 @@ TRACK_SS TF_EXC_SS := SALT: GeoSS_G2S ::
 
 
 LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
-        EDIT 1 PASS 1 MAXST 20
+        EDIT 1 PASS 2 MAXST 20
         CALC
+
+        * Don't touch this :
             REGI W1 U235 ALL
-            REGI W1 U234 ALL
+            !REGI W1 U234 ALL
             REGI W1 Zr90 ALL
             REGI W1 Zr91 ALL
             REGI W1 Zr92 ALL
             REGI W1 Zr94 ALL
+            REGI W1 Zr96 ALL
             
-            REGI W1 U238 <<COMB0101>> <<COMB0102>> <<COMB0103>> <<COMB0104>>
+        * Options : 
+            !REGI W1 U238 ALL ! Just this gives the closest to Serpent2, but is it sufficient ? ~10 pcm to S2
+            REGI W1 U238 <<COMB0101>> <<COMB0102>> <<COMB0103>> <<COMB0104>> ! This and next line give ~20 pcm diff to S2
             REGI W2 U238 <<COMB0201>> <<COMB0202>> <<COMB0203>> <<COMB0204>>
-
+            !REGI W1 U238 <<COMB0101>> <<COMB0201>> ! This doesnt work --> ~660 pcm diff to S2  !
+            !REGI W2 U238 <<COMB0102>> <<COMB0202>>
+            !REGI W3 U238 <<COMB0103>> <<COMB0203>>
+            !REGI W4 U238 <<COMB0104>> <<COMB0204>>
         ENDC
       ;
 

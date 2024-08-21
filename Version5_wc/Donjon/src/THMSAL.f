@@ -1,6 +1,6 @@
 *DECK THMSAL
-      SUBROUTINE THMSAL(IMPX,ITIME,I,J,K,K0,MFLOW,HMAVG,ENT,HD,SNAME,
-     > SCOMP,IHCONV,KHCONV,ISUBM,RADCL,ZF,PHI,XFL,EPS,SLIP,DZ,TCALO,
+      SUBROUTINE THMSAL(IMPX,ITIME,I,J,K,K0,MFLOW,HMAVG,ENT,HD,STP,
+     > IHCONV,KHCONV,ISUBM,RADCL,ZF,PHI,XFL,EPS,SLIP,DZ,TCALO,
      > RHO,RHOLAV,TSCLAD,KWA)
 *
 *-----------------------------------------------------------------------
@@ -27,8 +27,7 @@
 * ENT     four values of enthalpy in J/Kg to be used in Gaussian
 *         integration
 * HD      hydraulic diameter in m
-* SNAME   Name of the molten salt (e.g. "LiF-BeF2")
-* SCOMP   Composition of the molten salt (e.g. "0.66-0.34")
+* STP     tpdata object with correlations to obtain properties of molten salt.
 * IHCONV  flag indicating HCONV chosen (0=default/1=user-provided).
 * KHCONV  fixed user-provided HCONV value in W/m^2/K.
 * ISUBM   subcooling model (0: one-phase; 1: Jens-Lottes model;
@@ -58,9 +57,11 @@
 *
 *-----------------------------------------------------------------------
 *
+      USE t_saltdata
 *----
 *  SUBROUTINE ARGUMENTS
 *----
+      TYPE(tpdata) STP
       INTEGER I,J,K,K0,IHCONV,ISUBM,KWA
       REAL MFLOW,HMAVG,ENT(4),HD,KHCONV,RADCL,ZF(2),PHI,TCALO,RHO,
      > RHOLAV,TSCLAD,XFL,EPS,SLIP,DZ
@@ -79,19 +80,19 @@
 *----
       IF(HMAVG.LT.0.0) CALL XABORT('THMSAL: NEGATIVE INPUT ENTHALPY.')
       IF(ISUBM.NE.0) CALL XABORT('THMSAL: NOT A ONE PHASE FLOW.')
-      CALL THMSST(SNAME,SCOMP,TSAT,IMPX)
+      CALL THMSST(STP,TSAT,IMPX)
       HL(1)=ENT(1)
       HL(2)=ENT(2)
       HL(3)=ENT(3)
       HL(4)=ENT(4)
-      CALL THMSH(SNAME,SCOMP,HL(1),R11,TL1,IMPX)
-      CALL THMSH(SNAME,SCOMP,HL(2),R11,TL2,IMPX)
-      CALL THMSH(SNAME,SCOMP,HL(3),R11,TL3,IMPX)
-      CALL THMSH(SNAME,SCOMP,HL(4),R11,TL4,IMPX)
-      CALL THMSPT(SNAME,SCOMP,TL1,RHO1,R2,R3,R4,CP1,IMPX)
-      CALL THMSPT(SNAME,SCOMP,TL2,RHO2,R2,R3,R4,CP2,IMPX)
-      CALL THMSPT(SNAME,SCOMP,TL3,RHO3,R2,R3,R4,CP3,IMPX)
-      CALL THMSPT(SNAME,SCOMP,TL4,RHO4,R2,R3,R4,CP4,IMPX)
+      CALL THMSH(STP,HL(1),R11,TL1,IMPX)
+      CALL THMSH(STP,HL(2),R11,TL2,IMPX)
+      CALL THMSH(STP,HL(3),R11,TL3,IMPX)
+      CALL THMSH(STP,HL(4),R11,TL4,IMPX)
+      CALL THMSPT(STP,TL1,RHO1,R2,R3,R4,CP1,IMPX)
+      CALL THMSPT(STP,TL2,RHO2,R2,R3,R4,CP2,IMPX)
+      CALL THMSPT(STP,TL3,RHO3,R2,R3,R4,CP3,IMPX)
+      CALL THMSPT(STP,TL4,RHO4,R2,R3,R4,CP4,IMPX)
       TL=0.5*(W(1)*TL1+W(2)*TL2+W(3)*TL3+W(4)*TL4)
       RHOLAV=0.5*(W(1)*RHO1+W(2)*RHO2+W(3)*RHO3+W(4)*RHO4)
       CPLAV=0.5*(W(1)*CP1+W(2)*CP2+W(3)*CP3+W(4)*CP4)
@@ -111,7 +112,7 @@
       ELSE
         TCALO=TB
       ENDIF
-      CALL THMSPT(SNAME,SCOMP,TCALO,R1,R2,ZKONE,ZMUONE,CPONE,IMPX)
+      CALL THMSPT(STP,TCALO,R1,R2,ZKONE,ZMUONE,CPONE,IMPX)
       RHO=RHOLAV
       REL=MFLOW*HD/ZMUONE
       PRL=ZMUONE*CPONE/ZKONE
@@ -143,7 +144,7 @@
           ENDIF
 *CGT Changed Dittus-Boelter by Gnielinski correlation
 *CGT PRW: Prandtl number of liquid at wall temperature
-          CALL THMSPT(SNAME,SCOMP,TSCLAD,R1,R2,ZKONE,ZMUONE,CPONE,IMPX)
+          CALL THMSPT(STP,TSCLAD,R1,R2,ZKONE,ZMUONE,CPONE,IMPX)
           PRW=ZMUONE*CPONE/ZKONE
           HA=(ZKL/HD)*0.012*(REL**0.87-280)*PRL**0.8*(1+(HD/DZ)
      >    **(2.0/3.0))*(PRL/PRW)**0.11

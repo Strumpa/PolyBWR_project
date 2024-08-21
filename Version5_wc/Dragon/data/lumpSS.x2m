@@ -1,6 +1,6 @@
 *----
 *
-*  TEST CASE lumpSS_new
+*  TEST CASE lumpSS
 *  DISTRIBUTED SELF-SHIELDING ON LUMPED ASSEMBLIES
 *  295-GROUP JEFF3.1.1 DRAGLIB
 *
@@ -9,19 +9,40 @@
 *----
 *  Define STRUCTURES and MODULES used
 *----
-LINKED_LIST GEOM1 GEOM2 GEOM12 TRACK1 TRACK2 TRACK12 LIBRARY LIBRARY2A LIBRARY2B
-            LIBRARY2 ASB FLUX EDIBU BURNUP MCOMPO ;
-MODULE LIB: GEO: SYBILT: USS: ASM: FLU: COMPO: EDI: EVO: DELETE: END: ;
+LINKED_LIST GEOM1 GEOM2 GEOM12 TRACK_SS1 TRACK_SS2 TRACK_2L LIBRARY LIBRARY2A LIBRARY2B
+            LIBRARY2 ASB FLUX EDIBU BURNUP MCOMPO StepList ;
+MODULE LIB: GEO: SYBILT: USS: ASM: FLU: COMPO: EDI: EVO: UTL: GREP: DELETE: END: ;
 PROCEDURE assertS ;
+PROCEDURE mixA1_lumpSS ;
 REAL P_Zr90     P_Zr91     P_Zr92    P_Zr94    P_Zr96    :=
      51.45E-02  11.22E-02  17.15E-02 17.38E-02 2.80E-02  ;
 REAL N_Zr0 := 4.3241E-2 ;
 REAL N_Zr90       N_Zr91       N_Zr92       N_Zr94       N_Zr96    :=
      N_Zr0 P_Zr90 *  N_Zr0 P_Zr91 *  N_Zr0 P_Zr92 *  N_Zr0 P_Zr94 *
      N_Zr0 P_Zr96 *  ;
-*----
-* COMPO INIT
-*----
+ 
+************************************************************************
+*  BEGIN DECLARATION                                                   *
+************************************************************************
+INTEGER maxstep := 3 ;
+StepList := UTL: ::
+    CREA
+           ListBU <<maxstep>> =
+             0.0      10.0      30.0
+    ;
+INTEGER maxautop := 1 ;
+StepList := UTL: StepList ::
+    CREA
+          ListAutop <<maxautop>> =
+          30.0
+    ;
+************************************************************************
+*  END DECLARATION                                                     *
+************************************************************************
+
+************************************************************************
+*  COMPO INITIALIZATION                                                *
+************************************************************************
 MCOMPO := COMPO: ::
     EDIT 10
     STEP UP 'EDIBU_HOM'
@@ -31,9 +52,10 @@ MCOMPO := COMPO: ::
      ISOT 11 U235 U236 U238 Pu239 Pu240 Pu241 Pu242 Gd155 Gd157 Xe135 Sm149
     INIT
 ;
-*----
-* DRAGLIB PROCESSING
-*----
+
+************************************************************************
+*  DRAGLIB PROCESSING                                                  *
+************************************************************************
 LIBRARY := LIB: ::
  EDIT 1
  NMIX 11   (*MAXIMUM OF MATERIAL MIXTURES*)
@@ -70,15 +92,15 @@ LIBRARY := LIB: ::
  MIX 10 COMB 7 1.0
  MIX 11 COMB 5 1.0
  ;
-*----
-* GEOMETRY DEFINITION AND TRACKING
-*----
+************************************************************************
+*  GEOMETRY DEFINITION AND TRACKING                                    *
+************************************************************************
 GEOM1 := GEO: :: CARCEL 6
   X- REFL X+ REFL    Y- REFL Y+ REFL
   MESHX 0.0 1.2  MESHY 0.0 1.2
   RADIUS 0.0 0.288712 0.365195 0.397962 0.4083 0.45 0.5748331
   MIX 1 2 3 4 5 6 6 ;
-TRACK1 := SYBILT: GEOM1 ::
+TRACK_SS1 := SYBILT: GEOM1 ::
   MAXR 20 MAXZ 15000 DP00 QUA2 20 3 ;
 
 GEOM2 := GEO: :: CARCEL 6
@@ -86,7 +108,7 @@ GEOM2 := GEO: :: CARCEL 6
   MESHX 0.0 1.2  MESHY 0.0 1.2
   RADIUS 0.0 0.288712 0.365195 0.397962 0.4083 0.45 0.5748331
   MIX 7 8 9 10 11 6 6 ;
-TRACK2 := SYBILT: GEOM2 ::
+TRACK_SS2 := SYBILT: GEOM2 ::
   MAXR 20 MAXZ 15000 DP00 QUA2 20 3 ;
 
 GEOM12 := GEO: :: CAR2D 2 1
@@ -101,118 +123,147 @@ GEOM12 := GEO: :: CAR2D 2 1
       RADIUS 0.0 0.288712 0.365195 0.397962 0.4083 0.45 0.5748331
       MIX 7 8 9 10 11 6 6 ;
 ;
-TRACK12 := SYBILT: GEOM12 ::
+TRACK_2L := SYBILT: GEOM12 ::
   MAXR 20 MAXZ 30000 DP00 QUA2 20 3 ;
-*----
-* RESONANCE SELF SHIELDING OVER EACH CELL
-*----
-LIBRARY2A := USS: LIBRARY TRACK1 ::
-   EDIT 1 MAXST 100 PASS 2 PIJ
-   CALC
-    REGI W1 U235 ALL
-    REGI W1 Pu239 ALL
-   ENDC
-   ;
-LIBRARY2B := USS: LIBRARY TRACK2 ::
-   EDIT 1 MAXST 100 PASS 2 PIJ
-   CALC
-    REGI W2 U235 ALL
-    REGI W2 Pu239 ALL
-   ENDC
-   ;
-*----
-* CONSTRUCT THE SELF-SHIELDED MICROLIB
-*----
-LIBRARY2 := LIB: LIBRARY2A ::
-  NMIX 11   (*MAXIMUM OF MATERIAL MIXTURES*)
-  EDIT 2
-  SKIP ! skip the macrolib construction
-  CATL
-  MIX 1 1
-  MIX 2 2
-  MIX 3 3
-  MIX 4 4
-  MIX 5 5
-;
-LIBRARY2 := LIB: LIBRARY2 LIBRARY ::
-  EDIT 2
-  SKIP ! skip the macrolib construction
-  CATL
-  MIX 6 6
-;
-LIBRARY2 := LIB: LIBRARY2 LIBRARY2B ::
-  EDIT 2
-  MACR ! activate the macrolib construction
-  DEPL LIB: DRAGON FIL: DLIB_295
-  CATL
-  MIX 7 7
-  MIX 8 8
-  MIX 9 9
-  MIX 10 10
-  MIX 11 11
-;
-LIBRARY2A LIBRARY2B := DELETE: LIBRARY2A LIBRARY2B ;
-*----
-* FLUX CALCULATION
-*----
-ASB := ASM: LIBRARY2 TRACK12 :: PIJ ;
-FLUX := FLU: LIBRARY2 TRACK12 ASB :: TYPE K ;
-assertS FLUX :: K-EFFECTIVE 1 1.329498 ;
-*----
-* EDITION
-*----   
-EDIBU := EDI: FLUX LIBRARY2 TRACK12 ::
-   EDIT 0
-   MICR 11 U235 U236 U238 Pu239 Pu240 Pu241 Pu242 Gd155 Gd157 Xe135 Sm149
-   MERG MIX
-   1   1   1   1   0   0   1   1   1   1   0  
-   COND
-   SAVE ON FUEL ;
-*----
-* BURNUP CALCULATION
-*----
-BURNUP LIBRARY2 := EVO: LIBRARY2 FLUX TRACK12 ::
-   EDIT 3
-   DEPL 0.0 10.0 DAY POWR 39.0 EXPM 1.0E15 GLOB
-   ;
-*----
-* COMPO
-*----
-MCOMPO := COMPO: MCOMPO EDIBU BURNUP LIBRARY2 ::
-   EDIT 0
-   STEP UP 'EDIBU_HOM'
-   SET 0.0 DAY ;
-*----
-* FLUX CALCULATION
-*----
-ASB := DELETE: ASB ;
-ASB := ASM: LIBRARY2 TRACK12 :: PIJ ;
-FLUX := FLU: FLUX LIBRARY2 TRACK12 ASB :: TYPE K ;
-assertS FLUX :: K-EFFECTIVE 1 1.272455 ;
-*----
-* BURNUP FLUX NORMALIZATION AT END-OF-STAGE
-*----
-BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX TRACK12 ::
-   EDIT 3
-   SAVE 10.0 DAY POWR 39.0
-   ;
-*----
-* EDITION
-*----
-EDIBU := DELETE: EDIBU ;
-EDIBU := EDI: FLUX LIBRARY2 TRACK12 ::
-   EDIT 5
-   MICR 11 U235 U236 U238 Pu239 Pu240 Pu241 Pu242 Gd155 Gd157 Xe135 Sm149
-   MERG MIX
-   1   1   1   1   0   0   1   1   1   1   0  
-   COND
-   SAVE ON FUEL ;
-*----
-* COMPO
-*----
-MCOMPO := COMPO: MCOMPO EDIBU BURNUP LIBRARY2 ::
-   EDIT 0
-   STEP UP 'EDIBU_HOM'
-   SET 10.0 DAY ;
-ECHO "test lumpSS_new completed" ;
+
+
+************************************************************************
+*  NOMINAL REFERENCE CALCULATION                                       *
+************************************************************************
+INTEGER istepNext ;
+REAL BUbeg Tbeg ;
+REAL BU BUautop BUcompo := 0.0 0.0 0.0 ;
+REAL Norm_f2 := 39.0 ; ! SPECIFIC POWER MW/t
+REAL BUend Tend := 0. 0. ;
+INTEGER istep :=  0 ;
+INTEGER iauto :=  1 ;
+
+**********************************************
+*  BEGIN DEPLETION                           *
+**********************************************
+ECHO "start burnup loop" ;
+WHILE istep maxstep < DO
+
+ EVALUATE istep := istep 1 + ;
+ ECHO "burnup step: " istep "/" maxstep ;
+ 
+ EVALUATE BUbeg Tbeg := BUend Tend ;
+ GREP: StepList :: GETVAL 'ListBU' <<istep>> >>BUend<< ;
+ EVALUATE Tend := BUend Norm_f2 / ;
+ ECHO "Nominal depletion between" Tbeg " and" Tend "days" ;
+
+****************************
+*  BEGIN SELF-SHIELDING    *
+****************************
+  IF istep 1 = THEN
+     ECHO "perform initial self-shielding at" Tbeg "days" ;
+
+     ECHO "$$$ ------------- begin : mixAUTOP1 " ;
+     LIBRARY := UTL: LIBRARY :: DIR ;
+     LIBRARY2 LIBRARY2A LIBRARY2B := mixA1_lumpSS LIBRARY TRACK_SS1 TRACK_SS2 ::
+        <<istep>> ;
+     ECHO "$$$ ------------- end : mixAUTOP1 " ;
+
+  ELSE
+     GREP: StepList :: GETVAL "ListAutop" <<iauto>> >>BUautop<< ;
+     GREP: StepList :: GETVAL "ListBU" <<istep>> >>BU<< ;
+     IF BUautop BU = THEN
+     
+       ECHO "perform self-shielding at" Tbeg "days" ;
+       ECHO "$$$ ----------- begin : mixAUTOP2 " ;
+       LIBRARY2 LIBRARY2A LIBRARY2B :=
+          mixA1_lumpSS LIBRARY2 LIBRARY2A LIBRARY2B LIBRARY TRACK_SS1 TRACK_SS2 ::
+          <<istep>> ;
+       ECHO "$$$ ----------- end : mixAUTOP2 " ;
+       
+       EVALUATE iauto := iauto 1 + ;
+       
+     ENDIF ;
+  ENDIF ;
+
+****************************
+*  END OF SELF-SHIELDING   *
+****************************
+
+************************************************************
+*  BEGIN FLUX CALCULATION                                  *
+************************************************************
+  ECHO "flux calculation at" Tbeg "days" ;
+  ASB := ASM: LIBRARY2 TRACK_2L :: PIJ ;
+  IF istep 1 = THEN
+    FLUX := FLU: LIBRARY2 TRACK_2L ASB :: TYPE K ;
+  ELSE
+    FLUX := FLU: FLUX LIBRARY2 TRACK_2L ASB :: TYPE K ;
+  ENDIF ;
+  ASB := DELETE: ASB ;
+
+************************************************************
+*  NON-REGRESSION                                          *
+************************************************************
+  IF istep 1 = THEN
+    assertS FLUX :: K-EFFECTIVE 1 1.329498 ;
+  ELSEIF istep 2 = THEN
+    assertS FLUX :: K-EFFECTIVE 1 1.314721 ;
+  ELSEIF istep 3 = THEN
+    assertS FLUX :: K-EFFECTIVE 1 1.291761 ;
+  ENDIF ;
+
+************************************************************
+*  BEGIN FLUX NORMALIZATION                                *
+************************************************************
+  IF istep 1 = THEN
+    BURNUP LIBRARY2 := EVO: LIBRARY2 FLUX TRACK_2L ::
+      EDIT 3
+      SAVE <<Tbeg>> DAY POWR <<Norm_f2>> 
+      ;
+  ELSE
+    BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX TRACK_2L ::
+      EDIT 3
+      SAVE <<Tbeg>> DAY POWR <<Norm_f2>>
+    ;
+  ENDIF ;
+
+************************************************************
+*  EDITION                                                 *
+************************************************************
+  EDIBU := EDI: FLUX LIBRARY2 TRACK_2L ::
+    EDIT 0
+    MICR 11 U235 U236 U238 Pu239 Pu240 Pu241 Pu242 Gd155 Gd157 Xe135 Sm149
+    MERG MIX
+    1   1   1   1   0   0   1   1   1   1   0  
+    COND
+    SAVE ON FUEL ;
+
+************************************************************
+*  FILL MULTICOMPO                                         *
+************************************************************
+  ECHO "fill multicompo at" Tbeg "days" ;
+  MCOMPO := COMPO: MCOMPO EDIBU BURNUP LIBRARY2 ::
+    EDIT 0
+    STEP UP 'EDIBU_HOM'
+    SET <<Tbeg>> DAY ;
+
+  EDIBU := DELETE: EDIBU ;
+
+*********************************************************
+*  BEGIN DEPLETION                                      *
+*********************************************************
+  IF istep maxstep < THEN
+    EVALUATE istepNext := istep 1 + ;
+    GREP: StepList :: GETVAL 'ListBU' <<istepNext>> >>BUend<< ;
+    EVALUATE Tend := BUend Norm_f2 / ;
+  
+    BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX TRACK_2L ::
+     EDIT 0 
+     DEPL <<Tbeg>> <<Tend>> DAY 
+     POWR <<Norm_f2>> 
+     EXPM 1.0E15 GLOB ;
+  
+  ENDIF ;
+ 
+*********************************************************
+*  END BURNUP LOOP                                      *
+*********************************************************
+ENDWHILE ;
+ECHO "test lumpSS completed" ;
 END: ;

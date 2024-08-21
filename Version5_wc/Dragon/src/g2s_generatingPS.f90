@@ -35,13 +35,15 @@ contains
 
   subroutine line(fx,fy,tx,ty)
     implicit none
-    double precision,intent(in)    :: fx,fy,tx,ty
+    double precision,intent(in) :: fx,fy,tx,ty
 
     call PLOT(real(fx),real(fy),3)
     call PLOT(real(tx),real(ty),2)
   end subroutine line
 
   subroutine arc(xc,yc,rad,ang1,ang2)
+    double precision,intent(in) :: xc,yc,rad,ang1,ang2
+    double precision conver,radi,xci,yci
     character*132 cmdstr
     common/plt1/cmdstr
     common/cnvcom/conver
@@ -49,7 +51,7 @@ contains
     xci=xc*conver
     yci=yc*conver
     cmdstr=' '
-    write(cmdstr,'(f10.2,'' '',f10.2,'' '',f10.2,'' '',2f10.2,'' arcit'')')&
+    write(cmdstr,'(1p,e14.6,'' '',e14.6,'' '',e14.6,'' '',2e14.6,'' arcit'')')&
          & xci,yci,radi,ang1,ang2
     call filler
   end subroutine arc
@@ -99,6 +101,7 @@ contains
   subroutine psinit(fileNbr,portrait)
     !initializes plot for hp plotter
     integer fileNbr
+    double precision conver
     logical first,portrait,prtrt
     character*132 cmdstr,curfnt
     character*80 fileout
@@ -122,7 +125,7 @@ contains
 
     !Set conversion factor (conver=72. for inches, conver=72./25.4 for mm, etc.)
     !conver
-    conver=72.
+    conver=72.d0
 
     npage=1
 
@@ -437,7 +440,7 @@ contains
     write(cmdstr,'(2f8.3,a)') fact,fact,' scale'
     call filler
 
-    write(cmdstr,'(2f10.2,a)') -g_psp_bBoxXmin*72., &
+    write(cmdstr,'(1p,2e14.6,a)') -g_psp_bBoxXmin*72., &
          -g_psp_bBoxYmin*72., &
          ' translate'
     call filler
@@ -563,6 +566,7 @@ contains
   end subroutine factor
 
   subroutine plot(xcall,ycall,ip)
+    double precision conver
     character*132 cmdstr
     character*80 scr
     common/plt1/cmdstr
@@ -592,15 +596,15 @@ contains
 
     !Moving pen
     if(ipp.eq.3) then    !Stroke to paint previous path, then moveto
-       write(cmdstr,'(2f10.2,'' SM'')')xcall*conver,ycall*conver
+       write(cmdstr,'(1p,2e14.6,'' SM'')')xcall*conver,ycall*conver
     else                 !Lineto
-       write(cmdstr,'(2f10.2,'' LSM'')')xcall*conver,ycall*conver
+       write(cmdstr,'(1p,2e14.6,'' LSM'')')xcall*conver,ycall*conver
     endif
     call filler
 
     !Reset origin if ip.lt.0
     if(ip.lt.0) then
-       write(cmdstr,'(2f10.2,'' translate'')')xcall*conver,ycall*conver
+       write(cmdstr,'(1p,2e14.6,'' translate'')')xcall*conver,ycall*conver
        call filler
        ipen=ipp
     endif
@@ -612,15 +616,17 @@ contains
   end subroutine plotnd
 
   subroutine circle(xc,yc,rad,fill)
+    double precision,intent(in) ::  xc,yc,rad
+    logical,intent(in) :: fill
+    double precision conver,xci,yci,radi
     character*132 cmdstr,scrc
     common/plt1/cmdstr
     common/cnvcom/conver
-    logical fill
     xci=xc*conver
     yci=yc*conver
     radi=rad*conver
     scrc=' '
-    write(scrc,'(f10.2,'' '',f10.2,'' '',f10.2,'' C'')') xci,yci,radi
+    write(scrc,'(1p,e14.6,'' '',e14.6,'' '',e14.6,'' C'')') xci,yci,radi
     if(fill) then
        cmdstr='Np '//scrc(1:lenstr(scrc,132))//' fill'
     else
@@ -680,6 +686,7 @@ contains
   end subroutine kekflt
 
   subroutine keksym(xp,yp,size,ltitle1,ang,nchar1,mjus)
+    double precision conver
     character*132 cmdstr
     character*132 curfnt,scrc
     common/fntcom/curfnt,ifntsz,nfont
@@ -765,7 +772,7 @@ contains
        njus=0
     else
        cmdstr=' '
-       write(cmdstr,'(f10.2,'' Xposd'')')xp*conver
+       write(cmdstr,'(1p,e14.6,'' Xposd'')')xp*conver
     endif
     call filler
 
@@ -774,7 +781,7 @@ contains
        njus=0
     else
        cmdstr=' '
-       write(cmdstr,'(f10.2,'' Yposd'')')yp*conver
+       write(cmdstr,'(1p,e14.6,'' Yposd'')')yp*conver
     endif
     call filler
 
@@ -816,13 +823,13 @@ contains
 
        if(xarg.ne.0.) then
           scrc=' '
-          write(scrc, '(''/Xpos Xpos'',f10.2,'' add def'')')xarg*conver
+          write(scrc, '(''/Xpos Xpos'',1p,e14.6,'' add def'')')xarg*conver
           cmdstr=cmdstr(1:lenstr(cmdstr,132))//' '// scrc(1:lenstr(scrc,132))
        endif
 
        if(yarg.ne.0.) then
           scrc=' '
-          write(scrc,'(''/Ypos Ypos'',f10.2,'' add def'')')yarg*conver
+          write(scrc,'(''/Ypos Ypos'',1p,e14.6,'' add def'')')yarg*conver
           cmdstr=cmdstr(1:lenstr(cmdstr,132))//' '// scrc(1:lenstr(scrc,132))
        endif
     endif

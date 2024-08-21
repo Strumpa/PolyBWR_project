@@ -146,15 +146,17 @@ GEOM_2x2 := GEO: :: CAR2D 2 2
 ;
 
 ****************************************************************************
-*********************** LIBRARY DEFINTION OF 2x2 UOX ***********************
+********************** LIBRARY DEFINTION OF 2x2 UOX+Gd *********************
 ****************************************************************************
 
 
 LIBRARY := LIB: ::
     EDIT 0
     NMIX 150    ! MAXIMUM OF MATERIAL MIXTURES
-    RSE 1.0E-03
+    !RSE 1.0E-03
+    CALENDF 4 PT
     ANIS 3
+    ADED 4 NELAS N4N N2N N3N
 
   DEPL LIB: DRAGON FIL: <<Library>>
   MIXS LIB: DRAGON FIL: <<Library>>
@@ -162,7 +164,7 @@ LIBRARY := LIB: ::
 ! C2 fuel compo "AT10_32UOX" :
   MIX <<COMB0201>> 750.0
     O16     = O16    4.667480E-02
-    U234    = U234   7.039170E-06 1
+    U234    = U234   7.039170E-06 
     U235    = U235   7.560370E-04 1 
     U238    = U238   2.257430E-02 1 
   MIX <<COMB0202>> COMB <<COMB0201>> 1.0
@@ -172,7 +174,7 @@ LIBRARY := LIB: ::
 !C3 fuel compo "AT10_42UOX" :
   MIX <<COMB0301>> 750.0
     O16     = O16    4.667960E-02
-    U234    = U234   9.163680E-06 1 
+    U234    = U234   9.163680E-06  
     U235    = U235   9.686590E-04 1 
     U238    = U238   2.236200E-02 1
   MIX <<COMB0302>> COMB <<COMB0301>> 1.0
@@ -183,7 +185,7 @@ LIBRARY := LIB: ::
 ! C4 fuel compo "AT10_45UOX" :
   MIX <<COMB0401>> 750.0
     O16     = O16    4.668150E-02
-    U234    = U234   9.991530E-06 1
+    U234    = U234   9.991530E-06 
     U235    = U235   1.051340E-03 1 
     U238    = U238   2.227940E-02 1 
   MIX <<COMB0402>> COMB <<COMB0401>> 1.0
@@ -194,7 +196,7 @@ LIBRARY := LIB: ::
   ! C7 fuel compo "AT10_45Gd":
   MIX <<COMB0701>> 750.0
     O16     = O16    4.621410E-02
-    U234    = U234   9.451580E-06 1 
+    U234    = U234   9.451580E-06  
     U235    = U235   9.945290E-04 1 
     U238    = U238   2.107540E-02 1
     Gd154    = Gd154   2.986510E-05 1
@@ -281,6 +283,7 @@ TRACK TF_EXC := SALT: Geo_G2S ::
   EDIT 1
   ALLG
   ANIS 3
+  BATCH 150
   TSPC EQW2 <<an2d>> <<densur>> REND LONG
 ;
 
@@ -299,6 +302,7 @@ GeoSS_G2S FIG_SS.ps := G2S: GEOM_2x2_SS :: ;
 TRACK_SS TF_EXC_SS := SALT: GeoSS_G2S ::
   EDIT 1
   ALLG
+  BATCH 100
   TSPC <<an2d_ss>> <<densur_ss>> REND
   MERGMIX
 ;
@@ -319,17 +323,76 @@ TRACK_SS := MCCGT: TRACK_SS TF_EXC_SS ::
 LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
         EDIT 1 PASS 3 MAXST 20 ARM
         CALC
-            REGI W1 U235 ALL
-            REGI W1 U238 <<COMB0201>> <<COMB0301>> <<COMB0401>>
-            REGI W2 U238 <<COMB0202>> <<COMB0302>> <<COMB0402>>
-            REGI W3 U238 <<COMB0203>> <<COMB0303>> <<COMB0403>>
-            REGI W4 U238 <<COMB0204>> <<COMB0304>> <<COMB0404>>
-            REGI W71 U238 <<COMB0701>> 
-            REGI W72 U238 <<COMB0702>> 
-            REGI W73 U238 <<COMB0703>> 
-            REGI W74 U238 <<COMB0704>>
-            REGI W75 U238 <<COMB0705>>
-            REGI W76 U238 <<COMB0706>>
+              REGI W1 U235 ALL
+              REGI W1 Zr90 ALL
+              REGI W1 Zr91 ALL
+              REGI W1 Zr92 ALL
+              REGI W1 Zr94 ALL
+              REGI W1 Zr96 ALL
+
+              REGI W1 U238 <<COMB0201>>
+              REGI W2 U238 <<COMB0202>>
+              REGI W3 U238 <<COMB0203>>
+              REGI W4 U238 <<COMB0204>>
+
+              REGI W11 U238 <<COMB0301>>
+              REGI W21 U238 <<COMB0302>>
+              REGI W31 U238 <<COMB0303>>
+              REGI W41 U238 <<COMB0304>>
+
+              REGI W12 U238 <<COMB0401>>
+              REGI W22 U238 <<COMB0402>>
+              REGI W32 U238 <<COMB0403>>
+              REGI W42 U238 <<COMB0404>>
+
+              REGI W17 U238 <<COMB0701>>
+              REGI W27 U238 <<COMB0702>>
+              REGI W37 U238 <<COMB0703>>
+              REGI W47 U238 <<COMB0704>>
+              REGI W57 U238 <<COMB0705>>
+              REGI W67 U238 <<COMB0706>>
+
+              REGI W17 Gd154 <<COMB0701>>
+              REGI W27 Gd154 <<COMB0702>>
+              REGI W37 Gd154 <<COMB0703>>
+              REGI W47 Gd154 <<COMB0704>>
+              REGI W57 Gd154 <<COMB0705>>
+              REGI W67 Gd154 <<COMB0706>>
+
+              REGI W17 Gd155 <<COMB0701>>
+              REGI W27 Gd155 <<COMB0702>>
+              REGI W37 Gd155 <<COMB0703>>
+              REGI W47 Gd155 <<COMB0704>>
+              REGI W57 Gd155 <<COMB0705>>
+              REGI W67 Gd155 <<COMB0706>>
+
+              REGI W17 Gd156 <<COMB0701>>
+              REGI W27 Gd156 <<COMB0702>>
+              REGI W37 Gd156 <<COMB0703>>
+              REGI W47 Gd156 <<COMB0704>>
+              REGI W57 Gd156 <<COMB0705>>
+              REGI W67 Gd156 <<COMB0706>>
+
+              REGI W17 Gd157 <<COMB0701>>
+              REGI W27 Gd157 <<COMB0702>>
+              REGI W37 Gd157 <<COMB0703>>
+              REGI W47 Gd157 <<COMB0704>>
+              REGI W57 Gd157 <<COMB0705>>
+              REGI W67 Gd157 <<COMB0706>>
+
+              REGI W17 Gd158 <<COMB0701>>
+              REGI W27 Gd158 <<COMB0702>>
+              REGI W37 Gd158 <<COMB0703>>
+              REGI W47 Gd158 <<COMB0704>>
+              REGI W57 Gd158 <<COMB0705>>
+              REGI W67 Gd158 <<COMB0706>>
+
+              REGI W17 Gd160 <<COMB0701>>
+              REGI W27 Gd160 <<COMB0702>>
+              REGI W37 Gd160 <<COMB0703>>
+              REGI W47 Gd160 <<COMB0704>>
+              REGI W57 Gd160 <<COMB0705>>
+              REGI W67 Gd160 <<COMB0706>>
         ENDC
       ;
 

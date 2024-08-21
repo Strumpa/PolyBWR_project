@@ -98,7 +98,7 @@ WHILE BoronIndex 5 <= DO
 *---
 
   Macro := MAC: ::
-    EDIT 3 NGRO 2 NMIX 1 NIFI 0
+    EDIT 1 NGRO 2 NMIX 1 NIFI 0
     ANIS 1 CTRA NONE
     ENER 2.E7 0.625 1.E-3
     VOLUME 1.

@@ -20,9 +20,9 @@ PARAMETER  LIBRARY  ::
 ;
 
 STRING Library cell_name ssh_method ;
-:: >>Library<<  >>cell_name<< >>ssh_method<< ;
+:: >>Library<< >>cell_name<< >>ssh_method<< ;
 
-MODULE  LIB: UTL: DELETE: END: ABORT: ;
+MODULE LIB: END: ;
 
 INTEGER COMB0101 COMB0102 COMB0103 COMB0104 COMB0105 COMB0106 GAP CLAD MODE ;
 
@@ -35,10 +35,9 @@ IF cell_name "AT10_24UOX" = THEN
     LIBRARY := LIB: ::
       EDIT 0
       NMIX 7    ! MAXIMUM OF MATERIAL MIXTURES
-      PT
-      ANIS 2
+      ANIS 3
       ADED 4 NELAS N4N N2N N3N
-      CALENDF 3 PT      ! CALENDF TYPE PROBABILITY TABLES
+      CALENDF 4 PT      ! CALENDF TYPE PROBABILITY TABLES
 
       DEPL LIB: DRAGON FIL: <<Library>>
 
@@ -49,10 +48,10 @@ IF cell_name "AT10_24UOX" = THEN
         U234    = U234   5.15910E-06 1 
         U235    = U235   5.67035E-04 1 
         U238    = U238   2.27631E-02 1
-        Pu239   = Pu239  0.0        1
-        Pu240   = Pu240  0.0        1
-        Pu241   = Pu241  0.0        1
-        Pu242   = Pu242  0.0        1
+        Pu239   = Pu239  0.0     1
+        Pu240   = Pu240  0.0     1
+        Pu241   = Pu241  0.0     1
+        Pu242   = Pu242  0.0     1
       MIX <<COMB0102>> COMB <<COMB0101>> 1.0
       MIX <<COMB0103>> COMB <<COMB0101>> 1.0
       MIX <<COMB0104>> COMB <<COMB0101>> 1.0
@@ -109,10 +108,10 @@ IF cell_name "AT10_24UOX" = THEN
         U234    = U234   5.15910E-06 1 
         U235    = U235   5.67035E-04 1 
         U238    = U238   2.27631E-02 1
-        Pu239   = Pu239  0.0        1
-        Pu240   = Pu240  0.0        1
-        Pu241   = Pu241  0.0        1
-        Pu242   = Pu242  0.0        1
+        Pu239   = Pu239  0.0     1
+        Pu240   = Pu240  0.0     1
+        Pu241   = Pu241  0.0     1
+        Pu242   = Pu242  0.0     1
       MIX <<COMB0102>> COMB <<COMB0101>> 1.0
       MIX <<COMB0103>> COMB <<COMB0101>> 1.0
       MIX <<COMB0104>> COMB <<COMB0101>> 1.0
@@ -162,9 +161,9 @@ ELSEIF cell_name "AT10_32UOX" = THEN
     LIBRARY := LIB: ::
       EDIT 0
       NMIX 7    ! MAXIMUM OF MATERIAL MIXTURES
-      CALENDF 3 PT      ! CALENDF TYPE PROBABILITY TABLES
-      ANIS 2
+      ANIS 3
       ADED 4 NELAS N4N N2N N3N
+      CALENDF 4 PT      ! CALENDF TYPE PROBABILITY TABLES
 
       DEPL LIB: DRAGON FIL: <<Library>>
 
@@ -175,10 +174,10 @@ ELSEIF cell_name "AT10_32UOX" = THEN
         U234    = U234   7.039170E-06 1 
         U235    = U235   7.560370E-04 1 
         U238    = U238   2.257430E-02 1
-        Pu239   = Pu239  0.0        1
-        Pu240   = Pu240  0.0        1
-        Pu241   = Pu241  0.0        1
-        Pu242   = Pu242  0.0        1 
+        Pu239   = Pu239  0.0     1
+        Pu240   = Pu240  0.0     1
+        Pu241   = Pu241  0.0     1
+        Pu242   = Pu242  0.0     1
       MIX <<COMB0102>> COMB <<COMB0101>> 1.0
       MIX <<COMB0103>> COMB <<COMB0101>> 1.0
       MIX <<COMB0104>> COMB <<COMB0101>> 1.0
@@ -235,10 +234,10 @@ ELSEIF cell_name "AT10_32UOX" = THEN
         U234    = U234   5.15910E-06 1 
         U235    = U235   5.67035E-04 1 
         U238    = U238   2.27631E-02 1
-        Pu239   = Pu239  0.0        1
-        Pu240   = Pu240  0.0        1
-        Pu241   = Pu241  0.0        1
-        Pu242   = Pu242  0.0        1
+        Pu239   = Pu239  0.0     1
+        Pu240   = Pu240  0.0     1
+        Pu241   = Pu241  0.0     1
+        Pu242   = Pu242  0.0     1
       MIX <<COMB0102>> COMB <<COMB0101>> 1.0
       MIX <<COMB0103>> COMB <<COMB0101>> 1.0
       MIX <<COMB0104>> COMB <<COMB0101>> 1.0
@@ -287,8 +286,8 @@ ELSEIF cell_name "AT10_42UOX" = THEN
     LIBRARY := LIB: ::
       EDIT 0
       NMIX 7    ! MAXIMUM OF MATERIAL MIXTURES
-      CALENDF 3 PT      ! CALENDF TYPE PROBABILITY TABLES
-      ANIS 2
+      CALENDF 4 PT      ! CALENDF TYPE PROBABILITY TABLES
+      ANIS 3
       ADED 4 NELAS N4N N2N N3N
 
 
@@ -301,10 +300,10 @@ ELSEIF cell_name "AT10_42UOX" = THEN
         U234    = U234   9.163680E-06 1 
         U235    = U235   9.686590E-04 1 
         U238    = U238   2.236200E-02 1
-        Pu239   = Pu239  0.0        1
-        Pu240   = Pu240  0.0        1
-        Pu241   = Pu241  0.0        1
-        Pu242   = Pu242  0.0        1  
+        Pu239   = Pu239  0.0     1
+        Pu240   = Pu240  0.0     1
+        Pu241   = Pu241  0.0     1
+        Pu242   = Pu242  0.0     1
       MIX <<COMB0102>> COMB <<COMB0101>> 1.0
       MIX <<COMB0103>> COMB <<COMB0101>> 1.0
       MIX <<COMB0104>> COMB <<COMB0101>> 1.0
@@ -361,10 +360,10 @@ ELSEIF cell_name "AT10_42UOX" = THEN
         U234    = U234   9.163680E-06 1 
         U235    = U235   9.686590E-04 1 
         U238    = U238   2.236200E-02 1
-        Pu239   = Pu239  0.0        1
-        Pu240   = Pu240  0.0        1
-        Pu241   = Pu241  0.0        1
-        Pu242   = Pu242  0.0        1  
+        Pu239   = Pu239  0.0     1
+        Pu240   = Pu240  0.0     1
+        Pu241   = Pu241  0.0     1
+        Pu242   = Pu242  0.0     1 
       MIX <<COMB0102>> COMB <<COMB0101>> 1.0
       MIX <<COMB0103>> COMB <<COMB0101>> 1.0
       MIX <<COMB0104>> COMB <<COMB0101>> 1.0
@@ -414,8 +413,8 @@ ELSEIF cell_name "AT10_45UOX" = THEN
     LIBRARY := LIB: ::
       EDIT 0
       NMIX 7    ! MAXIMUM OF MATERIAL MIXTURES
-      CALENDF 3 PT      ! CALENDF TYPE PROBABILITY TABLES
-      ANIS 2
+      CALENDF 4 PT      ! CALENDF TYPE PROBABILITY TABLES
+      ANIS 3
       ADED 4 NELAS N4N N2N N3N
 
       DEPL LIB: DRAGON FIL: <<Library>>
@@ -427,10 +426,10 @@ ELSEIF cell_name "AT10_45UOX" = THEN
         U234    = U234   9.991530E-06 1 
         U235    = U235   1.051340E-03 1 
         U238    = U238   2.227940E-02 1
-        Pu239   = Pu239  0.0        1
-        Pu240   = Pu240  0.0        1
-        Pu241   = Pu241  0.0        1
-        Pu242   = Pu242  0.0        1  
+        Pu239   = Pu239  0.0     1
+        Pu240   = Pu240  0.0     1
+        Pu241   = Pu241  0.0     1
+        Pu242   = Pu242  0.0     1
       MIX <<COMB0102>> COMB <<COMB0101>> 1.0
       MIX <<COMB0103>> COMB <<COMB0101>> 1.0
       MIX <<COMB0104>> COMB <<COMB0101>> 1.0
@@ -487,10 +486,10 @@ ELSEIF cell_name "AT10_45UOX" = THEN
         U234    = U234   9.991530E-06 1 
         U235    = U235   1.051340E-03 1 
         U238    = U238   2.227940E-02 1
-        Pu239   = Pu239  0.0        1
-        Pu240   = Pu240  0.0        1
-        Pu241   = Pu241  0.0        1
-        Pu242   = Pu242  0.0        1  
+        Pu239   = Pu239  0.0     1
+        Pu240   = Pu240  0.0     1
+        Pu241   = Pu241  0.0     1
+        Pu242   = Pu242  0.0     1
       MIX <<COMB0102>> COMB <<COMB0101>> 1.0
       MIX <<COMB0103>> COMB <<COMB0101>> 1.0
       MIX <<COMB0104>> COMB <<COMB0101>> 1.0
@@ -539,8 +538,8 @@ ELSEIF cell_name "AT10_48UOX" = THEN
     LIBRARY := LIB: ::
       EDIT 0
       NMIX 7    ! MAXIMUM OF MATERIAL MIXTURES
-      CALENDF 3 PT      ! CALENDF TYPE PROBABILITY TABLES
-      ANIS 2
+      CALENDF 4 PT      ! CALENDF TYPE PROBABILITY TABLES
+      ANIS 3
       ADED 4 NELAS N4N N2N N3N
 
       DEPL LIB: DRAGON FIL: <<Library>>
@@ -552,10 +551,10 @@ ELSEIF cell_name "AT10_48UOX" = THEN
         U234    = U234   1.058330E-05 1 
         U235    = U235   1.110400E-03 1 
         U238    = U238   2.222040E-02 1
-        Pu239   = Pu239  0.0        1
-        Pu240   = Pu240  0.0        1
-        Pu241   = Pu241  0.0        1
-        Pu242   = Pu242  0.0        1
+        Pu239   = Pu239  0.0     1
+        Pu240   = Pu240  0.0     1
+        Pu241   = Pu241  0.0     1
+        Pu242   = Pu242  0.0     1
       MIX <<COMB0102>> COMB <<COMB0101>> 1.0
       MIX <<COMB0103>> COMB <<COMB0101>> 1.0
       MIX <<COMB0104>> COMB <<COMB0101>> 1.0
@@ -612,10 +611,10 @@ ELSEIF cell_name "AT10_48UOX" = THEN
         U234    = U234   1.058330E-05 1 
         U235    = U235   1.110400E-03 1 
         U238    = U238   2.222040E-02 1
-        Pu239   = Pu239  0.0        1
-        Pu240   = Pu240  0.0        1
-        Pu241   = Pu241  0.0        1
-        Pu242   = Pu242  0.0        1
+        Pu239   = Pu239  0.0     1
+        Pu240   = Pu240  0.0     1
+        Pu241   = Pu241  0.0     1
+        Pu242   = Pu242  0.0     1
       MIX <<COMB0102>> COMB <<COMB0101>> 1.0
       MIX <<COMB0103>> COMB <<COMB0101>> 1.0
       MIX <<COMB0104>> COMB <<COMB0101>> 1.0
@@ -664,8 +663,8 @@ ELSEIF cell_name "AT10_50UOX" = THEN
     LIBRARY := LIB: ::
       EDIT 0
       NMIX 7    ! MAXIMUM OF MATERIAL MIXTURES
-      CALENDF 3 PT      ! CALENDF TYPE PROBABILITY TABLES
-      ANIS 2
+      CALENDF 4 PT      ! CALENDF TYPE PROBABILITY TABLES
+      ANIS 3
       ADED 4 NELAS N4N N2N N3N
 
       DEPL LIB: DRAGON FIL: <<Library>>
@@ -677,10 +676,10 @@ ELSEIF cell_name "AT10_50UOX" = THEN
         U234    = U234   1.117530E-05 1 
         U235    = U235   1.169460E-03 1 
         U238    = U238   2.216140E-02 1
-        Pu239   = Pu239  0.0        1
-        Pu240   = Pu240  0.0        1
-        Pu241   = Pu241  0.0        1
-        Pu242   = Pu242  0.0        1
+        Pu239   = Pu239  0.0     1
+        Pu240   = Pu240  0.0     1
+        Pu241   = Pu241  0.0     1
+        Pu242   = Pu242  0.0     1 
       MIX <<COMB0102>> COMB <<COMB0101>> 1.0
       MIX <<COMB0103>> COMB <<COMB0101>> 1.0
       MIX <<COMB0104>> COMB <<COMB0101>> 1.0
@@ -737,10 +736,10 @@ ELSEIF cell_name "AT10_50UOX" = THEN
         U234    = U234   1.117530E-05 1 
         U235    = U235   1.169460E-03 1 
         U238    = U238   2.216140E-02 1
-        Pu239   = Pu239  0.0        1
-        Pu240   = Pu240  0.0        1
-        Pu241   = Pu241  0.0        1
-        Pu242   = Pu242  0.0        1
+        Pu239   = Pu239  0.0     1
+        Pu240   = Pu240  0.0     1
+        Pu241   = Pu241  0.0     1
+        Pu242   = Pu242  0.0     1
       MIX <<COMB0102>> COMB <<COMB0101>> 1.0
       MIX <<COMB0103>> COMB <<COMB0101>> 1.0
       MIX <<COMB0104>> COMB <<COMB0101>> 1.0
@@ -789,8 +788,8 @@ ELSEIF cell_name "AT10_45Gd" = THEN
     LIBRARY := LIB: ::
       EDIT 0
       NMIX 9    ! MAXIMUM OF MATERIAL MIXTURES
-      CALENDF 3 PT      ! CALENDF TYPE PROBABILITY TABLES
-      ANIS 2
+      CALENDF 4 PT      ! CALENDF TYPE PROBABILITY TABLES
+      ANIS 3
       ADED 4 NELAS N4N N2N N3N
 
       DEPL LIB: DRAGON FIL: <<Library>>
@@ -802,10 +801,10 @@ ELSEIF cell_name "AT10_45Gd" = THEN
         U234    = U234   9.451580E-06 1 
         U235    = U235   9.945290E-04 1 
         U238    = U238   2.107540E-02 1
-        Pu239   = Pu239  0.0        1
-        Pu240   = Pu240  0.0        1
-        Pu241   = Pu241  0.0        1
-        Pu242   = Pu242  0.0        1
+        Pu239   = Pu239  0.0     1
+        Pu240   = Pu240  0.0     1
+        Pu241   = Pu241  0.0     1
+        Pu242   = Pu242  0.0     1
         Gd154    = Gd154   2.986510E-05 1
         Gd155    = Gd155   2.027540E-04 1
         Gd156    = Gd156   2.804310E-04 1
@@ -870,10 +869,10 @@ ELSEIF cell_name "AT10_45Gd" = THEN
         U234    = U234   9.451580E-06 1 
         U235    = U235   9.945290E-04 1 
         U238    = U238   2.107540E-02 1
-        Pu239   = Pu239  0.0        1
-        Pu240   = Pu240  0.0        1
-        Pu241   = Pu241  0.0        1
-        Pu242   = Pu242  0.0        1
+        Pu239   = Pu239  0.0     1
+        Pu240   = Pu240  0.0     1
+        Pu241   = Pu241  0.0     1
+        Pu242   = Pu242  0.0     1 
         Gd154    = Gd154   2.986510E-05 1
         Gd155    = Gd155   2.027540E-04 1
         Gd156    = Gd156   2.804310E-04 1
@@ -930,8 +929,8 @@ ELSEIF cell_name "AT10_42Gd" = THEN
     LIBRARY := LIB: ::
       EDIT 0
       NMIX 9    ! MAXIMUM OF MATERIAL MIXTURES
-      CALENDF 3 PT      ! CALENDF TYPE PROBABILITY TABLES
-      ANIS 2
+      CALENDF 4 PT      ! CALENDF TYPE PROBABILITY TABLES
+      ANIS 3
       ADED 4 NELAS N4N N2N N3N
 
       DEPL LIB: DRAGON FIL: <<Library>>
@@ -943,10 +942,10 @@ ELSEIF cell_name "AT10_42Gd" = THEN
         U234    = U234   8.668470E-06 1 
         U235    = U235   9.163120E-04 1 
         U238    = U238   2.115350E-02 1
-        Pu239   = Pu239  0.0        1
-        Pu240   = Pu240  0.0        1
-        Pu241   = Pu241  0.0        1
-        Pu242   = Pu242  0.0        1
+        Pu239   = Pu239  0.0     1
+        Pu240   = Pu240  0.0     1
+        Pu241   = Pu241  0.0     1
+        Pu242   = Pu242  0.0     1
         Gd154    = Gd154   2.986510E-05 1
         Gd155    = Gd155   2.027540E-04 1
         Gd156    = Gd156   2.804310E-04 1
@@ -1011,10 +1010,10 @@ ELSEIF cell_name "AT10_42Gd" = THEN
         U234    = U234   8.668470E-06 1 
         U235    = U235   9.163120E-04 1 
         U238    = U238   2.115350E-02 1
-        Pu239   = Pu239  0.0        1
-        Pu240   = Pu240  0.0        1
-        Pu241   = Pu241  0.0        1
-        Pu242   = Pu242  0.0        1
+        Pu239   = Pu239  0.0     1
+        Pu240   = Pu240  0.0     1
+        Pu241   = Pu241  0.0     1
+        Pu242   = Pu242  0.0     1
         Gd154    = Gd154   2.986510E-05 1
         Gd155    = Gd155   2.027540E-04 1
         Gd156    = Gd156   2.804310E-04 1

@@ -279,17 +279,12 @@ This module is used to delete one or many {\sc lcm} objects. The calling
 specifications are:
 
 \begin{DataStructure}{Structure \dstr{DELETE:}}
-$[[$ \dusa{NAME1} $]]$ \moc{:=} \moc{DELETE:} $[[$ \dusa{NAME1} $]]~[$ \moc{::} \moc{EDIT} \dusa{iprint} $]$ \moc{;}
+$[[$ \dusa{NAME1} $]]$ \moc{:=} \moc{DELETE:} $[[$ \dusa{NAME1} $]]$ \moc{;}
 \end{DataStructure}
 
 \begin{ListeDeDescription}{mmmmmmmm}
 
 \item[\dusa{NAME1}] {\tt character*12} name of a {\sc lcm} object.
-
-\item[\moc{EDIT}] keyword used to modify the print level \dusa{iprint}.
-
-\item[\dusa{iprint}] index used to control the printing of this module. Set to 1 to
-print the name of the deleted objects.
 
 \end{ListeDeDescription}
 
@@ -298,6 +293,28 @@ the RHS. A {\sc lcm} object named {\tt PARENT} can be deleted using the followin
 
 \begin{verbatim}
 PARENT := DELETE: PARENT ;
+\end{verbatim}
+
+\subsection{The ERASE: module}\label{sect:ERASEData}
+
+This module is used to erase one or many {\sc lcm} objects without destroying their pointers. The calling
+specifications are:
+
+\begin{DataStructure}{Structure \dstr{ERASE:}}
+$[[$ \dusa{NAME1} $]]$ \moc{:=} \moc{ERASE:} $[[$ \dusa{NAME1} $]]$ \moc{;}
+\end{DataStructure}
+
+\begin{ListeDeDescription}{mmmmmmmm}
+
+\item[\dusa{NAME1}] {\tt character*12} name of a {\sc lcm} object.
+
+\end{ListeDeDescription}
+
+The names of the {\sc lcm} object should be present on both the LHS and
+the RHS. A {\sc lcm} object named {\tt PARENT} can be erased using the following command:
+
+\begin{verbatim}
+PARENT := ERASE: PARENT ;
 \end{verbatim}
 
 \clearpage

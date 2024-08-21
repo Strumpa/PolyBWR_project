@@ -20,17 +20,11 @@ import lifo
 import lcm
 import cle2000
 import matplotlib
-#matplotlib.use('Agg')
 
-#from matplotlib import pyplot
-#import matplotlib.pyplot as plt
+# --- DRAGON5 procedures
 from assertS import *
 # POST-PROCESSING class
 from POSTPROC import *
-from POSTPROC_hom import *
-
-# --- Homogeneous Cell
-from C7_hom import *
 
 # --- CELL
 # GEOMETRY class
@@ -60,11 +54,8 @@ from getLists import *
 Library = 'J311_295'
 # 
 #
-# TYPE = type of calculus
-#           - 'ALAMOS'
-#           - 'HYBRIDE'
+# TYPE = type of calation
 #           - 'NATIVE'
-TYPE = 'HYBRIDE'
 #
 # name_geom = name_geom of the simulated case 
 # - cells :
@@ -80,13 +71,14 @@ TYPE = 'HYBRIDE'
 #           - 'ATRIUM-10XM_NL24-2'
 #           - 'ATRIUM-10XM_NL24-2_ctrl'
 
-#name_geom = 'AT10_UOX_Gd_HOM' # 'AT10_UOX_Gd2O3'
-name_geom = 'AT10_UOX_Gd2O3'
+name_geom = 'AT10_UOX' # 'AT10_UOX_Gd2O3'
 
-#name_mix = "AT10_C7_hom_oldlib"
-name_mix = "AT10_45Gd"
+name_mix = "AT10_24UOX" # "AT10_45Gd", "AT10_45UOX", "AT10_24UOX", "AT10_32UOX", "AT10_42UOX", "AT10_48UOX", "AT10_50UOX", "AT10_42Gd"
+
 tracking_module = "SALT" #"SALT"
-ssh_method = "RSE"
+
+ssh_method = "RSE" #"PT", "RSE", "SUBG" all supported for USS but AUTO only takes SUBG
+
 ssh_sol = "CP"
 flx_sol = "MOC"
 #
@@ -100,9 +92,9 @@ Multicompo = 1
 #        - 'UOx'  : used for UOx fuel without Gd poison
 #        - 'Gd'   : used for UOx fuel with Gd poison
 #        - 'free' : modify the burnup points as you wish
-burnup_points = "Gd" #'Gd_BOC_fine'
+burnup_points =  'UOx8_autop6' # UOx4_autop5, 'UOx2_autop5', 'UOx_autop5 'Gd_autop4', 'Gd_autop3', 'Gd_VBOC_fine', 'Gd_BOC_fine'
 # suffixe = suffixe added to name_geom for creation of figures, MULTICOMPO and BU vector
-suffixe = tracking_module+"_"+burnup_points
+suffixe = tracking_module+"_"+burnup_points+"_"+ssh_method
 #
 # AUTOP: self-shielding parameter
 #        - 'ALL'
@@ -137,12 +129,12 @@ visu_DELTA=1
 ###################################################
 #
 # case = 'CELL' / 'ASSEMBLY' - string used to determine wich python class must be called
-case = 'CELL' #'HOM_CELL'
+case =  'CELL' #'CELL'
 
 #
 # names for exportation
 name_compo = './_COMPO_'+name_geom+'_'+name_mix+suffixe
-name_BUvector = name_geom+'_'+name_mix+suffixe
+name_BUvector = name_geom+'_'+name_mix+'_'+suffixe
 name_fig = name_geom+'_'+name_mix+suffixe+'_2L.ps'
 name_fig_SS = name_geom+'_'+name_mix+suffixe+'_SS.ps'
 name_fig_1L = name_geom+'_'+name_mix+suffixe+'_1L.ps'
@@ -186,14 +178,7 @@ os.chdir(path)
 #             EXECUTION OF PROCEDURES             #
 #                                                 #
 ###################################################
-#
-# --------------------------------------
-#             HOMOGENEOUS CELL                 
-# --------------------------------------
-if case == 'HOM_CELL':
-	name_compo = "C7_hom"
-	pyCOMPO = C7_hom("COMPO",StepList,name_compo)
-       
+
 #
 # --------------------------------------
 #                 CELL                 
@@ -289,7 +274,5 @@ elif case == 'ASSEMBLY':
 # -----------------------------------
 #    POST-PROCESSING OF GLOBAL VALUES
 # -----------------------------------
-if case == 'CELL' or case == 'ASSEMBLY':
-	POSTPROC(pyCOMPO, ListeCOMPO, ListeAUTOP, name_geom, name_mix, suffixe, VISU_param, form, Nmin, ssh_method)
-elif case == 'HOM_CELL':
-	POSTPROC_hom(pyCOMPO, ListeCOMPO, ListeAUTOP, name_geom, name_mix, suffixe, VISU_param, form, Nmin)
+
+POSTPROC(pyCOMPO, ListeCOMPO, ListeAUTOP, name_geom, name_mix, suffixe, VISU_param, form, Nmin, ssh_method)

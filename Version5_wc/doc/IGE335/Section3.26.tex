@@ -364,46 +364,53 @@ are kept, otherwise the run is aborted (default).
 
 \end{ListeDeDescription}
 
-\subsubsection{Specification of discontinuity factor and equivalent albedo information}\label{sect:adf}
+\subsubsection{Specification of discontinuity factor and equivalent albedo information}\label{sect:df_mpo}
 
-Discontinuity factors and equivalent albedos are written in group {\tt flux} included in each state point group of the MPO file.
-Specification of some datasets in group  {\tt flux} are slightly modified to hold this new information:
+Discontinuity factors and equivalent albedos are written in groups {\tt flux} and {\tt discontinuity} included in each state point of the MPO file.
+Specification of some datasets are slightly modified to hold this new information:
 
-\begin{DescriptionEnregistrement}{Group /flux/ of the MPO file}{7.5cm}
-\label{tabl:tabiso202}
-\IntEnr
-  {NALBP}{$1$}
-  {Number $N_{\rm alb}$ of physical albedo (index $a$) values in each energy group.}
+\vskip -0.4cm
+
+\begin{DescriptionEnregistrement}{Group /output\_id/statept\_id/zone\_id/ of the MPO file}{7.5cm}
+\label{tabl:tabiso202a}
+\RealEnr
+  {ZONEFLUX}{$N_{\rm grp}$}{$\phi\, {\rm cm}^3$}
+  {Volume integrated multigroup flux within the zone.}
+\DirEnr
+  {discontinuity}
+  {Discontinuity factor group within the zone. The specification is presented in Table~\ref{tabl:tabiso202b}.}
+\end{DescriptionEnregistrement}
+
+\vskip -0.7cm
+
+\begin{DescriptionEnregistrement}{Group /output\_id/statept\_id/zone\_id/discontinuity/ of the MPO file}{7.5cm}
+\label{tabl:tabiso202b}
 \IntEnr
   {NSURF}{$1$}
   {Number $N_{\rm surf}$ of external surfaces (index $b$) where discontinuity factors are defined.}
 \OptRealEnr
-  {ALBEDOG}{$N_{\rm alb},N_{\rm grp}$}{$N_{\rm alb}\ge 1$}{1}
+  {DFACTOR}{$N_{\rm surf},N_{\rm grp}$}{$N_{\rm surf}\ge 1$}{$1$}
+  {Discontinuity factors $F^{\rm s}_{{\rm d},b,i,g}$ on external surfaces $b$ obtained with a nodal equivalence procedure within the zone.}
+\OptRealEnr
+  {DFACTORGxG}{$N_{\rm surf},N_{\rm grp}^2$}{$N_{\rm surf}\ge 1$}{$1$}
+  {Matrix discontinuity factors $F^{\rm s}_{{\rm d},b,i,g\to h}$ on external surfaces $b$ obtained with the equivalent reflector model (ERM) within the zone.}
+\end{DescriptionEnregistrement}
+
+\vskip -0.7cm
+
+\begin{DescriptionEnregistrement}{Group /output\_id/statept\_id/flux/ of the MPO file}{7.5cm}
+\label{tabl:tabiso202c}
+\IntEnr
+  {NALBP}{$1$}
+  {Number $N_{\rm alb}$ of physical albedo (index $a$) values in each energy group.}
+\OptRealEnr
+  {ALBEDO}{$N_{\rm alb},N_{\rm grp}$}{$N_{\rm alb}\ge 1$}{1}
   {Multigroup albedos $\beta_{a,g}$ obtained with a nodal equivalence procedure.}
 \OptRealEnr
   {ALBEDOGxG}{$N_{\rm alb},N_{\rm grp}^2$}{$N_{\rm alb}\ge 1$}{1}
   {Matrix albedos $\beta_{a,g\to h}$ obtained with the equivalent reflector model (ERM).}
-\OptRealEnr
-  {SURF}{$N_{\rm surf}$}{$N_{\rm surf}\ge 1$}{cm$^2$}
-  {Area $S_b$ of external surfaces.}
-\OptRealEnr
-  {SURFFLUX}{$N_{\rm surf},N_{\rm mil}\times N_{\rm grp}$}{$N_{\rm surf}\ge 1$}{$\phi \,$cm$^2$}
-  {Multigroup fluxes $\phi^{\rm s}_{b,i,g}$ on external surfaces obtained with a nodal equivalence procedure in each output mixture $i$.}
-\OptRealEnr
-  {SURFFLUXGxG}{$N_{\rm surf},N_{\rm mil}\times N_{\rm grp}^2$}{$N_{\rm surf}\ge 1$}{$\phi \,$cm$^2$}
-  {Matrix fluxes $\phi^{\rm s}_{b,i,g\to h}$ on external surfaces obtained with the equivalent reflector model (ERM) in each output mixture $i$.}
-\RealEnr
-  {TOTALFLUX}{$N_{\rm mil}\times N_{\rm grp}$}{$\phi$}
-  {Multigroup fluxes $\phi_{i,g}$ in each output mixture $i$.}
 \end{DescriptionEnregistrement}
 
-\noindent where $N_{\rm mil}$ is the number of output mixtures and $N_{\rm grp}$ is the number of energy groups. Discontinuity factors are obtained from equations:
-$$
-ADF_{b,i,g}={\phi^{\rm s}_{b,i,g} \over S_b \, \phi_{i,g}} \ \  {\rm for \ multigroup \ discontinuity \ factors}
-$$
-\noindent and
-$$
-ADF_{b,i,g\to h}={\phi^{\rm s}_{b,i,g\to h} \over S_b \, \phi_{i,g}} \ \  {\rm for \ matrix \ discontinuity \ factors.}
-$$
+\noindent where $N_{\rm mil}$ is the number of output mixtures (or zones in MPO terminology) and $N_{\rm grp}$ is the number of energy groups.
 
 \clearpage

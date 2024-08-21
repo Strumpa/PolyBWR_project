@@ -41,6 +41,14 @@ IF ssh_opt "RSE" = THEN
 ELSEIF ssh_opt "PT" = THEN
        LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
           EDIT 0 PASS 3 GRMIN 52
+          !CALC
+          !  REGI W1 U238 <<COMB0101>>
+          !  REGI W2 U238 <<COMB0102>>
+          !  REGI W3 U238 <<COMB0103>>
+          !  REGI W4 U238 <<COMB0104>>
+          !  REGI W5 U238 <<COMB0105>>
+          !  REGI W6 U238 <<COMB0106>>
+          !ENDC
        ;
 ENDIF ;
 

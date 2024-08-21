@@ -34,9 +34,9 @@ LIBRARY := MIX_A :: <<Library>> ;
 
 
 **********************************************************************************************************
-*********************************** batch_flx = batch_ssh = 10 *******************************************
+*********************************** batch_flx = batch_ssh = 50 ********************************************
 **********************************************************************************************************
-INTEGER batch_flx batch_ssh := 10 10 ;
+INTEGER batch_flx batch_ssh := 50 50 ;
 
 
 ***********************************  RSE/MOC ssh, MOC flx ************************************************
@@ -57,22 +57,6 @@ TF_EXC TF_EXC_SS := DELETE: TF_EXC TF_EXC_SS ;
 
 LIBRARY2 := DELETE: LIBRARY2 ;
 
-****************************** Testing parallelization for CP ssh/flx solution door *********************************************
-ECHO "Perform " geo_name "  calculation with batch_ssh =" batch_ssh " batch_flx =" batch_flx " RSE/CP, CP" ;
-EVALUATE ssh_sol := "CP" ;
-EVALUATE flx_sol := "CP" ;
-
-TRACK TF_EXC TRACK_SS TF_EXC_SS := TRK_A_S GEOM_A GEOM_A_SS :: <<batch_flx>> <<batch_ssh>> <<ssh_sol>> <<flx_sol>> ;
-
-LIBRARY2 := MIX_AUTOP LIBRARY TRACK_SS TF_EXC_SS :: <<ssh_method>> <<ssh_sol>> ;
-
-FLUX_CALC LIBRARY2 TRACK TF_EXC :: <<flx_sol>> ;
-
-TRACK TRACK_SS := DELETE: TRACK TRACK_SS ; 
-TF_EXC TF_EXC_SS := DELETE: TF_EXC TF_EXC_SS ;
-
-LIBRARY2 := DELETE: LIBRARY2 ;
-
 
 **************************** Testing parallelization for CP ssh, MOC flx solution door *******************************************
 ECHO "Perform " geo_name "  calculation with batch_ssh =" batch_ssh " batch_flx =" batch_flx " RSE/CP, MOC" ;
@@ -90,124 +74,6 @@ TF_EXC TF_EXC_SS := DELETE: TF_EXC TF_EXC_SS ;
 
 LIBRARY2 := DELETE: LIBRARY2 ;
 
-
-
-
-**********************************************************************************************************
-*********************************** batch_flx = batch_ssh = 20 ********************************************
-**********************************************************************************************************
-EVALUATE batch_flx batch_ssh := 20 20 ;
-
-
-***********************************  RSE/MOC ssh, MOC flx ************************************************
-
-EVALUATE ssh_method ssh_sol := "RSE" "MOC" ;
-EVALUATE flx_sol := "MOC" ;
-
-
-ECHO "Perform " geo_name "  calculation with batch_ssh =" batch_ssh " batch_flx =" batch_flx " RSE/MOC, MOC" ;
-TRACK TF_EXC TRACK_SS TF_EXC_SS := TRK_A_S GEOM_A GEOM_A_SS :: <<batch_flx>> <<batch_ssh>> <<ssh_sol>> <<flx_sol>> ;
-
-LIBRARY2 := MIX_AUTOP LIBRARY TRACK_SS TF_EXC_SS :: <<ssh_method>> <<ssh_sol>> ;
-
-FLUX_CALC LIBRARY2 TRACK TF_EXC :: <<flx_sol>> ;
-
-TRACK TRACK_SS := DELETE: TRACK TRACK_SS ; 
-TF_EXC TF_EXC_SS := DELETE: TF_EXC TF_EXC_SS ;
-
-LIBRARY2 := DELETE: LIBRARY2 ;
-
-****************************** Testing parallelization for CP ssh/flx solution door *********************************************
-ECHO "Perform " geo_name "  calculation with batch_ssh =" batch_ssh " batch_flx =" batch_flx " RSE/CP, CP" ;
-EVALUATE ssh_sol := "CP" ;
-EVALUATE flx_sol := "CP" ;
-
-TRACK TF_EXC TRACK_SS TF_EXC_SS := TRK_A_S GEOM_A GEOM_A_SS :: <<batch_flx>> <<batch_ssh>> <<ssh_sol>> <<flx_sol>> ;
-
-LIBRARY2 := MIX_AUTOP LIBRARY TRACK_SS TF_EXC_SS :: <<ssh_method>> <<ssh_sol>> ;
-
-FLUX_CALC LIBRARY2 TRACK TF_EXC :: <<flx_sol>> ;
-
-TRACK TRACK_SS := DELETE: TRACK TRACK_SS ; 
-TF_EXC TF_EXC_SS := DELETE: TF_EXC TF_EXC_SS ;
-
-LIBRARY2 := DELETE: LIBRARY2 ;
-
-
-**************************** Testing parallelization for CP ssh, MOC flx solution door *******************************************
-ECHO "Perform " geo_name "  calculation with batch_ssh =" batch_ssh " batch_flx =" batch_flx " RSE/CP, MOC" ;
-EVALUATE ssh_sol := "CP" ;
-EVALUATE flx_sol := "MOC" ;
-
-TRACK TF_EXC TRACK_SS TF_EXC_SS := TRK_A_S GEOM_A GEOM_A_SS :: <<batch_flx>> <<batch_ssh>> <<ssh_sol>> <<flx_sol>> ;
-
-LIBRARY2 := MIX_AUTOP LIBRARY TRACK_SS TF_EXC_SS :: <<ssh_method>> <<ssh_sol>> ;
-
-FLUX_CALC LIBRARY2 TRACK TF_EXC :: <<flx_sol>> ;
-
-TRACK TRACK_SS := DELETE: TRACK TRACK_SS ; 
-TF_EXC TF_EXC_SS := DELETE: TF_EXC TF_EXC_SS ;
-
-LIBRARY2 := DELETE: LIBRARY2 ;
-
-
-
-**********************************************************************************************************
-*********************************** batch_flx = batch_ssh = 50 ********************************************
-**********************************************************************************************************
-EVALUATE batch_flx batch_ssh := 50 50 ;
-
-
-***********************************  RSE/MOC ssh, MOC flx ************************************************
-
-EVALUATE ssh_method ssh_sol := "RSE" "MOC" ;
-EVALUATE flx_sol := "MOC" ;
-
-
-ECHO "Perform " geo_name "  calculation with batch_ssh =" batch_ssh " batch_flx =" batch_flx " RSE/MOC, MOC" ;
-TRACK TF_EXC TRACK_SS TF_EXC_SS := TRK_A_S GEOM_A GEOM_A_SS :: <<batch_flx>> <<batch_ssh>> <<ssh_sol>> <<flx_sol>> ;
-
-LIBRARY2 := MIX_AUTOP LIBRARY TRACK_SS TF_EXC_SS :: <<ssh_method>> <<ssh_sol>> ;
-
-FLUX_CALC LIBRARY2 TRACK TF_EXC :: <<flx_sol>> ;
-
-TRACK TRACK_SS := DELETE: TRACK TRACK_SS ; 
-TF_EXC TF_EXC_SS := DELETE: TF_EXC TF_EXC_SS ;
-
-LIBRARY2 := DELETE: LIBRARY2 ;
-
-****************************** Testing parallelization for CP ssh/flx solution door *********************************************
-ECHO "Perform " geo_name "  calculation with batch_ssh =" batch_ssh " batch_flx =" batch_flx " RSE/CP, CP" ;
-EVALUATE ssh_sol := "CP" ;
-EVALUATE flx_sol := "CP" ;
-
-TRACK TF_EXC TRACK_SS TF_EXC_SS := TRK_A_S GEOM_A GEOM_A_SS :: <<batch_flx>> <<batch_ssh>> <<ssh_sol>> <<flx_sol>> ;
-
-LIBRARY2 := MIX_AUTOP LIBRARY TRACK_SS TF_EXC_SS :: <<ssh_method>> <<ssh_sol>> ;
-
-FLUX_CALC LIBRARY2 TRACK TF_EXC :: <<flx_sol>> ;
-
-TRACK TRACK_SS := DELETE: TRACK TRACK_SS ; 
-TF_EXC TF_EXC_SS := DELETE: TF_EXC TF_EXC_SS ;
-
-LIBRARY2 := DELETE: LIBRARY2 ;
-
-
-**************************** Testing parallelization for CP ssh, MOC flx solution door *******************************************
-ECHO "Perform " geo_name "  calculation with batch_ssh =" batch_ssh " batch_flx =" batch_flx " RSE/CP, MOC" ;
-EVALUATE ssh_sol := "CP" ;
-EVALUATE flx_sol := "MOC" ;
-
-TRACK TF_EXC TRACK_SS TF_EXC_SS := TRK_A_S GEOM_A GEOM_A_SS :: <<batch_flx>> <<batch_ssh>> <<ssh_sol>> <<flx_sol>> ;
-
-LIBRARY2 := MIX_AUTOP LIBRARY TRACK_SS TF_EXC_SS :: <<ssh_method>> <<ssh_sol>> ;
-
-FLUX_CALC LIBRARY2 TRACK TF_EXC :: <<flx_sol>> ;
-
-TRACK TRACK_SS := DELETE: TRACK TRACK_SS ; 
-TF_EXC TF_EXC_SS := DELETE: TF_EXC TF_EXC_SS ;
-
-LIBRARY2 := DELETE: LIBRARY2 ;
 
 
 **********************************************************************************************************
@@ -215,7 +81,6 @@ LIBRARY2 := DELETE: LIBRARY2 ;
 **********************************************************************************************************
 EVALUATE batch_flx batch_ssh := 100 100 ;
 
-
 ***********************************  RSE/MOC ssh, MOC flx ************************************************
 
 EVALUATE ssh_method ssh_sol := "RSE" "MOC" ;
@@ -234,21 +99,6 @@ TF_EXC TF_EXC_SS := DELETE: TF_EXC TF_EXC_SS ;
 
 LIBRARY2 := DELETE: LIBRARY2 ;
 
-****************************** Testing parallelization for CP ssh/flx solution door *********************************************
-ECHO "Perform " geo_name "  calculation with batch_ssh =" batch_ssh " batch_flx =" batch_flx " RSE/CP, CP" ;
-EVALUATE ssh_sol := "CP" ;
-EVALUATE flx_sol := "CP" ;
-
-TRACK TF_EXC TRACK_SS TF_EXC_SS := TRK_A_S GEOM_A GEOM_A_SS :: <<batch_flx>> <<batch_ssh>> <<ssh_sol>> <<flx_sol>> ;
-
-LIBRARY2 := MIX_AUTOP LIBRARY TRACK_SS TF_EXC_SS :: <<ssh_method>> <<ssh_sol>> ;
-
-FLUX_CALC LIBRARY2 TRACK TF_EXC :: <<flx_sol>> ;
-
-TRACK TRACK_SS := DELETE: TRACK TRACK_SS ; 
-TF_EXC TF_EXC_SS := DELETE: TF_EXC TF_EXC_SS ;
-
-LIBRARY2 := DELETE: LIBRARY2 ;
 
 
 **************************** Testing parallelization for CP ssh, MOC flx solution door *******************************************
@@ -292,21 +142,6 @@ TF_EXC TF_EXC_SS := DELETE: TF_EXC TF_EXC_SS ;
 
 LIBRARY2 := DELETE: LIBRARY2 ;
 
-****************************** Testing parallelization for CP ssh/flx solution door *********************************************
-ECHO "Perform " geo_name "  calculation with batch_ssh =" batch_ssh " batch_flx =" batch_flx " RSE/CP, CP" ;
-EVALUATE ssh_sol := "CP" ;
-EVALUATE flx_sol := "CP" ;
-
-TRACK TF_EXC TRACK_SS TF_EXC_SS := TRK_A_S GEOM_A GEOM_A_SS :: <<batch_flx>> <<batch_ssh>> <<ssh_sol>> <<flx_sol>> ;
-
-LIBRARY2 := MIX_AUTOP LIBRARY TRACK_SS TF_EXC_SS :: <<ssh_method>> <<ssh_sol>> ;
-
-FLUX_CALC LIBRARY2 TRACK TF_EXC :: <<flx_sol>> ;
-
-TRACK TRACK_SS := DELETE: TRACK TRACK_SS ; 
-TF_EXC TF_EXC_SS := DELETE: TF_EXC TF_EXC_SS ;
-
-LIBRARY2 := DELETE: LIBRARY2 ;
 
 
 **************************** Testing parallelization for CP ssh, MOC flx solution door *******************************************
@@ -350,22 +185,6 @@ TF_EXC TF_EXC_SS := DELETE: TF_EXC TF_EXC_SS ;
 
 LIBRARY2 := DELETE: LIBRARY2 ;
 
-****************************** Testing parallelization for CP ssh/flx solution door *********************************************
-ECHO "Perform " geo_name "  calculation with batch_ssh =" batch_ssh " batch_flx =" batch_flx " RSE/CP, CP" ;
-EVALUATE ssh_sol := "CP" ;
-EVALUATE flx_sol := "CP" ;
-
-TRACK TF_EXC TRACK_SS TF_EXC_SS := TRK_A_S GEOM_A GEOM_A_SS :: <<batch_flx>> <<batch_ssh>> <<ssh_sol>> <<flx_sol>> ;
-
-LIBRARY2 := MIX_AUTOP LIBRARY TRACK_SS TF_EXC_SS :: <<ssh_method>> <<ssh_sol>> ;
-
-FLUX_CALC LIBRARY2 TRACK TF_EXC :: <<flx_sol>> ;
-
-TRACK TRACK_SS := DELETE: TRACK TRACK_SS ; 
-TF_EXC TF_EXC_SS := DELETE: TF_EXC TF_EXC_SS ;
-
-LIBRARY2 := DELETE: LIBRARY2 ;
-
 
 **************************** Testing parallelization for CP ssh, MOC flx solution door *******************************************
 ECHO "Perform " geo_name "  calculation with batch_ssh =" batch_ssh " batch_flx =" batch_flx " RSE/CP, MOC" ;
@@ -384,7 +203,6 @@ TF_EXC TF_EXC_SS := DELETE: TF_EXC TF_EXC_SS ;
 LIBRARY2 := DELETE: LIBRARY2 ;
 
 
-
 **********************************************************************************************************
 *********************************** batch_flx = batch_ssh = 500 ******************************************
 **********************************************************************************************************
@@ -398,22 +216,6 @@ EVALUATE flx_sol := "MOC" ;
 
 
 ECHO "Perform " geo_name "  calculation with batch_ssh =" batch_ssh " batch_flx =" batch_flx " RSE/MOC, MOC" ;
-TRACK TF_EXC TRACK_SS TF_EXC_SS := TRK_A_S GEOM_A GEOM_A_SS :: <<batch_flx>> <<batch_ssh>> <<ssh_sol>> <<flx_sol>> ;
-
-LIBRARY2 := MIX_AUTOP LIBRARY TRACK_SS TF_EXC_SS :: <<ssh_method>> <<ssh_sol>> ;
-
-FLUX_CALC LIBRARY2 TRACK TF_EXC :: <<flx_sol>> ;
-
-TRACK TRACK_SS := DELETE: TRACK TRACK_SS ; 
-TF_EXC TF_EXC_SS := DELETE: TF_EXC TF_EXC_SS ;
-
-LIBRARY2 := DELETE: LIBRARY2 ;
-
-****************************** Testing parallelization for CP ssh/flx solution door *********************************************
-ECHO "Perform " geo_name "  calculation with batch_ssh =" batch_ssh " batch_flx =" batch_flx " RSE/CP, CP" ;
-EVALUATE ssh_sol := "CP" ;
-EVALUATE flx_sol := "CP" ;
-
 TRACK TF_EXC TRACK_SS TF_EXC_SS := TRK_A_S GEOM_A GEOM_A_SS :: <<batch_flx>> <<batch_ssh>> <<ssh_sol>> <<flx_sol>> ;
 
 LIBRARY2 := MIX_AUTOP LIBRARY TRACK_SS TF_EXC_SS :: <<ssh_method>> <<ssh_sol>> ;
@@ -467,22 +269,6 @@ TF_EXC TF_EXC_SS := DELETE: TF_EXC TF_EXC_SS ;
 
 LIBRARY2 := DELETE: LIBRARY2 ;
 
-****************************** Testing parallelization for CP ssh/flx solution door *********************************************
-ECHO "Perform " geo_name "  calculation with batch_ssh =" batch_ssh " batch_flx =" batch_flx " RSE/CP, CP" ;
-EVALUATE ssh_sol := "CP" ;
-EVALUATE flx_sol := "CP" ;
-
-TRACK TF_EXC TRACK_SS TF_EXC_SS := TRK_A_S GEOM_A GEOM_A_SS :: <<batch_flx>> <<batch_ssh>> <<ssh_sol>> <<flx_sol>> ;
-
-LIBRARY2 := MIX_AUTOP LIBRARY TRACK_SS TF_EXC_SS :: <<ssh_method>> <<ssh_sol>> ;
-
-FLUX_CALC LIBRARY2 TRACK TF_EXC :: <<flx_sol>> ;
-
-TRACK TRACK_SS := DELETE: TRACK TRACK_SS ; 
-TF_EXC TF_EXC_SS := DELETE: TF_EXC TF_EXC_SS ;
-
-LIBRARY2 := DELETE: LIBRARY2 ;
-
 
 **************************** Testing parallelization for CP ssh, MOC flx solution door *******************************************
 ECHO "Perform " geo_name "  calculation with batch_ssh =" batch_ssh " batch_flx =" batch_flx " RSE/CP, MOC" ;
@@ -514,22 +300,6 @@ EVALUATE flx_sol := "MOC" ;
 
 
 ECHO "Perform " geo_name "  calculation with batch_ssh =" batch_ssh " batch_flx =" batch_flx " RSE/MOC, MOC" ;
-TRACK TF_EXC TRACK_SS TF_EXC_SS := TRK_A_S GEOM_A GEOM_A_SS :: <<batch_flx>> <<batch_ssh>> <<ssh_sol>> <<flx_sol>> ;
-
-LIBRARY2 := MIX_AUTOP LIBRARY TRACK_SS TF_EXC_SS :: <<ssh_method>> <<ssh_sol>> ;
-
-FLUX_CALC LIBRARY2 TRACK TF_EXC :: <<flx_sol>> ;
-
-TRACK TRACK_SS := DELETE: TRACK TRACK_SS ; 
-TF_EXC TF_EXC_SS := DELETE: TF_EXC TF_EXC_SS ;
-
-LIBRARY2 := DELETE: LIBRARY2 ;
-
-****************************** Testing parallelization for CP ssh/flx solution door *********************************************
-ECHO "Perform " geo_name "  calculation with batch_ssh =" batch_ssh " batch_flx =" batch_flx " RSE/CP, CP" ;
-EVALUATE ssh_sol := "CP" ;
-EVALUATE flx_sol := "CP" ;
-
 TRACK TF_EXC TRACK_SS TF_EXC_SS := TRK_A_S GEOM_A GEOM_A_SS :: <<batch_flx>> <<batch_ssh>> <<ssh_sol>> <<flx_sol>> ;
 
 LIBRARY2 := MIX_AUTOP LIBRARY TRACK_SS TF_EXC_SS :: <<ssh_method>> <<ssh_sol>> ;

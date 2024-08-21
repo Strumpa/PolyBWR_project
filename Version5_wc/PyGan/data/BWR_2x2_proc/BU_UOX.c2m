@@ -1,0 +1,380 @@
+********************************************************************************************************************
+*                                                                                                                  *
+* Procedure :  BU_2x2.c2m                                                                                          *
+* Purpose   :  Depletion calculus for AT10 2x2 Cluster                                                             *
+* Author    :  R.Guasch adapted from L.Fede                                                                        *
+*                                                                                                                  *
+* CALL      :                                                                                                      *
+* COMPO  := BU_2x2 LIBRARY TRACK TF_EXC TRACK_SS TF_EXC_SS StepList :: <<Multicompo>> <<name_geom>> <<name_compo>> * 
+*                                                                                                                  *
+********************************************************************************************************************
+
+* ---
+* INPUT & OUTPUT PARAMETERS
+* ---
+PARAMETER COMPO LIBRARY TRACK TF_EXC TRACK_SS TF_EXC_SS StepList ::
+::: LINKED_LIST COMPO ;
+::: LINKED_LIST LIBRARY ; 
+::: LINKED_LIST TRACK ;
+::: SEQ_BINARY TF_EXC ;
+::: LINKED_LIST TRACK_SS ;
+::: SEQ_BINARY TF_EXC_SS ;
+::: LINKED_LIST StepList ; ;
+INTEGER Multicompo ;
+:: >>Multicompo<< ;
+STRING name_compo flx_sol CALC_opt ;
+:: >>name_compo<< >>flx_sol<< >>CALC_opt<< ;
+
+
+ECHO "CALC_opt is :" CALC_opt ;
+
+!Mix numbers for C1 fuel 
+INTEGER COMB0101 COMB0102 COMB0103 COMB0104 ;
+EVALUATE COMB0101 COMB0102 COMB0103 COMB0104 := 1 2 3 4 ;
+
+!Mix numbers for C2 fuel 
+INTEGER COMB0201 COMB0202 COMB0203 COMB0204 ;
+EVALUATE COMB0201 COMB0202 COMB0203 COMB0204 := 5 6 7 8 ;
+
+
+!Mix numbers for C4 fuel 
+INTEGER COMB0401 COMB0402 COMB0403 COMB0404 ;
+EVALUATE COMB0401 COMB0402 COMB0403 COMB0404 := 9 10 11 12 ;
+
+
+
+* ---
+* STRUCTURES AND MODULES
+* ---
+MODULE  DELETE: USS: ASM: FLU: EVO: GREP: COMPO:
+        EDI: END: ;
+
+LINKED_LIST SYS FLUX BURNUP EDIBU LIBRARY2 ;
+
+SEQ_ASCII _COMPO :: FILE <<name_compo>> ;
+
+************************************************************************
+*  REFERENCE LOCAL PARAMETERS                                          *
+************************************************************************
+SEQ_ASCII FIG_BWR :: FILE './FIG_BWR_2x2_1level.ps' ;
+REAL Kinf ;
+ECHO "BWR_BU: Multicompo=" Multicompo ;
+
+************************************************************************
+*  BEGIN DECLARATION                                                   *
+************************************************************************
+INTEGER nstep nauto maxcompo ;
+GREP: StepList :: LENGTH ListBU >>nstep<< ;
+GREP: StepList :: LENGTH ListAutop >>nauto<< ;
+GREP: StepList :: LENGTH ListCompo >>maxcompo<< ;
+ECHO "nstep=" nstep "nauto=" nauto "maxcompo=" maxcompo ;
+************************************************************************
+*  END DECLARATION                                                     *
+************************************************************************
+************************************************************************
+*  BEGIN COMPO INITIALIZATION                                          *
+************************************************************************
+COMPO := COMPO: ::
+    EDIT 10
+    STEP UP 'EDIBU_HOM'
+     MAXCAL 5
+     COMM 'Evolution burnup - Condensed - 2x2 homogenized' ENDC
+     PARA 'Burnup' IRRA
+     ISOT 12 U234 U235 U236 U238 Pu239 Pu240 Pu241 Pu242 Gd155 Gd157 Xe135 Sm149
+    INIT
+    STEP UP 'EDIBU'
+     MAXCAL 5
+     COMM 'Evolution burnup - Condensed - Cells scale homogenized' ENDC
+     PARA 'Burnup' IRRA
+     ISOT 12 U234 U235 U236 U238 Pu239 Pu240 Pu241 Pu242 Gd155 Gd157 Xe135 Sm149
+    INIT
+    STEP UP 'EDIBU_2gr'
+     MAXCAL 5
+     COMM 'Evolution burnup - Condensed 2gr - Cells scale homogenized' ENDC
+     PARA 'Burnup' IRRA
+     ISOT 12 U234 U235 U236 U238 Pu239 Pu240 Pu241 Pu242 Gd155 Gd157 Xe135 Sm149
+    INIT
+;
+
+************************************************************************
+*  END COMPO INITIALIZATION                                            *
+************************************************************************
+
+************************************************************************
+*  NOMINAL REFERENCE CALCULATION                                       *
+************************************************************************
+INTEGER istepNext ;
+REAL BUbeg Tbeg ;
+REAL BU BUautop BUcompo := 0.0 0.0 0.0 ;
+REAL Norm_f2 := 38.6 ; ! SPECIFIC POWER MW/t
+REAL BUend Tend := 0. 0. ;
+INTEGER istep :=  0 ;
+INTEGER iauto :=  1 ;
+INTEGER iCompo :=  1 ;
+ECHO "start burnup loop" ;
+WHILE istep nstep < DO
+
+ EVALUATE istep := istep 1 + ;
+ ECHO "burnup step: " istep "/" nstep ;
+ 
+ EVALUATE BUbeg Tbeg := BUend Tend ;
+ GREP: StepList :: GETVAL 'ListBU' <<istep>> >>BUend<< ;
+ EVALUATE Tend := BUend Norm_f2 / ;
+ ECHO "Nominal depletion between" Tbeg " and" Tend "days" ;
+
+*----
+* USS
+*----
+  ECHO "istep = " istep ;
+  IF istep 1 = THEN
+     ECHO ".perform self-shielding at" Tbeg "days" ;
+     ECHO CALC_opt ;
+            IF CALC_opt "noCalc" = THEN
+                ECHO "in calc opt noCalc" ;
+                LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
+                    EDIT 1 PASS 3 GRMIN 52 MAXST 20
+                ;
+            ELSEIF CALC_opt "CALC1" = THEN 
+                ECHO CALC_opt ;
+                LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
+                    EDIT 1 PASS 3 MAXST 20 GRMIN 52
+                    CALC 
+                        REGI W1 U238 ALL
+                        REGI W1 U235 ALL
+                    ENDC
+                ;
+            ELSEIF CALC_opt "CALC2" = THEN 
+                ECHO CALC_opt ;
+                LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
+                    EDIT 1 PASS 3 MAXST 20 GRMIN 52
+                    CALC 
+                        REGI W1 U238 <<COMB0101>> <<COMB0201>> <<COMB0401>>
+                        REGI W2 U238 <<COMB0102>> <<COMB0202>> <<COMB0402>>
+                        REGI W3 U238 <<COMB0103>> <<COMB0203>> <<COMB0403>>
+                        REGI W4 U238 <<COMB0104>> <<COMB0204>> <<COMB0404>>
+                        REGI W5 U235 ALL
+                    ENDC
+                ;
+            ELSEIF CALC_opt "CALC3" = THEN
+                ECHO CALC_opt ;
+                LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
+                    EDIT 1 PASS 3 MAXST 20 GRMIN 52
+                    CALC 
+                        REGI W1 U238 <<COMB0101>> <<COMB0102>> <<COMB0103>> <<COMB0104>>
+                        REGI W2 U238 <<COMB0201>> <<COMB0202>> <<COMB0203>> <<COMB0204>>
+                        REGI W3 U238 <<COMB0401>> <<COMB0402>> <<COMB0403>> <<COMB0404>>
+                        REGI W4 U235 ALL
+                    ENDC
+                ;
+            ELSEIF CALC_opt "CALC4" = THEN
+                ECHO CALC_opt ;
+                LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
+                    EDIT 1 PASS 3 MAXST 20 GRMIN 52
+                    CALC 
+                        REGI W1 U238 <<COMB0101>>
+                        REGI W2 U238 <<COMB0102>>
+                        REGI W3 U238 <<COMB0103>>
+                        REGI W4 U238 <<COMB0104>>
+
+                        REGI W12 U238 <<COMB0201>>
+                        REGI W22 U238 <<COMB0202>>
+                        REGI W32 U238 <<COMB0203>>
+                        REGI W42 U238 <<COMB0204>>
+
+                        REGI W14 U238 <<COMB0401>>
+                        REGI W24 U238 <<COMB0402>>
+                        REGI W34 U238 <<COMB0403>>
+                        REGI W44 U238 <<COMB0404>>
+
+                        REGI W5 U235 ALL
+                    ENDC
+                ;
+            ENDIF ;
+  ELSE
+     GREP: StepList :: GETVAL "ListAutop" <<iauto>> >>BUautop<< ;
+     GREP: StepList :: GETVAL "ListBU" <<istep>> >>BU<< ;
+     ECHO "HERE, step is =" istep "iauto is =" iauto ;
+     ECHO "BU is =" BU " and BUautop =" BUautop ;  
+     IF BUautop BU = THEN
+       ECHO "perform self-shielding at" Tbeg "days" ;
+            IF CALC_opt "noCalc" = THEN
+                LIBRARY2 := USS: LIBRARY LIBRARY2 TRACK_SS TF_EXC_SS ::
+                    EDIT 1 PASS 3 GRMIN 52 MAXST 20
+                ;
+            ELSEIF CALC_opt "CALC1" = THEN 
+                LIBRARY2 := USS: LIBRARY LIBRARY2 TRACK_SS TF_EXC_SS ::
+                    EDIT 1 PASS 3 MAXST 20 GRMIN 52
+                    CALC 
+                        REGI W1 U238 ALL
+                        REGI W1 U235 ALL
+                    ENDC
+                ;
+            ELSEIF CALC_opt "CALC2" = THEN 
+                LIBRARY2 := USS: LIBRARY LIBRARY2 TRACK_SS TF_EXC_SS ::
+                    EDIT 1 PASS 3 MAXST 20 GRMIN 52
+                    CALC 
+                        REGI W1 U238 <<COMB0101>> <<COMB0201>> <<COMB0401>>
+                        REGI W2 U238 <<COMB0102>> <<COMB0202>> <<COMB0402>>
+                        REGI W3 U238 <<COMB0103>> <<COMB0203>> <<COMB0403>>
+                        REGI W4 U238 <<COMB0104>> <<COMB0204>> <<COMB0404>>
+                        REGI W5 U235 ALL
+                    ENDC
+                ;
+            ELSEIF CALC_opt "CALC3" = THEN
+                LIBRARY2 := USS: LIBRARY LIBRARY2 TRACK_SS TF_EXC_SS ::
+                    EDIT 1 PASS 3 MAXST 20 GRMIN 52
+                    CALC 
+                        REGI W1 U238 <<COMB0101>> <<COMB0102>> <<COMB0103>> <<COMB0104>>
+                        REGI W2 U238 <<COMB0201>> <<COMB0202>> <<COMB0203>> <<COMB0204>>
+                        REGI W3 U238 <<COMB0401>> <<COMB0402>> <<COMB0403>> <<COMB0404>>
+                        REGI W4 U235 ALL
+                    ENDC
+                ;
+            ELSEIF CALC_opt "CALC4" = THEN
+                LIBRARY2 := USS: LIBRARY LIBRARY2 TRACK_SS TF_EXC_SS ::
+                    EDIT 1 PASS 3 MAXST 20 GRMIN 52
+                    CALC 
+                        REGI W1 U238 <<COMB0101>>
+                        REGI W2 U238 <<COMB0102>>
+                        REGI W3 U238 <<COMB0103>>
+                        REGI W4 U238 <<COMB0104>>
+
+                        REGI W12 U238 <<COMB0201>>
+                        REGI W22 U238 <<COMB0202>>
+                        REGI W32 U238 <<COMB0203>>
+                        REGI W42 U238 <<COMB0204>>
+
+                        REGI W14 U238 <<COMB0401>>
+                        REGI W24 U238 <<COMB0402>>
+                        REGI W34 U238 <<COMB0403>>
+                        REGI W44 U238 <<COMB0404>>
+
+                        REGI W5 U235 ALL
+                    ENDC
+                ;
+            ENDIF ;
+      EVALUATE iauto := iauto 1 + ;
+      ECHO "iauto is = " iauto ;
+      ENDIF ;
+
+  ENDIF ;
+
+************************************************************************
+*  BEGIN MOC/CP FLUX CALCULATION                                       *
+************************************************************************
+  IF flx_sol "MOC" = THEN
+    SYS := ASM: LIBRARY2 TRACK TF_EXC :: ARM EDIT 0 ;   
+  ELSEIF flx_sol "CP" = THEN
+    SYS := ASM: LIBRARY2 TRACK TF_EXC :: PIJ EDIT 0 ; 
+  ENDIF ;
+
+  IF istep 1 = THEN     
+     FLUX := FLU: LIBRARY2 SYS TRACK TF_EXC :: 
+     EDIT 1 TYPE K B1 SIGS ;
+  ELSE
+     FLUX := FLU: FLUX LIBRARY2 SYS TRACK TF_EXC :: 
+     EDIT 1 TYPE K B1 SIGS ;
+  ENDIF ;
+ 
+  SYS := DELETE: SYS ;
+
+  IF istep 1 = THEN
+    BURNUP LIBRARY2 := EVO: LIBRARY2 FLUX TRACK ::
+      EDIT 0
+      SAVE <<Tbeg>> DAY POWR <<Norm_f2>>
+    ;
+  ELSE
+    BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX TRACK ::
+      EDIT 0
+      SAVE <<Tbeg>> DAY POWR <<Norm_f2>>
+    ;
+  ENDIF ;
+
+  GREP: StepList :: GETVAL "ListCompo" <<iCompo>> >>BUcompo<< ;
+  GREP: StepList :: GETVAL "ListBU" <<istep>> >>BU<< ;
+  ECHO "here istep = " istep "and iCompo =" iCompo BUcompo ;
+  IF BUcompo BU = THEN
+        EDIBU := EDI: FLUX LIBRARY2 TRACK ::
+            EDIT 0
+            MICR 12 U234 U235 U236 U238 Pu239 Pu240 Pu241 Pu242 Gd155 Gd157 Xe135 Sm149
+            COND
+            MERG MIX 
+            1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 
+            SAVE ON FUEL 
+        ;
+
+        COMPO := COMPO: COMPO EDIBU BURNUP LIBRARY ::
+            EDIT 0
+            STEP UP 'EDIBU_HOM'
+            SET <<Tbeg>> DAY 
+        ;
+        EDIBU := DELETE: EDIBU ;
+
+        EDIBU := EDI: FLUX LIBRARY2 TRACK ::
+            EDIT 0
+            MICR 12 U234 U235 U236 U238 Pu239 Pu240 Pu241 Pu242 Gd155 Gd157 Xe135 Sm149
+            COND
+            MERG MIX 
+            1 1 1 1 2 2 2 2 4 4 4 4 0 0 0
+            SAVE ON FUEL 
+        ;
+
+        COMPO := COMPO: COMPO EDIBU BURNUP LIBRARY2 ::
+            EDIT 0
+            STEP UP 'EDIBU'
+            SET <<Tbeg>> DAY 
+        ;
+
+        EDIBU := DELETE: EDIBU ;
+
+    * EDITION FOR COMPO_2gr
+        EDIBU := EDI: FLUX LIBRARY2 TRACK ::
+            EDIT 0
+            MICR 12 U234 U235 U236 U238 Pu239 Pu240 Pu241 Pu242 Gd155 Gd157 Xe135 Sm149
+            MERG MIX 
+            1 1 1 1 2 2 2 2 4 4 4 4 0 0 0
+            COND 0.625
+            SAVE ON FUEL 
+        ;
+
+        COMPO := COMPO: COMPO EDIBU BURNUP LIBRARY2 ::
+            EDIT 0
+            STEP UP 'EDIBU_2gr'
+            SET <<Tbeg>> DAY 
+        ;
+
+        EDIBU := DELETE: EDIBU ; 
+        EVALUATE iCompo := iCompo 1 + ;
+  ENDIF ;
+
+  GREP: FLUX :: GETVAL 'K-INFINITY  ' 1 1 1 >>Kinf<< ;
+  ECHO "+++ Burnup=" BUend " Kinf=" Kinf " at step" istep ;
+
+  IF istep nstep < THEN
+    EVALUATE istepNext := istep 1 + ;
+    GREP: StepList :: GETVAL 'ListBU' <<istepNext>> >>BUend<< ;
+    EVALUATE Tend := BUend Norm_f2 / ;
+  
+    BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX TRACK ::
+     EDIT 3 DEPL <<Tbeg>> <<Tend>> DAY POWR <<Norm_f2>> 
+     EXPM 1.0E15 GLOB ;
+  
+  ENDIF ;
+ 
+************************************************************************
+*  END FLUX CALCULATION                                                *
+************************************************************************
+
+ENDWHILE ;
+************************************************************************
+*  END OF REFERENCE BURNUP LOOP WITH DEPLETION                         *
+************************************************************************
+
+************************************************************************
+*  EXPORT MULTICOMPO IN ASCII FORMAT                                   *
+************************************************************************
+_COMPO := COMPO ;
+
+END: ;
+QUIT .
+

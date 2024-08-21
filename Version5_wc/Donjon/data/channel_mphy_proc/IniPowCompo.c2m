@@ -83,7 +83,7 @@ Fmap Matex := SetFuelMap Matex ;
 
 UTL: Fmap :: STEP UP GEOMAP DIR IMPR MESHX * IMPR MESHY * IMPR MESHZ * ;
 
-Fmap := RESINI: Fmap :: EDIT 2
+Fmap := RESINI: Fmap :: EDIT 1
 
   BTYPE INST-BURN
   INST-BVAL SAME <<bVal>>

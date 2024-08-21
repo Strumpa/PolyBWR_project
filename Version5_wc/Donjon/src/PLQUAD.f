@@ -1,6 +1,6 @@
 *DECK PLQUAD
-      SUBROUTINE PLQUAD(N0,M1,APLUS,BPLUS,PDG,XDROIT,COUT,XOBJ,EPS,
-     >                IMPR,IERR)
+      SUBROUTINE PLQUAD(N0,M1,MAXM,APLUS,BPLUS,PDG,XDROIT,COUT,XOBJ,
+     > EPS,IMPR,IERR)
 *
 *-----------------------------------------------------------------------
 *
@@ -17,22 +17,23 @@
 * version 2.1 of the License, or (at your option) any later version
 *
 *Author(s): 
-* A. Hebert and R. Chambon
+* A. Hebert and T. Falcon
 *
 *Parameters: input
 * N0      number of control variables.
 * M1      number of constraints.
+* MAXM    first dimension of matrix APLUS.
 * APLUS   coefficient matrix for the linear constraints.
 * BPLUS   right hand sides corresponding to the coefficient matrix.
 * PDG     weights assigned to control variables in the quadratic
 *         constraint.
 * XDROIT  quadratic constraint radius squared.
 * COUT    costs of control variables.
-* XOBJ    control variables.
 * EPS     tolerence used for pivoting.
 * IMPR    print flag.
 *
 *Parameters: ouput
+* XOBJ    control variables.
 * IERR    return code (=0: normal completion).
 *
 *-----------------------------------------------------------------------
@@ -41,9 +42,9 @@
 *----
 *  SUBROUTINE ARGUMENTS
 *----
-      INTEGER     N0,M1,IERR,IMPR
+      INTEGER     N0,M1,MAXM,IERR,IMPR
       DOUBLE PRECISION BPLUS(M1+1),PDG(N0),XOBJ(N0),EPS,XDROIT,
-     > APLUS(M1+1,N0),COUT(N0)
+     > APLUS(MAXM,N0),COUT(N0)
 *----
 *  LOCAL VARIABLES
 *----

@@ -31,7 +31,7 @@ REAL pbore_0 temp_comb_0 temp_mode_0 dens_mode_0 :=
 *--
 ECHO "uniform Boron concentration=" densB ;
 MacroF := NCR: Cpo Fmap ::
-             EDIT 2
+             EDIT 1
              MACRO LINEAR
              TABLE Cpo <<Dir>> 'burnup'
                MIX 1 INST-BURN
@@ -68,7 +68,7 @@ MacroF := NCR: Cpo Fmap ::
 ;
   
   Macro1 := NCR: CpRefl ::
-               EDIT 2
+               EDIT 1
                MACRO LINEAR NMIX 2
                COMPO CpRefl 'default'
                  MIX 2 FROM 1 SET 'C-BORE' <<densB>> ENDMIX (*lower*)

@@ -41,14 +41,14 @@ module t_saltdata
     end type tpdata 
 
 contains
-    real function rho(self, t) result(res)
+    real function dens(self, t) result(res)
         ! Computes density (g/cm3) as A - B*T(K)
         type(tpdata), intent(in) :: self
         real, intent(in) :: t              ! Temperature (K)
         real, parameter :: f = 1000.0      ! g/cm3 to kg/m3
         res = (self%rhoA - self%rhoB * t) * f   
     end function
-    real function mu(self, t) result(res)
+    real function visc(self, t) result(res)
         ! Computes Viscosity (mN*s/m2) as A*exp(B/(R*T(K))) or 10^(A + B/T + C/T**2)
         type(tpdata), intent(in) :: self
         real, intent(in) :: t              ! Temperature (K)
@@ -59,13 +59,13 @@ contains
         zmu2 = 10**(self%zmu2A + self%zmu2B/t + self%zmu2C/T**2)
         res = max(zmu1, zmu2)/1000
     end function
-    real function k(self, t) result(res)
+    real function cond(self, t) result(res)
         ! Computes Thermal Conductivity (W/m K) as A - B*T(K)
        type(tpdata), intent(in) :: self
         real, intent(in) :: t              ! Temperature (K)
         res = self%zkA - self%zkB * t
     end function
-    real function cp(self, t) result(res)
+    real function cap(self, t) result(res)
         ! Computes Heat Capacity (J/K mol) as A + B*T(K) + C*T**-2(K) + D*T**2(K)
         type(tpdata), intent(in) :: self
         real, intent(in) :: t              ! Temperature (K)
