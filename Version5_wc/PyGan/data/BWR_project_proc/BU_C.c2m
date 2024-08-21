@@ -103,20 +103,10 @@ WHILE istep nstep < DO
       IF ssh_sol "MOC" = THEN
         LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
             EDIT 0 PASS 3 GRMIN 52 ARM
-            !CALC
-            !  REGI W1 U238 ALL
-            !  REGI W1 Pu239 ALL
-            !  REGI W1 Pu240 ALL
-            !ENDC
         ;
       ELSE 
         LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
             EDIT 0 PASS 3 GRMIN 52 
-            !CALC
-            !  REGI W1 U238 ALL
-            !  REGI W1 Pu239 ALL
-            !  REGI W1 Pu240 ALL
-            !ENDC
         ;
       ENDIF ;
      ELSE

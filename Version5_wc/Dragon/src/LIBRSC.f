@@ -42,7 +42,7 @@
 *----
       TYPE(C_PTR) IPLIB
       INTEGER MAXTRA,ISOT,LBIN,NGRP,NBISO,ISONAM(3,NBISO),LSHI(NBISO),
-     1 NFS(NGRP),IMPX,IALTER
+     1 NFS(NGRP),IMPX,IALTER, ROWMAT, COLMAT
       LOGICAL MASKI(NBISO)
 *----
 *  LOCAL VARIABLES
@@ -76,6 +76,7 @@
      1 SIGS(LBIN),PRI(MAXTRA),STIS(LBIN))
       ALLOCATE(U_M(NGRP),T_M(NGRP),SIGT_M(NGRP),SCAT_M(NGRP,NGRP),
      1 TSIGT_M(NGRP),TSCAT_M(NGRP,NGRP))
+
 *----
 *  FIND CORRELATED ISOTOPES.
 *----
@@ -208,10 +209,11 @@
           DO MM=1,MML
             LJ=LJ-1
             STR(MM)=STIS(MM)*SIGS(LLL+LI-MM+1)
-   10       IF(.NOT.ASSOCIATED(BBB_M(JG)%MATRIX)) THEN
+   10       IF (.NOT.ASSOCIATED(BBB_M(JG)%MATRIX)) THEN
               ALLOCATE(BBB(NFS(IG),NFS(JG)))
-              BBB(:NFS(IG),:NFS(JG))=0.0D0
+              BBB(:NFS(IG),:NFS(JG)) = 0.0D0
               BBB_M(JG)%MATRIX => BBB
+              WRITE(6, *) 'Allocated and associated BBB_M(JG)%MATRIX'
             ENDIF
             IF(LJ.LE.0) THEN
             JG=JG-1
@@ -226,19 +228,48 @@
             BBB_M(JG)%MATRIX(LI,LJ)=STR(MM)
           ENDDO
         ENDDO
+* Original code snippet
         DO JG=IG-NJJ(IG)+1,IG
           MJ=MRANK(JG)
-          IF(ASSOCIATED(U_M(JG)%MATRIX)) THEN
+          IF(ASSOCIATED(U_M(IG)%MATRIX).AND.
+     1       ASSOCIATED(U_M(JG)%MATRIX).AND.
+     2       ASSOCIATED(BBB_M(JG)%MATRIX)) THEN
             BBB => BBB_M(JG)%MATRIX
             ALLOCATE(SSIGS(MI,MJ),DDD(LGBIN,MJ),EEE(MI,LGBIN))
-            DDD=MATMUL(BBB,U_M(JG)%MATRIX(:NFS(JG),:MJ))
+            
+            ! Check if BBB is associated
+            IF (.NOT.ASSOCIATED(BBB)) THEN
+              
+              WRITE(6, 100) 'BBB is not ASSOCIATED'
+              WRITE(6, 110) 'JG: ', JG
+               ! Print the matrix dimensions
+              WRITE(6, 120) 'Dimensions of BBB:'
+              WRITE(6, 130) 'Rows: ', SIZE(BBB, 1)
+              WRITE(6, 130) 'Columns: ', SIZE(BBB, 2)
+              ! Loop through the matrix and print each element
+              DO I = 1, SIZE(BBB, 1)
+                  DO J = 1, SIZE(BBB, 2)
+                      !WRITE(6, '(F10.4)', ADVANCE='NO') BBB(I, J)
+                      WRITE(6, 100) 'PASS...'
+                  END DO
+                  WRITE(6, *)  ! New line after each row
+              END DO
+            END IF
+
+            DDD=MATMUL(BBB,U_M(JG)%MATRIX(:NFS(JG),:MJ)) 
+
             EEE=TRANSPOSE(U_M(IG)%MATRIX(:LGBIN,:MI))
             SSIGS=MATMUL(EEE,DDD)
             DEALLOCATE(EEE,DDD)
             SCAT_M(IG,JG)%MATRIX => SSIGS
             NULLIFY(SSIGS)
+          ELSE
+            WRITE(6,100) 'U_M(JG)%MATRIX is not ASSOCIATED'
+            WRITE(6,110) 'JG: ', JG
           ENDIF
         ENDDO
+* End of original code snippet
+
         DO JG=1,IG
           IF(ASSOCIATED(BBB_M(JG)%MATRIX)) THEN
             DEALLOCATE(BBB_M(JG)%MATRIX)
@@ -327,6 +358,12 @@
       ENDDO
       CALL LCMSIX(KPLIB1,' ',2)
    40 CONTINUE
+
+  
+100   FORMAT(A)
+110   FORMAT(A, I5)
+120   FORMAT(A)
+130   FORMAT(A, I5)
 *----
 *  SCRATCH STORAGE DEALLOCATION
 *----

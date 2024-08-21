@@ -3,8 +3,8 @@
      >                  ITMERG,NMERGE,IHF,IFFAC,ILUPS,NSAVES,NSTATS,
      >                  IGCR,EGCR,IMERGE,CURNAM,OLDNAM,IADF,NW,ICURR,
      >                  NBMICR,CARISO,NACTI,IACTI,IPRINT,MAXPTS,ICALL,
-     >                  ISOTXS,LISO,IADJ,MACGEO,IEUR,NOUT,HVOUT,BB2,
-     >                  IEDCUR,IGOVE)
+     >                  ISOTXS,LISO,LDEPL,LMACR,IADJ,MACGEO,IEUR,NOUT,
+     >                  HVOUT,BB2,IEDCUR,IGOVE)
 *
 *-----------------------------------------------------------------------
 *
@@ -87,6 +87,8 @@
 * ISOTXS  ISOTX file enabling flag (0: off; 1: binary; 2: ascii).
 * LISO    =.TRUE. if we want to keep all the isotopes after 
 *         homogeneization.
+* LDEPL   =.TRUE. if we want to recover depletion information.
+* LMACR   =.TRUE. if we want to compute a residual isotope.
 * IADJ    type of flux weighting:
 *         =0: direct flux weighting;
 *         =1: direct-adjoint flux weighting.
@@ -119,7 +121,7 @@
      >              IACTI(NBMIX),IPRINT,MAXPTS,ICALL,ISOTXS,IADJ,
      >              IEUR,NOUT,IEDCUR,IGOVE
       REAL          EGCR(NGROUP),BB2
-      LOGICAL       LISO
+      LOGICAL       LISO,LDEPL,LMACR
       CHARACTER     CURNAM*12,OLDNAM*12,CARISO(MAXED)*12,MACGEO*12,
      >              HVOUT(MAXOUT)*8,HSMG*131
 *----
@@ -278,6 +280,16 @@
         IF((ITYPLU.EQ.3).AND.(CARLIR(:4).EQ.'ALLX')) THEN
 *         TO REGISTER ALL ISOTOPES CROSS SECTION IN THE MERGED REGIONS
           LISO=.TRUE.
+          CALL REDGET(ITYPLU,NBMICR,REALIR,CARLIR,DBLLIR)
+        ENDIF
+        IF((ITYPLU.EQ.3).AND.(CARLIR(:6).EQ.'NODEPL')) THEN
+*         TO SUPPRESS RECOVERY OF DEPLETION INFORMATION
+          LDEPL=.FALSE.
+          CALL REDGET(ITYPLU,NBMICR,REALIR,CARLIR,DBLLIR)
+        ENDIF
+        IF((ITYPLU.EQ.3).AND.(CARLIR(:6).EQ.'NOMACR')) THEN
+*         TO SUPPRESS THE CANCULATION OF A RESIDUAL ISOTOPE
+          LMACR=.FALSE.
           CALL REDGET(ITYPLU,NBMICR,REALIR,CARLIR,DBLLIR)
         ENDIF
         IF((ITYPLU.EQ.3).AND.(CARLIR(:4).EQ.'ISOT')) THEN

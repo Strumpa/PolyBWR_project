@@ -2043,7 +2043,7 @@ export HDF5_API="$HDF5_INC/../lib"        # HDF5 C API
 \item On a Linux Scibian operating system, these variables may be set as
 \begin{verbatim}
 export HDF5_INC="/usr/include/hdf5/serial"              # HDF5 include directory
-export HDF5_API="/usr/lib/x86_64-linux-gnu/hdf5/serial" # HDF5 C API
+export HDF5_API="/usr/lib/x86\_64-linux-gnu/hdf5/serial" # HDF5 C API
 \end{verbatim}
 \item On a Unix AIX operating system, these variables may be set as
 \begin{verbatim}
@@ -6824,9 +6824,9 @@ compatible with your operating system. On a OSX operating system, this variable 
 \begin{verbatim}
 export FORTRANPATH=/usr/local/lib/gcc/11/ # contains libgfortran.a
 \end{verbatim}
-\noindent On a Linux {\tt x86_64} operating system, the environment variable is set as
+\noindent On a Linux {\tt x86\_64} operating system, the environment variable is set as
 \begin{verbatim}
-export FORTRANPATH=/usr/lib/gcc/x86_64-redhat-linux/4.8.5/ # contains libgfortran.so
+export FORTRANPATH=/usr/lib/gcc/x86\_64-redhat-linux/4.8.5/ # contains libgfortran.so
 \end{verbatim}
 \noindent On a Linux {\tt aarm} operating system, the environment variable is set as
 \begin{verbatim}
@@ -6940,11 +6940,12 @@ o = lcm.new(type, [name], [iact], [pyobj], [lrda], [impx])
 \hline
 {\tt type} & {\it string} & type of the PyLCM object that will be created. $=$ {\tt LCM}
 object {\sc lcm} in memory; $=$ {\tt XSM} persistent object of type {\sc xsm}; $=$ {\tt BINARY}
-binary sequential file; $=$ {\tt ASCII}; sequential file {\sc ascii};
+sequential binary file; $=$ {\tt ASCII}; sequential {\sc ascii} file ;
 $=$ {\tt DA}; direct access file; $=$ {\tt HDF5}; HDF5 file; $=$ {\tt LCM\_IMP}
 object {\sc lcm} in memory built from the file "{\tt \_}"$ + $ {\tt name} containing
 a serialized PyLCM object or from a deep copy of object {\tt pyobj}; $=$ {\tt XSM\_INP} persistent object of type {\sc xsm} built
-from the file "{\tt \_}"$ + $ {\tt name} containing a serialized PyLCM object or from a deep copy of object {\tt pyobj}. \\
+from the file "{\tt \_}"$ + $ {\tt name} containing a serialized PyLCM object or from a deep copy of object {\tt pyobj}. The serialized
+PyLCM object is assumed to be a sequential binary file if its extension is {\tt .bin}; otherwise, it is assumed to be a sequential {\sc ascii} file.\\
 {\tt name} & {\it string} & name (len=72) of the PyLCM object that will be created. By default, a name is generated automatically
 from the address of the PyLCM object or from the name of object {\tt pyobj}. \\
 {\tt iact} & {\it int} &access mode. $=0$: a new object is created (default); $=1$: existing object content open in read/write mode

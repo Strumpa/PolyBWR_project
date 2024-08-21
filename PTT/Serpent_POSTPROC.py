@@ -122,21 +122,23 @@ class Serpent2_post_treatment:
         # Keff plots
         self.plot_comparisons_keff() # plot Keffs for reference case + all test cases given as input
         self.error_keffs_list = []
-        for i in range(len(self.ref_cases)):
-            self.compute_errors_Keff_to_ref(self.ref_cases[i], self.test_cases[i]) # creation of the error_keffs_list attribute
-        self.plot_errorK_to_ref() # plot errors on Keff between reference case and test cases considered
+        if self.test_cases:
+            for i in range(len(self.ref_cases)):
+                self.compute_errors_Keff_to_ref(self.ref_cases[i], self.test_cases[i]) # creation of the error_keffs_list attribute
+            self.plot_errorK_to_ref() # plot errors on Keff between reference case and test cases considered
 
 
         # Isotopic density plots
         self.plot_comparisons_isotopeDens() # plot isotopic densities for reference case + all test cases given as input
         self.error_iso_dens_for_tests = []
-        for i in range(len(self.ref_cases)):
-            print(f"{self.test_cases[i]}")
-            self.error_iso_dens_for_tests.append(self.compute_error_isoDens(self.ref_cases[i], self.test_cases[i])) # creation of the error_iso_dens_for_tests attribute
-        print("ERROR ISO DENS FOR TESTS IS :")
-        print(self.error_iso_dens_for_tests)
-        print(f"length of error list attribute is {len(self.error_iso_dens_for_tests)}")
-        self.plot_error_isoDens()
+        if self.test_cases:
+            for i in range(len(self.ref_cases)):
+                print(f"{self.test_cases[i]}")
+                self.error_iso_dens_for_tests.append(self.compute_error_isoDens(self.ref_cases[i], self.test_cases[i])) # creation of the error_iso_dens_for_tests attribute
+            print("ERROR ISO DENS FOR TESTS IS :")
+            print(self.error_iso_dens_for_tests)
+            print(f"length of error list attribute is {len(self.error_iso_dens_for_tests)}")
+            self.plot_error_isoDens()
 
     def plot_comparisons_keff(self): 
         print('$$$ -------- POSTPROC.py : Serpent2 figures (Keff) ')
@@ -231,100 +233,19 @@ class Serpent2_post_treatment:
 
 
 
-cell = "AT10_24UOX_750K"
-cell_temp = "AT10_24UOX_900K"
+cell = "HOM_CELL"
 path_to_data = "/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/"
-ref_T750_file_name = "AT10_24UOX_mc" 
-ref_T900_file_name = 'AT10_24UOX_temp_mc'
 
-test1_file_name='24UOX_test_1_mc' # name of the tests' outputs
-test3_file_name='24UOX_test_3_mc'
-test3_900_file_name='24UOX_test_3_temp_mc'
-path_to_tests = f"/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/"
-
-# testing correct implementation of error calculations
-
-#path_to_tests = path_to_ref
-#test1_name = ref_name
-isotopes_=['U235','U236','U238','Pu239','Pu240','Pu241','Pu242','Gd155','Gd157','Xe135','Sm149']
+pynjoy_test_file_name='HOM_UOX_PyNjoy2016_mc' # name of the tests' outputs
+sss_test_file_name='HOM_UOX_oldlib_mc'
+path_to_tests = path_to_data
 
 
-#postTreat_Tests(cell, path_to_data, path_to_data, isotopes_, [ref_T750_case_name, ref_T900_case_name], [test1_name, test3_name, test3_temp_name], SAVE_DIR)
+isotopes_=['U235', 'U238', 'U234', 'Pu239', 'Pu240', 'Gd155','Gd157','Xe135','Sm149']
 
-reference_case_sss_PyNjoy_750 = Serpent2_case(path_to_data, ref_T750_file_name, "PyNjoy @750K", 750, "sss_jeff311u.data", isotopes_, SAVE_DIR)
+HOM_UOX_PyNjoy_750 = Serpent2_case(path_to_data, pynjoy_test_file_name, "HOM_UOX", 750, "PyNjoy2016", isotopes_, SAVE_DIR)
 #reference_case_sss_jeff311_900 = Serpent2_case(path_to_data, ref_T900_file_name, "Serpent1 jeff311, @900K", 900, "sss_jeff311u.data", isotopes_, SAVE_DIR)
 
-test1_case_Pynjoy_nometastables_750 = Serpent2_case(path_to_tests, test1_file_name, "PyNjoy2016, no metastables, @750K", 750, "JEFF311PynJoy2016", isotopes_, SAVE_DIR)
-test3_case_Pynjoy_metastables_from_sss1_750 = Serpent2_case(path_to_tests, test3_file_name, "PyNjoy2016 + meta stables from sss_jeff311u, @750K", 750, "JEFF311PynJoy2016", isotopes_, SAVE_DIR)
-#test3_case_Pynjoy_metastables_from_sss1_900 = Serpent2_case(path_to_tests, test3_900_file_name, "PyNjoy2016 + meta stables from sss_jeff311u @900K", 900, "JEFF311PynJoy2016", isotopes_, SAVE_DIR)
+HOM_UOX_oldlib_750 = Serpent2_case(path_to_tests, sss_test_file_name, "HOM_UOX", 750, "oldlib", isotopes_, SAVE_DIR)
 
-
-#compare_tests_at_750 = Serpent2_post_treatment("24UOX tests 1 and 3", {reference_case_sss_jeff311_750:[test1_case_Pynjoy_nometastables_750, test3_case_Pynjoy_metastables_from_sss1_750]}, SAVE_DIR)
-#compare_tests_at_900 = Serpent2_post_treatment("24UOX test 3 900K", {reference_case_sss_jeff311_900:[test3_case_Pynjoy_metastables_from_sss1_900]}, SAVE_DIR)
-comparison_list = [reference_case_sss_PyNjoy_750, test3_case_Pynjoy_metastables_from_sss1_750]
-
-compare_all_tests_to_ref = Serpent2_post_treatment("24UOX PyNjoy ref tests", comparison_list, SAVE_DIR)
-
-"""
-    
-def postTreat_Gd():
-    cell = "AT10_45Gd_750K"
-    cell_temp = "AT10_45Gd_900K"
-    path_to_ref = "/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/"
-    ref_name = "AT10_45Gd_mc"
-    ref_temp_name = "AT10_45Gd_temp_mc"
-
-    test1_name='45Gd_test_1_mc' # name of the tests' outputs
-    test3_name='45Gd_test_3_mc'
-    test3_temp_name = '45Gd_test_3_temp_mc'
-
-    path_to_tests = f"/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/"
-
-    # testing correct implementation of error calculations
-
-    #path_to_tests = path_to_ref
-    #test1_name = ref_name
-    isotopes_=['U235','U236','U238','Pu239','Pu240','Pu241','Pu242','Gd155','Gd157','Xe135','Sm149']
-
-    reference_keffs=load_serpent2_keffs(path_to_ref, ref_name)
-    test1_keffs=load_serpent2_keffs(path_to_tests, test1_name)
-    test3_keffs=load_serpent2_keffs(path_to_tests, test3_name)
-
-    ref_temp_keffs = load_serpent2_keffs(path_to_ref, ref_temp_name)
-    test3_temp_keffs = load_serpent2_keffs(path_to_tests, test3_temp_name)
-    
-
-    serpBU=load_Serpent_BU(path_to_ref, ref_name)
-    print(serpBU)
-
-    isotopes_data_ref = []
-    isotopes_data_test1 = []
-    isotopes_data_test3 = []
-    isotopes_data_ref_temp = []
-    isotopes_data_test3_temp = []
-    for iso in isotopes_:
-        isotopes_data_ref.append(load_Serpent_IsoDens(path_to_ref, ref_name, iso))
-        isotopes_data_ref_temp.append(load_Serpent_IsoDens(path_to_ref, ref_temp_name, iso))
-        isotopes_data_test1.append(load_Serpent_IsoDens(path_to_tests, test1_name, iso))
-        isotopes_data_test3.append(load_Serpent_IsoDens(path_to_tests, test3_name, iso))
-        isotopes_data_test3_temp.append(load_Serpent_IsoDens(path_to_tests, test3_temp_name, iso))
-
-    errors_keff = compute_errors_Keff_to_ref(reference_keffs, [test1_keffs,test3_keffs])
-    errors_keff_temp = compute_errors_Keff_to_ref(ref_temp_keffs, [test3_temp_keffs])
-    errors_isodens_test1 = compute_error_isoDens(isotopes_data_ref, isotopes_data_test1)
-    errors_isodens_test3 = compute_error_isoDens(isotopes_data_ref, isotopes_data_test3)
-    errors_isodens_test3_temp = compute_error_isoDens(isotopes_data_ref_temp, isotopes_data_test3_temp)
-    print(errors_keff)
-    print(len(errors_isodens_test1))
-    print(len(isotopes_))
-    print(len(isotopes_data_test1))
-    plot_comparisons_keff(serpBU,[reference_keffs, test1_keffs, test3_keffs, ref_temp_keffs, test3_temp_keffs], ["Serpent1 lib @750K", "PyNjoy2016, no metastables @750K", "PynJoy2016, metastables from Serpent1 lib @750K", "Serpent1 lib @900K", "PynJoy2016, metastables from Serpent1 lib @900K"], cell, dpi=250, save_dir=SAVE_DIR)
-    for iso_num in range(len(isotopes_)):
-        plot_comparisons_isotopeDens(serpBU, [isotopes_data_ref[iso_num], isotopes_data_test1[iso_num], isotopes_data_test3[iso_num]], ["Serpent1 lib : sss_jeff311u", "Test 1, modified PyNjoy2016, no metastables", "Test 3 : metastables from sss_jeff311u"], isotopes_[iso_num], cell,dpi=250, save_dir=SAVE_DIR)
-        plot_comparisons_isotopeDens(serpBU, [isotopes_data_ref_temp[iso_num], isotopes_data_test3_temp[iso_num]], ["Serpent1 lib, T=900K", "Test 3, T=900K"], isotopes_[iso_num], cell,dpi=250, save_dir=SAVE_DIR)
-        plot_error_isoDens(serpBU, [errors_isodens_test1[iso_num], errors_isodens_test3[iso_num]], isotopes_[iso_num], [f"Test 1", "Test 3"], cell, save_dir=SAVE_DIR)
-        plot_error_isoDens(serpBU, [errors_isodens_test3_temp[iso_num]], isotopes_[iso_num], ["Test 3, T=900K"], cell_temp, save_dir=SAVE_DIR)
-    plot_errorK_to_ref(serpBU, errors_keff, ["Test 1 vs sss_jeff311u", "Test 3 vs sss_jeff311u"], cell, save_dir=SAVE_DIR)
-    #plot_errorK_to_ref(serpBU, ["Test 1 vs sss_jeff311u", "Test 3 vs sss_jeff311u", "Test 3 vs sss_jeff311u @900K"], cell, save_dir=SAVE_DIR)
-    plot_errorK_to_ref(serpBU, errors_keff_temp, ["Test 3 vs sss_jeff311u, T=900K"], cell_temp, save_dir=SAVE_DIR)
-"""
+Serpent2_post_treatment("HOM_UOX 750K", [HOM_UOX_PyNjoy_750, HOM_UOX_oldlib_750], SAVE_DIR)

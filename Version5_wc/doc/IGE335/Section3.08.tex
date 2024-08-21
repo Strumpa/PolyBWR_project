@@ -69,7 +69,7 @@ $[$ \moc{TAKE} $\{$ \\
 $[$ $\{$ \moc{P0W} $|$ \moc{P1W\_L} $|$ \moc{P1W\_TO} $|$ \moc{PNW\_SP} $\}$ $]$ \\
 $[$ \moc{EDI\_CURR} $]~[$ \moc{GOLVER} $]$ \\
 $[$ \moc{COND} $[~\{$  \moc{NONE} $|$ ( \dusa{icond}(ii), ii=1,ngcond) $|$ ( \dusa{energy}(ii), ii=1,ngcond) $\}~]~]$\\
-$[$ \moc{MICR} $[$ \moc{ALLX} $]~[$ \moc{ISOTXS} $[$ \moc{ASCII} $]~]$ $\{$ \moc{ALL} $|$ \moc{RES} $|$ 
+$[$ \moc{MICR} $[~\{$ \moc{ALLX} $|$ \moc{NODEPL}$\}~]~[$ \moc{NOMACR} $]~[$ \moc{ISOTXS} $[$ \moc{ASCII} $]~]$ $\{$ \moc{ALL} $|$ \moc{RES} $|$ 
   \dusa{nis} (\dusa{HISO}(i),i=1,\dusa{nis}) $\}$\\
 \hskip 0.8cm $[$ \moc{REAC} \dusa{nreac} (\dusa{HREAC}(i),i=1,\dusa{nreac}) $]~]$\\
 $[$ \moc{ACTI} $[$ \moc{ISOTXS} $[$ \moc{ASCII} $]~]$ $\{$ \moc{NONE} $|$ (\dusa{imixa}(ii),ii=1,nbmix) $]$ $\}$\\ 
@@ -113,7 +113,7 @@ and/or homogenized transfer cross sections are also printed.
 
 \end{itemize}
 
-\item[\moc{UPS}] keyword to specify that the reaction rates and the condensed
+\item[\moc{UPS}] keyword used to specify that the reaction rates and the condensed
 and/or homogenized cross sections are corrected so as to eliminate
 up-scattering. This option is useful for reactor analysis codes which cannot
 take into account such cross sections. Scattering ($\sigma_{{\rm s},h\gets g}$), diffusion ($\sigma_{{\rm s},g}$)
@@ -127,12 +127,12 @@ and total ($\sigma_g$) cross sections are corrected as:
 \tilde\sigma_{g}\negthinspace\negthinspace &=&\negthinspace\negthinspace \sigma_{g}-\sum_{h=1}^{g-1} \sigma_{{\rm s},h\gets g}-\sum_{h=g+1}^{G} \sigma_{{\rm s},g\gets h}\, {\phi_h\over \phi_g} .
 \end{eqnarray*}
 
-\item[\moc{NONE}] keyword to deactivate the homogeneization or the condensation. 
+\item[\moc{NONE}] keyword used to deactivate the homogeneization or the condensation. 
 
-\item[\moc{MERG}] keyword to specify that the neutron flux is to be
+\item[\moc{MERG}] keyword used to specify that the neutron flux is to be
 homogenized over specified regions or mixtures. 
 
-\item[\moc{REGI}] keyword to specify that the homogenization of the neutron
+\item[\moc{REGI}] keyword used to specify that the homogenization of the neutron
 flux will take place over the following regions. Here nregio$\le$\dusa{maxreg}
 with \dusa{maxreg} the maximum number of regions for which solutions were
 obtained.
@@ -141,7 +141,7 @@ obtained.
 associated the old regions. In the editing routines a value of \dusa{iregm}=0
 allows the corresponding region to be neglected. 
 
-\item[\moc{MIX}] keyword to specify that the homogenization of the neutron
+\item[\moc{MIX}] keyword used to specify that the homogenization of the neutron
 flux will take place over the following mixtures. Here
 we must have nbmix$\le$\dusa{maxmix} where \dusa{maxmix} is the maximum number
 of mixtures in the macroscopic cross section library.  
@@ -154,20 +154,20 @@ new region number associated with this mixture. This option is also useful to ho
 a two-level computational scheme for a PWR assembly. By default, if \moc{MIX} is set and
 \dusa{imixm} is not set, \dusa{imixm(ii)}$=$\dusa{ii} is assumed.
 
-\item[\moc{COMP}] keyword to specify that the a complete homogenization is to
+\item[\moc{COMP}] keyword used to specify that the a complete homogenization is to
 take place. 
 
-\item[\moc{GEO}] keyword to specify that a geometry equivalence procedure (equigeom) is to be used. Merging indices
+\item[\moc{GEO}] keyword used to specify that a geometry equivalence procedure (equigeom) is to be used. Merging indices
 are automatically computed by comparing the reference geometry \dusa{REFGEO} with the macro-geometry \dusa{MACROGEO}.
 This capability is limited to EXCELL--type reference geometries.
 
-\item[\moc{G2S}] keyword to specify that the homogenization will be based on the geometry definition available in the surfacic
+\item[\moc{G2S}] keyword used to specify that the homogenization will be based on the geometry definition available in the surfacic
 file \dusa{SURFIL}.
 
 \item[\dusa{nhom}] number of homogeneous nodes to be defined using \moc{RECT} and/or \moc{TRIA} data structures. Many homogeneous mixtures can be defined by
 repeating the \moc{RECT} and/or \moc{TRIA} data structures.
 
-\item[\moc{RECT}] keyword to specify a unique homogeneous mixture based on a rectangular node. 
+\item[\moc{RECT}] keyword used to specify a unique homogeneous mixture based on a rectangular node. 
 
 \item[\dusa{xm}] lower limit of the homogeneous node alonx X--axis.
 
@@ -177,7 +177,7 @@ repeating the \moc{RECT} and/or \moc{TRIA} data structures.
 
 \item[\dusa{yp}] upper limit of the homogeneous node alonx Y--axis.
 
-\item[\moc{TRIA}] keyword to specify a unique homogeneous mixture based on a triangular node.
+\item[\moc{TRIA}] keyword used to specify a unique homogeneous mixture based on a triangular node.
 
 \item[\dusa{x1}] X--coordinate of the first corner.
 
@@ -191,9 +191,9 @@ repeating the \moc{RECT} and/or \moc{TRIA} data structures.
 
 \item[\dusa{y3}] Y--coordinate of the third corner.
 
-\item[\moc{HMIX}] keyword to specify that the homogenization region will be selected using the information provided by the \moc{HMIX} option in the \moc{GEO:} module (see \Sect{descPP}). In this case, all the regions associated with a virtual homogenization mixture will be homogenized. If the virtual homogenization mixtures were not defined in the geometry, the real mixtures are used instead (see \moc{MIX} keyword in \Sect{descPP}). This option is valid only for \moc{NXT:} based \dds{tracking} data structure (this option uses the information stored on the reference \dds{TRKNAM} data structure).
+\item[\moc{HMIX}] keyword used to specify that the homogenization region will be selected using the information provided by the \moc{HMIX} option in the \moc{GEO:} module (see \Sect{descPP}). In this case, all the regions associated with a virtual homogenization mixture will be homogenized. If the virtual homogenization mixtures were not defined in the geometry, the real mixtures are used instead (see \moc{MIX} keyword in \Sect{descPP}). This option is valid only for \moc{NXT:} based \dds{tracking} data structure (this option uses the information stored on the reference \dds{TRKNAM} data structure).
 
-\item[\moc{CELL}] keyword to specify that the a cell-by-cell homogenization
+\item[\moc{CELL}] keyword used to specify that the a cell-by-cell homogenization
 (with or without SPH equivalence) is to take place. The macro-geometry and the merging indices are automatically
 computed and the macro-geometry named {\tt MACRO-GEOM} is created on the root directory of \dusa{EDINAM}. This
 capability is limited to reference geometries previously tracked by EURYDICE (see \Sect{SYBILData}) or NXT (see 
@@ -219,10 +219,10 @@ the \moc{MERG} \moc{G2S} or \moc{MERG} \moc{CELL} homogenization was performed. 
 region to be neglected. Here, nbmix2 is equal to the number of mixtures in the geometry before the \moc{REMIX} operation is performed (equal to the number
 of cells in the macro-geometry if \moc{MERG} \moc{CELL} was set).
 
-\item[\moc{TAKE}] keyword to specify that the neutron flux is to be edited
+\item[\moc{TAKE}] keyword used to specify that the neutron flux is to be edited
 over specified regions or mixtures. 
 
-\item[\moc{REGI}] keyword to specify that the editing of the neutron flux will
+\item[\moc{REGI}] keyword used to specify that the editing of the neutron flux will
 take place over the following regions. Here nregio$\le$\dusa{maxreg}
 with \dusa{maxreg} the maximum number of regions for which solutions were
 obtained.
@@ -230,7 +230,7 @@ obtained.
 \item[\dusa{iregt}] regions where the editing will take place. The new region
 numbers associated with these editing regions are numbered sequentially.
 
-\item[\moc{MIX}] keyword to specify that the editing of the neutron
+\item[\moc{MIX}] keyword used to specify that the editing of the neutron
 flux will take place over the following mixtures. Here
 we must have nbmix$\le$\dusa{maxmix} where \dusa{maxmix} is the maximum number
 of mixtures in the macroscopic cross section library.  
@@ -238,14 +238,14 @@ of mixtures in the macroscopic cross section library.
 \item[\dusa{imixt}] mixtures where the editing will take place.
 Each mixture set here must exists in the reference geometry.
 
-\item[\moc{P0W}] keyword to specify that the $P_\ell$, $\ell\ge 1$ information is to be
+\item[\moc{P0W}] keyword used to specify that the $P_\ell$, $\ell\ge 1$ information is to be
 homogenized and condensed using the scalar flux. This is the default option.
 
-\item[\moc{P1W\_L}] keyword to specify that the $P_\ell$, $\ell\ge 1$ information is to be
+\item[\moc{P1W\_L}] keyword used to specify that the $P_\ell$, $\ell\ge 1$ information is to be
 homogenized and condensed using a current recovered from a consistent $P_1$ or
 from a consistent heterogeneous $B_1$ model.
 
-\item[\moc{P1W\_TO}] keyword to specify that the $P_\ell$, $\ell\ge 1$ information is to be
+\item[\moc{P1W\_TO}] keyword used to specify that the $P_\ell$, $\ell\ge 1$ information is to be
 homogenized and condensed using the Todorova flux\cite{todorova}, defined as
 $$
 \phi_1(\bff(r),E)={\phi(\bff(r),E)\over \Sigma_i(E)-\Sigma_{{\rm s1},i}(E)}
@@ -253,7 +253,7 @@ $$
 \noindent where $\Sigma_i(E)$ and $\Sigma_{{\rm s1},i}(E)$ are the macroscopic total and $P_1$ scattering
 cross sections in the mixture $i$ containing the point $\bff(r)$. This option is not recommended.
 
-\item[\moc{PNW\_SP}] keyword to specify that the $P_\ell$, $\ell\ge 1$ information is to be
+\item[\moc{PNW\_SP}] keyword used to specify that the $P_\ell$, $\ell\ge 1$ information is to be
 homogenized and condensed using a weighting spectra based on the APOLLO3 averaging formula\cite{condPn}, defined as
 $$
 \phi_\ell(\bff(r),E)={ \displaystyle\sum_{m=-\ell}^\ell \phi_\ell^m(\bff(r),E) \left<\phi_\ell^m\right>_{G,M} \over \displaystyle\sum_{m=-\ell}^\ell \left<\phi_\ell^m\right>_{G,M} }
@@ -261,10 +261,10 @@ $$
 where $\phi_\ell^m(\bff(r),E)$ are the spherical harmonic $\ell$-th moment of the flux with $E \in G$ and $\bff(r) \in M$. Here, $G$ is the
 condensed macrogroup and $M$ is the homogenized mixture.
 
-\item[\moc{EDI\_CURR}] keyword to specify the generation of integrated net currents (homogenized and condensed) in the macrolib along each axis.
+\item[\moc{EDI\_CURR}] keyword used to specify the generation of integrated net currents (homogenized and condensed) in the macrolib along each axis.
 This option is only provided with SN and MOC discretizations. By default, only integrated fluxes are generated.
 
-\item[\moc{GOLVER}] keyword to specify the use of the Golfier-Vergain diffusion coefficient formula. This formula is written
+\item[\moc{GOLVER}] keyword used to specify the use of the Golfier-Vergain diffusion coefficient formula. This formula is written
 $$D_{i,g}={\alpha_g\over 3\Sigma_{{\rm tr},i,g}}$$
 
 \noindent with the Golfier-Vergain factors $\alpha_g$ defined as
@@ -278,7 +278,7 @@ $$\Sigma_{{\rm tr},i,g}={\int_{u_{g-1}}^{u_g} du \left(\Sigma(u) -\Sigma_{{\rm s
 By default, the diffusion coefficients are obtained by condensation of the fine-group leakage coefficients $d_i(u)$:
 $$D_{i,g}={\int_{u_{g-1}}^{u_g} du \, d_i(u) \, \phi_i(u) \over \int_{u_{g-1}}^{u_g} du \, \phi_i(u) }.$$
 
-\item[\moc{COND}] keyword to specify that a group condensation of the flux is to be performed.
+\item[\moc{COND}] keyword used to specify that a group condensation of the flux is to be performed.
 
 \item[\dusa{icond}] array of increasing energy group limits that will be associated with
 each of the ngcond condensed groups. The final value of
@@ -295,7 +295,7 @@ limits fall within the same energy group the lowest energy will be droped.
 Finally the maximum and minimum energy limits can be skipped since they will be
 taken automatically from the information available in the library.
 
-\item[\moc{MICR}] keyword to specify that the condensation and homogenization
+\item[\moc{MICR}] keyword used to specify that the condensation and homogenization
 procedure will be used to associate microscopic cross sections to the isotopes
 present in the homogenized regions. The macroscopic cross sections and the
 diffusion coefficients are weighted by the multigroup fluxes appearing in the
@@ -307,10 +307,14 @@ embedded library. The homogeneized information is therefore registered for each 
 region, as depicted by the formulas below. This procedure is useful to produce particular databases, 
 in order to perform micro-depletion calculations in diffusion with DONJON.
 
-\item[\moc{ALL}] keyword to specify that all the isotopes present in the
+\item[\moc{NODEPL}] keyword used to suppress all depletion information from the output microlib.
+
+\item[\moc{NOMACR}] keyword used to suppress the calculation of a residual isotope.
+
+\item[\moc{ALL}] keyword used to specify that all the isotopes present in the
 homogenized region are to be kept individual and processed.
 
-\item[\moc{RES}] keyword to specify that all the isotopes present in the
+\item[\moc{RES}] keyword used to specify that all the isotopes present in the
 homogenized region will be merged as a single residual isotope.
 
 \item[\dusa{nis}] number of isotopes present in the homogenized
@@ -318,14 +322,14 @@ region to be processed.
 
 \item[\dusa{HISO}] array of {\tt character*8} isotopes alias names to be processed.
 
-\item[\moc{REAC}] keyword to specify the reaction names to be included in the output microlib. By default, all available reactions
+\item[\moc{REAC}] keyword used to specify the reaction names to be included in the output microlib. By default, all available reactions
 are included in the output microlib.
 
 \item[\dusa{nreac}] number of reactions to be included in the output microlib.
 
 \item[\dusa{HREAC}] array of {\tt character*8} reaction names to be included in the output microlib.
 
-\item[\moc{ACTI}] keyword to specify that microscopic activation
+\item[\moc{ACTI}] keyword used to specify that microscopic activation
 data will be edited for the isotopes associated with the specified mixture. This
 information correspond to the microscopic cross section associated with each
 isotope in a given macro-group and macro-region assuming a concentration
@@ -333,7 +337,7 @@ for this isotope of 1.0 $\times{\it cm}^{-3}$ in each region. This keyword is
 followed by nacti material mixture indices, where
 nacti$\le$\dusa{maxmix}.
 
-\item[\moc{NONE}] keyword to specify that no isotope present in the
+\item[\moc{NONE}] keyword used to specify that no isotope present in the
 homogenized region is to be used as activation data.
 
 \item[\dusa{imixa}] array of material mixture indices which contains the
@@ -341,7 +345,7 @@ isotopes for which activation data is to be generated.
 \dusa{nmix}$\le$\dusa{maxmix}. Even mixture not used in the geometry 
 can be considered here.
 
-\item[\moc{ISOTXS}] keyword to specify that the set of microscopic cross
+\item[\moc{ISOTXS}] keyword used to specify that the set of microscopic cross
 section generated by the \moc{MICR} and \moc{ACTI} command will also
 be saved on a microscopic group neutron cross section library in the ISOTXS-IV
 format. This will generate a file for each final region specified by the
@@ -352,15 +356,15 @@ of the file ({\tt NISOTXS}) is built using the command
 WRITE(NISOTXS,'(A6,I6.6)') 'ISOTXS',IFILE
 \end{verbatim}
 
-\item[\moc{ASCII}] keyword to specify that the ISOTXS file is created in ascii format.
+\item[\moc{ASCII}] keyword used to specify that the ISOTXS file is created in ascii format.
 By  default, it is created in binary format.
 
-\item[\moc{SAVE}] keyword to specify that the fluxes, the macroscopic and
+\item[\moc{SAVE}] keyword used to specify that the fluxes, the macroscopic and
 microscopic cross sections and the volumes corresponding to homogenized regions
 are to be saved on \dusa{EDINAM}. A \dds{macrolib} is store on a subdirectory
 of \dds{edition}.
 
-\item[\moc{ON}] keyword to specify on which directory of \dusa{EDINAM} this
+\item[\moc{ON}] keyword used to specify on which directory of \dusa{EDINAM} this
 information is to be stored.
 
 \item[\dusa{DIRN}] name of the directory on which the above information is to
@@ -371,25 +375,25 @@ which the above information is to be stored. To each number \dusa{idirn} is
 associated a directory name \moc{CDIRN}={\tt 'REF-CASE'//CN} where {\tt CN} is a
 {\tt character*4} variable defined by {\tt WRITE(CN,'(I4)')} \moc{idirn}.
 
-\item[\moc{PERT}] keyword to specify that first order perturbations for 
+\item[\moc{PERT}] keyword used to specify that first order perturbations for 
 the microscopic cross sections are to be saved on \dusa{EDINAM}. 
 
-\item[\moc{STAT}] keyword to specify that a comparison between the current and
+\item[\moc{STAT}] keyword used to specify that a comparison between the current and
 a reference set of reaction rates and/or integrated fluxes is to be performed. 
 
-\item[\moc{ALL}] keyword to specify that the relative differences in the
+\item[\moc{ALL}] keyword used to specify that the relative differences in the
 reaction rates and the integrated fluxes are to be printed.
 
-\item[\moc{RATE}] keyword to specify that the relative differences in the
+\item[\moc{RATE}] keyword used to specify that the relative differences in the
 reaction rates are to be printed.
 
-\item[\moc{FLUX}] keyword to specify that the relative differences in the
+\item[\moc{FLUX}] keyword used to specify that the relative differences in the
 integrated fluxes are to be printed. 
 
-\item[\moc{DELS}] keyword to specify that the absolute differences in the
+\item[\moc{DELS}] keyword used to specify that the absolute differences in the
 macroscopic cross section are to be printed.
 
-\item[\moc{REFE}] keyword to specify the directory of \dusa{EDINAM} where the
+\item[\moc{REFE}] keyword used to specify the directory of \dusa{EDINAM} where the
 reference data requires for the comparison is stored. When this keyword is
 absent, the last reaction rates and integrated fluxes saved on \dusa{EDINAM} are
 used.
@@ -402,16 +406,16 @@ which the reference information is  stored. To each number \dusa{idirn} is
 associated a the directory  \moc{CDIRN}={\tt 'REF-CASE'//CN} where {\tt CN} is a
 {\tt character*4} variable defined by {\tt WRITE(CN,'(I4)')} \moc{idirn}. 
 
-\item[\moc{NOHF}] keyword to suppress the calculation and edition of the H-factors (sum of all
+\item[\moc{NOHF}] keyword used to suppress the calculation and edition of the H-factors (sum of all
 the cross sections producing energy times the energy produced by each reaction).
 Note that this calculation may be time-consuming. By default, the H-factors are
 computed and edited if keyword \moc{DEPL} and associated data is set in module {\tt LIB:}.
 
-\item[\moc{NBAL}] keyword to specify the editing of the four factors computed
+\item[\moc{NBAL}] keyword used to specify the editing of the four factors computed
 from a group balance. In this case, the user must specify explicitly a three
 group condensation.
 
-\item[\moc{MAXR}] keyword to specify the number of components in
+\item[\moc{MAXR}] keyword used to specify the number of components in
 region-related dynamically allocated arrays. If the default value is
 not sufficient, an error message is issued.
 
@@ -425,7 +429,7 @@ condensation. This option is used only in specialized applications such as in th
 analysis formula.\cite{clio} The homogenization and condensation equations are presented in Sect.~\ref{sect:prod}.
 {\bf Note:} The \dusa{FLUNAM} object must contain both an adjoint and a direct flux solution.
 
-\item[\moc{MGEO}] keyword to define the name of the macro-geometry, which must appear among the RHS. The macro-geometry is recovered automatically
+\item[\moc{MGEO}] keyword used to define the name of the macro-geometry, which must appear among the RHS. The macro-geometry is recovered automatically
 by interface modules such as \moc{COMPO:} (see \Sect{COMPOData}) or manually by a CLE-2000 statement such as
 \begin{verbatim}
 GEONAM := EDINAM :: STEP UP 'MACRO-GEOM' ;
@@ -434,16 +438,16 @@ GEONAM := EDINAM :: STEP UP 'MACRO-GEOM' ;
 
 \item[\dusa{MACGEO}] character*12 name of the macro-geometry.
 
-\item[\moc{NADF}] keyword to desactivate boundary editions.
+\item[\moc{NADF}] keyword used to desactivate boundary editions.
 
-\item[\moc{ALBS}] keyword to specify that the boundary flux is to be obtained from relation
+\item[\moc{ALBS}] keyword used to specify that the boundary flux is to be obtained from relation
 $\phi_{\rm surf}=4J_{\rm out}/S$ where $J_{\rm out}$ is the outgoing interface current. The albedo of
 the geometry are to be taken into account in the complete homogenization process. Thus the \moc{MERG}
 and \moc{COMP} options must be specified. The boundary fluxes are obtained from a calculation using the collision
 probabilities. This option requires a geometry with \moc{VOID} (see \Sect{descBC}) external boundary conditions to
 be closed using \moc{ALBS} in module \moc{ASM:} (see \Sect{descasm}).\cite{ALSB2}
 
-\item[\moc{JOUT}] keyword to recover multigroup boundary current information ($J_{\rm out}$ and $J_{\rm in}$). This keyword
+\item[\moc{JOUT}] keyword used to recover multigroup boundary current information ($J_{\rm out}$ and $J_{\rm in}$). This keyword
 is only compatible with \moc{MCCGT:} or \moc{SYBILT:} trackings and if keyword \moc{ARM} is set in module \moc{ASM:}
 (see \Sect{descasm}). The outgoing/ingoing interface currents are recovered by direct homogenization and condensation of the
 flux unknown components corresponding to external boundary and used with the current iteration method in Eurydice or from a MOC
@@ -451,13 +455,13 @@ calculation. The boundary flux required by the SPH method is to be obtained from
 $J_{\rm out}$ is the outgoing interface current. The net boundary current is to be obtained from relation
 $J_{\rm net}=J_{\rm out}-J_{\rm in}$.
 
-\item[\moc{ADFM}] keyword to specify that the ADF information is recovered from macrolib in RHS object \dusa{LIBNAM}. ADF information can
+\item[\moc{ADFM}] keyword used to specify that the ADF information is recovered from macrolib in RHS object \dusa{LIBNAM}. ADF information can
 be defined as explained in Sect.~\ref{sect:descxs} of module {\tt MAC:} and recovered in module {\tt EDI:} for further processing.
 
-\item[\moc{ADF}] keyword to specify that boundary editions are required. Averaged fluxes are
+\item[\moc{ADF}] keyword used to specify that boundary editions are required. Averaged fluxes are
 computed over boundary regions.
 
-\item[\moc{*}] keyword to specify that boundary fluxes are divided by average assembly fluxes so as to produce {\sl assembly discontinuity factors}
+\item[\moc{*}] keyword used to specify that boundary fluxes are divided by average assembly fluxes so as to produce {\sl assembly discontinuity factors}
 (ADF). By default, boundary fluxes are recovered and saved in the boundary edit without further treatment.
 
 \item[\dusa{TYPE}] {\tt character*8} name of the boundary edit corresponding to

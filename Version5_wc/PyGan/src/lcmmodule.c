@@ -16,6 +16,7 @@ version 2.1 of the License, or (at your option) any later version.
 #include <Python.h>
 #include <structmember.h>
 #include <setjmp.h>
+#include <string.h>
 #include "numpy/arrayobject.h"
 #include "pylcm.h"
 #define TRUE 1
@@ -125,6 +126,10 @@ static PyObject *lcm_new(PyTypeObject *type, PyObject *args, PyObject *kwds) {
            PyErr_SetString(PyLcmError, AbortString);
            return NULL;
          }
+         char *ext = strrchr(s, '.');
+         if (ext) {
+           if (strcmp(ext+1,"bin") == 0) imode = 1;  /* from binary file */
+         }
          char s2[74];
          sprintf(s2,"_%s",s);
          FILE *fp = fopen(s2, "r");
@@ -142,6 +147,10 @@ static PyObject *lcm_new(PyTypeObject *type, PyObject *args, PyObject *kwds) {
            sprintf(AbortString,"%s: invalid iact=%d (0 expected)",nomsub,iact);
            PyErr_SetString(PyLcmError, AbortString);
            return NULL;
+         }
+         char *ext = strrchr(s, '.');
+         if (ext) {
+           if (strcmp(ext+1,"bin") == 0) imode = 1;  /* from binary file */
          }
          char s2[74];
          sprintf(s2,"_%s",s);

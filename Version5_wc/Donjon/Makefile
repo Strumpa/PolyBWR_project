@@ -80,6 +80,8 @@ tests :
 	./rdonjon -c $(fcompiler) -q testNAPhet.x2m
 	./rdonjon -c $(fcompiler) -q test_channBWR.x2m
 	./rdonjon -c $(fcompiler) -q thm_salt.x2m
+	./rdonjon -c $(fcompiler) -q thm_salt_lf.x2m
+	./rdonjon -c $(fcompiler) -q thm_salt_lf_trans.x2m
 	./rdonjon -c $(fcompiler) -q vver_test.x2m
 ifeq ($(hdf5),1)
 	./rdonjon -c $(fcompiler) -q AFA_180_310_type1_dual.x2m

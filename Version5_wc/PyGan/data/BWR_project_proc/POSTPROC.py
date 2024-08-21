@@ -35,10 +35,6 @@ def POSTPROC(pyCOMPO, ListeCOMPO, ListeAUTOP, name_geom, name_mix, suffixe, VISU
     # --- Paramètres de figures
     SIZE=(6,4)
 
-    # --- Options de tracé des erreurs
-    LEGENDE_COMP=['DRAGON5','Serpent2']
-    LEGENDE_ERROR=['DRAGON5-Serpent2']
-
     # --- Chemin du répertoire courant
     path=os.getcwd()
     #print("$$$ ---------- path = ",path)
@@ -63,8 +59,9 @@ def POSTPROC(pyCOMPO, ListeCOMPO, ListeAUTOP, name_geom, name_mix, suffixe, VISU
     # Chemin d'accès aux résultats Serpent2
     burnup_points=suffixe.split("_")[1]
     #SERPENT_path=f'/home/p117902/Serpent2/Linux_x86_64/' # path to Serpent2 results with sss_jeff311 library.
-    SERPENT_path=f'/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/' #for results with JEFF311_Pynjoy2016 acelib <--- working on fixing that.
-
+    SERPENT_paths=[f'/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/PyNjoy2016_results/{name_mix.split("_")[1]}/', f'/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/sss_jeff311_results/{name_mix.split("_")[1]}/']
+    S2_legends=['PyNjoy2016','sss_jeff311']
+    Error_legends=['D5-S2 (PyNjoy2016)','D5-S2 (oldlib)']
 
 
 
@@ -148,94 +145,100 @@ def POSTPROC(pyCOMPO, ListeCOMPO, ListeAUTOP, name_geom, name_mix, suffixe, VISU
     # -------------------------------
     #   MATRICE DES RESULTATS SERPENT 
     # -------------------------------
+    SERPENT_cases = []
     if visu_SERPENT==1 or visu_COMP==1 or visu_DELTA==1 :
 
         # --- Keff
-        res=serpentTools.read(SERPENT_path+name_mix+"_mc_res.m")
-        # testing data from test3 : PyNjoy2016 xs + metastables from sss_jeff311u
-        #res=serpentTools.read(SERPENT_path+"24UOX_test_3_mc_res.m")
-        serpent_keff=res.resdata["absKeff"]
-        np.savetxt('serpent_keff.txt',serpent_keff)
-        SERPENT_keff=np.loadtxt('serpent_keff.txt',dtype=float)
+        for SERPENT_path in SERPENT_paths:
+
+            res=serpentTools.read(SERPENT_path+name_mix+"_mc_res.m")
+            serpent_keff=res.resdata["absKeff"]
+            np.savetxt('serpent_keff.txt',serpent_keff)
+            SERPENT_keff=np.loadtxt('serpent_keff.txt',dtype=float)
+                
+            # --- BU
+            depFile = SERPENT_path+name_mix+"_mc_dep.m"
+            dep = serpentTools.read(depFile)
+            fuel=dep.materials['total']
+            serpent_BU=fuel.burnup
+            np.savetxt('serpent_BU.txt',serpent_BU)
+            SERPENT_BU=np.loadtxt('serpent_BU.txt',dtype=float)
             
-        # --- BU
-        depFile = SERPENT_path+name_mix+"_mc_dep.m"
-        dep = serpentTools.read(depFile)
-        fuel=dep.materials['total']
-        serpent_BU=fuel.burnup
-        np.savetxt('serpent_BU.txt',serpent_BU)
-        SERPENT_BU=np.loadtxt('serpent_BU.txt',dtype=float)
-        
-        # --- ISOTOPES DENSITIES
-        serpent_ISOTOPESDENS=fuel.toDataFrame("adens",names=isotopes_SOUHAITES)
-        np.savetxt('serpent_ISOTOPESDENS.txt',serpent_ISOTOPESDENS)
-        SERPENT_ISOTOPESDENS=np.loadtxt('serpent_ISOTOPESDENS.txt',dtype=float)
-        SERPENT_ISOTOPESDENS=np.transpose(SERPENT_ISOTOPESDENS)
+            # --- ISOTOPES DENSITIES
+            serpent_ISOTOPESDENS=fuel.toDataFrame("adens",names=isotopes_SOUHAITES)
+            np.savetxt('serpent_ISOTOPESDENS.txt',serpent_ISOTOPESDENS)
+            SERPENT_ISOTOPESDENS=np.loadtxt('serpent_ISOTOPESDENS.txt',dtype=float)
+            SERPENT_ISOTOPESDENS=np.transpose(SERPENT_ISOTOPESDENS)
 
-        Ls1=np.shape(SERPENT_BU)
-        print('$$$ ---------------- SERPENT_BU shape =',Ls1)
+            Ls1=np.shape(SERPENT_BU)
+            print('$$$ ---------------- SERPENT_BU shape =',Ls1)
 
-        Ls2=np.shape(SERPENT_keff)
-        lenISOT_SERPENT2=Ls2[0]
-        lenBU_SERPENT2=Ls2[1]
-        print('$$$ ---------------- SERPENT_keff shape =',Ls2)
+            Ls2=np.shape(SERPENT_keff)
+            lenISOT_SERPENT2=Ls2[0]
+            lenBU_SERPENT2=Ls2[1]
+            print('$$$ ---------------- SERPENT_keff shape =',Ls2)
 
-        Ls=np.shape(SERPENT_ISOTOPESDENS)
-        lenISOT_SERPENT=Ls[0]
-        lenBU_SERPENT=Ls[1]
-        print('$$$ ---------------- SERPENT_ISOTOPESDENS shape =',Ls)
-        
-        # Modification unite BU pour match avec DRAGON
-        SERPENT_Keff=np.zeros(lenBU_SERPENT)    
-        for k in range(lenBU_SERPENT):
-            SERPENT_BU[k]=1000*SERPENT_BU[k]
-            SERPENT_Keff[k]=SERPENT_keff[k][0]
+            Ls=np.shape(SERPENT_ISOTOPESDENS)
+            lenISOT_SERPENT=Ls[0]
+            lenBU_SERPENT=Ls[1]
+            print('$$$ ---------------- SERPENT_ISOTOPESDENS shape =',Ls)
+            
+            # Modification unite BU pour match avec DRAGON
+            SERPENT_Keff=np.zeros(lenBU_SERPENT)    
+            for k in range(lenBU_SERPENT):
+                SERPENT_BU[k]=1000*SERPENT_BU[k]
+                SERPENT_Keff[k]=SERPENT_keff[k][0]
 
-        #print('$$$ ---------------- SERPENT_BU =',SERPENT_BU)
-        print("$$$ ---------------- SERPENT_Keff = ",SERPENT_Keff)    
-        #print("$$$ ---------------- SERPENT_ISOTOPESDENS = ",SERPENT_ISOTOPESDENS)
+            #print('$$$ ---------------- SERPENT_BU =',SERPENT_BU)
+            print("$$$ ---------------- SERPENT_Keff = ",SERPENT_Keff)    
+            #print("$$$ ---------------- SERPENT_ISOTOPESDENS = ",SERPENT_ISOTOPESDENS)
 
-        SERPENT_ALL=[
-           SERPENT_BU,
-           SERPENT_Keff,
-           SERPENT_ISOTOPESDENS[0,:],
-           SERPENT_ISOTOPESDENS[1,:],
-           SERPENT_ISOTOPESDENS[2,:],
-           SERPENT_ISOTOPESDENS[3,:],
-           SERPENT_ISOTOPESDENS[4,:],
-           SERPENT_ISOTOPESDENS[5,:],
-           SERPENT_ISOTOPESDENS[6,:],
-           SERPENT_ISOTOPESDENS[7,:],
-           SERPENT_ISOTOPESDENS[8,:],
-           SERPENT_ISOTOPESDENS[9,:],
-           SERPENT_ISOTOPESDENS[10,:],
-           ]
+            SERPENT_ALL=[
+            SERPENT_BU,
+            SERPENT_Keff,
+            SERPENT_ISOTOPESDENS[0,:],
+            SERPENT_ISOTOPESDENS[1,:],
+            SERPENT_ISOTOPESDENS[2,:],
+            SERPENT_ISOTOPESDENS[3,:],
+            SERPENT_ISOTOPESDENS[4,:],
+            SERPENT_ISOTOPESDENS[5,:],
+            SERPENT_ISOTOPESDENS[6,:],
+            SERPENT_ISOTOPESDENS[7,:],
+            SERPENT_ISOTOPESDENS[8,:],
+            SERPENT_ISOTOPESDENS[9,:],
+            SERPENT_ISOTOPESDENS[10,:],
+            ]
+            SERPENT_cases.append(SERPENT_ALL)
         #print("$$$ ---------------- SERPENT_ALL",SERPENT_ALL)
-
-
+    print("$$$ ---------------- SERPENT_CASES length",len(SERPENT_cases))
+    print("$$$ ---------------- SERPENT_CASES[0] shape",len(SERPENT_cases[0]))
+    print("$$$ ---------------- SERPENT_CASES[1] shape",len(SERPENT_cases[1]))
+    print("$$$ ---------------- SERPENT_CASES[0][0] shape (BU case 1)",len(SERPENT_cases[0][0]))
+    print("$$$ ---------------- SERPENT_CASES[1][0] shape (BU case 2)",len(SERPENT_cases[1][0]))
     # -------------------------------
     #   MATRICE DES ERREUR : ERROR 
     # -------------------------------
+    ERRORS_D5vsS2 = []
     if visu_DELTA==1 :
-
-        ERROR=np.zeros((lenISOT_DRAGON,lenBU_DRAGON))
-        #LE=np.shape(ERROR)
-        #print('$$$ ------------------------ ERROR shape=',LE)
-
-        for k in range(lenISOT_DRAGON):
-            for j in range(Nmin,lenBU_DRAGON):
-                #print('$$$ ----------------------- k=',k,'    j=',j)
-                #print('$$$ ----------------------- SERPENT_ALL[k][j]=',SERPENT_ALL[k][j])
-                if k==0: # Vecteur BU
-                    ERROR[k][j-Nmin]=SERPENT_ALL[k][j]
-                elif k==1:  # Vecteur Keff --> erreur en pcm
-                    ERROR[k][j-Nmin]=(DRAGON_ALL[k][j]-SERPENT_ALL[k][j])*1e5
-                else: # Vecteur isotopique --> erreur en %
-                    if SERPENT_ALL[k][j]==0:
-                        ERROR[k][j-Nmin]=0
-                    else:
-                        ERROR[k][j-Nmin]=100*(DRAGON_ALL[k][j]-SERPENT_ALL[k][j])/SERPENT_ALL[k][j]
-        print("$$$ ---------------- ERROR Keff",ERROR[1])
+        for SERPENT_ALL in SERPENT_cases:
+            ERROR=np.zeros((len(isotopes_SOUHAITES)+2,lenBU_DRAGON))
+            for k in range(len(isotopes_SOUHAITES)+2):
+                for j in range(Nmin,lenBU_DRAGON):
+                    if k==0: # Vecteur BU
+                        ERROR[k][j-Nmin]=SERPENT_ALL[k][j]
+                    elif k==1:  # Vecteur Keff --> erreur en pcm
+                        ERROR[k][j-Nmin]=(DRAGON_ALL[k][j]-SERPENT_ALL[k][j])*1e5
+                    else: # Vecteur isotopique --> erreur en %
+                        if SERPENT_ALL[k][j]==0:
+                            ERROR[k][j-Nmin]=0
+                        else:
+                            ERROR[k][j-Nmin]=100*(DRAGON_ALL[k][j]-SERPENT_ALL[k][j])/SERPENT_ALL[k][j]
+            print("$$$ ---------------- ERROR Keff",ERROR[1])
+            ERRORS_D5vsS2.append(ERROR)
+        print("$$$ ---------------- ERRORS_D5vsS2",ERRORS_D5vsS2)
+        print("$$$ ---------------- ERRORS_D5vsS2 length",len(ERRORS_D5vsS2))
+        print("$$$ ---------------- ERRORS_D5vsS2[0] shape",len(ERRORS_D5vsS2[0]))
+        print("$$$ ---------------- ERRORS_D5vsS2[1] shape",len(ERRORS_D5vsS2[1]))
 
 
     ################################################################
@@ -245,12 +248,12 @@ def POSTPROC(pyCOMPO, ListeCOMPO, ListeAUTOP, name_geom, name_mix, suffixe, VISU
     if visu_DRAGON==1:
         print('$$$ -------- POSTPROC.py : DRAGON5 figures ')
 
-        for k in range(lenISOT_DRAGON):
+        for k in range(len(isotopes_SOUHAITES)+1):
 
             plt.figure()
             plt.figure(figsize=SIZE)
             plt.plot(DRAGON_ALL[0],DRAGON_ALL[k+1],'2-',linewidth=1)
-            plt.xlabel('BU (MWj/t)')
+            plt.xlabel('BU [MWd/t]')
             plt.grid()
             plt.legend(['DRAGON5'])
 
@@ -259,93 +262,91 @@ def POSTPROC(pyCOMPO, ListeCOMPO, ListeAUTOP, name_geom, name_mix, suffixe, VISU
                 save_name=name_mix+'_DRAGON5_Keff'
                 fig_name=name_mix+' - Keff'
             else : # Erreur sur isotopes
-                plt.ylabel('Concentration atomique (a/barn.cm)')
+                plt.ylabel('Isotopic density [atom/b-cm]')
                 save_name=name_mix+'_DRAGON5_'+isotopes_SOUHAITES[k-1]
                 fig_name=name_mix+' - '+isotopes_SOUHAITES[k-1]
 
             plt.title(fig_name)
             os.chdir(path+'/'+SAVE_DIR)
             #plt.savefig(save_name+"_test3"+'.'+form,bbox_inches = 'tight', format=form, dpi=1200) #enregistrement des figures dans le repertoire des resultats
-            plt.savefig(save_name+f"_test_PyNjoy_{ssh_option}.png",bbox_inches = 'tight') #enregistrement des figures dans le repertoire des resultats
+            plt.savefig(save_name+f"_{ssh_option}.png",bbox_inches = 'tight') #enregistrement des figures dans le repertoire des resultats
             os.chdir(path)
             plt.close('all')
 
 
     if visu_SERPENT==1:
         print('$$$ -------- POSTPROC.py : Serpent2 figures ')
-
-        for k in range(lenISOT_SERPENT):
-
+        legend = []
+        for k in range(len(isotopes_SOUHAITES)+1):
             plt.figure()
             plt.figure(figsize=SIZE)
-            plt.plot(SERPENT_ALL[0],SERPENT_ALL[k+1],'2-',linewidth=1)
-            plt.xlabel('BU (MWj/t)')
+            plt.xlabel('BU [MWd/t]')
             plt.grid()
-            plt.legend(['Serpent2'])
+            for i in range(len(SERPENT_cases)):
+                plt.plot(SERPENT_cases[i][0],SERPENT_cases[i][k+1],'2-',linewidth=1)
+                legend.append(S2_legends[i])
 
             if k == 0: # Comparaison des Keff
                 plt.ylabel('Keff')
                 save_name=name_mix+'_Serpent2_Keff'
                 fig_name=name_mix+' - Keff'
             else : # Erreur sur isotopes
-                plt.ylabel('Concentration atomique (a/barn.cm)')
+                plt.ylabel('Isotopic density [atom/b-cm]')
                 save_name=name_mix+'_Serpent2_'+isotopes_SOUHAITES[k-1]
                 fig_name=name_mix+' - '+isotopes_SOUHAITES[k-1]
-
+            plt.legend(legend)
             plt.title(fig_name)
             os.chdir(path+'/'+SAVE_DIR)
-            #plt.savefig(save_name+"_test3"+'.'+form,bbox_inches = 'tight', format=form, dpi=1200) #enregistrement des figures dans le repertoire des resultats
-            plt.savefig(save_name+f"_test_PyNjoy_{ssh_option}.png",bbox_inches = 'tight') #enregistrement des figures dans le repertoire des resultats
+            plt.savefig(save_name+f"_{ssh_option}.png",bbox_inches = 'tight') #enregistrement des figures dans le repertoire des resultats
             os.chdir(path)
             plt.close('all')
 
 
     if visu_COMP==1:
         print('$$$ -------- POSTPROC.py : Comparison DRAGON5 / Serpent2 figures ')
-
-        for k in range(lenISOT_DRAGON):
-
+        legend = []
+        for k in range(len(isotopes_SOUHAITES)+1):
             plt.figure()
             plt.figure(figsize=SIZE)
             plt.plot(DRAGON_ALL[0],DRAGON_ALL[k+1],'2-',linewidth=1)
-            plt.plot(SERPENT_ALL[0],SERPENT_ALL[k+1],'2-',linewidth=1)
-            plt.xlabel('BU (MWj/t)')
+            plt.xlabel('BU [MWd/t]')
             plt.grid()
-            plt.legend(LEGENDE_COMP)
-
+            legend.append('DRAGON5')
+            for i in range(len(SERPENT_cases)):
+                plt.plot(SERPENT_cases[i][0],SERPENT_cases[i][k+1],'2-',linewidth=1)
+                legend.append(S2_legends[i])
             if k == 0: # Comparaison des Keff
                 plt.ylabel('Keff')
                 save_name=name_geom+'_COMP_Keff'
                 fig_name=name_geom+' - Keff'
             else : # Erreur sur isotopes
-                plt.ylabel('Concentration atomique (a/barn.cm)')
+                plt.ylabel('Isotopic density [atom/b-cm]')
                 save_name=name_geom+'_COMP_'+isotopes_SOUHAITES[k-1]
                 fig_name=name_geom+' - '+isotopes_SOUHAITES[k-1]
-
+            plt.legend(legend)
             plt.title(fig_name)
             os.chdir(path+'/'+SAVE_DIR)
             #plt.savefig(save_name+"_test3"+'.'+form,bbox_inches = 'tight', format=form, dpi=1200) #enregistrement des figures dans le repertoire des resultats
-            plt.savefig(save_name+f"_test_PyNjoy_{ssh_option}.png",bbox_inches = 'tight') #enregistrement des figures dans le repertoire des resultats
+            plt.savefig(save_name+f"_{ssh_option}.png",bbox_inches = 'tight') #enregistrement des figures dans le repertoire des resultats
             os.chdir(path)
             plt.close('all')
         
 
     if visu_DELTA==1 :
         print('$$$ -------- POSTPROC.py : ERROR DRAGON5-Serpent2 figures ')
-
-        for k in range(lenISOT_DRAGON-1): # -1 lenISOT_DRAGON-1 ?
-
+        for k in range(len(isotopes_SOUHAITES)+1): # -1 lenISOT_DRAGON-1 ?
+            legend = []
             plt.figure()
             plt.figure(figsize=SIZE)
-            plt.plot(ERROR[0],ERROR[k+1],'2-',linewidth=1)
-            plt.xlabel('BU (MWj/t)')
+            plt.xlabel('BU [MWd/t]')
             plt.grid()
-            plt.legend(LEGENDE_ERROR)
-
+            for i in range(len(ERRORS_D5vsS2)):
+                plt.plot(ERRORS_D5vsS2[i][0],ERRORS_D5vsS2[i][k+1],'2-',linewidth=1)
+                legend.append(Error_legends[i])
             if k == 0: # Erreur sur Keff
-                #for step in ListeAUTOP:
-                    #if step <= ListeCOMPO[-1]:
-                        #plt.axvline(x=step,marker='o',color='red')
+                for step in ListeAUTOP:
+                    if step <= ListeCOMPO[-1]:
+                        plt.axvline(x=step,marker='o',color='red')
                 plt.plot([0,ListeCOMPO[-1]],[300,300],'r-.') # limite +300pcm
                 plt.plot([0,ListeCOMPO[-1]],[-300,-300],'r-.') # limite -300pcm
 
@@ -353,16 +354,20 @@ def POSTPROC(pyCOMPO, ListeCOMPO, ListeAUTOP, name_geom, name_mix, suffixe, VISU
                 save_name=name_mix+'_ERROR_Keff'
                 fig_name=name_mix+' - \u0394 Keff'
             else : # Erreur sur isotopes
-                plt.plot([0,60000],[2,2],'r-.') # limite +2%
-                plt.plot([0,60000],[-2,-2],'r-.') # limite -2%
-                plt.ylabel('Erreur relative (%)')
+                plt.plot([0,ListeCOMPO[-1]],[2,2],'r-.') # limite +2%
+                plt.plot([0,ListeCOMPO[-1]],[-2,-2],'r-.') # limite -2%
+                plt.ylabel('Relative error (%)')
                 save_name=name_mix+'_ERROR_'+isotopes_SOUHAITES[k-1]
                 fig_name=name_mix+' - \u0394 '+isotopes_SOUHAITES[k-1]
-
+            plt.legend(legend)
             plt.title(fig_name)
             os.chdir(path+'/'+SAVE_DIR)
             #plt.savefig(save_name+"_test3"+'.'+form,bbox_inches = 'tight', format=form, dpi=1200) #enregistrement des figures dans le repertoire des resultats
-            plt.savefig(save_name+f"_test_PyNjoy_{ssh_option}.png",bbox_inches = 'tight') #enregistrement des figures dans le repertoire des resultats
+            plt.savefig(save_name+f"_{ssh_option}.png",bbox_inches = 'tight') #enregistrement des figures dans le repertoire des resultats
             os.chdir(path)
             plt.close('all')
         
+
+    print(f"Figures saved in : {SAVE_DIR}")
+    print(f"Post-processing done for {name_mix} with {ssh_option}.")
+    

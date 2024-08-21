@@ -134,7 +134,7 @@ ifeq ($(intel),1)
   libDra = ../../Dragon/lib/$(DIRNAME)_intel
   bin = ../bin/$(DIRNAME)_intel
   lib_module = ../lib/$(DIRNAME)_intel/modules
-  INCLUDE = -I../../Ganlib/lib/$(DIRNAME)_intel/modules/
+  INCLUDE = -I../../Ganlib/lib/$(DIRNAME)_intel/modules/ -I../../Utilib/lib/$(DIRNAME)_intel/modules/
 else
   ifeq ($(nvidia),1)
     lib = ../lib/$(DIRNAME)_nvidia
@@ -144,7 +144,7 @@ else
     libDra = ../../Dragon/lib/$(DIRNAME)_nvidia
     bin = ../bin/$(DIRNAME)_nvidia
     lib_module = ../lib/$(DIRNAME)_nvidia/modules
-    INCLUDE = -I../../Ganlib/lib/$(DIRNAME)_nvidia/modules/
+    INCLUDE = -I../../Ganlib/lib/$(DIRNAME)_nvidia/modules/ -I../../Utilib/lib/$(DIRNAME)_nvidia/modules/
   else
     lib = ../lib/$(DIRNAME)
     libUtl = ../../Utilib/lib/$(DIRNAME)
@@ -153,7 +153,7 @@ else
     libDra = ../../Dragon/lib/$(DIRNAME)
     bin = ../bin/$(DIRNAME)
     lib_module = ../lib/$(DIRNAME)/modules
-    INCLUDE = -I../../Ganlib/lib/$(DIRNAME)/modules/
+    INCLUDE = -I../../Ganlib/lib/$(DIRNAME)/modules/ -I../../Utilib/lib/$(DIRNAME)/modules/
   endif
 endif
 

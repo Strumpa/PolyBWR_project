@@ -80,8 +80,8 @@ EVALUATE 4_Pitch_C := Pitch_C 4.0 * ;
 
 
 GEOM_3x3_SS := GEO: :: CAR2D 3 3
-    X- DIAG X+ REFL 
-    Y- REFL Y+ DIAG
+    X- DIAG X+ DIAG 
+    Y- DIAG Y+ DIAG
     CELL
     C1 C2 C3
     C2 C4 C7

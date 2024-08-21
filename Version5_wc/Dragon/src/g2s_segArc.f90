@@ -1280,7 +1280,8 @@ contains
              call keknum(cx,cy,tailleNbr,real(sa%neutronicMixd),angl,-1,0)
           end if
        else if (sa%typ==tcer) then
-          call CIRCLE(real(sa%x),real(sa%y),real(sa%r),.false.)
+          call arc(sa%x,sa%y,sa%r,0.d0,180.d0)
+          call arc(sa%x,sa%y,sa%r,180.d0,360.d0)
           cx=real(sa%x+sa%r) ; cy=real(sa%y)
           if (withNodes .and. drawMix) then
              call keknum(cx,cy,tailleNbr,real(sa%nodeg),0.,-1,2)
@@ -1290,8 +1291,7 @@ contains
              call keknum(cx,cy,tailleNbr,real(sa%neutronicMixd),0.,-1,0)
           end if
        else
-          call ARC(real(sa%x),real(sa%y),real(sa%r), &
-               & real(sa%a*rad2deg),real(sa%b*rad2deg))
+          call arc(sa%x,sa%y,sa%r,sa%a*rad2deg,sa%b*rad2deg)
           if (sa%b>sa%a) then
              angl=real((sa%b+sa%a)*0.5d0)
           else
@@ -1308,7 +1308,7 @@ contains
           end if
        end if
     end do
-    call PLOTND()
+    call plotnd()
   end subroutine drawSegArc
 
   subroutine coupeCercle(indDeb,szSA,nbSeg,typ)

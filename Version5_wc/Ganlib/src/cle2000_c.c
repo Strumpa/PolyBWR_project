@@ -1,9 +1,9 @@
 
-/*****************************************/
-/*             CLE-2000 API              */
-/*   AUTHOR OF FORTRAN VERSION: R. Roy   */
-/*     AUTHOR: A. Hebert ; 31/07/10      */
-/*****************************************/
+/**************************************************/
+/*             CLE-2000 API                       */
+/*   AUTHOR OF FORTRAN VERSION: R. Roy            */
+/*   AUTHOR OF C VERSION: A. Hebert ; 31/07/2010  */
+/**************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -37,11 +37,14 @@ int_32 cle2000_c(int_32 ilevel,
    if (ilevel == 1) cletim_c(&tk1);
 
 /* ALLOCATE maxent ARRAYS */
-   int_32 maxent = 1000;  /* maximum number of module arguments */
-   char (*hentry)[13] = malloc((int)maxent*13);
-   int_32 *ientry = malloc((int)maxent*sizeof(int_32));
-   int_32 *jentry = malloc((int)maxent*sizeof(int_32));
-   lcm **kentry = malloc((int)maxent*sizeof(*kentry));
+   int maxent = 1000;  /* maximum number of module arguments */
+   char (*hentry)[13];
+   int_32 *ientry, *jentry;
+   lcm **kentry;
+   hentry = (char(*)[])malloc(maxent*13);
+   ientry = (int_32 *)malloc(maxent*sizeof(int_32));
+   jentry = (int_32 *)malloc(maxent*sizeof(int_32));
+   kentry = (lcm **)malloc(maxent*sizeof(*kentry));
  
 /* COMPILE MAIN INPUT INTO OBJECT FILE */
    if (strcmp(filenm, " ") == 0) {
@@ -219,10 +222,10 @@ L30:
                ++(nentry);
                if (nentry > maxent) {
                   maxent += 1000; /* increase maximum number of module arguments */
-                  hentry = realloc(hentry,(int)maxent*13);
-                  ientry = realloc(ientry,(int)maxent*sizeof(int_32));
-                  jentry = realloc(jentry,(int)maxent*sizeof(int_32));
-                  kentry = realloc(kentry,(int)maxent*sizeof(*kentry));
+                  hentry = (char(*)[])realloc(hentry,maxent*13);
+                  ientry = (int_32 *)realloc(ientry,maxent*sizeof(int_32));
+                  jentry = (int_32 *)realloc(jentry,maxent*sizeof(int_32));
+                  kentry = (lcm **)realloc(kentry,maxent*sizeof(*kentry));
                }
                strcpy(hentry[nentry-1], text);
                jentry[nentry-1] = jdispe;
@@ -253,7 +256,8 @@ L40:
                }
                drviox(my_param, minput, &nusec2);
             } else {
-               char hparam_c[maxent][73];
+               char (*hparam_c)[73];
+               hparam_c = (char(*)[])malloc(maxent*73);
                for (iloop1 = 0; iloop1 < nentry; ++iloop1) {
                   lifo_node *my_node;
                   my_node = clenode(&my_iptrun, hentry[iloop1]);
@@ -390,6 +394,10 @@ L40:
 /*                STANDARD DELETE MODULE (SEE BELOW). */
                   jdispe = 2;
                   iretcd = 0;
+               } else if (strcmp(cmodul, "ERASE:") == 0) {
+/*                STANDARD ERASE MODULE (SEE BELOW). */
+                  jdispe = 3;
+                  iretcd = 0;
                } else if (dummod != NULL) {
 /*                CALLING ANOTHER STANDARD UTILITY MODULE in ANSI-C. */
                   fflush(stdout);
@@ -402,6 +410,7 @@ L40:
                   printf("%s: MODULE *%s* NOT FOUND\n", nomsub, cmodul);
                   goto L666;
                }
+               free(hparam_c);
 
 /*             CLOSE EVERYTHING */
                for (iloop1 = 0; iloop1 < nentry; ++iloop1) {

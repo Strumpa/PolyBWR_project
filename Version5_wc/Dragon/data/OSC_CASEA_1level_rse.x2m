@@ -215,7 +215,7 @@ ENDIF ;
 GREP: DONNEES :: GETVAL "BCOMPO" <<iCompo>> >>BUcompo<< ;
 GREP: DONNEES :: GETVAL "BURN" <<istep>> >>BU<< ;
 IF BUcompo BU = THEN
-  EDIOBJ := EDI: FLUX2 LIBRARY2 TRACKN2 :: EDIT 5                              
+  EDIOBJ := EDI: FLUX2 LIBRARY2 TRACKN2 :: EDIT 1                              
   MICR 35 U234  U235  U236  U237  U238  Np237 Np238 Np239 Pu238 Pu239
     Pu240 Pu241 Pu242  Cm242 Cm243 Cm244 Cm245 Am241 Am242m Am243
     Pm147 Pm148 Pm148m Pm149 Sm147 Sm148 Sm149 Sm150 Nd146  Nd147
@@ -367,7 +367,7 @@ WHILE iBoreStep iBoreMax < DO
   GREP: DONNEES :: GETVAL "BCOMPO" <<iCompo>> >>BUcompo<< ;
   GREP: DONNEES :: GETVAL "BURN" <<istep>> >>BU<< ;
   IF BUcompo BU = THEN
-    EDIOBJ := EDI: FLUX2 LIBRARY2 TRACKN2 :: EDIT 5                              
+    EDIOBJ := EDI: FLUX2 LIBRARY2 TRACKN2 :: EDIT 1                              
     MICR 35 U234  U235  U236  U237  U238  Np237 Np238 Np239 Pu238 Pu239
       Pu240 Pu241 Pu242  Cm242 Cm243 Cm244 Cm245 Am241 Am242m Am243
       Pm147 Pm148 Pm148m Pm149 Sm147 Sm148 Sm149 Sm150 Nd146  Nd147

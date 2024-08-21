@@ -138,7 +138,23 @@
       LPCPO=LCMLID(KPCPO,'CALCULATIONS',MAXCAL)
       MPCPO=LCMDIL(LPCPO,ICAL)
       ISO3=0
-      NPCPO=LCMLID(MPCPO,'ISOTOPESLIST',NISOTS)
+      MAXIS2=1
+      IF(.NOT.LMACRO) THEN
+         CALL XDISET(ISW,NISOTS,0)
+         DO 30 ISO1=1,NISOTS
+         IF(IMIX1(ISO1).EQ.IMIL) THEN
+            IF(NISOP.GT.0) THEN
+               WRITE(TEXT8,'(2A4)') (HUSE1(I0,ISO1),I0=1,2)
+               DO 10 JSO=1,NISOP
+               IF(NOMISP(JSO).EQ.TEXT8) GO TO 20
+   10          CONTINUE
+               GO TO 30
+            ENDIF
+   20       MAXIS2=MAXIS2+1
+         ENDIF
+   30    CONTINUE
+      ENDIF
+      NPCPO=LCMLID(MPCPO,'ISOTOPESLIST',MAXIS2)
       IF(LMACRO) THEN
 *        RECOVER CROSS SECTIONS FROM THE MACROLIB.
          CALL LCMSIX(IPEDIT,'MACROLIB',1)
@@ -176,28 +192,28 @@
          JPEDIT=LCMGID(IPEDIT,'ISOTOPESLIST')
          NISO2=0
          CALL XDISET(ISW,NISOTS,0)
-         DO 70 ISO1=1,NISOTS
+         DO 100 ISO1=1,NISOTS
          IF(IMIX1(ISO1).EQ.IMIL) THEN
             IF(NISOP.GT.0) THEN
                WRITE(TEXT8,'(2A4)') (HUSE1(I0,ISO1),I0=1,2)
-               DO 10 JSO=1,NISOP
-               IF(NOMISP(JSO).EQ.TEXT8) GO TO 20
-   10          CONTINUE
+               DO 40 JSO=1,NISOP
+               IF(NOMISP(JSO).EQ.TEXT8) GO TO 50
+   40          CONTINUE
                ISO3=ISO3+1
                ISW(ISO1)=-ISO3
-               GO TO 70
+               GO TO 100
             ENDIF
-   20       NISO2=NISO2+1
-            IF(NISO2.GT.NISOTS) CALL XABORT('COMMIC: NISOTS OVERFLOW.')
+   50       NISO2=NISO2+1
+            IF(NISO2.GT.MAXIS2) CALL XABORT('COMMIC: MAXIS2 OVERFLOW.')
             ISW(ISO1)=NISO2
-            DO 30 I0=1,2
+            DO 60 I0=1,2
             HUSE2(I0,NISO2)=HUSE1(I0,ISO1)
-   30       CONTINUE
+   60       CONTINUE
             HUSE2(3,NISO2)=ITEXT
             IF(LISO) HUSE2(3,NISO2)=HUSE1(3,ISO1)
-            DO 40 I0=1,3
+            DO 70 I0=1,3
             HNAM2(I0,NISO2)=HNAM1(I0,ISO1)
-   40       CONTINUE
+   70       CONTINUE
             DENS2(NISO2)=DENS1(ISO1)
             ITYP2(NISO2)=ITYP1(ISO1)
             ITOD2(NISO2)=ITOD1(ISO1)
@@ -208,19 +224,19 @@
             CALL LCMEQU(KPEDIT,OPCPO)
 *
 *           FLUX NORMALIZATION:
-            DO 60 IW=1,MIN(NW+1,10)
+            DO 90 IW=1,MIN(NW+1,10)
                WRITE(TEXT12,'(3HNWT,I1)') IW-1
                CALL LCMLEN(OPCPO,TEXT12,ILONG,ITYLCM)
                IF(ILONG.GT.0) THEN
                   CALL LCMGET(OPCPO,TEXT12,WORK)
-                  DO 50 IG=1,NG
+                  DO 80 IG=1,NG
                   WORK(IG)=WORK(IG)*FNORM
-   50             CONTINUE
+   80             CONTINUE
                   CALL LCMPUT(OPCPO,TEXT12,NG,2,WORK)
                ENDIF
-   60       CONTINUE
+   90       CONTINUE
          ENDIF
-   70    CONTINUE
+  100    CONTINUE
       ENDIF
 *----
 *  CREATE A NEW MACROSCOPIC RESIDUAL ISOTOPE
@@ -229,7 +245,7 @@
       ALLOCATE(PYRES(NISO2+1))
       IF(ISO3.GT.0) THEN
          NISO2=NISO2+1
-         IF(NISO2.GT.NISOTS) CALL XABORT('COMMIC: NISOTS OVERFLOW(2).')
+         IF(NISO2.GT.MAXIS2) CALL XABORT('COMMIC: MAXIS2 OVERFLOW(2).')
          CALL LCMOP(IPWORK,'*TEMPORARY*',0,1,0)
          CALL COMRES(IMPX,IPWORK,IPEDIT,NISOTS,NISO2,ISW,FNORM,ITRES,
      1   PYRES)

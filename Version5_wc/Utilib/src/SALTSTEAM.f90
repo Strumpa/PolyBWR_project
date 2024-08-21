@@ -19,7 +19,7 @@
 subroutine THMSGT(salt, compo, tp, impx)
     ! Get the data from MSTDB-TP csv files for the specific salt "salt" with proportions "prop"
     use t_saltdata
-    character*12 :: salt, compo       ! salt formula and composition
+    character*32, intent(in) :: salt, compo       ! salt formula and composition
     type(tpdata), intent(out) :: tp   ! Tupla with Thermophysical properties
     integer, intent(in) :: impx
 
@@ -79,42 +79,40 @@ subroutine THMSGT(salt, compo, tp, impx)
     close(18, status='keep')
 end subroutine THMSGT
 
-subroutine THMSST(salt, compo, tboil, impx)
+subroutine THMSST(tp, tboil, impx)
     ! return the boiling temperature for the molten salts (If it is 0 in the MSTPDB is set to 5000 K)
     use t_saltdata
-    character*12 :: salt, compo       ! salt formula and composition
+    ! character*16 :: salt, compo       ! salt formula and composition
     real, intent(out) :: tboil
     integer, intent(in) :: impx
     !
-    type(tpdata) :: tp                ! Tupla with Thermophysical properties
+    type(tpdata), intent(in) :: tp                ! Tupla with Thermophysical properties
     ! get the tpdata object for the specific salt
-    call THMSGT(salt, compo, tp, impx) 
     if (tp%tb.eq.0.0) then
         tboil=5000
     else
         tboil=tp%tb
     endif
+    if (impx > 2) write(6,*) 'THMSST: BOILING TEMPERATURE=',tboil
 end subroutine THMSST
 
-subroutine THMSPT(salt, compo, t, zrho, h, zk, zmu, zcp, impx)
+subroutine THMSPT(tp, t, zrho, h, zk, zmu, zcp, impx)
     ! return the remaining thermohydraulics parameters as a function of the temperature (K) for molten salts
     use t_saltdata
-    character*12 :: salt, compo       ! salt formula and composition
+    ! character*16 :: salt, compo       ! salt formula and composition
     real, intent(in) :: t
     real, intent(out) :: zrho, h, zk, zmu, zcp
-    type(tpdata) :: tp                ! Tupla with Thermophysical properties
+    type(tpdata), intent(in) :: tp                ! Tupla with Thermophysical properties
     integer, intent(in) :: impx
     !
     if(impx > 2) write(6,*) 'THSMPT: Molten salt thermophysical properties from MSTPDB'
     ! get the tpdata object for the specific salt
-    call THMSGT(salt, compo, tp, impx) 
-    zrho = rho(tp,t)
-    zk = k(tp,t)
-    zmu = mu(tp,t)
-    zcp = cp(tp,t)
+    zrho = dens(tp,t)
+    zk = cond(tp,t)
+    zmu = visc(tp,t)
+    zcp = cap(tp,t)
     h = zcp*t
     if (impx > 2) then
-        write(*,*) 'THMSPT: ', salt, compo
         write(*,*) 'WEIGHT =', tp%weight
         write(*,*) 'TEMPERATURE =', t, '(K)'
         write(*,*) 'DENSITY =', zrho, '(kg/m3)'
@@ -125,14 +123,14 @@ subroutine THMSPT(salt, compo, t, zrho, h, zk, zmu, zcp, impx)
     endif
 end subroutine THMSPT
 
-subroutine THMSH(salt, compo, h, zrho, t, impx)
+subroutine THMSH(tp, h, zrho, t, impx)
     ! return density and temperature given the entalphy
     use t_saltdata
 
-    character*12 :: salt, compo             ! salt formula and composition
+    ! character*16 :: salt, compo             ! salt formula and composition
     real, intent(in) :: h
     real, intent(out) :: zrho, t
-    type(tpdata) :: tp                      ! Tupla with Thermophysical properties
+    type(tpdata), intent(in) :: tp                      ! Tupla with Thermophysical properties
 
     integer, parameter :: rk=kind(0d0)
     integer, parameter :: degree=4
@@ -143,7 +141,6 @@ subroutine THMSH(salt, compo, h, zrho, t, impx)
     !
     if (impx > 3) write(*,*) 'THMSH: Input entalpy h= ',h
     ! get the tpdata object for the specific salt
-    call THMSGT(salt, compo, tp, impx) 
 
     ! solve polynomial h=CpT => 0 = D*T**4 + C*T**3 + B*T**2 + A*T - h
     a = tp%cpA/tp%weight*1000.0 
@@ -172,6 +169,6 @@ subroutine THMSH(salt, compo, h, zrho, t, impx)
             exit
         endif
     end do
-    zrho = rho(tp,t)
+    zrho = dens(tp,t)
     if (impx > 3) write(*,*) 'THMSH: t = ', t, 'zrho = ',zrho
 end subroutine THMSH

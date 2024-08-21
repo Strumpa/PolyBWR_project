@@ -160,5 +160,6 @@ $(lib)/: $(lib_module)/
 libUtilib.a: $(OBJC) $(OBJ90) $(OBJ77) $(lib)/
 	ar r $@ $(OBJC) $(OBJ90) $(OBJ77)
 	cp $@ $(lib)/$@
+	cp *.mod $(lib_module)
 clean:
 	/bin/rm -f *.o *.mod *.a
