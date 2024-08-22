@@ -1,0 +1,90 @@
+*----
+*
+*  TEST CASE TCND34
+*  CANDU-6 UNIT CELL
+*  NDAS 89-GROUP CROSS-SECTION LIBRARY
+*
+*  Author: A. Hebert
+*
+*----
+*  Define STRUCTURES and MODULES used
+*----
+LINKED_LIST
+  LIBRARY LIBRARY2 CANDU6F CANDU6S TRACK SYS FLUX ;
+SEQ_BINARY
+  INTLIN ;
+MODULE  GEO: EXCELT: LIB: SHI: ASM: FLU: DELETE: END: ;
+STRING GCopt := "GC" ;
+STRING LJopt := "LJ" ;
+PROCEDURE assertS ;
+*----
+*  Microscopic cross sections from NDAS-formatted file E65LIB6
+*----
+LIBRARY := LIB: ::
+  EDIT 3 NMIX 7 CTRA WIMS
+  MIXS LIB: NDAS FIL: E65LIB6.idx:E65LIB6.sdb
+  MIX  1  560.66   0.81212           O16      = O16      7.99449E-1
+    D2D2O    = DD2O     1.99768E-1   H1H2O    = H1H2O    7.83774E-4
+  MIX  2  560.66   6.57
+    B10      = B10      2.10000E-4
+    ZR91     = ZR91     9.75000E+1
+  MIX  3  345.66   0.0014            He4      = HE4      1.00000E+2
+  MIX  4  345.66   6.44              Fe56     = FE56     1.60000E-1
+    Ni58     = NI58     6.00000E-2   Cr52     = CR52     1.10000E-1
+    B10      = B10      3.10000E-4
+    Zr91     = ZR91     9.97100E+1
+  MIX  5  345.66   1.082885          O16      = O16      7.98895E-1
+    D2D2O    = DD2O   2.01016E-1     H1H2O    = H1H2O    8.96000E-5
+  MIX  6  941.29  10.4375010         O16      = O16      1.18473E+1
+    U235     = U235     6.27118E-1 1
+    U238     = U238     8.75256E+1 1
+  MIX  7   560.66   6.44             Fe56     = FE56     1.60000E-1
+    Ni58     = NI58     6.00000E-2   Cr52     = CR52     1.10000E-1
+    B10      = B10      3.10000E-4
+    Zr91     = ZR91     9.97100E+1
+ ;
+*----
+*  CELL CALCULATION
+*  Geometry CANDU6S : 14 regions Cartesian cluster for self-shielding
+*           CANDU6F : 32 regions Cartesian cluster for transport
+*----
+CANDU6S := GEO: ::  CARCEL  5
+  X+ REFL X- REFL MESHX -14.2875 14.2875
+  Y+ REFL Y- REFL MESHY -14.2875 14.2875
+  RADIUS  0.00000 5.16890 5.60320  6.44780 6.58750 14.00
+  MIX  1 2 3 4 5 5
+  CLUSTER ROD1 ROD2 ROD3 ROD4
+  ::: ROD1 := GEO: TUBE 2 MIX 6 7 NPIN  1 RPIN 0.0000 APIN 0.0000
+    RADIUS 0.00000 0.6122 0.6540 ;
+  ::: ROD2 := GEO: ROD1   MIX 6 7 NPIN  6 RPIN 1.4885 APIN 0.0000 ;
+  ::: ROD3 := GEO: ROD1   MIX 6 7 NPIN 12 RPIN 2.8755 APIN 0.261799 ;
+  ::: ROD4 := GEO: ROD1   MIX 6 7 NPIN 18 RPIN 4.3305 APIN 0.0 ;
+  ;
+CANDU6F := GEO: CANDU6S :: SPLITR  6 1 1 1 7
+  ::: ROD1 := GEO: ROD1 SPLITR 2 1 ;
+  ::: ROD2 := GEO: ROD2 SPLITR 2 1 ;
+  ::: ROD3 := GEO: ROD3 SPLITR 2 1 ;
+  ::: ROD4 := GEO: ROD4 SPLITR 2 1 ;
+  ;
+*----
+*  Self-Shielding calculation EXCEL
+*  Transport calculation      EXCEL
+*  Flux calculation for keff
+*----
+TRACK INTLIN := EXCELT: CANDU6S ::
+  TITLE 'TCND34: CANDU-6 CARTESIAN FUEL TEMP= 941.29'
+  EDIT 0 MAXR 14 TRAK TISO 29 20.0 SYMM 4 ;
+LIBRARY := SHI: LIBRARY TRACK INTLIN ::
+  EDIT 3 <<GCopt>> <<LJopt>> LEVEL 1 ;
+TRACK INTLIN := DELETE: TRACK INTLIN ;
+TRACK INTLIN := EXCELT: CANDU6F ::
+  TITLE 'TCND34: CANDU-6 CARTESIAN FUEL TEMP= 941.29'
+  EDIT 0 MAXR 32 TRAK TISO 29 20.0 SYMM 4 ;
+SYS := ASM: LIBRARY TRACK INTLIN ::
+  EDIT 0 ;
+FLUX := FLU: SYS LIBRARY TRACK ::
+  TYPE K ;
+assertS FLUX :: 'K-EFFECTIVE' 1 0.9179031 ;
+ECHO "test TCND34 completed" ;
+END: ;
+QUIT "LIST" .

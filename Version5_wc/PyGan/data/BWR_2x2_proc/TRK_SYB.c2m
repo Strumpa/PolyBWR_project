@@ -1,0 +1,36 @@
+************************************************************************************************************************
+*                                                                                                                      *
+* Procedure :  TRK_SYB.c2m                                                                                             *
+* Purpose   :  Tracking with SYBILT for 2x2 UOX/ 2x2 UOX+Gd                                                      *
+* Author    :  R. Guasch                                                                                               *
+* Date      : 04/08/2024                                                                                               *
+*                                                                                                                      * 
+*                                                                                                                      *
+************************************************************************************************************************
+
+
+* ---
+* INPUT & OUTPUT PARAMETERS
+* ---
+PARAMETER TRACK GEOM ::
+::: LINKED_LIST TRACK ;
+::: LINKED_LIST GEOM ; ;
+
+STRING sol_door ;
+:: >>sol_door<< ;
+
+INTEGER iqua2 nseg ;
+:: >>iqua2<< >>nseg<< ;
+
+
+MODULE SYBILT: END: ECHO: ;
+
+
+TRACK := SYBILT: GEOM_SS ::
+    TITLE 'TRACKING FOR BWR 2x2'
+    MAXR 50 QUA2 <<iqua2>> <<nseg>> DP01 MAXZ 200000 
+;
+
+
+END: ;
+QUIT .

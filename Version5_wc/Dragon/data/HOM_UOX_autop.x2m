@@ -1,0 +1,45 @@
+* CLE-2000 script
+* Purpose : test self-shielding for UOX benchmark.
+* Author : R. Guasch
+* Date : 20/08/2024
+* Goal : use VDG: module to compare XS from USS: PT/RSE/SUBG with AUTO: SUBG
+
+XSM_FILE XSM_AUTO XSM_PT XSM_RSE XSM_SUBG ;
+MODULE VDG: GREP: END: ;
+PROCEDURE autoUOX295 rseUOX295 ptUOX295 subgUOX295 ; 
+
+STRING auto_method := "SUBG" ;
+STRING correl := "noCORR" ; ! "noCORR"
+
+* AUTO: self-shielding 
+ECHO "Calling procedure auto_295 (SUBG in LIB: + AUTO:)" ;
+
+XSM_AUTO := autoUOX295 :: <<auto_method>> ;
+
+* USS: / RSE self-shielding
+ECHO "Calling procedure rse_295 (RSE in LIB: + USS:)" ;
+XSM_RSE := rseUOX295 :: <<correl>> ;
+
+*Compare AUTO and RSE with VDG: 
+ECHO "TEST RSE/AUTO" ;
+VDG: XSM_AUTO XSM_RSE :: GRMI 52 GRMA 206 ;
+
+* USS: / PT self-shielding
+ECHO "Calling procedure pt_295 (PT in LIB: + USS:)" ;
+XSM_PT := ptUOX295 :: <<correl>> ;
+
+*Compare AUTO and PT with VDG: 
+ECHO "TEST PT/AUTO" ;
+VDG: XSM_AUTO XSM_PT :: GRMI 52 GRMA 206 ;
+
+* USS: / SUBG self-shielding
+ECHO "Calling procedure subg_295 (SUBG in LIB: + USS:)" ;
+XSM_SUBG := subgUOX295 :: <<correl>> ;
+
+*Compare AUTO and SUBG with VDG: 
+ECHO "TEST SUBG/AUTO" ;
+VDG: XSM_AUTO XSM_SUBG :: GRMI 52 GRMA 206 ;
+
+QUIT "LIST" .
+
+

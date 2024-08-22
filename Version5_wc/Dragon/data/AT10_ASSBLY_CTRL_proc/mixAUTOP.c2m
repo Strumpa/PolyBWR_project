@@ -1,0 +1,256 @@
+* CLE2000 script to generate self-shielded Library object.
+* BWR ATRIUM-10 Assembly with square water channel.
+* Author : R. Guasch
+* Adapting from previous works by Lucas Fede (VVER project) and A. Canabakan / L. Ghasabyan (PWR reference scheme)
+* mixAUTOP1 : - testing USS: parameters as used in VVER project if ssh_opt = VVER_ARM or VVER_PIJ
+*             - testing USS: as used in PWR schemes if ssh_opt = PWR_ARM or PWR_PIJ.
+
+*  Procedure called as:
+*
+*  LIBRARY2 := mixAUTOP1 LIBRARY TRACK_SS TF_SS_EXC :: <<name_geom>> <<ssh_option>> ;
+*
+*  Input data   :
+*    LIBRARY      : Initial library
+*    TRACK_SS     : Self-shielding tracking
+*
+*  Output data  :
+*    LIBRARY2     : Self-shieled library
+*---
+
+PARAMETER LIBRARY2 LIBRARY TRACK_SS TF_SS_EXC ::
+::: LINKED_LIST LIBRARY2 ;
+::: LINKED_LIST LIBRARY ;
+::: LINKED_LIST TRACK_SS ;
+::: SEQ_BINARY TF_SS_EXC ; ; 
+
+
+STRING name_geom ;
+:: >>name_geom<< ;
+
+STRING ssh_option ;
+:: >>ssh_option<< ;
+
+MODULE USS: END: ;
+
+
+
+**************
+*         ATRIUM-10XM NL24-2 bundle, no control cross, no poisons, 0% void fraction.
+**************
+
+!Mix numbers for C1 fuel 
+INTEGER COMB0101 COMB0102 COMB0103 COMB0104 ;
+EVALUATE COMB0101 COMB0102 COMB0103 COMB0104 := 1 2 3 4 ;
+
+!Mix numbers for C2 fuel 
+INTEGER COMB0201 COMB0202 COMB0203 COMB0204 ;
+EVALUATE COMB0201 COMB0202 COMB0203 COMB0204 := 21 22 23 24 ;
+
+!Mix numbers for C3 fuel 
+INTEGER COMB0301 COMB0302 COMB0303 COMB0304 ;
+EVALUATE COMB0301 COMB0302 COMB0303 COMB0304 := 31 32 33 34 ;
+
+!Mix numbers for C4 fuel 
+INTEGER COMB0401 COMB0402 COMB0403 COMB0404 ;
+EVALUATE COMB0401 COMB0402 COMB0403 COMB0404 := 41 42 43 44 ;
+
+!Mix numbers for C5 fuel 
+INTEGER COMB0501 COMB0502 COMB0503 COMB0504 ;
+EVALUATE COMB0501 COMB0502 COMB0503 COMB0504 := 51 52 53 54 ;
+
+!Mix numbers for C6 fuel 
+INTEGER COMB0601 COMB0602 COMB0603 COMB0604 ;
+EVALUATE COMB0601 COMB0602 COMB0603 COMB0604 := 61 62 63 64 ;
+
+! UGd2O3 Pincells
+
+! Mix numbers C7 fuel
+INTEGER COMB0701 COMB0702 COMB0703 COMB0704 COMB0705 COMB0706 ;
+EVALUATE COMB0701 COMB0702 COMB0703 COMB0704 COMB0705 COMB0706 := 71 72 73 74 75 76 ;
+! Mix numbers C8 fuel
+INTEGER COMB0801 COMB0802 COMB0803 COMB0804 COMB0805 COMB0806 ;
+EVALUATE COMB0801 COMB0802 COMB0803 COMB0804 COMB0805 COMB0806 := 81 82 83 84 85 86 ;
+
+
+IF name_geom 'AT10_ASSBLY_fine' = THEN
+
+   IF ssh_option 'RSE' = THEN
+    LIBRARY2 := USS: LIBRARY TRACK_SS TF_SS_EXC ::
+            EDIT 10 PASS 3 MAXST 50 ARM
+            CALC 
+               REGI W1 U238  ALL
+               REGI W1 U235  ALL
+               REGI W1 Zr90 ALL
+               REGI W1 Zr91 ALL
+               REGI W1 Zr92 ALL
+               REGI W1 Zr94 ALL
+               REGI W1 Zr96 ALL
+
+            ENDC
+            ;
+
+
+   ELSEIF ssh_option 'VVER_REGI' = THEN
+
+          LIBRARY2 := USS: LIBRARY TRACK_SS TF_SS_EXC ::
+            EDIT 10 PASS 2 GRMIN 52 NOTR MAXST 20
+          CALC 
+* ALL CELLS
+               REGI W1 U235  ALL
+               REGI W1 Pu239 ALL
+               REGI W1 Pu240 ALL
+               REGI W1 Pu241 ALL
+               REGI W1 Pu242 ALL
+
+               REGI W1 Gd154 ALL
+               REGI W1 Gd155 ALL
+               REGI W1 Gd156 ALL
+               REGI W1 Gd157 ALL
+               REGI W1 Gd158 ALL
+
+               REGI W1 Zr90 ALL
+               REGI W1 Zr91 ALL
+               REGI W1 Zr92 ALL
+               REGI W1 Zr94 ALL
+               REGI W1 Zr96 ALL
+
+
+               **********
+               ***** U238
+
+               REGI W1 U238 <<COMB0101>>
+               REGI W2 U238 <<COMB0102>>
+               REGI W3 U238 <<COMB0103>>
+               REGI W4 U238 <<COMB0104>>
+
+               REGI W1 U238 <<COMB0201>>
+               REGI W2 U238 <<COMB0202>>
+               REGI W3 U238 <<COMB0203>>
+               REGI W4 U238 <<COMB0204>>
+
+               REGI W1 U238 <<COMB0301>>
+               REGI W2 U238 <<COMB0302>>
+               REGI W3 U238 <<COMB0303>>
+               REGI W4 U238 <<COMB0304>>
+
+               REGI W1 U238 <<COMB0401>>
+               REGI W2 U238 <<COMB0402>>
+               REGI W3 U238 <<COMB0403>>
+               REGI W4 U238 <<COMB0404>>
+
+               REGI W1 U238 <<COMB0501>>
+               REGI W2 U238 <<COMB0502>>
+               REGI W3 U238 <<COMB0503>>
+               REGI W4 U238 <<COMB0504>>
+
+               REGI W1 U238 <<COMB0601>>
+               REGI W2 U238 <<COMB0602>>
+               REGI W3 U238 <<COMB0603>>
+               REGI W4 U238 <<COMB0604>>
+
+               REGI W17 U238 <<COMB0701>>
+               REGI W27 U238 <<COMB0702>>
+               REGI W37 U238 <<COMB0703>>
+               REGI W47 U238 <<COMB0704>>
+               REGI W57 U238 <<COMB0705>>
+               REGI W67 U238 <<COMB0706>>
+
+               REGI W18 U238 <<COMB0801>>
+               REGI W28 U238 <<COMB0802>>
+               REGI W38 U238 <<COMB0803>>
+               REGI W48 U238 <<COMB0804>>
+               REGI W58 U238 <<COMB0805>>
+               REGI W68 U238 <<COMB0806>>
+
+               *************
+               ****** Gd154
+               REGI W17 Gd154 <<COMB0701>>
+               REGI W27 Gd154 <<COMB0702>>
+               REGI W37 Gd154 <<COMB0703>>
+               REGI W47 Gd154 <<COMB0704>>
+               REGI W57 Gd154 <<COMB0705>>
+               REGI W67 Gd154 <<COMB0706>>
+
+               REGI W18 Gd154 <<COMB0801>>
+               REGI W28 Gd154 <<COMB0802>>
+               REGI W38 Gd154 <<COMB0803>>
+               REGI W48 Gd154 <<COMB0804>>
+               REGI W58 Gd154 <<COMB0805>>
+               REGI W68 Gd154 <<COMB0806>>
+
+               *************
+               ****** Gd155
+               REGI W17 Gd155 <<COMB0701>>
+               REGI W27 Gd155 <<COMB0702>>
+               REGI W37 Gd155 <<COMB0703>>
+               REGI W47 Gd155 <<COMB0704>>
+               REGI W57 Gd155 <<COMB0705>>
+               REGI W67 Gd155 <<COMB0706>>
+
+               REGI W18 Gd155 <<COMB0801>>
+               REGI W28 Gd155 <<COMB0802>>
+               REGI W38 Gd155 <<COMB0803>>
+               REGI W48 Gd155 <<COMB0804>>
+               REGI W58 Gd155 <<COMB0805>>
+               REGI W68 Gd155 <<COMB0806>>
+
+               *************
+               ****** Gd156
+               REGI W17 Gd156 <<COMB0701>>
+               REGI W27 Gd156 <<COMB0702>>
+               REGI W37 Gd156 <<COMB0703>>
+               REGI W47 Gd156 <<COMB0704>>
+               REGI W57 Gd156 <<COMB0705>>
+               REGI W67 Gd156 <<COMB0706>>
+
+               REGI W18 Gd156 <<COMB0801>>
+               REGI W28 Gd156 <<COMB0802>>
+               REGI W38 Gd156 <<COMB0803>>
+               REGI W48 Gd156 <<COMB0804>>
+               REGI W58 Gd156 <<COMB0805>>
+               REGI W68 Gd156 <<COMB0806>>
+
+               *************
+               ****** Gd157
+               REGI W17 Gd157 <<COMB0701>>
+               REGI W27 Gd157 <<COMB0702>>
+               REGI W37 Gd157 <<COMB0703>>
+               REGI W47 Gd157 <<COMB0704>>
+               REGI W57 Gd157 <<COMB0705>>
+               REGI W67 Gd157 <<COMB0706>>
+
+               REGI W18 Gd157 <<COMB0801>>
+               REGI W28 Gd157 <<COMB0802>>
+               REGI W38 Gd157 <<COMB0803>>
+               REGI W48 Gd157 <<COMB0804>>
+               REGI W58 Gd157 <<COMB0805>>
+               REGI W68 Gd157 <<COMB0806>>
+
+
+               *************
+               ****** Gd158
+               REGI W17 Gd158 <<COMB0701>>
+               REGI W27 Gd158 <<COMB0702>>
+               REGI W37 Gd158 <<COMB0703>>
+               REGI W47 Gd158 <<COMB0704>>
+               REGI W57 Gd158 <<COMB0705>>
+               REGI W67 Gd158 <<COMB0706>>
+
+               REGI W18 Gd158 <<COMB0801>>
+               REGI W28 Gd158 <<COMB0802>>
+               REGI W38 Gd158 <<COMB0803>>
+               REGI W48 Gd158 <<COMB0804>>
+               REGI W58 Gd158 <<COMB0805>>
+               REGI W68 Gd158 <<COMB0806>>
+            ENDC
+         ;
+   
+   ENDIF ;
+
+ELSEIF name_geom 'AT10_ASSBLY_ctrl' = THEN
+   
+   ECHO 'not implemented yet' ;
+ENDIF ;
+
+END: ;
+QUIT .

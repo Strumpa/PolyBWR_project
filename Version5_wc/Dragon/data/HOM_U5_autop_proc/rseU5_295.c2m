@@ -1,0 +1,51 @@
+* CLE-2000 procedure to perform a homogeneous pincell calculation 
+* Self-shielding calculation with RSE method and USS: module
+
+PARAMETER XSM :: ::: XSM_FILE XSM ; ;
+
+MODULE GEO: LIB: SYBILT: USS: ASM: FLU: EDI: GREP: ;
+
+LINKED_LIST GEOM LIB_RSE LIB2_RSE TRACK CP CALC ;
+
+REAL Kinf ;
+
+GEOM := GEO: :: HOMOGE 
+        MIX 1
+      ;
+
+TRACK := SYBILT: GEOM ::
+    TITLE 'HOM_U5 test case'
+    MAXR 2
+    ;
+
+
+LIB_RSE := LIB: ::
+    EDIT 1
+    NMIX 1    ! MAXIMUM OF MATERIAL MIXTURES
+    RSE
+    ANIS 1
+
+    MIXS LIB: DRAGON FIL: J311_295
+
+    MIX 1 750.0
+      U235  = U235   3.664503E-04 1
+      H1    = H1     2.497844E-02
+      O16   = O16    2.955339E-02
+  ;
+
+LIB2_RSE := USS: LIB_RSE TRACK :: EDIT 2 PASS 3 ;
+
+CP := ASM: LIB2_RSE TRACK :: EDIT 1 PIJ ;
+
+CALC := FLU: CP LIB2_RSE TRACK :: EDIT 1 TYPE K EXTE 5 ;
+
+GREP: CALC :: GETVAL 'K-INFINITY  ' 1 1 1 >>Kinf<< ;
+
+ECHO 'Kinf RSE = ' Kinf ;
+
+XSM := EDI: CALC LIB2_RSE TRACK ::
+     EDIT 2 SAVE
+     MERG REGI 1
+     SAVE MICR 1 U235 
+    ;
+QUIT "LIST" .

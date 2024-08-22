@@ -1,5 +1,5 @@
-% --- Bundle  :  ATRIUM-10XM NL24-2, 2x2 UOX for reference  -------------------
-set title "ATRIUM-10XM NL24-2, 2x2 UOX subset"      
+% --- Bundle  :  ATRIUM-10XM NL24-2, 3x3 UOX+Gd for reference  -------------------
+set title "ATRIUM-10XM NL24-2, 3x3 UOX+Gd subset"      
     
 % --- Cross section data library file path:
 
@@ -337,7 +337,7 @@ set gcu 0
 set nfg 2 0.625E-6
 set pop 20000 1000 20
 
-plot 3 3000 3000
+plot 3 1500 1500
 
 therm lwtr lwtr.05t
 %therm lwtr lwj3.11t

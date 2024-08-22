@@ -1,0 +1,73 @@
+************************************************************************************************************************
+*                                                                                                                      *
+* Procedure :  AT10_pin_1.x2m                                                                                          *
+* Purpose   :  Study self-shielding options comparing SUBG/PT/RSE keywords                                             *
+* Author    :  R. Guasch adapted from L.Fede                                                                           *
+*                                                                                                                      *
+* CALL      :  ./rdragon AT10_pin_1.x2m                                                                                *
+*                                                                                                                      *
+************************************************************************************************************************
+
+PROCEDURE Geom_C Geom_C_SALT Mix_C1 TRK_C_SALT TRK_C_SYBNXT TRK_C_NXTNXT Mix_AUTOP1 Mix_AUTOP2 Mix_AUTOP3 ; 
+
+************************************************************************
+*                          LOCAL PARAMETERS                            *
+************************************************************************
+MODULE UTL: GREP: DELETE: USS: ASM: FLU: END: ;
+LINKED_LIST GEOM GEOM_SS LIBRARY TRACK_SS TRACK SYS FLUX FIG  LIBRARY2 ;
+SEQ_ASCII CELL_SS ;
+SEQ_ASCII CELL ;
+SEQ_BINARY TF_EXC ;
+SEQ_BINARY TF_EXC_SS ;
+
+STRING geo_name := "AT10_UOX" ; 
+STRING ssh_opt := "PT" ; ! "PT", "RSE", "SUBG"
+STRING track_opt := "SALT" ; ! "SYBNXT" "SALT" "NXTNXT"
+
+SEQ_ASCII FIG_SS.ps :: FILE './PIN_AT10_FIG_SS.ps' ;
+SEQ_ASCII FIG_FLX.ps :: FILE './PIN_AT10_FIG_FLX.ps' ;
+
+REAL Kinf ;
+
+************************************************************************
+
+IF track_opt "SALT" = THEN
+        GEOM GEOM_SS := Geom_C_SALT :: <<geo_name>> ; 
+ELSEIF track_opt "NXTNXT" = THEN
+        GEOM GEOM_SS := Geom_C :: <<geo_name>> ;
+ELSEIF track_opt "SYBNXT" = THEN
+        GEOM GEOM_SS := Geom_C :: <<geo_name>> ;
+
+ENDIF ;
+
+LIBRARY := Mix_C1 :: J311_295 <<ssh_opt>> ;
+
+IF track_opt "SALT" = THEN 
+        CELL FIG_FLX.ps TRACK TF_EXC CELL_SS FIG_SS.ps TRACK_SS TF_EXC_SS := TRK_C_SALT GEOM GEOM_SS ;
+ELSEIF track_opt "SYBNXT" = THEN
+        TRACK TF_EXC TRACK_SS := TRK_C_SYBNXT GEOM GEOM_SS ;
+ELSEIF track_opt "NXTNXT" = THEN
+        TRACK TF_EXC TRACK_SS TF_EXC_SS := TRK_C_NXTNXT GEOM GEOM_SS ;
+ENDIF ;
+
+IF track_opt "SALT" = THEN
+        LIBRARY2 := Mix_AUTOP1 LIBRARY TRACK_SS TF_EXC_SS :: <<ssh_opt>> <<track_opt>> ;
+ELSEIF track_opt "SYBNXT" = THEN
+        LIBRARY2 := Mix_AUTOP2 LIBRARY TRACK_SS :: <<ssh_opt>> <<track_opt>> ;
+ELSEIF track_opt "NXTNXT" = THEN
+        LIBRARY2 := Mix_AUTOP3 LIBRARY TRACK_SS TF_EXC_SS :: <<ssh_opt>> <<track_opt>> ;
+ENDIF ;
+
+
+SYS := ASM: LIBRARY2 TRACK TF_EXC :: ARM EDIT 0 ; 
+
+FLUX := FLU: LIBRARY2 SYS TRACK TF_EXC :: 
+        EDIT 1 TYPE K ;
+
+GREP: FLUX :: GETVAL 'K-EFFECTIVE  ' 1 1 1 >>Kinf<< ;
+ECHO track_opt " tracking, MOC on AT10 C1: Kinf=" Kinf ;
+
+END: ;
+
+QUIT .
+
