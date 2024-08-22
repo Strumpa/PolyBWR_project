@@ -25,7 +25,7 @@ IF correl "CORR" = THEN
   LIB_PT := LIB: ::
       EDIT 1
       NMIX 1    ! MAXIMUM OF MATERIAL MIXTURES
-      PT 
+      CALENDF 4 PT 
       ANIS 1
 
       MIXS LIB: DRAGON FIL: J311_295
@@ -41,7 +41,7 @@ ELSEIF correl "noCORR" = THEN
   LIB_PT := LIB: ::
       EDIT 1
       NMIX 1    ! MAXIMUM OF MATERIAL MIXTURES
-      PT 
+      CALENDF 4 PT 
       ANIS 1
 
       MIXS LIB: DRAGON FIL: J311_295
@@ -54,7 +54,7 @@ ELSEIF correl "noCORR" = THEN
     ;
 ENDIF ;
 
-LIB2_PT := USS: LIB_PT TRACK :: EDIT 2 PASS 3 ;
+LIB2_PT := USS: LIB_PT TRACK :: EDIT 2 PASS 2 ;
 
 CP := ASM: LIB2_PT TRACK :: EDIT 1 PIJ ;
 
