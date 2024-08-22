@@ -42,7 +42,6 @@ ELSEIF ssh_opt "PT" = THEN
             REGI W1 U234 ALL          
             REGI W1 U235 ALL
             REGI W1 U238 ALL
-
             REGI W1 Zr90 ALL
             REGI W1 Zr91 ALL
             REGI W1 Zr92 ALL
