@@ -1,0 +1,89 @@
+* CLE2000 procedure used to track 3x3 geometry with SALT
+* Input parameters : INTEGER batch_ssh batch_flx
+* aimed at testing different batch parameters for ssh and flx tracking
+
+MODULE G2S: SALT: MCCGT: ;
+
+PARAMETER TRACK    TF_EXC
+          TRACK_SS TF_EXC_SS
+          GEOM_3x3 GEOM_3x3_SS  ::
+::: LINKED_LIST TRACK ;
+::: SEQ_BINARY TF_EXC ;
+::: LINKED_LIST TRACK_SS ;
+::: SEQ_BINARY TF_EXC_SS ;
+::: LINKED_LIST GEOM_3x3 ;
+::: LINKED_LIST GEOM_3x3_SS ; ;
+
+INTEGER batch_flx batch_ssh ;
+:: >>batch_flx<< >>batch_ssh<< ;
+
+STRING ssh_sol flx_sol ;
+:: >>ssh_sol<< >>flx_sol<< ;
+
+
+SEQ_ASCII Geo_G2S ;
+SEQ_ASCII GeoSS_G2S ;
+****************************************************************************************
+********************* TRAKING GEOM_3x3/_SS FOR FLUX/SSH CALCULATION ********************
+****************************************************************************************
+
+* ---
+* TRACKING PARAMTERES
+* ---
+
+INTEGER an2d := 18 ;  ! ANGULAR QUADRATURE PARAMETER
+REAL densur := 35.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
+
+INTEGER an2d_SS := 8 ;
+REAL densur_SS := 15.0 ;
+
+
+* polar angles for MCCGT:
+INTEGER nmu := 4 ;
+
+* size allocation for MCCGT:
+INTEGER mcu := 50000 ;
+
+* ---
+* FLUX CALC TRACKING
+* ---
+
+
+Geo_G2S := G2S: GEOM_3x3 :: ;
+TRACK TF_EXC := SALT: Geo_G2S ::
+  EDIT 1
+  ALLG
+  BATCH <<batch_flx>>
+  ANIS 3
+  TSPC EQW2 <<an2d>> <<densur>> REND LONG
+;
+
+
+IF flx_sol "MOC" = THEN
+  * MOC tracking
+  TRACK := MCCGT: TRACK TF_EXC ::
+    EDIT 1
+    CACB <<nmu>> AAC 80 TMT EPSI 1E-5 MCU <<mcu>> ! tried CACB but is limited to isotropic ?
+  ;
+ENDIF ;
+
+* ---
+* SELF-SHIELDING TRACKING
+* ---
+
+GeoSS_G2S := G2S: GEOM_3x3_SS :: ;
+TRACK_SS TF_EXC_SS := SALT: GeoSS_G2S ::
+  EDIT 1
+  ALLG
+  BATCH <<batch_ssh>>
+  TSPC <<an2d_SS>> <<densur_SS>> REND
+  MERGMIX
+;
+
+IF ssh_sol "MOC" = THEN
+  TRACK_SS := MCCGT: TRACK_SS TF_EXC_SS ::
+    EDIT 1
+    CACB <<nmu>> AAC 80 TMT EPSI 1E-5 MCU <<mcu>> ! tried CACB but is limited to isotropic ?
+  ;
+ENDIF ;
+

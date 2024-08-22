@@ -1,0 +1,118 @@
+* Cle2000 procedure : NXTNXT.c2m
+* Author : R. Guasch
+* Surpose : MXTMXT tracking on pincell of "geoname" 
+*           with SSH method "ssh_opt" and SSH solution "ssh_sol"
+*
+
+************************************************************************
+*********************** BEGIN DECLARATION ******************************
+************************************************************************
+MODULE MCCGT: NXT: ASM: FLU: GREP: DELETE: END: ;
+PROCEDURE Geom_C Mix_C1 Mix_C7 SAL_AUTOP1 SAL_AUTOP7 ;
+LINKED_LIST GEOM GEOM_SS LIBRARY LIBRARY2 TRACK_SS TRACK SYS FLUX ;
+
+SEQ_ASCII CELL_SS ;
+SEQ_ASCII CELL ;
+SEQ_BINARY TF_EXC ;
+SEQ_BINARY TF_EXC_SS ;
+
+REAL Kinf ;
+STRING geo_name ssh_opt ssh_sol ;
+:: >>geo_name<< >>ssh_opt<< >>ssh_sol<< ;
+
+
+ECHO "BEGIN NXTNXT.c2m PROCEDURE FOR OPTIONS" geo_name " and " ssh_opt ssh_sol ;
+
+
+************************************************************************
+************************  BEGIN GEOMETRY DEFINITION ********************
+
+GEOM GEOM_SS := Geom_C :: <<geo_name>> ;
+
+*************************** RETRIVE DRAGLIB ****************************
+IF geo_name "AT10_UOX" = THEN
+    LIBRARY := Mix_C1 :: J311_295 <<ssh_opt>> ;
+ELSEIF geo_name "AT10_UOX_Gd2O3" = THEN
+    LIBRARY := Mix_C7 :: J311_295 <<ssh_opt>> ;
+ENDIF ;
+
+***********************  BEGIN GEOMETRY TRACKING **********************
+
+INTEGER an2d := 18 ;  ! ANGULAR QUADRATURE PARAMETER
+REAL densur := 35.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
+
+* polar angles for MCCGT:
+INTEGER nmu := 4 ;
+
+* size allocation for MCCGT:
+INTEGER mcu := 50000 ;
+
+
+INTEGER an2d_SS := 8 ;
+REAL densur_SS := 15.0 ;
+
+
+* ---
+* FLUX CALC TRACKING
+* ---
+
+TRACK TF_EXC := NXT: GEOM ::
+  EDIT 1
+  ALLG
+  TSPC EQW2 <<an2d>> <<densur>> REND
+;
+
+* MOC tracking
+TRACK := MCCGT: TRACK TF_EXC ::
+  EDIT 0
+  CACB <<nmu>> AAC 80 TMT EPSI 1E-5 MCU <<mcu>>
+;
+
+* ---
+* SELF-SHIELDING TRACKING
+* ---
+
+TRACK_SS TF_EXC_SS := NXT: GEOM_SS ::
+  EDIT 1
+  ALLG
+  TSPC <<an2d_SS>> <<densur_SS>> REND
+  MERGMIX
+;
+
+
+IF ssh_sol "MOC" = THEN
+* MOC tracking for ssh + RSE
+TRACK_SS := MCCGT: TRACK_SS TF_EXC_SS ::
+  EDIT 0
+  CACB <<nmu>> AAC 80 TMT EPSI 1E-5 MCU <<mcu>>
+;
+
+ENDIF ;
+
+************************ BEGIN SELF-SHIELDING **************************
+
+IF geo_name "AT10_UOX" = THEN
+    LIBRARY2 := SAL_AUTOP1 LIBRARY TRACK_SS TF_EXC_SS :: <<ssh_opt>> <<ssh_sol>> ;
+ELSEIF geo_name "AT10_UOX_Gd2O3" = THEN
+    LIBRARY2 := SAL_AUTOP7 LIBRARY TRACK_SS TF_EXC_SS :: <<ssh_opt>> <<ssh_sol>> ;
+ENDIF ;
+
+
+
+************************ BEGIN FLUX CALCULATION ************************
+SYS := ASM: LIBRARY2 TRACK TF_EXC :: ARM EDIT 0 ; 
+
+FLUX := FLU: LIBRARY2 SYS TRACK TF_EXC :: 
+        EDIT 1 TYPE K ;
+
+GREP: FLUX :: GETVAL 'K-EFFECTIVE  ' 1 1 1 >>Kinf<< ;
+
+ECHO  "END NXTNXT.c2m with : " ssh_opt ssh_sol "calculation with tracking : SSH = NXT, FLUX = NXT, MOC Kinf=" Kinf ;
+ECHO geo_name ;
+
+LIBRARY LIBRARY2 := DELETE: LIBRARY LIBRARY2 ;
+FLUX := DELETE: FLUX ;
+
+END: ;
+
+QUIT .

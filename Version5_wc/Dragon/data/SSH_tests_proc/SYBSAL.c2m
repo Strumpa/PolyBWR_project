@@ -1,0 +1,121 @@
+* Cle2000 procedure SYBSAL.c2m
+* Author : R. Guasch
+* Surpose : SYBILT+SALT tracking on pincell of "geoname" 
+*           with SSH method "ssh_opt" and SSH solution "ssh_sol"
+*
+
+************************************************************************
+*********************** BEGIN DECLARATION ******************************
+************************************************************************
+MODULE SYBILT: G2S: SALT: MCCGT: ASM: FLU: GREP: DELETE: END: ;
+PROCEDURE Geom_C_SALT Mix_C1 Mix_C7 SYB_AUTOP1 SYB_AUTOP7 ;
+LINKED_LIST GEOM GEOM_SS LIBRARY LIBRARY2 TRACK_SS TRACK SYS FLUX ;
+SEQ_ASCII FIG_SS.ps ;
+SEQ_ASCII FIG_FLX.ps  ;
+SEQ_ASCII CELL_SS ;
+SEQ_ASCII CELL ;
+SEQ_BINARY TF_EXC ;
+SEQ_BINARY TF_EXC_SS ;
+SEQ_ASCII UOX_TBH_SS ;
+SEQ_ASCII UOX_TBH ;
+
+REAL Kinf ;
+STRING geo_name ssh_opt ;
+:: >>geo_name<< >>ssh_opt<< ;
+
+
+ECHO "BEGIN SYBSAL.c2m PROCEDURE FOR OPTIONS" geo_name "and" ssh_opt ;
+
+
+************************************************************************
+************************  BEGIN GEOMETRY DEFINITION ********************
+
+GEOM GEOM_SS := Geom_C_SALT :: <<geo_name>> ;
+
+*************************** RETRIVE DRAGLIB ****************************
+IF geo_name "AT10_UOX" = THEN
+    LIBRARY := Mix_C1 :: J311_295 <<ssh_opt>> ;
+ELSEIF geo_name "AT10_UOX_Gd2O3" = THEN
+    LIBRARY := Mix_C7 :: J311_295 <<ssh_opt>> ;
+ENDIF ;
+
+***********************  BEGIN GEOMETRY TRACKING **********************
+
+* ---
+* TRACKING PARAMETERS FOR SALT TRACKING
+* ---
+INTEGER an2d := 18 ;  ! ANGULAR QUADRATURE PARAMETER
+REAL densur := 35.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
+
+* ---
+* PARAMETERS FOR MCCGT TRACKING
+* ---
+* polar angles for MCCGT:
+INTEGER nmu := 4 ;
+
+* size allocation for MCCGT:
+INTEGER mcu := 50000 ;
+
+
+* ---
+* TRACKING PARAMETERS FOR SYBILT SSH
+* ---
+INTEGER iqua2_ss := 24 ;
+INTEGER nseg_ss := 5 ;
+
+* ---
+* FLUX CALC TRACKING
+* ---
+UOX_TBH FIG_FLX.ps := G2S: GEOM :: ;
+
+TRACK TF_EXC := SALT: UOX_TBH ::
+  EDIT 1
+  ALLG
+  TSPC EQW2 <<an2d>> <<densur>> REND
+;
+
+* MOC tracking
+TRACK := MCCGT: TRACK TF_EXC ::
+  EDIT 0
+  CACB <<nmu>> AAC 80 TMT EPSI 1E-5 MCU <<mcu>>
+;
+
+
+* ---
+* SELF-SHIELDING TRACKING
+* ---
+
+TRACK_SS := SYBILT: GEOM_SS ::
+    TITLE 'TRACKING FOR PINCELL SS'
+    MAXR 50 QUA2 <<iqua2_ss>> <<nseg_ss>> DP01 MAXZ 200000 
+;
+
+************************ BEGIN SELF-SHIELDING **************************
+
+IF geo_name "AT10_UOX" = THEN
+    LIBRARY2 := SYB_AUTOP1 LIBRARY TRACK_SS :: <<ssh_opt>> ;
+ELSEIF geo_name "AT10_UOX_Gd2O3" = THEN
+    LIBRARY2 := SYB_AUTOP7 LIBRARY TRACK_SS :: <<ssh_opt>> ;
+ENDIF ;
+
+
+
+************************ BEGIN FLUX CALCULATION ************************
+SYS := ASM: LIBRARY2 TRACK TF_EXC :: ARM EDIT 0 ; 
+
+FLUX := FLU: LIBRARY2 SYS TRACK TF_EXC :: 
+        EDIT 1 TYPE K ;
+
+GREP: FLUX :: GETVAL 'K-EFFECTIVE  ' 1 1 1 >>Kinf<< ; 
+
+ECHO  "END SYBSAL.c2m with : " ssh_opt "calculation with tracking : SSH = SYBILT, FLUX = SALT, MOC Kinf=" Kinf ;
+ECHO geo_name ;
+
+LIBRARY LIBRARY2 := DELETE: LIBRARY LIBRARY2 ;
+FLUX := DELETE: FLUX ;
+FIG_FLX.ps := DELETE: FIG_FLX.ps  ;
+
+
+END: ;
+
+QUIT .

@@ -1,0 +1,9 @@
+#!/bin/sh
+if [ $# = 0 ]
+   then
+   echo "usage: thm_salt_lf_trans.access directory" 1>&2
+   exit 1
+fi
+cp "$1"/data/thm_salt_lf_proc/MSTPDB.data .
+ls -l
+echo "thm_salt_lf_trans access script terminated"

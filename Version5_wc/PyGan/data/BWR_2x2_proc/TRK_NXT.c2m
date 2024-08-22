@@ -1,0 +1,79 @@
+************************************************************************************************************************
+*                                                                                                                      *
+* Procedure :  TRK_NXT.c2m                                                                                             *
+* Purpose   :  Tracking with NXT (+MCCGT) for 2x2 UOX/ 2x2 UOX+Gd                                                      *
+* Author    :  R. Guasch                                                                                               *
+* Date      : 04/08/2024                                                                                               *
+*                                                                                                                      * 
+*                                                                                                                      *
+************************************************************************************************************************
+
+
+* ---
+* INPUT & OUTPUT PARAMETERS
+* ---
+PARAMETER TRACK TF_EXC GEOM ::
+::: LINKED_LIST TRACK ;
+::: SEQ_BINARY TF_EXC ;
+::: LINKED_LIST GEOM ; ;
+
+STRING sol_door ;
+:: >>sol_door<< ;
+
+INTEGER an2d ;
+:: >>an2d<< ;
+
+
+STRING calc_type ;
+:: >>calc_type<< ;
+
+MODULE NXT: MCCGT: END: ECHO: ;
+
+REAL densur ;
+
+IF calc_type "FLUX" = THEN 
+    EVALUATE densur := 35.0 ;
+ELSEIF calc_type "SSH" = THEN
+    EVALUATE densur := 15.0 ;
+ENDIF ;
+
+
+* polar angles for MCCGT:
+INTEGER nmu := 4 ;
+
+* size allocation for MCCGT:
+INTEGER mcu := 50000 ;
+
+IF calc_type "FLUX" = THEN 
+
+    TRACK TF_EXC := NXT: GEOM ::
+        EDIT 1
+        ALLG
+        BATCH 200
+        ANIS 3
+        TSPC EQW2 <<an2d>> <<densur>> REND LONG
+    ;
+
+ELSEIF calc_type "SSH" = THEN
+
+    TRACK TF_EXC := NXT: GEOM ::
+        EDIT 1
+        ALLG
+        BATCH 100
+        TSPC <<an2d>> <<densur>> REND
+        MERGMIX
+    ;
+
+ENDIF ;
+
+IF sol_door "MOC" = THEN
+
+    TRACK := MCCGT: TRACK TF_EXC ::
+        EDIT 1
+        CACB <<nmu>> AAC 80 TMT EPSI 1E-5 MCU <<mcu>> 
+    ;
+
+ENDIF ;
+
+END: ;
+QUIT .
