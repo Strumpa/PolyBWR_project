@@ -56,7 +56,7 @@ name_mix = "HOM_U5" # "AT10_C7_hom", "AT10_C7_noGd_hom", "AT10_C7_Gd154_hom", "A
 S2_libs = ["oldlib", "PyNjoy2016"]
 
 ssh_module = "USS" #"USS", "AUTO"
-ssh_method = "PT" #"PT", "RSE", "SUBG" all supported for USS: but AUTO: only takes SUBG
+ssh_method = "RSE" #"PT", "RSE", "SUBG" all supported for USS: but AUTO: only takes SUBG
 # for RSE method : test with eps_RSE = 1.0E-1, 5.0E-2, 1.0E-2, 5.0E-3, 1.0E-3, 1.0E-4
 correlation = "" # "CORR", "noCORR"
 
@@ -120,10 +120,10 @@ a=os.path.exists(f"BWRresults_PyGan_{name_geom}")
 if a==False:
 	os.mkdir(f"BWRresults_PyGan_{name_geom}")
 
-SAVE_DIR=f"BWRresults_PyGan_{name_geom}/{name_mix}_{suffixe}_postprocess/"
+SAVE_DIR=f'BWRresults_PyGan_{name_geom}/{name_mix}/{suffixe}_postprocess/{ssh_module}_{ssh_method}/'
 a=os.path.exists(SAVE_DIR)
 if a==False:
-	os.mkdir(SAVE_DIR)
+	os.makedirs(SAVE_DIR)
 
 #
 # Recovering ListBU ListAUTOP ListCOMPO

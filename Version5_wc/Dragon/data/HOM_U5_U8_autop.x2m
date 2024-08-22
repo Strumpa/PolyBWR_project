@@ -18,11 +18,11 @@ XSM_AUTO := autoU5U8_295 :: <<auto_method>> ;
 
 * USS: / RSE self-shielding
 ECHO "Calling procedure rse_295 (RSE in LIB: + USS:)" ;
-XSM_RSE := rseU5U8_295 :: <<correl>> ;
+!XSM_RSE := rseU5U8_295 :: <<correl>> ;
 
 *Compare AUTO and RSE with VDG: 
-ECHO "TEST RSE/AUTO" ;
-VDG: XSM_AUTO XSM_RSE :: GRMI 52 GRMA 206 ;
+!ECHO "TEST RSE/AUTO" ;
+!VDG: XSM_AUTO XSM_RSE :: GRMI 52 GRMA 206 ;
 
 * USS: / PT self-shielding
 ECHO "Calling procedure pt_295 (PT in LIB: + USS:)" ;
@@ -33,12 +33,12 @@ ECHO "TEST PT/AUTO" ;
 VDG: XSM_AUTO XSM_PT :: GRMI 52 GRMA 206 ;
 
 * USS: / SUBG self-shielding
-ECHO "Calling procedure subg_295 (SUBG in LIB: + USS:)" ;
-XSM_SUBG := subgU5U8_295 :: <<correl>> ;
+!ECHO "Calling procedure subg_295 (SUBG in LIB: + USS:)" ;
+!XSM_SUBG := subgU5U8_295 :: <<correl>> ;
 
 *Compare AUTO and SUBG with VDG: 
-ECHO "TEST SUBG/AUTO" ;
-VDG: XSM_AUTO XSM_SUBG :: GRMI 52 GRMA 206 ;
+!ECHO "TEST SUBG/AUTO" ;
+!VDG: XSM_AUTO XSM_SUBG :: GRMI 52 GRMA 206 ;
 
 QUIT "LIST" .
 
