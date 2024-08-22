@@ -3,6 +3,11 @@
 # test 1 : removed all metastable isotopes that caused error ReadACEFile function
 # test 2 : changed all metastable isotopes to fundamental states
 # test 3 : changed all fundamentals to metastables
+#####################################################
+# Update : 21/08/2024
+# Error found in acefiles for isotopes with metastable states : wrong name format, Serpent2 was not able to read them
+# Purpose : Post-treatment of Serpent2 test cases for JEFF311-PyNjoy2016 study
+
 
 import matplotlib.pyplot as plt
 import serpentTools
@@ -10,23 +15,6 @@ from serpentTools.settings import rc
 import numpy as np
 import os
 
-
-
-# --- Chemin du répertoire courant
-path=os.getcwd()
-#print("$$$ ---------- path = ",path)
-
-# --- Création du répertoire de stockage de résultats 
-a=os.path.exists('Serpent2_PyNjoy2016_tests')
-if a==False:
-    os.mkdir('Serpent2_PyNjoy2016_tests')
-
-SAVE_DIR='Serpent2_PyNjoy2016_tests/'
-
-a=os.path.exists(SAVE_DIR)
-if a==False:
-    os.mkdir(SAVE_DIR)
-form = "png"
 
 
 class Serpent2_case:
@@ -39,15 +27,15 @@ class Serpent2_case:
         self.isotopes = isotopes
         self.savedir = save_dir
 
-        if "test" in self.file_name:
-            self.case_is_ref = False
-        else:
-            self.case_is_ref = True
+        self.case_is_ref = False # By default, the case is not a reference case
 
         self.load_Serpent_BU() # initialize SERPENT_BU attribute
         self.load_serpent2_keffs() # initialize SERPENT_Keff attribute
         self.load_Serpent_IsoDens() # initialize isotopic densities in evolutions attribute, stored in SERPENT_isotopes_dens dictionnary with key = isotope, values = list of atomic densities
 
+    def setisRef(self, isRef): # use this method to set the case as a reference case
+        self.case_is_ref = isRef
+        return
 
     def load_Serpent_BU(self):   
         """
@@ -151,7 +139,8 @@ class Serpent2_post_treatment:
         ax.legend(loc="best")
         ax.set_xlabel("BU (MWj/t)")
         ax.set_ylabel("Keff Serpent2")
-        ax.set_title(f"Comparison of Keffs for PyNjoy2016 tests in {self.print_name}", y=1.05)
+        ax.grid()
+        ax.set_title(f"Comparison of Keffs for {self.print_name}", y=1.05)
         fig.savefig(self.savedir+f"Keffs_comparison_{self.save_name}")
         plt.close("all")
         return
@@ -161,7 +150,7 @@ class Serpent2_post_treatment:
         for i in range(len(test.SERPENT_Keff)):
             print("In compute errors")
             print(test.case_name)
-            tmp_err.append((1/reference.SERPENT_Keff[i]-1/test.SERPENT_Keff[i])*1e5)
+            tmp_err.append((test.SERPENT_Keff[i]-reference.SERPENT_Keff[i])*1e5)
         self.error_keffs_list.append(tmp_err)
         return
 
@@ -172,11 +161,12 @@ class Serpent2_post_treatment:
             print(f"i = {i}")
             print(f"len(self.error_keffs_list) = {len(self.error_keffs_list)}")
             print(f"len(self.test_cases) = {len(self.test_cases)}")
-            ax.plot(self.listBU, self.error_keffs_list[i], label=self.test_cases[i].case_name, marker = "x", linewidth=1, markersize=3, linestyle = "--")
+            ax.plot(self.listBU, self.error_keffs_list[i], label=f'{self.test_cases[i].case_name} : {self.test_cases[i].library_used}-{self.ref_cases[0].library_used}', marker = "x", linewidth=1, markersize=4, linestyle = "--")
         ax.legend(loc="best")
         ax.set_xlabel("BU (MWj/t)")
-        ax.set_ylabel(f"Error on Keff (pcm)")
-        ax.set_title(f"{self.print_name} Keff errors PyNjoy2016 tests.", y=1.05)
+        ax.set_ylabel(f"Difference on Keff (pcm)")
+        ax.grid()
+        ax.set_title(f"{self.print_name} Keff difference PyNjoy2016-oldlib.", y=1.05)
         fig.savefig(self.savedir+f"Keff_error_{self.save_name}")
         plt.close("all")
         return
@@ -185,16 +175,18 @@ class Serpent2_post_treatment:
     def plot_comparisons_isotopeDens(self):
         print('$$$ -------- POSTPROC.py : Serpent2 figures (Iso dens) ')
         for iso in self.ref_cases[0].SERPENT_isotopes_dens.keys():
-            fig,ax = plt.subplots(dpi=250)
+            fig,ax = plt.subplots(dpi=500)
             for ref in self.ref_cases:
-                ax.plot(self.listBU, ref.SERPENT_isotopes_dens[iso], label=ref.case_name, marker = "D", linewidth=1, markersize=2, linestyle = "--")
+                ax.plot(self.listBU, ref.SERPENT_isotopes_dens[iso], label=f'{ref.case_name} : {ref.library_used}', marker = "D", linewidth=1, markersize=5, linestyle = "--")
             for test in self.test_cases:
-                ax.plot(self.listBU, test.SERPENT_isotopes_dens[iso], label=test.case_name, marker = "x", linewidth=1, markersize=2, linestyle = "--")
+                ax.plot(self.listBU, test.SERPENT_isotopes_dens[iso], label=f'{test.case_name} : {test.library_used}', marker = "x", linewidth=1, markersize=5, linestyle = "--")
             ax.legend(loc="best")
             ax.set_xlabel("BU (MWj/t)")
             ax.set_ylabel(f"Isotope density of {iso} (a/b*cm)")
-            ax.set_title(f"{iso} density for PyNjoy2016 tests, in {self.print_name}", y=1.05)
+            ax.set_title(f"{iso} density for PyNjoy2016 tests, {self.print_name}")
+            ax.grid()
             fig.savefig(self.savedir+f"{iso}_comparison_{self.save_name}")
+            plt.tight_layout()
             plt.close("all")
         return
 
@@ -212,40 +204,52 @@ class Serpent2_post_treatment:
     def plot_error_isoDens(self):
         print('$$$ -------- POSTPROC.py : Serpent2 figures (Iso dens error) ')
         for iso in self.ref_cases[0].SERPENT_isotopes_dens.keys():
-            fig,ax = plt.subplots(dpi=250)
+            fig,ax = plt.subplots(figsize=(8, 6))
             print(f"number of errors associated to tests = {len(self.error_iso_dens_for_tests)}")
             print(f"errors array is = {self.error_iso_dens_for_tests}")
             for i in range(len(self.error_iso_dens_for_tests)):
-                ax.plot(self.listBU, self.error_iso_dens_for_tests[i][iso], label=self.test_cases[i].case_name, marker = "x", linewidth=1, markersize=2, linestyle = "--")
+                ax.plot(self.listBU, self.error_iso_dens_for_tests[i][iso], label=f'{self.test_cases[i].case_name} : {self.test_cases[i].library_used} - {self.ref_cases[0].library_used}', marker = "x", linewidth=1, markersize=4, linestyle = "--")
             ax.legend(loc="best")
             ax.set_xlabel("BU (MWj/t)")
-            ax.set_ylabel(f"Error on isotopic density (%)")
-            
-            ax.set_title(f"{self.print_name} errors on isotopic density of {iso}, PyNjoy2016 tests", y=1.05)
+            ax.set_ylabel(f"Relative difference on isotopic density (%)")
+            ax.grid()
+            ax.set_title(f"{self.print_name} rel. diff. on {iso}")
             fig.savefig(self.savedir+f"Error_{iso}_dens_{self.save_name}")
+            plt.tight_layout()
             plt.close("all")
         return
 
+# --- Main script
+# --- Get current working directory
+path=os.getcwd()
 
-#print('$$$ ---------------- SERPENT_BU =',SERPENT_BU)
-#print("$$$ ---------------- SERPENT_Keff = ",SERPENT_Keff)    
-#print("$$$ ---------------- SERPENT_ISOTOPESDENS = ",SERPENT_ISOTOPESDENS)
+# --- Create the directory to save the results 
+a=os.path.exists('Serpent2_PyNjoy2016_tests')
+if a==False:
+    os.mkdir('Serpent2_PyNjoy2016_tests')
 
+SAVE_DIR='Serpent2_PyNjoy2016_tests/'
+
+a=os.path.exists(SAVE_DIR)
+if a==False:
+    os.mkdir(SAVE_DIR)
+form = "png"
 
 
 cell = "HOM_CELL"
-path_to_data = "/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/"
+case = "HOM_U5"
+path_to_data = f"/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/{cell}_study/{case}/"
 
-pynjoy_test_file_name='HOM_UOX_PyNjoy2016_mc' # name of the tests' outputs
-sss_test_file_name='HOM_UOX_oldlib_mc'
+pynjoy_test_file_name=f'{case}_PyNjoy2016_mc' # name of the tests' outputs
+sss_test_file_name=f'{case}_oldlib_mc'
 path_to_tests = path_to_data
 
 
 isotopes_=['U235', 'U238', 'U234', 'Pu239', 'Pu240', 'Gd155','Gd157','Xe135','Sm149']
 
-HOM_UOX_PyNjoy_750 = Serpent2_case(path_to_data, pynjoy_test_file_name, "HOM_UOX", 750, "PyNjoy2016", isotopes_, SAVE_DIR)
-#reference_case_sss_jeff311_900 = Serpent2_case(path_to_data, ref_T900_file_name, "Serpent1 jeff311, @900K", 900, "sss_jeff311u.data", isotopes_, SAVE_DIR)
+HOM_U5_PyNjoy = Serpent2_case(path_to_data, pynjoy_test_file_name, "HOM_U5", 750, "PyNjoy2016", isotopes_, SAVE_DIR)
 
-HOM_UOX_oldlib_750 = Serpent2_case(path_to_tests, sss_test_file_name, "HOM_UOX", 750, "oldlib", isotopes_, SAVE_DIR)
+HOM_U5_oldlib = Serpent2_case(path_to_tests, sss_test_file_name, "HOM_U5", 750, "oldlib", isotopes_, SAVE_DIR)
+HOM_U5_oldlib.setisRef(True)
 
-Serpent2_post_treatment("HOM_UOX 750K", [HOM_UOX_PyNjoy_750, HOM_UOX_oldlib_750], SAVE_DIR)
+Serpent2_post_treatment("HOM_U5 PyNjoy2016-oldlib", [HOM_U5_PyNjoy, HOM_U5_oldlib], SAVE_DIR)
