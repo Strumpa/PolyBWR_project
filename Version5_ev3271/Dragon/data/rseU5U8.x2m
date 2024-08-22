@@ -1,0 +1,53 @@
+* CLE-2000 procedure to perform a homogeneous pincell calculation 
+* Self-shielding calculation with RSE method and USS: module
+
+
+MODULE GEO: LIB: SYBILT: USS: ASM: FLU: EDI: GREP: ;
+
+LINKED_LIST GEOM LIB_RSE LIB2_RSE TRACK CP CALC ;
+
+XSM_FILE XSM ;
+
+REAL Kinf ;
+
+GEOM := GEO: :: HOMOGE 
+        MIX 1
+      ;
+
+TRACK := SYBILT: GEOM ::
+    TITLE 'HOM_U5_U8 test case'
+    MAXR 2
+    ;
+
+
+LIB_RSE := LIB: ::
+    EDIT 5 ANIS 1 NMIX 1
+    RSE
+    MIXS LIB: DRAGON FIL: D295
+
+    MIX 1 750.0
+      ! Problem in LIBRSC.f line 234 when adding U235 with CORR
+      !u235  = U235   3.664503E-04 CORR 1
+      u238  = U238   7.765571E-03 CORR 1
+      pu239 = Pu239  8.7E-4       CORR 1
+      h1    = H1     2.497844E-02
+      o16   = O16    2.955339E-02
+  ;
+
+LIB2_RSE := USS: LIB_RSE TRACK :: EDIT 1 GRMIN 52 PASS 3 ;
+
+CP := ASM: LIB2_RSE TRACK :: EDIT 1 PIJ ;
+
+CALC := FLU: CP LIB2_RSE TRACK :: EDIT 1 TYPE K EXTE 5 ;
+
+GREP: CALC :: GETVAL 'K-INFINITY  ' 1 1 1 >>Kinf<< ;
+
+ECHO 'Kinf RSE = ' Kinf ;
+
+XSM := EDI: CALC LIB2_RSE TRACK ::
+     EDIT 2 SAVE
+     MERG REGI 1
+     SAVE MICR 2 u235 u238 
+    ;
+
+QUIT .
