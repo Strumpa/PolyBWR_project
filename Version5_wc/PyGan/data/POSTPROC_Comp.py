@@ -17,7 +17,7 @@ import matplotlib
 matplotlib.use('Agg')
 from matplotlib import pyplot
 import matplotlib.pyplot as plt
-import serpentTools
+import serpentTools as st
 
 
 # Python3 Srcipt : UTLTools.py
@@ -242,7 +242,7 @@ if a==False:
     os.mkdir(name_DIR)
 print("$$$ ---------------- results stored in directory = ",name_DIR)
 
-DRAGON_results_path = "./BWRresults_PyGan_2x2_UOX/"
+DRAGON_results_path = "./"
 
 
 BU_points = "UOx2_autop5"
@@ -253,8 +253,9 @@ ssh_sol = "CP"
 flx_sol = "MOC"
 CALC_opt = "noCalc"
 #pyCOMPO_path = "/home/p117902/working_dir/PolyBWR_project/Version5_wc/PyGan/Linux_aarch64/BWRresults_PyGan_2x2_UOX/"
-pyCOMPO_name = "_COMPO_2x2_UOX_UOx2_autop5_PT_MOC_noCalc"
+pyCOMPO_name = "_COMPO_2x2_UOX_UOx2_autop5_PT_MOC_CALC4"
 os.chdir(DRAGON_results_path)
-pyCOMPO=lcm.new('LCM_INP',pyCOMPO_name,impx=0)
+print(f"pwd = {os.getcwd()}")
+pyCOMPO=lcm.new('LCM_INP',pyCOMPO_name,impx=1)
 os.chdir(path)
 test_case = BWR_2x2_case(pyCOMPO, ListCOMPO, ListSSH, BU_points, case_name, ssh_method, ssh_sol, flx_sol, CALC_opt)

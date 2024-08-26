@@ -10,7 +10,7 @@
 import lifo
 import cle2000
 
-def UOX_no155157(namCOMPO, StepList, name_compo, ssh_module, ssh_method, GdCompo, sat, depl_sol):
+def UOX_no155157(namCOMPO, StepList, name_compo, ssh_module, ssh_method, sat, depl_sol):
 
   # Lifo
   myLifo=lifo.new()
@@ -19,7 +19,6 @@ def UOX_no155157(namCOMPO, StepList, name_compo, ssh_module, ssh_method, GdCompo
   myLifo.push(name_compo)
   myLifo.push(ssh_module)
   myLifo.push(ssh_method)
-  myLifo.push(GdCompo)
   myLifo.push(sat)
   myLifo.push(depl_sol)
   myLifo.lib()
@@ -31,4 +30,5 @@ def UOX_no155157(namCOMPO, StepList, name_compo, ssh_module, ssh_method, GdCompo
   # Recover
   myLifo.lib()
   pyCOMPO = myLifo.node(namCOMPO)
+  StepList.close()
   return pyCOMPO

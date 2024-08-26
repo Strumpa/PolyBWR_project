@@ -10,7 +10,7 @@
 import os
 import shutil # move files or folders
 import lifo
-from getLists import *
+from PolyBWR_project.PTT.getBULists import *
 import lcm
 import cle2000
 import numpy as np

@@ -10,7 +10,7 @@
 import lifo
 import cle2000
 
-def HOM_UOX(namCOMPO, StepList, name_compo, ssh_module, ssh_method, sat, depl_sol):
+def HOM_UOX(namCOMPO, StepList, name_compo, ssh_module, ssh_method, correlation, sat, depl_sol):
 
   # Lifo
   myLifo=lifo.new()
@@ -19,6 +19,7 @@ def HOM_UOX(namCOMPO, StepList, name_compo, ssh_module, ssh_method, sat, depl_so
   myLifo.push(name_compo)
   myLifo.push(ssh_module)
   myLifo.push(ssh_method)
+  myLifo.push(correlation)
   myLifo.push(sat)
   myLifo.push(depl_sol)
   myLifo.lib()
@@ -30,4 +31,5 @@ def HOM_UOX(namCOMPO, StepList, name_compo, ssh_module, ssh_method, sat, depl_so
   # Recover
   myLifo.lib()
   pyCOMPO = myLifo.node(namCOMPO)
+  StepList.close()
   return pyCOMPO

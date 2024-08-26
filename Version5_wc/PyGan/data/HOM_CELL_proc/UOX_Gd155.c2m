@@ -47,7 +47,7 @@ GEOM := GEO: :: HOMOGE
 ****************************************************************************
 ******************** LIBRARY DEFINTION OF homogeneous Gd pin ***************
 ****************************************************************************
-ECHO GdCompo ssh_method ;
+
 IF ssh_method "RSE" = THEN
 
   LIBRARY := LIB: ::
