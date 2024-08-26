@@ -15,6 +15,6 @@ elif [ $Sysx = "SunOS" ]; then
    MACH=`uname -sm | sed 's/[ ]/_/'`
 fi
 echo $1
-ln -s $1/Linux_aarch64/BWRresults_PyGan_2x2_UOX/ ./
+ln -s $1/Linux_aarch64/BWRresults_PyGan_2x2_UOX_UOx_autop5_postprocess ./
 ls -l
 echo -"----.access----- POSTPROC_Comp access script terminated"

@@ -31,4 +31,5 @@ def HOM_U5_U8(namCOMPO, StepList, name_compo, ssh_module, ssh_method, correlatio
   # Recover
   myLifo.lib()
   pyCOMPO = myLifo.node(namCOMPO)
+  StepList.close()
   return pyCOMPO
