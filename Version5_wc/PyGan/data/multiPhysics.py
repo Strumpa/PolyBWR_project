@@ -15,9 +15,6 @@ hInlet =
 pOutlet = 
 qFlow = 
 
-## Nuclear parameter
-qFiss =
-
 ## Geometric parameters
 canalType = "circular"
 waterRadius = 
@@ -26,18 +23,27 @@ gapRadius =
 cladRadius = 
 height = 
 
-## Material parameters
-kFuel = 
-Hgap = 
-kClad =
-
 ## Meshing parameters:
 If = 8
 I1 = 3
 Iz1 = 10
 
-## Algorithm parameters
-nIter = 100
+## Thermalhydraulics correlation
+voidFractionCorrel = "HEM1"
+frfaccorel = "base"
+P2Pcorel = "base"
+
+############ Nuclear Parameters ###########
+## Fission parameters
+qFiss = 
+
+## Material parameters
+kFuel = 
+Hgap = 
+kClad = 
+
+########## Algorithm parameters ###########
+nIter = 1000
 tol = 1e-4
 underRelaxationFactor = 0.5
 
@@ -57,7 +63,7 @@ def convergence(Field, OldField, tol):
 ## Initial thermal hydraulic resolution
 case1 = Version5_THM_prototype("Testing THM Prototype", canalType, waterRadius, fuelRadius, gapRadius, cladRadius,
                             height, hInlet, pOutlet, qFlow, qFiss, kFuel, Hgap, kClad, Iz1, If, I1, zPlotting, 
-                            solveConduction, dt=0, t_tot=0, voidFractionCorrel)
+                            solveConduction, dt=0, t_tot=0, frfaccorel, P2Pcorel, voidFractionCorrel)
 
 ## MultiPhysics resolution
 for i in range(nIter):
