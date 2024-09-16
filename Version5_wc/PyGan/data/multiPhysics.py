@@ -1,5 +1,5 @@
 # Version: 2021.09.22
-# Author : Clément HUET, Raphaêl Guasch
+# Author : Clément HUET, Raphaël Guasch
 from multiPhysics_proc.THM import Version5_THM_prototype
 from multiPhysics_proc.THM import plotting
 from iapws import IAPWS97
@@ -11,22 +11,25 @@ zPlotting = [0.8]
 
 ########## Thermal hydraulics parameters ##########
 ## Fluid parameters
+# T_inlet, T_outlet = 270, 287 Celcius
+# Nominal coolant flow rate = 1530 kg/s
+# Nominal operating pressure = 7.2 MPa (abs)
 hInlet = 
-pOutlet = 
+pOutlet =  
 qFlow = 
 
 ## Geometric parameters
-canalType = "circular"
-waterRadius = 
-fuelRadius = 
-gapRadius = 
-cladRadius = 
-height = 
+canalType = "square"
+waterRadius = 1.295e-2 # m ATRIUM10 pincell pitch
+fuelRadius = 0.4435e-2 # m : fuel rod radius
+gapRadius = 0.4520e-2 # m : expansion gap radius : "void" between fuel and clad - equivalent to inner clad radius
+cladRadius = 0.5140e-2 # m : clad external radius
+height = 3.8 # m : height : active core height in BWRX-300 SMR
 
 ## Meshing parameters:
 If = 8
 I1 = 3
-Iz1 = 10
+Iz1 = 10 # number of control volumes in the axial direction
 
 ## Thermalhydraulics correlation
 voidFractionCorrel = "HEM1"
@@ -35,13 +38,14 @@ P2Pcorel = "base"
 
 ############ Nuclear Parameters ###########
 ## Fission parameters
+# specific power = 38.6 W/g
 qFiss = 
 
 ## Material parameters
-kFuel = 
-Hgap = 
-kClad = 
-
+kFuel = 4.18 # W/m.K, TECHNICAL REPORTS SERIES No. 59 : Thermal Conductivity of Uranium Dioxide, IAEA, VIENNA, 1966
+Hgap = 10000 
+kClad = 21.5 # W/m.K, Thermal Conductivity of Zircaloy-2 (as used in BWRX-300) according to https://www.matweb.com/search/datasheet.aspx?MatGUID=eb1dad5ce1ad4a1f9e92f86d5b44740d
+# k_Zircaloy-4 = 21.6 W/m.K too so check for ATRIUM-10 clad material but should have the same thermal conductivity
 ########## Algorithm parameters ###########
 nIter = 1000
 tol = 1e-4
