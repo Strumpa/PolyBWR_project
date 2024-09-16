@@ -40,8 +40,6 @@ class DFMclass():
         self.epsilonTarget = 0.18
         self.K_loss = 0
 
-        print(f"D_h: {self.D_h}, D_h_fake: {self.D_h_fake}, DV: {self.DV}, Dz: {self.Dz}")
-
         self.epsInnerIteration = 1e-3
         self.maxInnerIteration = 1000
         self.sousRelaxFactor = 0.12

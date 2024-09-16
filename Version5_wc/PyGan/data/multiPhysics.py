@@ -71,7 +71,9 @@ for i in range(nIter):
     ################## Nuclear part ##################
 
     ############# Thermalhydraulic part ##############
-    case1 = Version5_THM_prototype()
+    case1 = Version5_THM_prototype("Testing THM Prototype", canalType, waterRadius, fuelRadius, gapRadius, cladRadius,
+                            height, hInlet, pOutlet, qFlow, qFiss, kFuel, Hgap, kClad, Iz1, If, I1, zPlotting, 
+                            solveConduction, dt=0, t_tot=0, frfaccorel, P2Pcorel, voidFractionCorrel)    ##### qFiss to be updated
 
     TeffTEMP, TwaterTEMP, rhoTEMP = case1.get_nuclear_parameters()
     TeffFuel.append(TeffTEMP)
