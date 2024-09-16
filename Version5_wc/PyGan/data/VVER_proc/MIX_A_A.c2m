@@ -1,0 +1,2149 @@
+****************************************************************
+*                                                              *
+* Procedure :  MIX_A_A.c2m                                     *
+* Purpose   :  Mixture definition for ALAMOS assemblies        *
+* Author    :  L.Fede                                          *
+*                                                              *
+* CALL      :                                                  *
+* LIBRARY := MIX_A_A :: <<Library>> <<name_geom>>              *
+*                                                              *
+****************************************************************
+
+* -----------------------------------
+*     INPUT & OUTPUT PARAMETERS
+* -----------------------------------
+PARAMETER LIBRARY ::
+::: LINKED_LIST LIBRARY ; ;
+
+STRING Library name_geom ;
+:: >>Library<< >>name_geom<< ;
+
+* ----------------------------------
+*      STRUCTURES AND MODULES
+* ----------------------------------
+MODULE  LIB: END: ;
+
+* ASSEMBLY MIXES
+INTEGER G3_6_MAT    G3_3_MAT    U4_4_MAT    U4_0_MAT    U3_6_MAT  U2_2_MAT
+        clad_f_MAT  clad_g_MAT  clad_i_MAT  struct_MAT  void_MAT  water_MAT ;
+
+* FUEL CLADDING MIX : E110
+REAL N_Zr90       N_Zr91       N_Zr92       N_Zr94        N_Zr96     :=
+     1.989312E-2  4.290439E-3  6.486708E-3  6.4336067E-3  1.014852E-3 ;
+REAL NNb93       N_Hf174     N_Hf176     N_Hf177     N_Hf178     N_Hf179     N_Hf180    :=
+     3.780509E-4 9.692532E-9 3.150112E-7 1.107631E-6 1.615392E-6 8.019970E-7 2.054158E-6 ;
+
+* GUIDE, CONTROL RODS AND INDTRUM TUBE CLADDING MIX : E635
+REAL gN_Zr90     gN_Zr91     gN_Zr92     gN_Zr94     gN_Zr96     :=
+     2.22279E-2  4.79400E-3  7.24805E-3  7.18871E-3  1.13396E-3  ;
+REAL gNNb93     gN_Hf174   gN_Hf176   gN_Hf177   gN_Hf178   gN_Hf179   gN_Hf180    :=
+     4.24567E-4 1.08851E-8 3.53778E-7 1.24392E-6 1.81416E-6 9.00677E-7 2.30690E-6  ;
+REAL gFe_54     gFe_56     gFe_57     gFe_58     :=
+     2.13900E-5 3.23505E-4 7.34371E-6 9.53218E-7 ;
+
+
+* ----------------------------------
+*               MIX
+* ----------------------------------
+
+* ---
+* 13UAX - TEST ASSEMBLY
+* ---
+
+IF name_geom '13UAX' = THEN
+
+LIBRARY := LIB: ::
+ EDIT 0
+ NMIX 24  (*MAXIMUM OF MATERIAL MIXTURES*)
+ CTRA APOL (*APOLLO TYPE TRANSPORT CORRECTION*)
+ ANIS 2
+ ADED 4 NELAS N4N N2N N3N
+ SUBG      (*HELIOS TYPE PROBABILITY TABLES*)
+
+*----
+*  Depletion Chain
+*----
+ DEPL LIB: DRAGON FIL: <<Library>>
+ MIXS LIB: DRAGON FIL: <<Library>>
+*----
+*    Cladding
+*----
+   MIX 1 600.0 NOEV
+      Zr90    = Zr90   <<N_Zr90>> 2
+      Zr91    = Zr91   <<N_Zr91>> 2
+      Zr92    = Zr92   <<N_Zr92>> 2
+      Zr94    = Zr94   <<N_Zr94>> 2
+      Zr96    = Zr96   <<N_Zr96>> 2
+      Nb93    = Nb93   <<NNb93>> 
+      Hf174   = Hf174  <<N_Hf174>>
+      Hf176   = Hf176  <<N_Hf176>>
+      Hf178   = Hf178  <<N_Hf178>>
+      Hf179   = Hf179  <<N_Hf179>>
+      Hf180   = Hf180  <<N_Hf180>>
+*----
+*    Moderator
+*----
+  MIX 2 560.0 NOEV
+      H1      = H1_H2O 5.02988E-2
+      O16     = O16    2.51494E-2
+      B10     = B10    4.97996E-6
+      B11     = B11    2.01713E-5
+*----
+*    Fuel -> 5 * 4 evolving mixes
+*----
+* C1 Cell
+  MIX 3 900.0
+      O16     = O16    4.57747E-2
+      U235    = U235   5.09820E-4 1
+      U238    = U238   2.23776E-2 1
+      Pu239   = Pu239  0.0        1
+      Pu240   = Pu240  0.0        
+      Pu241   = Pu241  0.0        1
+      Pu242   = Pu242  0.0        
+      Gd155   = Gd155  0.0        
+      Gd157   = Gd157  0.0  
+  MIX 4
+    COMB 3 1.0
+  MIX 5
+    COMB 3 1.0
+  MIX 6
+    COMB 3 1.0
+  MIX 7
+    COMB 3 1.0
+  MIX 8
+    COMB 3 1.0
+  MIX 9
+    COMB 3 1.0
+  MIX 10
+    COMB 3 1.0
+  MIX 11
+    COMB 3 1.0
+  MIX 12
+    COMB 3 1.0
+  MIX 13
+    COMB 3 1.0
+  MIX 14
+    COMB 3 1.0
+  MIX 15
+    COMB 3 1.0
+  MIX 16
+    COMB 3 1.0
+  MIX 17
+    COMB 3 1.0
+  MIX 18
+    COMB 3 1.0
+  MIX 19
+    COMB 3 1.0
+  MIX 20
+    COMB 3 1.0
+  MIX 21
+    COMB 3 1.0
+  MIX 22
+    COMB 3 1.0
+*----
+*    Tube
+*----
+  MIX 23 560.0 NOEV
+      Zr90    = Zr90   <<gN_Zr90>> 3
+      Zr91    = Zr91   <<gN_Zr91>> 3
+      Zr92    = Zr92   <<gN_Zr92>> 3
+      Zr94    = Zr94   <<gN_Zr94>> 3
+      Zr96    = Zr96   <<gN_Zr96>> 3
+      Nb93    = Nb93   <<gNNb93>> 
+      Hf174   = Hf174  <<gN_Hf174>>
+      Hf176   = Hf176  <<gN_Hf176>>
+      Hf178   = Hf178  <<gN_Hf178>>
+      Hf179   = Hf179  <<gN_Hf179>>
+      Hf180   = Hf180  <<gN_Hf180>>
+      Fe54    = Fe54   <<gFe_54>>
+      Fe56    = Fe56   <<gFe_56>> 
+      Fe57    = Fe57   <<gFe_57>> 
+      Fe58    = Fe58   <<gFe_58>> 
+*----
+*    Stiffner
+*----
+  MIX 24
+    COMB 23 1.0
+;
+
+
+* ---
+* KHMELNITSKY-2 REACTOR - 13AU ASSEMBLY
+* ---
+
+ELSEIF name_geom 'KML2_13AU_ASS' = THEN
+
+  EVALUATE U2_2_MAT  clad_f_MAT  clad_g_MAT  clad_i_MAT  struct_MAT  void_MAT  water_MAT   :=
+           4         3           29          1           250         8         2           ; 
+
+  LIBRARY := LIB: ::
+    EDIT 0
+    NMIX 250   ! MAXIMUM OF MATERIAL MIXTURES
+    PT
+*    CTRA APOL ! APOLLO TYPE TRANSPORT CORRECTION
+    ANIS 2
+    ADED 4 NELAS N4N N2N N3N
+    CALENDF 3 PT      ! CALENDF TYPE PROBABILITY TABLES
+
+    DEPL LIB: DRAGON FIL: <<Library>>
+
+    MIXS LIB: DRAGON FIL: <<Library>>
+
+    MIX <<U2_2_MAT>> 900.0
+*********************************** 13AU
+      O16     = O16    4.57701E-2
+      U235    = U235   3.01261E-4 1
+      U238    = U238   2.25838E-2 1
+***********************************
+*********************************** 22AU
+*     O16     = O16    4.57747E-2
+*      U235    = U235   5.09820E-4 1
+*      U238    = U238   2.23776E-2 1
+***********************************
+************************************* 40AU
+*      O16     = O16    4.57747E-2
+*      U235    = U235   9.32400E-4 1
+*      U238    = U238   2.23776E-2 1
+**********************************
+      Pu239   = Pu239  0.0        1
+      Pu240   = Pu240  0.0        1
+      Pu241   = Pu241  0.0        1 
+      Pu242   = Pu242  0.0        1 
+*      
+    MIX <<clad_f_MAT>> 600.0 NOEV
+      Zr90    = Zr90   <<N_Zr90>> 2
+      Zr91    = Zr91   <<N_Zr91>> 2
+      Zr92    = Zr92   <<N_Zr92>> 2
+      Zr94    = Zr94   <<N_Zr94>> 2
+      Zr96    = Zr96   <<N_Zr96>> 2
+      Nb93    = Nb93   <<NNb93>> 
+      Hf174   = Hf174  <<N_Hf174>>
+      Hf176   = Hf176  <<N_Hf176>>
+      Hf178   = Hf178  <<N_Hf178>>
+      Hf179   = Hf179  <<N_Hf179>>
+      Hf180   = Hf180  <<N_Hf180>>
+*
+    MIX <<clad_g_MAT>> 560.0 NOEV
+      Zr90    = Zr90   <<gN_Zr90>> 3
+      Zr91    = Zr91   <<gN_Zr91>> 3
+      Zr92    = Zr92   <<gN_Zr92>> 3
+      Zr94    = Zr94   <<gN_Zr94>> 3
+      Zr96    = Zr96   <<gN_Zr96>> 3
+      Nb93    = Nb93   <<gNNb93>> 
+      Hf174   = Hf174  <<gN_Hf174>>
+      Hf176   = Hf176  <<gN_Hf176>>
+      Hf178   = Hf178  <<gN_Hf178>>
+      Hf179   = Hf179  <<gN_Hf179>>
+      Hf180   = Hf180  <<gN_Hf180>>
+      Fe54    = Fe54   <<gFe_54>>
+      Fe56    = Fe56   <<gFe_56>>
+      Fe57    = Fe57   <<gFe_57>>
+      Fe58    = Fe58   <<gFe_58>>
+*
+    MIX <<clad_i_MAT>> COMB <<clad_g_MAT>> 1.0
+    MIX <<struct_MAT>> COMB <<clad_g_MAT>> 1.0
+*
+    MIX <<water_MAT>> 560.0 NOEV
+******************************************** 600 ppm
+      H1      = H1_H2O 5.02988E-2
+      O16     = O16    2.51494E-2
+      B10     = B10    4.97996E-6
+      B11     = B11    2.01713E-5
+*********************************
+********************************************* 800 ppm
+*      H1      = H1_H2O 5.08204E-2
+*      O16     = O16    2.54871E-2
+*      B10     = B10    1.02048E-5
+*      B11     = B11    4.10756E-5
+**********************************
+*
+    MIX <<void_MAT>> 560.0 NOEV
+      He4     = He4   1.00E-019
+
+MIX 5 COMB <<U2_2_MAT>> 1.0
+MIX 6 COMB <<U2_2_MAT>> 1.0
+MIX 7 COMB <<U2_2_MAT>> 1.0
+
+MIX 9 COMB <<U2_2_MAT>> 1.0
+MIX 10 COMB <<U2_2_MAT>> 1.0
+MIX 11 COMB <<U2_2_MAT>> 1.0
+MIX 12 COMB <<U2_2_MAT>> 1.0
+MIX 13 COMB <<U2_2_MAT>> 1.0
+MIX 14 COMB <<U2_2_MAT>> 1.0
+MIX 15 COMB <<U2_2_MAT>> 1.0
+MIX 16 COMB <<U2_2_MAT>> 1.0
+MIX 17 COMB <<U2_2_MAT>> 1.0
+MIX 18 COMB <<U2_2_MAT>> 1.0
+MIX 19 COMB <<U2_2_MAT>> 1.0
+MIX 20 COMB <<U2_2_MAT>> 1.0
+MIX 21 COMB <<U2_2_MAT>> 1.0
+MIX 22 COMB <<U2_2_MAT>> 1.0
+MIX 23 COMB <<U2_2_MAT>> 1.0
+MIX 24 COMB <<U2_2_MAT>> 1.0
+MIX 25 COMB <<U2_2_MAT>> 1.0
+MIX 26 COMB <<U2_2_MAT>> 1.0
+MIX 27 COMB <<U2_2_MAT>> 1.0
+MIX 28 COMB <<U2_2_MAT>> 1.0
+
+MIX 30 COMB <<U2_2_MAT>> 1.0
+MIX 31 COMB <<U2_2_MAT>> 1.0
+MIX 32 COMB <<U2_2_MAT>> 1.0
+MIX 33 COMB <<U2_2_MAT>> 1.0
+MIX 34 COMB <<U2_2_MAT>> 1.0
+MIX 35 COMB <<U2_2_MAT>> 1.0
+MIX 36 COMB <<U2_2_MAT>> 1.0
+MIX 37 COMB <<U2_2_MAT>> 1.0
+MIX 38 COMB <<U2_2_MAT>> 1.0
+MIX 39 COMB <<U2_2_MAT>> 1.0
+MIX 40 COMB <<U2_2_MAT>> 1.0
+MIX 41 COMB <<U2_2_MAT>> 1.0
+MIX 42 COMB <<U2_2_MAT>> 1.0
+MIX 43 COMB <<U2_2_MAT>> 1.0
+MIX 44 COMB <<U2_2_MAT>> 1.0
+MIX 45 COMB <<U2_2_MAT>> 1.0
+MIX 46 COMB <<U2_2_MAT>> 1.0
+MIX 47 COMB <<U2_2_MAT>> 1.0
+MIX 48 COMB <<U2_2_MAT>> 1.0
+MIX 49 COMB <<U2_2_MAT>> 1.0
+MIX 50 COMB <<U2_2_MAT>> 1.0
+MIX 51 COMB <<U2_2_MAT>> 1.0
+MIX 52 COMB <<U2_2_MAT>> 1.0
+MIX 53 COMB <<U2_2_MAT>> 1.0
+MIX 54 COMB <<U2_2_MAT>> 1.0
+MIX 55 COMB <<U2_2_MAT>> 1.0
+MIX 56 COMB <<U2_2_MAT>> 1.0
+MIX 57 COMB <<U2_2_MAT>> 1.0
+MIX 58 COMB <<U2_2_MAT>> 1.0
+MIX 59 COMB <<U2_2_MAT>> 1.0
+MIX 60 COMB <<U2_2_MAT>> 1.0
+MIX 61 COMB <<U2_2_MAT>> 1.0
+MIX 62 COMB <<U2_2_MAT>> 1.0
+MIX 63 COMB <<U2_2_MAT>> 1.0
+MIX 64 COMB <<U2_2_MAT>> 1.0
+MIX 65 COMB <<U2_2_MAT>> 1.0
+MIX 66 COMB <<U2_2_MAT>> 1.0
+MIX 67 COMB <<U2_2_MAT>> 1.0
+MIX 68 COMB <<U2_2_MAT>> 1.0
+MIX 69 COMB <<U2_2_MAT>> 1.0
+MIX 70 COMB <<U2_2_MAT>> 1.0
+MIX 71 COMB <<U2_2_MAT>> 1.0
+MIX 72 COMB <<U2_2_MAT>> 1.0
+MIX 73 COMB <<U2_2_MAT>> 1.0
+MIX 74 COMB <<U2_2_MAT>> 1.0
+MIX 75 COMB <<U2_2_MAT>> 1.0
+MIX 76 COMB <<U2_2_MAT>> 1.0
+MIX 77 COMB <<U2_2_MAT>> 1.0
+MIX 78 COMB <<U2_2_MAT>> 1.0
+MIX 79 COMB <<U2_2_MAT>> 1.0
+MIX 80 COMB <<U2_2_MAT>> 1.0
+MIX 81 COMB <<U2_2_MAT>> 1.0
+MIX 82 COMB <<U2_2_MAT>> 1.0
+MIX 83 COMB <<U2_2_MAT>> 1.0
+MIX 84 COMB <<U2_2_MAT>> 1.0
+MIX 85 COMB <<U2_2_MAT>> 1.0
+MIX 86 COMB <<U2_2_MAT>> 1.0
+MIX 87 COMB <<U2_2_MAT>> 1.0
+MIX 88 COMB <<U2_2_MAT>> 1.0
+MIX 89 COMB <<U2_2_MAT>> 1.0
+MIX 90 COMB <<U2_2_MAT>> 1.0
+MIX 91 COMB <<U2_2_MAT>> 1.0
+MIX 92 COMB <<U2_2_MAT>> 1.0
+MIX 93 COMB <<U2_2_MAT>> 1.0
+MIX 94 COMB <<U2_2_MAT>> 1.0
+MIX 95 COMB <<U2_2_MAT>> 1.0
+MIX 96 COMB <<U2_2_MAT>> 1.0
+MIX 97 COMB <<U2_2_MAT>> 1.0
+MIX 98 COMB <<U2_2_MAT>> 1.0
+MIX 99 COMB <<U2_2_MAT>> 1.0
+MIX 100 COMB <<U2_2_MAT>> 1.0
+MIX 101 COMB <<U2_2_MAT>> 1.0
+MIX 102 COMB <<U2_2_MAT>> 1.0
+MIX 103 COMB <<U2_2_MAT>> 1.0
+MIX 104 COMB <<U2_2_MAT>> 1.0
+MIX 105 COMB <<U2_2_MAT>> 1.0
+MIX 106 COMB <<U2_2_MAT>> 1.0
+MIX 107 COMB <<U2_2_MAT>> 1.0
+MIX 108 COMB <<U2_2_MAT>> 1.0
+MIX 109 COMB <<U2_2_MAT>> 1.0
+MIX 110 COMB <<U2_2_MAT>> 1.0
+MIX 111 COMB <<U2_2_MAT>> 1.0
+MIX 112 COMB <<U2_2_MAT>> 1.0
+MIX 113 COMB <<U2_2_MAT>> 1.0
+MIX 114 COMB <<U2_2_MAT>> 1.0
+MIX 115 COMB <<U2_2_MAT>> 1.0
+MIX 116 COMB <<U2_2_MAT>> 1.0
+MIX 117 COMB <<U2_2_MAT>> 1.0
+MIX 118 COMB <<U2_2_MAT>> 1.0
+MIX 119 COMB <<U2_2_MAT>> 1.0
+MIX 120 COMB <<U2_2_MAT>> 1.0
+MIX 121 COMB <<U2_2_MAT>> 1.0
+MIX 122 COMB <<U2_2_MAT>> 1.0
+MIX 123 COMB <<U2_2_MAT>> 1.0
+MIX 124 COMB <<U2_2_MAT>> 1.0
+MIX 125 COMB <<U2_2_MAT>> 1.0
+MIX 126 COMB <<U2_2_MAT>> 1.0
+MIX 127 COMB <<U2_2_MAT>> 1.0
+MIX 128 COMB <<U2_2_MAT>> 1.0
+MIX 129 COMB <<U2_2_MAT>> 1.0
+MIX 130 COMB <<U2_2_MAT>> 1.0
+MIX 131 COMB <<U2_2_MAT>> 1.0
+MIX 132 COMB <<U2_2_MAT>> 1.0
+MIX 133 COMB <<U2_2_MAT>> 1.0
+MIX 134 COMB <<U2_2_MAT>> 1.0
+MIX 135 COMB <<U2_2_MAT>> 1.0
+MIX 136 COMB <<U2_2_MAT>> 1.0
+MIX 137 COMB <<U2_2_MAT>> 1.0
+MIX 138 COMB <<U2_2_MAT>> 1.0
+MIX 139 COMB <<U2_2_MAT>> 1.0
+MIX 140 COMB <<U2_2_MAT>> 1.0
+MIX 141 COMB <<U2_2_MAT>> 1.0
+MIX 142 COMB <<U2_2_MAT>> 1.0
+MIX 143 COMB <<U2_2_MAT>> 1.0
+MIX 144 COMB <<U2_2_MAT>> 1.0
+MIX 145 COMB <<U2_2_MAT>> 1.0
+MIX 146 COMB <<U2_2_MAT>> 1.0
+MIX 147 COMB <<U2_2_MAT>> 1.0
+MIX 148 COMB <<U2_2_MAT>> 1.0
+MIX 149 COMB <<U2_2_MAT>> 1.0
+MIX 150 COMB <<U2_2_MAT>> 1.0
+MIX 151 COMB <<U2_2_MAT>> 1.0
+MIX 152 COMB <<U2_2_MAT>> 1.0
+MIX 153 COMB <<U2_2_MAT>> 1.0
+MIX 154 COMB <<U2_2_MAT>> 1.0
+MIX 155 COMB <<U2_2_MAT>> 1.0
+MIX 156 COMB <<U2_2_MAT>> 1.0
+MIX 157 COMB <<U2_2_MAT>> 1.0
+MIX 158 COMB <<U2_2_MAT>> 1.0
+MIX 159 COMB <<U2_2_MAT>> 1.0
+MIX 160 COMB <<U2_2_MAT>> 1.0
+MIX 161 COMB <<U2_2_MAT>> 1.0
+MIX 162 COMB <<U2_2_MAT>> 1.0
+MIX 163 COMB <<U2_2_MAT>> 1.0
+MIX 164 COMB <<U2_2_MAT>> 1.0
+MIX 165 COMB <<U2_2_MAT>> 1.0
+MIX 166 COMB <<U2_2_MAT>> 1.0
+MIX 167 COMB <<U2_2_MAT>> 1.0
+MIX 168 COMB <<U2_2_MAT>> 1.0
+MIX 169 COMB <<U2_2_MAT>> 1.0
+MIX 170 COMB <<U2_2_MAT>> 1.0
+MIX 171 COMB <<U2_2_MAT>> 1.0
+MIX 172 COMB <<U2_2_MAT>> 1.0
+MIX 173 COMB <<U2_2_MAT>> 1.0
+MIX 174 COMB <<U2_2_MAT>> 1.0
+MIX 175 COMB <<U2_2_MAT>> 1.0
+MIX 176 COMB <<U2_2_MAT>> 1.0
+MIX 177 COMB <<U2_2_MAT>> 1.0
+MIX 178 COMB <<U2_2_MAT>> 1.0
+MIX 179 COMB <<U2_2_MAT>> 1.0
+MIX 180 COMB <<U2_2_MAT>> 1.0
+MIX 181 COMB <<U2_2_MAT>> 1.0
+MIX 182 COMB <<U2_2_MAT>> 1.0
+MIX 183 COMB <<U2_2_MAT>> 1.0
+MIX 184 COMB <<U2_2_MAT>> 1.0
+MIX 185 COMB <<U2_2_MAT>> 1.0
+MIX 186 COMB <<U2_2_MAT>> 1.0
+MIX 187 COMB <<U2_2_MAT>> 1.0
+MIX 188 COMB <<U2_2_MAT>> 1.0
+MIX 189 COMB <<U2_2_MAT>> 1.0
+MIX 190 COMB <<U2_2_MAT>> 1.0
+MIX 191 COMB <<U2_2_MAT>> 1.0
+MIX 192 COMB <<U2_2_MAT>> 1.0
+MIX 193 COMB <<U2_2_MAT>> 1.0
+MIX 194 COMB <<U2_2_MAT>> 1.0
+MIX 195 COMB <<U2_2_MAT>> 1.0
+MIX 196 COMB <<U2_2_MAT>> 1.0
+MIX 197 COMB <<U2_2_MAT>> 1.0
+MIX 198 COMB <<U2_2_MAT>> 1.0
+MIX 199 COMB <<U2_2_MAT>> 1.0
+MIX 200 COMB <<U2_2_MAT>> 1.0
+MIX 201 COMB <<U2_2_MAT>> 1.0
+MIX 202 COMB <<U2_2_MAT>> 1.0
+MIX 203 COMB <<U2_2_MAT>> 1.0
+MIX 204 COMB <<U2_2_MAT>> 1.0
+MIX 205 COMB <<U2_2_MAT>> 1.0
+MIX 206 COMB <<U2_2_MAT>> 1.0
+MIX 207 COMB <<U2_2_MAT>> 1.0
+MIX 208 COMB <<U2_2_MAT>> 1.0
+MIX 209 COMB <<U2_2_MAT>> 1.0
+MIX 210 COMB <<U2_2_MAT>> 1.0
+MIX 211 COMB <<U2_2_MAT>> 1.0
+MIX 212 COMB <<U2_2_MAT>> 1.0
+MIX 213 COMB <<U2_2_MAT>> 1.0
+MIX 214 COMB <<U2_2_MAT>> 1.0
+MIX 215 COMB <<U2_2_MAT>> 1.0
+MIX 216 COMB <<U2_2_MAT>> 1.0
+MIX 217 COMB <<U2_2_MAT>> 1.0
+MIX 218 COMB <<U2_2_MAT>> 1.0
+MIX 219 COMB <<U2_2_MAT>> 1.0
+MIX 220 COMB <<U2_2_MAT>> 1.0
+MIX 221 COMB <<U2_2_MAT>> 1.0
+MIX 222 COMB <<U2_2_MAT>> 1.0
+MIX 223 COMB <<U2_2_MAT>> 1.0
+MIX 224 COMB <<U2_2_MAT>> 1.0
+MIX 225 COMB <<U2_2_MAT>> 1.0
+MIX 226 COMB <<U2_2_MAT>> 1.0
+MIX 227 COMB <<U2_2_MAT>> 1.0
+MIX 228 COMB <<U2_2_MAT>> 1.0
+MIX 229 COMB <<U2_2_MAT>> 1.0
+MIX 230 COMB <<U2_2_MAT>> 1.0
+MIX 231 COMB <<U2_2_MAT>> 1.0
+MIX 232 COMB <<U2_2_MAT>> 1.0
+MIX 233 COMB <<U2_2_MAT>> 1.0
+MIX 234 COMB <<U2_2_MAT>> 1.0
+MIX 235 COMB <<U2_2_MAT>> 1.0
+MIX 236 COMB <<U2_2_MAT>> 1.0
+MIX 237 COMB <<U2_2_MAT>> 1.0
+MIX 238 COMB <<U2_2_MAT>> 1.0
+MIX 239 COMB <<U2_2_MAT>> 1.0
+MIX 240 COMB <<U2_2_MAT>> 1.0
+MIX 241 COMB <<U2_2_MAT>> 1.0
+MIX 242 COMB <<U2_2_MAT>> 1.0
+MIX 243 COMB <<U2_2_MAT>> 1.0
+MIX 244 COMB <<U2_2_MAT>> 1.0
+MIX 245 COMB <<U2_2_MAT>> 1.0
+MIX 246 COMB <<U2_2_MAT>> 1.0
+MIX 247 COMB <<U2_2_MAT>> 1.0
+MIX 248 COMB <<U2_2_MAT>> 1.0
+MIX 249 COMB <<U2_2_MAT>> 1.0
+;
+
+
+* ---
+* KHMELNITSKY-2 REACTOR - 22AU ASSEMBLY
+* ---
+
+ELSEIF name_geom 'KML2_22AU_ASS' = THEN
+
+  EVALUATE U2_2_MAT  clad_f_MAT  clad_g_MAT  clad_i_MAT  struct_MAT  void_MAT  water_MAT   :=
+           4         3           29          1           250         8         2           ; 
+
+  LIBRARY := LIB: ::
+    EDIT 0
+    NMIX 250   ! MAXIMUM OF MATERIAL MIXTURES
+    PT
+*    CTRA APOL ! APOLLO TYPE TRANSPORT CORRECTION
+    ANIS 2
+    ADED 4 NELAS N4N N2N N3N
+    CALENDF 3 PT      ! CALENDF TYPE PROBABILITY TABLES
+
+    DEPL LIB: DRAGON FIL: <<Library>>
+
+    MIXS LIB: DRAGON FIL: <<Library>>
+
+    MIX <<U2_2_MAT>> 900.0
+*********************************** 13AU
+*      O16     = O16    4.57701E-2
+*      U235    = U235   3.01261E-4 1
+*      U238    = U238   2.25838E-2 1
+***********************************
+*********************************** 22AU
+      O16     = O16    4.57747E-2
+      U235    = U235   5.09820E-4 1
+      U238    = U238   2.23776E-2 1
+***********************************
+************************************* 40AU
+*      O16     = O16    4.57747E-2
+*      U235    = U235   9.32400E-4 1
+*      U238    = U238   2.23776E-2 1
+**********************************
+      Pu239   = Pu239  0.0        1
+      Pu240   = Pu240  0.0        1
+      Pu241   = Pu241  0.0        1 
+      Pu242   = Pu242  0.0        1 
+*     
+    MIX <<clad_f_MAT>> 600.0 NOEV
+      Zr90    = Zr90   <<N_Zr90>> 2
+      Zr91    = Zr91   <<N_Zr91>> 2
+      Zr92    = Zr92   <<N_Zr92>> 2
+      Zr94    = Zr94   <<N_Zr94>> 2
+      Zr96    = Zr96   <<N_Zr96>> 2
+      Nb93    = Nb93   <<NNb93>> 
+      Hf174   = Hf174  <<N_Hf174>>
+      Hf176   = Hf176  <<N_Hf176>>
+      Hf178   = Hf178  <<N_Hf178>>
+      Hf179   = Hf179  <<N_Hf179>>
+      Hf180   = Hf180  <<N_Hf180>>
+*
+    MIX <<clad_g_MAT>> 560.0 NOEV
+      Zr90    = Zr90   <<gN_Zr90>> 3
+      Zr91    = Zr91   <<gN_Zr91>> 3
+      Zr92    = Zr92   <<gN_Zr92>> 3
+      Zr94    = Zr94   <<gN_Zr94>> 3
+      Zr96    = Zr96   <<gN_Zr96>> 3
+      Nb93    = Nb93   <<gNNb93>> 
+      Hf174   = Hf174  <<gN_Hf174>>
+      Hf176   = Hf176  <<gN_Hf176>>
+      Hf178   = Hf178  <<gN_Hf178>>
+      Hf179   = Hf179  <<gN_Hf179>>
+      Hf180   = Hf180  <<gN_Hf180>>
+      Fe54    = Fe54   <<gFe_54>>
+      Fe56    = Fe56   <<gFe_56>>
+      Fe57    = Fe57   <<gFe_57>>
+      Fe58    = Fe58   <<gFe_58>>
+*
+    MIX <<clad_i_MAT>> COMB <<clad_g_MAT>> 1.0
+    MIX <<struct_MAT>> COMB <<clad_g_MAT>> 1.0
+*
+    MIX <<water_MAT>> 560.0 NOEV
+******************************************** 600 ppm
+      H1      = H1_H2O 5.02988E-2
+      O16     = O16    2.51494E-2
+      B10     = B10    4.97996E-6
+      B11     = B11    2.01713E-5
+*********************************
+********************************************* 800 ppm
+*      H1      = H1_H2O 5.08204E-2
+*      O16     = O16    2.54871E-2
+*      B10     = B10    1.02048E-5
+*      B11     = B11    4.10756E-5
+**********************************
+*
+    MIX <<void_MAT>> 560.0 NOEV
+      He4     = He4   1.00E-019
+
+MIX 5 COMB <<U2_2_MAT>> 1.0
+MIX 6 COMB <<U2_2_MAT>> 1.0
+MIX 7 COMB <<U2_2_MAT>> 1.0
+
+MIX 9 COMB <<U2_2_MAT>> 1.0
+MIX 10 COMB <<U2_2_MAT>> 1.0
+MIX 11 COMB <<U2_2_MAT>> 1.0
+MIX 12 COMB <<U2_2_MAT>> 1.0
+MIX 13 COMB <<U2_2_MAT>> 1.0
+MIX 14 COMB <<U2_2_MAT>> 1.0
+MIX 15 COMB <<U2_2_MAT>> 1.0
+MIX 16 COMB <<U2_2_MAT>> 1.0
+MIX 17 COMB <<U2_2_MAT>> 1.0
+MIX 18 COMB <<U2_2_MAT>> 1.0
+MIX 19 COMB <<U2_2_MAT>> 1.0
+MIX 20 COMB <<U2_2_MAT>> 1.0
+MIX 21 COMB <<U2_2_MAT>> 1.0
+MIX 22 COMB <<U2_2_MAT>> 1.0
+MIX 23 COMB <<U2_2_MAT>> 1.0
+MIX 24 COMB <<U2_2_MAT>> 1.0
+MIX 25 COMB <<U2_2_MAT>> 1.0
+MIX 26 COMB <<U2_2_MAT>> 1.0
+MIX 27 COMB <<U2_2_MAT>> 1.0
+MIX 28 COMB <<U2_2_MAT>> 1.0
+
+MIX 30 COMB <<U2_2_MAT>> 1.0
+MIX 31 COMB <<U2_2_MAT>> 1.0
+MIX 32 COMB <<U2_2_MAT>> 1.0
+MIX 33 COMB <<U2_2_MAT>> 1.0
+MIX 34 COMB <<U2_2_MAT>> 1.0
+MIX 35 COMB <<U2_2_MAT>> 1.0
+MIX 36 COMB <<U2_2_MAT>> 1.0
+MIX 37 COMB <<U2_2_MAT>> 1.0
+MIX 38 COMB <<U2_2_MAT>> 1.0
+MIX 39 COMB <<U2_2_MAT>> 1.0
+MIX 40 COMB <<U2_2_MAT>> 1.0
+MIX 41 COMB <<U2_2_MAT>> 1.0
+MIX 42 COMB <<U2_2_MAT>> 1.0
+MIX 43 COMB <<U2_2_MAT>> 1.0
+MIX 44 COMB <<U2_2_MAT>> 1.0
+MIX 45 COMB <<U2_2_MAT>> 1.0
+MIX 46 COMB <<U2_2_MAT>> 1.0
+MIX 47 COMB <<U2_2_MAT>> 1.0
+MIX 48 COMB <<U2_2_MAT>> 1.0
+MIX 49 COMB <<U2_2_MAT>> 1.0
+MIX 50 COMB <<U2_2_MAT>> 1.0
+MIX 51 COMB <<U2_2_MAT>> 1.0
+MIX 52 COMB <<U2_2_MAT>> 1.0
+MIX 53 COMB <<U2_2_MAT>> 1.0
+MIX 54 COMB <<U2_2_MAT>> 1.0
+MIX 55 COMB <<U2_2_MAT>> 1.0
+MIX 56 COMB <<U2_2_MAT>> 1.0
+MIX 57 COMB <<U2_2_MAT>> 1.0
+MIX 58 COMB <<U2_2_MAT>> 1.0
+MIX 59 COMB <<U2_2_MAT>> 1.0
+MIX 60 COMB <<U2_2_MAT>> 1.0
+MIX 61 COMB <<U2_2_MAT>> 1.0
+MIX 62 COMB <<U2_2_MAT>> 1.0
+MIX 63 COMB <<U2_2_MAT>> 1.0
+MIX 64 COMB <<U2_2_MAT>> 1.0
+MIX 65 COMB <<U2_2_MAT>> 1.0
+MIX 66 COMB <<U2_2_MAT>> 1.0
+MIX 67 COMB <<U2_2_MAT>> 1.0
+MIX 68 COMB <<U2_2_MAT>> 1.0
+MIX 69 COMB <<U2_2_MAT>> 1.0
+MIX 70 COMB <<U2_2_MAT>> 1.0
+MIX 71 COMB <<U2_2_MAT>> 1.0
+MIX 72 COMB <<U2_2_MAT>> 1.0
+MIX 73 COMB <<U2_2_MAT>> 1.0
+MIX 74 COMB <<U2_2_MAT>> 1.0
+MIX 75 COMB <<U2_2_MAT>> 1.0
+MIX 76 COMB <<U2_2_MAT>> 1.0
+MIX 77 COMB <<U2_2_MAT>> 1.0
+MIX 78 COMB <<U2_2_MAT>> 1.0
+MIX 79 COMB <<U2_2_MAT>> 1.0
+MIX 80 COMB <<U2_2_MAT>> 1.0
+MIX 81 COMB <<U2_2_MAT>> 1.0
+MIX 82 COMB <<U2_2_MAT>> 1.0
+MIX 83 COMB <<U2_2_MAT>> 1.0
+MIX 84 COMB <<U2_2_MAT>> 1.0
+MIX 85 COMB <<U2_2_MAT>> 1.0
+MIX 86 COMB <<U2_2_MAT>> 1.0
+MIX 87 COMB <<U2_2_MAT>> 1.0
+MIX 88 COMB <<U2_2_MAT>> 1.0
+MIX 89 COMB <<U2_2_MAT>> 1.0
+MIX 90 COMB <<U2_2_MAT>> 1.0
+MIX 91 COMB <<U2_2_MAT>> 1.0
+MIX 92 COMB <<U2_2_MAT>> 1.0
+MIX 93 COMB <<U2_2_MAT>> 1.0
+MIX 94 COMB <<U2_2_MAT>> 1.0
+MIX 95 COMB <<U2_2_MAT>> 1.0
+MIX 96 COMB <<U2_2_MAT>> 1.0
+MIX 97 COMB <<U2_2_MAT>> 1.0
+MIX 98 COMB <<U2_2_MAT>> 1.0
+MIX 99 COMB <<U2_2_MAT>> 1.0
+MIX 100 COMB <<U2_2_MAT>> 1.0
+MIX 101 COMB <<U2_2_MAT>> 1.0
+MIX 102 COMB <<U2_2_MAT>> 1.0
+MIX 103 COMB <<U2_2_MAT>> 1.0
+MIX 104 COMB <<U2_2_MAT>> 1.0
+MIX 105 COMB <<U2_2_MAT>> 1.0
+MIX 106 COMB <<U2_2_MAT>> 1.0
+MIX 107 COMB <<U2_2_MAT>> 1.0
+MIX 108 COMB <<U2_2_MAT>> 1.0
+MIX 109 COMB <<U2_2_MAT>> 1.0
+MIX 110 COMB <<U2_2_MAT>> 1.0
+MIX 111 COMB <<U2_2_MAT>> 1.0
+MIX 112 COMB <<U2_2_MAT>> 1.0
+MIX 113 COMB <<U2_2_MAT>> 1.0
+MIX 114 COMB <<U2_2_MAT>> 1.0
+MIX 115 COMB <<U2_2_MAT>> 1.0
+MIX 116 COMB <<U2_2_MAT>> 1.0
+MIX 117 COMB <<U2_2_MAT>> 1.0
+MIX 118 COMB <<U2_2_MAT>> 1.0
+MIX 119 COMB <<U2_2_MAT>> 1.0
+MIX 120 COMB <<U2_2_MAT>> 1.0
+MIX 121 COMB <<U2_2_MAT>> 1.0
+MIX 122 COMB <<U2_2_MAT>> 1.0
+MIX 123 COMB <<U2_2_MAT>> 1.0
+MIX 124 COMB <<U2_2_MAT>> 1.0
+MIX 125 COMB <<U2_2_MAT>> 1.0
+MIX 126 COMB <<U2_2_MAT>> 1.0
+MIX 127 COMB <<U2_2_MAT>> 1.0
+MIX 128 COMB <<U2_2_MAT>> 1.0
+MIX 129 COMB <<U2_2_MAT>> 1.0
+MIX 130 COMB <<U2_2_MAT>> 1.0
+MIX 131 COMB <<U2_2_MAT>> 1.0
+MIX 132 COMB <<U2_2_MAT>> 1.0
+MIX 133 COMB <<U2_2_MAT>> 1.0
+MIX 134 COMB <<U2_2_MAT>> 1.0
+MIX 135 COMB <<U2_2_MAT>> 1.0
+MIX 136 COMB <<U2_2_MAT>> 1.0
+MIX 137 COMB <<U2_2_MAT>> 1.0
+MIX 138 COMB <<U2_2_MAT>> 1.0
+MIX 139 COMB <<U2_2_MAT>> 1.0
+MIX 140 COMB <<U2_2_MAT>> 1.0
+MIX 141 COMB <<U2_2_MAT>> 1.0
+MIX 142 COMB <<U2_2_MAT>> 1.0
+MIX 143 COMB <<U2_2_MAT>> 1.0
+MIX 144 COMB <<U2_2_MAT>> 1.0
+MIX 145 COMB <<U2_2_MAT>> 1.0
+MIX 146 COMB <<U2_2_MAT>> 1.0
+MIX 147 COMB <<U2_2_MAT>> 1.0
+MIX 148 COMB <<U2_2_MAT>> 1.0
+MIX 149 COMB <<U2_2_MAT>> 1.0
+MIX 150 COMB <<U2_2_MAT>> 1.0
+MIX 151 COMB <<U2_2_MAT>> 1.0
+MIX 152 COMB <<U2_2_MAT>> 1.0
+MIX 153 COMB <<U2_2_MAT>> 1.0
+MIX 154 COMB <<U2_2_MAT>> 1.0
+MIX 155 COMB <<U2_2_MAT>> 1.0
+MIX 156 COMB <<U2_2_MAT>> 1.0
+MIX 157 COMB <<U2_2_MAT>> 1.0
+MIX 158 COMB <<U2_2_MAT>> 1.0
+MIX 159 COMB <<U2_2_MAT>> 1.0
+MIX 160 COMB <<U2_2_MAT>> 1.0
+MIX 161 COMB <<U2_2_MAT>> 1.0
+MIX 162 COMB <<U2_2_MAT>> 1.0
+MIX 163 COMB <<U2_2_MAT>> 1.0
+MIX 164 COMB <<U2_2_MAT>> 1.0
+MIX 165 COMB <<U2_2_MAT>> 1.0
+MIX 166 COMB <<U2_2_MAT>> 1.0
+MIX 167 COMB <<U2_2_MAT>> 1.0
+MIX 168 COMB <<U2_2_MAT>> 1.0
+MIX 169 COMB <<U2_2_MAT>> 1.0
+MIX 170 COMB <<U2_2_MAT>> 1.0
+MIX 171 COMB <<U2_2_MAT>> 1.0
+MIX 172 COMB <<U2_2_MAT>> 1.0
+MIX 173 COMB <<U2_2_MAT>> 1.0
+MIX 174 COMB <<U2_2_MAT>> 1.0
+MIX 175 COMB <<U2_2_MAT>> 1.0
+MIX 176 COMB <<U2_2_MAT>> 1.0
+MIX 177 COMB <<U2_2_MAT>> 1.0
+MIX 178 COMB <<U2_2_MAT>> 1.0
+MIX 179 COMB <<U2_2_MAT>> 1.0
+MIX 180 COMB <<U2_2_MAT>> 1.0
+MIX 181 COMB <<U2_2_MAT>> 1.0
+MIX 182 COMB <<U2_2_MAT>> 1.0
+MIX 183 COMB <<U2_2_MAT>> 1.0
+MIX 184 COMB <<U2_2_MAT>> 1.0
+MIX 185 COMB <<U2_2_MAT>> 1.0
+MIX 186 COMB <<U2_2_MAT>> 1.0
+MIX 187 COMB <<U2_2_MAT>> 1.0
+MIX 188 COMB <<U2_2_MAT>> 1.0
+MIX 189 COMB <<U2_2_MAT>> 1.0
+MIX 190 COMB <<U2_2_MAT>> 1.0
+MIX 191 COMB <<U2_2_MAT>> 1.0
+MIX 192 COMB <<U2_2_MAT>> 1.0
+MIX 193 COMB <<U2_2_MAT>> 1.0
+MIX 194 COMB <<U2_2_MAT>> 1.0
+MIX 195 COMB <<U2_2_MAT>> 1.0
+MIX 196 COMB <<U2_2_MAT>> 1.0
+MIX 197 COMB <<U2_2_MAT>> 1.0
+MIX 198 COMB <<U2_2_MAT>> 1.0
+MIX 199 COMB <<U2_2_MAT>> 1.0
+MIX 200 COMB <<U2_2_MAT>> 1.0
+MIX 201 COMB <<U2_2_MAT>> 1.0
+MIX 202 COMB <<U2_2_MAT>> 1.0
+MIX 203 COMB <<U2_2_MAT>> 1.0
+MIX 204 COMB <<U2_2_MAT>> 1.0
+MIX 205 COMB <<U2_2_MAT>> 1.0
+MIX 206 COMB <<U2_2_MAT>> 1.0
+MIX 207 COMB <<U2_2_MAT>> 1.0
+MIX 208 COMB <<U2_2_MAT>> 1.0
+MIX 209 COMB <<U2_2_MAT>> 1.0
+MIX 210 COMB <<U2_2_MAT>> 1.0
+MIX 211 COMB <<U2_2_MAT>> 1.0
+MIX 212 COMB <<U2_2_MAT>> 1.0
+MIX 213 COMB <<U2_2_MAT>> 1.0
+MIX 214 COMB <<U2_2_MAT>> 1.0
+MIX 215 COMB <<U2_2_MAT>> 1.0
+MIX 216 COMB <<U2_2_MAT>> 1.0
+MIX 217 COMB <<U2_2_MAT>> 1.0
+MIX 218 COMB <<U2_2_MAT>> 1.0
+MIX 219 COMB <<U2_2_MAT>> 1.0
+MIX 220 COMB <<U2_2_MAT>> 1.0
+MIX 221 COMB <<U2_2_MAT>> 1.0
+MIX 222 COMB <<U2_2_MAT>> 1.0
+MIX 223 COMB <<U2_2_MAT>> 1.0
+MIX 224 COMB <<U2_2_MAT>> 1.0
+MIX 225 COMB <<U2_2_MAT>> 1.0
+MIX 226 COMB <<U2_2_MAT>> 1.0
+MIX 227 COMB <<U2_2_MAT>> 1.0
+MIX 228 COMB <<U2_2_MAT>> 1.0
+MIX 229 COMB <<U2_2_MAT>> 1.0
+MIX 230 COMB <<U2_2_MAT>> 1.0
+MIX 231 COMB <<U2_2_MAT>> 1.0
+MIX 232 COMB <<U2_2_MAT>> 1.0
+MIX 233 COMB <<U2_2_MAT>> 1.0
+MIX 234 COMB <<U2_2_MAT>> 1.0
+MIX 235 COMB <<U2_2_MAT>> 1.0
+MIX 236 COMB <<U2_2_MAT>> 1.0
+MIX 237 COMB <<U2_2_MAT>> 1.0
+MIX 238 COMB <<U2_2_MAT>> 1.0
+MIX 239 COMB <<U2_2_MAT>> 1.0
+MIX 240 COMB <<U2_2_MAT>> 1.0
+MIX 241 COMB <<U2_2_MAT>> 1.0
+MIX 242 COMB <<U2_2_MAT>> 1.0
+MIX 243 COMB <<U2_2_MAT>> 1.0
+MIX 244 COMB <<U2_2_MAT>> 1.0
+MIX 245 COMB <<U2_2_MAT>> 1.0
+MIX 246 COMB <<U2_2_MAT>> 1.0
+MIX 247 COMB <<U2_2_MAT>> 1.0
+MIX 248 COMB <<U2_2_MAT>> 1.0
+MIX 249 COMB <<U2_2_MAT>> 1.0
+;
+
+
+* ---
+* KHMELNITSKY-2 REACTOR - 40AU ASSEMBLY (fictif)
+* ---
+
+ELSEIF name_geom 'KML2_40AU_ASS' = THEN
+
+
+  EVALUATE U2_2_MAT  clad_f_MAT  clad_g_MAT  clad_i_MAT  struct_MAT  void_MAT  water_MAT   :=
+           4         3           29          1           250         8         2           ; 
+
+  LIBRARY := LIB: ::
+    EDIT 0
+    NMIX 250   ! MAXIMUM OF MATERIAL MIXTURES
+    PT
+*    CTRA APOL ! APOLLO TYPE TRANSPORT CORRECTION
+    ANIS 2
+    ADED 4 NELAS N4N N2N N3N
+    CALENDF 3 PT      ! CALENDF TYPE PROBABILITY TABLES
+
+    DEPL LIB: DRAGON FIL: <<Library>>
+
+    MIXS LIB: DRAGON FIL: <<Library>>
+
+    MIX <<U2_2_MAT>> 900.0
+*********************************** 13AU
+*      O16     = O16    4.57701E-2
+*      U235    = U235   3.01261E-4 1
+*      U238    = U238   2.25838E-2 1
+***********************************
+*********************************** 22AU
+*     O16     = O16    4.57747E-2
+*      U235    = U235   5.09820E-4 1
+*      U238    = U238   2.23776E-2 1
+***********************************
+************************************* 40AU
+      O16     = O16    4.57747E-2
+      U235    = U235   9.32400E-4 1
+      U238    = U238   2.23776E-2 1
+**********************************
+      Pu239   = Pu239  0.0        1
+      Pu240   = Pu240  0.0        1
+      Pu241   = Pu241  0.0        1 
+      Pu242   = Pu242  0.0        1 
+*        
+    MIX <<clad_f_MAT>> 600.0 NOEV
+      Zr90    = Zr90   <<N_Zr90>> 2
+      Zr91    = Zr91   <<N_Zr91>> 2
+      Zr92    = Zr92   <<N_Zr92>> 2
+      Zr94    = Zr94   <<N_Zr94>> 2
+      Zr96    = Zr96   <<N_Zr96>> 2
+      Nb93    = Nb93   <<NNb93>> 
+      Hf174   = Hf174  <<N_Hf174>>
+      Hf176   = Hf176  <<N_Hf176>>
+      Hf178   = Hf178  <<N_Hf178>>
+      Hf179   = Hf179  <<N_Hf179>>
+      Hf180   = Hf180  <<N_Hf180>>
+*
+    MIX <<clad_g_MAT>> 560.0 NOEV
+      Zr90    = Zr90   <<gN_Zr90>> 3
+      Zr91    = Zr91   <<gN_Zr91>> 3
+      Zr92    = Zr92   <<gN_Zr92>> 3
+      Zr94    = Zr94   <<gN_Zr94>> 3
+      Zr96    = Zr96   <<gN_Zr96>> 3
+      Nb93    = Nb93   <<gNNb93>> 
+      Hf174   = Hf174  <<gN_Hf174>>
+      Hf176   = Hf176  <<gN_Hf176>>
+      Hf178   = Hf178  <<gN_Hf178>>
+      Hf179   = Hf179  <<gN_Hf179>>
+      Hf180   = Hf180  <<gN_Hf180>>
+      Fe54    = Fe54   <<gFe_54>>
+      Fe56    = Fe56   <<gFe_56>>
+      Fe57    = Fe57   <<gFe_57>>
+      Fe58    = Fe58   <<gFe_58>>
+*
+    MIX <<clad_i_MAT>> COMB <<clad_g_MAT>> 1.0
+    MIX <<struct_MAT>> COMB <<clad_g_MAT>> 1.0
+*
+    MIX <<water_MAT>> 560.0 NOEV
+******************************************** 600 ppm
+      H1      = H1_H2O 5.02988E-2
+      O16     = O16    2.51494E-2
+      B10     = B10    4.97996E-6
+      B11     = B11    2.01713E-5
+*********************************
+********************************************* 800 ppm
+*      H1      = H1_H2O 5.08204E-2
+*      O16     = O16    2.54871E-2
+*      B10     = B10    1.02048E-5
+*      B11     = B11    4.10756E-5
+**********************************
+*
+    MIX <<void_MAT>> 560.0 NOEV
+      He4     = He4   1.00E-019
+
+MIX 5 COMB <<U2_2_MAT>> 1.0
+MIX 6 COMB <<U2_2_MAT>> 1.0
+MIX 7 COMB <<U2_2_MAT>> 1.0
+
+MIX 9 COMB <<U2_2_MAT>> 1.0
+MIX 10 COMB <<U2_2_MAT>> 1.0
+MIX 11 COMB <<U2_2_MAT>> 1.0
+MIX 12 COMB <<U2_2_MAT>> 1.0
+MIX 13 COMB <<U2_2_MAT>> 1.0
+MIX 14 COMB <<U2_2_MAT>> 1.0
+MIX 15 COMB <<U2_2_MAT>> 1.0
+MIX 16 COMB <<U2_2_MAT>> 1.0
+MIX 17 COMB <<U2_2_MAT>> 1.0
+MIX 18 COMB <<U2_2_MAT>> 1.0
+MIX 19 COMB <<U2_2_MAT>> 1.0
+MIX 20 COMB <<U2_2_MAT>> 1.0
+MIX 21 COMB <<U2_2_MAT>> 1.0
+MIX 22 COMB <<U2_2_MAT>> 1.0
+MIX 23 COMB <<U2_2_MAT>> 1.0
+MIX 24 COMB <<U2_2_MAT>> 1.0
+MIX 25 COMB <<U2_2_MAT>> 1.0
+MIX 26 COMB <<U2_2_MAT>> 1.0
+MIX 27 COMB <<U2_2_MAT>> 1.0
+MIX 28 COMB <<U2_2_MAT>> 1.0
+
+MIX 30 COMB <<U2_2_MAT>> 1.0
+MIX 31 COMB <<U2_2_MAT>> 1.0
+MIX 32 COMB <<U2_2_MAT>> 1.0
+MIX 33 COMB <<U2_2_MAT>> 1.0
+MIX 34 COMB <<U2_2_MAT>> 1.0
+MIX 35 COMB <<U2_2_MAT>> 1.0
+MIX 36 COMB <<U2_2_MAT>> 1.0
+MIX 37 COMB <<U2_2_MAT>> 1.0
+MIX 38 COMB <<U2_2_MAT>> 1.0
+MIX 39 COMB <<U2_2_MAT>> 1.0
+MIX 40 COMB <<U2_2_MAT>> 1.0
+MIX 41 COMB <<U2_2_MAT>> 1.0
+MIX 42 COMB <<U2_2_MAT>> 1.0
+MIX 43 COMB <<U2_2_MAT>> 1.0
+MIX 44 COMB <<U2_2_MAT>> 1.0
+MIX 45 COMB <<U2_2_MAT>> 1.0
+MIX 46 COMB <<U2_2_MAT>> 1.0
+MIX 47 COMB <<U2_2_MAT>> 1.0
+MIX 48 COMB <<U2_2_MAT>> 1.0
+MIX 49 COMB <<U2_2_MAT>> 1.0
+MIX 50 COMB <<U2_2_MAT>> 1.0
+MIX 51 COMB <<U2_2_MAT>> 1.0
+MIX 52 COMB <<U2_2_MAT>> 1.0
+MIX 53 COMB <<U2_2_MAT>> 1.0
+MIX 54 COMB <<U2_2_MAT>> 1.0
+MIX 55 COMB <<U2_2_MAT>> 1.0
+MIX 56 COMB <<U2_2_MAT>> 1.0
+MIX 57 COMB <<U2_2_MAT>> 1.0
+MIX 58 COMB <<U2_2_MAT>> 1.0
+MIX 59 COMB <<U2_2_MAT>> 1.0
+MIX 60 COMB <<U2_2_MAT>> 1.0
+MIX 61 COMB <<U2_2_MAT>> 1.0
+MIX 62 COMB <<U2_2_MAT>> 1.0
+MIX 63 COMB <<U2_2_MAT>> 1.0
+MIX 64 COMB <<U2_2_MAT>> 1.0
+MIX 65 COMB <<U2_2_MAT>> 1.0
+MIX 66 COMB <<U2_2_MAT>> 1.0
+MIX 67 COMB <<U2_2_MAT>> 1.0
+MIX 68 COMB <<U2_2_MAT>> 1.0
+MIX 69 COMB <<U2_2_MAT>> 1.0
+MIX 70 COMB <<U2_2_MAT>> 1.0
+MIX 71 COMB <<U2_2_MAT>> 1.0
+MIX 72 COMB <<U2_2_MAT>> 1.0
+MIX 73 COMB <<U2_2_MAT>> 1.0
+MIX 74 COMB <<U2_2_MAT>> 1.0
+MIX 75 COMB <<U2_2_MAT>> 1.0
+MIX 76 COMB <<U2_2_MAT>> 1.0
+MIX 77 COMB <<U2_2_MAT>> 1.0
+MIX 78 COMB <<U2_2_MAT>> 1.0
+MIX 79 COMB <<U2_2_MAT>> 1.0
+MIX 80 COMB <<U2_2_MAT>> 1.0
+MIX 81 COMB <<U2_2_MAT>> 1.0
+MIX 82 COMB <<U2_2_MAT>> 1.0
+MIX 83 COMB <<U2_2_MAT>> 1.0
+MIX 84 COMB <<U2_2_MAT>> 1.0
+MIX 85 COMB <<U2_2_MAT>> 1.0
+MIX 86 COMB <<U2_2_MAT>> 1.0
+MIX 87 COMB <<U2_2_MAT>> 1.0
+MIX 88 COMB <<U2_2_MAT>> 1.0
+MIX 89 COMB <<U2_2_MAT>> 1.0
+MIX 90 COMB <<U2_2_MAT>> 1.0
+MIX 91 COMB <<U2_2_MAT>> 1.0
+MIX 92 COMB <<U2_2_MAT>> 1.0
+MIX 93 COMB <<U2_2_MAT>> 1.0
+MIX 94 COMB <<U2_2_MAT>> 1.0
+MIX 95 COMB <<U2_2_MAT>> 1.0
+MIX 96 COMB <<U2_2_MAT>> 1.0
+MIX 97 COMB <<U2_2_MAT>> 1.0
+MIX 98 COMB <<U2_2_MAT>> 1.0
+MIX 99 COMB <<U2_2_MAT>> 1.0
+MIX 100 COMB <<U2_2_MAT>> 1.0
+MIX 101 COMB <<U2_2_MAT>> 1.0
+MIX 102 COMB <<U2_2_MAT>> 1.0
+MIX 103 COMB <<U2_2_MAT>> 1.0
+MIX 104 COMB <<U2_2_MAT>> 1.0
+MIX 105 COMB <<U2_2_MAT>> 1.0
+MIX 106 COMB <<U2_2_MAT>> 1.0
+MIX 107 COMB <<U2_2_MAT>> 1.0
+MIX 108 COMB <<U2_2_MAT>> 1.0
+MIX 109 COMB <<U2_2_MAT>> 1.0
+MIX 110 COMB <<U2_2_MAT>> 1.0
+MIX 111 COMB <<U2_2_MAT>> 1.0
+MIX 112 COMB <<U2_2_MAT>> 1.0
+MIX 113 COMB <<U2_2_MAT>> 1.0
+MIX 114 COMB <<U2_2_MAT>> 1.0
+MIX 115 COMB <<U2_2_MAT>> 1.0
+MIX 116 COMB <<U2_2_MAT>> 1.0
+MIX 117 COMB <<U2_2_MAT>> 1.0
+MIX 118 COMB <<U2_2_MAT>> 1.0
+MIX 119 COMB <<U2_2_MAT>> 1.0
+MIX 120 COMB <<U2_2_MAT>> 1.0
+MIX 121 COMB <<U2_2_MAT>> 1.0
+MIX 122 COMB <<U2_2_MAT>> 1.0
+MIX 123 COMB <<U2_2_MAT>> 1.0
+MIX 124 COMB <<U2_2_MAT>> 1.0
+MIX 125 COMB <<U2_2_MAT>> 1.0
+MIX 126 COMB <<U2_2_MAT>> 1.0
+MIX 127 COMB <<U2_2_MAT>> 1.0
+MIX 128 COMB <<U2_2_MAT>> 1.0
+MIX 129 COMB <<U2_2_MAT>> 1.0
+MIX 130 COMB <<U2_2_MAT>> 1.0
+MIX 131 COMB <<U2_2_MAT>> 1.0
+MIX 132 COMB <<U2_2_MAT>> 1.0
+MIX 133 COMB <<U2_2_MAT>> 1.0
+MIX 134 COMB <<U2_2_MAT>> 1.0
+MIX 135 COMB <<U2_2_MAT>> 1.0
+MIX 136 COMB <<U2_2_MAT>> 1.0
+MIX 137 COMB <<U2_2_MAT>> 1.0
+MIX 138 COMB <<U2_2_MAT>> 1.0
+MIX 139 COMB <<U2_2_MAT>> 1.0
+MIX 140 COMB <<U2_2_MAT>> 1.0
+MIX 141 COMB <<U2_2_MAT>> 1.0
+MIX 142 COMB <<U2_2_MAT>> 1.0
+MIX 143 COMB <<U2_2_MAT>> 1.0
+MIX 144 COMB <<U2_2_MAT>> 1.0
+MIX 145 COMB <<U2_2_MAT>> 1.0
+MIX 146 COMB <<U2_2_MAT>> 1.0
+MIX 147 COMB <<U2_2_MAT>> 1.0
+MIX 148 COMB <<U2_2_MAT>> 1.0
+MIX 149 COMB <<U2_2_MAT>> 1.0
+MIX 150 COMB <<U2_2_MAT>> 1.0
+MIX 151 COMB <<U2_2_MAT>> 1.0
+MIX 152 COMB <<U2_2_MAT>> 1.0
+MIX 153 COMB <<U2_2_MAT>> 1.0
+MIX 154 COMB <<U2_2_MAT>> 1.0
+MIX 155 COMB <<U2_2_MAT>> 1.0
+MIX 156 COMB <<U2_2_MAT>> 1.0
+MIX 157 COMB <<U2_2_MAT>> 1.0
+MIX 158 COMB <<U2_2_MAT>> 1.0
+MIX 159 COMB <<U2_2_MAT>> 1.0
+MIX 160 COMB <<U2_2_MAT>> 1.0
+MIX 161 COMB <<U2_2_MAT>> 1.0
+MIX 162 COMB <<U2_2_MAT>> 1.0
+MIX 163 COMB <<U2_2_MAT>> 1.0
+MIX 164 COMB <<U2_2_MAT>> 1.0
+MIX 165 COMB <<U2_2_MAT>> 1.0
+MIX 166 COMB <<U2_2_MAT>> 1.0
+MIX 167 COMB <<U2_2_MAT>> 1.0
+MIX 168 COMB <<U2_2_MAT>> 1.0
+MIX 169 COMB <<U2_2_MAT>> 1.0
+MIX 170 COMB <<U2_2_MAT>> 1.0
+MIX 171 COMB <<U2_2_MAT>> 1.0
+MIX 172 COMB <<U2_2_MAT>> 1.0
+MIX 173 COMB <<U2_2_MAT>> 1.0
+MIX 174 COMB <<U2_2_MAT>> 1.0
+MIX 175 COMB <<U2_2_MAT>> 1.0
+MIX 176 COMB <<U2_2_MAT>> 1.0
+MIX 177 COMB <<U2_2_MAT>> 1.0
+MIX 178 COMB <<U2_2_MAT>> 1.0
+MIX 179 COMB <<U2_2_MAT>> 1.0
+MIX 180 COMB <<U2_2_MAT>> 1.0
+MIX 181 COMB <<U2_2_MAT>> 1.0
+MIX 182 COMB <<U2_2_MAT>> 1.0
+MIX 183 COMB <<U2_2_MAT>> 1.0
+MIX 184 COMB <<U2_2_MAT>> 1.0
+MIX 185 COMB <<U2_2_MAT>> 1.0
+MIX 186 COMB <<U2_2_MAT>> 1.0
+MIX 187 COMB <<U2_2_MAT>> 1.0
+MIX 188 COMB <<U2_2_MAT>> 1.0
+MIX 189 COMB <<U2_2_MAT>> 1.0
+MIX 190 COMB <<U2_2_MAT>> 1.0
+MIX 191 COMB <<U2_2_MAT>> 1.0
+MIX 192 COMB <<U2_2_MAT>> 1.0
+MIX 193 COMB <<U2_2_MAT>> 1.0
+MIX 194 COMB <<U2_2_MAT>> 1.0
+MIX 195 COMB <<U2_2_MAT>> 1.0
+MIX 196 COMB <<U2_2_MAT>> 1.0
+MIX 197 COMB <<U2_2_MAT>> 1.0
+MIX 198 COMB <<U2_2_MAT>> 1.0
+MIX 199 COMB <<U2_2_MAT>> 1.0
+MIX 200 COMB <<U2_2_MAT>> 1.0
+MIX 201 COMB <<U2_2_MAT>> 1.0
+MIX 202 COMB <<U2_2_MAT>> 1.0
+MIX 203 COMB <<U2_2_MAT>> 1.0
+MIX 204 COMB <<U2_2_MAT>> 1.0
+MIX 205 COMB <<U2_2_MAT>> 1.0
+MIX 206 COMB <<U2_2_MAT>> 1.0
+MIX 207 COMB <<U2_2_MAT>> 1.0
+MIX 208 COMB <<U2_2_MAT>> 1.0
+MIX 209 COMB <<U2_2_MAT>> 1.0
+MIX 210 COMB <<U2_2_MAT>> 1.0
+MIX 211 COMB <<U2_2_MAT>> 1.0
+MIX 212 COMB <<U2_2_MAT>> 1.0
+MIX 213 COMB <<U2_2_MAT>> 1.0
+MIX 214 COMB <<U2_2_MAT>> 1.0
+MIX 215 COMB <<U2_2_MAT>> 1.0
+MIX 216 COMB <<U2_2_MAT>> 1.0
+MIX 217 COMB <<U2_2_MAT>> 1.0
+MIX 218 COMB <<U2_2_MAT>> 1.0
+MIX 219 COMB <<U2_2_MAT>> 1.0
+MIX 220 COMB <<U2_2_MAT>> 1.0
+MIX 221 COMB <<U2_2_MAT>> 1.0
+MIX 222 COMB <<U2_2_MAT>> 1.0
+MIX 223 COMB <<U2_2_MAT>> 1.0
+MIX 224 COMB <<U2_2_MAT>> 1.0
+MIX 225 COMB <<U2_2_MAT>> 1.0
+MIX 226 COMB <<U2_2_MAT>> 1.0
+MIX 227 COMB <<U2_2_MAT>> 1.0
+MIX 228 COMB <<U2_2_MAT>> 1.0
+MIX 229 COMB <<U2_2_MAT>> 1.0
+MIX 230 COMB <<U2_2_MAT>> 1.0
+MIX 231 COMB <<U2_2_MAT>> 1.0
+MIX 232 COMB <<U2_2_MAT>> 1.0
+MIX 233 COMB <<U2_2_MAT>> 1.0
+MIX 234 COMB <<U2_2_MAT>> 1.0
+MIX 235 COMB <<U2_2_MAT>> 1.0
+MIX 236 COMB <<U2_2_MAT>> 1.0
+MIX 237 COMB <<U2_2_MAT>> 1.0
+MIX 238 COMB <<U2_2_MAT>> 1.0
+MIX 239 COMB <<U2_2_MAT>> 1.0
+MIX 240 COMB <<U2_2_MAT>> 1.0
+MIX 241 COMB <<U2_2_MAT>> 1.0
+MIX 242 COMB <<U2_2_MAT>> 1.0
+MIX 243 COMB <<U2_2_MAT>> 1.0
+MIX 244 COMB <<U2_2_MAT>> 1.0
+MIX 245 COMB <<U2_2_MAT>> 1.0
+MIX 246 COMB <<U2_2_MAT>> 1.0
+MIX 247 COMB <<U2_2_MAT>> 1.0
+MIX 248 COMB <<U2_2_MAT>> 1.0
+MIX 249 COMB <<U2_2_MAT>> 1.0
+;
+
+
+* ---
+* KHMELNITSKY-2 REACTOR - 398GO ASSEMBLY
+* ---
+ 
+ELSEIF name_geom 'KML2_398GO_ASS' = THEN
+
+  EVALUATE water_MAT  clad_f_MAT  G3_3_MAT  void_MAT  U4_0_MAT  clad_g_MAT  clad_i_MAT  struct_MAT  :=
+           2          3           50        8         4         29          1           257         ; 
+
+  LIBRARY := LIB: ::
+    EDIT 0
+    NMIX 257    ! MAXIMUM OF MATERIAL MIXTURES
+    PT
+*    CTRA APOL ! APOLLO TYPE TRANSPORT CORRECTION
+    ANIS 2
+    ADED 4 NELAS N4N N2N N3N
+    CALENDF 3 PT      ! CALENDF TYPE PROBABILITY TABLES
+
+    DEPL LIB: DRAGON FIL: <<Library>>
+
+    MIXS LIB: DRAGON FIL: <<Library>>
+
+    MIX <<U4_0_MAT>> 900.0
+      O16     = O16    4.57840E-2
+      U235    = U235   9.26920E-4 1
+      U238    = U238   2.19651E-2 1
+      Pu239   = Pu239  0.0        1
+      Pu240   = Pu240  0.0        1
+      Pu241   = Pu241  0.0        1
+      Pu242   = Pu242  0.0        1
+*    
+    MIX <<G3_3_MAT>> 900.0
+      O16     = O16    4.59021E-2
+      U235    = U235   7.24175E-4 4
+      U238    = U238   2.09525E-2 4
+      Pu239   = Pu239  0.0        4
+      Pu240   = Pu240  0.0        4
+      Pu241   = Pu241  0.0        4
+      Pu242   = Pu242  0.0        4
+      Gd154   = Gd154  3.78440E-5 4
+      Gd155   = Gd155  2.55262E-4 4
+      Gd156   = Gd156  3.50791E-4 4
+      Gd157   = Gd157  2.66479E-4 4
+      Gd158   = Gd158  4.20283E-4 4
+      Gd160   = Gd160  3.65230E-4 4
+*
+    MIX <<clad_f_MAT>> 600.0 NOEV
+      Zr90    = Zr90   <<N_Zr90>> 2
+      Zr91    = Zr91   <<N_Zr91>> 2
+      Zr92    = Zr92   <<N_Zr92>> 2
+      Zr94    = Zr94   <<N_Zr94>> 2
+      Zr96    = Zr96   <<N_Zr96>> 2
+      Nb93    = Nb93   <<NNb93>> 
+      Hf174   = Hf174  <<N_Hf174>>
+      Hf176   = Hf176  <<N_Hf176>>
+      Hf178   = Hf178  <<N_Hf178>>
+      Hf179   = Hf179  <<N_Hf179>>
+      Hf180   = Hf180  <<N_Hf180>>
+*
+    MIX <<clad_g_MAT>> 560.0 NOEV
+      Zr90    = Zr90   <<gN_Zr90>> 3
+      Zr91    = Zr91   <<gN_Zr91>> 3
+      Zr92    = Zr92   <<gN_Zr92>> 3
+      Zr94    = Zr94   <<gN_Zr94>> 3
+      Zr96    = Zr96   <<gN_Zr96>> 3
+      Nb93    = Nb93   <<gNNb93>> 
+      Hf174   = Hf174  <<gN_Hf174>>
+      Hf176   = Hf176  <<gN_Hf176>>
+      Hf178   = Hf178  <<gN_Hf178>>
+      Hf179   = Hf179  <<gN_Hf179>>
+      Hf180   = Hf180  <<gN_Hf180>>
+      Fe54    = Fe54   <<gFe_54>>
+      Fe56    = Fe56   <<gFe_56>>
+      Fe57    = Fe57   <<gFe_57>>
+      Fe58    = Fe58   <<gFe_58>>
+*
+    MIX <<clad_i_MAT>> COMB <<clad_g_MAT>> 1.0
+    MIX <<struct_MAT>> COMB <<clad_g_MAT>> 1.0
+*
+    MIX <<water_MAT>> 560.0 NOEV
+******************************************** 600 ppm
+      H1      = H1_H2O 5.02988E-2
+      O16     = O16    2.51494E-2
+      B10     = B10    4.97996E-6
+      B11     = B11    2.01713E-5
+*********************************
+********************************************* 800 ppm
+*      H1      = H1_H2O 5.08204E-2
+*      O16     = O16    2.54871E-2
+*      B10     = B10    1.02048E-5
+*      B11     = B11    4.10756E-5
+**********************************
+*
+    MIX <<void_MAT>> 560.0 NOEV
+      He4     = He4   1.00E-08
+*
+* --- OTHER FUEL MIXES
+*     1  i                       --> clad_itube_MAT          
+*     2  w                       --> water_MAT               
+*     3  h                       --> clad_fuel_MAT 
+*     4  U4_0_220_f4             --> U4_0_MAT   
+MIX 5 COMB <<U4_0_MAT>> 1.0
+MIX 6 COMB <<U4_0_MAT>> 1.0
+MIX 7 COMB <<U4_0_MAT>> 1.0
+*     8  void                    --> void_MAT 
+MIX 9 COMB <<U4_0_MAT>> 1.0
+MIX 10 COMB <<U4_0_MAT>> 1.0
+MIX 11 COMB <<U4_0_MAT>> 1.0
+MIX 12 COMB <<U4_0_MAT>> 1.0
+MIX 13 COMB <<U4_0_MAT>> 1.0
+MIX 14 COMB <<U4_0_MAT>> 1.0
+MIX 15 COMB <<U4_0_MAT>> 1.0
+MIX 16 COMB <<U4_0_MAT>> 1.0
+MIX 17 COMB <<U4_0_MAT>> 1.0
+MIX 18 COMB <<U4_0_MAT>> 1.0
+MIX 19 COMB <<U4_0_MAT>> 1.0
+MIX 20 COMB <<U4_0_MAT>> 1.0
+MIX 21 COMB <<U4_0_MAT>> 1.0
+MIX 22 COMB <<U4_0_MAT>> 1.0
+MIX 23 COMB <<U4_0_MAT>> 1.0
+MIX 24 COMB <<U4_0_MAT>> 1.0
+MIX 25 COMB <<U4_0_MAT>> 1.0
+MIX 26 COMB <<U4_0_MAT>> 1.0
+MIX 27 COMB <<U4_0_MAT>> 1.0
+MIX 28 COMB <<U4_0_MAT>> 1.0
+*    29  c                       --> clad_gtube_MAT  
+MIX 30 COMB <<U4_0_MAT>> 1.0
+MIX 31 COMB <<U4_0_MAT>> 1.0
+MIX 32 COMB <<U4_0_MAT>> 1.0
+MIX 33 COMB <<U4_0_MAT>> 1.0
+MIX 34 COMB <<U4_0_MAT>> 1.0
+MIX 35 COMB <<U4_0_MAT>> 1.0
+MIX 36 COMB <<U4_0_MAT>> 1.0
+MIX 37 COMB <<U4_0_MAT>> 1.0
+MIX 38 COMB <<U4_0_MAT>> 1.0
+MIX 39 COMB <<U4_0_MAT>> 1.0
+MIX 40 COMB <<U4_0_MAT>> 1.0
+MIX 41 COMB <<U4_0_MAT>> 1.0
+MIX 42 COMB <<U4_0_MAT>> 1.0
+MIX 43 COMB <<U4_0_MAT>> 1.0
+MIX 44 COMB <<U4_0_MAT>> 1.0
+MIX 45 COMB <<U4_0_MAT>> 1.0
+MIX 46 COMB <<U4_0_MAT>> 1.0
+MIX 47 COMB <<U4_0_MAT>> 1.0
+MIX 48 COMB <<U4_0_MAT>> 1.0
+MIX 49 COMB <<U4_0_MAT>> 1.0
+*    50  G3_3_283_f11            --> G3_3_MAT 
+MIX 51 COMB <<G3_3_MAT>> 1.0
+MIX 52 COMB <<G3_3_MAT>> 1.0
+MIX 53 COMB <<G3_3_MAT>> 1.0
+MIX 54 COMB <<G3_3_MAT>> 1.0
+MIX 55 COMB <<G3_3_MAT>> 1.0
+MIX 56 COMB <<G3_3_MAT>> 1.0
+MIX 57 COMB <<G3_3_MAT>> 1.0
+MIX 58 COMB <<G3_3_MAT>> 1.0
+MIX 59 COMB <<G3_3_MAT>> 1.0
+MIX 60 COMB <<G3_3_MAT>> 1.0
+MIX 61 COMB <<U4_0_MAT>> 1.0
+MIX 62 COMB <<U4_0_MAT>> 1.0
+MIX 63 COMB <<U4_0_MAT>> 1.0
+MIX 64 COMB <<U4_0_MAT>> 1.0
+MIX 65 COMB <<U4_0_MAT>> 1.0
+MIX 66 COMB <<U4_0_MAT>> 1.0
+MIX 67 COMB <<U4_0_MAT>> 1.0
+MIX 68 COMB <<U4_0_MAT>> 1.0
+MIX 69 COMB <<U4_0_MAT>> 1.0
+MIX 70 COMB <<U4_0_MAT>> 1.0
+MIX 71 COMB <<U4_0_MAT>> 1.0
+MIX 72 COMB <<U4_0_MAT>> 1.0
+MIX 73 COMB <<U4_0_MAT>> 1.0
+MIX 74 COMB <<U4_0_MAT>> 1.0
+MIX 75 COMB <<U4_0_MAT>> 1.0
+MIX 76 COMB <<U4_0_MAT>> 1.0
+MIX 77 COMB <<U4_0_MAT>> 1.0
+MIX 78 COMB <<U4_0_MAT>> 1.0
+MIX 79 COMB <<U4_0_MAT>> 1.0
+MIX 80 COMB <<U4_0_MAT>> 1.0
+MIX 81 COMB <<U4_0_MAT>> 1.0
+MIX 82 COMB <<U4_0_MAT>> 1.0
+MIX 83 COMB <<U4_0_MAT>> 1.0
+MIX 84 COMB <<U4_0_MAT>> 1.0
+MIX 85 COMB <<U4_0_MAT>> 1.0
+MIX 86 COMB <<U4_0_MAT>> 1.0
+MIX 87 COMB <<U4_0_MAT>> 1.0
+MIX 88 COMB <<U4_0_MAT>> 1.0
+MIX 89 COMB <<U4_0_MAT>> 1.0
+MIX 90 COMB <<U4_0_MAT>> 1.0
+MIX 91 COMB <<U4_0_MAT>> 1.0
+MIX 92 COMB <<U4_0_MAT>> 1.0
+MIX 93 COMB <<U4_0_MAT>> 1.0
+MIX 94 COMB <<U4_0_MAT>> 1.0
+MIX 95 COMB <<U4_0_MAT>> 1.0
+MIX 96 COMB <<U4_0_MAT>> 1.0
+MIX 97 COMB <<U4_0_MAT>> 1.0
+MIX 98 COMB <<U4_0_MAT>> 1.0
+MIX 99 COMB <<U4_0_MAT>> 1.0
+MIX 100 COMB <<U4_0_MAT>> 1.0
+MIX 101 COMB <<U4_0_MAT>> 1.0
+MIX 102 COMB <<U4_0_MAT>> 1.0
+MIX 103 COMB <<U4_0_MAT>> 1.0
+MIX 104 COMB <<U4_0_MAT>> 1.0
+MIX 105 COMB <<U4_0_MAT>> 1.0
+MIX 106 COMB <<U4_0_MAT>> 1.0
+MIX 107 COMB <<U4_0_MAT>> 1.0
+MIX 108 COMB <<U4_0_MAT>> 1.0
+MIX 109 COMB <<U4_0_MAT>> 1.0
+MIX 110 COMB <<U4_0_MAT>> 1.0
+MIX 111 COMB <<U4_0_MAT>> 1.0
+MIX 112 COMB <<U4_0_MAT>> 1.0
+MIX 113 COMB <<U4_0_MAT>> 1.0
+MIX 114 COMB <<U4_0_MAT>> 1.0
+MIX 115 COMB <<U4_0_MAT>> 1.0
+MIX 116 COMB <<U4_0_MAT>> 1.0
+MIX 117 COMB <<U4_0_MAT>> 1.0
+MIX 118 COMB <<U4_0_MAT>> 1.0
+MIX 119 COMB <<U4_0_MAT>> 1.0
+MIX 120 COMB <<U4_0_MAT>> 1.0
+MIX 121 COMB <<U4_0_MAT>> 1.0
+MIX 122 COMB <<U4_0_MAT>> 1.0
+MIX 123 COMB <<U4_0_MAT>> 1.0
+MIX 124 COMB <<U4_0_MAT>> 1.0
+MIX 125 COMB <<U4_0_MAT>> 1.0
+MIX 126 COMB <<U4_0_MAT>> 1.0
+MIX 127 COMB <<U4_0_MAT>> 1.0
+MIX 128 COMB <<U4_0_MAT>> 1.0
+MIX 129 COMB <<U4_0_MAT>> 1.0
+MIX 130 COMB <<U4_0_MAT>> 1.0
+MIX 131 COMB <<U4_0_MAT>> 1.0
+MIX 132 COMB <<U4_0_MAT>> 1.0
+MIX 133 COMB <<U4_0_MAT>> 1.0
+MIX 134 COMB <<U4_0_MAT>> 1.0
+MIX 135 COMB <<U4_0_MAT>> 1.0
+MIX 136 COMB <<U4_0_MAT>> 1.0
+MIX 137 COMB <<U4_0_MAT>> 1.0
+MIX 138 COMB <<U4_0_MAT>> 1.0
+MIX 139 COMB <<U4_0_MAT>> 1.0
+MIX 140 COMB <<U4_0_MAT>> 1.0
+MIX 141 COMB <<U4_0_MAT>> 1.0
+MIX 142 COMB <<U4_0_MAT>> 1.0
+MIX 143 COMB <<U4_0_MAT>> 1.0
+MIX 144 COMB <<U4_0_MAT>> 1.0
+MIX 145 COMB <<U4_0_MAT>> 1.0
+MIX 146 COMB <<U4_0_MAT>> 1.0
+MIX 147 COMB <<U4_0_MAT>> 1.0
+MIX 148 COMB <<U4_0_MAT>> 1.0
+MIX 149 COMB <<U4_0_MAT>> 1.0
+MIX 150 COMB <<U4_0_MAT>> 1.0
+MIX 151 COMB <<U4_0_MAT>> 1.0
+MIX 152 COMB <<U4_0_MAT>> 1.0
+MIX 153 COMB <<U4_0_MAT>> 1.0
+MIX 154 COMB <<U4_0_MAT>> 1.0
+MIX 155 COMB <<U4_0_MAT>> 1.0
+MIX 156 COMB <<U4_0_MAT>> 1.0
+MIX 157 COMB <<U4_0_MAT>> 1.0
+MIX 158 COMB <<U4_0_MAT>> 1.0
+MIX 159 COMB <<U4_0_MAT>> 1.0
+MIX 160 COMB <<U4_0_MAT>> 1.0
+MIX 161 COMB <<U4_0_MAT>> 1.0
+MIX 162 COMB <<U4_0_MAT>> 1.0
+MIX 163 COMB <<U4_0_MAT>> 1.0
+MIX 164 COMB <<U4_0_MAT>> 1.0
+MIX 165 COMB <<U4_0_MAT>> 1.0
+MIX 166 COMB <<U4_0_MAT>> 1.0
+MIX 167 COMB <<U4_0_MAT>> 1.0
+MIX 168 COMB <<U4_0_MAT>> 1.0
+MIX 169 COMB <<U4_0_MAT>> 1.0
+MIX 170 COMB <<U4_0_MAT>> 1.0
+MIX 171 COMB <<U4_0_MAT>> 1.0
+MIX 172 COMB <<U4_0_MAT>> 1.0
+MIX 173 COMB <<U4_0_MAT>> 1.0
+MIX 174 COMB <<U4_0_MAT>> 1.0
+MIX 175 COMB <<U4_0_MAT>> 1.0
+MIX 176 COMB <<U4_0_MAT>> 1.0
+MIX 177 COMB <<U4_0_MAT>> 1.0
+MIX 178 COMB <<U4_0_MAT>> 1.0
+MIX 179 COMB <<U4_0_MAT>> 1.0
+MIX 180 COMB <<U4_0_MAT>> 1.0
+MIX 181 COMB <<U4_0_MAT>> 1.0
+MIX 182 COMB <<U4_0_MAT>> 1.0
+MIX 183 COMB <<U4_0_MAT>> 1.0
+MIX 184 COMB <<U4_0_MAT>> 1.0
+MIX 185 COMB <<U4_0_MAT>> 1.0
+MIX 186 COMB <<U4_0_MAT>> 1.0
+MIX 187 COMB <<U4_0_MAT>> 1.0
+MIX 188 COMB <<U4_0_MAT>> 1.0
+MIX 189 COMB <<U4_0_MAT>> 1.0
+MIX 190 COMB <<U4_0_MAT>> 1.0
+MIX 191 COMB <<U4_0_MAT>> 1.0
+MIX 192 COMB <<U4_0_MAT>> 1.0
+MIX 193 COMB <<U4_0_MAT>> 1.0
+MIX 194 COMB <<U4_0_MAT>> 1.0
+MIX 195 COMB <<U4_0_MAT>> 1.0
+MIX 196 COMB <<U4_0_MAT>> 1.0
+MIX 197 COMB <<U4_0_MAT>> 1.0
+MIX 198 COMB <<U4_0_MAT>> 1.0
+MIX 199 COMB <<U4_0_MAT>> 1.0
+MIX 200 COMB <<U4_0_MAT>> 1.0
+MIX 201 COMB <<U4_0_MAT>> 1.0
+MIX 202 COMB <<U4_0_MAT>> 1.0
+MIX 203 COMB <<U4_0_MAT>> 1.0
+MIX 204 COMB <<U4_0_MAT>> 1.0
+MIX 205 COMB <<U4_0_MAT>> 1.0
+MIX 206 COMB <<U4_0_MAT>> 1.0
+MIX 207 COMB <<U4_0_MAT>> 1.0
+MIX 208 COMB <<U4_0_MAT>> 1.0
+MIX 209 COMB <<U4_0_MAT>> 1.0
+MIX 210 COMB <<U4_0_MAT>> 1.0
+MIX 211 COMB <<U4_0_MAT>> 1.0
+MIX 212 COMB <<U4_0_MAT>> 1.0
+MIX 213 COMB <<U4_0_MAT>> 1.0
+MIX 214 COMB <<U4_0_MAT>> 1.0
+MIX 215 COMB <<U4_0_MAT>> 1.0
+MIX 216 COMB <<U4_0_MAT>> 1.0
+MIX 217 COMB <<U4_0_MAT>> 1.0
+MIX 218 COMB <<U4_0_MAT>> 1.0
+MIX 219 COMB <<U4_0_MAT>> 1.0
+MIX 220 COMB <<U4_0_MAT>> 1.0
+MIX 221 COMB <<U4_0_MAT>> 1.0
+MIX 222 COMB <<U4_0_MAT>> 1.0
+MIX 223 COMB <<U4_0_MAT>> 1.0
+MIX 224 COMB <<U4_0_MAT>> 1.0
+MIX 225 COMB <<U4_0_MAT>> 1.0
+MIX 226 COMB <<U4_0_MAT>> 1.0
+MIX 227 COMB <<U4_0_MAT>> 1.0
+MIX 228 COMB <<U4_0_MAT>> 1.0
+MIX 229 COMB <<U4_0_MAT>> 1.0
+MIX 230 COMB <<U4_0_MAT>> 1.0
+MIX 231 COMB <<U4_0_MAT>> 1.0
+MIX 232 COMB <<U4_0_MAT>> 1.0
+MIX 233 COMB <<U4_0_MAT>> 1.0
+MIX 234 COMB <<U4_0_MAT>> 1.0
+MIX 235 COMB <<U4_0_MAT>> 1.0
+MIX 236 COMB <<U4_0_MAT>> 1.0
+MIX 237 COMB <<U4_0_MAT>> 1.0
+MIX 238 COMB <<U4_0_MAT>> 1.0
+MIX 239 COMB <<U4_0_MAT>> 1.0
+MIX 240 COMB <<U4_0_MAT>> 1.0
+MIX 241 COMB <<U4_0_MAT>> 1.0
+MIX 242 COMB <<U4_0_MAT>> 1.0
+MIX 243 COMB <<U4_0_MAT>> 1.0
+MIX 244 COMB <<U4_0_MAT>> 1.0
+MIX 245 COMB <<U4_0_MAT>> 1.0
+MIX 246 COMB <<U4_0_MAT>> 1.0
+MIX 247 COMB <<U4_0_MAT>> 1.0
+MIX 248 COMB <<U4_0_MAT>> 1.0
+MIX 249 COMB <<U4_0_MAT>> 1.0
+MIX 250 COMB <<U4_0_MAT>> 1.0
+MIX 251 COMB <<U4_0_MAT>> 1.0
+MIX 252 COMB <<U4_0_MAT>> 1.0
+MIX 253 COMB <<U4_0_MAT>> 1.0
+MIX 254 COMB <<U4_0_MAT>> 1.0
+MIX 255 COMB <<U4_0_MAT>> 1.0
+MIX 256 COMB <<U4_0_MAT>> 1.0
+*   257  s                       --> struct_MAT  
+    ; 
+
+
+* ---
+* KHMELNITSKY-2 REACTOR - 39AWU ASSEMBLY
+* ---
+
+ELSEIF name_geom 'KML2_39AWU_ASS' = THEN
+
+  EVALUATE water_MAT  clad_f_MAT  G3_3_MAT  U3_6_MAT  void_MAT  U4_0_MAT  clad_g_MAT  clad_i_MAT  struct_MAT  :=
+           2          3           13        4         8         9         32          1           486         ; 
+
+  LIBRARY := LIB: ::
+    EDIT 0
+    NMIX 486    ! MAXIMUM OF MATERIAL MIXTURES
+    PT
+*    CTRA APOL ! APOLLO TYPE TRANSPORT CORRECTION
+    ANIS 2
+    ADED 4 NELAS N4N N2N N3N
+    CALENDF 3 PT      ! CALENDF TYPE PROBABILITY TABLES
+
+    DEPL LIB: DRAGON FIL: <<Library>>
+
+    MIXS LIB: DRAGON FIL: <<Library>>
+
+    MIX <<U4_0_MAT>> 900.0
+      O16     = O16    4.57840E-2
+      U235    = U235   9.26920E-4 1
+      U238    = U238   2.19651E-2 1
+      Pu239   = Pu239  0.0        1
+      Pu240   = Pu240  0.0        1
+      Pu241   = Pu241  0.0        1
+      Pu242   = Pu242  0.0        1  
+*     
+    MIX <<U3_6_MAT>> 900.0
+      O16     = O16    4.57820E-2
+      U235    = U235   8.34233E-4 4
+      U238    = U238   2.20568E-2 4
+      Pu239   = Pu239  0.0        4
+      Pu240   = Pu240  0.0        4
+      Pu241   = Pu241  0.0        4
+      Pu242   = Pu242  0.0        4   
+*    
+    MIX <<G3_3_MAT>> 900.0
+      O16     = O16    4.59021E-2
+      U235    = U235   7.24175E-4 5
+      U238    = U238   2.09525E-2 5
+      Pu239   = Pu239  0.0        5
+      Pu240   = Pu240  0.0        5
+      Pu241   = Pu241  0.0        5
+      Pu242   = Pu242  0.0        5
+      Gd154   = Gd154  3.78440E-5 5
+      Gd155   = Gd155  2.55262E-4 5
+      Gd156   = Gd156  3.50791E-4 5
+      Gd157   = Gd157  2.66479E-4 5
+      Gd158   = Gd158  4.20283E-4 5
+      Gd160   = Gd160  3.65230E-4 5
+*
+    MIX <<clad_f_MAT>> 600.0 NOEV
+      Zr90    = Zr90   <<N_Zr90>> 2
+      Zr91    = Zr91   <<N_Zr91>> 2
+      Zr92    = Zr92   <<N_Zr92>> 2
+      Zr94    = Zr94   <<N_Zr94>> 2
+      Zr96    = Zr96   <<N_Zr96>> 2
+      Nb93    = Nb93   <<NNb93>> 
+      Hf174   = Hf174  <<N_Hf174>>
+      Hf176   = Hf176  <<N_Hf176>>
+      Hf178   = Hf178  <<N_Hf178>>
+      Hf179   = Hf179  <<N_Hf179>>
+      Hf180   = Hf180  <<N_Hf180>>
+*
+    MIX <<clad_g_MAT>> 560.0 NOEV
+      Zr90    = Zr90   <<gN_Zr90>> 3
+      Zr91    = Zr91   <<gN_Zr91>> 3
+      Zr92    = Zr92   <<gN_Zr92>> 3
+      Zr94    = Zr94   <<gN_Zr94>> 3
+      Zr96    = Zr96   <<gN_Zr96>> 3
+      Nb93    = Nb93   <<gNNb93>> 
+      Hf174   = Hf174  <<gN_Hf174>>
+      Hf176   = Hf176  <<gN_Hf176>>
+      Hf178   = Hf178  <<gN_Hf178>>
+      Hf179   = Hf179  <<gN_Hf179>>
+      Hf180   = Hf180  <<gN_Hf180>>
+      Fe54    = Fe54   <<gFe_54>>
+      Fe56    = Fe56   <<gFe_56>>
+      Fe57    = Fe57   <<gFe_57>>
+      Fe58    = Fe58   <<gFe_58>>
+*
+    MIX <<clad_i_MAT>> COMB <<clad_g_MAT>> 1.0
+    MIX <<struct_MAT>> COMB <<clad_g_MAT>> 1.0
+*
+    MIX <<water_MAT>> 560.0 NOEV
+******************************************** 600 ppm
+      H1      = H1_H2O 5.02988E-2
+      O16     = O16    2.51494E-2
+      B10     = B10    4.97996E-6
+      B11     = B11    2.01713E-5
+*********************************
+********************************************* 800 ppm
+*      H1      = H1_H2O 5.08204E-2
+*      O16     = O16    2.54871E-2
+*      B10     = B10    1.02048E-5
+*      B11     = B11    4.10756E-5
+**********************************
+*
+    MIX <<void_MAT>> 560.0 NOEV
+      He4     = He4   1.00E-08
+*
+* --- OTHER FUEL MIXES
+*
+*     1  i                       --> clad_itube_MAT          
+*     2  w                       --> water_MAT               
+*     3  h                       --> clad_fuel_MAT           
+*     4  U3_6_188_f4             --> U3_6_MAT                
+MIX 5 COMB <<U3_6_MAT>> 1.0
+MIX 6 COMB <<U3_6_MAT>> 1.0
+MIX 7 COMB <<U3_6_MAT>> 1.0
+*     8  void                    --> void_MAT  
+* U4_0_MAT
+MIX 10 COMB <<U4_0_MAT>> 1.0
+MIX 11 COMB <<U4_0_MAT>> 1.0
+MIX 12 COMB <<U4_0_MAT>> 1.0
+* G3_3_MAT
+MIX 14 COMB <<G3_3_MAT>> 1.0
+MIX 15 COMB <<G3_3_MAT>> 1.0
+MIX 16 COMB <<G3_3_MAT>> 1.0
+MIX 17 COMB <<G3_3_MAT>> 1.0
+MIX 18 COMB <<G3_3_MAT>> 1.0
+MIX 19 COMB <<G3_3_MAT>> 1.0
+MIX 20 COMB <<G3_3_MAT>> 1.0
+MIX 21 COMB <<G3_3_MAT>> 1.0
+MIX 22 COMB <<G3_3_MAT>> 1.0
+MIX 23 COMB <<G3_3_MAT>> 1.0
+MIX 24 COMB <<U4_0_MAT>> 1.0
+MIX 25 COMB <<U4_0_MAT>> 1.0
+MIX 26 COMB <<U4_0_MAT>> 1.0
+MIX 27 COMB <<U4_0_MAT>> 1.0
+MIX 28 COMB <<U4_0_MAT>> 1.0
+MIX 29 COMB <<U4_0_MAT>> 1.0
+MIX 30 COMB <<U4_0_MAT>> 1.0
+MIX 31 COMB <<U4_0_MAT>> 1.0
+*    32  c                       --> clad_gtube_MAT     
+MIX 33 COMB <<U4_0_MAT>> 1.0
+MIX 34 COMB <<U4_0_MAT>> 1.0
+MIX 35 COMB <<U4_0_MAT>> 1.0
+MIX 36 COMB <<U4_0_MAT>> 1.0
+MIX 37 COMB <<U4_0_MAT>> 1.0
+MIX 38 COMB <<U4_0_MAT>> 1.0
+MIX 39 COMB <<U4_0_MAT>> 1.0
+MIX 40 COMB <<U4_0_MAT>> 1.0
+MIX 41 COMB <<U4_0_MAT>> 1.0
+MIX 42 COMB <<U4_0_MAT>> 1.0
+MIX 43 COMB <<U4_0_MAT>> 1.0
+MIX 44 COMB <<U4_0_MAT>> 1.0
+MIX 45 COMB <<U4_0_MAT>> 1.0
+MIX 46 COMB <<U4_0_MAT>> 1.0
+MIX 47 COMB <<U4_0_MAT>> 1.0
+MIX 48 COMB <<U4_0_MAT>> 1.0
+MIX 49 COMB <<U3_6_MAT>> 1.0
+MIX 50 COMB <<U3_6_MAT>> 1.0
+MIX 51 COMB <<U3_6_MAT>> 1.0
+MIX 52 COMB <<U3_6_MAT>> 1.0
+MIX 53 COMB <<U4_0_MAT>> 1.0
+MIX 54 COMB <<U4_0_MAT>> 1.0
+MIX 55 COMB <<U4_0_MAT>> 1.0
+MIX 56 COMB <<U4_0_MAT>> 1.0
+MIX 57 COMB <<U4_0_MAT>> 1.0
+MIX 58 COMB <<U4_0_MAT>> 1.0
+MIX 59 COMB <<U4_0_MAT>> 1.0
+MIX 60 COMB <<U4_0_MAT>> 1.0
+MIX 61 COMB <<U4_0_MAT>> 1.0
+MIX 62 COMB <<U4_0_MAT>> 1.0
+MIX 63 COMB <<U4_0_MAT>> 1.0
+MIX 64 COMB <<U4_0_MAT>> 1.0
+MIX 65 COMB <<U4_0_MAT>> 1.0
+MIX 66 COMB <<U4_0_MAT>> 1.0
+MIX 67 COMB <<U4_0_MAT>> 1.0
+MIX 68 COMB <<U4_0_MAT>> 1.0
+MIX 69 COMB <<U4_0_MAT>> 1.0
+MIX 70 COMB <<U4_0_MAT>> 1.0
+MIX 71 COMB <<U4_0_MAT>> 1.0
+MIX 72 COMB <<U4_0_MAT>> 1.0
+MIX 73 COMB <<U4_0_MAT>> 1.0
+MIX 74 COMB <<U4_0_MAT>> 1.0
+MIX 75 COMB <<U4_0_MAT>> 1.0
+MIX 76 COMB <<U4_0_MAT>> 1.0
+MIX 77 COMB <<U4_0_MAT>> 1.0
+MIX 78 COMB <<U4_0_MAT>> 1.0
+MIX 79 COMB <<U4_0_MAT>> 1.0
+MIX 80 COMB <<U4_0_MAT>> 1.0
+MIX 81 COMB <<U4_0_MAT>> 1.0
+MIX 82 COMB <<U4_0_MAT>> 1.0
+MIX 83 COMB <<U4_0_MAT>> 1.0
+MIX 84 COMB <<U4_0_MAT>> 1.0
+MIX 85 COMB <<U4_0_MAT>> 1.0
+MIX 86 COMB <<U4_0_MAT>> 1.0
+MIX 87 COMB <<U4_0_MAT>> 1.0
+MIX 88 COMB <<U4_0_MAT>> 1.0
+MIX 89 COMB <<U3_6_MAT>> 1.0
+MIX 90 COMB <<U3_6_MAT>> 1.0
+MIX 91 COMB <<U3_6_MAT>> 1.0
+MIX 92 COMB <<U3_6_MAT>> 1.0
+MIX 93 COMB <<U4_0_MAT>> 1.0
+MIX 94 COMB <<U4_0_MAT>> 1.0
+MIX 95 COMB <<U4_0_MAT>> 1.0
+MIX 96 COMB <<U4_0_MAT>> 1.0
+MIX 97 COMB <<U4_0_MAT>> 1.0
+MIX 98 COMB <<U4_0_MAT>> 1.0
+MIX 99 COMB <<U4_0_MAT>> 1.0
+MIX 100 COMB <<U4_0_MAT>> 1.0
+MIX 101 COMB <<U4_0_MAT>> 1.0
+MIX 102 COMB <<U4_0_MAT>> 1.0
+MIX 103 COMB <<U4_0_MAT>> 1.0
+MIX 104 COMB <<U4_0_MAT>> 1.0
+MIX 105 COMB <<U4_0_MAT>> 1.0
+MIX 106 COMB <<U4_0_MAT>> 1.0
+MIX 107 COMB <<U4_0_MAT>> 1.0
+MIX 108 COMB <<U4_0_MAT>> 1.0
+MIX 109 COMB <<U4_0_MAT>> 1.0
+MIX 110 COMB <<U4_0_MAT>> 1.0
+MIX 111 COMB <<U4_0_MAT>> 1.0
+MIX 112 COMB <<U4_0_MAT>> 1.0
+MIX 113 COMB <<U4_0_MAT>> 1.0
+MIX 114 COMB <<U4_0_MAT>> 1.0
+MIX 115 COMB <<U4_0_MAT>> 1.0
+MIX 116 COMB <<U4_0_MAT>> 1.0
+MIX 117 COMB <<U4_0_MAT>> 1.0
+MIX 118 COMB <<U4_0_MAT>> 1.0
+MIX 119 COMB <<U4_0_MAT>> 1.0
+MIX 120 COMB <<U4_0_MAT>> 1.0
+MIX 121 COMB <<U4_0_MAT>> 1.0
+MIX 122 COMB <<U4_0_MAT>> 1.0
+MIX 123 COMB <<U4_0_MAT>> 1.0
+MIX 124 COMB <<U4_0_MAT>> 1.0
+MIX 125 COMB <<U4_0_MAT>> 1.0
+MIX 126 COMB <<U4_0_MAT>> 1.0
+MIX 127 COMB <<U4_0_MAT>> 1.0
+MIX 128 COMB <<U4_0_MAT>> 1.0
+MIX 129 COMB <<U4_0_MAT>> 1.0
+MIX 130 COMB <<U4_0_MAT>> 1.0
+MIX 131 COMB <<U4_0_MAT>> 1.0
+MIX 132 COMB <<U4_0_MAT>> 1.0
+MIX 133 COMB <<U3_6_MAT>> 1.0
+MIX 134 COMB <<U3_6_MAT>> 1.0
+MIX 135 COMB <<U3_6_MAT>> 1.0
+MIX 136 COMB <<U3_6_MAT>> 1.0
+MIX 137 COMB <<U4_0_MAT>> 1.0
+MIX 138 COMB <<U4_0_MAT>> 1.0
+MIX 139 COMB <<U4_0_MAT>> 1.0
+MIX 140 COMB <<U4_0_MAT>> 1.0
+MIX 141 COMB <<U4_0_MAT>> 1.0
+MIX 142 COMB <<U4_0_MAT>> 1.0
+MIX 143 COMB <<U4_0_MAT>> 1.0
+MIX 144 COMB <<U4_0_MAT>> 1.0
+MIX 145 COMB <<U4_0_MAT>> 1.0
+MIX 146 COMB <<U4_0_MAT>> 1.0
+MIX 147 COMB <<U4_0_MAT>> 1.0
+MIX 148 COMB <<U4_0_MAT>> 1.0
+MIX 149 COMB <<U4_0_MAT>> 1.0
+MIX 150 COMB <<U4_0_MAT>> 1.0
+MIX 151 COMB <<U4_0_MAT>> 1.0
+MIX 152 COMB <<U4_0_MAT>> 1.0
+MIX 153 COMB <<G3_3_MAT>> 1.0
+MIX 154 COMB <<G3_3_MAT>> 1.0
+MIX 155 COMB <<G3_3_MAT>> 1.0
+MIX 156 COMB <<G3_3_MAT>> 1.0
+MIX 157 COMB <<G3_3_MAT>> 1.0
+MIX 158 COMB <<G3_3_MAT>> 1.0
+MIX 159 COMB <<G3_3_MAT>> 1.0
+MIX 160 COMB <<G3_3_MAT>> 1.0
+MIX 161 COMB <<G3_3_MAT>> 1.0
+MIX 162 COMB <<G3_3_MAT>> 1.0
+MIX 163 COMB <<G3_3_MAT>> 1.0
+MIX 164 COMB <<U4_0_MAT>> 1.0
+MIX 165 COMB <<U4_0_MAT>> 1.0
+MIX 166 COMB <<U4_0_MAT>> 1.0
+MIX 167 COMB <<U4_0_MAT>> 1.0
+MIX 168 COMB <<U4_0_MAT>> 1.0
+MIX 169 COMB <<U4_0_MAT>> 1.0
+MIX 170 COMB <<U4_0_MAT>> 1.0
+MIX 171 COMB <<U4_0_MAT>> 1.0
+MIX 172 COMB <<U4_0_MAT>> 1.0
+MIX 173 COMB <<U4_0_MAT>> 1.0
+MIX 174 COMB <<U4_0_MAT>> 1.0
+MIX 175 COMB <<U4_0_MAT>> 1.0
+MIX 176 COMB <<U3_6_MAT>> 1.0
+MIX 177 COMB <<U3_6_MAT>> 1.0
+MIX 178 COMB <<U3_6_MAT>> 1.0
+MIX 179 COMB <<U3_6_MAT>> 1.0
+MIX 180 COMB <<U4_0_MAT>> 1.0
+MIX 181 COMB <<U4_0_MAT>> 1.0
+MIX 182 COMB <<U4_0_MAT>> 1.0
+MIX 183 COMB <<U4_0_MAT>> 1.0
+MIX 184 COMB <<U4_0_MAT>> 1.0
+MIX 185 COMB <<U4_0_MAT>> 1.0
+MIX 186 COMB <<U4_0_MAT>> 1.0
+MIX 187 COMB <<U4_0_MAT>> 1.0
+MIX 188 COMB <<U4_0_MAT>> 1.0
+MIX 189 COMB <<U4_0_MAT>> 1.0
+MIX 190 COMB <<U4_0_MAT>> 1.0
+MIX 191 COMB <<U4_0_MAT>> 1.0
+MIX 192 COMB <<U4_0_MAT>> 1.0
+MIX 193 COMB <<U4_0_MAT>> 1.0
+MIX 194 COMB <<U4_0_MAT>> 1.0
+MIX 195 COMB <<U4_0_MAT>> 1.0
+MIX 196 COMB <<U4_0_MAT>> 1.0
+MIX 197 COMB <<U4_0_MAT>> 1.0
+MIX 198 COMB <<U4_0_MAT>> 1.0
+MIX 199 COMB <<U4_0_MAT>> 1.0
+MIX 200 COMB <<U4_0_MAT>> 1.0
+MIX 201 COMB <<U4_0_MAT>> 1.0
+MIX 202 COMB <<U4_0_MAT>> 1.0
+MIX 203 COMB <<U4_0_MAT>> 1.0
+MIX 204 COMB <<U4_0_MAT>> 1.0
+MIX 205 COMB <<U4_0_MAT>> 1.0
+MIX 206 COMB <<U4_0_MAT>> 1.0
+MIX 207 COMB <<U4_0_MAT>> 1.0
+MIX 208 COMB <<U4_0_MAT>> 1.0
+MIX 209 COMB <<U4_0_MAT>> 1.0
+MIX 210 COMB <<U4_0_MAT>> 1.0
+MIX 211 COMB <<U4_0_MAT>> 1.0
+MIX 212 COMB <<U4_0_MAT>> 1.0
+MIX 213 COMB <<U4_0_MAT>> 1.0
+MIX 214 COMB <<U4_0_MAT>> 1.0
+MIX 215 COMB <<U4_0_MAT>> 1.0
+MIX 216 COMB <<U4_0_MAT>> 1.0
+MIX 217 COMB <<U4_0_MAT>> 1.0
+MIX 218 COMB <<U4_0_MAT>> 1.0
+MIX 219 COMB <<U4_0_MAT>> 1.0
+MIX 220 COMB <<U3_6_MAT>> 1.0
+MIX 221 COMB <<U3_6_MAT>> 1.0
+MIX 222 COMB <<U3_6_MAT>> 1.0
+MIX 223 COMB <<U3_6_MAT>> 1.0
+MIX 224 COMB <<U4_0_MAT>> 1.0
+MIX 225 COMB <<U4_0_MAT>> 1.0
+MIX 226 COMB <<U4_0_MAT>> 1.0
+MIX 227 COMB <<U4_0_MAT>> 1.0
+MIX 228 COMB <<U4_0_MAT>> 1.0
+MIX 229 COMB <<U4_0_MAT>> 1.0
+MIX 230 COMB <<U4_0_MAT>> 1.0
+MIX 231 COMB <<U4_0_MAT>> 1.0
+MIX 232 COMB <<U4_0_MAT>> 1.0
+MIX 233 COMB <<U4_0_MAT>> 1.0
+MIX 234 COMB <<U4_0_MAT>> 1.0
+MIX 235 COMB <<U4_0_MAT>> 1.0
+MIX 236 COMB <<U4_0_MAT>> 1.0
+MIX 237 COMB <<U4_0_MAT>> 1.0
+MIX 238 COMB <<U4_0_MAT>> 1.0
+MIX 239 COMB <<U4_0_MAT>> 1.0
+MIX 240 COMB <<U4_0_MAT>> 1.0
+MIX 241 COMB <<U4_0_MAT>> 1.0
+MIX 242 COMB <<U4_0_MAT>> 1.0
+MIX 243 COMB <<U4_0_MAT>> 1.0
+MIX 244 COMB <<U4_0_MAT>> 1.0
+MIX 245 COMB <<U4_0_MAT>> 1.0
+MIX 246 COMB <<U4_0_MAT>> 1.0
+MIX 247 COMB <<U4_0_MAT>> 1.0
+MIX 248 COMB <<U4_0_MAT>> 1.0
+MIX 249 COMB <<U4_0_MAT>> 1.0
+MIX 250 COMB <<U4_0_MAT>> 1.0
+MIX 251 COMB <<U4_0_MAT>> 1.0
+MIX 252 COMB <<U4_0_MAT>> 1.0
+MIX 253 COMB <<U4_0_MAT>> 1.0
+MIX 254 COMB <<U4_0_MAT>> 1.0
+MIX 255 COMB <<U4_0_MAT>> 1.0
+MIX 256 COMB <<U3_6_MAT>> 1.0
+MIX 257 COMB <<U3_6_MAT>> 1.0
+MIX 258 COMB <<U3_6_MAT>> 1.0
+MIX 259 COMB <<U3_6_MAT>> 1.0
+MIX 260 COMB <<U4_0_MAT>> 1.0
+MIX 261 COMB <<U4_0_MAT>> 1.0
+MIX 262 COMB <<U4_0_MAT>> 1.0
+MIX 263 COMB <<U4_0_MAT>> 1.0
+MIX 264 COMB <<U4_0_MAT>> 1.0
+MIX 265 COMB <<U4_0_MAT>> 1.0
+MIX 266 COMB <<U4_0_MAT>> 1.0
+MIX 267 COMB <<U4_0_MAT>> 1.0
+MIX 268 COMB <<U4_0_MAT>> 1.0
+MIX 269 COMB <<U4_0_MAT>> 1.0
+MIX 270 COMB <<U4_0_MAT>> 1.0
+MIX 271 COMB <<U4_0_MAT>> 1.0
+MIX 272 COMB <<U4_0_MAT>> 1.0
+MIX 273 COMB <<U4_0_MAT>> 1.0
+MIX 274 COMB <<U4_0_MAT>> 1.0
+MIX 275 COMB <<U4_0_MAT>> 1.0
+MIX 276 COMB <<U4_0_MAT>> 1.0
+MIX 277 COMB <<U4_0_MAT>> 1.0
+MIX 278 COMB <<U4_0_MAT>> 1.0
+MIX 279 COMB <<U4_0_MAT>> 1.0
+MIX 280 COMB <<U4_0_MAT>> 1.0
+MIX 281 COMB <<U4_0_MAT>> 1.0
+MIX 282 COMB <<U4_0_MAT>> 1.0
+MIX 283 COMB <<U4_0_MAT>> 1.0
+MIX 284 COMB <<U4_0_MAT>> 1.0
+MIX 285 COMB <<U4_0_MAT>> 1.0
+MIX 286 COMB <<U4_0_MAT>> 1.0
+MIX 287 COMB <<U4_0_MAT>> 1.0
+MIX 288 COMB <<U4_0_MAT>> 1.0
+MIX 289 COMB <<U4_0_MAT>> 1.0
+MIX 290 COMB <<U4_0_MAT>> 1.0
+MIX 291 COMB <<U4_0_MAT>> 1.0
+MIX 292 COMB <<U4_0_MAT>> 1.0
+MIX 293 COMB <<U4_0_MAT>> 1.0
+MIX 294 COMB <<U4_0_MAT>> 1.0
+MIX 295 COMB <<U4_0_MAT>> 1.0
+MIX 296 COMB <<U3_6_MAT>> 1.0
+MIX 297 COMB <<U3_6_MAT>> 1.0
+MIX 298 COMB <<U3_6_MAT>> 1.0
+MIX 299 COMB <<U3_6_MAT>> 1.0
+MIX 300 COMB <<U4_0_MAT>> 1.0
+MIX 301 COMB <<U4_0_MAT>> 1.0
+MIX 302 COMB <<U4_0_MAT>> 1.0
+MIX 303 COMB <<U4_0_MAT>> 1.0
+MIX 304 COMB <<U4_0_MAT>> 1.0
+MIX 305 COMB <<U4_0_MAT>> 1.0
+MIX 306 COMB <<U4_0_MAT>> 1.0
+MIX 307 COMB <<U4_0_MAT>> 1.0
+MIX 308 COMB <<U4_0_MAT>> 1.0
+MIX 309 COMB <<U4_0_MAT>> 1.0
+MIX 310 COMB <<U4_0_MAT>> 1.0
+MIX 311 COMB <<U4_0_MAT>> 1.0
+MIX 312 COMB <<U4_0_MAT>> 1.0
+MIX 313 COMB <<U4_0_MAT>> 1.0
+MIX 314 COMB <<U4_0_MAT>> 1.0
+MIX 315 COMB <<U4_0_MAT>> 1.0
+MIX 316 COMB <<U4_0_MAT>> 1.0
+MIX 317 COMB <<U4_0_MAT>> 1.0
+MIX 318 COMB <<U4_0_MAT>> 1.0
+MIX 319 COMB <<U4_0_MAT>> 1.0
+MIX 320 COMB <<U4_0_MAT>> 1.0
+MIX 321 COMB <<U4_0_MAT>> 1.0
+MIX 322 COMB <<U4_0_MAT>> 1.0
+MIX 323 COMB <<U4_0_MAT>> 1.0
+MIX 324 COMB <<U4_0_MAT>> 1.0
+MIX 325 COMB <<U4_0_MAT>> 1.0
+MIX 326 COMB <<U4_0_MAT>> 1.0
+MIX 327 COMB <<U4_0_MAT>> 1.0
+MIX 328 COMB <<U4_0_MAT>> 1.0
+MIX 329 COMB <<U4_0_MAT>> 1.0
+MIX 330 COMB <<U4_0_MAT>> 1.0
+MIX 331 COMB <<U4_0_MAT>> 1.0
+MIX 332 COMB <<U4_0_MAT>> 1.0
+MIX 333 COMB <<U4_0_MAT>> 1.0
+MIX 334 COMB <<U4_0_MAT>> 1.0
+MIX 335 COMB <<U4_0_MAT>> 1.0
+MIX 336 COMB <<U4_0_MAT>> 1.0
+MIX 337 COMB <<U4_0_MAT>> 1.0
+MIX 338 COMB <<U4_0_MAT>> 1.0
+MIX 339 COMB <<U4_0_MAT>> 1.0
+MIX 340 COMB <<U3_6_MAT>> 1.0
+MIX 341 COMB <<U3_6_MAT>> 1.0
+MIX 342 COMB <<U3_6_MAT>> 1.0
+MIX 343 COMB <<U3_6_MAT>> 1.0
+MIX 344 COMB <<U4_0_MAT>> 1.0
+MIX 345 COMB <<U4_0_MAT>> 1.0
+MIX 346 COMB <<U4_0_MAT>> 1.0
+MIX 347 COMB <<U4_0_MAT>> 1.0
+MIX 348 COMB <<G3_3_MAT>> 1.0
+MIX 349 COMB <<G3_3_MAT>> 1.0
+MIX 350 COMB <<G3_3_MAT>> 1.0
+MIX 351 COMB <<G3_3_MAT>> 1.0
+MIX 352 COMB <<G3_3_MAT>> 1.0
+MIX 353 COMB <<G3_3_MAT>> 1.0
+MIX 354 COMB <<G3_3_MAT>> 1.0
+MIX 355 COMB <<G3_3_MAT>> 1.0
+MIX 356 COMB <<G3_3_MAT>> 1.0
+MIX 357 COMB <<G3_3_MAT>> 1.0
+MIX 358 COMB <<G3_3_MAT>> 1.0
+MIX 359 COMB <<U4_0_MAT>> 1.0
+MIX 360 COMB <<U4_0_MAT>> 1.0
+MIX 361 COMB <<U4_0_MAT>> 1.0
+MIX 362 COMB <<U4_0_MAT>> 1.0
+MIX 363 COMB <<U4_0_MAT>> 1.0
+MIX 364 COMB <<U4_0_MAT>> 1.0
+MIX 365 COMB <<U4_0_MAT>> 1.0
+MIX 366 COMB <<U4_0_MAT>> 1.0
+MIX 367 COMB <<U4_0_MAT>> 1.0
+MIX 368 COMB <<U4_0_MAT>> 1.0
+MIX 369 COMB <<U4_0_MAT>> 1.0
+MIX 370 COMB <<U4_0_MAT>> 1.0
+MIX 371 COMB <<U4_0_MAT>> 1.0
+MIX 372 COMB <<U4_0_MAT>> 1.0
+MIX 373 COMB <<U4_0_MAT>> 1.0
+MIX 374 COMB <<U4_0_MAT>> 1.0
+MIX 375 COMB <<U4_0_MAT>> 1.0
+MIX 376 COMB <<U4_0_MAT>> 1.0
+MIX 377 COMB <<U4_0_MAT>> 1.0
+MIX 378 COMB <<U4_0_MAT>> 1.0
+MIX 379 COMB <<U4_0_MAT>> 1.0
+MIX 380 COMB <<U4_0_MAT>> 1.0
+MIX 381 COMB <<U4_0_MAT>> 1.0
+MIX 382 COMB <<U4_0_MAT>> 1.0
+MIX 383 COMB <<U4_0_MAT>> 1.0
+MIX 384 COMB <<U4_0_MAT>> 1.0
+MIX 385 COMB <<U4_0_MAT>> 1.0
+MIX 386 COMB <<U4_0_MAT>> 1.0
+MIX 387 COMB <<G3_3_MAT>> 1.0
+MIX 388 COMB <<G3_3_MAT>> 1.0
+MIX 389 COMB <<G3_3_MAT>> 1.0
+MIX 390 COMB <<G3_3_MAT>> 1.0
+MIX 391 COMB <<G3_3_MAT>> 1.0
+MIX 392 COMB <<G3_3_MAT>> 1.0
+MIX 393 COMB <<G3_3_MAT>> 1.0
+MIX 394 COMB <<G3_3_MAT>> 1.0
+MIX 395 COMB <<G3_3_MAT>> 1.0
+MIX 396 COMB <<G3_3_MAT>> 1.0
+MIX 397 COMB <<G3_3_MAT>> 1.0
+MIX 398 COMB <<U3_6_MAT>> 1.0
+MIX 399 COMB <<U3_6_MAT>> 1.0
+MIX 400 COMB <<U3_6_MAT>> 1.0
+MIX 401 COMB <<U3_6_MAT>> 1.0
+MIX 402 COMB <<U4_0_MAT>> 1.0
+MIX 403 COMB <<U4_0_MAT>> 1.0
+MIX 404 COMB <<U4_0_MAT>> 1.0
+MIX 405 COMB <<U4_0_MAT>> 1.0
+MIX 406 COMB <<U4_0_MAT>> 1.0
+MIX 407 COMB <<U4_0_MAT>> 1.0
+MIX 408 COMB <<U4_0_MAT>> 1.0
+MIX 409 COMB <<U4_0_MAT>> 1.0
+MIX 410 COMB <<U4_0_MAT>> 1.0
+MIX 411 COMB <<U4_0_MAT>> 1.0
+MIX 412 COMB <<U4_0_MAT>> 1.0
+MIX 413 COMB <<U4_0_MAT>> 1.0
+MIX 414 COMB <<U4_0_MAT>> 1.0
+MIX 415 COMB <<U4_0_MAT>> 1.0
+MIX 416 COMB <<U4_0_MAT>> 1.0
+MIX 417 COMB <<U4_0_MAT>> 1.0
+MIX 418 COMB <<U4_0_MAT>> 1.0
+MIX 419 COMB <<U4_0_MAT>> 1.0
+MIX 420 COMB <<U4_0_MAT>> 1.0
+MIX 421 COMB <<U4_0_MAT>> 1.0
+MIX 422 COMB <<U4_0_MAT>> 1.0
+MIX 423 COMB <<U4_0_MAT>> 1.0
+MIX 424 COMB <<U4_0_MAT>> 1.0
+MIX 425 COMB <<U4_0_MAT>> 1.0
+MIX 426 COMB <<U4_0_MAT>> 1.0
+MIX 427 COMB <<U4_0_MAT>> 1.0
+MIX 428 COMB <<U4_0_MAT>> 1.0
+MIX 429 COMB <<U4_0_MAT>> 1.0
+MIX 430 COMB <<U4_0_MAT>> 1.0
+MIX 431 COMB <<U4_0_MAT>> 1.0
+MIX 432 COMB <<U4_0_MAT>> 1.0
+MIX 433 COMB <<U4_0_MAT>> 1.0
+MIX 434 COMB <<U4_0_MAT>> 1.0
+MIX 435 COMB <<U4_0_MAT>> 1.0
+MIX 436 COMB <<U4_0_MAT>> 1.0
+MIX 437 COMB <<U4_0_MAT>> 1.0
+MIX 438 COMB <<U4_0_MAT>> 1.0
+MIX 439 COMB <<U4_0_MAT>> 1.0
+MIX 440 COMB <<U4_0_MAT>> 1.0
+MIX 441 COMB <<U4_0_MAT>> 1.0
+MIX 442 COMB <<U3_6_MAT>> 1.0
+MIX 443 COMB <<U3_6_MAT>> 1.0
+MIX 444 COMB <<U3_6_MAT>> 1.0
+MIX 445 COMB <<U3_6_MAT>> 1.0
+MIX 446 COMB <<U3_6_MAT>> 1.0
+MIX 447 COMB <<U3_6_MAT>> 1.0
+MIX 448 COMB <<U3_6_MAT>> 1.0
+MIX 449 COMB <<U3_6_MAT>> 1.0
+MIX 450 COMB <<U3_6_MAT>> 1.0
+MIX 451 COMB <<U3_6_MAT>> 1.0
+MIX 452 COMB <<U3_6_MAT>> 1.0
+MIX 453 COMB <<U3_6_MAT>> 1.0
+MIX 454 COMB <<U3_6_MAT>> 1.0
+MIX 455 COMB <<U3_6_MAT>> 1.0
+MIX 456 COMB <<U3_6_MAT>> 1.0
+MIX 457 COMB <<U3_6_MAT>> 1.0
+MIX 458 COMB <<U3_6_MAT>> 1.0
+MIX 459 COMB <<U3_6_MAT>> 1.0
+MIX 460 COMB <<U3_6_MAT>> 1.0
+MIX 461 COMB <<U3_6_MAT>> 1.0
+MIX 462 COMB <<U3_6_MAT>> 1.0
+MIX 463 COMB <<U3_6_MAT>> 1.0
+MIX 464 COMB <<U3_6_MAT>> 1.0
+MIX 465 COMB <<U3_6_MAT>> 1.0
+MIX 466 COMB <<U3_6_MAT>> 1.0
+MIX 467 COMB <<U3_6_MAT>> 1.0
+MIX 468 COMB <<U3_6_MAT>> 1.0
+MIX 469 COMB <<U3_6_MAT>> 1.0
+MIX 470 COMB <<U3_6_MAT>> 1.0
+MIX 471 COMB <<U3_6_MAT>> 1.0
+MIX 472 COMB <<U3_6_MAT>> 1.0
+MIX 473 COMB <<U3_6_MAT>> 1.0
+MIX 474 COMB <<U3_6_MAT>> 1.0
+MIX 475 COMB <<U3_6_MAT>> 1.0
+MIX 476 COMB <<U3_6_MAT>> 1.0
+MIX 477 COMB <<U3_6_MAT>> 1.0
+MIX 478 COMB <<U3_6_MAT>> 1.0
+MIX 479 COMB <<U3_6_MAT>> 1.0
+MIX 480 COMB <<U3_6_MAT>> 1.0
+MIX 481 COMB <<U3_6_MAT>> 1.0
+MIX 482 COMB <<U3_6_MAT>> 1.0
+MIX 483 COMB <<U3_6_MAT>> 1.0
+MIX 484 COMB <<U3_6_MAT>> 1.0
+MIX 485 COMB <<U3_6_MAT>> 1.0         
+*   486  s                       --> struct_MAT
+    ;
+
+ENDIF ;
+
+END: ;
+QUIT .

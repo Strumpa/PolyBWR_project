@@ -1,0 +1,112 @@
+******************************************************************************
+*                                                                            *
+* Procedure :  TRK_A_N.c2m                                                   *
+* Purpose   :  Tracking and figure printing for NATIVE assemblies            *
+* Author    :  L.Fede                                                        *
+*                                                                            *
+* CALL      :                                                                *
+* TRACK_1L TRACK_SS FIG_1L.ps FIG_SS.ps := TRK_A_N GEOM_1L GEOM_SS <<an2d>>  *
+*                                                                            *
+******************************************************************************
+
+* ---
+* INPUT & OUTPUT PARAMETERS
+* ---
+PARAMETER TRACK_1L TRACK_SS FIG_1L.ps FIG_SS.ps GEOM_1L GEOM_SS ::
+::: LINKED_LIST TRACK_1L ;
+*::: SEQ_BINARY TF_EXC ;
+::: LINKED_LIST TRACK_SS ;
+::: SEQ_ASCII FIG_1L.ps ;
+::: SEQ_ASCII FIG_SS.ps ;
+::: LINKED_LIST GEOM_1L ;
+::: LINKED_LIST GEOM_SS ; ;
+
+INTEGER an2d ;
+:: >>an2d<< ;
+
+* ---
+* STRUCTURES AND MODULES
+* ---
+MODULE G2S: SALT: SYBILT: MCCGT: END: ;
+
+SEQ_ASCII _BURN :: FILE './_BURN_rowland.txt' ;
+SEQ_ASCII _LIBR :: FILE './_LIB_rowland.txt' ;
+SEQ_ASCII _EDIT :: FILE './_EDIT_rowland.txt' ;
+
+SEQ_ASCII UOX_TBH UOX_TBH_SS UOX_TBH_1L ;
+
+* SALT tracking parameters
+REAL densur := 20.0 ;
+
+* SALT SSH tracking parameters
+INTEGER an2d_SS := 12 ;
+REAL densur_SS := 20.0 ;
+
+* SYBILT: size allocation
+INTEGER PTS := 1000000 ;
+
+* polar angles for MCCGT:
+INTEGER nmu := 4 ;
+
+* size allocation for MCCGT:
+INTEGER mcu := 50000 ;
+
+*----------------------
+*      TRACKING
+*----------------------
+
+* ---
+* SELF-SHIELDING TRACKING
+* ---
+TRACK_SS := SYBILT: GEOM_SS ::
+  EDIT 1
+  MAXR <<PTS>> MAXZ <<PTS>> DP00
+;
+
+UOX_TBH_SS FIG_SS.ps := G2S: GEOM_SS ::
+  EDIT 1 
+*  DRAWMIX
+*  ZOOMX 0.4 0.6
+*  ZOOMY 0.4 0.6
+;
+
+*----
+* 1L FLUX TRACKING SALT: MCCGT:
+*----
+*UOX_TBH FIG_1L.ps := G2S: GEOM_1L ::
+*  EDIT 1
+*  DRAWMIX
+*  ZOOMX 0.4 0.6
+*  ZOOMY 0.6 0.75
+*;
+
+*TRACK_1L TF_EXC := SALT: UOX_TBH ::
+*  EDIT 1
+*  ALLG
+*  TSPC EQW2 <<an2d>> <<densur>> REND LONG
+*;
+
+* MOC tracking
+*TRACK_1L := MCCGT: TRACK_1L TF_EXC ::
+*  EDIT 0
+*  CACB <<nmu>> AAC 80 TMT EPSI 1E-5 MCU <<mcu>>
+*;
+
+
+* ---
+* 1L FLUX TRACKING SYBILT :
+* ---
+TRACK_1L := SYBILT: GEOM_1L ::
+  EDIT 1
+  MAXR <<PTS>> MAXZ <<PTS>> DP00
+;
+
+UOX_TBH_1L FIG_1L.ps := G2S: GEOM_1L ::
+  EDIT 1 
+*  DRAWMIX
+*  ZOOMX 0.4 0.6
+*  ZOOMY 0.4 0.6
+;
+
+END: ;
+QUIT .

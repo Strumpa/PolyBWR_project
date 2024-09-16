@@ -34,8 +34,8 @@ def MULTI_SERP_POSTPROC(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_geom,bu_autop_list,V
     visu_DELTA=VISU_param[3]
 
     # --- Figure size
-    SIZE=(6,4)
-
+    SIZE=(8,6)
+    print(SAT)
     # --- Creating SAVEDIR if not existing
     path=os.getcwd()
     a=os.path.exists('BWRresults_PyGan_'+name_geom)
@@ -52,8 +52,10 @@ def MULTI_SERP_POSTPROC(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_geom,bu_autop_list,V
 
     # --- List of isotopes to be post-treated
 
-    isotopes_SOUHAITES=['U235','U236','U238','Pu239','Pu240','Pu241','Pu242','Gd154','Gd155','Gd156','Gd157','Gd158','Gd160','Xe135','Sm149']
+    isotopes_SOUHAITES=['U235','U238','Pu239','Pu240','Gd155','Gd156','Gd157','Gd158','Xe135','Sm149', 'Sm154','Eu155', 'Eu156', 'Eu157']
     
+    if ssh_module == "AUTO":
+        ssh_method = "Autosecol"
 
 
     if SAT == "SAT":
@@ -62,6 +64,9 @@ def MULTI_SERP_POSTPROC(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_geom,bu_autop_list,V
     elif SAT == "SATOFF":
         SAT = " SATOFF "
         sat_name = "_SATOFF"
+    elif SAT == "NSAT":
+        SAT = " NSAT "
+        sat_name = "_NSAT"
     else:
         SAT = " "
         sat_name = ""
@@ -75,6 +80,8 @@ def MULTI_SERP_POSTPROC(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_geom,bu_autop_list,V
     else:
         CORR = " "
         correlation_name = ""
+
+    list_tests = pyCOMPOs.keys()
     ################################################################
     #   RETRIVE ALL RESULTS FROM PYCOMPO and SERPENT2 outputs
     ################################################################
@@ -91,6 +98,7 @@ def MULTI_SERP_POSTPROC(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_geom,bu_autop_list,V
 
         lenBU_DRAGON=np.shape(ListeCOMPO)[0]
         DRAGON_results_ALL = {}
+        print(pyCOMPOs.keys())
         for test_name in pyCOMPOs.keys(): 
             ISOTOPES=pyCOMPOs[test_name][DIR]['MIXTURES'][0]['CALCULATIONS'][0]['ISOTOPESDENS']
             print(f"Dragon isotopes = {ISOTOPES}")
@@ -145,18 +153,29 @@ def MULTI_SERP_POSTPROC(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_geom,bu_autop_list,V
         SERPENT_results_ALL = {}
         # Importing Keff and isotopes densities from Serpent2
         for test_name in DRAGON_results_ALL.keys():
+            if "HOM_UOX_Gd157" in test_name: 
+                test_name_file = "HOM_UOX_Gd157"
+            elif "HOM_UOX_Gd155" in test_name:
+                test_name_file = "HOM_UOX_Gd155"
+            elif "HOM_UOXGd" in test_name:
+                test_name_file = "HOM_UOXGd"
             SERPENT_test_RESULTS = {}
             for lib_name in S2_libs:
                 # --- Keff
                 # 
-                res=serpentTools.read(f"/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/HOM_CELL_study/{test_name}/{test_name}_{lib_name}_mc_res.m")
-
+                if "NO_NG_toGd158" in test_name:
+                    res=serpentTools.read(f"/home/p117902/working_dir/Serpent2_tests/Linux_aarch64/{test_name_file}_{lib_name}_noNG_toGd158_mc_res.m")
+                else:
+                    res=serpentTools.read(f"/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/HOM_CELL_study/{test_name_file}/{test_name_file}_{lib_name}_mc_res.m")
                 serpent_keff=res.resdata["absKeff"]
                 np.savetxt(f'serpent_keff_{lib_name}.txt',serpent_keff)
                 SERPENT_keff=np.loadtxt(f'serpent_keff_{lib_name}.txt',dtype=float)
                     
                 # --- BU
-                depl = serpentTools.read(f"/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/HOM_CELL_study/{test_name}/{test_name}_{lib_name}_mc_dep.m")
+                if "NO_NG_toGd158" in test_name:
+                    depl = serpentTools.read(f"/home/p117902/working_dir/Serpent2_tests/Linux_aarch64/{test_name_file}_{lib_name}_noNG_toGd158_mc_dep.m")
+                else:
+                    depl = serpentTools.read(f"/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/HOM_CELL_study/{test_name_file}/{test_name_file}_{lib_name}_mc_dep.m")
                 fuel=depl.materials['total']
                 serpent_BU=fuel.burnup
                 np.savetxt(f'serpent_BU_{lib_name}.txt',serpent_BU)
@@ -180,7 +199,6 @@ def MULTI_SERP_POSTPROC(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_geom,bu_autop_list,V
                     serpent_keff[k]=SERPENT_keff[k][0]
 
 
-
                 SERPENT_lib_res=[
                     SERPENT_BU,
                     serpent_keff,
@@ -195,10 +213,13 @@ def MULTI_SERP_POSTPROC(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_geom,bu_autop_list,V
     # -------------------------------
     #   ERROR MATRICES COMPUTATION 
     # -------------------------------
-    ERRORS_ALL = {}
+    
     if visu_DELTA==1 :
-        ERRORS = {}
+        ERRORS_ALL = {}
+        print(DRAGON_results_ALL.keys())
         for test_name in DRAGON_results_ALL.keys():
+            ERRORS = {}
+            print(f"Test name = {test_name}")
             for lib_name in S2_libs:
                 ERROR=np.zeros((len(isotopes_SOUHAITES)+2,lenBU_DRAGON))
                 LE=np.shape(ERROR)
@@ -220,120 +241,136 @@ def MULTI_SERP_POSTPROC(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_geom,bu_autop_list,V
                 ERRORS[lib_name] = ERROR
             ERRORS_ALL[test_name] = ERRORS               
         print(f"ERRORS = {ERRORS}")
-        #print(f"Len iso DRAGON = {lenISOT_DRAGON}, len iso Serp = {lenISOT_SERPENT}")
+        print(f"ERRORS_ALL = {ERRORS_ALL}")
+        print(f"SERPENT_RESULTS = {SERPENT_results_ALL}")
+        print(f"DRAGON_RESULTS = {DRAGON_results_ALL}")
+
+
     ################################################################
     #             PLOT AND SAVE FIGURES
     ################################################################
             
     colors = {"DRAGON5": "black", "oldlib": "red", "PyNjoy2016": "blue"}
-    UOX_tests = ["HOM_U5", "HOM_U5_U8", "HOM_UOX", "HOM_UOX_clad_noZr", "HOM_UOX_clad"]
-    Gd_tests = ["HOM_UOX_Gd155", "HOM_UOX_Gd157", "HOM_UOXGd_no155157", "HOM_UOXGd"]
+    UOX_tests = []
+    Gd_tests = []
+    for test in list_tests:
+        if "Gd" in test:
+            Gd_tests.append(test)
+        else:
+            UOX_tests.append(test)
     if visu_DRAGON==1:
         print('$$$ -------- POSTPROC.py : DRAGON5 figures ')
         for k in range(len(isotopes_SOUHAITES)+1):
-            # UOX tests :
-            plt.figure(figsize=SIZE)
-            for test_name in UOX_tests:
-                plt.plot(DRAGON_results_ALL[test_name][0], DRAGON_results_ALL[test_name][k+1],'2-',linewidth=1)
-            plt.xlabel('BU [MWd/t]')
-            plt.grid()
-            plt.legend(['DRAGON5'])
+            if UOX_tests:
+                # UOX tests :
+                legends=[]
+                plt.figure(figsize=SIZE)
+                for test_name in UOX_tests:
+                    plt.plot(DRAGON_results_ALL[test_name][0], DRAGON_results_ALL[test_name][k+1],'2-',linewidth=1)
+                    legends.append(f"{test_name} : D5")
+                plt.xlabel('BU [MWd/t]')
+                plt.grid()
+                plt.legend(legends)
 
-            if k == 0: # Comparaison des Keff
-                plt.ylabel('Keff')
-                save_name=f'UOX_tests_{DEPL_SOL}{sat_name}_{ssh_method}_DRAGON5_Keff'
-                fig_name=f'HOM_CELL : UOX tests {DEPL_SOL}{SAT}{CORR}{ssh_method} - Keff'
-            else : # Erreur sur isotopes
-                plt.ylabel('Isotopic density [atom/b-cm]')
-                save_name=f'UOX_tests_{DEPL_SOL}{SAT}{CORR}_{ssh_method}_{isotopes_SOUHAITES[k-1]}'
-                fig_name=f'HOM_CELL : UOX tests {DEPL_SOL} {SAT} {CORR} {ssh_method} - {isotopes_SOUHAITES[k-1]}'
+                if k == 0: # Comparaison des Keff
+                    plt.ylabel('Keff')
+                    save_name=f'UOX_tests_{DEPL_SOL}{sat_name}_{ssh_method}{correlation_name}_DRAGON5_Keff'
+                    fig_name=f'HOM_CELL : UOX tests {DEPL_SOL}{SAT}{CORR}{ssh_method} - Keff'
+                else : # Erreur sur isotopes
+                    plt.ylabel('Isotopic density [atom/b-cm]')
+                    save_name=f'UOX_tests_{DEPL_SOL}{sat_name}_{ssh_method}{correlation_name}_{isotopes_SOUHAITES[k-1]}_DRAGON5'
+                    fig_name=f'HOM_CELL : UOX tests {DEPL_SOL} {SAT} {CORR} {ssh_method} - {isotopes_SOUHAITES[k-1]}'
 
-            plt.title(fig_name)
-            os.chdir(path+'/'+SAVE_DIR)
-            plt.savefig(save_name+'.png',bbox_inches = 'tight') #enregistrement des figures dans le repertoire des resultats
-            os.chdir(path)
-            plt.close('all')
+                plt.title(fig_name)
+                os.chdir(path+'/'+SAVE_DIR)
+                plt.savefig(save_name+'.png',bbox_inches = 'tight') #enregistrement des figures dans le repertoire des resultats
+                os.chdir(path)
+                plt.close('all')
 
-            # Gd tests :
-            plt.figure(figsize=SIZE)
-            for test_name in Gd_tests:
-                plt.plot(DRAGON_results_ALL[test_name][0], DRAGON_results_ALL[test_name][k+1],'2-',linewidth=1)
-            plt.xlabel('BU [MWd/t]')
-            plt.grid()
-            plt.legend(['DRAGON5'])
+            if Gd_tests:
+                # Gd tests :
+                legends=[]
+                plt.figure(figsize=SIZE)
+                for test_name in Gd_tests:
+                    plt.plot(DRAGON_results_ALL[test_name][0], DRAGON_results_ALL[test_name][k+1],'2-',linewidth=1)
+                    legends.append(f"{test_name} : D5")
+                plt.xlabel('BU [MWd/t]')
+                plt.grid()
+                plt.legend(legends)
 
-            if k == 0: # Comparaison des Keff
-                plt.ylabel('Keff')
-                save_name=f'Gd_tests_{DEPL_SOL}{sat_name}_{ssh_method}_DRAGON5_Keff'
-                fig_name=f'HOM_CELL : Gd tests {DEPL_SOL}{SAT}{CORR}{ssh_method} - Keff'
-            else : # Erreur sur isotopes
-                plt.ylabel('Isotopic density [atom/b-cm]')
-                save_name=f'Gd_tests_{DEPL_SOL}{SAT}{CORR}_{ssh_method}_{isotopes_SOUHAITES[k-1]}'
-                fig_name=f'HOM_CELL : Gd tests {DEPL_SOL} {SAT} {CORR} {ssh_method} - {isotopes_SOUHAITES[k-1]}'
+                if k == 0: # Comparaison des Keff
+                    plt.ylabel('Keff')
+                    save_name=f'Gd_tests_{DEPL_SOL}{sat_name}_{ssh_method}{correlation_name}_DRAGON5_Keff'
+                    fig_name=f'HOM_CELL : Gd tests {DEPL_SOL}{SAT}{CORR}{ssh_method} - Keff'
+                else : # Erreur sur isotopes
+                    plt.ylabel('Isotopic density [atom/b-cm]')
+                    save_name=f'Gd_tests_{DEPL_SOL}{sat_name}_{ssh_method}{correlation_name}_{isotopes_SOUHAITES[k-1]}_DRAGON5'
+                    fig_name=f'HOM_CELL : Gd tests {DEPL_SOL} {SAT} {CORR} {ssh_method} - {isotopes_SOUHAITES[k-1]}'
 
-            plt.title(fig_name)
-            os.chdir(path+'/'+SAVE_DIR)
-            plt.savefig(save_name+'.png',bbox_inches = 'tight') #enregistrement des figures dans le repertoire des resultats
-            os.chdir(path)
-            plt.close('all')
+                plt.title(fig_name)
+                os.chdir(path+'/'+SAVE_DIR)
+                plt.savefig(save_name+'.png',bbox_inches = 'tight') #enregistrement des figures dans le repertoire des resultats
+                os.chdir(path)
+                plt.close('all')
 
 
     if visu_SERPENT==1:
         print('$$$ -------- POSTPROC.py : Serpent2 figures ')
 
         for k in range(len(isotopes_SOUHAITES)+1):
+            if UOX_tests:
+                # UOX tests :
+                legends = []
+                plt.figure(figsize=SIZE)
+                for test_name in UOX_tests:
+                    for lib_name in S2_libs:
+                        legends.append(f"{test_name} : {lib_name}")
+                        plt.plot(SERPENT_results_ALL[test_name][lib_name][0],SERPENT_results_ALL[test_name][lib_name][k+1],'2-',linewidth=1)
+                plt.xlabel('BU [MWd/t]')
+                plt.grid()
+                    
+                plt.legend(legends)
+                if k == 0: # Keff
+                    plt.ylabel('Keff')
+                    save_name=f'UOX_tests_Serpent2_Keff'
+                    fig_name=f'HOM_CELL : UOX tests - Keff'
+                else : # isotopes
+                    plt.ylabel('Isotopic density [atom/b-cm]')
+                    save_name=f'UOX_tests_Serpent2_{isotopes_SOUHAITES[k-1]}'
+                    fig_name=f'HOM_CELL : UOX tests - {isotopes_SOUHAITES[k-1]}'
 
-            # UOX tests :
-            legends = []
-            plt.figure(figsize=SIZE)
-            for test_name in UOX_tests:
-                for lib_name in S2_libs:
-                    legends.append(f"{test_name} : {lib_name}")
-                    plt.plot(SERPENT_results_ALL[test_name][lib_name][0],SERPENT_results_ALL[test_name][lib_name][k+1],'2-',linewidth=1, color=colors[lib_name])
-            plt.xlabel('BU [MWd/t]')
-            plt.grid()
-                
-            plt.legend(legends)
-            if k == 0: # Keff
-                plt.ylabel('Keff')
-                save_name=f'UOX_tests_Serpent2_Keff'
-                fig_name=f'HOM_CELL : UOX tests - Keff'
-            else : # isotopes
-                plt.ylabel('Isotopic density [atom/b-cm]')
-                save_name=f'UOX_tests_Serpent2_{isotopes_SOUHAITES[k-1]}'
-                fig_name=f'HOM_CELL : UOX tests - {isotopes_SOUHAITES[k-1]}'
+                plt.title(fig_name)
+                os.chdir(path+'/'+SAVE_DIR)
+                plt.savefig(save_name+'.png',bbox_inches = 'tight') #enregistrement des figures dans le repertoire des resultats
+                os.chdir(path)
+                plt.close('all')
+            if Gd_tests:
+                # Gd tests :
+                legends = []
+                plt.figure(figsize=SIZE)
+                for test_name in Gd_tests:
+                    for lib_name in S2_libs:
+                        legends.append(f"{test_name} : {lib_name}")
+                        plt.plot(SERPENT_results_ALL[test_name][lib_name][0],SERPENT_results_ALL[test_name][lib_name][k+1],'2-',linewidth=1)
+                plt.xlabel('BU [MWd/t]')
+                plt.grid()
+                    
+                plt.legend(legends)
+                if k == 0: # Keff
+                    plt.ylabel('Keff')
+                    save_name=f'Gd_tests_Serpent2_Keff'
+                    fig_name=f'HOM_CELL : Gd tests - Keff'
+                else : # isotopes
+                    plt.ylabel('Isotopic density [atom/b-cm]')
+                    save_name=f'Gd_tests_Serpent2_{isotopes_SOUHAITES[k-1]}'
+                    fig_name=f'HOM_CELL : Gd tests - {isotopes_SOUHAITES[k-1]}'
 
-            plt.title(fig_name)
-            os.chdir(path+'/'+SAVE_DIR)
-            plt.savefig(save_name+'.png',bbox_inches = 'tight') #enregistrement des figures dans le repertoire des resultats
-            os.chdir(path)
-            plt.close('all')
-
-            # Gd tests :
-            legends = []
-            plt.figure(figsize=SIZE)
-            for test_name in Gd_tests:
-                for lib_name in S2_libs:
-                    legends.append(f"{test_name} : {lib_name}")
-                    plt.plot(SERPENT_results_ALL[test_name][lib_name][0],SERPENT_results_ALL[test_name][lib_name][k+1],'2-',linewidth=1, color=colors[lib_name])
-            plt.xlabel('BU [MWd/t]')
-            plt.grid()
-                
-            plt.legend(legends)
-            if k == 0: # Keff
-                plt.ylabel('Keff')
-                save_name=f'Gd_tests_Serpent2_Keff'
-                fig_name=f'HOM_CELL : Gd tests - Keff'
-            else : # isotopes
-                plt.ylabel('Isotopic density [atom/b-cm]')
-                save_name=f'Gd_tests_Serpent2_{isotopes_SOUHAITES[k-1]}'
-                fig_name=f'HOM_CELL : Gd tests - {isotopes_SOUHAITES[k-1]}'
-
-            plt.title(fig_name)
-            os.chdir(path+'/'+SAVE_DIR)
-            plt.savefig(save_name+'.png',bbox_inches = 'tight') #enregistrement des figures dans le repertoire des resultats
-            os.chdir(path)
-            plt.close('all')
+                plt.grid()
+                plt.title(fig_name)
+                os.chdir(path+'/'+SAVE_DIR)
+                plt.savefig(save_name+'.png',bbox_inches = 'tight') #enregistrement des figures dans le repertoire des resultats
+                os.chdir(path)
+                plt.close('all')
 
 
 
@@ -343,140 +380,114 @@ def MULTI_SERP_POSTPROC(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_geom,bu_autop_list,V
         print('$$$ -------- POSTPROC.py : Comparison DRAGON5 / Serpent2 figures ')
 
         for k in range(len(isotopes_SOUHAITES)+1):
-            # UOX tests :
-            legends = []
-            plt.figure(figsize=SIZE)
-            for test_name in UOX_tests:
-                plt.plot(DRAGON_results_ALL[test_name][0],DRAGON_results_ALL[test_name][k+1],'2-',linewidth=1, color = colors["DRAGON5"])
-                legends.append(f"{test_name} : DRAGON5")
-                for lib_name in S2_libs:
-                    legends.append(f"{test_name} : {lib_name}")
-                    plt.plot(SERPENT_results_ALL[test_name][lib_name][0],SERPENT_results_ALL[test_name][lib_name][k+1],'2-',linewidth=1, color=colors[lib_name])
+            fig_U, ax_U = plt.subplots(figsize=SIZE)
+            fig_Gd, ax_Gd = plt.subplots(figsize=SIZE)
+            for test_name in DRAGON_results_ALL.keys():
+                print(f"test name is : {test_name}")
+                if test_name in UOX_tests:
+
+                    ax_U.plot(DRAGON_results_ALL[test_name][0],DRAGON_results_ALL[test_name][k+1],'2-',linewidth=1, label=f"{test_name} : DRAGON5")
+                    for lib_name in S2_libs:
+                        ax_U.plot(SERPENT_results_ALL[test_name][lib_name][0],SERPENT_results_ALL[test_name][lib_name][k+1],'2-',linewidth=1, label=f"{test_name} : {lib_name}")
+                elif test_name in Gd_tests:
+                    ax_Gd.plot(DRAGON_results_ALL[test_name][0],DRAGON_results_ALL[test_name][k+1],'2-',linewidth=1, label=f"{test_name} : DRAGON5")
+                    for lib_name in S2_libs:
+                        ax_Gd.plot(SERPENT_results_ALL[test_name][lib_name][0],SERPENT_results_ALL[test_name][lib_name][k+1],'2-',linewidth=1, label=f"{test_name} : {lib_name}")
                     
-            plt.xlabel('BU (MWd/t)')
-            plt.grid()
-            plt.legend(legends)
+            ax_U.set_xlabel('BU [MWd/t]')
+            ax_Gd.set_xlabel('BU [MWd/t]')
+            ax_U.grid()
+            ax_Gd.grid()
+            ax_U.legend(loc="best")
+            ax_Gd.legend(loc="best")
 
             if k == 0: # Comparaison des Keff
-                plt.ylabel('Keff')
-                save_name=f'UOX_tests_{DEPL_SOL}{sat_name}_{ssh_method}{correlation_name}_COMP_Keff'
-                fig_name=f'HOM_CELL : UOX tests {DEPL_SOL}{SAT} {ssh_method}{CORR}- Keff'
+                ax_U.set_ylabel('Keff')
+                ax_Gd.set_ylabel('Keff')
+                save_nameU=f'UOX_tests_{DEPL_SOL}{sat_name}_{ssh_method}{correlation_name}_COMP_Keff'
+                save_nameGd=f'Gd_tests_{DEPL_SOL}{sat_name}_{ssh_method}{correlation_name}_COMP_Keff'
+                fig_nameU=f'HOM_CELL : UOX tests {DEPL_SOL}{SAT} {ssh_method}{CORR}- Keff'
+                fig_nameGd=f'HOM_CELL : Gd tests {DEPL_SOL}{SAT} {ssh_method}{CORR}- Keff'
             else : # comparaison isotopes
-                plt.ylabel('Isotopic density [atom/b-cm]')
-                save_name=f'UOX_tests_{DEPL_SOL}{sat_name}_{ssh_method}{correlation_name}_COMP_{isotopes_SOUHAITES[k-1]}'
-                fig_name=f'HOM_CELL : UOX tests {DEPL_SOL}{SAT} {ssh_method}{CORR}- {isotopes_SOUHAITES[k-1]}'
+                ax_U.set_ylabel('Isotopic density [atom/b-cm]')
+                ax_Gd.set_ylabel('Isotopic density [atom/b-cm]')
+                save_nameU=f'UOX_tests_{DEPL_SOL}{sat_name}_{ssh_method}{correlation_name}_COMP_{isotopes_SOUHAITES[k-1]}'
+                fig_nameU=f'HOM_CELL : UOX tests {DEPL_SOL}{SAT} {ssh_method}{CORR}- {isotopes_SOUHAITES[k-1]}'
+                save_nameGd=f'Gd_tests_{DEPL_SOL}{sat_name}_{ssh_method}{correlation_name}_COMP_{isotopes_SOUHAITES[k-1]}'
+                fig_nameGd=f'HOM_CELL : Gd tests {DEPL_SOL}{SAT} {ssh_method}{CORR}- {isotopes_SOUHAITES[k-1]}'
 
-            plt.title(fig_name)
+            ax_U.set_title(fig_nameU)
+            ax_Gd.set_title(fig_nameGd)
             os.chdir(path+'/'+SAVE_DIR)
-            plt.savefig(save_name+'.png',bbox_inches = 'tight') #enregistrement des figures dans le repertoire des resultats
+            fig_U.savefig(save_nameU+'.png',bbox_inches = 'tight') #enregistrement des figures dans le repertoire des resultats
+            fig_Gd.savefig(save_nameGd+'.png',bbox_inches = 'tight') #enregistrement des figures dans le repertoire des resultats
             os.chdir(path)
             plt.close('all')
 
-            # Gd tests :
-            legends = []
-            plt.figure(figsize=SIZE)
-            for test_name in Gd_tests:
-                plt.plot(DRAGON_results_ALL[test_name][0],DRAGON_results_ALL[test_name][k+1],'2-',linewidth=1, color = colors["DRAGON5"])
-                legends.append(f"{test_name} : DRAGON5")
-                for lib_name in S2_libs:
-                    legends.append(f"{test_name} : {lib_name}")
-                    plt.plot(SERPENT_results_ALL[test_name][lib_name][0],SERPENT_results_ALL[test_name][lib_name][k+1],'2-',linewidth=1, color=colors[lib_name])
-                    
-            plt.xlabel('BU (MWd/t)')
-            plt.grid()
-            plt.legend(legends)
-
-            if k == 0: # Comparaison des Keff
-                plt.ylabel('Keff')
-                save_name=f'Gd_tests_{DEPL_SOL}{sat_name}_{ssh_method}{correlation_name}_COMP_Keff'
-                fig_name=f'HOM_CELL : Gd tests {DEPL_SOL}{SAT} {ssh_method}{CORR}- Keff'
-            else : # comparaison isotopes
-                plt.ylabel('Isotopic density [atom/b-cm]')
-                save_name=f'Gd_tests_{DEPL_SOL}{sat_name}_{ssh_method}{correlation_name}_COMP_{isotopes_SOUHAITES[k-1]}'
-                fig_name=f'HOM_CELL : Gd tests {DEPL_SOL}{SAT} {ssh_method}{CORR}- {isotopes_SOUHAITES[k-1]}'
-
-            plt.title(fig_name)
-            os.chdir(path+'/'+SAVE_DIR)
-            plt.savefig(save_name+'.png',bbox_inches = 'tight') #enregistrement des figures dans le repertoire des resultats
-            os.chdir(path)
-            plt.close('all')
-        
 
     if visu_DELTA==1 :
         print('$$$ -------- POSTPROC.py : ERROR DRAGON5-Serpent2 figures ')
 
-        for k in range(len(isotopes_SOUHAITES)+1): # -1 lenISOT_DRAGON-1 ?
-            # UOX tests :
-            legends = []
-            plt.figure(figsize=SIZE)
-            for test_name in UOX_tests:
-                for lib_name in S2_libs:
-                    legends.append(f"{test_name}: {lib_name}")
-                    plt.plot(ERRORS_ALL[test_name][lib_name][0],ERRORS_ALL[test_name][lib_name][k+1],'2-',linewidth=1)
-                plt.xlabel('BU [MWd/t]')
-                plt.grid()
-                plt.legend(legends)
+        for k in range(len(isotopes_SOUHAITES)+1):
+            fig_U,ax_U = plt.subplots(figsize=SIZE)
+            fig_Gd, ax_Gd = plt.subplots(figsize=SIZE)
+            for test_name in DRAGON_results_ALL.keys():
+                if test_name in UOX_tests:
+                    for lib_name in S2_libs:
+                        ax_U.plot(ERRORS_ALL[test_name][lib_name][0],ERRORS_ALL[test_name][lib_name][k+1],'2-',linewidth=1, label=f"{test_name} : {lib_name}")
+                elif test_name in Gd_tests:
+                    for lib_name in S2_libs:
+                        ax_Gd.plot(ERRORS_ALL[test_name][lib_name][0],ERRORS_ALL[test_name][lib_name][k+1],'2-',linewidth=1, label=f"{test_name} : {lib_name}")
+                ax_U.set_xlabel('BU [MWd/t]')
+                ax_U.grid()
+                ax_U.legend(loc="best")
+                ax_Gd.set_xlabel('BU [MWd/t]')
+                ax_Gd.grid()
+                ax_Gd.legend(loc="best")
                 
             if k == 0: # Erreur sur Keff
                 for step in ListeAUTOP:
                     if step <= ListeCOMPO[-1]:
-                        plt.axvline(x=step,marker='o',color='red')
-                plt.plot([0,ListeCOMPO[-1]],[300,300],'r-.') # limite +300pcm
-                plt.plot([0,ListeCOMPO[-1]],[-300,-300],'r-.') # limite -300pcm
-                plt.ylabel('\u0394 Keff (pcm)')
-                save_name=f'UOX_tests_{DEPL_SOL}{sat_name}_{ssh_method}{correlation_name}_ERROR_Keff'
-                fig_name=f'HOM_CELL UOX tests {DEPL_SOL}{SAT} {ssh_method}{CORR}- \u0394 Keff'
-            else : # Erreur sur isotopes
-                plt.plot([0,ListeCOMPO[-1]],[2,2],'r-.') # limite +2%
-                plt.plot([0,ListeCOMPO[-1]],[-2,-2],'r-.') # limite -2%
-                plt.ylabel('Relative error (%)')
-                save_name=f'UOX_tests_{DEPL_SOL}{sat_name}_{ssh_method}{correlation_name}_ERROR_{isotopes_SOUHAITES[k-1]}'
-                fig_name=f'HOM_CELL : UOX tests {DEPL_SOL}{SAT} {ssh_method}{CORR}- \u0394 {isotopes_SOUHAITES[k-1]}'
+                        ax_U.axvline(x=step,marker='o',color='red')
+                        ax_Gd.axvline(x=step,marker='o',color='red')
+                ax_U.plot([0,ListeCOMPO[-1]],[300,300],'r-.') # limite +300pcm
+                ax_U.plot([0,ListeCOMPO[-1]],[-300,-300],'r-.') # limite -300pcm
+                ax_U.set_ylabel('\u0394 Keff (pcm)')
+                save_nameU=f'UOX_tests_{DEPL_SOL}{sat_name}_{ssh_method}{correlation_name}_ERROR_Keff'
+                fig_nameU=f'HOM_CELL : UOX tests {DEPL_SOL}{SAT} {ssh_method}{CORR}- \u0394 Keff'
 
-            plt.title(fig_name)
+                ax_Gd.plot([0,ListeCOMPO[-1]],[300,300],'r-.') # limite +300pcm
+                ax_Gd.plot([0,ListeCOMPO[-1]],[-300,-300],'r-.') # limite -300pcm
+                ax_Gd.set_ylabel('\u0394 Keff (pcm)')
+                save_nameGd=f'Gd_tests_{DEPL_SOL}{sat_name}_{ssh_method}{correlation_name}_ERROR_Keff'
+                fig_nameGd=f'HOM_CELL Gd tests {DEPL_SOL}{SAT} {ssh_method}{CORR}- \u0394 Keff'
+            else : # Erreur sur isotopes
+                ax_U.plot([0,ListeCOMPO[-1]],[2,2],'r-.') # limite +2%
+                ax_U.plot([0,ListeCOMPO[-1]],[-2,-2],'r-.') # limite -2%
+                ax_Gd.plot([0,ListeCOMPO[-1]],[2,2],'r-.') # limite +2%
+                ax_Gd.plot([0,ListeCOMPO[-1]],[-2,-2],'r-.') # limite -2%
+                ax_U.set_ylabel('Relative error (%)')
+                ax_Gd.set_ylabel('Relative error (%)')
+
+                save_nameU=f'UOX_tests_{DEPL_SOL}{sat_name}_{ssh_method}{correlation_name}_ERROR_{isotopes_SOUHAITES[k-1]}'
+                fig_nameU=f'HOM_CELL : UOX tests {DEPL_SOL}{SAT} {ssh_method}{CORR}- \u0394 {isotopes_SOUHAITES[k-1]}'
+                save_nameGd=f'Gd_tests_{DEPL_SOL}{sat_name}_{ssh_method}{correlation_name}_ERROR_{isotopes_SOUHAITES[k-1]}'
+                fig_nameGd=f'HOM_CELL : Gd tests {DEPL_SOL}{SAT} {ssh_method}{CORR}- \u0394 {isotopes_SOUHAITES[k-1]}'
+
+            ax_U.grid()
+            ax_Gd.grid()
+            ax_U.set_title(fig_nameU)
+            ax_Gd.set_title(fig_nameGd)
             os.chdir(path+'/'+SAVE_DIR)
-            plt.savefig(save_name+'.png',bbox_inches = 'tight') #enregistrement des figures dans le repertoire des resultats
+            fig_U.savefig(save_nameU+'.png',bbox_inches = 'tight') #enregistrement des figures dans le repertoire des resultats
+            fig_Gd.savefig(save_nameGd+'.png',bbox_inches = 'tight') #enregistrement des figures dans le repertoire des resultats
             os.chdir(path)
             plt.close('all')
-
-            # Gd tests :
-            legends = []
-            plt.figure(figsize=SIZE)
-            for test_name in Gd_tests:
-                for lib_name in S2_libs:
-                    legends.append(f"{test_name}: {lib_name}")
-                    plt.plot(ERRORS_ALL[test_name][lib_name][0],ERRORS_ALL[test_name][lib_name][k+1],'2-',linewidth=1)
-                plt.xlabel('BU [MWd/t]')
-                plt.grid()
-                plt.legend(legends)
-                    
-            if k == 0: # Erreur sur Keff
-                for step in ListeAUTOP:
-                    if step <= ListeCOMPO[-1]:
-                        plt.axvline(x=step,marker='o',color='red')
-                plt.plot([0,ListeCOMPO[-1]],[300,300],'r-.') # limite +300pcm
-                plt.plot([0,ListeCOMPO[-1]],[-300,-300],'r-.') # limite -300pcm
-                plt.ylabel('\u0394 Keff (pcm)')
-                save_name=f'Gd_tests_{DEPL_SOL}{sat_name}_{ssh_method}{correlation_name}_ERROR_Keff'
-                fig_name=f'HOM_CELL Gd tests {DEPL_SOL}{SAT} {ssh_method}{CORR}- \u0394 Keff'
-            else : # Erreur sur isotopes
-                plt.plot([0,ListeCOMPO[-1]],[2,2],'r-.') # limite +2%
-                plt.plot([0,ListeCOMPO[-1]],[-2,-2],'r-.') # limite -2%
-                plt.ylabel('Relative error (%)')
-                save_name=f'Gd_tests_{DEPL_SOL}{sat_name}_{ssh_method}{correlation_name}_ERROR_{isotopes_SOUHAITES[k-1]}'
-                fig_name=f'HOM_CELL : Gd tests {DEPL_SOL}{SAT} {ssh_method}{CORR}- \u0394 {isotopes_SOUHAITES[k-1]}'
-
-            plt.title(fig_name)
-            os.chdir(path+'/'+SAVE_DIR)
-            plt.savefig(save_name+'.png',bbox_inches = 'tight') #enregistrement des figures dans le repertoire des resultats
-            os.chdir(path)
-            plt.close('all')
-
-    # --- Print results
-    for test_name in DRAGON_results_ALL.keys():
-        for lib_name in S2_libs:
-            print(f"For test name = {test_name}, SSH : {ssh_module} {ssh_method} {CORR} : The error on Keff at t=0 is {ERRORS_ALL[test_name][lib_name][1][0]}, Keff_DRAGON = {DRAGON_results_ALL[test_name][1][0]}, Keff_SERPENT_{lib_name} = {SERPENT_results_ALL[test_name][lib_name][1][0]}")
-        
+        # --- Print results
+        for test_name in DRAGON_results_ALL.keys():
+            for lib_name in S2_libs:
+                print(f"For test name = {test_name}, SSH : {ssh_module} {ssh_method} {CORR} : The error on Keff at t=0 is {ERRORS_ALL[test_name][lib_name][1][0]}, Keff_DRAGON = {DRAGON_results_ALL[test_name][1][0]}, Keff_SERPENT_{lib_name} = {SERPENT_results_ALL[test_name][lib_name][1][0]}")
+            
 
 
 

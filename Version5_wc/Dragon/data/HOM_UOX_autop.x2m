@@ -9,7 +9,7 @@ MODULE VDG: GREP: END: ;
 PROCEDURE autoUOX295 rseUOX295 ptUOX295 subgUOX295 ; 
 
 STRING auto_method := "SUBG" ;
-STRING correl := "noCORR" ; ! "noCORR"
+STRING correl := "CORR" ; ! "noCORR"
 
 * AUTO: self-shielding 
 ECHO "Calling procedure auto_295 (SUBG in LIB: + AUTO:)" ;

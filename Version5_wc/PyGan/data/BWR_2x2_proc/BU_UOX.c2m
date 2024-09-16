@@ -80,19 +80,19 @@ COMPO := COMPO: ::
      MAXCAL 5
      COMM 'Evolution burnup - Condensed - 2x2 homogenized' ENDC
      PARA 'Burnup' IRRA
-     ISOT 12 U234 U235 U236 U238 Pu239 Pu240 Pu241 Pu242 Gd155 Gd157 Xe135 Sm149
+     ISOT 11 U235 U238 U234 Pu239 Pu240 Pu241 Pu242 Gd155 Gd157 Xe135 Sm149
     INIT
     STEP UP 'EDIBU'
      MAXCAL 5
      COMM 'Evolution burnup - Condensed - Cells scale homogenized' ENDC
      PARA 'Burnup' IRRA
-     ISOT 12 U234 U235 U236 U238 Pu239 Pu240 Pu241 Pu242 Gd155 Gd157 Xe135 Sm149
+     ISOT 11 U235 U238 U234 Pu239 Pu240 Pu241 Pu242 Gd155 Gd157 Xe135 Sm149
     INIT
     STEP UP 'EDIBU_2gr'
      MAXCAL 5
      COMM 'Evolution burnup - Condensed 2gr - Cells scale homogenized' ENDC
      PARA 'Burnup' IRRA
-     ISOT 12 U234 U235 U236 U238 Pu239 Pu240 Pu241 Pu242 Gd155 Gd157 Xe135 Sm149
+     ISOT 11 U235 U238 U234 Pu239 Pu240 Pu241 Pu242 Gd155 Gd157 Xe135 Sm149
     INIT
 ;
 
@@ -296,10 +296,10 @@ WHILE istep nstep < DO
   IF BUcompo BU = THEN
         EDIBU := EDI: FLUX LIBRARY2 TRACK ::
             EDIT 0
-            MICR 12 U234 U235 U236 U238 Pu239 Pu240 Pu241 Pu242 Gd155 Gd157 Xe135 Sm149
+            MICR 11 U235 U238 U234 Pu239 Pu240 Pu241 Pu242 Gd155 Gd157 Xe135 Sm149
             COND
             MERG MIX 
-            1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 
+            1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 
             SAVE ON FUEL 
         ;
 
@@ -312,10 +312,10 @@ WHILE istep nstep < DO
 
         EDIBU := EDI: FLUX LIBRARY2 TRACK ::
             EDIT 0
-            MICR 12 U234 U235 U236 U238 Pu239 Pu240 Pu241 Pu242 Gd155 Gd157 Xe135 Sm149
+            MICR 11 U235 U238 U234 Pu239 Pu240 Pu241 Pu242 Gd155 Gd157 Xe135 Sm149
             COND
             MERG MIX 
-            1 1 1 1 2 2 2 2 4 4 4 4 0 0 0
+            1 1 1 1 2 2 2 2 3 3 3 3 4 4 4 4 0 0 0
             SAVE ON FUEL 
         ;
 
@@ -330,11 +330,11 @@ WHILE istep nstep < DO
     * EDITION FOR COMPO_2gr
         EDIBU := EDI: FLUX LIBRARY2 TRACK ::
             EDIT 0
-            MICR 12 U234 U235 U236 U238 Pu239 Pu240 Pu241 Pu242 Gd155 Gd157 Xe135 Sm149
+            MICR 11 U235 U238 U234 Pu239 Pu240 Pu241 Pu242 Gd155 Gd157 Xe135 Sm149
             MERG MIX 
-            1 1 1 1 2 2 2 2 4 4 4 4 0 0 0
+            1 1 1 1 2 2 2 2 3 3 3 3 4 4 4 4 0 0 0
             COND 0.625
-            SAVE ON FUEL 
+            SAVE ON EDIBU_2gr 
         ;
 
         COMPO := COMPO: COMPO EDIBU BURNUP LIBRARY2 ::

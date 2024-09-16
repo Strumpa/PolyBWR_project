@@ -1,0 +1,2865 @@
+*----
+*  Name          : mixLIBEQ.c2m
+*  Type          : DRAGON procedure
+*  Use           : Creation of Nalamos mixtures for ALAMOS MOC 2L geometry
+*                  from Nnative mixtures for native SS and 1L geometry
+*  Author        : L Fede
+*
+*  Procedure called as:
+*
+*  LIBEQ := mixLIBEQ LIBEQ :: <<name_geom>> ;
+*
+*  Input data   :
+*    LIBEQ      : Microlib with the number of mixs of the 1st level
+*
+*  Output data  :
+*    LIBEQ      : Microlib with the number of mixs of the 2nd level
+*----
+
+PARAMETER  LIBEQ  ::
+       EDIT 1
+           ::: LINKED_LIST LIBEQ  ; ;
+
+STRING name_geom ;
+:: >>name_geom<< ;
+
+*
+MODULE LIB: END: ;
+
+
+***********************************
+****************************** 13AU
+***********************************
+
+IF name_geom 'KML2_13AU_ASS' = THEN
+
+LIBEQ := LIB: LIBEQ ::
+  EDIT 0
+  NMIX 250   ! MAXIMUM OF MATERIAL MIXTURES
+  DEPL LIB: DRAGON FIL: LIBEQ
+  MIXS LIB: MICROLIB FIL: LIBEQ
+
+***************************
+*   General mixtures unchanged
+***************************
+* Cladding fuel
+* MIX 1
+
+* Water
+* MIX 2
+
+* Void
+* MIX 7
+
+* Cladding guide
+* MIX 28
+
+* Cladding instrum
+* MIX 249
+
+* Strcuture
+* MIX 250
+
+
+**************************
+*       C1 generated cells
+**************************
+* shell 1 : 208
+* shell 2 : 207
+* shell 3 : 206
+* shell 4 : 205
+
+**********
+
+* --- C373
+*MIX 205 COMB 205 1.0
+*MIX 206 COMB 206 1.0
+*MIX 207 COMB 207 1.0
+*MIX 208 COMB 208 1.0
+
+* --- C374
+MIX 209 COMB 206 1.0
+MIX 210 COMB 205 1.0
+MIX 211 COMB 207 1.0
+MIX 212 COMB 208 1.0
+
+* --- C375
+MIX 213 COMB 206 1.0
+MIX 214 COMB 205 1.0
+MIX 215 COMB 207 1.0
+MIX 216 COMB 208 1.0
+
+* --- C376
+MIX 217 COMB 206 1.0
+MIX 218 COMB 205 1.0
+MIX 219 COMB 207 1.0
+MIX 220 COMB 208 1.0
+
+* --- C377
+MIX 221 COMB 206 1.0
+MIX 222 COMB 205 1.0
+MIX 223 COMB 207 1.0
+MIX 224 COMB 208 1.0
+
+* --- C378
+MIX 225 COMB 206 1.0
+MIX 226 COMB 205 1.0
+MIX 227 COMB 207 1.0
+MIX 228 COMB 208 1.0
+
+* --- C379
+MIX 229 COMB 206 1.0
+MIX 230 COMB 205 1.0
+MIX 231 COMB 207 1.0
+MIX 232 COMB 208 1.0
+
+* --- C380
+MIX 233 COMB 206 1.0
+MIX 234 COMB 205 1.0
+MIX 235 COMB 207 1.0
+MIX 236 COMB 208 1.0
+
+* --- C381
+MIX 237 COMB 206 1.0
+MIX 238 COMB 205 1.0
+MIX 239 COMB 207 1.0
+MIX 240 COMB 208 1.0
+
+* --- C382
+MIX 241 COMB 206 1.0
+MIX 242 COMB 205 1.0
+MIX 243 COMB 207 1.0
+MIX 244 COMB 208 1.0
+
+* --- C383
+MIX 245 COMB 206 1.0
+MIX 246 COMB 205 1.0
+MIX 247 COMB 207 1.0
+MIX 248 COMB 208 1.0
+
+
+**************************
+*       C2 generated cells
+**************************
+* shell 1 : 100
+* shell 2 : 99
+* shell 3 : 98
+* shell 4 : 97
+
+**********
+
+* --- C331
+*MIX 97  COMB 97 1.0
+*MIX 98  COMB 98 1.0
+*MIX 99  COMB 99 1.0
+*MIX 100 COMB 100 1.0
+
+* --- C332
+MIX 101 COMB 98 1.0
+MIX 102 COMB 97 1.0
+MIX 103 COMB 99 1.0
+MIX 104 COMB 100 1.0
+
+* --- C333
+MIX 105 COMB 98 1.0
+MIX 106 COMB 97 1.0
+MIX 107 COMB 99 1.0
+MIX 108 COMB 100 1.0
+
+* C334 & C335 are C3 generated cells
+
+* --- C336
+MIX 117 COMB 98 1.0
+MIX 118 COMB 97 1.0
+MIX 119 COMB 99 1.0
+MIX 120 COMB 100 1.0
+
+* --- C337
+MIX 121 COMB 98 1.0
+MIX 122 COMB 97 1.0
+MIX 123 COMB 99 1.0
+MIX 124 COMB 100 1.0
+
+* --- C338
+MIX 125 COMB 98 1.0
+MIX 126 COMB 97 1.0
+MIX 127 COMB 99 1.0
+MIX 128 COMB 100 1.0
+
+**********
+
+* --- C346
+MIX 129 COMB 97 1.0
+MIX 130 COMB 98 1.0
+MIX 131 COMB 99 1.0
+MIX 132 COMB 100 1.0
+
+* --- C347
+MIX 133 COMB 98 1.0
+MIX 134 COMB 97 1.0
+MIX 135 COMB 99 1.0
+MIX 136 COMB 100 1.0
+
+* --- C348
+MIX 137 COMB 98 1.0
+MIX 138 COMB 97 1.0
+MIX 139 COMB 99 1.0
+MIX 140 COMB 100 1.0
+
+* --- C349
+MIX 141 COMB 98 1.0
+MIX 142 COMB 97 1.0
+MIX 143 COMB 99 1.0
+MIX 144 COMB 100 1.0
+
+* --- C350
+MIX 145 COMB 98 1.0
+MIX 146 COMB 97 1.0
+MIX 147 COMB 99 1.0
+MIX 148 COMB 100 1.0
+
+* --- C351
+MIX 149 COMB 98 1.0
+MIX 150 COMB 97 1.0
+MIX 151 COMB 99 1.0
+MIX 152 COMB 100 1.0
+
+* --- C352
+MIX 153 COMB 98 1.0
+MIX 154 COMB 97 1.0
+MIX 155 COMB 99 1.0
+MIX 156 COMB 100 1.0
+
+* --- C353
+MIX 157 COMB 98 1.0
+MIX 158 COMB 97 1.0
+MIX 159 COMB 99 1.0
+MIX 160 COMB 100 1.0
+
+* --- C354
+MIX 161 COMB 98 1.0
+MIX 162 COMB 97 1.0
+MIX 163 COMB 99 1.0
+MIX 164 COMB 100 1.0
+
+
+**************************
+*       C3 generated cells
+**************************
+* shell 1 : 76
+* shell 2 : 75
+* shell 3 : 74
+* shell 4 : 73
+
+
+**********
+
+* --- C315
+*MIX 73  COMB 73 1.0
+*MIX 74  COMB 74 1.0
+*MIX 75  COMB 75 1.0
+*MIX 76  COMB 76 1.0
+
+* --- C316
+MIX 77  COMB 74 1.0
+MIX 78  COMB 73 1.0
+MIX 79  COMB 75 1.0
+MIX 80  COMB 76 1.0
+
+* --- C317
+MIX 81  COMB 74 1.0
+MIX 82  COMB 73 1.0
+MIX 83  COMB 75 1.0
+MIX 84  COMB 76 1.0
+
+* --- C319
+MIX 85  COMB 74 1.0
+MIX 86  COMB 73 1.0
+MIX 87  COMB 59 1.0
+MIX 88  COMB 76 1.0
+
+* --- C320
+MIX 89  COMB 74 1.0
+MIX 90  COMB 73 1.0
+MIX 91  COMB 75 1.0
+MIX 92  COMB 76 1.0
+
+* --- C321
+MIX 93  COMB 74 1.0
+MIX 94  COMB 73 1.0
+MIX 95  COMB 75 1.0
+MIX 96  COMB 76 1.0
+
+**********
+
+* --- C334
+MIX 109 COMB 74 1.0
+MIX 110 COMB 73 1.0
+MIX 111 COMB 75 1.0
+MIX 112 COMB 76 1.0
+
+* --- C335
+MIX 113 COMB 74 1.0
+MIX 114 COMB 73 1.0
+MIX 115 COMB 75 1.0
+MIX 116 COMB 76 1.0
+
+
+**************************
+*       C4 generated cells
+**************************
+* shell 1 : 27
+* shell 2 : 26
+* shell 3 : 25
+* shell 4 : 24
+
+**********
+
+* --- C261
+*MIX 24  COMB 24 1.0
+*MIX 25  COMB 25 1.0
+*MIX 26  COMB 26 1.0
+*MIX 27  COMB 27 1.0
+
+* --- C263
+MIX 29  COMB 25 1.0
+MIX 30  COMB 24 1.0
+MIX 31  COMB 26 1.0
+MIX 32  COMB 27 1.0
+
+* --- C264
+MIX 33  COMB 25 1.0
+MIX 34  COMB 24 1.0
+MIX 35  COMB 26 1.0
+MIX 36  COMB 27 1.0
+
+**********
+
+* --- C280
+MIX 37  COMB 24 1.0
+MIX 38  COMB 25 1.0
+MIX 39  COMB 26 1.0
+MIX 40  COMB 27 1.0
+
+* --- C281
+MIX 41  COMB 25 1.0
+MIX 42  COMB 24 1.0
+MIX 43  COMB 26 1.0
+MIX 44  COMB 27 1.0
+
+* --- C282
+MIX 45  COMB 25 1.0
+MIX 46  COMB 24 1.0
+MIX 47  COMB 26 1.0
+MIX 48  COMB 27 1.0
+
+* --- C283 is a C7 generated cell
+
+* --- C284
+MIX 53  COMB 25 1.0
+MIX 54  COMB 24 1.0
+MIX 55  COMB 26 1.0
+MIX 56  COMB 27 1.0
+
+
+**************************
+*       C5 generated cells
+**************************
+* shell 1 : 15
+* shell 2 : 14
+* shell 3 : 13
+* shell 4 : 12
+
+**********
+
+* --- C241
+*MIX 12  COMB 12 1.0
+*MIX 13  COMB 13 1.0
+*MIX 14  COMB 14 1.0
+*MIX 15  COMB 15 1.0
+
+* --- C242
+MIX 16  COMB 13 1.0
+MIX 17  COMB 12 1.0
+MIX 18  COMB 14 1.0
+MIX 19  COMB 15 1.0
+
+* --- C243
+MIX 20  COMB 13 1.0
+MIX 21  COMB 12 1.0
+MIX 22  COMB 14 1.0
+MIX 23  COMB 15 1.0
+
+
+**************************
+*       C6 generated cells
+**************************
+* shell 1 : 6
+* shell 2 : 5
+* shell 3 : 4
+* shell 4 : 3
+
+**********
+
+* --- C220
+*MIX 3   COMB 3 1.0
+*MIX 4   COMB 4 1.0
+*MIX 5   COMB 5 1.0
+*MIX 6   COMB 6 1.0
+
+* --- C221
+MIX 8   COMB 4 1.0
+MIX 9   COMB 3 1.0
+MIX 10  COMB 5 1.0
+MIX 11  COMB 6 1.0
+
+
+**************************
+*        C7 generated cell
+**************************
+* shell 1 : 52
+* shell 2 : 51
+* shell 3 : 49
+* shell 4 : 50
+
+**********
+
+* --- C283
+*MIX 49  COMB 49 1.0
+*MIX 50  COMB 50 1.0
+*MIX 51  COMB 51 1.0
+*MIX 52  COMB 52 1.0
+
+**************************
+*        C8 generated cell
+**************************
+* shell 1 : 168
+* shell 2 : 167
+* shell 3 : 166
+* shell 4 : 165
+
+**********
+
+* --- C361
+MIX 169 COMB 166 1.0
+MIX 170 COMB 165 1.0
+MIX 171 COMB 167 1.0
+MIX 172 COMB 168 1.0
+
+* --- C362
+MIX 173 COMB 166 1.0
+MIX 174 COMB 165 1.0
+MIX 175 COMB 167 1.0
+MIX 176 COMB 168 1.0
+
+* --- C363
+MIX 177 COMB 166 1.0
+MIX 178 COMB 165 1.0
+MIX 179 COMB 167 1.0
+MIX 180 COMB 168 1.0
+
+* --- C364
+MIX 181 COMB 166 1.0
+MIX 182 COMB 165 1.0
+MIX 183 COMB 167 1.0
+MIX 184 COMB 168 1.0
+
+* --- C365
+MIX 185 COMB 166 1.0
+MIX 186 COMB 165 1.0
+MIX 187 COMB 167 1.0
+MIX 188 COMB 168 1.0
+
+* --- C366
+MIX 189 COMB 166 1.0
+MIX 190 COMB 165 1.0
+MIX 191 COMB 167 1.0
+MIX 192 COMB 168 1.0
+
+* --- C367
+MIX 193 COMB 166 1.0
+MIX 194 COMB 165 1.0
+MIX 195 COMB 167 1.0
+MIX 196 COMB 168 1.0
+
+* --- C368
+MIX 197 COMB 166 1.0
+MIX 198 COMB 165 1.0
+MIX 199 COMB 167 1.0
+MIX 200 COMB 168 1.0
+
+* --- C369
+MIX 201 COMB 166 1.0
+MIX 202 COMB 165 1.0
+MIX 203 COMB 167 1.0
+MIX 204 COMB 168 1.0
+
+
+**************************
+*        C9 generated cell
+**************************
+* shell 1 : 60
+* shell 2 : 59
+* shell 3 : 58
+* shell 4 : 57
+
+**********
+
+* --- C300
+MIX 61  COMB 57 1.0
+MIX 62  COMB 58 1.0
+MIX 63  COMB 59 1.0
+MIX 64  COMB 60 1.0
+
+* --- C301
+MIX 65  COMB 57 1.0
+MIX 66  COMB 58 1.0
+MIX 67  COMB 59 1.0
+MIX 68  COMB 60 1.0
+
+* --- C302
+MIX 69  COMB 57 1.0
+MIX 70  COMB 58 1.0
+MIX 71  COMB 59 1.0
+MIX 72  COMB 60 1.0
+
+;
+
+***********************************
+****************************** 22AU
+***********************************
+
+ELSEIF name_geom 'KML2_22AU_ASS' = THEN
+
+LIBEQ := LIB: LIBEQ ::
+  EDIT 0
+  NMIX 250   ! MAXIMUM OF MATERIAL MIXTURES
+  DEPL LIB: DRAGON FIL: LIBEQ
+  MIXS LIB: MICROLIB FIL: LIBEQ
+
+***************************
+*   General mixtures unchanged
+***************************
+* Cladding fuel
+* MIX 1
+
+* Water
+* MIX 2
+
+* Void
+* MIX 7
+
+* Cladding guide
+* MIX 28
+
+* Cladding instrum
+* MIX 249
+
+* Strcuture
+* MIX 250
+
+
+**************************
+*       C1 generated cells
+**************************
+* shell 1 : 208
+* shell 2 : 207
+* shell 3 : 206
+* shell 4 : 205
+
+**********
+
+* --- C373
+*MIX 205 COMB 205 1.0
+*MIX 206 COMB 206 1.0
+*MIX 207 COMB 207 1.0
+*MIX 208 COMB 208 1.0
+
+* --- C374
+MIX 209 COMB 206 1.0
+MIX 210 COMB 205 1.0
+MIX 211 COMB 207 1.0
+MIX 212 COMB 208 1.0
+
+* --- C375
+MIX 213 COMB 206 1.0
+MIX 214 COMB 205 1.0
+MIX 215 COMB 207 1.0
+MIX 216 COMB 208 1.0
+
+* --- C376
+MIX 217 COMB 206 1.0
+MIX 218 COMB 205 1.0
+MIX 219 COMB 207 1.0
+MIX 220 COMB 208 1.0
+
+* --- C377
+MIX 221 COMB 206 1.0
+MIX 222 COMB 205 1.0
+MIX 223 COMB 207 1.0
+MIX 224 COMB 208 1.0
+
+* --- C378
+MIX 225 COMB 206 1.0
+MIX 226 COMB 205 1.0
+MIX 227 COMB 207 1.0
+MIX 228 COMB 208 1.0
+
+* --- C379
+MIX 229 COMB 206 1.0
+MIX 230 COMB 205 1.0
+MIX 231 COMB 207 1.0
+MIX 232 COMB 208 1.0
+
+* --- C380
+MIX 233 COMB 206 1.0
+MIX 234 COMB 205 1.0
+MIX 235 COMB 207 1.0
+MIX 236 COMB 208 1.0
+
+* --- C381
+MIX 237 COMB 206 1.0
+MIX 238 COMB 205 1.0
+MIX 239 COMB 207 1.0
+MIX 240 COMB 208 1.0
+
+* --- C382
+MIX 241 COMB 206 1.0
+MIX 242 COMB 205 1.0
+MIX 243 COMB 207 1.0
+MIX 244 COMB 208 1.0
+
+* --- C383
+MIX 245 COMB 206 1.0
+MIX 246 COMB 205 1.0
+MIX 247 COMB 207 1.0
+MIX 248 COMB 208 1.0
+
+
+**************************
+*       C2 generated cells
+**************************
+* shell 1 : 100
+* shell 2 : 99
+* shell 3 : 98
+* shell 4 : 97
+
+**********
+
+* --- C331
+*MIX 97  COMB 97 1.0
+*MIX 98  COMB 98 1.0
+*MIX 99  COMB 99 1.0
+*MIX 100 COMB 100 1.0
+
+* --- C332
+MIX 101 COMB 98 1.0
+MIX 102 COMB 97 1.0
+MIX 103 COMB 99 1.0
+MIX 104 COMB 100 1.0
+
+* --- C333
+MIX 105 COMB 98 1.0
+MIX 106 COMB 97 1.0
+MIX 107 COMB 99 1.0
+MIX 108 COMB 100 1.0
+
+* C334 & C335 are C3 generated cells
+
+* --- C336
+MIX 117 COMB 98 1.0
+MIX 118 COMB 97 1.0
+MIX 119 COMB 99 1.0
+MIX 120 COMB 100 1.0
+
+* --- C337
+MIX 121 COMB 98 1.0
+MIX 122 COMB 97 1.0
+MIX 123 COMB 99 1.0
+MIX 124 COMB 100 1.0
+
+* --- C338
+MIX 125 COMB 98 1.0
+MIX 126 COMB 97 1.0
+MIX 127 COMB 99 1.0
+MIX 128 COMB 100 1.0
+
+**********
+
+* --- C346
+MIX 129 COMB 97 1.0
+MIX 130 COMB 98 1.0
+MIX 131 COMB 99 1.0
+MIX 132 COMB 100 1.0
+
+* --- C347
+MIX 133 COMB 98 1.0
+MIX 134 COMB 97 1.0
+MIX 135 COMB 99 1.0
+MIX 136 COMB 100 1.0
+
+* --- C348
+MIX 137 COMB 98 1.0
+MIX 138 COMB 97 1.0
+MIX 139 COMB 99 1.0
+MIX 140 COMB 100 1.0
+
+* --- C349
+MIX 141 COMB 98 1.0
+MIX 142 COMB 97 1.0
+MIX 143 COMB 99 1.0
+MIX 144 COMB 100 1.0
+
+* --- C350
+MIX 145 COMB 98 1.0
+MIX 146 COMB 97 1.0
+MIX 147 COMB 99 1.0
+MIX 148 COMB 100 1.0
+
+* --- C351
+MIX 149 COMB 98 1.0
+MIX 150 COMB 97 1.0
+MIX 151 COMB 99 1.0
+MIX 152 COMB 100 1.0
+
+* --- C352
+MIX 153 COMB 98 1.0
+MIX 154 COMB 97 1.0
+MIX 155 COMB 99 1.0
+MIX 156 COMB 100 1.0
+
+* --- C353
+MIX 157 COMB 98 1.0
+MIX 158 COMB 97 1.0
+MIX 159 COMB 99 1.0
+MIX 160 COMB 100 1.0
+
+* --- C354
+MIX 161 COMB 98 1.0
+MIX 162 COMB 97 1.0
+MIX 163 COMB 99 1.0
+MIX 164 COMB 100 1.0
+
+**********
+
+* --- C360
+MIX 165 COMB 97 1.0
+MIX 166 COMB 98 1.0
+MIX 167 COMB 99 1.0
+MIX 168 COMB 100 1.0
+
+* --- C361
+MIX 169 COMB 98 1.0
+MIX 170 COMB 97 1.0
+MIX 171 COMB 99 1.0
+MIX 172 COMB 100 1.0
+
+* --- C362
+MIX 173 COMB 98 1.0
+MIX 174 COMB 97 1.0
+MIX 175 COMB 99 1.0
+MIX 176 COMB 100 1.0
+
+* --- C363
+MIX 177 COMB 98 1.0
+MIX 178 COMB 97 1.0
+MIX 179 COMB 99 1.0
+MIX 180 COMB 100 1.0
+
+* --- C364
+MIX 181 COMB 98 1.0
+MIX 182 COMB 97 1.0
+MIX 183 COMB 99 1.0
+MIX 184 COMB 100 1.0
+
+* --- C365
+MIX 185 COMB 98 1.0
+MIX 186 COMB 97 1.0
+MIX 187 COMB 99 1.0
+MIX 188 COMB 100 1.0
+
+* --- C366
+MIX 189 COMB 98 1.0
+MIX 190 COMB 97 1.0
+MIX 191 COMB 99 1.0
+MIX 192 COMB 100 1.0
+
+* --- C367
+MIX 193 COMB 98 1.0
+MIX 194 COMB 97 1.0
+MIX 195 COMB 99 1.0
+MIX 196 COMB 100 1.0
+
+* --- C368
+MIX 197 COMB 98 1.0
+MIX 198 COMB 97 1.0
+MIX 199 COMB 99 1.0
+MIX 200 COMB 100 1.0
+
+* --- C369
+MIX 201 COMB 98 1.0
+MIX 202 COMB 97 1.0
+MIX 203 COMB 99 1.0
+MIX 204 COMB 100 1.0
+
+
+**************************
+*       C3 generated cells
+**************************
+* shell 1 : 60
+* shell 2 : 59
+* shell 3 : 57
+* shell 4 : 58
+
+**********
+
+* --- C299
+*MIX 57  COMB 57 1.0
+*MIX 58  COMB 58 1.0
+*MIX 59  COMB 59 1.0
+*MIX 60  COMB 60 1.0
+
+* --- C300
+MIX 61  COMB 57 1.0
+MIX 62  COMB 58 1.0
+MIX 63  COMB 59 1.0
+MIX 64  COMB 60 1.0
+
+* --- C301
+MIX 65  COMB 57 1.0
+MIX 66  COMB 58 1.0
+MIX 67  COMB 59 1.0
+MIX 68  COMB 60 1.0
+
+* --- C302
+MIX 69  COMB 57 1.0
+MIX 70  COMB 58 1.0
+MIX 71  COMB 59 1.0
+MIX 72  COMB 60 1.0
+
+**********
+
+* --- C315
+MIX 73  COMB 58 1.0
+MIX 74  COMB 57 1.0
+MIX 75  COMB 59 1.0
+MIX 76  COMB 60 1.0
+
+* --- C316
+MIX 77  COMB 57 1.0
+MIX 78  COMB 58 1.0
+MIX 79  COMB 59 1.0
+MIX 80  COMB 60 1.0
+
+* --- C317
+MIX 81  COMB 57 1.0
+MIX 82  COMB 58 1.0
+MIX 83  COMB 59 1.0
+MIX 84  COMB 60 1.0
+
+* --- C319
+MIX 85  COMB 57 1.0
+MIX 86  COMB 58 1.0
+MIX 87  COMB 59 1.0
+MIX 88  COMB 60 1.0
+
+* --- C320
+MIX 89  COMB 57 1.0
+MIX 90  COMB 58 1.0
+MIX 91  COMB 59 1.0
+MIX 92  COMB 60 1.0
+
+* --- C321
+MIX 93  COMB 57 1.0
+MIX 94  COMB 58 1.0
+MIX 95  COMB 59 1.0
+MIX 96  COMB 60 1.0
+
+**********
+
+* --- C334
+MIX 109 COMB 57 1.0
+MIX 110 COMB 58 1.0
+MIX 111 COMB 59 1.0
+MIX 112 COMB 60 1.0
+
+* --- C335
+MIX 113 COMB 57 1.0
+MIX 114 COMB 58 1.0
+MIX 115 COMB 59 1.0
+MIX 116 COMB 60 1.0
+
+
+**************************
+*       C4 generated cells
+**************************
+* shell 1 : 27
+* shell 2 : 26
+* shell 3 : 25
+* shell 4 : 24
+
+**********
+
+* --- C261
+*MIX 24  COMB 24 1.0
+*MIX 25  COMB 25 1.0
+*MIX 26  COMB 26 1.0
+*MIX 27  COMB 27 1.0
+
+* --- C263
+MIX 29  COMB 25 1.0
+MIX 30  COMB 24 1.0
+MIX 31  COMB 26 1.0
+MIX 32  COMB 27 1.0
+
+* --- C264
+MIX 33  COMB 25 1.0
+MIX 34  COMB 24 1.0
+MIX 35  COMB 26 1.0
+MIX 36  COMB 27 1.0
+
+**********
+
+* --- C280
+MIX 37  COMB 24 1.0
+MIX 38  COMB 25 1.0
+MIX 39  COMB 26 1.0
+MIX 40  COMB 27 1.0
+
+* --- C281
+MIX 41  COMB 25 1.0
+MIX 42  COMB 24 1.0
+MIX 43  COMB 26 1.0
+MIX 44  COMB 27 1.0
+
+* --- C282
+MIX 45  COMB 25 1.0
+MIX 46  COMB 24 1.0
+MIX 47  COMB 26 1.0
+MIX 48  COMB 27 1.0
+
+* --- C283 is a C7 generated cell
+
+* --- C284
+MIX 53  COMB 25 1.0
+MIX 54  COMB 24 1.0
+MIX 55  COMB 26 1.0
+MIX 56  COMB 27 1.0
+
+
+**************************
+*       C5 generated cells
+**************************
+* shell 1 : 15
+* shell 2 : 14
+* shell 3 : 13
+* shell 4 : 12
+
+**********
+
+* --- C241
+*MIX 12  COMB 12 1.0
+*MIX 13  COMB 13 1.0
+*MIX 14  COMB 14 1.0
+*MIX 15  COMB 15 1.0
+
+* --- C242
+MIX 16  COMB 13 1.0
+MIX 17  COMB 12 1.0
+MIX 18  COMB 14 1.0
+MIX 19  COMB 15 1.0
+
+* --- C243
+MIX 20  COMB 13 1.0
+MIX 21  COMB 12 1.0
+MIX 22  COMB 14 1.0
+MIX 23  COMB 15 1.0
+
+
+**************************
+*       C6 generated cells
+**************************
+* shell 1 : 6
+* shell 2 : 5
+* shell 3 : 4
+* shell 4 : 3
+
+**********
+
+* --- C220
+*MIX 3   COMB 3 1.0
+*MIX 4   COMB 4 1.0
+*MIX 5   COMB 5 1.0
+*MIX 6   COMB 6 1.0
+
+* --- C221
+MIX 8   COMB 4 1.0
+MIX 9   COMB 3 1.0
+MIX 10  COMB 5 1.0
+MIX 11  COMB 6 1.0
+
+
+**************************
+*        C7 generated cell
+**************************
+* shell 1 : 52
+* shell 2 : 51
+* shell 3 : 49
+* shell 4 : 50
+
+**********
+
+* --- C283
+*MIX 49  COMB 49 1.0
+*MIX 50  COMB 50 1.0
+*MIX 51  COMB 51 1.0
+*MIX 52  COMB 52 1.0
+
+;
+
+***********************************
+****************************** 40AU
+***********************************
+
+ELSEIF name_geom 'KML2_40AU_ASS' = THEN
+
+LIBEQ := LIB: LIBEQ ::
+  EDIT 0
+  NMIX 250   ! MAXIMUM OF MATERIAL MIXTURES
+  DEPL LIB: DRAGON FIL: LIBEQ
+  MIXS LIB: MICROLIB FIL: LIBEQ
+
+***************************
+*   General mixtures unchanged
+***************************
+* Cladding fuel
+* MIX 1
+
+* Water
+* MIX 2
+
+* Void
+* MIX 7
+
+* Cladding guide
+* MIX 28
+
+* Cladding instrum
+* MIX 249
+
+* Strcuture
+* MIX 250
+
+
+**************************
+*       C1 generated cells
+**************************
+* shell 1 : 208
+* shell 2 : 207
+* shell 3 : 206
+* shell 4 : 205
+
+**********
+
+* --- C373
+*MIX 205 COMB 205 1.0
+*MIX 206 COMB 206 1.0
+*MIX 207 COMB 207 1.0
+*MIX 208 COMB 208 1.0
+
+* --- C374
+MIX 209 COMB 206 1.0
+MIX 210 COMB 205 1.0
+MIX 211 COMB 207 1.0
+MIX 212 COMB 208 1.0
+
+* --- C375
+MIX 213 COMB 206 1.0
+MIX 214 COMB 205 1.0
+MIX 215 COMB 207 1.0
+MIX 216 COMB 208 1.0
+
+* --- C376
+MIX 217 COMB 206 1.0
+MIX 218 COMB 205 1.0
+MIX 219 COMB 207 1.0
+MIX 220 COMB 208 1.0
+
+* --- C377
+MIX 221 COMB 206 1.0
+MIX 222 COMB 205 1.0
+MIX 223 COMB 207 1.0
+MIX 224 COMB 208 1.0
+
+* --- C378
+MIX 225 COMB 206 1.0
+MIX 226 COMB 205 1.0
+MIX 227 COMB 207 1.0
+MIX 228 COMB 208 1.0
+
+* --- C379
+MIX 229 COMB 206 1.0
+MIX 230 COMB 205 1.0
+MIX 231 COMB 207 1.0
+MIX 232 COMB 208 1.0
+
+* --- C380
+MIX 233 COMB 206 1.0
+MIX 234 COMB 205 1.0
+MIX 235 COMB 207 1.0
+MIX 236 COMB 208 1.0
+
+* --- C381
+MIX 237 COMB 206 1.0
+MIX 238 COMB 205 1.0
+MIX 239 COMB 207 1.0
+MIX 240 COMB 208 1.0
+
+* --- C382
+MIX 241 COMB 206 1.0
+MIX 242 COMB 205 1.0
+MIX 243 COMB 207 1.0
+MIX 244 COMB 208 1.0
+
+* --- C383
+MIX 245 COMB 206 1.0
+MIX 246 COMB 205 1.0
+MIX 247 COMB 207 1.0
+MIX 248 COMB 208 1.0
+
+
+**************************
+*       C2 generated cells
+**************************
+* shell 1 : 100
+* shell 2 : 99
+* shell 3 : 98
+* shell 4 : 97
+
+**********
+
+* --- C331
+*MIX 97  COMB 97 1.0
+*MIX 98  COMB 98 1.0
+*MIX 99  COMB 99 1.0
+*MIX 100 COMB 100 1.0
+
+* --- C332
+MIX 101 COMB 98 1.0
+MIX 102 COMB 97 1.0
+MIX 103 COMB 99 1.0
+MIX 104 COMB 100 1.0
+
+* --- C333
+MIX 105 COMB 98 1.0
+MIX 106 COMB 97 1.0
+MIX 107 COMB 99 1.0
+MIX 108 COMB 100 1.0
+
+* C334 & C335 are C3 generated cells
+
+* --- C336
+MIX 117 COMB 98 1.0
+MIX 118 COMB 97 1.0
+MIX 119 COMB 99 1.0
+MIX 120 COMB 100 1.0
+
+* --- C337
+MIX 121 COMB 98 1.0
+MIX 122 COMB 97 1.0
+MIX 123 COMB 99 1.0
+MIX 124 COMB 100 1.0
+
+* --- C338
+MIX 125 COMB 98 1.0
+MIX 126 COMB 97 1.0
+MIX 127 COMB 99 1.0
+MIX 128 COMB 100 1.0
+
+**********
+
+* --- C346
+MIX 129 COMB 97 1.0
+MIX 130 COMB 98 1.0
+MIX 131 COMB 99 1.0
+MIX 132 COMB 100 1.0
+
+* --- C347
+MIX 133 COMB 98 1.0
+MIX 134 COMB 97 1.0
+MIX 135 COMB 99 1.0
+MIX 136 COMB 100 1.0
+
+* --- C348
+MIX 137 COMB 98 1.0
+MIX 138 COMB 97 1.0
+MIX 139 COMB 99 1.0
+MIX 140 COMB 100 1.0
+
+* --- C349
+MIX 141 COMB 98 1.0
+MIX 142 COMB 97 1.0
+MIX 143 COMB 99 1.0
+MIX 144 COMB 100 1.0
+
+* --- C350
+MIX 145 COMB 98 1.0
+MIX 146 COMB 97 1.0
+MIX 147 COMB 99 1.0
+MIX 148 COMB 100 1.0
+
+* --- C351
+MIX 149 COMB 98 1.0
+MIX 150 COMB 97 1.0
+MIX 151 COMB 99 1.0
+MIX 152 COMB 100 1.0
+
+* --- C352
+MIX 153 COMB 98 1.0
+MIX 154 COMB 97 1.0
+MIX 155 COMB 99 1.0
+MIX 156 COMB 100 1.0
+
+* --- C353
+MIX 157 COMB 98 1.0
+MIX 158 COMB 97 1.0
+MIX 159 COMB 99 1.0
+MIX 160 COMB 100 1.0
+
+* --- C354
+MIX 161 COMB 98 1.0
+MIX 162 COMB 97 1.0
+MIX 163 COMB 99 1.0
+MIX 164 COMB 100 1.0
+
+**********
+
+* --- C360
+MIX 165 COMB 97 1.0
+MIX 166 COMB 98 1.0
+MIX 167 COMB 99 1.0
+MIX 168 COMB 100 1.0
+
+* --- C361
+MIX 169 COMB 98 1.0
+MIX 170 COMB 97 1.0
+MIX 171 COMB 99 1.0
+MIX 172 COMB 100 1.0
+
+* --- C362
+MIX 173 COMB 98 1.0
+MIX 174 COMB 97 1.0
+MIX 175 COMB 99 1.0
+MIX 176 COMB 100 1.0
+
+* --- C363
+MIX 177 COMB 98 1.0
+MIX 178 COMB 97 1.0
+MIX 179 COMB 99 1.0
+MIX 180 COMB 100 1.0
+
+* --- C364
+MIX 181 COMB 98 1.0
+MIX 182 COMB 97 1.0
+MIX 183 COMB 99 1.0
+MIX 184 COMB 100 1.0
+
+* --- C365
+MIX 185 COMB 98 1.0
+MIX 186 COMB 97 1.0
+MIX 187 COMB 99 1.0
+MIX 188 COMB 100 1.0
+
+* --- C366
+MIX 189 COMB 98 1.0
+MIX 190 COMB 97 1.0
+MIX 191 COMB 99 1.0
+MIX 192 COMB 100 1.0
+
+* --- C367
+MIX 193 COMB 98 1.0
+MIX 194 COMB 97 1.0
+MIX 195 COMB 99 1.0
+MIX 196 COMB 100 1.0
+
+* --- C368
+MIX 197 COMB 98 1.0
+MIX 198 COMB 97 1.0
+MIX 199 COMB 99 1.0
+MIX 200 COMB 100 1.0
+
+* --- C369
+MIX 201 COMB 98 1.0
+MIX 202 COMB 97 1.0
+MIX 203 COMB 99 1.0
+MIX 204 COMB 100 1.0
+
+
+**************************
+*       C3 generated cells
+**************************
+* shell 1 : 60
+* shell 2 : 59
+* shell 3 : 57
+* shell 4 : 58
+
+**********
+
+* --- C299
+*MIX 57  COMB 57 1.0
+*MIX 58  COMB 58 1.0
+*MIX 59  COMB 59 1.0
+*MIX 60  COMB 60 1.0
+
+* --- C300
+MIX 61  COMB 57 1.0
+MIX 62  COMB 58 1.0
+MIX 63  COMB 59 1.0
+MIX 64  COMB 60 1.0
+
+* --- C301
+MIX 65  COMB 57 1.0
+MIX 66  COMB 58 1.0
+MIX 67  COMB 59 1.0
+MIX 68  COMB 60 1.0
+
+* --- C302
+MIX 69  COMB 57 1.0
+MIX 70  COMB 58 1.0
+MIX 71  COMB 59 1.0
+MIX 72  COMB 60 1.0
+
+**********
+
+* --- C315
+MIX 73  COMB 58 1.0
+MIX 74  COMB 57 1.0
+MIX 75  COMB 59 1.0
+MIX 76  COMB 60 1.0
+
+* --- C316
+MIX 77  COMB 57 1.0
+MIX 78  COMB 58 1.0
+MIX 79  COMB 59 1.0
+MIX 80  COMB 60 1.0
+
+* --- C317
+MIX 81  COMB 57 1.0
+MIX 82  COMB 58 1.0
+MIX 83  COMB 59 1.0
+MIX 84  COMB 60 1.0
+
+* --- C319
+MIX 85  COMB 57 1.0
+MIX 86  COMB 58 1.0
+MIX 87  COMB 59 1.0
+MIX 88  COMB 60 1.0
+
+* --- C320
+MIX 89  COMB 57 1.0
+MIX 90  COMB 58 1.0
+MIX 91  COMB 59 1.0
+MIX 92  COMB 60 1.0
+
+* --- C321
+MIX 93  COMB 57 1.0
+MIX 94  COMB 58 1.0
+MIX 95  COMB 59 1.0
+MIX 96  COMB 60 1.0
+
+**********
+
+* --- C334
+MIX 109 COMB 57 1.0
+MIX 110 COMB 58 1.0
+MIX 111 COMB 59 1.0
+MIX 112 COMB 60 1.0
+
+* --- C335
+MIX 113 COMB 57 1.0
+MIX 114 COMB 58 1.0
+MIX 115 COMB 59 1.0
+MIX 116 COMB 60 1.0
+
+
+**************************
+*       C4 generated cells
+**************************
+* shell 1 : 27
+* shell 2 : 26
+* shell 3 : 25
+* shell 4 : 24
+
+**********
+
+* --- C261
+*MIX 24  COMB 24 1.0
+*MIX 25  COMB 25 1.0
+*MIX 26  COMB 26 1.0
+*MIX 27  COMB 27 1.0
+
+* --- C263
+MIX 29  COMB 25 1.0
+MIX 30  COMB 24 1.0
+MIX 31  COMB 26 1.0
+MIX 32  COMB 27 1.0
+
+* --- C264
+MIX 33  COMB 25 1.0
+MIX 34  COMB 24 1.0
+MIX 35  COMB 26 1.0
+MIX 36  COMB 27 1.0
+
+**********
+
+* --- C280
+MIX 37  COMB 24 1.0
+MIX 38  COMB 25 1.0
+MIX 39  COMB 26 1.0
+MIX 40  COMB 27 1.0
+
+* --- C281
+MIX 41  COMB 25 1.0
+MIX 42  COMB 24 1.0
+MIX 43  COMB 26 1.0
+MIX 44  COMB 27 1.0
+
+* --- C282
+MIX 45  COMB 25 1.0
+MIX 46  COMB 24 1.0
+MIX 47  COMB 26 1.0
+MIX 48  COMB 27 1.0
+
+* --- C283 is a C7 generated cell
+
+* --- C284
+MIX 53  COMB 25 1.0
+MIX 54  COMB 24 1.0
+MIX 55  COMB 26 1.0
+MIX 56  COMB 27 1.0
+
+
+**************************
+*       C5 generated cells
+**************************
+* shell 1 : 15
+* shell 2 : 14
+* shell 3 : 13
+* shell 4 : 12
+
+**********
+
+* --- C241
+*MIX 12  COMB 12 1.0
+*MIX 13  COMB 13 1.0
+*MIX 14  COMB 14 1.0
+*MIX 15  COMB 15 1.0
+
+* --- C242
+MIX 16  COMB 13 1.0
+MIX 17  COMB 12 1.0
+MIX 18  COMB 14 1.0
+MIX 19  COMB 15 1.0
+
+* --- C243
+MIX 20  COMB 13 1.0
+MIX 21  COMB 12 1.0
+MIX 22  COMB 14 1.0
+MIX 23  COMB 15 1.0
+
+
+**************************
+*       C6 generated cells
+**************************
+* shell 1 : 6
+* shell 2 : 5
+* shell 3 : 4
+* shell 4 : 3
+
+**********
+
+* --- C220
+*MIX 3   COMB 3 1.0
+*MIX 4   COMB 4 1.0
+*MIX 5   COMB 5 1.0
+*MIX 6   COMB 6 1.0
+
+* --- C221
+MIX 8   COMB 4 1.0
+MIX 9   COMB 3 1.0
+MIX 10  COMB 5 1.0
+MIX 11  COMB 6 1.0
+
+
+**************************
+*        C7 generated cell
+**************************
+* shell 1 : 52
+* shell 2 : 51
+* shell 3 : 49
+* shell 4 : 50
+
+**********
+
+* --- C283
+*MIX 49  COMB 49 1.0
+*MIX 50  COMB 50 1.0
+*MIX 51  COMB 51 1.0
+*MIX 52  COMB 52 1.0
+
+;
+
+
+***********************************
+***************************** 398GO
+***********************************
+
+ELSEIF name_geom 'KML2_398GO_ASS' = THEN
+
+LIBEQ := LIB: LIBEQ ::
+  EDIT 0
+  NMIX 257   ! MAXIMUM OF MATERIAL MIXTURES
+  DEPL LIB: DRAGON FIL: LIBEQ
+  MIXS LIB: MICROLIB FIL: LIBEQ
+
+
+***************************
+*   General mixtures unchanged
+***************************
+* Cladding fuel
+* MIX 1
+
+* Water
+* MIX 2
+
+* Void
+* MIX 8
+
+* Cladding guide
+* MIX 29
+
+* Cladding instrum
+* MIX 256
+
+* Strcuture
+* MIX 257
+
+
+**************************
+*       C1 generated cells : DONE
+**************************
+* shell 1 : 215
+* shell 2 : 214
+* shell 3 : 213
+* shell 4 : 212
+
+**********
+
+* --- C373
+*MIX 215 COMB 215 1.0
+*MIX 214 COMB 214 1.0
+*MIX 213 COMB 213 1.0
+*MIX 212 COMB 212 1.0
+
+* --- C374
+MIX 219 COMB 215 1.0
+MIX 218 COMB 214 1.0
+MIX 216 COMB 213 1.0
+MIX 217 COMB 212 1.0
+
+* --- C375
+MIX 223 COMB 215 1.0
+MIX 222 COMB 214 1.0
+MIX 220 COMB 213 1.0
+MIX 221 COMB 212 1.0
+
+* --- C376
+MIX 227 COMB 215 1.0
+MIX 226 COMB 214 1.0
+MIX 224 COMB 213 1.0
+MIX 225 COMB 212 1.0
+
+* --- C377
+MIX 231 COMB 215 1.0
+MIX 230 COMB 214 1.0
+MIX 228 COMB 213 1.0
+MIX 229 COMB 212 1.0
+
+* --- C378
+MIX 235 COMB 215 1.0
+MIX 234 COMB 214 1.0
+MIX 232 COMB 213 1.0
+MIX 233 COMB 212 1.0
+
+* --- C379
+MIX 239 COMB 215 1.0
+MIX 238 COMB 214 1.0
+MIX 236 COMB 213 1.0
+MIX 237 COMB 212 1.0
+
+* --- C380
+MIX 243 COMB 215 1.0
+MIX 242 COMB 214 1.0
+MIX 240 COMB 213 1.0
+MIX 241 COMB 212 1.0
+
+* --- C381
+MIX 247 COMB 215 1.0
+MIX 246 COMB 214 1.0
+MIX 244 COMB 213 1.0
+MIX 245 COMB 212 1.0
+
+* --- C382
+MIX 251 COMB 215 1.0
+MIX 250 COMB 214 1.0
+MIX 248 COMB 213 1.0
+MIX 249 COMB 212 1.0
+
+* --- C383
+MIX 255 COMB 215 1.0
+MIX 254 COMB 214 1.0
+MIX 252 COMB 213 1.0
+MIX 253 COMB 212 1.0
+
+
+**************************
+*       C2 generated cells : DONE 
+**************************
+* shell 1 : 107
+* shell 2 : 106
+* shell 3 : 105
+* shell 4 : 104
+
+**********
+
+* --- C331 : mother cell
+*MIX 107  COMB 107 1.0
+*MIX 106  COMB 106 1.0
+*MIX 105  COMB 105 1.0
+*MIX 104  COMB 104 1.0
+
+* --- C332
+MIX 111  COMB 107 1.0
+MIX 110  COMB 106 1.0
+MIX 108  COMB 105 1.0
+MIX 109  COMB 104 1.0
+
+* --- C333
+MIX 115  COMB 107 1.0
+MIX 114  COMB 106 1.0
+MIX 112  COMB 105 1.0
+MIX 113  COMB 104 1.0
+
+* C334 & C335 are C3 generated cells
+
+* --- C336
+MIX 127  COMB 107 1.0
+MIX 126  COMB 106 1.0
+MIX 124  COMB 105 1.0
+MIX 125  COMB 104 1.0
+
+* --- C337
+MIX 131  COMB 107 1.0
+MIX 130  COMB 106 1.0
+MIX 128  COMB 105 1.0
+MIX 129  COMB 104 1.0
+
+* --- C338
+MIX 135  COMB 107 1.0
+MIX 134  COMB 106 1.0
+MIX 132  COMB 105 1.0
+MIX 133  COMB 104 1.0
+
+**********
+
+* --- C346
+MIX 139  COMB 107 1.0
+MIX 138  COMB 106 1.0
+MIX 137  COMB 105 1.0
+MIX 136  COMB 104 1.0
+
+* --- C347
+MIX 143  COMB 107 1.0
+MIX 142  COMB 106 1.0
+MIX 140  COMB 105 1.0
+MIX 141  COMB 104 1.0
+
+* --- C348
+MIX 147  COMB 107 1.0
+MIX 146  COMB 106 1.0
+MIX 144  COMB 105 1.0
+MIX 145  COMB 104 1.0
+
+* --- C349
+MIX 151  COMB 107 1.0
+MIX 150  COMB 106 1.0
+MIX 148  COMB 105 1.0
+MIX 149  COMB 104 1.0
+
+* --- C350
+MIX 155  COMB 107 1.0
+MIX 154  COMB 106 1.0
+MIX 152  COMB 105 1.0
+MIX 153  COMB 104 1.0
+
+* --- C351
+MIX 159  COMB 107 1.0
+MIX 158  COMB 106 1.0
+MIX 156  COMB 105 1.0
+MIX 157  COMB 104 1.0
+
+* --- C352
+MIX 163  COMB 107 1.0
+MIX 162  COMB 106 1.0
+MIX 160  COMB 105 1.0
+MIX 161  COMB 104 1.0
+
+* --- C353
+MIX 167  COMB 107 1.0
+MIX 166  COMB 106 1.0
+MIX 164  COMB 105 1.0
+MIX 165  COMB 104 1.0
+
+* --- C354
+MIX 171  COMB 107 1.0
+MIX 170  COMB 106 1.0
+MIX 168  COMB 105 1.0
+MIX 169  COMB 104 1.0
+
+**********
+
+* --- C360
+MIX 175  COMB 107 1.0
+MIX 174  COMB 106 1.0
+MIX 173  COMB 105 1.0
+MIX 172  COMB 104 1.0
+
+* --- C361
+MIX 179  COMB 107 1.0
+MIX 178  COMB 106 1.0
+MIX 176  COMB 105 1.0
+MIX 177  COMB 104 1.0
+
+* --- C362
+MIX 183  COMB 107 1.0
+MIX 182  COMB 106 1.0
+MIX 180  COMB 105 1.0
+MIX 181  COMB 104 1.0
+
+* --- C363
+MIX 187  COMB 107 1.0
+MIX 186  COMB 106 1.0
+MIX 184  COMB 105 1.0
+MIX 185  COMB 104 1.0
+
+* --- C364
+MIX 191  COMB 107 1.0
+MIX 190  COMB 106 1.0
+MIX 188  COMB 105 1.0
+MIX 189  COMB 104 1.0
+
+* --- C365
+MIX 195  COMB 107 1.0
+MIX 194  COMB 106 1.0
+MIX 192  COMB 105 1.0
+MIX 193  COMB 104 1.0
+
+* --- C366
+MIX 199  COMB 107 1.0
+MIX 198  COMB 106 1.0
+MIX 196  COMB 105 1.0
+MIX 197  COMB 104 1.0
+
+* --- C367
+MIX 203  COMB 107 1.0
+MIX 202  COMB 106 1.0
+MIX 200  COMB 105 1.0
+MIX 201  COMB 104 1.0
+
+* --- C368
+MIX 207  COMB 107 1.0
+MIX 206  COMB 106 1.0
+MIX 204  COMB 105 1.0
+MIX 205  COMB 104 1.0
+
+* --- C369
+MIX 211  COMB 107 1.0
+MIX 210  COMB 106 1.0
+MIX 208  COMB 105 1.0
+MIX 209  COMB 104 1.0
+
+
+**************************
+*       C3 generated cells : DONE
+**************************
+* shell 1 : 67
+* shell 2 : 66
+* shell 3 : 64
+* shell 4 : 65
+
+**********
+
+* --- C299 : mother cell
+*MIX 67  COMB 67 1.0
+*MIX 66  COMB 66 1.0
+*MIX 65  COMB 65 1.0
+*MIX 64  COMB 64 1.0
+
+* --- C300
+MIX 71  COMB 67 1.0
+MIX 70  COMB 66 1.0
+MIX 69  COMB 65 1.0
+MIX 68  COMB 64 1.0
+
+
+* --- C301 & C302 are C7 generated cells
+
+
+**********
+
+* --- C315
+MIX 83  COMB 67 1.0
+MIX 82  COMB 66 1.0
+MIX 80  COMB 65 1.0
+MIX 81  COMB 64 1.0
+
+* --- C316
+MIX 87  COMB 67 1.0
+MIX 86  COMB 66 1.0
+MIX 85  COMB 65 1.0
+MIX 84  COMB 64 1.0
+
+* --- C317
+MIX 91  COMB 67 1.0
+MIX 90  COMB 66 1.0
+MIX 89  COMB 65 1.0
+MIX 88  COMB 64 1.0
+
+* --- C319
+MIX 95  COMB 67 1.0
+MIX 94  COMB 66 1.0
+MIX 93  COMB 65 1.0
+MIX 92  COMB 64 1.0
+
+* --- C320
+MIX 99  COMB 67 1.0
+MIX 98  COMB 66 1.0
+MIX 97  COMB 65 1.0
+MIX 96  COMB 64 1.0
+
+* --- C321
+MIX 103  COMB 67 1.0
+MIX 102  COMB 66 1.0
+MIX 101  COMB 65 1.0
+MIX 100  COMB 64 1.0
+
+**********
+
+* --- C334
+MIX 119  COMB 67 1.0
+MIX 118  COMB 66 1.0
+MIX 117  COMB 65 1.0
+MIX 116  COMB 64 1.0
+
+* --- C335
+MIX 123  COMB 67 1.0
+MIX 122  COMB 66 1.0
+MIX 121  COMB 65 1.0
+MIX 120  COMB 64 1.0
+
+
+**************************
+*       C4 generated cells : DONE
+**************************
+* shell 1 : 45
+* shell 2 : 44
+* shell 3 : 42
+* shell 4 : 43
+
+**********
+
+* --- C281 : mother cell
+*MIX 45  COMB 45 1.0
+*MIX 44  COMB 44 1.0
+*MIX 43  COMB 43 1.0
+*MIX 42  COMB 42 1.0
+
+
+
+**************************
+*       C5 generated cells : DONE
+**************************
+* shell 1 : 16
+* shell 2 : 15
+* shell 3 : 14
+* shell 4 : 13
+
+**********
+
+* --- C241 : mother cell
+*MIX 16  COMB 16 1.0
+*MIX 15  COMB 15 1.0
+*MIX 14  COMB 14 1.0
+*MIX 13  COMB 13 1.0
+
+* --- C242
+MIX 20  COMB 16 1.0
+MIX 19  COMB 15 1.0
+MIX 17  COMB 14 1.0
+MIX 18  COMB 13 1.0
+
+* --- C243
+MIX 24  COMB 16 1.0
+MIX 23  COMB 15 1.0
+MIX 21  COMB 14 1.0
+MIX 22  COMB 13 1.0
+
+
+**************************
+*       C6 generated cells : DONE
+**************************
+* shell 1 : 7
+* shell 2 : 6
+* shell 3 : 5
+* shell 4 : 4
+
+**********
+
+* --- C220 : mother cell
+*MIX 7   COMB 7 1.0
+*MIX 6   COMB 6 1.0
+*MIX 5   COMB 5 1.0
+*MIX 4   COMB 4 1.0
+
+* --- C221
+MIX 12   COMB 7 1.0
+MIX 11   COMB 6 1.0
+MIX 9    COMB 5 1.0
+MIX 10   COMB 4 1.0
+
+
+**************************
+*       C7 generated cells : DONE
+**************************
+* shell 1 : 28
+* shell 2 : 27
+* shell 3 : 26
+* shell 4 : 25
+
+**********
+
+* --- C261 : mother cell
+*MIX 28  COMB 28 1.0
+*MIX 27  COMB 27 1.0
+*MIX 26  COMB 26 1.0
+*MIX 25  COMB 25 1.0
+
+* --- C263
+MIX 33  COMB 28 1.0
+MIX 32  COMB 27 1.0
+MIX 30  COMB 26 1.0
+MIX 31  COMB 25 1.0
+
+* --- C264
+MIX 37  COMB 28 1.0
+MIX 36  COMB 27 1.0
+MIX 34  COMB 26 1.0
+MIX 35  COMB 25 1.0
+
+* --- C280
+MIX 41  COMB 28 1.0
+MIX 40  COMB 27 1.0
+MIX 39  COMB 26 1.0
+MIX 38  COMB 25 1.0
+
+* --- C281 is a C4 generated cell
+
+* --- C282
+MIX 49  COMB 28 1.0
+MIX 48  COMB 27 1.0
+MIX 46  COMB 26 1.0
+MIX 47  COMB 25 1.0
+
+* --- C282 is a C8 generated cell
+
+* --- C284
+MIX 63  COMB 28 1.0
+MIX 62  COMB 27 1.0
+MIX 60  COMB 26 1.0
+MIX 61  COMB 25 1.0
+
+* --- C301
+MIX 75  COMB 28 1.0
+MIX 74  COMB 27 1.0
+MIX 72  COMB 26 1.0
+MIX 73  COMB 25 1.0
+
+* --- C302
+MIX 79  COMB 28 1.0
+MIX 78  COMB 27 1.0
+MIX 76  COMB 26 1.0
+MIX 77  COMB 25 1.0
+
+
+
+**************************
+*       C8 generated cell : DONE
+**************************
+* shell 1  : 59
+* shell 2  : 58
+* shell 3  : 57
+* shell 4  : 56
+* shell 5  : 55
+* shell 6  : 54
+* shell 7  : 50
+* shell 8  : 52
+* shell 9  : 53
+* shell 10 : 3
+* shell 11 : 51
+
+* --- C283 : mother cell
+*MIX 59  COMB 59 1.0
+*MIX 58  COMB 58 1.0
+*MIX 56  COMB 56 1.0
+*MIX 57  COMB 57 1.0
+*MIX 55  COMB 55 1.0
+*MIX 54  COMB 54 1.0
+*MIX 53  COMB 53 1.0
+*MIX 52  COMB 52 1.0
+*MIX 51  COMB 51 1.0
+*MIX 50  COMB 50 1.0
+*MIX 3   COMB 3  1.0
+;
+
+
+***********************************
+***************************** 39AWU
+***********************************
+
+ELSEIF name_geom 'KML2_39AWU_ASS' = THEN
+
+LIBEQ := LIB: LIBEQ ::
+  EDIT 0
+  NMIX 257   ! MAXIMUM OF MATERIAL MIXTURES
+  DEPL LIB: DRAGON FIL: LIBEQ
+  MIXS LIB: MICROLIB FIL: LIBEQ
+
+***************************
+*   General mixtures unchanged
+***************************
+* Cladding fuel
+* MIX 1
+
+* Water
+* MIX 2
+
+* Void
+* MIX 9
+
+* Cladding guide
+* MIX 33
+
+* Cladding instrum
+* MIX 256
+
+* Strcuture
+* MIX 257
+
+
+**************************
+*       C1 generated cells : DONE
+**************************
+* shell 1 : 8
+* shell 2 : 7
+* shell 3 : 5
+* shell 4 : 6
+
+**********
+
+* --- C188 : mother cell
+*MIX 8 COMB 8 1.0
+*MIX 7 COMB 7 1.0
+*MIX 5 COMB 5 1.0
+*MIX 6 COMB 6 1.0
+
+* --- C211 
+MIX 53 COMB 8 1.0
+MIX 52 COMB 7 1.0
+MIX 50 COMB 5 1.0
+MIX 51 COMB 6 1.0
+
+* --- C233 
+MIX 93 COMB 8 1.0
+MIX 92 COMB 7 1.0
+MIX 90 COMB 5 1.0
+MIX 91 COMB 6 1.0
+
+* --- C254
+MIX 137 COMB 8 1.0
+MIX 136 COMB 7 1.0
+MIX 134 COMB 5 1.0
+MIX 135 COMB 6 1.0
+
+* --- C274
+MIX 179 COMB 8 1.0
+MIX 178 COMB 7 1.0
+MIX 176 COMB 5 1.0
+MIX 177 COMB 6 1.0
+
+* --- C293
+MIX 223 COMB 8 1.0
+MIX 222 COMB 7 1.0
+MIX 220 COMB 5 1.0
+MIX 221 COMB 6 1.0
+
+* --- C311
+MIX 259 COMB 8 1.0
+MIX 258 COMB 7 1.0
+MIX 256 COMB 5 1.0
+MIX 257 COMB 6 1.0
+
+* --- C328
+MIX 299 COMB 8 1.0
+MIX 298 COMB 7 1.0
+MIX 296 COMB 5 1.0
+MIX 297 COMB 6 1.0
+
+* --- C344
+MIX 343 COMB 8 1.0
+MIX 342 COMB 7 1.0
+MIX 340 COMB 5 1.0
+MIX 341 COMB 6 1.0
+
+* --- C359
+MIX 400 COMB 8 1.0
+MIX 399 COMB 7 1.0
+MIX 397 COMB 5 1.0
+MIX 398 COMB 6 1.0
+
+* --- C373
+MIX 444 COMB 8 1.0
+MIX 443 COMB 7 1.0
+MIX 441 COMB 5 1.0
+MIX 442 COMB 6 1.0
+
+* --- C374
+MIX 448 COMB 8 1.0
+MIX 447 COMB 7 1.0
+MIX 445 COMB 5 1.0
+MIX 446 COMB 6 1.0
+
+* --- C375
+MIX 452 COMB 8 1.0
+MIX 451 COMB 7 1.0
+MIX 449 COMB 5 1.0
+MIX 450 COMB 6 1.0
+
+* --- C376
+MIX 456 COMB 8 1.0
+MIX 455 COMB 7 1.0
+MIX 453 COMB 5 1.0
+MIX 454 COMB 6 1.0
+
+* --- C377
+MIX 460 COMB 8 1.0
+MIX 459 COMB 7 1.0
+MIX 457 COMB 5 1.0
+MIX 458 COMB 6 1.0
+
+* --- C378
+MIX 464 COMB 8 1.0
+MIX 463 COMB 7 1.0
+MIX 461 COMB 5 1.0
+MIX 462 COMB 6 1.0
+
+* --- C379
+MIX 468 COMB 8 1.0
+MIX 467 COMB 7 1.0
+MIX 465 COMB 5 1.0
+MIX 466 COMB 6 1.0
+
+* --- C380
+MIX 472 COMB 8 1.0
+MIX 471 COMB 7 1.0
+MIX 469 COMB 5 1.0
+MIX 470 COMB 6 1.0
+
+* --- C381
+MIX 476 COMB 8 1.0
+MIX 475 COMB 7 1.0
+MIX 473 COMB 5 1.0
+MIX 474 COMB 6 1.0
+
+* --- C382
+MIX 480 COMB 8 1.0
+MIX 479 COMB 7 1.0
+MIX 477 COMB 5 1.0
+MIX 478 COMB 6 1.0
+
+* --- C383
+MIX 484 COMB 8 1.0
+MIX 483 COMB 7 1.0
+MIX 481 COMB 5 1.0
+MIX 482 COMB 6 1.0
+
+
+**************************
+*       C2 generated cells : DONE
+**************************
+* shell 1 : 65
+* shell 2 : 64
+* shell 3 : 62
+* shell 4 : 63
+
+**********
+
+* --- C214 : mother cell
+*MIX 65  COMB 65 1.0
+*MIX 64  COMB 64 1.0
+*MIX 62  COMB 62 1.0
+*MIX 63  COMB 63 1.0
+
+* --- C235
+MIX 101  COMB 65 1.0
+MIX 100  COMB 64 1.0
+MIX 98   COMB 62 1.0
+MIX 99   COMB 63 1.0
+
+* --- C236
+MIX 105  COMB 65 1.0
+MIX 104  COMB 64 1.0
+MIX 102  COMB 62 1.0
+MIX 103  COMB 63 1.0
+
+* --- C256
+MIX 145  COMB 65 1.0
+MIX 144  COMB 64 1.0
+MIX 142  COMB 62 1.0
+MIX 143  COMB 63 1.0
+
+* --- C276
+MIX 187  COMB 65 1.0
+MIX 186  COMB 64 1.0
+MIX 184  COMB 62 1.0
+MIX 185  COMB 63 1.0
+
+* --- C295
+MIX 231  COMB 65 1.0
+MIX 230  COMB 64 1.0
+MIX 228  COMB 62 1.0
+MIX 229  COMB 63 1.0
+
+* --- C296
+MIX 235  COMB 65 1.0
+MIX 234  COMB 64 1.0
+MIX 232  COMB 62 1.0
+MIX 233  COMB 63 1.0
+
+* --- C313
+MIX 267  COMB 65 1.0
+MIX 266  COMB 64 1.0
+MIX 264  COMB 62 1.0
+MIX 265  COMB 63 1.0
+
+* --- C314
+MIX 271  COMB 65 1.0
+MIX 270  COMB 64 1.0
+MIX 268  COMB 62 1.0
+MIX 269  COMB 63 1.0
+
+* --- C332
+MIX 315  COMB 65 1.0
+MIX 314  COMB 64 1.0
+MIX 312  COMB 62 1.0
+MIX 313  COMB 63 1.0
+
+* --- C333
+MIX 319  COMB 65 1.0
+MIX 318  COMB 64 1.0
+MIX 316  COMB 62 1.0
+MIX 317  COMB 63 1.0
+
+* --- C336
+MIX 331  COMB 65 1.0
+MIX 330  COMB 64 1.0
+MIX 328  COMB 62 1.0
+MIX 329  COMB 63 1.0
+
+* --- C337
+MIX 335  COMB 65 1.0
+MIX 334  COMB 64 1.0
+MIX 332  COMB 62 1.0
+MIX 333  COMB 63 1.0
+
+* --- C348
+MIX 365  COMB 65 1.0
+MIX 364  COMB 64 1.0
+MIX 362  COMB 62 1.0
+MIX 363  COMB 63 1.0
+
+* --- C349
+MIX 369  COMB 65 1.0
+MIX 368  COMB 64 1.0
+MIX 366  COMB 62 1.0
+MIX 367  COMB 63 1.0
+
+* --- C350
+MIX 373  COMB 65 1.0
+MIX 372  COMB 64 1.0
+MIX 370  COMB 62 1.0
+MIX 371  COMB 63 1.0
+
+* --- C351
+MIX 377  COMB 65 1.0
+MIX 376  COMB 64 1.0
+MIX 374  COMB 62 1.0
+MIX 375  COMB 63 1.0
+
+* --- C352
+MIX 381  COMB 65 1.0
+MIX 380  COMB 64 1.0
+MIX 378  COMB 62 1.0
+MIX 379  COMB 63 1.0
+
+
+
+**************************
+*       C3 generated cells : DONE
+**************************
+* shell 1 : 32
+* shell 2 : 31
+* shell 3 : 29
+* shell 4 : 30
+
+**********
+
+* --- C192 : mother cell
+*MIX 32  COMB 32 1.0
+*MIX 31  COMB 31 1.0
+*MIX 29  COMB 29 1.0
+*MIX 30  COMB 30 1.0
+
+* --- C215
+MIX 69  COMB 32 1.0
+MIX 68  COMB 31 1.0
+MIX 66  COMB 29 1.0
+MIX 67  COMB 30 1.0
+
+* --- C216
+MIX 73  COMB 32 1.0
+MIX 72  COMB 31 1.0
+MIX 70  COMB 29 1.0
+MIX 71  COMB 30 1.0
+
+* --- C237
+MIX 109  COMB 32 1.0
+MIX 108  COMB 31 1.0
+MIX 106  COMB 29 1.0
+MIX 107  COMB 30 1.0
+
+* --- C238
+MIX 113  COMB 32 1.0
+MIX 112  COMB 31 1.0
+MIX 110  COMB 29 1.0
+MIX 111  COMB 30 1.0
+
+* --- C257
+MIX 149  COMB 32 1.0
+MIX 148  COMB 31 1.0
+MIX 146  COMB 29 1.0
+MIX 147  COMB 30 1.0
+
+* --- C277
+MIX 191  COMB 32 1.0
+MIX 190  COMB 31 1.0
+MIX 188  COMB 29 1.0
+MIX 189  COMB 30 1.0
+
+* --- C278
+MIX 195  COMB 32 1.0
+MIX 194  COMB 31 1.0
+MIX 192  COMB 29 1.0
+MIX 193  COMB 30 1.0
+
+* --- C297
+MIX 239  COMB 32 1.0
+MIX 238  COMB 31 1.0
+MIX 236  COMB 29 1.0
+MIX 237  COMB 30 1.0
+
+* --- C299
+MIX 243  COMB 32 1.0
+MIX 242  COMB 31 1.0
+MIX 240  COMB 29 1.0
+MIX 241  COMB 30 1.0
+
+* --- C300
+MIX 247  COMB 32 1.0
+MIX 246  COMB 31 1.0
+MIX 244  COMB 29 1.0
+MIX 245  COMB 30 1.0
+
+* --- C301
+MIX 251  COMB 32 1.0
+MIX 250  COMB 31 1.0
+MIX 248  COMB 29 1.0
+MIX 249  COMB 30 1.0
+
+* --- C302
+MIX 255  COMB 32 1.0
+MIX 254  COMB 31 1.0
+MIX 252  COMB 29 1.0
+MIX 253  COMB 30 1.0
+
+* --- C315
+MIX 275  COMB 32 1.0
+MIX 274  COMB 31 1.0
+MIX 272  COMB 29 1.0
+MIX 273  COMB 30 1.0
+
+* --- C316
+MIX 279  COMB 32 1.0
+MIX 278  COMB 31 1.0
+MIX 276  COMB 29 1.0
+MIX 277  COMB 30 1.0
+
+* --- C317
+MIX 283  COMB 32 1.0
+MIX 282  COMB 31 1.0
+MIX 280  COMB 29 1.0
+MIX 281  COMB 30 1.0
+
+* --- C319
+MIX 287  COMB 32 1.0
+MIX 286  COMB 31 1.0
+MIX 284  COMB 29 1.0
+MIX 285  COMB 30 1.0
+
+* --- C320
+MIX 291  COMB 32 1.0
+MIX 290  COMB 31 1.0
+MIX 288  COMB 29 1.0
+MIX 289  COMB 30 1.0
+
+* --- C321
+MIX 295  COMB 32 1.0
+MIX 294  COMB 31 1.0
+MIX 292  COMB 29 1.0
+MIX 293  COMB 30 1.0
+
+* --- C334
+MIX 323  COMB 32 1.0
+MIX 322  COMB 31 1.0
+MIX 320  COMB 29 1.0
+MIX 321  COMB 30 1.0
+
+* --- C335
+MIX 327  COMB 32 1.0
+MIX 326  COMB 31 1.0
+MIX 324  COMB 29 1.0
+MIX 325  COMB 30 1.0
+
+
+**************************
+*       C4 generated cells : DONE
+**************************
+* shell 1 : 37
+* shell 2 : 36
+* shell 3 : 34
+* shell 4 : 35
+
+**********
+
+* --- C194 : mother cell
+*MIX 37  COMB 37 1.0
+*MIX 36  COMB 36 1.0
+*MIX 34  COMB 34 1.0
+*MIX 35  COMB 35 1.0
+
+* --- C195
+MIX 41  COMB 37 1.0
+MIX 40  COMB 36 1.0
+MIX 38  COMB 34 1.0
+MIX 39  COMB 35 1.0
+
+* --- C217
+MIX 77  COMB 37 1.0
+MIX 76  COMB 36 1.0
+MIX 74  COMB 34 1.0
+MIX 75  COMB 35 1.0
+
+* --- C263
+MIX 171  COMB 37 1.0
+MIX 170  COMB 36 1.0
+MIX 168  COMB 34 1.0
+MIX 169  COMB 35 1.0
+
+* --- C264
+MIX 175  COMB 37 1.0
+MIX 174  COMB 36 1.0
+MIX 172  COMB 34 1.0
+MIX 173  COMB 35 1.0
+
+* --- C281
+MIX 207  COMB 37 1.0
+MIX 206  COMB 36 1.0
+MIX 204  COMB 34 1.0
+MIX 205  COMB 35 1.0
+
+* --- C282
+MIX 211  COMB 37 1.0
+MIX 210  COMB 36 1.0
+MIX 208  COMB 34 1.0
+MIX 209  COMB 35 1.0
+
+* --- C284
+MIX 219  COMB 37 1.0
+MIX 218  COMB 36 1.0
+MIX 216  COMB 34 1.0
+MIX 217  COMB 35 1.0
+
+
+**************************
+*       C5 generated cells : DONE
+**************************
+* shell 1 : 45
+* shell 2 : 44
+* shell 3 : 42
+* shell 4 : 43
+
+**********
+
+* --- C196 : mother cell
+*MIX 45  COMB 45 1.0
+*MIX 44  COMB 44 1.0
+*MIX 42  COMB 42 1.0
+*MIX 43  COMB 43 1.0
+
+* --- C219
+MIX 81  COMB 45 1.0
+MIX 80  COMB 44 1.0
+MIX 78  COMB 42 1.0
+MIX 79  COMB 43 1.0
+
+* --- C241
+MIX 125  COMB 45 1.0
+MIX 124  COMB 44 1.0
+MIX 122  COMB 42 1.0
+MIX 123  COMB 43 1.0
+
+* --- C242
+MIX 129  COMB 45 1.0
+MIX 128  COMB 44 1.0
+MIX 126  COMB 42 1.0
+MIX 127  COMB 43 1.0
+
+* --- C243
+MIX 133  COMB 45 1.0
+MIX 132  COMB 44 1.0
+MIX 130  COMB 42 1.0
+MIX 131  COMB 43 1.0
+
+
+
+**************************
+*       C6 generated cells : DONE
+**************************
+* shell 1 : 49
+* shell 2 : 48
+* shell 3 : 46
+* shell 4 : 47
+
+**********
+
+* --- C197 : mother cell
+*MIX 49   COMB 49 1.0
+*MIX 48   COMB 48 1.0
+*MIX 46   COMB 46 1.0
+*MIX 47   COMB 47 1.0
+
+* --- C220
+MIX 85   COMB 49 1.0
+MIX 84   COMB 48 1.0
+MIX 82   COMB 46 1.0
+MIX 83   COMB 47 1.0
+
+* --- C221
+MIX 89   COMB 49 1.0
+MIX 88   COMB 48 1.0
+MIX 86   COMB 46 1.0
+MIX 87   COMB 47 1.0
+
+
+**************************
+*       C7 generated cells : DONE
+**************************
+* shell 1 : 215
+* shell 2 : 214
+* shell 3 : 212
+* shell 4 : 213
+
+**********
+
+* --- C283 : mother cell
+*MIX 215  COMB 215 1.0
+*MIX 214  COMB 214 1.0
+*MIX 212  COMB 212 1.0
+*MIX 213  COMB 213 1.0
+
+
+
+**************************
+*       C8 generated cells : DONE
+**************************
+* shell 1 : 13
+* shell 2 : 12
+* shell 3 : 10
+* shell 4 : 11
+
+* --- C189 : mother cell
+*MIX 13  COMB 13 1.0
+*MIX 12  COMB 12 1.0
+*MIX 10  COMB 10 1.0
+*MIX 11  COMB 11 1.0
+
+* --- C191
+MIX 28  COMB 13 1.0
+MIX 27  COMB 12 1.0
+MIX 25  COMB 10 1.0
+MIX 26  COMB 11 1.0
+
+* --- C212
+MIX 57  COMB 13 1.0
+MIX 56  COMB 12 1.0
+MIX 54  COMB 10 1.0
+MIX 55  COMB 11 1.0
+
+* --- C213
+MIX 61  COMB 13 1.0
+MIX 60  COMB 12 1.0
+MIX 58  COMB 10 1.0
+MIX 59  COMB 11 1.0
+
+* --- C330
+MIX 307  COMB 13 1.0
+MIX 306  COMB 12 1.0
+MIX 304  COMB 10 1.0
+MIX 305  COMB 11 1.0
+
+* --- C331
+MIX 311  COMB 13 1.0
+MIX 310  COMB 12 1.0
+MIX 308  COMB 10 1.0
+MIX 309  COMB 11 1.0
+
+* --- C338
+MIX 339  COMB 13 1.0
+MIX 338  COMB 12 1.0
+MIX 336  COMB 10 1.0
+MIX 337  COMB 11 1.0
+
+* --- C345
+MIX 347  COMB 13 1.0
+MIX 346  COMB 12 1.0
+MIX 344  COMB 10 1.0
+MIX 345  COMB 11 1.0
+
+* --- C347
+MIX 361  COMB 13 1.0
+MIX 360  COMB 12 1.0
+MIX 358  COMB 10 1.0
+MIX 359  COMB 11 1.0
+
+* --- C353
+MIX 385  COMB 13 1.0
+MIX 384  COMB 12 1.0
+MIX 382  COMB 10 1.0
+MIX 383  COMB 11 1.0
+
+* --- C360
+MIX 404  COMB 13 1.0
+MIX 403  COMB 12 1.0
+MIX 401  COMB 10 1.0
+MIX 402  COMB 11 1.0
+
+* --- C361
+MIX 408  COMB 13 1.0
+MIX 407  COMB 12 1.0
+MIX 405  COMB 10 1.0
+MIX 406  COMB 11 1.0
+
+* --- C368
+MIX 436  COMB 13 1.0
+MIX 435  COMB 12 1.0
+MIX 433  COMB 10 1.0
+MIX 434  COMB 11 1.0
+
+* --- C369
+MIX 440  COMB 13 1.0
+MIX 439  COMB 12 1.0
+MIX 437  COMB 10 1.0
+MIX 438  COMB 11 1.0
+
+
+
+**************************
+*       C9 generated cells : DONE
+**************************
+* shell 1 : 117
+* shell 2 : 116
+* shell 3 : 114
+* shell 4 : 115
+
+* --- C239 : mother cell
+*MIX 117  COMB 117 1.0
+*MIX 116  COMB 116 1.0
+*MIX 114  COMB 114 1.0
+*MIX 115  COMB 115 1.0
+
+* --- C240
+MIX 121  COMB 117 1.0
+MIX 120  COMB 116 1.0
+MIX 118  COMB 114 1.0
+MIX 119  COMB 115 1.0
+
+* --- C259
+MIX 153  COMB 117 1.0
+MIX 152  COMB 116 1.0
+MIX 150  COMB 114 1.0
+MIX 151  COMB 115 1.0
+
+* --- C261
+MIX 167  COMB 117 1.0
+MIX 166  COMB 116 1.0
+MIX 164  COMB 114 1.0
+MIX 165  COMB 115 1.0
+
+* --- C279
+MIX 199  COMB 117 1.0
+MIX 198  COMB 116 1.0
+MIX 196  COMB 114 1.0
+MIX 197  COMB 115 1.0
+
+* --- C280
+MIX 203  COMB 117 1.0
+MIX 202  COMB 116 1.0
+MIX 200  COMB 114 1.0
+MIX 201  COMB 115 1.0
+
+
+
+**************************
+*       C10 generated cells : DONE
+**************************
+* shell 1 : 97
+* shell 2 : 96
+* shell 3 : 94
+* shell 4 : 95
+
+* --- C234 : mother cell
+*MIX 97  COMB 97 1.0
+*MIX 96  COMB 96 1.0
+*MIX 94  COMB 94 1.0
+*MIX 95  COMB 95 1.0
+
+* --- C255
+MIX 141  COMB 97 1.0
+MIX 140  COMB 96 1.0
+MIX 138  COMB 94 1.0
+MIX 139  COMB 95 1.0
+
+* --- C275
+MIX 183  COMB 97 1.0
+MIX 182  COMB 96 1.0
+MIX 180  COMB 94 1.0
+MIX 181  COMB 95 1.0
+
+* --- C294
+MIX 227  COMB 97 1.0
+MIX 226  COMB 96 1.0
+MIX 224  COMB 94 1.0
+MIX 225  COMB 95 1.0
+
+* --- C312
+MIX 263  COMB 97 1.0
+MIX 262  COMB 96 1.0
+MIX 260  COMB 94 1.0
+MIX 261  COMB 95 1.0
+
+* --- C329
+MIX 303  COMB 97 1.0
+MIX 302  COMB 96 1.0
+MIX 300  COMB 94 1.0
+MIX 301  COMB 95 1.0
+
+* --- C362
+MIX 412  COMB 97 1.0
+MIX 411  COMB 96 1.0
+MIX 409  COMB 94 1.0
+MIX 410  COMB 95 1.0
+
+* --- C363
+MIX 416  COMB 97 1.0
+MIX 415  COMB 96 1.0
+MIX 413  COMB 94 1.0
+MIX 414  COMB 95 1.0
+
+* --- C364
+MIX 420  COMB 97 1.0
+MIX 419  COMB 96 1.0
+MIX 417  COMB 94 1.0
+MIX 418  COMB 95 1.0
+
+* --- C365
+MIX 424  COMB 97 1.0
+MIX 423  COMB 96 1.0
+MIX 421  COMB 94 1.0
+MIX 422  COMB 95 1.0
+
+* --- C366
+MIX 428  COMB 97 1.0
+MIX 427  COMB 96 1.0
+MIX 425  COMB 94 1.0
+MIX 426  COMB 95 1.0
+
+* --- C367
+MIX 432  COMB 97 1.0
+MIX 431  COMB 96 1.0
+MIX 429  COMB 94 1.0
+MIX 430  COMB 95 1.0
+
+
+**************************
+*       Gd3 generated cells :
+**************************
+* shell 1  : 24
+* shell 2  : 23
+* shell 3  : 22
+* shell 4  : 21
+* shell 5  : 20
+* shell 6  : 19
+* shell 7  : 14
+* shell 8  : 15
+* shell 9  : 17
+* shell 10 : 18
+* shell 11 : 16
+
+* --- C354 
+MIX 396  COMB 24 1.0
+MIX 395  COMB 23 1.0
+MIX 394  COMB 22 1.0
+MIX 393  COMB 21 1.0
+MIX 392  COMB 20 1.0
+MIX 391  COMB 19 1.0
+MIX 386  COMB 14 1.0
+MIX 388  COMB 15 1.0
+MIX 390  COMB 17 1.0
+MIX 387  COMB 18 1.0
+MIX 389  COMB 16 1.0
+
+;
+
+ENDIF ;
+
+END: ;
+QUIT .

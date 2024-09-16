@@ -242,20 +242,81 @@ if a==False:
     os.mkdir(name_DIR)
 print("$$$ ---------------- results stored in directory = ",name_DIR)
 
-DRAGON_results_path = "./"
+DRAGON_results_path = './DRAGON_MULTICOMPO/'
 
-
-BU_points = "UOx2_autop5"
-[ListBU, ListSSH, ListCOMPO] = getLists(BU_points)
-case_name = "2x2_UOX"
-ssh_method = "PT"
-ssh_sol = "CP"
-flx_sol = "MOC"
-CALC_opt = "noCalc"
 #pyCOMPO_path = "/home/p117902/working_dir/PolyBWR_project/Version5_wc/PyGan/Linux_aarch64/BWRresults_PyGan_2x2_UOX/"
-pyCOMPO_name = "_COMPO_2x2_UOX_UOx2_autop5_PT_MOC_CALC4"
+pyCOMPO_name = "COMPO_AT10_PIN1"
 os.chdir(DRAGON_results_path)
 print(f"pwd = {os.getcwd()}")
-pyCOMPO=lcm.new('LCM_INP',pyCOMPO_name,impx=1)
+pyCOMPO=lcm.new('LCM_INP',pyCOMPO_name,impx=0)
 os.chdir(path)
-test_case = BWR_2x2_case(pyCOMPO, ListCOMPO, ListSSH, BU_points, case_name, ssh_method, ssh_sol, flx_sol, CALC_opt)
+len_isotot = np.shape(pyCOMPO['EDI_HOM']['MIXTURES'][0]['CALCULATIONS'][0]['ISOTOPESDENS'])[0] - 1
+print(f"len_isotot = {len_isotot}")
+#test_case = BWR_2x2_case(pyCOMPO, ListCOMPO, ListSSH, BU_points, case_name, ssh_method, ssh_sol, flx_sol, CALC_opt)
+
+prodD5 = 0.0
+prodS2 = 0.0
+ListS2 = []    
+nCell = 4
+bu = 0
+
+for iso in range(len_isotot):
+    isotope = pyCOMPO['EDI_HOM']['MIXTURES'][0]['CALCULATIONS'][0]['ISOTOPESLIST'][iso]['ALIAS'][0:5]
+    print(f"iso = {iso}")
+    print(f"isotope = {isotope}")  
+for iso in range(len_isotot):
+    isotope = pyCOMPO['EDI_2gr']['MIXTURES'][0]['CALCULATIONS'][0]['ISOTOPESLIST'][iso]['ALIAS'][0:5]
+    if isotope in ['U235 ', 'U238 ', 'Pu239', 'Pu241']:
+        for mix in range(nCell):
+            NWT0 = pyCOMPO['EDI_2gr']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NWT0']
+            N = pyCOMPO['EDI_HOM']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESDENS'][iso]
+            vol = pyCOMPO['EDI_HOM']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESVOL'][iso]
+            NFTOT = pyCOMPO['EDI_2gr']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NFTOT']
+#                NGAMMA = pyCOMPO['EDIBU_2gr']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NG']
+            for gr in range(2):
+#                    prodD5 += 6*NWT0[gr]*(NFTOT[gr]+NGAMMA[gr])*N*vol
+                prodD5 += 6*NWT0[gr]*NFTOT[gr]*N*vol
+
+
+valDRAGON_ALL_gr1=[]
+valDRAGON_ALL_gr2=[]
+valSERPENT_ALL_gr1=[]
+valSERPENT_ALL_gr2=[]
+iso_study = ['U235 ', 'U238 ', 'Pu239', 'Pu241']
+for iso in range(len_isotot): #len_isotot
+    isotope = pyCOMPO['EDI_2gr']['MIXTURES'][0]['CALCULATIONS'][0]['ISOTOPESLIST'][iso]['ALIAS'][0:5]
+    if isotope in iso_study:
+
+        # Determine la position de l'isotope pour SERPENT2  
+        n_iso = 0
+        for n, name_iso in enumerate(iso_study):
+            if name_iso == isotope:
+                n_iso = n
+        for u in range(1):
+            for gr in range(2):
+
+                # Stocke les valeurs D5
+                valDRAGON = []
+                #print(nCELL)
+                for mix in range(nCell):
+                    valDRAGON.append(pyCOMPO['EDI_2gr']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]["NFTOT"][1-gr])
+                    NWT0 = pyCOMPO['EDI_2gr']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NWT0'][1-gr]
+                    N = pyCOMPO['EDI_HOM']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESDENS'][iso]
+                    vol = pyCOMPO['EDI_HOM']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESVOL'][iso]
+                    valDRAGON[-1] = valDRAGON[-1]*NWT0*N*vol#mix#
+                    print(valDRAGON[-1],NWT0,N,vol)
+                print("$ -------------------- isotope=",isotope,"/ gr=",gr," valDRAGON=",valDRAGON)
+                
+                # STOCKAGE VALEURS valDRAGON dans valDRAGON_ALL_gri
+                if iso==0:
+                    if gr == 0 :
+                        valDRAGON_ALL_gr1 = valDRAGON
+                    elif gr == 1 : 
+                        valDRAGON_ALL_gr2 = valDRAGON 
+                else:
+                    if gr == 0 :
+                        valDRAGON_ALL_gr1 = [valDRAGON_ALL_gr1[i]+valDRAGON[i] for i in range(len(valDRAGON))]
+                    elif gr == 1 : 
+                        valDRAGON_ALL_gr2 = [valDRAGON_ALL_gr2[i]+valDRAGON[i] for i in range(len(valDRAGON))]
+                #print("$ -------------------- isotope=",isotope,"/ gr=",gr," valDRAGON=",valDRAGON,"/valDRAGON_ALL_gr1=",valDRAGON_ALL_gr1,"/valDRAGON_ALL_gr2=",valDRAGON_ALL_gr2)
+                # Stocke les valeurs S2

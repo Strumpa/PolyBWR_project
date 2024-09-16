@@ -1,0 +1,169 @@
+*----
+*  Name          : mixAUTOP2_AN.c2m
+*  Type          : DRAGON procedure
+*  Use           : Execute self-shielding for NATIVE assemblies at BU step > 1
+*  Author        : L. Fede
+*
+*  Procedure called as:
+*
+*  LIBRARY2 := mixAUTOP2_AN LIBRARY2 LIBRARY TRACK_SS :: <<name_geom>> ;
+*
+*  Input data   :
+*    LIBRARY      : Initial library
+*    TRACK_SS     : Self-shielding tracking
+*
+*  Output data  :
+*    LIBRARY2     : Self-shieled library
+*----
+
+PARAMETER LIBRARY2 LIBRARY TRACK_SS ::
+::: LINKED_LIST LIBRARY2 ;
+::: LINKED_LIST LIBRARY ;
+::: LINKED_LIST TRACK_SS ; ; 
+
+STRING name_geom ;
+:: >>name_geom<< ;
+
+
+*
+MODULE USS: END: ;
+
+**************
+*         V1_S1
+**************
+IF name_geom 'V1_S1_ASS' = THEN
+
+       LIBRARY2 := USS: LIBRARY2 LIBRARY TRACK_SS  ::
+          EDIT 1 PASS 3 GRMIN 52
+          CALC 
+* ALL CELLS
+               REGI W1 U235  ALL
+               REGI W1 U236  ALL
+*               REGI W1 U238  ALL
+               REGI W1 Pu239 ALL
+               REGI W1 Pu240 ALL
+               REGI W1 Pu241 ALL
+               REGI W1 Pu242 ALL
+
+               REGI W1 Gd154 ALL
+               REGI W1 Gd155 ALL
+               REGI W1 Gd156 ALL
+               REGI W1 Gd157 ALL
+               REGI W1 Gd158 ALL
+
+               REGI W1 Zr90 ALL
+               REGI W1 Zr91 ALL
+               REGI W1 Zr92 ALL
+               REGI W1 Zr94 ALL
+               REGI W1 Zr96 ALL
+
+* 2.2% U235 CELLS
+               REGI W1 U238 6
+               REGI W2 U238 5
+               REGI W3 U238 4
+               REGI W4 U238 3
+
+               REGI W1 U238 15
+               REGI W2 U238 14
+               REGI W3 U238 13
+               REGI W4 U238 12
+
+               REGI W1 U238 27
+               REGI W2 U238 26
+               REGI W3 U238 25
+               REGI W4 U238 24
+
+               REGI W1 U238 52
+               REGI W2 U238 51
+               REGI W3 U238 49
+               REGI W4 U238 50
+
+               REGI W1 U238 60
+               REGI W2 U238 59
+               REGI W3 U238 58
+               REGI W4 U238 58
+
+               REGI W1 U238 100
+               REGI W2 U238 99
+               REGI W3 U238 98
+               REGI W4 U238 97
+
+               REGI W1 U238 208
+               REGI W2 U238 207
+               REGI W3 U238 206
+               REGI W4 U238 205
+       ENDC
+       ;
+
+**************
+*         V2_S1
+**************
+ELSEIF name_geom 'V2_S1_ASS' = THEN
+
+       LIBRARY2 := USS: LIBRARY2 LIBRARY TRACK_SS  ::
+          EDIT 1 PASS 3 GRMIN 52
+          CALC 
+* ALL CELLS
+               REGI W1 U235  ALL
+               REGI W1 U236  ALL
+*               REGI W1 U238  ALL
+               REGI W1 Pu239 ALL
+               REGI W1 Pu240 ALL
+               REGI W1 Pu241 ALL
+               REGI W1 Pu242 ALL
+
+               REGI W1 Gd154 ALL
+               REGI W1 Gd155 ALL
+               REGI W1 Gd156 ALL
+               REGI W1 Gd157 ALL
+               REGI W1 Gd158 ALL
+
+               REGI W1 Zr90 ALL
+               REGI W1 Zr91 ALL
+               REGI W1 Zr92 ALL
+               REGI W1 Zr94 ALL
+               REGI W1 Zr96 ALL
+
+* 2.2% U235 CELLS
+               REGI W1 U238 6
+               REGI W2 U238 5
+               REGI W3 U238 4
+               REGI W4 U238 3
+
+               REGI W1 U238 15
+               REGI W2 U238 14
+               REGI W3 U238 13
+               REGI W4 U238 12
+
+               REGI W1 U238 27
+               REGI W2 U238 26
+               REGI W3 U238 25
+               REGI W4 U238 24
+
+               REGI W1 U238 52
+               REGI W2 U238 51
+               REGI W3 U238 49
+               REGI W4 U238 50
+
+               REGI W1 U238 60
+               REGI W2 U238 59
+               REGI W3 U238 58
+               REGI W4 U238 58
+
+               REGI W1 U238 100
+               REGI W2 U238 99
+               REGI W3 U238 98
+               REGI W4 U238 97
+
+               REGI W1 U238 208
+               REGI W2 U238 207
+               REGI W3 U238 206
+               REGI W4 U238 205
+       ENDC
+       ;
+
+ENDIF ;
+
+
+END: ;
+QUIT .

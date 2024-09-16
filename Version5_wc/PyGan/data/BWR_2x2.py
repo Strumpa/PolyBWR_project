@@ -102,7 +102,7 @@ elif case_name == "2x2_UOX_Gd":
 
     
 name_BUvector = 'BUvector_'+case_name+'_'+burnup_points
-name_compo = './_COMPO_'+case_name+'_'+burnup_points+"_"+ssh_method+"_"+flx_sol+"_"+CALC_opt
+name_compo = './_COMPO_AT10_'+case_name+'_'+burnup_points+"_"+ssh_method+"_"+flx_sol+"_"+CALC_opt
     
 ## Post treatment options
 # Visualisation parameters stored in VISU_param
@@ -161,4 +161,3 @@ elif case_name == "2x2_UOX_Gd":
 # ---------- POST-PROCESSING
 POSTPROC_2x2(pyCOMPO, ListCOMPO, ListSSH, burnup_points, case_name, ssh_method, ssh_sol, flx_sol, CALC_opt)
 
-_

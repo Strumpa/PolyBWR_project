@@ -1,0 +1,601 @@
+****************************************************************
+*                                                              *
+* Procedure :  GEO_A_N.c2m                                     *
+* Purpose   :  Geometry definition for NATIVE assemblies       *
+* Author    :  L.Fede                                          *
+*                                                              *
+* CALL      :                                                  *
+* GEOM_1L GEOM_SS := GEO_A_N :: <<name_geom>>                  *
+*                                                              *
+****************************************************************
+
+* --------------------------------
+*    INPUT & OUTPUT PARAMETERS
+* --------------------------------
+PARAMETER GEOM_1L GEOM_SS ::
+::: LINKED_LIST GEOM_1L ;
+::: LINKED_LIST GEOM_SS ; ;
+
+STRING name_geom ;
+:: >>name_geom<< ;
+
+* -------------------------------
+*    STRUCTURES AND MODULES
+* -------------------------------
+MODULE  GEO: END: ;
+
+REAL RMOD1  RMOD2 RMOD3  :=
+     0.5235 0.592 0.6605 ;
+
+REAL PITCH RCOMB6 RCOMB1 RCOMB4 RCOMB5 CLAD ;
+
+EVALUATE PITCH := 0.7361215932 ;
+EVALUATE RCOMB6 := 0.3860 ;
+EVALUATE RCOMB1 := 0.5 SQRT RCOMB6 * ;
+EVALUATE RCOMB4 := 0.8 SQRT RCOMB6 * ;
+EVALUATE RCOMB5 := 0.95 SQRT RCOMB6 * ;
+EVALUATE CLAD := 0.4582 ;
+
+REAL CENTRAL_IN CENTRAL_OUT GUIDE_IN GUIDE_OUT := 
+     0.45       0.51277     0.545    0.6323    ;
+
+EVALUATE PITCH := 0.7361215932 ;
+
+* --------------------------------
+*       GEOMETRY DEFINITION
+* -------------------------------
+ECHO "vverGEO: process geometry=" name_geom ;
+
+
+* ------------------------------
+*          ASSEMBLIES
+* ------------------------------
+
+
+* ---
+* KALININ-1 REACTOR - V1 S1
+* ---
+IF name_geom 'V1_S1_ASS' = THEN
+
+* -------------------------- 1st LEVEL FLUX GEOMETRY
+ GEOM_1L := GEO: :: HEX 331
+    EDIT 0
+    HBC COMPLETE ALBE 1.0
+
+   CELL  
+    TI
+    C6  C6  C6  C6  C6  C6
+    C5  C5  C5  C5  C5  C5  C5  C5  C5  C5  C5  C5
+    C4  C4  TG1 C4  C4  TG1 C4  C4  TG1 C4  C4  TG1 C4  C4  TG1 C4  C4  TG1
+    C4  C7  C4  C4  C4  C7  C4  C4  C4  C7  C4  C4  C4  C7  C4  C4  C4  C7  C4  C4  C4  C7  C4  C4
+    TG2 C3  C3  C3  C3  TG2 C3  C3  C3  C3  TG2 C3  C3  C3  C3  TG2 C3  C3  C3  C3  TG2 C3  C3  C3  C3  TG2 C3  C3  C3  C3
+    C3  C3  C3  TG2 C3  C3  C3  C3  C3  TG2 C3  C3  C3  C3  C3  TG2 C3  C3  C3  C3  C3  TG2 C3  C3  C3  C3  C3  TG2 C3  C3
+  C3  C3  C3  TG2 C3  C3
+    C2  C2  C2  C3  C3  C2  C2  C2  C2  C2  C3  C3  C2  C2  C2  C2  C2  C3  C3  C2  C2  C2  C2  C2  C3  C3  C2  C2  C2  C2
+  C2  C3  C3  C2  C2  C2  C2  C2  C3  C3  C2  C2
+    C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2
+  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2
+    C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2
+  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2
+    C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1
+  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1
+    
+    MERGE
+    8
+    6  6  6  6  6  6
+    5  5  5  5  5  5  5  5  5  5  5  5
+    4  4  9  4  4  9  4  4  9  4  4  9  4  4  9  4  4  9
+    4  7  4  4  4  7  4  4  4  7  4  4  4  7  4  4  4  7  4  4  4  7  4  4
+    10 3  3  3  3  10 3  3  3  3  10 3  3  3  3  10 3  3  3  3  10 3  3  3  3  10 3  3  3  3
+    3  3  3  10 3  3  3  3  3  10 3  3  3  3  3  10 3  3  3  3  3  10 3  3  3  3  3  10 3  3  3  3  3  10 3  3
+    2  2  2  3  3  2  2  2  2  2  3  3  2  2  2  2  2  3  3  2  2  2  2  2  3  3  2  2  2  2  2  3  3  2  2  2
+  2  2  3  3  2  2
+    2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2
+  2  2  2  2  2  2  2  2  2  2  2  2
+    2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2
+  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2
+    1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1
+  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1
+
+    TURN
+    I
+    C D E F A B
+    G A H B I C J D K E L F
+    D B L E C G F D H A E I B F J C A K
+    H C K D I D L E J E G F K F H A L A I B G B J C
+    K G A H B L H B I C G I C J D H J D K E I K E L F J L F G A
+    K D B C G C L E C D H D G F D E I E H A E F J F I B F A K A J C A B L B
+    C C C C D D D D D D D E E E E E E E F F F F F F F A A A A A A A B B B B
+ B B B C C C
+    C C C L L L D D D D D G G G E E E E E H H H F F F F F I I I A A A A A J
+ J J B B B B B K K K C C
+    C C C L L L L D D D D D G G G G E E E E E H H H H F F F F F I I I I A A
+ A A A J J J J B B B B B K K K K C C
+    C C C L L L L L D D D D D G G G G G E E E E E H H H H H F F F F F I I I
+ I I A A A A A J J J J J B B B B B K K K K K C C
+
+* INSTRUM TUBE
+    ::: TI := GEO: HEXCEL 4
+      SECT -1 0
+      SIDE   <<PITCH>>
+      RADIUS 0.0 0.15 0.30 <<CENTRAL_IN>> <<CENTRAL_OUT>>
+      MIX   
+             2   2   2   2   2   2
+             2   2   2   2   2   2
+             2   2   2   2   2   2
+             249 249 249 249 249 249
+             2   2   2   2   2   2 ;
+
+* GUIDE TUBE
+    ::: TG1 := GEO: HEXCEL 4
+      SECT -1 0
+      SIDE   <<PITCH>>
+      RADIUS 0.0 0.18 0.36 <<GUIDE_IN>> <<GUIDE_OUT>>
+      MIX    
+             2   2   2   2   2   2
+             2   2   2   2   2   2
+             2   2   2   2   2   2
+             28  28  28  28  28  28
+             2   2   2   2   2   2 ;
+
+    ::: TG2 := GEO: TG1
+      MIX    
+             2   2   2   2   2   2
+             2   2   2   2   2   2
+             2   2   2   2   2   2
+             250 250 250 250 250 250
+             2   2   2   2   2   2 ;
+
+
+* UOX CELL (2.2% U235) - DISCRIMINATION COURONNES
+    ::: C1 := GEO: HEXCEL 7
+      SECT -1 0
+      SIDE  <<PITCH>>
+      RADIUS 0.0 <<RCOMB1>> <<RCOMB4>> <<RCOMB5>> <<RCOMB6>> <<CLAD>> <<RMOD1>> <<RMOD2>>
+      MIX
+             208 208 208 208 208 208 
+             207 207 207 207 207 207
+             206 206 206 206 206 206
+             205 205 205 205 205 205
+             1   1   1   1   1   1  
+             2   2   2   2   2   2 
+             2   2   2   2   2   2 
+             2   2   2   2   2   2 ;
+
+    ::: C2 := GEO: C1
+      MIX
+             100 100 100 100 100 100
+             99  99  99  99  99  99
+             98  98  98  98  98  98
+             97  97  97  97  97  97
+             1   1   1   1   1   1  
+             2   2   2   2   2   2 
+             2   2   2   2   2   2 
+             2   2   2   2   2   2 ;
+
+    ::: C3 := GEO: C1
+      MIX
+             60  60  60  60  60  60  
+             59  59  59  59  59  59
+             58  58  58  58  58  58
+             57  57  57  57  57  57
+             1   1   1   1   1   1  
+             2   2   2   2   2   2 
+             2   2   2   2   2   2 
+             2   2   2   2   2   2 ;
+
+    ::: C4 := GEO: C1
+      MIX
+             27  27  27  27  27  27
+             26  26  26  26  26  26
+             25  25  25  25  25  25
+             24  24  24  24  24  24
+             1   1   1   1   1   1  
+             2   2   2   2   2   2 
+             2   2   2   2   2   2 
+             2   2   2   2   2   2 ;
+
+    ::: C5 := GEO: C1
+      MIX
+             15  15  15  15  15  15
+             14  14  14  14  14  14
+             13  13  13  13  13  13
+             12  12  12  12  12  12
+             1   1   1   1   1   1  
+             2   2   2   2   2   2 
+             2   2   2   2   2   2 
+             2   2   2   2   2   2 ;
+
+    ::: C6 := GEO: C1
+      MIX
+             6   6   6   6   6   6
+             5   5   5   5   5   5
+             4   4   4   4   4   4
+             3   3   3   3   3   3
+             1   1   1   1   1   1  
+             2   2   2   2   2   2 
+             2   2   2   2   2   2 
+             2   2   2   2   2   2 ;
+
+    ::: C7 := GEO: C1
+      MIX
+             52  52  52  52  52  52
+             51  51  51  51  51  51
+             49  49  49  49  49  49
+             50  50  50  50  50  50
+             1   1   1   1   1   1  
+             2   2   2   2   2   2 
+             2   2   2   2   2   2 
+             2   2   2   2   2   2 ;
+
+;
+
+* -------------------------- SELF-SHIELDING GEOMETRY
+  GEOM_SS := GEO: :: HEX 331
+    EDIT 0
+    HBC COMPLETE ALBE 1.0
+
+   CELL  
+    TI
+    C6  C6  C6  C6  C6  C6
+    C5  C5  C5  C5  C5  C5  C5  C5  C5  C5  C5  C5
+    C4  C4  TG1 C4  C4  TG1 C4  C4  TG1 C4  C4  TG1 C4  C4  TG1 C4  C4  TG1
+    C4  C7  C4  C4  C4  C7  C4  C4  C4  C7  C4  C4  C4  C7  C4  C4  C4  C7  C4  C4  C4  C7  C4  C4
+    TG2 C3  C3  C3  C3  TG2 C3  C3  C3  C3  TG2 C3  C3  C3  C3  TG2 C3  C3  C3  C3  TG2 C3  C3  C3  C3  TG2 C3  C3  C3  C3
+    C3  C3  C3  TG2 C3  C3  C3  C3  C3  TG2 C3  C3  C3  C3  C3  TG2 C3  C3  C3  C3  C3  TG2 C3  C3  C3  C3  C3  TG2 C3  C3
+  C3  C3  C3  TG2 C3  C3
+    C2  C2  C2  C3  C3  C2  C2  C2  C2  C2  C3  C3  C2  C2  C2  C2  C2  C3  C3  C2  C2  C2  C2  C2  C3  C3  C2  C2  C2  C2
+  C2  C3  C3  C2  C2  C2  C2  C2  C3  C3  C2  C2
+    C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2
+  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2
+    C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2
+  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2
+    C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1
+  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1
+    
+    MERGE
+    8
+    6  6  6  6  6  6
+    5  5  5  5  5  5  5  5  5  5  5  5
+    4  4  9  4  4  9  4  4  9  4  4  9  4  4  9  4  4  9
+    4  7  4  4  4  7  4  4  4  7  4  4  4  7  4  4  4  7  4  4  4  7  4  4
+    10 3  3  3  3  10 3  3  3  3  10 3  3  3  3  10 3  3  3  3  10 3  3  3  3  10 3  3  3  3
+    3  3  3  10 3  3  3  3  3  10 3  3  3  3  3  10 3  3  3  3  3  10 3  3  3  3  3  10 3  3  3  3  3  10 3  3
+   2  2  2  3  3  2  2  2  2  2  3  3  2  2  2  2  2  3  3  2  2  2  2  2  3  3  2  2  2  2  2  3  3  2  2  2
+  2  2  3  3  2  2
+    2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2
+  2  2  2  2  2  2  2  2  2  2  2  2
+    2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2
+  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2
+    1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1
+  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1
+
+    TURN
+    I
+    C D E F A B
+    G A H B I C J D K E L F
+    D B L E C G F D H A E I B F J C A K
+    H C K D I D L E J E G F K F H A L A I B G B J C
+    K G A H B L H B I C G I C J D H J D K E I K E L F J L F G A
+    K D B C G C L E C D H D G F D E I E H A E F J F I B F A K A J C A B L B
+    C C C C D D D D D D D E E E E E E E F F F F F F F A A A A A A A B B B B
+ B B B C C C
+    C C C L L L D D D D D G G G E E E E E H H H F F F F F I I I A A A A A J
+ J J B B B B B K K K C C
+    C C C L L L L D D D D D G G G G E E E E E H H H H F F F F F I I I I A A
+ A A A J J J J B B B B B K K K K C C
+    C C C L L L L L D D D D D G G G G G E E E E E H H H H H F F F F F I I I
+ I I A A A A A J J J J J B B B B B K K K K K C C
+
+* INSTRUM TUBE
+    ::: TI := GEO: HEXCEL 2
+      SIDE   <<PITCH>>
+      RADIUS 0.0 <<CENTRAL_IN>> <<CENTRAL_OUT>>
+      MIX    2   249  2   ;
+
+* GUIDE TUBE
+    ::: TG1 := GEO: HEXCEL 2
+      SIDE   <<PITCH>>
+      RADIUS 0.0 <<GUIDE_IN>> <<GUIDE_OUT>>
+      MIX    2   28   2   ;
+
+    ::: TG2 := GEO: TG1
+      MIX    2   28   2   ;
+
+* UOX CELL (2.2% U235) - DISCRIMINATION COURONNES
+    ::: C1 := GEO: HEXCEL 5
+      SIDE   <<PITCH>>
+      RADIUS 0.0 <<RCOMB1>> <<RCOMB4>> <<RCOMB5>> <<RCOMB6>> <<CLAD>>
+      MIX    208   207     206    205      1      2    ;
+
+    ::: C2 := GEO: C1
+      MIX    100   99      98     97       1      2    ;
+    ::: C3 := GEO: C1
+      MIX    60    59      58     57      1      2    ;
+    ::: C4 := GEO: C1
+      MIX    27    26      25     24       1      2    ;
+    ::: C5 := GEO: C1
+      MIX    15    14      13     12       1      2    ;
+    ::: C6 := GEO: C1
+      MIX    6     5       4      3        1      2    ;
+    ::: C7 := GEO: C1
+      MIX    52    51      49     50       1      2    ;
+
+;
+
+* ---
+* KALININ-1 REACTOR - V2 S1
+* ---
+ELSEIF name_geom 'V2_S1_ASS' = THEN
+
+* -------------------------- 1st LEVEL FLUX GEOMETRY
+ GEOM_1L := GEO: :: HEX 331
+    EDIT 0
+    HBC COMPLETE ALBE 1.0
+
+   CELL  
+    TI
+    C6  C6  C6  C6  C6  C6
+    C5  C5  C5  C5  C5  C5  C5  C5  C5  C5  C5  C5
+    C4  C4  TG1 C4  C4  TG1 C4  C4  TG1 C4  C4  TG1 C4  C4  TG1 C4  C4  TG1
+    C4  C7  C4  C4  C4  C7  C4  C4  C4  C7  C4  C4  C4  C7  C4  C4  C4  C7  C4  C4  C4  C7  C4  C4
+    TG2 C3  C3  C3  C3  TG2 C3  C3  C3  C3  TG2 C3  C3  C3  C3  TG2 C3  C3  C3  C3  TG2 C3  C3  C3  C3  TG2 C3  C3  C3  C3
+    C3  C3  C3  TG2 C3  C3  C3  C3  C3  TG2 C3  C3  C3  C3  C3  TG2 C3  C3  C3  C3  C3  TG2 C3  C3  C3  C3  C3  TG2 C3  C3
+  C3  C3  C3  TG2 C3  C3
+    C2  C2  C2  C3  C3  C2  C2  C2  C2  C2  C3  C3  C2  C2  C2  C2  C2  C3  C3  C2  C2  C2  C2  C2  C3  C3  C2  C2  C2  C2
+  C2  C3  C3  C2  C2  C2  C2  C2  C3  C3  C2  C2
+    C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2
+  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2
+    C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2
+  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2
+    C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1
+  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1
+    
+    MERGE
+    8
+    6  6  6  6  6  6
+    5  5  5  5  5  5  5  5  5  5  5  5
+    4  4  9  4  4  9  4  4  9  4  4  9  4  4  9  4  4  9
+    4  7  4  4  4  7  4  4  4  7  4  4  4  7  4  4  4  7  4  4  4  7  4  4
+    10 3  3  3  3  10 3  3  3  3  10 3  3  3  3  10 3  3  3  3  10 3  3  3  3  10 3  3  3  3
+    3  3  3  10 3  3  3  3  3  10 3  3  3  3  3  10 3  3  3  3  3  10 3  3  3  3  3  10 3  3  3  3  3  10 3  3
+    2  2  2  3  3  2  2  2  2  2  3  3  2  2  2  2  2  3  3  2  2  2  2  2  3  3  2  2  2  2  2  3  3  2  2  2
+  2  2  3  3  2  2
+    2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2
+  2  2  2  2  2  2  2  2  2  2  2  2
+    2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2
+  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2
+    1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1
+  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1
+
+    TURN
+    I
+    C D E F A B
+    G A H B I C J D K E L F
+    D B L E C G F D H A E I B F J C A K
+    H C K D I D L E J E G F K F H A L A I B G B J C
+    K G A H B L H B I C G I C J D H J D K E I K E L F J L F G A
+    K D B C G C L E C D H D G F D E I E H A E F J F I B F A K A J C A B L B
+    C C C C D D D D D D D E E E E E E E F F F F F F F A A A A A A A B B B B
+ B B B C C C
+    C C C L L L D D D D D G G G E E E E E H H H F F F F F I I I A A A A A J
+ J J B B B B B K K K C C
+    C C C L L L L D D D D D G G G G E E E E E H H H H F F F F F I I I I A A
+ A A A J J J J B B B B B K K K K C C
+    C C C L L L L L D D D D D G G G G G E E E E E H H H H H F F F F F I I I
+ I I A A A A A J J J J J B B B B B K K K K K C C
+
+* INSTRUM TUBE
+    ::: TI := GEO: HEXCEL 4
+      SECT -1 0
+      SIDE   <<PITCH>>
+      RADIUS 0.0 0.15 0.30 <<CENTRAL_IN>> <<CENTRAL_OUT>>
+      MIX   
+             2   2   2   2   2   2
+             2   2   2   2   2   2
+             2   2   2   2   2   2
+             249 249 249 249 249 249
+             2   2   2   2   2   2 ;
+
+* GUIDE TUBE
+    ::: TG1 := GEO: HEXCEL 4
+      SECT -1 0
+      SIDE   <<PITCH>>
+      RADIUS 0.0 0.18 0.36 <<GUIDE_IN>> <<GUIDE_OUT>>
+      MIX    
+             2   2   2   2   2   2
+             2   2   2   2   2   2
+             2   2   2   2   2   2
+             28  28  28  28  28  28
+             2   2   2   2   2   2 ;
+
+    ::: TG2 := GEO: TG1
+      MIX    
+             2   2   2   2   2   2
+             2   2   2   2   2   2
+             2   2   2   2   2   2
+             250 250 250 250 250 250
+             2   2   2   2   2   2 ;
+
+
+* UOX CELL (2.2% U235) - DISCRIMINATION COURONNES
+    ::: C1 := GEO: HEXCEL 7
+      SECT -1 0
+      SIDE  <<PITCH>>
+      RADIUS 0.0 <<RCOMB1>> <<RCOMB4>> <<RCOMB5>> <<RCOMB6>> <<CLAD>> <<RMOD1>> <<RMOD2>>
+      MIX
+             208 208 208 208 208 208 
+             207 207 207 207 207 207
+             206 206 206 206 206 206
+             205 205 205 205 205 205
+             1   1   1   1   1   1  
+             2   2   2   2   2   2 
+             2   2   2   2   2   2 
+             2   2   2   2   2   2 ;
+
+    ::: C2 := GEO: C1
+      MIX
+             100 100 100 100 100 100
+             99  99  99  99  99  99
+             98  98  98  98  98  98
+             97  97  97  97  97  97
+             1   1   1   1   1   1  
+             2   2   2   2   2   2 
+             2   2   2   2   2   2 
+             2   2   2   2   2   2 ;
+
+    ::: C3 := GEO: C1
+      MIX
+             60  60  60  60  60  60  
+             59  59  59  59  59  59
+             58  58  58  58  58  58
+             57  57  57  57  57  57
+             1   1   1   1   1   1  
+             2   2   2   2   2   2 
+             2   2   2   2   2   2 
+             2   2   2   2   2   2 ;
+
+    ::: C4 := GEO: C1
+      MIX
+             27  27  27  27  27  27
+             26  26  26  26  26  26
+             25  25  25  25  25  25
+             24  24  24  24  24  24
+             1   1   1   1   1   1  
+             2   2   2   2   2   2 
+             2   2   2   2   2   2 
+             2   2   2   2   2   2 ;
+
+    ::: C5 := GEO: C1
+      MIX
+             15  15  15  15  15  15
+             14  14  14  14  14  14
+             13  13  13  13  13  13
+             12  12  12  12  12  12
+             1   1   1   1   1   1  
+             2   2   2   2   2   2 
+             2   2   2   2   2   2 
+             2   2   2   2   2   2 ;
+
+    ::: C6 := GEO: C1
+      MIX
+             6   6   6   6   6   6
+             5   5   5   5   5   5
+             4   4   4   4   4   4
+             3   3   3   3   3   3
+             1   1   1   1   1   1  
+             2   2   2   2   2   2 
+             2   2   2   2   2   2 
+             2   2   2   2   2   2 ;
+
+    ::: C7 := GEO: C1
+      MIX
+             52  52  52  52  52  52
+             51  51  51  51  51  51
+             49  49  49  49  49  49
+             50  50  50  50  50  50
+             1   1   1   1   1   1  
+             2   2   2   2   2   2 
+             2   2   2   2   2   2 
+             2   2   2   2   2   2 ;
+
+;
+
+* -------------------------- SELF-SHIELDING GEOMETRY
+  GEOM_SS := GEO: :: HEX 331
+    EDIT 0
+    HBC COMPLETE ALBE 1.0
+
+   CELL  
+    TI
+    C6  C6  C6  C6  C6  C6
+    C5  C5  C5  C5  C5  C5  C5  C5  C5  C5  C5  C5
+    C4  C4  TG1 C4  C4  TG1 C4  C4  TG1 C4  C4  TG1 C4  C4  TG1 C4  C4  TG1
+    C4  C7  C4  C4  C4  C7  C4  C4  C4  C7  C4  C4  C4  C7  C4  C4  C4  C7  C4  C4  C4  C7  C4  C4
+    TG2 C3  C3  C3  C3  TG2 C3  C3  C3  C3  TG2 C3  C3  C3  C3  TG2 C3  C3  C3  C3  TG2 C3  C3  C3  C3  TG2 C3  C3  C3  C3
+    C3  C3  C3  TG2 C3  C3  C3  C3  C3  TG2 C3  C3  C3  C3  C3  TG2 C3  C3  C3  C3  C3  TG2 C3  C3  C3  C3  C3  TG2 C3  C3
+  C3  C3  C3  TG2 C3  C3
+    C2  C2  C2  C3  C3  C2  C2  C2  C2  C2  C3  C3  C2  C2  C2  C2  C2  C3  C3  C2  C2  C2  C2  C2  C3  C3  C2  C2  C2  C2
+  C2  C3  C3  C2  C2  C2  C2  C2  C3  C3  C2  C2
+    C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2
+  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2
+    C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2
+  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2  C2
+    C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1
+  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1  C1
+    
+    MERGE
+    8
+    6  6  6  6  6  6
+    5  5  5  5  5  5  5  5  5  5  5  5
+    4  4  9  4  4  9  4  4  9  4  4  9  4  4  9  4  4  9
+    4  7  4  4  4  7  4  4  4  7  4  4  4  7  4  4  4  7  4  4  4  7  4  4
+    10 3  3  3  3  10 3  3  3  3  10 3  3  3  3  10 3  3  3  3  10 3  3  3  3  10 3  3  3  3
+    3  3  3  10 3  3  3  3  3  10 3  3  3  3  3  10 3  3  3  3  3  10 3  3  3  3  3  10 3  3  3  3  3  10 3  3
+   2  2  2  3  3  2  2  2  2  2  3  3  2  2  2  2  2  3  3  2  2  2  2  2  3  3  2  2  2  2  2  3  3  2  2  2
+  2  2  3  3  2  2
+    2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2
+  2  2  2  2  2  2  2  2  2  2  2  2
+    2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2
+  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2
+    1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1
+  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1
+
+    TURN
+    I
+    C D E F A B
+    G A H B I C J D K E L F
+    D B L E C G F D H A E I B F J C A K
+    H C K D I D L E J E G F K F H A L A I B G B J C
+    K G A H B L H B I C G I C J D H J D K E I K E L F J L F G A
+    K D B C G C L E C D H D G F D E I E H A E F J F I B F A K A J C A B L B
+    C C C C D D D D D D D E E E E E E E F F F F F F F A A A A A A A B B B B
+ B B B C C C
+    C C C L L L D D D D D G G G E E E E E H H H F F F F F I I I A A A A A J
+ J J B B B B B K K K C C
+    C C C L L L L D D D D D G G G G E E E E E H H H H F F F F F I I I I A A
+ A A A J J J J B B B B B K K K K C C
+    C C C L L L L L D D D D D G G G G G E E E E E H H H H H F F F F F I I I
+ I I A A A A A J J J J J B B B B B K K K K K C C
+
+* INSTRUM TUBE
+    ::: TI := GEO: HEXCEL 2
+      SIDE   <<PITCH>>
+      RADIUS 0.0 <<CENTRAL_IN>> <<CENTRAL_OUT>>
+      MIX    2   249  2   ;
+
+* GUIDE TUBE
+    ::: TG1 := GEO: HEXCEL 2
+      SIDE   <<PITCH>>
+      RADIUS 0.0 <<GUIDE_IN>> <<GUIDE_OUT>>
+      MIX    2   28   2   ;
+
+    ::: TG2 := GEO: TG1
+      MIX    2   28   2   ;
+
+* UOX CELL (2.2% U235) - DISCRIMINATION COURONNES
+    ::: C1 := GEO: HEXCEL 5
+      SIDE   <<PITCH>>
+      RADIUS 0.0 <<RCOMB1>> <<RCOMB4>> <<RCOMB5>> <<RCOMB6>> <<CLAD>>
+      MIX    208   207     206    205      1      2    ;
+
+    ::: C2 := GEO: C1
+      MIX    100   99      98     97       1      2    ;
+    ::: C3 := GEO: C1
+      MIX    60    59      58     57      1      2    ;
+    ::: C4 := GEO: C1
+      MIX    27    26      25     24       1      2    ;
+    ::: C5 := GEO: C1
+      MIX    15    14      13     12       1      2    ;
+    ::: C6 := GEO: C1
+      MIX    6     5       4      3        1      2    ;
+    ::: C7 := GEO: C1
+      MIX    52    51      49     50       1      2    ;
+
+;
+
+
+ENDIF ;
+
+END: ;
+QUIT .
