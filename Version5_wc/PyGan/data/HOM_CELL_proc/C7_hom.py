@@ -31,5 +31,4 @@ def C7_hom(namCOMPO, StepList, name_compo, ssh_module, ssh_method, GdCompo, sat,
   # Recover
   myLifo.lib()
   pyCOMPO = myLifo.node(namCOMPO)
-  StepList.close()
   return pyCOMPO

@@ -33,15 +33,20 @@ INTEGER COMB0201 COMB0202 COMB0203 COMB0204 ;
 EVALUATE COMB0201 COMB0202 COMB0203 COMB0204 := 5 6 7 8 ;
 
 
+!Mix numbers for C2 fuel 
+INTEGER COMB2201 COMB2202 COMB2203 COMB2204 ;
+EVALUATE COMB2201 COMB2202 COMB2203 COMB2204 := 9 10 11 12 ;
+
+
 !Mix numbers for C4 fuel 
 INTEGER COMB0401 COMB0402 COMB0403 COMB0404 ;
-EVALUATE COMB0401 COMB0402 COMB0403 COMB0404 := 9 10 11 12 ;
+EVALUATE COMB0401 COMB0402 COMB0403 COMB0404 := 13 14 15 16 ;
 
 
 ! Pin level common mixes : Clad, Gap, Coolant (intra-pin water) :
 
 INTEGER GAP CLAD COOL ;
-EVALUATE GAP CLAD COOL := 13 14 15 ;
+EVALUATE GAP CLAD COOL := 17 18 19 ;
 
 ****************************************************************************
 *********************** LIBRARY DEFINTION OF 2x2 UOX ***********************
@@ -51,7 +56,7 @@ IF ssh_method "PT" = THEN
 
     LIBRARY := LIB: ::
         EDIT 0
-        NMIX 15    ! MAXIMUM OF MATERIAL MIXTURES
+        NMIX 19    ! MAXIMUM OF MATERIAL MIXTURES
         !RSE 1.0E-02
         CALENDF 4 PT 
         ANIS 3
@@ -89,6 +94,10 @@ IF ssh_method "PT" = THEN
         MIX <<COMB0203>> COMB <<COMB0201>> 1.0
         MIX <<COMB0204>> COMB <<COMB0201>> 1.0
 
+        MIX <<COMB2201>> COMB <<COMB0201>> 1.0
+        MIX <<COMB2202>> COMB <<COMB0202>> 1.0
+        MIX <<COMB2203>> COMB <<COMB0203>> 1.0
+        MIX <<COMB2204>> COMB <<COMB0204>> 1.0
 
         ! C4 fuel compo "AT10_45UOX" :
         MIX <<COMB0401>> 750.0
@@ -148,7 +157,7 @@ ELSEIF ssh_method "RSE" = THEN
 
     LIBRARY := LIB: ::
             EDIT 0
-            NMIX 15    ! MAXIMUM OF MATERIAL MIXTURES
+            NMIX 19    ! MAXIMUM OF MATERIAL MIXTURES
             RSE 1.0E-02
             ANIS 3
             ADED 4 NELAS N4N N2N N3N
@@ -183,6 +192,12 @@ ELSEIF ssh_method "RSE" = THEN
         MIX <<COMB0202>> COMB <<COMB0201>> 1.0
         MIX <<COMB0203>> COMB <<COMB0201>> 1.0
         MIX <<COMB0204>> COMB <<COMB0201>> 1.0
+
+
+        MIX <<COMB2201>> COMB <<COMB0201>> 1.0
+        MIX <<COMB2202>> COMB <<COMB0202>> 1.0
+        MIX <<COMB2203>> COMB <<COMB0203>> 1.0
+        MIX <<COMB2204>> COMB <<COMB0204>> 1.0
 
 
         ! C4 fuel compo "AT10_45UOX" :
@@ -242,7 +257,7 @@ ELSEIF ssh_method "SUBG" = THEN
 
     LIBRARY := LIB: ::
             EDIT 0
-            NMIX 15    ! MAXIMUM OF MATERIAL MIXTURES
+            NMIX 19    ! MAXIMUM OF MATERIAL MIXTURES
             SUBG
             ANIS 3
             ADED 4 NELAS N4N N2N N3N
@@ -278,6 +293,10 @@ ELSEIF ssh_method "SUBG" = THEN
         MIX <<COMB0203>> COMB <<COMB0201>> 1.0
         MIX <<COMB0204>> COMB <<COMB0201>> 1.0
 
+        MIX <<COMB2201>> COMB <<COMB0201>> 1.0
+        MIX <<COMB2202>> COMB <<COMB0202>> 1.0
+        MIX <<COMB2203>> COMB <<COMB0203>> 1.0
+        MIX <<COMB2204>> COMB <<COMB0204>> 1.0
 
         ! C4 fuel compo "AT10_45UOX" :
         MIX <<COMB0401>> 750.0
