@@ -4,6 +4,10 @@ from multiPhysics_proc.THM import Version5_THM_prototype
 from multiPhysics_proc.THM import plotting
 from iapws import IAPWS97
 import numpy as np
+import os, shutil
+import lifo
+import lcm
+import cle2000
 
 ## User choice:
 solveConduction = True
@@ -14,9 +18,10 @@ zPlotting = [0.8]
 # T_inlet, T_outlet = 270, 287 Celcius
 # Nominal coolant flow rate = 1530 kg/s
 # Nominal operating pressure = 7.2 MPa (abs)
-hInlet = 
-pOutlet =  
-qFlow = 
+#hInlet =  # to fill
+pOutlet =  7.2e6 # Pa
+#qFlow =  # to fill
+massFlowRate = 1530 # kg/s
 
 ## Geometric parameters
 canalType = "square"
@@ -25,6 +30,11 @@ fuelRadius = 0.4435e-2 # m : fuel rod radius
 gapRadius = 0.4520e-2 # m : expansion gap radius : "void" between fuel and clad - equivalent to inner clad radius
 cladRadius = 0.5140e-2 # m : clad external radius
 height = 3.8 # m : height : active core height in BWRX-300 SMR
+
+## Additional parameters needed for the calculation
+volumic_mass_UOX = 10970 # kg/m3
+Fuel_volume = np.pi*fuelRadius**2*height # m3
+Fuel_mass = Fuel_volume*volumic_mass_UOX # kg
 
 ## Meshing parameters:
 If = 8
@@ -39,7 +49,10 @@ P2Pcorel = "base"
 ############ Nuclear Parameters ###########
 ## Fission parameters
 # specific power = 38.6 W/g
-qFiss = 
+specificPower = 38.6 # W/g
+PFiss = specificPower*Fuel_mass*1000 # W
+
+qFiss = PFiss/Fuel_volume # W/m3
 
 ## Material parameters
 kFuel = 4.18 # W/m.K, TECHNICAL REPORTS SERIES No. 59 : Thermal Conductivity of Uranium Dioxide, IAEA, VIENNA, 1966
