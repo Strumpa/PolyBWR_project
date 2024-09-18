@@ -1,7 +1,7 @@
 # Version: 2021.09.22
 # Author : Clément HUET, Raphaël Guasch
-from multiPhysics_proc.THM import Version5_THM_prototype
-from multiPhysics_proc.THM import plotting
+from multiPhysics_proc.THM_main import Version5_THM_prototype
+from multiPhysics_proc.THM_main import plotting
 from iapws import IAPWS97
 import numpy as np
 import os, shutil
@@ -14,15 +14,6 @@ solveConduction = True
 zPlotting = [0.8]
 
 ########## Thermal hydraulics parameters ##########
-## Fluid parameters
-# T_inlet, T_outlet = 270, 287 Celcius
-# Nominal coolant flow rate = 1530 kg/s
-# Nominal operating pressure = 7.2 MPa (abs)
-#hInlet =  # to fill
-pOutlet =  7.2e6 # Pa
-#qFlow =  # to fill
-massFlowRate = 1530 # kg/s
-
 ## Geometric parameters
 canalType = "square"
 waterRadius = 1.295e-2 # m ATRIUM10 pincell pitch
@@ -31,7 +22,25 @@ gapRadius = 0.4520e-2 # m : expansion gap radius : "void" between fuel and clad 
 cladRadius = 0.5140e-2 # m : clad external radius
 height = 3.8 # m : height : active core height in BWRX-300 SMR
 
+
+## Fluid parameters
+tInlet = 270 + 273.15 # K
+# T_inlet, T_outlet = 270, 287 Celcius
+pOutlet =  7.2e6 # Pa
+pressureDrop = 186737 #Pa/m
+falsePInlet = pOutlet - height * pressureDrop
+rhoInlet = IAPWS97(T = tInlet, P = falsePInlet*10**(-6)).rho #kg/m3
+flowArea = waterRadius ** 2 - np.pi * cladRadius ** 2
+
+# Nominal coolant flow rate = 1530 kg/s
+# Nominal operating pressure = 7.2 MPa (abs)
+#hInlet =  # to fill
+
+#qFlow =  # to fill
+massFlowRate = 1530  / (200*91)  # kg/s
+
 ## Additional parameters needed for the calculation
+solveConduction = True
 volumic_mass_UOX = 10970 # kg/m3
 Fuel_volume = np.pi*fuelRadius**2*height # m3
 Fuel_mass = Fuel_volume*volumic_mass_UOX # kg
@@ -45,6 +54,7 @@ Iz1 = 10 # number of control volumes in the axial direction
 voidFractionCorrel = "HEM1"
 frfaccorel = "base"
 P2Pcorel = "base"
+numericalMethod = "FVM"
 
 ############ Nuclear Parameters ###########
 ## Fission parameters
@@ -78,19 +88,21 @@ def convergence(Field, OldField, tol):
     return np.abs(Field-OldField) < tol
 
 ## Initial thermal hydraulic resolution
-case1 = Version5_THM_prototype("Testing THM Prototype", canalType, waterRadius, fuelRadius, gapRadius, cladRadius,
-                            height, hInlet, pOutlet, qFlow, qFiss, kFuel, Hgap, kClad, Iz1, If, I1, zPlotting, 
-                            solveConduction, dt=0, t_tot=0, frfaccorel, P2Pcorel, voidFractionCorrel)
-
+case1 = Version5_THM_prototype("Testing THM Prototype", canalType, waterRadius, fuelRadius, gapRadius, cladRadius, 
+                            height, tInlet, pOutlet, massFlowRate, qFiss, kFuel, Hgap, kClad, Iz1, If, I1, zPlotting, 
+                            solveConduction, dt = 0, t_tot = 0, frfaccorel = frfaccorel, P2Pcorel = P2Pcorel, voidFractionCorrel = voidFractionCorrel, 
+                            numericalMethod = numericalMethod)
+    
 ## MultiPhysics resolution
 for i in range(nIter):
     
     ################## Nuclear part ##################
 
     ############# Thermalhydraulic part ##############
-    case1 = Version5_THM_prototype("Testing THM Prototype", canalType, waterRadius, fuelRadius, gapRadius, cladRadius,
-                            height, hInlet, pOutlet, qFlow, qFiss, kFuel, Hgap, kClad, Iz1, If, I1, zPlotting, 
-                            solveConduction, dt=0, t_tot=0, frfaccorel, P2Pcorel, voidFractionCorrel)    ##### qFiss to be updated
+    case1 = Version5_THM_prototype("Testing THM Prototype", canalType, waterRadius, fuelRadius, gapRadius, cladRadius, 
+                            height, tInlet, pOutlet, massFlowRate, qFiss, kFuel, Hgap, kClad, Iz1, If, I1, zPlotting, 
+                            solveConduction, dt = 0, t_tot = 0, frfaccorel = frfaccorel, P2Pcorel = P2Pcorel, voidFractionCorrel = voidFractionCorrel, 
+                            numericalMethod = numericalMethod)    ##### qFiss to be updated
 
     TeffTEMP, TwaterTEMP, rhoTEMP = case1.get_nuclear_parameters()
     TeffFuel.append(TeffTEMP)
