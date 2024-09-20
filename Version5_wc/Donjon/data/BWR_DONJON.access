@@ -4,6 +4,6 @@ if [ $# = 0 ]
    echo "usage: BWR_DONJON.access directory" 1>&2
    exit 1
 fi
-ln -s "$1"/data/BWR_DONJON_proc/_AT10COMPO_1 .
+ln -s "$1"/data/BWR_DONJON_proc/_AT10Compo _AT10Compo
 ls -l
-echo "BWR_DONJON terminated"
+echo "BWR_DONJON access script terminated"
