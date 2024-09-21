@@ -18,9 +18,9 @@
 import numpy as np
 from iapws import IAPWS97
 import matplotlib.pyplot as plt
-from THM_linalg import FVM
-from THM_linalg import numericalResolution
-from THM_waterProp import statesVariables
+from multiPhysics_proc.THM_linalg import FVM
+from multiPhysics_proc.THM_linalg import numericalResolution
+from multiPhysics_proc.THM_waterProp import statesVariables
 
 class DFMclass():
     def __init__(self, canal_type, nCells, tInlet, qFlow, pOutlet, height, fuelRadius, cladRadius, cote,  numericalMethod, frfaccorel, P2P2corel, voidFractionCorrel, dt = 0, t_tot = 0):

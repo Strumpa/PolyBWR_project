@@ -2,9 +2,9 @@
 #Authors : Clement Huet, Raphael Guasch
 
 
-from THM_conduction import FDM_HeatConductionInFuelPin as FDM_Fuel
-from THM_convection import DFMclass
-from THM_DONJON_parser import THM_DONJON_parser
+from multiPhysics_proc.THM_conduction import FDM_HeatConductionInFuelPin as FDM_Fuel
+from multiPhysics_proc.THM_convection import DFMclass
+from multiPhysics_proc.THM_DONJON_parser import THM_DONJON_parser
 import numpy as np
 from iapws import IAPWS97
 import matplotlib.pyplot as plt

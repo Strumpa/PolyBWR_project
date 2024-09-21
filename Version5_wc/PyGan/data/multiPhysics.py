@@ -2,8 +2,8 @@
 # Date : 20/09/2024
 # Author : Clément HUET, Raphaël GUASCH
 # Purpose : test and validate neutronics and thermalhydraulics coupling on a single BWR pincell
-from THM_main import Version5_THM_prototype as THM_prototype
-from THM_main import plotting
+from multiPhysics_proc.THM_main import Version5_THM_prototype as THM_prototype
+from multiPhysics_proc.THM_main import plotting
 from iapws import IAPWS97
 import numpy as np
 import os, shutil
@@ -62,9 +62,6 @@ flowArea = waterRadius ** 2 - np.pi * cladRadius ** 2
 
 # Nominal coolant flow rate = 1530 kg/s
 # Nominal operating pressure = 7.2 MPa (abs)
-#hInlet =  # to fill
-
-#qFlow =  # to fill
 massFlowRate = 1530  / (200*91)  # kg/s
 
 ## Additional parameters needed for the calculation
@@ -115,6 +112,7 @@ THComponent = THM_prototype("Testing THM Prototype", canalType, waterRadius, fue
                             height, tInlet, pOutlet, massFlowRate, qFiss, kFuel, Hgap, kClad, Iz1, If, I1, zPlotting, 
                             solveConduction, dt = 0, t_tot = 0, frfaccorel = frfaccorel, P2Pcorel = P2Pcorel, voidFractionCorrel = voidFractionCorrel, 
                             numericalMethod = numericalMethod)
+
 
 TeffTEMP, TwaterTEMP, rhoTEMP = THComponent.get_nuclear_parameters()
 TeffFuel.append(TeffTEMP)
