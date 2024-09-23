@@ -28,7 +28,8 @@ def guessAxialPowerShape(amplitude, Iz, height, Fuel_volume):
     height : float : height of the fuel rod (m)
     Fuel_volume : float : volume of the fuel rod (m3)
     return : np.array : axial power shape with a sine shape units (W/m3)
-                        --> corresponds to the power density in each control volume
+                        --> corresponds to the power density in each control volume 
+                        !! Issue with IAPWS tables when dividing by Iz
     """
     z_space = np.linspace(0, height, Iz)
     return (amplitude/(Fuel_volume))*np.sin(z_space*np.pi/height)
@@ -128,7 +129,7 @@ THComponent = THM_prototype("BWR Pincell equivalent canal", canalType, waterRadi
                             solveConduction, dt = 0, t_tot = 0, frfaccorel = frfaccorel, P2Pcorel = P2Pcorel, voidFractionCorrel = voidFractionCorrel, 
                             numericalMethod = numericalMethod)
 
-TeffTEMP, TwaterTEMP, rhoTEMP = THComponent.get_nuclear_parameters() # rename this function to be clear about what it does 
+TeffTEMP, TwaterTEMP, rhoTEMP = THComponent.get_TH_parameters() # renamed this function to be clear about what it does 
 #                                                           ---> Fuel and coolant temperature + coolant density aren't nuclear parameters per-se
 #
 TeffFuel.append(TeffTEMP)
@@ -194,10 +195,9 @@ ipLifo2 = lifo.new()
 Neutronics = cle2000.new('Neutronics',ipLifo2,1)
 Keffs = [] # list to store the Keff values at each iteration and check convergence on it
 
-## MultiPhysics resolution
+## Multi-Physics resolution
 
 iter = 0
-
 
 conv = False
 while not conv:
@@ -221,9 +221,9 @@ while not conv:
     ipLifo2.push(Cpo) # Push COMPO object
     ipLifo2.push(Track) # Push Tracking object for FEM solution : obtained from IniDONJON
     if iter == 1:
-        ipLifo2.push(THData) # Push Thermal Hydraulic data 
+        ipLifo2.push(RecoverTHData) # Push Thermal Hydraulic data 
     else:
-        ipLifo2.push(RecoveredTHData)
+        ipLifo2.push(UpdatedTHData)
     ipLifo2.push(iter)
     ipLifo2.push(powi) 
 
@@ -232,26 +232,31 @@ while not conv:
     Neutronics.exec()
     print("Neutronics.c2m execution completed")
     Flux = ipLifo2.node("Flux") # Recover the Flux field
-    RecoveredPower = ipLifo2.node("Power") # Recover the Power field --> used to update the axial power shape
-    Keff = Flux["K-EFFECTIVE"][0] # Recover the Keff value
+    RecoveredPower = ipLifo2.node("Power") # Recover the Power field (LCM object)
+
+    # 4.2.1) Recover the Keff value
+    Keff = Flux["K-EFFECTIVE"][0] 
     Keffs.append(Keff)
     print(f"At iter {iter} : Keff = {Keff}")
-    PowerDistribution = RecoveredPower["POWER-DISTR"]
+    # 4.2.2) Recover the Power axial distribution obtained from neutronics calculation --> used to update the axial power shape
+    PowerDistribution = RecoveredPower["POWER-DISTR"] 
     print(f"Power distribution : {PowerDistribution} kW")
     #print(f"Uniform TH data used for initialization : {THData["THData"]}")
+
+    # 4.3) Update the axial power shape to be used in the TH solution
     qFiss = PowerDistribution*1000 # Updating the axial power shape, converting to W from kW
     
-    #Power.val()
-    #Power.close() # close without erasing
-    
 
+    # 5.) TH procedure for updated power shape
     ############# Thermalhydraulic part ##############
+    # 5.1) TH resolution with updated power shape :
     THMComponent = THM_prototype("BWR Pincell equivalent canal", canalType, waterRadius, fuelRadius, gapRadius, cladRadius, 
                             height, tInlet, pOutlet, massFlowRate, qFiss, kFuel, Hgap, kClad, Iz1, If, I1, zPlotting, 
                             solveConduction, dt = 0, t_tot = 0, frfaccorel = frfaccorel, P2Pcorel = P2Pcorel, voidFractionCorrel = voidFractionCorrel, 
                             numericalMethod = numericalMethod)    ##### qFiss to be updated
 
-    TeffTEMP, TwaterTEMP, rhoTEMP = THComponent.get_nuclear_parameters()
+    # 5.2) recover the new TH data
+    TeffTEMP, TwaterTEMP, rhoTEMP = THComponent.get_TH_parameters()
     TeffTEMP = np.array([750.0 for i in range(Iz1)])
     print(f"THM resolution at iter={iter} : TeffFuel = {TeffTEMP}, Twater = {TwaterTEMP}, rho = {rhoTEMP}")
     TeffFuel.append(TeffTEMP)
@@ -259,13 +264,14 @@ while not conv:
     rho.append(rhoTEMP)
     print(f"THM resolution at iter={iter} : TeffFuel = {TeffFuel}, Twater = {Twater}, rho = {rho}")
 
-    RecoveredTHData = lcm.new('LCM','THData')
-    RecoveredTHData['TFuelList']    = np.array(TeffTEMP, dtype='f')
-    RecoveredTHData['TCoolList'] = np.array(TwaterTEMP, dtype='f')
-    RecoveredTHData['DCoolList'] = np.array(rhoTEMP/1000, dtype='f')
-    RecoveredTHData.close() # close without erasing
+    # 5.3) Update the TH data to be used in the next neutronics solution
+    UpdatedTHData = lcm.new('LCM','THData') # Create new LCM object to store the updated TH data
+    UpdatedTHData['TFuelList']    = np.array(TeffTEMP, dtype='f')
+    UpdatedTHData['TCoolList'] = np.array(TwaterTEMP, dtype='f')
+    UpdatedTHData['DCoolList'] = np.array(rhoTEMP/1000, dtype='f') # Convert density from kg/m3 to g/cm3
+    UpdatedTHData.close() # close without erasing
 
-    ############## Under relaxation of TH fields #################
+    # 5.4) Under relaxation of TH fields for the next iteration : check if it is needed ?
     TeffFuel[-1] = underRelaxation(TeffFuel[-1], TeffFuel[-2], underRelaxationFactor)
     Twater[-1] = underRelaxation(Twater[-1], Twater[-2], underRelaxationFactor)
     rho[-1] = underRelaxation(rho[-1], rho[-2], underRelaxationFactor)
@@ -276,11 +282,12 @@ while not conv:
     #    print("Convergence reached after ", iter, " iterations")
     #    break
 
-    # empty the ipLifo2 Lifo stack
+    # 6.) Empty the ipLifo2 Lifo stack to prepare for the next iteration
     while ipLifo2.getMax() > 0:
         print("Clearing ipLifo2 stack") 
         ipLifo2.pop();
     
+    # 7.) Check for convergence on Keff value : add more converegence criteria for other fields ?
     if iter>1 and convergence(Keffs[-1], Keffs[-2], tol_Keff):
         conv = True
 
@@ -290,7 +297,7 @@ while not conv:
 
 
     """
-
+    Work in progress : still need to make the Neutronics resolution work when udpating the TH data/Power distribution
     """
 
 
