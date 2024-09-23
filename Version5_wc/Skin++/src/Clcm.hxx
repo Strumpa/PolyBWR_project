@@ -8,7 +8,7 @@
  * (aka associative tables or hash tables) and lists.
  * <P>
  *
- * @author Alain Hebert, Ecole Polytechnique de Montreal (2010)
+ * @author Alain Hebert, Ecole Polytechnique de Montreal (2024)
  */
 #ifndef Clcm_HXX
 #define Clcm_HXX
@@ -32,37 +32,36 @@
 #include <vector>
 #include <fstream>
 #include <complex>
-#include<boost/shared_ptr.hpp>
-#include<boost/shared_array.hpp>
-#include<boost/variant.hpp>
+#include <memory>
+#include <variant>
 #include "LCMexception.hxx"
 extern "C" {
 #include <dirent.h>
 #include "lcm.h"
 }
 
-#define IntPtr boost::shared_array<int_32>
-#define FloatPtr boost::shared_array<float_32>
-#define StringPtr boost::shared_ptr<std::string>
-#define DoublePtr boost::shared_array<double_64>
-#define BoolPtr boost::shared_array<bool>
-#define ComplexPtr boost::shared_array< std::complex<float_32> >
-#define StringVecPtr boost::shared_ptr< std::vector<std::string> >
-#define ClcmPtr boost::shared_ptr<Clcm>
+#define IntPtr std::shared_ptr<int_32[]>
+#define FloatPtr std::shared_ptr<float_32[]>
+#define StringPtr std::shared_ptr<std::string>
+#define DoublePtr std::shared_ptr<double_64[]>
+#define BoolPtr std::shared_ptr<bool[]>
+#define ComplexPtr std::shared_ptr< std::complex<float_32>[] >
+#define StringVecPtr std::shared_ptr< std::vector<std::string> >
+#define ClcmPtr std::shared_ptr<Clcm>
 
 // support for pinning. 
-#define AnyPtr boost::variant<IntPtr, FloatPtr, StringPtr, DoublePtr, BoolPtr, ComplexPtr>
-#define IntPtrConst boost::shared_array<const int_32>
-#define FloatPtrConst boost::shared_array<const float_32>
-#define StringPtrConst boost::shared_ptr<const std::string>
-#define DoublePtrConst boost::shared_array<const double_64>
-#define BoolPtrConst boost::shared_array<const bool>
-#define ComplexPtrConst boost::shared_array<const std::complex<float_32> >
+#define AnyPtr std::variant<IntPtr, FloatPtr, StringPtr, DoublePtr, BoolPtr, ComplexPtr>
+#define IntPtrConst std::shared_ptr<const int_32>
+#define FloatPtrConst std::shared_ptr<const float_32>
+#define StringPtrConst std::shared_ptr<const std::string>
+#define DoublePtrConst std::shared_ptr<const double_64>
+#define BoolPtrConst std::shared_ptr<const bool>
+#define ComplexPtrConst std::shared_ptr<const std::complex<float_32> >
 
 namespace ganlib {
 
 /**
- * This class is an implementation of the C++/Boost bindings for LCM.
+ * This class is an implementation of the C++/shared_ptr bindings for LCM.
  * LCM capabilities are available for a program written in C++
  * by using methods belonging to the Clcm class. These methods
  * encapsulate the LCM C API calls used as "extern"C" functions.
@@ -73,25 +72,25 @@ namespace ganlib {
  * <P>
  * The Clcm class uses predefined declarations for some datatypes:
  * <table border="0">
- * <tr> <td><tt>#define IntPtr</tt>:</td> &nbsp; <td><tt>boost::shared_array<int_32></tt></td> </tr>
- * <tr> <td><tt>#define FloatPtr</tt>:</td> &nbsp; <td><tt>boost::shared_array<float_32></tt></td> </tr>
- * <tr> <td><tt>#define StringPtr</tt>:</td> &nbsp; <td><tt>boost::shared_ptr<std::string></tt></td> </tr>
- * <tr> <td><tt>#define DoublePtr</tt>:</td> &nbsp; <td><tt>boost::shared_array<double_64></tt></td> </tr>
- * <tr> <td><tt>#define BoolPtr</tt>:</td> &nbsp; <td><tt>boost::shared_array<bool></tt></td> </tr>
- * <tr> <td><tt>#define ComplexPtr</tt>:</td> &nbsp; <td><tt>boost::shared_array< complex<float_32> ></tt></td> </tr>
- * <tr> <td><tt>#define StringVecPtr</tt>:</td> &nbsp; <td><tt>boost::shared_ptr< std::vector<std::string> ></tt></td> </tr>
- * <tr> <td><tt>#define ClcmPtr</tt>:</td> &nbsp; <td><tt>boost::shared_ptr<Clcm></tt></td> </tr>
+ * <tr> <td><tt>#define IntPtr</tt>:</td> &nbsp; <td><tt>std::shared_ptr<int_32[]></tt></td> </tr>
+ * <tr> <td><tt>#define FloatPtr</tt>:</td> &nbsp; <td><tt>std::shared_ptr<float_32[]></tt></td> </tr>
+ * <tr> <td><tt>#define StringPtr</tt>:</td> &nbsp; <td><tt>std::shared_ptr<std::string></tt></td> </tr>
+ * <tr> <td><tt>#define DoublePtr</tt>:</td> &nbsp; <td><tt>std::shared_ptr<double_64[]></tt></td> </tr>
+ * <tr> <td><tt>#define BoolPtr</tt>:</td> &nbsp; <td><tt>std::shared_ptr<bool[]></tt></td> </tr>
+ * <tr> <td><tt>#define ComplexPtr</tt>:</td> &nbsp; <td><tt>std::shared_ptr< complex<float_32>[] ></tt></td> </tr>
+ * <tr> <td><tt>#define StringVecPtr</tt>:</td> &nbsp; <td><tt>std::shared_ptr< std::vector<std::string> ></tt></td> </tr>
+ * <tr> <td><tt>#define ClcmPtr</tt>:</td> &nbsp; <td><tt>std::shared_ptr<Clcm></tt></td> </tr>
  * </table>
  * <P>
  * Moreover, get methods are constructing shared arrays that <i>cannot</i> be modified in the calling C++
  * code. To prevent this, they are declared <tt>const</tt> using the following predefined declarations:
  * <table border="0">
- * <tr> <td><tt>#define IntPtrConst</tt>:</td> &nbsp; <td><tt>boost::shared_array<const int_32></tt></td> </tr>
- * <tr> <td><tt>#define FloatPtrConst</tt>:</td> &nbsp; <td><tt>boost::shared_array<const float_32></tt></td> </tr>
- * <tr> <td><tt>#define StringPtrConst</tt>:</td> &nbsp; <td><tt>boost::shared_ptr<const std::string></tt></td> </tr>
- * <tr> <td><tt>#define DoublePtrConst</tt>:</td> &nbsp; <td><tt>boost::shared_array<const double_64></tt></td> </tr>
- * <tr> <td><tt>#define BoolPtrConst</tt>:</td> &nbsp; <td><tt>boost::shared_array<const bool></tt></td> </tr>
- * <tr> <td><tt>#define ComplexPtrConst</tt>:</td> &nbsp; <td><tt>boost::shared_array<const complex<float_32> ></tt></td> </tr>
+ * <tr> <td><tt>#define IntPtrConst</tt>:</td> &nbsp; <td><tt>std::shared_ptr<const int_32[]></tt></td> </tr>
+ * <tr> <td><tt>#define FloatPtrConst</tt>:</td> &nbsp; <td><tt>std::shared_ptr<const float_32[]></tt></td> </tr>
+ * <tr> <td><tt>#define StringPtrConst</tt>:</td> &nbsp; <td><tt>std::shared_ptr<const std::string></tt></td> </tr>
+ * <tr> <td><tt>#define DoublePtrConst</tt>:</td> &nbsp; <td><tt>std::shared_ptr<const double_64[]></tt></td> </tr>
+ * <tr> <td><tt>#define BoolPtrConst</tt>:</td> &nbsp; <td><tt>std::shared_ptr<const bool[]></tt></td> </tr>
+ * <tr> <td><tt>#define ComplexPtrConst</tt>:</td> &nbsp; <td><tt>std::shared_ptr<const complex<float_32>[] ></tt></td> </tr>
  * </table>
  * <P>
  *
@@ -140,10 +139,10 @@ public:
    *        <tt>"ASCII"</tt>  or <tt>"DA"</tt> file. Set to <tt>"./"</tt> to work
    *        in the current directory.
    */
-  Clcm(const std::string stype, const std::string myName, const std::string myPath) throw(LCMexception);
+  Clcm(const std::string stype, const std::string myName, const std::string myPath);
 
   /// @cond DEV
-  Clcm(lcm *, Clcm *, const int_32, const std::string, const int_32, const std::string) throw(LCMexception);
+  Clcm(lcm *, Clcm *, const int_32, const std::string, const int_32, const std::string);
   /// @endcond
 
   /**
@@ -161,7 +160,7 @@ public:
    * @param myClcm existing ClcmPtr object accessed in read-only mode. This object must me of
    * LCM or XSM type.
    */
-  Clcm(const std::string stype, ClcmPtr myClcm) throw(LCMexception);
+  Clcm(const std::string stype, ClcmPtr myClcm);
 
   /**
    * Use this constructor to encapsulate an open LCM or XSM object into a Clcm object. The
@@ -187,7 +186,7 @@ public:
     * @param myClcm ClcmPtr object to export.
     * @return final std::ostream objet including the ClcmPtr object.
    */
-  friend std::ostream & operator<<(std::ostream &s, ClcmPtr myClcm) throw(LCMexception);
+  friend std::ostream & operator<<(std::ostream &s, ClcmPtr myClcm);
 
   /** Serialize and save the object content on a sequential file. This method is not
    * available for file-type Clcm objects. The name of the sequential file is
@@ -237,20 +236,20 @@ public:
    * available for file-type Clcm objects.
    * @return =-1: dictionary; >=1: length of the list-type Clcm object.
    */
-  int_32 getLength() throw(LCMexception);
+  int_32 getLength();
 
   /** Return the name of the accessible directory of a dictionary-type
    * Clcm object. This method is not available for file-type Clcm objects.
    * @return =<tt>"/"</tt> for a dictionary on root or name of the accessible
    * directory.
    */
-  std::string getDirectory() throw(LCMexception);
+  std::string getDirectory();
 
   /** Return the access type of a Clcm object.
    * @return =0: the object is closed; =1: the object is open in modification
    * mode; =2: the object is open in read-only mode.
    */
-  int_32 getAccess() throw(LCMexception);
+  int_32 getAccess();
 
   /** Return the number of words in a record of a direct access-type Clcm object.
    */
@@ -263,7 +262,7 @@ public:
   /** Return true if the a dictionary-type Clcm object is empty. This method
    * is not available for file-type Clcm objects.
    */
-  bool isEmpty() throw(LCMexception);
+  bool isEmpty();
 
   /** Return true if the dictionary-type Clcm object is new. This method
    * is not available for file-type Clcm objects.
@@ -281,13 +280,13 @@ public:
    * <dt> <tt>"READ-ONLY"</tt> <dd> open in read-only mode.
    * </dl></ul>
    */
-  void open(const std::string saccess) throw(LCMexception);
+  void open(const std::string saccess);
 
   /** Close a Clcm object.
    * @param saccess =<tt>"KEEP"</tt>: close without destruction of the object
    * content; =<tt>"DESTROY"</tt>: close with destruction of the object content.
    */
-  void close(const std::string saccess) throw(LCMexception);
+  void close(const std::string saccess);
 
   /**
    * Return the length of a block of information in a dictionary-type
@@ -297,7 +296,7 @@ public:
    * a daughter dictionary; 0: the block does't exist; length of the list
    * for a daughter list; length in characters for a string array.
    */
-  int_32 length(const std::string key) throw(LCMexception);
+  int_32 length(const std::string key);
 
   /**
    * Return the length of a block of information in a list-type Clcm object.
@@ -308,7 +307,7 @@ public:
    * a daughter dictionary; 0: the block does't exist;  length of the list
    * for a daughter list; length in characters for a string array.
    */
-  int_32 length(const int_32 iset) throw(LCMexception);
+  int_32 length(const int_32 iset);
 
   /**
    * Return the type of a block of information in a dictionary-type
@@ -318,7 +317,7 @@ public:
    * =3: string; =4: real number (double); =5: boolean; =6: Complex object;
    * =10: list.
    */
-  int_32 type(const std::string key) throw(LCMexception);
+  int_32 type(const std::string key);
 
   /**
    * Return the type of a block of information in a list-type Clcm object.
@@ -329,25 +328,25 @@ public:
    * =3: string; =4: real number (double); =5: boolean; =6: Complex object;
    * =10: list.
    */
-  int_32 type(const int_32 iset) throw(LCMexception);
+  int_32 type(const int_32 iset);
 
   /** Print the table of contents of a dictionary- or list-type Clcm object.
    * This method is not available for file-type Clcm objects.
    */
-  void lib() throw(LCMexception);
+  void lib();
 
   /** Validate a dictionary- or list-type Clcm object. Detect possible memory
    * corruption.
    * This method is not available for file-type Clcm objects.
    */
-  void val() throw(LCMexception);
+  void val();
 
   /** Set a daughter dictionary-type Clcm object from a dictionary-type Clcm
    * object. This method is not available for file-type Clcm objects.
    * @param key key identification of the daughter Clcm object in the dictionary
    * @return daughter ClcmPtr object of dictionary or list type.
    */
-  ClcmPtr setDictionary(const std::string key) throw(LCMexception);
+  ClcmPtr setDictionary(const std::string key);
 
   /** Set a daughter dictionary-type Clcm object from a list-type Clcm
    * object. This method is not available for file-type Clcm objects.
@@ -355,7 +354,7 @@ public:
    * element is stored at index 0.
    * @return daughter ClcmPtr object of dictionary or list type.
    */
-  ClcmPtr setDictionary(const int_32 iset) throw(LCMexception);
+  ClcmPtr setDictionary(const int_32 iset);
 
   /** Set a daughter list-type Clcm object from a dictionary-type Clcm object.
    * This method is not available for file-type Clcm objects.
@@ -363,7 +362,7 @@ public:
    * @param ilong initial length of the heterogeneous list
    * @return daughter ClcmPtr object of dictionary or list type.
    */
-  ClcmPtr setList(const std::string key, const int_32 ilong) throw(LCMexception);
+  ClcmPtr setList(const std::string key, const int_32 ilong);
 
   /** Set a daughter list-type Clcm object from a list-type Clcm object
    * This method is not available for file-type Clcm objects.
@@ -372,14 +371,14 @@ public:
    * @param ilong initial length of the heterogeneous list
    * @return daughter ClcmPtr object of dictionary or list type.
    */
-  ClcmPtr setList(const int_32 iset, const int_32 ilong) throw(LCMexception);
+  ClcmPtr setList(const int_32 iset, const int_32 ilong);
 
   /** Recover a daughter Clcm object from an existing dictionary-type Clcm object.
    * This method is not available for file-type Clcm objects.
    * @param key key identification of the daughter Clcm object in the dictionary
    * @return daughter ClcmPtr object of dictionary or list type.
    */
-  ClcmPtr getClcm(const std::string key) throw(LCMexception);
+  ClcmPtr getClcm(const std::string key);
 
   /** Recover a daughter Clcm object from an existing list-type Clcm object.
    * This method is not available for file-type Clcm objects.
@@ -387,7 +386,7 @@ public:
    * element is stored at index 0.
    * @return daughter ClcmPtr object of dictionary or list type.
    */
-  ClcmPtr getClcm(const int_32 iset) throw(LCMexception);
+  ClcmPtr getClcm(const int_32 iset);
 
   /** Recover an integer array from a dictionary-type Clcm object.
    * <b>General rule:</b> Never try to modify, deallocate or free the object returned
@@ -403,7 +402,7 @@ public:
    * @param key key identification of the integer array in the dictionary
    * @return array of integer values stored as <tt>IntPtr</tt> object.
    */
-  IntPtrConst getInt(const std::string key) throw(LCMexception);
+  IntPtrConst getInt(const std::string key);
 
   /** Recover an integer array from a list-type Clcm object.
    * <b>General rule:</b> Never try to modify, deallocate or free the object returned
@@ -412,7 +411,7 @@ public:
    * is stored at index 0.
    * @return array of integer values stored as <tt>IntPtr</tt> object.
    */
-  IntPtrConst getInt(const int_32 iset) throw(LCMexception);
+  IntPtrConst getInt(const int_32 iset);
 
   /** Recover a single precision real array from a dictionary-type Clcm object.
    * <b>General rule:</b> Never try to modify, deallocate or free the object returned
@@ -420,7 +419,7 @@ public:
    * @param key key identification of the real array in the dictionary
    * @return array of single precision real values stored as <tt>FloatPtr</tt> object.
    */
-  FloatPtrConst getFloat(const std::string key) throw(LCMexception);
+  FloatPtrConst getFloat(const std::string key);
 
   /** Recover a single precision real array from a list-type Clcm object.
    * <b>General rule:</b> Never try to modify, deallocate or free the object returned
@@ -429,7 +428,7 @@ public:
    * is stored at index 0.
    * @return array of single precision real values stored as <tt>FloatPtr</tt> object.
    */
-  FloatPtrConst getFloat(const int_32 iset) throw(LCMexception);
+  FloatPtrConst getFloat(const int_32 iset);
 
   /** Recover a string pointer from a dictionary-type Clcm object.
    * <b>General rule:</b> Never try to modify, deallocate or free the string returned
@@ -437,7 +436,7 @@ public:
    * @param key key identification of the character array in the dictionary
    * @return character information stored as <tt>StringPtr</tt> object.
    */
-  StringPtrConst getString(const std::string key) throw(LCMexception);
+  StringPtrConst getString(const std::string key);
 
   /** Recover a string pointer from a list-type Clcm object.
    * <b>General rule:</b> Never try to modify, deallocate or free the string returned
@@ -446,7 +445,7 @@ public:
    * is stored at index 0.
    * @return character information stored as <tt>StringPtr</tt> object.
    */
-  StringPtrConst getString(const int_32 iset) throw(LCMexception);
+  StringPtrConst getString(const int_32 iset);
 
   /** Recover a vector-of-string pointer from a dictionary-type Clcm object.
    * <b>General rule:</b> Never try to modify, deallocate or free the vector-of-string returned
@@ -456,7 +455,7 @@ public:
    * @return vector-of-string containing the character information stored as
    * <tt>StringVecPtr</tt> object.
    */
-  StringVecPtr getVecString(const std::string key, const int_32 size) throw(LCMexception);
+  StringVecPtr getVecString(const std::string key, const int_32 size);
 
   /** Recover a vector-of-string pointer from a list-type Clcm object.
    * <b>General rule:</b> Never try to modify, deallocate or free the vector-of-string returned
@@ -467,7 +466,7 @@ public:
    * @return vector-of-string containing the character information stored as
    * <tt>StringVecPtr</tt> object.
    */
-  StringVecPtr getVecString(const int_32 iset, const int_32 size) throw(LCMexception);
+  StringVecPtr getVecString(const int_32 iset, const int_32 size);
 
   /** Recover a double precision real array from a dictionary-type Clcm object.
    * <b>General rule:</b> Never try to modify, deallocate or free the object returned
@@ -475,7 +474,7 @@ public:
    * @param key key identification of the double precision array in the dictionary
    * @return array of double precision real values stored as <tt>DoublePtr</tt> object.
    */
-  DoublePtrConst getDouble(const std::string key) throw(LCMexception);
+  DoublePtrConst getDouble(const std::string key);
 
   /** Recover a double precision real array from a list-type Clcm object.
    * <b>General rule:</b> Never try to modify, deallocate or free the object returned
@@ -484,7 +483,7 @@ public:
    * is stored at index 0.
    * @return array of double precision real values stored as <tt>DoublePtr</tt> object.
    */
-  DoublePtrConst getDouble(const int_32 iset) throw(LCMexception);
+  DoublePtrConst getDouble(const int_32 iset);
 
   /** Recover a boolean array from a dictionary-type Clcm object.
    * <b>General rule:</b> Never try to modify, deallocate or free the object returned
@@ -492,7 +491,7 @@ public:
    * @param key key identification of the boolean array in the dictionary
    * @return array of boolean values stored as <tt>BoolPtr</tt> object.
    */
-  BoolPtrConst getBool(const std::string key) throw(LCMexception);
+  BoolPtrConst getBool(const std::string key);
 
   /** Recover a boolean array from a list-type Clcm object.
    * <b>General rule:</b> Never try to modify, deallocate or free the object returned
@@ -501,7 +500,7 @@ public:
    * is stored at index 0.
    * @return array of boolean values stored as <tt>BoolPtr</tt> object.
    */
-  BoolPtrConst getBool(const int_32 iset) throw(LCMexception);
+  BoolPtrConst getBool(const int_32 iset);
 
   /** Recover a complex array from a dictionary-type Clcm object.
    * <b>General rule:</b> Never try to modify, deallocate or free the object returned
@@ -509,7 +508,7 @@ public:
    * @param key key identification of the complex array in the dictionary
    * @return array of complex values stored as <tt>ComplexPtr</tt> object.
    */
-  ComplexPtrConst getComplex(const std::string key) throw(LCMexception);
+  ComplexPtrConst getComplex(const std::string key);
 
   /** Recover a complex array from a list-type Clcm object.
    * <b>General rule:</b> Never try to modify, deallocate or free the object returned
@@ -518,7 +517,7 @@ public:
    * is stored at index 0.
    * @return array of complex values stored as <tt>ComplexPtr</tt> object.
    */
-  ComplexPtrConst getComplex(const int_32 iset) throw(LCMexception);
+  ComplexPtrConst getComplex(const int_32 iset);
 
   /** Recover a vector-of-string pointer containing the keys of a dictionary-type Clcm
    * object. <b>General rule:</b> Never try to modify, deallocate or free the vector-of-string
@@ -526,7 +525,7 @@ public:
    * Clcm objects.
    * @return <tt>StringVecPtr</tt> of a vector-of-string containing the dictionary keys
    */
-  StringVecPtr keys() throw(LCMexception);
+  StringVecPtr keys();
 
   /** Store an integer array in a dictionary-type Clcm object. This method is not
    * available for file-type Clcm objects.
@@ -543,7 +542,7 @@ public:
    * @param myArray integer array stored as <tt>IntPtr</tt> object.
    * @param myLength number of components in integer array.
    */
-  void put(const std::string key, IntPtr myArray, const int_32 myLength) throw(LCMexception);
+  void put(const std::string key, IntPtr myArray, const int_32 myLength);
 
   /** Store an integer array in a list-type  Clcm object. This method is not available
    * for file-type Clcm objects.
@@ -552,7 +551,7 @@ public:
    * @param myArray integer array stored as <tt>IntPtr</tt> object.
    * @param myLength number of components in integer array.
    */
-  void put(const int_32 iset, IntPtr myArray, const int_32 myLength) throw(LCMexception);
+  void put(const int_32 iset, IntPtr myArray, const int_32 myLength);
 
   /** Store a single precision real array in a dictionary-type Clcm object. This method
    * is not available for file-type Clcm objects.
@@ -560,7 +559,7 @@ public:
    * @param myArray single precision real array stored as <tt>FloatPtr</tt> object.
    * @param myLength number of components in real array.
    */
-  void put(const std::string key, FloatPtr myArray, const int_32 myLength) throw(LCMexception);
+  void put(const std::string key, FloatPtr myArray, const int_32 myLength);
 
   /** Store a single precision real array in a list-type Clcm object. This method is
    * not available for file-type Clcm objects.
@@ -569,21 +568,21 @@ public:
    * @param myArray single precision real array stored as <tt>FloatPtr</tt> object.
    * @param myLength number of components in real array.
    */
-  void put(const int_32 iset, FloatPtr myArray, const int_32 myLength) throw(LCMexception);
+  void put(const int_32 iset, FloatPtr myArray, const int_32 myLength);
 
   /** Store a string pointer in a dictionary-type Clcm object. This method is not available
    * for file-type Clcm objects.
    * @param key key identification of the character array in the dictionary
    * @param myArray character information stored as <tt>StringPtr</tt> object.
    */
-  void put(const std::string key, StringPtr myArray) throw(LCMexception);
+  void put(const std::string key, StringPtr myArray);
 
   /** Store a string pointer in a list-type Clcm object. This method is not available for
    * file-type Clcm objects.
    * @param iset index of the string in the list. The first list element is stored at index 0.
    * @param myArray character information stored as <tt>StringPtr</tt> object.
    */
-  void put(const int_32 iset, StringPtr myArray) throw(LCMexception);
+  void put(const int_32 iset, StringPtr myArray);
 
   /** Store a vector-of-string pointer in a dictionary-type Clcm object.
    * This method is not available for file-type Clcm objects.
@@ -591,7 +590,7 @@ public:
    * @param myArray vector-of-string containing the character information stored as
    * <tt>StringVecPtr</tt> object.
    */
-  void put(const std::string key, StringVecPtr myArray) throw(LCMexception);
+  void put(const std::string key, StringVecPtr myArray);
 
   /** Store a vector-of-string pointer in a list-type Clcm object.
    * This method is not available for file-type Clcm objects.
@@ -600,7 +599,7 @@ public:
    * @param myArray vector-of-string containing the character information stored as
    * <tt>StringVecPtr</tt> object.
    */
-  void put(const int_32 iset, StringVecPtr myArray) throw(LCMexception);
+  void put(const int_32 iset, StringVecPtr myArray);
 
   /** Store a double precision real array in a dictionary-type Clcm object. This method is
    * not available for file-type Clcm objects.
@@ -608,7 +607,7 @@ public:
    * @param myArray double precision array stored as <tt>DoublePtr</tt> object.
    * @param myLength number of components in double precision array.
    */
-  void put(const std::string key, DoublePtr myArray, const int_32 myLength) throw(LCMexception);
+  void put(const std::string key, DoublePtr myArray, const int_32 myLength);
 
   /** Store a double precision real array in a list-type Clcm object. This method is
    * not available for file-type Clcm objects.
@@ -617,7 +616,7 @@ public:
    * @param myArray double precision array stored as <tt>DoublePtr</tt> object.
    * @param myLength number of components in double precision array.
    */
-  void put(const int_32 iset, DoublePtr myArray, const int_32 myLength) throw(LCMexception);
+  void put(const int_32 iset, DoublePtr myArray, const int_32 myLength);
 
   /** Store a boolean array in a dictionary-type Clcm object. This method is not
    * available for file-type Clcm objects.
@@ -625,7 +624,7 @@ public:
    * @param myArray boolean array stored as <tt>BoolPtr</tt> object.
    * @param myLength number of components in boolean array.
    */
-  void put(const std::string key, BoolPtr myArray, const int_32 myLength) throw(LCMexception);
+  void put(const std::string key, BoolPtr myArray, const int_32 myLength);
 
   /** Store a boolean array in a list-type Clcm object. This method is not
    * available for file-type Clcm objects.
@@ -634,7 +633,7 @@ public:
    * @param myArray boolean array stored as <tt>BoolPtr</tt> object.
    * @param myLength number of components in boolean array.
    */
-  void put(const int_32 iset, BoolPtr myArray, const int_32 myLength) throw(LCMexception);
+  void put(const int_32 iset, BoolPtr myArray, const int_32 myLength);
 
   /** Store a complex array in a dictionary-type Clcm object. This method is not
    * available for file-type Clcm objects.
@@ -651,7 +650,7 @@ public:
    * @param myArray complex array stored as <tt>ComplexPtr</tt> object.
    * @param myLength number of components in complex array.
    */
-  void put(const std::string key, ComplexPtr myArray, const int_32 myLength) throw(LCMexception);
+  void put(const std::string key, ComplexPtr myArray, const int_32 myLength);
 
   /** Store a complex array in a list-type Clcm object. This method is not
    * available for file-type Clcm objects.
@@ -660,14 +659,14 @@ public:
    * @param myArray complex array stored as <tt>ComplexPtr</tt> object.
    * @param myLength number of components in complex array.
    */
-  void put(const int_32 iset, ComplexPtr myArray, const int_32 myLength) throw(LCMexception);
+  void put(const int_32 iset, ComplexPtr myArray, const int_32 myLength);
 
   /** Store a daughter Clcm object in a dictionary-type Clcm object. This method is not
    * available for file-type Clcm objects.
    * @param key key identification of the block in the dictionary
    * @param myClcm daughter Clcm object.
    */
-  void put(const std::string key, ClcmPtr myClcm) throw(LCMexception);
+  void put(const std::string key, ClcmPtr myClcm);
 
   /** Store a daughter Clcm object in a list-type Clcm object. This method is not
    * available for file-type Clcm objects.
@@ -675,7 +674,7 @@ public:
    * is stored at index 0.
    * @param myClcm daughter Clcm object.
    */
-  void put(const int_32 iset, ClcmPtr myClcm) throw(LCMexception);
+  void put(const int_32 iset, ClcmPtr myClcm);
 
   /** Extract the LCM structure.
    * @return ANSI C pointer of the embedded LCM structure.
@@ -701,7 +700,7 @@ private:
   bool untoutched;            // brand new object flag
   bool isroot;                // true if addr is pointing on the root object
 }; // class Clcm
-  std::ostream & operator<<(std::ostream &, ClcmPtr) throw(LCMexception);
+  std::ostream & operator<<(std::ostream &, ClcmPtr);
 
 } // namespace ganlib
 #endif

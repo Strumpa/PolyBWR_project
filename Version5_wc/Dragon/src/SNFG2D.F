@@ -9,7 +9,7 @@
 *Purpose:
 * Perform one inner iteration for solving SN equations in 2D Cartesian
 * geometry for the HODD method. Energy-angle multithreading. Albedo
-* boundary conditions. Boltzmann-Fokker-Planck (BFP) discretization.
+* boundary conditions. Boltzmann (BTE) discretization.
 *
 *Copyright:
 * Copyright (C) 2021 Ecole Polytechnique de Montreal

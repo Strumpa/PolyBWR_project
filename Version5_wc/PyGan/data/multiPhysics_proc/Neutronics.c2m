@@ -29,7 +29,11 @@ STRING DIR := "EDIPARAM" ;
 * Set local parameters in fuel map
 * --
 
-Fmap := SetLocPara Fmap THData :: ;
+IF iter 1 = THEN
+    ECHO "use initial Fmap" ;
+ELSE
+    Fmap := SetLocPara Fmap THData :: ;
+ENDIF ;
 
 *--
 * Recover TH data from THData linked list for XS interpolation
@@ -309,9 +313,18 @@ ECHO "+++ Burnup= 0.0 Keff=" keff1 ;
 * Power distribution calculation
 *--
 ECHO "total reactor power=" powi "MW" ;
+!IF iter 1 = THEN
+ECHO "In power at iter = " iter ;
 Power Fmap := FLPOW: Fmap Flux Track Matex
-                :: EDIT 10 PTOT <<powi>> PRINT DISTR POWER ;
+            :: EDIT 10 PTOT <<powi>> PRINT DISTR POWER ;
+!ELSE 
+!    ECHO "In power edition at iter = " iter ;
+!    Power Fmap := FLPOW: Power Fmap Flux Track Matex ::
+!        EDIT 1 ;
+!ENDIF ;
 
 
-ECHO "test AT10_24UOX.x2m completed" ;
+!THData := DELETE: THData ;
+
+ECHO "Completed Neutronics calculation at iter = " iter ;
 END: ;

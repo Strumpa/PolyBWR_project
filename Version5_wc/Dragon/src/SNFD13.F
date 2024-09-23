@@ -1,5 +1,5 @@
 *DECK SNFD13
-      SUBROUTINE SNFD13(IOMP,NUN,NGEFF,IMPX,INCONV,NGIND,LX,LY,LZ,
+      SUBROUTINE SNFD13(IKBA,NUN,NGEFF,IMPX,INCONV,NGIND,LX,LY,LZ,
      1 IELEM,NMAT,NPQ,NSCT,MAT,VOL,TOTAL,NCODE,ZCODE,QEXT,LFIXUP,DU,
      2 DE,DZ,W,MRMX,MRMY,MRMZ,DC,DB,DA,PL,FUNKNO)
 *
@@ -7,7 +7,7 @@
 *
 *Purpose:
 * Perform one inner iteration for solving SN equations in 3D Cartesian
-* geometry for the HODD method. Domino-type multithreading. Albedo
+* geometry for the HODD method. KBA-type multithreading. Albedo
 * boundary conditions.
 *
 *Copyright:
@@ -20,7 +20,7 @@
 *Author(s): N. Martin and A. Hebert
 *
 *Parameters: input
-* IOMP    number of cells per axis in a Domino macrocell.
+* IKBA    number of cells per axis in a KBA macrocell.
 * NUN     total number of unknowns in vector FUNKNO.
 * NGEFF   number of energy groups processed in parallel.
 * IMPX    print flag (equal to zero for no print).
@@ -64,7 +64,7 @@
 *----
 *  SUBROUTINE ARGUMENTS
 *----
-      INTEGER IOMP,NUN,NGEFF,IMPX,NGIND(NGEFF),LX,LY,LZ,IELEM,NMAT,
+      INTEGER IKBA,NUN,NGEFF,IMPX,NGIND(NGEFF),LX,LY,LZ,IELEM,NMAT,
      1 NPQ,NSCT,MAT(LX,LY,LZ),NCODE(6),MRMX(NPQ),MRMY(NPQ),MRMZ(NPQ)
       LOGICAL INCONV(NGEFF)
       REAL VOL(LX,LY,LZ),TOTAL(0:NMAT,NGEFF),ZCODE(6),QEXT(NUN,NGEFF),
@@ -97,9 +97,9 @@
 *----
 *  DEFINITION OF CONSTANTS.
 *----
-      NMX=1+(LX-1)/IOMP
-      NMY=1+(LY-1)/IOMP
-      NMZ=1+(LZ-1)/IOMP
+      NMX=1+(LX-1)/IKBA
+      NMY=1+(LY-1)/IKBA
+      NMZ=1+(LZ-1)/IKBA
       L4=IELEM*IELEM*IELEM*LX*LY*LZ*NSCT
       IOFY=IELEM*IELEM*LY*LZ*NPQ
       IOFZ=IELEM*IELEM*(LX+LY)*LZ*NPQ
@@ -317,11 +317,11 @@
       IF(W(M).EQ.0.0) GO TO 480
 *
       IF(KK.EQ.1) THEN
-        DO 210 IMX=1,MIN(IOMP,LX-(II-1)*IOMP)
-        I=(II-1)*IOMP+IMX
+        DO 210 IMX=1,MIN(IKBA,LX-(II-1)*IKBA)
+        I=(II-1)*IKBA+IMX
         IF((IND.EQ.2).OR.(IND.EQ.3).OR.(IND.EQ.6).OR.(IND.EQ.7))I=LX+1-I
-        DO 200 IMY=1,MIN(IOMP,LY-(JJ-1)*IOMP)
-        J=(JJ-1)*IOMP+IMY
+        DO 200 IMY=1,MIN(IKBA,LY-(JJ-1)*IKBA)
+        J=(JJ-1)*IKBA+IMY
         IF((IND.EQ.3).OR.(IND.EQ.4).OR.(IND.EQ.7).OR.(IND.EQ.8))J=LY+1-J
         DO 190 JEL=1,IELEM
         DO 180 IEL=1,IELEM
@@ -337,11 +337,11 @@
   210   CONTINUE
       ENDIF
       IF(JJ.EQ.1) THEN
-        DO 250 IMX=1,MIN(IOMP,LX-(II-1)*IOMP)
-        I=(II-1)*IOMP+IMX
+        DO 250 IMX=1,MIN(IKBA,LX-(II-1)*IKBA)
+        I=(II-1)*IKBA+IMX
         IF((IND.EQ.2).OR.(IND.EQ.3).OR.(IND.EQ.6).OR.(IND.EQ.7))I=LX+1-I
-        DO 240 IMZ=1,MIN(IOMP,LZ-(KK-1)*IOMP)
-        K=(KK-1)*IOMP+IMZ
+        DO 240 IMZ=1,MIN(IKBA,LZ-(KK-1)*IKBA)
+        K=(KK-1)*IKBA+IMZ
         IF((IND.EQ.5).OR.(IND.EQ.6).OR.(IND.EQ.7).OR.(IND.EQ.8))K=LZ+1-K
         DO 230 JEL=1,IELEM
         DO 220 IEL=1,IELEM
@@ -357,11 +357,11 @@
   250   CONTINUE
       ENDIF
       IF(II.EQ.1) THEN
-        DO 290 IMY=1,MIN(IOMP,LY-(JJ-1)*IOMP)
-        J=(JJ-1)*IOMP+IMY
+        DO 290 IMY=1,MIN(IKBA,LY-(JJ-1)*IKBA)
+        J=(JJ-1)*IKBA+IMY
         IF((IND.EQ.3).OR.(IND.EQ.4).OR.(IND.EQ.7).OR.(IND.EQ.8))J=LY+1-J
-        DO 280 IMZ=1,MIN(IOMP,LZ-(KK-1)*IOMP)
-        K=(KK-1)*IOMP+IMZ
+        DO 280 IMZ=1,MIN(IKBA,LZ-(KK-1)*IKBA)
+        K=(KK-1)*IKBA+IMZ
         IF((IND.EQ.5).OR.(IND.EQ.6).OR.(IND.EQ.7).OR.(IND.EQ.8))K=LZ+1-K
         DO 270 JEL=1,IELEM
         DO 260 IEL=1,IELEM
@@ -377,14 +377,14 @@
   290   CONTINUE
       ENDIF
 *---
-      DO 470 IMX=1,MIN(IOMP,LX-(II-1)*IOMP)
-      I=(II-1)*IOMP+IMX
+      DO 470 IMX=1,MIN(IKBA,LX-(II-1)*IKBA)
+      I=(II-1)*IKBA+IMX
       IF((IND.EQ.2).OR.(IND.EQ.3).OR.(IND.EQ.6).OR.(IND.EQ.7)) I=LX+1-I
-      DO 460 IMY=1,MIN(IOMP,LY-(JJ-1)*IOMP)
-      J=(JJ-1)*IOMP+IMY
+      DO 460 IMY=1,MIN(IKBA,LY-(JJ-1)*IKBA)
+      J=(JJ-1)*IKBA+IMY
       IF((IND.EQ.3).OR.(IND.EQ.4).OR.(IND.EQ.7).OR.(IND.EQ.8)) J=LY+1-J
-      DO 450 IMZ=1,MIN(IOMP,LZ-(KK-1)*IOMP)
-      K=(KK-1)*IOMP+IMZ
+      DO 450 IMZ=1,MIN(IKBA,LZ-(KK-1)*IKBA)
+      K=(KK-1)*IKBA+IMZ
       IF((IND.EQ.5).OR.(IND.EQ.6).OR.(IND.EQ.7).OR.(IND.EQ.8)) K=LZ+1-K
       FLUX(:IELEM**3,:NSCT)=0.0D0
       IF(MAT(I,J,K).EQ.0) GO TO 480
@@ -719,7 +719,7 @@
       FLUX(IEL,L)=FLUX(IEL,L)+W(M)*Q2(IEL,IELEM**3+1)*PL(L,M)
   370 CONTINUE
   380 CONTINUE
-      IF((II-1)*IOMP+IMX.EQ.LX) THEN
+      IF((II-1)*IKBA+IMX.EQ.LX) THEN
         DO 400 JEL=1,IELEM
         DO 390 IEL=1,IELEM
         IOF=((((M-1)*LZ+(K-1))*LY+(J-1))*IELEM+(JEL-1))*IELEM+IEL
@@ -727,7 +727,7 @@
   390   CONTINUE
   400   CONTINUE
       ENDIF
-      IF((JJ-1)*IOMP+IMY.EQ.LY) THEN
+      IF((JJ-1)*IKBA+IMY.EQ.LY) THEN
         DO 420 JEL=1,IELEM
         DO 410 IEL=1,IELEM
         IOF=((((M-1)*LZ+(K-1))*LX+(I-1))*IELEM+(JEL-1))*IELEM+IEL
@@ -735,7 +735,7 @@
   410   CONTINUE
   420   CONTINUE
       ENDIF
-      IF((KK-1)*IOMP+IMZ.EQ.LZ) THEN
+      IF((KK-1)*IKBA+IMZ.EQ.LZ) THEN
         DO 440 JEL=1,IELEM
         DO 430 IEL=1,IELEM
         IOF=((((M-1)*LY+(J-1))*LX+(I-1))*IELEM+(JEL-1))*IELEM+IEL

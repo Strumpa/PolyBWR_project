@@ -1,7 +1,7 @@
 
 /*****************************************/
 /*        C++ LCM OBJECT WRAPPER         */
-/*    AUTHOR: A. HEBERT ; 2010/12/31     */
+/*    AUTHOR: A. HEBERT ; 2024/08/04     */
 /*****************************************/
 
 /*
@@ -25,7 +25,7 @@ void xabort_c(char *msg){
   throw LCMexception(msg);
 }
 
-ganlib::Clcm::Clcm(const string stype, const string myName, const string myPath) throw(LCMexception) {
+ganlib::Clcm::Clcm(const string stype, const string myName, const string myPath) {
   cout << "New Clcm object called '" << myName << "'" << endl;
   this->root = this;
   this->global_list = new vector<AnyPtr>;
@@ -162,7 +162,7 @@ ganlib::Clcm::Clcm(const string stype, const string myName, const string myPath)
   }
 }
 
-ganlib::Clcm::Clcm(lcm *daughter, Clcm *root, const int_32 type, const string name, const int_32 ilong, const string key) throw(LCMexception) {
+ganlib::Clcm::Clcm(lcm *daughter, Clcm *root, const int_32 type, const string name, const int_32 ilong, const string key) {
   this->global_list = root->global_list;
   this->root = root;
   this->addr = daughter;
@@ -194,7 +194,7 @@ ganlib::Clcm::Clcm(lcm *myLcm, const int_32 type, const int_32 access, const str
   this->untoutched = true;
 }
 
-ganlib::Clcm::Clcm(const string stype, ClcmPtr myClcm) throw(LCMexception) {
+ganlib::Clcm::Clcm(const string stype, ClcmPtr myClcm) {
   if (myClcm->objtype > 2) throw LCMexception("copy constructor not available for file objects");
   if (stype == "LCM") {
     this->objtype = 1;
@@ -238,7 +238,7 @@ ganlib::Clcm::~Clcm() {
   }
 }
 
-ostream & ganlib::operator<<(ostream &s, ClcmPtr myClcm) throw(LCMexception) {
+ostream & ganlib::operator<<(ostream &s, ClcmPtr myClcm) {
   if (myClcm->objtype > 2) throw LCMexception("operator<< not available for file objects");
   FILE *file = fopen("_dummy.txt", "w");
   if (file == NULL) {
@@ -297,7 +297,7 @@ int_32 ganlib::Clcm::getType() throw() {
   return this->objtype;
 }
 
-int_32 ganlib::Clcm::getLength() throw(LCMexception) {
+int_32 ganlib::Clcm::getLength() {
   char namlcm[73], nammy[13];
   int_32 empty, ilong, lcml, access;
   if (this->objtype > 2) throw LCMexception("getLength not available for file objects");
@@ -305,7 +305,7 @@ int_32 ganlib::Clcm::getLength() throw(LCMexception) {
   return ilong;
 }
 
-string ganlib::Clcm::getDirectory() throw(LCMexception) {
+string ganlib::Clcm::getDirectory() {
   char namlcm[73], nammy[13];
   int_32 empty, ilong, lcml, access;
   if (this->objtype > 2) throw LCMexception("getDirectory not available for file objects");
@@ -313,7 +313,7 @@ string ganlib::Clcm::getDirectory() throw(LCMexception) {
   return nammy;
 }
 
-int_32 ganlib::Clcm::getAccess() throw(LCMexception) {
+int_32 ganlib::Clcm::getAccess() {
   char namlcm[73], nammy[13];
   int_32 empty, ilong, lcml;
   if (this->objtype <= 2) {
@@ -330,7 +330,7 @@ int_32 ganlib::Clcm::getVersion() throw() {
   return this->version;
 }
 
-bool ganlib::Clcm::isEmpty() throw(LCMexception) {
+bool ganlib::Clcm::isEmpty() {
   char namlcm[73], nammy[13];
   int_32 empty, ilong, lcml, access;
   if (this->objtype > 2) throw LCMexception("isEmpty not available for file objects");
@@ -342,7 +342,7 @@ bool ganlib::Clcm::isNew() throw() {
   return this->untoutched;
 }
 
-void ganlib::Clcm::open(const string saccess) throw(LCMexception) {
+void ganlib::Clcm::open(const string saccess) {
   if (this->access != 0) {
     throw LCMexception("the object " + this->name + " is already open");
   }
@@ -414,7 +414,7 @@ void ganlib::Clcm::open(const string saccess) throw(LCMexception) {
   }
 }
 
-void ganlib::Clcm::close(const string saccess) throw(LCMexception) {
+void ganlib::Clcm::close(const string saccess) {
   int iact;
   if (saccess == "KEEP") {
     iact = 1;
@@ -454,7 +454,7 @@ void ganlib::Clcm::close(const string saccess) throw(LCMexception) {
   this->access = 0;
 }
 
-int_32 ganlib::Clcm::length(const std::string key) throw(LCMexception) {
+int_32 ganlib::Clcm::length(const std::string key) {
   int_32 mylength, itylcm;
   if (this->objtype > 2) throw LCMexception("length not available for file objects");
   lcmlen_c(&(this->addr), (char *)key.c_str() ,&mylength, &itylcm);
@@ -462,7 +462,7 @@ int_32 ganlib::Clcm::length(const std::string key) throw(LCMexception) {
   return mylength;
 }
 
-int_32 ganlib::Clcm::length(const int_32 iset) throw(LCMexception) {
+int_32 ganlib::Clcm::length(const int_32 iset) {
   int_32 mylength, itylcm;
   if (this->objtype > 2) throw LCMexception("length not available for file objects");
   lcmlel_c(&(this->addr), iset ,&mylength, &itylcm);
@@ -470,7 +470,7 @@ int_32 ganlib::Clcm::length(const int_32 iset) throw(LCMexception) {
   return mylength;
 }
 
-int_32 ganlib::Clcm::type(const std::string key) throw(LCMexception) {
+int_32 ganlib::Clcm::type(const std::string key) {
   int_32 mylength, itylcm;
   if (this->objtype > 2) throw LCMexception("type not available for file objects");
   lcmlen_c(&(this->addr), (char *)key.c_str() ,&mylength, &itylcm);
@@ -481,7 +481,7 @@ int_32 ganlib::Clcm::type(const std::string key) throw(LCMexception) {
   return itylcm;
 }
 
-int_32 ganlib::Clcm::type(const int_32 iset) throw(LCMexception) {
+int_32 ganlib::Clcm::type(const int_32 iset) {
   int_32 mylength, itylcm;
   if (this->objtype > 2) throw LCMexception("type not available for file objects");
   lcmlel_c(&(this->addr), iset ,&mylength, &itylcm);
@@ -492,12 +492,12 @@ int_32 ganlib::Clcm::type(const int_32 iset) throw(LCMexception) {
   return itylcm;
 }
 
-void ganlib::Clcm::lib() throw(LCMexception) {
+void ganlib::Clcm::lib() {
   if (this->objtype > 2) throw LCMexception("lib not available for file objects");
   lcmlib_c(&(this->addr));
 }
 
-void ganlib::Clcm::val() throw(LCMexception) {
+void ganlib::Clcm::val() {
   if (this->objtype > 2) throw LCMexception("val not available for file objects");
   lcmval_c(&(this->addr), " ");
 }
@@ -506,25 +506,25 @@ void ganlib::Clcm::val() throw(LCMexception) {
 //--                               set                                --
 //----------------------------------------------------------------------
 
-ClcmPtr ganlib::Clcm::setDictionary(const std::string key) throw(LCMexception) {
+ClcmPtr ganlib::Clcm::setDictionary(const std::string key) {
   if (this->objtype > 2) throw LCMexception("setDictionary not available for file objects");
   lcm *daughter = lcmdid_c(&(this->addr), (char *)key.c_str());
   return ClcmPtr(new Clcm(daughter, this->root, this->objtype, this->name, -1, key));
 }
 
-ClcmPtr ganlib::Clcm::setDictionary(const int_32 iset) throw(LCMexception) {
+ClcmPtr ganlib::Clcm::setDictionary(const int_32 iset) {
   if (this->objtype > 2) throw LCMexception("setDictionary not available for file objects");
   lcm *daughter = lcmdil_c(&(this->addr), iset);
   return ClcmPtr(new Clcm(daughter, this->root, this->objtype, this->name, -1, " "));
 }
 
-ClcmPtr ganlib::Clcm::setList(const std::string key, const int_32 ilong) throw(LCMexception) {
+ClcmPtr ganlib::Clcm::setList(const std::string key, const int_32 ilong) {
   if (this->objtype > 2) throw LCMexception("setList not available for file objects");
   lcm *daughter = lcmlid_c(&(this->addr), (char *)key.c_str(), ilong);
   return ClcmPtr(new Clcm(daughter, this->root, this->objtype, this->name, 0, key));
 }
 
-ClcmPtr ganlib::Clcm::setList(const int_32 iset, const int_32 ilong) throw(LCMexception) {
+ClcmPtr ganlib::Clcm::setList(const int_32 iset, const int_32 ilong) {
   if (this->objtype > 2) throw LCMexception("setList not available for file objects");
   lcm *daughter = lcmlil_c(&(this->addr), iset, ilong);
   return ClcmPtr(new Clcm(daughter, this->root, this->objtype, this->name, 0, " "));
@@ -534,7 +534,7 @@ ClcmPtr ganlib::Clcm::setList(const int_32 iset, const int_32 ilong) throw(LCMex
 //--                               get                                --
 //----------------------------------------------------------------------
 
-ClcmPtr ganlib::Clcm::getClcm(const std::string key) throw(LCMexception) {
+ClcmPtr ganlib::Clcm::getClcm(const std::string key) {
   int_32 mylength, itylcm;
   if (this->objtype > 2) throw LCMexception("getClcm not available for file objects");
   lcmlen_c(&(this->addr), (char *)key.c_str() ,&mylength, &itylcm);
@@ -554,7 +554,7 @@ ClcmPtr ganlib::Clcm::getClcm(const std::string key) throw(LCMexception) {
   }
 }
 
-ClcmPtr ganlib::Clcm::getClcm(const int_32 iset) throw(LCMexception) {
+ClcmPtr ganlib::Clcm::getClcm(const int_32 iset) {
   int_32 mylength, itylcm;
   if (this->objtype > 2) throw LCMexception("getClcm not available for file objects");
   lcmlel_c(&(this->addr), iset ,&mylength, &itylcm);
@@ -583,7 +583,7 @@ struct my_deleter
 };
 /// @endcond
 
-IntPtrConst ganlib::Clcm::getInt(const std::string key) throw(LCMexception) {
+IntPtrConst ganlib::Clcm::getInt(const std::string key) {
   int_32 mylength, itylcm;
   lcmlen_c(&(this->addr), (char *)key.c_str() ,&mylength, &itylcm);
   if (mylength == 0) {
@@ -609,7 +609,7 @@ IntPtrConst ganlib::Clcm::getInt(const std::string key) throw(LCMexception) {
   }
 }
 
-IntPtrConst ganlib::Clcm::getInt(const int_32 iset) throw(LCMexception) {
+IntPtrConst ganlib::Clcm::getInt(const int_32 iset) {
   int_32 mylength, itylcm;
   lcmlel_c(&(this->addr), iset ,&mylength, &itylcm);
   if (mylength == 0) {
@@ -635,7 +635,7 @@ IntPtrConst ganlib::Clcm::getInt(const int_32 iset) throw(LCMexception) {
   }
 }
 
-FloatPtrConst ganlib::Clcm::getFloat(const std::string key) throw(LCMexception) {
+FloatPtrConst ganlib::Clcm::getFloat(const std::string key) {
   int_32 mylength, itylcm;
   lcmlen_c(&(this->addr), (char *)key.c_str() ,&mylength, &itylcm);
   if (mylength == 0) {
@@ -661,7 +661,7 @@ FloatPtrConst ganlib::Clcm::getFloat(const std::string key) throw(LCMexception) 
   }
 }
 
-FloatPtrConst ganlib::Clcm::getFloat(const int_32 iset) throw(LCMexception) {
+FloatPtrConst ganlib::Clcm::getFloat(const int_32 iset) {
   int_32 mylength, itylcm;
   lcmlel_c(&(this->addr), iset ,&mylength, &itylcm);
   if (mylength == 0) {
@@ -687,7 +687,7 @@ FloatPtrConst ganlib::Clcm::getFloat(const int_32 iset) throw(LCMexception) {
   }
 }
 
-StringPtrConst ganlib::Clcm::getString(const std::string key) throw(LCMexception) {
+StringPtrConst ganlib::Clcm::getString(const std::string key) {
   int_32 mylength, itylcm;
   if (this->objtype > 2)  throw LCMexception("getString not available for file objects");
   lcmlen_c(&(this->addr), (char *)key.c_str() ,&mylength, &itylcm);
@@ -704,7 +704,7 @@ StringPtrConst ganlib::Clcm::getString(const std::string key) throw(LCMexception
   return StringPtrConst(new string((char*)iarray, 4*mylength));
 }
 
-StringPtrConst ganlib::Clcm::getString(const int_32 iset) throw(LCMexception) {
+StringPtrConst ganlib::Clcm::getString(const int_32 iset) {
   int_32 mylength, itylcm;
   if (this->objtype > 2)  throw LCMexception("getString not available for file objects");
   lcmlel_c(&(this->addr), iset ,&mylength, &itylcm);
@@ -721,7 +721,7 @@ StringPtrConst ganlib::Clcm::getString(const int_32 iset) throw(LCMexception) {
   return StringPtrConst(new string((char*)iarray, 4*mylength));
 }
 
-StringVecPtr ganlib::Clcm::getVecString(const std::string key, const int_32 size) throw(LCMexception) {
+StringVecPtr ganlib::Clcm::getVecString(const std::string key, const int_32 size) {
   int_32 mylength, itylcm;
   if (this->objtype > 2)  throw LCMexception("getVecString not available for file objects");
   lcmlen_c(&(this->addr), (char *)key.c_str() ,&mylength, &itylcm);
@@ -748,7 +748,7 @@ StringVecPtr ganlib::Clcm::getVecString(const std::string key, const int_32 size
   return ivecPtr;
 }
 
-StringVecPtr ganlib::Clcm::getVecString(const int_32 iset, const int_32 size) throw(LCMexception) {
+StringVecPtr ganlib::Clcm::getVecString(const int_32 iset, const int_32 size) {
   int_32 mylength, itylcm;
   if (this->objtype > 2)  throw LCMexception("getVecString not available for file objects");
   lcmlel_c(&(this->addr), iset ,&mylength, &itylcm);
@@ -775,7 +775,7 @@ StringVecPtr ganlib::Clcm::getVecString(const int_32 iset, const int_32 size) th
   return ivecPtr;
 }
 
-DoublePtrConst ganlib::Clcm::getDouble(const std::string key) throw(LCMexception) {
+DoublePtrConst ganlib::Clcm::getDouble(const std::string key) {
   int_32 mylength, itylcm;
   lcmlen_c(&(this->addr), (char *)key.c_str() ,&mylength, &itylcm);
   if (mylength == 0) {
@@ -801,7 +801,7 @@ DoublePtrConst ganlib::Clcm::getDouble(const std::string key) throw(LCMexception
   }
 }
 
-DoublePtrConst ganlib::Clcm::getDouble(const int_32 iset) throw(LCMexception) {
+DoublePtrConst ganlib::Clcm::getDouble(const int_32 iset) {
   int_32 mylength, itylcm;
   lcmlel_c(&(this->addr), iset ,&mylength, &itylcm);
   if (mylength == 0) {
@@ -827,7 +827,7 @@ DoublePtrConst ganlib::Clcm::getDouble(const int_32 iset) throw(LCMexception) {
   }
 }
 
-BoolPtrConst ganlib::Clcm::getBool(const std::string key) throw(LCMexception) {
+BoolPtrConst ganlib::Clcm::getBool(const std::string key) {
   int_32 mylength, itylcm;
   if (this->objtype > 2)  throw LCMexception("getBool not available for file objects");
   lcmlen_c(&(this->addr), (char *)key.c_str() ,&mylength, &itylcm);
@@ -847,7 +847,7 @@ BoolPtrConst ganlib::Clcm::getBool(const std::string key) throw(LCMexception) {
   return ibool;
 }
 
-BoolPtrConst ganlib::Clcm::getBool(const int_32 iset) throw(LCMexception) {
+BoolPtrConst ganlib::Clcm::getBool(const int_32 iset) {
   int_32 mylength, itylcm;
   if (this->objtype > 2)  throw LCMexception("getBool not available for file objects");
   lcmlel_c(&(this->addr), iset ,&mylength, &itylcm);
@@ -867,7 +867,7 @@ BoolPtrConst ganlib::Clcm::getBool(const int_32 iset) throw(LCMexception) {
   return ibool;
 }
 
-ComplexPtrConst ganlib::Clcm::getComplex(const std::string key) throw(LCMexception) {
+ComplexPtrConst ganlib::Clcm::getComplex(const std::string key) {
   int_32 mylength, itylcm;
   if (this->objtype > 2)  throw LCMexception("getComplex not available for file objects");
   lcmlen_c(&(this->addr), (char *)key.c_str() ,&mylength, &itylcm);
@@ -888,7 +888,7 @@ ComplexPtrConst ganlib::Clcm::getComplex(const std::string key) throw(LCMexcepti
   return ComplexPtrConst(icomplex);
 }
 
-ComplexPtrConst ganlib::Clcm::getComplex(const int_32 iset) throw(LCMexception) {
+ComplexPtrConst ganlib::Clcm::getComplex(const int_32 iset) {
   int_32 mylength, itylcm;
   if (this->objtype > 2)  throw LCMexception("getComplex not available for file objects");
   lcmlel_c(&(this->addr), iset ,&mylength, &itylcm);
@@ -913,7 +913,7 @@ ComplexPtrConst ganlib::Clcm::getComplex(const int_32 iset) throw(LCMexception) 
 //--                               keys                               --
 //----------------------------------------------------------------------
 
-StringVecPtr ganlib::Clcm::keys() throw(LCMexception) {
+StringVecPtr ganlib::Clcm::keys() {
   if (this->objtype > 2)  throw LCMexception("keys not available for file objects");
   if (this->getLength() != -1) throw LCMexception("keys only available for dictionaries");
   StringVecPtr ivecPtr = StringVecPtr(new vector<string>);
@@ -933,7 +933,7 @@ StringVecPtr ganlib::Clcm::keys() throw(LCMexception) {
 //--                               put                                --
 //----------------------------------------------------------------------
 
-void ganlib::Clcm::put(const std::string key, IntPtr myArray, const int_32 myLength) throw(LCMexception) {
+void ganlib::Clcm::put(const std::string key, IntPtr myArray, const int_32 myLength) {
   if (this->getAccess() != 1) {
     hsmg << "put(" << key << ") forbidden if the object is not open in modification mode(1)";
     throw LCMexception(hsmg.str());
@@ -962,7 +962,7 @@ void ganlib::Clcm::put(const std::string key, IntPtr myArray, const int_32 myLen
   return;
 }
 
-void ganlib::Clcm::put(const int_32 iset, IntPtr myArray, const int_32 myLength) throw(LCMexception) {
+void ganlib::Clcm::put(const int_32 iset, IntPtr myArray, const int_32 myLength) {
   if (this->getAccess() != 1) {
     hsmg << "put(" << iset << ") forbidden if the object is not open in modification mode(2)";
     throw LCMexception(hsmg.str());
@@ -991,7 +991,7 @@ void ganlib::Clcm::put(const int_32 iset, IntPtr myArray, const int_32 myLength)
   return;
 }
 
-void ganlib::Clcm::put(const std::string key, FloatPtr myArray, const int_32 myLength) throw(LCMexception) {
+void ganlib::Clcm::put(const std::string key, FloatPtr myArray, const int_32 myLength) {
   if (this->getAccess() != 1) {
     hsmg << "put(" << key << ") forbidden if the object is not open in modification mode(1)";
     throw LCMexception(hsmg.str());
@@ -1020,7 +1020,7 @@ void ganlib::Clcm::put(const std::string key, FloatPtr myArray, const int_32 myL
   return;
 }
 
-void ganlib::Clcm::put(const int_32 iset, FloatPtr myArray, const int_32 myLength) throw(LCMexception) {
+void ganlib::Clcm::put(const int_32 iset, FloatPtr myArray, const int_32 myLength) {
   if (this->getAccess() != 1) {
     hsmg << "put(" << iset << ") forbidden if the object is not open in modification mode(2)";
     throw LCMexception(hsmg.str());
@@ -1049,7 +1049,7 @@ void ganlib::Clcm::put(const int_32 iset, FloatPtr myArray, const int_32 myLengt
   return;
 }
 
-void ganlib::Clcm::put(const std::string key, StringPtr myArray) throw(LCMexception) {
+void ganlib::Clcm::put(const std::string key, StringPtr myArray) {
   if (this->getAccess() != 1) {
     hsmg << "put(" << key << ") forbidden if the object is not open in modification mode(1)";
     throw LCMexception(hsmg.str());
@@ -1059,7 +1059,7 @@ void ganlib::Clcm::put(const std::string key, StringPtr myArray) throw(LCMexcept
   }
   int_32 ilen = ((myArray.get())->length()+3)/4;
   int_32 *iarray = (int_32 *)setara_c(ilen);
-  for (int i=0; i<ilen; i++) strncpy((char *)&iarray[i], "    ", 4);
+  for (int i=0; i<ilen; i++) memcpy((char *)&iarray[i], "    ", 4);
   string myString = *myArray.get();
   strncpy((char *)iarray, myString.c_str(), myString.length());
   lcmppd_c(&(this->addr), (char *)key.c_str(), ilen, 3, iarray);
@@ -1067,7 +1067,7 @@ void ganlib::Clcm::put(const std::string key, StringPtr myArray) throw(LCMexcept
   return;
 }
 
-void ganlib::Clcm::put(const int_32 iset, StringPtr myArray) throw(LCMexception) {
+void ganlib::Clcm::put(const int_32 iset, StringPtr myArray) {
   if (this->getAccess() != 1) {
     hsmg << "put(" << iset << ") forbidden if the object is not open in modification mode(2)";
     throw LCMexception(hsmg.str());
@@ -1077,7 +1077,7 @@ void ganlib::Clcm::put(const int_32 iset, StringPtr myArray) throw(LCMexception)
   }
   int_32 ilen = ((myArray.get())->length()+3)/4;
   int_32 *iarray = (int_32 *)setara_c(ilen);
-  for (int i=0; i<ilen; i++) strncpy((char *)&iarray[i], "    ", 4);
+  for (int i=0; i<ilen; i++) memcpy((char *)&iarray[i], "    ", 4);
   string myString = *myArray.get();
   strncpy((char *)iarray, myString.c_str(), myString.length());
   lcmppl_c(&(this->addr), iset, ilen, 3, iarray);
@@ -1085,7 +1085,7 @@ void ganlib::Clcm::put(const int_32 iset, StringPtr myArray) throw(LCMexception)
   return;
 }
 
-void ganlib::Clcm::put(const std::string key, StringVecPtr myArray) throw(LCMexception) {
+void ganlib::Clcm::put(const std::string key, StringVecPtr myArray) {
   const vector<string> *ivec = (vector<string>*)myArray.get();
   const int_32 mySize = ivec->size();
   if (this->getAccess() != 1) {
@@ -1105,7 +1105,7 @@ void ganlib::Clcm::put(const std::string key, StringVecPtr myArray) throw(LCMexc
   }
   maxLength = (maxLength+3)/4;
   int_32 *iarray = (int_32 *)setara_c(maxLength*mySize);
-  for (int i=0; i<maxLength*mySize; i++) strncpy((char *)&iarray[i], "    ", 4);
+  for (int i=0; i<maxLength*mySize; i++) memcpy((char *)&iarray[i], "    ", 4);
   for (int i=0; i<mySize; i++) {
     string myString = (*ivec)[i];
     strncpy((char *)&iarray[maxLength*i], myString.c_str(), myString.length());
@@ -1115,7 +1115,7 @@ void ganlib::Clcm::put(const std::string key, StringVecPtr myArray) throw(LCMexc
   return;
 }
 
-void ganlib::Clcm::put(const int_32 iset, StringVecPtr myArray) throw(LCMexception) {
+void ganlib::Clcm::put(const int_32 iset, StringVecPtr myArray) {
   const vector<string> *ivec = (vector<string>*)myArray.get();
   const int_32 mySize = ivec->size();
   if (this->getAccess() != 1) {
@@ -1135,7 +1135,7 @@ void ganlib::Clcm::put(const int_32 iset, StringVecPtr myArray) throw(LCMexcepti
   }
   maxLength = (maxLength+3)/4;
   int_32 *iarray = (int_32 *)setara_c(maxLength*mySize);
-  for (int i=0; i<maxLength*mySize; i++) strncpy((char *)(&iarray[i]), "    ", 4);
+  for (int i=0; i<maxLength*mySize; i++) memcpy((char *)(&iarray[i]), "    ", 4);
   for (int i=0; i<mySize; i++) {
     string myString = (*ivec)[i];
     strncpy((char *)(&iarray[maxLength*i]), myString.c_str(), myString.length());
@@ -1145,7 +1145,7 @@ void ganlib::Clcm::put(const int_32 iset, StringVecPtr myArray) throw(LCMexcepti
   return;
 }
 
-void ganlib::Clcm::put(const std::string key, DoublePtr myArray, const int_32 myLength) throw(LCMexception) {
+void ganlib::Clcm::put(const std::string key, DoublePtr myArray, const int_32 myLength) {
   if (this->getAccess() != 1) {
     hsmg << "put(" << key << ") forbidden if the object is not open in modification mode(1)";
     throw LCMexception(hsmg.str());
@@ -1174,7 +1174,7 @@ void ganlib::Clcm::put(const std::string key, DoublePtr myArray, const int_32 my
   return;
 }
 
-void ganlib::Clcm::put(const int_32 iset, DoublePtr myArray, const int_32 myLength) throw(LCMexception) {
+void ganlib::Clcm::put(const int_32 iset, DoublePtr myArray, const int_32 myLength) {
   if (this->getAccess() != 1) {
     hsmg << "put(" << iset << ") forbidden if the object is not open in modification mode(2)";
     throw LCMexception(hsmg.str());
@@ -1203,7 +1203,7 @@ void ganlib::Clcm::put(const int_32 iset, DoublePtr myArray, const int_32 myLeng
   return;
 }
 
-void ganlib::Clcm::put(const std::string key, BoolPtr myArray, const int_32 myLength) throw(LCMexception) {
+void ganlib::Clcm::put(const std::string key, BoolPtr myArray, const int_32 myLength) {
   if (this->getAccess() != 1) {
     hsmg << "put(" << key << ") forbidden if the object is not open in modification mode(1)";
     throw LCMexception(hsmg.str());
@@ -1222,7 +1222,7 @@ void ganlib::Clcm::put(const std::string key, BoolPtr myArray, const int_32 myLe
   return;
 }
 
-void ganlib::Clcm::put(const int_32 iset, BoolPtr myArray, const int_32 myLength) throw(LCMexception) {
+void ganlib::Clcm::put(const int_32 iset, BoolPtr myArray, const int_32 myLength) {
   if (this->getAccess() != 1) {
     hsmg << "put(" << iset << ") forbidden if the object is not open in modification mode(2)";
     throw LCMexception(hsmg.str());
@@ -1241,7 +1241,7 @@ void ganlib::Clcm::put(const int_32 iset, BoolPtr myArray, const int_32 myLength
   return;
 }
 
-void ganlib::Clcm::put(const std::string key, ComplexPtr myArray, const int_32 myLength) throw(LCMexception) {
+void ganlib::Clcm::put(const std::string key, ComplexPtr myArray, const int_32 myLength) {
   if (this->getAccess() != 1) {
     hsmg << "put(" << key << ") forbidden if the object is not open in modification mode(1)";
     throw LCMexception(hsmg.str());
@@ -1261,7 +1261,7 @@ void ganlib::Clcm::put(const std::string key, ComplexPtr myArray, const int_32 m
   return;
 }
 
-void ganlib::Clcm::put(const int_32 iset, ComplexPtr myArray, const int_32 myLength) throw(LCMexception) {
+void ganlib::Clcm::put(const int_32 iset, ComplexPtr myArray, const int_32 myLength) {
   if (this->getAccess() != 1) {
     hsmg << "put(" << iset << ") forbidden if the object is not open in modification mode(2)";
     throw LCMexception(hsmg.str());
@@ -1281,7 +1281,7 @@ void ganlib::Clcm::put(const int_32 iset, ComplexPtr myArray, const int_32 myLen
   return;
 }
 
-void ganlib::Clcm::put(const std::string key, ClcmPtr myClcm) throw(LCMexception) {
+void ganlib::Clcm::put(const std::string key, ClcmPtr myClcm) {
   if (this->getAccess() != 1) {
     hsmg << "put(" << key << ") forbidden if the object is not open in modification mode(1)";
     throw LCMexception(hsmg.str());
@@ -1292,7 +1292,7 @@ void ganlib::Clcm::put(const std::string key, ClcmPtr myClcm) throw(LCMexception
   return;
 }
 
-void ganlib::Clcm::put(const int_32 iset, ClcmPtr myClcm) throw(LCMexception) {
+void ganlib::Clcm::put(const int_32 iset, ClcmPtr myClcm) {
   if (this->getAccess() != 1) {
     hsmg << "put(" << iset << ") forbidden if the object is not open in modification mode(2)";
     throw LCMexception(hsmg.str());

@@ -32,7 +32,7 @@ REAL TCool := cool_temp ;
 ECHO "TFuel = " TFuel ;
 ECHO "TClad = " TClad ;
 ECHO "TCool = " TCool ;
-ECHO "DensCool = cool_dens ;
+ECHO "DensCool = " cool_dens ;
 
 * Calculation of moderator data
 * AVOGADRO's number
@@ -52,6 +52,7 @@ EVALUATE COMB0101 COMB0102 COMB0103 COMB0104  GAP CLAD MODE :=
           1 2 3 4 5 6 7 ;
 
 IF ssh_opt "RSE" = THEN
+ECHO "in Mix_UOX with ssh_option = RSE" ;
     LIBRARY := LIB: ::
     EDIT 0
     NMIX 7    ! MAXIMUM OF MATERIAL MIXTURES

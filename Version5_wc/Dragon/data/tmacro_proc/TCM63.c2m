@@ -1,7 +1,7 @@
 *----
 *  TEST CASE TCM63
 *  First Takeda benchmark
-*  SN solution with Domino swapping
+*  SN solution with KBA swapping
 *  Author: A. Calloo
 *
 *  Ref: T Takeda, H Ikeda, "3-D neutron transport benchmarks," Journal
@@ -100,7 +100,7 @@ TRACK := SNT: GEOM ::
       MAXI 50 EPSI 1.0E-5
       NLIVO NDSA
       QUAD 2 (*Level-Symmetric*)
-      ONEG OMPM 3 ;
+      ONEG KBA 3 ;
 
 SYSTEM := ASM: MACRO TRACK :: EDIT 0 ARM ;
 
@@ -122,7 +122,7 @@ TRACK := SNT: GEOM ::
       MAXI 50 EPSI 1.0E-5
       NLIVO NDSA
       QUAD 2 (*Level-Symmetric*)
-      ONEG OMPM 3 ;
+      ONEG KBA 3 ;
 
 SYSTEM := ASM: MACRO TRACK :: EDIT 0 ARM ;
 

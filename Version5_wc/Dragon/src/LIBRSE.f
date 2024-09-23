@@ -70,7 +70,7 @@
       REAL, ALLOCATABLE, DIMENSION(:,:,:,:) :: SCAT
       DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:) :: W,PHIGAR,DGAR
       DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:,:) :: V,XSDIL,TTT,DDD
-      DOUBLE PRECISION, POINTER, DIMENSION(:,:) :: U,BBB,SSIGS,SSIGT
+      DOUBLE PRECISION, POINTER, DIMENSION(:,:) :: U,SSIGS,SSIGT
       LOGICAL, ALLOCATABLE, DIMENSION(:) :: LSCAT,LADD
       COMPLEX(KIND=8), ALLOCATABLE, DIMENSION(:,:) :: CT,CD
       TYPE VECTOR_ARRAY
@@ -81,7 +81,7 @@
       END TYPE MATRIX_ARRAY
       TYPE(VECTOR_ARRAY), ALLOCATABLE, DIMENSION(:) :: UU_V,U_V,SIGT_V,
      1 XI_V,GAMMA_V,PSI_V
-      TYPE(MATRIX_ARRAY), ALLOCATABLE, DIMENSION(:) :: PHI_M,BBB_M,U_M,
+      TYPE(MATRIX_ARRAY), ALLOCATABLE, DIMENSION(:) :: PHI_M,DDD_M,U_M,
      1 V_M,SIGT_M,T_M,SIGP_M,EFF_M
       TYPE(MATRIX_ARRAY), ALLOCATABLE, DIMENSION(:,:) :: SCAT_M,TSCAT_M
 *----
@@ -229,7 +229,7 @@
 * LOOP OVER RESONANT GROUPS
 *----
       MRANK(:NGRP)=0
-      ALLOCATE(W(NDIL),V(NDIL,NDIL))
+      ALLOCATE(W(NDIL),V(NDIL,NDIL),DDD_M(NGRP))
       LLL=0
       DO IG=1,NGRP
         NJJ(IG)=0
@@ -253,10 +253,7 @@
      1    IG,MI
         ENDIF
         IF(MI.EQ.0) CYCLE
-        ALLOCATE(V_M(IG)%MATRIX(NDIL,MI),BBB_M(NGRP))
-        DO JG=1,NGRP
-          NULLIFY(BBB_M(JG)%MATRIX)
-        ENDDO
+        ALLOCATE(V_M(IG)%MATRIX(NDIL,MI))
         DO IM=1,MI
           V_M(IG)%MATRIX(:NDIL,IM)=V(:NDIL,IM)/W(IM)
         ENDDO
@@ -279,8 +276,8 @@
           SIGMA=SIGT(LLL+LI)
           DO IMR1=1,MI
             DO IMR2=1,MI
-              SSIGT(IMR1,IMR2)=SSIGT(IMR1,IMR2)+U(LI,IMR1)*SIGMA*
-     1        U(LI,IMR2)
+              SSIGT(IMR1,IMR2)=SSIGT(IMR1,IMR2)+U_M(IG)%MATRIX(LI,IMR1)*
+     1        SIGMA*U_M(IG)%MATRIX(LI,IMR2)
             ENDDO
           ENDDO
         ENDDO
@@ -288,54 +285,54 @@
         NULLIFY(SSIGT)
         !
         ! compute SCAT_M
+        DO JG=1,NGRP
+          NULLIFY(DDD_M(JG)%MATRIX)
+        ENDDO
         DO LI=1,LGBIN
           III=1
           STR(:LBIN)=0.0
           CALL LIBECT(MAXTRA,LLL+LI,PRI,UUU(2),DELI,DEL,NEXT,III,MML,
      1    STIS)
-          JG=IG
-          LJ=LI+1
           DO MM=1,MML
-            LJ=LJ-1
-            STR(MM)=STIS(MM)*SIGS(LLL+LI-MM+1)
-   10       IF(.NOT.ASSOCIATED(BBB_M(JG)%MATRIX)) THEN
+            LLJ=LLL+LI-MM+1
+            STR(LLJ)=STIS(MM)*SIGS(LLJ)
+          ENDDO
+          LLJ=LLL
+          DO JG=IG,1,-1
+            LGBIN2=NFS(JG)
+            IF(LLL+LI-MML+1.GT.LLJ+LGBIN2) EXIT
+            IF(.NOT.ASSOCIATED(U_M(JG)%MATRIX)) THEN
+              CALL XABORT('LIBRSE: U_M(JG)%MATRIX IS NOT ASSOCIATED.')
+            ENDIF
+            MJ=MRANK(JG)
+            IF(LI.EQ.1) THEN
               NJJ(IG)=NJJ(IG)+1
-              ALLOCATE(BBB(NFS(IG),NFS(JG)))
-              BBB(:NFS(IG),:NFS(JG))=0.0D0
-              BBB_M(JG)%MATRIX => BBB
+              ALLOCATE(DDD_M(JG)%MATRIX(LGBIN,MJ))
+              DDD_M(JG)%MATRIX(:LGBIN,:MJ)=0.0D0
             ENDIF
-            IF(LJ.LE.0) THEN
-              JG=JG-1
-              IF(JG.LE.0) CALL XABORT('LIBRSE: SIGS MATRIX FAILURE(1).')
-              LJ=LJ+NFS(JG)
-              IF(LJ.LE.0) CALL XABORT('LIBRSE: SIGS MATRIX FAILURE(2).')
-              GO TO 10
-            ENDIF
-            IF(.NOT.ASSOCIATED(BBB_M(JG)%MATRIX)) THEN
-              CALL XABORT('LIBRSE: BBB_M%MATRIX NOT ASSOCIATED.')
-            ENDIF
-            BBB_M(JG)%MATRIX(LI,LJ)=STR(MM)
+            DO LJ=1,LGBIN2
+              DDD_M(JG)%MATRIX(LI,:MJ)=DDD_M(JG)%MATRIX(LI,:MJ)+
+     1        STR(LLJ+LJ)*U_M(JG)%MATRIX(LJ,:MJ)
+            ENDDO
+            IF(JG.GT.1) LLJ=LLJ-NFS(JG-1)
           ENDDO
         ENDDO
+        !
+        NPOS=0
         DO JG=IG-NJJ(IG)+1,IG
-          IF(.NOT.ASSOCIATED(U_M(JG)%MATRIX)) THEN
-            CALL XABORT('LIBRSE: U_M%MATRIX NOT ASSOCIATED.')
-          ENDIF
-          BBB => BBB_M(JG)%MATRIX
-          MJ=MRANK(JG)
-          ALLOCATE(SSIGS(MI,MJ),DDD(LGBIN,MJ))
-          DDD=MATMUL(BBB,U_M(JG)%MATRIX(:NFS(JG),:MJ))
-          SSIGS=MATMUL(TRANSPOSE(U(:LGBIN,:MI)),DDD)
-          SCAT_M(IG,JG)%MATRIX => SSIGS
-          NULLIFY(SSIGS)
-          DEALLOCATE(DDD)
-        ENDDO
-        DO JG=1,IG
-          IF(ASSOCIATED(BBB_M(JG)%MATRIX)) THEN
-            DEALLOCATE(BBB_M(JG)%MATRIX)
+          IF(ASSOCIATED(U_M(IG)%MATRIX).AND.
+     1       ASSOCIATED(DDD_M(JG)%MATRIX)) THEN
+            MJ=MRANK(JG)
+            NPOS=NPOS+1
+            ALLOCATE(SSIGS(MI,MJ))
+            SSIGS=MATMUL(TRANSPOSE(U(:LGBIN,:MI)),
+     1                   DDD_M(JG)%MATRIX(:LGBIN,:MJ))
+            SCAT_M(IG,JG)%MATRIX => SSIGS
+            NULLIFY(SSIGS)
+            DEALLOCATE(DDD_M(JG)%MATRIX)
           ENDIF
         ENDDO
-        DEALLOCATE(BBB_M)
+        IF(NPOS.EQ.0) CALL XABORT('LIBRSE: NPOS=0.')
 *----
 *  LINEAR TRANSFORMATION
 *----
@@ -379,6 +376,7 @@
           WRITE(6,'(1X,1P,12E12.4)') SIGT_V(IG)%VECTOR(:)
         ENDIF
       ENDDO
+      DEALLOCATE(DDD_M)
 *----
 *  COMPUTE RESONANCE SPECTRUM EXPANSION TABLES
 *  XSDIL dilution dependent self-shielded cross sections:
@@ -492,6 +490,7 @@
           ISM(2,IL)=ISMAX(IL,IG)
         ENDDO
         CALL LCMPUT(KPLIB,'ISM-LIMITS',2*NL,1,ISM)
+        CALL LCMVAL(KPLIB,' ')
       ENDDO
       CALL LCMPUT(IPLIB,'SVDEPS',1,2,SVDEPS)
       CALL LCMPUT(IPLIB,'NJJS00',NGRP,1,NJJ)

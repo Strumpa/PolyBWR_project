@@ -15,15 +15,15 @@
 !
 !-----------------------------------------------------------------------
 !
-subroutine CLETIM(sec, nsec)
+subroutine CLETIM(sec)
    ! abort execution
    use, intrinsic :: iso_c_binding
-   integer :: sec, nsec
+   double precision :: sec
    interface
-      subroutine cletim_c (sec, nsec) bind(c)
+      subroutine cletim_c (sec) bind(c)
          use, intrinsic :: iso_c_binding
-         integer(c_int) :: sec, nsec
+         double precision :: sec
       end subroutine cletim_c
    end interface
-   call cletim_c(sec, nsec)
+   call cletim_c(sec)
 end subroutine CLETIM

@@ -213,44 +213,44 @@
       IF(VZ.GT.0.0)THEN
          M1=MRMZ(M)
          IF(NCODE(5).NE.4)THEN
-         DO IEL=1,IELEM
-         DO JEL=1,IELEM
-           DO I=1,NHEX
-           DO J=1,3
-           DO IL=1,ISPLH
-           DO JL=1,ISPLH
-           IOF=((((((M-1)*NHEX+(I-1))*3+(J-1))*ISPLH+(JL-1))*ISPLH+
-     >      (IL-1))*IELEM+(JEL-1))*IELEM+IEL
-           JOF=((((((M1-1)*NHEX+(I-1))*3+(J-1))*ISPLH+(JL-1))*ISPLH+
-     >      (IL-1))*IELEM+(JEL-1))*IELEM+IEL
-           FUNKNO(L4+IOF,IG)=FUNKNO(L4+JOF,IG)
+           DO IEL=1,IELEM
+           DO JEL=1,IELEM
+             DO I=1,NHEX
+             DO J=1,3
+             DO IL=1,ISPLH
+             DO JL=1,ISPLH
+             IOF=((((((M-1)*NHEX+(I-1))*3+(J-1))*ISPLH+(JL-1))*ISPLH+
+     >       (IL-1))*IELEM+(JEL-1))*IELEM+IEL
+             JOF=((((((M1-1)*NHEX+(I-1))*3+(J-1))*ISPLH+(JL-1))*ISPLH+
+     >       (IL-1))*IELEM+(JEL-1))*IELEM+IEL
+             FUNKNO(L4+IOF,IG)=FUNKNO(L4+JOF,IG)
+             ENDDO
+             ENDDO
+             ENDDO
+             ENDDO
            ENDDO
            ENDDO
-           ENDDO
-           ENDDO
-         ENDDO
-         ENDDO
          ENDIF
       ELSEIF(VZ.LT.0.0)THEN
          M1=MRMZ(M)
          IF(NCODE(6).NE.4)THEN
-         DO IEL=1,IELEM
-         DO JEL=1,IELEM
-           DO I=1,NHEX
-           DO J=1,3
-           DO IL=1,ISPLH
-           DO JL=1,ISPLH
-           IOF=((((((M-1)*NHEX+(I-1))*3+(J-1))*ISPLH+(JL-1))*ISPLH+
-     >      (IL-1))*IELEM+(JEL-1))*IELEM+IEL
-           JOF=((((((M1-1)*NHEX+(I-1))*3+(J-1))*ISPLH+(JL-1))*ISPLH+
-     >      (IL-1))*IELEM+(JEL-1))*IELEM+IEL
-           FUNKNO(L4+IOF,IG)=FUNKNO(L4+JOF,IG)
+           DO IEL=1,IELEM
+           DO JEL=1,IELEM
+             DO I=1,NHEX
+             DO J=1,3
+             DO IL=1,ISPLH
+             DO JL=1,ISPLH
+             IOF=((((((M-1)*NHEX+(I-1))*3+(J-1))*ISPLH+(JL-1))*ISPLH+
+     >       (IL-1))*IELEM+(JEL-1))*IELEM+IEL
+             JOF=((((((M1-1)*NHEX+(I-1))*3+(J-1))*ISPLH+(JL-1))*ISPLH+
+     >       (IL-1))*IELEM+(JEL-1))*IELEM+IEL
+             FUNKNO(L4+IOF,IG)=FUNKNO(L4+JOF,IG)
+             ENDDO
+             ENDDO
+             ENDDO
+             ENDDO
            ENDDO
            ENDDO
-           ENDDO
-           ENDDO
-         ENDDO
-         ENDDO
          ENDIF
       ENDIF
 *
