@@ -36,19 +36,19 @@ REAL Kinf ;
 ************************************************************************
 INTEGER BU_steps := 21 ;
 INTEGER iAutopMax := 3 ;
-INTEGER fuel_t_pts := 4 ;
-INTEGER cool_t_pts := 4 ;
-INTEGER cool_d_pts := 4 ;
+INTEGER fuel_t_pts := 5 ;
+INTEGER cool_t_pts := 6 ;
+INTEGER cool_d_pts := 11 ;
 PARAMS := UTL: ::
         CREA
             fuel_temp <<fuel_t_pts>> = 
-                700.0 750.0 800.0 850.0
+                700.0 750.0 800.0 850.0 900.0
         CREA 
             cool_temp <<cool_t_pts>> =
-                520.0 559.0 600.0 650.0
+                520.0 559.0 600.0 650.0 700.0 750.0
         CREA
             cool_dens <<cool_d_pts>> =
-                0.7803 0.7673 0.7395 0.6499
+                0.7803 0.7673 0.7395 0.6499 0.6 0.5 0.4 0.3 0.2 0.1 0.01
 ;
 
 

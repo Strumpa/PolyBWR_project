@@ -11,13 +11,28 @@ import cle2000
 from assertS import *
 import numpy as np
 
+
+### Dummy TH data to test THData LCM object initialization
+
+TeffTEMP = [755.0, 755.0, 755.0, 755.0, 755.0, 755.0, 755.0, 755.0, 755.0, 755.0,
+            755.0, 755.0, 755.0, 755.0, 755.0, 755.0, 755.0, 755.0, 755.0, 755.0 ]
+TwaterTEMP = [559.0, 559.0, 559.0, 559.0, 559.0, 559.0, 559.0, 559.0, 559.0, 559.0, 
+               559.0, 559.0, 559.0, 559.0, 559.0, 559.0, 559.0, 559.0, 559.0, 559.0]
+rhoTEMP = [0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7,
+           0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7]
+THData = lcm.new('LCM','THData')
+THData['TFuelList']    = np.array(TeffTEMP, dtype='f')
+THData['TCoolList'] = np.array(TwaterTEMP, dtype='f')
+THData['DCoolList'] = np.array(rhoTEMP, dtype='f')
+THData.close() # close without erasing
+
 # construct the Lifo stack for IniDONJON
 ipLifo1=lifo.new()
 ipLifo1.pushEmpty("Fmap", "LCM") # Fuel Map
 ipLifo1.pushEmpty("Matex", "LCM") # Material Indexation
 ipLifo1.pushEmpty("Cpo", "LCM") # Compo
 ipLifo1.pushEmpty("Track", "LCM") # Tracking data for FEM
-ipLifo1.pushEmpty("THData", "LCM") # Thermal Hydraulic data for initialization
+ipLifo1.push(THData) # Thermal Hydraulic data for initialization
 
 # call IniDONJON Cle-2000 procedure
 IniDONJON = cle2000.new('IniDONJON',ipLifo1,1)
@@ -29,13 +44,14 @@ Fmap = ipLifo1.node("Fmap")
 Matex = ipLifo1.node("Matex")
 Cpo = ipLifo1.node("Cpo")
 Track = ipLifo1.node("Track")
-THData = ipLifo1.node("THData")
+THDataRecover = ipLifo1.node("THData")
+print(f"THData TFuelList = {THDataRecover['TFuelList']}")
 stateVector = Fmap["STATE-VECTOR"]
 mylength = stateVector[0]*stateVector[1]
 npar = stateVector[7]
 
-print("Recovered stateVector: ", stateVector)
-print("Number of parameters: ", npar)
+#print("Recovered stateVector: ", stateVector)
+#print("Number of parameters: ", npar)
 
 # empty the Lifo stack
 while ipLifo1.getMax() > 0:
@@ -72,7 +88,7 @@ else:
 
 ipLifo2.push(Cpo)
 ipLifo2.push(Track)
-ipLifo2.push(THData)
+ipLifo2.push(THDataRecover)
 ipLifo2.push(iter)
 ipLifo2.push(powi) 
 

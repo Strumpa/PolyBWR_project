@@ -54,7 +54,7 @@ Fmap Matex := SetFMap Matex :: <<pitch>> <<height>> <<BMass>> ;
 
 
 * Initialize TH Data : set constant Tf, Tc, Dc on all axial slices
-THData := InitTHData :: <<temp_fuel_0>> <<temp_mode_0>> <<dens_mode_0>> ;
+!THData := InitTHData :: <<temp_fuel_0>> <<temp_mode_0>> <<dens_mode_0>> ;
 Fmap := SetLocPara Fmap THData :: ;
 
 END: ;
