@@ -2,8 +2,8 @@
 # Date : 20/09/2024
 # Author : Clément HUET, Raphaël GUASCH
 # Purpose : test and validate neutronics and thermalhydraulics coupling on a single BWR pincell
-from multiPhysics_proc.THM_main import Version5_THM_prototype as THM_prototype
-from multiPhysics_proc.THM_main import plotting
+from THM_main import Version5_THM_prototype as THM_prototype
+from THM_main import plotting
 from iapws import IAPWS97
 import numpy as np
 import os, shutil
@@ -28,9 +28,10 @@ def guessAxialPowerShape(amplitude, Iz, height, Fuel_volume):
     height : float : height of the fuel rod (m)
     Fuel_volume : float : volume of the fuel rod (m3)
     return : np.array : axial power shape with a sine shape units (W/m3)
+                        --> corresponds to the power density in each control volume
     """
     z_space = np.linspace(0, height, Iz)
-    return (amplitude/Fuel_volume)*np.sin(z_space*np.pi/height)
+    return (amplitude/(Fuel_volume))*np.sin(z_space*np.pi/height)
 
 
 
@@ -63,6 +64,9 @@ flowArea = waterRadius ** 2 - np.pi * cladRadius ** 2
 
 # Nominal coolant flow rate = 1530 kg/s
 # Nominal operating pressure = 7.2 MPa (abs)
+#hInlet =  # to fill
+
+#qFlow =  # to fill
 massFlowRate = 1530  / (200*91)  # kg/s
 
 ## Additional parameters needed for the calculation
@@ -107,19 +111,26 @@ Twater = []
 rho = []
 Qfiss = []
 
-qFiss = guessAxialPowerShape(PFiss, Iz1, height, Fuel_volume)
-print(f"qFiss = {qFiss}")
+
 
 ##### Begin Calculation scheme for coupled neutronics and thermalhydraulics solution to the BWR pincell problem.
 
-## Initial thermal hydraulic resolution
+# 1.) Guess the axial power shape : used to initialize the TH solution
+qFiss = guessAxialPowerShape(PFiss, Iz1, height, Fuel_volume)
+print(f"qFiss = {qFiss}")
+
+
+# 2.) TH solution for initial guess of power shape : sine shape (if devide by Iz : doesnt work and the initial TH solution isn't in IAPWS domain)
+# This can probably be fixed by giving a different initial guess for the total fission power.
+## 2.1) Initial thermal hydraulic resolution
 THComponent = THM_prototype("BWR Pincell equivalent canal", canalType, waterRadius, fuelRadius, gapRadius, cladRadius, 
                             height, tInlet, pOutlet, massFlowRate, qFiss, kFuel, Hgap, kClad, Iz1, If, I1, zPlotting, 
                             solveConduction, dt = 0, t_tot = 0, frfaccorel = frfaccorel, P2Pcorel = P2Pcorel, voidFractionCorrel = voidFractionCorrel, 
                             numericalMethod = numericalMethod)
 
-
-TeffTEMP, TwaterTEMP, rhoTEMP = THComponent.get_nuclear_parameters()
+TeffTEMP, TwaterTEMP, rhoTEMP = THComponent.get_nuclear_parameters() # rename this function to be clear about what it does 
+#                                                           ---> Fuel and coolant temperature + coolant density aren't nuclear parameters per-se
+#
 TeffFuel.append(TeffTEMP)
 Twater.append(TwaterTEMP)
 rho.append(rhoTEMP)
@@ -129,14 +140,15 @@ TeffTEMP = [750.0 for i in range(Iz1)]
 
 print(f"After initialization : TeffFuel = {TeffFuel}, Twater = {Twater}, rho = {rho}")
 
+# 2.2) Create LCM object to store the TH data to be used in the neutronics solution
 THData = lcm.new('LCM','THData')
 THData['TFuelList']    = np.array(TeffTEMP, dtype='f')
 THData['TCoolList'] = np.array(TwaterTEMP, dtype='f')
 THData['DCoolList'] = np.array(rhoTEMP/1000, dtype='f')
 THData.close() # close without erasing
 
-## Initializing Neutronics solution
-# construct the Lifo stack for IniDONJON
+## 3.) Initializing Neutronics solution
+# 3.1) construct the Lifo stack for IniDONJON
 ipLifo1=lifo.new()
 ipLifo1.pushEmpty("Fmap", "LCM") # Fuel Map
 ipLifo1.pushEmpty("Matex", "LCM") # Material Indexation
@@ -144,7 +156,7 @@ ipLifo1.pushEmpty("Cpo", "LCM") # Compo
 ipLifo1.pushEmpty("Track", "LCM") # Tracking data for FEM
 ipLifo1.push(THData) # Thermal Hydraulic data for initialization
 
-# call IniDONJON Cle-2000 procedure
+# 3.2) call IniDONJON Cle-2000 procedure
 IniDONJON = cle2000.new('IniDONJON',ipLifo1,1)
 IniDONJON.exec()
 print("IniDONJON execution completed")
@@ -154,7 +166,10 @@ Fmap = ipLifo1.node("Fmap")
 Matex = ipLifo1.node("Matex")
 Cpo = ipLifo1.node("Cpo")
 Track = ipLifo1.node("Track")
-RecoveredTHData = ipLifo1.node("THData")
+RecoverTHData = ipLifo1.node("THData") # Recover the TH data after the initialization is this needed ? 
+#       --> THData is just used to initialize the Fuel Map object but not modified so can use initial THData object
+
+# State vector and number of parameters can be used to modify the Fmap object directly ?
 stateVector = Fmap["STATE-VECTOR"]
 mylength = stateVector[0]*stateVector[1]
 npar = stateVector[7]
@@ -166,65 +181,78 @@ print("Number of parameters: ", npar)
 while ipLifo1.getMax() > 0:
   ipLifo1.pop();
 
-# iteration loop
-# Attempt to run the iterative loop. Everytime, compute the TH solution and then the neutronics solution.
+# 4.) Iterative scheme for coupled neutronics and thermalhydraulics solution
+# Attempting to run multiPhysics scheme.
+# Everytime, solve neutron transport, update axial power shape, solve TH, update TH data, and repeat.
 powi = 0.1722 # Reference at 0.1722 MW from AT10_24UOX test ?
+
 # check powi == PFiss
 print(f"powi = {powi} MW and PFiss = {PFiss} W")
 
+# Create Lifo stack for Neutronics solution
 ipLifo2 = lifo.new()
 Neutronics = cle2000.new('Neutronics',ipLifo2,1)
-Keffs = []
+Keffs = [] # list to store the Keff values at each iteration and check convergence on it
+
 ## MultiPhysics resolution
 
 iter = 0
-# Converge the TH solution
-#for iter in range(1,nIter):
+
+
 conv = False
 while not conv:
     iter+=1
+    # 4.1) Neutronics solution for TH parameters obtained with initial TH solution
+
     ################## Neutronics part ##################
-    # construct the Lifo stack for Neutronics solution
+    # fill the Lifo stack for Neutronics solution
     print(f"iter = {iter}")
     ipLifo2.push(Fmap);
     ipLifo2.push(Matex);
-    if iter == 1:
+    if iter == 1: # At the first iteration, create empty LCM objects to host the Flux and Power fields
         print("in iter = 1")
         Flux = ipLifo2.pushEmpty("Flux", "LCM")
         Power = ipLifo2.pushEmpty("Power", "LCM")
     else:
         ipLifo2.push(Flux)
-        ipLifo2.push(Power)
+        ipLifo2.push(RecoveredPower)
         print("Flux and Power at iteration > 1")
 
-    ipLifo2.push(Cpo)
-    ipLifo2.push(Track)
-    ipLifo2.push(RecoveredTHData)
+    ipLifo2.push(Cpo) # Push COMPO object
+    ipLifo2.push(Track) # Push Tracking object for FEM solution : obtained from IniDONJON
+    if iter == 1:
+        ipLifo2.push(THData) # Push Thermal Hydraulic data 
+    else:
+        ipLifo2.push(RecoveredTHData)
     ipLifo2.push(iter)
     ipLifo2.push(powi) 
 
-    # Call Neutronics component :
+    # 4.2) Call Neutronics component :
     print("call Neutronics procedure at iter=", iter)
     Neutronics.exec()
     print("Neutronics.c2m execution completed")
-    Flux = ipLifo2.node("Flux")
-    Power = ipLifo2.node("Power")
-    Keff = Flux["K-EFFECTIVE"][0]
+    Flux = ipLifo2.node("Flux") # Recover the Flux field
+    RecoveredPower = ipLifo2.node("Power") # Recover the Power field --> used to update the axial power shape
+    Keff = Flux["K-EFFECTIVE"][0] # Recover the Keff value
     Keffs.append(Keff)
     print(f"At iter {iter} : Keff = {Keff}")
-    PowerDistribution = Power["POWER-DISTR"]
+    PowerDistribution = RecoveredPower["POWER-DISTR"]
     print(f"Power distribution : {PowerDistribution} kW")
     #print(f"Uniform TH data used for initialization : {THData["THData"]}")
     qFiss = PowerDistribution*1000 # Updating the axial power shape, converting to W from kW
-
+    
+    #Power.val()
+    #Power.close() # close without erasing
+    
 
     ############# Thermalhydraulic part ##############
-    THMComponent = THM_prototype("Testing THM Prototype", canalType, waterRadius, fuelRadius, gapRadius, cladRadius, 
+    THMComponent = THM_prototype("BWR Pincell equivalent canal", canalType, waterRadius, fuelRadius, gapRadius, cladRadius, 
                             height, tInlet, pOutlet, massFlowRate, qFiss, kFuel, Hgap, kClad, Iz1, If, I1, zPlotting, 
                             solveConduction, dt = 0, t_tot = 0, frfaccorel = frfaccorel, P2Pcorel = P2Pcorel, voidFractionCorrel = voidFractionCorrel, 
                             numericalMethod = numericalMethod)    ##### qFiss to be updated
 
     TeffTEMP, TwaterTEMP, rhoTEMP = THComponent.get_nuclear_parameters()
+    TeffTEMP = np.array([750.0 for i in range(Iz1)])
     print(f"THM resolution at iter={iter} : TeffFuel = {TeffTEMP}, Twater = {TwaterTEMP}, rho = {rhoTEMP}")
     TeffFuel.append(TeffTEMP)
     Twater.append(TwaterTEMP)
@@ -250,6 +278,7 @@ while not conv:
 
     # empty the ipLifo2 Lifo stack
     while ipLifo2.getMax() > 0:
+        print("Clearing ipLifo2 stack") 
         ipLifo2.pop();
     
     if iter>1 and convergence(Keffs[-1], Keffs[-2], tol_Keff):

@@ -312,7 +312,6 @@ ECHO "total reactor power=" powi "MW" ;
 Power Fmap := FLPOW: Fmap Flux Track Matex
                 :: EDIT 10 PTOT <<powi>> PRINT DISTR POWER ;
 
-!Power := DELETE: Power ;
 
 ECHO "test AT10_24UOX.x2m completed" ;
 END: ;
