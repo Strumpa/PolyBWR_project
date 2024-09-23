@@ -29,9 +29,10 @@ REAL TFuel := fuel_temp ;
 REAL TClad := cool_temp ;
 REAL TCool := cool_temp ;
 
-ECHO TFuel ;
-ECHO TClad ;
-ECHO TCool ;
+ECHO "TFuel = " TFuel ;
+ECHO "TClad = " TClad ;
+ECHO "TCool = " TCool ;
+ECHO "DensCool = cool_dens ;
 
 * Calculation of moderator data
 * AVOGADRO's number

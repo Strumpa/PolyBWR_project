@@ -293,14 +293,14 @@ Macro2 Matex := MACINI: Matex MacroF :: FUEL ;
 System := TRIVAA: Macro2 Track ;
 
 IF iter 1 = THEN
-  Flux := FLUD: System Track ::
-    EDIT 1 ADI 4 ACCE 5 3 ;
+    Flux := FLUD: System Track ::
+        EDIT 1 ADI 4 ACCE 5 3 ;
 ELSE
-  Flux := FLUD: Flux System Track ::
-    EDIT 1 ;
+    Flux := FLUD: Flux System Track ::
+        EDIT 1 ;
 ENDIF ;
 
-System MacroF Macro2 := DELETE: System MacroF Macro2 ;
+System MacroF Macro2 MicroF := DELETE: System MacroF Macro2 MicroF ;
 
 GREP: Flux :: GETVAL 'K-EFFECTIVE' 1 >>keff1<< ;
 ECHO "+++ Burnup= 0.0 Keff=" keff1 ;
@@ -309,10 +309,17 @@ ECHO "+++ Burnup= 0.0 Keff=" keff1 ;
 * Power distribution calculation
 *--
 ECHO "total reactor power=" powi "MW" ;
-Power Fmap := FLPOW: Fmap Flux Track Matex
+IF iter 1 = THEN
+    Power Fmap := FLPOW: Fmap Flux Track Matex
                 :: EDIT 10 PTOT <<powi>> PRINT DISTR POWER ;
+ELSE 
+    ECHO "In power edition at iter = " iter ;
+    Power Fmap := FLPOW: Power Fmap Flux Track Matex ::
+        EDIT 1 ;
+ENDIF ;
 
-!Power := DELETE: Power ;
 
-ECHO "test AT10_24UOX.x2m completed" ;
+THData := DELETE: THData ;
+
+ECHO "Completed Neutronics calculation at iter = " iter ;
 END: ;
