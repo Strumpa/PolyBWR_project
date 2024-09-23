@@ -58,15 +58,15 @@
       INTEGER, ALLOCATABLE, DIMENSION(:) :: NJJ,MRANK,NFS2,ISOMIX
       REAL, ALLOCATABLE, DIMENSION(:) :: EBIN,UUU,DEL,STR,SIGT,SIGS,PRI,
      1 STIS
-      DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:,:) :: TTT,DDD,EEE
-      DOUBLE PRECISION, POINTER, DIMENSION(:,:) :: BBB,SSIGT,SSIGS
+      DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:,:) :: TTT,DDD
+      DOUBLE PRECISION, POINTER, DIMENSION(:,:) :: SSIGT,SSIGS
       LOGICAL, ALLOCATABLE, DIMENSION(:) :: LCORR
       TYPE MATRIX_ARRAY
         DOUBLE PRECISION, POINTER, DIMENSION(:,:) :: MATRIX
       END TYPE MATRIX_ARRAY
       TYPE(MATRIX_ARRAY), ALLOCATABLE, DIMENSION(:) :: SIGT_M,TSIGT_M,
-     1 BBB_M,U_M,T_M
-      TYPE(MATRIX_ARRAY), ALLOCATABLE, DIMENSION(:,:) :: SCAT_M,TSCAT_M
+     1 SCAT_M,DDD_M,U_M,T_M
+      TYPE(MATRIX_ARRAY), ALLOCATABLE, DIMENSION(:,:) :: TSCAT_M
 *----
 *  SCRATCH STORAGE ALLOCATION
 *----
@@ -74,7 +74,7 @@
      1 LCORR(NBISO))
       ALLOCATE(EBIN(LBIN+1),UUU(LBIN+1),DEL(LBIN),STR(LBIN),SIGT(LBIN),
      1 SIGS(LBIN),PRI(MAXTRA),STIS(LBIN))
-      ALLOCATE(U_M(NGRP),T_M(NGRP),SIGT_M(NGRP),SCAT_M(NGRP,NGRP),
+      ALLOCATE(U_M(NGRP),T_M(NGRP),SIGT_M(NGRP),SCAT_M(NGRP),
      1 TSIGT_M(NGRP),TSCAT_M(NGRP,NGRP))
 
 *----
@@ -111,6 +111,7 @@
       CALL LCMGET(KPLIB2,'AWR',AWR)
       CALL LCMGET(KPLIB2,'BIN-ENERGY',EBIN)
       CALL LCMGET(KPLIB2,'BIN-NTOT0',SIGT)
+      CALL LCMLEN(KPLIB2,'BIN-SIGS00',ILONG,ITYLCM)
       CALL LCMGET(KPLIB2,'BIN-SIGS00',SIGS)
       CALL LCMGET(KPLIB2,'BIN-NFS',NFS2)
       IBIN=0
@@ -147,7 +148,6 @@
         NULLIFY(SIGT_M(IG)%MATRIX)
         NULLIFY(TSIGT_M(IG)%MATRIX)
         DO JG=1,NGRP
-          NULLIFY(SCAT_M(IG,JG)%MATRIX)
           NULLIFY(TSCAT_M(IG,JG)%MATRIX)
         ENDDO
       ENDDO
@@ -173,14 +173,11 @@
 *----
 * LOOP OVER RESONANT GROUPS
 *----
+      ALLOCATE(DDD_M(NGRP))
       LLL=0
       DO IG=1,NGRP
         LGBIN=NFS(IG)
         IF(LGBIN.EQ.0) CYCLE
-        ALLOCATE(BBB_M(NGRP))
-        DO JG=1,NGRP
-          NULLIFY(BBB_M(JG)%MATRIX)
-        ENDDO
         !
         ! compute SIGT_M
         MI=MRANK(IG)
@@ -199,83 +196,57 @@
         NULLIFY(SSIGT)
         !
         ! compute SCAT_M
+        DO JG=1,NGRP
+          NULLIFY(SCAT_M(JG)%MATRIX)
+          NULLIFY(DDD_M(JG)%MATRIX)
+        ENDDO
         DO LI=1,LGBIN
           III=1
-          STR(:LBIN)=0.0
           CALL LIBECT(MAXTRA,LLL+LI,PRI,UUU(2),DELI,DEL,NEXT,III,MML,
      1    STIS)
-          JG=IG
-          LJ=LI+1
+          STR(:LBIN)=0.0
           DO MM=1,MML
-            LJ=LJ-1
-            STR(MM)=STIS(MM)*SIGS(LLL+LI-MM+1)
-   10       IF (.NOT.ASSOCIATED(BBB_M(JG)%MATRIX)) THEN
-              ALLOCATE(BBB(NFS(IG),NFS(JG)))
-              BBB(:NFS(IG),:NFS(JG)) = 0.0D0
-              BBB_M(JG)%MATRIX => BBB
+            LLJ=LLL+LI-MM+1
+            STR(LLJ)=STIS(MM)*SIGS(LLJ)
+          ENDDO
+          LLJ=LLL
+          DO JG=IG,IG-NJJ(IG)+1,-1
+            LGBIN2=NFS(JG)
+            IF(LLL+LI-MML+1.GT.LLJ+LGBIN2) EXIT
+            IF(.NOT.ASSOCIATED(U_M(JG)%MATRIX)) THEN
+              CALL XABORT('LIBRSC: U_M(JG)%MATRIX IS NOT ASSOCIATED.')
               WRITE(6, *) 'Allocated and associated BBB_M(JG)%MATRIX'
             ENDIF
-            IF(LJ.LE.0) THEN
-            JG=JG-1
-            IF(JG.LE.0) CALL XABORT('LIBRSC: SIGS MATRIX FAILURE(1).')
-            LJ=LJ+NFS(JG)
-            IF(LJ.LE.0) CALL XABORT('LIBRSC: SIGS MATRIX FAILURE(2).')
-            GO TO 10
+            MJ=MRANK(JG)
+            IF(LI.EQ.1) THEN
+              ALLOCATE(DDD_M(JG)%MATRIX(LGBIN,MJ))
+              DDD_M(JG)%MATRIX(:LGBIN,:MJ)=0.0D0
             ENDIF
-            IF(.NOT.ASSOCIATED(BBB_M(JG)%MATRIX)) THEN
-              CALL XABORT('LIBRSC: BBB_M%MATRIX NOT ASSOCIATED.')
-            ENDIF
-            BBB_M(JG)%MATRIX(LI,LJ)=STR(MM)
+            DO LJ=1,LGBIN2
+              DDD_M(JG)%MATRIX(LI,:MJ)=DDD_M(JG)%MATRIX(LI,:MJ)+
+     1        STR(LLJ+LJ)*U_M(JG)%MATRIX(LJ,:MJ)
+            ENDDO
+            IF(JG.GT.1) LLJ=LLJ-NFS(JG-1)
           ENDDO
         ENDDO
-* Original code snippet
+        !
         DO JG=IG-NJJ(IG)+1,IG
-          MJ=MRANK(JG)
           IF(ASSOCIATED(U_M(IG)%MATRIX).AND.
-     1       ASSOCIATED(U_M(JG)%MATRIX).AND.
-     2       ASSOCIATED(BBB_M(JG)%MATRIX)) THEN
-            BBB => BBB_M(JG)%MATRIX
-            ALLOCATE(SSIGS(MI,MJ),DDD(LGBIN,MJ),EEE(MI,LGBIN))
-            
-            ! Check if BBB is associated
-            IF (.NOT.ASSOCIATED(BBB)) THEN
-              
-              WRITE(6, 100) 'BBB is not ASSOCIATED'
-              WRITE(6, 110) 'JG: ', JG
-               ! Print the matrix dimensions
-              WRITE(6, 120) 'Dimensions of BBB:'
-              WRITE(6, 130) 'Rows: ', SIZE(BBB, 1)
-              WRITE(6, 130) 'Columns: ', SIZE(BBB, 2)
-              ! Loop through the matrix and print each element
-              DO I = 1, SIZE(BBB, 1)
-                  DO J = 1, SIZE(BBB, 2)
-                      !WRITE(6, '(F10.4)', ADVANCE='NO') BBB(I, J)
-                      WRITE(6, 100) 'PASS...'
-                  END DO
-                  WRITE(6, *)  ! New line after each row
-              END DO
-            END IF
-
-            DDD=MATMUL(BBB,U_M(JG)%MATRIX(:NFS(JG),:MJ)) 
-
-            EEE=TRANSPOSE(U_M(IG)%MATRIX(:LGBIN,:MI))
-            SSIGS=MATMUL(EEE,DDD)
-            DEALLOCATE(EEE,DDD)
-            SCAT_M(IG,JG)%MATRIX => SSIGS
+     1       ASSOCIATED(DDD_M(JG)%MATRIX)) THEN
+            MJ=MRANK(JG)
+            ALLOCATE(SSIGS(MI,MJ))
+            DO I=1,MI
+              DO J=1,MJ
+                SSIGS(I,J)=DOT_PRODUCT(U_M(IG)%MATRIX(:LGBIN,I),
+     1          DDD_M(JG)%MATRIX(:LGBIN,J))
+              ENDDO
+            ENDDO
+            SCAT_M(JG)%MATRIX => SSIGS
             NULLIFY(SSIGS)
-          ELSE
-            WRITE(6,100) 'U_M(JG)%MATRIX is not ASSOCIATED'
-            WRITE(6,110) 'JG: ', JG
+            DEALLOCATE(DDD_M(JG)%MATRIX)
           ENDIF
         ENDDO
-* End of original code snippet
-
-        DO JG=1,IG
-          IF(ASSOCIATED(BBB_M(JG)%MATRIX)) THEN
-            DEALLOCATE(BBB_M(JG)%MATRIX)
-          ENDIF
-        ENDDO
-        DEALLOCATE(BBB_M)
+*----
 *----
 *  LINEAR TRANSFORMATION
 *----
@@ -284,27 +255,38 @@
         IF(ASSOCIATED(SIGT_M(IG)%MATRIX)) THEN
           ALLOCATE(TSIGT_M(IG)%MATRIX(MI,MI))
           ALLOCATE(SSIGT(MI,MI),DDD(MI,MI))
-          DDD=MATMUL(SIGT_M(IG)%MATRIX,T_M(IG)%MATRIX)
+          DO I=1,MI
+            DO J=1,MI
+              DDD(I,J)=DOT_PRODUCT(SIGT_M(IG)%MATRIX(I,:MI),
+     1        T_M(IG)%MATRIX(:MI,J))
+            ENDDO
+          ENDDO
           SSIGT=MATMUL(TTT,DDD)
           TSIGT_M(IG)%MATRIX => SSIGT
           NULLIFY(SSIGT)
           DEALLOCATE(DDD,SIGT_M(IG)%MATRIX)
         ENDIF
         DO JG=1,IG
-          IF(ASSOCIATED(SCAT_M(IG,JG)%MATRIX)) THEN
+          IF(ASSOCIATED(SCAT_M(JG)%MATRIX)) THEN
             MJ=MRANK(JG)
             ALLOCATE(TSCAT_M(IG,JG)%MATRIX(MI,MJ))
             ALLOCATE(SSIGS(MI,MJ),DDD(MI,MJ))
-            DDD=MATMUL(SCAT_M(IG,JG)%MATRIX,T_M(JG)%MATRIX)
+            DO I=1,MI
+              DO J=1,MJ
+                DDD(I,J)=DOT_PRODUCT(SCAT_M(JG)%MATRIX(I,:MJ),
+     1          T_M(JG)%MATRIX(:MJ,J))
+              ENDDO
+            ENDDO
             SSIGS=MATMUL(TTT,DDD)
             TSCAT_M(IG,JG)%MATRIX => SSIGS
             NULLIFY(SSIGS)
-            DEALLOCATE(DDD,SCAT_M(IG,JG)%MATRIX)
+            DEALLOCATE(DDD,SCAT_M(JG)%MATRIX)
           ENDIF
         ENDDO
         DEALLOCATE(TTT)
         LLL=LLL+LGBIN
       ENDDO
+      DEALLOCATE(DDD_M)
 *----
 *  SAVE INFORMATION IN IPLIB
 *----

@@ -26,7 +26,7 @@ extern "C" {
 int_32 donmod(char *cmodul, int_32 nentry, char (*hentry)[13], int_32 *ientry,
        int_32 *jentry, lcm **kentry, char (*hparam)[73]);
 }
-#define Cle2000Ptr boost::shared_ptr<Cle2000>
+#define Cle2000Ptr std::shared_ptr<Cle2000>
 
 namespace ganlib {
 
@@ -75,7 +75,7 @@ public:
 
   /** Close and destroy a Cle2000 object.
    */
-  ~Cle2000() throw(Cle2000Exception);
+  ~Cle2000();
 
   /** attach a lifo stack to the Cle2000 object
    * @param myLifo Lifo stack containing input/output parameters
@@ -84,7 +84,7 @@ public:
 
   /** call the native CLE-2000 procedure
    */
-  void exec() throw(Cle2000Exception);
+  void exec();
 
 private:
   std::string procName;

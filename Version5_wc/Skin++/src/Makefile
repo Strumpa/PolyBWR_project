@@ -5,20 +5,23 @@
 #
 #---------------------------------------------------------------------------
 #
-nbit = -m32
 ARCH = $(shell uname -m)
-ifeq (,$(filter $(ARCH),i386 i686))
-  nbit = -m64
+ifeq ($(ARCH),aarch64)
+  nbit =
+else
+  ifeq (,$(filter $(ARCH),i386 i686))
+    nbit = -m64
+  else
+    nbit = -m32
+  endif
 endif
 
 DIRNAME = $(shell uname -sm | sed 's/[ ]/_/')
 OS = $(shell uname -s | cut -d"_" -f1)
-ccompiler = g++
 opt = -O -g
 ifeq ($(openmp),1)
   COMP = -fopenmp
   FOMP = -fopenmp -D_OPENMP
-  ccompiler = g++-11
 else
   COMP =
   FOMP =
@@ -27,28 +30,40 @@ endif
 ifeq ($(intel),1)
   fcompiler = ifort
 else
-  fcompiler = gfortran
+  ifeq ($(nvidia),1)
+    fcompiler = nvfortran
+  else
+    fcompiler = gfortran
+  endif
 endif
 
 clib = -lstdc++
 ifeq ($(OS),Darwin)
+  ifeq ($(openmp),1)
+    C = g++ -std=c++17
+  else
+    C = clang++ -std=c++17
+  endif
   F90 = $(fcompiler)
-  C = $(ccompiler)
   FLAGS = -DLinux -DUnix
   CFLAGS = -Wall $(nbit) -fPIC
   LFLAGS = $(nbit)
   clib = -lc++
 else
 ifeq ($(OS),Linux)
+  ifeq ($(nvidia),1)
+    C = nvc++ -std=c++17
+  else
+    C = g++ -std=c++17
+  endif
   F90 = $(fcompiler)
-  C = $(ccompiler)
   FLAGS = -DLinux -DUnix
   CFLAGS = -Wall $(nbit) -fPIC
   LFLAGS = $(nbit)
 else
 ifeq ($(OS),CYGWIN)
+  C = g++ -std=c++17
   F90 = $(fcompiler)
-  C = $(ccompiler)
   FLAGS = -DLinux -DUnix
   CFLAGS = -Wall $(nbit) -fPIC
   LFLAGS = $(nbit)
@@ -90,17 +105,27 @@ ifeq ($(intel),1)
   libDra = ../../Dragon/lib/$(DIRNAME)_intel
   libDon = ../../Donjon/lib/$(DIRNAME)_intel
 else
-  lib = ../lib/$(DIRNAME)
-  bin = ../bin/$(DIRNAME)
-  libUtl = ../../Utilib/lib/$(DIRNAME)
-  libGan = ../../Ganlib/lib/$(DIRNAME)
-  libTri = ../../Trivac/lib/$(DIRNAME)
-  libDra = ../../Dragon/lib/$(DIRNAME)
-  libDon = ../../Donjon/lib/$(DIRNAME)
+  ifeq ($(nvidia),1)
+    lib = ../lib/$(DIRNAME)_nvidia
+    bin = ../bin/$(DIRNAME)_nvidia
+    libUtl = ../../Utilib/lib/$(DIRNAME)_nvidia
+    libGan = ../../Ganlib/lib/$(DIRNAME)_nvidia
+    libTri = ../../Trivac/lib/$(DIRNAME)_nvidia
+    libDra = ../../Dragon/lib/$(DIRNAME)_nvidia
+    libDon = ../../Donjon/lib/$(DIRNAME)_nvidia
+  else
+    lib = ../lib/$(DIRNAME)
+    bin = ../bin/$(DIRNAME)
+    libUtl = ../../Utilib/lib/$(DIRNAME)
+    libGan = ../../Ganlib/lib/$(DIRNAME)
+    libTri = ../../Trivac/lib/$(DIRNAME)
+    libDra = ../../Dragon/lib/$(DIRNAME)
+    libDon = ../../Donjon/lib/$(DIRNAME)
+  endif
 endif
 
 ifeq ($(hdf5),1)
-  CFLAGS += -DHDF5_LIB
+  CFLAGS += -DHDF5_LIB -I${HDF5_INC}
   LFLAGS += -L${HDF5_API} -lhdf5
 endif
 
@@ -113,13 +138,16 @@ endif
 ifeq ($(intel),1)
 	@echo 'Skin++: intel is defined'
 endif
+ifeq ($(nvidia),1)
+  @echo 'Skin++: nvidia is defined'
+endif
 ifeq ($(hdf5),1)
-	@echo 'Dragon: hdf5 is defined'
+	@echo 'Skin++: hdf5 is defined'
 endif
 sub-make:
 	$(MAKE) openmp=$(openmp) intel=$(intel) hdf5=$(hdf5) -C ../../Donjon/src
 %.o : %.cxx
-	$(C) $(CFLAGS) $(FLAGS) $(opt) $(COMP) $(INCLUDE) -I$(BOOST_ROOT) -c $< -o $@
+	$(C) $(CFLAGS) $(FLAGS) $(opt) $(COMP) $(INCLUDE) -c $< -o $@
 $(lib)/:
 	mkdir -p $(lib)/
 libSkin++.a: $(OBJC) $(lib)/
@@ -133,4 +161,4 @@ Skin++: libSkin++.a Skin++.o $(bin)/ sub-make
 	cp $@ $(bin)/$@
 clean:
 	$(MAKE) -C ../../Donjon/src clean
-	/bin/rm -f *.o *.a sub-make temp.* Skin++
+	/bin/rm -f *.o *.a sub-make Skin++

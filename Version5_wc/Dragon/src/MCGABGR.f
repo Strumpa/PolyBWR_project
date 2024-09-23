@@ -78,7 +78,6 @@
       DOUBLE PRECISION DDOT,AUX(2),EPS,FNORM,RHSN
       LOGICAL DEBUG
       INTRINSIC SQRT,ABS
-      REAL, ALLOCATABLE, DIMENSION(:) :: TEMP
       DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:,:) :: PI,RI,SI,ROT,API,
      1 ASI
 *----
@@ -92,7 +91,6 @@
       DEBUG=.FALSE.
       EPSINF=EPSMAX*FAC
       ITER=0
-      ALLOCATE(TEMP(2*N))
 *
       RHSN=0.0
       DO II=NFIRST,NGEFF
@@ -106,12 +104,11 @@
          DO II=NFIRST,NGEFF
             IF (NCONV(II)) THEN
                DO I=1,N
-                  F(I,II)=0.0
+                  F(I,II)=0.0D0
                ENDDO
             ENDIF
          ENDDO
          IF (DEBUG) WRITE(6,200) RHSN,EPSINF
-         DEALLOCATE(TEMP)
          GO TO 40
       ENDIF
       EPS2=EPSMAX*REAL(RHSN)
@@ -120,14 +117,14 @@
 *     initial corrective flux is set to rhs
 *     calculate (P times (D times RHS)) -> RI
       CALL MCGACA(LFORW,PACA,N,NG,NFIRST,NGEFF,M,LC,NGIND,NGINDV,NCONV,
-     1     KPSYS,JPMACR,NZON,IPERM,IM,MCU,JU,RHS,RI,TEMP,LC0,IM0,MCU0)
+     1     KPSYS,JPMACR,NZON,IPERM,IM,MCU,JU,RHS,LC0,IM0,MCU0,RI)
       R=0.0
       FNORM=0.0
       DO II=NFIRST,NGEFF
          IF (NCONV(II)) THEN
             DO I=1,N
-               F(I,II)=REAL(RHS(I,II))
-               RI(I,II)=REAL(RHS(I,II))-RI(I,II)
+               F(I,II)=RHS(I,II)
+               RI(I,II)=RHS(I,II)-RI(I,II)
                PI(I,II)=RI(I,II)
                ROT(I,II)=RI(I,II)
             ENDDO
@@ -137,10 +134,7 @@
       ENDDO
       EPS=SQRT(R/FNORM)
       IF (DEBUG) WRITE(6,100) ITER,EPS,EPSM
-      IF (EPS.LE.EPSM) THEN
-         DEALLOCATE(TEMP)
-         GO TO 40
-      ENDIF
+      IF (EPS.LE.EPSM) GO TO 40
       AUX(1)=R !!DDOT(N,RI,1,ROT,1)
 *     
       DO WHILE (ITER.LT.MAXM)
@@ -148,8 +142,8 @@
          ITER=ITER+1
 *        calculate (P times (D times PI)) -> API
          CALL MCGACA(LFORW,PACA,N,NG,NFIRST,NGEFF,M,LC,NGIND,NGINDV,
-     1        NCONV,KPSYS,JPMACR,NZON,IPERM,IM,MCU,JU,PI,API,TEMP,LC0,
-     2        IM0,MCU0)
+     1        NCONV,KPSYS,JPMACR,NZON,IPERM,IM,MCU,JU,PI,LC0,IM0,MCU0,
+     2        API)
 *
          AUX(2)=0.0
          DO II=NFIRST,NGEFF
@@ -168,8 +162,8 @@
          ITER=ITER+1
 *        calculate (P times (D times SI)) -> ASI
          CALL MCGACA(LFORW,PACA,N,NG,NFIRST,NGEFF,M,LC,NGIND,NGINDV,
-     1        NCONV,KPSYS,JPMACR,NZON,IPERM,IM,MCU,JU,SI,ASI,TEMP,LC0,
-     2        IM0,MCU0)
+     1        NCONV,KPSYS,JPMACR,NZON,IPERM,IM,MCU,JU,SI,LC0,IM0,MCU0,
+     2        ASI)
 *
          ASIN2=0.0
          ASIN=0.0
@@ -245,7 +239,7 @@
       ITER=ITER+1
 *     calculate (P times (D times F)) -> RI
       CALL MCGACA(LFORW,PACA,N,NG,NFIRST,NGEFF,M,LC,NGIND,NGINDV,NCONV,
-     1     KPSYS,JPMACR,NZON,IPERM,IM,MCU,JU,F,RI,TEMP,LC0,IM0,MCU0)
+     1     KPSYS,JPMACR,NZON,IPERM,IM,MCU,JU,F,LC0,IM0,MCU0,RI)
 *
       R=0.0
       FNORM=0.0 
@@ -274,7 +268,6 @@
 !!!!         ENDIF
 !!!!      ENDDO
 !!!!      WRITE(*,*) '              PRC=',EPS
-      DEALLOCATE(TEMP)
       GO TO 40
 *
  30   IF (DEBUG) WRITE(6,300) ITER,FNORM,EPS2 
@@ -285,7 +278,6 @@
             ENDDO
          ENDIF
       ENDDO
-      DEALLOCATE(TEMP)
 *----
 *  SCRATCH STORAGE DEALLOCATION
 *----

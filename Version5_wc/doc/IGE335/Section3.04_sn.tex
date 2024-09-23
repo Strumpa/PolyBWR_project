@@ -38,7 +38,7 @@ specific to \moc{SNT:}.
 The \moc{SNT:} specific tracking data in \dstr{descsn} is defined as
 
 \begin{DataStructure}{Structure \dstr{descsn}}
-$[~\{$ \moc{ONEG} $|$ \moc{ALLG} $\}~]~[~\{$ \moc{OMPA} $|$ \moc{OMPM} \dusa{m} $\}~]~[~\{$ \moc{MPIM} \dusa{m} $\}~]$ \\
+$[~\{$ \moc{ONEG} $|$ \moc{ALLG} $\}~]~[$ \moc{KBA} \dusa{m} $]$ \\
 $[$ \moc{SCHM} \dusa{ischm} $]~[$ \moc{DIAM} \dusa{mm} $]$ \\
 \moc{SN} \dusa{n} $~[$ \moc{SCAT} \dusa{iscat} $]~$ \\
 $[~\{$ \moc{LIVO} \dusa{icl1} \dusa{icl2} $|$ \moc{NLIVO} $|$ \moc{GMRES} \dusa{nstart} $\}~]$ \\
@@ -64,14 +64,10 @@ $[~[$ \moc{QUAB} \dusa{iquab} $]~[~\{$ \moc{SAPO} $|$ \moc{HEBE} $|$ \moc{SLSI} 
 
 \item[\moc{ALLG}] keyword to specify that the multigroup flux is computed in parallel for a set of energy groups.
 
-\item[\moc{OMPA}] keyword to specify that standard energy group (if \moc{ALLG} enabled) and discrete angle nested loops are used for OpenMP
-multithreading in 2D and 3D geometries. This is the default option.
+\item[\moc{KBA}] keyword to specify that Koch-Baker-Alcouffe (KBA) type nested loops over both angles and macrocells are used for
+multithreading in 2D and 3D geometries.\cite{kba,domino}
 
-\item[\moc{OMPM}] keyword to specify that Domino type nested loops with parallelisation over both angles and macrocells are used for OpenMP multithreading in 2D and 3D geometries.\cite{domino}
-
-\item[\moc{MPIM}] keyword to specify that parallelisation using MPI in WYVERN will be used. This is required to build the graph arrays for the sweep in hexagonal geometries.
-
-\item[\dusa{m}] use $m\times m$ or $m \times m \times m$ macrocells in Domino swapping.
+\item[\dusa{m}] use $m\times m$ or $m \times m \times m$ macrocells in KBA swapping.
 
 %Update to tabular format?
 \item[\moc{SCHM}] keyword to specify the spatial discretisation scheme. 

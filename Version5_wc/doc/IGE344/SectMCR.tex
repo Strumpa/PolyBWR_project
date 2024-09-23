@@ -53,7 +53,7 @@ $[$~\moc{RES} $]~[$~\moc{PURE}~$]~[$~\moc{UPS}~$]$ \\
 $[~\{$~\moc{MACRO}~$|$~\moc{MICRO}~$\}~]~[~\{$~\moc{LINEAR}~$|$~\moc{CUBIC}~$\}~]~[$~\moc{LEAK}~\dusa{b2}~$]~[$~\moc{EQUI}~\dusa{text80}~$]~[$~\moc{MASL}~\dusa{text80}~$]$  \\
 $[$~\moc{NMIX} \dusa{nmixt}~$]~[$ \moc{MDF} $]$ \\
 $\{~[[$~\moc{MPO} \dusa{MPONAM} \dusa{NAMDIR} \dstr{MCRdescints}~$]]$ \\
-$~|~[[$~\moc{TABLE} \dusa{MPONAM} \dusa{NAMDIR} $[$ \dusa{namburn} $]$ \dstr{MCRdescints} ~$]]~\}$ \\
+$~|~[[$~\moc{TABLE} \dusa{MPONAM} \dusa{NAMDIR} $[$ \dusa{namburn} $[$ \dusa{naval} $]~]$ \dstr{MCRdescints}~$]]~\}$ \\
 $[$ \dstr{descdepl} $]$ \\
 {\tt ;}
 \end{DataStructure}
@@ -113,8 +113,12 @@ of structure \dstr{mcr\_data}.
 \item[\dusa{NAMDIR}] access the {\sc mpo} output group named \dusa{NAMDIR}. This name is the concatenation of prefix {\tt 'output\_'} with an integer $\ge 0$.
 If the value is set equal to {\tt 'default'}, it will be replaced by {\tt 'output\_0'}.
 
-\item[\dusa{namburn}] name of the parameter for burnup (or irradiation).
+\item[\dusa{namburn}] {\tt character*12} name of the parameter for burnup (or irradiation).
 This value is defined if option \moc{TABLE} is set {\sl and} if burnup (or irradiation) is to be considered as parameter.
+
+\item[\dusa{naval}] {\tt character*4} identification name corresponding to the basic naval-coordinate position of the assembly where burnups are recovered. The axial burnup distribution of this assembly is
+used for interpolation. {\tt SIM} option should be set in module {\tt RESINI:} (see Sect.~\ref{sect:resinimain}). This option is useful to interpolate reflector properties as a function of the
+neighbour fuel assembly burnup. By default, burnup values of the interpolated fuel assembly are used.
 
 \item[\dusa{MCRdescints}] input data structure containing interpolation information relative to the {\sc mpo} data structure named \dusa{MPONAM} (see \Sect{MCRdescints}).
 

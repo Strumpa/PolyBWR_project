@@ -1,5 +1,5 @@
 *DECK SNFD12
-      SUBROUTINE SNFD12(IOMP,NUN,NGEFF,IMPX,INCONV,NGIND,LX,LY,IELEM,
+      SUBROUTINE SNFD12(IKBA,NUN,NGEFF,IMPX,INCONV,NGIND,LX,LY,IELEM,
      1 NMAT,NPQ,NSCT,MAT,VOL,TOTAL,NCODE,ZCODE,QEXT,LFIXUP,DU,DE,W,MRM,
      2 MRMY,DB,DA,PL,FUNKNO)
 *
@@ -7,7 +7,7 @@
 *
 *Purpose:
 * Perform one inner iteration for solving SN equations in 2D Cartesian
-* geometry for the HODD method. Domino-type multithreading. Albedo
+* geometry for the HODD method. KBA-type multithreading. Albedo
 * boundary conditions.
 *
 *Copyright:
@@ -20,7 +20,7 @@
 *Author(s): A. Hebert
 *
 *Parameters: input
-* IOMP    number of cells per axis in a Domino macrocell.
+* IKBA    number of cells per axis in a KBA macrocell.
 * NUN     total number of unknowns in vector FUNKNO.
 * NGEFF   number of energy groups processed in parallel.
 * IMPX    print flag (equal to zero for no print).
@@ -64,7 +64,7 @@
 *----
 *  SUBROUTINE ARGUMENTS
 *----
-      INTEGER IOMP,NUN,NGEFF,IMPX,NGIND(NGEFF),LX,LY,IELEM,NMAT,NPQ,
+      INTEGER IKBA,NUN,NGEFF,IMPX,NGIND(NGEFF),LX,LY,IELEM,NMAT,NPQ,
      1 NSCT,MAT(LX,LY),NCODE(4),MRM(NPQ),MRMY(NPQ)
       LOGICAL INCONV(NGEFF)
       REAL VOL(LX,LY),TOTAL(0:NMAT,NGEFF),ZCODE(4),QEXT(NUN,NGEFF),
@@ -94,8 +94,8 @@
 *----
 *  DEFINITION OF CONSTANTS.
 *----
-      NMX=1+(LX-1)/IOMP
-      NMY=1+(LY-1)/IOMP
+      NMX=1+(LX-1)/IKBA
+      NMY=1+(LY-1)/IKBA
       L4=IELEM*IELEM*LX*LY*NSCT
       CONST0=2.0D0*DSQRT(3.0D0)
       CONST1=2.0D0*DSQRT(5.0D0)
@@ -202,7 +202,7 @@
    70 CONTINUE
 *$OMP END PARALLEL DO
 *----
-*  DOMINO DIAGONAL LOOP
+*  KBA DIAGONAL LOOP
 *----
       CALL XDDSET(XNI,IELEM*LY*NPQ*NGEFF,0.0D0)
       CALL XDDSET(XNJ,IELEM*LX*NPQ*NGEFF,0.0D0)
@@ -228,8 +228,8 @@
       M=INDANG(IPQD,IND)
       IF(W(M).EQ.0.0) GO TO 200
       IF(II.EQ.1) THEN
-        DO 90 IMY=1,MIN(IOMP,LY-(JJ-1)*IOMP)
-        J=(JJ-1)*IOMP+IMY
+        DO 90 IMY=1,MIN(IKBA,LY-(JJ-1)*IKBA)
+        J=(JJ-1)*IKBA+IMY
         IF((IND.EQ.3).OR.(IND.EQ.4)) J=LY+1-J
         DO 80 IEL=1,IELEM
         IOF=(M-1)*IELEM*LY+(J-1)*IELEM+IEL
@@ -242,8 +242,8 @@
    90   CONTINUE
       ENDIF
       IF(JJ.EQ.1) THEN
-        DO 110 IMX=1,MIN(IOMP,LX-(II-1)*IOMP)
-        I=(II-1)*IOMP+IMX
+        DO 110 IMX=1,MIN(IKBA,LX-(II-1)*IKBA)
+        I=(II-1)*IKBA+IMX
         IF((IND.EQ.2).OR.(IND.EQ.3)) I=LX+1-I
         DO 100 IEL=1,IELEM
         IOF=(M-1)*IELEM*LX+(I-1)*IELEM+IEL
@@ -256,14 +256,15 @@
   110   CONTINUE
       ENDIF
 *---
-      DO 190 IMX=1,MIN(IOMP,LX-(II-1)*IOMP)
-      I=(II-1)*IOMP+IMX
+      DO 190 IMX=1,MIN(IKBA,LX-(II-1)*IKBA)
+      I=(II-1)*IKBA+IMX
       IF((IND.EQ.2).OR.(IND.EQ.3)) I=LX+1-I
-      DO 180 IMY=1,MIN(IOMP,LY-(JJ-1)*IOMP)
-      J=(JJ-1)*IOMP+IMY
+      DO 180 IMY=1,MIN(IKBA,LY-(JJ-1)*IKBA)
+      J=(JJ-1)*IKBA+IMY
       IF((IND.EQ.3).OR.(IND.EQ.4)) J=LY+1-J
       FLUX(:IELEM**2,:NSCT)=0.0D0
       IF(MAT(I,J).EQ.0) GO TO 200
+*------
       DO 125 IEL=1,IELEM**2
       Q(IEL)=0.0D0
       DO 120 K=1,NSCT
@@ -373,13 +374,14 @@
       FLUX(IEL,K)=FLUX(IEL,K)+2.0D0*W(M)*Q2(IEL,IELEM**2+1)*PL(K,M)
   140 CONTINUE
   150 CONTINUE
-      IF((II-1)*IOMP+IMX.EQ.LX) THEN
+*------
+      IF((II-1)*IKBA+IMX.EQ.LX) THEN
         DO 160 IEL=1,IELEM
         IOF=(M-1)*IELEM*LY+(J-1)*IELEM+IEL
         FUNKNO(L4+IOF,IG)=REAL(XNI(IEL,J,IPQD,IG))
   160   CONTINUE
       ENDIF
-      IF((JJ-1)*IOMP+IMY.EQ.LY) THEN
+      IF((JJ-1)*IKBA+IMY.EQ.LY) THEN
         DO 170 IEL=1,IELEM
         IOF=(M-1)*IELEM*LX+(I-1)*IELEM+IEL
         FUNKNO(L4+IELEM*LY*NPQ+IOF,IG)=REAL(XNJ(IEL,I,IPQD,IG))

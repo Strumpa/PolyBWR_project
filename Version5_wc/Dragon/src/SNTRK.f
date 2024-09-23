@@ -1,7 +1,7 @@
 *DECK SNTRK
       SUBROUTINE SNTRK(MAXPTS,IPTRK,IPGEOM,IMPX,ISCHM,IELEM,ISPLH,INSB,
      1 NLF,MAXIT,EPSI,ISCAT,IQUAD,LFIXUP,LIVO,ICL1,ICL2,LDSA,NSTART,
-     2 NSDSA,IELEMSA,ISOLVSA,LBIHET,LSHOOT,IBFP,NOMP,NMPI,NFOU,
+     2 NSDSA,IELEMSA,ISOLVSA,LBIHET,LSHOOT,IBFP,NKBA,NMPI,NFOU,
      3 EELEM,ESCHM)
 *
 *-----------------------------------------------------------------------
@@ -60,7 +60,7 @@
 *         =0 no Fokker-Planck term;
 *         =1 Galerkin type;
 *         =2 heuristic Przybylski and Ligou type.
-* NOMP    number of macrocells along each axis (in Cartesian geometry)
+* NKBA    number of macrocells along each axis (in Cartesian geometry)
 *         for the parallelisation using the OpenMP paradigm.
 * NMPI    number of macrocells along each axis (in Cartesian geometry)
 *         or along the z-axis for the hexagonal geometry for the
@@ -84,7 +84,7 @@
 *----
       TYPE(C_PTR) IPTRK,IPGEOM
       INTEGER MAXPTS,IMPX,ISCHM,IELEM,ISPLH,INSB,NLF,ISCAT,IQUAD,
-     1 MAXIT,ICL1,ICL2,NSTART,NSDSA,IELEMSA,ISOLVSA,NOMP,NMPI,NFOU,
+     1 MAXIT,ICL1,ICL2,NSTART,NSDSA,IELEMSA,ISOLVSA,NKBA,NMPI,NFOU,
      2 EELEM,ESCHM
       REAL EPSI
       LOGICAL LFIXUP,LDSA,LBIHET,LIVO,LSHOOT
@@ -599,9 +599,9 @@
          ISCSA=1 ! isotropic scattering
          NVD=1   ! SN-type VOID boundary conditions
          NADI=2  ! ADI iteration
-         ICHX=2 ! Raviart-Thomas finite elements
-         ISEG=0 ! scalar algorithm
-         IMPV=0 ! print parameter for vector operations
+         ICHX=2  ! Raviart-Thomas finite elements
+         ISEG=0  ! scalar algorithm
+         IMPV=0  ! print parameter for vector operations
          IF(MAXPTS.EQ.0) CALL XABORT('SNTRK: MAXPTS NOT DEFINED.')
          IF((ITYPE.EQ.7).OR.(ITYPE.EQ.9)) THEN
             CALL TRITRK(MAXPTS,IPTRK,IPGEOM,IMPX,IELEMSA,ICOL,ICHX,ISEG,
@@ -657,7 +657,7 @@
       IGP(25)=ICL2
       IGP(26)=ISPLH
       IGP(27)=INSB
-      IGP(28)=NOMP
+      IGP(28)=NKBA
       IF((ITYPE.EQ.3).OR.(ITYPE.GE.4)) IGP(29)=1
       IGP(30)=0
       IF(LSHOOT) IGP(30)=1
