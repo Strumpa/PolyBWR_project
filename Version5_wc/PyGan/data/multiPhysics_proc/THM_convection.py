@@ -67,7 +67,7 @@ class DFMclass():
         pressureDrop = 186737 #Pa/m
         falsePInlet = pOutlet - height * pressureDrop
         self.hInlet = IAPWS97(T = self.tInlet, P = falsePInlet * 10**(-6)).h*1000 #J/kg
-        print(f'hInlet: {self.hInlet}')
+        #print(f'hInlet: {self.hInlet}')
 
         #Geometry parameters
         self.height = height #m
@@ -88,7 +88,7 @@ class DFMclass():
         self.qFlow = qFlow #kg/s
         self.rhoInlet = IAPWS97(T = self.tInlet, P = falsePInlet*10**(-6)).rho #kg/m3
         self.uInlet = self.qFlow / (self.flowArea * self.rhoInlet) #m/s
-        print(f'uInlet: {self.uInlet}')
+        #print(f'uInlet: {self.uInlet}')
 
         self.DV = (self.height/self.nCells) * self.flowArea #Volume of the control volume m3
         if self.height == 2.155:
@@ -105,7 +105,7 @@ class DFMclass():
 
         self.epsInnerIteration = 1e-3
         self.maxInnerIteration = 1000
-        self.sousRelaxFactor = 0.2
+        self.sousRelaxFactor = 0.4
         self.epsOuterIteration = 1e-3
         self.maxOuterIteration = 1000
 
@@ -215,7 +215,6 @@ class DFMclass():
                 self.VgjPrimeList[self.timeCount] = self.VgjPrime[-1]
             
             if self.timeCount != 0:
-                print(self.timeCount)
                 self.U = [self.velocityList[self.timeCount]]
                 self.P = [self.pressureList[self.timeCount]]
                 self.H = [self.enthalpyList[self.timeCount]]
@@ -460,11 +459,10 @@ class DFMclass():
         self.xThResiduals.append(np.linalg.norm(self.xTh[-1] - self.xTh[-2]))
 
     def testConvergence(self, k):#change rien et return un boolean
-        print(f'Convergence test: EPS: {self.EPSresiduals[-1]}, rho: {self.rhoResiduals[-1]}, xTh: {self.xThResiduals[-1]}')
+        print(f'Convergence test, residuals: epsilon: {self.EPSresiduals[-1]}, rho: {self.rhoResiduals[-1]}, xTh: {self.xThResiduals[-1]}')
         #print(f'Convergence test: rho: {self.rhoResiduals[-1]}, U: {self.UResiduals[-1]}')
         if self.EPSresiduals[-1] < 1e-3 and self.xThResiduals[-1] < 1e-3 and self.rhoResiduals[-1] < 1e-3:
         #if self.rhoResiduals[-1] < 1e-2 and self.UResiduals[-1] < 1e-2:
-            print(f'Convergence reached at iteration number: {k}')
             return True
         else:
             return False
@@ -513,11 +511,10 @@ class DFMclass():
     
     def updateInlet(self):
         #Update uInlet
-        print(f'T: {self.tInlet}, P: {self.P[-1][0]*10**(-6)}')
         self.rhoInlet = IAPWS97(T = self.tInlet, P = self.P[-1][0]*10**(-6)).rho #kg/m3
-        print(f'New inlet density: {self.rhoInlet}, self.qFlow: {self.qFlow}, self.flowArea: {self.flowArea}')
+        #print(f'New inlet density: {self.rhoInlet}, self.qFlow: {self.qFlow}, self.flowArea: {self.flowArea}')
         self.uInlet = self.qFlow / (self.flowArea * self.rhoInlet) #m/s
-        print(f'New inlet velocity: {self.uInlet}')
+        #print(f'New inlet velocity: {self.uInlet}')
         #Update hInlet
         self.hInlet = IAPWS97(T = self.tInlet, P = self.P[-1][0]*10**(-6)).h*1000 #J/kg
 
@@ -539,7 +536,6 @@ class DFMclass():
                 
                 self.createSystemVelocityPressure()
                 resolveSystem = numericalResolution(self.FVM,self.mergeVar(self.U[-1], self.P[-1]), self.epsInnerIteration, self.maxInnerIteration, self.numericalMethod)
-                print(resolveSystem.x)
                 Utemp, Ptemp = self.splitVar(resolveSystem.x)
                 
                 self.U.append(Utemp)
@@ -554,7 +550,6 @@ class DFMclass():
 
                 self.H.append(Htemp)
 
-                print(Utemp, Ptemp, Htemp)
                 updateVariables = statesVariables(self.U[-1], self.P[-1], self.H[-1], self.voidFraction[-1], self.D_h, self.flowArea, self.DV, self.voidFractionCorrel, self.frfaccorel, self.P2Pcorel)
                 updateVariables.updateFields()
 
@@ -581,11 +576,14 @@ class DFMclass():
                 self.updateInlet()
 
                 if convergence == True:
+                    print(f'Convergence reached at iteration number: {k}')
                     break
 
                 elif k == self.maxOuterIteration - 1:
-                    print('Convergence not reached')
-                    break
+                    raise ValueError('Convergence not reached in the resolution of the drift flux model, not enough iterations. k = ', k)
+
+
+            #print(f'U: {self.U[-1]}, P: {self.P[-1]}, H: {self.H[-1]}')
 
             plt.ioff()
             plt.show()

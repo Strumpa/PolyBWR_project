@@ -2,7 +2,6 @@
 # Used to post treat THM_DONJON data and compare it to THM_prototype results
 # Authors : Clement Huet, Raphael Guasch
 import numpy as np
-
 class THM_DONJON_parser:
     def __init__(self, path, t0, time_step, t_end, nz, h_mesh):
         self.path = path

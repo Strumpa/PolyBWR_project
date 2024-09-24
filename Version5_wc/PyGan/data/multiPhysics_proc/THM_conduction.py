@@ -70,19 +70,6 @@ class FDM_HeatConductionInFuelPin:
 
         self.initialise_plotting_mesh("m")
         self.physical_regions_bounds = [0, self.r_f, self.gap_r, self.clad_r]
-
-        print("Initialization of the FDM_HeatConductionInFuelPin object completed.")
-        print(f"Number of nodes in the mesh: {self.N_node}")
-        print(f"Fuel mesh elements: {self.I_f}")
-        print(f"Cladding mesh elements: {self.I_c}")
-        print(f"Gap radius: {self.gap_r} m")
-        print(f"Cladding radius: {self.clad_r} m")
-        print(f"Fuel radius: {self.r_f} m")
-        print(f"Thermal conductivity of fuel: {self.kf} W/m/K")
-        print(f"Thermal conductivity of cladding: {self.kc} W/m/K")
-        print(f"Heat transfer coefficient through gap: {self.Hg} W/m^2/K")
-        print(f"Outer cladding surface temperature: {self.T_surf} K")
-        
         
         
     def initialize_ks(self):
@@ -193,7 +180,7 @@ class FDM_HeatConductionInFuelPin:
             for elem in row:
                 line+=f"{elem:.3f}   "
             line += "  ]\n"
-            print(line)
+            #print(line)
         self.T_distrib = np.linalg.solve(self.A, self.D)
         self.compute_T_center()
         T_distrib_with_center = np.zeros(self.N_node+1)

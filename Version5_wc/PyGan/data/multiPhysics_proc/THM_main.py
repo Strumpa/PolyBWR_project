@@ -43,7 +43,7 @@ class Version5_THM_prototype:
         self.pOutlet =  pOutlet #Pa
         self.uInlet = self.qFlow / self.rhoInlet #m/s
 
-        self.Qfiss = Qfiss # array representing the power in the fuel rod in W/m^3 at each axial position
+        self.Qfiss = Qfiss # amplitude of sine variation, or constant value if Qfiss_variation_type = "constant"
 
         self.r_f = fuel_radius # fuel pin radius in meters
         self.gap_r = gap_radius # gap radius in meters, used to determine mesh elements for constant surface discretization
@@ -57,7 +57,7 @@ class Version5_THM_prototype:
         self.frfaccorel = frfaccorel # friction factor correlation
         self.P2Pcorel = P2Pcorel # pressure drop correlation
         self.voidFractionCorrel = voidFractionCorrel # void fraction correlation
-
+        self.numericalMethod = numericalMethod # numerical method used to solve the convection problem in the canal
         #Poro = 0.5655077285
 
         self.plot_results = plot_at_z
@@ -67,7 +67,6 @@ class Version5_THM_prototype:
         if self.dt == 0 :
             self.transient = False
             print("$$$---------- THM: prototype, steady state case.")
-        print("Warning : only single phase flow treated in this implementation of heat convection in coolant canal.")
 
         # Prepare and solve 1D heat convection along the z direction in the canal.
         print("$$---------- Calling DFM class.")
@@ -82,7 +81,7 @@ class Version5_THM_prototype:
         print(f'self.r_w: {self.r_w}')
         print(f'Courant number: {self.uInlet*self.dt/(self.Lf/self.I_z)}')
         print(f"Numerical Method {numericalMethod}")
-        self.convection_sol = DFMclass(self.canal_type, self.I_z, self.tInlet, self.qFlow, self.pOutlet, self.Lf, self.r_f, self.clad_r, self.r_w, numericalMethod, self.frfaccorel, self.P2Pcorel, self.voidFractionCorrel, dt = self.dt, t_tot = self.t_end)
+        self.convection_sol = DFMclass(self.canal_type, self.I_z, self.tInlet, self.qFlow, self.pOutlet, self.Lf, self.r_f, self.clad_r, self.r_w, self.numericalMethod, self.frfaccorel, self.P2Pcorel, self.voidFractionCorrel, dt = self.dt, t_tot = self.t_end)
         print(f'Hydraulic diameter: {self.convection_sol.D_h}')
         # Set the fission power in the fuel rod
         self.convection_sol.set_Fission_Power(self.Qfiss)
@@ -90,6 +89,8 @@ class Version5_THM_prototype:
         self.convection_sol.resolveDFM()
         print(f'Pressure: {self.convection_sol.P[-1]} Pa')
         print(f'Enthalpy: {self.convection_sol.H[-1]} J/kg')
+        print(f'Void fraction: {self.convection_sol.voidFraction[-1]}')
+        print(f'Density: {self.convection_sol.rho[-1]} kg/m^3')
         if self.solveConduction:
             Tsurf = self.convection_sol.compute_T_surf()
             print(f'Temperature at the surface: {Tsurf} K')
@@ -248,7 +249,6 @@ class Version5_THM_prototype:
         axs.set_ylabel(f"Temperature in K")
         axs.set_title(f"Temperature distribution in fuel rod at z = {z_val}, {self.name}")
         fig_filled.savefig(f"{self.name}_Figure_plane{plane_index_print}_colors")
-
         plt.show()
 
     def plotColorMap(self):
@@ -369,12 +369,11 @@ class Version5_THM_prototype:
         return
 
 
-
-    def get_TH_parameters(self): # @rg : renamed to get_TH_parameters to avoid confusion
+    def get_TH_parameters(self):
         if self.solveConduction:
             print(f'Tfuel : {self.T_eff_fuel} K')
             print(f'Twater : {self.convection_sol.T_water} K')
-            print(f'Water void fraction: {self.convection_sol.voidFraction[-1]}')
+            print(f'Water void fraction: {self.convection_sol.voidFraction[-1]} K')
             print(f'Water density: {self.convection_sol.rho[-1]} kg/m^3')
             
             return self.T_eff_fuel, self.convection_sol.T_water, self.convection_sol.rho[-1]
@@ -491,22 +490,212 @@ class plotting:
             ax6.set_title("Fission power distribution in fuel rod")
 
             
-            """ fig7, ax7 = plt.subplots()
+            fig7, ax7 = plt.subplots()
             for i in range(len(self.caseList)):
-                ax1.plot(self.caseList[i].convection_sol.z_mesh, self.caseList[i].convection_sol.H[-1], label="Enthalpy")
+                ax7.plot(self.caseList[i].convection_sol.z_mesh, self.caseList[i].convection_sol.H[-1], label=self.caseList[i].voidFractionCorrel)
             ax7.set_xlabel("Axial position in m")
             ax7.set_ylabel("Enthalpy in K")
             ax7.set_title("Enthalpy distribution in pincell")
-            ax7.legend(loc="best") """
+            ax7.legend(loc="best")
 
             plt.show()
     
         elif compParam == 'frfaccorel':
-            pass
-        elif compParam == 'P2Pcorel':
-            pass
+            if visuParam[0]:
+                fig1, ax1 = plt.subplots()
+                for i in range(len(self.caseList)):
+                    ax1.plot(self.caseList[i].convection_sol.z_mesh, self.caseList[i].convection_sol.T_water, label=self.caseList[i].frfaccorel)
+                ax1.set_xlabel("Axial position in m")
+                ax1.set_ylabel("Temperature in K")
+                ax1.set_title("Temperature distribution in pincell")
+                ax1.legend(loc="best")
 
-    def GenFoamComp(self, GenFoamPathCase, compParam, visuParam):
+            if visuParam[1]:
+                fig2, ax2 = plt.subplots()
+                for i in range(len(self.caseList)):
+                    ax2.plot(self.caseList[i].convection_sol.z_mesh, self.caseList[i].convection_sol.voidFraction[-1], label=self.caseList[i].frfaccorel)
+                ax2.set_xlabel("Axial position in m")
+                ax2.set_ylabel("Void fraction")
+                ax2.set_title("Void fraction distribution in coolant canal")
+                ax2.legend(loc="best")
+
+            if visuParam[2]:
+                fig3, ax3 = plt.subplots()
+                for i in range(len(self.caseList)):
+                    ax3.plot(self.caseList[i].convection_sol.z_mesh, self.caseList[i].convection_sol.rho[-1], label=self.caseList[i].frfaccorel)
+                ax3.set_xlabel("Axial position in m")
+                ax3.set_ylabel("Density in kg/m^3")
+                ax3.set_title("Density distribution in coolant canal")
+                ax3.legend(loc="best")
+
+            if visuParam[3]:
+                fig4, ax4 = plt.subplots() 
+                for i in range(len(self.caseList)):
+                    ax4.plot(self.caseList[i].convection_sol.z_mesh, self.caseList[i].convection_sol.P[-1], label=self.caseList[i].frfaccorel)
+                ax4.set_xlabel("Axial position in m")
+                ax4.set_ylabel("Pressure in Pa")
+                ax4.set_title("Pressure distribution in coolant canal")
+                ax4.legend(loc="best")
+
+            if visuParam[4]:
+                fig5, ax5 = plt.subplots()
+                for i in range(len(self.caseList)):
+                    ax5.plot(self.caseList[i].convection_sol.z_mesh, self.caseList[i].convection_sol.U[-1], label=self.caseList[i].frfaccorel)
+                ax5.set_xlabel("Axial position in m")
+                ax5.set_ylabel("Velocity in m/s")
+                ax5.set_title("Velocity distribution in coolant canal")
+                ax5.legend(loc="best")
+
+            fig6, ax6 = plt.subplots()
+            for i in range(len(self.caseList)):
+                ax6.plot(self.caseList[i].convection_sol.z_mesh, self.caseList[i].convection_sol.get_Fission_Power(), label="Fission power")
+            ax6.set_xlabel("Axial position in m")
+            ax6.set_ylabel("Fission power in W/m^3")
+            ax6.set_title("Fission power distribution in fuel rod")
+
+            
+            fig7, ax7 = plt.subplots()
+            for i in range(len(self.caseList)):
+                ax7.plot(self.caseList[i].convection_sol.z_mesh, self.caseList[i].convection_sol.H[-1], label=self.caseList[i].frfaccorel)
+            ax7.set_xlabel("Axial position in m")
+            ax7.set_ylabel("Enthalpy in K")
+            ax7.set_title("Enthalpy distribution in pincell")
+            ax7.legend(loc="best")
+
+            plt.show()
+    
+        elif compParam == 'P2Pcorel':
+            if visuParam[0]:
+                fig1, ax1 = plt.subplots()
+                for i in range(len(self.caseList)):
+                    ax1.plot(self.caseList[i].convection_sol.z_mesh, self.caseList[i].convection_sol.T_water, label=self.caseList[i].P2Pcorel)
+                ax1.set_xlabel("Axial position in m")
+                ax1.set_ylabel("Temperature in K")
+                ax1.set_title("Temperature distribution in pincell")
+                ax1.legend(loc="best")
+
+            if visuParam[1]:
+                fig2, ax2 = plt.subplots()
+                for i in range(len(self.caseList)):
+                    ax2.plot(self.caseList[i].convection_sol.z_mesh, self.caseList[i].convection_sol.voidFraction[-1], label=self.caseList[i].P2Pcorel)
+                ax2.set_xlabel("Axial position in m")
+                ax2.set_ylabel("Void fraction")
+                ax2.set_title("Void fraction distribution in coolant canal")
+                ax2.legend(loc="best")
+
+            if visuParam[2]:
+                fig3, ax3 = plt.subplots()
+                for i in range(len(self.caseList)):
+                    ax3.plot(self.caseList[i].convection_sol.z_mesh, self.caseList[i].convection_sol.rho[-1], label=self.caseList[i].P2Pcorel)
+                ax3.set_xlabel("Axial position in m")
+                ax3.set_ylabel("Density in kg/m^3")
+                ax3.set_title("Density distribution in coolant canal")
+                ax3.legend(loc="best")
+
+            if visuParam[3]:
+                fig4, ax4 = plt.subplots() 
+                for i in range(len(self.caseList)):
+                    ax4.plot(self.caseList[i].convection_sol.z_mesh, self.caseList[i].convection_sol.P[-1], label=self.caseList[i].P2Pcorel)
+                ax4.set_xlabel("Axial position in m")
+                ax4.set_ylabel("Pressure in Pa")
+                ax4.set_title("Pressure distribution in coolant canal")
+                ax4.legend(loc="best")
+
+            if visuParam[4]:
+                fig5, ax5 = plt.subplots()
+                for i in range(len(self.caseList)):
+                    ax5.plot(self.caseList[i].convection_sol.z_mesh, self.caseList[i].convection_sol.U[-1], label=self.caseList[i].P2Pcorel)
+                ax5.set_xlabel("Axial position in m")
+                ax5.set_ylabel("Velocity in m/s")
+                ax5.set_title("Velocity distribution in coolant canal")
+                ax5.legend(loc="best")
+
+            fig6, ax6 = plt.subplots()
+            for i in range(len(self.caseList)):
+                ax6.plot(self.caseList[i].convection_sol.z_mesh, self.caseList[i].convection_sol.get_Fission_Power(), label="Fission power")
+            ax6.set_xlabel("Axial position in m")
+            ax6.set_ylabel("Fission power in W/m^3")
+            ax6.set_title("Fission power distribution in fuel rod")
+
+            
+            fig7, ax7 = plt.subplots()
+            for i in range(len(self.caseList)):
+                ax7.plot(self.caseList[i].convection_sol.z_mesh, self.caseList[i].convection_sol.H[-1], label=self.caseList[i].P2Pcorel)
+            ax7.set_xlabel("Axial position in m")
+            ax7.set_ylabel("Enthalpy in K")
+            ax7.set_title("Enthalpy distribution in pincell")
+            ax7.legend(loc="best")
+
+            plt.show()
+
+        elif compParam == 'numericalMethod':
+            if visuParam[0]:
+                fig1, ax1 = plt.subplots()
+                for i in range(len(self.caseList)):
+                    print(f'Twater: { self.caseList[i].convection_sol.T_water}')
+                    ax1.plot(self.caseList[i].convection_sol.z_mesh, self.caseList[i].convection_sol.T_water, label=self.caseList[i].numericalMethod)
+                ax1.set_xlabel("Axial position in m")
+                ax1.set_ylabel("Temperature in K")
+                ax1.set_title("Temperature distribution in pincell")
+                ax1.legend(loc="best")
+
+            if visuParam[1]:
+                fig2, ax2 = plt.subplots()
+                for i in range(len(self.caseList)):
+                    ax2.plot(self.caseList[i].convection_sol.z_mesh, self.caseList[i].convection_sol.voidFraction[-1], label=self.caseList[i].numericalMethod)
+                ax2.set_xlabel("Axial position in m")
+                ax2.set_ylabel("Void fraction")
+                ax2.set_title("Void fraction distribution in coolant canal")
+                ax2.legend(loc="best")
+
+            if visuParam[2]:
+                fig3, ax3 = plt.subplots()
+                for i in range(len(self.caseList)):
+                    ax3.plot(self.caseList[i].convection_sol.z_mesh, self.caseList[i].convection_sol.rho[-1], label=self.caseList[i].numericalMethod)
+                ax3.set_xlabel("Axial position in m")
+                ax3.set_ylabel("Density in kg/m^3")
+                ax3.set_title("Density distribution in coolant canal")
+                ax3.legend(loc="best")
+
+            if visuParam[3]:
+                fig4, ax4 = plt.subplots() 
+                for i in range(len(self.caseList)):
+                    ax4.plot(self.caseList[i].convection_sol.z_mesh, self.caseList[i].convection_sol.P[-1], label=self.caseList[i].numericalMethod)
+                ax4.set_xlabel("Axial position in m")
+                ax4.set_ylabel("Pressure in Pa")
+                ax4.set_title("Pressure distribution in coolant canal")
+                ax4.legend(loc="best")
+
+            if visuParam[4]:
+                fig5, ax5 = plt.subplots()
+                for i in range(len(self.caseList)):
+                    ax5.plot(self.caseList[i].convection_sol.z_mesh, self.caseList[i].convection_sol.U[-1], label=self.caseList[i].numericalMethod)
+                ax5.set_xlabel("Axial position in m")
+                ax5.set_ylabel("Velocity in m/s")
+                ax5.set_title("Velocity distribution in coolant canal")
+                ax5.legend(loc="best")
+
+            if visuParam[5]:
+                fig6, ax6 = plt.subplots()
+                for i in range(len(self.caseList)):
+                    ax6.plot(self.caseList[i].convection_sol.z_mesh, self.caseList[i].convection_sol.get_Fission_Power(), label="Fission power")
+                ax6.set_xlabel("Axial position in m")
+                ax6.set_ylabel("Fission power in W/m^3")
+                ax6.set_title("Fission power distribution in fuel rod")
+
+            if visuParam[6]:
+                fig7, ax7 = plt.subplots()
+                for i in range(len(self.caseList)):
+                    ax7.plot(self.caseList[i].convection_sol.z_mesh, self.caseList[i].convection_sol.H[-1], label=self.caseList[i].numericalMethod)
+                ax7.set_xlabel("Axial position in m")
+                ax7.set_ylabel("Enthalpy in K")
+                ax7.set_title("Enthalpy distribution in pincell")
+                ax7.legend(loc="best")
+
+            plt.show()
+
+    
+    def GenFoamComp(self, GenFoamPathCase, compParam, visuParam, genFoamVolumeFraction):
 
         # Read the Excel file
         df = pd.read_excel(GenFoamPathCase)
@@ -520,8 +709,8 @@ class plotting:
             for i, col in enumerate(columns):
                 data[i].append(row[col])
 
-        #for i in range(len(data[7])):
-            #data[7][i] = (1/0.434492) * data[7][i]
+        for i in range(len(data[7])):
+            data[7][i] = (1/(1-genFoamVolumeFraction)) * data[7][i]
 
         genfoamCASE = [data[0], data[3], data[7], data[3], data[1], data[5]]
         if compParam == 'voidFractionCorrel':
