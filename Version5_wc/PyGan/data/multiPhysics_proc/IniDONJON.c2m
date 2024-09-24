@@ -9,12 +9,14 @@
 ****************************************************************
 PARAMETER  Fmap Matex Cpo Track THData ::
   ::: LINKED_LIST Fmap Matex Cpo Track THData ; ;
+STRING name_compo ;
+:: >>name_compo<< ;
 
 LINKED_LIST Geom ;
 MODULE   TRIVAT: UTL: END: ;
 
 PROCEDURE   GetData GeoCore SetFMap SetLocPara InitTHData  ;
-SEQ_ASCII   _AT10COMPO_1 ;
+SEQ_ASCII _COMPO :: FILE <<name_compo>> ;
 *----
 *  Local Parameters
 *----
@@ -29,7 +31,7 @@ INTEGER MaxR := 10000 ;
 *  Recover the Multicompo
 *----
 STRING DIR := "EDIPARAM" ;
-Cpo := _AT10COMPO_1 ;
+Cpo := _COMPO ;
 UTL: Cpo :: DIR ;
 
 
