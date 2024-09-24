@@ -129,7 +129,7 @@ def quickPlot(x, y, title, xlabel, ylabel, saveName, path, SAVE_DIR):
 ########## User input ##########
 
 solveConduction = True
-zPlotting = [0.8]
+zPlotting = [] #If empty, no plotting of the axial distribution of the fields, otherwise, list of the axial positions where the fields are plotted
 
 ########## Thermal hydraulics parameters ##########
 ## Geometric parameters
@@ -142,19 +142,12 @@ height = 3.8 # m : height : active core height in BWRX-300 SMR
 
 
 ## Fluid parameters
-tInlet = 270 + 273.15 # K
+
 # T_inlet, T_outlet = 270, 287 Celcius
-pOutlet =  7.2e6 # Pa
-pressureDrop = 186737 #Pa/m
-falsePInlet = pOutlet - height * pressureDrop
-rhoInlet = IAPWS97(T = tInlet, P = falsePInlet*10**(-6)).rho #kg/m3
-flowArea = waterRadius ** 2 - np.pi * cladRadius ** 2
-
+tInlet = 270 + 273.15 # K
+#Nominal operating pressure = 7.2 MPa (abs)
+pOutlet =  7.2e6 # Pa 
 # Nominal coolant flow rate = 1530 kg/s
-# Nominal operating pressure = 7.2 MPa (abs)
-#hInlet =  # to fill
-
-#qFlow =  # to fill
 massFlowRate = 1530  / (200*91)  # kg/s
 
 ## Additional parameters needed for the calculation
