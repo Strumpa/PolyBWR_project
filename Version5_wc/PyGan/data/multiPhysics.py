@@ -5,6 +5,7 @@
 from THM_main import Version5_THM_prototype as THM_prototype
 from THM_main import plotting
 from iapws import IAPWS97
+import matplotlib.pyplot as plt
 import numpy as np
 import os, shutil
 import lifo
@@ -19,7 +20,17 @@ def underRelaxation(Field, OldField, underRelaxationFactor):
     return underRelaxationFactor*Field + (1-underRelaxationFactor)*OldField
 
 def convergence(Field, OldField, tol):
-    return np.abs(Field-OldField) < tol
+    print(f"Field = {Field}")
+    print(f"OldField = {OldField}")
+    print(f"Field - OldField = {Field - OldField}")
+    conv=False
+    for i in range(len(Field)):
+        if np.abs(Field[i] - OldField[i]) > tol:
+            conv = False
+            break
+        else:
+            conv = True
+    return conv
 
 def guessAxialPowerShape(Ptot, Iz, height, radius):
     """
@@ -77,9 +88,6 @@ def compute_difference_fields(field):
     field : list : list of the fields to compare
     """
     print(field)
-    for i in range(len(field[-1])):
-        print(field[-1][i]-field[-1][i])
-
     diff = np.abs(field[-1] - field[-2])
     print(f"Difference between the last two fields = {diff}")
     return diff
@@ -140,7 +148,7 @@ numericalMethod = "FVM"
 ############ Nuclear Parameters ###########
 ## Fission parameters
 # specific power = 38.6 W/g
-specificPower = 386.0 # W/g, multiplied by 10 to have a more realistic value and create boiling
+specificPower = 38.60 # W/g, multiplied by 5 to have a more realistic value and create boiling
 PFiss = specificPower*Fuel_mass*1000 # W
 print("PFiss = ", PFiss)
 
@@ -154,8 +162,10 @@ kClad = 21.5 # W/m.K, Thermal Conductivity of Zircaloy-2 (as used in BWRX-300) a
 ########## Algorithm parameters ###########
 nIter = 1000
 tol_TH = 1e-4 # Convergence criterion for the TH solution
+tol_POW = 1e-3 # Convergence criterion for the power axial distribution
 tol_Keff = 1e-5 # Convergence criterion for the Keff value
-underRelaxationFactor = 0.5
+TH_underRelaxationFactor = 0.5
+Pow_underRelaxationFactor = 0.5 # Under relaxation factor for the power axial distribution to be tested
 
 ########## Fields of the TH problem ##########
 TeffFuel = []
@@ -163,7 +173,8 @@ Twater = []
 rho = []
 Qfiss = []
 
-
+####### Power shape to store the axial power shape at each iteration
+Power_Distrib = []
 
 ##### Begin Calculation scheme for coupled neutronics and thermalhydraulics solution to the BWR pincell problem.
 
@@ -185,12 +196,13 @@ THComponent = THM_prototype("BWR Pincell equivalent canal", canalType, waterRadi
 TeffTEMP, TwaterTEMP, rhoTEMP = THComponent.get_TH_parameters() # renamed this function to be clear about what it does 
 #                                                           ---> Fuel and coolant temperature + coolant density aren't nuclear parameters per-se
 #
+# Overwriting the initial Teff field : Conduction works again but current COMPO doesnt have low enough TFuel
+TeffTEMP = np.array([750.0 for i in range(Iz1)])
 TeffFuel.append(TeffTEMP)
 Twater.append(TwaterTEMP)
 rho.append(rhoTEMP)
 
-# Overwriting the initial Teff field : Conduction works again but current COMPO doesnt have low enough TFuel
-TeffTEMP = [750.0 for i in range(Iz1)]
+
 
 print(f"$$ - FIRST THM resolution iter = 0 : TeffFuel = {TeffTEMP}, Twater = {TwaterTEMP}, rho = {rhoTEMP}")
 print(f"After initialization : TeffFuel = {TeffFuel}, Twater = {Twater}, rho = {rho}")
@@ -240,7 +252,7 @@ while ipLifo1.getMax() > 0:
 # 4.) Iterative scheme for coupled neutronics and thermalhydraulics solution
 # Attempting to run multiPhysics scheme.
 # Everytime, solve neutron transport, update axial power shape, solve TH, update TH data, and repeat.
-powi = 1.722 # Reference at 0.1722 MW from AT10_24UOX test ?
+powi = PFiss/1e6 # Reference at 0.1722 MW from AT10_24UOX test ?
 
 # check powi == PFiss
 print(f"powi = {powi} MW and PFiss = {PFiss} W")
@@ -251,7 +263,7 @@ Neutronics = cle2000.new('Neutronics',ipLifo2,1)
 Keffs = [] # list to store the Keff values at each iteration and check convergence on it
 
 ## Multi-Physics resolution
-
+modifyFmap = False
 iter = 0
 #THData_List = []
 #THData_List.append(InitTHData) # Store the initial TH data in a list to be used in the next neutronics resolution
@@ -275,11 +287,16 @@ while not conv:
     Power = ipLifo2.pushEmpty("Power", "LCM")
     ipLifo2.push(Cpo) # Push COMPO object
     ipLifo2.push(Track) # Push Tracking object for FEM solution : obtained from IniDONJON
-    if iter == 1:
-        ipLifo2.push(InitTHData)
-        print("Pushing THData object at iter = 1")
-    else:
-        ipLifo2.push(UpdatedTHData)
+    if iter%2 == 1:
+        if iter == 1:
+            ipLifo2.push(InitTHData)
+            print("Pushing THData object at iter = 1")
+        else:
+            ipLifo2.push(UpdatedTHData2)
+            print("Pushing THData object 2")
+    elif iter%2 == 0:
+        print("Pushing THData object 1")
+        ipLifo2.push(UpdatedTHData1)
     #ipLifo2.push(UpdatedTHData) # Push the TH data obtained from the TH solution
     ipLifo2.push(iter)
     ipLifo2.push(powi) 
@@ -290,13 +307,13 @@ while not conv:
     print("Neutronics.c2m execution completed")
     Flux = ipLifo2.node("Flux") # Recover the Flux field
     RecoveredPower = ipLifo2.node("Power") # Recover the Power field (LCM object)
-
     # 4.2.1) Recover the Keff value
     Keff = Flux["K-EFFECTIVE"][0] 
     Keffs.append(Keff)
     print(f"At iter {iter} : Keff = {Keff}")
     # 4.2.2) Recover the Power axial distribution obtained from neutronics calculation --> used to update the axial power shape
     PowerDistribution = RecoveredPower["POWER-DISTR"] 
+    Power_Distrib.append(PowerDistribution) # Store the axial power shape at each iteration
     print(f"Power distribution : {PowerDistribution} kW")
     #print(f"Uniform TH data used for initialization : {THData["THData"]}")
 
@@ -312,8 +329,12 @@ while not conv:
     # 4.4) Erase the THData object to store the updated TH data
     if iter == 1:
         InitTHData.erase()
-    if iter > 1:
-        UpdatedTHData.erase() # erase the THData object
+    if iter > 1 and iter % 2 == 0:
+        print("Erasing THData object 1")
+        UpdatedTHData1.erase() # erase the THData object
+    elif iter > 1 and iter % 2 == 1:
+        print("Erasing THData object 2")
+        UpdatedTHData2.erase()
 
     # 5.) TH procedure for updated power shape
     ############# Thermalhydraulic part ##############
@@ -326,55 +347,47 @@ while not conv:
     # 5.2) recover the new TH data
     TeffTEMP, TwaterTEMP, rhoTEMP = THComponent.get_TH_parameters()
     TeffTEMP = np.array([750.0 for i in range(Iz1)])
+    #TeffTEMP = [750.0 for i in range(Iz1)]
     print(f"THM resolution at iter={iter} : TeffFuel = {TeffTEMP}, Twater = {TwaterTEMP}, rho = {rhoTEMP}")
     TeffFuel.append(TeffTEMP)
     Twater.append(TwaterTEMP)
     rho.append(rhoTEMP)
     print(f"THM resolution at iter={iter} : TeffFuel = {TeffFuel}, Twater = {Twater}, rho = {rho}")
 
-
+    
     diff = compute_difference_fields(rho)
     print(f"updating rho: difference = {diff}")
     # 5.3) Update the TH data to be used in the next neutronics solution
     
-    """
-    UpdatedTHData = lcm.new('LCM','THData') # Create new LCM object to store the updated TH data
-    UpdatedTHData['TFuelList']    = np.array(TeffTEMP, dtype='f')
-    UpdatedTHData['TCoolList'] = np.array(TwaterTEMP, dtype='f')
-    UpdatedTHData['DCoolList'] = np.array(rhoTEMP/1000, dtype='f') # Convert density from kg/m3 to g/cm3
-    #UpdatedTHData.val() # validate the LCM object
-    UpdatedTHData.close() # close without erasing
+    if iter%2 == 1:
+        UpdatedTHData1 = lcm.new('LCM','THData') # Create new LCM object to store the updated TH data
+        print("Creating updated THData object 1")
+        print(UpdatedTHData1)
+        UpdatedTHData1['TFuelList']    = np.array(TeffTEMP, dtype='f')
+        UpdatedTHData1['TCoolList'] = np.array(TwaterTEMP, dtype='f')
+        UpdatedTHData1['DCoolList'] = np.array(rhoTEMP/1000, dtype='f') # Convert density from kg/m3 to g/cm3
+        #UpdatedTHData.val() # validate the LCM object
+        UpdatedTHData1.close() # close without erasing
+    elif iter%2 == 0:
+        UpdatedTHData2 = lcm.new('LCM','THData')
+        print("Creating updated THData object 2")
+        print(UpdatedTHData2)
+        UpdatedTHData2['TFuelList']    = np.array(TeffTEMP, dtype='f')
+        UpdatedTHData2['TCoolList'] = np.array(TwaterTEMP, dtype='f')
+        UpdatedTHData2['DCoolList'] = np.array(rhoTEMP/1000, dtype='f') # Convert density from kg/m3 to g/cm3
+        UpdatedTHData2.close() # close without erasing
 
     print("Updated THData object created")
     #THData_List.append(UpdatedTHData) # Store the TH data in a list to be used in the next neutronics resolution
-    """
-    # Attepmting to modify the Fmap object directly
-    print(Fmap.keys())
-    print("Printing TCool field")
-    print(Fmap["PARAM"][1]["P-VALUE"])
-    myIntPtr = np.array([2,], dtype='i')
-    for iparam in range(npar):
-        print(f"i param = {iparam}, corresponding to : ")
-        print(Fmap["PARAM"][iparam]["P-NAME"])
-        if Fmap["PARAM"][iparam]["P-NAME"] == "T-FUEL": # iparam = 0
-            #print(f"type = {Fmap["PARAM"][iparam]["P-TYPE"]}")
-            Fmap["PARAM"][iparam]["P-VALUE"].put("P-VALUE", TeffTEMP, len(TeffTEMP))
-            Fmap["PARAM"][iparam]["P-VALUE"].put("P-TYPE", myIntPtr, 1)
-        elif Fmap["PARAM"][iparam]["P-NAME"] == "T-COOL": # iparam = 1
-            Fmap["PARAM"][iparam]["P-VALUE"].put("P-VALUE", TwaterTEMP, len(TwaterTEMP))
-            Fmap["PARAM"][iparam]["P-VALUE"].put("P-TYPE", myIntPtr, 1)
-        elif Fmap["PARAM"][iparam]["P-NAME"] == "D-COOL": # iparam = 2
-            Fmap["PARAM"][iparam]["P-VALUE"].put("P-VALUE", rhoTEMP/1000, len(rhoTEMP))
-            Fmap["PARAM"][iparam]["P-VALUE"].put("P-TYPE", myIntPtr, 1)
-
-    Fmap.val()
-    print("Printing TCool field after modification")
-    print(Fmap["PARAM"][1]["P-VALUE"])
-
     # 5.4) Under relaxation of TH fields for the next iteration : check if it is needed ?
-    TeffFuel[-1] = underRelaxation(TeffFuel[-1], TeffFuel[-2], underRelaxationFactor)
-    Twater[-1] = underRelaxation(Twater[-1], Twater[-2], underRelaxationFactor)
-    rho[-1] = underRelaxation(rho[-1], rho[-2], underRelaxationFactor)
+    TeffFuel[-1] = underRelaxation(TeffFuel[-1], TeffFuel[-2], TH_underRelaxationFactor)
+    Twater[-1] = underRelaxation(Twater[-1], Twater[-2], TH_underRelaxationFactor)
+    rho[-1] = underRelaxation(rho[-1], rho[-2], TH_underRelaxationFactor)
+
+    # Under relaxation of the Power distribution?
+    if iter > 1:
+        Power_Distrib[-1] = underRelaxation(Power_Distrib[-1], Power_Distrib[-2], Pow_underRelaxationFactor)
+
 
     # 6.) Empty the ipLifo2 Lifo stack to prepare for the next iteration
     while ipLifo2.getMax() > 0:
@@ -383,21 +396,63 @@ while not conv:
     
     print(f"$$ - END iter = {iter}")
     # 7.) Check for convergence on Keff value : add more converegence criteria for other fields ?
-    if iter>1 and convergence(Keffs[-1], Keffs[-2], tol_Keff):
-        conv = True
-
+    if iter>1 and np.abs(Keffs[-1]-Keffs[-2])< tol_Keff:
+        print("Convergence on Keff reached after ", iter, " iterations")
+        if iter>1 and convergence(rho[-1], rho[-2], tol_TH) and convergence(TeffFuel[-1], TeffFuel[-2], tol_TH) and convergence(Twater[-1], Twater[-2], tol_TH):
+            if iter>1 and convergence(Power_Distrib[-1], Power_Distrib[-2], tol_POW):
+                conv = True
+                print("Convergence on TH fields and Power reached after ", iter, " iterations")
     if iter == nIter-1:
         print("Convergence not reached after ", iter, " iterations")
 
 
-
-    """
-    Work in progress : still need to make the Neutronics resolution work when udpating the TH data/Power distribution
-    """
+    print("$$$ - multiPhysics.py : END ITERATIONS - $$$")
 
 
+# 8.) Plot the results
 
+def quickPlot(x, y, title, xlabel, ylabel, saveName, path, SAVE_DIR):
+    fig,ax = plt.subplots()
+    if len(y) == len(x):
+        ax.scatter(x, y)
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
+        ax.set_title(title)
+        os.chdir(SAVE_DIR)
+        fig.savefig(saveName)
+        os.chdir(path)
+    else:
+        for i in range(len(y)):
+            data = y[i]
+            ax.plot(x, data, label=f"iteration {i}")
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
+        ax.legend()
+        ax.set_title(title)
+        os.chdir(SAVE_DIR)
+        fig.savefig(saveName)
+        os.chdir(path)
+    return
+# Creation of results directory
+path=os.getcwd()
+a=os.path.exists(f"multiPhysics_PyGan_24UOX_cell")
+if a==False:
+	os.mkdir(f"multiPhysics_PyGan_24UOX_cell")
+print(path)
 
+SAVE_DIR = f"multiPhysics_PyGan_24UOX_cell/{numericalMethod}/{voidFractionCorrel}/"
 
+a=os.path.exists(SAVE_DIR)
+if a==False:
+	os.makedirs(SAVE_DIR)
 
+print(SAVE_DIR)
+print(f"Keffs = {Keffs}")
+# Plot the results
+quickPlot(range(len(Keffs)), Keffs, "Keff convergence", "iteration", "Keff", "Keff_convergence.png", path, SAVE_DIR)
+
+quickPlot(range(Iz1), TeffFuel, "Fuel temperature convergence", "axial position (ctrl vol)", "TFuel (K)", "TFuel_convergence.png", path, SAVE_DIR)
+quickPlot(range(Iz1), Twater, "Coolant temperature convergence", "axial position (ctrl vol)", "TCool (K)", "TCool_convergence.png", path, SAVE_DIR)
+quickPlot(range(Iz1), rho, "Coolant density convergence", "axial position (ctrl vol)", "DCool (kg/m3)", "DCool_convergence.png", path, SAVE_DIR)
+quickPlot(range(Iz1), Power_Distrib, "Power distribution convergence", "axial position (ctrl vol)", "Power (kW)", "Power_distribution_convergence.png", path, SAVE_DIR)
     
