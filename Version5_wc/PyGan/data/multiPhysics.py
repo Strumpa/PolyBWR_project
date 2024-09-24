@@ -92,7 +92,37 @@ def compute_difference_fields(field):
     print(f"Difference between the last two fields = {diff}")
     return diff
 
+def compute_residuals(field):
+    """
+    Compute the residuals of the field
+    field : list : list of the fields to compute the residuals
+    """
+    residuals = np.abs(field[-1] - field[-2])/field[-2]
+    print(f"Residuals of the field = {residuals}")
+    return residuals
 
+def quickPlot(x, y, title, xlabel, ylabel, saveName, path, SAVE_DIR):
+    fig,ax = plt.subplots()
+    if len(y) == len(x):
+        ax.scatter(x, y)
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
+        ax.set_title(title)
+        os.chdir(SAVE_DIR)
+        fig.savefig(saveName)
+        os.chdir(path)
+    else:
+        for i in range(len(y)):
+            data = y[i]
+            ax.plot(x, data, label=f"iteration {i}")
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
+        ax.legend()
+        ax.set_title(title)
+        os.chdir(SAVE_DIR)
+        fig.savefig(saveName)
+        os.chdir(path)
+    return
 ######## End functions declaration ##########
 
 
@@ -145,12 +175,31 @@ frfaccorel = "base"
 P2Pcorel = "base"
 numericalMethod = "FVM"
 
+######## Creation of results directory ##########
+path=os.getcwd()
+a=os.path.exists(f"multiPhysics_PyGan_24UOX_cell")
+if a==False:
+	os.mkdir(f"multiPhysics_PyGan_24UOX_cell")
+print(path)
+
+SAVE_DIR = f"multiPhysics_PyGan_24UOX_cell/{numericalMethod}/{voidFractionCorrel}/"
+
+a=os.path.exists(SAVE_DIR)
+if a==False:
+	os.makedirs(SAVE_DIR)
+########## End creation of results directory ##########
+    
+########### Print options ###########
+FULL_PRINT = True # Print all the fields at each iteration, create figures in tmp/rundir/ ?
+
 ############ Nuclear Parameters ###########
 ## Fission parameters
 # specific power = 38.6 W/g
 specificPower = 38.60 # W/g, multiplied by 5 to have a more realistic value and create boiling
 PFiss = specificPower*Fuel_mass*1000 # W
 print("PFiss = ", PFiss)
+
+compo_name = "_COMPO_24UOX"
 
 #qFiss = PFiss/Fuel_volume # W/m3
 
@@ -173,15 +222,22 @@ Twater = []
 rho = []
 Qfiss = []
 
+Residuals_TeffFuel = []
+Residuals_Twater = []
+Residual_rho = []
+Residual_Qfiss = []
+
 ####### Power shape to store the axial power shape at each iteration
+Keffs = [] # list to store the Keff values at each iteration and check convergence on it
 Power_Distrib = []
+Residuals_Power_Distrib = []
 
 ##### Begin Calculation scheme for coupled neutronics and thermalhydraulics solution to the BWR pincell problem.
 
 # 1.) Guess the axial power shape : used to initialize the TH solution
 qFiss_init = guessAxialPowerShape(PFiss, Iz1, height, fuelRadius)
 print("$$$ - multiPhysics.py : BEGIN INITIALIZATION- $$$")
-print(f"qFiss = {qFiss_init}")
+
 Qfiss.append(qFiss_init)
 
 
@@ -197,7 +253,7 @@ TeffTEMP, TwaterTEMP, rhoTEMP = THComponent.get_TH_parameters() # renamed this f
 #                                                           ---> Fuel and coolant temperature + coolant density aren't nuclear parameters per-se
 #
 # Overwriting the initial Teff field : Conduction works again but current COMPO doesnt have low enough TFuel
-TeffTEMP = np.array([750.0 for i in range(Iz1)])
+#TeffTEMP = np.array([750.0 for i in range(Iz1)]) --> This should be fixed!
 TeffFuel.append(TeffTEMP)
 Twater.append(TwaterTEMP)
 rho.append(rhoTEMP)
@@ -223,6 +279,7 @@ ipLifo1.pushEmpty("Matex", "LCM") # Material Indexation
 ipLifo1.pushEmpty("Cpo", "LCM") # Compo
 ipLifo1.pushEmpty("Track", "LCM") # Tracking data for FEM
 ipLifo1.push(THData) # Thermal Hydraulic data for initialization
+ipLifo1.push(compo_name) # Compo name
 
 # 3.2) call IniDONJON Cle-2000 procedure
 IniDONJON = cle2000.new('IniDONJON',ipLifo1,1)
@@ -260,13 +317,11 @@ print(f"powi = {powi} MW and PFiss = {PFiss} W")
 # Create Lifo stack for Neutronics solution
 ipLifo2 = lifo.new()
 Neutronics = cle2000.new('Neutronics',ipLifo2,1)
-Keffs = [] # list to store the Keff values at each iteration and check convergence on it
+
 
 ## Multi-Physics resolution
-modifyFmap = False
 iter = 0
-#THData_List = []
-#THData_List.append(InitTHData) # Store the initial TH data in a list to be used in the next neutronics resolution
+
 conv = False
 while not conv:
     iter+=1
@@ -275,7 +330,6 @@ while not conv:
     ################## Neutronics part ##################
     # fill the Lifo stack for Neutronics solution
     print(f"$$ - BEGIN iter = {iter}")
-    #print(f"THData_list - {THData_List}")
     ipLifo2.push(Fmap);
     ipLifo2.push(Matex);
     if iter == 1: # At the first iteration, create empty LCM objects to host the Flux and Power fields
@@ -315,8 +369,10 @@ while not conv:
     PowerDistribution = RecoveredPower["POWER-DISTR"] 
     Power_Distrib.append(PowerDistribution) # Store the axial power shape at each iteration
     print(f"Power distribution : {PowerDistribution} kW")
-    #print(f"Uniform TH data used for initialization : {THData["THData"]}")
-
+    if iter > 1:
+        Residuals_Power_Distrib.append(compute_difference_fields(Power_Distrib))
+        if FULL_PRINT:
+            quickPlot(range(Iz1), Power_Distrib, "Power distribution convergence", "axial position (ctrl vol)", "Power (kW)", "Power_distribution_convergence.png", path, SAVE_DIR)
     # 4.3) Update the axial power shape to be used in the TH solution
     qFiss = PowerDistribution*1000 # Updating the axial power shape, converting to W from kW
     Qfiss.append(qFiss)
@@ -346,13 +402,22 @@ while not conv:
 
     # 5.2) recover the new TH data
     TeffTEMP, TwaterTEMP, rhoTEMP = THComponent.get_TH_parameters()
-    TeffTEMP = np.array([750.0 for i in range(Iz1)])
+    #TeffTEMP = np.array([750.0 for i in range(Iz1)])
     #TeffTEMP = [750.0 for i in range(Iz1)]
     print(f"THM resolution at iter={iter} : TeffFuel = {TeffTEMP}, Twater = {TwaterTEMP}, rho = {rhoTEMP}")
     TeffFuel.append(TeffTEMP)
+    Residuals_TeffFuel.append(compute_residuals(TeffFuel))
     Twater.append(TwaterTEMP)
+    Residuals_Twater.append(compute_residuals(Twater))
     rho.append(rhoTEMP)
+    Residual_rho.append(compute_residuals(rho))
     print(f"THM resolution at iter={iter} : TeffFuel = {TeffFuel}, Twater = {Twater}, rho = {rho}")
+
+    if FULL_PRINT:
+        quickPlot(range(Iz1), TeffFuel, "Fuel temperature convergence", "axial position (ctrl vol)", "TFuel (K)", "TFuel_convergence.png", path, SAVE_DIR)
+        quickPlot(range(Iz1), Twater, "Coolant temperature convergence", "axial position (ctrl vol)", "TCool (K)", "TCool_convergence.png", path, SAVE_DIR)
+        quickPlot(range(Iz1), rho, "Coolant density convergence", "axial position (ctrl vol)", "DCool (kg/m3)", "DCool_convergence.png", path, SAVE_DIR)
+        quickPlot(range(Iz1), Qfiss, "Axial power shape", "axial position (ctrl vol)", "Power (W)", "Power_shape.png", path, SAVE_DIR)
 
     
     diff = compute_difference_fields(rho)
@@ -386,7 +451,10 @@ while not conv:
 
     # Under relaxation of the Power distribution?
     if iter > 1:
+
         Power_Distrib[-1] = underRelaxation(Power_Distrib[-1], Power_Distrib[-2], Pow_underRelaxationFactor)
+        if FULL_PRINT:
+            quickPlot(range(Iz1), Power_Distrib, "Power distribution convergence", "axial position (ctrl vol)", "Power (kW)", "Power_distribution_convergence_relaxed.png", path, SAVE_DIR)
 
 
     # 6.) Empty the ipLifo2 Lifo stack to prepare for the next iteration
@@ -411,28 +479,6 @@ while not conv:
 
 # 8.) Plot the results
 
-def quickPlot(x, y, title, xlabel, ylabel, saveName, path, SAVE_DIR):
-    fig,ax = plt.subplots()
-    if len(y) == len(x):
-        ax.scatter(x, y)
-        ax.set_xlabel(xlabel)
-        ax.set_ylabel(ylabel)
-        ax.set_title(title)
-        os.chdir(SAVE_DIR)
-        fig.savefig(saveName)
-        os.chdir(path)
-    else:
-        for i in range(len(y)):
-            data = y[i]
-            ax.plot(x, data, label=f"iteration {i}")
-        ax.set_xlabel(xlabel)
-        ax.set_ylabel(ylabel)
-        ax.legend()
-        ax.set_title(title)
-        os.chdir(SAVE_DIR)
-        fig.savefig(saveName)
-        os.chdir(path)
-    return
 # Creation of results directory
 path=os.getcwd()
 a=os.path.exists(f"multiPhysics_PyGan_24UOX_cell")
@@ -455,4 +501,10 @@ quickPlot(range(Iz1), TeffFuel, "Fuel temperature convergence", "axial position 
 quickPlot(range(Iz1), Twater, "Coolant temperature convergence", "axial position (ctrl vol)", "TCool (K)", "TCool_convergence.png", path, SAVE_DIR)
 quickPlot(range(Iz1), rho, "Coolant density convergence", "axial position (ctrl vol)", "DCool (kg/m3)", "DCool_convergence.png", path, SAVE_DIR)
 quickPlot(range(Iz1), Power_Distrib, "Power distribution convergence", "axial position (ctrl vol)", "Power (kW)", "Power_distribution_convergence.png", path, SAVE_DIR)
+quickPlot(range(Iz1), Qfiss, "Axial power shape", "axial position (ctrl vol)", "Power (W)", "Power_shape.png", path, SAVE_DIR)
     
+quickPlot(range(len(Residuals_TeffFuel)), Residuals_TeffFuel, "Fuel temperature residuals", "iteration", "Residuals", "TFuel_residuals.png", path, SAVE_DIR)
+quickPlot(range(len(Residuals_Twater)), Residuals_Twater, "Coolant temperature residuals", "iteration", "Residuals", "TCool_residuals.png", path, SAVE_DIR)
+quickPlot(range(len(Residual_rho)), Residual_rho, "Coolant density residuals", "iteration", "Residuals", "DCool_residuals.png", path, SAVE_DIR)
+quickPlot(range(len(Residuals_Power_Distrib)), Residuals_Power_Distrib, "Power distribution residuals", "iteration", "Residuals", "Power_distribution_residuals.png", path, SAVE_DIR)
+quickPlot(range(len(Residual_Qfiss)), Residual_Qfiss, "Axial power shape residuals", "iteration", "Residuals", "Power_shape_residuals.png", path, SAVE_DIR)
