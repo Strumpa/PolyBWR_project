@@ -35,13 +35,13 @@ REAL Kinf ;
 *                      BEGIN PARAMETER DEFINITION                      *
 ************************************************************************
 INTEGER iAutopMax := 3 ;
-INTEGER fuel_t_pts := 5 ;
+INTEGER fuel_t_pts := 7 ;
 INTEGER cool_t_pts := 5 ;
 INTEGER cool_d_pts := 9 ;
 PARAMS := UTL: ::
         CREA
             fuel_temp <<fuel_t_pts>> = 
-                500.0 800.0 1000.0 1200.0 1500.0
+                500.0 800.0 1000.0 1200.0 1500.0 1800.0 2200.0
         CREA 
             cool_temp <<cool_t_pts>> =
                 500.0 600.0 650.0 700.0 750.0

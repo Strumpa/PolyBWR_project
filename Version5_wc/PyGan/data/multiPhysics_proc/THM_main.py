@@ -43,7 +43,9 @@ class Version5_THM_prototype:
         self.pOutlet =  pOutlet #Pa
         self.uInlet = self.qFlow / self.rhoInlet #m/s
 
-        self.Qfiss = Qfiss # amplitude of sine variation, or constant value if Qfiss_variation_type = "constant"
+        self.Qfiss = Qfiss # volumic power acting a source term in the convective heat transfer problem in the canal
+        print(f"$$$---------- THM: prototype, Qfiss = {self.Qfiss}.")
+
 
         self.r_f = fuel_radius # fuel pin radius in meters
         self.gap_r = gap_radius # gap radius in meters, used to determine mesh elements for constant surface discretization

@@ -7,6 +7,7 @@ from THM_main import plotting
 from iapws import IAPWS97
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.integrate import simps
 import os, shutil
 import lifo
 import lcm
@@ -14,9 +15,13 @@ import cle2000
 from assertS import *
 
 
-########## Begin functions declaration ##########
+########## Begin helper functions declaration ##########
 ## Fonction used for the convergence algorithm
 def underRelaxation(Field, OldField, underRelaxationFactor):
+    print(f"Field = {Field}")
+    print(f"OldField = {OldField}")
+    underRelaxed_Field = underRelaxationFactor*Field + (1-underRelaxationFactor)*OldField
+    print(f"Under relaxed Field = {underRelaxed_Field}")
     return underRelaxationFactor*Field + (1-underRelaxationFactor)*OldField
 
 def convergence(Field, OldField, tol):
@@ -32,7 +37,7 @@ def convergence(Field, OldField, tol):
             conv = True
     return conv
 
-def guessAxialPowerShape(Ptot, Iz, height, radius):
+def guessAxialPowerShape(Ptot, Iz, height, radius): # Old version of the function, introduced errrors when scaling up to more control volumes but seemed to work for 20 control volumes
     """
     Ptot : float : total power released (W)
     Iz : int : number of control volumes in the axial direction
@@ -82,6 +87,129 @@ def guessAxialPowerShape(Ptot, Iz, height, radius):
     
     return volumic_powers   
 
+def guess_power_density_sine(Ptot, h, r, num_control_volumes): # New version, supposed to be more accurate but introduced alot of instability in the TH solution
+    """
+    Compute the power density in a cylinder with a sine-shaped profile along the axial direction.
+
+    Parameters:
+    Ptot (float): Total power released in the cylinder [W].
+    h (float): Total height of the cylinder [m].
+    r (float): Radius of the cylinder [m].
+    num_control_volumes (int): Number of control volumes along the z-axis.
+
+    Returns:
+    z_values (numpy array): Array of z positions (center of each control volume) along the height of the cylinder.
+    power_density (numpy array): Array of power densities corresponding to each control volume.
+    q0 (float): The peak power density constant.
+    """
+    
+    # Cross-sectional area of the cylinder
+    A_cross_section = np.pi * r**2
+
+    # Function for the power density profile along the axial direction
+    def q(z, q0):
+        return q0 * np.sin(np.pi * z / h)
+
+    # Calculate q0 to ensure total power matches Ptot
+    q0 = Ptot / (A_cross_section * (2 * h / np.pi))  # derived from the integral
+
+    # Compute the boundaries and midpoints of each control volume
+    z_boundaries = np.linspace(0, h, num_control_volumes + 1)
+    z_values = (z_boundaries[:-1] + z_boundaries[1:]) / 2  # Midpoints of control volumes
+
+    # Compute power density at each midpoint
+    power_density = q(z_values, q0)
+
+    return z_values, power_density
+
+def guess_power_density_cosine(Ptot, h, r, num_control_volumes):
+    """
+    Compute the power density in a cylinder with a cosine-shaped profile along the axial direction.
+
+    Parameters:
+    Ptot (float): Total power released in the cylinder [W].
+    h (float): Total height of the cylinder [m].
+    r (float): Radius of the cylinder [m].
+    num_control_volumes (int): Number of control volumes along the z-axis.
+
+    Returns:
+    z_values (numpy array): Array of z positions (center of each control volume) along the height of the cylinder.
+    power_density (numpy array): Array of power densities corresponding to each control volume.
+    """
+    
+    # Cross-sectional area of the cylinder
+    A_cross_section = np.pi * r**2
+
+    # Function for the power density profile along the axial direction (cosine shape)
+    def q(z, q0):
+        return q0 * np.cos(np.pi * z / (2 * h))
+
+    # Calculate q0 to ensure total power matches Ptot
+    q0 = Ptot / (A_cross_section * (h / 2))  # derived from the integral of cosine
+
+    # Compute the boundaries and midpoints of each control volume
+    z_boundaries = np.linspace(0, h, num_control_volumes + 1)
+    z_values = (z_boundaries[:-1] + z_boundaries[1:]) / 2  # Midpoints of control volumes
+
+    # Compute power density at each midpoint
+    power_density = q(z_values, q0)
+
+    return z_values, power_density
+
+def compute_power_densities(integrated_powers, r, Iz, height):
+    """
+    Convert a list of integrated powers at each axial node into power densities.
+
+    Parameters:
+    integrated_powers (numpy array): List of integrated powers at each node [W].
+    r (float): Radius of the cylinder [m].
+    Iz (int) : number of axial-subdivisions.
+
+    Returns:
+    power_densities (numpy array): Power densities at each axial node [W/m^3].
+    """
+    print(len(integrated_powers))
+    print(f"integrated_powers = {integrated_powers} W")
+
+    # Cross-sectional area of the cylinder (constant for all nodes)
+    A_cross_section = np.pi * r**2
+    z_values = np.linspace(0, height, Iz+1)
+    print(f"z_values = {z_values}")
+    # Calculate the heights (Δz) of each control volume
+    dz = np.diff(z_values)  # Heights between adjacent z positions
+
+    # Compute the volumes of each control volume
+    volumes = A_cross_section * dz  # Volume of each cylinder segment
+
+    # Calculate the power densities for each node
+    power_densities = integrated_powers / volumes
+
+    return power_densities
+
+def integrate_power_density(z_values, power_density, r):
+    """
+    Numerically integrate the power density profile to compute total power and ensure it's normalized to Ptot.
+
+    Parameters:
+    z_values (numpy array): Array of z positions (center of each control volume).
+    power_density (numpy array): Array of power densities corresponding to each z position.
+    r (float): Radius of the cylinder [m].
+
+    Returns:
+    integrated_power (float): Numerically integrated total power from the power density profile.
+    """
+    
+    # Cross-sectional area of the cylinder
+    A_cross_section = np.pi * r**2
+
+    # Integrate using the trapezoidal rule to get the total power
+    #integrated_power = np.trapz(power_density * A_cross_section, z_values)
+    
+    # Integrate using Simpson's rule to get the total power
+    integrated_power = simps(power_density * A_cross_section, z_values)
+
+    return integrated_power
+
 def compute_difference_fields(field):
     """
     Compute the difference between the last two fields of the list field
@@ -95,15 +223,20 @@ def compute_difference_fields(field):
 def compute_residuals(field):
     """
     Compute the residuals of the field
-    field : list : list of the fields to compute the residuals
+    field : list : list of the fields to compute the residuals in %
     """
-    residuals = np.abs(field[-1] - field[-2])/field[-2]
-    print(f"Residuals of the field = {residuals}")
+    residuals = (field[-1] - field[-2])*100/field[-2]
+    print(f"Residuals of the field = {residuals} %")
     return residuals
 
 def quickPlot(x, y, title, xlabel, ylabel, saveName, path, SAVE_DIR):
     fig,ax = plt.subplots()
-    if len(y) == len(x):
+    if len(y) == len(x) and isinstance(y[0], np.float32):
+        print("Plotting a scatter plot")
+        print(f"y = {y}")
+        print(f"x = {x}")
+        print(f"len(y) = {len(y)}")
+        print(f"len(x) = {len(x)}")
         ax.scatter(x, y)
         ax.set_xlabel(xlabel)
         ax.set_ylabel(ylabel)
@@ -113,8 +246,10 @@ def quickPlot(x, y, title, xlabel, ylabel, saveName, path, SAVE_DIR):
         os.chdir(path)
     else:
         for i in range(len(y)):
-            data = y[i]
-            ax.plot(x, data, label=f"iteration {i}")
+            if i%2==0:
+                data = y[i]
+                ax.plot(x, data, '2-',linewidth=1, label=f"iteration {i}")
+        ax.plot(x, y[-1], '2-',linewidth=1, label=f"iteration {len(y)}")
         ax.set_xlabel(xlabel)
         ax.set_ylabel(ylabel)
         ax.legend()
@@ -123,13 +258,38 @@ def quickPlot(x, y, title, xlabel, ylabel, saveName, path, SAVE_DIR):
         fig.savefig(saveName)
         os.chdir(path)
     return
-######## End functions declaration ##########
+######## End helper functions declaration ##########
+
+
 
 
 ########## User input ##########
-
+########## Algorithm parameters ###########
 solveConduction = True
+nIter = 1000 #1000
+tol_TH = 1e-3 # Convergence criterion for the TH solution, in units of T or rho
+tol_POW = 1 # Convergence criterion for the power axial distribution, in units of W 
+tol_Keff = 1e-6 # Convergence criterion for the Keff value
+TH_underRelaxationFactor = 0.1
+Pow_underRelaxationFactor = 0.1 # Under relaxation factor for the power axial distribution to be tested, 0.1 used in Serpent/OpenFoam coupling
+relax_TH = True # Under relaxation of the TH fields for the next iteration
+relax_Pow = True # Under relaxation of the Power distribution for the next iteration
+
+########## Mesh parameters ###########
 zPlotting = [] #If empty, no plotting of the axial distribution of the fields, otherwise, list of the axial positions where the fields are plotted
+## Meshing parameters:
+If = 8
+I1 = 3
+Iz1 = 20 # number of control volumes in the axial direction for now only 20 control volumes are supported for DONJON solution
+
+########## Choice of Thermalhydraulics correlation ##########
+voidFractionCorrel = 'EPRIvoidModel' # 'modBestion', 'HEM1', 'GEramp', 'EPRIvoidModel'
+frfaccorel = "Churchill" # 'base', 'blasius', 'Churchill', 'Churchill_notOK' ?
+P2Pcorel = "HEM1" # 'base', 'HEM1', 'HEM2', 'MNmodel'
+numericalMethod = "BiCG" # "FVM": Solves the system using matrix inversion with preconditioning.
+                        # "GaussSiedel" : Applies the Gauss-Seidel iterative solver.
+                        # "BiCG" : Uses the BiConjugate Gradient method for solving non-symmetric or indefinite matrices.
+                        # "BiCGStab" : Applies the BiCGStab (BiConjugate Gradient Stabilized) method to ensure faster and more stable convergence.
 
 ########## Thermal hydraulics parameters ##########
 ## Geometric parameters
@@ -150,23 +310,57 @@ pOutlet =  7.2e6 # Pa
 # Nominal coolant flow rate = 1530 kg/s
 massFlowRate = 1530  / (200*91)  # kg/s
 
-## Additional parameters needed for the calculation
-solveConduction = True
+    
+########### Print options ###########
+FULL_PRINT = True # Print all the fields at each iteration, create figures in tmp/rundir/ ?
+
+############ Nuclear Parameters ###########
+
 volumic_mass_U = 19000 # kg/m3
 Fuel_volume = np.pi*fuelRadius**2*height # m3
 Fuel_mass = Fuel_volume*volumic_mass_U # kg
 print(f"Fuel mass = {Fuel_mass} kg")
 
-## Meshing parameters:
-If = 8
-I1 = 3
-Iz1 = 20 # number of control volumes in the axial direction for now only 20 control volumes are supported for DONJON solution
+Bundle_volume = Fuel_volume / Iz1 # m3, Bundle <=> 1 axial slice of the fuel channel
+## Fission parameters
+# specific power = 38.6 W/g
+specificPower = 38.60/2 # W/g , devide by 2 to avoid overestimation of the power
+PFiss = specificPower*Fuel_mass*1000 # W
+print("PFiss = ", PFiss)
 
-## Thermalhydraulics correlation
-voidFractionCorrel = "HEM1"
-frfaccorel = "base"
-P2Pcorel = "base"
-numericalMethod = "FVM"
+compo_name = "_COMPO_24UOX" # Name of the COMPO object to be used in the neutronics solution
+
+
+
+## Material parameters
+kFuel = 4.18 # W/m.K, TECHNICAL REPORTS SERIES No. 59 : Thermal Conductivity of Uranium Dioxide, IAEA, VIENNA, 1966
+Hgap = 10000 
+kClad = 21.5 # W/m.K, Thermal Conductivity of Zircaloy-2 (as used in BWRX-300) according to https://www.matweb.com/search/datasheet.aspx?MatGUID=eb1dad5ce1ad4a1f9e92f86d5b44740d
+# k_Zircaloy-4 = 21.6 W/m.K too so check for ATRIUM-10 clad material but should have the same thermal conductivity
+
+
+########## Fields of the TH problem ##########
+TeffFuel = []
+Twater = []
+rho = []
+Volumic_Powers = []
+Relaxed_Volumic_Powers = []
+
+
+Residuals_TeffFuel = []
+Residuals_Twater = []
+Residuals_rho = []
+Residuals_Volumic_Powers = []
+Residuals_Relaxed_Volumic_Powers = []
+
+####### Power shape to store the axial power shape at each iteration
+Keffs = [] # list to store the Keff values at each iteration and check convergence on it
+Power_Distribs = []
+Relaxed_Power_Distribs = []
+
+Residuals_Power_Distribs = []
+Residuals_Relaxed_Power_Distribs = []
+
 
 ######## Creation of results directory ##########
 path=os.getcwd()
@@ -175,93 +369,59 @@ if a==False:
 	os.mkdir(f"multiPhysics_PyGan_24UOX_cell")
 print(path)
 
-SAVE_DIR = f"multiPhysics_PyGan_24UOX_cell/{numericalMethod}/{voidFractionCorrel}/"
+SAVE_DIR = f"multiPhysics_PyGan_24UOX_cell/{numericalMethod}/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/"
 
 a=os.path.exists(SAVE_DIR)
 if a==False:
 	os.makedirs(SAVE_DIR)
 ########## End creation of results directory ##########
-    
-########### Print options ###########
-FULL_PRINT = True # Print all the fields at each iteration, create figures in tmp/rundir/ ?
-
-############ Nuclear Parameters ###########
-## Fission parameters
-# specific power = 38.6 W/g
-specificPower = 38.60 # W/g, multiplied by 5 to have a more realistic value and create boiling
-PFiss = specificPower*Fuel_mass*1000 # W
-print("PFiss = ", PFiss)
-
-compo_name = "_COMPO_24UOX"
-
-#qFiss = PFiss/Fuel_volume # W/m3
-
-## Material parameters
-kFuel = 4.18 # W/m.K, TECHNICAL REPORTS SERIES No. 59 : Thermal Conductivity of Uranium Dioxide, IAEA, VIENNA, 1966
-Hgap = 10000 
-kClad = 21.5 # W/m.K, Thermal Conductivity of Zircaloy-2 (as used in BWRX-300) according to https://www.matweb.com/search/datasheet.aspx?MatGUID=eb1dad5ce1ad4a1f9e92f86d5b44740d
-# k_Zircaloy-4 = 21.6 W/m.K too so check for ATRIUM-10 clad material but should have the same thermal conductivity
-########## Algorithm parameters ###########
-nIter = 1000
-tol_TH = 1e-4 # Convergence criterion for the TH solution
-tol_POW = 1e-3 # Convergence criterion for the power axial distribution
-tol_Keff = 1e-5 # Convergence criterion for the Keff value
-TH_underRelaxationFactor = 0.5
-Pow_underRelaxationFactor = 0.5 # Under relaxation factor for the power axial distribution to be tested
-
-########## Fields of the TH problem ##########
-TeffFuel = []
-Twater = []
-rho = []
-Qfiss = []
-
-Residuals_TeffFuel = []
-Residuals_Twater = []
-Residual_rho = []
-Residual_Qfiss = []
-
-####### Power shape to store the axial power shape at each iteration
-Keffs = [] # list to store the Keff values at each iteration and check convergence on it
-Power_Distrib = []
-Residuals_Power_Distrib = []
 
 ##### Begin Calculation scheme for coupled neutronics and thermalhydraulics solution to the BWR pincell problem.
 
 # 1.) Guess the axial power shape : used to initialize the TH solution
-qFiss_init = guessAxialPowerShape(PFiss, Iz1, height, fuelRadius)
+z_mesh, qFiss_init = guess_power_density_sine(PFiss, height, fuelRadius, Iz1)
+#z_mesh, qFiss_init = guess_power_density_cosine(PFiss, height, fuelRadius, Iz1)
+print(f"qFiss_init = {qFiss_init}")
+
+# Check the total power
+total_power = integrate_power_density(z_mesh, qFiss_init, fuelRadius)
+print(f"Total power = {total_power} W")
+print(f"Error on integrated (total) power = {total_power - PFiss} W <-> {100*(total_power - PFiss)/PFiss} %")
 print("$$$ - multiPhysics.py : BEGIN INITIALIZATION- $$$")
 
-Qfiss.append(qFiss_init)
+Volumic_Powers.append(qFiss_init)
+
+initial_volumic_power = np.sum(qFiss_init)
+print(f"Initial volumic power = {initial_volumic_power} W")
 
 
 # 2.) TH solution for initial guess of power shape : sine shape (if devide by Iz : doesnt work and the initial TH solution isn't in IAPWS domain)
 # This can probably be fixed by giving a different initial guess for the total fission power.
 ## 2.1) Initial thermal hydraulic resolution
-THComponent = THM_prototype("BWR Pincell equivalent canal", canalType, waterRadius, fuelRadius, gapRadius, cladRadius, 
+THComponentIni = THM_prototype("Initialization of BWR Pincell equivalent canal", canalType, waterRadius, fuelRadius, gapRadius, cladRadius, 
                             height, tInlet, pOutlet, massFlowRate, qFiss_init, kFuel, Hgap, kClad, Iz1, If, I1, zPlotting, 
                             solveConduction, dt = 0, t_tot = 0, frfaccorel = frfaccorel, P2Pcorel = P2Pcorel, voidFractionCorrel = voidFractionCorrel, 
                             numericalMethod = numericalMethod)
 
-TeffTEMP, TwaterTEMP, rhoTEMP = THComponent.get_TH_parameters() # renamed this function to be clear about what it does 
+TeffIni, TwaterIni, rhoIni = THComponentIni.get_TH_parameters() # renamed this function to be clear about what it does 
 #                                                           ---> Fuel and coolant temperature + coolant density aren't nuclear parameters per-se
 #
-# Overwriting the initial Teff field : Conduction works again but current COMPO doesnt have low enough TFuel
-#TeffTEMP = np.array([750.0 for i in range(Iz1)]) --> This should be fixed!
-TeffFuel.append(TeffTEMP)
-Twater.append(TwaterTEMP)
-rho.append(rhoTEMP)
+
+TeffFuel.append(TeffIni)
+Twater.append(TwaterIni)
+rho.append(rhoIni)
 
 
 
-print(f"$$ - FIRST THM resolution iter = 0 : TeffFuel = {TeffTEMP}, Twater = {TwaterTEMP}, rho = {rhoTEMP}")
+print(f"$$ - FIRST THM resolution iter = 0 : TeffFuel = {TeffIni}, Twater = {TwaterIni}, rho = {rhoIni}")
 print(f"After initialization : TeffFuel = {TeffFuel}, Twater = {Twater}, rho = {rho}")
 
 # 2.2) Create LCM object to store the TH data to be used in the neutronics solution
 print("Creating initial THData object")
 THData = lcm.new('LCM','THData')
-THData['TFuelList']    = np.array(TeffTEMP, dtype='f')
-THData['TCoolList'] = np.array(TwaterTEMP, dtype='f')
-THData['DCoolList'] = np.array(rhoTEMP/1000, dtype='f')
+THData['TFuelList']    = np.array(TeffIni, dtype='f')
+THData['TCoolList'] = np.array(TwaterIni, dtype='f')
+THData['DCoolList'] = np.array(rhoIni/1000, dtype='f')
 THData.close() # close without erasing
 
 ## 3.) Initializing Neutronics solution
@@ -334,16 +494,12 @@ while not conv:
     Power = ipLifo2.pushEmpty("Power", "LCM")
     ipLifo2.push(Cpo) # Push COMPO object
     ipLifo2.push(Track) # Push Tracking object for FEM solution : obtained from IniDONJON
-    if iter%2 == 1:
-        if iter == 1:
-            ipLifo2.push(InitTHData)
-            print("Pushing THData object at iter = 1")
-        else:
-            ipLifo2.push(UpdatedTHData2)
-            print("Pushing THData object 2")
-    elif iter%2 == 0:
-        print("Pushing THData object 1")
-        ipLifo2.push(UpdatedTHData1)
+    if iter == 1:
+        ipLifo2.push(InitTHData)
+        print("Pushing THData object at iter = 1")
+    else:
+        ipLifo2.push(UpdatedTHData)
+        print("Pushing THData object 2")
     #ipLifo2.push(UpdatedTHData) # Push the TH data obtained from the TH solution
     ipLifo2.push(iter)
     ipLifo2.push(powi) 
@@ -360,94 +516,119 @@ while not conv:
     print(f"At iter {iter} : Keff = {Keff}")
     # 4.2.2) Recover the Power axial distribution obtained from neutronics calculation --> used to update the axial power shape
     PowerDistribution = RecoveredPower["POWER-DISTR"] 
-    Power_Distrib.append(PowerDistribution) # Store the axial power shape at each iteration
-    print(f"Power distribution : {PowerDistribution} kW")
-    if iter > 1:
-        Residuals_Power_Distrib.append(compute_difference_fields(Power_Distrib))
-        if FULL_PRINT:
-            quickPlot(range(Iz1), Power_Distrib, "Power distribution convergence", "axial position (ctrl vol)", "Power (kW)", "Power_distribution_convergence.png", path, SAVE_DIR)
+    print(f"Power distribution : {PowerDistribution} W")
+    qFiss = compute_power_densities(PowerDistribution, fuelRadius, Iz1, height) # Updating the axial power shape, converting to W from kW, and dividing by the fuel volume to get W/m3
+    Volumic_Powers.append(qFiss)
+    Power_Distribs.append(PowerDistribution) # Store the axial power shape at each iteration
     # 4.3) Update the axial power shape to be used in the TH solution
-    qFiss = PowerDistribution*1000 # Updating the axial power shape, converting to W from kW
-    Qfiss.append(qFiss)
+    print(f"Initial axial power shape : {qFiss_init}")
+    print(f"Power distribution : {PowerDistribution}")
+    
+    print(f"Updated axial power/vol shape : {qFiss}")
 
-    diff_source = compute_difference_fields(Qfiss)
-    print(f"updating source: difference = {diff_source}")
+    # 4.3.1) Under relaxation of the Power distribution for the next iteration
+    if iter == 1 and relax_Pow:
+        PowerDistribution_relaxed = underRelaxation(PowerDistribution, qFiss_init*Fuel_volume, Pow_underRelaxationFactor)
+        qFiss_relaxed = underRelaxation(qFiss, qFiss_init, Pow_underRelaxationFactor)
+        print(f"Initial axial power shape : {qFiss_init}")
+        print(f"Under relaxed {Pow_underRelaxationFactor} Power distribution : {PowerDistribution}")
+        # Under relaxation of the Power distribution?
+    elif iter > 1 and relax_Pow:
+            PowerDistribution_relaxed = underRelaxation(PowerDistribution, Relaxed_Power_Distribs[-1], Pow_underRelaxationFactor)
+            qFiss_relaxed = underRelaxation(qFiss, Relaxed_Volumic_Powers[-1], Pow_underRelaxationFactor)
+    if relax_Pow:
+        Relaxed_Power_Distribs.append(PowerDistribution)
+        Relaxed_Volumic_Powers.append(qFiss)
 
-    print(f"Updated axial power shape : {qFiss}")
+
+    if iter == 1:
+        SAVE_DATA_DIR = f"multiPhysics_PyGan_24UOX_cell/{numericalMethod}/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/mesh{Iz1}/Figures/"
+        a=os.path.exists(SAVE_DATA_DIR)
+        if a==False:
+            os.makedirs(SAVE_DATA_DIR)
+        os.chdir(SAVE_DATA_DIR)
+        heights = np.linspace(0, height, Iz1 + 1)
+        mid_heights = [0.5*(heights[i]+heights[i+1]) for i in range(Iz1)]
+        fig, ax = plt.subplots()
+        ax.plot(mid_heights, qFiss, '2-',linewidth=1, label="Initial DONJON Volumic Power Distribution")
+        ax.plot(mid_heights, qFiss_init, '2-', linewidth=1, label="Guess Axial Volumic Power Distribution")
+        ax.plot(mid_heights, qFiss_relaxed, 'x', linewidth=1, label="Under Relaxed Volumic Power Distribution")
+        ax.set_xlabel("height (m)")
+        ax.set_ylabel("Volumic Power (W)")
+        ax.legend()
+        ax.set_title("Volumic Power Distributions at iter = 1")
+        fig.savefig(f"Power_distributions_iter{iter}.png")
+        os.chdir(path)
+
+    if iter > 1:
+        Residuals_Power_Distribs.append(compute_residuals(Power_Distribs))
+        Residuals_Volumic_Powers.append(compute_residuals(Volumic_Powers))
+        if relax_Pow:
+            Residuals_Relaxed_Power_Distribs.append(compute_residuals(Relaxed_Power_Distribs))
+            Residuals_Relaxed_Volumic_Powers.append(compute_residuals(Relaxed_Volumic_Powers))
     print(f"Initial axial power shape : {qFiss_init}")
     # 4.4) Erase the THData object to store the updated TH data
     if iter == 1:
         InitTHData.erase()
-    if iter > 1 and iter % 2 == 0:
-        print("Erasing THData object 1")
-        UpdatedTHData1.erase() # erase the THData object
-    elif iter > 1 and iter % 2 == 1:
-        print("Erasing THData object 2")
-        UpdatedTHData2.erase()
+    else:
+        print("Erasing THData object")
+        UpdatedTHData.erase() # erase the THData object
 
     # 5.) TH procedure for updated power shape
     ############# Thermalhydraulic part ##############
+    if relax_Pow:
+        updated_qFiss = qFiss_relaxed
+    else:
+        updated_qFiss = qFiss
     # 5.1) TH resolution with updated power shape :
     THMComponent = THM_prototype("BWR Pincell equivalent canal", canalType, waterRadius, fuelRadius, gapRadius, cladRadius, 
-                            height, tInlet, pOutlet, massFlowRate, qFiss, kFuel, Hgap, kClad, Iz1, If, I1, zPlotting, 
+                            height, tInlet, pOutlet, massFlowRate, updated_qFiss, kFuel, Hgap, kClad, Iz1, If, I1, zPlotting, 
                             solveConduction, dt = 0, t_tot = 0, frfaccorel = frfaccorel, P2Pcorel = P2Pcorel, voidFractionCorrel = voidFractionCorrel, 
                             numericalMethod = numericalMethod)    ##### qFiss to be updated
 
     # 5.2) recover the new TH data
-    TeffTEMP, TwaterTEMP, rhoTEMP = THComponent.get_TH_parameters()
-    #TeffTEMP = np.array([750.0 for i in range(Iz1)])
-    #TeffTEMP = [750.0 for i in range(Iz1)]
+    TeffTEMP, TwaterTEMP, rhoTEMP = THMComponent.get_TH_parameters()
     print(f"THM resolution at iter={iter} : TeffFuel = {TeffTEMP}, Twater = {TwaterTEMP}, rho = {rhoTEMP}")
     TeffFuel.append(TeffTEMP)
     Residuals_TeffFuel.append(compute_residuals(TeffFuel))
     Twater.append(TwaterTEMP)
     Residuals_Twater.append(compute_residuals(Twater))
     rho.append(rhoTEMP)
-    Residual_rho.append(compute_residuals(rho))
-    print(f"THM resolution at iter={iter} : TeffFuel = {TeffFuel}, Twater = {Twater}, rho = {rho}")
+    Residuals_rho.append(compute_residuals(rho))
+    print(f"THM resolution at iter={iter} : All lists TeffFuel = {TeffFuel}, Twater = {Twater}, rho = {rho}")
 
     if FULL_PRINT:
+        print("At iter = ", iter)
+        print("Creating figures for the THM resolution")
+        print(range(Iz1))
+        print(TeffFuel)
+        print(f"length of Tfuel at iter {iter} = {len(TeffFuel)}")
         quickPlot(range(Iz1), TeffFuel, "Fuel temperature convergence", "axial position (ctrl vol)", "TFuel (K)", "TFuel_convergence.png", path, SAVE_DIR)
         quickPlot(range(Iz1), Twater, "Coolant temperature convergence", "axial position (ctrl vol)", "TCool (K)", "TCool_convergence.png", path, SAVE_DIR)
         quickPlot(range(Iz1), rho, "Coolant density convergence", "axial position (ctrl vol)", "DCool (kg/m3)", "DCool_convergence.png", path, SAVE_DIR)
-        quickPlot(range(Iz1), Qfiss, "Axial power shape", "axial position (ctrl vol)", "Power (W)", "Power_shape.png", path, SAVE_DIR)
+        quickPlot(range(Iz1), Volumic_Powers, "Axial power shape", "axial position (ctrl vol)", "Power (W)", "Power_shape.png", path, SAVE_DIR)
 
     
     diff = compute_difference_fields(rho)
     print(f"updating rho: difference = {diff}")
     # 5.3) Update the TH data to be used in the next neutronics solution
     
-    if iter%2 == 1:
-        UpdatedTHData1 = lcm.new('LCM','THData') # Create new LCM object to store the updated TH data
-        print("Creating updated THData object 1")
-        print(UpdatedTHData1)
-        UpdatedTHData1['TFuelList']    = np.array(TeffTEMP, dtype='f')
-        UpdatedTHData1['TCoolList'] = np.array(TwaterTEMP, dtype='f')
-        UpdatedTHData1['DCoolList'] = np.array(rhoTEMP/1000, dtype='f') # Convert density from kg/m3 to g/cm3
-        #UpdatedTHData.val() # validate the LCM object
-        UpdatedTHData1.close() # close without erasing
-    elif iter%2 == 0:
-        UpdatedTHData2 = lcm.new('LCM','THData')
-        print("Creating updated THData object 2")
-        print(UpdatedTHData2)
-        UpdatedTHData2['TFuelList']    = np.array(TeffTEMP, dtype='f')
-        UpdatedTHData2['TCoolList'] = np.array(TwaterTEMP, dtype='f')
-        UpdatedTHData2['DCoolList'] = np.array(rhoTEMP/1000, dtype='f') # Convert density from kg/m3 to g/cm3
-        UpdatedTHData2.close() # close without erasing
+    UpdatedTHData = lcm.new('LCM','THData') # Create new LCM object to store the updated TH data
+    print("Creating updated THData object")
+    UpdatedTHData['TFuelList']    = np.array(TeffTEMP, dtype='f')
+    UpdatedTHData['TCoolList'] = np.array(TwaterTEMP, dtype='f')
+    UpdatedTHData['DCoolList'] = np.array(rhoTEMP/1000, dtype='f') # Convert density from kg/m3 to g/cm3
+    #UpdatedTHData.val() # validate the LCM object
+    UpdatedTHData.close() # close without erasing
+
 
     print("Updated THData object created")
     #THData_List.append(UpdatedTHData) # Store the TH data in a list to be used in the next neutronics resolution
     # 5.4) Under relaxation of TH fields for the next iteration : check if it is needed ?
-    TeffFuel[-1] = underRelaxation(TeffFuel[-1], TeffFuel[-2], TH_underRelaxationFactor)
-    Twater[-1] = underRelaxation(Twater[-1], Twater[-2], TH_underRelaxationFactor)
-    rho[-1] = underRelaxation(rho[-1], rho[-2], TH_underRelaxationFactor)
-
-    # Under relaxation of the Power distribution?
-    if iter > 1:
-
-        Power_Distrib[-1] = underRelaxation(Power_Distrib[-1], Power_Distrib[-2], Pow_underRelaxationFactor)
-        if FULL_PRINT:
-            quickPlot(range(Iz1), Power_Distrib, "Power distribution convergence", "axial position (ctrl vol)", "Power (kW)", "Power_distribution_convergence_relaxed.png", path, SAVE_DIR)
+    if relax_TH:
+        TeffFuel[-1] = underRelaxation(TeffFuel[-1], TeffFuel[-2], TH_underRelaxationFactor)
+        Twater[-1] = underRelaxation(Twater[-1], Twater[-2], TH_underRelaxationFactor)
+        rho[-1] = underRelaxation(rho[-1], rho[-2], TH_underRelaxationFactor)
 
 
     # 6.) Empty the ipLifo2 Lifo stack to prepare for the next iteration
@@ -460,17 +641,48 @@ while not conv:
     if iter>1 and np.abs(Keffs[-1]-Keffs[-2])< tol_Keff:
         print("Convergence on Keff reached after ", iter, " iterations")
         if iter>1 and convergence(rho[-1], rho[-2], tol_TH) and convergence(TeffFuel[-1], TeffFuel[-2], tol_TH) and convergence(Twater[-1], Twater[-2], tol_TH):
-            if iter>1 and convergence(Power_Distrib[-1], Power_Distrib[-2], tol_POW):
+            if iter>1 and convergence(Power_Distribs[-1], Power_Distribs[-2], tol_POW):
                 conv = True
                 print("Convergence on TH fields and Power reached after ", iter, " iterations")
     if iter == nIter-1:
+        
         print("Convergence not reached after ", iter, " iterations")
+        break
 
 
-    print("$$$ - multiPhysics.py : END ITERATIONS - $$$")
+print("$$$ - multiPhysics.py : END ITERATIONS - $$$")
 
 
-# 8.) Plot the results
+# 8.) Check the results
+print("$$$ - multiPhysics.py : BEGIN RESULTS - $$$")
+
+print(f"Keffs = {Keffs}")
+print(f"Final THM resolution : TeffFuel = {TeffFuel[-1]}, Twater = {Twater[-1]}, rho = {rho[-1]}")
+print(f"Final Power distribution : {Power_Distribs[-1]}")
+print(f"Residuals Power distribution : {Residuals_Power_Distribs}")
+print(f"Checking Fields lengths : Keff : {len(Keffs)}, TeffFuel : {len(TeffFuel)}, Twater : {len(Twater)}, rho : {len(rho)}, Power_Distrib : {len(Power_Distribs)}")
+print(f"Checking residuals lengths : Residuals_TeffFuel : {len(Residuals_TeffFuel)}, Residuals_Twater : {len(Residuals_Twater)}, Residual_rho : {len(Residuals_rho)}, Residuals_Power_Distrib : {len(Residuals_Power_Distribs)}")
+
+total_power = np.sum(Power_Distribs[-1])
+print(f"Total power = {total_power} kW = {total_power*1000} W")
+
+total_volumic_power = np.sum(Volumic_Powers[-1])
+print(f"Total volumic power = {total_volumic_power} W")
+
+initial_volumic_power = np.sum(Volumic_Powers[0])
+print(f"Initial volumic power = {initial_volumic_power} W")
+ratio_initial = initial_volumic_power/total_volumic_power
+print(f"Ratio initial = {ratio_initial}")
+
+ratio = total_volumic_power/total_power
+print(f"Ratio final = {ratio}")  
+
+Fuel_bundle_volume = Fuel_volume / 20 # m3, Bundle <=> 1 axial slice of the fuel channel
+print(f"Fuel bundle volume = {Fuel_bundle_volume} m3")
+print("$$$ - multiPhysics.py : END RESULTS - $$$")
+
+
+# 9.) Plot the results
 
 # Creation of results directory
 path=os.getcwd()
@@ -479,25 +691,70 @@ if a==False:
 	os.mkdir(f"multiPhysics_PyGan_24UOX_cell")
 print(path)
 
-SAVE_DIR = f"multiPhysics_PyGan_24UOX_cell/{numericalMethod}/{voidFractionCorrel}/"
+SAVE_FIG_DIR = f"multiPhysics_PyGan_24UOX_cell/{numericalMethod}/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/mesh{Iz1}/Figures"
+SAVE_DATA_DIR = f"multiPhysics_PyGan_24UOX_cell/{numericalMethod}/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/mesh{Iz1}/Data"
 
-a=os.path.exists(SAVE_DIR)
+a=os.path.exists(SAVE_FIG_DIR)
 if a==False:
-	os.makedirs(SAVE_DIR)
+	os.makedirs(SAVE_FIG_DIR)
 
 print(SAVE_DIR)
 print(f"Keffs = {Keffs}")
 # Plot the results
-quickPlot(range(len(Keffs)), Keffs, "Keff convergence", "iteration", "Keff", "Keff_convergence.png", path, SAVE_DIR)
+quickPlot(range(len(Keffs)), Keffs, "Keff convergence", "iteration", "Keff", "Keff_convergence.png", path, SAVE_FIG_DIR)
 
-quickPlot(range(Iz1), TeffFuel, "Fuel temperature convergence", "axial position (ctrl vol)", "TFuel (K)", "TFuel_convergence.png", path, SAVE_DIR)
-quickPlot(range(Iz1), Twater, "Coolant temperature convergence", "axial position (ctrl vol)", "TCool (K)", "TCool_convergence.png", path, SAVE_DIR)
-quickPlot(range(Iz1), rho, "Coolant density convergence", "axial position (ctrl vol)", "DCool (kg/m3)", "DCool_convergence.png", path, SAVE_DIR)
-quickPlot(range(Iz1), Power_Distrib, "Power distribution convergence", "axial position (ctrl vol)", "Power (kW)", "Power_distribution_convergence.png", path, SAVE_DIR)
-quickPlot(range(Iz1), Qfiss, "Axial power shape", "axial position (ctrl vol)", "Power (W)", "Power_shape.png", path, SAVE_DIR)
+quickPlot(range(Iz1), TeffFuel, "Fuel temperature convergence", "axial position (ctrl vol)", "TFuel (K)", "TFuel_convergence.png", path, SAVE_FIG_DIR)
+quickPlot(range(Iz1), Twater, "Coolant temperature convergence", "axial position (ctrl vol)", "TCool (K)", "TCool_convergence.png", path, SAVE_FIG_DIR)
+quickPlot(range(Iz1), rho, "Coolant density convergence", "axial position (ctrl vol)", "DCool (kg/m3)", "DCool_convergence.png", path, SAVE_FIG_DIR)
+quickPlot(range(Iz1), Power_Distribs, "Power distribution convergence", "axial position (ctrl vol)", "Power (kW)", "Power_distribution_convergence.png", path, SAVE_FIG_DIR)
+quickPlot(range(Iz1), Volumic_Powers, "Axial power shape", "axial position (ctrl vol)", "Power (W)", "Power_shape.png", path, SAVE_FIG_DIR)
     
-quickPlot(range(len(Residuals_TeffFuel)), Residuals_TeffFuel, "Fuel temperature residuals", "iteration", "Residuals", "TFuel_residuals.png", path, SAVE_DIR)
-quickPlot(range(len(Residuals_Twater)), Residuals_Twater, "Coolant temperature residuals", "iteration", "Residuals", "TCool_residuals.png", path, SAVE_DIR)
-quickPlot(range(len(Residual_rho)), Residual_rho, "Coolant density residuals", "iteration", "Residuals", "DCool_residuals.png", path, SAVE_DIR)
-quickPlot(range(len(Residuals_Power_Distrib)), Residuals_Power_Distrib, "Power distribution residuals", "iteration", "Residuals", "Power_distribution_residuals.png", path, SAVE_DIR)
-quickPlot(range(len(Residual_Qfiss)), Residual_Qfiss, "Axial power shape residuals", "iteration", "Residuals", "Power_shape_residuals.png", path, SAVE_DIR)
+quickPlot(range(Iz1), Residuals_TeffFuel, "Fuel temperature residuals", "iteration", "Residuals", "TFuel_residuals.png", path, SAVE_FIG_DIR)
+quickPlot(range(Iz1), Residuals_Twater, "Coolant temperature residuals", "iteration", "Residuals", "TCool_residuals.png", path, SAVE_FIG_DIR)
+quickPlot(range(Iz1), Residuals_rho, "Coolant density residuals", "iteration", "Residuals", "DCool_residuals.png", path, SAVE_FIG_DIR)
+quickPlot(range(Iz1), Residuals_Power_Distribs, "Power distribution residuals", "iteration", "Residuals", "Power_distribution_residuals.png", path, SAVE_FIG_DIR)
+print(f"Residuals Power distribution : {Residuals_Power_Distribs}")
+quickPlot(range(Iz1), Residuals_Volumic_Powers, "Axial power shape residuals", "iteration", "Residuals", "Power_shape_residuals.png", path, SAVE_FIG_DIR)
+print("$$$ - multiPhysics.py : END - $$$")
+
+
+# 10.) Save the results for exportation to Serpent/OpenFoam/GeN-Foam
+# Save the results in a file
+a=os.path.exists(SAVE_DATA_DIR)
+if a==False:
+	os.makedirs(SAVE_DATA_DIR)
+os.chdir(SAVE_DATA_DIR)
+case = compo_name.split("_")[2]
+TeffFuel = np.array(TeffFuel)
+Twater = np.array(Twater)
+rho = np.array(rho)
+Qfiss = np.array(Volumic_Powers)
+Power_Distrib = np.array(Power_Distribs)
+Residuals_TeffFuel = np.array(Residuals_TeffFuel)
+Residuals_Twater = np.array(Residuals_Twater)
+Residual_rho = np.array(Residuals_rho)
+Residual_Qfiss = np.array(Residuals_Volumic_Powers)
+Residuals_Power_Distrib = np.array(Residuals_Power_Distribs)
+
+if relax_Pow:
+    relaxPOW_id = f"relaxedPOW_{Pow_underRelaxationFactor}"
+else:
+    relaxPOW_id = "non_relaxedPOW"
+if relax_TH:
+    relaxTH_id = f"relaxedTH_{TH_underRelaxationFactor}"
+else:
+    relaxTH_id = "non_relaxedTH"
+
+np.savetxt(f"TeffFuel_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{relaxPOW_id}_{relaxTH_id}.txt", TeffFuel[-1])
+np.savetxt(f"Keffs_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{relaxPOW_id}_{relaxTH_id}.txt", Keffs)
+np.savetxt(f"Twater_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{relaxPOW_id}_{relaxTH_id}.txt", Twater[-1])
+np.savetxt(f"rho_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{relaxPOW_id}_{relaxTH_id}.txt", rho[-1])
+np.savetxt(f"Qfiss_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{relaxPOW_id}_{relaxTH_id}.txt", Qfiss[-1])
+np.savetxt(f"Power_Distrib_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{relaxPOW_id}_{relaxTH_id}.txt", Power_Distrib[-1])
+
+np.savetxt(f"Residuals_TeffFuel_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{relaxPOW_id}_{relaxTH_id}.txt", Residuals_TeffFuel[-1])
+np.savetxt(f"Residuals_Twater_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{relaxPOW_id}_{relaxTH_id}.txt", Residuals_Twater[-1])
+np.savetxt(f"Residual_rho_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{relaxPOW_id}_{relaxTH_id}.txt", Residual_rho[-1])
+np.savetxt(f"Residual_Qfiss_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{relaxPOW_id}_{relaxTH_id}.txt", Residual_Qfiss[-1])
+np.savetxt(f"Residuals_Power_Distrib_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{relaxPOW_id}_{relaxTH_id}.txt", Residuals_Power_Distrib[-1])
+
