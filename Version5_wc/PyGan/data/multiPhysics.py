@@ -528,8 +528,20 @@ while not conv:
 
     # 4.3.1) Under relaxation of the Power distribution for the next iteration
     if iter == 1 and relax_Pow:
+        print("First iteration, testing under relaxation of the Power distribution")
+        print(f"Initial axial power shape : {qFiss_init}")
+        print(f"Total power = {PFiss} W")
+        power_from_qFiss = integrate_power_density(z_mesh, qFiss, fuelRadius)
+        print(f"Power from qFiss = {power_from_qFiss}")
         PowerDistribution_relaxed = underRelaxation(PowerDistribution, qFiss_init*Fuel_volume, Pow_underRelaxationFactor)
         qFiss_relaxed = underRelaxation(qFiss, qFiss_init, Pow_underRelaxationFactor)
+        power_from_qFiss_relaxed = integrate_power_density(z_mesh, qFiss_relaxed, fuelRadius)
+        print(f"Power from qFiss_relaxed = {power_from_qFiss_relaxed}")
+        ratio = power_from_qFiss_relaxed/power_from_qFiss
+        print(f"Ratio = {ratio}")
+        ratio_with_tot = power_from_qFiss_relaxed/PFiss
+        print(f"Error on integrated (qFiss) power = {power_from_qFiss - PFiss} W <-> {100*(power_from_qFiss - PFiss)/PFiss} %")
+        print(f"Error on relaxed integrated (qFiss_relaxed) power = {power_from_qFiss_relaxed - PFiss} W <-> {100*(power_from_qFiss_relaxed - PFiss)/PFiss} %")
         print(f"Initial axial power shape : {qFiss_init}")
         print(f"Under relaxed {Pow_underRelaxationFactor} Power distribution : {PowerDistribution}")
         # Under relaxation of the Power distribution?
@@ -578,6 +590,7 @@ while not conv:
     ############# Thermalhydraulic part ##############
     if relax_Pow:
         updated_qFiss = qFiss_relaxed
+        print(f"Updated qFiss = {updated_qFiss}")
     else:
         updated_qFiss = qFiss
     # 5.1) TH resolution with updated power shape :

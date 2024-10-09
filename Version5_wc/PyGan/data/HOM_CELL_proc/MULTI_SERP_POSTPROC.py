@@ -438,51 +438,61 @@ def MULTI_SERP_POSTPROC(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_geom,bu_autop_list,V
                 elif test_name in Gd_tests:
                     for lib_name in S2_libs:
                         ax_Gd.plot(ERRORS_ALL[test_name][lib_name][0],ERRORS_ALL[test_name][lib_name][k+1],'2-',linewidth=1, label=f"{test_name} : {lib_name}")
-                ax_U.set_xlabel('BU [MWd/t]')
-                ax_U.grid()
-                ax_U.legend(loc="best")
-                ax_Gd.set_xlabel('BU [MWd/t]')
-                ax_Gd.grid()
-                ax_Gd.legend(loc="best")
+                if UOX_tests:
+                    ax_U.set_xlabel('BU [MWd/t]')
+                    ax_U.grid()
+                    ax_U.legend(loc="best")
+                if Gd_tests:
+                    ax_Gd.set_xlabel('BU [MWd/t]')
+                    #ax_Gd.grid()
+                    ax_Gd.legend(loc="best")
                 
             if k == 0: # Erreur sur Keff
                 for step in ListeAUTOP:
                     if step <= ListeCOMPO[-1]:
-                        ax_U.axvline(x=step,marker='o',color='red')
-                        ax_Gd.axvline(x=step,marker='o',color='red')
-                ax_U.plot([0,ListeCOMPO[-1]],[300,300],'r-.') # limite +300pcm
-                ax_U.plot([0,ListeCOMPO[-1]],[-300,-300],'r-.') # limite -300pcm
-                ax_U.set_ylabel('\u0394 Keff (pcm)')
-                save_nameU=f'UOX_tests_{DEPL_SOL}{sat_name}_{ssh_method}{correlation_name}_ERROR_Keff'
-                fig_nameU=f'HOM_CELL : UOX tests {DEPL_SOL}{SAT} {ssh_method}{CORR}- \u0394 Keff'
-
-                ax_Gd.plot([0,ListeCOMPO[-1]],[300,300],'r-.') # limite +300pcm
-                ax_Gd.plot([0,ListeCOMPO[-1]],[-300,-300],'r-.') # limite -300pcm
-                ax_Gd.set_ylabel('\u0394 Keff (pcm)')
-                save_nameGd=f'Gd_tests_{DEPL_SOL}{sat_name}_{ssh_method}{correlation_name}_ERROR_Keff'
-                fig_nameGd=f'HOM_CELL Gd tests {DEPL_SOL}{SAT} {ssh_method}{CORR}- \u0394 Keff'
+                        if UOX_tests:
+                            ax_U.axvline(x=step,marker='o',color='red')
+                        if Gd_tests:
+                            ax_Gd.axvline(x=step,marker='o',color='red')
+                if UOX_tests:
+                    ax_U.plot([0,ListeCOMPO[-1]],[300,300],'r-.') # limite +300pcm
+                    ax_U.plot([0,ListeCOMPO[-1]],[-300,-300],'r-.') # limite -300pcm
+                    ax_U.set_ylabel('\u0394 Keff (pcm)')
+                    save_nameU=f'UOX_tests_{DEPL_SOL}{sat_name}_{ssh_method}{correlation_name}_ERROR_Keff'
+                    fig_nameU=f'HOM_CELL : UOX tests {DEPL_SOL}{SAT} {ssh_method}{CORR}- \u0394 Keff'
+                if Gd_tests:
+                    ax_Gd.plot([0,ListeCOMPO[-1]],[300,300],'r-.') # limite +300pcm
+                    ax_Gd.plot([0,ListeCOMPO[-1]],[-300,-300],'r-.') # limite -300pcm
+                    ax_Gd.set_ylabel('\u0394 Keff (pcm)')
+                    save_nameGd=f'Gd_tests_{DEPL_SOL}{sat_name}_{ssh_method}{correlation_name}_ERROR_Keff'
+                    fig_nameGd=f'HOM_CELL Gd tests {DEPL_SOL}{SAT} {ssh_method}{CORR}- \u0394 Keff'
             else : # Erreur sur isotopes
-                ax_U.plot([0,ListeCOMPO[-1]],[2,2],'r-.') # limite +2%
-                ax_U.plot([0,ListeCOMPO[-1]],[-2,-2],'r-.') # limite -2%
-                ax_Gd.plot([0,ListeCOMPO[-1]],[2,2],'r-.') # limite +2%
-                ax_Gd.plot([0,ListeCOMPO[-1]],[-2,-2],'r-.') # limite -2%
-                ax_U.set_ylabel('Relative error (%)')
-                ax_Gd.set_ylabel('Relative error (%)')
-
-                save_nameU=f'UOX_tests_{DEPL_SOL}{sat_name}_{ssh_method}{correlation_name}_ERROR_{isotopes_SOUHAITES[k-1]}'
-                fig_nameU=f'HOM_CELL : UOX tests {DEPL_SOL}{SAT} {ssh_method}{CORR}- \u0394 {isotopes_SOUHAITES[k-1]}'
-                save_nameGd=f'Gd_tests_{DEPL_SOL}{sat_name}_{ssh_method}{correlation_name}_ERROR_{isotopes_SOUHAITES[k-1]}'
-                fig_nameGd=f'HOM_CELL : Gd tests {DEPL_SOL}{SAT} {ssh_method}{CORR}- \u0394 {isotopes_SOUHAITES[k-1]}'
-
-            ax_U.grid()
-            ax_Gd.grid()
-            ax_U.set_title(fig_nameU)
-            ax_Gd.set_title(fig_nameGd)
-            os.chdir(path+'/'+SAVE_DIR)
-            fig_U.savefig(save_nameU+'.png',bbox_inches = 'tight') #enregistrement des figures dans le repertoire des resultats
-            fig_Gd.savefig(save_nameGd+'.png',bbox_inches = 'tight') #enregistrement des figures dans le repertoire des resultats
-            os.chdir(path)
-            plt.close('all')
+                if UOX_tests:
+                    ax_U.plot([0,ListeCOMPO[-1]],[2,2],'r-.') # limite +2%
+                    ax_U.plot([0,ListeCOMPO[-1]],[-2,-2],'r-.') # limite -2%
+                    ax_U.set_ylabel('Relative error (%)')
+                    save_nameU=f'UOX_tests_{DEPL_SOL}{sat_name}_{ssh_method}{correlation_name}_ERROR_{isotopes_SOUHAITES[k-1]}'
+                    fig_nameU=f'HOM_CELL : UOX tests {DEPL_SOL}{SAT} {ssh_method}{CORR}- \u0394 {isotopes_SOUHAITES[k-1]}'
+                if Gd_tests:
+                    ax_Gd.plot([0,ListeCOMPO[-1]],[2,2],'r-.') # limite +2%
+                    ax_Gd.plot([0,ListeCOMPO[-1]],[-2,-2],'r-.') # limite -2%
+                    ax_Gd.set_ylabel('Relative error (%)')
+                    save_nameGd=f'Gd_tests_{DEPL_SOL}{sat_name}_{ssh_method}{correlation_name}_ERROR_{isotopes_SOUHAITES[k-1]}'
+                    fig_nameGd=f'HOM_CELL : Gd tests {DEPL_SOL}{SAT} {ssh_method}{CORR}- \u0394 {isotopes_SOUHAITES[k-1]}'
+            if UOX_tests:
+                ax_U.grid()
+                ax_U.set_title(fig_nameU)
+                os.chdir(path+'/'+SAVE_DIR)
+                fig_U.savefig(save_nameU+'.png',bbox_inches = 'tight')
+                os.chdir(path)
+                plt.close('all')
+            if Gd_tests:
+                ax_Gd.grid()
+                ax_Gd.set_title(fig_nameGd)
+                os.chdir(path+'/'+SAVE_DIR)
+                fig_Gd.savefig(save_nameGd+'.png',bbox_inches = 'tight') #enregistrement des figures dans le repertoire des resultats
+                os.chdir(path)
+                plt.close('all')
         # --- Print results
         for test_name in DRAGON_results_ALL.keys():
             for lib_name in S2_libs:
