@@ -274,13 +274,23 @@ COMPO := COMPO: ::
 *  END COMPO INITIALIZATION                                            *
 ************************************************************************
 
-************************************************************************
-*  NOMINAL REFERENCE CALCULATION                                       *
-************************************************************************
+*----
+*  Burnup loop: for first step BURNUP is created
+*  while for other steps it is modified
+*  two burnup per step:
+*  1) if istep = iauto --> run USS
+*  2) get a first approximation of final composition followed
+*     by a transport calculation
+*  3) use approximation for final flux distribution to get a
+*     better approximation for final composition
+*  4) if istep = icompo save to COMPO file
+*----
+
+
 INTEGER istepNext ;
 REAL BUbeg Tbeg ;
 REAL BU BUautop BUcompo := 0.0 0.0 0.0 ;
-REAL Norm_f2 := 38.6 ; ! SPECIFIC POWER MW/t
+REAL Norm_f2 := 38.6 ; ! SPECIFIC POWER MWj/t
 REAL BUend Tend := 0. 0. ;
 INTEGER istep :=  0 ;
 INTEGER iauto :=  1 ;
@@ -345,6 +355,11 @@ WHILE istep nstep < DO
 ************************************************************************
 *  BEGIN FLUX CALCULATION                                              *
 ************************************************************************
+
+
+*** Begin PCC method
+  ECHO "Begin PREDICTOR step at BUbeg = " BUbeg " and Tbeg = " Tbeg ;
+  SYS := DELETE: SYS ;
   SYS := ASM: LIBRARY2 TRACK :: PIJ EDIT 0 ;    
 
   IF istep 1 = THEN     
@@ -355,17 +370,21 @@ WHILE istep nstep < DO
      EDIT 1 TYPE K ;
   ENDIF ;
  
-  SYS := DELETE: SYS ;
+  
 
   IF istep 1 = THEN
     BURNUP LIBRARY2 := EVO: LIBRARY2 FLUX TRACK ::
-      EDIT 3
+      EDIT 0
       SAVE <<Tbeg>> DAY POWR <<Norm_f2>>
+      DEPL <<Tbeg>> <<Tend>> DAY POWR <<Norm_f2>>
+      SET <<Tend>> DAY
     ;
   ELSE
     BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX TRACK ::
-      EDIT 3
+      EDIT 0
       SAVE <<Tbeg>> DAY POWR <<Norm_f2>>
+      DEPL <<Tbeg>> <<Tend>> DAY POWR <<Norm_f2>>
+      SET <<Tend>> DAY
     ;
   ENDIF ;
 
@@ -400,18 +419,10 @@ WHILE istep nstep < DO
     EVALUATE Tend := BUend Norm_f2 / ;
     ECHO "Tbeg was = " Tbeg ;
     ECHO "Tend evaluated = " Tend ;
-
-    IF sat "SAT" = sat "SATOFF" = + THEN
-      ECHO "sat = " sat ;
-      BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX TRACK ::
-      EDIT 3 <<depl_sol>> DEPL <<Tbeg>> <<Tend>> DAY POWR <<Norm_f2>> 
-      EXPM 1.0E15 GLOB <<sat>> DIRA ;
-    ELSE
-      ECHO "no SAT keyword" ;
-      BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX TRACK ::
-      EDIT 3 <<depl_sol>> DEPL <<Tbeg>> <<Tend>> DAY POWR <<Norm_f2>> 
-      EXPM 1.0E15 GLOB DIRA ;
-    ENDIF ;
+  
+    BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX TRACK ::
+     EDIT 3 DEPL <<Tbeg>> <<Tend>> DAY POWR <<Norm_f2>> 
+     EXPM 1.0E15 GLOB ;
   
   ENDIF ;
  
