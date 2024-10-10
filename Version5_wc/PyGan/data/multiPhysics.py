@@ -271,7 +271,7 @@ tol_TH = 1e-3 # Convergence criterion for the TH solution, in units of T or rho
 tol_POW = 1 # Convergence criterion for the power axial distribution, in units of W 
 tol_Keff = 1e-6 # Convergence criterion for the Keff value
 TH_underRelaxationFactor = 0.1
-Pow_underRelaxationFactor = 0.1 # Under relaxation factor for the power axial distribution to be tested, 0.1 used in Serpent/OpenFoam coupling
+Pow_underRelaxationFactor = 0.5 # Under relaxation factor for the power axial distribution to be tested, 0.1 used in Serpent/OpenFoam coupling
 relax_TH = True # Under relaxation of the TH fields for the next iteration
 relax_Pow = True # Under relaxation of the Power distribution for the next iteration
 
@@ -315,17 +315,24 @@ massFlowRate = 1530  / (200*91)  # kg/s
 FULL_PRINT = True # Print all the fields at each iteration, create figures in tmp/rundir/ ?
 
 ############ Nuclear Parameters ###########
+# Number of fuel rods and assemblies for a small modular Boiling Water Reactor core
+
+n_rods = 91 # This value is for the ATRIUM-10 fuel assembly (10*10-9), in a GNF2 fuel assembly (BWRX-300) there are 92 fuel rods per assembly
+n_assmblies = 240 # This value is for the BWRX-300 SMR core, ref : "Status Report – BWRX-300 (GE Hitachi and Hitachi GE Nuclear Energy)"
+full_core_power = 870e6 # W, full core thermal power of the BWRX-300 SMR core, ref : "Status Report – BWRX-300 (GE Hitachi and Hitachi GE Nuclear Energy)"
 
 volumic_mass_U = 19000 # kg/m3
+
+## Fuel rod scale parameters :
 Fuel_volume = np.pi*fuelRadius**2*height # m3
-Fuel_mass = Fuel_volume*volumic_mass_U # kg
-print(f"Fuel mass = {Fuel_mass} kg")
+Fuel_mass = Fuel_volume*volumic_mass_U*1000 # g
+print(f"Fuel mass = {Fuel_mass} g")
 
 Bundle_volume = Fuel_volume / Iz1 # m3, Bundle <=> 1 axial slice of the fuel channel
-## Fission parameters
-# specific power = 38.6 W/g
-specificPower = 38.60/2 # W/g , devide by 2 to avoid overestimation of the power
-PFiss = specificPower*Fuel_mass*1000 # W
+fuel_rod_power = full_core_power/(n_rods*n_assmblies) # W
+specificPower = fuel_rod_power/Fuel_mass # W/g 
+print(f"Specific power = {specificPower} W/g")
+PFiss = specificPower*Fuel_mass # W
 print("PFiss = ", PFiss)
 
 compo_name = "_COMPO_24UOX" # Name of the COMPO object to be used in the neutronics solution
@@ -379,8 +386,8 @@ if a==False:
 ##### Begin Calculation scheme for coupled neutronics and thermalhydraulics solution to the BWR pincell problem.
 
 # 1.) Guess the axial power shape : used to initialize the TH solution
-z_mesh, qFiss_init = guess_power_density_sine(PFiss, height, fuelRadius, Iz1)
-#z_mesh, qFiss_init = guess_power_density_cosine(PFiss, height, fuelRadius, Iz1)
+#z_mesh, qFiss_init = guess_power_density_sine(PFiss, height, fuelRadius, Iz1)
+z_mesh, qFiss_init = guess_power_density_cosine(PFiss, height, fuelRadius, Iz1)
 print(f"qFiss_init = {qFiss_init}")
 
 # Check the total power
