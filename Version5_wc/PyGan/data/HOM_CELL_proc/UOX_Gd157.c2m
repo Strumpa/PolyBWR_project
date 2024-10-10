@@ -399,17 +399,20 @@ WHILE istep nstep < DO
   GREP: StepList :: GETVAL "ListBU" <<istep>> >>BU<< ;
   ECHO "here istep = " istep "and iCompo =" iCompo BUcompo ;
   IF BUcompo BU = THEN
+        ECHO "Saving COMPO at BU =" BUcompo ;
         EDIBU := EDI: FLUX LIBRARY2 TRACK ::
-        EDIT 0
-        MICR 19 U235 U236 U238 Pu239 Pu240 Pu241 Pu242 
-        Gd154 Gd155 Gd156 Gd157 Gd158 Gd160 Xe135 Sm149
-        Sm154 Eu155 Eu156 Eu157
-        COND
-        SAVE ON FUEL ;
+          EDIT 0
+          MICR 19 U235 U236 U238 Pu239 Pu240 Pu241 Pu242 
+          Gd154 Gd155 Gd156 Gd157 Gd158 Gd160 Xe135 Sm149
+          Sm154 Eu155 Eu156 Eu157
+          COND
+          SAVE ON FUEL 
+        ;
         COMPO := COMPO: COMPO EDIBU BURNUP LIBRARY2 ::
-        EDIT 0
-        STEP UP 'EDIBU'
-        SET <<Tbeg>> DAY ;
+          EDIT 0
+          STEP UP 'EDIBU'
+          SET <<Tbeg>> DAY 
+        ;
 
         EDIBU := DELETE: EDIBU ;
         EVALUATE iCompo := iCompo 1 + ;
