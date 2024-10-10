@@ -60,8 +60,8 @@ name_geom = 'HOM_CELL'
 cases_to_run = ["HOM_UOX_Gd157"] # "HOM_U5", "HOM_U5_U8", "HOM_UOX", "HOM_UOX_clad_noZr", "HOM_UOX_clad", "HOM_UOX_Gd155", "HOM_UOX_Gd157", "HOM_UOX_no155157", "HOM_UOXGd"
 
 
-iso_chain_tests = ["NO_NG_toGd158","NO_NG_NO_ENE_toGd158"] # "NO_NP_toGd158", "NO_NG_toGd158"
-iso_chain = "NO_NG_toGd158"
+iso_chain_tests = [] #["NO_NG_toGd158","NO_NG_NO_ENE_toGd158"] # "NO_NP_toGd158", "NO_NG_toGd158"
+iso_chain = "Nominal"
 
 S2_libs = ["PyNjoy2016"]#,"oldlib"]
 
