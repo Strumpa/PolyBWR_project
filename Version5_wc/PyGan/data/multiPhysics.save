@@ -19,4 +19,8 @@ fi
 cp *.ps ./multiPhysics_PyGan_*
 cp _COMPO* ./multiPhysics_PyGan_*
 cp -r multiPhysics_PyGan_* $1/"$MACH"/
+mkdir DISTR_res
+mv Flux*.res DISTR_res/
+mv Pdistr.res DISTR_res/
+cp -r DISTR_res $1/"$MACH"/
 echo '$$$ ----- multiPhysics.save : script finish'

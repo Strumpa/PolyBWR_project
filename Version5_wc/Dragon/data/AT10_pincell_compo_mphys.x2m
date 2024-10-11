@@ -144,7 +144,7 @@ WHILE Tfuel_step fuel_t_pts < DO
                     EDIT 0
                     MICR 11 U235 U236 U238 Pu239 Pu240 Pu241 Pu242 Gd155 Gd157 Xe135 Sm149
                     MERG COMP
-                    COND 4.0
+                    COND 0.625
                     SAVE ON EDIPARAM 
                 ;
             

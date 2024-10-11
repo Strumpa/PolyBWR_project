@@ -30,11 +30,22 @@ def convergence(Field, OldField, tol):
     print(f"Field - OldField = {Field - OldField}")
     conv=False
     for i in range(len(Field)):
-        if np.abs(Field[i] - OldField[i]) > tol:
+        if np.abs(Field[i] - OldField[i])/OldField[i] > tol:
             conv = False
             break
         else:
             conv = True
+    return conv
+
+def convergence_pcm(keffNew, keffOld, tol):
+    print(f"keffNew = {keffNew}")
+    print(f"keffOld = {keffOld}")
+    print(f"keffNew - keffOld = {keffNew - keffOld}")
+    conv=False
+    if np.abs(keffNew - keffOld)*1e5 > tol:
+        conv = False
+    else:
+        conv = True
     return conv
 
 def guessAxialPowerShape(Ptot, Iz, height, radius): # Old version of the function, introduced errrors when scaling up to more control volumes but seemed to work for 20 control volumes
@@ -145,7 +156,8 @@ def guess_power_density_cosine(Ptot, h, r, num_control_volumes):
         return q0 * np.cos(np.pi * z / (2 * h))
 
     # Calculate q0 to ensure total power matches Ptot
-    q0 = Ptot / (A_cross_section * (h / 2))  # derived from the integral of cosine
+    #q0 = Ptot / (A_cross_section * (h / 2))  # derived from the integral of cosine
+    q0 = Ptot*np.pi / (A_cross_section * (h * 2))  # derived from the integral of cosine
 
     # Compute the boundaries and midpoints of each control volume
     z_boundaries = np.linspace(0, h, num_control_volumes + 1)
@@ -267,11 +279,11 @@ def quickPlot(x, y, title, xlabel, ylabel, saveName, path, SAVE_DIR):
 ########## Algorithm parameters ###########
 solveConduction = True
 nIter = 1000 #1000
-tol_TH = 1e-3 # Convergence criterion for the TH solution, in units of T or rho
-tol_POW = 1 # Convergence criterion for the power axial distribution, in units of W 
-tol_Keff = 1e-6 # Convergence criterion for the Keff value
+tol_TH = 1e-3 # Convergence criterion for the TH solution, in %
+tol_POW = 1e-3 # Convergence criterion for the power axial distribution, in %
+tol_Keff =  0.01 # Convergence criterion for the Keff value in pcm
 TH_underRelaxationFactor = 0.1
-Pow_underRelaxationFactor = 0.5 # Under relaxation factor for the power axial distribution to be tested, 0.1 used in Serpent/OpenFoam coupling
+Pow_underRelaxationFactor = 0.1 # Under relaxation factor for the power axial distribution to be tested, 0.1 used in Serpent/OpenFoam coupling
 relax_TH = True # Under relaxation of the TH fields for the next iteration
 relax_Pow = True # Under relaxation of the Power distribution for the next iteration
 
@@ -331,9 +343,10 @@ print(f"Fuel mass = {Fuel_mass} g")
 Bundle_volume = Fuel_volume / Iz1 # m3, Bundle <=> 1 axial slice of the fuel channel
 fuel_rod_power = full_core_power/(n_rods*n_assmblies) # W
 specificPower = fuel_rod_power/Fuel_mass # W/g 
+print(f"Fuel rod power before scaling = {fuel_rod_power} W")
 print(f"Specific power = {specificPower} W/g")
 PFiss = specificPower*Fuel_mass # W
-print("PFiss = ", PFiss)
+print(f"PFiss = {PFiss} W")
 
 compo_name = "_COMPO_24UOX" # Name of the COMPO object to be used in the neutronics solution
 
@@ -523,6 +536,7 @@ while not conv:
     print(f"At iter {iter} : Keff = {Keff}")
     # 4.2.2) Recover the Power axial distribution obtained from neutronics calculation --> used to update the axial power shape
     PowerDistribution = RecoveredPower["POWER-DISTR"] 
+    FLUX = RecoveredPower["FLUX"]
     print(f"Power distribution : {PowerDistribution} W")
     qFiss = compute_power_densities(PowerDistribution, fuelRadius, Iz1, height) # Updating the axial power shape, converting to W from kW, and dividing by the fuel volume to get W/m3
     Volumic_Powers.append(qFiss)
@@ -658,7 +672,7 @@ while not conv:
     
     print(f"$$ - END iter = {iter}")
     # 7.) Check for convergence on Keff value : add more converegence criteria for other fields ?
-    if iter>1 and np.abs(Keffs[-1]-Keffs[-2])< tol_Keff:
+    if iter>1 and convergence_pcm(Keffs[-1], Keffs[-2], tol_Keff):
         print("Convergence on Keff reached after ", iter, " iterations")
         if iter>1 and convergence(rho[-1], rho[-2], tol_TH) and convergence(TeffFuel[-1], TeffFuel[-2], tol_TH) and convergence(Twater[-1], Twater[-2], tol_TH):
             if iter>1 and convergence(Power_Distribs[-1], Power_Distribs[-2], tol_POW):
