@@ -71,27 +71,6 @@ GREP: THData :: GETVAL 'TFuelList' 19 >>TF19<< ;
 GREP: THData :: GETVAL 'TFuelList' 20 >>TF20<< ;
 
 
-ECHO "TF1 = " TF1 ;
-ECHO "TF2 = " TF2 ;
-ECHO "TF3 = " TF3 ;
-ECHO "TF4 = " TF4 ;
-ECHO "TF5 = " TF5 ;
-ECHO "TF6 = " TF6 ;
-ECHO "TF7 = " TF7 ;
-ECHO "TF8 = " TF8 ;
-ECHO "TF9 = " TF9 ;
-ECHO "TF10 = " TF10 ;
-ECHO "TF11 = " TF11 ;
-ECHO "TF12 = " TF12 ;
-ECHO "TF13 = " TF13 ;
-ECHO "TF14 = " TF14 ;
-ECHO "TF15 = " TF15 ;
-ECHO "TF16 = " TF16 ;
-ECHO "TF17 = " TF17 ;
-ECHO "TF18 = " TF18 ;
-ECHO "TF19 = " TF19 ;
-ECHO "TF20 = " TF20 ;
-
 GREP: THData :: GETVAL 'TCoolList' 1 >>TC1<< ;
 GREP: THData :: GETVAL 'TCoolList' 2 >>TC2<< ;
 GREP: THData :: GETVAL 'TCoolList' 3 >>TC3<< ;
@@ -113,26 +92,6 @@ GREP: THData :: GETVAL 'TCoolList' 18 >>TC18<< ;
 GREP: THData :: GETVAL 'TCoolList' 19 >>TC19<< ;
 GREP: THData :: GETVAL 'TCoolList' 20 >>TC20<< ;
 
-ECHO "TC1 = " TC1 ;
-ECHO "TC2 = " TC2 ;
-ECHO "TC3 = " TC3 ;
-ECHO "TC4 = " TC4 ;
-ECHO "TC5 = " TC5 ;
-ECHO "TC6 = " TC6 ;
-ECHO "TC7 = " TC7 ;
-ECHO "TC8 = " TC8 ;
-ECHO "TC9 = " TC9 ;
-ECHO "TC10 = " TC10 ;
-ECHO "TC11 = " TC11 ;
-ECHO "TC12 = " TC12 ;
-ECHO "TC13 = " TC13 ;
-ECHO "TC14 = " TC14 ;
-ECHO "TC15 = " TC15 ;
-ECHO "TC16 = " TC16 ;
-ECHO "TC17 = " TC17 ;
-ECHO "TC18 = " TC18 ;
-ECHO "TC19 = " TC19 ;
-ECHO "TC20 = " TC20 ;
 
 GREP: THData :: GETVAL 'DCoolList' 1 >>DC1<< ;
 GREP: THData :: GETVAL 'DCoolList' 2 >>DC2<< ;
@@ -156,33 +115,13 @@ GREP: THData :: GETVAL 'DCoolList' 19 >>DC19<< ;
 GREP: THData :: GETVAL 'DCoolList' 20 >>DC20<< ;
 
 
-ECHO "DC1 = " DC1 ;
-ECHO "DC2 = " DC2 ;
-ECHO "DC3 = " DC3 ;
-ECHO "DC4 = " DC4 ;
-ECHO "DC5 = " DC5 ;
-ECHO "DC6 = " DC6 ;
-ECHO "DC7 = " DC7 ;
-ECHO "DC8 = " DC8 ;
-ECHO "DC9 = " DC9 ;
-ECHO "DC10 = " DC10 ;
-ECHO "DC11 = " DC11 ;
-ECHO "DC12 = " DC12 ;
-ECHO "DC13 = " DC13 ;
-ECHO "DC14 = " DC14 ;
-ECHO "DC15 = " DC15 ;
-ECHO "DC16 = " DC16 ;
-ECHO "DC17 = " DC17 ;
-ECHO "DC18 = " DC18 ;
-ECHO "DC19 = " DC19 ;
-ECHO "DC20 = " DC20 ;
 
 *--
 * Cross-section database interpolation
 *--
 MicroF := NCR: Cpo Fmap ::
   EDIT 2
-  MICRO LINEAR
+  MICRO CUBIC
   TABLE Cpo <<DIR>>
     MIX 1 INST-BURN
           SET CUBIC 'TFuel' <<TF1>>
@@ -313,18 +252,9 @@ ECHO "+++ Burnup= 0.0 Keff=" keff1 ;
 * Power distribution calculation
 *--
 ECHO "total reactor power=" powi "MW" ;
-!IF iter 1 = THEN
 ECHO "In power at iter = " iter ;
 Power Fmap := FLPOW: Fmap Flux Track Matex
-            :: EDIT 10 PTOT <<powi>> PRINT DISTR POWER ;
-!ELSE 
-!    ECHO "In power edition at iter = " iter ;
-!    Power Fmap := FLPOW: Power Fmap Flux Track Matex ::
-!        EDIT 1 ;
-!ENDIF ;
-
-
-!THData := DELETE: THData ;
+            :: EDIT 10 PTOT <<powi>> PRINT DISTR FLUX PRINT DISTR POWER ;
 
 ECHO "Completed Neutronics calculation at iter = " iter ;
 END: ;
