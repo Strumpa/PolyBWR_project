@@ -246,7 +246,7 @@ def quickPlot(x, y, title, xlabel, ylabel, saveName, path, SAVE_DIR):
         os.chdir(path)
     else:
         for i in range(len(y)):
-            if i%2==0:
+            if i%10==0:
                 data = y[i]
                 ax.plot(x, data, '2-',linewidth=1, label=f"iteration {i}")
         ax.plot(x, y[-1], '2-',linewidth=1, label=f"iteration {len(y)}")
