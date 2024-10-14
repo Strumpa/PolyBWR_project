@@ -279,11 +279,11 @@ def quickPlot(x, y, title, xlabel, ylabel, saveName, path, SAVE_DIR):
 ########## Algorithm parameters ###########
 solveConduction = True
 nIter = 1000 #1000
-tol_TH = 1e-3 # Convergence criterion for the TH solution, in %
-tol_POW = 1e-3 # Convergence criterion for the power axial distribution, in %
+tol_TH = 1e-4 # Convergence criterion for the TH solution, in %
+tol_POW = 1e-4 # Convergence criterion for the power axial distribution, in %
 tol_Keff =  0.01 # Convergence criterion for the Keff value in pcm
 TH_underRelaxationFactor = 0.1
-Pow_underRelaxationFactor = 0.1 # Under relaxation factor for the power axial distribution to be tested, 0.1 used in Serpent/OpenFoam coupling
+Pow_underRelaxationFactor = 0.9 # Under relaxation factor for the power axial distribution to be tested, 0.1 used in Serpent/OpenFoam coupling
 relax_TH = True # Under relaxation of the TH fields for the next iteration
 relax_Pow = True # Under relaxation of the Power distribution for the next iteration
 
@@ -306,7 +306,7 @@ numericalMethod = "BiCG" # "FVM": Solves the system using matrix inversion with 
 ########## Thermal hydraulics parameters ##########
 ## Geometric parameters
 canalType = "square"
-waterRadius = 1.295e-2 # m ATRIUM10 pincell pitch
+waterRadius = 1.295e-2 # m : ATRIUM10 pincell pitch
 fuelRadius = 0.4435e-2 # m : fuel rod radius
 gapRadius = 0.4520e-2 # m : expansion gap radius : "void" between fuel and clad - equivalent to inner clad radius
 cladRadius = 0.5140e-2 # m : clad external radius
