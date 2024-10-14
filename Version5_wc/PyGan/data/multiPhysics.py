@@ -245,10 +245,6 @@ def quickPlot(x, y, title, xlabel, ylabel, saveName, path, SAVE_DIR):
     fig,ax = plt.subplots()
     if len(y) == len(x) and isinstance(y[0], np.float32):
         print("Plotting a scatter plot")
-        print(f"y = {y}")
-        print(f"x = {x}")
-        print(f"len(y) = {len(y)}")
-        print(f"len(x) = {len(x)}")
         ax.scatter(x, y)
         ax.set_xlabel(xlabel)
         ax.set_ylabel(ylabel)
@@ -292,7 +288,8 @@ zPlotting = [] #If empty, no plotting of the axial distribution of the fields, o
 ## Meshing parameters:
 If = 8
 I1 = 3
-Iz1 = 20 # number of control volumes in the axial direction for now only 20 control volumes are supported for DONJON solution
+Iz1 = 10 # number of control volumes in the axial direction for now only 20 control volumes are supported for DONJON solution
+# Iz1 = 10, 20, 40 supported for the moment
 
 ########## Choice of Thermalhydraulics correlation ##########
 voidFractionCorrel = 'EPRIvoidModel' # 'modBestion', 'HEM1', 'GEramp', 'EPRIvoidModel'
@@ -340,12 +337,13 @@ Fuel_volume = np.pi*fuelRadius**2*height # m3
 Fuel_mass = Fuel_volume*volumic_mass_U*1000 # g
 print(f"Fuel mass = {Fuel_mass} g")
 
+power_scaling_factor = 2 # Scaling factor for the power axial distribution
 Bundle_volume = Fuel_volume / Iz1 # m3, Bundle <=> 1 axial slice of the fuel channel
 fuel_rod_power = full_core_power/(n_rods*n_assmblies) # W
 specificPower = fuel_rod_power/Fuel_mass # W/g 
 print(f"Fuel rod power before scaling = {fuel_rod_power} W")
 print(f"Specific power = {specificPower} W/g")
-PFiss = specificPower*Fuel_mass # W
+PFiss = specificPower*Fuel_mass/power_scaling_factor # W
 print(f"PFiss = {PFiss} W")
 
 compo_name = "_COMPO_24UOX" # Name of the COMPO object to be used in the neutronics solution
@@ -453,6 +451,8 @@ ipLifo1.pushEmpty("Cpo", "LCM") # Compo
 ipLifo1.pushEmpty("Track", "LCM") # Tracking data for FEM
 ipLifo1.push(THData) # Thermal Hydraulic data for initialization
 ipLifo1.push(compo_name) # Compo name
+ipLifo1.push(int(Iz1)) # Number of axial subdivisions
+ipLifo1.push(Fuel_mass) #
 
 # 3.2) call IniDONJON Cle-2000 procedure
 IniDONJON = cle2000.new('IniDONJON',ipLifo1,1)
@@ -522,7 +522,8 @@ while not conv:
         print("Pushing THData object 2")
     #ipLifo2.push(UpdatedTHData) # Push the TH data obtained from the TH solution
     ipLifo2.push(iter)
-    ipLifo2.push(powi) 
+    ipLifo2.push(powi)
+    ipLifo2.push(int(Iz1)) 
 
     # 4.2) Call Neutronics component :
     print("call Neutronics procedure at iter=", iter)
@@ -575,7 +576,7 @@ while not conv:
 
 
     if iter == 1:
-        SAVE_DATA_DIR = f"multiPhysics_PyGan_24UOX_cell/{numericalMethod}/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/mesh{Iz1}/Figures/"
+        SAVE_DATA_DIR = f"multiPhysics_PyGan_24UOX_cell/{numericalMethod}/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/mesh{Iz1}_{power_scaling_factor}/Figures/"
         a=os.path.exists(SAVE_DATA_DIR)
         if a==False:
             os.makedirs(SAVE_DATA_DIR)
@@ -711,7 +712,7 @@ print(f"Ratio initial = {ratio_initial}")
 ratio = total_volumic_power/total_power
 print(f"Ratio final = {ratio}")  
 
-Fuel_bundle_volume = Fuel_volume / 20 # m3, Bundle <=> 1 axial slice of the fuel channel
+Fuel_bundle_volume = Fuel_volume / Iz1 # m3, Bundle <=> 1 axial slice of the fuel channel
 print(f"Fuel bundle volume = {Fuel_bundle_volume} m3")
 print("$$$ - multiPhysics.py : END RESULTS - $$$")
 
@@ -725,8 +726,8 @@ if a==False:
 	os.mkdir(f"multiPhysics_PyGan_24UOX_cell")
 print(path)
 
-SAVE_FIG_DIR = f"multiPhysics_PyGan_24UOX_cell/{numericalMethod}/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/mesh{Iz1}/Figures"
-SAVE_DATA_DIR = f"multiPhysics_PyGan_24UOX_cell/{numericalMethod}/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/mesh{Iz1}/Data"
+SAVE_FIG_DIR = f"multiPhysics_PyGan_24UOX_cell/{numericalMethod}/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/mesh{Iz1}_{power_scaling_factor}/Figures"
+SAVE_DATA_DIR = f"multiPhysics_PyGan_24UOX_cell/{numericalMethod}/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/mesh{Iz1}_{power_scaling_factor}/Data"
 
 a=os.path.exists(SAVE_FIG_DIR)
 if a==False:
@@ -792,3 +793,11 @@ np.savetxt(f"Residual_rho_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel
 np.savetxt(f"Residual_Qfiss_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{relaxPOW_id}_{relaxTH_id}.txt", Residual_Qfiss[-1])
 np.savetxt(f"Residuals_Power_Distrib_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{relaxPOW_id}_{relaxTH_id}.txt", Residuals_Power_Distrib[-1])
 
+# 11.) Save power axial distribution and flux axial distribution for the last iteration
+os.chdir(path)
+shutil.copyfile("Flux01.res", f"{SAVE_DATA_DIR}/Flux01.res")
+shutil.copyfile("Flux02.res", f"{SAVE_DATA_DIR}/Flux02.res")
+shutil.copyfile("Pdistr.res", f"{SAVE_DATA_DIR}/Pdistr.res")
+
+#
+print("$$$ - multiPhysics.py : END of EXPORTS - $$$")
