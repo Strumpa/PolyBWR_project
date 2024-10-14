@@ -52,6 +52,11 @@ def parse_detector_fluxes(number_axial_slices, det):
         flux_G1.append(det.detectors[f"_FLUX_2G_{i+1}"].tallies[0])
         flux_G2.append(det.detectors[f"_FLUX_2G_{i+1}"].tallies[1])
 
+    fig1, ax1 = plt.subplots()
+    ax1.plot(range(number_axial_slices), flux_G1, label="Flux G1")
+    ax1.plot(range(number_axial_slices), flux_G2, label="Flux G2")
+    fig1.legend()
+    fig1.savefig(f"{case_name}_D5_flux_G1_G2.png")
     return flux_G1, flux_G2
 
 def parse_DONJON_power():
@@ -61,13 +66,13 @@ def parse_DONJON_power():
 
     donjon5_power2 = np.loadtxt(f"/home/p117902/working_dir/PolyBWR_project/Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan_24UOX_cell/BiCG/EPRIvoidModel_Churchill_HEM1/mesh20/Data/Power_Distrib_24UOX_mesh20_BiCG_EPRIvoidModel_relaxedPOW_0.5_relaxedTH_0.1.txt")
 
-    donjon_power3 = np.loadtxt(f"/home/p117902/working_dir/PolyBWR_project/Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan_24UOX_cell/BiCG/EPRIvoidModel_Churchill_HEM1/mesh20/Data/Power_Distrib_24UOX_mesh20_BiCG_EPRIvoidModel_relaxedPOW_0.9_relaxedTH_0.1.txt")
+    donjon5_power3 = np.loadtxt(f"/home/p117902/working_dir/PolyBWR_project/Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan_24UOX_cell/BiCG/EPRIvoidModel_Churchill_HEM1/mesh20/Data/Power_Distrib_24UOX_mesh20_BiCG_EPRIvoidModel_relaxedPOW_0.9_relaxedTH_0.1.txt")
     # normalize the donjon5 power distribution
     donjon5_power = donjon5_power/sum(donjon5_power)
     donjon5_power2 = donjon5_power2/sum(donjon5_power2)
-    donjon_power3 = donjon_power3/sum(donjon_power3)
+    donjon5_power3 = donjon5_power3/sum(donjon5_power3)
     
-    return donjon5_power, donjon5_power2, donjon_power3
+    return donjon5_power, donjon5_power2, donjon5_power3
 
 def parse_DONJON_fluxes():
     path_to_DISTR = "/home/p117902/working_dir/PolyBWR_project/Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan_24UOX_cell/DISTR_res"
@@ -102,7 +107,8 @@ def compare_results(donjon5_powers, sum_fiss_rates):
     ax3.plot(range(number_axial_slices), sum_fiss_rates, label="Fission rates")
     ax3.plot(range(number_axial_slices), donjon5_powers[0], label="Donjon5 power1")
     ax3.plot(range(number_axial_slices), donjon5_powers[1], label="Donjon5 power2")
-    ax3.plot(range(number_axial_slices), donjon5_powers[2], label="Donjon power3")
+    ax3.plot(range(number_axial_slices), donjon5_powers[2], label="Donjon5 power3")
+    fig3.legend()
     fig3.savefig(f"{case_name}_comparison.png")
 
 def compute_relative_error(donjon5_rates, S2_rates):
@@ -134,8 +140,8 @@ donjon5_powers = parse_DONJON_power()
 compare_results(donjon5_powers, sum_fiss_rates)
 #relative_error, relative_error2, relative_error3 = compute_relative_error(donjon5_powers[0], donjon5_powers[1], donjon5_powers[2], sum_fiss_rates)
 relative_error = compute_relative_error(donjon5_powers[0], sum_heat_prod)
-relative_error2 = compute_relative_error(donjon5_powers[1], sum_n_gamma_rates)
-relative_error3 = compute_relative_error(donjon5_powers[2], sum_fiss_rates)
+relative_error2 = compute_relative_error(donjon5_powers[1], sum_heat_prod)
+relative_error3 = compute_relative_error(donjon5_powers[2], sum_heat_prod)
 # Plot the results
 plot_relative_error(relative_error, relative_error2, relative_error3)
 
@@ -146,20 +152,18 @@ donjon5_flux_G1, donjon5_flux_G2 = parse_DONJON_fluxes()
 
 S2_flux_G1, S2_flux_G2 = normalize_fluxes(S2_flux_G1, S2_flux_G2)
 donjon5_flux_G1, donjon5_flux_G2 = normalize_fluxes(donjon5_flux_G1, donjon5_flux_G2)
-print(len(S2_flux_G1))
-print(len(donjon5_flux_G1))
 
 fig1, ax1 = plt.subplots()
 ax1.plot(range(number_axial_slices), S2_flux_G1, label="S2 flux G1")
-ax1.plot(range(number_axial_slices), donjon5_flux_G1, label="Donjon5 flux G1")
+ax1.plot(range(number_axial_slices), S2_flux_G2, label="S2 flux G2")
 fig1.legend()
-fig1.savefig(f"{case_name}_flux_G1.png")
+fig1.savefig(f"{case_name}_S2_flux_G1G2.png")
 
 fig2, ax2 = plt.subplots()
-ax2.plot(range(number_axial_slices), S2_flux_G2, label="S2 flux G2")
+ax2.plot(range(number_axial_slices), donjon5_flux_G1, label="Donjon5 flux G1")
 ax2.plot(range(number_axial_slices), donjon5_flux_G2, label="Donjon5 flux G2")
 fig2.legend()
-fig2.savefig(f"{case_name}_flux_G2.png")
+fig2.savefig(f"{case_name}_D5_flux_G1G2.png")
 
 error_flux_G1 = compute_relative_error(donjon5_flux_G1, S2_flux_G1)
 error_flux_G2 = compute_relative_error(donjon5_flux_G2, S2_flux_G2)

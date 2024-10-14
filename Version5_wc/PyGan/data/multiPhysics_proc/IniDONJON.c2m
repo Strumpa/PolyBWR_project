@@ -11,6 +11,10 @@ PARAMETER  Fmap Matex Cpo Track THData ::
   ::: LINKED_LIST Fmap Matex Cpo Track THData ; ;
 STRING name_compo ;
 :: >>name_compo<< ;
+INTEGER Iz ;
+:: >>Iz<< ;
+DOUBLE Dmass ; 
+:: >>Dmass<< ;
 
 LINKED_LIST Geom ;
 MODULE   TRIVAT: UTL: END: ;
@@ -20,13 +24,13 @@ SEQ_ASCII _COMPO :: FILE <<name_compo>> ;
 *----
 *  Local Parameters
 *----
-REAL    powi mass ;
-
-REAL temp_fuel_0 temp_mode_0 dens_mode_0 ;
+REAL mass := Dmass D_TO_R ;
 
 REAL pitch height := 1.295 380.0 ;
 
 INTEGER MaxR := 10000 ; 
+
+REAL Iz1 := Iz I_TO_R ;
 *----
 *  Recover the Multicompo
 *----
@@ -34,14 +38,9 @@ STRING DIR := "EDIPARAM" ;
 Cpo := _COMPO ;
 UTL: Cpo :: DIR ;
 
+REAL BMass := mass Iz1 / ;
 
-GetData ::
->>temp_fuel_0<< >>temp_mode_0<< >>dens_mode_0<< >>powi<< >>mass<< ;
-
-ECHO "GetData : Tfuel = " temp_fuel_0 " Tmode = " temp_mode_0 " DensMode = " dens_mode_0 " height = " height ;
-REAL BMass := mass 20.0 / ;
-
-Geom Matex := GeoCore :: <<pitch>> <<height>> ;
+Geom Matex := GeoCore :: <<pitch>> <<height>> <<Iz1>> ;
 
 !Track := TRIVAT: Geom :: (*From simplePOW PyGan test*)
 !   EDIT 1 MAXR <<MaxR>> DUAL 2 3 ;
@@ -52,11 +51,11 @@ Track := TRIVAT: Geom :: (*From pincell_mphy_thm Donjon test*)
 *--
 * Fuel map definition
 *--
-Fmap Matex := SetFMap Matex :: <<pitch>> <<height>> <<BMass>> ;
+Fmap Matex := SetFMap Matex :: <<pitch>> <<height>> <<BMass>> <<Iz1>> ;
 
 
 * Initialize TH Data : set constant Tf, Tc, Dc on all axial slices
-Fmap := SetLocPara Fmap THData :: ;
+Fmap := SetLocPara Fmap THData :: <<Iz1>> ;
 
 END: ;
 QUIT "LIST" .

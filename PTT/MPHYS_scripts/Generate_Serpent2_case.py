@@ -126,11 +126,16 @@ def create_detectors(number_axial_slices, isGd):
     print(f"% --- 5. Detectors definition")
     print(f"% --- energy grid for the detectors (1g)")
     print("ene 3 1 1.1E-11 1.9640E+1")
-    print("det _FLUX_1G         de 3")
+    print(f"% --- energy grid for the detectors (2g)")
+    print("ene 2 1 1.1E-11 6.25E-7 1.9640E+1")
 
     
 
     for i in range(number_axial_slices):
+        print(f"det _FLUX_2G_{i+1}") 
+        print(f"de 2")
+        print(f"dc {i+1} \n")
+
         print(f"det _FUEL_1G_{i+1}")
         print(f"de 3")
         print(f"dr 102 U235_{i+1}")
@@ -139,18 +144,20 @@ def create_detectors(number_axial_slices, isGd):
         print(f"dr -6 U235_{i+1}")
         print(f"dr -6 U238_{i+1}")
         print(f"dr -6 U234_{i+1}")
-        print(f"dm {fuel_names[0]}_{i+1} dm {fuel_names[1]}_{i+1} dm {fuel_names[2]}_{i+1} dm {fuel_names[3]}_{i+1}")
-
-
+        print(f"dr 301 U235_{i+1}")
+        print(f"dr 301 U238_{i+1}")
+        print(f"dr 301 U234_{i+1}")
+        print(f"dc {i+1} \n")
         
     
 
-
-
-Teff_fuel = parse_multiPhysics_output("../Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan_24UOX_cell/BiCG/EPRIvoidModel_Churchill_HEM1/mesh20/Data/TeffFuel_24UOX_mesh20_BiCG_EPRIvoidModel_relaxedPOW_0.1_relaxedTH_0.1.txt")
+number_axial_slices = 10
+pow_relax_factor = 0.9
+pow_scaling_factor = 2
+Teff_fuel = parse_multiPhysics_output(f"../../Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan_24UOX_cell/BiCG/EPRIvoidModel_Churchill_HEM1/mesh{number_axial_slices}_{pow_scaling_factor}/Data/TeffFuel_24UOX_mesh{number_axial_slices}_BiCG_EPRIvoidModel_relaxedPOW_{pow_relax_factor}_relaxedTH_0.1.txt")
 #print(T_data)
-TWater = parse_multiPhysics_output("../Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan_24UOX_cell/BiCG/EPRIvoidModel_Churchill_HEM1/mesh20/Data/Twater_24UOX_mesh20_BiCG_EPRIvoidModel_relaxedPOW_0.1_relaxedTH_0.1.txt")
-DWater = parse_multiPhysics_output("../Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan_24UOX_cell/BiCG/EPRIvoidModel_Churchill_HEM1/mesh20/Data/rho_24UOX_mesh20_BiCG_EPRIvoidModel_relaxedPOW_0.1_relaxedTH_0.1.txt")
+TWater = parse_multiPhysics_output(f"../../Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan_24UOX_cell/BiCG/EPRIvoidModel_Churchill_HEM1/mesh{number_axial_slices}_{pow_scaling_factor}/Data/Twater_24UOX_mesh{number_axial_slices}_BiCG_EPRIvoidModel_relaxedPOW_{pow_relax_factor}_relaxedTH_0.1.txt")
+DWater = parse_multiPhysics_output(f"../../Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan_24UOX_cell/BiCG/EPRIvoidModel_Churchill_HEM1/mesh{number_axial_slices}_{pow_scaling_factor}/Data/rho_24UOX_mesh{number_axial_slices}_BiCG_EPRIvoidModel_relaxedPOW_{pow_relax_factor}_relaxedTH_0.1.txt")
 
 DWater = DWater*1e-3 # kg/m^3 to g/cm^3
 iso_dens_H = []

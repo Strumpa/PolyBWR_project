@@ -13,80 +13,261 @@ PARAMETER Fmap Matex ::
       ::: LINKED_LIST
           Fmap Matex ; ;
 MODULE RESINI: END: ;
-REAL pitch height BMass ;
-:: >>pitch<< >>height<< >>BMass<< ; (*BMass = Bundle Mass : mass of UOX in an axial fuel slice*)
+REAL pitch height BMass Iz1 ;
+:: >>pitch<< >>height<< >>BMass<< >>Iz1<< ; (*BMass = Bundle Mass : mass of UOX in an axial fuel slice*)
 
+REAL z1 z2 z3 z4 z5 z6 z7 z8 z9 z10 ;
+REAL z11 z12 z13 z14 z15 z16 z17 z18 z19 z20 ;
+REAL z21 z22 z23 z24 z25 z26 z27 z28 z29 z30 ;
+REAL z31 z32 z33 z34 z35 z36 z37 z38 z39 z40 ;
 
-REAL z1 := height 20.0 / ;
-REAL z2 := height 20.0 / z1 + ;
-REAL z3 := height 20.0 / z2 + ;
-REAL z4 := height 20.0 / z3 + ;
-REAL z5 := height 20.0 / z4 + ;
-REAL z6 := height 20.0 / z5 + ;
-REAL z7 := height 20.0 / z6 + ;
-REAL z8 := height 20.0 / z7 + ;
-REAL z9 := height 20.0 / z8 + ;
-REAL z10 := height 20.0 / z9 + ;
-REAL z11 := height 20.0 / z10 + ;
-REAL z12 := height 20.0 / z11 + ;
-REAL z13 := height 20.0 / z12 + ;
-REAL z14 := height 20.0 / z13 + ;
-REAL z15 := height 20.0 / z14 + ;
-REAL z16 := height 20.0 / z15 + ;
-REAL z17 := height 20.0 / z16 + ;
-REAL z18 := height 20.0 / z17 + ;
-REAL z19 := height 20.0 / z18 + ;
-REAL z20 := height 20.0 / z19 + ;
+IF Iz1 20.0 = THEN
+      EVALUATE z1 := height 20.0 / ;
+      EVALUATE z2 := height 20.0 / z1 + ;
+      EVALUATE z3 := height 20.0 / z2 + ;
+      EVALUATE z4 := height 20.0 / z3 + ;
+      EVALUATE z5 := height 20.0 / z4 + ;
+      EVALUATE z6 := height 20.0 / z5 + ;
+      EVALUATE z7 := height 20.0 / z6 + ;
+      EVALUATE z8 := height 20.0 / z7 + ;
+      EVALUATE z9 := height 20.0 / z8 + ;
+      EVALUATE z10 := height 20.0 / z9 + ;
+      EVALUATE z11 := height 20.0 / z10 + ;
+      EVALUATE z12 := height 20.0 / z11 + ;
+      EVALUATE z13 := height 20.0 / z12 + ;
+      EVALUATE z14 := height 20.0 / z13 + ;
+      EVALUATE z15 := height 20.0 / z14 + ;
+      EVALUATE z16 := height 20.0 / z15 + ;
+      EVALUATE z17 := height 20.0 / z16 + ;
+      EVALUATE z18 := height 20.0 / z17 + ;
+      EVALUATE z19 := height 20.0 / z18 + ;
+      EVALUATE z20 := height 20.0 / z19 + ;
 
-*--
-* Fuel map definition
-*--
-Fmap Matex := RESINI: Matex ::
-   EDIT 10
-      ::: GEO: CAR3D 1 1 20
-                EDIT  0
-                X- REFL X+ REFL    Y- REFL Y+ REFL    Z- REFL Z+ REFL
-   MESHX 0.0 <<pitch>>
-   MESHY 0.0 <<pitch>>
-   MESHZ 0.0 <<z1>> <<z2>> <<z3>> <<z4>> <<z5>> <<z6>> <<z7>> <<z8>>
-         <<z9>> <<z10>> <<z11>> <<z12>> <<z13>> <<z14>> <<z15>> <<z16>>
-         <<z17>> <<z18>> <<z19>> <<z20>>
-   MIX
-   PLANE 1 1
-   PLANE 2 2
-   PLANE 3 3
-   PLANE 4 4
-   PLANE 5 5
-   PLANE 6 6
-   PLANE 7 7
-   PLANE 8 8
-   PLANE 9 9
-   PLANE 10 10
-   PLANE 11 11
-   PLANE 12 12
-   PLANE 13 13
-   PLANE 14 14
-   PLANE 15 15
-   PLANE 16 16
-   PLANE 17 17
-   PLANE 18 18
-   PLANE 19 19
-   PLANE 20 20
-;
-!
-NXNAME '01' NYNAME  'A'
-NCOMB 1
-B-ZONE 1
+      *--
+      * Fuel map definition
+      *--
+      Fmap Matex := RESINI: Matex ::
+      EDIT 10
+            ::: GEO: CAR3D 1 1 20
+                  EDIT  0
+                  X- REFL X+ REFL    Y- REFL Y+ REFL    Z- REFL Z+ REFL
+      MESHX 0.0 <<pitch>>
+      MESHY 0.0 <<pitch>>
+      MESHZ 0.0 <<z1>> <<z2>> <<z3>> <<z4>> <<z5>> <<z6>> <<z7>> <<z8>>
+            <<z9>> <<z10>> <<z11>> <<z12>> <<z13>> <<z14>> <<z15>> <<z16>>
+            <<z17>> <<z18>> <<z19>> <<z20>>
+      MIX
+      PLANE 1 1
+      PLANE 2 2
+      PLANE 3 3
+      PLANE 4 4
+      PLANE 5 5
+      PLANE 6 6
+      PLANE 7 7
+      PLANE 8 8
+      PLANE 9 9
+      PLANE 10 10
+      PLANE 11 11
+      PLANE 12 12
+      PLANE 13 13
+      PLANE 14 14
+      PLANE 15 15
+      PLANE 16 16
+      PLANE 17 17
+      PLANE 18 18
+      PLANE 19 19
+      PLANE 20 20
+      ;
+      !
+      NXNAME '01' NYNAME  'A'
+      NCOMB 1
+      B-ZONE 1
 
-BTYPE INST-BURN
-INST-BVAL CHAN 0.0
+      BTYPE INST-BURN
+      INST-BVAL CHAN 0.0
 
-ADD-PARAM PNAME 'T-FUEL' PARKEY 'TFuel' LOCAL
-ADD-PARAM PNAME 'T-COOL' PARKEY 'TCool' LOCAL
-ADD-PARAM PNAME 'D-COOL' PARKEY 'DCool' LOCAL
+      ADD-PARAM PNAME 'T-FUEL' PARKEY 'TFuel' LOCAL
+      ADD-PARAM PNAME 'T-COOL' PARKEY 'TCool' LOCAL
+      ADD-PARAM PNAME 'D-COOL' PARKEY 'DCool' LOCAL
 
-FUEL WEIGHT <<BMass>> <<BMass>> <<BMass>> <<BMass>> <<BMass>>
-            <<BMass>> <<BMass>> <<BMass>> <<BMass>> <<BMass>>
-            <<BMass>> <<BMass>> <<BMass>> <<BMass>> <<BMass>>
-            <<BMass>> <<BMass>> <<BMass>> <<BMass>> <<BMass>>
-;
+      FUEL WEIGHT <<BMass>> <<BMass>> <<BMass>> <<BMass>> <<BMass>>
+                  <<BMass>> <<BMass>> <<BMass>> <<BMass>> <<BMass>>
+                  <<BMass>> <<BMass>> <<BMass>> <<BMass>> <<BMass>>
+                  <<BMass>> <<BMass>> <<BMass>> <<BMass>> <<BMass>>
+      ;
+ELSEIF Iz1 40.0 = THEN
+      EVALUATE z1 := height 40.0 / ;
+      EVALUATE z2 := height 40.0 / z1 + ;
+      EVALUATE z3 := height 40.0 / z2 + ;
+      EVALUATE z4 := height 40.0 / z3 + ;
+      EVALUATE z5 := height 40.0 / z4 + ;
+      EVALUATE z6 := height 40.0 / z5 + ;
+      EVALUATE z7 := height 40.0 / z6 + ;
+      EVALUATE z8 := height 40.0 / z7 + ;
+      EVALUATE z9 := height 40.0 / z8 + ;
+      EVALUATE z10 := height 40.0 / z9 + ;
+      EVALUATE z11 := height 40.0 / z10 + ;
+      EVALUATE z12 := height 40.0 / z11 + ;
+      EVALUATE z13 := height 40.0 / z12 + ;
+      EVALUATE z14 := height 40.0 / z13 + ;
+      EVALUATE z15 := height 40.0 / z14 + ;
+      EVALUATE z16 := height 40.0 / z15 + ;
+      EVALUATE z17 := height 40.0 / z16 + ;
+      EVALUATE z18 := height 40.0 / z17 + ;
+      EVALUATE z19 := height 40.0 / z18 + ;
+      EVALUATE z20 := height 40.0 / z19 + ;
+      EVALUATE z21 := height 40.0 / z20 + ;
+      EVALUATE z22 := height 40.0 / z21 + ;
+      EVALUATE z23 := height 40.0 / z22 + ;
+      EVALUATE z24 := height 40.0 / z23 + ;
+      EVALUATE z25 := height 40.0 / z24 + ;
+      EVALUATE z26 := height 40.0 / z25 + ;
+      EVALUATE z27 := height 40.0 / z26 + ;
+      EVALUATE z28 := height 40.0 / z27 + ;
+      EVALUATE z29 := height 40.0 / z28 + ;
+      EVALUATE z30 := height 40.0 / z29 + ;
+      EVALUATE z31 := height 40.0 / z30 + ;
+      EVALUATE z32 := height 40.0 / z31 + ;
+      EVALUATE z33 := height 40.0 / z32 + ;
+      EVALUATE z34 := height 40.0 / z33 + ;
+      EVALUATE z35 := height 40.0 / z34 + ;
+      EVALUATE z36 := height 40.0 / z35 + ;
+      EVALUATE z37 := height 40.0 / z36 + ;
+      EVALUATE z38 := height 40.0 / z37 + ;
+      EVALUATE z39 := height 40.0 / z38 + ;
+      EVALUATE z40 := height 40.0 / z39 + ;
+
+      *--
+      * Fuel map definition
+      *--
+      Fmap Matex := RESINI: Matex ::
+      EDIT 10
+            ::: GEO: CAR3D 1 1 40
+                  EDIT  0
+                  X- REFL X+ REFL    Y- REFL Y+ REFL    Z- REFL Z+ REFL
+      MESHX 0.0 <<pitch>>
+      MESHY 0.0 <<pitch>>
+      MESHZ 0.0 <<z1>> <<z2>> <<z3>> <<z4>> <<z5>> <<z6>> <<z7>> <<z8>> <<z9>> <<z10>>
+             <<z11>> <<z12>> <<z13>> <<z14>> <<z15>> <<z16>> <<z17>> <<z18>> <<z19>> <<z20>>
+             <<z21>> <<z22>> <<z23>> <<z24>> <<z25>> <<z26>> <<z27>> <<z28>> <<z29>> <<z30>>
+             <<z31>> <<z32>> <<z33>> <<z34>> <<z35>> <<z36>> <<z37>> <<z38>> <<z39>> <<z40>>
+            
+      MIX
+      PLANE 1 1
+      PLANE 2 2
+      PLANE 3 3
+      PLANE 4 4
+      PLANE 5 5
+      PLANE 6 6
+      PLANE 7 7
+      PLANE 8 8
+      PLANE 9 9
+      PLANE 10 10
+      PLANE 11 11
+      PLANE 12 12
+      PLANE 13 13
+      PLANE 14 14
+      PLANE 15 15
+      PLANE 16 16
+      PLANE 17 17
+      PLANE 18 18
+      PLANE 19 19
+      PLANE 20 20
+      PLANE 21 21
+      PLANE 22 22
+      PLANE 23 23
+      PLANE 24 24
+      PLANE 25 25
+      PLANE 26 26
+      PLANE 27 27
+      PLANE 28 28
+      PLANE 29 29
+      PLANE 30 30
+      PLANE 31 31
+      PLANE 32 32
+      PLANE 33 33
+      PLANE 34 34
+      PLANE 35 35
+      PLANE 36 36
+      PLANE 37 37
+      PLANE 38 38
+      PLANE 39 39
+      PLANE 40 40
+      ;
+      !
+      NXNAME '01' NYNAME  'A'
+      NCOMB 1
+      B-ZONE 1
+
+      BTYPE INST-BURN
+      INST-BVAL CHAN 0.0
+
+      ADD-PARAM PNAME 'T-FUEL' PARKEY 'TFuel' LOCAL
+      ADD-PARAM PNAME 'T-COOL' PARKEY 'TCool' LOCAL
+      ADD-PARAM PNAME 'D-COOL' PARKEY 'DCool' LOCAL
+
+      FUEL WEIGHT <<BMass>> <<BMass>> <<BMass>> <<BMass>> <<BMass>>
+                  <<BMass>> <<BMass>> <<BMass>> <<BMass>> <<BMass>>
+                  <<BMass>> <<BMass>> <<BMass>> <<BMass>> <<BMass>>
+                  <<BMass>> <<BMass>> <<BMass>> <<BMass>> <<BMass>>
+                  <<BMass>> <<BMass>> <<BMass>> <<BMass>> <<BMass>>
+                  <<BMass>> <<BMass>> <<BMass>> <<BMass>> <<BMass>>
+                  <<BMass>> <<BMass>> <<BMass>> <<BMass>> <<BMass>>
+                  <<BMass>> <<BMass>> <<BMass>> <<BMass>> <<BMass>>
+      ;
+ELSEIF Iz1 10.0 = THEN
+      EVALUATE z1 := height 10.0 / ;
+      EVALUATE z2 := height 10.0 / z1 + ;
+      EVALUATE z3 := height 10.0 / z2 + ;
+      EVALUATE z4 := height 10.0 / z3 + ;
+      EVALUATE z5 := height 10.0 / z4 + ;
+      EVALUATE z6 := height 10.0 / z5 + ;
+      EVALUATE z7 := height 10.0 / z6 + ;
+      EVALUATE z8 := height 10.0 / z7 + ;
+      EVALUATE z9 := height 10.0 / z8 + ;
+      EVALUATE z10 := height 10.0 / z9 + ;
+
+      *--
+      * Fuel map definition
+      *--
+      Fmap Matex := RESINI: Matex ::
+      EDIT 10
+            ::: GEO: CAR3D 1 1 10
+                  EDIT  0
+                  X- REFL X+ REFL    Y- REFL Y+ REFL    Z- REFL Z+ REFL
+      MESHX 0.0 <<pitch>>
+      MESHY 0.0 <<pitch>>
+      MESHZ 0.0 <<z1>> <<z2>> <<z3>> <<z4>> <<z5>> <<z6>> <<z7>> <<z8>> <<z9>> <<z10>>
+             
+      MIX
+      PLANE 1 1
+      PLANE 2 2
+      PLANE 3 3
+      PLANE 4 4
+      PLANE 5 5
+      PLANE 6 6
+      PLANE 7 7
+      PLANE 8 8
+      PLANE 9 9
+      PLANE 10 10
+      ;
+      !
+      NXNAME '01' NYNAME  'A'
+      NCOMB 1
+      B-ZONE 1
+
+      BTYPE INST-BURN
+      INST-BVAL CHAN 0.0
+
+      ADD-PARAM PNAME 'T-FUEL' PARKEY 'TFuel' LOCAL
+      ADD-PARAM PNAME 'T-COOL' PARKEY 'TCool' LOCAL
+      ADD-PARAM PNAME 'D-COOL' PARKEY 'DCool' LOCAL
+
+      FUEL WEIGHT <<BMass>> <<BMass>> <<BMass>> <<BMass>> <<BMass>>
+                  <<BMass>> <<BMass>> <<BMass>> <<BMass>> <<BMass>>
+      ;
+ENDIF ;
+
+END: ;
+
+QUIT "LIST" .
