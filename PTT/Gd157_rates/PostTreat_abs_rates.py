@@ -9,15 +9,13 @@ import sys
 import os
 import serpentTools as st
 
-def plot_histogram(values, iso):
-    print(values)
+def plot_histogram(values, iso, grmin, grmax):
+    print(f"there are {len(values)} values")
     # Check that the number of values is 295
-    if len(values) != 295:
-        raise ValueError("All input rates lists must contain exactly 295 values.")
+    if len(values) != (grmax - grmin) + 1:
+        raise ValueError(f"All input rates lists must contain exactly {grmax - grmin + 1} values.")
     
     # Create bins from 1 to 295
-    grmin = 1
-    grmax = 295
     energy_groups = list(range(grmin, grmax + 1))
     #colors = ['skyblue', 'red']
     # Plot the histogram
@@ -32,6 +30,30 @@ def plot_histogram(values, iso):
     plt.savefig(f'histogram_{iso}.png')
     plt.show()
 
+def plot_histograms(values_lists, iso, colors, grmin, grmax):
+    # Check that the number of values is 295
+    for values in values_lists:
+        print(len(values))
+        if len(values) != grmax - grmin + 1:
+            raise ValueError("All input rates lists must contain exactly 295 values.")
+    
+    # Create bins from 1 to 295
+    energy_groups = list(range(grmin, grmax + 1))
+    #colors = ['skyblue', 'red']
+    # Plot the histogram
+    
+    plt.figure(figsize=(10, 6))
+    for i in range(len(values_lists)):
+        plt.bar(energy_groups, values_lists[i], edgecolor='black', alpha=0.5, color=colors[i])
+    plt.xticks(range(1, 296, 20))  # Set x-ticks with an interval of 20 for readability
+    plt.xlabel('Energy group')
+    plt.ylabel('Reaction rate')
+    plt.title('Histogram of 295 Values')
+    #plt.grid(True)
+    #plt.tight_layout()
+    plt.savefig(f'histogram_{iso}_compare.png')
+    plt.show()
+
 def parse_Serpent_detector(path_to_serpent_results, library, bu_step):
     # Read detector file
     det = st.read(f"{path_to_serpent_results}/HOM_UOX_Gd157_XS_{library}_mc_det{bu_step}.m")
@@ -41,7 +63,6 @@ def parse_Serpent_detector(path_to_serpent_results, library, bu_step):
     #print(det_scores.bins.shape)
     n_groups = Gd_det.shape[0]
     n_reactions = Gd_det.shape[1]
-    print(Gd_det[0])
     return Gd_det, n_groups, n_reactions
 
 def parse_Serpent_microdepletion(path_to_serpent_results, library, bu_step):
@@ -231,7 +252,24 @@ def plot_VDG_error_histogram(groups, grmin, grmax, relative_errors, isotope, cou
     plt.close()
     os.chdir(path)
 
-def compare_iso_U8_absorption_rates(D5_rates, S2_rates, SSH_method, iso):
+def get_S2_rates_for_iso(S2_rates, iso):
+    """
+    Get the absorption rates for a specific isotope from the Serpent2 results.
+    """
+    iso_S2 = np.array(S2_rates[f"{iso} (n,gamma)"][::-1])
+    return iso_S2
+
+def get_D5_rates_for_iso(D5_rates, iso, SSH_method):
+    """
+    Get the absorption rates for a specific isotope from the DRAGON results.
+    """
+    if SSH_method == "AUTO":
+        iso_D5 = np.array(D5_rates[f"AUTO {iso}"])
+    else:
+        iso_D5 = np.array(D5_rates[f"USS {iso}, {SSH_method}"])
+    return iso_D5
+
+def compare_iso_U8_absorption_rates(D5_rates, S2_rates, SSH_method, iso, grmin=1, grmax=295):
     """
     D5_rates (dict): Dictionary containing the absorption rates from DRAGON/AUTO. key is test's name ("{Module} {isotope} ({method} if Module = USS)")
     S2_rates (dict): Dictionary containing the absorption rates from Serpent. key is test's name
@@ -245,8 +283,8 @@ def compare_iso_U8_absorption_rates(D5_rates, S2_rates, SSH_method, iso):
 
     U8_S2 = np.array(S2_rates["U238 (n,gamma)"][::-1])
     iso_S2 = np.array(S2_rates[f"{iso} (n,gamma)"][::-1])
-    plot_histogram(iso_S2, iso+"_S2")
-    plot_histogram(iso_D5, iso+"_D5")
+    plot_histogram(iso_S2, iso+"_S2", grmin, grmax)
+    plot_histogram(iso_D5, iso+"_D5", grmin, grmax)
 
     ratio_D5 = iso_D5/U8_D5
     ratio_S2 = iso_S2/U8_S2
@@ -264,8 +302,6 @@ def normalize_absorption_rates(rates):
     return rates
     
 
-
-
     
 
 if __name__ == "__main__":
@@ -276,6 +312,8 @@ if __name__ == "__main__":
     local_path = os.getcwd()
     library = "oldlib"
     bu_step = 0
+    GRMIN = 52
+    GRMAX = 206
 
     path_save=os.getcwd()
     path_exists = os.path.exists(f"{path_save}/VDG_errors/{input_case}")
@@ -289,7 +327,7 @@ if __name__ == "__main__":
     Gd_nGamma_rates = []
     U8_nGamma_rates = []
     U8_abs_rates = []
-    for group in range(n_ene_groups):
+    for group in range(GRMIN-1, GRMAX):
         Gd_nGamma_rates.append(det_scores[group, 0])
         U8_nGamma_rates.append(det_scores[group, 1])
         U8_abs_rates.append(det_scores[group, 2])
@@ -304,8 +342,8 @@ if __name__ == "__main__":
     # plot_histogram(Gd_nGamma_rates.values())
 
     # Parse DRAGON absoprtion rates
-    D5_rates, D5_USSvsAUTO = parse_Dragon_abs_rates(path_D5, input_case, output_case = f"{input_case}_USS_AUTO_inrs1{correlation}")
-
+    D5_rates, D5_USSvsAUTO = parse_Dragon_abs_rates(path_D5, input_case, output_case = f"{input_case}_USS_AUTO_inrs1{correlation}", grmin=GRMIN, grmax=GRMAX)
+    print(len(D5_rates["AUTO U238"]))
 
     print(D5_rates.keys())
     print(D5_USSvsAUTO.keys())
@@ -314,7 +352,7 @@ if __name__ == "__main__":
     # Study U5/U8 absorption rates for both Serpent and Dragon
 
     # Study Gd157/U8 absorption rates for both Serpent and Dragon
-    ratio_D5_Gd157, ratio_S2_Gd157 = compare_iso_U8_absorption_rates(D5_rates, S2_rates, "RSE", "Gd157")
+    ratio_D5_Gd157, ratio_S2_Gd157 = compare_iso_U8_absorption_rates(D5_rates, S2_rates, "RSE", "Gd157", GRMIN, GRMAX)
 
     fig, ax = plt.subplots()
     ax.plot(ratio_D5_Gd157, label="D5 Gd157/U8 absorption rates")
@@ -328,3 +366,16 @@ if __name__ == "__main__":
     os.chdir(local_path)
     
     # Study normalized Gd157, U8, U5 absorption rates for both Serpent and Dragon    
+
+    # Normalize the absorption rates
+    U8_abs_rates_norm = normalize_absorption_rates(U8_abs_rates[::-1])
+    Gd_nGamma_rates_norm = normalize_absorption_rates(Gd_nGamma_rates[::-1])
+    U8_nGamma_rates_norm = normalize_absorption_rates(U8_nGamma_rates[::-1])
+
+    U8_D5_norm = normalize_absorption_rates(D5_rates["AUTO U238"])
+    Gd157_D5_norm = normalize_absorption_rates(D5_rates["AUTO Gd157"])
+
+
+    # Plot normalized absorption rates
+    plot_histograms([U8_abs_rates_norm, U8_nGamma_rates_norm, U8_D5_norm], "U238", ["skyblue", "red", "green"], GRMIN, GRMAX)
+    plot_histograms([Gd_nGamma_rates_norm, Gd157_D5_norm], "Gd157", ["skyblue", "red"], GRMIN, GRMAX)
