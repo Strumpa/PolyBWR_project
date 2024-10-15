@@ -102,6 +102,42 @@ def create_material_volumes(Teff_fuel, TWater, iso_dens_O, iso_dens_H, isGd):
             temp_suffix = "20c"
         print(f"mat H2O_{i+1} sum tmp {TWater[i]:.02f} moder lwtr 1001")
         print(f" 1001.{temp_suffix}   {iso_dens_H[i]:E} \n 8016.{temp_suffix}   {iso_dens_O[i]:E}")
+    print("\n")
+    print("% helium \n mat gap sum tmp 750.0")
+    print("2004.05c 1.50456e-04 \n")
+    print("% clad 559K \n mat clad -6.55  tmp 559")
+    print("28060.05c -1.472672e-04")
+    print("40094.05c -1.755744e-01")
+    print("26058.05c -3.949349e-06")
+    print("50112.05c -1.325870e-04")
+    print("50116.05c -2.058423e-03")
+    print("40096.05c -2.888887e-02")
+    print("24050.05c -4.173687e-05")
+    print("40092.05c -1.695587e-01")
+    print("50114.05c -9.182450e-05")
+    print("50117.05c -1.096647e-03")
+    print("40091.05c -1.097236e-01")
+    print("50122.05c -6.894095e-04")
+    print("8017.05c -5.058471e-07")
+    print("50124.05c -8.762916e-04")
+    print("24054.05c -2.453364e-05")
+    print("28062.05c -2.109210e-05")
+    print("24053.05c -9.673587e-05")
+    print("50115.05c -4.771906e-05")
+    print("28061.05c -6.508475e-06")
+    print("28064.05c -5.544228e-06")
+    print("24052.05c -8.369936e-04")
+    print("8016.05c -1.249494e-03")
+    print("40090.05c -4.976045e-01")
+    print("50120.05c -4.771539e-03")
+    print("28058.05c -3.695879e-04")
+    print("26054.05c -7.621504e-05")
+    print("26057.05c -2.916498e-05")
+    print("26056.05c -1.240671e-03")
+    print("50118.05c -3.487981e-03")
+    print("50119.05c -1.247577e-03")
+    print("\n")
+    print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% \n % \n % Isotope temperature at all heights \n % \n %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
 
     for i in range(len(Teff_fuel)):
         if 293.0<Teff_fuel[i]<550.0:
@@ -117,6 +153,7 @@ def create_material_volumes(Teff_fuel, TWater, iso_dens_O, iso_dens_H, isGd):
         print(f"mat U235_{i+1} 1.0 tmp {Teff_fuel[i]:.2f} 92235.{temp_suffix} 1.0")
         print(f"mat U238_{i+1} 1.0 tmp {Teff_fuel[i]:.2f} 92238.{temp_suffix} 1.0")
         print(f"mat U234_{i+1} 1.0 tmp {Teff_fuel[i]:.2f} 92234.{temp_suffix} 1.0")
+    print("\n")
 
 def create_detectors(number_axial_slices, isGd):
     if isGd == False:
@@ -151,9 +188,9 @@ def create_detectors(number_axial_slices, isGd):
         
     
 
-number_axial_slices = 10
+number_axial_slices = 40
 pow_relax_factor = 0.9
-pow_scaling_factor = 2
+pow_scaling_factor = 8
 Teff_fuel = parse_multiPhysics_output(f"../../Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan_24UOX_cell/BiCG/EPRIvoidModel_Churchill_HEM1/mesh{number_axial_slices}_{pow_scaling_factor}/Data/TeffFuel_24UOX_mesh{number_axial_slices}_BiCG_EPRIvoidModel_relaxedPOW_{pow_relax_factor}_relaxedTH_0.1.txt")
 #print(T_data)
 TWater = parse_multiPhysics_output(f"../../Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan_24UOX_cell/BiCG/EPRIvoidModel_Churchill_HEM1/mesh{number_axial_slices}_{pow_scaling_factor}/Data/Twater_24UOX_mesh{number_axial_slices}_BiCG_EPRIvoidModel_relaxedPOW_{pow_relax_factor}_relaxedTH_0.1.txt")
