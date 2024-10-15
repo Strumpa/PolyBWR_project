@@ -288,7 +288,7 @@ zPlotting = [] #If empty, no plotting of the axial distribution of the fields, o
 ## Meshing parameters:
 If = 8
 I1 = 3
-Iz1 = 10 # number of control volumes in the axial direction for now only 20 control volumes are supported for DONJON solution
+Iz1 = 40 # number of control volumes in the axial direction for now only 20 control volumes are supported for DONJON solution
 # Iz1 = 10, 20, 40 supported for the moment
 
 ########## Choice of Thermalhydraulics correlation ##########
@@ -319,6 +319,13 @@ pOutlet =  7.2e6 # Pa
 # Nominal coolant flow rate = 1530 kg/s
 massFlowRate = 1530  / (200*91)  # kg/s
 
+## Material parameters
+kFuel = 4.18 # W/m.K, TECHNICAL REPORTS SERIES No. 59 : Thermal Conductivity of Uranium Dioxide, IAEA, VIENNA, 1966
+Hgap = 10000 
+kClad = 21.5 # W/m.K, Thermal Conductivity of Zircaloy-2 (as used in BWRX-300) according to https://www.matweb.com/search/datasheet.aspx?MatGUID=eb1dad5ce1ad4a1f9e92f86d5b44740d
+# k_Zircaloy-4 = 21.6 W/m.K too so check for ATRIUM-10 clad material but should have the same thermal conductivity
+
+
     
 ########### Print options ###########
 FULL_PRINT = True # Print all the fields at each iteration, create figures in tmp/rundir/ ?
@@ -336,8 +343,10 @@ volumic_mass_U = 19000 # kg/m3
 Fuel_volume = np.pi*fuelRadius**2*height # m3
 Fuel_mass = Fuel_volume*volumic_mass_U*1000 # g
 print(f"Fuel mass = {Fuel_mass} g")
+power_scaling_factor = 8 # 1, 2, 4, 8 # Scaling factor for the power axial distribution
 
-power_scaling_factor = 2 # Scaling factor for the power axial distribution
+
+print(f"$$ - BEGIN Iz1 = {Iz1}, power_scaling_factor = {power_scaling_factor}")
 Bundle_volume = Fuel_volume / Iz1 # m3, Bundle <=> 1 axial slice of the fuel channel
 fuel_rod_power = full_core_power/(n_rods*n_assmblies) # W
 specificPower = fuel_rod_power/Fuel_mass # W/g 
@@ -348,13 +357,6 @@ print(f"PFiss = {PFiss} W")
 
 compo_name = "_COMPO_24UOX" # Name of the COMPO object to be used in the neutronics solution
 
-
-
-## Material parameters
-kFuel = 4.18 # W/m.K, TECHNICAL REPORTS SERIES No. 59 : Thermal Conductivity of Uranium Dioxide, IAEA, VIENNA, 1966
-Hgap = 10000 
-kClad = 21.5 # W/m.K, Thermal Conductivity of Zircaloy-2 (as used in BWRX-300) according to https://www.matweb.com/search/datasheet.aspx?MatGUID=eb1dad5ce1ad4a1f9e92f86d5b44740d
-# k_Zircaloy-4 = 21.6 W/m.K too so check for ATRIUM-10 clad material but should have the same thermal conductivity
 
 
 ########## Fields of the TH problem ##########
@@ -384,14 +386,14 @@ Residuals_Relaxed_Power_Distribs = []
 path=os.getcwd()
 a=os.path.exists(f"multiPhysics_PyGan_24UOX_cell")
 if a==False:
-	os.mkdir(f"multiPhysics_PyGan_24UOX_cell")
+    os.mkdir(f"multiPhysics_PyGan_24UOX_cell")
 print(path)
 
 SAVE_DIR = f"multiPhysics_PyGan_24UOX_cell/{numericalMethod}/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/"
 
 a=os.path.exists(SAVE_DIR)
 if a==False:
-	os.makedirs(SAVE_DIR)
+    os.makedirs(SAVE_DIR)
 ########## End creation of results directory ##########
 
 ##### Begin Calculation scheme for coupled neutronics and thermalhydraulics solution to the BWR pincell problem.
@@ -477,7 +479,7 @@ print("Number of parameters: ", npar)
 
 # empty the Lifo stack for IniDONJON
 while ipLifo1.getMax() > 0:
-  ipLifo1.pop();
+    ipLifo1.pop();
 
 # 4.) Iterative scheme for coupled neutronics and thermalhydraulics solution
 # Attempting to run multiPhysics scheme.
@@ -633,11 +635,8 @@ while not conv:
     print(f"THM resolution at iter={iter} : All lists TeffFuel = {TeffFuel}, Twater = {Twater}, rho = {rho}")
 
     if FULL_PRINT:
-        print("At iter = ", iter)
-        print("Creating figures for the THM resolution")
         print(range(Iz1))
         print(TeffFuel)
-        print(f"length of Tfuel at iter {iter} = {len(TeffFuel)}")
         quickPlot(range(Iz1), TeffFuel, "Fuel temperature convergence", "axial position (ctrl vol)", "TFuel (K)", "TFuel_convergence.png", path, SAVE_DIR)
         quickPlot(range(Iz1), Twater, "Coolant temperature convergence", "axial position (ctrl vol)", "TCool (K)", "TCool_convergence.png", path, SAVE_DIR)
         quickPlot(range(Iz1), rho, "Coolant density convergence", "axial position (ctrl vol)", "DCool (kg/m3)", "DCool_convergence.png", path, SAVE_DIR)
@@ -706,7 +705,7 @@ print(f"Total volumic power = {total_volumic_power} W")
 
 initial_volumic_power = np.sum(Volumic_Powers[0])
 print(f"Initial volumic power = {initial_volumic_power} W")
-ratio_initial = initial_volumic_power/total_volumic_power
+ratio_initial = initial_volumic_power/total_power
 print(f"Ratio initial = {ratio_initial}")
 
 ratio = total_volumic_power/total_power
@@ -723,7 +722,7 @@ print("$$$ - multiPhysics.py : END RESULTS - $$$")
 path=os.getcwd()
 a=os.path.exists(f"multiPhysics_PyGan_24UOX_cell")
 if a==False:
-	os.mkdir(f"multiPhysics_PyGan_24UOX_cell")
+    os.mkdir(f"multiPhysics_PyGan_24UOX_cell")
 print(path)
 
 SAVE_FIG_DIR = f"multiPhysics_PyGan_24UOX_cell/{numericalMethod}/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/mesh{Iz1}_{power_scaling_factor}/Figures"
@@ -731,7 +730,7 @@ SAVE_DATA_DIR = f"multiPhysics_PyGan_24UOX_cell/{numericalMethod}/{voidFractionC
 
 a=os.path.exists(SAVE_FIG_DIR)
 if a==False:
-	os.makedirs(SAVE_FIG_DIR)
+    os.makedirs(SAVE_FIG_DIR)
 
 print(SAVE_DIR)
 print(f"Keffs = {Keffs}")
@@ -750,14 +749,14 @@ quickPlot(range(Iz1), Residuals_rho, "Coolant density residuals", "iteration", "
 quickPlot(range(Iz1), Residuals_Power_Distribs, "Power distribution residuals", "iteration", "Residuals", "Power_distribution_residuals.png", path, SAVE_FIG_DIR)
 print(f"Residuals Power distribution : {Residuals_Power_Distribs}")
 quickPlot(range(Iz1), Residuals_Volumic_Powers, "Axial power shape residuals", "iteration", "Residuals", "Power_shape_residuals.png", path, SAVE_FIG_DIR)
-print("$$$ - multiPhysics.py : END - $$$")
+print("$$$ - multiPhysics.py : END of PLOTTING - $$$")
 
 
 # 10.) Save the results for exportation to Serpent/OpenFoam/GeN-Foam
 # Save the results in a file
 a=os.path.exists(SAVE_DATA_DIR)
 if a==False:
-	os.makedirs(SAVE_DATA_DIR)
+    os.makedirs(SAVE_DATA_DIR)
 os.chdir(SAVE_DATA_DIR)
 case = compo_name.split("_")[2]
 TeffFuel = np.array(TeffFuel)
