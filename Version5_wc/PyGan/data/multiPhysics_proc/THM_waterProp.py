@@ -27,6 +27,7 @@ class statesVariables():
     - g (float): Gravitational acceleration (9.81 m/s²).
     - K_loss (float): Loss coefficient in the system.
     - Dz (float): Distance between cells.
+    - Poro (float): Porosity of the system.
 
     Methods:
     - createFields(): Initializes temporary arrays for cell-specific properties such as densities, void fractions, friction factors, and geometric areas. Uses specific methods to populate these arrays.
@@ -47,7 +48,7 @@ class statesVariables():
     - getReynoldsNumber(i): Computes the Reynolds number for flow in a given cell.
     """
 
-    def __init__(self, U, P, H, voidFraction, D_h, flowarea, DV, voidFractionCorrel, frfaccorel, P2Pcorel, Dz):
+    def __init__(self, U, P, H, voidFraction, D_h, areaMatrix, DV, voidFractionCorrel, frfaccorel, P2Pcorel, Dz):
         
         self.nCells = len(U)
         self.U = U
@@ -59,8 +60,8 @@ class statesVariables():
         self.P2Pcorel = P2Pcorel
         self.g = 9.81
         self.D_h = D_h
-        self.flowArea = flowarea
-        self.K_loss = 0#0.17
+        self.areaMatrix = areaMatrix
+        self.K_loss = 0 #0.17
         self.Dz = Dz
         self.DV = DV
 
@@ -72,7 +73,7 @@ class statesVariables():
         self.xThTEMP = np.ones(self.nCells)
         for i in range(self.nCells):
             self.xThTEMP[i] = self.getQuality(i)
-            self.areaMatrixTEMP[i] = self.flowArea
+            self.areaMatrixTEMP[i] = self.areaMatrix[i]
             self.rholTEMP[i], self.rhogTEMP[i], self.rhoTEMP[i] = self.getDensity(i)
             self.C0TEMP[i] = self.getC0(i)
             self.VgjTEMP[i] = self.getVgj(i)
@@ -265,7 +266,7 @@ class statesVariables():
                 return 0
             if self.rholTEMP[i] == 0:
                 return 0
-            return 0.188 * np.sqrt(((self.rholTEMP[i] - self.rhogTEMP[i]) * self.g * self.D_h ) / self.rhogTEMP[i] )
+            return 0.188 * np.sqrt(((self.rholTEMP[i] - self.rhogTEMP[i]) * self.g * self.D_h[i] ) / self.rhogTEMP[i] )
         
         if self.voidFractionCorrel == 'EPRIvoidModel':
             if self.rhogTEMP[i] == 0:
@@ -338,22 +339,19 @@ class statesVariables():
         Re = self.getReynoldsNumber(i)
 
         if self.frfaccorel == 'base': #Validated
-            print(f'Re : {Re}, f : {1}')
             return 1
         
         elif self.frfaccorel == 'blasius': #Validated
-            print(f'Re : {Re}, f : {0.316 * Re**(-0.25)}')
             return 0.316 * Re**(-0.25)
         elif self.frfaccorel == 'Churchill': #Validated
             Ra = 0.4 * (10**(-6)) #Roughness
-            R = Ra / self.D_h
-            frict=8*(((8.0/Re)**12)+((2.475*np.log(((7/Re)**0.9)+0.27*R))**16+(37530/Re)**16)**(-1.5))**(1/12)   
-            print(f'Re : {Re}, f : {frict}')
+            R = Ra / self.D_h[i]
+            frict=8*(((8.0/Re)**12)+((2.475*np.log(((7/Re)**0.9)+0.27*R))**16+(37530/Re)**16)**(-1.5))**(1/12)
             return frict
         elif self.frfaccorel == 'Churchill_notOK':
             Re = self.getReynoldsNumberLiquid(i)
             B = (37530/Re)**16
-            A = (2.475*np.log(1/(((7/Re)**0.9)+0.27*(0.4/self.D_h))))**16
+            A = (2.475*np.log(1/(((7/Re)**0.9)+0.27*(0.4/self.D_h[i]))))**16
             f  = 8*(((8/Re)**12) + (1/(A+B)**1.5))**(1/12)
             return f
         else:
@@ -383,8 +381,8 @@ class statesVariables():
         return phi2phi
     
     def getAreas(self, i):
-        A_chap_pos = self.flowArea +  (self.getPhi2Phi(i)/2) * ((self.fTEMP[i] / self.D_h) + (self.K_loss / self.Dz)) * self.DV
-        A_chap_neg = self.flowArea - (self.getPhi2Phi(i)/2) * ((self.fTEMP[i] / self.D_h) + (self.K_loss / self.Dz)) * self.DV
+        A_chap_pos = self.areaMatrix[i-1] +  (self.getPhi2Phi(i)/2) * ((self.fTEMP[i] / self.D_h[i]) + (self.K_loss / self.Dz)) * self.DV
+        A_chap_neg = self.areaMatrix[i] - (self.getPhi2Phi(i)/2) * ((self.fTEMP[i] / self.D_h[i]) + (self.K_loss / self.Dz)) * self.DV
         return A_chap_pos, A_chap_neg
 
     def getPhasesEnthalpy(self, i):
@@ -402,14 +400,14 @@ class statesVariables():
         mv = IAPWS97(P = P*(10**(-6)), x = 1).mu
         m = (mv * ml) / ( ml * (1 - alpha) + mv * alpha )
         
-        return rho * abs(U) * self.D_h / m
+        return rho * abs(U) * self.D_h[i] / m
     
     def getReynoldsNumberLiquid(self, i):
         Ul = self.getUl(i)
         rho = self.rholTEMP[i]
         P = self.P[i]
         m = IAPWS97(P = P*(10**(-6)), x = 0).mu
-        return rho * abs(Ul) * self.D_h / m
+        return rho * abs(Ul) * self.D_h[i] / m
     
     def getUl(self, i):
         return self.U[i] + (self.voidFractionTEMP[i] / ( 1- self.voidFractionTEMP[i])) * (self.rholTEMP[i] / self.rhoTEMP[i]) * self.VgjPrimeTEMP[i]
