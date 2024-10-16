@@ -117,25 +117,54 @@ def plot_relative_error(relative_error_dict, height, type):
         z_values = (z_boundaries[:-1] + z_boundaries[1:]) / 2  # Midpoints of control volumes in z
     
         ax4.plot(z_values, relative_error_dict[key], label=f"Relative error {key}", marker="x", linestyle="--", linewidth=0.5)
+    ax4.plot(z_values, 3.00*np.ones(len(z_values)), color="red", linestyle="--")
     ax4.set_ylabel("Relative error (%)")
     ax4.set_xlabel("Height m")
     fig4.legend()
     fig4.savefig(f"AT10_24UOX_MPHYS_relative_errors_{type}.png")
     return
 
+def compute_quadratic_error(donjon5_rates, S2_rates):
+    # calculate the quadratic error in %
+    quadratic_error = np.sqrt(np.sum(((donjon5_rates-S2_rates)*100/S2_rates)**2)/len(S2_rates))
+    return quadratic_error
 
+def plot_quadratic_errors(quadratic_error_dict, type, max_slices):
+    """
+    quadratic_error_dict : dictionary containing the quadratic errors for each mesh size
+    type : string, type of the plot, flux or power
+    max_slices : int, maximum number of axial slices
+    """
+    fig5, ax5 = plt.subplots()
+    z_slices = np.linspace(0, max_slices, 10)
+    print(f"z_slices : {z_slices}")
+    for key in quadratic_error_dict.keys():
+        
+        num_axial_slices = key.split(" ")[3].split(",")[0]
+        print(f"num_axial_slices : {num_axial_slices}")
+        ax5.plot(float(num_axial_slices), quadratic_error_dict[key], label=f"{key}", marker="x", linestyle="--", linewidth=0.5)
+    ax5.plot(z_slices, 3.00*np.ones(len(z_slices)), color="red", linestyle="--")
+    ax5.set_ylabel("Quadratic error (%)")
+    ax5.set_xlabel("Number of axial slices")
+    #fig5.legend()
+    fig5.savefig(f"AT10_24UOX_MPHYS_quadratic_errors_{type}.png")
+    return
 
-path_to_S2results = "/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/" # path to the serpent2 results
 
 number_axial_slices = [10,20,40]
-power_scaling_factor = [1,2] # run 4 and 8
+power_scaling_factor = [1,2,4,8] # run 4 and 8
 pow_relax = 0.9
 th_relax = 0.1
 ERRORS_r = {}
 ERRORS_G1 = {}
 ERRORS_G2 = {}
+quadratic_error_r = {}
+quadratic_error_G1 = {}
+quadratic_error_G2 = {}
+
 for n in number_axial_slices:
     for p in power_scaling_factor:
+        path_to_S2results = f"/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/MPHYS/mesh{n}" # path to the serpent2 results
         S2_res = f"AT10_24UOX_3D_MPHYS_mesh{n}_{p}_mc"
         det = st.read(f'{path_to_S2results}/{S2_res}_det0.m') # read the serpent2 output file
         # Parse Reaction rates (fission, n_gamma, heat production) for S2 and power for DONJON5
@@ -143,6 +172,7 @@ for n in number_axial_slices:
         donjon5_power = parse_DONJON_power(n, pow_relax, p, th_relax)
         relative_error = compute_relative_error(donjon5_power, sum_heat_prod)
         ERRORS_r[f"Power : Mesh {n}, power {p}"] = relative_error
+        quadratic_error_r[f"Power : Mesh {n}, power {p}"] = compute_quadratic_error(donjon5_power, sum_heat_prod)
 
         # Parse 2G fluxes for S2 and DONJON5
         S2_flux_G1, S2_flux_G2 = parse_detector_fluxes(n, det)
@@ -152,11 +182,15 @@ for n in number_axial_slices:
         relative_error_G1 = compute_relative_error(donjon5_flux_G2, S2_flux_G1)
         relative_error_G2 = compute_relative_error(donjon5_flux_G1, S2_flux_G2)
         ERRORS_G1[f"G1 Flux mesh {n}, power {p}"] = relative_error_G1
+        quadratic_error_G1[f"G1 Flux mesh {n}, power {p}"] = compute_quadratic_error(donjon5_flux_G2, S2_flux_G1)
         ERRORS_G2[f"G2 Flux mesh {n}, power {p}"] = relative_error_G2
+        quadratic_error_G2[f"G2 Flux mesh {n}, power {p}"] = compute_quadratic_error(donjon5_flux_G1, S2_flux_G2)
 
 
 plot_relative_error(ERRORS_r, height=3.8, type="power")
-
 plot_relative_error(ERRORS_G1, height=3.8, type="fluxG1")
 plot_relative_error(ERRORS_G2, height=3.8, type="fluxG2")
 
+plot_quadratic_errors(quadratic_error_r, type="power", max_slices=number_axial_slices[-1])
+plot_quadratic_errors(quadratic_error_G1, type="fluxG1", max_slices=number_axial_slices[-1])
+plot_quadratic_errors(quadratic_error_G2, type="fluxG2", max_slices=number_axial_slices[-1])

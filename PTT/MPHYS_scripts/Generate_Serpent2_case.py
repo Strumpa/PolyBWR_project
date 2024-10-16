@@ -190,7 +190,7 @@ def create_detectors(number_axial_slices, isGd):
 
 number_axial_slices = 40
 pow_relax_factor = 0.9
-pow_scaling_factor = 8
+pow_scaling_factor = 4
 Teff_fuel = parse_multiPhysics_output(f"../../Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan_24UOX_cell/BiCG/EPRIvoidModel_Churchill_HEM1/mesh{number_axial_slices}_{pow_scaling_factor}/Data/TeffFuel_24UOX_mesh{number_axial_slices}_BiCG_EPRIvoidModel_relaxedPOW_{pow_relax_factor}_relaxedTH_0.1.txt")
 #print(T_data)
 TWater = parse_multiPhysics_output(f"../../Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan_24UOX_cell/BiCG/EPRIvoidModel_Churchill_HEM1/mesh{number_axial_slices}_{pow_scaling_factor}/Data/Twater_24UOX_mesh{number_axial_slices}_BiCG_EPRIvoidModel_relaxedPOW_{pow_relax_factor}_relaxedTH_0.1.txt")
