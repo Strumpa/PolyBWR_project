@@ -30,7 +30,7 @@ def plot_histogram(values, iso, grmin, grmax):
     plt.savefig(f'histogram_{iso}.png')
     plt.show()
 
-def plot_histograms(values_lists, iso, colors, grmin, grmax):
+def plot_histograms(values_lists, iso, colors, grmin, grmax, legends=None):
     # Check that the number of values is 295
     for values in values_lists:
         print(len(values))
@@ -44,12 +44,17 @@ def plot_histograms(values_lists, iso, colors, grmin, grmax):
     
     plt.figure(figsize=(10, 6))
     for i in range(len(values_lists)):
-        plt.bar(energy_groups, values_lists[i], edgecolor='black', alpha=0.5, color=colors[i])
-    plt.xticks(range(1, 296, 20))  # Set x-ticks with an interval of 20 for readability
+        print(f"values_lists[{i}] = {values_lists[i]}")
+        plt.bar(energy_groups, values_lists[i], edgecolor='black', alpha=0.5, color=colors[i], label=legends[i])
+    if "error" in legends[0]:
+        plt.ylabel('Relative error (%)')
+    else:
+        plt.ylabel('Absorption rate')
+    plt.xticks(range(grmin, grmax+1, 20))  # Set x-ticks with an interval of 20 for readability
     plt.xlabel('Energy group')
-    plt.ylabel('Reaction rate')
-    plt.title('Histogram of 295 Values')
-    #plt.grid(True)
+    plt.title(f'Absorption rates of {iso}')
+    plt.grid()
+    plt.legend()
     #plt.tight_layout()
     plt.savefig(f'histogram_{iso}_compare.png')
     plt.show()
@@ -281,8 +286,8 @@ def compare_iso_U8_absorption_rates(D5_rates, S2_rates, SSH_method, iso, grmin=1
         U8_D5 = np.array(D5_rates[f"USS U238, {SSH_method}"])
         iso_D5 = np.array(D5_rates[f"USS {iso}, {SSH_method}"])
 
-    U8_S2 = np.array(S2_rates["U238 (n,gamma)"][::-1])
-    iso_S2 = np.array(S2_rates[f"{iso} (n,gamma)"][::-1])
+    U8_S2 = np.array(S2_rates["U238 (n,gamma)"])
+    iso_S2 = np.array(S2_rates[f"{iso} (n,gamma)"])
     plot_histogram(iso_S2, iso+"_S2", grmin, grmax)
     plot_histogram(iso_D5, iso+"_D5", grmin, grmax)
 
@@ -292,15 +297,29 @@ def compare_iso_U8_absorption_rates(D5_rates, S2_rates, SSH_method, iso, grmin=1
     return ratio_D5, ratio_S2
 
 
-def normalize_absorption_rates(rates):
+def normalize_absorption_rates(rates, GRMIN, GRMAX):
     """
     Normalize the absorption rates to the total absorption rate.
     """
+    if len(rates) > (GRMAX - GRMIN) + 1:
+        # extract the rates for the energy groups of interest
+        rates = rates[GRMIN-1:GRMAX]
     rates = np.array(rates)/np.sum(rates)
     print(f"Normalized rates = {rates}")
     print(f"Sum of normalized rates = {np.sum(rates)}")
     return rates
     
+def compute_group_relative_error(ratesS2, ratesD5, ngroups):
+    """
+    Compute the relative error on the absorption rates in each group.
+    """
+    relative_errors = []
+    for i in range(ngroups):
+        relative_error = (ratesD5[i]-ratesS2[i])*100/ratesS2[i]
+        relative_errors.append(relative_error)
+
+    print(f"length of relative errors = {len(relative_errors)}")
+    return relative_errors
 
     
 
@@ -327,27 +346,23 @@ if __name__ == "__main__":
     Gd_nGamma_rates = []
     U8_nGamma_rates = []
     U8_abs_rates = []
-    for group in range(GRMIN-1, GRMAX):
+    for group in range(n_ene_groups):
         Gd_nGamma_rates.append(det_scores[group, 0])
         U8_nGamma_rates.append(det_scores[group, 1])
         U8_abs_rates.append(det_scores[group, 2])
+    Gd_nGamma_rates_reversed = np.array(Gd_nGamma_rates[::-1])
+    U8_nGamma_rates_reversed = np.array(U8_nGamma_rates[::-1])
+    U8_abs_rates_reversed = np.array(U8_abs_rates[::-1])
+    
 
-    Gd_nGamma_rates = np.array(Gd_nGamma_rates)
-    U8_nGamma_rates = np.array(U8_nGamma_rates)
-    U8_abs_rates = np.array(U8_abs_rates)
-
-    S2_rates = {"Gd157 (n,gamma)": Gd_nGamma_rates, "U238 (n,gamma)": U8_nGamma_rates, "U238 absorption": U8_abs_rates}
+    S2_rates = {"Gd157 (n,gamma)": Gd_nGamma_rates_reversed[GRMIN-1:GRMAX], "U238 (n,gamma)": U8_nGamma_rates_reversed[GRMIN-1:GRMAX], "U238 absorption": U8_abs_rates_reversed[GRMIN-1:GRMAX]}
     # Plot reaction rates
     # Histogram of reaction rates
     # plot_histogram(Gd_nGamma_rates.values())
 
     # Parse DRAGON absoprtion rates
     D5_rates, D5_USSvsAUTO = parse_Dragon_abs_rates(path_D5, input_case, output_case = f"{input_case}_USS_AUTO_inrs1{correlation}", grmin=GRMIN, grmax=GRMAX)
-    print(len(D5_rates["AUTO U238"]))
 
-    print(D5_rates.keys())
-    print(D5_USSvsAUTO.keys())
-    
 
     # Study U5/U8 absorption rates for both Serpent and Dragon
 
@@ -368,14 +383,20 @@ if __name__ == "__main__":
     # Study normalized Gd157, U8, U5 absorption rates for both Serpent and Dragon    
 
     # Normalize the absorption rates
-    U8_abs_rates_norm = normalize_absorption_rates(U8_abs_rates[::-1])
-    Gd_nGamma_rates_norm = normalize_absorption_rates(Gd_nGamma_rates[::-1])
-    U8_nGamma_rates_norm = normalize_absorption_rates(U8_nGamma_rates[::-1])
+    U8_abs_rates_norm = normalize_absorption_rates(U8_abs_rates_reversed, GRMIN, GRMAX)
+    Gd_nGamma_rates_norm = normalize_absorption_rates(Gd_nGamma_rates_reversed, GRMIN, GRMAX)
+    U8_nGamma_rates_norm = normalize_absorption_rates(U8_nGamma_rates_reversed, GRMIN, GRMAX)
 
-    U8_D5_norm = normalize_absorption_rates(D5_rates["AUTO U238"])
-    Gd157_D5_norm = normalize_absorption_rates(D5_rates["AUTO Gd157"])
+
+    U8_D5_norm = normalize_absorption_rates(D5_rates["AUTO U238"], GRMIN, GRMAX)
+    Gd157_D5_norm = normalize_absorption_rates(D5_rates["AUTO Gd157"], GRMIN, GRMAX)
 
 
     # Plot normalized absorption rates
-    plot_histograms([U8_abs_rates_norm, U8_nGamma_rates_norm, U8_D5_norm], "U238", ["skyblue", "red", "green"], GRMIN, GRMAX)
-    plot_histograms([Gd_nGamma_rates_norm, Gd157_D5_norm], "Gd157", ["skyblue", "red"], GRMIN, GRMAX)
+    plot_histograms([U8_abs_rates_norm, U8_nGamma_rates_norm, U8_D5_norm], "U238", ["skyblue", "red", "green"], GRMIN, GRMAX, legends=["S2 : U8 abs rates", "S2 : U8 nGamma rates", "D5 : U8 abs rates AUTO"])
+    plot_histograms([Gd_nGamma_rates_norm, Gd157_D5_norm], "Gd157", ["skyblue", "red"], GRMIN, GRMAX, legends=["S2 : Gd157 nGamma rates", "D5 : Gd157 abs rates AUTO"])
+
+    # compute relative error on abs rates in each group
+    relative_errors_Gd157 = compute_group_relative_error(Gd_nGamma_rates_norm, Gd157_D5_norm, GRMAX-GRMIN+1)
+    relative_errors_U8 = compute_group_relative_error(U8_nGamma_rates_norm, U8_D5_norm, GRMAX-GRMIN+1)
+    plot_histograms([relative_errors_Gd157, relative_errors_U8], "Gd157_U8", ["skyblue", "red"], GRMIN, GRMAX, legends=["AUTO-S2 : relative errors Gd157", "AUTO-S2 : relative errors U8"])
