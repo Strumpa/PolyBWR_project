@@ -32,6 +32,11 @@ from getLists import *
 # Cle-2000 PROCEDURES
 from PCC0_Gd157 import * # Performs eulerian step predictor BU method
 from PCC1_Gd157 import * # Performs predicor-corrector BU method
+from PCC2_Gd157 import * # Performs predicor-corrector BU method with 3 EVO runs
+from PCC3_Gd157 import * # Performs predicor-corrector BU method with 4 EVO runs
+from PCC4_Gd157 import * # Performs predicor-corrector BU method with 5 EVO runs
+from PCC5_Gd157 import * # Performs predicor-corrector BU method with 6 EVO runs
+from PCC6_Gd157 import * # Performs predicor-corrector BU method with 7 EVO runs
 
 
 ########################################################################################################################################################################################
@@ -147,6 +152,21 @@ pyCOMPOs["HOM_Gd157_PCC0"] = pyCOMPO_HOM_Gd157
 
 pyCOMPO_HOM_Gd157_PCC1 = PCC1_Gd157("COMPO_Gd157_PCC1",StepList,f"./_COMPO_HOM_UOX_Gd157_PCC1")
 pyCOMPOs["HOM_Gd157_PCC1"] = pyCOMPO_HOM_Gd157_PCC1
+
+pyCOMPO_HOM_Gd157_PCC2 = PCC2_Gd157("COMPO_Gd157_PCC2",StepList,f"./_COMPO_HOM_UOX_Gd157_PCC2")
+pyCOMPOs["HOM_Gd157_PCC2"] = pyCOMPO_HOM_Gd157_PCC2
+
+pyCOMPO_HOM_Gd157_PCC3 = PCC3_Gd157("COMPO_Gd157_PCC3",StepList,f"./_COMPO_HOM_UOX_Gd157_PCC3")
+pyCOMPOs["HOM_Gd157_PCC3"] = pyCOMPO_HOM_Gd157_PCC3
+
+pyCOMPO_HOM_Gd157_PCC4 = PCC4_Gd157("COMPO_Gd157_PCC4",StepList,f"./_COMPO_HOM_UOX_Gd157_PCC4")
+pyCOMPOs["HOM_Gd157_PCC4"] = pyCOMPO_HOM_Gd157_PCC4
+
+pyCOMPO_HOM_Gd157_PCC5 = PCC5_Gd157("COMPO_Gd157_PCC5",StepList,f"./_COMPO_HOM_UOX_Gd157_PCC5")
+pyCOMPOs["HOM_Gd157_PCC5"] = pyCOMPO_HOM_Gd157_PCC5
+
+pyCOMPO_HOM_Gd157_PCC6 = PCC6_Gd157("COMPO_Gd157_PCC6",StepList,f"./_COMPO_HOM_UOX_Gd157_PCC6")
+pyCOMPOs["HOM_Gd157_PCC6"] = pyCOMPO_HOM_Gd157_PCC6
 
 
 ########################################################################################################################################################################################
