@@ -288,8 +288,12 @@ zPlotting = [] #If empty, no plotting of the axial distribution of the fields, o
 ## Meshing parameters:
 If = 8
 I1 = 3
-Iz1 = 40 # number of control volumes in the axial direction for now only 20 control volumes are supported for DONJON solution
+# Sensitivity to the meshing parameters
+Iz1 = 10 # number of control volumes in the axial direction for now only 20 control volumes are supported for DONJON solution
 # Iz1 = 10, 20, 40 supported for the moment
+
+
+power_scaling_factor = 1 # 1, 2, 4, 8 # Scaling factor for the power axial distribution
 
 ########## Choice of Thermalhydraulics correlation ##########
 voidFractionCorrel = 'EPRIvoidModel' # 'modBestion', 'HEM1', 'GEramp', 'EPRIvoidModel'
@@ -337,14 +341,12 @@ n_rods = 91 # This value is for the ATRIUM-10 fuel assembly (10*10-9), in a GNF2
 n_assmblies = 240 # This value is for the BWRX-300 SMR core, ref : "Status Report – BWRX-300 (GE Hitachi and Hitachi GE Nuclear Energy)"
 full_core_power = 870e6 # W, full core thermal power of the BWRX-300 SMR core, ref : "Status Report – BWRX-300 (GE Hitachi and Hitachi GE Nuclear Energy)"
 
-volumic_mass_U = 19000 # kg/m3
+volumic_mass_U = 10970 # kg/m3 'Thermophysical Properties of MOX and UO2 Fuels Including the Effects of Irradiation' - ORNL/TM-2000/351, Popov, Carbajo, Ivanov, Yoder. November 2000.
 
 ## Fuel rod scale parameters :
 Fuel_volume = np.pi*fuelRadius**2*height # m3
 Fuel_mass = Fuel_volume*volumic_mass_U*1000 # g
 print(f"Fuel mass = {Fuel_mass} g")
-power_scaling_factor = 8 # 1, 2, 4, 8 # Scaling factor for the power axial distribution
-
 
 print(f"$$ - BEGIN Iz1 = {Iz1}, power_scaling_factor = {power_scaling_factor}")
 Bundle_volume = Fuel_volume / Iz1 # m3, Bundle <=> 1 axial slice of the fuel channel
@@ -584,11 +586,11 @@ while not conv:
             os.makedirs(SAVE_DATA_DIR)
         os.chdir(SAVE_DATA_DIR)
         heights = np.linspace(0, height, Iz1 + 1)
-        mid_heights = [0.5*(heights[i]+heights[i+1]) for i in range(Iz1)]
+        #mid_heights = z_mesh
         fig, ax = plt.subplots()
-        ax.plot(mid_heights, qFiss, '2-',linewidth=1, label="Initial DONJON Volumic Power Distribution")
-        ax.plot(mid_heights, qFiss_init, '2-', linewidth=1, label="Guess Axial Volumic Power Distribution")
-        ax.plot(mid_heights, qFiss_relaxed, 'x', linewidth=1, label="Under Relaxed Volumic Power Distribution")
+        ax.plot(z_mesh, qFiss, '2-',linewidth=1, label="Initial DONJON Volumic Power Distribution")
+        ax.plot(z_mesh, qFiss_init, '2-', linewidth=1, label="Guess Axial Volumic Power Distribution")
+        ax.plot(z_mesh, qFiss_relaxed, 'x', linewidth=1, label="Under Relaxed Volumic Power Distribution")
         ax.set_xlabel("height (m)")
         ax.set_ylabel("Volumic Power (W)")
         ax.legend()
@@ -635,12 +637,12 @@ while not conv:
     print(f"THM resolution at iter={iter} : All lists TeffFuel = {TeffFuel}, Twater = {Twater}, rho = {rho}")
 
     if FULL_PRINT:
-        print(range(Iz1))
+        print(z_mesh)
         print(TeffFuel)
-        quickPlot(range(Iz1), TeffFuel, "Fuel temperature convergence", "axial position (ctrl vol)", "TFuel (K)", "TFuel_convergence.png", path, SAVE_DIR)
-        quickPlot(range(Iz1), Twater, "Coolant temperature convergence", "axial position (ctrl vol)", "TCool (K)", "TCool_convergence.png", path, SAVE_DIR)
-        quickPlot(range(Iz1), rho, "Coolant density convergence", "axial position (ctrl vol)", "DCool (kg/m3)", "DCool_convergence.png", path, SAVE_DIR)
-        quickPlot(range(Iz1), Volumic_Powers, "Axial power shape", "axial position (ctrl vol)", "Power (W)", "Power_shape.png", path, SAVE_DIR)
+        quickPlot(z_mesh, TeffFuel, "Fuel temperature convergence", "height (m)", "TFuel (K)", "TFuel_convergence.png", path, SAVE_DIR)
+        quickPlot(z_mesh, Twater, "Coolant temperature convergence", "height (m)", "TCool (K)", "TCool_convergence.png", path, SAVE_DIR)
+        quickPlot(z_mesh, rho, "Coolant density convergence", "height (m)", "DCool (kg/m3)", "DCool_convergence.png", path, SAVE_DIR)
+        quickPlot(z_mesh, Volumic_Powers, "Axial power shape", "height (m)", "Power (W)", "Power_shape.png", path, SAVE_DIR)
 
     
     diff = compute_difference_fields(rho)
@@ -737,18 +739,18 @@ print(f"Keffs = {Keffs}")
 # Plot the results
 quickPlot(range(len(Keffs)), Keffs, "Keff convergence", "iteration", "Keff", "Keff_convergence.png", path, SAVE_FIG_DIR)
 
-quickPlot(range(Iz1), TeffFuel, "Fuel temperature convergence", "axial position (ctrl vol)", "TFuel (K)", "TFuel_convergence.png", path, SAVE_FIG_DIR)
-quickPlot(range(Iz1), Twater, "Coolant temperature convergence", "axial position (ctrl vol)", "TCool (K)", "TCool_convergence.png", path, SAVE_FIG_DIR)
-quickPlot(range(Iz1), rho, "Coolant density convergence", "axial position (ctrl vol)", "DCool (kg/m3)", "DCool_convergence.png", path, SAVE_FIG_DIR)
-quickPlot(range(Iz1), Power_Distribs, "Power distribution convergence", "axial position (ctrl vol)", "Power (kW)", "Power_distribution_convergence.png", path, SAVE_FIG_DIR)
-quickPlot(range(Iz1), Volumic_Powers, "Axial power shape", "axial position (ctrl vol)", "Power (W)", "Power_shape.png", path, SAVE_FIG_DIR)
+quickPlot(z_mesh, TeffFuel, "Fuel temperature convergence", "height (m)", "TFuel (K)", "TFuel_convergence.png", path, SAVE_FIG_DIR)
+quickPlot(z_mesh, Twater, "Coolant temperature convergence", "height (m)", "TCool (K)", "TCool_convergence.png", path, SAVE_FIG_DIR)
+quickPlot(z_mesh, rho, "Coolant density convergence", "height (m)", "DCool (kg/m3)", "DCool_convergence.png", path, SAVE_FIG_DIR)
+quickPlot(z_mesh, Power_Distribs, "Power distribution convergence", "height (m)", "Power (kW)", "Power_distribution_convergence.png", path, SAVE_FIG_DIR)
+quickPlot(z_mesh, Volumic_Powers, "Axial power shape", "height (m)", "Power (W)", "Power_shape.png", path, SAVE_FIG_DIR)
     
-quickPlot(range(Iz1), Residuals_TeffFuel, "Fuel temperature residuals", "iteration", "Residuals", "TFuel_residuals.png", path, SAVE_FIG_DIR)
-quickPlot(range(Iz1), Residuals_Twater, "Coolant temperature residuals", "iteration", "Residuals", "TCool_residuals.png", path, SAVE_FIG_DIR)
-quickPlot(range(Iz1), Residuals_rho, "Coolant density residuals", "iteration", "Residuals", "DCool_residuals.png", path, SAVE_FIG_DIR)
-quickPlot(range(Iz1), Residuals_Power_Distribs, "Power distribution residuals", "iteration", "Residuals", "Power_distribution_residuals.png", path, SAVE_FIG_DIR)
+quickPlot(z_mesh, Residuals_TeffFuel, "Fuel temperature residuals", "height (m)", "Residuals", "TFuel_residuals.png", path, SAVE_FIG_DIR)
+quickPlot(z_mesh, Residuals_Twater, "Coolant temperature residuals", "height (m)", "Residuals", "TCool_residuals.png", path, SAVE_FIG_DIR)
+quickPlot(z_mesh, Residuals_rho, "Coolant density residuals", "height (m)", "Residuals", "DCool_residuals.png", path, SAVE_FIG_DIR)
+quickPlot(z_mesh, Residuals_Power_Distribs, "Power distribution residuals", "height (m)", "Residuals", "Power_distribution_residuals.png", path, SAVE_FIG_DIR)
 print(f"Residuals Power distribution : {Residuals_Power_Distribs}")
-quickPlot(range(Iz1), Residuals_Volumic_Powers, "Axial power shape residuals", "iteration", "Residuals", "Power_shape_residuals.png", path, SAVE_FIG_DIR)
+quickPlot(z_mesh, Residuals_Volumic_Powers, "Axial power shape residuals", "height (m)", "Residuals", "Power_shape_residuals.png", path, SAVE_FIG_DIR)
 print("$$$ - multiPhysics.py : END of PLOTTING - $$$")
 
 
