@@ -450,10 +450,8 @@ def POSTPROC(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_geom,bu_autop_list,VISU_param,N
                     for lib_name in S2_libs:
                         ax_Gd.plot(ERRORS_ALL[test_name][lib_name][0],ERRORS_ALL[test_name][lib_name][k+1],'2-',linewidth=1, label=f"{test_name} : {lib_name}")
                 ax_U.set_xlabel('BU [MWd/t]')
-                ax_U.grid()
                 ax_U.legend(loc="best")
                 ax_Gd.set_xlabel('BU [MWd/t]')
-                ax_Gd.grid()
                 ax_Gd.legend(loc="best")
                 
             if k == 0: # Erreur sur Keff
