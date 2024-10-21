@@ -24,19 +24,17 @@ import matplotlib
 
 
 # POST-PROCESSING 
-from POSTPROC import *
+from POSTPROC_Gd157 import *
 
 # --- StepLists 
 from getLists import *
 
 # Cle-2000 PROCEDURES
-from PCC0_Gd157 import * # Performs eulerian step predictor BU method
-from PCC1_Gd157 import * # Performs predicor-corrector BU method
-from PCC2_Gd157 import * # Performs predicor-corrector BU method with 3 EVO runs
-from PCC3_Gd157 import * # Performs predicor-corrector BU method with 4 EVO runs
-from PCC4_Gd157 import * # Performs predicor-corrector BU method with 5 EVO runs
-from PCC5_Gd157 import * # Performs predicor-corrector BU method with 6 EVO runs
-from PCC6_Gd157 import * # Performs predicor-corrector BU method with 7 EVO runs
+from PCC0_Gd157 import * # Performs eulerian step predictor BU method with Constant Extrapolation only
+from PCC1_Gd157 import * # Performs predicor-corrector BU method with Constant Extrapolation and linear interpolation (?)
+from PCC2_Gd157 import * # Performs predicor step with Linear Extrapolation
+from PCC3_Gd157 import * # Performs predicor-corrector Linear Extrapolation and corrective step
+from PCC3b_Gd157 import * # Same as PCC3 but with a second EVO: run to ensure convergence
 
 
 ########################################################################################################################################################################################
@@ -54,6 +52,7 @@ name_study = 'HOM_CELL_PCC'
 
 
 S2_libs = ["PyNjoy2016"]#,"oldlib"]
+S2_PCC = ["PCC0","PCC1","PCC2","PCC3","PCC4","PCC6"] # all ran for PyNjoy2016, waiting on 3, 4 and 6 for oldlib
 
 ssh_module = "USS" #"USS", "AUTO"
 ssh_method = "PT" #"PT", "RSE", "SUBG" all supported for USS: but AUTO: only takes SUBG
@@ -153,20 +152,14 @@ pyCOMPOs["HOM_Gd157_PCC0"] = pyCOMPO_HOM_Gd157
 pyCOMPO_HOM_Gd157_PCC1 = PCC1_Gd157("COMPO_Gd157_PCC1",StepList,f"./_COMPO_HOM_UOX_Gd157_PCC1")
 pyCOMPOs["HOM_Gd157_PCC1"] = pyCOMPO_HOM_Gd157_PCC1
 
-pyCOMPO_HOM_Gd157_PCC2 = PCC2_Gd157("COMPO_Gd157_PCC2",StepList,f"./_COMPO_HOM_UOX_Gd157_PCC2")
+pyCOMPO_HOM_Gd157_PCC2 = PCC2_Gd157("COMPO_Gd157_PCC2",StepList,f"./_COMPO_HOM_UOX_Gd157_{suffixe}_{depl_sol}{SAT}_{ssh_module}_{ssh_method}_PCC2",ssh_module,ssh_method,sat,depl_sol)
 pyCOMPOs["HOM_Gd157_PCC2"] = pyCOMPO_HOM_Gd157_PCC2
 
 pyCOMPO_HOM_Gd157_PCC3 = PCC3_Gd157("COMPO_Gd157_PCC3",StepList,f"./_COMPO_HOM_UOX_Gd157_PCC3")
 pyCOMPOs["HOM_Gd157_PCC3"] = pyCOMPO_HOM_Gd157_PCC3
 
-pyCOMPO_HOM_Gd157_PCC4 = PCC4_Gd157("COMPO_Gd157_PCC4",StepList,f"./_COMPO_HOM_UOX_Gd157_PCC4")
-pyCOMPOs["HOM_Gd157_PCC4"] = pyCOMPO_HOM_Gd157_PCC4
-
-pyCOMPO_HOM_Gd157_PCC5 = PCC5_Gd157("COMPO_Gd157_PCC5",StepList,f"./_COMPO_HOM_UOX_Gd157_PCC5")
-pyCOMPOs["HOM_Gd157_PCC5"] = pyCOMPO_HOM_Gd157_PCC5
-
-pyCOMPO_HOM_Gd157_PCC6 = PCC6_Gd157("COMPO_Gd157_PCC6",StepList,f"./_COMPO_HOM_UOX_Gd157_PCC6")
-pyCOMPOs["HOM_Gd157_PCC6"] = pyCOMPO_HOM_Gd157_PCC6
+pyCOMPO_HOM_Gd157_PCC4 = PCC3b_Gd157("COMPO_Gd157_PCC4",StepList,f"./_COMPO_HOM_UOX_Gd157_PCC4")
+pyCOMPOs["HOM_Gd157_PCC3b"] = pyCOMPO_HOM_Gd157_PCC4
 
 
 ########################################################################################################################################################################################
@@ -175,4 +168,4 @@ pyCOMPOs["HOM_Gd157_PCC6"] = pyCOMPO_HOM_Gd157_PCC6
 #                                                 #
 
 
-POSTPROC(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_study,suffixe,VISU_param,Nmin,S2_libs,ssh_module,ssh_method,correlation,depl_sol,sat)
+POSTPROC_Gd157(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_study,suffixe,VISU_param,Nmin,S2_libs,S2_PCC,ssh_module,ssh_method,correlation,depl_sol,sat)

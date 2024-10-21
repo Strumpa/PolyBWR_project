@@ -3,6 +3,9 @@
 *  HOM_UOX_Gd157 bemchmark
 *  295-GROUP JEF3.1.1 DRAGLIB
 *  Purpose : Investigate predictor-corrector for Gd157 depletion
+*  Compare to PCC1 Serpent2 : CE-LI method.
+*     - NOEX first step for CE method
+*     - corrector step to perform LI (?)
 *
 *----
 *  Define STRUCTURES and MODULES used
@@ -191,7 +194,7 @@ WHILE istep nstep < DO
     BURNUP LIB2 := EVO: LIB2 FLUX TRACK ::
       SAVE <<evobeg>> DAY POWR <<Norm_f2>>
       DEPL <<evobeg>> <<evoend>> DAY POWR <<Norm_f2>> 
-      H1 1.0E-6 
+      H1 1.0E-6 NOEX
       SET <<evoend>> DAY ;
 
   ELSE
@@ -201,7 +204,7 @@ WHILE istep nstep < DO
     BURNUP LIB2 := EVO: BURNUP LIB2 FLUX TRACK ::
       SAVE <<evobeg>> DAY POWR <<Norm_f2>>
       DEPL <<evobeg>> <<evoend>> DAY POWR <<Norm_f2>> 
-      H1 1.0E-6
+      H1 1.0E-6 NOEX
       SET <<evoend>> DAY ;
   ENDIF ;
   * Perform self-shielding of EOS library ?
