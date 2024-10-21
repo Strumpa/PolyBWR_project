@@ -670,7 +670,7 @@ while not conv:
     # 6.) Empty the ipLifo2 Lifo stack to prepare for the next iteration
     while ipLifo2.getMax() > 0:
         print("Clearing ipLifo2 stack at iter = ", iter) 
-        ipLifo2.pop();
+        ipLifo2.pop()
     
     print(f"$$ - END iter = {iter}")
     # 7.) Check for convergence on Keff value : add more converegence criteria for other fields ?
