@@ -34,7 +34,7 @@ class energyMeshHandler:
 
         self.energyMesh = np.sort(self.energyMesh)
         print(f"energyMesh = {self.energyMesh}")
-        print(f"Number of energy groups = {len(self.energyMesh)-1}")
+        print(f"Number of energy groups = {len(self.energyMesh)}")
         
 
     def readLethargyWidths(self):
@@ -52,6 +52,7 @@ class energyMeshHandler:
                     for j in range(len(line)):
                         self.lethargyMeshWidths.append(float(line[j]))
         self.lethargyMeshWidths = np.array(self.lethargyMeshWidths)
+        print(f"number of lethargy widths is : {len(self.lethargyMeshWidths)}")
         return 
     
     def computeLethargyMesh(self):
