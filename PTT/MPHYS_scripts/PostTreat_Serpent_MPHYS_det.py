@@ -104,7 +104,7 @@ def compute_relative_error(donjon5_rates, S2_rates):
     relative_error = np.abs(donjon5_rates-S2_rates)*100/S2_rates
     return relative_error
 
-def plot_relative_error(relative_error_dict, height, type):
+def plot_relative_error(relative_error_dict, height, type, power_scaling_factors_to_plot):
     fig4, ax4 = plt.subplots()
     for key in relative_error_dict.keys():
         if "10" in key:
@@ -115,13 +115,14 @@ def plot_relative_error(relative_error_dict, height, type):
         elif "40" in key:
             z_boundaries = np.linspace(0, height, 40 + 1)
         z_values = (z_boundaries[:-1] + z_boundaries[1:]) / 2  # Midpoints of control volumes in z
-    
-        ax4.plot(z_values, relative_error_dict[key], label=f"Relative error {key}", marker="x", linestyle="--", linewidth=0.5)
+        power_scaling_factor = int(key.split(" ")[5])
+        if power_scaling_factor in power_scaling_factors_to_plot:
+            ax4.plot(z_values, relative_error_dict[key], label=f"Relative error {key}", marker="x", linestyle="--", linewidth=0.5)
     ax4.plot(z_values, 3.00*np.ones(len(z_values)), color="red", linestyle="--")
     ax4.set_ylabel("Relative error (%)")
     ax4.set_xlabel("Height m")
     fig4.legend()
-    fig4.savefig(f"AT10_24UOX_MPHYS_relative_errors_{type}.png")
+    fig4.savefig(f"AT10_24UOX_MPHYS_relative_errors_{type}_4_8.png")
     return
 
 def compute_quadratic_error(donjon5_rates, S2_rates):
@@ -141,7 +142,8 @@ def plot_quadratic_errors(quadratic_error_dict, type, max_slices):
     for key in quadratic_error_dict.keys():
         
         num_axial_slices = key.split(" ")[3].split(",")[0]
-        print(f"num_axial_slices : {num_axial_slices}")
+        #print(f"num_axial_slices : {num_axial_slices}")
+        print(f"key = {key}, quadratic_error_dict[key] : {quadratic_error_dict[key]}")
         ax5.plot(float(num_axial_slices), quadratic_error_dict[key], label=f"{key}", marker="x", linestyle="--", linewidth=0.5)
     ax5.plot(z_slices, 3.00*np.ones(len(z_slices)), color="red", linestyle="--")
     ax5.set_ylabel("Quadratic error (%)")
@@ -151,8 +153,8 @@ def plot_quadratic_errors(quadratic_error_dict, type, max_slices):
     return
 
 
-number_axial_slices = [10,20,40]
-power_scaling_factor = [1,2,4,8] # run 4 and 8
+number_axial_slices = [10, 20, 40]
+power_scaling_factor = [1, 2, 4, 8] # run 4 and 8
 pow_relax = 0.9
 th_relax = 0.1
 ERRORS_r = {}
@@ -187,10 +189,15 @@ for n in number_axial_slices:
         quadratic_error_G2[f"G2 Flux mesh {n}, power {p}"] = compute_quadratic_error(donjon5_flux_G1, S2_flux_G2)
 
 
-plot_relative_error(ERRORS_r, height=3.8, type="power")
-plot_relative_error(ERRORS_G1, height=3.8, type="fluxG1")
-plot_relative_error(ERRORS_G2, height=3.8, type="fluxG2")
+# plot the relative errors
+power_scaling_factors = [4, 8]
+plot_relative_error(ERRORS_r, 3.8, "power", power_scaling_factors)
+plot_relative_error(ERRORS_G1, 3.8, "fluxG1", power_scaling_factors)
+plot_relative_error(ERRORS_G2, 3.8, "fluxG2", power_scaling_factors)
 
+print("plotting quadratic errors on power")
 plot_quadratic_errors(quadratic_error_r, type="power", max_slices=number_axial_slices[-1])
+print("plotting quadratic errors on flux G1")
 plot_quadratic_errors(quadratic_error_G1, type="fluxG1", max_slices=number_axial_slices[-1])
+print("plotting quadratic errors on flux G2")
 plot_quadratic_errors(quadratic_error_G2, type="fluxG2", max_slices=number_axial_slices[-1])
