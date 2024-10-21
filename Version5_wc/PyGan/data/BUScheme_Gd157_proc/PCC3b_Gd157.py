@@ -10,7 +10,7 @@
 import lifo
 import cle2000
 
-def PCC6_Gd157(namCOMPO, StepList, name_compo):
+def PCC3b_Gd157(namCOMPO, StepList, name_compo):
 
   # Lifo
   myLifo=lifo.new()
@@ -20,7 +20,7 @@ def PCC6_Gd157(namCOMPO, StepList, name_compo):
   myLifo.lib()
 
   # Execution 
-  calcBWR = cle2000.new('PCC6_Gd157',myLifo,1)
+  calcBWR = cle2000.new('PCC3b_Gd157',myLifo,1)
   calcBWR.exec()
 
   # Recover

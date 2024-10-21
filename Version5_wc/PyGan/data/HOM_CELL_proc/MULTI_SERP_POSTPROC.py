@@ -208,7 +208,8 @@ def MULTI_SERP_POSTPROC(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_geom,bu_autop_list,V
                 #print("$$$ ---------------- SERPENT_ALL",SERPENT_ALL)
                 SERPENT_test_RESULTS[lib_name] = SERPENT_lib_res
                 print(f"SERPENT_RESULTS = {SERPENT_test_RESULTS}")
-            SERPENT_results_ALL[test_name] = SERPENT_test_RESULTS    
+            SERPENT_results_ALL[test_name] = SERPENT_test_RESULTS   
+        print(f"SERPENT_RESULTS = {SERPENT_results_ALL}") 
 
     # -------------------------------
     #   ERROR MATRICES COMPUTATION 

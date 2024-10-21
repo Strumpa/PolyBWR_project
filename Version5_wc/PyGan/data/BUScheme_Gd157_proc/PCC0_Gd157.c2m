@@ -2,7 +2,9 @@
 * Purpose : Test depletion of Gd157 on homogeneous geometry
 * Homogeneous UOX + moderator + clad + Gd157
 * Reference Serpen2 case : HOM_UOX_Gd157_mc (PyNjoy2016 and oldlib)
-* Burnup calculation 
+* Burnup calculation using the PCC 0 method : 
+*     - constant extrapolation of reaction rates over each stage
+*     - no corrector step
 
 
 ****************************************************************************
@@ -431,7 +433,7 @@ WHILE istep nstep < DO
   
     BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX TRACK ::
      EDIT 3 DEPL <<Tbeg>> <<Tend>> DAY POWR <<Norm_f2>> 
-     EXPM 1.0E15 GLOB ;
+     EXPM 1.0E6 GLOB NOEX ;
   
   ENDIF ;
  
