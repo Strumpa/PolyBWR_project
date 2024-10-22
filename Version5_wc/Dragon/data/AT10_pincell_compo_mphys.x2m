@@ -22,12 +22,12 @@ SEQ_BINARY TF_EXC ;
 SEQ_BINARY TF_EXC_SS ;
 
 STRING geo_name := "AT10_UOX" ; 
-STRING ssh_opt := "RSE" ; ! "PT", "RSE", "SUBG"
-STRING track_opt := "SALT" ; ! "SYBNXT" "SALT" "NXTNXT"
+STRING ssh_opt := "PT" ; ! "PT", "RSE", "SUBG"
+STRING track_opt := "SYNXT" ; ! "SYBNXT" "SALT" "NXTNXT"
 
 SEQ_ASCII FIG_SS.ps :: FILE './PIN_AT10_FIG_SS.ps' ;
 SEQ_ASCII FIG_FLX.ps :: FILE './PIN_AT10_FIG_FLX.ps' ;
-SEQ_ASCII _COMPO :: FILE './COMPO_AT10_MPHYS' ;
+SEQ_ASCII _COMPO :: FILE './COMPO_AT10_MPHYS_PT_SYBNXT' ;
 
 REAL Kinf ;
 

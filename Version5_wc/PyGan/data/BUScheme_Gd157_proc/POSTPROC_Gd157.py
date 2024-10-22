@@ -26,7 +26,7 @@ def plot_DRAGON(DRAGON_results, isotopes_SOUHAITES, SIZE, path, SAVE_DIR, DEPL_S
         SAT=" SAT "
     elif sat_name == "_SATOFF":
         SAT = " SATOFF "
-    elif SAT == "_NSAT":
+    elif sat_name == "_NSAT":
         SAT = " NSAT "
     else:
         SAT = " "
@@ -86,11 +86,11 @@ def plot_Serpent2(SERPENT_results, isotopes_SOUHAITES, SIZE, path, SAVE_DIR):
         if k == 0: # Keff
             plt.ylabel('Keff')
             save_name=f'HOM_UOX_Gd157_Serpent2_Keff_PCC'
-            fig_name=f'HOM CELL : Gd157 - Keff Serpent2'
+            fig_name=f'HOM CELL : Gd157 test - Keff Serpent2'
         else : # isotopes
             plt.ylabel('Isotopic density [atom/b-cm]')
             save_name=f'HOM_UOX_Gd157_Serpent2_{isotopes_SOUHAITES[k-1]}_PCC'
-            fig_name=f'HOM_CELL : Gd157 tests - {isotopes_SOUHAITES[k-1]}'
+            fig_name=f'HOM_CELL : Gd157 test  - {isotopes_SOUHAITES[k-1]}'
 
         plt.title(fig_name)
         os.chdir(path+'/'+SAVE_DIR)
@@ -105,7 +105,7 @@ def plot_Comparison(DRAGON_results, SERPENT_results, isotopes_SOUHAITES, SIZE, p
         SAT=" SAT "
     elif sat_name == "_SATOFF":
         SAT = " SATOFF "
-    elif SAT == "_NSAT":
+    elif sat_name == "_NSAT":
         SAT = " NSAT "
     else:
         SAT = " "
@@ -136,7 +136,7 @@ def plot_Comparison(DRAGON_results, SERPENT_results, isotopes_SOUHAITES, SIZE, p
             fig_name=f'HOM_CELL : UOX tests {DEPL_SOL}{SAT} {ssh_method}{CORR}- Keff'
         else : # comparaison isotopes
             ax.set_ylabel('Isotopic density [atom/b-cm]')
-            save_name=f'UOX_tests_{DEPL_SOL}{sat_name}_{ssh_method}{correlation_name}_COMP_{isotopes_SOUHAITES[k-1]}'
+            save_name=f'HOM_UOX_Gd157_{DEPL_SOL}{sat_name}_{ssh_method}{correlation_name}_COMP_{isotopes_SOUHAITES[k-1]}'
             fig_name=f'HOM_CELL : UOX tests {DEPL_SOL}{SAT} {ssh_method}{CORR}- {isotopes_SOUHAITES[k-1]}'
 
         ax.set_xlabel('BU [MWd/t]')
@@ -150,13 +150,13 @@ def plot_Comparison(DRAGON_results, SERPENT_results, isotopes_SOUHAITES, SIZE, p
 
     return
 
-def plot_errors(ERRORS, isotopes_SOUHAITES, SIZE, path, SAVE_DIR, DEPL_SOL, ssh_method, correlation_name, sat_name, ListAUTOP, ListeCOMPO):
+def plot_errors(D5_test_name, ERRORS, isotopes_SOUHAITES, SIZE, path, SAVE_DIR, DEPL_SOL, ssh_method, correlation_name, sat_name, ListAUTOP, ListeCOMPO):
 
     if sat_name == "_SAT":
         SAT=" SAT "
     elif sat_name == "_SATOFF":
         SAT = " SATOFF "
-    elif SAT == "_NSAT":
+    elif sat_name == "_NSAT":
         SAT = " NSAT "
     else:
         SAT = " "
@@ -175,8 +175,8 @@ def plot_errors(ERRORS, isotopes_SOUHAITES, SIZE, path, SAVE_DIR, DEPL_SOL, ssh_
     for k in range(len(isotopes_SOUHAITES)+1):
         fig,ax = plt.subplots(figsize=SIZE)
         for test_name in ERRORS.keys():
+            #D5_test_name = test_name.split('_')[0]+"_"+test_name.split('_')[1]+"_"+test_name.split('_')[2]
             ax.plot(ERRORS[test_name][0],ERRORS[test_name][k+1],'2-',linewidth=1, label=f"{test_name}")
-        
             ax.set_xlabel('BU [MWd/t]')
             ax.legend(loc="best")
             
@@ -187,14 +187,14 @@ def plot_errors(ERRORS, isotopes_SOUHAITES, SIZE, path, SAVE_DIR, DEPL_SOL, ssh_
             ax.plot([0,ListeCOMPO[-1]],[300,300],'r-.') # limite +300pcm
             ax.plot([0,ListeCOMPO[-1]],[-300,-300],'r-.') # limite -300pcm
             ax.set_ylabel('\u0394 Keff (pcm)')
-            save_name=f'HOM_UOX_Gd157_{DEPL_SOL}{sat_name}_{ssh_method}{correlation_name}_ERROR_Keff_PCC'
+            save_name=f'{D5_test_name}_{DEPL_SOL}{sat_name}_{ssh_method}{correlation_name}_ERROR_Keff_PCC'
             fig_name=f'HOM CELL Gd157 {DEPL_SOL}{SAT} {ssh_method}{CORR}- \u0394 Keff'
         else : # Erreur sur isotopes
             ax.plot([0,ListeCOMPO[-1]],[2,2],'r-.') # limite +2%
             ax.plot([0,ListeCOMPO[-1]],[-2,-2],'r-.') # limite -2%
             ax.set_ylabel('Relative error (%)')
 
-            save_name=f'HOM_UOX_Gd157_{DEPL_SOL}{sat_name}_{ssh_method}{correlation_name}_ERROR_{isotopes_SOUHAITES[k-1]}_PCC'
+            save_name=f'{D5_test_name}_{DEPL_SOL}{sat_name}_{ssh_method}{correlation_name}_ERROR_{isotopes_SOUHAITES[k-1]}_PCC'
             fig_name=f'HOM CELL Gd157 {DEPL_SOL}{SAT} {ssh_method}{CORR}- \u0394 {isotopes_SOUHAITES[k-1]}'
 
         ax.grid()
@@ -331,7 +331,7 @@ def POSTPROC_Gd157(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_geom,bu_autop_list,VISU_p
                 DRAGON_test.append(DRAGON_ISOTOPESDENS[int(indices[k])])
             #print("$$$ ---------------- DRAGON_ALL",DRAGON_AL)
             DRAGON_results_ALL[test_name] = DRAGON_test
-
+        print(f"DRAGON_RESULTS.keys = {DRAGON_results_ALL.keys()}")
     # -------------------------------
     #   RETRIVE SERPENT2 RESULTS 
     # -------------------------------
@@ -340,7 +340,6 @@ def POSTPROC_Gd157(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_geom,bu_autop_list,VISU_p
         # Importing Keff and isotopes densities from Serpent2
         #for test_name in DRAGON_results_ALL.keys():
         test_name_file = "HOM_UOX_Gd157"
-        SERPENT_test_RESULTS = {}
         
         for lib_name in S2_libs:
             for PCC in S2_PCC:
@@ -358,7 +357,7 @@ def POSTPROC_Gd157(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_geom,bu_autop_list,VISU_p
                 if "NO_NG_toGd158" in test_name:
                     depl = serpentTools.read(f"/home/p117902/working_dir/Serpent2_tests/Linux_aarch64/{test_name_file}_{lib_name}_noNG_toGd158_mc_dep.m")
                 else:
-                    depl = serpentTools.read(f"/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/HOM_CELL_study/{test_name_file}/{test_name_file}_{lib_name}_{PCC}_mc_dep.m")
+                    depl = serpentTools.read(f"/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/HOM_CELL_study/{test_name_file}/BUScheme_study/{test_name_file}_{lib_name}_{PCC}_mc_dep.m")
                 fuel=depl.materials['total']
                 serpent_BU=fuel.burnup
                 np.savetxt(f'serpent_BU_{lib_name}.txt',serpent_BU)
@@ -390,8 +389,8 @@ def POSTPROC_Gd157(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_geom,bu_autop_list,VISU_p
                     SERPENT_lib_pcc_res.append(SERPENT_ISOTOPESDENS[k,:])
                 #print("$$$ ---------------- SERPENT_ALL",SERPENT_ALL)
                 SERPENT_results_ALL[f"{lib_name}_{PCC}"] = SERPENT_lib_pcc_res
-                #print(f"SERPENT_RESULTS = {SERPENT_test_RESULTS}") 
-
+                print(f"SERPENT_RESULTS = {SERPENT_results_ALL}") 
+        print(f"SERPENT_RESULTS.keys = {SERPENT_results_ALL.keys()}")
     # Structure of S2 results = [library used _ PCC for S2][BU, Keff, Isotopes densities]
     # -------------------------------
     #   ERROR MATRICES COMPUTATION 
@@ -401,7 +400,9 @@ def POSTPROC_Gd157(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_geom,bu_autop_list,VISU_p
         ERRORS_ALL = {}
         print(DRAGON_results_ALL.keys())
         for D5_test_name in DRAGON_results_ALL.keys():
+            print(f"D5_test_name = {D5_test_name}")
             for lib_pcc in SERPENT_results_ALL.keys():
+                print(f"lib_pcc = {lib_pcc}")
                 ERROR=np.zeros((len(isotopes_SOUHAITES)+2,lenBU_DRAGON))
                 LE=np.shape(ERROR)
                 print('$$$ ------------------------ ERROR shape=',LE)
@@ -410,15 +411,15 @@ def POSTPROC_Gd157(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_geom,bu_autop_list,VISU_p
                         #print('$$$ ----------------------- k=',k,'    j=',j)
                         #print('$$$ ----------------------- SERPENT_ALL[k][j]=',SERPENT_ALL[k][j])
                         if k==0: # Burnup points
-                            ERROR[k][j-Nmin]=SERPENT_results_ALL[test_name][lib_name][k][j]
+                            ERROR[k][j-Nmin]=SERPENT_results_ALL[lib_pcc][k][j]
                         elif k==1:  # Keff values ---> compute errors in pcm 
                                 ERROR[k][j-Nmin]=1.0E+5*(DRAGON_results_ALL[D5_test_name][k][j]-SERPENT_results_ALL[lib_pcc][k][j])
                         else: # Isotopic compositions --> compute relative errors in %   
-                            if SERPENT_results_ALL[test_name][lib_name][k][j]==0 :
+                            if SERPENT_results_ALL[lib_pcc][k][j]==0 :
                                 ERROR[k][j-Nmin]=0
                             else:
                                 ERROR[k][j-Nmin]=100*(DRAGON_results_ALL[D5_test_name][k][j]-SERPENT_results_ALL[lib_pcc][k][j])/SERPENT_results_ALL[lib_pcc][k][j]
-                ERRORS_ALL[f"{test_name}_{lib_pcc}"] = ERROR            
+                ERRORS_ALL[f"{D5_test_name}_{lib_pcc}"] = ERROR            
         print(f"ERRORS = {ERRORS_ALL}")
         print(f"ERRORS_ALL.keys = {ERRORS_ALL.keys()}")
         print(f"Len of BU DRAGON = {lenBU_DRAGON}")
@@ -438,9 +439,11 @@ def POSTPROC_Gd157(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_geom,bu_autop_list,VISU_p
         plot_Serpent2(SERPENT_results_ALL, isotopes_SOUHAITES, SIZE, path, SAVE_DIR)
 
     if visu_COMP==1:
+        print('$$$ -------- POSTPROC.py : COMPARISON FIGURES ')
         plot_Comparison(DRAGON_results_ALL, SERPENT_results_ALL, isotopes_SOUHAITES, SIZE, path, SAVE_DIR, DEPL_SOL, ssh_method, correlation_name, sat_name)
         
     if visu_DELTA==1 :
+        print('$$$ -------- POSTPROC.py : ERROR FIGURES ')
         ERRORS_D5_PCC0 = {}
         ERRORS_D5_PCC1 = {}
         ERRORS_D5_PCC2 = {}
@@ -460,8 +463,11 @@ def POSTPROC_Gd157(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_geom,bu_autop_list,VISU_p
             elif D5_pcc == "PCC3b":
                 ERRORS_D5_PCC3b[test_name] = ERRORS_ALL[test_name]
 
-        plot_errors(ERRORS_D5_PCC0, isotopes_SOUHAITES, SIZE, path, SAVE_DIR, DEPL_SOL, ssh_method, correlation_name, sat_name, ListeAUTOP, ListeCOMPO)
-   
+        plot_errors("HOM_UOX_Gd157_PCC0", ERRORS_D5_PCC0, isotopes_SOUHAITES, SIZE, path, SAVE_DIR, DEPL_SOL, ssh_method, correlation_name, sat_name, ListeAUTOP, ListeCOMPO)
+        plot_errors("HOM_UOX_Gd157_PCC1", ERRORS_D5_PCC1, isotopes_SOUHAITES, SIZE, path, SAVE_DIR, DEPL_SOL, ssh_method, correlation_name, sat_name, ListeAUTOP, ListeCOMPO)
+        plot_errors("HOM_UOX_Gd157_PCC2", ERRORS_D5_PCC2, isotopes_SOUHAITES, SIZE, path, SAVE_DIR, DEPL_SOL, ssh_method, correlation_name, sat_name, ListeAUTOP, ListeCOMPO)
+        plot_errors("HOM_UOX_Gd157_PCC3", ERRORS_D5_PCC3, isotopes_SOUHAITES, SIZE, path, SAVE_DIR, DEPL_SOL, ssh_method, correlation_name, sat_name, ListeAUTOP, ListeCOMPO)
+        plot_errors("HOM_UOX_Gd157_PCC3b", ERRORS_D5_PCC3b, isotopes_SOUHAITES, SIZE, path, SAVE_DIR, DEPL_SOL, ssh_method, correlation_name, sat_name, ListeAUTOP, ListeCOMPO)
 
 
 

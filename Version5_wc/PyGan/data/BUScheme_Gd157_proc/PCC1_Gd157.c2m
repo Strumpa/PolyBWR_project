@@ -32,6 +32,9 @@ SEQ_ASCII _COMPO :: FILE <<name_compo>> ;
 
 
 REAL Norm_f2 := 38.6 ; ! SPECIFIC POWER MW/t
+REAL BUautop BUcompo := 0.0 0.0 ;
+INTEGER iauto :=  1 ;
+INTEGER iCompo :=  2 ;
 
 *----
 *  Geometry GEOM : homogeneous cell with UOX+Clad+Gd157+moderator
@@ -61,9 +64,9 @@ LIBRARY := LIB: ::
       H1  = H1   2.497844E-02
       U234  = U234   3.482587E-06 1
       U235  = U235   3.664503E-04 1
-      U238  = U238   7.765571E-03 CORR 1
+      U238  = U238   7.765571E-03 1
 
-      Gd157  = Gd157 7.899877E-05 CORR 1
+      Gd157  = Gd157 7.899877E-05 1
 
       Zr90  = Zr90   2.449439E-03 1
       Zr91  = Zr91   5.341629E-04 1
@@ -238,23 +241,27 @@ WHILE istep nstep < DO
   BURNUP LIB2 := EVO: BURNUP LIB2 FLUX TRACK ::
     SAVE <<evoend>> DAY POWR <<Norm_f2>> ;
 
-  EDITION := EDI: FLUX LIB2 TRACK ::
-        EDIT 0
-        MICR 19 U235 U236 U238 Pu239 Pu240 Pu241 Pu242 
-        Gd154 Gd155 Gd156 Gd157 Gd158 Gd160 Xe135 Sm149
-        Sm154 Eu155 Eu156 Eu157
-        COND
-        SAVE ON FUEL 
-    ;
-  ECHO "Writing in COMPO object at step =" istep ;
-  ECHO "saving in directory corresponding to evoend = " evoend " days" ;
-  ECHO "The corresponding BUend step is : " BUend ;
-  COMPO := COMPO: COMPO EDITION BURNUP ::
-    EDIT 3
-    STEP UP 'EDIBU'
-    SET <<evoend>> DAY
-    ;
-  EDITION := DELETE: EDITION ;
+  GREP: StepList :: GETVAL "ListCompo" <<iCompo>> >>BUcompo<< ;
+  ECHO "here istep = " istep "and iCompo =" iCompo BUcompo ;
+  IF BUcompo BUend = THEN
+        ECHO "Saving COMPO at BU =" BUcompo ;
+        EDITION := EDI: FLUX LIB2 TRACK ::
+          EDIT 0
+          MICR 19 U235 U236 U238 Pu239 Pu240 Pu241 Pu242 
+          Gd154 Gd155 Gd156 Gd157 Gd158 Gd160 Xe135 Sm149
+          Sm154 Eu155 Eu156 Eu157
+          COND
+          SAVE ON FUEL 
+        ;
+        COMPO := COMPO: COMPO EDITION BURNUP LIB2 ::
+          EDIT 0
+          STEP UP 'EDIBU'
+          SET <<evoend>> DAY 
+        ;
+
+        EDITION := DELETE: EDITION ;
+        EVALUATE iCompo := iCompo 1 + ;
+  ENDIF ;
   EVALUATE istep := istepNext ;
 ENDWHILE ;
 
