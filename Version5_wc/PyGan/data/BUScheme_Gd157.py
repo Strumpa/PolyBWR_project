@@ -77,7 +77,7 @@ Nmin = 0
 # NB : if visu_XXX_Keff==1 or visu_XXX_BU==1 or visu_XXX_ISOTOPOESDENS==1 then visu_XXX must be equal to 1
 visu_DRAGON=0
 visu_SERPENT=0
-visu_COMP=0
+visu_COMP=1
 visu_DELTA=1
 
 ########################################################################################################################################################################################
@@ -167,5 +167,6 @@ pyCOMPOs["HOM_Gd157_PCC3b"] = pyCOMPO_HOM_Gd157_PCC4
 #             POST-PROCESSING                     #
 #                                                 #
 
-
+print("Starting post-processing")
+print(f"pyComos.keys() = {pyCOMPOs.keys()}")
 POSTPROC_Gd157(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_study,suffixe,VISU_param,Nmin,S2_libs,S2_PCC,ssh_module,ssh_method,correlation,depl_sol,sat)
