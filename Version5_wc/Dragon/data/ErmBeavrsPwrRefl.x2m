@@ -392,7 +392,7 @@ WHILE IndexCB 2 <= DO
       ECHO "call FLU: with nbmix=" nbmix ;
       IF nbmix 8 = THEN
         FLUX := FLU: SYSTEM MACRO TRACK :: EDIT 1 TYPE K P1
-                MERG 1 2 2 2 2 2 2 2 BUCK <<buckz>> ;
+                HETE 1 2 2 2 2 2 2 2 BUCK <<buckz>> EXTE 1.0E-7 ;
       ELSE
         ECHO "ERROR, INVALID NUMBER OF MATERIAL MIXTURES" ;
         ABORT: ;

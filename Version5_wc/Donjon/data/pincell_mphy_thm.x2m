@@ -160,7 +160,7 @@ UTL: Fmap :: STEP UP PARAM STEP AT 4 DIR IMPR P-NAME * ;
 * THM single-stage calculation
 *--
 Thm Fmap := THM: Fmap ::
-    EDIT 20
+    EDIT 100
     FPUISS 0.93
     INLET 330000.0 (*Pa*) 318.15 (*K*)
     INLET-Q 7.9770045E-5 (*m2*) 0.375 (*inlet mass flow rate kg/s*)

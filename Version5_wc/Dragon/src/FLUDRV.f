@@ -79,8 +79,9 @@
 *         =2 the reduced cp matrix is multiplied by PNL;
 *         =3 sigs0-db2 approximation;
 *         =4 albedo approximation;
-*         =5 Ecco-type isotropic streaming model;
-*         >5 Tibere anisotropic streaming model.
+*         =5 Todorova-type isotropic streaming model;
+*         =6 Ecco-type isotropic streaming model;
+*         >6 Tibere type anisotropic streaming model.
 * NREG    number of regions.
 * NSOUT   number of outer surfaces.
 * MATCOD  mixture indices.
@@ -187,7 +188,7 @@
 *         Tibere is using transport-corrected XS for the second
 *         equation. Scattering reduction must be performed with
 *         transport-corrected SIGS1 values.
-          IF(ILEAK.GE.6) XSDIA(IMAT,1,IGR)=XSDIA(IMAT,1,IGR)-VSCAT(IMAT)
+          IF(ILEAK.GE.7) XSDIA(IMAT,1,IGR)=XSDIA(IMAT,1,IGR)-VSCAT(IMAT)
    40   CONTINUE
         IF(IPRT.GE.3) THEN
           WRITE(IUNOUT,6002)  IGR
@@ -266,11 +267,11 @@
       ENDIF
       IF(ITYPEC.GE.3) THEN
         CALL LCMPUT(IPFLUX,'B2  B1HOM',1,2,B2(4))
-        IF(ILEAK.GE.6) CALL LCMPUT(IPFLUX,'B2  HETE',3,2,B2)
+        IF(ILEAK.GE.7) CALL LCMPUT(IPFLUX,'B2  HETE',3,2,B2)
       ENDIF
       IF(ITYPEC.EQ.-1) GO TO 1001
 *
-      IF(ILEAK.GE.6.AND.ITYPEC.GE.3) THEN
+      IF(ILEAK.GE.7.AND.ITYPEC.GE.3) THEN
         IF(ITRANC.EQ.0) THEN
           IF(OPTION.EQ.'B0TR'.OR.OPTION.EQ.'P0TR'.OR.OPTION.EQ.'LKRD'
      >     .OR.OPTION.EQ.'RHS')

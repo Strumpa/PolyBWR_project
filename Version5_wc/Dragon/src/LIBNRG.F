@@ -381,6 +381,8 @@
      >        (ENERG(IPR+1),IPR=0,NGT)
             WRITE(IOUT,'(7H ERROR=,1P,E10.3,9H IN GROUP,I4)')
      >        ERROR,IG
+            WRITE(IOUT,'(7H VALUE=,1P,E10.3,3H VS,E10.3)') ENERG(JG+1),
+     >        EIER(JG+1)
             CALL XABORT('LIBNRG: INCOMPATIBLE GROUP STRUCTURE')
           ENDIF
           JG=JG+1

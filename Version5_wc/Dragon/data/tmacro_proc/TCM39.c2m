@@ -80,7 +80,7 @@ TRACK := SYBILT: ASSMB ::
 *
 SYS := ASM: MACRO TRACK :: EDIT 1 PIJ ;
 FLUX := FLU: SYS MACRO TRACK :: TYPE B B0 SIGS ;
-assertS FLUX :: 'B2  B1HOM' 1 -1.83970E-02 ;
+assertS FLUX :: 'B2  B1HOM' 1 -1.84003E-2 ;
 *
 ECHO "test TCM39 completed" ;
 END: ;

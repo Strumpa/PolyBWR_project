@@ -75,7 +75,7 @@ class coupling_scheme:
         #### Begin initialization of the coupled scheme
         print("$$$ --- Initialization of the coupled scheme")
         # Guess the axial power shape
-        self.qFiss_init = self.guessAxialPowerShape(self.TH_data["qFiss_init"], self.TH_data["Iz1"], self.TH_data["height"], self.TH_data["fuelRadius"])
+        self.z_mesh, self.qFiss_init = self.guessAxialPowerShape(self.TH_data["qFiss_init"], self.TH_data["Iz1"], self.TH_data["height"], self.TH_data["fuelRadius"])
 
         # Initialization of TH solver
         self.InitializeTH_solver()
@@ -342,55 +342,41 @@ class coupling_scheme:
                 conv = True
         return conv
 
-    def guessAxialPowerShape(self, Ptot, Iz, height, radius):
+    def guessAxialPowerShape(self, Ptot, h, r, num_control_volumes):
         """
-        Ptot : float : total power released (W)
-        Iz : int : number of control volumes in the axial direction
-        height : float : height of the fuel rod (m)
-        radius : float : radius of the fuel rod (m)
-        return : np.array : axial power shape with a sine shape units (W/m3)
-                            --> corresponds to the power density in each control volume 
-                            !! Issue with IAPWS tables when dividing by Iz
+        Compute the power density in a cylinder with a sine-shaped profile along the axial direction.
+
+        Parameters:
+        Ptot (float): Total power released in the cylinder [W].
+        h (float): Total height of the cylinder [m].
+        r (float): Radius of the cylinder [m].
+        num_control_volumes (int): Number of control volumes along the z-axis.
+
+        Returns:
+        z_values (numpy array): Array of z positions (center of each control volume) along the height of the cylinder.
+        power_density (numpy array): Array of power densities corresponding to each control volume.
+        q0 (float): The peak power density constant.
         """
-        volume = np.pi * radius**2 * height
+        
+        # Cross-sectional area of the cylinder
+        A_cross_section = np.pi * r**2
 
-        # Heights of each control volume (equally spaced along the tube height)
-        heights = np.linspace(0, height, Iz + 1)
+        # Function for the power density profile along the axial direction
+        def q(z, q0):
+            return q0 * np.sin(np.pi * z / h)
 
-        # Define the power profile as a sine function of height
-        power_profile = lambda h: np.sin(np.pi * h / height)
+        # Calculate q0 to ensure total power matches Ptot
+        q0 = Ptot / (A_cross_section * (2 * h / np.pi))  # derived from the integral
 
-        # Compute the volumic power for each control volume
-        volumic_powers = []
-        total_integral = 0
+        # Compute the boundaries and midpoints of each control volume
+        z_boundaries = np.linspace(0, h, num_control_volumes + 1)
+        z_values = (z_boundaries[:-1] + z_boundaries[1:]) / 2  # Midpoints of control volumes
 
-        for i in range(Iz):
-            # Midpoint of the control volume
-            h_mid = 0.5 * (heights[i] + heights[i + 1])
-            print(f"Height = {h_mid}")
-            
-            # Power density at this control volume
-            power_density = power_profile(h_mid)
-            print(f"Power density = {power_density}")
-            
-            # Volume of this control volume
-            dz = (heights[i + 1] - heights[i])
-            
-            # Store the volumic power (W/m^3)
-            volumic_powers.append(power_density)
-            
-            # Update total integral for normalization
-            total_integral += power_density * dz
+        # Compute power density at each midpoint
+        power_density = q(z_values, q0)
 
-        print(f"Total_integral = {total_integral}")
+        return z_values, power_density, q0
 
-        # Normalize the volumetric powers so the total power matches Ptot
-        volumic_powers = np.array(volumic_powers) * Ptot /(total_integral*np.pi*radius**2)/Iz
-        print(f"Volumic powers = {volumic_powers}")
-        total_power = np.sum(volumic_powers) * volume
-        print(f"Total power = {total_power}")
-
-        return volumic_powers   
 
     def compute_difference_fields(self,field):
         """

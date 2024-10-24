@@ -55,6 +55,7 @@ Fmap Matex := SetFMap Matex :: <<pitch>> <<height>> <<BMass>> <<Iz1>> ;
 
 
 * Initialize TH Data : set constant Tf, Tc, Dc on all axial slices
+ECHO "Iz1 = " Iz1 ;
 Fmap := SetLocPara Fmap THData :: <<Iz1>> ;
 
 END: ;
