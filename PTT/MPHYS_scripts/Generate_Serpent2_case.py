@@ -235,7 +235,7 @@ def create_detectors(number_axial_slices, power_scaling_factor, isGd):
             output_file.write(f"dc {i+1} \n")
             output_file.write("\n")
 
-            return
+    return
 
 def create_header(number_axial_slices, power_scaling_factor, XS_lib):
     # check if XS_lib is valid

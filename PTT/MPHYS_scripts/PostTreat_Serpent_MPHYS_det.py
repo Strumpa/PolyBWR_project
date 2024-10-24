@@ -54,12 +54,19 @@ def parse_detector_fluxes(number_axial_slices, det):
 
     return flux_G1, flux_G2
 
-def parse_DONJON_power(mesh_size, pow_relax, power_scaling_factor, th_relax):
-
+def parse_DONJON_power(mesh_size, pow_relax, power_scaling_factor, th_relax, Ptot=40000):
+    if pow_relax == False:
+        power_relax_id = "non_relaxedPow"
+    else:
+        power_relax_id = f"relaxedPow_{pow_relax}"
+    if th_relax == False:
+        th_relax_id = "non_relaxedTh"
+    else:
+        th_relax_id = f"relaxedTh_{th_relax}"
     # retrieve DONJON5 power distribution
-    donjon5_power = np.loadtxt(f"/home/p117902/working_dir/PolyBWR_project/Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan_24UOX_cell/BiCG/EPRIvoidModel_Churchill_HEM1/mesh{mesh_size}_{power_scaling_factor}/Data/Power_Distrib_24UOX_mesh{mesh_size}_BiCG_EPRIvoidModel_relaxedPOW_{pow_relax}_relaxedTH_{th_relax}.txt")
+    donjon5_power = np.loadtxt(f"/home/p117902/working_dir/PolyBWR_project/Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan_24UOX_cell/BiCG/EPRIvoidModel_Churchill_HEM1/mesh{mesh_size}_{power_scaling_factor}/Data/Power_Distrib_24UOX_mesh{mesh_size}_BiCG_EPRIvoidModel_{power_relax_id}_{th_relax_id}.txt")
     # normalize the donjon5 power distribution
-    donjon5_power = donjon5_power/sum(donjon5_power)
+    donjon5_power = np.array(donjon5_power)/np.sum(donjon5_power)*Ptot # Renormalize to Ptot
     
     return donjon5_power
 
@@ -85,17 +92,26 @@ def parse_DONJON_fluxes(mesh_size, power_scaling_factor):
     return donjon5_flux_G1, donjon5_flux_G2
 
 def normalize_fluxes(flux_G1, flux_G2):
-    # normalize the fluxes
+    # normalize the fluxes to Ptot
     flux_G1 = np.array(flux_G1)/sum(np.array(flux_G1))
     flux_G2 = np.array(flux_G2)/sum(np.array(flux_G2))
-    return flux_G1, flux_G2                
+    return flux_G1, flux_G2             
 
-def compare_results(donjon5_powers, sum_fiss_rates):
+def normalize_S2_power(Serpent2_power, Ptot):
+    Serpent2_power = np.array(Serpent2_power)/sum(np.array(Serpent2_power))
+    Serpent2_power = Serpent2_power*Ptot
+    return Serpent2_power   
+
+def compare_results(donjon5_powers, sum_fiss_rates, n_slices):
+    # compute z_mesh
+    z_boundaries = np.linspace(0, 3.8, n_slices + 1)
+    z_values = (z_boundaries[:-1] + z_boundaries[1:]) / 2  # Midpoints of control volumes
+
     # compare the results
     fig3, ax3 = plt.subplots()
-    ax3.plot(range(number_axial_slices), sum_fiss_rates, label="S2 Fission rates")
+    ax3.plot(z_values, sum_fiss_rates, label="S2 Fission rates")
     for i in range(len(donjon5_powers)):
-        ax3.plot(range(number_axial_slices), donjon5_powers[i], label=f"Donjon5 power {i}")
+        ax3.plot(z_values, donjon5_powers[i], label=f"Donjon5 power {i}")
     fig3.legend()
     fig3.savefig(f"AT10_24UOX_MPHYS_comparison.png")
 
@@ -126,8 +142,8 @@ def plot_relative_error(relative_error_dict, height, type, power_scaling_factors
     return
 
 def compute_quadratic_error(donjon5_rates, S2_rates):
-    # calculate the quadratic error in %
-    quadratic_error = np.sqrt(np.sum(((donjon5_rates-S2_rates)*100/S2_rates)**2)/len(S2_rates))
+    # calculate the quadratic error in units of field
+    quadratic_error = np.sqrt(np.sum(((donjon5_rates-S2_rates))**2)/len(S2_rates))
     return quadratic_error
 
 def plot_quadratic_errors(quadratic_error_dict, type, max_slices):
@@ -145,18 +161,20 @@ def plot_quadratic_errors(quadratic_error_dict, type, max_slices):
         #print(f"num_axial_slices : {num_axial_slices}")
         print(f"key = {key}, quadratic_error_dict[key] : {quadratic_error_dict[key]}")
         ax5.plot(float(num_axial_slices), quadratic_error_dict[key], label=f"{key}", marker="x", linestyle="--", linewidth=0.5)
-    ax5.plot(z_slices, 3.00*np.ones(len(z_slices)), color="red", linestyle="--")
-    ax5.set_ylabel("Quadratic error (%)")
+    #ax5.plot(z_slices, 3.00*np.ones(len(z_slices)), color="red", linestyle="--")
+    ax5.set_ylabel("Quadratic error")
     ax5.set_xlabel("Number of axial slices")
     #fig5.legend()
     fig5.savefig(f"AT10_24UOX_MPHYS_quadratic_errors_{type}.png")
     return
 
 
-number_axial_slices = [10, 20, 40]
-power_scaling_factor = [1, 2, 4, 8] # run 4 and 8
-pow_relax = 0.9
-th_relax = 0.1
+
+
+number_axial_slices = [10, 20, 40, 80, 160]
+power_scaling_factor = [1] #, 2, 4, 8] # run 4 and 8
+pow_relax = [0.2,0.5,0.8, False]
+th_relax = [0.2,0.5,0.8, False]
 ERRORS_r = {}
 ERRORS_G1 = {}
 ERRORS_G2 = {}
@@ -164,33 +182,47 @@ quadratic_error_r = {}
 quadratic_error_G1 = {}
 quadratic_error_G2 = {}
 
+NODAL_errors = {}
+quadratic_errors_Power = {}
+
 for n in number_axial_slices:
     for p in power_scaling_factor:
         path_to_S2results = f"/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/MPHYS/mesh{n}" # path to the serpent2 results
-        S2_res = f"AT10_24UOX_3D_MPHYS_mesh{n}_{p}_mc"
+        S2_res = f"AT10_24UOX_MPHYS_mesh{n}_{p}_mc"
         det = st.read(f'{path_to_S2results}/{S2_res}_det0.m') # read the serpent2 output file
         # Parse Reaction rates (fission, n_gamma, heat production) for S2 and power for DONJON5
         sum_fiss_rates, sum_n_gamma_rates, sum_heat_prod = parse_detector_rates(n, det)
+        # Parse DONJON5 power distribution
         donjon5_power = parse_DONJON_power(n, pow_relax, p, th_relax)
-        relative_error = compute_relative_error(donjon5_power, sum_heat_prod)
-        ERRORS_r[f"Power : Mesh {n}, power {p}"] = relative_error
-        quadratic_error_r[f"Power : Mesh {n}, power {p}"] = compute_quadratic_error(donjon5_power, sum_heat_prod)
+        # Normalize the S2 power distribution
+        Serpent2_power = normalize_S2_power(sum_heat_prod, 40000)
+        #relative_error = compute_relative_error(donjon5_power, sum_heat_prod)
+        compare_results([donjon5_power], sum_fiss_rates)
+        nodal_error = donjon5_power - sum_fiss_rates
+        NODAL_errors[f"Nodal error on power : {n} axial slices"] = nodal_error
+        quadratic_error = compute_quadratic_error(donjon5_power, sum_fiss_rates)
+        quadratic_errors_Power[f"RMS error on power : {n} axial slices"] = quadratic_error
+        
+
+        # Compare axial power distributions
+        #ERRORS_r[f"Power : Mesh {n}, power {p}"] = relative_error
+        #quadratic_error_r[f"Power : Mesh {n}, power {p}"] = compute_quadratic_error(donjon5_power, sum_heat_prod)
 
         # Parse 2G fluxes for S2 and DONJON5
-        S2_flux_G1, S2_flux_G2 = parse_detector_fluxes(n, det)
-        donjon5_flux_G1, donjon5_flux_G2 = parse_DONJON_fluxes(n, p)
-        S2_flux_G1, S2_flux_G2 = normalize_fluxes(S2_flux_G1, S2_flux_G2)
-        donjon5_flux_G1, donjon5_flux_G2 = normalize_fluxes(donjon5_flux_G1, donjon5_flux_G2)
-        relative_error_G1 = compute_relative_error(donjon5_flux_G2, S2_flux_G1)
-        relative_error_G2 = compute_relative_error(donjon5_flux_G1, S2_flux_G2)
-        ERRORS_G1[f"G1 Flux mesh {n}, power {p}"] = relative_error_G1
-        quadratic_error_G1[f"G1 Flux mesh {n}, power {p}"] = compute_quadratic_error(donjon5_flux_G2, S2_flux_G1)
-        ERRORS_G2[f"G2 Flux mesh {n}, power {p}"] = relative_error_G2
-        quadratic_error_G2[f"G2 Flux mesh {n}, power {p}"] = compute_quadratic_error(donjon5_flux_G1, S2_flux_G2)
+        #S2_flux_G1, S2_flux_G2 = parse_detector_fluxes(n, det)
+        #donjon5_flux_G1, donjon5_flux_G2 = parse_DONJON_fluxes(n, p)
+        #S2_flux_G1, S2_flux_G2 = normalize_fluxes(S2_flux_G1, S2_flux_G2)
+        #donjon5_flux_G1, donjon5_flux_G2 = normalize_fluxes(donjon5_flux_G1, donjon5_flux_G2)
+        #relative_error_G1 = compute_relative_error(donjon5_flux_G2, S2_flux_G1)
+        #relative_error_G2 = compute_relative_error(donjon5_flux_G1, S2_flux_G2)
+        #ERRORS_G1[f"G1 Flux mesh {n}, power {p}"] = relative_error_G1
+        #quadratic_error_G1[f"G1 Flux mesh {n}, power {p}"] = compute_quadratic_error(donjon5_flux_G2, S2_flux_G1)
+        #ERRORS_G2[f"G2 Flux mesh {n}, power {p}"] = relative_error_G2
+        #quadratic_error_G2[f"G2 Flux mesh {n}, power {p}"] = compute_quadratic_error(donjon5_flux_G1, S2_flux_G2)
 
-
+"""
 # plot the relative errors
-power_scaling_factors = [4, 8]
+power_scaling_factors = [1]
 plot_relative_error(ERRORS_r, 3.8, "power", power_scaling_factors)
 plot_relative_error(ERRORS_G1, 3.8, "fluxG1", power_scaling_factors)
 plot_relative_error(ERRORS_G2, 3.8, "fluxG2", power_scaling_factors)
@@ -201,3 +233,4 @@ print("plotting quadratic errors on flux G1")
 plot_quadratic_errors(quadratic_error_G1, type="fluxG1", max_slices=number_axial_slices[-1])
 print("plotting quadratic errors on flux G2")
 plot_quadratic_errors(quadratic_error_G2, type="fluxG2", max_slices=number_axial_slices[-1])
+"""
