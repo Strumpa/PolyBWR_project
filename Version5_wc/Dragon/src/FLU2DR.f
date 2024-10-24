@@ -43,7 +43,7 @@
 * NLIN    number of polynomial components in flux spatial expansion.
 * NFUNL   number of spherical harmonics components.
 * NGRP    number of energy groups.
-* NMAT    number of mixtures.
+* NMAT    number of mixtures in the macrolib.
 * NIFIS   number of fissile isotopes.
 * LFORW   flag set to .false. to solve an adjoint problem.
 * LEAKSW  leakage flag (=.true. if leakage is present on the outer
@@ -75,8 +75,9 @@
 *         =2 the reduced cp matrix is multiplied by PNL;
 *         =3 sigs0-db2 approximation;
 *         =4 albedo approximation;
-*         =5 Ecco-type isotropic streaming model;
-*         >5 Tibere type anisotropic streaming model.
+*         =5 Todorova-type isotropic streaming model;
+*         =6 Ecco-type isotropic streaming model;
+*         >6 Tibere type anisotropic streaming model.
 * OPTION  type of leakage coefficients:
 *         'LKRD' (recover leakage coefficients in Macrolib);
 *         'RHS' (recover leakage coefficients in RHS flux object);
@@ -122,10 +123,10 @@
      3 IMERG(NMAT)
       REAL EPSINR,EPSUNK,EPSOUT,VOL(NREG),XSTOT(0:NMAT,NGRP),
      1 XSTRC(0:NMAT,NGRP),XSDIA(0:NMAT,0:NANIS,NGRP),
-     2 XSNUF(0:NMAT,NIFIS,NGRP),XSCHI(0:NMAT,NIFIS,NGRP),B2(4)
+     2 XSNUF(0:NMAT,NIFIS,NGRP),XSCHI(0:NMAT,NIFIS,NGRP)
       CHARACTER CXDOOR*12,TITLE*72,OPTION*4
       LOGICAL LFORW,LEAKSW,LREBAL,CFLI,CEXE
-      DOUBLE PRECISION REFKEF,XCSOU(NGRP)
+      DOUBLE PRECISION REFKEF
 *----
 *  LOCAL VARIABLES
 *----
@@ -136,9 +137,9 @@
       CHARACTER CAN(0:19)*2,MESSIN*8,MESSOU*5,HTYPE(0:5)*4
       INTEGER INDD(3)
       DOUBLE PRECISION AKEEP(8),FISOUR,OLDBIL,AKEFF,AKEFFO,AFLNOR,
-     1 BFLNOR,DDELN1,DDELD1
+     1 BFLNOR,DDELN1,DDELD1,PROD,FLXIN
       LOGICAL LSCAL,LEXAC,REBFLG
-      REAL ALBEDO(6),FLUXC(NREG)
+      REAL ALBEDO(6),FLUXC(NREG),B2(4)
 *
 ************************************************************************
 *                                                                      *
@@ -152,9 +153,10 @@
 *----
       INTEGER, ALLOCATABLE, DIMENSION(:) :: IJJ,NJJ,IPOS,NPSYS,KEYCUR,
      1 MATALB
-      REAL, ALLOCATABLE, DIMENSION(:) :: FXSOR,XSCAT,GAMMA,V,FL,DFL
-      REAL, ALLOCATABLE, DIMENSION(:,:) :: DIFHET
+      REAL, ALLOCATABLE, DIMENSION(:) :: DHOM,FXSOR,XSCAT,GAMMA,V,FL,DFL
+      REAL, ALLOCATABLE, DIMENSION(:,:) :: DIFHET,SFNU
       REAL, ALLOCATABLE, DIMENSION(:,:,:) :: FLUX
+      DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:) :: XCSOU
 *----
 *  FOR NUMERICAL FOURIER ANALYSIS
 *----
@@ -170,6 +172,7 @@
       DATA (HTYPE(JJ),JJ=0,5)/'S   ','P   ',2*'K   ','B   ','L   '/
 *----
 *  SCRATCH STORAGE ALLOCATION
+*   DHOM    homogeneous leakage coefficients.
 *   DIFHET  heterogeneous leakage coefficients.
 *   FLUX    iteration flux:
 *           FLUX(:,:,1) <=old     outer;
@@ -183,7 +186,7 @@
 *----
       ALLOCATE(IJJ(0:NMAT),NJJ(0:NMAT),IPOS(0:NMAT),NPSYS(NGRP))
       ALLOCATE(FLUX(NUNKNO,NGRP,8),XSCAT(0:NMAT*NGRP),GAMMA(NGRP),
-     1 DIFHET(NMERG,NGRP))
+     1 DHOM(NGRP),DIFHET(NMERG,NGRP),XCSOU(NGRP))
 *
       REBFLG=.TRUE.
       IPREB=IPMACR
@@ -204,6 +207,8 @@
       LX=0
       ITYPE=0
       IF(CXDOOR.EQ.'MCCG') THEN
+         CALL LCMGET(IPTRK,'STATE-VECTOR',JPAR)
+         INSB=JPAR(22)
          CALL LCMLEN(IPTRK,'KEYCUR$MCCG',ICREB,ITYLCM)
          IF(ICREB.GT.0) THEN
             CALL LCMLEN(IPTRK,'NZON$MCCG',ILONG,ITYLCM)
@@ -235,19 +240,17 @@
 *----
 *  SELECT THE CALCULATION DOORS FOR WHICH A GROUP-BY-GROUP SCALAR
 *  PROCEDURE WILL BE USED. A VECTORIAL APPROACH WILL BE USED WITH
-*  OTHER DOORS.
+*  OTHER DOORS. LSCAL is true for CXDOOR = 'TRAFIC'.
 *----
-      LSCAL=(CXDOOR.EQ.'TRAFIC').OR.(CXDOOR.EQ.'SYBIL').OR.
-     > (CXDOOR.EQ.'BIVAC').OR.(CXDOOR.EQ.'TRIVAC').OR.(CXDOOR.EQ.'SN')
-      IF(INSB.EQ.1) LSCAL=.FALSE.
+      LSCAL=(INSB.EQ.0)
 *
       CALL KDRCPU(CPU0)
-      IF(ILEAK.LT.5) THEN
+      IF(ILEAK.LT.6) THEN
         INORM=1
-      ELSE IF(ILEAK.EQ.5) THEN
-        INORM=2
-      ELSE IF(ILEAK.GT.5) THEN
-        INORM=3
+      ELSE IF(ILEAK.EQ.6) THEN
+        INORM=2 ! Ecco
+      ELSE IF(ILEAK.GE.7) THEN
+        INORM=3 ! Tibere
       ENDIF
       LEXAC=.FALSE.
       AKEEP(5)=1.0D0
@@ -261,7 +264,7 @@
 *----
       IF(ITYPEC.GE.3) THEN
          CALL LCMGET(IPFLUX,'B2  B1HOM',B2(4))
-         IF(ILEAK.GE.6) CALL LCMGET(IPFLUX,'B2  HETE',B2)
+         IF(ILEAK.GE.7) CALL LCMGET(IPFLUX,'B2  HETE',B2)
       ELSE
          CALL XDRSET(B2,4,0.0)
       ENDIF
@@ -296,8 +299,8 @@
          ENDIF
       ENDIF
       ALLOCATE(FXSOR(0:NMAT))
-      DO 20 IG=1,NGRP
       JPMACR=LCMGID(IPMACR,'GROUP')
+      DO 20 IG=1,NGRP
       CALL XDRSET(FLUX(1,IG,2),NUNKNO,0.0)
       CALL XDRSET(FLUX(1,IG,4),NUNKNO,0.0)
       CALL LCMLEL(JPFLUX,1,ILINIT,ITYLCM)
@@ -344,7 +347,7 @@
          CALL LCMGET(IPFLUX,'KEYFLX',KEYSPN)
          DO 25 IG=1,NGRP
             CALL SNEST(IPTRK,IPRT,NREG,NUNKNO,MATCOD,IG,KEYFLX,KEYSPN,
-     1         FLUX(:,IG,2))
+     1      FLUX(:,IG,2))
    25    CONTINUE
       ENDIF
 *----
@@ -501,13 +504,13 @@
                CALL XABORT('FLU2DR: UNABLE TO RECOVER THE DIFFHET RECO'
      >         //'RD IN THE FLUX OBJECT.(1)')
             ENDIF
-            CALL XDRSET(GAMMA,NGRP,1.0)
-         ELSE IF(LEAKSW) THEN
-*           NON-FUNDAMENTAL MODE CONDITION.
+            GAMMA(:NGRP)=1.0
+         ELSE IF((LEAKSW).OR.(ILEAK.EQ.5)) THEN
+*           Todorova heterogeneous leakage model.
             CALL FLULPN(IPMACR,NUNKNO,OPTION,'DIFF',NGRP,NREG,NMAT,
-     1      NIFIS,VOL,MATCOD,NMERG,IMERG,KEYFLX(1,1,1),FLUX(1,1,2),
-     2      IPRT,DIFHET,AKEFF,B2(4),OLDBIL)
-            CALL XDRSET(GAMMA,NGRP,1.0)
+     1      VOL,MATCOD,NMERG,IMERG,KEYFLX(1,1,1),FLUX(1,1,2),B2(4),
+     2      IPRT,DIFHET,DHOM)
+            GAMMA(:NGRP)=1.0
          ELSE
 *           FUNDAMENTAL MODE CONDITION.
             IF(NMERG.NE.1) CALL XABORT('FLU2DR: ONE LEAKAGE ZONE EXPEC'
@@ -612,24 +615,19 @@
 *----
       DO 40 IG=1,NGRP
       IGDEB=IG
-      IF(XCSOU(IG).NE.0.0.OR.ISBS.NE.0) GO TO 45
+      IF(XCSOU(IG).NE.0.0.OR.ISBS.NE.0) GO TO 50
    40 CONTINUE
 *----
 *  DOWNLOAD FROM EXTERNAL FLUX(:,:,2) TO PRESENT INTERNAL FLUX(:,:,6)
 *----
-   45 DO 55 IG=1,NGRP
-      DO 50 IND=1,NUNKNO
-      FLUX(IND,IG,6)=FLUX(IND,IG,2)
-   50 CONTINUE
-   55 CONTINUE
+   50 FLUX(:NUNKNO,:NGRP,6)=FLUX(:NUNKNO,:NGRP,2)
 *
 ****  INNER LOOP  ******************************************
       DO 270 JT=1,MAXINR
+      FLUX(:NUNKNO,:NGRP,7)=FLUX(:NUNKNO,:NGRP,6)
+      FLUX(:NUNKNO,:NGRP,8)=FLUX(:NUNKNO,:NGRP,4)
       JPMACR=LCMGID(IPMACR,'GROUP')
       DO 140 IG=IGDEB,NGRP
-      DO IND=1,NUNKNO
-        FLUX(IND,IG,8)=FLUX(IND,IG,4)
-      ENDDO
 *----
 *  PROCESS SELF-SCATTERING REDUCTION IN INNER SOURCES.
 *----
@@ -644,13 +642,13 @@
          XXS=XSDIA(IBM,IAL,IG)*REAL(2*IAL+1)
          DO 60 IAM=0,IAL
          IND=KEYFLX(IR,IE,1+IAL*(IAL+1)/2+IAM)
-         IF(IND.GT.0) FLUX(IND,IG,8)=FLUX(IND,IG,8)+XXS*FLUX(IND,IG,6)
+         IF(IND.GT.0) FLUX(IND,IG,8)=FLUX(IND,IG,8)+XXS*FLUX(IND,IG,7)
    60    CONTINUE
    61    CONTINUE
    62    CONTINUE
    63    CONTINUE
       ENDIF
-      IF(ILEAK.EQ.5) THEN
+      IF(ILEAK.EQ.6) THEN
 *        ECCO ISOTROPIC STREAMING MODEL.
          CCLBD=0.0
          IF((ITPIJ.EQ.1).OR.(ITPIJ.EQ.3).AND.(OPTION.EQ.'B1')) 
@@ -664,18 +662,18 @@
 *           B1 OR P1 CASE.
             IF(ITPIJ.EQ.2) THEN
                FLUX(IND,IG,8)=FLUX(IND,IG,8)+XSDIA(IBM,1,IG)*
-     >         FLUX(IND,IG,6)
+     >         FLUX(IND,IG,7)
             ENDIF
          ELSE IF(ITPIJ.EQ.1) THEN
 *           B0, P0, B0TR OR P0TR CASE.
             FLUX(IND,IG,8)=FLUX(IND,IG,8)-XSDIA(IBM,1,IG)*
-     >      FLUX(IND,IG,6)*GAMMA(IG)
+     >      FLUX(IND,IG,7)*GAMMA(IG)
          ENDIF
          FLUX(IND,IG,8)=FLUX(IND,IG,8)+CCLBD*XSDIA(IBM,1,IG)*
-     >   FLUX(IND,IG,6)
+     >   FLUX(IND,IG,7)
   70     CONTINUE
   75     CONTINUE
-      ELSE IF(ILEAK.GE.6) THEN
+      ELSE IF(ILEAK.GE.7) THEN
 *        TIBERE ANISOTROPIC STREAMING MODEL.
          CCLBD=0.0
          IF((ITPIJ.EQ.3).AND.(OPTION.EQ.'B1')) CCLBD=1.0-GAMMA(IG)
@@ -693,38 +691,37 @@
 *           B1 OR P1 CASE.
             IF(ITPIJ.EQ.4) THEN
                FLUX(IND,IG,8)=FLUX(IND,IG,8)+XSDIA(IBM,1,IG)*
-     >         FLUX(IND,IG,6)
+     >         FLUX(IND,IG,7)
             ENDIF
          ELSE IF(ITPIJ.EQ.3) THEN
 *           B0, P0, B0TR OR P0TR CASE.
             FLUX(IND,IG,8)=FLUX(IND,IG,8)-XSDIA(IBM,1,IG)*
-     >      FLUX(IND,IG,6)*GAMMA(IG)
+     >      FLUX(IND,IG,7)*GAMMA(IG)
          ENDIF
          FLUX(IND,IG,8)=FLUX(IND,IG,8)+CCLBD*XSDIA(IBM,1,IG)*
-     >   FLUX(IND,IG,6)
+     >   FLUX(IND,IG,7)
   80     CONTINUE
   85     CONTINUE
   86     CONTINUE
       ENDIF
 *----
 *  COMPUTE INNER SOURCES ASSUMING SELF-SCATTERING REDUCTION.
-*  LSCAL is true for TRAFIC, SYBIL, BIVAC, TRIVAC, and SN
 *----
       IF(.NOT.LSCAL) THEN 
          KPMACR=LCMGIL(JPMACR,IG)
          IF((CXDOOR.EQ.'SN').AND.(IBFP.EQ.0)) THEN
             NUNK2=NUNKNO
-            IF(ILEAK.EQ.5) NUNK2=NUNKNO/2
+            IF(ILEAK.EQ.6) NUNK2=NUNKNO/2
             CALL SNSOUR(NUNKNO,IG,IPTRK,KPMACR,NANIS,NREG,NMAT,NUNK2,
-     1      NGRP,MATCOD,FLUX(1,1,6),FLUX(1,1,8))
+     1      NGRP,MATCOD,FLUX(1,1,7),FLUX(1,1,8))
          ELSE IF(CXDOOR.EQ.'SN') THEN
             NUNK2=NUNKNO
-            IF(ILEAK.EQ.5) NUNK2=NUNKNO/2
+            IF(ILEAK.EQ.6) NUNK2=NUNKNO/2
             IPSTR=LCMGID(IPSYS,'STREAMING')
             JPSTR=LCMGID(IPSTR,'GROUP')
             KPSYS=LCMGIL(JPSTR,IG)
             CALL SNSBFP(IG,IPTRK,KPMACR,KPSYS,NANIS,NLF,NREG,NMAT,
-     1      NUNK2,NGRP,MATCOD,FLUX(1,1,6),FLUX(1,1,8))
+     1      NUNK2,NGRP,MATCOD,FLUX(1,1,7),FLUX(1,1,8))
          ELSE
             DO 105 IAL=0,MIN(NLF-1,NANIS)
             CALL LCMGET(KPMACR,'NJJS'//CAN(IAL),NJJ(1))
@@ -741,7 +738,7 @@
                DO 90 JND=1,NJJ(IBM)
                IF(JG.NE.IG) THEN
                   FLUX(IND,IG,8)=FLUX(IND,IG,8)+REAL(2*IAL+1)*
-     >            XSCAT(IPOS(IBM)+JND-1)*FLUX(IND,JG,6)
+     >            XSCAT(IPOS(IBM)+JND-1)*FLUX(IND,JG,7)
                ENDIF
                JG=JG-1
   90           CONTINUE
@@ -751,7 +748,7 @@
  100        CONTINUE
  105        CONTINUE
          ENDIF
-         IF((ILEAK.EQ.5).AND.(OPTION(2:2).EQ.'1')) THEN
+         IF((ILEAK.EQ.6).AND.(OPTION(2:2).EQ.'1')) THEN
 *           ECCO ISOTROPIC STREAMING MODEL.
             CALL LCMGET(KPMACR,'NJJS01',NJJ(1))
             CALL LCMGET(KPMACR,'IJJS01',IJJ(1))
@@ -766,14 +763,14 @@
                DO 110 JND=1,NJJ(IBM)
                IF(JG.NE.IG) THEN
                   FLUX(IND,IG,8)=FLUX(IND,IG,8)+XSCAT(IPOS(IBM)+JND-1)*
-     >            FLUX(IND,JG,6)
+     >            FLUX(IND,JG,7)
                ENDIF
                JG=JG-1
   110          CONTINUE
             ENDIF
   120       CONTINUE
   125       CONTINUE
-         ELSE IF(ILEAK.GE.6) THEN
+         ELSE IF(ILEAK.GE.7) THEN
 *           TIBERE ANISOTROPIC STREAMING MODEL.
             CALL LCMGET(KPMACR,'NJJS01',NJJ(1))
             CALL LCMGET(KPMACR,'IJJS01',IJJ(1))
@@ -792,7 +789,7 @@
                     DO JND=1,NJJ(IBM)
                       IF(JG.NE.IG) THEN
                         FLUX(IND,IG,8)=FLUX(IND,IG,8)+
-     >                  XSCAT(IPOS(IBM)+JND-1)*FLUX(IND,JG,6)
+     >                  XSCAT(IPOS(IBM)+JND-1)*FLUX(IND,JG,7)
                       ENDIF
                       JG=JG-1
                     ENDDO
@@ -801,9 +798,6 @@
               ENDDO
             ENDDO
          ENDIF
-         DO IND=1,NUNKNO
-           FLUX(IND,IG,7)=FLUX(IND,IG,6)
-         ENDDO
       ENDIF
   140 CONTINUE
 *----
@@ -816,7 +810,7 @@
       JPSTR=C_NULL_PTR
       IF(C_ASSOCIATED(IPSYS)) THEN
          JPSYS=LCMGID(IPSYS,'GROUP')
-         IF(ILEAK.EQ.5.OR.((MOD(ILEAK,10).EQ.6).AND.(IPHASE.EQ.1))) THEN
+         IF(ILEAK.EQ.6.OR.((MOD(ILEAK,10).EQ.7).AND.(IPHASE.EQ.1))) THEN
             IPSTR=LCMGID(IPSYS,'STREAMING')
             JPSTR=LCMGID(IPSTR,'GROUP')
          ENDIF
@@ -827,27 +821,22 @@
      1   NMAT,IDIR,NREG,NUNKNO,IPHASE,LEXAC,MATCOD,VOL,KEYFLX,TITLE,
      2   FLUX(1,1,8),FLUX(1,1,7),IPREB,IPSOU,REBFLG,FLUXC,EVALRHO)
       ELSE IF(.NOT.LSCAL) THEN
-         CALL FLUDBV(CXDOOR,IPHASE,JPSYS,JPSTR,NPSYS,IPTRK,IFTRAK,IPRT,
-     1   NREG,NUNKNO,NFUNL,NGRP,NMAT,LEXAC,MATCOD,VOL,KEYFLX,TITLE,
-     2   ILEAK,LEAKSW,B2,NMERG,IMERG,DIFHET,GAMMA,FLUX(1,1,6),IPREB,
-     3   IPSOU,REBFLG,FLUXC)
+         CALL FLUDBV(CXDOOR,IPHASE,JPSYS,JPSTR,NPSYS,IPTRK,IFTRAK,
+     1   IPRT,NREG,NUNKNO,NFUNL,NGRP,NMAT,LEXAC,MATCOD,VOL,KEYFLX,
+     2   TITLE,ILEAK,LEAKSW,B2,NMERG,IMERG,DIFHET,GAMMA,FLUX(1,1,2),
+     3   FLUX(1,1,8),FLUX(1,1,7),IPREB,IPSOU,REBFLG,FLUXC)
       ELSE
 *        A GROUP-BY-GROUP SCALAR PROCEDURE IS BEEN USED.
          IF(.NOT.C_ASSOCIATED(IPSYS)) THEN
             CALL XABORT('FLU2DR: MISSING L_PIJ OBJECT.')
          ENDIF
-         DO 165 IG=1,NGRP
-         DO 160 IND=1,NUNKNO
-         FLUX(IND,IG,7)=FLUX(IND,IG,6)
-  160    CONTINUE
-  165    CONTINUE
          KPSTR=C_NULL_PTR
          DO 230 IG=IGDEB,NGRP
          IF(IPRT.GT.10) WRITE(6,'(/25H FLU2DR: PROCESSING GROUP,I5,
      >   6H WITH ,A,1H.)') IG,CXDOOR
          KPMACR=LCMGIL(JPMACR,IG)
          NUNK2=NUNKNO
-         IF(ILEAK.EQ.5) NUNK2=NUNKNO/2
+         IF(ILEAK.EQ.6) NUNK2=NUNKNO/2
          IF(CXDOOR.EQ.'BIVAC') THEN
             CALL BIVSOU(NUNKNO,IG,IPTRK,KPMACR,NANIS,NREG,NMAT,NUNK2,
      1      NGRP,MATCOD,VOL,FLUX(1,1,7),FLUX(1,1,8))
@@ -888,12 +877,12 @@
   181       CONTINUE
   182       CONTINUE
          ENDIF
-         IF((ILEAK.GE.5).AND.(OPTION(2:2).EQ.'1')) THEN
+         IF((ILEAK.GE.6).AND.(OPTION(2:2).EQ.'1')) THEN
             CALL LCMGET(KPMACR,'NJJS01',NJJ(1))
             CALL LCMGET(KPMACR,'IJJS01',IJJ(1))
             CALL LCMGET(KPMACR,'IPOS01',IPOS(1))
             CALL LCMGET(KPMACR,'SCAT01',XSCAT(1))
-            IF(ILEAK.EQ.5) THEN
+            IF(ILEAK.EQ.6) THEN
 *              ECCO ISOTROPIC STREAMING MODEL.
                KPSTR=LCMGIL(JPSTR,IG)
                DO 205 IE=1,NLIN
@@ -912,7 +901,7 @@
                ENDIF
   200          CONTINUE
   205          CONTINUE
-            ELSE IF(ILEAK.GE.6) THEN
+            ELSE IF(ILEAK.GE.7) THEN
 *              TIBERE ANISOTROPIC STREAMING MODEL.
                DO 225 IE=1,NLIN
                DO 220 IR=1,NREG
@@ -948,8 +937,8 @@
          ELSE
            CALL FLUDBV(CXDOOR,IPHASE,JPSYS,JPSTR,NPSYS,IPTRK,IFTRAK,
      1     IPRT,NREG,NUNKNO,NFUNL,NGRP,NMAT,LEXAC,MATCOD,VOL,KEYFLX,
-     2     TITLE,ILEAK,LEAKSW,B2,NMERG,IMERG,DIFHET,GAMMA,FLUX(1,1,6),
-     3     IPREB,IPSOU,REBFLG,FLUXC)
+     2     TITLE,ILEAK,LEAKSW,B2,NMERG,IMERG,DIFHET,GAMMA,FLUX(1,1,2),
+     3     FLUX(1,1,8),FLUX(1,1,7),IPREB,IPSOU,REBFLG,FLUXC)
          ENDIF
   230    CONTINUE
       ENDIF
@@ -983,10 +972,8 @@
       GINN=MAX(GINN,ABS(FLUX(IND,IG,6)-FLUX(IND,IG,7)))
       FINN=MAX(FINN,ABS(FLUX(IND,IG,7)))
   240 CONTINUE
-      DO 250 IND=1,NUNKNO
-      FLUX(IND,IG,5)=FLUX(IND,IG,6)
-      FLUX(IND,IG,6)=FLUX(IND,IG,7)
-  250 CONTINUE
+      FLUX(:NUNKNO,IG,5)=FLUX(:NUNKNO,IG,6)
+      FLUX(:NUNKNO,IG,6)=FLUX(:NUNKNO,IG,7)
       GINN=GINN/FINN
       IF((GINN.LT.EPSINR).AND.(IGDEB.EQ.IG)) THEN
          IGDEB=IGDEB+1
@@ -1035,11 +1022,8 @@
 *----
 *  PROMOTE FROM NEW INTERNAL FLUX(,,,7) TO NEW EXTERNAL FLUX(,,,3)
 *----
-      DO 295 IG=1, NGRP
-      DO 290 IND=1,NUNKNO
-      FLUX(IND,IG,3)=FLUX(IND,IG,7)
-  290 CONTINUE
-  295 CONTINUE
+      FLUX(:NUNKNO,:NGRP,3)=FLUX(:NUNKNO,:NGRP,7)
+      FLUX(:NUNKNO,:NGRP,4)=FLUX(:NUNKNO,:NGRP,8)
 *----
 *  HOTELLING DEFLATION IN GPT CASES.
 *----
@@ -1099,12 +1083,47 @@
      1      //'IN THE FLUX OBJECT.(2)')
          ENDIF
          CALL LCMGET(IPFLUX,'DIFFHET',DIFHET)
-         IF(LEAKSW) THEN
-*           NON-FUNDAMENTAL MODE CONDITION.
+         GAMMA(:NGRP)=1.0
+         IF(ILEAK.EQ.5) THEN
+*           Todorova heterogeneous leakage model.
             CALL FLULPN(IPMACR,NUNKNO,OPTION,HTYPE(ITYPEC),NGRP,NREG,
-     1      NMAT,NIFIS,VOL,MATCOD,NMERG,IMERG,KEYFLX(1,1,1),FLUX(1,1,3),
-     2      IPRT,DIFHET,AKEFF,B2(4),OLDBIL)
-            GAMMA(:NGRP)=1.0
+     1      NMAT,VOL,MATCOD,NMERG,IMERG,KEYFLX(1,1,1),FLUX(1,1,3),B2(4),
+     2      IPRT,DIFHET,DHOM)
+            IF(.NOT.LEAKSW) THEN
+              CALL B1HOM(IPMACR,LEAKSW,NUNKNO,'LKRD',HTYPE(ITYPEC),NGRP,
+     1        NREG,NMAT,NIFIS,VOL,MATCOD,KEYFLX(1,1,1),FLUX(1,1,3),
+     2        REFKEF,IPRT,DHOM,GAMMA,AKEFF,INORM,B2)
+              GO TO 350
+            ENDIF
+         ENDIF
+         IF(LEAKSW) THEN
+            IF(HTYPE(ITYPEC).NE.'K') THEN
+              CALL XABORT('FLU2DR: TYPE K EXPECTED.')
+            ENDIF
+            JPMACR=LCMGID(IPMACR,'GROUP')
+            ALLOCATE(SFNU(NMAT,NIFIS))
+            PROD=0.0D0
+            DO IGR=1,NGRP
+              KPMACR=LCMGIL(JPMACR,IGR)
+              SFNU(:NMAT,:NIFIS)=0.0
+              IF(NIFIS.GT.0) CALL LCMGET(KPMACR,'NUSIGF',SFNU)
+              DO IBM=1,NMAT
+                FLXIN=0.0D0
+                DO I=1,NREG
+                  IND=KEYFLX(I,1,1)
+                  IF((MATCOD(I).EQ.IBM).AND.(IND.GT.0)) THEN
+                    FLXIN=FLXIN+FLUX(IND,IGR,3)*VOL(I)
+                  ENDIF
+                ENDDO
+                DO NF=1,NIFIS
+                  PROD=PROD+SFNU(IBM,NF)*FLXIN
+                ENDDO
+              ENDDO
+            ENDDO
+            DEALLOCATE(SFNU)
+            AKEFF=AKEFF*PROD/OLDBIL
+            OLDBIL=PROD
+            IF(IPRT.GT.0) WRITE (6,1150) B2(4),AKEFF
          ELSE
 *           FUNDAMENTAL MODE CONDITION.
             IF(NMERG.NE.1) CALL XABORT('FLU2DR: ONE LEAKAGE ZONE EXPEC'
@@ -1112,7 +1131,7 @@
             CALL B1HOM(IPMACR,LEAKSW,NUNKNO,OPTION,HTYPE(ITYPEC),NGRP,
      1      NREG,NMAT,NIFIS,VOL,MATCOD,KEYFLX(1,1,1),FLUX(1,1,3),
      2      REFKEF,IPRT,DIFHET,GAMMA,AKEFF,INORM,B2)
-            IF(ILEAK.GE.6) THEN
+            IF(ILEAK.GE.7) THEN
 *              COMPUTE THE DIRECTIONNAL BUCKLING COMPONENTS FOR TIBERE.
                IHETL=ILEAK/10-1
                IF(IHETL.GT.0) THEN
@@ -1121,7 +1140,7 @@
                ENDIF
              ENDIF
           ENDIF
-          CALL LCMPUT(IPFLUX,'B2  B1HOM',1,2,B2(4))
+  350     CALL LCMPUT(IPFLUX,'B2  B1HOM',1,2,B2(4))
           CALL LCMPUT(IPFLUX,'DIFFHET',NMERG*NGRP,2,DIFHET)
       ENDIF
       IF(ITYPEC.GE.3) THEN
@@ -1157,28 +1176,22 @@
          DO 370 IG=1,NGRP
          GINN=0.0
          FINN=0.0
-         DO 350 IR=1,NREG
+         DO 360 IR=1,NREG
          IND=KEYFLX(IR,1,1)
-         IF(IND.EQ.0) GO TO 350
+         IF(IND.EQ.0) GO TO 360
          GINN=MAX(GINN,ABS(FLUX(IND,IG,2)-FLUX(IND,IG,3)))
          FINN=MAX(FINN,ABS(FLUX(IND,IG,3)))
-  350    CONTINUE
-         DO 360 IND=1,NUNKNO
-         FLUX(IND,IG,1)=FLUX(IND,IG,2)
-         FLUX(IND,IG,2)=FLUX(IND,IG,3)
   360    CONTINUE
+         FLUX(:NUNKNO,IG,1)=FLUX(:NUNKNO,IG,2)
+         FLUX(:NUNKNO,IG,2)=FLUX(:NUNKNO,IG,3)
          GINN=GINN/FINN
          EINN=MAX(EINN,GINN)
   370    CONTINUE
          IF(IPRT.GT.0) WRITE(6,1100) IT,EINN,EPSUNK,AFLNOR,ZMU
          CEXE=.TRUE.
       ELSE
-         DO 385 IG=1,NGRP
-         DO 380 IND=1,NUNKNO
-         FLUX(IND,IG,1)=FLUX(IND,IG,2)
-         FLUX(IND,IG,2)=FLUX(IND,IG,3)
-  380    CONTINUE
-  385    CONTINUE
+         FLUX(:NUNKNO,:NGRP,1)=FLUX(:NUNKNO,:NGRP,2)
+         FLUX(:NUNKNO,:NGRP,2)=FLUX(:NUNKNO,:NGRP,3)
          IF(IPRT.GT.0) WRITE(6,1110) IT,AFLNOR,ZMU
       ENDIF
       IF((ITYPEC.GE.2).AND.(AKEFF.NE.0.0)) THEN
@@ -1190,7 +1203,7 @@
 *  UPDATE KEFF
 *----
       AKEFFO=AKEFF
-      IF((EEXT.LT.EPSOUT).AND.(EINN.LT.EPSUNK)) GO TO 410
+      IF((EEXT.LT.EPSOUT).AND.(EINN.LT.EPSUNK).AND.(IT.GE.2)) GO TO 410
   400 CONTINUE
       WRITE(6,*) '*** FLU2DR: CONVERGENCE NOT REACHED ***'
       WRITE(6,*) '*** FLU2DR: CONVERGENCE NOT REACHED ***'
@@ -1202,7 +1215,7 @@
       IF(IPRT.GE.3) THEN
          WRITE(6,1010) (IR,IR=1,NREG)
          ALLOCATE(FL(NREG))
-         DO 445 IG=1,NGRP
+         DO 425 IG=1,NGRP
          WRITE(6,1070) IG
          CALL XDRSET(FL,NREG,0.0)
          DO 420 IR=1,NREG
@@ -1210,6 +1223,13 @@
          IF(IND.GT.0) FL(IR)=FLUX(IND,IG,3)*REAL(AFLNOR)
   420    CONTINUE
          WRITE(6,1020) (FL(IR),IR=1,NREG)
+  425    CONTINUE
+         DEALLOCATE(FL)
+      ENDIF
+      IF(IPRT.GE.4) THEN
+         ALLOCATE(FL(NREG))
+         DO 445 IG=1,NGRP
+         WRITE(6,1070) IG
          DO 440 IA=2,NFUNL
          CALL XDRSET(FL,NREG,0.0)
          DO 430 IR=1,NREG
@@ -1225,44 +1245,40 @@
 *  COMPUTE K-INF
 *----
       IF(ITYPEC.GE.2) THEN
-         FISOUR=0.0D0
-         OLDBIL=0.0D0
-         DO 490 IG=1,NGRP
-         DO 460 IR=1,NREG
-         IND=KEYFLX(IR,1,1)
-         IF(IND.EQ.0) GO TO 460
-         DO 450 IS=1,NIFIS
-         FISOUR=FISOUR+XSNUF(MATCOD(IR),IS,IG)*FLUX(IND,IG,3)*VOL(IR)
-  450    CONTINUE
-         OLDBIL=OLDBIL+XSTOT(MATCOD(IR),IG)*FLUX(IND,IG,3)*VOL(IR)
-  460    CONTINUE
-         KPMACR=LCMGIL(JPMACR,IG)
-         CALL LCMGET(KPMACR,'NJJS00',NJJ(1))
-         CALL LCMGET(KPMACR,'IJJS00',IJJ(1))
-         CALL LCMGET(KPMACR,'IPOS00',IPOS(1))
-         CALL LCMGET(KPMACR,'SCAT00',XSCAT(1))
-         DO 480 IR=1,NREG
-         IBM=MATCOD(IR)
-         IF(IBM.GT.0) THEN
-            IND=KEYFLX(IR,1,1)
-            JG=IJJ(IBM)
-            DO 470 JND=1,NJJ(IBM)
-            OLDBIL=OLDBIL-XSCAT(IPOS(IBM)+JND-1)*FLUX(IND,JG,3)*VOL(IR)
-            JG=JG-1
-  470       CONTINUE
-         ENDIF
-  480    CONTINUE
-  490    CONTINUE
-         CUREIN=REAL(FISOUR/OLDBIL)
+        FISOUR=0.0D0
+        OLDBIL=0.0D0
+        DO 490 IG=1,NGRP
+        DO 460 IR=1,NREG
+        IND=KEYFLX(IR,1,1)
+        IF(IND.EQ.0) GO TO 460
+        DO 450 IS=1,NIFIS
+        FISOUR=FISOUR+XSNUF(MATCOD(IR),IS,IG)*FLUX(IND,IG,3)*VOL(IR)
+  450   CONTINUE
+        OLDBIL=OLDBIL+XSTOT(MATCOD(IR),IG)*FLUX(IND,IG,3)*VOL(IR)
+  460   CONTINUE
+        KPMACR=LCMGIL(JPMACR,IG)
+        CALL LCMGET(KPMACR,'NJJS00',NJJ(1))
+        CALL LCMGET(KPMACR,'IJJS00',IJJ(1))
+        CALL LCMGET(KPMACR,'IPOS00',IPOS(1))
+        CALL LCMGET(KPMACR,'SCAT00',XSCAT(1))
+        DO 480 IR=1,NREG
+        IBM=MATCOD(IR)
+        IF(IBM.GT.0) THEN
+          IND=KEYFLX(IR,1,1)
+          JG=IJJ(IBM)
+          DO 470 JND=1,NJJ(IBM)
+          OLDBIL=OLDBIL-XSCAT(IPOS(IBM)+JND-1)*FLUX(IND,JG,3)*VOL(IR)
+          JG=JG-1
+  470     CONTINUE
+        ENDIF
+  480   CONTINUE
+  490   CONTINUE
+        CUREIN=REAL(FISOUR/OLDBIL)
 *
-*        FLUX NORMALIZATION TO KEFF.
-         IF(ITYPEC.LT.5) THEN
-            DO 505 IG=1,NGRP
-            DO 500 IND=1,NUNKNO
-            FLUX(IND,IG,3)=FLUX(IND,IG,3)*REAL(AKEFF/FISOUR)
-  500       CONTINUE
-  505       CONTINUE
-         ENDIF
+*       FLUX NORMALIZATION TO KEFF.
+        IF(ITYPEC.LT.5) THEN
+          FLUX(:NUNKNO,:NGRP,3)=FLUX(:NUNKNO,:NGRP,3)*REAL(AKEFF/FISOUR)
+        ENDIF
       ENDIF
 *----
 *  PRINT TIME TAKEN
@@ -1302,7 +1318,7 @@
 *  SAVE THE SOLUTION
 *----
       DO 510 IG=1,NGRP
-      FLUX(:NUNKNO,IG,4)=FLUX(:NUNKNO,IG,8)/REAL(AFLNOR)
+      FLUX(:NUNKNO,IG,4)=FLUX(:NUNKNO,IG,4)/REAL(AFLNOR)
       IF(LFORW) THEN
          CALL LCMPDL(JPFLUX,IG,NUNKNO,2,FLUX(1,IG,3))
          CALL LCMPDL(JPSOUR,IG,NUNKNO,2,FLUX(1,IG,4))
@@ -1331,16 +1347,16 @@
       IF(ITYPEC.GE.3) THEN
          CALL LCMPUT(IPFLUX,'B2  B1HOM',1,2,B2(4))
       ENDIF
-      IF((ITYPEC.GT.2).AND.(ILEAK.GE.6)) THEN
+      IF((ITYPEC.GT.2).AND.(ILEAK.GE.7)) THEN
          CALL LCMPUT(IPFLUX,'B2  HETE',3,2,B2)
       ENDIF
-      IF((ITYPEC.GT.2).AND.(ILEAK.GE.5)) THEN
+      IF((ITYPEC.GT.2).AND.(ILEAK.GE.6)) THEN
          CALL LCMPUT(IPFLUX,'GAMMA',NGRP,2,GAMMA)
       ENDIF
 *----
 *  SCRATCH STORAGE DEALLOCATION
 *----
-      DEALLOCATE(DIFHET,GAMMA,XSCAT,FLUX)
+      DEALLOCATE(XCSOU,DIFHET,DHOM,GAMMA,XSCAT,FLUX)
       DEALLOCATE(NPSYS,IPOS,NJJ,IJJ)
       RETURN
 *
@@ -1372,4 +1388,5 @@
  1130 FORMAT (24H CONVERGENCE NOT SOUGHT.)
  1140 FORMAT (49H FLU2DR: SPECTRAL RADIUS FOR FOURIER ANALYSIS IS ,
      1 E13.6)
+ 1150 FORMAT(/18H FLU2DR: BUCKLING=,1P,E13.5,15H K-EFFECTIVE  =,E13.5)
       END

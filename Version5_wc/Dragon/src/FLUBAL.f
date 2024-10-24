@@ -22,8 +22,9 @@
 * NGRP    number of energy groups.
 * ILEAK   method used to include DB2 effect:
 *         <5 uniform DB2 model;
-*         =5 Ecco-type isotropic streaming model;
-*         >5 Tibere anisotropic streaming model.
+*         =5 Todorova-type isotropic streaming model;
+*         =6 Ecco-type isotropic streaming model;
+*         >6 Tibere anisotropic streaming model.
 * NMAT    number of mixtures.
 * NREG    number of regions.
 * ICREB   number of outer surfaces where outgoing leakage occurs. If
@@ -159,7 +160,7 @@
 *----
 *  FOR ALL REGIONS ADD CONTRIBUTION DUE TO DB2 TERM
 *----
-        IF(ILEAK.LT.5.AND.ILEAK.GT.0) THEN
+        IF(ILEAK.LT.6.AND.ILEAK.GT.0) THEN
           DO 70 IREG=1,NREG
             IND=KEYFLX(IREG)
             IF(IND.EQ.0) GO TO 70
@@ -170,13 +171,13 @@
             REBAL(IOFF,IOFF)=REBAL(IOFF,IOFF)
      >         +FUNKNO(IND,IGR)*DIFHET(INM,IGR)*B2(4)*VOL(IREG)
  70       CONTINUE
-        ELSE IF(ILEAK.EQ.5) THEN
+        ELSE IF(ILEAK.EQ.6) THEN
           DO 80 IREG=1,NREG
             IND=KEYFLX(IREG)
             REBAL(IOFF,IOFF)=REBAL(IOFF,IOFF)
      >         +FUNKNO(NUNKNO/2+IND,IGR)*B2(4)*VOL(IREG)
  80       CONTINUE
-        ELSE IF(ILEAK.GT.6) THEN
+        ELSE IF(ILEAK.GE.7) THEN
           DO 90 IREG=1,NREG
             IND=KEYFLX(IREG)
             REBAL(IOFF,IOFF)=REBAL(IOFF,IOFF)

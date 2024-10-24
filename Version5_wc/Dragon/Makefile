@@ -42,6 +42,7 @@ tests :
 	./rdragon -c $(fcompiler) -q OSC_openMP_tiso.x2m
 	./rdragon -c $(fcompiler) -q sens.x2m
 	./rdragon -c $(fcompiler) -q testVVER7.x2m
+	./rdragon -c $(fcompiler) -q fbr_colorset.x2m
 	./rdragon -c $(fcompiler) -q fbr_tone.x2m
 	./rdragon -c $(fcompiler) -q testDuo.x2m
 	./rdragon -c $(fcompiler) -q testDuo_B1.x2m

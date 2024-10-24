@@ -1,0 +1,288 @@
+*----
+*  Name          : fbr_colorset.x2m
+*  Author        : Charlotte Bay
+*  Date          : Juillet 2012
+*  Fertile-fissile FBR colorset with the interface current method
+*----
+*
+MODULE  LIB: GEO: SYBILT: ASM: FLU: USS: EDI: DELETE: END: ;
+LINKED_LIST MICROLIB MICROLIB2 ASSMBH TRACK PIJ FLUX EDIOBJ ;
+PROCEDURE rnr_cc rnr_interpol assertS ;
+STRING Library := "DLIB_315" ;
+
+************************************************************************
+*  SET ISOTOPIC NUMBER DENSITIES                                       *
+************************************************************************
+REAL 
+p_Pu38 p_Pu39 p_Pu40 p_Pu41 p_Pu42 p_Am p_U5 p_U8 p_Pu p_U 
+p_Fe_AIM1 p_Cr_AIM1 p_Ni_AIM1 p_Mn_AIM1
+p_Mo_AIM1 p_Si_AIM1 p_Ti_AIM1
+p_Fe_EM10 p_Cr_EM10 p_Ni_EM10 p_Mo_EM10
+p_Mn_EM10 p_C_EM10 p_Si_EM10 p_Ti_EM10
+T_comb T_clad T_Na
+:= 0.0259 0.552 0.2585 0.0727 0.0787 0.0122 
+0.002 0.998 0.2436 0.7564 
+0.6575 0.145 0.155 0.015 0.015 0.0085 0.004
+0.89 0.085 0.005 0.01 0.005 0.001 0.003 0.0002
+750.0 620.0 475.0  ;
+
+REAL a_comb a_AIM1 a_AIM1_Na a_EM10 a_F17 a_na a_B ;
+
+rnr_interpol :: <<T_comb>> <<T_clad>> <<T_Na>>
+>>a_comb<< >>a_AIM1<< >>a_AIM1_Na<< >>a_EM10<< >>a_F17<< >>a_na<<
+>>a_B<< ;
+
+REAL N_Na N_U5 N_U8 N_Pu38 N_Pu39 N_Pu40 N_Pu41 N_Pu42 N_Am N_O 
+ N_U5_f N_U8_f N_O_f
+ N_Fe54_AIM1 N_Fe56_AIM1 N_Fe57_AIM1 N_Fe58_AIM1 N_Cr50_AIM1 N_Cr52_AIM1
+ N_Cr53_AIM1 N_Cr54_AIM1 N_Ni58_AIM1 N_Ni60_AIM1 N_Ni61_AIM1 N_Ni62_AIM1
+ N_Ni64_AIM1 N_Mn55_AIM1 N_Mo92_AIM1 N_Mo94_AIM1 N_Mo95_AIM1 N_Mo96_AIM1
+ N_Mo97_AIM1 N_Mo98_AIM1 N_Mo100_AIM1 N_Si_AIM1 N_Ti_AIM1 
+ N_Fe54_EM10 N_Fe56_EM10 N_Fe57_EM10 N_Fe58_EM10 N_Cr50_EM10 N_Cr52_EM10
+ N_Cr53_EM10 N_Cr54_EM10 N_Ni58_EM10 N_Ni60_EM10 N_Ni61_EM10 N_Ni62_EM10
+ N_Ni64_EM10 N_Mn55_EM10 N_Mo92_EM10 N_Mo94_EM10 N_Mo95_EM10 N_Mo96_EM10
+ N_Mo97_EM10 N_Mo98_EM10 N_Mo100_EM10 N_C12_EM10 N_Si_EM10 N_Ti_EM10
+ N_He_1 N_He_2 
+;
+
+rnr_cc ::
+<<p_Pu38>> <<p_Pu39>> <<p_Pu40>> <<p_Pu41>> <<p_Pu42>> 
+<<p_Am>> <<p_U5>> <<p_U8>> <<p_Pu>> <<p_U>>
+<<p_Fe_AIM1>> <<p_Cr_AIM1>> <<p_Ni_AIM1>> <<p_Mo_AIM1>>
+<<p_Mn_AIM1>> <<p_Si_AIM1>> <<p_Ti_AIM1>>
+<<p_Fe_EM10>> <<p_Cr_EM10>> <<p_Ni_EM10>> <<p_Mo_EM10>> 
+<<p_Mn_EM10>> <<p_C_EM10>>  <<p_Si_EM10>> <<p_Ti_EM10>> 
+<<a_comb>> <<a_AIM1>> <<a_EM10>> <<a_na>> 
+<<T_comb>> <<T_clad>> <<T_Na>>
+>>N_Na<< >>N_U5<< >>N_U8<< >>N_Pu38<< >>N_Pu39<< >>N_Pu40<< 
+>>N_Pu41<< >>N_Pu42<< >>N_Am<< >>N_O<<  
+>>N_U5_f<< >>N_U8_f<< >>N_O_f<<  
+>>N_Fe54_AIM1<< >>N_Fe56_AIM1<< >>N_Fe57_AIM1<< >>N_Fe58_AIM1<< 
+>>N_Cr50_AIM1<< >>N_Cr52_AIM1<< >>N_Cr53_AIM1<< >>N_Cr54_AIM1<< 
+>>N_Ni58_AIM1<< >>N_Ni60_AIM1<< >>N_Ni61_AIM1<< >>N_Ni62_AIM1<< 
+>>N_Ni64_AIM1<< >>N_Mn55_AIM1<< >>N_Mo92_AIM1<< >>N_Mo94_AIM1<<
+>>N_Mo95_AIM1<< >>N_Mo96_AIM1<< >>N_Mo97_AIM1<< >>N_Mo98_AIM1<<
+>>N_Mo100_AIM1<< >>N_Si_AIM1<<  >>N_Ti_AIM1<<
+>>N_Fe54_EM10<< >>N_Fe56_EM10<< >>N_Fe57_EM10<< >>N_Fe58_EM10<< 
+>>N_Cr50_EM10<< >>N_Cr52_EM10<< >>N_Cr53_EM10<< >>N_Cr54_EM10<< 
+>>N_Ni58_EM10<< >>N_Ni60_EM10<< >>N_Ni61_EM10<< >>N_Ni62_EM10<< 
+>>N_Ni64_EM10<< >>N_Mn55_EM10<< >>N_Mo92_EM10<< >>N_Mo94_EM10<<
+>>N_Mo95_EM10<< >>N_Mo96_EM10<< >>N_Mo97_EM10<< >>N_Mo98_EM10<<
+>>N_Mo100_EM10<< >>N_C12_EM10<< >>N_Si_EM10<<   >>N_Ti_EM10<<
+>>N_He_1<< >>N_He_2<<  
+;
+
+************************************************************************
+* SET THE MICROLIB                                                     *
+************************************************************************
+ECHO "call LIB with" Library ;
+REAL T_comb_K T_clad_K T_Na_K ;
+EVALUATE T_comb_K := T_comb 273.16 + ;
+EVALUATE T_clad_K := T_clad 273.16 + ;
+EVALUATE T_Na_K := T_Na 273.16 + ;
+
+MICROLIB := LIB: ::
+EDIT 1 NMIX 18 PT
+DEPL LIB: DRAGON FIL: <<Library>>  
+MIXS LIB: DRAGON FIL: <<Library>>  
+MIX 1 (*SODIUM FISSILE*) <<T_Na_K>> NOEV
+ Na = 'Na23' <<N_Na>>
+MIX 2 (*COMBUSTIBLE FISSILE MOX*) <<T_comb_K>>
+ U5 = 'U235' 0.0 1 IRSET PT 1
+ U8 = 'U238' 0.0 1 IRSET PT 1
+ Pu38 = 'Pu238' 0.0 1 IRSET PT 1
+ Pu39 = 'Pu239' 0.0 1 IRSET PT 1
+ Pu40 = 'Pu240' 0.0 1 IRSET PT 1
+ Pu41 = 'Pu241' 0.0 1 IRSET PT 1
+ Pu42 = 'Pu242' 0.0 1 IRSET PT 1
+ Am = 'Am241' 0.0 1 IRSET PT 1
+ O = 'O16' 0.0 NOEV
+MIX 3
+ COMB 2 1.0
+MIX 4
+ COMB 2 1.0
+MIX 5
+ COMB 2 1.0
+MIX 6 (*CLAD AIM1 FISSILE*) <<T_clad_K>> NOEV
+ Fe54_AIM1 = 'Fe54' <<N_Fe54_AIM1>>
+ Fe56_AIM1 = 'Fe56' <<N_Fe56_AIM1>>
+ Fe57_AIM1 = 'Fe57' <<N_Fe57_AIM1>>
+ Fe58_AIM1 = 'Fe58' <<N_Fe58_AIM1>>
+ Cr50_AIM1 = 'Cr50' <<N_Cr50_AIM1>>
+ Cr52_AIM1 = 'Cr52' <<N_Cr52_AIM1>>
+ Cr53_AIM1 = 'Cr53' <<N_Cr53_AIM1>>
+ Cr54_AIM1 = 'Cr54' <<N_Cr54_AIM1>>
+ Ni58_AIM1 = 'Ni58' <<N_Ni58_AIM1>>
+ Ni60_AIM1 = 'Ni60' <<N_Ni60_AIM1>>
+ Ni61_AIM1 = 'Ni61' <<N_Ni61_AIM1>>
+ Ni62_AIM1 = 'Ni62' <<N_Ni62_AIM1>>
+ Ni64_AIM1 = 'Ni64' <<N_Ni64_AIM1>>
+ Mn55_AIM1 = 'Mn55' <<N_Mn55_AIM1>>
+ Mo92_AIM1 = 'Mo92' <<N_Mo92_AIM1>>
+ Mo94_AIM1 = 'Mo94' <<N_Mo94_AIM1>>
+ Mo95_AIM1 = 'Mo95' <<N_Mo95_AIM1>>
+ Mo96_AIM1 = 'Mo96' <<N_Mo96_AIM1>>
+ Mo97_AIM1 = 'Mo97' <<N_Mo97_AIM1>>
+ Mo98_AIM1 = 'Mo98' <<N_Mo98_AIM1>>
+ Mo100_AIM1 = 'Mo100' <<N_Mo100_AIM1>>
+ Si_AIM1 = 'Si28' <<N_Si_AIM1>>
+ Ti_AIM1 = 'Ti48' <<N_Ti_AIM1>>
+MIX 7 (*GAZ INERTE INTERIEUR PASTILLE*) <<T_comb_K>> NOEV
+ He4int = 'He4' <<N_He_1>>
+MIX 8 (*GAZ INERTE ENTRE PASTILLE ET GAINE*) <<T_clad_K>> NOEV
+ He4ext = 'He4' <<N_He_2>>
+MIX 9 (*BOX EM10 FISSILE*) <<T_Na_K>> NOEV
+ Fe54_EM10 = 'Fe54' <<N_Fe54_EM10>>
+ Fe56_EM10 = 'Fe56' <<N_Fe56_EM10>>
+ Fe57_EM10 = 'Fe57' <<N_Fe57_EM10>>
+ Fe58_EM10 = 'Fe58' <<N_Fe58_EM10>>
+ Cr50_EM10 = 'Cr50' <<N_Cr50_EM10>>
+ Cr52_EM10 = 'Cr52' <<N_Cr52_EM10>>
+ Cr53_EM10 = 'Cr53' <<N_Cr53_EM10>>
+ Cr54_EM10 = 'Cr54' <<N_Cr54_EM10>>
+ Ni58_EM10 = 'Ni58' <<N_Ni58_EM10>>
+ Ni60_EM10 = 'Ni60' <<N_Ni60_EM10>>
+ Ni61_EM10 = 'Ni61' <<N_Ni61_EM10>>
+ Ni62_EM10 = 'Ni62' <<N_Ni62_EM10>>
+ Ni64_EM10 = 'Ni64' <<N_Ni64_EM10>>
+ Mn55_EM10 = 'Mn55' <<N_Mn55_EM10>>
+ Mo92_EM10 = 'Mo92' <<N_Mo92_EM10>>
+ Mo94_EM10 = 'Mo94' <<N_Mo94_EM10>>
+ Mo95_EM10 = 'Mo95' <<N_Mo95_EM10>>
+ Mo96_EM10 = 'Mo96' <<N_Mo96_EM10>>
+ Mo97_EM10 = 'Mo97' <<N_Mo97_EM10>>
+ Mo98_EM10 = 'Mo98' <<N_Mo98_EM10>>
+ Mo100_EM10 = 'Mo100' <<N_Mo100_EM10>>
+ Si_EM10 = 'Si28' <<N_Si_EM10>>
+ Ti_EM10 = 'Ti48' <<N_Ti_EM10>>
+ C_EM10 = 'C0' <<N_C12_EM10>>
+
+MIX 10 (*SODIUM FERTILE*)
+ COMB 1 1.0
+MIX 11 (*COMBUSTIBLE FERTILE UOX*) <<T_comb_K>>
+ U5_f = 'U235' <<N_U5_f>> 2 IRSET PT 1
+ U8_f = 'U238' <<N_U8_f>> 2 IRSET PT 1
+ Pu39_f = 'Pu239' 0.0 2 IRSET PT 1
+ Pu40_f = 'Pu240' 0.0 2 IRSET PT 1
+ Pu41_f = 'Pu241' 0.0 2 IRSET PT 1
+ Pu42_f = 'Pu242' 0.0 2 IRSET PT 1
+ Am_f = 'Am241' 0.0 2 IRSET PT 1
+ O_f = 'O16' <<N_O_f>> NOEV
+MIX 12
+ COMB 11 1.0
+MIX 13
+ COMB 11 1.0
+MIX 14
+ COMB 11 1.0
+MIX 15 (*CLAD AIM1 FERTILE*)
+ COMB 6 1.0
+MIX 16 (*GAZ INERTE INTERIEUR FERTILE*)
+ COMB 7 1.0
+MIX 17 (*GAZ INERTE EXTERNE FERTILE*)
+ COMB 8 1.0
+MIX 18 (*BOX EM10 FERTILE*)
+ COMB 9 1.0
+;
+
+************************************************************************
+* DEFINE THE COLORSET GEOMETRY                                         *
+************************************************************************
+REAL Rcomb1 Rcomb2 Rcomb3 Rcomb4 Rcomb5 Rcomb6 Rcomb7
+   := 0.11 0.308712 0.381084 0.412536 0.4225 0.435 0.485 ;
+* Rcomb1 : hole
+* Rcomb5 : inner clad
+* Rcomb7 : outer clad
+ASSMBH := GEO: :: HEX 81 (*fertile assembly surrounded by fissile assemblies*)
+EDIT 2
+HBC S30 SYME
+CELL  
+C1 
+C1 
+C1 C1 
+C1 C1 
+C1 C1 C1 
+C1 C1 C1 
+C1 C1 C1 C1 
+C1 C1 C1 C1 
+C2 C4 C2 C4 C2 
+C3 C3 C3 C3 C4
+C3 C3 C3 C3 C3 C4
+C3 C3 C3 C3 C3 C4
+C3 C3 C3 C3 C3 C3 C4 
+C3 C3 C3 C3 C3 C3 C4
+C3 C3 C3 C3 C3 C3 C3 C4
+C3 C3 C3 C3 C3 C3 C3 C4
+C3 C3 C3 C3 C3 C3 C3 C3 C4
+MERGE 
+ 1 
+ 2 
+ 3  4 
+ 5  6 
+ 7  8  9 
+10 11 12 
+13 14 15 16 
+17 18 19 20 
+21 22 23 24 25 
+26 27 28 29 30
+31 32 33 34 35 36
+37 37 37 37 37 38
+37 37 37 37 37 37 38 
+37 37 37 37 37 37 38
+37 37 37 37 37 37 37 38
+37 37 37 37 37 37 37 38
+37 37 37 37 37 37 37 37 38
+::: C1 := GEO: HEXCEL 7 (*FERTILE UOX*)
+  SIDE 0.61776479
+  RADIUS 0.0 <<Rcomb1>> <<Rcomb2>> <<Rcomb3>> <<Rcomb4>> <<Rcomb5>>
+             <<Rcomb6>> <<Rcomb7>>
+  MIX 16 11 12 13 14 17 15 10 ;
+::: C2 := GEO: HEXCEL 0 (*BOX FERTILE UOX*)
+  SIDE 0.61776479
+  MIX 18 ;
+::: C3 := GEO: HEXCEL 7 (*FISSILE MOX*)
+  SIDE 0.61776479
+  RADIUS 0.0 <<Rcomb1>> <<Rcomb2>> <<Rcomb3>> <<Rcomb4>> <<Rcomb5>>
+             <<Rcomb6>> <<Rcomb7>>
+  MIX 7 2 3 4 5 8 6 1 ;
+::: C4 := GEO: HEXCEL 0 (*BOX MOX*)
+  SIDE 0.61776479
+  MIX 9 ;
+;
+************************************************************************
+* DECLARATION TRACKING                                                 *
+************************************************************************
+TRACK := SYBILT: ASSMBH ::
+EDIT 0
+MAXR 500
+MAXZ 1000000
+QUA2 20 3
+ROT+  ;
+************************************************************************
+* REFERENCE DEPLETION LOOP FOR THE FERTILE ASSEMBLY                    *
+************************************************************************
+* SELF SHIELDING
+MICROLIB2 := USS: MICROLIB TRACK :: EDIT 0 ARM PASS 3 ;
+ 
+* PIJ MATRIX
+PIJ := ASM: MICROLIB2 TRACK :: PIJ ;
+
+* FLUX CALCULATION
+FLUX := FLU: PIJ MICROLIB2 TRACK :: EDIT 1
+        TYPE K B1 HETE 1 1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 2 BUCK 2.0E-3 ;
+PIJ := DELETE: PIJ ;
+
+************************************************************************
+* HOMOGENIZATION/CONDENSATION                                          *
+************************************************************************
+EDIOBJ := EDI:  FLUX MICROLIB2 TRACK ::
+    EDIT 0
+    MICR RES
+    MERG MIX 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1
+    COND  4 9 13 17 21 26 30 35 39 43 46 49 55 59 63 68 73 80 84 90 99
+    106 131 149 157 180 193 205 215 230 283 299 315
+    SAVE
+  ;
+
+assertS FLUX :: 'K-EFFECTIVE' 1 0.1364715 ;
+ECHO "test fbr_colorset completed" ;
+END: ;

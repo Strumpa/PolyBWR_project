@@ -40,8 +40,9 @@
 * B2      directionnal bucklings.
 * ILEAK   method used to include DB2 effect:
 *         <5 uniform DB2 model;
-*         =5 Ecco-type isotropic streaming model;
-*         >5 Tibere anisotropic streaming model.
+*         =5 Todorova-type isotropic streaming model;
+*         =6 Ecco-type isotropic streaming model;
+*         >6 Tibere anisotropic streaming model.
 * LEAKSW  leakage flag (=.true. if leakage is present on the outer
 *         surface).
 *
@@ -96,12 +97,12 @@
       IF(IBM.EQ.0) GO TO 15
       PHIC=FLUX(IND,IGRP)*VOL(IREG)
       LOSS=LOSS+XSTOT(IBM,IGRP)*PHIC
-      IF((ILEAK.GE.1).AND.(ILEAK.LE.4)) THEN
+      IF((ILEAK.GE.1).AND.(ILEAK.LE.5)) THEN
          INM=IMERG(IBM)
          IF(INM.GT.0) LOSS=LOSS+B2(4)*DIFHET(INM,IGRP)*PHIC
-      ELSE IF(ILEAK.EQ.5) THEN
+      ELSE IF(ILEAK.EQ.6) THEN
          LOSS=LOSS+B2(4)*FLUX(NUNKNO/2+IND,IGRP)*VOL(IREG)
-      ELSE IF(ILEAK.GE.6) THEN
+      ELSE IF(ILEAK.GE.7) THEN
          LOSS=LOSS+B2(1)*FLUX(NUNKNO/4+IND,IGRP)*VOL(IREG)
      1            +B2(2)*FLUX(NUNKNO/2+IND,IGRP)*VOL(IREG)
      2            +B2(3)*FLUX(3*NUNKNO/4+IND,IGRP)*VOL(IREG)
