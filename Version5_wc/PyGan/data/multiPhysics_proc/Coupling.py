@@ -13,7 +13,7 @@ import lcm
 import cle2000
 
 
-class coupling_scheme:
+class coupled_scheme:
     def __init__(self, case_name, compo_name, neutron_transport_data, thermal_hydraulics_data, coupling_parameters, save_data, save_figures):
         """
         Contructor of the class coupling_scheme :
@@ -41,11 +41,16 @@ class coupling_scheme:
 
         # Initialize the class attributes
         self.Keffs = []
-        self.Power_Distrib = []
+        self.Power_Distribs = []
+        self.Volumic_Power_Distribs = []
+
         self.Residuals_Power_Distrib = []
+        
         self.Teff_list = []
         self.TCool_list = []
         self.rhoCool_list = []
+        self.voidFraction_list = []
+
         self.Residual_TFuel_list = []
         self.Residual_TCool_list = []
         self.Residual_rhoCool_list = []
@@ -273,7 +278,7 @@ class coupling_scheme:
         # 4.2.3) Update the power profile
         self.qFiss = PowerDistribution*1000 # Updating the axial power shape, converting to W from kW, and dividing by the bundle volume to get W/m3
         print(f"Updated axial power/vol shape : {self.qFiss}")
-        # 4.2.4) Under-relaxation of the power shape
+        
 
         return
     

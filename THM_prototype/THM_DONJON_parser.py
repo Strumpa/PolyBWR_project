@@ -58,15 +58,19 @@ class THM_DONJON_parser:
         t = table_t[0]
         table_temp = table_t[1]
         tableau=[]
+        print(len(table_temp))
         for i in range(len(table_temp)):
+            print(i,table_temp[i])
             table_temp[i] = table_temp[i].strip()
             table_temp[i] = table_temp[i].replace(" ", "")
             table_temp[i] = table_temp[i].replace("|", ",")
             table_temp[i] = table_temp[i].split(',')
             table_temp[i] = table_temp[i][2:-1]
+            print(i,table_temp[i])
             for j in range(len(table_temp[i])):
                 table_temp[i][j]=float(table_temp[i][j])
             tableau.append(table_temp[i])
+            print(i,table_temp[i])
         return t, tableau
     
 

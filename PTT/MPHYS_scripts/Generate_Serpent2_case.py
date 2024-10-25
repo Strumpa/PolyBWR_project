@@ -14,6 +14,7 @@ import DensToIsoDens
 def parse_multiPhysics_output(filename):
     """Parse the output file of the multiPhysics code"""
     data = np.loadtxt(filename)
+    #print(f"Data loaded from {filename}")
     return data
 
 def create_geometry(number_axial_slices, power_scaling_factor, pitch, fuel_radius, gap_radius, clad_radius, height, isGd):
@@ -308,9 +309,10 @@ def create_calcualtion_options(number_axial_slices, power_scaling_factor, neutro
 TH_underRelaxationFactor = 0.1
 Pow_underRelaxationFactor = 0.9 # Under relaxation factor for the power axial distribution to be tested, 0.1 used in Serpent/OpenFoam coupling
 relax_TH = False # Under relaxation of the TH fields for the next iteration
-relax_Pow = True # Under relaxation of the Power distribution for the next iteration
+relax_Pow = False # Under relaxation of the Power distribution for the next iteration
 
-number_axial_slices_all_cases = [10,20,40,80,160]
+#number_axial_slices_all_cases = [10,20,40,80,160]
+number_axial_slices_all_cases = [70]
 #number_axial_slices = 10
 
 pow_scaling_factor_all_cases = [1,2,4,8]

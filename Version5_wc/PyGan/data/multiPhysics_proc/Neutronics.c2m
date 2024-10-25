@@ -693,6 +693,578 @@ ELSEIF Iz 40 = THEN
             SET LINEAR 'DCool' <<DC40>>
       ENDMIX
       ;
+
+ELSEIF Iz 70 = THEN 
+
+GREP: THData :: GETVAL 'TFuelList' 1 >>TF1<< ; 
+GREP: THData :: GETVAL 'TFuelList' 2 >>TF2<< ; 
+GREP: THData :: GETVAL 'TFuelList' 3 >>TF3<< ; 
+GREP: THData :: GETVAL 'TFuelList' 4 >>TF4<< ; 
+GREP: THData :: GETVAL 'TFuelList' 5 >>TF5<< ; 
+GREP: THData :: GETVAL 'TFuelList' 6 >>TF6<< ; 
+GREP: THData :: GETVAL 'TFuelList' 7 >>TF7<< ; 
+GREP: THData :: GETVAL 'TFuelList' 8 >>TF8<< ; 
+GREP: THData :: GETVAL 'TFuelList' 9 >>TF9<< ; 
+GREP: THData :: GETVAL 'TFuelList' 10 >>TF10<< ; 
+GREP: THData :: GETVAL 'TFuelList' 11 >>TF11<< ; 
+GREP: THData :: GETVAL 'TFuelList' 12 >>TF12<< ; 
+GREP: THData :: GETVAL 'TFuelList' 13 >>TF13<< ; 
+GREP: THData :: GETVAL 'TFuelList' 14 >>TF14<< ; 
+GREP: THData :: GETVAL 'TFuelList' 15 >>TF15<< ; 
+GREP: THData :: GETVAL 'TFuelList' 16 >>TF16<< ; 
+GREP: THData :: GETVAL 'TFuelList' 17 >>TF17<< ; 
+GREP: THData :: GETVAL 'TFuelList' 18 >>TF18<< ; 
+GREP: THData :: GETVAL 'TFuelList' 19 >>TF19<< ; 
+GREP: THData :: GETVAL 'TFuelList' 20 >>TF20<< ; 
+GREP: THData :: GETVAL 'TFuelList' 21 >>TF21<< ; 
+GREP: THData :: GETVAL 'TFuelList' 22 >>TF22<< ; 
+GREP: THData :: GETVAL 'TFuelList' 23 >>TF23<< ; 
+GREP: THData :: GETVAL 'TFuelList' 24 >>TF24<< ; 
+GREP: THData :: GETVAL 'TFuelList' 25 >>TF25<< ; 
+GREP: THData :: GETVAL 'TFuelList' 26 >>TF26<< ; 
+GREP: THData :: GETVAL 'TFuelList' 27 >>TF27<< ; 
+GREP: THData :: GETVAL 'TFuelList' 28 >>TF28<< ; 
+GREP: THData :: GETVAL 'TFuelList' 29 >>TF29<< ; 
+GREP: THData :: GETVAL 'TFuelList' 30 >>TF30<< ; 
+GREP: THData :: GETVAL 'TFuelList' 31 >>TF31<< ; 
+GREP: THData :: GETVAL 'TFuelList' 32 >>TF32<< ; 
+GREP: THData :: GETVAL 'TFuelList' 33 >>TF33<< ; 
+GREP: THData :: GETVAL 'TFuelList' 34 >>TF34<< ; 
+GREP: THData :: GETVAL 'TFuelList' 35 >>TF35<< ; 
+GREP: THData :: GETVAL 'TFuelList' 36 >>TF36<< ; 
+GREP: THData :: GETVAL 'TFuelList' 37 >>TF37<< ; 
+GREP: THData :: GETVAL 'TFuelList' 38 >>TF38<< ; 
+GREP: THData :: GETVAL 'TFuelList' 39 >>TF39<< ; 
+GREP: THData :: GETVAL 'TFuelList' 40 >>TF40<< ; 
+GREP: THData :: GETVAL 'TFuelList' 41 >>TF41<< ; 
+GREP: THData :: GETVAL 'TFuelList' 42 >>TF42<< ; 
+GREP: THData :: GETVAL 'TFuelList' 43 >>TF43<< ; 
+GREP: THData :: GETVAL 'TFuelList' 44 >>TF44<< ; 
+GREP: THData :: GETVAL 'TFuelList' 45 >>TF45<< ; 
+GREP: THData :: GETVAL 'TFuelList' 46 >>TF46<< ; 
+GREP: THData :: GETVAL 'TFuelList' 47 >>TF47<< ; 
+GREP: THData :: GETVAL 'TFuelList' 48 >>TF48<< ; 
+GREP: THData :: GETVAL 'TFuelList' 49 >>TF49<< ; 
+GREP: THData :: GETVAL 'TFuelList' 50 >>TF50<< ; 
+GREP: THData :: GETVAL 'TFuelList' 51 >>TF51<< ; 
+GREP: THData :: GETVAL 'TFuelList' 52 >>TF52<< ; 
+GREP: THData :: GETVAL 'TFuelList' 53 >>TF53<< ; 
+GREP: THData :: GETVAL 'TFuelList' 54 >>TF54<< ; 
+GREP: THData :: GETVAL 'TFuelList' 55 >>TF55<< ; 
+GREP: THData :: GETVAL 'TFuelList' 56 >>TF56<< ; 
+GREP: THData :: GETVAL 'TFuelList' 57 >>TF57<< ; 
+GREP: THData :: GETVAL 'TFuelList' 58 >>TF58<< ; 
+GREP: THData :: GETVAL 'TFuelList' 59 >>TF59<< ; 
+GREP: THData :: GETVAL 'TFuelList' 60 >>TF60<< ; 
+GREP: THData :: GETVAL 'TFuelList' 61 >>TF61<< ; 
+GREP: THData :: GETVAL 'TFuelList' 62 >>TF62<< ; 
+GREP: THData :: GETVAL 'TFuelList' 63 >>TF63<< ; 
+GREP: THData :: GETVAL 'TFuelList' 64 >>TF64<< ; 
+GREP: THData :: GETVAL 'TFuelList' 65 >>TF65<< ; 
+GREP: THData :: GETVAL 'TFuelList' 66 >>TF66<< ; 
+GREP: THData :: GETVAL 'TFuelList' 67 >>TF67<< ; 
+GREP: THData :: GETVAL 'TFuelList' 68 >>TF68<< ; 
+GREP: THData :: GETVAL 'TFuelList' 69 >>TF69<< ; 
+GREP: THData :: GETVAL 'TFuelList' 70 >>TF70<< ; 
+ 
+GREP: THData :: GETVAL 'TCoolList' 1 >>TC1<< ; 
+GREP: THData :: GETVAL 'TCoolList' 2 >>TC2<< ; 
+GREP: THData :: GETVAL 'TCoolList' 3 >>TC3<< ; 
+GREP: THData :: GETVAL 'TCoolList' 4 >>TC4<< ; 
+GREP: THData :: GETVAL 'TCoolList' 5 >>TC5<< ; 
+GREP: THData :: GETVAL 'TCoolList' 6 >>TC6<< ; 
+GREP: THData :: GETVAL 'TCoolList' 7 >>TC7<< ; 
+GREP: THData :: GETVAL 'TCoolList' 8 >>TC8<< ; 
+GREP: THData :: GETVAL 'TCoolList' 9 >>TC9<< ; 
+GREP: THData :: GETVAL 'TCoolList' 10 >>TC10<< ; 
+GREP: THData :: GETVAL 'TCoolList' 11 >>TC11<< ; 
+GREP: THData :: GETVAL 'TCoolList' 12 >>TC12<< ; 
+GREP: THData :: GETVAL 'TCoolList' 13 >>TC13<< ; 
+GREP: THData :: GETVAL 'TCoolList' 14 >>TC14<< ; 
+GREP: THData :: GETVAL 'TCoolList' 15 >>TC15<< ; 
+GREP: THData :: GETVAL 'TCoolList' 16 >>TC16<< ; 
+GREP: THData :: GETVAL 'TCoolList' 17 >>TC17<< ; 
+GREP: THData :: GETVAL 'TCoolList' 18 >>TC18<< ; 
+GREP: THData :: GETVAL 'TCoolList' 19 >>TC19<< ; 
+GREP: THData :: GETVAL 'TCoolList' 20 >>TC20<< ; 
+GREP: THData :: GETVAL 'TCoolList' 21 >>TC21<< ; 
+GREP: THData :: GETVAL 'TCoolList' 22 >>TC22<< ; 
+GREP: THData :: GETVAL 'TCoolList' 23 >>TC23<< ; 
+GREP: THData :: GETVAL 'TCoolList' 24 >>TC24<< ; 
+GREP: THData :: GETVAL 'TCoolList' 25 >>TC25<< ; 
+GREP: THData :: GETVAL 'TCoolList' 26 >>TC26<< ; 
+GREP: THData :: GETVAL 'TCoolList' 27 >>TC27<< ; 
+GREP: THData :: GETVAL 'TCoolList' 28 >>TC28<< ; 
+GREP: THData :: GETVAL 'TCoolList' 29 >>TC29<< ; 
+GREP: THData :: GETVAL 'TCoolList' 30 >>TC30<< ; 
+GREP: THData :: GETVAL 'TCoolList' 31 >>TC31<< ; 
+GREP: THData :: GETVAL 'TCoolList' 32 >>TC32<< ; 
+GREP: THData :: GETVAL 'TCoolList' 33 >>TC33<< ; 
+GREP: THData :: GETVAL 'TCoolList' 34 >>TC34<< ; 
+GREP: THData :: GETVAL 'TCoolList' 35 >>TC35<< ; 
+GREP: THData :: GETVAL 'TCoolList' 36 >>TC36<< ; 
+GREP: THData :: GETVAL 'TCoolList' 37 >>TC37<< ; 
+GREP: THData :: GETVAL 'TCoolList' 38 >>TC38<< ; 
+GREP: THData :: GETVAL 'TCoolList' 39 >>TC39<< ; 
+GREP: THData :: GETVAL 'TCoolList' 40 >>TC40<< ; 
+GREP: THData :: GETVAL 'TCoolList' 41 >>TC41<< ; 
+GREP: THData :: GETVAL 'TCoolList' 42 >>TC42<< ; 
+GREP: THData :: GETVAL 'TCoolList' 43 >>TC43<< ; 
+GREP: THData :: GETVAL 'TCoolList' 44 >>TC44<< ; 
+GREP: THData :: GETVAL 'TCoolList' 45 >>TC45<< ; 
+GREP: THData :: GETVAL 'TCoolList' 46 >>TC46<< ; 
+GREP: THData :: GETVAL 'TCoolList' 47 >>TC47<< ; 
+GREP: THData :: GETVAL 'TCoolList' 48 >>TC48<< ; 
+GREP: THData :: GETVAL 'TCoolList' 49 >>TC49<< ; 
+GREP: THData :: GETVAL 'TCoolList' 50 >>TC50<< ; 
+GREP: THData :: GETVAL 'TCoolList' 51 >>TC51<< ; 
+GREP: THData :: GETVAL 'TCoolList' 52 >>TC52<< ; 
+GREP: THData :: GETVAL 'TCoolList' 53 >>TC53<< ; 
+GREP: THData :: GETVAL 'TCoolList' 54 >>TC54<< ; 
+GREP: THData :: GETVAL 'TCoolList' 55 >>TC55<< ; 
+GREP: THData :: GETVAL 'TCoolList' 56 >>TC56<< ; 
+GREP: THData :: GETVAL 'TCoolList' 57 >>TC57<< ; 
+GREP: THData :: GETVAL 'TCoolList' 58 >>TC58<< ; 
+GREP: THData :: GETVAL 'TCoolList' 59 >>TC59<< ; 
+GREP: THData :: GETVAL 'TCoolList' 60 >>TC60<< ; 
+GREP: THData :: GETVAL 'TCoolList' 61 >>TC61<< ; 
+GREP: THData :: GETVAL 'TCoolList' 62 >>TC62<< ; 
+GREP: THData :: GETVAL 'TCoolList' 63 >>TC63<< ; 
+GREP: THData :: GETVAL 'TCoolList' 64 >>TC64<< ; 
+GREP: THData :: GETVAL 'TCoolList' 65 >>TC65<< ; 
+GREP: THData :: GETVAL 'TCoolList' 66 >>TC66<< ; 
+GREP: THData :: GETVAL 'TCoolList' 67 >>TC67<< ; 
+GREP: THData :: GETVAL 'TCoolList' 68 >>TC68<< ; 
+GREP: THData :: GETVAL 'TCoolList' 69 >>TC69<< ; 
+GREP: THData :: GETVAL 'TCoolList' 70 >>TC70<< ; 
+ 
+GREP: THData :: GETVAL 'DCoolList' 1 >>DC1<< ; 
+GREP: THData :: GETVAL 'DCoolList' 2 >>DC2<< ; 
+GREP: THData :: GETVAL 'DCoolList' 3 >>DC3<< ; 
+GREP: THData :: GETVAL 'DCoolList' 4 >>DC4<< ; 
+GREP: THData :: GETVAL 'DCoolList' 5 >>DC5<< ; 
+GREP: THData :: GETVAL 'DCoolList' 6 >>DC6<< ; 
+GREP: THData :: GETVAL 'DCoolList' 7 >>DC7<< ; 
+GREP: THData :: GETVAL 'DCoolList' 8 >>DC8<< ; 
+GREP: THData :: GETVAL 'DCoolList' 9 >>DC9<< ; 
+GREP: THData :: GETVAL 'DCoolList' 10 >>DC10<< ; 
+GREP: THData :: GETVAL 'DCoolList' 11 >>DC11<< ; 
+GREP: THData :: GETVAL 'DCoolList' 12 >>DC12<< ; 
+GREP: THData :: GETVAL 'DCoolList' 13 >>DC13<< ; 
+GREP: THData :: GETVAL 'DCoolList' 14 >>DC14<< ; 
+GREP: THData :: GETVAL 'DCoolList' 15 >>DC15<< ; 
+GREP: THData :: GETVAL 'DCoolList' 16 >>DC16<< ; 
+GREP: THData :: GETVAL 'DCoolList' 17 >>DC17<< ; 
+GREP: THData :: GETVAL 'DCoolList' 18 >>DC18<< ; 
+GREP: THData :: GETVAL 'DCoolList' 19 >>DC19<< ; 
+GREP: THData :: GETVAL 'DCoolList' 20 >>DC20<< ; 
+GREP: THData :: GETVAL 'DCoolList' 21 >>DC21<< ; 
+GREP: THData :: GETVAL 'DCoolList' 22 >>DC22<< ; 
+GREP: THData :: GETVAL 'DCoolList' 23 >>DC23<< ; 
+GREP: THData :: GETVAL 'DCoolList' 24 >>DC24<< ; 
+GREP: THData :: GETVAL 'DCoolList' 25 >>DC25<< ; 
+GREP: THData :: GETVAL 'DCoolList' 26 >>DC26<< ; 
+GREP: THData :: GETVAL 'DCoolList' 27 >>DC27<< ; 
+GREP: THData :: GETVAL 'DCoolList' 28 >>DC28<< ; 
+GREP: THData :: GETVAL 'DCoolList' 29 >>DC29<< ; 
+GREP: THData :: GETVAL 'DCoolList' 30 >>DC30<< ; 
+GREP: THData :: GETVAL 'DCoolList' 31 >>DC31<< ; 
+GREP: THData :: GETVAL 'DCoolList' 32 >>DC32<< ; 
+GREP: THData :: GETVAL 'DCoolList' 33 >>DC33<< ; 
+GREP: THData :: GETVAL 'DCoolList' 34 >>DC34<< ; 
+GREP: THData :: GETVAL 'DCoolList' 35 >>DC35<< ; 
+GREP: THData :: GETVAL 'DCoolList' 36 >>DC36<< ; 
+GREP: THData :: GETVAL 'DCoolList' 37 >>DC37<< ; 
+GREP: THData :: GETVAL 'DCoolList' 38 >>DC38<< ; 
+GREP: THData :: GETVAL 'DCoolList' 39 >>DC39<< ; 
+GREP: THData :: GETVAL 'DCoolList' 40 >>DC40<< ; 
+GREP: THData :: GETVAL 'DCoolList' 41 >>DC41<< ; 
+GREP: THData :: GETVAL 'DCoolList' 42 >>DC42<< ; 
+GREP: THData :: GETVAL 'DCoolList' 43 >>DC43<< ; 
+GREP: THData :: GETVAL 'DCoolList' 44 >>DC44<< ; 
+GREP: THData :: GETVAL 'DCoolList' 45 >>DC45<< ; 
+GREP: THData :: GETVAL 'DCoolList' 46 >>DC46<< ; 
+GREP: THData :: GETVAL 'DCoolList' 47 >>DC47<< ; 
+GREP: THData :: GETVAL 'DCoolList' 48 >>DC48<< ; 
+GREP: THData :: GETVAL 'DCoolList' 49 >>DC49<< ; 
+GREP: THData :: GETVAL 'DCoolList' 50 >>DC50<< ; 
+GREP: THData :: GETVAL 'DCoolList' 51 >>DC51<< ; 
+GREP: THData :: GETVAL 'DCoolList' 52 >>DC52<< ; 
+GREP: THData :: GETVAL 'DCoolList' 53 >>DC53<< ; 
+GREP: THData :: GETVAL 'DCoolList' 54 >>DC54<< ; 
+GREP: THData :: GETVAL 'DCoolList' 55 >>DC55<< ; 
+GREP: THData :: GETVAL 'DCoolList' 56 >>DC56<< ; 
+GREP: THData :: GETVAL 'DCoolList' 57 >>DC57<< ; 
+GREP: THData :: GETVAL 'DCoolList' 58 >>DC58<< ; 
+GREP: THData :: GETVAL 'DCoolList' 59 >>DC59<< ; 
+GREP: THData :: GETVAL 'DCoolList' 60 >>DC60<< ; 
+GREP: THData :: GETVAL 'DCoolList' 61 >>DC61<< ; 
+GREP: THData :: GETVAL 'DCoolList' 62 >>DC62<< ; 
+GREP: THData :: GETVAL 'DCoolList' 63 >>DC63<< ; 
+GREP: THData :: GETVAL 'DCoolList' 64 >>DC64<< ; 
+GREP: THData :: GETVAL 'DCoolList' 65 >>DC65<< ; 
+GREP: THData :: GETVAL 'DCoolList' 66 >>DC66<< ; 
+GREP: THData :: GETVAL 'DCoolList' 67 >>DC67<< ; 
+GREP: THData :: GETVAL 'DCoolList' 68 >>DC68<< ; 
+GREP: THData :: GETVAL 'DCoolList' 69 >>DC69<< ; 
+GREP: THData :: GETVAL 'DCoolList' 70 >>DC70<< ; 
+ 
+ 
+MicroF := NCR: Cpo Fmap :: 
+  EDIT 2 
+  MICRO LINEAR 
+  TABLE Cpo <<DIR>> 
+    MIX 1 INST-BURN 
+          SET LINEAR 'TFuel' <<TF1>> 
+          SET LINEAR 'TCool' <<TC1>> 
+          SET LINEAR 'DCool' <<DC1>> 
+    ENDMIX 
+    MIX 2 INST-BURN 
+          SET LINEAR 'TFuel' <<TF2>> 
+          SET LINEAR 'TCool' <<TC2>> 
+          SET LINEAR 'DCool' <<DC2>> 
+    ENDMIX 
+    MIX 3 INST-BURN 
+          SET LINEAR 'TFuel' <<TF3>> 
+          SET LINEAR 'TCool' <<TC3>> 
+          SET LINEAR 'DCool' <<DC3>> 
+    ENDMIX 
+    MIX 4 INST-BURN 
+          SET LINEAR 'TFuel' <<TF4>> 
+          SET LINEAR 'TCool' <<TC4>> 
+          SET LINEAR 'DCool' <<DC4>> 
+    ENDMIX 
+    MIX 5 INST-BURN 
+          SET LINEAR 'TFuel' <<TF5>> 
+          SET LINEAR 'TCool' <<TC5>> 
+          SET LINEAR 'DCool' <<DC5>> 
+    ENDMIX 
+    MIX 6 INST-BURN 
+          SET LINEAR 'TFuel' <<TF6>> 
+          SET LINEAR 'TCool' <<TC6>> 
+          SET LINEAR 'DCool' <<DC6>> 
+    ENDMIX 
+    MIX 7 INST-BURN 
+          SET LINEAR 'TFuel' <<TF7>> 
+          SET LINEAR 'TCool' <<TC7>> 
+          SET LINEAR 'DCool' <<DC7>> 
+    ENDMIX 
+    MIX 8 INST-BURN 
+          SET LINEAR 'TFuel' <<TF8>> 
+          SET LINEAR 'TCool' <<TC8>> 
+          SET LINEAR 'DCool' <<DC8>> 
+    ENDMIX 
+    MIX 9 INST-BURN 
+          SET LINEAR 'TFuel' <<TF9>> 
+          SET LINEAR 'TCool' <<TC9>> 
+          SET LINEAR 'DCool' <<DC9>> 
+    ENDMIX 
+    MIX 10 INST-BURN 
+          SET LINEAR 'TFuel' <<TF10>> 
+          SET LINEAR 'TCool' <<TC10>> 
+          SET LINEAR 'DCool' <<DC10>> 
+    ENDMIX 
+    MIX 11 INST-BURN 
+          SET LINEAR 'TFuel' <<TF11>> 
+          SET LINEAR 'TCool' <<TC11>> 
+          SET LINEAR 'DCool' <<DC11>> 
+    ENDMIX 
+    MIX 12 INST-BURN 
+          SET LINEAR 'TFuel' <<TF12>> 
+          SET LINEAR 'TCool' <<TC12>> 
+          SET LINEAR 'DCool' <<DC12>> 
+    ENDMIX 
+    MIX 13 INST-BURN 
+          SET LINEAR 'TFuel' <<TF13>> 
+          SET LINEAR 'TCool' <<TC13>> 
+          SET LINEAR 'DCool' <<DC13>> 
+    ENDMIX 
+    MIX 14 INST-BURN 
+          SET LINEAR 'TFuel' <<TF14>> 
+          SET LINEAR 'TCool' <<TC14>> 
+          SET LINEAR 'DCool' <<DC14>> 
+    ENDMIX 
+    MIX 15 INST-BURN 
+          SET LINEAR 'TFuel' <<TF15>> 
+          SET LINEAR 'TCool' <<TC15>> 
+          SET LINEAR 'DCool' <<DC15>> 
+    ENDMIX 
+    MIX 16 INST-BURN 
+          SET LINEAR 'TFuel' <<TF16>> 
+          SET LINEAR 'TCool' <<TC16>> 
+          SET LINEAR 'DCool' <<DC16>> 
+    ENDMIX 
+    MIX 17 INST-BURN 
+          SET LINEAR 'TFuel' <<TF17>> 
+          SET LINEAR 'TCool' <<TC17>> 
+          SET LINEAR 'DCool' <<DC17>> 
+    ENDMIX 
+    MIX 18 INST-BURN 
+          SET LINEAR 'TFuel' <<TF18>> 
+          SET LINEAR 'TCool' <<TC18>> 
+          SET LINEAR 'DCool' <<DC18>> 
+    ENDMIX 
+    MIX 19 INST-BURN 
+          SET LINEAR 'TFuel' <<TF19>> 
+          SET LINEAR 'TCool' <<TC19>> 
+          SET LINEAR 'DCool' <<DC19>> 
+    ENDMIX 
+    MIX 20 INST-BURN 
+          SET LINEAR 'TFuel' <<TF20>> 
+          SET LINEAR 'TCool' <<TC20>> 
+          SET LINEAR 'DCool' <<DC20>> 
+    ENDMIX 
+    MIX 21 INST-BURN 
+          SET LINEAR 'TFuel' <<TF21>> 
+          SET LINEAR 'TCool' <<TC21>> 
+          SET LINEAR 'DCool' <<DC21>> 
+    ENDMIX 
+    MIX 22 INST-BURN 
+          SET LINEAR 'TFuel' <<TF22>> 
+          SET LINEAR 'TCool' <<TC22>> 
+          SET LINEAR 'DCool' <<DC22>> 
+    ENDMIX 
+    MIX 23 INST-BURN 
+          SET LINEAR 'TFuel' <<TF23>> 
+          SET LINEAR 'TCool' <<TC23>> 
+          SET LINEAR 'DCool' <<DC23>> 
+    ENDMIX 
+    MIX 24 INST-BURN 
+          SET LINEAR 'TFuel' <<TF24>> 
+          SET LINEAR 'TCool' <<TC24>> 
+          SET LINEAR 'DCool' <<DC24>> 
+    ENDMIX 
+    MIX 25 INST-BURN 
+          SET LINEAR 'TFuel' <<TF25>> 
+          SET LINEAR 'TCool' <<TC25>> 
+          SET LINEAR 'DCool' <<DC25>> 
+    ENDMIX 
+    MIX 26 INST-BURN 
+          SET LINEAR 'TFuel' <<TF26>> 
+          SET LINEAR 'TCool' <<TC26>> 
+          SET LINEAR 'DCool' <<DC26>> 
+    ENDMIX 
+    MIX 27 INST-BURN 
+          SET LINEAR 'TFuel' <<TF27>> 
+          SET LINEAR 'TCool' <<TC27>> 
+          SET LINEAR 'DCool' <<DC27>> 
+    ENDMIX 
+    MIX 28 INST-BURN 
+          SET LINEAR 'TFuel' <<TF28>> 
+          SET LINEAR 'TCool' <<TC28>> 
+          SET LINEAR 'DCool' <<DC28>> 
+    ENDMIX 
+    MIX 29 INST-BURN 
+          SET LINEAR 'TFuel' <<TF29>> 
+          SET LINEAR 'TCool' <<TC29>> 
+          SET LINEAR 'DCool' <<DC29>> 
+    ENDMIX 
+    MIX 30 INST-BURN 
+          SET LINEAR 'TFuel' <<TF30>> 
+          SET LINEAR 'TCool' <<TC30>> 
+          SET LINEAR 'DCool' <<DC30>> 
+    ENDMIX 
+    MIX 31 INST-BURN 
+          SET LINEAR 'TFuel' <<TF31>> 
+          SET LINEAR 'TCool' <<TC31>> 
+          SET LINEAR 'DCool' <<DC31>> 
+    ENDMIX 
+    MIX 32 INST-BURN 
+          SET LINEAR 'TFuel' <<TF32>> 
+          SET LINEAR 'TCool' <<TC32>> 
+          SET LINEAR 'DCool' <<DC32>> 
+    ENDMIX 
+    MIX 33 INST-BURN 
+          SET LINEAR 'TFuel' <<TF33>> 
+          SET LINEAR 'TCool' <<TC33>> 
+          SET LINEAR 'DCool' <<DC33>> 
+    ENDMIX 
+    MIX 34 INST-BURN 
+          SET LINEAR 'TFuel' <<TF34>> 
+          SET LINEAR 'TCool' <<TC34>> 
+          SET LINEAR 'DCool' <<DC34>> 
+    ENDMIX 
+    MIX 35 INST-BURN 
+          SET LINEAR 'TFuel' <<TF35>> 
+          SET LINEAR 'TCool' <<TC35>> 
+          SET LINEAR 'DCool' <<DC35>> 
+    ENDMIX 
+    MIX 36 INST-BURN 
+          SET LINEAR 'TFuel' <<TF36>> 
+          SET LINEAR 'TCool' <<TC36>> 
+          SET LINEAR 'DCool' <<DC36>> 
+    ENDMIX 
+    MIX 37 INST-BURN 
+          SET LINEAR 'TFuel' <<TF37>> 
+          SET LINEAR 'TCool' <<TC37>> 
+          SET LINEAR 'DCool' <<DC37>> 
+    ENDMIX 
+    MIX 38 INST-BURN 
+          SET LINEAR 'TFuel' <<TF38>> 
+          SET LINEAR 'TCool' <<TC38>> 
+          SET LINEAR 'DCool' <<DC38>> 
+    ENDMIX 
+    MIX 39 INST-BURN 
+          SET LINEAR 'TFuel' <<TF39>> 
+          SET LINEAR 'TCool' <<TC39>> 
+          SET LINEAR 'DCool' <<DC39>> 
+    ENDMIX 
+    MIX 40 INST-BURN 
+          SET LINEAR 'TFuel' <<TF40>> 
+          SET LINEAR 'TCool' <<TC40>> 
+          SET LINEAR 'DCool' <<DC40>> 
+    ENDMIX 
+    MIX 41 INST-BURN 
+          SET LINEAR 'TFuel' <<TF41>> 
+          SET LINEAR 'TCool' <<TC41>> 
+          SET LINEAR 'DCool' <<DC41>> 
+    ENDMIX 
+    MIX 42 INST-BURN 
+          SET LINEAR 'TFuel' <<TF42>> 
+          SET LINEAR 'TCool' <<TC42>> 
+          SET LINEAR 'DCool' <<DC42>> 
+    ENDMIX 
+    MIX 43 INST-BURN 
+          SET LINEAR 'TFuel' <<TF43>> 
+          SET LINEAR 'TCool' <<TC43>> 
+          SET LINEAR 'DCool' <<DC43>> 
+    ENDMIX 
+    MIX 44 INST-BURN 
+          SET LINEAR 'TFuel' <<TF44>> 
+          SET LINEAR 'TCool' <<TC44>> 
+          SET LINEAR 'DCool' <<DC44>> 
+    ENDMIX 
+    MIX 45 INST-BURN 
+          SET LINEAR 'TFuel' <<TF45>> 
+          SET LINEAR 'TCool' <<TC45>> 
+          SET LINEAR 'DCool' <<DC45>> 
+    ENDMIX 
+    MIX 46 INST-BURN 
+          SET LINEAR 'TFuel' <<TF46>> 
+          SET LINEAR 'TCool' <<TC46>> 
+          SET LINEAR 'DCool' <<DC46>> 
+    ENDMIX 
+    MIX 47 INST-BURN 
+          SET LINEAR 'TFuel' <<TF47>> 
+          SET LINEAR 'TCool' <<TC47>> 
+          SET LINEAR 'DCool' <<DC47>> 
+    ENDMIX 
+    MIX 48 INST-BURN 
+          SET LINEAR 'TFuel' <<TF48>> 
+          SET LINEAR 'TCool' <<TC48>> 
+          SET LINEAR 'DCool' <<DC48>> 
+    ENDMIX 
+    MIX 49 INST-BURN 
+          SET LINEAR 'TFuel' <<TF49>> 
+          SET LINEAR 'TCool' <<TC49>> 
+          SET LINEAR 'DCool' <<DC49>> 
+    ENDMIX 
+    MIX 50 INST-BURN 
+          SET LINEAR 'TFuel' <<TF50>> 
+          SET LINEAR 'TCool' <<TC50>> 
+          SET LINEAR 'DCool' <<DC50>> 
+    ENDMIX 
+    MIX 51 INST-BURN 
+          SET LINEAR 'TFuel' <<TF51>> 
+          SET LINEAR 'TCool' <<TC51>> 
+          SET LINEAR 'DCool' <<DC51>> 
+    ENDMIX 
+    MIX 52 INST-BURN 
+          SET LINEAR 'TFuel' <<TF52>> 
+          SET LINEAR 'TCool' <<TC52>> 
+          SET LINEAR 'DCool' <<DC52>> 
+    ENDMIX 
+    MIX 53 INST-BURN 
+          SET LINEAR 'TFuel' <<TF53>> 
+          SET LINEAR 'TCool' <<TC53>> 
+          SET LINEAR 'DCool' <<DC53>> 
+    ENDMIX 
+    MIX 54 INST-BURN 
+          SET LINEAR 'TFuel' <<TF54>> 
+          SET LINEAR 'TCool' <<TC54>> 
+          SET LINEAR 'DCool' <<DC54>> 
+    ENDMIX 
+    MIX 55 INST-BURN 
+          SET LINEAR 'TFuel' <<TF55>> 
+          SET LINEAR 'TCool' <<TC55>> 
+          SET LINEAR 'DCool' <<DC55>> 
+    ENDMIX 
+    MIX 56 INST-BURN 
+          SET LINEAR 'TFuel' <<TF56>> 
+          SET LINEAR 'TCool' <<TC56>> 
+          SET LINEAR 'DCool' <<DC56>> 
+    ENDMIX 
+    MIX 57 INST-BURN 
+          SET LINEAR 'TFuel' <<TF57>> 
+          SET LINEAR 'TCool' <<TC57>> 
+          SET LINEAR 'DCool' <<DC57>> 
+    ENDMIX 
+    MIX 58 INST-BURN 
+          SET LINEAR 'TFuel' <<TF58>> 
+          SET LINEAR 'TCool' <<TC58>> 
+          SET LINEAR 'DCool' <<DC58>> 
+    ENDMIX 
+    MIX 59 INST-BURN 
+          SET LINEAR 'TFuel' <<TF59>> 
+          SET LINEAR 'TCool' <<TC59>> 
+          SET LINEAR 'DCool' <<DC59>> 
+    ENDMIX 
+    MIX 60 INST-BURN 
+          SET LINEAR 'TFuel' <<TF60>> 
+          SET LINEAR 'TCool' <<TC60>> 
+          SET LINEAR 'DCool' <<DC60>> 
+    ENDMIX 
+    MIX 61 INST-BURN 
+          SET LINEAR 'TFuel' <<TF61>> 
+          SET LINEAR 'TCool' <<TC61>> 
+          SET LINEAR 'DCool' <<DC61>> 
+    ENDMIX 
+    MIX 62 INST-BURN 
+          SET LINEAR 'TFuel' <<TF62>> 
+          SET LINEAR 'TCool' <<TC62>> 
+          SET LINEAR 'DCool' <<DC62>> 
+    ENDMIX 
+    MIX 63 INST-BURN 
+          SET LINEAR 'TFuel' <<TF63>> 
+          SET LINEAR 'TCool' <<TC63>> 
+          SET LINEAR 'DCool' <<DC63>> 
+    ENDMIX 
+    MIX 64 INST-BURN 
+          SET LINEAR 'TFuel' <<TF64>> 
+          SET LINEAR 'TCool' <<TC64>> 
+          SET LINEAR 'DCool' <<DC64>> 
+    ENDMIX 
+    MIX 65 INST-BURN 
+          SET LINEAR 'TFuel' <<TF65>> 
+          SET LINEAR 'TCool' <<TC65>> 
+          SET LINEAR 'DCool' <<DC65>> 
+    ENDMIX 
+    MIX 66 INST-BURN 
+          SET LINEAR 'TFuel' <<TF66>> 
+          SET LINEAR 'TCool' <<TC66>> 
+          SET LINEAR 'DCool' <<DC66>> 
+    ENDMIX 
+    MIX 67 INST-BURN 
+          SET LINEAR 'TFuel' <<TF67>> 
+          SET LINEAR 'TCool' <<TC67>> 
+          SET LINEAR 'DCool' <<DC67>> 
+    ENDMIX 
+    MIX 68 INST-BURN 
+          SET LINEAR 'TFuel' <<TF68>> 
+          SET LINEAR 'TCool' <<TC68>> 
+          SET LINEAR 'DCool' <<DC68>> 
+    ENDMIX 
+    MIX 69 INST-BURN 
+          SET LINEAR 'TFuel' <<TF69>> 
+          SET LINEAR 'TCool' <<TC69>> 
+          SET LINEAR 'DCool' <<DC69>> 
+    ENDMIX 
+    MIX 70 INST-BURN 
+          SET LINEAR 'TFuel' <<TF70>> 
+          SET LINEAR 'TCool' <<TC70>> 
+          SET LINEAR 'DCool' <<DC70>> 
+    ENDMIX 
+  ; 
 ELSEIF Iz 80 = THEN 
 
 GREP: THData :: GETVAL 'TFuelList' 1 >>TF1<< ; 
