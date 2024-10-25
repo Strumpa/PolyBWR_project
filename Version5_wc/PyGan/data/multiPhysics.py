@@ -297,15 +297,17 @@ def quickPlot(x, y, title, xlabel, ylabel, saveName, path, SAVE_DIR):
 start_time = time.time()
 solveConduction = True
 nIter = 1000 #1000
-tol_TH_Tf = 1e-2 # Convergence criterion for TFuel, in K
-tol_TH_Tc = 1e-2 # Convergence criterion for TCool, in K
-tol_TH_Dc = 1e-2 # Convergence criterion for DCool, in kg/m3
+tol_TH_Tf = 1e-3 # Convergence criterion for TFuel, in K
+tol_TH_Tc = 1e-3 # Convergence criterion for TCool, in K
+tol_TH_Dc = 1e-3 # Convergence criterion for DCool, in kg/m3
 tol_POW = 0.1 # Convergence criterion for the power axial distribution, in % of nodal power
 tol_Keff =  0.1 # Convergence criterion for the Keff value in pcm
-TH_underRelaxationFactor = 0.2 # 0.8, 0.5, 0.2, Under relaxation factor for the TH fields to be tested
-Pow_underRelaxationFactor = 0.2 # 0.8, 0.5, 0.2, Under relaxation factor for the power axial distribution to be tested, 0.1 used in Serpent/OpenFoam coupling
-relax_TH = True # Under relaxation of the TH fields for the next iteration
-relax_Pow = True # Under relaxation of the Power distribution for the next iteration
+
+relax_Pow = False # Under relaxation of the Power distribution for the next iteration
+Pow_underRelaxationFactor = 0.5 # 0.8, 0.5, 0.2, Under relaxation factor for the power axial distribution to be tested, 0.1 used in Serpent/OpenFoam coupling
+
+relax_TH = False # Under relaxation of the TH fields for the next iteration
+TH_underRelaxationFactor = 0.9 # 0.8, 0.5, 0.2, Under relaxation factor for the TH fields to be tested
 
 ########## Mesh parameters ###########
 zPlotting = [] #If empty, no plotting of the axial distribution of the fields, otherwise, list of the axial positions where the fields are plotted
@@ -313,7 +315,7 @@ zPlotting = [] #If empty, no plotting of the axial distribution of the fields, o
 If = 8
 I1 = 3
 # Sensitivity to the meshing parameters
-Iz1 = 160 # number of control volumes in the axial direction
+Iz1 = 20 # number of control volumes in the axial direction, added 70 for comparison with GeN-Foam
 # Iz1 = 10, 20, 40, 80 and 160 are supported for the DONJON solution
 
 
@@ -375,16 +377,16 @@ print(f"Fuel mass = {Fuel_mass} g")
 print(f"$$ - BEGIN Iz1 = {Iz1}, power_scaling_factor = {power_scaling_factor}")
 Bundle_volume = Fuel_volume / Iz1 # m3, Bundle <=> 1 axial slice of the fuel channel
 fuel_rod_power = full_core_power/(n_rods*n_assmblies) # W
-specificPower = fuel_rod_power/Fuel_mass # W/g 
+#specificPower = fuel_rod_power/Fuel_mass # W/g 
 print(f"Fuel rod power before scaling = {fuel_rod_power} W")
-print(f"Specific power = {specificPower} W/g")
+#print(f"Specific power = {specificPower} W/g")
 
 
 compo_name = "_COMPO_24UOX" # Name of the COMPO object to be used in the neutronics solution
 
 
-PFiss = specificPower*Fuel_mass/power_scaling_factor # W
-print(f"PFiss = {PFiss} W")
+PFiss = fuel_rod_power/power_scaling_factor # W
+print(f"PFiss = {PFiss} = fuel_rod_power (scaled) W")
 
 ########## Fields of the TH problem ##########
 TeffFuel = []
@@ -598,18 +600,12 @@ while not conv:
 
     # 4.3.1) Under relaxation of the Power distribution for the next iteration
     if iter == 1 and relax_Pow:
-        power_from_qFiss = integrate_power_density(z_mesh, qFiss, fuelRadius)
-        PowerDistribution_relaxed = underRelaxation(PowerDistribution, qFiss_init*Fuel_volume, Pow_underRelaxationFactor)
-        qFiss_relaxed = underRelaxation(qFiss, qFiss_init, Pow_underRelaxationFactor)
-        power_from_qFiss_relaxed = integrate_power_density(z_mesh, qFiss_relaxed, fuelRadius)
-        ratio_with_tot = power_from_qFiss_relaxed/PFiss
-        print(f"Error on integrated (qFiss) power = {power_from_qFiss - PFiss} W <-> {100*(power_from_qFiss - PFiss)/PFiss} %")
-        print(f"Error on relaxed integrated (qFiss_relaxed) power = {power_from_qFiss_relaxed - PFiss} W <-> {100*(power_from_qFiss_relaxed - PFiss)/PFiss} %")
-
+        PowerDistribution_relaxed = underRelaxation(PowerDistribution, qFiss_init*Bundle_volume, Pow_underRelaxationFactor)
         # Under relaxation of the Power distribution?
+        qFiss = compute_power_densities(PowerDistribution_relaxed, fuelRadius, Iz1, height)
     elif iter > 1 and relax_Pow:
             PowerDistribution_relaxed = underRelaxation(PowerDistribution, Relaxed_Power_Distribs[-1], Pow_underRelaxationFactor)
-            qFiss_relaxed = underRelaxation(qFiss, Relaxed_Volumic_Powers[-1], Pow_underRelaxationFactor)
+            qFiss = compute_power_densities(PowerDistribution_relaxed, fuelRadius, Iz1, height)
     if relax_Pow:
         Relaxed_Power_Distribs.append(PowerDistribution)
         Relaxed_Volumic_Powers.append(qFiss)
@@ -626,8 +622,6 @@ while not conv:
         fig, ax = plt.subplots()
         ax.plot(z_mesh, qFiss, '2-',linewidth=1, label="Initial DONJON Volumic Power Distribution")
         ax.plot(z_mesh, qFiss_init, '2-', linewidth=1, label="Guess Axial Volumic Power Distribution")
-        if relax_Pow:
-            ax.plot(z_mesh, qFiss_relaxed, 'x', linewidth=1, label="Under Relaxed Volumic Power Distribution")
         ax.set_xlabel("height (m)")
         ax.set_ylabel("Volumic Power (W)")
         ax.legend()
@@ -651,11 +645,8 @@ while not conv:
 
     # 5.) TH procedure for updated power shape
     ############# Thermalhydraulic part ##############
-    if relax_Pow:
-        updated_qFiss = qFiss_relaxed
-        print(f"Updated qFiss = {updated_qFiss}")
-    else:
-        updated_qFiss = qFiss
+
+    updated_qFiss = qFiss
 
     current_time3 = time.time()
     time_spent_in_plotting_res_under_relax = (current_time3 - current_time2)
@@ -793,7 +784,7 @@ quickPlot(z_mesh, Twater, "Coolant temperature convergence", "height (m)", "TCoo
 quickPlot(z_mesh, rho, "Coolant density convergence", "height (m)", "DCool (kg/m3)", f"DCool_convergence_{relaxPOW_id}_{relaxTH_id}.png", path, SAVE_FIG_DIR)
 quickPlot(z_mesh, voidFraction, "Void fraction convergence", "height (m)", "Void fraction", f"Void_fraction_convergence_{relaxPOW_id}_{relaxTH_id}.png", path, SAVE_FIG_DIR)
 quickPlot(z_mesh, Power_Distribs, "Power distribution convergence", "height (m)", "Power (kW)", f"Power_distribution_convergence_{relaxPOW_id}_{relaxTH_id}.png", path, SAVE_FIG_DIR)
-quickPlot(z_mesh, Volumic_Powers, "Axial power shape", "height (m)", "Power (W)", "Power_shape.png", path, SAVE_FIG_DIR)
+quickPlot(z_mesh, Volumic_Powers, "Qfiss convergence", "height (m)", "Power (W/m^3)", f"Qfiss_convergence_{relaxPOW_id}_{relaxTH_id}.png", path, SAVE_FIG_DIR)
     
 quickPlot(z_mesh, Residuals_TeffFuel, "Fuel temperature residuals", "height (m)", "Residuals", f"TFuel_residuals_{relaxPOW_id}_{relaxTH_id}.png", path, SAVE_FIG_DIR)
 quickPlot(z_mesh, Residuals_Twater, "Coolant temperature residuals", "height (m)", "Residuals", f"TCool_residuals_{relaxPOW_id}_{relaxTH_id}.png", path, SAVE_FIG_DIR)
@@ -801,7 +792,7 @@ quickPlot(z_mesh, Residuals_rho, "Coolant density residuals", "height (m)", "Res
 quickPlot(z_mesh, Residuals_voidFraction, "Void fraction residuals", "height (m)", "Residuals", f"Void_fraction_residuals_{relaxPOW_id}_{relaxTH_id}.png", path, SAVE_FIG_DIR)
 quickPlot(z_mesh, Residuals_Power_Distribs, "Power distribution residuals", "height (m)", "Residuals", f"Power_distribution_residuals_{relaxPOW_id}_{relaxTH_id}.png", path, SAVE_FIG_DIR)
 #print(f"Residuals Power distribution : {Residuals_Power_Distribs}")
-quickPlot(z_mesh, Residuals_Volumic_Powers, "Axial power shape residuals", "height (m)", "Residuals", f"Power_shape_residuals_{relaxPOW_id}_{relaxTH_id}.png", path, SAVE_FIG_DIR)
+quickPlot(z_mesh, Residuals_Volumic_Powers, "Axial power shape residuals", "height (m)", "Residuals", f"Qfiss_residuals_{relaxPOW_id}_{relaxTH_id}.png", path, SAVE_FIG_DIR)
 print("$$$ - multiPhysics.py : END of PLOTTING - $$$")
 
 
