@@ -311,11 +311,11 @@ Pow_underRelaxationFactor = 0.9 # Under relaxation factor for the power axial di
 relax_TH = False # Under relaxation of the TH fields for the next iteration
 relax_Pow = False # Under relaxation of the Power distribution for the next iteration
 
-#number_axial_slices_all_cases = [10,20,40,80,160]
-number_axial_slices_all_cases = [70]
+number_axial_slices_all_cases = [10,20,40,50,70,80,160]
+#number_axial_slices_all_cases = [70]
 #number_axial_slices = 10
 
-pow_scaling_factor_all_cases = [1,2,4,8]
+pow_scaling_factor_all_cases = [1]
 #pow_scaling_factor = 1
 neutrons_per_cycle = 50000
 num_cycles = 10000
