@@ -25,7 +25,7 @@ def create_geometry(number_axial_slices, power_scaling_factor, pitch, fuel_radiu
     y_max = pitch/2
     y_min = -pitch/2
     pin_radii = computeSantamarinaradii(fuel_radius, gap_radius, clad_radius, isGd)
-    with open(f'AT10_24UOX_MPHYS_mesh{number_axial_slices}_{power_scaling_factor}_mc', 'a') as output_file:
+    with open(f'AT10_24UOX_MPHYS_h155_mesh{number_axial_slices}_{power_scaling_factor}_mc', 'a') as output_file:
         output_file.write("% --- 1. Pin definition \n")
         for i in range(number_axial_slices):
             if isGd==False:
@@ -35,7 +35,7 @@ def create_geometry(number_axial_slices, power_scaling_factor, pitch, fuel_radiu
         output_file.write(f"% --- 2. Surfaces definition \n")
         for i in range(number_axial_slices):
     
-            output_file.write(f"surf {i+1} cuboid {x_min} {x_max} {y_min} {y_max} {i*slice_thinkness} {i*slice_thinkness+slice_thinkness} \n")
+            output_file.write(f"surf {i+1} cuboid {x_min} {x_max} {y_min} {y_max} {i*slice_thinkness:.3f} {i*slice_thinkness+slice_thinkness:.3f} \n")
         output_file.write(f"surf {number_axial_slices+1} cuboid {x_min} {x_max} {y_min} {y_max} 0 {height} \n")
         output_file.write(f"% --- 3. Cell definition \n")
         for i in range(number_axial_slices):
@@ -90,7 +90,7 @@ def create_material_volumes(number_axial_slices, power_scaling_factor, Teff_fuel
         gap_lib_id = "06c"
         temp_tabulation_points = [300.0, 600.0, 900.0, 1200.0, 1500, 1800.0]
 
-    with open(f'AT10_24UOX_MPHYS_mesh{number_axial_slices}_{power_scaling_factor}_mc', 'a') as output_file:
+    with open(f'AT10_24UOX_MPHYS_h155_mesh{number_axial_slices}_{power_scaling_factor}_mc', 'a') as output_file:
         
         output_file.write(f"% --- 4. Materials definition \n")
         for i in range(len(Teff_fuel)):
@@ -206,7 +206,7 @@ def create_detectors(number_axial_slices, power_scaling_factor, isGd):
         fuel_names = ["UOx_A", "UOx_B", "UOx_C", "UOx_D"]
     else:
         fuel_names = ["Gd_A", "Gd_B", "Gd_C", "Gd_D", "Gd_E", "Gd_F"]
-    with open(f'AT10_24UOX_MPHYS_mesh{number_axial_slices}_{power_scaling_factor}_mc', 'a') as output_file:
+    with open(f'AT10_24UOX_MPHYS_h155_mesh{number_axial_slices}_{power_scaling_factor}_mc', 'a') as output_file:
         output_file.write("\n")
         output_file.write(f"% --- 5. Detectors definition \n")
         output_file.write(f"% --- energy grid for the detectors (1g) \n")
@@ -243,7 +243,7 @@ def create_header(number_axial_slices, power_scaling_factor, XS_lib):
     if XS_lib not in ["PyNjoy2016", "oldlib"]:
         print("Error: invalid XS library")
         sys.exit(1)
-    with open(f'AT10_24UOX_MPHYS_mesh{number_axial_slices}_{power_scaling_factor}_mc', 'w') as output_file:
+    with open(f'AT10_24UOX_MPHYS_h155_mesh{number_axial_slices}_{power_scaling_factor}_mc', 'w') as output_file:
         output_file.write("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% \n")
         output_file.write("% Author  : R.Guasch                                                                                              % \n")
         output_file.write("% Date    : 2024/10/23                                                                                            % \n")
@@ -271,7 +271,7 @@ def create_header(number_axial_slices, power_scaling_factor, XS_lib):
     return
 
 def create_calcualtion_options(number_axial_slices, power_scaling_factor, neutron_population, criticality_cycles, discard_cycles, ures, XS_lib):
-    with open(f'AT10_24UOX_MPHYS_mesh{number_axial_slices}_{power_scaling_factor}_mc', 'a') as output_file:
+    with open(f'AT10_24UOX_MPHYS_h155_mesh{number_axial_slices}_{power_scaling_factor}_mc', 'a') as output_file:
         output_file.write("\n")
         output_file.write("% --- 5. Serpent parameters \n")
         output_file.write(f"set ures {ures} \n")
@@ -323,6 +323,8 @@ cycles_to_discard = 500
 ures_activation_option = 1
 cross_section_library = "PyNjoy2016"
 
+height = 155.0 # 380.0
+
 if relax_Pow:
     relaxPOW_id = f"relaxedPOW_{Pow_underRelaxationFactor}"
 else:
@@ -365,7 +367,7 @@ for number_axial_slices in number_axial_slices_all_cases:
                             fuel_radius=0.4435, 
                             gap_radius=0.4520, 
                             clad_radius= 0.5140, 
-                            height=380.0, isGd=False)
+                            height=height, isGd=False)
 
             # Create Serpent2 material volumes
             create_material_volumes(len(Teff_fuel), 

@@ -315,14 +315,14 @@ zPlotting = [] #If empty, no plotting of the axial distribution of the fields, o
 If = 8
 I1 = 3
 # Sensitivity to the meshing parameters
-Iz1 = 160 # number of control volumes in the axial direction, added 70 for comparison with GeN-Foam
+Iz1 = 70 # number of control volumes in the axial direction, added 70 for comparison with GeN-Foam
 # Iz1 = 10, 20, 40, 50, 70, 80 and 160 are supported for the DONJON solution
 
 
 power_scaling_factor = 1 # 1, 2, 4, 8 # Scaling factor for the power axial distribution
 
 ########## Choice of Thermalhydraulics correlation ##########
-voidFractionCorrel = 'GEramp' # 'modBestion', 'HEM1', 'GEramp', 'EPRIvoidModel'
+voidFractionCorrel = 'EPRIvoidModel' # 'modBestion', 'HEM1', 'GEramp', 'EPRIvoidModel'
 frfaccorel = "Churchill" # 'base', 'blasius', 'Churchill', 'Churchill_notOK' ?
 P2Pcorel = "HEM1" # 'base', 'HEM1', 'HEM2', 'MNmodel'
 numericalMethod = "BiCG" # "FVM": Solves the system using matrix inversion with preconditioning.
@@ -332,18 +332,19 @@ numericalMethod = "BiCG" # "FVM": Solves the system using matrix inversion with 
 
 ########## Thermal hydraulics parameters ##########
 ## Geometric parameters
-canalType = "square"
-waterRadius = 1.295e-2 # m : ATRIUM10 pincell pitch
+canalType = "square" # "square", "cylindrical"
+pitch = 1.295e-2 # m : ATRIUM10 pincell pitch
 fuelRadius = 0.4435e-2 # m : fuel rod radius
 gapRadius = 0.4520e-2 # m : expansion gap radius : "void" between fuel and clad - equivalent to inner clad radius
 cladRadius = 0.5140e-2 # m : clad external radius
-height = 3.8 # m : height : active core height in BWRX-300 SMR
+height = 1.555 # m : height : 3.8 m : active core height in BWRX-300 SMR, 1.555 m : for GeNFoam comparison.
 
 
 ## Fluid parameters
 
 # T_inlet, T_outlet = 270, 287 Celcius
-tInlet = 270 + 273.15 # K
+#tInlet = 270 + 273.15 # K, for BWRX-300 SMR core, try lowering the inlet temperature to set boiling point back and reduce the void fraction increase in the first few cm
+tInlet = 270 + 273.15 # K, for BWRX-300 SMR core
 #Nominal operating pressure = 7.2 MPa (abs)
 pOutlet =  7.2e6 # Pa 
 # Nominal coolant flow rate = 1530 kg/s
@@ -372,6 +373,8 @@ volumic_mass_U = 10970 # kg/m3 'Thermophysical Properties of MOX and UO2 Fuels I
 
 ## Fuel rod scale parameters :
 Fuel_volume = np.pi*fuelRadius**2*height # m3
+
+#Fuel_rod_volume = np.pi*cladRadius**2*height # m3
 Fuel_mass = Fuel_volume*volumic_mass_U*1000 # g
 print(f"Fuel mass = {Fuel_mass} g")
 
@@ -450,7 +453,7 @@ print(f"Initial volumic power = {initial_volumic_power} W")
 # 2.) TH solution for initial guess of power shape : sine shape (if devide by Iz : doesnt work and the initial TH solution isn't in IAPWS domain)
 # This can probably be fixed by giving a different initial guess for the total fission power.
 ## 2.1) Initial thermal hydraulic resolution
-THComponentIni = THM_prototype("Initialization of BWR Pincell equivalent canal", canalType, waterRadius, fuelRadius, gapRadius, cladRadius, 
+THComponentIni = THM_prototype("Initialization of BWR Pincell equivalent canal", canalType, pitch, fuelRadius, gapRadius, cladRadius, 
                             height, tInlet, pOutlet, massFlowRate, qFiss_init, kFuel, Hgap, kClad, Iz1, If, I1, zPlotting, 
                             solveConduction, dt = 0, t_tot = 0, frfaccorel = frfaccorel, P2Pcorel = P2Pcorel, voidFractionCorrel = voidFractionCorrel, 
                             numericalMethod = numericalMethod)
@@ -491,7 +494,9 @@ ipLifo1.pushEmpty("Track", "LCM") # Tracking data for FEM
 ipLifo1.push(THData) # Thermal Hydraulic data for initialization
 ipLifo1.push(compo_name) # Compo name
 ipLifo1.push(int(Iz1)) # Number of axial subdivisions
-ipLifo1.push(Fuel_mass) #
+ipLifo1.push(Fuel_mass) # Mass of the fuel
+ipLifo1.push(height) # Height of the fuel rod
+ipLifo1.push(pitch) # pitch of the fuel assembly/cell
 
 # 3.2) call IniDONJON Cle-2000 procedure
 IniDONJON = cle2000.new('IniDONJON',ipLifo1,1)
@@ -655,7 +660,9 @@ while not conv:
     total_elapsed_time = (current_time3 - start_time)
     print(f"Total elapsed time = {total_elapsed_time} s")
     # 5.1) TH resolution with updated power shape :
-    THMComponent = THM_prototype("BWR Pincell equivalent canal", canalType, waterRadius, fuelRadius, gapRadius, cladRadius, 
+    print(f"At iter {iter} : THM resolution with updated power shape")
+    print(f"Updated axial power shape : {updated_qFiss}")
+    THMComponent = THM_prototype("BWR Pincell equivalent canal", canalType, pitch, fuelRadius, gapRadius, cladRadius, 
                             height, tInlet, pOutlet, massFlowRate, updated_qFiss, kFuel, Hgap, kClad, Iz1, If, I1, zPlotting, 
                             solveConduction, dt = 0, t_tot = 0, frfaccorel = frfaccorel, P2Pcorel = P2Pcorel, voidFractionCorrel = voidFractionCorrel, 
                             numericalMethod = numericalMethod)    ##### qFiss updated
