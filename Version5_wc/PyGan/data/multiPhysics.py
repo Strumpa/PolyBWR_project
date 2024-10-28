@@ -264,7 +264,7 @@ def compute_residuals(field):
 def quickPlot(x, y, title, xlabel, ylabel, saveName, path, SAVE_DIR):
     fig,ax = plt.subplots()
     if len(y) == len(x) and isinstance(y[0], np.float32):
-        print("Plotting a scatter plot")
+        #print("Plotting a scatter plot")
         ax.scatter(x, y)
         ax.set_xlabel(xlabel)
         ax.set_ylabel(ylabel)
@@ -300,7 +300,7 @@ nIter = 1000 #1000
 tol_TH_Tf = 1e-3 # Convergence criterion for TFuel, in K
 tol_TH_Tc = 1e-3 # Convergence criterion for TCool, in K
 tol_TH_Dc = 1e-3 # Convergence criterion for DCool, in kg/m3
-tol_POW = 0.1 # Convergence criterion for the power axial distribution, in % of nodal power
+tol_POW = 0.01 # Convergence criterion for the power axial distribution, in % of nodal power
 tol_Keff =  0.1 # Convergence criterion for the Keff value in pcm
 
 relax_Pow = False # Under relaxation of the Power distribution for the next iteration
@@ -315,14 +315,14 @@ zPlotting = [] #If empty, no plotting of the axial distribution of the fields, o
 If = 8
 I1 = 3
 # Sensitivity to the meshing parameters
-Iz1 = 20 # number of control volumes in the axial direction, added 70 for comparison with GeN-Foam
-# Iz1 = 10, 20, 40, 80 and 160 are supported for the DONJON solution
+Iz1 = 160 # number of control volumes in the axial direction, added 70 for comparison with GeN-Foam
+# Iz1 = 10, 20, 40, 50, 70, 80 and 160 are supported for the DONJON solution
 
 
 power_scaling_factor = 1 # 1, 2, 4, 8 # Scaling factor for the power axial distribution
 
 ########## Choice of Thermalhydraulics correlation ##########
-voidFractionCorrel = 'EPRIvoidModel' # 'modBestion', 'HEM1', 'GEramp', 'EPRIvoidModel'
+voidFractionCorrel = 'GEramp' # 'modBestion', 'HEM1', 'GEramp', 'EPRIvoidModel'
 frfaccorel = "Churchill" # 'base', 'blasius', 'Churchill', 'Churchill_notOK' ?
 P2Pcorel = "HEM1" # 'base', 'HEM1', 'HEM2', 'MNmodel'
 numericalMethod = "BiCG" # "FVM": Solves the system using matrix inversion with preconditioning.
@@ -352,6 +352,7 @@ massFlowRate = 1530  / (200*91)  # kg/s
 ## Material parameters
 kFuel = 4.18 # W/m.K, TECHNICAL REPORTS SERIES No. 59 : Thermal Conductivity of Uranium Dioxide, IAEA, VIENNA, 1966
 Hgap = 10000 
+#Hgap = 9000
 kClad = 21.5 # W/m.K, Thermal Conductivity of Zircaloy-2 (as used in BWRX-300) according to https://www.matweb.com/search/datasheet.aspx?MatGUID=eb1dad5ce1ad4a1f9e92f86d5b44740d
 # k_Zircaloy-4 = 21.6 W/m.K too so check for ATRIUM-10 clad material but should have the same thermal conductivity
 
