@@ -493,7 +493,7 @@ EVALUATE z66 := height 70.0 / z65 + ;
 EVALUATE z67 := height 70.0 / z66 + ; 
 EVALUATE z68 := height 70.0 / z67 + ; 
 EVALUATE z69 := height 70.0 / z68 + ; 
-EVALUATE z70 := height 70.0 / z69 + ; 
+EVALUATE z70 := height ; 
  
 *-- 
 * Fuel map definition 

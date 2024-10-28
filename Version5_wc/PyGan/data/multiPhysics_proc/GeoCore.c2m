@@ -432,7 +432,7 @@ ELSEIF Iz1 70.0 = THEN
       EVALUATE z67 := height 70.0 / z66 + ; 
       EVALUATE z68 := height 70.0 / z67 + ; 
       EVALUATE z69 := height 70.0 / z68 + ; 
-      EVALUATE z70 := height 70.0 / z69 + ; 
+      EVALUATE z70 := height ; 
  
       Geom := GEO: :: CAR3D 1 1 70 (*No reflectors, 70 axial fuel slices with varrying properties*) 
       X- REFL X+ REFL  Y- REFL Y+ REFL  Z- VOID Z+ VOID 

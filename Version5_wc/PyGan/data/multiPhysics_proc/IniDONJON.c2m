@@ -15,18 +15,26 @@ INTEGER Iz ;
 :: >>Iz<< ;
 DOUBLE Dmass ; 
 :: >>Dmass<< ;
+DOUBLE Dheight ; 
+:: >>Dheight<< ;
+DOUBLE Dpitch ;
+:: >>Dpitch<< ;
 
 LINKED_LIST Geom ;
 MODULE   TRIVAT: UTL: END: ;
 
-PROCEDURE   GetData GeoCore SetFMap SetLocPara ;
+PROCEDURE  GeoCore SetFMap SetLocPara ;
 SEQ_ASCII _COMPO :: FILE <<name_compo>> ;
 *----
 *  Local Parameters
 *----
 REAL mass := Dmass D_TO_R ;
 
-REAL pitch height := 1.295 380.0 ;
+REAL pitch := Dpitch D_TO_R ;
+REAL height := Dheight D_TO_R ;
+
+EVALUATE pitch := pitch 100.0 * ;
+EVALUATE height := height 100.0 * ;
 
 INTEGER MaxR := 10000 ; 
 
