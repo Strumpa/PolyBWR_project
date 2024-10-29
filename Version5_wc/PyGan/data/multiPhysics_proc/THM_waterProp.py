@@ -365,7 +365,8 @@ class statesVariables():
         rho = self.rhoTEMP[i]
         P = self.P[i]
         epsilon = self.voidFractionTEMP[i]
-
+        if epsilon <= 0.001:
+            return 0
         if self.P2Pcorel == 'base': #Validated
             phi2phi = 1 + 3*epsilon
         elif self.P2Pcorel == 'lockhartMartinelli':
@@ -412,7 +413,6 @@ class statesVariables():
         return rho * abs(Ul) * self.D_h[i] / m
     
     def getUl(self, i):
-        print(self.VgjPrimeTEMP[i])
         return self.U[i] - (self.voidFractionTEMP[i] / ( 1 - self.voidFractionTEMP[i])) * (self.rhogTEMP[i] / self.rhoTEMP[i]) * self.VgjPrimeTEMP[i]
     
     def getUg(self, i):
