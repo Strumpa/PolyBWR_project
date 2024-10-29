@@ -324,6 +324,10 @@ ures_activation_option = 1
 cross_section_library = "PyNjoy2016"
 
 height = 155.0 # 380.0
+if height == 155.0:
+    read_id = "h1555"
+elif height == 380.0:
+    read_id = "h380"
 
 if relax_Pow:
     relaxPOW_id = f"relaxedPOW_{Pow_underRelaxationFactor}"
@@ -336,10 +340,10 @@ else:
 
 for number_axial_slices in number_axial_slices_all_cases:
     for pow_scaling_factor in pow_scaling_factor_all_cases:
-        Teff_fuel = parse_multiPhysics_output(f"../../Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan_24UOX_cell/BiCG/EPRIvoidModel_Churchill_HEM1/mesh{number_axial_slices}_{pow_scaling_factor}/Data/TeffFuel_24UOX_mesh{number_axial_slices}_BiCG_EPRIvoidModel_{relaxPOW_id}_{relaxTH_id}.txt")
+        Teff_fuel = parse_multiPhysics_output(f"../../Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan_24UOX_cell/BiCG/EPRIvoidModel_Churchill_HEM1/{read_id}/mesh{number_axial_slices}_{pow_scaling_factor}/Data/TeffFuel_24UOX_mesh{number_axial_slices}_BiCG_EPRIvoidModel_{relaxPOW_id}_{relaxTH_id}.txt")
         #print(T_data)
-        TWater = parse_multiPhysics_output(f"../../Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan_24UOX_cell/BiCG/EPRIvoidModel_Churchill_HEM1/mesh{number_axial_slices}_{pow_scaling_factor}/Data/Twater_24UOX_mesh{number_axial_slices}_BiCG_EPRIvoidModel_{relaxPOW_id}_{relaxTH_id}.txt")
-        DWater = parse_multiPhysics_output(f"../../Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan_24UOX_cell/BiCG/EPRIvoidModel_Churchill_HEM1/mesh{number_axial_slices}_{pow_scaling_factor}/Data/rho_24UOX_mesh{number_axial_slices}_BiCG_EPRIvoidModel_{relaxPOW_id}_{relaxTH_id}.txt")
+        TWater = parse_multiPhysics_output(f"../../Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan_24UOX_cell/BiCG/EPRIvoidModel_Churchill_HEM1/{read_id}/mesh{number_axial_slices}_{pow_scaling_factor}/Data/Twater_24UOX_mesh{number_axial_slices}_BiCG_EPRIvoidModel_{relaxPOW_id}_{relaxTH_id}.txt")
+        DWater = parse_multiPhysics_output(f"../../Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan_24UOX_cell/BiCG/EPRIvoidModel_Churchill_HEM1/{read_id}/mesh{number_axial_slices}_{pow_scaling_factor}/Data/rho_24UOX_mesh{number_axial_slices}_BiCG_EPRIvoidModel_{relaxPOW_id}_{relaxTH_id}.txt")
 
         DWater = DWater*1e-3 # kg/m^3 to g/cm^3
         iso_dens_H = []
