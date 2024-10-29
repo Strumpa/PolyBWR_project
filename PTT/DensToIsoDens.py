@@ -19,7 +19,7 @@ def DensToIsoDens(coolant_density):
     return N_H, N_O
 
 
-#for dens in [0.7398, 0.6897]:
-#    print(f"N_H = {DensToIsoDens(dens)[0]:E}, N_O = {DensToIsoDens(dens)[1]:E}")
+for dens in [0.409331512518504]:
+    print(f"N_H = {DensToIsoDens(dens)[0]:E}, N_O = {DensToIsoDens(dens)[1]:E}")
 
 

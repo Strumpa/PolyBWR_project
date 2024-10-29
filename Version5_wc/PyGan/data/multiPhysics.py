@@ -319,16 +319,16 @@ Iz1 = 70 # number of control volumes in the axial direction, added 70 for compar
 # Iz1 = 10, 20, 40, 50, 70, 80 and 160 are supported for the DONJON solution
 
 
-power_scaling_factor = 1 # 1, 2, 4, 8 # Scaling factor for the power axial distribution
+power_scaling_factor = 8 # 1, 2, 4, 8 # Scaling factor for the power axial distribution
 
 ########## Choice of Thermalhydraulics correlation ##########
 voidFractionCorrel = 'EPRIvoidModel' # 'modBestion', 'HEM1', 'GEramp', 'EPRIvoidModel'
-frfaccorel = "Churchill" # 'base', 'blasius', 'Churchill', 'Churchill_notOK' ?
-P2Pcorel = "HEM1" # 'base', 'HEM1', 'HEM2', 'MNmodel'
+frfaccorel = "blasius" # 'base', 'blasius', 'Churchill', 
+P2Pcorel = "lockhartMartinelli" # 'base', 'HEM1', 'HEM2', 'MNmodel', 'lockhartMartinelli'
 numericalMethod = "BiCG" # "FVM": Solves the system using matrix inversion with preconditioning.
-                        # "GaussSiedel" : Applies the Gauss-Seidel iterative solver.
-                        # "BiCG" : Uses the BiConjugate Gradient method for solving non-symmetric or indefinite matrices.
-                        # "BiCGStab" : Applies the BiCGStab (BiConjugate Gradient Stabilized) method to ensure faster and more stable convergence.
+                         # "GaussSiedel" : Applies the Gauss-Seidel iterative solver.
+                         # "BiCG" : Uses the BiConjugate Gradient method for solving non-symmetric or indefinite matrices.
+                         # "BiCGStab" : Applies the BiCGStab (BiConjugate Gradient Stabilized) method to ensure faster and more stable convergence.
 
 ########## Thermal hydraulics parameters ##########
 ## Geometric parameters
@@ -774,9 +774,13 @@ a=os.path.exists(f"multiPhysics_PyGan_24UOX_cell")
 if a==False:
     os.mkdir(f"multiPhysics_PyGan_24UOX_cell")
 print(path)
+if height == 3.8:
+    save_id = "h380"
+elif height == 1.555:
+    save_id = "h1555"
 
-SAVE_FIG_DIR = f"multiPhysics_PyGan_24UOX_cell/{numericalMethod}/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/mesh{Iz1}_{power_scaling_factor}/Figures"
-SAVE_DATA_DIR = f"multiPhysics_PyGan_24UOX_cell/{numericalMethod}/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/mesh{Iz1}_{power_scaling_factor}/Data"
+SAVE_FIG_DIR = f"multiPhysics_PyGan_24UOX_cell/{numericalMethod}/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/{save_id}/mesh{Iz1}_{power_scaling_factor}/Figures"
+SAVE_DATA_DIR = f"multiPhysics_PyGan_24UOX_cell/{numericalMethod}/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/{save_id}/mesh{Iz1}_{power_scaling_factor}/Data"
 
 a=os.path.exists(SAVE_FIG_DIR)
 if a==False:
@@ -806,6 +810,7 @@ print("$$$ - multiPhysics.py : END of PLOTTING - $$$")
 
 # 10.) Save the results for exportation to Serpent/OpenFoam/GeN-Foam
 # Save the results in a file
+
 
 a=os.path.exists(SAVE_DATA_DIR)
 if a==False:
@@ -857,3 +862,14 @@ print(f"Total time spent in multiPhysics.py = {total_time} s")
 print(relax_Pow, relax_TH)
 print(relaxPOW_id, relaxTH_id)
 print("$$$ - multiPhysics.py : END OF SCRIPT - $$$")
+
+print("$$$ - multiPhysics.py : SANITY CHECK - $$$")
+# check results, run THM with the last power distribution obtained from the neutronics solution
+check_case = THM_prototype("Check case", canalType, pitch, fuelRadius, gapRadius, cladRadius, 
+                            height, tInlet, pOutlet, massFlowRate, Qfiss[-1], kFuel, Hgap, kClad, Iz1, If, I1, zPlotting, 
+                            solveConduction, dt = 0, t_tot = 0, frfaccorel = frfaccorel, P2Pcorel = P2Pcorel, voidFractionCorrel = voidFractionCorrel, 
+                            numericalMethod = numericalMethod)
+
+TeffCheck, TwaterCheck, rhoCheck, voidFracCheck = check_case.get_TH_parameters()
+print(f"Check case : TeffFuel = {TeffCheck}, Twater = {TwaterCheck}, rho = {rhoCheck}, voidFraction = {voidFracCheck}")
+print("$$$ - multiPhysics.py : END OF SANITY CHECK - $$$")

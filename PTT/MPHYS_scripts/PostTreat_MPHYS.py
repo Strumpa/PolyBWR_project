@@ -54,7 +54,12 @@ def parse_detector_fluxes(number_axial_slices, det):
 
     return flux_G1, flux_G2
 
-def parse_DONJON_power(mesh_size, pow_relax, power_scaling_factor, th_relax, Ptot=40000):
+def parse_DONJON_power(height, mesh_size, pow_relax, power_scaling_factor, th_relax, Ptot=40000):
+    if height == 3.8:
+        read_id = "h380"
+    elif height == 1.555:
+        read_id = "h1555"
+
     if pow_relax == False:
         power_relax_id = "non_relaxedPOW"
     else:
@@ -64,13 +69,17 @@ def parse_DONJON_power(mesh_size, pow_relax, power_scaling_factor, th_relax, Pto
     else:
         th_relax_id = f"relaxedTh_{th_relax}"
     # retrieve DONJON5 power distribution
-    donjon5_power = np.loadtxt(f"/home/p117902/working_dir/PolyBWR_project/Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan_24UOX_cell_backup_before_fuel_vol_modif/BiCG/EPRIvoidModel_Churchill_HEM1/mesh{mesh_size}_{power_scaling_factor}/Data/Power_Distrib_24UOX_mesh{mesh_size}_BiCG_EPRIvoidModel_{power_relax_id}_{th_relax_id}.txt")
+    donjon5_power = np.loadtxt(f"/home/p117902/working_dir/PolyBWR_project/Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan_24UOX_cell/BiCG/EPRIvoidModel_Churchill_HEM1/{read_id}/mesh{mesh_size}_{power_scaling_factor}/Data/Power_Distrib_24UOX_mesh{mesh_size}_BiCG_EPRIvoidModel_{power_relax_id}_{th_relax_id}.txt")
     # normalize the donjon5 power distribution
     donjon5_power = np.array(donjon5_power)/np.sum(donjon5_power)*Ptot # Renormalize to Ptot
     
     return donjon5_power
 
-def parse_MPHYS_output_field(mesh_size, power_scaling_factor, field, pow_relax, th_relax):
+def parse_MPHYS_output_field(height, mesh_size, power_scaling_factor, field, pow_relax, th_relax):
+    if height == 3.8:
+        read_id = "h380"
+    elif height == 1.555:
+        read_id = "h1555"
     if pow_relax == False:
         power_relax_id = "non_relaxedPOW"
     else:
@@ -80,10 +89,14 @@ def parse_MPHYS_output_field(mesh_size, power_scaling_factor, field, pow_relax, 
     else:
         th_relax_id = f"relaxedTH_{th_relax}"
     # retrieve DONJON5 power distribution
-    field_values = np.loadtxt(f"/home/p117902/working_dir/PolyBWR_project/Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan_24UOX_cell/BiCG/EPRIvoidModel_Churchill_HEM1/mesh{mesh_size}_{power_scaling_factor}/Data/{field}_24UOX_mesh{mesh_size}_BiCG_EPRIvoidModel_{power_relax_id}_{th_relax_id}.txt")
+    field_values = np.loadtxt(f"/home/p117902/working_dir/PolyBWR_project/Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan_24UOX_cell/BiCG/EPRIvoidModel_Churchill_HEM1/{read_id}/mesh{mesh_size}_{power_scaling_factor}/Data/{field}_24UOX_mesh{mesh_size}_BiCG_EPRIvoidModel_{power_relax_id}_{th_relax_id}.txt")
     return field_values
 
-def parse_DONJON_Keffs(mesh_size, power_scaling_factor, pow_relax,th_relax):
+def parse_DONJON_Keffs(height, mesh_size, power_scaling_factor, pow_relax,th_relax):
+    if height == 3.8:
+        read_id = "h380"
+    elif height == 1.555:
+        read_id = "h1555"
     if pow_relax == False:
         power_relax_id = "non_relaxedPOW"
     else:
@@ -93,12 +106,16 @@ def parse_DONJON_Keffs(mesh_size, power_scaling_factor, pow_relax,th_relax):
     else:
         th_relax_id = f"relaxedTh_{th_relax}"
     # retrieve DONJON5 Keffs
-    donjon5_keffs = np.loadtxt(f"/home/p117902/working_dir/PolyBWR_project/Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan_24UOX_cell/BiCG/EPRIvoidModel_Churchill_HEM1/mesh{mesh_size}_{power_scaling_factor}/Data/Keffs_24UOX_mesh{mesh_size}_BiCG_EPRIvoidModel_{power_relax_id}_{th_relax_id}.txt")
+    donjon5_keffs = np.loadtxt(f"/home/p117902/working_dir/PolyBWR_project/Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan_24UOX_cell/BiCG/EPRIvoidModel_Churchill_HEM1/{read_id}/mesh{mesh_size}_{power_scaling_factor}/Data/Keffs_24UOX_mesh{mesh_size}_BiCG_EPRIvoidModel_{power_relax_id}_{th_relax_id}.txt")
     
     return donjon5_keffs
 
-def parse_DONJON_fluxes(mesh_size, power_scaling_factor):
-    path_to_DISTR = f"/home/p117902/working_dir/PolyBWR_project/Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan_24UOX_cell/BiCG/EPRIvoidModel_Churchill_HEM1/mesh{mesh_size}_{power_scaling_factor}/Data"
+def parse_DONJON_fluxes(height, mesh_size, power_scaling_factor):
+    if height == 3.8:
+        read_id = "h380"
+    elif height == 1.555:
+        read_id = "h1555"
+    path_to_DISTR = f"/home/p117902/working_dir/PolyBWR_project/Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan_24UOX_cell/BiCG/EPRIvoidModel_Churchill_HEM1/{read_id}/mesh{mesh_size}_{power_scaling_factor}/Data"
     # retrieve DONJON5 flux distribution
     donjon5_flux_G1 = []
     donjon5_flux_G2 = []
@@ -211,7 +228,7 @@ def error_Keffs_pcm(D5_keff, S2_keff):
 
     return delta_keff
 
-def compute_nodal_error_to_most_converged(MPHYS_field_list, most_converged_field, interp_type="linear", height=3.8):
+def compute_nodal_error_to_most_converged(MPHYS_field_list, most_converged_field, interp_type, height):
     """
     compute the nodal error of each field to the most converged one
     """
@@ -231,13 +248,17 @@ def compute_nodal_error_to_most_converged(MPHYS_field_list, most_converged_field
     return nodal_errors, percent_nodal_errors
 
 ### Plotting functions
-def compare_results(field, unit, donjon5_fields, S2_field, n_slices, name, save_name):
+def compare_results(field, unit, donjon5_fields, S2_field, height, n_slices, name, save_name):
     if " " in field:
         save_field = field.replace(" ", "_")
     else:
         save_field = field
+    if height == 3.8:
+        save_id = "h380"
+    elif height == 1.555:
+        save_id = "h1555"
     # compute z_mesh
-    z_boundaries = np.linspace(0, 3.8, n_slices + 1)
+    z_boundaries = np.linspace(0, height, n_slices + 1)
     z_values = (z_boundaries[:-1] + z_boundaries[1:]) / 2  # Midpoints of control volumes
 
     # compare the results
@@ -255,10 +276,14 @@ def compare_results(field, unit, donjon5_fields, S2_field, n_slices, name, save_
     ax3.set_xlabel("Height (m)")
     ax3.grid()
     #fig3.legend(loc="best")
-    fig3.savefig(f"Figures_PT/AT10_24UOX_MPHYS_D5{S2_id}_{save_field}_comparison_{save_name}.png")
+    fig3.savefig(f"Figures_{save_id}/AT10_24UOX_MPHYS_D5{S2_id}_{save_field}_comparison_{save_name}.png")
 
 def plot_relative_error(relative_error_dict, height, type, power_scaling_factors_to_plot):
-    fig4, ax4 = plt.subplots()
+    if height == 3.8:
+        save_id = "h380"
+    elif height == 1.555:
+        save_id = "h1555"
+    fig, ax = plt.subplots()
     for key in relative_error_dict.keys():
         if "10" in key:
             # Compute the boundaries and midpoints of each control volume
@@ -270,17 +295,21 @@ def plot_relative_error(relative_error_dict, height, type, power_scaling_factors
         z_values = (z_boundaries[:-1] + z_boundaries[1:]) / 2  # Midpoints of control volumes in z
         power_scaling_factor = int(key.split(" ")[5])
         if power_scaling_factor in power_scaling_factors_to_plot:
-            ax4.plot(z_values, relative_error_dict[key], label=f"Relative error {key}", marker="x", linestyle="--", linewidth=0.5)
-    ax4.plot(z_values, 3.00*np.ones(len(z_values)), color="red", linestyle="--")
-    ax4.set_ylabel("Relative error (%)")
-    ax4.set_xlabel("Height m")
-    fig4.legend(loc="best")
-    fig4.savefig(f"Figures_PT/AT10_24UOX_MPHYS_relative_errors_{type}_4_8.png")
-    plt.close(fig4)
+            ax.plot(z_values, relative_error_dict[key], label=f"Relative error {key}", marker="x", linestyle="--", linewidth=0.5)
+    ax.plot(z_values, 3.00*np.ones(len(z_values)), color="red", linestyle="--")
+    ax.set_ylabel("Relative error (%)")
+    ax.set_xlabel("Height m")
+    fig.legend(loc="best")
+    fig.savefig(f"Figures_{save_id}/AT10_24UOX_MPHYS_relative_errors_{type}.png")
+    plt.close(fig)
     return
 
 def plot_condensed_relative_error(relative_error_dict, height, type, power_scaling_factors_to_plot):
-    fig4, ax4 = plt.subplots()
+    if height == 3.8:
+        save_id = "h380"
+    elif height == 1.555:
+        save_id = "h1555"
+    fig, ax = plt.subplots()
     for key in relative_error_dict.keys():
         if "10" in key:
             # Compute the boundaries and midpoints of each control volume
@@ -292,13 +321,13 @@ def plot_condensed_relative_error(relative_error_dict, height, type, power_scali
         z_values = (z_boundaries[:-1] + z_boundaries[1:]) / 2  # Midpoints of control volumes in z
         power_scaling_factor = int(key.split(" ")[5])
         if power_scaling_factor in power_scaling_factors_to_plot:
-            ax4.plot(z_values, relative_error_dict[key], label=f"Relative error {key}", marker="x", linestyle="--", linewidth=0.5)
-    ax4.plot(z_values, 3.00*np.ones(len(z_values)), color="red", linestyle="--")
-    ax4.set_ylabel("Relative error (%)")
-    ax4.set_xlabel("Height m")
-    fig4.legend(loc="best")
-    fig4.savefig(f"Figures_PT/AT10_24UOX_MPHYS_relative_errors_{type}_4_8.png")
-    plt.close(fig4)
+            ax.plot(z_values, relative_error_dict[key], label=f"Relative error {key}", marker="x", linestyle="--", linewidth=0.5)
+    ax.plot(z_values, 3.00*np.ones(len(z_values)), color="red", linestyle="--")
+    ax.set_ylabel("Relative error (%)")
+    ax.set_xlabel("Height m")
+    fig.legend(loc="best")
+    fig.savefig(f"Figures_{save_id}/AT10_24UOX_MPHYS_relative_errors_{type}.png")
+    plt.close(fig)
     return
 
 def plot_quadratic_errors(quadratic_error_dict, type, max_slices):
@@ -324,45 +353,57 @@ def plot_quadratic_errors(quadratic_error_dict, type, max_slices):
     plt.close(fig)
     return
 
-def plot_single_distr(title, field, unit, n_slices, power_distr, name, save_name):
+def plot_single_distr(title, field, unit, height,  n_slices, power_distr, name, save_name):
+    if height == 3.8:
+        save_id = "h380"
+    elif height == 1.555:
+        save_id = "h1555"
     # compute z_mesh
-    z_boundaries = np.linspace(0, 3.8, n_slices + 1)
+    z_boundaries = np.linspace(0, height, n_slices + 1)
     z_values = (z_boundaries[:-1] + z_boundaries[1:]) / 2  # Midpoints of control volumes
     if " " in field:
         save_field = field.replace(" ", "_")
     else:
         save_field = field
     # plot distribution
-    fig3, ax3 = plt.subplots()
-    ax3.plot(z_values, power_distr, label=f"{field} distribution {name}", marker="x", linestyle="--", linewidth=0.5)
-    ax3.set_ylabel(f"{field} ({unit})")
-    ax3.set_xlabel("Height (m)")
-    ax3.set_title(title)
-    #fig3.legend(loc="best")
-    ax3.grid()
+    fig, ax = plt.subplots()
+    ax.plot(z_values, power_distr, label=f"{field} distribution {name}", marker="x", linestyle="--", linewidth=0.5)
+    ax.set_ylabel(f"{field} ({unit})")
+    ax.set_xlabel("Height (m)")
+    ax.set_title(title)
+    ax.legend(loc="best")
+    ax.grid()
    
-    fig3.savefig(f"Figures_PT/AT10_24UOX_MPHYS_{save_field}_distribution_{save_name}.png")
-    plt.close(fig3)
+    fig.savefig(f"Figures_{save_id}/AT10_24UOX_MPHYS_{save_field}_distribution_{save_name}.png")
+    plt.close(fig)
     return
 
-def plot_Keff_convergence(keffs, name, save_name):
+def plot_Keff_convergence(keffs, height, name, save_name):
+    if height == 3.8:
+        save_id = "h380"
+    elif height == 1.555:
+        save_id = "h1555"
     # plot keffs
-    fig6, ax6 = plt.subplots()
-    ax6.plot(keffs, label=f"Keffs {name}", marker="x", linestyle="--", linewidth=0.5)
-    ax6.set_ylabel("Keff")
-    ax6.set_xlabel("Number of iterations")
-    ax6.grid()
-    fig6.legend()
-    fig6.savefig(f"Figures_PT/AT10_24UOX_MPHYS_keffs_conv_{save_name}.png")
-    plt.close(fig6)
+    fig, ax = plt.subplots()
+    ax.plot(keffs, label=f"Keffs {name}", marker="x", linestyle="--", linewidth=0.5)
+    ax.set_ylabel("Keff")
+    ax.set_xlabel("Number of iterations")
+    ax.grid()
+    fig.legend()
+    fig.savefig(f"Figures_{save_id}/AT10_24UOX_MPHYS_keffs_conv_{save_name}.png")
+    plt.close(fig)
     return
 
 
-def plot_keff_error_spatial_convergence(delta_keffs_dict, name, save_name):
+def plot_keff_error_spatial_convergence(delta_keffs_dict, height, name, save_name):
     """
     idea is to see how delta_Keff evolves with the number of axial slices increasing
     """
-    fig7, ax7 = plt.subplots()
+    if height == 3.8:
+        save_id = "h380"
+    elif height == 1.555:
+        save_id = "h1555"
+    fig, ax = plt.subplots()
     for key in delta_keffs_dict.keys():
         if "10" in key:
             n = 10
@@ -378,60 +419,72 @@ def plot_keff_error_spatial_convergence(delta_keffs_dict, name, save_name):
             n = 80
         elif "160" in key:
             n = 160
-        ax7.plot(n, delta_keffs_dict[key], marker="x", linestyle="--", linewidth=0.5)
-    ax7.set_ylabel("Delta Keff (pcm)")
-    ax7.set_xlabel("Number of axial slices")
-    ax7.set_title(f"Delta Keffs {name}")
-    ax7.grid()
-    fig7.legend()
-    fig7.savefig(f"Figures_PT/AT10_24UOX_MPHYS_delta_keffs_{save_name}.png")
-    plt.close(fig7)
+        ax.plot(n, delta_keffs_dict[key], marker="x", linestyle="--", linewidth=0.5)
+    ax.set_ylabel("Delta Keff (pcm)")
+    ax.set_xlabel("Number of axial slices")
+    ax.set_title(f"Delta Keffs {name}")
+    ax.grid()
+    ax.legend(loc="best")
+    fig.savefig(f"Figures_{save_id}/AT10_24UOX_MPHYS_delta_keffs_{save_name}.png")
+    plt.close(fig)
 
     return
 
-def plot_keff_D5S2_spatial_convergence(n_slices, D5_keffs, S2_keffs, name, save_name):
+def plot_keff_D5S2_spatial_convergence(height, n_slices, D5_keffs, S2_keffs, name, save_name):
     """
     idea is to see how Keff evolves with the number of axial slices increasing : should reach spatial convergence !
     """
-
-    fig7, ax7 = plt.subplots()
-    ax7.plot(n_slices, D5_keffs, label=f"Keffs D5 {name}", marker="x", linestyle="--", linewidth=0.5)
-    ax7.plot(n_slices, S2_keffs, label=f"Keffs S2 {name}", marker="*", linestyle="--", linewidth=0.5)
-    ax7.set_ylabel("Keff")
-    ax7.set_xlabel("Number of axial slices")
-    ax7.set_title(f"Keffs {name}")
-    ax7.grid()
-    fig7.legend()
-    fig7.savefig(f"Figures_PT/AT10_24UOX_MPHYS_D5S2_keffs_{save_name}.png")
-    plt.close(fig7)
+    if height == 3.8:
+        save_id = "h380"
+    elif height == 1.555:
+        save_id = "h1555"
+    fig, ax = plt.subplots()
+    ax.plot(n_slices, D5_keffs, label=f"Keffs D5 {name}", marker="x", linestyle="--", linewidth=0.5)
+    ax.plot(n_slices, S2_keffs, label=f"Keffs S2 {name}", marker="*", linestyle="--", linewidth=0.5)
+    ax.set_ylabel("Keff")
+    ax.set_xlabel("Number of axial slices")
+    ax.set_title(f"Keffs {name}")
+    ax.grid()
+    ax.legend(loc="best")
+    fig.savefig(f"Figures_{save_id}/AT10_24UOX_MPHYS_D5S2_keffs_{save_name}.png")
+    plt.close(fig)
 
     return
 
-def plot_nodal_errors_with_S2(n_slices_list, nodal_errors_dict, field, unit):
+def plot_nodal_errors_with_S2(height, n_slices_list, nodal_errors_dict, field, unit):
     """
     plot the nodal errors for each number of axial slices, error dict built from comparison with S2
     """
+    if height == 3.8:
+        save_id = "h380"
+    elif height == 1.555:
+        save_id = "h1555"
     z_meshes = []
     for n in n_slices_list:
-        z_boundaries = np.linspace(0, 3.8, n + 1)
+        z_boundaries = np.linspace(0, height, n + 1)
         z_values = (z_boundaries[:-1] + z_boundaries[1:]) / 2  # Midpoints of control volumes
         z_meshes.append(z_values)
-    fig8, ax8 = plt.subplots()
+    fig, ax = plt.subplots()
     for i in range(len(n_slices_list)):
         key = f"Nodal error on power : {n_slices_list[i]} axial slices"
-        ax8.plot(z_meshes[i], nodal_errors_dict[key], label=f"{key}", marker="x", linestyle="--", linewidth=0.5)
-    ax8.set_ylabel(f"Nodal error on {field} {unit}")
-    ax8.set_xlabel("Height (m)")
-    ax8.grid()
-    fig8.legend()
-    fig8.savefig(f"Figures_PT/AT10_24UOX_MPHYS_nodal_errors_{field}.png")
-    plt.close(fig8)
+        ax.plot(z_meshes[i], nodal_errors_dict[key], label=f"{key}", marker="x", linestyle="--", linewidth=0.5)
+    ax.set_ylabel(f"Nodal error on {field} {unit}")
+    ax.set_xlabel("Height (m)")
+    ax.grid()
+    ax.legend(loc="best")
+    fig.savefig(f"Figures_{save_id}/AT10_24UOX_MPHYS_nodal_errors_{field}.png")
+    plt.close(fig)
     return
 
-def plot_nodal_spatial_errors(field, unit, nodal_spatial_errors, interp_type):
+def plot_nodal_spatial_errors(height, field, unit, nodal_spatial_errors, interp_type):
     """
     plot the nodal errors comapring spatially converged fields
     """
+    if height == 3.8:
+        save_id = "h380"
+    elif height == 1.555:
+        save_id = "h1555"
+
     if interp_type == "linear":
         directory = "linear_interp"
     elif interp_type == "quadratic":
@@ -448,7 +501,7 @@ def plot_nodal_spatial_errors(field, unit, nodal_spatial_errors, interp_type):
     for nodal_errors in nodal_spatial_errors:
         n=len(nodal_errors)
         # compute z_mesh
-        z_boundaries = np.linspace(0, 3.8, n + 1)
+        z_boundaries = np.linspace(0, height, n + 1)
         z_values = (z_boundaries[:-1] + z_boundaries[1:]) / 2
         ax.plot(z_values, nodal_errors, label=f"nodal error on {field}, n={n}", marker="x", linestyle="--", linewidth=0.5)
     if unit != "":
@@ -460,19 +513,23 @@ def plot_nodal_spatial_errors(field, unit, nodal_spatial_errors, interp_type):
     ax.grid()
     ax.legend(loc="best")
     if unit == "%":
-        fig.savefig(f"Figures_PT/{directory}/MPHYS_{save_field}_nodal_spatial_percent_errors_{interp_type}_on_mesh160.png")
+        fig.savefig(f"Figures_{save_id}/{directory}/MPHYS_{save_field}_nodal_spatial_percent_errors_{interp_type}_on_mesh160.png")
     else:
-        fig.savefig(f"Figures_PT/{directory}/MPHYS_{save_field}_nodal_spatial_errors_{interp_type}_on_mesh160.png")
+        fig.savefig(f"Figures_{save_id}/{directory}/MPHYS_{save_field}_nodal_spatial_errors_{interp_type}_on_mesh160.png")
 
     plt.close(fig)
     return
 
 
 
-def plot_RMS_errors(field, unit, n_slices_list, quadratic_error_dict):
+def plot_RMS_errors(field, unit, height, n_slices_list, quadratic_error_dict):
     """
     plot the quadratic errors for each number of axial slices
     """
+    if height == 3.8:
+        save_id = "h380"
+    elif height == 1.555:
+        save_id = "h1555"
     if " " in field:
         save_field = field.replace(" ", "_")
     else:
@@ -486,9 +543,9 @@ def plot_RMS_errors(field, unit, n_slices_list, quadratic_error_dict):
     ax.grid()
     ax.legend(loc="best")
     if unit == "%":
-        fig.savefig(f"Figures_PT/MPHYS_D5S2_{save_field}_quadratic_errors_percent.png")
+        fig.savefig(f"Figures_{save_id}/MPHYS_D5S2_{save_field}_quadratic_errors_percent.png")
     else:
-        fig.savefig(f"Figures_PT/MPHYS_D5S2_{save_field}_quadratic_errors.png")
+        fig.savefig(f"Figures_{save_id}/MPHYS_D5S2_{save_field}_quadratic_errors.png")
     plt.close(fig)
     return
 
@@ -496,24 +553,29 @@ def compare_all_numbers_slices(field, unit, donjon_field_list, serpent_field_lis
     """
     Compare the distributions for all numbers of axial slices
     """
+    if height == 3.8:
+        save_id = "h380"
+    elif height == 1.555:
+        save_id = "h1555"   
+
     if " " in field:
         save_field = field.replace(" ", "_")
     else:
         save_field = field
-    fig10, ax10 = plt.subplots()
+    fig, ax = plt.subplots()
     for i in range(len(n_slices_list)):
-        ax10.plot(donjon_field_list[i], label=f"Donjon5 {field} {n_slices_list[i]} axial slices")
+        ax.plot(donjon_field_list[i], label=f"Donjon5 {field} {n_slices_list[i]} axial slices")
         if serpent_field_list is not None:
-            ax10.plot(serpent_field_list[i], label=f"S2 {field} {n_slices_list[i]} axial slices")
-    ax10.set_ylabel(f"{field} ({unit})")
-    ax10.set_xlabel("Height (m)")
-    ax10.grid()
-    fig10.legend()
-    fig10.savefig(f"Figures_PT/AT10_24UOX_MPHYS_D5S2_comparison_{save_field}_all_slices.png")
-    plt.close(fig10)
+            ax.plot(serpent_field_list[i], label=f"S2 {field} {n_slices_list[i]} axial slices")
+    ax.set_ylabel(f"{field} ({unit})")
+    ax.set_xlabel("Height (m)")
+    ax.grid()
+    ax.legend(loc="best")
+    fig.savefig(f"Figures_{save_id}/AT10_24UOX_MPHYS_D5S2_comparison_{save_field}_all_slices.png")
+    plt.close(fig)
     return
 
-def plot_spatial_convergence_field(field, unit, fields_list, n_slices_list):
+def plot_spatial_convergence_field(field, unit, fields_list, height, n_slices_list):
     """
     plot the spatial convergence of a field
     field = string, name of the field
@@ -521,6 +583,10 @@ def plot_spatial_convergence_field(field, unit, fields_list, n_slices_list):
     field_list = list of fields for each number of axial slices
     n_slices_list = list of number of axial slices
     """
+    if height == 3.8:
+        save_id = "h380"
+    elif height == 1.555:
+        save_id = "h1555"
 
     if " " in field:
         save_field = field.replace(" ", "_")
@@ -529,7 +595,7 @@ def plot_spatial_convergence_field(field, unit, fields_list, n_slices_list):
     fig, ax = plt.subplots()
     for n in range(len(n_slices_list)):
         # compute z_mesh
-        z_boundaries = np.linspace(0, 3.8, n_slices_list[n] + 1)
+        z_boundaries = np.linspace(0, height, n_slices_list[n] + 1)
         z_values = (z_boundaries[:-1] + z_boundaries[1:]) / 2  # Midpoints of control volumes
         if n == len(n_slices_list)-1:
             ax.plot(z_values, fields_list[n], label=f"{field} {n_slices_list[n]} axial nodes", marker=".", linestyle="--", linewidth=0.2)
@@ -540,11 +606,11 @@ def plot_spatial_convergence_field(field, unit, fields_list, n_slices_list):
     ax.set_title(f"Spatial convergence of {field}")
     ax.grid()
     ax.legend(loc="best")
-    fig.savefig(f"Figures_PT/MPHYS_{save_field}_spatial_convergence.png")
+    fig.savefig(f"Figures_{save_id}/MPHYS_{save_field}_spatial_convergence.png")
     plt.close(fig)
 
         
-def plot_piecewise_constant_field(field, unit, field_list, n_slices_list):
+def plot_piecewise_constant_field(field, unit, field_list, height, n_slices_list):
     """
     plot the piecewise constant field
     field = string, name of the field
@@ -552,10 +618,15 @@ def plot_piecewise_constant_field(field, unit, field_list, n_slices_list):
     field_list = list of fields for each number of axial slices
     n_slices_list = list of number of axial slices
     """
+    if height == 3.8:
+        save_id = "h380"
+    elif height == 1.555:
+        save_id = "h1555"
+
     fig, ax = plt.subplots()
     for n in range(len(n_slices_list)):
         # compute z_mesh
-        z_boundaries = np.linspace(0, 3.8, n_slices_list[n] + 1)
+        z_boundaries = np.linspace(0, height, n_slices_list[n] + 1)
         #z_values = (z_boundaries[:-1] + z_boundaries[1:]) / 2  # Midpoints of control volumes
         # Generate the x and y values for plotting
         z_vals = []
@@ -574,7 +645,7 @@ def plot_piecewise_constant_field(field, unit, field_list, n_slices_list):
     ax.set_title(f"{field} evolution for different axial meshes")
     ax.grid()
     ax.legend(loc="best")
-    fig.savefig(f"Figures_PT/MPHYS_{field}_piecewise_constant.png")
+    fig.savefig(f"Figures_{save_id}/MPHYS_{field}_piecewise_constant.png")
     plt.close(fig)
 
 
@@ -635,23 +706,23 @@ def post_treat_Fields_SpatialConvergence_interp(height, power_scaling_factor, nu
     DC_all_meshes = []
     VF_all_meshes = []
     for n in number_axial_slices:
-        Qfiss_all_meshes.append(parse_MPHYS_output_field(n, power_scaling_factor, "Qfiss", pow_relax, th_relax))
-        TF_all_meshes.append(parse_MPHYS_output_field(n, power_scaling_factor, "TeffFuel", pow_relax, th_relax))
-        TC_all_meshes.append(parse_MPHYS_output_field(n, power_scaling_factor, "Twater", pow_relax, th_relax))
-        DC_all_meshes.append(parse_MPHYS_output_field(n, power_scaling_factor, "rho", pow_relax, th_relax))
-        VF_all_meshes.append(parse_MPHYS_output_field(n, power_scaling_factor, "voidFraction", pow_relax, th_relax))
+        Qfiss_all_meshes.append(parse_MPHYS_output_field(height, n, power_scaling_factor, "Qfiss", pow_relax, th_relax))
+        TF_all_meshes.append(parse_MPHYS_output_field(height, n, power_scaling_factor, "TeffFuel", pow_relax, th_relax))
+        TC_all_meshes.append(parse_MPHYS_output_field(height, n, power_scaling_factor, "Twater", pow_relax, th_relax))
+        DC_all_meshes.append(parse_MPHYS_output_field(height, n, power_scaling_factor, "rho", pow_relax, th_relax))
+        VF_all_meshes.append(parse_MPHYS_output_field(height, n, power_scaling_factor, "voidFraction", pow_relax, th_relax))
 
     # plot the spatial convergence of the fields
-    plot_spatial_convergence_field("power density distribution", "W/$m^3$", Qfiss_all_meshes, number_axial_slices)
-    plot_piecewise_constant_field("Power density", "W/$m^3$", Qfiss_all_meshes, number_axial_slices)
-    plot_spatial_convergence_field("fuel temperature", "K", TF_all_meshes, number_axial_slices)
-    plot_piecewise_constant_field("Fuel temperature", "K", TF_all_meshes, number_axial_slices)
-    plot_spatial_convergence_field("coolant temperature", "K", TC_all_meshes, number_axial_slices)
-    plot_piecewise_constant_field("Coolant temperature", "K", TC_all_meshes, number_axial_slices)
-    plot_spatial_convergence_field("coolant density", "kg/$m^3$", DC_all_meshes, number_axial_slices)
-    plot_piecewise_constant_field("Coolant density", "kg/$m^3$", DC_all_meshes, number_axial_slices)
-    plot_spatial_convergence_field("void fraction", "", VF_all_meshes, number_axial_slices)
-    plot_piecewise_constant_field("Void fraction", "", VF_all_meshes, number_axial_slices)
+    plot_spatial_convergence_field("power density distribution", "W/$m^3$", Qfiss_all_meshes, height, number_axial_slices)
+    plot_piecewise_constant_field("Power density", "W/$m^3$", Qfiss_all_meshes, height, number_axial_slices)
+    plot_spatial_convergence_field("fuel temperature", "K", TF_all_meshes, height, number_axial_slices)
+    plot_piecewise_constant_field("Fuel temperature", "K", TF_all_meshes, height, number_axial_slices)
+    plot_spatial_convergence_field("coolant temperature", "K", TC_all_meshes, height, number_axial_slices)
+    plot_piecewise_constant_field("Coolant temperature", "K", TC_all_meshes, height, number_axial_slices)
+    plot_spatial_convergence_field("coolant density", "kg/$m^3$", DC_all_meshes, height, number_axial_slices)
+    plot_piecewise_constant_field("Coolant density", "kg/$m^3$", DC_all_meshes, height, number_axial_slices)
+    plot_spatial_convergence_field("void fraction", "", VF_all_meshes, height, number_axial_slices)
+    plot_piecewise_constant_field("Void fraction", "", VF_all_meshes, height, number_axial_slices)
 
     # comapre all distribution to the most spatially converged one, consider different interpolation types
     interp_type ="linear"
@@ -663,16 +734,16 @@ def post_treat_Fields_SpatialConvergence_interp(height, power_scaling_factor, nu
     spatial_errors_VF, percent_spatial_errors_VF = compute_nodal_error_to_most_converged(VF_all_meshes[:-1], VF_all_meshes[-1], interp_type, height)
 
     # plot the nodal spatial errors for each field
-    plot_nodal_spatial_errors("power density distribution", "W/$m^3$", spatial_errors_Qfiss, interp_type) 
-    plot_nodal_spatial_errors("power density distribution", "%", percent_spatial_errors_Qfiss, interp_type)
-    plot_nodal_spatial_errors("fuel temperature", "K", spatial_errors_TF, interp_type)
-    plot_nodal_spatial_errors("fuel temperature", "%", percent_spatial_errors_TF, interp_type)
-    plot_nodal_spatial_errors("coolant temperature", "K", spatial_errors_TC, interp_type)
-    plot_nodal_spatial_errors("coolant temperature", "%", percent_spatial_errors_TC, interp_type)
-    plot_nodal_spatial_errors("coolant density", "kg/$m^3$", spatial_errors_DC, interp_type)
-    plot_nodal_spatial_errors("coolant density", "%", percent_spatial_errors_DC, interp_type)
-    plot_nodal_spatial_errors("void fraction", "", spatial_errors_VF, interp_type)
-    plot_nodal_spatial_errors("void fraction", "%", percent_spatial_errors_VF, interp_type)
+    plot_nodal_spatial_errors(height, "power density distribution", "W/$m^3$", spatial_errors_Qfiss, interp_type) 
+    plot_nodal_spatial_errors(height, "power density distribution", "%", percent_spatial_errors_Qfiss, interp_type)
+    plot_nodal_spatial_errors(height, "fuel temperature", "K", spatial_errors_TF, interp_type)
+    plot_nodal_spatial_errors(height, "fuel temperature", "%", percent_spatial_errors_TF, interp_type)
+    plot_nodal_spatial_errors(height, "coolant temperature", "K", spatial_errors_TC, interp_type)
+    plot_nodal_spatial_errors(height, "coolant temperature", "%", percent_spatial_errors_TC, interp_type)
+    plot_nodal_spatial_errors(height, "coolant density", "kg/$m^3$", spatial_errors_DC, interp_type)
+    plot_nodal_spatial_errors(height, "coolant density", "%", percent_spatial_errors_DC, interp_type)
+    plot_nodal_spatial_errors(height, "void fraction", "", spatial_errors_VF, interp_type)
+    plot_nodal_spatial_errors(height, "void fraction", "%", percent_spatial_errors_VF, interp_type)
 
     # compute RMS errors (%) on the fields vs the most spatially converged one
 
@@ -682,7 +753,7 @@ def post_treat_Fields_SpatialConvergence_interp(height, power_scaling_factor, nu
     RMS_errors_DC = []
     RMS_errors_VF = []
 
-    for error in spatial_errors_Qfiss:
+    for error in percent_spatial_errors_Qfiss:
         RMS_errors_Qfiss.append(np.sqrt(np.sum(error**2)/len(error)))
     for error in spatial_errors_TF:
         RMS_errors_TF.append(np.sqrt(np.sum(error**2)/len(error)))
@@ -696,7 +767,7 @@ def post_treat_Fields_SpatialConvergence_interp(height, power_scaling_factor, nu
 
     # plot the RMS errors for each field
         
-    print_latex_table_from_RMS_errors_list("power density distribution", "$W/m^3$", number_axial_slices[:-1], RMS_errors_Qfiss)
+    print_latex_table_from_RMS_errors_list("power density distribution", "$%$", number_axial_slices[:-1], RMS_errors_Qfiss)
     print_latex_table_from_RMS_errors_list("fuel temperature", "K", number_axial_slices[:-1], RMS_errors_TF)
     print_latex_table_from_RMS_errors_list("coolant temperature", "K", number_axial_slices[:-1], RMS_errors_TC)
     print_latex_table_from_RMS_errors_list("coolant density", "$kg/m^3%", number_axial_slices[:-1], RMS_errors_DC)
@@ -705,7 +776,7 @@ def post_treat_Fields_SpatialConvergence_interp(height, power_scaling_factor, nu
 
     return
 
-def post_treat_Fields_spatial_convergence_condense(power_scaling_factor, number_axial_slices, pow_relax, th_relax):
+def post_treat_Fields_spatial_convergence_condense(height, power_scaling_factor, number_axial_slices, pow_relax, th_relax):
     # Interpolation doesnt really work all that well due to the sharp gradients in the fields
     Qfiss_all_meshes = [] 
     TF_all_meshes = []
@@ -713,11 +784,11 @@ def post_treat_Fields_spatial_convergence_condense(power_scaling_factor, number_
     DC_all_meshes = []
     VF_all_meshes = []
     for n in number_axial_slices:
-        Qfiss_all_meshes.append(parse_MPHYS_output_field(n, power_scaling_factor, "Qfiss", pow_relax, th_relax))
-        TF_all_meshes.append(parse_MPHYS_output_field(n, power_scaling_factor, "TeffFuel", pow_relax, th_relax))
-        TC_all_meshes.append(parse_MPHYS_output_field(n, power_scaling_factor, "Twater", pow_relax, th_relax))
-        DC_all_meshes.append(parse_MPHYS_output_field(n, power_scaling_factor, "rho", pow_relax, th_relax))
-        VF_all_meshes.append(parse_MPHYS_output_field(n, power_scaling_factor, "voidFraction", pow_relax, th_relax))
+        Qfiss_all_meshes.append(parse_MPHYS_output_field(height, n, power_scaling_factor, "Qfiss", pow_relax, th_relax))
+        TF_all_meshes.append(parse_MPHYS_output_field(height, n, power_scaling_factor, "TeffFuel", pow_relax, th_relax))
+        TC_all_meshes.append(parse_MPHYS_output_field(height, n, power_scaling_factor, "Twater", pow_relax, th_relax))
+        DC_all_meshes.append(parse_MPHYS_output_field(height, n, power_scaling_factor, "rho", pow_relax, th_relax))
+        VF_all_meshes.append(parse_MPHYS_output_field(height, n, power_scaling_factor, "voidFraction", pow_relax, th_relax))
 
     n_slices_to_plot = [40, 80, 160]
     Qfiss_to_plot = [Qfiss_all_meshes[2], Qfiss_all_meshes[3], Qfiss_all_meshes[4]]
@@ -780,26 +851,26 @@ def post_treat_Fields_spatial_convergence_condense(power_scaling_factor, number_
     RMS_VF = []
 
     for i in range(len(rel_errors_Qfiss)):
-        RMS_Qfiss.append(compute_RMS_error(Qfiss_all_meshes[i], most_conv_Qfiss_condensed[i], "absolute"))
+        RMS_Qfiss.append(compute_RMS_error(Qfiss_all_meshes[i], most_conv_Qfiss_condensed[i], "percent"))
         RMS_TF.append(compute_RMS_error(TF_all_meshes[i], most_conv_TF_condensed[i], "absolute"))
         RMS_TC.append(compute_RMS_error(TC_all_meshes[i], most_conv_TC_condensed[i], "absolute"))
         RMS_DC.append(compute_RMS_error(DC_all_meshes[i], most_conv_DC_condensed[i], "absolute"))
         RMS_VF.append(compute_RMS_error(VF_all_meshes[i], most_conv_VF_condensed[i], "absolute"))
 
     # plot the relative errors for each field
-    plot_nodal_spatial_errors("power density", "%", rel_errors_Qfiss, "condensed")
-    plot_nodal_spatial_errors("fuel temperature", "%", rel_errors_TF, "condensed")
-    plot_nodal_spatial_errors("coolant temperature", "%", rel_errors_TC, "condensed")
-    plot_nodal_spatial_errors("coolant density", "%", rel_errors_DC, "condensed")
-    plot_nodal_spatial_errors("void fraction", "%", rel_errors_VF, "condensed")
+    plot_nodal_spatial_errors(height, "power density", "%", rel_errors_Qfiss, "condensed")
+    plot_nodal_spatial_errors(height, "fuel temperature", "%", rel_errors_TF, "condensed")
+    plot_nodal_spatial_errors(height, "coolant temperature", "%", rel_errors_TC, "condensed")
+    plot_nodal_spatial_errors(height, "coolant density", "%", rel_errors_DC, "condensed")
+    plot_nodal_spatial_errors(height, "void fraction", "%", rel_errors_VF, "condensed")
 
     # plot absolute errors for each field
 
-    plot_nodal_spatial_errors("power density", "W/$m^3$", abs_errors_Qfiss, "condensed")
-    plot_nodal_spatial_errors("fuel temperature", "K", abs_errors_TF, "condensed")
-    plot_nodal_spatial_errors("coolant temperature", "K", abs_errors_TC, "condensed")
-    plot_nodal_spatial_errors("coolant density", "kg/$m^3$", abs_errors_DC, "condensed")
-    plot_nodal_spatial_errors("void fraction", "", abs_errors_VF, "condensed")
+    plot_nodal_spatial_errors(height, "power density", "W/$m^3$", abs_errors_Qfiss, "condensed")
+    plot_nodal_spatial_errors(height, "fuel temperature", "K", abs_errors_TF, "condensed")
+    plot_nodal_spatial_errors(height, "coolant temperature", "K", abs_errors_TC, "condensed")
+    plot_nodal_spatial_errors(height, "coolant density", "kg/$m^3$", abs_errors_DC, "condensed")
+    plot_nodal_spatial_errors(height, "void fraction", "", abs_errors_VF, "condensed")
 
 
     # print the RMS errors for each field
@@ -809,7 +880,7 @@ def post_treat_Fields_spatial_convergence_condense(power_scaling_factor, number_
     print_latex_table_from_RMS_errors_list("coolant density", "kg/$m^3$", number_axial_slices[:-1], RMS_DC)
     print_latex_table_from_RMS_errors_list("void fraction", "", number_axial_slices[:-1], RMS_VF)
 
-def post_treat_D5vsS2(power_scaling_factor, number_axial_slices, pow_relax, th_relax, fuel_volume):
+def post_treat_D5vsS2(height, power_scaling_factor, number_axial_slices, pow_relax, th_relax, fuel_volume):
     """
     power scaling factor : list of int, power scaling factor for the DONJON5 simulations, used to study different power normalizations
     number_axial_slices : list of int, number of axial slices used to discretize the geometry
@@ -817,7 +888,10 @@ def post_treat_D5vsS2(power_scaling_factor, number_axial_slices, pow_relax, th_r
     th_relax : float/bool, relaxation parameter for the thermal-hydraulic parameters
     fuel_volume : float, volume of the fuel in the geometry, used to normalize the power distributions to W/m3
     """
-
+    if height == 3.8:
+        read_id = ""
+    elif height == 1.555:
+        read_id = "_h155"
     NODAL_errors = {}
     RMS_errors_Power = {}
 
@@ -848,8 +922,8 @@ def post_treat_D5vsS2(power_scaling_factor, number_axial_slices, pow_relax, th_r
                 ptot = 5000
             # Recover S2 data
 
-            path_to_S2results = f"/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64"#/MPHYS/mesh{n}" # path to the serpent2 results
-            S2_res = f"AT10_24UOX_MPHYS_mesh{n}_{p}_mc"
+            path_to_S2results = f"/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/MPHYS/mesh{n}" # path to the serpent2 results
+            S2_res = f"AT10_24UOX_MPHYS{read_id}_mesh{n}_{p}_mc"
             # Recover S2 Keff
             res = st.read(f'{path_to_S2results}/{S2_res}_res.m') # read the serpent2 output file
 
@@ -865,55 +939,56 @@ def post_treat_D5vsS2(power_scaling_factor, number_axial_slices, pow_relax, th_r
             Serpent2_power_dens = normalize_S2_power(sum_heat_prod, ptot/bundle_volume)
             serpent_powers.append(Serpent2_power_dens)
             # plot the power distribution
-            plot_single_distr(f"Axial Serpent2 power density, normalized to {power}", "Power density", "$W/m^3$", n, Serpent2_power_dens, f"S2 : {n} axial slices", f"S2_{n}_axial_slices_{p}")
+            plot_single_distr(f"Axial Serpent2 power density, normalized to {power}", "Power density", "$W/m^3$", height, n, Serpent2_power_dens, f"S2 : {n} axial slices", f"S2_{n}_axial_slices_{p}")
 
             # Recover DONJON5 data
             # Parse DONJON5 Keffs
-            DONJON_keffs = parse_DONJON_Keffs(n,  p, pow_relax, th_relax)
+            DONJON_keffs = parse_DONJON_Keffs(height, n,  p, pow_relax, th_relax)
             D5_keffs.append(DONJON_keffs[-1])
 
             # Compare Keffs
             delta_keffs[f"Delta Keffs : {n} axial slices"] = error_Keffs_pcm(DONJON_keffs[-1], serpent_keff[0])
 
             # multiphysics convergence of Keffs :
-            plot_Keff_convergence(DONJON_keffs, f"D5 : {n} axial slices", f"D5_{n}_axial_slices")
-
+            plot_Keff_convergence(DONJON_keffs, height, f"D5 : {n} axial slices", f"D5_{n}_axial_slices")
 
             # Parse DONJON5 power distribution
-            donjon5_power_dens = parse_DONJON_power(n, pow_relax, p, th_relax, ptot/bundle_volume) # normalize the power distribution to W/m3
+            donjon5_power_dens = parse_DONJON_power(height, n, pow_relax, p, th_relax, ptot/bundle_volume) # normalize the power distribution to W/m3
             donjon_powers.append(donjon5_power_dens)
             # plot the power distribution
-            plot_single_distr(f"Axial DONJON5 power density, normalized to {power}", "Power density", "$W/m^3$", n, donjon5_power_dens, f"D5 : {n} axial slices", f"D5_{n}_axial_slices_{p}")
-
+            plot_single_distr(f"Axial DONJON5 power density, normalized to {power}", "Power density", "$W/m^3$", height, n, donjon5_power_dens, f"D5 : {n} axial slices", f"D5_{n}_axial_slices_{p}")
 
             # Compare D5-S2 results        
             #relative_error = compute_relative_error(donjon5_power, sum_heat_prod)
-            compare_results("Power", "unit", [donjon5_power_dens], Serpent2_power_dens, n, f"{n} axial slices", f"{n}_axial_slices")
+            compare_results("Power", "unit", [donjon5_power_dens], Serpent2_power_dens, height, n, f"{n} axial slices", f"{n}_axial_slices")
             nodal_error = donjon5_power_dens - Serpent2_power_dens
             NODAL_errors[f"Nodal error on power : {n} axial slices"] = nodal_error
             RMS_error = compute_RMS_error(donjon5_power_dens, Serpent2_power_dens, "absolute")
             RMS_errors_Power[f"RMS error on power : {n} axial slices"] = RMS_error
-            
 
             # Compare axial power distributions
             #ERRORS_r[f"Power : Mesh {n}, power {p}"] = relative_error
             #quadratic_error_r[f"Power : Mesh {n}, power {p}"] = compute_quadratic_error(donjon5_power, sum_heat_prod)
 
-        plot_keff_D5S2_spatial_convergence(number_axial_slices, D5_keffs, S2_keffs, f"spatial convergence, p = {p}", f"spatial_convergence_p{p}")
+        plot_keff_D5S2_spatial_convergence(height, number_axial_slices, D5_keffs, S2_keffs, f"spatial convergence, p = {p}", f"spatial_convergence_p{p}")
     # plot keff spatial convergence
-    plot_keff_error_spatial_convergence(delta_keffs, "spatial convergence", "spatial_convergence")
+    plot_keff_error_spatial_convergence(delta_keffs, height, "spatial convergence", "spatial_convergence")
 
     # plot nodal errors on power for each node
-    plot_nodal_errors_with_S2(number_axial_slices, NODAL_errors, field="power density", unit="$W/m^3$")
+    plot_nodal_errors_with_S2(height,number_axial_slices, NODAL_errors, field="power density", unit="$W/m^3$")
 
     # plot quadratic errors on power, see how it evolves with the number of axial slices
-    plot_RMS_errors("power density", "$W/m^3$", number_axial_slices, RMS_errors_Power)
+    plot_RMS_errors("power density", "$W/m^3$", height, number_axial_slices, RMS_errors_Power)
 
 
     
     return
 
-def consistency_check_Qfiss(n,p):
+def consistency_check_Qfiss(n,p,height):
+    if height == 3.8:
+        save_id = "h380"
+    elif height == 1.555:
+        save_id = "h1555"
     Qfiss_distribs = []
     # Recover MPHYS outputs for n=10, p=1
     relax_options = [(False,False), (False, 0.9), (0.5, 0.9), (0.5, False), (0.9, 0.9), (0.5, 0.8), (0.5,0.7), (0.5,0.5), (0.5,0.2), (0.2,0.2)]
@@ -923,7 +998,7 @@ def consistency_check_Qfiss(n,p):
         # plot the power density distribution
         #plot_single_distr("Power density", "W/m3", n, Qfiss, f"Qfiss : {n} axial slices", f"Qfiss_{n}_axial_slices_{relax[0]}_{relax[1]}")
 
-    compare_results("Power density", "W/m3", Qfiss_distribs, None, n, f"{n} axial slices", f"{n}_axial_slices")
+    compare_results("Power density", "W/m3", Qfiss_distribs, None, height, n, f"{n} axial slices", f"{n}_axial_slices")
 
     diffQfiss = []
     for i in range(1,len(Qfiss_distribs)):
@@ -934,7 +1009,7 @@ def consistency_check_Qfiss(n,p):
         ax.plot(diffQfiss[i], label=f"diffQfiss_{i}")
     ax.set_ylabel("Relative difference (%)")
     fig.legend()
-    fig.savefig(f"Figures_PT/MPHYS_diffs_Qdiff_mesh{n}_{p}_RELAXStudy.png")
+    fig.savefig(f"Figures_{save_id}/MPHYS_diffs_Qdiff_mesh{n}_{p}_RELAXStudy.png")
     plt.close(fig)
 
 def consistency_check_TH_params(n,p):
@@ -1000,22 +1075,22 @@ if __name__ == "__main__" :
 
     number_axial_slices = [10, 20, 40, 50, 70, 80, 160]
     power_scaling_factor = [1] #, 2, 4, 8] # run 4 and 8
-    height = 3.8
+    height = 1.555
     clad_radius = 0.5140e-2  
     fuel_volume = np.pi*clad_radius**2*height
     
     pow_relax = False #pow_relax = [0.2,0.5,0.8, False]
     th_relax = False #th_relax = [0.2,0.5,0.8, False]
 
-    post_treat_D5vsS2(power_scaling_factor, number_axial_slices, pow_relax, th_relax, fuel_volume)
+    #post_treat_D5vsS2(height, power_scaling_factor, number_axial_slices, pow_relax, th_relax, fuel_volume)
     #consistency_check_Qfiss(n=10, p=1)
     #consistency_check_TH_params(n=10,p=1)
     #consistency_check_TH_params(n=20,p=1)
 
-    #post_treat_Fields_SpatialConvergence_interp(height, 1, number_axial_slices, pow_relax, th_relax)
+    post_treat_Fields_SpatialConvergence_interp(height, 1, number_axial_slices, pow_relax, th_relax)
 
-    #number_axial_slices = [10, 20, 40, 80, 160]
-    #post_treat_Fields_spatial_convergence_condense(1, number_axial_slices, pow_relax, th_relax)
+    number_axial_slices = [10, 20, 40, 80, 160]
+    post_treat_Fields_spatial_convergence_condense(height, 1, number_axial_slices, pow_relax, th_relax)
 
 
 
