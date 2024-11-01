@@ -68,6 +68,9 @@ def convergence_pcm(keffNew, keffOld, tol):
         conv = True
     return conv
 
+def compute_RMS(Field):
+    return np.sqrt(np.sum(Field**2)/len(Field))
+
 def guessAxialPowerShape(Ptot, Iz, height, radius): # Old version of the function, introduced errrors when scaling up to more control volumes but seemed to work for 20 control volumes
     """
     Ptot : float : total power released (W)
@@ -315,11 +318,11 @@ zPlotting = [] #If empty, no plotting of the axial distribution of the fields, o
 If = 8
 I1 = 3
 # Sensitivity to the meshing parameters
-Iz1 = 70 # number of control volumes in the axial direction, added 70 for comparison with GeN-Foam
+Iz1 = 20 # number of control volumes in the axial direction, added 70 for comparison with GeN-Foam
 # Iz1 = 10, 20, 40, 50, 70, 80 and 160 are supported for the DONJON solution
 
 
-power_scaling_factor = 8 # 1, 2, 4, 8 # Scaling factor for the power axial distribution
+power_scaling_factor = 1 # 1, 2, 4, 8 # Scaling factor for the power axial distribution
 
 ########## Choice of Thermalhydraulics correlation ##########
 voidFractionCorrel = 'EPRIvoidModel' # 'modBestion', 'HEM1', 'GEramp', 'EPRIvoidModel'
@@ -354,7 +357,7 @@ massFlowRate = 1530  / (200*91)  # kg/s
 kFuel = 4.18 # W/m.K, TECHNICAL REPORTS SERIES No. 59 : Thermal Conductivity of Uranium Dioxide, IAEA, VIENNA, 1966
 Hgap = 10000 
 #Hgap = 9000
-kClad = 21.5 # W/m.K, Thermal Conductivity of Zircaloy-2 (as used in BWRX-300) according to https://www.matweb.com/search/datasheet.aspx?MatGUID=eb1dad5ce1ad4a1f9e92f86d5b44740d
+kClad = 21.5 #21.5 # W/m.K, Thermal Conductivity of Zircaloy-2 (as used in BWRX-300) according to https://www.matweb.com/search/datasheet.aspx?MatGUID=eb1dad5ce1ad4a1f9e92f86d5b44740d
 # k_Zircaloy-4 = 21.6 W/m.K too so check for ATRIUM-10 clad material but should have the same thermal conductivity
 
 
@@ -397,6 +400,9 @@ TeffFuel = []
 Twater = []
 rho = []
 voidFraction = []
+P_ = [] # Pressure field
+U_ = [] # Velocity field
+H_ = [] # Enthalpy field
 Volumic_Powers = []
 Relaxed_Volumic_Powers = []
 
@@ -458,7 +464,7 @@ THComponentIni = THM_prototype("Initialization of BWR Pincell equivalent canal",
                             solveConduction, dt = 0, t_tot = 0, frfaccorel = frfaccorel, P2Pcorel = P2Pcorel, voidFractionCorrel = voidFractionCorrel, 
                             numericalMethod = numericalMethod)
 
-TeffIni, TwaterIni, rhoIni, voidFracIni = THComponentIni.get_TH_parameters() # renamed this function to be clear about what it does 
+TeffIni, TwaterIni, rhoIni, voidFracIni, Pini, Uini, Hini = THComponentIni.get_TH_parameters() # renamed this function to be clear about what it does 
 #                                                           ---> Fuel and coolant temperature + coolant density aren't nuclear parameters per-se
 #
 
@@ -470,8 +476,9 @@ TeffFuel.append(TeffIni)
 Twater.append(TwaterIni)
 rho.append(rhoIni)
 voidFraction.append(voidFracIni)
-
-
+P_.append(Pini)
+U_.append(Uini)
+H_.append(Hini)
 
 print(f"$$ - FIRST THM resolution iter = 0 : TeffFuel = {TeffIni}, Twater = {TwaterIni}, rho = {rhoIni}")
 print(f"After initialization : TeffFuel = {TeffFuel}, Twater = {Twater}, rho = {rho}")
@@ -616,27 +623,10 @@ while not conv:
         Relaxed_Power_Distribs.append(PowerDistribution)
         Relaxed_Volumic_Powers.append(qFiss)
 
-
-    if iter == 1:
-        SAVE_DATA_DIR = f"multiPhysics_PyGan_24UOX_cell/{numericalMethod}/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/mesh{Iz1}_{power_scaling_factor}/Figures/"
-        a=os.path.exists(SAVE_DATA_DIR)
-        if a==False:
-            os.makedirs(SAVE_DATA_DIR)
-        os.chdir(SAVE_DATA_DIR)
-        heights = np.linspace(0, height, Iz1 + 1)
-        #mid_heights = z_mesh
-        fig, ax = plt.subplots()
-        ax.plot(z_mesh, qFiss, '2-',linewidth=1, label="Initial DONJON Volumic Power Distribution")
-        ax.plot(z_mesh, qFiss_init, '2-', linewidth=1, label="Guess Axial Volumic Power Distribution")
-        ax.set_xlabel("height (m)")
-        ax.set_ylabel("Volumic Power (W)")
-        ax.legend()
-        ax.set_title("Volumic Power Distributions at iter = 1")
-        fig.savefig(f"Power_distributions_iter{iter}.png")
-        os.chdir(path)
-
     if iter > 1:
         Residuals_Power_Distribs.append(compute_residuals(Power_Distribs))
+        RMS_power_residual = compute_RMS(Residuals_Power_Distribs[-1])
+        print(f"RMS power residual = {RMS_power_residual} at iter {iter}")
         Residuals_Volumic_Powers.append(compute_residuals(Volumic_Powers))
         if relax_Pow:
             Residuals_Relaxed_Power_Distribs.append(compute_residuals(Relaxed_Power_Distribs))
@@ -668,7 +658,7 @@ while not conv:
                             numericalMethod = numericalMethod)    ##### qFiss updated
 
     # 5.2) recover the new TH data
-    TeffTEMP, TwaterTEMP, rhoTEMP, voidFracTEMP = THMComponent.get_TH_parameters()
+    TeffTEMP, TwaterTEMP, rhoTEMP, voidFracTEMP, P_TEMP, U_TEMP, H_TEMP = THMComponent.get_TH_parameters()
     current_time4 = time.time()
     time_spent_in_THM = (current_time4 - current_time3)
     total_elapsed_time = (current_time4 - start_time)
@@ -682,6 +672,10 @@ while not conv:
     Residuals_rho.append(compute_residuals(rho))
     voidFraction.append(voidFracTEMP)
     Residuals_voidFraction.append(compute_residuals(voidFraction))
+    P_.append(P_TEMP)
+    U_.append(U_TEMP)
+    H_.append(H_TEMP)
+
 
     print(f"THM resolution at iter={iter} : All lists TeffFuel = {TeffFuel}, Twater = {Twater}, rho = {rho}")
 
@@ -820,6 +814,11 @@ case = compo_name.split("_")[2]
 TeffFuel = np.array(TeffFuel)
 Twater = np.array(Twater)
 rho = np.array(rho)
+voidFraction = np.array(voidFraction)
+Pressures = np.array(P_)
+Velocities = np.array(U_)
+Enthalpies = np.array(H_)
+
 Qfiss = np.array(Volumic_Powers)
 Power_Distrib = np.array(Power_Distribs)
 Residuals_TeffFuel = np.array(Residuals_TeffFuel)
@@ -834,6 +833,9 @@ np.savetxt(f"TeffFuel_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{r
 np.savetxt(f"Keffs_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{relaxPOW_id}_{relaxTH_id}.txt", Keffs)
 np.savetxt(f"Twater_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{relaxPOW_id}_{relaxTH_id}.txt", Twater[-1])
 np.savetxt(f"rho_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{relaxPOW_id}_{relaxTH_id}.txt", rho[-1])
+np.savetxt(f"Pressure_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{relaxPOW_id}_{relaxTH_id}.txt", Pressures[-1])
+np.savetxt(f"Velocity_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{relaxPOW_id}_{relaxTH_id}.txt", Velocities[-1])
+np.savetxt(f"Enthalpy_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{relaxPOW_id}_{relaxTH_id}.txt", Enthalpies[-1])
 np.savetxt(f"voidFraction_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{relaxPOW_id}_{relaxTH_id}.txt", voidFraction[-1])
 np.savetxt(f"Qfiss_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{relaxPOW_id}_{relaxTH_id}.txt", Qfiss[-1])
 np.savetxt(f"Power_Distrib_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{relaxPOW_id}_{relaxTH_id}.txt", Power_Distrib[-1])
@@ -865,11 +867,11 @@ print("$$$ - multiPhysics.py : END OF SCRIPT - $$$")
 
 print("$$$ - multiPhysics.py : SANITY CHECK - $$$")
 # check results, run THM with the last power distribution obtained from the neutronics solution
-check_case = THM_prototype("Check case", canalType, pitch, fuelRadius, gapRadius, cladRadius, 
-                            height, tInlet, pOutlet, massFlowRate, Qfiss[-1], kFuel, Hgap, kClad, Iz1, If, I1, zPlotting, 
-                            solveConduction, dt = 0, t_tot = 0, frfaccorel = frfaccorel, P2Pcorel = P2Pcorel, voidFractionCorrel = voidFractionCorrel, 
-                            numericalMethod = numericalMethod)
+#check_case = THM_prototype("Check case", canalType, pitch, fuelRadius, gapRadius, cladRadius, 
+#                            height, tInlet, pOutlet, massFlowRate, Qfiss[-1], kFuel, Hgap, kClad, Iz1, If, I1, zPlotting, 
+#                            solveConduction, dt = 0, t_tot = 0, frfaccorel = frfaccorel, P2Pcorel = P2Pcorel, voidFractionCorrel = voidFractionCorrel, 
+#                            numericalMethod = numericalMethod)
 
-TeffCheck, TwaterCheck, rhoCheck, voidFracCheck = check_case.get_TH_parameters()
-print(f"Check case : TeffFuel = {TeffCheck}, Twater = {TwaterCheck}, rho = {rhoCheck}, voidFraction = {voidFracCheck}")
-print("$$$ - multiPhysics.py : END OF SANITY CHECK - $$$")
+#TeffCheck, TwaterCheck, rhoCheck, voidFracCheck, Pche = check_case.get_TH_parameters()
+#print(f"Check case : TeffFuel = {TeffCheck}, Twater = {TwaterCheck}, rho = {rhoCheck}, voidFraction = {voidFracCheck}")
+#print("$$$ - multiPhysics.py : END OF SANITY CHECK - $$$")
