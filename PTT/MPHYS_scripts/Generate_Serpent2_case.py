@@ -307,11 +307,15 @@ def create_calcualtion_options(number_axial_slices, power_scaling_factor, neutro
     
 
 TH_underRelaxationFactor = 0.1
-Pow_underRelaxationFactor = 0.9 # Under relaxation factor for the power axial distribution to be tested, 0.1 used in Serpent/OpenFoam coupling
+Pow_underRelaxationFactor = 0.5 # Under relaxation factor for the power axial distribution to be tested, 0.1 used in Serpent/OpenFoam coupling
 relax_TH = False # Under relaxation of the TH fields for the next iteration
-relax_Pow = False # Under relaxation of the Power distribution for the next iteration
+relax_Pow = True # Under relaxation of the Power distribution for the next iteration
 
-number_axial_slices_all_cases = [10,20,40,50,70,80,160]
+voidFractionCorrel = 'EPRIvoidModel' # 'modBestion', 'HEM1', 'GEramp', 'EPRIvoidModel'
+frfaccorel = "blasius" # 'base', 'blasius', 'Churchill', 
+P2Pcorel = "lockhartMartinelli" # 'base', 'HEM1', 'HEM2', 'MNmodel', 'lockhartMartinelli'
+
+number_axial_slices_all_cases = [160]
 #number_axial_slices_all_cases = [70]
 #number_axial_slices = 10
 
@@ -340,10 +344,10 @@ else:
 
 for number_axial_slices in number_axial_slices_all_cases:
     for pow_scaling_factor in pow_scaling_factor_all_cases:
-        Teff_fuel = parse_multiPhysics_output(f"../../Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan_24UOX_cell/BiCG/EPRIvoidModel_Churchill_HEM1/{read_id}/mesh{number_axial_slices}_{pow_scaling_factor}/Data/TeffFuel_24UOX_mesh{number_axial_slices}_BiCG_EPRIvoidModel_{relaxPOW_id}_{relaxTH_id}.txt")
+        Teff_fuel = parse_multiPhysics_output(f"../../Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan_24UOX_cell/BiCG/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/{read_id}/mesh{number_axial_slices}_{pow_scaling_factor}/Data/TeffFuel_24UOX_mesh{number_axial_slices}_BiCG_EPRIvoidModel_{relaxPOW_id}_{relaxTH_id}.txt")
         #print(T_data)
-        TWater = parse_multiPhysics_output(f"../../Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan_24UOX_cell/BiCG/EPRIvoidModel_Churchill_HEM1/{read_id}/mesh{number_axial_slices}_{pow_scaling_factor}/Data/Twater_24UOX_mesh{number_axial_slices}_BiCG_EPRIvoidModel_{relaxPOW_id}_{relaxTH_id}.txt")
-        DWater = parse_multiPhysics_output(f"../../Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan_24UOX_cell/BiCG/EPRIvoidModel_Churchill_HEM1/{read_id}/mesh{number_axial_slices}_{pow_scaling_factor}/Data/rho_24UOX_mesh{number_axial_slices}_BiCG_EPRIvoidModel_{relaxPOW_id}_{relaxTH_id}.txt")
+        TWater = parse_multiPhysics_output(f"../../Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan_24UOX_cell/BiCG/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/{read_id}/mesh{number_axial_slices}_{pow_scaling_factor}/Data/Twater_24UOX_mesh{number_axial_slices}_BiCG_EPRIvoidModel_{relaxPOW_id}_{relaxTH_id}.txt")
+        DWater = parse_multiPhysics_output(f"../../Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan_24UOX_cell/BiCG/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/{read_id}/mesh{number_axial_slices}_{pow_scaling_factor}/Data/rho_24UOX_mesh{number_axial_slices}_BiCG_EPRIvoidModel_{relaxPOW_id}_{relaxTH_id}.txt")
 
         DWater = DWater*1e-3 # kg/m^3 to g/cm^3
         iso_dens_H = []
