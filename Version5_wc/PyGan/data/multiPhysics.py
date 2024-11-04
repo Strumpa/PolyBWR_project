@@ -318,7 +318,7 @@ zPlotting = [] #If empty, no plotting of the axial distribution of the fields, o
 If = 8
 I1 = 3
 # Sensitivity to the meshing parameters
-Iz1 = 20 # number of control volumes in the axial direction, added 70 for comparison with GeN-Foam
+Iz1 = 70 # number of control volumes in the axial direction, added 70 for comparison with GeN-Foam
 # Iz1 = 10, 20, 40, 50, 70, 80 and 160 are supported for the DONJON solution
 
 
