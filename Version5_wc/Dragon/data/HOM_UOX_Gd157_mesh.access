@@ -29,9 +29,29 @@ if [ -f "$pos"/draglibJeff3p1p1SHEM295.gz ]
     chmod 755 "$pos"
     gunzip "$pos"/draglibJeff3p1p1SHEM295.gz
 fi
+if [ -f "$pos"/draglibJeff3p1p1SHEM281.gz ]
+   then
+    echo 'gunzipping draglibJeff3p1p1SHEM281'
+    chmod 755 "$pos"
+    gunzip "$pos"/draglibJeff3p1p1SHEM281.gz
+fi
+if [ -f "$pos"/draglibJeff3p1p1SHEM315.gz ]
+   then
+    echo 'gunzipping draglibJeff3p1p1SHEM315'
+    chmod 755 "$pos"
+    gunzip "$pos"/draglibJeff3p1p1SHEM315.gz
+fi
 if [ -f "$pos"/draglibJeff3p1p1SHEM295 ]
    then
     ln -s "$pos"/draglibJeff3p1p1SHEM295 J311_295 
+fi
+if [ -f "$pos"/draglibJeff3p1p1SHEM281 ]
+   then
+    ln -s "$pos"/draglibJeff3p1p1SHEM281 J311_281
+fi
+if [ -f "$pos"/draglibJeff3p1p1SHEM315 ]
+   then
+    ln -s "$pos"/draglibJeff3p1p1SHEM315 J311_315
 fi
 ls -l
 echo "HOM_UOX_Gd157_autop access script terminated"

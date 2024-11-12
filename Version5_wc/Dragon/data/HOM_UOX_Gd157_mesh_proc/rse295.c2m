@@ -1,7 +1,7 @@
 * CLE-2000 procedure to perform a homogeneous pincell calculation 
 * Self-shielding calculation with RSE method and USS: module
 
-PARAMETER XSM :: ::: XSM_FILE XSM ; ;
+PARAMETER EDIOBJ :: ::: LINKED_LIST EDIOBJ ; ;
 
 MODULE GEO: LIB: SYBILT: USS: ASM: FLU: EDI: GREP: ;
 
@@ -28,10 +28,8 @@ IF correl "CORR" = THEN
       NMIX 1    ! MAXIMUM OF MATERIAL MIXTURES
       RSE 5.0E-2 ! This causes numerical issues : reducing epsRSE introduces more error
       ANIS 1
-
-      DEPL LIB: DRAGON FIL: J311_295
-
       MIXS LIB: DRAGON FIL: J311_295
+      !DEPL LIB: DRAGON FIL: J311_295
 
       MIX 1 750.0
         O16  = O16   2.955339E-02 
@@ -86,10 +84,8 @@ ELSEIF correl "noCORR" = THEN
       NMIX 1    ! MAXIMUM OF MATERIAL MIXTURES
       RSE 5.0E-2
       ANIS 1
-
-      DEPL LIB: DRAGON FIL: J311_295
-
       MIXS LIB: DRAGON FIL: J311_295
+      !DEPL LIB: DRAGON FIL: J311_295
 
       MIX 1 750.0
             O16  = O16   2.955339E-02 
@@ -149,9 +145,11 @@ GREP: CALC :: GETVAL 'K-INFINITY  ' 1 1 1 >>Kinf<< ;
 
 ECHO 'Kinf RSE = ' Kinf ;
 
-XSM := EDI: CALC LIB2_RSE TRACK ::
-     EDIT 2 SAVE
-     MERG REGI 1
-     SAVE MICR 4 U234 U235 U238 Gd157
-    ;
+EDIOBJ := EDI: CALC LIB2_RSE TRACK ::
+        EDIT 0
+        MERG REGI 1
+        MICR 2 U238 Gd157 
+        SAVE ON EDIHOM_295
+;
+
 QUIT "LIST" .

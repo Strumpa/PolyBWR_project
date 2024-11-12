@@ -1,7 +1,7 @@
 * CLE-2000 procedure to perform a homogeneous pincell calculation 
 * Self-shielding calculation with UFG method and AUTO: module
 
-PARAMETER XSM :: ::: XSM_FILE XSM ; ;
+PARAMETER EDIOBJ :: ::: LINKED_LIST EDIOBJ ; ;
 
 STRING ssh_method ;
 :: >>ssh_method<< ;
@@ -28,7 +28,7 @@ LIB_AUTO := LIB: ::
     <<ssh_method>>
     ANIS 1
 
-    MIXS LIB: DRAGON FIL: J311_295
+    MIXS LIB: DRAGON FIL: J311_315
 
     MIX 1 750.0
       MIX 1 750.0
@@ -87,10 +87,10 @@ CALC := FLU: CP LIB2_AUTO TRACK :: EDIT 1 TYPE K EXTE 5 ;
 GREP: CALC :: GETVAL 'K-INFINITY  ' 1 1 1 >>Kinf<< ;
 ECHO 'Kinf AUTO = ' Kinf ;
 
-XSM := EDI: CALC LIB2_AUTO TRACK ::
-     EDIT 2 SAVE
-     MERG REGI 1
-     SAVE MICR 4 U234 U235 U238 Gd157
-    ;
-
+EDIOBJ := EDI: CALC LIB2_AUTO TRACK ::
+        EDIT 0
+        MERG REGI 1
+        MICR 2 U238 Gd157 
+        SAVE ON EDIHOM_315
+;
 QUIT "LIST" .
