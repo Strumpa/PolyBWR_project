@@ -64,7 +64,7 @@ ENDIF ;
 SYS := ASM: LIBRARY2 TRACK TF_EXC :: ARM EDIT 0 ; 
 
 FLUX := FLU: LIBRARY2 SYS TRACK TF_EXC :: 
-        EDIT 1 TYPE K ;
+        EDIT 1 TYPE K B1 SIGS ;
 
 COMPO := COMPO: ::
     EDIT 10
@@ -83,10 +83,10 @@ COMPO := COMPO: ::
 ;
 
 EDIOBJ := EDI: FLUX LIBRARY2 TRACK ::
-        EDIT 0
+        EDIT 10
         MICR 3 U234 U235 U238 
         MERG MIX 
-        1 1 1 1 0 0 0 
+        1 1 1 1 1 1 1   
         COND 0.625
         SAVE ON EDI_HOM 
 ;

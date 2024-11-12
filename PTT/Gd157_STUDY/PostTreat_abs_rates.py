@@ -371,7 +371,7 @@ if __name__ == "__main__":
     path_S2 = f"/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/HOM_CELL_study/{input_case}/XS_study"
     path_D5 = f"/home/p117902/working_dir/PolyBWR_project/Version5_wc/Dragon/Linux_aarch64/{input_case}_autop{correlation}.result"
     local_path = os.getcwd()
-    library = "oldlib"
+    library = "PyNjoy2016"
     bu_step = 0
     GRMIN = 52
     GRMAX = 206
@@ -403,6 +403,7 @@ if __name__ == "__main__":
         U8_nGamma_rates.append(det_scores[group, 1])
         U8_abs_rates.append(det_scores[group, 2])
     Gd_nGamma_rates_reversed = np.array(Gd_nGamma_rates[::-1])
+    print(f"length of abs rates = {len(Gd_nGamma_rates_reversed)}")
     U8_nGamma_rates_reversed = np.array(U8_nGamma_rates[::-1])
     U8_abs_rates_reversed = np.array(U8_abs_rates[::-1])
     

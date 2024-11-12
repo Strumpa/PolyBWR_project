@@ -1,7 +1,7 @@
 * CLE-2000 procedure to perform a homogeneous pincell calculation 
 * Self-shielding calculation with PT method and USS: module
 
-PARAMETER XSM :: ::: XSM_FILE XSM ; ;
+PARAMETER EDIOBJ :: ::: LINKED_LIST EDIOBJ ; ;
 
 MODULE GEO: LIB: SYBILT: USS: ASM: FLU: EDI: GREP: ;
 
@@ -27,10 +27,7 @@ IF correl "CORR" = THEN
       NMIX 1    ! MAXIMUM OF MATERIAL MIXTURES
       PT 
       ANIS 1
-
-      DEPL LIB: DRAGON FIL: J311_295
-
-      MIXS LIB: DRAGON FIL: J311_295
+      MIXS LIB: DRAGON FIL: J311_281
 
       MIX 1 750.0
         O16  = O16   2.955339E-02 
@@ -85,10 +82,7 @@ ELSEIF correl "noCORR" = THEN
       NMIX 1    ! MAXIMUM OF MATERIAL MIXTURES
       PT CALENDF 4
       ANIS 1
-
-      DEPL LIB: DRAGON FIL: J311_295
-
-      MIXS LIB: DRAGON FIL: J311_295
+      MIXS LIB: DRAGON FIL: J311_281
 
       MIX 1 750.0
       O16  = O16   2.955339E-02 
@@ -147,9 +141,11 @@ CALC := FLU: CP LIB2_PT TRACK :: EDIT 1 TYPE K EXTE 5 ;
 GREP: CALC :: GETVAL 'K-INFINITY  ' 1 1 1 >>Kinf<< ;
 ECHO 'Kinf PT = ' Kinf ;
 
-XSM := EDI: CALC LIB2_PT TRACK ::
-     EDIT 2 SAVE
-     MERG REGI 1
-     SAVE MICR 4 U234 U235 U238 Gd157
-    ;
+EDIOBJ := EDI: CALC LIB2_PT TRACK ::
+        EDIT 0
+        MERG REGI 1
+        MICR 2 U238 Gd157 
+        SAVE ON EDIHOM_281
+;
+
 QUIT "LIST" .
