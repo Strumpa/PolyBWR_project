@@ -21,7 +21,7 @@ import serpentTools
 from serpentTools.settings import rc
 
 
-def MULTI_SERP_POSTPROC(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_geom,bu_autop_list,VISU_param,Nmin,S2_libs,ssh_module,ssh_method,CORR,DEPL_SOL,SAT):
+def MULTI_SERP_POSTPROC(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_geom,bu_autop_list,VISU_param,Nmin,S2_libs,ssh_module,ssh_method,CORR,DEPL_SOL,SAT, set_edep_to_treat):
 
     ######################################################################
     #  POST-PROCESSING OF DRAGON5 AND SERPENT2 RESULTS - ERROR PLOTTING  #
@@ -161,55 +161,62 @@ def MULTI_SERP_POSTPROC(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_geom,bu_autop_list,V
                 test_name_file = "HOM_UOXGd"
             SERPENT_test_RESULTS = {}
             for lib_name in S2_libs:
-                # --- Keff
-                # 
-                if "NO_NG_toGd158" in test_name:
-                    res=serpentTools.read(f"/home/p117902/working_dir/Serpent2_tests/Linux_aarch64/{test_name_file}_{lib_name}_noNG_toGd158_mc_res.m")
-                else:
-                    res=serpentTools.read(f"/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/HOM_CELL_study/{test_name_file}/{test_name_file}_{lib_name}_mc_res.m")
-                serpent_keff=res.resdata["absKeff"]
-                np.savetxt(f'serpent_keff_{lib_name}.txt',serpent_keff)
-                SERPENT_keff=np.loadtxt(f'serpent_keff_{lib_name}.txt',dtype=float)
+                for edep_id in set_edep_to_treat[lib_name]:
+                    if edep_id == 0:
+                        edep = "_edep0"
+                    elif edep_id == 1:
+                        edep = "_edep1"
+                    elif edep_id == 2:
+                        edep = "_edep2"
+                    # --- Keff
+                    # 
+                    if "NO_NG_toGd158" in test_name:
+                        res=serpentTools.read(f"/home/p117902/working_dir/Serpent2_tests/Linux_aarch64/{test_name_file}_{lib_name}_noNG_toGd158_mc_res.m")
+                    else:
+                        res=serpentTools.read(f"/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/HOM_CELL_study/{test_name_file}/{test_name_file}_{lib_name}{edep}_mc_res.m")
+                    serpent_keff=res.resdata["absKeff"]
+                    np.savetxt(f'serpent_keff_{lib_name}.txt',serpent_keff)
+                    SERPENT_keff=np.loadtxt(f'serpent_keff_{lib_name}.txt',dtype=float)
+                        
+                    # --- BU
+                    if "NO_NG_toGd158" in test_name:
+                        depl = serpentTools.read(f"/home/p117902/working_dir/Serpent2_tests/Linux_aarch64/{test_name_file}_{lib_name}_noNG_toGd158_mc_dep.m")
+                    else:
+                        depl = serpentTools.read(f"/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/HOM_CELL_study/{test_name_file}/{test_name_file}_{lib_name}{edep}_mc_dep.m")
+                    fuel=depl.materials['total']
+                    serpent_BU=fuel.burnup
+                    np.savetxt(f'serpent_BU_{lib_name}.txt',serpent_BU)
+                    SERPENT_BU=np.loadtxt(f'serpent_BU_{lib_name}.txt',dtype=float)
                     
-                # --- BU
-                if "NO_NG_toGd158" in test_name:
-                    depl = serpentTools.read(f"/home/p117902/working_dir/Serpent2_tests/Linux_aarch64/{test_name_file}_{lib_name}_noNG_toGd158_mc_dep.m")
-                else:
-                    depl = serpentTools.read(f"/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/HOM_CELL_study/{test_name_file}/{test_name_file}_{lib_name}_mc_dep.m")
-                fuel=depl.materials['total']
-                serpent_BU=fuel.burnup
-                np.savetxt(f'serpent_BU_{lib_name}.txt',serpent_BU)
-                SERPENT_BU=np.loadtxt(f'serpent_BU_{lib_name}.txt',dtype=float)
-                
-                # --- ISOTOPES DENSITIES
-                serpent_ISOTOPESDENS=fuel.toDataFrame("adens",names=isotopes_SOUHAITES)
-                np.savetxt(f'serpent_ISOTOPESDENS_{lib_name}.txt',serpent_ISOTOPESDENS)
-                SERPENT_ISOTOPESDENS=np.loadtxt(f'serpent_ISOTOPESDENS_{lib_name}.txt',dtype=float)
-                SERPENT_ISOTOPESDENS=np.transpose(SERPENT_ISOTOPESDENS)
+                    # --- ISOTOPES DENSITIES
+                    serpent_ISOTOPESDENS=fuel.toDataFrame("adens",names=isotopes_SOUHAITES)
+                    np.savetxt(f'serpent_ISOTOPESDENS_{lib_name}.txt',serpent_ISOTOPESDENS)
+                    SERPENT_ISOTOPESDENS=np.loadtxt(f'serpent_ISOTOPESDENS_{lib_name}.txt',dtype=float)
+                    SERPENT_ISOTOPESDENS=np.transpose(SERPENT_ISOTOPESDENS)
 
-                Ls=np.shape(SERPENT_ISOTOPESDENS)
-                lenISOT_SERPENT=Ls[0]
-                lenBU_SERPENT=Ls[1]
-                print('$$$ ---------------- SERPENT_ISOTOPESDENS shape =',Ls)
-                
-                # Rescaling Serpent2 BU to match DRAGON Burnup units.
-                serpent_keff=np.zeros(lenBU_SERPENT)    
-                for k in range(lenBU_SERPENT):
-                    SERPENT_BU[k]=1000*SERPENT_BU[k]
-                    serpent_keff[k]=SERPENT_keff[k][0]
+                    Ls=np.shape(SERPENT_ISOTOPESDENS)
+                    lenISOT_SERPENT=Ls[0]
+                    lenBU_SERPENT=Ls[1]
+                    print('$$$ ---------------- SERPENT_ISOTOPESDENS shape =',Ls)
+                    
+                    # Rescaling Serpent2 BU to match DRAGON Burnup units.
+                    serpent_keff=np.zeros(lenBU_SERPENT)    
+                    for k in range(lenBU_SERPENT):
+                        SERPENT_BU[k]=1000*SERPENT_BU[k]
+                        serpent_keff[k]=SERPENT_keff[k][0]
 
 
-                SERPENT_lib_res=[
-                    SERPENT_BU,
-                    serpent_keff,
-                    ]
-                for k in range(len(isotopes_SOUHAITES)):
-                    SERPENT_lib_res.append(SERPENT_ISOTOPESDENS[k,:])
-                #print("$$$ ---------------- SERPENT_ALL",SERPENT_ALL)
-                SERPENT_test_RESULTS[lib_name] = SERPENT_lib_res
-                print(f"SERPENT_RESULTS = {SERPENT_test_RESULTS}")
-            SERPENT_results_ALL[test_name] = SERPENT_test_RESULTS   
-        print(f"SERPENT_RESULTS = {SERPENT_results_ALL}") 
+                    SERPENT_lib_res=[
+                        SERPENT_BU,
+                        serpent_keff,
+                        ]
+                    for k in range(len(isotopes_SOUHAITES)):
+                        SERPENT_lib_res.append(SERPENT_ISOTOPESDENS[k,:])
+                    #print("$$$ ---------------- SERPENT_ALL",SERPENT_ALL)
+                    SERPENT_test_RESULTS[f"{lib_name}_edep{edep_id}"] = SERPENT_lib_res
+                    print(f"SERPENT_RESULTS = {SERPENT_test_RESULTS}")
+                SERPENT_results_ALL[test_name] = SERPENT_test_RESULTS   
+            print(f"SERPENT_RESULTS = {SERPENT_results_ALL}") 
 
     # -------------------------------
     #   ERROR MATRICES COMPUTATION 
@@ -222,24 +229,30 @@ def MULTI_SERP_POSTPROC(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_geom,bu_autop_list,V
             ERRORS = {}
             print(f"Test name = {test_name}")
             for lib_name in S2_libs:
-                ERROR=np.zeros((len(isotopes_SOUHAITES)+2,lenBU_DRAGON))
-                LE=np.shape(ERROR)
-                print('$$$ ------------------------ ERROR shape=',LE)
-                for k in range(len(isotopes_SOUHAITES)+2):
-                        
-                    for j in range(Nmin,lenBU_DRAGON):
-                        #print('$$$ ----------------------- k=',k,'    j=',j)
-                        #print('$$$ ----------------------- SERPENT_ALL[k][j]=',SERPENT_ALL[k][j])
-                        if k==0: # Burnup points
-                            ERROR[k][j-Nmin]=SERPENT_results_ALL[test_name][lib_name][k][j]
-                        elif k==1:  # Keff values ---> compute errors in pcm 
-                                ERROR[k][j-Nmin]=1.0E+5*(DRAGON_results_ALL[test_name][k][j]-SERPENT_results_ALL[test_name][lib_name][k][j])
-                        else: # Isotopic compositions --> compute relative errors in %   
-                            if SERPENT_results_ALL[test_name][lib_name][k][j]==0 :
-                                ERROR[k][j-Nmin]=0
-                            else:
-                                ERROR[k][j-Nmin]=100*(DRAGON_results_ALL[test_name][k][j]-SERPENT_results_ALL[test_name][lib_name][k][j])/SERPENT_results_ALL[test_name][lib_name][k][j]
-                ERRORS[lib_name] = ERROR
+                for edep_id in set_edep_to_treat[lib_name]:
+                    if edep_id == 0:
+                        edep = "_edep0"
+                    elif edep_id == 1:
+                        edep = "_edep1"
+                    elif edep_id == 2:
+                        edep = "_edep2"
+                    ERROR=np.zeros((len(isotopes_SOUHAITES)+2,lenBU_DRAGON))
+                    LE=np.shape(ERROR)
+                    print('$$$ ------------------------ ERROR shape=',LE)
+                    for k in range(len(isotopes_SOUHAITES)+2):
+                        for j in range(Nmin,lenBU_DRAGON):
+                            #print('$$$ ----------------------- k=',k,'    j=',j)
+                            #print('$$$ ----------------------- SERPENT_ALL[k][j]=',SERPENT_ALL[k][j])
+                            if k==0: # Burnup points
+                                ERROR[k][j-Nmin]=SERPENT_results_ALL[test_name][f"{lib_name}_edep{edep_id}"][k][j]
+                            elif k==1:  # Keff values ---> compute errors in pcm 
+                                    ERROR[k][j-Nmin]=1.0E+5*(DRAGON_results_ALL[test_name][k][j]-SERPENT_results_ALL[test_name][f"{lib_name}_edep{edep_id}"][k][j])
+                            else: # Isotopic compositions --> compute relative errors in %   
+                                if SERPENT_results_ALL[test_name][f"{lib_name}_edep{edep_id}"][k][j]==0 :
+                                    ERROR[k][j-Nmin]=0
+                                else:
+                                    ERROR[k][j-Nmin]=100*(DRAGON_results_ALL[test_name][k][j]-SERPENT_results_ALL[test_name][f"{lib_name}_edep{edep_id}"][k][j])/SERPENT_results_ALL[test_name][f"{lib_name}_edep{edep_id}"][k][j]
+                    ERRORS[f"{lib_name}_edep{edep_id}"] = ERROR
             ERRORS_ALL[test_name] = ERRORS               
         print(f"ERRORS = {ERRORS}")
         print(f"ERRORS_ALL = {ERRORS_ALL}")
@@ -325,8 +338,17 @@ def MULTI_SERP_POSTPROC(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_geom,bu_autop_list,V
                 plt.figure(figsize=SIZE)
                 for test_name in UOX_tests:
                     for lib_name in S2_libs:
-                        legends.append(f"{test_name} : {lib_name}")
-                        plt.plot(SERPENT_results_ALL[test_name][lib_name][0],SERPENT_results_ALL[test_name][lib_name][k+1],'2-',linewidth=1)
+                        for edep_id in set_edep_to_treat[lib_name]:
+                            if edep_id == 0:
+                                edep = "_edep0"
+                            elif edep_id == 1:
+                                edep = "_edep1"
+                            elif edep_id == 2:
+                                edep = "_edep2"
+                            legends.append(f"{test_name} : {lib_name} edepmode {edep_id}")
+                            plt.plot(SERPENT_results_ALL[test_name][f"{lib_name}_edep{edep_id}"][0],SERPENT_results_ALL[test_name][f"{lib_name}_edep{edep_id}"][k+1],'2-',linewidth=1)
+                        #legends.append(f"{test_name} : {lib_name}")
+                        #plt.plot(SERPENT_results_ALL[test_name][lib_name][0],SERPENT_results_ALL[test_name][lib_name][k+1],'2-',linewidth=1)
                 plt.xlabel('BU [MWd/t]')
                 plt.grid()
                     
@@ -351,8 +373,17 @@ def MULTI_SERP_POSTPROC(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_geom,bu_autop_list,V
                 plt.figure(figsize=SIZE)
                 for test_name in Gd_tests:
                     for lib_name in S2_libs:
-                        legends.append(f"{test_name} : {lib_name}")
-                        plt.plot(SERPENT_results_ALL[test_name][lib_name][0],SERPENT_results_ALL[test_name][lib_name][k+1],'2-',linewidth=1)
+                        for edep_id in set_edep_to_treat[lib_name]:
+                            if edep_id == 0:
+                                edep = "_edep0"
+                            elif edep_id == 1:
+                                edep = "_edep1"
+                            elif edep_id == 2:
+                                edep = "_edep2"
+                            legends.append(f"{test_name} : {lib_name} edepmode {edep_id}")
+                            plt.plot(SERPENT_results_ALL[test_name][f"{lib_name}_edep{edep_id}"][0],SERPENT_results_ALL[test_name][f"{lib_name}_edep{edep_id}"][k+1],'2-',linewidth=1)
+                        #legends.append(f"{test_name} : {lib_name}")
+                        #plt.plot(SERPENT_results_ALL[test_name][lib_name][0],SERPENT_results_ALL[test_name][lib_name][k+1],'2-',linewidth=1)
                 plt.xlabel('BU [MWd/t]')
                 plt.grid()
                     
@@ -386,14 +417,29 @@ def MULTI_SERP_POSTPROC(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_geom,bu_autop_list,V
             for test_name in DRAGON_results_ALL.keys():
                 print(f"test name is : {test_name}")
                 if test_name in UOX_tests:
-
                     ax_U.plot(DRAGON_results_ALL[test_name][0],DRAGON_results_ALL[test_name][k+1],'2-',linewidth=1, label=f"{test_name} : DRAGON5")
                     for lib_name in S2_libs:
-                        ax_U.plot(SERPENT_results_ALL[test_name][lib_name][0],SERPENT_results_ALL[test_name][lib_name][k+1],'2-',linewidth=1, label=f"{test_name} : {lib_name}")
+                        for edep_id in set_edep_to_treat[lib_name]:
+                            if edep_id == 0:
+                                edep = "_edep0"
+                            elif edep_id == 1:
+                                edep = "_edep1"
+                            elif edep_id == 2:
+                                edep = "_edep2"
+                            ax_U.plot(SERPENT_results_ALL[test_name][f"{lib_name}_edep{edep_id}"][0],SERPENT_results_ALL[test_name][f"{lib_name}_edep{edep_id}"][k+1],'2-',linewidth=1, label=f"{test_name} : {lib_name} edepmode {edep_id}")
+                        #ax_U.plot(SERPENT_results_ALL[test_name][lib_name][0],SERPENT_results_ALL[test_name][lib_name][k+1],'2-',linewidth=1, label=f"{test_name} : {lib_name}")
                 elif test_name in Gd_tests:
                     ax_Gd.plot(DRAGON_results_ALL[test_name][0],DRAGON_results_ALL[test_name][k+1],'2-',linewidth=1, label=f"{test_name} : DRAGON5")
                     for lib_name in S2_libs:
-                        ax_Gd.plot(SERPENT_results_ALL[test_name][lib_name][0],SERPENT_results_ALL[test_name][lib_name][k+1],'2-',linewidth=1, label=f"{test_name} : {lib_name}")
+                        for edep_id in set_edep_to_treat[lib_name]:
+                            if edep_id == 0:
+                                edep = "_edep0"
+                            elif edep_id == 1:
+                                edep = "_edep1"
+                            elif edep_id == 2:
+                                edep = "_edep2"
+                            ax_Gd.plot(SERPENT_results_ALL[test_name][f"{lib_name}_edep{edep_id}"][0],SERPENT_results_ALL[test_name][f"{lib_name}_edep{edep_id}"][k+1],'2-',linewidth=1, label=f"{test_name} : {lib_name} edepmode {edep_id}")
+                        #ax_Gd.plot(SERPENT_results_ALL[test_name][lib_name][0],SERPENT_results_ALL[test_name][lib_name][k+1],'2-',linewidth=1, label=f"{test_name} : {lib_name}")
                     
             ax_U.set_xlabel('BU [MWd/t]')
             ax_Gd.set_xlabel('BU [MWd/t]')
@@ -435,10 +481,24 @@ def MULTI_SERP_POSTPROC(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_geom,bu_autop_list,V
             for test_name in DRAGON_results_ALL.keys():
                 if test_name in UOX_tests:
                     for lib_name in S2_libs:
-                        ax_U.plot(ERRORS_ALL[test_name][lib_name][0],ERRORS_ALL[test_name][lib_name][k+1],'2-',linewidth=1, label=f"{test_name} : {lib_name}")
+                        for edep_id in set_edep_to_treat[lib_name]:
+                            if edep_id == 0:
+                                edep = "_edep0"
+                            elif edep_id == 1:
+                                edep = "_edep1"
+                            elif edep_id == 2:
+                                edep = "_edep2"
+                            ax_U.plot(ERRORS_ALL[test_name][f"{lib_name}_edep{edep_id}"][0],ERRORS_ALL[test_name][f"{lib_name}_edep{edep_id}"][k+1],'2-',linewidth=1, label=f"{test_name} : {lib_name} edepmode {edep_id}")
                 elif test_name in Gd_tests:
                     for lib_name in S2_libs:
-                        ax_Gd.plot(ERRORS_ALL[test_name][lib_name][0],ERRORS_ALL[test_name][lib_name][k+1],'2-',linewidth=1, label=f"{test_name} : {lib_name}")
+                        for edep_id in set_edep_to_treat[lib_name]:
+                            if edep_id == 0:
+                                edep = "_edep0"
+                            elif edep_id == 1:
+                                edep = "_edep1"
+                            elif edep_id == 2:
+                                edep = "_edep2"
+                            ax_Gd.plot(ERRORS_ALL[test_name][f"{lib_name}_edep{edep_id}"][0],ERRORS_ALL[test_name][f"{lib_name}_edep{edep_id}"][k+1],'2-',linewidth=1, label=f"{test_name} : {lib_name} edepmode {edep_id}")
                 ax_U.set_xlabel('BU [MWd/t]')
                 ax_U.grid()
                 ax_U.legend(loc="best")
@@ -484,11 +544,19 @@ def MULTI_SERP_POSTPROC(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_geom,bu_autop_list,V
             fig_Gd.savefig(save_nameGd+'.png',bbox_inches = 'tight') #enregistrement des figures dans le repertoire des resultats
             os.chdir(path)
             plt.close('all')
+        """
         # --- Print results
         for test_name in DRAGON_results_ALL.keys():
             for lib_name in S2_libs:
-                print(f"For test name = {test_name}, SSH : {ssh_module} {ssh_method} {CORR} : The error on Keff at t=0 is {ERRORS_ALL[test_name][lib_name][1][0]}, Keff_DRAGON = {DRAGON_results_ALL[test_name][1][0]}, Keff_SERPENT_{lib_name} = {SERPENT_results_ALL[test_name][lib_name][1][0]}")
-            
+                for edep_id in set_edep_to_treat[lib_name]:
+                    if edep_id == 0:
+                        edep = ""
+                    elif edep_id == 1:
+                        edep = "_edep1"
+                    elif edep_id == 2:
+                        edep = "_edep2"
+                    print(f"For test name = {test_name}, SSH : {ssh_module} {ssh_method} {CORR}, using energy deposition mode {edep_id} : The error on Keff at t=0 is {ERRORS_ALL[test_name][f"{lib_name}_edep{edep_id}"][1][0]}, Keff_DRAGON = {DRAGON_results_ALL[test_name][1][0]}, Keff_SERPENT_{lib_name} = {SERPENT_results_ALL[test_name][f"{lib_name}_edep{edep_id}"][1][0]}")
+        """
 
 
 

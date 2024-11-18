@@ -305,7 +305,7 @@ WHILE istep nstep < DO
      ECHO ".perform self-shielding at" Tbeg "days" ;
     IF ssh_module "USS" = THEN
         LIBRARY2 := USS: LIBRARY TRACK ::
-                    EDIT 2 GRMIN 52 GRMAX 206 PASS 3
+                    EDIT 2 PASS 3
                   ;
     ELSEIF ssh_module "SHI" = THEN
         LIBRARY2 := SHI: LIBRARY TRACK :: 
@@ -313,7 +313,7 @@ WHILE istep nstep < DO
                   ;
     ELSEIF ssh_module "AUTO" = THEN
         LIBRARY2 := AUTO: LIBRARY TRACK :: 
-                    EDIT 2 GRMIN 52 GRMAX 206 PASS 3 MAXT 100000 
+                    EDIT 2 PASS 3 MAXT 100000 
                   ;
     ENDIF ;
 

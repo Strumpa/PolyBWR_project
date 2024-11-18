@@ -60,13 +60,17 @@ name_geom = 'HOM_CELL'
 cases_to_run = ["HOM_UOX_Gd157"] # "HOM_U5", "HOM_U5_U8", "HOM_UOX", "HOM_UOX_clad_noZr", "HOM_UOX_clad", "HOM_UOX_Gd155", "HOM_UOX_Gd157", "HOM_UOX_no155157", "HOM_UOXGd"
 
 
-iso_chain_tests = ["NO_NG_toGd158"] #["NO_NG_toGd158","NO_NG_NO_ENE_toGd158"] # "NO_NP_toGd158", "NO_NG_toGd158"
-iso_chain = "NO_NG_toGd158" # "Nominal", "NO_NP_toGd158", "NO_NG_toGd158", "NO_NG_NO_ENE_toGd158"
+iso_chain_tests = [] #["NO_NG_toGd158","NO_NG_NO_ENE_toGd158"] # "NO_NP_toGd158", "NO_NG_toGd158"
+iso_chain = "Nominal" # "Nominal", "NO_NP_toGd158", "NO_NG_toGd158", "NO_NG_NO_ENE_toGd158"
 
 S2_libs = ["PyNjoy2016"]#,"oldlib"]
+# Serpent2 energy deposition mode : set edep 0 = "Constant energy deposition per fission" --> "PyNjoy2016" and "oldlib" / default setting
+# 											 1 = "Local energy deposition based on ENDF MT458 data"  --> "PyNjoy2016" and "oldlib" 
+# 											 2 = "Local photon energy deposition" --> "PyNjoy2016" only
+set_edep_mode_to_treat = {"PyNjoy2016":[0,1,2],"oldlib":[0]}
 
-ssh_module = "USS" #"USS", "AUTO"
-ssh_method = "PT" #"PT", "RSE", "SUBG" all supported for USS: but AUTO: only takes SUBG
+ssh_module = "AUTO" #"USS", "AUTO"
+ssh_method = "SUBG" #"PT", "RSE", "SUBG" all supported for USS: but AUTO: only takes SUBG
 # for RSE method : test with eps_RSE = 1.0E-1, 5.0E-2, 1.0E-2, 5.0E-3, 1.0E-3, 1.0E-4
 correlation = "noCORR" # "CORR", "noCORR"
 
@@ -226,4 +230,4 @@ if "HOM_UOXGd" in cases_to_run:
 
 print(pyCOMPOs)
 #POSTPROC_hom(pyCOMPO, ListeCOMPO, ListeAUTOP, name_geom, name_mix, suffixe, VISU_param, Nmin, GdCompo, S2_libs, ssh_module, ssh_method, correlation, sat, depl_sol)
-MULTI_SERP_POSTPROC(pyCOMPOs, ListeCOMPO, ListeAUTOP, name_geom, suffixe, VISU_param, Nmin, S2_libs, ssh_module, ssh_method, correlation, depl_sol, sat)
+MULTI_SERP_POSTPROC(pyCOMPOs, ListeCOMPO, ListeAUTOP, name_geom, suffixe, VISU_param, Nmin, S2_libs, ssh_module, ssh_method, correlation, depl_sol, sat, set_edep_mode_to_treat)
