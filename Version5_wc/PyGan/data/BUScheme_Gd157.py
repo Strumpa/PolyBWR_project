@@ -51,7 +51,7 @@ name_study = 'HOM_CELL_PCC'
 #cases_to_run = ["HOM_UOX_Gd157"] # "HOM_U5", "HOM_U5_U8", "HOM_UOX", "HOM_UOX_clad_noZr", "HOM_UOX_clad", "HOM_UOX_Gd155", "HOM_UOX_Gd157", "HOM_UOX_no155157", "HOM_UOXGd"
 
 
-S2_libs = ["PyNjoy2016"]#,"oldlib"]
+S2_libs = ["PyNjoy2016","oldlib"]
 S2_PCC = ["PCC0","PCC1","PCC2","PCC3","PCC4","PCC6"] # all ran for PyNjoy2016, waiting on 3, 4 and 6 for oldlib
 
 ssh_module = "USS" #"USS", "AUTO"

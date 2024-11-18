@@ -20,7 +20,8 @@ class energyMeshHandler:
         self.lethargyWidthsFile = None
 
         self.re_order_energy_mesh()
-        self.printnfgCard()
+        self.computeLethargyMesh_from_energy_mesh()
+        #self.printnfgCard()
 
     def re_order_energy_mesh(self):
         self.energyMesh = self.D5energyMesh[::-1]
@@ -57,6 +58,12 @@ class energyMeshHandler:
                     self.lethargyMesh[i] = 0.0
                 else:
                     self.lethargyMesh[i] = self.lethargyMesh[i-1] + self.lethargyMeshWidths[i-1]
+        return
+    
+    def computeLethargyMesh_from_energy_mesh(self):
+        self.lethargyMesh = np.zeros(len(self.energyMesh))
+        
+        self.lethargyMesh = np.log(self.E0/self.energyMesh)
         return
     
     def computeEnergyMesh(self):

@@ -54,7 +54,7 @@ class energyMeshHandler:
         return 
     
     def computeLethargyMesh(self):
-        self.lethargyMesh = np.zeros(len(self.lethargyMeshWidths))
+        self.lethargyMesh = np.zeros(len(self.lethargyMeshWidths)+1)
         for i in range(len(self.lethargyMesh)):
             if i == 0:
                 self.lethargyMesh[i] = -0.675
