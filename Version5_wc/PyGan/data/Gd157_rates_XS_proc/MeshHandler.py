@@ -10,7 +10,7 @@ class energyMeshHandler:
     def __init__(self, energy_mesh_name, D5energyMesh, E0, energyUnits):
 
         self.mesh_name = energy_mesh_name
-        self.D5energyMesh = D5energyMesh
+        self.D5energyMesh = D5energyMesh # in decreasing energy order
         self.E0 = E0
         self.energyUnits = energyUnits
         self.lethargyMeshWidths = []
@@ -24,7 +24,7 @@ class energyMeshHandler:
         #self.printnfgCard()
 
     def re_order_energy_mesh(self):
-        self.energyMesh = self.D5energyMesh[::-1]
+        self.energyMesh = self.D5energyMesh[::-1] # in increasing energy order
         print(f"energyMesh = {self.energyMesh}")
         print(f"Number of energy groups = {len(self.energyMesh)-1}")
         return
@@ -63,7 +63,8 @@ class energyMeshHandler:
     def computeLethargyMesh_from_energy_mesh(self):
         self.lethargyMesh = np.zeros(len(self.energyMesh))
         
-        self.lethargyMesh = np.log(self.E0/self.energyMesh)
+        self.lethargyMesh = np.log(self.E0/self.energyMesh)[::-1] # u = ln(E0/E) ==> E = E0 * exp(-u), in increasing lethargy order
+        print(f"lethargyMesh = {self.lethargyMesh}")
         return
     
     def computeEnergyMesh(self):

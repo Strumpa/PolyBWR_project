@@ -1,7 +1,7 @@
 #!/bin/sh
 if [ $# = 0 ]
    then
-   echo "usage: HOM_UOX_Gd157_autop.access directory" 1>&2
+   echo "usage: HOM_UOX_Gd157_AUTOlib_test.access directory" 1>&2
    exit 1
 fi
 MACH=`uname -s`
@@ -19,7 +19,6 @@ if [ "$MACH" = "Linux" -o "$MACH" = "OSF1" -o "$MACH" = "Cygwin" -o "$MACH" = "S
 then 
   echo 'use little endian libraries'
   pos=$1/../../libraries/l_endian
-  echo $pos
 else
   echo 'use big endian libraries'
   pos=$1/../../libraries/b_endian
@@ -54,5 +53,6 @@ if [ -f "$pos"/draglibJeff3p1p1SHEM315 ]
    then
     ln -s "$pos"/draglibJeff3p1p1SHEM315 J311_315
 fi
+ln -s /tmp/shem295_Jeff3.1.1_test/draglibshem295_Jeff3.1.1_test J311_295_fine
 ls -l
-echo "HOM_UOX_Gd157_autop access script terminated"
+echo "HOM_UOX_Gd157_AUTOlib_test access script terminated"

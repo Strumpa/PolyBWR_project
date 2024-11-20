@@ -221,7 +221,6 @@ def POSTPROC_Gd157(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_geom,bu_autop_list,VISU_p
 
     # --- Figure size
     SIZE=(8,6)
-    print(SAT)
     # --- Creating SAVEDIR if not existing
     path=os.getcwd()
     a=os.path.exists('BWRresults_PyGan_'+name_geom)
@@ -266,8 +265,6 @@ def POSTPROC_Gd157(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_geom,bu_autop_list,VISU_p
     else:
         CORR = " "
         correlation_name = ""
-
-    list_tests = pyCOMPOs.keys()
     ################################################################
     #   RETRIVE ALL RESULTS FROM PYCOMPO and SERPENT2 outputs
     ################################################################
