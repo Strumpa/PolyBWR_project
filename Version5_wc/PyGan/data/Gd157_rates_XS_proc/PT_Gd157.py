@@ -20,10 +20,10 @@ class postTreatment_rates_XS_D5:
         # dictionaries to store the relative differences between self shielded cross sections, reaction rates and fluxes, identified by reaction_id, mesh_name and SSH method
         self.delta_XS = {"Gd157_ngamma":{"SHEM281":{"RSE":None, "PT":None, "SUBG":None}, "SHEM295":{"RSE":None, "PT":None, "SUBG":None}, "SHEM315":{"RSE":None, "PT":None, "SUBG":None}},
                          "Gd157_abs":{"SHEM281":{"RSE":None, "PT":None, "SUBG":None}, "SHEM295":{"RSE":None, "PT":None, "SUBG":None}, "SHEM315":{"RSE":None, "PT":None, "SUBG":None}},
-                         "U8_ngamma":{"SHEM281":{"RSE":None, "PT":None, "SUBG":None}, "SHEM295":{"RSE":None, "PT":None, "SUBG":None}, "SHEM315":{"RSE":None, "PT":None, "SUBG":None}}}
+                         "U238_ngamma":{"SHEM281":{"RSE":None, "PT":None, "SUBG":None}, "SHEM295":{"RSE":None, "PT":None, "SUBG":None}, "SHEM315":{"RSE":None, "PT":None, "SUBG":None}}}
         self.delta_Rates = {"Gd157_ngamma":{"SHEM281":{"RSE":None, "PT":None, "SUBG":None}, "SHEM295":{"RSE":None, "PT":None, "SUBG":None}, "SHEM315":{"RSE":None, "PT":None, "SUBG":None}},
                          "Gd157_abs":{"SHEM281":{"RSE":None, "PT":None, "SUBG":None}, "SHEM295":{"RSE":None, "PT":None, "SUBG":None}, "SHEM315":{"RSE":None, "PT":None, "SUBG":None}},
-                         "U8_ngamma":{"SHEM281":{"RSE":None, "PT":None, "SUBG":None}, "SHEM295":{"RSE":None, "PT":None, "SUBG":None}, "SHEM315":{"RSE":None, "PT":None, "SUBG":None}}}
+                         "U238_ngamma":{"SHEM281":{"RSE":None, "PT":None, "SUBG":None}, "SHEM295":{"RSE":None, "PT":None, "SUBG":None}, "SHEM315":{"RSE":None, "PT":None, "SUBG":None}}}
         self.delta_Fluxes = {}
 
         return
@@ -69,6 +69,8 @@ class postTreatment_rates_XS_D5:
                 XS_to_plot.extend([XS[i],XS[i]])
             plt.step(u, XS_to_plot, where='post', label=f"{SSH} {reaction} cross section")
         plt.legend()
+        plt.xlabel('Lethargy')
+        plt.ylabel(f"$\sigma$ {reaction} (barns)")
         plt.yscale('log')
         plt.title(f"Cross sections for {iso} {reaction}")
         plt.savefig(f"{self.save_path}/{self.case_name}_{reaction_id}_XS_{mesh_name}.png")
@@ -91,7 +93,10 @@ class postTreatment_rates_XS_D5:
                 rates_to_plot.extend([rates[i],rates[i]])
             plt.step(u, rates_to_plot, where='post', label=f"{SSH} {reaction} reaction rates")
         plt.legend()
+        plt.xlabel('Lethargy')
+        plt.ylabel(f"{reaction} rates")
         plt.yscale('log')
+        plt.grid()
         plt.title(f"Reaction rates for {iso} {reaction}")
         plt.savefig(f"{self.save_path}/{self.case_name}_{reaction_id}_rates_{mesh_name}.png")
         plt.close()
@@ -165,11 +170,10 @@ class postTreatment_rates_XS_D5:
         if reaction == "ngamma":
             reaction = "$(n,\gamma)$"
         save_ssh_id =""
-        for SSH in SSH_methods_to_compare:
-            save_ssh_id += SSH
         energy_groups = list(range(grmin, grmax + 1))
         plt.figure(figsize=(10, 6))
         for SSH in SSH_methods_to_compare:
+            save_ssh_id += SSH
             delta_Rates = self.delta_Rates[reaction_id][mesh_name][SSH]
             plt.bar(energy_groups, delta_Rates, edgecolor='black', alpha=0.5, color=colors[SSH], label=f"{iso} {reaction} {SSH} - AUTO")
         plt.ylabel(f'Relative difference on {reaction} rates (%)')
@@ -177,7 +181,7 @@ class postTreatment_rates_XS_D5:
         plt.xlabel('Energy group')
         plt.title(f"Relative differences on {iso} {reaction} rates for {mesh_name}")
         plt.legend()
-        plt.savefig(f"{self.save_path}/{self.case_name}_{reaction_id}_delta_Rates_{mesh_name}_{save_ssh_id}.png")
+        plt.savefig(f"{self.save_path}/{self.case_name}_{reaction_id}_delta_Rates_hist_{mesh_name}_{save_ssh_id}.png")
         plt.close()
         return
 
@@ -192,11 +196,10 @@ class postTreatment_rates_XS_D5:
             reaction = "a"
         
         save_ssh_id =""
-        for SSH in SSH_methods_to_compare:
-            save_ssh_id += SSH
         energy_groups = list(range(grmin, grmax + 1))
         plt.figure(figsize=(10, 6))
         for SSH in SSH_methods_to_compare:
+            save_ssh_id += SSH
             delta_XS = self.delta_XS[reaction_id][mesh_name][SSH]
             plt.bar(energy_groups, delta_XS, edgecolor='black', alpha=0.5, color=colors[SSH], label=f"{iso} {reaction} {SSH} - AUTO")
         plt.ylabel('Relative difference on XS (%)')
@@ -204,18 +207,85 @@ class postTreatment_rates_XS_D5:
         plt.xlabel('Energy group')
         plt.title(f"Relative differences on {iso} $\sigma${reaction} for {mesh_name}")
         plt.legend()
-        plt.savefig(f"{self.save_path}/{self.case_name}_{reaction_id}_delta_XS_{mesh_name}_{save_ssh_id}.png")
+        plt.savefig(f"{self.save_path}/{self.case_name}_{reaction_id}_delta_XS_hist_{mesh_name}_{save_ssh_id}.png")
+        plt.close()
+        return
+    
+    def plot_relative_differences_Rates(self, reaction_id, mesh_name, SSH_methods_to_compare):
+        """
+        Plot relative differences on reaction rates for a given reaction and energy mesh
+        """
+        plt.figure(figsize=(10, 6))
+        iso = reaction_id.split("_")[0]
+        reaction = reaction_id.split("_")[1]
+        if reaction == "ngamma":
+            reaction = "$(n,\gamma)$"
+        for SSH in SSH_methods_to_compare:
+            delta_Rates = self.delta_Rates[reaction_id][mesh_name][SSH]
+            u_mesh = self.mesh_objects[mesh_name].lethargyMesh
+            u = []
+            delta_rates_to_plot = [] 
+            for i in range(len(delta_Rates)):
+                u.extend([u_mesh[i],u_mesh[i+1]])
+                delta_rates_to_plot.extend([delta_Rates[i],delta_Rates[i]])
+            plt.step(u, delta_rates_to_plot, where='post', label=f"{iso} : $\\Delta \\tau$ {reaction} {SSH}")
+        plt.xlabel('Lethargy')
+        plt.ylabel(f"$\\Delta \\tau$ {reaction} (%)")
+        plt.legend()
+        plt.grid()
+        #plt.yscale('log')
+        plt.title(f"{iso} : $\\Delta \\tau$ {reaction} (D5 - AUTO) {mesh_name}")
+        plt.savefig(f"{self.save_path}/{self.case_name}_{reaction_id}_delta_Rates_{mesh_name}.png")
+        plt.close()
+
+        return
+    
+    def plot_relative_differences_XS(self, reaction_id, mesh_name, SSH_methods_to_compare):
+        """
+        Plot relative differences in cross sections for a given reaction and energy mesh
+        This is not a regular histogram as the energy groups are not equally spaced : each energy group is represented by a bar of lethargy width
+        """
+        plt.figure(figsize=(10, 6))
+        iso = reaction_id.split("_")[0]
+        reaction = reaction_id.split("_")[1]
+        if reaction == "ngamma":
+            reaction = "$(n,\gamma)$"
+        elif reaction == "abs":
+            reaction = "a"
+        for SSH in SSH_methods_to_compare:
+            delta_XS = self.delta_XS[reaction_id][mesh_name][SSH]
+            u_mesh = self.mesh_objects[mesh_name].lethargyMesh
+            u = []
+            delta_XS_to_plot = [] 
+            for i in range(len(delta_XS)):
+                u.extend([u_mesh[i],u_mesh[i+1]])
+                delta_XS_to_plot.extend([delta_XS[i],delta_XS[i]])
+            plt.step(u, delta_XS_to_plot, where='post', label=f"{iso} : $\\Delta \\sigma$ {reaction} {SSH}")
+        plt.xlabel('Lethargy')
+        plt.ylabel(f"$\\Delta \\sigma$ {reaction} (%)")
+        plt.legend()
+        plt.grid()
+        #plt.yscale('log')
+        plt.title(f"{iso} : $\\Delta \\sigma$ {reaction} (D5 - AUTO) {mesh_name}")
+        plt.savefig(f"{self.save_path}/{self.case_name}_{reaction_id}_delta_XS_{mesh_name}.png")
         plt.close()
         return
     
 class postTreatment_rates_XS_S2:
-    def __init__(self, case_name, mesh_objects, S2_libraries, BU_steps_to_treat):
+    def __init__(self, case_name, mesh_objects, S2_libraries, BU_steps_to_treat, save_path):
         self.case_name = case_name
         self.mesh_objects = mesh_objects
         self.libraries = S2_libraries
         self.BU_steps_to_treat = BU_steps_to_treat
         self.rates = {"SHEM281":{}, "SHEM295":{}, "SHEM315":{}}
         self.XS = {"SHEM281":{}, "SHEM295":{}, "SHEM315":{}}
+        self.delta_XS = {"Gd157_ngamma":{"SHEM281":[], "SHEM295":[], "SHEM315":[]},
+                         "Gd157_abs":{"SHEM281":[], "SHEM295":[], "SHEM315":[]},
+                         "U238_ngamma":{"SHEM281":[], "SHEM295":[], "SHEM315":[]}}  # dictionary to store the relative differences between cross sections, identified by reaction_id, mesh_name and library
+        self.delta_Rates = {"Gd157_ngamma":{"SHEM281":[], "SHEM295":[], "SHEM315":[]},
+                            "Gd157_abs":{"SHEM281":[], "SHEM295":[], "SHEM315":[]},
+                            "U238_ngamma":{"SHEM281":[], "SHEM295":[], "SHEM315":[]}} # dictionary to store the relative differences between reaction rates, identified by reaction_id, mesh_name and library
+        self.save_path = save_path
 
         return
     def parse_S2_outputs(self):
@@ -226,22 +296,28 @@ class postTreatment_rates_XS_S2:
         for bu_step in self.BU_steps_to_treat:
             for library in self.libraries:
                 for mesh_name in self.mesh_objects.keys():
-                    Gd_nGamma_rates, Gd_abs_rates, U8_nGamma_rates, U8_abs_rates = self.parse_Serpent_detector(path_S2, library, bu_step)
-                    self.rates[mesh_name][f"Gd157_ngamma_{library}_{bu_step}"] = Gd_nGamma_rates
-                    self.rates[mesh_name][f"Gd157_abs_{library}_{bu_step}"] = Gd_abs_rates
-                    self.rates[mesh_name][f"U8_ngamma_{library}_{bu_step}"] = U8_nGamma_rates
-                    self.rates[mesh_name][f"U8_abs_{library}_{bu_step}"] = U8_abs_rates
-                    Gd157_XS_102, Gd157_XS_101, U8_XS_102, U8_XS_101 = self.parse_Serpent_microdepletion(path_S2, library, bu_step)
-                    self.XS[mesh_name][f"Gd157_ngamma_{library}_{bu_step}"] = Gd157_XS_102
-                    self.XS[mesh_name][f"Gd157_abs_{library}_{bu_step}"] = Gd157_XS_101
-                    self.XS[mesh_name][f"U8_ngamma_{library}_{bu_step}"] = U8_XS_102
-                    self.XS[mesh_name][f"U8_abs_{library}_{bu_step}"] = U8_XS_101
+                    if mesh_name == "SHEM295": #only one supported for now 
+                        Gd_nGamma_rates, Gd_abs_rates, U238_nGamma_rates, U238_abs_rates = self.parse_Serpent_detector(path_S2, mesh_name, library, bu_step)
+                        self.rates[mesh_name][f"Gd157_ngamma_{library}_{bu_step}"] = Gd_nGamma_rates
+                        self.rates[mesh_name][f"Gd157_abs_{library}_{bu_step}"] = Gd_abs_rates
+                        self.rates[mesh_name][f"U238_ngamma_{library}_{bu_step}"] = U238_nGamma_rates
+                        self.rates[mesh_name][f"U238_abs_{library}_{bu_step}"] = U238_abs_rates
+                        Gd157_XS_102, Gd157_XS_101, U238_XS_102, U238_XS_101 = self.parse_Serpent_microdepletion(path_S2, mesh_name, library, bu_step)
+                        self.N_Gd157 = Gd157_XS_102[0]
+                        self.N_U238 = U238_XS_102[0]
+                        self.XS[mesh_name][f"Gd157_ngamma_{library}_{bu_step}"] = Gd157_XS_102[1:]
+                        self.XS[mesh_name][f"Gd157_abs_{library}_{bu_step}"] = Gd157_XS_101[1:]
+                        self.XS[mesh_name][f"U238_ngamma_{library}_{bu_step}"] = U238_XS_102[1:]
+                        self.XS[mesh_name][f"U238_abs_{library}_{bu_step}"] = U238_XS_101[1:]
         return
     
 
-    def parse_Serpent_detector(path_to_serpent_results, library, bu_step):
+    def parse_Serpent_detector(self, path_to_serpent_results, mesh_name, library, bu_step):
         # Read detector file
-        det = st.read(f"{path_to_serpent_results}/HOM_UOX_Gd157_XS_{library}_mc_det{bu_step}.m")
+        if mesh_name == "SHEM295":
+            det = st.read(f"{path_to_serpent_results}/HOM_UOX_Gd157_XS_{library}_mc_det{bu_step}.m")
+        else:
+            det = st.read(f"{path_to_serpent_results}/HOM_UOX_Gd157_XS_{mesh_name}_{library}_mc_det{bu_step}.m")
         # Get detector names
         Gd_det = det.detectors["Gd_det"].tallies
         print(Gd_det.shape)
@@ -251,23 +327,25 @@ class postTreatment_rates_XS_S2:
         print(f"Number of reactions: {n_reactions}")
         Gd_nGamma_rates = []
         Gd_abs_rates = []
-        U8_nGamma_rates = []
-        U8_abs_rates = []
+        U238_nGamma_rates = []
+        U238_abs_rates = []
         for group in range(n_groups):
             Gd_nGamma_rates.append(Gd_det[group, 0])
             Gd_abs_rates.append(Gd_det[group, 1])
-            U8_nGamma_rates.append(Gd_det[group, 2])
-            U8_abs_rates.append(Gd_det[group, 3])
+            U238_nGamma_rates.append(Gd_det[group, 2])
+            U238_abs_rates.append(Gd_det[group, 3])
         Gd_nGamma_rates_reversed = np.array(Gd_nGamma_rates[::-1])
         Gd_abs_rates_reversed = np.array(Gd_abs_rates[::-1])
-        U8_nGamma_rates_reversed = np.array(U8_nGamma_rates[::-1])
-        U8_abs_rates_reversed = np.array(U8_abs_rates[::-1])
-        return Gd_nGamma_rates_reversed, Gd_abs_rates_reversed, U8_nGamma_rates_reversed, U8_abs_rates_reversed
+        U238_nGamma_rates_reversed = np.array(U238_nGamma_rates[::-1])
+        U238_abs_rates_reversed = np.array(U238_abs_rates[::-1])
+        return Gd_nGamma_rates_reversed, Gd_abs_rates_reversed, U238_nGamma_rates_reversed, U238_abs_rates_reversed
     
-    def parse_Serpent_microdepletion(path_to_serpent_results, library, bu_step):
+    def parse_Serpent_microdepletion(self, path_to_serpent_results, mesh_name, library, bu_step):
         # Read mdep file
-        mdep = st.read(f"{path_to_serpent_results}/HOM_UOX_Gd157_XS_{library}_mc_mdx{bu_step}.m")
-
+        if mesh_name == "SHEM295":
+            mdep = st.read(f"{path_to_serpent_results}/HOM_UOX_Gd157_XS_{library}_mc_mdx{bu_step}.m")
+        else:
+            mdep = st.read(f"{path_to_serpent_results}/HOM_UOX_Gd157_XS_{mesh_name}_{library}_mc_mdx{bu_step}.m")
         mdep_scores = mdep.xsVal
 
         for key in mdep_scores['1'].keys():
@@ -275,10 +353,146 @@ class postTreatment_rates_XS_S2:
         for key in mdep_scores['2'].keys():
             Gd157_XS_101 = mdep_scores['2'][key]
         for key in mdep_scores['3'].keys():
-            U8_XS_102 = mdep_scores['3'][key]
+            U238_XS_102 = mdep_scores['3'][key]
         for key in mdep_scores['4'].keys():
-            U8_XS_101 = mdep_scores['4'][key]
-        return  Gd157_XS_102, Gd157_XS_101, U8_XS_102, U8_XS_101
+            U238_XS_101 = mdep_scores['4'][key]
+        return  Gd157_XS_102, Gd157_XS_101, U238_XS_102, U238_XS_101
+    
+    def plot_XS(self, mesh_name, reaction_id, bu_step):
+        plt.figure(figsize=(10, 6))
+        iso = reaction_id.split("_")[0]
+        reaction = reaction_id.split("_")[1]
+        u_mesh = self.mesh_objects[mesh_name].lethargyMesh
+        print(f"u_mesh = {u_mesh}")
+        print(f"mesh name = {mesh_name}")
+        print(f"len(u_mesh) = {len(u_mesh)}")
+        if reaction == "ngamma":
+            reaction = "$(n,\gamma)$"
+        for library in self.libraries:
+            XS = self.XS[mesh_name][f"{reaction_id}_{library}_{bu_step}"]
+            print(f"len(XS) = {len(XS)}")
+            u = []
+            XS_to_plot = [] 
+            for i in range(len(XS)):
+                u.extend([u_mesh[i],u_mesh[i+1]])
+                XS_to_plot.extend([XS[i],XS[i]])
+            plt.step(u, XS_to_plot, where='post', label=f"{library} {reaction} cross section")
+        plt.legend()
+        plt.xlabel('Lethargy')
+        plt.ylabel(f"$\sigma$ {reaction} (barns)")
+        plt.yscale('log')
+        plt.grid()
+        plt.title(f"Cross sections for {iso} {reaction}")
+        plt.savefig(f"{self.save_path}/{self.case_name}_{reaction_id}_XS_{mesh_name}_SERPENT2_{bu_step}.png")
+        plt.close()
+        return
+    
+    def plot_reaction_rates(self, mesh_name, reaction_id, bu_step):
+        plt.figure(figsize=(10, 6))
+        iso = reaction_id.split("_")[0]
+        reaction = reaction_id.split("_")[1]
+        u_mesh = self.mesh_objects[mesh_name].lethargyMesh
+        if reaction == "ngamma":
+            reaction = "$(n,\gamma)$"
+        for library in self.libraries:
+            rates = self.rates[mesh_name][f"{reaction_id}_{library}_{bu_step}"]
+            u = []
+            rates_to_plot = [] 
+            for i in range(len(rates)):
+                u.extend([u_mesh[i],u_mesh[i+1]])
+                rates_to_plot.extend([rates[i],rates[i]])
+            plt.step(u, rates_to_plot, where='post', label=f"{library} {reaction} reaction rates")
+        plt.legend()
+        plt.xlabel('Lethargy')
+        plt.ylabel(f"{reaction} rates")
+        plt.yscale('log')
+        plt.grid()
+        plt.title(f"Reaction rates for {iso} {reaction}")
+        plt.savefig(f"{self.save_path}/{self.case_name}_{reaction_id}_rates_{mesh_name}_SERPENT2_{bu_step}.png")
+        plt.close()
+        return
+    
+    def compute_relative_differences_XS(self, reaction_id, mesh_name, library, reference_library):
+        """
+        For a given reaction, energy mesh, compute the relative differences on cross sections between a reference library and the others.
+        """
+        for bu_step in self.BU_steps_to_treat:
+            XS_ref = self.XS[mesh_name][f"{reaction_id}_{reference_library}_{bu_step}"]
+            XS = self.XS[mesh_name][f"{reaction_id}_{library}_{bu_step}"]
+            delta_XS = (np.array(XS) - np.array(XS_ref))*100/np.array(XS_ref)
+            self.delta_XS[reaction_id][mesh_name].append(np.array(delta_XS))
+        return
+    def compute_relative_differences_Rates(self, reaction_id, mesh_name, library, reference_library):
+        """
+        For a given reaction, energy mesh, compute the relative differences on reaction rates between a reference library and the others.
+        """
+        for bu_step in self.BU_steps_to_treat:
+            rates_ref = self.rates[mesh_name][f"{reaction_id}_{reference_library}_{bu_step}"]
+            rates = self.rates[mesh_name][f"{reaction_id}_{library}_{bu_step}"]
+            delta_Rates = (np.array(rates) - np.array(rates_ref))*100/np.array(rates_ref)
+            self.delta_Rates[reaction_id][mesh_name].append(np.array(delta_Rates))
+        return 
+    
+    def plot_relative_differences_Rates(self, reaction_id, mesh_name, bu_step):
+        """
+        Plot relative differences on reaction rates for a given reaction and energy mesh at a given burnup step
+        This method is intended to be used after calling compute_relative_differences_rates
+        """
+        plt.figure(figsize=(10, 6))
+        iso = reaction_id.split("_")[0]
+        reaction = reaction_id.split("_")[1]
+        if reaction == "ngamma":
+            reaction = "$(n,\gamma)$"
+        # return index of differences list corresponding to the bu step to plot
+        idx = self.BU_steps_to_treat.index(bu_step)
+        # retrieve corresponding differences
+        delta_Rates = self.delta_Rates[reaction_id][mesh_name][idx]
+        u_mesh = self.mesh_objects[mesh_name].lethargyMesh
+        u = []
+        delta_rates_to_plot = [] 
+        for i in range(len(delta_Rates)):
+            u.extend([u_mesh[i],u_mesh[i+1]])
+            delta_rates_to_plot.extend([delta_Rates[i],delta_Rates[i]])
+        plt.step(u, delta_rates_to_plot, where='post', label=f"{iso} : $\\Delta \\tau$ {reaction}")
+        plt.xlabel('Lethargy')
+        plt.ylabel(f"$\\Delta \\tau$ {reaction} (%)")
+        plt.legend()
+        plt.grid()
+        #plt.yscale('log')
+        plt.title(f"{iso} : $\\Delta \\tau$ {reaction} (PyNjoy-oldlib) {mesh_name} at BU step {bu_step}")
+        plt.savefig(f"{self.save_path}/{self.case_name}_{reaction_id}_delta_Rates_{mesh_name}_SERPENT2_{bu_step}.png")
+        plt.close()
+        return
+    
+    def plot_relative_differences_XS(self, reaction_id, mesh_name, bu_step):
+        """
+        Plot relative differences on cross sections for a given reaction and energy mesh at a given burnup step
+        This method is intended to be used after calling compute_relative_differences_XS
+        """
+        plt.figure(figsize=(10, 6))
+        iso = reaction_id.split("_")[0]
+        reaction = reaction_id.split("_")[1]
+        if reaction == "ngamma":
+            reaction = "$(n,\gamma)$"
+        # return index of differences list corresponding to the bu step to plot
+        idx = self.BU_steps_to_treat.index(bu_step)
+        # retrieve corresponding differences
+        delta_XS = self.delta_XS[reaction_id][mesh_name][idx]
+        u_mesh = self.mesh_objects[mesh_name].lethargyMesh
+        u = []
+        delta_XS_to_plot = [] 
+        for i in range(len(delta_XS)):
+            u.extend([u_mesh[i],u_mesh[i+1]])
+            delta_XS_to_plot.extend([delta_XS[i],delta_XS[i]])
+        plt.step(u, delta_XS_to_plot, where='post', label=f"{iso} : $\\Delta \\sigma$ {reaction}")
+        plt.xlabel('Lethargy')
+        plt.ylabel(f"$\\Delta \\sigma$ {reaction} (%)")
+        plt.legend()
+        plt.grid()
+        plt.title(f"{iso} : $\\Delta \\sigma$ {reaction} (PyNjoy-oldlib) {mesh_name} at BU step {bu_step}")
+        plt.savefig(f"{self.save_path}/{self.case_name}_{reaction_id}_delta_XS_{mesh_name}_SERPENT2_{bu_step}.png")
+        plt.close()
+        return
 
 
         

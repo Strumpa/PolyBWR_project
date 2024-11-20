@@ -24,6 +24,7 @@ import cle2000
 from MeshHandler import energyMeshHandler as ENEMESH
 from PT_Gd157 import postTreatment_rates_XS_D5 as PT_D5
 from PT_Gd157 import postTreatment_rates_XS_S2 as PT_S2
+from compareD5_S2 import compare_D5_S2_rates_XS as CD5S2
 
 #os.chdir("Gd157_rates_XS_proc")
 path = os.getcwd()
@@ -34,9 +35,14 @@ os.chdir(path)
 # Creation of results directory
 path=os.getcwd()
 save_path = f"Gd157_Rates_and_XS_results_PyGan"
+save_path_comparison = f"{save_path}/comparison_D5_S2"
 a=os.path.exists(save_path)
 if a==False:
 	os.mkdir(save_path)
+
+a=os.path.exists(save_path_comparison)
+if a==False:
+	os.mkdir(save_path_comparison)
 case_name = "HOM_UOX_Gd157"
 
 meshes = ["SHEM281","SHEM295","SHEM315"]
@@ -47,7 +53,7 @@ Gd157_ngamma = {"SHEM281":{"Autosecol":{"XS":[], "rates":[]}, "RSE":{"XS":[], "r
 Gd157_abs =  {"SHEM281":{"Autosecol":{"XS":[], "rates":[]}, "RSE":{"XS":[], "rates":[]}, "PT":{"XS":[], "rates":[]}, "SUBG":{"XS":[], "rates":[]}},
                 "SHEM295":{"Autosecol":{"XS":[], "rates":[]}, "RSE":{"XS":[], "rates":[]}, "PT":{"XS":[], "rates":[]}, "SUBG":{"XS":[], "rates":[]}},
                 "SHEM315":{"Autosecol":{"XS":[], "rates":[]}, "RSE":{"XS":[], "rates":[]}, "PT":{"XS":[], "rates":[]}, "SUBG":{"XS":[], "rates":[]}}}
-U8_ngamma = {"SHEM281":{"Autosecol":{"XS":[], "rates":[]}, "RSE":{"XS":[], "rates":[]}, "PT":{"XS":[], "rates":[]}, "SUBG":{"XS":[], "rates":[]}},
+U238_ngamma = {"SHEM281":{"Autosecol":{"XS":[], "rates":[]}, "RSE":{"XS":[], "rates":[]}, "PT":{"XS":[], "rates":[]}, "SUBG":{"XS":[], "rates":[]}},
                 "SHEM295":{"Autosecol":{"XS":[], "rates":[]}, "RSE":{"XS":[], "rates":[]}, "PT":{"XS":[], "rates":[]}, "SUBG":{"XS":[], "rates":[]}},
                 "SHEM315":{"Autosecol":{"XS":[], "rates":[]}, "RSE":{"XS":[], "rates":[]}, "PT":{"XS":[], "rates":[]}, "SUBG":{"XS":[], "rates":[]}}}
 mesh_objects = {"SHEM281":None,"SHEM295":None,"SHEM315":None}
@@ -62,6 +68,7 @@ for mesh in meshes:
     elif mesh == "SHEM315":
         DIR = "EDIHOM_315"
     energyMESH = pyCOMPO[DIR]['MIXTURES'][0]['CALCULATIONS'][0]["ENERGY"]
+    print(energyMESH)
     print(f"The {mesh} mesh has {len(energyMESH)} energy bounds, so {len(energyMESH)-1} energy groups")
     MESH_obj = ENEMESH(mesh,energyMESH,1.0E+07,"eV")
     MESH_obj.printnfgCard()
@@ -77,43 +84,37 @@ for mesh in meshes:
         print(f"isotope = {isotope}")
         print(f"number of calculations = {len(pyCOMPO[DIR]['MIXTURES'][0]['CALCULATIONS'])}")
 
-        N_U8 = pyCOMPO[DIR]['MIXTURES'][0]['CALCULATIONS'][i]['ISOTOPESDENS'][0]
+        N_U238 = pyCOMPO[DIR]['MIXTURES'][0]['CALCULATIONS'][i]['ISOTOPESDENS'][0]
         N_Gd157 = pyCOMPO[DIR]['MIXTURES'][0]['CALCULATIONS'][i]['ISOTOPESDENS'][1]
 
-        XS_NGAMMA_U8 = pyCOMPO[DIR]['MIXTURES'][0]['CALCULATIONS'][i]['ISOTOPESLIST'][0]['NG'] 
+        XS_NGAMMA_U238 = pyCOMPO[DIR]['MIXTURES'][0]['CALCULATIONS'][i]['ISOTOPESLIST'][0]['NG'] 
         XS_NGAMMA_Gd157 = pyCOMPO[DIR]['MIXTURES'][0]['CALCULATIONS'][i]['ISOTOPESLIST'][1]['NG'] 
-
 
         PHI = pyCOMPO[DIR]['MIXTURES'][0]['CALCULATIONS'][i]['ISOTOPESLIST'][0]['NWT0']  
 
-        # Try to find the energy mesh in the compo : that would be really useful
-        # Will need to use the energyMesh handler class to create Serpent2 ene cards for cross section generation
-        
-        
-
         # Reconstruct reaction rates
         NGAMMA_Gd157_rates = np.array(XS_NGAMMA_Gd157)*np.array(PHI)*N_Gd157
-        NGAMMA_U8_rates = np.array(XS_NGAMMA_U8)*np.array(PHI)*N_U8
+        NGAMMA_U238_rates = np.array(XS_NGAMMA_U238)*np.array(PHI)*N_U238
 
         # Store the results in the dictionaries
 
         Gd157_ngamma[mesh][SSH_methods[SSH_methods_par[i]]]["rates"] = NGAMMA_Gd157_rates
-        U8_ngamma[mesh][SSH_methods[SSH_methods_par[i]]]["rates"] = NGAMMA_U8_rates
+        U238_ngamma[mesh][SSH_methods[SSH_methods_par[i]]]["rates"] = NGAMMA_U238_rates
 
         Gd157_ngamma[mesh][SSH_methods[SSH_methods_par[i]]]["XS"] = XS_NGAMMA_Gd157
-        U8_ngamma[mesh][SSH_methods[SSH_methods_par[i]]]["XS"] = XS_NGAMMA_U8
+        U238_ngamma[mesh][SSH_methods[SSH_methods_par[i]]]["XS"] = XS_NGAMMA_U238
 
         fluxes[mesh][SSH_methods[SSH_methods_par[i]]] = PHI
 
 # Visualize the ditionaries contents
 print(f"Gd157_ngamma = {Gd157_ngamma}")
-print(f"U8_ngamma = {U8_ngamma}")
+print(f"U238_ngamma = {U238_ngamma}")
 
 # Call post treatment class
 
 DRAGON5_case = PT_D5(case_name, mesh_objects, SSH_methods.values(), save_path)
 DRAGON5_case.set_reaction_data("Gd157_ngamma",Gd157_ngamma)
-DRAGON5_case.set_reaction_data("U8_ngamma",U8_ngamma)
+DRAGON5_case.set_reaction_data("U238_ngamma",U238_ngamma)
 DRAGON5_case.set_fluxes(fluxes)
 
 # Plot the results
@@ -121,9 +122,9 @@ DRAGON5_case.set_fluxes(fluxes)
 for mesh in meshes:
     DRAGON5_case.plot_fluxes(mesh)
     DRAGON5_case.plot_XS(mesh,"Gd157_ngamma")
-    DRAGON5_case.plot_XS(mesh,"U8_ngamma")
+    DRAGON5_case.plot_XS(mesh,"U238_ngamma")
     DRAGON5_case.plot_reaction_rates(mesh,"Gd157_ngamma")
-    DRAGON5_case.plot_reaction_rates(mesh,"U8_ngamma")
+    DRAGON5_case.plot_reaction_rates(mesh,"U238_ngamma")
     if mesh == "SHEM281":
         grmin = 1
         grmax = 281
@@ -133,35 +134,81 @@ for mesh in meshes:
     elif mesh == "SHEM315":
         grmin = 1
         grmax = 315
+    D5_SSH_methods = ["RSE","PT","SUBG"]
+    DRAGON5_case.compute_relative_differences_XS("Gd157_ngamma",mesh, "Autosecol", D5_SSH_methods)
+    DRAGON5_case.compute_relative_differences_XS("U238_ngamma",mesh, "Autosecol", D5_SSH_methods)
+    DRAGON5_case.compute_relative_differences_Rates("Gd157_ngamma",mesh, "Autosecol", D5_SSH_methods)
+    DRAGON5_case.compute_relative_differences_Rates("U238_ngamma",mesh, "Autosecol", D5_SSH_methods)
 
-    DRAGON5_case.compute_relative_differences_XS("Gd157_ngamma",mesh, "Autosecol", ["RSE","PT","SUBG"])
-    DRAGON5_case.compute_relative_differences_XS("U8_ngamma",mesh, "Autosecol", ["RSE","PT","SUBG"])
-    DRAGON5_case.compute_relative_differences_Rates("Gd157_ngamma",mesh, "Autosecol", ["RSE","PT","SUBG"])
-    DRAGON5_case.compute_relative_differences_Rates("U8_ngamma",mesh, "Autosecol", ["RSE","PT","SUBG"])
+    DRAGON5_case.plot_histogram_relative_differences_XS("Gd157_ngamma",mesh, D5_SSH_methods, grmin,grmax)
+    DRAGON5_case.plot_relative_differences_XS("Gd157_ngamma", mesh, D5_SSH_methods)
+    DRAGON5_case.plot_histogram_relative_differences_XS("U238_ngamma", mesh, D5_SSH_methods,grmin, grmax)
+    DRAGON5_case.plot_relative_differences_XS("U238_ngamma", mesh, D5_SSH_methods)
 
-    DRAGON5_case.plot_histogram_relative_differences_XS("Gd157_ngamma",mesh, ["RSE","PT","SUBG"],grmin,grmax)
-    DRAGON5_case.plot_histogram_relative_differences_XS("U8_ngamma",mesh, ["RSE","PT","SUBG"],grmin,grmax)
-    DRAGON5_case.plot_histogram_relative_differences_Rates("Gd157_ngamma",mesh, ["RSE","PT","SUBG"],grmin,grmax)
-    DRAGON5_case.plot_histogram_relative_differences_Rates("U8_ngamma",mesh, ["RSE","PT","SUBG"],grmin,grmax)
+    DRAGON5_case.plot_histogram_relative_differences_Rates("Gd157_ngamma", mesh, D5_SSH_methods, grmin, grmax)
+    DRAGON5_case.plot_relative_differences_Rates("Gd157_ngamma", mesh, D5_SSH_methods)
+    DRAGON5_case.plot_histogram_relative_differences_Rates("U238_ngamma", mesh, D5_SSH_methods, grmin, grmax)
+    DRAGON5_case.plot_relative_differences_Rates("U238_ngamma", mesh, D5_SSH_methods)
+    
+    for method in D5_SSH_methods:
+        DRAGON5_case.plot_histogram_relative_differences_XS("Gd157_ngamma",mesh, [method],grmin,grmax)
+        DRAGON5_case.plot_histogram_relative_differences_XS("U238_ngamma",mesh, [method],grmin,grmax)
+        DRAGON5_case.plot_histogram_relative_differences_Rates("Gd157_ngamma",mesh, [method],grmin,grmax)
+        DRAGON5_case.plot_histogram_relative_differences_Rates("U238_ngamma",mesh, [method],grmin,grmax)
 
-    DRAGON5_case.plot_histogram_relative_differences_XS("Gd157_ngamma",mesh, ["RSE"],grmin,grmax)
-    DRAGON5_case.plot_histogram_relative_differences_XS("U8_ngamma",mesh, ["RSE"],grmin,grmax)
-    DRAGON5_case.plot_histogram_relative_differences_Rates("Gd157_ngamma",mesh, ["RSE"],grmin,grmax)
-    DRAGON5_case.plot_histogram_relative_differences_Rates("U8_ngamma",mesh, ["RSE"],grmin,grmax)
-
-    DRAGON5_case.plot_histogram_relative_differences_XS("Gd157_ngamma",mesh, ["PT"],grmin,grmax)
-    DRAGON5_case.plot_histogram_relative_differences_XS("U8_ngamma",mesh, ["PT"],grmin,grmax)
-    DRAGON5_case.plot_histogram_relative_differences_Rates("Gd157_ngamma",mesh, ["PT"],grmin,grmax)
-    DRAGON5_case.plot_histogram_relative_differences_Rates("U8_ngamma",mesh, ["PT"],grmin,grmax)
-
-    DRAGON5_case.plot_histogram_relative_differences_XS("Gd157_ngamma",mesh, ["SUBG"],grmin,grmax)
-    DRAGON5_case.plot_histogram_relative_differences_XS("U8_ngamma",mesh, ["SUBG"],grmin,grmax)
-    DRAGON5_case.plot_histogram_relative_differences_Rates("Gd157_ngamma",mesh, ["SUBG"],grmin,grmax)
-    DRAGON5_case.plot_histogram_relative_differences_Rates("U8_ngamma",mesh, ["SUBG"],grmin,grmax)
-
-
-SERPENT2_case = PT_S2(case_name, mesh_objects, ["PyNjoy2016", "oldlib"], range(0,70))
+# Post-treatment for SERPENT2 results
+SERPENT2_case = PT_S2(case_name, mesh_objects, ["PyNjoy2016", "oldlib"], range(0,70), save_path)
 SERPENT2_case.parse_S2_outputs()
+
+for mesh_name in ["SHEM295"]: #["SHEM281","SHEM295","SHEM315"]: SHEM281 still running
+    # Plot XS and reaction rates at BU=0 for PyNjoy2016 and oldlib on SHEM281/295/315
+    SERPENT2_case.plot_XS(mesh_name,"Gd157_ngamma",bu_step=0)
+    SERPENT2_case.plot_XS(mesh_name,"U238_ngamma",bu_step=0)
+    SERPENT2_case.plot_reaction_rates(mesh_name,"Gd157_ngamma",bu_step=0)
+    SERPENT2_case.plot_reaction_rates(mesh_name,"U238_ngamma",bu_step=0)
+
+    # Compute relative differences
+    SERPENT2_case.compute_relative_differences_XS("Gd157_ngamma", mesh_name, "PyNjoy2016", "oldlib")
+    SERPENT2_case.compute_relative_differences_XS("U238_ngamma", mesh_name, "PyNjoy2016", "oldlib")
+    SERPENT2_case.compute_relative_differences_Rates("Gd157_ngamma", mesh_name, "PyNjoy2016", "oldlib")
+    SERPENT2_case.compute_relative_differences_Rates("U238_ngamma", mesh_name, "PyNjoy2016", "oldlib")
+
+    # Plot relative differences
+
+    SERPENT2_case.plot_relative_differences_XS("Gd157_ngamma", mesh_name, bu_step = 0)
+    SERPENT2_case.plot_relative_differences_XS("U238_ngamma", mesh_name, bu_step = 0)
+    SERPENT2_case.plot_relative_differences_Rates("Gd157_ngamma", mesh_name, bu_step = 0)
+    SERPENT2_case.plot_relative_differences_Rates("U238_ngamma", mesh_name, bu_step = 0)
+
+comparison_D5_S2 = CD5S2("HOM_UOX_Gd157_rates_XS_study", DRAGON5_case, SERPENT2_case, save_path_comparison)
+comparison_D5_S2.plot_rates_D5_S2("Gd157_ngamma", "SHEM295", ["Autosecol","RSE","PT","SUBG"])
+comparison_D5_S2.plot_XS_D5_S2("Gd157_ngamma", "SHEM295", ["Autosecol","RSE","PT","SUBG"])
+# renormalize reaction rates to the same value for both D5 and S2
+comparison_D5_S2.renorm_rates("Gd157_ngamma", "SHEM295")
+comparison_D5_S2.compare_reaction_rates_and_XS("Gd157_ngamma", "SHEM295", ["Autosecol","RSE","PT","SUBG"])
+
+comparison_D5_S2.plot_diff_rates_D5_S2("Gd157_ngamma", "SHEM295", "PyNjoy2016", ["Autosecol","RSE","PT","SUBG"])
+comparison_D5_S2.plot_diff_rates_D5_S2("Gd157_ngamma", "SHEM295", "oldlib", ["Autosecol","RSE","PT","SUBG"])
+
+comparison_D5_S2.plot_diff_rates_D5_S2("Gd157_ngamma", "SHEM295", "PyNjoy2016", ["Autosecol"])
+comparison_D5_S2.plot_diff_rates_D5_S2("Gd157_ngamma", "SHEM295", "oldlib", ["Autosecol"])
+comparison_D5_S2.plot_diff_rates_D5_S2("Gd157_ngamma", "SHEM295", "PyNjoy2016", ["RSE"])
+comparison_D5_S2.plot_diff_rates_D5_S2("Gd157_ngamma", "SHEM295", "oldlib", ["RSE"])
+comparison_D5_S2.plot_diff_rates_D5_S2("Gd157_ngamma", "SHEM295", "PyNjoy2016", ["PT"])
+comparison_D5_S2.plot_diff_rates_D5_S2("Gd157_ngamma", "SHEM295", "oldlib", ["PT"])
+comparison_D5_S2.plot_diff_rates_D5_S2("Gd157_ngamma", "SHEM295", "PyNjoy2016", ["SUBG"])
+comparison_D5_S2.plot_diff_rates_D5_S2("Gd157_ngamma", "SHEM295", "oldlib", ["SUBG"])
+
+comparison_D5_S2.plot_diff_XS_D5_S2("Gd157_ngamma", "SHEM295", "PyNjoy2016", ["Autosecol","RSE","PT","SUBG"])
+comparison_D5_S2.plot_diff_XS_D5_S2("Gd157_ngamma", "SHEM295", "oldlib", ["Autosecol","RSE","PT","SUBG"])
+comparison_D5_S2.plot_diff_XS_D5_S2("Gd157_ngamma", "SHEM295", "PyNjoy2016", ["Autosecol"])
+comparison_D5_S2.plot_diff_XS_D5_S2("Gd157_ngamma", "SHEM295", "oldlib", ["Autosecol"])
+comparison_D5_S2.plot_diff_XS_D5_S2("Gd157_ngamma", "SHEM295", "PyNjoy2016", ["RSE"])
+comparison_D5_S2.plot_diff_XS_D5_S2("Gd157_ngamma", "SHEM295", "oldlib", ["RSE"])
+comparison_D5_S2.plot_diff_XS_D5_S2("Gd157_ngamma", "SHEM295", "PyNjoy2016", ["PT"])
+comparison_D5_S2.plot_diff_XS_D5_S2("Gd157_ngamma", "SHEM295", "oldlib", ["PT"])
+comparison_D5_S2.plot_diff_XS_D5_S2("Gd157_ngamma", "SHEM295", "PyNjoy2016", ["SUBG"])
+comparison_D5_S2.plot_diff_XS_D5_S2("Gd157_ngamma", "SHEM295", "oldlib", ["SUBG"])
 
 
 print("Post-treatment done")
