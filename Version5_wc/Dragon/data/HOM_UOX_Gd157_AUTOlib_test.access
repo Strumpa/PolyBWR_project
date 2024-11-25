@@ -53,6 +53,9 @@ if [ -f "$pos"/draglibJeff3p1p1SHEM315 ]
    then
     ln -s "$pos"/draglibJeff3p1p1SHEM315 J311_315
 fi
-ln -s /tmp/shem295_Jeff3.1.1_test/draglibshem295_Jeff3.1.1_test J311_295_fine
+# draglibJ311SHEM295_Gd157 is a micXS lib with finer autolib mesh for Gd157 only.
+# It is tested in the HOM_UOX_Gd157_AUTOlib_test case to see if it improves estimation of Gd157 rates vs AUTO: and vs Serpent2.
+ln -s "$pos"/draglibJ311SHEM295_Gd157 J311_295_Gd157
+echo "reading xs in $pos"
 ls -l
 echo "HOM_UOX_Gd157_AUTOlib_test access script terminated"

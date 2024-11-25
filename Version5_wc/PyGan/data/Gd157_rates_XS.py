@@ -211,5 +211,11 @@ comparison_D5_S2.plot_diff_XS_D5_S2("Gd157_ngamma", "SHEM295", "PyNjoy2016", ["S
 comparison_D5_S2.plot_diff_XS_D5_S2("Gd157_ngamma", "SHEM295", "oldlib", ["SUBG"])
 
 
+comparison_D5_S2.find_top_differences_rates("PyNjoy2016", "Gd157_ngamma", "SHEM295", 5)
+comparison_D5_S2.find_top_differences_rates("oldlib", "Gd157_ngamma", "SHEM295", 5)
+comparison_D5_S2.find_top_differences_XS("PyNjoy2016", "Gd157_ngamma", "SHEM295", 5)
+comparison_D5_S2.find_top_differences_XS("oldlib", "Gd157_ngamma", "SHEM295", 5)
+
+
 print("Post-treatment done")
 

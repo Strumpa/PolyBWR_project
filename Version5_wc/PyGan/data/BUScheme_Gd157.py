@@ -25,13 +25,12 @@ import matplotlib
 
 # POST-PROCESSING 
 from POSTPROC_Gd157 import *
-from Serpent2_edep_pcc import Serpent2_case 
-from Serpent2_edep_pcc import SERPENT2_comparisons
 
 # --- StepLists 
 from getLists import *
 
 # Cle-2000 PROCEDURES
+from MixHGd157 import * # Builds the LIBRARY object
 from PCC0_Gd157 import * # Performs eulerian step predictor BU method with Constant Extrapolation only
 from PCC1_Gd157 import * # Performs predicor-corrector BU method with Constant Extrapolation and linear interpolation (?)
 from PCC2_Gd157 import * # Performs predicor step with Linear Extrapolation
@@ -40,31 +39,24 @@ from PCC3b_Gd157 import * # Same as PCC3 but with a second EVO: run to ensure co
 
 
 ########################################################################################################################################################################################
-#                                                        #
-#   PARAMETERS OF FLUX CALCULATION : TO BE MODIFIED      #
-#                                                        #
-##########################################################
+#                                                   			     #
+#   PARAMETERS OF FLUX/EVOLUTION CALCULATION : TO BE MODIFIED        #
+#                                                        			 #
+######################################################################
 #
 # Library = name of the Library used to build LIB: object
-Library = 'J311_295'
-
-
-name_study = 'HOM_CELL_PCC'
-#cases_to_run = ["HOM_UOX_Gd157"] # "HOM_U5", "HOM_U5_U8", "HOM_UOX", "HOM_UOX_clad_noZr", "HOM_UOX_clad", "HOM_UOX_Gd155", "HOM_UOX_Gd157", "HOM_UOX_no155157", "HOM_UOXGd"
-
+Library = 'J311_281' # J311_281, J311_295, J311_315, J311_172
+# If Library = J311_172, then a PyNjoy2016 generated library is used
+name_study = 'HOM_UOX_Gd157_PCC' # name of the study, for exportation purposes only
 
 S2_libs = ["PyNjoy2016","oldlib"]
 S2_PCC = ["PCC0","PCC1","PCC2","PCC3","PCC4","PCC6"] # all ran for PyNjoy2016, waiting on 3, 4 and 6 for oldlib
 
-ssh_module = "USS" #"USS", "AUTO"
-ssh_method = "PT" #"PT", "RSE", "SUBG" all supported for USS: but AUTO: only takes SUBG
+ssh_module = "AUTO" #"USS", "AUTO", "SHI"
+ssh_method = "RSE" #"PT", "RSE", "SUBG" all supported for USS: but AUTO: only takes SUBG
 # for RSE method : test with eps_RSE = 1.0E-1, 5.0E-2, 1.0E-2, 5.0E-3, 1.0E-3, 1.0E-4
 correlation = "noCORR" # "CORR", "noCORR"
 
-sat = "" # "NSAT", "SAT", "" for short-lived nuclide saturation or not
-depl_sol = "KAPS" # "RUNG" : 5th order Runge-Kutta (Cash-Karp) or "KAPS": 4th order Kaps-Rentrop
-
-#
 # burnup_points = string to use predefine burnup points matching with SERPENT2 results
 
 burnup_points = 'BOC_fine_autop5' #'Gd_VBOC_fine2_autop9' #'Gd_BOC_fine', 'Gd_autop4', 'Gd_autop3', 'Gd_VBOC_fine', 'Gd_BOC_fine'
@@ -82,7 +74,9 @@ visu_SERPENT=0
 visu_COMP=1
 visu_DELTA=1
 
-run_DRAGON = False
+run_DRAGON = True
+post_process_Gd157 = False
+post_treat_S2 = False
 
 ########################################################################################################################################################################################
 #                                                 #
@@ -91,18 +85,6 @@ run_DRAGON = False
 ###################################################
 
 if run_DRAGON:
-	case =  'HOM_CELL' 
-
-	#
-	# names for exportation
-	if sat == "SAT":
-		SAT = "_SAT"
-	elif sat == "SATOFF":
-		SAT = "_SATOFF"
-	elif sat == "NSAT":
-		SAT = "_NSAT"
-	else:
-		SAT = ""
 	if correlation == "CORR":
 		correlation_name = "_CORR"
 	elif correlation == "noCORR":
@@ -119,11 +101,12 @@ if run_DRAGON:
 	# Creation of results directory
 	path=os.getcwd()
 
-	a=os.path.exists(f"BWRresults_PyGan_{name_study}")
+	a=os.path.exists(f"PyGan_results_{name_study}")
+	print(f"PyGan_results_{name_study} exists: {a}")
 	if a==False:
-		os.mkdir(f"BWRresults_PyGan_{name_study}")
+		os.mkdir(f"PyGan_results_{name_study}")
 
-	SAVE_DIR=f'BWRresults_PyGan_{name_study}/{suffixe}_postprocess/{ssh_module}_{ssh_method}/'
+	SAVE_DIR=f'PyGan_results_{name_study}/{suffixe}_postprocess/{ssh_module}_{ssh_method}/'
 	a=os.path.exists(SAVE_DIR)
 	if a==False:
 		os.makedirs(SAVE_DIR)
@@ -140,7 +123,7 @@ if run_DRAGON:
 	StepList.close() # close without erasing
 	#
 	# Save BU vector
-	os.chdir(path+'/'+'BWRresults_PyGan_'+name_study)
+	os.chdir(path+'/'+'PyGan_results_'+name_study)
 	np.savetxt(name_BUvector+'_BUvector.txt',ListeCOMPO)
 	os.chdir(path)
 
@@ -149,78 +132,39 @@ if run_DRAGON:
 	#                                                 #
 	#      EXECUTION OF CLE-2000 PROCEDURES           #         
 	#                                                 #
+	###################################################
+
 	pyCOMPOs = {}
+	pyMIX = MixHGd157("LIBRARY", Library, ssh_method, correlation)
+	pyCOMPO_HOM_Gd157_PCC0 = PCC0_Gd157("COMPO_Gd157_PCC0", pyMIX, StepList, f"./_COMPO_HOM_UOX_Gd157_PCC0_{Library}_{suffixe}_{ssh_module}_{ssh_method}_{correlation}", ssh_module)
+	pyCOMPOs["HOM_Gd157_PCC0"] = pyCOMPO_HOM_Gd157_PCC0
 
-	pyCOMPO_HOM_Gd157 = PCC0_Gd157("COMPO_Gd157",StepList,f"./_COMPO_HOM_UOX_Gd157_{suffixe}_{depl_sol}{SAT}_{ssh_module}_{ssh_method}",ssh_module,ssh_method,sat,depl_sol)
-	pyCOMPOs["HOM_Gd157_PCC0"] = pyCOMPO_HOM_Gd157
-
-	pyCOMPO_HOM_Gd157_PCC1 = PCC1_Gd157("COMPO_Gd157_PCC1",StepList,f"./_COMPO_HOM_UOX_Gd157_PCC1")
+	pyCOMPO_HOM_Gd157_PCC1 = PCC1_Gd157("COMPO_Gd157_PCC1", pyMIX, StepList, f"./_COMPO_HOM_UOX_Gd157_PCC1_{Library}_{suffixe}_{ssh_module}_{ssh_method}_{correlation}", ssh_module)
 	pyCOMPOs["HOM_Gd157_PCC1"] = pyCOMPO_HOM_Gd157_PCC1
 
-	pyCOMPO_HOM_Gd157_PCC2 = PCC2_Gd157("COMPO_Gd157_PCC2",StepList,f"./_COMPO_HOM_UOX_Gd157_{suffixe}_{depl_sol}{SAT}_{ssh_module}_{ssh_method}_PCC2",ssh_module,ssh_method,sat,depl_sol)
+	pyCOMPO_HOM_Gd157_PCC2 = PCC2_Gd157("COMPO_Gd157_PCC2", pyMIX, StepList, f"./_COMPO_HOM_UOX_Gd157_PCC2_{Library}_{suffixe}_{ssh_module}_{ssh_method}_{correlation}", ssh_module)
 	pyCOMPOs["HOM_Gd157_PCC2"] = pyCOMPO_HOM_Gd157_PCC2
 
-	pyCOMPO_HOM_Gd157_PCC3 = PCC3_Gd157("COMPO_Gd157_PCC3",StepList,f"./_COMPO_HOM_UOX_Gd157_PCC3")
+	pyCOMPO_HOM_Gd157_PCC3 = PCC3_Gd157("COMPO_Gd157_PCC3", pyMIX, StepList, f"./_COMPO_HOM_UOX_Gd157_PCC3_{Library}_{suffixe}_{ssh_module}_{ssh_method}_{correlation}", ssh_module)
 	pyCOMPOs["HOM_Gd157_PCC3"] = pyCOMPO_HOM_Gd157_PCC3
 
-	pyCOMPO_HOM_Gd157_PCC4 = PCC3b_Gd157("COMPO_Gd157_PCC4",StepList,f"./_COMPO_HOM_UOX_Gd157_PCC4")
-	pyCOMPOs["HOM_Gd157_PCC3b"] = pyCOMPO_HOM_Gd157_PCC4
+	pyCOMPO_HOM_Gd157_PCC3b = PCC3b_Gd157("COMPO_Gd157_PCC3b", pyMIX, StepList, f"./_COMPO_HOM_UOX_Gd157_PCC3b_{Library}_{suffixe}_{ssh_module}_{ssh_method}_{correlation}", ssh_module)
+	pyCOMPOs["HOM_Gd157_PCC3b"] = pyCOMPO_HOM_Gd157_PCC3b
 
 
 	########################################################################################################################################################################################
 	#                                                 #
 	#             POST-PROCESSING                     #
 	#                                                 #
-
+	###################################################
+if post_process_Gd157:
 	print("Starting post-processing")
 	print(f"pyCompos.keys() = {pyCOMPOs.keys()}")
-	POSTPROC_Gd157(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_study,suffixe,VISU_param,Nmin,S2_libs,S2_PCC,ssh_module,ssh_method,correlation,depl_sol,sat)
+	POSTPROC_Gd157(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_study,suffixe,VISU_param,Nmin,S2_libs,S2_PCC,ssh_module,ssh_method,correlation)
 
 
 	########################################################################################################################################################################################
-CASES = []
-PyNjoy_cases = []
-oldlib_cases = []
-lib_name = "PyNjoy2016"
-S2_libs = ["PyNjoy2016","oldlib"]
-for lib_name in S2_libs:
-	if lib_name == "PyNjoy2016":
-		pcc_ids = [1,2]
-		edep_ids = [0,1,2]
-	elif lib_name == "oldlib":
-		pcc_ids = [1]
-		edep_ids = [0,1]
-	for pcc in pcc_ids:
-		for edep in edep_ids:
-			CASES.append(Serpent2_case("HOM_UOX_Gd157", edep, pcc, lib_name, ["U235", "U238", "Gd157", "Gd158"]))
-			if lib_name == "PyNjoy2016":
-				PyNjoy_cases.append(CASES[-1])
-			elif lib_name == "oldlib":
-				oldlib_cases.append(CASES[-1])
 
 
-for S2_case in CASES:
-	S2_case.plot_keff()
-	S2_case.plot_concentrations(["Gd157", "Gd158"])
-	#S2_case.rescale_BU("MWd/tU")	
 
-S2_comp_PyNjoy = SERPENT2_comparisons("Gd157 evolution schemes Pynjoy", PyNjoy_cases)
-S2_comp_PyNjoy.set_ref_case(ref_lib="PyNjoy2016", ref_edep=0, ref_pcc=1)
-S2_comp_PyNjoy.plot_keffs()
-S2_comp_PyNjoy.compute_delta_keffs()
-S2_comp_PyNjoy.compute_delta_Niso(["U235", "U238", "Gd157", "Gd158"])
-S2_comp_PyNjoy.plot_delta_keffs()
-S2_comp_PyNjoy.plot_delta_Niso(["U235", "U238", "Gd157", "Gd158"])
-
-S2_comp_oldlib = SERPENT2_comparisons("Gd157 evolution schemes", oldlib_cases)
-S2_comp_oldlib.set_ref_case(ref_lib="oldlib", ref_edep=0, ref_pcc=1)
-S2_comp_oldlib.plot_keffs()
-S2_comp_oldlib.compute_delta_keffs()
-S2_comp_oldlib.compute_delta_Niso(["U235", "U238", "Gd157", "Gd158"])
-S2_comp_oldlib.plot_delta_keffs()
-S2_comp_oldlib.plot_delta_Niso(["U235", "U238", "Gd157", "Gd158"])
-
-
-print("Serpent2 comparisons done")
-
-	
+		
