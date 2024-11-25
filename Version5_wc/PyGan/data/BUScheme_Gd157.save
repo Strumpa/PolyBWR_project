@@ -16,7 +16,6 @@ else
    MACH=`uname -sm | sed 's/[ ]/_/'`
 fi
 
-cp *.ps ./BWRresults_PyGan_*
-cp _COMPO* ./BWRresults_PyGan_*
-cp -r BWRresults_PyGan_* $1/"$MACH"/
+cp _COMPO* ./PyGan_results_HOM_UOX_Gd157_PCC/
+cp -r PyGan_results_HOM_UOX_Gd157_PCC/ $1/"$MACH"/
 echo '$$$ ----- BUScheme_Gd157.save : script finish'

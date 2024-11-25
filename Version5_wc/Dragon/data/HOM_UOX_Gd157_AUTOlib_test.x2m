@@ -17,18 +17,7 @@ STRING auto_method := "SUBG" ;
 * and different SSH methods in different 'SSH' parameter values :
 * A = AUTOSECOL, R = RSE, P = PT and S = SUBG  
 COMPO := COMPO: ::
-    EDIT 1
-    STEP UP 'EDIHOM_281'
-        MAXCAL 5
-        PARA 'SSH' VALU CHAR
-        ISOT 2 U238 Gd157
-    INIT
     STEP UP 'EDIHOM_295'
-        MAXCAL 5
-        PARA 'SSH' VALU CHAR
-        ISOT 2 U238 Gd157
-    INIT
-    STEP UP 'EDIHOM_315'
         MAXCAL 5
         PARA 'SSH' VALU CHAR
         ISOT 2 U238 Gd157

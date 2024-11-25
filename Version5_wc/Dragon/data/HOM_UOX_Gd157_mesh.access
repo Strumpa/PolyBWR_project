@@ -1,7 +1,7 @@
 #!/bin/sh
 if [ $# = 0 ]
    then
-   echo "usage: HOM_UOX_Gd157_autop.access directory" 1>&2
+   echo "usage: HOM_UOX_Gd157_mesh.access directory" 1>&2
    exit 1
 fi
 MACH=`uname -s`
@@ -23,6 +23,12 @@ then
 else
   echo 'use big endian libraries'
   pos=$1/../../libraries/b_endian
+fi
+if [ -f "$pos"/draglibJ311PyNjoy2016.gz ]
+   then
+    echo 'gunzipping draglibJ311PyNjoy2016'
+    chmod 755 "$pos"
+    gunzip "$pos"/draglibJ311PyNjoy2016.gz
 fi
 if [ -f "$pos"/draglibJeff3p1p1SHEM295.gz ]
    then
@@ -54,5 +60,9 @@ if [ -f "$pos"/draglibJeff3p1p1SHEM315 ]
    then
     ln -s "$pos"/draglibJeff3p1p1SHEM315 J311_315
 fi
+if [ -f "$pos"/draglibJ311PyNjoy2016 ]
+   then
+    ln -s "$pos"/draglibJ311PyNjoy2016 J311_172
+fi
 ls -l
-echo "HOM_UOX_Gd157_autop access script terminated"
+echo "HOM_UOX_Gd157_mesh access script terminated"

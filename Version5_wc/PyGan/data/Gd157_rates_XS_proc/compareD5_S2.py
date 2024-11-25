@@ -13,6 +13,7 @@ import sys
 
 class compare_D5_S2_rates_XS:
     def __init__(self, case_name, D5_case, S2_case, save_path):
+        self.E0 = 1.0E+07 # eV --> 10 MeV
         self.case_name = case_name
         self.D5_case = D5_case
         self.S2_case = S2_case
@@ -194,3 +195,91 @@ class compare_D5_S2_rates_XS:
         for library in self.S2_lib:
             self.S2_case.rates[mesh_name][f"{reaction_id}_{library}_0"] = self.S2_case.rates[mesh_name][f"{reaction_id}_{library}_0"]/np.sum(self.S2_case.rates[mesh_name][f"{reaction_id}_{library}_0"])
         return
+
+    def find_top_differences_rates(self, library, reaction_id, mesh, top_n=5):
+        """
+        Finds the indices of the top N maximal absolute differences in a nested dictionary.
+        
+        Parameters:
+            diff (dict): Nested dictionary containing differences as 
+                        diff[library][mesh][reaction_id][SSH].
+            library (str): The library to extract data from.
+            reaction_id (str): The reaction ID to extract data from.
+            mesh (str): The mesh to extract data from.
+            ssh (str): The SSH key to extract data from.
+            top_n (int): Number of top differences to return (default: 5).
+        
+        Returns:
+            list: Indices of the top N absolute differences.
+        """
+        print("$$$--- Begin find_top_differences_rates ---$$$")
+        iso = reaction_id.split("_")[0]
+        reaction = reaction_id.split("_")[1]
+        # Retrieve the differences for the given parameters
+    
+        for SSH in self.D5_S2_rates_diff[library][mesh][iso][reaction].keys():
+            differences = self.D5_S2_rates_diff[library][mesh][iso][reaction][SSH]
+    
+            # Compute the absolute values of the differences
+            absolute_differences = np.abs(differences)
+    
+            # Get the indices of the top N maximal differences
+            top_indices = sorted(range(len(absolute_differences)), 
+                                key=lambda i: absolute_differences[i], 
+                                reverse=True)[:top_n]
+            
+            # Print the top N maximal differences
+            print("\n")
+            print(f"Top {top_n} maximal differences on reaction rates for {reaction_id} in {library} library, {mesh} mesh, {SSH} SSH:")
+            for i, index in enumerate(top_indices):
+                print(f"Index {index}: {differences[index]}")
+                print(f"This corresponds to energy group {index+1} with lethargy bounds u_min = {self.D5_case.mesh_objects[mesh].lethargyMesh[index]} and u_max = {self.D5_case.mesh_objects[mesh].lethargyMesh[index+1]}")
+                print(f"and energy bounds E_min = {self.E0*np.exp(-self.D5_case.mesh_objects[mesh].lethargyMesh[index+1])} eV and E_max = {self.E0*np.exp(-self.D5_case.mesh_objects[mesh].lethargyMesh[index])} eV")
+                print("\n")
+        print("$$$--- End find_top_differences_rates ---$$$")
+        return
+
+    
+    def find_top_differences_XS(self, library, reaction_id, mesh, top_n=5):
+        """
+        Finds the indices of the top N maximal absolute differences in a nested dictionary.
+        
+        Parameters:
+            diff (dict): Nested dictionary containing differences as 
+                        diff[library][mesh][reaction_id][SSH].
+            library (str): The library to extract data from.
+            reaction_id (str): The reaction ID to extract data from.
+            mesh (str): The mesh to extract data from.
+            ssh (str): The SSH key to extract data from.
+            top_n (int): Number of top differences to return (default: 5).
+        
+        Returns:
+            list: Indices of the top N absolute differences.
+        """
+        print("$$$--- Begin find_top_differences_XS ---$$$")
+        iso = reaction_id.split("_")[0]
+        reaction = reaction_id.split("_")[1]
+        # Retrieve the differences for the given parameters
+        
+        for SSH in self.D5_S2_XS_diff[library][mesh][iso][reaction].keys():
+            differences = self.D5_S2_XS_diff[library][mesh][iso][reaction][SSH]
+    
+            # Compute the absolute values of the differences
+            absolute_differences = np.abs(differences)
+    
+            # Get the indices of the top N maximal differences
+            top_indices = sorted(range(len(absolute_differences)), 
+                                key=lambda i: absolute_differences[i], 
+                                reverse=True)[:top_n]
+            
+            # Print the top N maximal differences
+            print("\n")
+            print(f"Top {top_n} maximal differences on XS for {reaction_id} in {library} library, {mesh} mesh, {SSH} SSH:")
+            for i, index in enumerate(top_indices):
+                print(f"AT Index {index}: error is {differences[index]} %")
+                print(f"This corresponds to energy group {index+1} with lethargy bounds u_min = {self.D5_case.mesh_objects[mesh].lethargyMesh[index]} and u_max = {self.D5_case.mesh_objects[mesh].lethargyMesh[index+1]}")
+                print(f"and energy bounds E_min = {self.E0*np.exp(-self.D5_case.mesh_objects[mesh].lethargyMesh[index+1])} eV and E_max = {self.E0*np.exp(-self.D5_case.mesh_objects[mesh].lethargyMesh[index])} eV")
+                print("\n")
+        print("$$$--- End find_top_differences_XS ---$$$")
+        return
+
