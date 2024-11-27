@@ -1,6 +1,6 @@
 *DECK SNT1DC
       SUBROUTINE SNT1DC (IMPX,LX,NCODE,ZCODE,XXX,NLF,NPQ,NSCT,IQUAD,
-     1 JOP,U,W,TPQ,UPQ,VPQ,WPQ,ALPHA,PLZ,PL,VOL,IDL,SURF)
+     1 JOP,U,W,TPQ,UPQ,VPQ,WPQ,ALPHA,PLZ,PL,VOL,IDL,SURF,IL,IM)
 *
 *-----------------------------------------------------------------------
 *
@@ -49,13 +49,18 @@
 * VOL     volume of each element.
 * IDL     position of integrated fluxes into unknown vector.
 * SURF    surfaces.
+* IL      indexes (l) of each spherical harmonics in the
+*         interpolation basis.
+* IM      indexes (m) of each spherical harmonics in the
+*         interpolation basis.
 *
 *-----------------------------------------------------------------------
 *
 *----
 *  SUBROUTINE ARGUMENTS
 *----
-      INTEGER IMPX,LX,NCODE(2),NLF,NPQ,NSCT,IQUAD,JOP(NLF/2),IDL(LX)
+      INTEGER IMPX,LX,NCODE(2),NLF,NPQ,NSCT,IQUAD,JOP(NLF/2),IDL(LX),
+     1 IL(NSCT),IM(NSCT)
       REAL ZCODE(2),XXX(LX+1),U(NLF/2),W(NLF/2),PLZ(NSCT,NLF/2),
      1 PL(NSCT,NPQ),TPQ(NPQ),UPQ(NPQ),VPQ(NPQ),WPQ(NPQ),ALPHA(NPQ),
      2 VOL(LX),SURF(LX+1)
@@ -126,33 +131,37 @@
 *----
       IF(IMPX.GT.1) THEN
          WRITE(6,'(/20H SNT1DC: WEIGHT SUM=,1P,E11.4)') WSUM
-         WRITE(6,60) (U(M),M=1,M2)
+         WRITE(6,60) (U(N),N=1,M2)
    60    FORMAT(//,1X,'THE POSITIVE QUADRATURE COSINES FOLLOW'//
      1   (1X,5E14.6))
-         WRITE(6,70) (W(M),M=1,M2)
+         WRITE(6,70) (W(N),N=1,M2)
    70    FORMAT(//,1X,'THE CORRESPONDING QUADRATURE WEIGHTS FOLLOW'//
      1   (1X,5E14.6))
-         WRITE(6,74) (UPQ(M),M=1,NPQ)
+         WRITE(6,74) (UPQ(N),N=1,NPQ)
    74    FORMAT(//,1X,'THE BASE POINTS (MU) FOLLOW'//(1X,5E14.6))
-         WRITE(6,75) (WPQ(M),M=1,NPQ)
+         WRITE(6,75) (WPQ(N),N=1,NPQ)
    75    FORMAT(//,1X,'THE WEIGHTS FOLLOW'//(1X,5E14.6))
-         WRITE(6,76) (ALPHA(M),M=1,NPQ)
+         WRITE(6,76) (ALPHA(N),N=1,NPQ)
    76    FORMAT(//,1X,'THE ALPHAS FOLLOW'//(1X,5E14.6))
       ENDIF
 *----
 *  GENERATE SPHERICAL HARMONICS FOR SCATTERING SOURCE.
 *----
       IOF=0
-      DO 130 IL=0,NLF-1
-      DO 120 IM=0,IL
-      IF(MOD(IL+IM,2).EQ.1) GO TO 120
+      IL(:NSCT)=0
+      IM(:NSCT)=0
+      DO 130 L=0,NLF-1
+      DO 120 M=0,L
+      IF(MOD(L+M,2).EQ.1) GO TO 120
       IOF=IOF+1
+      IL(IOF)=L
+      IM(IOF)=M
       IF(IOF.GT.NSCT) GO TO 140
-      DO 100 M=1,M2
-      PLZ(IOF,M)=PNSH(IL,IM,U(M),-SQRT(1.0-U(M)*U(M)),0.0)
+      DO 100 N=1,M2
+      PLZ(IOF,N)=PNSH(L,M,U(N),-SQRT(1.0-U(N)*U(N)),0.0)
   100 CONTINUE
-      DO 110 M=1,NPQ
-      PL(IOF,M)=PNSH(IL,IM,TPQ(M),UPQ(M),VPQ(M))
+      DO 110 N=1,NPQ
+      PL(IOF,N)=PNSH(L,M,TPQ(N),UPQ(N),VPQ(N))
   110 CONTINUE
   120 CONTINUE
   130 CONTINUE

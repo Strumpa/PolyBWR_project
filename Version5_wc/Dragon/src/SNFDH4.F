@@ -1,8 +1,8 @@
 *DECK SNFDH4
       SUBROUTINE SNFDH4(NMZ,NUN,NGEFF,IMPX,INCONV,NGIND,NHEX,LZ,NBC,
      1 IELEM,ISPLH,SIDE,NMAT,NPQ,NSCT,MAT,VOL,NCODE,ZCODE,TOTAL,QEXT,
-     2 DU,DE,DZ,W,MRMZ,DC,DB,DA,PL,CONNEC,CONFROM,TASKLST,TASKSINWAVE,
-     3 CON_WHOAMI,CON_TOWHOM,FUNKNO)
+     2 DU,DE,DZ,W,MRMZ,DC,DB,DA,CONNEC,CONFROM,TASKLST,TASKSINWAVE,
+     3 CON_WHOAMI,CON_TOWHOM,FUNKNO,MN,DN)
 *
 *-----------------------------------------------------------------------
 *
@@ -55,8 +55,8 @@
 * DC      diamond-scheme parameter.
 * DB      diamond-scheme parameter.
 * DA      diamond-scheme parameter.
-* PL      discrete values of the spherical harmonics corresponding
-*         to the 2D SN quadrature.
+* MN      moment-to-discrete matrix.
+* DN      discrete-to-moment matrix.
 * CONNEC  connectivity matrix for flux swapping -- which lozenges is the
 *         lozenge under consideration connected to; in order to pass the
 *         flux along. This is dependent on direction.
@@ -84,11 +84,11 @@
       REAL SIDE,VOL(ISPLH,ISPLH,3,NHEX,LZ),ZCODE(6),TOTAL(0:NMAT,NGEFF),
      1 QEXT(NUN,NGEFF),DU(NPQ),DE(NPQ),DZ(NPQ),W(NPQ),
      2 DC(ISPLH*ISPLH*3*NHEX,1,NPQ),DB(ISPLH*ISPLH*3*NHEX,LZ,NPQ),
-     3 DA(1,LZ,NPQ),PL(NSCT,NPQ),FUNKNO(NUN,NGEFF)
+     3 DA(1,LZ,NPQ),FUNKNO(NUN,NGEFF),MN(NPQ,NSCT),DN(NSCT,NPQ)
 *----
 *  LOCAL VARIABLES
 *----
-      INTEGER NPQD(12),IIND(12)
+      INTEGER NPQD(12),IIND(12),P
       DOUBLE PRECISION Q(IELEM**3), Q2(IELEM**3,(IELEM**3)+1), VT
       PARAMETER(IUNOUT=6,PI=3.141592654)
       INTEGER :: ILOZSWP(3,6), IFROMI, IFROMJ
@@ -107,8 +107,6 @@
       INTEGER CHEXx,CSIDEx,CHEXy,CSIDEy
       DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:,:,:,:,:,:,:) :: BFLUX
       DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:,:,:,:,:,:,:) :: BFLUZ
-      DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:,:,:,:,:,:,:) :: TMPBZ
-      REAL, ALLOCATABLE, DIMENSION(:,:) :: TMP,TMP2
 *----
 *  DEFINITION OF CONSTANTS.
 *---- 
@@ -123,13 +121,8 @@
       ALLOCATE(INDANG(NPQ,12))
       ALLOCATE(FLUX(IELEM**3,NSCT))
       ALLOCATE(FLUX_G(IELEM**3,NSCT,3*ISPLH**2,NHEX,LZ,NGEFF))
-      ALLOCATE(BFLUX(3,NCOL,ISPLH,IELEM,IELEM,LZ,NGEFF))
-
-      ALLOCATE(BFLUZ(3,NHEX,ISPLH,ISPLH,IELEM,IELEM,NGEFF))
-      ALLOCATE(TMPBZ(3,NHEX,ISPLH,ISPLH,IELEM,IELEM,NGEFF))
-
-      ALLOCATE(TMP(NHEX*3*ISPLH*ISPLH*NPQ*IELEM*IELEM,NGEFF))
-      ALLOCATE(TMP2(NHEX*3*ISPLH*ISPLH*NPQ*IELEM*IELEM,NGEFF))
+      ALLOCATE(BFLUX(3,NCOL,ISPLH,IELEM,IELEM,LZ,NPQ/6))
+      ALLOCATE(BFLUZ(3,NHEX,ISPLH,ISPLH,IELEM,IELEM,NPQ/6))
 
       FLUX_G(:IELEM**3,:NSCT,:3*ISPLH**2,:NHEX,:LZ,:NGEFF)=0.0D0
 *----
@@ -140,16 +133,6 @@
       JAC = RESHAPE((/ 1., -SQRT(3.), 1., SQRT(3.), 2., 0., 1.,
      1    SQRT(3.), 2., 0., -1., SQRT(3.) /), SHAPE(JAC))
       JAC = (SIDE/2.)*JAC
-
-      TMP(:NHEX*3*ISPLH*ISPLH*NPQ*IELEM*IELEM,:NGEFF)=0.0
-      TMP2(:NHEX*3*ISPLH*ISPLH*NPQ*IELEM*IELEM,:NGEFF)=0.0
-      IF((NCODE(5).NE.1).or.(NCODE(6).NE.1))THEN
-        DO 776 IG=1,NGEFF
-          IF(.NOT.INCONV(IG)) GO TO 776
-          TMP2(1:L6,IG)=FUNKNO(L4+1:L4+L6,IG)
-  776   CONTINUE
-      ENDIF
-
 ************************************************************************
 ************************************************************************
 ************************************************************************
@@ -292,16 +275,10 @@
 *----
 *  KBA DIAGONAL LOOP
 *----
-      BFLUX(:3,:NCOL,:ISPLH,:IELEM,:IELEM,:LZ,:NGEFF)=0.0D0
-      BFLUZ(:3,:NHEX,:ISPLH,:ISPLH,:IELEM,:IELEM,:NGEFF)=0.0D0
-
-      NHEXPROCD = 0
+      BFLUX(:3,:NCOL,:ISPLH,:IELEM,:IELEM,:LZ,:)=0.0D0
+      BFLUZ(:3,:NHEX,:ISPLH,:ISPLH,:IELEM,:IELEM,:)=0.0D0
 
       DO 305 IDI=1,MAXWAVECNT
-
-      TMPBZ(:3,:NHEX,:ISPLH,:ISPLH,:IELEM,:IELEM,:NGEFF)=0.0D0
-
-      IF(IDI.NE.1) NHEXPROCD = NHEXPROCD + TASKSINWAVE(IDI-1)
 
 * Loop over macrocells // hexes in same sweep front
       DO 304 ICEL=1,TASKSINWAVE(IDI)
@@ -370,8 +347,8 @@
       
       DO IEL=1,IELEM
       DO JEL=1,IELEM
-         XNJ(IEL,JEL,K) = BFLUX(MSIDEy,MHEXy,I4,IEL,JEL,K,IG)
-         BFLUX(MSIDEy,MHEXy,I4,IEL,JEL,K,IG) = 0.0D0
+         XNJ(IEL,JEL,K) = BFLUX(MSIDEy,MHEXy,I4,IEL,JEL,K,IPQD)
+         BFLUX(MSIDEy,MHEXy,I4,IEL,JEL,K,IPQD) = 0.0D0
       ENDDO
       ENDDO
 
@@ -384,8 +361,8 @@
          DO IEL=1,IELEM
          DO JEL=1,IELEM
             XNI(IEL,JEL,J2,K) = 
-     1         BFLUX(MSIDEx,MHEXx,J4,IEL,JEL,K,IG)
-            BFLUX(MSIDEx,MHEXx,J4,IEL,JEL,K,IG) = 0.0D0
+     1         BFLUX(MSIDEx,MHEXx,J4,IEL,JEL,K,IPQD)
+            BFLUX(MSIDEx,MHEXx,J4,IEL,JEL,K,IPQD) = 0.0D0
          ENDDO
          ENDDO
       ENDIF
@@ -399,12 +376,12 @@
             IOF=((((((M-1)*NHEX+(I-1))*3+(J-1))*ISPLH+(J2-1))*ISPLH+
      1         (I2-1))*IELEM+(JEL-1))*IELEM+IEL
             IF(IND.LT.7) THEN
-               BFLUZ(J,I,I2,J2,IEL,JEL,IG)=FUNKNO(L4+IOF,IG)*ZCODE(5)
+               BFLUZ(J,I,I2,J2,IEL,JEL,IPQD)=FUNKNO(L4+IOF,IG)*ZCODE(5)
             ELSE
-               BFLUZ(J,I,I2,J2,IEL,JEL,IG)=FUNKNO(L4+IOF,IG)*ZCODE(6)
+               BFLUZ(J,I,I2,J2,IEL,JEL,IPQD)=FUNKNO(L4+IOF,IG)*ZCODE(6)
             ENDIF
             ELSE
-               BFLUZ(J,I,I2,J2,IEL,JEL,IG)=0.0D0
+               BFLUZ(J,I,I2,J2,IEL,JEL,IPQD)=0.0D0
             ENDIF
          ENDDO
          ENDDO
@@ -412,8 +389,8 @@
 
       DO IEL=1,IELEM
       DO JEL=1,IELEM
-         XNK(IEL,JEL) = BFLUZ(J,I,I2,J2,IEL,JEL,IG)
-         BFLUZ(J,I,I2,J2,IEL,JEL,IG) = 0
+         XNK(IEL,JEL) = BFLUZ(J,I,I2,J2,IEL,JEL,IPQD)
+         BFLUZ(J,I,I2,J2,IEL,JEL,IPQD) = 0
       ENDDO
       ENDDO
 *
@@ -430,10 +407,10 @@
 *     -----------------------------------------------------
       DO 170 IEL=1,IELEM**3
       Q(IEL)=0.0D0
-      DO 160 ISCT=1,NSCT
+      DO 160 P=1,NSCT
       IOF=(((((((K-1)*NHEX+(I-1))*3+(J-1))*ISPLH+(J2-1))*ISPLH+
-     1 (I2-1))*NSCT+(ISCT-1))*IELEM**3)+IEL
-      Q(IEL)=Q(IEL)+QEXT(IOF,IG)*PL(ISCT,M)/(4.0D0*PI)
+     1 (I2-1))*NSCT+(P-1))*IELEM**3)+IEL
+      Q(IEL)=Q(IEL)+QEXT(IOF,IG)*MN(M,P)
   160 CONTINUE
   170 CONTINUE
 *     -----------------------------------------------------
@@ -1834,173 +1811,170 @@
 ************************************************************************
       IF(ICELZ.LT.NCELZ)THEN
       IF(IELEM.EQ.1) THEN
-      BFLUZ(J,I,I2,J2,1,1,IG)=Q2(1,2) 
-      XNK(1,1) = BFLUZ(J,I,I2,J2,1,1,IG)
+      BFLUZ(J,I,I2,J2,1,1,IPQD)=Q2(1,2) 
+      XNK(1,1) = BFLUZ(J,I,I2,J2,1,1,IPQD)
       ELSE IF(IELEM.EQ.2) THEN
-      BFLUZ(J,I,I2,J2,1,1,IG)=Q2(1,9) + 
+      BFLUZ(J,I,I2,J2,1,1,IPQD)=Q2(1,9) + 
      >   SIGN(1.0,XIH)*3**(0.5D0)*Q2(5,9) 
-      BFLUZ(J,I,I2,J2,2,1,IG)=Q2(2,9) + 
+      BFLUZ(J,I,I2,J2,2,1,IPQD)=Q2(2,9) + 
      >   SIGN(1.0,XIH)*3**(0.5D0)*Q2(6,9) 
-      BFLUZ(J,I,I2,J2,1,2,IG)=Q2(3,9) + 
+      BFLUZ(J,I,I2,J2,1,2,IPQD)=Q2(3,9) + 
      >   SIGN(1.0,XIH)*3**(0.5D0)*Q2(7,9) 
-      BFLUZ(J,I,I2,J2,2,2,IG)=Q2(4,9) + 
+      BFLUZ(J,I,I2,J2,2,2,IPQD)=Q2(4,9) + 
      >   SIGN(1.0,XIH)*3**(0.5D0)*Q2(8,9) 
-      XNK(:,:) = BFLUZ(J,I,I2,J2,:,:,IG)
+      XNK(:,:) = BFLUZ(J,I,I2,J2,:,:,IPQD)
       ELSE IF(IELEM.EQ.3) THEN
-      BFLUZ(J,I,I2,J2,1,1,IG)= Q2(01,28) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,1,1,IPQD)= Q2(01,28) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(10,28) + 5**(0.5D0)*Q2(19,28)
-      BFLUZ(J,I,I2,J2,2,1,IG)= Q2(02,28) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,2,1,IPQD)= Q2(02,28) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(11,28) + 5**(0.5D0)*Q2(20,28)
-      BFLUZ(J,I,I2,J2,3,1,IG)= Q2(03,28) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,3,1,IPQD)= Q2(03,28) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(12,28) + 5**(0.5D0)*Q2(21,28)
-      BFLUZ(J,I,I2,J2,1,2,IG)= Q2(04,28) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,1,2,IPQD)= Q2(04,28) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(13,28) + 5**(0.5D0)*Q2(22,28)
-      BFLUZ(J,I,I2,J2,2,2,IG)= Q2(05,28) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,2,2,IPQD)= Q2(05,28) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(14,28) + 5**(0.5D0)*Q2(23,28)
-      BFLUZ(J,I,I2,J2,3,2,IG)= Q2(06,28) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,3,2,IPQD)= Q2(06,28) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(15,28) + 5**(0.5D0)*Q2(24,28)
-      BFLUZ(J,I,I2,J2,1,3,IG)= Q2(07,28) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,1,3,IPQD)= Q2(07,28) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(16,28) + 5**(0.5D0)*Q2(25,28)
-      BFLUZ(J,I,I2,J2,2,3,IG)= Q2(08,28) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,2,3,IPQD)= Q2(08,28) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(17,28) + 5**(0.5D0)*Q2(26,28)
-      BFLUZ(J,I,I2,J2,3,3,IG)= Q2(09,28) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,3,3,IPQD)= Q2(09,28) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(18,28) + 5**(0.5D0)*Q2(27,28)
-      XNK(:,:) = BFLUZ(J,I,I2,J2,:,:,IG)
+      XNK(:,:) = BFLUZ(J,I,I2,J2,:,:,IPQD)
       ELSEIF(IELEM.EQ.4)THEN
-      BFLUZ(J,I,I2,J2,1,1,IG)= Q2(01,65) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,1,1,IPQD)= Q2(01,65) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(17,65) + 5**(0.5D0)*Q2(33,65) + 
      >   SIGN(1.0,XIH)*7**(0.5D0)*Q2(49,65)
-      BFLUZ(J,I,I2,J2,2,1,IG)= Q2(02,65) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,2,1,IPQD)= Q2(02,65) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(18,65) + 5**(0.5D0)*Q2(34,65) + 
      >   SIGN(1.0,XIH)*7**(0.5D0)*Q2(50,65)
-      BFLUZ(J,I,I2,J2,3,1,IG)= Q2(03,65) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,3,1,IPQD)= Q2(03,65) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(19,65) + 5**(0.5D0)*Q2(35,65) + 
      >   SIGN(1.0,XIH)*7**(0.5D0)*Q2(51,65)
-      BFLUZ(J,I,I2,J2,4,1,IG)= Q2(04,65) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,4,1,IPQD)= Q2(04,65) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(20,65) + 5**(0.5D0)*Q2(36,65) + 
      >   SIGN(1.0,XIH)*7**(0.5D0)*Q2(52,65)
-      BFLUZ(J,I,I2,J2,1,2,IG)= Q2(05,65) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,1,2,IPQD)= Q2(05,65) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(21,65) + 5**(0.5D0)*Q2(37,65) + 
      >   SIGN(1.0,XIH)*7**(0.5D0)*Q2(53,65)
-      BFLUZ(J,I,I2,J2,2,2,IG)= Q2(06,65) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,2,2,IPQD)= Q2(06,65) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(22,65) + 5**(0.5D0)*Q2(38,65) + 
      >   SIGN(1.0,XIH)*7**(0.5D0)*Q2(54,65)
-      BFLUZ(J,I,I2,J2,3,2,IG)= Q2(07,65) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,3,2,IPQD)= Q2(07,65) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(23,65) + 5**(0.5D0)*Q2(39,65) + 
      >   SIGN(1.0,XIH)*7**(0.5D0)*Q2(55,65)
-      BFLUZ(J,I,I2,J2,4,2,IG)= Q2(08,65) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,4,2,IPQD)= Q2(08,65) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(24,65) + 5**(0.5D0)*Q2(40,65) + 
      >   SIGN(1.0,XIH)*7**(0.5D0)*Q2(56,65)
-      BFLUZ(J,I,I2,J2,1,3,IG)= Q2(09,65) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,1,3,IPQD)= Q2(09,65) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(25,65) + 5**(0.5D0)*Q2(41,65) + 
      >   SIGN(1.0,XIH)*7**(0.5D0)*Q2(57,65)
-      BFLUZ(J,I,I2,J2,2,3,IG)= Q2(10,65) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,2,3,IPQD)= Q2(10,65) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(26,65) + 5**(0.5D0)*Q2(42,65) + 
      >   SIGN(1.0,XIH)*7**(0.5D0)*Q2(58,65)
-      BFLUZ(J,I,I2,J2,3,3,IG)= Q2(11,65) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,3,3,IPQD)= Q2(11,65) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(27,65) + 5**(0.5D0)*Q2(43,65) + 
      >   SIGN(1.0,XIH)*7**(0.5D0)*Q2(59,65)
-      BFLUZ(J,I,I2,J2,4,3,IG)= Q2(12,65) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,4,3,IPQD)= Q2(12,65) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(28,65) + 5**(0.5D0)*Q2(44,65) + 
      >   SIGN(1.0,XIH)*7**(0.5D0)*Q2(60,65)
-      BFLUZ(J,I,I2,J2,1,4,IG)= Q2(13,65) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,1,4,IPQD)= Q2(13,65) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(29,65) + 5**(0.5D0)*Q2(45,65) + 
      >   SIGN(1.0,XIH)*7**(0.5D0)*Q2(61,65)
-      BFLUZ(J,I,I2,J2,2,4,IG)= Q2(14,65) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,2,4,IPQD)= Q2(14,65) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(30,65) + 5**(0.5D0)*Q2(46,65) + 
      >   SIGN(1.0,XIH)*7**(0.5D0)*Q2(62,65)
-      BFLUZ(J,I,I2,J2,3,4,IG)= Q2(15,65) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,3,4,IPQD)= Q2(15,65) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(31,65) + 5**(0.5D0)*Q2(47,65) + 
      >   SIGN(1.0,XIH)*7**(0.5D0)*Q2(63,65)
-      BFLUZ(J,I,I2,J2,4,4,IG)= Q2(16,65) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,4,4,IPQD)= Q2(16,65) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(32,65) + 5**(0.5D0)*Q2(48,65) + 
      >   SIGN(1.0,XIH)*7**(0.5D0)*Q2(64,65)
-      XNK(:,:) = BFLUZ(J,I,I2,J2,:,:,IG)
+      XNK(:,:) = BFLUZ(J,I,I2,J2,:,:,IPQD)
       ENDIF
       ELSEIF((ICELZ.EQ.NCELZ).OR.(K2.EQ.LZ))THEN
       IF(IELEM.EQ.1) THEN
-      BFLUZ(J,I,I2,J2,1,1,IG)=Q2(1,2) 
+      BFLUZ(J,I,I2,J2,1,1,IPQD)=Q2(1,2) 
       ELSE IF(IELEM.EQ.2) THEN
-      BFLUZ(J,I,I2,J2,1,1,IG)=Q2(1,9) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,1,1,IPQD)=Q2(1,9) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(5,9) 
-      BFLUZ(J,I,I2,J2,2,1,IG)=Q2(2,9) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,2,1,IPQD)=Q2(2,9) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(6,9) 
-      BFLUZ(J,I,I2,J2,1,2,IG)=Q2(3,9) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,1,2,IPQD)=Q2(3,9) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(7,9) 
-      BFLUZ(J,I,I2,J2,2,2,IG)=Q2(4,9) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,2,2,IPQD)=Q2(4,9) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(8,9) 
-C       WRITE(*,*) BFLUZ(J,I,I2,J2,:,:)
       ELSE IF(IELEM.EQ.3) THEN
-      BFLUZ(J,I,I2,J2,1,1,IG)= Q2(01,28) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,1,1,IPQD)= Q2(01,28) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(10,28) + 5**(0.5D0)*Q2(19,28)
-      BFLUZ(J,I,I2,J2,2,1,IG)= Q2(02,28) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,2,1,IPQD)= Q2(02,28) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(11,28) + 5**(0.5D0)*Q2(20,28)
-      BFLUZ(J,I,I2,J2,3,1,IG)= Q2(03,28) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,3,1,IPQD)= Q2(03,28) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(12,28) + 5**(0.5D0)*Q2(21,28)
-      BFLUZ(J,I,I2,J2,1,2,IG)= Q2(04,28) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,1,2,IPQD)= Q2(04,28) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(13,28) + 5**(0.5D0)*Q2(22,28)
-      BFLUZ(J,I,I2,J2,2,2,IG)= Q2(05,28) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,2,2,IPQD)= Q2(05,28) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(14,28) + 5**(0.5D0)*Q2(23,28)
-      BFLUZ(J,I,I2,J2,3,2,IG)= Q2(06,28) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,3,2,IPQD)= Q2(06,28) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(15,28) + 5**(0.5D0)*Q2(24,28)
-      BFLUZ(J,I,I2,J2,1,3,IG)= Q2(07,28) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,1,3,IPQD)= Q2(07,28) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(16,28) + 5**(0.5D0)*Q2(25,28)
-      BFLUZ(J,I,I2,J2,2,3,IG)= Q2(08,28) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,2,3,IPQD)= Q2(08,28) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(17,28) + 5**(0.5D0)*Q2(26,28)
-      BFLUZ(J,I,I2,J2,3,3,IG)= Q2(09,28) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,3,3,IPQD)= Q2(09,28) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(18,28) + 5**(0.5D0)*Q2(27,28)
       ELSEIF(IELEM.EQ.4) THEN
-      BFLUZ(J,I,I2,J2,1,1,IG)= Q2(01,65) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,1,1,IPQD)= Q2(01,65) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(17,65) + 5**(0.5D0)*Q2(33,65) + 
      >   SIGN(1.0,XIH)*7**(0.5D0)*Q2(49,65)
-      BFLUZ(J,I,I2,J2,2,1,IG)= Q2(02,65) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,2,1,IPQD)= Q2(02,65) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(18,65) + 5**(0.5D0)*Q2(34,65) + 
      >   SIGN(1.0,XIH)*7**(0.5D0)*Q2(50,65)
-      BFLUZ(J,I,I2,J2,3,1,IG)= Q2(03,65) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,3,1,IPQD)= Q2(03,65) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(19,65) + 5**(0.5D0)*Q2(35,65) + 
      >   SIGN(1.0,XIH)*7**(0.5D0)*Q2(51,65)
-      BFLUZ(J,I,I2,J2,4,1,IG)= Q2(04,65) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,4,1,IPQD)= Q2(04,65) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(20,65) + 5**(0.5D0)*Q2(36,65) + 
      >   SIGN(1.0,XIH)*7**(0.5D0)*Q2(52,65)
-      BFLUZ(J,I,I2,J2,1,2,IG)= Q2(05,65) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,1,2,IPQD)= Q2(05,65) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(21,65) + 5**(0.5D0)*Q2(37,65) + 
      >   SIGN(1.0,XIH)*7**(0.5D0)*Q2(53,65)
-      BFLUZ(J,I,I2,J2,2,2,IG)= Q2(06,65) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,2,2,IPQD)= Q2(06,65) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(22,65) + 5**(0.5D0)*Q2(38,65) + 
      >   SIGN(1.0,XIH)*7**(0.5D0)*Q2(54,65)
-      BFLUZ(J,I,I2,J2,3,2,IG)= Q2(07,65) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,3,2,IPQD)= Q2(07,65) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(23,65) + 5**(0.5D0)*Q2(39,65) + 
      >   SIGN(1.0,XIH)*7**(0.5D0)*Q2(55,65)
-      BFLUZ(J,I,I2,J2,4,2,IG)= Q2(08,65) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,4,2,IPQD)= Q2(08,65) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(24,65) + 5**(0.5D0)*Q2(40,65) + 
      >   SIGN(1.0,XIH)*7**(0.5D0)*Q2(56,65)
-      BFLUZ(J,I,I2,J2,1,3,IG)= Q2(09,65) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,1,3,IPQD)= Q2(09,65) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(25,65) + 5**(0.5D0)*Q2(41,65) + 
      >   SIGN(1.0,XIH)*7**(0.5D0)*Q2(57,65)
-      BFLUZ(J,I,I2,J2,2,3,IG)= Q2(10,65) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,2,3,IPQD)= Q2(10,65) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(26,65) + 5**(0.5D0)*Q2(42,65) + 
      >   SIGN(1.0,XIH)*7**(0.5D0)*Q2(58,65)
-      BFLUZ(J,I,I2,J2,3,3,IG)= Q2(11,65) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,3,3,IPQD)= Q2(11,65) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(27,65) + 5**(0.5D0)*Q2(43,65) + 
      >   SIGN(1.0,XIH)*7**(0.5D0)*Q2(59,65)
-      BFLUZ(J,I,I2,J2,4,3,IG)= Q2(12,65) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,4,3,IPQD)= Q2(12,65) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(28,65) + 5**(0.5D0)*Q2(44,65) + 
      >   SIGN(1.0,XIH)*7**(0.5D0)*Q2(60,65)
-      BFLUZ(J,I,I2,J2,1,4,IG)= Q2(13,65) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,1,4,IPQD)= Q2(13,65) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(29,65) + 5**(0.5D0)*Q2(45,65) + 
      >   SIGN(1.0,XIH)*7**(0.5D0)*Q2(61,65)
-      BFLUZ(J,I,I2,J2,2,4,IG)= Q2(14,65) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,2,4,IPQD)= Q2(14,65) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(30,65) + 5**(0.5D0)*Q2(46,65) + 
      >   SIGN(1.0,XIH)*7**(0.5D0)*Q2(62,65)
-      BFLUZ(J,I,I2,J2,3,4,IG)= Q2(15,65) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,3,4,IPQD)= Q2(15,65) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(31,65) + 5**(0.5D0)*Q2(47,65) + 
      >   SIGN(1.0,XIH)*7**(0.5D0)*Q2(63,65)
-      BFLUZ(J,I,I2,J2,4,4,IG)= Q2(16,65) + SIGN(1.0,XIH)
+      BFLUZ(J,I,I2,J2,4,4,IPQD)= Q2(16,65) + SIGN(1.0,XIH)
      >   *3**(0.5D0)*Q2(32,65) + 5**(0.5D0)*Q2(48,65) + 
      >   SIGN(1.0,XIH)*7**(0.5D0)*Q2(64,65)
       ENDIF
-      INDXY=ICEL
-      TMPBZ(J,INDXY,I2,J2,:,:,IG)=BFLUZ(J,I,I2,J2,:,:,IG)
       ENDIF
 * -------------------------------------------------------------------- *
       IF(JL.LT.ISPLH)THEN
@@ -2088,91 +2062,91 @@ C       WRITE(*,*) BFLUZ(J,I,I2,J2,:,:)
             C1=-1.0D0
          ENDIF
       IF(IELEM.EQ.1)THEN
-      BFLUX(CSIDEy,CHEXy,I3,1,1,K,IG) = Q2(1,2) 
+      BFLUX(CSIDEy,CHEXy,I3,1,1,K,IPQD) = Q2(1,2) 
       ELSEIF(IELEM.EQ.2)THEN
-      BFLUX(CSIDEy,CHEXy,I3,1,1,K,IG) = Q2(1,9) + 
+      BFLUX(CSIDEy,CHEXy,I3,1,1,K,IPQD) = Q2(1,9) + 
      >   SIGN(1.0,ETAH)*3**(0.5D0)*Q2(3,9) 
-      BFLUX(CSIDEy,CHEXy,I3,2,1,K,IG) = (Q2(2,9) +
+      BFLUX(CSIDEy,CHEXy,I3,2,1,K,IPQD) = (Q2(2,9) +
      >    SIGN(1.0,ETAH)*3**(0.5D0)*Q2(4,9))*C1 
-      BFLUX(CSIDEy,CHEXy,I3,1,2,K,IG) = Q2(5,9) +
+      BFLUX(CSIDEy,CHEXy,I3,1,2,K,IPQD) = Q2(5,9) +
      >    SIGN(1.0,ETAH)*3**(0.5D0)*Q2(7,9)
-      BFLUX(CSIDEy,CHEXy,I3,2,2,K,IG) = (Q2(6,9) + 
+      BFLUX(CSIDEy,CHEXy,I3,2,2,K,IPQD) = (Q2(6,9) + 
      >   SIGN(1.0,ETAH)*3**(0.5D0)*Q2(8,9))*C1
       ELSEIF(IELEM.EQ.3)THEN
-      BFLUX(CSIDEy,CHEXy,I3,1,1,K,IG) = Q2(01,28) + 
+      BFLUX(CSIDEy,CHEXy,I3,1,1,K,IPQD) = Q2(01,28) + 
      >   SIGN(1.0,ETAH)*3**(0.5D0)*Q2(04,28) + 
      >   5**(0.5D0)*Q2(07,28)
-      BFLUX(CSIDEy,CHEXy,I3,2,1,K,IG) = (Q2(02,28) +
+      BFLUX(CSIDEy,CHEXy,I3,2,1,K,IPQD) = (Q2(02,28) +
      >    SIGN(1.0,ETAH)*3**(0.5D0)*Q2(05,28) +
      >    5**(0.5D0)*Q2(08,28))*C1
-      BFLUX(CSIDEy,CHEXy,I3,3,1,K,IG) = Q2(03,28) + 
+      BFLUX(CSIDEy,CHEXy,I3,3,1,K,IPQD) = Q2(03,28) + 
      >   SIGN(1.0,ETAH)*3**(0.5D0)*Q2(06,28) + 
      >   5**(0.5D0)*Q2(09,28)
-      BFLUX(CSIDEy,CHEXy,I3,1,2,K,IG) = Q2(10,28) +
+      BFLUX(CSIDEy,CHEXy,I3,1,2,K,IPQD) = Q2(10,28) +
      >    SIGN(1.0,ETAH)*3**(0.5D0)*Q2(13,28) +
      >    5**(0.5D0)*Q2(16,28)
-      BFLUX(CSIDEy,CHEXy,I3,2,2,K,IG) = (Q2(11,28) + 
+      BFLUX(CSIDEy,CHEXy,I3,2,2,K,IPQD) = (Q2(11,28) + 
      >   SIGN(1.0,ETAH)*3**(0.5D0)*Q2(14,28) + 
      >   5**(0.5D0)*Q2(17,28))*C1
-      BFLUX(CSIDEy,CHEXy,I3,3,2,K,IG) = Q2(12,28) +
+      BFLUX(CSIDEy,CHEXy,I3,3,2,K,IPQD) = Q2(12,28) +
      >    SIGN(1.0,ETAH)*3**(0.5D0)*Q2(15,28) +
      >    5**(0.5D0)*Q2(18,28)
-      BFLUX(CSIDEy,CHEXy,I3,1,3,K,IG) = Q2(19,28) + 
+      BFLUX(CSIDEy,CHEXy,I3,1,3,K,IPQD) = Q2(19,28) + 
      >   SIGN(1.0,ETAH)*3**(0.5D0)*Q2(22,28) + 
      >   5**(0.5D0)*Q2(25,28)
-      BFLUX(CSIDEy,CHEXy,I3,2,3,K,IG) = (Q2(20,28) +
+      BFLUX(CSIDEy,CHEXy,I3,2,3,K,IPQD) = (Q2(20,28) +
      >    SIGN(1.0,ETAH)*3**(0.5D0)*Q2(23,28) +
      >    5**(0.5D0)*Q2(26,28))*C1
-      BFLUX(CSIDEy,CHEXy,I3,3,3,K,IG) = Q2(21,28) + 
+      BFLUX(CSIDEy,CHEXy,I3,3,3,K,IPQD) = Q2(21,28) + 
      >   SIGN(1.0,ETAH)*3**(0.5D0)*Q2(24,28) + 
      >   5**(0.5D0)*Q2(27,28)
       ELSEIF(IELEM.EQ.4)THEN
-      BFLUX(CSIDEy,CHEXy,I3,1,1,K,IG) = Q2(01,65) + SIGN(
+      BFLUX(CSIDEy,CHEXy,I3,1,1,K,IPQD) = Q2(01,65) + SIGN(
      >   1.0,ETAH)*3**(0.5D0)*Q2(05,65) + 5**(0.5D0)*Q2(09,65) 
      >   + SIGN(1.0,ETAH)*7**(0.5D0)*Q2(13,65)
-      BFLUX(CSIDEy,CHEXy,I3,2,1,K,IG) = (Q2(02,65) + SIGN
+      BFLUX(CSIDEy,CHEXy,I3,2,1,K,IPQD) = (Q2(02,65) + SIGN
      >   (1.0,ETAH)*3**(0.5D0)*Q2(06,65) + 5**(0.5D0)*Q2(10,65)
      >   + SIGN(1.0,ETAH)*7**(0.5D0)*Q2(14,65))*C1
-      BFLUX(CSIDEy,CHEXy,I3,3,1,K,IG) = Q2(03,65) + SIGN(
+      BFLUX(CSIDEy,CHEXy,I3,3,1,K,IPQD) = Q2(03,65) + SIGN(
      >   1.0,ETAH)*3**(0.5D0)*Q2(07,65) + 5**(0.5D0)*Q2(11,65) 
      >   + SIGN(1.0,ETAH)*7**(0.5D0)*Q2(15,65)
-      BFLUX(CSIDEy,CHEXy,I3,4,1,K,IG) = (Q2(04,65) + SIGN
+      BFLUX(CSIDEy,CHEXy,I3,4,1,K,IPQD) = (Q2(04,65) + SIGN
      >   (1.0,ETAH)*3**(0.5D0)*Q2(08,65) + 5**(0.5D0)*Q2(12,65)
      >   + SIGN(1.0,ETAH)*7**(0.5D0)*Q2(16,65))*C1
-      BFLUX(CSIDEy,CHEXy,I3,1,2,K,IG) = Q2(17,65) + SIGN
+      BFLUX(CSIDEy,CHEXy,I3,1,2,K,IPQD) = Q2(17,65) + SIGN
      >   (1.0,ETAH)*3**(0.5D0)*Q2(21,65) + 5**(0.5D0)*Q2(25,65)
      >   + SIGN(1.0,ETAH)*7**(0.5D0)*Q2(29,65)
-      BFLUX(CSIDEy,CHEXy,I3,2,2,K,IG) = (Q2(18,65) + SIGN(
+      BFLUX(CSIDEy,CHEXy,I3,2,2,K,IPQD) = (Q2(18,65) + SIGN(
      >   1.0,ETAH)*3**(0.5D0)*Q2(22,65) + 5**(0.5D0)*Q2(26,65) 
      >   + SIGN(1.0,ETAH)*7**(0.5D0)*Q2(30,65))*C1
-      BFLUX(CSIDEy,CHEXy,I3,3,2,K,IG) = Q2(19,65) + SIGN
+      BFLUX(CSIDEy,CHEXy,I3,3,2,K,IPQD) = Q2(19,65) + SIGN
      >   (1.0,ETAH)*3**(0.5D0)*Q2(23,65) + 5**(0.5D0)*Q2(27,65)
      >   + SIGN(1.0,ETAH)*7**(0.5D0)*Q2(31,65)
-      BFLUX(CSIDEy,CHEXy,I3,4,2,K,IG) = (Q2(20,65) + SIGN(
+      BFLUX(CSIDEy,CHEXy,I3,4,2,K,IPQD) = (Q2(20,65) + SIGN(
      >   1.0,ETAH)*3**(0.5D0)*Q2(24,65) + 5**(0.5D0)*Q2(28,65) 
      >   + SIGN(1.0,ETAH)*7**(0.5D0)*Q2(32,65))*C1
-      BFLUX(CSIDEy,CHEXy,I3,1,3,K,IG) = Q2(33,65) + SIGN(
+      BFLUX(CSIDEy,CHEXy,I3,1,3,K,IPQD) = Q2(33,65) + SIGN(
      >   1.0,ETAH)*3**(0.5D0)*Q2(37,65) + 5**(0.5D0)*Q2(41,65) 
      >   + SIGN(1.0,ETAH)*7**(0.5D0)*Q2(45,65)
-      BFLUX(CSIDEy,CHEXy,I3,2,3,K,IG) = (Q2(34,65) + SIGN
+      BFLUX(CSIDEy,CHEXy,I3,2,3,K,IPQD) = (Q2(34,65) + SIGN
      >   (1.0,ETAH)*3**(0.5D0)*Q2(38,65) + 5**(0.5D0)*Q2(42,65)
      >   + SIGN(1.0,ETAH)*7**(0.5D0)*Q2(46,65))*C1
-      BFLUX(CSIDEy,CHEXy,I3,3,3,K,IG) = Q2(35,65) + SIGN(
+      BFLUX(CSIDEy,CHEXy,I3,3,3,K,IPQD) = Q2(35,65) + SIGN(
      >   1.0,ETAH)*3**(0.5D0)*Q2(39,65) + 5**(0.5D0)*Q2(43,65) 
      >   + SIGN(1.0,ETAH)*7**(0.5D0)*Q2(47,65)
-      BFLUX(CSIDEy,CHEXy,I3,4,3,K,IG) = (Q2(36,65) + SIGN
+      BFLUX(CSIDEy,CHEXy,I3,4,3,K,IPQD) = (Q2(36,65) + SIGN
      >   (1.0,ETAH)*3**(0.5D0)*Q2(40,65) + 5**(0.5D0)*Q2(44,65)
      >   + SIGN(1.0,ETAH)*7**(0.5D0)*Q2(48,65))*C1
-      BFLUX(CSIDEy,CHEXy,I3,1,4,K,IG) = Q2(49,65) + SIGN
+      BFLUX(CSIDEy,CHEXy,I3,1,4,K,IPQD) = Q2(49,65) + SIGN
      >   (1.0,ETAH)*3**(0.5D0)*Q2(53,65) + 5**(0.5D0)*Q2(57,65)
      >   + SIGN(1.0,ETAH)*7**(0.5D0)*Q2(61,65)
-      BFLUX(CSIDEy,CHEXy,I3,2,4,K,IG) = (Q2(50,65) + SIGN(
+      BFLUX(CSIDEy,CHEXy,I3,2,4,K,IPQD) = (Q2(50,65) + SIGN(
      >   1.0,ETAH)*3**(0.5D0)*Q2(54,65) + 5**(0.5D0)*Q2(58,65) 
      >   + SIGN(1.0,ETAH)*7**(0.5D0)*Q2(62,65))*C1
-      BFLUX(CSIDEy,CHEXy,I3,3,4,K,IG) = Q2(51,65) + SIGN
+      BFLUX(CSIDEy,CHEXy,I3,3,4,K,IPQD) = Q2(51,65) + SIGN
      >   (1.0,ETAH)*3**(0.5D0)*Q2(55,65) + 5**(0.5D0)*Q2(59,65)
      >   + SIGN(1.0,ETAH)*7**(0.5D0)*Q2(63,65)
-      BFLUX(CSIDEy,CHEXy,I3,4,4,K,IG) = (Q2(52,65) + SIGN(
+      BFLUX(CSIDEy,CHEXy,I3,4,4,K,IPQD) = (Q2(52,65) + SIGN(
      >   1.0,ETAH)*3**(0.5D0)*Q2(56,65) + 5**(0.5D0)*Q2(60,65) 
      >   + SIGN(1.0,ETAH)*7**(0.5D0)*Q2(64,65))*C1
       ENDIF
@@ -2263,100 +2237,100 @@ C             J3=ISPLH+1-J2
             C1=-1.0D0
          ENDIF
       IF(IELEM.EQ.1)THEN
-      BFLUX(CSIDEx,CHEXx,J3,1,1,K,IG) = Q2(1,2) 
+      BFLUX(CSIDEx,CHEXx,J3,1,1,K,IPQD) = Q2(1,2) 
       ELSEIF(IELEM.EQ.2)THEN
-      BFLUX(CSIDEx,CHEXx,J3,1,1,K,IG) = Q2(1,9) + 
+      BFLUX(CSIDEx,CHEXx,J3,1,1,K,IPQD) = Q2(1,9) + 
      >   SIGN(1.0,MUH)*3**(0.5D0)*Q2(2,9) 
-      BFLUX(CSIDEx,CHEXx,J3,2,1,K,IG) = (Q2(3,9) +
+      BFLUX(CSIDEx,CHEXx,J3,2,1,K,IPQD) = (Q2(3,9) +
      >    SIGN(1.0,MUH)*3**(0.5D0)*Q2(4,9))*C1
-      BFLUX(CSIDEx,CHEXx,J3,1,2,K,IG) = Q2(5,9) +
+      BFLUX(CSIDEx,CHEXx,J3,1,2,K,IPQD) = Q2(5,9) +
      >    SIGN(1.0,MUH)*3**(0.5D0)*Q2(6,9)
-      BFLUX(CSIDEx,CHEXx,J3,2,2,K,IG) = (Q2(7,9) + 
+      BFLUX(CSIDEx,CHEXx,J3,2,2,K,IPQD) = (Q2(7,9) + 
      >   SIGN(1.0,MUH)*3**(0.5D0)*Q2(8,9))*C1 
       ELSEIF(IELEM.EQ.3)THEN
-      BFLUX(CSIDEx,CHEXx,J3,1,1,K,IG) = Q2(01,28) + 
+      BFLUX(CSIDEx,CHEXx,J3,1,1,K,IPQD) = Q2(01,28) + 
      >   SIGN(1.0,MUH)*3**(0.5D0)*Q2(02,28) + 
      >   5**(0.5D0)*Q2(03,28)
-      BFLUX(CSIDEx,CHEXx,J3,2,1,K,IG) = (Q2(04,28) +
+      BFLUX(CSIDEx,CHEXx,J3,2,1,K,IPQD) = (Q2(04,28) +
      >    SIGN(1.0,MUH)*3**(0.5D0)*Q2(05,28) +
      >    5**(0.5D0)*Q2(06,28))*C1
-      BFLUX(CSIDEx,CHEXx,J3,3,1,K,IG) = Q2(07,28) + 
+      BFLUX(CSIDEx,CHEXx,J3,3,1,K,IPQD) = Q2(07,28) + 
      >   SIGN(1.0,MUH)*3**(0.5D0)*Q2(08,28) + 
      >   5**(0.5D0)*Q2(09,28)
-      BFLUX(CSIDEx,CHEXx,J3,1,2,K,IG) = Q2(10,28) +
+      BFLUX(CSIDEx,CHEXx,J3,1,2,K,IPQD) = Q2(10,28) +
      >    SIGN(1.0,MUH)*3**(0.5D0)*Q2(11,28) +
      >    5**(0.5D0)*Q2(12,28)
-      BFLUX(CSIDEx,CHEXx,J3,2,2,K,IG) = (Q2(13,28) + 
+      BFLUX(CSIDEx,CHEXx,J3,2,2,K,IPQD) = (Q2(13,28) + 
      >   SIGN(1.0,MUH)*3**(0.5D0)*Q2(14,28) + 
      >   5**(0.5D0)*Q2(15,28))*C1
-      BFLUX(CSIDEx,CHEXx,J3,3,2,K,IG) = Q2(16,28) +
+      BFLUX(CSIDEx,CHEXx,J3,3,2,K,IPQD) = Q2(16,28) +
      >    SIGN(1.0,MUH)*3**(0.5D0)*Q2(17,28) +
      >    5**(0.5D0)*Q2(18,28)
-      BFLUX(CSIDEx,CHEXx,J3,1,3,K,IG) = Q2(19,28) + 
+      BFLUX(CSIDEx,CHEXx,J3,1,3,K,IPQD) = Q2(19,28) + 
      >   SIGN(1.0,MUH)*3**(0.5D0)*Q2(20,28) + 
      >   5**(0.5D0)*Q2(21,28)
-      BFLUX(CSIDEx,CHEXx,J3,2,3,K,IG) = (Q2(22,28) +
+      BFLUX(CSIDEx,CHEXx,J3,2,3,K,IPQD) = (Q2(22,28) +
      >    SIGN(1.0,MUH)*3**(0.5D0)*Q2(23,28) +
      >    5**(0.5D0)*Q2(24,28))*C1
-      BFLUX(CSIDEx,CHEXx,J3,3,3,K,IG) = Q2(25,28) + 
+      BFLUX(CSIDEx,CHEXx,J3,3,3,K,IPQD) = Q2(25,28) + 
      >   SIGN(1.0,MUH)*3**(0.5D0)*Q2(26,28) + 
      >   5**(0.5D0)*Q2(27,28)
       ELSEIF(IELEM.EQ.4)THEN
-      BFLUX(CSIDEx,CHEXx,J3,1,1,K,IG) = Q2(01,65) + 
+      BFLUX(CSIDEx,CHEXx,J3,1,1,K,IPQD) = Q2(01,65) + 
      >   SIGN(1.0,MUH)*3**(0.5D0)*Q2(02,65) + 5**(0.5D0)*
      >   Q2(03,65) + SIGN(1.0,MUH)*7**(0.5D0)*Q2(04,65)
-      BFLUX(CSIDEx,CHEXx,J3,2,1,K,IG) = (Q2(05,65) +
+      BFLUX(CSIDEx,CHEXx,J3,2,1,K,IPQD) = (Q2(05,65) +
      >    SIGN(1.0,MUH)*3**(0.5D0)*Q2(06,65) + 5**(0.5D0)
      >   *Q2(07,65) + SIGN(1.0,MUH)*7**(0.5D0)*Q2(08,65))*C1
-      BFLUX(CSIDEx,CHEXx,J3,3,1,K,IG) = Q2(09,65) + 
+      BFLUX(CSIDEx,CHEXx,J3,3,1,K,IPQD) = Q2(09,65) + 
      >   SIGN(1.0,MUH)*3**(0.5D0)*Q2(10,65) + 5**(0.5D0)*
      >   Q2(11,65) + SIGN(1.0,MUH)*7**(0.5D0)*Q2(12,65)
-      BFLUX(CSIDEx,CHEXx,J3,4,1,K,IG) = (Q2(13,65) +
+      BFLUX(CSIDEx,CHEXx,J3,4,1,K,IPQD) = (Q2(13,65) +
      >    SIGN(1.0,MUH)*3**(0.5D0)*Q2(14,65) + 5**(0.5D0)
      >   *Q2(15,65) + SIGN(1.0,MUH)*7**(0.5D0)*Q2(16,65))*C1
-      BFLUX(CSIDEx,CHEXx,J3,1,2,K,IG) = Q2(17,65) +
+      BFLUX(CSIDEx,CHEXx,J3,1,2,K,IPQD) = Q2(17,65) +
      >    SIGN(1.0,MUH)*3**(0.5D0)*Q2(18,65) + 5**(0.5D0)
      >   *Q2(19,65) + SIGN(1.0,MUH)*7**(0.5D0)*Q2(20,65)
-      BFLUX(CSIDEx,CHEXx,J3,2,2,K,IG) = (Q2(21,65) + 
+      BFLUX(CSIDEx,CHEXx,J3,2,2,K,IPQD) = (Q2(21,65) + 
      >   SIGN(1.0,MUH)*3**(0.5D0)*Q2(22,65) + 5**(0.5D0)*
      >   Q2(23,65) + SIGN(1.0,MUH)*7**(0.5D0)*Q2(24,65))*C1
-      BFLUX(CSIDEx,CHEXx,J3,3,2,K,IG) = Q2(25,65) +
+      BFLUX(CSIDEx,CHEXx,J3,3,2,K,IPQD) = Q2(25,65) +
      >    SIGN(1.0,MUH)*3**(0.5D0)*Q2(26,65) + 5**(0.5D0)
      >   *Q2(27,65) + SIGN(1.0,MUH)*7**(0.5D0)*Q2(28,65)
-      BFLUX(CSIDEx,CHEXx,J3,4,2,K,IG) = (Q2(29,65) + 
+      BFLUX(CSIDEx,CHEXx,J3,4,2,K,IPQD) = (Q2(29,65) + 
      >   SIGN(1.0,MUH)*3**(0.5D0)*Q2(30,65) + 5**(0.5D0)*
      >   Q2(31,65) + SIGN(1.0,MUH)*7**(0.5D0)*Q2(32,65))*C1
-      BFLUX(CSIDEx,CHEXx,J3,1,3,K,IG) = Q2(33,65) + 
+      BFLUX(CSIDEx,CHEXx,J3,1,3,K,IPQD) = Q2(33,65) + 
      >   SIGN(1.0,MUH)*3**(0.5D0)*Q2(34,65) + 5**(0.5D0)*
      >   Q2(35,65) + SIGN(1.0,MUH)*7**(0.5D0)*Q2(36,65)
-      BFLUX(CSIDEx,CHEXx,J3,2,3,K,IG) = (Q2(37,65) +
+      BFLUX(CSIDEx,CHEXx,J3,2,3,K,IPQD) = (Q2(37,65) +
      >    SIGN(1.0,MUH)*3**(0.5D0)*Q2(38,65) + 5**(0.5D0)
      >   *Q2(39,65) + SIGN(1.0,MUH)*7**(0.5D0)*Q2(40,65))*C1
-      BFLUX(CSIDEx,CHEXx,J3,3,3,K,IG) = Q2(41,65) + 
+      BFLUX(CSIDEx,CHEXx,J3,3,3,K,IPQD) = Q2(41,65) + 
      >   SIGN(1.0,MUH)*3**(0.5D0)*Q2(42,65) + 5**(0.5D0)*
      >   Q2(43,65) + SIGN(1.0,MUH)*7**(0.5D0)*Q2(44,65)
-      BFLUX(CSIDEx,CHEXx,J3,4,3,K,IG) = (Q2(45,65) +
+      BFLUX(CSIDEx,CHEXx,J3,4,3,K,IPQD) = (Q2(45,65) +
      >    SIGN(1.0,MUH)*3**(0.5D0)*Q2(46,65) + 5**(0.5D0)
      >   *Q2(47,65) + SIGN(1.0,MUH)*7**(0.5D0)*Q2(48,65))*C1
-      BFLUX(CSIDEx,CHEXx,J3,1,4,K,IG) = Q2(49,65) +
+      BFLUX(CSIDEx,CHEXx,J3,1,4,K,IPQD) = Q2(49,65) +
      >    SIGN(1.0,MUH)*3**(0.5D0)*Q2(50,65) + 5**(0.5D0)
      >   *Q2(51,65) + SIGN(1.0,MUH)*7**(0.5D0)*Q2(52,65)
-      BFLUX(CSIDEx,CHEXx,J3,2,4,K,IG) = (Q2(53,65) + 
+      BFLUX(CSIDEx,CHEXx,J3,2,4,K,IPQD) = (Q2(53,65) + 
      >   SIGN(1.0,MUH)*3**(0.5D0)*Q2(54,65) + 5**(0.5D0)*
      >   Q2(55,65) + SIGN(1.0,MUH)*7**(0.5D0)*Q2(56,65))*C1
-      BFLUX(CSIDEx,CHEXx,J3,3,4,K,IG) = Q2(57,65) +
+      BFLUX(CSIDEx,CHEXx,J3,3,4,K,IPQD) = Q2(57,65) +
      >    SIGN(1.0,MUH)*3**(0.5D0)*Q2(58,65) + 5**(0.5D0)
      >   *Q2(59,65) + SIGN(1.0,MUH)*7**(0.5D0)*Q2(60,65)
-      BFLUX(CSIDEx,CHEXx,J3,4,4,K,IG) = (Q2(61,65) + 
+      BFLUX(CSIDEx,CHEXx,J3,4,4,K,IPQD) = (Q2(61,65) + 
      >   SIGN(1.0,MUH)*3**(0.5D0)*Q2(62,65) + 5**(0.5D0)*
      >   Q2(63,65) + SIGN(1.0,MUH)*7**(0.5D0)*Q2(64,65))*C1
       ENDIF
       ENDIF
 ************************************************************************
 ************************************************************************
-      DO 210 ISCT=1,NSCT
+      DO 210 P=1,NSCT
       DO 200 IEL=1,IELEM**3
-      FLUX(IEL,ISCT)=FLUX(IEL,ISCT)+W(M)*Q2(IEL,IELEM**3+1)*PL(ISCT,M)
+      FLUX(IEL,P)=FLUX(IEL,P)+Q2(IEL,IELEM**3+1)*DN(P,M)
   200 CONTINUE
   210 CONTINUE
       
@@ -2370,7 +2344,6 @@ C             J3=ISPLH+1-J2
          IOF=((((((M-1)*NHEX+(I-1))*3+(J-1))*ISPLH+(J2-1))*ISPLH+
      1      (I2-1))*IELEM+(JEL-1))*IELEM+IEL
          FUNKNO(L4+IOF,IG)=REAL(XNK(IEL,JEL))
-         TMP(IOF,IG)=REAL(XNK(IEL,JEL))
   230    CONTINUE
   240    CONTINUE
       ENDIF
@@ -2385,49 +2358,11 @@ C             J3=ISPLH+1-J2
 
   290 CONTINUE ! directions
   300 CONTINUE ! energy
+*$OMP END PARALLEL DO
 
   304 CONTINUE ! macrocells
 
-      ISTTZ=TASKLST(2,1,IDI,IND2)
-      IENDZ=TASKLST(2,TASKSINWAVE(IDI),IDI,IND2)
-      ISTTZ = (ISTTZ-1)*NCELZ +1
-      IENDZ = IENDZ*NCELZ 
-      IF(IENDZ.GT.LZ) IENDZ=LZ
-
-      IF(IND.GE.7) THEN
-         ISTTZ = TASKLST(2,TASKSINWAVE(IDI),IDI,IND2)
-         ISTTZ = ISTTZ*NCELZ
-         ISTTZ = LZ-ISTTZ+1
-         IF(ISTTZ.LE.0) ISTTZ=1
-
-         IENDZ = TASKLST(2,1,IDI,IND2)
-         IENDZ = NMZ+1 -IENDZ
-         IENDZ = IENDZ*NCELZ 
-         IF(IENDZ.GT.LZ) IENDZ=LZ
-      ENDIF
-
-      ILENZ = (IENDZ-ISTTZ)+1
-
-      NHEXTOPASS = TASKSINWAVE(IDI)
-      DO ICEL=1,TASKSINWAVE(IDI)
-         I=TASKLST(1,ICEL,IDI,IND2)
-         BFLUZ(:,I,:,:,:,:,:)=TMPBZ(:,ICEL,:,:,:,:,:)
-      ENDDO
-
   305 CONTINUE ! wavefront number
-
-      ! This is necessary so that all octants use the boundary 
-      ! fluxes of the previous iteration. Otherwise, some processes
-      ! might use those of the previous iteration while others
-      ! might use those of the current iteration. This prevents
-      ! proper convergence. This is especially an issue when the
-      ! number of processes is between 1 < n < (max. effective).
-      IF((NCODE(5).NE.1).or.(NCODE(6).NE.1))THEN
-      DO 778 IG=1,NGEFF
-        IF(.NOT.INCONV(IG)) GO TO 778
-        FUNKNO(L4+1:L4+L6,IG)=REAL(TMP2(1:L6,IG))
-  778 CONTINUE
-      ENDIF
 
   310 CONTINUE ! dodecant
 ************************************************************************
@@ -2437,9 +2372,6 @@ C             J3=ISPLH+1-J2
         FUNKNO(:L4,IG)=
      1  RESHAPE(REAL(FLUX_G(:IELEM**3,:NSCT,:3*ISPLH**2,:NHEX,:LZ,
      2  IG)), (/L4/))
-      IF((NCODE(5).NE.1).or.(NCODE(6).NE.1))THEN
-         FUNKNO(L4+1:L4+L6,IG)=REAL(TMP(1:L6,IG))
-      ENDIF
   777 CONTINUE
 ************************************************************************
 ************************************************************************
@@ -2447,8 +2379,7 @@ C             J3=ISPLH+1-J2
 *  SCRATCH STORAGE DEALLOCATION
 *----
       DEALLOCATE(FLUX_G,FLUX,INDANG)
-      DEALLOCATE(BFLUX,BFLUZ,TMPBZ)
-      DEALLOCATE(TMP,TMP2)
+      DEALLOCATE(BFLUX,BFLUZ)
       RETURN
 *
   500 FORMAT(16H SNFDH4: thread=,I8,12H --->(group=,I4,7H angle=,I4,

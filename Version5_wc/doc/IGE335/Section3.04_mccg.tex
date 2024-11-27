@@ -1,6 +1,6 @@
 \subsubsection{The {\tt MCCGT:} tracking module}\label{sect:MCCGData}
 
-This module {\sl must} follow a call to module \moc{EXCELT:} or \moc{NXT:}. Its calling
+This module {\sl must} follow a call to module \moc{EXCELT:}, \moc{NXT:} or \moc{SALT:} in case the method of characteristics (MOC) is needed. Its calling
 specification is:
 
 \begin{DataStructure}{Structure \dstr{MCCGT:}}
@@ -47,9 +47,8 @@ $~~~~~[$ \moc{EPSI} \dusa{xepsi} $]$ \\
 $~~~~~[$ \moc{ADJ} $]$ \\
  {\tt ;}
 \end{DataStructure}
-
-\noindent
-where
+\vskip -0.4cm
+\noindent where
 
 \begin{ListeDeDescription}{mmmmmmmm}
 

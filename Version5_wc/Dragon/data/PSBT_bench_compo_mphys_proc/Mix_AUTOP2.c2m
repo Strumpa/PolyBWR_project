@@ -1,0 +1,54 @@
+* CLE2000 script to generate self-shielded Library object.
+* BWR Benchmark UOX cell #1 : AT10_24UOX, alias C1.
+* Author : R. Guasch
+*  Procedure called as:
+*
+*  LIBRARY2 := Mix_AUTOP LIBRARY TRACK_SS :: <<ssh_opt>> <<track_opt>> ;
+*
+*  Input data   :
+*    LIBRARY      : Initial library
+*    TRACK_SS     : Self-shielding tracking
+*
+*  Output data  :
+*    LIBRARY2     : Self-shieled library
+*---
+
+PARAMETER LIBRARY2 LIBRARY TRACK_SS ::
+::: LINKED_LIST LIBRARY2 ;
+::: LINKED_LIST LIBRARY ;
+::: LINKED_LIST TRACK_SS ; ; 
+
+
+STRING ssh_opt ;
+:: >>ssh_opt<< ;
+STRING track_opt ;
+:: >>track_opt<< ;
+
+
+MODULE USS: END: ;
+
+
+INTEGER COMB0101 COMB0102 COMB0103 COMB0104  GAP CLAD MODE ;
+EVALUATE COMB0101 COMB0102 COMB0103 COMB0104 GAP CLAD MODE :=
+          1 2 3 4 5 6 7 ;
+
+IF ssh_opt "RSE" = THEN 
+    LIBRARY2 := USS: LIBRARY TRACK_SS ::
+        EDIT 1 PASS 3 MAXST 20 
+    ;
+ELSEIF ssh_opt "PT" = THEN
+    LIBRARY2 := USS: LIBRARY TRACK_SS ::
+        EDIT 1 PASS 3 GRMIN 52
+        CALC
+            REGI W1 U234 ALL          
+            REGI W1 U235 ALL
+            REGI W1 U238 ALL
+            
+            REGI W1 Zr90 ALL
+            REGI W1 Zr91 ALL
+            REGI W1 Zr92 ALL
+            REGI W1 Zr94 ALL
+        ENDC
+    ;
+ENDIF ;
+

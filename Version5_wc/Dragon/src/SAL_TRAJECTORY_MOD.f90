@@ -329,7 +329,7 @@ CONTAINS
     !---------------------------------------------------------------------
     !
     USE SAL_TRACKING_TYPES, ONLY : NNN,NMAX2,ITRAC2,RTRAC2,ANGTAB,ELMTAB,PRTIND,CNT, &
-         CNT0,EPS1,EX,EY,LGOK,NB_TOT,NB_MAX,DNEW,NNEW,LNEW,IERR
+         CNT0,EX,EY,LGOK,NB_TOT,NB_MAX,DNEW,NNEW,LNEW,IERR
     USE SAL_GEOMETRY_TYPES, ONLY : G_BC_TYPE
     IMPLICIT NONE
     ! IN VARIABLE
@@ -383,7 +383,6 @@ CONTAINS
           !           store data
           LENGTH=DNEW-DOLD
           !           store new length in track arrays
-          IF(LENGTH.LT.EPS1) CYCLE
           CNT=CNT+1
           IF(CNT>=NMAX2) CALL XABORT('SAL240_4: NMAX2 overflow')
           RTRAC2(CNT)=LENGTH
@@ -528,7 +527,6 @@ CONTAINS
           LENGTH=DNEW-DOLD
           !           add to total length
           LENGTH_TOT=LENGTH_TOT+LENGTH
-          IF(LENGTH.LT.EPS1) CYCLE
           CNT=CNT+1
           IF(CNT>=NMAX2) THEN
              ALLOCATE(ITRAC3(4*NMAX2),RTRAC3(2*NMAX2),STAT=OK)
@@ -701,7 +699,7 @@ CONTAINS
                 N_AXIS=3 ! cx=0: exit element is on axis 2 (angle>0)
              ENDIF
           ENDIF
-          CASE DEFAULT
+       CASE DEFAULT
           CALL XABORT('SAL247_3: option not available(1)')
        END SELECT
        CASE(-4)
@@ -747,13 +745,13 @@ CONTAINS
              N_AXIS=1
              DELX=SQRT(AX*AX+AY*AY)
           ENDIF
-       CASE(8)
+       CASE(8,12)
           IF(CX>0) THEN
              !               cx>0: axis 3
              N_AXIS=3
              DELX=SQRT((AX-CX)*(AX-CX)+AY*AY)
           ELSEIF(BCDATA(5)>0.) THEN
-             !               cx=0, angle>0: axis 2 (axis of angle pi/3)
+             !               cx=0, angle>0: axis 2 (axis of angle pi/3 or 2*pi/3)
              N_AXIS=2
              DELX=SQRT(AX*AX+AY*AY)
           ELSE

@@ -32,12 +32,21 @@ else
     lib = ../lib/$(DIRNAME)_nvidia
     libGan = ../../Ganlib/lib/$(DIRNAME)_nvidia
   else
-    ifeq ($(FORTRANPATH),)
-      $(error FORTRANPATH is not set)
+    ifeq ($(flang),1)
+      ifeq ($(LLVMTOOLS),)
+        $(error LLVMTOOLS is not set)
+      endif
+      COMPILER = LLVMTOOLS
+      lib = ../lib/$(DIRNAME)_flang
+      libGan = ../../Ganlib/lib/$(DIRNAME)_flang
+    else
+      ifeq ($(FORTRANPATH),)
+        $(error FORTRANPATH is not set)
+      endif
+      COMPILER = FORTRANPATH
+      lib = ../lib/$(DIRNAME)
+      libGan = ../../Ganlib/lib/$(DIRNAME)
     endif
-    COMPILER = FORTRANPATH
-    lib = ../lib/$(DIRNAME)
-    libGan = ../../Ganlib/lib/$(DIRNAME)
   endif
 endif
 export COMPILER
@@ -55,6 +64,9 @@ endif
 ifeq ($(nvidia),1)
 	@echo 'pygan_ganlib: nvidia is defined'
 endif
+ifeq ($(flang),1)
+	@echo 'pygan_ganlib: flang is defined'
+endif
 ifeq ($(hdf5),1)
 	@echo 'pygan_ganlib: hdf5 is defined'
 endif
@@ -67,6 +79,9 @@ ifeq ($(intel),1)
 endif
 ifeq ($(nvidia),1)
 	@echo 'pygan_trivac: nvidia is defined'
+endif
+ifeq ($(flang),1)
+	@echo 'pygan_trivac: flang is defined'
 endif
 ifeq ($(hdf5),1)
 	@echo 'pygan_trivac: hdf5 is defined'
@@ -81,6 +96,9 @@ endif
 ifeq ($(nvidia),1)
 	@echo 'pygan_dragon: nvidia is defined'
 endif
+ifeq ($(flang),1)
+	@echo 'pygan_dragon: flang is defined'
+endif
 ifeq ($(hdf5),1)
 	@echo 'pygan_dragon: hdf5 is defined'
 endif
@@ -94,13 +112,16 @@ endif
 ifeq ($(nvidia),1)
 	@echo 'pygan_donjon: nvidia is defined'
 endif
+ifeq ($(flang),1)
+	@echo 'pygan_donjon: flang is defined'
+endif
 ifeq ($(hdf5),1)
 	@echo 'pygan_donjon: hdf5 is defined'
 endif
 sub-make-ganlib:
-	$(MAKE) openmp=$(openmp) -C ../../Utilib/src
 	$(MAKE) openmp=$(openmp) hdf5=$(hdf5) -C ../../Ganlib/src
 sub-make-trivac: sub-make-ganlib
+	$(MAKE) openmp=$(openmp) -C ../../Utilib/src
 	$(MAKE) openmp=$(openmp) hdf5=$(hdf5) -C ../../Trivac/src
 sub-make-dragon: sub-make-trivac
 	$(MAKE) openmp=$(openmp) hdf5=$(hdf5) -C ../../Dragon/src

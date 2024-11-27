@@ -6,13 +6,13 @@
 #---------------------------------------------------------------------------
 #
 ARCH = $(shell uname -m)
-ifeq ($(ARCH),aarch64)
+ifneq (,$(filter $(ARCH),aarch64 arm64))
   nbit =
 else
-  ifeq (,$(filter $(ARCH),i386 i686))
-    nbit = -m64
-  else
+  ifneq (,$(filter $(ARCH),i386 i686))
     nbit = -m32
+  else
+    nbit = -m64
   endif
 endif
 
@@ -33,8 +33,13 @@ else
     fcompiler = nvfortran
     ccompiler = nvc
   else
-    fcompiler = gfortran
-    ccompiler = gcc
+    ifeq ($(flang),1)
+      fcompiler = flang-new
+      ccompiler = clang
+    else
+      fcompiler = gfortran
+      ccompiler = gcc
+    endif
   endif
 endif
 
@@ -55,8 +60,8 @@ ifeq ($(OS),Darwin)
   F90 = $(fcompiler)
   C = $(ccompiler)
   CFLAGS = -Wall $(nbit) -fPIC
-  FFLAGS = -Wall $(nbit) -fPIC
-  FFLAG77 = -Wall $(nbit) -fPIC
+  FFLAGS = $(nbit) -fPIC
+  FFLAG77 = $(nbit) -fPIC
 else
 ifeq ($(OS),Linux)
   F90 = $(fcompiler)
@@ -119,8 +124,13 @@ else
     lib = ../lib/$(DIRNAME)_nvidia
     lib_module = ../lib/$(DIRNAME)_nvidia/modules
   else
-    lib = ../lib/$(DIRNAME)
-    lib_module = ../lib/$(DIRNAME)/modules
+    ifeq ($(flang),1)
+      lib = ../lib/$(DIRNAME)_flang
+      lib_module = ../lib/$(DIRNAME)_flang/modules
+    else
+      lib = ../lib/$(DIRNAME)
+      lib_module = ../lib/$(DIRNAME)/modules
+    endif
   endif
 endif
 
@@ -143,7 +153,10 @@ ifeq ($(intel),1)
 	@echo 'Utilib: intel is defined'
 endif
 ifeq ($(nvidia),1)
-	@echo 'Utilib: nvidia is defined'
+  @echo 'Utilib: nvidia is defined'
+endif
+ifeq ($(flang),1)
+  @echo 'Utilib: flang is defined'
 endif
 	@echo "Utilib: python version=" ${python_version_major}
 %.o : %.c
