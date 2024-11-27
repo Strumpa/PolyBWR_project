@@ -45,7 +45,7 @@ from PCC3b_Gd157 import * # Same as PCC3 but with a second EVO: run to ensure co
 ######################################################################
 #
 # Library = name of the Library used to build LIB: object
-Library = 'J311_281' # J311_281, J311_295, J311_315, J311_172
+Library = 'J311_315' # J311_281, J311_295, J311_315, J311_172
 # If Library = J311_172, then a PyNjoy2016 generated library is used
 name_study = 'HOM_UOX_Gd157_PCC' # name of the study, for exportation purposes only
 
@@ -53,7 +53,9 @@ S2_libs = ["PyNjoy2016","oldlib"]
 S2_PCC = ["PCC0","PCC1","PCC2","PCC3","PCC4","PCC6"] # all ran for PyNjoy2016, waiting on 3, 4 and 6 for oldlib
 
 ssh_module = "AUTO" #"USS", "AUTO", "SHI"
-ssh_method = "RSE" #"PT", "RSE", "SUBG" all supported for USS: but AUTO: only takes SUBG
+ssh_method = "SUBG" #"PT", "RSE", "SUBG" all supported for USS: but AUTO: only takes SUBG
+if ssh_module == "AUTO":
+	ssh_method = "SUBG"
 # for RSE method : test with eps_RSE = 1.0E-1, 5.0E-2, 1.0E-2, 5.0E-3, 1.0E-3, 1.0E-4
 correlation = "noCORR" # "CORR", "noCORR"
 

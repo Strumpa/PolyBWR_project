@@ -111,9 +111,7 @@ class postTreatment_rates_XS_D5:
         for SSH in SSH_methods_to_compare:
             print(f"computing delta XS for {reaction_id} {mesh_name} {SSH} - {reference_SSH_method}")
             XS = self.reaction_data_pair[reaction_id][mesh_name][SSH]["XS"]
-            
             delta_XS = (np.array(XS) - np.array(XS_ref))*100/np.array(XS_ref)
-            print(f"delta XS = {delta_XS}")
             self.delta_XS[reaction_id][mesh_name][SSH] = delta_XS
 
         print(f"self.delta_XS = {self.delta_XS}")
@@ -233,7 +231,6 @@ class postTreatment_rates_XS_D5:
         plt.ylabel(f"$\\Delta \\tau$ {reaction} (%)")
         plt.legend()
         plt.grid()
-        #plt.yscale('log')
         plt.title(f"{iso} : $\\Delta \\tau$ {reaction} (D5 - AUTO) {mesh_name}")
         plt.savefig(f"{self.save_path}/{self.case_name}_{reaction_id}_delta_Rates_{mesh_name}.png")
         plt.close()
@@ -265,7 +262,6 @@ class postTreatment_rates_XS_D5:
         plt.ylabel(f"$\\Delta \\sigma$ {reaction} (%)")
         plt.legend()
         plt.grid()
-        #plt.yscale('log')
         plt.title(f"{iso} : $\\Delta \\sigma$ {reaction} (D5 - AUTO) {mesh_name}")
         plt.savefig(f"{self.save_path}/{self.case_name}_{reaction_id}_delta_XS_{mesh_name}.png")
         plt.close()
@@ -292,16 +288,17 @@ class postTreatment_rates_XS_S2:
         """
         Parse the output file from S2 calculation
         """
-        path_S2 = f"/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/HOM_CELL_study/{self.case_name}/XS_study"
+        path_S2 = f"/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/HOM_CELL_study/{self.case_name}/XS_rates_study"
         for bu_step in self.BU_steps_to_treat:
             for library in self.libraries:
-                for mesh_name in self.mesh_objects.keys():
-                    if mesh_name == "SHEM295": #only one supported for now 
-                        Gd_nGamma_rates, Gd_abs_rates, U238_nGamma_rates, U238_abs_rates = self.parse_Serpent_detector(path_S2, mesh_name, library, bu_step)
-                        self.rates[mesh_name][f"Gd157_ngamma_{library}_{bu_step}"] = Gd_nGamma_rates
-                        self.rates[mesh_name][f"Gd157_abs_{library}_{bu_step}"] = Gd_abs_rates
-                        self.rates[mesh_name][f"U238_ngamma_{library}_{bu_step}"] = U238_nGamma_rates
-                        self.rates[mesh_name][f"U238_abs_{library}_{bu_step}"] = U238_abs_rates
+                for mesh_name in self.mesh_objects.keys(): 
+                    print(f"parsing {mesh_name} {library} {bu_step}")
+                    Gd_nGamma_rates, Gd_abs_rates, U238_nGamma_rates, U238_abs_rates = self.parse_Serpent_detector(path_S2, mesh_name, library, bu_step)
+                    self.rates[mesh_name][f"Gd157_ngamma_{library}_{bu_step}"] = Gd_nGamma_rates
+                    self.rates[mesh_name][f"Gd157_abs_{library}_{bu_step}"] = Gd_abs_rates
+                    self.rates[mesh_name][f"U238_ngamma_{library}_{bu_step}"] = U238_nGamma_rates
+                    self.rates[mesh_name][f"U238_abs_{library}_{bu_step}"] = U238_abs_rates
+                    if bu_step == 0:
                         Gd157_XS_102, Gd157_XS_101, U238_XS_102, U238_XS_101 = self.parse_Serpent_microdepletion(path_S2, mesh_name, library, bu_step)
                         self.N_Gd157 = Gd157_XS_102[0]
                         self.N_U238 = U238_XS_102[0]
@@ -315,12 +312,12 @@ class postTreatment_rates_XS_S2:
     def parse_Serpent_detector(self, path_to_serpent_results, mesh_name, library, bu_step):
         # Read detector file
         if mesh_name == "SHEM295":
+            # 26/11/2024 : remember to change so that SHEM295 is not a different case, and detectors are read from _rates_ files
             det = st.read(f"{path_to_serpent_results}/HOM_UOX_Gd157_XS_{library}_mc_det{bu_step}.m")
         else:
             det = st.read(f"{path_to_serpent_results}/HOM_UOX_Gd157_XS_{mesh_name}_{library}_mc_det{bu_step}.m")
         # Get detector names
         Gd_det = det.detectors["Gd_det"].tallies
-        print(Gd_det.shape)
         n_groups = Gd_det.shape[0]
         n_reactions = Gd_det.shape[1]
         print(f"Number of energy groups: {n_groups}")
@@ -340,7 +337,7 @@ class postTreatment_rates_XS_S2:
         U238_abs_rates_reversed = np.array(U238_abs_rates[::-1])
         return Gd_nGamma_rates_reversed, Gd_abs_rates_reversed, U238_nGamma_rates_reversed, U238_abs_rates_reversed
     
-    def parse_Serpent_microdepletion(self, path_to_serpent_results, mesh_name, library, bu_step):
+    def parse_Serpent_microdepletion(self, path_to_serpent_results, mesh_name, library, bu_step=0):
         # Read mdep file
         if mesh_name == "SHEM295":
             mdep = st.read(f"{path_to_serpent_results}/HOM_UOX_Gd157_XS_{library}_mc_mdx{bu_step}.m")
@@ -363,14 +360,10 @@ class postTreatment_rates_XS_S2:
         iso = reaction_id.split("_")[0]
         reaction = reaction_id.split("_")[1]
         u_mesh = self.mesh_objects[mesh_name].lethargyMesh
-        print(f"u_mesh = {u_mesh}")
-        print(f"mesh name = {mesh_name}")
-        print(f"len(u_mesh) = {len(u_mesh)}")
         if reaction == "ngamma":
             reaction = "$(n,\gamma)$"
         for library in self.libraries:
             XS = self.XS[mesh_name][f"{reaction_id}_{library}_{bu_step}"]
-            print(f"len(XS) = {len(XS)}")
             u = []
             XS_to_plot = [] 
             for i in range(len(XS)):

@@ -10,26 +10,36 @@ import matplotlib.pyplot as plt
 import os
 
 class Serpent2_case:
-    def __init__(self, case_name, lib_name, edep_id, pcc_id, tracked_nuclides):
+    def __init__(self, case_name, lib_name, edep_id, pcc_id, specific_power, tracked_nuclides, save_dir):
         self.case_name = case_name
         self.lib_name = lib_name
         self.edep_id = edep_id
         self.pcc_id = pcc_id
+        self.specific_power = specific_power
         self.tracked_nuclides = tracked_nuclides
+        self.save_dir = save_dir
         self.unitsBU = "MWd/kgU" # Default Serpent2 units for BU
         self.read_S2_outputs()
-        path=os.getcwd()
-        a=os.path.exists('BWRresults_PyGan_Serpent2_edep_pcc')
-        if a==False:
-            os.mkdir('BWRresults_PyGan_Serpent2_edep_pcc')
-        self.save_path = "BWRresults_PyGan_Serpent2_edep_pcc"
+        
+        if self.pcc_id == 0:
+            self.BUScheme = "CE"
+        elif self.pcc_id == 1:
+            self.BUScheme = "CELI"
+        elif self.pcc_id == 2:
+            self.BUScheme = "LE"
+        elif self.pcc_id == 3:
+            self.BUScheme = "LELI"
+        elif self.pcc_id == 4:
+            self.BUScheme = "LEQI"
+        elif self.pcc_id == "6":
+            self.BUScheme = "CECE"
     
     def read_S2_outputs(self):
         # Read the results
-        self.res = st.read(f"/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/HOM_CELL_study/{self.case_name}/ENERGY_DEPOSITION_study/{self.case_name}_{self.lib_name}_edep{self.edep_id}_pcc{self.pcc_id}_mc_res.m")
+        self.res = st.read(f"/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/HOM_CELL_study/{self.case_name}/BUScheme_EDEP_PCC_study/{self.case_name}_{self.lib_name}_edep{self.edep_id}_pcc{self.pcc_id}_mc_res.m")
         self.keffs = self.res.resdata["absKeff"].T[0]
         self.sigmas_keff = self.res.resdata["absKeff"].T[1]
-        self.depl = st.read(f"/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/HOM_CELL_study/{self.case_name}/ENERGY_DEPOSITION_study/{self.case_name}_{self.lib_name}_edep{self.edep_id}_pcc{self.pcc_id}_mc_dep.m")
+        self.depl = st.read(f"/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/HOM_CELL_study/{self.case_name}/BUScheme_EDEP_PCC_study/{self.case_name}_{self.lib_name}_edep{self.edep_id}_pcc{self.pcc_id}_mc_dep.m")
         self.mat = self.depl.materials['total']
         self.BU = self.mat.burnup
         data_frame = self.mat.toDataFrame("adens", names = self.tracked_nuclides, time = "days")
@@ -53,7 +63,7 @@ class Serpent2_case:
         plt.title(f"Keff evolution for {self.case_name} case")
         plt.legend()
         plt.grid()
-        plt.savefig(f"{self.save_path}/S2_Keff_{self.case_name}_edep{self.edep_id}_pcc{self.pcc_id}.png")
+        plt.savefig(f"{self.save_dir}/S2_Keff_{self.case_name}_edep{self.edep_id}_pcc{self.pcc_id}.png")
         plt.close()
         return
     
@@ -66,23 +76,22 @@ class Serpent2_case:
         plt.title(f"Concentration evolution for {self.case_name} case")
         plt.legend()
         plt.grid()
-        plt.savefig(f"{self.save_path}/S2_Concentrations_{self.case_name}_edep{self.edep_id}_pcc{self.pcc_id}.png")
+        plt.savefig(f"{self.save_dir}/S2_Concentrations_{self.case_name}_edep{self.edep_id}_pcc{self.pcc_id}.png")
         plt.close()
         return
  
     
 class SERPENT2_comparisons:
-    def __init__(self, comparison_name, S2_cases_list):
+    def __init__(self, comparison_name, S2_cases_list, save_path):
         self.comparison_name = comparison_name
         self.S2_cases_list = S2_cases_list
         self.accepted_libs = []
         self.accepted_edep = {}
         self.accepted_pcc = {}
-        self.save_path = "BWRresults_PyGan_Serpent2_edep_pcc/S2Comparisons"
-        path=os.getcwd()
-        a=os.path.exists('BWRresults_PyGan_Serpent2_edep_pcc/S2Comparisons')
-        if a==False:
-            os.mkdir('BWRresults_PyGan_Serpent2_edep_pcc/S2Comparisons')
+        self.save_path = save_path
+        # check if the save path exists and create it if not
+        if not os.path.exists(save_path):
+            os.makedirs(save_path)
         
         return
     
@@ -129,7 +138,7 @@ class SERPENT2_comparisons:
         for S2_case in self.S2_cases_list:
             if S2_case != self.ref_case:
                 delta_keff = (S2_case.keffs - self.ref_case.keffs)*1e5
-                self.delta_keffs[f"{S2_case.lib_name} edep{S2_case.edep_id}_pcc{S2_case.pcc_id}"] = delta_keff
+                self.delta_keffs[f"{S2_case.lib_name} edep{S2_case.edep_id} pcc{S2_case.pcc_id}"] = delta_keff
         return
     
     def compute_delta_Niso(self, isotopes_list):
@@ -160,10 +169,10 @@ class SERPENT2_comparisons:
         for case, delta_keff in self.delta_keffs.items():
             plt.plot(self.ref_case.BU, delta_keff, label = case, marker = "x", linestyle = "--")
         plt.xlabel("Burnup [MWd/kgU]")
-        plt.ylabel("Delta Keff")
+        plt.ylabel("$\\Delta$ Keff")
         plt.axhline(y = 300.0, color = 'r', linestyle = '-')
         plt.axhline(y = -300.0, color = 'r', linestyle = '-')  
-        plt.title(f"Delta Keff evolution for {self.comparison_name} case")
+        plt.title(f"$\\Delta$ Keff evolution for {self.comparison_name} case")
         plt.legend()
         plt.grid()
         plt.savefig(f"{self.save_path}/S2_DeltaKeff_{self.comparison_name}.png")
@@ -177,10 +186,10 @@ class SERPENT2_comparisons:
                 print(delta_Niso)
                 plt.plot(self.ref_case.BU, delta_Niso, label = case, marker = "x", linestyle = "--")
             plt.xlabel("Burnup [MWd/kgU]")
-            plt.ylabel(f"Delta {iso} [%]")
+            plt.ylabel(f"$\\Delta$ {iso} [%]")
             plt.axhline(y = 2.0, color = 'r', linestyle = '-')
             plt.axhline(y = -2.0, color = 'r', linestyle = '-')  
-            plt.title(f"Delta {iso} evolution for {self.comparison_name} case")
+            plt.title(f"$\\Delta$ {iso} evolution for {self.comparison_name} case")
             plt.legend()
             plt.grid()
             plt.savefig(f"{self.save_path}/S2_Delta{iso}_{self.comparison_name}.png")

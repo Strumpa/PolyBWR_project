@@ -53,9 +53,9 @@ if [ -f "$pos"/draglibJeff3p1p1SHEM315 ]
    then
     ln -s "$pos"/draglibJeff3p1p1SHEM315 J311_315
 fi
-# draglibJ311SHEM295_Gd157 is a micXS lib with finer autolib mesh for Gd157 only.
+# dlibJ311295Gd157_12modif is a limited micXS lib with finer autolib mesh above 100 eV (bin size devided by 8 instead of 4 in Alain's dragr).
 # It is tested in the HOM_UOX_Gd157_AUTOlib_test case to see if it improves estimation of Gd157 rates vs AUTO: and vs Serpent2.
-ln -s "$pos"/draglibJ311SHEM295_Gd157 J311_295_Gd157
+ln -s "$pos"/dlibJ311295Gd157_12modif J311295Gd157
 echo "reading xs in $pos"
 ls -l
 echo "HOM_UOX_Gd157_AUTOlib_test access script terminated"
