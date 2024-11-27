@@ -213,6 +213,8 @@ class compare_D5_S2_rates_XS:
             list: Indices of the top N absolute differences.
         """
         print("$$$--- Begin find_top_differences_rates ---$$$")
+        diff_data = []
+        data = []
         iso = reaction_id.split("_")[0]
         reaction = reaction_id.split("_")[1]
         # Retrieve the differences for the given parameters
@@ -232,12 +234,16 @@ class compare_D5_S2_rates_XS:
             print("\n")
             print(f"Top {top_n} maximal differences on reaction rates for {reaction_id} in {library} library, {mesh} mesh, {SSH} SSH:")
             for i, index in enumerate(top_indices):
-                print(f"Index {index}: {differences[index]}")
-                print(f"This corresponds to energy group {index+1} with lethargy bounds u_min = {self.D5_case.mesh_objects[mesh].lethargyMesh[index]} and u_max = {self.D5_case.mesh_objects[mesh].lethargyMesh[index+1]}")
+                print(f"Error is {differences[index]} % in group {index+1}")
+                print(f"With lethargy bounds u_min = {self.D5_case.mesh_objects[mesh].lethargyMesh[index]} and u_max = {self.D5_case.mesh_objects[mesh].lethargyMesh[index+1]}")
                 print(f"and energy bounds E_min = {self.E0*np.exp(-self.D5_case.mesh_objects[mesh].lethargyMesh[index+1])} eV and E_max = {self.E0*np.exp(-self.D5_case.mesh_objects[mesh].lethargyMesh[index])} eV")
                 print("\n")
+                u_min, u_max = self.D5_case.mesh_objects[mesh].lethargyMesh[index], self.D5_case.mesh_objects[mesh].lethargyMesh[index+1]
+                E_min, E_max = self.E0*np.exp(-u_max), self.E0*np.exp(-u_min)
+                diff_data.append({"SSH Method": SSH, "Error (%)": differences[index], "Group": index+1, "u_min": u_min, "u_max": u_max, "E_min": E_min, "E_max": E_max})
+            
         print("$$$--- End find_top_differences_rates ---$$$")
-        return
+        return diff_data
 
     
     def find_top_differences_XS(self, library, reaction_id, mesh, top_n=5):
@@ -257,6 +263,7 @@ class compare_D5_S2_rates_XS:
             list: Indices of the top N absolute differences.
         """
         print("$$$--- Begin find_top_differences_XS ---$$$")
+        diff_data = []
         iso = reaction_id.split("_")[0]
         reaction = reaction_id.split("_")[1]
         # Retrieve the differences for the given parameters
@@ -276,10 +283,13 @@ class compare_D5_S2_rates_XS:
             print("\n")
             print(f"Top {top_n} maximal differences on XS for {reaction_id} in {library} library, {mesh} mesh, {SSH} SSH:")
             for i, index in enumerate(top_indices):
-                print(f"AT Index {index}: error is {differences[index]} %")
-                print(f"This corresponds to energy group {index+1} with lethargy bounds u_min = {self.D5_case.mesh_objects[mesh].lethargyMesh[index]} and u_max = {self.D5_case.mesh_objects[mesh].lethargyMesh[index+1]}")
+                print(f"Error is {differences[index]} % in group {index+1}")
+                print(f"With lethargy bounds u_min = {self.D5_case.mesh_objects[mesh].lethargyMesh[index]} and u_max = {self.D5_case.mesh_objects[mesh].lethargyMesh[index+1]}")
                 print(f"and energy bounds E_min = {self.E0*np.exp(-self.D5_case.mesh_objects[mesh].lethargyMesh[index+1])} eV and E_max = {self.E0*np.exp(-self.D5_case.mesh_objects[mesh].lethargyMesh[index])} eV")
                 print("\n")
+                u_min, u_max = self.D5_case.mesh_objects[mesh].lethargyMesh[index], self.D5_case.mesh_objects[mesh].lethargyMesh[index+1]
+                E_min, E_max = self.E0*np.exp(-u_max), self.E0*np.exp(-u_min)
+                diff_data.append({"SSH Method": SSH, "Error (%)": differences[index], "Group": index+1, "u_min": u_min, "u_max": u_max, "E_min": E_min, "E_max": E_max})
         print("$$$--- End find_top_differences_XS ---$$$")
-        return
+        return diff_data
 

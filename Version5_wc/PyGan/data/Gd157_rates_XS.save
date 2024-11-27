@@ -16,5 +16,10 @@ else
    MACH=`uname -sm | sed 's/[ ]/_/'`
 fi
 
+mv SHEM281_ene.txt Gd157_Rates_and_XS_results_PyGan/
+mv SHEM295_ene.txt Gd157_Rates_and_XS_results_PyGan/
+mv SHEM315_ene.txt Gd157_Rates_and_XS_results_PyGan/
+mv XMAS172_ene.txt Gd157_Rates_and_XS_results_PyGan/
 cp -r Gd157_Rates_and_XS_results_PyGan $1/"$MACH"/
+
 echo '$$$ -----Gd157_rates_XS.save : script finish'

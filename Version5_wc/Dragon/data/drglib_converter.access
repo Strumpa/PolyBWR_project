@@ -1,0 +1,18 @@
+#!/bin/sh
+#
+# ACCESS FILE OF CONVERSION DATA SET draglib_converter.x2m
+#
+if [ $# = 0 ]
+   then
+   echo "usage: draglib_converter.access directory" 1>&2
+   exit 1
+fi
+echo access draglib_converter.access
+pos=$1/../../libraries/l_endian
+if [ -f "$pos"/draglibJ311SHEM295_Gd157.gz ]
+   then
+    echo 'gunzipping library'
+    gunzip "$pos"/draglibJ311SHEM295_Gd157.gz
+fi
+ln -s "$pos"/dlibshem295J311Gd_srcmodif EXPORT
+ls -l
