@@ -28,12 +28,21 @@ else
     lib = ../lib/$(DIRNAME)_nvidia
     libGan = ../../Ganlib/lib/$(DIRNAME)_nvidia
   else
-    ifeq ($(FORTRANPATH),)
-      $(error FORTRANPATH is not set)
+    ifeq ($(flang),1)
+      ifeq ($(LLVMTOOLS),)
+        $(error LLVMTOOLS is not set)
+      endif
+      COMPILER = LLVMTOOLS
+      lib = ../lib/$(DIRNAME)_flang
+      libGan = ../../Ganlib/lib/$(DIRNAME)_flang
+    else
+      ifeq ($(FORTRANPATH),)
+        $(error FORTRANPATH is not set)
+      endif
+      COMPILER = FORTRANPATH
+      lib = ../lib/$(DIRNAME)
+      libGan = ../../Ganlib/lib/$(DIRNAME)
     endif
-    COMPILER = FORTRANPATH
-    lib = ../lib/$(DIRNAME)
-    libGan = ../../Ganlib/lib/$(DIRNAME)
   endif
 endif
 export COMPILER

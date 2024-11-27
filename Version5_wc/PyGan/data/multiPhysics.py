@@ -326,7 +326,7 @@ power_scaling_factor = 1 # 1, 2, 4, 8 # Scaling factor for the power axial distr
 
 ########## Choice of Thermalhydraulics correlation ##########
 voidFractionCorrel = 'EPRIvoidModel' # 'modBestion', 'HEM1', 'GEramp', 'EPRIvoidModel'
-frfaccorel = "blasius" # 'base', 'blasius', 'Churchill', 
+frfaccorel = "Churchill" # 'base', 'blasius', 'Churchill', 
 P2Pcorel = "lockhartMartinelli" # 'base', 'HEM1', 'HEM2', 'MNmodel', 'lockhartMartinelli'
 numericalMethod = "BiCG" # "FVM": Solves the system using matrix inversion with preconditioning.
                          # "GaussSiedel" : Applies the Gauss-Seidel iterative solver.
@@ -440,8 +440,8 @@ if a==False:
 ##### Begin Calculation scheme for coupled neutronics and thermalhydraulics solution to the BWR pincell problem.
 
 # 1.) Guess the axial power shape : used to initialize the TH solution
-z_mesh, qFiss_init = guess_power_density_sine(PFiss, height, fuelRadius, Iz1)
-#z_mesh, qFiss_init = guess_power_density_cosine(PFiss, height, fuelRadius, Iz1)
+#z_mesh, qFiss_init = guess_power_density_sine(PFiss, height, fuelRadius, Iz1)
+z_mesh, qFiss_init = guess_power_density_cosine(PFiss, height, fuelRadius, Iz1)
 print(f"qFiss_init = {qFiss_init}")
 
 # Check the total power
@@ -453,7 +453,7 @@ print("$$$ - multiPhysics.py : BEGIN INITIALIZATION- $$$")
 Volumic_Powers.append(qFiss_init)
 
 initial_volumic_power = np.sum(qFiss_init)
-print(f"Initial volumic power = {initial_volumic_power} W")
+print(f"Initial volumic power = {initial_volumic_power} W/m^3")
 
 
 # 2.) TH solution for initial guess of power shape : sine shape (if devide by Iz : doesnt work and the initial TH solution isn't in IAPWS domain)

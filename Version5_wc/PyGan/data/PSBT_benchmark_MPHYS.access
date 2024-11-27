@@ -1,0 +1,10 @@
+#!/bin/sh
+if [ $# = 0 ]
+   then
+   echo "usage: multiPhysics.access.access directory" 1>&2
+   exit 1
+fi
+ln -s "$1"/data/multiPhysics_proc/_AT10COMPO_1 .
+ln -s "$1"/data/multiPhysics_proc/_COMPO_24UOX .
+ls -l
+echo "multiPhysics.access terminated"

@@ -1,0 +1,81 @@
+************************************************************************************************************************
+*                                                                                                                      *
+* Procedure :  TRK_C.c2m --> TRACK_NXTNXT.c2m                                                                          *
+* Purpose   :  NXT: tracking for AT10 pin cells, testing NXT SSH trackiong capabilities                                *
+* Author    :  R. Guasch                                                                                               *
+*                                                                                                                      *
+* CALL      :                                                                                                          *
+* TRACK TF_EXC TRACK_SS TF_EXC_SS := TRK_C_NXTNXT GEOM GEOM_SS                                                         *
+*                                                                                                                      *
+************************************************************************************************************************
+
+
+* ---
+* INPUT & OUTPUT PARAMETERS
+* ---
+PARAMETER TRACK    TF_EXC
+          TRACK_SS TF_EXC_SS
+          GEOM  GEOM_SS ::
+::: LINKED_LIST TRACK ;
+::: SEQ_BINARY TF_EXC ;
+::: SEQ_BINARY TF_EXC_SS ;
+::: LINKED_LIST TRACK_SS ;
+::: LINKED_LIST GEOM ;
+::: LINKED_LIST GEOM_SS  ; ;
+
+
+* ---
+* STRUCTURES AND MODULES
+* ---
+MODULE MCCGT: NXT: END: ;
+
+
+* ---
+* NXT TRACKING PARAMETERS FOR FLX GEOM
+* ---
+INTEGER an2d := 18 ;  ! ANGULAR QUADRATURE PARAMETER
+REAL densur := 35.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
+
+* polar angles for MCCGT:
+INTEGER nmu := 4 ;
+
+* size allocation for MCCGT:
+INTEGER mcu := 50000 ;
+
+* ---
+* NXT TRACKING PARAMETERS FOR SSH 
+* ---
+INTEGER an2d_SS := 6 ;  ! ANGULAR QUADRATURE PARAMETER
+REAL densur_SS := 5.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
+
+* ---
+* FLUX CALC TRACKING
+* ---
+
+TRACK TF_EXC := NXT: GEOM ::
+  EDIT 0
+  ALLG
+  ANIS 3
+  TSPC EQW2 <<an2d>> <<densur>> REND
+;
+
+
+* MOC tracking
+TRACK := MCCGT: TRACK TF_EXC ::
+  EDIT 0
+  CACB <<nmu>> AAC 80 TMT EPSI 1E-5 MCU <<mcu>>
+;
+
+
+* ---
+* SELF-SHIELDING TRACKING
+* ---
+
+TRACK_SS TF_EXC_SS := NXT: GEOM_SS ::
+  EDIT 0
+  TSPC EQW2 <<an2d>> <<densur>> 
+  MERGMIX
+;
+
+END: ;
+QUIT .

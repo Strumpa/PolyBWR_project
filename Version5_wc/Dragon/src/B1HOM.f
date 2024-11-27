@@ -42,7 +42,7 @@
 * MAT     mixture number of each volume.
 * KEYFLX  position of each flux in the unknown vector.
 * FLUX    direct unknown vector.
-* REFKEF  target K-effective for type B or type L calculations
+* REFKEF  target K-effective for type B or type L calculations.
 * IMPX    print flag.
 * INORM   type of leakage model:
 *         =1: Diffon; =2: Ecco; =3: Tibere.

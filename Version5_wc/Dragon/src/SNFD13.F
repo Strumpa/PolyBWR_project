@@ -1,7 +1,7 @@
 *DECK SNFD13
       SUBROUTINE SNFD13(IKBA,NUN,NGEFF,IMPX,INCONV,NGIND,LX,LY,LZ,
      1 IELEM,NMAT,NPQ,NSCT,MAT,VOL,TOTAL,NCODE,ZCODE,QEXT,LFIXUP,DU,
-     2 DE,DZ,W,MRMX,MRMY,MRMZ,DC,DB,DA,PL,FUNKNO)
+     2 DE,DZ,W,MRMX,MRMY,MRMZ,DC,DB,DA,FUNKNO,MN,DN)
 *
 *-----------------------------------------------------------------------
 *
@@ -50,8 +50,8 @@
 * DC      diamond-scheme parameter.
 * DB      diamond-scheme parameter.
 * DA      diamond-scheme parameter.
-* PL      discrete values of the spherical harmonics corresponding
-*         to the 3D SN quadrature.
+* MN      moment-to-discrete matrix.
+* DN      discrete-to-moment matrix.
 *
 *Parameters: input/output
 * FUNKNO  Legendre components of the flux and boundary fluxes.
@@ -69,12 +69,12 @@
       LOGICAL INCONV(NGEFF)
       REAL VOL(LX,LY,LZ),TOTAL(0:NMAT,NGEFF),ZCODE(6),QEXT(NUN,NGEFF),
      1 DU(NPQ),DE(NPQ),DZ(NPQ),W(NPQ),DC(LX,LY,NPQ),DB(LX,LZ,NPQ),
-     2 DA(LY,LZ,NPQ),PL(NSCT,NPQ),FUNKNO(NUN,NGEFF)
+     2 DA(LY,LZ,NPQ),FUNKNO(NUN,NGEFF),MN(NPQ,NSCT),DN(NSCT,NPQ)
       LOGICAL LFIXUP
 *----
 *  LOCAL VARIABLES
 *----
-      INTEGER NPQD(8),IIND(8)
+      INTEGER NPQD(8),IIND(8),P
       PARAMETER(IUNOUT=6,RLOG=1.0E-8,PI=3.141592654)
       DOUBLE PRECISION VT,CONST0,CONST1,CONST2
       DOUBLE PRECISION Q(IELEM**3),Q2(IELEM**3,IELEM**3+1)
@@ -390,9 +390,9 @@
       IF(MAT(I,J,K).EQ.0) GO TO 480
       DO 340 IEL=1,IELEM**3
       Q(IEL)=0.0D0
-      DO 330 L=1,NSCT
-      IOF=((((K-1)*LY+(J-1))*LX+(I-1))*NSCT+(L-1))*IELEM**3+IEL
-      Q(IEL)=Q(IEL)+QEXT(IOF,IG)*PL(L,M)/(4.0D0*PI)
+      DO 330 P=1,NSCT
+      IOF=((((K-1)*LY+(J-1))*LX+(I-1))*NSCT+(P-1))*IELEM**3+IEL
+      Q(IEL)=Q(IEL)+QEXT(IOF,IG)*MN(M,P)
   330 CONTINUE
   340 CONTINUE
       VT=VOL(I,J,K)*TOTAL(MAT(I,J,K),IG)
@@ -714,9 +714,9 @@
         XNK(3,3,I,J,IPQD,IG)=2.0D0*Q2(21,28)+CONST1*Q2(27,28)-
      1    XNK(3,3,I,J,IPQD,IG)
       ENDIF
-      DO 380 L=1,NSCT
+      DO 380 P=1,NSCT
       DO 370 IEL=1,IELEM**3
-      FLUX(IEL,L)=FLUX(IEL,L)+W(M)*Q2(IEL,IELEM**3+1)*PL(L,M)
+      FLUX(IEL,P)=FLUX(IEL,P)+Q2(IEL,IELEM**3+1)*DN(P,M)
   370 CONTINUE
   380 CONTINUE
       IF((II-1)*IKBA+IMX.EQ.LX) THEN
