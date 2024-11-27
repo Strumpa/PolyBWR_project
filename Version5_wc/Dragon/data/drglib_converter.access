@@ -8,7 +8,7 @@ if [ $# = 0 ]
    exit 1
 fi
 echo access draglib_converter.access
-pos=$1/../../libraries/l_endian
+pos=$1/../../../libraries/l_endian
 if [ -f "$pos"/draglibJ311SHEM295_Gd157.gz ]
    then
     echo 'gunzipping library'
