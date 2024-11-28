@@ -326,7 +326,7 @@ power_scaling_factor = 1 # 1, 2, 4, 8 # Scaling factor for the power axial distr
 
 ########## Choice of Thermalhydraulics correlation ##########
 voidFractionCorrel = 'EPRIvoidModel' # 'modBestion', 'HEM1', 'GEramp', 'EPRIvoidModel'
-frfaccorel = "blasius" # 'base', 'blasius', 'Churchill', 
+frfaccorel = "Churchill" # 'base', 'blasius', 'Churchill', 
 P2Pcorel = "lockhartMartinelli" # 'base', 'HEM1', 'HEM2', 'MNmodel', 'lockhartMartinelli'
 numericalMethod = "BiCG" # "FVM": Solves the system using matrix inversion with preconditioning.
                          # "GaussSiedel" : Applies the Gauss-Seidel iterative solver.
@@ -390,7 +390,7 @@ print(f"Fuel rod power before scaling = {fuel_rod_power} W")
 #print(f"Specific power = {specificPower} W/g")
 
 
-compo_name = "_COMPO_24UOX" # Name of the COMPO object to be used in the neutronics solution
+compo_name = "_COMPO_PSBT_RSE" # Name of the COMPO object to be used in the neutronics solution
 
 
 PFiss = fuel_rod_power/power_scaling_factor # W
