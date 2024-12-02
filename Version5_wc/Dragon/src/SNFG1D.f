@@ -1,7 +1,7 @@
 *DECK SNFG1D
-      SUBROUTINE SNFG1D(LX,NMAT,IELEM,NLF,NSCT,U,W,PL,MAT,VOL,TOTAL,
+      SUBROUTINE SNFG1D(LX,NMAT,IELEM,NLF,NSCT,U,MAT,VOL,TOTAL,
      1 NCODE,ZCODE,QEXT,LFIXUP,LSHOOT,ISBS,NBS,ISBSM,BS,WX,CST,
-     2 ISADPTX,NUN,FUNKNO)
+     2 ISADPTX,NUN,FUNKNO,MN,DN)
 *
 *-----------------------------------------------------------------------
 *
@@ -31,8 +31,8 @@
 *         =2: linearly anisotropic sources.
 * U       base points in $\\mu$ of the SN quadrature.
 * W       weights of the SN quadrature.
-* PL      discrete values of the Legendre polynomials corresponding
-*         to the SN quadrature.
+* MN      moment-to-discrete matrix.
+* DN      discrete-to-moment matrix.
 * MAT     material mixture index in each region.
 * VOL     volumes of each region.
 * TOTAL   macroscopic total cross sections.
@@ -63,9 +63,9 @@
       INTEGER LX,NMAT,IELEM,NLF,NSCT,MAT(LX),NCODE(2),ISBS,NBS,
      1 ISBSM(2*ISBS,NLF*ISBS),NUN
       LOGICAL LFIXUP,LSHOOT,ISADPTX
-      REAL U(NLF),W(NLF),PL(NSCT,NLF),VOL(LX),TOTAL(0:NMAT),ZCODE(2),
-     1 QEXT(IELEM,NSCT,LX),FUNKNO(NUN),BS(NBS*ISBS),WX(IELEM+1),
-     2 CST(IELEM)
+      REAL U(NLF),VOL(LX),TOTAL(0:NMAT),ZCODE(2),QEXT(IELEM,NSCT,LX),
+     1 FUNKNO(NUN),BS(NBS*ISBS),WX(IELEM+1),CST(IELEM),MN(NLF,NSCT),
+     2 DN(NSCT,NLF)
 *----
 *  LOCAL VARIABLES
 *----
@@ -213,10 +213,10 @@
 
       ! SOURCE DENSITY TERM
       DO IEL=1,IELEM
-      Q(IEL)=0.0
-      DO L=1,NSCT
-      Q(IEL)=Q(IEL)+QEXT(IEL,L,I)*PL(L,M)/2.0
-      ENDDO
+        Q(IEL)=0.0
+        DO L=1,NSCT
+          Q(IEL)=Q(IEL)+QEXT(IEL,L,I)*MN(M,L)
+        ENDDO
       ENDDO
 
       ISFIX=.FALSE.
@@ -254,8 +254,6 @@
           Q2(II,IELEM+1)=Q(II)*VOL(I)-CST(II)*(1+WX(1))*U(M)*XNI
         ENDIF
       ENDDO
-      !Q2(1,1)=SIGMA*VOL(I)+2.0D0*ABS(U(M))
-      !Q2(1,2)=Q(1)*VOL(I)+2.0D0*ABS(U(M))*XNI
       
       CALL ALSBD(IELEM,1,Q2,IER,IELEM)
       IF(IER.NE.0) CALL XABORT('SNFE1D: SINGULAR MATRIX.')
@@ -285,15 +283,12 @@
        
       IF(ISSHOOT.AND.IS.LT.5) GO TO 30
 
-      !IF(LFIXUP.AND.(Q2(1,2).LE.RLOG)) Q2(1,2)=0.0
-      !XNI=2.0D0*Q2(1,2)-XNI
-
       ! SAVE LEGENDRE MOMENT OF THE FLUX
       DO L=1,NSCT
-      DO IEL=1,IELEM
-      IOF=(I-1)*NSCT*IELEM+(L-1)*IELEM+IEL
-      FUNKNO(IOF)=FUNKNO(IOF)+W(M)*REAL(Q2(IEL,IELEM+1))*PL(L,M)
-      ENDDO
+        DO IEL=1,IELEM
+          IOF=(I-1)*NSCT*IELEM+(L-1)*IELEM+IEL
+          FUNKNO(IOF)=FUNKNO(IOF)+REAL(Q2(IEL,IELEM+1))*DN(L,M)
+        ENDDO
       ENDDO
 
    30 CONTINUE ! END OF X-LOOP

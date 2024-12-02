@@ -93,6 +93,7 @@
             IF((LPJJAN).AND.(NOLDP.NE.NOMI)) THEN
                IFACE=(1-NZI)/2
                I0P=NEWMOD(I0P,IFACE)
+               IF(I0P.GT.NMOD) CALL XABORT('MCGDSCA: NMOD OVERFLOW.')
             ENDIF
             NOLDP=NOMI
             IF(LPS.GT.0) THEN
@@ -152,7 +153,7 @@
                PJJ(NOMI,1)=PJJ(NOMI,1)+EXPTD
             ENDIF
          ENDIF
-      ENDDO  
+      ENDDO
 *
       RETURN
       END

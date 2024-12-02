@@ -346,7 +346,7 @@ CONTAINS
          ENDIF
       ELSE
         X1=0.
-        IF((TYPGEO==8).OR.(TYPGEO==10)) THEN
+        IF((TYPGEO==8).OR.(TYPGEO==10).OR.(TYPGEO==12)) THEN
            ! MQ must be positive
            IAXIS=2
            X2=3.*LENGTHX/(MQ-NNQ)
@@ -415,6 +415,22 @@ CONTAINS
         ELSE IF(((IMQ==4).AND.(NQ==14)).OR.((IMQ==9).AND.(NQ==1))) THEN
           DR=0.9327596923*DR
         ENDIF
+      ELSE IF(TYPGEO==12) THEN
+        IMQ=ABS(MQ)
+        print *,'SAL237: debug IMQ=',IMQ,' NQ=',NQ
+        IF(((IMQ==1).AND.(NQ==15)).OR.((IMQ==7).AND.(NQ==9)).OR.((IMQ==8).AND.(NQ==6))) THEN
+          DR=DR/6.0
+        ELSE IF(((IMQ==1).AND.(NQ==9)).OR.((IMQ==4).AND.(NQ==6)).OR.((IMQ==5).AND.(NQ==3))) THEN
+          DR=DR/6.0
+        ELSE IF(((IMQ==1).AND.(NQ==7)).OR.((IMQ==3).AND.(NQ==5)).OR.((IMQ==4).AND.(NQ==2))) THEN
+          DR=DR*5.0/24.0
+        ELSE IF(((IMQ==1).AND.(NQ==5)).OR.((IMQ==2).AND.(NQ==4)).OR.((IMQ==3).AND.(NQ==1))) THEN
+          DR=DR*2.0/9.0
+        ELSE IF(((IMQ==2).AND.(NQ==8)).OR.((IMQ==3).AND.(NQ==7)).OR.((IMQ==5).AND.(NQ==1))) THEN
+          DR=0.232645602188*DR
+        ELSE IF(((IMQ==4).AND.(NQ==14)).OR.((IMQ==5).AND.(NQ==13)).OR.((IMQ==9).AND.(NQ==1))) THEN
+          DR=13.0*DR/54.0
+        ENDIF
       ENDIF
       PROJTAB(:)=(/EX0,EY0,X1,X2,DX,DR/)
       ! cyclical track length
@@ -470,6 +486,9 @@ CONTAINS
       HX(3)=1.; HY(3)=0.
       BX(4)=LENGTHX
       HX(4)=COS(ANGLE); HY(4)=SIN(ANGLE)
+    ELSE IF(TYPGEO.EQ.12) THEN
+      HX(3)=COS(PI/2.0+ANGLE); HY(3)=SIN(PI/2.0+ANGLE)
+      BX(3)=LENGTHX
     ENDIF
     !
   END SUBROUTINE SAL220_1

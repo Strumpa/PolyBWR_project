@@ -1,0 +1,103 @@
+***********************************************************
+* Input file :  pincell_mphy_thm.x2m                      *
+*                                                         *
+* Test of a PWR single pincell                            *
+*                                                         *
+* The aim is to test the THM module of DONJON             *
+***********************************************************
+ 
+LINKED_LIST Geom Track Flux Cpo Matex Lib MicroF MacroF Macro2 Fmap
+            System Power Burnup Thm DONNEES ;
+MODULE      GEO: RESINI: TRIVAT: TRIVAA: GREP: FIND0: NCR: FLUD: FLPOW:
+            MACINI: USPLIT: TINST: UTL: DELETE: ABORT: THM: END: ;
+
+PROCEDURE   assertS ;
+SEQ_ASCII   _COMPO_TD ;
+REAL TF := 750.0 ;   
+*----
+*  Calculation options
+*----
+STRING Dir := "EDI_HOM" ;
+
+*----
+*  Recover the Multicompo
+*----
+Cpo := _COMPO_TD ;
+UTL: Cpo :: DIR ;
+
+INTEGER Nr := 40 ;
+INTEGER Nz := 80 ;
+
+INTEGER MaxR := 10000 ;
+REAL keff ;
+
+REAL maxz := 300.0 ;
+REAL maxr := 150.0 ;
+
+Geom := GEO: :: TUBEZ 1 1 
+   R+ ZERO  Z- ZERO Z+ ZERO
+   RADIUS 0.0 <<maxr>>
+   MESHZ 0.0 <<maxz>>
+   MIX 1
+   SPLITR <<Nr>> SPLITZ <<Nz>>
+;
+
+Geom Matex := USPLIT: Geom :: NGRP 2 MAXR <<MaxR>>
+               NFUEL 1  FMIX  1
+;
+
+Track := TRIVAT: Geom ::
+   EDIT 1 MAXR <<MaxR>> MCFD 1 ;
+
+*--
+* Fuel map definition
+*--
+Fmap Matex := RESINI: Matex ::
+   ::: GEO: TUBEZ 1 1 
+   R+ ZERO  Z- ZERO Z+ ZERO
+   RADIUS 0.0 <<maxr>>
+   MESHZ 0.0 <<maxz>>
+   MIX 1
+   SPLITR <<Nr>> SPLITZ <<Nz>>
+;
+!
+NXNAME '01' NYNAME  'A'
+NCOMB 1
+B-ZONE 1
+
+ADD-PARAM PNAME 'T-FUEL' PARKEY 'TFuel' GLOBAL
+BTYPE INST-BURN
+INST-BVAL CHAN 0.0
+
+SET-PARAM 'T-FUEL' <<TF>>
+;
+
+*--
+* Cross-section database interpolation
+*--
+MicroF := NCR: Cpo Fmap ::
+       EDIT 0
+       MICRO LINEAR
+       TABLE Cpo <<Dir>>
+         MIX 1 INST-BURN
+               SET LINEAR 'TFuel' <<TF>>
+         ENDMIX
+  ;
+MacroF := MicroF :: STEP UP 'MACROLIB' ;
+  
+Macro2 Matex := MACINI: Matex MacroF :: FUEL ;
+  
+*--
+* Steady-state diffusion calculation
+*--
+System := TRIVAA: Macro2 Track ;
+
+Flux := FLUD: System Track :: EDIT 1 ADI 4 ACCE 5 3 ;
+System MacroF Macro2 := DELETE: System MacroF Macro2 ;
+
+GREP: Flux :: GETVAL 'K-EFFECTIVE' 1 >>keff<< ;
+ECHO "Keff=" keff ;
+
+
+ECHO "TD_MEC8258.x2m completed" ;
+END: ;

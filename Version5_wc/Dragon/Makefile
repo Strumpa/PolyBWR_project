@@ -15,7 +15,11 @@ else
   ifeq ($(nvidia),1)
     fcompiler = nvidia
   else
-    fcompiler = custom
+    ifeq ($(flang),1)
+      fcompiler = flang
+    else
+      fcompiler = custom
+    endif
   endif
 endif
 all :
@@ -44,6 +48,7 @@ tests :
 	./rdragon -c $(fcompiler) -q testVVER7.x2m
 	./rdragon -c $(fcompiler) -q fbr_colorset.x2m
 	./rdragon -c $(fcompiler) -q fbr_tone.x2m
+	./rdragon -c $(fcompiler) -q TEST_GEO_hex_sect_tspc.x2m
 	./rdragon -c $(fcompiler) -q testDuo.x2m
 	./rdragon -c $(fcompiler) -q testDuo_B1.x2m
 	./rdragon -c $(fcompiler) -q uo2_evo_xsm.x2m

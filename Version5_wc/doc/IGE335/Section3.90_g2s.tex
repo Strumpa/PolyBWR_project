@@ -19,6 +19,13 @@ file used to store a postscript representation of the geometry corresponding to 
 \item[\dusa{GEONAM}] {\tt character*12} name of the {\sl read-only} \dds{geometry} data
 structure. This structure may be build using the operator {\tt GEO:} (see \Sect{GEOData}).
 
+Reflective boundary conditions defined in operator {\tt GEO:} can be represented in two different ways:
+\vspace{-0.2cm}
+\begin{description}
+\item[{\tt ALBE 1.0}:] isotropic (or white) boundary condition compatible with \moc{TISO} (non-cyclic) tracking;
+\item[{\tt REFL}:] specular boundary condition compatible with \moc{TSPC} (cyclic) tracking.
+\end{description}
+
 \item[\dusa{SURFIL\_IN}] \texttt{character*12} name of the input SALOMON-- or ALAMOS--formatted sequential {\sc ascii}
 file used to store the surfacic elements of the geometry.
 
@@ -29,8 +36,6 @@ in the ALAMOS surfacic file.
 
 \item[\dusa{G2S\_data}] input data structure containing specific data (see \Sect{descG2S}).
 \end{ListeDeDescription}
-
-\clearpage
 
 \subsubsection{Data input for module {\tt G2S:}}\label{sect:descG2S}
 

@@ -1,0 +1,81 @@
+***************************************************************************
+* Deck Geom_C_SALT                                                        *
+*   --> ALLOWS FOR WINDMILL DISCRETIZATION OF MODERATOR <--               *
+* Treatment of main flux calculation geometry for pincell                 *
+*   --> PSBT benchmark geometry <--                                       *
+*                                                                         *
+* Author : R. Guasch                                                      *
+*                                                                         *
+*                                                                         *
+* Dragon Procedure called as :                                            *
+* GEOM GEOM_SS := Geom_C :: <<name_geom>> ;                               *
+*                                                                         *
+* Input data :                                                            *
+* Rcomb1, Rcomb2, Rcomb3, Rcom4 : radial dicretization for cylindrical    *
+* Fuel zone : 50/100, 80/100, 95/100 and 100/100 fuel surface (volume)    *
+* Rgap, Rclad : radii for gap and cladding around fuel                    *
+* pitch : side length of cartesian cell                                   *
+* All dimensions are given in cm.                                         *
+*                                                                         *
+* Output data :                                                           *
+* GEOM : geometry used for main flux calculation                          *
+* GEOM_SS : geometry used for self-shielding calculation                  *
+*                                                                         *
+***************************************************************************
+
+* --------------------------------
+*    INPUT & OUTPUT PARAMETERS
+* --------------------------------
+PARAMETER GEOM GEOM_SS ::
+::: LINKED_LIST GEOM ; 
+::: LINKED_LIST GEOM_SS ; ;
+
+STRING name_geom ;
+:: >>name_geom<< ;
+
+* -------------------------------
+*    STRUCTURES AND MODULES
+* -------------------------------
+MODULE  GEO: END: ECHO: ;
+
+ECHO "IN Geom_C_SALT processing geom =" name_geom ;
+
+REAL Rgap Rclad pitch := 0.271165 0.47498 1.33409 ;
+REAL Rcomb1 Rcomb2 Rcomb3 Rcomb4 ;
+INTEGER COMB0101 COMB0102 COMB0103 COMB0104 GAP CLAD MODE ;
+
+EVALUATE Rcomb4 := 0.271155 ;
+EVALUATE Rcomb1 := 0.191736 ;
+EVALUATE Rcomb2 := 0.242528 ;
+EVALUATE Rcomb3 := 0.264289 ;
+
+EVALUATE COMB0101 COMB0102 COMB0103 COMB0104 GAP CLAD MODE := 
+        1 2 3 4 5 6 7 ; !  DISTRIBUTED SELF-SHIELDING 
+
+GEOM := GEO: :: CARCEL 6 
+  X- REFL X+ REFL
+  Y- REFL Y+ REFL
+  SECT 4 6
+  RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
+        <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
+  MIX <<COMB0101>> <<COMB0102>> <<COMB0103>> <<COMB0104>>
+      <<GAP>> <<CLAD>> 
+      <<MODE>> <<MODE>> <<MODE>> <<MODE>>
+      <<MODE>> <<MODE>> <<MODE>> <<MODE>> 
+      <<MODE>> <<MODE>> <<MODE>> <<MODE>>
+  MESHX 0.0 <<pitch>> MESHY 0.0 <<pitch>>
+;
+
+GEOM_SS := GEO: :: CARCEL 6 
+  X- REFL X+ REFL
+  Y- REFL Y+ REFL
+  RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
+              <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
+  MIX <<COMB0101>> <<COMB0102>> <<COMB0103>> <<COMB0104>>
+      <<GAP>> <<CLAD>> <<MODE>>
+  MESHX 0.0 <<pitch>> MESHY 0.0 <<pitch>>
+;
+
+END: ;
+QUIT .
+

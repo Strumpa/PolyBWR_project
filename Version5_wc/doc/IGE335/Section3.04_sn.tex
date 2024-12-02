@@ -1,7 +1,7 @@
 \subsubsection{The {\tt SNT:} tracking module}\label{sect:SNData}
 
-The {\tt SNT:} module can process one-dimensional, two-dimensional regular geometries and three-dimensional Cartesian geometries
-of type \moc{CAR1D}, \moc{TUBE}, \moc{SPHERE}, \moc{CAR2D}, \moc{TUBEZ} and \moc{CAR3D}.
+The {\tt SNT:} module provides an implementation of the discrete ordinates method. The {\tt SNT:} module can process one-, two- and three-dimensional regular
+geometries of type \moc{CAR1D}, \moc{TUBE}, \moc{SPHERE}, \moc{CAR2D}, \moc{TUBEZ}, \moc{CAR3D}, \moc{HEX2D} and \moc{HEX3D}.
 
 \vskip 0.2cm
 
@@ -49,6 +49,7 @@ $[$ \moc{MAXI} \dusa{maxi} $]~[$ \moc{EPSI} \dusa{epsi} $]$ \\
 $[$ \moc{QUAD} \dusa{iquad} $]$ \\
 $[~\{$ \moc{BTE} $|$ \moc{BFPG} $|$ \moc{BFPL}$ \}~]$ \\
 $[$ \moc{ESCHM} \dusa{eschm} $]~[$ \moc{EDIAM} \dusa{emm} $]$ \\
+$[$ \moc{GQ} \dusa{igq} $]$ \\
 $[~[$ \moc{QUAB} \dusa{iquab} $]~[~\{$ \moc{SAPO} $|$ \moc{HEBE} $|$ \moc{SLSI} $[$ \dusa{frtm} $]~\}~]~]$ \\
 {\tt ;}
 \end{DataStructure}
@@ -141,12 +142,27 @@ equivalent to \dusa{nstart}=0, corresponds to a one-parameter Livolant accelerat
 \item[\dusa{epsi}] convergence criterion on inner iterations. The default value is $1\times 10^{-5}$.
 \item[\moc{QUAD}] keyword to set the type of angular quadrature.
 
-\item[\dusa{iquad}] type of quadrature: $=1$: Lathrop-Carlson level-symmetric quadrature;
-$=2$: $\mu_1$--optimi\-zed level-symmetric quadrature (default option in 2D and in 3D); $=3$ Snow-code level-symmetric quadrature
-(obsolete); $=4$: Legendre-Chebyshev quadrature (variable number of base points
-per axial level); $=5$: symmetric Legendre-Chebyshev quadrature; $=6$: quadruple range (QR)
-quadrature;\cite{quadrupole} $=10$: product of Gauss-Legendre and Gauss-Chebyshev quadrature (equal
-number of base points per axial level).
+\item[\dusa{iquad}] type of quadrature. For 1D quadrature (over $\mu$)
+\begin{displaymath}
+    \dusa{iquad} = \left\{
+    \begin{array}{rl}
+        1 & \textrm{Gauss-Lobatto} \\
+        2 & \textrm{Gauss-Legendre (default option in 1D)} \\
+    \end{array} \right.
+\end{displaymath}
+and for 2D/3D quadrature (over the unit sphere):
+\begin{displaymath}
+    \dusa{iquad} = \left\{
+    \begin{array}{rl}
+        1 & \textrm{Lathrop-Carlson level-symmetric quadrature} \\
+        2 & \textrm{$\mu_1$--optimi\-zed level-symmetric quadrature (default option in 2D and in 3D)} \\
+        3 & \textrm{Snow-code level-symmetric quadrature (obsolete)} \\
+        4 & \textrm{Legendre-Chebyshev quadrature (variable number of base points per axial level)} \\
+        5 & \textrm{symmetric Legendre-Chebyshev quadrature} \\
+        6 & \textrm{quadruple range (QR) quadrature\cite{quadrupole}} \\
+        10 & \textrm{Legendre-Chebyshev quadrature (equal number of base points per axial level)} \\
+    \end{array} \right.
+\end{displaymath}
 
 \item[\moc{BTE}] solution of the Boltzmann transport equation (default option).
 
@@ -156,14 +172,17 @@ number of base points per axial level).
 
 \item[\moc{ESCHM}] keyword to specify the energy discretisation scheme to use for the continuous slowing-down term of the Boltzmann Fokker-Planck equation. 
 
-\item[\dusa{eschm}] index to specify the energy discretisation scheme. \dusa{ischm} $=1$ is used for High-Order Diamond Differencing (HODD) (default value). \dusa{ischm} $=2$ is used for the Discontinuous Galerkin finite element method (DG). \dusa{ischm} $=3$ is used for the Adaptive Weighted Difference method (AWD). All of these schemes are available only for Cartesian geometries.
+\item[\dusa{eschm}] index to specify the energy discretisation scheme. \dusa{ischm} $=1$ is used for High-Order Diamond Differencing (HODD) (default value). \dusa{ischm} $=2$ is
+used for the Discontinuous Galerkin finite element method (DG). \dusa{ischm} $=3$ is used for the Adaptive Weighted Difference method (AWD). All of these schemes are available
+only for Cartesian geometries.
 
 \item[\moc{EDIAM}] keyword to fix the energy approximation order.
 
-\item[\dusa{emm}] order of the Legendre polynomial expansion used in the energy discretisation method. For HODD, \dusa{mm} $=0$ is the default, while for DG, it is \dusa{mm} $=1$.
-For Cartesian geometries, any order \dusa{mm} $\geq0$ is available. Adaptive schemes (\dusa{ischm} $=3$) are only available with constant order.
+\item[\dusa{emm}] order of the Legendre polynomial expansion used in the energy discretisation method. For HODD, \dusa{emm} $=0$ is the default, while for DG,
+it is \dusa{emm} $=1$. For Cartesian geometries, any order \dusa{emm} $\geq0$ is available. Adaptive schemes (\dusa{ischm} $=3$) are only available with
+constant order.
 \begin{displaymath}
-\dusa{mm} = \left\{
+\dusa{emm} = \left\{
 \begin{array}{rl}
  0 & \textrm{Constant (classical diamond scheme (HODD) or step scheme (DG))} \\
  1 & \textrm{Linear} \\
@@ -171,6 +190,12 @@ For Cartesian geometries, any order \dusa{mm} $\geq0$ is available. Adaptive sch
  >3  & \textrm{Higher-orders}
 \end{array} \right.
 \end{displaymath}
+
+\item[\moc{GQ}] keyword to specify the angular interpolation method.
+
+\item[\dusa{igq}] type of angular interpolation. =0: classical SN method, with all spherical harmonics up to the given Legendre truncation order; =1: Galerkin
+quadrature method, where the moment-to-discrete matrix ($\shadowM$) is given by the inverse of the discrete-to-moment ($\shadowD$) matrix; =2: Galerkin quadrature
+method, where the discrete-to-moment ($\shadowD$) matrix is given by the inverse of the moment-to-discrete ($\shadowM$) matrix \cite{morel1989,shands2024}.
 
 \item[\moc{QUAB}] keyword to specify the number of basis point for the
 numerical integration of each micro-structure in cases involving double
@@ -188,7 +213,8 @@ split level in the tracking used to compute the probability collisions.
 
 \item[\moc{SLSI}] use the She-Liu-Shi double-heterogeneity model without shadow effect.\cite{She2017}
 
-\item[\dusa{frtm}] the minimum microstructure volume fraction used to compute the size of the equivalent cylinder in She-Liu-Shi approach. The default value is \dusa{frtm} $=0.05$.
+\item[\dusa{frtm}] the minimum microstructure volume fraction used to compute the size of the equivalent cylinder in She-Liu-Shi approach. The default value is
+\dusa{frtm} $=0.05$.
 
 \end{ListeDeDescription}
 
