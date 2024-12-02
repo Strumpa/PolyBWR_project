@@ -64,10 +64,11 @@
 *         =2 the reduced cp matrix is multiplied by PNL;
 *         =3 sigs0-db2 approximation;
 *         =4 albedo approximation;
-*         =5 Ecco-type isotropic streaming model;
-*         =16,26,36,46,56,66 for heterogeneous method with pijk and
-*         fixed b (16) or search b_x(26), b_y (36), b_z (46),
-*         b_r (56) or b_x=b_y=b_z (66).
+*         =5 Todorova-type isotropic streaming model;
+*         =6 Ecco-type isotropic streaming model;
+*         =17,27,37,47,57,67 for heterogeneous method with pijk and
+*         fixed b (17) or search b_x(27), b_y (37), b_z (47),
+*         b_r (57) or b_x=b_y=b_z (67).
 * B2      initial or imposed directional bucklings.
 * REFKEF  target effective multiplication factor (K-eff).
 * IPRINT  print selection for FLU: module (= 0/1/2/3 no print/short
@@ -96,9 +97,9 @@
 *----
 *  LOCAL VARIABLES
 *----
-      PARAMETER  (NBUCKN=7,NLEAK=6,NSDIR=5,ROUMIN=1.0E-5,RINMIN=5.0E-5,
+      PARAMETER  (NBUCKN=7,NLEAK=7,NSDIR=5,ROUMIN=1.0E-5,RINMIN=5.0E-5,
      >            NSTATE=40)
-      CHARACTER   CARLIR*4,CTYPEC*1,CBUCKN(0:NBUCKN)*4,CLEAK(NLEAK)*4,
+      CHARACTER   CARLIR*4,CTYPEC*1,CBUCKN(0:NBUCKN)*4,CLEAK(NLEAK)*6,
      >            CSDIR(NSDIR)*1
       SAVE        CBUCKN,CLEAK,CSDIR
       INTEGER     ITYPLU,INTLIR,IRSDIR(NSDIR),ISTATE(NSTATE)
@@ -107,7 +108,7 @@
       DATA       (CBUCKN(JJ),JJ=0,NBUCKN)
      >           /'LKRD','RHS','B0','P0','B1','P1','B0TR','P0TR'/
       DATA       (CLEAK(JJ),JJ=1,NLEAK)
-     >           /'PNLR','PNL ','SIGS','ALBS','ECCO','HETE'/
+     >           /'PNLR','PNL','SIGS','ALBS','HETE','ECCO','TIBERE'/
       DATA       (CSDIR(III),III=1,NSDIR)
      >           /'X','Y','Z','R','G'/
 *----
@@ -226,9 +227,23 @@
           IF(ITYPLU.NE.3) CALL XABORT('FLUGPI: READ ERROR - CHARACTE'
      >      //'R VARIABLE EXPECTED')
           DO 70 JLEA=1,NLEAK
-            IF(CARLIR.EQ.CLEAK(JLEA)) THEN
+            IF(CARLIR.EQ.CLEAK(JLEA)(:4)) THEN
               ILEAK=JLEA
-              IF(ILEAK.EQ.6) THEN
+              IF(LEAKSW.AND.(ILEAK.NE.3).AND.(ILEAK.NE.5)) THEN
+                CALL XABORT('FLUGPI: FUNDAMENTAL MODE EXPECTED WITH A '
+     >          //'LEAKAGE MODEL OTHER THAN SIGS OR HETE.')
+              ENDIF
+              IF(ILEAK.EQ.5) THEN
+                DO IBM=1,NMAT
+                  CALL REDGET(ITYPLU,INTLIR,REALIR,CARLIR,DBLINP)
+                  IF((IBM.EQ.1).AND.(ITYPLU.EQ.3)) GO TO 30
+                  IF(ITYPLU.NE.1) CALL XABORT('FLUGPI: READ ERROR - IN'
+     >                            //'TEGER VARIABLE EXPECTED')
+                  IMERG(IBM)=INTLIR
+                  NMERG=MAX(NMERG,IMERG(IBM))
+                ENDDO
+                CALL LCMPUT(IPFLUX,'IMERGE-LEAK',NMAT,1,IMERG)
+              ELSE IF(ILEAK.EQ.7) THEN
                 CALL REDGET(ITYPLU,INTLIR,REALIR,CARLIR,DBLINP)
                 IF(ITYPLU.NE.3) CALL XABORT('FLUGPI: READ ERROR - '
      >                         //'CHARACTER VARIABLE EXPECTED')
@@ -241,17 +256,9 @@
                 GO TO 30
               ENDIF
               CALL REDGET(ITYPLU,INTLIR,REALIR,CARLIR,DBLINP)
-              GO TO 80
+              GO TO 30
             ENDIF
   70      CONTINUE
-  80      IF((ILEAK.EQ.3).AND.(COPTIO.EQ.'LKRD').AND.LEAKSW) THEN
-*           recover the number of leakage zones from the macrolib.
-            CALL LCMGET(IPMACR,'STATE-VECTOR',ISTATE)
-            NMERG=ISTATE(2)
-            DO IBM=1,NMAT
-              IMERG(IBM)=IBM
-            ENDDO
-          ENDIF
           GO TO 30
         ENDIF
       ELSE IF(CARLIR.EQ.'REBA') THEN
@@ -354,14 +361,6 @@
            CALL LCMGET(IPMACR,'B2  B1HOM',BSDIR(5))
            IRSDIR(5)=1
          ENDIF
-      ELSE IF(CARLIR.EQ.'MERG') THEN
-         DO IBM=1,NMAT
-           CALL REDGET(ITYPLU,IMERG(IBM),REALIR,CARLIR,DBLINP)
-           IF(ITYPLU.NE.1) CALL XABORT('FLUGPI: READ ERROR - INTEGER V'
-     >     //'ARIABLE EXPECTED')
-           NMERG=MAX(NMERG,IMERG(IBM))
-         ENDDO
-         CALL LCMPUT(IPFLUX,'IMERGE-LEAK',NMAT,1,IMERG)
       ELSE
          CALL XABORT('FLUGPI: READ ERROR - ILLEGAL KEYWORD '//CARLIR)
       ENDIF
@@ -370,7 +369,7 @@
  140  CONTINUE
       IF(ITYPEC.EQ.3) THEN
         ISDIR=0
-        IF(ILEAK.EQ.6) THEN
+        IF(ILEAK.EQ.7) THEN
           DO 150 III=1,NSDIR
             IF(IRSDIR(III).EQ.1) GO TO 160
  150      CONTINUE
@@ -381,7 +380,7 @@
      >    'CALCULATION WITH IMPOSED BUCKLING')
  160    CONTINUE
       ENDIF
-      IF(ILEAK.EQ.6) THEN
+      IF(ILEAK.EQ.7) THEN
         IF(IRSDIR(5).EQ.1) THEN
           DO 210 III=1,NSDIR-1
             IF(IRSDIR(III).EQ.1) THEN

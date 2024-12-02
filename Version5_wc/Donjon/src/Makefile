@@ -6,13 +6,13 @@
 #---------------------------------------------------------------------------
 #
 ARCH = $(shell uname -m)
-ifeq ($(ARCH),aarch64)
+ifneq (,$(filter $(ARCH),aarch64 arm64))
   nbit =
 else
-  ifeq (,$(filter $(ARCH),i386 i686))
-    nbit = -m64
-  else
+  ifneq (,$(filter $(ARCH),i386 i686))
     nbit = -m32
+  else
+    nbit = -m64
   endif
 endif
 
@@ -35,8 +35,13 @@ else
     fcompiler = nvfortran
     ccompiler = nvc
   else
-    fcompiler = gfortran
-    ccompiler = gcc
+    ifeq ($(flang),1)
+      fcompiler = flang-new
+      ccompiler = clang
+    else
+      fcompiler = gfortran
+      ccompiler = gcc
+    endif
   endif
 endif
 
@@ -58,8 +63,8 @@ ifeq ($(OS),Darwin)
   C = $(ccompiler)
   FLAGS = -DLinux -DUnix
   CFLAGS = -Wall $(nbit) -fPIC
-  FFLAGS = -Wall $(nbit) -fPIC
-  FFLAG77 = -Wall $(nbit) -fPIC
+  FFLAGS = $(nbit) -fPIC
+  FFLAG77 = $(nbit) -fPIC
   LFLAGS = $(nbit)
 else
 ifeq ($(OS),Linux)
@@ -146,14 +151,25 @@ else
     lib_module = ../lib/$(DIRNAME)_nvidia/modules
     INCLUDE = -I../../Ganlib/lib/$(DIRNAME)_nvidia/modules/ -I../../Utilib/lib/$(DIRNAME)_nvidia/modules/
   else
-    lib = ../lib/$(DIRNAME)
-    libUtl = ../../Utilib/lib/$(DIRNAME)
-    libGan = ../../Ganlib/lib/$(DIRNAME)
-    libTri = ../../Trivac/lib/$(DIRNAME)
-    libDra = ../../Dragon/lib/$(DIRNAME)
-    bin = ../bin/$(DIRNAME)
-    lib_module = ../lib/$(DIRNAME)/modules
-    INCLUDE = -I../../Ganlib/lib/$(DIRNAME)/modules/ -I../../Utilib/lib/$(DIRNAME)/modules/
+    ifeq ($(flang),1)
+      lib = ../lib/$(DIRNAME)_flang
+      libUtl = ../../Utilib/lib/$(DIRNAME)_flang
+      libGan = ../../Ganlib/lib/$(DIRNAME)_flang
+      libTri = ../../Trivac/lib/$(DIRNAME)_flang
+      libDra = ../../Dragon/lib/$(DIRNAME)_flang
+      bin = ../bin/$(DIRNAME)_flang
+      lib_module = ../lib/$(DIRNAME)_flang/modules
+      INCLUDE = -I../../Ganlib/lib/$(DIRNAME)_flang/modules/ -I../../Utilib/lib/$(DIRNAME)_flang/modules/
+    else
+      lib = ../lib/$(DIRNAME)
+      libUtl = ../../Utilib/lib/$(DIRNAME)
+      libGan = ../../Ganlib/lib/$(DIRNAME)
+      libTri = ../../Trivac/lib/$(DIRNAME)
+      libDra = ../../Dragon/lib/$(DIRNAME)
+      bin = ../bin/$(DIRNAME)
+      lib_module = ../lib/$(DIRNAME)/modules
+      INCLUDE = -I../../Ganlib/lib/$(DIRNAME)/modules/ -I../../Utilib/lib/$(DIRNAME)/modules/
+    endif
   endif
 endif
 
@@ -189,7 +205,7 @@ ifeq ($(hdf5),1)
 	@echo 'Donjon: hdf5 is defined'
 endif
 sub-make:
-	$(MAKE) openmp=$(openmp) intel=$(intel) nvidia=$(nvidia) hdf5=$(hdf5) -C ../../Dragon/src
+	$(MAKE) openmp=$(openmp) intel=$(intel) nvidia=$(nvidia) flang=$(flang) hdf5=$(hdf5) -C ../../Dragon/src
 %.o : %.c
 	$(C) $(CFLAGS) $(opt) $(COMP) -c $< -o $@
 %.o : %.f90

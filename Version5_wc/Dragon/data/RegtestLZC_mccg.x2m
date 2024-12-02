@@ -146,5 +146,6 @@ IntLine VolTrk Geometry := DELETE: IntLine VolTrk Geometry ;
 *---- 
 MicNO MicOU10 MicOU21 MicOU32 MicIN10 MicIN21 MicIN32
   := DELETE: MicNO MicOU10 MicOU21 MicOU32 MicIN10 MicIN21 MicIN32 ;
+ECHO "test RegtestLZC_mccg completed" ;
 END: ;
 QUIT "LIST" .

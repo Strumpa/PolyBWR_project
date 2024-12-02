@@ -8,7 +8,8 @@
 *                                                                                                                      *
 ************************************************************************************************************************
 
-PROCEDURE Geom_C Geom_C_SALT Mix_C1 TRK_C_SALT TRK_C_SYBNXT TRK_C_NXTNXT Mix_AUTOP1 Mix_AUTOP2 Mix_AUTOP3 ; 
+PROCEDURE Geom_C Geom_C_SALT Mix_C1 Mix_C1_V Mix_C1_D
+ TRK_C_SALT TRK_C_SYBNXT TRK_C_NXTNXT Mix_AUTOP1 Mix_AUTOP2 Mix_AUTOP3 ; 
 
 ************************************************************************
 *                          LOCAL PARAMETERS                            *
@@ -21,7 +22,7 @@ SEQ_BINARY TF_EXC ;
 SEQ_BINARY TF_EXC_SS ;
 
 STRING geo_name := "AT10_UOX" ; 
-STRING ssh_opt := "PT" ; ! "PT", "RSE", "SUBG"
+STRING ssh_opt := "RSE" ; ! "PT", "RSE", "SUBG"
 STRING track_opt := "SALT" ; ! "SYBNXT" "SALT" "NXTNXT"
 
 SEQ_ASCII FIG_SS.ps :: FILE './PIN_AT10_FIG_SS.ps' ;
@@ -65,6 +66,7 @@ SYS := ASM: LIBRARY2 TRACK TF_EXC :: ARM EDIT 0 ;
 
 FLUX := FLU: LIBRARY2 SYS TRACK TF_EXC :: 
         EDIT 1 TYPE K B1 SIGS ;
+
 
 COMPO := COMPO: ::
     EDIT 10
@@ -117,16 +119,50 @@ COMPO := COMPO: COMPO EDIOBJ LIBRARY2 ::
 ;
 
 EDIOBJ := DELETE: EDIOBJ ;
+GREP: FLUX :: GETVAL 'K-EFFECTIVE  ' 1 1 1 >>Kinf<< ;
+ECHO track_opt " tracking, MOC on AT10 C1: Kinf NOM =" Kinf ;
+
+LIBRARY LIBRARY2 SYS FLUX := DELETE: LIBRARY LIBRARY2 SYS FLUX ;
+
+LIBRARY := Mix_C1_V :: J311_295 <<ssh_opt>> ;
+
+IF track_opt "SALT" = THEN
+        LIBRARY2 := Mix_AUTOP1 LIBRARY TRACK_SS TF_EXC_SS :: <<ssh_opt>> <<track_opt>> ;
+ELSEIF track_opt "SYBNXT" = THEN
+        LIBRARY2 := Mix_AUTOP2 LIBRARY TRACK_SS :: <<ssh_opt>> <<track_opt>> ;
+ELSEIF track_opt "NXTNXT" = THEN
+        LIBRARY2 := Mix_AUTOP3 LIBRARY TRACK_SS TF_EXC_SS :: <<ssh_opt>> <<track_opt>> ;
+ENDIF ;
 
 
+SYS := ASM: LIBRARY2 TRACK TF_EXC :: ARM EDIT 0 ; 
+
+FLUX := FLU: LIBRARY2 SYS TRACK TF_EXC :: 
+        EDIT 1 TYPE K ;
 
 GREP: FLUX :: GETVAL 'K-EFFECTIVE  ' 1 1 1 >>Kinf<< ;
-ECHO track_opt " tracking, MOC on AT10 C1: Kinf=" Kinf ;
+ECHO track_opt " tracking, MOC on AT10 C1: Kinf VOID =" Kinf ;
 
-************************************************************************
-*  EXPORT MULTICOMPO IN ASCII FORMAT                                   *
-************************************************************************
-_COMPO := COMPO ;
+LIBRARY LIBRARY2 SYS FLUX := DELETE: LIBRARY LIBRARY2 SYS FLUX ;
+
+LIBRARY := Mix_C1_D :: J311_295 <<ssh_opt>> ;
+
+IF track_opt "SALT" = THEN
+        LIBRARY2 := Mix_AUTOP1 LIBRARY TRACK_SS TF_EXC_SS :: <<ssh_opt>> <<track_opt>> ;
+ELSEIF track_opt "SYBNXT" = THEN
+        LIBRARY2 := Mix_AUTOP2 LIBRARY TRACK_SS :: <<ssh_opt>> <<track_opt>> ;
+ELSEIF track_opt "NXTNXT" = THEN
+        LIBRARY2 := Mix_AUTOP3 LIBRARY TRACK_SS TF_EXC_SS :: <<ssh_opt>> <<track_opt>> ;
+ENDIF ;
+
+
+SYS := ASM: LIBRARY2 TRACK TF_EXC :: ARM EDIT 0 ; 
+
+FLUX := FLU: LIBRARY2 SYS TRACK TF_EXC :: 
+        EDIT 1 TYPE K ;
+
+GREP: FLUX :: GETVAL 'K-EFFECTIVE  ' 1 1 1 >>Kinf<< ;
+ECHO track_opt " tracking, MOC on AT10 C1: Kinf DOP =" Kinf ;
 
 END: ;
 

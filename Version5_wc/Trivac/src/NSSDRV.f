@@ -184,7 +184,6 @@
           DEALLOCATE(ALBP)
         ELSE IF(ILONG.EQ.NALB*NG*NG) THEN
           CALL LCMGET(IPMAC,'ALBEDO',BETA)
-          print *,'debug BETA=',BETA(:,:,:)
         ELSE
           CALL XABORT('NSSDRV: INVALID ALBEDO LENGTH.')
         ENDIF

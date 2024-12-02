@@ -40,7 +40,7 @@ ganlib::Cle2000::Cle2000(string sname, int_32 edit, LifoPtr jstack) {
   this->stack = jstack;
 }
 
-ganlib::Cle2000::~Cle2000() throw(Cle2000Exception) {
+ganlib::Cle2000::~Cle2000() {
   cout << "Cle2000 destructor called." << endl;
 }
 
@@ -48,7 +48,7 @@ void ganlib::Cle2000::setLifo(LifoPtr myLifo) {
   this->stack = myLifo;
 }
 
-void ganlib::Cle2000::exec() throw(Cle2000Exception) {
+void ganlib::Cle2000::exec() {
   int_32 ier, ilevel = 1;
 
 // close the LCM objects
@@ -93,7 +93,8 @@ void ganlib::Cle2000::exec() throw(Cle2000Exception) {
       try {
         lcm *myLcmStructure = myClcm->extract();
         int_32 myTypeNode = this->stack->typeNode(ipos);
-        char *myOSname = (char *)this->stack->OSName(ipos).c_str();
+        string myOSname_str = this->stack->OSName(ipos);
+        char *myOSname = (char *)myOSname_str.c_str();
         lcmop_c(&myLcmStructure, myOSname, access, myTypeNode-2, 0);
       } catch(...) {
         throw Cle2000Exception("Exception catched by lcmop_c");

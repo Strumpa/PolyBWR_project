@@ -56,7 +56,7 @@
 !
 module FILMOD
    use, intrinsic :: iso_c_binding
-   type FIL_file
+   type, bind(c) :: FIL_file
       integer :: unit
       type(c_ptr) :: kdi_file
    end type FIL_file

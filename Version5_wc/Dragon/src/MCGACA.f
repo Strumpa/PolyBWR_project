@@ -1,7 +1,7 @@
 *DECK MCGACA
       SUBROUTINE MCGACA(LFORW,PACA,N,NG,NFIRST,NGEFF,M,LC,NGIND,NGINDV,
      1                  NCONV,KPSYS,JPMACR,NZON,IPERM,IM,MCU,JU,XIN,
-     2                  XOUT,TEMP,LC0,IM0,MCU0)
+     2                  LC0,IM0,MCU0,XOUT)
 *
 *-----------------------------------------------------------------------
 *
@@ -44,10 +44,7 @@
 * MCU0    used in ILU0-ACA acceleration.
 *
 *Parameters: output
-* XOUT    undefined.
-*
-*Parameters: scratch
-* TEMP    preconditioning coefficients.
+* XOUT    product.
 *
 *-----------------------------------------------------------------------
 *
@@ -59,7 +56,7 @@
       TYPE(C_PTR) KPSYS(NGEFF),JPMACR
       INTEGER PACA,N,NFIRST,NGEFF,NG,M,LC,NGIND(NGEFF),NGINDV(NG),
      1 NZON(N),IPERM(N),IM(N+1),MCU(LC),JU(N),LC0,IM0(*),MCU0(*)
-      DOUBLE PRECISION XIN(N,NGEFF),XOUT(N,NGEFF),TEMP(N)
+      DOUBLE PRECISION XIN(N,NGEFF),XOUT(N,NGEFF)
       LOGICAL LFORW,NCONV(NGEFF)
 *----
 * LOCAL VARIABLES
@@ -72,6 +69,7 @@
 *----
       INTEGER, ALLOCATABLE, DIMENSION(:) :: NJJ,IJJ,IPOS
       REAL, ALLOCATABLE, DIMENSION(:) :: XSCAT
+      DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:) :: TEMP
 *
       TYPE(C_PTR) DIAGF_PTR,CF_PTR,LUDF_PTR,LUCF_PTR,DIAGQ_PTR,CQ_PTR
       REAL, POINTER, DIMENSION(:) :: DIAGF,CF,LUDF,LUCF,DIAGQ,CQ
@@ -83,7 +81,7 @@
 *----
 *  SCRATCH STORAGE ALLOCATION
 *----
-      ALLOCATE(NJJ(0:M),IJJ(0:M),IPOS(0:M),XSCAT(0:M*NG))
+      ALLOCATE(NJJ(0:M),IJJ(0:M),IPOS(0:M),XSCAT(0:M*NG),TEMP(N))
 *
       DO II=NFIRST,NGEFF
          IF(NCONV(II)) THEN
@@ -112,7 +110,7 @@
             CALL LCMGET(KPMACR,'IPOS00',IPOS(1))
             CALL LCMGET(KPMACR,'SCAT00',XSCAT(1))
             DO I=1,N
-               TEMP(I)=0.0
+               TEMP(I)=0.0D0
                J=IPERM(I)
                IBM=NZON(J)
                IF(IBM.GT.0) THEN
@@ -146,6 +144,6 @@
 *----
 *  SCRATCH STORAGE DEALLOCATION
 *----
-      DEALLOCATE(XSCAT,IPOS,IJJ,NJJ)
+      DEALLOCATE(TEMP,XSCAT,IPOS,IJJ,NJJ)
       RETURN
       END

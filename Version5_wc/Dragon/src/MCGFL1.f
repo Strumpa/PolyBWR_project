@@ -330,13 +330,13 @@
 *     ---------------------------------
       ENDIF
       DEALLOCATE(KEYANI,ISGNR)
-      IF((IPRINT.GT.1).AND.(LAST)) THEN
+      IF(IPRINT.GT.1) THEN
          WRITE(6,100) ' FLUX INTEGRATION       ',(T2-T1)
-         IF((IAAC.GT.0).OR.(ISCR.GT.0)) THEN
+         IF((IAAC.GT.0).OR.(ISCR.NE.0)) THEN
             WRITE(6,100) ' ACCELERATION           ',(T3-T2)
          ENDIF
       ENDIF
       RETURN
 *
- 100  FORMAT('   -->>TIME SPENT IN ',A24,':',F13.3)
+ 100  FORMAT(10X,'MCGFL1: -->>TIME SPENT IN ',A24,':',F13.3)
       END

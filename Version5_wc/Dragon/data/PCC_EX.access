@@ -1,6 +1,7 @@
 #!/bin/sh
 if [ $# = 0 ]
    then
+
    echo "usage: PCC_EX : Gd157.access directory" 1>&2
    exit 1
 fi
@@ -35,3 +36,4 @@ if [ -f "$pos"/draglibJeff3p1p1SHEM295 ]
 fi
 ls -l
 echo "PCC_EX : Gd157 access script terminated"
+

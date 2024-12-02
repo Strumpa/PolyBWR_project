@@ -58,6 +58,7 @@ MODULE SAL_GEOMETRY_TYPES
   !                             0 = geometry with vacuum or isotropic reflexion
   !                             1 = geometry with symmetries of two axis of angle pi/n,n>0
   !                             2 = geometry with rotation of angle 2*pi/n,n>1
+  !                             3 = 1/4 assembly with symmetries on all sides
   !                             5 = rectangular geometry with translation on all sides
   !                             6 = rectangular geometry with symmetry on all sides
   !                             7 = 1/8 assembly with symmetries on all sides
@@ -65,6 +66,7 @@ MODULE SAL_GEOMETRY_TYPES
   !                             9 = hexagonal geometry with translations on all sides
   !                            10 = equilateral triangle geometry with RA60 rotation and translation
   !                            11 = lozenge geometry with R120 rotation and translation
+  !                            12 = rectangular S30 triangle geometry with symmetries on all sides
   !       NBFOLD              = n in angle definition of rotation or symmetry geometry
   !       NBMED               = nber of media in library file
   !       ALLSUR              = (have not been programmed!)
