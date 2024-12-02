@@ -20,6 +20,10 @@ def main():
     libdir="../../lib/"+mach+"_nvidia"
     libNv=os.environ.get("NVTOOLS", None)+"/../lib"
     extralink=["-lnvc","-lnvcpumath"]
+  elif Compiler == "LLVMTOOLS":
+    libdir="../../lib/"+mach+"_flang"
+    libNv=" "
+    extralink=[ ]
   elif Compiler == "INTELTOOLS":
     libdir="../../lib/"+mach+"_intel"
     libNv=" "

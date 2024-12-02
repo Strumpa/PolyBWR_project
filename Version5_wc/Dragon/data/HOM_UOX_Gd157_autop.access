@@ -1,5 +1,4 @@
 #!/bin/sh
-#!/bin/sh
 if [ $# = 0 ]
    then
    echo "usage: HOM_UOX_Gd157_autop.access directory" 1>&2
@@ -19,10 +18,10 @@ if [ "$MACH" = "Linux" -o "$MACH" = "OSF1" -o "$MACH" = "Cygwin" -o "$MACH" = "S
 -o "$MACH" = "Linux_aarch64" ]
 then 
   echo 'use little endian libraries'
-  pos=$1/../../libraries/l_endian
+  pos=$1/../../../libraries/l_endian
 else
   echo 'use big endian libraries'
-  pos=$1/../../libraries/b_endian
+  pos=$1/../../../libraries/b_endian
 fi
 if [ -f "$pos"/draglibJeff3p1p1SHEM295.gz ]
    then

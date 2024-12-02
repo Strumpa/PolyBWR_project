@@ -1,0 +1,208 @@
+* CLE-2000 script
+* Purpose : test self-shielding for UOX+Gd157 benchmark.
+* Author : R. Guasch
+* Date : 12/11/2024
+* Goal : compare XS from USS: PT/RSE/SUBG with AUTO: SUBG on 281/295/315 groups meshes
+* Extended to write XS in MULTICOMPO for the same benchmark, same SSH methods
+
+LINKED_LIST COMPO EDI172 EDI281 EDI295 EDI315 ;
+MODULE COMPO: EDI: GREP: DELETE: END: ;
+PROCEDURE auto281 rse281 pt281 subg281 auto295 rse295 pt295 subg295 auto315 rse315 pt315 subg315 ; 
+PROCEDURE auto172 rse172 pt172 subg172 ;
+SEQ_ASCII _COMPO :: FILE './COMPO_MESHES' ;
+
+STRING auto_method := "SUBG" ;
+STRING correl := "CORR" ; ! "noCORR"
+
+* Initialize COMPO :
+* Compo stores results for different meshes in different DIR names 
+* and different SSH methods in different 'SSH' parameter values :
+* A = AUTOSECOL, R = RSE, P = PT and S = SUBG  
+COMPO := COMPO: ::
+    EDIT 1
+    STEP UP 'EDIHOM_172'
+        MAXCAL 5
+        PARA 'SSH' VALU CHAR
+        ISOT 2 U238 Gd157
+    INIT
+    STEP UP 'EDIHOM_281'
+        MAXCAL 5
+        PARA 'SSH' VALU CHAR
+        ISOT 2 U238 Gd157
+    INIT
+    STEP UP 'EDIHOM_295'
+        MAXCAL 5
+        PARA 'SSH' VALU CHAR
+        ISOT 2 U238 Gd157
+    INIT
+    STEP UP 'EDIHOM_315'
+        MAXCAL 5
+        PARA 'SSH' VALU CHAR
+        ISOT 2 U238 Gd157
+    INIT
+;
+
+* AUTO: self-shielding 
+
+* 172 groups XMAS mesh
+ECHO "Calling procedure auto172 (SUBG in LIB: + AUTO:)" ;
+EDI172 := auto172 :: <<auto_method>> ;
+
+* 281 groups SHEM mesh
+ECHO "Calling procedure auto281 (SUBG in LIB: + AUTO:)" ;
+EDI281 := auto281 :: <<auto_method>> ;
+
+* 295 groups SHEM mesh 
+ECHO "Calling procedure auto295 (SUBG in LIB: + AUTO:)" ;
+EDI295 := auto295 :: <<auto_method>> ;
+
+* 315 groups SHEM mesh 
+ECHO "Calling procedure auto315 (SUBG in LIB: + AUTO:)" ;
+EDI315 := auto315 :: <<auto_method>> ;
+
+COMPO := COMPO: COMPO EDI172 ::
+        EDIT 1
+        STEP UP 'EDIHOM_172'
+        'SSH' A
+;
+
+COMPO := COMPO: COMPO EDI281 ::
+        EDIT 1
+        STEP UP 'EDIHOM_281'
+        'SSH' A
+;
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'EDIHOM_295'
+        'SSH' A
+;
+COMPO := COMPO: COMPO EDI315 ::
+        EDIT 1
+        STEP UP 'EDIHOM_315'
+        'SSH' A
+;
+EDI172 EDI281 EDI295 EDI315 := DELETE: EDI172 EDI281 EDI295 EDI315 ;
+
+* USS: / RSE self-shielding
+
+* XMAS172 mesh
+ECHO "Calling procedure rse172 (RSE in LIB: + USS:)" ;
+EDI172 := rse172 :: <<correl>> ;
+
+* SHEM281 mesh
+ECHO "Calling procedure rse281 (RSE in LIB: + USS:)" ;
+EDI281 := rse281 :: <<correl>> ;
+* SHEM295 mesh
+ECHO "Calling procedure rse295 (RSE in LIB: + USS:)" ;
+EDI295 := rse295 :: <<correl>> ;
+
+* SHEM315 mesh
+ECHO "Calling procedure rse315 (RSE in LIB: + USS:)" ;
+EDI315 := rse315 :: <<correl>> ;
+
+COMPO := COMPO: COMPO EDI172 ::
+        EDIT 1
+        STEP UP 'EDIHOM_172'
+        'SSH' R
+;
+COMPO := COMPO: COMPO EDI281 ::
+        EDIT 1
+        STEP UP 'EDIHOM_281'
+        'SSH' R
+;
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'EDIHOM_295'
+        'SSH' R
+;
+COMPO := COMPO: COMPO EDI315 ::
+        EDIT 1
+        STEP UP 'EDIHOM_315'
+        'SSH' R
+;
+
+EDI172 EDI281 EDI295 EDI315 := DELETE: EDI172 EDI281 EDI295 EDI315 ;
+
+* USS: / PT self-shielding
+
+!* XMAS172 mesh
+
+!ECHO "Calling procedure pt172 (PT in LIB: + USS:)" ;
+!EDI281 := pt172 :: <<correl>> ;
+
+* SHEM281 mesh
+ECHO "Calling procedure pt281 (PT in LIB: + USS:)" ;
+EDI281 := pt281 :: <<correl>> ;
+
+* SHEM295 mesh
+ECHO "Calling procedure pt295 (PT in LIB: + USS:)" ;
+EDI295 := pt295 :: <<correl>> ;
+
+* SHEM315 mesh
+ECHO "Calling procedure pt315 (PT in LIB: + USS:)" ;
+EDI315 := pt315 :: <<correl>> ;
+
+COMPO := COMPO: COMPO EDI281 ::
+        EDIT 1
+        STEP UP 'EDIHOM_281'
+        'SSH' P
+;
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'EDIHOM_295'
+        'SSH' P
+;
+COMPO := COMPO: COMPO EDI315 ::
+        EDIT 1
+        STEP UP 'EDIHOM_315'
+        'SSH' P
+;
+
+EDI281 EDI295 EDI315 := DELETE: EDI281 EDI295 EDI315 ;
+
+* USS: / SUBG self-shielding
+
+* XMAS172 mesh
+ECHO "Calling procedure subg172 (SUBG in LIB: + USS:)" ;
+EDI172 := subg172 ;
+
+* SHEM281 mesh
+ECHO "Calling procedure subg281 (SUBG in LIB: + USS:)" ;
+EDI281 := subg281 ;
+
+* SHEM295 mesh
+ECHO "Calling procedure subg295 (SUBG in LIB: + USS:)" ;
+EDI295 := subg295 ;
+
+* SHEM315 mesh
+ECHO "Calling procedure subg315 (SUBG in LIB: + USS:)" ;
+EDI315 := subg315 ;
+
+COMPO := COMPO: COMPO EDI172 ::
+        EDIT 1
+        STEP UP 'EDIHOM_172'
+        'SSH' S
+;
+COMPO := COMPO: COMPO EDI281 ::
+        EDIT 1
+        STEP UP 'EDIHOM_281'
+        'SSH' S
+;
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'EDIHOM_295'
+        'SSH' S
+;
+COMPO := COMPO: COMPO EDI315 ::
+        EDIT 1
+        STEP UP 'EDIHOM_315'
+        'SSH' S
+;
+
+EDI172 EDI281 EDI295 EDI315 := DELETE: EDI172 EDI281 EDI295 EDI315 ;
+
+_COMPO := COMPO ;
+
+QUIT "LIST" .
+
+

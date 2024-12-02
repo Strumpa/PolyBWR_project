@@ -1,31 +1,24 @@
-\subsection{The {\tt SALT:} tracking module}\label{sect:SALTData1}
+\subsubsection{The {\tt SALT:} tracking module}\label{sect:SALTData1}
 
-The \moc{{\tt SALT:}} module can process general 2-D geometries defined from
-{\sl surfacic elements}. It is used to compute the tracking information requested in
-the method of collision probabilities or in the method of characteristics.
-
-\subsubsection{Cyclic tracking}
-
-The {\tt SALT:} module with keyword {\tt TSPC} has the capability to perform {\sl cyclic tracking} over a closed square, rectangular
+The {\tt SALT:} module provides an implementation of the collision probability (PIJ) method or of the method of characteristics (MOC).
+The \moc{{\tt SALT:}} module can process general 2-D geometries defined from {\sl surfacic elements}. It is used to compute the tracking
+information requested in the method of collision probabilities or in the method of characteristics. The {\tt SALT:} module with keyword
+{\tt TSPC} has the capability to perform {\sl cyclic tracking} over a closed square, rectangular
 or equilateral triangular domain. Each track cover a certain surface before going back to the starting point after a distance $L$, as
 depicted in Figs.~\ref{fig:cart_tspc} and~\ref{fig:hex_tspc}. Only specific angles, function of integer values $n$ and $m$, make
 possible the cycling of trajectories.
 
 \begin{figure}[h!]
 \begin{center} 
-\epsfxsize=10cm \centerline{ \epsffile{cart_tspc.eps}}
-\parbox{14.0cm}{\caption{Cycling tracking over a Cartesian domain.}\label{fig:cart_tspc}}   
+\epsfxsize=9cm \centerline{ \epsffile{cart_tspc.eps}}
+\parbox{14.0cm}{\caption{Cycling tracking over a Cartesian domain.}\label{fig:cart_tspc}}
+
+\epsfxsize=14cm \centerline{ \epsffile{hex_tspc.eps}}
+\parbox{14.0cm}{\caption{Cycling tracking over an hexagonal domain.}\label{fig:hex_tspc}}
 \end{center}  
 \end{figure}
 
-\begin{figure}[h!]
-\begin{center} 
-\epsfxsize=15cm \centerline{ \epsffile{hex_tspc.eps}}
-\parbox{14.0cm}{\caption{Cycling tracking over an hexagonal domain.}\label{fig:hex_tspc}}   
-\end{center}  
-\end{figure}
-
-\subsubsection{Calling specifications}
+\clearpage
 
 The calling specification for this module is:
 \begin{DataStructure}{Structure \dstr{SALT:}}

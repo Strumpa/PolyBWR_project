@@ -1,7 +1,7 @@
 *DECK SNFT13
       SUBROUTINE SNFT13(NUN,NGEFF,IMPX,INCONV,NGIND,LX,LY,LZ,IELEM,
      1 NMAT,NPQ,NSCT,MAT,VOL,TOTAL,NCODE,ZCODE,QEXT,LFIXUP,DU,DE,DZ,
-     2 W,MRMX,MRMY,MRMZ,DC,DB,DA,PL,FUNKNO,ISBS,NBS,ISBSM,BS,MAXL)
+     2 W,MRMX,MRMY,MRMZ,DC,DB,DA,FUNKNO,ISBS,NBS,ISBSM,BS,MAXL,MN,DN)
 *
 *-----------------------------------------------------------------------
 *
@@ -49,8 +49,8 @@
 * DC      diamond-scheme parameter.
 * DB      diamond-scheme parameter.
 * DA      diamond-scheme parameter.
-* PL      discrete values of the spherical harmonics corresponding
-*         to the 3D SN quadrature.
+* MN      moment-to-discrete matrix.
+* DN      discrete-to-moment matrix.
 *
 *Parameters: input/output
 * FUNKNO  Legendre components of the flux and boundary fluxes.
@@ -69,13 +69,13 @@
       LOGICAL INCONV(NGEFF)
       REAL VOL(LX,LY,LZ),TOTAL(0:NMAT,NGEFF),ZCODE(6),QEXT(NUN,NGEFF),
      1 DU(NPQ),DE(NPQ),DZ(NPQ),W(NPQ),DC(LX,LY,NPQ),DB(LX,LZ,NPQ),
-     2 DA(LY,LZ,NPQ),PL(NSCT,NPQ),FUNKNO(NUN,NGEFF),
-     3 BS(MAXL*ISBS,NBS*ISBS)
+     2 DA(LY,LZ,NPQ),FUNKNO(NUN,NGEFF),BS(MAXL*ISBS,NBS*ISBS),
+     3 MN(NPQ,NSCT),DN(NSCT,NPQ)
       LOGICAL LFIXUP
 *----
 *  LOCAL VARIABLES
 *----
-      INTEGER NPQD(8),IIND(8)
+      INTEGER NPQD(8),IIND(8),P
       PARAMETER(IUNOUT=6,RLOG=1.0E-8,PI=3.141592654)
       DOUBLE PRECISION VT,CONST0,CONST1,CONST2,Q(IELEM**3),
      1 Q2(IELEM**3,IELEM**3+1),XNK(IELEM,IELEM)
@@ -364,9 +364,9 @@
       IF(MAT(I,J,K).EQ.0) GO TO 280
       DO 230 IEL=1,IELEM**3
       Q(IEL)=0.0D0
-      DO 220 L=1,NSCT
-      IOF=((((K-1)*LY+(J-1))*LX+(I-1))*NSCT+(L-1))*IELEM**3+IEL
-      Q(IEL)=Q(IEL)+QEXT(IOF,IG)*PL(L,M)/(4.0D0*PI)
+      DO 220 P=1,NSCT
+      IOF=((((K-1)*LY+(J-1))*LX+(I-1))*NSCT+(P-1))*IELEM**3+IEL
+      Q(IEL)=Q(IEL)+QEXT(IOF,IG)*MN(M,P)
   220 CONTINUE
   230 CONTINUE
       VT=VOL(I,J,K)*TOTAL(MAT(I,J,K),IG)
@@ -713,10 +713,9 @@
       XNK(2,3) = 2*Q2(08,28) - XNK(2,3) + 2*5**(0.5D0)*Q2(26,28)
       XNK(3,3) = 2*Q2(09,28) - XNK(3,3) + 2*5**(0.5D0)*Q2(27,28)
       ENDIF
-      DO 270 L=1,NSCT
+      DO 270 P=1,NSCT
       DO 260 IEL=1,IELEM**3
-      FLUX(IEL,L,I,J,K)=FLUX(IEL,L,I,J,K)+W(M)*Q2(IEL,IELEM**3+1)*
-     1 PL(L,M)
+      FLUX(IEL,P,I,J,K)=FLUX(IEL,P,I,J,K)+Q2(IEL,IELEM**3+1)*DN(P,M)
   260 CONTINUE
   270 CONTINUE
 *--

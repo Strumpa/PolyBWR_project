@@ -34,8 +34,8 @@
 *  SUBROUTINE ARGUMENTS
 *----
       INTEGER NLF,JOP(NLF/2)
-      REAL U(NLF/2),W(NLF/2),TPQ((NLF**2)/2),UPQ((NLF**2)/2),
-     1 VPQ((NLF**2)/2),WPQ((NLF**2)/2)
+      REAL U(NLF/2),W(NLF/2),TPQ((NLF**2)/4),UPQ((NLF**2)/4),
+     1 VPQ((NLF**2)/4),WPQ((NLF**2)/4)
 *----
 *  LOCAL VARIABLES
 *----

@@ -15,6 +15,8 @@ def main():
   Compiler = os.environ.get("COMPILER", None) # Compiler selection
   if Compiler == "NVTOOLS":
     libdir="../../lib/"+mach+"_nvidia"
+  elif Compiler == "LLVMTOOLS":
+    libdir="../../lib/"+mach+"_flang"
   elif Compiler == "INTELTOOLS":
     libdir="../../lib/"+mach+"_intel"
   else:

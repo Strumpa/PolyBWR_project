@@ -173,7 +173,7 @@ SUBROUTINE SALACG(FGEO ,ITRACK, NBSLIN, RCUTOF, IPRINT)
   IF(ISPEC == 0) THEN
     I_STATE(5)=GG%NB_SURF2 ! number of outer surface
     NSOUT=GG%NB_SURF2
-  ELSE IF((TYPGEO == 7).OR.(TYPGEO == 8).OR.(TYPGEO == 10)) THEN
+  ELSE IF((TYPGEO == 7).OR.(TYPGEO == 8).OR.(TYPGEO == 10).OR.(TYPGEO == 12)) THEN
     I_STATE(5)=3
     NSOUT=3
   ELSE IF(TYPGEO == 9) THEN
@@ -227,6 +227,7 @@ SUBROUTINE SALACG(FGEO ,ITRACK, NBSLIN, RCUTOF, IPRINT)
     IF(TYPGEO.EQ.9) IEDIMG(2)=3 ! Hexagonal geometry with translation
     IF(TYPGEO.EQ.10) IEDIMG(2)=4 ! Isocel geometry with RA60 geometry
     IF(TYPGEO.EQ.11) IEDIMG(2)=5 ! Lozenge geometry with R120 rotation
+    IF(TYPGEO.EQ.12) IEDIMG(2)=6 ! S30 geometry with specular reflection
     IEDIMG(5)=1 ! 1 cellule
     IEDIMG(13)=1 ! 1 cellule
     IEDIMG(14)=1 ! 1 cellule

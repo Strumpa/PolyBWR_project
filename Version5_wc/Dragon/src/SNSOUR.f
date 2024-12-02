@@ -47,13 +47,15 @@
 *  LOCAL VARIABLES
 *----
       PARAMETER(NSTATE=40,PI4=12.5663706144)
-      INTEGER JPAR(NSTATE)
+      INTEGER JPAR(NSTATE),P,P2,ILP
       CHARACTER CAN(0:19)*2
 *----
 *  ALLOCATABLE ARRAYS
 *----
       INTEGER, ALLOCATABLE, DIMENSION(:) :: IJJ,NJJ,IPOS
       REAL, ALLOCATABLE, DIMENSION(:) :: XSCAT
+      TYPE(C_PTR) IL_PTR,IM_PTR
+      INTEGER, POINTER, DIMENSION(:) :: IL,IM
 *----
 *  DATA STATEMENTS
 *----
@@ -71,8 +73,13 @@
       IF(JPAR(1).NE.NREG) CALL XABORT('SNSOUR: INCONSISTENT NREG.')
       IF(JPAR(2).NE.NUNKNO) CALL XABORT('SNSOUR: INCONSISTENT NUNKNO.')
       ITYPE=JPAR(6)
+      NSCT=JPAR(7)
       IELEM=JPAR(8)
       ISCAT=JPAR(16)
+      CALL LCMGPD(IPTRK,'IL',IL_PTR)
+      CALL LCMGPD(IPTRK,'IM',IM_PTR)
+      CALL C_F_POINTER(IL_PTR,IL,(/ NSCT /))
+      CALL C_F_POINTER(IM_PTR,IM,(/ NSCT /))
 *----
 *  CONSTRUCT THE SOURCE.
 *----
@@ -81,27 +88,27 @@
       IPOS(0)=0
       XSCAT(0)=0.0
       IOF0=0
-      DO 90 IL=0,MIN(ISCAT-1,NANIS)
-      FACT=REAL(2*IL+1)
-      CALL LCMGET(KPMACR,'NJJS'//CAN(IL),NJJ(1))
-      CALL LCMGET(KPMACR,'IJJS'//CAN(IL),IJJ(1))
-      CALL LCMGET(KPMACR,'IPOS'//CAN(IL),IPOS(1))
-      CALL LCMGET(KPMACR,'SCAT'//CAN(IL),XSCAT(1))
+      DO 90 P=1,NSCT
+      ILP = IL(P)
+      IF(ILP.GT.MIN(ISCAT-1,NANIS)) GO TO 90
+      CALL LCMGET(KPMACR,'NJJS'//CAN(ILP),NJJ(1))
+      CALL LCMGET(KPMACR,'IJJS'//CAN(ILP),IJJ(1))
+      CALL LCMGET(KPMACR,'IPOS'//CAN(ILP),IPOS(1))
+      CALL LCMGET(KPMACR,'SCAT'//CAN(ILP),XSCAT(1))
       IF((ITYPE.EQ.2).OR.(ITYPE.EQ.4)) THEN
 *----
 *  SLAB OR SPHERICAL 1D CASE.
 *----
-         NSCT=ISCAT
          DO 20 IR=1,NREG
          IBM=MATCOD(IR)
          IF(IBM.LE.0) GO TO 20
          DO 15 IEL=1,IELEM
-         IND=(IR-1)*NSCT*IELEM+IELEM*IL+IEL
+         IND=(IR-1)*NSCT*IELEM+IELEM*(P-1)+IEL
          JG=IJJ(IBM)
          DO 10 JND=1,NJJ(IBM)
          IF(JG.NE.IG) THEN
-            SOURCE(IND,IG)=SOURCE(IND,IG)+FACT*FLUX(IND,JG)*
-     >      XSCAT(IPOS(IBM)+JND-1)
+            SOURCE(IND,IG)=SOURCE(IND,IG)+FLUX(IND,JG)*
+     1      XSCAT(IPOS(IBM)+JND-1)
          ENDIF
          JG=JG-1
    10    CONTINUE
@@ -111,9 +118,8 @@
 *----
 *  CYLINDRICAL 1D CASE.
 *----
-         NSCT=(ISCAT/2)*(ISCAT/2+1)+(ISCAT+1)*MOD(ISCAT,2)/2
-         DO 50 IM=0,IL
-         IF(MOD(IL+IM,2).EQ.1) GO TO 50
+         DO 50 P2=0,P-1
+         IF(MOD((P-1)+P2,2).EQ.1) GO TO 50
          IOF0=IOF0+1
          DO 40 IR=1,NREG
          IBM=MATCOD(IR)
@@ -122,8 +128,8 @@
          JG=IJJ(IBM)
          DO 30 JND=1,NJJ(IBM)
          IF(JG.NE.IG) THEN
-            SOURCE(IND,IG)=SOURCE(IND,IG)+FACT*FLUX(IND,JG)*
-     >      XSCAT(IPOS(IBM)+JND-1)
+            SOURCE(IND,IG)=SOURCE(IND,IG)+FLUX(IND,JG)*
+     1      XSCAT(IPOS(IBM)+JND-1)
          ENDIF
          JG=JG-1
    30    CONTINUE
@@ -133,52 +139,42 @@
 *----
 *  2D CASES (CARTESIAN OR R-Z).
 *----
-         NSCT=ISCAT*(ISCAT+1)/2
          NM=IELEM**2
-         DO 80 IM=-IL,IL
-         IF(MOD(IL+IM,2).EQ.1) GO TO 80
-         IOF0=IOF0+1
          DO 70 IR=1,NREG
          IBM=MATCOD(IR)
          IF(IBM.LE.0) GO TO 70
          DO 65 IEL=1,NM
-         IND=(IR-1)*NSCT*NM+(IOF0-1)*NM+IEL
+         IND=(IR-1)*NSCT*NM+(P-1)*NM+IEL
          JG=IJJ(IBM)
          DO 60 JND=1,NJJ(IBM)
          IF(JG.NE.IG) THEN
-            SOURCE(IND,IG)=SOURCE(IND,IG)+FACT*FLUX(IND,JG)*
-     >      XSCAT(IPOS(IBM)+JND-1)
+            SOURCE(IND,IG)=SOURCE(IND,IG)+FLUX(IND,JG)*
+     1      XSCAT(IPOS(IBM)+JND-1)
          ENDIF
          JG=JG-1
    60    CONTINUE
    65    CONTINUE
    70    CONTINUE
-   80    CONTINUE
       ELSE IF((ITYPE.EQ.7).OR.(ITYPE.EQ.9)) THEN
 *----
 * 3D CARTESIAN CASE
 *----
-         NSCT=(ISCAT)**2
          NM=IELEM**3
-         DO 100 IM=-IL,IL
-         IOF0=IOF0+1
          DO 110 IR=1,NREG
          IBM=MATCOD(IR)
          IF(IBM.LE.0) GO TO 110
-         DO 125 IEL=1,IELEM**3
-         IND=(IR-1)*NSCT*NM+(IOF0-1)*NM
-     >       +IEL
+         DO 125 IEL=1,NM
+         IND=(IR-1)*NSCT*NM+(P-1)*NM+IEL
          JG=IJJ(IBM)
          DO 120 JND=1,NJJ(IBM)
          IF(JG.NE.IG) THEN
-            SOURCE(IND,IG)=SOURCE(IND,IG)+FACT*FLUX(IND,JG)*
-     >      XSCAT(IPOS(IBM)+JND-1)      
+            SOURCE(IND,IG)=SOURCE(IND,IG)+FLUX(IND,JG)*
+     1      XSCAT(IPOS(IBM)+JND-1)      
          ENDIF
          JG=JG-1
  120     CONTINUE
  125     CONTINUE
  110     CONTINUE
- 100     CONTINUE    
       ELSE
          CALL XABORT('SNSOUR: TYPE OF DISCRETIZATION NOT IMPLEMENTED.')
       ENDIF

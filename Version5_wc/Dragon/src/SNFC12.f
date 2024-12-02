@@ -1,6 +1,6 @@
 *DECK SNFC12
       SUBROUTINE SNFC12(LX,LY,NMAT,NPQ,NSCT,MAT,VOL,TOTAL,NCODE,ZCODE,
-     1 QEXT,LFIXUP,DU,DE,W,MRM,MRMY,DB,DA,DAL,PL,FLUX,XNEI,XNEJ)
+     1 QEXT,LFIXUP,DU,DE,W,MRM,MRMY,DB,DA,DAL,FLUX,XNEI,XNEJ,MN,DN)
 *
 *-----------------------------------------------------------------------
 *
@@ -40,8 +40,8 @@
 * DB      diamond-scheme parameter.
 * DA      diamond-scheme parameter.
 * DAL     diamond-scheme parameter.
-* PL      discrete values of the spherical harmonics corresponding
-*         to the 2D SN quadrature.
+* MN      moment-to-discrete matrix.
+* DN      discrete-to-moment matrix.
 *
 *Parameters: input/output
 * XNEI    X-directed SN boundary fluxes.
@@ -58,11 +58,13 @@
       INTEGER LX,LY,NMAT,NPQ,NSCT,MAT(LX,LY),NCODE(4),MRM(NPQ),MRMY(NPQ)
       REAL VOL(LX,LY),TOTAL(0:NMAT),ZCODE(4),QEXT(NSCT,LX,LY),DU(NPQ),
      1 DE(NPQ),W(NPQ),DB(LX,NPQ),DA(LX,LY,NPQ),DAL(LX,LY,NPQ),
-     2 PL(NSCT,NPQ),FLUX(NSCT,LX,LY),XNEI(LY,NPQ),XNEJ(LX,NPQ)
+     2 FLUX(NSCT,LX,LY),XNEI(LY,NPQ),XNEJ(LX,NPQ),MN(NPQ,NSCT),
+     3 DN(NSCT,NPQ)
       LOGICAL LFIXUP
 *----
 *  LOCAL VARIABLES
 *----
+      INTEGER P
       DOUBLE PRECISION QQ,C1,XNM,XNJ,Q2(1,2)
       PARAMETER(RLOG=1.0E-8,PI=3.141592654)
       REAL, ALLOCATABLE, DIMENSION(:,:) :: XARN
@@ -140,8 +142,8 @@
       ENDIF
       IF(MAT(I,J).EQ.0) GO TO 140
       QQ=0.0D0
-      DO 110 K=1,NSCT
-      QQ=QQ+QEXT(K,I,J)*PL(K,M)/(4.0*PI)
+      DO 110 P=1,NSCT
+      QQ=QQ+QEXT(P,I,J)*MN(M,P)
   110 CONTINUE
       VT=VOL(I,J)*TOTAL(MAT(I,J))
       XNM=XARN(I,J)
@@ -158,8 +160,8 @@
       IF(W(M).LE.RLOG) XARN(I,J)=REAL(Q2(1,2))
       IF(LFIXUP.AND.(XNI(J).LE.RLOG)) XNI(J)=0.0
       IF(LFIXUP.AND.(XNJ.LE.RLOG)) XNJ=0.0
-      DO 135 K=1,NSCT
-      FLUX(K,I,J)=FLUX(K,I,J)+2.0*W(M)*REAL(Q2(1,2))*PL(K,M)
+      DO 135 P=1,NSCT
+      FLUX(P,I,J)=FLUX(P,I,J)+REAL(Q2(1,2))*DN(P,M)
   135 CONTINUE
   140 CONTINUE
       XNEJ(I,M)=REAL(XNJ)
