@@ -1,7 +1,8 @@
 #!/bin/sh
 if [ $# = 0 ]
    then
-   echo "usage: tdraglib.access directory" 1>&2
+
+   echo "usage: PCC_EX : Gd157.access directory" 1>&2
    exit 1
 fi
 MACH=`uname -s`
@@ -23,15 +24,16 @@ else
   echo 'use big endian libraries'
   pos=$1/../../libraries/b_endian
 fi
-if [ -f "$pos"/draglibJef2p2.gz ]
+if [ -f "$pos"/draglibJeff3p1p1SHEM295.gz ]
    then
-    echo 'gunzipping DLIB_J2'
+    echo 'gunzipping draglibJeff3p1p1SHEM295'
     chmod 755 "$pos"
-    gunzip "$pos"/draglibJef2p2.gz
+    gunzip "$pos"/draglibJeff3p1p1SHEM295.gz
 fi
-if [ -f "$pos"/draglibJef2p2 ]
+if [ -f "$pos"/draglibJeff3p1p1SHEM295 ]
    then
-    ln -s "$pos"/draglibJef2p2 DLIB_J2
+    ln -s "$pos"/draglibJeff3p1p1SHEM295 J311_295 
 fi
-ls
-echo "tdraglib access script terminated"
+ls -l
+echo "PCC_EX : Gd157 access script terminated"
+

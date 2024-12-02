@@ -65,8 +65,60 @@ ENDIF ;
 SYS := ASM: LIBRARY2 TRACK TF_EXC :: ARM EDIT 0 ; 
 
 FLUX := FLU: LIBRARY2 SYS TRACK TF_EXC :: 
-        EDIT 1 TYPE K ;
+        EDIT 1 TYPE K B1 SIGS ;
 
+
+COMPO := COMPO: ::
+    EDIT 10
+    STEP UP 'EDI_HOM'
+        MAXCAL 5
+        PARA 'TFuel' VALU REAL
+        PARA 'TCool' VALU REAL
+        ISOT 3 U234 U235 U238 
+    INIT
+    STEP UP 'EDI_2gr'
+        MAXCAL 5
+        PARA 'TFuel' VALU REAL
+        PARA 'TCool' VALU REAL
+        ISOT 3 U234 U235 U238 
+    INIT
+;
+
+EDIOBJ := EDI: FLUX LIBRARY2 TRACK ::
+        EDIT 10
+        MICR 3 U234 U235 U238 
+        MERG MIX 
+        1 1 1 1 1 1 1   
+        COND 0.625
+        SAVE ON EDI_HOM 
+;
+
+COMPO := COMPO: COMPO EDIOBJ LIBRARY2 ::
+        EDIT 0
+        STEP UP 'EDI_HOM'
+        'TFuel' 900.0
+        'TCool' 559.0
+;
+
+EDIOBJ := DELETE: EDIOBJ ;
+
+EDIOBJ := EDI: FLUX LIBRARY2 TRACK ::
+        EDIT 0
+        MICR 3 U234 U235 U238 
+        MERG MIX 
+        1 2 3 4 0 0 0 
+        COND 0.625
+        SAVE ON EDI_2gr 
+;
+
+COMPO := COMPO: COMPO EDIOBJ LIBRARY2 ::
+        EDIT 0
+        STEP UP 'EDI_2gr'
+        'TFuel' 900.0
+        'TCool' 559.0
+;
+
+EDIOBJ := DELETE: EDIOBJ ;
 GREP: FLUX :: GETVAL 'K-EFFECTIVE  ' 1 1 1 >>Kinf<< ;
 ECHO track_opt " tracking, MOC on AT10 C1: Kinf NOM =" Kinf ;
 

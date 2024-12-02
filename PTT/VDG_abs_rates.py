@@ -94,7 +94,6 @@ def parse_error_abs_rates(filename, input_case, output_case, grmin=52, grmax=206
     compute_error_to_S2(input_case, Kinf_AUTO, Kinf_RSE, Kinf_PT, Kinf_SUBG)
     return
 
-
 def get_groups_and_errors(lines):
     groups = []
     errors = []
@@ -106,8 +105,6 @@ def get_groups_and_errors(lines):
             errors.append(float(error))
 
     return groups, errors
-
-
 
 def plot_relative_error_histogram(groups, grmin, grmax, relative_errors, isotope, counter, input_case, output_case):
     """
@@ -259,14 +256,15 @@ def compute_error_to_S2(input_case, Kinf_AUTO, Kinf_RSE, Kinf_PT, Kinf_SUBG):
 
 
 # Parse the {input_case}_autop.result file
-input_case = "HOM_U5"
-correlation = "" # "_CORR", "_noCORR"
+input_case = "HOM_UOX_Gd157"
+correlation = "_CORR" # "_CORR", "_noCORR"
 path=os.getcwd()
 path_exists = os.path.exists(f"{path}/VDG_errors/{input_case}")
 if not path_exists:
     os.makedirs(f"{path}/VDG_errors/{input_case}")
 parse_error_abs_rates(f"/home/p117902/working_dir/PolyBWR_project/Version5_wc/Dragon/Linux_aarch64/{input_case}_autop{correlation}.result", input_case, output_case = f"{input_case}_USS_AUTO_inrs1{correlation}")
 
+"""
 for case in ["HOM_U5_U8", "HOM_UOX", "HOM_UOX_Gd155", "HOM_UOX_Gd157", "HOM_UOXGd"]:
     for correlation in ["_CORR", "_noCORR"]:
         print(f"$$$- VDG: error analysis for {case} with {correlation} -$$$")
@@ -275,3 +273,4 @@ for case in ["HOM_U5_U8", "HOM_UOX", "HOM_UOX_Gd155", "HOM_UOX_Gd157", "HOM_UOXG
         if not path_exists:
             os.makedirs(f"{path}/VDG_errors/{input_case}")
         parse_error_abs_rates(f"/home/p117902/working_dir/PolyBWR_project/Version5_wc/Dragon/Linux_aarch64/{input_case}_autop{correlation}.result", input_case, output_case = f"{input_case}_USS_AUTO_inrs1{correlation}")
+"""
