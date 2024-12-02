@@ -1,0 +1,158 @@
+************************************************************************************************************************
+*                                                                                                                      *
+* Procedure :  TRK_A_H.c2m                                                                                             *
+* Purpose   :  Tracking and figure printing for REL2005 assemblies                                                     *
+* Author    :  L.Fede                                                                                                  *
+*                                                                                                                      *
+* CALL      :                                                                                                          *
+* TRACK_2L TF_EXC TRACK_SS FIG.ps FIG_SS.ps TRACK_1L FIG_1L.ps :=                                                      *
+* TRK_A_H GEOM_1L GEOM_SS GEOM_1L_NXT GEOM_SS_NXT <<ALAM_SSH_ap3>> <<ALAM_MOC_ap3>> <<ALAM_SSH_za>> <ALAM_MOC_za>>     *
+* <<an2d>>                                                                                                             *
+*                                                                                                                      *
+************************************************************************************************************************
+
+* ---
+* INPUT & OUTPUT PARAMETERS
+* ---
+PARAMETER TRACK_2L TF_EXC TRACK_SS FIG.ps FIG_SS.ps TRACK_1L FIG_1L.ps GEOM_SS GEOM_1L GEOM_SS_NXT GEOM_1L_NXT 
+          FIG_SS_N.ps FIG_1L_N.ps ::
+::: LINKED_LIST TRACK_2L ;
+::: SEQ_BINARY TF_EXC ;
+::: LINKED_LIST TRACK_SS ;
+::: SEQ_ASCII FIG.ps ;
+::: SEQ_ASCII FIG_SS.ps ;
+::: LINKED_LIST TRACK_1L ;
+::: SEQ_ASCII FIG_1L.ps ;
+::: LINKED_LIST GEOM_SS ;
+::: LINKED_LIST GEOM_1L ;
+::: LINKED_LIST GEOM_SS_NXT ;
+::: LINKED_LIST GEOM_1L_NXT ;
+::: SEQ_ASCII FIG_SS_N.ps ;
+::: SEQ_ASCII FIG_1L_N.ps ; ;
+
+STRING ALAM_SSH_ap3 ALAM_MOC_ap3 ALAM_SSH_za ALAM_MOC_za ;
+:: >>ALAM_SSH_ap3<< >>ALAM_MOC_ap3<< >>ALAM_SSH_za<< >>ALAM_MOC_za<< ;
+
+INTEGER an2d ;
+:: >>an2d<< ;
+
+* ---
+* STRUCTURES AND MODULES
+* ---
+MODULE G2S: PSP: SALT: SYBILT: MCCGT: NXT: END: ;
+
+* ap3 files
+SEQ_ASCII SS_ALAM_ap3 :: FILE <<ALAM_SSH_ap3>> ;
+SEQ_ASCII CC_ALAM_ap3 :: FILE <<ALAM_MOC_ap3>> ;
+
+* za files
+SEQ_ASCII SS_ALAM_za :: FILE <<ALAM_SSH_za>> ;
+SEQ_ASCII CC_ALAM_za :: FILE <<ALAM_MOC_za>> ;
+
+SEQ_ASCII _BURN :: FILE './_BURN_rowland.txt' ;
+SEQ_ASCII _LIBR :: FILE './_LIB_rowland.txt' ;
+SEQ_ASCII _EDIT :: FILE './_EDIT_rowland.txt' ;
+
+SEQ_ASCII UOX_TBH UOX_TBH_SS UOX_TBH_1L ;
+
+LINKED_LIST L1_NXT SS_NXT ;
+
+SEQ_BINARY LGT_L1_NXT LGT_SS_NXT ;
+
+* SALT tracking parameters
+REAL densur := 25.0 ;
+
+* SYBILT: size allocation
+INTEGER PTS := 1000000 ;
+
+* polar angles for MCCGT:
+INTEGER nmu := 4 ;
+
+* size allocation for MCCGT:
+INTEGER mcu := 50000 ;
+
+INTEGER SYM := 10 ;
+IF ALAM_SSH_ap3 './KML2_ARO_39AWU_SSH.ap3' = THEN
+  EVALUATE SYM := 11 ;
+ENDIF ;
+
+
+*----------------------
+*   TRACKING PROCEDURES
+*----------------------
+
+* ---
+* 1L FLUX TRACKING
+* ---
+TRACK_1L := SYBILT: GEOM_1L ::
+  EDIT 0
+  MAXR <<PTS>> MAXZ <<PTS>> DP00
+;
+
+UOX_TBH_1L FIG_1L.ps := G2S: GEOM_1L ::
+  EDIT 0 
+*  DRAWMIX
+*  ZOOMX 0.4 0.6
+*  ZOOMY 0.4 0.6
+;
+
+*----
+* 2L FLUX TRACKING
+*----
+UOX_TBH FIG.ps := G2S: CC_ALAM_ap3 CC_ALAM_za ::
+  EDIT 0
+  ALAMOS <<SYM>>
+*  DRAWMIX
+*  ZOOMX 0.0 0.2
+*  ZOOMY 0.0 0.2
+;
+
+TRACK_2L TF_EXC := SALT: UOX_TBH ::
+  EDIT 0
+  ALLG
+  TSPC EQW2 <<an2d>> <<densur>> REND LONG
+;
+
+* MOC tracking
+TRACK_2L := MCCGT: TRACK_2L TF_EXC ::
+  EDIT 0
+  CACB <<nmu>> AAC 80 TMT EPSI 1E-5 MCU <<mcu>>
+;
+
+* ---
+* SELF-SHIELDING TRACKING
+* ---
+TRACK_SS := SYBILT: GEOM_SS ::
+  EDIT 0
+  MAXR <<PTS>> MAXZ <<PTS>> DP00
+;
+
+UOX_TBH_SS FIG_SS.ps := G2S: GEOM_SS ::
+  EDIT 0
+*  DRAWMIX
+*  ZOOMX 0.4 0.6
+*  ZOOMY 0.4 0.6
+;
+
+*----------------------
+* TRACKING IMAGES COULEUR
+*----------------------
+
+* --- 1L
+
+L1_NXT LGT_L1_NXT := NXT: GEOM_1L_NXT ::
+  EDIT 3 
+  TISO 8 10.0 ;
+
+FIG_1L_N.ps := PSP: L1_NXT :: FILL CMYK NOCONTOUR TYPE MIXTURE ;
+
+* --- SS
+
+SS_NXT LGT_SS_NXT := NXT: GEOM_SS_NXT ::
+  EDIT 3   
+  TISO 8 10.0 ;
+
+FIG_SS_N.ps := PSP: SS_NXT :: FILL CMYK NOCONTOUR TYPE MIXTURE ;
+
+END: ;
+QUIT .

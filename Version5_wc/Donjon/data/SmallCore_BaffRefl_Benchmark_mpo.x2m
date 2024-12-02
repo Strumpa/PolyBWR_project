@@ -117,7 +117,7 @@ GEOM := GEO: :: CAR1D 11
 TRACK := SNT: GEOM ::
   EDIT 1
   MAXR 100000
-  SN 16 SCAT 2 QUAD 10 ;
+  SN 16 SCAT 2 QUAD 2 ;
 
 INTEGER nbZones := 7 ;
 nbZonesOBJ := UTL: :: CREA 'Radial' 1 = <<nbZones>> ;
@@ -211,7 +211,7 @@ WHILE IndexCB 3 <= DO
   ENDWHILE ;
         
   SYSTEM := ASM: MACRO TRACK :: ARM ;
-  FLUX := FLU: SYSTEM MACRO TRACK :: EDIT 0 TYPE K P1 MERG 1 2 2 2 2 2 2 2 ;
+  FLUX := FLU: SYSTEM MACRO TRACK :: EDIT 0 TYPE K P1 HETE 1 2 2 2 2 2 2 2 ;
 
   GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 >>Keff<< ;
   ECHO "SN Keff=" Keff ;

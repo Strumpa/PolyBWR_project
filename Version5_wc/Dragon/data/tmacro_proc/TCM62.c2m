@@ -22,7 +22,6 @@ INTEGER spa := 1 ;
 INTEGER ang := 4 ; 
 INTEGER sca := 2 ;
 *
-
 GEOM := GEO: :: HEXZ 127 2
        EDIT 1
        HBC   COMPLETE  VOID

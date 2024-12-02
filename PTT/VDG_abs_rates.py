@@ -18,19 +18,27 @@ def parse_error_abs_rates(filename, input_case, output_case, grmin=52, grmax=206
     # Open the file
     if input_case == "HOM_U5":
         isotopes = ["U235"]
-        isotope_counter = {"U235": 0}
+        isotope_counter = {"U235": 0, "ALL": 0}
     elif input_case == "HOM_U5_U8":
         isotopes = ["U235", "U238"]
         isotopes_to_parse = isotopes
-        isotope_counter = {"U235": 0, "U238": 0}
+        isotope_counter = {"U235": 0, "U238": 0, "ALL": 0}
     elif input_case == "HOM_UOX":
         isotopes = ["U234", "U235", "U238"]
         isotopes_to_parse = isotopes
-        isotope_counter = {"U234": 0, "U235": 0, "U238": 0}
-    elif input_case == "HOM_C7":
-        isotopes = ["U238", "Gd155", "Gd157"]
+        isotope_counter = {"U234": 0, "U235": 0, "U238": 0, "ALL": 0}
+    elif input_case == "HOM_UOX_Gd155":
+        isotopes = ["U234", "U235", "U238", "Gd155"]
         isotopes_to_parse = isotopes
-        isotope_counter = {"U238": 0, "Gd155": 0, "Gd157": 0}
+        isotope_counter = {"U234": 0, "U235": 0, "U238": 0, "Gd155": 0, "ALL": 0}
+    elif input_case == "HOM_UOX_Gd157":
+        isotopes = ["U234", "U235", "U238", "Gd157"]
+        isotopes_to_parse = isotopes
+        isotope_counter = {"U234": 0, "U235": 0, "U238": 0, "Gd157": 0, "ALL": 0}
+    elif input_case == "HOM_UOXGd":
+        isotopes = ["U234", "U235", "U238", "Gd155", "Gd157"]
+        isotopes_to_parse = isotopes
+        isotope_counter = {"U234": 0, "U235": 0, "U238": 0, "Gd155": 0, "Gd157": 0, "ALL": 0}
     length_VDG_table = grmax - grmin + 1
     with open(filename) as f:
         lines = f.readlines()
@@ -50,13 +58,10 @@ def parse_error_abs_rates(filename, input_case, output_case, grmin=52, grmax=206
                 generate_MAX_INT_AVG_error_table(parsed_MAX_INT_AVG_error, isotopes[0], isotope_counter[isotopes[0]])
                 isotope_counter[isotopes[0]] += 1 
     else: 
-        print("IN ELSE")
         for iso in isotopes_to_parse:
             print(f"iso = {iso}")
             for i in range(len(lines)):
                 if f" ISOTOPE ='{iso}" in lines[i]:
-
-                    print(f"{iso} line index is {i}")
                     parsed_data = lines[i+3:i+length_VDG_table+3]
                     groups, errors = get_groups_and_errors(parsed_data)
                     print(f"iso = {iso}, counter = {isotope_counter[iso]}")
@@ -66,13 +71,19 @@ def parse_error_abs_rates(filename, input_case, output_case, grmin=52, grmax=206
                     print(parsed_MAX_INT_AVG_error)
                     generate_MAX_INT_AVG_error_table(parsed_MAX_INT_AVG_error, iso, isotope_counter[iso])
                     isotope_counter[iso] += 1 
+        for i in range(len(lines)):
+            if "SUM OF ALL ISOTOPES" in lines[i]:
+                print("in ALL ISOTOPES")
+                parsed_data = lines[i+3:i+length_VDG_table+3]
+                groups, errors = get_groups_and_errors(parsed_data)
+                plot_relative_error_histogram(groups, grmin, grmax, errors, "ALL", isotope_counter["ALL"], input_case, output_case)
+                parsed_MAX_INT_AVG_error = lines[i+length_VDG_table+5:i+length_VDG_table+9]
+                generate_MAX_INT_AVG_error_table(parsed_MAX_INT_AVG_error, "ALL", isotope_counter["ALL"])
+                isotope_counter["ALL"] += 1
     
     for i in range(len(lines)):
         if ">|Kinf AUTO =" in lines[i]:
-            print("In Kinf AUTO")
-            print(f"lines[i] = {lines[i]}")
             Kinf_AUTO = lines[i].strip().split("=")[1].strip().split(" ")[0]
-            print(Kinf_AUTO)
         if ">|Kinf RSE =" in lines[i]:
             Kinf_RSE = lines[i].strip().split("=")[1].strip().split(" ")[0]
         if ">|Kinf PT =" in lines[i]:
@@ -113,6 +124,8 @@ def plot_relative_error_histogram(groups, grmin, grmax, relative_errors, isotope
     energy_groups = list(range(grmin, grmax + 1))
     tests = ["RSE", "PT", "SUBG"]
 
+    if isotope == "ALL":
+        isotope = "homogeneous mixture"
     
     # Ensure the length of relative_errors matches the number of energy groups
     if len(relative_errors) != num_bins:
@@ -147,7 +160,6 @@ def generate_MAX_INT_AVG_error_table(parsed_MAX_INT_AVG_error, isotope, counter)
     print(f"GROUP={GROUP}")
     AVG = float(parsed_MAX_INT_AVG_error[2].strip().split("=    ")[-1].split("%")[0])
     print(f"AVG={AVG}")
-    print(parsed_MAX_INT_AVG_error[3].strip().split("=")[-1].split("%")[0])
     INT = float(parsed_MAX_INT_AVG_error[3].strip().split("=")[-1].split("%")[0])
     # Begin the LaTeX table
     table = r"""
@@ -185,7 +197,13 @@ def compute_error_to_S2(input_case, Kinf_AUTO, Kinf_RSE, Kinf_PT, Kinf_SUBG):
     elif input_case == "HOM_UOX":
         Kinf_S2_Pynjoy2016 = 1.27877
         Kinf_S2_sss_jeff311 = 1.27794
-    elif input_case == "HOM_C7":
+    elif input_case == "HOM_UOX_Gd155":
+        Kinf_S2_Pynjoy2016 = 5.43432E-01
+        Kinf_S2_sss_jeff311 = 5.42958E-01
+    elif input_case == "HOM_UOX_Gd157":
+        Kinf_S2_Pynjoy2016 = 4.65818E-01
+        Kinf_S2_sss_jeff311 = 4.65498E-01
+    elif input_case == "HOM_UOXGd":
         Kinf_S2_Pynjoy2016 = 4.20426E-01
         Kinf_S2_sss_jeff311 = 4.20228E-01
 
@@ -248,3 +266,12 @@ path_exists = os.path.exists(f"{path}/VDG_errors/{input_case}")
 if not path_exists:
     os.makedirs(f"{path}/VDG_errors/{input_case}")
 parse_error_abs_rates(f"/home/p117902/working_dir/PolyBWR_project/Version5_wc/Dragon/Linux_aarch64/{input_case}_autop{correlation}.result", input_case, output_case = f"{input_case}_USS_AUTO_inrs1{correlation}")
+
+for case in ["HOM_U5_U8", "HOM_UOX", "HOM_UOX_Gd155", "HOM_UOX_Gd157", "HOM_UOXGd"]:
+    for correlation in ["_CORR", "_noCORR"]:
+        print(f"$$$- VDG: error analysis for {case} with {correlation} -$$$")
+        input_case = case
+        path_exists = os.path.exists(f"{path}/VDG_errors/{input_case}")
+        if not path_exists:
+            os.makedirs(f"{path}/VDG_errors/{input_case}")
+        parse_error_abs_rates(f"/home/p117902/working_dir/PolyBWR_project/Version5_wc/Dragon/Linux_aarch64/{input_case}_autop{correlation}.result", input_case, output_case = f"{input_case}_USS_AUTO_inrs1{correlation}")

@@ -1,6 +1,6 @@
 *DECK B1DIF
       SUBROUTINE B1DIF(OPTION,TYPE,NGRO,ST,SFNU,XHI,IJJ0,IJJ1,NJJ0,NJJ1,
-     1 SCAT0,SCAT1,REFKEF,LFISSI,IMPX,D,GAMMA,B2,ALAM1,CAET,A2,PHI)
+     1 SCAT0,SCAT1,REFKEF,LFISSI,IMPX,DHOM,GAMMA,B2,ALAM1,CAET,A2,PHI)
 *
 *-----------------------------------------------------------------------
 *
@@ -40,7 +40,7 @@
 *         fundamental flux at output.
 *
 *Parameters: output
-* D       diffusion coefficients.
+* DHOM    homogeneous leakage coefficients.
 * GAMMA   gamma factors.
 * B2      buckling.
 * ALAM1   effective multiplication factor.
@@ -55,7 +55,7 @@
 *----
       CHARACTER OPTION*4,TYPE*4
       INTEGER NGRO,IJJ0(NGRO),IJJ1(NGRO),NJJ0(NGRO),NJJ1(NGRO),IMPX
-      REAL ST(NGRO),SFNU(NGRO),XHI(NGRO),SCAT0(*),SCAT1(*),D(NGRO),
+      REAL ST(NGRO),SFNU(NGRO),XHI(NGRO),SCAT0(*),SCAT1(*),DHOM(NGRO),
      > GAMMA(NGRO)
       DOUBLE PRECISION B2,ALAM1,CAET,A2,PHI(NGRO),REFKEF
       LOGICAL LFISSI
@@ -86,7 +86,7 @@
       SA(I)=ST(I)
     5 CONTINUE
       IF((BIL1.GT.0.9D0).AND.(ABS(BIL1-1.0D0).GT.EPS)) THEN
-        IF(IMPX.GT.5)
+        IF(IMPX.GT.0)
      >  WRITE(6,'(46H B1DIF: WARNING INCONSISTENT FISSION SPECTRUM.)')
       ENDIF
       IGAR=0
@@ -99,10 +99,8 @@
       IF(TYPE.EQ.'DIFF') THEN
          DO 15 I=1,NGRO
          ST2=DBLE(ST(I))
-         DD=DBLE(D(I))
-         BETA=B1BETA(IAPROX,B2,ST2,DD)
-         D(I)=REAL(BETA*ST2/(1.0D0-B2*BETA))
          GAMMA(I)=REAL(B1GAMA(IAPROX,B2,ST2))
+         IF(IAPROX.NE.0) DHOM(I)=REAL(1.0D0/(3.0D0*GAMMA(I)*ST2))
    15    CONTINUE
          RETURN
       ELSE IF((TYPE.EQ.'B').OR.(TYPE.EQ.'L')) THEN
@@ -111,13 +109,14 @@
          BIL2=0.0D0
          IF(LFISSI) THEN
             DO 20 I=1,NGRO
-            BIL1=BIL1+(SFNU(I)/REFKEF-SA(I))*PHI(I)
-            BIL2=BIL2+D(I)*PHI(I)
+            BIL1=BIL1+(SFNU(I)/REFKEF)*PHI(I)
    20       CONTINUE
-            B2=BIL1/BIL2
-            IF(B2.EQ.0.0D0) CALL XABORT('B1DIF: THE INITIAL BUCKLING '
-     1      //'IS ZERO.')
          ENDIF
+         DO 21 I=1,NGRO
+         BIL1=BIL1-SA(I)*PHI(I)
+         BIL2=BIL2+DHOM(I)*PHI(I)
+   21    CONTINUE
+         B2=BIL1/BIL2
          DO 25 I=1,NGRO
          ST2=-0.7D0*(ST(I)**2)
          IF(B2.LT.ST2) THEN
@@ -137,8 +136,8 @@
       IF(ITEX.GT.MAXIT) CALL XABORT('B1DIF: UNABLE TO CONVERGE(1).')
       IGAR=0
       DO 55 I=1,NGRO
-      ST2=ST(I)
-      DD=D(I)
+      ST2=DBLE(ST(I))
+      DD=DBLE(DHOM(I))
       BETA=B1BETA(IAPROX,B2,ST2,DD)
       DO 40 J=1,NGRO
       ASTOC(I,J)=0.0D0
@@ -168,8 +167,8 @@
    72    CONTINUE
          IGAR=0
          DO 95 I=1,NGRO
-         ST2=ST(I)
-         DD=D(I)
+         ST2=DBLE(ST(I))
+         DD=DBLE(DHOM(I))
          BETA=B1BETA(IAPROX,B2,ST2,DD)*ST2
          DO 80 J=1,NGRO
          ASTOC(I,J)=ASTOC(I,J)+BETA*BSTOC(I,J)
@@ -251,93 +250,73 @@
 *  COMPUTE THE FUNDAMENTAL FLUX WITH TYPE L
 *----
   160 ITEX=0
-      FF=1.0D0
   170 ITEX=ITEX+1
       IF(ITEX.GT.MAXIT) CALL XABORT('B1DIF: UNABLE TO CONVERGE(2).')
-      IF(ITEX.GT.10) FF=0.6D0 ! relaxation factor
-      IGAR=0
-      DO 205 I=1,NGRO
-      ST2=ST(I)
-      DD=D(I)
-      IF(LFISSI) THEN
-         DO 180 J=1,NGRO
-         BSTOC(I,J)=XHI(I)*SFNU(J)/REFKEF
-  180    CONTINUE
-      ELSE
-         DO 185 J=1,NGRO
-         BSTOC(I,J)=0.0D0
-  185    CONTINUE
-      ENDIF
-      DO 190 J=IJJ0(I),IJJ0(I)-NJJ0(I)+1,-1
-      IGAR=IGAR+1
-      BSTOC(I,J)=BSTOC(I,J)+SCAT0(IGAR)
-  190 CONTINUE
-      DO 200 J=1,NGRO
-      ASTOC(I,J)=BSTOC(I,J)
-  200 CONTINUE
-  205 CONTINUE
       IF((OPTION.EQ.'P1').OR.(OPTION.EQ.'B1')) THEN
-         DO 222 J=1,NGRO
-         DO 210 K=1,NGRO
-         CSTOC(K)=BSTOC(K,J)
-         BSTOC(K,J)=0.0D0
+         IGAR=0
+         DO 200 I=1,NGRO
+         ST2=DBLE(ST(I))
+         DD=DBLE(DHOM(I))
+         BETA=B1BETA(IAPROX,B2,ST2,DD)
+         BETA=BETA*ST2/(1.0D0-B2*BETA)
+         DO 180 J=1,NGRO
+         ASTOC(I,J)=0.0D0
+  180    CONTINUE
+         ASTOC(I,I)=1.0D0
+         ASTOC(I,NGRO+1)=BETA
+         DO 190 J=IJJ1(I),IJJ1(I)-NJJ1(I)+1,-1
+         IGAR=IGAR+1
+         ASTOC(I,J)=ASTOC(I,J)-3.0D0*BETA*SCAT1(IGAR)*PHI(J)/PHI(I)
+  190    CONTINUE
+  200    CONTINUE
+         CALL B1SOL(NGRO,ASTOC,IER)
+         IF(IER.NE.0) CALL XABORT('B1DIF: SINGULAR MATRIX(2).')
+         DO 210 I=1,NGRO
+         DHOM(I)=REAL(ASTOC(I,NGRO+1))
   210    CONTINUE
-         IGAR=0
-         DO 221 I=1,NGRO
-         DO 220 K=IJJ1(I),IJJ1(I)-NJJ1(I)+1,-1
-         IGAR=IGAR+1
-         BSTOC(I,J)=BSTOC(I,J)+3.0D0*SCAT1(IGAR)*CSTOC(K)
-  220    CONTINUE
-  221    CONTINUE
-  222    CONTINUE
-         IGAR=0
-         DO 245 I=1,NGRO
+      ELSE IF((OPTION.NE.'LKRD').AND.(OPTION.NE.'RHS')) THEN
+         DO 220 I=1,NGRO
          ST2=ST(I)
-         DD=D(I)
-         BETA=B1BETA(IAPROX,B2,ST2,DD)*ST2
-         DO 230 J=1,NGRO
-         ZXC=ASTOC(I,J)
-         ASTOC(I,J)=ZXC-BETA*BSTOC(I,J)
-         BSTOC(I,J)=ZXC
-  230    CONTINUE
-         DO 240 J=IJJ1(I),IJJ1(I)-NJJ1(I)+1,-1
-         IGAR=IGAR+1
-         ASTOC(I,J)=ASTOC(I,J)+3.0D0*BETA*SCAT1(IGAR)*ST(J)
-  240    CONTINUE
-  245    CONTINUE
+         GAMMA(I)=REAL(B1GAMA(IAPROX,B2,ST2))
+         IF(IAPROX.NE.0) DHOM(I)=REAL(1.0D0/(3.0D0*GAMMA(I)*ST2))
+  220    CONTINUE
       ENDIF
-      DO 255 I=1,NGRO
-      ST2=ST(I)
-      DD=D(I)
-      BETA=B1BETA(IAPROX,B2,ST2,DD)
-      ASTOC(I,I)=ASTOC(I,I)-ST2
-      ASTOC(I,NGRO+1)=PHI(I)
-      DO 250 J=1,NGRO
-      BSTOC(I,J)=BETA*BSTOC(I,J)
+      ASTOC(:NGRO,:NGRO)=0.0D0
+      BSTOC(:NGRO,:NGRO)=0.0D0
+      ASTOC(:NGRO,NGRO+1)=PHI(:NGRO)
+      IGAR=0
+      DO 250 I=1,NGRO
+      ASTOC(I,I)=ASTOC(I,I)+ST(I)
+      BSTOC(I,I)=BSTOC(I,I)-DHOM(I)
+      DO 230 J=IJJ0(I),IJJ0(I)-NJJ0(I)+1,-1
+      IGAR=IGAR+1
+      ASTOC(I,J)=ASTOC(I,J)-SCAT0(IGAR)
+  230 CONTINUE
+      IF(LFISSI) THEN
+         DO 240 J=1,NGRO
+         ASTOC(I,J)=ASTOC(I,J)-XHI(I)*SFNU(J)/REFKEF
+  240    CONTINUE
+      ENDIF
   250 CONTINUE
-  255 CONTINUE
       B2OLD=B2
-      CALL ALEIGD (ASTOC,BSTOC,NGRO,B2,ASTOC(1,NGRO+1),EPS,IT,CSTOC)
+      CALL ALEIGD(ASTOC,BSTOC,NGRO,B2,ASTOC(1,NGRO+1),EPS,IT)
       IF(IMPX.GT.1) WRITE (6,440) ITEX,IT,B2
-      BIL1=0.0D0
+      BIL1=SQRT(DOT_PRODUCT(ASTOC(:NGRO,NGRO+1),ASTOC(:NGRO,NGRO+1)))
       BIL2=0.0D0
       DO 260 I=1,NGRO
-      ST2=ST(I)**2
-      BIL1=MAX(BIL1,ABS(ASTOC(I,NGRO+1)))
-      BIL2=MAX(BIL2,ABS(PHI(I)-ASTOC(I,NGRO+1)))
-      PHI(I)=ASTOC(I,NGRO+1)
+      BIL2=MAX(BIL2,ABS(PHI(I)-ASTOC(I,NGRO+1)/BIL1))
+      PHI(I)=0.5*(PHI(I)+ASTOC(I,NGRO+1)/BIL1)
   260 CONTINUE
       ERR3=ABS(B2-B2OLD)
-      B2=(1.0D0-FF)*B2OLD+FF*B2
-      IF((BIL2.GE.10*EPS*BIL1).OR.(ERR3.GE.EPS)) GO TO 170
+      IF((BIL2.GE.10.0*EPS*BIL1).OR.(ERR3.GE.EPS)) GO TO 170
 *----
 *  COMPUTE THE LEAKAGE COEFFICIENTS
 *----
   300 IF((OPTION.EQ.'P1').OR.(OPTION.EQ.'B1')) THEN
          IGAR=0
          DO 325 I=1,NGRO
-         ST2=ST(I)
-         DD=D(I)
+         ST2=DBLE(ST(I))
+         DD=DBLE(DHOM(I))
          BETA=B1BETA(IAPROX,B2,ST2,DD)
          BETA=BETA*ST2/(1.0D0-B2*BETA)
          DO 310 J=1,NGRO
@@ -353,21 +332,20 @@
          CALL B1SOL(NGRO,ASTOC,IER)
          IF(IER.NE.0) CALL XABORT('B1DIF: SINGULAR MATRIX(2).')
          DO 330 I=1,NGRO
-         D(I)=REAL(ASTOC(I,NGRO+1))
+         DHOM(I)=REAL(ASTOC(I,NGRO+1))
   330    CONTINUE
-      ELSE IF(OPTION.NE.'LKRD') THEN
+      ELSE IF((OPTION.NE.'LKRD').AND.(OPTION.NE.'RHS')) THEN
          DO 340 I=1,NGRO
          ST2=ST(I)
-         DD=D(I)
-         BETA=B1BETA(IAPROX,B2,ST2,DD)
-         D(I)=REAL(BETA*ST2/(1.0D0-B2*BETA))
+         GAMMA(I)=REAL(B1GAMA(IAPROX,B2,ST2))
+         IF(IAPROX.NE.0) DHOM(I)=REAL(1.0D0/(3.0D0*GAMMA(I)*ST2))
   340    CONTINUE
       ENDIF
       A2=0.0D0
       CAET=0.0D0
       ZXC=0.0D0
       DO 350 I=1,NGRO
-      A2=A2+D(I)*PHI(I)
+      A2=A2+DHOM(I)*PHI(I)
       CAET=CAET+SA(I)*PHI(I)
       IF(LFISSI) ZXC=ZXC+SFNU(I)*PHI(I)/REFKEF
       ST2=DBLE(ST(I))

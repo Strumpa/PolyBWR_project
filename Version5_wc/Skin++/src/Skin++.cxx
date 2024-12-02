@@ -1,5 +1,5 @@
 #include "Cle2000.hxx"
-using namespace boost;  using namespace std;  using namespace ganlib;
+using namespace std;  using namespace ganlib;
 
 int main(int argc, char **argv) {
    // construct the lifo stack

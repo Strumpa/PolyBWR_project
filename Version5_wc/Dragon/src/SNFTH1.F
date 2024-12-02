@@ -1,7 +1,7 @@
 *DECK SNFTH1
       SUBROUTINE SNFTH1(NUN,NGEFF,IMPX,INCONV,NGIND,NHEX,IELEM,ISPLH,
-     1 NMAT,NPQ,NSCT,MAT,VOL,TOTAL,QEXT,DU,DE,W,DB,DA,PL,CONNEC,IZGLOB,
-     2 SIDE,CONFROM,FUNKNO)
+     1 NMAT,NPQ,NSCT,MAT,VOL,TOTAL,QEXT,DU,DE,W,DB,DA,CONNEC,IZGLOB,
+     2 SIDE,CONFROM,FUNKNO,MN,DN)
 *
 *-----------------------------------------------------------------------
 *
@@ -45,8 +45,8 @@
 * W       weights.
 * DB      diamond-scheme parameter.
 * DA      diamond-scheme parameter.
-* PL      discrete values of the spherical harmonics corresponding
-*         to the 2D SN quadrature.
+* MN      moment-to-discrete matrix.
+* DN      discrete-to-moment matrix.
 * IZGLOB  hexagon sweep order depending on direction.
 * SIDE    side of an hexagon.
 * CONNEC  connectivity matrix for flux swapping -- which lozenges is the
@@ -71,14 +71,14 @@
      1 NPQ,NSCT,IZGLOB(NHEX,6),MAT(ISPLH,ISPLH,3,NHEX),
      2 CONNEC(3,(NHEX*3)*2,6),CONFROM(2,3,6)
       LOGICAL INCONV(NGEFF)
-      REAL SIDE,VOL(ISPLH,ISPLH,3,NHEX), TOTAL(0:NMAT,NGEFF),
-     1 QEXT(NUN,NGEFF), DU(NPQ), DB(ISPLH,ISPLH,3,NHEX,NPQ),
-     2 DA(ISPLH,ISPLH,3,NHEX,NPQ), PL(NSCT,NPQ), DE(NPQ), W(NPQ),
-     3 FUNKNO(NUN,NGEFF)
+      REAL SIDE,VOL(ISPLH,ISPLH,3,NHEX),TOTAL(0:NMAT,NGEFF),
+     1 QEXT(NUN,NGEFF),DU(NPQ),DB(ISPLH,ISPLH,3,NHEX,NPQ),
+     2 DA(ISPLH,ISPLH,3,NHEX,NPQ),DE(NPQ),W(NPQ),
+     3 FUNKNO(NUN,NGEFF),MN(NPQ,NSCT),DN(NSCT,NPQ)
 *----
 *  LOCAL VARIABLES
 *----
-      INTEGER NPQD(6),IIND(6)
+      INTEGER NPQD(6),IIND(6),P
       DOUBLE PRECISION :: Q(IELEM**2), Q2(IELEM**2,(IELEM**2)+1),
      1 VT, CONST0, CONST1, CONST2
       PARAMETER(IUNOUT=6,PI=3.141592654)
@@ -251,10 +251,10 @@
 *     -----------------------------------------------------
       DO 110 IEL=1,IELEM**2
       Q(IEL)=0.0D0
-      DO 100 K=1,NSCT
+      DO 100 P=1,NSCT
       IOF=((((((I-1)*3+(J-1))*ISPLH+(J2-1))*ISPLH+(I2-1))*NSCT+
-     1 (K-1))*IELEM**2)+IEL
-      Q(IEL)=Q(IEL)+QEXT(IOF,IG)*PL(K,M)/(4.0D0*PI)
+     1 (P-1))*IELEM**2)+IEL
+      Q(IEL)=Q(IEL)+QEXT(IOF,IG)*MN(M,P)
   100 CONTINUE
   110 CONTINUE
 *     -----------------------------------------------------
@@ -397,10 +397,9 @@
       ENDIF
 *
       ILOZ=((J-1)*ISPLH+(J2-1))*ISPLH+I2
-      DO 150 K=1,NSCT
+      DO 150 P=1,NSCT
       DO 140 IEL=1,IELEM**2
-      FLUX(IEL,K,ILOZ,I) = FLUX(IEL,K,ILOZ,I) +
-     1   2.0D0*W(M)*Q2(IEL,IELEM**2+1)*PL(K,M)
+      FLUX(IEL,P,ILOZ,I) = FLUX(IEL,P,ILOZ,I)+Q2(IEL,IELEM**2+1)*DN(P,M)
   140 CONTINUE
   150 CONTINUE
 *--

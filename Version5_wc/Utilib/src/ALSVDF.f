@@ -31,8 +31,8 @@
       INTEGER M,MP,N,NP
       DOUBLE PRECISION A(MP,NP),V(NP,NP),W(NP)
       INTEGER I,ITS,J,JJ,K,L,NM
-      DOUBLE PRECISION ANORM,C,F,G,H,S,SCALE,X,Y,Z
-      DOUBLE PRECISION, DIMENSION(:), ALLOCATABLE :: RV1
+      DOUBLE PRECISION ANORM,C,F,G,H,S,SCALE,X,Y,Z,RV0
+      DOUBLE PRECISION, DIMENSION(:), ALLOCATABLE :: RV1,RV2
 *
       ALLOCATE(RV1(NP))
       NM=0
@@ -279,5 +279,24 @@
 3       CONTINUE
 49    CONTINUE
       DEALLOCATE(RV1)
+*
+* Sort the data from highest to lowest singular value
+      ALLOCATE(RV1(M),RV2(N))
+      DO I=1,NP
+        DO J=1,NP-I
+          IF(W(J).LE.W(J+1)) THEN
+            RV0=W(J)
+            RV1(:M)=A(:M,J)
+            RV2(:N)=V(:N,J)
+            W(J)=W(J+1)
+            A(:M,J)=A(:M,J+1)
+            V(:N,J)=V(:N,J+1)
+            W(J+1)=RV0
+            A(:M,J+1)=RV1(:M)
+            V(:N,J+1)=RV2(:N)
+          ENDIF
+        ENDDO
+      ENDDO
+      DEALLOCATE(RV2,RV1)
       RETURN
       END

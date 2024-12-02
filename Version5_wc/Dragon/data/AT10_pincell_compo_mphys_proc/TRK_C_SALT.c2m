@@ -52,6 +52,7 @@ UOX_TBH FIG1.ps := G2S: GEOM :: ;
 
 TRACK TF_EXC := SALT: UOX_TBH ::
   EDIT 1
+  BATCH 200
   ALLG
   ANIS 3
   TSPC EQW2 <<an2d>> <<densur>> REND
@@ -70,6 +71,7 @@ UOX_TBH_SS FIG_SS.ps := G2S: GEOM_SS :: ;
 
 TRACK_SS TF_EXC_SS := SALT: UOX_TBH_SS ::
   EDIT 1
+  BATCH 150
   ALLG
   TSPC <<an2d_SS>> <<densur_SS>> REND
   MERGMIX

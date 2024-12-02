@@ -47,7 +47,7 @@ GEOM := GEO: :: HOMOGE
 ****************************************************************************
 ******************** LIBRARY DEFINTION OF homogeneous Gd pin ***************
 ****************************************************************************
-ECHO GdCompo ssh_method ;
+
 IF ssh_method "RSE" = THEN
 
   LIBRARY := LIB: ::
@@ -107,9 +107,10 @@ IF ssh_method "RSE" = THEN
       He4  = He4   2.145381E-06
   ;
 ELSEIF ssh_method "PT" = THEN
+  ECHO "Printing DEPL data for UOX_Gd155" ;
 
   LIBRARY := LIB: ::
-      EDIT 0
+      EDIT 20
       NMIX 1    ! MAXIMUM OF MATERIAL MIXTURES
       CALENDF 4 PT 
       ANIS 1
@@ -264,7 +265,9 @@ COMPO := COMPO: ::
     MAXCAL 5
     COMM 'Evolution burnup pincell' ENDC
     PARA 'Burnup' IRRA
-    ISOT 9 U234 U235 U238 Pu239 Pu240 Gd155 Gd157 Xe135 Sm149
+    ISOT 19 U235 U236 U238 Pu239 Pu240 Pu241 Pu242 
+        Gd154 Gd155 Gd156 Gd157 Gd158 Gd160 Xe135 Sm149
+        Sm154 Eu155 Eu156 Eu157
     INIT
 ;
 
@@ -399,7 +402,9 @@ WHILE istep nstep < DO
   IF BUcompo BU = THEN
         EDIBU := EDI: FLUX LIBRARY2 TRACK ::
         EDIT 0
-        MICR 9 U234 U235 U238 Pu239 Pu240 Gd155 Gd157 Xe135 Sm149
+        MICR 19 U235 U236 U238 Pu239 Pu240 Pu241 Pu242 
+          Gd154 Gd155 Gd156 Gd157 Gd158 Gd160 Xe135 Sm149
+          Sm154 Eu155 Eu156 Eu157
         COND
         SAVE ON FUEL ;
         COMPO := COMPO: COMPO EDIBU BURNUP LIBRARY2 ::

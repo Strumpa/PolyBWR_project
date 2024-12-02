@@ -1,11 +1,11 @@
 *DECK NCRMAP
-      SUBROUTINE NCRMAP(IPMAP,NPARM,HPARM,NCH,NB,IBTYP,IMPX,BURN0,
-     1 BURN1,WPAR,LPARM)
+      SUBROUTINE NCRMAP(IPMAP,NPARM,HPARM,NCH,NB,IBTYP,HNAVAL,IMPX,
+     1 BURN0,BURN1,WPAR,LPARM)
 *
 *-----------------------------------------------------------------------
 *
 *Purpose:
-* rRcover global parameter values from the fuel-map object.
+* recover global parameter values from the fuel-map object.
 *
 *Copyright:
 * Copyright (C) 2007 Ecole Polytechnique de Montreal.
@@ -20,9 +20,11 @@
 * HPARM   names of these global parameters.
 * NCH     number of reactor channels.
 * NB      number of fuel bundles per channel.
-* IBTYP   type of interpolation:
+* IBTYP   type of burnup interpolation:
 *         =0 not provided; =1 time-average; =2 instantaneous;
 *         =3 derivative with respect to a single exit burnup.
+* HNAVAL  identification name corresponding to the basic naval-
+*         coordinate position of a neighbour assembly.
 * IMPX    printing index (=0 for no print).
 *
 *Parameters: output
@@ -43,14 +45,14 @@
       INTEGER NPARM,NCH,NB,IBTYP,IMPX
       REAL BURN0(NCH,NB),BURN1(NCH,NB),WPAR(NCH,NB,NPARM)
       LOGICAL LPARM(NPARM+1)
-      CHARACTER HPARM(NPARM+1)*(*)
+      CHARACTER HPARM(NPARM+1)*(*),HNAVAL*4
 *----
 *  LOCAL VARIABLES
 *----
       INTEGER, PARAMETER::IOUT=6
       INTEGER, PARAMETER::NSTATE=40
       INTEGER  ISTATE(NSTATE)
-      INTEGER IB, ICH, ILONG, ITYLCM, ITYPEP, JPARM
+      INTEGER IB, ICH, IICH, ILONG, ITYLCM, ITYPEP, JPARM
       REAL VARTMP
       CHARACTER HSMG*131
       TYPE(C_PTR) JPMAP,KPMAP
@@ -58,6 +60,7 @@
 *  ALLOCATABLE ARRAYS
 *----
       REAL, ALLOCATABLE, DIMENSION(:,:) :: BURNB
+      CHARACTER(LEN=4), ALLOCATABLE, DIMENSION(:) :: HSZONE
 *----
 *  SCRATCH STORAGE ALLOCATION
 *----
@@ -73,7 +76,34 @@
          CALL LCMGET(IPMAP,'STATE-VECTOR',ISTATE)
          IBTYP=ISTATE(5)
       ENDIF
-      IF((IBTYP.EQ.1).OR.(IBTYP.EQ.3))THEN
+        print *,'IBTYP=',IBTYP,' HNAVAL=',HNAVAL,'<---'
+      IF((IBTYP.EQ.0).AND.(HNAVAL.NE.' '))THEN
+*       USE THE BURNUP OF A NEIGHBOUR ASSEMBLY
+        IF(ISTATE(13).EQ.0)CALL XABORT('@NCRMAP: MISSING'
+     1   //' S-ZONE VALUES IN FUEL MAP.')
+        ALLOCATE(HSZONE(NCH))
+        CALL LCMGTC(IPMAP,'S-ZONE',4,NCH,HSZONE)
+        IICH=0
+        DO ICH=1,NCH
+          IF(HSZONE(ICH).EQ.HNAVAL) THEN
+            IICH=ICH
+            GO TO 20
+          ENDIF
+        ENDDO
+        WRITE(HSMG,'(24H@NCRMAP: UNABLE TO FIND ,A,16H IN RECORD S-ZON,
+     1  2HE.)') HNAVAL
+        CALL XABORT(HSMG)
+   20   DEALLOCATE(HSZONE)
+        CALL LCMLEN(IPMAP,'BURN-INST',ILONG,ITYLCM)
+        IF(ILONG.EQ.0)CALL XABORT('@NCRMAP: MISSING'
+     1   //' BURN-INST VALUES IN FUEL MAP.')
+        CALL LCMGET(IPMAP,'BURN-INST',BURNB)
+        DO ICH=1,NCH
+          DO IB=1,NB
+            BURN0(ICH,IB)=BURNB(IICH,IB)
+          ENDDO
+        ENDDO
+      ELSE IF((IBTYP.EQ.1).OR.(IBTYP.EQ.3))THEN
 *       LOW BURNUP LIMITS
         CALL LCMLEN(IPMAP,'BURN-BEG',ILONG,ITYLCM)
         IF(ILONG.EQ.0)CALL XABORT('@NCRMAP: MISSING'

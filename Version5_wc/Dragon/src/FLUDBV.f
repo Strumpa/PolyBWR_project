@@ -1,8 +1,8 @@
 *DECK FLUDBV
       SUBROUTINE FLUDBV(CDOOR,IPHASE,JPSYS,JPSTR,NPSYS,IPTRK,IFTRAK,
      1 IPRT,NREG,NUNKNO,NFUNL,NGRP,NMAT,LEXAC,MATCOD,VOL,KEYFLX,TITLE,
-     2 ILEAK,LEAKSW,B2,NMERG,IMERG,DIFHET,GAMMA,FLUX,IPMACR,IPSOU,
-     3 REBFLG,FLUXC)
+     2 ILEAK,LEAKSW,B2,NMERG,IMERG,DIFHET,GAMMA,FLUOLD,SUNKNO,FUNKNO,
+     3 IPMACR,IPSOU,REBFLG,FLUXC)
 *
 *-----------------------------------------------------------------------
 *
@@ -45,8 +45,9 @@
 *         =2 the reduced cp matrix is multiplied by PNL;
 *         =3 sigs0-db2 approximation;
 *         =4 (not available);
-*         =5 Ecco-type isotropic streaming model;
-*         >5 Tibere anisotropic streaming model.
+*         =5 Todorova-type isotropic streaming model;
+*         =6 Ecco-type isotropic streaming model;
+*         >6 Tibere type anisotropic streaming model.
 * LEAKSW  leakage flag (=.true. if leakage is present on the outer
 *         surface).
 * B2      buckling.
@@ -57,13 +58,14 @@
 * IPMACR  pointer to the macrolib LCM object.
 * IPSOU   pointer to the fixed source LCM object.
 * REBFLG  ACA or SCR rebalancing flag.
-* FLUXC   flux at the cutoff energy.
+* FLUOLD  flux of the previous outer iteration.
+* SUNKNO  input sources.
 *
 *Parameters: input/output
-* FLUX    neutron flux:
-*         FLUX(:,:,1)  present inner;
-*         FLUX(:,:,2)  new     inner;
-*         FLUX(:,:,3)  source  inner.
+* FUNKNO  neutron flux.
+* SUNKNO  sources with additional db2 contributions.
+* FLUXC   flux at the cutoff energy.
+* FLUXC   flux at the cutoff energy.
 *
 *-----------------------------------------------------------------------
 *
@@ -76,8 +78,9 @@
       TYPE(C_PTR) JPSYS,JPSTR,IPTRK,IPMACR,IPSOU
       INTEGER IPHASE,NPSYS(NGRP),IFTRAK,IPRT,NREG,NUNKNO,NFUNL,NGRP,
      1 NMAT,MATCOD(NREG),KEYFLX(NREG,NFUNL),ILEAK,NMERG,IMERG(NMAT)
-      REAL VOL(NREG),FLUX(NUNKNO,NGRP,3),B2(4),DIFHET(NMERG,NGRP),
-     1 GAMMA(NGRP),FLUXC(NREG)
+      REAL VOL(NREG),B2(4),DIFHET(NMERG,NGRP),GAMMA(NGRP),FLUXC(NREG)
+      REAL, INTENT(IN) :: FLUOLD(NUNKNO,NGRP)
+      REAL, INTENT(INOUT) :: SUNKNO(NUNKNO,NGRP),FUNKNO(NUNKNO,NGRP)
       LOGICAL LEAKSW
 *----
 *  LOCAL VARIABLES
@@ -89,12 +92,12 @@
 *----
 *  ALLOCATABLE ARRAYS
 *----
-      REAL, ALLOCATABLE, DIMENSION(:) :: SIGT0,SIGS0,SUNKNO,FUNKNO,F1,
+      REAL, ALLOCATABLE, DIMENSION(:) :: SIGT0,SIGS0,SOURCE2,FUNKNO2,F1,
      1 F2,PP
-      REAL, ALLOCATABLE, DIMENSION(:,:) :: SUNKN
-*
-      ALLOCATE(SUNKN(NUNKNO,NGRP))
-      SUNKN(:NUNKNO,:NGRP)=FLUX(:NUNKNO,:NGRP,3)
+      REAL, ALLOCATABLE, DIMENSION(:,:) :: SOURCE
+
+      ALLOCATE(SOURCE(NUNKNO,NGRP))
+      SOURCE(:NUNKNO,:NGRP)=SUNKNO(:NUNKNO,:NGRP)
 *
       IF(ILEAK.EQ.1) THEN
          IF(NMERG.GT.1) CALL XABORT('FLUDBV: NB. LEAKAGE ZONES > 1.(1)')
@@ -113,22 +116,22 @@
             DO 10 IR=1,NREG
             IBM=MATCOD(IR)
             IND=KEYFLX(IR,1)
-            ZNUM=ZNUM+(SIGT0(IBM)-SIGS0(IBM))*FLUX(IND,IGR,1)*VOL(IR)
-            ZDEN=ZDEN+FLUX(IND,IGR,1)*VOL(IR)
+            ZNUM=ZNUM+(SIGT0(IBM)-SIGS0(IBM))*FLUOLD(IND,IGR)*VOL(IR)
+            ZDEN=ZDEN+FLUOLD(IND,IGR)*VOL(IR)
    10       CONTINUE
             DEALLOCATE(SIGS0)
             DEALLOCATE(SIGT0)
             ALP1=ZNUM/(ZNUM+DIFHET(1,IGR)*B2(4)*ZDEN)
             DO 20 IR=1,NREG
             IND=KEYFLX(IR,1)
-            FLUX(IND,IGR,3)=ALP1*FLUX(IND,IGR,3)
+            SOURCE(IND,IGR)=ALP1*SOURCE(IND,IGR)
    20       CONTINUE
          ENDIF
    30    CONTINUE
          IDIR=0
          CALL DOORFV(CDOOR,JPSYS,NPSYS,IPTRK,IFTRAK,IPRT,NGRP,NMAT,
      1        IDIR,NREG,NUNKNO,IPHASE,LEXAC,MATCOD,VOL,KEYFLX,TITLE,
-     2        FLUX(1,1,3),FLUX(1,1,2),IPMACR,IPSOU,REBFLG,FLUXC)
+     2        SOURCE,FUNKNO,IPMACR,IPSOU,REBFLG,FLUXC)
       ELSE IF(ILEAK.EQ.2) THEN
          IF(NMERG.GT.1) CALL XABORT('FLUDBV: NB. LEAKAGE ZONES > 1.(2)')
          IF(LEAKSW) CALL XABORT('FLUDBV: PNL OPTION FORBIDDEN.')
@@ -146,14 +149,14 @@
             DO 40 IR=1,NREG
             IBM=MATCOD(IR)
             IND=KEYFLX(IR,1)
-            ZNUM=ZNUM+SIGT0(IBM)*FLUX(IND,IGR,1)*VOL(IR)
-            ZDEN=ZDEN+FLUX(IND,IGR,1)*VOL(IR)
+            ZNUM=ZNUM+SIGT0(IBM)*FLUOLD(IND,IGR)*VOL(IR)
+            ZDEN=ZDEN+FLUOLD(IND,IGR)*VOL(IR)
    40       CONTINUE
             ALP1=ZNUM/(ZNUM+DIFHET(1,IGR)*B2(4)*ZDEN)
             DO 45 IR=1,NREG
             IND=KEYFLX(IR,1)
-            FLUX(IND,IGR,3)=ALP1*FLUX(IND,IGR,3)-(1.0-ALP1)
-     >                 *SIGS0(MATCOD(IR))*FLUX(IND,IGR,1)
+            SOURCE(IND,IGR)=ALP1*SOURCE(IND,IGR)-(1.0-ALP1)
+     >                 *SIGS0(MATCOD(IR))*FLUOLD(IND,IGR)
    45       CONTINUE
             DEALLOCATE(SIGS0,SIGT0)
          ENDIF
@@ -161,8 +164,8 @@
          IDIR=0
          CALL DOORFV(CDOOR,JPSYS,NPSYS,IPTRK,IFTRAK,IPRT,NGRP,NMAT,
      1        IDIR,NREG,NUNKNO,IPHASE,LEXAC,MATCOD,VOL,KEYFLX,TITLE,
-     2        FLUX(1,1,3),FLUX(1,1,2),IPMACR,IPSOU,REBFLG,FLUXC)
-      ELSE IF(ILEAK.EQ.3) THEN
+     2        SOURCE,FUNKNO,IPMACR,IPSOU,REBFLG,FLUXC)
+      ELSE IF((ILEAK.EQ.3).OR.(ILEAK.EQ.5)) THEN
          DO 70 IGR=1,NGRP
          IF(NPSYS(IGR).NE.0) THEN
             BB=B2(4)
@@ -173,15 +176,15 @@
             IF(IBM.EQ.0) GO TO 60
             INM=IMERG(IBM)
             IF(INM.EQ.0) GO TO 60
-            FLUX(IND,IGR,3)=FLUX(IND,IGR,3)-DIFHET(INM,IGR)*BB*
-     1      FLUX(IND,IGR,1)
+            SOURCE(IND,IGR)=SOURCE(IND,IGR)-DIFHET(INM,IGR)*BB*
+     1      FLUOLD(IND,IGR)
    60       CONTINUE
          ENDIF
    70    CONTINUE
          IDIR=0
          CALL DOORFV(CDOOR,JPSYS,NPSYS,IPTRK,IFTRAK,IPRT,NGRP,NMAT,
      1        IDIR,NREG,NUNKNO,IPHASE,LEXAC,MATCOD,VOL,KEYFLX,TITLE,
-     2        FLUX(1,1,3),FLUX(1,1,2),IPMACR,IPSOU,REBFLG,FLUXC)
+     2        SOURCE,FUNKNO,IPMACR,IPSOU,REBFLG,FLUXC)
       ELSE IF(ILEAK.EQ.4) THEN
          ALLOCATE(F1(NREG),F2(NREG))
          DO 80 IGR=1,NGRP
@@ -194,31 +197,31 @@
            ALLOCATE(SIGS0(0:ILCS0X-1))
            CALL LCMGET(KPSYS,'DRAGON-S0XSC',SIGS0(0))
            CALL FLUALB(KPSYS,NREG,NUNKNO,ILCTXS,MATCOD,VOL,KEYFLX,
-     >     FLUX(1,IGR,1),FLUX(1,IGR,3),SIGS0(0),SIGT0(0),F1,F2)
+     >     FLUOLD(1,IGR),SOURCE(1,IGR),SIGS0(0),SIGT0(0),F1,F2)
            DEALLOCATE(SIGS0,SIGT0)
 *
            IF(IPRT.GT.2) THEN
              WRITE(IOUT,'(//33H N E U T R O N    S O U R C E S :)')
-             WRITE(IOUT,'(1P,6(5X,E15.7))') (FLUX(KEYFLX(I,1),IGR,3),
+             WRITE(IOUT,'(1P,6(5X,E15.7))') (SOURCE(KEYFLX(I,1),IGR),
      >       I=1,NREG)
            ENDIF
-           CALL XDRSET(FLUX(1,IGR,2),NUNKNO,0.0)
+           CALL XDRSET(FUNKNO(1,IGR),NUNKNO,0.0)
            DO 75 IR=1,NREG
            IBM=MATCOD(IR)
            IF(IBM.EQ.0) GO TO 75
            INM=IMERG(IBM)
            IF(INM.EQ.0) GO TO 75
-           FLUX(KEYFLX(IR,1),IGR,2)=F1(IR)+DIFHET(INM,IGR)*B2(4)*F2(IR)
+           FUNKNO(KEYFLX(IR,1),IGR)=F1(IR)+DIFHET(INM,IGR)*B2(4)*F2(IR)
    75      CONTINUE
            IF(IPRT.GT.2) THEN
              WRITE(IOUT,'(//33H N E U T R O N    F L U X E S   :)')
-             WRITE(IOUT,'(1P,6(5X,E15.7))') (FLUX(KEYFLX(I,1),IGR,2),
+             WRITE(IOUT,'(1P,6(5X,E15.7))') (FUNKNO(KEYFLX(I,1),IGR),
      >       I=1,NREG)
            ENDIF
          ENDIF
    80    CONTINUE
          DEALLOCATE(F2,F1)
-      ELSE IF(ILEAK.EQ.5) THEN
+      ELSE IF(ILEAK.EQ.6) THEN
 *        ISOTROPIC STREAMING MODEL (ECCO).
          IF(.NOT.C_ASSOCIATED(JPSTR)) THEN
             CALL XABORT('FLUDBV: MISSING STREAMING INFO(1).')
@@ -230,7 +233,7 @@
             BB=B2(4)
             DO 90 IR=1,NREG
             IND=KEYFLX(IR,1)
-            FLUX(IND,IGR,3)=FLUX(IND,IGR,3)-BB*FLUX(NUNKNO/2+IND,IGR,1)
+            SOURCE(IND,IGR)=SOURCE(IND,IGR)-BB*FLUOLD(NUNKNO/2+IND,IGR)
    90       CONTINUE
          ENDIF
    95    CONTINUE
@@ -238,7 +241,7 @@
          IDIR=0
          CALL DOORFV(CDOOR,JPSYS,NPSYS,IPTRK,IFTRAK,IPRT,NGRP,NMAT,
      1        IDIR,NREG,NUNKNO,IPHASE,LEXAC,MATCOD,VOL,KEYFLX,TITLE,
-     2        FLUX(1,1,3),FLUX(1,1,2),IPMACR,IPSOU,REBFLG,FLUXC)
+     2        SOURCE,FUNKNO,IPMACR,IPSOU,REBFLG,FLUXC)
          DO 130 IGR=1,NGRP
          IF(NPSYS(IGR).NE.0) THEN
             KPSTR=LCMGIL(JPSTR,IGR)
@@ -250,48 +253,48 @@
             DO 100 IR=1,NREG
                IBM=MATCOD(IR)
                IND=KEYFLX(IR,1)
-               ZNUM=ZNUM+SIGT0(IBM)*FLUX(IND,IGR,2)*VOL(IR)
-               ZDEN=ZDEN+FLUX(IND,IGR,2)*VOL(IR)
+               ZNUM=ZNUM+SIGT0(IBM)*FUNKNO(IND,IGR)*VOL(IR)
+               ZDEN=ZDEN+FUNKNO(IND,IGR)*VOL(IR)
   100       CONTINUE
             DO 110 IR=1,NREG
             IBM=MATCOD(IR)
             IND=KEYFLX(IR,1)
-            FLUX(NUNKNO/2+IND,IGR,3)=FLUX(NUNKNO/2+IND,IGR,3)+
+            SOURCE(NUNKNO/2+IND,IGR)=SOURCE(NUNKNO/2+IND,IGR)+
      1      (1.0-GAMMA(IGR))*(ZNUM/ZDEN-SIGT0(IBM))*
-     2      FLUX(NUNKNO/2+IND,IGR,2)
+     2      FUNKNO(NUNKNO/2+IND,IGR)
   110       CONTINUE
             DEALLOCATE(SIGT0)
             DO 120 IR=1,NREG
             IND=KEYFLX(IR,1)
-            FLUX(NUNKNO/2+IND,IGR,3)=(FLUX(NUNKNO/2+IND,IGR,3)
-     1      +FLUX(IND,IGR,2)/3.0)/GAMMA(IGR)
+            SOURCE(NUNKNO/2+IND,IGR)=(SOURCE(NUNKNO/2+IND,IGR)
+     1      +FUNKNO(IND,IGR)/3.0)/GAMMA(IGR)
   120       CONTINUE
          ENDIF
   130    CONTINUE
          IF(IPRT.GE.3) WRITE(IOUT,'(30H FLUDBV: FUNDAMENTAL CURRENTS.)')
-         ALLOCATE(SUNKNO((NUNKNO/2)*NGRP),FUNKNO((NUNKNO/2)*NGRP))
+         ALLOCATE(SOURCE2((NUNKNO/2)*NGRP),FUNKNO2((NUNKNO/2)*NGRP))
          IOF=0
          DO 145 IGR=1,NGRP
          DO 140 IND=1,NUNKNO/2
          IOF=IOF+1
-         SUNKNO(IOF)=FLUX(NUNKNO/2+IND,IGR,3)
-         FUNKNO(IOF)=FLUX(NUNKNO/2+IND,IGR,2)
+         SOURCE2(IOF)=SOURCE(NUNKNO/2+IND,IGR)
+         FUNKNO2(IOF)=FUNKNO(NUNKNO/2+IND,IGR)
   140    CONTINUE
   145    CONTINUE
          IDIR=0
          CALL DOORFV(CDOOR,JPSTR,NPSYS,IPTRK,IFTRAK,IPRT,NGRP,NMAT,
      1        IDIR,NREG,NUNKNO/2,IPHASE,LEXAC,MATCOD,VOL,KEYFLX,TITLE,
-     2        SUNKNO,FUNKNO,IPMACR,IPSOU,REBFLG,FLUXC)
+     2        SOURCE2,FUNKNO2,IPMACR,IPSOU,REBFLG,FLUXC)
          IOF=0
          DO 155 IGR=1,NGRP
          DO 150 IND=1,NUNKNO/2
          IOF=IOF+1
-         FLUX(NUNKNO/2+IND,IGR,3)=SUNKNO(IOF)
-         FLUX(NUNKNO/2+IND,IGR,2)=FUNKNO(IOF)
+         SOURCE(NUNKNO/2+IND,IGR)=SOURCE2(IOF)
+         FUNKNO(NUNKNO/2+IND,IGR)=FUNKNO2(IOF)
   150    CONTINUE
   155    CONTINUE
-         DEALLOCATE(FUNKNO,SUNKNO)
-      ELSE IF((MOD(ILEAK,10).EQ.6).AND.(IPHASE.EQ.1)) THEN
+         DEALLOCATE(FUNKNO2,SOURCE2)
+      ELSE IF((MOD(ILEAK,10).EQ.7).AND.(IPHASE.EQ.1)) THEN
 *        ----
 *        TIBERE ANISOTROPIC STREAMING MODEL FOR MOC.
 *        ----
@@ -311,9 +314,9 @@
                  INDC(1)=3*NUNKNO/8+IND
                  INDC(2)=5*NUNKNO/8+IND
                  INDC(3)=7*NUNKNO/8+IND
-                 FLUX(IND,IGR,3)=FLUX(IND,IGR,3)-(B2(1)
-     1           *FLUX(INDC(1),IGR,1)+B2(2)*FLUX(INDC(2),IGR,1)+
-     2           B2(3)*FLUX(INDC(3),IGR,1))
+                 SOURCE(IND,IGR)=SOURCE(IND,IGR)-(B2(1)
+     1           *FLUOLD(INDC(1),IGR)+B2(2)*FLUOLD(INDC(2),IGR)+
+     2           B2(3)*FLUOLD(INDC(3),IGR))
                ENDDO 
              ENDIF  
            ENDIF 
@@ -321,27 +324,27 @@
          IF(IPRT.GE.3) WRITE(IOUT,'(28H FLUDBV: FUNDAMENTAL FLUXES.)')
            IDIR=0
            NUNKNO4=NUNKNO/4
-           ALLOCATE(SUNKNO(NUNKNO4*NGRP),FUNKNO(NUNKNO4*NGRP))
+           ALLOCATE(SOURCE2(NUNKNO4*NGRP),FUNKNO2(NUNKNO4*NGRP))
            IOF=0
            DO IGR=1,NGRP
              DO IND=1,NUNKNO4
                IOF=IOF+1
-               SUNKNO(IOF)=FLUX(IND,IGR,3)
-               FUNKNO(IOF)=FLUX(IND,IGR,2)
+               SOURCE2(IOF)=SOURCE(IND,IGR)
+               FUNKNO2(IOF)=FUNKNO(IND,IGR)
              ENDDO
            ENDDO
            CALL DOORFV(CDOOR,JPSYS,NPSYS,IPTRK,IFTRAK,IPRT,NGRP,NMAT,
      1        IDIR,NREG,NUNKNO4,IPHASE,LEXAC,MATCOD,VOL,KEYFLX,TITLE,
-     2        SUNKNO,FUNKNO,IPMACR,IPSOU,REBFLG,FLUXC)
+     2        SOURCE2,FUNKNO2,IPMACR,IPSOU,REBFLG,FLUXC)
            IOF=0
            DO IGR=1,NGRP
              DO IND=1,NUNKNO4
                IOF=IOF+1
-               FLUX(IND,IGR,3)=SUNKNO(IOF)
-               FLUX(IND,IGR,2)=FUNKNO(IOF) 
+               SOURCE(IND,IGR)=SOURCE2(IOF)
+               FUNKNO(IND,IGR)=FUNKNO2(IOF) 
              ENDDO
            ENDDO
-           DEALLOCATE(FUNKNO,SUNKNO)   
+           DEALLOCATE(FUNKNO2,SOURCE2)   
 * ADD SOURCES FOR CURRENT EQUATIONS
            DO IGR=1,NGRP
              IF(NPSYS(IGR).NE.0) THEN 
@@ -354,8 +357,8 @@
              DO IR=1,NREG
                IBM=MATCOD(IR)
                IND=KEYFLX(IR,1)
-               ZNUM=ZNUM+SIGT0(IBM)*FLUX(IND,IGR,2)*VOL(IR)
-               ZDEN=ZDEN+FLUX(IND,IGR,2)*VOL(IR)
+               ZNUM=ZNUM+SIGT0(IBM)*FUNKNO(IND,IGR)*VOL(IR)
+               ZDEN=ZDEN+FUNKNO(IND,IGR)*VOL(IR)
              ENDDO
              DO IR=1,NREG
                IBM=MATCOD(IR)
@@ -363,9 +366,9 @@
                INDD(2)=NUNKNO/2+KEYFLX(IR,1)
                INDD(3)=3*NUNKNO/4+KEYFLX(IR,1)
                DO IDIR=1,3
-                 FLUX(INDD(IDIR),IGR,3)=FLUX(INDD(IDIR),IGR,3)+
+                 SOURCE(INDD(IDIR),IGR)=SOURCE(INDD(IDIR),IGR)+
      1           (1.0-GAMMA(IGR))*(ZNUM/ZDEN-SIGT0(IBM))*
-     2            FLUX(INDD(IDIR),IGR,2)
+     2            FUNKNO(INDD(IDIR),IGR)
                ENDDO
              ENDDO
              DO IR=1,NREG
@@ -373,8 +376,8 @@
                INDD(2)=NUNKNO/2+KEYFLX(IR,1)
                INDD(3)=3*NUNKNO/4+KEYFLX(IR,1)
                DO IDIR=1,3
-                 FLUX(INDD(IDIR),IGR,3)=(FLUX(INDD(IDIR),IGR,3)
-     1           +FLUX(KEYFLX(IR,1),IGR,2)/3.0)/GAMMA(IGR)
+                 SOURCE(INDD(IDIR),IGR)=(SOURCE(INDD(IDIR),IGR)
+     1           +FUNKNO(KEYFLX(IR,1),IGR)/3.0)/GAMMA(IGR)
                ENDDO
              ENDDO
              DEALLOCATE(SIGT0)
@@ -387,7 +390,7 @@
            IF(IDIR.EQ.2) WRITE(6,*)'FUNDAMENTAL CURRENT Y '
            IF(IDIR.EQ.3) WRITE(6,*)'FUNDAMENTAL CURRENT Z '
            NUNKNO4=NUNKNO/4
-           ALLOCATE(SUNKNO(NUNKNO4*NGRP),FUNKNO(NUNKNO4*NGRP))
+           ALLOCATE(SOURCE2(NUNKNO4*NGRP),FUNKNO2(NUNKNO4*NGRP))
            IOF=0
            DO IGR=1,NGRP
              DO IND=1,NUNKNO4
@@ -395,13 +398,13 @@
                INDB(2)=NUNKNO/2+IND
                INDB(3)=3*NUNKNO/4+IND
                IOF=IOF+1
-               SUNKNO(IOF)=FLUX(INDB(IDIR),IGR,3)
-               FUNKNO(IOF)=FLUX(INDB(IDIR),IGR,2)
+               SOURCE2(IOF)=SOURCE(INDB(IDIR),IGR)
+               FUNKNO2(IOF)=FUNKNO(INDB(IDIR),IGR)
              ENDDO
            ENDDO
            CALL DOORFV(CDOOR,JPSTR,NPSYS,IPTRK,IFTRAK,IPRT,NGRP,NMAT,
      1       IDIR,NREG,NUNKNO4,IPHASE,LEXAC,MATCOD,VOL,KEYFLX,TITLE,
-     2       SUNKNO,FUNKNO,IPMACR,IPSOU,REBFLG,FLUXC)
+     2       SOURCE2,FUNKNO2,IPMACR,IPSOU,REBFLG,FLUXC)
            IOF=0
            DO IGR=1,NGRP
              DO IND=1,NUNKNO4
@@ -409,13 +412,13 @@
                INDB(2)=NUNKNO/2+IND
                INDB(3)=3*NUNKNO/4+IND
                IOF=IOF+1
-               FLUX(INDB(IDIR),IGR,3)=SUNKNO(IOF)
-               FLUX(INDB(IDIR),IGR,2)=FUNKNO(IOF)   
+               SOURCE(INDB(IDIR),IGR)=SOURCE2(IOF)
+               FUNKNO(INDB(IDIR),IGR)=FUNKNO2(IOF)   
              ENDDO
            ENDDO
-           DEALLOCATE(FUNKNO,SUNKNO)  
+           DEALLOCATE(FUNKNO2,SOURCE2)  
          ENDDO
-      ELSE IF((MOD(ILEAK,10).EQ.6).AND.(IPHASE.EQ.2)) THEN
+      ELSE IF((MOD(ILEAK,10).EQ.7).AND.(IPHASE.EQ.2)) THEN
 *        ----
 *        TIBERE ANISOTROPIC STREAMING MODEL FOR PIJ.
 *        ----
@@ -436,9 +439,9 @@
              S=0.0
              DO 180 JREG=1,NREG
              JND=KEYFLX(JREG,1)
-             S=S+FLUX(INDD(IDIR)+JND,IGR,1)*PP((JREG-1)*NREG+IR)
+             S=S+FLUOLD(INDD(IDIR)+JND,IGR)*PP((JREG-1)*NREG+IR)
  180         CONTINUE
-             FLUX(IND,IGR,3)=FLUX(IND,IGR,3)-B2(IDIR)*S
+             SOURCE(IND,IGR)=SOURCE(IND,IGR)-B2(IDIR)*S
  190         CONTINUE
            ENDIF
  200     CONTINUE
@@ -448,7 +451,7 @@
          IDIR=0
          CALL DOORFV(CDOOR,JPSYS,NPSYS,IPTRK,IFTRAK,IPRT,NGRP,NMAT,
      1        IDIR,NREG,NUNKNO,IPHASE,LEXAC,MATCOD,VOL,KEYFLX,TITLE,
-     2        FLUX(1,1,3),FLUX(1,1,2),IPMACR,IPSOU,REBFLG,FLUXC)
+     2        SOURCE,FUNKNO,IPMACR,IPSOU,REBFLG,FLUXC)
          DO 260 IDIR=1,3
          DO 250 IGR=1,NGRP
          IF(NPSYS(IGR).NE.0) THEN
@@ -461,27 +464,27 @@
            DO 220 IR=1,NREG
              IBM=MATCOD(IR)
              IND=KEYFLX(IR,1)
-             ZNUM=ZNUM+SIGT0(IBM)*FLUX(IND,IGR,1)*VOL(IR)
-             ZDEN=ZDEN+FLUX(IND,IGR,1)*VOL(IR)
+             ZNUM=ZNUM+SIGT0(IBM)*FLUOLD(IND,IGR)*VOL(IR)
+             ZDEN=ZDEN+FLUOLD(IND,IGR)*VOL(IR)
  220       CONTINUE
            DO 230 IR=1,NREG
            IBM=MATCOD(IR)
            IND=KEYFLX(IR,1)
            IND2=INDD(IDIR)+IND
-           FLUX(IND2,IGR,3)=FLUX(IND2,IGR,3)+(1.0-GAMMA(IGR))*
-     1     (ZNUM/ZDEN-SIGT0(IBM))*FLUX(IND2,IGR,1)
+           SOURCE(IND2,IGR)=SOURCE(IND2,IGR)+(1.0-GAMMA(IGR))*
+     1     (ZNUM/ZDEN-SIGT0(IBM))*FLUOLD(IND2,IGR)
  230       CONTINUE
            DEALLOCATE(SIGT0)
            DO 240 IND=1,NUN4
            IND2=INDD(IDIR)+IND
-           FLUX(IND2,IGR,3)=(FLUX(IND2,IGR,3)+FLUX(IND,IGR,2)/3.0)/
+           SOURCE(IND2,IGR)=(SOURCE(IND2,IGR)+FUNKNO(IND,IGR)/3.0)/
      1     GAMMA(IGR)
  240       CONTINUE
          ENDIF
  250     CONTINUE
          CALL DOORFV(CDOOR,JPSYS,NPSYS,IPTRK,IFTRAK,IPRT,NGRP,
      1        NMAT,IDIR,NREG,NUNKNO,IPHASE,LEXAC,MATCOD,VOL,KEYFLX,
-     2        TITLE,FLUX(INDD(IDIR)+1,1,3),FLUX(INDD(IDIR)+1,1,2),
+     2        TITLE,SOURCE(INDD(IDIR)+1,1),FUNKNO(INDD(IDIR)+1,1),
      3        IPMACR,IPSOU,REBFLG,FLUXC)
  260     CONTINUE
       ELSE
@@ -492,13 +495,13 @@
 *----
       IF((IPRT.GT.10).AND.(.NOT.LEAKSW)) THEN
         NUN=NUNKNO
-        IF(ILEAK.EQ.5) NUN=NUNKNO/2
-        IF(ILEAK.GE.6) NUN=NUNKNO/4
+        IF(ILEAK.EQ.6) NUN=NUNKNO/2
+        IF(ILEAK.GE.7) NUN=NUNKNO/4
         DO 280 IGR=1,NGRP
         IF(NPSYS(IGR).EQ.0) GO TO 280
         KPSYS=LCMGIL(JPSYS,IGR)
-        DB2NEW=FLUFUI(KPSYS,NREG,NUN,MATCOD,VOL,KEYFLX,FLUX(1,IGR,2),
-     >                SUNKN(1,IGR))
+        DB2NEW=FLUFUI(KPSYS,NREG,NUN,MATCOD,VOL,KEYFLX,FUNKNO(1,IGR),
+     >                SUNKNO(1,IGR))
         DB2OLD=0.0
         VOLTOT=0.0
         DO 270 IR=1,NREG
@@ -515,6 +518,10 @@
      >  E13.4)') IGR,DB2OLD,DB2NEW
   280   CONTINUE
       ENDIF
-      DEALLOCATE(SUNKN)
+      SUNKNO(:NUNKNO,:NGRP)=SOURCE(:NUNKNO,:NGRP)
+*----
+*  SCRATCH STORAGE DEALLOCATION
+*----
+      DEALLOCATE(SOURCE)
       RETURN
       END

@@ -67,7 +67,7 @@ TRACKSS := SYBILT: GEOSS ::
 ! MOC tracking for flux calculation
 TRACKN2 TF_EXC := SALT: TDT_CASEA ::
   EDIT 3
-  ALLG BATCH 10
+  ALLG BATCH 100
   TISO <<an2d>> <<densur>> REND
 ;
 TRACKN2 := MCCGT: TRACKN2 TF_EXC ::

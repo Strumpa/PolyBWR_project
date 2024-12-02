@@ -30,4 +30,5 @@ def UOX_Gd157(namCOMPO, StepList, name_compo, ssh_module, ssh_method, sat, depl_
   # Recover
   myLifo.lib()
   pyCOMPO = myLifo.node(namCOMPO)
+  StepList.close()
   return pyCOMPO

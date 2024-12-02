@@ -6,7 +6,7 @@
 *-----------------------------------------------------------------------
 *
 *Purpose:
-* Implement the 1D FD-ANM reflector model.
+* Implement the 1D DF-ANM reflector model.
 *
 *Copyright:
 * Copyright (C) 2022 Ecole Polytechnique de Montreal

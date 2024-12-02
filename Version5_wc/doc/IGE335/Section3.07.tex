@@ -111,25 +111,27 @@ treated. Such problem can also include fission source contributions.
 treated. Such problem includes fission source contributions in addition of GPT sources.
 
 \item[\moc{K}] keyword to specify that a fission source eigenvalue problem is
-to be treated. The eigenvalue is then the effective multiplication factor with a
-fixed buckling. In this case, the fixed sources, if any is present on the
+to be treated. The eigenvalue is then the effective multiplication factor $K_{\rm eff}$ with a
+fixed buckling $B^2$. In this case, the fixed sources, if any is present on the
 \dds{macrolib} or \dds{microlib} data structure, are not used.  
 
 \item[\moc{B}] keyword to specify that a fission source eigenvalue problem is
-to be treated. The eigenvalue in this case is the critical buckling with a fixed
-effective multiplication factor. The buckling eigenvalue has meaning only in the
-case of a cell without leakages (see the structure \dstr{descBC} in
+to be treated. The eigenvalue in this case is the critical buckling $B^2$ with a fixed
+effective multiplication factor $K_{\rm eff}$. The buckling eigenvalue has meaning only in the
+case of a cell without boundary leakages (see the structure \dstr{descBC} in
 \Sect{descBC}). It is also possible to use an open geometry with
 \moc{VOID} boundary conditions  provided it is closed by the \moc{ASM:} module
-(see \Sect{descasm}) using the keywords \moc{NORM} or \moc{ALSB}.
+(see \Sect{descasm}) using the keywords \moc{NORM} or \moc{ALSB}. {\sl Note:} \moc{TYPE~B}
+cannot be used if no fission occurs in the system.
 
-\item[\moc{L}] keyword to specify that a non-multiplicative medium eigenvalue
-problem is to be treated. The eigenvalue in this case is the critical buckling
-with vanishing fission cross sections. The buckling eigenvalue has meaning only in the
-case of a cell without leakages (see the structure \dstr{descBC} in
+\item[\moc{L}] keyword to specify that a critical medium eigenvalue problem, with or without
+fission sources, is to be treated. The eigenvalue in this case is the critical buckling $B^2$,
+with or without a fixed effective multiplication factor $K_{\rm eff}$. The buckling eigenvalue has meaning only
+in the case of a cell without boundary leakages (see the structure \dstr{descBC} in
 \Sect{descBC}). It is also possible to use an open geometry with
 \moc{VOID} boundary conditions  provided it is closed by the \moc{ASM:} module
-(see \Sect{descasm}) using the keywords \moc{NORM} or \moc{ALSB}.
+(see \Sect{descasm}) using the keywords \moc{NORM} or \moc{ALSB}. {\sl Note:} \moc{TYPE~L}
+cannot be used if no positive or negative $dB^2$ leakage occurs in the system.
 
 \item[\dstr{descleak}] structure describing the general leakage parameters
 options (see \Sect{descleak}). This information is mandatory for producing the
@@ -191,26 +193,29 @@ Without leakage model, the multigroup flux $\vec\phi_g$ of the collision
 probability method is obtained from equation
 
 \begin{equation}
-\vec\phi_g={\bf W}_g \vec Q^{*}_g
+\vec\phi_g={\bf W}_g \vec Q^\diamond_g
 \label{eq:eq3.64}
 \end{equation}
 
 \noindent where ${\bf W}_g$ is the scattering reduced collision probability matrix
-and $ Q^{*}_g$ is the fission and out-of-group scattering source. This equation is
+and $ Q^\diamond_g$ is the fission and out-of-group scattering source. This equation is
 modified by the leakage model. The leakage models \moc{PNLR}, \moc{PNL}, \moc{SIGS}
-(default model) and \moc{ECCO} can also be used with solutions techniques other than
-the collision probability method.
+(default model), \moc{HETE} and \moc{ECCO} can be used with any solutions technique of
+the Boltzmann transport equation. The leakage model \moc{TIBERE} can be used with the collision
+probability method and with the method of characteristics.
 
 \vskip 0.2cm
 
 A leakage model can be set in {\sl fundamental mode condition} if all boundary conditions are
-conservative (such as \moc{REFL}, \moc{SYME}, \moc{SSYM}, \moc{DIAG}, \moc{ALBE 1.0}). In this
-case, the \dstr{descleak} structure allows the following information to be specified:
+conservative (such as \moc{REFL}, \moc{SYME}, \moc{SSYM}, \moc{DIAG}, \moc{ALBE 1.0}). If a boundary condition is
+non-conservative (such as \moc{VOID}), it is nevertheless possible to set a simplified leakage model based on the
+Todorova approximation with option \moc{HETE}. The \dstr{descleak} structure allows the following
+information to be specified:
 
-\begin{DataStructure}{Structure \dstr{descleak} in fundamental mode condition}
+\begin{DataStructure}{Leakage structure \dstr{descleak}}
 $\{$ \moc{LKRD} $|$ \moc{RHS} $|$ \moc{P0} $|$ \moc{P1} $|$ \moc{P0TR} $|$ \moc{B0} $|$ \moc{B1} $|$ \moc{B0TR} $\}$ \\
-$\{$ \moc{PNLR} $|$ \moc{PNL} $|$ \moc{SIGS} $|$ \moc{ALBS} $|$ \moc{ECCO} $|$ \moc{HETE}
-$[$ $\{$ \moc{G} $|$ \moc{R} $|$ \moc{Z} $|$ \moc{X} $|$ \moc{Y} $\}$ $]$ $\}$ \\
+$[~\{$ \moc{PNLR} $|$ \moc{PNL} $|$ \moc{SIGS} $|$ \moc{ALBS} $|$ \moc{HETE} $[$ (\dusa{imergl}(ii),ii=1,nbmix) $]~|$ \moc{ECCO} $|$ \moc{TIBERE}
+$[$ $\{$ \moc{G} $|$ \moc{R} $|$ \moc{Z} $|$ \moc{X} $|$ \moc{Y} $\}~]~\}~]$ \\
 $[$ $\{$ \moc{BUCK} $\{$ \dusa{valb2} $|$ $[$ \moc{G} \dusa{valb2} $]$  
 $[$ \moc{R} \dusa{valbr2} $]$ $[$ \moc{Z} \dusa{valbz2} $]$ 
 $[$ \moc{X} \dusa{valbx2} $]$
@@ -218,31 +223,15 @@ $[$ \moc{Y} \dusa{valby2} $]$ $\}$
 $|$ \moc{KEFF} \dusa{valk} $|$ \moc{IDEM} $\}$
 $]$  \end{DataStructure}
 
-If a boundary condition is non-conservative (such as \moc{VOID}), it is nevertheless possible to set a
-simplified leakage model based on the Todorova approximation with option \moc{SIGS}. Such a model is
-usefull to represent leakage in the axial direction. The Todorova leakage model available in module
-\moc{FLU:} is an homogeneous model assuming uniform leakage across the complete domain in each
-energy group. An heterogeneous model with more leakage zones is also available.
-
-\vskip 0.08cm
-
-To activate the Todorova approximation, the \dstr{descleak} structure takes the form:
-
-\begin{DataStructure}{Structure \dstr{descleak} in non-fundamental mode condition}
-$\{$ \moc{LKRD} $|$ \moc{RHS} $|$ \moc{P0} $|$ \moc{P1} $|$ \moc{P0TR} $\}$ \\
-$[$ \moc{MERG} (\dusa{imergl}(ii),ii=1,nbmix) $]$ \\
-$[$ \moc{BUCK} \dusa{valb2} $]$
-\end{DataStructure}
-
 \begin{ListeDeDescription}{mmmmmmm}
 
 \item[\moc{LKRD}] keyword used to specify that the leakage coefficients are
 recovered from data structure named \dusa{LIBNAM}. The \moc{LKRD} option is not
-available with the \moc{ECCO} and \moc{HETE} leakage models.
+available with the \moc{ECCO} and \moc{TIBERE} leakage models.
 
 \item[\moc{RHS}] keyword used to specify that the leakage coefficients are
 recovered from RHS flux data structure named \dusa{FLUNAM}. The \moc{RHS} option is not
-available with the \moc{ECCO} and \moc{HETE} leakage models. If the flux calculation is
+available with the \moc{ECCO} and \moc{TIBERE} leakage models. If the flux calculation is
 an adjoint calculation, the energy group ordering of the leakage coefficients is permuted.
 
 \item[\moc{P0}] keyword used to specify that the leakage coefficients are
@@ -280,8 +269,8 @@ transport-corrected macroscopic within-group scattering cross section in group $
 homogenized over the lattice and transport corrected. \eq(eq3.64) is then replaced by
  
 \begin{equation}
-\vec\phi_g=P_{{\rm NLR},g} {\bf W}_g \vec Q^*_g \ \ \ .
-\label{eq:eq5.36}
+\vec\phi_g=P_{{\rm NLR},g} {\bf W}_g \vec Q^\diamond_g \ \ \ .
+\label{eq:eq5.32}
 \end{equation}
 
 \item[\moc{PNL}] keyword used to specify that the elements of the collision
@@ -296,7 +285,7 @@ P_{{\rm NL},g}={\bar\Sigma_g\over{\bar\Sigma_g+d_g(B) \ B^2}}
 in group $g$, homogenized over the lattice and transport corrected. \eq(eq3.64) is then replaced by
 
 \begin{equation}
-\vec\phi_g={\bf W}_g \left[ P_{{\rm NL},g} \vec Q^*_g -(1-P_{{\rm NL},g}) {\bf \Sigma}_{{\rm s0},g\gets g} \ \vec\phi_g \right]
+\vec\phi_g={\bf W}_g \left[ P_{{\rm NL},g} \vec Q^\diamond_g -(1-P_{{\rm NL},g}) {\bf \Sigma}_{{\rm s0},g\gets g} \ \vec\phi_g \right]
 \label{eq:eq5.33b}
 \end{equation}
 
@@ -315,7 +304,7 @@ correction is to be applied on the diffusion cross section ($\Sigma_{s} -
 dB^{2}$). \eq(eq3.64) is then replaced by
 
 \begin{equation}
-\vec\phi_g={\bf W}_g\left[ \vec Q^{*}_g-d_g(B) \ B^2 \ \vec\phi_g\right]
+\vec\phi_g={\bf W}_g\left[ \vec Q^\diamond_g-d_g(B) \ B^2 \ \vec\phi_g\right]
 \label{eq:eq5.33}
 \end{equation}
 
@@ -334,7 +323,7 @@ the region in module \moc{ASM:} using the \moc{ALBS} option (see
 \Sect{descasm}). \eq(eq3.64) is then replaced by
 
 \begin{equation}
-\vec\phi_g={\bf W}_g \ \vec Q^{*}_g-\left[ {\bf I}+{\bf W}_g{\bf \Sigma}_{{\rm s0},g\gets g}\right] d_g(B) \ B^2 
+\vec\phi_g={\bf W}_g \ \vec Q^\diamond_g-\left[ {\bf I}+{\bf W}_g{\bf \Sigma}_{{\rm s0},g\gets g}\right] d_g(B) \ B^2 
 \ \gamma \ {\bf P}_{{\rm iS},g}
 \label{eq:eq5.34}
 \end{equation}
@@ -347,6 +336,64 @@ probabilities in the open geometry and where
 \label{eq:eq5.35}
 \end{equation}
 
+\item[\moc{HETE}] keyword used to perform a simplified heterogeneous leakage calculation, over one or many leakage zones, based
+on the Todorova approximation.\cite{todorova} A leakage zone is a set of material mixtures where the leakage coefficient $d_{i,g}$ is
+forced to be uniform in each energy group. Such a model is usefull to represent axial leakage in a {\tt TYPE~K} calculation or to
+perform colorset calculations with more than one leakage zone. The \moc{HETE} leakage model can be used as an homogeneous model
+assuming uniform leakage across the complete domain or as an heterogeneous model with more leakage zones defined using $\dusa{imergl}$
+information. If a boundary condition is non-conservative (such as \moc{VOID}), it is nevertheless possible to use the \moc{HETE} option
+with a $P_n$ or $B_n$ leakage model.
+
+\item[\dusa{imergl}] array of homogenized leakage zone indices to which are associated the material mixtures. \dusa{nbmix} is the
+total number of material mixtures. By default, a unique leakage zone is set. In this case, option $\moc{HETE}$ reduces to option $\moc{SIGS}$.
+
+The simplified heterogeneous leakage model is based on a generalization of \eq(eq5.33), now written as
+\begin{equation}
+\vec\phi_g={\bf W}_g\left[ \vec Q^\diamond_g-B^2 \ \vec J_g\right]
+\label{eq:eq5.36a}
+\end{equation}
+
+\noindent where each component of vector $\vec J_g$ is defined in term of heterogeneous leakage coefficients $d_{i,g}$ as
+\begin{equation}
+J_{i,g}=d_{i,g} \phi_{i,g}.
+\label{eq:eq5.36b}
+\end{equation}
+
+A leakage zone index $m$ is assigned to each region $i$ using \dusa{imergl} information. In a colorset calculation, leakage zones 1 and 2
+are assigned to black and red assemblies, respectively. In the $P_0$ and $B_0$ cases, the heterogeneous leakage coefficients in each leakage zone $m$
+are obtained using the {\sl outscatter} approximation as
+\begin{equation}
+d_{m,g} = {1\over 3\gamma(B,\bar\Sigma_{m,g})}\left[ {\left<\phi_g\right>_m\over \left<\Sigma_g\phi_g\right>_m}\right]={1\over 3\gamma(B,\bar\Sigma_{m,g})\bar\Sigma_{m,g}}
+\label{eq:eq5.36c}
+\end{equation}
+\noindent where $\left<\phi_g\right>_m$ is the integrated flux in leakage zone $m$ and $\left<\Sigma_g\phi_g\right>_m$ is a reaction rate
+in zone $m$. The $\gamma(B,\bar\Sigma_{m,g})$ factor is equal to one with $P_n$ leakage models or to a leakage-zone dependent value with $B_n$
+leakage models.\cite{PIP2009} Here, $\bar\Sigma_{m,g}$ is the leakage-zone averaged macroscopic total cross section in group $g$ defined as
+\begin{equation}
+\bar\Sigma_{m,g}={\left<\Sigma_g\phi_g\right>_m \over \left<\phi_g\right>_m}.
+\label{eq:eq5.36d}
+\end{equation}
+\
+In the $P_1$ and $B_1$ cases, the leakage coefficients are given as the solution of the following implicit equation, known as the {\sl inscatter} approximation:
+\begin{equation}
+d_{m,g}\left<\Sigma_g\phi_g\right>_m = {1\over \gamma(B,\bar\Sigma_{m,g})}\left[ {\left<\phi_g\right>_m\over 3}+
+\sum_{h=1}^G \, d_{m,h} \left<\Sigma_{{\rm s1},g \leftarrow h}\phi_h\right>_m\right] .
+\label{eq:eq5.36e}
+\end{equation}
+
+In transport-corrected $P_0$ and $B_0$ cases, we use the micro-reversibility principle, written as
+\begin{equation}
+\sum_{h=1}^G \Sigma_{{\rm s1},i,g \leftarrow h} J_{i,h} =\sum_{h=1}^G \Sigma_{{\rm s1},i,h \leftarrow g} J_{i,g}=\Sigma_{{\rm s1},i,g} J_{i,g} .
+\label{eq:eq5.36f}
+\end{equation}
+
+Substitution of \eq(eq5.36f) into \eq(eq5.36e) leads to
+\begin{equation}
+d_{m,g} = {1\over 3}\left[ {\left<\phi_g\right>_m\over \gamma(B,\bar\Sigma_{m,g})\left<\Sigma_g\phi_g\right>_m-\left<\Sigma_{{\rm s1},g}\phi_g\right>_m}\right]=
+{1\over 3\left[\gamma(B,\bar\Sigma_{m,g})\bar\Sigma_{m,g}-\bar\Sigma_{{\rm s1},m,g}\right]} .
+\label{eq:eq5.36c}
+\end{equation}
+
 \item[\moc{ECCO}] keyword used to perform an ECCO--type leakage
 calculation taking into account isotropic streaming effects. This method
 introduces an heterogeneous buckling contribution as a group dependent correction
@@ -357,7 +404,7 @@ in module \moc{ASM:} (see \Sect{descasm}). In the $P_1$ non--consistent case,
 \vskip -0.3cm
 
 \begin{eqnarray}
-\vec\varphi_g&=& {\bf W}_g \left(\vec Q^{*}_g - B^2 \ {i\vec{\cal J}_g\over B}\right)
+\vec\varphi_g&=& {\bf W}_g \left(\vec Q^\diamond_g - B^2 \ {i\vec{\cal J}_g\over B}\right)
 \label{eq:eq5.37flux} \\
 {i\vec{\cal J}_g\over B} &=& {\bf X}_g \left[{1 \over 3}
 \ \vec\varphi_g + \sum_{h\not= g} {\bf \Sigma}_{{\rm s1},g \gets h} \
@@ -372,7 +419,7 @@ in module \moc{ASM:} (see \Sect{descasm}). In the $P_1$ non--consistent case,
 \label{eq:eq5.37ter}
 \end{equation}
 
-\item[\moc{HETE}] keyword used to perform a TIB\`ERE--type leakage
+\item[\moc{TIBERE}] keyword used to perform a TIB\`ERE--type leakage
 calculation taking into account anisotropic streaming effects. This method
 introduces an heterogeneous buckling contribution as a group dependent correction
 to the source term.\cite{PIJK0,PIJK} The heterogeneous buckling contribution is
@@ -399,7 +446,7 @@ will be considered  assuming an imposed $x$-direction and $z$-direction
 buckling.
 
 \item[\moc{BUCK}] keyword used to specify the initial (for a buckling
-eigenvalue problem) or fixed (for a effective multiplication constant eigenvalue
+eigenvalue problem) or fixed (for a effective multiplication factor eigenvalue
 problem) buckling. 
 
 \item[\moc{G}] keyword used to specify that the buckling in the $x$-direction,
@@ -441,23 +488,14 @@ $cm^{-2}$. The floating default value is \dusa{valby2}=0.0 $cm^{-2}$. If
 specified then \dusa{valby2}=\dusa{valbr2}/2.
 
 \item[\moc{KEFF}] keyword used to specify the fixed (for a buckling eigenvalue
-problem) effective multiplication constant. 
+problem) effective multiplication factor. 
 
-\item[\dusa{valk}] value of the fixed effective multiplication constant. The
+\item[\dusa{valk}] value of the fixed effective multiplication factor $K_{\rm eff}$. The
 fixed default value is \dusa{valk}=1.0.
 
 \item[\moc{IDEM}] keyword used to specify that the initial (for a buckling
-eigenvalue problem) or fixed (for a effective multiplication constant eigenvalue
+eigenvalue problem) or fixed (for a effective multiplication factor eigenvalue
 problem) buckling is to be read from the data structure \dusa{LIBNAM}. 
-
-\item[\moc{MERG}] keyword to specify leakage zones. A leakage zone is a set of material
-mixtures where the diffusion coefficient is forced to be uniform in each energy group.
-Using an heterogeneous leakage model is incompatible with options \moc{PNLR} and \moc{PNL}.
-By default, an homogeneous leakage model with option \moc{SIGS} is imposed where the leakage
-coefficients are all equal to the same value in each energy group.  
-
-\item[\dusa{imergl}] array of homogenized leakage zone indices to which are
-associated the material mixtures. \dusa{nbmix} is the total number of material mixtures.
 
 \end{ListeDeDescription}
 \eject

@@ -20,13 +20,15 @@ subroutine KDRCPU(cpusec)
 !-----------------------------------------------------------------------
 !
    integer :: itloc,irate
+   double precision :: dtloc
    integer,save :: isave=0,itloc0
+   double precision,save :: dtloc0
 !
    if(isave==0) then
-      call system_clock(count=itloc0)
+      call CLETIM(dtloc0)
       isave=1
    endif
-   call system_clock(count=itloc,count_rate=irate)
-   cpusec=real(itloc-itloc0)/real(irate)
+   call CLETIM(dtloc)
+   cpusec=real(dtloc-dtloc0)
    return
 end subroutine KDRCPU

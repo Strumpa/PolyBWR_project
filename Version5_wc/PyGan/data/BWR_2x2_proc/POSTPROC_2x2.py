@@ -36,11 +36,11 @@ class BWR_2x2_case:
 
         self.path=os.getcwd()
 
-        self.SAVE_DIR=f'BWRresults_PyGan_{case_name}_{BU_points}_postprocess/'
+        self.SAVE_DIR=f'BWRresults_PyGan_{case_name}/{BU_points}_postprocess/'
 
         a=os.path.exists(self.SAVE_DIR)
         if a==False:
-            os.mkdir(self.SAVE_DIR)
+            os.makedirs(self.SAVE_DIR)
 
         self.isotopes_to_compare = ['U235','U236','U238','Pu239','Pu240','Pu241','Pu242','Gd155','Gd157','Xe135','Sm149']
         self.fissionable_isotopes = ['U235 ', 'U238 ', 'Pu239', 'Pu241']
@@ -61,15 +61,15 @@ class BWR_2x2_case:
         print("Loading Serpent2 reference case")
         if self.case_name == "2x2_UOX":
             # Load Serpent2 reference case : Keff results
-            serpent2_case = st.read("/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/AT10_2x2_UOX_mc_res.m")
+            serpent2_case = st.read("/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/PyNjoy2016_results/AT10_2x2/AT10_2x2_UOX_mc_res.m")
             # Load Serpent2 reference case : depletion data
-            self.serpent_dep = st.read("/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/AT10_2x2_UOX_mc_dep.m")
+            self.serpent_dep = st.read("/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/PyNjoy2016_results/AT10_2x2/AT10_2x2_UOX_mc_dep.m")
 
         elif self.case_name == "2x2_UOX_Gd":
             # Load Serpent2 reference case : Keff results
-            serpent2_case = st.read("/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/AT10_2x2_UOX_Gd_mc_res.m")
+            serpent2_case = st.read("/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/PyNjoy2016_results/AT10_2x2/AT10_2x2_UOX_Gd_mc_res.m")
             # Load Serpent2 reference case : depletion data
-            self.serpent_dep = st.read("/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/AT10_2x2_UOX_Gd_mc_dep.m")
+            self.serpent_dep = st.read("/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/PyNjoy2016_results/AT10_2x2/AT10_2x2_UOX_Gd_mc_dep.m")
 
 
         serpent_keff=serpent2_case.resdata["absKeff"]
@@ -271,11 +271,11 @@ class BWR_2x2_case:
     
     def load_Serpent2_fission_rates(self):
         if self.case_name == "2x2_UOX":
-            detFile_0 = '/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/AT10_2x2_UOX_mc_res_det0.m'
-            detFile_48 = '/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/AT10_2x2_UOX_mc_res_det48.m'
+            detFile_0 = '/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/PyNjoy2016_results/A10_2x2/AT10_2x2_UOX_mc_res_det0.m'
+            detFile_48 = '/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/PyNjoy2016_results/A10_2x2/AT10_2x2_UOX_mc_res_det48.m'
         elif self.case_name == "2x2_UOX_Gd":
-            detFile_0 = '/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/AT10_2x2_UOX_Gd_mc_res_det0.m'
-            detFile_48 = '/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/AT10_2x2_UOX_Gd_mc_res_det48.m'
+            detFile_0 = '/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/PyNjoy2016_results/A10_2x2/AT10_2x2_UOX_Gd_mc_res_det0.m'
+            detFile_48 = '/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/PyNjoy2016_results/A10_2x2/AT10_2x2_UOX_Gd_mc_res_det48.m'
         self.det_BU0 = st.read(detFile_0, reader = 'det').detectors
         self.det_BU_last = st.read(detFile_48, reader = 'det').detectors
 
@@ -302,6 +302,8 @@ class BWR_2x2_case:
             for n_iso, isotope in enumerate(self.fissionable_isotopes[0:4]):
                 for n,name_cell in enumerate(detFile):
                     print(f"$$$ ---------------- n = {n}")
+
+
 
                     
 

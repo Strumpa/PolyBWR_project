@@ -19,7 +19,7 @@ using namespace std;
 using namespace ganlib;
 static ostringstream hsmg;
 
-ganlib::Lifo::Lifo() throw(LifoException) {
+ganlib::Lifo::Lifo() {
   cout << "New Lifo object constructed.'" << endl;
   try {
     cleopn(&(this->addr));
@@ -29,10 +29,14 @@ ganlib::Lifo::Lifo() throw(LifoException) {
   this->global_list = new vector<ClcmPtr>;
 }
 
-ganlib::Lifo::~Lifo() throw(LifoException) {
+ganlib::Lifo::~Lifo() {
   cout << "Lifo destructor called (" << this->getMax() << " nodes remaining)." << endl;
   int_32 nitma = clecls(&(this->addr));
-  if(nitma != 0) throw LifoException("Lifo destruction failure: Lifo not empty");
+  if(nitma != 0) {
+    char hsmg[132];
+    sprintf(hsmg,"Lifo destruction failure: Lifo not empty");
+    xabort_c(hsmg);
+  }
   delete this->global_list;
 }
 
@@ -40,7 +44,7 @@ ganlib::Lifo::~Lifo() throw(LifoException) {
 //--                               pop                                --
 //----------------------------------------------------------------------
 
-void ganlib::Lifo::pop() throw(LifoException) {
+void ganlib::Lifo::pop() {
   lifo_node *myNode;
   if (this->addr->nup == 0)  throw LifoException("no nodes to pop from stack(0)");
   try {
@@ -52,7 +56,7 @@ void ganlib::Lifo::pop() throw(LifoException) {
   free(myNode);
 }
 
-void ganlib::Lifo::pop(int_32 &myInteger) throw(LifoException) {
+void ganlib::Lifo::pop(int_32 &myInteger) {
   lifo_node *myNode;
   if (this->addr->nup == 0)  throw LifoException("no nodes to pop from stack(1)");
   try {
@@ -69,7 +73,7 @@ void ganlib::Lifo::pop(int_32 &myInteger) throw(LifoException) {
   free(myNode);
 }
 
-void ganlib::Lifo::pop(float_32 &myFloat) throw(LifoException) {
+void ganlib::Lifo::pop(float_32 &myFloat) {
   lifo_node *myNode;
   if (this->addr->nup == 0)  throw LifoException("no nodes to pop from stack(2)");
   try {
@@ -86,7 +90,7 @@ void ganlib::Lifo::pop(float_32 &myFloat) throw(LifoException) {
   free(myNode);
 }
 
-void ganlib::Lifo::pop(string &myString) throw(LifoException) {
+void ganlib::Lifo::pop(string &myString) {
   lifo_node *myNode;
   if (this->addr->nup == 0)  throw LifoException("no nodes to pop from stack(3)");
   try {
@@ -103,7 +107,7 @@ void ganlib::Lifo::pop(string &myString) throw(LifoException) {
   free(myNode);
 }
 
-void ganlib::Lifo::pop(double &myDouble) throw(LifoException) {
+void ganlib::Lifo::pop(double &myDouble) {
   lifo_node *myNode;
   if (this->addr->nup == 0)  throw LifoException("no nodes to pop from stack(4)");
   try {
@@ -120,7 +124,7 @@ void ganlib::Lifo::pop(double &myDouble) throw(LifoException) {
   free(myNode);
 }
 
-void ganlib::Lifo::pop(bool &myBool) throw(LifoException) {
+void ganlib::Lifo::pop(bool &myBool) {
   lifo_node *myNode;
   if (this->addr->nup == 0)  throw LifoException("no nodes to pop from stack(5)");
   try {
@@ -137,7 +141,7 @@ void ganlib::Lifo::pop(bool &myBool) throw(LifoException) {
   free(myNode);
 }
 
-void ganlib::Lifo::pop(ClcmPtr &myClcm) throw(LifoException) {
+void ganlib::Lifo::pop(ClcmPtr &myClcm) {
   lifo_node *myNode;
   if (this->addr->nup == 0)  throw LifoException("no nodes to pop from stack(6)");
   try {
@@ -155,7 +159,7 @@ void ganlib::Lifo::pop(ClcmPtr &myClcm) throw(LifoException) {
   free(myNode);
 }
 
-void ganlib::Lifo::pop(string myFile, string stype) throw(LifoException){
+void ganlib::Lifo::pop(string myFile, string stype) {
   lifo_node *myNode;
   if (this->addr->nup == 0)  throw LifoException("no nodes to pop from stack(7)");
   try {
@@ -182,7 +186,7 @@ void ganlib::Lifo::pop(string myFile, string stype) throw(LifoException){
 //--                              push                                --
 //----------------------------------------------------------------------
 
-void ganlib::Lifo::push(string sname, const int_32 myInteger) throw(LifoException) {
+void ganlib::Lifo::push(string sname, const int_32 myInteger) {
   lifo_node * myNode = (lifo_node *) malloc(sizeof(lifo_node));
   strcpy(myNode->name, (char *)sname.c_str()); myNode->type = 11; myNode->value.ival = myInteger;
   try {
@@ -192,7 +196,7 @@ void ganlib::Lifo::push(string sname, const int_32 myInteger) throw(LifoExceptio
   }
 }
 
-void ganlib::Lifo::push(string sname, const float_32 myFloat) throw(LifoException) {
+void ganlib::Lifo::push(string sname, const float_32 myFloat) {
   lifo_node * myNode = (lifo_node *) malloc(sizeof(lifo_node));
   strcpy(myNode->name, (char *)sname.c_str()); myNode->type = 12; myNode->value.fval = myFloat;
   try {
@@ -202,7 +206,7 @@ void ganlib::Lifo::push(string sname, const float_32 myFloat) throw(LifoExceptio
   }
 }
 
-void ganlib::Lifo::push(string sname, const string myString) throw(LifoException) {
+void ganlib::Lifo::push(string sname, const string myString) {
   lifo_node * myNode = (lifo_node *) malloc(sizeof(lifo_node));
   strcpy(myNode->name, (char *)sname.c_str()); myNode->type = 13;
   strcpy(myNode->value.hval, (char *)myString.c_str());
@@ -213,7 +217,7 @@ void ganlib::Lifo::push(string sname, const string myString) throw(LifoException
   }
 }
 
-void ganlib::Lifo::push(string sname, const double myDouble) throw(LifoException) {
+void ganlib::Lifo::push(string sname, const double myDouble) {
   lifo_node * myNode = (lifo_node *) malloc(sizeof(lifo_node));
   strcpy(myNode->name, (char *)sname.c_str()); myNode->type = 14; myNode->value.dval = myDouble;
   try {
@@ -223,7 +227,7 @@ void ganlib::Lifo::push(string sname, const double myDouble) throw(LifoException
   }
 }
 
-void ganlib::Lifo::push(string sname, bool myBool) throw(LifoException) {
+void ganlib::Lifo::push(string sname, bool myBool) {
   lifo_node * myNode = (lifo_node *) malloc(sizeof(lifo_node));
   int_32 ibool = 0; if (myBool) ibool = 1;
   strcpy(myNode->name, (char *)sname.c_str()); myNode->type = 15; myNode->value.ival = ibool;
@@ -234,7 +238,7 @@ void ganlib::Lifo::push(string sname, bool myBool) throw(LifoException) {
   }
 }
 
-void ganlib::Lifo::push(string sname, ClcmPtr myClcm) throw(LifoException) {
+void ganlib::Lifo::push(string sname, ClcmPtr myClcm) {
   lifo_node * myNode = (lifo_node *) malloc(sizeof(lifo_node));
   strcpy(myNode->name, (char *)sname.c_str());
   myNode->type = myClcm->getType()+2;
@@ -250,7 +254,7 @@ void ganlib::Lifo::push(string sname, ClcmPtr myClcm) throw(LifoException) {
   (this->global_list)->push_back(myClcm);
 }
 
-void ganlib::Lifo::push(string sname, string myFile, string stype) throw(LifoException){
+void ganlib::Lifo::push(string sname, string myFile, string stype) {
   lifo_node * myNode = (lifo_node *) malloc(sizeof(lifo_node));
   strcpy(myNode->name, (char *)sname.c_str());
   if (stype == "BINARY") {
@@ -272,7 +276,7 @@ void ganlib::Lifo::push(string sname, string myFile, string stype) throw(LifoExc
   }
 }
 
-void ganlib::Lifo::push(string sname, string myFile, string stype, string OSname) throw(LifoException){
+void ganlib::Lifo::push(string sname, string myFile, string stype, string OSname) {
   lifo_node * myNode = (lifo_node *) malloc(sizeof(lifo_node));
   strcpy(myNode->name, (char *)sname.c_str());
   if (stype == "BINARY") {
@@ -298,7 +302,7 @@ void ganlib::Lifo::push(string sname, string myFile, string stype, string OSname
 //--                            pushEmpty                             --
 //----------------------------------------------------------------------
 
-void ganlib::Lifo::pushEmpty(string sname, string nodeType) throw(LifoException) {
+void ganlib::Lifo::pushEmpty(string sname, string nodeType) {
   lifo_node * myNode = (lifo_node *) malloc(sizeof(lifo_node)); 
   strcpy(myNode->name, (char *)sname.c_str());
   if (nodeType == "I") {
@@ -339,7 +343,7 @@ void ganlib::Lifo::pushEmpty(string sname, string nodeType) throw(LifoException)
   }
 }
 
-void ganlib::Lifo::pushEmpty(string sname, string nodeType, string OSname) throw(LifoException) {
+void ganlib::Lifo::pushEmpty(string sname, string nodeType, string OSname) {
   lifo_node * myNode = (lifo_node *) malloc(sizeof(lifo_node)); 
   strcpy(myNode->name, (char *)sname.c_str());
   if (nodeType == "XSM") {
@@ -370,7 +374,7 @@ void ganlib::Lifo::pushEmpty(string sname, string nodeType, string OSname) throw
 //--                        node by position                          --
 //----------------------------------------------------------------------
 
-void ganlib::Lifo::node(int_32 ipos, int_32 &myInteger) throw(LifoException) {
+void ganlib::Lifo::node(int_32 ipos, int_32 &myInteger) {
   lifo_node *myNode;
   if (this->addr->nup == 0)  throw LifoException("no nodes to recover from stack(11)");
   try {
@@ -385,7 +389,7 @@ void ganlib::Lifo::node(int_32 ipos, int_32 &myInteger) throw(LifoException) {
   myInteger = myNode->value.ival;
 }
 
-void ganlib::Lifo::node(int_32 ipos, float_32 &myFloat) throw(LifoException) {
+void ganlib::Lifo::node(int_32 ipos, float_32 &myFloat) {
   lifo_node *myNode;
   if (this->addr->nup == 0)  throw LifoException("no nodes to recover from stack(12)");
   try {
@@ -400,7 +404,7 @@ void ganlib::Lifo::node(int_32 ipos, float_32 &myFloat) throw(LifoException) {
   myFloat = myNode->value.fval;
 }
 
-void ganlib::Lifo::node(int_32 ipos, string &myString) throw(LifoException) {
+void ganlib::Lifo::node(int_32 ipos, string &myString) {
   lifo_node *myNode;
   if (this->addr->nup == 0)  throw LifoException("no nodes to recover from stack(13)");
   try {
@@ -415,7 +419,7 @@ void ganlib::Lifo::node(int_32 ipos, string &myString) throw(LifoException) {
   myString = string(myNode->value.hval);
 }
 
-void ganlib::Lifo::node(int_32 ipos, double &myDouble) throw(LifoException) {
+void ganlib::Lifo::node(int_32 ipos, double &myDouble) {
   lifo_node *myNode;
   if (this->addr->nup == 0)  throw LifoException("no nodes to recover from stack(14)");
   try {
@@ -430,7 +434,7 @@ void ganlib::Lifo::node(int_32 ipos, double &myDouble) throw(LifoException) {
   myDouble = myNode->value.dval;
 }
 
-void ganlib::Lifo::node(int_32 ipos, bool &myBool) throw(LifoException) {
+void ganlib::Lifo::node(int_32 ipos, bool &myBool) {
   lifo_node *myNode;
   if (this->addr->nup == 0)  throw LifoException("no nodes to recover from stack(15)");
   try {
@@ -445,7 +449,7 @@ void ganlib::Lifo::node(int_32 ipos, bool &myBool) throw(LifoException) {
   myBool = (myNode->value.ival == 1);
 }
 
-void ganlib::Lifo::node(int_32 ipos, ClcmPtr &myClcm) throw(LifoException) {
+void ganlib::Lifo::node(int_32 ipos, ClcmPtr &myClcm) {
   lifo_node *myNode;
   if (this->addr->nup == 0)  throw LifoException("no nodes to recover from stack(16)");
   try {
@@ -461,7 +465,7 @@ void ganlib::Lifo::node(int_32 ipos, ClcmPtr &myClcm) throw(LifoException) {
   myClcm = ClcmPtr(new Clcm(myLcm, myNode->type, myNode->access, myNode->OSname));
 }
 
-void ganlib::Lifo::node(int_32 ipos, string myFile, string stype) throw(LifoException){
+void ganlib::Lifo::node(int_32 ipos, string myFile, string stype) {
   lifo_node *myNode;
   if (this->addr->nup == 0)  throw LifoException("no nodes to pop from stack(17)");
   try {
@@ -486,7 +490,7 @@ void ganlib::Lifo::node(int_32 ipos, string myFile, string stype) throw(LifoExce
 //--                          node by name                            --
 //----------------------------------------------------------------------
 
-void ganlib::Lifo::node(string sname, int_32 &myInteger) throw(LifoException) {
+void ganlib::Lifo::node(string sname, int_32 &myInteger) {
   lifo_node *myNode;
   if (this->addr->nup == 0)  throw LifoException("no nodes to recover from stack(21)");
   try {
@@ -501,7 +505,7 @@ void ganlib::Lifo::node(string sname, int_32 &myInteger) throw(LifoException) {
   myInteger = myNode->value.ival;
 }
 
-void ganlib::Lifo::node(string sname, float_32 &myFloat) throw(LifoException) {
+void ganlib::Lifo::node(string sname, float_32 &myFloat) {
   lifo_node *myNode;
   if (this->addr->nup == 0)  throw LifoException("no nodes to recover from stack(22)");
   try {
@@ -516,7 +520,7 @@ void ganlib::Lifo::node(string sname, float_32 &myFloat) throw(LifoException) {
   myFloat = myNode->value.fval;
 }
 
-void ganlib::Lifo::node(string sname, string &myString) throw(LifoException) {
+void ganlib::Lifo::node(string sname, string &myString) {
   lifo_node *myNode;
   if (this->addr->nup == 0)  throw LifoException("no nodes to recover from stack(23)");
   try {
@@ -531,7 +535,7 @@ void ganlib::Lifo::node(string sname, string &myString) throw(LifoException) {
   myString = string(myNode->value.hval);
 }
 
-void ganlib::Lifo::node(string sname, double &myDouble) throw(LifoException) {
+void ganlib::Lifo::node(string sname, double &myDouble) {
   lifo_node *myNode;
   if (this->addr->nup == 0)  throw LifoException("no nodes to recover from stack(24)");
   try {
@@ -546,7 +550,7 @@ void ganlib::Lifo::node(string sname, double &myDouble) throw(LifoException) {
   myDouble = myNode->value.dval;
 }
 
-void ganlib::Lifo::node(string sname, bool &myBool) throw(LifoException) {
+void ganlib::Lifo::node(string sname, bool &myBool) {
   lifo_node *myNode;
   if (this->addr->nup == 0)  throw LifoException("no nodes to recover from stack(25)");
   try {
@@ -561,7 +565,7 @@ void ganlib::Lifo::node(string sname, bool &myBool) throw(LifoException) {
   myBool = (myNode->value.ival == 1);
 }
 
-void ganlib::Lifo::node(string sname, ClcmPtr &myClcm) throw(LifoException) {
+void ganlib::Lifo::node(string sname, ClcmPtr &myClcm) {
   lifo_node *myNode;
   if (this->addr->nup == 0)  throw LifoException("no nodes to recover from stack(26)");
   try {
@@ -577,7 +581,7 @@ void ganlib::Lifo::node(string sname, ClcmPtr &myClcm) throw(LifoException) {
   myClcm = ClcmPtr(new Clcm(myLcm, myNode->type, myNode->access, myNode->OSname));
 }
 
-void ganlib::Lifo::node(string sname, string myFile, string stype) throw(LifoException){
+void ganlib::Lifo::node(string sname, string myFile, string stype) {
   lifo_node *myNode;
   if (this->addr->nup == 0)  throw LifoException("no nodes to pop from stack(27)");
   try {
@@ -604,7 +608,7 @@ int_32 ganlib::Lifo::getMax() {
   return this->addr->nup;
 }
 
-int_32 ganlib::Lifo::typeNode(int_32 ipos) throw(LifoException) {
+int_32 ganlib::Lifo::typeNode(int_32 ipos) {
   lifo_node *myNode;
   try {
     myNode = clepos(&(this->addr), ipos);
@@ -614,7 +618,7 @@ int_32 ganlib::Lifo::typeNode(int_32 ipos) throw(LifoException) {
   return myNode->type;
 }
 
-int_32 ganlib::Lifo::accessNode(int_32 ipos) throw(LifoException) {
+int_32 ganlib::Lifo::accessNode(int_32 ipos) {
   lifo_node *myNode;
   try {
     myNode = clepos(&(this->addr), ipos);
@@ -624,7 +628,7 @@ int_32 ganlib::Lifo::accessNode(int_32 ipos) throw(LifoException) {
   return myNode->access;
 }
 
-string ganlib::Lifo::OSName(int_32 ipos) throw(LifoException) {
+string ganlib::Lifo::OSName(int_32 ipos) {
   lifo_node *myNode;
   try {
     myNode = clepos(&(this->addr), ipos);
@@ -634,7 +638,7 @@ string ganlib::Lifo::OSName(int_32 ipos) throw(LifoException) {
   return myNode->OSname;
 }
 
-string ganlib::Lifo::Name(int_32 ipos) throw(LifoException) {
+string ganlib::Lifo::Name(int_32 ipos) {
   lifo_node *myNode;
   try {
     myNode = clepos(&(this->addr), ipos);
@@ -644,7 +648,7 @@ string ganlib::Lifo::Name(int_32 ipos) throw(LifoException) {
   return myNode->name;
 }
 
-int_32 ganlib::Lifo::typeNode(string sname) throw(LifoException) {
+int_32 ganlib::Lifo::typeNode(string sname) {
   lifo_node *myNode;
   try {
     myNode = clenode(&(this->addr), sname.c_str());
@@ -654,7 +658,7 @@ int_32 ganlib::Lifo::typeNode(string sname) throw(LifoException) {
   return myNode->type;
 }
 
-int_32 ganlib::Lifo::accessNode(string sname) throw(LifoException) {
+int_32 ganlib::Lifo::accessNode(string sname) {
   lifo_node *myNode;
   try {
     myNode = clenode(&(this->addr), sname.c_str());
@@ -664,7 +668,7 @@ int_32 ganlib::Lifo::accessNode(string sname) throw(LifoException) {
   return myNode->access;
 }
 
-string ganlib::Lifo::OSName(string sname) throw(LifoException) {
+string ganlib::Lifo::OSName(string sname) {
   lifo_node *myNode;
   try {
     myNode = clenode(&(this->addr), sname.c_str());
@@ -674,7 +678,7 @@ string ganlib::Lifo::OSName(string sname) throw(LifoException) {
   return myNode->OSname;
 }
 
-void ganlib::Lifo::lib() throw(LifoException) {
+void ganlib::Lifo::lib() {
   try {
     clelib(&(this->addr));
   } catch(...) {

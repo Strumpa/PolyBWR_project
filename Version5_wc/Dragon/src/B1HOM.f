@@ -1,7 +1,7 @@
 *DECK B1HOM
       SUBROUTINE B1HOM (IPMACR,LEAKSW,NUNKNO,OPTION,TYPE,NGRO,IPAS,NBM,
-     1                  NFISSI,VOL,MAT,KEYFLX,FLUX,REFKEF,IMPX,D,GAMMA,
-     2                  ALAM1,INORM,B2)
+     1                  NFISSI,VOL,MAT,KEYFLX,FLUX,REFKEF,IMPX,DHOM,
+     2                  GAMMA,ALAM1,INORM,B2)
 *
 *-----------------------------------------------------------------------
 *
@@ -29,7 +29,7 @@
 *         'P1' (P-1), 'B0TR' (B-0 with transport correction) or 'P0TR'
 *         (P-0 with transport correction).
 * TYPE    type of buckling iteration.
-*         Can be 'DIFF' (do a B-0 calculation of D(NGRO) and exit);
+*         Can be 'DIFF' (do a B-0 calculation of DHOM(NGRO) and exit);
 *                'K' (do a B-n calculation with keff search);
 *                'B' (do a B-n calculation with buckling search);
 *                'L' (do a B-n calculation with buckling search
@@ -42,14 +42,14 @@
 * MAT     mixture number of each volume.
 * KEYFLX  position of each flux in the unknown vector.
 * FLUX    direct unknown vector.
-* REFKEF  target K-effective for type B or type L calculations
+* REFKEF  target K-effective for type B or type L calculations.
 * IMPX    print flag.
 * INORM   type of leakage model:
 *         =1: Diffon; =2: Ecco; =3: Tibere.
 * B2      original direction dependant buckling.
 *
 *Parameters: output
-* D       diffusion coefficients.
+* DHOM    homogeneous leakage coefficients.
 * GAMMA   gamma factors.
 * ALAM1   effective multiplication factor.
 *
@@ -64,7 +64,7 @@
       LOGICAL LEAKSW
       INTEGER NUNKNO,NGRO,IPAS,NBM,NFISSI,MAT(IPAS),KEYFLX(IPAS),IMPX,
      1 INORM
-      REAL VOL(IPAS),FLUX(NUNKNO,NGRO),D(NGRO),GAMMA(NGRO),B2(4)
+      REAL VOL(IPAS),FLUX(NUNKNO,NGRO),DHOM(NGRO),GAMMA(NGRO),B2(4)
       DOUBLE PRECISION REFKEF,ALAM1
 *----
 *  LOCAL VARIABLES
@@ -134,7 +134,7 @@
 *
       B2HOM=DBLE(B2(4))
       CALL B1DIF(OPTION,TYPE,NGRO,ST,SFNU,XHI,IJJ0,IJJ1,NJJ0,NJJ1,SCAT0,
-     1 SCAT1,REFKEF,LFISSI,IMPX,D,GAMMA,B2HOM,ALAM1,CAET,A2,PHI)
+     1 SCAT1,REFKEF,LFISSI,IMPX,DHOM,GAMMA,B2HOM,ALAM1,CAET,A2,PHI)
       B2(4)=REAL(B2HOM)
 *
       IF (TYPE.EQ.'DIFF') GO TO 130
@@ -161,7 +161,7 @@
             CURN=CURN+VOL(L)*FLUX(KEYFLX(L)+NUNKNO/2,I)
    70     CONTINUE
           CAET=PHI(I)/CAET
-          CURN=PHI(I)*D(I)/CURN
+          CURN=PHI(I)*DHOM(I)/CURN
           DO 80 L=1,NUNKNO/2
             FLUX(L,I)=FLUX(L,I)*REAL(CAET)
             FLUX(L+NUNKNO/2,I)=FLUX(L+NUNKNO/2,I)*REAL(CURN)
@@ -189,7 +189,7 @@
      >             +B2T(3)*FLUX(KEYFLX(L)+3*NUNKNO/4,I)*VOL(L)
   100     CONTINUE
           CAET=PHI(I)/CAET
-          CURN=PHI(I)*D(I)/CURN
+          CURN=PHI(I)*DHOM(I)/CURN
           DO 110 L=1,IPAS
           FLUX(KEYFLX(L),I)=FLUX(KEYFLX(L),I)*REAL(CAET)
           FLUX(KEYFLX(L)+NUNKNO/4,I)=FLUX(KEYFLX(L)+NUNKNO/4,I)*
