@@ -69,6 +69,8 @@ CONTAINS
        ANGGEO=PI*0.25
        CASE(8:11)
        ANGGEO=PI/3.
+       CASE(12)
+       ANGGEO=PI/6.
     END SELECT
     IF(PRTIND >= 1) WRITE(FOUT,*) 'SAL100: TYPGEO=',TYPGEO,' NBFOLD=',NBFOLD
     LGSPEC=(TYPGEO/=0).AND.(NBFOLD==0)
@@ -152,6 +154,8 @@ CONTAINS
       HSYM='EIGH'
     ELSE IF(((TYPGEO==1).AND.(NBFOLD==6)).OR.((TYPGEO==8).AND.(NBFOLD==0))) THEN
       HSYM='SIXT'
+    ELSE IF(((TYPGEO==1).AND.(NBFOLD==12)).OR.((TYPGEO==12).AND.(NBFOLD==0))) THEN
+      HSYM='S30'
     ELSE IF(((TYPGEO==1).AND.(NBFOLD==4)).OR.((TYPGEO==3).AND.(NBFOLD==0))) THEN
       HSYM='SYME'
     ELSE IF((TYPGEO==1).AND.(NBFOLD==2)) THEN
@@ -203,6 +207,12 @@ CONTAINS
         IF(NANIS>1) CALL XABORT('SAL110: unfold unsupported with NANIS>1')
         CALL SALFOLD_1('SA60',GG)
         CALL SALFOLD_1('SYMH',GG)
+      ELSE IF(HSYM=='S30') THEN
+        IF(PRTIND>0) WRITE(*,*) "SAL110: S30 unfold"
+        IF(NANIS>1) CALL XABORT('SAL110: unfold unsupported with NANIS>1')
+        CALL SALFOLD_1('S30 ',GG)
+        CALL SALFOLD_1('SB60',GG)
+        CALL SALFOLD_1('SYMX',GG)
       ELSE IF(HSYM=='RA60') THEN
         IF(PRTIND>0) WRITE(*,*) "SAL110: SR60 unfold with rotation"
         IF(NANIS>1) CALL XABORT('SAL110: unfold unsupported with NANIS>1')
@@ -223,7 +233,7 @@ CONTAINS
     ENDIF
     IF(PRTIND>0) WRITE(FOUT,*) 'SAL110: after unfolding -- NB_ELEM=',GG%NB_ELEM
 
-    IF(PRTIND>5) THEN
+    IF(PRTIND>-5) THEN
       !*    print surfacic file
       WRITE(FOUT,'(5H--cut,75(1H-))')
       WRITE(FOUT,'(5HBEGIN)')
@@ -289,7 +299,7 @@ CONTAINS
     !
     !*    volumes, surfaces, put local nbers in node, and read media:
     CALL SAL160(GG)
-    IF(PRTIND>5) THEN
+    IF(PRTIND>-5) THEN
       WRITE(FOUT,'(12H* mil(nbreg))')
       WRITE(FOUT,'(10I7)') (GG%MED(I),I=1,GG%NB_NODE)
       WRITE(FOUT,'(3HEND)')
@@ -581,7 +591,7 @@ CONTAINS
        CALL SAL128_3(NN,POINT,EPS,EPS2)
        CASE(7)
        CALL SAL128_4(NN,POINT,EPS,EPS2)
-       CASE(8) 
+       CASE(8,12) 
        CALL SAL128_5(NN,POINT,EPS,EPS2)
        CASE(9) 
        CALL SAL128_6(NN,POINT,EPS,EPS2)
@@ -624,7 +634,7 @@ CONTAINS
     ! EPS2      variable set to EPS*EPS
     !
     !Parameters: input/output
-    ! POINT     coordonats of points
+    ! POINT     coordinates of points
     !
     !---------------------------------------------------------------------
     !
@@ -785,7 +795,7 @@ CONTAINS
     ! EPS2      variable set to EPS*EPS
     !
     !Parameters: input/output
-    ! POINT     coordonats of points
+    ! POINT     coordinates of points
     !
     !---------------------------------------------------------------------
     !
@@ -853,7 +863,7 @@ CONTAINS
     !---------------------------------------------------------------------
     !
     !Purpose:
-    ! process an isocel trianglar geometry (TYPGEO=8) with specular reflection:
+    ! process a trianglar geometry (TYPGEO=8 or 12) with specular reflection:
     ! adjusts points on the axes, computes the triangular side length
     !
     !Parameters: input
@@ -863,7 +873,7 @@ CONTAINS
     ! EPS2      variable set to EPS*EPS
     !
     !Parameters: input/output
-    ! POINT     coordonats of points
+    ! POINT     coordinates of points
     !
     !---------------------------------------------------------------------
     !
@@ -944,7 +954,7 @@ CONTAINS
     ! EPS2      variable set to EPS*EPS
     !
     !Parameters: input/output
-    ! POINT     coordonats of points
+    ! POINT     coordinates of points
     !
     !---------------------------------------------------------------------
     !
@@ -1106,7 +1116,7 @@ CONTAINS
     ! EPS2      variable set to EPS*EPS
     !
     !Parameters: input/output
-    ! POINT     coordonats of points
+    ! POINT     coordinates of points
     !
     !---------------------------------------------------------------------
     !
@@ -1121,10 +1131,6 @@ CONTAINS
     INTEGER   :: NP,NAXIS,I,P
     REAL(PDB) :: D,AUX,EX(3),EY(3),DIS(3),AX(3),AY(3)
     INTEGER, PARAMETER :: FOUT =6
-
-
-
-
     !****
     !     compute the triangular side
     LX=0.; LY=0.
@@ -1190,7 +1196,7 @@ CONTAINS
     ! EPS2      variable set to EPS*EPS
     !
     !Parameters: input/output
-    ! POINT     coordonats of points
+    ! POINT     coordinates of points
     !
     !---------------------------------------------------------------------
     !
@@ -1429,7 +1435,7 @@ CONTAINS
        CASE(1:2)
        CALL SAL130_8(GG%NPERIM_MAC2,GG%PERIM_MAC2,GG%PPERIM_MAC2,GG%DIST_AXIS, &
             GG%IBC2_ELEM,GG%TYPE_BC2,GG%IDATA_BC2,GG%BCDATA,GG%IPAR,GG%RPAR)
-       CASE(5:11)
+       CASE(5:12)
        CALL SAL130_10(GG%NPERIM_MAC2,GG%PERIM_MAC2,GG%PPERIM_MAC2,GG%DIST_AXIS, &
             GG%IBC2_ELEM,GG%TYPE_BC2,GG%IDATA_BC2,GG%BCDATA,GG%IPAR,GG%RPAR)
     END SELECT
@@ -1728,6 +1734,7 @@ CONTAINS
     ! type 9  : hexagon with translations on all sides
     ! type 10 : hexagon with RA60 rotation
     ! type 11 : hexagon with R120 rotation
+    ! type 12 : rectangular S30 triangle geometry
     !
     !Parameters: input
     ! NPERIM     number of elements in perimeter
@@ -1774,7 +1781,7 @@ CONTAINS
     NAXES=0
     IF((TYPGEO==5).OR.(TYPGEO==6).OR.(TYPGEO==11)) THEN
        NAXES=4
-    ELSEIF((TYPGEO==7).OR.(TYPGEO==8).OR.(TYPGEO==10)) THEN
+    ELSEIF((TYPGEO==7).OR.(TYPGEO==8).OR.(TYPGEO==10).OR.(TYPGEO==12)) THEN
        NAXES=3
     ELSEIF(TYPGEO==9) THEN
        NAXES=6
@@ -1850,7 +1857,7 @@ CONTAINS
           ELSE
              CALL XABORT('SAL130_10: wrong boundary condition for TYPGEO=6.')
           ENDIF
-          CASE(7,8)
+          CASE(7,8,12)
           !*          triangles with symmetries:
           !           typgeo=7 axes definition:
           !                        *
@@ -1877,8 +1884,11 @@ CONTAINS
              ELSEIF(ABS(ANGLE-2.*ANGGEO)<EPS) THEN
                 !                 typgeo=8:element is on the axis 3 (angle=2*anggeo)
                 M=3
+             ELSEIF(ABS(ANGLE-2.*PI/3.)<EPS) THEN
+                !                 typgeo=12:element is on the axis 3 (angle=2*pi/3)
+                M=3
              ELSE
-                CALL XABORT('SAL130_10: boundary condition data error in element for TYPGEO=7,8.')
+                CALL XABORT('SAL130_10: boundary condition data error in element for TYPGEO=7,8,12.')
              ENDIF
           ELSE
              CALL XABORT('SAL130_10: wrong boundary condition for TYPGEO=7,8.')
@@ -1975,7 +1985,7 @@ CONTAINS
           CASE DEFAULT
              CALL XABORT('SAL130_10: boundary condition not implemented.')
        END SELECT
-       IF(M==NAXES+1) CALL XABORT('SAL130_10: element not on axes')
+       IF(M>=NAXES+1) CALL XABORT('SAL130_10: element not on axes')
        NBE(M)=NBE(M)+1
        LIST_ELEMS(NBE(M),M)=ELEM
        !        sort the element list according their distance to
@@ -2013,7 +2023,7 @@ CONTAINS
                 D=MAX(D,Y)
              ENDDO
           END SELECT
-          CASE(8,10)
+          CASE(8,10,12)
           SELECT CASE(M)
              CASE(1:2)
              DO K=1,2
@@ -2995,7 +3005,7 @@ CONTAINS
     !Parameters: input
     ! HSYM: type of symmetry: 'DIAG': diagonal symmetry; 'SYMX': symmetry
     !       relative to X axis; 'SYMY': symmetry relative to Y axis;
-    !       'SA60': SA60 symmetry
+    !       'SA60': SA60 symmetry; 'S30': S30 symmetry
     !
     !Parameters: input/output
     ! GG    geometry descriptor
@@ -3044,11 +3054,23 @@ CONTAINS
       AXIS_X1(1)=0._PDB; AXIS_X2(1)=100._PDB; AXIS_Y1(1)=0._PDB; AXIS_Y2(1)=100._PDB;
       ANGGEO=2.0*ANGGEO
     ELSE IF(HSYM=='SA60') THEN
+      ! the hexagon side is on south
       NSYM=2
       AXIS_X1(1)=XMIN; AXIS_Y1(1)=YMIN; AXIS_X2(1)=XMIN+0.5_PDB*LENGTHX
       AXIS_Y2(1)=YMIN+0.5_PDB*SQRT(3._PDB)*LENGTHX
       AXIS_X1(2)=XMIN+LENGTHX; AXIS_Y1(2)=YMIN; AXIS_X2(2)=XMIN+0.5_PDB*LENGTHX
       AXIS_Y2(2)=YMIN+0.5_PDB*SQRT(3._PDB)*LENGTHX
+    ELSE IF(HSYM=='SB60') THEN
+      ! the hexagon side is on north-east
+      NSYM=2
+      AXIS_X1(1)=XMIN; AXIS_Y1(1)=YMIN; AXIS_X2(1)=XMIN+0.5_PDB*LENGTHX
+      AXIS_Y2(1)=YMIN+0.5_PDB*SQRT(3._PDB)*LENGTHX
+      AXIS_X1(2)=XMIN; AXIS_Y1(2)=YMIN; AXIS_X2(2)=XMIN
+      AXIS_Y2(2)=YMIN+0.5_PDB*SQRT(3._PDB)*LENGTHX
+    ELSE IF(HSYM=='S30') THEN
+      NSYM=1
+      AXIS_X1(1)=XMIN; AXIS_Y1(1)=YMIN; AXIS_X2(1)=XMIN+0.75_PDB*LENGTHX
+      AXIS_Y2(1)=YMIN+0.25_PDB*SQRT(3._PDB)*LENGTHX
     ELSE IF(HSYM=='SYMH') THEN
       AXIS_X1(1)=XMIN ; AXIS_Y1(1)=YMIN+0.25_PDB*SQRT(3._PDB)*LENGTHX
       AXIS_X2(1)=XMIN+LENGTHX ; AXIS_Y2(1)=AXIS_Y1(1)
@@ -3077,8 +3099,13 @@ CONTAINS
           X2=X1+GG%RPAR(3,ELEM); Y2=Y1+GG%RPAR(4,ELEM);
           CALL SALSYM(AXIS_X1(ISYM),AXIS_Y1(ISYM),AXIS_X2(ISYM),AXIS_Y2(ISYM),X1,Y1,X4,Y4)
           CALL SALSYM(AXIS_X1(ISYM),AXIS_Y1(ISYM),AXIS_X2(ISYM),AXIS_Y2(ISYM),X2,Y2,DX4,DY4)
-          NOCOPY(ISYM)=(ABS(X1-X4)<10.0*EPS .AND. ABS(Y1-Y4)<10.0*EPS .AND. &
-            ABS(X2-DX4)<10.0*EPS .AND. ABS(Y2-DY4)<10.0*EPS)
+          NOCOPY(ISYM)=ABS(X1-X4)<10.0*EPS .AND. ABS(Y1-Y4)<10.0*EPS .AND. &
+            ABS(X2-DX4)<10.0*EPS .AND. ABS(Y2-DY4)<10.0*EPS
+          IF((HSYM=='SB60').AND.(ISYM==2)) THEN
+            NOCOPY(2)=(ABS(2._PDB*ABS(Y1-YMIN)-ABS(X4-X1)*SQRT(3._PDB))<10.0*EPS .AND. &
+              ABS(Y1-Y4)<10.0*EPS .AND. ABS(2._PDB*ABS(Y2-YMIN)-ABS(DX4-X2)*SQRT(3._PDB))<10.0*EPS &
+              .AND. ABS(Y2-DY4)<10.0*EPS)
+          ENDIF
           IF(NOCOPY(ISYM)) CYCLE
         ELSE IF(TYPE==2) THEN
           CALL SALSYM(AXIS_X1(ISYM),AXIS_Y1(ISYM),AXIS_X2(ISYM),AXIS_Y2(ISYM),X1,Y1,X4,Y4)
@@ -3111,6 +3138,7 @@ CONTAINS
           WRITE(*,*) " elem=",ELEM," type=",TYPE," isym=",ISYM
           CALL XABORT('SALFOLD_1: invalid type of surfacic element')
         ENDIF
+        IF((TYPE==1).AND.(HSYM=='SB60').AND.(ISYM==1).AND.(ABS(Y1)<10.0*EPS).AND.(ABS(Y2)<10.0*EPS)) CYCLE
         TMP_NB_ELEM=TMP_NB_ELEM+1
         IF(TMP_NB_ELEM>3*GG%NB_ELEM) CALL XABORT('SALFOLD_1: tmp_nb_elem overflow(1)')
         I2(ISYM+1,ELEM)=TMP_NB_ELEM
@@ -3241,6 +3269,8 @@ CONTAINS
             TMP_BCDATAREAD(TMP_NBBCDA)%BCDATA(3)=120.0
           ELSE IF((HSYM=='SA60').AND.(ISYM==2)) THEN
             TMP_BCDATAREAD(TMP_NBBCDA)%BCDATA(3)=-120.0
+          ELSE IF((HSYM=='S30').AND.(ISYM==1)) THEN
+            TMP_BCDATAREAD(TMP_NBBCDA)%BCDATA(3)=60.0
           ELSE
             TMP_BCDATAREAD(TMP_NBBCDA)%BCDATA(3)=GG%BCDATAREAD(IBC)%BCDATA(3)
           ENDIF

@@ -1,8 +1,8 @@
 *DECK SNFE2D
       SUBROUTINE SNFE2D(NUN,NGEFF,IMPX,INCONV,NGIND,LX,LY,IELEM,
      1 EELEM,NM,NME,NMX,NMY,NMAT,NPQ,NSCT,MAT,VOL,TOTAL,ESTOPW,
-     2 NCODE,ZCODE,DELTAE,QEXT,LFIXUP,DU,DE,W,MRM,MRMY,DB,DA,PL,FUNKNO,
-     3 ISLG,FLUXC,ISBS,NBS,ISBSM,BS,MAXL,WX,WY,WE,CST,ISADPT,IBFP)
+     2 NCODE,ZCODE,DELTAE,QEXT,LFIXUP,DU,DE,W,MRM,MRMY,DB,DA,FUNKNO,
+     3 ISLG,FLUXC,ISBS,NBS,ISBSM,BS,MAXL,WX,WY,WE,CST,ISADPT,IBFP,MN,DN)
 *
 *-----------------------------------------------------------------------
 *
@@ -60,8 +60,8 @@
 * MRMY    quadrature index.
 * DB      diamond-scheme parameter.
 * DA      diamond-scheme parameter.
-* PL      discrete values of the spherical harmonics corresponding
-*         to the 2D SN quadrature.
+* MN      moment-to-discrete matrix.
+* DN      discrete-to-moment matrix.
 * ISBS    flag to indicate the presence or not of boundary fixed
 *         sources.
 * NBS     number of boundary fixed sources.
@@ -99,14 +99,14 @@
       LOGICAL INCONV(NGEFF)
       REAL VOL(LX,LY),TOTAL(0:NMAT,NGEFF),ESTOPW(0:NMAT,2,NGEFF),
      1 ZCODE(4),DELTAE(NGEFF),QEXT(NUN,NGEFF),DU(NPQ),DE(NPQ),W(NPQ),
-     2 DB(LX,NPQ),DA(LX,LY,NPQ),PL(NSCT,NPQ),FUNKNO(NUN,NGEFF),
-     3 FLUXC(LX,LY),BS(MAXL*ISBS,NBS*ISBS),WX(IELEM+1),WY(IELEM+1),
-     4 WE(EELEM+1),CST(MAX(IELEM,EELEM))
+     2 DB(LX,NPQ),DA(LX,LY,NPQ),FUNKNO(NUN,NGEFF),FLUXC(LX,LY),
+     3 BS(MAXL*ISBS,NBS*ISBS),WX(IELEM+1),WY(IELEM+1),WE(EELEM+1),
+     4 CST(MAX(IELEM,EELEM)),MN(NPQ,NSCT),DN(NSCT,NPQ)
       LOGICAL LFIXUP,ISADPT(3)
 *----
 *  LOCAL VARIABLES
 *----
-      INTEGER NPQD(4),IIND(4)
+      INTEGER NPQD(4),IIND(4),P
       REAL BM,BP,TB,WX0(IELEM+1),WY0(IELEM+1),WE0(EELEM+1)
       DOUBLE PRECISION Q(NM),Q2(NM,NM+1),FEP(NME),
      1 XNJ(NMY),V
@@ -349,9 +349,9 @@
       ! SOURCE DENSITY TERM
       DO IEL=1,NM
       Q(IEL)=0.0D0
-      DO L=1,NSCT
-      IOF=((J-1)*LX*NSCT+(I-1)*NSCT+(L-1))*NM+IEL
-      Q(IEL)=Q(IEL)+QEXT(IOF,IG)*PL(L,M)/(4.0D0*PI)
+      DO P=1,NSCT
+      IOF=((J-1)*LX*NSCT+(I-1)*NSCT+(P-1))*NM+IEL
+      Q(IEL)=Q(IEL)+QEXT(IOF,IG)*MN(M,P)
       ENDDO
       ENDDO
 
@@ -556,14 +556,13 @@
 
       ! SAVE LAST GROUP LOWER BOUNDARY FLUX
       IF(ISLG(IG).EQ.1) THEN
-      FLUXC(I,J)=FLUXC(I,J)+2.0*W(M)*REAL(FLUX0(1,M,I,J))*PL(1,M)
+      FLUXC(I,J)=FLUXC(I,J)+REAL(FLUX0(1,M,I,J))*DN(1,M)
       ENDIF
 
       ! SAVE LEGENDRE MOMENT OF THE FLUX
-      DO L=1,NSCT
+      DO P=1,NSCT
       DO IEL=1,NM
-      FLUX(IEL,L,I,J)=FLUX(IEL,L,I,J)+2.0D0*W(M)
-     1 *Q2(IEL,NM+1)*PL(L,M)
+      FLUX(IEL,P,I,J)=FLUX(IEL,P,I,J)+Q2(IEL,NM+1)*DN(P,M)
       ENDDO
       ENDDO
 

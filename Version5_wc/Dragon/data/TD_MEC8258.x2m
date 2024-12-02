@@ -1,0 +1,74 @@
+* CLE-2000 procedure to perform a homogeneous pincell calculation 
+* Self-shielding calculation with PT method and USS: module
+
+MODULE GEO: LIB: SYBILT: USS: ASM: FLU: EDI: COMPO: GREP: DELETE: END: ;
+
+LINKED_LIST GEOM LIB_PT LIB2_PT TRACK CP CALC COMPO EDIOBJ ;
+SEQ_ASCII _COMPO :: FILE './COMPO_TD' ;
+
+REAL Kinf ;
+
+GEOM := GEO: :: HOMOGE 
+        MIX 1
+      ;
+
+TRACK := SYBILT: GEOM ::
+    TITLE 'HOM_UOX benchmark case'
+    MAXR 2
+    ;
+
+LIB_PT := LIB: ::
+    EDIT 1
+    NMIX 1    ! MAXIMUM OF MATERIAL MIXTURES
+    PT CALENDF 4
+    ANIS 1
+
+    DEPL LIB: DRAGON FIL: J311_295
+
+    MIXS LIB: DRAGON FIL: J311_295
+
+    MIX 1 750.0
+    O16  = O16   2.955339E-02 
+    H1  = H1   2.497844E-02
+    U235  = U235   3.664503E-04 1
+    U238  = U238   7.765571E-03 1
+
+;
+
+LIB2_PT := USS: LIB_PT TRACK :: EDIT 1 PASS 3 ;
+
+CP := ASM: LIB2_PT TRACK :: EDIT 1 PIJ ;
+
+CALC := FLU: CP LIB2_PT TRACK :: EDIT 1 TYPE K B0 SIGS EXTE 5 ;
+
+GREP: CALC :: GETVAL 'K-INFINITY  ' 1 1 1 >>Kinf<< ;
+ECHO 'Kinf PT = ' Kinf ;
+
+COMPO := COMPO: ::
+    EDIT 10
+    STEP UP 'EDI_HOM'
+        MAXCAL 5
+        PARA 'TFuel' VALU REAL
+        ISOT 4 H1 O16 U235 U238
+    INIT
+;
+
+EDIOBJ := EDI: CALC LIB2_PT TRACK ::
+        EDIT 10
+        MICR 4 H1 O16 U235 U238 
+        COND 0.625
+        SAVE ON EDI_HOM 
+;
+
+COMPO := COMPO: COMPO EDIOBJ LIB2_PT ::
+        EDIT 0
+        STEP UP 'EDI_HOM'
+        'TFuel' 750.0
+;
+
+EDIOBJ := DELETE: EDIOBJ ;
+
+_COMPO := COMPO ;
+
+END: ;
+QUIT .

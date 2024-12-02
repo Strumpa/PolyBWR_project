@@ -25,7 +25,7 @@ GEOM := GEO: :: CAR1D 5
 GTRACK := SNT: GEOM ::
       TITLE 'Monodirectional photon sources on tissues.'
       EDIT 2 MAXR 1000000 SCHM 1 DIAM 1 NLIVO SN 4 SCAT 4 EPSI 1.E-5
-      MAXI 300 BTE QUAD 10 ;
+      MAXI 300 BTE QUAD 2 GQ 1 ;
 ETRACK := GTRACK ;
 ETRACK := SNT: ETRACK GEOM :: EDIT 2 BFPG ;
 *----
@@ -138,9 +138,8 @@ DEPOS := HEAT: DEPOS GEDITS EEDITS ::
     EDIT 1 NORM 1.20427E-3 1.0 1.85 1.05
     ;
 
-assertS DEPOS :: 'EDEPOS_TOT' 1 1.968113E-03 ; 
-assertS DEPOS :: 'EDEPOS_TOT' 16 7.169127E-02 ; 
-assertS DEPOS :: 'EDEPOS_TOT' 27 6.289184E-02 ; 
+assertS DEPOS :: 'EDEPOS_TOT' 16 7.203177E-02 ; 
+assertS DEPOS :: 'EDEPOS_TOT' 27 6.297699E-02 ; 
 *
 ECHO "Test TCM74 completed" ;
 END: ;

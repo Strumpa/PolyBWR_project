@@ -1,0 +1,20 @@
+#!/bin/sh
+if [ $# = 0 ]
+   then
+   echo "-----.access----- PT_D5S2_BUScheme.access script begun" 1>&2
+   exit 1
+fi
+echo "-----.access----- PT_D5S2_BUScheme.access script begun"
+MACH=`uname -s`
+Sysx="`echo $MACH | cut -b -6`"
+if [ $Sysx = "CYGWIN" ]; then
+   MACH=`uname -o`
+elif [ $Sysx = "Darwin" ]; then
+   MACH=`uname -sm | sed 's/[ ]/_/'`
+elif [ $Sysx = "SunOS" ]; then
+   MACH=`uname -sm | sed 's/[ ]/_/'`
+fi
+# 
+ln -s $1/Linux_aarch64/PyGan_results_HOM_UOX_Gd157_PCC ./
+ls -l
+echo -"----.access----- PT_D5S2_BUScheme.access script terminated"
