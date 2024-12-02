@@ -1,0 +1,829 @@
+*----
+*  Name          : mixAUTOP2_AH.c2m
+*  Type          : DRAGON procedure
+*  Use           : Execute self-shielding for REL2005 assemblies at BU step > 1
+*  Author        : L. Fede
+*
+*  Procedure called as:
+*
+*  LIBRARY2 := mixAUTOP1 LIBRARY2 LIBRARY TRACK_SS :: <<name_geom>> <<AUTOP>> ;
+*
+*  Input data   :
+*    LIBRARY      : Initial library
+*    TRACK_SS     : Self-shielding tracking
+*
+*  Output data  :
+*    LIBRARY2     : Self-shieled library
+*----
+
+PARAMETER LIBRARY2 LIBRARY TRACK_SS ::
+::: LINKED_LIST LIBRARY2 ;
+::: LINKED_LIST LIBRARY ;
+::: LINKED_LIST TRACK_SS ; ; 
+
+STRING name_geom AUTOP ;
+:: >>name_geom<< >>AUTOP<< ;
+
+MODULE USS: END: ;
+
+
+***********************************
+****************************   13AU
+***********************************
+
+IF name_geom 'KML2_13AU_ASS' = THEN
+
+  IF AUTOP 'ALL' = THEN
+
+         LIBRARY2 := USS: LIBRARY2 LIBRARY TRACK_SS ::
+            EDIT 0 PASS 2 GRMIN 52
+          CALC 
+               REGI W1 U235  ALL
+               REGI W1 U238  ALL
+               REGI W1 Pu239 ALL
+               REGI W1 Pu240 ALL
+               REGI W1 Pu241 ALL
+               REGI W1 Pu242 ALL
+
+               REGI W1 Zr90 ALL
+               REGI W1 Zr91 ALL
+               REGI W1 Zr92 ALL
+               REGI W1 Zr94 ALL
+               REGI W1 Zr96 ALL
+           ENDC
+            ;
+
+  ELSEIF AUTOP 'REGI' = THEN
+
+         LIBRARY2 := USS: LIBRARY2 LIBRARY TRACK_SS ::
+            EDIT 0 PASS 2 GRMIN 52
+          CALC 
+               REGI W1 U235  ALL
+               REGI W1 Pu239 ALL
+               REGI W1 Pu240 ALL
+               REGI W1 Pu241 ALL
+               REGI W1 Pu242 ALL
+
+               REGI W1 Zr90 ALL
+               REGI W1 Zr91 ALL
+               REGI W1 Zr92 ALL
+               REGI W1 Zr94 ALL
+               REGI W1 Zr96 ALL
+
+* 4.0% U235 CELLS : OK
+               REGI W1 U238 6
+               REGI W2 U238 5
+               REGI W3 U238 4
+               REGI W4 U238 3
+
+               REGI W1 U238 15
+               REGI W2 U238 14
+               REGI W3 U238 13
+               REGI W4 U238 12
+
+               REGI W1 U238 27
+               REGI W2 U238 26
+               REGI W3 U238 25
+               REGI W4 U238 24
+
+               REGI W1 U238 52
+               REGI W2 U238 51
+               REGI W3 U238 49
+               REGI W4 U238 50
+
+               REGI W1 U238 60
+               REGI W2 U238 59
+               REGI W3 U238 57
+               REGI W4 U238 58
+
+               REGI W1 U238 76
+               REGI W2 U238 75
+               REGI W3 U238 74
+               REGI W4 U238 73
+
+               REGI W1 U238 100
+               REGI W2 U238 99
+               REGI W3 U238 98
+               REGI W4 U238 97
+
+               REGI W1 U238 168
+               REGI W2 U238 167
+               REGI W3 U238 166
+               REGI W4 U238 165
+
+               REGI W1 U238 208
+               REGI W2 U238 207
+               REGI W3 U238 206
+               REGI W4 U238 205
+         ENDC
+            ;
+
+  ELSEIF AUTOP 'NONE' = THEN
+
+         LIBRARY2 := USS: LIBRARY2 LIBRARY TRACK_SS ::
+            EDIT 0 PASS 2 GRMIN 52
+            ;
+
+  ENDIF ;
+
+
+
+***********************************
+****************************   22AU
+***********************************
+
+ELSEIF name_geom 'KML2_22AU_ASS' = THEN
+
+  IF AUTOP 'ALL' = THEN
+
+         LIBRARY2 := USS: LIBRARY2 LIBRARY TRACK_SS ::
+            EDIT 0 PASS 2 GRMIN 52
+          CALC 
+               REGI W1 U235  ALL
+               REGI W1 U238  ALL
+               REGI W1 Pu239 ALL
+               REGI W1 Pu240 ALL
+               REGI W1 Pu241 ALL
+               REGI W1 Pu242 ALL
+
+               REGI W1 Zr90 ALL
+               REGI W1 Zr91 ALL
+               REGI W1 Zr92 ALL
+               REGI W1 Zr94 ALL
+               REGI W1 Zr96 ALL
+           ENDC
+            ;
+
+  ELSEIF AUTOP 'REGI' = THEN
+
+         LIBRARY2 := USS: LIBRARY2 LIBRARY TRACK_SS ::
+            EDIT 0 PASS 2 GRMIN 52
+          CALC 
+               REGI W1 U235  ALL
+               REGI W1 Pu239 ALL
+               REGI W1 Pu240 ALL
+               REGI W1 Pu241 ALL
+               REGI W1 Pu242 ALL
+
+               REGI W1 Zr90 ALL
+               REGI W1 Zr91 ALL
+               REGI W1 Zr92 ALL
+               REGI W1 Zr94 ALL
+               REGI W1 Zr96 ALL
+
+* 4.0% U235 CELLS : OK
+               REGI W1 U238 6
+               REGI W2 U238 5
+               REGI W3 U238 4
+               REGI W4 U238 3
+
+               REGI W1 U238 15
+               REGI W2 U238 14
+               REGI W3 U238 13
+               REGI W4 U238 12
+
+               REGI W1 U238 27
+               REGI W2 U238 26
+               REGI W3 U238 25
+               REGI W4 U238 24
+
+               REGI W1 U238 52
+               REGI W2 U238 51
+               REGI W3 U238 49
+               REGI W4 U238 50
+
+               REGI W1 U238 60
+               REGI W2 U238 59
+               REGI W3 U238 57
+               REGI W4 U238 58
+
+               REGI W1 U238 100
+               REGI W2 U238 99
+               REGI W3 U238 98
+               REGI W4 U238 97
+
+               REGI W1 U238 208
+               REGI W2 U238 207
+               REGI W3 U238 206
+               REGI W4 U238 205
+         ENDC
+            ;
+
+  ELSEIF AUTOP 'NONE' = THEN
+
+         LIBRARY2 := USS: LIBRARY2 LIBRARY TRACK_SS ::
+            EDIT 0 PASS 2 GRMIN 52
+            ;
+
+  ENDIF ;
+
+***********************************
+****************************   40AU
+***********************************
+
+ELSEIF name_geom 'KML2_40AU_ASS' = THEN
+
+  IF AUTOP 'ALL' = THEN
+
+         LIBRARY2 := USS: LIBRARY2 LIBRARY TRACK_SS ::
+            EDIT 0 PASS 2 GRMIN 52
+          CALC 
+               REGI W1 U235  ALL
+               REGI W1 U238  ALL
+               REGI W1 Pu239 ALL
+               REGI W1 Pu240 ALL
+               REGI W1 Pu241 ALL
+               REGI W1 Pu242 ALL
+
+               REGI W1 Zr90 ALL
+               REGI W1 Zr91 ALL
+               REGI W1 Zr92 ALL
+               REGI W1 Zr94 ALL
+               REGI W1 Zr96 ALL
+           ENDC
+            ;
+
+  ELSEIF AUTOP 'REGI' = THEN
+
+         LIBRARY2 := USS: LIBRARY2 LIBRARY TRACK_SS ::
+            EDIT 0 PASS 2 GRMIN 52
+          CALC 
+               REGI W1 U235  ALL
+               REGI W1 Pu239 ALL
+               REGI W1 Pu240 ALL
+               REGI W1 Pu241 ALL
+               REGI W1 Pu242 ALL
+
+               REGI W1 Zr90 ALL
+               REGI W1 Zr91 ALL
+               REGI W1 Zr92 ALL
+               REGI W1 Zr94 ALL
+               REGI W1 Zr96 ALL
+
+* 4.0% U235 CELLS : OK
+               REGI W1 U238 6
+               REGI W2 U238 5
+               REGI W3 U238 4
+               REGI W4 U238 3
+
+               REGI W1 U238 15
+               REGI W2 U238 14
+               REGI W3 U238 13
+               REGI W4 U238 12
+
+               REGI W1 U238 27
+               REGI W2 U238 26
+               REGI W3 U238 25
+               REGI W4 U238 24
+
+               REGI W1 U238 52
+               REGI W2 U238 51
+               REGI W3 U238 49
+               REGI W4 U238 50
+
+               REGI W1 U238 60
+               REGI W2 U238 59
+               REGI W3 U238 57
+               REGI W4 U238 58
+
+               REGI W1 U238 100
+               REGI W2 U238 99
+               REGI W3 U238 98
+               REGI W4 U238 97
+
+               REGI W1 U238 208
+               REGI W2 U238 207
+               REGI W3 U238 206
+               REGI W4 U238 205
+         ENDC
+            ;
+
+  ELSEIF AUTOP 'NONE' = THEN
+
+         LIBRARY2 := USS: LIBRARY2 LIBRARY TRACK_SS ::
+            EDIT 0 PASS 2 GRMIN 52
+            ;
+
+  ENDIF ;
+
+***********************************
+****************************  398GO
+***********************************
+
+ELSEIF name_geom 'KML2_398GO_ASS' = THEN
+
+  IF AUTOP 'ALL' = THEN
+
+         LIBRARY2 := USS: LIBRARY2 LIBRARY TRACK_SS ::
+            EDIT 0 PASS 2 GRMIN 52
+          CALC 
+               REGI W1 U235  ALL
+               REGI W1 U238  ALL
+               REGI W1 Pu239 ALL
+               REGI W1 Pu240 ALL
+               REGI W1 Pu241 ALL
+               REGI W1 Pu242 ALL
+
+               REGI W1 Gd154 ALL
+               REGI W1 Gd155 ALL
+               REGI W1 Gd156 ALL
+               REGI W1 Gd157 ALL
+               REGI W1 Gd158 ALL
+
+               REGI W1 Zr90 ALL
+               REGI W1 Zr91 ALL
+               REGI W1 Zr92 ALL
+               REGI W1 Zr94 ALL
+               REGI W1 Zr96 ALL
+           ENDC
+            ;
+
+  ELSEIF AUTOP 'REGI' = THEN
+
+         LIBRARY2 := USS: LIBRARY2 LIBRARY TRACK_SS ::
+            EDIT 0 PASS 2 GRMIN 52
+          CALC 
+               REGI W1 U235  ALL
+               REGI W1 Pu239 ALL
+               REGI W1 Pu240 ALL
+               REGI W1 Pu241 ALL
+               REGI W1 Pu242 ALL
+
+               REGI W1 Zr90 ALL
+               REGI W1 Zr91 ALL
+               REGI W1 Zr92 ALL
+               REGI W1 Zr94 ALL
+               REGI W1 Zr96 ALL
+********
+*** U238
+* 4.0% U235 CELLS : OK
+               REGI W1 U238 7
+               REGI W2 U238 6
+               REGI W3 U238 5
+               REGI W4 U238 4
+
+               REGI W1 U238 16
+               REGI W2 U238 15
+               REGI W3 U238 14
+               REGI W4 U238 13
+
+               REGI W1 U238 28
+               REGI W2 U238 27
+               REGI W3 U238 26
+               REGI W4 U238 25
+
+               REGI W1 U238 45
+               REGI W2 U238 44
+               REGI W3 U238 42
+               REGI W4 U238 43
+
+               REGI W1 U238 67
+               REGI W2 U238 66
+               REGI W3 U238 64
+               REGI W4 U238 65
+
+               REGI W1 U238 107
+               REGI W2 U238 106
+               REGI W3 U238 105
+               REGI W4 U238 104
+
+               REGI W1 U238 215
+               REGI W2 U238 214
+               REGI W3 U238 213
+               REGI W4 U238 212
+
+* 3.3% U235 Gd CELL : OK
+               REGI W10 U238 59
+               REGI W11 U238 58
+               REGI W12 U238 57
+               REGI W13 U238 56
+               REGI W14 U238 55
+               REGI W15 U238 54
+               REGI W16 U238 50
+               REGI W17 U238 52
+               REGI W18 U238 53
+               REGI W19 U238 3
+               REGI W20 U238 51
+********
+** Gd154
+* 3.3% U235 Gd CELL : OK
+               REGI W10 Gd154 59
+               REGI W11 Gd154 58
+               REGI W12 Gd154 57
+               REGI W13 Gd154 56
+               REGI W14 Gd154 55
+               REGI W15 Gd154 54
+               REGI W16 Gd154 50
+               REGI W17 Gd154 52
+               REGI W18 Gd154 53
+               REGI W19 Gd154 3
+               REGI W20 Gd154 51
+********
+** Gd155
+* 3.3% U235 Gd CELL : OK
+               REGI W10 Gd155 59
+               REGI W11 Gd155 58
+               REGI W12 Gd155 57
+               REGI W13 Gd155 56
+               REGI W14 Gd155 55
+               REGI W15 Gd155 54
+               REGI W16 Gd155 50
+               REGI W17 Gd155 52
+               REGI W18 Gd155 53
+               REGI W19 Gd155 3
+               REGI W20 Gd155 51
+********
+** Gd156
+* 3.3% U235 Gd CELL : OK
+               REGI W10 Gd156 59
+               REGI W11 Gd156 58
+               REGI W12 Gd156 57
+               REGI W13 Gd156 56
+               REGI W14 Gd156 55
+               REGI W15 Gd156 54
+               REGI W16 Gd156 50
+               REGI W17 Gd156 52
+               REGI W18 Gd156 53
+               REGI W19 Gd156 3
+               REGI W20 Gd156 51
+********
+** Gd157
+* 3.3% U235 Gd CELL : OK
+               REGI W10 Gd157 59
+               REGI W11 Gd157 58
+               REGI W12 Gd157 57
+               REGI W13 Gd157 56
+               REGI W14 Gd157 55
+               REGI W15 Gd157 54
+               REGI W16 Gd157 50
+               REGI W17 Gd157 52
+               REGI W18 Gd157 53
+               REGI W19 Gd157 3
+               REGI W20 Gd157 51
+********
+** Gd158
+* 3.3% U235 Gd CELL : OK
+               REGI W10 Gd158 59
+               REGI W11 Gd158 58
+               REGI W12 Gd158 57
+               REGI W13 Gd158 56
+               REGI W14 Gd158 55
+               REGI W15 Gd158 54
+               REGI W16 Gd158 50
+               REGI W17 Gd158 52
+               REGI W18 Gd158 53
+               REGI W19 Gd158 3
+               REGI W20 Gd158 51
+          ENDC
+            ;
+
+  ELSEIF AUTOP 'NONE' = THEN
+
+         LIBRARY2 := USS: LIBRARY2 LIBRARY TRACK_SS ::
+            EDIT 0 PASS 2 GRMIN 52
+            ;
+
+  ENDIF ;
+
+
+***********************************
+****************************  39AWU
+***********************************
+ELSEIF name_geom 'KML2_39AWU_ASS' = THEN  
+
+  IF AUTOP 'ALL' = THEN
+
+         LIBRARY2 := USS: LIBRARY2 LIBRARY TRACK_SS ::
+            EDIT 0 PASS 2 GRMIN 52
+          CALC 
+               REGI W1 U235  ALL
+               REGI W1 U238  ALL
+               REGI W1 Pu239 ALL
+               REGI W1 Pu240 ALL
+               REGI W1 Pu241 ALL
+               REGI W1 Pu242 ALL
+
+               REGI W1 Gd154 ALL
+               REGI W1 Gd155 ALL
+               REGI W1 Gd156 ALL
+               REGI W1 Gd157 ALL
+               REGI W1 Gd158 ALL
+
+               REGI W1 Zr90 ALL
+               REGI W1 Zr91 ALL
+               REGI W1 Zr92 ALL
+               REGI W1 Zr94 ALL
+               REGI W1 Zr96 ALL
+           ENDC
+            ;
+
+  ELSEIF AUTOP 'REGI' = THEN
+
+         LIBRARY2 := USS: LIBRARY2 LIBRARY TRACK_SS ::
+            EDIT 0 PASS 2 GRMIN 52
+          CALC 
+               REGI W1 U235  ALL
+               REGI W1 Pu239 ALL
+               REGI W1 Pu240 ALL
+               REGI W1 Pu241 ALL
+               REGI W1 Pu242 ALL
+
+               REGI W1 Zr90 ALL
+               REGI W1 Zr91 ALL
+               REGI W1 Zr92 ALL
+               REGI W1 Zr94 ALL
+               REGI W1 Zr96 ALL
+********
+*** U238
+* UOx CELLS
+               REGI W1 U238 8
+               REGI W2 U238 7
+               REGI W3 U238 5
+               REGI W4 U238 6
+
+               REGI W1 U238 65
+               REGI W2 U238 64
+               REGI W3 U238 62
+               REGI W4 U238 63
+
+               REGI W1 U238 32
+               REGI W2 U238 31
+               REGI W3 U238 29
+               REGI W4 U238 30
+
+               REGI W1 U238 37
+               REGI W2 U238 36
+               REGI W3 U238 34
+               REGI W4 U238 35
+
+               REGI W1 U238 45
+               REGI W2 U238 44
+               REGI W3 U238 42
+               REGI W4 U238 43
+
+               REGI W1 U238 49
+               REGI W2 U238 48
+               REGI W3 U238 46
+               REGI W4 U238 47
+
+               REGI W1 U238 215
+               REGI W2 U238 214
+               REGI W3 U238 212
+               REGI W4 U238 213
+
+               REGI W1 U238 13
+               REGI W2 U238 12
+               REGI W3 U238 10
+               REGI W4 U238 11
+
+               REGI W1 U238 117
+               REGI W2 U238 116
+               REGI W3 U238 114
+               REGI W4 U238 115
+
+               REGI W1 U238 97
+               REGI W2 U238 96
+               REGI W3 U238 94
+               REGI W4 U238 95
+
+* UOx + Gd203 CELLS :
+               REGI W10 U238 163
+               REGI W11 U238 162
+               REGI W12 U238 161
+               REGI W13 U238 160
+               REGI W14 U238 159
+               REGI W15 U238 158
+               REGI W16 U238 154
+               REGI W17 U238 156
+               REGI W18 U238 157
+               REGI W19 U238 3
+               REGI W20 U238 155
+*
+               REGI W10 U238 357
+               REGI W11 U238 356
+               REGI W12 U238 355
+               REGI W13 U238 354
+               REGI W14 U238 353
+               REGI W15 U238 352
+               REGI W16 U238 348
+               REGI W17 U238 350
+               REGI W18 U238 351
+               REGI W19 U238 4
+               REGI W20 U238 159
+*
+               REGI W10 U238 24
+               REGI W11 U238 23
+               REGI W12 U238 22
+               REGI W13 U238 21
+               REGI W14 U238 20
+               REGI W15 U238 19
+               REGI W16 U238 14
+               REGI W17 U238 15
+               REGI W18 U238 17
+               REGI W19 U238 18
+               REGI W20 U238 16
+*********
+*** Gd154
+* UOx + Gd203 CELLS :
+               REGI W10 Gd154 163
+               REGI W11 Gd154 162
+               REGI W12 Gd154 161
+               REGI W13 Gd154 160
+               REGI W14 Gd154 159
+               REGI W15 Gd154 158
+               REGI W16 Gd154 154
+               REGI W17 Gd154 156
+               REGI W18 Gd154 157
+               REGI W19 Gd154 3
+               REGI W20 Gd154 155
+*
+               REGI W10 Gd154 357
+               REGI W11 Gd154 356
+               REGI W12 Gd154 355
+               REGI W13 Gd154 354
+               REGI W14 Gd154 353
+               REGI W15 Gd154 352
+               REGI W16 Gd154 348
+               REGI W17 Gd154 350
+               REGI W18 Gd154 351
+               REGI W19 Gd154 4
+               REGI W20 Gd154 159
+*
+               REGI W10 Gd154 24
+               REGI W11 Gd154 23
+               REGI W12 Gd154 22
+               REGI W13 Gd154 21
+               REGI W14 Gd154 20
+               REGI W15 Gd154 19
+               REGI W16 Gd154 14
+               REGI W17 Gd154 15
+               REGI W18 Gd154 17
+               REGI W19 Gd154 18
+               REGI W20 Gd154 16
+*********
+*** Gd155
+* UOx + Gd203 CELLS :
+               REGI W10 Gd155 163
+               REGI W11 Gd155 162
+               REGI W12 Gd155 161
+               REGI W13 Gd155 160
+               REGI W14 Gd155 159
+               REGI W15 Gd155 158
+               REGI W16 Gd155 154
+               REGI W17 Gd155 156
+               REGI W18 Gd155 157
+               REGI W19 Gd155 3
+               REGI W20 Gd155 155
+*
+               REGI W10 Gd155 357
+               REGI W11 Gd155 356
+               REGI W12 Gd155 355
+               REGI W13 Gd155 354
+               REGI W14 Gd155 353
+               REGI W15 Gd155 352
+               REGI W16 Gd155 348
+               REGI W17 Gd155 350
+               REGI W18 Gd155 351
+               REGI W19 Gd155 4
+               REGI W20 Gd155 159
+*
+               REGI W10 Gd155 24
+               REGI W11 Gd155 23
+               REGI W12 Gd155 22
+               REGI W13 Gd155 21
+               REGI W14 Gd155 20
+               REGI W15 Gd155 19
+               REGI W16 Gd155 14
+               REGI W17 Gd155 15
+               REGI W18 Gd155 17
+               REGI W19 Gd155 18
+               REGI W20 Gd155 16
+*********
+*** Gd156
+* UOx + Gd203 CELLS :
+               REGI W10 Gd156 163
+               REGI W11 Gd156 162
+               REGI W12 Gd156 161
+               REGI W13 Gd156 160
+               REGI W14 Gd156 159
+               REGI W15 Gd156 158
+               REGI W16 Gd156 154
+               REGI W17 Gd156 156
+               REGI W18 Gd156 157
+               REGI W19 Gd156 3
+               REGI W20 Gd156 155
+*
+               REGI W10 Gd156 357
+               REGI W11 Gd156 356
+               REGI W12 Gd156 355
+               REGI W13 Gd156 354
+               REGI W14 Gd156 353
+               REGI W15 Gd156 352
+               REGI W16 Gd156 348
+               REGI W17 Gd156 350
+               REGI W18 Gd156 351
+               REGI W19 Gd156 4
+               REGI W20 Gd156 159
+*
+               REGI W10 Gd156 24
+               REGI W11 Gd156 23
+               REGI W12 Gd156 22
+               REGI W13 Gd156 21
+               REGI W14 Gd156 20
+               REGI W15 Gd156 19
+               REGI W16 Gd156 14
+               REGI W17 Gd156 15
+               REGI W18 Gd156 17
+               REGI W19 Gd156 18
+               REGI W20 Gd156 16
+*********
+*** Gd157
+* UOx + Gd203 CELLS :
+               REGI W10 Gd157 163
+               REGI W11 Gd157 162
+               REGI W12 Gd157 161
+               REGI W13 Gd157 160
+               REGI W14 Gd157 159
+               REGI W15 Gd157 158
+               REGI W16 Gd157 154
+               REGI W17 Gd157 156
+               REGI W18 Gd157 157
+               REGI W19 Gd157 3
+               REGI W20 Gd157 155
+*
+               REGI W10 Gd157 357
+               REGI W11 Gd157 356
+               REGI W12 Gd157 355
+               REGI W13 Gd157 354
+               REGI W14 Gd157 353
+               REGI W15 Gd157 352
+               REGI W16 Gd157 348
+               REGI W17 Gd157 350
+               REGI W18 Gd157 351
+               REGI W19 Gd157 4
+               REGI W20 Gd157 159
+*
+               REGI W10 Gd157 24
+               REGI W11 Gd157 23
+               REGI W12 Gd157 22
+               REGI W13 Gd157 21
+               REGI W14 Gd157 20
+               REGI W15 Gd157 19
+               REGI W16 Gd157 14
+               REGI W17 Gd157 15
+               REGI W18 Gd157 17
+               REGI W19 Gd157 18
+               REGI W20 Gd157 16
+*********
+*** Gd158
+* UOx + Gd203 CELLS :
+               REGI W10 Gd158 163
+               REGI W11 Gd158 162
+               REGI W12 Gd158 161
+               REGI W13 Gd158 160
+               REGI W14 Gd158 159
+               REGI W15 Gd158 158
+               REGI W16 Gd158 154
+               REGI W17 Gd158 156
+               REGI W18 Gd158 157
+               REGI W19 Gd158 3
+               REGI W20 Gd158 155
+*
+               REGI W10 Gd158 357
+               REGI W11 Gd158 356
+               REGI W12 Gd158 355
+               REGI W13 Gd158 354
+               REGI W14 Gd158 353
+               REGI W15 Gd158 352
+               REGI W16 Gd158 348
+               REGI W17 Gd158 350
+               REGI W18 Gd158 351
+               REGI W19 Gd158 4
+               REGI W20 Gd158 159
+*
+               REGI W10 Gd158 24
+               REGI W11 Gd158 23
+               REGI W12 Gd158 22
+               REGI W13 Gd158 21
+               REGI W14 Gd158 20
+               REGI W15 Gd158 19
+               REGI W16 Gd158 14
+               REGI W17 Gd158 15
+               REGI W18 Gd158 17
+               REGI W19 Gd158 18
+               REGI W20 Gd158 16
+            ENDC
+                ;
+
+  ELSEIF AUTOP 'NONE' = THEN
+
+         LIBRARY2 := USS: LIBRARY2 LIBRARY TRACK_SS ::
+            EDIT 0 PASS 2 GRMIN 52
+            ;
+
+  ENDIF ;
+
+ENDIF ;
+
+END: ;
+QUIT .

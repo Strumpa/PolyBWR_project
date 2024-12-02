@@ -40,8 +40,8 @@ $\mathcal{S}^{t}_{i}$ will also be defined.
 \mathcal{S}^{t}_{10} = \left\{
 \begin{array}{rl}
  1 & \textrm{High-Order Diamond Differencing method (HODD) -- default option if unspecified} \\
- 2 & \textrm{Discontinuous Galerkin finite element method (DG) -- available if $\mathcal{S}^{t}_{6} = 2, 5,$ or $7$}\\
- 3 & \textrm{Adaptive Weighted difference (AWD) -- available if $\mathcal{S}^{t}_{6} = 2, 5,$ or $7$}
+ 2 & \textrm{Discontinuous Galerkin finite element method (DG) -- available if $\mathcal{S}^{t}_{6} = 2, 5, 7, 8,$ or $9$}\\
+ 3 & \textrm{Adaptive Weighted difference (AWD) -- available if $\mathcal{S}^{t}_{6} = 2, 5, 7, 8,$ or $9$}
 \end{array} \right.
 \end{displaymath}
 
@@ -144,12 +144,12 @@ unknown vector. $\mathcal{S}^{t}_{11}\le\mathcal{S}^{t}_{2}$.
 \end{array} \right.
 \end{displaymath}
 
-\item $\mathcal{S}^{t}_{28}$: (NOMP) Type of OpenMP multithreading strategy in 2D and 3D geometries where
+\item $\mathcal{S}^{t}_{28}$: (NKBA) Type of swapping strategy in 2D and 3D geometries where
 \begin{displaymath}
 \mathcal{S}^{t}_{28} = \left\{
 \begin{array}{rl}
  0 & \textrm{Standard energy group and discrete angle nested loops}\\
- M & \textrm{Domino type nested loops with $M\times M$ or $M \times M \times M$ macrocells}
+ M & \textrm{KBA type nested loops with $M\times M$ or $M \times M \times M$ macrocells}
 \end{array} \right.
 \end{displaymath}
 
@@ -177,7 +177,7 @@ unknown vector. $\mathcal{S}^{t}_{11}\le\mathcal{S}^{t}_{2}$.
 \mathcal{S}^{t}_{31} = \left\{
 \begin{array}{rl}
  0 & \textrm{Boltzmann transport equation} \\
- 1 & \textrm{Boltzmann Fokker-Planck equation with Galarkin energy propagation factors} \\
+ 1 & \textrm{Boltzmann Fokker-Planck equation with Galerkin energy propagation factors} \\
  2 & \textrm{Boltzmann Fokker-Planck equation with Przybylski and Ligou energy propagation} \\
   & \textrm{factors}
 \end{array} \right.
@@ -226,7 +226,20 @@ unknown vector. $\mathcal{S}^{t}_{11}\le\mathcal{S}^{t}_{2}$.
 \end{array} \right.
 \end{displaymath}
 
+\item $\mathcal{S}^{t}_{37}$: ({\tt IGLK}) Angular interpolation method, to compute the moment-to-discrete ($\shadowM$)
+and discrete-to-moment ($\shadowD$) matrices:
+\begin{displaymath}
+\mathcal{S}^{t}_{37} = \left\{
+\begin{array}{rl}
+ 0 & \textrm{Classical SN method -- default option if unspecified} \\
+ 1 & \textrm{Galerkin quadrature method where $\shadowM$ = inv($\shadowD$)}\\
+ 2 & \textrm{Galerkin quadrature method where $\shadowD$ = inv($\shadowM$)}
+\end{array} \right.
+\end{displaymath}
+
 \end{itemize}
+
+\clearpage
 
 The following records will also be present on the main level of a \dir{tracking}
 directory.
@@ -241,7 +254,7 @@ directory.
   {Record containing the albedo value (real number) on each surface. {\tt ZOODE(5)}
    and {\tt ZOODE(6)} are not used.} 
 \IntEnr
-  {KEYFLX\$ANIS\blank{1}}{$\mathcal{S}^t_1,\mathcal{S}^{t}_{8}**\mathcal{S}^{t}_{9},\mathcal{S}^{t}_{7}$}
+  {KEYFLX\$ANIS\blank{1}}{$\mathcal{S}^t_1,(\mathcal{S}^{t}_{8})^{\mathcal{S}^{t}_{9}},\mathcal{S}^{t}_{7}$}
   {Location in unknown vector of averaged regional flux moments.} 
 \OptDirEnr
   {DSA\blank{9}}{$\mathcal{S}^{t}_{19}= 1$}
@@ -250,6 +263,12 @@ directory.
 \RealEnr
   {EPSI\blank{8}}{$1$}{$1$}
   {Record containing the convergence criterion on inner iterations.}
+\IntEnr
+  {IL\blank{9}}{$\mathcal{S}^{t}_{7}$}
+  {Record containing the Legendre degree associated with each angular interpolation basis (spherical harmonics).} 
+\IntEnr
+  {IM\blank{9}}{$\mathcal{S}^{t}_{7}$}
+  {Record containing the azimuthal index associated with each angular interpolation basis (spherical harmonics).} 
 
 \end{DescriptionEnregistrement}
 
@@ -271,13 +290,18 @@ directory.
   {WX\blank{10}}{$\mathcal{S}^{t}_{8}+1$}{$1$}
   {Weights of the incoming and moments fluxes in the spatial closure relations for the streaming term.}
 \OptRealEnr
-  {WE\blank{10}}{$\mathcal{S}^{t}_{35}+1$}{$\mathcal{S}^{t}_{31}\neq0$}{$1$}
+  {WE\blank{10}}{$\mathcal{S}^{t}_{35}+1$}{$\mathcal{S}^{t}_{31}\neq 0$}{$1$}
   {Weights of the incoming and moments fluxes in the energy closure relations for the continuous slowing-down term of the Boltzmann Fokker-Planck equation.}
 \RealEnr
   {CST\blank{9}}{max\{$\mathcal{S}^{t}_{8},\mathcal{S}^{t}_{35}$\}}{$1$}
   {Normalized Legendre polynomials (defined over -1/2 to 1/2) value at boundaries.}
+\RealEnr
+  {MN\blank{10}}{$\mathcal{S}^{t}_{15},\mathcal{S}^{t}_{7}$}{$1$}
+  {Moment-to-discrete matrix $\shadowM$.} 
+\RealEnr
+  {DN\blank{10}}{$\mathcal{S}^{t}_{7},\mathcal{S}^{t}_{15}$}{$1$}
+  {Discrete-to-moment matrix $\shadowD$.} 
 \end{DescriptionEnregistrement}
-\clearpage
 
 If $\mathcal{S}^{t}_{6}=3$ (Tube 1-D geometry), the following records will also be present on the main level of a \dir{tracking}
 directory. The number of discrete directions in two octants $N_{\rm angl}$ and the number of spherical harmonics components of the flux $N_{\rm pn}$
@@ -319,6 +343,8 @@ $$
   {Surfaces.} 
 \end{DescriptionEnregistrement}
 
+\clearpage
+
 If $\mathcal{S}^{t}_{6}=4$ (Spherical 1-D geometry), the following records will also be present on the main level of a \dir{tracking}
 directory.
 
@@ -348,13 +374,9 @@ directory.
 \end{DescriptionEnregistrement}
 
 If $\mathcal{S}^{t}_{6}=5$ (Cartesian 2-D geometry) or $\mathcal{S}^{t}_{6}=6$ (R-Z geometry), the following records will also be present on the main level of a \dir{tracking}
-directory. The number of discrete directions in four octants (including zero-weight points) $N_{\rm angl}$ and the number of spherical harmonics components of the flux $N_{\rm pn}$
-are given in term of the $S_N$ order $N=\mathcal{S}^{t}_{15}$ as
+directory. The number of discrete directions in four octants (including zero-weight points) $N_{\rm angl}$ is given by
 $$
 N_{\rm angl}={1\over 2}(N+4)N
-$$
-$$
-N_{\rm pn}={\mathcal{S}^{t}_{16}\over 2}\left( 1+\mathcal{S}^{t}_{16}\right)
 $$
 
 \begin{DescriptionEnregistrement}{The \moc{snt} records in
@@ -384,7 +406,7 @@ $$
   {DAL\blank{9}}{$\mathcal{S}^{t}_{12},\mathcal{S}^{t}_{13},N_{\rm angl}$}{$\mathcal{S}^{t}_{6}=6$}{$1$}
   {Angular redistribution parameters.} 
 \RealEnr
-  {PL\blank{10}}{$N_{\rm pn},N_{\rm angl}$}{$1$}
+  {PL\blank{10}}{$\mathcal{S}^{t}_{7},N_{\rm angl}$}{$1$}
   {Discrete values of the real spherical harmonics on the quadrature base points.} 
 \RealEnr
   {WX\blank{10}}{$\mathcal{S}^{t}_{8}+1$}{$1$}
@@ -395,16 +417,18 @@ $$
 \RealEnr
   {CST\blank{9}}{max\{$\mathcal{S}^{t}_{8},\mathcal{S}^{t}_{35}$\}}{$1$}
   {Normalized Legendre polynomials (defined over -1/2 to 1/2) value at boundaries.}
+\RealEnr
+  {MN\blank{10}}{$N_{\rm angl},\mathcal{S}^{t}_{7}$}{$1$}
+  {Moment-to-discrete matrix $\shadowM$.} 
+\RealEnr
+  {DN\blank{10}}{$\mathcal{S}^{t}_{7},N_{\rm angl}$}{$1$}
+  {Discrete-to-moment matrix $\shadowD$.} 
 \end{DescriptionEnregistrement}
 
 If $\mathcal{S}^{t}_{6}=7$ (Cartesian 3-D geometry), the following records will also be present on the main level of a \dir{tracking}
-directory. The number of discrete directions in height octants  $N_{\rm angl}$ and the number of spherical harmonics components of the flux $N_{\rm pn}$
-are given in term of the $S_N$ order $N=\mathcal{S}^{t}_{15}$ as
+directory. The number of discrete directions in height octants  $N_{\rm angl}$ is given by
 $$
 N_{\rm angl}=(N+2)N
-$$
-$$
-N_{\rm pn}=\left( 1+\mathcal{S}^{t}_{16}\right)^{2}
 $$
 
 \begin{DescriptionEnregistrement}{The \moc{snt} records in
@@ -440,7 +464,7 @@ $$
   {DA\blank{10}}{$\mathcal{S}^{t}_{13},\mathcal{S}^{t}_{14},N_{\rm angl}$}{$1$}
   {Diamond-scheme parameter.} 
 \RealEnr
-  {PL\blank{10}}{$N_{\rm pn},N_{\rm angl}$}{$1$}
+  {PL\blank{10}}{$\mathcal{S}^{t}_{7},N_{\rm angl}$}{$1$}
   {Discrete values of the real spherical harmonics on the quadrature base points.} 
 \RealEnr
   {WX\blank{10}}{$\mathcal{S}^{t}_{8}+1$}{$1$}
@@ -451,6 +475,12 @@ $$
 \RealEnr
   {CST\blank{9}}{max\{$\mathcal{S}^{t}_{8},\mathcal{S}^{t}_{35}$\}}{$1$}
   {Normalized Legendre polynomials (defined over -1/2 to 1/2) value at boundaries.}
+\RealEnr
+  {MN\blank{10}}{$N_{\rm angl},\mathcal{S}^{t}_{7}$}{$1$}
+  {Moment-to-discrete matrix $\shadowM$.} 
+\RealEnr
+  {DN\blank{10}}{$\mathcal{S}^{t}_{7},N_{\rm angl}$}{$1$}
+  {Discrete-to-moment matrix $\shadowD$.} 
 \end{DescriptionEnregistrement}
 
 \eject

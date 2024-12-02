@@ -350,6 +350,11 @@
           WRITE(6,20) 'FDXM',FDXM(IBM,:NG,:NG)
           WRITE(6,20) 'FDXP',FDXP(IBM,:NG,:NG)
         ENDDO
+        WRITE(6,'(/31H BREERM: DIFFUSION COEFFICIENTS)')
+        DO IBM=1,NMIX1
+          WRITE(6,'(/9H MIXTURE=,I5)') IBM
+          WRITE(6,20) 'DIFF',DC(IBM,:NG)
+        ENDDO
       ENDIF
 *----
 *  COMPUTE ALBEDOS

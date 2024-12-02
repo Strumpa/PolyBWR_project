@@ -6,13 +6,13 @@
 #---------------------------------------------------------------------------
 #
 ARCH = $(shell uname -m)
-ifeq ($(ARCH),aarch64)
+ifneq (,$(filter $(ARCH),aarch64 arm64))
   nbit =
 else
-  ifeq (,$(filter $(ARCH),i386 i686))
-    nbit = -m64
-  else
+  ifneq (,$(filter $(ARCH),i386 i686))
     nbit = -m32
+  else
+    nbit = -m64
   endif
 endif
 
@@ -33,8 +33,13 @@ else
     fcompiler = nvfortran
     ccompiler = nvc
   else
-    fcompiler = gfortran
-    ccompiler = gcc
+    ifeq ($(flang),1)
+      fcompiler = flang-new
+      ccompiler = clang
+    else
+      fcompiler = gfortran
+      ccompiler = gcc
+    endif
   endif
 endif
 
@@ -53,8 +58,8 @@ ifeq ($(OS),Darwin)
     ccompiler = gcc-14
   endif
   F90 = $(fcompiler)
-  FFLAGS = -Wall $(nbit) -fPIC
-  FFLAG77 = -Wall $(nbit) -fPIC
+  FFLAGS = $(nbit) -fPIC
+  FFLAG77 = $(nbit) -fPIC
   LFLAGS = $(nbit)
 else
 ifeq ($(OS),Linux)
@@ -122,11 +127,19 @@ else
     bin = ../bin/$(DIRNAME)_nvidia
     INCLUDE = -I../../Ganlib/lib/$(DIRNAME)_nvidia/modules/
   else
-    lib = ../lib/$(DIRNAME)
-    libUtl = ../../Utilib/lib/$(DIRNAME)
-    libGan = ../../Ganlib/lib/$(DIRNAME)
-    bin = ../bin/$(DIRNAME)
-    INCLUDE = -I../../Ganlib/lib/$(DIRNAME)/modules/
+    ifeq ($(flang),1)
+      lib = ../lib/$(DIRNAME)_flang
+      libUtl = ../../Utilib/lib/$(DIRNAME)_flang
+      libGan = ../../Ganlib/lib/$(DIRNAME)_flang
+      bin = ../bin/$(DIRNAME)_flang
+      INCLUDE = -I../../Ganlib/lib/$(DIRNAME)_flang/modules/
+    else
+      lib = ../lib/$(DIRNAME)
+      libUtl = ../../Utilib/lib/$(DIRNAME)
+      libGan = ../../Ganlib/lib/$(DIRNAME)
+      bin = ../bin/$(DIRNAME)
+      INCLUDE = -I../../Ganlib/lib/$(DIRNAME)/modules/
+    endif
   endif
 endif
 
@@ -152,14 +165,17 @@ ifeq ($(intel),1)
 	@echo 'Trivac: intel is defined'
 endif
 ifeq ($(nvidia),1)
-	@echo 'Ganlib: nvidia is defined'
+	@echo 'Trivac: nvidia is defined'
+endif
+ifeq ($(flang),1)
+	@echo 'Trivac: flang is defined'
 endif
 ifeq ($(hdf5),1)
 	@echo 'Trivac: hdf5 is defined'
 endif
 sub-make:
-	$(MAKE) openmp=$(openmp) intel=$(intel) nvidia=$(nvidia) -C ../../Utilib/src
-	$(MAKE) openmp=$(openmp) intel=$(intel) nvidia=$(nvidia) hdf5=$(hdf5) -C ../../Ganlib/src
+	$(MAKE) openmp=$(openmp) intel=$(intel) nvidia=$(nvidia) flang=$(flang) -C ../../Utilib/src
+	$(MAKE) openmp=$(openmp) intel=$(intel) nvidia=$(nvidia) flang=$(flang) hdf5=$(hdf5) -C ../../Ganlib/src
 %.o : %.f90
 	$(F90) $(FFLAGS) $(opt) $(COMP) $(INCLUDE) -c $< -o $@
 %.o : %.f

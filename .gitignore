@@ -52,4 +52,9 @@ Version5_*/Dragon/src/Dragon
 Version5_*/Donjon/bin/Linux_x86_64/Donjon
 Version5_*/Donjon/lib/Linux_x86_64/libDonjon.a
 Version5_*/Donjon/src/Donjon
+Version5_wc/PyGan/data/Resultats_serpent4PyGan/
+Version5_wc/PyGan/data/multiPhysics_proc/_AT10COMPO_1
+Version5_wc/Donjon/data/BWR_DONJON_proc/_AT10Compo
+Version5_wc/PyGan/data/BWR_DONJON_proc/_AT10COMPO_1
 
+libraries/l_endian/*

@@ -128,35 +128,13 @@ WHILE istep nstep < DO
      IF BUautop BU = THEN
        ECHO "perform self-shielding at" Tbeg "days" ;
       IF name_geom "AT10_UOX_Gd2O3" = THEN
-        IF ssh_sol "MOC" = THEN
-          LIBRARY2 := USS: LIBRARY LIBRARY2 TRACK_SS TF_EXC_SS ::
-              EDIT 0 PASS 3 GRMIN 52 ARM
-              !CALC
-              !  REGI W1 U238 ALL
-              !  REGI W1 Pu239 ALL
-              !  REGI W1 Pu241 ALL
-              !ENDC
-          ;
-        ELSE
-          LIBRARY2 := USS: LIBRARY LIBRARY2 TRACK_SS TF_EXC_SS ::
-              EDIT 0 PASS 3 GRMIN 52
-              !CALC
-              !  REGI W1 U238 ALL
-              !  REGI W1 Pu239 ALL
-              !  REGI W1 Pu241 ALL
-              !ENDC
-          ;
-        ENDIF ;
+        LIBRARY2 := USS: LIBRARY LIBRARY2 TRACK_SS TF_EXC_SS ::
+            EDIT 0 PASS 3 GRMIN 52
+        ;
       ELSE
-        IF ssh_sol "MOC" = THEN
-          LIBRARY2 := USS: LIBRARY LIBRARY2 TRACK_SS TF_EXC_SS ::
-            EDIT 0 PASS 3 GRMIN 52 ARM
-          ;
-        ELSE
-          LIBRARY2 := USS: LIBRARY LIBRARY2 TRACK_SS TF_EXC_SS ::
-            EDIT 0 PASS 3 GRMIN 52 
-          ;
-        ENDIF ;
+        LIBRARY2 := USS: LIBRARY LIBRARY2 TRACK_SS TF_EXC_SS ::
+          EDIT 0 PASS 3 GRMIN 52
+        ;
       ENDIF ;
       EVALUATE iauto := iauto 1 + ;
       ECHO "iauto is = " iauto ;

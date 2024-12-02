@@ -2,7 +2,7 @@
       SUBROUTINE SNTT3D(IGE,IMPX,LX,LY,LZ,SIDE,IELEM,ISPLH,NLF,NPQ,NSCT,
      1 IQUAD,NCODE,ZCODE,MAT,XXX,YYY,ZZZ,VOL,IDL,DU,DE,DZ,W,MRMX,MRMY,
      2 MRMZ,DC,DB,DA,PL,LL4,NUN,EELEM,WX,WE,CST,IBFP,
-     3 ISCHM,ESCHM)
+     3 ISCHM,ESCHM,IGLK,MN,DN,IL,IM,ISCAT)
 *
 *-----------------------------------------------------------------------
 *
@@ -17,7 +17,7 @@
 * License as published by the Free Software Foundation; either
 * version 2.1 of the License, or (at your option) any later version
 *
-*Author(s): N. Martin
+*Author(s): N. Martin and C. Bienvenue
 *
 *Parameters: input
 * IGE     geometry type with (=1 for Cartesian, =2 for hexagonal).
@@ -64,6 +64,11 @@
 *         =1 High-Order Diamond Differencing (HODD) - default;
 *         =2 Discontinuous Galerkin finite element method (DG);
 *         =3 Adaptive weighted method (AWD).
+* IGLK    angular interpolation type:
+*         =0 classical SN method.
+*         =1 Galerkin quadrature method (M = inv(D))
+*         =2 Galerkin quadrature method (D = inv(M))
+* ISCAT   maximum number of spherical harmonics moments of the flux.
 *
 *Parameters: output
 * VOL     volume of each element.
@@ -89,6 +94,12 @@
 * WX      spatial closure relation weighting factors.
 * WE      energy closure relation weighting factors.
 * CST     constants for the polynomial approximations.
+* MN      moment-to-discrete matrix.
+* DN      discrete-to-moment matrix.
+* IL      indexes (l) of each spherical harmonics in the
+*         interpolation basis.
+* IM      indexes (m) of each spherical harmonics in the
+*         interpolation basis.
 *
 *-----------------------------------------------------------------------
 *
@@ -97,11 +108,11 @@
 *----
       INTEGER IMPX,LX,LY,LZ,IELEM,NLF,NPQ,NSCT,IQUAD,NCODE(6),
      1 MAT(LX,LY,LZ),IDL(LX*LY*LZ),MRMX(NPQ),MRMY(NPQ),MRMZ(NPQ),EELEM,
-     2 IBFP,ISCHM,ESCHM
+     2 IBFP,ISCHM,ESCHM,IL(NSCT),IM(NSCT),ISCAT,IGLK
       REAL ZCODE(6),VOL(LX,LY,LZ),XXX(LX+1),YYY(LY+1),ZZZ(LZ+1),
      1 DU(NPQ),DE(NPQ),DZ(NPQ),W(NPQ),DC(LX,LY,NPQ),DB(LX,LZ,NPQ),
      2 DA(LY,LZ,NPQ),PL(NSCT,NPQ),WX(IELEM+1),
-     3 WE(EELEM+1),CST(MAX(IELEM,EELEM))
+     3 WE(EELEM+1),CST(MAX(IELEM,EELEM)),MN(NPQ,NSCT),DN(NSCT,NPQ)
 *----
 *  LOCAL VARIABLES
 *----
@@ -109,8 +120,12 @@
       LOGICAL L1,L2,L3,L4,L5,L6
       PARAMETER(RLOG=1.0E-8,PI=3.141592654)
       REAL PX,PE
+      DOUBLE PRECISION MND(NPQ,NPQ),NORM,IPROD
       INTEGER, ALLOCATABLE, DIMENSION(:) :: JOP
       REAL, ALLOCATABLE, DIMENSION(:) :: XX,YY,ZZ,UU,WW,TPQ,UPQ,VPQ,WPQ
+      DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:) :: V,V2
+      DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:,:) :: U
+      DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:,:,:) :: RLM
 *----
 *  SCRATCH STORAGE ALLOCATION
 *----
@@ -120,9 +135,9 @@
 *----
       IF(MOD(NLF,2).EQ.1) CALL XABORT('SNTT3D: EVEN NLF EXPECTED.')
       IF(IQUAD.EQ.10) THEN
-        NPQ0=NLF*NLF/2
+         NPQ0=NLF**2/4
       ELSE
-        NPQ0=NLF*(NLF/2+1)/4
+         NPQ0=NLF*(NLF/2+1)/4
       ENDIF
       ALLOCATE(JOP(NLF/2),UU(NLF/2),WW(NLF/2),TPQ(NPQ0),UPQ(NPQ0),
      1 VPQ(NPQ0),WPQ(NPQ0))
@@ -149,7 +164,7 @@
       ELSE
          CALL XABORT('SNTT3D: UNKNOWN QUADRATURE TYPE.')
       ENDIF
-      M=0
+      N=0
       IOF=0
       DO 320 I=1,NLF/2
          JOF=IOF+NLF-2*I+2
@@ -160,10 +175,10 @@
             MRMX(IOF)=JOF
             MRMY(IOF)=KOF
             MRMZ(IOF)=LOF
-            DU(IOF)=-UPQ(M+J+1)
-            DE(IOF)=-VPQ(M+J+1)
-            DZ(IOF)=-TPQ(M+J+1)
-            W(IOF)=WPQ(M+J+1)
+            DU(IOF)=-UPQ(N+J+1)
+            DE(IOF)=-VPQ(N+J+1)
+            DZ(IOF)=-TPQ(N+J+1)
+            W(IOF)=WPQ(N+J+1)
             JOF=JOF-1
  330     CONTINUE
          DO 340 J=NLF/2-I,0,-1
@@ -173,15 +188,15 @@
             MRMX(IOF)=JOF
             MRMY(IOF)=KOF
             MRMZ(IOF)=LOF
-            DU(IOF)=UPQ(M+J+1)
-            DE(IOF)=-VPQ(M+J+1)
-            DZ(IOF)=-TPQ(M+J+1)
-            W(IOF)=WPQ(M+J+1)
+            DU(IOF)=UPQ(N+J+1)
+            DE(IOF)=-VPQ(N+J+1)
+            DZ(IOF)=-TPQ(N+J+1)
+            W(IOF)=WPQ(N+J+1)
             JOF=JOF-1
  340     CONTINUE
-         M=M+NLF/2-I+1
+         N=N+NLF/2-I+1
  320  CONTINUE
-      M=0
+      N=0
       DO 350 I=1,NLF/2
          JOF=IOF+NLF-2*I+2
          DO 360 J=0,NLF/2-I
@@ -191,10 +206,10 @@
             MRMX(IOF)=JOF
             MRMY(IOF)=KOF
             MRMZ(IOF)=LOF
-            DU(IOF)=-UPQ(M+J+1)
-            DE(IOF)=VPQ(M+J+1)
-            DZ(IOF)=-TPQ(M+J+1)
-            W(IOF)=WPQ(M+J+1)
+            DU(IOF)=-UPQ(N+J+1)
+            DE(IOF)=VPQ(N+J+1)
+            DZ(IOF)=-TPQ(N+J+1)
+            W(IOF)=WPQ(N+J+1)
             JOF=JOF-1
  360     CONTINUE
          DO 370 J=NLF/2-I,0,-1
@@ -204,15 +219,15 @@
             MRMX(IOF)=JOF
             MRMY(IOF)=KOF
             MRMZ(IOF)=LOF
-            DU(IOF)=UPQ(M+J+1)
-            DE(IOF)=VPQ(M+J+1)
-            DZ(IOF)=-TPQ(M+J+1)
-            W(IOF)=WPQ(M+J+1)
+            DU(IOF)=UPQ(N+J+1)
+            DE(IOF)=VPQ(N+J+1)
+            DZ(IOF)=-TPQ(N+J+1)
+            W(IOF)=WPQ(N+J+1)
             JOF=JOF-1
  370     CONTINUE
-         M=M+NLF/2-I+1
+         N=N+NLF/2-I+1
  350  CONTINUE
-      M=0
+      N=0
       DO 380 I=1,NLF/2
          JOF=IOF+NLF-2*I+2
          DO 390 J=0,NLF/2-I
@@ -222,10 +237,10 @@
             MRMX(IOF)=JOF
             MRMY(IOF)=KOF
             MRMZ(IOF)=LOF
-            DU(IOF)=-UPQ(M+J+1)
-            DE(IOF)=-VPQ(M+J+1)
-            DZ(IOF)=TPQ(M+J+1)
-            W(IOF)=WPQ(M+J+1)
+            DU(IOF)=-UPQ(N+J+1)
+            DE(IOF)=-VPQ(N+J+1)
+            DZ(IOF)=TPQ(N+J+1)
+            W(IOF)=WPQ(N+J+1)
             JOF=JOF-1
  390     CONTINUE
          DO 400 J=NLF/2-I,0,-1
@@ -235,15 +250,15 @@
             MRMX(IOF)=JOF
             MRMY(IOF)=KOF
             MRMZ(IOF)=LOF
-            DU(IOF)=UPQ(M+J+1)
-            DE(IOF)=-VPQ(M+J+1)
-            DZ(IOF)=TPQ(M+J+1)
-            W(IOF)=WPQ(M+J+1)
+            DU(IOF)=UPQ(N+J+1)
+            DE(IOF)=-VPQ(N+J+1)
+            DZ(IOF)=TPQ(N+J+1)
+            W(IOF)=WPQ(N+J+1)
             JOF=JOF-1
  400     CONTINUE
-         M=M+NLF/2-I+1
+         N=N+NLF/2-I+1
  380  CONTINUE
-      M=0
+      N=0
       DO 410 I=1,NLF/2
          JOF=IOF+NLF-2*I+2
          DO 420 J=0,NLF/2-I
@@ -253,10 +268,10 @@
             MRMX(IOF)=JOF
             MRMY(IOF)=KOF
             MRMZ(IOF)=LOF
-            DU(IOF)=-UPQ(M+J+1)
-            DE(IOF)=VPQ(M+J+1)
-            DZ(IOF)=TPQ(M+J+1)
-            W(IOF)=WPQ(M+J+1)
+            DU(IOF)=-UPQ(N+J+1)
+            DE(IOF)=VPQ(N+J+1)
+            DZ(IOF)=TPQ(N+J+1)
+            W(IOF)=WPQ(N+J+1)
             JOF=JOF-1
  420     CONTINUE
          DO 430 J=NLF/2-I,0,-1
@@ -266,24 +281,23 @@
             MRMX(IOF)=JOF
             MRMY(IOF)=KOF
             MRMZ(IOF)=LOF
-            DU(IOF)=UPQ(M+J+1)
-            DE(IOF)=VPQ(M+J+1)
-            DZ(IOF)=TPQ(M+J+1)
-            W(IOF)=WPQ(M+J+1)
+            DU(IOF)=UPQ(N+J+1)
+            DE(IOF)=VPQ(N+J+1)
+            DZ(IOF)=TPQ(N+J+1)
+            W(IOF)=WPQ(N+J+1)
             JOF=JOF-1
  430     CONTINUE
-         M=M+NLF/2-I+1
+         N=N+NLF/2-I+1
  410  CONTINUE
       DEALLOCATE(WPQ,VPQ,UPQ,TPQ,WW,UU,JOP)
-     
       IF(IMPX.GE.4) THEN
          WRITE(6,'(/41H SNTT3D:HEIGHT-OCTANT ANGULAR QUADRATURES:/26X,
      1   2HMU,9X,3HETA,10X,2HXI,6X,6HWEIGHT)')
          SUM=0.0
-         DO 70 M=1,NPQ
-         SUM=SUM+W(M)
-         WRITE(6,'(1X,4I5,1P,4E12.4)') M,MRMX(M),MRMY(M),MRMZ(M),DU(M),
-     1   DE(M),DZ(M),W(M)
+         DO 70 N=1,NPQ
+         SUM=SUM+W(N)
+         WRITE(6,'(1X,4I5,1P,4E12.4)') N,MRMX(N),MRMY(N),MRMZ(N),DU(N),
+     1   DE(N),DZ(N),W(N)
    70    CONTINUE
          WRITE(6,'(54X,10(1H-)/52X,1P,E12.4)') SUM
       ENDIF
@@ -294,19 +308,19 @@
 * ----------
 *        3D CARTESIAN
 * ----------
-         DO 83 M=1,NPQ
-         VU=DU(M)
-         VE=DE(M)
-         VZ=DZ(M)
+         DO 83 N=1,NPQ
+         VU=DU(N)
+         VE=DE(N)
+         VZ=DZ(N)
          DO 82 I=1,LX
          DO 81 J=1,LY
          DO 80 K=1,LZ
          XX(I)=XXX(I+1)-XXX(I)
          YY(J)=YYY(J+1)-YYY(J)
          ZZ(K)=ZZZ(K+1)-ZZZ(K)
-         DA(J,K,M)=VU*YY(J)*ZZ(K)
-         DB(I,K,M)=VE*XX(I)*ZZ(K)
-         DC(I,J,M)=VZ*XX(I)*YY(J)
+         DA(J,K,N)=VU*YY(J)*ZZ(K)
+         DB(I,K,N)=VE*XX(I)*ZZ(K)
+         DC(I,J,N)=VZ*XX(I)*YY(J)
          VOL(I,J,K)=XX(I)*YY(J)*ZZ(K)
    80    CONTINUE
    81    CONTINUE
@@ -317,17 +331,17 @@
 *        3D HEXAGONAL
 * ----------
          DET = SQRT(3.0)*(SIDE**2)/2.0 
-         DO 93 M=1,NPQ
-         VU=DU(M)
-         VE=DE(M)
-         VZ=DZ(M)
+         DO 93 N=1,NPQ
+         VU=DU(N)
+         VE=DE(N)
+         VZ=DZ(N)
          DO 92 K=1,LZ
          DO 91 J=1,LY
          DO 90 I=1,LX
          ZZ(K)=ZZZ(K+1)-ZZZ(K)
-         DA(J,K,M)=VU*ZZ(K)
-         DB(I,K,M)=VE*ZZ(K)
-         DC(I,J,M)=VZ*DET
+         DA(J,K,N)=VU*ZZ(K)
+         DB(I,K,N)=VE*ZZ(K)
+         DC(I,J,N)=VZ*DET
          VOL(I,J,K)=DET*ZZ(K)
    90    CONTINUE
    91    CONTINUE
@@ -338,26 +352,136 @@
 *  GENERATE SPHERICAL HARMONICS FOR SCATTERING SOURCE.
 *----
       IOF=0
-      DO 215 IL=0,NSCT-1
-      DO 210 IM=-IL,IL   
+      DO 211 L=0,ISCAT-1
+      DO 210 M=-L,L   
       IOF=IOF+1
-      IF(IOF.GT.NSCT) GO TO 220
-      DO 200 M=1,NPQ
-      PL(IOF,M)=PNSH(IL,IM,DU(M),DE(M),DZ(M))
+      IF(IOF.GT.ISCAT) GO TO 211
+      DO 200 N=1,NPQ
+      PL(IOF,N)=PNSH(L,M,DU(N),DE(N),DZ(N))
   200 CONTINUE
   210 CONTINUE
-  215 CONTINUE
+  211 CONTINUE
+*----
+*  GENERATE MAPPING MATRIX FOR GALERKIN QUADRATURE METHOD
+*----
+      MN(:NPQ,:NSCT)=0.0
+      DN(:NSCT,:NPQ)=0.0
+      IL(:NSCT)=0
+      IM(:NSCT)=0
+      IF(IGLK.NE.0) THEN
+         ALLOCATE(U(NPQ,NPQ),RLM(NPQ,ISCAT,2*ISCAT-1),V(NPQ),V2(NPQ))
+         RLM(:NPQ,:ISCAT-1,:2*ISCAT-1)=0.0
+         DO L=0,ISCAT-1
+         DO M=-L,L
+         DO N=1,NPQ
+            RLM(N,L+1,M+L+1)=PNSH(L,M,DU(N),DE(N),DZ(N))
+         ENDDO
+         ENDDO
+         ENDDO
+         ! GRAM-SCHMIDT PROCEDURE TO FIND INDEPENDANT SET
+         ! OF SPHERICAL HARMONICS WITH ANY QUADRATURE
+         U(:NPQ,:NPQ)=0.0D0
+         NORM=0.0D0
+         DO N=1,NPQ
+            NORM=NORM+RLM(N,1,1)**2
+         ENDDO
+         NORM=SQRT(NORM)
+         DO N=1,NPQ 
+            IF(IGLK.EQ.1) THEN
+               MND(1,N)=W(N)*RLM(N,1,1)
+            ELSEIF(IGLK.EQ.2) THEN
+               MND(N,1)=(2.0*L+1.0)/(4.0*PI)*RLM(N,1,1)
+            ELSE
+               CALL XABORT('UNKNOWN GALERKIN QUADRATURE METHOD.')
+            ENDIF
+            U(N,1)=RLM(N,1,1)/NORM
+         ENDDO
+         IND=1
+         ! ITERATE OVER THE SPHERICAL HARMONICS
+         DO 212 L=1,ISCAT-1
+         DO 213 M=-L,L
+         V2(:NPQ)=0.0D0
+         DO N=1,IND
+         IPROD=0.0D0
+         DO N2=1,NPQ
+         IPROD=IPROD+U(N2,N)*RLM(N2,L+1,M+L+1)
+         ENDDO
+         DO N2=1,NPQ
+         V2(N2)=V2(N2)+IPROD*U(N2,N)
+         ENDDO
+         ENDDO
+         V(:NPQ)=0.0D0
+         DO N=1,NPQ
+         V(N)=RLM(N,L+1,M+L+1)-V2(N)
+         ENDDO
+         NORM=0.0D0
+         DO N=1,NPQ
+            NORM=NORM+V(N)**2
+         ENDDO
+         NORM=SQRT(NORM)
+         ! KEEP THE SPHERICAL HARMONICS IF IT IS INDEPENDANT
+         IF(NORM.GE.1.0E-5) THEN
+            IND=IND+1
+            DO N=1,NPQ
+               U(N,IND)=V(N)/NORM
+               IF(IGLK.EQ.1) THEN
+                  MND(IND,N)=W(N)*RLM(N,L+1,M+L+1)
+               ELSEIF(IGLK.EQ.2) THEN
+                  MND(N,IND)=(2.0*L+1.0)/(4.0*PI)*RLM(N,L+1,M+L+1)
+               ELSE
+                  CALL XABORT('UNKNOWN GALERKIN QUADRATURE METHOD.')
+               ENDIF
+            ENDDO
+            IL(IND)=L
+            IM(IND)=M
+         ENDIF
+         IF(IND.EQ.NPQ) GOTO 217
+  213    ENDDO
+  212    ENDDO
+         CALL XABORT('SNTT3D: THE'// 
+     1   ' GRAM-SCHMIDTH PROCEDURE TO FIND A SUITABLE INTERPOLATION'//
+     2   ' BASIS REQUIRE HIGHER LEGENDRE ORDER.')
+         ! FIND INVERSE MATRIX    
+  217    IF(IGLK.EQ.1) THEN    
+            DN=REAL(MND)
+            CALL ALINVD(NPQ,MND,NPQ,IER)
+            IF(IER.NE.0) CALL XABORT('SNTT3D: SINGULAR MATRIX.')
+            MN=REAL(MND)
+         ELSEIF(IGLK.EQ.2) THEN
+            MN=REAL(MND)
+            CALL ALINVD(NPQ,MND,NPQ,IER)
+            IF(IER.NE.0) CALL XABORT('SNTT3D: SINGULAR MATRIX.')
+            DN=REAL(MND)
+         ELSE
+            CALL XABORT('UNKNOWN GALERKIN QUADRATURE METHOD.')
+         ENDIF
+         DEALLOCATE(U,RLM,V,V2)
+      ELSE
+         IND=1
+         DO L=0,ISCAT-1
+         DO 218 M=-L,L
+         IL(IND)=L
+         IM(IND)=M
+         DO N=1,NPQ
+         DN(IND,N)=W(N)*PNSH(L,M,DU(N),DE(N),DZ(N))
+         MN(N,IND)=(2.0*L+1.0)/(4.0*PI)
+     1   *PNSH(L,M,DU(N),DE(N),DZ(N))
+         ENDDO
+         IND=IND+1
+  218    ENDDO
+         ENDDO
+      ENDIF
 *----
 * GENERATE THE WEIGHTING PARAMETERS OF THE CLOSURE RELATION.
 *----
-  220 PX=1
+      PX=1
       PE=1
       IF(ISCHM.EQ.1.OR.ISCHM.EQ.3) THEN
         PX=1
       ELSEIF(ISCHM.EQ.2) THEN
         PX=0
       ELSE
-        CALL XABORT('SNT1DP: UNKNOWN TYPE OF SPATIAL CLOSURE RELATION.')
+        CALL XABORT('SNTT3D: UNKNOWN TYPE OF SPATIAL CLOSURE RELATION.')
       ENDIF
       IF(MOD(IELEM,2).EQ.1) THEN
         WX(1)=-PX
@@ -374,7 +498,7 @@
       ELSEIF(ESCHM.EQ.2) THEN
         PE=0
       ELSE
-        CALL XABORT('SNT1DP: UNKNOWN TYPE OF ENERGY CLOSURE RELATION.')
+        CALL XABORT('SNTT3D: UNKNOWN TYPE OF ENERGY CLOSURE RELATION.')
       ENDIF
       IF(MOD(EELEM,2).EQ.1) THEN
         WE(1)=-PE

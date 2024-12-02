@@ -47,7 +47,7 @@ GEOM := GEO: :: HOMOGE
 ****************************************************************************
 ******************** LIBRARY DEFINTION OF homogeneous Gd pin ***************
 ****************************************************************************
-ECHO GdCompo ssh_method ;
+
 IF ssh_method "RSE" = THEN
 
   LIBRARY := LIB: ::
@@ -107,9 +107,9 @@ IF ssh_method "RSE" = THEN
       He4  = He4   2.145381E-06
   ;
 ELSEIF ssh_method "PT" = THEN
-
+  ECHO "Printing DEPL data for UOX_Gd157" ;
   LIBRARY := LIB: ::
-      EDIT 0
+      EDIT 20
       NMIX 1    ! MAXIMUM OF MATERIAL MIXTURES
       CALENDF 4 PT 
       ANIS 1
@@ -224,7 +224,7 @@ ELSEIF ssh_method "SUBG" = THEN
 
 ENDIF ;
 ****************************************************************************************
-********************* TRAKING GEOM_hom/_SS FOR FLUX/SSH CALCULATION ********************
+************************ TRACKING GEOM FOR FLUX/SSH CALCULATION ************************
 ****************************************************************************************
 
 * ---
@@ -264,7 +264,9 @@ COMPO := COMPO: ::
     MAXCAL 5
     COMM 'Evolution burnup pincell' ENDC
     PARA 'Burnup' IRRA
-    ISOT 9 U234 U235 U238 Pu239 Pu240 Gd155 Gd157 Xe135 Sm149
+    ISOT 19 U235 U236 U238 Pu239 Pu240 Pu241 Pu242 
+      Gd154 Gd155 Gd156 Gd157 Gd158 Gd160 Xe135 Sm149
+      Sm154 Eu155 Eu156 Eu157
     INIT
 ;
 
@@ -303,7 +305,7 @@ WHILE istep nstep < DO
      ECHO ".perform self-shielding at" Tbeg "days" ;
     IF ssh_module "USS" = THEN
         LIBRARY2 := USS: LIBRARY TRACK ::
-                    EDIT 1 PASS 3
+                    EDIT 2 GRMIN 52 PASS 3
                   ;
     ELSEIF ssh_module "SHI" = THEN
         LIBRARY2 := SHI: LIBRARY TRACK :: 
@@ -324,7 +326,7 @@ WHILE istep nstep < DO
        ECHO "perform self-shielding at" Tbeg "days" ;
       IF ssh_module "USS" = THEN
         LIBRARY2 := USS: LIBRARY LIBRARY2 TRACK ::
-                    EDIT 1 PASS 3
+                    EDIT 2 GRMIN 52 PASS 3
                   ;
       ELSEIF ssh_module "SHI" = THEN
         LIBRARY2 := SHI: LIBRARY LIBRARY2 TRACK :: 
@@ -356,41 +358,15 @@ WHILE istep nstep < DO
   SYS := DELETE: SYS ;
 
   IF istep 1 = THEN
-    IF sat "SAT" = sat "SATOFF" = + THEN
-      BURNUP LIBRARY2 := EVO: LIBRARY2 FLUX TRACK ::
-        EDIT 0
-        <<depl_sol>>
-        GLOB
-        <<sat>>
-        SAVE <<Tbeg>> DAY POWR <<Norm_f2>>
-      ;
-    ELSE
-      BURNUP LIBRARY2 := EVO: LIBRARY2 FLUX TRACK ::
-        EDIT 0
-        <<depl_sol>>
-        GLOB
-        SAVE <<Tbeg>> DAY POWR <<Norm_f2>>
-      ;
-    ENDIF ;
+    BURNUP LIBRARY2 := EVO: LIBRARY2 FLUX TRACK ::
+      EDIT 3
+      SAVE <<Tbeg>> DAY POWR <<Norm_f2>>
+    ;
   ELSE
-    IF sat "SAT" = sat "SATOFF" = + THEN
-      ECHO "sat = " sat ;
-      BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX TRACK ::
-        EDIT 0
-        <<depl_sol>>
-        GLOB
-        <<sat>>
-        SAVE <<Tbeg>> DAY POWR <<Norm_f2>>
-      ;
-    ELSE
-      ECHO "no SAT keyword" ; 
-      BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX TRACK ::
-        EDIT 0
-        <<depl_sol>>
-        GLOB
-        SAVE <<Tbeg>> DAY POWR <<Norm_f2>>
-      ; 
-    ENDIF ;
+    BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX TRACK ::
+      EDIT 3
+      SAVE <<Tbeg>> DAY POWR <<Norm_f2>>
+    ;
   ENDIF ;
 
   GREP: StepList :: GETVAL "ListCompo" <<iCompo>> >>BUcompo<< ;
@@ -399,7 +375,9 @@ WHILE istep nstep < DO
   IF BUcompo BU = THEN
         EDIBU := EDI: FLUX LIBRARY2 TRACK ::
         EDIT 0
-        MICR 9 U234 U235 U238 Pu239 Pu240 Gd155 Gd157 Xe135 Sm149
+        MICR 19 U235 U236 U238 Pu239 Pu240 Pu241 Pu242 
+        Gd154 Gd155 Gd156 Gd157 Gd158 Gd160 Xe135 Sm149
+        Sm154 Eu155 Eu156 Eu157
         COND
         SAVE ON FUEL ;
         COMPO := COMPO: COMPO EDIBU BURNUP LIBRARY2 ::
@@ -422,10 +400,18 @@ WHILE istep nstep < DO
     EVALUATE Tend := BUend Norm_f2 / ;
     ECHO "Tbeg was = " Tbeg ;
     ECHO "Tend evaluated = " Tend ;
-  
-    BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX TRACK ::
-     EDIT 3 DEPL <<Tbeg>> <<Tend>> DAY POWR <<Norm_f2>> 
-     EXPM 1.0E15 GLOB ;
+
+    IF sat "SAT" = sat "SATOFF" = + THEN
+      ECHO "sat = " sat ;
+      BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX TRACK ::
+      EDIT 3 <<depl_sol>> DEPL <<Tbeg>> <<Tend>> DAY POWR <<Norm_f2>> 
+      EXPM 1.0E15 GLOB <<sat>> DIRA ;
+    ELSE
+      ECHO "no SAT keyword" ;
+      BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX TRACK ::
+      EDIT 3 <<depl_sol>> DEPL <<Tbeg>> <<Tend>> DAY POWR <<Norm_f2>> 
+      EXPM 1.0E15 GLOB DIRA ;
+    ENDIF ;
   
   ENDIF ;
  

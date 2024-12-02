@@ -1,0 +1,92 @@
+****************************************************************************
+*                                                                          *
+* Procedure :  SetFMap.c2m adapted from simlpePOW test                     *
+* Purpose   :  Fuel-map specifications for BWR coupled calculation         *
+* Author(s) :  R. Guasch, adapted from M. Guyot (2010) & A. Hebert (2011)  *
+* Date : 19/09/2024                                                        *
+*                                                                          *
+* CALL      :  FMAP MATEX := SetFMap MATEX ;                               *
+*                                                                          *
+****************************************************************************
+
+PARAMETER Fmap Matex ::
+      ::: LINKED_LIST
+          Fmap Matex ; ;
+MODULE RESINI: END: ;
+REAL pitch height BMass ;
+:: >>pitch<< >>height<< >>BMass<< ; (*BMass = Bundle Mass : mass of UOX in an axial fuel slice*)
+
+
+REAL z1 := height 20.0 / ;
+REAL z2 := height 20.0 / z1 + ;
+REAL z3 := height 20.0 / z2 + ;
+REAL z4 := height 20.0 / z3 + ;
+REAL z5 := height 20.0 / z4 + ;
+REAL z6 := height 20.0 / z5 + ;
+REAL z7 := height 20.0 / z6 + ;
+REAL z8 := height 20.0 / z7 + ;
+REAL z9 := height 20.0 / z8 + ;
+REAL z10 := height 20.0 / z9 + ;
+REAL z11 := height 20.0 / z10 + ;
+REAL z12 := height 20.0 / z11 + ;
+REAL z13 := height 20.0 / z12 + ;
+REAL z14 := height 20.0 / z13 + ;
+REAL z15 := height 20.0 / z14 + ;
+REAL z16 := height 20.0 / z15 + ;
+REAL z17 := height 20.0 / z16 + ;
+REAL z18 := height 20.0 / z17 + ;
+REAL z19 := height 20.0 / z18 + ;
+REAL z20 := height 20.0 / z19 + ;
+
+*--
+* Fuel map definition
+*--
+Fmap Matex := RESINI: Matex ::
+   EDIT 10
+      ::: GEO: CAR3D 1 1 20
+                EDIT  0
+                X- REFL X+ REFL    Y- REFL Y+ REFL    Z- REFL Z+ REFL
+   MESHX 0.0 <<pitch>>
+   MESHY 0.0 <<pitch>>
+   MESHZ 0.0 <<z1>> <<z2>> <<z3>> <<z4>> <<z5>> <<z6>> <<z7>> <<z8>>
+         <<z9>> <<z10>> <<z11>> <<z12>> <<z13>> <<z14>> <<z15>> <<z16>>
+         <<z17>> <<z18>> <<z19>> <<z20>>
+   MIX
+   PLANE 1 1
+   PLANE 2 2
+   PLANE 3 3
+   PLANE 4 4
+   PLANE 5 5
+   PLANE 6 6
+   PLANE 7 7
+   PLANE 8 8
+   PLANE 9 9
+   PLANE 10 10
+   PLANE 11 11
+   PLANE 12 12
+   PLANE 13 13
+   PLANE 14 14
+   PLANE 15 15
+   PLANE 16 16
+   PLANE 17 17
+   PLANE 18 18
+   PLANE 19 19
+   PLANE 20 20
+;
+!
+NXNAME '01' NYNAME  'A'
+NCOMB 1
+B-ZONE 1
+
+BTYPE INST-BURN
+INST-BVAL CHAN 0.0
+
+ADD-PARAM PNAME 'T-FUEL' PARKEY 'TFuel' LOCAL
+ADD-PARAM PNAME 'T-COOL' PARKEY 'TCool' LOCAL
+ADD-PARAM PNAME 'D-COOL' PARKEY 'DCool' LOCAL
+
+FUEL WEIGHT <<BMass>> <<BMass>> <<BMass>> <<BMass>> <<BMass>>
+            <<BMass>> <<BMass>> <<BMass>> <<BMass>> <<BMass>>
+            <<BMass>> <<BMass>> <<BMass>> <<BMass>> <<BMass>>
+            <<BMass>> <<BMass>> <<BMass>> <<BMass>> <<BMass>>
+;

@@ -27,14 +27,17 @@ EVALUATE COMB0101 COMB0102 COMB0103 COMB0104 := 1 2 3 4 ;
 INTEGER COMB0201 COMB0202 COMB0203 COMB0204 ;
 EVALUATE COMB0201 COMB0202 COMB0203 COMB0204 := 5 6 7 8 ;
 
+INTEGER COMB2201 COMB2202 COMB2203 COMB2204 ;
+EVALUATE COMB2201 COMB2202 COMB2203 COMB2204 := 9 10 11 12 ;
+
 
 !Mix numbers for C4 fuel 
 INTEGER COMB0401 COMB0402 COMB0403 COMB0404 ;
-EVALUATE COMB0401 COMB0402 COMB0403 COMB0404 := 9 10 11 12 ;
+EVALUATE COMB0401 COMB0402 COMB0403 COMB0404 := 13 14 15 16 ;
 
 
 INTEGER GAP CLAD COOL ;
-EVALUATE GAP CLAD COOL := 13 14 15 ;
+EVALUATE GAP CLAD COOL := 17 18 19 ;
 
 ! Multiples of cell pitch : used to define 2nd level geometry mesh 
 REAL 2_Pitch_C 3_Pitch_C 4_Pitch_C ;
@@ -52,7 +55,7 @@ GEOM_2x2_SS := GEO: :: CAR2D 2 2
     Y- REFL Y+ REFL
     CELL
     C1 C2
-    C2 C4
+    C22 C4
     MESHX 0.0 <<Pitch_C>> <<2_Pitch_C>>
     MESHX 0.0 <<Pitch_C>> <<2_Pitch_C>>
     ::: C1 :=  GEO: CARCEL 6 
@@ -65,6 +68,9 @@ GEOM_2x2_SS := GEO: :: CAR2D 2 2
     ::: C2 := GEO: C1 MIX <<COMB0201>> <<COMB0202>> <<COMB0203>> <<COMB0204>>
                             <<GAP>> <<CLAD>> <<COOL>>
     ;
+    ::: C22 := GEO: C1 MIX <<COMB2201>> <<COMB2202>> <<COMB2203>> <<COMB2204>>
+                        <<GAP>> <<CLAD>> <<COOL>>
+    ;
     ::: C4 := GEO: C1 MIX <<COMB0401>> <<COMB0402>> <<COMB0403>> <<COMB0404>>
                             <<GAP>> <<CLAD>> <<COOL>>
     ;
@@ -76,7 +82,7 @@ GEOM_2x2 := GEO: :: CAR2D 2 2
     Y- REFL Y+ REFL
     CELL
     C1 C2
-    C2 C4
+    C22 C4
     MESHX 0.0 <<Pitch_C>> <<2_Pitch_C>>
     MESHX 0.0 <<Pitch_C>> <<2_Pitch_C>>
     ::: C1 :=  GEO: CARCEL 6 
@@ -91,6 +97,11 @@ GEOM_2x2 := GEO: :: CAR2D 2 2
                     MESHX 0.0 <<Pitch_C>> MESHY 0.0 <<Pitch_C>>
     ;
     ::: C2 := GEO: C1 MIX <<COMB0201>> <<COMB0202>> <<COMB0203>> <<COMB0204>>
+                            <<GAP>> <<CLAD>> <<COOL>> <<COOL>> <<COOL>> <<COOL>>
+                            <<COOL>> <<COOL>> <<COOL>> <<COOL>>
+                            <<COOL>> <<COOL>> <<COOL>> <<COOL>>
+    ;
+    ::: C22 := GEO: C1 MIX <<COMB2201>> <<COMB2202>> <<COMB2203>> <<COMB2204>>
                             <<GAP>> <<CLAD>> <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                             <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                             <<COOL>> <<COOL>> <<COOL>> <<COOL>>

@@ -1,8 +1,8 @@
 *DECK SNTRK
       SUBROUTINE SNTRK(MAXPTS,IPTRK,IPGEOM,IMPX,ISCHM,IELEM,ISPLH,INSB,
      1 NLF,MAXIT,EPSI,ISCAT,IQUAD,LFIXUP,LIVO,ICL1,ICL2,LDSA,NSTART,
-     2 NSDSA,IELEMSA,ISOLVSA,LBIHET,LSHOOT,IBFP,NOMP,NMPI,NFOU,
-     3 EELEM,ESCHM)
+     2 NSDSA,IELEMSA,ISOLVSA,LBIHET,LSHOOT,IBFP,NKBA,NMPI,NFOU,
+     3 EELEM,ESCHM,IGLK)
 *
 *-----------------------------------------------------------------------
 *
@@ -60,7 +60,7 @@
 *         =0 no Fokker-Planck term;
 *         =1 Galerkin type;
 *         =2 heuristic Przybylski and Ligou type.
-* NOMP    number of macrocells along each axis (in Cartesian geometry)
+* NKBA    number of macrocells along each axis (in Cartesian geometry)
 *         for the parallelisation using the OpenMP paradigm.
 * NMPI    number of macrocells along each axis (in Cartesian geometry)
 *         or along the z-axis for the hexagonal geometry for the
@@ -75,6 +75,10 @@
 *         =1 constant - default for HODD;
 *         =2 linear - default for DG;
 *         >3 higher orders.
+* IGLK    angular interpolation type:
+*         =0 classical SN method.
+*         =1 Galerkin quadrature method (M = inv(D))
+*         =2 Galerkin quadrature method (D = inv(M))
 *
 *-----------------------------------------------------------------------
 *
@@ -84,8 +88,8 @@
 *----
       TYPE(C_PTR) IPTRK,IPGEOM
       INTEGER MAXPTS,IMPX,ISCHM,IELEM,ISPLH,INSB,NLF,ISCAT,IQUAD,
-     1 MAXIT,ICL1,ICL2,NSTART,NSDSA,IELEMSA,ISOLVSA,NOMP,NMPI,NFOU,
-     2 EELEM,ESCHM
+     1 MAXIT,ICL1,ICL2,NSTART,NSDSA,IELEMSA,ISOLVSA,NKBA,NMPI,NFOU,
+     2 EELEM,ESCHM,IGLK
       REAL EPSI
       LOGICAL LFIXUP,LDSA,LBIHET,LIVO,LSHOOT
 *----
@@ -95,13 +99,13 @@
       LOGICAL ILK
       CHARACTER HSMG*131
       INTEGER ISTATE(NSTATE),IGP(NSTATE),NCODE(6),ICODE(6),ILOZSWP(3,6),
-     1 CONFROM(2,3,6)
+     1 CONFROM(2,3,6),P
       REAL ZCODE(6)
       INTEGER, ALLOCATABLE, DIMENSION(:) :: MAT,IDL,ISPLX,ISPLY,ISPLZ,
-     1 JOP,MRMX,MRMY,MRMZ,IZGLOB,CONNEC
+     1 JOP,MRMX,MRMY,MRMZ,IZGLOB,CONNEC,IL,IM
       INTEGER, ALLOCATABLE, DIMENSION(:,:,:) :: KEYANI
       REAL, ALLOCATABLE, DIMENSION(:) :: VOL,XXX,YYY,ZZZ,UU,WW,PL,TPQ,
-     1 UPQ,VPQ,WPQ,ALPHA,PLZ,SURF,DU,DE,DZ,DC,DB,DA,DAL,WX,WE,CST 
+     1 UPQ,VPQ,WPQ,ALPHA,PLZ,SURF,DU,DE,DZ,DC,DB,DA,DAL,WX,WE,CST,MN,DN 
 *
       INTEGER, ALLOCATABLE, DIMENSION(:,:) :: TASKSINWAVE
       INTEGER, ALLOCATABLE, DIMENSION(:) :: TASKLST
@@ -313,18 +317,28 @@
 *        1D SLAB GEOMETRY.
          NDIM=1
          IF(ISCAT.EQ.0) CALL XABORT('SNTRK: SCAT NOT DEFINED.')
-         NSCT=ISCAT
-         ALLOCATE(UU(NLF),WW(NLF),PL(NSCT*NLF),WX(IELEM+1),WE(EELEM+1),
-     1   CST(MAX(IELEM,EELEM)))
+         IF(IGLK.NE.0) THEN
+            NSCT=NLF
+         ELSE
+            NSCT=ISCAT
+         ENDIF
+         ALLOCATE(UU(NLF),WW(NLF),WX(IELEM+1),WE(EELEM+1),
+     1   CST(MAX(IELEM,EELEM)),MN(NSCT*NLF),DN(NLF*NSCT),IL(NSCT),
+     2   IM(NSCT),PL(NSCT*NLF))
          CALL SNT1DP(IMPX,LX,IELEM,NCODE,ZCODE,XXX,NLF,NSCT,UU,WW,PL,
-     1      VOL,IDL,LL4,NUN,LSHOOT,EELEM,WX,WE,CST,IBFP,ISCHM,ESCHM)
+     1      VOL,IDL,LL4,NUN,LSHOOT,EELEM,WX,WE,CST,IBFP,ISCHM,ESCHM,
+     2      IGLK,MN,DN,IL,IM,IQUAD)
          CALL LCMPUT(IPTRK,'U',NLF,2,UU)
          CALL LCMPUT(IPTRK,'W',NLF,2,WW)
-         CALL LCMPUT(IPTRK,'PL',NSCT*NLF,2,PL)
          CALL LCMPUT(IPTRK,'WX',IELEM+1,2,WX)
          IF(IBFP.NE.0) CALL LCMPUT(IPTRK,'WE',EELEM+1,2,WE)
          CALL LCMPUT(IPTRK,'CST',MAX(IELEM,EELEM),2,CST)
-         DEALLOCATE(PL,WW,UU,WX,WE,CST)
+         CALL LCMPUT(IPTRK,'MN',NSCT*NLF,2,MN)
+         CALL LCMPUT(IPTRK,'DN',NLF*NSCT,2,DN)
+         CALL LCMPUT(IPTRK,'IL',NSCT,1,IL)
+         CALL LCMPUT(IPTRK,'IM',NSCT,1,IM)
+         CALL LCMPUT(IPTRK,'PL',NSCT*NLF,2,PL)
+         DEALLOCATE(WW,UU,WX,WE,CST,MN,DN,IL,IM,PL)
          ! For Fourier Analysis
          IF(NFOU.GT.0)THEN
             XLEN = XXX(LX+1)
@@ -344,9 +358,9 @@
          ENDIF
          ALLOCATE(JOP(NLF/2),UU(NLF/2),WW(NLF/2),TPQ(NPQ),UPQ(NPQ),
      1   VPQ(NPQ),WPQ(NPQ),ALPHA(NPQ),PLZ(NSCT*NLF/2),PL(NSCT*NPQ),
-     2   SURF(LX+1))
+     2   SURF(LX+1),IL(NSCT),IM(NSCT))
          CALL SNT1DC(IMPX,LX,NCODE,ZCODE,XXX,NLF,NPQ,NSCT,IQUAD,JOP,
-     1   UU,WW,TPQ,UPQ,VPQ,WPQ,ALPHA,PLZ,PL,VOL,IDL,SURF)
+     1   UU,WW,TPQ,UPQ,VPQ,WPQ,ALPHA,PLZ,PL,VOL,IDL,SURF,IL,IM)
          DEALLOCATE(VPQ,TPQ,WW)
          CALL LCMPUT(IPTRK,'JOP',NLF/2,1,JOP)
          CALL LCMPUT(IPTRK,'U',NLF/2,2,UU)
@@ -356,7 +370,9 @@
          CALL LCMPUT(IPTRK,'PLZ',NSCT*NLF/2,2,PLZ)
          CALL LCMPUT(IPTRK,'PL',NSCT*NPQ,2,PL)
          CALL LCMPUT(IPTRK,'SURF',LX+1,2,SURF)
-         DEALLOCATE(SURF,PL,PLZ,ALPHA,WPQ,UPQ,UU,JOP)
+         CALL LCMPUT(IPTRK,'IL',NSCT,1,IL)
+         CALL LCMPUT(IPTRK,'IM',NSCT,1,IM)
+         DEALLOCATE(SURF,PL,PLZ,ALPHA,WPQ,UPQ,UU,JOP,IL,IM)
          LL4=LX*NSCT
          NUN=LL4
       ELSE IF(ITYPE.EQ.4) THEN
@@ -365,9 +381,9 @@
          IF(ISCAT.EQ.0) CALL XABORT('SNTRK: SCAT NOT DEFINED.')
          NSCT=ISCAT
          ALLOCATE(UU(NLF),WW(NLF),ALPHA(NLF),PLZ(NSCT),PL(NSCT*NLF),
-     1   SURF(LX+1))
+     1   SURF(LX+1),IL(NSCT),IM(NSCT))
          CALL SNT1DS(IMPX,LX,NCODE,ZCODE,XXX,NLF,NSCT,UU,WW,ALPHA,
-     1   PLZ,PL,VOL,IDL,SURF)
+     1   PLZ,PL,VOL,IDL,SURF,IQUAD,IL,IM)
          CALL LCMPUT(IPTRK,'U',NLF,2,UU)
          CALL LCMPUT(IPTRK,'W',NLF,2,WW)
          CALL LCMPUT(IPTRK,'ALPHA',NLF,2,ALPHA)
@@ -375,15 +391,26 @@
          CALL LCMPUT(IPTRK,'PL',NSCT*NLF,2,PL)
          CALL LCMPUT(IPTRK,'SURF',LX+1,2,SURF)
          CALL LCMPUT(IPTRK,'XXX',LX+1,2,XXX)
-         DEALLOCATE(SURF,PL,PLZ,ALPHA,WW,UU)
+         CALL LCMPUT(IPTRK,'IL',NSCT,1,IL)
+         CALL LCMPUT(IPTRK,'IM',NSCT,1,IM)
+         DEALLOCATE(SURF,PL,PLZ,ALPHA,WW,UU,IL,IM)
          LL4=LX*NSCT
          NUN=LL4
       ELSE IF((ITYPE.EQ.5).OR.(ITYPE.EQ.6).OR.(ITYPE.EQ.8)) THEN
 *        2D GEOMETRIES: CARTESIAN; TUBE; HEXAGONAL
          NDIM=2
          IF(ISCAT.EQ.0) CALL XABORT('SNTRK: SCAT NOT DEFINED.')
-         NSCT=ISCAT*(ISCAT+1)/2
-         NPQ=(NLF+4)*NLF/2
+         IF(IQUAD.GE.10) THEN
+            NPQ=NLF**2  
+         ELSE
+            NPQ=(NLF+4)*NLF/2
+         ENDIF
+         IF(IGLK.NE.0) THEN
+            NPQ=(NLF+2)*NLF/2
+            NSCT=NPQ
+         ELSE
+            NSCT=ISCAT*(ISCAT+1)/2
+         ENDIF
          IGE=0
 *
          IF(ITYPE.EQ.5) THEN
@@ -414,7 +441,9 @@
             NBC=INT((SQRT(  REAL((4*NHEX-1)/3)  )+1.)/2.)
             MAXCELLCNT = NBC
             MAXWAVECNT = ((NBC-1)*4) +1
-            IF((NMPI.GE.1)) THEN
+            IF((NKBA.GE.1).OR.(NMPI.GE.1)) THEN
+              IF(NMPI.EQ.0) NTHR = NKBA
+              IF(NKBA.EQ.0) NTHR = NMPI
               ALLOCATE(TASKLST(2*MAXCELLCNT*MAXWAVECNT*6))
               ALLOCATE(TASKSINWAVE(MAXWAVECNT,6))
               ALLOCATE(CON_WHOAMI(2,(NHEX*3)*2,6))
@@ -424,7 +453,8 @@
               CON_WHOAMI(:,:,:)=0
               CON_TOWHOM(:,:,:)=0
 *
-              CALL SNGRPH(IMPX,NMPI,NHEX,LZ,NBC,MAXCELLCNT,MAXWAVECNT,
+
+              CALL SNGRPH(IMPX,NTHR,NHEX,LZ,NBC,MAXCELLCNT,MAXWAVECNT,
      1         IZGLOB,CONNEC,TASKLST,TASKSINWAVE,NWAVES,MAXLOZ,
      2         CON_WHOAMI,CON_TOWHOM)
 *
@@ -436,7 +466,7 @@
               CALL LCMPUT(IPTRK,'CON_TOWHOM',2*(NHEX*3)*2*6,1,
      1            CON_TOWHOM)
 *
-              DEALLOCATE(TASKLST,TASKSINWAVE)
+              DEALLOCATE(TASKLST,TASKSINWAVE,CON_WHOAMI,CON_TOWHOM)
             ENDIF
 *
             CALL LCMPUT(IPTRK,'CONNEC',MAXCON,1,CONNEC)
@@ -449,11 +479,13 @@
 *
          ALLOCATE(MRMX(NPQ),MRMY(NPQ))
          ALLOCATE(DU(NPQ),DE(NPQ),WW(NPQ),DB(LX*NPQ),DA(LX*LY*NPQ),
-     1   DAL(LX*LY*NPQ),PL(NSCT*NPQ),WX(IELEM+1),
-     2   WE(EELEM+1),CST(MAX(IELEM,EELEM)))
-         CALL SNTT2D(IGE,IMPX,LX,LY,SIDE,IELEM,NLF,NPQ,NSCT,IQUAD,NCODE,
-     1   ZCODE,MAT,XXX,YYY,VOL,IDL,DU,DE,WW,MRMX,MRMY,DB,DA,DAL,PL,LL4,
-     2   NUN,EELEM,WX,WE,CST,IBFP,ISCHM,ESCHM) 
+     1   DAL(LX*LY*NPQ),WX(IELEM+1),
+     2   WE(EELEM+1),CST(MAX(IELEM,EELEM)),MN(NSCT*NPQ),DN(NPQ*NSCT),
+     3   IL(NSCT),IM(NSCT),PL(NSCT*NPQ))
+         CALL SNTT2D(IGE,IMPX,LX,LY,SIDE,IELEM,NLF,NPQ,NSCT,IQUAD,
+     1   NCODE,ZCODE,MAT,XXX,YYY,VOL,IDL,DU,DE,WW,MRMX,MRMY,DB,DA,DAL,
+     2   PL,LL4,NUN,EELEM,WX,WE,CST,IBFP,ISCHM,ESCHM,IGLK,MN,DN,IL,IM,
+     3   ISCAT)
          CALL LCMPUT(IPTRK,'DU',NPQ,2,DU)
          CALL LCMPUT(IPTRK,'DE',NPQ,2,DE)
          CALL LCMPUT(IPTRK,'W',NPQ,2,WW)
@@ -466,14 +498,27 @@
          CALL LCMPUT(IPTRK,'WX',IELEM+1,2,WX)
          IF(IBFP.NE.0) CALL LCMPUT(IPTRK,'WE',EELEM+1,2,WE)
          CALL LCMPUT(IPTRK,'CST',MAX(IELEM,EELEM),2,CST)
-         DEALLOCATE(PL,DAL,DA,DB,WW,DE,DU,WX,WE,CST)
+         CALL LCMPUT(IPTRK,'MN',NSCT*NPQ,2,MN)
+         CALL LCMPUT(IPTRK,'DN',NPQ*NSCT,2,DN)
+         CALL LCMPUT(IPTRK,'IL',NSCT,1,IL)
+         CALL LCMPUT(IPTRK,'IM',NSCT,1,IM)
+         CALL LCMPUT(IPTRK,'PL',NSCT*NPQ,2,PL)
+         DEALLOCATE(DAL,DA,DB,WW,DE,DU,WX,WE,CST,MN,DN,IL,IM,PL)
          DEALLOCATE(MRMY,MRMX)
       ELSE IF((ITYPE.EQ.7).OR.(ITYPE.EQ.9)) THEN
 *        3D GEOMETRIES: CARTESIAN; HEXAGONAL
          NDIM=3
          IF(ISCAT.EQ.0) CALL XABORT('SNTRK: SCAT NOT DEFINED.')
-         NSCT=(ISCAT)**2
-         NPQ=(NLF+2)*NLF
+         IF(IQUAD.GE.10) THEN
+            NPQ=2*NLF**2
+         ELSE
+            NPQ=(NLF+2)*NLF
+         ENDIF
+         IF(IGLK.NE.0) THEN
+            NSCT=NPQ
+         ELSE
+            NSCT=ISCAT*(ISCAT+1)
+         ENDIF
          IGE=0
          IF(ITYPE.EQ.9) THEN
             IGE=2
@@ -488,8 +533,11 @@
             ! Graph building for parallel sweep on hexagonal geometry
             ! using MPI in WYVERN
             NBC=INT((SQRT(  REAL((4*NHEX-1)/3)  )+1.)/2.)
-            IF((NMPI.GE.1)) THEN
-              NMZ=NMPI
+
+            IF((NKBA.GE.1).OR.(NMPI.GE.1)) THEN
+              IF(NMPI.EQ.0) NTHR = NKBA
+              IF(NKBA.EQ.0) NTHR = NMPI
+              NMZ=NTHR
 *
               PLNCELLCNT = NBC
               APPCELLCNT = NBC*NMZ
@@ -505,7 +553,7 @@
               CON_WHOAMI(:,:,:)=0
               CON_TOWHOM(:,:,:)=0
 *
-              CALL SNGRPH(IMPX,IOMP,NHEX,LZ,NBC,APPCELLCNT,MAXWAVECNT,
+              CALL SNGRPH(IMPX,NTHR,NHEX,LZ,NBC,APPCELLCNT,MAXWAVECNT,
      1         IZGLOB,CONNEC,TASKLST,TASKSINWAVE,NWAVES,MAXLOZ,
      2         CON_WHOAMI,CON_TOWHOM)
 *
@@ -517,7 +565,7 @@
               CALL LCMPUT(IPTRK,'CON_TOWHOM',2*(NHEX*3)*2*6,1,
      1            CON_TOWHOM)
 *
-              DEALLOCATE(TASKLST,TASKSINWAVE)
+              DEALLOCATE(TASKLST,TASKSINWAVE,CON_WHOAMI,CON_TOWHOM)
             ENDIF
 *
             CALL LCMPUT(IPTRK,'CONNEC',MAXCON,1,CONNEC)
@@ -529,12 +577,13 @@
          ENDIF
          ALLOCATE(MRMX(NPQ),MRMY(NPQ),MRMZ(NPQ))
          ALLOCATE(DU(NPQ),DE(NPQ),DZ(NPQ),WW(NPQ),DC(LX*LY*NPQ),
-     1   DB(LX*LZ*NPQ),DA(LY*LZ*NPQ),PL(NSCT*NPQ),WX(IELEM+1),
-     2   WE(EELEM+1),CST(MAX(IELEM,EELEM)))
+     1   DB(LX*LZ*NPQ),DA(LY*LZ*NPQ),WX(IELEM+1),
+     2   WE(EELEM+1),CST(MAX(IELEM,EELEM)),MN(NSCT*NPQ),DN(NPQ*NSCT),
+     3   IL(NSCT),IM(NSCT),PL(NSCT*NPQ))
          CALL SNTT3D(IGE,IMPX,LX,LY,LZ,SIDE,IELEM,ISPLH,NLF,NPQ,NSCT,
      1   IQUAD,NCODE,ZCODE,MAT,XXX,YYY,ZZZ,VOL,IDL,DU,DE,DZ,WW,MRMX,
      2   MRMY,MRMZ,DC,DB,DA,PL,LL4,NUN,EELEM,WX,WE,
-     3   CST,IBFP,ISCHM,ESCHM)
+     3   CST,IBFP,ISCHM,ESCHM,IGLK,MN,DN,IL,IM,ISCAT)
 *
          CALL LCMPUT(IPTRK,'DU',NPQ,2,DU)
          CALL LCMPUT(IPTRK,'DE',NPQ,2,DE)
@@ -550,7 +599,12 @@
          CALL LCMPUT(IPTRK,'WX',IELEM+1,2,WX)
          IF(IBFP.NE.0) CALL LCMPUT(IPTRK,'WE',EELEM+1,2,WE)
          CALL LCMPUT(IPTRK,'CST',MAX(IELEM,EELEM),2,CST)
-         DEALLOCATE(PL,DA,DB,DC,WW,DZ,DE,DU,WX,WE,CST)
+         CALL LCMPUT(IPTRK,'MN',NSCT*NPQ,2,MN)
+         CALL LCMPUT(IPTRK,'DN',NPQ*NSCT,2,DN)
+         CALL LCMPUT(IPTRK,'IL',NSCT,1,IL)
+         CALL LCMPUT(IPTRK,'IM',NSCT,1,IM)
+         CALL LCMPUT(IPTRK,'PL',NSCT*NPQ,2,PL)
+         DEALLOCATE(DA,DB,DC,WW,DZ,DE,DU,WX,WE,CST,MN,DN,IL,IM,PL)
          DEALLOCATE(MRMZ,MRMY,MRMX)
       ELSE
          CALL XABORT('SNTRK: UNKNOWN GEOMETRY.')
@@ -599,9 +653,9 @@
          ISCSA=1 ! isotropic scattering
          NVD=1   ! SN-type VOID boundary conditions
          NADI=2  ! ADI iteration
-         ICHX=2 ! Raviart-Thomas finite elements
-         ISEG=0 ! scalar algorithm
-         IMPV=0 ! print parameter for vector operations
+         ICHX=2  ! Raviart-Thomas finite elements
+         ISEG=0  ! scalar algorithm
+         IMPV=0  ! print parameter for vector operations
          IF(MAXPTS.EQ.0) CALL XABORT('SNTRK: MAXPTS NOT DEFINED.')
          IF((ITYPE.EQ.7).OR.(ITYPE.EQ.9)) THEN
             CALL TRITRK(MAXPTS,IPTRK,IPGEOM,IMPX,IELEMSA,ICOL,ICHX,ISEG,
@@ -657,7 +711,7 @@
       IGP(25)=ICL2
       IGP(26)=ISPLH
       IGP(27)=INSB
-      IGP(28)=NOMP
+      IGP(28)=NKBA
       IF((ITYPE.EQ.3).OR.(ITYPE.GE.4)) IGP(29)=1
       IGP(30)=0
       IF(LSHOOT) IGP(30)=1
@@ -667,6 +721,7 @@
       IGP(34)=NFOU
       IGP(35)=EELEM
       IGP(36)=ESCHM
+      IGP(37)=IGLK
       IF(LBIHET) IGP(40)=1
 
       CALL LCMPUT(IPTRK,'STATE-VECTOR',NSTATE,1,IGP)
@@ -687,11 +742,11 @@
       DO IR=1,NEL
          IND=IDL(IR)
          DO IE=1,NLIN
-            DO IL=1,NSCT
+            DO P=1,NSCT
                IF(IND.EQ.0) THEN
-                  KEYANI(IR,IE,IL)=0
+                  KEYANI(IR,IE,P)=0
                ELSE
-                  KEYANI(IR,IE,IL)=IND+(IL-1)*NLIN+IE-1
+                  KEYANI(IR,IE,P)=IND+(P-1)*NLIN+IE-1
                ENDIF
             ENDDO
          ENDDO

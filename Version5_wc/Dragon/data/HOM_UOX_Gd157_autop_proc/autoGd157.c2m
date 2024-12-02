@@ -1,0 +1,96 @@
+* CLE-2000 procedure to perform a homogeneous pincell calculation 
+* Self-shielding calculation with UFG method and AUTO: module
+
+PARAMETER XSM :: ::: XSM_FILE XSM ; ;
+
+STRING ssh_method ;
+:: >>ssh_method<< ;
+
+MODULE GEO: LIB: SYBILT: AUTO: ASM: FLU: EDI: GREP: ;
+
+LINKED_LIST GEOM LIB_AUTO LIB2_AUTO TRACK CP CALC ;
+
+REAL Kinf ;
+
+GEOM := GEO: :: HOMOGE 
+        MIX 1
+      ;
+
+TRACK := SYBILT: GEOM ::
+    TITLE 'HOM_UOX benchmark case'
+    MAXR 2
+    ;
+
+
+LIB_AUTO := LIB: ::
+    EDIT 1
+    NMIX 1    ! MAXIMUM OF MATERIAL MIXTURES
+    <<ssh_method>>
+    ANIS 1
+
+    MIXS LIB: DRAGON FIL: J311_295
+
+    MIX 1 750.0
+      MIX 1 750.0
+      O16  = O16   2.955339E-02 
+      H1  = H1   2.497844E-02
+      U234  = U234   3.482587E-06 1
+      U235  = U235   3.664503E-04 1
+      U238  = U238   7.765571E-03 1
+
+      Gd157  = Gd157 7.899877E-05 1
+
+      Zr90  = Zr90   2.449439E-03 1
+      Zr91  = Zr91   5.341629E-04 1
+      Zr92  = Zr92   8.164794E-04 1
+      Zr94  = Zr94   8.274287E-04 1
+      Zr96  = Zr96   1.333029E-04 1
+
+      Cr50  = Cr50   3.698141E-07
+      Cr52  = Cr52   7.131555E-06
+      Cr53  = Cr53   8.086515E-07
+      Cr54  = Cr54   2.012894E-07
+
+      Fe54  = Fe54   6.253124E-07
+      Fe56  = Fe56   9.816079E-06
+      Fe57  = Fe57   2.266963E-07
+      Fe58  = Fe58   3.016907E-08
+
+      Ni58  = Ni58   2.823166E-06
+      Ni60  = Ni60   1.087478E-06
+      Ni61  = Ni61   4.727185E-08
+      Ni62  = Ni62   1.507292E-07
+      Ni64  = Ni64   3.838073E-08
+
+      O17  = O17   1.316917E-08
+
+      Sn112  = Sn112   5.243423E-07
+      Sn114  = Sn114   3.567679E-07
+      Sn115  = Sn115   1.837913E-07
+      Sn116  = Sn116   7.859755E-06
+      Sn117  = Sn117   4.151493E-06
+      Sn118  = Sn118   1.309232E-05
+      Sn119  = Sn119   4.643408E-06
+      Sn120  = Sn120   1.761148E-05
+      Sn122  = Sn122   2.502800E-06
+      Sn124  = Sn124   3.129844E-06
+
+      He4  = He4   2.145381E-06
+  ;
+
+LIB2_AUTO := AUTO: LIB_AUTO TRACK :: EDIT 2 GRMIN 52 MAXT 100000 ;
+
+CP := ASM: LIB2_AUTO TRACK :: EDIT 1 PIJ ;
+
+CALC := FLU: CP LIB2_AUTO TRACK :: EDIT 1 TYPE K EXTE 5 ;
+
+GREP: CALC :: GETVAL 'K-INFINITY  ' 1 1 1 >>Kinf<< ;
+ECHO 'Kinf AUTO = ' Kinf ;
+
+XSM := EDI: CALC LIB2_AUTO TRACK ::
+     EDIT 2 SAVE
+     MERG REGI 1
+     SAVE MICR 4 U234 U235 U238 Gd157
+    ;
+
+QUIT "LIST" .

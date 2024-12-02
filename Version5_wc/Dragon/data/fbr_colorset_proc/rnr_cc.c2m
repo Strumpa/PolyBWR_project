@@ -1,0 +1,271 @@
+*-----------------------------------------------------
+* PROCEDURE CLE 2000 CONCENTRATIONS ISOTOPES         *
+* Auteur: Charlotte Bay                              *
+*-----------------------------------------------------
+
+* Procedure appelee par 
+* <<N_Na>> <<N_U5>> <<N_U8>> <<N_Pu38>> <<N_Pu39>> <<N_Pu40>> 
+* <<N_Pu41>> <<N_Pu42>> <<N_Am>> <<N_O>>  
+* <<N_U5_f>> <<N_U8_f>> <<N_O_f>>
+* <<N_Fe54_AIM1>> <<N_Fe56_AIM1>> <<N_Fe57_AIM1>> <<N_Fe58_AIM1>> 
+* <<N_Cr50_AIM1>> <<N_Cr52_AIM1>> <<N_Cr53_AIM1>> <<N_Cr54_AIM1>> 
+* <<N_Ni58_AIM1>> <<N_Ni60_AIM1>> <<N_Ni61_AIM1>> <<N_Ni62_AIM1>> 
+* <<N_Ni64_AIM1>> <<N_Mn55_AIM1>> <<N_Mo92_AIM1>> <<N_Mo94_AIM1>>
+* <<N_Mo95_AIM1>> <<N_Mo96_AIM1>> <<N_Mo97_AIM1>> <<N_Mo98_AIM1>>
+* <<N_Mo100_AIM1>> <<N_Si_AIM1>>  <<N_Ti_AIM1>> 
+* <<N_Fe54_EM10>> <<N_Fe56_EM10>> <<N_Fe57_EM10>> <<N_Fe58_EM10>> 
+* <<N_Cr50_EM10>> <<N_Cr52_EM10>> <<N_Cr53_EM10>> <<N_Cr54_EM10>> 
+* <<N_Ni58_EM10>> <<N_Ni60_EM10>> <<N_Ni61_EM10>> <<N_Ni62_EM10>> 
+* <<N_Ni64_EM10>> <<N_Mn55_EM10>> <<N_Mo92_EM10>> <<N_Mo94_EM10>>
+* <<N_Mo95_EM10>> <<N_Mo96_EM10>> <<N_Mo97_EM10>> <<N_Mo98_EM10>>
+* <<N_Mo100_EM10>> <<N_C12_EM10>> <<N_Si_EM10>>   <<N_Ti_EM10>>
+* <<N_He_1>> <<N_He_2>>
+* 
+* := rnr_cc :: >>p_Pu38<< >>p_Pu39<<
+* >>p_Pu40<< >>p_Pu41<< >>p_Pu42<< >>p_Am<< >>p_U5<< >>p_U8<< 
+* >>p_Pu<< >> p_U<< 
+*
+* >>p_Fe_AIM1<< >>p_Cr_AIM1<< >>p_Ni_AIM1<< >>p_Mn_AIM1<<
+* >>p_Mo_AIM1<< >>p_Mn_AIM1<< >>p_Si_AIM1<< >>p_Ti_AIM1<<
+*
+* >>p_Fe_EM10<< >>p_Cr_EM10<< >>p_Ni_EM10<< >>p_Mo_EM10<< 
+* >>p_Mn_EM10<< >>p_C_EM10<<  >>p_Si_EM10<< >>p_Ti_EM10<< 
+*
+* >>a_comb<< >>a_AIM1<< >>a_EM10<< >>a_na<< >>T_comb<<
+* >>T_clad<< >>T_Na<<  ;
+
+* Donnees en entree :
+*     p_X           : proportion de l isotope X en % massique
+*     a_X           : coefficient de dilatation lineaire de la 
+*                     substance X (en C^-1)
+*     T_X           : température moyenne du milieu X (en C)
+
+* Resultat          :
+*     N_X           : nombre de noyaux par cm^3 de l isotope X
+*
+*     X_f           : isotope contenu dans un assemblage fertile
+
+MODULE END: ;
+
+*-----------------------------------------------------
+* RECUPERATION DES DONNEES D ENTREE                  *
+*-----------------------------------------------------
+
+REAL p_Pu38 p_Pu39 p_Pu40 p_Pu41 p_Pu42 p_Am p_U5 p_U8 p_Pu p_U
+p_Fe_AIM1 p_Cr_AIM1 p_Ni_AIM1 p_Mn_AIM1
+p_Mo_AIM1 p_Si_AIM1 p_Ti_AIM1
+p_Fe_EM10 p_Cr_EM10 p_Ni_EM10 p_Mo_EM10
+p_Mn_EM10 p_C_EM10 p_Si_EM10 p_Ti_EM10
+a_comb a_AIM1 a_EM10 a_na T_comb T_clad T_Na ;
+
+:: >>p_Pu38<< >>p_Pu39<< >>p_Pu40<< >>p_Pu41<< >>p_Pu42<< 
+>>p_Am<< >>p_U5<< >>p_U8<< >>p_Pu<< >>p_U<<
+>>p_Fe_AIM1<< >>p_Cr_AIM1<< >>p_Ni_AIM1<< >>p_Mo_AIM1<<
+>>p_Mn_AIM1<< >>p_Si_AIM1<< >>p_Ti_AIM1<<
+>>p_Fe_EM10<< >>p_Cr_EM10<< >>p_Ni_EM10<< >>p_Mo_EM10<< 
+>>p_Mn_EM10<< >>p_C_EM10<<  >>p_Si_EM10<< >>p_Ti_EM10<< 
+>>a_comb<< >>a_AIM1<< >>a_EM10<< >>a_na<< 
+>>T_comb<< >>T_clad<< >>T_Na<< ;
+
+*-----------------------------------------------------
+* AUTRES PARAMETRES                                  *
+*-----------------------------------------------------
+
+* NOMBRE D AVOGADRO
+
+ECHO "start calculation" ;
+REAL A := 6.022094E-1 ; ! Normalisation des concentrations par 10E-24
+
+REAL 
+p_Fe54 p_Fe56 p_Fe57 p_Fe58 
+p_Cr50 p_Cr52 p_Cr53 p_Cr54 
+p_Ni58 p_Ni60 p_Ni61 p_Ni62 p_Ni64
+p_Mo92 p_Mo94 p_Mo95 p_Mo96 p_Mo97 p_Mo98 p_Mo100
+:=
+0.058 0.9172 0.022 0.0028 
+0.0434 0.8381 0.0949 0.0236 
+0.6827 0.261 0.0113 0.0359 0.0091
+0.148 0.091 0.159 0.167 0.095 0.244 0.096 ;
+
+* MASSES NUCLEAIRES DES ISOTOPES (u)
+
+* Donnees tirées du site atom.kaeri.re.kr
+
+REAL M_U := p_U5 235.0439231 * p_U8 238.0507826 * 2.0 15.9949 * + + ;
+REAL M_Pu := p_Pu38 238.0495534 * p_Pu39 239.0521565 * p_Pu40
+240.0538075 * p_Pu41 241.0568453 * p_Pu42 242.0587368 * p_Am
+241.0568229 * 2.0 15.9949 * + + + + + + ;
+REAL M_fertile := M_U ;
+
+REAL M_Fe := p_Fe54 53.9396148 * p_Fe56 55.9349421 * 
+p_Fe57 56.9353987 * p_Fe58 57.9332805 * + + + ;
+REAL M_Cr := p_Cr50 49.9460496 * p_Cr52 51.9405119 * 
+p_Cr53 52.9406538 * p_Cr54 53.9388849 * + + + ;
+REAL M_Ni := p_Ni58 57.9353479 * p_Ni60 59.9307906 * 
+p_Ni61 60.9310604 * p_Ni62 61.9283488 * p_Ni64 
+63.9279696 * + + + + ;
+REAL M_Mn := 54.938045 ;
+REAL M_Mo := p_Mo92 91.906824 * p_Mo94 93.905090 * p_Mo95 94.905888 *
+p_Mo96 95.904668 * p_Mo97 96.905969 * p_Mo98 97.905355 *
+p_Mo100 99.907252 * + + + + + + ;
+REAL M_Si := 28.0855 ;
+REAL M_Ti := 47.867 ;
+REAL M_C := 12.0107 ;
+
+* DENSITES NOMINALES A 20³C (g/cm^3)
+
+REAL rho0_MOX := 11.46 ;
+REAL rho0_fertile := 10.95 ;
+REAL rho0_AIM1 := 7.95 ;
+REAL rho0_EM10 := 7.76 ;
+REAL rho0_Na := 0.971 ;
+REAL rho0_He := 0.125 ;
+
+* DENSITES A LA TEMPERATURE T (g/cm^3)
+
+REAL coeff_1 := T_comb 20.0 - a_comb * 1.0 + ;
+REAL coeff_2 := coeff_1 coeff_1 * coeff_1 * ;
+REAL rho_MOX := rho0_MOX coeff_2 * ;
+
+REAL rho_fertile := rho0_fertile coeff_2 * ;
+
+REAL coeff_3 := T_clad 20.0 - a_AIM1 * 1.0 + ;
+REAL coeff_4 := coeff_3 coeff_3 * coeff_3 * ;
+REAL rho_AIM1 := rho0_AIM1 coeff_4 * ;
+
+REAL coeff_7 := T_Na 20.0 - a_EM10 * 1.0 + ;
+(*Hypothese : T_box = T_Na*)
+REAL coeff_8 := coeff_7 coeff_7 * coeff_7 * ;
+REAL rho_EM10 := rho0_EM10 coeff_8 * ;
+
+REAL coeff_11 := T_Na 20.0 - a_na * 1.0 + ;
+REAL coeff_12 := coeff_11 coeff_11 * coeff_11 * ;
+REAL rho_Na := rho0_Na coeff_12 * ;
+
+REAL coeff_13 := T_comb 20.0 - a_comb * 1.0 - ;
+REAL rho_He_1 :=  rho0_He coeff_1 coeff_13 coeff_13 * * / ; 
+* a l interieur de la pastille
+REAL coeff_14 := T_clad 20.0 - a_AIM1 * 1.0 - ;
+REAL rho_He_2 := rho0_He coeff_1 coeff_1 coeff_1 * * 
+ coeff_14 coeff_14 * * / ; 
+* entre la pastille et la gaine
+
+*-----------------------------------------------------
+* CALCUL DES CONCENTRATIONS                          *
+*-----------------------------------------------------
+
+* COMBUSTIBLE FISSILE
+
+REAL N_MOX := rho_MOX p_Pu * A * M_Pu / ;
+REAL N_U := rho_MOX p_U * A * M_U / ;
+REAL N_U5 := p_U5 N_U * ;
+REAL N_U8 := p_U8 N_U * ;
+REAL N_Pu38 := p_Pu38 N_MOX * ;
+REAL N_Pu39 := p_Pu39 N_MOX * ;
+REAL N_Pu40 := p_Pu40 N_MOX * ;
+REAL N_Pu41 := p_Pu41 N_MOX * ;
+REAL N_Pu42 := p_Pu42 N_MOX * ;
+REAL N_Am := p_Am N_MOX * ;
+REAL N_O := 2.0 N_U * 2.0 N_MOX * + ;
+
+* COMBUSTIBLE FERTILE
+
+REAL N_fertile := rho_fertile A * M_fertile / ;
+REAL N_U5_f := p_U5 N_fertile * ;
+REAL N_U8_f := p_U8 N_fertile * ;
+REAL N_O_f := 2.0 N_fertile * ;
+
+* GAINE (ACIER AIM1)
+
+REAL N_Fe_AIM1 := p_Fe_AIM1 rho_AIM1 A * M_Fe / * ;
+REAL N_Fe54_AIM1 := p_Fe54 N_Fe_AIM1 * ;
+REAL N_Fe56_AIM1 := p_Fe56 N_Fe_AIM1 * ;
+REAL N_Fe57_AIM1 := p_Fe57 N_Fe_AIM1 * ;
+REAL N_Fe58_AIM1 := p_Fe58 N_Fe_AIM1 * ;
+REAL N_Cr_AIM1 := p_Cr_AIM1 rho_AIM1 A * M_Cr / * ;
+REAL N_Cr50_AIM1 := p_Cr50 N_Cr_AIM1 * ;
+REAL N_Cr52_AIM1 := p_Cr52 N_Cr_AIM1 * ;
+REAL N_Cr53_AIM1 := p_Cr53 N_Cr_AIM1 * ;
+REAL N_Cr54_AIM1 := p_Cr54 N_Cr_AIM1 * ;
+REAL N_Ni_AIM1 := p_Ni_AIM1 rho_AIM1 A * M_Ni / * ;
+REAL N_Ni58_AIM1 := p_Ni58 N_Ni_AIM1 * ;
+REAL N_Ni60_AIM1 := p_Ni60 N_Ni_AIM1 * ;
+REAL N_Ni61_AIM1 := p_Ni61 N_Ni_AIM1 * ;
+REAL N_Ni62_AIM1 := p_Ni62 N_Ni_AIM1 * ;
+REAL N_Ni64_AIM1 := p_Ni64 N_Ni_AIM1 * ;
+REAL N_Mn55_AIM1 := p_Mn_AIM1 rho_AIM1 A * M_Mn / * ;
+REAL N_Mo_AIM1 := p_Mo_AIM1 rho_AIM1 A * M_Mo / * ;
+REAL N_Mo92_AIM1 := p_Mo92 N_Mo_AIM1 * ;
+REAL N_Mo94_AIM1 := p_Mo94 N_Mo_AIM1 * ;
+REAL N_Mo95_AIM1 := p_Mo95 N_Mo_AIM1 * ;
+REAL N_Mo96_AIM1 := p_Mo96 N_Mo_AIM1 * ;
+REAL N_Mo97_AIM1 := p_Mo97 N_Mo_AIM1 * ;
+REAL N_Mo98_AIM1 := p_Mo98 N_Mo_AIM1 * ;
+REAL N_Mo100_AIM1 := p_Mo100 N_Mo_AIM1 * ;
+REAL N_Si_AIM1 := p_Si_AIM1 rho_AIM1 A * M_Si / * ;
+REAL N_Ti_AIM1 := p_Ti_AIM1 rho_AIM1 A * M_Ti / * ;
+
+* BOITIER (ACIER EM10)
+
+REAL N_Fe_EM10 := p_Fe_EM10 rho_EM10 A * M_Fe / * ;
+REAL N_Fe54_EM10 := p_Fe54 N_Fe_EM10 * ;
+REAL N_Fe56_EM10 := p_Fe56 N_Fe_EM10 * ;
+REAL N_Fe57_EM10 := p_Fe57 N_Fe_EM10 * ;
+REAL N_Fe58_EM10 := p_Fe58 N_Fe_EM10 * ;
+REAL N_Cr_EM10 := p_Cr_EM10 rho_EM10 A * M_Cr / * ;
+REAL N_Cr50_EM10 := p_Cr50 N_Cr_EM10 * ;
+REAL N_Cr52_EM10 := p_Cr52 N_Cr_EM10 * ;
+REAL N_Cr53_EM10 := p_Cr53 N_Cr_EM10 * ;
+REAL N_Cr54_EM10 := p_Cr54 N_Cr_EM10 * ;
+REAL N_Ni_EM10 := p_Ni_EM10 rho_EM10 A * M_Ni / * ;
+REAL N_Ni58_EM10 := p_Ni58 N_Ni_EM10 * ;
+REAL N_Ni60_EM10 := p_Ni60 N_Ni_EM10 * ;
+REAL N_Ni61_EM10 := p_Ni61 N_Ni_EM10 * ;
+REAL N_Ni62_EM10 := p_Ni62 N_Ni_EM10 * ;
+REAL N_Ni64_EM10 := p_Ni64 N_Ni_EM10 * ;
+REAL N_Mn55_EM10 := p_Mn_EM10 rho_EM10 A * M_Mn / * ;
+REAL N_Mo_EM10 := p_Mo_EM10 rho_EM10 A * M_Mo / * ;
+REAL N_Mo92_EM10 := p_Mo92 N_Mo_EM10 * ;
+REAL N_Mo94_EM10 := p_Mo94 N_Mo_EM10 * ;
+REAL N_Mo95_EM10 := p_Mo95 N_Mo_EM10 * ;
+REAL N_Mo96_EM10 := p_Mo96 N_Mo_EM10 * ;
+REAL N_Mo97_EM10 := p_Mo97 N_Mo_EM10 * ;
+REAL N_Mo98_EM10 := p_Mo98 N_Mo_EM10 * ;
+REAL N_Mo100_EM10 := p_Mo100 N_Mo_EM10 * ;
+REAL N_Si_EM10 := p_Si_EM10 rho_EM10 A * M_Si / * ;
+REAL N_Ti_EM10 := p_Ti_EM10 rho_EM10 A * M_Ti / * ;
+REAL N_C12_EM10 := p_C_EM10 rho_EM10 A * M_C / * ;
+
+* SODIUM
+
+REAL N_Na := rho_Na A * 22.98976928 / ;
+
+* HELIUM
+
+REAL N_He_1 := rho_He_1 A * 4.002602 / ; ! interieur pastille
+REAL N_He_2 := rho_He_2 A * 4.002602 / ; ! entre pastille et gaine
+
+*-----------------------------------------------------
+* AFFICHAGE DES RESULTATS                            *
+*-----------------------------------------------------
+
+:: <<N_Na>> <<N_U5>> <<N_U8>> <<N_Pu38>> <<N_Pu39>> <<N_Pu40>> 
+<<N_Pu41>> <<N_Pu42>> <<N_Am>> <<N_O>>  
+<<N_U5_f>> <<N_U8_f>> <<N_O_f>>  
+<<N_Fe54_AIM1>> <<N_Fe56_AIM1>> <<N_Fe57_AIM1>> <<N_Fe58_AIM1>> 
+<<N_Cr50_AIM1>> <<N_Cr52_AIM1>> <<N_Cr53_AIM1>> <<N_Cr54_AIM1>> 
+<<N_Ni58_AIM1>> <<N_Ni60_AIM1>> <<N_Ni61_AIM1>> <<N_Ni62_AIM1>> 
+<<N_Ni64_AIM1>> <<N_Mn55_AIM1>> <<N_Mo92_AIM1>> <<N_Mo94_AIM1>>
+<<N_Mo95_AIM1>> <<N_Mo96_AIM1>> <<N_Mo97_AIM1>> <<N_Mo98_AIM1>>
+<<N_Mo100_AIM1>> <<N_Si_AIM1>>  <<N_Ti_AIM1>> 
+<<N_Fe54_EM10>> <<N_Fe56_EM10>> <<N_Fe57_EM10>> <<N_Fe58_EM10>> 
+<<N_Cr50_EM10>> <<N_Cr52_EM10>> <<N_Cr53_EM10>> <<N_Cr54_EM10>> 
+<<N_Ni58_EM10>> <<N_Ni60_EM10>> <<N_Ni61_EM10>> <<N_Ni62_EM10>> 
+<<N_Ni64_EM10>> <<N_Mn55_EM10>> <<N_Mo92_EM10>> <<N_Mo94_EM10>>
+<<N_Mo95_EM10>> <<N_Mo96_EM10>> <<N_Mo97_EM10>> <<N_Mo98_EM10>>
+<<N_Mo100_EM10>> <<N_C12_EM10>> <<N_Si_EM10>>   <<N_Ti_EM10>>
+<<N_He_1>> <<N_He_2>> 
+;
+ 
+END: ;
+QUIT .

@@ -1,5 +1,5 @@
 *DECK B1BETA
-      DOUBLE PRECISION FUNCTION B1BETA(IAPROX,B2,SIG,DD)
+      DOUBLE PRECISION FUNCTION B1BETA(IAPROX,B2,SIG,DHOM)
 *
 *-----------------------------------------------------------------------
 *
@@ -20,7 +20,7 @@
 *         =0: LKRD or RHS; =1: P0 or P1; =2: B0 or B1.
 * B2      buckling.
 * SIG     total macroscopic cross section.
-* DD      leakage coefficient (used if IAPROX=0).
+* DHOM    homogeneous leakage coefficient (used if IAPROX=0).
 *
 *Parameters: output
 * B1BETA  value of the beta function.
@@ -32,7 +32,7 @@
 *  SUBROUTINE ARGUMENTS
 *----
       INTEGER IAPROX
-      DOUBLE PRECISION B2,SIG,DD
+      DOUBLE PRECISION B2,SIG,DHOM
       PARAMETER(B2LIM=0.5D0)
 *
       SIG2=SIG*SIG
@@ -41,7 +41,7 @@
          B1BETA=1.0E10
       ELSE IF (IAPROX.EQ.0) THEN
 *        LKRD APPROXIMATION (IMPOSED DIFFUSION COEFFICIENT).
-         B1BETA=DD/(SIG+DD*B2)
+         B1BETA=DHOM/(SIG+DHOM*B2)
       ELSE IF (IAPROX.EQ.1) THEN
 *        P0 OR P1 APPROXIMATION
          B1BETA=1.0D0/(3.0D0*SIG2+B2)

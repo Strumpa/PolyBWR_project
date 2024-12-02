@@ -1,0 +1,110 @@
+************************************************************************************
+*                                                                                  *
+* Procedure :  TRK_A_A.c2m                                                         *
+* Purpose   :  Tracking and figure printing for ALAMOS assemblies                  *
+* Author    :  L.Fede                                                              *
+*                                                                                  *
+* CALL      :                                                                      *
+* TRACK TF_EXC TRACK_SS TF_EXC_SS FIG.ps FIG_SS.ps := TRK_A_A                      *
+*               <<ALAM_MOC_ap3>> <<ALAM_MOC_za>> <<ALAM_SSH_ap3>> <<ALAM_SSH_za>>  *
+*                                                                                  *
+************************************************************************************
+
+* ---
+* INPUT & OUTPUT PARAMETERS
+* ---
+PARAMETER TRACK TF_EXC TRACK_SS TF_EXC_SS FIG.ps FIG_SS.ps ::
+::: LINKED_LIST TRACK ;
+::: SEQ_BINARY TF_EXC ;
+::: LINKED_LIST TRACK_SS ;
+::: SEQ_BINARY TF_EXC_SS ;
+::: SEQ_ASCII FIG.ps ;
+::: SEQ_ASCII FIG_SS.ps ; ;
+
+STRING ALAM_MOC_ap3 ALAM_MOC_za ALAM_SSH_ap3 ALAM_SSH_za ;
+:: >>ALAM_MOC_ap3<< >>ALAM_MOC_za<< >>ALAM_SSH_ap3<< >>ALAM_SSH_za<< ;
+
+* ---
+* STRUCTURES AND MODULES
+* ---
+MODULE G2S: SALT: MCCGT: END: ;
+
+SEQ_ASCII CC_ALAM_ap3 :: FILE <<ALAM_MOC_ap3>> ;
+SEQ_ASCII CC_ALAM_za :: FILE <<ALAM_MOC_za>> ;
+SEQ_ASCII SS_ALAM_ap3 :: FILE <<ALAM_SSH_ap3>> ;
+SEQ_ASCII SS_ALAM_za :: FILE <<ALAM_SSH_za>> ;
+
+SEQ_ASCII _BURN :: FILE './_BURN_rowland.txt' ;
+SEQ_ASCII _LIBR :: FILE './_LIB_rowland.txt' ;
+SEQ_ASCII _EDIT :: FILE './_EDIT_rowland.txt' ;
+
+SEQ_ASCII UOX_TBH UOX_TBH_SS ;
+
+INTEGER an2d := 18 ;
+REAL densur := 30.0 ;
+
+INTEGER an2d_SS := 8 ;
+REAL densur_SS := 10.0 ;
+
+INTEGER PTS := 200000 ;
+
+* polar angles for MCCGT:
+INTEGER nmu := 4 ;
+
+* size allocation for MCCGT:
+INTEGER mcu := 50000 ;
+
+INTEGER SYM := 10 ;
+IF ALAM_SSH_ap3 './KML2_ARO_39AWU_SSH.ap3' = THEN
+  EVALUATE SYM := 11 ;
+  EVALUATE densur_SS := 15.0 ;
+ENDIF ;
+
+*----------------------
+*      TRACKING
+*----------------------
+
+*----
+* FLUX CALC TRACKING
+*----
+
+UOX_TBH FIG.ps := G2S: SS_ALAM_ap3 SS_ALAM_za ::
+  EDIT 0
+  ALAMOS <<SYM>>
+*  DRAWMIX 
+*  ZOOMX 0.45 0.55 
+*  ZOOMY 0.6 0.7 
+;
+
+TRACK TF_EXC := SALT: UOX_TBH ::
+  EDIT 0
+  ALLG
+  TSPC EQW2 <<an2d>> <<densur>> REND LONG
+;
+
+* MOC tracking
+TRACK := MCCGT: TRACK TF_EXC ::
+  EDIT 0
+  CACB <<nmu>> AAC 80 TMT EPSI 1E-5 MCU <<mcu>>
+;
+
+* ---
+* SELF-SHIELDING TRACKING
+* ---
+UOX_TBH_SS FIG_SS.ps := G2S: SS_ALAM_ap3 SS_ALAM_za :: 
+  EDIT 0
+  ALAMOS <<SYM>>
+*  DRAWMIX 
+*  ZOOMX 0.0 0.2 
+*  ZOOMY 0.0 0.2 
+;
+
+TRACK_SS TF_EXC_SS := SALT: UOX_TBH_SS ::
+  EDIT 0
+  ALLG
+  TSPC EQW2 <<an2d_SS>> <<densur_SS>> REND LONG
+  MERGMIX
+;
+
+END: ;
+QUIT .

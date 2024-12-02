@@ -11,7 +11,7 @@ are:
 
 \begin{DataStructure}{Structure \dstr{equality}}
 \dusa{NAME1} \moc{:=} $[$ \dusa{NAME1} $]$ \dusa{NAME2} \\
-~~~~~$[$ \moc{::} $[$ \moc{EDIT} \dusa{iprint} $]~[~\{$ \moc{OLD} $|$ \moc{SAP}$\}~]~[[$ \moc{STEP} $\{$ \moc{UP} \dusa{NOMDIR} $|$ \moc{AT} \dusa{index} $\}~]]~]$ \moc{;} \\
+~~~~~$[$ \moc{::} $[$ \moc{EDIT} \dusa{iprint} $]~[$ \moc{ERAS} $]~[~\{$ \moc{OLD} $|$ \moc{SAP}$\}~]~[[$ \moc{STEP} $\{$ \moc{UP} \dusa{NOMDIR} $|$ \moc{AT} \dusa{index} $\}~]]~]$ \moc{;} \\
 \end{DataStructure}
 
 \begin{ListeDeDescription}{mmmmmmmm}
@@ -19,7 +19,7 @@ are:
 \item[\dusa{NAME1}] {\tt character*12} name of the output data
 structure. It can be a {\sc lcm} object (either memory-resident or {\sc xsm}-based), a sequential binary file,
 a sequential {\sc ascii} file or a {\sc hdf5} file. If \dusa{NAME1} is a {\sc lcm} object and if it appears on both sides,
-it is erased and refilled with the contents of \dusa{NAME2}.
+it is filled with the contents of \dusa{NAME2}.
 
 \item[\dusa{NAME2}] {\tt character*12} name of the input data
 structure. It can be a {\sc lcm} object (either memory-resident or {\sc xsm}-based), a sequential binary file,
@@ -30,6 +30,8 @@ a sequential {\sc ascii} file or a {\sc hdf5} file.
 \item[\dusa{iprint}] index used to control the printing of this module. The
 amount of output produced by this tracking module will vary substantially
 depending on the print level specified.
+
+\item[\moc{ERAS}] keyword used to erase the contents of the LCM object \dusa{NAME1} before the copy operation in case it appears on both sides of \moc{:=}.
 
 \item[\moc{OLD}] keyword used to import/export a LHS sequential {\sc ascii} file in 1995 {\sc lcm} specification. By
 default, the up-to-date specification is used.
@@ -322,19 +324,18 @@ PARENT := ERASE: PARENT ;
 \subsection{The BACKUP: module}\label{sect:BACKUPData}
 
 This module is used to copy one or many {\sc lcm} objects (memory-resident or {\sc xsm}-based), along with all of its parent to a backup {\sc lcm} object. The backup data
-structure can be stored on a single {\sc lcm} object (either memory-resident or {\sc xsm}-based), a sequential binary
-file or a sequential ASCII file. The calling specifications are:
+structure is a single {\sc lcm} object (either memory-resident or {\sc xsm}-based with a {\tt L\_ARCHIVE} signature). The calling specifications are:
 
 \begin{DataStructure}{Structure \dstr{BACKUP:}}
 \dusa{NAME1} \moc{:=} \moc{BACKUP:} $[$ \dusa{NAME1} $]$ $[[$ \dusa{NAME2} $]]~[$ \moc{::} \\
  $[$ \moc{EDIT} \dusa{iprint} $]$ \\
+ $[~[$ \moc{LIST} \dusa{ndim} $]$ \moc{ITEM} \dusa{ipos} $]$ \\
  $[[$ \moc{STEP} $\{$ \moc{UP} \dusa{NOMDIR} $|$ \moc{AT} \dusa{index} $\}~]]~]$ \moc{;}
 \end{DataStructure}
 
 \begin{ListeDeDescription}{mmmmmmmm}
 
-\item[\dusa{NAME1}] {\tt character*12} name of {\sc lcm} object used as a
-backup media.
+\item[\dusa{NAME1}] {\tt character*12} name of {\sc lcm} object ({\tt L\_ARCHIVE} signature) used as a backup media.
 
 \item[\dusa{NAME2}] {\tt character*12} name of {\sc lcm} object
 to be transfer to the backup {\sc lcm} object. This {\sc lcm} object must be in a
@@ -346,7 +347,17 @@ memory-resident or {\sc xsm}-based format.
 amount of output produced by this tracking module will vary substantially
 depending on the print level specified.
 
-\item[\moc{STEP}] keyword used to move in the {\sc lcm} object hierarchy of \dusa{NAME2} before making the backup.
+\item[\moc{LIST}] keyword to store \dusa{NAME2} objects as list components. By default, a single \dusa{NAME2} object is stored directly into \dusa{NAME1}.
+
+\item[\dusa{ndim}] number of heterogeneous list components set to store each \dusa{NAME2} object type.
+
+\item[\moc{ITEM}] keyword to set the index of the list component in the archive where objects \dusa{NAME2} are stored. This keyword is mandatory if
+\dusa{NAME2} is stored as a list component.
+
+\item[\dusa{ipos}] index (\dusa{ipos} $\le$ \dusa{ndim}) of the list component.
+
+\item[\moc{STEP}] keyword used to move in the {\sc lcm} object hierarchy of \dusa{NAME2} before making the backup. The {\sc lcm} object
+with {\tt L\_ARCHIVE} signature is created after \moc{STEP} moves are done.
 
 \item[\moc{UP}] keyword used to move up towards a sub-directory of \dusa{NAME2} of the
 active directory.
@@ -367,21 +378,21 @@ appears on both the LHS and the RHS, it is updated.
 \subsection{The RECOVER: module}\label{sect:RECOVERData}
 
 This module is used to recover from a backup {\sc lcm} object (see
-\Sect{BACKUPData}) one or many {\sc lcm} objects (memory-resident or {\sc xsm}-based).
+\Sect{BACKUPData}) one or many {\sc lcm} objects (memory-resident or {\sc xsm}-based with {\tt L\_ARCHIVE} signature).
 The calling specifications are:
 
 \begin{DataStructure}{Structure \dstr{RECOVER:}}
 $[[$ \dusa{NAME1} $]]$ \moc{:=} \moc{RECOVER:} \dusa{NAME2} $[[$ \dusa{NAME1} $]]~[$ \moc{::} \\
 $[$ \moc{EDIT} \dusa{iprint} $]$ \\
+$[$ \moc{ITEM} \dusa{ipos} $]$ \\
 $[[$ \moc{STEP} $\{$ \moc{UP} \dusa{NOMDIR} $|$ \moc{AT} \dusa{index} $\}~]]~]$ \moc{;}
 \end{DataStructure}
 
 \begin{ListeDeDescription}{mmmmmmmm}
 
-\item[\dusa{NAME1}] {\tt character*12} name of the {\sc lcm} objects that are to
-be recovered.
+\item[\dusa{NAME1}] {\tt character*12} name of the {\sc lcm} objects that are to be recovered.
 
-\item[\dusa{NAME2}] {\tt character*12} name of a backup {\sc lcm} object.
+\item[\dusa{NAME2}] {\tt character*12} name of a backup {\sc lcm} object ({\tt L\_ARCHIVE} signature).
 
 \item[\moc{EDIT}] keyword used to modify the print level \dusa{iprint}.
 
@@ -389,7 +400,12 @@ be recovered.
 amount of output produced by this tracking module will vary substantially
 depending on the print level specified.
 
-\item[\moc{STEP}] keyword used to move in the {\sc lcm} object hierarchy of \dusa{NAME2} before making the recover.
+\item[\moc{ITEM}] mandatory keyword used if the \moc{LIST} keyword was set in module {\tt BACKUP:}.
+
+\item[\dusa{ipos}] index of the list component in the archive where objects \dusa{NAME1} are recovered.
+
+\item[\moc{STEP}] keyword used to move in the {\sc lcm} object hierarchy of \dusa{NAME2} before making the recover. The {\sc lcm} object
+with {\tt L\_ARCHIVE} signature is reached after \moc{STEP} moves are done.
 
 \item[\moc{UP}] keyword used to move up towards a sub-directory of \dusa{NAME2} of the
 active directory.

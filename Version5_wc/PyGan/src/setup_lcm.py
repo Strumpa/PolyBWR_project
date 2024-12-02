@@ -13,16 +13,17 @@ import numpy
 
 def main():
   import os
-  if int(numpy.version.version[0]) >= 2:
-    incdir = os.path.join(os.path.split(os.path.abspath(numpy.__file__))[0], "_core/include")
-  else:
-    incdir = os.path.join(os.path.split(os.path.abspath(numpy.__file__))[0], "core/include")
+  incdir = numpy.get_include()
   mach = os.path.basename(os.getcwd())
   Compiler = os.environ.get("COMPILER", None) # Compiler selection
   if Compiler == "NVTOOLS":
     libdir="../../lib/"+mach+"_nvidia"
     libNv=os.environ.get("NVTOOLS", None)+"/../lib"
     extralink=["-lnvc","-lnvcpumath"]
+  elif Compiler == "LLVMTOOLS":
+    libdir="../../lib/"+mach+"_flang"
+    libNv=" "
+    extralink=[ ]
   elif Compiler == "INTELTOOLS":
     libdir="../../lib/"+mach+"_intel"
     libNv=" "

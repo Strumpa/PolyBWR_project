@@ -93,6 +93,7 @@ while not conv:
   Thm = ipLifo3.node("Thm")
   Jpmap = Fmap["PARAM"];
   myIntPtr = np.array([2,], dtype='i')
+  print(f"myIntPtr={myIntPtr}")
   for ipar in range(0, npar):
     Kpmap = Jpmap[ipar]
     pname = Kpmap["P-NAME"]

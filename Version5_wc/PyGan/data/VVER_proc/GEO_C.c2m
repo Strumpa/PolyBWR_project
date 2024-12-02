@@ -1,0 +1,346 @@
+****************************************************************
+*                                                              *
+* Procedure :  GEO_A_C.c2m                                     *
+* Purpose   :  Geometry definition for pin cells               *
+* Author    :  L.Fede                                          *
+*                                                              *
+* CALL      :                                                  *
+* GEOM GEOM_SS := GEO_C :: <<name_geom>>                       *
+*                                                              *
+****************************************************************
+
+* --------------------------------
+*    INPUT & OUTPUT PARAMETERS
+* --------------------------------
+PARAMETER GEOM GEOM_SS ::
+::: LINKED_LIST GEOM ; 
+::: LINKED_LIST GEOM_SS ; ;
+
+STRING name_geom ;
+:: >>name_geom<< ;
+
+* -------------------------------
+*    STRUCTURES AND MODULES
+* -------------------------------
+MODULE  GEO: END: ;
+REAL PITCH RCOMB1 RCOMB2 RCOMB3 RCOMB4 RCOMB5 RCOMB6 CLAD ; 
+REAL RMOD1  RMOD2 RMOD3  :=
+     0.5235 0.592 0.6605 ;
+INTEGER COMB0101 COMB0102 COMB0103 COMB0104 COMB0105 COMB0106 GAP7 CLAD8 MODE9 ;
+
+* --------------------------------
+*       GEOMETRY DEFINITION
+* -------------------------------
+ECHO "vverGEO: process geometry=" name_geom ;
+
+
+* ------------------------------
+*             CELLS
+* ------------------------------
+
+* ---
+* KHMELNITSKY-2 REACTOR - 22AU ASSEMBLY - 2.2% UOx CELL
+* ---
+IF name_geom 'KML2_22AU_22UOx' = THEN
+
+ EVALUATE COMB0101 COMB0104 COMB0105 COMB0106 GAP7 CLAD8 MODE9 :=
+          11 14 15 16 7 8 9 ; ! DISTRIBUTED SELF-SHIELDING 
+
+ GEOM := GEO: :: HEXCEL 10
+      HBC COMPLETE TRAN
+      RADIUS 0.0 0.075 0.18925 0.3028 0.359575 0.3785 0.3865 0.455 <<RMOD1>> <<RMOD2>> <<RMOD3>>
+      SIDE 0.7361215932
+      SECT -1 0
+      MIX
+      <<GAP7>> <<GAP7>> <<GAP7>> <<GAP7>> <<GAP7>> <<GAP7>>
+      <<COMB0101>> <<COMB0101>> <<COMB0101>> <<COMB0101>> <<COMB0101>> <<COMB0101>>
+      <<COMB0104>> <<COMB0104>> <<COMB0104>> <<COMB0104>> <<COMB0104>> <<COMB0104>>
+      <<COMB0105>> <<COMB0105>> <<COMB0105>> <<COMB0105>> <<COMB0105>> <<COMB0105>>
+      <<COMB0106>> <<COMB0106>> <<COMB0106>> <<COMB0106>> <<COMB0106>> <<COMB0106>>
+      <<GAP7>> <<GAP7>> <<GAP7>> <<GAP7>> <<GAP7>> <<GAP7>>
+      <<CLAD8>> <<CLAD8>> <<CLAD8>> <<CLAD8>> <<CLAD8>> <<CLAD8>>
+      <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>>
+      <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>>
+      <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>>
+      <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>>
+      ;
+
+ GEOM_SS := GEO: :: HEXCEL 7
+      HBC COMPLETE ALBE 1.0
+      RADIUS 0.0 0.075 0.18925 0.3028 0.359575 0.3785 0.3865 0.455
+      SIDE 0.7361215932
+      MIX
+      <<GAP7>>
+      <<COMB0101>>
+      <<COMB0104>>
+      <<COMB0105>>
+      <<COMB0106>>
+      <<GAP7>>
+      <<CLAD8>>
+      <<MODE9>>
+      ;
+
+* ---
+* KHMELNITSKY-2 REACTOR - 40AU ASSEMBLY - 4.0% UOx CELL
+* ---
+ELSEIF name_geom 'KML2_40AU_40UOx' = THEN
+
+ EVALUATE COMB0101 COMB0104 COMB0105 COMB0106 GAP7 CLAD8 MODE9 :=
+          11 14 15 16 7 8 9 ; ! DISTRIBUTED SELF-SHIELDING 
+
+ GEOM := GEO: :: HEXCEL 10
+      HBC COMPLETE TRAN
+      RADIUS 0.0 0.075 0.18925 0.3028 0.359575 0.3785 0.3865 0.455 <<RMOD1>> <<RMOD2>> <<RMOD3>>
+      SIDE 0.7361215932
+      SECT -1 0
+      MIX
+      <<GAP7>> <<GAP7>> <<GAP7>> <<GAP7>> <<GAP7>> <<GAP7>>
+      <<COMB0101>> <<COMB0101>> <<COMB0101>> <<COMB0101>> <<COMB0101>> <<COMB0101>>
+      <<COMB0104>> <<COMB0104>> <<COMB0104>> <<COMB0104>> <<COMB0104>> <<COMB0104>>
+      <<COMB0105>> <<COMB0105>> <<COMB0105>> <<COMB0105>> <<COMB0105>> <<COMB0105>>
+      <<COMB0106>> <<COMB0106>> <<COMB0106>> <<COMB0106>> <<COMB0106>> <<COMB0106>>
+      <<GAP7>> <<GAP7>> <<GAP7>> <<GAP7>> <<GAP7>> <<GAP7>>
+      <<CLAD8>> <<CLAD8>> <<CLAD8>> <<CLAD8>> <<CLAD8>> <<CLAD8>>
+      <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>>
+      <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>>
+      <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>>
+      <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>>
+      ;
+
+ GEOM_SS := GEO: :: HEXCEL 7
+      HBC COMPLETE ALBE 1.0
+      RADIUS 0.0 0.075 0.18925 0.3028 0.359575 0.3785 0.3865 0.455
+      SIDE 0.7361215932
+      MIX
+      <<GAP7>>
+      <<COMB0101>>
+      <<COMB0104>>
+      <<COMB0105>>
+      <<COMB0106>>
+      <<GAP7>>
+      <<CLAD8>>
+      <<MODE9>>
+      ;
+
+* ---
+* KHMELNITSKY-2 REACTOR - 439GT ASSEMBLY - 4.4% UOx CELL
+* ---
+ELSEIF name_geom 'KML2_439GT_44UOx' = THEN
+
+ EVALUATE COMB0101 COMB0104 COMB0105 COMB0106 GAP7 CLAD8 MODE9 :=
+          11 14 15 16 7 8 9 ; ! DISTRIBUTED SELF-SHIELDING 
+
+ GEOM := GEO: :: HEXCEL 10
+      HBC COMPLETE TRAN
+      RADIUS 0.0 0.075 0.18925 0.3028 0.359575 0.3785 0.3865 0.455 <<RMOD1>> <<RMOD2>> <<RMOD3>>
+      SIDE 0.7361215932
+      SECT -1 0
+      MIX
+      <<GAP7>> <<GAP7>> <<GAP7>> <<GAP7>> <<GAP7>> <<GAP7>>
+      <<COMB0101>> <<COMB0101>> <<COMB0101>> <<COMB0101>> <<COMB0101>> <<COMB0101>>
+      <<COMB0104>> <<COMB0104>> <<COMB0104>> <<COMB0104>> <<COMB0104>> <<COMB0104>>
+      <<COMB0105>> <<COMB0105>> <<COMB0105>> <<COMB0105>> <<COMB0105>> <<COMB0105>>
+      <<COMB0106>> <<COMB0106>> <<COMB0106>> <<COMB0106>> <<COMB0106>> <<COMB0106>>
+      <<GAP7>> <<GAP7>> <<GAP7>> <<GAP7>> <<GAP7>> <<GAP7>>
+      <<CLAD8>> <<CLAD8>> <<CLAD8>> <<CLAD8>> <<CLAD8>> <<CLAD8>>
+      <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>>
+      <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>>
+      <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>>
+      <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>>
+      ;
+
+ GEOM_SS := GEO: :: HEXCEL 7
+      HBC COMPLETE ALBE 1.0
+      RADIUS 0.0 0.075 0.18925 0.3028 0.359575 0.3785 0.3865 0.455
+      SIDE 0.7361215932
+      MIX
+      <<GAP7>>
+      <<COMB0101>>
+      <<COMB0104>>
+      <<COMB0105>>
+      <<COMB0106>>
+      <<GAP7>>
+      <<CLAD8>>
+      <<MODE9>>
+      ;
+
+* ---
+* KHMELNITSKY-2 REACTOR - 439 GT ASSEMBLY - 3.6% UOx CELL + Gd2O3
+* ---
+ELSEIF name_geom 'KML2_439GT_36Gd' = THEN
+
+ EVALUATE COMB0101 COMB0102 COMB0103 COMB0104 COMB0105 COMB0106 GAP7 CLAD8 MODE9 :=
+          11 12 13 14 15 16 7 8 9 ; ! DISTRIBUTED SELF-SHIELDING 
+
+ GEOM := GEO: :: HEXCEL 12
+      HBC COMPLETE TRAN
+      RADIUS 0.0 0.075 0.169270 0.239384 0.293185 0.338541 0.368916 0.3785 0.3865 0.455 <<RMOD1>> <<RMOD2>> <<RMOD3>>
+      SIDE 0.7361215932
+      SECT -1 0 
+      MIX
+      <<GAP7>> <<GAP7>> <<GAP7>> <<GAP7>> <<GAP7>> <<GAP7>>
+      <<COMB0101>> <<COMB0101>> <<COMB0101>> <<COMB0101>> <<COMB0101>> <<COMB0101>>
+      <<COMB0102>> <<COMB0102>> <<COMB0102>> <<COMB0102>> <<COMB0102>> <<COMB0102>>
+      <<COMB0103>> <<COMB0103>> <<COMB0103>> <<COMB0103>> <<COMB0103>> <<COMB0103>>
+      <<COMB0104>> <<COMB0104>> <<COMB0104>> <<COMB0104>> <<COMB0104>> <<COMB0104>>
+      <<COMB0105>> <<COMB0105>> <<COMB0105>> <<COMB0105>> <<COMB0105>> <<COMB0105>>
+      <<COMB0106>> <<COMB0106>> <<COMB0106>> <<COMB0106>> <<COMB0106>> <<COMB0106>>
+      <<GAP7>> <<GAP7>> <<GAP7>> <<GAP7>> <<GAP7>> <<GAP7>>
+      <<CLAD8>> <<CLAD8>> <<CLAD8>> <<CLAD8>> <<CLAD8>> <<CLAD8>>
+      <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>>
+      <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>>
+      <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>>
+      <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>>
+      ;
+
+ GEOM_SS := GEO: :: HEXCEL 9
+      HBC COMPLETE ALBE 1.0
+      RADIUS 0.0 0.075 0.169270 0.239384 0.293185 0.338541 0.368916 0.3785 0.3865 0.455
+      SIDE 0.7361215932
+      MIX
+      <<GAP7>>
+      <<COMB0101>>
+      <<COMB0102>>
+      <<COMB0103>>
+      <<COMB0104>>
+      <<COMB0105>>
+      <<COMB0106>>
+      <<GAP7>>
+      <<CLAD8>>
+      <<MODE9>>
+      ;
+
+* ---
+* KHMELNITSKY-2 REACTOR - 39AWU ASSEMBLY - 4.0% UOx CELL
+* ---
+ELSEIF name_geom 'KML2_39AWU_40UOx' = THEN
+
+ EVALUATE COMB0101 COMB0104 COMB0105 COMB0106 GAP7 CLAD8 MODE9 :=
+          11 14 15 16 7 8 9 ; ! DISTRIBUTED SELF-SHIELDING 
+
+ GEOM := GEO: :: HEXCEL 10
+      HBC COMPLETE TRAN
+      RADIUS 0.0 0.075 0.18925 0.3028 0.359575 0.3785 0.3865 0.455 <<RMOD1>> <<RMOD2>> <<RMOD3>>
+      SIDE 0.7361215932
+      SECT -1 0
+      MIX
+      <<GAP7>> <<GAP7>> <<GAP7>> <<GAP7>> <<GAP7>> <<GAP7>>
+      <<COMB0101>> <<COMB0101>> <<COMB0101>> <<COMB0101>> <<COMB0101>> <<COMB0101>>
+      <<COMB0104>> <<COMB0104>> <<COMB0104>> <<COMB0104>> <<COMB0104>> <<COMB0104>>
+      <<COMB0105>> <<COMB0105>> <<COMB0105>> <<COMB0105>> <<COMB0105>> <<COMB0105>>
+      <<COMB0106>> <<COMB0106>> <<COMB0106>> <<COMB0106>> <<COMB0106>> <<COMB0106>>
+      <<GAP7>> <<GAP7>> <<GAP7>> <<GAP7>> <<GAP7>> <<GAP7>>
+      <<CLAD8>> <<CLAD8>> <<CLAD8>> <<CLAD8>> <<CLAD8>> <<CLAD8>>
+      <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>>
+      <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>>
+      <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>>
+      <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>>
+      ;
+
+ GEOM_SS := GEO: :: HEXCEL 7
+      HBC COMPLETE ALBE 1.0
+      RADIUS 0.0 0.075 0.18925 0.3028 0.359575 0.3785 0.3865 0.455
+      SIDE 0.7361215932
+      MIX
+      <<GAP7>>
+      <<COMB0101>>
+      <<COMB0104>>
+      <<COMB0105>>
+      <<COMB0106>>
+      <<GAP7>>
+      <<CLAD8>>
+      <<MODE9>>
+      ;
+
+* ---
+* KHMELNITSKY-2 REACTOR - 39AWU ASSEMBLY - 3.6% UOx CELL
+* ---
+ELSEIF name_geom 'KML2_39AWU_36UOx' = THEN
+
+ EVALUATE COMB0101 COMB0104 COMB0105 COMB0106 GAP7 CLAD8 MODE9 :=
+          11 14 15 16 7 8 9 ; ! DISTRIBUTED SELF-SHIELDING 
+
+ GEOM := GEO: :: HEXCEL 10
+      HBC COMPLETE TRAN
+      RADIUS 0.0 0.075 0.18925 0.3028 0.359575 0.3785 0.3865 0.455 <<RMOD1>> <<RMOD2>> <<RMOD3>>
+      SIDE 0.7361215932
+      SECT -1 0
+      MIX
+      <<GAP7>> <<GAP7>> <<GAP7>> <<GAP7>> <<GAP7>> <<GAP7>>
+      <<COMB0101>> <<COMB0101>> <<COMB0101>> <<COMB0101>> <<COMB0101>> <<COMB0101>>
+      <<COMB0104>> <<COMB0104>> <<COMB0104>> <<COMB0104>> <<COMB0104>> <<COMB0104>>
+      <<COMB0105>> <<COMB0105>> <<COMB0105>> <<COMB0105>> <<COMB0105>> <<COMB0105>>
+      <<COMB0106>> <<COMB0106>> <<COMB0106>> <<COMB0106>> <<COMB0106>> <<COMB0106>>
+      <<GAP7>> <<GAP7>> <<GAP7>> <<GAP7>> <<GAP7>> <<GAP7>>
+      <<CLAD8>> <<CLAD8>> <<CLAD8>> <<CLAD8>> <<CLAD8>> <<CLAD8>>
+      <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>>
+      <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>>
+      <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>>
+      <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>>
+      ;
+
+ GEOM_SS := GEO: :: HEXCEL 7
+      HBC COMPLETE ALBE 1.0
+      RADIUS 0.0 0.075 0.18925 0.3028 0.359575 0.3785 0.3865 0.455
+      SIDE 0.7361215932
+      MIX
+      <<GAP7>>
+      <<COMB0101>>
+      <<COMB0104>>
+      <<COMB0105>>
+      <<COMB0106>>
+      <<GAP7>>
+      <<CLAD8>>
+      <<MODE9>>
+      ;
+
+* ---
+* KHMELNITSKY-2 REACTOR - 39AWU ASSEMBLY - 3.3% UOx CELL + 5.0% Gd2O3
+* ---
+ELSEIF name_geom 'KML2_39AWU_33Gd' = THEN
+
+ EVALUATE COMB0101 COMB0102 COMB0103 COMB0104 COMB0105 COMB0106 GAP7 CLAD8 MODE9 :=
+          11 12 13 14 15 16 7 8 9 ; ! DISTRIBUTED SELF-SHIELDING 
+
+ GEOM := GEO: :: HEXCEL 12
+      HBC COMPLETE TRAN
+      RADIUS 0.0 0.075 0.169270 0.239384 0.293185 0.338541 0.368916 0.3785 0.3865 0.455 <<RMOD1>> <<RMOD2>> <<RMOD3>>
+      SIDE 0.7361215932
+      SECT -1 0
+      MIX
+      <<GAP7>> <<GAP7>> <<GAP7>> <<GAP7>> <<GAP7>> <<GAP7>>
+      <<COMB0101>> <<COMB0101>> <<COMB0101>> <<COMB0101>> <<COMB0101>> <<COMB0101>>
+      <<COMB0102>> <<COMB0102>> <<COMB0102>> <<COMB0102>> <<COMB0102>> <<COMB0102>>
+      <<COMB0103>> <<COMB0103>> <<COMB0103>> <<COMB0103>> <<COMB0103>> <<COMB0103>>
+      <<COMB0104>> <<COMB0104>> <<COMB0104>> <<COMB0104>> <<COMB0104>> <<COMB0104>>
+      <<COMB0105>> <<COMB0105>> <<COMB0105>> <<COMB0105>> <<COMB0105>> <<COMB0105>>
+      <<COMB0106>> <<COMB0106>> <<COMB0106>> <<COMB0106>> <<COMB0106>> <<COMB0106>>
+      <<GAP7>> <<GAP7>> <<GAP7>> <<GAP7>> <<GAP7>> <<GAP7>>
+      <<CLAD8>> <<CLAD8>> <<CLAD8>> <<CLAD8>> <<CLAD8>> <<CLAD8>>
+      <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>>
+      <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>>
+      <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>>
+      <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>> <<MODE9>>
+      ;
+
+ GEOM_SS := GEO: :: HEXCEL 9
+      HBC COMPLETE ALBE 1.0
+      RADIUS 0.0 0.075 0.169270 0.239384 0.293185 0.338541 0.368916 0.3785 0.3865 0.455
+      SIDE 0.7361215932
+      MIX
+      <<GAP7>>
+      <<COMB0101>>
+      <<COMB0102>>
+      <<COMB0103>>
+      <<COMB0104>>
+      <<COMB0105>>
+      <<COMB0106>>
+      <<GAP7>>
+      <<CLAD8>>
+      <<MODE9>>
+      ;
+
+ENDIF ;
+
+END: ;
+QUIT .

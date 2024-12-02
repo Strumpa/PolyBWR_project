@@ -1,0 +1,473 @@
+****************************************************************
+*                                                              *
+* Procedure :  MIX_C.c2m                                       *
+* Purpose   :  Mixture definition for pin cells                *
+* Author    :  L.Fede                                          *
+*                                                              *
+* CALL      :                                                  *
+* LIBRARY := MIX_C :: <<Library>> <<name_geom>>                *
+*                                                              *
+****************************************************************
+
+* -----------------------------------
+*     INPUT & OUTPUT PARAMETERS
+* -----------------------------------
+PARAMETER LIBRARY ::
+::: LINKED_LIST LIBRARY ; ;
+
+STRING Library name_geom ;
+:: >>Library<< >>name_geom<< ;
+
+* ----------------------------------
+*      STRUCTURES AND MODULES
+* ----------------------------------
+MODULE  LIB: END: ;
+
+* CELL MIX
+INTEGER COMB0101 COMB0102 COMB0103 COMB0104 COMB0105 COMB0106 GAP7 CLAD8 MODE9 ;
+
+* ASSEMBLY MIX
+INTEGER G3_6_MAT    G3_3_MAT    U4_4_MAT    U4_0_MAT    U3_6_MAT  U2_2_MAT
+        clad_f_MAT  clad_g_MAT  clad_i_MAT  struct_MAT  void_MAT  water_MAT ;
+
+* FUEL CLADDING MIX : E110
+REAL N_Zr90      N_Zr91      N_Zr92      N_Zr94      N_Zr96     :=
+     2.20052E-2  4.74596E-3  7.17541E-3  7.11667E-3  1.12260E-3 ;
+
+REAL NNb93      N_Hf174    N_Hf176    N_Hf177    N_Hf178    N_Hf179    N_Hf180    :=
+     4.18189E-4 1.07216E-8 3.48463E-7 1.22523E-6 1.78690E-6 8.87146E-7 2.27225E-6 ;
+
+* GUIDE, CONTROL RODS AND INDTRUM TUBE CLADDING MIX : E635
+REAL gN_Zr90     gN_Zr91     gN_Zr92     gN_Zr94     gN_Zr96     :=
+     2.22279E-2  4.79400E-3  7.24805E-3  7.18871E-3  1.13396E-3  ;
+
+REAL gNNb93     gN_Hf174   gN_Hf176   gN_Hf177   gN_Hf178   gN_Hf179   gN_Hf180    :=
+     4.24567E-4 1.08851E-8 3.53778E-7 1.24392E-6 1.81416E-6 9.00677E-7 2.30690E-6  ;
+
+REAL gFe_54     gFe_56     gFe_57     gFe_58     :=
+     2.13900E-5 3.23505E-4 7.34371E-6 9.53218E-7 ;
+
+
+* ----------------------------------
+*               MIX
+* ----------------------------------
+
+
+* -----------------------
+*          CELLS
+* -----------------------
+
+* ---
+* KHMELNITSKY-2 REACTOR - 22AU ASSEMBLY - 2.2% UOx CELL
+* ---
+
+IF name_geom 'KML2_22AU_22UOx' = THEN
+
+  EVALUATE COMB0101 COMB0104 COMB0105 COMB0106 GAP7 CLAD8 MODE9 :=
+           11 14 15 16 7 8 9 ; !  DISTRIBUTED SELF-SHIELDING 
+
+  LIBRARY := LIB: ::
+    EDIT 0
+    NMIX 16    ! MAXIMUM OF MATERIAL MIXTURES
+    PT
+*    CTRA APOL ! APOLLO TYPE TRANSPORT CORRECTION
+    ANIS 2
+    ADED 4 NELAS N4N N2N N3N
+    CALENDF 3 PT      ! CALENDF TYPE PROBABILITY TABLES
+
+    DEPL LIB: DRAGON FIL: <<Library>>
+
+    MIXS LIB: DRAGON FIL: <<Library>>
+
+    MIX <<COMB0101>> 900.0
+      O16     = O16    4.57747E-2
+      U235    = U235   5.09820E-4 1
+      U238    = U238   2.23776E-2 1
+      Pu239   = Pu239  0.0        1
+      Pu240   = Pu240  0.0        1
+      Pu241   = Pu241  0.0        1
+      Pu242   = Pu242  0.0        1
+      Gd155   = Gd155  0.0        1
+      Gd157   = Gd157  0.0        1
+    MIX <<COMB0104>> COMB <<COMB0101>> 1.0
+    MIX <<COMB0105>> COMB <<COMB0101>> 1.0
+    MIX <<COMB0106>> COMB <<COMB0101>> 1.0
+    MIX <<CLAD8>> 600.0 NOEV
+      Zr90    = Zr90   <<N_Zr90>> 2
+      Zr91    = Zr91   <<N_Zr91>> 2
+      Zr92    = Zr92   <<N_Zr92>> 2
+      Zr94    = Zr94   <<N_Zr94>> 2
+      Zr96    = Zr96   <<N_Zr96>> 2
+      Nb93    = Nb93   <<NNb93>> 
+      Hf174   = Hf174  <<N_Hf174>>
+      Hf176   = Hf176  <<N_Hf176>>
+      Hf178   = Hf178  <<N_Hf178>>
+      Hf179   = Hf179  <<N_Hf179>>
+      Hf180   = Hf180  <<N_Hf180>>
+    MIX <<MODE9>> 560.0 NOEV
+      H1      = H1_H2O 5.08204E-2
+      O16     = O16    2.54871E-2
+      B10     = B10    1.02048E-5
+      B11     = B11    4.10756E-5
+    MIX <<GAP7>> 560.0 NOEV
+      He4     = He4   1.00E-08
+    ;  
+
+* ---
+* KHMELNITSKY-2 REACTOR - 40AU ASSEMBLY - 4.0% UOx CELL
+* ---
+
+ELSEIF name_geom 'KML2_40AU_40UOx' = THEN
+
+  EVALUATE COMB0101 COMB0104 COMB0105 COMB0106 GAP7 CLAD8 MODE9 :=
+           11 14 15 16 7 8 9 ; !  DISTRIBUTED SELF-SHIELDING 
+
+  LIBRARY := LIB: ::
+    EDIT 0
+    NMIX 16    ! MAXIMUM OF MATERIAL MIXTURES
+    PT
+*    CTRA APOL ! APOLLO TYPE TRANSPORT CORRECTION
+    ANIS 2
+    ADED 4 NELAS N4N N2N N3N
+    CALENDF 3 PT      ! CALENDF TYPE PROBABILITY TABLES
+
+    DEPL LIB: DRAGON FIL: <<Library>>
+
+    MIXS LIB: DRAGON FIL: <<Library>>
+
+    MIX <<COMB0101>> 900.0
+      O16     = O16    4.57747E-2
+      U235    = U235   9.32400E-4 1
+      U238    = U238   2.23776E-2 1
+      Pu239   = Pu239  0.0        1 
+      Pu240   = Pu240  0.0        1
+      Pu241   = Pu241  0.0        1 
+      Pu242   = Pu242  0.0        1
+      Gd155   = Gd155  0.0        1
+      Gd157   = Gd157  0.0        1
+      Gd158   = Gd158  0.0        1
+      Gd156   = Gd156  0.0        1
+    MIX <<COMB0104>> COMB <<COMB0101>> 1.0
+    MIX <<COMB0105>> COMB <<COMB0101>> 1.0
+    MIX <<COMB0106>> COMB <<COMB0101>> 1.0
+    MIX <<CLAD8>> 600.0 NOEV
+      Zr90    = Zr90   <<N_Zr90>> 2
+      Zr91    = Zr91   <<N_Zr91>> 2
+      Zr92    = Zr92   <<N_Zr92>> 2
+      Zr94    = Zr94   <<N_Zr94>> 2
+      Zr96    = Zr96   <<N_Zr96>> 2
+      Nb93    = Nb93   <<NNb93>> 
+      Hf174   = Hf174  <<N_Hf174>>
+      Hf176   = Hf176  <<N_Hf176>>
+      Hf178   = Hf178  <<N_Hf178>>
+      Hf179   = Hf179  <<N_Hf179>>
+      Hf180   = Hf180  <<N_Hf180>>
+    MIX <<MODE9>> 560.0 NOEV
+      H1      = H1_H2O 5.082040E-2
+      O16     = O16    2.548710E-2
+      B10     = B10    1.02048E-5
+      B11     = B11    4.10756E-5
+    MIX <<GAP7>> 560.0 NOEV
+      He4     = He4   1.00E-08
+    ; 
+
+* ---
+* KHMELNITSKY-2 REACTOR - 439GT ASSEMBLY - 4.4% UOx CELL
+* ---
+
+ELSEIF name_geom 'KML2_439GT_44UOx' = THEN
+
+  EVALUATE COMB0101 COMB0104 COMB0105 COMB0106 GAP7 CLAD8 MODE9 :=
+           11 14 15 16 7 8 9 ; !  DISTRIBUTED SELF-SHIELDING 
+
+  LIBRARY := LIB: ::
+    EDIT 0
+    NMIX 16    ! MAXIMUM OF MATERIAL MIXTURES
+    PT
+*    CTRA APOL ! APOLLO TYPE TRANSPORT CORRECTION
+    ANIS 2
+    ADED 4 NELAS N4N N2N N3N
+    CALENDF 3 PT      ! CALENDF TYPE PROBABILITY TABLES
+
+    DEPL LIB: DRAGON FIL: <<Library>>
+
+    MIXS LIB: DRAGON FIL: <<Library>>
+
+    MIX <<COMB0101>> 900.0
+      O16     = O16    4.57861E-2
+      U235    = U235   1.01961E-3 1
+      U238    = U238   2.18734E-2 1
+      Pu239   = Pu239  0.0        1
+      Pu240   = Pu240  0.0        1
+      Pu241   = Pu241  0.0        1
+      Pu242   = Pu242  0.0        1
+      Gd155   = Gd155  0.0        1
+      Gd157   = Gd157  0.0        1
+    MIX <<COMB0104>> COMB <<COMB0101>> 1.0
+    MIX <<COMB0105>> COMB <<COMB0101>> 1.0
+    MIX <<COMB0106>> COMB <<COMB0101>> 1.0
+    MIX <<CLAD8>> 600.0 NOEV
+      Zr90    = Zr90   <<N_Zr90>> 2
+      Zr91    = Zr91   <<N_Zr91>> 2
+      Zr92    = Zr92   <<N_Zr92>> 2
+      Zr94    = Zr94   <<N_Zr94>> 2
+      Zr96    = Zr96   <<N_Zr96>> 2
+      Nb93    = Nb93   <<NNb93>> 
+      Hf174   = Hf174  <<N_Hf174>>
+      Hf176   = Hf176  <<N_Hf176>>
+      Hf178   = Hf178  <<N_Hf178>>
+      Hf179   = Hf179  <<N_Hf179>>
+      Hf180   = Hf180  <<N_Hf180>>
+    MIX <<MODE9>> 560.0 NOEV
+      H1      = H1_H2O 5.082040E-2
+      O16     = O16    2.548710E-2
+      B10     = B10    1.02048E-5
+      B11     = B11    4.10756E-5
+    MIX <<GAP7>> 560.0 NOEV
+      He4     = He4   1.00E-08
+    ; 
+
+
+* ---
+* KHMELNITSKY-2 REACTOR - 439 GT ASSEMBLY - 3.6% UOx CELL + 5.0% Gd2O3
+* ---
+
+ELSEIF name_geom 'KML2_439GT_36Gd' = THEN
+
+  EVALUATE COMB0101 COMB0102 COMB0103 COMB0104 COMB0105 COMB0106 GAP7 CLAD8 MODE9 :=
+           11 12 13 14 15 16 7 8 9 ; !  DISTRIBUTED SELF-SHIELDING 
+
+  LIBRARY := LIB: ::
+    EDIT 1
+    NMIX 16    ! MAXIMUM OF MATERIAL MIXTURES
+    PT
+*    CTRA APOL ! APOLLO TYPE TRANSPORT CORRECTION
+    ANIS 2
+    ADED 4 NELAS N4N N2N N3N
+    CALENDF 3 PT      ! CALENDF TYPE PROBABILITY TABLES
+
+    DEPL LIB: DRAGON FIL: <<Library>>
+
+    MIXS LIB: DRAGON FIL: <<Library>>
+
+    MIX <<COMB0101>> 900.0
+      O16     = O16    4.59036E-2
+      U235    = U235   7.90006E-4 1
+      U238    = U238   2.08874E-2 1
+      Pu239   = Pu239  0.0        1
+      Pu240   = Pu240  0.0        1
+      Pu241   = Pu241  0.0        1
+      Pu242   = Pu242  0.0        1
+      Gd154   = Gd154  3.78440E-5 1
+      Gd155   = Gd155  2.55262E-4 1
+      Gd156   = Gd156  3.50791E-4 1
+      Gd157   = Gd157  2.66479E-4 1
+      Gd158   = Gd158  4.20283E-4 1
+      Gd160   = Gd160  3.65230E-4 1
+    MIX <<COMB0102>> COMB <<COMB0101>> 1.0
+    MIX <<COMB0103>> COMB <<COMB0101>> 1.0
+    MIX <<COMB0104>> COMB <<COMB0101>> 1.0
+    MIX <<COMB0105>> COMB <<COMB0101>> 1.0
+    MIX <<COMB0106>> COMB <<COMB0101>> 1.0
+    MIX <<CLAD8>> 600.0 NOEV
+      Zr90    = Zr90   <<N_Zr90>> 2
+      Zr91    = Zr91   <<N_Zr91>> 2
+      Zr92    = Zr92   <<N_Zr92>> 2
+      Zr94    = Zr94   <<N_Zr94>> 2
+      Zr96    = Zr96   <<N_Zr96>> 2
+      Nb93    = Nb93   <<NNb93>> 
+      Hf174   = Hf174  <<N_Hf174>>
+      Hf176   = Hf176  <<N_Hf176>>
+      Hf178   = Hf178  <<N_Hf178>>
+      Hf179   = Hf179  <<N_Hf179>>
+      Hf180   = Hf180  <<N_Hf180>>
+    MIX <<MODE9>> 560.0 NOEV
+      H1      = H1_H2O 5.082040E-2
+      O16     = O16    2.548710E-2
+      B10     = B10    1.02048E-5
+      B11     = B11    4.10756E-5
+    MIX <<GAP7>> 560.0 NOEV
+      He4     = He4   1.00E-08
+    ; 
+
+
+* ---
+* KHMELNITSKY-2 REACTOR - 39AWU ASSEMBLY - 4.0% UOx CELL
+* ---
+
+ELSEIF name_geom 'KML2_39AWU_40UOx' = THEN
+
+  EVALUATE COMB0101 COMB0104 COMB0105 COMB0106 GAP7 CLAD8 MODE9 :=
+           11 14 15 16 7 8 9 ; !  DISTRIBUTED SELF-SHIELDING 
+
+  LIBRARY := LIB: ::
+    EDIT 0
+    NMIX 16    ! MAXIMUM OF MATERIAL MIXTURES
+    PT
+*    CTRA APOL ! APOLLO TYPE TRANSPORT CORRECTION
+    ANIS 2
+    ADED 4 NELAS N4N N2N N3N
+    CALENDF 3 PT      ! CALENDF TYPE PROBABILITY TABLES
+
+    DEPL LIB: DRAGON FIL: <<Library>>
+
+    MIXS LIB: DRAGON FIL: <<Library>>
+
+    MIX <<COMB0101>> 900.0
+      O16     = O16    4.57840E-2
+      U235    = U235   9.26920E-4 1
+      U238    = U238   2.19651E-2 1
+      Pu239   = Pu239  0.0        1
+      Pu240   = Pu240  0.0        1
+      Pu241   = Pu241  0.0        1
+      Pu242   = Pu242  0.0        1
+      Gd155   = Gd155  0.0        1
+      Gd157   = Gd157  0.0        1
+    MIX <<COMB0104>> COMB <<COMB0101>> 1.0
+    MIX <<COMB0105>> COMB <<COMB0101>> 1.0
+    MIX <<COMB0106>> COMB <<COMB0101>> 1.0
+    MIX <<CLAD8>> 600.0 NOEV
+      Zr90    = Zr90   <<N_Zr90>> 2
+      Zr91    = Zr91   <<N_Zr91>> 2
+      Zr92    = Zr92   <<N_Zr92>> 2
+      Zr94    = Zr94   <<N_Zr94>> 2
+      Zr96    = Zr96   <<N_Zr96>> 2
+      Nb93    = Nb93   <<NNb93>> 
+      Hf174   = Hf174  <<N_Hf174>>
+      Hf176   = Hf176  <<N_Hf176>>
+      Hf178   = Hf178  <<N_Hf178>>
+      Hf179   = Hf179  <<N_Hf179>>
+      Hf180   = Hf180  <<N_Hf180>>
+    MIX <<MODE9>> 560.0 NOEV
+      H1      = H1_H2O 5.082040E-2
+      O16     = O16    2.548710E-2
+      B10     = B10    1.02048E-5
+      B11     = B11    4.10756E-5
+    MIX <<GAP7>> 560.0 NOEV
+      He4     = He4   1.00E-08
+    ; 
+
+* ---
+* KHMELNITSKY-2 REACTOR - 39AWU ASSEMBLY - 3.6% UOx CELL
+* ---
+
+ELSEIF name_geom 'KML2_39AWU_36UOx' = THEN
+
+  EVALUATE COMB0101 COMB0104 COMB0105 COMB0106 GAP7 CLAD8 MODE9 :=
+           11 14 15 16 7 8 9 ; !  DISTRIBUTED SELF-SHIELDING 
+
+  LIBRARY := LIB: ::
+    EDIT 0
+    NMIX 16    ! MAXIMUM OF MATERIAL MIXTURES
+    PT
+*    CTRA APOL ! APOLLO TYPE TRANSPORT CORRECTION
+    ANIS 2
+    ADED 4 NELAS N4N N2N N3N
+    CALENDF 3 PT      ! CALENDF TYPE PROBABILITY TABLES
+
+    DEPL LIB: DRAGON FIL: <<Library>>
+
+    MIXS LIB: DRAGON FIL: <<Library>>
+
+    MIX <<COMB0101>> 900.0
+      O16     = O16    4.57820E-2
+      U235    = U235   8.34233E-4 1
+      U238    = U238   2.20568E-2 1
+      Pu239   = Pu239  0.0        1
+      Pu240   = Pu240  0.0        1
+      Pu241   = Pu241  0.0        1
+      Pu242   = Pu242  0.0        1
+      Gd155   = Gd155  0.0        1
+      Gd157   = Gd157  0.0        1
+    MIX <<COMB0104>> COMB <<COMB0101>> 1.0
+    MIX <<COMB0105>> COMB <<COMB0101>> 1.0
+    MIX <<COMB0106>> COMB <<COMB0101>> 1.0
+    MIX <<CLAD8>> 600.0 NOEV
+      Zr90    = Zr90   <<N_Zr90>> 2
+      Zr91    = Zr91   <<N_Zr91>> 2
+      Zr92    = Zr92   <<N_Zr92>> 2
+      Zr94    = Zr94   <<N_Zr94>> 2
+      Zr96    = Zr96   <<N_Zr96>> 2
+      Nb93    = Nb93   <<NNb93>> 
+      Hf174   = Hf174  <<N_Hf174>>
+      Hf176   = Hf176  <<N_Hf176>>
+      Hf178   = Hf178  <<N_Hf178>>
+      Hf179   = Hf179  <<N_Hf179>>
+      Hf180   = Hf180  <<N_Hf180>>
+    MIX <<MODE9>> 560.0 NOEV
+      H1      = H1_H2O 5.082040E-2
+      O16     = O16    2.548710E-2
+      B10     = B10    1.02048E-5
+      B11     = B11    4.10756E-5
+    MIX <<GAP7>> 560.0 NOEV
+      He4     = He4   1.00E-08
+    ; 
+
+* ---
+* KHMELNITSKY-2 REACTOR - 39AWU ASSEMBLY - 3.3% UOx CELL + 5.0% Gd2O3
+* ---
+
+ELSEIF name_geom 'KML2_39AWU_33Gd' = THEN
+
+  EVALUATE COMB0101 COMB0102 COMB0103 COMB0104 COMB0105 COMB0106 GAP7 CLAD8 MODE9 :=
+           11 12 13 14 15 16 7 8 9 ; !  DISTRIBUTED SELF-SHIELDING 
+
+  LIBRARY := LIB: ::
+    EDIT 1
+    NMIX 16    ! MAXIMUM OF MATERIAL MIXTURES
+    PT
+*    CTRA APOL ! APOLLO TYPE TRANSPORT CORRECTION
+    ANIS 2
+    ADED 4 NELAS N4N N2N N3N
+    CALENDF 3 PT      ! CALENDF TYPE PROBABILITY TABLES
+
+    DEPL LIB: DRAGON FIL: <<Library>>
+
+    MIXS LIB: DRAGON FIL: <<Library>>
+
+    MIX <<COMB0101>> 900.0
+      O16     = O16    4.59021E-2
+      U235    = U235   7.24175E-4 1
+      U238    = U238   2.09525E-2 1
+      Pu239   = Pu239  0.0        1
+      Pu240   = Pu240  0.0        
+      Pu241   = Pu241  0.0        1
+      Pu242   = Pu242  0.0        
+      Gd154   = Gd154  3.78440E-5 1
+      Gd155   = Gd155  2.55262E-4 1
+      Gd156   = Gd156  3.50791E-4 1
+      Gd157   = Gd157  2.66479E-4 1
+      Gd158   = Gd158  4.20283E-4 1
+      Gd160   = Gd160  3.65230E-4 1
+    MIX <<COMB0102>> COMB <<COMB0101>> 1.0
+    MIX <<COMB0103>> COMB <<COMB0101>> 1.0
+    MIX <<COMB0104>> COMB <<COMB0101>> 1.0
+    MIX <<COMB0105>> COMB <<COMB0101>> 1.0
+    MIX <<COMB0106>> COMB <<COMB0101>> 1.0
+    MIX <<CLAD8>> 600.0 NOEV
+      Zr90    = Zr90   <<N_Zr90>> 2
+      Zr91    = Zr91   <<N_Zr91>> 2
+      Zr92    = Zr92   <<N_Zr92>> 2
+      Zr94    = Zr94   <<N_Zr94>> 2
+      Zr96    = Zr96   <<N_Zr96>> 2
+      Nb93    = Nb93   <<NNb93>> 
+      Hf174   = Hf174  <<N_Hf174>>
+      Hf176   = Hf176  <<N_Hf176>>
+      Hf178   = Hf178  <<N_Hf178>>
+      Hf179   = Hf179  <<N_Hf179>>
+      Hf180   = Hf180  <<N_Hf180>>
+    MIX <<MODE9>> 560.0 NOEV
+      H1      = H1_H2O 5.082040E-2
+      O16     = O16    2.548710E-2
+      B10     = B10    1.02048E-5
+      B11     = B11    4.10756E-5
+    MIX <<GAP7>> 560.0 NOEV
+      He4     = He4   1.00E-08
+    ; 
+
+
+
+ENDIF ;
+
+END: ;
+QUIT .

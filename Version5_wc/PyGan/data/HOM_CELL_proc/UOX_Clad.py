@@ -30,4 +30,5 @@ def UOX_Clad(namCOMPO, StepList, name_compo, ssh_module, ssh_method, sat, depl_s
   # Recover
   myLifo.lib()
   pyCOMPO = myLifo.node(namCOMPO)
+  StepList.close()
   return pyCOMPO

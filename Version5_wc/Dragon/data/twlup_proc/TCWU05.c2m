@@ -175,16 +175,16 @@ ISOT := DATABASE :: STEP UP fuel
                     STEP UP MIXTURES STEP AT 1
                     STEP UP CALCULATIONS STEP AT 5
                     STEP UP ISOTOPESLIST STEP AT 1 ;
-assertS ISOT :: 'NWT0' 1 9.724794E+00 ;
-assertS ISOT :: 'NWT0' 2 2.582013E+01 ;
+assertS ISOT :: 'NWT0' 1 9.724794E0 ;
+assertS ISOT :: 'NWT0' 2 2.582013E1 ;
 ISOT := DELETE: ISOT ;
 
 ISOT := DATABASE :: STEP UP moderator
                     STEP UP MIXTURES STEP AT 1
                     STEP UP CALCULATIONS STEP AT 1
                     STEP UP ISOTOPESLIST STEP AT 1 ;
-assertS ISOT :: 'NWT0' 1 9.327801E-02 ;
-assertS ISOT :: 'NWT0' 2 3.186788E-01 ;
+assertS ISOT :: 'NWT0' 1 9.327823E-2 ;
+assertS ISOT :: 'NWT0' 2 3.186795E-1 ;
 
 INTLINF INTLINS := DELETE: INTLINF INTLINS ;
 ECHO "test TCWU05 completed" ;

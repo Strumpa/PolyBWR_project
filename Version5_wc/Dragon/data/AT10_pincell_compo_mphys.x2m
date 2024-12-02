@@ -27,28 +27,27 @@ STRING track_opt := "SALT" ; ! "SYBNXT" "SALT" "NXTNXT"
 
 SEQ_ASCII FIG_SS.ps :: FILE './PIN_AT10_FIG_SS.ps' ;
 SEQ_ASCII FIG_FLX.ps :: FILE './PIN_AT10_FIG_FLX.ps' ;
-SEQ_ASCII _COMPO :: FILE './COMPO_AT10_MPHYS' ;
+SEQ_ASCII _COMPO :: FILE './COMPO_AT10_MPHYS_RSE' ;
 
 REAL Kinf ;
 
 ************************************************************************
 *                      BEGIN PARAMETER DEFINITION                      *
 ************************************************************************
-INTEGER BU_steps := 21 ;
 INTEGER iAutopMax := 3 ;
-INTEGER fuel_t_pts := 4 ;
-INTEGER cool_t_pts := 4 ;
-INTEGER cool_d_pts := 4 ;
+INTEGER fuel_t_pts := 8 ;
+INTEGER cool_t_pts := 5 ;
+INTEGER cool_d_pts := 9 ;
 PARAMS := UTL: ::
         CREA
             fuel_temp <<fuel_t_pts>> = 
-                700.0 750.0 800.0 850.0
+                500.0 700.0 900.0 1100.0 1300.0 1500.0 1800.0 2000.0
         CREA 
             cool_temp <<cool_t_pts>> =
-                520.0 559.0 600.0 650.0
+                 500.0 540.0 550.0 560.0 570.0
         CREA
             cool_dens <<cool_d_pts>> =
-                0.7803 0.7673 0.7395 0.6499
+                0.8 0.7 0.6 0.5 0.4 0.3 0.2 0.1 0.01
 ;
 
 
@@ -145,7 +144,7 @@ WHILE Tfuel_step fuel_t_pts < DO
                     EDIT 0
                     MICR 11 U235 U236 U238 Pu239 Pu240 Pu241 Pu242 Gd155 Gd157 Xe135 Sm149
                     MERG COMP
-                    COND 4.0
+                    COND 0.625
                     SAVE ON EDIPARAM 
                 ;
             

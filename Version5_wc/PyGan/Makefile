@@ -11,12 +11,16 @@ ifneq (,$(filter $(OS),SunOS AIX))
   MAKE = gmake
 endif
 ifeq ($(intel),1)
-  fcompiler = -c intel
+  fcompiler = intel
 else
   ifeq ($(nvidia),1)
-    fcompiler = -c nvidia
+    fcompiler = nvidia
   else
-    fcompiler = -c custom
+    ifeq ($(flang),1)
+      fcompiler = flang
+    else
+      fcompiler = custom
+    endif
   endif
 endif
 
@@ -41,13 +45,13 @@ donjon :
 clean :
 	$(MAKE_PY) clean -C src
 tests :
-	./rpython $(options) $(fcompiler) test_lcm.py
-	./rpython $(options) $(fcompiler) test_lifo.py
-	./rpython $(options) $(fcompiler) fact.py
-	./rpython $(options) $(fcompiler) simplePOW.py
-	./rpython $(options) $(fcompiler) Exemple_jdd.py
-	./rpython $(options) $(fcompiler) testVVER.py
+	./rpython $(options) -c $(fcompiler) test_lcm.py
+	./rpython $(options) -c $(fcompiler) test_lifo.py
+	./rpython $(options) -c $(fcompiler) fact.py
+	./rpython $(options) -c $(fcompiler) Exemple_jdd.py
+	./rpython $(options) -c $(fcompiler) simplePOW.py
+	./rpython $(options) -c $(fcompiler) testVVER.py
 ifeq ($(hdf5),1)
-	./rpython $(options) $(fcompiler) Equivalence_SPH_APEX.py
-	./rpython $(options) $(fcompiler) pincell_mpo_concat.py
+	./rpython $(options) -c $(fcompiler) Equivalence_SPH_APEX.py
+	./rpython $(options) -c $(fcompiler) pincell_mpo_concat.py
 endif

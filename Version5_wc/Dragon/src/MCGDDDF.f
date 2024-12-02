@@ -83,6 +83,7 @@
             IF ((LPJJAN).AND.(NOLDP.NE.NOMI)) THEN
                IFACE=(1-NZI)/2
                I0P=NEWMOD(I0P,IFACE)
+               IF(I0P.GT.NMOD) CALL XABORT('MCGDDDF: NMOD OVERFLOW.')
             ENDIF
             NOLDP=NOMI
             IF (LPS.GT.0) THEN

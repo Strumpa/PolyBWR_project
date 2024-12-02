@@ -1,0 +1,6783 @@
+*----
+*  Name          : mixAUTOP1_AA.c2m
+*  Type          : DRAGON procedure
+*  Use           : Execute self-shielding for ALAMOS assemblies at first BU step
+*  Author        : L. Fede
+*
+*  Procedure called as:
+*
+*  LIBRARY2 := mixAUTOP1 LIBRARY TRACK_SS TF_EXC_SS :: <<name_geom>> <<AUTOP>> ;
+*
+*  Input data   :
+*    LIBRARY      : Initial library
+*    TRACK_SS     : Self-shielding tracking
+*
+*  Output data  :
+*    LIBRARY2     : Self-shieled library
+*---
+
+PARAMETER LIBRARY2 LIBRARY TRACK_SS TF_EXC_SS ::
+::: LINKED_LIST LIBRARY2 ;
+::: LINKED_LIST LIBRARY ;
+::: LINKED_LIST TRACK_SS ;
+::: SEQ_BINARY TF_EXC_SS ; ;
+
+STRING name_geom AUTOP ;
+:: >>name_geom<< >>AUTOP<< ;
+
+MODULE USS: END: ;
+
+
+***********************************
+****************************  13UAX
+***********************************
+
+IF name_geom '13UAX' = THEN
+
+  IF AUTOP 'ALL' = THEN 
+
+    LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
+            EDIT 1 PASS 2 GRMIN 52 NOTR MAXST 100
+          CALC 
+* ALL CELLS
+               REGI W1 U235  ALL
+               REGI W1 U238  ALL
+               REGI W1 Pu239 ALL
+               REGI W1 Pu241 ALL
+
+               REGI W1 Gd154 ALL
+               REGI W1 Gd155 ALL
+               REGI W1 Gd156 ALL
+               REGI W1 Gd157 ALL
+               REGI W1 Gd158 ALL
+
+               REGI W1 Zr90 ALL
+               REGI W1 Zr91 ALL
+               REGI W1 Zr92 ALL
+               REGI W1 Zr94 ALL
+               REGI W1 Zr96 ALL
+
+            ENDC
+            ;
+
+  ELSEIF AUTOP 'REGI' = THEN
+
+    LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
+            EDIT 1 PASS 2 GRMIN 52 NOTR MAXST 100
+          CALC 
+* ALL CELLS
+               REGI W1 U235  ALL
+               REGI W1 Pu239 ALL
+               REGI W1 Pu241 ALL
+
+               REGI W1 Gd154 ALL
+               REGI W1 Gd155 ALL
+               REGI W1 Gd156 ALL
+               REGI W1 Gd157 ALL
+               REGI W1 Gd158 ALL
+
+               REGI W1 Zr90 ALL
+               REGI W1 Zr91 ALL
+               REGI W1 Zr92 ALL
+               REGI W1 Zr94 ALL
+               REGI W1 Zr96 ALL
+
+            ENDC
+            ;
+
+  ELSEIF AUTOP 'NONE' = THEN
+
+    LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
+            EDIT 1 PASS 2 GRMIN 52 NOTR MAXST 100
+            ;
+
+  ENDIF ;
+
+
+***********************************
+****************************   13AU
+***********************************
+
+ELSEIF name_geom 'KML2_13AU_ASS' = THEN
+
+  IF AUTOP 'ALL' = THEN 
+
+    LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
+            EDIT 1 PASS 2 GRMIN 52 MAXST 100
+          CALC 
+* ALL CELLS
+               REGI W1 U235  ALL
+               REGI W1 U238  ALL
+               REGI W1 Pu239 ALL
+               REGI W1 Pu240 ALL
+               REGI W1 Pu241 ALL
+               REGI W1 Pu242 ALL
+
+               REGI W1 Zr90 ALL
+               REGI W1 Zr91 ALL
+               REGI W1 Zr92 ALL
+               REGI W1 Zr94 ALL
+               REGI W1 Zr96 ALL
+
+            ENDC
+            ;
+
+  ELSEIF AUTOP 'REGI' = THEN
+
+    LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
+            EDIT 1 PASS 2 GRMIN 52 NOTR MAXST 100
+          CALC 
+* ALL CELLS
+               REGI W1 U235  ALL
+               REGI W1 Pu239 ALL
+               REGI W1 Pu240 ALL
+               REGI W1 Pu241 ALL
+               REGI W1 Pu242 ALL
+
+               REGI W1 Zr90 ALL
+               REGI W1 Zr91 ALL
+               REGI W1 Zr92 ALL
+               REGI W1 Zr94 ALL
+               REGI W1 Zr96 ALL
+
+        **********
+        ***** U238
+        REGI W4 U238 4
+        REGI W3 U238 5
+        REGI W2 U238 6
+        REGI W1 U238 7
+
+        REGI W4 U238 9
+        REGI W3 U238 10
+        REGI W2 U238 11
+        REGI W1 U238 12
+
+        REGI W4 U238 13
+        REGI W3 U238 14
+        REGI W2 U238 15
+        REGI W1 U238 16
+
+        REGI W4 U238 17
+        REGI W3 U238 18
+        REGI W2 U238 19
+        REGI W1 U238 20
+
+        REGI W4 U238 21
+        REGI W3 U238 22
+        REGI W2 U238 23
+        REGI W1 U238 24
+
+        REGI W4 U238 25
+        REGI W3 U238 26
+        REGI W2 U238 27
+        REGI W1 U238 28
+
+        REGI W4 U238 30
+        REGI W3 U238 31
+        REGI W2 U238 32
+        REGI W1 U238 33
+
+        REGI W4 U238 34
+        REGI W3 U238 35
+        REGI W2 U238 36
+        REGI W1 U238 37
+
+        REGI W4 U238 38
+        REGI W3 U238 39
+        REGI W2 U238 40
+        REGI W1 U238 41
+
+        REGI W4 U238 42
+        REGI W3 U238 43
+        REGI W2 U238 44
+        REGI W1 U238 45
+
+        REGI W4 U238 46
+        REGI W3 U238 47
+        REGI W2 U238 48
+        REGI W1 U238 49
+
+        REGI W4 U238 50
+        REGI W3 U238 51
+        REGI W2 U238 52
+        REGI W1 U238 53
+
+        REGI W4 U238 54
+        REGI W3 U238 55
+        REGI W2 U238 56
+        REGI W1 U238 57
+
+        REGI W4 U238 58
+        REGI W3 U238 59
+        REGI W2 U238 60
+        REGI W1 U238 61
+
+        REGI W4 U238 62
+        REGI W3 U238 63
+        REGI W2 U238 64
+        REGI W1 U238 65
+
+        REGI W4 U238 66
+        REGI W3 U238 67
+        REGI W2 U238 68
+        REGI W1 U238 69
+
+        REGI W4 U238 70
+        REGI W3 U238 71
+        REGI W2 U238 72
+        REGI W1 U238 73
+
+        REGI W4 U238 74
+        REGI W3 U238 75
+        REGI W2 U238 76
+        REGI W1 U238 77
+
+        REGI W4 U238 78
+        REGI W3 U238 79
+        REGI W2 U238 80
+        REGI W1 U238 81
+
+        REGI W4 U238 82
+        REGI W3 U238 83
+        REGI W2 U238 84
+        REGI W1 U238 85
+
+        REGI W4 U238 86
+        REGI W3 U238 87
+        REGI W2 U238 88
+        REGI W1 U238 89
+
+        REGI W4 U238 90
+        REGI W3 U238 91
+        REGI W2 U238 92
+        REGI W1 U238 93
+
+        REGI W4 U238 94
+        REGI W3 U238 95
+        REGI W2 U238 96
+        REGI W1 U238 97
+
+        REGI W4 U238 98
+        REGI W3 U238 99
+        REGI W2 U238 100
+        REGI W1 U238 101
+
+        REGI W4 U238 102
+        REGI W3 U238 103
+        REGI W2 U238 104
+        REGI W1 U238 105
+
+        REGI W4 U238 106
+        REGI W3 U238 107
+        REGI W2 U238 108
+        REGI W1 U238 109
+
+        REGI W4 U238 110
+        REGI W3 U238 111
+        REGI W2 U238 112
+        REGI W1 U238 113
+
+        REGI W4 U238 114
+        REGI W3 U238 115
+        REGI W2 U238 116
+        REGI W1 U238 117
+
+        REGI W4 U238 118
+        REGI W3 U238 119
+        REGI W2 U238 120
+        REGI W1 U238 121
+
+        REGI W4 U238 122
+        REGI W3 U238 123
+        REGI W2 U238 124
+        REGI W1 U238 125
+
+        REGI W4 U238 126
+        REGI W3 U238 127
+        REGI W2 U238 128
+        REGI W1 U238 129
+
+        REGI W4 U238 130
+        REGI W3 U238 131
+        REGI W2 U238 132
+        REGI W1 U238 133
+
+        REGI W4 U238 134
+        REGI W3 U238 135
+        REGI W2 U238 136
+        REGI W1 U238 137
+
+        REGI W4 U238 138
+        REGI W3 U238 139
+        REGI W2 U238 140
+        REGI W1 U238 141
+
+        REGI W4 U238 142
+        REGI W3 U238 143
+        REGI W2 U238 144
+        REGI W1 U238 145
+
+        REGI W4 U238 146
+        REGI W3 U238 147
+        REGI W2 U238 148
+        REGI W1 U238 149
+
+        REGI W4 U238 150
+        REGI W3 U238 151
+        REGI W2 U238 152
+        REGI W1 U238 153
+
+        REGI W4 U238 154
+        REGI W3 U238 155
+        REGI W2 U238 156
+        REGI W1 U238 157
+
+        REGI W4 U238 158
+        REGI W3 U238 159
+        REGI W2 U238 160
+        REGI W1 U238 161
+
+        REGI W4 U238 162
+        REGI W3 U238 163
+        REGI W2 U238 164
+        REGI W1 U238 165
+
+        REGI W4 U238 166
+        REGI W3 U238 167
+        REGI W2 U238 168
+        REGI W1 U238 169
+
+        REGI W4 U238 170
+        REGI W3 U238 171
+        REGI W2 U238 172
+        REGI W1 U238 173
+
+        REGI W4 U238 174
+        REGI W3 U238 175
+        REGI W2 U238 176
+        REGI W1 U238 177
+
+        REGI W4 U238 178
+        REGI W3 U238 179
+        REGI W2 U238 180
+        REGI W1 U238 181
+
+        REGI W4 U238 182
+        REGI W3 U238 183
+        REGI W2 U238 184
+        REGI W1 U238 185
+
+        REGI W4 U238 186
+        REGI W3 U238 187
+        REGI W2 U238 188
+        REGI W1 U238 189
+
+        REGI W4 U238 190
+        REGI W3 U238 191
+        REGI W2 U238 192
+        REGI W1 U238 193
+
+        REGI W4 U238 194
+        REGI W3 U238 195
+        REGI W2 U238 196
+        REGI W1 U238 197
+
+        REGI W4 U238 198
+        REGI W3 U238 199
+        REGI W2 U238 200
+        REGI W1 U238 201
+
+        REGI W4 U238 202
+        REGI W3 U238 203
+        REGI W2 U238 204
+        REGI W1 U238 205
+
+        REGI W4 U238 206
+        REGI W3 U238 207
+        REGI W2 U238 208
+        REGI W1 U238 209
+
+        REGI W4 U238 210
+        REGI W3 U238 211
+        REGI W2 U238 212
+        REGI W1 U238 213
+
+        REGI W4 U238 214
+        REGI W3 U238 215
+        REGI W2 U238 216
+        REGI W1 U238 217
+
+        REGI W4 U238 218
+        REGI W3 U238 219
+        REGI W2 U238 220
+        REGI W1 U238 221
+
+        REGI W4 U238 222
+        REGI W3 U238 223
+        REGI W2 U238 224
+        REGI W1 U238 225
+
+        REGI W4 U238 226
+        REGI W3 U238 227
+        REGI W2 U238 228
+        REGI W1 U238 229
+
+        REGI W4 U238 230
+        REGI W3 U238 231
+        REGI W2 U238 232
+        REGI W1 U238 233
+
+        REGI W4 U238 234
+        REGI W3 U238 235
+        REGI W2 U238 236
+        REGI W1 U238 237
+
+        REGI W4 U238 238
+        REGI W3 U238 239
+        REGI W2 U238 240
+        REGI W1 U238 241
+
+        REGI W4 U238 242
+        REGI W3 U238 243
+        REGI W2 U238 244
+        REGI W1 U238 245
+
+        REGI W4 U238 246
+        REGI W3 U238 247
+        REGI W2 U238 248
+        REGI W1 U238 249
+
+            ENDC
+            ;
+
+  ELSEIF AUTOP 'NONE' = THEN
+
+    LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
+            EDIT 1 PASS 2 GRMIN 52 NOTR MAXST 100
+            ;
+
+  ENDIF ;
+
+***********************************
+****************************   22AU
+***********************************
+
+ELSEIF name_geom 'KML2_22AU_ASS' = THEN
+
+  IF AUTOP 'ALL' = THEN 
+
+    LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
+            EDIT 1 PASS 2 GRMIN 52 NOTR MAXST 100
+          CALC 
+* ALL CELLS
+               REGI W1 U235  ALL
+               REGI W1 U238  ALL
+               REGI W1 Pu239 ALL
+               REGI W1 Pu240 ALL
+               REGI W1 Pu241 ALL
+               REGI W1 Pu242 ALL
+
+               REGI W1 Zr90 ALL
+               REGI W1 Zr91 ALL
+               REGI W1 Zr92 ALL
+               REGI W1 Zr94 ALL
+               REGI W1 Zr96 ALL
+
+            ENDC
+            ;
+
+  ELSEIF AUTOP 'REGI' = THEN
+
+    LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
+            EDIT 1 PASS 2 GRMIN 52 NOTR MAXST 100
+          CALC 
+* ALL CELLS
+               REGI W1 U235  ALL
+               REGI W1 Pu239 ALL
+               REGI W1 Pu240 ALL
+               REGI W1 Pu241 ALL
+               REGI W1 Pu242 ALL
+
+               REGI W1 Zr90 ALL
+               REGI W1 Zr91 ALL
+               REGI W1 Zr92 ALL
+               REGI W1 Zr94 ALL
+               REGI W1 Zr96 ALL
+
+        **********
+        ***** U238
+        REGI W4 U238 4
+        REGI W3 U238 5
+        REGI W2 U238 6
+        REGI W1 U238 7
+
+        REGI W4 U238 9
+        REGI W3 U238 10
+        REGI W2 U238 11
+        REGI W1 U238 12
+
+        REGI W4 U238 13
+        REGI W3 U238 14
+        REGI W2 U238 15
+        REGI W1 U238 16
+
+        REGI W4 U238 17
+        REGI W3 U238 18
+        REGI W2 U238 19
+        REGI W1 U238 20
+
+        REGI W4 U238 21
+        REGI W3 U238 22
+        REGI W2 U238 23
+        REGI W1 U238 24
+
+        REGI W4 U238 25
+        REGI W3 U238 26
+        REGI W2 U238 27
+        REGI W1 U238 28
+
+        REGI W4 U238 30
+        REGI W3 U238 31
+        REGI W2 U238 32
+        REGI W1 U238 33
+
+        REGI W4 U238 34
+        REGI W3 U238 35
+        REGI W2 U238 36
+        REGI W1 U238 37
+
+        REGI W4 U238 38
+        REGI W3 U238 39
+        REGI W2 U238 40
+        REGI W1 U238 41
+
+        REGI W4 U238 42
+        REGI W3 U238 43
+        REGI W2 U238 44
+        REGI W1 U238 45
+
+        REGI W4 U238 46
+        REGI W3 U238 47
+        REGI W2 U238 48
+        REGI W1 U238 49
+
+        REGI W4 U238 50
+        REGI W3 U238 51
+        REGI W2 U238 52
+        REGI W1 U238 53
+
+        REGI W4 U238 54
+        REGI W3 U238 55
+        REGI W2 U238 56
+        REGI W1 U238 57
+
+        REGI W4 U238 58
+        REGI W3 U238 59
+        REGI W2 U238 60
+        REGI W1 U238 61
+
+        REGI W4 U238 62
+        REGI W3 U238 63
+        REGI W2 U238 64
+        REGI W1 U238 65
+
+        REGI W4 U238 66
+        REGI W3 U238 67
+        REGI W2 U238 68
+        REGI W1 U238 69
+
+        REGI W4 U238 70
+        REGI W3 U238 71
+        REGI W2 U238 72
+        REGI W1 U238 73
+
+        REGI W4 U238 74
+        REGI W3 U238 75
+        REGI W2 U238 76
+        REGI W1 U238 77
+
+        REGI W4 U238 78
+        REGI W3 U238 79
+        REGI W2 U238 80
+        REGI W1 U238 81
+
+        REGI W4 U238 82
+        REGI W3 U238 83
+        REGI W2 U238 84
+        REGI W1 U238 85
+
+        REGI W4 U238 86
+        REGI W3 U238 87
+        REGI W2 U238 88
+        REGI W1 U238 89
+
+        REGI W4 U238 90
+        REGI W3 U238 91
+        REGI W2 U238 92
+        REGI W1 U238 93
+
+        REGI W4 U238 94
+        REGI W3 U238 95
+        REGI W2 U238 96
+        REGI W1 U238 97
+
+        REGI W4 U238 98
+        REGI W3 U238 99
+        REGI W2 U238 100
+        REGI W1 U238 101
+
+        REGI W4 U238 102
+        REGI W3 U238 103
+        REGI W2 U238 104
+        REGI W1 U238 105
+
+        REGI W4 U238 106
+        REGI W3 U238 107
+        REGI W2 U238 108
+        REGI W1 U238 109
+
+        REGI W4 U238 110
+        REGI W3 U238 111
+        REGI W2 U238 112
+        REGI W1 U238 113
+
+        REGI W4 U238 114
+        REGI W3 U238 115
+        REGI W2 U238 116
+        REGI W1 U238 117
+
+        REGI W4 U238 118
+        REGI W3 U238 119
+        REGI W2 U238 120
+        REGI W1 U238 121
+
+        REGI W4 U238 122
+        REGI W3 U238 123
+        REGI W2 U238 124
+        REGI W1 U238 125
+
+        REGI W4 U238 126
+        REGI W3 U238 127
+        REGI W2 U238 128
+        REGI W1 U238 129
+
+        REGI W4 U238 130
+        REGI W3 U238 131
+        REGI W2 U238 132
+        REGI W1 U238 133
+
+        REGI W4 U238 134
+        REGI W3 U238 135
+        REGI W2 U238 136
+        REGI W1 U238 137
+
+        REGI W4 U238 138
+        REGI W3 U238 139
+        REGI W2 U238 140
+        REGI W1 U238 141
+
+        REGI W4 U238 142
+        REGI W3 U238 143
+        REGI W2 U238 144
+        REGI W1 U238 145
+
+        REGI W4 U238 146
+        REGI W3 U238 147
+        REGI W2 U238 148
+        REGI W1 U238 149
+
+        REGI W4 U238 150
+        REGI W3 U238 151
+        REGI W2 U238 152
+        REGI W1 U238 153
+
+        REGI W4 U238 154
+        REGI W3 U238 155
+        REGI W2 U238 156
+        REGI W1 U238 157
+
+        REGI W4 U238 158
+        REGI W3 U238 159
+        REGI W2 U238 160
+        REGI W1 U238 161
+
+        REGI W4 U238 162
+        REGI W3 U238 163
+        REGI W2 U238 164
+        REGI W1 U238 165
+
+        REGI W4 U238 166
+        REGI W3 U238 167
+        REGI W2 U238 168
+        REGI W1 U238 169
+
+        REGI W4 U238 170
+        REGI W3 U238 171
+        REGI W2 U238 172
+        REGI W1 U238 173
+
+        REGI W4 U238 174
+        REGI W3 U238 175
+        REGI W2 U238 176
+        REGI W1 U238 177
+
+        REGI W4 U238 178
+        REGI W3 U238 179
+        REGI W2 U238 180
+        REGI W1 U238 181
+
+        REGI W4 U238 182
+        REGI W3 U238 183
+        REGI W2 U238 184
+        REGI W1 U238 185
+
+        REGI W4 U238 186
+        REGI W3 U238 187
+        REGI W2 U238 188
+        REGI W1 U238 189
+
+        REGI W4 U238 190
+        REGI W3 U238 191
+        REGI W2 U238 192
+        REGI W1 U238 193
+
+        REGI W4 U238 194
+        REGI W3 U238 195
+        REGI W2 U238 196
+        REGI W1 U238 197
+
+        REGI W4 U238 198
+        REGI W3 U238 199
+        REGI W2 U238 200
+        REGI W1 U238 201
+
+        REGI W4 U238 202
+        REGI W3 U238 203
+        REGI W2 U238 204
+        REGI W1 U238 205
+
+        REGI W4 U238 206
+        REGI W3 U238 207
+        REGI W2 U238 208
+        REGI W1 U238 209
+
+        REGI W4 U238 210
+        REGI W3 U238 211
+        REGI W2 U238 212
+        REGI W1 U238 213
+
+        REGI W4 U238 214
+        REGI W3 U238 215
+        REGI W2 U238 216
+        REGI W1 U238 217
+
+        REGI W4 U238 218
+        REGI W3 U238 219
+        REGI W2 U238 220
+        REGI W1 U238 221
+
+        REGI W4 U238 222
+        REGI W3 U238 223
+        REGI W2 U238 224
+        REGI W1 U238 225
+
+        REGI W4 U238 226
+        REGI W3 U238 227
+        REGI W2 U238 228
+        REGI W1 U238 229
+
+        REGI W4 U238 230
+        REGI W3 U238 231
+        REGI W2 U238 232
+        REGI W1 U238 233
+
+        REGI W4 U238 234
+        REGI W3 U238 235
+        REGI W2 U238 236
+        REGI W1 U238 237
+
+        REGI W4 U238 238
+        REGI W3 U238 239
+        REGI W2 U238 240
+        REGI W1 U238 241
+
+        REGI W4 U238 242
+        REGI W3 U238 243
+        REGI W2 U238 244
+        REGI W1 U238 245
+
+        REGI W4 U238 246
+        REGI W3 U238 247
+        REGI W2 U238 248
+        REGI W1 U238 249
+
+            ENDC
+            ;
+
+  ELSEIF AUTOP 'NONE' = THEN
+
+    LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
+            EDIT 1 PASS 2 GRMIN 52 NOTR MAXST 100
+            ;
+
+  ENDIF ;
+
+***********************************
+****************************   40AU
+***********************************
+
+ELSEIF name_geom 'KML2_40AU_ASS' = THEN
+
+  IF AUTOP 'ALL' = THEN 
+
+    LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
+            EDIT 1 PASS 2 GRMIN 52 NOTR MAXST 100
+          CALC 
+* ALL CELLS
+               REGI W1 U235  ALL
+               REGI W1 U238  ALL
+               REGI W1 Pu239 ALL
+               REGI W1 Pu240 ALL
+               REGI W1 Pu241 ALL
+               REGI W1 Pu242 ALL
+
+               REGI W1 Zr90 ALL
+               REGI W1 Zr91 ALL
+               REGI W1 Zr92 ALL
+               REGI W1 Zr94 ALL
+               REGI W1 Zr96 ALL
+
+            ENDC
+            ;
+
+  ELSEIF AUTOP 'REGI' = THEN
+
+    LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
+            EDIT 1 PASS 2 GRMIN 52 NOTR MAXST 100
+          CALC 
+* ALL CELLS
+               REGI W1 U235  ALL
+               REGI W1 Pu239 ALL
+               REGI W1 Pu240 ALL
+               REGI W1 Pu241 ALL
+               REGI W1 Pu242 ALL
+
+               REGI W1 Zr90 ALL
+               REGI W1 Zr91 ALL
+               REGI W1 Zr92 ALL
+               REGI W1 Zr94 ALL
+               REGI W1 Zr96 ALL
+
+        **********
+        ***** U238
+        REGI W4 U238 4
+        REGI W3 U238 5
+        REGI W2 U238 6
+        REGI W1 U238 7
+
+        REGI W4 U238 9
+        REGI W3 U238 10
+        REGI W2 U238 11
+        REGI W1 U238 12
+
+        REGI W4 U238 13
+        REGI W3 U238 14
+        REGI W2 U238 15
+        REGI W1 U238 16
+
+        REGI W4 U238 17
+        REGI W3 U238 18
+        REGI W2 U238 19
+        REGI W1 U238 20
+
+        REGI W4 U238 21
+        REGI W3 U238 22
+        REGI W2 U238 23
+        REGI W1 U238 24
+
+        REGI W4 U238 25
+        REGI W3 U238 26
+        REGI W2 U238 27
+        REGI W1 U238 28
+
+        REGI W4 U238 30
+        REGI W3 U238 31
+        REGI W2 U238 32
+        REGI W1 U238 33
+
+        REGI W4 U238 34
+        REGI W3 U238 35
+        REGI W2 U238 36
+        REGI W1 U238 37
+
+        REGI W4 U238 38
+        REGI W3 U238 39
+        REGI W2 U238 40
+        REGI W1 U238 41
+
+        REGI W4 U238 42
+        REGI W3 U238 43
+        REGI W2 U238 44
+        REGI W1 U238 45
+
+        REGI W4 U238 46
+        REGI W3 U238 47
+        REGI W2 U238 48
+        REGI W1 U238 49
+
+        REGI W4 U238 50
+        REGI W3 U238 51
+        REGI W2 U238 52
+        REGI W1 U238 53
+
+        REGI W4 U238 54
+        REGI W3 U238 55
+        REGI W2 U238 56
+        REGI W1 U238 57
+
+        REGI W4 U238 58
+        REGI W3 U238 59
+        REGI W2 U238 60
+        REGI W1 U238 61
+
+        REGI W4 U238 62
+        REGI W3 U238 63
+        REGI W2 U238 64
+        REGI W1 U238 65
+
+        REGI W4 U238 66
+        REGI W3 U238 67
+        REGI W2 U238 68
+        REGI W1 U238 69
+
+        REGI W4 U238 70
+        REGI W3 U238 71
+        REGI W2 U238 72
+        REGI W1 U238 73
+
+        REGI W4 U238 74
+        REGI W3 U238 75
+        REGI W2 U238 76
+        REGI W1 U238 77
+
+        REGI W4 U238 78
+        REGI W3 U238 79
+        REGI W2 U238 80
+        REGI W1 U238 81
+
+        REGI W4 U238 82
+        REGI W3 U238 83
+        REGI W2 U238 84
+        REGI W1 U238 85
+
+        REGI W4 U238 86
+        REGI W3 U238 87
+        REGI W2 U238 88
+        REGI W1 U238 89
+
+        REGI W4 U238 90
+        REGI W3 U238 91
+        REGI W2 U238 92
+        REGI W1 U238 93
+
+        REGI W4 U238 94
+        REGI W3 U238 95
+        REGI W2 U238 96
+        REGI W1 U238 97
+
+        REGI W4 U238 98
+        REGI W3 U238 99
+        REGI W2 U238 100
+        REGI W1 U238 101
+
+        REGI W4 U238 102
+        REGI W3 U238 103
+        REGI W2 U238 104
+        REGI W1 U238 105
+
+        REGI W4 U238 106
+        REGI W3 U238 107
+        REGI W2 U238 108
+        REGI W1 U238 109
+
+        REGI W4 U238 110
+        REGI W3 U238 111
+        REGI W2 U238 112
+        REGI W1 U238 113
+
+        REGI W4 U238 114
+        REGI W3 U238 115
+        REGI W2 U238 116
+        REGI W1 U238 117
+
+        REGI W4 U238 118
+        REGI W3 U238 119
+        REGI W2 U238 120
+        REGI W1 U238 121
+
+        REGI W4 U238 122
+        REGI W3 U238 123
+        REGI W2 U238 124
+        REGI W1 U238 125
+
+        REGI W4 U238 126
+        REGI W3 U238 127
+        REGI W2 U238 128
+        REGI W1 U238 129
+
+        REGI W4 U238 130
+        REGI W3 U238 131
+        REGI W2 U238 132
+        REGI W1 U238 133
+
+        REGI W4 U238 134
+        REGI W3 U238 135
+        REGI W2 U238 136
+        REGI W1 U238 137
+
+        REGI W4 U238 138
+        REGI W3 U238 139
+        REGI W2 U238 140
+        REGI W1 U238 141
+
+        REGI W4 U238 142
+        REGI W3 U238 143
+        REGI W2 U238 144
+        REGI W1 U238 145
+
+        REGI W4 U238 146
+        REGI W3 U238 147
+        REGI W2 U238 148
+        REGI W1 U238 149
+
+        REGI W4 U238 150
+        REGI W3 U238 151
+        REGI W2 U238 152
+        REGI W1 U238 153
+
+        REGI W4 U238 154
+        REGI W3 U238 155
+        REGI W2 U238 156
+        REGI W1 U238 157
+
+        REGI W4 U238 158
+        REGI W3 U238 159
+        REGI W2 U238 160
+        REGI W1 U238 161
+
+        REGI W4 U238 162
+        REGI W3 U238 163
+        REGI W2 U238 164
+        REGI W1 U238 165
+
+        REGI W4 U238 166
+        REGI W3 U238 167
+        REGI W2 U238 168
+        REGI W1 U238 169
+
+        REGI W4 U238 170
+        REGI W3 U238 171
+        REGI W2 U238 172
+        REGI W1 U238 173
+
+        REGI W4 U238 174
+        REGI W3 U238 175
+        REGI W2 U238 176
+        REGI W1 U238 177
+
+        REGI W4 U238 178
+        REGI W3 U238 179
+        REGI W2 U238 180
+        REGI W1 U238 181
+
+        REGI W4 U238 182
+        REGI W3 U238 183
+        REGI W2 U238 184
+        REGI W1 U238 185
+
+        REGI W4 U238 186
+        REGI W3 U238 187
+        REGI W2 U238 188
+        REGI W1 U238 189
+
+        REGI W4 U238 190
+        REGI W3 U238 191
+        REGI W2 U238 192
+        REGI W1 U238 193
+
+        REGI W4 U238 194
+        REGI W3 U238 195
+        REGI W2 U238 196
+        REGI W1 U238 197
+
+        REGI W4 U238 198
+        REGI W3 U238 199
+        REGI W2 U238 200
+        REGI W1 U238 201
+
+        REGI W4 U238 202
+        REGI W3 U238 203
+        REGI W2 U238 204
+        REGI W1 U238 205
+
+        REGI W4 U238 206
+        REGI W3 U238 207
+        REGI W2 U238 208
+        REGI W1 U238 209
+
+        REGI W4 U238 210
+        REGI W3 U238 211
+        REGI W2 U238 212
+        REGI W1 U238 213
+
+        REGI W4 U238 214
+        REGI W3 U238 215
+        REGI W2 U238 216
+        REGI W1 U238 217
+
+        REGI W4 U238 218
+        REGI W3 U238 219
+        REGI W2 U238 220
+        REGI W1 U238 221
+
+        REGI W4 U238 222
+        REGI W3 U238 223
+        REGI W2 U238 224
+        REGI W1 U238 225
+
+        REGI W4 U238 226
+        REGI W3 U238 227
+        REGI W2 U238 228
+        REGI W1 U238 229
+
+        REGI W4 U238 230
+        REGI W3 U238 231
+        REGI W2 U238 232
+        REGI W1 U238 233
+
+        REGI W4 U238 234
+        REGI W3 U238 235
+        REGI W2 U238 236
+        REGI W1 U238 237
+
+        REGI W4 U238 238
+        REGI W3 U238 239
+        REGI W2 U238 240
+        REGI W1 U238 241
+
+        REGI W4 U238 242
+        REGI W3 U238 243
+        REGI W2 U238 244
+        REGI W1 U238 245
+
+        REGI W4 U238 246
+        REGI W3 U238 247
+        REGI W2 U238 248
+        REGI W1 U238 249
+
+            ENDC
+            ;
+
+  ELSEIF AUTOP 'NONE' = THEN
+
+    LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
+            EDIT 1 PASS 2 GRMIN 52 MAXST 100
+            ;
+
+  ENDIF ;
+
+***********************************
+****************************  398GO
+***********************************
+
+ELSEIF name_geom 'KML2_398GO_ASS' = THEN
+
+  IF AUTOP 'ALL' = THEN 
+
+    LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
+            EDIT 1 PASS 2 GRMIN 52 NOTR MAXST 100
+          CALC 
+* ALL CELLS
+               REGI W1 U235  ALL
+               REGI W1 U238  ALL
+               REGI W1 Pu239 ALL
+               REGI W1 Pu240 ALL
+               REGI W1 Pu241 ALL
+               REGI W1 Pu242 ALL
+
+               REGI W1 Gd154 ALL
+               REGI W1 Gd155 ALL
+               REGI W1 Gd156 ALL
+               REGI W1 Gd157 ALL
+               REGI W1 Gd158 ALL
+
+               REGI W1 Zr90 ALL
+               REGI W1 Zr91 ALL
+               REGI W1 Zr92 ALL
+               REGI W1 Zr94 ALL
+               REGI W1 Zr96 ALL
+
+            ENDC
+            ;
+
+  ELSEIF AUTOP 'REGI' = THEN
+
+    LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
+            EDIT 1 PASS 2 GRMIN 52 NOTR MAXST 100
+          CALC 
+* ALL CELLS
+               REGI W1 U235  ALL
+               REGI W1 Pu239 ALL
+               REGI W1 Pu240 ALL
+               REGI W1 Pu241 ALL
+               REGI W1 Pu242 ALL
+
+               REGI W1 Gd154 ALL
+               REGI W1 Gd155 ALL
+               REGI W1 Gd156 ALL
+               REGI W1 Gd157 ALL
+               REGI W1 Gd158 ALL
+
+               REGI W1 Zr90 ALL
+               REGI W1 Zr91 ALL
+               REGI W1 Zr92 ALL
+               REGI W1 Zr94 ALL
+               REGI W1 Zr96 ALL
+
+        **********
+        ***** U238
+        REGI W4 U238 4
+        REGI W3 U238 5
+        REGI W2 U238 6
+        REGI W1 U238 7
+
+        REGI W4 U238 9
+        REGI W3 U238 10
+        REGI W2 U238 11
+        REGI W1 U238 12
+
+        REGI W4 U238 13
+        REGI W3 U238 14
+        REGI W2 U238 15
+        REGI W1 U238 16
+
+        REGI W4 U238 17
+        REGI W3 U238 18
+        REGI W2 U238 19
+        REGI W1 U238 20
+
+        REGI W4 U238 21
+        REGI W3 U238 22
+        REGI W2 U238 23
+        REGI W1 U238 24
+
+        REGI W4 U238 25
+        REGI W3 U238 26
+        REGI W2 U238 27
+        REGI W1 U238 28
+
+        REGI W4 U238 30
+        REGI W3 U238 31
+        REGI W2 U238 32
+        REGI W1 U238 33
+
+        REGI W4 U238 34
+        REGI W3 U238 35
+        REGI W2 U238 36
+        REGI W1 U238 37
+
+        REGI W4 U238 38
+        REGI W3 U238 39
+        REGI W2 U238 40
+        REGI W1 U238 41
+
+        REGI W4 U238 42
+        REGI W3 U238 43
+        REGI W2 U238 44
+        REGI W1 U238 45
+
+        REGI W4 U238 46
+        REGI W3 U238 47
+        REGI W2 U238 48
+        REGI W1 U238 49
+
+        REGI W21 U238 50
+        REGI W20 U238 51
+        REGI W19 U238 52
+        REGI W18 U238 53
+        REGI W17 U238 54
+        REGI W16 U238 55
+        REGI W15 U238 56
+        REGI W14 U238 57
+        REGI W13 U238 58
+        REGI W12 U238 59
+        REGI W11 U238 60
+
+        REGI W4 U238 61
+        REGI W3 U238 62
+        REGI W2 U238 63
+        REGI W1 U238 64
+
+        REGI W4 U238 65
+        REGI W3 U238 66
+        REGI W2 U238 67
+        REGI W1 U238 68
+
+        REGI W4 U238 69
+        REGI W3 U238 70
+        REGI W2 U238 71
+        REGI W1 U238 72
+
+        REGI W4 U238 73
+        REGI W3 U238 74
+        REGI W2 U238 75
+        REGI W1 U238 76
+
+        REGI W4 U238 77
+        REGI W3 U238 78
+        REGI W2 U238 79
+        REGI W1 U238 80
+
+        REGI W4 U238 81
+        REGI W3 U238 82
+        REGI W2 U238 83
+        REGI W1 U238 84
+
+        REGI W4 U238 85
+        REGI W3 U238 86
+        REGI W2 U238 87
+        REGI W1 U238 88
+
+        REGI W4 U238 89
+        REGI W3 U238 90
+        REGI W2 U238 91
+        REGI W1 U238 92
+
+        REGI W4 U238 93
+        REGI W3 U238 94
+        REGI W2 U238 95
+        REGI W1 U238 96
+
+        REGI W4 U238 97
+        REGI W3 U238 98
+        REGI W2 U238 99
+        REGI W1 U238 100
+
+        REGI W4 U238 101
+        REGI W3 U238 102
+        REGI W2 U238 103
+        REGI W1 U238 104
+
+        REGI W4 U238 105
+        REGI W3 U238 106
+        REGI W2 U238 107
+        REGI W1 U238 108
+
+        REGI W4 U238 109
+        REGI W3 U238 110
+        REGI W2 U238 111
+        REGI W1 U238 112
+
+        REGI W4 U238 113
+        REGI W3 U238 114
+        REGI W2 U238 115
+        REGI W1 U238 116
+
+        REGI W4 U238 117
+        REGI W3 U238 118
+        REGI W2 U238 119
+        REGI W1 U238 120
+
+        REGI W4 U238 121
+        REGI W3 U238 122
+        REGI W2 U238 123
+        REGI W1 U238 124
+
+        REGI W4 U238 125
+        REGI W3 U238 126
+        REGI W2 U238 127
+        REGI W1 U238 128
+
+        REGI W4 U238 129
+        REGI W3 U238 130
+        REGI W2 U238 131
+        REGI W1 U238 132
+
+        REGI W4 U238 133
+        REGI W3 U238 134
+        REGI W2 U238 135
+        REGI W1 U238 136
+
+        REGI W4 U238 137
+        REGI W3 U238 138
+        REGI W2 U238 139
+        REGI W1 U238 140
+
+        REGI W4 U238 141
+        REGI W3 U238 142
+        REGI W2 U238 143
+        REGI W1 U238 144
+
+        REGI W4 U238 145
+        REGI W3 U238 146
+        REGI W2 U238 147
+        REGI W1 U238 148
+
+        REGI W4 U238 149
+        REGI W3 U238 150
+        REGI W2 U238 151
+        REGI W1 U238 152
+
+        REGI W4 U238 153
+        REGI W3 U238 154
+        REGI W2 U238 155
+        REGI W1 U238 156
+
+        REGI W4 U238 157
+        REGI W3 U238 158
+        REGI W2 U238 159
+        REGI W1 U238 160
+
+        REGI W4 U238 161
+        REGI W3 U238 162
+        REGI W2 U238 163
+        REGI W1 U238 164
+
+        REGI W4 U238 165
+        REGI W3 U238 166
+        REGI W2 U238 167
+        REGI W1 U238 168
+
+        REGI W4 U238 169
+        REGI W3 U238 170
+        REGI W2 U238 171
+        REGI W1 U238 172
+
+        REGI W4 U238 173
+        REGI W3 U238 174
+        REGI W2 U238 175
+        REGI W1 U238 176
+
+        REGI W4 U238 177
+        REGI W3 U238 178
+        REGI W2 U238 179
+        REGI W1 U238 180
+
+        REGI W4 U238 181
+        REGI W3 U238 182
+        REGI W2 U238 183
+        REGI W1 U238 184
+
+        REGI W4 U238 185
+        REGI W3 U238 186
+        REGI W2 U238 187
+        REGI W1 U238 188
+
+        REGI W4 U238 189
+        REGI W3 U238 190
+        REGI W2 U238 191
+        REGI W1 U238 192
+
+        REGI W4 U238 193
+        REGI W3 U238 194
+        REGI W2 U238 195
+        REGI W1 U238 196
+
+        REGI W4 U238 197
+        REGI W3 U238 198
+        REGI W2 U238 199
+        REGI W1 U238 200
+
+        REGI W4 U238 201
+        REGI W3 U238 202
+        REGI W2 U238 203
+        REGI W1 U238 204
+
+        REGI W4 U238 205
+        REGI W3 U238 206
+        REGI W2 U238 207
+        REGI W1 U238 208
+
+        REGI W4 U238 209
+        REGI W3 U238 210
+        REGI W2 U238 211
+        REGI W1 U238 212
+
+        REGI W4 U238 213
+        REGI W3 U238 214
+        REGI W2 U238 215
+        REGI W1 U238 216
+
+        REGI W4 U238 217
+        REGI W3 U238 218
+        REGI W2 U238 219
+        REGI W1 U238 220
+
+        REGI W4 U238 221
+        REGI W3 U238 222
+        REGI W2 U238 223
+        REGI W1 U238 224
+
+        REGI W4 U238 225
+        REGI W3 U238 226
+        REGI W2 U238 227
+        REGI W1 U238 228
+
+        REGI W4 U238 229
+        REGI W3 U238 230
+        REGI W2 U238 231
+        REGI W1 U238 232
+
+        REGI W4 U238 233
+        REGI W3 U238 234
+        REGI W2 U238 235
+        REGI W1 U238 236
+
+        REGI W4 U238 237
+        REGI W3 U238 238
+        REGI W2 U238 239
+        REGI W1 U238 240
+
+        REGI W4 U238 241
+        REGI W3 U238 242
+        REGI W2 U238 243
+        REGI W1 U238 244
+
+        REGI W4 U238 245
+        REGI W3 U238 246
+        REGI W2 U238 247
+        REGI W1 U238 248
+
+        REGI W4 U238 249
+        REGI W3 U238 250
+        REGI W2 U238 251
+        REGI W1 U238 252
+
+        REGI W4 U238 253
+        REGI W3 U238 254
+        REGI W2 U238 255
+        REGI W1 U238 256
+
+        **********
+        ***** Gd154
+        REGI W4 Gd154 4
+        REGI W3 Gd154 5
+        REGI W2 Gd154 6
+        REGI W1 Gd154 7
+
+        REGI W4 Gd154 9
+        REGI W3 Gd154 10
+        REGI W2 Gd154 11
+        REGI W1 Gd154 12
+
+        REGI W4 Gd154 13
+        REGI W3 Gd154 14
+        REGI W2 Gd154 15
+        REGI W1 Gd154 16
+
+        REGI W4 Gd154 17
+        REGI W3 Gd154 18
+        REGI W2 Gd154 19
+        REGI W1 Gd154 20
+
+        REGI W4 Gd154 21
+        REGI W3 Gd154 22
+        REGI W2 Gd154 23
+        REGI W1 Gd154 24
+
+        REGI W4 Gd154 25
+        REGI W3 Gd154 26
+        REGI W2 Gd154 27
+        REGI W1 Gd154 28
+
+        REGI W4 Gd154 30
+        REGI W3 Gd154 31
+        REGI W2 Gd154 32
+        REGI W1 Gd154 33
+
+        REGI W4 Gd154 34
+        REGI W3 Gd154 35
+        REGI W2 Gd154 36
+        REGI W1 Gd154 37
+
+        REGI W4 Gd154 38
+        REGI W3 Gd154 39
+        REGI W2 Gd154 40
+        REGI W1 Gd154 41
+
+        REGI W4 Gd154 42
+        REGI W3 Gd154 43
+        REGI W2 Gd154 44
+        REGI W1 Gd154 45
+
+        REGI W4 Gd154 46
+        REGI W3 Gd154 47
+        REGI W2 Gd154 48
+        REGI W1 Gd154 49
+
+        REGI W21 Gd154 50
+        REGI W20 Gd154 51
+        REGI W19 Gd154 52
+        REGI W18 Gd154 53
+        REGI W17 Gd154 54
+        REGI W16 Gd154 55
+        REGI W15 Gd154 56
+        REGI W14 Gd154 57
+        REGI W13 Gd154 58
+        REGI W12 Gd154 59
+        REGI W11 Gd154 60
+
+        REGI W4 Gd154 61
+        REGI W3 Gd154 62
+        REGI W2 Gd154 63
+        REGI W1 Gd154 64
+
+        REGI W4 Gd154 65
+        REGI W3 Gd154 66
+        REGI W2 Gd154 67
+        REGI W1 Gd154 68
+
+        REGI W4 Gd154 69
+        REGI W3 Gd154 70
+        REGI W2 Gd154 71
+        REGI W1 Gd154 72
+
+        REGI W4 Gd154 73
+        REGI W3 Gd154 74
+        REGI W2 Gd154 75
+        REGI W1 Gd154 76
+
+        REGI W4 Gd154 77
+        REGI W3 Gd154 78
+        REGI W2 Gd154 79
+        REGI W1 Gd154 80
+
+        REGI W4 Gd154 81
+        REGI W3 Gd154 82
+        REGI W2 Gd154 83
+        REGI W1 Gd154 84
+
+        REGI W4 Gd154 85
+        REGI W3 Gd154 86
+        REGI W2 Gd154 87
+        REGI W1 Gd154 88
+
+        REGI W4 Gd154 89
+        REGI W3 Gd154 90
+        REGI W2 Gd154 91
+        REGI W1 Gd154 92
+
+        REGI W4 Gd154 93
+        REGI W3 Gd154 94
+        REGI W2 Gd154 95
+        REGI W1 Gd154 96
+
+        REGI W4 Gd154 97
+        REGI W3 Gd154 98
+        REGI W2 Gd154 99
+        REGI W1 Gd154 100
+
+        REGI W4 Gd154 101
+        REGI W3 Gd154 102
+        REGI W2 Gd154 103
+        REGI W1 Gd154 104
+
+        REGI W4 Gd154 105
+        REGI W3 Gd154 106
+        REGI W2 Gd154 107
+        REGI W1 Gd154 108
+
+        REGI W4 Gd154 109
+        REGI W3 Gd154 110
+        REGI W2 Gd154 111
+        REGI W1 Gd154 112
+
+        REGI W4 Gd154 113
+        REGI W3 Gd154 114
+        REGI W2 Gd154 115
+        REGI W1 Gd154 116
+
+        REGI W4 Gd154 117
+        REGI W3 Gd154 118
+        REGI W2 Gd154 119
+        REGI W1 Gd154 120
+
+        REGI W4 Gd154 121
+        REGI W3 Gd154 122
+        REGI W2 Gd154 123
+        REGI W1 Gd154 124
+
+        REGI W4 Gd154 125
+        REGI W3 Gd154 126
+        REGI W2 Gd154 127
+        REGI W1 Gd154 128
+
+        REGI W4 Gd154 129
+        REGI W3 Gd154 130
+        REGI W2 Gd154 131
+        REGI W1 Gd154 132
+
+        REGI W4 Gd154 133
+        REGI W3 Gd154 134
+        REGI W2 Gd154 135
+        REGI W1 Gd154 136
+
+        REGI W4 Gd154 137
+        REGI W3 Gd154 138
+        REGI W2 Gd154 139
+        REGI W1 Gd154 140
+
+        REGI W4 Gd154 141
+        REGI W3 Gd154 142
+        REGI W2 Gd154 143
+        REGI W1 Gd154 144
+
+        REGI W4 Gd154 145
+        REGI W3 Gd154 146
+        REGI W2 Gd154 147
+        REGI W1 Gd154 148
+
+        REGI W4 Gd154 149
+        REGI W3 Gd154 150
+        REGI W2 Gd154 151
+        REGI W1 Gd154 152
+
+        REGI W4 Gd154 153
+        REGI W3 Gd154 154
+        REGI W2 Gd154 155
+        REGI W1 Gd154 156
+
+        REGI W4 Gd154 157
+        REGI W3 Gd154 158
+        REGI W2 Gd154 159
+        REGI W1 Gd154 160
+
+        REGI W4 Gd154 161
+        REGI W3 Gd154 162
+        REGI W2 Gd154 163
+        REGI W1 Gd154 164
+
+        REGI W4 Gd154 165
+        REGI W3 Gd154 166
+        REGI W2 Gd154 167
+        REGI W1 Gd154 168
+
+        REGI W4 Gd154 169
+        REGI W3 Gd154 170
+        REGI W2 Gd154 171
+        REGI W1 Gd154 172
+
+        REGI W4 Gd154 173
+        REGI W3 Gd154 174
+        REGI W2 Gd154 175
+        REGI W1 Gd154 176
+
+        REGI W4 Gd154 177
+        REGI W3 Gd154 178
+        REGI W2 Gd154 179
+        REGI W1 Gd154 180
+
+        REGI W4 Gd154 181
+        REGI W3 Gd154 182
+        REGI W2 Gd154 183
+        REGI W1 Gd154 184
+
+        REGI W4 Gd154 185
+        REGI W3 Gd154 186
+        REGI W2 Gd154 187
+        REGI W1 Gd154 188
+
+        REGI W4 Gd154 189
+        REGI W3 Gd154 190
+        REGI W2 Gd154 191
+        REGI W1 Gd154 192
+
+        REGI W4 Gd154 193
+        REGI W3 Gd154 194
+        REGI W2 Gd154 195
+        REGI W1 Gd154 196
+
+        REGI W4 Gd154 197
+        REGI W3 Gd154 198
+        REGI W2 Gd154 199
+        REGI W1 Gd154 200
+
+        REGI W4 Gd154 201
+        REGI W3 Gd154 202
+        REGI W2 Gd154 203
+        REGI W1 Gd154 204
+
+        REGI W4 Gd154 205
+        REGI W3 Gd154 206
+        REGI W2 Gd154 207
+        REGI W1 Gd154 208
+
+        REGI W4 Gd154 209
+        REGI W3 Gd154 210
+        REGI W2 Gd154 211
+        REGI W1 Gd154 212
+
+        REGI W4 Gd154 213
+        REGI W3 Gd154 214
+        REGI W2 Gd154 215
+        REGI W1 Gd154 216
+
+        REGI W4 Gd154 217
+        REGI W3 Gd154 218
+        REGI W2 Gd154 219
+        REGI W1 Gd154 220
+
+        REGI W4 Gd154 221
+        REGI W3 Gd154 222
+        REGI W2 Gd154 223
+        REGI W1 Gd154 224
+
+        REGI W4 Gd154 225
+        REGI W3 Gd154 226
+        REGI W2 Gd154 227
+        REGI W1 Gd154 228
+
+        REGI W4 Gd154 229
+        REGI W3 Gd154 230
+        REGI W2 Gd154 231
+        REGI W1 Gd154 232
+
+        REGI W4 Gd154 233
+        REGI W3 Gd154 234
+        REGI W2 Gd154 235
+        REGI W1 Gd154 236
+
+        REGI W4 Gd154 237
+        REGI W3 Gd154 238
+        REGI W2 Gd154 239
+        REGI W1 Gd154 240
+
+        REGI W4 Gd154 241
+        REGI W3 Gd154 242
+        REGI W2 Gd154 243
+        REGI W1 Gd154 244
+
+        REGI W4 Gd154 245
+        REGI W3 Gd154 246
+        REGI W2 Gd154 247
+        REGI W1 Gd154 248
+
+        REGI W4 Gd154 249
+        REGI W3 Gd154 250
+        REGI W2 Gd154 251
+        REGI W1 Gd154 252
+
+        REGI W4 Gd154 253
+        REGI W3 Gd154 254
+        REGI W2 Gd154 255
+        REGI W1 Gd154 256
+
+        **********
+        ***** Gd155
+        REGI W4 Gd155 4
+        REGI W3 Gd155 5
+        REGI W2 Gd155 6
+        REGI W1 Gd155 7
+
+        REGI W4 Gd155 9
+        REGI W3 Gd155 10
+        REGI W2 Gd155 11
+        REGI W1 Gd155 12
+
+        REGI W4 Gd155 13
+        REGI W3 Gd155 14
+        REGI W2 Gd155 15
+        REGI W1 Gd155 16
+
+        REGI W4 Gd155 17
+        REGI W3 Gd155 18
+        REGI W2 Gd155 19
+        REGI W1 Gd155 20
+
+        REGI W4 Gd155 21
+        REGI W3 Gd155 22
+        REGI W2 Gd155 23
+        REGI W1 Gd155 24
+
+        REGI W4 Gd155 25
+        REGI W3 Gd155 26
+        REGI W2 Gd155 27
+        REGI W1 Gd155 28
+
+        REGI W4 Gd155 30
+        REGI W3 Gd155 31
+        REGI W2 Gd155 32
+        REGI W1 Gd155 33
+
+        REGI W4 Gd155 34
+        REGI W3 Gd155 35
+        REGI W2 Gd155 36
+        REGI W1 Gd155 37
+
+        REGI W4 Gd155 38
+        REGI W3 Gd155 39
+        REGI W2 Gd155 40
+        REGI W1 Gd155 41
+
+        REGI W4 Gd155 42
+        REGI W3 Gd155 43
+        REGI W2 Gd155 44
+        REGI W1 Gd155 45
+
+        REGI W4 Gd155 46
+        REGI W3 Gd155 47
+        REGI W2 Gd155 48
+        REGI W1 Gd155 49
+
+        REGI W21 Gd155 50
+        REGI W20 Gd155 51
+        REGI W19 Gd155 52
+        REGI W18 Gd155 53
+        REGI W17 Gd155 54
+        REGI W16 Gd155 55
+        REGI W15 Gd155 56
+        REGI W14 Gd155 57
+        REGI W13 Gd155 58
+        REGI W12 Gd155 59
+        REGI W11 Gd155 60
+
+        REGI W4 Gd155 61
+        REGI W3 Gd155 62
+        REGI W2 Gd155 63
+        REGI W1 Gd155 64
+
+        REGI W4 Gd155 65
+        REGI W3 Gd155 66
+        REGI W2 Gd155 67
+        REGI W1 Gd155 68
+
+        REGI W4 Gd155 69
+        REGI W3 Gd155 70
+        REGI W2 Gd155 71
+        REGI W1 Gd155 72
+
+        REGI W4 Gd155 73
+        REGI W3 Gd155 74
+        REGI W2 Gd155 75
+        REGI W1 Gd155 76
+
+        REGI W4 Gd155 77
+        REGI W3 Gd155 78
+        REGI W2 Gd155 79
+        REGI W1 Gd155 80
+
+        REGI W4 Gd155 81
+        REGI W3 Gd155 82
+        REGI W2 Gd155 83
+        REGI W1 Gd155 84
+
+        REGI W4 Gd155 85
+        REGI W3 Gd155 86
+        REGI W2 Gd155 87
+        REGI W1 Gd155 88
+
+        REGI W4 Gd155 89
+        REGI W3 Gd155 90
+        REGI W2 Gd155 91
+        REGI W1 Gd155 92
+
+        REGI W4 Gd155 93
+        REGI W3 Gd155 94
+        REGI W2 Gd155 95
+        REGI W1 Gd155 96
+
+        REGI W4 Gd155 97
+        REGI W3 Gd155 98
+        REGI W2 Gd155 99
+        REGI W1 Gd155 100
+
+        REGI W4 Gd155 101
+        REGI W3 Gd155 102
+        REGI W2 Gd155 103
+        REGI W1 Gd155 104
+
+        REGI W4 Gd155 105
+        REGI W3 Gd155 106
+        REGI W2 Gd155 107
+        REGI W1 Gd155 108
+
+        REGI W4 Gd155 109
+        REGI W3 Gd155 110
+        REGI W2 Gd155 111
+        REGI W1 Gd155 112
+
+        REGI W4 Gd155 113
+        REGI W3 Gd155 114
+        REGI W2 Gd155 115
+        REGI W1 Gd155 116
+
+        REGI W4 Gd155 117
+        REGI W3 Gd155 118
+        REGI W2 Gd155 119
+        REGI W1 Gd155 120
+
+        REGI W4 Gd155 121
+        REGI W3 Gd155 122
+        REGI W2 Gd155 123
+        REGI W1 Gd155 124
+
+        REGI W4 Gd155 125
+        REGI W3 Gd155 126
+        REGI W2 Gd155 127
+        REGI W1 Gd155 128
+
+        REGI W4 Gd155 129
+        REGI W3 Gd155 130
+        REGI W2 Gd155 131
+        REGI W1 Gd155 132
+
+        REGI W4 Gd155 133
+        REGI W3 Gd155 134
+        REGI W2 Gd155 135
+        REGI W1 Gd155 136
+
+        REGI W4 Gd155 137
+        REGI W3 Gd155 138
+        REGI W2 Gd155 139
+        REGI W1 Gd155 140
+
+        REGI W4 Gd155 141
+        REGI W3 Gd155 142
+        REGI W2 Gd155 143
+        REGI W1 Gd155 144
+
+        REGI W4 Gd155 145
+        REGI W3 Gd155 146
+        REGI W2 Gd155 147
+        REGI W1 Gd155 148
+
+        REGI W4 Gd155 149
+        REGI W3 Gd155 150
+        REGI W2 Gd155 151
+        REGI W1 Gd155 152
+
+        REGI W4 Gd155 153
+        REGI W3 Gd155 154
+        REGI W2 Gd155 155
+        REGI W1 Gd155 156
+
+        REGI W4 Gd155 157
+        REGI W3 Gd155 158
+        REGI W2 Gd155 159
+        REGI W1 Gd155 160
+
+        REGI W4 Gd155 161
+        REGI W3 Gd155 162
+        REGI W2 Gd155 163
+        REGI W1 Gd155 164
+
+        REGI W4 Gd155 165
+        REGI W3 Gd155 166
+        REGI W2 Gd155 167
+        REGI W1 Gd155 168
+
+        REGI W4 Gd155 169
+        REGI W3 Gd155 170
+        REGI W2 Gd155 171
+        REGI W1 Gd155 172
+
+        REGI W4 Gd155 173
+        REGI W3 Gd155 174
+        REGI W2 Gd155 175
+        REGI W1 Gd155 176
+
+        REGI W4 Gd155 177
+        REGI W3 Gd155 178
+        REGI W2 Gd155 179
+        REGI W1 Gd155 180
+
+        REGI W4 Gd155 181
+        REGI W3 Gd155 182
+        REGI W2 Gd155 183
+        REGI W1 Gd155 184
+
+        REGI W4 Gd155 185
+        REGI W3 Gd155 186
+        REGI W2 Gd155 187
+        REGI W1 Gd155 188
+
+        REGI W4 Gd155 189
+        REGI W3 Gd155 190
+        REGI W2 Gd155 191
+        REGI W1 Gd155 192
+
+        REGI W4 Gd155 193
+        REGI W3 Gd155 194
+        REGI W2 Gd155 195
+        REGI W1 Gd155 196
+
+        REGI W4 Gd155 197
+        REGI W3 Gd155 198
+        REGI W2 Gd155 199
+        REGI W1 Gd155 200
+
+        REGI W4 Gd155 201
+        REGI W3 Gd155 202
+        REGI W2 Gd155 203
+        REGI W1 Gd155 204
+
+        REGI W4 Gd155 205
+        REGI W3 Gd155 206
+        REGI W2 Gd155 207
+        REGI W1 Gd155 208
+
+        REGI W4 Gd155 209
+        REGI W3 Gd155 210
+        REGI W2 Gd155 211
+        REGI W1 Gd155 212
+
+        REGI W4 Gd155 213
+        REGI W3 Gd155 214
+        REGI W2 Gd155 215
+        REGI W1 Gd155 216
+
+        REGI W4 Gd155 217
+        REGI W3 Gd155 218
+        REGI W2 Gd155 219
+        REGI W1 Gd155 220
+
+        REGI W4 Gd155 221
+        REGI W3 Gd155 222
+        REGI W2 Gd155 223
+        REGI W1 Gd155 224
+
+        REGI W4 Gd155 225
+        REGI W3 Gd155 226
+        REGI W2 Gd155 227
+        REGI W1 Gd155 228
+
+        REGI W4 Gd155 229
+        REGI W3 Gd155 230
+        REGI W2 Gd155 231
+        REGI W1 Gd155 232
+
+        REGI W4 Gd155 233
+        REGI W3 Gd155 234
+        REGI W2 Gd155 235
+        REGI W1 Gd155 236
+
+        REGI W4 Gd155 237
+        REGI W3 Gd155 238
+        REGI W2 Gd155 239
+        REGI W1 Gd155 240
+
+        REGI W4 Gd155 241
+        REGI W3 Gd155 242
+        REGI W2 Gd155 243
+        REGI W1 Gd155 244
+
+        REGI W4 Gd155 245
+        REGI W3 Gd155 246
+        REGI W2 Gd155 247
+        REGI W1 Gd155 248
+
+        REGI W4 Gd155 249
+        REGI W3 Gd155 250
+        REGI W2 Gd155 251
+        REGI W1 Gd155 252
+
+        REGI W4 Gd155 253
+        REGI W3 Gd155 254
+        REGI W2 Gd155 255
+        REGI W1 Gd155 256
+
+        **********
+        ***** Gd156
+        REGI W4 Gd156 4
+        REGI W3 Gd156 5
+        REGI W2 Gd156 6
+        REGI W1 Gd156 7
+
+        REGI W4 Gd156 9
+        REGI W3 Gd156 10
+        REGI W2 Gd156 11
+        REGI W1 Gd156 12
+
+        REGI W4 Gd156 13
+        REGI W3 Gd156 14
+        REGI W2 Gd156 15
+        REGI W1 Gd156 16
+
+        REGI W4 Gd156 17
+        REGI W3 Gd156 18
+        REGI W2 Gd156 19
+        REGI W1 Gd156 20
+
+        REGI W4 Gd156 21
+        REGI W3 Gd156 22
+        REGI W2 Gd156 23
+        REGI W1 Gd156 24
+
+        REGI W4 Gd156 25
+        REGI W3 Gd156 26
+        REGI W2 Gd156 27
+        REGI W1 Gd156 28
+
+        REGI W4 Gd156 30
+        REGI W3 Gd156 31
+        REGI W2 Gd156 32
+        REGI W1 Gd156 33
+
+        REGI W4 Gd156 34
+        REGI W3 Gd156 35
+        REGI W2 Gd156 36
+        REGI W1 Gd156 37
+
+        REGI W4 Gd156 38
+        REGI W3 Gd156 39
+        REGI W2 Gd156 40
+        REGI W1 Gd156 41
+
+        REGI W4 Gd156 42
+        REGI W3 Gd156 43
+        REGI W2 Gd156 44
+        REGI W1 Gd156 45
+
+        REGI W4 Gd156 46
+        REGI W3 Gd156 47
+        REGI W2 Gd156 48
+        REGI W1 Gd156 49
+
+        REGI W21 Gd156 50
+        REGI W20 Gd156 51
+        REGI W19 Gd156 52
+        REGI W18 Gd156 53
+        REGI W17 Gd156 54
+        REGI W16 Gd156 55
+        REGI W15 Gd156 56
+        REGI W14 Gd156 57
+        REGI W13 Gd156 58
+        REGI W12 Gd156 59
+        REGI W11 Gd156 60
+
+        REGI W4 Gd156 61
+        REGI W3 Gd156 62
+        REGI W2 Gd156 63
+        REGI W1 Gd156 64
+
+        REGI W4 Gd156 65
+        REGI W3 Gd156 66
+        REGI W2 Gd156 67
+        REGI W1 Gd156 68
+
+        REGI W4 Gd156 69
+        REGI W3 Gd156 70
+        REGI W2 Gd156 71
+        REGI W1 Gd156 72
+
+        REGI W4 Gd156 73
+        REGI W3 Gd156 74
+        REGI W2 Gd156 75
+        REGI W1 Gd156 76
+
+        REGI W4 Gd156 77
+        REGI W3 Gd156 78
+        REGI W2 Gd156 79
+        REGI W1 Gd156 80
+
+        REGI W4 Gd156 81
+        REGI W3 Gd156 82
+        REGI W2 Gd156 83
+        REGI W1 Gd156 84
+
+        REGI W4 Gd156 85
+        REGI W3 Gd156 86
+        REGI W2 Gd156 87
+        REGI W1 Gd156 88
+
+        REGI W4 Gd156 89
+        REGI W3 Gd156 90
+        REGI W2 Gd156 91
+        REGI W1 Gd156 92
+
+        REGI W4 Gd156 93
+        REGI W3 Gd156 94
+        REGI W2 Gd156 95
+        REGI W1 Gd156 96
+
+        REGI W4 Gd156 97
+        REGI W3 Gd156 98
+        REGI W2 Gd156 99
+        REGI W1 Gd156 100
+
+        REGI W4 Gd156 101
+        REGI W3 Gd156 102
+        REGI W2 Gd156 103
+        REGI W1 Gd156 104
+
+        REGI W4 Gd156 105
+        REGI W3 Gd156 106
+        REGI W2 Gd156 107
+        REGI W1 Gd156 108
+
+        REGI W4 Gd156 109
+        REGI W3 Gd156 110
+        REGI W2 Gd156 111
+        REGI W1 Gd156 112
+
+        REGI W4 Gd156 113
+        REGI W3 Gd156 114
+        REGI W2 Gd156 115
+        REGI W1 Gd156 116
+
+        REGI W4 Gd156 117
+        REGI W3 Gd156 118
+        REGI W2 Gd156 119
+        REGI W1 Gd156 120
+
+        REGI W4 Gd156 121
+        REGI W3 Gd156 122
+        REGI W2 Gd156 123
+        REGI W1 Gd156 124
+
+        REGI W4 Gd156 125
+        REGI W3 Gd156 126
+        REGI W2 Gd156 127
+        REGI W1 Gd156 128
+
+        REGI W4 Gd156 129
+        REGI W3 Gd156 130
+        REGI W2 Gd156 131
+        REGI W1 Gd156 132
+
+        REGI W4 Gd156 133
+        REGI W3 Gd156 134
+        REGI W2 Gd156 135
+        REGI W1 Gd156 136
+
+        REGI W4 Gd156 137
+        REGI W3 Gd156 138
+        REGI W2 Gd156 139
+        REGI W1 Gd156 140
+
+        REGI W4 Gd156 141
+        REGI W3 Gd156 142
+        REGI W2 Gd156 143
+        REGI W1 Gd156 144
+
+        REGI W4 Gd156 145
+        REGI W3 Gd156 146
+        REGI W2 Gd156 147
+        REGI W1 Gd156 148
+
+        REGI W4 Gd156 149
+        REGI W3 Gd156 150
+        REGI W2 Gd156 151
+        REGI W1 Gd156 152
+
+        REGI W4 Gd156 153
+        REGI W3 Gd156 154
+        REGI W2 Gd156 155
+        REGI W1 Gd156 156
+
+        REGI W4 Gd156 157
+        REGI W3 Gd156 158
+        REGI W2 Gd156 159
+        REGI W1 Gd156 160
+
+        REGI W4 Gd156 161
+        REGI W3 Gd156 162
+        REGI W2 Gd156 163
+        REGI W1 Gd156 164
+
+        REGI W4 Gd156 165
+        REGI W3 Gd156 166
+        REGI W2 Gd156 167
+        REGI W1 Gd156 168
+
+        REGI W4 Gd156 169
+        REGI W3 Gd156 170
+        REGI W2 Gd156 171
+        REGI W1 Gd156 172
+
+        REGI W4 Gd156 173
+        REGI W3 Gd156 174
+        REGI W2 Gd156 175
+        REGI W1 Gd156 176
+
+        REGI W4 Gd156 177
+        REGI W3 Gd156 178
+        REGI W2 Gd156 179
+        REGI W1 Gd156 180
+
+        REGI W4 Gd156 181
+        REGI W3 Gd156 182
+        REGI W2 Gd156 183
+        REGI W1 Gd156 184
+
+        REGI W4 Gd156 185
+        REGI W3 Gd156 186
+        REGI W2 Gd156 187
+        REGI W1 Gd156 188
+
+        REGI W4 Gd156 189
+        REGI W3 Gd156 190
+        REGI W2 Gd156 191
+        REGI W1 Gd156 192
+
+        REGI W4 Gd156 193
+        REGI W3 Gd156 194
+        REGI W2 Gd156 195
+        REGI W1 Gd156 196
+
+        REGI W4 Gd156 197
+        REGI W3 Gd156 198
+        REGI W2 Gd156 199
+        REGI W1 Gd156 200
+
+        REGI W4 Gd156 201
+        REGI W3 Gd156 202
+        REGI W2 Gd156 203
+        REGI W1 Gd156 204
+
+        REGI W4 Gd156 205
+        REGI W3 Gd156 206
+        REGI W2 Gd156 207
+        REGI W1 Gd156 208
+
+        REGI W4 Gd156 209
+        REGI W3 Gd156 210
+        REGI W2 Gd156 211
+        REGI W1 Gd156 212
+
+        REGI W4 Gd156 213
+        REGI W3 Gd156 214
+        REGI W2 Gd156 215
+        REGI W1 Gd156 216
+
+        REGI W4 Gd156 217
+        REGI W3 Gd156 218
+        REGI W2 Gd156 219
+        REGI W1 Gd156 220
+
+        REGI W4 Gd156 221
+        REGI W3 Gd156 222
+        REGI W2 Gd156 223
+        REGI W1 Gd156 224
+
+        REGI W4 Gd156 225
+        REGI W3 Gd156 226
+        REGI W2 Gd156 227
+        REGI W1 Gd156 228
+
+        REGI W4 Gd156 229
+        REGI W3 Gd156 230
+        REGI W2 Gd156 231
+        REGI W1 Gd156 232
+
+        REGI W4 Gd156 233
+        REGI W3 Gd156 234
+        REGI W2 Gd156 235
+        REGI W1 Gd156 236
+
+        REGI W4 Gd156 237
+        REGI W3 Gd156 238
+        REGI W2 Gd156 239
+        REGI W1 Gd156 240
+
+        REGI W4 Gd156 241
+        REGI W3 Gd156 242
+        REGI W2 Gd156 243
+        REGI W1 Gd156 244
+
+        REGI W4 Gd156 245
+        REGI W3 Gd156 246
+        REGI W2 Gd156 247
+        REGI W1 Gd156 248
+
+        REGI W4 Gd156 249
+        REGI W3 Gd156 250
+        REGI W2 Gd156 251
+        REGI W1 Gd156 252
+
+        REGI W4 Gd156 253
+        REGI W3 Gd156 254
+        REGI W2 Gd156 255
+        REGI W1 Gd156 256
+
+        **********
+        ***** Gd157
+        REGI W4 Gd157 4
+        REGI W3 Gd157 5
+        REGI W2 Gd157 6
+        REGI W1 Gd157 7
+
+        REGI W4 Gd157 9
+        REGI W3 Gd157 10
+        REGI W2 Gd157 11
+        REGI W1 Gd157 12
+
+        REGI W4 Gd157 13
+        REGI W3 Gd157 14
+        REGI W2 Gd157 15
+        REGI W1 Gd157 16
+
+        REGI W4 Gd157 17
+        REGI W3 Gd157 18
+        REGI W2 Gd157 19
+        REGI W1 Gd157 20
+
+        REGI W4 Gd157 21
+        REGI W3 Gd157 22
+        REGI W2 Gd157 23
+        REGI W1 Gd157 24
+
+        REGI W4 Gd157 25
+        REGI W3 Gd157 26
+        REGI W2 Gd157 27
+        REGI W1 Gd157 28
+
+        REGI W4 Gd157 30
+        REGI W3 Gd157 31
+        REGI W2 Gd157 32
+        REGI W1 Gd157 33
+
+        REGI W4 Gd157 34
+        REGI W3 Gd157 35
+        REGI W2 Gd157 36
+        REGI W1 Gd157 37
+
+        REGI W4 Gd157 38
+        REGI W3 Gd157 39
+        REGI W2 Gd157 40
+        REGI W1 Gd157 41
+
+        REGI W4 Gd157 42
+        REGI W3 Gd157 43
+        REGI W2 Gd157 44
+        REGI W1 Gd157 45
+
+        REGI W4 Gd157 46
+        REGI W3 Gd157 47
+        REGI W2 Gd157 48
+        REGI W1 Gd157 49
+
+        REGI W21 Gd157 50
+        REGI W20 Gd157 51
+        REGI W19 Gd157 52
+        REGI W18 Gd157 53
+        REGI W17 Gd157 54
+        REGI W16 Gd157 55
+        REGI W15 Gd157 56
+        REGI W14 Gd157 57
+        REGI W13 Gd157 58
+        REGI W12 Gd157 59
+        REGI W11 Gd157 60
+
+        REGI W4 Gd157 61
+        REGI W3 Gd157 62
+        REGI W2 Gd157 63
+        REGI W1 Gd157 64
+
+        REGI W4 Gd157 65
+        REGI W3 Gd157 66
+        REGI W2 Gd157 67
+        REGI W1 Gd157 68
+
+        REGI W4 Gd157 69
+        REGI W3 Gd157 70
+        REGI W2 Gd157 71
+        REGI W1 Gd157 72
+
+        REGI W4 Gd157 73
+        REGI W3 Gd157 74
+        REGI W2 Gd157 75
+        REGI W1 Gd157 76
+
+        REGI W4 Gd157 77
+        REGI W3 Gd157 78
+        REGI W2 Gd157 79
+        REGI W1 Gd157 80
+
+        REGI W4 Gd157 81
+        REGI W3 Gd157 82
+        REGI W2 Gd157 83
+        REGI W1 Gd157 84
+
+        REGI W4 Gd157 85
+        REGI W3 Gd157 86
+        REGI W2 Gd157 87
+        REGI W1 Gd157 88
+
+        REGI W4 Gd157 89
+        REGI W3 Gd157 90
+        REGI W2 Gd157 91
+        REGI W1 Gd157 92
+
+        REGI W4 Gd157 93
+        REGI W3 Gd157 94
+        REGI W2 Gd157 95
+        REGI W1 Gd157 96
+
+        REGI W4 Gd157 97
+        REGI W3 Gd157 98
+        REGI W2 Gd157 99
+        REGI W1 Gd157 100
+
+        REGI W4 Gd157 101
+        REGI W3 Gd157 102
+        REGI W2 Gd157 103
+        REGI W1 Gd157 104
+
+        REGI W4 Gd157 105
+        REGI W3 Gd157 106
+        REGI W2 Gd157 107
+        REGI W1 Gd157 108
+
+        REGI W4 Gd157 109
+        REGI W3 Gd157 110
+        REGI W2 Gd157 111
+        REGI W1 Gd157 112
+
+        REGI W4 Gd157 113
+        REGI W3 Gd157 114
+        REGI W2 Gd157 115
+        REGI W1 Gd157 116
+
+        REGI W4 Gd157 117
+        REGI W3 Gd157 118
+        REGI W2 Gd157 119
+        REGI W1 Gd157 120
+
+        REGI W4 Gd157 121
+        REGI W3 Gd157 122
+        REGI W2 Gd157 123
+        REGI W1 Gd157 124
+
+        REGI W4 Gd157 125
+        REGI W3 Gd157 126
+        REGI W2 Gd157 127
+        REGI W1 Gd157 128
+
+        REGI W4 Gd157 129
+        REGI W3 Gd157 130
+        REGI W2 Gd157 131
+        REGI W1 Gd157 132
+
+        REGI W4 Gd157 133
+        REGI W3 Gd157 134
+        REGI W2 Gd157 135
+        REGI W1 Gd157 136
+
+        REGI W4 Gd157 137
+        REGI W3 Gd157 138
+        REGI W2 Gd157 139
+        REGI W1 Gd157 140
+
+        REGI W4 Gd157 141
+        REGI W3 Gd157 142
+        REGI W2 Gd157 143
+        REGI W1 Gd157 144
+
+        REGI W4 Gd157 145
+        REGI W3 Gd157 146
+        REGI W2 Gd157 147
+        REGI W1 Gd157 148
+
+        REGI W4 Gd157 149
+        REGI W3 Gd157 150
+        REGI W2 Gd157 151
+        REGI W1 Gd157 152
+
+        REGI W4 Gd157 153
+        REGI W3 Gd157 154
+        REGI W2 Gd157 155
+        REGI W1 Gd157 156
+
+        REGI W4 Gd157 157
+        REGI W3 Gd157 158
+        REGI W2 Gd157 159
+        REGI W1 Gd157 160
+
+        REGI W4 Gd157 161
+        REGI W3 Gd157 162
+        REGI W2 Gd157 163
+        REGI W1 Gd157 164
+
+        REGI W4 Gd157 165
+        REGI W3 Gd157 166
+        REGI W2 Gd157 167
+        REGI W1 Gd157 168
+
+        REGI W4 Gd157 169
+        REGI W3 Gd157 170
+        REGI W2 Gd157 171
+        REGI W1 Gd157 172
+
+        REGI W4 Gd157 173
+        REGI W3 Gd157 174
+        REGI W2 Gd157 175
+        REGI W1 Gd157 176
+
+        REGI W4 Gd157 177
+        REGI W3 Gd157 178
+        REGI W2 Gd157 179
+        REGI W1 Gd157 180
+
+        REGI W4 Gd157 181
+        REGI W3 Gd157 182
+        REGI W2 Gd157 183
+        REGI W1 Gd157 184
+
+        REGI W4 Gd157 185
+        REGI W3 Gd157 186
+        REGI W2 Gd157 187
+        REGI W1 Gd157 188
+
+        REGI W4 Gd157 189
+        REGI W3 Gd157 190
+        REGI W2 Gd157 191
+        REGI W1 Gd157 192
+
+        REGI W4 Gd157 193
+        REGI W3 Gd157 194
+        REGI W2 Gd157 195
+        REGI W1 Gd157 196
+
+        REGI W4 Gd157 197
+        REGI W3 Gd157 198
+        REGI W2 Gd157 199
+        REGI W1 Gd157 200
+
+        REGI W4 Gd157 201
+        REGI W3 Gd157 202
+        REGI W2 Gd157 203
+        REGI W1 Gd157 204
+
+        REGI W4 Gd157 205
+        REGI W3 Gd157 206
+        REGI W2 Gd157 207
+        REGI W1 Gd157 208
+
+        REGI W4 Gd157 209
+        REGI W3 Gd157 210
+        REGI W2 Gd157 211
+        REGI W1 Gd157 212
+
+        REGI W4 Gd157 213
+        REGI W3 Gd157 214
+        REGI W2 Gd157 215
+        REGI W1 Gd157 216
+
+        REGI W4 Gd157 217
+        REGI W3 Gd157 218
+        REGI W2 Gd157 219
+        REGI W1 Gd157 220
+
+        REGI W4 Gd157 221
+        REGI W3 Gd157 222
+        REGI W2 Gd157 223
+        REGI W1 Gd157 224
+
+        REGI W4 Gd157 225
+        REGI W3 Gd157 226
+        REGI W2 Gd157 227
+        REGI W1 Gd157 228
+
+        REGI W4 Gd157 229
+        REGI W3 Gd157 230
+        REGI W2 Gd157 231
+        REGI W1 Gd157 232
+
+        REGI W4 Gd157 233
+        REGI W3 Gd157 234
+        REGI W2 Gd157 235
+        REGI W1 Gd157 236
+
+        REGI W4 Gd157 237
+        REGI W3 Gd157 238
+        REGI W2 Gd157 239
+        REGI W1 Gd157 240
+
+        REGI W4 Gd157 241
+        REGI W3 Gd157 242
+        REGI W2 Gd157 243
+        REGI W1 Gd157 244
+
+        REGI W4 Gd157 245
+        REGI W3 Gd157 246
+        REGI W2 Gd157 247
+        REGI W1 Gd157 248
+
+        REGI W4 Gd157 249
+        REGI W3 Gd157 250
+        REGI W2 Gd157 251
+        REGI W1 Gd157 252
+
+        REGI W4 Gd157 253
+        REGI W3 Gd157 254
+        REGI W2 Gd157 255
+        REGI W1 Gd157 256
+
+        **********
+        ***** Gd158
+        REGI W4 Gd158 4
+        REGI W3 Gd158 5
+        REGI W2 Gd158 6
+        REGI W1 Gd158 7
+
+        REGI W4 Gd158 9
+        REGI W3 Gd158 10
+        REGI W2 Gd158 11
+        REGI W1 Gd158 12
+
+        REGI W4 Gd158 13
+        REGI W3 Gd158 14
+        REGI W2 Gd158 15
+        REGI W1 Gd158 16
+
+        REGI W4 Gd158 17
+        REGI W3 Gd158 18
+        REGI W2 Gd158 19
+        REGI W1 Gd158 20
+
+        REGI W4 Gd158 21
+        REGI W3 Gd158 22
+        REGI W2 Gd158 23
+        REGI W1 Gd158 24
+
+        REGI W4 Gd158 25
+        REGI W3 Gd158 26
+        REGI W2 Gd158 27
+        REGI W1 Gd158 28
+
+        REGI W4 Gd158 30
+        REGI W3 Gd158 31
+        REGI W2 Gd158 32
+        REGI W1 Gd158 33
+
+        REGI W4 Gd158 34
+        REGI W3 Gd158 35
+        REGI W2 Gd158 36
+        REGI W1 Gd158 37
+
+        REGI W4 Gd158 38
+        REGI W3 Gd158 39
+        REGI W2 Gd158 40
+        REGI W1 Gd158 41
+
+        REGI W4 Gd158 42
+        REGI W3 Gd158 43
+        REGI W2 Gd158 44
+        REGI W1 Gd158 45
+
+        REGI W4 Gd158 46
+        REGI W3 Gd158 47
+        REGI W2 Gd158 48
+        REGI W1 Gd158 49
+
+        REGI W21 Gd158 50
+        REGI W20 Gd158 51
+        REGI W19 Gd158 52
+        REGI W18 Gd158 53
+        REGI W17 Gd158 54
+        REGI W16 Gd158 55
+        REGI W15 Gd158 56
+        REGI W14 Gd158 57
+        REGI W13 Gd158 58
+        REGI W12 Gd158 59
+        REGI W11 Gd158 60
+
+        REGI W4 Gd158 61
+        REGI W3 Gd158 62
+        REGI W2 Gd158 63
+        REGI W1 Gd158 64
+
+        REGI W4 Gd158 65
+        REGI W3 Gd158 66
+        REGI W2 Gd158 67
+        REGI W1 Gd158 68
+
+        REGI W4 Gd158 69
+        REGI W3 Gd158 70
+        REGI W2 Gd158 71
+        REGI W1 Gd158 72
+
+        REGI W4 Gd158 73
+        REGI W3 Gd158 74
+        REGI W2 Gd158 75
+        REGI W1 Gd158 76
+
+        REGI W4 Gd158 77
+        REGI W3 Gd158 78
+        REGI W2 Gd158 79
+        REGI W1 Gd158 80
+
+        REGI W4 Gd158 81
+        REGI W3 Gd158 82
+        REGI W2 Gd158 83
+        REGI W1 Gd158 84
+
+        REGI W4 Gd158 85
+        REGI W3 Gd158 86
+        REGI W2 Gd158 87
+        REGI W1 Gd158 88
+
+        REGI W4 Gd158 89
+        REGI W3 Gd158 90
+        REGI W2 Gd158 91
+        REGI W1 Gd158 92
+
+        REGI W4 Gd158 93
+        REGI W3 Gd158 94
+        REGI W2 Gd158 95
+        REGI W1 Gd158 96
+
+        REGI W4 Gd158 97
+        REGI W3 Gd158 98
+        REGI W2 Gd158 99
+        REGI W1 Gd158 100
+
+        REGI W4 Gd158 101
+        REGI W3 Gd158 102
+        REGI W2 Gd158 103
+        REGI W1 Gd158 104
+
+        REGI W4 Gd158 105
+        REGI W3 Gd158 106
+        REGI W2 Gd158 107
+        REGI W1 Gd158 108
+
+        REGI W4 Gd158 109
+        REGI W3 Gd158 110
+        REGI W2 Gd158 111
+        REGI W1 Gd158 112
+
+        REGI W4 Gd158 113
+        REGI W3 Gd158 114
+        REGI W2 Gd158 115
+        REGI W1 Gd158 116
+
+        REGI W4 Gd158 117
+        REGI W3 Gd158 118
+        REGI W2 Gd158 119
+        REGI W1 Gd158 120
+
+        REGI W4 Gd158 121
+        REGI W3 Gd158 122
+        REGI W2 Gd158 123
+        REGI W1 Gd158 124
+
+        REGI W4 Gd158 125
+        REGI W3 Gd158 126
+        REGI W2 Gd158 127
+        REGI W1 Gd158 128
+
+        REGI W4 Gd158 129
+        REGI W3 Gd158 130
+        REGI W2 Gd158 131
+        REGI W1 Gd158 132
+
+        REGI W4 Gd158 133
+        REGI W3 Gd158 134
+        REGI W2 Gd158 135
+        REGI W1 Gd158 136
+
+        REGI W4 Gd158 137
+        REGI W3 Gd158 138
+        REGI W2 Gd158 139
+        REGI W1 Gd158 140
+
+        REGI W4 Gd158 141
+        REGI W3 Gd158 142
+        REGI W2 Gd158 143
+        REGI W1 Gd158 144
+
+        REGI W4 Gd158 145
+        REGI W3 Gd158 146
+        REGI W2 Gd158 147
+        REGI W1 Gd158 148
+
+        REGI W4 Gd158 149
+        REGI W3 Gd158 150
+        REGI W2 Gd158 151
+        REGI W1 Gd158 152
+
+        REGI W4 Gd158 153
+        REGI W3 Gd158 154
+        REGI W2 Gd158 155
+        REGI W1 Gd158 156
+
+        REGI W4 Gd158 157
+        REGI W3 Gd158 158
+        REGI W2 Gd158 159
+        REGI W1 Gd158 160
+
+        REGI W4 Gd158 161
+        REGI W3 Gd158 162
+        REGI W2 Gd158 163
+        REGI W1 Gd158 164
+
+        REGI W4 Gd158 165
+        REGI W3 Gd158 166
+        REGI W2 Gd158 167
+        REGI W1 Gd158 168
+
+        REGI W4 Gd158 169
+        REGI W3 Gd158 170
+        REGI W2 Gd158 171
+        REGI W1 Gd158 172
+
+        REGI W4 Gd158 173
+        REGI W3 Gd158 174
+        REGI W2 Gd158 175
+        REGI W1 Gd158 176
+
+        REGI W4 Gd158 177
+        REGI W3 Gd158 178
+        REGI W2 Gd158 179
+        REGI W1 Gd158 180
+
+        REGI W4 Gd158 181
+        REGI W3 Gd158 182
+        REGI W2 Gd158 183
+        REGI W1 Gd158 184
+
+        REGI W4 Gd158 185
+        REGI W3 Gd158 186
+        REGI W2 Gd158 187
+        REGI W1 Gd158 188
+
+        REGI W4 Gd158 189
+        REGI W3 Gd158 190
+        REGI W2 Gd158 191
+        REGI W1 Gd158 192
+
+        REGI W4 Gd158 193
+        REGI W3 Gd158 194
+        REGI W2 Gd158 195
+        REGI W1 Gd158 196
+
+        REGI W4 Gd158 197
+        REGI W3 Gd158 198
+        REGI W2 Gd158 199
+        REGI W1 Gd158 200
+
+        REGI W4 Gd158 201
+        REGI W3 Gd158 202
+        REGI W2 Gd158 203
+        REGI W1 Gd158 204
+
+        REGI W4 Gd158 205
+        REGI W3 Gd158 206
+        REGI W2 Gd158 207
+        REGI W1 Gd158 208
+
+        REGI W4 Gd158 209
+        REGI W3 Gd158 210
+        REGI W2 Gd158 211
+        REGI W1 Gd158 212
+
+        REGI W4 Gd158 213
+        REGI W3 Gd158 214
+        REGI W2 Gd158 215
+        REGI W1 Gd158 216
+
+        REGI W4 Gd158 217
+        REGI W3 Gd158 218
+        REGI W2 Gd158 219
+        REGI W1 Gd158 220
+
+        REGI W4 Gd158 221
+        REGI W3 Gd158 222
+        REGI W2 Gd158 223
+        REGI W1 Gd158 224
+
+        REGI W4 Gd158 225
+        REGI W3 Gd158 226
+        REGI W2 Gd158 227
+        REGI W1 Gd158 228
+
+        REGI W4 Gd158 229
+        REGI W3 Gd158 230
+        REGI W2 Gd158 231
+        REGI W1 Gd158 232
+
+        REGI W4 Gd158 233
+        REGI W3 Gd158 234
+        REGI W2 Gd158 235
+        REGI W1 Gd158 236
+
+        REGI W4 Gd158 237
+        REGI W3 Gd158 238
+        REGI W2 Gd158 239
+        REGI W1 Gd158 240
+
+        REGI W4 Gd158 241
+        REGI W3 Gd158 242
+        REGI W2 Gd158 243
+        REGI W1 Gd158 244
+
+        REGI W4 Gd158 245
+        REGI W3 Gd158 246
+        REGI W2 Gd158 247
+        REGI W1 Gd158 248
+
+        REGI W4 Gd158 249
+        REGI W3 Gd158 250
+        REGI W2 Gd158 251
+        REGI W1 Gd158 252
+
+        REGI W4 Gd158 253
+        REGI W3 Gd158 254
+        REGI W2 Gd158 255
+        REGI W1 Gd158 256
+            ENDC
+            ;
+
+  ELSEIF AUTOP 'NONE' = THEN
+
+    LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
+            EDIT 1 PASS 2 GRMIN 52 NOTR MAXST 100
+            ;
+
+  ENDIF ;
+
+***********************************
+****************************   39AWU
+***********************************
+
+ELSEIF name_geom 'KML2_39AWU_ASS' = THEN
+
+  IF AUTOP 'ALL' = THEN 
+
+    LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
+            EDIT 1 PASS 2 GRMIN 52 NOTR MAXST 100
+          CALC 
+* ALL CELLS
+               REGI W1 U235  ALL
+               REGI W1 U238  ALL
+               REGI W1 Pu239 ALL
+               REGI W1 Pu240 ALL
+               REGI W1 Pu241 ALL
+               REGI W1 Pu242 ALL
+
+               REGI W1 Gd154 ALL
+               REGI W1 Gd155 ALL
+               REGI W1 Gd156 ALL
+               REGI W1 Gd157 ALL
+               REGI W1 Gd158 ALL
+
+               REGI W1 Zr90 ALL
+               REGI W1 Zr91 ALL
+               REGI W1 Zr92 ALL
+               REGI W1 Zr94 ALL
+               REGI W1 Zr96 ALL
+
+            ENDC
+            ;
+
+  ELSEIF AUTOP 'REGI' = THEN
+
+    LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
+            EDIT 1 PASS 2 GRMIN 52 NOTR MAXST 100
+          CALC 
+* ALL CELLS
+               REGI W1 U235  ALL
+               REGI W1 Pu239 ALL
+               REGI W1 Pu240 ALL
+               REGI W1 Pu241 ALL
+               REGI W1 Pu242 ALL
+
+               REGI W1 Gd154 ALL
+               REGI W1 Gd155 ALL
+               REGI W1 Gd156 ALL
+               REGI W1 Gd157 ALL
+               REGI W1 Gd158 ALL
+
+               REGI W1 Zr90 ALL
+               REGI W1 Zr91 ALL
+               REGI W1 Zr92 ALL
+               REGI W1 Zr94 ALL
+               REGI W1 Zr96 ALL
+
+
+        **********
+        ***** U238
+        REGI W4 U238 4
+        REGI W3 U238 5
+        REGI W2 U238 6
+        REGI W1 U238 7
+
+        REGI W4 U238 9
+        REGI W3 U238 10
+        REGI W2 U238 11
+        REGI W1 U238 12
+
+        REGI W21 U238 13
+        REGI W20 U238 14
+        REGI W19 U238 15
+        REGI W18 U238 16
+        REGI W17 U238 17
+        REGI W16 U238 18
+        REGI W15 U238 19
+        REGI W14 U238 20
+        REGI W13 U238 21
+        REGI W12 U238 22
+        REGI W11 U238 23
+
+        REGI W4 U238 24
+        REGI W3 U238 25
+        REGI W2 U238 26
+        REGI W1 U238 27
+
+        REGI W4 U238 28
+        REGI W3 U238 29
+        REGI W2 U238 30
+        REGI W1 U238 31
+
+        REGI W4 U238 33
+        REGI W3 U238 34
+        REGI W2 U238 35
+        REGI W1 U238 36
+
+        REGI W4 U238 37
+        REGI W3 U238 38
+        REGI W2 U238 39
+        REGI W1 U238 40
+
+        REGI W4 U238 41
+        REGI W3 U238 42
+        REGI W2 U238 43
+        REGI W1 U238 44
+
+        REGI W4 U238 45
+        REGI W3 U238 46
+        REGI W2 U238 47
+        REGI W1 U238 48
+
+        REGI W4 U238 49
+        REGI W3 U238 50
+        REGI W2 U238 51
+        REGI W1 U238 52
+
+        REGI W4 U238 53
+        REGI W3 U238 54
+        REGI W2 U238 55
+        REGI W1 U238 56
+
+        REGI W4 U238 57
+        REGI W3 U238 58
+        REGI W2 U238 59
+        REGI W1 U238 60
+
+        REGI W4 U238 61
+        REGI W3 U238 62
+        REGI W2 U238 63
+        REGI W1 U238 64
+
+        REGI W4 U238 65
+        REGI W3 U238 66
+        REGI W2 U238 67
+        REGI W1 U238 68
+
+        REGI W4 U238 69
+        REGI W3 U238 70
+        REGI W2 U238 71
+        REGI W1 U238 72
+
+        REGI W4 U238 73
+        REGI W3 U238 74
+        REGI W2 U238 75
+        REGI W1 U238 76
+
+        REGI W4 U238 77
+        REGI W3 U238 78
+        REGI W2 U238 79
+        REGI W1 U238 80
+
+        REGI W4 U238 81
+        REGI W3 U238 82
+        REGI W2 U238 83
+        REGI W1 U238 84
+
+        REGI W4 U238 85
+        REGI W3 U238 86
+        REGI W2 U238 87
+        REGI W1 U238 88
+
+        REGI W4 U238 89
+        REGI W3 U238 90
+        REGI W2 U238 91
+        REGI W1 U238 92
+
+        REGI W4 U238 93
+        REGI W3 U238 94
+        REGI W2 U238 95
+        REGI W1 U238 96
+
+        REGI W4 U238 97
+        REGI W3 U238 98
+        REGI W2 U238 99
+        REGI W1 U238 100
+
+        REGI W4 U238 101
+        REGI W3 U238 102
+        REGI W2 U238 103
+        REGI W1 U238 104
+
+        REGI W4 U238 105
+        REGI W3 U238 106
+        REGI W2 U238 107
+        REGI W1 U238 108
+
+        REGI W4 U238 109
+        REGI W3 U238 110
+        REGI W2 U238 111
+        REGI W1 U238 112
+
+        REGI W4 U238 113
+        REGI W3 U238 114
+        REGI W2 U238 115
+        REGI W1 U238 116
+
+        REGI W4 U238 117
+        REGI W3 U238 118
+        REGI W2 U238 119
+        REGI W1 U238 120
+
+        REGI W4 U238 121
+        REGI W3 U238 122
+        REGI W2 U238 123
+        REGI W1 U238 124
+
+        REGI W4 U238 125
+        REGI W3 U238 126
+        REGI W2 U238 127
+        REGI W1 U238 128
+
+        REGI W4 U238 129
+        REGI W3 U238 130
+        REGI W2 U238 131
+        REGI W1 U238 132
+
+        REGI W4 U238 133
+        REGI W3 U238 134
+        REGI W2 U238 135
+        REGI W1 U238 136
+
+        REGI W4 U238 137
+        REGI W3 U238 138
+        REGI W2 U238 139
+        REGI W1 U238 140
+
+        REGI W4 U238 141
+        REGI W3 U238 142
+        REGI W2 U238 143
+        REGI W1 U238 144
+
+        REGI W4 U238 145
+        REGI W3 U238 146
+        REGI W2 U238 147
+        REGI W1 U238 148
+
+        REGI W4 U238 149
+        REGI W3 U238 150
+        REGI W2 U238 151
+        REGI W1 U238 152
+
+        REGI W41 U238 153
+        REGI W40 U238 154
+        REGI W39 U238 155
+        REGI W38 U238 156
+        REGI W37 U238 157
+        REGI W36 U238 158
+        REGI W35 U238 159
+        REGI W34 U238 160
+        REGI W33 U238 161
+        REGI W32 U238 162
+        REGI W31 U238 163
+
+        REGI W4 U238 164
+        REGI W3 U238 165
+        REGI W2 U238 166
+        REGI W1 U238 167
+
+        REGI W4 U238 168
+        REGI W3 U238 169
+        REGI W2 U238 170
+        REGI W1 U238 171
+
+        REGI W4 U238 172
+        REGI W3 U238 173
+        REGI W2 U238 174
+        REGI W1 U238 175
+
+        REGI W4 U238 176
+        REGI W3 U238 177
+        REGI W2 U238 178
+        REGI W1 U238 179
+
+        REGI W4 U238 180
+        REGI W3 U238 181
+        REGI W2 U238 182
+        REGI W1 U238 183
+
+        REGI W4 U238 184
+        REGI W3 U238 185
+        REGI W2 U238 186
+        REGI W1 U238 187
+
+        REGI W4 U238 188
+        REGI W3 U238 189
+        REGI W2 U238 190
+        REGI W1 U238 191
+
+        REGI W4 U238 192
+        REGI W3 U238 193
+        REGI W2 U238 194
+        REGI W1 U238 195
+
+        REGI W4 U238 196
+        REGI W3 U238 197
+        REGI W2 U238 198
+        REGI W1 U238 199
+
+        REGI W4 U238 200
+        REGI W3 U238 201
+        REGI W2 U238 202
+        REGI W1 U238 203
+
+        REGI W4 U238 204
+        REGI W3 U238 205
+        REGI W2 U238 206
+        REGI W1 U238 207
+
+        REGI W4 U238 208
+        REGI W3 U238 209
+        REGI W2 U238 210
+        REGI W1 U238 211
+
+        REGI W4 U238 212
+        REGI W3 U238 213
+        REGI W2 U238 214
+        REGI W1 U238 215
+
+        REGI W4 U238 216
+        REGI W3 U238 217
+        REGI W2 U238 218
+        REGI W1 U238 219
+
+        REGI W4 U238 220
+        REGI W3 U238 221
+        REGI W2 U238 222
+        REGI W1 U238 223
+
+        REGI W4 U238 224
+        REGI W3 U238 225
+        REGI W2 U238 226
+        REGI W1 U238 227
+
+        REGI W4 U238 228
+        REGI W3 U238 229
+        REGI W2 U238 230
+        REGI W1 U238 231
+
+        REGI W4 U238 232
+        REGI W3 U238 233
+        REGI W2 U238 234
+        REGI W1 U238 235
+
+        REGI W4 U238 236
+        REGI W3 U238 237
+        REGI W2 U238 238
+        REGI W1 U238 239
+
+        REGI W4 U238 240
+        REGI W3 U238 241
+        REGI W2 U238 242
+        REGI W1 U238 243
+
+        REGI W4 U238 244
+        REGI W3 U238 245
+        REGI W2 U238 246
+        REGI W1 U238 247
+
+        REGI W4 U238 248
+        REGI W3 U238 249
+        REGI W2 U238 250
+        REGI W1 U238 251
+
+        REGI W4 U238 252
+        REGI W3 U238 253
+        REGI W2 U238 254
+        REGI W1 U238 255
+
+        REGI W4 U238 256
+        REGI W3 U238 257
+        REGI W2 U238 258
+        REGI W1 U238 259
+
+        REGI W4 U238 260
+        REGI W3 U238 261
+        REGI W2 U238 262
+        REGI W1 U238 263
+
+        REGI W4 U238 264
+        REGI W3 U238 265
+        REGI W2 U238 266
+        REGI W1 U238 267
+
+        REGI W4 U238 268
+        REGI W3 U238 269
+        REGI W2 U238 270
+        REGI W1 U238 271
+
+        REGI W4 U238 272
+        REGI W3 U238 273
+        REGI W2 U238 274
+        REGI W1 U238 275
+
+        REGI W4 U238 276
+        REGI W3 U238 277
+        REGI W2 U238 278
+        REGI W1 U238 279
+
+        REGI W4 U238 280
+        REGI W3 U238 281
+        REGI W2 U238 282
+        REGI W1 U238 283
+
+        REGI W4 U238 284
+        REGI W3 U238 285
+        REGI W2 U238 286
+        REGI W1 U238 287
+
+        REGI W4 U238 288
+        REGI W3 U238 289
+        REGI W2 U238 290
+        REGI W1 U238 291
+
+        REGI W4 U238 292
+        REGI W3 U238 293
+        REGI W2 U238 294
+        REGI W1 U238 295
+
+        REGI W4 U238 296
+        REGI W3 U238 297
+        REGI W2 U238 298
+        REGI W1 U238 299
+
+        REGI W4 U238 300
+        REGI W3 U238 301
+        REGI W2 U238 302
+        REGI W1 U238 303
+
+        REGI W4 U238 304
+        REGI W3 U238 305
+        REGI W2 U238 306
+        REGI W1 U238 307
+
+        REGI W4 U238 308
+        REGI W3 U238 309
+        REGI W2 U238 310
+        REGI W1 U238 311
+
+        REGI W4 U238 312
+        REGI W3 U238 313
+        REGI W2 U238 314
+        REGI W1 U238 315
+
+        REGI W4 U238 316
+        REGI W3 U238 317
+        REGI W2 U238 318
+        REGI W1 U238 319
+
+        REGI W4 U238 320
+        REGI W3 U238 321
+        REGI W2 U238 322
+        REGI W1 U238 323
+
+        REGI W4 U238 324
+        REGI W3 U238 325
+        REGI W2 U238 326
+        REGI W1 U238 327
+
+        REGI W4 U238 328
+        REGI W3 U238 329
+        REGI W2 U238 330
+        REGI W1 U238 331
+
+        REGI W4 U238 332
+        REGI W3 U238 333
+        REGI W2 U238 334
+        REGI W1 U238 335
+
+        REGI W4 U238 336
+        REGI W3 U238 337
+        REGI W2 U238 338
+        REGI W1 U238 339
+
+        REGI W4 U238 340
+        REGI W3 U238 341
+        REGI W2 U238 342
+        REGI W1 U238 343
+
+        REGI W4 U238 344
+        REGI W3 U238 345
+        REGI W2 U238 346
+        REGI W1 U238 347
+
+        REGI W61 U238 348
+        REGI W60 U238 349
+        REGI W59 U238 350
+        REGI W58 U238 351
+        REGI W57 U238 352
+        REGI W56 U238 353
+        REGI W55 U238 354
+        REGI W54 U238 355
+        REGI W53 U238 356
+        REGI W52 U238 357
+        REGI W51 U238 358
+
+        REGI W4 U238 359
+        REGI W3 U238 360
+        REGI W2 U238 361
+        REGI W1 U238 362
+
+        REGI W4 U238 363
+        REGI W3 U238 364
+        REGI W2 U238 365
+        REGI W1 U238 366
+
+        REGI W4 U238 367
+        REGI W3 U238 368
+        REGI W2 U238 369
+        REGI W1 U238 370
+
+        REGI W4 U238 371
+        REGI W3 U238 372
+        REGI W2 U238 373
+        REGI W1 U238 374
+
+        REGI W4 U238 375
+        REGI W3 U238 376
+        REGI W2 U238 377
+        REGI W1 U238 378
+
+        REGI W4 U238 379
+        REGI W3 U238 380
+        REGI W2 U238 381
+        REGI W1 U238 382
+
+        REGI W4 U238 383
+        REGI W3 U238 384
+        REGI W2 U238 385
+        REGI W1 U238 386
+
+        REGI W81 U238 387
+        REGI W80 U238 388
+        REGI W79 U238 389
+        REGI W78 U238 390
+        REGI W77 U238 391
+        REGI W76 U238 392
+        REGI W75 U238 393
+        REGI W74 U238 394
+        REGI W73 U238 395
+        REGI W72 U238 396
+        REGI W71 U238 397
+
+        REGI W4 U238 398
+        REGI W3 U238 399
+        REGI W2 U238 400
+        REGI W1 U238 401
+
+        REGI W4 U238 402
+        REGI W3 U238 403
+        REGI W2 U238 404
+        REGI W1 U238 405
+
+        REGI W4 U238 406
+        REGI W3 U238 407
+        REGI W2 U238 408
+        REGI W1 U238 409
+
+        REGI W4 U238 410
+        REGI W3 U238 411
+        REGI W2 U238 412
+        REGI W1 U238 413
+
+        REGI W4 U238 414
+        REGI W3 U238 415
+        REGI W2 U238 416
+        REGI W1 U238 417
+
+        REGI W4 U238 418
+        REGI W3 U238 419
+        REGI W2 U238 420
+        REGI W1 U238 421
+
+        REGI W4 U238 422
+        REGI W3 U238 423
+        REGI W2 U238 424
+        REGI W1 U238 425
+
+        REGI W4 U238 426
+        REGI W3 U238 427
+        REGI W2 U238 428
+        REGI W1 U238 429
+
+        REGI W4 U238 430
+        REGI W3 U238 431
+        REGI W2 U238 432
+        REGI W1 U238 433
+
+        REGI W4 U238 434
+        REGI W3 U238 435
+        REGI W2 U238 436
+        REGI W1 U238 437
+
+        REGI W4 U238 438
+        REGI W3 U238 439
+        REGI W2 U238 440
+        REGI W1 U238 441
+
+        REGI W4 U238 442
+        REGI W3 U238 443
+        REGI W2 U238 444
+        REGI W1 U238 445
+
+        REGI W4 U238 446
+        REGI W3 U238 447
+        REGI W2 U238 448
+        REGI W1 U238 449
+
+        REGI W4 U238 450
+        REGI W3 U238 451
+        REGI W2 U238 452
+        REGI W1 U238 453
+
+        REGI W4 U238 454
+        REGI W3 U238 455
+        REGI W2 U238 456
+        REGI W1 U238 457
+
+        REGI W4 U238 458
+        REGI W3 U238 459
+        REGI W2 U238 460
+        REGI W1 U238 461
+
+        REGI W4 U238 462
+        REGI W3 U238 463
+        REGI W2 U238 464
+        REGI W1 U238 465
+
+        REGI W4 U238 466
+        REGI W3 U238 467
+        REGI W2 U238 468
+        REGI W1 U238 469
+
+        REGI W4 U238 470
+        REGI W3 U238 471
+        REGI W2 U238 472
+        REGI W1 U238 473
+
+        REGI W4 U238 474
+        REGI W3 U238 475
+        REGI W2 U238 476
+        REGI W1 U238 477
+
+        REGI W4 U238 478
+        REGI W3 U238 479
+        REGI W2 U238 480
+        REGI W1 U238 481
+
+        REGI W4 U238 482
+        REGI W3 U238 483
+        REGI W2 U238 484
+        REGI W1 U238 485
+
+        **********
+        ***** Gd154
+        REGI W4 Gd154 4
+        REGI W3 Gd154 5
+        REGI W2 Gd154 6
+        REGI W1 Gd154 7
+
+        REGI W4 Gd154 9
+        REGI W3 Gd154 10
+        REGI W2 Gd154 11
+        REGI W1 Gd154 12
+
+        REGI W21 Gd154 13
+        REGI W20 Gd154 14
+        REGI W19 Gd154 15
+        REGI W18 Gd154 16
+        REGI W17 Gd154 17
+        REGI W16 Gd154 18
+        REGI W15 Gd154 19
+        REGI W14 Gd154 20
+        REGI W13 Gd154 21
+        REGI W12 Gd154 22
+        REGI W11 Gd154 23
+
+        REGI W4 Gd154 24
+        REGI W3 Gd154 25
+        REGI W2 Gd154 26
+        REGI W1 Gd154 27
+
+        REGI W4 Gd154 28
+        REGI W3 Gd154 29
+        REGI W2 Gd154 30
+        REGI W1 Gd154 31
+
+        REGI W4 Gd154 33
+        REGI W3 Gd154 34
+        REGI W2 Gd154 35
+        REGI W1 Gd154 36
+
+        REGI W4 Gd154 37
+        REGI W3 Gd154 38
+        REGI W2 Gd154 39
+        REGI W1 Gd154 40
+
+        REGI W4 Gd154 41
+        REGI W3 Gd154 42
+        REGI W2 Gd154 43
+        REGI W1 Gd154 44
+
+        REGI W4 Gd154 45
+        REGI W3 Gd154 46
+        REGI W2 Gd154 47
+        REGI W1 Gd154 48
+
+        REGI W4 Gd154 49
+        REGI W3 Gd154 50
+        REGI W2 Gd154 51
+        REGI W1 Gd154 52
+
+        REGI W4 Gd154 53
+        REGI W3 Gd154 54
+        REGI W2 Gd154 55
+        REGI W1 Gd154 56
+
+        REGI W4 Gd154 57
+        REGI W3 Gd154 58
+        REGI W2 Gd154 59
+        REGI W1 Gd154 60
+
+        REGI W4 Gd154 61
+        REGI W3 Gd154 62
+        REGI W2 Gd154 63
+        REGI W1 Gd154 64
+
+        REGI W4 Gd154 65
+        REGI W3 Gd154 66
+        REGI W2 Gd154 67
+        REGI W1 Gd154 68
+
+        REGI W4 Gd154 69
+        REGI W3 Gd154 70
+        REGI W2 Gd154 71
+        REGI W1 Gd154 72
+
+        REGI W4 Gd154 73
+        REGI W3 Gd154 74
+        REGI W2 Gd154 75
+        REGI W1 Gd154 76
+
+        REGI W4 Gd154 77
+        REGI W3 Gd154 78
+        REGI W2 Gd154 79
+        REGI W1 Gd154 80
+
+        REGI W4 Gd154 81
+        REGI W3 Gd154 82
+        REGI W2 Gd154 83
+        REGI W1 Gd154 84
+
+        REGI W4 Gd154 85
+        REGI W3 Gd154 86
+        REGI W2 Gd154 87
+        REGI W1 Gd154 88
+
+        REGI W4 Gd154 89
+        REGI W3 Gd154 90
+        REGI W2 Gd154 91
+        REGI W1 Gd154 92
+
+        REGI W4 Gd154 93
+        REGI W3 Gd154 94
+        REGI W2 Gd154 95
+        REGI W1 Gd154 96
+
+        REGI W4 Gd154 97
+        REGI W3 Gd154 98
+        REGI W2 Gd154 99
+        REGI W1 Gd154 100
+
+        REGI W4 Gd154 101
+        REGI W3 Gd154 102
+        REGI W2 Gd154 103
+        REGI W1 Gd154 104
+
+        REGI W4 Gd154 105
+        REGI W3 Gd154 106
+        REGI W2 Gd154 107
+        REGI W1 Gd154 108
+
+        REGI W4 Gd154 109
+        REGI W3 Gd154 110
+        REGI W2 Gd154 111
+        REGI W1 Gd154 112
+
+        REGI W4 Gd154 113
+        REGI W3 Gd154 114
+        REGI W2 Gd154 115
+        REGI W1 Gd154 116
+
+        REGI W4 Gd154 117
+        REGI W3 Gd154 118
+        REGI W2 Gd154 119
+        REGI W1 Gd154 120
+
+        REGI W4 Gd154 121
+        REGI W3 Gd154 122
+        REGI W2 Gd154 123
+        REGI W1 Gd154 124
+
+        REGI W4 Gd154 125
+        REGI W3 Gd154 126
+        REGI W2 Gd154 127
+        REGI W1 Gd154 128
+
+        REGI W4 Gd154 129
+        REGI W3 Gd154 130
+        REGI W2 Gd154 131
+        REGI W1 Gd154 132
+
+        REGI W4 Gd154 133
+        REGI W3 Gd154 134
+        REGI W2 Gd154 135
+        REGI W1 Gd154 136
+
+        REGI W4 Gd154 137
+        REGI W3 Gd154 138
+        REGI W2 Gd154 139
+        REGI W1 Gd154 140
+
+        REGI W4 Gd154 141
+        REGI W3 Gd154 142
+        REGI W2 Gd154 143
+        REGI W1 Gd154 144
+
+        REGI W4 Gd154 145
+        REGI W3 Gd154 146
+        REGI W2 Gd154 147
+        REGI W1 Gd154 148
+
+        REGI W4 Gd154 149
+        REGI W3 Gd154 150
+        REGI W2 Gd154 151
+        REGI W1 Gd154 152
+
+        REGI W41 Gd154 153
+        REGI W40 Gd154 154
+        REGI W39 Gd154 155
+        REGI W38 Gd154 156
+        REGI W37 Gd154 157
+        REGI W36 Gd154 158
+        REGI W35 Gd154 159
+        REGI W34 Gd154 160
+        REGI W33 Gd154 161
+        REGI W32 Gd154 162
+        REGI W31 Gd154 163
+
+        REGI W4 Gd154 164
+        REGI W3 Gd154 165
+        REGI W2 Gd154 166
+        REGI W1 Gd154 167
+
+        REGI W4 Gd154 168
+        REGI W3 Gd154 169
+        REGI W2 Gd154 170
+        REGI W1 Gd154 171
+
+        REGI W4 Gd154 172
+        REGI W3 Gd154 173
+        REGI W2 Gd154 174
+        REGI W1 Gd154 175
+
+        REGI W4 Gd154 176
+        REGI W3 Gd154 177
+        REGI W2 Gd154 178
+        REGI W1 Gd154 179
+
+        REGI W4 Gd154 180
+        REGI W3 Gd154 181
+        REGI W2 Gd154 182
+        REGI W1 Gd154 183
+
+        REGI W4 Gd154 184
+        REGI W3 Gd154 185
+        REGI W2 Gd154 186
+        REGI W1 Gd154 187
+
+        REGI W4 Gd154 188
+        REGI W3 Gd154 189
+        REGI W2 Gd154 190
+        REGI W1 Gd154 191
+
+        REGI W4 Gd154 192
+        REGI W3 Gd154 193
+        REGI W2 Gd154 194
+        REGI W1 Gd154 195
+
+        REGI W4 Gd154 196
+        REGI W3 Gd154 197
+        REGI W2 Gd154 198
+        REGI W1 Gd154 199
+
+        REGI W4 Gd154 200
+        REGI W3 Gd154 201
+        REGI W2 Gd154 202
+        REGI W1 Gd154 203
+
+        REGI W4 Gd154 204
+        REGI W3 Gd154 205
+        REGI W2 Gd154 206
+        REGI W1 Gd154 207
+
+        REGI W4 Gd154 208
+        REGI W3 Gd154 209
+        REGI W2 Gd154 210
+        REGI W1 Gd154 211
+
+        REGI W4 Gd154 212
+        REGI W3 Gd154 213
+        REGI W2 Gd154 214
+        REGI W1 Gd154 215
+
+        REGI W4 Gd154 216
+        REGI W3 Gd154 217
+        REGI W2 Gd154 218
+        REGI W1 Gd154 219
+
+        REGI W4 Gd154 220
+        REGI W3 Gd154 221
+        REGI W2 Gd154 222
+        REGI W1 Gd154 223
+
+        REGI W4 Gd154 224
+        REGI W3 Gd154 225
+        REGI W2 Gd154 226
+        REGI W1 Gd154 227
+
+        REGI W4 Gd154 228
+        REGI W3 Gd154 229
+        REGI W2 Gd154 230
+        REGI W1 Gd154 231
+
+        REGI W4 Gd154 232
+        REGI W3 Gd154 233
+        REGI W2 Gd154 234
+        REGI W1 Gd154 235
+
+        REGI W4 Gd154 236
+        REGI W3 Gd154 237
+        REGI W2 Gd154 238
+        REGI W1 Gd154 239
+
+        REGI W4 Gd154 240
+        REGI W3 Gd154 241
+        REGI W2 Gd154 242
+        REGI W1 Gd154 243
+
+        REGI W4 Gd154 244
+        REGI W3 Gd154 245
+        REGI W2 Gd154 246
+        REGI W1 Gd154 247
+
+        REGI W4 Gd154 248
+        REGI W3 Gd154 249
+        REGI W2 Gd154 250
+        REGI W1 Gd154 251
+
+        REGI W4 Gd154 252
+        REGI W3 Gd154 253
+        REGI W2 Gd154 254
+        REGI W1 Gd154 255
+
+        REGI W4 Gd154 256
+        REGI W3 Gd154 257
+        REGI W2 Gd154 258
+        REGI W1 Gd154 259
+
+        REGI W4 Gd154 260
+        REGI W3 Gd154 261
+        REGI W2 Gd154 262
+        REGI W1 Gd154 263
+
+        REGI W4 Gd154 264
+        REGI W3 Gd154 265
+        REGI W2 Gd154 266
+        REGI W1 Gd154 267
+
+        REGI W4 Gd154 268
+        REGI W3 Gd154 269
+        REGI W2 Gd154 270
+        REGI W1 Gd154 271
+
+        REGI W4 Gd154 272
+        REGI W3 Gd154 273
+        REGI W2 Gd154 274
+        REGI W1 Gd154 275
+
+        REGI W4 Gd154 276
+        REGI W3 Gd154 277
+        REGI W2 Gd154 278
+        REGI W1 Gd154 279
+
+        REGI W4 Gd154 280
+        REGI W3 Gd154 281
+        REGI W2 Gd154 282
+        REGI W1 Gd154 283
+
+        REGI W4 Gd154 284
+        REGI W3 Gd154 285
+        REGI W2 Gd154 286
+        REGI W1 Gd154 287
+
+        REGI W4 Gd154 288
+        REGI W3 Gd154 289
+        REGI W2 Gd154 290
+        REGI W1 Gd154 291
+
+        REGI W4 Gd154 292
+        REGI W3 Gd154 293
+        REGI W2 Gd154 294
+        REGI W1 Gd154 295
+
+        REGI W4 Gd154 296
+        REGI W3 Gd154 297
+        REGI W2 Gd154 298
+        REGI W1 Gd154 299
+
+        REGI W4 Gd154 300
+        REGI W3 Gd154 301
+        REGI W2 Gd154 302
+        REGI W1 Gd154 303
+
+        REGI W4 Gd154 304
+        REGI W3 Gd154 305
+        REGI W2 Gd154 306
+        REGI W1 Gd154 307
+
+        REGI W4 Gd154 308
+        REGI W3 Gd154 309
+        REGI W2 Gd154 310
+        REGI W1 Gd154 311
+
+        REGI W4 Gd154 312
+        REGI W3 Gd154 313
+        REGI W2 Gd154 314
+        REGI W1 Gd154 315
+
+        REGI W4 Gd154 316
+        REGI W3 Gd154 317
+        REGI W2 Gd154 318
+        REGI W1 Gd154 319
+
+        REGI W4 Gd154 320
+        REGI W3 Gd154 321
+        REGI W2 Gd154 322
+        REGI W1 Gd154 323
+
+        REGI W4 Gd154 324
+        REGI W3 Gd154 325
+        REGI W2 Gd154 326
+        REGI W1 Gd154 327
+
+        REGI W4 Gd154 328
+        REGI W3 Gd154 329
+        REGI W2 Gd154 330
+        REGI W1 Gd154 331
+
+        REGI W4 Gd154 332
+        REGI W3 Gd154 333
+        REGI W2 Gd154 334
+        REGI W1 Gd154 335
+
+        REGI W4 Gd154 336
+        REGI W3 Gd154 337
+        REGI W2 Gd154 338
+        REGI W1 Gd154 339
+
+        REGI W4 Gd154 340
+        REGI W3 Gd154 341
+        REGI W2 Gd154 342
+        REGI W1 Gd154 343
+
+        REGI W4 Gd154 344
+        REGI W3 Gd154 345
+        REGI W2 Gd154 346
+        REGI W1 Gd154 347
+
+        REGI W61 Gd154 348
+        REGI W60 Gd154 349
+        REGI W59 Gd154 350
+        REGI W58 Gd154 351
+        REGI W57 Gd154 352
+        REGI W56 Gd154 353
+        REGI W55 Gd154 354
+        REGI W54 Gd154 355
+        REGI W53 Gd154 356
+        REGI W52 Gd154 357
+        REGI W51 Gd154 358
+
+        REGI W4 Gd154 359
+        REGI W3 Gd154 360
+        REGI W2 Gd154 361
+        REGI W1 Gd154 362
+
+        REGI W4 Gd154 363
+        REGI W3 Gd154 364
+        REGI W2 Gd154 365
+        REGI W1 Gd154 366
+
+        REGI W4 Gd154 367
+        REGI W3 Gd154 368
+        REGI W2 Gd154 369
+        REGI W1 Gd154 370
+
+        REGI W4 Gd154 371
+        REGI W3 Gd154 372
+        REGI W2 Gd154 373
+        REGI W1 Gd154 374
+
+        REGI W4 Gd154 375
+        REGI W3 Gd154 376
+        REGI W2 Gd154 377
+        REGI W1 Gd154 378
+
+        REGI W4 Gd154 379
+        REGI W3 Gd154 380
+        REGI W2 Gd154 381
+        REGI W1 Gd154 382
+
+        REGI W4 Gd154 383
+        REGI W3 Gd154 384
+        REGI W2 Gd154 385
+        REGI W1 Gd154 386
+
+        REGI W81 Gd154 387
+        REGI W80 Gd154 388
+        REGI W79 Gd154 389
+        REGI W78 Gd154 390
+        REGI W77 Gd154 391
+        REGI W76 Gd154 392
+        REGI W75 Gd154 393
+        REGI W74 Gd154 394
+        REGI W73 Gd154 395
+        REGI W72 Gd154 396
+        REGI W71 Gd154 397
+
+        REGI W4 Gd154 398
+        REGI W3 Gd154 399
+        REGI W2 Gd154 400
+        REGI W1 Gd154 401
+
+        REGI W4 Gd154 402
+        REGI W3 Gd154 403
+        REGI W2 Gd154 404
+        REGI W1 Gd154 405
+
+        REGI W4 Gd154 406
+        REGI W3 Gd154 407
+        REGI W2 Gd154 408
+        REGI W1 Gd154 409
+
+        REGI W4 Gd154 410
+        REGI W3 Gd154 411
+        REGI W2 Gd154 412
+        REGI W1 Gd154 413
+
+        REGI W4 Gd154 414
+        REGI W3 Gd154 415
+        REGI W2 Gd154 416
+        REGI W1 Gd154 417
+
+        REGI W4 Gd154 418
+        REGI W3 Gd154 419
+        REGI W2 Gd154 420
+        REGI W1 Gd154 421
+
+        REGI W4 Gd154 422
+        REGI W3 Gd154 423
+        REGI W2 Gd154 424
+        REGI W1 Gd154 425
+
+        REGI W4 Gd154 426
+        REGI W3 Gd154 427
+        REGI W2 Gd154 428
+        REGI W1 Gd154 429
+
+        REGI W4 Gd154 430
+        REGI W3 Gd154 431
+        REGI W2 Gd154 432
+        REGI W1 Gd154 433
+
+        REGI W4 Gd154 434
+        REGI W3 Gd154 435
+        REGI W2 Gd154 436
+        REGI W1 Gd154 437
+
+        REGI W4 Gd154 438
+        REGI W3 Gd154 439
+        REGI W2 Gd154 440
+        REGI W1 Gd154 441
+
+        REGI W4 Gd154 442
+        REGI W3 Gd154 443
+        REGI W2 Gd154 444
+        REGI W1 Gd154 445
+
+        REGI W4 Gd154 446
+        REGI W3 Gd154 447
+        REGI W2 Gd154 448
+        REGI W1 Gd154 449
+
+        REGI W4 Gd154 450
+        REGI W3 Gd154 451
+        REGI W2 Gd154 452
+        REGI W1 Gd154 453
+
+        REGI W4 Gd154 454
+        REGI W3 Gd154 455
+        REGI W2 Gd154 456
+        REGI W1 Gd154 457
+
+        REGI W4 Gd154 458
+        REGI W3 Gd154 459
+        REGI W2 Gd154 460
+        REGI W1 Gd154 461
+
+        REGI W4 Gd154 462
+        REGI W3 Gd154 463
+        REGI W2 Gd154 464
+        REGI W1 Gd154 465
+
+        REGI W4 Gd154 466
+        REGI W3 Gd154 467
+        REGI W2 Gd154 468
+        REGI W1 Gd154 469
+
+        REGI W4 Gd154 470
+        REGI W3 Gd154 471
+        REGI W2 Gd154 472
+        REGI W1 Gd154 473
+
+        REGI W4 Gd154 474
+        REGI W3 Gd154 475
+        REGI W2 Gd154 476
+        REGI W1 Gd154 477
+
+        REGI W4 Gd154 478
+        REGI W3 Gd154 479
+        REGI W2 Gd154 480
+        REGI W1 Gd154 481
+
+        REGI W4 Gd154 482
+        REGI W3 Gd154 483
+        REGI W2 Gd154 484
+        REGI W1 Gd154 485
+
+        **********
+        ***** Gd155
+        REGI W4 Gd155 4
+        REGI W3 Gd155 5
+        REGI W2 Gd155 6
+        REGI W1 Gd155 7
+
+        REGI W4 Gd155 9
+        REGI W3 Gd155 10
+        REGI W2 Gd155 11
+        REGI W1 Gd155 12
+
+        REGI W21 Gd155 13
+        REGI W20 Gd155 14
+        REGI W19 Gd155 15
+        REGI W18 Gd155 16
+        REGI W17 Gd155 17
+        REGI W16 Gd155 18
+        REGI W15 Gd155 19
+        REGI W14 Gd155 20
+        REGI W13 Gd155 21
+        REGI W12 Gd155 22
+        REGI W11 Gd155 23
+
+        REGI W4 Gd155 24
+        REGI W3 Gd155 25
+        REGI W2 Gd155 26
+        REGI W1 Gd155 27
+
+        REGI W4 Gd155 28
+        REGI W3 Gd155 29
+        REGI W2 Gd155 30
+        REGI W1 Gd155 31
+
+        REGI W4 Gd155 33
+        REGI W3 Gd155 34
+        REGI W2 Gd155 35
+        REGI W1 Gd155 36
+
+        REGI W4 Gd155 37
+        REGI W3 Gd155 38
+        REGI W2 Gd155 39
+        REGI W1 Gd155 40
+
+        REGI W4 Gd155 41
+        REGI W3 Gd155 42
+        REGI W2 Gd155 43
+        REGI W1 Gd155 44
+
+        REGI W4 Gd155 45
+        REGI W3 Gd155 46
+        REGI W2 Gd155 47
+        REGI W1 Gd155 48
+
+        REGI W4 Gd155 49
+        REGI W3 Gd155 50
+        REGI W2 Gd155 51
+        REGI W1 Gd155 52
+
+        REGI W4 Gd155 53
+        REGI W3 Gd155 54
+        REGI W2 Gd155 55
+        REGI W1 Gd155 56
+
+        REGI W4 Gd155 57
+        REGI W3 Gd155 58
+        REGI W2 Gd155 59
+        REGI W1 Gd155 60
+
+        REGI W4 Gd155 61
+        REGI W3 Gd155 62
+        REGI W2 Gd155 63
+        REGI W1 Gd155 64
+
+        REGI W4 Gd155 65
+        REGI W3 Gd155 66
+        REGI W2 Gd155 67
+        REGI W1 Gd155 68
+
+        REGI W4 Gd155 69
+        REGI W3 Gd155 70
+        REGI W2 Gd155 71
+        REGI W1 Gd155 72
+
+        REGI W4 Gd155 73
+        REGI W3 Gd155 74
+        REGI W2 Gd155 75
+        REGI W1 Gd155 76
+
+        REGI W4 Gd155 77
+        REGI W3 Gd155 78
+        REGI W2 Gd155 79
+        REGI W1 Gd155 80
+
+        REGI W4 Gd155 81
+        REGI W3 Gd155 82
+        REGI W2 Gd155 83
+        REGI W1 Gd155 84
+
+        REGI W4 Gd155 85
+        REGI W3 Gd155 86
+        REGI W2 Gd155 87
+        REGI W1 Gd155 88
+
+        REGI W4 Gd155 89
+        REGI W3 Gd155 90
+        REGI W2 Gd155 91
+        REGI W1 Gd155 92
+
+        REGI W4 Gd155 93
+        REGI W3 Gd155 94
+        REGI W2 Gd155 95
+        REGI W1 Gd155 96
+
+        REGI W4 Gd155 97
+        REGI W3 Gd155 98
+        REGI W2 Gd155 99
+        REGI W1 Gd155 100
+
+        REGI W4 Gd155 101
+        REGI W3 Gd155 102
+        REGI W2 Gd155 103
+        REGI W1 Gd155 104
+
+        REGI W4 Gd155 105
+        REGI W3 Gd155 106
+        REGI W2 Gd155 107
+        REGI W1 Gd155 108
+
+        REGI W4 Gd155 109
+        REGI W3 Gd155 110
+        REGI W2 Gd155 111
+        REGI W1 Gd155 112
+
+        REGI W4 Gd155 113
+        REGI W3 Gd155 114
+        REGI W2 Gd155 115
+        REGI W1 Gd155 116
+
+        REGI W4 Gd155 117
+        REGI W3 Gd155 118
+        REGI W2 Gd155 119
+        REGI W1 Gd155 120
+
+        REGI W4 Gd155 121
+        REGI W3 Gd155 122
+        REGI W2 Gd155 123
+        REGI W1 Gd155 124
+
+        REGI W4 Gd155 125
+        REGI W3 Gd155 126
+        REGI W2 Gd155 127
+        REGI W1 Gd155 128
+
+        REGI W4 Gd155 129
+        REGI W3 Gd155 130
+        REGI W2 Gd155 131
+        REGI W1 Gd155 132
+
+        REGI W4 Gd155 133
+        REGI W3 Gd155 134
+        REGI W2 Gd155 135
+        REGI W1 Gd155 136
+
+        REGI W4 Gd155 137
+        REGI W3 Gd155 138
+        REGI W2 Gd155 139
+        REGI W1 Gd155 140
+
+        REGI W4 Gd155 141
+        REGI W3 Gd155 142
+        REGI W2 Gd155 143
+        REGI W1 Gd155 144
+
+        REGI W4 Gd155 145
+        REGI W3 Gd155 146
+        REGI W2 Gd155 147
+        REGI W1 Gd155 148
+
+        REGI W4 Gd155 149
+        REGI W3 Gd155 150
+        REGI W2 Gd155 151
+        REGI W1 Gd155 152
+
+        REGI W41 Gd155 153
+        REGI W40 Gd155 154
+        REGI W39 Gd155 155
+        REGI W38 Gd155 156
+        REGI W37 Gd155 157
+        REGI W36 Gd155 158
+        REGI W35 Gd155 159
+        REGI W34 Gd155 160
+        REGI W33 Gd155 161
+        REGI W32 Gd155 162
+        REGI W31 Gd155 163
+
+        REGI W4 Gd155 164
+        REGI W3 Gd155 165
+        REGI W2 Gd155 166
+        REGI W1 Gd155 167
+
+        REGI W4 Gd155 168
+        REGI W3 Gd155 169
+        REGI W2 Gd155 170
+        REGI W1 Gd155 171
+
+        REGI W4 Gd155 172
+        REGI W3 Gd155 173
+        REGI W2 Gd155 174
+        REGI W1 Gd155 175
+
+        REGI W4 Gd155 176
+        REGI W3 Gd155 177
+        REGI W2 Gd155 178
+        REGI W1 Gd155 179
+
+        REGI W4 Gd155 180
+        REGI W3 Gd155 181
+        REGI W2 Gd155 182
+        REGI W1 Gd155 183
+
+        REGI W4 Gd155 184
+        REGI W3 Gd155 185
+        REGI W2 Gd155 186
+        REGI W1 Gd155 187
+
+        REGI W4 Gd155 188
+        REGI W3 Gd155 189
+        REGI W2 Gd155 190
+        REGI W1 Gd155 191
+
+        REGI W4 Gd155 192
+        REGI W3 Gd155 193
+        REGI W2 Gd155 194
+        REGI W1 Gd155 195
+
+        REGI W4 Gd155 196
+        REGI W3 Gd155 197
+        REGI W2 Gd155 198
+        REGI W1 Gd155 199
+
+        REGI W4 Gd155 200
+        REGI W3 Gd155 201
+        REGI W2 Gd155 202
+        REGI W1 Gd155 203
+
+        REGI W4 Gd155 204
+        REGI W3 Gd155 205
+        REGI W2 Gd155 206
+        REGI W1 Gd155 207
+
+        REGI W4 Gd155 208
+        REGI W3 Gd155 209
+        REGI W2 Gd155 210
+        REGI W1 Gd155 211
+
+        REGI W4 Gd155 212
+        REGI W3 Gd155 213
+        REGI W2 Gd155 214
+        REGI W1 Gd155 215
+
+        REGI W4 Gd155 216
+        REGI W3 Gd155 217
+        REGI W2 Gd155 218
+        REGI W1 Gd155 219
+
+        REGI W4 Gd155 220
+        REGI W3 Gd155 221
+        REGI W2 Gd155 222
+        REGI W1 Gd155 223
+
+        REGI W4 Gd155 224
+        REGI W3 Gd155 225
+        REGI W2 Gd155 226
+        REGI W1 Gd155 227
+
+        REGI W4 Gd155 228
+        REGI W3 Gd155 229
+        REGI W2 Gd155 230
+        REGI W1 Gd155 231
+
+        REGI W4 Gd155 232
+        REGI W3 Gd155 233
+        REGI W2 Gd155 234
+        REGI W1 Gd155 235
+
+        REGI W4 Gd155 236
+        REGI W3 Gd155 237
+        REGI W2 Gd155 238
+        REGI W1 Gd155 239
+
+        REGI W4 Gd155 240
+        REGI W3 Gd155 241
+        REGI W2 Gd155 242
+        REGI W1 Gd155 243
+
+        REGI W4 Gd155 244
+        REGI W3 Gd155 245
+        REGI W2 Gd155 246
+        REGI W1 Gd155 247
+
+        REGI W4 Gd155 248
+        REGI W3 Gd155 249
+        REGI W2 Gd155 250
+        REGI W1 Gd155 251
+
+        REGI W4 Gd155 252
+        REGI W3 Gd155 253
+        REGI W2 Gd155 254
+        REGI W1 Gd155 255
+
+        REGI W4 Gd155 256
+        REGI W3 Gd155 257
+        REGI W2 Gd155 258
+        REGI W1 Gd155 259
+
+        REGI W4 Gd155 260
+        REGI W3 Gd155 261
+        REGI W2 Gd155 262
+        REGI W1 Gd155 263
+
+        REGI W4 Gd155 264
+        REGI W3 Gd155 265
+        REGI W2 Gd155 266
+        REGI W1 Gd155 267
+
+        REGI W4 Gd155 268
+        REGI W3 Gd155 269
+        REGI W2 Gd155 270
+        REGI W1 Gd155 271
+
+        REGI W4 Gd155 272
+        REGI W3 Gd155 273
+        REGI W2 Gd155 274
+        REGI W1 Gd155 275
+
+        REGI W4 Gd155 276
+        REGI W3 Gd155 277
+        REGI W2 Gd155 278
+        REGI W1 Gd155 279
+
+        REGI W4 Gd155 280
+        REGI W3 Gd155 281
+        REGI W2 Gd155 282
+        REGI W1 Gd155 283
+
+        REGI W4 Gd155 284
+        REGI W3 Gd155 285
+        REGI W2 Gd155 286
+        REGI W1 Gd155 287
+
+        REGI W4 Gd155 288
+        REGI W3 Gd155 289
+        REGI W2 Gd155 290
+        REGI W1 Gd155 291
+
+        REGI W4 Gd155 292
+        REGI W3 Gd155 293
+        REGI W2 Gd155 294
+        REGI W1 Gd155 295
+
+        REGI W4 Gd155 296
+        REGI W3 Gd155 297
+        REGI W2 Gd155 298
+        REGI W1 Gd155 299
+
+        REGI W4 Gd155 300
+        REGI W3 Gd155 301
+        REGI W2 Gd155 302
+        REGI W1 Gd155 303
+
+        REGI W4 Gd155 304
+        REGI W3 Gd155 305
+        REGI W2 Gd155 306
+        REGI W1 Gd155 307
+
+        REGI W4 Gd155 308
+        REGI W3 Gd155 309
+        REGI W2 Gd155 310
+        REGI W1 Gd155 311
+
+        REGI W4 Gd155 312
+        REGI W3 Gd155 313
+        REGI W2 Gd155 314
+        REGI W1 Gd155 315
+
+        REGI W4 Gd155 316
+        REGI W3 Gd155 317
+        REGI W2 Gd155 318
+        REGI W1 Gd155 319
+
+        REGI W4 Gd155 320
+        REGI W3 Gd155 321
+        REGI W2 Gd155 322
+        REGI W1 Gd155 323
+
+        REGI W4 Gd155 324
+        REGI W3 Gd155 325
+        REGI W2 Gd155 326
+        REGI W1 Gd155 327
+
+        REGI W4 Gd155 328
+        REGI W3 Gd155 329
+        REGI W2 Gd155 330
+        REGI W1 Gd155 331
+
+        REGI W4 Gd155 332
+        REGI W3 Gd155 333
+        REGI W2 Gd155 334
+        REGI W1 Gd155 335
+
+        REGI W4 Gd155 336
+        REGI W3 Gd155 337
+        REGI W2 Gd155 338
+        REGI W1 Gd155 339
+
+        REGI W4 Gd155 340
+        REGI W3 Gd155 341
+        REGI W2 Gd155 342
+        REGI W1 Gd155 343
+
+        REGI W4 Gd155 344
+        REGI W3 Gd155 345
+        REGI W2 Gd155 346
+        REGI W1 Gd155 347
+
+        REGI W61 Gd155 348
+        REGI W60 Gd155 349
+        REGI W59 Gd155 350
+        REGI W58 Gd155 351
+        REGI W57 Gd155 352
+        REGI W56 Gd155 353
+        REGI W55 Gd155 354
+        REGI W54 Gd155 355
+        REGI W53 Gd155 356
+        REGI W52 Gd155 357
+        REGI W51 Gd155 358
+
+        REGI W4 Gd155 359
+        REGI W3 Gd155 360
+        REGI W2 Gd155 361
+        REGI W1 Gd155 362
+
+        REGI W4 Gd155 363
+        REGI W3 Gd155 364
+        REGI W2 Gd155 365
+        REGI W1 Gd155 366
+
+        REGI W4 Gd155 367
+        REGI W3 Gd155 368
+        REGI W2 Gd155 369
+        REGI W1 Gd155 370
+
+        REGI W4 Gd155 371
+        REGI W3 Gd155 372
+        REGI W2 Gd155 373
+        REGI W1 Gd155 374
+
+        REGI W4 Gd155 375
+        REGI W3 Gd155 376
+        REGI W2 Gd155 377
+        REGI W1 Gd155 378
+
+        REGI W4 Gd155 379
+        REGI W3 Gd155 380
+        REGI W2 Gd155 381
+        REGI W1 Gd155 382
+
+        REGI W4 Gd155 383
+        REGI W3 Gd155 384
+        REGI W2 Gd155 385
+        REGI W1 Gd155 386
+
+        REGI W81 Gd155 387
+        REGI W80 Gd155 388
+        REGI W79 Gd155 389
+        REGI W78 Gd155 390
+        REGI W77 Gd155 391
+        REGI W76 Gd155 392
+        REGI W75 Gd155 393
+        REGI W74 Gd155 394
+        REGI W73 Gd155 395
+        REGI W72 Gd155 396
+        REGI W71 Gd155 397
+
+        REGI W4 Gd155 398
+        REGI W3 Gd155 399
+        REGI W2 Gd155 400
+        REGI W1 Gd155 401
+
+        REGI W4 Gd155 402
+        REGI W3 Gd155 403
+        REGI W2 Gd155 404
+        REGI W1 Gd155 405
+
+        REGI W4 Gd155 406
+        REGI W3 Gd155 407
+        REGI W2 Gd155 408
+        REGI W1 Gd155 409
+
+        REGI W4 Gd155 410
+        REGI W3 Gd155 411
+        REGI W2 Gd155 412
+        REGI W1 Gd155 413
+
+        REGI W4 Gd155 414
+        REGI W3 Gd155 415
+        REGI W2 Gd155 416
+        REGI W1 Gd155 417
+
+        REGI W4 Gd155 418
+        REGI W3 Gd155 419
+        REGI W2 Gd155 420
+        REGI W1 Gd155 421
+
+        REGI W4 Gd155 422
+        REGI W3 Gd155 423
+        REGI W2 Gd155 424
+        REGI W1 Gd155 425
+
+        REGI W4 Gd155 426
+        REGI W3 Gd155 427
+        REGI W2 Gd155 428
+        REGI W1 Gd155 429
+
+        REGI W4 Gd155 430
+        REGI W3 Gd155 431
+        REGI W2 Gd155 432
+        REGI W1 Gd155 433
+
+        REGI W4 Gd155 434
+        REGI W3 Gd155 435
+        REGI W2 Gd155 436
+        REGI W1 Gd155 437
+
+        REGI W4 Gd155 438
+        REGI W3 Gd155 439
+        REGI W2 Gd155 440
+        REGI W1 Gd155 441
+
+        REGI W4 Gd155 442
+        REGI W3 Gd155 443
+        REGI W2 Gd155 444
+        REGI W1 Gd155 445
+
+        REGI W4 Gd155 446
+        REGI W3 Gd155 447
+        REGI W2 Gd155 448
+        REGI W1 Gd155 449
+
+        REGI W4 Gd155 450
+        REGI W3 Gd155 451
+        REGI W2 Gd155 452
+        REGI W1 Gd155 453
+
+        REGI W4 Gd155 454
+        REGI W3 Gd155 455
+        REGI W2 Gd155 456
+        REGI W1 Gd155 457
+
+        REGI W4 Gd155 458
+        REGI W3 Gd155 459
+        REGI W2 Gd155 460
+        REGI W1 Gd155 461
+
+        REGI W4 Gd155 462
+        REGI W3 Gd155 463
+        REGI W2 Gd155 464
+        REGI W1 Gd155 465
+
+        REGI W4 Gd155 466
+        REGI W3 Gd155 467
+        REGI W2 Gd155 468
+        REGI W1 Gd155 469
+
+        REGI W4 Gd155 470
+        REGI W3 Gd155 471
+        REGI W2 Gd155 472
+        REGI W1 Gd155 473
+
+        REGI W4 Gd155 474
+        REGI W3 Gd155 475
+        REGI W2 Gd155 476
+        REGI W1 Gd155 477
+
+        REGI W4 Gd155 478
+        REGI W3 Gd155 479
+        REGI W2 Gd155 480
+        REGI W1 Gd155 481
+
+        REGI W4 Gd155 482
+        REGI W3 Gd155 483
+        REGI W2 Gd155 484
+        REGI W1 Gd155 485
+
+        **********
+        ***** Gd156
+        REGI W4 Gd156 4
+        REGI W3 Gd156 5
+        REGI W2 Gd156 6
+        REGI W1 Gd156 7
+
+        REGI W4 Gd156 9
+        REGI W3 Gd156 10
+        REGI W2 Gd156 11
+        REGI W1 Gd156 12
+
+        REGI W21 Gd156 13
+        REGI W20 Gd156 14
+        REGI W19 Gd156 15
+        REGI W18 Gd156 16
+        REGI W17 Gd156 17
+        REGI W16 Gd156 18
+        REGI W15 Gd156 19
+        REGI W14 Gd156 20
+        REGI W13 Gd156 21
+        REGI W12 Gd156 22
+        REGI W11 Gd156 23
+
+        REGI W4 Gd156 24
+        REGI W3 Gd156 25
+        REGI W2 Gd156 26
+        REGI W1 Gd156 27
+
+        REGI W4 Gd156 28
+        REGI W3 Gd156 29
+        REGI W2 Gd156 30
+        REGI W1 Gd156 31
+
+        REGI W4 Gd156 33
+        REGI W3 Gd156 34
+        REGI W2 Gd156 35
+        REGI W1 Gd156 36
+
+        REGI W4 Gd156 37
+        REGI W3 Gd156 38
+        REGI W2 Gd156 39
+        REGI W1 Gd156 40
+
+        REGI W4 Gd156 41
+        REGI W3 Gd156 42
+        REGI W2 Gd156 43
+        REGI W1 Gd156 44
+
+        REGI W4 Gd156 45
+        REGI W3 Gd156 46
+        REGI W2 Gd156 47
+        REGI W1 Gd156 48
+
+        REGI W4 Gd156 49
+        REGI W3 Gd156 50
+        REGI W2 Gd156 51
+        REGI W1 Gd156 52
+
+        REGI W4 Gd156 53
+        REGI W3 Gd156 54
+        REGI W2 Gd156 55
+        REGI W1 Gd156 56
+
+        REGI W4 Gd156 57
+        REGI W3 Gd156 58
+        REGI W2 Gd156 59
+        REGI W1 Gd156 60
+
+        REGI W4 Gd156 61
+        REGI W3 Gd156 62
+        REGI W2 Gd156 63
+        REGI W1 Gd156 64
+
+        REGI W4 Gd156 65
+        REGI W3 Gd156 66
+        REGI W2 Gd156 67
+        REGI W1 Gd156 68
+
+        REGI W4 Gd156 69
+        REGI W3 Gd156 70
+        REGI W2 Gd156 71
+        REGI W1 Gd156 72
+
+        REGI W4 Gd156 73
+        REGI W3 Gd156 74
+        REGI W2 Gd156 75
+        REGI W1 Gd156 76
+
+        REGI W4 Gd156 77
+        REGI W3 Gd156 78
+        REGI W2 Gd156 79
+        REGI W1 Gd156 80
+
+        REGI W4 Gd156 81
+        REGI W3 Gd156 82
+        REGI W2 Gd156 83
+        REGI W1 Gd156 84
+
+        REGI W4 Gd156 85
+        REGI W3 Gd156 86
+        REGI W2 Gd156 87
+        REGI W1 Gd156 88
+
+        REGI W4 Gd156 89
+        REGI W3 Gd156 90
+        REGI W2 Gd156 91
+        REGI W1 Gd156 92
+
+        REGI W4 Gd156 93
+        REGI W3 Gd156 94
+        REGI W2 Gd156 95
+        REGI W1 Gd156 96
+
+        REGI W4 Gd156 97
+        REGI W3 Gd156 98
+        REGI W2 Gd156 99
+        REGI W1 Gd156 100
+
+        REGI W4 Gd156 101
+        REGI W3 Gd156 102
+        REGI W2 Gd156 103
+        REGI W1 Gd156 104
+
+        REGI W4 Gd156 105
+        REGI W3 Gd156 106
+        REGI W2 Gd156 107
+        REGI W1 Gd156 108
+
+        REGI W4 Gd156 109
+        REGI W3 Gd156 110
+        REGI W2 Gd156 111
+        REGI W1 Gd156 112
+
+        REGI W4 Gd156 113
+        REGI W3 Gd156 114
+        REGI W2 Gd156 115
+        REGI W1 Gd156 116
+
+        REGI W4 Gd156 117
+        REGI W3 Gd156 118
+        REGI W2 Gd156 119
+        REGI W1 Gd156 120
+
+        REGI W4 Gd156 121
+        REGI W3 Gd156 122
+        REGI W2 Gd156 123
+        REGI W1 Gd156 124
+
+        REGI W4 Gd156 125
+        REGI W3 Gd156 126
+        REGI W2 Gd156 127
+        REGI W1 Gd156 128
+
+        REGI W4 Gd156 129
+        REGI W3 Gd156 130
+        REGI W2 Gd156 131
+        REGI W1 Gd156 132
+
+        REGI W4 Gd156 133
+        REGI W3 Gd156 134
+        REGI W2 Gd156 135
+        REGI W1 Gd156 136
+
+        REGI W4 Gd156 137
+        REGI W3 Gd156 138
+        REGI W2 Gd156 139
+        REGI W1 Gd156 140
+
+        REGI W4 Gd156 141
+        REGI W3 Gd156 142
+        REGI W2 Gd156 143
+        REGI W1 Gd156 144
+
+        REGI W4 Gd156 145
+        REGI W3 Gd156 146
+        REGI W2 Gd156 147
+        REGI W1 Gd156 148
+
+        REGI W4 Gd156 149
+        REGI W3 Gd156 150
+        REGI W2 Gd156 151
+        REGI W1 Gd156 152
+
+        REGI W41 Gd156 153
+        REGI W40 Gd156 154
+        REGI W39 Gd156 155
+        REGI W38 Gd156 156
+        REGI W37 Gd156 157
+        REGI W36 Gd156 158
+        REGI W35 Gd156 159
+        REGI W34 Gd156 160
+        REGI W33 Gd156 161
+        REGI W32 Gd156 162
+        REGI W31 Gd156 163
+
+        REGI W4 Gd156 164
+        REGI W3 Gd156 165
+        REGI W2 Gd156 166
+        REGI W1 Gd156 167
+
+        REGI W4 Gd156 168
+        REGI W3 Gd156 169
+        REGI W2 Gd156 170
+        REGI W1 Gd156 171
+
+        REGI W4 Gd156 172
+        REGI W3 Gd156 173
+        REGI W2 Gd156 174
+        REGI W1 Gd156 175
+
+        REGI W4 Gd156 176
+        REGI W3 Gd156 177
+        REGI W2 Gd156 178
+        REGI W1 Gd156 179
+
+        REGI W4 Gd156 180
+        REGI W3 Gd156 181
+        REGI W2 Gd156 182
+        REGI W1 Gd156 183
+
+        REGI W4 Gd156 184
+        REGI W3 Gd156 185
+        REGI W2 Gd156 186
+        REGI W1 Gd156 187
+
+        REGI W4 Gd156 188
+        REGI W3 Gd156 189
+        REGI W2 Gd156 190
+        REGI W1 Gd156 191
+
+        REGI W4 Gd156 192
+        REGI W3 Gd156 193
+        REGI W2 Gd156 194
+        REGI W1 Gd156 195
+
+        REGI W4 Gd156 196
+        REGI W3 Gd156 197
+        REGI W2 Gd156 198
+        REGI W1 Gd156 199
+
+        REGI W4 Gd156 200
+        REGI W3 Gd156 201
+        REGI W2 Gd156 202
+        REGI W1 Gd156 203
+
+        REGI W4 Gd156 204
+        REGI W3 Gd156 205
+        REGI W2 Gd156 206
+        REGI W1 Gd156 207
+
+        REGI W4 Gd156 208
+        REGI W3 Gd156 209
+        REGI W2 Gd156 210
+        REGI W1 Gd156 211
+
+        REGI W4 Gd156 212
+        REGI W3 Gd156 213
+        REGI W2 Gd156 214
+        REGI W1 Gd156 215
+
+        REGI W4 Gd156 216
+        REGI W3 Gd156 217
+        REGI W2 Gd156 218
+        REGI W1 Gd156 219
+
+        REGI W4 Gd156 220
+        REGI W3 Gd156 221
+        REGI W2 Gd156 222
+        REGI W1 Gd156 223
+
+        REGI W4 Gd156 224
+        REGI W3 Gd156 225
+        REGI W2 Gd156 226
+        REGI W1 Gd156 227
+
+        REGI W4 Gd156 228
+        REGI W3 Gd156 229
+        REGI W2 Gd156 230
+        REGI W1 Gd156 231
+
+        REGI W4 Gd156 232
+        REGI W3 Gd156 233
+        REGI W2 Gd156 234
+        REGI W1 Gd156 235
+
+        REGI W4 Gd156 236
+        REGI W3 Gd156 237
+        REGI W2 Gd156 238
+        REGI W1 Gd156 239
+
+        REGI W4 Gd156 240
+        REGI W3 Gd156 241
+        REGI W2 Gd156 242
+        REGI W1 Gd156 243
+
+        REGI W4 Gd156 244
+        REGI W3 Gd156 245
+        REGI W2 Gd156 246
+        REGI W1 Gd156 247
+
+        REGI W4 Gd156 248
+        REGI W3 Gd156 249
+        REGI W2 Gd156 250
+        REGI W1 Gd156 251
+
+        REGI W4 Gd156 252
+        REGI W3 Gd156 253
+        REGI W2 Gd156 254
+        REGI W1 Gd156 255
+
+        REGI W4 Gd156 256
+        REGI W3 Gd156 257
+        REGI W2 Gd156 258
+        REGI W1 Gd156 259
+
+        REGI W4 Gd156 260
+        REGI W3 Gd156 261
+        REGI W2 Gd156 262
+        REGI W1 Gd156 263
+
+        REGI W4 Gd156 264
+        REGI W3 Gd156 265
+        REGI W2 Gd156 266
+        REGI W1 Gd156 267
+
+        REGI W4 Gd156 268
+        REGI W3 Gd156 269
+        REGI W2 Gd156 270
+        REGI W1 Gd156 271
+
+        REGI W4 Gd156 272
+        REGI W3 Gd156 273
+        REGI W2 Gd156 274
+        REGI W1 Gd156 275
+
+        REGI W4 Gd156 276
+        REGI W3 Gd156 277
+        REGI W2 Gd156 278
+        REGI W1 Gd156 279
+
+        REGI W4 Gd156 280
+        REGI W3 Gd156 281
+        REGI W2 Gd156 282
+        REGI W1 Gd156 283
+
+        REGI W4 Gd156 284
+        REGI W3 Gd156 285
+        REGI W2 Gd156 286
+        REGI W1 Gd156 287
+
+        REGI W4 Gd156 288
+        REGI W3 Gd156 289
+        REGI W2 Gd156 290
+        REGI W1 Gd156 291
+
+        REGI W4 Gd156 292
+        REGI W3 Gd156 293
+        REGI W2 Gd156 294
+        REGI W1 Gd156 295
+
+        REGI W4 Gd156 296
+        REGI W3 Gd156 297
+        REGI W2 Gd156 298
+        REGI W1 Gd156 299
+
+        REGI W4 Gd156 300
+        REGI W3 Gd156 301
+        REGI W2 Gd156 302
+        REGI W1 Gd156 303
+
+        REGI W4 Gd156 304
+        REGI W3 Gd156 305
+        REGI W2 Gd156 306
+        REGI W1 Gd156 307
+
+        REGI W4 Gd156 308
+        REGI W3 Gd156 309
+        REGI W2 Gd156 310
+        REGI W1 Gd156 311
+
+        REGI W4 Gd156 312
+        REGI W3 Gd156 313
+        REGI W2 Gd156 314
+        REGI W1 Gd156 315
+
+        REGI W4 Gd156 316
+        REGI W3 Gd156 317
+        REGI W2 Gd156 318
+        REGI W1 Gd156 319
+
+        REGI W4 Gd156 320
+        REGI W3 Gd156 321
+        REGI W2 Gd156 322
+        REGI W1 Gd156 323
+
+        REGI W4 Gd156 324
+        REGI W3 Gd156 325
+        REGI W2 Gd156 326
+        REGI W1 Gd156 327
+
+        REGI W4 Gd156 328
+        REGI W3 Gd156 329
+        REGI W2 Gd156 330
+        REGI W1 Gd156 331
+
+        REGI W4 Gd156 332
+        REGI W3 Gd156 333
+        REGI W2 Gd156 334
+        REGI W1 Gd156 335
+
+        REGI W4 Gd156 336
+        REGI W3 Gd156 337
+        REGI W2 Gd156 338
+        REGI W1 Gd156 339
+
+        REGI W4 Gd156 340
+        REGI W3 Gd156 341
+        REGI W2 Gd156 342
+        REGI W1 Gd156 343
+
+        REGI W4 Gd156 344
+        REGI W3 Gd156 345
+        REGI W2 Gd156 346
+        REGI W1 Gd156 347
+
+        REGI W61 Gd156 348
+        REGI W60 Gd156 349
+        REGI W59 Gd156 350
+        REGI W58 Gd156 351
+        REGI W57 Gd156 352
+        REGI W56 Gd156 353
+        REGI W55 Gd156 354
+        REGI W54 Gd156 355
+        REGI W53 Gd156 356
+        REGI W52 Gd156 357
+        REGI W51 Gd156 358
+
+        REGI W4 Gd156 359
+        REGI W3 Gd156 360
+        REGI W2 Gd156 361
+        REGI W1 Gd156 362
+
+        REGI W4 Gd156 363
+        REGI W3 Gd156 364
+        REGI W2 Gd156 365
+        REGI W1 Gd156 366
+
+        REGI W4 Gd156 367
+        REGI W3 Gd156 368
+        REGI W2 Gd156 369
+        REGI W1 Gd156 370
+
+        REGI W4 Gd156 371
+        REGI W3 Gd156 372
+        REGI W2 Gd156 373
+        REGI W1 Gd156 374
+
+        REGI W4 Gd156 375
+        REGI W3 Gd156 376
+        REGI W2 Gd156 377
+        REGI W1 Gd156 378
+
+        REGI W4 Gd156 379
+        REGI W3 Gd156 380
+        REGI W2 Gd156 381
+        REGI W1 Gd156 382
+
+        REGI W4 Gd156 383
+        REGI W3 Gd156 384
+        REGI W2 Gd156 385
+        REGI W1 Gd156 386
+
+        REGI W81 Gd156 387
+        REGI W80 Gd156 388
+        REGI W79 Gd156 389
+        REGI W78 Gd156 390
+        REGI W77 Gd156 391
+        REGI W76 Gd156 392
+        REGI W75 Gd156 393
+        REGI W74 Gd156 394
+        REGI W73 Gd156 395
+        REGI W72 Gd156 396
+        REGI W71 Gd156 397
+
+        REGI W4 Gd156 398
+        REGI W3 Gd156 399
+        REGI W2 Gd156 400
+        REGI W1 Gd156 401
+
+        REGI W4 Gd156 402
+        REGI W3 Gd156 403
+        REGI W2 Gd156 404
+        REGI W1 Gd156 405
+
+        REGI W4 Gd156 406
+        REGI W3 Gd156 407
+        REGI W2 Gd156 408
+        REGI W1 Gd156 409
+
+        REGI W4 Gd156 410
+        REGI W3 Gd156 411
+        REGI W2 Gd156 412
+        REGI W1 Gd156 413
+
+        REGI W4 Gd156 414
+        REGI W3 Gd156 415
+        REGI W2 Gd156 416
+        REGI W1 Gd156 417
+
+        REGI W4 Gd156 418
+        REGI W3 Gd156 419
+        REGI W2 Gd156 420
+        REGI W1 Gd156 421
+
+        REGI W4 Gd156 422
+        REGI W3 Gd156 423
+        REGI W2 Gd156 424
+        REGI W1 Gd156 425
+
+        REGI W4 Gd156 426
+        REGI W3 Gd156 427
+        REGI W2 Gd156 428
+        REGI W1 Gd156 429
+
+        REGI W4 Gd156 430
+        REGI W3 Gd156 431
+        REGI W2 Gd156 432
+        REGI W1 Gd156 433
+
+        REGI W4 Gd156 434
+        REGI W3 Gd156 435
+        REGI W2 Gd156 436
+        REGI W1 Gd156 437
+
+        REGI W4 Gd156 438
+        REGI W3 Gd156 439
+        REGI W2 Gd156 440
+        REGI W1 Gd156 441
+
+        REGI W4 Gd156 442
+        REGI W3 Gd156 443
+        REGI W2 Gd156 444
+        REGI W1 Gd156 445
+
+        REGI W4 Gd156 446
+        REGI W3 Gd156 447
+        REGI W2 Gd156 448
+        REGI W1 Gd156 449
+
+        REGI W4 Gd156 450
+        REGI W3 Gd156 451
+        REGI W2 Gd156 452
+        REGI W1 Gd156 453
+
+        REGI W4 Gd156 454
+        REGI W3 Gd156 455
+        REGI W2 Gd156 456
+        REGI W1 Gd156 457
+
+        REGI W4 Gd156 458
+        REGI W3 Gd156 459
+        REGI W2 Gd156 460
+        REGI W1 Gd156 461
+
+        REGI W4 Gd156 462
+        REGI W3 Gd156 463
+        REGI W2 Gd156 464
+        REGI W1 Gd156 465
+
+        REGI W4 Gd156 466
+        REGI W3 Gd156 467
+        REGI W2 Gd156 468
+        REGI W1 Gd156 469
+
+        REGI W4 Gd156 470
+        REGI W3 Gd156 471
+        REGI W2 Gd156 472
+        REGI W1 Gd156 473
+
+        REGI W4 Gd156 474
+        REGI W3 Gd156 475
+        REGI W2 Gd156 476
+        REGI W1 Gd156 477
+
+        REGI W4 Gd156 478
+        REGI W3 Gd156 479
+        REGI W2 Gd156 480
+        REGI W1 Gd156 481
+
+        REGI W4 Gd156 482
+        REGI W3 Gd156 483
+        REGI W2 Gd156 484
+        REGI W1 Gd156 485
+
+        **********
+        ***** Gd157
+        REGI W4 Gd157 4
+        REGI W3 Gd157 5
+        REGI W2 Gd157 6
+        REGI W1 Gd157 7
+
+        REGI W4 Gd157 9
+        REGI W3 Gd157 10
+        REGI W2 Gd157 11
+        REGI W1 Gd157 12
+
+        REGI W21 Gd157 13
+        REGI W20 Gd157 14
+        REGI W19 Gd157 15
+        REGI W18 Gd157 16
+        REGI W17 Gd157 17
+        REGI W16 Gd157 18
+        REGI W15 Gd157 19
+        REGI W14 Gd157 20
+        REGI W13 Gd157 21
+        REGI W12 Gd157 22
+        REGI W11 Gd157 23
+
+        REGI W4 Gd157 24
+        REGI W3 Gd157 25
+        REGI W2 Gd157 26
+        REGI W1 Gd157 27
+
+        REGI W4 Gd157 28
+        REGI W3 Gd157 29
+        REGI W2 Gd157 30
+        REGI W1 Gd157 31
+
+        REGI W4 Gd157 33
+        REGI W3 Gd157 34
+        REGI W2 Gd157 35
+        REGI W1 Gd157 36
+
+        REGI W4 Gd157 37
+        REGI W3 Gd157 38
+        REGI W2 Gd157 39
+        REGI W1 Gd157 40
+
+        REGI W4 Gd157 41
+        REGI W3 Gd157 42
+        REGI W2 Gd157 43
+        REGI W1 Gd157 44
+
+        REGI W4 Gd157 45
+        REGI W3 Gd157 46
+        REGI W2 Gd157 47
+        REGI W1 Gd157 48
+
+        REGI W4 Gd157 49
+        REGI W3 Gd157 50
+        REGI W2 Gd157 51
+        REGI W1 Gd157 52
+
+        REGI W4 Gd157 53
+        REGI W3 Gd157 54
+        REGI W2 Gd157 55
+        REGI W1 Gd157 56
+
+        REGI W4 Gd157 57
+        REGI W3 Gd157 58
+        REGI W2 Gd157 59
+        REGI W1 Gd157 60
+
+        REGI W4 Gd157 61
+        REGI W3 Gd157 62
+        REGI W2 Gd157 63
+        REGI W1 Gd157 64
+
+        REGI W4 Gd157 65
+        REGI W3 Gd157 66
+        REGI W2 Gd157 67
+        REGI W1 Gd157 68
+
+        REGI W4 Gd157 69
+        REGI W3 Gd157 70
+        REGI W2 Gd157 71
+        REGI W1 Gd157 72
+
+        REGI W4 Gd157 73
+        REGI W3 Gd157 74
+        REGI W2 Gd157 75
+        REGI W1 Gd157 76
+
+        REGI W4 Gd157 77
+        REGI W3 Gd157 78
+        REGI W2 Gd157 79
+        REGI W1 Gd157 80
+
+        REGI W4 Gd157 81
+        REGI W3 Gd157 82
+        REGI W2 Gd157 83
+        REGI W1 Gd157 84
+
+        REGI W4 Gd157 85
+        REGI W3 Gd157 86
+        REGI W2 Gd157 87
+        REGI W1 Gd157 88
+
+        REGI W4 Gd157 89
+        REGI W3 Gd157 90
+        REGI W2 Gd157 91
+        REGI W1 Gd157 92
+
+        REGI W4 Gd157 93
+        REGI W3 Gd157 94
+        REGI W2 Gd157 95
+        REGI W1 Gd157 96
+
+        REGI W4 Gd157 97
+        REGI W3 Gd157 98
+        REGI W2 Gd157 99
+        REGI W1 Gd157 100
+
+        REGI W4 Gd157 101
+        REGI W3 Gd157 102
+        REGI W2 Gd157 103
+        REGI W1 Gd157 104
+
+        REGI W4 Gd157 105
+        REGI W3 Gd157 106
+        REGI W2 Gd157 107
+        REGI W1 Gd157 108
+
+        REGI W4 Gd157 109
+        REGI W3 Gd157 110
+        REGI W2 Gd157 111
+        REGI W1 Gd157 112
+
+        REGI W4 Gd157 113
+        REGI W3 Gd157 114
+        REGI W2 Gd157 115
+        REGI W1 Gd157 116
+
+        REGI W4 Gd157 117
+        REGI W3 Gd157 118
+        REGI W2 Gd157 119
+        REGI W1 Gd157 120
+
+        REGI W4 Gd157 121
+        REGI W3 Gd157 122
+        REGI W2 Gd157 123
+        REGI W1 Gd157 124
+
+        REGI W4 Gd157 125
+        REGI W3 Gd157 126
+        REGI W2 Gd157 127
+        REGI W1 Gd157 128
+
+        REGI W4 Gd157 129
+        REGI W3 Gd157 130
+        REGI W2 Gd157 131
+        REGI W1 Gd157 132
+
+        REGI W4 Gd157 133
+        REGI W3 Gd157 134
+        REGI W2 Gd157 135
+        REGI W1 Gd157 136
+
+        REGI W4 Gd157 137
+        REGI W3 Gd157 138
+        REGI W2 Gd157 139
+        REGI W1 Gd157 140
+
+        REGI W4 Gd157 141
+        REGI W3 Gd157 142
+        REGI W2 Gd157 143
+        REGI W1 Gd157 144
+
+        REGI W4 Gd157 145
+        REGI W3 Gd157 146
+        REGI W2 Gd157 147
+        REGI W1 Gd157 148
+
+        REGI W4 Gd157 149
+        REGI W3 Gd157 150
+        REGI W2 Gd157 151
+        REGI W1 Gd157 152
+
+        REGI W41 Gd157 153
+        REGI W40 Gd157 154
+        REGI W39 Gd157 155
+        REGI W38 Gd157 156
+        REGI W37 Gd157 157
+        REGI W36 Gd157 158
+        REGI W35 Gd157 159
+        REGI W34 Gd157 160
+        REGI W33 Gd157 161
+        REGI W32 Gd157 162
+        REGI W31 Gd157 163
+
+        REGI W4 Gd157 164
+        REGI W3 Gd157 165
+        REGI W2 Gd157 166
+        REGI W1 Gd157 167
+
+        REGI W4 Gd157 168
+        REGI W3 Gd157 169
+        REGI W2 Gd157 170
+        REGI W1 Gd157 171
+
+        REGI W4 Gd157 172
+        REGI W3 Gd157 173
+        REGI W2 Gd157 174
+        REGI W1 Gd157 175
+
+        REGI W4 Gd157 176
+        REGI W3 Gd157 177
+        REGI W2 Gd157 178
+        REGI W1 Gd157 179
+
+        REGI W4 Gd157 180
+        REGI W3 Gd157 181
+        REGI W2 Gd157 182
+        REGI W1 Gd157 183
+
+        REGI W4 Gd157 184
+        REGI W3 Gd157 185
+        REGI W2 Gd157 186
+        REGI W1 Gd157 187
+
+        REGI W4 Gd157 188
+        REGI W3 Gd157 189
+        REGI W2 Gd157 190
+        REGI W1 Gd157 191
+
+        REGI W4 Gd157 192
+        REGI W3 Gd157 193
+        REGI W2 Gd157 194
+        REGI W1 Gd157 195
+
+        REGI W4 Gd157 196
+        REGI W3 Gd157 197
+        REGI W2 Gd157 198
+        REGI W1 Gd157 199
+
+        REGI W4 Gd157 200
+        REGI W3 Gd157 201
+        REGI W2 Gd157 202
+        REGI W1 Gd157 203
+
+        REGI W4 Gd157 204
+        REGI W3 Gd157 205
+        REGI W2 Gd157 206
+        REGI W1 Gd157 207
+
+        REGI W4 Gd157 208
+        REGI W3 Gd157 209
+        REGI W2 Gd157 210
+        REGI W1 Gd157 211
+
+        REGI W4 Gd157 212
+        REGI W3 Gd157 213
+        REGI W2 Gd157 214
+        REGI W1 Gd157 215
+
+        REGI W4 Gd157 216
+        REGI W3 Gd157 217
+        REGI W2 Gd157 218
+        REGI W1 Gd157 219
+
+        REGI W4 Gd157 220
+        REGI W3 Gd157 221
+        REGI W2 Gd157 222
+        REGI W1 Gd157 223
+
+        REGI W4 Gd157 224
+        REGI W3 Gd157 225
+        REGI W2 Gd157 226
+        REGI W1 Gd157 227
+
+        REGI W4 Gd157 228
+        REGI W3 Gd157 229
+        REGI W2 Gd157 230
+        REGI W1 Gd157 231
+
+        REGI W4 Gd157 232
+        REGI W3 Gd157 233
+        REGI W2 Gd157 234
+        REGI W1 Gd157 235
+
+        REGI W4 Gd157 236
+        REGI W3 Gd157 237
+        REGI W2 Gd157 238
+        REGI W1 Gd157 239
+
+        REGI W4 Gd157 240
+        REGI W3 Gd157 241
+        REGI W2 Gd157 242
+        REGI W1 Gd157 243
+
+        REGI W4 Gd157 244
+        REGI W3 Gd157 245
+        REGI W2 Gd157 246
+        REGI W1 Gd157 247
+
+        REGI W4 Gd157 248
+        REGI W3 Gd157 249
+        REGI W2 Gd157 250
+        REGI W1 Gd157 251
+
+        REGI W4 Gd157 252
+        REGI W3 Gd157 253
+        REGI W2 Gd157 254
+        REGI W1 Gd157 255
+
+        REGI W4 Gd157 256
+        REGI W3 Gd157 257
+        REGI W2 Gd157 258
+        REGI W1 Gd157 259
+
+        REGI W4 Gd157 260
+        REGI W3 Gd157 261
+        REGI W2 Gd157 262
+        REGI W1 Gd157 263
+
+        REGI W4 Gd157 264
+        REGI W3 Gd157 265
+        REGI W2 Gd157 266
+        REGI W1 Gd157 267
+
+        REGI W4 Gd157 268
+        REGI W3 Gd157 269
+        REGI W2 Gd157 270
+        REGI W1 Gd157 271
+
+        REGI W4 Gd157 272
+        REGI W3 Gd157 273
+        REGI W2 Gd157 274
+        REGI W1 Gd157 275
+
+        REGI W4 Gd157 276
+        REGI W3 Gd157 277
+        REGI W2 Gd157 278
+        REGI W1 Gd157 279
+
+        REGI W4 Gd157 280
+        REGI W3 Gd157 281
+        REGI W2 Gd157 282
+        REGI W1 Gd157 283
+
+        REGI W4 Gd157 284
+        REGI W3 Gd157 285
+        REGI W2 Gd157 286
+        REGI W1 Gd157 287
+
+        REGI W4 Gd157 288
+        REGI W3 Gd157 289
+        REGI W2 Gd157 290
+        REGI W1 Gd157 291
+
+        REGI W4 Gd157 292
+        REGI W3 Gd157 293
+        REGI W2 Gd157 294
+        REGI W1 Gd157 295
+
+        REGI W4 Gd157 296
+        REGI W3 Gd157 297
+        REGI W2 Gd157 298
+        REGI W1 Gd157 299
+
+        REGI W4 Gd157 300
+        REGI W3 Gd157 301
+        REGI W2 Gd157 302
+        REGI W1 Gd157 303
+
+        REGI W4 Gd157 304
+        REGI W3 Gd157 305
+        REGI W2 Gd157 306
+        REGI W1 Gd157 307
+
+        REGI W4 Gd157 308
+        REGI W3 Gd157 309
+        REGI W2 Gd157 310
+        REGI W1 Gd157 311
+
+        REGI W4 Gd157 312
+        REGI W3 Gd157 313
+        REGI W2 Gd157 314
+        REGI W1 Gd157 315
+
+        REGI W4 Gd157 316
+        REGI W3 Gd157 317
+        REGI W2 Gd157 318
+        REGI W1 Gd157 319
+
+        REGI W4 Gd157 320
+        REGI W3 Gd157 321
+        REGI W2 Gd157 322
+        REGI W1 Gd157 323
+
+        REGI W4 Gd157 324
+        REGI W3 Gd157 325
+        REGI W2 Gd157 326
+        REGI W1 Gd157 327
+
+        REGI W4 Gd157 328
+        REGI W3 Gd157 329
+        REGI W2 Gd157 330
+        REGI W1 Gd157 331
+
+        REGI W4 Gd157 332
+        REGI W3 Gd157 333
+        REGI W2 Gd157 334
+        REGI W1 Gd157 335
+
+        REGI W4 Gd157 336
+        REGI W3 Gd157 337
+        REGI W2 Gd157 338
+        REGI W1 Gd157 339
+
+        REGI W4 Gd157 340
+        REGI W3 Gd157 341
+        REGI W2 Gd157 342
+        REGI W1 Gd157 343
+
+        REGI W4 Gd157 344
+        REGI W3 Gd157 345
+        REGI W2 Gd157 346
+        REGI W1 Gd157 347
+
+        REGI W61 Gd157 348
+        REGI W60 Gd157 349
+        REGI W59 Gd157 350
+        REGI W58 Gd157 351
+        REGI W57 Gd157 352
+        REGI W56 Gd157 353
+        REGI W55 Gd157 354
+        REGI W54 Gd157 355
+        REGI W53 Gd157 356
+        REGI W52 Gd157 357
+        REGI W51 Gd157 358
+
+        REGI W4 Gd157 359
+        REGI W3 Gd157 360
+        REGI W2 Gd157 361
+        REGI W1 Gd157 362
+
+        REGI W4 Gd157 363
+        REGI W3 Gd157 364
+        REGI W2 Gd157 365
+        REGI W1 Gd157 366
+
+        REGI W4 Gd157 367
+        REGI W3 Gd157 368
+        REGI W2 Gd157 369
+        REGI W1 Gd157 370
+
+        REGI W4 Gd157 371
+        REGI W3 Gd157 372
+        REGI W2 Gd157 373
+        REGI W1 Gd157 374
+
+        REGI W4 Gd157 375
+        REGI W3 Gd157 376
+        REGI W2 Gd157 377
+        REGI W1 Gd157 378
+
+        REGI W4 Gd157 379
+        REGI W3 Gd157 380
+        REGI W2 Gd157 381
+        REGI W1 Gd157 382
+
+        REGI W4 Gd157 383
+        REGI W3 Gd157 384
+        REGI W2 Gd157 385
+        REGI W1 Gd157 386
+
+        REGI W81 Gd157 387
+        REGI W80 Gd157 388
+        REGI W79 Gd157 389
+        REGI W78 Gd157 390
+        REGI W77 Gd157 391
+        REGI W76 Gd157 392
+        REGI W75 Gd157 393
+        REGI W74 Gd157 394
+        REGI W73 Gd157 395
+        REGI W72 Gd157 396
+        REGI W71 Gd157 397
+
+        REGI W4 Gd157 398
+        REGI W3 Gd157 399
+        REGI W2 Gd157 400
+        REGI W1 Gd157 401
+
+        REGI W4 Gd157 402
+        REGI W3 Gd157 403
+        REGI W2 Gd157 404
+        REGI W1 Gd157 405
+
+        REGI W4 Gd157 406
+        REGI W3 Gd157 407
+        REGI W2 Gd157 408
+        REGI W1 Gd157 409
+
+        REGI W4 Gd157 410
+        REGI W3 Gd157 411
+        REGI W2 Gd157 412
+        REGI W1 Gd157 413
+
+        REGI W4 Gd157 414
+        REGI W3 Gd157 415
+        REGI W2 Gd157 416
+        REGI W1 Gd157 417
+
+        REGI W4 Gd157 418
+        REGI W3 Gd157 419
+        REGI W2 Gd157 420
+        REGI W1 Gd157 421
+
+        REGI W4 Gd157 422
+        REGI W3 Gd157 423
+        REGI W2 Gd157 424
+        REGI W1 Gd157 425
+
+        REGI W4 Gd157 426
+        REGI W3 Gd157 427
+        REGI W2 Gd157 428
+        REGI W1 Gd157 429
+
+        REGI W4 Gd157 430
+        REGI W3 Gd157 431
+        REGI W2 Gd157 432
+        REGI W1 Gd157 433
+
+        REGI W4 Gd157 434
+        REGI W3 Gd157 435
+        REGI W2 Gd157 436
+        REGI W1 Gd157 437
+
+        REGI W4 Gd157 438
+        REGI W3 Gd157 439
+        REGI W2 Gd157 440
+        REGI W1 Gd157 441
+
+        REGI W4 Gd157 442
+        REGI W3 Gd157 443
+        REGI W2 Gd157 444
+        REGI W1 Gd157 445
+
+        REGI W4 Gd157 446
+        REGI W3 Gd157 447
+        REGI W2 Gd157 448
+        REGI W1 Gd157 449
+
+        REGI W4 Gd157 450
+        REGI W3 Gd157 451
+        REGI W2 Gd157 452
+        REGI W1 Gd157 453
+
+        REGI W4 Gd157 454
+        REGI W3 Gd157 455
+        REGI W2 Gd157 456
+        REGI W1 Gd157 457
+
+        REGI W4 Gd157 458
+        REGI W3 Gd157 459
+        REGI W2 Gd157 460
+        REGI W1 Gd157 461
+
+        REGI W4 Gd157 462
+        REGI W3 Gd157 463
+        REGI W2 Gd157 464
+        REGI W1 Gd157 465
+
+        REGI W4 Gd157 466
+        REGI W3 Gd157 467
+        REGI W2 Gd157 468
+        REGI W1 Gd157 469
+
+        REGI W4 Gd157 470
+        REGI W3 Gd157 471
+        REGI W2 Gd157 472
+        REGI W1 Gd157 473
+
+        REGI W4 Gd157 474
+        REGI W3 Gd157 475
+        REGI W2 Gd157 476
+        REGI W1 Gd157 477
+
+        REGI W4 Gd157 478
+        REGI W3 Gd157 479
+        REGI W2 Gd157 480
+        REGI W1 Gd157 481
+
+        REGI W4 Gd157 482
+        REGI W3 Gd157 483
+        REGI W2 Gd157 484
+        REGI W1 Gd157 485
+
+        **********
+        ***** Gd158
+        REGI W4 Gd158 4
+        REGI W3 Gd158 5
+        REGI W2 Gd158 6
+        REGI W1 Gd158 7
+
+        REGI W4 Gd158 9
+        REGI W3 Gd158 10
+        REGI W2 Gd158 11
+        REGI W1 Gd158 12
+
+        REGI W21 Gd158 13
+        REGI W20 Gd158 14
+        REGI W19 Gd158 15
+        REGI W18 Gd158 16
+        REGI W17 Gd158 17
+        REGI W16 Gd158 18
+        REGI W15 Gd158 19
+        REGI W14 Gd158 20
+        REGI W13 Gd158 21
+        REGI W12 Gd158 22
+        REGI W11 Gd158 23
+
+        REGI W4 Gd158 24
+        REGI W3 Gd158 25
+        REGI W2 Gd158 26
+        REGI W1 Gd158 27
+
+        REGI W4 Gd158 28
+        REGI W3 Gd158 29
+        REGI W2 Gd158 30
+        REGI W1 Gd158 31
+
+        REGI W4 Gd158 33
+        REGI W3 Gd158 34
+        REGI W2 Gd158 35
+        REGI W1 Gd158 36
+
+        REGI W4 Gd158 37
+        REGI W3 Gd158 38
+        REGI W2 Gd158 39
+        REGI W1 Gd158 40
+
+        REGI W4 Gd158 41
+        REGI W3 Gd158 42
+        REGI W2 Gd158 43
+        REGI W1 Gd158 44
+
+        REGI W4 Gd158 45
+        REGI W3 Gd158 46
+        REGI W2 Gd158 47
+        REGI W1 Gd158 48
+
+        REGI W4 Gd158 49
+        REGI W3 Gd158 50
+        REGI W2 Gd158 51
+        REGI W1 Gd158 52
+
+        REGI W4 Gd158 53
+        REGI W3 Gd158 54
+        REGI W2 Gd158 55
+        REGI W1 Gd158 56
+
+        REGI W4 Gd158 57
+        REGI W3 Gd158 58
+        REGI W2 Gd158 59
+        REGI W1 Gd158 60
+
+        REGI W4 Gd158 61
+        REGI W3 Gd158 62
+        REGI W2 Gd158 63
+        REGI W1 Gd158 64
+
+        REGI W4 Gd158 65
+        REGI W3 Gd158 66
+        REGI W2 Gd158 67
+        REGI W1 Gd158 68
+
+        REGI W4 Gd158 69
+        REGI W3 Gd158 70
+        REGI W2 Gd158 71
+        REGI W1 Gd158 72
+
+        REGI W4 Gd158 73
+        REGI W3 Gd158 74
+        REGI W2 Gd158 75
+        REGI W1 Gd158 76
+
+        REGI W4 Gd158 77
+        REGI W3 Gd158 78
+        REGI W2 Gd158 79
+        REGI W1 Gd158 80
+
+        REGI W4 Gd158 81
+        REGI W3 Gd158 82
+        REGI W2 Gd158 83
+        REGI W1 Gd158 84
+
+        REGI W4 Gd158 85
+        REGI W3 Gd158 86
+        REGI W2 Gd158 87
+        REGI W1 Gd158 88
+
+        REGI W4 Gd158 89
+        REGI W3 Gd158 90
+        REGI W2 Gd158 91
+        REGI W1 Gd158 92
+
+        REGI W4 Gd158 93
+        REGI W3 Gd158 94
+        REGI W2 Gd158 95
+        REGI W1 Gd158 96
+
+        REGI W4 Gd158 97
+        REGI W3 Gd158 98
+        REGI W2 Gd158 99
+        REGI W1 Gd158 100
+
+        REGI W4 Gd158 101
+        REGI W3 Gd158 102
+        REGI W2 Gd158 103
+        REGI W1 Gd158 104
+
+        REGI W4 Gd158 105
+        REGI W3 Gd158 106
+        REGI W2 Gd158 107
+        REGI W1 Gd158 108
+
+        REGI W4 Gd158 109
+        REGI W3 Gd158 110
+        REGI W2 Gd158 111
+        REGI W1 Gd158 112
+
+        REGI W4 Gd158 113
+        REGI W3 Gd158 114
+        REGI W2 Gd158 115
+        REGI W1 Gd158 116
+
+        REGI W4 Gd158 117
+        REGI W3 Gd158 118
+        REGI W2 Gd158 119
+        REGI W1 Gd158 120
+
+        REGI W4 Gd158 121
+        REGI W3 Gd158 122
+        REGI W2 Gd158 123
+        REGI W1 Gd158 124
+
+        REGI W4 Gd158 125
+        REGI W3 Gd158 126
+        REGI W2 Gd158 127
+        REGI W1 Gd158 128
+
+        REGI W4 Gd158 129
+        REGI W3 Gd158 130
+        REGI W2 Gd158 131
+        REGI W1 Gd158 132
+
+        REGI W4 Gd158 133
+        REGI W3 Gd158 134
+        REGI W2 Gd158 135
+        REGI W1 Gd158 136
+
+        REGI W4 Gd158 137
+        REGI W3 Gd158 138
+        REGI W2 Gd158 139
+        REGI W1 Gd158 140
+
+        REGI W4 Gd158 141
+        REGI W3 Gd158 142
+        REGI W2 Gd158 143
+        REGI W1 Gd158 144
+
+        REGI W4 Gd158 145
+        REGI W3 Gd158 146
+        REGI W2 Gd158 147
+        REGI W1 Gd158 148
+
+        REGI W4 Gd158 149
+        REGI W3 Gd158 150
+        REGI W2 Gd158 151
+        REGI W1 Gd158 152
+
+        REGI W41 Gd158 153
+        REGI W40 Gd158 154
+        REGI W39 Gd158 155
+        REGI W38 Gd158 156
+        REGI W37 Gd158 157
+        REGI W36 Gd158 158
+        REGI W35 Gd158 159
+        REGI W34 Gd158 160
+        REGI W33 Gd158 161
+        REGI W32 Gd158 162
+        REGI W31 Gd158 163
+
+        REGI W4 Gd158 164
+        REGI W3 Gd158 165
+        REGI W2 Gd158 166
+        REGI W1 Gd158 167
+
+        REGI W4 Gd158 168
+        REGI W3 Gd158 169
+        REGI W2 Gd158 170
+        REGI W1 Gd158 171
+
+        REGI W4 Gd158 172
+        REGI W3 Gd158 173
+        REGI W2 Gd158 174
+        REGI W1 Gd158 175
+
+        REGI W4 Gd158 176
+        REGI W3 Gd158 177
+        REGI W2 Gd158 178
+        REGI W1 Gd158 179
+
+        REGI W4 Gd158 180
+        REGI W3 Gd158 181
+        REGI W2 Gd158 182
+        REGI W1 Gd158 183
+
+        REGI W4 Gd158 184
+        REGI W3 Gd158 185
+        REGI W2 Gd158 186
+        REGI W1 Gd158 187
+
+        REGI W4 Gd158 188
+        REGI W3 Gd158 189
+        REGI W2 Gd158 190
+        REGI W1 Gd158 191
+
+        REGI W4 Gd158 192
+        REGI W3 Gd158 193
+        REGI W2 Gd158 194
+        REGI W1 Gd158 195
+
+        REGI W4 Gd158 196
+        REGI W3 Gd158 197
+        REGI W2 Gd158 198
+        REGI W1 Gd158 199
+
+        REGI W4 Gd158 200
+        REGI W3 Gd158 201
+        REGI W2 Gd158 202
+        REGI W1 Gd158 203
+
+        REGI W4 Gd158 204
+        REGI W3 Gd158 205
+        REGI W2 Gd158 206
+        REGI W1 Gd158 207
+
+        REGI W4 Gd158 208
+        REGI W3 Gd158 209
+        REGI W2 Gd158 210
+        REGI W1 Gd158 211
+
+        REGI W4 Gd158 212
+        REGI W3 Gd158 213
+        REGI W2 Gd158 214
+        REGI W1 Gd158 215
+
+        REGI W4 Gd158 216
+        REGI W3 Gd158 217
+        REGI W2 Gd158 218
+        REGI W1 Gd158 219
+
+        REGI W4 Gd158 220
+        REGI W3 Gd158 221
+        REGI W2 Gd158 222
+        REGI W1 Gd158 223
+
+        REGI W4 Gd158 224
+        REGI W3 Gd158 225
+        REGI W2 Gd158 226
+        REGI W1 Gd158 227
+
+        REGI W4 Gd158 228
+        REGI W3 Gd158 229
+        REGI W2 Gd158 230
+        REGI W1 Gd158 231
+
+        REGI W4 Gd158 232
+        REGI W3 Gd158 233
+        REGI W2 Gd158 234
+        REGI W1 Gd158 235
+
+        REGI W4 Gd158 236
+        REGI W3 Gd158 237
+        REGI W2 Gd158 238
+        REGI W1 Gd158 239
+
+        REGI W4 Gd158 240
+        REGI W3 Gd158 241
+        REGI W2 Gd158 242
+        REGI W1 Gd158 243
+
+        REGI W4 Gd158 244
+        REGI W3 Gd158 245
+        REGI W2 Gd158 246
+        REGI W1 Gd158 247
+
+        REGI W4 Gd158 248
+        REGI W3 Gd158 249
+        REGI W2 Gd158 250
+        REGI W1 Gd158 251
+
+        REGI W4 Gd158 252
+        REGI W3 Gd158 253
+        REGI W2 Gd158 254
+        REGI W1 Gd158 255
+
+        REGI W4 Gd158 256
+        REGI W3 Gd158 257
+        REGI W2 Gd158 258
+        REGI W1 Gd158 259
+
+        REGI W4 Gd158 260
+        REGI W3 Gd158 261
+        REGI W2 Gd158 262
+        REGI W1 Gd158 263
+
+        REGI W4 Gd158 264
+        REGI W3 Gd158 265
+        REGI W2 Gd158 266
+        REGI W1 Gd158 267
+
+        REGI W4 Gd158 268
+        REGI W3 Gd158 269
+        REGI W2 Gd158 270
+        REGI W1 Gd158 271
+
+        REGI W4 Gd158 272
+        REGI W3 Gd158 273
+        REGI W2 Gd158 274
+        REGI W1 Gd158 275
+
+        REGI W4 Gd158 276
+        REGI W3 Gd158 277
+        REGI W2 Gd158 278
+        REGI W1 Gd158 279
+
+        REGI W4 Gd158 280
+        REGI W3 Gd158 281
+        REGI W2 Gd158 282
+        REGI W1 Gd158 283
+
+        REGI W4 Gd158 284
+        REGI W3 Gd158 285
+        REGI W2 Gd158 286
+        REGI W1 Gd158 287
+
+        REGI W4 Gd158 288
+        REGI W3 Gd158 289
+        REGI W2 Gd158 290
+        REGI W1 Gd158 291
+
+        REGI W4 Gd158 292
+        REGI W3 Gd158 293
+        REGI W2 Gd158 294
+        REGI W1 Gd158 295
+
+        REGI W4 Gd158 296
+        REGI W3 Gd158 297
+        REGI W2 Gd158 298
+        REGI W1 Gd158 299
+
+        REGI W4 Gd158 300
+        REGI W3 Gd158 301
+        REGI W2 Gd158 302
+        REGI W1 Gd158 303
+
+        REGI W4 Gd158 304
+        REGI W3 Gd158 305
+        REGI W2 Gd158 306
+        REGI W1 Gd158 307
+
+        REGI W4 Gd158 308
+        REGI W3 Gd158 309
+        REGI W2 Gd158 310
+        REGI W1 Gd158 311
+
+        REGI W4 Gd158 312
+        REGI W3 Gd158 313
+        REGI W2 Gd158 314
+        REGI W1 Gd158 315
+
+        REGI W4 Gd158 316
+        REGI W3 Gd158 317
+        REGI W2 Gd158 318
+        REGI W1 Gd158 319
+
+        REGI W4 Gd158 320
+        REGI W3 Gd158 321
+        REGI W2 Gd158 322
+        REGI W1 Gd158 323
+
+        REGI W4 Gd158 324
+        REGI W3 Gd158 325
+        REGI W2 Gd158 326
+        REGI W1 Gd158 327
+
+        REGI W4 Gd158 328
+        REGI W3 Gd158 329
+        REGI W2 Gd158 330
+        REGI W1 Gd158 331
+
+        REGI W4 Gd158 332
+        REGI W3 Gd158 333
+        REGI W2 Gd158 334
+        REGI W1 Gd158 335
+
+        REGI W4 Gd158 336
+        REGI W3 Gd158 337
+        REGI W2 Gd158 338
+        REGI W1 Gd158 339
+
+        REGI W4 Gd158 340
+        REGI W3 Gd158 341
+        REGI W2 Gd158 342
+        REGI W1 Gd158 343
+
+        REGI W4 Gd158 344
+        REGI W3 Gd158 345
+        REGI W2 Gd158 346
+        REGI W1 Gd158 347
+
+        REGI W61 Gd158 348
+        REGI W60 Gd158 349
+        REGI W59 Gd158 350
+        REGI W58 Gd158 351
+        REGI W57 Gd158 352
+        REGI W56 Gd158 353
+        REGI W55 Gd158 354
+        REGI W54 Gd158 355
+        REGI W53 Gd158 356
+        REGI W52 Gd158 357
+        REGI W51 Gd158 358
+
+        REGI W4 Gd158 359
+        REGI W3 Gd158 360
+        REGI W2 Gd158 361
+        REGI W1 Gd158 362
+
+        REGI W4 Gd158 363
+        REGI W3 Gd158 364
+        REGI W2 Gd158 365
+        REGI W1 Gd158 366
+
+        REGI W4 Gd158 367
+        REGI W3 Gd158 368
+        REGI W2 Gd158 369
+        REGI W1 Gd158 370
+
+        REGI W4 Gd158 371
+        REGI W3 Gd158 372
+        REGI W2 Gd158 373
+        REGI W1 Gd158 374
+
+        REGI W4 Gd158 375
+        REGI W3 Gd158 376
+        REGI W2 Gd158 377
+        REGI W1 Gd158 378
+
+        REGI W4 Gd158 379
+        REGI W3 Gd158 380
+        REGI W2 Gd158 381
+        REGI W1 Gd158 382
+
+        REGI W4 Gd158 383
+        REGI W3 Gd158 384
+        REGI W2 Gd158 385
+        REGI W1 Gd158 386
+
+        REGI W81 Gd158 387
+        REGI W80 Gd158 388
+        REGI W79 Gd158 389
+        REGI W78 Gd158 390
+        REGI W77 Gd158 391
+        REGI W76 Gd158 392
+        REGI W75 Gd158 393
+        REGI W74 Gd158 394
+        REGI W73 Gd158 395
+        REGI W72 Gd158 396
+        REGI W71 Gd158 397
+
+        REGI W4 Gd158 398
+        REGI W3 Gd158 399
+        REGI W2 Gd158 400
+        REGI W1 Gd158 401
+
+        REGI W4 Gd158 402
+        REGI W3 Gd158 403
+        REGI W2 Gd158 404
+        REGI W1 Gd158 405
+
+        REGI W4 Gd158 406
+        REGI W3 Gd158 407
+        REGI W2 Gd158 408
+        REGI W1 Gd158 409
+
+        REGI W4 Gd158 410
+        REGI W3 Gd158 411
+        REGI W2 Gd158 412
+        REGI W1 Gd158 413
+
+        REGI W4 Gd158 414
+        REGI W3 Gd158 415
+        REGI W2 Gd158 416
+        REGI W1 Gd158 417
+
+        REGI W4 Gd158 418
+        REGI W3 Gd158 419
+        REGI W2 Gd158 420
+        REGI W1 Gd158 421
+
+        REGI W4 Gd158 422
+        REGI W3 Gd158 423
+        REGI W2 Gd158 424
+        REGI W1 Gd158 425
+
+        REGI W4 Gd158 426
+        REGI W3 Gd158 427
+        REGI W2 Gd158 428
+        REGI W1 Gd158 429
+
+        REGI W4 Gd158 430
+        REGI W3 Gd158 431
+        REGI W2 Gd158 432
+        REGI W1 Gd158 433
+
+        REGI W4 Gd158 434
+        REGI W3 Gd158 435
+        REGI W2 Gd158 436
+        REGI W1 Gd158 437
+
+        REGI W4 Gd158 438
+        REGI W3 Gd158 439
+        REGI W2 Gd158 440
+        REGI W1 Gd158 441
+
+        REGI W4 Gd158 442
+        REGI W3 Gd158 443
+        REGI W2 Gd158 444
+        REGI W1 Gd158 445
+
+        REGI W4 Gd158 446
+        REGI W3 Gd158 447
+        REGI W2 Gd158 448
+        REGI W1 Gd158 449
+
+        REGI W4 Gd158 450
+        REGI W3 Gd158 451
+        REGI W2 Gd158 452
+        REGI W1 Gd158 453
+
+        REGI W4 Gd158 454
+        REGI W3 Gd158 455
+        REGI W2 Gd158 456
+        REGI W1 Gd158 457
+
+        REGI W4 Gd158 458
+        REGI W3 Gd158 459
+        REGI W2 Gd158 460
+        REGI W1 Gd158 461
+
+        REGI W4 Gd158 462
+        REGI W3 Gd158 463
+        REGI W2 Gd158 464
+        REGI W1 Gd158 465
+
+        REGI W4 Gd158 466
+        REGI W3 Gd158 467
+        REGI W2 Gd158 468
+        REGI W1 Gd158 469
+
+        REGI W4 Gd158 470
+        REGI W3 Gd158 471
+        REGI W2 Gd158 472
+        REGI W1 Gd158 473
+
+        REGI W4 Gd158 474
+        REGI W3 Gd158 475
+        REGI W2 Gd158 476
+        REGI W1 Gd158 477
+
+        REGI W4 Gd158 478
+        REGI W3 Gd158 479
+        REGI W2 Gd158 480
+        REGI W1 Gd158 481
+
+        REGI W4 Gd158 482
+        REGI W3 Gd158 483
+        REGI W2 Gd158 484
+        REGI W1 Gd158 485
+            ENDC
+            ;
+
+  ELSEIF AUTOP 'NONE' = THEN
+
+    LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
+            EDIT 1 PASS 2 GRMIN 52 NOTR MAXST 100
+            ;
+
+  ENDIF ;
+
+ENDIF ;
+
+END: ;
+QUIT .
