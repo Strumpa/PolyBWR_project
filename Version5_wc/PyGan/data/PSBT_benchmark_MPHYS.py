@@ -345,7 +345,7 @@ height = 1.555 # m
 
 ## Fluid parameters
 pOutlet = 14719781.65 # Pa
-tInlet = 592.75 #K
+tInlet = 270 + 273.15 #K
 u_inlet = 4.467092221 #m/s
 pressureDrop = 186737 #Pa/m
 falsePInlet = pOutlet - height * pressureDrop
@@ -391,7 +391,7 @@ print(f"Fuel rod power before scaling = {fuel_rod_power} W")
 
 
 compo_name = "_COMPO_PSBT_RSE" # Name of the COMPO object to be used in the neutronics solution
-
+#compo_name = "_COMPO_24UOX" # attempt with the 24UOX composition
 
 PFiss = fuel_rod_power/power_scaling_factor # W
 print(f"PFiss = {PFiss} = fuel_rod_power (scaled) W")
@@ -426,12 +426,12 @@ Residuals_Relaxed_Power_Distribs = []
 
 ######## Creation of results directory ##########
 path=os.getcwd()
-a=os.path.exists(f"multiPhysics_PyGan_PSBT_bench")
+a=os.path.exists(f"PSBT_benchmark_MPHYS_PyGan_PSBT_bench")
 if a==False:
-    os.mkdir(f"multiPhysics_PyGan_PSBT_bench")
+    os.mkdir(f"PSBT_benchmark_MPHYS_PyGan_PSBT_bench")
 print(path)
 
-SAVE_DIR = f"multiPhysics_PyGan_PSBT_bench/{numericalMethod}/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/"
+SAVE_DIR = f"PSBT_benchmark_MPHYS_PyGan_PSBT_bench/{numericalMethod}/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/"
 
 a=os.path.exists(SAVE_DIR)
 if a==False:
@@ -449,7 +449,7 @@ print(f"qFiss_init = {qFiss_init}")
 total_power = integrate_power_density(z_mesh, qFiss_init, fuelRadius)
 print(f"Total power = {total_power} W")
 print(f"Error on integrated (total) power = {total_power - PFiss} W <-> {100*(total_power - PFiss)/PFiss} %")
-print("$$$ - multiPhysics.py : BEGIN INITIALIZATION- $$$")
+print("$$$ - PSBT_benchmark_MPHYS.py : BEGIN INITIALIZATION- $$$")
 
 Volumic_Powers.append(qFiss_init)
 
@@ -532,7 +532,7 @@ while ipLifo1.getMax() > 0:
     ipLifo1.pop();
 
 # 4.) Iterative scheme for coupled neutronics and thermalhydraulics solution
-# Attempting to run multiPhysics scheme.
+# Attempting to run PSBT_benchmark_MPHYS scheme.
 # Everytime, solve neutron transport, update axial power shape, solve TH, update TH data, and repeat.
 powi = PFiss/1e6 # Reference at 0.1722 MW from AT10_24UOX test ?
 
@@ -737,20 +737,20 @@ while not conv:
     total_iteration_time = (current_time5 - current_time1)
     print(f"Total iteration time = {total_iteration_time} s for iteration {iter}")
 
-print("$$$ - multiPhysics.py : END ITERATIONS - $$$")
+print("$$$ - PSBT_benchmark_MPHYS.py : END ITERATIONS - $$$")
 
 end_iters_time = time.time()
-time_spent_in_multiPhysics = (end_iters_time - start_time)
-print(f"Time spent in multiPhysics iterations = {time_spent_in_multiPhysics} s, for a total of {total_iter} iterations, convergence reached {conv} (T/F)")
+time_spent_in_PSBT_benchmark_MPHYS = (end_iters_time - start_time)
+print(f"Time spent in PSBT_benchmark_MPHYS iterations = {time_spent_in_PSBT_benchmark_MPHYS} s, for a total of {total_iter} iterations, convergence reached {conv} (T/F)")
 
 # 8.) Check the results
-print("$$$ - multiPhysics.py : BEGIN RESULTS - $$$")
+print("$$$ - PSBT_benchmark_MPHYS.py : BEGIN RESULTS - $$$")
 
 print(f"Checking Fields lengths : Keff : {len(Keffs)}, TeffFuel : {len(TeffFuel)}, Twater : {len(Twater)}, rho : {len(rho)}, Power_Distrib : {len(Power_Distribs)}")
 print(f"Checking residuals lengths : Residuals_TeffFuel : {len(Residuals_TeffFuel)}, Residuals_Twater : {len(Residuals_Twater)}, Residual_rho : {len(Residuals_rho)}, Residuals_Power_Distrib : {len(Residuals_Power_Distribs)}")
 
 
-print("$$$ - multiPhysics.py : END RESULTS - $$$")
+print("$$$ - PSBT_benchmark_MPHYS.py : END RESULTS - $$$")
 
 
 # 9.) Plot the results
@@ -765,17 +765,17 @@ else:
     relaxTH_id = "non_relaxedTH"
 # Creation of results directory
 path=os.getcwd()
-a=os.path.exists(f"multiPhysics_PyGan_PSBT_bench")
+a=os.path.exists(f"PSBT_benchmark_MPHYS_PyGan_PSBT_bench")
 if a==False:
-    os.mkdir(f"multiPhysics_PyGan_PSBT_bench")
+    os.mkdir(f"PSBT_benchmark_MPHYS_PyGan_PSBT_bench")
 print(path)
 if height == 3.8:
     save_id = "h380"
 elif height == 1.555:
     save_id = "h1555"
 
-SAVE_FIG_DIR = f"multiPhysics_PyGan_PSBT_bench/{numericalMethod}/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/{save_id}/mesh{Iz1}_{power_scaling_factor}/Figures"
-SAVE_DATA_DIR = f"multiPhysics_PyGan_PSBT_bench/{numericalMethod}/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/{save_id}/mesh{Iz1}_{power_scaling_factor}/Data"
+SAVE_FIG_DIR = f"PSBT_benchmark_MPHYS_PyGan_PSBT_bench/{numericalMethod}/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/{save_id}/mesh{Iz1}_{power_scaling_factor}/Figures"
+SAVE_DATA_DIR = f"PSBT_benchmark_MPHYS_PyGan_PSBT_bench/{numericalMethod}/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/{save_id}/mesh{Iz1}_{power_scaling_factor}/Data"
 
 a=os.path.exists(SAVE_FIG_DIR)
 if a==False:
@@ -800,7 +800,7 @@ quickPlot(z_mesh, Residuals_voidFraction, "Void fraction residuals", "height (m)
 quickPlot(z_mesh, Residuals_Power_Distribs, "Power distribution residuals", "height (m)", "Residuals", f"Power_distribution_residuals_{relaxPOW_id}_{relaxTH_id}.png", path, SAVE_FIG_DIR)
 #print(f"Residuals Power distribution : {Residuals_Power_Distribs}")
 quickPlot(z_mesh, Residuals_Volumic_Powers, "Axial power shape residuals", "height (m)", "Residuals", f"Qfiss_residuals_{relaxPOW_id}_{relaxTH_id}.png", path, SAVE_FIG_DIR)
-print("$$$ - multiPhysics.py : END of PLOTTING - $$$")
+print("$$$ - PSBT_benchmark_MPHYS.py : END of PLOTTING - $$$")
 
 
 # 10.) Save the results for exportation to Serpent/OpenFoam/GeN-Foam
@@ -853,20 +853,20 @@ os.chdir(path)
 shutil.copyfile("Flux01.res", f"{SAVE_DATA_DIR}/Flux01.res")
 shutil.copyfile("Flux02.res", f"{SAVE_DATA_DIR}/Flux02.res")
 shutil.copyfile("Pdistr.res", f"{SAVE_DATA_DIR}/Pdistr.res")
-shutil.copyfile("multiPhysics.result", f"{SAVE_DATA_DIR}/multiPhysics_{relaxPOW_id}_{relaxTH_id}.result")
+shutil.copyfile("PSBT_benchmark_MPHYS.result", f"{SAVE_DATA_DIR}/PSBT_benchmark_MPHYS_{relaxPOW_id}_{relaxTH_id}.result")
 
 #
-print("$$$ - multiPhysics.py : END of EXPORTS - $$$")
+print("$$$ - PSBT_benchmark_MPHYS.py : END of EXPORTS - $$$")
 last_time = time.time()
 time_for_exports = (last_time - end_iters_time)
 print(f"Time spent in exporting = {time_for_exports} s")
 total_time = (last_time - start_time)
-print(f"Total time spent in multiPhysics.py = {total_time} s")
+print(f"Total time spent in PSBT_benchmark_MPHYS.py = {total_time} s")
 print(relax_Pow, relax_TH)
 print(relaxPOW_id, relaxTH_id)
-print("$$$ - multiPhysics.py : END OF SCRIPT - $$$")
+print("$$$ - PSBT_benchmark_MPHYS.py : END OF SCRIPT - $$$")
 
-print("$$$ - multiPhysics.py : SANITY CHECK - $$$")
+print("$$$ - PSBT_benchmark_MPHYS.py : SANITY CHECK - $$$")
 # check results, run THM with the last power distribution obtained from the neutronics solution
 #check_case = THM_prototype("Check case", canalType, pitch, fuelRadius, gapRadius, cladRadius, 
 #                            height, tInlet, pOutlet, massFlowRate, Qfiss[-1], kFuel, Hgap, kClad, Iz1, If, I1, zPlotting, 
@@ -875,4 +875,4 @@ print("$$$ - multiPhysics.py : SANITY CHECK - $$$")
 
 #TeffCheck, TwaterCheck, rhoCheck, voidFracCheck, Pche = check_case.get_TH_parameters()
 #print(f"Check case : TeffFuel = {TeffCheck}, Twater = {TwaterCheck}, rho = {rhoCheck}, voidFraction = {voidFracCheck}")
-#print("$$$ - multiPhysics.py : END OF SANITY CHECK - $$$")
+#print("$$$ - PSBT_benchmark_MPHYS.py : END OF SANITY CHECK - $$$")
