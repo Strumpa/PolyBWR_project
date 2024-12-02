@@ -1,0 +1,260 @@
+*----
+*  TEST CASE PCC Gd157
+*  HOM_UOX_Gd157 bemchmark
+*  172/281/295/315-GROUP JEF3.1.1 DRAGLIB
+*  Purpose : Investigate predictor-corrector for Gd157 depletion
+*  Compare to PCC1 Serpent2 : CE-LI method.
+*     - NOEX first step for CE method
+*     - corrector step to perform LI (?)
+*
+*----
+*  Define STRUCTURES and MODULES used
+*----
+PARAMETER COMPO LIBRARY StepList ::
+::: LINKED_LIST COMPO ;
+::: LINKED_LIST LIBRARY ;
+::: LINKED_LIST StepList ; ;
+STRING name_compo ssh_module ;
+:: >>name_compo<< >>ssh_module<< ;
+LINKED_LIST
+  GEOM TRACK SYS FLUX BURNUP EDITION LIB2 BOSLIB ;
+MODULE
+  GEO: UTL: GREP: SYBILT: LIB: USS: SHI: AUTO: ASM: FLU: EVO: EDI: COMPO: DELETE: END: ;
+*----
+*  Define variables
+*----
+INTEGER
+  istep := 1 ;
+INTEGER nstep istepNext ;
+REAL
+  evobeg evoend BUbeg BUend Kinf ;
+SEQ_ASCII _COMPO :: FILE <<name_compo>> ;
+
+
+REAL Norm_f2 := 38.6 ; ! SPECIFIC POWER MW/t
+REAL BUautop BUcompo := 0.0 0.0 ;
+INTEGER iauto :=  1 ;
+INTEGER iCompo :=  2 ;
+
+*----
+*  Geometry GEOM : homogeneous cell with UOX+Clad+Gd157+moderator
+*----
+GEOM := GEO: :: HOMOGE 
+    MIX 1
+;
+TRACK := SYBILT: GEOM ::
+    TITLE 'HOM_UOX_Gd157 benchmark case'
+    MAXR 2
+;
+
+*  Create the reactor COMPO
+*----
+COMPO := COMPO: ::
+    EDIT 0
+    STEP UP 'EDIBU'
+    MAXCAL 5
+    COMM 'Evolution burnup pincell' ENDC
+    PARA 'Burnup' IRRA
+    ISOT 19 U235 U236 U238 Pu239 Pu240 Pu241 Pu242 
+      Gd154 Gd155 Gd156 Gd157 Gd158 Gd160 Xe135 Sm149
+      Sm154 Eu155 Eu156 Eu157
+    INIT
+;
+*----
+*  Self-Shielding calculation SYBIL
+*  Transport calculation      SYBIL
+*  Flux calculation, no leakage model
+*----
+*--- Perform self-shielding at t=0
+EVALUATE evobeg := 0.0 ;
+ECHO "Performing self-shielding at t=0 to obtain first BoS Library2" ;
+IF ssh_module "USS" = THEN
+    LIB2 := USS: LIBRARY TRACK ::
+                EDIT 2 PASS 3
+              ;
+ELSEIF ssh_module "SHI" = THEN
+    LIB2 := SHI: LIBRARY TRACK :: 
+                EDIT 1 NOLJ
+              ;
+ELSEIF ssh_module "AUTO" = THEN
+    LIB2 := AUTO: LIBRARY TRACK :: 
+                EDIT 2 PASS 3 MAXT 100000 
+              ;
+ENDIF ;
+SYS := ASM: LIB2 TRACK :: PIJ EDIT 0 ;  
+ECHO "Performing flux calculation at t=0 to obtain first BoS flux" ;
+FLUX := FLU: LIB2 SYS TRACK :: 
+    EDIT 1 TYPE K ;
+
+SYS := DELETE: SYS ;
+
+BURNUP BOSLIB := EVO: LIB2 FLUX TRACK ::
+    SAVE <<evobeg>> DAY POWR <<Norm_f2>> ;
+
+
+EDITION := EDI: FLUX LIB2 TRACK ::
+        EDIT 0
+        MICR 19 U235 U236 U238 Pu239 Pu240 Pu241 Pu242 
+        Gd154 Gd155 Gd156 Gd157 Gd158 Gd160 Xe135 Sm149
+        Sm154 Eu155 Eu156 Eu157
+        COND
+        SAVE ON FUEL 
+  ;
+
+COMPO := COMPO: COMPO EDITION BURNUP ::
+  EDIT 3
+  STEP UP 'EDIBU'
+  SET <<evobeg>> DAY
+;
+
+EDITION := DELETE: EDITION ;
+BOSLIB := DELETE: BOSLIB ;
+BURNUP := DELETE: BURNUP ;
+*----
+*  Burnup loop: for first step BURNUP is created
+*  while for other steps it is modified
+*  two burnup per step:
+*  1) get a first approximation of final composition followed
+*     by a transport calculation
+*  2) use approximation for final flux distribution to get a
+*     better approximation for final composition
+*----
+GREP: StepList :: LENGTH ListBU >>nstep<< ;
+WHILE istep nstep < DO
+  EVALUATE istepNext := istep 1 + ;
+  ECHO "istep = " istep ;
+  ECHO "istepNext = " istepNext ;
+  GREP: StepList :: GETVAL 'ListBU' <<istep>> >>BUbeg<< ;
+  GREP: StepList :: GETVAL 'ListBU' <<istepNext>> >>BUend<< ;
+
+  EVALUATE evobeg := BUbeg Norm_f2 / ;
+  EVALUATE evoend := BUend Norm_f2 / ;
+  ECHO "Begin step = " istep ;
+  ECHO "Performing evolution stage from Tbeg = " evobeg " to Tend = " evoend ; 
+  IF istep 1 > THEN
+    IF ssh_module "USS" = THEN
+        LIB2 := USS: LIBRARY LIB2 TRACK ::
+                    EDIT 2 PASS 3
+                  ;
+      ELSEIF ssh_module "SHI" = THEN
+        LIB2 := SHI: LIBRARY LIB2 TRACK :: 
+                    EDIT 1 NOLJ
+                  ;
+      ELSEIF ssh_module "AUTO" = THEN
+        LIB2 := AUTO: LIBRARY LIB2 TRACK :: 
+                    EDIT 2 PASS 3 MAXT 100000  
+                  ;
+      ENDIF ;
+  ENDIF ;
+  SYS := ASM: LIB2 TRACK :: PIJ EDIT 0 ;  
+  ECHO "Performing flux calculation at step = " istep " to obtain first BoS flux" ;
+  IF istep 1 > THEN
+    FLUX := FLU: FLUX LIB2 SYS TRACK :: 
+        EDIT 1 TYPE K ; 
+  ENDIF ;
+  SYS := DELETE: SYS ;
+  
+  IF istep 1 = THEN
+  * Deplete BOS material with BOS flux to obtain first guess of EOS material
+    BURNUP LIB2 := EVO: LIB2 FLUX TRACK ::
+      SAVE <<evobeg>> DAY POWR <<Norm_f2>>
+      DEPL <<evobeg>> <<evoend>> DAY POWR <<Norm_f2>> 
+      H1 1.0E-6 NOEX
+      SET <<evoend>> DAY ;
+
+  ELSE
+    ECHO "Editing burnup object at step : " istep ;
+    ECHO "Calling EVO for BOS depletion between Tbeg =" evobeg " and Tend =" evoend ;
+* First deplete BOS material with BOS flux to obtain first guess of EOS material
+    BURNUP LIB2 := EVO: BURNUP LIB2 FLUX TRACK ::
+      SAVE <<evobeg>> DAY POWR <<Norm_f2>>
+      DEPL <<evobeg>> <<evoend>> DAY POWR <<Norm_f2>> 
+      H1 1.0E-6 NOEX
+      SET <<evoend>> DAY ;
+  ENDIF ;
+  * Perform self-shielding of EOS library ?
+  
+  IF ssh_module "USS" = THEN
+        LIB2 := USS: LIBRARY LIB2 TRACK ::
+                    EDIT 2 PASS 3
+                  ;
+      ELSEIF ssh_module "SHI" = THEN
+        LIB2 := SHI: LIBRARY LIB2 TRACK :: 
+                    EDIT 1 NOLJ
+                  ;
+      ELSEIF ssh_module "AUTO" = THEN
+        LIB2 := AUTO: LIBRARY LIB2 TRACK :: 
+                    EDIT 2 PASS 3 MAXT 100000  
+                  ;
+      ENDIF ;
+  SYS := ASM: LIB2 TRACK ;
+  * Perform flux calculation with guess EoS materials to obtain EoS flux
+  FLUX := FLU: FLUX LIB2 SYS TRACK :: 
+    EDIT 1 TYPE K ;
+  SYS := DELETE: SYS ;
+
+  BURNUP LIB2 := EVO: BURNUP LIB2 FLUX TRACK ::
+    SAVE <<evoend>> DAY POWR <<Norm_f2>>
+    DEPL <<evobeg>> <<evoend>> DAY POWR <<Norm_f2>> 
+    H1 1.0E-6 
+    SET <<evoend>> DAY ;
+
+    IF ssh_module "USS" = THEN
+      LIB2 := USS: LIBRARY LIB2 TRACK ::
+                    EDIT 2 PASS 3
+                  ;
+    ELSEIF ssh_module "SHI" = THEN
+        LIB2 := SHI: LIBRARY LIB2 TRACK :: 
+                    EDIT 1 NOLJ
+                  ;
+    ELSEIF ssh_module "AUTO" = THEN
+        LIB2 := AUTO: LIBRARY LIB2 TRACK :: 
+                    EDIT 2 PASS 3 MAXT 100000  
+                  ;
+    ENDIF ;
+  SYS := ASM: LIB2 TRACK ;
+  FLUX := FLU: FLUX LIB2 SYS TRACK :: 
+    EDIT 1 TYPE K ;
+  SYS := DELETE: SYS ;
+
+  GREP: FLUX :: GETVAL 'K-INFINITY  ' 1 1 1 >>Kinf<< ;
+  ECHO "+++ Burnup=" BUend " Kinf=" Kinf " at step" istep ;
+    
+  BURNUP LIB2 := EVO: BURNUP LIB2 FLUX TRACK ::
+    SAVE <<evoend>> DAY POWR <<Norm_f2>> ;
+
+  GREP: StepList :: GETVAL "ListCompo" <<iCompo>> >>BUcompo<< ;
+  ECHO "here istep = " istep "and iCompo =" iCompo BUcompo ;
+  IF BUcompo BUend = THEN
+        ECHO "Saving COMPO at BU =" BUcompo ;
+        EDITION := EDI: FLUX LIB2 TRACK ::
+          EDIT 0
+          MICR 19 U235 U236 U238 Pu239 Pu240 Pu241 Pu242 
+          Gd154 Gd155 Gd156 Gd157 Gd158 Gd160 Xe135 Sm149
+          Sm154 Eu155 Eu156 Eu157
+          COND
+          SAVE ON FUEL 
+        ;
+        COMPO := COMPO: COMPO EDITION BURNUP LIB2 ::
+          EDIT 0
+          STEP UP 'EDIBU'
+          SET <<evoend>> DAY 
+        ;
+
+        EDITION := DELETE: EDITION ;
+        EVALUATE iCompo := iCompo 1 + ;
+  ENDIF ;
+  EVALUATE istep := istepNext ;
+ENDWHILE ;
+
+
+
+************************************************************************
+*  EXPORT MULTICOMPO IN ASCII FORMAT                                   *
+************************************************************************
+_COMPO := COMPO ;
+
+
+ECHO "PCC1 for Gd157 completed" ;
+END: ;   
+QUIT "LIST" .

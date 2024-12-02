@@ -1,7 +1,7 @@
 *DECK SNFD12
       SUBROUTINE SNFD12(IKBA,NUN,NGEFF,IMPX,INCONV,NGIND,LX,LY,IELEM,
      1 NMAT,NPQ,NSCT,MAT,VOL,TOTAL,NCODE,ZCODE,QEXT,LFIXUP,DU,DE,W,MRM,
-     2 MRMY,DB,DA,PL,FUNKNO)
+     2 MRMY,DB,DA,FUNKNO,MN,DN)
 *
 *-----------------------------------------------------------------------
 *
@@ -50,8 +50,8 @@
 * MRMY    quadrature index.
 * DB      diamond-scheme parameter.
 * DA      diamond-scheme parameter.
-* PL      discrete values of the spherical harmonics corresponding
-*         to the 2D SN quadrature.
+* MN      moment-to-discrete matrix.
+* DN      discrete-to-moment matrix.
 *
 *Parameters: input/output
 * FUNKNO  unknown vector.
@@ -68,13 +68,13 @@
      1 NSCT,MAT(LX,LY),NCODE(4),MRM(NPQ),MRMY(NPQ)
       LOGICAL INCONV(NGEFF)
       REAL VOL(LX,LY),TOTAL(0:NMAT,NGEFF),ZCODE(4),QEXT(NUN,NGEFF),
-     1 DU(NPQ),DE(NPQ),W(NPQ),DB(LX,NPQ),DA(LX,LY,NPQ),PL(NSCT,NPQ),
-     2 FUNKNO(NUN,NGEFF)
+     1 DU(NPQ),DE(NPQ),W(NPQ),DB(LX,NPQ),DA(LX,LY,NPQ),
+     2 FUNKNO(NUN,NGEFF),MN(NPQ,NSCT),DN(NSCT,NPQ)
       LOGICAL LFIXUP
 *----
 *  LOCAL VARIABLES
 *----
-      INTEGER NPQD(4),IIND(4)
+      INTEGER NPQD(4),IIND(4),P
       DOUBLE PRECISION Q(IELEM**2),Q2(IELEM**2,(IELEM**2)+1),VT,CONST0,
      1 CONST1,CONST2
       PARAMETER(IUNOUT=6,RLOG=1.0E-8,PI=3.141592654)
@@ -267,9 +267,9 @@
 *------
       DO 125 IEL=1,IELEM**2
       Q(IEL)=0.0D0
-      DO 120 K=1,NSCT
-      IOF=((J-1)*LX*NSCT+(I-1)*NSCT+(K-1))*IELEM*IELEM+IEL
-      Q(IEL)=Q(IEL)+QEXT(IOF,IG)*PL(K,M)/(4.0D0*PI)
+      DO 120 P=1,NSCT
+      IOF=((J-1)*LX*NSCT+(I-1)*NSCT+(P-1))*IELEM*IELEM+IEL
+      Q(IEL)=Q(IEL)+QEXT(IOF,IG)*MN(P,M)
   120 CONTINUE
   125 CONTINUE
       VT=VOL(I,J)*TOTAL(MAT(I,J),IG)
@@ -369,9 +369,9 @@
         XNJ(3,I,IPQD,IG)=2.0D0*Q2(3,10)+CONST1*Q2(9,10)-
      1  XNJ(3,I,IPQD,IG)
       ENDIF
-      DO 150 K=1,NSCT
+      DO 150 P=1,NSCT
       DO 140 IEL=1,IELEM**2
-      FLUX(IEL,K)=FLUX(IEL,K)+2.0D0*W(M)*Q2(IEL,IELEM**2+1)*PL(K,M)
+      FLUX(IEL,P)=FLUX(IEL,P)+Q2(IEL,IELEM**2+1)*DN(P,M)
   140 CONTINUE
   150 CONTINUE
 *------

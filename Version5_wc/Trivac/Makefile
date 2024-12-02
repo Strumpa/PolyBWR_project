@@ -15,7 +15,11 @@ else
   ifeq ($(nvidia),1)
     fcompiler = nvidia
   else
-    fcompiler = custom
+    ifeq ($(flang),1)
+      fcompiler = flang
+    else
+      fcompiler = custom
+    endif
   endif
 endif
 all :

@@ -1,92 +1,132 @@
 *----
-*  TEST CASE TCDR04
-*  ANNULAR MOSTELLER BENCHMARK WITH BURNUP
-*  172-GROUP JEF2.2 DRAGLIB
+*  TEST CASE PCC Gd157
+*  HOM_UOX_Gd157 bemchmark
+*  295-GROUP JEF3.1.1 DRAGLIB
+*  Purpose : Investigate predictor-corrector for Gd157 depletion
 *
-*  REF: R. Mosteller et al. Nucl. Sci. Eng. 107, 265 (1991)
-*
+*----
+*  Define STRUCTURES and MODULES used
+*----
+LINKED_LIST
+  LIBRARY LIBRARY2 GEOM TRACK SYS FLUX BURNUP
+  EDITION DATABASE ISOT StepList ;
+SEQ_ASCII
+  res ;
+MODULE
+  GEO: UTL: GREP: SYBILT: LIB: USS: ASM: FLU: EVO: EDI: COMPO: DELETE: END: ;
+PROCEDURE assertS ;
 *----
 *  Define variables
 *----
 INTEGER
   istep := 1 ;
+INTEGER nstep istepNext ;
 REAL
-  evobeg evoend ;
-REAL
-  step2 step3   step4   step5 :=
-  1.0   27.1739 67.9348 135.8696 ;
+  evobeg evoend BUbeg BUend ;
+
+  
+StepList := UTL: ::
+        CREA
+            ListBU 5 = 
+                0.0 15.0 30.0 50.0 75.0 
+        CREA 
+            ListSSH 2 =
+                0.0 50.0  
+        CREA
+            ListCOMPO 5 =
+                0.0 15.0 30.0 50.0 75.0 
+;
+
+REAL Norm_f2 := 38.6 ; ! SPECIFIC POWER MW/t
+
 *----
-*  Define STRUCTURES and MODULES used
+*  Geometry GEOM : homogeneous cell with UOX+Clad+Gd157+moderator
 *----
-LINKED_LIST
-  LIBRARY MOSTELAS MOSTELA TRACKS TRACK SYS FLUX BURNUP
-  EDITION DATABASE ISOT ;
-SEQ_ASCII
-  res ;
-MODULE
-  GEO: SYBILT: LIB: SHI: ASM: FLU: EVO: EDI: COMPO: DELETE: END: ;
-PROCEDURE assertS ;
+GEOM := GEO: :: HOMOGE 
+        MIX 1
+      ;
+TRACK := SYBILT: GEOM ::
+    TITLE 'HOM_UOX benchmark case'
+    MAXR 2
+    ;
+
 *----
-*  Depletion data from Jef 2.2 Draglib
-*  Microscopic cross sections from Jef 2.2 Draglib
+*  Depletion data from Jef 3.1.1 Draglib
+*  Microscopic cross sections from Jef 3.1.1 Draglib
 *----
 LIBRARY := LIB: ::
-  NMIX 3 CTRA WIMS
-  DEPL LIB: DRAGON FIL: DLIB_J2
-  MIXS LIB: DRAGON FIL: DLIB_J2
-  MIX 1 600.0                        O16      = O16      4.61309E-2
-    U235     = U235     1.66078E-4 1
-    U238     = U238     2.28994E-2 1
-    U236     = U236     0.0        1
-    Pu239    = Pu239    0.0        1
-  MIX 2 600.0
-    Zr90     = Zr90     1.96987E-2   Zr91     = Zr91     4.29232E-3
-    Zr92     = Zr92     6.55346E-3   Zr94     = Zr94     6.70675E-3
-  MIX 3 600.0
-    H1H2O    = H1_H2O   4.42326E-2   O16H2O   = O16      2.21163E-2
-    B10      = B10      2.02223E-6   B11      = B11      8.19107E-6
-  ;
-*----
-*  Geometry MOSTELAS : 3 regions annular cell for self-shielding
-*           MOSTELA  : 4 regions annular cell for transport
-*----
-MOSTELAS := GEO: ::  TUBE 3
-  R+ REFL RADIUS 0.0 0.39306 0.45802 0.71206
-  MIX 1  2  3 ;
-MOSTELA  := GEO:  MOSTELAS ::
-  SPLITR 2  1  1 ;
-*----
+      EDIT 0
+      NMIX 1    ! MAXIMUM OF MATERIAL MIXTURES
+      PT CALENDF 4
+      ANIS 1
+      DEPL LIB: DRAGON FIL: J311_295
+      MIXS LIB: DRAGON FIL: J311_295
+
+      MIX 1 750.0
+      O16  = O16   2.955339E-02 
+      H1  = H1   2.497844E-02
+      U234  = U234   3.482587E-06 1
+      U235  = U235   3.664503E-04 1
+      U238  = U238   7.765571E-03 1
+
+      Gd157  = Gd157 7.899877E-05 1
+
+      Zr90  = Zr90   2.449439E-03 1
+      Zr91  = Zr91   5.341629E-04 1
+      Zr92  = Zr92   8.164794E-04 1
+      Zr94  = Zr94   8.274287E-04 1
+      Zr96  = Zr96   1.333029E-04 1
+
+      Cr50  = Cr50   3.698141E-07
+      Cr52  = Cr52   7.131555E-06
+      Cr53  = Cr53   8.086515E-07
+      Cr54  = Cr54   2.012894E-07
+
+      Fe54  = Fe54   6.253124E-07
+      Fe56  = Fe56   9.816079E-06
+      Fe57  = Fe57   2.266963E-07
+      Fe58  = Fe58   3.016907E-08
+
+      Ni58  = Ni58   2.823166E-06
+      Ni60  = Ni60   1.087478E-06
+      Ni61  = Ni61   4.727185E-08
+      Ni62  = Ni62   1.507292E-07
+      Ni64  = Ni64   3.838073E-08
+
+      O17  = O17   1.316917E-08
+
+      Sn112  = Sn112   5.243423E-07
+      Sn114  = Sn114   3.567679E-07
+      Sn115  = Sn115   1.837913E-07
+      Sn116  = Sn116   7.859755E-06
+      Sn117  = Sn117   4.151493E-06
+      Sn118  = Sn118   1.309232E-05
+      Sn119  = Sn119   4.643408E-06
+      Sn120  = Sn120   1.761148E-05
+      Sn122  = Sn122   2.502800E-06
+      Sn124  = Sn124   3.129844E-06
+
+      He4  = He4   2.145381E-06
+    ;
 *  Create the reactor database
 *----
 DATABASE := COMPO: ::
-  EDIT 5
-  COMM  'Multi-parameter reactor database' ENDC
-  PARA  'BURN' IRRA
-  PARA  'FLUB' FLUB
-  INIT
-  ;
+    EDIT 0
+    STEP UP 'EDIBU'
+    MAXCAL 5
+    COMM 'Evolution burnup pincell' ENDC
+    PARA 'Burnup' IRRA
+    ISOT 19 U235 U236 U238 Pu239 Pu240 Pu241 Pu242 
+      Gd154 Gd155 Gd156 Gd157 Gd158 Gd160 Xe135 Sm149
+      Sm154 Eu155 Eu156 Eu157
+    INIT
+;
 *----
 *  Self-Shielding calculation SYBIL
 *  Transport calculation      SYBIL
-*  Flux calculation for keff with imposed buckling
-*  using B1 homogeneous leakage model
+*  Flux calculation, no leakage model
 *----
-TRACKS := SYBILT: MOSTELAS ::
-  TITLE 'TCDR04: MOSTELLER BENCHMARK WITH BURNUP'
-  EDIT 1 MAXR 3 ;
-LIBRARY := SHI: LIBRARY TRACKS :: EDIT 0 NOLJ ;
-TRACK := SYBILT: MOSTELA ::
-  TITLE 'TCDR04: MOSTELLER BENCHMARK WITH BURNUP'
-  EDIT 1 MAXR 4 ;
-SYS := ASM: LIBRARY TRACK ;
-FLUX := FLU: SYS LIBRARY TRACK ::
-  TYPE K B1 PNL BUCK 0.2948E-2 ;
-assertS FLUX :: 'K-INFINITY' 1 0.8245947 ;
-EDITION := EDI: LIBRARY TRACK FLUX ::
-  EDIT 3 MICR 25 Th232 U233 U234 U235 U236 U238 Np237 Np238 Pu238 Pu239
-                 Pu240 Pu241 Pu242 Am241 Am242 Am243 Cm242 Cm243 Cm244
-                 Cm245 Cf252 I135 Xe135 Pm149 Sm149
-  MERG COMP COND 4.0 SAVE  ;
+
 *----
 *  Burnup loop: for first step BURNUP is created
 *  while for other steps it is modified
@@ -96,64 +136,99 @@ EDITION := EDI: LIBRARY TRACK FLUX ::
 *  2) use approximation for final flux distribution to get a
 *     better approximation for final composition
 *----
-EVALUATE evoend := 0.0 ;
-WHILE evoend step2 < DO
-  EVALUATE evobeg := evoend ;
-  EVALUATE evoend := step2 ;
+GREP: StepList :: LENGTH ListBU >>nstep<< ;
+WHILE istep nstep < DO
+  EVALUATE istepNext := istep 1 + ;
+  ECHO "istep = " istep ;
+  ECHO "istepNext = " istepNext ;
+  GREP: StepList :: GETVAL 'ListBU' <<istep>> >>BUbeg<< ;
+  GREP: StepList :: GETVAL 'ListBU' <<istepNext>> >>BUend<< ;
+
+  EVALUATE evobeg := BUbeg Norm_f2 / ;
+  EVALUATE evoend := BUend Norm_f2 / ;
+  ECHO "Performing evolution stage from Tbeg = " evobeg " to Tend = " evoend ; 
   IF istep 1 = THEN
-    ECHO "AT step 1 : evobeg = " evobeg " and evoend = " evoend ;
-    BURNUP LIBRARY := EVO: LIBRARY FLUX TRACK ::
-      SAVE <<evobeg>> DAY POWR 36.8
-      DEPL <<evobeg>> <<evoend>> DAY POWR 36.8
+  ECHO "At step 1 : perform initial self-shielding and flux calculation." ;
+  *--- Perform self-shielding at t=0
+    LIBRARY2 := USS: LIBRARY TRACK ::
+              EDIT 2 GRMIN 52 PASS 3
+            ;
+
+    *--- Flux calculation at t=0
+    SYS := ASM: LIBRARY2 TRACK ;
+    FLUX := FLU: LIBRARY2 SYS TRACK :: 
+        EDIT 1 TYPE K ;
+    SYS := DELETE: SYS ;
+    EDITION := EDI: FLUX LIBRARY2 TRACK ::
+          EDIT 0
+          MICR 19 U235 U236 U238 Pu239 Pu240 Pu241 Pu242 
+          Gd154 Gd155 Gd156 Gd157 Gd158 Gd160 Xe135 Sm149
+          Sm154 Eu155 Eu156 Eu157
+          COND
+          SAVE ON FUEL 
+    ;
+    ECHO "Dummy call to EVO to create BU object" ;
+    BURNUP LIBRARY2 := EVO: LIBRARY2 FLUX TRACK ::
+      SAVE <<evobeg>> DAY POWR <<Norm_f2>>
+    ;
+
+    ECHO "Saving to compo for step = " istep " and Tbeg = " evobeg ;
+    DATABASE := COMPO: DATABASE EDITION BURNUP ::
+      EDIT 3
+      STEP UP 'EDIBU'
+      SET <<evobeg>> DAY
+    ;
+    BURNUP := DELETE: BURNUP ; 
+  ENDIF ;
+  IF istep 1 = THEN
+    ECHO "Creating burnup object at step 1" ;
+    ECHO "Calling EVO with depletion between Tbeg =" evobeg " and Tend =" evoend ;
+    BURNUP LIBRARY2 := EVO: LIBRARY2 FLUX TRACK ::
+      SAVE <<evobeg>> DAY POWR <<Norm_f2>>
+      DEPL <<evobeg>> <<evoend>> DAY POWR <<Norm_f2>>
       SET <<evoend>> DAY ;
   ELSE
-    BURNUP LIBRARY := EVO: BURNUP LIBRARY FLUX TRACK ::
-      SAVE <<evobeg>> DAY POWR 36.8
-      NOEX DEPL <<evobeg>> <<evoend>> DAY POWR 36.8
+    BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX TRACK ::
+      SAVE <<evobeg>> DAY POWR <<Norm_f2>>
+      DEPL <<evobeg>> <<evoend>> DAY POWR <<Norm_f2>>
       SET <<evoend>> DAY ;
   ENDIF ;
-  LIBRARY := SHI: LIBRARY TRACKS :: EDIT 0 NOLJ ;
+  LIBRARY2 := USS: LIBRARY LIBRARY2 TRACK ::
+              EDIT 2 GRMIN 52 PASS 3
+            ;
+  SYS := ASM: LIBRARY2 TRACK ;
+  FLUX := FLU: FLUX LIBRARY2 SYS TRACK :: 
+     EDIT 1 TYPE K ;
   SYS := DELETE: SYS ;
-  SYS := ASM: LIBRARY TRACK ;
-  FLUX := FLU: FLUX SYS LIBRARY TRACK ::
-    TYPE K B1 PNL BUCK 0.2948E-2 ;
 
-  BURNUP LIBRARY := EVO: BURNUP LIBRARY FLUX TRACK ::
-    SAVE <<evoend>> DAY POWR 36.8
-    DEPL <<evobeg>> <<evoend>> DAY POWR 36.8
+  BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX TRACK ::
+    SAVE <<evoend>> DAY POWR <<Norm_f2>>
+    DEPL <<evobeg>> <<evoend>> DAY POWR <<Norm_f2>>
     SET <<evoend>> DAY ;
-  LIBRARY := SHI: LIBRARY TRACKS ;
-  SYS := DELETE: SYS ;
-  SYS := ASM: LIBRARY TRACK ;
-  FLUX := FLU: FLUX SYS LIBRARY TRACK ::
-    TYPE K B1 PNL BUCK 0.2948E-2 ;
 
-  EDITION := EDI: EDITION LIBRARY TRACK FLUX ::
+  LIBRARY2 := USS: LIBRARY LIBRARY2 TRACK ::
+            EDIT 2 GRMIN 52 PASS 3
+          ;
+  SYS := ASM: LIBRARY2 TRACK ;
+  FLUX := FLU: FLUX LIBRARY2 SYS TRACK :: 
+     EDIT 1 TYPE K ;
+  SYS := DELETE: SYS ;
+
+  EDITION := EDI: EDITION LIBRARY2 TRACK FLUX ::
     EDIT 3 SAVE ;
-  BURNUP LIBRARY := EVO: BURNUP LIBRARY FLUX TRACK ::
-    SAVE <<evoend>> DAY POWR 36.8 ;
+  BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX TRACK ::
+    SAVE <<evoend>> DAY POWR <<Norm_f2>> ;
   DATABASE := COMPO: DATABASE EDITION BURNUP ::
     EDIT 3
+    STEP UP 'EDIBU'
     SET <<evoend>> DAY
     ;
-  EVALUATE step2 step3 step4 step5 :=
-           step3 step4 step5 step2 ;
+
   EVALUATE istep := istep 1 + ;
 ENDWHILE ;
-assertS FLUX :: 'K-EFFECTIVE' 1 0.7643476 ;
 
 res := DATABASE ;
 
-*----
-* Set isotope *MAC*RES on DATABASE
-*----
-ISOT := DATABASE :: STEP UP default
-                    STEP UP MIXTURES STEP AT 1
-                    STEP UP CALCULATIONS STEP AT 2
-                    STEP UP ISOTOPESLIST STEP AT 26 ;
-assertS ISOT :: 'NWT0' 1 3.767771E+01 ;
-assertS ISOT :: 'NWT0' 2 1.665765E+01 ;
-
-ECHO "test TCDR04 completed" ;
+ECHO "PCC EX for Gd157 completed" ;
 END: ;   
 QUIT "LIST" .

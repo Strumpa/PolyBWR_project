@@ -1,0 +1,85 @@
+* CLE-2000 script
+* Purpose : test self-shielding for UOX+Gd157 benchmark.
+* Author : R. Guasch
+* Date : 12/11/2024
+* Goal : compare XS from USS: PT/RSE/SUBG with AUTO: SUBG on 281/295/315 groups meshes
+* Extended to write XS in MULTICOMPO for the same benchmark, same SSH methods
+
+LINKED_LIST COMPO EDI295 ;
+MODULE COMPO: EDI: GREP: DELETE: END: ;
+PROCEDURE auto295F rse295F pt295F subg295F ; 
+SEQ_ASCII _COMPO :: FILE './COMPO_295_FINE_Gd157' ;
+
+STRING auto_method := "SUBG" ;
+
+* Initialize COMPO :
+* Compo stores results for different meshes in different DIR names 
+* and different SSH methods in different 'SSH' parameter values :
+* A = AUTOSECOL, R = RSE, P = PT and S = SUBG  
+COMPO := COMPO: ::
+    STEP UP 'EDIHOM_295'
+        MAXCAL 5
+        PARA 'SSH' VALU CHAR
+        ISOT 2 U238 Gd157
+    INIT
+;
+
+* AUTO: self-shielding
+
+* 295 groups SHEM mesh 
+ECHO "Calling procedure auto295F (SUBG in LIB: + AUTO:)" ;
+EDI295 := auto295F :: <<auto_method>> ;
+
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 10
+        STEP UP 'EDIHOM_295'
+        'SSH' A
+;
+
+EDI295 := DELETE: EDI295 ;
+
+* USS: / RSE self-shielding
+* SHEM295 mesh
+ECHO "Calling procedure rse295F (RSE in LIB: + USS:)" ;
+EDI295 := rse295F ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 10
+        STEP UP 'EDIHOM_295'
+        'SSH' R
+;
+EDI295 := DELETE: EDI295 ;
+
+* USS: / PT self-shielding
+
+* SHEM295 mesh
+ECHO "Calling procedure pt295 (PT in LIB: + USS:)" ;
+EDI295 := pt295F ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 10
+        STEP UP 'EDIHOM_295'
+        'SSH' P
+;
+
+EDI295 := DELETE: EDI295 ;
+
+* USS: / SUBG self-shielding
+* SHEM295 mesh
+ECHO "Calling procedure subg295 (SUBG in LIB: + USS:)" ;
+EDI295 := subg295F ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 10
+        STEP UP 'EDIHOM_295'
+        'SSH' S
+;
+
+EDI295 := DELETE: EDI295 ;
+
+_COMPO := COMPO ;
+
+QUIT "LIST" .
+
+

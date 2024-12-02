@@ -6,13 +6,13 @@
 #---------------------------------------------------------------------------
 #
 ARCH = $(shell uname -m)
-ifeq ($(ARCH),aarch64)
+ifneq (,$(filter $(ARCH),aarch64 arm64))
   nbit =
 else
-  ifeq (,$(filter $(ARCH),i386 i686))
-    nbit = -m64
-  else
+  ifneq (,$(filter $(ARCH),i386 i686))
     nbit = -m32
+  else
+    nbit = -m64
   endif
 endif
 
@@ -35,8 +35,13 @@ else
     fcompiler = nvfortran
     ccompiler = nvc
   else
-    fcompiler = gfortran
-    ccompiler = gcc
+    ifeq ($(flang),1)
+      fcompiler = flang-new
+      ccompiler = clang
+    else
+      fcompiler = gfortran
+      ccompiler = gcc
+    endif
   endif
 endif
 
@@ -67,7 +72,7 @@ ifeq ($(OS),Darwin)
   FLAGS = -DLinux -DUnix
   CFLAGS = -Wall $(nbit) -fPIC
   FFLAGS = $(nbit) -fPIC
-  FFLAG77 = -Wall $(nbit) -fPIC
+  FFLAG77 = $(nbit) -fPIC
   LFLAGS = $(nbit)
 else
 ifeq ($(OS),Linux)
@@ -142,9 +147,15 @@ else
     bin = ../bin/$(DIRNAME)_nvidia
     lib_module = ../lib/$(DIRNAME)_nvidia/modules
   else
-    lib = ../lib/$(DIRNAME)
-    bin = ../bin/$(DIRNAME)
-    lib_module = ../lib/$(DIRNAME)/modules
+    ifeq ($(flang),1)
+      lib = ../lib/$(DIRNAME)_flang
+      bin = ../bin/$(DIRNAME)_flang
+      lib_module = ../lib/$(DIRNAME)_flang/modules
+    else
+      lib = ../lib/$(DIRNAME)
+      bin = ../bin/$(DIRNAME)
+      lib_module = ../lib/$(DIRNAME)/modules
+    endif
   endif
 endif
 
@@ -180,6 +191,9 @@ ifeq ($(intel),1)
 endif
 ifeq ($(nvidia),1)
 	@echo 'Ganlib: nvidia is defined'
+endif
+ifeq ($(flang),1)
+	@echo 'Ganlib: flang is defined'
 endif
 ifeq ($(hdf5),1)
 	@echo 'Ganlib: hdf5 is defined'
