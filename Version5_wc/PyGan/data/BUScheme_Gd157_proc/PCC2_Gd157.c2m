@@ -1,0 +1,238 @@
+* UOX_Gd157.c2m, CLE-2000 script to call Dragon5
+* Purpose : Test depletion of Gd157 on homogeneous geometry
+* Homogeneous UOX + moderator + clad + Gd157
+* Reference Serpen2 case : HOM_UOX_Gd157_mc (PyNjoy2016 and oldlib)
+* Burnup calculation using the PCC 2 method : 
+*     - linear extrapolation of reaction rates over each stage
+*     - no corrector step
+
+
+****************************************************************************
+************************** VARIABLES DEFINITION ****************************
+****************************************************************************
+
+MODULE GEO: SYBILT: LIB: USS: SHI: AUTO: ASM: FLU: COMPO: EDI: EVO: GREP: UTL: DELETE: END: ;
+LINKED_LIST GEOM LIBRARY2 TRACK_SS TRACK SYS FLUX ;
+
+*----
+*  Define STRUCTURES and MODULES used
+*----
+PARAMETER COMPO LIBRARY StepList ::
+::: LINKED_LIST COMPO ;
+::: LINKED_LIST LIBRARY ;
+::: LINKED_LIST StepList ; ;
+STRING name_compo ssh_module ;
+:: >>name_compo<< >>ssh_module<< ;
+
+REAL Kinf ;
+LINKED_LIST BURNUP EDIBU ;
+SEQ_ASCII _COMPO :: FILE <<name_compo>> ;
+
+****************************************************************************
+***************** GEOMETRY DEFINTION OF HOMOGENEOUS UOX+GD *****************
+****************************************************************************
+
+GEOM := GEO: :: HOMOGE 
+    MIX 1
+;
+
+****************************************************************************************
+************************ TRACKING GEOM FOR FLUX/SSH CALCULATION ************************
+****************************************************************************************
+
+TRACK := SYBILT: GEOM ::
+    TITLE 'HOM_UOX_Gd157 test case'
+    MAXR 2
+;
+
+************************************************************************
+*  BEGIN DECLARATION                                                   *
+************************************************************************
+
+INTEGER nstep nauto maxcompo ;
+GREP: StepList :: LENGTH ListBU >>nstep<< ;
+GREP: StepList :: LENGTH ListAutop >>nauto<< ;
+GREP: StepList :: LENGTH ListCompo >>maxcompo<< ;
+ECHO "nstep=" nstep "nauto=" nauto "maxcompo=" maxcompo ;
+************************************************************************
+*  END DECLARATION                                                     *
+************************************************************************
+************************************************************************
+*  BEGIN COMPO INITIALIZATION                                          *
+************************************************************************
+COMPO := COMPO: ::
+    EDIT 0
+    STEP UP 'EDIBU'
+    MAXCAL 5
+    COMM 'Evolution burnup pincell' ENDC
+    PARA 'Burnup' IRRA
+    ISOT 19 U235 U236 U238 Pu239 Pu240 Pu241 Pu242 
+      Gd154 Gd155 Gd156 Gd157 Gd158 Gd160 Xe135 Sm149
+      Sm154 Eu155 Eu156 Eu157
+    INIT
+;
+
+************************************************************************
+*  END COMPO INITIALIZATION                                            *
+************************************************************************
+
+************************************************************************
+*  NOMINAL REFERENCE CALCULATION                                       *
+************************************************************************
+INTEGER istepNext ;
+REAL BUbeg Tbeg ;
+REAL BU BUautop BUcompo := 0.0 0.0 0.0 ;
+REAL Norm_f2 := 38.6 ; ! SPECIFIC POWER MW/t
+REAL BUend Tend := 0. 0. ;
+INTEGER istep :=  0 ;
+INTEGER iauto :=  1 ;
+INTEGER iCompo :=  1 ;
+ECHO "start burnup loop" ;
+WHILE istep nstep < DO
+
+ EVALUATE istep := istep 1 + ;
+ ECHO "burnup step: " istep "/" nstep ;
+ 
+ EVALUATE BUbeg Tbeg := BUend Tend ;
+ ECHO "BUbeg = " BUbeg "and Tbeg = " Tbeg ;  
+ GREP: StepList :: GETVAL 'ListBU' <<istep>> >>BUend<< ;
+ EVALUATE Tend := BUend Norm_f2 / ;
+ ECHO "BUend from StepList = " BUend " and computed Tend = " Tend ;
+ ECHO "Nominal depletion between" Tbeg " and" Tend "days" ;
+
+*----
+* USS
+*----
+  IF istep 1 = THEN
+     ECHO ".perform self-shielding at" Tbeg "days" ;
+    IF ssh_module "USS" = THEN
+        LIBRARY2 := USS: LIBRARY TRACK ::
+                    EDIT 2 PASS 3
+                  ;
+    ELSEIF ssh_module "SHI" = THEN
+        LIBRARY2 := SHI: LIBRARY TRACK :: 
+                    EDIT 1 NOLJ
+                  ;
+    ELSEIF ssh_module "AUTO" = THEN
+        LIBRARY2 := AUTO: LIBRARY TRACK :: 
+                    EDIT 2 PASS 3 MAXT 100000 
+                  ;
+    ENDIF ;
+
+  ELSE
+     GREP: StepList :: GETVAL "ListAutop" <<iauto>> >>BUautop<< ;
+     GREP: StepList :: GETVAL "ListBU" <<istep>> >>BU<< ;
+     ECHO "HERE, step is =" istep "iauto is =" iauto ;
+     ECHO "BU is =" BU " and BUautop =" BUautop ;  
+     IF BUautop BU = THEN
+       ECHO "perform self-shielding at" Tbeg "days" ;
+      IF ssh_module "USS" = THEN
+        LIBRARY2 := USS: LIBRARY LIBRARY2 TRACK ::
+                    EDIT 2 PASS 3
+                  ;
+      ELSEIF ssh_module "SHI" = THEN
+        LIBRARY2 := SHI: LIBRARY LIBRARY2 TRACK :: 
+                    EDIT 1 NOLJ
+                  ;
+      ELSEIF ssh_module "AUTO" = THEN
+        LIBRARY2 := AUTO: LIBRARY LIBRARY2 TRACK :: 
+                    EDIT 2 PASS 3 MAXT 100000  
+                  ;
+      ENDIF ;
+      EVALUATE iauto := iauto 1 + ;
+      ECHO "iauto is = " iauto ;
+    ENDIF ;
+  ENDIF ;
+
+************************************************************************
+*  BEGIN FLUX CALCULATION                                              *
+************************************************************************
+  SYS := ASM: LIBRARY2 TRACK :: PIJ EDIT 0 ;    
+
+  IF istep 1 = THEN     
+    FLUX := FLU: LIBRARY2 SYS TRACK :: 
+     EDIT 1 TYPE K ;
+  ELSE
+    FLUX := FLU: FLUX LIBRARY2 SYS TRACK :: 
+     EDIT 1 TYPE K ;
+  ENDIF ;
+ 
+  SYS := DELETE: SYS ;
+
+  IF istep 1 = THEN
+    BURNUP LIBRARY2 := EVO: LIBRARY2 FLUX TRACK ::
+      EDIT 0
+      GLOB
+      SAVE <<Tbeg>> DAY POWR <<Norm_f2>>
+    ;
+  ELSE
+    BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX TRACK ::
+      EDIT 0
+      GLOB
+      SAVE <<Tbeg>> DAY POWR <<Norm_f2>>
+    ;
+  ENDIF ;
+
+  GREP: StepList :: GETVAL "ListCompo" <<iCompo>> >>BUcompo<< ;
+  GREP: StepList :: GETVAL "ListBU" <<istep>> >>BU<< ;
+  ECHO "here istep = " istep "and iCompo =" iCompo BUcompo ;
+  IF BUcompo BU = THEN
+        ECHO "Saving COMPO at BU =" BUcompo ;
+        EDIBU := EDI: FLUX LIBRARY2 TRACK ::
+          EDIT 0
+          MICR 19 U235 U236 U238 Pu239 Pu240 Pu241 Pu242 
+          Gd154 Gd155 Gd156 Gd157 Gd158 Gd160 Xe135 Sm149
+          Sm154 Eu155 Eu156 Eu157
+          COND
+          SAVE ON FUEL 
+        ;
+        COMPO := COMPO: COMPO EDIBU BURNUP LIBRARY2 ::
+          EDIT 0
+          STEP UP 'EDIBU'
+          SET <<Tbeg>> DAY 
+        ;
+
+        EDIBU := DELETE: EDIBU ;
+        EVALUATE iCompo := iCompo 1 + ;
+  ENDIF ;
+
+  GREP: FLUX :: GETVAL 'K-INFINITY  ' 1 1 1 >>Kinf<< ;
+  ECHO "+++ Burnup=" BUend " Kinf=" Kinf " at step" istep ;
+
+  IF istep nstep < THEN
+    EVALUATE istepNext := istep 1 + ;
+    ECHO "istepNext = " istepNext ;
+    GREP: StepList :: GETVAL 'ListBU' <<istepNext>> >>BUend<< ;
+    ECHO "BUend from StepList = " BUend ;
+    EVALUATE Tend := BUend Norm_f2 / ;
+    ECHO "Tbeg was = " Tbeg ;
+    ECHO "Tend evaluated = " Tend ;
+  
+    BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX TRACK ::
+     EDIT 3 DEPL <<Tbeg>> <<Tend>> DAY POWR <<Norm_f2>> 
+     EXPM 1.0E6 GLOB ;
+  
+  ENDIF ;
+ 
+************************************************************************
+*  END FLUX CALCULATION                                                *
+************************************************************************
+
+ENDWHILE ;
+
+************************************************************************
+*  END OF REFERENCE BURNUP LOOP WITH DEPLETION                         *
+************************************************************************
+
+ECHO "PCC0 for Gd157 completed" ;
+
+************************************************************************
+*  EXPORT MULTICOMPO IN ASCII FORMAT                                   *
+************************************************************************
+
+_COMPO := COMPO ;
+
+END: ;
+
+
+

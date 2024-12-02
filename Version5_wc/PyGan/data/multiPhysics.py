@@ -13,7 +13,9 @@ import lifo
 import lcm
 import cle2000
 from assertS import *
+
 import time
+
 
 
 ########## Begin helper functions declaration ##########
@@ -59,14 +61,12 @@ def convergence_pcm(keffNew, keffOld, tol):
     print(f"keffOld = {keffOld}")
     print(f"keffNew - keffOld = {keffNew - keffOld}")
     conv=False
-    print("Checking convergence on keff")
-    print(f"Error on keff = {np.abs(keffNew - keffOld)*1e5} pcm")
-    print(f"tol = {tol} pcm")   
     if np.abs(keffNew - keffOld)*1e5 > tol:
         conv = False
     else:
         conv = True
     return conv
+
 
 def compute_RMS(Field):
     return np.sqrt(np.sum(Field**2)/len(Field))
@@ -267,7 +267,6 @@ def compute_residuals(field):
 def quickPlot(x, y, title, xlabel, ylabel, saveName, path, SAVE_DIR):
     fig,ax = plt.subplots()
     if len(y) == len(x) and isinstance(y[0], np.float32):
-        #print("Plotting a scatter plot")
         ax.scatter(x, y)
         ax.set_xlabel(xlabel)
         ax.set_ylabel(ylabel)
@@ -288,7 +287,6 @@ def quickPlot(x, y, title, xlabel, ylabel, saveName, path, SAVE_DIR):
         os.chdir(SAVE_DIR)
         fig.savefig(saveName)
         os.chdir(path)
-    #fig.close()
     plt.close(fig)
     return
 ######## End helper functions declaration ##########
@@ -317,6 +315,7 @@ zPlotting = [] #If empty, no plotting of the axial distribution of the fields, o
 ## Meshing parameters:
 If = 8
 I1 = 3
+
 # Sensitivity to the meshing parameters
 Iz1 = 70 # number of control volumes in the axial direction, added 70 for comparison with GeN-Foam
 # Iz1 = 10, 20, 40, 50, 70, 80 and 160 are supported for the DONJON solution
@@ -356,6 +355,7 @@ massFlowRate = 1530  / (200*91)  # kg/s
 ## Material parameters
 kFuel = 4.18 # W/m.K, TECHNICAL REPORTS SERIES No. 59 : Thermal Conductivity of Uranium Dioxide, IAEA, VIENNA, 1966
 Hgap = 10000 
+
 #Hgap = 9000
 kClad = 21.5 #21.5 # W/m.K, Thermal Conductivity of Zircaloy-2 (as used in BWRX-300) according to https://www.matweb.com/search/datasheet.aspx?MatGUID=eb1dad5ce1ad4a1f9e92f86d5b44740d
 # k_Zircaloy-4 = 21.6 W/m.K too so check for ATRIUM-10 clad material but should have the same thermal conductivity
@@ -388,9 +388,7 @@ fuel_rod_power = full_core_power/(n_rods*n_assmblies) # W
 print(f"Fuel rod power before scaling = {fuel_rod_power} W")
 #print(f"Specific power = {specificPower} W/g")
 
-
 compo_name = "_COMPO_24UOX" # Name of the COMPO object to be used in the neutronics solution
-
 
 PFiss = fuel_rod_power/power_scaling_factor # W
 print(f"PFiss = {PFiss} = fuel_rod_power (scaled) W")
@@ -641,7 +639,6 @@ while not conv:
 
     # 5.) TH procedure for updated power shape
     ############# Thermalhydraulic part ##############
-
     updated_qFiss = qFiss
 
     current_time3 = time.time()
@@ -748,7 +745,6 @@ print("$$$ - multiPhysics.py : BEGIN RESULTS - $$$")
 print(f"Checking Fields lengths : Keff : {len(Keffs)}, TeffFuel : {len(TeffFuel)}, Twater : {len(Twater)}, rho : {len(rho)}, Power_Distrib : {len(Power_Distribs)}")
 print(f"Checking residuals lengths : Residuals_TeffFuel : {len(Residuals_TeffFuel)}, Residuals_Twater : {len(Residuals_Twater)}, Residual_rho : {len(Residuals_rho)}, Residuals_Power_Distrib : {len(Residuals_Power_Distribs)}")
 
-
 print("$$$ - multiPhysics.py : END RESULTS - $$$")
 
 
@@ -805,7 +801,6 @@ print("$$$ - multiPhysics.py : END of PLOTTING - $$$")
 # 10.) Save the results for exportation to Serpent/OpenFoam/GeN-Foam
 # Save the results in a file
 
-
 a=os.path.exists(SAVE_DATA_DIR)
 if a==False:
     os.makedirs(SAVE_DATA_DIR)
@@ -814,6 +809,7 @@ case = compo_name.split("_")[2]
 TeffFuel = np.array(TeffFuel)
 Twater = np.array(Twater)
 rho = np.array(rho)
+
 voidFraction = np.array(voidFraction)
 Pressures = np.array(P_)
 Velocities = np.array(U_)
@@ -839,7 +835,6 @@ np.savetxt(f"Enthalpy_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{r
 np.savetxt(f"voidFraction_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{relaxPOW_id}_{relaxTH_id}.txt", voidFraction[-1])
 np.savetxt(f"Qfiss_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{relaxPOW_id}_{relaxTH_id}.txt", Qfiss[-1])
 np.savetxt(f"Power_Distrib_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{relaxPOW_id}_{relaxTH_id}.txt", Power_Distrib[-1])
-
 np.savetxt(f"Residuals_TeffFuel_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{relaxPOW_id}_{relaxTH_id}.txt", Residuals_TeffFuel[-1])
 np.savetxt(f"Residuals_Twater_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{relaxPOW_id}_{relaxTH_id}.txt", Residuals_Twater[-1])
 np.savetxt(f"Residuals_rho_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{relaxPOW_id}_{relaxTH_id}.txt", Residual_rho[-1])
@@ -852,6 +847,7 @@ os.chdir(path)
 shutil.copyfile("Flux01.res", f"{SAVE_DATA_DIR}/Flux01.res")
 shutil.copyfile("Flux02.res", f"{SAVE_DATA_DIR}/Flux02.res")
 shutil.copyfile("Pdistr.res", f"{SAVE_DATA_DIR}/Pdistr.res")
+
 shutil.copyfile("multiPhysics.result", f"{SAVE_DATA_DIR}/multiPhysics_{relaxPOW_id}_{relaxTH_id}.result")
 
 #

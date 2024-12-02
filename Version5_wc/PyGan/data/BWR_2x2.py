@@ -82,7 +82,7 @@ elif ssh_trk == "SYBILT":
 
 # -- Flux calculation options :
 
-flx_trk = "SALT" # "NXT" or "SALT" or "SYBILT" allows for CP or MOC flux calculation
+flx_trk = "SALT" # "NXT" or "SALT" or "SYBILT" : all allow for CP flux calculation, NXT and SALT allow for MOC flux calculation if MCCGT is used too
 flx_sol = "MOC" # "CP" or "MOC" or "IC" allows for CP flux calculation
 
 if flx_trk == "SALT" or flx_trk == "NXT":
