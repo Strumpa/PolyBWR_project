@@ -1,0 +1,326 @@
+* Procedure : Neutronics.c2m
+* Purpose : Proceed to neutronics solution
+* Required output : axial power solution for TH solution
+* Author : R. Guasch, Adapted from PowComponent.c2m (A. Hébert)
+* Date : 19/09/2024
+* CALL      :                                                  
+*  Fmap Matex Flux := Neutronics Fmap Matex Flux Cpo Track THData  
+*    :: <<iter>> <<power>> ;
+
+
+PARAMETER  Fmap Matex Flux Power Cpo Track THData  ::
+  ::: LINKED_LIST Fmap Matex Flux Power Cpo Track THData  ; ;
+MODULE NCR: MACINI: TRIVAA: FLUD: FLPOW: GREP: DELETE: END: ;
+LINKED_LIST MacroF System Macro1 Macro2 MicroF ;
+PROCEDURE SetLocPara ;
+
+INTEGER iter ;
+ :: >>iter<< ;
+DOUBLE Dpowi  ;
+ :: >>Dpowi<< ;
+
+REAL powi := Dpowi D_TO_R ;
+
+REAL keff1 ;
+
+STRING DIR := "EDIPARAM" ;
+
+*-- 
+* Set local parameters in fuel map
+* --
+
+Fmap := SetLocPara Fmap THData :: ;
+
+*--
+* Recover TH data from THData linked list for XS interpolation
+*--
+
+REAL TF1 TF2 TF3 TF4 TF5 TF6 TF7 TF8 TF9 TF10 ;
+REAL TF11 TF12 TF13 TF14 TF15 TF16 TF17 TF18 TF19 TF20 ;
+
+REAL TC1 TC2 TC3 TC4 TC5 TC6 TC7 TC8 TC9 TC10 ;
+REAL TC11 TC12 TC13 TC14 TC15 TC16 TC17 TC18 TC19 TC20 ;
+
+REAL DC1 DC2 DC3 DC4 DC5 DC6 DC7 DC8 DC9 DC10 ;
+REAL DC11 DC12 DC13 DC14 DC15 DC16 DC17 DC18 DC19 DC20 ;
+
+GREP: THData :: GETVAL 'TFuelList' 1 >>TF1<< ;
+
+GREP: THData :: GETVAL 'TFuelList' 2 >>TF2<< ;
+GREP: THData :: GETVAL 'TFuelList' 3 >>TF3<< ;
+GREP: THData :: GETVAL 'TFuelList' 4 >>TF4<< ;
+GREP: THData :: GETVAL 'TFuelList' 5 >>TF5<< ;
+GREP: THData :: GETVAL 'TFuelList' 6 >>TF6<< ;
+GREP: THData :: GETVAL 'TFuelList' 7 >>TF7<< ;
+GREP: THData :: GETVAL 'TFuelList' 8 >>TF8<< ;
+GREP: THData :: GETVAL 'TFuelList' 9 >>TF9<< ;
+GREP: THData :: GETVAL 'TFuelList' 10 >>TF10<< ;
+GREP: THData :: GETVAL 'TFuelList' 11 >>TF11<< ;
+GREP: THData :: GETVAL 'TFuelList' 12 >>TF12<< ;
+GREP: THData :: GETVAL 'TFuelList' 13 >>TF13<< ;
+GREP: THData :: GETVAL 'TFuelList' 14 >>TF14<< ;
+GREP: THData :: GETVAL 'TFuelList' 15 >>TF15<< ;
+GREP: THData :: GETVAL 'TFuelList' 16 >>TF16<< ;
+GREP: THData :: GETVAL 'TFuelList' 17 >>TF17<< ;
+GREP: THData :: GETVAL 'TFuelList' 18 >>TF18<< ;
+GREP: THData :: GETVAL 'TFuelList' 19 >>TF19<< ;
+GREP: THData :: GETVAL 'TFuelList' 20 >>TF20<< ;
+
+
+ECHO "TF1 = " TF1 ;
+ECHO "TF2 = " TF2 ;
+ECHO "TF3 = " TF3 ;
+ECHO "TF4 = " TF4 ;
+ECHO "TF5 = " TF5 ;
+ECHO "TF6 = " TF6 ;
+ECHO "TF7 = " TF7 ;
+ECHO "TF8 = " TF8 ;
+ECHO "TF9 = " TF9 ;
+ECHO "TF10 = " TF10 ;
+ECHO "TF11 = " TF11 ;
+ECHO "TF12 = " TF12 ;
+ECHO "TF13 = " TF13 ;
+ECHO "TF14 = " TF14 ;
+ECHO "TF15 = " TF15 ;
+ECHO "TF16 = " TF16 ;
+ECHO "TF17 = " TF17 ;
+ECHO "TF18 = " TF18 ;
+ECHO "TF19 = " TF19 ;
+ECHO "TF20 = " TF20 ;
+
+GREP: THData :: GETVAL 'TCoolList' 1 >>TC1<< ;
+GREP: THData :: GETVAL 'TCoolList' 2 >>TC2<< ;
+GREP: THData :: GETVAL 'TCoolList' 3 >>TC3<< ;
+GREP: THData :: GETVAL 'TCoolList' 4 >>TC4<< ;
+GREP: THData :: GETVAL 'TCoolList' 5 >>TC5<< ;
+GREP: THData :: GETVAL 'TCoolList' 6 >>TC6<< ;
+GREP: THData :: GETVAL 'TCoolList' 7 >>TC7<< ;
+GREP: THData :: GETVAL 'TCoolList' 8 >>TC8<< ;
+GREP: THData :: GETVAL 'TCoolList' 9 >>TC9<< ;
+GREP: THData :: GETVAL 'TCoolList' 10 >>TC10<< ;
+GREP: THData :: GETVAL 'TCoolList' 11 >>TC11<< ;
+GREP: THData :: GETVAL 'TCoolList' 12 >>TC12<< ;
+GREP: THData :: GETVAL 'TCoolList' 13 >>TC13<< ;
+GREP: THData :: GETVAL 'TCoolList' 14 >>TC14<< ;
+GREP: THData :: GETVAL 'TCoolList' 15 >>TC15<< ;
+GREP: THData :: GETVAL 'TCoolList' 16 >>TC16<< ;
+GREP: THData :: GETVAL 'TCoolList' 17 >>TC17<< ;
+GREP: THData :: GETVAL 'TCoolList' 18 >>TC18<< ;
+GREP: THData :: GETVAL 'TCoolList' 19 >>TC19<< ;
+GREP: THData :: GETVAL 'TCoolList' 20 >>TC20<< ;
+
+ECHO "TC1 = " TC1 ;
+ECHO "TC2 = " TC2 ;
+ECHO "TC3 = " TC3 ;
+ECHO "TC4 = " TC4 ;
+ECHO "TC5 = " TC5 ;
+ECHO "TC6 = " TC6 ;
+ECHO "TC7 = " TC7 ;
+ECHO "TC8 = " TC8 ;
+ECHO "TC9 = " TC9 ;
+ECHO "TC10 = " TC10 ;
+ECHO "TC11 = " TC11 ;
+ECHO "TC12 = " TC12 ;
+ECHO "TC13 = " TC13 ;
+ECHO "TC14 = " TC14 ;
+ECHO "TC15 = " TC15 ;
+ECHO "TC16 = " TC16 ;
+ECHO "TC17 = " TC17 ;
+ECHO "TC18 = " TC18 ;
+ECHO "TC19 = " TC19 ;
+ECHO "TC20 = " TC20 ;
+
+GREP: THData :: GETVAL 'DCoolList' 1 >>DC1<< ;
+GREP: THData :: GETVAL 'DCoolList' 2 >>DC2<< ;
+GREP: THData :: GETVAL 'DCoolList' 3 >>DC3<< ;
+GREP: THData :: GETVAL 'DCoolList' 4 >>DC4<< ;
+GREP: THData :: GETVAL 'DCoolList' 5 >>DC5<< ;
+GREP: THData :: GETVAL 'DCoolList' 6 >>DC6<< ;
+GREP: THData :: GETVAL 'DCoolList' 7 >>DC7<< ;
+GREP: THData :: GETVAL 'DCoolList' 8 >>DC8<< ;
+GREP: THData :: GETVAL 'DCoolList' 9 >>DC9<< ;
+GREP: THData :: GETVAL 'DCoolList' 10 >>DC10<< ;
+GREP: THData :: GETVAL 'DCoolList' 11 >>DC11<< ;
+GREP: THData :: GETVAL 'DCoolList' 12 >>DC12<< ;
+GREP: THData :: GETVAL 'DCoolList' 13 >>DC13<< ;
+GREP: THData :: GETVAL 'DCoolList' 14 >>DC14<< ;
+GREP: THData :: GETVAL 'DCoolList' 15 >>DC15<< ;
+GREP: THData :: GETVAL 'DCoolList' 16 >>DC16<< ;
+GREP: THData :: GETVAL 'DCoolList' 17 >>DC17<< ;
+GREP: THData :: GETVAL 'DCoolList' 18 >>DC18<< ;
+GREP: THData :: GETVAL 'DCoolList' 19 >>DC19<< ;
+GREP: THData :: GETVAL 'DCoolList' 20 >>DC20<< ;
+
+
+ECHO "DC1 = " DC1 ;
+ECHO "DC2 = " DC2 ;
+ECHO "DC3 = " DC3 ;
+ECHO "DC4 = " DC4 ;
+ECHO "DC5 = " DC5 ;
+ECHO "DC6 = " DC6 ;
+ECHO "DC7 = " DC7 ;
+ECHO "DC8 = " DC8 ;
+ECHO "DC9 = " DC9 ;
+ECHO "DC10 = " DC10 ;
+ECHO "DC11 = " DC11 ;
+ECHO "DC12 = " DC12 ;
+ECHO "DC13 = " DC13 ;
+ECHO "DC14 = " DC14 ;
+ECHO "DC15 = " DC15 ;
+ECHO "DC16 = " DC16 ;
+ECHO "DC17 = " DC17 ;
+ECHO "DC18 = " DC18 ;
+ECHO "DC19 = " DC19 ;
+ECHO "DC20 = " DC20 ;
+
+*--
+* Cross-section database interpolation
+*--
+MicroF := NCR: Cpo Fmap ::
+  EDIT 2
+  MICRO LINEAR
+  TABLE Cpo <<DIR>>
+    MIX 1 INST-BURN
+          SET CUBIC 'TFuel' <<TF1>>
+          SET CUBIC 'TCool' <<TC1>>
+          SET CUBIC 'DCool' <<DC1>>
+    ENDMIX
+    MIX 2 INST-BURN
+          SET CUBIC 'TFuel' <<TF2>>
+          SET CUBIC 'TCool' <<TC2>>
+          SET CUBIC 'DCool' <<DC2>>
+    ENDMIX
+    MIX 3 INST-BURN
+          SET CUBIC 'TFuel' <<TF3>>
+          SET CUBIC 'TCool' <<TC3>>
+          SET CUBIC 'DCool' <<DC3>>
+    ENDMIX
+    MIX 4 INST-BURN
+          SET CUBIC 'TFuel' <<TF4>>
+          SET CUBIC 'TCool' <<TC4>>
+          SET CUBIC 'DCool' <<DC4>>
+    ENDMIX
+    MIX 5 INST-BURN
+          SET CUBIC 'TFuel' <<TF5>>
+          SET CUBIC 'TCool' <<TC5>>
+          SET CUBIC 'DCool' <<DC5>>
+    ENDMIX
+    MIX 6 INST-BURN
+          SET CUBIC 'TFuel' <<TF6>>
+          SET CUBIC 'TCool' <<TC6>>
+          SET CUBIC 'DCool' <<DC6>>
+    ENDMIX
+    MIX 7 INST-BURN
+          SET CUBIC 'TFuel' <<TF7>>
+          SET CUBIC 'TCool' <<TC7>>
+          SET CUBIC 'DCool' <<DC7>>
+    ENDMIX
+    MIX 8 INST-BURN
+          SET CUBIC 'TFuel' <<TF8>>
+          SET CUBIC 'TCool' <<TC8>>
+          SET CUBIC 'DCool' <<DC8>>
+    ENDMIX
+    MIX 9 INST-BURN
+          SET CUBIC 'TFuel' <<TF9>>
+          SET CUBIC 'TCool' <<TC9>>
+          SET CUBIC 'DCool' <<DC9>>
+    ENDMIX
+    MIX 10 INST-BURN
+          SET CUBIC 'TFuel' <<TF10>>
+          SET CUBIC 'TCool' <<TC10>>
+          SET CUBIC 'DCool' <<DC10>>
+    ENDMIX
+    MIX 11 INST-BURN
+          SET CUBIC 'TFuel' <<TF11>>
+          SET CUBIC 'TCool' <<TC11>>
+          SET CUBIC 'DCool' <<DC11>>
+    ENDMIX
+    MIX 12 INST-BURN
+          SET CUBIC 'TFuel' <<TF12>>
+          SET CUBIC 'TCool' <<TC12>>
+          SET CUBIC 'DCool' <<DC12>>
+    ENDMIX
+    MIX 13 INST-BURN
+          SET CUBIC 'TFuel' <<TF13>>
+          SET CUBIC 'TCool' <<TC13>>
+          SET CUBIC 'DCool' <<DC13>>
+    ENDMIX
+    MIX 14 INST-BURN
+          SET CUBIC 'TFuel' <<TF14>>
+          SET CUBIC 'TCool' <<TC14>>
+          SET CUBIC 'DCool' <<DC14>>
+    ENDMIX
+    MIX 15 INST-BURN
+          SET CUBIC 'TFuel' <<TF15>>
+          SET CUBIC 'TCool' <<TC15>>
+          SET CUBIC 'DCool' <<DC15>>
+    ENDMIX
+    MIX 16 INST-BURN
+          SET CUBIC 'TFuel' <<TF16>>
+          SET CUBIC 'TCool' <<TC16>>
+          SET CUBIC 'DCool' <<DC16>>
+    ENDMIX
+    MIX 17 INST-BURN
+          SET CUBIC 'TFuel' <<TF17>>
+          SET CUBIC 'TCool' <<TC17>>
+          SET CUBIC 'DCool' <<DC17>>
+    ENDMIX
+    MIX 18 INST-BURN
+          SET CUBIC 'TFuel' <<TF18>>
+          SET CUBIC 'TCool' <<TC18>>
+          SET CUBIC 'DCool' <<DC18>>
+    ENDMIX
+    MIX 19 INST-BURN
+          SET CUBIC 'TFuel' <<TF19>>
+          SET CUBIC 'TCool' <<TC19>>
+          SET CUBIC 'DCool' <<DC19>>
+    ENDMIX
+    MIX 20 INST-BURN
+          SET CUBIC 'TFuel' <<TF20>>
+          SET CUBIC 'TCool' <<TC20>>
+          SET CUBIC 'DCool' <<DC20>>
+    ENDMIX
+  ;
+
+
+MacroF := MicroF :: STEP UP 'MACROLIB' ;
+
+Macro2 Matex := MACINI: Matex MacroF :: FUEL ;
+  
+*--
+* Steady-state diffusion calculation
+*--
+System := TRIVAA: Macro2 Track ;
+
+IF iter 1 = THEN
+    Flux := FLUD: System Track ::
+        EDIT 1 ADI 4 ACCE 5 3 ;
+ELSE
+    Flux := FLUD: Flux System Track ::
+        EDIT 1 ;
+ENDIF ;
+
+System MacroF Macro2 MicroF := DELETE: System MacroF Macro2 MicroF ;
+
+GREP: Flux :: GETVAL 'K-EFFECTIVE' 1 >>keff1<< ;
+ECHO "+++ Burnup= 0.0 Keff=" keff1 ;
+
+*--
+* Power distribution calculation
+*--
+ECHO "total reactor power=" powi "MW" ;
+!IF iter 1 = THEN
+ECHO "In power at iter = " iter ;
+Power Fmap := FLPOW: Fmap Flux Track Matex
+            :: EDIT 10 PTOT <<powi>> PRINT DISTR POWER ;
+!ELSE 
+!    ECHO "In power edition at iter = " iter ;
+!    Power Fmap := FLPOW: Power Fmap Flux Track Matex ::
+!        EDIT 1 ;
+!ENDIF ;
+
+
+THData := DELETE: THData ;
+
+ECHO "Completed Neutronics calculation at iter = " iter ;
+END: ;

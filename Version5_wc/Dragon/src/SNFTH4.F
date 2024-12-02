@@ -1,7 +1,7 @@
 *DECK SNFTH4
       SUBROUTINE SNFTH4(NUN,NGEFF,IMPX,INCONV,NGIND,NHEX,LZ,IELEM,
      1 ISPLH,SIDE,NMAT,NPQ,NSCT,MAT,VOL,NCODE,ZCODE,TOTAL,QEXT,DU,DE,
-     2 DZ,W,MRMZ,DC,DB,DA,PL,CONNEC,IZGLOB,CONFROM,FUNKNO)
+     2 DZ,W,MRMZ,DC,DB,DA,CONNEC,IZGLOB,CONFROM,FUNKNO,MN,DN)
 *
 *-----------------------------------------------------------------------
 *
@@ -53,8 +53,8 @@
 * DC      diamond-scheme parameter.
 * DB      diamond-scheme parameter.
 * DA      diamond-scheme parameter.
-* PL      discrete values of the spherical harmonics corresponding
-*         to the 2D SN quadrature.
+* MN      moment-to-discrete matrix.
+* DN      discrete-to-moment matrix.
 * CONNEC  connectivity matrix for flux swapping -- which lozenges is the
 *         lozenge under consideration connected to; in order to pass the
 *         flux along. This is dependent on direction.
@@ -81,11 +81,11 @@
       REAL SIDE,VOL(ISPLH,ISPLH,3,NHEX,LZ),ZCODE(6),TOTAL(0:NMAT,NGEFF),
      1 QEXT(NUN,NGEFF),DU(NPQ),DE(NPQ),DZ(NPQ),W(NPQ),
      2 DC(ISPLH*ISPLH*3*NHEX,1,NPQ),DB(ISPLH*ISPLH*3*NHEX,LZ,NPQ),
-     3 DA(1,LZ,NPQ),PL(NSCT,NPQ),FUNKNO(NUN,NGEFF)
+     3 DA(1,LZ,NPQ),FUNKNO(NUN,NGEFF),MN(NPQ,NSCT),DN(NSCT,NPQ)
 *----
 *  LOCAL VARIABLES
 *----
-      INTEGER NPQD(12),IIND(12)
+      INTEGER NPQD(12),IIND(12),P
       DOUBLE PRECISION Q(IELEM**3), Q2(IELEM**3,(IELEM**3)+1)
       PARAMETER(IUNOUT=6,PI=3.141592654)
       INTEGER :: ILOZSWP(3,6), IFROMI, IFROMJ
@@ -213,44 +213,44 @@
       IF(VZ.GT.0.0)THEN
          M1=MRMZ(M)
          IF(NCODE(5).NE.4)THEN
-         DO IEL=1,IELEM
-         DO JEL=1,IELEM
-           DO I=1,NHEX
-           DO J=1,3
-           DO IL=1,ISPLH
-           DO JL=1,ISPLH
-           IOF=((((((M-1)*NHEX+(I-1))*3+(J-1))*ISPLH+(JL-1))*ISPLH+
-     >      (IL-1))*IELEM+(JEL-1))*IELEM+IEL
-           JOF=((((((M1-1)*NHEX+(I-1))*3+(J-1))*ISPLH+(JL-1))*ISPLH+
-     >      (IL-1))*IELEM+(JEL-1))*IELEM+IEL
-           FUNKNO(L4+IOF,IG)=FUNKNO(L4+JOF,IG)
+           DO IEL=1,IELEM
+           DO JEL=1,IELEM
+             DO I=1,NHEX
+             DO J=1,3
+             DO IL=1,ISPLH
+             DO JL=1,ISPLH
+             IOF=((((((M-1)*NHEX+(I-1))*3+(J-1))*ISPLH+(JL-1))*ISPLH+
+     >       (IL-1))*IELEM+(JEL-1))*IELEM+IEL
+             JOF=((((((M1-1)*NHEX+(I-1))*3+(J-1))*ISPLH+(JL-1))*ISPLH+
+     >       (IL-1))*IELEM+(JEL-1))*IELEM+IEL
+             FUNKNO(L4+IOF,IG)=FUNKNO(L4+JOF,IG)
+             ENDDO
+             ENDDO
+             ENDDO
+             ENDDO
            ENDDO
            ENDDO
-           ENDDO
-           ENDDO
-         ENDDO
-         ENDDO
          ENDIF
       ELSEIF(VZ.LT.0.0)THEN
          M1=MRMZ(M)
          IF(NCODE(6).NE.4)THEN
-         DO IEL=1,IELEM
-         DO JEL=1,IELEM
-           DO I=1,NHEX
-           DO J=1,3
-           DO IL=1,ISPLH
-           DO JL=1,ISPLH
-           IOF=((((((M-1)*NHEX+(I-1))*3+(J-1))*ISPLH+(JL-1))*ISPLH+
-     >      (IL-1))*IELEM+(JEL-1))*IELEM+IEL
-           JOF=((((((M1-1)*NHEX+(I-1))*3+(J-1))*ISPLH+(JL-1))*ISPLH+
-     >      (IL-1))*IELEM+(JEL-1))*IELEM+IEL
-           FUNKNO(L4+IOF,IG)=FUNKNO(L4+JOF,IG)
+           DO IEL=1,IELEM
+           DO JEL=1,IELEM
+             DO I=1,NHEX
+             DO J=1,3
+             DO IL=1,ISPLH
+             DO JL=1,ISPLH
+             IOF=((((((M-1)*NHEX+(I-1))*3+(J-1))*ISPLH+(JL-1))*ISPLH+
+     >       (IL-1))*IELEM+(JEL-1))*IELEM+IEL
+             JOF=((((((M1-1)*NHEX+(I-1))*3+(J-1))*ISPLH+(JL-1))*ISPLH+
+     >       (IL-1))*IELEM+(JEL-1))*IELEM+IEL
+             FUNKNO(L4+IOF,IG)=FUNKNO(L4+JOF,IG)
+             ENDDO
+             ENDDO
+             ENDDO
+             ENDDO
            ENDDO
            ENDDO
-           ENDDO
-           ENDDO
-         ENDDO
-         ENDDO
          ENDIF
       ENDIF
 *
@@ -356,10 +356,10 @@
 
       DO 170 IEL=1,IELEM**3
       Q(IEL)=0.0D0
-      DO 160 ISCT=1,NSCT
+      DO 160 P=1,NSCT
       IOF=(((((((K2-1)*NHEX+(I-1))*3+(J-1))*ISPLH+(J2-1))*ISPLH+
-     1 (I2-1))*NSCT+(ISCT-1))*IELEM**3)+IEL
-      Q(IEL)=Q(IEL)+QEXT(IOF,IG)*PL(ISCT,M)/(4.0D0*PI)
+     1 (I2-1))*NSCT+(P-1))*IELEM**3)+IEL
+      Q(IEL)=Q(IEL)+QEXT(IOF,IG)*MN(M,P)
   160 CONTINUE
   170 CONTINUE
 *
@@ -2166,10 +2166,10 @@
       ENDIF
 *
       ILOZ=((J-1)*ISPLH+(J2-1))*ISPLH+I2
-      DO 210 ISCT=1,NSCT
+      DO 210 P=1,NSCT
       DO 200 IEL=1,IELEM**3
-      FLUX(IEL,ISCT,ILOZ,I,K2) = FLUX(IEL,ISCT,ILOZ,I,K2) +
-     1 W(M)*Q2(IEL,IELEM**3+1)*PL(ISCT,M)
+      FLUX(IEL,P,ILOZ,I,K2) = FLUX(IEL,P,ILOZ,I,K2)+Q2(IEL,IELEM**3+1)
+     1 *DN(P,M)
   200 CONTINUE
   210 CONTINUE
 *

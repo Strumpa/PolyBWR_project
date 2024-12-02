@@ -74,7 +74,7 @@ ssh_method = "SUBG" #"PT", "RSE", "SUBG" all supported for USS: but AUTO: only t
 # for RSE method : test with eps_RSE = 1.0E-1, 5.0E-2, 1.0E-2, 5.0E-3, 1.0E-3, 1.0E-4
 correlation = "noCORR" # "CORR", "noCORR"
 
-sat = "" # "NSAT", "SAT", "" for short-lived nuclide saturation or not
+sat = "SAT" # "NSAT", "SAT", "" for short-lived nuclide saturation or not
 depl_sol = "KAPS" # "RUNG" : 5th order Runge-Kutta (Cash-Karp) or "KAPS": 4th order Kaps-Rentrop
 
 #

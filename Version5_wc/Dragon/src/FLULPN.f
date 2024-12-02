@@ -1,12 +1,12 @@
 *DECK FLULPN
-      SUBROUTINE FLULPN(IPMACR,NUNKNO,OPTION,TYPE,NGRP,NREG,NMAT,NIFIS,
-     1 VOL,MATCOD,NMERG,IMERG,KEYFLX,FLUX,IMPX,DIFHET,AKEFF,B2,OLDBIL)
+      SUBROUTINE FLULPN(IPMACR,NUNKNO,OPTION,TYPE,NGRP,NREG,NMAT,
+     1 VOL,MATCOD,NMERG,IMERG,KEYFLX,FLUX,B2,IMPX,DIFHET,DHOM)
 *
 *-----------------------------------------------------------------------
 *
 *Purpose:
-* Calculation of heterogeneous leakage coefficients in non-fundamental
-* mode condition using the Todorova approximation.
+* Calculation of heterogeneous leakage coefficients using the Todorova
+* approximation.
 *
 *Copyright:
 * Copyright (C) 2022 Ecole Polytechnique de Montreal
@@ -24,24 +24,22 @@
 *         'P0TR' (P-0 with transport correction).
 * TYPE    type of buckling iteration.
 *         Can be 'DIFF' (do a P0 calculation of DIFHET and exit);
-*                'K' (do a P-n calculation with keff search).
+*                 other (do another type of calculation).
 * NGRP    number of groups.
 * NREG    number of volumes.
 * NMAT    number of material mixtures.
-* NIFIS   maximum number of fission spectrum assigned to a mixture.
 * VOL     volumes.
 * MATCOD  mixture number of each volume.
 * NMERG   number of leakage zones.
 * IMERG   leakage zone index in each material mixture zone.
 * KEYFLX  position of each flux in the unknown vector.
 * FLUX    direct unknown vector.
-* IMPX    print flag.
 * B2      buckling.
-* OLDBIL  previous norm of the flux.
+* IMPX    print flag.
 *
 *Parameters: output
-* DIFHET  diffusion coefficients.
-* AKEFF   effective multiplication factor.
+* DIFHET  heterogeneous diffusion coefficients.
+* DHOM    homogeneous diffusion coefficients.
 *
 *-----------------------------------------------------------------------
 *
@@ -51,29 +49,27 @@
 *----
       CHARACTER*4 OPTION,TYPE
       TYPE(C_PTR) IPMACR
-      INTEGER NUNKNO,NGRP,NREG,NMAT,NIFIS,MATCOD(NREG),NMERG,
-     1 IMERG(NMAT),KEYFLX(NREG),IMPX
-      REAL VOL(NREG),FLUX(NUNKNO,NGRP),DIFHET(NMERG,NGRP),B2
-      DOUBLE PRECISION AKEFF,OLDBIL
+      INTEGER NUNKNO,NGRP,NREG,NMAT,MATCOD(NREG),NMERG,IMERG(NMAT),
+     1 KEYFLX(NREG),IMPX
+      REAL VOL(NREG),FLUX(NUNKNO,NGRP),B2,DIFHET(NMERG,NGRP),DHOM(NGRP)
 *----
 *  LOCAL VARIABLES
 *----
       TYPE(C_PTR) JPMACR,KPMACR
       CHARACTER HSMG*131
-      DOUBLE PRECISION DDELN1,DDELD1
+      DOUBLE PRECISION B1GAMA,DDELN1,DDELN2,DDELD1,B2HOM,ST2,STR,GAMMA
 *----
 *  ALLOCATABLE ARRAYS
 *----
       INTEGER, ALLOCATABLE, DIMENSION(:) :: IJJ,NJJ,IPOS
       REAL, ALLOCATABLE, DIMENSION(:) :: WORK
       REAL, ALLOCATABLE, DIMENSION(:,:) :: ST,FLXIN
-      REAL, ALLOCATABLE, DIMENSION(:,:,:) :: SFNU,SCAT1
+      REAL, ALLOCATABLE, DIMENSION(:,:,:) :: SCAT1
       DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:,:) :: STOD
 *----
 *  SCRATCH STORAGE ALLOCATION
 *----
-      ALLOCATE(FLXIN(NMAT,NGRP),ST(NMAT,NGRP),SFNU(NMAT,NIFIS,NGRP),
-     1 SCAT1(NMAT,NGRP,NGRP))
+      ALLOCATE(FLXIN(NMAT,NGRP),ST(NMAT,NGRP),SCAT1(NMAT,NGRP,NGRP))
 *----
 *  INITIALIZATION
 *----
@@ -83,7 +79,6 @@
          WRITE (6,110) OPTION,TYPE,B2
       ENDIF
       ST(:NMAT,:NGRP)=0.0
-      SFNU(:NMAT,:NIFIS,:NGRP)=0.0
       SCAT1(:NMAT,:NGRP,:NGRP)=0.0
 *----
 *  RECOVER MACROSCOPIC CROSS SECTIONS
@@ -93,9 +88,8 @@
       DO IGR=1,NGRP
         KPMACR=LCMGIL(JPMACR,IGR)
         CALL LCMGET(KPMACR,'NTOT0',ST(1,IGR))
-        IF(NIFIS.GT.0) CALL LCMGET(KPMACR,'NUSIGF',SFNU(1,1,IGR))
         CALL LCMLEN(KPMACR,'SCAT01',ILONG,ITYLCM)
-        IF((ILONG.NE.0).AND.(OPTION.NE.'P0')) THEN
+        IF((ILONG.NE.0).AND.(OPTION.NE.'P0').AND.(OPTION.NE.'B0')) THEN
           CALL LCMGET(KPMACR,'IJJS01',IJJ)
           CALL LCMGET(KPMACR,'NJJS01',NJJ)
           CALL LCMGET(KPMACR,'IPOS01',IPOS)
@@ -128,9 +122,11 @@
 *----
 *  MAIN LOOP OVER LEAKAGE ZONES
 *----
+      B2HOM=DBLE(B2)
+      GAMMA=1.0D0
       DO INM=1,NMERG
-        IF(OPTION.EQ.'P0') THEN
-*         P0 approximation
+        IF((OPTION.EQ.'P0').OR.(OPTION.EQ.'B0')) THEN
+*         P0 or B0 approximation
           DO IGR=1,NGRP
             DDELN1=0.D0
             DDELD1=0.D0
@@ -140,34 +136,52 @@
                 DDELD1=DDELD1+FLXIN(IBM,IGR)
               ENDIF
             ENDDO
-            STR=REAL(DDELN1/DDELD1)
-            DIFHET(INM,IGR)=1.0/(3.0*STR)
+            ST2=DDELN1/DDELD1
+            IF(OPTION.EQ.'B0') GAMMA=B1GAMA(2,B2HOM,ST2)
+            DIFHET(INM,IGR)=REAL(1.0D0/(3.0D0*GAMMA*ST2))
           ENDDO
-        ELSE IF((OPTION.EQ.'P0TR').OR.(TYPE.EQ.'DIFF')) THEN
+        ELSE IF((OPTION.EQ.'P0TR').OR.(OPTION.EQ.'B0TR').OR.
+     1  (TYPE.EQ.'DIFF')) THEN
 *         Outscatter approximation
           DO IGR=1,NGRP
             DDELN1=0.D0
+            DDELN2=0.D0
             DDELD1=0.D0
             DO IBM=1,NMAT
               IF(IMERG(IBM).EQ.INM) THEN
                 DDELN1=DDELN1+ST(IBM,IGR)*FLXIN(IBM,IGR)
                 DO JGR=1,NGRP
-                  DDELN1=DDELN1-SCAT1(IBM,JGR,IGR)*FLXIN(IBM,IGR)
+                  DDELN2=DDELN2+SCAT1(IBM,JGR,IGR)*FLXIN(IBM,IGR)
                 ENDDO
                 DDELD1=DDELD1+FLXIN(IBM,IGR)
               ENDIF
             ENDDO
-            STR=REAL(DDELN1/DDELD1)
-            DIFHET(INM,IGR)=1.0/(3.0*STR)
+            ST2=DDELN1/DDELD1
+            IF(OPTION.EQ.'B0TR') GAMMA=B1GAMA(2,B2HOM,ST2)
+            STR=(GAMMA*DDELN1-DDELN2)/DDELD1
+            DIFHET(INM,IGR)=REAL(1.0D0/(3.0D0*STR))
           ENDDO
-        ELSE IF(OPTION.EQ.'P1') THEN
+        ELSE IF((OPTION.EQ.'P1').OR.(OPTION.EQ.'B1')) THEN
 *         Inscatter approximation
           ALLOCATE(STOD(NGRP,NGRP+1))
           STOD(:NGRP,:NGRP+1)=0.0D0
           DO IGR=1,NGRP
+            IF(OPTION.EQ.'B1') THEN
+              DDELN1=0.D0
+              DDELD1=0.D0
+              DO IBM=1,NMAT
+                IF(IMERG(IBM).EQ.INM) THEN
+                  DDELN1=DDELN1+ST(IBM,IGR)*FLXIN(IBM,IGR)
+                  DDELD1=DDELD1+FLXIN(IBM,IGR)
+                ENDIF
+              ENDDO
+              ST2=DDELN1/DDELD1
+              GAMMA=B1GAMA(2,B2HOM,ST2)
+            ENDIF
             DO IBM=1,NMAT
               IF(IMERG(IBM).EQ.INM) THEN
-                STOD(IGR,IGR)=STOD(IGR,IGR)+ST(IBM,IGR)*FLXIN(IBM,IGR)
+                STOD(IGR,IGR)=STOD(IGR,IGR)+GAMMA*ST(IBM,IGR)*
+     1          FLXIN(IBM,IGR)
                 DO JGR=1,NGRP
                   STOD(IGR,JGR)=STOD(IGR,JGR)-SCAT1(IBM,IGR,JGR)*
      1            FLXIN(IBM,JGR)
@@ -188,30 +202,26 @@
           CALL XABORT(HSMG)
         ENDIF
       ENDDO
-      IF(TYPE.EQ.'DIFF') GO TO 20
 *----
-*  COMPUTE THE EFFECTIVE MULTIPLICATION FACTOR.
+*  COMPUTE THE HOMOGENEOUS LEAKAGE COEFFICIENTS
 *----
-   10 IF(TYPE.NE.'K') CALL XABORT('FLULPN: TYPE K EXPECTED.')
-      PROD=0.0D0
-      DO IGR=1,NGRP
-        DO NF=1,NIFIS
-          DO IBM=1,NMAT
-            PROD=PROD+SFNU(IBM,NF,IGR)*FLXIN(IBM,IGR)
-          ENDDO
+   10 DO IGR=1,NGRP
+        DHOM(IGR)=0.0
+        FLTOT=0.0
+        DO IBM=1,NMAT
+          INM=IMERG(IBM)
+          DHOM(IGR)=DHOM(IGR)+FLXIN(IBM,IGR)*DIFHET(INM,IGR)
+          FLTOT=FLTOT+FLXIN(IBM,IGR)
         ENDDO
+        DHOM(IGR)=DHOM(IGR)/FLTOT
       ENDDO
-      AKEFF=AKEFF*PROD/OLDBIL
-      OLDBIL=PROD
-      IF(IMPX.GT.0) WRITE (6,120) B2,AKEFF
 *----
 *  SCRATCH STORAGE DEALLOCATION
 *----
-   20 DEALLOCATE(SCAT1,SFNU,ST,FLXIN)
+      DEALLOCATE(SCAT1,ST,FLXIN)
       RETURN
 *
   100 FORMAT(/54H FLULPN: OUTSCATTER DIFFUSION COEFFICIENT CALCULATION.)
-  110 FORMAT(/21H FLULPN: SOLUTION OF ,A4,21H EQUATIONS WITH TYPE ,A4/
-     1 9X,17HINITIAL BUCKLING=,1P,E13.5)
-  120 FORMAT(/18H FLULPN: BUCKLING=,1P,E13.5,15H K-EFFECTIVE  =,E13.5)
+  110 FORMAT(/21H FLULPN: SOLUTION OF ,A4,21H EQUATIONS WITH TYPE ,A4,
+     1 10H BUCKLING=,1P,E12.4)
       END

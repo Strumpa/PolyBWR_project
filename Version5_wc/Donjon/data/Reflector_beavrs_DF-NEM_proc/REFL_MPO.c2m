@@ -264,7 +264,7 @@ WHILE IndexCB iBoreMax < DO
   ! SN flux calculation in reflector
   !----------------------------------------------------------
   SYSTEM := ASM: MACRO TRACK :: ARM ;
-  FLUX := FLU: SYSTEM MACRO TRACK :: EDIT 0 TYPE K P1 SIGS ;
+  FLUX := FLU: SYSTEM MACRO TRACK :: EDIT 0 TYPE K P1 HETE ;
   GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 >>Keff<< ;
   ECHO "SN Keff=" Keff ;
 

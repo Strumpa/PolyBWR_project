@@ -1,0 +1,27 @@
+#!/bin/sh
+#
+if [ $# = 0 ]
+   then
+   echo '$$$ ----- multiPhysics.save : script begin' 1>&2
+   exit 1
+fi
+echo '$$$ ----- multiPhysics.save : script begin'
+MACH=`uname -s`
+Sysx="`echo $MACH | cut -b -6`"
+if [ $Sysx = "CYGWIN" ]; then
+   MACH=`uname -o`
+elif [ $Sysx = "AIX" ]; then
+   MACH=`uname -s`
+else
+   MACH=`uname -sm | sed 's/[ ]/_/'`
+fi
+
+cp *.ps ./multiPhysics_PyGan_*
+cp _COMPO* ./multiPhysics_PyGan_*
+mkdir DISTR_res
+mv Flux*.res DISTR_res/
+mv Pdistr.res DISTR_res/
+cp -r DISTR_res ./multiPhysics_PyGan_*
+cp -r multiPhysics_PyGan_* $1/"$MACH"/
+
+echo '$$$ ----- multiPhysics.save : script finish'

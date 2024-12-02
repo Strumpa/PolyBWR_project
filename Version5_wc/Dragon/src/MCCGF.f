@@ -303,7 +303,7 @@
 *     --------------------------------
 *     Method of Cyclic Characteristics
 *     --------------------------------
-*********'Source Term Isolation' Strategy turned off 
+*********'Source Term Isolation' Strategy turned off
          IF(ISCH.EQ.1) THEN
 *          Step-Characteristics Scheme with Tabulated Exponentials
            TOPT='CYCLIC - STIS 0 - SC SCHEME - TABULATED EXP'

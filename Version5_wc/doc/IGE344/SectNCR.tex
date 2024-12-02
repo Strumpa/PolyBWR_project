@@ -44,7 +44,7 @@ $[$~\moc{ALLX} \dusa{nbfuel}~$]~[$~\moc{RES} $]~[$~\moc{PURE} $]$ \\
 $[~\{$~\moc{MACRO}~$|$~\moc{MICRO}~$\}~]~[~\{$~\moc{LINEAR}~$|$~\moc{CUBIC}~$\}~]~[$~\moc{LEAK}~\dusa{b2}~$]$ \\
 $[$~\moc{NMIX} \dusa{nmixt}~$]$ \\
 $\{~[[$~\moc{COMPO} \dusa{CPONAM} \dusa{NAMDIR} \dstr{descintf}~$]]$ \\ 
-$~|~[[$~\moc{TABLE} \dusa{CPONAM} \dusa{NAMDIR} $[$ \dusa{namburn} $]$ \dstr{descintf} ~$]]~\}$ \\
+$~|~[[$~\moc{TABLE} \dusa{CPONAM} \dusa{NAMDIR} $[$ \dusa{namburn} $[$ \dusa{naval} $]~]$ \dstr{descintf}~$]]~\}$ \\
 {\tt ;}
 \end{DataStructure}
 
@@ -94,8 +94,12 @@ the RHS of structure \dstr{NCR:}.
 \item[\dusa{NAMDIR}] access the {\sc multicompo} structure of \dusa{CPONAM} from the sub-directory named \dusa{NAMDIR}.
 This value must be set equal to {\tt 'default'} if not previously defined by a {\tt STEP UP} keyword in module {\tt COMPO}.
 
-\item[\dusa{namburn}] name of the parameter for burnup (or irradiation) in the sub-directory named \dusa{NAMDIR}.
+\item[\dusa{namburn}] {\tt character*12} name of the parameter for burnup (or irradiation) in the sub-directory named \dusa{NAMDIR}.
 This value is defined if option \moc{TABLE} is set {\sl and} if burnup (or irradiation) is to be considered as parameter.
+
+\item[\dusa{naval}] {\tt character*4} identification name corresponding to the basic naval-coordinate position of the assembly where burnups are recovered. The axial burnup distribution of this assembly is
+used for interpolation. {\tt SIM} option should be set in module {\tt RESINI:} (see Sect.~\ref{sect:resinimain}). This option is useful to interpolate reflector properties as a function of the
+neighbour fuel assembly burnup. By default, burnup values of the interpolated fuel assembly are used.
 
 \item[\dusa{descintf}] input data structure containing interpolation information relative to the {\sc multicompo} data structure named \dusa{CPONAM} (see \Sect{descintf}).
 

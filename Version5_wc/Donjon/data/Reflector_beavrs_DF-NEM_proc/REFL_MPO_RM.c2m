@@ -280,7 +280,7 @@ WHILE IndexCB iBoreMax < DO
     ENDWHILE ;
         
     SYSTEM := ASM: MACRO TRACK :: ARM ;
-    FLUX := FLU: SYSTEM MACRO TRACK :: EDIT 0 TYPE K P1 SIGS ;
+    FLUX := FLU: SYSTEM MACRO TRACK :: EDIT 0 TYPE K P1 HETE ;
 
     GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 >>Keff<< ;
     ECHO "IndexCB=" IndexCB "CASE=" CASE "SN Keff=" Keff ;

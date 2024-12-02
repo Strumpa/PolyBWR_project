@@ -6,6 +6,8 @@ mach=os.environ['MACH']
 Compiler = os.environ.get("COMPILER", None) # Compiler selection
 if Compiler == "NVTOOLS":
   name=os.getcwd() + "/../PyGan/lib/" + mach+"_nvidia" + "/python"
+elif Compiler == "LLVMTOOLS":
+  name=os.getcwd() + "/../PyGan/lib/" + mach+"_flang" + "/python"
 elif Compiler == "INTELTOOLS":
   name=os.getcwd() + "/../PyGan/lib/" + mach+"_intel" + "/python"
 else:

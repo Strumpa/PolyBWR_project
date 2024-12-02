@@ -358,41 +358,15 @@ WHILE istep nstep < DO
   SYS := DELETE: SYS ;
 
   IF istep 1 = THEN
-    IF sat "SAT" = sat "SATOFF" = + THEN
-      BURNUP LIBRARY2 := EVO: LIBRARY2 FLUX TRACK ::
-        EDIT 0
-        <<depl_sol>>
-        GLOB
-        <<sat>>
-        SAVE <<Tbeg>> DAY POWR <<Norm_f2>>
-      ;
-    ELSE
-      BURNUP LIBRARY2 := EVO: LIBRARY2 FLUX TRACK ::
-        EDIT 0
-        <<depl_sol>>
-        GLOB
-        SAVE <<Tbeg>> DAY POWR <<Norm_f2>>
-      ;
-    ENDIF ;
+    BURNUP LIBRARY2 := EVO: LIBRARY2 FLUX TRACK ::
+      EDIT 3
+      SAVE <<Tbeg>> DAY POWR <<Norm_f2>>
+    ;
   ELSE
-    IF sat "SAT" = sat "SATOFF" = + THEN
-      ECHO "sat = " sat ;
-      BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX TRACK ::
-        EDIT 0
-        <<depl_sol>>
-        GLOB
-        <<sat>>
-        SAVE <<Tbeg>> DAY POWR <<Norm_f2>>
-      ;
-    ELSE
-      ECHO "no SAT keyword" ; 
-      BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX TRACK ::
-        EDIT 0
-        <<depl_sol>>
-        GLOB
-        SAVE <<Tbeg>> DAY POWR <<Norm_f2>>
-      ; 
-    ENDIF ;
+    BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX TRACK ::
+      EDIT 3
+      SAVE <<Tbeg>> DAY POWR <<Norm_f2>>
+    ;
   ENDIF ;
 
   GREP: StepList :: GETVAL "ListCompo" <<iCompo>> >>BUcompo<< ;
@@ -429,10 +403,18 @@ WHILE istep nstep < DO
     EVALUATE Tend := BUend Norm_f2 / ;
     ECHO "Tbeg was = " Tbeg ;
     ECHO "Tend evaluated = " Tend ;
-  
-    BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX TRACK ::
-     EDIT 3 DEPL <<Tbeg>> <<Tend>> DAY POWR <<Norm_f2>> 
-     EXPM 1.0E15 GLOB ;
+
+    IF sat "SAT" = sat "SATOFF" = + THEN
+      ECHO "sat = " sat ;
+      BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX TRACK ::
+      EDIT 3 <<depl_sol>> DEPL <<Tbeg>> <<Tend>> DAY POWR <<Norm_f2>> 
+      EXPM 1.0E15 GLOB <<sat>> DIRA ;
+    ELSE
+      ECHO "no SAT keyword" ;
+      BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX TRACK ::
+      EDIT 3 <<depl_sol>> DEPL <<Tbeg>> <<Tend>> DAY POWR <<Norm_f2>> 
+      EXPM 1.0E15 GLOB DIRA ;
+    ENDIF ;
   
   ENDIF ;
  

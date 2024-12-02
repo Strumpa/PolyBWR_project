@@ -6,11 +6,6 @@
 #          -q quiet execution for regression testing
 #          -w to execute in console (for debug purpose)
 #
-if [ $# = 0 ]
-   then
-   echo "usage: rskin [-c:|-q|-w]" 1>&2
-   exit 1
-fi
 System=`uname -s`
 Sysx="`echo $System | cut -b -6`"
 if [ $Sysx = "CYGWIN" ]; then
@@ -34,7 +29,7 @@ while getopts ":c:qw" opt; do
     ;;
     w) term=1
     ;;
-    \?) echo "Invalid option -$OPTARG" >&2
+    \?) echo "Invalid option $opt -$OPTARG" >&2
     exit 1
     ;;
   esac
@@ -81,9 +76,9 @@ fi
 cd $Rundir
 
 if [ $typ = 'custom' ]; then
-  cp "$CodeDir"/bin/"$MACH"/$Code ./code
+  cp "$CodeDir"/bin/"$MACH"/Skin++ ./code
 else
-  cp "$CodeDir"/bin/"$MACH"'_'$typ/$Code ./code
+  cp "$CodeDir"/bin/"$MACH"'_'$typ/Skin++ ./code
 fi
 
 ln -s "$CodeDir"/data/* .

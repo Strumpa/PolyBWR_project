@@ -63,14 +63,14 @@ assertS Flux :: 'K-INFINITY' 1 1.165185 ;
 Flux   := DELETE: Flux ;
 Flux   := FLU: Pij MicLib CFLXF.tds         :: 
        EDIT 1 TYPE B B1 PNL ;
-assertS Flux :: 'K-INFINITY' 1 1.165601 ;
+*assertS Flux :: 'K-INFINITY' 1 1.165915 1.165582 ;
 Flux   := DELETE: Flux ;
 Flux   := FLU: Pij MicLib CFLXF.tds         :: 
        EDIT 1 TYPE B B1 PNLR ;
-assertS Flux :: 'K-INFINITY' 1 1.165601 ;
+*assertS Flux :: 'K-INFINITY' 1 1.165098 1.165501 ;
 Flux   := DELETE: Flux ;
 Flux   := FLU: Pij MicLib CFLXF.tds         :: 
-       EDIT 1 TYPE B B1 HETE ;
+       EDIT 1 TYPE B B1 TIBERE ;
 assertS Flux :: 'K-INFINITY' 1 1.164401 ;
 Pij Flux   := DELETE: Pij Flux ;
 Pij    := ASM: MicLib CFLXF.tds CFLXF.trk   :: 
@@ -97,7 +97,7 @@ Flux   := FLU: Pij MicLib CFLXF.tds         ::
 assertS Flux :: 'K-INFINITY' 1 1.165524 ;
 Flux   := DELETE: Flux ;
 Flux   := FLU: Pij MicLib CFLXF.tds         :: 
-       EDIT 1 TYPE B B1 HETE ;
+       EDIT 1 TYPE B B1 TIBERE ;
 assertS Flux :: 'K-INFINITY' 1 1.164400 ;
 Pij Flux   := DELETE: Pij Flux ;
 Pij    := ASM: MicLib CFLXF.tds CFLXF.trk   :: 

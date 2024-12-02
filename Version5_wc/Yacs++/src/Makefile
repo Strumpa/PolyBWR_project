@@ -13,27 +13,29 @@ endif
 
 DIRNAME = $(shell uname -sm | sed 's/[ ]/_/')
 OS = $(shell uname -s | cut -d"_" -f1)
-ccompiler = g++
 opt = -O -g
 ifeq ($(openmp),1)
   COMP = -fopenmp
-  ccompiler = g++-11
 else
   COMP =
 endif
 
 ifeq ($(OS),Darwin)
-  C = $(ccompiler)
+  C = g++ -std=c++11
   FLAGS = -DLinux -DUnix
   CFLAGS = -Wall $(nbit) -fPIC
 else
 ifeq ($(OS),Linux)
-  C = $(ccompiler)
+  ifeq ($(nvidia),1)
+    C = nvc++ -std=c++11
+  else
+    C = g++ -std=c++11
+  endif
   FLAGS = -DLinux -DUnix
   CFLAGS = -Wall $(nbit) -fPIC
 else
 ifeq ($(OS),CYGWIN)
-  C = $(ccompiler)
+  C = g++ -std=c++11
   FLAGS = -DLinux -DUnix
   CFLAGS = -Wall $(nbit) -fPIC
 else
@@ -73,11 +75,14 @@ endif
 ifeq ($(intel),1)
 	@echo 'Yacs++: intel is defined'
 endif
+ifeq ($(nvidia),1)
+	@echo 'Yacs++: nvidia is defined'
+endif
 ifeq ($(hdf5),1)
-	@echo 'Dragon: hdf5 is defined'
+	@echo 'Yacs++: hdf5 is defined'
 endif
 sub-make:
-	$(MAKE) openmp=$(openmp) intel=$(intel) hdf5=$(hdf5) -C ../../Skin++/src
+	$(MAKE) openmp=$(openmp) intel=$(intel) nvidia=$(nvidia) hdf5=$(hdf5) -C ../../Skin++/src
 %.o : %.cxx
 	$(C) $(CFLAGS) $(FLAGS) $(opt) $(COMP) $(INCLUDE) -I$(BOOST_ROOT) -I$(SALOME_KERNEL)/include/salome/ -c $< -o $@
 $(lib)/:

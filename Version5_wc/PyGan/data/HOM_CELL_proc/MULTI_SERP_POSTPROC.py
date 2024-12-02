@@ -491,6 +491,7 @@ def MULTI_SERP_POSTPROC(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_geom,bu_autop_list,V
                             ax_U.plot(ERRORS_ALL[test_name][f"{lib_name}_edep{edep_id}"][0],ERRORS_ALL[test_name][f"{lib_name}_edep{edep_id}"][k+1],'2-',linewidth=1, label=f"{test_name} : {lib_name} edepmode {edep_id}")
                 elif test_name in Gd_tests:
                     for lib_name in S2_libs:
+
                         for edep_id in set_edep_to_treat[lib_name]:
                             if edep_id == 0:
                                 edep = "_edep0"
@@ -509,19 +510,22 @@ def MULTI_SERP_POSTPROC(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_geom,bu_autop_list,V
             if k == 0: # Erreur sur Keff
                 for step in ListeAUTOP:
                     if step <= ListeCOMPO[-1]:
-                        ax_U.axvline(x=step,marker='o',color='red')
-                        ax_Gd.axvline(x=step,marker='o',color='red')
-                ax_U.plot([0,ListeCOMPO[-1]],[300,300],'r-.') # limite +300pcm
-                ax_U.plot([0,ListeCOMPO[-1]],[-300,-300],'r-.') # limite -300pcm
-                ax_U.set_ylabel('\u0394 Keff (pcm)')
-                save_nameU=f'UOX_tests_{DEPL_SOL}{sat_name}_{ssh_method}{correlation_name}_ERROR_Keff'
-                fig_nameU=f'HOM_CELL : UOX tests {DEPL_SOL}{SAT} {ssh_method}{CORR}- \u0394 Keff'
-
-                ax_Gd.plot([0,ListeCOMPO[-1]],[300,300],'r-.') # limite +300pcm
-                ax_Gd.plot([0,ListeCOMPO[-1]],[-300,-300],'r-.') # limite -300pcm
-                ax_Gd.set_ylabel('\u0394 Keff (pcm)')
-                save_nameGd=f'Gd_tests_{DEPL_SOL}{sat_name}_{ssh_method}{correlation_name}_ERROR_Keff'
-                fig_nameGd=f'HOM_CELL Gd tests {DEPL_SOL}{SAT} {ssh_method}{CORR}- \u0394 Keff'
+                        if UOX_tests:
+                            ax_U.axvline(x=step,marker='o',color='red')
+                        if Gd_tests:
+                            ax_Gd.axvline(x=step,marker='o',color='red')
+                if UOX_tests:
+                    ax_U.plot([0,ListeCOMPO[-1]],[300,300],'r-.') # limite +300pcm
+                    ax_U.plot([0,ListeCOMPO[-1]],[-300,-300],'r-.') # limite -300pcm
+                    ax_U.set_ylabel('\u0394 Keff (pcm)')
+                    save_nameU=f'UOX_tests_{DEPL_SOL}{sat_name}_{ssh_method}{correlation_name}_ERROR_Keff'
+                    fig_nameU=f'HOM_CELL : UOX tests {DEPL_SOL}{SAT} {ssh_method}{CORR}- \u0394 Keff'
+                if Gd_tests:
+                    ax_Gd.plot([0,ListeCOMPO[-1]],[300,300],'r-.') # limite +300pcm
+                    ax_Gd.plot([0,ListeCOMPO[-1]],[-300,-300],'r-.') # limite -300pcm
+                    ax_Gd.set_ylabel('\u0394 Keff (pcm)')
+                    save_nameGd=f'Gd_tests_{DEPL_SOL}{sat_name}_{ssh_method}{correlation_name}_ERROR_Keff'
+                    fig_nameGd=f'HOM_CELL Gd tests {DEPL_SOL}{SAT} {ssh_method}{CORR}- \u0394 Keff'
             else : # Erreur sur isotopes
                 ax_U.plot([0,ListeCOMPO[-1]],[2,2],'r-.') # limite +2%
                 ax_U.plot([0,ListeCOMPO[-1]],[-2,-2],'r-.') # limite -2%

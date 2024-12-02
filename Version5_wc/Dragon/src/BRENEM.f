@@ -6,7 +6,7 @@
 *-----------------------------------------------------------------------
 *
 *Purpose:
-* Implement the 1D FD-NEM reflector model.
+* Implement the 1D DF-NEM reflector model.
 *
 *Copyright:
 * Copyright (C) 2021 Ecole Polytechnique de Montreal
