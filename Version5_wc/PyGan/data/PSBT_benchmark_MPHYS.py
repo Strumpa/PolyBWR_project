@@ -345,7 +345,7 @@ height = 1.555 # m
 
 ## Fluid parameters
 pOutlet = 14719781.65 # Pa
-tInlet = 270 + 273.15 #K
+tInlet = 592.75 #K
 u_inlet = 4.467092221 #m/s
 pressureDrop = 186737 #Pa/m
 falsePInlet = pOutlet - height * pressureDrop
