@@ -371,7 +371,7 @@ FULL_PRINT = True # Print all the fields at each iteration, create figures in tm
 
 n_rods = 91 # This value is for the ATRIUM-10 fuel assembly (10*10-9), in a GNF2 fuel assembly (BWRX-300) there are 92 fuel rods per assembly
 n_assmblies = 240 # This value is for the BWRX-300 SMR core, ref : "Status Report – BWRX-300 (GE Hitachi and Hitachi GE Nuclear Energy)"
-full_core_power = 870e6 # W, full core thermal power of the BWRX-300 SMR core, ref : "Status Report – BWRX-300 (GE Hitachi and Hitachi GE Nuclear Energy)"
+full_core_power = 870e6*1.5 # W, full core thermal power of the BWRX-300 SMR core, ref : "Status Report – BWRX-300 (GE Hitachi and Hitachi GE Nuclear Energy)"
 
 volumic_mass_U = 10970 # kg/m3 'Thermophysical Properties of MOX and UO2 Fuels Including the Effects of Irradiation' - ORNL/TM-2000/351, Popov, Carbajo, Ivanov, Yoder. November 2000.
 
@@ -453,8 +453,7 @@ print("$$$ - PSBT_benchmark_MPHYS.py : BEGIN INITIALIZATION- $$$")
 
 Volumic_Powers.append(qFiss_init)
 
-initial_volumic_power = np.sum(qFiss_init)
-print(f"Initial volumic power = {initial_volumic_power} W")
+print(f"Initial volumic power = {fuel_rod_power/Fuel_volume} W/m^3")
 
 
 # 2.) TH solution for initial guess of power shape : sine shape (if devide by Iz : doesnt work and the initial TH solution isn't in IAPWS domain)
