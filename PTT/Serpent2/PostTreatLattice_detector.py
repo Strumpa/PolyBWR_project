@@ -28,7 +28,6 @@ ncells = detector.detectors["_pins_2G"].tallies.shape[1]
 ntallies = detector.detectors["_pins_2G"].tallies.shape[2]
 tally_index_to_react = {0: "U235_ngamma", 1: "U238_ngamma", 2: "Pu239_ngamma", 3: "Pu241_ngamma", 4: "Xe135_ngamma", 5: "Sm149_ngamma", 6: "U235_fiss", 7: "U238_fiss", 8: "Pu239_fiss", 9: "Pu241_fiss"}
 
-reaction_rates = {}
 # Extracting the detector response
 # Strange that responses are not 0 for Pu isotopes fission rates at bu = 0 ?
 for i in range(ngroups):
@@ -36,8 +35,3 @@ for i in range(ngroups):
         for k in range(ntallies):
             #print(f"Energy group {i+1}, Cell {j+1}, Reaction {tally_index_to_react[k]} : {detector.detectors['_pins_2G'].tallies[i,j,k]}")
             print(detector.detectors['_pins_2G'].tallies[i,j,k])
-            # For now extracting only the fission rates of U235
-            if k == 6:
-                reaction_rates[f"U235_fiss_cell{j+1}_G{i+1}"] = detector.detectors['_pins_2G'].tallies[i,j,k]
-print(reaction_rates)
-

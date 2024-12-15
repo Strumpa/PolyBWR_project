@@ -61,9 +61,9 @@ class BWR_2x2_case:
         print("Loading Serpent2 reference case")
         if self.case_name == "2x2_UOX":
             # Load Serpent2 reference case : Keff results
-            serpent2_case = st.read("/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/PyNjoy2016_results/AT10_2x2/AT10_2x2_UOX_edep2_mc_res.m")
+            serpent2_case = st.read("/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/PyNjoy2016_results/AT10_2x2/AT10_2x2_UOX_mc_res.m")
             # Load Serpent2 reference case : depletion data
-            self.serpent_dep = st.read("/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/PyNjoy2016_results/AT10_2x2/AT10_2x2_UOX_edep2_mc_dep.m")
+            self.serpent_dep = st.read("/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/PyNjoy2016_results/AT10_2x2/AT10_2x2_UOX_mc_dep.m")
 
         elif self.case_name == "2x2_UOX_Gd":
             # Load Serpent2 reference case : Keff results
