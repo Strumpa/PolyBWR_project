@@ -3,8 +3,8 @@
 
 PARAMETER EDIOBJ :: ::: LINKED_LIST EDIOBJ ; ;
 
-STRING ssh_method ;
-:: >>ssh_method<< ;
+STRING ssh_method library ;
+:: >>ssh_method<< >>library<< ;
 
 MODULE GEO: LIB: SYBILT: AUTO: ASM: FLU: EDI: GREP: ;
 
@@ -17,7 +17,7 @@ GEOM := GEO: :: HOMOGE
       ;
 
 TRACK := SYBILT: GEOM ::
-    TITLE 'HOM_UOX benchmark case'
+    TITLE 'HOM_UOX_Gd157 benchmark case'
     MAXR 2
     ;
 
@@ -26,8 +26,8 @@ LIB_AUTO := LIB: ::
     EDIT 10
     NMIX 1    ! MAXIMUM OF MATERIAL MIXTURES
     <<ssh_method>>
-    CTRA APOL
-    MIXS LIB: DRAGON FIL: J311295Gd157
+    ANIS 3
+    MIXS LIB: DRAGON FIL: <<library>>
 
     MIX 1 750.0
       MIX 1 750.0
@@ -86,11 +86,27 @@ CALC := FLU: CP LIB2_AUTO TRACK :: EDIT 1 TYPE K EXTE 5 ;
 GREP: CALC :: GETVAL 'K-INFINITY  ' 1 1 1 >>Kinf<< ;
 ECHO 'Kinf AUTO = ' Kinf ;
 
-EDIOBJ := EDI: CALC LIB2_AUTO TRACK ::
-        EDIT 0
-        MERG REGI 1
-        MICR 2 U238 Gd157 
-        SAVE ON EDIHOM_295
-;
+IF library "nJ311_295" = THEN 
+  EDIOBJ := EDI: CALC LIB2_AUTO TRACK ::
+          EDIT 0
+          MERG REGI 1
+          MICR 2 U238 Gd157 
+          SAVE ON EDIHOM_295
+  ;
+ELSEIF library "nJ311_295F" = THEN
+  EDIOBJ := EDI: CALC LIB2_AUTO TRACK ::
+          EDIT 0
+          MERG REGI 1
+          MICR 2 U238 Gd157 
+          SAVE ON EDIHOM_295F
+  ;
+ELSEIF library "nJ311_295FF" = THEN
+  EDIOBJ := EDI: CALC LIB2_AUTO TRACK ::
+          EDIT 0
+          MERG REGI 1
+          MICR 2 U238 Gd157 
+          SAVE ON EDIHOM_295FF
+  ;
+ENDIF ;
 
 QUIT "LIST" .

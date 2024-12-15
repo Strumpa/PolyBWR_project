@@ -1,0 +1,745 @@
+* CLE-2000 script
+* Purpose : test self-shielding for UOX+Gd157 benchmark.
+* Author : R. Guasch
+* Date : 05/12/2024
+* Goal : compare XS from USS: PT/RSE/SUBG with AUTO: PT on 295 groups mesh
+* Extended to write XS in MULTICOMPO for the same benchmark, same SSH methods
+* Test IRSET keyword in LIB: for 
+
+LINKED_LIST COMPO EDI295 ;
+MODULE COMPO: EDI: GREP: DELETE: END: ;
+PROCEDURE auto autoIR rse rseIR pt ptIR subg ptmc ptmcIR ptsl ptslIR ; 
+PROCEDURE autoNone rseNone ptNone ptmcNone ptslNone ;
+SEQ_ASCII _COMPO :: FILE './newCOMPO_Gd157_IRSET' ;
+
+STRING auto_method := "PT" ;
+STRING library := "nJ311_295" ; ! new Jeff3.1.1 SHEM295 (new_draglibJ311SHEM295_09122024_XSM)
+
+* Initialize COMPO :
+* Compo stores results for different meshes in different DIR names 
+* and different SSH methods in different 'SSH' parameter values :
+* A = AUTOSECOL, R = RSE, P = PT and S = SUBG, SL = PTSL, MC = PTMC  
+COMPO := COMPO: ::
+    STEP UP 'noIRSET'
+        MAXCAL 5
+        PARA 'SSH' VALU CHAR
+        ISOT 2 U238 Gd157
+    INIT
+    STEP UP 'IRSET_101'
+        MAXCAL 5
+        PARA 'SSH' VALU CHAR
+        ISOT 2 U238 Gd157
+    INIT
+    STEP UP 'IRSETNone'
+        MAXCAL 5
+        PARA 'SSH' VALU CHAR
+        ISOT 2 U238 Gd157
+    INIT
+
+    STEP UP 'noIRSETF'
+        MAXCAL 5
+        PARA 'SSH' VALU CHAR
+        ISOT 2 U238 Gd157
+    INIT
+    STEP UP 'IRSET_101F'
+        MAXCAL 5
+        PARA 'SSH' VALU CHAR
+        ISOT 2 U238 Gd157
+    INIT
+    STEP UP 'IRSETNoneF'
+        MAXCAL 5
+        PARA 'SSH' VALU CHAR
+        ISOT 2 U238 Gd157
+    INIT
+
+    STEP UP 'noIRSETFF'
+        MAXCAL 5
+        PARA 'SSH' VALU CHAR
+        ISOT 2 U238 Gd157
+    INIT
+    STEP UP 'IRSET_101FF'
+        MAXCAL 5
+        PARA 'SSH' VALU CHAR
+        ISOT 2 U238 Gd157
+    INIT
+    STEP UP 'IRSETNoneFF'
+        MAXCAL 5
+        PARA 'SSH' VALU CHAR
+        ISOT 2 U238 Gd157
+    INIT
+    
+;
+
+* AUTO: self-shielding
+
+* 295 groups SHEM mesh 
+ECHO "Calling procedure auto (SUBG in LIB: + AUTO:)" ;
+ECHO library ;
+EDI295 := auto :: <<auto_method>> <<library>> ;
+
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'noIRSET'
+        'SSH' A
+;
+
+EDI295 := DELETE: EDI295 ;
+
+* USS: / RSE self-shielding
+* SHEM295 mesh
+ECHO "Calling procedure rse (RSE in LIB: + USS:)" ;
+EDI295 := rse :: <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'noIRSET'
+        'SSH' R
+;
+EDI295 := DELETE: EDI295 ;
+
+* USS: / PT self-shielding
+
+* SHEM295 mesh
+ECHO "Calling procedure pt (PT in LIB: + USS:)" ;
+EDI295 := pt :: <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'noIRSET'
+        'SSH' P
+;
+
+EDI295 := DELETE: EDI295 ;
+
+* USS: / SUBG self-shielding
+* SHEM295 mesh
+ECHO "Calling procedure subg (SUBG in LIB: + USS:)" ;
+EDI295 := subg :: <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'noIRSET'
+        'SSH' S
+;
+
+EDI295 := DELETE: EDI295 ;
+
+* USS: / PTSL self-shielding
+* SHEM295 mesh
+ECHO "Calling procedure ptsl (PTSL in LIB: + USS:)" ;
+EDI295 := ptsl :: <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'noIRSET'
+        'SSH' SL
+;
+
+EDI295 := DELETE: EDI295 ;
+
+* USS: / PTMC self-shielding
+* SHEM295 mesh
+ECHO "Calling procedure ptmc (PTMC in LIB: + USS:)" ;
+EDI295 := ptmc :: <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'noIRSET'
+        'SSH' MC
+;
+
+EDI295 := DELETE: EDI295 ;
+
+* repeat the same steps for finer autolib data (new_draglibJ311SHEM295_fine_09122024_XSM)
+EVALUATE library := "nJ311_295F" ;
+
+* AUTO: self-shielding
+
+* 295 groups SHEM mesh 
+ECHO "Calling procedure auto (SUBG in LIB: + AUTO:)" ;
+ECHO library ;
+EDI295 := auto :: <<auto_method>> <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'noIRSETF'
+        'SSH' A
+;
+EDI295 := DELETE: EDI295 ;
+
+* USS: / RSE self-shielding
+* SHEM295 mesh
+ECHO "Calling procedure rse Fine (RSE in LIB: + USS:)" ;
+EDI295 := rse :: <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'noIRSETF'
+        'SSH' R
+;
+EDI295 := DELETE: EDI295 ;
+
+* USS: / PT self-shielding
+
+* SHEM295 mesh
+ECHO "Calling procedure pt Fine (PT in LIB: + USS:)" ;
+EDI295 := pt :: <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'noIRSETF'
+        'SSH' P
+;
+
+EDI295 := DELETE: EDI295 ;
+
+* USS: / SUBG self-shielding
+* SHEM295 mesh
+ECHO "Calling procedure subg Fine (SUBG in LIB: + USS:)" ;
+EDI295 := subg :: <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'noIRSETF'
+        'SSH' S
+;
+
+EDI295 := DELETE: EDI295 ;
+
+* USS: / PTSL self-shielding
+* SHEM295 mesh
+ECHO "Calling procedure ptsl Fine (PTSL in LIB: + USS:)" ;
+EDI295 := ptsl :: <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'noIRSETF'
+        'SSH' SL
+;
+
+EDI295 := DELETE: EDI295 ;
+
+* USS: / PTMC self-shielding
+* SHEM295 mesh
+ECHO "Calling procedure ptmc Fine (PTMC in LIB: + USS:)" ;
+EDI295 := ptmc :: <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'noIRSETF'
+        'SSH' MC
+;
+
+EDI295 := DELETE: EDI295 ;
+
+
+* repeat the same steps for finer autolib data (new_draglibJ311SHEM295_finer_09122024_XSM)
+EVALUATE library := "nJ311_295FF" ; 
+
+EDI295 := auto :: <<auto_method>> <<library>> ;
+
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'noIRSETFF'
+        'SSH' A
+;
+
+EDI295 := DELETE: EDI295 ;
+
+* USS: / RSE self-shielding
+* SHEM295 mesh
+ECHO "Calling procedure rse Finer (RSE in LIB: + USS:)" ;
+EDI295 := rse :: <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'noIRSETFF'
+        'SSH' R
+;
+EDI295 := DELETE: EDI295 ;
+
+* USS: / PT self-shielding
+
+* SHEM295 mesh
+ECHO "Calling procedure pt Finer (PT in LIB: + USS:)" ;
+EDI295 := pt :: <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'noIRSETFF'
+        'SSH' P
+;
+
+EDI295 := DELETE: EDI295 ;
+
+* USS: / SUBG self-shielding
+* SHEM295 mesh
+ECHO "Calling procedure subg Finer (SUBG in LIB: + USS:)" ;
+EDI295 := subg :: <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'noIRSETFF'
+        'SSH' S
+;
+
+EDI295 := DELETE: EDI295 ;
+
+* USS: / PTSL self-shielding
+* SHEM295 mesh
+ECHO "Calling procedure ptsl Finer (PTSL in LIB: + USS:)" ;
+EDI295 := ptsl :: <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'noIRSETFF'
+        'SSH' SL
+;
+
+EDI295 := DELETE: EDI295 ;
+
+* USS: / PTMC self-shielding
+* SHEM295 mesh
+ECHO "Calling procedure ptmc Finer (PTMC in LIB: + USS:)" ;
+EDI295 := ptmc :: <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'noIRSETFF'
+        'SSH' MC
+;
+
+EDI295 := DELETE: EDI295 ;
+
+
+
+** BEGIN IRSET 101 treatment
+* Same steps with IRSET 101 keyword in LIB: of procedures
+
+* AUTO: self-shielding
+EVALUATE library := "nJ311_295" ;
+* 295 groups SHEM mesh 
+ECHO "Calling procedure autoIR (SUBG in LIB: + AUTO:)" ;
+ECHO library ;
+EDI295 := autoIR :: <<auto_method>> <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'IRSET_101'
+        'SSH' A
+;
+
+EDI295 := DELETE: EDI295 ;
+
+* USS: / RSE self-shielding
+* SHEM295 mesh
+ECHO "Calling procedure rseIR (RSE in LIB: + USS:)" ;
+EDI295 := rseIR :: <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'IRSET_101'
+        'SSH' R
+;
+EDI295 := DELETE: EDI295 ;
+
+* USS: / PT self-shielding
+
+* SHEM295 mesh
+ECHO "Calling procedure ptIR (PT in LIB: + USS:)" ;
+EDI295 := ptIR :: <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'IRSET_101'
+        'SSH' P
+;
+
+EDI295 := DELETE: EDI295 ;
+
+
+* USS: / PTSL self-shielding
+* SHEM295 mesh
+ECHO "Calling procedure ptslIR (PTSL in LIB: + USS:)" ;
+EDI295 := ptslIR :: <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'IRSET_101'
+        'SSH' SL
+;
+
+EDI295 := DELETE: EDI295 ;
+
+* USS: / PTMC self-shielding
+* SHEM295 mesh
+ECHO "Calling procedure ptmcIR (PTMC in LIB: + USS:)" ;
+EDI295 := ptmcIR :: <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'IRSET_101'
+        'SSH' MC
+;
+
+EDI295 := DELETE: EDI295 ;
+
+* repeat the same steps for finer autolib data (new_draglibJ311SHEM295_fine_09122024_XSM)
+EVALUATE library := "nJ311_295F" ;
+* AUTO: self-shielding
+* 295 groups SHEM mesh 
+ECHO "Calling procedure autoIR (SUBG in LIB: + AUTO:)" ;
+ECHO library ;
+EDI295 := autoIR :: <<auto_method>> <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'IRSET_101F'
+        'SSH' A
+;
+EDI295 := DELETE: EDI295 ;
+
+* USS: / RSE self-shielding
+* SHEM295 mesh
+ECHO "Calling procedure rseIR Fine (RSE in LIB: + USS:)" ;
+EDI295 := rseIR :: <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'IRSET_101F'
+        'SSH' R
+;
+EDI295 := DELETE: EDI295 ;
+
+* USS: / PT self-shielding
+
+* SHEM295 mesh
+ECHO "Calling procedure ptIR Fine (PT in LIB: + USS:)" ;
+EDI295 := ptIR :: <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'IRSET_101F'
+        'SSH' P
+;
+
+EDI295 := DELETE: EDI295 ;
+
+
+* USS: / PTSL self-shielding
+* SHEM295 mesh
+ECHO "Calling procedure ptslIR Fine (PTSL in LIB: + USS:)" ;
+EDI295 := ptslIR :: <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'IRSET_101F'
+        'SSH' SL
+;
+
+EDI295 := DELETE: EDI295 ;
+
+* USS: / PTMC self-shielding
+* SHEM295 mesh
+ECHO "Calling procedure ptmcIR Fine (PTMC in LIB: + USS:)" ;
+EDI295 := ptmcIR :: <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'IRSET_101F'
+        'SSH' MC
+;
+
+EDI295 := DELETE: EDI295 ;
+
+* repeat the same steps for finer autolib data (new_draglibJ311SHEM295_finer_09122024_XSM)
+EVALUATE library := "nJ311_295FF" ;
+* AUTO: self-shielding
+* 295 groups SHEM mesh 
+ECHO "Calling procedure autoIR (PT in LIB: + AUTO:)" ;
+ECHO library ;
+EDI295 := autoIR :: <<auto_method>> <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'IRSET_101FF'
+        'SSH' A
+;
+EDI295 := DELETE: EDI295 ;
+
+* USS: / RSE self-shielding
+* SHEM295 mesh
+ECHO "Calling procedure rseIR Fine (RSE in LIB: + USS:)" ;
+EDI295 := rseIR :: <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'IRSET_101FF'
+        'SSH' R
+;
+EDI295 := DELETE: EDI295 ;
+
+* USS: / PT self-shielding
+
+* SHEM295 mesh
+ECHO "Calling procedure ptIR Fine (PT in LIB: + USS:)" ;
+EDI295 := ptIR :: <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'IRSET_101FF'
+        'SSH' P
+;
+
+EDI295 := DELETE: EDI295 ;
+
+
+* USS: / PTSL self-shielding
+* SHEM295 mesh
+ECHO "Calling procedure ptslIR Fine (PTSL in LIB: + USS:)" ;
+EDI295 := ptslIR :: <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'IRSET_101FF'
+        'SSH' SL
+;
+
+EDI295 := DELETE: EDI295 ;
+
+* USS: / PTMC self-shielding
+* SHEM295 mesh
+ECHO "Calling procedure ptmcIR Fine (PTMC in LIB: + USS:)" ;
+EDI295 := ptmcIR :: <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'IRSET_101FF'
+        'SSH' MC
+;
+
+EDI295 := DELETE: EDI295 ;
+
+
+** BEGIN IRSET NONE treatment
+* Same steps with IRSET NONE keyword in LIB: of procedures
+
+
+EVALUATE library := "nJ311_295" ;
+* AUTO: self-shielding
+* 295 groups SHEM mesh 
+ECHO "Calling procedure autoNone (SUBG in LIB: + AUTO:)" ;
+ECHO library ;
+EDI295 := autoNone :: <<auto_method>> <<library>> ;
+
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'IRSETNone'
+        'SSH' A
+;
+
+EDI295 := DELETE: EDI295 ;
+
+* USS: / RSE self-shielding
+* SHEM295 mesh
+ECHO "Calling procedure rseNone (RSE in LIB: + USS:)" ;
+EDI295 := rseNone :: <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'IRSETNone'
+        'SSH' R
+;
+EDI295 := DELETE: EDI295 ;
+
+* USS: / PT self-shielding
+
+* SHEM295 mesh
+ECHO "Calling procedure ptNone (PT in LIB: + USS:)" ;
+EDI295 := ptNone :: <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'IRSETNone'
+        'SSH' P
+;
+
+EDI295 := DELETE: EDI295 ;
+
+
+* USS: / PTSL self-shielding
+* SHEM295 mesh
+ECHO "Calling procedure ptslNone (PTSL in LIB: + USS:)" ;
+EDI295 := ptslNone :: <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'IRSETNone'
+        'SSH' SL
+;
+
+EDI295 := DELETE: EDI295 ;
+
+* USS: / PTMC self-shielding
+* SHEM295 mesh
+ECHO "Calling procedure ptmcNone (PTMC in LIB: + USS:)" ;
+EDI295 := ptmcNone :: <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'IRSETNone'
+        'SSH' MC
+;
+
+EDI295 := DELETE: EDI295 ;
+
+* repeat the same steps for finer autolib data (new_draglibJ311SHEM295_fine_09122024_XSM)
+EVALUATE library := "nJ311_295F" ;
+
+* AUTO: self-shielding
+* 295 groups SHEM mesh 
+ECHO "Calling procedure autoNone (SUBG in LIB: + AUTO:)" ;
+ECHO library ;
+EDI295 := autoNone :: <<auto_method>> <<library>> ;
+
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'IRSETNoneF'
+        'SSH' A
+;
+
+EDI295 := DELETE: EDI295 ;
+
+* USS: / RSE self-shielding
+* SHEM295 mesh
+ECHO "Calling procedure rseNone Fine (RSE in LIB: + USS:)" ;
+EDI295 := rseNone :: <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'IRSETNoneF'
+        'SSH' R
+;
+EDI295 := DELETE: EDI295 ;
+
+* USS: / PT self-shielding
+
+* SHEM295 mesh
+ECHO "Calling procedure ptNone Fine (PT in LIB: + USS:)" ;
+EDI295 := ptNone :: <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'IRSETNoneF'
+        'SSH' P
+;
+
+EDI295 := DELETE: EDI295 ;
+
+
+* USS: / PTSL self-shielding
+* SHEM295 mesh
+ECHO "Calling procedure ptslNone Fine (PTSL in LIB: + USS:)" ;
+EDI295 := ptslNone :: <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'IRSETNoneF'
+        'SSH' SL
+;
+
+EDI295 := DELETE: EDI295 ;
+
+* USS: / PTMC self-shielding
+* SHEM295 mesh
+ECHO "Calling procedure ptmcNone Fine (PTMC in LIB: + USS:)" ;
+EDI295 := ptmcNone :: <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'IRSETNoneF'
+        'SSH' MC
+;
+
+EDI295 := DELETE: EDI295 ;
+
+* repeat the same steps for finer autolib data (new_draglibJ311SHEM295_finer_09122024_XSM)
+EVALUATE library := "nJ311_295FF" ;
+
+* AUTO: self-shielding
+* 295 groups SHEM mesh 
+ECHO "Calling procedure autoNone (SUBG in LIB: + AUTO:)" ;
+ECHO library ;
+EDI295 := autoNone :: <<auto_method>> <<library>> ;
+
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'IRSETNoneFF'
+        'SSH' A
+;
+
+EDI295 := DELETE: EDI295 ;
+
+* USS: / RSE self-shielding
+* SHEM295 mesh
+ECHO "Calling procedure rseNone Finer (RSE in LIB: + USS:)" ;
+EDI295 := rseNone :: <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'IRSETNoneFF'
+        'SSH' R
+;
+EDI295 := DELETE: EDI295 ;
+
+* USS: / PT self-shielding
+
+* SHEM295 mesh
+ECHO "Calling procedure ptNone Finer (PT in LIB: + USS:)" ;
+EDI295 := ptNone :: <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'IRSETNoneFF'
+        'SSH' P
+;
+
+EDI295 := DELETE: EDI295 ;
+
+
+* USS: / PTSL self-shielding
+* SHEM295 mesh
+ECHO "Calling procedure ptslNone Finer (PTSL in LIB: + USS:)" ;
+EDI295 := ptslNone :: <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'IRSETNoneFF'
+        'SSH' SL
+;
+
+EDI295 := DELETE: EDI295 ;
+
+* USS: / PTMC self-shielding
+* SHEM295 mesh
+ECHO "Calling procedure ptmcNone Finer (PTMC in LIB: + USS:)" ;
+EDI295 := ptmcNone :: <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'IRSETNoneFF'
+        'SSH' MC
+;
+
+EDI295 := DELETE: EDI295 ;
+
+_COMPO := COMPO ;
+
+QUIT "LIST" .
+
+

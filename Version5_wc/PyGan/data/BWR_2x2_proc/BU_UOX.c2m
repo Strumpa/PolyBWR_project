@@ -75,7 +75,7 @@ ECHO "nstep=" nstep "nauto=" nauto "maxcompo=" maxcompo ;
 *  BEGIN COMPO INITIALIZATION                                          *
 ************************************************************************
 COMPO := COMPO: ::
-    EDIT 10
+    EDIT 1
     STEP UP 'EDIBU_HOM'
      MAXCAL 5
      COMM 'Evolution burnup - Condensed - 2x2 homogenized' ENDC

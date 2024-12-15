@@ -10,20 +10,44 @@ import os
 import sys
 import serpentTools as st
 
-class postTreatment_rates_XS_D5:
+def initialize_nested_dict(level1_keys, level2_keys, subkeys, default_value=[]):
+        """
+        Initializes a nested dictionary with a specified structure.
+
+        Parameters:
+            level1_keys (list): Keys for the first level of the dictionary.
+            level2_keys (list): Keys for the second level of the dictionary.
+            subkeys (list): Subkeys for the innermost level.
+            default_value: The default value for innermost subkeys. Defaults to an empty list.
+
+        Returns:
+            dict: A nested dictionary with the specified structure.
+        """
+        # Create the innermost dictionary structure using subkeys
+        innermost_dict = {key: default_value.copy() if isinstance(default_value, list) else default_value for key in subkeys}
+
+        # Create the second level dictionary structure using level2_keys
+        second_level_dict = {key: innermost_dict.copy() for key in level2_keys}
+
+        # Create the top-level dictionary structure using level1_keys
+        nested_dict = {key: second_level_dict.copy() for key in level1_keys}
+
+        return nested_dict
+
+class postTreatment_rates_XS_D5_EMESHES:
     def __init__(self, case_name, mesh_objects, self_shielding_methods, save_path):
         self.case_name = case_name
         self.mesh_objects = mesh_objects
         self.self_shielding_methods = self_shielding_methods
         self.save_path = save_path
         self.reaction_data_pair = {}
+        
+        self.study_type = "MESHES"
         # dictionaries to store the relative differences between self shielded cross sections, reaction rates and fluxes, identified by reaction_id, mesh_name and SSH method
-        self.delta_XS = {"Gd157_ngamma":{"SHEM281":{"RSE":None, "PT":None, "SUBG":None}, "SHEM295":{"RSE":None, "PT":None, "SUBG":None}, "SHEM315":{"RSE":None, "PT":None, "SUBG":None}},
-                         "Gd157_abs":{"SHEM281":{"RSE":None, "PT":None, "SUBG":None}, "SHEM295":{"RSE":None, "PT":None, "SUBG":None}, "SHEM315":{"RSE":None, "PT":None, "SUBG":None}},
-                         "U238_ngamma":{"SHEM281":{"RSE":None, "PT":None, "SUBG":None}, "SHEM295":{"RSE":None, "PT":None, "SUBG":None}, "SHEM315":{"RSE":None, "PT":None, "SUBG":None}}}
-        self.delta_Rates = {"Gd157_ngamma":{"SHEM281":{"RSE":None, "PT":None, "SUBG":None}, "SHEM295":{"RSE":None, "PT":None, "SUBG":None}, "SHEM315":{"RSE":None, "PT":None, "SUBG":None}},
-                         "Gd157_abs":{"SHEM281":{"RSE":None, "PT":None, "SUBG":None}, "SHEM295":{"RSE":None, "PT":None, "SUBG":None}, "SHEM315":{"RSE":None, "PT":None, "SUBG":None}},
-                         "U238_ngamma":{"SHEM281":{"RSE":None, "PT":None, "SUBG":None}, "SHEM295":{"RSE":None, "PT":None, "SUBG":None}, "SHEM315":{"RSE":None, "PT":None, "SUBG":None}}}
+        mesh_names = self.mesh_objects.keys()
+        self.delta_XS = initialize_nested_dict(["Gd157_ngamma", "U238_ngamma"], mesh_names, self.self_shielding_methods, default_value=[])
+        self.delta_Rates = initialize_nested_dict(["Gd157_ngamma", "U238_ngamma"], mesh_names, self.self_shielding_methods, default_value=[])
+       
         self.delta_Fluxes = {}
 
         return
@@ -39,7 +63,7 @@ class postTreatment_rates_XS_D5:
     def plot_fluxes(self, mesh_name):
         plt.figure(figsize=(10, 6))
         u_mesh = self.mesh_objects[mesh_name].lethargyMesh
-        for SSH in self.self_shielding_methods:
+        for SSH in self.fluxes[mesh_name].keys():
             flux = self.fluxes[mesh_name][SSH] 
             u = []
             flux_to_plot = [] 
@@ -48,6 +72,9 @@ class postTreatment_rates_XS_D5:
                 flux_to_plot.extend([flux[i],flux[i]])
             plt.step(u, flux_to_plot, where='post', label=f"{SSH} multigroup flux")
         plt.legend()
+        plt.yscale('log')
+        plt.ylabel('Flux')
+        plt.xlabel('Lethargy')
         plt.title(f"Fluxes for {self.case_name}")
         plt.savefig(f"{self.save_path}/{self.case_name}_fluxes_{mesh_name}.png")
         plt.close()
@@ -60,8 +87,11 @@ class postTreatment_rates_XS_D5:
         u_mesh = self.mesh_objects[mesh_name].lethargyMesh
         if reaction == "ngamma":
             reaction = "$(n,\gamma)$"
-        for SSH in self.self_shielding_methods:
+        for SSH in self.reaction_data_pair[reaction_id][mesh_name].keys():
+            print(f"plotting XS for {reaction_id} {mesh_name} {SSH}")
             XS = self.reaction_data_pair[reaction_id][mesh_name][SSH]["XS"]
+            print(f"XS = {XS}")
+            print(len(XS))
             u = []
             XS_to_plot = [] 
             for i in range(len(XS)):
@@ -84,7 +114,7 @@ class postTreatment_rates_XS_D5:
         u_mesh = self.mesh_objects[mesh_name].lethargyMesh
         if reaction == "ngamma":
             reaction = "$(n,\gamma)$"
-        for SSH in self.self_shielding_methods:
+        for SSH in self.reaction_data_pair[reaction_id][mesh_name].keys():
             rates = self.reaction_data_pair[reaction_id][mesh_name][SSH]["rates"]
             u = []
             rates_to_plot = [] 
@@ -267,6 +297,210 @@ class postTreatment_rates_XS_D5:
         plt.close()
         return
     
+class postTreatment_rates_XS_D5_AUTOlib:
+    def __init__(self, case_name, mesh_objects, self_shielding_methods, save_path):
+        self.case_name = case_name
+        self.mesh_objects = mesh_objects
+        self.self_shielding_methods = self_shielding_methods
+        self.save_path = save_path
+        self.reaction_data_pair = {}
+        
+        self.study_type = "AUTOLIB"
+        # dictionaries to store the relative differences between self shielded cross sections, reaction rates and fluxes, identified by reaction_id, mesh_name and SSH method
+        self.delta_XS = initialize_nested_dict(["Gd157_ngamma", "U238_ngamma"], ["J311_295", "J311_295F", "J311_295FF"], self.self_shielding_methods, default_value=[])
+        self.delta_rates = initialize_nested_dict(["Gd157_ngamma", "U238_ngamma"], ["J311_295", "J311_295F", "J311_295FF"], self.self_shielding_methods, default_value=[])
+        self.delta_Fluxes = {}
+
+        return
+
+    def set_reaction_data(self, reaction_id, reaction_data):
+        self.reaction_data_pair[reaction_id] = reaction_data
+        return
+    
+    def set_fluxes(self, fluxes):
+        self.fluxes = fluxes
+        return
+    
+    def plot_fluxes(self, autolib_name):
+        plt.figure(figsize=(10, 6))
+        u_mesh = self.mesh_objects["SHEM295"].lethargyMesh
+        for SSH in self.fluxes[autolib_name].keys():
+            flux = self.fluxes[autolib_name][SSH] 
+            u = []
+            flux_to_plot = [] 
+            for i in range(len(flux)):
+                u.extend([u_mesh[i],u_mesh[i+1]])
+                flux_to_plot.extend([flux[i],flux[i]])
+            plt.step(u, flux_to_plot, where='post', label=f"{SSH} multigroup flux")
+        plt.legend()
+        plt.yscale('log')
+        plt.ylabel('Flux')
+        plt.xlabel('Lethargy')
+        plt.title(f"Fluxes for {self.case_name}")
+        plt.savefig(f"{self.save_path}/{self.case_name}_fluxes_{autolib_name}.png")
+        plt.close()
+        return
+    
+    def plot_XS(self, autolib_name, reaction_id):
+        plt.figure(figsize=(10, 6))
+        iso = reaction_id.split("_")[0]
+        reaction = reaction_id.split("_")[1]
+        u_mesh = self.mesh_objects["SHEM295"].lethargyMesh
+        if reaction == "ngamma":
+            reaction = "$(n,\gamma)$"
+        for SSH in self.reaction_data_pair[reaction_id][autolib_name].keys():
+            XS = self.reaction_data_pair[reaction_id][autolib_name][SSH]["XS"]
+            u = []
+            XS_to_plot = [] 
+            for i in range(len(XS)):
+                u.extend([u_mesh[i],u_mesh[i+1]])
+                XS_to_plot.extend([XS[i],XS[i]])
+            plt.step(u, XS_to_plot, where='post', label=f"{SSH} {reaction} cross section")
+        plt.legend()
+        plt.xlabel('Lethargy')
+        plt.ylabel(f"$\sigma$ {reaction} (barns)")
+        plt.yscale('log')
+        plt.title(f"Cross sections for {iso} {reaction}")
+        plt.savefig(f"{self.save_path}/{self.case_name}_{reaction_id}_XS_{autolib_name}.png")
+        plt.close()
+        return
+    
+    def plot_reaction_rates(self, autolib_name, reaction_id):
+        plt.figure(figsize=(10, 6))
+        iso = reaction_id.split("_")[0]
+        reaction = reaction_id.split("_")[1]
+        u_mesh = self.mesh_objects["SHEM295"].lethargyMesh
+        if reaction == "ngamma":
+            reaction = "$(n,\gamma)$"
+        for SSH in self.reaction_data_pair[reaction_id][autolib_name].keys():
+            rates = self.reaction_data_pair[reaction_id][autolib_name][SSH]["rates"]
+            u = []
+            rates_to_plot = [] 
+            for i in range(len(rates)):
+                u.extend([u_mesh[i],u_mesh[i+1]])
+                rates_to_plot.extend([rates[i],rates[i]])
+            plt.step(u, rates_to_plot, where='post', label=f"{SSH} {reaction} reaction rates")
+        plt.legend()
+        plt.xlabel('Lethargy')
+        plt.ylabel(f"{reaction} rates")
+        plt.yscale('log')
+        plt.grid()
+        plt.title(f"Reaction rates for {iso} {reaction}")
+        plt.savefig(f"{self.save_path}/{self.case_name}_{reaction_id}_rates_{autolib_name}.png")
+        plt.close()
+        return
+
+class postTreatment_rates_XS_D5_IRSET:
+    def __init__(self, case_name, mesh_objects, self_shielding_methods, save_path):
+        self.case_name = case_name
+        self.mesh_objects = mesh_objects
+        self.self_shielding_methods = self_shielding_methods
+        self.save_path = save_path
+        self.reaction_data_pair = {}
+        
+        self.study_type = "IRSET"
+        # dictionaries to store the relative differences between self shielded cross sections, reaction rates and fluxes, identified by reaction_id, mesh_name and SSH method
+        self.delta_XS = initialize_nested_dict(["Gd157_ngamma", "U238_ngamma"], ["noIRSET", "noIRSETF", "noIRSETFF", "IRSET_101", "IRSET_101F", "IRSET_101FF", "IRSETNone", "IRSETNoneF", "IRSETNoneFF"], self.self_shielding_methods, default_value=[])
+        self.delta_rates = initialize_nested_dict(["Gd157_ngamma", "U238_ngamma"], ["noIRSET", "noIRSETF", "noIRSETFF", "IRSET_101", "IRSET_101F", "IRSET_101FF", "IRSETNone", "IRSETNoneF", "IRSETNoneFF"], self.self_shielding_methods, default_value=[])
+        self.delta_Fluxes = {}
+
+        return
+
+
+    def set_reaction_data(self, reaction_id, reaction_data):
+        self.reaction_data_pair[reaction_id] = reaction_data
+        return
+    
+    def set_fluxes(self, fluxes):
+        self.fluxes = fluxes
+        return
+    
+    def plot_fluxes(self, IRSET_name):
+        plt.figure(figsize=(10, 6))
+        u_mesh = self.mesh_objects["SHEM295"].lethargyMesh
+        for SSH in self.fluxes[IRSET_name].keys():
+            flux = self.fluxes[IRSET_name][SSH] 
+            u = []
+            flux_to_plot = [] 
+            for i in range(len(flux)):
+                u.extend([u_mesh[i],u_mesh[i+1]])
+                flux_to_plot.extend([flux[i],flux[i]])
+            plt.step(u, flux_to_plot, where='post', label=f"{SSH} multigroup flux")
+        plt.legend()
+        plt.yscale('log')
+        plt.ylabel('Flux')
+        plt.xlabel('Lethargy')
+        plt.title(f"Fluxes for {self.case_name}")
+        plt.savefig(f"{self.save_path}/{self.case_name}_fluxes_{IRSET_name}.png")
+        plt.close()
+        return
+    
+    def plot_XS(self, IRSET_name, reaction_id):
+        plt.figure(figsize=(10, 6))
+        iso = reaction_id.split("_")[0]
+        reaction = reaction_id.split("_")[1]
+        u_mesh = self.mesh_objects["SHEM295"].lethargyMesh
+        if reaction == "ngamma":
+            reaction = "$(n,\gamma)$"
+        for SSH in self.reaction_data_pair[reaction_id][IRSET_name].keys():
+            XS = self.reaction_data_pair[reaction_id][IRSET_name][SSH]["XS"]
+            u = []
+            XS_to_plot = [] 
+            for i in range(len(XS)):
+                u.extend([u_mesh[i],u_mesh[i+1]])
+                XS_to_plot.extend([XS[i],XS[i]])
+            plt.step(u, XS_to_plot, where='post', label=f"{SSH} {reaction} cross section")
+        plt.legend()
+        plt.xlabel('Lethargy')
+        plt.ylabel(f"$\sigma$ {reaction} (barns)")
+        plt.yscale('log')
+        plt.title(f"Cross sections for {iso} {reaction}")
+        plt.savefig(f"{self.save_path}/{self.case_name}_{reaction_id}_XS_{IRSET_name}.png")
+        plt.close()
+        return
+    
+    def plot_reaction_rates(self, IRSET_name, reaction_id):
+        plt.figure(figsize=(10, 6))
+        iso = reaction_id.split("_")[0]
+        reaction = reaction_id.split("_")[1]
+        u_mesh = self.mesh_objects["SHEM295"].lethargyMesh
+        if reaction == "ngamma":
+            reaction = "$(n,\gamma)$"
+        for SSH in self.reaction_data_pair[reaction_id][IRSET_name].keys():
+            rates = self.reaction_data_pair[reaction_id][IRSET_name][SSH]["rates"]
+            u = []
+            rates_to_plot = [] 
+            for i in range(len(rates)):
+                u.extend([u_mesh[i],u_mesh[i+1]])
+                rates_to_plot.extend([rates[i],rates[i]])
+            plt.step(u, rates_to_plot, where='post', label=f"{SSH} {reaction} reaction rates")
+        plt.legend()
+        plt.xlabel('Lethargy')
+        plt.ylabel(f"{reaction} rates")
+        plt.yscale('log')
+        plt.grid()
+        plt.title(f"Reaction rates for {iso} {reaction}")
+        plt.savefig(f"{self.save_path}/{self.case_name}_{reaction_id}_rates_{IRSET_name}.png")
+        plt.close()
+        return
+    
+class postTreatment_rates_XS_IRtest:
+    def __init__(self, case_name, mesh_objects, self_shielding_methods, save_path):
+        self.case_name = case_name
+        self.mesh_objects = mesh_objects
+        self.self_shielding_methods = self_shielding_methods
+        self.save_path = save_path
+        self.reaction_data_pair = {}
+        
+        self.study_type = "IRTEST"
+        # dictionaries to store the relative differences between self shielded cross sections, reaction rates and fluxes, identified by reaction_id, mesh_name and SSH method
+        self.delta_XS = initialize_nested_dict(["Gd157_ngamma", "U238_ngamma"], ["noIRTEST", "noIRTESTF", "noIRTESTFF", "IRTEST_101", "IRTEST_101F", "IRTEST_101FF", "IRTESTNone", "IRTESTNoneF", "IRTESTNoneFF"], self.self_shielding_methods, default_value=[])
+        self.delta_rates = initialize_nested_dict(["Gd157_ngamma", "U238_ngamma"], ["noIRTEST", "noIRTESTF", "noIRTESTFF", "IRTEST_101", "IRTEST_101F", "IRTEST_101FF", "IRTESTNone", "IRTESTNoneF", "IRTESTNoneFF"], self.self_shielding_methods, default_value=[])
+        self.delta_Fluxes = {}
+
+        return
+
+
 class postTreatment_rates_XS_S2:
     def __init__(self, case_name, mesh_objects, S2_libraries, BU_steps_to_treat, save_path):
         self.case_name = case_name
@@ -284,11 +518,11 @@ class postTreatment_rates_XS_S2:
         self.save_path = save_path
 
         return
-    def parse_S2_outputs(self):
+    def parse_S2_outputs(self, path_S2):
         """
         Parse the output file from S2 calculation
         """
-        path_S2 = f"/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/HOM_CELL_study/{self.case_name}/XS_rates_study"
+        #path_S2 = f"/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/HOM_CELL_study/{self.case_name}/XS_rates_study"
         for bu_step in self.BU_steps_to_treat:
             for library in self.libraries:
                 for mesh_name in self.mesh_objects.keys(): 
@@ -339,10 +573,7 @@ class postTreatment_rates_XS_S2:
     
     def parse_Serpent_microdepletion(self, path_to_serpent_results, mesh_name, library, bu_step=0):
         # Read mdep file
-        if mesh_name == "SHEM295":
-            mdep = st.read(f"{path_to_serpent_results}/HOM_UOX_Gd157_XS_{library}_mc_mdx{bu_step}.m")
-        else:
-            mdep = st.read(f"{path_to_serpent_results}/HOM_UOX_Gd157_XS_{mesh_name}_{library}_mc_mdx{bu_step}.m")
+        mdep = st.read(f"{path_to_serpent_results}/HOM_UOX_Gd157_XS_{mesh_name}_{library}_mc_mdx{bu_step}.m")
         mdep_scores = mdep.xsVal
 
         for key in mdep_scores['1'].keys():
@@ -486,6 +717,8 @@ class postTreatment_rates_XS_S2:
         plt.savefig(f"{self.save_path}/{self.case_name}_{reaction_id}_delta_XS_{mesh_name}_SERPENT2_{bu_step}.png")
         plt.close()
         return
+    
+
 
 
         

@@ -3,6 +3,9 @@
 
 PARAMETER EDIOBJ :: ::: LINKED_LIST EDIOBJ ; ;
 
+STRING library ;
+:: >>library<< ;
+
 MODULE GEO: LIB: SYBILT: USS: ASM: FLU: EDI: GREP: ;
 
 LINKED_LIST GEOM LIB_PT LIB2_PT TRACK CP CALC ;
@@ -14,7 +17,7 @@ GEOM := GEO: :: HOMOGE
       ;
 
 TRACK := SYBILT: GEOM ::
-    TITLE 'HOM_UOX benchmark case'
+    TITLE 'HOM_UOX_Gd157 benchmark case'
     MAXR 2
     ;
 
@@ -24,7 +27,7 @@ LIB_PT := LIB: ::
     NMIX 1    ! MAXIMUM OF MATERIAL MIXTURES
     PT CALENDF 4
     ANIS 3
-    MIXS LIB: DRAGON FIL: J311295Gd157
+    MIXS LIB: DRAGON FIL: <<library>>
 
     MIX 1 750.0
     O16  = O16   2.955339E-02 
@@ -83,11 +86,28 @@ CALC := FLU: CP LIB2_PT TRACK :: EDIT 1 TYPE K EXTE 5 ;
 GREP: CALC :: GETVAL 'K-INFINITY  ' 1 1 1 >>Kinf<< ;
 ECHO 'Kinf PT = ' Kinf ;
 
-EDIOBJ := EDI: CALC LIB2_PT TRACK ::
-        EDIT 0
-        MERG REGI 1
-        MICR 2 U238 Gd157 
-        SAVE ON EDIHOM_295
-;
+IF library "nJ311_295" = THEN 
+  EDIOBJ := EDI: CALC LIB2_PT TRACK ::
+          EDIT 0
+          MERG REGI 1
+          MICR 2 U238 Gd157 
+          SAVE ON EDIHOM_295
+  ;
+ELSEIF library "nJ311_295F" = THEN
+  EDIOBJ := EDI: CALC LIB2_PT TRACK ::
+          EDIT 0
+          MERG REGI 1
+          MICR 2 U238 Gd157 
+          SAVE ON EDIHOM_295F
+  ;
+ELSEIF library "nJ311_295FF" = THEN
+  EDIOBJ := EDI: CALC LIB2_PT TRACK ::
+          EDIT 0
+          MERG REGI 1
+          MICR 2 U238 Gd157 
+          SAVE ON EDIHOM_295FF
+  ;
+ENDIF ;
+
 
 QUIT "LIST" .

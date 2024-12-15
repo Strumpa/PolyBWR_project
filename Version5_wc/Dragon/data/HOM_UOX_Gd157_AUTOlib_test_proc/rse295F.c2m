@@ -2,6 +2,9 @@
 * Self-shielding calculation with RSE method and USS: module
 
 PARAMETER EDIOBJ :: ::: LINKED_LIST EDIOBJ ; ;
+STRING library ;
+:: >>library<< ;
+
 
 MODULE GEO: LIB: SYBILT: USS: ASM: FLU: EDI: GREP: ;
 
@@ -14,7 +17,7 @@ GEOM := GEO: :: HOMOGE
       ;
 
 TRACK := SYBILT: GEOM ::
-    TITLE 'HOM_UOX benchmark case'
+    TITLE 'HOM_UOX_Gd157 benchmark case'
     MAXR 2
     ;
 
@@ -23,7 +26,8 @@ LIB_RSE := LIB: ::
     NMIX 1    ! MAXIMUM OF MATERIAL MIXTURES
     RSE 1.0E-3
     ANIS 3
-    MIXS LIB: DRAGON FIL: J311295Gd157
+    
+    MIXS LIB: DRAGON FIL: <<library>>
 
     MIX 1 750.0
           O16  = O16   2.955339E-02 
@@ -80,13 +84,31 @@ CALC := FLU: CP LIB2_RSE TRACK :: EDIT 1 TYPE K EXTE 5 ;
 
 GREP: CALC :: GETVAL 'K-INFINITY  ' 1 1 1 >>Kinf<< ;
 
+ECHO library ;
 ECHO 'Kinf RSE = ' Kinf ;
 
-EDIOBJ := EDI: CALC LIB2_RSE TRACK ::
-        EDIT 0
-        MERG REGI 1
-        MICR 2 U238 Gd157 
-        SAVE ON EDIHOM_295
-;
+IF library "nJ311_295" = THEN 
+  EDIOBJ := EDI: CALC LIB2_RSE TRACK ::
+          EDIT 0
+          MERG REGI 1
+          MICR 2 U238 Gd157 
+          SAVE ON EDIHOM_295
+  ;
+ELSEIF library "nJ311_295F" = THEN
+  EDIOBJ := EDI: CALC LIB2_RSE TRACK ::
+          EDIT 0
+          MERG REGI 1
+          MICR 2 U238 Gd157 
+          SAVE ON EDIHOM_295F
+  ;
+ELSEIF library "nJ311_295FF" = THEN
+  EDIOBJ := EDI: CALC LIB2_RSE TRACK ::
+          EDIT 0
+          MERG REGI 1
+          MICR 2 U238 Gd157 
+          SAVE ON EDIHOM_295FF
+  ;
+ENDIF ;
+
 
 QUIT "LIST" .

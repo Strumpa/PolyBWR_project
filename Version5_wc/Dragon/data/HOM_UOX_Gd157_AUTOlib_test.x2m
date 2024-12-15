@@ -1,9 +1,10 @@
 * CLE-2000 script
 * Purpose : test self-shielding for UOX+Gd157 benchmark.
 * Author : R. Guasch
-* Date : 12/11/2024
-* Goal : compare XS from USS: PT/RSE/SUBG with AUTO: SUBG on 281/295/315 groups meshes
+* Date : 04/12/2024
+* Goal : compare XS from USS: PT/RSE/SUBG with AUTO: SUBG on 295 groups mesh
 * Extended to write XS in MULTICOMPO for the same benchmark, same SSH methods
+* Compare various input draglib : make sure library string properly identifies draglib in access file
 
 LINKED_LIST COMPO EDI295 ;
 MODULE COMPO: EDI: GREP: DELETE: END: ;
@@ -11,6 +12,9 @@ PROCEDURE auto295F rse295F pt295F subg295F ;
 SEQ_ASCII _COMPO :: FILE './COMPO_295_FINE_Gd157' ;
 
 STRING auto_method := "SUBG" ;
+STRING library := "nJ311_295" ; ! nJ311_295(F/FF) : new 09/12/2024 library with Fine(F) and Finer (FF) versions. 
+
+! the Gd157 limited librs didnt work (-5000 pcm on Keff ?) : J311295Gd157, J311295Gd157F
 
 * Initialize COMPO :
 * Compo stores results for different meshes in different DIR names 
@@ -22,17 +26,29 @@ COMPO := COMPO: ::
         PARA 'SSH' VALU CHAR
         ISOT 2 U238 Gd157
     INIT
+    STEP UP 'EDIHOM_295F'
+        MAXCAL 5
+        PARA 'SSH' VALU CHAR
+        ISOT 2 U238 Gd157
+    INIT
+    STEP UP 'EDIHOM_295FF'
+        MAXCAL 5
+        PARA 'SSH' VALU CHAR
+        ISOT 2 U238 Gd157
+    INIT
+
 ;
 
 * AUTO: self-shielding
 
 * 295 groups SHEM mesh 
 ECHO "Calling procedure auto295F (SUBG in LIB: + AUTO:)" ;
-EDI295 := auto295F :: <<auto_method>> ;
+ECHO library ;
+EDI295 := auto295F :: <<auto_method>> <<library>> ;
 
 
 COMPO := COMPO: COMPO EDI295 ::
-        EDIT 10
+        EDIT 1
         STEP UP 'EDIHOM_295'
         'SSH' A
 ;
@@ -42,10 +58,10 @@ EDI295 := DELETE: EDI295 ;
 * USS: / RSE self-shielding
 * SHEM295 mesh
 ECHO "Calling procedure rse295F (RSE in LIB: + USS:)" ;
-EDI295 := rse295F ;
+EDI295 := rse295F :: <<library>> ;
 
 COMPO := COMPO: COMPO EDI295 ::
-        EDIT 10
+        EDIT 1
         STEP UP 'EDIHOM_295'
         'SSH' R
 ;
@@ -55,10 +71,10 @@ EDI295 := DELETE: EDI295 ;
 
 * SHEM295 mesh
 ECHO "Calling procedure pt295 (PT in LIB: + USS:)" ;
-EDI295 := pt295F ;
+EDI295 := pt295F :: <<library>> ;
 
 COMPO := COMPO: COMPO EDI295 ::
-        EDIT 10
+        EDIT 1
         STEP UP 'EDIHOM_295'
         'SSH' P
 ;
@@ -68,16 +84,135 @@ EDI295 := DELETE: EDI295 ;
 * USS: / SUBG self-shielding
 * SHEM295 mesh
 ECHO "Calling procedure subg295 (SUBG in LIB: + USS:)" ;
-EDI295 := subg295F ;
+EDI295 := subg295F :: <<library>> ;
 
 COMPO := COMPO: COMPO EDI295 ::
-        EDIT 10
+        EDIT 1
         STEP UP 'EDIHOM_295'
         'SSH' S
 ;
 
 EDI295 := DELETE: EDI295 ;
 
+* repeat the same steps for finer autolib data (new_draglibJ311SHEM295_fine_09122024_XSM)
+* AUTO: self-shielding does not work with limited library
+* because of bin data inconsistency for Zr90 (different autolib() arguments in NJOY) 
+* --> need to fix/check this !
+EVALUATE library := "nJ311_295F" ;
+
+* AUTO: self-shielding
+
+* 295 groups SHEM mesh 
+ECHO "Calling procedure auto295F (SUBG in LIB: + AUTO:)" ;
+ECHO library ;
+EDI295 := auto295F :: <<auto_method>> <<library>> ;
+
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'EDIHOM_295F'
+        'SSH' A
+;
+
+EDI295 := DELETE: EDI295 ;
+
+* USS: / RSE self-shielding
+* SHEM295 mesh
+ECHO "Calling procedure rse295F (RSE in LIB: + USS:)" ;
+EDI295 := rse295F :: <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'EDIHOM_295F'
+        'SSH' R
+;
+
+EDI295 := DELETE: EDI295 ;
+
+* USS: / PT self-shielding
+
+* SHEM295 mesh
+ECHO "Calling procedure pt295 (PT in LIB: + USS:)" ;
+EDI295 := pt295F :: <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'EDIHOM_295F'
+        'SSH' P
+;
+
+EDI295 := DELETE: EDI295 ;
+
+* USS: / SUBG self-shielding
+* SHEM295 mesh
+ECHO "Calling procedure subg295 (SUBG in LIB: + USS:)" ;
+EDI295 := subg295F :: <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'EDIHOM_295F'
+        'SSH' S
+;
+
+EDI295 := DELETE: EDI295 ;
+
+! repeat same steps with FINER library new_draglibJ311SHEM295_finer_09122024_XSM.
+EVALUATE library := "nJ311_295FF" ;
+
+* AUTO: self-shielding
+
+* 295 groups SHEM mesh 
+ECHO "Calling procedure auto295F (SUBG in LIB: + AUTO:)" ;
+ECHO library ;
+EDI295 := auto295F :: <<auto_method>> <<library>> ;
+
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'EDIHOM_295FF'
+        'SSH' A
+;
+
+EDI295 := DELETE: EDI295 ;
+
+* USS: / RSE self-shielding
+* SHEM295 mesh
+ECHO "Calling procedure rse295F (RSE in LIB: + USS:)" ;
+EDI295 := rse295F :: <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'EDIHOM_295FF'
+        'SSH' R
+;
+EDI295 := DELETE: EDI295 ;
+
+* USS: / PT self-shielding
+
+* SHEM295 mesh
+ECHO "Calling procedure pt295 (PT in LIB: + USS:)" ;
+EDI295 := pt295F :: <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'EDIHOM_295FF'
+        'SSH' P
+;
+
+EDI295 := DELETE: EDI295 ;
+
+* USS: / SUBG self-shielding
+* SHEM295 mesh
+ECHO "Calling procedure subg295 (SUBG in LIB: + USS:)" ;
+EDI295 := subg295F :: <<library>> ;
+
+COMPO := COMPO: COMPO EDI295 ::
+        EDIT 1
+        STEP UP 'EDIHOM_295FF'
+        'SSH' S
+;
+
+EDI295 := DELETE: EDI295 ;
 _COMPO := COMPO ;
 
 QUIT "LIST" .
