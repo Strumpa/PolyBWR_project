@@ -299,7 +299,7 @@ WHILE istep nstep < DO
             MICR 11 U235 U238 U234 Pu239 Pu240 Pu241 Pu242 Gd155 Gd157 Xe135 Sm149
             COND
             MERG MIX 
-            1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 
+            1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 
             SAVE ON FUEL 
         ;
 
@@ -315,7 +315,7 @@ WHILE istep nstep < DO
             MICR 11 U235 U238 U234 Pu239 Pu240 Pu241 Pu242 Gd155 Gd157 Xe135 Sm149
             COND
             MERG MIX 
-            1 1 1 1 2 2 2 2 3 3 3 3 4 4 4 4 0 0 0
+            1 1 1 1 2 2 2 2 3 3 3 3 0 0 0
             SAVE ON FUEL 
         ;
 
@@ -332,7 +332,7 @@ WHILE istep nstep < DO
             EDIT 0
             MICR 11 U235 U238 U234 Pu239 Pu240 Pu241 Pu242 Gd155 Gd157 Xe135 Sm149
             MERG MIX 
-            1 1 1 1 2 2 2 2 3 3 3 3 4 4 4 4 0 0 0
+            1 1 1 1 2 2 2 2 3 3 3 3 0 0 0
             COND 0.625
             SAVE ON EDIBU_2gr 
         ;

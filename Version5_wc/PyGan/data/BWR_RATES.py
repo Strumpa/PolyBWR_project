@@ -72,6 +72,15 @@ def parse_Serpent2_lattice_det(path_to_S2, name_case, edepmode, bu):
                     U235_fiss_rates_S2[f"cell{j+1}"][f"G{i+1}"] = detector.detectors['_pins_2G'].tallies[i,j,k]
     return U235_fiss_rates_S2
 
+def renormalize_rates(rates):
+    """
+    rates is the list of rates values to renormalize.
+    They correspond to reaction rates vs cells in the geometry in a single energy group.
+    returns rates normalized to nCells == length of rates.
+    """
+    rates = np.array(rates)
+    return rates/np.sum(rates)
+
 def plot_field_on_geometry(geom_name, field):
     if geom_name == "AT10_2x2":
         n_cells = 4
@@ -109,9 +118,8 @@ def BWR_CLUSTER(name_geom, name_case, name_compo, reaction_type, n_groups, bu):
     # Graphical settings (create a scale from white to red - possible to go from bleu to red to differenciate negative differences from positive ones)
     cmap = matplotlib.cm.get_cmap('bwr')
 
-    sym = 'diagonal'
     if name_geom == "AT10_2x2":
-        sym = "none"
+        sym = "diagonal"
 
     ################## FILE MANAGEMENT AND COMPOS ##################
 
@@ -145,7 +153,13 @@ def BWR_CLUSTER(name_geom, name_case, name_compo, reaction_type, n_groups, bu):
     U235_fission_rates_S2 = parse_Serpent2_lattice_det(SERPENT_path, name_case, 2, 0)
 
     if name_geom == "AT10_2x2_UOX":
-        MIXES = [0,1,2,3]
+        if sym == "diagonal":
+            MIXES_idx = [0,1,2]
+            MIXES = ["C1", "C2", "C4"]
+            
+        else:
+            MIXES_idx = [0,1,2,3]
+            MIXES = ["C1", "C2", "C2", "C4"]
     
     # Isotopes souhaites et nb total d'isotopes
     iso_study = ['U235 ', 'U238 ', 'Pu239', 'Pu241']
@@ -161,7 +175,7 @@ def BWR_CLUSTER(name_geom, name_case, name_compo, reaction_type, n_groups, bu):
     prodS2 = 0.0
     ListS2 = []    
     nCell = 4
-    MIXES = [0,1,2,3]
+
     # Create index to ALIAS dictionary
     Iso_index_to_ALIAS = {}
     U235_fiss_rate = {}
@@ -174,7 +188,7 @@ def BWR_CLUSTER(name_geom, name_case, name_compo, reaction_type, n_groups, bu):
         isotope = pyCOMPO['EDIBU']['MIXTURES'][0]['CALCULATIONS'][0]['ISOTOPESLIST'][iso]['ALIAS'][0:5]
         print(f"isotope = {isotope}")
         if isotope in ['U235 ']: #, 'U238 ']: #, 'Pu239', 'Pu241']:
-            for mix in MIXES:
+            for mix in MIXES_idx:
                 U235_fiss_rate[f"mix{mix+1}"] = {}
                 NWT0 = pyCOMPO['EDIBU_2gr']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NWT0']
                 N = pyCOMPO['EDIBU']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESDENS'][iso]
@@ -189,20 +203,28 @@ def BWR_CLUSTER(name_geom, name_case, name_compo, reaction_type, n_groups, bu):
                     print(f"mix{mix+1}, gr{gr+1}, U235_fiss_rate = {U235_fiss_rate[f'mix{mix+1}'][f'gr{gr+1}']}")
     
     print('$$$$$$$$$$$$$$$$$$$$$$$$$$', prodS2,prodD5)
-    print([U235_fiss_rate[f"mix{mix+1}"][f"gr1"] for mix in MIXES])
-    print([U235_fission_rates_S2[f"cell{mix+1}"][f"G1"] for mix in MIXES])
-    prodS2 = sum([U235_fission_rates_S2[f"cell{mix+1}"][f"G{gr+1}"] for mix in MIXES for gr in range(n_groups)])
-    renorm_factor = prodD5/prodS2
+    print([U235_fiss_rate[f"mix{mix+1}"][f"gr1"] for mix in MIXES_idx])
+    print([U235_fission_rates_S2[f"cell{mix+1}"][f"G1"] for mix in MIXES_idx])
+    prodS2 = sum([U235_fission_rates_S2[f"cell{mix+1}"][f"G{gr+1}"] for mix in MIXES_idx for gr in range(n_groups)])
+    
+    # normalize the rates : sum of rates = nCells
+    # group 1 : U235 fast fissions : note that group numbers are in increasing lethargy in Dragon and in increasing energy in Serpent
+    U235_fiss_rate_norm_1 = renormalize_rates([U235_fiss_rate[f"mix{mix+1}"][f"gr1"] for mix in MIXES_idx])
+    U235_fission_rates_S2_norm_1 = renormalize_rates([U235_fission_rates_S2[f"cell{mix+1}"][f"G2"] for mix in MIXES_idx])
 
-    #U235_fiss_rate = {f"mix{mix}": {f"gr{gr}": U235_fiss_rate[f"mix{mix+1}"][f"gr{gr}"]*renorm_factor for gr in range(1,3)} for mix in MIXES}
+    # group 2 : U235 thermal fissions
+    U235_fiss_rate_norm_2 = renormalize_rates([U235_fiss_rate[f"mix{mix+1}"][f"gr2"] for mix in MIXES_idx])
+    U235_fission_rates_S2_norm_2 = renormalize_rates([U235_fission_rates_S2[f"cell{mix+1}"][f"G1"] for mix in MIXES_idx])
 
-    U235_fission_rates_S2 = {f"cell{mix+1}": {f"G{gr+1}": U235_fission_rates_S2[f'cell{mix+1}'][f'G{gr+1}']*renorm_factor for gr in range(n_groups)} for mix in MIXES}
-    #plot_field_on_geometry(name_geom, [U235_fiss_rate[f"mix{mix}"][f"gr1"] for mix in MIXES])
-    print([U235_fiss_rate[f"mix{mix+1}"][f"gr2"] for mix in MIXES])
-    print([U235_fission_rates_S2[f"cell{mix+1}"][f"G1"] for mix in MIXES])
+    print(f"G1 : U235_fiss_rate_norm = {U235_fiss_rate_norm_1}")
+    print(f"G1 : U235_fission_rates_S2_norm = {U235_fission_rates_S2_norm_1}")
 
-    print([U235_fiss_rate[f"mix{mix+1}"][f"gr1"] for mix in MIXES])
-    print([U235_fission_rates_S2[f"cell{mix+1}"][f"G2"] for mix in MIXES])
+
+
+    print(f"G2 : U235_fiss_rate_norm = {U235_fiss_rate_norm_2}")
+    print(f"G2 : U235_fission_rates_S2_norm = {U235_fission_rates_S2_norm_2}")
+
+
 
 
 

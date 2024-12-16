@@ -42,7 +42,7 @@ class BWR_2x2_case:
         if a==False:
             os.makedirs(self.SAVE_DIR)
 
-        self.isotopes_to_compare = ['U235','U236','U238','Pu239','Pu240','Pu241','Pu242','Gd155','Gd157','Xe135','Sm149']
+        self.isotopes_to_compare = ['U235','U234','U238','Pu239','Pu240','Pu241','Pu242','Gd155','Gd157','Xe135','Sm149']
         self.fissionable_isotopes = ['U235 ', 'U238 ', 'Pu239', 'Pu241']
         self.nCELL = 4
         # Load Serpent2 reference case
