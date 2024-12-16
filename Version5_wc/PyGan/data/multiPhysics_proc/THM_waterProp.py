@@ -48,7 +48,7 @@ class statesVariables():
     - getReynoldsNumber(i): Computes the Reynolds number for flow in a given cell.
     """
 
-    def __init__(self, U, P, H, voidFraction, D_h, areaMatrix, DV, voidFractionCorrel, frfaccorel, P2Pcorel, Dz):
+    def __init__(self, U, P, H, voidFraction, D_h, areaMatrix, DV, voidFractionCorrel, frfaccorel, P2Pcorel, Dz, q__, qFlow, rf, rw):
         
         self.nCells = len(U)
         self.U = U
@@ -61,9 +61,14 @@ class statesVariables():
         self.g = 9.81
         self.D_h = D_h
         self.areaMatrix = areaMatrix
-        self.K_loss = 0#0.32
+        self.K_loss = 0#0.1
         self.Dz = Dz
         self.DV = DV
+        self.q__ = q__
+        self.qFlow = qFlow
+        self.rf = rf
+        self.rw = rw
+        self.height = self.Dz * self.nCells
 
     def createFields(self):
 
@@ -106,6 +111,9 @@ class statesVariables():
     def modBestion(self):
         self.rholTEMP, self.rhogTEMP, self.rhoTEMP, self.voidFractionTEMP, self.DhfgTEMP, self.fTEMP, self.areaMatrix_1TEMP, self.areaMatrix_2TEMP, self.areaMatrix_2TEMP, self.VgjTEMP, self.C0TEMP, self.VgjPrimeTEMP = np.ones(self.nCells), np.ones(self.nCells), np.ones(self.nCells), np.ones(self.nCells), np.ones(self.nCells),np.ones(self.nCells),np.ones(self.nCells),np.ones(self.nCells),np.ones(self.nCells),np.ones(self.nCells),np.ones(self.nCells),np.ones(self.nCells)
         self.voidFractionOld = self.voidFraction
+        self.Ul = np.ones(self.nCells)
+        self.Ug = np.ones(self.nCells)
+        self.Rel = np.ones(self.nCells)
         for i in range(self.nCells):
             self.rholTEMP[i], self.rhogTEMP[i], self.rhoTEMP[i] = self.getDensity(i)
             self.C0TEMP[i] = self.getC0(i)
@@ -119,10 +127,16 @@ class statesVariables():
             self.rhoTEMP[i] = self.getDensity(i)[2]
             self.fTEMP[i] = self.getFrictionFactor(i)
             self.areaMatrix_1TEMP[i], self.areaMatrix_2TEMP[i] = self.getAreas(i)
+            self.Ul[i] = self.getUl(i)
+            self.Ug[i] = self.getUg(i)
+            self.Rel[i] = self.getReynoldsNumberLiquid(i)
     
     def HEM1(self):
         self.rholTEMP, self.rhogTEMP, self.rhoTEMP, self.voidFractionTEMP, self.DhfgTEMP, self.fTEMP, self.areaMatrix_1TEMP, self.areaMatrix_2TEMP, self.areaMatrix_2TEMP, self.VgjTEMP, self.C0TEMP, self.VgjPrimeTEMP = np.ones(self.nCells), np.ones(self.nCells), np.ones(self.nCells), np.ones(self.nCells), np.ones(self.nCells),np.ones(self.nCells),np.ones(self.nCells),np.ones(self.nCells),np.ones(self.nCells),np.ones(self.nCells),np.ones(self.nCells),np.ones(self.nCells)
         self.voidFractionOld = self.voidFraction
+        self.Ul = np.ones(self.nCells)
+        self.Ug = np.ones(self.nCells)
+        self.Rel = np.ones(self.nCells)
         for i in range(self.nCells):
             self.rholTEMP[i], self.rhogTEMP[i], self.rhoTEMP[i] = self.getDensity(i)
             self.C0TEMP[i] = self.getC0(i)
@@ -136,10 +150,16 @@ class statesVariables():
             self.rhoTEMP[i] = self.getDensity(i)[2]
             self.fTEMP[i] = self.getFrictionFactor(i)
             self.areaMatrix_1TEMP[i], self.areaMatrix_2TEMP[i] = self.getAreas(i)
+            self.Ul[i] = self.getUl(i)
+            self.Ug[i] = self.getUg(i)
+            self.Rel[i] = self.getReynoldsNumberLiquid(i)
 
     def GEramp(self):
         self.rholTEMP, self.rhogTEMP, self.rhoTEMP, self.voidFractionTEMP, self.DhfgTEMP, self.fTEMP, self.areaMatrix_1TEMP, self.areaMatrix_2TEMP, self.areaMatrix_2TEMP, self.VgjTEMP, self.C0TEMP, self.VgjPrimeTEMP = np.ones(self.nCells), np.ones(self.nCells), np.ones(self.nCells), np.ones(self.nCells), np.ones(self.nCells),np.ones(self.nCells),np.ones(self.nCells),np.ones(self.nCells),np.ones(self.nCells),np.ones(self.nCells),np.ones(self.nCells),np.ones(self.nCells)
         self.voidFractionOld = self.voidFraction
+        self.Ul = np.ones(self.nCells)
+        self.Ug = np.ones(self.nCells)
+        self.Rel = np.ones(self.nCells)
         for i in range(self.nCells):
             self.rholTEMP[i], self.rhogTEMP[i], self.rhoTEMP[i] = self.getDensity(i)
             self.C0TEMP[i] = self.getC0(i)
@@ -167,10 +187,16 @@ class statesVariables():
 
             self.fTEMP[i] = self.getFrictionFactor(i)
             self.areaMatrix_1TEMP[i], self.areaMatrix_2TEMP[i] = self.getAreas(i)
+            self.Ul[i] = self.getUl(i)
+            self.Ug[i] = self.getUg(i)
+            self.Rel[i] = self.getReynoldsNumberLiquid(i)
 
     def EPRIvoidModel(self):
         self.rholTEMP, self.rhogTEMP, self.rhoTEMP, self.voidFractionTEMP, self.DhfgTEMP, self.fTEMP, self.areaMatrix_1TEMP, self.areaMatrix_2TEMP, self.areaMatrix_2TEMP, self.VgjTEMP, self.C0TEMP, self.VgjPrimeTEMP = np.ones(self.nCells), np.ones(self.nCells), np.ones(self.nCells), np.ones(self.nCells), np.ones(self.nCells),np.ones(self.nCells),np.ones(self.nCells),np.ones(self.nCells),np.ones(self.nCells),np.ones(self.nCells),np.ones(self.nCells),np.ones(self.nCells)
         self.voidFractionOld = self.voidFraction
+        self.Ul = np.ones(self.nCells)
+        self.Ug = np.ones(self.nCells)
+        self.Rel = np.ones(self.nCells)
         for i in range(self.nCells):
             self.rholTEMP[i], self.rhogTEMP[i], self.rhoTEMP[i] = self.getDensity(i)
             self.C0TEMP[i] = self.getC0(i)
@@ -181,10 +207,10 @@ class statesVariables():
                 voidFractionNew = self.getVoidFraction(i)
                 if np.linalg.norm(voidFractionNew - self.voidFractionTEMP[i]) < 1e-3:
                     self.voidFractionTEMP[i] = voidFractionNew
-                    self.rhoTEMP[i] = self.getDensity(i)[2]
-                    self.C0TEMP[i] = self.getC0(i)
-                    self.VgjTEMP[i] = self.getVgj(i)
-                    self.VgjPrimeTEMP[i] = self.getVgj_prime(i)
+                    #self.rhoTEMP[i] = self.getDensity(i)[2]
+                    #self.C0TEMP[i] = self.getC0(i)
+                    #self.VgjTEMP[i] = self.getVgj(i)
+                    #self.VgjPrimeTEMP[i] = self.getVgj_prime(i)
                     break
                 elif j == 999:
                     raise ValueError('Convergence in update fields not reached')
@@ -198,8 +224,23 @@ class statesVariables():
 
             self.fTEMP[i] = self.getFrictionFactor(i)
             self.areaMatrix_1TEMP[i], self.areaMatrix_2TEMP[i] = self.getAreas(i)
+            self.Ul[i] = self.getUl(i)
+            self.Ug[i] = self.getUg(i)
+            self.Rel[i] = self.getReynoldsNumberLiquid(i)
 
     def getDensity(self, i):
+        """ if self.voidFractionTEMP[i] <= 0.001:
+            liquid = IAPWS97(H = self.H[-1][i]*0.001, P = self.P[i]*(10**(-6)))
+            rho_g = 0
+            rho_l = 1/liquid.v
+            rho = rho_l
+            return rho_l, rho_g, rho
+        else: """
+        """ if self.voidFractionTEMP[i] <= 0.001:
+            rho_g = 0
+            rho_l = 1/IAPWS97(P = self.P[i]*(10**(-6)), x = 0).v
+            rho = rho_l
+            return rho_l, rho_g, rho """
         vapor = IAPWS97(P = self.P[i]*(10**(-6)), x = 1)
         liquid = IAPWS97(P = self.P[i]*(10**(-6)), x = 0)
         rho_g = vapor.rho
@@ -208,14 +249,101 @@ class statesVariables():
         return rho_l, rho_g, rho
     
     def getQuality(self, i):
-        hl, hg = self.getPhasesEnthalpy(i)
-        H = self.H[i]
-        if H*0.001 < hl:
-            return 0
-        elif H*0.001 > hg:
-            return 1
-        elif H*0.001 <= hg and H*0.001 >= hl:
-            return (H*0.001 - hl)/(hg - hl)
+        correl = "simple"
+        if correl == 'simple':
+            hl, hg = self.getPhasesEnthalpy(i)
+            H = self.H[i]
+            hfg = IAPWS97(P = self.P[i]*(10**(-6)), x = 0).h
+            if H*0.001 < hl:
+                x = (H*0.001 - hl)/(hg - hl)
+                xsub = self.q__[i]*self.DV/(self.qFlow * self.areaMatrix[i] * hfg)
+                return 0
+            elif H*0.001 > hg:
+                return 1
+            
+            elif H*0.001 <= hg and H*0.001 >= hl:
+                #print(f'Quality: {(H*0.001 - hl)/(hg - hl)}')
+                return (H*0.001 - hl)/(hg - hl)
+        
+        elif correl == 'EPRI':
+            epriCorrel = '1'
+            Xs = 0.05
+            Xh = Xs / 2
+            hl, hg = self.getPhasesEnthalpy(i)
+            hl = hl
+            hg = hg
+            H = self.H[i]
+            p = self.P[i]
+            xeq = (hl - H*0.001) / (hl - hg)
+            
+            if epriCorrel == "1":
+                if xeq >= Xs:
+                    QUALITY = xeq
+                    print(f'IF 1')
+                else:
+                    rhol = self.rholTEMP[i]
+                    rhog = self.rhogTEMP[i]
+                    #print(f'i: {i}, rho_l: {rhol}, rho_g: {rhog}, hauteur: {i*self.Dz}')
+                    u = self.U[i]
+                    muf = IAPWS97(P = p*(10**(-6)), x = 1).mu
+                    Re = rhol * abs(u) * self.D_h[i] / muf
+
+                    Cpf = IAPWS97(P = p*(10**(-6)), x = 1).cp
+                    k_f = IAPWS97(P = p*(10**(-6)), x = 1).k
+                    Pr = Cpf * muf / k_f
+
+                    #qdp = (p * self.D_h[i])  /(2 * np.pi * self.rf * self.D_h[i])
+                    qdp = self.q__[i] * self.DV / (2 * np.pi * self.rw * self.height)
+
+                    # Calculate heat transfer coefficients
+                    hb = np.exp(p / 4.35e6) / (22.7)**2 * 1000.0  # W/(m^2·K)
+                    Chn = 0.2 / 4.0 * self.D_h[i] / self.rf
+                    hhn = Chn * Re**0.662 * Pr * k_f / (self.D_h[i])
+                    Cdb = (0.033 *self.areaMatrix[i] / (self.areaMatrix[i] +  np.pi * self.rf**2 + np.pi *self.rw**2) + 0.013)
+                    hdb = Cdb * Re**0.8 * Pr**0.4 * k_f / (self.D_h[i])
+
+                    # Intermediate calculations
+                    tmp1 = 4.0 * hb * (hdb + hhn)**2
+                    tmp2 = 2.0 * hdb**2 * (hhn + hdb / 2.0) + 8.0 * qdp * hb * (hdb + hhn)
+                    tmp3 = qdp * (4.0 * hb * qdp + hdb**2)
+
+                    # Calculate characteristic quality xd  ///////////////PROBLEM HERE
+                    delta_h = hg - hl
+                    xd = -Cpf / (delta_h) * (
+                    (-tmp2 + np.sqrt(tmp2**2 - 4.0 * tmp1 * tmp3)) / (2.0 * tmp1)
+                    )
+
+                    # Determine quality based on xeq and xd
+                    if xeq <= 0.0:
+                        if xeq <= -xd:
+                            QUALITY = 0.0       
+                            print(f'IF 2')
+                        else:
+                            tmp1 = 1 + xeq / xd
+                            tmp2 = tmp1**2
+                            QUALITY = xd * tmp2 * (0.1 + 0.087 * tmp1 + 0.05 * tmp2)
+                            print(f'IF 3')
+                    elif Xh > xd:
+                        if xeq >= 2 * xd:
+                            QUALITY = xeq
+                            print(f'IF 4')
+                        else:
+                            tmp1 = xeq / xd
+                            QUALITY = xd * (0.237 + tmp1 * (0.661 + tmp1 * (0.153 + tmp1 * (-0.01725 - tmp1 * 0.0020625))))
+                            print(f'IF 5')
+                    else:
+                        tmp1 = xeq / Xh
+                        tmp2 = xd / Xh
+                        tmp3 = 0.237 * tmp2
+                        QUALITY = Xh * (tmp3 + tmp1 * (0.661 + tmp1 * (0.5085 - 0.3555 * tmp2 + tmp1 * (tmp3 - 0.25425 + tmp1 * (0.042375 - 0.0444375 * tmp2)))))
+                        print(f'IF 6')
+
+                print(f'Quality: {QUALITY}')
+                if QUALITY >= 1.0:
+                    return 0.99
+                else:
+                    return QUALITY
+
     
     def getVoidFraction(self, i):
         correl = 'paths'
@@ -224,9 +352,9 @@ class statesVariables():
             rho_l = self.rholTEMP[i]
             rho_g = self.rhogTEMP[i]
             if x_th == 0:
-                return 0.0001
+                return 0
             elif x_th == 1:
-                return 0.99
+                return 1
             else:
                 return (x_th * rho_l)/(x_th * rho_l + (1 - x_th) * rho_g)
         elif correl == 'paths':
@@ -237,9 +365,9 @@ class statesVariables():
             V_gj = self.VgjTEMP[i]
             C0 = self.C0TEMP[i]
             if x_th == 0:
-                return 0.0001
+                return 0
             elif x_th == 1:
-                return 0.99
+                return 1
             else:
                 return x_th / (C0 * (x_th + (rho_g / rho_l) * (1 - x_th)) + (rho_g * V_gj) / (rho_l * u))
     
@@ -320,7 +448,8 @@ class statesVariables():
         if self.voidFractionCorrel == 'HEM1':
             return 1
             
-        
+    
+
     def getVgj_prime(self, i):
         U = self.U[i]
         C0 = self.C0TEMP[i]
@@ -336,15 +465,21 @@ class statesVariables():
     def getFrictionFactor(self, i):
         U = self.U[i]
         P = self.P[i]
-        Re = self.getReynoldsNumber(i)
-
+        Re = self.getReynoldsNumberLiquid(i)
+        #print('voidFraction list: ', self.voidFractionTEMP)
+        if (self.voidFractionTEMP[i]<0.002):
+            #print(f"Void fraction: {self.voidFractionTEMP[i]}")
+            return 2*0.316 * Re**(-0.25)
         if self.frfaccorel == 'base': #Validated
-            return 1
-        
+            return 0.003
+        elif self.frfaccorel == "null": #Validated
+            return 0
         elif self.frfaccorel == 'blasius': #Validated
+            #return 0.316 * Re**(-0.25)
             return 0.316 * Re**(-0.25)
         elif self.frfaccorel == 'Churchill': #Validated
-            Ra = 0.4 * (10**(-6)) #Roughness
+            #old 0.4 When Ra increased pressure drop increase
+            Ra = 0.8 * (10**(-6)) #Roughness
             R = Ra / self.D_h[i]
             frict=8*(((8.0/Re)**12)+((2.475*np.log(((7/Re)**0.9)+0.27*R))**16+(37530/Re)**16)**(-1.5))**(1/12)
             return frict
@@ -366,14 +501,14 @@ class statesVariables():
         P = self.P[i]
         epsilon = self.voidFractionTEMP[i]
         if epsilon <= 0.001:
-            return 0
+            return 1
         if self.P2Pcorel == 'base': #Validated
             phi2phi = 1 + 3*epsilon
         elif self.P2Pcorel == 'lockhartMartinelli':
             return np.sqrt(self.lockhartMartinelli(i))
         elif self.P2Pcorel == 'HEM1': #Validated
             phi2phi = (rho/rho_l)*((rho_l/rho_g)*x_th + +1)
-        elif self.P2Pcorel == 'HEM2': #Validated
+        elif self.P2Pcorel == 'HEM2': #Validated    
             m = IAPWS97(P = P*(10**(-6)), x = 0).mu / IAPWS97(P = P*(10**(-6)), x = 1).mu
             phi2phi = (rho/rho_l)*((m-1)*x_th + 1)*((rho_l/rho_g)*x_th + +1)**(0.25)
         elif self.P2Pcorel == 'MNmodel': #Validated
@@ -384,8 +519,14 @@ class statesVariables():
         return phi2phi
     
     def getAreas(self, i):
-        A_chap_pos = self.areaMatrix[i-1] +  (self.getPhi2Phi(i)/2) * ((self.fTEMP[i] / self.D_h[i]) + (self.K_loss / self.Dz)) * self.DV
-        A_chap_neg = self.areaMatrix[i] - (self.getPhi2Phi(i)/2) * ((self.fTEMP[i] / self.D_h[i]) + (self.K_loss / self.Dz)) * self.DV
+        if self.voidFractionTEMP[i] > - 0.001:
+            A_chap_pos = self.areaMatrix[i-1] +  (self.getPhi2Phi(i-1)/4) * ((self.fTEMP[i-1] / self.D_h[i-1]) + (self.K_loss / self.Dz)) * self.DV
+            A_chap_neg = self.areaMatrix[i] - (self.getPhi2Phi(i)/4) * ((self.fTEMP[i] / self.D_h[i]) + (self.K_loss / self.Dz)) * self.DV
+        """ else: 
+            A_chap_pos = self.areaMatrix[i-1] + self.fTEMP[i-1] * self.height / (2 * self.D_h[i-1])
+            A_chap_neg = self.areaMatrix[i] - self.fTEMP[i] * self.height / (2 * self.D_h[i]) """
+        #print(A_chap_neg)
+        #print(A_chap_pos)
         return A_chap_pos, A_chap_neg
 
     def getPhasesEnthalpy(self, i):
@@ -405,12 +546,20 @@ class statesVariables():
         
         return rho * abs(U) * self.D_h[i] / m
     
+    
     def getReynoldsNumberLiquid(self, i):
         Ul = self.getUl(i)
         rho = self.rholTEMP[i]
         P = self.P[i]
         m = IAPWS97(P = P*(10**(-6)), x = 0).mu
         return rho * abs(Ul) * self.D_h[i] / m
+
+    def getReynoldsNumberVapor(self, i):
+        Ug = self.getUg(i)
+        rho = self.rhogTEMP[i]
+        P = self.P[i]
+        m = IAPWS97(P = P*(10**(-6)), x = 1).mu
+        return rho * abs(Ug) * self.D_h[i] / m
     
     def getUl(self, i):
         return self.U[i] - (self.voidFractionTEMP[i] / ( 1 - self.voidFractionTEMP[i])) * (self.rhogTEMP[i] / self.rhoTEMP[i]) * self.VgjPrimeTEMP[i]
@@ -425,8 +574,17 @@ class statesVariables():
         rhom = self.rhoTEMP[i]
         rho_l = self.rholTEMP[i]
         rho_g = self.rhogTEMP[i]
-        X = np.sqrt(rho_l/rho_g)*(Ul/Ug)
-        return 1 +  X**2 + 20* X
+        mul = IAPWS97(P = self.P[i]*(10**(-6)), x = 0).Liquid.mu
+        mulg = IAPWS97(P = self.P[i]*(10**(-6)), x = 1).Vapor.mu
+
+        Rel = self.getReynoldsNumberLiquid(i)
+        Reg = self.getReynoldsNumberVapor(i)
+        fliq = 0.079 * (Rel)**(-0.25)
+        fgas = 0.079 * (Reg)**(-0.25)
+
+        return ((1.2*(rho_l/rho_g - 1)*self.xThTEMP[i]**0.824 + 1)*(rhom/rho_l)*(rho_l/rho_g))**2 #*self.xThTEMP[i] + 1)**0.25
+        #X = (fliq*rho_l*Ul**2)/(fgas*rho_g*Ug**2)
+        #return 1+20/X
     
     def getVelocity(self):
         Ul = []
