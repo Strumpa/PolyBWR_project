@@ -321,7 +321,7 @@ Iz1 = 70 # number of control volumes in the axial direction, added 70 for compar
 # Iz1 = 10, 20, 40, 50, 70, 80 and 160 are supported for the DONJON solution
 
 
-power_scaling_factor = 1 # 1, 2, 4, 8 # Scaling factor for the power axial distribution
+power_scaling_factor = 2 # 1, 2, 4, 8 # Scaling factor for the power axial distribution
 
 ########## Choice of Thermalhydraulics correlation ##########
 voidFractionCorrel = 'EPRIvoidModel' # 'modBestion', 'HEM1', 'GEramp', 'EPRIvoidModel'
@@ -423,12 +423,12 @@ Residuals_Relaxed_Power_Distribs = []
 
 ######## Creation of results directory ##########
 path=os.getcwd()
-a=os.path.exists(f"multiPhysics_PyGan_24UOX_cell")
+a=os.path.exists(f"multiPhysics_PyGan/24UOX_cell")
 if a==False:
-    os.mkdir(f"multiPhysics_PyGan_24UOX_cell")
+    os.makedirs(f"multiPhysics_PyGan/24UOX_cell")
 print(path)
 
-SAVE_DIR = f"multiPhysics_PyGan_24UOX_cell/{numericalMethod}/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/"
+SAVE_DIR = f"multiPhysics_PyGan/24UOX_cell/{numericalMethod}/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/"
 
 a=os.path.exists(SAVE_DIR)
 if a==False:
@@ -769,8 +769,8 @@ if height == 3.8:
 elif height == 1.555:
     save_id = "h1555"
 
-SAVE_FIG_DIR = f"multiPhysics_PyGan_24UOX_cell/{numericalMethod}/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/{save_id}/mesh{Iz1}_{power_scaling_factor}/Figures"
-SAVE_DATA_DIR = f"multiPhysics_PyGan_24UOX_cell/{numericalMethod}/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/{save_id}/mesh{Iz1}_{power_scaling_factor}/Data"
+SAVE_FIG_DIR = f"multiPhysics_PyGan/24UOX_cell/{numericalMethod}/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/{save_id}/mesh{Iz1}_{power_scaling_factor}/Figures"
+SAVE_DATA_DIR = f"multiPhysics_PyGan/24UOX_cell/{numericalMethod}/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/{save_id}/mesh{Iz1}_{power_scaling_factor}/Data"
 
 a=os.path.exists(SAVE_FIG_DIR)
 if a==False:
@@ -824,7 +824,7 @@ Residual_Qfiss = np.array(Residuals_Volumic_Powers)
 Residuals_Power_Distrib = np.array(Residuals_Power_Distribs)
 
 
-
+print(f"Saving results in {SAVE_DATA_DIR}")
 np.savetxt(f"TeffFuel_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{relaxPOW_id}_{relaxTH_id}.txt", TeffFuel[-1])
 np.savetxt(f"Keffs_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{relaxPOW_id}_{relaxTH_id}.txt", Keffs)
 np.savetxt(f"Twater_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{relaxPOW_id}_{relaxTH_id}.txt", Twater[-1])

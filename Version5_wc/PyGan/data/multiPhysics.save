@@ -16,12 +16,11 @@ else
    MACH=`uname -sm | sed 's/[ ]/_/'`
 fi
 
-cp *.ps ./multiPhysics_PyGan_*
-cp _COMPO* ./multiPhysics_PyGan_*
+cp _COMPO* ./multiPhysics_PyGan
 mkdir DISTR_res
 mv Flux*.res DISTR_res/
 mv Pdistr.res DISTR_res/
-cp -r DISTR_res ./multiPhysics_PyGan_*
-cp -r multiPhysics_PyGan_* $1/"$MACH"/
+cp -r DISTR_res ./multiPhysics_PyGan
+cp -r multiPhysics_PyGan $1/"$MACH"/
 
 echo '$$$ ----- multiPhysics.save : script finish'
