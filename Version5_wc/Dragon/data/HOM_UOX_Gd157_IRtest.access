@@ -25,6 +25,8 @@ else
 fi
 # new_draglibJ311SHEM295_09122024_XSM is a micXS lib equivalent to J311_295, with more dilutions for Gd157. AUTO should be available.
 ln -s "$pos"/new_draglibJ311SHEM295_09122024_XSM nJ311_295 
+ln -s "$pos"/newGen_draglibJeff3p1p1SHEM295 NewJ311_295
+ln -s "$pos"/draglibendfb7r1SHEM295 ENDF71_295
 
 echo "reading xs in $pos"
 ls -l

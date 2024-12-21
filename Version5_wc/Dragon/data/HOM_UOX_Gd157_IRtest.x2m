@@ -10,10 +10,12 @@ LINKED_LIST COMPO EDI295 ;
 MODULE COMPO: EDI: GREP: DELETE: END: ;
 PROCEDURE auto auto97 auto101 auto105 autoNone rse rse97 rse101 rse105 rseNone ;
 PROCEDURE pt pt97 pt101 pt105 ptNone subg tone shi ;
-SEQ_ASCII _COMPO :: FILE './COMPO_Gd157_IR_TONE_SHI' ;
+SEQ_ASCII _COMPO :: FILE './ENDF71_COMPO_Gd157_IR_TONE_SHI' ;
 
 STRING auto_method := "PT" ;
-STRING library := "nJ311_295" ; ! new Jeff3.1.1 SHEM295 (new_draglibJ311SHEM295_09122024_XSM)
+STRING library := "ENDF71_295" ; ! Test with ENDF7.1 evaluation on 295 groups mesh 
+! new Generation Jeff3.1.1 SHEM295 (newGen_draglibJeff3p1p1SHEM295)
+! High energy treatment with statistical resonances in Autolib data
 
 * Initialize COMPO :
 * Compo stores results for different meshes in different DIR names 

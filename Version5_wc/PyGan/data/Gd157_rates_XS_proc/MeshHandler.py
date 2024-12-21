@@ -22,13 +22,26 @@ class energyMeshHandler:
         self.re_order_energy_mesh()
         self.computeLethargyMesh_from_energy_mesh()
         #self.printnfgCard()
+        self.compute_mid_point_energy() # create a mesh with the mid points of the energy groups (average between two energy groups bounds)
+        self.compute_mid_point_lethargy() # create a mesh with the mid points of the lethargy groups (average between two lethargy groups bounds)
 
     def re_order_energy_mesh(self):
         self.energyMesh = self.D5energyMesh[::-1] # in increasing energy order
         print(f"energyMesh = {self.energyMesh}")
         print(f"Number of energy groups = {len(self.energyMesh)-1}")
         return
-        
+    
+    def compute_mid_point_energy(self):
+        self.mid_point_energy = np.zeros(len(self.energyMesh)-1)
+        for i in range(len(self.energyMesh)-1):
+            self.mid_point_energy[i] = (self.energyMesh[i]+self.energyMesh[i+1])/2
+        return
+
+    def compute_mid_point_lethargy(self):
+        self.mid_point_lethargy = np.zeros(len(self.lethargyMesh)-1)
+        for i in range(len(self.lethargyMesh)-1):
+            self.mid_point_lethargy[i] = (self.lethargyMesh[i]+self.lethargyMesh[i+1])/2
+        return
 
     def readLethargyWidths(self):
         # read lethargy widths file
