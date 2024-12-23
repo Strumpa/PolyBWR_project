@@ -207,10 +207,10 @@ class statesVariables():
                 voidFractionNew = self.getVoidFraction(i)
                 if np.linalg.norm(voidFractionNew - self.voidFractionTEMP[i]) < 1e-3:
                     self.voidFractionTEMP[i] = voidFractionNew
-                    #self.rhoTEMP[i] = self.getDensity(i)[2]
-                    #self.C0TEMP[i] = self.getC0(i)
-                    #self.VgjTEMP[i] = self.getVgj(i)
-                    #self.VgjPrimeTEMP[i] = self.getVgj_prime(i)
+                    self.rhoTEMP[i] = self.getDensity(i)[2]
+                    self.C0TEMP[i] = self.getC0(i)
+                    self.VgjTEMP[i] = self.getVgj(i)
+                    self.VgjPrimeTEMP[i] = self.getVgj_prime(i)
                     break
                 elif j == 999:
                     raise ValueError('Convergence in update fields not reached')
@@ -259,7 +259,7 @@ class statesVariables():
                 xsub = self.q__[i]*self.DV/(self.qFlow * self.areaMatrix[i] * hfg)
                 return 0
             elif H*0.001 > hg:
-                return 1
+                return 0.99
             
             elif H*0.001 <= hg and H*0.001 >= hl:
                 #print(f'Quality: {(H*0.001 - hl)/(hg - hl)}')
@@ -354,7 +354,7 @@ class statesVariables():
             if x_th == 0:
                 return 0
             elif x_th == 1:
-                return 1
+                return 0.99
             else:
                 return (x_th * rho_l)/(x_th * rho_l + (1 - x_th) * rho_g)
         elif correl == 'paths':
@@ -367,7 +367,7 @@ class statesVariables():
             if x_th == 0:
                 return 0
             elif x_th == 1:
-                return 1
+                return 0.99
             else:
                 return x_th / (C0 * (x_th + (rho_g / rho_l) * (1 - x_th)) + (rho_g * V_gj) / (rho_l * u))
     
@@ -501,11 +501,11 @@ class statesVariables():
         P = self.P[i]
         epsilon = self.voidFractionTEMP[i]
         if epsilon <= 0.001:
-            return 1
+            return 0.99
         if self.P2Pcorel == 'base': #Validated
             phi2phi = 1 + 3*epsilon
         elif self.P2Pcorel == 'lockhartMartinelli':
-            return np.sqrt(self.lockhartMartinelli(i))
+            return self.lockhartMartinelli(i)
         elif self.P2Pcorel == 'HEM1': #Validated
             phi2phi = (rho/rho_l)*((rho_l/rho_g)*x_th + +1)
         elif self.P2Pcorel == 'HEM2': #Validated    
@@ -570,21 +570,12 @@ class statesVariables():
     def lockhartMartinelli(self, i):
         Ul = self.getUl(i)
         Ug = self.getUg(i)
-        Um = self.U[i]
-        rhom = self.rhoTEMP[i]
+        
         rho_l = self.rholTEMP[i]
         rho_g = self.rhogTEMP[i]
-        mul = IAPWS97(P = self.P[i]*(10**(-6)), x = 0).Liquid.mu
-        mulg = IAPWS97(P = self.P[i]*(10**(-6)), x = 1).Vapor.mu
-
-        Rel = self.getReynoldsNumberLiquid(i)
-        Reg = self.getReynoldsNumberVapor(i)
-        fliq = 0.079 * (Rel)**(-0.25)
-        fgas = 0.079 * (Reg)**(-0.25)
-
-        return ((1.2*(rho_l/rho_g - 1)*self.xThTEMP[i]**0.824 + 1)*(rhom/rho_l)*(rho_l/rho_g))**2 #*self.xThTEMP[i] + 1)**0.25
-        #X = (fliq*rho_l*Ul**2)/(fgas*rho_g*Ug**2)
-        #return 1+20/X
+       
+        X = np.sqrt(rho_l/rho_g)*(Ul/Ug)
+        return 1 + 1/np.sqrt(X) + 20/X
     
     def getVelocity(self):
         Ul = []
