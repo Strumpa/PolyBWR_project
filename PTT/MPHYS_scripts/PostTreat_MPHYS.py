@@ -54,7 +54,7 @@ def parse_detector_fluxes(number_axial_slices, det):
 
     return flux_G1, flux_G2
 
-def parse_DONJON_power(height, mesh_size, pow_relax, power_scaling_factor, th_relax, voidFractionCorrel, frfaccorel, P2Pcorel, Ptot=40000):
+def parse_DONJON_power(height, mesh_size, pow_relax, power_normalization_factors, th_relax, voidFractionCorrel, frfaccorel, P2Pcorel, Ptot=40000):
     if height == 3.8:
         read_id = "h380"
     elif height == 1.555:
@@ -69,13 +69,56 @@ def parse_DONJON_power(height, mesh_size, pow_relax, power_scaling_factor, th_re
     else:
         th_relax_id = f"relaxedTh_{th_relax}"
     # retrieve DONJON5 power distribution
-    donjon5_power = np.loadtxt(f"/home/p117902/working_dir/PolyBWR_project/Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan_24UOX_cell/BiCG/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/{read_id}/mesh{mesh_size}_{power_scaling_factor}/Data/Power_Distrib_24UOX_mesh{mesh_size}_BiCG_EPRIvoidModel_{power_relax_id}_{th_relax_id}.txt")
+    donjon5_power = np.loadtxt(f"/home/p117902/working_dir/PolyBWR_project/Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan/24UOX_cell/BiCG/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/{read_id}/mesh{mesh_size}_{power_normalization_factors}/Data/Power_Distrib_24UOX_mesh{mesh_size}_BiCG_EPRIvoidModel_{power_relax_id}_{th_relax_id}.txt")
     # normalize the donjon5 power distribution
     donjon5_power = np.array(donjon5_power)/np.sum(donjon5_power)*Ptot # Renormalize to Ptot
     
     return donjon5_power
 
-def parse_MPHYS_output_field(height, mesh_size, power_scaling_factor, field, pow_relax, th_relax, voidFractionCorrel,  frfaccorel, P2Pcorel):
+def parse_DONJON_Keffs(height, mesh_size, power_normalization_factors, pow_relax,th_relax, voidFractionCorrel,  frfaccorel, P2Pcorel):
+    if height == 3.8:
+        read_id = "h380"
+    elif height == 1.555:
+        read_id = "h1555"
+    if pow_relax == False:
+        power_relax_id = "non_relaxedPOW"
+    else:
+        power_relax_id = f"relaxedPow_{pow_relax}"
+    if th_relax == False:
+        th_relax_id = "non_relaxedTH"
+    else:
+        th_relax_id = f"relaxedTh_{th_relax}"
+    # retrieve DONJON5 Keffs
+    donjon5_keffs = np.loadtxt(f"/home/p117902/working_dir/PolyBWR_project/Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan/24UOX_cell/BiCG/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/{read_id}/mesh{mesh_size}_{power_normalization_factors}/Data/Keffs_24UOX_mesh{mesh_size}_BiCG_EPRIvoidModel_{power_relax_id}_{th_relax_id}.txt")
+    
+    return donjon5_keffs
+
+def parse_DONJON_fluxes(height, mesh_size, power_normalization_factors, voidFractionCorrel,  frfaccorel, P2Pcorel):
+    if height == 3.8:
+        read_id = "h380"
+    elif height == 1.555:
+        read_id = "h1555"
+    path_to_DISTR = f"/home/p117902/working_dir/PolyBWR_project/Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan/24UOX_cell/BiCG/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/{read_id}/mesh{mesh_size}_{power_normalization_factors}/Data"
+    # retrieve DONJON5 flux distribution
+    donjon5_flux_G1 = []
+    donjon5_flux_G2 = []
+    with open(f"{path_to_DISTR}/Flux01.res", "r") as f:
+        donjon5_flux_file1 = f.readlines()
+        for line in donjon5_flux_file1:
+            if "PLANE-Z" in line:
+                plane_number = int(line.split("#")[-1])
+                line_index = donjon5_flux_file1.index(line)
+                donjon5_flux_G1.append(float(donjon5_flux_file1[line_index+2].strip()))
+    with open(f"{path_to_DISTR}/Flux02.res", "r") as f:
+        donjon5_flux_file2 = f.readlines()
+        for line in donjon5_flux_file2:
+            if "PLANE-Z" in line:
+                plane_number = int(line.split("#")[-1])
+                line_index = donjon5_flux_file2.index(line)
+                donjon5_flux_G2.append(float(donjon5_flux_file2[line_index+2]))
+    return donjon5_flux_G1, donjon5_flux_G2
+
+def parse_MPHYS_output_field(height, mesh_size, power_normalization, field, pow_relax, th_relax, voidFractionCorrel,  frfaccorel, P2Pcorel):
     if height == 3.8:
         read_id = "h380"
     elif height == 1.555:
@@ -89,16 +132,17 @@ def parse_MPHYS_output_field(height, mesh_size, power_scaling_factor, field, pow
     else:
         th_relax_id = f"relaxedTH_{th_relax}"
     # retrieve DONJON5 power distribution
-    field_values = np.loadtxt(f"/home/p117902/working_dir/PolyBWR_project/Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan_24UOX_cell/BiCG/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/{read_id}/mesh{mesh_size}_{power_scaling_factor}/Data/{field}_24UOX_mesh{mesh_size}_BiCG_EPRIvoidModel_{power_relax_id}_{th_relax_id}.txt")
+    field_values = np.loadtxt(f"/home/p117902/working_dir/PolyBWR_project/Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan/24UOX_cell/BiCG/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/{read_id}/mesh{mesh_size}_{power_normalization}/Data/{field}_24UOX_mesh{mesh_size}_BiCG_EPRIvoidModel_{power_relax_id}_{th_relax_id}.txt")
     return field_values
 
-def parse_GenFoam_output_field(field, power_scaling_factor, voidFractionCorrel,  frfaccorel, P2Pcorel):
+def parse_GenFoam_output_field(field, power_normalization_value, voidFractionCorrel,  frfaccorel, P2Pcorel):
     """
     field = voidFraction, Pressure, T_liquid, T_vapour
     corresponding GeNFoam field : alpha.vapour / p / T.liquid / T.vapour
     voidFractionCorrel = "EPRIvoidModel"
     frfaccorel = "Churchill" / "blasius"
     P2Pcorel = "HEM1" / "lockhartMartinelli"
+    power_normalization_value : "10.0kW","15.0kW","20.0kW","25.0kW","30.0kW","35.0kW","40.0kW","45.0kW","50.0kW"
     """
     internal_field_values = []
     if field == "voidFraction":
@@ -113,7 +157,7 @@ def parse_GenFoam_output_field(field, power_scaling_factor, voidFractionCorrel, 
         field = "U.liquid"
     elif field == "U_vapour":
         field = "U.vapour"
-    file_path = f"/home/p117902/working_dir/PolyBWR_project/PTT/MPHYS_scripts/GeNFoam_data/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/fluidRegion_{power_scaling_factor}/{field}"
+    file_path = f"/home/p117902/working_dir/PolyBWR_project/PTT/MPHYS_scripts/GeNFoam_data/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/{power_normalization_value}/{field}"
     with open(file_path, 'r') as file:
         lines = file.readlines()
     in_internal_field = False
@@ -158,48 +202,6 @@ def parse_GenFoam_output_field(field, power_scaling_factor, voidFractionCorrel, 
 
     return np.array(internal_field_values)
 
-def parse_DONJON_Keffs(height, mesh_size, power_scaling_factor, pow_relax,th_relax, voidFractionCorrel,  frfaccorel, P2Pcorel):
-    if height == 3.8:
-        read_id = "h380"
-    elif height == 1.555:
-        read_id = "h1555"
-    if pow_relax == False:
-        power_relax_id = "non_relaxedPOW"
-    else:
-        power_relax_id = f"relaxedPow_{pow_relax}"
-    if th_relax == False:
-        th_relax_id = "non_relaxedTH"
-    else:
-        th_relax_id = f"relaxedTh_{th_relax}"
-    # retrieve DONJON5 Keffs
-    donjon5_keffs = np.loadtxt(f"/home/p117902/working_dir/PolyBWR_project/Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan_24UOX_cell/BiCG/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/{read_id}/mesh{mesh_size}_{power_scaling_factor}/Data/Keffs_24UOX_mesh{mesh_size}_BiCG_EPRIvoidModel_{power_relax_id}_{th_relax_id}.txt")
-    
-    return donjon5_keffs
-
-def parse_DONJON_fluxes(height, mesh_size, power_scaling_factor, voidFractionCorrel,  frfaccorel, P2Pcorel):
-    if height == 3.8:
-        read_id = "h380"
-    elif height == 1.555:
-        read_id = "h1555"
-    path_to_DISTR = f"/home/p117902/working_dir/PolyBWR_project/Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan_24UOX_cell/BiCG/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/{read_id}/mesh{mesh_size}_{power_scaling_factor}/Data"
-    # retrieve DONJON5 flux distribution
-    donjon5_flux_G1 = []
-    donjon5_flux_G2 = []
-    with open(f"{path_to_DISTR}/Flux01.res", "r") as f:
-        donjon5_flux_file1 = f.readlines()
-        for line in donjon5_flux_file1:
-            if "PLANE-Z" in line:
-                plane_number = int(line.split("#")[-1])
-                line_index = donjon5_flux_file1.index(line)
-                donjon5_flux_G1.append(float(donjon5_flux_file1[line_index+2].strip()))
-    with open(f"{path_to_DISTR}/Flux02.res", "r") as f:
-        donjon5_flux_file2 = f.readlines()
-        for line in donjon5_flux_file2:
-            if "PLANE-Z" in line:
-                plane_number = int(line.split("#")[-1])
-                line_index = donjon5_flux_file2.index(line)
-                donjon5_flux_G2.append(float(donjon5_flux_file2[line_index+2]))
-    return donjon5_flux_G1, donjon5_flux_G2
 
 
 ### Normalization functions
@@ -280,12 +282,35 @@ def compute_relative_error(test_field, ref_field):
     return relative_error
 
 def compute_RMS_error(field_test, field_ref, error_type):
+    # Find indices where field_ref is zero to avoid division by zero
+    zero_indices = np.where(field_ref == 0)[0]
+    if len(zero_indices) > 0:
+        print("Division by zero detected at indices:", zero_indices)
+        print("field_test values:", field_test[zero_indices])
+        print("field_ref values:", field_ref[zero_indices])
+
+    # Find indices where field_ref is NaN or inf
+    nan_or_inf_indices = np.where(~np.isfinite(field_ref))[0]
+    if len(nan_or_inf_indices) > 0:
+        print("Invalid field_ref values (NaN or Inf) detected at indices:", nan_or_inf_indices)
+        print("field_test values:", field_test[nan_or_inf_indices])
+        print("field_ref values:", field_ref[nan_or_inf_indices])
 
     # calculate the quadratic error in units of field
-    if error_type == "percent":
-        RMS_error = np.sqrt(np.sum(((field_test-field_ref)*100/field_ref)**2)/len(field_ref))
+    # Compute RMS error safely, ignoring problematic values
+    valid_indices = np.where((field_ref != 0) & np.isfinite(field_ref))[0]
+    if len(valid_indices) > 0:
+        
+        RMS_error = np.sqrt(np.sum(((field_test[valid_indices] - field_ref[valid_indices]) * 100 / field_ref[valid_indices])**2) / len(valid_indices))
+
+        if error_type == "percent":
+            RMS_error = np.sqrt(np.sum(((field_test[valid_indices]-field_ref[valid_indices])*100/field_ref[valid_indices])**2)/len(valid_indices))
+        else:
+            print("ERROR TYPE IS ABSOLUTE FOR RMS")
+            RMS_error = np.sqrt(np.sum(((field_test[valid_indices]-field_ref[valid_indices]))**2)/len(valid_indices))
     else:
-        RMS_error = np.sqrt(np.sum(((field_test-field_ref))**2)/len(field_ref))
+        print("No valid entries for RMS error calculation.")
+
     return RMS_error
 
 def error_Keffs_pcm(D5_keff, S2_keff):
@@ -344,7 +369,7 @@ def compare_results(field, unit, donjon5_fields, S2_field, height, n_slices, nam
     #fig3.legend(loc="best")
     fig3.savefig(f"Figures_{save_id}/AT10_24UOX_MPHYS_D5{S2_id}_{save_field}_comparison_{save_name}.png")
 
-def plot_relative_error(relative_error_dict, height, type, power_scaling_factors_to_plot):
+def plot_relative_error(relative_error_dict, height, type, power_normalization_factors_to_plot):
     if height == 3.8:
         save_id = "h380"
     elif height == 1.555:
@@ -359,8 +384,8 @@ def plot_relative_error(relative_error_dict, height, type, power_scaling_factors
         elif "40" in key:
             z_boundaries = np.linspace(0, height, 40 + 1)
         z_values = (z_boundaries[:-1] + z_boundaries[1:]) / 2  # Midpoints of control volumes in z
-        power_scaling_factor = int(key.split(" ")[5])
-        if power_scaling_factor in power_scaling_factors_to_plot:
+        power_normalization_factors = int(key.split(" ")[5])
+        if power_normalization_factors in power_normalization_factors_to_plot:
             ax.plot(z_values, relative_error_dict[key], label=f"Relative error {key}", marker="x", linestyle="--", linewidth=0.5)
     ax.plot(z_values, 3.00*np.ones(len(z_values)), color="red", linestyle="--")
     ax.set_ylabel("Relative error (%)")
@@ -370,7 +395,7 @@ def plot_relative_error(relative_error_dict, height, type, power_scaling_factors
     plt.close(fig)
     return
 
-def plot_condensed_relative_error(relative_error_dict, height, type, power_scaling_factors_to_plot):
+def plot_condensed_relative_error(relative_error_dict, height, type, power_normalization_factors_to_plot):
     if height == 3.8:
         save_id = "h380"
     elif height == 1.555:
@@ -385,8 +410,8 @@ def plot_condensed_relative_error(relative_error_dict, height, type, power_scali
         elif "40" in key:
             z_boundaries = np.linspace(0, height, 40 + 1)
         z_values = (z_boundaries[:-1] + z_boundaries[1:]) / 2  # Midpoints of control volumes in z
-        power_scaling_factor = int(key.split(" ")[5])
-        if power_scaling_factor in power_scaling_factors_to_plot:
+        power_normalization_factors = int(key.split(" ")[5])
+        if power_normalization_factors in power_normalization_factors_to_plot:
             ax.plot(z_values, relative_error_dict[key], label=f"Relative error {key}", marker="x", linestyle="--", linewidth=0.5)
     ax.plot(z_values, 3.00*np.ones(len(z_values)), color="red", linestyle="--")
     ax.set_ylabel("Relative error (%)")
@@ -538,13 +563,17 @@ def plot_nodal_errors_with_S2(height, n_slices_list, power_list, nodal_errors_di
             print(f"key : {key}")
             print(f"nodal_errors_dict[key] : {nodal_errors_dict[key]}")
             ax.plot(z_values, nodal_errors_dict[key], label=f"{key}", marker="x", linestyle="--", linewidth=0.5)
-    ax.plot(z_values, 5.00*np.ones(len(z_values)), color="red", linestyle="--")
-    ax.plot(z_values, -5.00*np.ones(len(z_values)), color="red", linestyle="--")
+    if unit == "%":
+        ax.plot(z_values, 5.00*np.ones(len(z_values)), color="red", linestyle="--")
+        ax.plot(z_values, -5.00*np.ones(len(z_values)), color="red", linestyle="--")
     ax.set_ylabel(f"Nodal error on {field} {unit}")
     ax.set_xlabel("Height (m)")
     ax.grid()
     ax.legend(loc="best")
-    fig.savefig(f"Figures_{save_id}/AT10_24UOX_MPHYS_nodal_errors_{field}.png")
+    if unit == "%":
+        fig.savefig(f"Figures_{save_id}/AT10_24UOX_MPHYS_nodal_errors_percent_{field}.png")
+    else:
+        fig.savefig(f"Figures_{save_id}/AT10_24UOX_MPHYS_nodal_errors_{field}.png")
     plt.close(fig)
     return
 
@@ -592,9 +621,17 @@ def plot_nodal_spatial_errors(height, field, unit, nodal_spatial_errors, interp_
     plt.close(fig)
     return
 
-def plot_RMS_errors(field, unit, height, n_slices_list, quadratic_error_dict):
+def plot_RMS_errors(field, unit, height, n_slices_list, powers_to_plot, quadratic_error_dict, markers):
     """
     plot the quadratic errors for each number of axial slices
+
+    field : (str) name of the field
+    unit : (str) unit of the field
+    height : (float) height of the domain
+    n_slices_list : (list) list of number of axial slices to be represented on x axis
+    powers_to_plot : (list) list of powers used for normalization to be represented on the plot
+    quadratic_error_dict : (dict) dictionary containing the RMS errors for each field
+    markers : (dict) dictionary containing the markers to be used for each power
     """
     if height == 3.8:
         save_id = "h380"
@@ -604,19 +641,15 @@ def plot_RMS_errors(field, unit, height, n_slices_list, quadratic_error_dict):
         save_field = field.replace(" ", "_")
     else:
         save_field = field
-    RMS_errors_pow1 = []
-    RMS_errors_pow2 = []
     fig, ax = plt.subplots()
-    for n in n_slices_list:
-       
-        key_40 = f"RMS error on power : {n} axial slices, 40kW"
-        key_20 = f"RMS error on power : {n} axial slices, 20kW"
-        RMS_errors_pow1.append(quadratic_error_dict[key_40])
-        RMS_errors_pow2.append(quadratic_error_dict[key_20])
-    
-    ax.plot(n_slices_list, np.array(RMS_errors_pow1), label=f"RMS error on power density, Ptot = 40kW", marker="x", linestyle="--", linewidth=0.8)
-    ax.plot(n_slices_list, np.array(RMS_errors_pow2), label=f"RMS error on power density, Ptot = 20kW", marker="D", linestyle="--", linewidth=0.8)
-    ax.plot(n_slices_list, 3.00*np.ones(len(n_slices_list)), color="red", linestyle="--")
+    for p in powers_to_plot:
+        RMS_to_plot = []
+        for n in n_slices_list:
+            key_n_p = f"RMS error on power : {n} axial slices, {p}"
+            RMS_to_plot.append(quadratic_error_dict[key_n_p])
+        ax.plot(n_slices_list, np.array(RMS_to_plot), label=f"RMS error on power density, Ptot = {p}", marker=markers[p], linestyle="--", linewidth=0.8)
+    if unit == "%":
+        ax.plot(n_slices_list, 3.00*np.ones(len(n_slices_list)), color="red", linestyle="--") # 3% mark
     ax.set_ylabel(f"RMS error on {field} ({unit})")
     ax.set_xlabel("Number of axial nodes")
     ax.grid()
@@ -891,9 +924,9 @@ def print_latex_table_from_RMS_errors_list(field, unit_of_error, n_slices_list, 
 
 # Post treatment and checker functions
 
-def post_treat_Fields_SpatialConvergence_interp(height, power_scaling_factor, number_axial_slices, pow_relax, th_relax, voidFractionCorrel,  frfaccorel, P2Pcorel):
+def post_treat_MPHYS_Fields_SpatialConvergence_interp(height, power_normalization_factor, number_axial_slices, pow_relax, th_relax, voidFractionCorrel,  frfaccorel, P2Pcorel):
     """
-    power scaling factor : int, power scaling factor for the DONJON5 simulations
+    power_normalization_factor : str, total integrated power over the core
     number_axial_slices : list, number of axial slices for the simulations
     pow_relax : float/bool, relaxation parameter for the power distribution
     th_relax : float/bool, relaxation parameter for the thermal-hydraulic parameters
@@ -904,7 +937,7 @@ def post_treat_Fields_SpatialConvergence_interp(height, power_scaling_factor, nu
     4) Water density distribution for all meshes
     5) Void fraction distribution for all meshes
     """
-    print(f"$$$ - BEGIN post treatment of fields spatial convergence for {height} m height, {power_scaling_factor} power scaling factor")
+    print(f"$$$ - BEGIN post treatment of fields spatial convergence for {height} m height, {power_normalization_factor} power scaling factor")
     print(f"The number of axial slices are : {number_axial_slices}")
     print(f"The power and TH relaxation parameters are : {pow_relax}, {th_relax}")
     print(f"The void fraction, frfaccorel and P2Pcorel correlations are : {voidFractionCorrel}, {frfaccorel}, {P2Pcorel}")
@@ -915,11 +948,11 @@ def post_treat_Fields_SpatialConvergence_interp(height, power_scaling_factor, nu
     DC_all_meshes = []
     VF_all_meshes = []
     for n in number_axial_slices:
-        Qfiss_all_meshes.append(parse_MPHYS_output_field(height, n, power_scaling_factor, "Qfiss", pow_relax, th_relax, voidFractionCorrel,  frfaccorel, P2Pcorel))
-        TF_all_meshes.append(parse_MPHYS_output_field(height, n, power_scaling_factor, "TeffFuel", pow_relax, th_relax, voidFractionCorrel,  frfaccorel, P2Pcorel))
-        TC_all_meshes.append(parse_MPHYS_output_field(height, n, power_scaling_factor, "Twater", pow_relax, th_relax, voidFractionCorrel,  frfaccorel, P2Pcorel))
-        DC_all_meshes.append(parse_MPHYS_output_field(height, n, power_scaling_factor, "rho", pow_relax, th_relax, voidFractionCorrel,  frfaccorel, P2Pcorel))
-        VF_all_meshes.append(parse_MPHYS_output_field(height, n, power_scaling_factor, "voidFraction", pow_relax, th_relax, voidFractionCorrel,  frfaccorel, P2Pcorel))
+        Qfiss_all_meshes.append(parse_MPHYS_output_field(height, n, power_normalization_factor, "Qfiss", pow_relax, th_relax, voidFractionCorrel,  frfaccorel, P2Pcorel))
+        TF_all_meshes.append(parse_MPHYS_output_field(height, n, power_normalization_factor, "TeffFuel", pow_relax, th_relax, voidFractionCorrel,  frfaccorel, P2Pcorel))
+        TC_all_meshes.append(parse_MPHYS_output_field(height, n, power_normalization_factor, "Twater", pow_relax, th_relax, voidFractionCorrel,  frfaccorel, P2Pcorel))
+        DC_all_meshes.append(parse_MPHYS_output_field(height, n, power_normalization_factor, "rho", pow_relax, th_relax, voidFractionCorrel,  frfaccorel, P2Pcorel))
+        VF_all_meshes.append(parse_MPHYS_output_field(height, n, power_normalization_factor, "voidFraction", pow_relax, th_relax, voidFractionCorrel,  frfaccorel, P2Pcorel))
 
     # plot the spatial convergence of the fields
     plot_spatial_convergence_field("power density distribution", "W/$m^3$", Qfiss_all_meshes, height, number_axial_slices)
@@ -982,11 +1015,11 @@ def post_treat_Fields_SpatialConvergence_interp(height, power_scaling_factor, nu
     print_latex_table_from_RMS_errors_list("coolant density", "$kg/m^3%", number_axial_slices[:-1], RMS_errors_DC)
     print_latex_table_from_RMS_errors_list("void fraction", "%", number_axial_slices[:-1], RMS_errors_VF)
     
-    print(f"$$$ - END post treatment of fields spatial convergence for {height} m height, {power_scaling_factor} power scaling factor")
+    print(f"$$$ - END post treatment of fields spatial convergence for {height} m height, {power_normalization_factor} power scaling factor")
 
     return
 
-def post_treat_Fields_spatial_convergence_condense(height, power_scaling_factor, number_axial_slices, pow_relax, th_relax, voidFractionCorrel,  frfaccorel, P2Pcorel):
+def post_treat_Fields_spatial_convergence_condense(height, power_normalization_factor, number_axial_slices, pow_relax, th_relax, voidFractionCorrel,  frfaccorel, P2Pcorel):
     # Interpolation doesnt really work all that well due to the sharp gradients in the fields
     Qfiss_all_meshes = [] 
     TF_all_meshes = []
@@ -994,11 +1027,11 @@ def post_treat_Fields_spatial_convergence_condense(height, power_scaling_factor,
     DC_all_meshes = []
     VF_all_meshes = []
     for n in number_axial_slices:
-        Qfiss_all_meshes.append(parse_MPHYS_output_field(height, n, power_scaling_factor, "Qfiss", pow_relax, th_relax, voidFractionCorrel,  frfaccorel, P2Pcorel))
-        TF_all_meshes.append(parse_MPHYS_output_field(height, n, power_scaling_factor, "TeffFuel", pow_relax, th_relax, voidFractionCorrel,  frfaccorel, P2Pcorel))
-        TC_all_meshes.append(parse_MPHYS_output_field(height, n, power_scaling_factor, "Twater", pow_relax, th_relax, voidFractionCorrel,  frfaccorel, P2Pcorel))
-        DC_all_meshes.append(parse_MPHYS_output_field(height, n, power_scaling_factor, "rho", pow_relax, th_relax, voidFractionCorrel,  frfaccorel, P2Pcorel))
-        VF_all_meshes.append(parse_MPHYS_output_field(height, n, power_scaling_factor, "voidFraction", pow_relax, th_relax, voidFractionCorrel,  frfaccorel, P2Pcorel))
+        Qfiss_all_meshes.append(parse_MPHYS_output_field(height, n, power_normalization_factor, "Qfiss", pow_relax, th_relax, voidFractionCorrel,  frfaccorel, P2Pcorel))
+        TF_all_meshes.append(parse_MPHYS_output_field(height, n, power_normalization_factor, "TeffFuel", pow_relax, th_relax, voidFractionCorrel,  frfaccorel, P2Pcorel))
+        TC_all_meshes.append(parse_MPHYS_output_field(height, n, power_normalization_factor, "Twater", pow_relax, th_relax, voidFractionCorrel,  frfaccorel, P2Pcorel))
+        DC_all_meshes.append(parse_MPHYS_output_field(height, n, power_normalization_factor, "rho", pow_relax, th_relax, voidFractionCorrel,  frfaccorel, P2Pcorel))
+        VF_all_meshes.append(parse_MPHYS_output_field(height, n, power_normalization_factor, "voidFraction", pow_relax, th_relax, voidFractionCorrel,  frfaccorel, P2Pcorel))
 
     n_slices_to_plot = [40, 80, 160]
     Qfiss_to_plot = [Qfiss_all_meshes[2], Qfiss_all_meshes[3], Qfiss_all_meshes[4]]
@@ -1090,7 +1123,7 @@ def post_treat_Fields_spatial_convergence_condense(height, power_scaling_factor,
     print_latex_table_from_RMS_errors_list("coolant density", "kg/$m^3$", number_axial_slices[:-1], RMS_DC)
     print_latex_table_from_RMS_errors_list("void fraction", "", number_axial_slices[:-1], RMS_VF)
 
-def post_treat_D5vsS2(height, power_scaling_factor, number_axial_slices, pow_relax, th_relax, fuel_volume, voidFractionCorrel,  frfaccorel, P2Pcorel):
+def post_treat_D5vsS2(height, power_normalization_factors, number_axial_slices, pow_relax, th_relax, fuel_volume, voidFractionCorrel,  frfaccorel, P2Pcorel):
     """
     power scaling factor : list of int, power scaling factor for the DONJON5 simulations, used to study different power normalizations
     number_axial_slices : list of int, number of axial slices used to discretize the geometry
@@ -1102,8 +1135,10 @@ def post_treat_D5vsS2(height, power_scaling_factor, number_axial_slices, pow_rel
         read_id = ""
     elif height == 1.555:
         read_id = "_h155"
-    NODAL_errors = {}
+    NODAL_errors_Power = {}
+    NODAL_errors_Power_percent = {}
     RMS_errors_Power = {}
+    RMS_errors_Power_percent = {}
 
     delta_keffs = {}
 
@@ -1114,25 +1149,15 @@ def post_treat_D5vsS2(height, power_scaling_factor, number_axial_slices, pow_rel
     #D5_keffs_dict = {}
     S2_keffs = []
 
-    for p in power_scaling_factor:
+    for p in power_normalization_factors:
         for n in number_axial_slices:
             bundle_volume = fuel_volume / n
 
-            if p == 1:
-                power = "40kW"
-                ptot = 40000
-            elif p == 2:
-                power = "20kW"
-                ptot = 20000
-            elif p == 4:
-                power = "10kW"
-                ptot = 10000
-            elif p == 8:
-                power = "5kW"
-                ptot = 5000
+            power = p.replace(".0kW", "kW")
+            ptot = float(p.replace("kW", "")) * 1e3
             # Recover S2 data
 
-            path_to_S2results = f"/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64" #/MPHYS/mesh{n}" # path to the serpent2 results
+            path_to_S2results = f"/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/MPHYS/mesh{n}" # path to the serpent2 results
             S2_res = f"AT10_24UOX_MPHYS{read_id}_mesh{n}_{p}_mc"
             # Recover S2 Keff
             res = st.read(f'{path_to_S2results}/{S2_res}_res.m') # read the serpent2 output file
@@ -1172,10 +1197,15 @@ def post_treat_D5vsS2(height, power_scaling_factor, number_axial_slices, pow_rel
             # Compare D5-S2 results        
             #relative_error = compute_relative_error(donjon5_power, sum_heat_prod)
             compare_results("Power", "$W/m^3$", [donjon5_power_dens], Serpent2_power_dens, height, n, f"{n} axial slices", f"{n}_axial_slices")
-            nodal_error = (donjon5_power_dens - Serpent2_power_dens)*100/Serpent2_power_dens
-            NODAL_errors[f"Nodal error on power : {n} axial slices, {power}"] = nodal_error
-            RMS_error = compute_RMS_error(donjon5_power_dens, Serpent2_power_dens, "percent")
-            RMS_errors_Power[f"RMS error on power : {n} axial slices, {power}"] = RMS_error
+            nodal_error_percent = (donjon5_power_dens - Serpent2_power_dens)*100/Serpent2_power_dens
+            NODAL_errors_Power_percent[f"Nodal error on power : {n} axial slices, {power}"] = nodal_error_percent
+            RMS_error_percent = compute_RMS_error(donjon5_power_dens, Serpent2_power_dens, "percent")
+            RMS_errors_Power_percent[f"RMS error on power : {n} axial slices, {power}"] = RMS_error_percent
+
+            nodal_error = np.abs(donjon5_power_dens - Serpent2_power_dens)
+            NODAL_errors_Power[f"Nodal error on power : {n} axial slices, {power}"] = nodal_error
+            RMS_error = compute_RMS_error(donjon5_power_dens, Serpent2_power_dens, "absolute")
+            RMS_errors_Power[f"RMS error on power : {n} axial slices, {power}"] = RMS_error 
 
             # Compare axial power distributions
             #ERRORS_r[f"Power : Mesh {n}, power {p}"] = relative_error
@@ -1186,10 +1216,14 @@ def post_treat_D5vsS2(height, power_scaling_factor, number_axial_slices, pow_rel
     plot_keff_error_spatial_convergence(delta_keffs, height, "spatial convergence", "spatial_convergence")
 
     # plot nodal errors on power for each node
-    plot_nodal_errors_with_S2(height, [20, 70, 160], ["40kW", "20kW"], NODAL_errors, field="power density", unit="%")
+    print(f"NODAL_errors keys are : {NODAL_errors_Power.keys()}")
+    plot_nodal_errors_with_S2(height, [20, 70, 160], ["35kW", "10kW"], NODAL_errors_Power_percent, field="power density", unit="%")
+    plot_nodal_errors_with_S2(height, [20, 70, 160], ["35kW", "10kW"], NODAL_errors_Power_percent, field="power density", unit="W/m3")
 
     # plot quadratic errors on power, see how it evolves with the number of axial slices
-    plot_RMS_errors("power density", "%", height, [10,20,40,50,70,80,160], RMS_errors_Power)
+    plot_RMS_errors("power density", "%", height, [10,20,40,70,80,160], ["35kW", "10kW"], RMS_errors_Power_percent, markers={"35kW":"x", "10kW":"D"})
+    plot_RMS_errors("power density", "W/m3", height, [10,20,40,70,80,160], ["35kW", "10kW"], RMS_errors_Power, markers={"35kW":"x", "10kW":"D"})
+
 
     
     return
@@ -1280,95 +1314,74 @@ def consistency_check_TH_params(n,p):
 
     return
 
-def post_treat_GeNFoam_fields(pow, voidFractionCorrel, frfaccorel, P2Pcorel, alpha_S):
+def post_treat_GeNFoam_fields(power_norm, voidFractionCorrel, frfaccorel, P2Pcorel, alpha_S):
 
     
     # Recover GenFoam outputs
-    voidFraction_GF = parse_GenFoam_output_field("voidFraction", pow, voidFractionCorrel,  frfaccorel, P2Pcorel)
-    Pressure_GF = parse_GenFoam_output_field("Pressure", pow, voidFractionCorrel,  frfaccorel, P2Pcorel)
-    Temperature_L_GF = parse_GenFoam_output_field("T_liquid", pow, voidFractionCorrel,  frfaccorel, P2Pcorel)
-    Temperature_V_GF = parse_GenFoam_output_field("T_vapour", pow, voidFractionCorrel,  frfaccorel, P2Pcorel)
-    U_L_GF = parse_GenFoam_output_field("U_liquid", pow, voidFractionCorrel,  frfaccorel, P2Pcorel)
-    U_V_GF = parse_GenFoam_output_field("U_vapour", pow, voidFractionCorrel,  frfaccorel, P2Pcorel)
+    voidFraction_GF = parse_GenFoam_output_field("voidFraction", power_norm, voidFractionCorrel,  frfaccorel, P2Pcorel)
+    Pressure_GF = parse_GenFoam_output_field("Pressure", power_norm, voidFractionCorrel,  frfaccorel, P2Pcorel)
+    Temperature_L_GF = parse_GenFoam_output_field("T_liquid", power_norm, voidFractionCorrel,  frfaccorel, P2Pcorel)
+    Temperature_V_GF = parse_GenFoam_output_field("T_vapour", power_norm, voidFractionCorrel,  frfaccorel, P2Pcorel)
 
     # Recover MPHYS outputs
-    TC = parse_MPHYS_output_field(1.555, 70, pow, "Twater", False, False, voidFractionCorrel,  frfaccorel, P2Pcorel)
-    DC = parse_MPHYS_output_field(1.555, 70, pow, "rho", False, False, voidFractionCorrel,  frfaccorel, P2Pcorel)
-    VF = parse_MPHYS_output_field(1.555, 70, pow, "voidFraction", False, False, voidFractionCorrel,  frfaccorel, P2Pcorel)
-    P = parse_MPHYS_output_field(1.555, 70, pow, "Pressure", False, False, voidFractionCorrel,  frfaccorel, P2Pcorel)
-    U = parse_MPHYS_output_field(1.555, 70, pow, "Velocity", False, False, voidFractionCorrel,  frfaccorel, P2Pcorel)
-    H = parse_MPHYS_output_field(1.555, 70, pow, "Enthalpy", False, False, voidFractionCorrel,  frfaccorel, P2Pcorel)
+    TC = parse_MPHYS_output_field(1.555, 70, power_norm, "Twater", False, False, voidFractionCorrel,  frfaccorel, P2Pcorel)
+    DC = parse_MPHYS_output_field(1.555, 70, power_norm, "rho", False, False, voidFractionCorrel,  frfaccorel, P2Pcorel)
+    VF = parse_MPHYS_output_field(1.555, 70, power_norm, "voidFraction", False, False, voidFractionCorrel,  frfaccorel, P2Pcorel)
+    P = parse_MPHYS_output_field(1.555, 70, power_norm, "Pressure", False, False, voidFractionCorrel,  frfaccorel, P2Pcorel)
+    H = parse_MPHYS_output_field(1.555, 70, power_norm, "Enthalpy", False, False, voidFractionCorrel,  frfaccorel, P2Pcorel)
 
     # exclude the first 5 points
     voidFraction_GF = voidFraction_GF[5:]
     Pressure_GF = Pressure_GF[5:]
     Temperature_L_GF = Temperature_L_GF[5:]
     Temperature_V_GF = Temperature_V_GF[5:]
-    U_L_GF = U_L_GF[5:]
-    U_V_GF = U_V_GF[5:]
 
 
     # renormalize GeN-Foam void fraction so that alpha_vapour + alpha_liquid = 1
     voidFraction_GF = voidFraction_GF/(1-alpha_S)
-    print(f"voidFraction_GF : {voidFraction_GF}")
-    print(f"VF : {VF}")
+    
+    # Compute Tmixture for GenFoam : T mixture = 
+    T_mixture_GF = voidFraction_GF*Temperature_V_GF + (1-voidFraction_GF)*Temperature_L_GF
 
     plot_GeNFoam_vs_MPHYS("Void fraction", "", voidFraction_GF, VF, height, 70)
     plot_GeNFoam_vs_MPHYS("Pressure", "Pa", Pressure_GF, P, height, 70)
+    plot_GeNFoam_vs_MPHYS("Mixture Temperature", "K", T_mixture_GF, TC, height, 70)
     plot_GeNFoam_vs_MPHYS_vl("Coolant temperature", "K", Temperature_L_GF, Temperature_V_GF, TC, height, 70)
-    plot_GeNFoam_vs_MPHYS_vl("Coolant velocity", "m/s", U_L_GF, U_V_GF, U, height, 70)
-    print("Liquid phase velocity : ", U_L_GF)
-    print("Vapour phase velocity : ", U_V_GF)
-    print("Mixture velocity : ", U)
 
     nodal_errors_P = P - Pressure_GF
     nodal_errors_VF =  VF - voidFraction_GF
-    nodal_errors_TL =  TC - Temperature_L_GF
-    nodal_errors_TV =  TC - Temperature_V_GF
-    nodal_errors_UL = U - U_L_GF
-    nodal_errors_UV =  U - U_V_GF
+    nodal_errors_Tm = TC - T_mixture_GF
+
+
     
-    RMS_error_P = compute_RMS_error(Pressure_GF, P, "absolute")
-    RMS_error_VF = compute_RMS_error(voidFraction_GF, VF, "absolute")
-    RMS_error_TL = compute_RMS_error(Temperature_L_GF, TC, "absolute")
-    RMS_error_TV = compute_RMS_error(Temperature_V_GF, TC, "absolute")
-    RMS_error_UL = compute_RMS_error(U_L_GF, U, "absolute")
-    RMS_error_UV = compute_RMS_error(U_V_GF, U, "absolute")
+    RMS_error_P = compute_RMS_error(P, Pressure_GF, "absolute")
+    RMS_error_VF = compute_RMS_error(VF, voidFraction_GF, "absolute")
+    RMS_error_Tm = compute_RMS_error(TC, T_mixture_GF, "absolute")
+
 
     MAX_error_P = np.max(np.abs(nodal_errors_P))
     MAX_error_VF = np.max(np.abs(nodal_errors_VF))
-    MAX_error_TL = np.max(np.abs(nodal_errors_TL))
-    MAX_error_TV = np.max(np.abs(nodal_errors_TV))
-    MAX_error_UL = np.max(np.abs(nodal_errors_UL))
-    MAX_error_UV = np.max(np.abs(nodal_errors_UV))
+    MAX_error_Tm = np.max(np.abs(nodal_errors_Tm))
+
 
     AVG_error_P = np.mean(np.abs(nodal_errors_P))
     AVG_error_VF = np.mean(np.abs(nodal_errors_VF))
-    AVG_error_TL = np.mean(np.abs(nodal_errors_TL))
-    AVG_error_TV = np.mean(np.abs(nodal_errors_TV))
-    AVG_error_UL = np.mean(np.abs(nodal_errors_UL))
-    AVG_error_UV = np.mean(np.abs(nodal_errors_UV))
+    AVG_error_Tm = np.mean(np.abs(nodal_errors_Tm))
+
 
     print(f"RMS error on Pressure : {RMS_error_P} Pa")
     print(f"RMS error on void fraction : {RMS_error_VF}")
-    print(f"RMS error on Liquid temperature : {RMS_error_TL} K")
-    print(f"RMS error on Vapour temperature : {RMS_error_TV} K")
-    print(f"RMS error on Liquid velocity : {RMS_error_UL} m/s")
-    print(f"RMS error on Vapour velocity : {RMS_error_UV} m/s")
+    print(f"RMS error on Mixture temperature : {RMS_error_Tm} K")
 
     print(f"MAX error on Pressure : {MAX_error_P} Pa")
     print(f"MAX error on void fraction : {MAX_error_VF}")
-    print(f"MAX error on Liquid temperature : {MAX_error_TL} K")
-    print(f"MAX error on Vapour temperature : {MAX_error_TV} K")
-    print(f"MAX error on Liquid velocity : {MAX_error_UL} m/s")
-    print(f"MAX error on Vapour velocity : {MAX_error_UV} m/s")
+    print(f"MAX error on Mixture temperature : {MAX_error_Tm} K")
+
 
     print(f"AVG error on Pressure : {AVG_error_P} Pa")
     print(f"AVG error on void fraction : {AVG_error_VF}")
-    print(f"AVG error on Liquid temperature : {AVG_error_TL} K")
-    print(f"AVG error on Vapour temperature : {AVG_error_TV} K")
-    print(f"AVG error on Liquid velocity : {AVG_error_UL} m/s")
-    print(f"AVG error on Vapour velocity : {AVG_error_UV} m/s")
+    print(f"AVG error on Mixture temperature : {AVG_error_Tm} K")
+
 
     pressure_drop_GF = np.max(Pressure_GF) - np.min(Pressure_GF)
     pressure_drop_THM = np.max(P) - np.min(P)
@@ -1377,68 +1390,383 @@ def post_treat_GeNFoam_fields(pow, voidFractionCorrel, frfaccorel, P2Pcorel, alp
     print(f"Pressure drop in THM : {pressure_drop_THM} Pa")
     error_pressure_drop = (pressure_drop_THM - pressure_drop_GF)
     print(f"Error on pressure drop : {error_pressure_drop} Pa")
+    print(f"Relative error on pressure drop : {error_pressure_drop*100/pressure_drop_GF} %")
 
-    # Do the same but compute errors in %
-    RMS_error_P = compute_RMS_error(Pressure_GF, P, "percent")
-    RMS_error_VF = compute_RMS_error(voidFraction_GF, VF, "percent")
-    RMS_error_TL = compute_RMS_error(Temperature_L_GF, TC, "percent")
-    RMS_error_TV = compute_RMS_error(Temperature_V_GF, TC, "percent")
-    RMS_error_UL = compute_RMS_error(U_L_GF, U, "percent")
-    RMS_error_UV = compute_RMS_error(U_V_GF, U, "percent")
-    
-    nodal_percent_errors_P = (P - Pressure_GF)*100/Pressure_GF
-    nodal_percent_errors_VF =  [(VF[i] - voidFraction_GF[i])*100/voidFraction_GF[i] if voidFraction_GF[i] != 0 else 0 for i in range(len(voidFraction_GF))]
-    nodal_percent_errors_TL =  (TC - Temperature_L_GF)*100/Temperature_L_GF
-    nodal_percent_errors_TV =  (TC - Temperature_V_GF)*100/Temperature_V_GF
-    nodal_percent_errors_UL = (U - U_L_GF)*100/U_L_GF
-    nodal_percent_errors_UV =  (U - U_V_GF)*100/U_V_GF
-
-    MAX_percent_error_P = np.max(np.abs(nodal_percent_errors_P))
-    MAX_percent_error_VF = np.max(np.abs(nodal_percent_errors_VF))
-    MAX_percent_error_TL = np.max(np.abs(nodal_percent_errors_TL))
-    MAX_percent_error_TV = np.max(np.abs(nodal_percent_errors_TV))
-    MAX_percent_error_UL = np.max(np.abs(nodal_percent_errors_UL))
-    MAX_percent_error_UV = np.max(np.abs(nodal_percent_errors_UV))
-
-    AVG_percent_error_P = np.mean(np.abs(nodal_percent_errors_P))
-    AVG_percent_error_VF = np.mean(np.abs(nodal_percent_errors_VF))
-    AVG_percent_error_TL = np.mean(np.abs(nodal_percent_errors_TL))
-    AVG_percent_error_TV = np.mean(np.abs(nodal_percent_errors_TV))
-    AVG_percent_error_UL = np.mean(np.abs(nodal_percent_errors_UL))
-    AVG_percent_error_UV = np.mean(np.abs(nodal_percent_errors_UV))
-
-    print(f"RMS error on Pressure : {RMS_error_P} %")
-    #print(f"RMS error on void fraction : {RMS_error_VF} %")
-    print(f"RMS error on Liquid temperature : {RMS_error_TL} %")
-    print(f"RMS error on Vapour temperature : {RMS_error_TV} %")
-    print(f"RMS error on Liquid velocity : {RMS_error_UL} %")
-    print(f"RMS error on Vapour velocity : {RMS_error_UV} %")
-
-    print(f"MAX error on Pressure : {MAX_percent_error_P} %")
-    #print(f"MAX error on void fraction : {MAX_percent_error_VF} %")
-    print(f"MAX error on Liquid temperature : {MAX_percent_error_TL} %")
-    print(f"MAX error on Vapour temperature : {MAX_percent_error_TV} %")
-    print(f"MAX error on Liquid velocity : {MAX_percent_error_UL} %")
-    print(f"MAX error on Vapour velocity : {MAX_percent_error_UV} %")
-
-    print(f"AVG error on Pressure : {AVG_percent_error_P} %")
-    print(f"AVG error on void fraction : {AVG_percent_error_VF} %")
-    print(f"AVG error on Liquid temperature : {AVG_percent_error_TL} %")
-    print(f"AVG error on Vapour temperature : {AVG_percent_error_TV} %")
-    print(f"AVG error on Liquid velocity : {AVG_percent_error_UL} %")
-    print(f"AVG error on Vapour velocity : {AVG_percent_error_UV} %")
 
     # plot the nodal errors
-    plot_nodal_errors_with_GeNFoam(1.555, nodal_percent_errors_P, nodal_percent_errors_VF,
-                                    nodal_percent_errors_TL, nodal_percent_errors_TV,
-                                    nodal_percent_errors_UL, nodal_percent_errors_UV)
+    #plot_nodal_errors_with_GeNFoam(1.555, nodal_percent_errors_P, nodal_percent_errors_VF,
+    #                                nodal_percent_errors_TL, nodal_percent_errors_TV,
+    #                                nodal_percent_errors_UL, nodal_percent_errors_UV)
+
+
+def post_treat_MPHYS_GeNFoam_comparison(Power1, Power2, alpha_S, n_slices_GF = 70):
+        """
+        Function used to post treat comparison between THM and GeNFoam fields
+        Power1 : str , power for the first simulation, with units eg : "40kW"
+        Power2 : str, power for the second simulation, with units eg : "40kW"
+
+        Updated on 24/12/2024 : power is now directly passed as an argument, to avoid hardcoding the power values,
+        It is excplicitely passed as a power in kW used to normalize the power distributions, instead of 
+        a "scaling factor" used to normalize the power distributions from the initial 40kW.
+
+        Function used to obtain plots for M&C2025 paper
+        """
+        
+        
+        # Parse GeNFoam fields for Power1 and Power2
+        voidFraction_GF_1 = parse_GenFoam_output_field("voidFraction", Power1, voidFractionCorrel,  frfaccorel, P2Pcorel)
+        voidFraction_GF_2 = parse_GenFoam_output_field("voidFraction", Power2, voidFractionCorrel,  frfaccorel, P2Pcorel)
+
+        Pressure_GF_1 = parse_GenFoam_output_field("Pressure", Power1, voidFractionCorrel,  frfaccorel, P2Pcorel)
+        Pressure_GF_2 = parse_GenFoam_output_field("Pressure", Power2, voidFractionCorrel,  frfaccorel, P2Pcorel)
+
+        Temperature_L_GF_1 = parse_GenFoam_output_field("T_liquid", Power1, voidFractionCorrel,  frfaccorel, P2Pcorel)
+        Temperature_L_GF_2 = parse_GenFoam_output_field("T_liquid", Power2, voidFractionCorrel,  frfaccorel, P2Pcorel)
+
+        Temperature_V_GF_1 = parse_GenFoam_output_field("T_vapour", Power1, voidFractionCorrel,  frfaccorel, P2Pcorel)
+        Temperature_V_GF_2 = parse_GenFoam_output_field("T_vapour", Power2, voidFractionCorrel,  frfaccorel, P2Pcorel)
+
+        # exclude the first 5 points : het rid of "dummy-in" points used in GeN-Foam
+        voidFraction_GF_1 = voidFraction_GF_1[5:]
+        voidFraction_GF_2 = voidFraction_GF_2[5:]
+        Pressure_GF_1 = Pressure_GF_1[5:]
+        Pressure_GF_2 = Pressure_GF_2[5:]
+        Temperature_L_GF_1 = Temperature_L_GF_1[5:]
+        Temperature_L_GF_2 = Temperature_L_GF_2[5:]
+        Temperature_V_GF_1 = Temperature_V_GF_1[5:]
+        Temperature_V_GF_2 = Temperature_V_GF_2[5:]
+
+        # renormalize GeN-Foam void fraction so that alpha_vapour + alpha_liquid = 1 <=> epsilon_vapour + epsilon_liquid = 1 in a control volume
+        voidFraction_GF_1 = voidFraction_GF_1/(1-alpha_S)
+        voidFraction_GF_2 = voidFraction_GF_2/(1-alpha_S)
+        
+        # Parse THM fields for Power1 and Power2
+
+        TC_1 = parse_MPHYS_output_field(1.555, n_slices_GF, Power1, "Twater", False, False, voidFractionCorrel,  frfaccorel, P2Pcorel)
+        TC_2 = parse_MPHYS_output_field(1.555, n_slices_GF, Power2, "Twater", False, False, voidFractionCorrel,  frfaccorel, P2Pcorel)
+
+        #DC_1 = parse_MPHYS_output_field(1.555, n_slices_GF, 1, "rho", False, False, voidFractionCorrel,  frfaccorel, P2Pcorel)
+        #DC_2 = parse_MPHYS_output_field(1.555, n_slices_GF, 2, "rho", False, False, voidFractionCorrel,  frfaccorel, P2Pcorel)
+
+        VF_1 = parse_MPHYS_output_field(1.555, n_slices_GF, Power1, "voidFraction", False, False, voidFractionCorrel,  frfaccorel, P2Pcorel)
+        VF_2 = parse_MPHYS_output_field(1.555, n_slices_GF, Power2, "voidFraction", False, False, voidFractionCorrel,  frfaccorel, P2Pcorel)
+
+        P_1 = parse_MPHYS_output_field(1.555, n_slices_GF, Power1, "Pressure", False, False, voidFractionCorrel,  frfaccorel, P2Pcorel)
+        P_2 = parse_MPHYS_output_field(1.555, n_slices_GF, Power2, "Pressure", False, False, voidFractionCorrel,  frfaccorel, P2Pcorel)
+
+
+        # Compute T_mixture GeNFoam : T_mixture = voidFraction_GF_1*T_vapour + (1-voidFraction_GF_1)*T_liquid
+        T_mixture_GF_1 = voidFraction_GF_1*Temperature_V_GF_1 + (1-voidFraction_GF_1)*Temperature_L_GF_1
+        T_mixture_GF_2 = voidFraction_GF_2*Temperature_V_GF_2 + (1-voidFraction_GF_2)*Temperature_L_GF_2
+        
+
+
+        Power1 = Power1.replace(".0kW", "kW")
+        Power2 = Power2.replace(".0kW", "kW")
+        # Plot pressures for powers 1 and 2, THM / GeNFoam 
+        fig, ax = plt.subplots()
+        # compute z_mesh
+        z_boundaries = np.linspace(0, height, n_slices_GF + 1)
+        #z_values = (z_boundaries[:-1] + z_boundaries[1:]) / 2  # Midpoints of control volumes
+        # Generate the x and y values for plotting
+        z_vals = []
+        y_vals = []
+        intervals = [(z_boundaries[i], z_boundaries[i+1]) for i in range(len(z_boundaries)-1)]
+        for (start, end), value in zip(intervals, Pressure_GF_1):
+            z_vals.extend([start, end])
+            y_vals.extend([value, value])
+        ax.step(z_vals, y_vals, label=f"Pressure GeNFoam, Ptot = {Power1}", linestyle="--", color = "red") 
+        z_vals = []
+        y_vals = []
+        for (start, end), value in zip(intervals, P_1):
+            z_vals.extend([start, end])
+            y_vals.extend([value, value])
+        ax.step(z_vals, y_vals, label=f"Pressure THM, Ptot = {Power1}", linestyle="--", color = "green")
+        z_vals = []
+        y_vals = []
+        for (start, end), value in zip(intervals, Pressure_GF_2):
+            z_vals.extend([start, end])
+            y_vals.extend([value, value])
+        ax.step(z_vals, y_vals, label=f"Pressure GeNFoam, Ptot = {Power2}", color = "red")
+        z_vals = []
+        y_vals = []
+        for (start, end), value in zip(intervals, P_2):
+            z_vals.extend([start, end])
+            y_vals.extend([value, value])
+        ax.step(z_vals, y_vals, label=f"Pressure THM, Ptot = {Power2}", color = "green")
+        ax.set_ylabel(f"Pressure (Pa)")
+        ax.set_xlabel("Height (m)")
+        #ax.set_title(f"Pressure : THM vs GeNFoam comparison")
+        ax.grid()
+        ax.legend(loc="best")
+        fig.savefig(f"Figures_GeNFoam_THM/THM_vs_GeNFoam_Pressure_pow1_{Power1}_pow2_{Power2}.png")
+        plt.close(fig)
+
+        # Plot void fractions for powers 1 and 2, THM / GeNFoam
+        fig, ax = plt.subplots()
+        # compute z_mesh
+        z_boundaries = np.linspace(0, height, n_slices_GF + 1)
+        #z_values = (z_boundaries[:-1] + z_boundaries[1:]) / 2  # Midpoints of control volumes
+        # Generate the x and y values for plotting
+        z_vals = []
+        y_vals = []
+        intervals = [(z_boundaries[i], z_boundaries[i+1]) for i in range(len(z_boundaries)-1)]
+        for (start, end), value in zip(intervals, voidFraction_GF_1):
+            z_vals.extend([start, end])
+            y_vals.extend([value, value])
+        ax.step(z_vals, y_vals, label=f"Void fraction GeNFoam, Ptot = {Power1}", linestyle="--", color="red")
+        z_vals = []
+        y_vals = []
+        for (start, end), value in zip(intervals, VF_1):
+            z_vals.extend([start, end])
+            y_vals.extend([value, value])
+        ax.step(z_vals, y_vals, label=f"Void fraction THM, Ptot = {Power1}", linestyle="--", color="green")
+        z_vals = []
+        y_vals = []
+        for (start, end), value in zip(intervals, voidFraction_GF_2):
+            z_vals.extend([start, end])
+            y_vals.extend([value, value])
+        ax.step(z_vals, y_vals, label=f"Void fraction GeNFoam, Ptot = {Power2}", color = "red")
+        z_vals = []
+        y_vals = []
+        for (start, end), value in zip(intervals, VF_2):
+            z_vals.extend([start, end])
+            y_vals.extend([value, value])
+        ax.step(z_vals, y_vals, label=f"Void fraction THM, Ptot = {Power2}", color = "green")
+        ax.set_ylabel(f"Void fraction")
+        ax.set_xlabel("Height (m)")
+        #ax.set_title(f"Void fraction : THM vs GeNFoam comparison")
+        ax.grid()
+        ax.legend(loc="best")
+        fig.savefig(f"Figures_GeNFoam_THM/THM_vs_GeNFoam_Void_fraction_pow1_{Power1}_pow2_{Power2}.png")
+        plt.close(fig)
+
+
+        # Plot liquid temperatures, vapour temperatures, mixture temperatures for powers 1 and 2, THM / GeNFoam
+        fig, ax = plt.subplots()
+        # compute z_mesh
+        z_boundaries = np.linspace(0, height, n_slices_GF + 1)
+        #z_values = (z_boundaries[:-1] + z_boundaries[1:]) / 2  # Midpoints of control volumes
+        # Generate the x and y values for plotting
+        z_vals = []
+        y_vals = []
+        intervals = [(z_boundaries[i], z_boundaries[i+1]) for i in range(len(z_boundaries)-1)]
+        for (start, end), value in zip(intervals, Temperature_L_GF_1):
+            z_vals.extend([start, end])
+            y_vals.extend([value, value])
+        ax.step(z_vals, y_vals, label=f"T liquid GeNFoam, Ptot = {Power1}", linestyle="--", color = "blue")
+        z_vals = []
+        y_vals = []
+        for (start, end), value in zip(intervals, Temperature_L_GF_2):
+            z_vals.extend([start, end])
+            y_vals.extend([value, value])
+        ax.step(z_vals, y_vals, label=f"T liquid GeNFoam, Ptot = {Power2}", color = "blue", linestyle="-")
+        z_vals = []
+        y_vals = []
+        for (start, end), value in zip(intervals, Temperature_V_GF_1):
+            z_vals.extend([start, end])
+            y_vals.extend([value, value])
+        ax.step(z_vals, y_vals, label=f"T vapor GeNFoam, Ptot = {Power1}", linestyle="--", color = "red")
+        z_vals = []
+        y_vals = []
+        for (start, end), value in zip(intervals, Temperature_V_GF_2):
+            z_vals.extend([start, end])
+            y_vals.extend([value, value])
+        ax.step(z_vals, y_vals, label=f"T vapor GeNFoam, Ptot = {Power2}", linestyle="-", color = "red")
+        z_vals = []
+        y_vals = []
+        for (start, end), value in zip(intervals, TC_1):
+            z_vals.extend([start, end])
+            y_vals.extend([value, value])
+        ax.step(z_vals, y_vals, label=f"T mixture THM, Ptot = {Power1}", linestyle="--", color = "green")
+        z_vals = []
+        y_vals = []
+        for (start, end), value in zip(intervals, TC_2):
+            z_vals.extend([start, end])
+            y_vals.extend([value, value])
+        ax.step(z_vals, y_vals, label=f"T mixture THM, Ptot = {Power2}", linestyle="-", color = "green")
+        ax.set_ylabel(f"Coolant temperature (K)")
+        ax.set_xlabel("Height (m)")
+        #ax.set_title(f"Coolant temperature : THM vs GeNFoam comparison")
+        ax.grid()
+        ax.legend(loc="best")
+        fig.savefig(f"Figures_GeNFoam_THM/THM_vs_GeNFoam_Coolant_temperature_pow1_{Power1}_pow2_{Power2}.png")
+        plt.close(fig)
+
+        # Plot T_mixture for THM and GeNFoam for powers 1 and 2 : 
+        fig, ax = plt.subplots()
+        # compute z_mesh
+        z_boundaries = np.linspace(0, height, n_slices_GF + 1)
+        #z_values = (z_boundaries[:-1] + z_boundaries[1:]) / 2  # Midpoints of control volumes
+        # Generate the x and y values for plotting
+        z_vals = []
+        y_vals = []
+        intervals = [(z_boundaries[i], z_boundaries[i+1]) for i in range(len(z_boundaries)-1)]
+        for (start, end), value in zip(intervals, T_mixture_GF_1):
+            z_vals.extend([start, end])
+            y_vals.extend([value, value])
+        ax.step(z_vals, y_vals, label=f"T mixture GeNFoam, Ptot = {Power1}", linestyle="--", color = "red")
+        z_vals = []
+        y_vals = []
+        for (start, end), value in zip(intervals, T_mixture_GF_2):
+            z_vals.extend([start, end])
+            y_vals.extend([value, value])
+        ax.step(z_vals, y_vals, label=f"T mixture GeNFoam, Ptot = {Power2}", color = "red", linestyle="-")
+        z_vals = []
+        y_vals = []
+        for (start, end), value in zip(intervals, TC_1):
+            z_vals.extend([start, end])
+            y_vals.extend([value, value])
+        ax.step(z_vals, y_vals, label=f"T mixture THM, Ptot = {Power1}", linestyle="--", color = "green")
+        z_vals = []
+        y_vals = []
+        for (start, end), value in zip(intervals, TC_2):
+            z_vals.extend([start, end])
+            y_vals.extend([value, value])
+        ax.step(z_vals, y_vals, label=f"T mixture THM, Ptot = {Power2}", linestyle="-", color = "green")
+        ax.set_ylabel(f"Coolant temperature (K)")
+        ax.set_xlabel("Height (m)")
+        #ax.set_title(f"Coolant temperature : THM vs GeNFoam comparison")
+        ax.grid()
+        ax.legend(loc="best")
+        fig.savefig(f"Figures_GeNFoam_THM/THM_vs_GeNFoam_Mixture_temperature_pow1_{Power1}_pow2_{Power2}.png")
+        plt.close(fig)
+
+        return
+
+
+def post_treat_Qfiss_VF_MPHYS(height, n1, n2, power1, power2, voidFractionCorrel, frfaccorel, P2Pcorel):
+    """
+    height : float, height of the core in m
+    n1 : int, number of nodes for the first simulation (assumed to be finer than the second one)
+    n2 : int, number of nodes for the second simulation
+    power1 : str, power for the first simulation, with units eg : "40kW"
+    power2 : str, power for the second simulation, with units eg : "40kW"
+    """
+    
+    Qfiss1 = parse_MPHYS_output_field(height, n1, power1, "Qfiss", False, False, voidFractionCorrel,  frfaccorel, P2Pcorel)
+    Qfiss1_coarse = parse_MPHYS_output_field(height, n2, power1, "Qfiss", False, False, voidFractionCorrel,  frfaccorel, P2Pcorel)
+    Qfiss2 = parse_MPHYS_output_field(height, n1, power2, "Qfiss", False, False, voidFractionCorrel,  frfaccorel, P2Pcorel)
+    Qfiss2_coarse = parse_MPHYS_output_field(height, n2, power2, "Qfiss", False, False, voidFractionCorrel,  frfaccorel, P2Pcorel)
+
+    VF1 = parse_MPHYS_output_field(height, n1, power1, "voidFraction", False, False, voidFractionCorrel,  frfaccorel, P2Pcorel)
+    VF1_coarse = parse_MPHYS_output_field(height, n2, power1, "voidFraction", False, False, voidFractionCorrel,  frfaccorel, P2Pcorel)
+    VF2 = parse_MPHYS_output_field(height, n1, power2, "voidFraction", False, False, voidFractionCorrel,  frfaccorel, P2Pcorel)
+    VF2_coarse = parse_MPHYS_output_field(height, n2, power2, "voidFraction", False, False, voidFractionCorrel,  frfaccorel, P2Pcorel)
+
+
+    power1 = power1.replace(".0kW", "kW")
+    power2 = power2.replace(".0kW", "kW")
+    fig, ax = plt.subplots()
+    # compute z_mesh
+    z_boundaries = np.linspace(0, height, n1 + 1)
+    #z_values = (z_boundaries[:-1] + z_boundaries[1:]) / 2  # Midpoints of control volumes
+    # Generate the x and y values for plotting
+    z_vals = []
+    y_vals = []
+    intervals = [(z_boundaries[i], z_boundaries[i+1]) for i in range(len(z_boundaries)-1)]
+    for (start, end), value in zip(intervals, Qfiss1):
+        z_vals.extend([start, end])  # Extend x values to cover the interval start and end
+        y_vals.extend([value, value]) # Extend y values to cover the interval value
+    
+    ax.step(z_vals, y_vals, label=f"Power density, n={n1} nodes : Ptot = {power1}")
+    
+    z_boundaries = np.linspace(0, height, n2 + 1)
+    #z_values = (z_boundaries[:-1] + z_boundaries[1:]) / 2  # Midpoints of control volumes
+    # Generate the x and y values for plotting
+    z_vals = []
+    y_vals = []
+    intervals = [(z_boundaries[i], z_boundaries[i+1]) for i in range(len(z_boundaries)-1)]
+    for (start, end), value in zip(intervals, Qfiss1_coarse):
+        z_vals.extend([start, end])
+        y_vals.extend([value, value])
+    ax.step(z_vals, y_vals, label=f"Power density n={n2} nodes : Ptot = {power1}")
+
+    z_boundaries = np.linspace(0, height, n1 + 1)
+    z_vals = []
+    y_vals = []
+    intervals = [(z_boundaries[i], z_boundaries[i+1]) for i in range(len(z_boundaries)-1)]
+    for (start, end), value in zip(intervals, Qfiss2):
+        z_vals.extend([start, end])  # Extend x values to cover the interval start and end
+        y_vals.extend([value, value]) # Extend y values to cover the interval value
+    
+    ax.step(z_vals, y_vals, label=f"Power density n={n1} nodes : Ptot = {power2}")
+    
+    z_boundaries = np.linspace(0, height, n2 + 1)
+    z_vals = []
+    y_vals = []
+    intervals = [(z_boundaries[i], z_boundaries[i+1]) for i in range(len(z_boundaries)-1)]
+    for (start, end), value in zip(intervals, Qfiss2_coarse):
+        z_vals.extend([start, end])
+        y_vals.extend([value, value])
+    ax.step(z_vals, y_vals, label=f"Power density n={n2} nodes : Ptot = {power2}")
+    
+    ax.set_ylabel(f"Power density ($W/m^3$)")
+    ax.set_xlabel("Height (m)")
+    #ax.set_title(f"Power density distribution : Ptot = 40kW and 20kW")
+    ax.grid()
+    ax.legend(loc="best")
+    fig.savefig(f"Figures_h1555/MPHYS_Qfiss_Ptot_n1_{n1}_n2_{n2}_pow1_{power1}_pow2_{power2}_piecewise_constant.png")
+    plt.close(fig)
+
+
+    # plotting Void fractions
+
+    fig, ax = plt.subplots()
+    # compute z_mesh
+    z_boundaries = np.linspace(0, height, n1 + 1)
+    #z_values = (z_boundaries[:-1] + z_boundaries[1:]) / 2  # Midpoints of control volumes
+    # Generate the x and y values for plotting
+    z_vals = []
+    y_vals = []
+    intervals = [(z_boundaries[i], z_boundaries[i+1]) for i in range(len(z_boundaries)-1)]
+    for (start, end), value in zip(intervals, VF1):
+        z_vals.extend([start, end])  # Extend x values to cover the interval start and end
+        y_vals.extend([value, value]) # Extend y values to cover the interval value
+    ax.step(z_vals, y_vals, label=f"Void fraction, n={n1} nodes : Ptot = {power1}")
+
+    z_boundaries = np.linspace(0, height, n2 + 1)
+    #z_values = (z_boundaries[:-1] + z_boundaries[1:]) / 2  # Midpoints of control volumes
+    # Generate the x and y values for plotting
+    z_vals = []
+    y_vals = []
+    intervals = [(z_boundaries[i], z_boundaries[i+1]) for i in range(len(z_boundaries)-1)]
+    for (start, end), value in zip(intervals, VF1_coarse):
+        z_vals.extend([start, end])
+        y_vals.extend([value, value])
+    ax.step(z_vals, y_vals, label=f"Void fraction, n={n2} nodes : Ptot = {power1}")
+
+    z_boundaries = np.linspace(0, height, n1 + 1)
+    z_vals = []
+    y_vals = []
+    intervals = [(z_boundaries[i], z_boundaries[i+1]) for i in range(len(z_boundaries)-1)]
+    for (start, end), value in zip(intervals, VF2):
+        z_vals.extend([start, end])  # Extend x values to cover the interval start and end
+        y_vals.extend([value, value]) # Extend y values to cover the interval value
+    
+    ax.step(z_vals, y_vals, label=f"Void fraction, n={n1} nodes : Ptot = {power2}")
+    
+    z_boundaries = np.linspace(0, height, n2 + 1)
+    z_vals = []
+    y_vals = []
+    intervals = [(z_boundaries[i], z_boundaries[i+1]) for i in range(len(z_boundaries)-1)]
+    for (start, end), value in zip(intervals, VF2_coarse):
+        z_vals.extend([start, end])
+        y_vals.extend([value, value])
+    ax.step(z_vals, y_vals, label=f"Void fraction, n={n2} nodes : Ptot = {power2}")
+
+    
+    ax.set_ylabel(f"Void fraction")
+    ax.set_xlabel("Height (m)")
+    ax.grid()
+    ax.legend(loc="best")
+    fig.savefig(f"Figures_h1555/MPHYS_VF_n1_{n1}_n2_{n2}_pow1_{power1}_pow2_{power2}_piecewise_constantpng")
+    plt.close(fig)
 
 
 if __name__ == "__main__" :
-    plot_1_2_pow_norms = True
-    plot_THM_vs_GeNFoam_1_2 = True
-    number_axial_slices = [10,20,40,50,70,80,160]
-    power_scaling_factor = [1,2] #, 2, 4, 8] # run 4 and 8
+    number_axial_slices = [10,20,40,70,80,160]
+    normalization_powers = ["10.0kW", "35.0kW"]
     pitch = 1.295e-2
     height = 1.555
     clad_radius = 0.5140e-2  
@@ -1449,313 +1777,35 @@ if __name__ == "__main__" :
     th_relax = False #th_relax = [0.2,0.5,0.8, False]
 
     voidFractionCorrel = 'EPRIvoidModel' # 'modBestion', 'HEM1', 'GEramp', 'EPRIvoidModel'
-    frfaccorel = "blasius" # 'base', 'blasius', 'Churchill', 
+    frfaccorel = "Churchill" # 'base', 'blasius', 'Churchill', 
     P2Pcorel = "lockhartMartinelli" # 'base', 'HEM1', 'HEM2', 'MNmodel', 'lockhartMartinelli'
     numericalMethod = "BiCG" # "FVM": Solves the system using matrix inversion with preconditioning.
 
-    post_treat_D5vsS2(height, power_scaling_factor, number_axial_slices, pow_relax, th_relax, fuel_volume, voidFractionCorrel,  frfaccorel, P2Pcorel)
+    post_treat_D5vsS2(height, normalization_powers, number_axial_slices, pow_relax, th_relax, fuel_volume, voidFractionCorrel,  frfaccorel, P2Pcorel)
     #consistency_check_Qfiss(n=10, p=1)
     #consistency_check_TH_params(n=10,p=1)
     #consistency_check_TH_params(n=20,p=1)
 
-    post_treat_Fields_SpatialConvergence_interp(height, 1, number_axial_slices, pow_relax, th_relax, voidFractionCorrel, frfaccorel, P2Pcorel)
+    post_treat_MPHYS_Fields_SpatialConvergence_interp(height, "10.0kW", number_axial_slices, pow_relax, th_relax, voidFractionCorrel, frfaccorel, P2Pcorel)
+    post_treat_MPHYS_Fields_SpatialConvergence_interp(height, "35.0kW", number_axial_slices, pow_relax, th_relax, voidFractionCorrel, frfaccorel, P2Pcorel)
 
     #number_axial_slices = [10, 20, 40, 80, 160]
     #post_treat_Fields_spatial_convergence_condense(height, 2, number_axial_slices, pow_relax, th_relax, voidFractionCorrel, frfaccorel, P2Pcorel)
 
-    #post_treat_GeNFoam_fields(2, voidFractionCorrel, frfaccorel, P2Pcorel, alpha_S) # 
-
-    Qfiss1 = parse_MPHYS_output_field(1.555, 160, 1, "Qfiss", False, False, voidFractionCorrel,  frfaccorel, P2Pcorel)
-    Qfiss1_coarse = parse_MPHYS_output_field(1.555, 40, 1, "Qfiss", False, False, voidFractionCorrel,  frfaccorel, P2Pcorel)
-    Qfiss2 = parse_MPHYS_output_field(1.555, 160, 2, "Qfiss", False, False, voidFractionCorrel,  frfaccorel, P2Pcorel)
-    Qfiss2_coarse = parse_MPHYS_output_field(1.555, 40, 2, "Qfiss", False, False, voidFractionCorrel,  frfaccorel, P2Pcorel)
-
-    VF1 = parse_MPHYS_output_field(1.555, 160, 1, "voidFraction", False, False, voidFractionCorrel,  frfaccorel, P2Pcorel)
-    VF1_coarse = parse_MPHYS_output_field(1.555, 40, 1, "voidFraction", False, False, voidFractionCorrel,  frfaccorel, P2Pcorel)
-    VF2 = parse_MPHYS_output_field(1.555, 160, 2, "voidFraction", False, False, voidFractionCorrel,  frfaccorel, P2Pcorel)
-    VF2_coarse = parse_MPHYS_output_field(1.555, 40, 2, "voidFraction", False, False, voidFractionCorrel,  frfaccorel, P2Pcorel)
+    #print("Compare THM to GeN-Foam fields for 10kW")
+    post_treat_GeNFoam_fields("10.0kW", voidFractionCorrel, frfaccorel, P2Pcorel, alpha_S) # Compare THM to GeN-Foam fields for 10kW
+    #print("Compare THM to GeN-Foam fields for 35kW")
+    post_treat_GeNFoam_fields("35.0kW", voidFractionCorrel, frfaccorel, P2Pcorel, alpha_S) # Compare THM to GeN-Foam fields for 35kW
 
 
-    if plot_1_2_pow_norms:
-        fig, ax = plt.subplots()
-        # compute z_mesh
-        z_boundaries = np.linspace(0, height, 160 + 1)
-        #z_values = (z_boundaries[:-1] + z_boundaries[1:]) / 2  # Midpoints of control volumes
-        # Generate the x and y values for plotting
-        z_vals = []
-        y_vals = []
-        intervals = [(z_boundaries[i], z_boundaries[i+1]) for i in range(len(z_boundaries)-1)]
-        for (start, end), value in zip(intervals, Qfiss1):
-            z_vals.extend([start, end])  # Extend x values to cover the interval start and end
-            y_vals.extend([value, value]) # Extend y values to cover the interval value
-        
-        ax.step(z_vals, y_vals, label=f"Power density, n=160 nodes : Ptot = 40kW")
-        
-        z_boundaries = np.linspace(0, height, 40 + 1)
-        #z_values = (z_boundaries[:-1] + z_boundaries[1:]) / 2  # Midpoints of control volumes
-        # Generate the x and y values for plotting
-        z_vals = []
-        y_vals = []
-        intervals = [(z_boundaries[i], z_boundaries[i+1]) for i in range(len(z_boundaries)-1)]
-        for (start, end), value in zip(intervals, Qfiss1_coarse):
-            z_vals.extend([start, end])
-            y_vals.extend([value, value])
-        ax.step(z_vals, y_vals, label=f"Power density n=40 nodes : Ptot = 40kW")
+    # Begin Figure Generation for M&C2025 paper
+    # Post treating spatial convergence for MPHYS solution on 1.555m height, n1 = 160, n2 = 40, power1 = 40kW, power2 = 20kW
+    post_treat_Qfiss_VF_MPHYS(1.555, 160, 40, "35.0kW", "10.0kW", voidFractionCorrel, frfaccorel, P2Pcorel)
 
-        z_boundaries = np.linspace(0, height, 160 + 1)
-        z_vals = []
-        y_vals = []
-        intervals = [(z_boundaries[i], z_boundaries[i+1]) for i in range(len(z_boundaries)-1)]
-        for (start, end), value in zip(intervals, Qfiss2):
-            z_vals.extend([start, end])  # Extend x values to cover the interval start and end
-            y_vals.extend([value, value]) # Extend y values to cover the interval value
-        
-        ax.step(z_vals, y_vals, label=f"Power density n=160 nodes : Ptot = 20kW")
-        
-        z_boundaries = np.linspace(0, height, 40 + 1)
-        z_vals = []
-        y_vals = []
-        intervals = [(z_boundaries[i], z_boundaries[i+1]) for i in range(len(z_boundaries)-1)]
-        for (start, end), value in zip(intervals, Qfiss2_coarse):
-            z_vals.extend([start, end])
-            y_vals.extend([value, value])
-        ax.step(z_vals, y_vals, label=f"Power density n=40 nodes : Ptot = 20kW")
-        
-        ax.set_ylabel(f"Power density ($W/m^3$)")
-        ax.set_xlabel("Height (m)")
-        #ax.set_title(f"Power density distribution : Ptot = 40kW and 20kW")
-        ax.grid()
-        ax.legend(loc="best")
-        fig.savefig(f"Figures_h1555/MPHYS_Qfiss_Ptot_1_2_piecewise_constant.png")
-        plt.close(fig)
+    # Post treating comparison between MPHYS and GeNFoam fields for 10kW and 25kW comparison.
+    
+    post_treat_MPHYS_GeNFoam_comparison("35.0kW", "10.0kW", alpha_S, n_slices_GF = 70)
 
-
-        # plotting Void fractions
-
-        fig, ax = plt.subplots()
-        # compute z_mesh
-        z_boundaries = np.linspace(0, height, 160 + 1)
-        #z_values = (z_boundaries[:-1] + z_boundaries[1:]) / 2  # Midpoints of control volumes
-        # Generate the x and y values for plotting
-        z_vals = []
-        y_vals = []
-        intervals = [(z_boundaries[i], z_boundaries[i+1]) for i in range(len(z_boundaries)-1)]
-        for (start, end), value in zip(intervals, VF1):
-            z_vals.extend([start, end])  # Extend x values to cover the interval start and end
-            y_vals.extend([value, value]) # Extend y values to cover the interval value
-        ax.step(z_vals, y_vals, label=f"Void fraction, n=160 nodes : Ptot = 40kW")
-
-        z_boundaries = np.linspace(0, height, 40 + 1)
-        #z_values = (z_boundaries[:-1] + z_boundaries[1:]) / 2  # Midpoints of control volumes
-        # Generate the x and y values for plotting
-        z_vals = []
-        y_vals = []
-        intervals = [(z_boundaries[i], z_boundaries[i+1]) for i in range(len(z_boundaries)-1)]
-        for (start, end), value in zip(intervals, VF1_coarse):
-            z_vals.extend([start, end])
-            y_vals.extend([value, value])
-        ax.step(z_vals, y_vals, label=f"Void fraction, n=40 nodes : Ptot = 40kW")
-
-        z_boundaries = np.linspace(0, height, 160 + 1)
-        z_vals = []
-        y_vals = []
-        intervals = [(z_boundaries[i], z_boundaries[i+1]) for i in range(len(z_boundaries)-1)]
-        for (start, end), value in zip(intervals, VF2):
-            z_vals.extend([start, end])  # Extend x values to cover the interval start and end
-            y_vals.extend([value, value]) # Extend y values to cover the interval value
-        
-        ax.step(z_vals, y_vals, label=f"Void fraction, n=160 nodes : Ptot = 20kW")
-        
-        z_boundaries = np.linspace(0, height, 40 + 1)
-        z_vals = []
-        y_vals = []
-        intervals = [(z_boundaries[i], z_boundaries[i+1]) for i in range(len(z_boundaries)-1)]
-        for (start, end), value in zip(intervals, VF2_coarse):
-            z_vals.extend([start, end])
-            y_vals.extend([value, value])
-        ax.step(z_vals, y_vals, label=f"Void fraction, n=40 nodes : Ptot = 20kW")
-
-        
-        ax.set_ylabel(f"Void fraction")
-        ax.set_xlabel("Height (m)")
-        #ax.set_title(f"Void fraction : Ptot = 40kW and 20kW")
-        ax.grid()
-        ax.legend(loc="best")
-        fig.savefig(f"Figures_h1555/MPHYS_VF_Ptot_1_2_piecewise_constant.png")
-        plt.close(fig)
-
-    if plot_THM_vs_GeNFoam_1_2:
-        # Parse GeNFoam fields for power = 40 kW and 20 kW
-        voidFraction_GF_1 = parse_GenFoam_output_field("voidFraction", 1, voidFractionCorrel,  frfaccorel, P2Pcorel)
-        voidFraction_GF_2 = parse_GenFoam_output_field("voidFraction", 2, voidFractionCorrel,  frfaccorel, P2Pcorel)
-
-        Pressure_GF_1 = parse_GenFoam_output_field("Pressure", 1, voidFractionCorrel,  frfaccorel, P2Pcorel)
-        Pressure_GF_2 = parse_GenFoam_output_field("Pressure", 2, voidFractionCorrel,  frfaccorel, P2Pcorel)
-
-        Temperature_L_GF_1 = parse_GenFoam_output_field("T_liquid", 1, voidFractionCorrel,  frfaccorel, P2Pcorel)
-        Temperature_L_GF_2 = parse_GenFoam_output_field("T_liquid", 2, voidFractionCorrel,  frfaccorel, P2Pcorel)
-
-        Temperature_V_GF_1 = parse_GenFoam_output_field("T_vapour", 1, voidFractionCorrel,  frfaccorel, P2Pcorel)
-        Temperature_V_GF_2 = parse_GenFoam_output_field("T_vapour", 2, voidFractionCorrel,  frfaccorel, P2Pcorel)
-
-        # exclude the first 5 points
-        voidFraction_GF_1 = voidFraction_GF_1[5:]
-        voidFraction_GF_2 = voidFraction_GF_2[5:]
-        Pressure_GF_1 = Pressure_GF_1[5:]
-        Pressure_GF_2 = Pressure_GF_2[5:]
-        Temperature_L_GF_1 = Temperature_L_GF_1[5:]
-        Temperature_L_GF_2 = Temperature_L_GF_2[5:]
-        Temperature_V_GF_1 = Temperature_V_GF_1[5:]
-        Temperature_V_GF_2 = Temperature_V_GF_2[5:]
-
-        # renormalize GeN-Foam void fraction so that alpha_vapour + alpha_liquid = 1
-        voidFraction_GF_1 = voidFraction_GF_1/(1-alpha_S)
-        voidFraction_GF_2 = voidFraction_GF_2/(1-alpha_S)
-        
-        # Parse THM fields for power = 40 kW and 20 kW
-
-        TC_1 = parse_MPHYS_output_field(1.555, 70, 1, "Twater", False, False, voidFractionCorrel,  frfaccorel, P2Pcorel)
-        TC_2 = parse_MPHYS_output_field(1.555, 70, 2, "Twater", False, False, voidFractionCorrel,  frfaccorel, P2Pcorel)
-
-        #DC_1 = parse_MPHYS_output_field(1.555, 70, 1, "rho", False, False, voidFractionCorrel,  frfaccorel, P2Pcorel)
-        #DC_2 = parse_MPHYS_output_field(1.555, 70, 2, "rho", False, False, voidFractionCorrel,  frfaccorel, P2Pcorel)
-
-        VF_1 = parse_MPHYS_output_field(1.555, 70, 1, "voidFraction", False, False, voidFractionCorrel,  frfaccorel, P2Pcorel)
-        VF_2 = parse_MPHYS_output_field(1.555, 70, 2, "voidFraction", False, False, voidFractionCorrel,  frfaccorel, P2Pcorel)
-
-        P_1 = parse_MPHYS_output_field(1.555, 70, 1, "Pressure", False, False, voidFractionCorrel,  frfaccorel, P2Pcorel)
-        P_2 = parse_MPHYS_output_field(1.555, 70, 2, "Pressure", False, False, voidFractionCorrel,  frfaccorel, P2Pcorel)
-
-
-        # Plot pressures for powers 1 and 2, THM / GeNFoam 
-        fig, ax = plt.subplots()
-        # compute z_mesh
-        z_boundaries = np.linspace(0, height, 70 + 1)
-        #z_values = (z_boundaries[:-1] + z_boundaries[1:]) / 2  # Midpoints of control volumes
-        # Generate the x and y values for plotting
-        z_vals = []
-        y_vals = []
-        intervals = [(z_boundaries[i], z_boundaries[i+1]) for i in range(len(z_boundaries)-1)]
-        for (start, end), value in zip(intervals, Pressure_GF_1):
-            z_vals.extend([start, end])
-            y_vals.extend([value, value])
-        ax.step(z_vals, y_vals, label=f"Pressure GeNFoam, Ptot = 40kW", linestyle="--", color = "red") 
-        z_vals = []
-        y_vals = []
-        for (start, end), value in zip(intervals, P_1):
-            z_vals.extend([start, end])
-            y_vals.extend([value, value])
-        ax.step(z_vals, y_vals, label=f"Pressure THM, Ptot = 40kW", linestyle="--", color = "green")
-        z_vals = []
-        y_vals = []
-        for (start, end), value in zip(intervals, Pressure_GF_2):
-            z_vals.extend([start, end])
-            y_vals.extend([value, value])
-        ax.step(z_vals, y_vals, label=f"Pressure GeNFoam, Ptot = 20kW", color = "red")
-        z_vals = []
-        y_vals = []
-        for (start, end), value in zip(intervals, P_2):
-            z_vals.extend([start, end])
-            y_vals.extend([value, value])
-        ax.step(z_vals, y_vals, label=f"Pressure THM, Ptot = 20kW", color = "green")
-        ax.set_ylabel(f"Pressure (Pa)")
-        ax.set_xlabel("Height (m)")
-        #ax.set_title(f"Pressure : THM vs GeNFoam comparison")
-        ax.grid()
-        ax.legend(loc="best")
-        fig.savefig(f"Figures_GeNFoam_THM/THM_vs_GeNFoam_Pressure_pow_1_2.png")
-        plt.close(fig)
-
-        # Plot void fractions for powers 1 and 2, THM / GeNFoam
-        fig, ax = plt.subplots()
-        # compute z_mesh
-        z_boundaries = np.linspace(0, height, 70 + 1)
-        #z_values = (z_boundaries[:-1] + z_boundaries[1:]) / 2  # Midpoints of control volumes
-        # Generate the x and y values for plotting
-        z_vals = []
-        y_vals = []
-        intervals = [(z_boundaries[i], z_boundaries[i+1]) for i in range(len(z_boundaries)-1)]
-        for (start, end), value in zip(intervals, voidFraction_GF_1):
-            z_vals.extend([start, end])
-            y_vals.extend([value, value])
-        ax.step(z_vals, y_vals, label=f"Void fraction GeNFoam, Ptot = 40kW", linestyle="--", color="red")
-        z_vals = []
-        y_vals = []
-        for (start, end), value in zip(intervals, VF_1):
-            z_vals.extend([start, end])
-            y_vals.extend([value, value])
-        ax.step(z_vals, y_vals, label=f"Void fraction THM, Ptot = 40kW", linestyle="--", color="green")
-        z_vals = []
-        y_vals = []
-        for (start, end), value in zip(intervals, voidFraction_GF_2):
-            z_vals.extend([start, end])
-            y_vals.extend([value, value])
-        ax.step(z_vals, y_vals, label=f"Void fraction GeNFoam, Ptot = 20kW", color = "red")
-        z_vals = []
-        y_vals = []
-        for (start, end), value in zip(intervals, VF_2):
-            z_vals.extend([start, end])
-            y_vals.extend([value, value])
-        ax.step(z_vals, y_vals, label=f"Void fraction THM, Ptot = 20kW", color = "green")
-        ax.set_ylabel(f"Void fraction")
-        ax.set_xlabel("Height (m)")
-        #ax.set_title(f"Void fraction : THM vs GeNFoam comparison")
-        ax.grid()
-        ax.legend(loc="best")
-        fig.savefig(f"Figures_GeNFoam_THM/THM_vs_GeNFoam_Void_fraction_pow_1_2.png")
-        plt.close(fig)
-
-
-        # Plot liquid temperatures, vapour temperatures, mixture temperatures for powers 1 and 2, THM / GeNFoam
-        fig, ax = plt.subplots()
-        # compute z_mesh
-        z_boundaries = np.linspace(0, height, 70 + 1)
-        #z_values = (z_boundaries[:-1] + z_boundaries[1:]) / 2  # Midpoints of control volumes
-        # Generate the x and y values for plotting
-        z_vals = []
-        y_vals = []
-        intervals = [(z_boundaries[i], z_boundaries[i+1]) for i in range(len(z_boundaries)-1)]
-        for (start, end), value in zip(intervals, Temperature_L_GF_1):
-            z_vals.extend([start, end])
-            y_vals.extend([value, value])
-        ax.step(z_vals, y_vals, label=f"T liquid GeNFoam, Ptot = 40kW", linestyle="--", color = "blue")
-        z_vals = []
-        y_vals = []
-        for (start, end), value in zip(intervals, Temperature_L_GF_2):
-            z_vals.extend([start, end])
-            y_vals.extend([value, value])
-        ax.step(z_vals, y_vals, label=f"T liquid GeNFoam, Ptot = 20kW", color = "blue", linestyle="-")
-        z_vals = []
-        y_vals = []
-        for (start, end), value in zip(intervals, Temperature_V_GF_1):
-            z_vals.extend([start, end])
-            y_vals.extend([value, value])
-        ax.step(z_vals, y_vals, label=f"T vapor GeNFoam, Ptot = 40kW", linestyle="--", color = "red")
-        z_vals = []
-        y_vals = []
-        for (start, end), value in zip(intervals, Temperature_V_GF_2):
-            z_vals.extend([start, end])
-            y_vals.extend([value, value])
-        ax.step(z_vals, y_vals, label=f"T vapor GeNFoam, Ptot = 20kW", linestyle="-", color = "red")
-        z_vals = []
-        y_vals = []
-        for (start, end), value in zip(intervals, TC_1):
-            z_vals.extend([start, end])
-            y_vals.extend([value, value])
-        ax.step(z_vals, y_vals, label=f"T mixture THM, Ptot = 40kW", linestyle="--", color = "green")
-        z_vals = []
-        y_vals = []
-        for (start, end), value in zip(intervals, TC_2):
-            z_vals.extend([start, end])
-            y_vals.extend([value, value])
-        ax.step(z_vals, y_vals, label=f"T mixture THM, Ptot = 20kW", linestyle="-", color = "green")
-        ax.set_ylabel(f"Coolant temperature (K)")
-        ax.set_xlabel("Height (m)")
-        #ax.set_title(f"Coolant temperature : THM vs GeNFoam comparison")
-        ax.grid()
-        ax.legend(loc="best")
-        fig.savefig(f"Figures_GeNFoam_THM/THM_vs_GeNFoam_Coolant_temperature_pow_1_2.png")
-        plt.close(fig)
 
 
 

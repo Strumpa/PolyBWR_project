@@ -17,7 +17,7 @@ def parse_multiPhysics_output(filename):
     #print(f"Data loaded from {filename}")
     return data
 
-def create_geometry(number_axial_slices, power_scaling_factor, pitch, fuel_radius, gap_radius, clad_radius, height, isGd):
+def create_geometry(number_axial_slices, power, pitch, fuel_radius, gap_radius, clad_radius, height, isGd):
     """Create the geometry for the Serpent2 input file"""
     slice_thinkness = height/number_axial_slices
     x_max = pitch/2
@@ -25,7 +25,7 @@ def create_geometry(number_axial_slices, power_scaling_factor, pitch, fuel_radiu
     y_max = pitch/2
     y_min = -pitch/2
     pin_radii = computeSantamarinaradii(fuel_radius, gap_radius, clad_radius, isGd)
-    with open(f'AT10_24UOX_MPHYS_h155_mesh{number_axial_slices}_{power_scaling_factor}_mc', 'a') as output_file:
+    with open(f'AT10_24UOX_MPHYS_h155_mesh{number_axial_slices}_{power}_mc', 'a') as output_file:
         output_file.write("% --- 1. Pin definition \n")
         for i in range(number_axial_slices):
             if isGd==False:
@@ -62,9 +62,10 @@ def computeSantamarinaradii(outer_fuel_radius, gap_radius, clad_radius, isGd):
                       (0.8**0.5)*outer_fuel_radius, (0.95**0.5)*outer_fuel_radius, outer_fuel_radius, gap_radius, clad_radius]
         return pin_radii
 
-def create_material_volumes(number_axial_slices, power_scaling_factor, Teff_fuel, TWater, iso_dens_O, iso_dens_H, isGd, XS_lib):
+def create_material_volumes(number_axial_slices, power, Teff_fuel, TWater, iso_dens_O, iso_dens_H, isGd, XS_lib):
     """
     Generate Sepent2 material volumes
+    Power : str, power normalization used, with units
     Teff_fuel : list of effective temperatures in fuel
     TWater : list of temperatures in water
     iso_dens_O : list of oxygen isotopic densities (in water) obtained from DensToIsoDens(rho)
@@ -90,7 +91,7 @@ def create_material_volumes(number_axial_slices, power_scaling_factor, Teff_fuel
         gap_lib_id = "06c"
         temp_tabulation_points = [300.0, 600.0, 900.0, 1200.0, 1500, 1800.0]
 
-    with open(f'AT10_24UOX_MPHYS_h155_mesh{number_axial_slices}_{power_scaling_factor}_mc', 'a') as output_file:
+    with open(f'AT10_24UOX_MPHYS_h155_mesh{number_axial_slices}_{power}_mc', 'a') as output_file:
         
         output_file.write(f"% --- 4. Materials definition \n")
         for i in range(len(Teff_fuel)):
@@ -201,12 +202,12 @@ def create_material_volumes(number_axial_slices, power_scaling_factor, Teff_fuel
             output_file.write(f"mat U234_{i+1} 1.0 tmp {Teff_fuel[i]:.2f} 92234.{temp_suffix} 1.0\n")
         output_file.write("\n")
 
-def create_detectors(number_axial_slices, power_scaling_factor, isGd):
+def create_detectors(number_axial_slices, power, isGd):
     if isGd == False:
         fuel_names = ["UOx_A", "UOx_B", "UOx_C", "UOx_D"]
     else:
         fuel_names = ["Gd_A", "Gd_B", "Gd_C", "Gd_D", "Gd_E", "Gd_F"]
-    with open(f'AT10_24UOX_MPHYS_h155_mesh{number_axial_slices}_{power_scaling_factor}_mc', 'a') as output_file:
+    with open(f'AT10_24UOX_MPHYS_h155_mesh{number_axial_slices}_{power}_mc', 'a') as output_file:
         output_file.write("\n")
         output_file.write(f"% --- 5. Detectors definition \n")
         output_file.write(f"% --- energy grid for the detectors (1g) \n")
@@ -238,12 +239,12 @@ def create_detectors(number_axial_slices, power_scaling_factor, isGd):
 
     return
 
-def create_header(number_axial_slices, power_scaling_factor, XS_lib):
+def create_header(number_axial_slices, power, XS_lib):
     # check if XS_lib is valid
     if XS_lib not in ["PyNjoy2016", "oldlib"]:
         print("Error: invalid XS library")
         sys.exit(1)
-    with open(f'AT10_24UOX_MPHYS_h155_mesh{number_axial_slices}_{power_scaling_factor}_mc', 'w') as output_file:
+    with open(f'AT10_24UOX_MPHYS_h155_mesh{number_axial_slices}_{power}_mc', 'w') as output_file:
         output_file.write("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% \n")
         output_file.write("% Author  : R.Guasch                                                                                              % \n")
         output_file.write("% Date    : 2024/10/23                                                                                            % \n")
@@ -270,8 +271,8 @@ def create_header(number_axial_slices, power_scaling_factor, XS_lib):
         output_file.write("\n")
     return
 
-def create_calcualtion_options(number_axial_slices, power_scaling_factor, neutron_population, criticality_cycles, discard_cycles, ures, XS_lib):
-    with open(f'AT10_24UOX_MPHYS_h155_mesh{number_axial_slices}_{power_scaling_factor}_mc', 'a') as output_file:
+def create_calcualtion_options(number_axial_slices, power, neutron_population, criticality_cycles, discard_cycles, ures, XS_lib):
+    with open(f'AT10_24UOX_MPHYS_h155_mesh{number_axial_slices}_{power}_mc', 'a') as output_file:
         output_file.write("\n")
         output_file.write("% --- 5. Serpent parameters \n")
         output_file.write(f"set ures {ures} \n")
@@ -293,13 +294,6 @@ def create_calcualtion_options(number_axial_slices, power_scaling_factor, neutro
         output_file.write("% --- 5.4 Output options: \n")
         output_file.write("plot 3 500 500 0.0 \n")
         output_file.write("plot 3 500 500 1 \n")
-        output_file.write("plot 3 500 500 100 \n")
-        output_file.write("plot 3 500 500 190 \n")
-        output_file.write("plot 3 500 500 200 \n")
-        output_file.write("plot 3 500 500 300 \n")
-        output_file.write("\n")
-        output_file.write("plot 1 500 500 \n")
-        output_file.write("mesh 3 500 500 \n")
         output_file.write("\n")
 
         return
@@ -309,17 +303,17 @@ def create_calcualtion_options(number_axial_slices, power_scaling_factor, neutro
 TH_underRelaxationFactor = 0.1
 Pow_underRelaxationFactor = 0.5 # Under relaxation factor for the power axial distribution to be tested, 0.1 used in Serpent/OpenFoam coupling
 relax_TH = False # Under relaxation of the TH fields for the next iteration
-relax_Pow = True # Under relaxation of the Power distribution for the next iteration
+relax_Pow = False # Under relaxation of the Power distribution for the next iteration
 
 voidFractionCorrel = 'EPRIvoidModel' # 'modBestion', 'HEM1', 'GEramp', 'EPRIvoidModel'
-frfaccorel = "blasius" # 'base', 'blasius', 'Churchill', 
+frfaccorel = "Churchill" # 'base', 'blasius', 'Churchill', 
 P2Pcorel = "lockhartMartinelli" # 'base', 'HEM1', 'HEM2', 'MNmodel', 'lockhartMartinelli'
 
-number_axial_slices_all_cases = [160]
+number_axial_slices_all_cases = [10,20,40,70,80,160]
 #number_axial_slices_all_cases = [70]
 #number_axial_slices = 10
 
-pow_scaling_factor_all_cases = [1]
+power_all_cases = ["35.0kW", "10.0kW"]
 #pow_scaling_factor = 1
 neutrons_per_cycle = 50000
 num_cycles = 10000
@@ -343,11 +337,11 @@ else:
     relaxTH_id = "non_relaxedTH"
 
 for number_axial_slices in number_axial_slices_all_cases:
-    for pow_scaling_factor in pow_scaling_factor_all_cases:
-        Teff_fuel = parse_multiPhysics_output(f"../../Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan_24UOX_cell/BiCG/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/{read_id}/mesh{number_axial_slices}_{pow_scaling_factor}/Data/TeffFuel_24UOX_mesh{number_axial_slices}_BiCG_EPRIvoidModel_{relaxPOW_id}_{relaxTH_id}.txt")
+    for power in power_all_cases:
+        Teff_fuel = parse_multiPhysics_output(f"../../Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan/24UOX_cell/BiCG/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/{read_id}/mesh{number_axial_slices}_{power}/Data/TeffFuel_24UOX_mesh{number_axial_slices}_BiCG_EPRIvoidModel_{relaxPOW_id}_{relaxTH_id}.txt")
         #print(T_data)
-        TWater = parse_multiPhysics_output(f"../../Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan_24UOX_cell/BiCG/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/{read_id}/mesh{number_axial_slices}_{pow_scaling_factor}/Data/Twater_24UOX_mesh{number_axial_slices}_BiCG_EPRIvoidModel_{relaxPOW_id}_{relaxTH_id}.txt")
-        DWater = parse_multiPhysics_output(f"../../Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan_24UOX_cell/BiCG/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/{read_id}/mesh{number_axial_slices}_{pow_scaling_factor}/Data/rho_24UOX_mesh{number_axial_slices}_BiCG_EPRIvoidModel_{relaxPOW_id}_{relaxTH_id}.txt")
+        TWater = parse_multiPhysics_output(f"../../Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan/24UOX_cell/BiCG/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/{read_id}/mesh{number_axial_slices}_{power}/Data/Twater_24UOX_mesh{number_axial_slices}_BiCG_EPRIvoidModel_{relaxPOW_id}_{relaxTH_id}.txt")
+        DWater = parse_multiPhysics_output(f"../../Version5_wc/PyGan/Linux_aarch64/multiPhysics_PyGan/24UOX_cell/BiCG/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/{read_id}/mesh{number_axial_slices}_{power}/Data/rho_24UOX_mesh{number_axial_slices}_BiCG_EPRIvoidModel_{relaxPOW_id}_{relaxTH_id}.txt")
 
         DWater = DWater*1e-3 # kg/m^3 to g/cm^3
         iso_dens_H = []
@@ -365,12 +359,12 @@ for number_axial_slices in number_axial_slices_all_cases:
             
             # Create Serpent2 case header
             create_header(number_axial_slices=len(Teff_fuel), 
-                        power_scaling_factor=pow_scaling_factor,
+                        power=power,
                         XS_lib = cross_section_library)
 
             # Create Serpent2 geometry input
             create_geometry(number_axial_slices=len(Teff_fuel), 
-                            power_scaling_factor=pow_scaling_factor, 
+                            power=power, 
                             pitch=1.295, 
                             fuel_radius=0.4435, 
                             gap_radius=0.4520, 
@@ -379,7 +373,7 @@ for number_axial_slices in number_axial_slices_all_cases:
 
             # Create Serpent2 material volumes
             create_material_volumes(len(Teff_fuel), 
-                                    pow_scaling_factor, 
+                                    power, 
                                     Teff_fuel, TWater, 
                                     iso_dens_O, 
                                     iso_dens_H, 
@@ -388,12 +382,12 @@ for number_axial_slices in number_axial_slices_all_cases:
 
             # Create Serpent2 detectors
             create_detectors(number_axial_slices=len(Teff_fuel), 
-                            power_scaling_factor=pow_scaling_factor, 
+                            power=power, 
                             isGd=False)
             
             # Create Serpent2 calculation options
             create_calcualtion_options(number_axial_slices=len(Teff_fuel), 
-                                    power_scaling_factor=pow_scaling_factor, 
+                                    power=power, 
                                     neutron_population=neutrons_per_cycle, 
                                     criticality_cycles=num_cycles, 
                                     discard_cycles=cycles_to_discard, ures=ures_activation_option,

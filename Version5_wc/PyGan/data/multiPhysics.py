@@ -317,15 +317,17 @@ If = 8
 I1 = 3
 
 # Sensitivity to the meshing parameters
-Iz1 = 70 # number of control volumes in the axial direction, added 70 for comparison with GeN-Foam
+Iz1 = 10 # number of control volumes in the axial direction, added 70 for comparison with GeN-Foam
 # Iz1 = 10, 20, 40, 50, 70, 80 and 160 are supported for the DONJON solution
 
 
-power_scaling_factor = 2 # 1, 2, 4, 8 # Scaling factor for the power axial distribution
+PFiss = 10e3 # W, total fission power in the fuel rod, 40kW, 35kW, 30kW, 25kW, 20kW
+# Test powers 40kW, 35kW, 30kW, 25kW, 20kW.
+# Suspected limitation of pressure drop correlation at high powers in GeN-Foam comparison (21/12/2024)
 
 ########## Choice of Thermalhydraulics correlation ##########
 voidFractionCorrel = 'EPRIvoidModel' # 'modBestion', 'HEM1', 'GEramp', 'EPRIvoidModel'
-frfaccorel = "Churchill" # 'base', 'blasius', 'Churchill', 
+frfaccorel = "blasius" # 'base', 'blasius', 'Churchill', 
 P2Pcorel = "lockhartMartinelli" # 'base', 'HEM1', 'HEM2', 'MNmodel', 'lockhartMartinelli'
 numericalMethod = "BiCG" # "FVM": Solves the system using matrix inversion with preconditioning.
                          # "GaussSiedel" : Applies the Gauss-Seidel iterative solver.
@@ -381,17 +383,15 @@ Fuel_volume = np.pi*fuelRadius**2*height # m3
 Fuel_mass = Fuel_volume*volumic_mass_U*1000 # g
 print(f"Fuel mass = {Fuel_mass} g")
 
-print(f"$$ - BEGIN Iz1 = {Iz1}, power_scaling_factor = {power_scaling_factor}")
+
 Bundle_volume = Fuel_volume / Iz1 # m3, Bundle <=> 1 axial slice of the fuel channel
 fuel_rod_power = full_core_power/(n_rods*n_assmblies) # W
-#specificPower = fuel_rod_power/Fuel_mass # W/g 
 print(f"Fuel rod power before scaling = {fuel_rod_power} W")
-#print(f"Specific power = {specificPower} W/g")
 
 compo_name = "_COMPO_24UOX" # Name of the COMPO object to be used in the neutronics solution
 
-PFiss = fuel_rod_power/power_scaling_factor # W
-print(f"PFiss = {PFiss} = fuel_rod_power (scaled) W")
+ 
+print(f"$$ - BEGIN Coupled case initialization : Iz1 = {Iz1}, total normalization power = {PFiss} W")
 
 ########## Fields of the TH problem ##########
 TeffFuel = []
@@ -760,24 +760,23 @@ else:
     relaxTH_id = "non_relaxedTH"
 # Creation of results directory
 path=os.getcwd()
-a=os.path.exists(f"multiPhysics_PyGan_24UOX_cell")
+a=os.path.exists(f"multiPhysics_PyGan")
 if a==False:
-    os.mkdir(f"multiPhysics_PyGan_24UOX_cell")
+    os.mkdir(f"multiPhysics_PyGan")
 print(path)
 if height == 3.8:
     save_id = "h380"
 elif height == 1.555:
     save_id = "h1555"
 
-SAVE_FIG_DIR = f"multiPhysics_PyGan/24UOX_cell/{numericalMethod}/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/{save_id}/mesh{Iz1}_{power_scaling_factor}/Figures"
-SAVE_DATA_DIR = f"multiPhysics_PyGan/24UOX_cell/{numericalMethod}/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/{save_id}/mesh{Iz1}_{power_scaling_factor}/Data"
+SAVE_FIG_DIR = f"multiPhysics_PyGan/24UOX_cell/{numericalMethod}/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/{save_id}/mesh{Iz1}_{PFiss/1000}kW/Figures"
+SAVE_DATA_DIR = f"multiPhysics_PyGan/24UOX_cell/{numericalMethod}/{voidFractionCorrel}_{frfaccorel}_{P2Pcorel}/{save_id}/mesh{Iz1}_{PFiss/1000}kW/Data"
 
 a=os.path.exists(SAVE_FIG_DIR)
 if a==False:
     os.makedirs(SAVE_FIG_DIR)
 
 print(SAVE_DIR)
-print(f"Keffs = {Keffs}")
 # Plot the results
 quickPlot(range(len(Keffs)), Keffs, "Keff convergence", "iteration", "Keff", "Keff_convergence.png", path, SAVE_FIG_DIR)
 
@@ -787,14 +786,7 @@ quickPlot(z_mesh, rho, "Coolant density convergence", "height (m)", "DCool (kg/m
 quickPlot(z_mesh, voidFraction, "Void fraction convergence", "height (m)", "Void fraction", f"Void_fraction_convergence_{relaxPOW_id}_{relaxTH_id}.png", path, SAVE_FIG_DIR)
 quickPlot(z_mesh, Power_Distribs, "Power distribution convergence", "height (m)", "Power (kW)", f"Power_distribution_convergence_{relaxPOW_id}_{relaxTH_id}.png", path, SAVE_FIG_DIR)
 quickPlot(z_mesh, Volumic_Powers, "Qfiss convergence", "height (m)", "Power (W/m^3)", f"Qfiss_convergence_{relaxPOW_id}_{relaxTH_id}.png", path, SAVE_FIG_DIR)
-    
-quickPlot(z_mesh, Residuals_TeffFuel, "Fuel temperature residuals", "height (m)", "Residuals", f"TFuel_residuals_{relaxPOW_id}_{relaxTH_id}.png", path, SAVE_FIG_DIR)
-quickPlot(z_mesh, Residuals_Twater, "Coolant temperature residuals", "height (m)", "Residuals", f"TCool_residuals_{relaxPOW_id}_{relaxTH_id}.png", path, SAVE_FIG_DIR)
-quickPlot(z_mesh, Residuals_rho, "Coolant density residuals", "height (m)", "Residuals", f"DCool_residuals_{relaxPOW_id}_{relaxTH_id}.png", path, SAVE_FIG_DIR)
-quickPlot(z_mesh, Residuals_voidFraction, "Void fraction residuals", "height (m)", "Residuals", f"Void_fraction_residuals_{relaxPOW_id}_{relaxTH_id}.png", path, SAVE_FIG_DIR)
-quickPlot(z_mesh, Residuals_Power_Distribs, "Power distribution residuals", "height (m)", "Residuals", f"Power_distribution_residuals_{relaxPOW_id}_{relaxTH_id}.png", path, SAVE_FIG_DIR)
-#print(f"Residuals Power distribution : {Residuals_Power_Distribs}")
-quickPlot(z_mesh, Residuals_Volumic_Powers, "Axial power shape residuals", "height (m)", "Residuals", f"Qfiss_residuals_{relaxPOW_id}_{relaxTH_id}.png", path, SAVE_FIG_DIR)
+
 print("$$$ - multiPhysics.py : END of PLOTTING - $$$")
 
 
@@ -835,12 +827,12 @@ np.savetxt(f"Enthalpy_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{r
 np.savetxt(f"voidFraction_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{relaxPOW_id}_{relaxTH_id}.txt", voidFraction[-1])
 np.savetxt(f"Qfiss_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{relaxPOW_id}_{relaxTH_id}.txt", Qfiss[-1])
 np.savetxt(f"Power_Distrib_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{relaxPOW_id}_{relaxTH_id}.txt", Power_Distrib[-1])
-np.savetxt(f"Residuals_TeffFuel_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{relaxPOW_id}_{relaxTH_id}.txt", Residuals_TeffFuel[-1])
-np.savetxt(f"Residuals_Twater_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{relaxPOW_id}_{relaxTH_id}.txt", Residuals_Twater[-1])
-np.savetxt(f"Residuals_rho_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{relaxPOW_id}_{relaxTH_id}.txt", Residual_rho[-1])
-np.savetxt(f"Residuals_voidFraction_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{relaxPOW_id}_{relaxTH_id}.txt", Residuals_voidFraction[-1])
-np.savetxt(f"Residuals_Qfiss_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{relaxPOW_id}_{relaxTH_id}.txt", Residual_Qfiss[-1])
-np.savetxt(f"Residuals_Power_Distrib_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{relaxPOW_id}_{relaxTH_id}.txt", Residuals_Power_Distrib[-1])
+#np.savetxt(f"Residuals_TeffFuel_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{relaxPOW_id}_{relaxTH_id}.txt", Residuals_TeffFuel[-1])
+#np.savetxt(f"Residuals_Twater_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{relaxPOW_id}_{relaxTH_id}.txt", Residuals_Twater[-1])
+#np.savetxt(f"Residuals_rho_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{relaxPOW_id}_{relaxTH_id}.txt", Residual_rho[-1])
+#np.savetxt(f"Residuals_voidFraction_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{relaxPOW_id}_{relaxTH_id}.txt", Residuals_voidFraction[-1])
+#np.savetxt(f"Residuals_Qfiss_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{relaxPOW_id}_{relaxTH_id}.txt", Residual_Qfiss[-1])
+#np.savetxt(f"Residuals_Power_Distrib_{case}_mesh{Iz1}_{numericalMethod}_{voidFractionCorrel}_{relaxPOW_id}_{relaxTH_id}.txt", Residuals_Power_Distrib[-1])
 
 # 11.) Save power axial distribution and flux axial distribution for the last iteration
 os.chdir(path)
@@ -848,7 +840,7 @@ shutil.copyfile("Flux01.res", f"{SAVE_DATA_DIR}/Flux01.res")
 shutil.copyfile("Flux02.res", f"{SAVE_DATA_DIR}/Flux02.res")
 shutil.copyfile("Pdistr.res", f"{SAVE_DATA_DIR}/Pdistr.res")
 
-shutil.copyfile("multiPhysics.result", f"{SAVE_DATA_DIR}/multiPhysics_{relaxPOW_id}_{relaxTH_id}.result")
+#shutil.copyfile("multiPhysics.result", f"{SAVE_DATA_DIR}/multiPhysics_{relaxPOW_id}_{relaxTH_id}.result")
 
 #
 print("$$$ - multiPhysics.py : END of EXPORTS - $$$")
@@ -861,13 +853,3 @@ print(relax_Pow, relax_TH)
 print(relaxPOW_id, relaxTH_id)
 print("$$$ - multiPhysics.py : END OF SCRIPT - $$$")
 
-print("$$$ - multiPhysics.py : SANITY CHECK - $$$")
-# check results, run THM with the last power distribution obtained from the neutronics solution
-#check_case = THM_prototype("Check case", canalType, pitch, fuelRadius, gapRadius, cladRadius, 
-#                            height, tInlet, pOutlet, massFlowRate, Qfiss[-1], kFuel, Hgap, kClad, Iz1, If, I1, zPlotting, 
-#                            solveConduction, dt = 0, t_tot = 0, frfaccorel = frfaccorel, P2Pcorel = P2Pcorel, voidFractionCorrel = voidFractionCorrel, 
-#                            numericalMethod = numericalMethod)
-
-#TeffCheck, TwaterCheck, rhoCheck, voidFracCheck, Pche = check_case.get_TH_parameters()
-#print(f"Check case : TeffFuel = {TeffCheck}, Twater = {TwaterCheck}, rho = {rhoCheck}, voidFraction = {voidFracCheck}")
-#print("$$$ - multiPhysics.py : END OF SANITY CHECK - $$$")
