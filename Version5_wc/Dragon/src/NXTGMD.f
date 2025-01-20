@@ -128,7 +128,7 @@
       MAXPIN=0
       MAXMSP=0
       MAXRSP=0
-      CALL XDDSET(DGMESH,3*(MAXCEL+1),0.0D0)
+      DGMESH(0:MAXCEL,:3)=0.0D0
       IF(ILCELL .EQ. 1) THEN
         ALLOCATE(IGEN(NBOCEL),NAGCEL(3,NBOCEL))
         CALL LCMGET(IPGEO,'CELL',NAGCEL)
@@ -155,7 +155,7 @@
         IF(ILCMLN .GT. 0) THEN
           CALL LCMGET(IPGEO,'TURN',ITURN)
         ELSE
-          CALL XDISET(ITURN,NBOCEL,1)
+          ITURN(:NBOCEL)=1
         ENDIF
         CALL LCMLEN(IPGEO,'MERGE',ILCMLN,ILCMTY)
         IF(ILCMLN .GT. 0) THEN
@@ -181,7 +181,7 @@
           WRITE(NAMGG,'(3A4)') (NAGGEO(ITC,ICEL),ITC=1,3)
           CALL LCMSIX(IPGEO,NAMGG,1)
         ENDIF
-        CALL XDISET(ISTATG,NSTATE,0)
+        ISTATG(:NSTATE)=0
         CALL LCMGET(IPGEO,'STATE-VECTOR',ISTATG)
         IRTRN=ITURN(ICEL)
 *----
@@ -299,7 +299,7 @@
 *  Get off center
 *----
         INTRN=1
-        CALL XDRSET(OFFCEN,3,0.0)
+        OFFCEN(:3)=0.0
         CALL LCMLEN(IPGEO,'OFFCENTER   ',ILCMLN,ILCMTY)
         IF(ILCMLN .GT. 0)
      >  CALL LCMGET(IPGEO,'OFFCENTER   ',OFFCEN)
@@ -353,7 +353,7 @@
 *  Turn width according to symmetry
 *----
                     INTRN=IUNFLD(2,IPOS)
-                    CALL NXTTRM(IRTRN,INTRN,DRW,DNW)
+                    CALL NXTTRM(IRTRN,INTRN,DRW,DNW(1))
                     IF(DGMESH(0,1) .EQ. 0.0D0) THEN
                       DGMESH(0,1)=DRW(1)
                       DGMESH(0,2)=DRW(1)
@@ -404,7 +404,7 @@
 *  Turn width according to symmetry
 *----
                   INTRN=IUNFLD(2,IPOS)
-                  CALL NXTTRM(IRTRN,INTRN,DRW,DNW)
+                  CALL NXTTRM(IRTRN,INTRN,DRW,DNW(1))
                   IF(DGMESH(IX,1) .EQ. 0.0D0) THEN
                     DGMESH(IX,1)=DNW(1)
                   ELSE IF(ABS(DGMESH(IX,1)-DNW(1)) .GT. DCUT) THEN
@@ -437,7 +437,7 @@
           DO ICLS=1,NBGCLS
             WRITE(NAMCL,'(3A4)') (NAGCLS(ITC,ICLS),ITC=1,3)
             CALL LCMSIX(IPGEO,NAMCL,1)
-            CALL XDISET(ISTATG,NSTATE,0)
+            ISTATG(:NSTATE)=0
             CALL LCMGET(IPGEO,'STATE-VECTOR',ISTATG)
 *----
 *  Find cluster dimension and direction

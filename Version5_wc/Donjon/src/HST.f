@@ -145,9 +145,9 @@
  100  CONTINUE
       CBLANK='    '
       READ(CBLANK,'(A4)') IBLANK
-      CALL XDISET(ISTATB,NSTATE,0)
-      CALL XDISET(ISTATH,NSTATE,0)
-      CALL XDISET(ISTATM,NSTATE,0)
+      ISTATB(:NSTATE)=0
+      ISTATH(:NSTATE)=0
+      ISTATM(:NSTATE)=0
 *----
 *  PARAMETER VALIDATION.
 *  1 or 2 data structures permitted
@@ -414,9 +414,9 @@
 *---- 
       ALLOCATE(NAMG(3*(MAXG+1)),PARAG(MAXG+1),NAML(3*(MAXL+1)),
      > PARAL((MAXL+1)*2))
-      CALL XDISET(NAMG,3*(MAXG+1),IBLANK)
-      CALL XDRSET(PARAG,(MAXG+1),0.0)
-      CALL XDISET(NAML,3*(MAXL+1),IBLANK)
+      NAMG(:3*(MAXG+1))=IBLANK
+      PARAG(:MAXG+1)=0.0
+      NAML(:3*(MAXL+1))=IBLANK
       IF(ISTATH(1) .GT. 0) THEN
         CALL LCMGET(IPHST,'NAMEGLOBAL  ',NAMG(4))
         CALL LCMGET(IPHST,'PARAMGLOBAL ',PARAG(2))
@@ -442,22 +442,22 @@
         WRITE(IOUT,6011) NCELL,NCHAH,MAXIH
       ENDIF
       ALLOCATE(IDCELL(NCELL),IDFUEL(NCELL),IREFUS(NCHAH),REFUT(NCHAH))
-      CALL XDISET(IDCELL,NCELL,0)
-      CALL XDISET(IDFUEL,NCELL,0)
+      IDCELL(:NCELL)=0
+      IDFUEL(:NCELL)=0
       IF(ISTATH( 3)*ISTATH( 4) .GT. 0) THEN
         CALL LCMGET(IPHST,'CELLID      ',IDCELL)
         CALL LCMGET(IPHST,'FUELID      ',IDFUEL)
       ENDIF
-      CALL XDISET(IREFUS,NCHAH,0)
-      CALL XDRSET(REFUT,NCHAH,0.0)
+      IREFUS(:NCHAH)=0
+      REFUT(:NCHAH)=0.0
       ALLOCATE(DENI(MAXIH+1))
       NBFUEL=0
 *----
 *  Allocate memory for MAP power
 *----
       ALLOCATE(POWR(NCELL),BURN(NCELL))
-      CALL XDRSET(POWR,NCELL,0.0)
-      CALL XDRSET(BURN,NCELL,0.0)
+      POWR(:NCELL)=0.0
+      BURN(:NCELL)=0.0
       IF(ITYPRO .EQ. 5 .OR. ITYPRO .EQ. 6) THEN
 *----
 *  Read information from MAP data structure
@@ -547,7 +547,7 @@
 *  Saving updated HISTORY state vector
 *----
         CALL LCMPUT(IPHST,'BUNDLELENGTH',1,2,BUNLEN)
-        CALL XDISET(ISTATH,NSTATE,0)
+        ISTATH(:NSTATE)=0
         ISTATH( 1) = MAXG  
         ISTATH( 2) = MAXL  
         ISTATH( 3) = NBUNH 
@@ -575,7 +575,7 @@
 *----
 *  Saving updated BURNUP state vector
 *----
-        CALL XDISET(ISTATB,NSTATE,0)
+        ISTATB(:NSTATE)=0
         ISTATB( 1) = ITSOLB 
         ISTATB( 2) = ITBURB 
         IF(ISTATB( 1) .EQ. 0) ISTATB( 1) = 2

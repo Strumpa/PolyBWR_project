@@ -80,14 +80,14 @@
      1 GAR3(NMERGE,NGCOND,NGCOND))
 *
       IOF=0
-      CALL XDRSET(EPS,NCST,0.0)
+      EPS(:NCST)=0.0
       JPFLX=LCMGID(IPFLX,'FLUX')
       JPDMA=LCMLID(IPDMA,'ASOUR',NCST)
 *----
 *  NWT0 INFORMATION
 *----
       SUM=0.0D0
-      CALL XDDSET(GAR2,NMERGE*NGCOND,0.0D0)
+      GAR2(:NMERGE,:NGCOND)=0.0D0
       DO IG=1,NG
         IGCND=INDGRP(IG)
         CALL LCMGDL(JPFLX,IG,FLUX)
@@ -108,7 +108,7 @@
           DO IG=1,NG
             IKEP(IG)=LCMARA(NUN)
             CALL C_F_POINTER(IKEP(IG),SUNK,(/ NUN /))
-            CALL XDRSET(SUNK,NUN,0.0)
+            SUNK(:NUN)=0.0
             DO IR=1,NREG
               IF(KEYFLX(IR).EQ.0) CYCLE
               IUNK=KEYFLX(IR)
@@ -140,8 +140,8 @@
       JPMAC=LCMGID(IPMAC,'GROUP')
       DO ISECT=1,NSECT
         TEXT12=HSECT(ISECT)
-        CALL XDDSET(GAR1,NMERGE*NGCOND,0.0D0)
-        CALL XDDSET(GAR2,NMERGE*NGCOND,0.0D0)
+        GAR1(:NMERGE,:NGCOND)=0.0D0
+        GAR2(:NMERGE,:NGCOND)=0.0D0
         DO IG=1,NG
           KPMAC=LCMGIL(JPMAC,IG)
           CALL LCMLEN(KPMAC,TEXT12,ILONG,ITYLCM)
@@ -173,7 +173,7 @@
                 CALL LCMLEN(KPMAC,TEXT12,ILONG,ITYLCM)
                 IKEP(IG)=LCMARA(NUN)
                 CALL C_F_POINTER(IKEP(IG),SUNK,(/ NUN /))
-                CALL XDRSET(SUNK,NUN,0.0)
+                SUNK(:NUN)=0.0
                 IF(ILONG.GT.0) THEN
                   CALL LCMGET(KPMAC,TEXT12,SIGT)
                   DO IR=1,NREG
@@ -215,7 +215,7 @@
       ALLOCATE(IJJS00(NMIL),NJJS00(NMIL),IPOS00(NMIL))
       DO IL=1,NL
         WRITE(CM,'(I2.2)') IL-1
-        CALL XDRSET(XSSNN,NMIL*NG*NG,0.0)
+        XSSNN(:NMIL,:NG,:NG)=0.0
         DO JG=1,NG
           KPMAC=LCMGIL(JPMAC,JG)
           CALL LCMGET(KPMAC,'IJJS'//CM,IJJS00)
@@ -240,8 +240,8 @@
           ENDDO
           DEALLOCATE(SCAT)
         ENDDO
-        CALL XDDSET(GAR1,NMERGE*NGCOND,0.0D0)
-        CALL XDDSET(GAR3,NMERGE*NGCOND*NGCOND,0.0D0)
+        GAR1(:NMERGE,:NGCOND)=0.0D0
+        GAR3(:NMERGE,:NGCOND,:NGCOND)=0.0D0
         DO IG=1,NG
           IGCND=INDGRP(IG)
           CALL LCMGDL(JPFLX,IG,FLUX)
@@ -271,7 +271,7 @@
                 DO IG=1,NG
                   IKEP(IG)=LCMARA(NUN)
                   CALL C_F_POINTER(IKEP(IG),SUNK,(/ NUN /))
-                  CALL XDRSET(SUNK,NUN,0.0)
+                  SUNK(:NUN)=0.0
                   DO JG=1,NG
                     DO IR=1,NREG
                       IF(KEYFLX(IR).EQ.0) CYCLE
@@ -328,9 +328,9 @@
           WRITE(TEXT12,'(6HNUSIGF,I2.2)') IDEL-1
           WRITE(TEXB12,'(3HCHI,I2.2)') IDEL-1
         ENDIF
-        CALL XDDSET(GAR1,NMERGE*NGCOND,0.0D0)
-        CALL XDDSET(GAR2,NMERGE*NGCOND,0.0D0)
-        CALL XDDSET(GAR3(1,1,1),NMERGE*NGCOND,0.0D0)
+        GAR1(:NMERGE,:NGCOND)=0.0D0
+        GAR2(:NMERGE,:NGCOND)=0.0D0
+        GAR3(:NMERGE,:NGCOND,1)=0.0D0
         DO IG=1,NG
           KPMAC=LCMGIL(JPMAC,IG)
           CALL LCMLEN(KPMAC,TEXT12,ILONG,ITYLCM)
@@ -365,7 +365,7 @@
                 CALL LCMLEN(KPMAC,TEXT12,ILONG,ITYLCM)
                 IKEP(IG)=LCMARA(NUN)
                 CALL C_F_POINTER(IKEP(IG),SUNK,(/ NUN /))
-                CALL XDRSET(SUNK,NUN,0.0)
+                SUNK(:NUN)=0.0
                 IF(ILONG.GT.0) THEN
                   CALL LCMGET(KPMAC,TEXT12,SIGT)
                   DO IR=1,NREG
@@ -406,7 +406,7 @@
                 CALL LCMLEN(KPMAC,TEXT12,ILONG,ITYLCM)
                 IKEP(IG)=LCMARA(NUN)
                 CALL C_F_POINTER(IKEP(IG),SUNK,(/ NUN /))
-                CALL XDRSET(SUNK,NUN,0.0)
+                SUNK(:NUN)=0.0
                 IF(ILONG.GT.0) THEN
                   CALL LCMGET(KPMAC,TEXT12,SIGT)
                   CALL LCMGET(KPMAC,TEXB12,CHI)
@@ -447,8 +447,8 @@
 *----
       DO IED=1,NED
         WRITE(TEXT12,'(2A4)') NAMEAD(1,IED),NAMEAD(2,IED)
-        CALL XDDSET(GAR1,NMERGE*NGCOND,0.0D0)
-        CALL XDDSET(GAR2,NMERGE*NGCOND,0.0D0)
+        GAR1(:NMERGE,:NGCOND)=0.0D0
+        GAR2(:NMERGE,:NGCOND)=0.0D0
         DO IG=1,NG
           KPMAC=LCMGIL(JPMAC,IG)
           CALL LCMLEN(KPMAC,TEXT12,ILONG,ITYLCM)
@@ -480,7 +480,7 @@
                 CALL LCMLEN(KPMAC,TEXT12,ILONG,ITYLCM)
                 IKEP(IG)=LCMARA(NUN)
                 CALL C_F_POINTER(IKEP(IG),SUNK,(/ NUN /))
-                CALL XDRSET(SUNK,NUN,0.0)
+                SUNK(:NUN)=0.0
                 IF(ILONG.GT.0) THEN
                   CALL LCMGET(KPMAC,TEXT12,SIGT)
                   DO IR=1,NREG

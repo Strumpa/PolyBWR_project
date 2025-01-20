@@ -92,7 +92,7 @@
 *----
       ALLOCATE(NGINDV(NG),SC(0:M,NANI),AR(KPN,NGEFF,2),PSI(KPN,NGEFF,2),
      1 PJJ(NREG*NPJJM),PSJ(LPS))
-      CALL XDDSET(PSI,(2*KPN*NGEFF),0.D0)
+      PSI(:KPN,:NGEFF,:2)=0.0D0
       CALL LCMGPD(IPTRK,'PJJIND$MCCG',PJJIND_PTR)
       CALL C_F_POINTER(PJJIND_PTR,PJJIND,(/ NPJJM,2 /))
       IF(N1.GT.NREG) THEN
@@ -128,7 +128,7 @@
 *----
 *  CONSTRUCT NGINDV (index to pass from "NGEFF format" to "NG format").
 *----
-      CALL XDISET(NGINDV,NG,0)
+      NGINDV(:NG)=0
       DO II=1,NGEFF
          IF(NCONV(II)) THEN
             IG=NGIND(II)

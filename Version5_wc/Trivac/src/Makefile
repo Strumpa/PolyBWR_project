@@ -27,13 +27,13 @@ endif
 
 ifeq ($(intel),1)
   fcompiler = ifort
-  ccompiler = gcc
+  ccompiler = icc
 else
   ifeq ($(nvidia),1)
     fcompiler = nvfortran
     ccompiler = nvc
   else
-    ifeq ($(flang),1)
+    ifeq ($(llvm),1)
       fcompiler = flang-new
       ccompiler = clang
     else
@@ -127,12 +127,14 @@ else
     bin = ../bin/$(DIRNAME)_nvidia
     INCLUDE = -I../../Ganlib/lib/$(DIRNAME)_nvidia/modules/
   else
-    ifeq ($(flang),1)
-      lib = ../lib/$(DIRNAME)_flang
-      libUtl = ../../Utilib/lib/$(DIRNAME)_flang
-      libGan = ../../Ganlib/lib/$(DIRNAME)_flang
-      bin = ../bin/$(DIRNAME)_flang
-      INCLUDE = -I../../Ganlib/lib/$(DIRNAME)_flang/modules/
+    ifeq ($(llvm),1)
+      lib = ../lib/$(DIRNAME)_llvm
+      libUtl = ../../Utilib/lib/$(DIRNAME)_llvm
+      libGan = ../../Ganlib/lib/$(DIRNAME)_llvm
+      bin = ../bin/$(DIRNAME)_llvm
+      INCLUDE = -I../../Ganlib/lib/$(DIRNAME)_llvm/modules/
+      FFLAGS += -mmlir -fdynamic-heap-array
+      LFLAGS += -lclang_rt.osx
     else
       lib = ../lib/$(DIRNAME)
       libUtl = ../../Utilib/lib/$(DIRNAME)
@@ -167,15 +169,15 @@ endif
 ifeq ($(nvidia),1)
 	@echo 'Trivac: nvidia is defined'
 endif
-ifeq ($(flang),1)
-	@echo 'Trivac: flang is defined'
+ifeq ($(llvm),1)
+	@echo 'Trivac: llvm is defined'
 endif
 ifeq ($(hdf5),1)
 	@echo 'Trivac: hdf5 is defined'
 endif
 sub-make:
-	$(MAKE) openmp=$(openmp) intel=$(intel) nvidia=$(nvidia) flang=$(flang) -C ../../Utilib/src
-	$(MAKE) openmp=$(openmp) intel=$(intel) nvidia=$(nvidia) flang=$(flang) hdf5=$(hdf5) -C ../../Ganlib/src
+	$(MAKE) openmp=$(openmp) intel=$(intel) nvidia=$(nvidia) llvm=$(llvm) -C ../../Utilib/src
+	$(MAKE) openmp=$(openmp) intel=$(intel) nvidia=$(nvidia) llvm=$(llvm) hdf5=$(hdf5) -C ../../Ganlib/src
 %.o : %.f90
 	$(F90) $(FFLAGS) $(opt) $(COMP) $(INCLUDE) -c $< -o $@
 %.o : %.f

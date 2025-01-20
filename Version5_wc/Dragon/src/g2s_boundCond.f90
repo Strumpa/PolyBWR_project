@@ -237,7 +237,7 @@ contains
     ! Part 1 :  Backup of cutting straights & updating
     allocate(tabStrCut(nbCut), tabSegCut(szSA),stat=alloc_ok)
     if (alloc_ok /= 0) call XABORT("G2S: setBoundCut_V2 => allocation pb")
-    tabStrCut(1:nbCut) = tabSegArc(szSA-nbCut+1:szSA+1)
+    tabStrCut(1:nbCut) = tabSegArc(szSA-nbCut+1:szSA)
     szSA = szSA - nbCut
     !
     ! Part2 : Adaptation for cutting Straights 

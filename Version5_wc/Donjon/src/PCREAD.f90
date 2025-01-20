@@ -73,8 +73,26 @@ CONTAINS
     NBURN=PMAX%Bset(TIVB%ibset)%NBURN
     allocate(TIVB%TIV(NBURN))
     do k=1,NBURN
-        TIV=>TIVB%TIV(k)
-        call Allocate_TIV
+       TIV=>TIVB%TIV(k)
+       if(xinv .GT. 0)then
+         allocate(TIV%sig(NGROUP,xinv))
+       else
+         allocate(TIV%sig(1,1))
+       endif
+       if(EDHL .GT. 0)then
+         allocate(TIV%kinp(EDHL))
+       else
+         allocate(TIV%kinp(1))
+      endif
+      TIV%sig=0
+      TIV%kinp=0
+      TIV%yld=0
+      TIV%power=0.0
+      TIV%days=0.0
+      TIV%burnup=0.0      
+      TIV%ndxe=0.0
+      TIV%ndsm=0.0
+      TIV%ndi =0.0
     enddo
    END SUBROUTINE AllocateTIVB
 
@@ -90,7 +108,8 @@ CONTAINS
     NBURN=PMAX%Bset(TIVB%ibset)%NBURN
     do k=1,NBURN
         TIV=>TIVB%TIV(k)
-        call Deallocate_TIV
+        !deallocate(TIVB%TIV(k)%sig) ! commented for flang
+        deallocate(TIVB%TIV(k)%kinp)
     enddo
     deallocate(TIVB%TIV)
    END SUBROUTINE ClearTIVB
@@ -866,6 +885,7 @@ CONTAINS
          if(NBRA.GT.0) deallocate(bran_i%state,bran_i%state_nam)
       endif
       do ihst=1,NHST
+            print *,'Clear_PMAX_file: call ClearTIVB ihst=',ihst
         call ClearTIVB(PMAX%TIVB(ihst))
         do ibra=1,NBRA
           call ClearBranch(PMAX%branch(ibra,ihst))

@@ -106,7 +106,7 @@
 *----
       ALLOCATE(INREN(-NSURN:NREGN))
       ALLOCATE(SURVOL(-NSUR:NREG),SVT(-NSURN:NREGN))
-      CALL XDDSET(SURVOL,NSUR+NREG+1,DZERO)
+      SURVOL(-NSUR:NREG)=DZERO
 *----
 *  Processing starts:
 *  print routine openning output header if required
@@ -231,7 +231,7 @@
 *----
 *  Save surface and region identification on IPTRK
 *----
-      CALL XDDSET(SVT,NREGN+NSURN+1,DZERO)
+      SVT(-NSURN:NREGN)=DZERO
       VMAX=0.0D0
       DO IREG=1,NBREG
         VMAX=MAX(VMAX,SURVOL(IREG))

@@ -5,10 +5,15 @@
 #
 #---------------------------------------------------------------------------
 #
-nbit = -m32
 ARCH = $(shell uname -m)
-ifeq (,$(filter $(ARCH),i386 i686))
-  nbit = -m64
+ifneq (,$(filter $(ARCH),aarch64 arm64))
+  nbit =
+else
+  ifneq (,$(filter $(ARCH),i386 i686))
+    nbit = -m32
+  else
+    nbit = -m64
+  endif
 endif
 
 DIRNAME = $(shell uname -sm | sed 's/[ ]/_/')
@@ -20,16 +25,30 @@ else
   COMP =
 endif
 
+ifeq ($(intel),1)
+  ccompiler = icpc
+else
+  ifeq ($(nvidia),1)
+    ccompiler = nvc++
+  else
+    ifeq ($(llvm),1)
+      ccompiler = clang++
+    else
+      ccompiler = gcc
+    endif
+  endif
+endif
+
 ifeq ($(OS),Darwin)
-  C = g++ -std=c++11
+  C = $(ccompiler) -std=c++11
   FLAGS = -DLinux -DUnix
   CFLAGS = -Wall $(nbit) -fPIC
 else
 ifeq ($(OS),Linux)
   ifeq ($(nvidia),1)
-    C = nvc++ -std=c++11
+    C = $(ccompiler) -std=c++14
   else
-    C = g++ -std=c++11
+    C = $(ccompiler) -std=c++17
   endif
   FLAGS = -DLinux -DUnix
   CFLAGS = -Wall $(nbit) -fPIC
@@ -78,11 +97,14 @@ endif
 ifeq ($(nvidia),1)
 	@echo 'Yacs++: nvidia is defined'
 endif
+ifeq ($(llvm),1)
+	@echo 'Yacs++: llvm is defined'
+endif
 ifeq ($(hdf5),1)
 	@echo 'Yacs++: hdf5 is defined'
 endif
 sub-make:
-	$(MAKE) openmp=$(openmp) intel=$(intel) nvidia=$(nvidia) hdf5=$(hdf5) -C ../../Skin++/src
+	$(MAKE) openmp=$(openmp) intel=$(intel) nvidia=$(nvidia) llvm=$(llvm) hdf5=$(hdf5) -C ../../Skin++/src
 %.o : %.cxx
 	$(C) $(CFLAGS) $(FLAGS) $(opt) $(COMP) $(INCLUDE) -I$(BOOST_ROOT) -I$(SALOME_KERNEL)/include/salome/ -c $< -o $@
 $(lib)/:

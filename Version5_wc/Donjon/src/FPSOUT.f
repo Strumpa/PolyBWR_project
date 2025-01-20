@@ -71,8 +71,8 @@
       IF((ILEAKS.EQ.1).AND.(IPRINT.GT.1)) THEN
         WRITE(6,'(/9H FPSOUT: ,A,4H B2=,1P,E12.4)') TEXT9,B2
       ENDIF
-      CALL XDRSET(RHS,NMIL*NG*NG,0.0)
-      CALL XDRSET(LHS,NMIL*NG*NG,0.0)
+      RHS(:NMIL,:NG,:NG)=0.0
+      LHS(:NMIL,:NG,:NG)=0.0
       JPMAC=LCMGID(IPMAC,'GROUP')
       DO IG=1,NG
         KPMAC=LCMGIL(JPMAC,IG)
@@ -94,7 +94,7 @@
             ENDDO
           ENDIF
         ELSE
-          CALL XDRSET(DIFF,NMIL,0.0)
+          DIFF(:NMIL)=0.0
         ENDIF
         CALL LCMGET(KPMAC,'NTOT0',GAR)
         CALL LCMGET(KPMAC,'SCAT00',WORK)

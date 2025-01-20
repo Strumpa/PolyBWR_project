@@ -80,17 +80,17 @@
       NGD=NGROUP-NGTHER+1
       IF(IACT.EQ.1) THEN
         IF(ITXS.EQ.1) THEN
-          CALL XDRSET(XSNG(NGD),NGTHER,0.0)
-          CALL XDRSET(TRAN(NGD),NGTHER,0.0)
+          XSNG(NGD:NGD+NGTHER-1)=0.0
+          TRAN(NGD:NGD+NGTHER-1)=0.0
           IF(NF.GT.1) THEN
-            CALL XDRSET(SIGF(NGD),NGTHER,0.0)
-            CALL XDRSET(XSFI(NGD),NGTHER,0.0)
+            SIGF(NGD:NGD+NGTHER-1)=0.0
+            XSFI(NGD:NGD+NGTHER-1)=0.0
           ENDIF
         ENDIF
         IF(ITXS.GE.1) THEN
-          CALL XDRSET(SIGS(NGD),NGTHER,0.0)
+          SIGS(NGD:NGD+NGTHER-1)=0.0
           DO 110 IGD=NGD,NGROUP
-            CALL XDRSET(SCAT(1,IGD),NGROUP,0.0)
+            SCAT(:NGROUP,IGD)=0.0
  110      CONTINUE
         ENDIF
       ENDIF

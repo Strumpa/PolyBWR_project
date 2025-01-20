@@ -84,7 +84,7 @@
       IF(LONG.EQ.NDPROC) THEN
         CALL LCMGET(IPLIB,'XS-SAVED',ITYPRO)
       ELSE IF(LONG.EQ.0) THEN
-        CALL XDISET(ITYPRO,NDPROC,0)
+        ITYPRO(:NDPROC)=0
         NAMT=' '
         CALL LCMNXT(IPLIB,NAMT)
         TEXT12=NAMT
@@ -147,12 +147,12 @@
               IF(IXSTN.EQ.1) THEN
                 CALL LCMLEN(IPLIB,TEXT6//NORD,LONG,ITYP)
                 IF(LONG .EQ. 0) THEN 
-                  CALL XDRSET(XSREC(1,IXSR),NGROUP,0.0)
+                  XSREC(:NGROUP,IXSR)=0.0
                 ELSE
                   CALL LCMGET(IPLIB,TEXT6//NORD,XSREC(1,IXSR))
                 ENDIF
               ELSE
-                CALL XDRSET(XSREC(1,IXSR),NGROUP,0.0)
+                XSREC(:NGROUP,IXSR)=0.0
               ENDIF
             ENDIF
  200      CONTINUE

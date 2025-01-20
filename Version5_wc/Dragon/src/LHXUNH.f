@@ -108,7 +108,7 @@
       CALL LCMLEN(IPGEOM,'STATE-VECTOR',ILEN,ITP)
       IF(ITP.NE.1.OR.ILEN.NE.NSTATE)
      +  CALL XABORT('LHXUNH : INVALID STATE VECTOR ')
-      CALL XDRSET(ISTATE,NSTATE,0)
+      ISTATE(:NSTATE)=0
       CALL LCMGET(IPGEOM,'STATE-VECTOR',ISTATE)
 *
 *         ELEMINATES THE INVALID OPTIONS
@@ -222,7 +222,7 @@
      +           CALL XABORT('LHXUNH: INVALID SECTOR DIMENSION(1)')
           CALL LCMGET(IPGEOM,'SECTOR',ISECT)
         ELSE
-          CALL XDISET(ISECT,IXX,1)
+          ISECT(:IXX)=1
         ENDIF
         IF(ILENR.GT.0) THEN
           IF(ITPR.NE.2)CALL XABORT('LHXUNH: RADIUS MUST BE REAL')
@@ -480,7 +480,7 @@
      +                CALL XABORT('LHXUNH: INVALID SECTOR DIMENSION(2)')
                  CALL LCMGET(IPGEOM,'SECTOR',JNR2(I)%ILOCR)
                ELSE
-                 CALL XDISET(JNR2(I)%ILOCR,NRAY+1,1)
+                 JNR2(I)%ILOCR(:NRAY+1)=1
                  NREGIO=NREGIO+1+NRAY
                  GOTO 430
                ENDIF
@@ -538,7 +538,7 @@
      +               CALL XABORT('LHXUNH: INVALID SECTOR DIMENSION(3)')
               CALL LCMGET(IPGEOM,'SECTOR',IXXX)
             ELSE
-              CALL XDISET(IXXX,NCEL,1)
+              IXXX(:NCEL)=1
             ENDIF
             ILESS=0
             NREGIO=0
@@ -758,7 +758,7 @@
      +                CALL XABORT('LHXUNH: INVALID SECTOR DIMENSION(4)')
                  CALL LCMGET(IPGEOM,'SECTOR',ISECT)
               ELSE
-                 CALL XDISET(ISECT,NSECT,1)
+                 ISECT(:NSECT)=1
               ENDIF
               IF(ILENSP.GT.0) THEN
                 IF(LT.NE.1)CALLXABORT('LHXUNH: SPLITR MUST BE INTEGER')
@@ -1284,7 +1284,7 @@
          MCOU=1
          LCOU=1
          ALLOCATE(SURL(2*LZZ))
-         CALL XDISET(SURL,2*LZZ,0)
+         SURL(:2*LZZ)=0
          IF(LGCELL) THEN
            CALL LCMSIX(IPTRK,'DATA_DUP',1)
            CALL LCMPUT(IPTRK,'GENER0',KK,1,IAA)

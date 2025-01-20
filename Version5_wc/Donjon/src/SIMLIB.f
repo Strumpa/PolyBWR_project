@@ -60,14 +60,14 @@
       CALL LCMGTC(IPLIB,'ISOTOPESUSED',12,NBISO,HUSE)
       CALL LCMGET(IPLIB,'ISOTOPESMIX',IMIX)
       CALL LCMGET(IPLIB,'ISOTOPESDENS',DENS)
-      CALL XDISET(IVB,NBMIX,0)
+      IVB(:NBMIX)=0
       IBM=0
       DO ITOT=1,NTOT
         IF(IFMIX(ITOT).EQ.0) CYCLE
         IBM=IBM+1
         IVB(IBM)=ITOT
       ENDDO
-      CALL LCMGTC(KPMAP,'ALIAS',12,1,HCYCL)
+      CALL LCMGTC(KPMAP,'ALIAS',12,HCYCL)
       IF(MODE.EQ.1) THEN
 *       recover number densities from KCYCLE directory
         IF(IMPX.GE.0) WRITE(6,'(/34H SIMLIB: recover number densities ,
@@ -90,7 +90,7 @@
 *       put number densities in KCYCLE directory
         IF(IMPX.GE.0) WRITE(6,'(/33H SIMLIB: put number densities in ,
      >  A,11H directory.)') HCYCL
-        CALL XDRSET(RFOLLO,NTOT*NIS,0.0)
+        RFOLLO(:NTOT,:NIS)=0.0
         DO ISO=1,NBISO
           IBM=IMIX(ISO)
           ITOT=IVB(IBM)

@@ -83,7 +83,7 @@
           WORK2(2,1)=COEF
           WORK2(2,2)=3.0*COEF
           WORK2(2,3)=EVT(3*NX+IS+1)
-          CALL ALSBD(3,1,WORK2,IER,3)
+          CALL ALSBD(3,1,WORK2(1,1),IER,3)
           IF(IER.NE.0) CALL XABORT('VALU5C: SINGULAR MATRIX(1).')
           GAR=EVT(IS)+WORK2(1,3)*U+WORK2(2,3)*(3.0*U**2-1.0/4.0)
         ELSE
@@ -115,7 +115,7 @@
             WORK1(4,3)=-COEF*ETA*COSH(ETA/2.0)
             WORK1(4,4)=-COEF*ETA*SINH(ETA/2.0)
           ENDIF
-          CALL ALSBD(4,1,WORK1,IER,4)
+          CALL ALSBD(4,1,WORK1(1,1),IER,4)
           IF(IER.NE.0) CALL XABORT('VALU5C: SINGULAR MATRIX(2).')
           GAR=EVT(IS)+WORK1(1,5)*U+WORK1(2,5)*(3.0*U**2-1.0/4.0)
           IF(ITRIAL.EQ.1) THEN

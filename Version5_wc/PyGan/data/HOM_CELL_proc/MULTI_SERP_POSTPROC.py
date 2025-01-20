@@ -170,19 +170,13 @@ def MULTI_SERP_POSTPROC(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_geom,bu_autop_list,V
                         edep = "_edep2"
                     # --- Keff
                     # 
-                    if "NO_NG_toGd158" in test_name:
-                        res=serpentTools.read(f"/home/p117902/working_dir/Serpent2_tests/Linux_aarch64/{test_name_file}_{lib_name}_noNG_toGd158_mc_res.m")
-                    else:
-                        res=serpentTools.read(f"/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/HOM_CELL_study/{test_name_file}/{test_name_file}_{lib_name}{edep}_mc_res.m")
+                    res=serpentTools.read(f"/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/HOM_CELL_study/{test_name_file}/BUScheme_EDEP_PCC_study/{test_name_file}_{lib_name}{edep}_pcc1_mc_res.m")
                     serpent_keff=res.resdata["absKeff"]
                     np.savetxt(f'serpent_keff_{lib_name}.txt',serpent_keff)
                     SERPENT_keff=np.loadtxt(f'serpent_keff_{lib_name}.txt',dtype=float)
                         
                     # --- BU
-                    if "NO_NG_toGd158" in test_name:
-                        depl = serpentTools.read(f"/home/p117902/working_dir/Serpent2_tests/Linux_aarch64/{test_name_file}_{lib_name}_noNG_toGd158_mc_dep.m")
-                    else:
-                        depl = serpentTools.read(f"/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/HOM_CELL_study/{test_name_file}/{test_name_file}_{lib_name}{edep}_mc_dep.m")
+                    depl = serpentTools.read(f"/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/HOM_CELL_study/{test_name_file}/BUScheme_EDEP_PCC_study/{test_name_file}_{lib_name}{edep}_pcc1_mc_dep.m")
                     fuel=depl.materials['total']
                     serpent_BU=fuel.burnup
                     np.savetxt(f'serpent_BU_{lib_name}.txt',serpent_BU)
@@ -538,16 +532,20 @@ def MULTI_SERP_POSTPROC(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_geom,bu_autop_list,V
                 fig_nameU=f'HOM_CELL : UOX tests {DEPL_SOL}{SAT} {ssh_method}{CORR}- \u0394 {isotopes_SOUHAITES[k-1]}'
                 save_nameGd=f'Gd_tests_{DEPL_SOL}{sat_name}_{ssh_method}{correlation_name}_ERROR_{isotopes_SOUHAITES[k-1]}'
                 fig_nameGd=f'HOM_CELL : Gd tests {DEPL_SOL}{SAT} {ssh_method}{CORR}- \u0394 {isotopes_SOUHAITES[k-1]}'
-
-            ax_U.grid()
-            ax_Gd.grid()
-            ax_U.set_title(fig_nameU)
-            ax_Gd.set_title(fig_nameGd)
-            os.chdir(path+'/'+SAVE_DIR)
-            fig_U.savefig(save_nameU+'.png',bbox_inches = 'tight') #enregistrement des figures dans le repertoire des resultats
-            fig_Gd.savefig(save_nameGd+'.png',bbox_inches = 'tight') #enregistrement des figures dans le repertoire des resultats
-            os.chdir(path)
-            plt.close('all')
+            if UOX_tests:
+                ax_U.grid()
+                ax_U.set_title(fig_nameU)
+                os.chdir(path+'/'+SAVE_DIR)
+                fig_U.savefig(save_nameU+'.png',bbox_inches = 'tight')
+                os.chdir(path)
+                plt.close('all')
+            if Gd_tests:
+                ax_Gd.grid()
+                ax_Gd.set_title(fig_nameGd)
+                os.chdir(path+'/'+SAVE_DIR)
+                fig_Gd.savefig(save_nameGd+'.png',bbox_inches = 'tight')
+                os.chdir(path)
+                plt.close('all')
         """
         # --- Print results
         for test_name in DRAGON_results_ALL.keys():

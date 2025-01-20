@@ -63,7 +63,7 @@
       IF(IADJ.EQ.1) THEN
 *        DIRECT CASE.
          DO 45 IGR=1,NGRP
-         CALL XDRSET(VEB(1,IGR),LL4,0.0)
+         VEB(:LL4,IGR)=0.0
          DO 40 JGR=1,NGRP
          WRITE(TEXT12,'(1HB,2I3.3)') IGR,JGR
          CALL LCMLEN(IPSYS,TEXT12,ILONG,ITYLCM)
@@ -82,7 +82,7 @@
          WRITE(TEXT12,'(1HA,2I3.3)') IGR,IGR
          CALL MTLDLM(TEXT12,IPTRK,IPSYS,LL4,ITY,EVECT(1,IGR,JMOD),
      1   VEA(1,IGR))
-         CALL XDRSET(GAF,LL4,0.0)
+         GAF(:LL4)=0.0
          DO 110 JGR=1,NGRP
          IF(JGR.EQ.IGR) GO TO 80
          WRITE(TEXT12,'(1HA,2I3.3)') IGR,JGR
@@ -90,7 +90,8 @@
          IF(ILONG.EQ.0) GO TO 80
          IF(ITY.EQ.13) THEN
             ALLOCATE(W(LL4))
-            CALL MTLDLM(TEXT12,IPTRK,IPSYS,LL4,ITY,EVECT(1,JGR,JMOD),W)
+            CALL MTLDLM(TEXT12,IPTRK,IPSYS,LL4,ITY,EVECT(1,JGR,JMOD),
+     1      W(1))
             DO 50 I=1,LL4
             VEA(I,IGR)=VEA(I,IGR)-W(I)
    50       CONTINUE
@@ -133,7 +134,7 @@
          IF(ILONG.EQ.0) GO TO 160
          IF(ITY.EQ.13) THEN
             ALLOCATE(W(LL4))
-            CALL MTLDLM(TEXT12,IPTRK,IPSYS,LL4,ITY,VEC(1,JGR),W)
+            CALL MTLDLM(TEXT12,IPTRK,IPSYS,LL4,ITY,VEC(1,JGR),W(1))
             DO 135 I=1,LL4
             VEA(I,IGR)=VEA(I,IGR)-W(I)
   135       CONTINUE
@@ -150,7 +151,7 @@
       ELSE IF(IADJ.EQ.2) THEN
 *        ADJOINT CASE.
          DO 205 IGR=1,NGRP
-         CALL XDRSET(VEB(1,IGR),LL4,0.0)
+         VEB(:LL4,IGR)=0.0
          DO 200 JGR=1,NGRP
          WRITE(TEXT12,'(1HB,2I3.3)') JGR,IGR
          CALL LCMLEN(IPSYS,TEXT12,ILONG,ITYLCM)
@@ -169,7 +170,7 @@
          WRITE(TEXT12,'(1HA,2I3.3)') IGR,IGR
          CALL MTLDLM(TEXT12,IPTRK,IPSYS,LL4,ITY,ADECT(1,IGR,JMOD),
      1   VEA(1,IGR))
-         CALL XDRSET(GAF,LL4,0.0)
+         GAF(:LL4)=0.0
          DO 270 JGR=1,NGRP
          IF(JGR.EQ.IGR) GO TO 240
          WRITE(TEXT12,'(1HA,2I3.3)') JGR,IGR
@@ -177,7 +178,8 @@
          IF(ILONG.EQ.0) GO TO 240
          IF(ITY.EQ.13) THEN
             ALLOCATE(W(LL4))
-            CALL MTLDLM(TEXT12,IPTRK,IPSYS,LL4,ITY,ADECT(1,JGR,JMOD),W)
+            CALL MTLDLM(TEXT12,IPTRK,IPSYS,LL4,ITY,ADECT(1,JGR,JMOD),
+     1      W(1))
             DO 210 I=1,LL4
             VEA(I,IGR)=VEA(I,IGR)-W(I)
   210       CONTINUE
@@ -220,7 +222,7 @@
          IF(ILONG.EQ.0) GO TO 320
          IF(ITY.EQ.13) THEN
             ALLOCATE(W(LL4))
-            CALL MTLDLM(TEXT12,IPTRK,IPSYS,LL4,ITY,VEC(1,JGR),W)
+            CALL MTLDLM(TEXT12,IPTRK,IPSYS,LL4,ITY,VEC(1,JGR),W(1))
             DO 295 I=1,LL4
             VEA(I,IGR)=VEA(I,IGR)-W(I)
   295       CONTINUE

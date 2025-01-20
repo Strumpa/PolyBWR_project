@@ -101,7 +101,7 @@
 *  and check if a graphical description
 *  of the geometry is possible.
 *----
-      CALL XDISET(ISTATE,NSTATE,0)
+      ISTATE(:NSTATE)=0
       CALL LCMGET(IPTRKT,'STATE-VECTOR',ISTATE)
       IF(ITYPE .EQ. 2 .OR. ITYPE .EQ. 3 .OR.
      >   ITYPE .EQ. 5 .OR. ITYPE .EQ. 6) THEN
@@ -144,7 +144,7 @@
         NUNK=NSUR+NVOL+1
         ALLOCATE(COLRG(4*NVOL))
         ALLOCATE(KEYMRG(NUNK),MATALB(NUNK))
-        CALL XDISET(IEDIMG,NSTATE,0)
+        IEDIMG(:NSTATE)=0
         IF(NDIM .EQ. 2) THEN
           IF(ITYPE .EQ. 4) THEN
             CALL LCMGET(IPTRKT,'HOMMATALB   ',MATALB)
@@ -176,7 +176,7 @@
         CALL LCMSIX(IPTRKT,'NXTRecords  ',ILCMDN)
       ELSE
         CALL LCMSIX(IPTRKT,'EXCELL      ',1)
-        CALL XDISET(IPARAM,NSTATE,0)
+        IPARAM(:NSTATE)=0
         CALL LCMGET(IPTRKT,'STATE-VECTOR',IPARAM)
         NDIM=IPARAM(1)
         NSUR=-IPARAM(2)

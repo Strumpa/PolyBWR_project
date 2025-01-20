@@ -416,7 +416,7 @@
 *     -----------------------------------------------------
 *
       VT=VOL(I2,J2,J,I,K)*TOTAL(MAT(I2,J2,J,I,K),IG)
-      CALL XDDSET(Q2,(IELEM**3)*((IELEM**3)+1),0.0D0)
+      Q2(:IELEM**3,:(IELEM**3)+1)=0.0
 *
 *----------
 * BUILD MATRIX FOR THE RELEVANT ORDER
@@ -2358,7 +2358,6 @@ C             J3=ISPLH+1-J2
 
   290 CONTINUE ! directions
   300 CONTINUE ! energy
-*$OMP END PARALLEL DO
 
   304 CONTINUE ! macrocells
 

@@ -136,7 +136,7 @@
 *----
 *  MIXTURE TO UPDATE
 *----
-        CALL XDRSET(BRNIRR,3,0.0)
+        BRNIRR(:3)=0.0
         IMIREG=MIXREG(IMIX)
         WRITE(NAMDIR,'(A4,A2,A6)') 
      >  NAMMIX(1,IMIX),NAMMIX(2,IMIX),'RC    '

@@ -53,7 +53,7 @@ IF ssh_method "RSE" = THEN
   LIBRARY := LIB: ::
       EDIT 0
       NMIX 1    ! MAXIMUM OF MATERIAL MIXTURES
-      RSE 5.0E-02
+      RSE 3.0E-3
       ANIS 1
 
     DEPL LIB: DRAGON FIL: <<Library>>
@@ -65,9 +65,9 @@ IF ssh_method "RSE" = THEN
       H1  = H1   2.497844E-02
       U234  = U234   3.482587E-06 1
       U235  = U235   3.664503E-04 1
-      U238  = U238   7.765571E-03 1
+      U238  = U238   7.765571E-03 CORR 1
 
-      Gd157  = Gd157 7.899877E-05 1
+      Gd157  = Gd157 7.899877E-05 CORR 1
 
       Zr90  = Zr90   2.449439E-03 1
       Zr91  = Zr91   5.341629E-04 1
@@ -326,7 +326,7 @@ WHILE istep nstep < DO
        ECHO "perform self-shielding at" Tbeg "days" ;
       IF ssh_module "USS" = THEN
         LIBRARY2 := USS: LIBRARY LIBRARY2 TRACK ::
-                    EDIT 2 GRMIN 52 PASS 3
+                    EDIT 2 PASS 3
                   ;
       ELSEIF ssh_module "SHI" = THEN
         LIBRARY2 := SHI: LIBRARY LIBRARY2 TRACK :: 
@@ -334,7 +334,7 @@ WHILE istep nstep < DO
                   ;
       ELSEIF ssh_module "AUTO" = THEN
         LIBRARY2 := AUTO: LIBRARY LIBRARY2 TRACK :: 
-                    EDIT 2 GRMIN 52 PASS 3 MAXT 100000  
+                    EDIT 2 PASS 3 MAXT 100000  
                   ;
       ENDIF ;
       EVALUATE iauto := iauto 1 + ;

@@ -257,7 +257,7 @@
 *  Reset final mesh (center+original turn)
 *----
       NZ=NMT
-      CALL XDDSET(DAMESH(-1,3),NM(3)+2,DZERO)
+      DAMESH(-1:NM(3),3)=DZERO
       NM(3)=NZ
       DDD=DZERO
       DO IZ=0,NZ-1

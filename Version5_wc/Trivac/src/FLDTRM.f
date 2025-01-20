@@ -127,7 +127,7 @@
             CALL LCMLEN(IPSYS,'WA'//NAMT,ASS_LEN,ITYLCM)
             CALL C_F_POINTER(AW_PTR,AW,(/ ASS_LEN /))
             ALLOCATE(GAR(LL4VW),GAF(LL4VW))
-            CALL XDRSET(GAR,LL4VW,0.0)
+            GAR(:LL4VW)=0.0
             DO 20 I=1,LL4W
             GAR(IPVW(I))=F2(IOFW+I)
    20       CONTINUE
@@ -200,7 +200,7 @@
          CALL LCMLEN(IPSYS,'XA'//NAMT,ASS_LEN,ITYLCM)
          CALL C_F_POINTER(AX_PTR,AX,(/ ASS_LEN /))
          ALLOCATE(GAR(LL4VX),GAF(LL4VX))
-         CALL XDRSET(GAR,LL4VX,0.0)
+         GAR(:LL4VX)=0.0
          DO 70 I=1,LL4X
          GAR(IPVX(I))=F2(IOFX+I)
    70    CONTINUE
@@ -259,7 +259,7 @@
             CALL LCMLEN(IPSYS,'YA'//NAMT,ASS_LEN,ITYLCM)
             CALL C_F_POINTER(AY_PTR,AY,(/ ASS_LEN /))
             ALLOCATE(GAR(LL4VY),GAF(LL4VY))
-            CALL XDRSET(GAR,LL4VY,0.0)
+            GAR(:LL4VY)=0.0
             DO 120 I=1,LL4Y
             GAR(IPVY(I))=F2(IOFY+I)
   120       CONTINUE
@@ -319,7 +319,7 @@
             CALL LCMLEN(IPSYS,'ZA'//NAMT,ASS_LEN,ITYLCM)
             CALL C_F_POINTER(AZ_PTR,AZ,(/ ASS_LEN /))
             ALLOCATE(GAR(LL4VZ),GAF(LL4VZ))
-            CALL XDRSET(GAR,LL4VZ,0.0)
+            GAR(:LL4VZ)=0.0
             DO 170 I=1,LL4Z
             GAR(IPVZ(I))=F2(IOFZ+1)
   170       CONTINUE

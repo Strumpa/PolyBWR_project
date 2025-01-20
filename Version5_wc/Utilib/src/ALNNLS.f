@@ -105,7 +105,7 @@
 *  dependence.
 *----
       ASAVE = A(NPP1,J)
-      CALL ALH12(1, NPP1, NPP1+1, M, A(:,J), UP, DUMMY, 1, 1, 0)
+      CALL ALH12(1, NPP1, NPP1+1, M, A(:,J), UP, DUMMY(1), 1, 1, 0)
       UNORM = 0.0D0
       IF(NSETP.NE.0) UNORM = SUM( A(1:NSETP,J)**2 )
       UNORM = SQRT(UNORM)
@@ -115,7 +115,7 @@
 *  and solve for ZTEST ( = proposed new value for X(J) ).
 *----
         ZZ(1:M) = B(1:M)
-        CALL ALH12(2, NPP1, NPP1+1, M, A(:,J), UP, ZZ, 1, 1, 1)
+        CALL ALH12(2, NPP1, NPP1+1, M, A(:,J), UP, ZZ(1), 1, 1, 1)
         ZTEST = ZZ(NPP1)/A(NPP1,J)
 *----
 *  See if ZTEST is positive.
@@ -146,7 +146,7 @@
       IF(IZ1.LE.IZ2) THEN
         DO JZ = IZ1,IZ2
           JJ = INDX(JZ)
-          CALL ALH12(2, NSETP, NPP1, M, A(:,J), UP, A(:,JJ), 1, MDA, 1)
+          CALL ALH12(2, NSETP, NPP1, M, A(:,J), UP, A(1,JJ), 1, MDA, 1)
         ENDDO
       ENDIF
       IF(NSETP.NE.M)  A(NPP1:M,J) = 0.0D0

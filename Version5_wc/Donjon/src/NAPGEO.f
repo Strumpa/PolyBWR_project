@@ -130,8 +130,8 @@ C get dimension in geometry from L_MULTICOMPO
       CALL LCMGET(KPGEO,'MESHX',MXP)
       CALL LCMGET(KPGEO,'MESHY',MYP)
       CALL LCMGET(KPGEO,'MIX',MIXP)
-      CALL XDISET(SXP,NXP,1)
-      CALL XDISET(SYP,NYP,1)
+      SXP(:NXP)=1
+      SYP(:NYP)=1
 C get dimension in homogeneous assembly core Geometry
       if(impx.ge.100)write(6,*) 'debug: ISTATE homog. ass. core Geom.'
       CALL LCMGET(IPGOD,'SIGNATURE',KCHAR)
@@ -153,28 +153,28 @@ C get dimension in homogeneous assembly core Geometry
       CALL LCMGET(IPGOD,'MESHY',MYD)
       CALL LCMGET(IPGOD,'MESHZ',MZD)
       CALL LCMGET(IPGOD,'MIX',MIXD)
-      CALL XDISET(AXD,NXD,0)
-      CALL XDISET(AYD,NYD,0)
+      AXD(:NXD)=0
+      AYD(:NYD)=0
       CALL LCMLEN(IPGOD,'SPLITX',LENGTH,INDIC)
       IF(LENGTH.NE.0) THEN
         CALL LCMGET(IPGOD,'SPLITX',SXD)
         LSPX=.TRUE.
       ELSE
-        CALL XDISET(SXD,NXD,1)
+        SXD(:NXD)=1
       ENDIF
       CALL LCMLEN(IPGOD,'SPLITY',LENGTH,INDIC)
       IF(LENGTH.NE.0) THEN
         CALL LCMGET(IPGOD,'SPLITY',SYD)
         LSPY=.TRUE.
       ELSE
-        CALL XDISET(SYD,NYD,1)
+        SYD(:NYD)=1
       ENDIF
       CALL LCMLEN(IPGOD,'SPLITZ',LENGTH,INDIC)
       IF(LENGTH.NE.0) THEN
         CALL LCMGET(IPGOD,'SPLITZ',SZD)
         LSPZ=.TRUE.
       ELSE
-        CALL XDISET(SZD,NZD,1)
+        SZD(:NZD)=1
       ENDIF
       CALL LCMGET(IPGOD,'NCODE',NCODE)
       CALL LCMGET(IPGOD,'ZCODE',ZCODE)
@@ -299,7 +299,7 @@ C Compute new x/y mesh and new x/y split
 C Compute new mixture
       if(impx.ge.100)write(6,*) 'debug: Compute new mixture'
       NMIXF=NMIXD2+NMIXA*NMIXP
-      CALL XDISET(MIXF,NREGF,-1)
+      MIXF(:NXF,:NYF,:NZF)=-1
       DO 100 L=1,NMIXA
          MIXA(L+NMIXA)=NMIXD2+(L-1)*NMIXP+1 
   100 CONTINUE
@@ -442,7 +442,7 @@ C Compute relative position of assembly in original geometry
 
 C Save heterogeneous core geometry
       if(impx.ge.100)write(6,*) 'debug: Save heter. core geometry'
-      CALL XDISET(ISTATE,NSTATE,0)
+      ISTATE(:NSTATE)=0
       ISTATE(1)=ITYPGP
       ISTATE(3)=NXF
       ISTATE(4)=NYF

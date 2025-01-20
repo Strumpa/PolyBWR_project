@@ -114,9 +114,9 @@
 *----
 *  Loop over isotopes
 *----
-      CALL XDISET(IDS,NS*NIC,0)
-      CALL XDDSET(SENGI,NG*NS*NIC,0.0D0)
-      CALL XDDSET(SENTI,NS*NIC,0.0D0)
+      IDS(:NS,:NIC)=0
+      SENGI(:NG,:NS,:NIC)=0.0D0
+      SENTI(:NS,:NIC)=0.0D0
       CALL LIBIPS(IPLIB,NI,IPISO)
       DO II=1,NI
       WRITE(ISONAM,'(3A4)') NAMISO(1,II),NAMISO(2,II),NAMISO(3,II)
@@ -133,23 +133,23 @@
 *----
 *  Process isotope
 *----
-      CALL XDDSET(SENRG,NR*NG*NS,0.0D0)
-      CALL XDDSET(SENG,NG*NS,0.0D0)
-      CALL XDDSET(SENT,NS,0.0D0)
-      CALL XDDSET(SENC,NR,0.0D0)
-      CALL XDRSET(SIGD,NG,0.0)
-      CALL XDRSET(NUSIGF,NG,0.0)
-      CALL XDRSET(NUBAR,NG,0.0)
-      CALL XDRSET(NFTOT,NG,0.0)
-      CALL XDRSET(CHI,NG,0.0)
-      CALL XDRSET(SIGA,NG,0.0)     
-      CALL XDRSET(SIGP,NG,0.0)
-      CALL XDRSET(SIGG,NG,0.0)
-      CALL XDRSET(CAPT,NG,0.0)
-      CALL XDRSET(SIGS,NG,0.0)
-      CALL XDRSET(SCAT,NGG,0.0)
-      CALL XDISET(IJJ,NG,0)
-      CALL XDISET(NJJ,NG,0)   
+      SENRG(:NR,:NG,:NS)=0.0
+      SENG(:NG,:NS)=0.0
+      SENT(:NS)=0.0
+      SENC(:NR)=0.0
+      SIGD(:NG)=0.0
+      NUSIGF(:NG)=0.0
+      NUBAR(:NG)=0.0
+      NFTOT(:NG)=0.0
+      CHI(:NG)=0.0
+      SIGA(:NG)=0.0
+      SIGP(:NG)=0.0
+      SIGG(:NG)=0.0
+      CAPT(:NG)=0.0
+      SIGS(:NG)=0.0
+      SCAT(:NG*NG)=0.0
+      IJJ(:NG)=0
+      NJJ(:NG)=0
 *----
 *  (n,g) sensitivity calculation
 *----

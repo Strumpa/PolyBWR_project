@@ -100,7 +100,7 @@
          ENDDO
 *        connectivity between NOMI and NOMIN and/or NOMIP not found
          WRITE(6,100) I,NOMI,NOMIN,NOMIP
-         CALL PRINIM('NOM   ',NOM,N)
+         CALL PRINIM('NOM   ',NOM(1),N)
          CALL PRINIM('MCU   ',MCU(I1),KM(NOMI))
 !         CALL XABORT('MCGDSP: FAILURE 1.')
  10      IF ((FOUN.LE.LC).AND.(FOUP.LE.LC)) THEN

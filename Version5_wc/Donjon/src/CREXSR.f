@@ -65,7 +65,7 @@
       DOUBLE PRECISION DFLOT
 *
       KBURN=0
-      CALL XDISET(ITY,NISO,0)
+      ITY(:NISO)=0
       ITY(1)=2
 *----
 *  RECOVER INFORMATION

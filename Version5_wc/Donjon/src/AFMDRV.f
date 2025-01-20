@@ -332,8 +332,8 @@ C
             JPMAP=LCMGID(IPMAP,'PARAM')
             DO 220 IPARM=1,NPARM
             KPMAP=LCMGIL(JPMAP,IPARM)
-            CALL LCMGTC(KPMAP,'P-NAME',12,1,PNAME)
-            CALL LCMGTC(KPMAP,'PARKEY',12,1,PARKEY)
+            CALL LCMGTC(KPMAP,'P-NAME',12,PNAME)
+            CALL LCMGTC(KPMAP,'PARKEY',12,PARKEY)
             CALL LCMGET(KPMAP,'P-TYPE',IPTYPE)
             IF(IPTYPE.EQ.1) THEN
                CALL LCMGET(KPMAP,'P-VALUE',FLOTT)
@@ -345,21 +345,21 @@ C
             IF(PNAME.EQ.'T-COOL') THEN
                WRITE(6,716) PNAME,PARKEY
                IF(IPTYPE.EQ.1) THEN
-                  CALL XDRSET(PTCOOL,MX,FLOTT)
+                  PTCOOL(:MX)=FLOTT
                ELSE IF(IPTYPE.EQ.2) THEN
                   CALL LCMGET(KPMAP,'P-VALUE',PTCOOL)
                ENDIF
             ELSE IF(PNAME.EQ.'D-COOL') THEN
                WRITE(6,716) PNAME,PARKEY
                IF(IPTYPE.EQ.1) THEN
-                  CALL XDRSET(PDCOOL,MX,FLOTT)
+                  PDCOOL(:MX)=FLOTT
                ELSE IF(IPTYPE.EQ.2) THEN
                   CALL LCMGET(KPMAP,'P-VALUE',PDCOOL)
                ENDIF
             ELSE IF(PNAME.EQ.'T-FUEL') THEN
                WRITE(6,716) PNAME,PARKEY
                IF(IPTYPE.EQ.1) THEN
-                  CALL XDRSET(PTFUEL,MX,FLOTT)
+                  PTFUEL(:MX)=FLOTT
                ELSE IF(IPTYPE.EQ.2) THEN
                   CALL LCMGET(KPMAP,'P-VALUE',PTFUEL)
                ENDIF
@@ -367,9 +367,9 @@ C
   220       CONTINUE
          ENDIF
 *
-         CALL XDRSET(PW,MNPS,PWREF)
-         CALL XDRSET(BRH,MNPS,0.0)
-         CALL XDRSET(POWER,MX,PWREF)
+         PW(:MNPS)=PWREF
+         BRH(:MNPS)=0.0
+         POWER(:MX)=PWREF
 *
       ELSE IF(TEXT4.EQ.'TFUEL') THEN
         CALL REDGET (INDIC,NITMA,TFU,TEXT4,DFLOTT)
@@ -380,7 +380,7 @@ C
          CALL REDGET (INDIC,NITMA,TCU,TEXT4,DFLOTT)
          IF(INDIC.NE.2) CALL XABORT('AFMDRV: REAL DATA EXPECTED.')
           LTCOOL = .TRUE.
-          CALL XDRSET(PTCOOL,MX,TCU)
+          PTCOOL(:MX)=TCU
 *
       ELSE IF(TEXT4.EQ.'TMOD') THEN
         CALL REDGET (INDIC,NITMA,TM,TEXT4,DFLOTT)
@@ -390,7 +390,7 @@ C
         CALL REDGET (INDIC,NITMA,DCU,TEXT4,DFLOTT)
         IF(INDIC.NE.2) CALL XABORT('AFMDRV: REAL DATA EXPECTED.')
           LDCOOL = .TRUE.
-          CALL XDRSET(PDCOOL,MX,DCU)
+          PDCOOL(:MX)=DCU
 *
       ELSE IF(TEXT4.EQ.'RDMD') THEN
         CALL REDGET (INDIC,NITMA,DM,TEXT4,DFLOTT)
@@ -695,7 +695,7 @@ C
               ENDIF
             ENDIF
           ELSE
-            CALL XDRSET(POWER,MMIX,PWREF)
+            POWER(:MMIX)=PWREF
           ENDIF
         CALL LCMLEN(IPMAP,'FLUX-AV',ILBFLU,ITYLCM)
         IF(ILBFLU.NE.0) THEN
@@ -712,7 +712,7 @@ C
 *       Instantaneous calculation
         IF(LMCR) THEN
           MMIX=NBCH*NCCO
-          CALL XDRSET(POWER,MMIX,PWREF)
+          POWER(:MMIX)=PWREF
         ELSE
           WRITE(6,701)
           MMIX=NBCH*NCCO
@@ -732,7 +732,7 @@ C
               ENDIF
             ENDIF
           ELSE
-            CALL XDRSET(POWER,MMIX,PWREF)
+            POWER(:MMIX)=PWREF
           ENDIF
           CALL LCMLEN(IPMAP,'FLUX-AV',ILBFLU,ITYLCM)
           IF(ILBFLU.NE.0) THEN
@@ -781,7 +781,7 @@ C
 * MIXTURE SHIFT
       IF(LMCR) THEN
         MXSH=MMIX
-        CALL XDRSET(VOL,MMIX,VOL(1))
+        VOL(:MMIX)=VOL(1)
       ELSE
         MXSH=1
       ENDIF
@@ -1309,7 +1309,7 @@ C
   980  CONTINUE
   990 CONTINUE
 *
-      CALL XDRSET(SIGS,MMIX*NGRP,0.0)
+      SIGS(:MMIX,:NGRP)=0.0
       JPMAC=LCMLID(IPMACX,'GROUP',NGRP)
       DO 1002 JGR=1,NGRP
         KPMAC=LCMDIL(JPMAC,JGR)

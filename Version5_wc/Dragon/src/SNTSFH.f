@@ -106,7 +106,7 @@
          ENDIF
    30 CONTINUE
 
-      CALL XDISET(IZGLOB,6*LXH,0)
+      IZGLOB(:LXH,:6)=0
 
       DO IND=1,6
          J1 = LXH - ((NBC-2)*3 +2) + (NBC-1)*(IND-1)

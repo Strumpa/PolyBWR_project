@@ -346,7 +346,7 @@
           IF(ILENM.NE.MDR) CALL XABORT('MESHST: INCONSISTENT LENGTHS(2'
      +    //').')
           CALL LCMGET(IPGEOM,'MIX',MXX)
-          CALL XDISET(ISECT,MDR,1)
+          ISECT(:MDR)=1
         ENDIF
         IF(ILENR.GT.0) THEN
           ALLOCATE(RAY(ILENR))
@@ -623,7 +623,7 @@
               ELSE
                 IF(ILENM.NE.ILENR) CALL XABORT('MESHST: INCONSISTENT L'
      +          //'ENGTHS(4).')
-                CALL XDISET(ISECT,ILENR,1)
+                ISECT(:ILENR)=1
                 CALL LCMGET(IPGEOM,'MIX',IMX)
               ENDIF
               CALL LCMLEN(IPGEOM,'SPLITR',ILENSP,ITP)
@@ -762,7 +762,7 @@
            IF(LGTURN) THEN
              CALL LCMGET(IPGEOM,'TURN',KNUM(NXI+1))
            ELSE
-             CALL XDISET(KNUM(NXI+1),NXI,1)
+             KNUM(NXI+1:2*NXI)=1
              LGTURN=.TRUE.
            ENDIF
            IVOL=0
@@ -773,7 +773,7 @@
               CALL LCMGET(IPTRK,'SPLITZD',ISPZ)
               CALL LCMSIX(IPTRK,' ',2)
            ELSE
-              CALL XDISET(ISPZ,LZF,1)
+              ISPZ(:LZF)=1
            ENDIF
            ALLOCATE(KVOL(KXI))
            ISS=-1
@@ -938,7 +938,7 @@
            IPPZ=LZF
            IPP1=IPLANZ
            IF(MCODE.GT.0) IPP1=IPLANI
-           CALL XDISET(ISXY,6*IPP1,0)
+           ISXY(:6,:IPP1)=0
            IXP=0
            DO 500 JP=1,IPPZ
            MXI=LXI*(JP-1)
@@ -1029,8 +1029,8 @@
          CALL LCMGET(IPTRK,'MERGE',IBB(NCEL+1))
          IF(LGTURN)CALL LCMGET(IPTRK,'TURN',IBB(2*NCEL+1))
          CALL LCMSIX(IPTRK,' ',2)
-         CALL XDISET(VOL1,NCPHY,0)
-         CALL XDISET(VTURN,NCPHY,0)
+         VOL1(:NCPHY)=0
+         VTURN(:NCPHY)=0
          IAUX=IPOINT
          IFVOL=1
          MVOL=0
@@ -1352,7 +1352,7 @@
          IF(ILENS.GT.0) THEN
             CALL XABORT('MESHST: SECTORS NOT IMPLEMENTED.')
          ELSE
-            CALL XDISET(ICC,NCEL,1)
+            ICC(:NCEL)=1
          ENDIF
          IF(LGTURN) THEN
            CALL LCMSIX(IPTRK,'DATA_DUP',1)
@@ -1360,7 +1360,7 @@
            CALL LCMGET(IPTRK,'TURN',ITT)
            CALL LCMSIX(IPTRK,' ',2)
          ENDIF
-         CALL XDISET(VOL1,NCPHY,0)
+         VOL1(:NCPHY)=0
          IFVOL=1
          MVOL=0
          ICELC0=IFONC(NCOUR,0)

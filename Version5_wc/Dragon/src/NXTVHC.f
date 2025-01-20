@@ -158,7 +158,7 @@
         WRITE(IOUT,6011) 'MESHR ='
         WRITE(IOUT,6012) (DMESH(IR,4),IR=-1,NR)
       ENDIF
-      CALL XDDSET(SURVOL,MAXSUR+1+MAXREG,DZERO)      
+      SURVOL(-MAXSUR:MAXREG)=DZERO
 *----
 *  Call NXTVHT to obtain the triangles volumes and external surfaces
 *----

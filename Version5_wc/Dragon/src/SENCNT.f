@@ -60,7 +60,7 @@
       NIC=0
       NSENS=0
       NSENI=0
-      CALL XDISET(ISOC,NI,0)
+      ISOC(:NI)=0
 *----
 *  Find independent isotopes names NAMISC
 *  Associate isotope in mixture to 

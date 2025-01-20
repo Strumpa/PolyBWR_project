@@ -40,7 +40,7 @@
         ZMAX=MAX(ZZ(IZ+1),ZMAX)
       ENDDO
       IF(ITOP.EQ.1) THEN
-        CALL XDRSET(VB,NB,0.0)
+        VB(:NB)=0.0
         ZPOS=ZMAX-ZLEVEL*(ZMAX-ZMIN)
         DO IB=1,NB
           ZBMIN=ZZ(NZ+1)
@@ -53,12 +53,12 @@
           ENDDO
           IF((ZPOS.GE.ZBMIN).AND.(ZPOS.LE.ZBMAX)) THEN
             VB(IB)=1.0-(ZPOS-ZBMIN)/(ZBMAX-ZBMIN)
-            CALL XDRSET(VB(IB+1),NB-IB,1.0)
+            VB(IB+1:NB)=1.0
             EXIT
           ENDIF
         ENDDO
       ELSEIF(ITOP.EQ.-1) THEN
-        CALL XDRSET(VB,NB,1.0)
+        VB(:NB)=1.0
         ZPOS=ZMIN+ZLEVEL*(ZMAX-ZMIN)
         DO IB=1,NB
           ZBMIN=ZZ(NZ+1)
@@ -71,7 +71,7 @@
           ENDDO
           IF((ZPOS.GE.ZBMIN).AND.(ZPOS.LE.ZBMAX)) THEN
             VB(IB)=(ZPOS-ZBMIN)/(ZBMAX-ZBMIN)
-            CALL XDRSET(VB(IB+1),NB-IB,0.0)
+            VB(IB+1:NB)=0.0
             EXIT
           ENDIF
         ENDDO

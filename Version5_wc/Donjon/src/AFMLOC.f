@@ -66,7 +66,7 @@
            NELE=2
            ELMT(1)=XBURN(1)
            ELMT(2)=XBURN(2)
-           CALL LIBLEX(NELE,XIRAD,ELMT,NTOX,XCOF)
+           CALL LIBLEX(NELE,XIRAD,ELMT,NTOX,XCOF(1))
          ENDIF
       ELSE IF(NBURN.GE.3) THEN
          DO 85 IV=1,NTP
@@ -110,7 +110,7 @@
            ELMT(1)=XBURN(MAX-2)
            ELMT(2)=XBURN(MAX-1)
            ELMT(3)=XBURN(MAX)
-           CALL LIBLEX(NELE,XIRAD,ELMT,NTOX,COF)
+           CALL LIBLEX(NELE,XIRAD,ELMT,NTOX,COF(1))
          ENDIF
       ENDIF
       RETURN

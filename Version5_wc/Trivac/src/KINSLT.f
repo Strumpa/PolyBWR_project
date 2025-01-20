@@ -348,7 +348,7 @@
 *
   270 ALP=1.0D0
       BET=0.0D0
-      CALL XDDSET(D2F,6,0.0D0)
+      D2F(:2,:3)=0.0D0
       IF(1+MOD(M-ISTART,ICL1+ICL2).GT.ICL1) THEN
          IF(DCRIT.GT.1.0E-6) THEN
 *           TWO-PARAMETER ACCELERATION. SOLUTION OF A LINEAR SYSTEM.
@@ -403,8 +403,8 @@
       IF(LOGTES) THEN
          DELT=0.0
          DO 350 IGR=1,NGR
-         CALL XDRSET(WORK1,LL4,0.0)
-         CALL XDRSET(WORK2,LL4,0.0)
+         WORK1(:LL4)=0.0
+         WORK2(:LL4)=0.0
          DO 320 JGR=1,NGR
          IF(.NOT.ADJ) THEN
            WRITE(TEXT12,'(1HB,2I3.3)') IGR,JGR

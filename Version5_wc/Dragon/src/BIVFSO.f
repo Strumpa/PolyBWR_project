@@ -82,7 +82,7 @@
       ISR(4,I)=LL-LC+I
    20 CONTINUE
 *
-      CALL XDRSET(SOURCE,NUN,0.0)
+      SOURCE(:NUN)=0.0
 *----
 *  INCOMING CURRENT SOURCE.
 *----

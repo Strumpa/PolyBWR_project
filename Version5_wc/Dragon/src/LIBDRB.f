@@ -100,7 +100,7 @@
       ALLOCATE(GAR(NGRO**2),TERP(MAXDIL,NGRO),SIGT(NGRO,MAXDIL))
       ALLOCATE(LSDIL(NL),LPDIL(NL),LINF(NGRO))
 *
-      CALL XDRSET(TOTAL,NGRO,0.0)
+      TOTAL(:NGRO)=0.0
       HTOTAL='NTOT0'
       CALL LCMLEN(IPDRL,'NTOT0',LENGT,ITYLCM)
       IF(LENGT.EQ.0) CALL XABORT('LIBDRB: MISSING TOTAL XS INFO.')
@@ -119,30 +119,26 @@
             IF(ILONG.EQ.0) CALL XABORT('LIBDRB: MISSING '//HNUSIG//
      1      ' INFO.')
          ENDIF
-         CALL XDRSET(SIGF(1,IDEL),NGRO,0.0)
+         SIGF(:NGRO,IDEL)=0.0
          CALL LCMGET(IPDRL,HNUSIG,SIGF(1,IDEL))
          IF((NBESP.EQ.0).OR.(IDEL.GT.0)) THEN
-            CALL XDRSET(CHI(1,IDEL),NGRO,0.0)
+            CHI(:NGRO,IDEL)=0.0
             CALL LCMLEN(IPDRL,HCHI,LENGT,ITYLCM)
             IF(LENGT.GT.0) CALL LCMGET(IPDRL,HCHI,CHI(1,IDEL))
          ENDIF
    10    CONTINUE
          DO 11 ISP=1,NBESP
          WRITE(HCHI,'(5HCHI--,I2.2)') ISP
-         CALL XDRSET(CHI4G(1,ISP),NGRO,0.0)
+         CHI4G(:NGRO,ISP)=0.0
          CALL LCMLEN(IPDRL,HCHI,LENGT,ITYLCM)
          IF(LENGT.GT.0) CALL LCMGET(IPDRL,HCHI,CHI4G(1,ISP))
    11    CONTINUE
       ELSE
-         CALL XDRSET(SIGF,NGRO*(1+NDEL),0.0)
+         SIGF(:NGRO,0:NDEL)=0.0
       ENDIF
       DO 80 IL=0,NL-1
-      DO 16 IG2=1,NGRO
-      DO 15 IG1=1,NGRO
-      SCAT(IG1,IG2,IL+1)=0.0
-   15 CONTINUE
-   16 CONTINUE
-      CALL XDRSET(SIGS(1,IL+1),NGRO,0.0)
+      SIGS(:NGRO,IL+1)=0.0
+      SCAT(:NGRO,:NGRO,IL+1)=0.0
       WRITE (CM,'(I2.2)') IL
       CALL LCMLEN(IPDRL,'SCAT'//CM,LENGT,ITYLCM)
       LPCAT=(LENGT.GT.0)
@@ -153,7 +149,7 @@
          DO 20 I=1,NGRO
          LENGT=LENGT+NJJ(I)
    20    CONTINUE
-         CALL XDRSET(GAR,LENGT,0.0)
+         GAR(:LENGT)=0.0
          CALL LCMGET(IPDRL,'SCAT'//CM,GAR)
          IGAR=0
 *        IG2 IS THE SECONDARY GROUP.
@@ -176,7 +172,7 @@
             DO 40 I=1,NGRO
             LENGT=LENGT+NJJ(I)
    40       CONTINUE
-            CALL XDRSET(GAR,LENGT,0.0)
+            GAR(:LENGT)=0.0
             CALL LCMGET(IPDRL,'PCAT'//CM,GAR)
             IGAR=0
             DO 46 IG2=1,NGRO
@@ -203,7 +199,7 @@
    80 CONTINUE
       LSCAT(1)=.TRUE.
       DO 90 IED=1,NED
-      CALL XDRSET(SADD(1,IED),NGRO,0.0)
+      SADD(:NGRO,IED)=0.0
       CALL LCMLEN(IPDRL,HVECT(IED),LENGT,ITYLCM)
       LADD(IED)=(LENGT.GT.0)
       IF(LADD(IED)) CALL LCMGET(IPDRL,HVECT(IED),SADD(1,IED))
@@ -211,10 +207,10 @@
       CALL LCMLEN(IPDRL,'NGOLD',LENGT,ITYLCM)
       LGOLD=(LENGT.GT.0)
       IF(LGOLD) THEN
-         CALL XDRSET(GOLD,NGRO,0.0)
+         GOLD(:NGRO)=0.0
          CALL LCMGET(IPDRL,'NGOLD',GOLD)
       ELSE
-         CALL XDRSET(GOLD,NGRO,1.0)
+         GOLD(:NGRO)=1.0
       ENDIF
       IF(LBIN.GT.0) THEN
          CALL LCMGET(IPDRL,'BIN-'//HTOTAL,BIN(1,1))
@@ -223,7 +219,7 @@
          IF(LENGF.GT.0) THEN
             CALL LCMGET(IPDRL,'BIN-NUSIGF',BIN(1,3))
          ELSE
-            CALL XDRSET(BIN(1,3),LBIN,0.0)
+            BIN(:LBIN,3)=0.0
          ENDIF
          IGF0=0
          DO 190 IG=1,NGRO
@@ -258,7 +254,7 @@
       KPHIR=0
       KCHIR=0
       KADR=0
-      CALL XDISET(KADDR,NED,0)
+      KADDR(:NED)=0
 *----
 *  PERFORM DILUTION INTERPOLATION.
 *----
@@ -274,12 +270,12 @@
 *  GIVES LENGTH OF SELF SHIELDING VECTOR
 *  FOR TOTAL, SIGF, CHI, PHI AND ADD XS
 *----
-         CALL XDLSET(LSDIL,NL,.FALSE.)
-         CALL XDLSET(LPDIL,NL,.FALSE.)
+         LSDIL(:NL)=.FALSE.
+         LPDIL(:NL)=.FALSE.
          DO 240 IDIL=1,NDIL
          WRITE (CD,'(I4.4)') IDIL
          CALL LCMSIX(IPDRL,'SUBMAT'//CD,1)
-         CALL XDRSET(SIGT(1,IDIL),NGRO,0.0)
+         SIGT(:NGRO,IDIL)=0.0
          CALL LCMGET(IPDRL,HTOTAL,SIGT(1,IDIL))
          DO 220 IL=0,NL-1
             WRITE (CM,'(I2.2)') IL
@@ -318,7 +314,7 @@
          NGRRE=MAX(KTOTLR,KSIGFR,KCHIR,KPHIR,KADR)
          IF(NGRRE.GT.NGRO) CALL XABORT('LIBDRB: TOO MANY GROUPS.')
 *
-         CALL XDRSET(TERP,MAXDIL*NGRO,0.0)
+         TERP(:MAXDIL,:NGRO)=0.0
          DILUT(NDIL+1)=1.0E10
          DO 280 IG1=1,NGRRE
          LINF(IG1)=.FALSE.
@@ -440,7 +436,7 @@
   340    CONTINUE
   345    CONTINUE
          IF(NGROIN.EQ.0.OR.NGRRE.EQ.0) THEN
-            CALL XDRSET(ZNPHI,NGRO,1.0)
+            ZNPHI(:NGRO)=1.0
             GO TO 680
          ENDIF
          KTOTLR=MIN(KTOTLR,NGROIN)
@@ -474,7 +470,7 @@
             ELSE
                WRITE(HNUSIG,'(6HNUSIGF,I2.2)') IDEL
             ENDIF
-            CALL XDRSET(GAR,KSIGFR,0.0)
+            GAR(:KSIGFR)=0.0
             CALL LCMGET(IPDRL,HNUSIG,GAR)
             DO 400 IG1=NGRODP,KSIGFR
             SIGF(IG1,IDEL)=SIGF(IG1,IDEL)+TERP(IDIL,IG1)*GAR(IG1)
@@ -489,7 +485,7 @@
             ELSE
                WRITE(HCHI,'(3HCHI,I2.2)') IDEL
             ENDIF
-            CALL XDRSET(GAR,KCHIR,0.0)
+            GAR(:KCHIR)=0.0
             CALL LCMGET(IPDRL,HCHI,GAR)
             DO 405 IG1=NGRODP,KCHIR
             CHI(IG1,IDEL)=CHI(IG1,IDEL)+TERP(IDIL,IG1)*GAR(IG1)
@@ -497,7 +493,7 @@
   410       CONTINUE
             DO 416 ISP=1,NBESP
             WRITE(HCHI,'(5HCHI--,I2.2)') ISP
-            CALL XDRSET(GAR,KCHIR,0.0)
+            GAR(:KCHIR)=0.0
             CALL LCMLEN(IPDRL,HCHI,ILONG,ITYLCM)
             IF(ILONG.GT.0) THEN
               CALL LCMGET(IPDRL,HCHI,GAR)
@@ -516,7 +512,7 @@
             DO 420 I=1,NGRO
             LENGT=LENGT+NJJ(I)
   420       CONTINUE
-            CALL XDRSET(GAR,LENGT,0.0)
+            GAR(:LENGT)=0.0
             CALL LCMGET(IPDRL,'SCAT'//CM,GAR)
             IGAR=0
             DO 435 IG2=1,NGRO
@@ -528,7 +524,7 @@
   435       CONTINUE
          ENDIF
          IF(LPDIL(IL+1)) THEN
-            CALL XDRSET(GAR,NGRO,0.0)
+            GAR(:NGRO)=0.0
             CALL LCMGET(IPDRL,'SIGS'//CM,GAR)
             DO 440 IG1=NGRODP,NGROIN
             SIGS(IG1,IL+1)=SIGS(IG1,IL+1)+TERP(IDIL,IG1)*GAR(IG1)
@@ -536,7 +532,7 @@
          ENDIF
   450    CONTINUE
          IF(KPHIR.GT.0) THEN
-            CALL XDRSET(GAR,KPHIR,0.0)
+            GAR(:KPHIR)=0.0
             CALL LCMGET(IPDRL,'NWT0',GAR)
             DO 460 IG1=NGRODP,KPHIR
             IF(.NOT.LINF(IG1)) THEN
@@ -549,7 +545,7 @@
          ENDIF
          DO 480 IED=1,NED
          IF(KADDR(IED).GT.0) THEN
-            CALL XDRSET(GAR,KADDR(IED),0.0)
+            GAR(:KADDR(IED))=0.0
             CALL LCMGET(IPDRL,HVECT(IED),GAR)
             DO 470 IG1=NGRODP,KADDR(IED)
             SADD(IG1,IED)=SADD(IG1,IED)+TERP(IDIL,IG1)*GAR(IG1)
@@ -570,7 +566,7 @@
             DO 500 I=1,NGRO
             LENGT=LENGT+NJJ(I)
   500       CONTINUE
-            CALL XDRSET(GAR,LENGT,0.0)
+            GAR(:LENGT)=0.0
             CALL LCMGET(IPDRL,'PCAT'//CM,GAR)
             IGAR=0
             DO 525 IG2=1,NGRO
@@ -679,7 +675,7 @@
             WRITE (IOUT,'(/)')
          ENDIF
       ELSE
-         CALL XDRSET(ZNPHI,NGRO,1.0)
+         ZNPHI(:NGRO)=1.0
       ENDIF
 *----
 *  SCRATCH STORAGE DEALLOCATION

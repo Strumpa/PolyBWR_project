@@ -75,7 +75,7 @@
          NSURF=3
       ENDIF
 *
-      CALL XDRSET(SOURCE,LL4,0.0)
+      SOURCE(:LL4)=0.0
 *----
 *  INCOMING CURRENT SOURCE.
 *----

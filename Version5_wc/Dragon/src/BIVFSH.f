@@ -106,7 +106,7 @@
          AA=SIDE/REAL(ISPLH-1)
       ENDIF
 *
-      CALL XDRSET(SOURCE,NUN,0.0)
+      SOURCE(:NUN)=0.0
 *----
 *  INCOMING CURRENT SOURCE.
 *----

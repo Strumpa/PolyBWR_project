@@ -110,7 +110,7 @@
 *----
       XYPOS(1,1)=DIMX
       XYPOS(2,1)=DIMY
-      CALL PSMOVE(ISPSP,XYPOS,-3)
+      CALL PSMOVE(ISPSP,XYPOS(1,1),-3)
       FACT=DIMX/RCIRC
 *----
 *  SCAN ALL REGIONS AND LOCATE POSITION
@@ -167,7 +167,7 @@
 *----
 *  COLOR AND TRACE RESULT
 *----
-                CALL PSMOVE(ISPSP,CENTER,-3)
+                CALL PSMOVE(ISPSP,CENTER(1),-3)
                 CALL PSDRAI(ISPSP,NSEG,IORDER,CENTER,RADANG)
                 IF(ICOL. GT. 0) THEN
                   CALL PSFILL(ISPSP,ICOL,COLREG(1,IVOL),KFS,KFR)
@@ -177,7 +177,7 @@
                 ENDIF
                 CENTER(1)=-CENTER(1)
                 CENTER(2)=-CENTER(2)
-                CALL PSMOVE(ISPSP,CENTER,-3)
+                CALL PSMOVE(ISPSP,CENTER(1),-3)
                 GO TO 115
               ENDIF
  111        CONTINUE
@@ -187,7 +187,7 @@
  110  CONTINUE
       XYPOS(1,1)=-DIMX
       XYPOS(2,1)=-DIMY
-      CALL PSMOVE(ISPSP,XYPOS,-3)
+      CALL PSMOVE(ISPSP,XYPOS(1,1),-3)
       IF(IPRINT .GE. 10) THEN
         WRITE(IOUT,6001) NAMSBR
       ENDIF

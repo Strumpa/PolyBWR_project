@@ -101,9 +101,9 @@
         IF((IENTRY(IEN).EQ.1).OR.(IENTRY(IEN).EQ.2)) THEN
           IPTRK=KENTRY(IEN)
           HSIGN='L_TRACK     '
-          CALL LCMPTC(IPTRK,'SIGNATURE',12,1,HSIGN)
+          CALL LCMPTC(IPTRK,'SIGNATURE',12,HSIGN)
           HSIGN='EXCELL'
-          CALL LCMPTC(IPTRK,'TRACK-TYPE',12,1,HSIGN)
+          CALL LCMPTC(IPTRK,'TRACK-TYPE',12,HSIGN)
         ELSE IF(IENTRY(IEN).EQ.3) THEN
           IFTRK=FILUNIT(KENTRY(IEN))
         ENDIF
@@ -112,7 +112,7 @@
         IF(JENTRY(IEN).NE.2) CALL XABORT(NAMSBR//
      >  ': Object in read-only mode expected')
         IF((IENTRY(IEN).EQ.1).OR.(IENTRY(IEN).EQ.2)) THEN
-          CALL LCMGTC(KENTRY(IEN),'SIGNATURE',12,1,HSIGN)
+          CALL LCMGTC(KENTRY(IEN),'SIGNATURE',12,HSIGN)
           IF(HSIGN.NE.'L_GEOM') CALL XABORT(NAMSBR//
      >    ': L_GEOM signature expected for '//HENTRY(IEN))
           IPGEO=KENTRY(IEN)
@@ -126,8 +126,8 @@
 *----
 *  Initialize tracking parameters to 0
 *----
-      CALL XDISET(ISTATT,NSTATE,0)
-      CALL XDRSET(RSTATT,NSTATE,0.0)
+      ISTATT(:NSTATE)=0
+      RSTATT(:NSTATE)=0.0
 *----
 *  Define default tracking options that are different from 0
 *----
@@ -165,7 +165,7 @@
 *----
       CALL LCMPUT(IPTRK,'STATE-VECTOR',NSTATE,1,ISTATT)
       CALL LCMPUT(IPTRK,'EXCELTRACKOP',NSTATE,2,RSTATT)
-      CALL LCMPTC(IPTRK,'TITLE',72,1,TITLE)
+      CALL LCMPTC(IPTRK,'TITLE',72,TITLE)
 *----
 *  Analyse geometry if required
 *----

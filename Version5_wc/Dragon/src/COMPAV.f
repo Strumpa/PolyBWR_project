@@ -54,7 +54,7 @@
       IF(ILONG.EQ.NPAR) THEN
          CALL LCMGET(IPCPO,'NVALUE',NVALUE)
       ELSE
-         CALL XDISET(NVALUE,NPAR,0)
+         NVALUE(:NPAR)=0
       ENDIF
       WRITE(RECNAM,'(''pval'',I8.8)') IPAR
 *

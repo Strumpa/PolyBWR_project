@@ -45,9 +45,9 @@
 *----
 *  MATERIAL INDEX
 *----
-      CALL XDISET(RTOT,NREFL,0)
-      CALL XDISET(FTOT,NFUEL,0)
-      CALL XDISET(INDX,NEL,0)
+      RTOT(:NREFL)=0
+      FTOT(:NFUEL)=0
+      INDX(:NEL)=0
       NMIX=0
       DO IEL=1,NEL
         IF(MAT(IEL).NE.0)THEN

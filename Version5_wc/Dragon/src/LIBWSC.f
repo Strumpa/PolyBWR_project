@@ -24,7 +24,7 @@
 * CSCAT   WIMS condense scattering at input.        
 *
 *Parameters: output
-* XSCAT   DRAGON format expanded scattering.        
+* XSCAT   DRAGON format expanded scattering.
 *         SCAT(JG,IG) is from IG to JG.              
 * SIGS    total scattering out of group.            
 *
@@ -46,7 +46,7 @@
 *
       LG=0
       DO 100 IG1=NGD,NGF
-        CALL XDRSET(XSCAT(1,IG1),NGROUP,0.0)
+        XSCAT(:NGROUP,IG1)=0.0
         LG=LG+1
         IG2=IG1-INT(CSCAT(LG)+0.1)
         LG=LG+1

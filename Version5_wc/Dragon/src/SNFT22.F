@@ -264,7 +264,7 @@
   115 CONTINUE
 
       VT=VOL(I,J)*TOTAL(MAT(I,J),IG)
-      CALL XDDSET(Q2,(IELEM**2)*((IELEM**2)+1),0.0D0)
+      Q2(:IELEM**2,:(IELEM**2)+1)=0.0D0
 *----------
 * BUILD MATRIX FOR THE RELEVANT ORDER
 * Note: the matrix does seem to be skew-symmetric (or antisymmetric), 

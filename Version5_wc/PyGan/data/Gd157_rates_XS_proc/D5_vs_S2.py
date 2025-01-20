@@ -74,7 +74,7 @@ class compare_D5_S2_rates_XS:
                     self.D5_S2_XS_diff[library][keyword][iso][reaction][SSH] = (self.D5_case.reaction_data_pair[reaction_id][keyword][SSH]["XS"] - self.S2_case.XS["SHEM295"][f"{iso}_{reaction}_{library}_0"])*100/self.S2_case.XS["SHEM295"][f"{iso}_{reaction}_{library}_0"]
         return
     
-    def plot_XS_D5_S2(self, reaction_id, keyword, mesh_name, SSH_methods, bu_step = 0, ):
+    def plot_XS_D5_S2(self, reaction_id, keyword, mesh_name, SSH_methods, bu_step = 0):
         iso = reaction_id.split("_")[0]
         reaction = reaction_id.split("_")[1]
         if reaction == "ngamma":

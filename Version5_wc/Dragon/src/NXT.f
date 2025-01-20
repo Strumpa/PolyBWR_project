@@ -115,24 +115,24 @@
             IPTRK=KENTRY(IEN)
             IMTRK=2
             HSIGN='L_TRACK     '
-            CALL LCMPTC(IPTRK,'SIGNATURE',12,1,HSIGN)
+            CALL LCMPTC(IPTRK,'SIGNATURE',12,HSIGN)
             HSIGN='EXCELL'
-            CALL LCMPTC(IPTRK,'TRACK-TYPE',12,1,HSIGN)
+            CALL LCMPTC(IPTRK,'TRACK-TYPE',12,HSIGN)
           ELSE
-            CALL LCMGTC(KENTRY(IEN),'SIGNATURE',12,1,HSIGN)
+            CALL LCMGTC(KENTRY(IEN),'SIGNATURE',12,HSIGN)
             IF(HSIGN .EQ. 'L_GEOM') THEN
               IPGEO=KENTRY(IEN)
               IF(JENTRY(IEN) .NE. 2) CALL XABORT(NAMSBR//
      >        ': Geometry data structure not in read-only mode')
               TEXT12=HENTRY(IEN)
-              CALL LCMPTC(IPTRK,'LINK.GEOM',12,1,TEXT12)
+              CALL LCMPTC(IPTRK,'LINK.GEOM',12,TEXT12)
               IMGEO=-1
             ELSE IF(HSIGN .EQ. 'L_TRACK') THEN
               IPTRK=KENTRY(IEN)
               IF(JENTRY(IEN) .NE. 1) CALL XABORT(NAMSBR//
      >        ': Tracking data structure not in update mode')
               IMTRK=1
-              CALL LCMGTC(IPTRK,'TRACK-TYPE',12,1,HSIGN)
+              CALL LCMGTC(IPTRK,'TRACK-TYPE',12,HSIGN)
               IF(HSIGN .NE. 'EXCELL') CALL XABORT(NAMSBR//
      >        ': Tracking data structure type is invalid')
             ELSE
@@ -168,8 +168,8 @@
 *----
 *  Initialize tracking parameters to 0
 *----
-      CALL XDISET(ISTATT,NSTATE,0)
-      CALL XDRSET(RSTATT,NSTATE,0.0)
+      ISTATT(:NSTATE)=0
+      RSTATT(:NSTATE)=0.0
 *----
 *  Read state vectors available
 *----

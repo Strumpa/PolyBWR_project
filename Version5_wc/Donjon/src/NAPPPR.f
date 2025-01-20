@@ -280,7 +280,7 @@ C      CALL LCMGET(IPMPP,'BMIX',BMIXP)
 * Compute IX-,IX+,IY-,IY+,IZ-,IZ+ for each assembly in core GEometry
       IF(IMPX.GE.100) WRITE(6,*) 'debug PPR:IX-,IX+,IY-,IY+,IZ-,IZ+'
       ALLOCATE(CODEA(NASS,6))
-      CALL XDISET(CODEA,NASS*6,0)
+      CODEA(:NASS,:6)=0
       ICH=0
       I1=0
       I2=0
@@ -379,7 +379,7 @@ C      CALL LCMGET(IPMPP,'BMIX',BMIXP)
       NYDA=J2-J1
       NZDA=K2-K1
       ALLOCATE(FLXDA(NXDA,NYDA,NZDA,NG))
-      CALL XDRSET(FLXDA,NXDA*NYDA*NZDA*NG,0.0)
+      FLXDA(:NXDA,:NYDA,:NZDA,:NG)=0.0
       IF(NZDA.NE.NZASS) CALL XABORT('NAPPPR: incoherent number of mesh' 
      1 //' in Z direction for an assembly: NZDA.NE.NZASS')
       JPFLU=LCMGID(IPFLU,'FLUX')
@@ -438,8 +438,8 @@ C       end IG
       ENDIF
 *   project flux at assembly level
       ALLOCATE(FXTD(NXP,NXDA),FYTD(NYP,NYDA))
-      CALL XDRSET(FXTD,NXP*NXDA,0.0)
-      CALL XDRSET(FYTD,NYP*NYDA,0.0)
+      FXTD(:NXP,:NXDA)=0.0
+      FYTD(:NYP,:NYDA)=0.0
 *   compute fraction of the transport volumes occupied by diffusion volumes  
       CALL NAPFTD(NXP,MXP,NXDA,MXDA,FXTD)
       CALL NAPFTD(NYP,MYP,NYDA,MYDA,FYTD)
@@ -608,10 +608,10 @@ C       end IG
         ALLOCATE(FTINF(NPIN,NPIN,NZASS,NG,NASS))
         ALLOCATE(FDINF(NPIN,NPIN,NZASS,NG,NASS))
         ALLOCATE(BMIXP(NPIN*NPIN))
-        CALL XDRSET(VOL,NPIN*NPIN*NZASS*NASS,0.0)
-        CALL XDRSET(HF,NPIN*NPIN*NZASS*NG*NASS,0.0)
-        CALL XDRSET(FTINF,NPIN*NPIN*NZASS*NG*NASS,0.0)
-        CALL XDRSET(FDINF,NPIN*NPIN*NZASS*NG*NASS,0.0)
+        VOL(:NPIN,:NPIN,:NZASS,:NASS)=0.0
+        HF(:NPIN,:NPIN,:NZASS,:NG,:NASS)=0.0
+        FTINF(:NPIN,:NPIN,:NZASS,:NG,:NASS)=0.0
+        FDINF(:NPIN,:NPIN,:NZASS,:NG,:NASS)=0.0
 
         if(LDEBUG) call LCMLIB(IPMAC)
         CALL LCMSIX(IPMAC,'GFF',1)
@@ -762,7 +762,7 @@ C       end IG
         ENDDO
 *
         KPMAP=LCMDIL(JPMAP,IASS)
-        CALL LCMPTC(KPMAP,'LABEL',8,1,LABEL)
+        CALL LCMPTC(KPMAP,'LABEL',8,LABEL)
         CALL LCMPUT(KPMAP,'PIN-POWER',NPIN*NPIN*NZASS,2,HFA)
         CALL LCMPUT(KPMAP,'FLUX',NPIN*NPIN*NZASS*NG,2,
      1              FLXP(1,1,1,1,IASS))

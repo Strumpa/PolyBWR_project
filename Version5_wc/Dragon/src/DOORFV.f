@@ -181,7 +181,7 @@
         WRITE(IUNOUT,'(//11H DOORFV: **,A,3H** ,A72)') CDOOR,TITR
         ALLOCATE(FGAR(NREG))
         DO II=1,NGEFF
-          CALL XDRSET(FGAR,NREG,0.0)
+          FGAR(:NREG)=0.0
           DO I=1,NREG
             IF(KEYFLX(I).NE.0) FGAR(I)=SUNKNO(KEYFLX(I),II)
           ENDDO
@@ -303,7 +303,7 @@
       IF(IMPX.GT.3) THEN
         ALLOCATE(FGAR(NREG))
         DO II=1,NGEFF
-          CALL XDRSET(FGAR,NREG,0.0)
+          FGAR(:NREG)=0.0
           DO I=1,NREG
             IF(KEYFLX(I).NE.0) FGAR(I)=FUNKNO(KEYFLX(I),II)
           ENDDO

@@ -924,13 +924,13 @@
           IF(IBTYP.EQ.3)THEN
              IF(ZONEDP(ICH,JB).NE.0) THEN
                 CALL NCRTRP(IPCPO,LCUB2,IMPY,IBMOLD,NPAR,NLOC,NCAL,
-     1                      MUPLT2,MUTYPE,VALR,VARVAL,TERP(1,NTOT))
+     1                      MUPLT2,MUTYPE,VALR(1,1),VARVAL,TERP(1,NTOT))
              ELSE
                 TERP(:NCAL,NTOT)=0.0
              ENDIF
           ELSE
              CALL NCRTRP(IPCPO,LCUB2,IMPY,IBMOLD,NPAR,NLOC,NCAL,
-     1                   MUPLT2,MUTYPE,VALR,VARVAL,TERP(1,NTOT))
+     1                   MUPLT2,MUTYPE,VALR(1,1),VARVAL,TERP(1,NTOT))
           ENDIF
 *         DELTA-ADD
           DO 270 IPAR=1,NPAR+NLOC
@@ -951,7 +951,7 @@
                 ENDDO
                 ALLOCATE(TERPA(NCAL))
                 CALL NCRTRP(IPCPO,LCUB2,IMPY,IBMOLD,NPAR,NLOC,NCAL,
-     1          MUPLT2,MUTYP2,VALRA(1,1,IDLTA1),VARVAL,TERPA)
+     1          MUPLT2,MUTYP2,VALRA(1,1,IDLTA1),VARVAL,TERPA(1))
                 DO 275 JCAL=1,NCAL
                 TERP(JCAL,NTOT)=TERP(JCAL,NTOT)+TERPA(JCAL)
   275           CONTINUE

@@ -296,8 +296,6 @@
         ENDDO
         DO II=1,NGEFF            
           IF(NCONV(II)) THEN
-            CALL XDDSET(PHIV(1,1,II),NFUNLX*NREG,0.0D0)
-            CALL XDDSET(DPHIV(1,1,II),2*NFUNLX*NREG,0.0D0)
             PHIV(:NFUNLX,:NREG,II)=0.0D0
             DPHIV(:NDFUNLX,:NREG,II)=0.0D0
           ENDIF

@@ -135,7 +135,7 @@
             WRITE(6,'(/43H OUTDRV: *** WARNING *** NO H-FACTOR FOUND ,
      1      28HON LCM. USE NU*SIGF INSTEAD.)')
             ALLOCATE(ZUFIS(NBMIX,NBFIS))
-            CALL XDRSET(SGD,NBMIX,0.0)
+            SGD(:NBMIX)=0.0
             CALL LCMGET(KPMAC1,'NUSIGF',ZUFIS)
             DO IBM=1,NBMIX
               DO IFISS=1,NBFIS

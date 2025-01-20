@@ -76,8 +76,8 @@
 *----
 *  MAIN LOOP OVER SN ANGLES.
 *----
-      CALL XDRSET(FLUX,LX*LY*NSCT,0.0)
-      CALL XDRSET(XARN,LX*LY,0.0)
+      FLUX(:NSCT,:LX,:LY)=0.0
+      XARN(:LX,:LY)=0.0
       C1=0.0
       XNM=0.0
       DO 170 M=1,NPQ

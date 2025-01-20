@@ -1,5 +1,5 @@
 *DECK NXT3T2
-      SUBROUTINE NXT3T2(IPTRK,JPTRK,IX,IY,IZ,NFREG,NFSUR,NUNK,MAXMSH,
+      SUBROUTINE NXT3T2(IPTRK,JPTRK,IX,IY,IZ,NFREG,NFSUR,MAXMSH,
      1                  NUCELL,NBUCEL,MXGSUR,MXGREG,MAXPIN,MATALB,
      2                  SURVOL,IUNFLD,NZP,N2REG,N2SUR,N2CEL,N2PIN,
      3                  IND2T3,ZCORD,MATALB2,SURVOL2)
@@ -27,7 +27,6 @@
 * IZ      projection axis.
 * NFREG   number of regions in the 3D geometry.
 * NFSUR   number of outer surfaces in the 3D geometry.
-* NUNK    NFREG+NFSUR+1.
 * MAXMSH  maximum dimension of any mesh in any sub-geometry of the 3D
 *         geometry.
 * NUCELL  number of cells along the three axis in the 3D geometry.
@@ -63,7 +62,7 @@
 *  SUBROUTINE ARGUMENTS
 *----
       TYPE(C_PTR) IPTRK,JPTRK
-      INTEGER IX,IY,IZ,NFREG,NFSUR,NUNK,MAXMSH,NUCELL(3),NBUCEL,MXGSUR,
+      INTEGER IX,IY,IZ,NFREG,NFSUR,MAXMSH,NUCELL(3),NBUCEL,MXGSUR,
      1 MXGREG,MAXPIN,MATALB(-NFSUR:NFREG),
      2 IUNFLD(2,NUCELL(1),NUCELL(2),NUCELL(3),0:1),NZP,N2REG,N2SUR,
      3 N2CEL,N2PIN,IND2T3(-NFSUR:NFREG,0:NUCELL(IZ)*MAXMSH+1),
@@ -115,9 +114,9 @@
      >         DRAPIN(-1:4,MAXPIN,0:NUCELL(IZ)),REGI(-NFSUR:NFREG),
      >         CELID(NBUCEL),PINID(NBUCEL*MAXPIN))
 *
-      CALL XDISET(REGI(-NFSUR),NUNK,0)
-      CALL XDISET(CELID,NBUCEL,0)
-      CALL XDISET(IND2T3(-NFSUR,0),NUNK*(MAXMSH*NUCELL(IZ)+2),0)
+      REGI(-NFSUR:NFREG)=0
+      CELID(:NBUCEL)=0
+      IND2T3(-NFSUR:NFREG,0:NUCELL(IZ)*MAXMSH+1)=0
       N2SUR=0
       N2REG=0
       N2CEL=0
@@ -151,7 +150,7 @@
                WRITE(NAMCEL,'(A1,I8.8)') 'C',ICEL
                !write(*,*) 'copying from ',NAMCEL
                NAMREC=NAMCEL//'DIM'
-               CALL XDISET(ESTATE,NSTATE,0)
+               ESTATE(:NSTATE)=0
                CALL LCMGET(IPTRK,NAMREC,ESTATE)
                IF ((ESTATE(1).EQ.21).OR.
      1              (ESTATE(1).EQ.22).OR.
@@ -195,7 +194,7 @@
 *     ----
 *     PIN LEVEL (2)
 *     ----
-      CALL XDISET(PINID,NTPINR,0)
+      PINID(:NTPINR)=0
       DO II=1,NTPINR
          !write(*,*) 'PIN LEVEL ( ',II,')'
 *        LOAD THE CONTENTS OF THE DIFFERENT PINS (II,K=1,NUCELL(IZ)) 
@@ -218,7 +217,7 @@
             WRITE(NAMCEL,'(A1,I8.8)') 'P',IPIN
             !write(*,*) 'copying from ',NAMCEL
             NAMREC=NAMCEL//'DIM'
-            CALL XDISET(ESTATE,NSTATE,0)
+            ESTATE(:NSTATE)=0
             CALL LCMGET(IPTRK,NAMREC,ESTATE)
             IF ((ESTATE(1).EQ.6).OR.
      1          (ESTATE(1).EQ.10).OR.

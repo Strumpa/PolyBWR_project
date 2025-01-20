@@ -101,7 +101,7 @@
 *----
 *  COMPUTE ARs AND VOLUMES
 *----
-      CALL XDRSET(DAR,NDTOT,0.0)
+      DAR(:NDTOT)=0.0
       ARF=0.5*RAD(NFD)**2    ! at fuel radius
       ARCE=0.5*RAD(NDTOT)**2 ! at external clad radius
       DO I=1,NFD
@@ -113,7 +113,7 @@
 *----
 *  COMPUTE THE THERMAL CONDUCTIVITY INTEGRALS AT TIME n-1
 *----
-      CALL XDRSET(ZK,NDTOT,0.0)
+      ZK(:NDTOT)=0.0
       DO I=1,NFD
         IF(IFUEL.EQ.0) THEN
           ZK(I)=THMCDI(XX0(I),XX0(I+1),BURN,POROS,FRACPU,ICONDF,NCONDF,
@@ -129,7 +129,7 @@
 *----
 *  COMPUTE CONDXA
 *----
-      CALL XDRSET(CONDXA,NDTOT,0.0)
+      CONDXA(:NDTOT)=0.0
       COEF(1)=0.0
       COEF(2)=0.0
       COEF(3)=0.0
@@ -153,7 +153,7 @@
 *----
 *  COMPUTE THE THERMAL CONDUCTIVITY INTEGRALS AT TIME n
 *----
-      CALL XDRSET(ZK,NDTOT,0.0)
+      ZK(:NDTOT)=0.0
       DO I=1,NFD
         IF(IFUEL.EQ.0) THEN
           ZK(I)=THMCDI(XX1(I),XX1(I+1),BURN,POROS,FRACPU,ICONDF,NCONDF,
@@ -169,7 +169,7 @@
 *----
 *  BUILD THE TRIDIAGONAL SYSTEM
 *----
-      CALL XDRSET(TRID,NDTOT*(NDTOT+2),0.0)
+      TRID(:NDTOT,:NDTOT+2)=0.0
       COEF(1)=0.0
       COEF(2)=0.0
       COEF(3)=0.0

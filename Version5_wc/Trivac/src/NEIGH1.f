@@ -47,9 +47,9 @@
 *
       ALLOCATE(NBA(NC+2),FSTA(NC+2),LSTA(NC+2))
       EVEN=.TRUE.
-      CALL XDISET(NBA,NC+2,0)
-      CALL XDISET(FSTA,NC+2,0)
-      CALL XDISET(LSTA,NC+2,0)
+      NBA(:NC+2)=0
+      FSTA(:NC+2)=0
+      LSTA(:NC+2)=0
       FSTA(1) = 1
       IL=0
       DO 1 L = 1,NC+1,2
@@ -181,9 +181,9 @@
 *
       ALLOCATE(NBA(NC+2),FSTA(NC+2),LSTA(NC+2))
       EVEN=.TRUE.
-      CALL XDISET(NBA,NC+2,0)
-      CALL XDISET(FSTA,NC+2,0)
-      CALL XDISET(LSTA,NC+2,0)
+      NBA(:NC+2)=0
+      FSTA(:NC+2)=0
+      LSTA(:NC+2)=0
       NBA(1)  = 1
       LSTA(1) = 1
       FSTA(1) = 1
@@ -276,9 +276,9 @@
 *
       ALLOCATE(NBA(NC+2),FSTA(NC+2),LSTA(NC+2))
       EVEN=.TRUE.
-      CALL XDISET(NBA,NC+2,0)
-      CALL XDISET(FSTA,NC+2,0)
-      CALL XDISET(LSTA,NC+2,0)
+      NBA(:NC+2)=0
+      FSTA(:NC+2)=0
+      LSTA(:NC+2)=0
       LSTA(1) = 1
       FSTA(1) = 1
       IL=0
@@ -424,10 +424,10 @@
 *
       ALLOCATE(NBA(NC+2),FSTA(NC+2),LSTA(NC+2),INTA(NC+2))
       EVEN=.TRUE.
-      CALL XDISET(NBA,NC+2,0)
-      CALL XDISET(FSTA,NC+2,0)
-      CALL XDISET(LSTA,NC+2,0)
-      CALL XDISET(INTA,NC+2,0)
+      NBA(:NC+2)=0
+      FSTA(:NC+2)=0
+      LSTA(:NC+2)=0
+      INTA(:NC+2)=0
       LSTA(1) = 1
       FSTA(1) = 1
       IL=0
@@ -587,9 +587,9 @@
 *
       ALLOCATE(NBA(NC+2),FSTA(NC+2),LSTA(NC+2))
       EVEN=.TRUE.
-      CALL XDISET(NBA,NC+2,0)
-      CALL XDISET(FSTA,NC+2,0)
-      CALL XDISET(LSTA,NC+2,0)
+      NBA(:NC+2)=0
+      FSTA(:NC+2)=0
+      LSTA(:NC+2)=0
       NBA (1) = 1
       LSTA(1) = 1
       FSTA(1) = 1
@@ -726,9 +726,9 @@
 *
       ALLOCATE(NBA(NC+2),FSTA(NC+2),LSTA(NC+2))
       EVEN=.TRUE.
-      CALL XDISET(NBA,NC+2,0)
-      CALL XDISET(FSTA,NC+2,0)
-      CALL XDISET(LSTA,NC+2,0)
+      NBA(:NC+2)=0
+      FSTA(:NC+2)=0
+      LSTA(:NC+2)=0
       NBA (1) = 1
       LSTA(1) = 1
       FSTA(1) = 1
@@ -867,9 +867,9 @@
 *
       ALLOCATE(NBA(NC+2),FSTA(NC+2),LSTA(NC+2))
       EVEN=.TRUE.
-      CALL XDISET(NBA,NC+2,0)
-      CALL XDISET(FSTA,NC+2,0)
-      CALL XDISET(LSTA,NC+2,0)
+      NBA(:NC+2)=0
+      FSTA(:NC+2)=0
+      LSTA(:NC+2)=0
       NBA (1) = 1
       LSTA(1) = 1
       FSTA(1) = 1
@@ -997,9 +997,9 @@
 *
       ALLOCATE(NBA(NC+2),FSTA(NC+2),LSTA(NC+2))
       EVEN=.TRUE.
-      CALL XDISET(NBA,NC+2,0)
-      CALL XDISET(FSTA,NC+2,0)
-      CALL XDISET(LSTA,NC+2,0)
+      NBA(:NC+2)=0
+      FSTA(:NC+2)=0
+      LSTA(:NC+2)=0
       NBA (1) = 1
       LSTA(1) = 1
       FSTA(1) = 1
@@ -1164,9 +1164,9 @@
 *
       ALLOCATE(NBA(NC+2),FSTA(NC+2),LSTA(NC+2))
       EVEN=.TRUE.
-      CALL XDISET(NBA,NC+2,0)
-      CALL XDISET(FSTA,NC+2,0)
-      CALL XDISET(LSTA,NC+2,0)
+      NBA(:NC+2)=0
+      FSTA(:NC+2)=0
+      LSTA(:NC+2)=0
       POIDS = 1.
       NBA(1)  = 1
       LSTA(1) = 1
@@ -1338,9 +1338,9 @@
 *
       ALLOCATE(NBA(NC+2),FSTA(NC+2),LSTA(NC+2))
       EVEN=.TRUE.
-      CALL XDISET(NBA,NC+2,0)
-      CALL XDISET(FSTA,NC+2,0)
-      CALL XDISET(LSTA,NC+2,0)
+      NBA(:NC+2)=0
+      FSTA(:NC+2)=0
+      LSTA(:NC+2)=0
       FSTA(1) = 1
       IL=0
       DO 39 L = 1,NC+1,2
@@ -1493,9 +1493,9 @@
 *
       ALLOCATE(NBA(NC+2),FSTA(NC+2),LSTA(NC+2))
       EVEN=.TRUE.
-      CALL XDISET(NBA,NC+2,0)
-      CALL XDISET(FSTA,NC+2,0)
-      CALL XDISET(LSTA,NC+2,0)
+      NBA(:NC+2)=0
+      FSTA(:NC+2)=0
+      LSTA(:NC+2)=0
       NBA(1)  = 1
       LSTA(1) = 1
       FSTA(1) = 1

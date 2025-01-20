@@ -88,7 +88,7 @@
 *  Find Library to modify
 *----
           IF(IENTRY(IEN) .LE. 2 .AND. JENTRY(IEN) .EQ. 1) THEN
-            CALL LCMGTC(KENTRY(IEN),'SIGNATURE',12,1,HSIGN)
+            CALL LCMGTC(KENTRY(IEN),'SIGNATURE',12,HSIGN)
             IF(HSIGN.EQ.'L_LIBRARY') THEN
               IPLIB=KENTRY(IEN)
               WRITE(IOUT,6000) HENTRY(IEN)
@@ -102,7 +102,7 @@
 *  Find Tracking for volume of mixtures to combine
 *----
           IF(IENTRY(IEN) .LE. 2 .AND. JENTRY(IEN) .EQ. 2) THEN
-            CALL LCMGTC(KENTRY(IEN),'SIGNATURE',12,1,HSIGN)
+            CALL LCMGTC(KENTRY(IEN),'SIGNATURE',12,HSIGN)
             IF(HSIGN.EQ.'L_TRACK') THEN
               IPTRK=KENTRY(IEN)
               WRITE(IOUT,6001) HENTRY(IEN)
@@ -201,8 +201,8 @@
 *  Replace new densities in adequate location in DESISO vector
 *----
       ALLOCATE(MASK(NBMIX),MASKL(NGRO))
-      CALL XDLSET(MASKL,NBMIX,.FALSE.)
-      CALL XDLSET(MASKL,NGRO,.TRUE.)
+      MASKL(:NBMIX)=.FALSE.
+      MASKL(:NGRO)=.TRUE.
       DO ICLM=1,NCLM
         MASK(IDCLM(ICLM))=.TRUE.
       ENDDO

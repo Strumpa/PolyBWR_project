@@ -92,7 +92,7 @@
       CALL LCMGET(KEN(1),'E-IDLPC',IDLPC)
       CALL LCMLEN(KEN(1),'OMEGA',ILONG,ITYLCM)
       IF((IEXP.EQ.0).OR.(ILONG.EQ.0)) THEN
-        CALL XDRSET(OMEGA,NBM*NGR,0.0)
+        OMEGA(:NBM,:NGR)=0.0
       ELSE
         CALL LCMGET(KEN(1),'OMEGA',OMEGA)
       ENDIF
@@ -203,8 +203,8 @@
         CALL LCMPUT(KEN(1),'E-VECTOR',NGR*NUN,2,EVECT)
 *
         DO 60 IGR=1,NGR
-        CALL XDRSET(AVG1,NBM,0.0)
-        CALL XDRSET(AVG2,NBM,0.0)
+        AVG1(:NBM)=0.0
+        AVG2(:NBM)=0.0
         DO 40 IEL=1,NEL
         IBM=MAT(IEL)
         IF(IBM.GT.0) THEN

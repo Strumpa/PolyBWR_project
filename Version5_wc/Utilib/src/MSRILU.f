@@ -55,7 +55,7 @@
 *----
       ALLOCATE(IW(N))
 *
-      CALL XDISET(IW,N,0)
+      IW(:N)=0
 *---
 *  LOOP OVER LINE INDEX I
 *---

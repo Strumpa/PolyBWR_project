@@ -57,7 +57,7 @@
       JPMAC1=LCMLID(IPMAC1,'GROUP',NG)
       DO IL=1,NL
         WRITE(CM,'(I2.2)') IL-1
-        CALL XDRSET(GAR2,NG*NG*NMIL,0.0)
+        GAR2(:NG,:NG,:NMIL)=0.0
         DO IG=1,NG
           KPMAC2=LCMGIL(JPMAC2,IG)
           LENGTH=1
@@ -166,8 +166,8 @@
         ELSE
           WRITE(CM,'(I2.2)') IDEL
         ENDIF
-        CALL XDRSET(GAR1A,NMIL*NF*NG,0.0)
-        CALL XDRSET(GAR1B,NMIL*NF*NG,0.0)
+        GAR1A(:NMIL,:NF,:NG)=0.0
+        GAR1B(:NMIL,:NF,:NG)=0.0
         DO IG=1,NG
           KPMAC1=LCMGIL(JPMAC1,IG)
           CALL LCMGET(KPMAC1,'CHI'//CM,GAR1A(1,1,IG))

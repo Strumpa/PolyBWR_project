@@ -124,7 +124,7 @@
 *  Prepare loops over spatial directions as a function
 *  of IDIRC and NDIM.
 *----
-      CALL XDDSET(SURVOL,(MAXSUR+MAXREG+1),DZERO)
+      SURVOL(-MAXSUR:MAXREG)=DZERO
       IDG=0
       IDGP1=0
       IDGP2=0

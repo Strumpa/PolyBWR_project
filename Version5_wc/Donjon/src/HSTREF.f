@@ -96,9 +96,7 @@
 *----
           IOK=-2              
           CALL HSTGSL(IPHST ,MAXL  ,IOK   ,TIMPOW,PARAML) 
-          IF(IOK .NE. 0) THEN 
-            CALL XDRSET(PARAML,MAXL+1,0.0)
-          ENDIF
+          IF(IOK .NE. 0) PARAML(0:MAXL,1)=0.0
 *----
 *  Save local parameters from cell IB before refueling
 *----         
@@ -133,7 +131,7 @@
 *  IBO > 0 is the position of the bundle IB before refueling
 *  IBO < 0 is the free position availables for refueling
 *----
-          CALL XDISET(ISHUFF,NBUN,0)
+          ISHUFF(:NBUN)=0
           IF(IBS .GT. 0) THEN 
 *----
 *  push bundles starting at I=1 side

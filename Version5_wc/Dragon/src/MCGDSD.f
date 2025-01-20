@@ -101,8 +101,8 @@
             OMEGA2(1)=(PHI1/ZZZ)**2
             OMEGA2(2)=(PHI2/ZZZ)**2
             W=WEI2D
-            CALL MCGDSCB(M,N,LPS,IS,JS,H2D,NOMCEL,NZON,SIGAL(0,II),W,
-     1           NFI,NREG,PJJ(1,1,II),PSJ(1,II),MUST,NMU,NFUNL,NMOD,
+            CALL MCGDSCB(M,N,LPS,IS,JS,H2D(1),NOMCEL,NZON,SIGAL(0,II),
+     1           W,NFI,NREG,PJJ(1,1,II),PSJ(1,II),MUST,NMU,NFUNL,NMOD,
      2           NPJJM,TRHAR,LPJJAN,PJJIND,MODST,OMEGA2,PJJX(1,1,II),
      3           PJJY(1,1,II),PJJZ(1,1,II),PJJXI(1,1,II),
      4           PJJYI(1,1,II),PJJZI(1,1,II),PSJX(1,II),PSJY(1,II),
@@ -123,8 +123,8 @@
                ENDIF
             ENDDO            
             DO II=1,NGEFF
-               CALL MCGDSCB(M,N,LPS,IS,JS,HG,NOMCEL,NZON,SIGAL(0,II),W,
-     1              NFI,NREG,PJJ(1,1,II),PSJ(1,II),IMU,NMU,NFUNL,NMOD,
+               CALL MCGDSCB(M,N,LPS,IS,JS,HG(1),NOMCEL,NZON,SIGAL(0,II),
+     1              W,NFI,NREG,PJJ(1,1,II),PSJ(1,II),IMU,NMU,NFUNL,NMOD,
      2              NPJJM,TRHAR,LPJJAN,PJJIND,MODST,OMEGA2,PJJX(1,1,II),
      3              PJJY(1,1,II),PJJZ(1,1,II),PJJXI(1,1,II),
      4              PJJYI(1,1,II),PJJZI(1,1,II),PSJX(1,II),PSJY(1,II),

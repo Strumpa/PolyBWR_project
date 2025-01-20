@@ -106,8 +106,7 @@
 *----
 *  INNER ITERATION.
 *----
-
-      CALL XDRSET(FUNKNO(:LFLX),LFLX,0.0)
+      FUNKNO(:LFLX)=0.0
       XNI=0.0D0
       WX0=WX
       WE0=WE

@@ -1,0 +1,44 @@
+***********************************************************
+*                                                           
+* Procedure :  trk_gduo2                                        
+* Purpose   :  Tracking of benchmark gduo2_kec1 cell                              
+* Author    :  R.Guasch adapted from A.Hébert                                                                      
+*                                                      
+
+
+* ---
+* INPUT & OUTPUT PARAMETERS
+* ---
+PARAMETER UOX_TBH   TRACK    TF_EXC
+          TRACK_SS
+          GEOM  ::
+::: SEQ_ASCII UOX_TBH ;
+::: LINKED_LIST TRACK ;
+::: SEQ_BINARY TF_EXC ;
+::: LINKED_LIST TRACK_SS ;
+::: LINKED_LIST GEOM ; ;
+
+
+* ---
+* STRUCTURES AND MODULES
+* ---
+MODULE G2S: SALT: SYBILT: END: ;
+
+
+INTEGER an2d := 12 ;
+REAL densur := 20.0 ;
+
+TRACK_SS := SYBILT: GEOM ::
+     TITLE 'UO2 ROWLAND S BENCHMARK'
+     MAXR 20 QUA2 20 3 DP01 MAXZ 200000 ;
+
+UOX_TBH := G2S: GEOM ;
+
+TRACK TF_EXC := SALT: UOX_TBH ::
+  EDIT 3
+  ALLG
+  TSPC EQW2 <<an2d>> <<densur>> REND
+;
+
+END: ;
+QUIT .

@@ -87,9 +87,9 @@
         WRITE(IOUT,6000) NAMSBR
       ENDIF
       IOPT=0
-      CALL XDRSET(FLXINT,NGCCPO              ,0.0)
-      CALL XDRSET(FLXDIS,NGCCPO              ,0.0)
-      CALL XDRSET(OVERV ,NGCCPO              ,0.0)
+      FLXINT(:NGCCPO)=0.0
+      FLXDIS(:NGCCPO)=0.0
+      OVERV(:NGCCPO)=0.0
 *----
 *  CELL VOLUME PER UNIT LENGTH 
 *----

@@ -141,7 +141,7 @@
           IG2=IG1+NGPRT(IPART)
           NGROUP=NGPRT(IPART)
           JPMACR=LCMLID(IPMACR,'GROUP',NGROUP)
-          CALL FMAC04(NGPRT,NGP,NPART,1,H1)
+          CALL FMAC04(NGPRT,NGP,NPART,1,H1(1))
           CALL LCMPUT(IPMACR,'ENERGY',NGROUP+1,2,H1)
           DEALLOCATE(H1)
         CASE(6)
@@ -249,7 +249,7 @@
      1      //'IS VALUE.')
             H3(IK,I,:NGROUP)=H2(I,IG1:IG2)
           ENDDO
-          CALL FMAC02(IPMACR,NK*NUFIS,NGROUP,H3,'NUSIGF')
+          CALL FMAC02(IPMACR,NK*NUFIS,NGROUP,H3(1,1,1),'NUSIGF')
           DEALLOCATE(H3,H2)
         CASE(20)
 *         fission spectra by fission material
@@ -271,7 +271,7 @@
      1      //'IS VALUE.')
             H3(IK,I,:NGXI)=H2(I,IG1:IG2+NGXI-NGROUP)
           ENDDO
-          CALL FMAC02(IPMACR,NK*NUFIS,NGROUP,H3,'CHI')
+          CALL FMAC02(IPMACR,NK*NUFIS,NGROUP,H3(1,1,1),'CHI')
           DEALLOCATE(H3,H2)
         CASE(21)
 *         fission nuclide numbers
@@ -325,7 +325,7 @@
             DEALLOCATE(H2)
             CYCLE
           ENDIF
-          CALL FMAC04(NGPRT,NGP,NPART,NK,H2)
+          CALL FMAC04(NGPRT,NGP,NPART,NK,H2(1,1))
           CALL FMAC02(IPMACR,NK,IG2-IG1+1,H2(1,IG1),'ESTOPW')
           DEALLOCATE(H2)
         CASE(36)

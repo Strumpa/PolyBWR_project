@@ -95,11 +95,11 @@
             IF(ILEN.NE.ILENG) CALL XABORT('MTLDLF: INCONSISTENT INF'
      1      //'ORMATION ON LCM (1).')
             IF(NLF.EQ.0) THEN
-               CALL ALLDLF(LMU,ASM,MU)
+               CALL ALLDLF(LMU,ASM(1),MU)
             ELSE
                IOF=1
                DO 10 IL=0,NLF-2,2
-               CALL ALLDLF(LMU,ASM(IOF:),MU)
+               CALL ALLDLF(LMU,ASM(IOF),MU)
                IOF=IOF+MU(LMU)
    10          CONTINUE
             ENDIF
@@ -112,11 +112,11 @@
             CALL LCMGET(IPTRK,'LBL'//PREFIX(IS)(:1),LBL)
             ALLOCATE(T(ISEG))
             IF(NLF.EQ.0) THEN
-               CALL ALVDLF(ASM,MU,ISEG,LON,NBL,LBL,T)
+               CALL ALVDLF(ASM(1),MU,ISEG,LON,NBL,LBL,T)
             ELSE
                IOF=1
                DO 20 IL=0,NLF-2,2
-               CALL ALVDLF(ASM(IOF:),MU,ISEG,LON,NBL,LBL,T)
+               CALL ALVDLF(ASM(IOF),MU,ISEG,LON,NBL,LBL,T)
                IOF=IOF+MU(LMU)
    20          CONTINUE
             ENDIF

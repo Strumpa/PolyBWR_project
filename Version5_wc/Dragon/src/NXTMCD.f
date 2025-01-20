@@ -179,7 +179,7 @@
         IF(IPRINT .GE. 10) THEN
           WRITE(IOUT,6010) ICEL,NAMGG
         ENDIF
-        CALL XDISET(ISTATG,NSTATE,0)
+        ISTATG(:NSTATE)=0
         CALL LCMGET(IPGEO,'STATE-VECTOR',ISTATG)
         ITYPG=ISTATG(1)
         IF(ITYPG .EQ. 20) THEN
@@ -201,7 +201,7 @@
         IDIRC=IDIRR(ICEL)
         NBGCLS=ISTATG(13)
         ILEV=1
-        CALL XDISET(ITPIN,3*MAXPIN,0)
+        ITPIN(:3,:MAXPIN)=0
         ICPIN=0
         IGSYM=0
         DO IDSYM=1,4
@@ -212,7 +212,7 @@
 *----
 *  Get pin cluster geometry information
 *----
-          CALL XDDSET(DRAPIN,6*MAXPIN,DZERO)
+          DRAPIN(-1:4,:MAXPIN)=DZERO
           ILEV=2
           CALL LCMGET(IPGEO,'CLUSTER',NAGCLS(1,IOFNAC+1))
           DO ICLS=1,NBGCLS
@@ -222,7 +222,7 @@
             IF(IPRINT .GE. 10) THEN
               WRITE(IOUT,6011) ICLS,NAMCL
             ENDIF
-            CALL XDISET(ISTATC,NSTATE,0)
+            ISTATC(:NSTATE)=0
             CALL LCMGET(IPGEO,'STATE-VECTOR',ISTATC)
             ITYPC=ISTATC(1)
             IF(ITYPC .EQ. 20) THEN
@@ -254,19 +254,19 @@
             NMC(2)=ISTATC(4)
             NMC(3)=ISTATC(5)
             NMIXC=ISTATC(6)
-            CALL XDDSET(DAMESH,(MAXMSH+2)*4,DZERO)
-            CALL XDISET(ISPLT,MAXMSH*4,1)
-            CALL XDISET(MIX,MAXREG*2,0)
-            CALL XDISET(MIXC,MAXREG*2*2,0)
+            DAMESH(-1:MAXMSH,:4)=DZERO
+            ISPLT(:MAXMSH,:4)=1
+            MIX(:MAXREG,:2)=0
+            MIXC(:MAXREG,:2,:2)=0
             CALL NXTEGI(IPGEO ,IPRINT,ITYPC ,MAXMSH,NMIXC ,NMC   ,
      >                  MAXMSS,NMCS  ,NREGC ,NREGCS,NSURC ,NSURCS,
      >                  MIX   ,ISPLT ,DAMESH,RMESH ,MIXC  )
             ALLOCATE(IDSUR(NSURCS),IDREG(NREGCS))
-            CALL XDISET(IDREG,NREGCS,0)
-            CALL XDISET(IDSUR,NSURCS,0)
+            IDSUR(:NSURCS)=0
+            IDREG(:NREGCS)=0
             NEREN=NREGCS+NSURCS
-            ALLOCATE(DAMESR((MAXMSS+2),4,2))
-            CALL XDDSET(DAMESR,(MAXMSS+2)*4*2,DZERO)
+            ALLOCATE(DAMESR(MAXMSS+2,4,2))
+            DAMESR(:MAXMSS+2,:4,:2)=DZERO
             NMIXCS=NREGCS
             DROUT=DAMESH(NMC(4),4)
             IF(ABS(IPINT) .EQ. 3) THEN
@@ -315,7 +315,7 @@
 *----
               ITST=1
               CALL NXTRIS(IPRINT,ITYPC ,MAXMSH,NREGC ,ITRN  ,ITST  ,
-     >                    ITSYMC,NMC   ,MIX   ,ISPLT ,DAMESH,
+     >                    ITSYMC(1)    ,NMC   ,MIX   ,ISPLT ,DAMESH,
      >                    NMCS  ,MIXC  ,ISPLTR,
      >                    DAMESR)
             ELSE
@@ -324,7 +324,7 @@
 *----
               ITST=0
               CALL NXTRIS(IPRINT,ITYPC ,MAXMSH,NREGC ,ITRN  ,ITST  ,
-     >                    ITSYMC,NMC   ,MIX   ,ISPLT ,DAMESH,
+     >                    ITSYMC(1)    ,NMC   ,MIX   ,ISPLT ,DAMESH,
      >                    NMCS  ,MIXC  ,ISPLTR,DAMESR)
             ENDIF
 *----
@@ -349,15 +349,15 @@
 *----
             CALL NXTSGI(IPTRK ,IPRINT,MAXMSH,ITYPC ,IGCLS ,ILEV  ,
      >                  MAXMSS,NMIXC ,NMC   ,MIX   ,DAMESH,ISPLT ,
-     >                  NMIXCS,NMCS  ,DAMESR,ITSYMC,
+     >                  NMIXCS,NMCS  ,DAMESR,ITSYMC(1),
      >                  NREGCS,NSURCS,NREGCN,NSURCN,NEREN ,
      >                  IDREG ,IDSUR )
-            ALLOCATE(INDXSR(5,(NREGCS+NSURCS+1)))
-            CALL XDISET(INDXSR,5*(NREGCS+NSURCS+1),0)
+            ALLOCATE(INDXSR(5,NREGCS+NSURCS+1))
+            INDXSR(:5,:NREGCS+NSURCS+1)=0
             NBPIN=0
             MXGSUR=MAX(MXGSUR,NSURCS)
             MXGREG=MAX(MXGREG,NREGCS)
-            CALL XDISET(IEDIMP,NSTATE,0)
+            IEDIMP(:NSTATE)=0
             IEDIMP(1)=ITYPC
             IEDIMP(2)=NMCS(4)
             IEDIMP(3)=NMCS(1)
@@ -498,10 +498,10 @@
           WRITE(NAMREC,'(A1,I8.8,A3)') CLEV(ILEV),ICEL,'PNT'
           CALL LCMPUT(IPTRK,NAMREC,3*ICPIN,1,ITPIN)
         ENDIF
-        CALL XDDSET(DAMESH,(MAXMSH+2)*4,DZERO)
-        CALL XDISET(ISPLT,4*MAXMSH,1)
-        CALL XDISET(MIX,MAXREG*2,0)
-        CALL XDISET(MIXC,2*MAXREG*2,0)
+        DAMESH(-1:MAXMSH,:4)=DZERO
+        ISPLT(:MAXMSH,:4)=1
+        MIX(:MAXREG,:2)=0
+        MIXC(:MAXREG,:2,:2)=0
         IF(IPRINT .GE. 10) THEN
           WRITE(IOUT,6012)
         ENDIF
@@ -514,11 +514,11 @@
      >              RMESH ,MIXC  )
         NMIXS=NREGS
         ALLOCATE(IDREG(NREGS),IDSUR(NSURS))
-        CALL XDISET(IDREG,NREGS,0)
-        CALL XDISET(IDSUR,NSURS,0)
+        IDREG(:NREGS)=0
+        IDSUR(:NSURS)=0
         NEREN=NREGS+NSURS
-        ALLOCATE(DAMESR((MAXMSS+2),4,2))
-        CALL XDDSET(DAMESR,(MAXMSS+2)*4*2,DZERO)
+        ALLOCATE(DAMESR(MAXMSS+2,4,2))
+        DAMESR(:MAXMSS+2,:4,:2)=DZERO
         IF(ITYPG .EQ. 12 .OR. ITYPG .EQ. 13 .OR. 
      >     ITYPG .EQ. 26 .OR. ITYPG .EQ. 27) THEN
           IF(IGSYM .GT. 0) THEN
@@ -593,12 +593,12 @@
      >                NREGS ,NSURS ,NREGN ,NSURN ,NEREN ,
      >                IDREG ,IDSUR )
         ENDIF
-        ALLOCATE(INDXSR(5,(NREGS+NSURS+1)))
-        CALL XDISET(INDXSR,5*(NREGS+NSURS+1),0)
+        ALLOCATE(INDXSR(5,NREGS+NSURS+1))
+        INDXSR(:5,:NREGS+NSURS+1)=0
         NBPIN=ICPIN
         MXGSUR=MAX(MXGSUR,NSURS)
         MXGREG=MAX(MXGREG,NREGS)
-        CALL XDISET(IEDIMX,NSTATE,0)
+        IEDIMX(:NSTATE)=0
         IEDIMX(1)=ITYPG
         IEDIMX(2)=NMS(4)
         IEDIMX(3)=NMS(1)

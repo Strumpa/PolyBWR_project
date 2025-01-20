@@ -96,12 +96,12 @@
       DO I=2,NENTRY
         IF(JENTRY(I).NE.2) CALL XABORT('VAL: LCM OBJECT IN READ-ONLY '
      1 //'MODE EXPECTED AT RHS.')
-        CALL LCMGTC(KENTRY(I),'SIGNATURE',12,1,HSIGN)
+        CALL LCMGTC(KENTRY(I),'SIGNATURE',12,HSIGN)
         IF(HSIGN.EQ.'L_FLUX') THEN
            IPFLU=KENTRY(I)
         ELSEIF(HSIGN.EQ.'L_TRACK') THEN
            IPTRK=KENTRY(I)
-           CALL LCMGTC(IPTRK,'TRACK-TYPE',12,1,CMODUL)
+           CALL LCMGTC(IPTRK,'TRACK-TYPE',12,CMODUL)
         ELSEIF(HSIGN.EQ.'L_MACROLIB') THEN
            IPMAC=KENTRY(I)
         ELSE
@@ -111,7 +111,7 @@
         ENDIF
       ENDDO
       HSIGN='L_FVIEW'
-      CALL LCMPTC(KENTRY(1),'SIGNATURE',12,1,HSIGN)
+      CALL LCMPTC(KENTRY(1),'SIGNATURE',12,HSIGN)
       L2D=.TRUE.
       L3D=.TRUE.
 *
@@ -212,7 +212,7 @@
             WRITE(6,'(/44H VAL: *** WARNING *** NO H-FACTOR FOUND ON L,
      1      24HCM. USE NU*SIGF INSTEAD.)')
             ALLOCATE(ZUFIS(NMIX,NBFIS))
-            CALL XDRSET(SGD,NMIX,0.0)
+            SGD(:NMIX)=0.0
             CALL LCMGET(KPMAC,'NUSIGF',ZUFIS)
             DO IBM=1,NMIX
               DO IFISS=1,NBFIS
@@ -255,12 +255,12 @@
 *  Compute X and Y mesh from L_TRACK
 *----
       ALLOCATE(XXX(NXD),YYY(NYD))
-      CALL XDRSET(XXX,NXD,0.0)
-      CALL XDRSET(YYY,NYD,0.0)
+      XXX(:NXD)=0.0
+      YYY(:NYD)=0.0
       IREG=0
       IF(L3D) THEN
         ALLOCATE(ZZZ(NZD))
-        CALL XDRSET(ZZZ,NZD,0.0)
+        ZZZ(:NZD)=0.0
         DO K=1,NZD
           DO J=1,NYD
             DO I=1,NXD
@@ -477,7 +477,7 @@
       CALL LCMPUT(IPFVW,'MXI',NXI,2,MXI)
       IF(L2D) CALL LCMPUT(IPFVW,'MYI',NYI,2,MYI)
       IF(L3D) CALL LCMPUT(IPFVW,'MZI',NZI,2,MZI)
-      CALL XDISET(IFV,NSTATE,0)
+      IFV(:NSTATE)=0
       IFV(1)=NG
       IFV(2)=NXI
       IFV(3)=NYI

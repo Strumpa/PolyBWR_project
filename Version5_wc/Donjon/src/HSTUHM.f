@@ -91,7 +91,7 @@
       ALLOCATE(ISHUFF(NBUN))
 *
       NBFUEL=0
-      CALL XDRSET(PARAML,(MAXL+1)*2,0.0)
+      PARAML(0:MAXL,:2)=0.0
       DELTAT = 0.0
       TIME=0.0
 *----
@@ -154,9 +154,7 @@
 *----         
         IOK=-2
         CALL HSTGSL(IPHST ,MAXL  ,IOK   ,TIMPOW,PARAML)
-        IF(IOK .NE. 0) THEN 
-          CALL XDRSET(PARAML,MAXL+1,0.0)
-        ENDIF
+        IF(IOK .NE. 0) PARAML(0:MAXL,1)=0.0
 *-----
         IOK=2
         TIMPOW(1)=TIME

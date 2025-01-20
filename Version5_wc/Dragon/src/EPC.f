@@ -86,7 +86,7 @@
         SENTRY(IEN)='            '
         IF(IENTRY(IEN) .EQ. 1 .OR. IENTRY(IEN) .EQ. 2) THEN
           IF(JENTRY(IEN) .NE. 0) THEN
-            CALL LCMGTC(KENTRY(IEN),'SIGNATURE',12,1,HSIGN)
+            CALL LCMGTC(KENTRY(IEN),'SIGNATURE',12,HSIGN)
             SENTRY(IEN)=HSIGN
           ENDIF
         ENDIF
@@ -97,7 +97,7 @@
 *----
       CARRET=';'
       NOPT=MXOPT
-      CALL XDISET(IOPT,NOPT,0)
+      IOPT(:NOPT)=0
       IPRINT=1
  100  CONTINUE
       CALL REDGET(ITYPLU,INTLIR,REALIR,CARLIR,DBLLIR)
@@ -156,11 +156,11 @@
             SENTRY(IEN)='L_EPC       '
             ISTATE(1)=IOPT(1)
             HSIGN=SENTRY(IEN)
-            CALL LCMPTC(KENTRY(IEN),'SIGNATURE',12,1,HSIGN)
+            CALL LCMPTC(KENTRY(IEN),'SIGNATURE',12,HSIGN)
             CALL LCMPUT(KENTRY(IEN),'STATE-VECTOR',NSTATE,1,ISTATE)
             IF(ISTATE(1) .EQ. 0) THEN
               HSIGN='            '
-              CALL LCMPTC(KENTRY(IEN),'ParametreNom',12,1,HSIGN)
+              CALL LCMPTC(KENTRY(IEN),'ParametreNom',12,HSIGN)
               CALL LCMPUT(KENTRY(IEN),'ParametreNbr',1,1,0)
               CALL LCMPUT(KENTRY(IEN),'ParametreNxt',1,1,0)
               CALL LCMPUT(KENTRY(IEN),'ParametreRef',1,2,0.0)
@@ -207,7 +207,7 @@
         DO IEN=1,NENTRY
           IF(IENTRY(IEN) .EQ. 1 .OR. IENTRY(IEN) .EQ. 2) THEN
             IF(JENTRY(IEN) .EQ. 1) THEN
-              CALL LCMGTC(KENTRY(IEN),'SIGNATURE',12,1,HSIGN)
+              CALL LCMGTC(KENTRY(IEN),'SIGNATURE',12,HSIGN)
               IF(HSIGN .EQ. 'L_LIBRARY   ') THEN
                 IOPT(4)=IEN
                 GO TO 140

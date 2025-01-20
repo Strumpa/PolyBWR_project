@@ -63,7 +63,6 @@
       IF(IPRINT .GE. 1) THEN
         WRITE(IOUT,6000) NAMSBR
       ENDIF
-      CALL XDISET(ISOPRT,NBISO,0)
       IF(IOPT(2).LT. 0) THEN
         IOPT(2)=-IOPT(2)
         ISOR=0
@@ -88,7 +87,7 @@
 *  Set print flag
 *----
       MISPRT=ISOR
-      CALL XDISET(ISOPRT,NBISO,0)
+      ISOPRT(:NBISO)=0
       IF(MISPRT .EQ. 0) THEN
         KISPRT=0
         DO ISOT=1,NBISO

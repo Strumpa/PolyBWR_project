@@ -10,13 +10,21 @@ ifneq (,$(filter $(OS),SunOS AIX))
   MAKE = gmake
 endif
 ifeq ($(intel),1)
-  fcompiler = intel
+  fcompilerSuite = intel
 else
-  fcompiler = custom
+  ifeq ($(nvidia),1)
+    fcompilerSuite = nvidia
+  else
+    ifeq ($(llvm),1)
+      fcompilerSuite = llvm
+    else
+      fcompilerSuite = custom
+    endif
+  endif
 endif
 all :
 	$(MAKE) -C src
 clean :
 	$(MAKE) clean -C src
 tests :
-	./rskin -c $(fcompiler) -q
+	./rskin -c $(fcompilerSuite) -q

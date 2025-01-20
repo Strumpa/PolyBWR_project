@@ -10,15 +10,15 @@ ifneq (,$(filter $(OS),SunOS AIX))
   MAKE = gmake
 endif
 ifeq ($(intel),1)
-  fcompiler = intel
+  fcompilerSuite = intel
 else
   ifeq ($(nvidia),1)
-    fcompiler = nvidia
+    fcompilerSuite = nvidia
   else
-    ifeq ($(flang),1)
-      fcompiler = flang
+    ifeq ($(llvm),1)
+      fcompilerSuite = llvm
     else
-      fcompiler = custom
+      fcompilerSuite = custom
     endif
   endif
 endif
@@ -27,9 +27,9 @@ all :
 clean :
 	$(MAKE) clean -C src
 tests :
-	./rganlib -c $(fcompiler) -q testgan1.x2m
-	./rganlib -c $(fcompiler) -q testgan2.x2m
-	./rganlib -c $(fcompiler) -q testgan3.x2m
+	./rganlib -c $(fcompilerSuite) -q testgan1.x2m
+	./rganlib -c $(fcompilerSuite) -q testgan2.x2m
+	./rganlib -c $(fcompilerSuite) -q testgan3.x2m
 ifeq ($(hdf5),1)
-	./rganlib -c $(fcompiler) -q testgan4.x2m
+	./rganlib -c $(fcompilerSuite) -q testgan4.x2m
 endif

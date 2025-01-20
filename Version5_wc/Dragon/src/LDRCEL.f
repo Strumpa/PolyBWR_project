@@ -122,7 +122,7 @@
 *
 *           ANALYSE GEOMETRIES
             CALL LCMSIX(IPGEOM, GEOC1, 1)
-            CALL XDRSET(ISTAT1,NSTATE,0)
+            ISTAT1(:NSTATE)=0
             CALL LCMGET(IPGEOM, 'STATE-VECTOR', ISTAT1)
             IST1= ISTAT1(1)
             IF( IST1.EQ.0 ) THEN
@@ -162,7 +162,7 @@
 *
 *           SCAN THE SECOND GEOMETRY
             CALL LCMSIX(IPGEOM, GEOC2, 1)
-            CALL XDRSET(ISTAT2,NSTATE,0)
+            ISTAT2(:NSTATE)=0
             CALL LCMGET(IPGEOM, 'STATE-VECTOR', ISTAT2)
             IST2= ISTAT2(1)
             IF( IST2.EQ.0 ) THEN
@@ -204,7 +204,7 @@
 *           GEOMETRIES ARE SIMILAR, CHECK FOR XY-ROTATIONAL INVARIANCE
             IF( JT1.NE.JT2 )THEN
                CALL LCMSIX(IPGEOM, GEOC1, 1)
-               CALL XDRSET(ISTAT1,NSTATE,0)
+               ISTAT1(:NSTATE)=0
                CALL LCMGET(IPGEOM, 'STATE-VECTOR', ISTAT1)
                IST1= ISTAT1(1)
                IF( IST1.EQ.0 ) THEN
@@ -273,7 +273,7 @@
 *     GEOMETRY ARE OF THE SAME TYPE, CHECK FOR XY-ROTATIONAL INVARIANCE
          IF( JT1.NE.JT2 )THEN
             CALL LCMSIX(IPGEOM, GEOC1, 1)
-            CALL XDRSET(ISTAT1,NSTATE,0)
+            ISTAT1(:NSTATE)=0
             CALL LCMGET(IPGEOM, 'STATE-VECTOR', ISTAT1)
             IST1= ISTAT1(1)
             IF( IST1.EQ.0 ) THEN

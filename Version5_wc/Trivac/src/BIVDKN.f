@@ -85,7 +85,7 @@
       ENDIF
    10 CONTINUE
       IF(IMPX.GT.0) WRITE(6,700) LX,LY
-      CALL XDISET(KN,5*LX*LY,0)
+      KN(:5*LX*LY)=0
       SURFTOT=0.0
       NUM1=0
       NUM2=0
@@ -106,9 +106,9 @@
       KN(NUM1+3)=IND1+LX+2*K2+1
       KN(NUM1+4)=IND1+K2
       KN(NUM1+5)=IND1+3*LX+K2+1
-      CALL XDRSET(QFR(NUM2+1),4,0.0)
-      CALL XDISET(IQFR(NUM2+1),4,0)
-      CALL XDRSET(BFR(NUM2+1),4,0.0)
+      QFR(NUM2+1:NUM2+4)=0.0
+      IQFR(NUM2+1:NUM2+4)=0
+      BFR(NUM2+1:NUM2+4)=0.0
       FRX=1.0
       FRY=1.0
 *----

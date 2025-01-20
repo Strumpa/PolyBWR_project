@@ -11,6 +11,7 @@
 *.png
 *.out
 *.pyc
+libraries/
 
 */__pycache__/
 PTT/DMLG_proj/__pycache__/
@@ -58,6 +59,6 @@ Version5_wc/Donjon/data/BWR_DONJON_proc/_AT10Compo
 Version5_wc/PyGan/data/BWR_DONJON_proc/_AT10COMPO_1
 Version5_wc/PyGan/data/Gd157_rates_XS_proc/_COMPO*
 Version5_wc/PyGan/data/Gd157_rates_XS_proc/old_lib_cpos/
-Version5_wc/PyGan/data/Gd157_rates_XS_proc/*COMPO*
+Version5_wc/PyGan/data/*_proc/*COMPO*
 
 libraries/l_endian/*

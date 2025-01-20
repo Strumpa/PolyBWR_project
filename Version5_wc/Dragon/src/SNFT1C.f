@@ -81,7 +81,7 @@
 *----
 *  OUTER LOOP OVER AXIAL LEVELS.
 *----
-      CALL XDRSET(FLUX,NSCT*NREG,0.0)
+      FLUX(:NSCT,:NREG)=0.0
       CURSUM=0.0D0
       IPQ=0
       DO 200 IP=1,M2

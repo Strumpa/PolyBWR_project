@@ -62,7 +62,7 @@
 *   IDETMP  extracted isotopes number associated with EDIT isotope.
 *----
       ALLOCATE(IDETMP(NBMICR))
-      CALL XDISET(IDETMP,NBMICR,0)
+      IDETMP(:NBMICR)=0
 *----
 *  STORE IN ITEXT4 BLANCK STRING
 *----

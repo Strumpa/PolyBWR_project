@@ -189,7 +189,7 @@
                       CALL XABORT('EDILUM: MAXFP OVERFLOW.')
                     ENDIF
                     IFP=NBDPF
-                    CALL XDRSET(YIELD(1,IFP),NBFISS,0.0)
+                    YIELD(:NBFISS,IFP)=0.0
                   ENDIF
                   DO IFI=1,NBFISS
                     YIELD(IFI,IFP)=YIELD(IFI,IFP)+YIELD(IFI,JFP)*PRGAR
@@ -400,7 +400,7 @@
       CALL LCMPUT(IPEDIT,'ISOTOPESDEPL',3*NBCH,3,HHHH)
       CALL LCMPUT(IPEDIT,'CHARGEWEIGHT',NBCH,1,IPOS(1,1))
       CALL LCMPUT(IPEDIT,'DEPLETE-DECA',NBCH,2,DDDD)
-      CALL XDISET(ISTATE,NSTATE,0)
+      ISTATE(:NSTATE)=0
       ISTATE(1)=NBCH
       ISTATE(2)=IBFI
       ISTATE(3)=IBFP

@@ -68,9 +68,9 @@
 *----
 *  INITIALIZE IMERGE
 *----
-      CALL XDISET(IUPD,4,0)
-      CALL XDISET(MIXN,NVOUTO,0)
-      CALL XDRSET(ALBEDN,6,0.0)
+      IUPD(:4)=0
+      MIXN(:NVOUTO)=0
+      ALBEDN(:6)=0.0
       DO IVSO=-NSOUTO,NVOUTO
         IMERGE(IVSO)=IVSO
       ENDDO

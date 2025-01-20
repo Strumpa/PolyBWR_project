@@ -145,7 +145,7 @@
          CALL LCMGPD(IPSYS,'I'//NAMT,ASS_PTR)
          CALL C_F_POINTER(MU_PTR,MU,(/ LL4 /))
          CALL C_F_POINTER(ASS_PTR,ASS,(/ MU(LL4) /))
-         CALL ALLDLS(LL4,MU,ASS,F1)
+         CALL ALLDLS(LL4,MU,ASS,F1(1))
       ELSE IF(ISEG.EQ.0) THEN
 *        SCALAR SOLUTION FOR A W- OR X-ORIENTED LINEAR SYSTEM.
          TEXT12=' '
@@ -174,7 +174,7 @@
    10    CONTINUE
          CALL LCMGPD(IPSYS,TEXT12,ASS_PTR)
          CALL C_F_POINTER(ASS_PTR,ASS,(/ MU(LL4) /))
-         CALL ALLDLS(LL4,MU,ASS,GAR)
+         CALL ALLDLS(LL4,MU,ASS,GAR(1))
          DO 20 I=1,LL4
          F1(I)=GAR(IP(I))
    20    CONTINUE
@@ -192,7 +192,7 @@
    30       CONTINUE
             CALL LCMGPD(IPSYS,'XI'//NAMT,ASS_PTR)
             CALL C_F_POINTER(ASS_PTR,ASS,(/ MU(LL4) /))
-            CALL ALLDLS(LL4,MU,ASS,GAR)
+            CALL ALLDLS(LL4,MU,ASS,GAR(1))
             DO 50 I=1,LL4
             F1(I)=GAR(IP(I))
    50       CONTINUE
@@ -211,7 +211,7 @@
    60       CONTINUE
             CALL LCMGPD(IPSYS,'YI'//NAMT,ASS_PTR)
             CALL C_F_POINTER(ASS_PTR,ASS,(/ MU(LL4) /))
-            CALL ALLDLS(LL4,MU,ASS,GAR)
+            CALL ALLDLS(LL4,MU,ASS,GAR(1))
             DO 80 I=1,LL4
             F1(I)=GAR(IP(I))
    80       CONTINUE
@@ -230,7 +230,7 @@
    90       CONTINUE
             CALL LCMGPD(IPSYS,'ZI'//NAMT,ASS_PTR)
             CALL C_F_POINTER(ASS_PTR,ASS,(/ MU(LL4) /))
-            CALL ALLDLS(LL4,MU,ASS,GAR)
+            CALL ALLDLS(LL4,MU,ASS,GAR(1))
             DO 110 I=1,LL4
             F1(I)=GAR(IP(I))
   110       CONTINUE
@@ -284,7 +284,7 @@
          DO 120 I=1,LL4
          IPB(I)=IPV(IP(I))
   120    CONTINUE
-         CALL XDRSET(GAR,LL4V,0.0)
+         GAR(:LL4V)=0.0
          DO 130 I=1,LL4
          GAR(IPB(I))=F1(I)
   130    CONTINUE
@@ -316,7 +316,7 @@
             DO 150 I=1,LL4
             IPB(I)=IPV(IP(I))
   150       CONTINUE
-            CALL XDRSET(GAR,LL4V,0.0)
+            GAR(:LL4V)=0.0
             DO 160 I=1,LL4
             GAR(IPB(I))=F1(I)
   160       CONTINUE
@@ -355,7 +355,7 @@ CDIR$ IVDEP
             DO 200 I=1,LL4
             IPB(I)=IPV(IP(I))
   200       CONTINUE
-            CALL XDRSET(GAR,LL4V,0.0)
+            GAR(:LL4V)=0.0
             DO 210 I=1,LL4
             GAR(IPB(I))=F1(I)
   210       CONTINUE
@@ -394,7 +394,7 @@ CDIR$ IVDEP
             DO 250 I=1,LL4
             IPB(I)=IPV(IP(I))
   250       CONTINUE
-            CALL XDRSET(GAR,LL4V,0.0)
+            GAR(:LL4V)=0.0
             DO 260 I=1,LL4
             GAR(IPB(I))=F1(I)
   260       CONTINUE

@@ -119,7 +119,7 @@
 *----
       CALL LCMSIX(IPRES,' ',0)
       CALL LCMGET(IPRES,'BMIX',MIX)
-      CALL XDISET(ICHMAP,NH,0)
+      ICHMAP(:NH)=0
       ICH=0
       DO 25 IH=1,NH
       DO 23 IZ=1,NZ

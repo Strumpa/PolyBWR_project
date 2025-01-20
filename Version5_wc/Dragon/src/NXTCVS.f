@@ -103,8 +103,8 @@
       ENDIF
       NUNK=NFSUR+NFREG+1
       MXRUNK=MXGSUR+MXGREG+1
-      CALL XDDSET(SURVOL,NUNK,DZERO)
-      CALL XDISET(MATALB,NUNK*2,0)
+      SURVOL(-NFSUR:NFREG)=DZERO
+      MATALB(-NFSUR:NFREG,:2)=0
 *----
 *  Here there are no merge
 *----
@@ -112,7 +112,7 @@
         ILEV=1
         IGEO=ICEL
         WRITE(NAMREC,'(A1,I8.8,A3)') CLEV(ILEV),IGEO,'DIM'
-        CALL XDISET(IEDIMX,NSTATE,0)
+        IEDIMX(:NSTATE)=0
         CALL LCMGET(IPTRK,NAMREC,IEDIMX)
         NREG=IEDIMX(8)
         NSUR=IEDIMX(9)
@@ -153,7 +153,7 @@
           DO ICLS=1,NBGCLS
             IGEO=IGCLS+ICLS
             WRITE(NAMREC,'(A1,I8.8,A3)') CLEV(ILEV),IGEO,'DIM'
-            CALL XDISET(IEDIMP,NSTATE,0)
+            IEDIMP(:NSTATE)=0
             CALL LCMGET(IPTRK,NAMREC,IEDIMP)
             NREG=IEDIMP(8)
             NSUR=IEDIMP(9)
@@ -203,7 +203,7 @@
           MAXMIX=MAX(MAXMIX,MATALB(ISV,1))
         ENDDO
         ALLOCATE(IDMER(0:MAXMIX))
-        CALL XDISET(IDMER,MAXMIX+1,0)
+        IDMER(0:MAXMIX)=0
         KMIX=0
         DO IMIX=0,MAXMIX
           DO ISV=1,NFREG

@@ -198,7 +198,7 @@
             IF(MOD(KMX-1,30).EQ.0 .AND. ILEG .EQ. 1) THEN
               POSB=POSB-DELY
             ENDIF
-            CALL PSPCOL(ICOLA,MXMIX,IMX,COLTMP)
+            CALL PSPCOL(ICOLA,MXMIX,IMX,COLTMP(1))
             IF (ILEG.EQ.1) THEN
               POSL=MOD(KMX-1,30)*DELX
               XYPTS(1,1)=POSL
@@ -211,7 +211,7 @@
               XYPTS(2,4)=POSB+DELY
               CALL PSDREG(ISPSP,4,XYPTS)
               IF(ICOLA .GT. 0) THEN
-                 CALL PSFILL(ISPSP,ICOLA,COLTMP,KFS,KFR)
+                 CALL PSFILL(ISPSP,ICOLA,COLTMP(1),KFS,KFR)
               ENDIF
               CALL PSSTRK(ISPSP,WLINE,KSS,KSR)
               WRITE(COLNAM,'(I4)') IMX
@@ -270,7 +270,7 @@
 *----
           POSB=POSB-DELY
           DO 160 ICOLF=1,MXCOL
-            CALL PSPCOL(ICOLA,MXCOL,ICOLF,COLFLX)
+            CALL PSPCOL(ICOLA,MXCOL,ICOLF,COLFLX(1))
             POSL=MOD(ICOLF-1,30)*DELX
             XYPTS(1,1)=POSL
             XYPTS(2,1)=POSB
@@ -282,7 +282,7 @@
             XYPTS(2,4)=POSB+DELY
             CALL PSDREG(ISPSP,4,XYPTS)
             IF(ICOLA .GT. 0) THEN
-              CALL PSFILL(ISPSP,ICOLA,COLFLX,KFS,KFR)
+              CALL PSFILL(ISPSP,ICOLA,COLFLX(1),KFS,KFR)
             ENDIF
             CALL PSSTRK(ISPSP,WLINE,KSS,KSR)
             WRITE(COLNAM,'(I4)') ICOLF

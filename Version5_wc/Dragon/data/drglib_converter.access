@@ -8,12 +8,12 @@ if [ $# = 0 ]
    exit 1
 fi
 echo access draglib_converter.access
-pos=$1/../../../../Njoy2012_outputs/newJ311SHEM295_finer_09122024
-if [ -f "$pos"/draglibJ311SHEM295_finer_py.gz ]
+pos=$1/../../../../Njoy2012_outputs
+if [ -f "$pos"/draglibshem295_endfb8r1.gz ]
    then
     echo 'gunzipping library'
-    gunzip "$pos"/draglibJ311SHEM295_finer_py.gz
+    gunzip "$pos"/draglibshem295_endfb8r1.gz
 fi
-ln -s "$pos"/draglibJ311SHEM295_finer_py EXPORT
+ln -s "$pos"/draglibshem295_endfb8r1 EXPORT
 ls -l
 echo "Conversion data set draglib_converter.x2m accessed"

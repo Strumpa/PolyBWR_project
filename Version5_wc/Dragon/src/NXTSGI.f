@@ -110,7 +110,7 @@
 *  and initialize various parameters.
 *----
       ALLOCATE(IREN(NEREN),MIXS(NMIXS,2))
-      CALL XDISET(MIXS,NMIXS*2,0)
+      MIXS(:NMIXS,:2)=0
       IPLOC=IPRINT
       IF(IPLOC .GE. 100) THEN
         WRITE(IOUT,6000) NAMSBR
@@ -237,8 +237,8 @@
         NRY=NR
         NRYS=NRS
       ENDIF
-      CALL XDISET(IDREG,NREGS,0)
-      CALL XDISET(IDSUR,NSURS,0)
+      IDREG(:NREGS)=0
+      IDSUR(:NSURS)=0
 *----
 *  Regions
 *  Mixture and global numbering

@@ -1,0 +1,21 @@
+#!/bin/sh
+#
+if [ $# = 0 ]
+   then
+   echo '$$$ -----gduo2_295_kec1_rates.save : script begin' 1>&2
+   exit 1
+fi
+echo '$$$ -----gduo2_295_kec1_rates.save : script begin'
+MACH=`uname -s`
+Sysx="`echo $MACH | cut -b -6`"
+if [ $Sysx = "CYGWIN" ]; then
+   MACH=`uname -o`
+elif [ $Sysx = "AIX" ]; then
+   MACH=`uname -s`
+else
+   MACH=`uname -sm | sed 's/[ ]/_/'`
+fi
+
+cp -r gduo2_295_kec1_rates_results $1/"$MACH"/
+
+echo '$$$ -----gduo2_295_kec1_rates.save : script finish'

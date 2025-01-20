@@ -60,8 +60,8 @@
       CENTRE(I,J)= REMESH( MAXDIM(I-1) + J )
       NUM(J)= J + 1 - NSUR
       NUMP2= 0
-      CALL XDISET(IFACUT,2,0)
-      CALL XDISET(ISFCUT,2,0)
+      IFACUT(:2)=0
+      ISFCUT(:2)=0
 *
       IF( NDIM.EQ.2 )THEN
          NP2= 3

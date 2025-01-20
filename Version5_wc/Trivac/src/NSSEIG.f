@@ -195,19 +195,22 @@
                 F1(:LL4F)=S2(:LL4F)
               ELSE
 *               scalar multiplication for a x-oriented matrix.
-                CALL ALLUM(LL4F,A11X(1,IG),WORK(1,IG,3),F1,MUX,IMAX,1)
+                CALL ALLUM(LL4F,A11X(1,IG),WORK(1,IG,3),F1(1),MUX,
+     1          IMAX,1)
                 IF(NDIM.GE.2) THEN
 *                  scalar multiplication for a y-oriented matrix.
                    GARM1(IPY(:LL4F))=WORK(:LL4F,IG,3)
                    GARM2(IPY(:LL4F))=F1(:LL4F)
-                   CALL ALLUM(LL4F,A11Y(1,IG),GARM1,GARM2,MUY,IMAY,2)
+                   CALL ALLUM(LL4F,A11Y(1,IG),GARM1(1),GARM2(1),MUY,
+     1             IMAY,2)
                    F1(:LL4F)=GARM2(IPY(:LL4F))
                 ENDIF
                 IF(NDIM.EQ.3) THEN
 *                  scalar multiplication for a z-oriented matrix.
                    GARM1(IPZ(:LL4F))=WORK(:LL4F,IG,3)
                    GARM2(IPZ(:LL4F))=F1(:LL4F)
-                   CALL ALLUM(LL4F,A11Z(1,IG),GARM1,GARM2,MUZ,IMAZ,2)
+                   CALL ALLUM(LL4F,A11Z(1,IG),GARM1(1),GARM2(1),MUZ,
+     1             IMAZ,2)
                    F1(:LL4F)=GARM2(IPZ(:LL4F))
                 ENDIF
                 F1(:LL4F)=S2(:LL4F)-F1(:LL4F)
@@ -517,14 +520,14 @@
 *           scalar multiplication for a y-oriented matrix.
             GAR1(IPY(:LL4F))=EVECT(:LL4F,IG)
             GAR2(IPY(:LL4F))=S2(:LL4F,IG)
-            CALL ALLUM(LL4F,A11Y(1,IG),GAR1,GAR2,MUY,IMAY,2)
+            CALL ALLUM(LL4F,A11Y(1,IG),GAR1(1),GAR2(1),MUY,IMAY,2)
             S2(:LL4F,IG)=GAR2(IPY(:LL4F))
           ENDIF
           IF(NDIM.EQ.3) THEN
 *           scalar multiplication for a z-oriented matrix.
             GAR1(IPZ(:LL4F))=EVECT(:LL4F,IG)
             GAR2(IPZ(:LL4F))=S2(:LL4F,IG)
-            CALL ALLUM(LL4F,A11Z(1,IG),GAR1,GAR2,MUZ,IMAZ,2)
+            CALL ALLUM(LL4F,A11Z(1,IG),GAR1(1),GAR2(1),MUZ,IMAZ,2)
             S2(:LL4F,IG)=GAR2(IPZ(:LL4F))
           ENDIF
           DO JG=1,NG

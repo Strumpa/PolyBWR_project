@@ -95,9 +95,9 @@
 *----
 *  Get state vectors
 *----
-      CALL XDISET(ISTATG,NSTATE,0)
+      ISTATG(:NSTATE)=0
       CALL LCMGET(IPGEO,'STATE-VECTOR',ISTATG)
-      CALL XDISET(ISTATT,NSTATE,0)
+      ISTATT(:NSTATE)=0
       CALL LCMGET(IPTRK,'STATE-VECTOR',ISTATT)
 *----
 *  Get geometry state vector and test if geometry
@@ -204,7 +204,7 @@
         IF(NOCELL(1) .NE. NOCELL(2)) CALL XABORT(NAMSBR//
      >  ': DIAG requires symmetric X-Y mesh.')
       ENDIF
-      CALL XDISET(IEDIMG,NSTATE,0)
+      IEDIMG(:NSTATE)=0
       IEDIMG(1)=NDIM
       IEDIMG(2)=ITYPBC
       IEDIMG(3)=IDIRG

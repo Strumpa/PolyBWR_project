@@ -45,9 +45,7 @@
 *----
       DOUBLE PRECISION DAUX
 *
-      DO 10 I=1,LLL
-      STIS(I)=0.0
-   10 CONTINUE
+      STIS(:LLL)=0.0
       MML=1
       MM=0
       LDELH=INT(UUU(LLL)/DELI+0.1)
@@ -70,13 +68,13 @@
       DAUX=0.0D0
       LARG=MIN(LARGRM,LARGRL)
       IF(LARG.LE.4) THEN
-         DO 25 MDEL=MDELB,MDELH
+         DO 20 MDEL=MDELB,MDELH
          IBAS=MAX(LDELB-MDEL+III,III)
          IHAUT=MIN(LDELH-MDEL+III,IHM)
-         DO 20 I=IBAS,IHAUT
+         DO 10 I=IBAS,IHAUT
          DAUX=DAUX+PRI(I)
+   10    CONTINUE
    20    CONTINUE
-   25    CONTINUE
          GO TO 60
       ENDIF
       IHAUT=MIN(LDELH-MDELB+III,IHM)

@@ -27,5 +27,5 @@ else
   echo 'use big endian libraries'
   pos=$1/../../../libraries/b_endian
 fi
-mv DRGLIB "$pos"/new_draglibJ311SHEM295_finer_09122024_XSM
+mv DRGLIB "$pos"/draglibshem295_endfb8r1
 ls -l

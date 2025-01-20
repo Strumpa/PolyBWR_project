@@ -123,7 +123,7 @@
             CALL LCMGET(KPSYS,'DRAGON-PAV',PIJ3(0,0))
             CALL USSSEK(NBNRS,NQT2,LMOD,SIGR,CONR(1,JRES),WEIGH(1,JRES),
      1      TOTPT(1,JRES),PIJ3(0,0),DIL(0,0,I1))
-            CALL XDRSET(PIJ3(0,0),(NBNRS+1)**2,0.0)
+            PIJ3(0:NBNRS,0:NBNRS)=0.0
             DO 95 I2=1,NQT2
             WWW=WCOR((I2-1)*NQT1+I1)/WEIGH(I1,IRES)
             DO 60 I=0,NBNRS
@@ -185,7 +185,7 @@
             CALL USSSEK(NBNRS,NQT2,LMOD,SIGR,CONR(1,JRES),WEIGH(1,JRES),
      1      TOTPT(1,JRES),PIJ4(0,0,I1),DILW(0,0))
 *
-            CALL XDRSET(PIJ3,(NBNRS+1)**2,0.0)
+            PIJ3(0:NBNRS,0:NBNRS)=0.0
             DO 172 I2=1,NQT2
             WWW=WCOR((I2-1)*NQT1+I1)/WEIGH(I1,IRES)
             DO 155 I=0,NBNRS

@@ -152,14 +152,14 @@
 *  Either old data structure or new data structure that now contains
 *  a copy of the old data structure
 *----
-      CALL LCMGTC(IPTRKN,'SIGNATURE   ',12,1,HSIGN)
+      CALL LCMGTC(IPTRKN,'SIGNATURE   ',12,HSIGN)
       IF(HSIGN .NE. 'L_TRACK') CALL XABORT(NAMSBR//
      >  ': SIGNATURE OF '//HENTRY(3)//' IS '//HSIGN//
      >  '. L_TRACK EXPECTED.')
-      CALL LCMGTC(IPTRKN,'TRACK-TYPE  ',12,1,HSIGN)
+      CALL LCMGTC(IPTRKN,'TRACK-TYPE  ',12,HSIGN)
       IF(HSIGN .NE. 'EXCELL') CALL XABORT(NAMSBR//
      >  ': ILLEGAL TRACKING FORMAT')
-      CALL XDISET(ISTATE,NSTATE,0)
+      ISTATE(:NSTATE)=0
       CALL LCMGET(IPTRKN,'STATE-VECTOR',ISTATE)
       NREGO=ISTATE(1)
       NUNO=ISTATE(2)
@@ -219,7 +219,7 @@
           CALL LCMGET(IPTRKN,'BC-REFL+TRAN',MATRTO)
         ELSE
           INDBC=0
-          CALL XDISET(MATRTO,NSOUTO,0)
+          MATRTO(:NSOUTO)=0
         ENDIF
         NETNUN=NSOUTN+NVOUTN+1
         IF(ITROP .EQ. 4) THEN
@@ -227,7 +227,7 @@
 *  Process NXT: Records
 *----
           CALL LCMSIX(IPTRKN,'NXTRecords  ',1)
-          CALL XDISET(ISTATG,NSTATE,0)
+          ISTATG(:NSTATE)=0
           CALL LCMGET(IPTRKN,'G00000001DIM',ISTATG)
           NETSUR=ISTATG(22)
           NETVOL=ISTATG(23)
@@ -252,7 +252,7 @@
 *  Process EXCELT: Records
 *----
           CALL LCMSIX(IPTRKN,'EXCELL      ',1)
-          CALL XDISET(ISTATG,NSTATE,0)
+          ISTATG(:NSTATE)=0
           CALL LCMGET(IPTRKN,'STATE-VECTOR',ISTATG)
           NETSUR=ISTATG(2)
           NETVOL=ISTATG(3)

@@ -124,7 +124,7 @@
       IF(ILONG.GT.0) THEN
          CALL LCMGET(IPSAP,'NISOMN',NISOMN)
       ELSE
-         CALL XDISET(NISOMN,NMIL,0)
+         NISOMN(:NMIL)=0
       ENDIF
       CALL LCMSIX(IPSAP,' ',2)
 *----
@@ -226,7 +226,7 @@
       IOI=0
       IIS=0
       NISMAX=NMAC
-      CALL XDISET(ISOMIL(1,IMIL),NISO+NMAC,0)
+      ISOMIL(:NISO+NMAC,IMIL)=0
       IADR(1)=1
 *----
 *  PROCESS MACROS.
@@ -258,8 +258,8 @@
       ELSE
          B2=0.0
       ENDIF
-      CALL XDRSET(DATA2,NG*NL,0.0)
-      CALL XDRSET(DATA3,NG*NG*NL,0.0)
+      DATA2(:NG,:NL)=0.0
+      DATA3(:NG,:NG,:NL)=0.0
 *
       DO 90 IGR=1,NG
       KPEDIT=LCMGIL(JPEDIT,IGR)
@@ -287,7 +287,7 @@
          DCHI(IGR,IPRC)=WORK1(IMIL)
    40    CONTINUE
       ELSE
-         CALL XDRSET(DNUSIG,NG*(NPRC+1),0.0)
+         DNUSIG(:NG,:NPRC+1)=0.0
       ENDIF
 *
       DO 80 IREA=1,NREA
@@ -439,8 +439,8 @@
       ADRX(IREA,IISO,NADRX+1)=0
   100 CONTINUE
   105 CONTINUE
-      CALL XDRSET(CONCES,NISOTS,0.0)
-      CALL XDRSET(DECAYC,NISOTS,0.0)
+      CONCES(:NISOTS)=0.0
+      DECAYC(:NISOTS)=0.0
       DO 250 IBISO=1,NBISO
       IF(MIX(IBISO).EQ.IMIL) THEN
          WRITE(TEXT12,'(3A4)') (ISONAM(I0,IBISO),I0=1,3)
@@ -473,7 +473,7 @@
          IIS=IIS+1
          ISOMIL(IIS,IMIL)=IISO
          DO 240 IREA=1,NREA
-         CALL XDRSET(WORK2,NG,0.0)
+         WORK2(:NG)=0.0
          IF(NOMREA(IREA).EQ.'TOTALE') THEN
             CALL LCMGET(KPTEMP,'NTOT0',WORK2)
          ELSE IF(NOMREA(IREA).EQ.'TOTALE P1') THEN
@@ -575,7 +575,7 @@
             IF(ILONG.GT.0) THEN
                CALL LCMGET(KPTEMP,'SIGS'//CM,WORK2)
             ELSE
-               CALL XDRSET(WORK2,NG,0.0)
+               WORK2(:NG)=0.0
             ENDIF
             CALL LCMLEN(KPTEMP,'N2N',ILONG,ITYLCM)
             IF((IL.EQ.1).AND.(ILONG.GT.0)) THEN

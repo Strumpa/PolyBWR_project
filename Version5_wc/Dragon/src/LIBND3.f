@@ -80,7 +80,7 @@
       ENDDO
       ALLOCATE(WK(3*NBDIL))
       DO IG=NGF+1,NGFR
-        CALL XDRSET(TERPD,NBDIL,0.0)
+        TERPD(:NBDIL)=0.0
         LINF(IG)=SN(IG).EQ.DILUS(NBDIL)
         DO I=1,NBDIL
           IF(ABS(SN(IG)-DILUS(I)).LE.1.0E-5*ABS(SN(IG))) THEN

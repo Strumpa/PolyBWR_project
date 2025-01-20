@@ -713,7 +713,6 @@ def post_treat_HOM_UOX_Gd157_TONE_SHI_IRSET():
     a=os.path.exists(save_path)
     if a==False:
         os.makedirs(save_path)
-
     a=os.path.exists(save_path_comparison)
     if a==False:
         os.makedirs(save_path_comparison)
@@ -1331,20 +1330,180 @@ def compare_HOM_UOX_Gd157_TONE_SHI_IRSET_with_newGen():
 
     return
 
+def post_Treat_HOM_UOX_Gd157_RSECORR():
+    grmin_zoom = 70
+    grmax_zoom = 206
+    # Path to Serpent2 results
+    path_to_S2_results = "/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/HOM_CELL_study/HOM_UOX_Gd157/XS_rates_study"
+    # Import COMPO object
+    path = os.getcwd()
+    name_compo='COMPO_HOM_UOX_Gd157_RSECORR'
+    os.chdir("Gd157_rates_XS_proc")
+    pyCOMPO=lcm.new('LCM_INP',name_compo,impx=0)
+    os.chdir(path)
+    # Creation of results directory
+    path=os.getcwd()
+    save_path = f"Gd157_Rates_and_XS_results_PyGan/RSE_CORR_study"
+    save_path_comparison = f"{save_path}/comparison_D5_S2"
+    a=os.path.exists(save_path)
+    if a==False:
+        os.makedirs(save_path)
+    a=os.path.exists(save_path_comparison)
+    if a==False:
+        os.makedirs(save_path_comparison)
+    case_name = "HOM_UOX_Gd157"
+    meshes = ["SHEM295"]
+    COMPO_keys = ["J311", "ENDFb8r1"]
+    ssh_keys = ["RSE", "RSE_CORR", "AUTO"]
+
+    # Parse COMPO : 
+    # extract absorption rates for Gd157, Gd155 and U238 for RSE, RSE_CORR and AUTO
+
+    mesh_objects = {}
+    Gd157_ngamma = {}
+    U238_ngamma =  {}
+    fluxes = {}
+
+    energyMESH = pyCOMPO["J311"]['MIXTURES'][0]['CALCULATIONS'][0]["ENERGY"]
+    MESH_obj = ENEMESH("SHEM295",energyMESH,1.0E+07,"eV")
+    mesh_objects["SHEM295"] = MESH_obj
+    print(f"The SHEM295 mesh has {len(energyMESH)} energy bounds, so {len(energyMESH)-1} energy groups")
+
+
+    for eval in COMPO_keys:
+        Gd157_ngamma[eval] = {}
+        U238_ngamma[eval] = {}
+        fluxes[eval] = {}
+        print(eval)
+        
+        SSH_methods_par = pyCOMPO[eval]["GLOBAL"]["pval00000001"].strip().split()
+        
+        
+        for i in range(len(SSH_methods_par)):
+            print(SSH_methods_par[i])
+            U238_ngamma[eval][SSH_methods_par[i]] = {"rates":[], "XS":[]}
+            Gd157_ngamma[eval][SSH_methods_par[i]] = {"rates":[], "XS":[]}
+            fluxes[eval][SSH_methods_par[i]] = []
+            print(pyCOMPO[eval]['MIXTURES'][0])
+            isotope0 = pyCOMPO[eval]['MIXTURES'][0]['CALCULATIONS'][i]['ISOTOPESLIST'][0]['ALIAS'][0:5]
+            isotope1 = pyCOMPO[eval]['MIXTURES'][0]['CALCULATIONS'][i]['ISOTOPESLIST'][1]['ALIAS'][0:5]
+
+            print(f"Isotopes are {isotope0}, {isotope1}")
+
+            N_U238 = pyCOMPO[eval]['MIXTURES'][0]['CALCULATIONS'][i]['ISOTOPESDENS'][0]
+            N_Gd157 = pyCOMPO[eval]['MIXTURES'][0]['CALCULATIONS'][i]['ISOTOPESDENS'][2]
+
+            XS_NGAMMA_U238 = pyCOMPO[eval]['MIXTURES'][0]['CALCULATIONS'][i]['ISOTOPESLIST'][0]['NG'] 
+            XS_NGAMMA_Gd157 = pyCOMPO[eval]['MIXTURES'][0]['CALCULATIONS'][i]['ISOTOPESLIST'][1]['NG']
+
+            PHI = pyCOMPO[eval]['MIXTURES'][0]['CALCULATIONS'][i]['ISOTOPESLIST'][0]['NWT0']  # Flux
+
+            # Reconstruct reaction rates
+            NGAMMA_U238_rates = np.array(XS_NGAMMA_U238)*np.array(PHI)*N_U238
+            NGAMMA_Gd157_rates = np.array(XS_NGAMMA_Gd157)*np.array(PHI)*N_Gd157
+
+            # Store the results in the dictionaries
+            print(U238_ngamma[eval].keys())
+            U238_ngamma[eval][SSH_methods_par[i]]["rates"] = NGAMMA_U238_rates
+            Gd157_ngamma[eval][SSH_methods_par[i]]["rates"] = NGAMMA_Gd157_rates
+
+            U238_ngamma[eval][SSH_methods_par[i]]["XS"] = XS_NGAMMA_U238
+            Gd157_ngamma[eval][SSH_methods_par[i]]["XS"] = XS_NGAMMA_Gd157
+
+            fluxes[eval][SSH_methods_par[i]] = PHI
+
+    # Call post treatment class
+        
+    DRAGON5_BU0 = PT_D5("HOM_UOX_Gd157_RSECORR", "EVAL_CORR", mesh_objects, ["U238_ngamma",  "Gd157_ngamma"], COMPO_keys, ssh_keys, save_path)
+    DRAGON5_BU0.set_reaction_data("U238_ngamma",U238_ngamma)
+    DRAGON5_BU0.set_reaction_data("Gd157_ngamma",Gd157_ngamma)
+    DRAGON5_BU0.set_fluxes(fluxes)
+
+    # Plot results for Jeff3.1.1 and ENDFb-VIII-1 for RSE, RSE_CORR and AUTO self-shielding methods
+
+    for eval in COMPO_keys:
+        # Plot fluxes
+        DRAGON5_BU0.plot_fluxes(eval, "SHEM295")
+        # Plot cross sections
+        DRAGON5_BU0.plot_XS(eval, "SHEM295", "U238_ngamma")
+        DRAGON5_BU0.plot_XS(eval, "SHEM295", "Gd157_ngamma")
+        # Plot reaction rates
+        DRAGON5_BU0.plot_reaction_rates(eval, "SHEM295", "U238_ngamma")
+        DRAGON5_BU0.plot_reaction_rates(eval, "SHEM295", "Gd157_ngamma")
+        # Compute relative differences on cross sections and reaction rates between AUTO: and RSE and RSE_CORR
+        # U238 
+        DRAGON5_BU0.compute_relative_differences_XS("U238_ngamma", eval, "AUTO", ["RSE", "RSE_CORR"])
+        DRAGON5_BU0.compute_relative_differences_Rates("U238_ngamma", eval, "AUTO", ["RSE", "RSE_CORR"])
+        # Gd157
+        DRAGON5_BU0.compute_relative_differences_XS("Gd157_ngamma", eval, "AUTO", ["RSE", "RSE_CORR"])
+        DRAGON5_BU0.compute_relative_differences_Rates("Gd157_ngamma", eval, "AUTO", ["RSE", "RSE_CORR"])
+        
+    # Zoom on self-shielded region
+    # U238, Jeff3.1.1
+    DRAGON5_BU0.plot_zoom_XS_and_errors_D5_AUTO("U238_ngamma", "J311", "SHEM295", ["RSE", "RSE_CORR"], grmin_zoom, grmax_zoom)
+    DRAGON5_BU0.plot_zoom_rates_and_errors_D5_AUTO("U238_ngamma", "J311", "SHEM295", ["RSE", "RSE_CORR"], grmin_zoom, grmax_zoom)
+    # Gd157, Jeff3.1.1
+    DRAGON5_BU0.plot_zoom_XS_and_errors_D5_AUTO("Gd157_ngamma", "J311", "SHEM295", ["RSE", "RSE_CORR"], grmin_zoom, grmax_zoom)
+    DRAGON5_BU0.plot_zoom_rates_and_errors_D5_AUTO("Gd157_ngamma", "J311", "SHEM295", ["RSE", "RSE_CORR"], grmin_zoom, grmax_zoom)
+
+    # Zoom on self-shielded region
+    # U238, ENDFb-VIII-1
+    DRAGON5_BU0.plot_zoom_XS_and_errors_D5_AUTO("U238_ngamma", "ENDFb8r1", "SHEM295", ["RSE", "RSE_CORR"], grmin_zoom, grmax_zoom)
+    DRAGON5_BU0.plot_zoom_rates_and_errors_D5_AUTO("U238_ngamma", "ENDFb8r1", "SHEM295", ["RSE", "RSE_CORR"], grmin_zoom, grmax_zoom)
+    # Gd157, ENDFb-VIII-1
+    DRAGON5_BU0.plot_zoom_XS_and_errors_D5_AUTO("Gd157_ngamma", "ENDFb8r1", "SHEM295", ["RSE", "RSE_CORR"], grmin_zoom, grmax_zoom)
+    DRAGON5_BU0.plot_zoom_rates_and_errors_D5_AUTO("Gd157_ngamma", "ENDFb8r1", "SHEM295", ["RSE", "RSE_CORR"], grmin_zoom, grmax_zoom)
+
+
+    # Post-treatment for SERPENT2 results
+    # Make a case disjunction for XS and rates : due to amount of time/no necessity to obtain XS at all BU steps :
+    # only BU=0 is considered for XS
+    # All BU are considered for rates
+    S2_case_name = "HOM_UOX_Gd157"
+    SERPENT2_case = PT_S2(S2_case_name, mesh_objects, ["PyNjoy2016", "oldlib"], range(0,1), save_path)
+    SERPENT2_case.parse_S2_outputs(path_to_S2_results)
+
+    # Compare D5 results for different IRSET settings with S2 results
+    comparison_D5_S2 = CD5S2("HOM_UOX_Gd157_rates_XS_study", "EVAL_CORR", DRAGON5_BU0, SERPENT2_case, 
+                            S2_libs = ["oldlib", "PyNjoy2016"], compo_keywords = COMPO_keys, isotopes = ["Gd157", "U238"], self_shielding_methods = ssh_keys,
+                            save_path =   save_path_comparison)
+    all_ssh_methods = ["AUTO","RSE","RSE_CORR"]
+    diff_data_rates = {"PyNjoy2016":{}, "oldlib":{}}
+    diff_data_XS = {"PyNjoy2016":{}, "oldlib":{}}
+    for eval in COMPO_keys:
+        comparison_D5_S2.plot_rates_D5_S2("Gd157_ngamma", eval, "SHEM295", all_ssh_methods)
+        comparison_D5_S2.plot_XS_D5_S2("Gd157_ngamma", eval, "SHEM295", all_ssh_methods)
+        # renormalize reaction rates to the same value for both D5 and S2
+        comparison_D5_S2.renorm_rates("Gd157_ngamma", eval, "SHEM295")
+        comparison_D5_S2.compare_reaction_rates_and_XS("Gd157_ngamma", eval, all_ssh_methods)
+    print("Post treatment for BU=0 case completed")
+
+    # Plot in self-shielding region : for SHEM295, by default between groups 31 and 206
+    # for now focus on SHEM295, Gd157_ngamma, IRSET = noIRSET. Compare Autosecol, SHI and Tone in a first plot
+    # Plot the reaction rates
+    comparison_D5_S2.plot_zoom_rates_and_errors("PyNjoy2016", "Gd157_ngamma", "J311", "SHEM295", ["AUTO", "RSE", "RSE_CORR"], grmin_zoom, grmax_zoom)
+    comparison_D5_S2.plot_zoom_XS_and_errors("oldlib", "Gd157_ngamma", "J311", "SHEM295", ["AUTO", "RSE", "RSE_CORR"], grmin_zoom, grmax_zoom)
+    # Plot the cross sections 
+    comparison_D5_S2.plot_zoom_XS_and_errors("PyNjoy2016", "Gd157_ngamma", "ENDFb8r1", "SHEM295", ["AUTO", "RSE", "RSE_CORR"], grmin_zoom, grmax_zoom)
+    comparison_D5_S2.plot_zoom_XS_and_errors("oldlib", "Gd157_ngamma", "ENDFb8r1", "SHEM295", ["AUTO", "RSE", "RSE_CORR"], grmin_zoom, grmax_zoom)
+
 
     
-
 if __name__ == "__main__":
     print("Post-treating HOM_UOX_Gd157 results")
-    post_treating_MESHES_study = True
+    post_treating_MESHES_study = False
     post_treating_AUTOlib_study = False
     post_treating_IRSET_study = False
     post_treating_TONE_SHI_IRSET_study = False
     post_treating_TONE_SHI_IRSET_study_newGen = False
-    compare_IRSET_study_with_newGen = True
+    compare_IRSET_study_with_newGen = False
+    post_treating_HOM_UOX_Gd157_RSECORR = True
+
     if post_treating_MESHES_study:
-        print("Post-treating HOM_UOX_Gd157_MESHES")
-        post_treat_HOM_UOX_Gd157_MESHES()
+        print("Post-treating HOM_UOX_Gd157_MESHES : noCORR")
+        post_treat_HOM_UOX_Gd157_MESHES(correlation_model=False)
+        print("Post-treating HOM_UOX_Gd157_MESHES : CORR")
+        post_treat_HOM_UOX_Gd157_MESHES(correlation_model=True)
     if post_treating_AUTOlib_study:
         print("Post-treating HOM_UOX_Gd157_AUTOlib")
         post_treat_HOM_UOX_Gd157_AUTOlib()
@@ -1360,3 +1519,6 @@ if __name__ == "__main__":
     if compare_IRSET_study_with_newGen:
         print("Comparing HOM_UOX_Gd157_IRSET with New Gen draglib")
         compare_HOM_UOX_Gd157_TONE_SHI_IRSET_with_newGen()
+    if post_treating_HOM_UOX_Gd157_RSECORR:
+        print("Post-treating HOM_UOX_Gd157_RSECORR")
+        post_Treat_HOM_UOX_Gd157_RSECORR()

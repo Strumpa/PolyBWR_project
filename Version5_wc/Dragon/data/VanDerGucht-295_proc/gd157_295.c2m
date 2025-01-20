@@ -1,0 +1,50 @@
+XSM_FILE XSM1 XSM2 XSM3 ;
+PROCEDURE gd_295_c1us gd_295_c1rs gd_295_c1aut ;
+MODULE VDG: DELETE: END: ABORT: ;
+REAL zaver INTREF DELTA ;
+*
+* TEST AUTO: SELF-SHIELDING MODULE.
+ECHO "Process svdg0/AUTO" ;
+XSM1 := gd_295_c1aut ;
+*
+* TEST RSE: SELF-SHIELDING MODULE.
+ECHO "Process svdg0/PT" ;
+XSM2 := gd_295_c1us ;
+*
+* TEST RSE: SELF-SHIELDING MODULE.
+ECHO "Process svdg0/RSE" ;
+XSM3 := gd_295_c1rs ;
+*
+* COMPARE THE TWO RUNS.
+VDG: XSM1 XSM2 :: GRMI 52 GRMA 206 PICK AVER >>zaver<< ;
+ECHO "PT: integrated error=" zaver ;
+EVALUATE INTREF := 1.038091 ;
+EVALUATE DELTA := zaver INTREF - ABS ;
+IF DELTA 1.0E-1 < THEN
+  ECHO "TEST SUCCESSFUL; DELTA=" DELTA ;
+ELSE
+  ECHO "------------" ;
+  ECHO "TEST FAILURE" ;
+  ECHO "------------" ;
+  ECHO "REFERENCE=" INTREF " CALCULATED=" zaver ;
+  ABORT: ;
+ENDIF ;
+*
+* COMPARE THE TWO RUNS.
+VDG: XSM1 XSM3 :: GRMI 52 GRMA 206 PICK AVER >>zaver<< ;
+ECHO "RSE: integrated error=" zaver ;
+EVALUATE INTREF := 9.937918E-1 ;
+EVALUATE DELTA := zaver INTREF - ABS ;
+IF DELTA 1.0E-1 < THEN
+  ECHO "TEST SUCCESSFUL; DELTA=" DELTA ;
+ELSE
+  ECHO "------------" ;
+  ECHO "TEST FAILURE" ;
+  ECHO "------------" ;
+  ECHO "REFERENCE=" INTREF " CALCULATED=" zaver ;
+  ABORT: ;
+ENDIF ;
+XSM1 XSM2 XSM3 := DELETE: XSM1 XSM2 XSM3 ;
+ECHO "test gd157_295_c1 completed" ;
+END: ;
+QUIT "LIST" .

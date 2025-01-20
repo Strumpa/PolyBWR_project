@@ -254,7 +254,7 @@
 *     -----------------------------------------------------
 *
       VT=VOL(I2,J2,J,I)*TOTAL(MAT(I2,J2,J,I),IG)
-      CALL XDDSET(Q2,(IELEM**2)*((IELEM**2)+1),0.0D0)
+      Q2(:IELEM**2,:(IELEM**2)+1)=0.0D0
 *
 *----------
 * BUILD MATRIX FOR THE RELEVANT ORDER

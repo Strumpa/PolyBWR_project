@@ -57,8 +57,8 @@
       KM=0
       MGR=0
       VTOT=0.0D0
-      CALL XDDSET(FAVG,NGRP,0.0D0)
-      CALL XDRSET(FXYZ,NEL*NGRP,0.)
+      FAVG(:NGRP)=0.0D0
+      FXYZ(:LX,:LY,:LZ,:NGRP)=0.0
       IEL=0
       DO 12 K=1,LZ
       DO 11 J=1,LY
@@ -91,7 +91,7 @@
       FACT2=1./FACT 
       IF(IMPX.GT.0)WRITE(IOUT,1002)MGR,FACT,FACT2,VTOT
 *     FLUXES RATIOS
-      CALL XDRSET(RATIO,NEL*(NGRP-1),0.)
+      RATIO(:LX,:LY,:LZ,:NGRP-1)=0.0
       DO 32 K=1,LZ
       DO 31 J=1,LY
       DO 30 I=1,LX

@@ -19,9 +19,9 @@ subroutine KDRCPU(cpusec)
 !
 !-----------------------------------------------------------------------
 !
-   integer :: itloc,irate
+   real :: cpusec
    double precision :: dtloc
-   integer,save :: isave=0,itloc0
+   integer,save :: isave=0
    double precision,save :: dtloc0
 !
    if(isave==0) then

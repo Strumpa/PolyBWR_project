@@ -79,7 +79,7 @@
          ENDIF
          NUMOLD=NOMI
       ENDDO
-      CALL XDDSET(EXPT,NMU*N,0.0D0)
+      EXPT(:NMU,:N)=0.0D0
 *
       RETURN
       END

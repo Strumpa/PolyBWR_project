@@ -88,7 +88,7 @@
 *----
 *  STATE-VECTOR
 *----
-      CALL XDISET(ISTATE,NSTATE,0)
+      ISTATE(:NSTATE)=0
       CALL LCMGET(IPGEOM,'STATE-VECTOR',ISTATE)
       ITYPG= ISTATE(1)
       NR=ISTATE(2)
@@ -96,14 +96,14 @@
       NY=ISTATE(4)
       NZ=ISTATE(5)
       NK=ISTATE(6)
-      CALL XDDSET(TMESH,3*3*(NXYZ+1),0.0D0)
-      CALL XDISET(ISPLT,3*3*NXYZ,1)
+      TMESH(:3,:3,0:NXYZ)=0.0D0
+      ISPLT(:3,:3,0:NXYZ-1)=1
 *----
 *  MESHX AND SPLITX
 *----
       IDIR=1
-      CALL XDRSET(GMESH,(NXYZ+1),0.0)
-      CALL XDISET(ISPLG,NXYZ,1)
+      GMESH(0:NXYZ)=0.0
+      ISPLG(0:NXYZ-1)=1
       CALL LCMLEN(IPGEOM,'MESHX',ILCMLN,ILCMTY)
       IF(ILCMLN .EQ. NX+1)
      >  CALL LCMGET(IPGEOM,'MESHX',GMESH)
@@ -122,8 +122,8 @@
 *  MESHY AND SPLITY
 *----
       IDIR=2
-      CALL XDRSET(GMESH,(NXYZ+1),0.0)
-      CALL XDISET(ISPLG,NXYZ,1)
+      GMESH(0:NXYZ)=0.0
+      ISPLG(0:NXYZ-1)=1
       CALL LCMLEN(IPGEOM,'MESHY',ILCMLN,ILCMTY)
       IF(ILCMLN .EQ. NY+1)
      >  CALL LCMGET(IPGEOM,'MESHY',GMESH) 
@@ -144,8 +144,8 @@
       IDIR=3
       DDM(IDIR)=0.0D0 
       IF(NZ .GT. 0) THEN
-        CALL XDRSET(GMESH,(NXYZ+1),0.0)
-        CALL XDISET(ISPLG,NXYZ,1)
+        GMESH(0:NXYZ)=0.0
+        ISPLG(0:NXYZ-1)=1
         CALL LCMLEN(IPGEOM,'MESHZ',ILCMLN,ILCMTY)
         IF(ILCMLN .EQ. NZ+1) 
      >    CALL LCMGET(IPGEOM,'MESHZ',GMESH)
@@ -164,7 +164,7 @@
       ENDIF
 C-- MIX
       ALLOCATE(IMIX(NK))    
-      CALL XDISET(IMIX,NK,0)
+      IMIX(:NK)=0
       CALL LCMLEN(IPGEOM,'MIX',ILCMLN,ILCMTY)
       IF(ITYPG .EQ. 21) THEN
 C----
@@ -213,7 +213,7 @@ C----
      >    CALL LCMGET(IPGEOM,'MIX',IMIX) 
       ENDIF
 C- OFF CENTER 
-      CALL XDRSET(OFFCEN,3,0.0)
+      OFFCEN(:3)=0.0
       CALL LCMLEN(IPGEOM,'OFFCENTER',ILCMLN,ILCMTY)
       IF(ILCMLN .EQ. 3)
      >  CALL LCMGET(IPGEOM,'OFFCENTER',OFFCEN)
@@ -251,17 +251,17 @@ C----
         IF(IG.EQ.1) THEN
           ALLOCATE(IM1(2*NK))
           IMIX2=>IM1
-        ELSE IF(IG.EQ.2) THEN
+        ELSE
           ALLOCATE(IM2(2*NK))
           IMIX2=>IM2
         ENDIF
-        CALL XDISET(IMIX2,NK,0)
+        IMIX2(:NK)=0
         IF(IKT(IG) .LT. 0) THEN 
           OFFTR(3,IG)=-OFFCEN(3)
         ELSE
           OFFTR(3,IG)=OFFCEN(3)
         ENDIF
-        IF     (ABS(IKT(IG)) .EQ. 1) THEN
+        IF(ABS(IKT(IG)) .EQ. 1) THEN
           NTM(IG,1)=NX
           NTM(IG,2)=NY
           NTM(IG,3)=NZ

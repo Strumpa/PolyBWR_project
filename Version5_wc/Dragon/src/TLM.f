@@ -141,11 +141,11 @@
       DO IEN=2,NENTRY
         IF(IENTRY(IEN) .EQ. 1 .OR. IENTRY(IEN) .EQ. 2) THEN
           IF(JENTRY(IEN) .EQ. 2) THEN
-            CALL LCMGTC(KENTRY(IEN),'SIGNATURE',12,1,HSIGN)
+            CALL LCMGTC(KENTRY(IEN),'SIGNATURE',12,HSIGN)
             IF(HSIGN .EQ. 'L_TRACK') THEN
               IPTRK=KENTRY(IEN)
               IMTRK=IEN
-              CALL LCMGTC(KENTRY(IEN),'TRACK-TYPE',12,1,HSIGN)
+              CALL LCMGTC(KENTRY(IEN),'TRACK-TYPE',12,HSIGN)
               IF((HSIGN .NE. 'EXCELL').AND.(HSIGN .NE. 'MCCG')) THEN
                  CALL XABORT(NAMSBR//
      >           ': Tracking data structure type is invalid')
@@ -248,13 +248,13 @@
 *----
 *  Initialize tracking parameters to 0
 *----
-      CALL XDISET(ISTATT,NSTATE,0)
-      CALL XDISET(IEDIMG,NSTATE,0)
+      ISTATT(:NSTATE)=0
+      IEDIMG(:NSTATE)=0
 *----
 *  Read state vectors
 *----
       CALL LCMGET(IPTRK,'STATE-VECTOR',ISTATT)
-      CALL LCMGTC(IPTRK,'TITLE',72,1,TITLE)
+      CALL LCMGTC(IPTRK,'TITLE',72,TITLE)
       IF(ISTATT( 7) .NE. 4) CALL XABORT(NAMSBR//
      >': Tracking data structure incompatible with current module')
       NSUR=ISTATT(5)
@@ -294,7 +294,7 @@
       NBDR=1
       IF(IRENOT .EQ. -1) NBDR=NBDR+NANGL
       ALLOCATE(DVNOR(NREG,NBDR),DVNOR1(NFREG,NBDR))
-      CALL XDDSET(DVNOR1,NFREG*NBDR,DONE)
+      DVNOR1(:NFREG,:NBDR)=DONE
       IF(IRENOT .EQ. -1) THEN
         CALL LCMGET(IPTRK,'VTNormalizeD',DVNOR1(1,2))
       ELSE IF(IRENOT .EQ. 0) THEN
@@ -308,8 +308,8 @@
         ALLOCATE(VOMER1(NFREG),NUMERG(NFREG),VOMERG(NREG))
         CALL LCMGET(IPTRK,'VolMerge    ',VOMER1)
         CALL LCMGET(IPTRK,'NumMerge    ',NUMERG)
-        CALL XDDSET(VOMERG,NREG,DZERO)
-        CALL XDDSET(DVNOR,NREG*NBDR,DZERO)
+        VOMERG(:NREG)=DZERO
+        DVNOR(:NREG,:NBDR)=DZERO
         DO II=1,NFREG
           KK=NUMERG(II)
           IF(KK.EQ.0) CYCLE

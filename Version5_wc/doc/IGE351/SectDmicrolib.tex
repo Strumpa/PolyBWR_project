@@ -1377,11 +1377,12 @@ flux distributions in coarse group $g$ (corresponding to the number of dilutions
   {GROUP-RSE\blank{3}}{$G$}{$I_{\rm proc}= 6$}
   {List of energy-group sub-directories. Each component of the list is a directory containing
   the resonance spectrum expansion information associated with a specific coarse group. See table~\ref{table:rse}.}
-\OptDirlEnr
-  {\listedir{isotope2}}{$n_{\rm pos}$}{$I_{\rm proc}= 6$}
-  {List of group-dependent $K_g \times L_h$ microscopic scattering double precision matrices correlated to the base points in microscopic total cross sections in group $g$ and to
-  the scattering sources from {\sl isotope2} in group $h$. Here, $n_{\rm pos}$ is the total number of scattering double precision matrices taking into account self-scattering and out-of-group scattering.
-  $L_h$ is the order of the probability table for {\sl isotope2} in group $h$. Record \listedir{isotope} (with {\sl isotope2} $=$ {\sl isotope} and $L_h=K_h$) is always present if $I_{\rm proc}= 6$.}
+\OptDirVar
+  {\listedir{isotope2}}{$I_{\rm proc}= 6$}
+  {Set of sub-directories containing subgroup projection for {\sl isotope2} cross section information with
+  respect of {\sl isotope} base points for the RSE method. Subgroup projection of scattering cross sections is present for all
+  resonant isotopes, even for {\sl isotope2} $\equiv$ {\sl isotope}. Subgroup projection of total cross sections is
+  present only for {\sl isotope2} $\neq$ {\sl isotope}. See table~\ref{table:spmrse}.}
 \IntEnr
   {NOR\blank{9}}{$G$}
   {Order $K_g$ of the probability table or of the resonance spectrum expansion tables in each energy group $g$.
@@ -1392,12 +1393,9 @@ flux distributions in coarse group $g$ (corresponding to the number of dilutions
 \OptRealEnr
   {SVD-EPS\blank{5}}{$1$}{$I_{\rm proc}= 6$}{~}
   {Rank accuracy of the SVD.}
-\OptRealEnr
-  {NJJS00\blank{6}}{$G$}{$I_{\rm proc}= 6$}{~}
-  {Bandwidth $n_{{\rm njj},g}$ of records \listedir{isotope2}. $n_{\rm pos}=\sum_g n_{{\rm njj},g}$.}
 \end{DescriptionEnregistrement}
 
-\vskip -0.3cm
+\vskip -0.4cm
 
 \begin{DescriptionEnregistrement}{Group-dependent non-RSE directories in \dir{isotope}}{7.5cm}\label{table:pt}
 \RealEnr
@@ -1429,27 +1427,48 @@ flux distributions in coarse group $g$ (corresponding to the number of dilutions
 \begin{DescriptionEnregistrement}{Group-dependent RSE directories in \dir{isotope}}{7.5cm}\label{table:rse}
 \DbleEnr
   {RSE-TABLE\blank{3}}{$N_{\rm part}, K_g$}{~}
-  {Resonance spectrum expansion (RSE) table $\shadowP$. $N_{\rm part}$ is the total number of flux and reactions
-  represented by RSE tables and $K_g$ is the RSE rank (equal to the number of base points). Here, $\shadowP=\shadowS\shadowV \shadowW^{-1}$
-  where $\shadowS$ is a $N_{\rm part} \times N_{\rm dil}$ double precision matrix containing dilution-dependent
-  homogeneous flux and effective cross sections recovered from the Draglib or Apollo2 file.}
+  {Resonance spectrum expansion (RSE) table $\shadowP_g$. $N_{\rm part}$ is the total number of flux and reactions
+  represented by RSE tables and $K_g$ is the RSE rank (equal to the number of base points). The table is obtained as
+  $$\shadowP_g=\shadowX_g \shadowV_g \shadowW_g^{-1} \shadowT_g$$
+  \noindent where $\shadowX_g$ is a $N_{\rm part} \times N_{\rm dil}$ double precision matrix containing dilution-dependent
+  homogeneous flux and effective cross sections in group $g$, as recovered from the Draglib or Apollo2 file.}
 \DbleEnr
   {SIGT\_V\blank{6}}{$K_g$}{~}
   {Double precision vector corresponding to the base points in microscopic total cross sections. These
-  values are the eigenvalues of the linear transformation.}
+  values are the eigenvalues of the linear transformation. These base points are located in the following diagonal matrix:
+  $$\left[{\rm diag}(\sigma^*_{k,g})\right]=\shadowT_g^\top \shadowU_g^\top \left[{\rm diag}(\sigma^{*(m)}_g)\right] \shadowU_g \shadowT_g$$
+  \noindent where $\left[{\rm diag}(\sigma^{*(m)}_g)\right]$ is a $N_{{\rm ufg},g} \times N_{{\rm ufg},g}$ diagonal matrix containing UFG microscopic total cross section values.}
 \DbleEnr
-  {XI\_V\blank{8}}{$K_g$}{~}
-  {Double precision vector $\Xi_{k,g}=\sum_m U_{m,k}$.}
+  {WEIGHT\_V\blank{4}}{$K_g$}{~}
+  {Double precision weight vector $$\bff(\omega)_g={1\over{u_g-u_{g-1}}} \bff(1)^\top \shadowU_g \shadowT_g$$
+  \noindent where $\bff(1)^\top$ is a row vector of ones used to sum over indices $m$ of the UFG mesh.}
 \DbleEnr
   {GAMMA\_V\blank{5}}{$K_g$}{~}
-  {Double precision vector $\gamma_{k,g}=\sum_m \Delta u_g^{(m)}\, U_{m,k}$.}
-\OptDbleVar
-  {\listedir{isotope2}}{$K_g,K_g$}{*}{1}
-  {Set of matrices representing the correlation of microscopic total cross sections between {\sl isotope2} and {\sl isotope} in group $g$. (*) This data is optional
-  and is provided only if {\sl isotope2} is resonant and if {\sl isotope2} $\neq$ {\sl isotope}.}
+  {Double precision gamma vector $$\bff(\gamma)_g=\bff(1)^\top \left[{\rm diag}(\Delta u_g^{(m)})\right] \shadowU_g \shadowT_g .$$}
 \IntEnr
   {ISM-LIMITS\blank{2}}{$2,L$}
   {Minimum (index 1) and maximum (index 2) secondary group for each Legendre
    order of the scattering matrices}
+\end{DescriptionEnregistrement}
+
+\vskip -0.4cm
+
+\begin{DescriptionEnregistrement}{Subgroup projection of {\sl isotope2} for the RSE method}{7.5cm}\label{table:spmrse}
+\OptDirlEnr
+  {SIGT\_M\blank{6}}{$G$}{*}
+  {Set of matrices representing the {\sl subgroup projection} of {\sl isotope2} microscopic total cross sections on {\sl isotope} base
+  points in group $g$. Each matrix of size $K_g \times K_g$ is defined as
+  $$\left[\sigma^{*b/a}_{k,\ell,g}\right]=\shadowT_g^\top \shadowU_g^\top \left[{\rm diag}(\sigma^{*b(m)}_g)\right] \shadowU_g \shadowT_g$$
+  \noindent where $\left[{\rm diag}(\sigma^{*b(m)}_g)\right]$ is a $N_{{\rm ufg},g} \times N_{{\rm ufg},g}$ diagonal matrix containing UFG microscopic total cross section values for {\sl isotope2}.
+  (*) This data is optional and is provided only if {\sl isotope2} is resonant and if {\sl isotope2} $\neq$ {\sl isotope}.}
+\DirlEnr
+  {SCAT\_M\blank{6}}{$n_{\rm pos}$}
+  {Set of matrices representing the {\sl subgroup projection} of {\sl isotope2} microscopic scattering cross sections on {\sl isotope} base
+  points in group $g$. Each matrix of size $K_g \times K_h$ is defined as
+  $$\left[\sigma^{*b/a}_{k,\ell,g\leftarrow h}\right]=\shadowT_g^\top \shadowU_g^\top \left[\sigma^{*b(m\leftarrow n)}_{{\rm s},g \leftarrow h}\right] \shadowU_h \shadowT_h$$
+  \noindent where $\left[\sigma^{*b(m\leftarrow n)}_{{\rm s},g \leftarrow h}\right]$ is a $N_{{\rm ufg},g} \times N_{{\rm ufg},h}$ matrix containing UFG microscopic scattering cross section values for {\sl isotope2}. Here, $n_{\rm pos}$ is the total number of scattering double precision matrices taking into account self-scattering and out-of-group scattering. Record {\sl isotope} (i. e., {\sl isotope2} $\equiv$ {\sl isotope} and $a\equiv b$) is always present.}
+\IntEnr
+  {NJJS00\blank{6}}{$G$}
+  {Bandwidth $n_{{\rm njj},g}$ of records {\tt SCAT\_M} for {\sl isotope2}. $n_{\rm pos}=\sum_g n_{{\rm njj},g}$.}
 \end{DescriptionEnregistrement}
 \eject

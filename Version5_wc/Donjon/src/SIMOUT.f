@@ -69,6 +69,7 @@
         DO I=1,LY
           TEXT4=IZONE(ICH)
           READ(TEXT4,'(A1,I2)') TEXT1,INTG2
+          NFULL=0
           DO J=1,LX+1
             NFULL=J
             IF(ICH.EQ.(NCH+1))GO TO 10
@@ -83,7 +84,7 @@
           NFULL=NFULL-1
           NEMPTY=(LX-NFULL)/2
           ALLOCATE(MEAN(NFULL))
-          CALL XDRSET(MEAN,NFULL,0.0)
+          MEAN(:NFULL)=0.0
           DO K=1,NFULL
             DO IB=1,NB
               MEAN(K)=MEAN(K)+BURNINS(ICH-1-NFULL+K,IB)/NB
@@ -131,7 +132,7 @@
         ENDDO
       ENDIF
 *
-      IF(STATE.EQ.'BEGIN') CALL XDRSET(BURNINS,NCH*NB,0.0)
+      IF(STATE.EQ.'BEGIN') BURNINS(:NCH,:NB)=0.0
       RETURN
 *
   100 FORMAT(' SIM: BEGINNING-OF-STAGE BURNUP MAP (MW*D/TONNE), ',

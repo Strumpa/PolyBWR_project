@@ -27,11 +27,8 @@ LIB_AUTO := LIB: ::
     NMIX 1    ! MAXIMUM OF MATERIAL MIXTURES
     <<ssh_method>>
     ANIS 1
-
     MIXS LIB: DRAGON FIL: J311_172
-
     MIX 1 750.0
-      MIX 1 750.0
       O16  = O16   2.955339E-02 
       H1  = H1   2.497844E-02
       U234  = U234   3.482587E-06 1

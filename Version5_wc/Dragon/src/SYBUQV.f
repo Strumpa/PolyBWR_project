@@ -61,7 +61,7 @@
 *----
       IZ0=0
       IZR=4
-      CALL XDRSET(PIJ(0),(NREG+NSURF)*(NREG+NSURF+1)/2,0.0)
+      PIJ(0:(NREG+NSURF)*(NREG+NSURF+1)/2-1)=0.0
       IF(LGEMPT) THEN
 *        VOIDED REGION DETECTED.
          DO 52 IA=1,MNA

@@ -88,7 +88,7 @@
 *      
       IFX=1
       LNOINT=.FALSE.
-      CALL XDISET(FINF,MAXIFX,-1)
+      FINF(:MAXIFX)=-1
 *----
 *  RECOVER TABLE-OF-CONTENT INFORMATION FOR THE COMPO.
 *----
@@ -157,7 +157,7 @@
 *  CORRESPONDING TO THE INTERPOLATION POINT. FILL MUPLET FOR
 *  PARAMETERS.
 *----
-      CALL XDISET(MUPLET,NPAR+NLOC,0)
+      MUPLET(:NPAR+NLOC)=0
  1020 CALL REDGET(INDIC,NITMA,FLOT,TEXT,DFLOT)
       IF(INDIC.NE.3) CALL XABORT('NAPCPO: character data expected.')
       IF(TEXT.EQ.'SET') THEN
@@ -325,8 +325,8 @@ C get dimension in geometry from L_MULTICOMPO
       CALL LCMGET(JPMIC,'MESHY',MYP)
       CALL LCMGET(JPMIC,'MIX',MIXP)
       CALL LCMSIX(JPMIC,'GFF-GEOM    ',2)
-      CALL XDISET(IXPD,NXP,0)
-      CALL XDISET(IYPD,NYP,0)
+      IXPD(:NXP+1)=0
+      IYPD(:NYP+1)=0
 C get dimension in geometry from L_TRACK
       CALL LCMGET(IPTRK,'STATE-VECTOR',ISTATE)
       NREG=ISTATE(1)
@@ -369,8 +369,8 @@ C     compute X and Y mesh from L_TRACK
      1   (ABS(MXD(NXD+1)-MXP(NXP+1)).GE.1E-3)) CALL XABORT('NAPCPO: '
      2 //'Diffusion and transport geometries total size mismach')
       ALLOCATE(FXTD(NXP,NXD),FYTD(NYP,NYD))
-      CALL XDRSET(FXTD,NXP*NXD,0.0)
-      CALL XDRSET(FYTD,NYP*NYD,0.0)
+      FXTD(:NXP,:NXD)=0.0
+      FYTD(:NYP,:NYD)=0.0
       CALL NAPFTD(NXP,MXP,NXD,MXD,FXTD)
       CALL NAPFTD(NYP,MYP,NYD,MYD,FYTD)
       IF(LNOINT) THEN
