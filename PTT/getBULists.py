@@ -132,13 +132,42 @@ def exclude_points(burnup_points, excluded_points):
     return burnup_points
 
 
-
-
-
-
 def convert_Serpent_to_UTL(BU_Serpent_list):
+    """
+    Convert D5 units of [MWd/tU] to UTL units of [MWd/kgU]
+    """
     BU_Serpent_list = np.array(BU_Serpent_list)
     BU_Dragon_list = 1000*BU_Serpent_list
     return BU_Dragon_list
+
+def print_in_S2_format(BU_list):
+    """
+    Print the burnup points list in Serpent-2 format
+    """
+    for BU in BU_list:
+        print(f"{BU:.4f}")
+
+
+def convert_BU_to_days(BU_list, specific_power):
+    """
+    BU_list : list of burnup points, [MWd/tU]
+    specific_power : specific power of the fuel assembly [W/gU] = [MW/MgU] = [MW/tU]
+    This function returns the burnup points list in days
+    """
+    BU_days_list = [BU/specific_power for BU in BU_list]
+    return BU_days_list
+
+
+if __name__ == "__main__":
+    """
+    Generate list of BU points in days for the HOM_CELL_study Constant Flux test in Serpent
+    """
+    burnup_points = 'BOC_fine_autop5'
+    specific_power = 38.6 # [W/gU] = [MW/MgU] = [MW/tU]
+    BU_list = getLists(burnup_points)[0]
+    BU_days_list = convert_BU_to_days(BU_list, specific_power)
+    print_in_S2_format(BU_days_list)
+    print(len(BU_days_list))
+
 
 

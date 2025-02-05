@@ -107,7 +107,7 @@ class compare_D5_S2_rates_XS:
         plt.title(f"Comparison of {iso} {reaction_print} cross sections between DRAGON5 and SERPENT2")
         plt.grid()
         plt.legend()
-        plt.savefig(f"{self.save_path}/{iso}_{reaction}_XS_D5_{ssh_id}_S2_{lib_id}_{mesh_name}.png")
+        plt.savefig(f"{self.save_path}/{iso}_{reaction}_XS_D5_{keyword}_{ssh_id}_S2_{lib_id}_{mesh_name}.png")
         plt.close()
         return
     
@@ -144,7 +144,7 @@ class compare_D5_S2_rates_XS:
         plt.title(f"Comparison of {iso} {reaction_print} reaction rates between DRAGON5 and SERPENT2")
         plt.grid()
         plt.legend()
-        plt.savefig(f"{self.save_path}/{iso}_{reaction}_rates_D5_{ssh_id}_S2_{lib_id}_{mesh_name}.png")
+        plt.savefig(f"{self.save_path}/{iso}_{reaction}_rates_D5_{keyword}_{ssh_id}_S2_{lib_id}_{mesh_name}.png")
         plt.close()
         return
     

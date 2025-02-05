@@ -168,7 +168,7 @@ def POSTPROC_hom(pyCOMPO,ListeCOMPO,ListeAUTOP,name_geom,name_mix,suffixe,VISU_p
             # 1) results from PyNjoy2016, with Predictor-Corrector BU evolution method
             # --- Keff
             # 
-            res_pynjoy=serpentTools.read(f"/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/HOM_CELL_study/{name_mix}{Gd_identifier}_PyNjoy2016_mc_res.m")
+            res_pynjoy=serpentTools.read(f"{os.environ["SERPENT_RESULTS"]}/HOM_CELL_study/{name_mix}{Gd_identifier}_PyNjoy2016_mc_res.m")
 
             serpent_keff_pynjoy=res_pynjoy.resdata["absKeff"]
             np.savetxt('serpent_keff_pynjoy.txt',serpent_keff_pynjoy)
@@ -176,7 +176,7 @@ def POSTPROC_hom(pyCOMPO,ListeCOMPO,ListeAUTOP,name_geom,name_mix,suffixe,VISU_p
                 
             # --- BU
             #depFile = SERPENT_path+name_mix+"_mc_dep.m"
-            depFile = f"/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/HOM_CELL_study/{name_mix}{Gd_identifier}_PyNjoy2016_mc_dep.m"
+            depFile = f"{os.environ["SERPENT_RESULTS"]}/HOM_CELL_study/{name_mix}{Gd_identifier}_PyNjoy2016_mc_dep.m"
             dep_pynjoy = serpentTools.read(depFile)
             fuel=dep_pynjoy.materials['total']
             serpent_BU_pynjoy=fuel.burnup

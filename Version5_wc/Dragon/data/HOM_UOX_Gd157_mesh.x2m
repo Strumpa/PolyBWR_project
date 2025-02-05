@@ -9,7 +9,7 @@ LINKED_LIST COMPO EDI172 EDI281 EDI295 EDI315 ;
 MODULE COMPO: EDI: GREP: DELETE: END: ;
 PROCEDURE auto281 rse281 pt281 subg281 auto295 rse295 pt295 subg295 auto315 rse315 pt315 subg315 ; 
 PROCEDURE auto172 rse172 pt172 subg172 ;
-SEQ_ASCII _COMPO :: FILE './COMPO_MESHES' ;
+SEQ_ASCII _COMPO :: FILE './COMPO_MESHES_CORR' ;
 
 STRING auto_method := "SUBG" ;
 STRING correl := "CORR" ; ! "noCORR"
@@ -63,23 +63,23 @@ EDI315 := auto315 :: <<auto_method>> ;
 COMPO := COMPO: COMPO EDI172 ::
         EDIT 1
         STEP UP 'EDIHOM_172'
-        'SSH' A
+        'SSH' AUTO
 ;
 
 COMPO := COMPO: COMPO EDI281 ::
         EDIT 1
         STEP UP 'EDIHOM_281'
-        'SSH' A
+        'SSH' AUTO
 ;
 COMPO := COMPO: COMPO EDI295 ::
         EDIT 1
         STEP UP 'EDIHOM_295'
-        'SSH' A
+        'SSH' AUTO
 ;
 COMPO := COMPO: COMPO EDI315 ::
         EDIT 1
         STEP UP 'EDIHOM_315'
-        'SSH' A
+        'SSH' AUTO
 ;
 EDI172 EDI281 EDI295 EDI315 := DELETE: EDI172 EDI281 EDI295 EDI315 ;
 
@@ -103,22 +103,22 @@ EDI315 := rse315 :: <<correl>> ;
 COMPO := COMPO: COMPO EDI172 ::
         EDIT 1
         STEP UP 'EDIHOM_172'
-        'SSH' R
+        'SSH' RSE
 ;
 COMPO := COMPO: COMPO EDI281 ::
         EDIT 1
         STEP UP 'EDIHOM_281'
-        'SSH' R
+        'SSH' RSE
 ;
 COMPO := COMPO: COMPO EDI295 ::
         EDIT 1
         STEP UP 'EDIHOM_295'
-        'SSH' R
+        'SSH' RSE
 ;
 COMPO := COMPO: COMPO EDI315 ::
         EDIT 1
         STEP UP 'EDIHOM_315'
-        'SSH' R
+        'SSH' RSE
 ;
 
 EDI172 EDI281 EDI295 EDI315 := DELETE: EDI172 EDI281 EDI295 EDI315 ;
@@ -145,17 +145,17 @@ EDI315 := pt315 :: <<correl>> ;
 COMPO := COMPO: COMPO EDI281 ::
         EDIT 1
         STEP UP 'EDIHOM_281'
-        'SSH' P
+        'SSH' PT
 ;
 COMPO := COMPO: COMPO EDI295 ::
         EDIT 1
         STEP UP 'EDIHOM_295'
-        'SSH' P
+        'SSH' PT
 ;
 COMPO := COMPO: COMPO EDI315 ::
         EDIT 1
         STEP UP 'EDIHOM_315'
-        'SSH' P
+        'SSH' PT
 ;
 
 EDI281 EDI295 EDI315 := DELETE: EDI281 EDI295 EDI315 ;
@@ -181,22 +181,22 @@ EDI315 := subg315 ;
 COMPO := COMPO: COMPO EDI172 ::
         EDIT 1
         STEP UP 'EDIHOM_172'
-        'SSH' S
+        'SSH' SUBG
 ;
 COMPO := COMPO: COMPO EDI281 ::
         EDIT 1
         STEP UP 'EDIHOM_281'
-        'SSH' S
+        'SSH' SUBG
 ;
 COMPO := COMPO: COMPO EDI295 ::
         EDIT 1
         STEP UP 'EDIHOM_295'
-        'SSH' S
+        'SSH' SUBG
 ;
 COMPO := COMPO: COMPO EDI315 ::
         EDIT 1
         STEP UP 'EDIHOM_315'
-        'SSH' S
+        'SSH' SUBG
 ;
 
 EDI172 EDI281 EDI295 EDI315 := DELETE: EDI172 EDI281 EDI295 EDI315 ;

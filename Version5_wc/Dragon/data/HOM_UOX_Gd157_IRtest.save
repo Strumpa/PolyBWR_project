@@ -16,6 +16,6 @@ else
    MACH=`uname -sm | sed 's/[ ]/_/'`
 fi
 ls -l
-mv ENDF71_COMPO_Gd157_IR_TONE_SHI $1/"$MACH"
+mv COMPO_Gd157_IR_TONE_SHI $1/"$MACH"
 echo "HOM_UOX_Gd157_IRtest.save completed"
 

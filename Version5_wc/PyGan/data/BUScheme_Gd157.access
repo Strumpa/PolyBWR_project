@@ -18,7 +18,7 @@ if [ "$MACH" = "Linux" -o "$MACH" = "OSF1" -o "$MACH" = "Cygwin" -o "$MACH" = "S
 -o "$MACH" = "Linux_aarch64" ]
 then 
   echo 'use little endian libraries'
-  pos=$1/../../libraries/l_endian
+  pos=$1/../../../libraries/l_endian
   echo $pos
 else
   echo 'use big endian libraries'
@@ -60,9 +60,9 @@ if [ -f "$pos"/draglibJeff3p1p1SHEM315 ]
    then
     ln -s "$pos"/draglibJeff3p1p1SHEM315 J311_315
 fi
-if [ -f "$pos"/draglibJ311PyNjoy2016 ]
+if [ -f "$pos"/draglibJ311XMAS172PyNjoy2016 ]
    then
-    ln -s "$pos"/draglibJ311PyNjoy2016 J311_172
+    ln -s "$pos"/draglibJ311XMAS172PyNjoy2016 J311_172
 fi
 #ln -s $1/Linux_aarch64/PyGan_results_HOM_CELL_PCC/ ./
 ls -l

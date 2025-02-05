@@ -13,7 +13,7 @@ PROCEDURE autoNone rseNone ptNone ptmcNone ptslNone ;
 SEQ_ASCII _COMPO :: FILE './newCOMPO_Gd157_IRSET' ;
 
 STRING auto_method := "PT" ;
-STRING library := "nJ311_295" ; ! new Jeff3.1.1 SHEM295 (new_draglibJ311SHEM295_09122024_XSM)
+STRING library := "J311_295" ; ! nJ311_295 = new Jeff3.1.1 SHEM295 (new_draglibJ311SHEM295_09122024_XSM)
 
 * Initialize COMPO :
 * Compo stores results for different meshes in different DIR names 

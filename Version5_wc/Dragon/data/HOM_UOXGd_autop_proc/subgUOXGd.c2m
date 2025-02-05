@@ -26,17 +26,14 @@ IF correl "CORR" = THEN
     LIB_SUBG := LIB: ::
       EDIT 1
       NMIX 1    ! MAXIMUM OF MATERIAL MIXTURES
-      PT 
-      ANIS 1
-
-      DEPL LIB: DRAGON FIL: J311_295
-
+      PT CALENDF 4
+      ANIS 3
       MIXS LIB: DRAGON FIL: J311_295
 
       MIX 1 750.0
       
         O16  = O16   2.955339E-02 
-        U234  = U234   3.482587E-06 CORR 1
+        U234  = U234   3.482587E-06  1
         U235  = U235   3.664503E-04 CORR 1
         U238  = U238   7.765571E-03 CORR 1
         Gd154  = Gd154   1.100428E-05 1
@@ -83,17 +80,15 @@ IF correl "CORR" = THEN
 
         He4  = He4   2.145381E-06
 
-        H1  = H1   2.497844E-02
+        H1 = H1_H2O   2.497844E-02
     ;
 
 ELSEIF correl "noCORR" = THEN
     LIB_SUBG := LIB: ::
       EDIT 1
       NMIX 1    ! MAXIMUM OF MATERIAL MIXTURES
-      PT 
-      ANIS 1
-
-      DEPL LIB: DRAGON FIL: J311_295
+      PT CALENDF 4
+      ANIS 3
 
       MIXS LIB: DRAGON FIL: J311_295
 
@@ -147,7 +142,7 @@ ELSEIF correl "noCORR" = THEN
 
         He4  = He4   2.145381E-06
 
-        H1  = H1   2.497844E-02
+        H1 = H1_H2O   2.497844E-02
     ;
 ENDIF ;
 

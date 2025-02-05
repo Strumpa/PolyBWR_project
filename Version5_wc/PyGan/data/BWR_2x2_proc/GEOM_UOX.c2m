@@ -93,7 +93,8 @@ GEOM_2x2 := GEO: :: CAR2D 2 2
                     MESHX 0.0 <<Pitch_C>> MESHY 0.0 <<Pitch_C>>
     ;
     ::: C2 := GEO: C1 MIX <<COMB0201>> <<COMB0202>> <<COMB0203>> <<COMB0204>>
-                            <<GAP>> <<CLAD>> <<COOL>> <<COOL>> <<COOL>> <<COOL>>
+                            <<GAP>> <<CLAD>> 
+                            <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                             <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                             <<COOL>> <<COOL>> <<COOL>> <<COOL>>
     ;

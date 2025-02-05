@@ -52,7 +52,7 @@ def MULTI_SERP_POSTPROC(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_geom,bu_autop_list,V
 
     # --- List of isotopes to be post-treated
 
-    isotopes_SOUHAITES=['U235','U238','Pu239','Pu240','Gd155','Gd156','Gd157','Gd158','Xe135','Sm149', 'Sm154','Eu155', 'Eu156', 'Eu157']
+    isotopes_SOUHAITES=['U235','U238','Pu239','Pu240','Gd155','Gd156','Gd157','Gd158','Xe135','Sm149']
     
     if ssh_module == "AUTO":
         ssh_method = "Autosecol"
@@ -153,11 +153,23 @@ def MULTI_SERP_POSTPROC(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_geom,bu_autop_list,V
         SERPENT_results_ALL = {}
         # Importing Keff and isotopes densities from Serpent2
         for test_name in DRAGON_results_ALL.keys():
-            if "HOM_UOX_Gd157" in test_name: 
+            if "HOM_U5" == test_name:
+                test_name_file = "HOM_U5"
+            elif "HOM_U5_U8" == test_name:
+                test_name_file = "HOM_U5_U8"
+            elif "HOM_UOX_clad_noZr" == test_name:
+                test_name_file = "HOM_UOX_clad_noZr"
+            elif "HOM_UOX_clad" == test_name:
+                test_name_file = "HOM_UOX_clad"
+            elif "HOM_UOX" == test_name: 
+                test_name_file = "HOM_UOX"
+            elif "HOM_UOX_Gd157" == test_name: 
                 test_name_file = "HOM_UOX_Gd157"
-            elif "HOM_UOX_Gd155" in test_name:
+            elif "HOM_UOX_Gd155" == test_name:
                 test_name_file = "HOM_UOX_Gd155"
-            elif "HOM_UOXGd" in test_name:
+            elif "HOM_UOX_no155157" == test_name:
+                test_name_file = "HOM_UOX_no155157"
+            elif "HOM_UOXGd" == test_name:
                 test_name_file = "HOM_UOXGd"
             SERPENT_test_RESULTS = {}
             for lib_name in S2_libs:
@@ -168,15 +180,22 @@ def MULTI_SERP_POSTPROC(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_geom,bu_autop_list,V
                         edep = "_edep1"
                     elif edep_id == 2:
                         edep = "_edep2"
-                    # --- Keff
-                    # 
-                    res=serpentTools.read(f"/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/HOM_CELL_study/{test_name_file}/BUScheme_EDEP_PCC_study/{test_name_file}_{lib_name}{edep}_pcc1_mc_res.m")
+                    if "HOM_UOX_Gd157" == test_name_file:
+                        # --- Keff
+                        # 
+                        res=serpentTools.read(f"{os.environ["SERPENT_RESULTS"]}/HOM_CELL_study/{test_name_file}/BUScheme_EDEP_PCC_study/{test_name_file}_{lib_name}{edep}_pcc1_mc_res.m")
+                        # --- BU
+                        depl = serpentTools.read(f"{os.environ["SERPENT_RESULTS"]}/HOM_CELL_study/{test_name_file}/BUScheme_EDEP_PCC_study/{test_name_file}_{lib_name}{edep}_pcc1_mc_dep.m")
+                    else:
+                        # --- Keff
+                        res=serpentTools.read(f"{os.environ["SERPENT_RESULTS"]}/HOM_CELL_study/{test_name_file}/{test_name_file}_{lib_name}_mc_res.m")
+                        # --- BU
+                        depl = serpentTools.read(f"{os.environ["SERPENT_RESULTS"]}/HOM_CELL_study/{test_name_file}/{test_name_file}_{lib_name}_mc_dep.m")
                     serpent_keff=res.resdata["absKeff"]
                     np.savetxt(f'serpent_keff_{lib_name}.txt',serpent_keff)
                     SERPENT_keff=np.loadtxt(f'serpent_keff_{lib_name}.txt',dtype=float)
                         
-                    # --- BU
-                    depl = serpentTools.read(f"/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/HOM_CELL_study/{test_name_file}/BUScheme_EDEP_PCC_study/{test_name_file}_{lib_name}{edep}_pcc1_mc_dep.m")
+                   
                     fuel=depl.materials['total']
                     serpent_BU=fuel.burnup
                     np.savetxt(f'serpent_BU_{lib_name}.txt',serpent_BU)

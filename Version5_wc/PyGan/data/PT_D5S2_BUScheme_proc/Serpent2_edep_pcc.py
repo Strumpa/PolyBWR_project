@@ -36,10 +36,10 @@ class Serpent2_case:
     
     def read_S2_outputs(self):
         # Read the results
-        self.res = st.read(f"/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/HOM_CELL_study/{self.case_name}/BUScheme_EDEP_PCC_study/{self.case_name}_{self.lib_name}_edep{self.edep_id}_pcc{self.pcc_id}_mc_res.m")
+        self.res = st.read(f"{os.environ["SERPENT_RESULTS"]}/HOM_CELL_study/{self.case_name}/BUScheme_EDEP_PCC_study/{self.case_name}_{self.lib_name}_edep{self.edep_id}_pcc{self.pcc_id}_mc_res.m")
         self.keffs = self.res.resdata["absKeff"].T[0]
         self.sigmas_keff = self.res.resdata["absKeff"].T[1]
-        self.depl = st.read(f"/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/HOM_CELL_study/{self.case_name}/BUScheme_EDEP_PCC_study/{self.case_name}_{self.lib_name}_edep{self.edep_id}_pcc{self.pcc_id}_mc_dep.m")
+        self.depl = st.read(f"{os.environ["SERPENT_RESULTS"]}/HOM_CELL_study/{self.case_name}/BUScheme_EDEP_PCC_study/{self.case_name}_{self.lib_name}_edep{self.edep_id}_pcc{self.pcc_id}_mc_dep.m")
         self.mat = self.depl.materials['total']
         self.BU = self.mat.burnup
         data_frame = self.mat.toDataFrame("adens", names = self.tracked_nuclides, time = "days")

@@ -39,5 +39,6 @@ if [ -f "$pos"/draglibshem295_endfb8r1 ]
    then
     ln -s "$pos"/draglibshem295_endfb8r1 ENDFb8r1_295 
 fi
+ln -s ../../../libraries/l_endian/newGen_draglibJeff3p1p1SHEM295 newJ311_295
 ls
 echo "gduo2_295_kec1_evol access script terminated"

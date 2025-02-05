@@ -59,7 +59,7 @@ def POSTPROC(pyCOMPO, ListeCOMPO, ListeAUTOP, name_geom, name_mix, suffixe, VISU
     # Chemin d'accès aux résultats Serpent2
     burnup_points=suffixe.split("_")[1]
     #SERPENT_path=f'/home/p117902/Serpent2/Linux_x86_64/' # path to Serpent2 results with sss_jeff311 library.
-    SERPENT_paths=[f'/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/PyNjoy2016_results/{name_mix.split("_")[1]}/', f'/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/sss_jeff311_results/{name_mix.split("_")[1]}/']
+    SERPENT_paths=[f'{os.environ["SERPENT_RESULTS"]}/PyNjoy2016_results/{name_mix.split("_")[1]}/', f'{os.environ["SERPENT_RESULTS"]}/sss_jeff311_results/{name_mix.split("_")[1]}/']
     S2_legends=['PyNjoy2016','sss_jeff311']
     Error_legends=['D5-S2 (PyNjoy2016)','D5-S2 (oldlib)']
 

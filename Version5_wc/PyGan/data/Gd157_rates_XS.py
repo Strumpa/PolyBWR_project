@@ -7,7 +7,7 @@
 #
 # In COMP_MESHES, the results are tabulated according to : 
 #           - the energy mesh used, SHEM281/295/315 identified in EDIHOM_xxx directories
-#           - the self-shielding method used, identified through the 'SSH' parameters : A, R, P, S for Autosecol, RSE, PT and SUBG respectively
+#           - the self-shielding method used, identified through the 'SSH' parameters : AUTO, RSE, PT and SUBG respectively
 
 # In Serpent2, the results for absorption rates are obtained from detector results for MT=101 and MT=102 reactions of Gd157/U238
 # The cross sections are obtained from microdepletion output files
@@ -144,7 +144,7 @@ def generate_latex_table_IRSET(library, IRSET, data):
 
 def post_treat_HOM_UOX_Gd157_MESHES(correlation_model = False):
     # Path to Serpent2 results
-    path_to_S2_results = "/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/HOM_CELL_study/HOM_UOX_Gd157/XS_rates_study"
+    path_to_S2_results = f"{os.environ['SERPENT_RESULTS']}/HOM_CELL_study/HOM_UOX_Gd157/XS_rates_study"
     # Import COMPO object
     path = os.getcwd()
     if correlation_model:
@@ -154,9 +154,14 @@ def post_treat_HOM_UOX_Gd157_MESHES(correlation_model = False):
     os.chdir("Gd157_rates_XS_proc")
     pyCOMPO=lcm.new('LCM_INP',name_compo,impx=0)
     os.chdir(path)
+
+    if correlation_model:
+        case_name = "HOM_UOX_Gd157_CORR"
+    else:
+        case_name = "HOM_UOX_Gd157_noCORR"
     # Creation of results directory
     path=os.getcwd()
-    save_path = f"Gd157_Rates_and_XS_results_PyGan/EnergyMeshes_study"
+    save_path = f"Gd157_Rates_and_XS_results_PyGan/EnergyMeshes_study/{case_name}"
     save_path_comparison = f"{save_path}/comparison_D5_S2"
     a=os.path.exists(save_path)
     if a==False:
@@ -165,13 +170,10 @@ def post_treat_HOM_UOX_Gd157_MESHES(correlation_model = False):
     a=os.path.exists(save_path_comparison)
     if a==False:
         os.makedirs(save_path_comparison)
-    if correlation_model:
-        case_name = "HOM_UOX_Gd157_CORR"
-    else:
-        case_name = "HOM_UOX_Gd157_noCORR"
+
 
     meshes = ["XMAS172", "SHEM281","SHEM295","SHEM315"]
-    SSH_methods = {"A":"Autosecol","R":"RSE","P":"PT","S":"SUBG"}
+    SSH_methods = ["AUTO", "RSE", "PT", "SUBG"]
     Gd157_ngamma = {}
     U238_ngamma = {}
 
@@ -197,12 +199,12 @@ def post_treat_HOM_UOX_Gd157_MESHES(correlation_model = False):
         MESH_obj.printnfgCard()
         mesh_objects[mesh] = MESH_obj
 
-        SSH_methods_par = re.findall(r"[A-Za-z]+", pyCOMPO[DIR]["GLOBAL"]['pval00000001'].strip())
+        SSH_methods_par = pyCOMPO[DIR]["GLOBAL"]["pval00000001"].strip().split()
         for i in range(len(SSH_methods_par)):
-            Gd157_ngamma[mesh][SSH_methods[SSH_methods_par[i]]] = {"rates":[], "XS":[]}
-            U238_ngamma[mesh][SSH_methods[SSH_methods_par[i]]] = {"rates":[], "XS":[]}
-            fluxes[mesh][SSH_methods[SSH_methods_par[i]]] = []
-            print(f"SSH method {i} = {SSH_methods[SSH_methods_par[i]]}")
+            Gd157_ngamma[mesh][SSH_methods_par[i]] = {"rates":[], "XS":[]}
+            U238_ngamma[mesh][SSH_methods_par[i]] = {"rates":[], "XS":[]}
+            fluxes[mesh][SSH_methods_par[i]] = []
+            print(f"SSH method {i} = {SSH_methods_par[i]}")
             isotope = pyCOMPO[DIR]['MIXTURES'][0]['CALCULATIONS'][i]['ISOTOPESLIST'][1]['ALIAS'][0:5]
             print(f"isotope = {isotope}")
             print(f"number of calculations = {len(pyCOMPO[DIR]['MIXTURES'][0]['CALCULATIONS'])}")
@@ -220,27 +222,27 @@ def post_treat_HOM_UOX_Gd157_MESHES(correlation_model = False):
             NGAMMA_U238_rates = np.array(XS_NGAMMA_U238)*np.array(PHI)*N_U238
 
             # Store the results in the dictionaries
-            Gd157_ngamma[mesh][SSH_methods[SSH_methods_par[i]]]["rates"] = NGAMMA_Gd157_rates
-            U238_ngamma[mesh][SSH_methods[SSH_methods_par[i]]]["rates"] = NGAMMA_U238_rates
-            Gd157_ngamma[mesh][SSH_methods[SSH_methods_par[i]]]["XS"] = XS_NGAMMA_Gd157
-            U238_ngamma[mesh][SSH_methods[SSH_methods_par[i]]]["XS"] = XS_NGAMMA_U238
-            fluxes[mesh][SSH_methods[SSH_methods_par[i]]] = PHI
+            Gd157_ngamma[mesh][SSH_methods_par[i]]["rates"] = NGAMMA_Gd157_rates
+            U238_ngamma[mesh][SSH_methods_par[i]]["rates"] = NGAMMA_U238_rates
+            Gd157_ngamma[mesh][SSH_methods_par[i]]["XS"] = XS_NGAMMA_Gd157
+            U238_ngamma[mesh][SSH_methods_par[i]]["XS"] = XS_NGAMMA_U238
+            fluxes[mesh][SSH_methods_par[i]] = PHI
             if mesh == "XMAS172":
-                if len(Gd157_ngamma[mesh][SSH_methods[SSH_methods_par[i]]]['XS']) != 172 or len(U238_ngamma[mesh][SSH_methods[SSH_methods_par[i]]]['XS']) != 172:
-                    print(f"Error : XS data for {mesh} and {SSH_methods[SSH_methods_par[i]]} is not complete")
+                if len(Gd157_ngamma[mesh][SSH_methods_par[i]]['XS']) != 172 or len(U238_ngamma[mesh][SSH_methods_par[i]]['XS']) != 172:
+                    print(f"Error : XS data for {mesh} and {SSH_methods_par[i]} is not complete")
             if mesh == "SHEM281":
-                if len(Gd157_ngamma[mesh][SSH_methods[SSH_methods_par[i]]]['XS']) != 281 or len(U238_ngamma[mesh][SSH_methods[SSH_methods_par[i]]]['XS']) != 281:
-                    print(f"Error : XS data for {mesh} and {SSH_methods[SSH_methods_par[i]]} is not complete")
+                if len(Gd157_ngamma[mesh][SSH_methods_par[i]]['XS']) != 281 or len(U238_ngamma[mesh][SSH_methods_par[i]]['XS']) != 281:
+                    print(f"Error : XS data for {mesh} and {SSH_methods_par[i]} is not complete")
             if mesh == "SHEM295":
-                if len(Gd157_ngamma[mesh][SSH_methods[SSH_methods_par[i]]]['XS']) != 295 or len(U238_ngamma[mesh][SSH_methods[SSH_methods_par[i]]]['XS']) != 295:
-                    print(f"Error : XS data for {mesh} and {SSH_methods[SSH_methods_par[i]]} is not complete")
+                if len(Gd157_ngamma[mesh][SSH_methods_par[i]]['XS']) != 295 or len(U238_ngamma[mesh][SSH_methods_par[i]]['XS']) != 295:
+                    print(f"Error : XS data for {mesh} and {SSH_methods_par[i]} is not complete")
             if mesh == "SHEM315":
-                if len(Gd157_ngamma[mesh][SSH_methods[SSH_methods_par[i]]]['XS']) != 315 or len(U238_ngamma[mesh][SSH_methods[SSH_methods_par[i]]]['XS']) != 315:
-                    print(f"Error : XS data for {mesh} and {SSH_methods[SSH_methods_par[i]]} is not complete")
+                if len(Gd157_ngamma[mesh][SSH_methods_par[i]]['XS']) != 315 or len(U238_ngamma[mesh][SSH_methods_par[i]]['XS']) != 315:
+                    print(f"Error : XS data for {mesh} and {SSH_methods_par[i]} is not complete")
 
     # Call post treatment class
     
-    DRAGON5_EMESH = PT_D5(case_name, "EMESH", mesh_objects, ["Gd157_ngamma", "U238_ngamma"], meshes, SSH_methods.values(), save_path)
+    DRAGON5_EMESH = PT_D5(case_name, "EMESH", mesh_objects, ["Gd157_ngamma", "U238_ngamma"], meshes, SSH_methods, save_path)
     DRAGON5_EMESH.set_reaction_data("Gd157_ngamma",Gd157_ngamma)
     DRAGON5_EMESH.set_reaction_data("U238_ngamma",U238_ngamma)
     DRAGON5_EMESH.set_fluxes(fluxes)
@@ -269,10 +271,10 @@ def post_treat_HOM_UOX_Gd157_MESHES(correlation_model = False):
         D5_SSH_methods = ["RSE","PT","SUBG"]
         if mesh_name == "XMAS172":
             D5_SSH_methods = ["RSE","SUBG"] # not enough groups for PT : 250 groups required
-        DRAGON5_EMESH.compute_relative_differences_XS("Gd157_ngamma", mesh_name, "Autosecol", D5_SSH_methods)
-        DRAGON5_EMESH.compute_relative_differences_XS("U238_ngamma", mesh_name, "Autosecol", D5_SSH_methods)
-        DRAGON5_EMESH.compute_relative_differences_Rates("Gd157_ngamma", mesh_name, "Autosecol", D5_SSH_methods)
-        DRAGON5_EMESH.compute_relative_differences_Rates("U238_ngamma", mesh_name, "Autosecol", D5_SSH_methods)
+        DRAGON5_EMESH.compute_relative_differences_XS("Gd157_ngamma", mesh_name, "AUTO", D5_SSH_methods)
+        DRAGON5_EMESH.compute_relative_differences_XS("U238_ngamma", mesh_name, "AUTO", D5_SSH_methods)
+        DRAGON5_EMESH.compute_relative_differences_Rates("Gd157_ngamma", mesh_name, "AUTO", D5_SSH_methods)
+        DRAGON5_EMESH.compute_relative_differences_Rates("U238_ngamma", mesh_name, "AUTO", D5_SSH_methods)
 
         DRAGON5_EMESH.plot_histogram_relative_differences_XS("Gd157_ngamma", mesh_name, D5_SSH_methods, grmin, grmax)
         DRAGON5_EMESH.plot_relative_differences_XS("Gd157_ngamma", mesh_name, mesh_name, D5_SSH_methods)
@@ -319,17 +321,17 @@ def post_treat_HOM_UOX_Gd157_MESHES(correlation_model = False):
         SERPENT2_case.plot_relative_differences_Rates("Gd157_ngamma", mesh_name, bu_step = 0)
         SERPENT2_case.plot_relative_differences_Rates("U238_ngamma", mesh_name, bu_step = 0)
     # (case_name, study_type, D5_case, S2_case, S2_libs, compo_keywords, isotopes, self_shielding_methods, save_path)
-    comparison_D5_S2 = CD5S2("HOM_UOX_Gd157_rates_XS_study", "EMESH", DRAGON5_EMESH, SERPENT2_case, 
-                            S2_libs = ["oldlib", "PyNjoy2016"], compo_keywords = meshes, isotopes = ["Gd157", "U238"], self_shielding_methods = SSH_methods.values(),
+    comparison_D5_S2 = CD5S2(case_name, "EMESH", DRAGON5_EMESH, SERPENT2_case, 
+                            S2_libs = ["oldlib", "PyNjoy2016"], compo_keywords = meshes, isotopes = ["Gd157", "U238"], self_shielding_methods = SSH_methods,
                             save_path =   save_path_comparison)
-    all_ssh_methods = ["Autosecol","RSE","PT","SUBG"]
+    all_ssh_methods = ["AUTO","RSE","PT","SUBG"]
     diff_data_rates = {"PyNjoy2016":{}, "oldlib":{}}
     diff_data_XS = {"PyNjoy2016":{}, "oldlib":{}}
     for mesh_name in meshes:
         if mesh_name == "XMAS172":
-            all_ssh_methods = ["Autosecol","RSE","SUBG"] # not enough groups for PT : 250 groups required
+            all_ssh_methods = ["AUTO","RSE","SUBG"] # not enough groups for PT : 250 groups required
         else:
-            all_ssh_methods = ["Autosecol","RSE","PT","SUBG"]
+            all_ssh_methods = ["AUTO","RSE","PT","SUBG"]
         comparison_D5_S2.plot_rates_D5_S2("Gd157_ngamma", mesh_name, mesh_name, all_ssh_methods)
         comparison_D5_S2.plot_XS_D5_S2("Gd157_ngamma", mesh_name, mesh_name, all_ssh_methods)
         # renormalize reaction rates to the same value for both D5 and S2
@@ -384,7 +386,7 @@ def post_treat_HOM_UOX_Gd157_MESHES(correlation_model = False):
 def post_treat_HOM_UOX_Gd157_AUTOlib():
 
     # Path to Serpent2 results
-    path_to_S2_results = "/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/HOM_CELL_study/HOM_UOX_Gd157/XS_rates_study"
+    path_to_S2_results = f"{os.environ['SERPENT_RESULTS']}/HOM_CELL_study/HOM_UOX_Gd157/XS_rates_study"
     # Import COMPO object
     path = os.getcwd()
     name_compo='COMPO_295_AUTOLIB'
@@ -537,7 +539,7 @@ def post_treat_HOM_UOX_Gd157_AUTOlib():
 
 def post_treat_HOM_UOX_Gd157_IRSET():
     # Path to Serpent2 results
-    path_to_S2_results = "/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/HOM_CELL_study/HOM_UOX_Gd157/XS_rates_study"
+    path_to_S2_results = f"{os.environ['SERPENT_RESULTS']}/HOM_CELL_study/HOM_UOX_Gd157/XS_rates_study"
     # Import COMPO object
     path = os.getcwd()
     name_compo='newCOMPO_Gd157_IRSET'
@@ -699,7 +701,7 @@ def post_treat_HOM_UOX_Gd157_IRSET():
 
 def post_treat_HOM_UOX_Gd157_TONE_SHI_IRSET():
     # Path to Serpent2 results
-    path_to_S2_results = "/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/HOM_CELL_study/HOM_UOX_Gd157/XS_rates_study"
+    path_to_S2_results = f"{os.environ['SERPENT_RESULTS']}/HOM_CELL_study/HOM_UOX_Gd157/XS_rates_study"
     # Import COMPO object
     path = os.getcwd()
     name_compo='COMPO_Gd157_IR_TONE_SHI'
@@ -932,7 +934,7 @@ def post_treat_HOM_UOX_Gd157_TONE_SHI_IRSET():
 
 def post_treat_HOM_UOX_Gd157_TONE_SHI_IRSET_newGen():
     # Path to Serpent2 results
-    path_to_S2_results = "/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/HOM_CELL_study/HOM_UOX_Gd157/XS_rates_study"
+    path_to_S2_results = f"{os.environ['SERPENT_RESULTS']}/HOM_CELL_study/HOM_UOX_Gd157/XS_rates_study"
     # Import COMPO object
     path = os.getcwd()
     name_compo='NewGenCOMPO_Gd157_IRtest'
@@ -1163,6 +1165,7 @@ def post_treat_HOM_UOX_Gd157_TONE_SHI_IRSET_newGen():
     print("Post-treatment of HOM_UOX_Gd157 IRSET extended study with New Gen draglib done")
     return
 
+
 def compare_HOM_UOX_Gd157_TONE_SHI_IRSET_with_newGen():
 
     """
@@ -1330,11 +1333,12 @@ def compare_HOM_UOX_Gd157_TONE_SHI_IRSET_with_newGen():
 
     return
 
+
 def post_Treat_HOM_UOX_Gd157_RSECORR():
-    grmin_zoom = 70
-    grmax_zoom = 206
+    grmin_zoom = 1
+    grmax_zoom = 295
     # Path to Serpent2 results
-    path_to_S2_results = "/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/HOM_CELL_study/HOM_UOX_Gd157/XS_rates_study"
+    path_to_S2_results = f"{os.environ['SERPENT_RESULTS']}/HOM_CELL_study/HOM_UOX_Gd157/XS_rates_study"
     # Import COMPO object
     path = os.getcwd()
     name_compo='COMPO_HOM_UOX_Gd157_RSECORR'
@@ -1491,13 +1495,13 @@ def post_Treat_HOM_UOX_Gd157_RSECORR():
     
 if __name__ == "__main__":
     print("Post-treating HOM_UOX_Gd157 results")
-    post_treating_MESHES_study = False
+    post_treating_MESHES_study = True
     post_treating_AUTOlib_study = False
     post_treating_IRSET_study = False
     post_treating_TONE_SHI_IRSET_study = False
     post_treating_TONE_SHI_IRSET_study_newGen = False
     compare_IRSET_study_with_newGen = False
-    post_treating_HOM_UOX_Gd157_RSECORR = True
+    post_treating_HOM_UOX_Gd157_RSECORR = False
 
     if post_treating_MESHES_study:
         print("Post-treating HOM_UOX_Gd157_MESHES : noCORR")

@@ -16,6 +16,6 @@ else
    MACH=`uname -sm | sed 's/[ ]/_/'`
 fi
 ls -l
-mv COMPO_MESHES $1/"$MACH"
+mv COMPO_MESHES* $1/"$MACH"
 echo "HOM_UOX_Gd157_mesh.save completed"
 

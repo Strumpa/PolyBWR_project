@@ -55,7 +55,7 @@ Library = 'J311_295'
 case_name = "2x2_UOX" # "2x2_UOX_Gd" or "2x2_UOX"
 
 # SSH method
-ssh_method = "PT" # "PT", "RSE", "SUBG"
+ssh_method = "RSE" # "PT", "RSE", "SUBG"
 CALC_opt = "noCalc" # "CALC1", "CALC2", "CALC3", "CALC4", "noCalc"
 
 # BU options 

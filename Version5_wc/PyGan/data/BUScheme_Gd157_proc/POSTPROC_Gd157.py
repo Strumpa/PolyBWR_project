@@ -300,13 +300,13 @@ def POSTPROC_Gd157(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_geom,bu_autop_list,VISU_p
                 for edep in S2_EDEP:
                     # --- Keff
                     # 
-                    res=serpentTools.read(f"/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/HOM_CELL_study/{test_name_file}/ENERGY_DEPOSITION_study/{test_name_file}_{lib_name}_edep{edep}_pcc{PCC}_mc_res.m")
+                    res=serpentTools.read(f"{os.environ["SERPENT_RESULTS"]}/HOM_CELL_study/{test_name_file}/ENERGY_DEPOSITION_study/{test_name_file}_{lib_name}_edep{edep}_pcc{PCC}_mc_res.m")
                     serpent_keff=res.resdata["absKeff"]
                     np.savetxt(f'serpent_keff_{lib_name}.txt',serpent_keff)
                     SERPENT_keff=np.loadtxt(f'serpent_keff_{lib_name}.txt',dtype=float)
                         
                     # --- BU
-                    depl = serpentTools.read(f"/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/HOM_CELL_study/{test_name_file}/ENERGY_DEPOSITION_study/{test_name_file}_{lib_name}_edep{edep}_pcc{PCC}_mc_dep.m")
+                    depl = serpentTools.read(f"{os.environ["SERPENT_RESULTS"]}/HOM_CELL_study/{test_name_file}/ENERGY_DEPOSITION_study/{test_name_file}_{lib_name}_edep{edep}_pcc{PCC}_mc_dep.m")
                     fuel=depl.materials['total']
                     serpent_BU=fuel.burnup
                     np.savetxt(f'serpent_BU_{lib_name}.txt',serpent_BU)
@@ -382,14 +382,14 @@ def POSTPROC_Gd157(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_geom,bu_autop_list,VISU_p
             
 
     if visu_DRAGON==1:
-        plot_DRAGON(DRAGON_results_ALL, isotopes_SOUHAITES, SIZE, path, SAVE_DIR, DEPL_SOL, ssh_method, correlation_name, sat_name)
+        plot_DRAGON(DRAGON_results_ALL, isotopes_SOUHAITES, SIZE, path, SAVE_DIR, ssh_method, correlation_name, energy_mesh)
 
     if visu_SERPENT==1:
         plot_Serpent2(SERPENT_results_ALL, isotopes_SOUHAITES, SIZE, path, SAVE_DIR)
 
     if visu_COMP==1:
         print('$$$ -------- POSTPROC.py : COMPARISON FIGURES ')
-        plot_Comparison(DRAGON_results_ALL, SERPENT_results_ALL, isotopes_SOUHAITES, SIZE, path, SAVE_DIR, DEPL_SOL, ssh_method, correlation_name, sat_name)
+        plot_Comparison(DRAGON_results_ALL, SERPENT_results_ALL, isotopes_SOUHAITES, SIZE, path, SAVE_DIR, ssh_method, correlation_name, energy_mesh)
         
     if visu_DELTA==1 :
         print('$$$ -------- POSTPROC.py : ERROR FIGURES ')
@@ -412,11 +412,11 @@ def POSTPROC_Gd157(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_geom,bu_autop_list,VISU_p
             elif D5_pcc == "PCC3b":
                 ERRORS_D5_PCC3b[test_name] = ERRORS_ALL[test_name]
 
-        plot_errors("HOM_UOX_Gd157_PCC0", ERRORS_D5_PCC0, isotopes_SOUHAITES, SIZE, path, SAVE_DIR, DEPL_SOL, ssh_method, correlation_name, sat_name, ListeAUTOP, ListeCOMPO)
-        plot_errors("HOM_UOX_Gd157_PCC1", ERRORS_D5_PCC1, isotopes_SOUHAITES, SIZE, path, SAVE_DIR, DEPL_SOL, ssh_method, correlation_name, sat_name, ListeAUTOP, ListeCOMPO)
-        plot_errors("HOM_UOX_Gd157_PCC2", ERRORS_D5_PCC2, isotopes_SOUHAITES, SIZE, path, SAVE_DIR, DEPL_SOL, ssh_method, correlation_name, sat_name, ListeAUTOP, ListeCOMPO)
-        plot_errors("HOM_UOX_Gd157_PCC3", ERRORS_D5_PCC3, isotopes_SOUHAITES, SIZE, path, SAVE_DIR, DEPL_SOL, ssh_method, correlation_name, sat_name, ListeAUTOP, ListeCOMPO)
-        plot_errors("HOM_UOX_Gd157_PCC3b", ERRORS_D5_PCC3b, isotopes_SOUHAITES, SIZE, path, SAVE_DIR, DEPL_SOL, ssh_method, correlation_name, sat_name, ListeAUTOP, ListeCOMPO)
+        plot_errors("HOM_UOX_Gd157_PCC0", ERRORS_D5_PCC0, isotopes_SOUHAITES, SIZE, path, SAVE_DIR, ssh_method, correlation_name, ListeAUTOP, ListeCOMPO, energy_mesh)
+        plot_errors("HOM_UOX_Gd157_PCC1", ERRORS_D5_PCC1, isotopes_SOUHAITES, SIZE, path, SAVE_DIR, ssh_method, correlation_name, ListeAUTOP, ListeCOMPO, energy_mesh)
+        plot_errors("HOM_UOX_Gd157_PCC2", ERRORS_D5_PCC2, isotopes_SOUHAITES, SIZE, path, SAVE_DIR, ssh_method, correlation_name, ListeAUTOP, ListeCOMPO, energy_mesh)
+        plot_errors("HOM_UOX_Gd157_PCC3", ERRORS_D5_PCC3, isotopes_SOUHAITES, SIZE, path, SAVE_DIR, ssh_method, correlation_name, ListeAUTOP, ListeCOMPO, energy_mesh)
+        plot_errors("HOM_UOX_Gd157_PCC3b", ERRORS_D5_PCC3b, isotopes_SOUHAITES, SIZE, path, SAVE_DIR, ssh_method, correlation_name, ListeAUTOP, ListeCOMPO, energy_mesh)
 
 
 

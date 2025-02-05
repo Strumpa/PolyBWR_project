@@ -94,8 +94,8 @@ IF ssh_method "RSE" = THEN
   LIBRARY := LIB: ::
       EDIT 0
       NMIX 1    ! MAXIMUM OF MATERIAL MIXTURES
-      RSE 5.0E-02
-      ANIS 1
+      RSE 
+      ANIS 2
 
     DEPL LIB: DRAGON FIL: <<Library>>
 
@@ -150,7 +150,7 @@ IF ssh_method "RSE" = THEN
 
       He4  = He4   2.145381E-06
 
-      H1  = H1   2.497844E-02
+      H1  = H1_H2O  2.497844E-02
   ;
 ELSEIF ssh_method "PT" = THEN
 
@@ -158,7 +158,7 @@ ELSEIF ssh_method "PT" = THEN
       EDIT 0
       NMIX 1    ! MAXIMUM OF MATERIAL MIXTURES
       CALENDF 4 PT 
-      ANIS 1
+      ANIS 2
 
     DEPL LIB: DRAGON FIL: <<Library>>
 
@@ -218,14 +218,14 @@ ELSEIF ssh_method "PT" = THEN
 
       He4  = He4   2.145381E-06
 
-      H1  = H1   2.497844E-02
+      H1  = H1_H2O   2.497844E-02
   ;
 ELSEIF ssh_method "SUBG" = THEN
   LIBRARY := LIB: ::
       EDIT 0
       NMIX 1    ! MAXIMUM OF MATERIAL MIXTURES
       SUBG
-      ANIS 1
+      ANIS 2
 
     DEPL LIB: DRAGON FIL: <<Library>>
 
@@ -280,7 +280,7 @@ ELSEIF ssh_method "SUBG" = THEN
 
       He4  = He4   2.145381E-06
 
-      H1  = H1   2.497844E-02
+      H1  = H1_H2O   2.497844E-02
   ;
 
 ENDIF ;

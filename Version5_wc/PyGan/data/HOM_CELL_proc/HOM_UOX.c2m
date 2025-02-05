@@ -56,7 +56,7 @@ IF ssh_method "RSE" = THEN
         EDIT 0
         NMIX 1    ! MAXIMUM OF MATERIAL MIXTURES
         RSE 5.0E-02
-        ANIS 1
+        ANIS 2
 
       DEPL LIB: DRAGON FIL: <<Library>>
 
@@ -67,14 +67,14 @@ IF ssh_method "RSE" = THEN
         U234  = U234   3.482587E-06 CORR 1
         U235  = U235   3.664503E-04 CORR 1
         U238  = U238   7.765571E-03 CORR 1
-        H1  = H1   2.497844E-02
+        H1  = H1_H2O   2.497844E-02
     ;
   ELSE
     LIBRARY := LIB: ::
         EDIT 0
         NMIX 1    ! MAXIMUM OF MATERIAL MIXTURES
         RSE 5.0E-02
-        ANIS 1
+        ANIS 2
 
       DEPL LIB: DRAGON FIL: <<Library>>
 
@@ -85,7 +85,7 @@ IF ssh_method "RSE" = THEN
         U234  = U234   3.482587E-06 1
         U235  = U235   3.664503E-04 1
         U238  = U238   7.765571E-03 1
-        H1  = H1   2.497844E-02
+        H1  = H1_H2O   2.497844E-02
     ;
   ENDIF ;
 ELSEIF ssh_method "PT" = THEN
@@ -94,7 +94,7 @@ ELSEIF ssh_method "PT" = THEN
         EDIT 0
         NMIX 1    ! MAXIMUM OF MATERIAL MIXTURES
         CALENDF 4 PT 
-        ANIS 1
+        ANIS 2
 
       DEPL LIB: DRAGON FIL: <<Library>>
 
@@ -105,14 +105,14 @@ ELSEIF ssh_method "PT" = THEN
         U234  = U234   3.482587E-06 CORR 1
         U235  = U235   3.664503E-04 CORR 1
         U238  = U238   7.765571E-03 CORR 1
-        H1  = H1   2.497844E-02
+        H1  = H1_H2O   2.497844E-02
     ;
   ELSE
     LIBRARY := LIB: ::
           EDIT 0
           NMIX 1    ! MAXIMUM OF MATERIAL MIXTURES
           CALENDF 4 PT 
-          ANIS 1
+          ANIS 2
 
         DEPL LIB: DRAGON FIL: <<Library>>
 
@@ -123,7 +123,7 @@ ELSEIF ssh_method "PT" = THEN
           U234  = U234   3.482587E-06 1
           U235  = U235   3.664503E-04 1
           U238  = U238   7.765571E-03 1
-          H1  = H1   2.497844E-02
+          H1  = H1_H2O   2.497844E-02
       ;
   ENDIF ;
 ELSEIF ssh_method "SUBG" = THEN
@@ -131,7 +131,7 @@ ELSEIF ssh_method "SUBG" = THEN
       EDIT 0
       NMIX 1    ! MAXIMUM OF MATERIAL MIXTURES
       SUBG
-      ANIS 1
+      ANIS 2
 
     DEPL LIB: DRAGON FIL: <<Library>>
 
@@ -142,7 +142,7 @@ ELSEIF ssh_method "SUBG" = THEN
       U234  = U234   3.482587E-06 1
       U235  = U235   3.664503E-04 1
       U238  = U238   7.765571E-03 1
-      H1  = H1   2.497844E-02
+      H1  = H1_H2O   2.497844E-02
   ;
 
 ENDIF ;

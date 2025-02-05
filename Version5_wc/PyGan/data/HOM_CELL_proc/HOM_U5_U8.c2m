@@ -57,7 +57,7 @@ IF correlation "CORR" = THEN
         EDIT 0
         NMIX 1    ! MAXIMUM OF MATERIAL MIXTURES
         RSE <<epsRSE>> ! Reducing SVD accuracy lowers error to S2 when using CORR.
-        ANIS 1
+        ANIS 2
 
       DEPL LIB: DRAGON FIL: <<Library>>
 
@@ -67,14 +67,14 @@ IF correlation "CORR" = THEN
         O16  = O16   2.955339E-02 
         U235  = U235   3.664503E-04 CORR 1
         U238  = U238   7.765571E-03 CORR 1
-        H1  = H1   2.497844E-02
+        H1  = H1_H2O   2.497844E-02
     ;
   ELSEIF ssh_method "PT" = THEN
     LIBRARY := LIB: ::
         EDIT 0
         NMIX 1    ! MAXIMUM OF MATERIAL MIXTURES
         CALENDF 4 PT 
-        ANIS 1
+        ANIS 2
 
       DEPL LIB: DRAGON FIL: <<Library>>
 
@@ -84,14 +84,14 @@ IF correlation "CORR" = THEN
         O16  = O16   2.955339E-02 
         U235  = U235   3.664503E-04 CORR 1
         U238  = U238   7.765571E-03 CORR 1
-        H1  = H1   2.497844E-02
+        H1  = H1_H2O   2.497844E-02
     ;
   ELSEIF ssh_method "SUBG" = THEN
     LIBRARY := LIB: ::
         EDIT 0
         NMIX 1    ! MAXIMUM OF MATERIAL MIXTURES
         SUBG
-        ANIS 1
+        ANIS 2
 
       DEPL LIB: DRAGON FIL: <<Library>>
       MIXS LIB: DRAGON FIL: <<Library>>
@@ -100,7 +100,7 @@ IF correlation "CORR" = THEN
         O16  = O16   2.955339E-02 
         U235  = U235   3.664503E-04 CORR 1
         U238  = U238   7.765571E-03 CORR 1
-        H1  = H1   2.497844E-02
+        H1  = H1_H2O   2.497844E-02
     ;
 
   ENDIF ;
@@ -110,7 +110,7 @@ ELSE
         EDIT 0
         NMIX 1    ! MAXIMUM OF MATERIAL MIXTURES
         RSE <<epsRSE>>
-        ANIS 1
+        ANIS 2
 
       DEPL LIB: DRAGON FIL: <<Library>>
 
@@ -120,7 +120,7 @@ ELSE
         O16  = O16   2.955339E-02 
         U235  = U235   3.664503E-04 1
         U238  = U238   7.765571E-03 1
-        H1  = H1   2.497844E-02
+        H1  = H1_H2O   2.497844E-02
     ;
   ELSEIF ssh_method "PT" = THEN
 
@@ -128,7 +128,7 @@ ELSE
         EDIT 0
         NMIX 1    ! MAXIMUM OF MATERIAL MIXTURES
         CALENDF 4 PT 
-        ANIS 1
+        ANIS 2
 
       DEPL LIB: DRAGON FIL: <<Library>>
 
@@ -138,14 +138,14 @@ ELSE
         O16  = O16   2.955339E-02 
         U235  = U235   3.664503E-04 1
         U238  = U238   7.765571E-03 1
-        H1  = H1   2.497844E-02
+        H1  = H1_H2O   2.497844E-02
     ;
   ELSEIF ssh_method "SUBG" = THEN
     LIBRARY := LIB: ::
         EDIT 0
         NMIX 1    ! MAXIMUM OF MATERIAL MIXTURES
         SUBG
-        ANIS 1
+        ANIS 2
 
       DEPL LIB: DRAGON FIL: <<Library>>
 
@@ -155,7 +155,7 @@ ELSE
         O16  = O16   2.955339E-02 
         U235  = U235   3.664503E-04 1
         U238  = U238   7.765571E-03 1
-        H1  = H1   2.497844E-02
+        H1  = H1_H2O   2.497844E-02
     ;
 
   ENDIF ;

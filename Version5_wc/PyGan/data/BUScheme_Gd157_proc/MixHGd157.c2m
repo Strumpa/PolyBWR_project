@@ -29,17 +29,17 @@ IF ssh_method "RSE" = THEN
         LIBRARY := LIB: ::
             EDIT 0
             NMIX 1    ! MAXIMUM OF MATERIAL MIXTURES
-            RSE 1.0E-3
-            ANIS 1
+            RSE 
+            ANIS 2
 
             DEPL LIB: DRAGON FIL: <<Library>>
             MIXS LIB: DRAGON FIL: <<Library>>
 
             MIX 1 750.0
             O16  = O16   2.955339E-02 
-            H1  = H1   2.497844E-02
+            H1  = H1_H2O   2.497844E-02
             U234  = U234   3.482587E-06 1
-            U235  = U235   3.664503E-04 1
+            U235  = U235   3.664503E-04 CORR 1
             U238  = U238   7.765571E-03 CORR 1
 
             Gd157  = Gd157 7.899877E-05 CORR 1
@@ -85,15 +85,15 @@ IF ssh_method "RSE" = THEN
         LIBRARY := LIB: ::
             EDIT 0
             NMIX 1    ! MAXIMUM OF MATERIAL MIXTURES
-            RSE 1.0E-3
-            ANIS 1
+            RSE
+            ANIS 2
 
             DEPL LIB: DRAGON FIL: <<Library>>
             MIXS LIB: DRAGON FIL: <<Library>>
 
             MIX 1 750.0
             O16  = O16   2.955339E-02 
-            H1  = H1   2.497844E-02
+            H1  = H1_H2O   2.497844E-02
             U234  = U234   3.482587E-06 1
             U235  = U235   3.664503E-04 1
             U238  = U238   7.765571E-03 1
@@ -144,14 +144,14 @@ ELSEIF ssh_method "PT" = THEN
             EDIT 1
             NMIX 1    ! MAXIMUM OF MATERIAL MIXTURES
             CALENDF 4 PT 
-            ANIS 1
+            ANIS 2
 
             DEPL LIB: DRAGON FIL: <<Library>>
             MIXS LIB: DRAGON FIL: <<Library>>
 
             MIX 1 750.0
             O16  = O16   2.955339E-02 
-            H1  = H1   2.497844E-02
+            H1  = H1_H2O   2.497844E-02
             U234  = U234   3.482587E-06 1
             U235  = U235   3.664503E-04 CORR 1
             U238  = U238   7.765571E-03 CORR 1
@@ -200,14 +200,14 @@ ELSEIF ssh_method "PT" = THEN
             EDIT 1
             NMIX 1    ! MAXIMUM OF MATERIAL MIXTURES
             CALENDF 4 PT 
-            ANIS 1
+            ANIS 2
 
             DEPL LIB: DRAGON FIL: <<Library>>
             MIXS LIB: DRAGON FIL: <<Library>>
 
             MIX 1 750.0
             O16  = O16   2.955339E-02 
-            H1  = H1   2.497844E-02
+            H1  = H1_H2O   2.497844E-02
             U234  = U234   3.482587E-06 1
             U235  = U235   3.664503E-04 1
             U238  = U238   7.765571E-03 1
@@ -257,14 +257,14 @@ ELSEIF ssh_method "SUBG" = THEN
       EDIT 0
       NMIX 1    ! MAXIMUM OF MATERIAL MIXTURES
       SUBG
-      ANIS 1
+      ANIS 2
 
     DEPL LIB: DRAGON FIL: <<Library>>
     MIXS LIB: DRAGON FIL: <<Library>>
 
     MIX 1 750.0
       O16  = O16   2.955339E-02 
-      H1  = H1   2.497844E-02
+      H1  = H1_H2O   2.497844E-02 
       U234  = U234   3.482587E-06 1
       U235  = U235   3.664503E-04 1
       U238  = U238   7.765571E-03 1
