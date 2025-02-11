@@ -177,20 +177,20 @@ def MULTI_SERP_POSTPROC(pyCOMPOs,ListeCOMPO,ListeAUTOP,name_geom,bu_autop_list,V
                     if edep_id == 0:
                         edep = "_edep0"
                     elif edep_id == 1:
-                        edep = "_edep1"
+                        edep = "_edep1_Ecapt"
                     elif edep_id == 2:
                         edep = "_edep2"
                     if "HOM_UOX_Gd157" == test_name_file:
                         # --- Keff
                         # 
-                        res=serpentTools.read(f"{os.environ["SERPENT_RESULTS"]}/HOM_CELL_study/{test_name_file}/BUScheme_EDEP_PCC_study/{test_name_file}_{lib_name}{edep}_pcc1_mc_res.m")
+                        res=serpentTools.read(f"{os.environ['SERPENT_RESULTS']}/HOM_CELL_study/{test_name_file}/BUScheme_EDEP_PCC_study/{test_name_file}_{lib_name}{edep}_pcc1_mc_res.m")
                         # --- BU
-                        depl = serpentTools.read(f"{os.environ["SERPENT_RESULTS"]}/HOM_CELL_study/{test_name_file}/BUScheme_EDEP_PCC_study/{test_name_file}_{lib_name}{edep}_pcc1_mc_dep.m")
+                        depl = serpentTools.read(f"{os.environ['SERPENT_RESULTS']}/HOM_CELL_study/{test_name_file}/BUScheme_EDEP_PCC_study/{test_name_file}_{lib_name}{edep}_pcc1_mc_dep.m")
                     else:
                         # --- Keff
-                        res=serpentTools.read(f"{os.environ["SERPENT_RESULTS"]}/HOM_CELL_study/{test_name_file}/{test_name_file}_{lib_name}_mc_res.m")
+                        res=serpentTools.read(f"{os.environ['SERPENT_RESULTS']}/HOM_CELL_study/{test_name_file}/{test_name_file}_{lib_name}_mc_res.m")
                         # --- BU
-                        depl = serpentTools.read(f"{os.environ["SERPENT_RESULTS"]}/HOM_CELL_study/{test_name_file}/{test_name_file}_{lib_name}_mc_dep.m")
+                        depl = serpentTools.read(f"{os.environ['SERPENT_RESULTS']}/HOM_CELL_study/{test_name_file}/{test_name_file}_{lib_name}_mc_dep.m")
                     serpent_keff=res.resdata["absKeff"]
                     np.savetxt(f'serpent_keff_{lib_name}.txt',serpent_keff)
                     SERPENT_keff=np.loadtxt(f'serpent_keff_{lib_name}.txt',dtype=float)

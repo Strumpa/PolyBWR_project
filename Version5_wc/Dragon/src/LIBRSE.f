@@ -255,10 +255,6 @@
           ENDIF
         ENDDO
         MI=MRANK(IG)
-        IF(IMPX.GE.2) THEN
-          WRITE(6,'(/15H LIBRSE: RANK('',A12,2H'',,I4,2H)=,I3)') HNAMIS,
-     1    IG,MI
-        ENDIF
         IF(MI.EQ.0) CYCLE
         ALLOCATE(V_M(IG)%MATRIX(NDIL,MI))
         DO IM=1,MI
@@ -375,11 +371,18 @@
         ENDDO
         DEALLOCATE(TTT)
         LLL=LLL+LGBIN
+        IF(IMPX.EQ.1) THEN
+          WRITE(6,'(15H LIBRSE: RANK('',A12,2H'',,I4,2H)=,I3)') HNAMIS,
+     1    IG,MI
+        ELSE IF(IMPX.GE.2) THEN
+          WRITE(6,'(/10H LIBRSE: '',A12,27H'' SIGT BASE POINTS IN GROUP,
+     1    I5,1H:)') HNAMIS,IG
+          WRITE(6,'(1X,1P,12E12.4)') SIGT_V(IG)%VECTOR(:MI)
+        ENDIF
         IF(IMPX.GE.3) THEN
-          WRITE(6,'(/30H LIBRSE: NWT0 WEIGHTS IN GROUP,I4,1H:)') IG
-          WRITE(6,'(1X,1P,12E12.4)') WEIGHT_V(IG)%VECTOR(:)
-          WRITE(6,'(/34H LIBRSE: SIGT BASE POINTS IN GROUP,I4,1H:)') IG
-          WRITE(6,'(1X,1P,12E12.4)') SIGT_V(IG)%VECTOR(:)
+          WRITE(6,'(/10H LIBRSE: '',A12,23H'' NWT0 WEIGHTS IN GROUP,I5,
+     1    1H:)') HNAMIS,IG
+          WRITE(6,'(1X,1P,12E12.4)') WEIGHT_V(IG)%VECTOR(:MI)
         ENDIF
       ENDDO
       DEALLOCATE(DDD_M)
@@ -443,15 +446,16 @@
         SIGP_M(IG)%MATRIX(:NPART,:MI)=MATMUL(DDD(:NPART,:MI),
      1           T_M(IG)%MATRIX(:MI,:MI))
         DEALLOCATE(DDD,XSDIL)
-        IF(IMPX.GE.2) THEN
+        IF(IMPX.GE.3) THEN
+          WRITE(6,'(/10H LIBRSE: '',A12,27H'' TABLE COMPONENTS IN GROUP,
+     1    I5,1H:)') HNAMIS,IG
           DO IPART=1,4
-            WRITE(6,'(/17H LIBRSE: REACTION,A5,20H TABLE COMPONENTS IN,
-     1      6H GROUP,I4,1H:)') HPART(IPART),IG
             IF(IPART.EQ.1) THEN
-              WRITE(6,'(1X,1P,12E12.4)') SIGP_M(IG)%MATRIX(1,:MI)
-            ELSE
-              WRITE(6,'(1X,1P,12E12.4)') SIGP_M(IG)%MATRIX(IPART,:MI)/
+              WRITE(6,'(1X,A5,1P,12E12.4/(6X,12E12.4))') HPART(IPART),
      1        SIGP_M(IG)%MATRIX(1,:MI)
+            ELSE
+              WRITE(6,'(1X,A5,1P,12E12.4/(6X,12E12.4))') HPART(IPART),
+     1        SIGP_M(IG)%MATRIX(IPART,:MI)/SIGP_M(IG)%MATRIX(1,:MI)
             ENDIF
           ENDDO
         ENDIF

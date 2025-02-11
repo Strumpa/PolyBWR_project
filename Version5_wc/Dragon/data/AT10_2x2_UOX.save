@@ -21,5 +21,6 @@ mv FIG_main.ps $1/"$MACH"
 mv FIG_selfshielding.ps $1/"$MACH"
 mv tracks_SALT_FLX_2x2_UOX.m $1/"$MACH"
 mv tracks_SALT_SSH_2x2_UOX.m $1/"$MACH"
+mv *COMPO* $1/"$MACH"
 echo "AT10_2x2_UOX.save completed"
 

@@ -77,12 +77,10 @@
       DOUBLE PRECISION FL0(MXE),CY0(MXE),FL1(MXE),CY1(MXE)
       LOGICAL LNEW
 *
-      DO 2210 IE=1,NE
-         FL0(IE)= ZERO
-         FL1(IE)= ZERO
-         CY0(IE)= ONE
-         CY1(IE)= ONE
- 2210 CONTINUE
+      FL0(:NE)= ZERO
+      FL1(:NE)= ZERO
+      CY0(:NE)= ONE
+      CY1(:NE)= ONE
 *----
 *     Calculation of the coefficients for this track.
 *----

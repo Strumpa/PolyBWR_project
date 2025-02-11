@@ -90,7 +90,7 @@
          CALL KDRVER(REV,DATE)
          HSMPO='DRAGON5 generated file'
          CALL hdf5_create_group(IPMPO,"info")
-         CALL hdf5_write_data(IPMPO,"/info/APOLLO3_VERSION",
+         CALL hdf5_write_data(IPMPO,"/info/DRAGON5_VERSION",
      1   TRIM(HSMPO))
          IVERS=1
          CALL hdf5_write_data(IPMPO,"/info/MPO_VERSION",IVERS)

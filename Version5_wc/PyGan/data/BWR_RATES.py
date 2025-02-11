@@ -137,7 +137,7 @@ def BWR_CLUSTER(name_geom, name_case, name_compo, reaction_type, n_groups, bu):
         os.mkdir(name_DIR)
     
     # Access paths to multicompo and serpent results in Resultats_serpent4PyGan
-    SERPENT_path = f'/home/p117902/working_dir/Serpent2_para_bateman/Linux_aarch64/PyNjoy2016_results/{name_geom}/'
+    SERPENT_path = f'{os.environ["SERPENT_RESULTS"]}/PyNjoy2016_results/{name_geom}/'
     
     # Recovering multi-compos
     #name_compo = 'COMPO_' + name_geom + name_case 
@@ -149,7 +149,6 @@ def BWR_CLUSTER(name_geom, name_case, name_compo, reaction_type, n_groups, bu):
     #print(pyCOMPO['EDIBU_2gr']['MIXTURES'][0]['CALCULATIONS'][0]['MIXTURESVOL'])
 
     # Parse Serpent2 results
-
     U235_fission_rates_S2 = parse_Serpent2_lattice_det(SERPENT_path, name_case, 2, 0)
 
     MIXES_S2 = [0,1,2,3]

@@ -82,13 +82,13 @@
       ENDIF
       IF(NANI.LE.0) CALL XABORT('MCGFST: INVALID VALUE OF NANI.')
       DO II=1,NGEFF
-      IF (NCONV(II)) THEN
+      IF(NCONV(II)) THEN
          JPSYS=KPSYS(II)
          CALL LCMGET(JPSYS,NPJJT,PJJ)
          IF(IDIR.GT.0) CALL LCMGET(JPSYS,NPJJIT,PJJI)
          DO I=1,K
          IF(V(I).GT.0.) THEN 
-            IF (NZON(I).LT.0) THEN
+            IF(NZON(I).LT.0) THEN
                IND=KEYCUR(I-NREG)
                PHIOUT(IND,II)=PHIOUT(IND,II)/V(I)
             ELSE
@@ -112,7 +112,7 @@
                      PHIOUT(IND+KPN/2,II)=PHIOUT(IND+KPN/2,II)+
      1                           PJJI(I,IMOD)*S(INDP,II)
                   ENDIF
-                  IF (INU.NE.INUP) THEN
+                  IF(INU.NE.INUP) THEN
                      PHIOUT(INDP,II)=PHIOUT(INDP,II)+
      1                           PJJ(I,IMOD)*S(IND,II)
                      IF(IDIR .GT. 0) THEN

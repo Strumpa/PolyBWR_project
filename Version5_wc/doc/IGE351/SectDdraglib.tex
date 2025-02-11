@@ -93,7 +93,7 @@ written using the format presented in Table~\ref{tabl:tabiso201}.
   {Set of $N_{\rm tmp}$ sub-directories, each containing the cross section information
    associated with a specific temperature.}
 \OptRealEnr
-  {BIN-DELI\blank{4}}{$1$}{*}{eV}
+  {BIN-DELI\blank{4}}{$1$}{*}{1}
   {Elementary lethargy width of the Autolib lethargy mesh.}
 \OptIntEnr
   {BIN-NFS\blank{5}}{$G$}{*}
@@ -104,6 +104,14 @@ written using the format presented in Table~\ref{tabl:tabiso201}.
   {BIN-ENERGY\blank{2}}{$N_{\rm bin}+1$}{*}{eV}
   {Fine group energy limits in eV. Here, $N_{\rm bin}=\sum_g n_{{\rm bin},g}$. (*) This data
   should be given if and only if the record {\tt `BIN-NFS'} is present.}
+\OptIntEnr
+  {ONFLIGHTIGR\blank{1}}{1}{*}
+  {Number of groups with a lethargy width equal to $\Delta u^{\rm ecco}$. (*) This data is optional and is used to compress scattering information
+  in eccolib libraries.}
+\OptRealEnr
+  {ONFLIGHTDEL\blank{1}}{1}{*}{1}
+  {Lethargy width $\Delta u^{\rm ecco}$ of groups above thermal energies. (*) This data is optional and is used to compress scattering information
+  in eccolib libraries.}
 \end{DescriptionEnregistrement}
 
 The name of each \listedir{tmpdir} directory is a {\tt character*12} variable ({\tt text12})
@@ -112,6 +120,13 @@ $$
 \mathtt{WRITE(}\mathsf{text12}\mathtt{,'(''SUBTMP'',I4.4)')}\: J
 $$
 where $J$ is the index of the temperature with $1 \leq J \le N_{\rm tmp}$.
+
+\vskip 0.2cm
+
+Scattering information is lumped for some isotopes of an eccolib library. If records {\tt ONFLIGHTIGR} and
+{\tt ONFLIGHTDEL} are present for an isotope, elastic scattering is assumed above thermal energies and
+scattering probabilities are computed on-flight in Dragon. This option is only available with eccolib-1962g
+libraries where the lethargy width is constant and equal to 1/120 above thermal energies.
 
 \vskip 0.2cm
 

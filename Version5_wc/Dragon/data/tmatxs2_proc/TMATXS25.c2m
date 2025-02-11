@@ -220,6 +220,6 @@ Edition := EDI: Flux Library2 Tracking_F ::
 UTL: Edition :: DIR IMPR STATE-VECTOR * STEP UP FUEL DIR IMPR STATE-VECTOR * ;
 SEQ_ASCII MERG.db :: FILE '_MERG.db' ;
 MERG.db := Edition ;
-assertS Flux :: K-EFFECTIVE 1 1.412607 ;
+assertS Flux :: K-EFFECTIVE 1 1.411729 ;
 END: ;
 QUIT "LIST" .

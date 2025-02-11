@@ -1,8 +1,8 @@
 *DECK MCGDSCB
-      SUBROUTINE MCGDSCB(M,N,LPS,IS,JS,H,NOM,NZON,TR,W,NFI,NREG,PJJ,PSJ,
-     1                   IMU,NMU,NFUNL,NMOD,NPJJM,TRHAR,LPJJAN,PJJIND,
-     2                   MODST,OMEGA2,PJJX,PJJY,PJJZ,PJJXI,PJJYI,PJJZI,
-     3                   PSJX,PSJY,PSJZ)
+      SUBROUTINE MCGDSCB(M,NSEG,NSUB,LPS,IS,JS,H,KANGL,NOM,NZON,TR,W,
+     1                   NFI,NREG,PJJ,PSJ,IMU,NMU,NFUNL,NANGL,NPJJM,
+     2                   TRHAR,LPJJAN,PJJIND,OMEGA2,PJJX,PJJY,PJJZ,
+     3                   PJJXI,PJJYI,PJJZI,PSJX,PSJY,PSJZ)
 *
 *-----------------------------------------------------------------------
 *
@@ -21,12 +21,15 @@
 *Author(s): S. Musongela
 *
 *Parameters: input
-* LPS     first dimension of PSJ.
+* LPS     dimension of PSJX, PSJY and PSJZ.
 * M       number of material mixtures.
-* N       number of elements for this track.
+* NSEG    number of elements for this track.
+* NSUB    number of subtracks for this track.
 * IS      arrays for surfaces neighbors.
 * JS      JS(IS(ISOUT)+1:IS(ISOUT+1)) give the neighboring regions to
 *         surface ISOUT.
+* H       real tracking elements.
+* KANGL   track direction indices.
 * NOM     integer tracking elements.
 * NZON    index-number of the mixture type assigned to each volume.
 * TR      macroscopic total cross section.
@@ -38,15 +41,14 @@
 * IMU     polar angle index.
 * NMU     order of the polar quadrature set.
 * NFUNL   number of moments of the flux (in 2D : NFUNL=NANI*(NANI+1)/2).
-* NMOD    first dimension of ISGNR.
+* NANGL   number of tracking angles in the plane.
 * NPJJM   number of pjj modes to store for LPJJAN option.
-* TRHAR   spherical harmonics components for this azimuthal angle in the
-*         plane.
+* TRHAR   spherical harmonics components for each azimuthal angle in
+*         the plane.
 * LPJJAN  flag for the calculation of anisotropic moments of the pjj.
 * PJJIND  index of the modes for LPJJAN option.
-* MODST   starting angular mode index.
-* OMEGA2  square x, y and z-component of the direction
-*         Omega for 2D geometry.
+* OMEGA2  square x, y and z-component of the direction Omega for 2D
+*         geometry.
 *
 *Parameters: input/output
 * PJJ     collision probabilities.
@@ -61,20 +63,17 @@
 * PSJY    escape probabilities for TIBERE.
 * PSJZ    escape probabilities for TIBERE.
 *
-*Parameters: scratch
-* H       undefined.
-*
 *-----------------------------------------------------------------------
 *
       IMPLICIT NONE
 *---
 * SUBROUTINE ARGUMENTS
 *---
-      INTEGER M,N,NFI,NREG,LPS,IS(NFI-NREG+1),JS(LPS),NZON(NFI),NOM(N),
-     1 IMU,NMU,NFUNL,NMOD,NPJJM,PJJIND(NPJJM,2),MODST
-      REAL TR(0:M),PSJ(LPS),TRHAR(NMU,NFUNL,NMOD)
+      INTEGER M,NSEG,NSUB,NFI,NREG,LPS,IS(NFI-NREG+1),JS(LPS),NZON(NFI),
+     1 KANGL(NSUB),NOM(NSEG),IMU,NMU,NFUNL,NANGL,NPJJM,PJJIND(NPJJM,2)
+      REAL TR(0:M),PSJ(LPS),TRHAR(NMU,NFUNL,NANGL)
       REAL PSJX(LPS),PSJY(LPS),PSJZ(LPS)
-      DOUBLE PRECISION W,H(N),PJJ(NREG,NPJJM),OMEGA2(3)
+      DOUBLE PRECISION W,H(NSUB),PJJ(NREG,NPJJM),OMEGA2(3)
       DOUBLE PRECISION PJJX(NREG,NPJJM),PJJY(NREG,NPJJM),
      1 PJJZ(NREG,NPJJM),PJJXI(NREG,NPJJM),PJJYI(NREG,NPJJM),
      2 PJJZI(NREG,NPJJM)
@@ -84,54 +83,47 @@
 *---
       DOUBLE PRECISION TAUDMIN
       PARAMETER(TAUDMIN=2.D-2)
-      INTEGER J,I,NOMI,IC,NZI,NOMJ,I0P,NOLDP,IFACE,IMOD,INU,INUP
-      DOUBLE PRECISION TRI,TRJ,TAU,EXPT,HI,HJ,HID,TAUD,TAUD3,TAUD4,
-     1 TAUD5,EXPTD,TEMPD
+      INTEGER I,J,NOMI,IC,IC0,NZI,NOMJ,IMOD,INU,INUP,IANG,ISUB
+      DOUBLE PRECISION TRI,TRJ,TAU,EXPT,HJD,HID,TAUD,TAUD3,TAUD4,TAUD5,
+     1 EXPTD,TEMPD
+      LOGICAL LNEW
 *     tabulated exponential common block
       REAL             E0, E1, PAS1, DX1, XLIM1
       INTEGER          MEX1, LAU
       PARAMETER      ( MEX1=7936 )
       COMMON /EXP1/ E0(0:MEX1),E1(0:MEX1),PAS1,DX1,XLIM1
 *
-      INTEGER   NEWMOD(8,3)
-      DATA      NEWMOD/ 2,1,4,3,6,5,8,7,
-     >                  3,4,1,2,7,8,5,6,
-     >                  5,6,7,8,1,2,3,4 /
-      SAVE      NEWMOD
-*
-      I0P=MODST
-      NOLDP=NOM(1)
-      DO I=1,N
+      ISUB=0
+      LNEW=.TRUE.
+      IANG=KANGL(1)
+      DO I=1,NSEG
          NOMI=NOM(I)
          NZI=NZON(NOMI)
-         HI=H(I)
          IF(NZI.LT.0) THEN
 *        Boundary Condition
-            IF((LPJJAN).AND.(NOLDP.NE.NOMI)) THEN
-               IFACE=(1-NZI)/2
-               I0P=NEWMOD(I0P,IFACE)
-               IF(I0P.GT.NMOD) CALL XABORT('MCGDSCB: NMOD OVERFLOW.')
-            ENDIF
-            NOLDP=NOMI
+            LNEW=.TRUE.
             IF(LPS.GT.0) THEN
 *           SCR for a non-cyclic tracking
                IF(I.EQ.1) THEN
                   J=I+1
-               ELSE !! I.EQ.N
+               ELSE !! I.EQ.NSEG
                   J=I-1
                ENDIF
                NOMJ=NOM(J)
-               DO IC=IS(NOMI-NREG)+1,IS(NOMI-NREG+1)
-                  IF(JS(IC).EQ.NOMJ) GOTO 10
+               IC=0
+               DO IC0=IS(NOMI-NREG)+1,IS(NOMI-NREG+1)
+                  IC=IC0
+                  IF(JS(IC0).EQ.NOMJ) GOTO 10
                ENDDO
- 10            HJ=H(J)
+               CALL XABORT('MCGDSCB: UNABLE TO SET IC.')
+ 10            HJD=H(J)
                TRJ=TR(NZON(NOMJ))
-               TAU=HJ*TRJ
+               TAU=HJD*TRJ
                IF(TAU.GE.XLIM1) THEN
-                  EXPT=1.0/TRJ
+                  EXPT=1.0D0/TRJ
                ELSE
                   LAU=INT(TAU*PAS1)
-                  EXPT=HJ*(E0(LAU)+E1(LAU)*TAU)
+                  EXPT=HJD*(E0(LAU)+E1(LAU)*TAU)
                ENDIF
                PSJ(IC)=PSJ(IC)+REAL(W*EXPT)
                PSJX(IC)=PSJX(IC)+REAL(W*EXPT*3.0*OMEGA2(1))
@@ -140,9 +132,16 @@
             ENDIF
          ELSE
 *        this cell is a volume
+            IF(LNEW) THEN
+               ISUB=ISUB+1
+               IF(ISUB.GT.NSUB) CALL XABORT('MCGDSCB: NSUB OVERFLOW.')
+               LNEW=.FALSE.
+               IANG=KANGL(ISUB)
+               IF(IANG.GT.NANGL) CALL XABORT('MCGDSCB: NANGL OVERFLOW.')
+            ENDIF
             TRI=TR(NZI)
-            HID=HI
-            TAUD=HI*TRI
+            HID=H(I)
+            TAUD=HID*TRI
             TAU=REAL(TAUD)
             IF(TAUD.LE.TAUDMIN) THEN
 *           expansion in Taylor serie in O(TAUD^3)
@@ -165,8 +164,8 @@
                DO IMOD=1,NPJJM
                   INU=PJJIND(IMOD,1)
                   INUP=PJJIND(IMOD,2)
-                  TEMPD=DBLE(TRHAR(IMU,INU,I0P))*
-     1                  DBLE(TRHAR(IMU,INUP,I0P))
+                  TEMPD=DBLE(TRHAR(IMU,INU,IANG))*
+     1                  DBLE(TRHAR(IMU,INUP,IANG))
                   PJJ(NOMI,IMOD)=PJJ(NOMI,IMOD)+EXPTD*TEMPD
                ENDDO
             ELSE

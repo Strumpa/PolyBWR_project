@@ -40,6 +40,7 @@ tests :
 	./rdragon -c $(fcompilerSuite) -q tndas.x2m
 	./rdragon -c $(fcompilerSuite) -q tmatxs2.x2m
 	./rdragon -c $(fcompilerSuite) -q trowland_shem295_jeff3.1.x2m
+	./rdragon -c $(fcompilerSuite) -q uo2_kec1_ecco1962_light.x2m
 	./rdragon -c $(fcompilerSuite) -q lumpSS.x2m
 	./rdragon -c $(fcompilerSuite) -q OSC_CASEA_1level_rse.x2m
 	./rdragon -c $(fcompilerSuite) -q OSC_CASEA_2level_rse.x2m
@@ -49,6 +50,7 @@ tests :
 	./rdragon -c $(fcompilerSuite) -q fbr_colorset.x2m
 	./rdragon -c $(fcompilerSuite) -q fbr_tone.x2m
 	./rdragon -c $(fcompilerSuite) -q TEST_GEO_hex_sect_tspc.x2m
+	./rdragon -c $(fcompilerSuite) -q TEST_GEO_latt_tspc_S30.x2m
 	./rdragon -c $(fcompilerSuite) -q testDuo.x2m
 	./rdragon -c $(fcompilerSuite) -q testDuo_B1.x2m
 	./rdragon -c $(fcompilerSuite) -q uo2_evo_xsm.x2m

@@ -1,6 +1,6 @@
 *DECK MCGFFAS
       SUBROUTINE MCGFFAS(SUBSCH,K,KPN,M,N,H,NOM,NZON,XST,SP,SM,NREG,NMU,
-     1           NANI,NFUNL,NMOD,TRHAR,KEYFLX,KEYCUR,IMU,F,B,MODP,MODM)
+     1           NANI,NFUNL,TRHAR,KEYFLX,KEYCUR,IMU,F,B)
 *
 *-----------------------------------------------------------------------
 *
@@ -36,13 +36,10 @@
 * NMU     order of the polar quadrature set.
 * NANI    scattering anisotropy (=1 for isotropic scattering).
 * NFUNL   number of moments of the flux (in 2D : NFUNL=NANI*(NANI+1)/2).
-* NMOD    first dimension of ISGNR.
 * TRHAR   spherical harmonics components for this angle in the plane.
 * KEYFLX  position of flux elements in PHI vector.
 * KEYCUR  position of current elements in PHI vector.
 * IMU     azimuthal angle corresponding to this track.
-* MODP    + direction angular mode index.
-* MODM    - direction angular mode index.
 *
 *Parameters: input/output
 * F       vector containing the zonal scalar flux.
@@ -56,9 +53,9 @@
 *----
 *  SUBROUTINE ARGUMENTS
 *----
-      INTEGER K,KPN,M,N,NOM(N),NZON(K),NMU,NFUNL,NMOD,NREG,
-     1 KEYFLX(NREG,NFUNL),KEYCUR(K-NREG),IMU,NANI,MODP,MODM
-      REAL XST(0:M),TRHAR(NMU,NFUNL,NMOD)
+      INTEGER K,KPN,M,N,NOM(N),NZON(K),NMU,NFUNL,NREG,
+     1 KEYFLX(NREG,NFUNL),KEYCUR(K-NREG),IMU,NANI
+      REAL XST(0:M),TRHAR(NMU,NFUNL,2)
       DOUBLE PRECISION H(N),SP(N),SM(N),F(KPN),B(2,N)
       EXTERNAL SUBSCH
 *----
@@ -91,7 +88,7 @@
          RP=RP+B(1,I)*(SI-XST(NZON(NOMI))*RP)
          DO JF=1,NFUNL
             IND=KEYFLX(NOMI,JF)
-            F(IND)=F(IND)+F0*TRHAR(IMU,JF,MODP)
+            F(IND)=F(IND)+F0*TRHAR(IMU,JF,1)
          ENDDO
 *        - direction
          J=N+1-I
@@ -101,7 +98,7 @@
          RM=RM+B(1,J)*(SJ-XST(NZON(NOMJ))*RM)
          DO JF=1,NFUNL
             IND=KEYFLX(NOMJ,JF)
-            F(IND)=F(IND)+F0*TRHAR(IMU,JF,MODM)
+            F(IND)=F(IND)+F0*TRHAR(IMU,JF,2)
          ENDDO
       ENDDO
 *     outgoing flux in + direction

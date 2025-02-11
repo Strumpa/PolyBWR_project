@@ -86,12 +86,10 @@
      1 CY1(MXE),DH
       LOGICAL LNEW
 *
-      DO 2210 IE=1,NE
-         FL0(IE)= ZERO
-         FL1(IE)= ZERO
-         CY0(IE)= ONE
-         CY1(IE)= ONE
- 2210 CONTINUE
+      FL0(:NE)= ZERO
+      FL1(:NE)= ZERO
+      CY0(:NE)= ONE
+      CY1(:NE)= ONE
 *----
 *     Calculation of the coefficients for this track.
 *----

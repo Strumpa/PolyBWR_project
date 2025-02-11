@@ -51,7 +51,7 @@ IF ssh_method "RSE" = THEN
   LIBRARY := LIB: ::
       EDIT 0
       NMIX 1    ! MAXIMUM OF MATERIAL MIXTURES
-      RSE 3.0E-3
+      RSE
       ANIS 2
 
     DEPL LIB: DRAGON FIL: <<Library>>
