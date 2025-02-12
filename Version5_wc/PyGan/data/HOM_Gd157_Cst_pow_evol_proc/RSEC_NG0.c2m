@@ -10,8 +10,8 @@ PARAMETER  LIBRARY  ::
   EDIT 0
     ::: LINKED_LIST LIBRARY  ;
 ;
-STRING draglib ssh_method correlation ;
-:: >>draglib<< >>ssh_method<< >>correlation<< ;
+STRING draglib ;
+:: >>draglib<< ;
 
 MODULE LIB: END: ;
 
@@ -28,10 +28,10 @@ LIBRARY := LIB: ::
     ANIS 2
     ! C'est ici qu'on va venir modifier la structure de depletion manuellement
     DEPL   314 CHAIN
-    'H1_H2O  '  10010 NG  2.224600E+00                                                                                                
-    'H1_ZRH  '  10010 NG  2.224600E+00                                                                                                
-    'H1_CH2  '  10010 NG  2.224600E+00                                                                                                
-    'H1      '  10010 DECAY  0.000000E+00 NG  2.224600E+00                                                                            
+    'H1_H2O  '  10010 NG  0.00E+00                                                                                               
+    'H1_ZRH  '  10010 NG  0.00E+00                                                                                                
+    'H1_CH2  '  10010 NG  0.00E+00                                                                                                
+    'H1      '  10010 DECAY  0.000000E+00 NG  0.00E+00                                                                            
     FROM N2N       1.000000E+00 'H2_D2O  '                                                                                           
         N2N       1.000000E+00 'H2      '                                                                                           
         N3N       1.000000E+00 'H3      '                                                                                           
@@ -45,8 +45,8 @@ LIBRARY := LIB: ::
                     3.321900E-05 'Am242m  ' 2.878900E-05 'Am243   '                                                                   
                     4.081100E-05 'Cm243   ' 3.828100E-05 'Cm244   '                                                                   
                     3.606600E-05 'Cm245   '                                                                                           
-    'H2_D2O  '  10020 NG  6.257400E+00 N2N                                                                                            
-    'H2      '  10020 DECAY  0.000000E+00 NG  6.257400E+00 N2N                                                                        
+    'H2_D2O  '  10020 NG  0.00E+00 N2N                                                                                            
+    'H2      '  10020 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
     FROM NG        1.000000E+00 'H1_H2O  '                                                                                           
         NG        1.000000E+00 'H1_ZRH  '                                                                                           
         NG        1.000000E+00 'H1_CH2  '                                                                                           
@@ -77,7 +77,7 @@ LIBRARY := LIB: ::
                     1.600000E-04 'Am242m  ' 1.570000E-04 'Am243   '                                                                   
                     1.960000E-04 'Cm243   ' 1.910000E-04 'Cm244   '                                                                   
                     1.850000E-04 'Cm245   '                                                                                           
-    'He3     '  20030 DECAY  0.000000E+00 NG  2.057800E+01 NP                                                                         
+    'He3     '  20030 DECAY  0.000000E+00 NG  0.00E+00 NP                                                                         
                     ND                                                                                                              
     FROM DECAY     1.000000E+00 'H3      '                                                                                           
     'He4     '  20040 DECAY  0.000000E+00                                                                                             
@@ -99,7 +99,7 @@ LIBRARY := LIB: ::
                     2.100000E-03 'Am242m  ' 1.820000E-03 'Am243   '                                                                   
                     2.580000E-03 'Cm243   ' 2.420000E-03 'Cm244   '                                                                   
                     2.280000E-03 'Cm245   '                                                                                           
-    'Li6     '  30060 DECAY  0.000000E+00 NG  7.250600E+00 NP                                                                         
+    'Li6     '  30060 DECAY  0.000000E+00 NG  0.00E+00 NP                                                                         
                     NT                                                                                                              
     FROM N2N       1.000000E+00 'Li7     '                                                                                           
         NP        1.000000E+00 'Li6     '                                                                                           
@@ -108,7 +108,7 @@ LIBRARY := LIB: ::
         NA        1.000000E+00 'Be9     '                                                                                           
         NFTOT     2.153000E-05 'U233    ' 2.668000E-05 'U235    '                                                                   
                     4.098000E-05 'Pu239   '                                                                                           
-    'Li7     '  30070 DECAY  0.000000E+00 NG  1.139565E+01 N2N                                                                        
+    'Li7     '  30070 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NNP      ND                                                                                                     
     FROM NG        1.000000E+00 'Li6     '                                                                                           
         NT        1.000000E+00 'Be9     '                                                                                           
@@ -116,7 +116,7 @@ LIBRARY := LIB: ::
         N2A       1.000000E+00 'N14     '                                                                                           
         NP        3.000000E-02 'B11     '                                                                                           
         NFTOT     8.086040E-07 'U233    ' 1.505000E-06 'Pu239   '                                                                   
-    'Be9     '  40090 DECAY  0.000000E+00 NG  7.065211E+00 NA                                                                         
+    'Be9     '  40090 DECAY  0.000000E+00 NG  0.00E+00 NA                                                                         
                     NP       ND       NT                                                                                            
     FROM ND        1.000000E+00 'B10     '                                                                                           
         NT        1.000000E+00 'B11     '                                                                                           
@@ -124,7 +124,7 @@ LIBRARY := LIB: ::
         NP        5.050000E-01 'Be9     '                                                                                           
         NFTOT     1.118817E-06 'U233    ' 6.126855E-07 'U235    '                                                                   
                     1.715700E-06 'Pu239   '                                                                                           
-    'B10     '  50100 DECAY  0.000000E+00 NG  1.145600E+01 NA                                                                         
+    'B10     '  50100 DECAY  0.000000E+00 NG  0.00E+00 NA                                                                         
                     NP       ND                                                                                                     
     FROM N2N       1.000000E+00 'B11     '                                                                                           
         NG        1.000000E+00 'Be9     '                                                                                           
@@ -132,7 +132,7 @@ LIBRARY := LIB: ::
         NNP       1.000000E+00 'B11     '                                                                                           
         NFTOT     8.880000E-06 'U233    ' 1.040200E-05 'U235    '                                                                   
                     1.050000E-05 'Pu239   '                                                                                           
-    'B11     '  50110 DECAY  0.000000E+00 NG  9.776968E+00 N2N                                                                        
+    'B11     '  50110 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       NNP      NT                                                                                   
     FROM NG        1.000000E+00 'B10     '                                                                                           
         NA        1.000000E+00 'N14     '                                                                                           
@@ -140,7 +140,7 @@ LIBRARY := LIB: ::
         NFTOT     7.294400E-07 'Pu239   '                                                                                           
     'C0_GR   '  60000 NG  4.947000E+00 NA       NP       NNP      ND                                                                  
     'C0      '  60000 NG  4.947000E+00 NA       NP       NNP      ND                                                                  
-    'N14     '  70140 DECAY  0.000000E+00 NG  1.083300E+01 N2N                                                                        
+    'N14     '  70140 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       N2A      ND       NT                                                                          
     FROM N2N       1.000000E+00 'N15     '                                                                                           
         NT        1.000000E+00 'O16     '                                                                                           
@@ -149,7 +149,7 @@ LIBRARY := LIB: ::
         ND        1.000000E+00 'N15     '                                                                                           
         NA        1.000000E+00 'O17     '                                                                                           
         NFTOT     1.578000E-06 'U235    ' 3.010000E-06 'Pu239   '                                                                   
-    'N15     '  70150 DECAY  0.000000E+00 NG  9.790979E+00 N2N                                                                        
+    'N15     '  70150 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       NNP      ND       NT                                                                          
     FROM NG        1.000000E+00 'N14     '                                                                                           
         NNP       1.000000E+00 'O16     '                                                                                           
@@ -157,7 +157,7 @@ LIBRARY := LIB: ::
         NP        1.000000E+00 'N15     '                                                                                           
         N2N       1.000000E+00 'O16     '                                                                                           
         NFTOT     2.528000E-07 'U235    '                                                                                           
-    'O16     '  80160 DECAY  0.000000E+00 NG  4.143400E+00 N2N                                                                        
+    'O16     '  80160 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       N2A      NNP      ND                                                                          
                     NT                                                                                                              
     FROM N2N       1.000000E+00 'O17     '                                                                                           
@@ -167,28 +167,28 @@ LIBRARY := LIB: ::
         ND        9.999880E-01 'O17     '                                                                                           
         NA        9.999880E-01 'F19     '                                                                                           
         NP        9.499750E-01 'O17     '                                                                                           
-    'O17     '  80170 DECAY  0.000000E+00 NG  8.047000E+00 N2N                                                                        
+    'O17     '  80170 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       NNP      ND                                                                                   
     FROM NG        1.000000E+00 'O16     '                                                                                           
         NT        1.000000E+00 'F19     '                                                                                           
         NP        5.000000E-02 'O17     '                                                                                           
-    'F19     '  90190 DECAY  0.000000E+00 NG  6.601300E+00 N2N                                                                        
+    'F19     '  90190 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       NNP      ND       NT                                                                          
     FROM NP        1.000000E+00 'F19     '                                                                                           
-    'Na23    ' 110230 DECAY  0.000000E+00 NG  1.163531E+01 N2N                                                                        
+    'Na23    ' 110230 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       NNP                                                                                           
     FROM NNP       1.000000E+00 'Mg24    '                                                                                           
         NP        1.000000E+00 'Na23    '                                                                                           
         NA        1.000000E+00 'Mg26    '                                                                                           
         N2N       1.000000E+00 'Mg24    '                                                                                           
-    'Mg24    ' 120240 DECAY  0.000000E+00 NG  7.331900E+00 N2N                                                                        
+    'Mg24    ' 120240 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       NNP                                                                                           
     FROM N2N       1.000000E+00 'Mg25    '                                                                                           
         NG        1.000000E+00 'Na23    '                                                                                           
         NP        1.000000E+00 'Mg24    '                                                                                           
         NNP       1.000000E+00 'Mg25    '                                                                                           
         NA        1.000000E+00 'Al27    '                                                                                           
-    'Mg25    ' 120250 DECAY  0.000000E+00 NG  1.109300E+01 N2N                                                                        
+    'Mg25    ' 120250 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       NNP                                                                                           
     FROM NG        1.000000E+00 'Mg24    '                                                                                           
         N2N       1.000000E+00 'Mg26    '                                                                                           
@@ -196,7 +196,7 @@ LIBRARY := LIB: ::
         NA        1.000000E+00 'Si28    '                                                                                           
         NP        1.000000E+00 'Mg25    '                                                                                           
         NNP       1.000000E+00 'Mg26    '                                                                                           
-    'Mg26    ' 120260 DECAY  0.000000E+00 NG  8.038912E+00 N2N                                                                        
+    'Mg26    ' 120260 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       NNP                                                                                           
     FROM NG        1.000000E+00 'Mg25    '                                                                                           
         NNP       1.000000E+00 'Al27    '                                                                                           
@@ -205,7 +205,7 @@ LIBRARY := LIB: ::
         NP        1.000000E+00 'Mg26    '                                                                                           
         N2N       1.000000E+00 'Al27    '                                                                                           
         NT        1.000000E+00 'Si28    '                                                                                           
-    'Al27    ' 130270 DECAY  0.000000E+00 NG  1.074565E+01 N2N                                                                        
+    'Al27    ' 130270 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       N2A      NNP      ND                                                                          
                     NT                                                                                                              
     FROM NNP       1.000000E+00 'Si28    '                                                                                           
@@ -214,42 +214,42 @@ LIBRARY := LIB: ::
         NP        1.000000E+00 'Al27    '                                                                                           
         NA        1.000000E+00 'Si30    '                                                                                           
         N2N       1.000000E+00 'Si28    '                                                                                           
-    'Si28    ' 140280 DECAY  0.000000E+00 NG  8.473900E+00 N2N                                                                        
+    'Si28    ' 140280 DECAY  0.000000E+00 NG  0.00E+00  N2N                                                                        
                     NA       NP       NNP      ND       NT                                                                          
     FROM N2N       1.000000E+00 'Si29    '                                                                                           
         NG        1.000000E+00 'Al27    '                                                                                           
         NP        1.000000E+00 'Si28    '                                                                                           
         NNP       1.000000E+00 'Si29    '                                                                                           
         NA        1.000000E+00 'P31     '                                                                                           
-    'Si29    ' 140290 DECAY  0.000000E+00 NG  1.061400E+01 N2N                                                                        
+    'Si29    ' 140290 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       NNP                                                                                           
     FROM NG        1.000000E+00 'Si28    '                                                                                           
         N2N       1.000000E+00 'Si30    '                                                                                           
         NA        1.000000E+00 'S32     '                                                                                           
         NP        1.000000E+00 'Si29    '                                                                                           
         NNP       1.000000E+00 'Si30    '                                                                                           
-    'Si30    ' 140300 DECAY  0.000000E+00 NG  7.187917E+00 N2N                                                                        
+    'Si30    ' 140300 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       NNP                                                                                           
     FROM NG        1.000000E+00 'Si29    '                                                                                           
         NNP       1.000000E+00 'P31     '                                                                                           
         NA        1.000000E+00 'S33     '                                                                                           
         NP        1.000000E+00 'Si30    '                                                                                           
         N2N       1.000000E+00 'P31     '                                                                                           
-    'P31     ' 150310 DECAY  0.000000E+00 NG  8.631627E+00 N2N                                                                        
+    'P31     ' 150310 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       NNP                                                                                           
     FROM NNP       1.000000E+00 'S32     '                                                                                           
         NG        1.000000E+00 'Si30    '                                                                                           
         NP        1.000000E+00 'P31     '                                                                                           
         NA        1.000000E+00 'S34     '                                                                                           
         N2N       1.000000E+00 'S32     '                                                                                           
-    'S32     ' 160320 DECAY  0.000000E+00 NG  8.643000E+00 N2N                                                                        
+    'S32     ' 160320 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       NNP                                                                                           
     FROM N2N       1.000000E+00 'S33     '                                                                                           
         NG        1.000000E+00 'P31     '                                                                                           
         NP        1.000000E+00 'S32     '                                                                                           
         NNP       1.000000E+00 'S33     '                                                                                           
         NA        1.000000E+00 'Cl35    '                                                                                           
-    'S33     ' 160330 DECAY  0.000000E+00 NG  1.141700E+01 N2N                                                                        
+    'S33     ' 160330 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       NNP                                                                                           
     FROM NG        1.000000E+00 'S32     '                                                                                           
         N2N       1.000000E+00 'S34     '                                                                                           
@@ -258,7 +258,7 @@ LIBRARY := LIB: ::
         NP        1.000000E+00 'S33     '                                                                                           
         NNP       1.000000E+00 'S34     '                                                                                           
         NA        1.000000E+00 'S36     '                                                                                           
-    'S34     ' 160340 DECAY  0.000000E+00 NG  7.035720E+00 N2N                                                                        
+    'S34     ' 160340 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       NNP                                                                                           
     FROM NG        1.000000E+00 'S33     '                                                                                           
         NNP       1.000000E+00 'Cl35    '                                                                                           
@@ -266,7 +266,7 @@ LIBRARY := LIB: ::
         NP        1.000000E+00 'S34     '                                                                                           
         NA        1.000000E+00 'Cl37    '                                                                                           
         N2N       1.000000E+00 'Cl35    '                                                                                           
-    'S36     ' 160360 DECAY  0.000000E+00 NG  8.044148E+00 N2N                                                                        
+    'S36     ' 160360 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       NNP                                                                                           
     FROM NNP       1.000000E+00 'Cl37    '                                                                                           
         ND        1.000000E+00 'Cl37    '                                                                                           
@@ -275,7 +275,7 @@ LIBRARY := LIB: ::
         NG        1.900000E-02 'Cl35    '                                                                                           
         N2N       1.900000E-02 'Cl37    '                                                                                           
         NA        1.900000E-02 'K39     '                                                                                           
-    'Cl35    ' 170350 DECAY  0.000000E+00 NG  8.852962E+00 N2N                                                                        
+    'Cl35    ' 170350 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       NNP      ND       NT                                                                          
     FROM N3N       1.000000E+00 'Cl37    '                                                                                           
         NG        1.000000E+00 'S34     '                                                                                           
@@ -284,7 +284,7 @@ LIBRARY := LIB: ::
         NT        1.000000E+00 'Cl37    '                                                                                           
         N2A       1.000000E+00 'Ca42    '                                                                                           
         NNP       1.000000E+00 'S36     '                                                                                           
-    'Cl37    ' 170370 DECAY  0.000000E+00 NG  6.107800E+00 N2N                                                                        
+    'Cl37    ' 170370 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       NNP      ND                                                                          
                     NT                                                                                                              
     FROM NA        1.000000E+00 'K40     '                                                                                           
@@ -292,7 +292,7 @@ LIBRARY := LIB: ::
         NP        1.000000E+00 'Cl37    '                                                                                           
         N2A       1.000000E+00 'Ca44    '                                                                                           
         NA        1.000000E+00 'Ca40    '                                                                                           
-    'K39     ' 190390 DECAY  0.000000E+00 NG  7.801000E+00 N2N                                                                        
+    'K39     ' 190390 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       NNP                                                                                           
     FROM N2N       1.000000E+00 'K40     '                                                                                           
         NNP       1.000000E+00 'Ca40    '                                                                                           
@@ -301,13 +301,13 @@ LIBRARY := LIB: ::
         NNP       1.000000E+00 'K40     '                                                                                           
         NA        1.000000E+00 'Ca42    '                                                                                           
         N2N       1.000000E+00 'Ca40    '                                                                                           
-    'K40     ' 190400 DECAY  1.736362E-09 NG  1.009600E+01 N2N                                                                        
+    'K40     ' 190400 DECAY  1.736362E-09 NG  0.00E+00 N2N                                                                        
                     NA       NP       NNP                                                                                           
     FROM NG        1.000000E+00 'K39     '                                                                                           
         N2N       1.000000E+00 'K41     '                                                                                           
         NP        1.000000E+00 'Ca40    '                                                                                           
         NT        1.000000E+00 'Ca42    '                                                                                           
-    'K41     ' 190410 DECAY  0.000000E+00 NG  9.231777E+00 N2N                                                                        
+    'K41     ' 190410 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       NNP                                                                                           
     FROM NG        1.000000E+00 'K40     '                                                                                           
         NNP       1.000000E+00 'Ca42    '                                                                                           
@@ -318,11 +318,11 @@ LIBRARY := LIB: ::
         NG        1.000000E+00 'Ca40    '                                                                                           
         N2N       1.000000E+00 'Ca42    '                                                                                           
         N3N       1.000000E+00 'Ca43    '                                                                                           
-    'Ca40    ' 200400 DECAY  0.000000E+00 NG  8.365980E+00 N2N                                                                        
+    'Ca40    ' 200400 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       N2A      NNP      ND                                                                          
                     NT                                                                                                              
     FROM DECAY     8.914000E-01 'K40     '                                                                                           
-    'Ca42    ' 200420 DECAY  0.000000E+00 NG  7.933000E+00 N2N                                                                        
+    'Ca42    ' 200420 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       N2A      NNP      ND                                                                          
                     NT                                                                                                              
     FROM N2N       1.000000E+00 'Ca43    '                                                                                           
@@ -332,7 +332,7 @@ LIBRARY := LIB: ::
         NNP       1.000000E+00 'Ca43    '                                                                                           
         ND        1.000000E+00 'Ca43    '                                                                                           
         NT        1.000000E+00 'Ca44    '                                                                                           
-    'Ca43    ' 200430 DECAY  0.000000E+00 NG  1.113200E+01 N2N                                                                        
+    'Ca43    ' 200430 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       N2A      NNP                                                                         
                     ND       NT                                                                                                     
     FROM NG        1.000000E+00 'Ca42    '                                                                                           
@@ -342,7 +342,7 @@ LIBRARY := LIB: ::
         NNP       1.000000E+00 'Ca44    '                                                                                           
         ND        1.000000E+00 'Ca44    '                                                                                           
         NA        1.000000E+00 'Ca46    '                                                                                           
-    'Ca44    ' 200440 DECAY  0.000000E+00 NG  7.414800E+00 N2N                                                                        
+    'Ca44    ' 200440 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       N2A      NNP                                                                         
                     ND       NT                                                                                                     
     FROM NG        1.000000E+00 'Ca43    '                                                                                           
@@ -351,25 +351,25 @@ LIBRARY := LIB: ::
         NP        1.000000E+00 'Ca44    '                                                                                           
         NT        1.000000E+00 'Ca46    '                                                                                           
         NT        1.000000E+00 'Ti46    '                                                                                           
-    'Ca46    ' 200460 DECAY  0.000000E+00 NG  8.952081E+00 N2N                                                                        
+    'Ca46    ' 200460 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       NNP      ND                                                                          
                     NT                                                                                                              
     FROM N3N       1.000000E+00 'Ca48    '                                                                                           
         NA        1.000000E+00 'Ti49    '                                                                                           
         NP        1.000000E+00 'Ca46    '                                                                                           
         NT        1.000000E+00 'Ca48    '                                                                                           
-    'Ca48    ' 200480 DECAY  4.144254E-20 NG  1.000647E+01 N2N                                                                        
+    'Ca48    ' 200480 DECAY  4.144254E-20 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       NNP      ND                                                                          
                     NT                                                                                                              
     FROM NP        1.000000E+00 'Ca48    '                                                                                           
-    'Ti46    ' 220460 DECAY  0.000000E+00 NG  8.513700E+00 N2N                                                                        
+    'Ti46    ' 220460 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       NNP      ND       NT                                                                          
     FROM N2N       1.000000E+00 'Ti47    '                                                                                           
         NP        1.000000E+00 'Ti46    '                                                                                           
         NNP       1.000000E+00 'Ti47    '                                                                                           
         ND        1.000000E+00 'Ti47    '                                                                                           
         NT        1.000000E+00 'Ti48    '                                                                                           
-    'Ti47    ' 220470 DECAY  0.000000E+00 NG  1.162700E+01 N2N                                                                        
+    'Ti47    ' 220470 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       NNP      ND       NT                                                                          
     FROM NG        1.000000E+00 'Ti46    '                                                                                           
         N2N       1.000000E+00 'Ti48    '                                                                                           
@@ -384,7 +384,7 @@ LIBRARY := LIB: ::
         NA        1.000000E+00 'Ti50    '                                                                                           
         NNP       1.000000E+00 'Ca48    '                                                                                           
         ND        1.000000E+00 'Ca48    '                                                                                           
-    'Ti48    ' 220480 DECAY  0.000000E+00 NG  8.142400E+00 N2N                                                                        
+    'Ti48    ' 220480 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       NNP      ND       NT                                                                          
     FROM NG        1.000000E+00 'Ti47    '                                                                                           
         N2N       1.000000E+00 'Ti49    '                                                                                           
@@ -393,7 +393,7 @@ LIBRARY := LIB: ::
         NNP       1.000000E+00 'Ti49    '                                                                                           
         ND        1.000000E+00 'Ti49    '                                                                                           
         NT        1.000000E+00 'Ti50    '                                                                                           
-    'Ti49    ' 220490 DECAY  0.000000E+00 NG  1.093900E+01 N2N                                                                        
+    'Ti49    ' 220490 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       NNP      ND       NT                                                                          
     FROM NG        1.000000E+00 'Ti48    '                                                                                           
         N2N       1.000000E+00 'Ti50    '                                                                                           
@@ -405,7 +405,7 @@ LIBRARY := LIB: ::
         NNP       1.000000E+00 'Cr50    '                                                                                           
         ND        1.000000E+00 'Cr50    '                                                                                           
         N2N       1.000000E+00 'Cr50    '                                                                                           
-    'Ti50    ' 220500 DECAY  0.000000E+00 NG  6.376800E+00 N2N                                                                        
+    'Ti50    ' 220500 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       NNP      ND       NT                                                                          
     FROM NG        1.000000E+00 'Ti49    '                                                                                           
         NA        1.000000E+00 'Cr53    '                                                                                           
@@ -415,11 +415,11 @@ LIBRARY := LIB: ::
         NT        8.300000E-01 'Cr52    '                                                                                           
     'V0      ' 230000 NG  7.311000E+00 N2N      NA       NP       NNP                                                                 
                     ND       NT                                                                                                     
-    'Cr50    ' 240500 DECAY  1.220250E-17 NG  9.261700E+00 N2N                                                                        
+    'Cr50    ' 240500 DECAY  1.220250E-17 NG  0.00E+00 N2N                                                                        
                     NA       NP       NNP      ND                                                                                   
     FROM NP        1.700000E-01 'Cr50    '                                                                                           
         NT        1.700000E-01 'Cr52    '                                                                                           
-    'Cr52    ' 240520 DECAY  0.000000E+00 NG  7.940100E+00 N2N                                                                        
+    'Cr52    ' 240520 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       NNP      ND       NT                                                                          
     FROM N2N       1.000000E+00 'Cr53    '                                                                                           
         NP        1.000000E+00 'Cr52    '                                                                                           
@@ -427,7 +427,7 @@ LIBRARY := LIB: ::
         NA        1.000000E+00 'Mn55    '                                                                                           
         N2A       1.000000E+00 'Co59    '                                                                                           
         NT        1.000000E+00 'Fe54    '                                                                                           
-    'Cr53    ' 240530 DECAY  0.000000E+00 NG  9.719900E+00 N2N                                                                        
+    'Cr53    ' 240530 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       NNP                                                                                           
     FROM NG        1.000000E+00 'Cr52    '                                                                                           
         N2N       1.000000E+00 'Cr54    '                                                                                           
@@ -437,7 +437,7 @@ LIBRARY := LIB: ::
         NNP       1.000000E+00 'Fe54    '                                                                                           
         ND        1.000000E+00 'Fe54    '                                                                                           
         N2N       1.000000E+00 'Fe54    '                                                                                           
-    'Cr54    ' 240540 DECAY  0.000000E+00 NG  7.347053E+00 N2N                                                                        
+    'Cr54    ' 240540 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP                                                                                                     
     FROM NG        1.000000E+00 'Cr53    '                                                                                           
         NNP       1.000000E+00 'Mn55    '                                                                                           
@@ -447,7 +447,7 @@ LIBRARY := LIB: ::
         N2N       1.000000E+00 'Mn55    '                                                                                           
         NP        1.000000E+00 'Fe54    '                                                                                           
         NT        1.000000E+00 'Fe56    '                                                                                           
-    'Mn55    ' 250550 DECAY  0.000000E+00 NG  9.801919E+00 N2N                                                                        
+    'Mn55    ' 250550 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       NNP      ND       NT                                                                          
     FROM NNP       1.000000E+00 'Fe56    '                                                                                           
         ND        1.000000E+00 'Fe56    '                                                                                           
@@ -459,10 +459,10 @@ LIBRARY := LIB: ::
         N2N       1.000000E+00 'Fe56    '                                                                                           
         N3N       1.000000E+00 'Fe57    '                                                                                           
         NA        1.000000E+00 'Ni58    '                                                                                           
-    'Fe54    ' 260540 DECAY  0.000000E+00 NG  9.303565E+00 N2N                                                                        
+    'Fe54    ' 260540 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       N2A      NNP      ND                                                                          
                     NT                                                                                                              
-    'Fe56    ' 260560 DECAY  0.000000E+00 NG  7.646700E+00 N2N                                                                        
+    'Fe56    ' 260560 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       NNP      ND       NT                                                                          
     FROM N2N       1.000000E+00 'Fe57    '                                                                                           
         N3N       1.000000E+00 'Fe58    '                                                                                           
@@ -473,7 +473,7 @@ LIBRARY := LIB: ::
         NT        1.000000E+00 'Fe58    '                                                                                           
         NA        1.000000E+00 'Co59    '                                                                                           
         NT        1.000000E+00 'Ni58    '                                                                                           
-    'Fe57    ' 260570 DECAY  0.000000E+00 NG  1.004400E+01 N2N                                                                        
+    'Fe57    ' 260570 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       N2A      NNP                                                                         
                     ND       NT                                                                                                     
     FROM NG        1.000000E+00 'Fe56    '                                                                                           
@@ -486,7 +486,7 @@ LIBRARY := LIB: ::
         NNP       1.000000E+00 'Ni58    '                                                                                           
         ND        1.000000E+00 'Ni58    '                                                                                           
         N2N       1.000000E+00 'Ni58    '                                                                                           
-    'Fe58    ' 260580 DECAY  0.000000E+00 NG  7.888288E+00 N2N                                                                        
+    'Fe58    ' 260580 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       N2A      NNP                                                                         
                     ND       NT                                                                                                     
     FROM NG        1.000000E+00 'Fe57    '                                                                                           
@@ -497,7 +497,7 @@ LIBRARY := LIB: ::
         N2N       1.000000E+00 'Co59    '                                                                                           
         NP        1.000000E+00 'Ni58    '                                                                                           
         NT        1.000000E+00 'Ni60    '                                                                                           
-    'Co59    ' 270590 DECAY  0.000000E+00 NG  1.009061E+01 N2N                                                                        
+    'Co59    ' 270590 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       N2A      NNP      ND                                                                          
                     NT                                                                                                              
     FROM NNP       1.000000E+00 'Ni60    '                                                                                           
@@ -507,9 +507,9 @@ LIBRARY := LIB: ::
         NA        1.000000E+00 'Ni62    '                                                                                           
         NG        1.000000E+00 'Ni58    '                                                                                           
         N2N       1.000000E+00 'Ni60    '                                                                                           
-    'Ni58    ' 280580 DECAY  3.137790E-21 NG  9.007166E+00 N2N                                                                        
+    'Ni58    ' 280580 DECAY  3.137790E-21 NG  0.00E+00 N2N                                                                        
                     NA       NP       NNP      ND       NT                                                                          
-    'Ni60    ' 280600 DECAY  0.000000E+00 NG  7.820000E+00 N2N                                                                        
+    'Ni60    ' 280600 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       NNP      ND       NT                                                                          
     FROM N2N       1.000000E+00 'Ni61    '                                                                                           
         NG        1.000000E+00 'Co59    '                                                                                           
@@ -517,7 +517,7 @@ LIBRARY := LIB: ::
         NNP       1.000000E+00 'Ni61    '                                                                                           
         NA        1.000000E+00 'Cu63    '                                                                                           
         NFTOT     2.157500E-10 'Cm245   '                                                                                           
-    'Ni61    ' 280610 DECAY  0.000000E+00 NG  1.059700E+01 N2N                                                                        
+    'Ni61    ' 280610 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       NNP                                                                                           
     FROM NG        1.000000E+00 'Ni60    '                                                                                           
         N2N       1.000000E+00 'Ni62    '                                                                                           
@@ -528,7 +528,7 @@ LIBRARY := LIB: ::
         NFTOT     1.017000E-10 'Am242m  ' 1.319100E-10 'Am243   '                                                                   
                     1.445200E-10 'Cm243   ' 2.396100E-10 'Cm244   '                                                                   
                     5.095500E-10 'Cm245   '                                                                                           
-    'Ni62    ' 280620 DECAY  0.000000E+00 NG  6.855325E+00 N2N                                                                        
+    'Ni62    ' 280620 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       NNP      ND                                                                                   
     FROM NG        1.000000E+00 'Ni61    '                                                                                           
         NNP       1.000000E+00 'Cu63    '                                                                                           
@@ -540,7 +540,7 @@ LIBRARY := LIB: ::
                     3.780000E-10 'Am242m  ' 4.551800E-10 'Am243   '                                                                   
                     5.047300E-10 'Cm243   ' 7.812600E-10 'Cm244   '                                                                   
                     1.358740E-09 'Cm245   '                                                                                           
-    'Ni64    ' 280640 DECAY  0.000000E+00 NG  7.277730E+00 N2N                                                                        
+    'Ni64    ' 280640 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       NNP      ND                                                                                   
     FROM NNP       1.000000E+00 'Cu65    '                                                                                           
         ND        1.000000E+00 'Cu65    '                                                                                           
@@ -554,7 +554,7 @@ LIBRARY := LIB: ::
                     1.925100E-09 'Am241   ' 3.190990E-09 'Am242m  '                                                                   
                     3.549700E-09 'Am243   ' 3.647230E-09 'Cm243   '                                                                   
                     5.342000E-09 'Cm244   ' 8.007510E-09 'Cm245   '                                                                   
-    'Cu63    ' 290630 DECAY  0.000000E+00 NG  8.231959E+00 N2N                                                                        
+    'Cu63    ' 290630 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       NNP      ND                                                                                   
     FROM NG        1.000000E+00 'Ni62    '                                                                                           
         N2N       1.000000E+00 'Ni64    '                                                                                           
@@ -568,7 +568,7 @@ LIBRARY := LIB: ::
                     1.104720E-09 'Am242m  ' 1.319670E-09 'Am243   '                                                                   
                     1.473170E-09 'Cm243   ' 2.221550E-09 'Cm244   '                                                                   
                     3.444190E-09 'Cm245   '                                                                                           
-    'Cu65    ' 290650 DECAY  0.000000E+00 NG  7.066000E+00 N2N                                                                        
+    'Cu65    ' 290650 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       NNP      ND       NT                                                                          
     FROM NG        1.000000E+00 'Ni64    '                                                                                           
         NP        1.000000E+00 'Cu65    '                                                                                           
@@ -584,7 +584,7 @@ LIBRARY := LIB: ::
                     1.826132E-08 'Cm245   '                                                                                           
     'Zn0     ' 300000 NG  1.019800E+01 N2N      N3N      NA       NP                                                                  
                     NNP      NT                                                                                                     
-    'Ge72    ' 320720 DECAY  0.000000E+00 NG  6.782900E+00 N2N                                                                        
+    'Ge72    ' 320720 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       N2A      NNP                                                                         
                     ND       NT                                                                                                     
     FROM N2N       1.000000E+00 'Ge73    '                                                                                           
@@ -604,7 +604,7 @@ LIBRARY := LIB: ::
                     3.036059E-06 'Am242m  ' 2.256010E-06 'Am243   '                                                                   
                     2.199864E-06 'Cm243   ' 2.595963E-06 'Cm244   '                                                                   
                     9.909826E-07 'Cm245   '                                                                                           
-    'Ge73    ' 320730 DECAY  0.000000E+00 NG  1.019600E+01 N2N                                                                        
+    'Ge73    ' 320730 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       N2A      NNP                                                                         
                     ND       NT                                                                                                     
     FROM NG        1.000000E+00 'Ge72    '                                                                                           
@@ -625,7 +625,7 @@ LIBRARY := LIB: ::
                     6.345910E-06 'Am242m  ' 4.511846E-06 'Am243   '                                                                   
                     4.359804E-06 'Cm243   ' 5.053507E-06 'Cm244   '                                                                   
                     3.289866E-06 'Cm245   '                                                                                           
-    'Ge74    ' 320740 DECAY  0.000000E+00 NG  6.960801E+00 N2N                                                                        
+    'Ge74    ' 320740 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       NNP      ND                                                                          
                     NT                                                                                                              
     FROM NG        1.000000E+00 'Ge73    '                                                                                           
@@ -645,7 +645,7 @@ LIBRARY := LIB: ::
                     1.297095E-05 'Am242m  ' 8.855646E-06 'Am243   '                                                                   
                     8.444538E-06 'Cm243   ' 9.641518E-06 'Cm244   '                                                                   
                     1.074927E-05 'Cm245   '                                                                                           
-    'Ge76    ' 320760 DECAY  1.390159E-21 NG  8.027042E+00 N2N                                                                        
+    'Ge76    ' 320760 DECAY  1.390159E-21 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       NNP      ND                                                                          
                     NT                                                                                                              
     FROM NA        1.000000E+00 'Se79    '                                                                                           
@@ -660,7 +660,7 @@ LIBRARY := LIB: ::
                     4.926894E-05 'Am242m  ' 3.105852E-05 'Am243   '                                                                   
                     2.918320E-05 'Cm243   ' 3.236872E-05 'Cm244   '                                                                   
                     4.307503E-05 'Cm245   '                                                                                           
-    'As75    ' 330750 DECAY  0.000000E+00 NG  8.811772E+00 NA                                                                         
+    'As75    ' 330750 DECAY  0.000000E+00 NG  0.00E+00 NA                                                                         
                     NP       ND       NT                                                                                            
     FROM ND        1.000000E+00 'Se76    '                                                                                           
         NT        1.000000E+00 'Se77    '                                                                                           
@@ -680,7 +680,7 @@ LIBRARY := LIB: ::
                     2.552918E-05 'Am242m  ' 1.669676E-05 'Am243   '                                                                   
                     1.586682E-05 'Cm243   ' 1.782109E-05 'Cm244   '                                                                   
                     1.945945E-05 'Cm245   '                                                                                           
-    'Se76    ' 340760 DECAY  0.000000E+00 NG  7.418000E+00 NA                                                                         
+    'Se76    ' 340760 DECAY  0.000000E+00 NG  0.00E+00 NA                                                                         
                     NP       ND       NT                                                                                            
     FROM NG        1.000000E+00 'As75    '                                                                                           
         NP        1.000000E+00 'Se76    '                                                                                           
@@ -696,7 +696,7 @@ LIBRARY := LIB: ::
                     2.741400E-08 'Am241   ' 1.806800E-08 'Am242m  '                                                                   
                     5.235500E-09 'Am243   ' 3.724700E-08 'Cm243   '                                                                   
                     2.150900E-08 'Cm244   ' 1.572300E-08 'Cm245   '                                                                   
-    'Se77    ' 340770 DECAY  0.000000E+00 NG  1.049700E+01 NA                                                                         
+    'Se77    ' 340770 DECAY  0.000000E+00 NG  0.00E+00 NA                                                                         
                     NP       ND       NT                                                                                            
     FROM NG        1.000000E+00 'Se76    '                                                                                           
         N3N       1.000000E+00 'Se79    '                                                                                           
@@ -717,7 +717,7 @@ LIBRARY := LIB: ::
                     9.239321E-05 'Am242m  ' 5.626556E-05 'Am243   '                                                                   
                     5.251230E-05 'Cm243   ' 5.745188E-05 'Cm244   '                                                                   
                     6.719827E-05 'Cm245   '                                                                                           
-    'Se78    ' 340780 DECAY  0.000000E+00 NG  6.978000E+00 NA                                                                         
+    'Se78    ' 340780 DECAY  0.000000E+00 NG  0.00E+00 NA                                                                         
                     NP       ND       NT                                                                                            
     FROM NG        1.000000E+00 'Se77    '                                                                                           
         N2N       1.000000E+00 'Se79    '                                                                                           
@@ -738,7 +738,7 @@ LIBRARY := LIB: ::
                     1.683380E-04 'Am242m  ' 9.950485E-05 'Am243   '                                                                   
                     9.227566E-05 'Cm243   ' 9.963769E-05 'Cm244   '                                                                   
                     1.200022E-04 'Cm245   '                                                                                           
-    'Se79    ' 340790 DECAY  5.826255E-06 NG  9.912100E+00 N2N                                                                        
+    'Se79    ' 340790 DECAY  5.826255E-06 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       NNP      ND                                                                          
                     NT                                                                                                              
     FROM NG        1.000000E+00 'Se78    '                                                                                           
@@ -758,7 +758,7 @@ LIBRARY := LIB: ::
                     2.970963E-04 'Am242m  ' 1.714319E-04 'Am243   '                                                                   
                     1.585747E-04 'Cm243   ' 1.687246E-04 'Cm244   '                                                                   
                     2.086777E-04 'Cm245   '                                                                                           
-    'Se80    ' 340800 DECAY  0.000000E+00 NG  7.318803E+00 NA                                                                         
+    'Se80    ' 340800 DECAY  0.000000E+00 NG  0.00E+00 NA                                                                         
                     NP       ND       NT                                                                                            
     FROM NG        1.000000E+00 'Se79    '                                                                                           
         ND        1.000000E+00 'Br81    '                                                                                           
@@ -778,7 +778,7 @@ LIBRARY := LIB: ::
                     5.103169E-04 'Am242m  ' 2.907155E-04 'Am243   '                                                                   
                     2.680162E-04 'Cm243   ' 2.806445E-04 'Cm244   '                                                                   
                     3.547275E-04 'Cm245   '                                                                                           
-    'Se82    ' 340820 DECAY  1.815249E-20 NG  8.744277E+00 NA                                                                         
+    'Se82    ' 340820 DECAY  1.815249E-20 NG  0.00E+00 NA                                                                         
                     NP       ND       NT                                                                                            
     FROM NA        1.000000E+00 'Kr85    '                                                                                           
         NP        1.000000E+00 'Se82    '                                                                                           
@@ -792,7 +792,7 @@ LIBRARY := LIB: ::
                     1.326305E-03 'Am242m  ' 7.671602E-04 'Am243   '                                                                   
                     7.141334E-04 'Cm243   ' 7.187515E-04 'Cm244   '                                                                   
                     9.191543E-04 'Cm245   '                                                                                           
-    'Br79    ' 350790 DECAY  0.000000E+00 NG  8.684050E+00 NA                                                                         
+    'Br79    ' 350790 DECAY  0.000000E+00 NG  0.00E+00 NA                                                                         
                     NP       ND       NT                                                                                            
     FROM DECAY     1.000000E+00 'Se79    '                                                                                           
         ND        1.000000E+00 'Kr80    '                                                                                           
@@ -810,7 +810,7 @@ LIBRARY := LIB: ::
                     1.624647E-07 'Am242m  ' 9.373197E-08 'Am243   '                                                                   
                     8.697613E-08 'Cm243   ' 9.229871E-08 'Cm244   '                                                                   
                     1.140453E-07 'Cm245   '                                                                                           
-    'Br81    ' 350810 DECAY  0.000000E+00 NG  1.038172E+01 NA                                                                         
+    'Br81    ' 350810 DECAY  0.000000E+00 NG  0.00E+00 NA                                                                         
                     NP       ND       NT                                                                                            
     FROM ND        1.000000E+00 'Kr82    '                                                                                           
         NT        1.000000E+00 'Kr83    '                                                                                           
@@ -831,7 +831,7 @@ LIBRARY := LIB: ::
                     8.397686E-04 'Am242m  ' 4.764236E-04 'Am243   '                                                                   
                     4.435992E-04 'Cm243   ' 4.547991E-04 'Cm244   '                                                                   
                     5.806745E-04 'Cm245   '                                                                                           
-    'Kr80    ' 360800 DECAY  0.000000E+00 NG  7.862754E+00 N2N                                                                        
+    'Kr80    ' 360800 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       ND       NT                                                                                   
     FROM NG        9.170000E-01 'Br79    '                                                                                           
         NP        9.170000E-01 'Kr80    '                                                                                           
@@ -845,7 +845,7 @@ LIBRARY := LIB: ::
                     7.195699E-09 'Am242m  ' 1.534884E-09 'Am243   '                                                                   
                     1.923719E-08 'Cm243   ' 8.779725E-09 'Cm244   '                                                                   
                     5.295217E-09 'Cm245   '                                                                                           
-    'Kr82    ' 360820 DECAY  0.000000E+00 NG  7.467000E+00 N2N                                                                        
+    'Kr82    ' 360820 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       ND       NT                                                                                   
     FROM N2N       1.000000E+00 'Kr83    '                                                                                           
         NG        1.000000E+00 'Br81    '                                                                                           
@@ -863,7 +863,7 @@ LIBRARY := LIB: ::
                     5.478670E-06 'Am242m  ' 1.608294E-06 'Am243   '                                                                   
                     8.869087E-06 'Cm243   ' 5.196423E-06 'Cm244   '                                                                   
                     4.117127E-06 'Cm245   '                                                                                           
-    'Kr83    ' 360830 DECAY  0.000000E+00 NG  1.051800E+01 N2N                                                                        
+    'Kr83    ' 360830 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       ND       NT                                                                          
     FROM NG        1.000000E+00 'Kr82    '                                                                                           
         N2N       1.000000E+00 'Kr84    '                                                                                           
@@ -884,7 +884,7 @@ LIBRARY := LIB: ::
                     2.268193E-03 'Am242m  ' 1.217330E-03 'Am243   '                                                                   
                     1.157752E-03 'Cm243   ' 1.131687E-03 'Cm244   '                                                                   
                     1.441135E-03 'Cm245   '                                                                                           
-    'Kr84    ' 360840 DECAY  0.000000E+00 NG  7.111000E+00 N2N                                                                        
+    'Kr84    ' 360840 DECAY  0.000000E+00 NG  0.00E+00  N2N                                                                        
                     NA       NP       ND       NT                                                                                   
     FROM NG        1.000000E+00 'Kr83    '                                                                                           
         N3N       1.000000E+00 'Kr86    '                                                                                           
@@ -905,7 +905,7 @@ LIBRARY := LIB: ::
                     2.777271E-03 'Am242m  ' 1.937876E-03 'Am243   '                                                                   
                     1.815030E-03 'Cm243   ' 1.757550E-03 'Cm244   '                                                                   
                     2.238982E-03 'Cm245   '                                                                                           
-    'Kr85    ' 360850 DECAY  2.042874E-01 NG  9.980000E+00 NA                                                                         
+    'Kr85    ' 360850 DECAY  2.042874E-01 NG  0.00E+00 NA                                                                         
                     NP       ND       NT                                                                                            
     FROM NG        1.000000E+00 'Kr84    '                                                                                           
         N2N       1.000000E+00 'Kr86    '                                                                                           
@@ -924,7 +924,7 @@ LIBRARY := LIB: ::
                     8.469155E-04 'Am242m  ' 6.218835E-04 'Am243   '                                                                   
                     6.247115E-04 'Cm243   ' 5.943486E-04 'Cm244   '                                                                   
                     9.179736E-04 'Cm245   '                                                                                           
-    'Kr86    ' 360860 DECAY  0.000000E+00 NG  7.629952E+00 N2N                                                                        
+    'Kr86    ' 360860 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       ND       NT                                                                          
     FROM NG        1.000000E+00 'Kr85    '                                                                                           
         ND        1.000000E+00 'Rb87    '                                                                                           
@@ -945,7 +945,7 @@ LIBRARY := LIB: ::
                     5.610737E-03 'Am242m  ' 4.343011E-03 'Am243   '                                                                   
                     3.805026E-03 'Cm243   ' 3.909683E-03 'Cm244   '                                                                   
                     7.740755E-03 'Cm245   '                                                                                           
-    'Rb85    ' 370850 DECAY  0.000000E+00 NG  9.400367E+00 NA                                                                         
+    'Rb85    ' 370850 DECAY  0.000000E+00 NG  0.00E+00 NA                                                                         
                     NP       ND       NT                                                                                            
     FROM DECAY     1.000000E+00 'Kr85    '                                                                                           
         ND        1.000000E+00 'Sr86    '                                                                                           
@@ -962,7 +962,7 @@ LIBRARY := LIB: ::
                     2.917470E-03 'Am242m  ' 2.199056E-03 'Am243   '                                                                   
                     1.996779E-03 'Cm243   ' 1.992270E-03 'Cm244   '                                                                   
                     3.160821E-03 'Cm245   '                                                                                           
-    'Rb87    ' 370870 DECAY  4.566518E-11 NG  8.807146E+00 NA                                                                         
+    'Rb87    ' 370870 DECAY  4.566518E-11 NG  0.00E+00 NA                                                                         
                     NP       ND       NT                                                                                            
     FROM NP        1.000000E+00 'Sr87    '                                                                                           
         ND        1.000000E+00 'Sr88    '                                                                                           
@@ -981,7 +981,7 @@ LIBRARY := LIB: ::
                     8.216914E-03 'Am242m  ' 6.184659E-03 'Am243   '                                                                   
                     5.156941E-03 'Cm243   ' 5.510743E-03 'Cm244   '                                                                   
                     7.278925E-03 'Cm245   '                                                                                           
-    'Sr86    ' 380860 DECAY  0.000000E+00 NG  8.428300E+00 NA                                                                         
+    'Sr86    ' 380860 DECAY  0.000000E+00 NG  0.00E+00 NA                                                                         
                     NP       ND       NT                                                                                            
     FROM NG        9.999500E-01 'Rb85    '                                                                                           
         NP        9.999500E-01 'Sr86    '                                                                                           
@@ -998,7 +998,7 @@ LIBRARY := LIB: ::
                     2.570918E-06 'Am242m  ' 8.422122E-07 'Am243   '                                                                   
                     7.692048E-06 'Cm243   ' 3.929321E-06 'Cm244   '                                                                   
                     4.499337E-06 'Cm245   '                                                                                           
-    'Sr87    ' 380870 DECAY  0.000000E+00 NG  1.111300E+01 NA                                                                         
+    'Sr87    ' 380870 DECAY  0.000000E+00 NG  0.00E+00 NA                                                                         
                     NP       ND       NT                                                                                            
     FROM DECAY     1.000000E+00 'Rb87    '                                                                                           
         NG        1.000000E+00 'Sr86    '                                                                                           
@@ -1013,7 +1013,7 @@ LIBRARY := LIB: ::
                     9.692236E-08 'Am241   ' 5.076928E-08 'Am242m  '                                                                   
                     1.282457E-08 'Am243   ' 1.961824E-07 'Cm243   '                                                                   
                     8.378377E-08 'Cm244   ' 5.387263E-08 'Cm245   '                                                                   
-    'Sr88    ' 380880 DECAY  0.000000E+00 NG  6.360100E+00 NA                                                                         
+    'Sr88    ' 380880 DECAY  0.000000E+00 NG  0.00E+00 NA                                                                         
                     NP       ND       NT                                                                                            
     FROM NG        1.000000E+00 'Sr87    '                                                                                           
         NNP       1.000000E+00 'Y89     '                                                                                           
@@ -1037,7 +1037,7 @@ LIBRARY := LIB: ::
                     1.057225E-02 'Am242m  ' 7.999513E-03 'Am243   '                                                                   
                     6.911035E-03 'Cm243   ' 7.261090E-03 'Cm244   '                                                                   
                     9.420220E-03 'Cm245   '                                                                                           
-    'Sr89    ' 380890 DECAY  1.586421E+01 NG  7.710000E+00 NA                                                                         
+    'Sr89    ' 380890 DECAY  1.586421E+01 NG  0.00E+00 NA                                                                         
                     NP       ND       NT                                                                                            
     FROM NG        1.000000E+00 'Sr88    '                                                                                           
         NP        1.000000E+00 'Y89     '                                                                                           
@@ -1056,7 +1056,7 @@ LIBRARY := LIB: ::
                     1.297940E-02 'Am242m  ' 9.821955E-03 'Am243   '                                                                   
                     9.068446E-03 'Cm243   ' 9.319695E-03 'Cm244   '                                                                   
                     1.116200E-02 'Cm245   '                                                                                           
-    'Sr90    ' 380900 DECAY  7.629377E-02 NG  7.640954E+00 NA                                                                         
+    'Sr90    ' 380900 DECAY  7.629377E-02 NG  0.00E+00 NA                                                                         
                     NP       ND       NT                                                                                            
     FROM NG        1.000000E+00 'Sr89    '                                                                                           
         NP        1.000000E+00 'Y90     '                                                                                           
@@ -1073,7 +1073,7 @@ LIBRARY := LIB: ::
                     1.609671E-02 'Am242m  ' 1.222246E-02 'Am243   '                                                                   
                     1.175907E-02 'Cm243   ' 1.196886E-02 'Cm244   '                                                                   
                     1.253491E-02 'Cm245   '                                                                                           
-    'Y89     ' 390890 DECAY  0.000000E+00 NG  6.857000E+00 N2N                                                                        
+    'Y89     ' 390890 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       NNP      ND       NT                                                                          
     FROM DECAY     1.000000E+00 'Sr89    '                                                                                           
         NNP       1.000000E+00 'Zr90    '                                                                                           
@@ -1090,7 +1090,7 @@ LIBRARY := LIB: ::
                     3.802020E-08 'Am241   ' 1.840680E-08 'Am242m  '                                                                   
                     4.084350E-09 'Am243   ' 1.024300E-07 'Cm243   '                                                                   
                     4.078310E-08 'Cm244   ' 2.294760E-08 'Cm245   '                                                                   
-    'Y90     ' 390900 DECAY  3.003758E+02 NG  8.170000E+00 NA                                                                         
+    'Y90     ' 390900 DECAY  3.003758E+02 NG  0.00E+00 NA                                                                         
                     NP       ND       NT                                                                                            
     FROM DECAY     1.000000E+00 'Sr90    '                                                                                           
         NG        1.000000E+00 'Y89     '                                                                                           
@@ -1109,7 +1109,7 @@ LIBRARY := LIB: ::
                     5.496032E-07 'Am242m  ' 1.436182E-07 'Am243   '                                                                   
                     2.504069E-06 'Cm243   ' 1.113776E-06 'Cm244   '                                                                   
                     6.076525E-07 'Cm245   '                                                                                           
-    'Y91     ' 390910 DECAY  1.371141E+01 NG  8.188559E+00 NA                                                                         
+    'Y91     ' 390910 DECAY  1.371141E+01 NG  0.00E+00 NA                                                                         
                     ND       NT                                                                                                     
     FROM NG        1.000000E+00 'Y90     '                                                                                           
         NP        1.000000E+00 'Zr91    '                                                                                           
@@ -1129,7 +1129,7 @@ LIBRARY := LIB: ::
                     2.138067E-02 'Am242m  ' 1.628827E-02 'Am243   '                                                                   
                     1.444859E-02 'Cm243   ' 1.506469E-02 'Cm244   '                                                                   
                     1.459857E-02 'Cm245   '                                                                                           
-    'Zr90    ' 400900 DECAY  0.000000E+00 NG  7.199300E+00 N2N                                                                        
+    'Zr90    ' 400900 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       NNP      ND       NT                                                                          
     FROM DECAY     1.000000E+00 'Y90     '                                                                                           
         N2N       1.000000E+00 'Zr91    '                                                                                           
@@ -1138,7 +1138,7 @@ LIBRARY := LIB: ::
         NFTOT     4.498700E-09 'U233    ' 3.541400E-10 'Pu238   '                                                                   
                     3.556100E-10 'Pu239   ' 1.398500E-10 'Am241   '                                                                   
                     5.299100E-10 'Cm243   ' 1.302300E-10 'Cm244   '                                                                   
-    'Zr91    ' 400910 DECAY  0.000000E+00 NG  8.635100E+00 N2N                                                                        
+    'Zr91    ' 400910 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       NNP      ND                                                                          
                     NT                                                                                                              
     FROM DECAY     1.000000E+00 'Y91     '                                                                                           
@@ -1159,7 +1159,7 @@ LIBRARY := LIB: ::
                     4.658300E-09 'Am242m  ' 9.417200E-10 'Am243   '                                                                   
                     2.832600E-08 'Cm243   ' 1.031100E-08 'Cm244   '                                                                   
                     4.532600E-09 'Cm245   '                                                                                           
-    'Zr92    ' 400920 DECAY  0.000000E+00 NG  6.732000E+00 N2N                                                                        
+    'Zr92    ' 400920 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       NNP      ND                                                                          
                     NT                                                                                                              
     FROM NG        1.000000E+00 'Zr91    '                                                                                           
@@ -1191,7 +1191,7 @@ LIBRARY := LIB: ::
                     2.607711E-02 'Am242m  ' 2.073548E-02 'Am243   '                                                                   
                     1.547221E-02 'Cm243   ' 1.856466E-02 'Cm244   '                                                                   
                     1.586785E-02 'Cm245   '                                                                                           
-    'Zr93    ' 400930 DECAY  1.435619E-06 NG  8.218600E+00 N2N                                                                        
+    'Zr93    ' 400930 DECAY  1.435619E-06 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       NNP      ND                                                                          
                     NT                                                                                                              
     FROM NG        1.000000E+00 'Zr92    '                                                                                           
@@ -1216,7 +1216,7 @@ LIBRARY := LIB: ::
                     2.998762E-02 'Am242m  ' 2.491589E-02 'Am243   '                                                                   
                     1.808473E-02 'Cm243   ' 2.237202E-02 'Cm244   '                                                                   
                     2.208092E-02 'Cm245   '                                                                                           
-    'Zr94    ' 400940 DECAY  3.660744E-16 NG  6.470900E+00 N2N                                                                        
+    'Zr94    ' 400940 DECAY  3.660744E-16 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       NNP      ND                                                                          
                     NT                                                                                                              
     FROM NG        1.000000E+00 'Zr93    '                                                                                           
@@ -1239,7 +1239,7 @@ LIBRARY := LIB: ::
                     3.102906E-02 'Am242m  ' 2.573193E-02 'Am243   '                                                                   
                     2.415883E-02 'Cm243   ' 2.570699E-02 'Cm244   '                                                                   
                     2.427368E-02 'Cm245   '                                                                                           
-    'Zr95    ' 400950 DECAY  1.252896E+01 NG  7.837700E+00 N2N                                                                        
+    'Zr95    ' 400950 DECAY  1.252896E+01 NG  0.00E+00 N2N                                                                        
                     NA       NP       ND       NT                                                                                   
     FROM NG        1.000000E+00 'Zr94    '                                                                                           
         N2N       1.000000E+00 'Zr96    '                                                                                           
@@ -1258,7 +1258,7 @@ LIBRARY := LIB: ::
                     3.615721E-02 'Am242m  ' 3.010164E-02 'Am243   '                                                                   
                     2.822748E-02 'Cm243   ' 2.918937E-02 'Cm244   '                                                                   
                     2.853701E-02 'Cm245   '                                                                                           
-    'Zr96    ' 400960 DECAY  5.631909E-20 NG  8.280571E+00 N2N                                                                        
+    'Zr96    ' 400960 DECAY  5.631909E-20 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       NNP      ND                                                                          
                     NT                                                                                                              
     FROM NG        1.000000E+00 'Zr95    '                                                                                           
@@ -1274,7 +1274,7 @@ LIBRARY := LIB: ::
                     4.189711E-02 'Am242m  ' 3.567009E-02 'Am243   '                                                                   
                     3.390106E-02 'Cm243   ' 3.297359E-02 'Cm244   '                                                                   
                     3.001580E-02 'Cm245   '                                                                                           
-    'Nb93    ' 410930 DECAY  0.000000E+00 NG  7.214000E+00 N2N                                                                        
+    'Nb93    ' 410930 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       NNP      ND                                                                          
                     NT                                                                                                              
     FROM DECAY     1.000000E+00 'Zr93    '                                                                                           
@@ -1291,7 +1291,7 @@ LIBRARY := LIB: ::
                     1.186300E-09 'Am242m  ' 1.822700E-10 'Am243   '                                                                   
                     9.271700E-09 'Cm243   ' 3.682590E-09 'Cm244   '                                                                   
                     1.585930E-09 'Cm245   '                                                                                           
-    'Nb94    ' 410940 DECAY  1.098978E-04 NG  8.490800E+00 N2N                                                                        
+    'Nb94    ' 410940 DECAY  1.098978E-04 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       NNP      ND                                                                          
                     NT                                                                                                              
     FROM NG        1.000000E+00 'Nb93    '                                                                                           
@@ -1308,7 +1308,7 @@ LIBRARY := LIB: ::
                     4.928991E-08 'Am242m  ' 1.152213E-08 'Am243   '                                                                   
                     3.531785E-07 'Cm243   ' 1.411177E-07 'Cm244   '                                                                   
                     6.531870E-08 'Cm245   '                                                                                           
-    'Nb95    ' 410950 DECAY  2.292745E+01 NG  9.588811E+00 N2N                                                                        
+    'Nb95    ' 410950 DECAY  2.292745E+01 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       NNP      ND                                                                          
                     NT                                                                                                              
     FROM DECAY     9.993945E-01 'Zr95    '                                                                                           
@@ -1327,10 +1327,10 @@ LIBRARY := LIB: ::
                     1.789649E-06 'Am242m  ' 4.946812E-07 'Am243   '                                                                   
                     9.710292E-06 'Cm243   ' 4.358752E-06 'Cm244   '                                                                   
                     2.331182E-06 'Cm245   '                                                                                           
-    'Mo92    ' 420920 DECAY  1.156028E-20 NG  8.110415E+00 N2N                                                                        
+    'Mo92    ' 420920 DECAY  1.156028E-20 NG  0.00E+00 N2N                                                                        
                     NA       NP       NNP      ND       NT                                                                          
     FROM N3N       1.000000E+00 'Mo94    '                                                                                           
-    'Mo94    ' 420940 DECAY  0.000000E+00 NG  7.371200E+00 N2N                                                                        
+    'Mo94    ' 420940 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       NNP      ND                                                                          
                     NT                                                                                                              
     FROM DECAY     1.000000E+00 'Nb94    '                                                                                           
@@ -1344,7 +1344,7 @@ LIBRARY := LIB: ::
                     3.378300E-10 'Am241   ' 1.020950E-10 'Am242m  '                                                                   
                     2.386550E-11 'Am243   ' 7.315500E-10 'Cm243   '                                                                   
                     2.922950E-10 'Cm244   ' 1.352950E-10 'Cm245   '                                                                   
-    'Mo95    ' 420950 DECAY  0.000000E+00 NG  9.154000E+00 N2N                                                                        
+    'Mo95    ' 420950 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       NNP                                                                                  
     FROM DECAY     1.000000E+00 'Nb95    '                                                                                           
         NG        1.000000E+00 'Mo94    '                                                                                           
@@ -1361,7 +1361,7 @@ LIBRARY := LIB: ::
                     1.919762E-08 'Am242m  ' 5.257784E-09 'Am243   '                                                                   
                     1.051741E-07 'Cm243   ' 4.692402E-08 'Cm244   '                                                                   
                     2.502025E-08 'Cm245   '                                                                                           
-    'Mo96    ' 420960 DECAY  0.000000E+00 NG  6.821100E+00 N2N                                                                        
+    'Mo96    ' 420960 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       NNP      ND                                                                          
                     NT                                                                                                              
     FROM NG        1.000000E+00 'Mo95    '                                                                                           
@@ -1385,7 +1385,7 @@ LIBRARY := LIB: ::
                     2.859774E-05 'Am242m  ' 9.430828E-06 'Am243   '                                                                   
                     1.199701E-04 'Cm243   ' 5.879044E-05 'Cm244   '                                                                   
                     3.259037E-05 'Cm245   '                                                                                           
-    'Mo97    ' 420970 DECAY  0.000000E+00 NG  8.642300E+00 N2N                                                                        
+    'Mo97    ' 420970 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       NNP      ND                                                                          
                     NT                                                                                                              
     FROM NG        1.000000E+00 'Mo96    '                                                                                           
@@ -1411,7 +1411,7 @@ LIBRARY := LIB: ::
                     4.656684E-02 'Am242m  ' 4.113056E-02 'Am243   '                                                                   
                     3.770218E-02 'Cm243   ' 3.693718E-02 'Cm244   '                                                                   
                     3.339636E-02 'Cm245   '                                                                                           
-    'Mo98    ' 420980 DECAY  2.196451E-14 NG  5.925600E+00 N2N                                                                        
+    'Mo98    ' 420980 DECAY  2.196451E-14 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       NNP      ND                                                                          
                     NT                                                                                                              
     FROM NG        1.000000E+00 'Mo97    '                                                                                           
@@ -1434,7 +1434,7 @@ LIBRARY := LIB: ::
                     4.359584E-02 'Am242m  ' 4.004250E-02 'Am243   '                                                                   
                     4.325079E-02 'Cm243   ' 3.887539E-02 'Cm244   '                                                                   
                     3.841413E-02 'Cm245   '                                                                                           
-    'Mo99    ' 420990 DECAY  2.919941E+02 NG  8.290900E+00 N2N                                                                        
+    'Mo99    ' 420990 DECAY  2.919941E+02 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       NNP      ND                                                                          
                     NT                                                                                                              
     FROM NG        1.000000E+00 'Mo98    '                                                                                           
@@ -1454,7 +1454,7 @@ LIBRARY := LIB: ::
                     4.631393E-02 'Am242m  ' 4.275778E-02 'Am243   '                                                                   
                     5.254476E-02 'Cm243   ' 4.232008E-02 'Cm244   '                                                                   
                     4.081291E-02 'Cm245   '                                                                                           
-    'Mo100   ' 421000 DECAY  2.218639E-19 NG  8.180488E+00 N2N                                                                        
+    'Mo100   ' 421000 DECAY  2.218639E-19 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       NNP      ND                                                                          
                     NT                                                                                                              
     FROM NG        1.000000E+00 'Mo99    '                                                                                           
@@ -1470,7 +1470,7 @@ LIBRARY := LIB: ::
                     5.036446E-02 'Am242m  ' 4.565582E-02 'Am243   '                                                                   
                     6.076976E-02 'Cm243   ' 4.608160E-02 'Cm244   '                                                                   
                     4.688329E-02 'Cm245   '                                                                                           
-    'Tc99    ' 430990 DECAY  1.026401E-05 NG  8.161910E+00 N2N                                                                        
+    'Tc99    ' 430990 DECAY  1.026401E-05 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       N2A      NNP                                                                         
                     ND       NT                                                                                                     
     FROM DECAY     9.999674E-01 'Mo99    '                                                                                           
@@ -1485,7 +1485,7 @@ LIBRARY := LIB: ::
                     5.526562E-08 'Am242m  ' 1.294621E-08 'Am243   '                                                                   
                     6.817353E-07 'Cm243   ' 1.917497E-07 'Cm244   '                                                                   
                     8.566641E-08 'Cm245   '                                                                                           
-    'Ru99    ' 440990 DECAY  0.000000E+00 NG  9.673500E+00 NA                                                                         
+    'Ru99    ' 440990 DECAY  0.000000E+00 NG  0.00E+00 NA                                                                         
                     NP       ND       NT                                                                                            
     FROM DECAY     1.000000E+00 'Tc99    '                                                                                           
         N3N       1.000000E+00 'Ru101   '                                                                                           
@@ -1498,7 +1498,7 @@ LIBRARY := LIB: ::
                     3.840230E-13 'Am242m  ' 8.995810E-14 'Am243   '                                                                   
                     4.737110E-12 'Cm243   ' 1.332407E-12 'Cm244   '                                                                   
                     5.952560E-13 'Cm245   '                                                                                           
-    'Ru100   ' 441000 DECAY  0.000000E+00 NG  6.805000E+00 NA                                                                         
+    'Ru100   ' 441000 DECAY  0.000000E+00 NG  0.00E+00 NA                                                                         
                     NP       ND       NT                                                                                            
     FROM NG        1.000000E+00 'Ru99    '                                                                                           
         N2N       1.000000E+00 'Ru101   '                                                                                           
@@ -1518,7 +1518,7 @@ LIBRARY := LIB: ::
                     1.297205E-06 'Am242m  ' 3.531636E-07 'Am243   '                                                                   
                     1.334262E-05 'Cm243   ' 4.008095E-06 'Cm244   '                                                                   
                     2.065581E-06 'Cm245   '                                                                                           
-    'Ru101   ' 441010 DECAY  0.000000E+00 NG  9.220300E+00 N2N                                                                        
+    'Ru101   ' 441010 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       NNP                                                                                  
     FROM NG        1.000000E+00 'Ru100   '                                                                                           
         N3N       1.000000E+00 'Ru103   '                                                                                           
@@ -1540,7 +1540,7 @@ LIBRARY := LIB: ::
                     5.541413E-02 'Am242m  ' 5.134810E-02 'Am243   '                                                                   
                     6.627868E-02 'Cm243   ' 4.853111E-02 'Cm244   '                                                                   
                     5.008507E-02 'Cm245   '                                                                                           
-    'Ru102   ' 441020 DECAY  0.000000E+00 NG  6.225000E+00 NA                                                                         
+    'Ru102   ' 441020 DECAY  0.000000E+00 NG  0.00E+00 NA                                                                         
                     NP       ND       NT                                                                                            
     FROM NG        1.000000E+00 'Ru101   '                                                                                           
         N2N       1.000000E+00 'Ru103   '                                                                                           
@@ -1564,7 +1564,7 @@ LIBRARY := LIB: ::
                     5.802678E-02 'Am242m  ' 5.707499E-02 'Am243   '                                                                   
                     7.380650E-02 'Cm243   ' 5.195309E-02 'Cm244   '                                                                   
                     5.455628E-02 'Cm245   '                                                                                           
-    'Ru103   ' 441030 DECAY  2.043440E+01 NG  8.903900E+00 N2N                                                                        
+    'Ru103   ' 441030 DECAY  2.043440E+01 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       NNP      ND                                                                          
                     NT                                                                                                              
     FROM NG        1.000000E+00 'Ru102   '                                                                                           
@@ -1584,7 +1584,7 @@ LIBRARY := LIB: ::
                     6.054451E-02 'Am242m  ' 6.128712E-02 'Am243   '                                                                   
                     6.247229E-02 'Cm243   ' 5.731474E-02 'Cm244   '                                                                   
                     5.887997E-02 'Cm245   '                                                                                           
-    'Ru104   ' 441040 DECAY  0.000000E+00 NG  5.908000E+00 NA                                                                         
+    'Ru104   ' 441040 DECAY  0.000000E+00 NG  0.00E+00 NA                                                                         
                     NP       ND       NT                                                                                            
     FROM NG        1.000000E+00 'Ru103   '                                                                                           
         NA        1.000000E+00 'Pd107   '                                                                                           
@@ -1606,7 +1606,7 @@ LIBRARY := LIB: ::
                     5.872866E-02 'Am242m  ' 5.946403E-02 'Am243   '                                                                   
                     7.316273E-02 'Cm243   ' 6.160987E-02 'Cm244   '                                                                   
                     5.829764E-02 'Cm245   '                                                                                           
-    'Ru105   ' 441050 DECAY  4.336506E+03 NG  8.460000E+00 NA                                                                         
+    'Ru105   ' 441050 DECAY  4.336506E+03 NG  0.00E+00 NA                                                                         
                     NP       ND       NT                                                                                            
     FROM NG        1.000000E+00 'Ru104   '                                                                                           
         NA        1.000000E+00 'Pd108   '                                                                                           
@@ -1622,7 +1622,7 @@ LIBRARY := LIB: ::
                     6.486821E-02 'Am242m  ' 6.654803E-02 'Am243   '                                                                   
                     6.257411E-02 'Cm243   ' 6.504416E-02 'Cm244   '                                                                   
                     6.289826E-02 'Cm245   '                                                                                           
-    'Ru106   ' 441060 DECAY  2.153126E+00 NG  7.653126E+00 NA                                                                         
+    'Ru106   ' 441060 DECAY  2.153126E+00 NG  0.00E+00 NA                                                                         
                     NP       ND       NT                                                                                            
     FROM NG        1.000000E+00 'Ru105   '                                                                                           
         NP        1.000000E+00 'Ru106   '                                                                                           
@@ -1636,7 +1636,7 @@ LIBRARY := LIB: ::
                     6.659531E-02 'Am242m  ' 7.202528E-02 'Am243   '                                                                   
                     6.080098E-02 'Cm243   ' 6.706780E-02 'Cm244   '                                                                   
                     6.155480E-02 'Cm245   '                                                                                           
-    'Rh103   ' 451030 DECAY  0.000000E+00 NG  7.994517E+00 N2N                                                                        
+    'Rh103   ' 451030 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     N3N      N4N      NA       NP       N2A                                                                         
                     NNP      ND       NT                                                                                            
     FROM DECAY     1.000000E+00 'Ru103   '                                                                                           
@@ -1649,7 +1649,7 @@ LIBRARY := LIB: ::
                     3.858890E-09 'Am241   ' 8.462900E-10 'Am242m  '                                                                   
                     1.343500E-10 'Am243   ' 1.604570E-08 'Cm243   '                                                                   
                     4.080010E-09 'Cm244   ' 1.612520E-09 'Cm245   '                                                                   
-    'Rh105   ' 451050 DECAY  5.445161E+02 NG  8.045680E+00                                                                            
+    'Rh105   ' 451050 DECAY  5.445161E+02 NG  0.00E+00                                                                            
     FROM DECAY     1.000000E+00 'Ru105   '                                                                                           
         NP        1.000000E+00 'Pd105   '                                                                                           
         ND        1.000000E+00 'Pd106   '                                                                                           
@@ -1663,7 +1663,7 @@ LIBRARY := LIB: ::
                     1.367880E-06 'Am242m  ' 3.889320E-07 'Am243   '                                                                   
                     1.218470E-05 'Cm243   ' 4.831800E-06 'Cm244   '                                                                   
                     2.278300E-06 'Cm245   '                                                                                           
-    'Pd104   ' 461040 DECAY  0.000000E+00 NG  7.093000E+00 N2N                                                                        
+    'Pd104   ' 461040 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       ND       NT                                                                                   
     FROM N2N       1.000000E+00 'Pd105   '                                                                                           
         NG        9.955000E-01 'Rh103   '                                                                                           
@@ -1680,7 +1680,7 @@ LIBRARY := LIB: ::
                     4.090826E-08 'Am242m  ' 9.528968E-09 'Am243   '                                                                   
                     5.480749E-07 'Cm243   ' 1.533206E-07 'Cm244   '                                                                   
                     6.417320E-08 'Cm245   '                                                                                           
-    'Pd105   ' 461050 DECAY  0.000000E+00 NG  9.547800E+00 N2N                                                                        
+    'Pd105   ' 461050 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       ND       NT                                                                                   
     FROM DECAY     1.000000E+00 'Rh105   '                                                                                           
         NG        1.000000E+00 'Pd104   '                                                                                           
@@ -1693,7 +1693,7 @@ LIBRARY := LIB: ::
         NFTOT     4.139600E-10 'Pu238   ' 2.765800E-10 'Pu239   '                                                                   
                     3.780900E-10 'Am241   ' 1.949300E-09 'Cm243   '                                                                   
                     4.989300E-10 'Cm244   ' 1.731700E-10 'Cm245   '                                                                   
-    'Pd106   ' 461060 DECAY  0.000000E+00 NG  6.529000E+00 N2N                                                                        
+    'Pd106   ' 461060 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       ND       NT                                                                                   
     FROM NG        1.000000E+00 'Pd105   '                                                                                           
         N2N       1.000000E+00 'Pd107   '                                                                                           
@@ -1715,7 +1715,7 @@ LIBRARY := LIB: ::
                     3.278123E-05 'Am242m  ' 1.174088E-05 'Am243   '                                                                   
                     1.716619E-04 'Cm243   ' 8.820626E-05 'Cm244   '                                                                   
                     4.537661E-05 'Cm245   '                                                                                           
-    'Pd107   ' 461070 DECAY  3.379228E-07 NG  9.223000E+00 N2N                                                                        
+    'Pd107   ' 461070 DECAY  3.379228E-07 NG  0.00E+00 N2N                                                                        
                     NA       NP       ND       NT                                                                                   
     FROM NG        1.000000E+00 'Pd106   '                                                                                           
         N2N       1.000000E+00 'Pd108   '                                                                                           
@@ -1737,7 +1737,7 @@ LIBRARY := LIB: ::
                     5.912612E-02 'Am242m  ' 6.922738E-02 'Am243   '                                                                   
                     6.192714E-02 'Cm243   ' 6.537256E-02 'Cm244   '                                                                   
                     5.703576E-02 'Cm245   '                                                                                           
-    'Pd108   ' 461080 DECAY  0.000000E+00 NG  6.603435E+00 N2N                                                                        
+    'Pd108   ' 461080 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       ND       NT                                                                                   
     FROM NG        1.000000E+00 'Pd107   '                                                                                           
         ND        1.000000E+00 'Ag109   '                                                                                           
@@ -1761,7 +1761,7 @@ LIBRARY := LIB: ::
                     4.393276E-02 'Am242m  ' 5.434561E-02 'Am243   '                                                                   
                     3.485271E-02 'Cm243   ' 5.800087E-02 'Cm244   '                                                                   
                     4.943638E-02 'Cm245   '                                                                                           
-    'Pd110   ' 461100 DECAY  3.660744E-18 NG  6.706569E+00 N2N                                                                        
+    'Pd110   ' 461100 DECAY  3.660744E-18 NG  0.00E+00 N2N                                                                        
                     NA       NP       ND       NT                                                                                   
     FROM NP        1.000000E+00 'Ag110m  '                                                                                           
         ND        1.000000E+00 'Ag111   '                                                                                           
@@ -1784,7 +1784,7 @@ LIBRARY := LIB: ::
                     2.338513E-02 'Am242m  ' 3.190135E-02 'Am243   '                                                                   
                     3.164978E-02 'Cm243   ' 3.950235E-02 'Cm244   '                                                                   
                     4.132233E-02 'Cm245   '                                                                                           
-    'Ag107   ' 471070 DECAY  0.000000E+00 NG  7.904356E+00 N2N                                                                        
+    'Ag107   ' 471070 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       ND       NT                                                                                   
     FROM DECAY     1.000000E+00 'Pd107   '                                                                                           
         NNP       1.000000E+00 'Cd108   '                                                                                           
@@ -1792,7 +1792,7 @@ LIBRARY := LIB: ::
         NG        1.000000E+00 'Cd106   '                                                                                           
         N2N       1.000000E+00 'Cd108   '                                                                                           
         NFTOT     4.573400E-10 'Cm243   ' 1.128800E-10 'Cm244   '                                                                   
-    'Ag109   ' 471090 DECAY  0.000000E+00 NG  6.876541E+00 N2N                                                                        
+    'Ag109   ' 471090 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     NA       NP       ND       NT                                                                                   
     FROM N2N       1.000000E+00 'Ag110m  '                                                                                           
         NNP       1.000000E+00 'Cd110   '                                                                                           
@@ -1820,7 +1820,7 @@ LIBRARY := LIB: ::
                     3.429692E-02 'Am242m  ' 4.396744E-02 'Am243   '                                                                   
                     4.482286E-02 'Cm243   ' 5.023179E-02 'Cm244   '                                                                   
                     5.142978E-02 'Cm245   '                                                                                           
-    'Ag110m  ' 471101 DECAY  3.211840E+00 NG  8.841400E+00 N2N                                                                        
+    'Ag110m  ' 471101 DECAY  3.211840E+00 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       NNP      ND                                                                          
                     NT                                                                                                              
     FROM NG        9.410000E-01 'Ag109   '                                                                                           
@@ -1829,7 +1829,7 @@ LIBRARY := LIB: ::
                     1.794300E-06 'Am242m  ' 7.108200E-07 'Am243   '                                                                   
                     2.285900E-05 'Cm243   ' 1.254300E-05 'Cm244   '                                                                   
                     7.589700E-06 'Cm245   '                                                                                           
-    'Ag111   ' 471110 DECAY  1.076851E+02 NG  8.997680E+00 NA                                                                         
+    'Ag111   ' 471110 DECAY  1.076851E+02 NG  0.00E+00 NA                                                                         
                     NP       ND       NT                                                                                            
     FROM NG        1.000000E+00 'Ag110m  '                                                                                           
         NP        1.000000E+00 'Cd111   '                                                                                           
@@ -1849,13 +1849,13 @@ LIBRARY := LIB: ::
                     1.328480E-02 'Am242m  ' 2.156838E-02 'Am243   '                                                                   
                     1.626045E-02 'Cm243   ' 2.802557E-02 'Cm244   '                                                                   
                     3.386372E-02 'Cm245   '                                                                                           
-    'Cd106   ' 481060 DECAY  3.327959E-19 NG  8.046363E+00 N2N                                                                        
+    'Cd106   ' 481060 DECAY  3.327959E-19 NG  0.00E+00 N2N                                                                        
                     NA       NP       NNP      ND       NT                                                                          
     FROM N3N       1.000000E+00 'Cd108   '                                                                                           
         N2N       5.000000E-03 'Ag107   '                                                                                           
         NP        5.000000E-03 'Cd106   '                                                                                           
         NT        5.000000E-03 'Cd108   '                                                                                           
-    'Cd108   ' 481080 DECAY  5.357204E-18 NG  7.438897E+00 N2N                                                                        
+    'Cd108   ' 481080 DECAY  5.357204E-18 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       NNP      ND                                                                          
                     NT                                                                                                              
     FROM N3N       1.000000E+00 'Cd110   '                                                                                           
@@ -1868,7 +1868,7 @@ LIBRARY := LIB: ::
                     1.857570E-09 'Am241   ' 7.509969E-10 'Am242m  '                                                                   
                     1.709472E-10 'Am243   ' 1.118839E-08 'Cm243   '                                                                   
                     5.633396E-09 'Cm244   ' 2.166953E-09 'Cm245   '                                                                   
-    'Cd110   ' 481100 DECAY  0.000000E+00 NG  6.976800E+00 N2N                                                                        
+    'Cd110   ' 481100 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       NNP      ND                                                                          
                     NT                                                                                                              
     FROM DECAY     9.999592E-01 'Ag110m  '                                                                                           
@@ -1886,7 +1886,7 @@ LIBRARY := LIB: ::
                     1.124501E-06 'Am241   ' 7.641238E-07 'Am242m  '                                                                   
                     3.025696E-07 'Am243   ' 9.742977E-06 'Cm243   '                                                                   
                     5.343640E-06 'Cm244   ' 3.232763E-06 'Cm245   '                                                                   
-    'Cd111   ' 481110 DECAY  0.000000E+00 NG  9.397000E+00 N2N                                                                        
+    'Cd111   ' 481110 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       NNP      ND                                                                          
                     NT                                                                                                              
     FROM DECAY     1.000000E+00 'Ag111   '                                                                                           
@@ -1912,7 +1912,7 @@ LIBRARY := LIB: ::
                     6.592521E-05 'Am242m  ' 1.071560E-04 'Am243   '                                                                   
                     8.076326E-05 'Cm243   ' 1.383846E-04 'Cm244   '                                                                   
                     1.683633E-04 'Cm245   '                                                                                           
-    'Cd112   ' 481120 DECAY  0.000000E+00 NG  6.539800E+00 N2N                                                                        
+    'Cd112   ' 481120 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       NNP      ND                                                                          
                     NT                                                                                                              
     FROM NG        1.000000E+00 'Cd111   '                                                                                           
@@ -1941,7 +1941,7 @@ LIBRARY := LIB: ::
                     9.419520E-03 'Am242m  ' 1.501086E-02 'Am243   '                                                                   
                     1.769456E-02 'Cm243   ' 1.884104E-02 'Cm244   '                                                                   
                     2.376567E-02 'Cm245   '                                                                                           
-    'Cd113   ' 481130 DECAY  2.852598E-16 NG  9.041000E+00 N2N                                                                        
+    'Cd113   ' 481130 DECAY  2.852598E-16 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       NNP      ND                                                                          
                     NT                                                                                                              
     FROM NG        1.000000E+00 'Cd112   '                                                                                           
@@ -1964,7 +1964,7 @@ LIBRARY := LIB: ::
                     5.662389E-03 'Am242m  ' 9.700324E-03 'Am243   '                                                                   
                     5.506787E-03 'Cm243   ' 1.223476E-02 'Cm244   '                                                                   
                     1.908551E-02 'Cm245   '                                                                                           
-    'Cd114   ' 481140 DECAY  3.660744E-18 NG  6.928258E+00 N2N                                                                        
+    'Cd114   ' 481140 DECAY  3.660744E-18 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       NNP      ND                                                                          
                     NT                                                                                                              
     FROM NG        1.000000E+00 'Cd113   '                                                                                           
@@ -1991,7 +1991,7 @@ LIBRARY := LIB: ::
                     3.235733E-03 'Am242m  ' 6.057380E-03 'Am243   '                                                                   
                     5.386865E-03 'Cm243   ' 8.376050E-03 'Cm244   '                                                                   
                     1.198088E-02 'Cm245   '                                                                                           
-    'Cd115m  ' 481151 DECAY  1.798775E+01 NG  8.790000E+00 NA                                                                         
+    'Cd115m  ' 481151 DECAY  1.798775E+01 NG  0.00E+00 NA                                                                         
                     NP       ND       NT                                                                                            
     FROM NG        7.900000E-02 'Cd114   '                                                                                           
         NP        5.762270E-02 'Cd115m  '                                                                                           
@@ -2007,7 +2007,7 @@ LIBRARY := LIB: ::
                     8.226551E-05 'Am242m  ' 1.634859E-04 'Am243   '                                                                   
                     1.649333E-04 'Cm243   ' 2.292837E-04 'Cm244   '                                                                   
                     2.652988E-04 'Cm245   '                                                                                           
-    'Cd116   ' 481160 DECAY  6.460140E-20 NG  8.249512E+00 N2N                                                                        
+    'Cd116   ' 481160 DECAY  6.460140E-20 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       NNP      ND                                                                          
                     NT                                                                                                              
     FROM NG        1.000000E+00 'Cd115m  '                                                                                           
@@ -2023,7 +2023,7 @@ LIBRARY := LIB: ::
                     1.088814E-03 'Am242m  ' 2.107720E-03 'Am243   '                                                                   
                     2.365724E-03 'Cm243   ' 3.434480E-03 'Cm244   '                                                                   
                     1.605731E-03 'Cm245   '                                                                                           
-    'In113   ' 491130 DECAY  0.000000E+00 NG  8.049004E+00 N2N                                                                        
+    'In113   ' 491130 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       NNP      ND                                                                          
                     NT                                                                                                              
     FROM DECAY     1.000000E+00 'Cd113   '                                                                                           
@@ -2049,7 +2049,7 @@ LIBRARY := LIB: ::
                     6.506511E-05 'Am242m  ' 1.114640E-04 'Am243   '                                                                   
                     6.371568E-05 'Cm243   ' 1.592677E-04 'Cm244   '                                                                   
                     2.397462E-04 'Cm245   '                                                                                           
-    'In115   ' 491150 DECAY  4.980722E-15 NG  8.145315E+00 N2N                                                                        
+    'In115   ' 491150 DECAY  4.980722E-15 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       NNP      ND                                                                          
                     NT                                                                                                              
     FROM DECAY     9.999945E-01 'Cd115m  '                                                                                           
@@ -2074,7 +2074,7 @@ LIBRARY := LIB: ::
                     1.657457E-03 'Am242m  ' 3.197220E-03 'Am243   '                                                                   
                     3.551769E-03 'Cm243   ' 4.941182E-03 'Cm244   '                                                                   
                     5.710018E-03 'Cm245   '                                                                                           
-    'Sn112   ' 501120 DECAY  0.000000E+00 NG  8.166311E+00 N2N                                                                        
+    'Sn112   ' 501120 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       NNP      ND                                                                          
                     NT                                                                                                              
     FROM N3N       1.000000E+00 'Sn114   '                                                                                           
@@ -2083,7 +2083,7 @@ LIBRARY := LIB: ::
         NT        4.400000E-01 'Sn114   '                                                                                           
         NFTOT     7.221676E-10 'Cm243   ' 1.716528E-10 'Cm244   '                                                                   
                     1.041744E-10 'Cm245   '                                                                                           
-    'Sn114   ' 501140 DECAY  0.000000E+00 NG  7.546600E+00 N2N                                                                        
+    'Sn114   ' 501140 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       NNP      ND                                                                          
                     NT                                                                                                              
     FROM N2N       1.000000E+00 'Sn115   '                                                                                           
@@ -2094,7 +2094,7 @@ LIBRARY := LIB: ::
         NNP       9.950000E-01 'Sn115   '                                                                                           
         ND        9.950000E-01 'Sn115   '                                                                                           
         NT        9.950000E-01 'Sn116   '                                                                                           
-    'Sn115   ' 501150 DECAY  0.000000E+00 NG  9.562400E+00 N2N                                                                        
+    'Sn115   ' 501150 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       NNP      ND                                                                          
                     NT                                                                                                              
     FROM DECAY     1.000000E+00 'In115   '                                                                                           
@@ -2119,7 +2119,7 @@ LIBRARY := LIB: ::
                     8.723449E-05 'Am242m  ' 1.682746E-04 'Am243   '                                                                   
                     1.869351E-04 'Cm243   ' 2.600620E-04 'Cm244   '                                                                   
                     3.005271E-04 'Cm245   '                                                                                           
-    'Sn116   ' 501160 DECAY  0.000000E+00 NG  6.944200E+00 N2N                                                                        
+    'Sn116   ' 501160 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       NNP      ND                                                                          
                     NT                                                                                                              
     FROM NG        1.000000E+00 'Sn115   '                                                                                           
@@ -2135,7 +2135,7 @@ LIBRARY := LIB: ::
                     1.059390E-08 'Pu239   ' 1.075300E-09 'Pu240   '                                                                   
                     3.647560E-09 'Am241   ' 2.435960E-09 'Am242m  '                                                                   
                     4.574100E-10 'Am243   ' 1.641940E-08 'Cm243   '                                                                   
-    'Sn117   ' 501170 DECAY  0.000000E+00 NG  9.326200E+00 N2N                                                                        
+    'Sn117   ' 501170 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       NNP      ND                                                                          
                     NT                                                                                                              
     FROM NG        1.000000E+00 'Sn116   '                                                                                           
@@ -2157,7 +2157,7 @@ LIBRARY := LIB: ::
                     6.643308E-04 'Am242m  ' 1.290054E-03 'Am243   '                                                                   
                     1.392849E-03 'Cm243   ' 2.138746E-03 'Cm244   '                                                                   
                     1.497232E-03 'Cm245   '                                                                                           
-    'Sn118   ' 501180 DECAY  0.000000E+00 NG  6.484500E+00 N2N                                                                        
+    'Sn118   ' 501180 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       NNP      ND                                                                          
                     NT                                                                                                              
     FROM NG        1.000000E+00 'Sn117   '                                                                                           
@@ -2178,7 +2178,7 @@ LIBRARY := LIB: ::
                     4.151262E-04 'Am242m  ' 8.123165E-04 'Am243   '                                                                   
                     8.796358E-04 'Cm243   ' 1.369858E-03 'Cm244   '                                                                   
                     1.080189E-03 'Cm245   '                                                                                           
-    'Sn119   ' 501190 DECAY  0.000000E+00 NG  9.106600E+00 N2N                                                                        
+    'Sn119   ' 501190 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       NNP      ND                                                                          
                     NT                                                                                                              
     FROM NG        1.000000E+00 'Sn118   '                                                                                           
@@ -2200,7 +2200,7 @@ LIBRARY := LIB: ::
                     2.856782E-04 'Am242m  ' 5.481584E-04 'Am243   '                                                                   
                     6.030979E-04 'Cm243   ' 9.310993E-04 'Cm244   '                                                                   
                     7.500597E-04 'Cm245   '                                                                                           
-    'Sn120   ' 501200 DECAY  0.000000E+00 NG  6.287000E+00 N2N                                                                        
+    'Sn120   ' 501200 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       NNP      ND                                                                          
                     NT                                                                                                              
     FROM NG        1.000000E+00 'Sn119   '                                                                                           
@@ -2224,7 +2224,7 @@ LIBRARY := LIB: ::
                     2.604022E-04 'Am242m  ' 4.359136E-04 'Am243   '                                                                   
                     4.826559E-04 'Cm243   ' 7.152319E-04 'Cm244   '                                                                   
                     5.407666E-04 'Cm245   '                                                                                           
-    'Sn122   ' 501220 DECAY  0.000000E+00 NG  5.946400E+00 N2N                                                                        
+    'Sn122   ' 501220 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       NNP      ND                                                                          
                     NT                                                                                                              
     FROM N3N       1.000000E+00 'Sn124   '                                                                                           
@@ -2252,7 +2252,7 @@ LIBRARY := LIB: ::
                     4.876616E-04 'Am242m  ' 6.077208E-04 'Am243   '                                                                   
                     8.076433E-04 'Cm243   ' 8.217920E-04 'Cm244   '                                                                   
                     4.876654E-04 'Cm245   '                                                                                           
-    'Sn123   ' 501230 DECAY  6.209383E+00 NG  8.560000E+00 NA                                                                         
+    'Sn123   ' 501230 DECAY  6.209383E+00 NG  0.00E+00 NA                                                                         
                     NP       ND       NT                                                                                            
     FROM NG        1.000000E+00 'Sn122   '                                                                                           
         N2N       1.000000E+00 'Sn124   '                                                                                           
@@ -2276,7 +2276,7 @@ LIBRARY := LIB: ::
                     1.118784E-04 'Am242m  ' 8.469172E-05 'Am243   '                                                                   
                     3.092097E-04 'Cm243   ' 1.938344E-04 'Cm244   '                                                                   
                     4.404507E-05 'Cm245   '                                                                                           
-    'Sn124   ' 501240 DECAY  2.196451E-17 NG  5.733400E+00 N2N                                                                        
+    'Sn124   ' 501240 DECAY  2.196451E-17 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       NNP      ND                                                                          
                     NT                                                                                                              
     FROM NG        1.000000E+00 'Sn123   '                                                                                           
@@ -2296,7 +2296,7 @@ LIBRARY := LIB: ::
                     1.322728E-03 'Am242m  ' 1.456298E-03 'Am243   '                                                                   
                     1.714746E-03 'Cm243   ' 1.697003E-03 'Cm244   '                                                                   
                     6.846515E-04 'Cm245   '                                                                                           
-    'Sn125   ' 501250 DECAY  8.322134E+01 NG  8.160000E+00 NA                                                                         
+    'Sn125   ' 501250 DECAY  8.322134E+01 NG  0.00E+00 NA                                                                         
                     NP       ND       NT                                                                                            
     FROM NG        1.000000E+00 'Sn124   '                                                                                           
         NP        1.000000E+00 'Sb125   '                                                                                           
@@ -2314,7 +2314,7 @@ LIBRARY := LIB: ::
                     9.858058E-04 'Am242m  ' 8.937439E-04 'Am243   '                                                                   
                     1.615868E-03 'Cm243   ' 1.283072E-03 'Cm244   '                                                                   
                     3.707770E-04 'Cm245   '                                                                                           
-    'Sn126   ' 501260 DECAY  9.549995E-06 NG  8.950440E+00 NA                                                                         
+    'Sn126   ' 501260 DECAY  9.549995E-06 NG  0.00E+00 NA                                                                         
                     NP       ND       NT                                                                                            
     FROM NG        1.000000E+00 'Sn125   '                                                                                           
         NP        1.000000E+00 'Sb126   '                                                                                           
@@ -2330,7 +2330,7 @@ LIBRARY := LIB: ::
                     3.131331E-03 'Am242m  ' 3.221155E-03 'Am243   '                                                                   
                     4.363752E-03 'Cm243   ' 3.846369E-03 'Cm244   '                                                                   
                     2.116945E-03 'Cm245   '                                                                                           
-    'Sb121   ' 511210 DECAY  0.000000E+00 NG  7.811905E+00 N2N                                                                        
+    'Sb121   ' 511210 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       NNP      ND                                                                          
                     NT                                                                                                              
     FROM N3N       1.000000E+00 'Sb123   '                                                                                           
@@ -2356,7 +2356,7 @@ LIBRARY := LIB: ::
                     3.197795E-04 'Am242m  ' 4.557086E-04 'Am243   '                                                                   
                     6.039341E-04 'Cm243   ' 6.865585E-04 'Cm244   '                                                                   
                     4.406103E-04 'Cm245   '                                                                                           
-    'Sb123   ' 511230 DECAY  0.000000E+00 NG  6.468400E+00 N2N                                                                        
+    'Sb123   ' 511230 DECAY  0.000000E+00 NG  0.00E+00 N2N                                                                        
                     N3N      NA       NP       NNP      ND                                                                          
                     NT                                                                                                              
     FROM DECAY     1.000000E+00 'Sn123   '                                                                                           
@@ -2380,7 +2380,7 @@ LIBRARY := LIB: ::
                     6.927747E-04 'Am242m  ' 8.354760E-04 'Am243   '                                                                   
                     8.896040E-04 'Cm243   ' 9.553985E-04 'Cm244   '                                                                   
                     5.125410E-04 'Cm245   '                                                                                           
-    'Sb124   ' 511240 DECAY  1.332647E+01 NG  8.770000E+00 NA                                                                         
+    'Sb124   ' 511240 DECAY  1.332647E+01 NG  0.00E+00 NA                                                                         
                     NP       ND       NT                                                                                            
     FROM NG        1.000000E+00 'Sb123   '                                                                                           
         NP        1.000000E+00 'Te124   '                                                                                           
@@ -2397,7 +2397,7 @@ LIBRARY := LIB: ::
                     1.238247E-05 'Am242m  ' 3.340925E-06 'Am243   '                                                                   
                     1.051757E-04 'Cm243   ' 3.289725E-05 'Cm244   '                                                                   
                     3.931150E-06 'Cm245   '                                                                                           
-    'Sb125   ' 511250 DECAY  7.962477E-01 NG  6.190000E+00 NA                                                                         
+    'Sb125   ' 511250 DECAY  7.962477E-01 NG  0.00E+00 NA                                                                         
                     NP       ND       NT                                                                                            
     FROM DECAY     1.000000E+00 'Sn125   '                                                                                           
         NG        1.000000E+00 'Sb124   '                                                                                           
@@ -2415,7 +2415,7 @@ LIBRARY := LIB: ::
                     1.184074E-03 'Am242m  ' 1.435929E-03 'Am243   '                                                                   
                     1.236321E-03 'Cm243   ' 1.394726E-03 'Cm244   '                                                                   
                     4.678383E-04 'Cm245   '                                                                                           
-    'Sb126   ' 511260 DECAY  6.469788E+01 NG  9.506440E+00 NA                                                                         
+    'Sb126   ' 511260 DECAY  6.469788E+01 NG  0.00E+00 NA                                                                         
                     NP       ND       NT                                                                                            
     FROM NG        1.000000E+00 'Sb125   '                                                                                           
         NP        1.000000E+00 'Te126   '                                                                                           
@@ -2432,7 +2432,7 @@ LIBRARY := LIB: ::
                     1.519250E-04 'Am242m  ' 2.066610E-04 'Am243   '                                                                   
                     2.215026E-04 'Cm243   ' 1.942570E-04 'Cm244   '                                                                   
                     1.056675E-04 'Cm245   '                                                                                           
-    'Te122   ' 521220 DECAY  0.000000E+00 NG  6.929900E+00 NA                                                                         
+    'Te122   ' 521220 DECAY  0.000000E+00 NG  0.00E+00 NA                                                                         
                     NP       ND       NT                                                                                            
     FROM NG        9.740000E-01 'Sb121   '                                                                                           
         N2N       9.740000E-01 'Sb123   '                                                                                           
@@ -2447,14 +2447,14 @@ LIBRARY := LIB: ::
                     1.410449E-07 'Am241   ' 4.109014E-08 'Am242m  '                                                                   
                     1.044810E-09 'Am243   ' 1.113185E-07 'Cm243   '                                                                   
                     1.559277E-08 'Cm244   ' 5.324663E-09 'Cm245   '                                                                   
-    'Te123   ' 521230 DECAY  2.387495E-17 NG  9.423800E+00 NA                                                                         
+    'Te123   ' 521230 DECAY  2.387495E-17 NG  0.00E+00 NA                                                                         
                     NP       ND       NT                                                                                            
     FROM NG        1.000000E+00 'Te122   '                                                                                           
         NFTOT     8.480500E-09 'U233    ' 6.357200E-10 'U234    '                                                                   
                     1.107800E-08 'Pu238   ' 4.354000E-09 'Pu239   '                                                                   
                     3.141150E-09 'Am241   ' 4.717200E-10 'Am242m  '                                                                   
                     1.872700E-08 'Cm243   ' 1.734030E-09 'Cm244   '                                                                   
-    'Te124   ' 521240 DECAY  0.000000E+00 NG  6.584900E+00 NA                                                                         
+    'Te124   ' 521240 DECAY  0.000000E+00 NG  0.00E+00 NA                                                                         
                     NP       ND       NT                                                                                            
     FROM DECAY     1.000000E+00 'Sb124   '                                                                                           
         NG        1.000000E+00 'Te123   '                                                                                           

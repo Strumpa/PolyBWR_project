@@ -215,8 +215,8 @@ class DRAGON_case:
         return
     
 
-# Comparison between Serpent2 and DRAGON cases :
-class D5S2_comparisons:
+# Comparison between several DRAGON cases and 1 reference Serpent2 case:
+class multiD5S2_comparisons:
     def __init__(self, comparison_name, D5_cases, S2_case, tracked_nuclides, save_dir):
         self.comparison_name = comparison_name
         self.D5_cases = D5_cases
@@ -274,6 +274,75 @@ class D5S2_comparisons:
             for comparison_case in self.delta_Niso[iso].keys():
                 plt.plot(self.S2_case.BU, self.delta_Niso[iso][comparison_case], label = f"{comparison_case}".replace("_"," "), marker = "x", linestyle = "--")
             plt.xlabel(f"Burnup [{self.S2_case.unitsBU}]")
+            plt.ylabel(f"$\\Delta$ N{iso} [%]")
+            plt.axhline(y = 2.0, color = 'r', linestyle = '-')
+            plt.axhline(y = -2.0, color = 'r', linestyle = '-')  
+            plt.title(f"$\\Delta$ N{iso} evolution for {self.comparison_name} case")
+            plt.legend()
+            plt.grid()
+            plt.savefig(f"{self.save_dir}/Delta_{iso}_{self.comparison_name}.png")
+            plt.close()
+        return
+    
+# Comparison between 1 DRAGON case and several Serpent2 cases:
+class D5multiS2_comparisons:
+    def __init__(self, comparison_name, D5_case, S2_cases, tracked_nuclides, save_dir):
+        self.comparison_name = comparison_name
+        self.D5_case = D5_case
+        self.S2_cases = S2_cases
+        self.delta_keffs = {}
+        self.delta_Niso = {}
+        self.tracked_nuclides = tracked_nuclides
+        self.save_dir = save_dir
+        # check if the save directory exists and create it if not
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+        
+        return
+
+    def compare_keffs(self):
+        for case in self.S2_cases:
+            delta_keff = (self.D5_case.DRAGON_Keff - case.keffs)*1e5 # error on Keff in pcm
+            self.delta_keffs[f"{self.D5_case.draglib_name}_{self.D5_case.ssh_module}_{self.D5_case.ssh_method}_{self.D5_case.correlation}_to_S2_edep{case.edep_id}"] = delta_keff
+        return
+    def compare_Ni(self):
+        for iso in self.tracked_nuclides:
+            delta_Niso_case = {}
+            for case in self.S2_cases:
+                delta_Niso = [(self.D5_case.DRAGON_ISOTOPESDENS[iso][idx] - case.Ni[iso][idx]) * 100 / case.Ni[iso][idx]
+                    if case.Ni[iso][idx] != 0 else 0
+                    for idx in range(len(case.Ni[iso]))]
+                delta_Niso_case[f"{self.D5_case.draglib_name}_{self.D5_case.ssh_module}_{self.D5_case.ssh_method}_{self.D5_case.correlation}_to_S2_edep{case.edep_id}"] = delta_Niso
+            self.delta_Niso[f"{iso}"] = delta_Niso_case
+        return
+
+    def plot_delta_Keff(self):
+        """
+        Plot the delta Keff for all cases : 1 D5 case compared to several S2 cases
+        """
+        plt.figure()
+        for comparison_case in self.delta_keffs.keys():
+            plt.plot(self.D5_case.DRAGON_BU, self.delta_keffs[comparison_case], label = f"{comparison_case}".replace("_"," "), marker = "x", linestyle = "--")
+        plt.xlabel(f"Burnup [MWd/tU]")
+        plt.ylabel("$\\Delta$ Keff [pcm]")
+        plt.axhline(y = 300.0, color = 'r', linestyle = '-')
+        plt.axhline(y = -300.0, color = 'r', linestyle = '-')  
+        plt.title(f"$\\Delta$ Keff evolution for {self.comparison_name} case")
+        plt.legend()
+        plt.grid()
+        plt.savefig(f"{self.save_dir}/Delta_Keff_{self.comparison_name}.png")
+        plt.close()
+        return
+    
+    def plot_delta_Ni(self):
+        """
+        Plot the delta Ni for all cases : several D5 cases compared to one S2 case
+        """
+        for iso in self.tracked_nuclides:
+            plt.figure()
+            for comparison_case in self.delta_Niso[iso].keys():
+                plt.plot(self.D5_case.DRAGON_BU, self.delta_Niso[iso][comparison_case], label = f"{comparison_case}".replace("_"," "), marker = "x", linestyle = "--")
+            plt.xlabel(f"Burnup [MWd/tU]")
             plt.ylabel(f"$\\Delta$ N{iso} [%]")
             plt.axhline(y = 2.0, color = 'r', linestyle = '-')
             plt.axhline(y = -2.0, color = 'r', linestyle = '-')  
