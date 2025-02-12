@@ -1,7 +1,7 @@
 *** Cle-2000 procedure for generation of LIBRARY object
 * Depletion chain structure is modified to match Serpent2 edepmode 0 :
 *   - fission Q-values are set to Qi/Q_U235*202.27 MeV [1]
-*   - all other Q-values are set to 0, so that E_fiss,i = Qi/Q_U235*202.27 MeV
+*   - (n,gamma) Q-values are set to 0.
 * [1] "New energy deposition treatment in the Serpent 2 Monte Carlo transport
 * code" - Tuominen et. al.
 
@@ -10,8 +10,8 @@ PARAMETER  LIBRARY  ::
   EDIT 0
     ::: LINKED_LIST LIBRARY  ;
 ;
-STRING draglib ssh_method correlation ;
-:: >>draglib<< >>ssh_method<< >>correlation<< ;
+STRING draglib ;
+:: >>draglib<< ;
 
 MODULE LIB: END: ;
 

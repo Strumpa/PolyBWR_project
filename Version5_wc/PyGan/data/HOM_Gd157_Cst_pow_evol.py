@@ -64,9 +64,9 @@ D5_case_options_for_multi_S2_comp = {"Library": "J311_295", "ssh_module": "USS",
 # Creation of results directory
 path=os.getcwd()
 
-save_dir_D5 = f"{path}/HOM_Gd157_Cst_pow_evol/D5"
-save_dir_S2 = f"{path}/HOM_Gd157_Cst_pow_evol/S2"
-save_dir_comparison = f"{path}/HOM_Gd157_Cst_pow_evol/Comparison"
+save_dir_D5 = f"{path}/HOM_Gd157_Cst_pow_evol_results/D5"
+save_dir_S2 = f"{path}/HOM_Gd157_Cst_pow_evol_results/S2"
+save_dir_comparison = f"{path}/HOM_Gd157_Cst_pow_evol_results/Comparison"
 if not os.path.exists(save_dir_D5):
     os.makedirs(save_dir_D5)
 if not os.path.exists(save_dir_S2):
@@ -124,7 +124,8 @@ for dlib_name in Libraries:
 S2_cases = []
 
 S2_edep0 = S2_case("HOM_UOX_Gd157", S2_lib, edep_id=0, isEcaptSet=False, pcc_id=1, tracked_nuclides = tracked_nuclides, specific_power = 38.6, save_dir = save_dir_S2)
-S2_edep1 = S2_case("HOM_UOX_Gd157", S2_lib, edep_id=1, isEcaptSet=True, pcc_id=1, tracked_nuclides = tracked_nuclides, specific_power = 38.6, save_dir = save_dir_S2)
+#S2_edep1 = S2_case("HOM_UOX_Gd157", S2_lib, edep_id=1, isEcaptSet=False, pcc_id=1, tracked_nuclides = tracked_nuclides, specific_power = 38.6, save_dir = save_dir_S2)
+S2_edep1_Ecapt = S2_case("HOM_UOX_Gd157", S2_lib, edep_id=1, isEcaptSet=True, pcc_id=1, tracked_nuclides = tracked_nuclides, specific_power = 38.6, save_dir = save_dir_S2)
 S2_edep2 = S2_case("HOM_UOX_Gd157", S2_lib, edep_id=2, isEcaptSet=False, pcc_id=1, tracked_nuclides = tracked_nuclides, specific_power = 38.6, save_dir = save_dir_S2)
 
 """
@@ -138,7 +139,8 @@ for case in [S2_edep0, S2_edep1, S2_edep2]:
 
 # --- Comparison of DRAGON5 and SERPENT2 results : each comparison = several D5 cases vs 1 Serpent2 case (energy deposition mode)
 Comparison_D5_S2_edep0 = multiD5S2("HOM_Gd157_D5_cst_pow_evol_vs_S2_edep_0", D5_cases, S2_edep0, tracked_nuclides, save_dir_comparison)
-Comparison_D5_S2_edep1 = multiD5S2("HOM_Gd157_D5_cst_pow_evol_vs_S2_edep_1", D5_cases, S2_edep1, tracked_nuclides, save_dir_comparison)
+#Comparison_D5_S2_edep1 = multiD5S2("HOM_Gd157_D5_cst_pow_evol_vs_S2_edep_1", D5_cases, S2_edep1, tracked_nuclides, save_dir_comparison)
+Comparison_D5_S2_edep1_Ecapt = multiD5S2("HOM_Gd157_D5_cst_pow_evol_vs_S2_edep_1_Ecapt", D5_cases, S2_edep1_Ecapt, tracked_nuclides, save_dir_comparison)
 Comparison_D5_S2_edep2 = multiD5S2("HOM_Gd157_D5_cst_pow_evol_vs_S2_edep_2", D5_cases, S2_edep2, tracked_nuclides, save_dir_comparison)
 
 
@@ -152,7 +154,8 @@ for case in D5_cases:
 if D5_case_to_compare is None:
 	raise ValueError(f"No D5 case found with the following options : {D5_case_options_for_multi_S2_comp}")
 
-D5multiS2_case = D5multiS2("HOM_Gd157_D5_cst_pow_evol_vs_S2_all_edep", D5_case_to_compare, [S2_edep0, S2_edep1, S2_edep2], tracked_nuclides, save_dir_comparison)
+#D5multiS2_case = D5multiS2("HOM_Gd157_D5_cst_pow_evol_vs_S2_all_edep", D5_case_to_compare, [S2_edep0, S2_edep1, S2_edep1_Ecapt, S2_edep2], tracked_nuclides, save_dir_comparison)
+D5multiS2_case = D5multiS2("HOM_Gd157_D5_cst_pow_evol_vs_S2_all_edep", D5_case_to_compare, [S2_edep0, S2_edep1_Ecapt, S2_edep2], tracked_nuclides, save_dir_comparison)
 D5multiS2_case.compare_keffs()
 D5multiS2_case.compare_Ni()
 D5multiS2_case.plot_delta_Keff()
@@ -161,13 +164,14 @@ D5multiS2_case.plot_delta_Ni()
 
 # --- Hypothesis to test : Difference (D5-S2) in N_Gd157 is due to differente energy deposition models between DRAGON5 and SERPENT2
 # 		--> Try to reproduce energy deposition mode 0 of SERPENT2 with DRAGON5,
-# 			--> test RSEC_NG0 : generate microlib for RSE+CORR (hypothesised as best option), but modified depletion chain : no Q values for (n,gamma) reactions
+# 			--> test RSEC_NG0 : generate microlib for RSE+CORR (hypothesised as best option), but modified depletion chain : Q values = 0 for (n,gamma) reactions
+#           --> test RSEC_qfiss : generate microlib for RSE+CORR (hypothesised as best option), but modified depletion chain : fission Q values edited to match S2 edepmode 0 and Q values = 0 for (n,gamma) reactions
 		
 # --- Call to DRAGON5 CLE-2000 procedures :
 NG0_cases = []
 QFISS_cases = []
 for draglib in Libraries:
-	# Generate microlib with RSEC_NG0
+	# Generate microlib with RSEC_NG0, Q_NG = 0
 	pyLIB_NG0 = RSEC_NG0(draglib)
 	# Generate microlib with RSEC_qfiss = Q_NG = 0 and Qfiss = Qi/Q_U235 * 202.27 MeV
 	pyLIB_qfiss = RSEC_qfiss(draglib)
@@ -207,10 +211,14 @@ for draglib in Libraries:
 # Pick out a D5 case from the list based on the D5_case_options_for_multi_S2_comp
 D5_case_to_compare = None
 for case in NG0_cases:
-	if case.draglib_name == D5_case_options_for_multi_S2_comp["Library"] and case.ssh_module == D5_case_options_for_multi_S2_comp["ssh_module"] and case.ssh_method == D5_case_options_for_multi_S2_comp["ssh_method"] and case.correlation == D5_case_options_for_multi_S2_comp["correlation"] and case.sat == D5_case_options_for_multi_S2_comp["sat"] and case.depl_sol == D5_case_options_for_multi_S2_comp["depl_sol"]:
+	if case.draglib_name == dlib_NG0 and case.ssh_module == D5_case_options_for_multi_S2_comp["ssh_module"] and case.ssh_method == D5_case_options_for_multi_S2_comp["ssh_method"] and case.correlation == D5_case_options_for_multi_S2_comp["correlation"] and case.sat == D5_case_options_for_multi_S2_comp["sat"] and case.depl_sol == D5_case_options_for_multi_S2_comp["depl_sol"]:
 		D5_case_to_compare = case
 		break
-D5_NG0_to_S2_edepmodes = D5multiS2("HOM_Gd157_D5_RSEC_NG0_vs_S2_all_edep", D5_case_to_compare, [S2_edep0, S2_edep1, S2_edep2], tracked_nuclides, save_dir_comparison)
+if D5_case_to_compare is None:
+	raise ValueError(f"No D5 case found with the following options : {D5_case_options_for_multi_S2_comp}")
+
+#D5_NG0_to_S2_edepmodes = D5multiS2("HOM_Gd157_D5_RSEC_NG0_vs_S2_all_edep", D5_case_to_compare, [S2_edep0, S2_edep1, S2_edep1_Ecapt, S2_edep2], tracked_nuclides, save_dir_comparison)
+D5_NG0_to_S2_edepmodes = D5multiS2("HOM_Gd157_D5_RSEC_NG0_vs_S2_all_edep", D5_case_to_compare, [S2_edep0, S2_edep1_Ecapt, S2_edep2], tracked_nuclides, save_dir_comparison)
 D5_NG0_to_S2_edepmodes.compare_keffs()
 D5_NG0_to_S2_edepmodes.compare_Ni()
 D5_NG0_to_S2_edepmodes.plot_delta_Keff()
@@ -220,10 +228,12 @@ D5_NG0_to_S2_edepmodes.plot_delta_Ni()
 # Pick out a D5 case from the list based on the D5_case_options_for_multi_S2_comp
 D5_case_to_compare = None
 for case in QFISS_cases:
-	if case.draglib_name == D5_case_options_for_multi_S2_comp["Library"] and case.ssh_module == D5_case_options_for_multi_S2_comp["ssh_module"] and case.ssh_method == D5_case_options_for_multi_S2_comp["ssh_method"] and case.correlation == D5_case_options_for_multi_S2_comp["correlation"] and case.sat == D5_case_options_for_multi_S2_comp["sat"] and case.depl_sol == D5_case_options_for_multi_S2_comp["depl_sol"]:
+	if case.draglib_name == dlib_qfiss and case.ssh_module == D5_case_options_for_multi_S2_comp["ssh_module"] and case.ssh_method == D5_case_options_for_multi_S2_comp["ssh_method"] and case.correlation == D5_case_options_for_multi_S2_comp["correlation"] and case.sat == D5_case_options_for_multi_S2_comp["sat"] and case.depl_sol == D5_case_options_for_multi_S2_comp["depl_sol"]:
 		D5_case_to_compare = case
 		break
-D5_qfiss_to_S2_edepmodes = D5multiS2("HOM_Gd157_D5_RSEC_qfiss_vs_S2_all_edep", D5_case_to_compare, [S2_edep0, S2_edep1, S2_edep2], tracked_nuclides, save_dir_comparison)
+
+#D5_qfiss_to_S2_edepmodes = D5multiS2("HOM_Gd157_D5_RSEC_qfiss_vs_S2_all_edep", D5_case_to_compare, [S2_edep0, S2_edep1, S2_edep1_Ecapt, S2_edep2], tracked_nuclides, save_dir_comparison)
+D5_qfiss_to_S2_edepmodes = D5multiS2("HOM_Gd157_D5_RSEC_qfiss_vs_S2_all_edep", D5_case_to_compare, [S2_edep0, S2_edep1_Ecapt, S2_edep2], tracked_nuclides, save_dir_comparison)
 D5_qfiss_to_S2_edepmodes.compare_keffs()
 D5_qfiss_to_S2_edepmodes.compare_Ni()
 D5_qfiss_to_S2_edepmodes.plot_delta_Keff()

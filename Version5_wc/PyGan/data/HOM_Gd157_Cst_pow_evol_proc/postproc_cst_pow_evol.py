@@ -11,9 +11,12 @@ import os
 class Serpent2_case:
     def __init__(self, case_name, lib_name, edep_id, isEcaptSet, pcc_id, specific_power, tracked_nuclides, save_dir):
         self.case_name = case_name
-        self.lib_name = lib_name
-        self.edep_id = edep_id
+        self.lib_name = lib_name        
         self.isEcaptSet = isEcaptSet # Option to be activated when energy deposition mode is set to 1 in Serpent2 and Ecapt has been manually set in Serpent2.
+        if self.isEcaptSet:
+            self.edep_id = f"{edep_id}_Ecapt"
+        else:
+            self.edep_id = edep_id
         self.pcc_id = pcc_id
         self.specific_power = specific_power
         self.tracked_nuclides = tracked_nuclides
@@ -47,13 +50,9 @@ class Serpent2_case:
 
     
     def read_S2_outputs(self):
-        # Read the results
-        if self.isEcaptSet:
-            self.res = st.read(f"{os.environ['SERPENT_RESULTS']}/HOM_CELL_study/{self.case_name}/BUScheme_EDEP_PCC_study/{self.case_name}_{self.lib_name}_edep{self.edep_id}_Ecapt_pcc{self.pcc_id}_mc_res.m")
-            self.depl = st.read(f"{os.environ['SERPENT_RESULTS']}/HOM_CELL_study/{self.case_name}/BUScheme_EDEP_PCC_study/{self.case_name}_{self.lib_name}_edep{self.edep_id}_Ecapt_pcc{self.pcc_id}_mc_dep.m")
-        else:
-            self.res = st.read(f"{os.environ['SERPENT_RESULTS']}/HOM_CELL_study/{self.case_name}/BUScheme_EDEP_PCC_study/{self.case_name}_{self.lib_name}_edep{self.edep_id}_pcc{self.pcc_id}_mc_res.m")
-            self.depl = st.read(f"{os.environ['SERPENT_RESULTS']}/HOM_CELL_study/{self.case_name}/BUScheme_EDEP_PCC_study/{self.case_name}_{self.lib_name}_edep{self.edep_id}_pcc{self.pcc_id}_mc_dep.m")
+        # Read the results and depletion files
+        self.res = st.read(f"{os.environ['SERPENT_RESULTS']}/HOM_CELL_study/{self.case_name}/BUScheme_EDEP_PCC_study/{self.case_name}_{self.lib_name}_edep{self.edep_id}_pcc{self.pcc_id}_mc_res.m")
+        self.depl = st.read(f"{os.environ['SERPENT_RESULTS']}/HOM_CELL_study/{self.case_name}/BUScheme_EDEP_PCC_study/{self.case_name}_{self.lib_name}_edep{self.edep_id}_pcc{self.pcc_id}_mc_dep.m")
         
         self.keffs = self.res.resdata["absKeff"].T[0]
         self.sigmas_keff = self.res.resdata["absKeff"].T[1]
