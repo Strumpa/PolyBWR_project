@@ -27,6 +27,7 @@ from postproc_cst_pow_evol import D5multiS2_comparisons as D5multiS2
 from MixGd157 import *
 from RSEC_NG0 import *
 from RSEC_qfiss import *
+from RSEC_S2Q import *
 # --- HOMOGENEOUS Gd157 burnup evolution
 from HOM_Gd157_cpow import *
 
@@ -47,7 +48,7 @@ set_edep_mode_to_treat = {"PyNjoy2016":[0,1,2],"oldlib":[0,1]}
 ssh_modules = ["USS"] #"USS", "AUTO"
 ssh_methods = ["RSE"] #"PT", "RSE", "SUBG" all supported for USS: but AUTO: only takes SUBG
 # for RSE method : test with eps_RSE = 1.0E-1, 5.0E-2, 1.0E-2, 5.0E-3, 1.0E-3, 1.0E-4
-correlations = ["CORR"] # "CORR", "noCORR"
+correlations = ["noCORR"] # "CORR", "noCORR"
 
 module_to_possible_methods = {"USS":["RSE","SUBG","PT"],"AUTO":["SUBG"]}
 
@@ -59,7 +60,7 @@ burnup_points = 'BOC_fine_autop5' #'Gd_VBOC_fine2_autop9' #'Gd_BOC_fine', 'Gd_au
 tracked_nuclides = ["U235","U238","Pu239","Pu240","Pu241","Pu242", 
                     "Gd157","Gd158", "Xe135","Sm149"]
 
-D5_case_options_for_multi_S2_comp = {"Library": "J311_295", "ssh_module": "USS", "ssh_method": "RSE", "correlation": "CORR", "sat": "", "depl_sol": "RUNG"}
+D5_case_options_for_multi_S2_comp = {"Library": "J311_295", "ssh_module": "USS", "ssh_method": "RSE", "correlation": "noCORR", "sat": "", "depl_sol": "RUNG"}
 #
 # Creation of results directory
 path=os.getcwd()
@@ -170,11 +171,14 @@ D5multiS2_case.plot_delta_Ni()
 # --- Call to DRAGON5 CLE-2000 procedures :
 NG0_cases = []
 QFISS_cases = []
+S2Q_fiss_cases = []
 for draglib in Libraries:
 	# Generate microlib with RSEC_NG0, Q_NG = 0
 	pyLIB_NG0 = RSEC_NG0(draglib)
 	# Generate microlib with RSEC_qfiss = Q_NG = 0 and Qfiss = Qi/Q_U235 * 202.27 MeV
 	pyLIB_qfiss = RSEC_qfiss(draglib)
+	# Generate microlib with RSEC_S2Q = Q_NG = 0 and Qfiss = Q-values from Serpent2_oldlib.out
+	pyLIB_S2Q = RSEC_S2Q(draglib)
 	# loop over BU evolution options
 	for sat in saturation_options:
 		for sol in depl_solutions:
@@ -191,21 +195,26 @@ for draglib in Libraries:
 			print(f"State of the calculation : {draglib} {sat} {sol}")
 			compo_name_NG0 = f"_COMPO_HOM_Gd157_{draglib}_RSEC_NG0{SAT}_{sol}"
 			compo_name_qfiss = f"_COMPO_HOM_Gd157_{draglib}_RSEC_qfiss{SAT}_{sol}"
+			compo_name_S2Q = f"_COMPO_HOM_Gd157_{draglib}_RSEC_S2Q{SAT}_{sol}"
 			pyCOMPO_NG0 = HOM_Gd157_cpow(f"COMPO",pyLIB_NG0,StepList,compo_name_NG0,"USS",sat,sol)
 			pyCOMPO_qfiss = HOM_Gd157_cpow(f"COMPO",pyLIB_qfiss,StepList,compo_name_qfiss,"USS",sat,sol)
+			pyCOMPO_S2Q = HOM_Gd157_cpow(f"COMPO",pyLIB_S2Q,StepList,compo_name_S2Q,"USS",sat,sol)
 			#
 			# --- Post-processing of DRAGON5 results
 			dlib_NG0 = f"{draglib}_RSEC_NG0"
 			dlib_qfiss = f"{draglib}_RSEC_qfiss"
-			D5case_NG0 = D5_case(pyCOMPO_NG0, dlib_NG0, burnup_points, "USS", "RSE", "CORR", sat, sol, tracked_nuclides, BU_lists, save_dir_D5)
-			D5case_qfiss = D5_case(pyCOMPO_qfiss, dlib_qfiss, burnup_points, "USS", "RSE", "CORR", sat, sol, tracked_nuclides, BU_lists, save_dir_D5)
-			D5case_NG0.plot_keffs()
-			D5case_qfiss.plot_keffs()
-			for iso in tracked_nuclides:
-				D5case_NG0.plot_Ni(iso)
-				D5case_qfiss.plot_Ni(iso)
+			dlib_S2Q = f"{draglib}_RSEC_S2Q"
+			D5case_NG0 = D5_case(pyCOMPO_NG0, dlib_NG0, burnup_points, "USS", "RSE", "noCORR", sat, sol, tracked_nuclides, BU_lists, save_dir_D5)
+			D5case_qfiss = D5_case(pyCOMPO_qfiss, dlib_qfiss, burnup_points, "USS", "RSE", "noCORR", sat, sol, tracked_nuclides, BU_lists, save_dir_D5)
+			D5case_S2Q = D5_case(pyCOMPO_S2Q, dlib_S2Q, burnup_points, "USS", "RSE", "noCORR", sat, sol, tracked_nuclides, BU_lists, save_dir_D5)
+			#D5case_NG0.plot_keffs()
+			#D5case_qfiss.plot_keffs()
+			#for iso in tracked_nuclides:
+			#	D5case_NG0.plot_Ni(iso)
+			#	D5case_qfiss.plot_Ni(iso)
 			NG0_cases.append(D5case_NG0)
 			QFISS_cases.append(D5case_qfiss)
+			S2Q_fiss_cases.append(D5case_S2Q)
 
 # --- Create a comparison between the RSEC_NG0 case and all SERPENT2 edep cases
 # Pick out a D5 case from the list based on the D5_case_options_for_multi_S2_comp
@@ -238,14 +247,25 @@ D5_qfiss_to_S2_edepmodes.compare_keffs()
 D5_qfiss_to_S2_edepmodes.compare_Ni()
 D5_qfiss_to_S2_edepmodes.plot_delta_Keff()
 D5_qfiss_to_S2_edepmodes.plot_delta_Ni()
+print(D5_qfiss_to_S2_edepmodes.delta_Niso["Gd157"][f"{D5_qfiss_to_S2_edepmodes.D5_case.draglib_name}_{D5_qfiss_to_S2_edepmodes.D5_case.ssh_module}_{D5_qfiss_to_S2_edepmodes.D5_case.ssh_method}_{D5_qfiss_to_S2_edepmodes.D5_case.correlation}_to_S2_edep1_Ecapt"])
 
+print(f"length of D5qfiss_to_S2 NGd157 {len(D5_qfiss_to_S2_edepmodes.delta_Niso['Gd157'][f'{dlib_qfiss}_USS_RSE_noCORR_to_S2_edep1_Ecapt'])}")
 
-	
+D5_case_to_compare = None
+for case in S2Q_fiss_cases:
+	if case.draglib_name == dlib_S2Q and case.ssh_module == D5_case_options_for_multi_S2_comp["ssh_module"] and case.ssh_method == D5_case_options_for_multi_S2_comp["ssh_method"] and case.correlation == D5_case_options_for_multi_S2_comp["correlation"] and case.sat == D5_case_options_for_multi_S2_comp["sat"] and case.depl_sol == D5_case_options_for_multi_S2_comp["depl_sol"]:
+		D5_case_to_compare = case
+		break
 
+D5_S2Q_to_S2_edepmodes = D5multiS2("HOM_Gd157_D5_RSEC_S2Q_vs_S2_all_edep", D5_case_to_compare, [S2_edep0, S2_edep1_Ecapt, S2_edep2], tracked_nuclides, save_dir_comparison)
+D5_S2Q_to_S2_edepmodes.compare_keffs()
+D5_S2Q_to_S2_edepmodes.compare_Ni()
+D5_S2Q_to_S2_edepmodes.plot_delta_Keff()
+D5_S2Q_to_S2_edepmodes.plot_delta_Ni()
+print(D5_S2Q_to_S2_edepmodes.delta_Niso["Gd157"][f'{D5_S2Q_to_S2_edepmodes.D5_case.draglib_name}_{D5_S2Q_to_S2_edepmodes.D5_case.ssh_module}_{D5_S2Q_to_S2_edepmodes.D5_case.ssh_method}_{D5_S2Q_to_S2_edepmodes.D5_case.correlation}_to_S2_edep1_Ecapt'])
 
-
-
-
-
-
+print(f"For burnup point {burnup_points} :")
+print(f"BU lists['COMPO'] : {BU_lists['COMPO']}") # should be equal to number of burnup points in evolution (excluding t0)
+print(f"BU lists['AUTOP'] : {BU_lists['AUTOP']}")
+print(f"BU lists['BU'] : {BU_lists['BU']}") # can be more that number of COMPO points. It is the number of burnup points computed in DRAGON5 (excluding t0)
 

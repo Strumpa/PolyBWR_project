@@ -14,6 +14,6 @@ if [ -f "$pos"/draglibshem295_endfb8r1.gz ]
     echo 'gunzipping library'
     gunzip "$pos"/draglibshem295_endfb8r1.gz
 fi
-ln -s "$pos"/draglibshem295_endfb8r1 EXPORT
+ln -s "$pos"/draglibshem295_endfb8r1_njoy2012 EXPORT
 ls -l
 echo "Conversion data set draglib_converter.x2m accessed"

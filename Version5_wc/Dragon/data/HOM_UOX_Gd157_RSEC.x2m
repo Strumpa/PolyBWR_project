@@ -256,7 +256,7 @@ CALC := FLU: CP LIB2_RSE TRACK :: EDIT 1 TYPE K EXTE 5 ;
 
 GREP: CALC :: GETVAL 'K-INFINITY  ' 1 1 1 >>Kinf<< ;
 
-ECHO 'Kinf RSE CORR = ' Kinf ;
+ECHO 'Kinf RSE = ' Kinf ;
 
 EDIOBJ := EDI: CALC LIB2_RSE TRACK ::
         EDIT 0
@@ -500,7 +500,7 @@ CALC := FLU: CP LIB2_RSE TRACK :: EDIT 1 TYPE K EXTE 5 ;
 
 GREP: CALC :: GETVAL 'K-INFINITY  ' 1 1 1 >>Kinf<< ;
 
-ECHO 'Kinf RSE CORR = ' Kinf ;
+ECHO 'Kinf RSE = ' Kinf ;
 
 EDIOBJ := EDI: CALC LIB2_RSE TRACK ::
         EDIT 0

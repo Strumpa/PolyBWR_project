@@ -1,9 +1,8 @@
 *** Cle-2000 procedure for generation of LIBRARY object
 * Depletion chain structure is modified to match Serpent2 edepmode 0 :
-*   - fission Q-values are set to Qi/Q_U235*202.27 MeV [1]
+*   - fission Q-values are set to Qi, found in Serpent2 output files
 *   - (n,gamma) Q-values are set to 0.
-* [1] "New energy deposition treatment in the Serpent 2 Monte Carlo transport
-* code" - Tuominen et. al.
+
 
 
 PARAMETER  LIBRARY  ::
@@ -4108,7 +4107,7 @@ LIBRARY := LIB: ::
         DECAY     1.000000E+00 'U233    '                                                                                           
         N2N       1.000000E+00 'Th230   '                                                                                           
         N4N       1.000000E+00 'Th232   '                                                                                           
-    'Th230   ' 902300 DECAY  2.913069E-05 NFTOT 198.8473 NG  0.00E+00                                                             
+    'Th230   ' 902300 DECAY  2.913069E-05 NFTOT 1.90442E+02 NG  0.00E+00                                                             
                     N2N      N3N                                                                                                    
     FROM DECAY     1.000000E+00 'U234    '                                                                                           
         N3N       1.000000E+00 'Th232   '                                                                                           
@@ -4119,7 +4118,7 @@ LIBRARY := LIB: ::
         DECAY     4.800000E-08 'Np236   '                                                                                           
         NG        3.000000E-05 'Pa231   '                                                                                           
         N2N       3.000000E-05 'Pa233   '                                                                                           
-    'Pa231   ' 912310 DECAY  6.704654E-05 NFTOT 208.8272 NG  0.00E+00                                                             
+    'Pa231   ' 912310 DECAY  6.704654E-05 NFTOT 2.00000E+02 NG  0.00E+00                                                             
                     N2N      N3N                                                                                                    
     FROM N3N       1.000000E+00 'Pa233   '                                                                                           
         DECAY     1.000000E+00 'U235    '                                                                                           
@@ -4133,11 +4132,11 @@ LIBRARY := LIB: ::
         N3N       1.400000E-09 'Am241   '                                                                                           
         N2N       9.999600E-01 'U232    '                                                                                           
         N3N       9.999600E-01 'U233    '                                                                                           
-    'Pa233   ' 912330 DECAY  2.971310E+01 NFTOT 178.2700 NG  0.00E+00                                                            
+    'Pa233   ' 912330 DECAY  2.971310E+01 NFTOT 1.95361E+02 NG  0.00E+00                                                            
                     N2N      N3N                                                                                                    
     FROM DECAY     1.000000E+00 'Np237   '                                                                                           
         NG        1.000000E+00 'Th232   '                                                                                           
-    'U232    ' 922320 DECAY  3.146778E-02 NFTOT 208.8272 NG  0.00E+00                                                             
+    'U232    ' 922320 DECAY  3.146778E-02 NFTOT 2.00000E+02 NG  0.00E+00                                                             
                     N2N      N3N                                                                                                    
     FROM DECAY     1.000000E+00 'Pu236   '                                                                                           
         N2N       1.000000E+00 'U233    '                                                                                           
@@ -4146,7 +4145,7 @@ LIBRARY := LIB: ::
         DECAY     1.599952E-03 'Np236   '                                                                                           
         NG        9.999700E-01 'Pa231   '                                                                                           
         N2N       9.999700E-01 'Pa233   '                                                                                           
-    'U233    ' 922330 DECAY  1.379246E-05 NFTOT 199.2733 NG  0.00E+00                                                             
+    'U233    ' 922330 DECAY  1.379246E-05 NFTOT 1.90850E+02 NG  0.00E+00                                                             
                     N2N      N3N                                                                                                    
     FROM DECAY     1.000000E+00 'Pa233   '                                                                                           
         DECAY     4.200000E-05 'Pu237   '                                                                                           
@@ -4165,7 +4164,7 @@ LIBRARY := LIB: ::
         N3N       1.000000E+00 'Np236   '                                                                                           
         N3N       9.400000E-01 'Pu236   '                                                                                           
         DECAY     9.999990E-01 'U238    '                                                                                           
-    'U235    ' 922350 DECAY  3.120851E-09 NFTOT 202.2700 NG  0.000E+00                                                             
+    'U235    ' 922350 DECAY  3.120851E-09 NFTOT 1.93720E+02 NG  0.000E+00                                                             
                     N2N      N3N      N4N                                                                                           
     FROM DECAY     1.000000E+00 'Pu239   '                                                                                           
         NG        1.000000E+00 'U234    '                                                                                           
@@ -4178,7 +4177,7 @@ LIBRARY := LIB: ::
         N3N       9.999570E-01 'Pu237   '                                                                                           
         N3N       1.099856E-03 'Cm241   '                                                                                           
         N3N       9.999850E-05 'Am241   '                                                                                           
-    'U236    ' 922360 DECAY  9.267727E-08 NFTOT 206.6752 NG  0.00E+00                                                             
+    'U236    ' 922360 DECAY  9.267727E-08 NFTOT 1.97939E+02 NG  0.00E+00                                                             
                     N2N      N3N      N4N                                                                                           
     FROM DECAY     8.804000E-01 'Np236   '                                                                                           
         DECAY     1.000000E+00 'Pu240   '                                                                                           
@@ -4186,23 +4185,23 @@ LIBRARY := LIB: ::
         N2N       1.000000E+00 'U237    '                                                                                           
         N3N       1.000000E+00 'U238    '                                                                                           
         N2N       3.750000E-01 'Np237   '                                                                                           
-    'U237    ' 922370 DECAY  1.188524E+02 NFTOT 208.8272 NG  0.00E+00                                                             
+    'U237    ' 922370 DECAY  1.188524E+02 NFTOT 2.00000E+02 NG  0.00E+00                                                             
                     N2N      N3N      N4N                                                                                           
     FROM DECAY     2.460000E-05 'Pu241   '                                                                                           
         NG        1.000000E+00 'U236    '                                                                                           
         N2N       1.000000E+00 'U238    '                                                                                           
-    'U238    ' 922380 DECAY  4.916077E-10 NFTOT 206.0226 NG  0.00E+00                                                            
+    'U238    ' 922380 DECAY  4.916077E-10 NFTOT 1.97314E+02 NG  0.00E+00                                                            
                     N2N      N3N      N4N                                                                                           
     FROM DECAY     1.000000E+00 'Pu242   '                                                                                           
         NG        1.000000E+00 'U237    '                                                                                           
-    'Np236   ' 932360 DECAY  1.445035E-05 NFTOT 208.8261 NG  0.00E+00                                                             
+    'Np236   ' 932360 DECAY  1.445035E-05 NFTOT 1.99999E+02 NG  0.00E+00                                                             
                     N2N      N3N                                                                                                    
     FROM N2N       2.500000E-01 'Np237   '                                                                                           
         N3N       1.000000E+00 'Np238   '                                                                                           
         N2N       1.900000E-06 'Am241   '                                                                                           
         N3N       1.900000E-06 'Am242   '                                                                                           
         N3N       1.900000E-06 'Am242m  '                                                                                           
-    'Np237   ' 932370 DECAY  1.026401E-06 NFTOT 205.0370 NG  0.00E+00                                                             
+    'Np237   ' 932370 DECAY  1.026401E-06 NFTOT 1.96370E+02 NG  0.00E+00                                                             
                     N2N      N3N                                                                                                    
     FROM DECAY     1.000000E+00 'U237    '                                                                                           
         DECAY     9.999580E-01 'Pu237   '                                                                                           
@@ -4210,17 +4209,17 @@ LIBRARY := LIB: ::
         NG        1.000000E+00 'Np236   '                                                                                           
         N2N       1.000000E+00 'Np238   '                                                                                           
         N3N       1.000000E+00 'Np239   '                                                                                           
-    'Np238   ' 932380 DECAY  3.789574E+02 NFTOT 208.8272 NG  0.00E+00                                                             
+    'Np238   ' 932380 DECAY  3.789574E+02 NFTOT 2.00000E+02 NG  0.00E+00                                                             
                     N2N      N3N                                                                                                    
     FROM DECAY     4.630000E-03 'Am242m  '                                                                                           
         NG        1.000000E+00 'Np237   '                                                                                           
         N2N       1.000000E+00 'Np239   '                                                                                           
-    'Np239   ' 932390 DECAY  3.406598E+02 NFTOT 198.3858 NG  0.00E+00                                                             
+    'Np239   ' 932390 DECAY  3.406598E+02 NFTOT 1.90000E+02 NG  0.00E+00                                                             
                     N2N      N3N                                                                                                    
     FROM DECAY     1.000000E+00 'Am243   '                                                                                           
         NG        1.000000E+00 'Np238   '                                                                                           
         NG        1.000000E+00 'U238    '                                                                                           
-    'Pu236   ' 942360 DECAY  7.685274E-01 NFTOT 211.5607 NG  0.00E+00                                                              
+    'Pu236   ' 942360 DECAY  7.685274E-01 NFTOT 2.02618E+02 NG  0.00E+00                                                              
                     N2N      N3N                                                                                                    
     FROM DECAY     1.180000E-01 'Np236   '                                                                                           
         N2N       1.000000E+00 'Pu237   '                                                                                           
@@ -4237,7 +4236,7 @@ LIBRARY := LIB: ::
         N2N       1.000000E+00 'Pu238   '                                                                                           
         N3N       1.000000E+00 'Pu239   '                                                                                           
         N4N       1.000000E+00 'Pu240   '                                                                                           
-    'Pu238   ' 942380 DECAY  2.504561E-02 NFTOT 206.0926 NG  0.00E+00                                                              
+    'Pu238   ' 942380 DECAY  2.504561E-02 NFTOT 1.97381E+02 NG  0.00E+00                                                              
                     N2N      N3N                                                                                                    
     FROM DECAY     1.000000E+00 'Np238   '                                                                                           
         DECAY     1.000000E+00 'Cm242   '                                                                                           
@@ -4245,7 +4244,7 @@ LIBRARY := LIB: ::
         N2N       1.000000E+00 'Pu239   '                                                                                           
         N3N       1.000000E+00 'Pu240   '                                                                                           
         N4N       1.000000E+00 'Pu241   '                                                                                           
-    'Pu239   ' 942390 DECAY  9.108995E-05 NFTOT 207.8593 NG  0.00E+00                                                              
+    'Pu239   ' 942390 DECAY  9.108995E-05 NFTOT 1.99073E+02 NG  0.00E+00                                                              
                     N2N      N3N      N4N                                                                                           
     FROM DECAY     1.000000E+00 'Np239   '                                                                                           
         DECAY     9.976000E-01 'Cm243   '                                                                                           
@@ -4255,7 +4254,7 @@ LIBRARY := LIB: ::
         N4N       1.000000E+00 'Pu242   '                                                                                           
         N3N       9.999000E-01 'Am241   '                                                                                           
         N3N       9.989001E-01 'Cm241   '                                                                                           
-    'Pu240   ' 942400 DECAY  3.346791E-04 NFTOT 211.9638 NG  0.00E+00                                                              
+    'Pu240   ' 942400 DECAY  3.346791E-04 NFTOT 2.03004E+02 NG  0.00E+00                                                              
                     N2N      N3N      N4N                                                                                           
     FROM DECAY     9.999990E-01 'Cm244   '                                                                                           
         NG        1.000000E+00 'Pu239   '                                                                                           
@@ -4268,23 +4267,23 @@ LIBRARY := LIB: ::
         NG        1.000000E+00 'Np239   '                                                                                           
         DECAY     9.162533E-01 'Cm248   '                                                                                           
         NG        9.987500E-01 'Pu243   '                                                                                           
-    'Pu241   ' 942410 DECAY  1.532765E-01 NFTOT 210.8946 NG  0.00E+00                                                              
+    'Pu241   ' 942410 DECAY  1.532765E-01 NFTOT 2.01980E+02 NG  0.00E+00                                                              
                     N2N      N3N      N4N                                                                                           
     FROM DECAY     1.000000E+00 'Cm245   '                                                                                           
         NG        1.000000E+00 'Pu240   '                                                                                           
         N2N       1.000000E+00 'Pu242   '                                                                                           
         N3N       1.000000E+00 'Pu243   '                                                                                           
-    'Pu242   ' 942420 DECAY  5.880707E-06 NFTOT 210.4769 NG  0.00E+00                                                             
+    'Pu242   ' 942420 DECAY  5.880707E-06 NFTOT 2.01580E+02 NG  0.00E+00                                                             
                     N2N      N3N      N4N                                                                                           
     FROM DECAY     1.680000E-01 'Am242   '                                                                                           
         DECAY     9.997390E-01 'Cm246   '                                                                                           
         NG        1.000000E+00 'Pu241   '                                                                                           
         N2N       1.000000E+00 'Pu243   '                                                                                           
-    'Pu243   ' 942430 DECAY  3.885006E+03 NFTOT 208.8272 NG  0.00E+00                                                              
+    'Pu243   ' 942430 DECAY  3.885006E+03 NFTOT 2.00000E+02 NG  0.00E+00                                                              
                     N2N      N3N      N4N                                                                                           
     FROM DECAY     1.000000E+00 'Cm247   '                                                                                           
         NG        1.000000E+00 'Pu242   '                                                                                           
-    'Am241   ' 952410 DECAY  5.074990E-03 NFTOT 210.8737 NG  0.00E+00                                                             
+    'Am241   ' 952410 DECAY  5.074990E-03 NFTOT 2.01960E+02 NG  0.00E+00                                                             
                     N2N      N3N                                                                                                    
     FROM DECAY     9.999750E-01 'Pu241   '                                                                                           
         DECAY     9.900000E-01 'Cm241   '                                                                                           
@@ -4297,10 +4296,10 @@ LIBRARY := LIB: ::
         NG        8.850000E-01 'Am241   '                                                                                           
         N2N       1.000000E+00 'Am243   '                                                                                           
         N4N       5.000000E-04 'Bk249   '                                                                                           
-    'Am242m  ' 952421 DECAY  1.557767E-02 NFTOT 219.7530 NG  0.00E+00                                                              
+    'Am242m  ' 952421 DECAY  1.557767E-02 NFTOT 2.10464E+02 NG  0.00E+00                                                              
                     N2N      N3N                                                                                                    
     FROM NG        1.150000E-01 'Am241   '                                                                                           
-    'Am243   ' 952430 DECAY  2.982356E-04 NFTOT 212.6069 NG  0.00E+00                                                              
+    'Am243   ' 952430 DECAY  2.982356E-04 NFTOT 2.03620E+02 NG  0.00E+00                                                              
                     N2N      N3N                                                                                                    
     FROM DECAY     1.000000E+00 'Pu243   '                                                                                           
         DECAY     2.400000E-03 'Cm243   '                                                                                           
@@ -4312,13 +4311,13 @@ LIBRARY := LIB: ::
                     N2N      N3N                                                                                                    
     FROM N2N       1.000000E+00 'Cm242   '                                                                                           
         N3N       1.000000E+00 'Cm243   '                                                                                           
-    'Cm242   ' 962420 DECAY  4.923900E+00 NFTOT 220.4401 NG  0.00E+00                                                              
+    'Cm242   ' 962420 DECAY  4.923900E+00 NFTOT 2.11122E+02 NG  0.00E+00                                                              
                     N2N      N3N                                                                                                    
     FROM DECAY     8.320000E-01 'Am242   '                                                                                           
         NG        1.000000E+00 'Cm241   '                                                                                           
         N2N       1.000000E+00 'Cm243   '                                                                                           
         N3N       1.000000E+00 'Cm244   '                                                                                           
-    'Cm243   ' 962430 DECAY  7.321503E-02 NFTOT 221.6512 NG  0.00E+00                                                             
+    'Cm243   ' 962430 DECAY  7.321503E-02 NFTOT 2.12282E+02 NG  0.00E+00                                                             
                     N2N      N3N      N4N                                                                                           
     FROM NG        1.000000E+00 'Cm242   '                                                                                           
         N2N       1.000000E+00 'Cm244   '                                                                                           
@@ -4335,7 +4334,7 @@ LIBRARY := LIB: ::
         N2N       9.999710E-01 'Cf249   '                                                                                           
         N3N       9.999710E-01 'Cf250   '                                                                                           
         N4N       9.999710E-01 'Cf251   '                                                                                           
-    'Cm245   ' 962450 DECAY  2.584056E-04 NFTOT 208.8272 NG  0.00E+00                                                              
+    'Cm245   ' 962450 DECAY  2.584056E-04 NFTOT 2.00000E+02 NG  0.00E+00                                                              
                     N2N      N3N                                                                                                    
     FROM DECAY     1.000000E+00 'Cf249   '                                                                                           
         NG        1.000000E+00 'Cm244   '                                                                                           
@@ -4350,12 +4349,12 @@ LIBRARY := LIB: ::
         N2N       1.000000E+00 'Cm247   '                                                                                           
         N3N       1.000000E+00 'Cm248   '                                                                                           
         N4N       9.990000E-01 'Bk249   '                                                                                           
-    'Cm247   ' 962470 DECAY  1.372781E-07 NFTOT 208.8261 NG  0.00E+00                                                              
+    'Cm247   ' 962470 DECAY  1.372781E-07 NFTOT 1.99999E+02 NG  0.00E+00                                                              
                     N2N      N3N      N4N                                                                                           
     FROM DECAY     1.000000E+00 'Cf251   '                                                                                           
         NG        1.000000E+00 'Cm246   '                                                                                           
         N2N       1.000000E+00 'Cm248   '                                                                                           
-    'Cm248   ' 962480 DECAY  6.460140E-06 NFTOT 225.0008 NG  0.00E+00                                                              
+    'Cm248   ' 962480 DECAY  6.460140E-06 NFTOT 2.15490E+02 NG  0.00E+00                                                              
                     N2N      N3N      N4N                                                                                           
     FROM DECAY     9.690800E-01 'Cf252   '                                                                                           
         NG        1.000000E+00 'Cm247   '                                                                                           
@@ -4369,7 +4368,7 @@ LIBRARY := LIB: ::
         N2N       1.000000E+00 'Cf250   '                                                                                           
         N3N       1.000000E+00 'Cf251   '                                                                                           
         N4N       1.000000E+00 'Cf252   '                                                                                           
-    'Cf250   ' 982500 DECAY  1.679246E-01 NFTOT 190.0000 NG  0.00E+00                                                             
+    'Cf250   ' 982500 DECAY  1.679246E-01 NFTOT 190.0 NG  0.00E+00                                                             
                     N2N      N3N                                                                                                    
     FROM NG        1.000000E+00 'Cf249   '                                                                                           
         N2N       1.000000E+00 'Cf251   '                                                                                           
