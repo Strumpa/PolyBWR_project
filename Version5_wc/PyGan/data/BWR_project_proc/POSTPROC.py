@@ -20,7 +20,7 @@ import serpentTools
 from serpentTools.settings import rc
 
 
-def POSTPROC(pyCOMPO, ListeCOMPO, ListeAUTOP, name_geom, name_mix, suffixe, VISU_param, form, Nmin, ssh_option):
+def POSTPROC(pyCOMPO, ListeCOMPO, ListeAUTOP, name_geom, name_mix, suffixe, VISU_param, Nmin, ssh_option, S2_libs):
 
     ########################################################
     #  Paramètres et initialisation et paramètres locaux 
@@ -59,9 +59,9 @@ def POSTPROC(pyCOMPO, ListeCOMPO, ListeAUTOP, name_geom, name_mix, suffixe, VISU
     # Chemin d'accès aux résultats Serpent2
     burnup_points=suffixe.split("_")[1]
     #SERPENT_path=f'/home/p117902/Serpent2/Linux_x86_64/' # path to Serpent2 results with sss_jeff311 library.
-    SERPENT_paths=[f'{os.environ["SERPENT_RESULTS"]}/PyNjoy2016_results/{name_mix.split("_")[1]}/', f'{os.environ["SERPENT_RESULTS"]}/sss_jeff311_results/{name_mix.split("_")[1]}/']
-    S2_legends=['PyNjoy2016','sss_jeff311']
-    Error_legends=['D5-S2 (PyNjoy2016)','D5-S2 (oldlib)']
+    SERPENT_path = f'{os.environ["SERPENT_RESULTS"]}/{name_mix}'
+    #S2_legends=['PyNjoy2016','sss_jeff311']
+    #Error_legends=['D5-S2 (PyNjoy2016)','D5-S2 (oldlib)']
 
 
 
@@ -147,17 +147,15 @@ def POSTPROC(pyCOMPO, ListeCOMPO, ListeAUTOP, name_geom, name_mix, suffixe, VISU
     # -------------------------------
     SERPENT_cases = []
     if visu_SERPENT==1 or visu_COMP==1 or visu_DELTA==1 :
-
-        # --- Keff
-        for SERPENT_path in SERPENT_paths:
-
-            res=serpentTools.read(SERPENT_path+name_mix+"_mc_res.m")
+        for S2Library in S2_libs:
+            # --- Keff
+            res=serpentTools.read(f"{SERPENT_path}/{name_mix}_{S2Library}_mc_res.m")
             serpent_keff=res.resdata["absKeff"]
             np.savetxt('serpent_keff.txt',serpent_keff)
             SERPENT_keff=np.loadtxt('serpent_keff.txt',dtype=float)
                 
             # --- BU
-            depFile = SERPENT_path+name_mix+"_mc_dep.m"
+            depFile = f"{SERPENT_path}/{name_mix}_{S2Library}_mc_dep.m"
             dep = serpentTools.read(depFile)
             fuel=dep.materials['total']
             serpent_BU=fuel.burnup
@@ -212,9 +210,6 @@ def POSTPROC(pyCOMPO, ListeCOMPO, ListeAUTOP, name_geom, name_mix, suffixe, VISU
         #print("$$$ ---------------- SERPENT_ALL",SERPENT_ALL)
     print("$$$ ---------------- SERPENT_CASES length",len(SERPENT_cases))
     print("$$$ ---------------- SERPENT_CASES[0] shape",len(SERPENT_cases[0]))
-    print("$$$ ---------------- SERPENT_CASES[1] shape",len(SERPENT_cases[1]))
-    print("$$$ ---------------- SERPENT_CASES[0][0] shape (BU case 1)",len(SERPENT_cases[0][0]))
-    print("$$$ ---------------- SERPENT_CASES[1][0] shape (BU case 2)",len(SERPENT_cases[1][0]))
     # -------------------------------
     #   MATRICE DES ERREUR : ERROR 
     # -------------------------------
@@ -238,7 +233,6 @@ def POSTPROC(pyCOMPO, ListeCOMPO, ListeAUTOP, name_geom, name_mix, suffixe, VISU
         print("$$$ ---------------- ERRORS_D5vsS2",ERRORS_D5vsS2)
         print("$$$ ---------------- ERRORS_D5vsS2 length",len(ERRORS_D5vsS2))
         print("$$$ ---------------- ERRORS_D5vsS2[0] shape",len(ERRORS_D5vsS2[0]))
-        print("$$$ ---------------- ERRORS_D5vsS2[1] shape",len(ERRORS_D5vsS2[1]))
 
 
     ################################################################
@@ -284,7 +278,7 @@ def POSTPROC(pyCOMPO, ListeCOMPO, ListeAUTOP, name_geom, name_mix, suffixe, VISU
             plt.grid()
             for i in range(len(SERPENT_cases)):
                 plt.plot(SERPENT_cases[i][0],SERPENT_cases[i][k+1],'2-',linewidth=1)
-                legend.append(S2_legends[i])
+                legend.append(S2_libs[i])
 
             if k == 0: # Comparaison des Keff
                 plt.ylabel('Keff')
@@ -314,7 +308,7 @@ def POSTPROC(pyCOMPO, ListeCOMPO, ListeAUTOP, name_geom, name_mix, suffixe, VISU
             legend.append('DRAGON5')
             for i in range(len(SERPENT_cases)):
                 plt.plot(SERPENT_cases[i][0],SERPENT_cases[i][k+1],'2-',linewidth=1)
-                legend.append(S2_legends[i])
+                legend.append(S2_libs[i])
             if k == 0: # Comparaison des Keff
                 plt.ylabel('Keff')
                 save_name=name_geom+'_COMP_Keff'
@@ -342,7 +336,7 @@ def POSTPROC(pyCOMPO, ListeCOMPO, ListeAUTOP, name_geom, name_mix, suffixe, VISU
             plt.grid()
             for i in range(len(ERRORS_D5vsS2)):
                 plt.plot(ERRORS_D5vsS2[i][0],ERRORS_D5vsS2[i][k+1],'2-',linewidth=1)
-                legend.append(Error_legends[i])
+                legend.append(f"D5-{S2_libs[i]}")
             if k == 0: # Erreur sur Keff
                 for step in ListeAUTOP:
                     if step <= ListeCOMPO[-1]:

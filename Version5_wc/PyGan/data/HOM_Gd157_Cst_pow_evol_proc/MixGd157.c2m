@@ -24,7 +24,7 @@ MODULE LIB: END: ;
 IF ssh_method "RSE" = THEN
     IF correlation "CORR" = THEN
         LIBRARY := LIB: ::
-            EDIT 100
+            EDIT 1
             NMIX 1    ! MAXIMUM OF MATERIAL MIXTURES
             RSE 3.0E-3
             ANIS 2

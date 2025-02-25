@@ -1,34 +1,37 @@
 #####################################################################
 #                                                                   #
 # Description : PyGan scritp for BWR simulation with DRAGON5        #
-# Author      : L. Fede, used by R.Guasch                           #
-# Date        : 2023                                                #
-# Purpose     : MIX definition for pin cells                        #
+# Author      : R.Guasch                                            #
+# Date        : 2024                                                #
+# Purpose     : Tracking for pin cells with SYB+NXT modules         #
 #                                                                   #
 #####################################################################
 #
 import lifo
 import cle2000
 
-def MIX_C(Library,ssh_option):
+def TRK_C_SYBNXT(pyGEOM,pyGEOM_SS):
   # Lifo
-  namLIB = "LIBRARY"
   myLifo=lifo.new()
-  myLifo.pushEmpty(namLIB, "LCM")
-  myLifo.push(Library)
-  myLifo.push(ssh_option)
-  myLifo.lib()
+
+  myLifo.push(pyGEOM)
+  myLifo.push(pyGEOM_SS)
 
   # Execution
-  mixBWR = cle2000.new('MIX_C',myLifo,1)
-  mixBWR.exec()
+  trackBWR = cle2000.new('TRK_C_SYBNXT',myLifo,1)
+  trackBWR.exec()
 
-  # Recover
+  # Recover nodes
   myLifo.lib()
-  pyMIX = myLifo.node(namLIB)
+  pyTRACK = myLifo.node("TRACK")
+  pyTF_EXC = myLifo.node("TF_EXC")
+  pyTRACK_SS = myLifo.node("TRACK_SS")
 
   # Clear stack before next execution
   while myLifo.getMax() > 0: 
         myLifo.pop()
-  
-  return pyMIX
+
+  return pyTRACK,pyTF_EXC,pyTRACK_SS
+
+
+

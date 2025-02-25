@@ -1,34 +1,34 @@
 #####################################################################
 #                                                                   #
 # Description : PyGan scritp for BWR simulation with DRAGON5        #
-# Author      : L. Fede, used by R.Guasch                           #
-# Date        : 2023                                                #
-# Purpose     : MIX definition for pin cells                        #
+# Author      : L. Fede, adapted by R.Guasch                        #
+# Date        : 2024                                                #
+# Purpose     : Geometry definition for pin cells                   #
 #                                                                   #
 #####################################################################
 #
 import lifo
 import cle2000
 
-def MIX_C(Library,ssh_option):
+def GEO_C_NXT():
+
   # Lifo
-  namLIB = "LIBRARY"
   myLifo=lifo.new()
-  myLifo.pushEmpty(namLIB, "LCM")
-  myLifo.push(Library)
-  myLifo.push(ssh_option)
+  myLifo.pushEmpty("GEOM", "LCM")
+  myLifo.pushEmpty("GEOM_SS", "LCM")
   myLifo.lib()
 
-  # Execution
-  mixBWR = cle2000.new('MIX_C',myLifo,1)
-  mixBWR.exec()
+  # Execution 
+  geoBWR = cle2000.new('GEO_C_NXT',myLifo,1)
+  geoBWR.exec()
 
   # Recover
   myLifo.lib()
-  pyMIX = myLifo.node(namLIB)
+  pyGEOM = myLifo.node("GEOM")
+  pyGEOM_SS = myLifo.node("GEOM_SS")
 
   # Clear stack before next execution
   while myLifo.getMax() > 0: 
         myLifo.pop()
-  
-  return pyMIX
+        
+  return pyGEOM,pyGEOM_SS

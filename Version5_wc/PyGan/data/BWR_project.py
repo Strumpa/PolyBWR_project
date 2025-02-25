@@ -51,7 +51,8 @@ from getLists import *
 ##########################################################
 #
 # Library = name of the used Library
-Library = 'J311_295'
+Library = 'ENDFb8r1_295'
+S2_libs = ['endfb8r1_PyNjoy2012']
 # 
 #
 # TYPE = type of calation
@@ -275,4 +276,4 @@ elif case == 'ASSEMBLY':
 #    POST-PROCESSING OF GLOBAL VALUES
 # -----------------------------------
 
-POSTPROC(pyCOMPO, ListeCOMPO, ListeAUTOP, name_geom, name_mix, suffixe, VISU_param, form, Nmin, ssh_method)
+POSTPROC(pyCOMPO, ListeCOMPO, ListeAUTOP, name_geom, name_mix, suffixe, VISU_param, Nmin, ssh_method, S2_libs)

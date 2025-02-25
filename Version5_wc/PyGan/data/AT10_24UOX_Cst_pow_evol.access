@@ -1,7 +1,7 @@
 #!/bin/sh
 if [ $# = 0 ]
    then
-   echo "usage: AT-10_pin.access directory" 1>&2
+   echo "usage: AT10_24UOX_cst_pow_evol.access directory" 1>&2
    exit 1
 fi
 MACH=`uname -s`
@@ -17,11 +17,10 @@ if [ "$MACH" = "Linux" -o "$MACH" = "OSF1" -o "$MACH" = "Cygwin" -o "$MACH" = "S
 "$MACH" = "Darwin i386" -o "$MACH" = "Darwin x86_64" -o "$MACH" = "Darwin_arm64" ]
 then 
 echo 'use little endian libraries'
-pos=$1/../../libraries/l_endian
-pos2=$1/../../../libraries/l_endian
+pos=$1/../../../libraries/l_endian
 else
 echo 'use big endian libraries'
-pos=$1/../../libraries/b_endian
+pos=$1/../../../libraries/b_endian
 fi
 if [ -f "$pos"/draglibJeff3p1p1SHEM295.gz ]
 then
@@ -31,7 +30,8 @@ gunzip "$pos"/draglibJeff3p1p1SHEM295.gz
 fi
 if [ -f "$pos"/draglibJeff3p1p1SHEM295 ]
 then
-ln -s "$pos"/draglibJeff3p1p1SHEM295 J311_295
-ln -s "$pos2"/draglibshem295_endfb8r1 ENDFb8r1_295
-echo "AT-10_pin access script terminated"
+ln -s "$pos"/newGen_draglibJeff3p1p1SHEM295 J311_295
+ln -s "$pos"/draglibshem295_endfb8r1 ENDFb8r1_295
+else
+echo "AT10_24UOX_cst_pow_evol.access script terminated"
 fi

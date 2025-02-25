@@ -65,9 +65,9 @@ D5_case_options_for_multi_S2_comp = {"Library": "J311_295", "ssh_module": "USS",
 # Creation of results directory
 path=os.getcwd()
 
-save_dir_D5 = f"{path}/HOM_Gd157_Cst_pow_evol_results/D5"
-save_dir_S2 = f"{path}/HOM_Gd157_Cst_pow_evol_results/S2"
-save_dir_comparison = f"{path}/HOM_Gd157_Cst_pow_evol_results/Comparison"
+save_dir_D5 = f"{path}/HOM_Gd157_Cst_pow_evol_results_noGLOB/D5"
+save_dir_S2 = f"{path}/HOM_Gd157_Cst_pow_evol_results_noGLOB/S2"
+save_dir_comparison = f"{path}/HOM_Gd157_Cst_pow_evol_results_noGLOB/Comparison"
 if not os.path.exists(save_dir_D5):
     os.makedirs(save_dir_D5)
 if not os.path.exists(save_dir_S2):
@@ -111,7 +111,7 @@ for dlib_name in Libraries:
 						else:
 							SAT = ""
 						print(f"State of the calculation : {dlib_name} {ssh_module} {ssh_method} {correlation} {sat} {depl_sol}")
-						compo_name = f"_COMPO_HOM_Gd157_{dlib_name}_{ssh_module}_{ssh_method}_{correlation}{SAT}_{depl_sol}"
+						compo_name = f"_COMPO_HOM_Gd157_{dlib_name}_{ssh_module}_{ssh_method}_{correlation}{SAT}_{depl_sol}_noGLOB"
 						pyCOMPO = HOM_Gd157_cpow(f"COMPO",pyLIB,StepList,compo_name,ssh_module,sat,depl_sol)
 						#
 						# --- Post-processing of DRAGON5 results

@@ -19,7 +19,7 @@ MODULE LIB: END: ;
 ****************************************************************************
 
 LIBRARY := LIB: ::
-    EDIT 100
+    EDIT 1
     NMIX 1    ! MAXIMUM OF MATERIAL MIXTURES
     RSE 3.0E-3
     ANIS 2
