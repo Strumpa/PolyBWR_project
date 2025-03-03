@@ -64,7 +64,13 @@ ssh_options = ["RSE"]
 # 4) Selecting the burnup calculation options
 # burnup_steps = "UOx", "UOx_autop5", "UOx2_autop5", "UOx4_autop5", "UOx6_autop5" etc
 #
-burnup_steps_to_test = ["UOx_autop5", "UOx2_autop5", "UOx4_autop5", "UOx6_autop5"]
+burnup_steps_to_test = ["UOx2_autop1", "UOx2_autop3", "UOx2_autop4", "UOx2_autop5", "UOx2_autop6"]
+
+# ["UOx_autop1", "UOx_autop2", "UOx_autop4", "UOx_autop5"]
+# ["UOx2_autop1", "UOx2_autop3", "UOx2_autop4", "UOx2_autop5", "UOx2_autop6"]
+# ["UOx4_autop1", "UOx4_autop3", "UOx4_autop4", "UOx4_autop5"]
+# ["UOx6_autop1", "UOx6_autop3", "UOx6_autop4", "UOx6_autop6", "UOx6_autop7", "UOx6_autop8"]
+# ["UOx8_autop8", "UOx8_autop9"]
 
 # 5) Selecting the burnup calculation options
 # Solver : "RUNG" or "KAPS"
@@ -88,14 +94,14 @@ Njoy_versions = ["pynjoy2012","NJOY2016"], #"PyNjoy2016"
 ######## 
 # Result handling and creation of the results directory
 #
-tracked_nuclides = ["U235","U238","U234","Pu239","Pu240","Pu241","Pu242","Am241","Xe135","Sm149","Gd155","Gd157"]
+tracked_nuclides = ["U235","U238","Pu239","Pu240","Pu241","Pu242","Am241","Xe135","Sm149","Gd155","Gd157"]
 
 #
 # Create the results directory
 path=os.getcwd()
-save_dir_D5 = f"{path}/AT10_24UOX_Cst_pow_evol_results/D5"
+save_dir_D5 = f"{path}/AT10_24UOX_Cst_pow_evol_results/D5_PASS4_GRMIN35"
 save_dir_S2 = f"{path}/AT10_24UOX_Cst_pow_evol_results/S2"
-save_dir_comparison = f"{path}/AT10_24UOX_Cst_pow_evol_results/Comparison"
+save_dir_comparison = f"{path}/AT10_24UOX_Cst_pow_evol_results/Comparison_USS4PASS_GRMIN35"
 if not os.path.exists(save_dir_D5):
     os.makedirs(save_dir_D5)
 if not os.path.exists(save_dir_S2):
@@ -107,7 +113,7 @@ if not os.path.exists(save_dir_comparison):
 
 
 ### BEGIN DRAGON5 calculations ###
-D5_cases = {}
+D5_cases = []
 for trk_opt in tracking_options:
     if trk_opt == "SALT":
         # geometry definition
@@ -146,43 +152,40 @@ for trk_opt in tracking_options:
                             D5case.plot_keffs()
                             for iso in tracked_nuclides:
                                 D5case.plot_Ni(iso)
-                            D5_cases[name_compo] = CPO
+                            D5_cases.append(D5case)
 
 ### BEGIN SERPENT2 post treatment
                             
 
 
-S2_endfb8r1_edep0 = S2_case("AT10_24UOX", "endfb8r1_pynjoy2012", 0, False, 1, 38.6, tracked_nuclides, save_dir_S2)
-S2_endfb8r1_edep0.plot_keffs()
+S2_endfb8r1_edep0_pcc1 = S2_case("AT10_24UOX", "endfb8r1_pynjoy2012", 0, False, 1, 38.6, tracked_nuclides, save_dir_S2)
+S2_endfb8r1_edep0_pcc1.plot_keff()
 for iso in tracked_nuclides:
-    S2_endfb8r1_edep0.plot_Ni(iso)
+    S2_endfb8r1_edep0_pcc1.plot_concentrations([iso])
 
+S2_endfb8r1_edep0_pcc2 = S2_case("AT10_24UOX", "endfb8r1_pynjoy2012", 0, False, 2, 38.6, tracked_nuclides, save_dir_S2)
+S2_endfb8r1_edep0_pcc2.plot_keff()
+for iso in tracked_nuclides:
+    S2_endfb8r1_edep0_pcc2.plot_concentrations([iso])
+"""
 S2_endfb8r1_edep1 = S2_case("AT10_24UOX", "endfb8r1_pynjoy2012", 1, False, 1, 38.6, tracked_nuclides, save_dir_S2)
-S2_endfb8r1_edep1.plot_keffs()
+S2_endfb8r1_edep0_pcc1.plot_keff()
 for iso in tracked_nuclides:
-    S2_endfb8r1_edep1.plot_Ni(iso)
-
-S2_cases = [S2_endfb8r1_edep0, S2_endfb8r1_edep1]
-
-for case in S2_cases:
-    case.plot_keffs()
-    for iso in tracked_nuclides:
-        case.plot_Ni(iso)
+    S2_endfb8r1_edep0_pcc1.plot_concentrations([iso])
+"""
 
 ### Compare DRAGON5 and SERPENT2 results
 
-D5_cases_to_endfb8r1_edep0 = multiD5S2("AT10_24UOX constant power evolution, Serpent2 edep0", D5_cases, S2_endfb8r1_edep0, tracked_nuclides, save_dir_comparison)
-D5_cases_to_endfb8r1_edep1 = multiD5S2("AT10_24UOX constant power evolution, Serpent2 edep1", D5_cases, S2_endfb8r1_edep1, tracked_nuclides, save_dir_comparison)
+D5_cases_to_endfb8r1_edep0_pcc1 = multiD5S2(f"24UOX evolution {burnup_steps_to_test[0].split('_')[0]} {ssh_options[0]} vs Serpent2 edep0 pcc1", D5_cases, S2_endfb8r1_edep0_pcc1, tracked_nuclides, save_dir_comparison)
+D5_cases_to_endfb8r1_edep0_pcc2 = multiD5S2(f"24UOX evolution {burnup_steps_to_test[0].split('_')[0]} {ssh_options[0]} vs Serpent2 edep0 pcc2", D5_cases, S2_endfb8r1_edep0_pcc2, tracked_nuclides, save_dir_comparison)
 
-D5_cases_to_endfb8r1_edep0.compare_keffs()
-D5_cases_to_endfb8r1_edep1.compare_keffs()
-
-D5_cases_to_endfb8r1_edep0.compare_Ni()
-D5_cases_to_endfb8r1_edep1.compare_Ni()
-
-D5_cases_to_endfb8r1_edep0.plot_delta_Keff()
-D5_cases_to_endfb8r1_edep1.plot_delta_Keff()
-D5_cases_to_endfb8r1_edep0.plot_delta_Ni()
-D5_cases_to_endfb8r1_edep1.plot_delta_Ni()
+D5_cases_to_endfb8r1_edep0_pcc1.compare_keffs()
+D5_cases_to_endfb8r1_edep0_pcc2.compare_keffs()
+D5_cases_to_endfb8r1_edep0_pcc1.compare_Ni()
+D5_cases_to_endfb8r1_edep0_pcc2.compare_Ni()
+D5_cases_to_endfb8r1_edep0_pcc1.plot_delta_Keff()
+D5_cases_to_endfb8r1_edep0_pcc2.plot_delta_Keff()
+D5_cases_to_endfb8r1_edep0_pcc1.plot_delta_Ni()
+D5_cases_to_endfb8r1_edep0_pcc2.plot_delta_Ni()
 
 

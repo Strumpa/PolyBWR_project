@@ -61,13 +61,13 @@ EVALUATE 4_Pitch_C := Pitch_C 4.0 * ;
 
 
 GEOM_2x2_SS := GEO: :: CAR2D 2 2
-    X- DIAG X+ REFL 
-    Y- REFL Y+ DIAG
+    X- REFL X+ REFL 
+    Y- REFL Y+ REFL
     CELL
     C1 C2
-       C4
+    C2 C4
     MESHX 0.0 <<Pitch_C>> <<2_Pitch_C>>
-    MESHX 0.0 <<Pitch_C>> <<2_Pitch_C>>
+    MESHY 0.0 <<Pitch_C>> <<2_Pitch_C>>
     ::: C1 :=  GEO: CARCEL 6 
                 RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
                 <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
@@ -85,13 +85,13 @@ GEOM_2x2_SS := GEO: :: CAR2D 2 2
 
 
 GEOM_2x2 := GEO: :: CAR2D 2 2
-    X- DIAG X+ REFL 
-    Y- REFL Y+ DIAG
+    X- REFL X+ REFL 
+    Y- REFL Y+ REFL
     CELL
     C1 C2
-       C4
+    C2 C4
     MESHX 0.0 <<Pitch_C>> <<2_Pitch_C>>
-    MESHX 0.0 <<Pitch_C>> <<2_Pitch_C>>
+    MESHY 0.0 <<Pitch_C>> <<2_Pitch_C>>
     ::: C1 :=  GEO: CARCEL 6 
                 SECT 4 6
                 RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
@@ -125,8 +125,10 @@ GEOM_2x2 := GEO: :: CAR2D 2 2
 LIBRARY := LIB: ::
     EDIT 0
     NMIX 100    ! MAXIMUM OF MATERIAL MIXTURES
-    RSE 
-    ANIS 2
+    PT 
+    ANIS 3
+    CALENDF 3 
+    PT      ! CALENDF TYPE MATHEMATICAL PROBABILITY TABLES
 
   DEPL LIB: DRAGON FIL: <<Library>>
 
@@ -169,6 +171,7 @@ LIBRARY := LIB: ::
     Zr92  = Zr92   7.27723E-03 5
     Zr94  = Zr94   7.37482E-03 5
     Zr96  = Zr96   1.18812E-03 5
+    Fe56  = Fe56   8.74901E-05 5
     Ni60  = Ni60   9.69262E-06
     Fe58  = Fe58   2.68895E-07
     Sn112  = Sn112   4.67343E-06
@@ -189,7 +192,7 @@ LIBRARY := LIB: ::
     Ni58  = Ni58   2.51627E-05
     Fe54  = Fe54   5.57337E-06
     Fe57  = Fe57   2.02053E-06
-    Fe56  = Fe56   8.74901E-05 5
+    
     Sn118  = Sn118   1.16691E-04
     Sn119  = Sn119   4.13864E-05
 
@@ -211,10 +214,10 @@ LIBRARY := LIB: ::
 * ---
 
 INTEGER an2d := 18 ;  ! ANGULAR QUADRATURE PARAMETER 
-REAL densur := 35.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
+REAL densur := 45.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
 
-INTEGER an2d_ss := 8 ;  ! ANGULAR QUADRATURE PARAMETER 
-REAL densur_ss := 15.0 ; ! DENSITY OF INTEGRATION LINES CM^-1 
+INTEGER an2d_ss := 12 ;  ! ANGULAR QUADRATURE PARAMETER 
+REAL densur_ss := 25.0 ; ! DENSITY OF INTEGRATION LINES CM^-1 
 
 
 * polar angles for MCCGT:
@@ -253,14 +256,8 @@ TRACK_SS TF_EXC_SS := SALT: GeoSS_G2S ::
   ALLG
   BATCH 200
   TSPC <<an2d_ss>> <<densur_ss>> REND
-  MERGMIX
+  !MERGMIX
 ;
-
-* MOC tracking for ssh ?
-!TRACK_SS := MCCGT: TRACK_SS TF_EXC_SS ::
-!  EDIT 1
-!  CACB <<nmu>> AAC 80 TMT EPSI 1E-5 MCU <<mcu>> ! tried CACB but is limited to isotropic ?
-!;
 
 
 
@@ -270,7 +267,7 @@ TRACK_SS TF_EXC_SS := SALT: GeoSS_G2S ::
 
 
 LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
-        EDIT 1 PASS 3 MAXST 20
+        EDIT 1 PASS 3 MAXST 50 GRMIN 52
       ;
 
 SYS := ASM: LIBRARY2 TRACK TF_EXC :: ARM EDIT 0 ; 
@@ -286,6 +283,11 @@ ECHO "SS tracking = SALT and FLX tracking = SALT TSPC, MOC on 2x2_UOX: Kinf=" Ki
 **********************************************************************************************************
 COMPO := COMPO: ::
     EDIT 1
+    STEP UP 'EDIBU_HOM'
+     MAXCAL 5
+     COMM 'Reaction rates- Condensed, Homogenized over all fuel cells' ENDC
+     ISOT 3 U235 U238 U234
+    INIT
     STEP UP 'HOM1g'
      MAXCAL 5
      COMM 'Reaction rates- Condensed, Homogenized' ENDC
@@ -307,6 +309,23 @@ COMPO := COMPO: ::
      ISOT 3 U235 U238 U234
     INIT
   ;
+
+**** homogenization over all fuel cells
+  EDIRATES := EDI: FLUX LIBRARY2 TRACK ::
+            EDIT 1
+            MICR 3 U235 U238 U234
+            MERG MIX 
+            1 1 1 1 1 1 1 1 1 1 1 1 0 0 0
+            COND
+            SAVE ON EDIBU_HOM
+        ;
+
+COMPO := COMPO: COMPO EDIRATES LIBRARY2 ::
+            EDIT 1
+            STEP UP 'EDIBU_HOM'
+        ;
+
+EDIRATES := DELETE: EDIRATES ;
 
 ***** Cell-wise homogenization
 *** Condense all rates on 1 group :

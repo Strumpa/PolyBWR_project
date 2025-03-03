@@ -775,8 +775,8 @@ ELSEIF name_geom 'AT10_ASSBLY_fine' = THEN
     ::: WBC1 := GEO: CAR2D 3 3 
         MESHX 0.0 <<W_gap>> <<x_step>> <<X1>>
         MESHY 0.0 <<W_gap>> <<x_step>> <<Y1>>
-        SPLITX 4 1 10
-        SPLITY 4 1 10 
+        SPLITX 10 1 4
+        SPLITY 10 1 4 
         MIX <<MODE>> <<MODE>> <<MODE>> 
             <<MODE>> <<BOX>> <<BOX>>
              <<MODE>> <<BOX>> <<COOL>>

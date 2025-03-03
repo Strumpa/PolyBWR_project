@@ -129,14 +129,6 @@ S2_edep0 = S2_case("HOM_UOX_Gd157", S2_lib, edep_id=0, isEcaptSet=False, pcc_id=
 S2_edep1_Ecapt = S2_case("HOM_UOX_Gd157", S2_lib, edep_id=1, isEcaptSet=True, pcc_id=1, tracked_nuclides = tracked_nuclides, specific_power = 38.6, save_dir = save_dir_S2)
 S2_edep2 = S2_case("HOM_UOX_Gd157", S2_lib, edep_id=2, isEcaptSet=False, pcc_id=1, tracked_nuclides = tracked_nuclides, specific_power = 38.6, save_dir = save_dir_S2)
 
-"""
-exemple de comment acceder aux attributs des cas S2
-for case in [S2_edep0, S2_edep1, S2_edep2]:
-	case.plot_keff()
-	for iso in tracked_nuclides:
-		case.plot_concentrations(iso)
-	S2_cases.append(case)
-"""
 
 # --- Comparison of DRAGON5 and SERPENT2 results : each comparison = several D5 cases vs 1 Serpent2 case (energy deposition mode)
 Comparison_D5_S2_edep0 = multiD5S2("HOM_Gd157_D5_cst_pow_evol_vs_S2_edep_0", D5_cases, S2_edep0, tracked_nuclides, save_dir_comparison)

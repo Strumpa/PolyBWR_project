@@ -88,7 +88,7 @@ class Serpent2_case:
         for nuclide in isotopes_list:
             plt.plot(self.BU, self.Ni[nuclide], label = nuclide)
         plt.xlabel(f"Burnup [{self.unitsBU}]")
-        plt.ylabel("Concentration [atom/b-cm]")
+        plt.ylabel("Isotopes density [atom/b-cm]")
         plt.title(f"Concentration evolution for {self.case_name} case")
         plt.legend()
         plt.grid()
@@ -204,7 +204,7 @@ class DRAGON_case:
         plt.figure()
         plt.plot(self.DRAGON_BU, self.DRAGON_ISOTOPESDENS[isotope], label = f"D5 : {isotope} atomic density", marker = "x", linestyle = "--")
         plt.xlabel("Burnup [MWd/tU]")
-        plt.ylabel("Isotope density")
+        plt.ylabel("Isotopes density [atom/b-cm]")
         plt.title(f"{isotope} evolution for {self.draglib_name} case")
         plt.legend()
         plt.grid()

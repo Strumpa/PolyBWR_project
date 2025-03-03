@@ -20,7 +20,7 @@ LINKED_LIST LIBRARY2 SYS FLUX ;
 
 SEQ_ASCII Geo_G2S GeoSS_G2S ;
 SEQ_BINARY TRACK_EXC TRACKSS_EXC ;
-SEQ_ASCII FIG_main.ps :: FILE './FIG_main.ps' ;
+SEQ_ASCII FIG_main.ps :: FILE './FIG_AT10_main_fine.ps' ;
 SEQ_ASCII FIG_SS.ps :: FILE './FIG_selfshielding.ps' ;
 REAL Kinf ;
 

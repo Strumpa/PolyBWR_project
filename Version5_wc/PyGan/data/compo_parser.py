@@ -36,7 +36,8 @@ def parse_compo(py_compo_obj, targets, dirs, params={}):
     dirs : list : list of directories to be parsed / must be included in compo
     params : dict/of dict : 1st level keys = dirs, 2nd level keys = params to be parsed, values = values to be assigned to params
     """
-
+    num_state_points = 1 # number of calculations stored in the same directory. For instance number of tabulated burnup steps.
+    """
     for DIR in dirs:
         print('Parsing directory :', DIR)
         # Get the number of mixtures
@@ -52,30 +53,18 @@ def parse_compo(py_compo_obj, targets, dirs, params={}):
                 print('Mixture index :', mix_idx)
                 keys1 = py_compo_obj[DIR]['MIXTURES'][mix_idx].keys()
                 print('MIXTURES :', keys1)
-                print(f"CLACULATIONS[0] are : {py_compo_obj[DIR]['MIXTURES'][mix_idx]['CALCULATIONS'][0].keys()}")
-                print(f"CLACULATIONS[1] are : {py_compo_obj[DIR]['MIXTURES'][mix_idx]['CALCULATIONS'][1].keys()}")
-                num_calculations = py_compo_obj[DIR]['MIXTURES'][mix_idx]['CALCULATIONS'].len()
+                #print(f"CLACULATIONS[0] are : {py_compo_obj[DIR]['MIXTURES'][mix_idx]['CALCULATIONS'][0].keys()}")
+                #print(f"CLACULATIONS[1] are : {py_compo_obj[DIR]['MIXTURES'][mix_idx]['CALCULATIONS'][1].keys()}")
+                num_calculations = num_state_points
                 print('Number of calculations :', num_calculations)
                 for calc_idx in range(num_calculations):
                     print(f"calculation index : {calc_idx}")
-                    keys2 = py_compo_obj[DIR]['MIXTURES'][mix_idx]['CALCULATIONS'][calc_idx].keys()
-                    print('MIXTURES/CALCULATIONS :', keys2)
                     values1 = py_compo_obj[DIR]['MIXTURES'][mix_idx]['CALCULATIONS'][calc_idx]['ISOTOPESDENS']
                     print('MIXTURES/CALCULATIONS/ISOTOPEDENS :', values1)
-                    values2 = py_compo_obj[DIR]['MIXTURES'][mix_idx]['CALCULATIONS'][calc_idx]['ISOTOPESMIX']
-                    print('MIXTURES/CALCULATIONS/ISOTOPESMIX :', values2)
-                    values3 = py_compo_obj[DIR]['MIXTURES'][mix_idx]['CALCULATIONS'][calc_idx]['ISOTOPESTYPE']
-                    print('MIXTURES/CALCULATIONS/ISOTOPESTYPE :', values3)
                     values4 = py_compo_obj[DIR]['MIXTURES'][mix_idx]['CALCULATIONS'][calc_idx]['ISOTOPESVOL']
                     print('MIXTURES/CALCULATIONS/ISOTOPESVOL :', values4)
                     values4 = py_compo_obj[DIR]['MIXTURES'][mix_idx]['CALCULATIONS'][calc_idx]['MIXTURESVOL']
                     print('MIXTURES/CALCULATIONS/MIXTURESVOL :', values4)
-                    values4 = py_compo_obj[DIR]['MIXTURES'][mix_idx]['CALCULATIONS'][calc_idx]['K-EFFECTIVE']
-                    print('MIXTURES/CALCULATIONS/K-EFFECTIVE :', values4)
-                    values4 = py_compo_obj[DIR]['MIXTURES'][mix_idx]['CALCULATIONS'][calc_idx]['ENERGY']
-                    print('MIXTURES/CALCULATIONS/ENERGY :', values4)
-                    values4 = py_compo_obj[DIR]['MIXTURES'][mix_idx]['CALCULATIONS'][calc_idx]['DELTAU']
-                    print('MIXTURES/CALCULATIONS/DELTAU :', values4)
                     num_iso_in_CALCULATION = py_compo_obj[DIR]['MIXTURES'][mix_idx]['CALCULATIONS'][calc_idx]['ISOTOPESLIST'].len()
                     print(f'number of isotopes in mixture {mix_idx} in calculation {calc_idx} :', num_iso_in_CALCULATION)
                     for iso_idx in range(num_iso_in_CALCULATION):
@@ -83,18 +72,44 @@ def parse_compo(py_compo_obj, targets, dirs, params={}):
                         print('MIXTURES/CALCULATIONS/ISOTOPESLIST :', keys)
                         values6 = py_compo_obj[DIR]['MIXTURES'][mix_idx]['CALCULATIONS'][calc_idx]['ISOTOPESLIST'][iso_idx]['ALIAS']
                         print('MIXTURES/CALCULATIONS/ISOTOPESLIST/ALIAS :', values6)
-        if glob:
-            keys1 = py_compo_obj[DIR]["GLOBAL"].keys()
-            print('Keys1 :', keys1)
-            keys2 = py_compo_obj[DIR]["GLOBAL"]["PARPAD"][0]  
-            print('Keys2 :', keys2)
-            keys2 = py_compo_obj[DIR]["GLOBAL"]["PARCAD"][0]  
-            print('Keys2 :', keys2)
+        """
+    DIR = dirs[0]
+    print('Parsing directory :', DIR)
+    # Get the number of mixtures
+    number_of_mixtures = py_compo_obj[DIR]['MIXTURES'].len()
+    print('Number of mixtures :', number_of_mixtures)
+    # Get the number of calculations
+    num_calculations = num_state_points
+    print('Number of calculations :', num_calculations)
+
+    mix_number_to_cell = {1: "C1", 2:"C2", 3:"C4"} # mapping of mixture number to cell number, for UOX 2x2 cluster made of 4 UOX pins. C2 is the "off-diagonal" pin.
+    for mix_idx in range(number_of_mixtures):
+        print('Mixture index :', mix_idx)
+        keys1 = py_compo_obj[DIR]['MIXTURES'][mix_idx].keys()
+        print('MIXTURES :', keys1)
+        #print(f"CLACULATIONS[0] are : {py_compo_obj[DIR]['MIXTURES'][mix_idx]['CALCULATIONS'][0].keys()}")
+        #print(f"CLACULATIONS[1] are : {py_compo_obj[DIR]['MIXTURES'][mix_idx]['CALCULATIONS'][1].keys()}
+        for calc_idx in range(num_calculations):
+            print(f"calculation index : {calc_idx}")
+            num_iso_in_CALCULATION = py_compo_obj[DIR]['MIXTURES'][mix_idx]['CALCULATIONS'][calc_idx]['ISOTOPESLIST'].len()
+            print(f'number of isotopes in mixture {mix_idx} in calculation {calc_idx} :', num_iso_in_CALCULATION)
+            for iso_idx in range(num_iso_in_CALCULATION):
+                keys = py_compo_obj[DIR]['MIXTURES'][mix_idx]['CALCULATIONS'][calc_idx]['ISOTOPESLIST'][iso_idx].keys()
+                print('MIXTURES/CALCULATIONS/ISOTOPESLIST :', keys)
+                values6 = py_compo_obj[DIR]['MIXTURES'][mix_idx]['CALCULATIONS'][calc_idx]['ISOTOPESLIST'][iso_idx]['ALIAS']
+                print('MIXTURES/CALCULATIONS/ISOTOPESLIST/ALIAS :', values6)
+            
+            values1 = py_compo_obj[DIR]['MIXTURES'][mix_idx]['CALCULATIONS'][calc_idx]['ISOTOPESDENS']
+            print('MIXTURES/CALCULATIONS/ISOTOPEDENS :', values1)
+            values4 = py_compo_obj[DIR]['MIXTURES'][mix_idx]['CALCULATIONS'][calc_idx]['ISOTOPESVOL']
+            print('MIXTURES/CALCULATIONS/ISOTOPESVOL :', values4)
+            values4 = py_compo_obj[DIR]['MIXTURES'][mix_idx]['CALCULATIONS'][calc_idx]['MIXTURESVOL']
+            print('MIXTURES/CALCULATIONS/MIXTURESVOL :', values4)
 
         
-        # Get the number of isotopes per mixture
-        num_iso = np.shape(py_compo_obj[DIR]['MIXTURES'][0]['CALCULATIONS'][0]['ISOTOPESDENS'])[0] - 1
-        print('Number of isotopes per mixture :', num_iso)
+    # Get the number of isotopes per mixture
+    num_iso = np.shape(py_compo_obj[DIR]['MIXTURES'][0]['CALCULATIONS'][0]['ISOTOPESDENS'])[0] - 1
+    print('Number of isotopes per mixture :', num_iso)
 
 
 

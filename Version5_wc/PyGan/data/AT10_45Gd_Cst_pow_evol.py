@@ -64,7 +64,7 @@ ssh_options = ["RSE"]
 # 4) Selecting the burnup calculation options
 # burnup_steps = "UOx", "UOx_autop5", "UOx2_autop5", "UOx4_autop5", "UOx6_autop5" etc
 #
-burnup_steps_to_test = ["Gd", "Gd_autop3", "Gd_autop4"]
+burnup_steps_to_test = ["Gd_autop3", "Gd_autop4"]
 
 # 5) Selecting the burnup calculation options
 # Solver : "RUNG" or "KAPS"
@@ -72,7 +72,7 @@ burnup_steps_to_test = ["Gd", "Gd_autop3", "Gd_autop4"]
 # val_exp : list of values to impose saturation for isotopes with lambda * (xtf - xti) >= val_exp
 #
 solver_options = ["RUNG"]
-saturation_options = ["NODI", "DIRA"]
+saturation_options = ["NODI"]
 
 # 6) Selecting the energy deposition options
 # Global energy deposition : "NOGL"=only energy release in fuel is used for normalization or "GLOB" = global energy release model, 
@@ -88,7 +88,7 @@ Njoy_versions = ["pynjoy2012","NJOY2016"], #"PyNjoy2016"
 ######## 
 # Result handling and creation of the results directory
 #
-tracked_nuclides = ["U235","U238","U234","Pu239","Pu240","Pu241","Pu242","Am241","Xe135","Sm149","Gd155","Gd157"]
+tracked_nuclides = ["U235","U238","Pu239","Pu240","Pu241","Pu242","Am241","Xe135","Sm149","Gd155","Gd157"]
 
 #
 # Create the results directory
@@ -107,7 +107,7 @@ if not os.path.exists(save_dir_comparison):
 
 
 ### BEGIN DRAGON5 calculations ###
-D5_cases = {}
+D5_cases = []
 for trk_opt in tracking_options:
     if trk_opt == "SALT":
         # geometry definition
@@ -121,9 +121,12 @@ for trk_opt in tracking_options:
         print("Tracking option not recognized")
         sys.exit(1)
     for dlib_name in draglibs:
+        print(f"Library : {dlib_name}")
         for ssh_opt in ssh_options:
+            print(f"Self-shielding option : {ssh_opt}")
             LIB = MIX_C(dlib_name,ssh_opt)
             for burnup_points in burnup_steps_to_test:
+                print(f"Burnup points : {burnup_points}")
                 # Recovering ListBU ListAUTOP ListCOMPO
                 [ListeBU,ListeAUTOP,ListeCOMPO]=getLists(burnup_points)
                 BU_lists = {"BU": ListeBU, "AUTOP": ListeAUTOP, "COMPO": ListeCOMPO}
@@ -135,54 +138,53 @@ for trk_opt in tracking_options:
                 StepList.close() # close without erasing
 
                 for solver_opt in solver_options:
+                    print(f"Solver option : {solver_opt}")
                     for sat_opt in saturation_options:
-                        for glob_opt in ene_deposition_options: 
+                        print(f"Saturation option : {sat_opt}")
+                        for glob_opt in ene_deposition_options:
+                            print(f"Global energy deposition option : {glob_opt}") 
                             name_compo = f"COMPO_AT10_45Gd_{dlib_name}_{ssh_opt}_{trk_opt}_{solver_opt}_{sat_opt}_{glob_opt}_{burnup_points}"
                             if trk_opt == "SALT":
                                 CPO = BU_C("COMPO", LIB, TRK, TF_EXC, TRK_SS, TF_EXC_SS, StepList, name_compo, ssh_opt, solver_opt, glob_opt, sat_opt, val_exp = 80.0)
                             elif trk_opt == "SYBNXT": 
                                 CPO = BU_C_SYBNXT("COMPO", LIB, TRK, TF_EXC, TRK_SS, TF_EXC_SS, StepList, name_compo, ssh_opt, solver_opt, glob_opt, sat_opt, val_exp = 80.0)
+                            print(f"creating D5 case for {name_compo}")
                             D5case = D5_case(CPO, dlib_name, burnup_points, ssh_opt, "noCORR", sat_opt, solver_opt, tracked_nuclides, BU_lists, save_dir_D5)
                             D5case.plot_keffs()
                             for iso in tracked_nuclides:
                                 D5case.plot_Ni(iso)
-                            D5_cases[name_compo] = CPO
+                            D5_cases.append(D5case)
 
 ### BEGIN SERPENT2 post treatment
                             
 
 
-S2_endfb8r1_edep0 = S2_case("AT10_45Gd", "endfb8r1_pynjoy2012", 0, False, 1, 38.6, tracked_nuclides, save_dir_S2)
-S2_endfb8r1_edep0.plot_keffs()
+S2_endfb8r1_edep0_pcc1 = S2_case("AT10_45Gd", "endfb8r1_pynjoy2012", 0, False, 1, 38.6, tracked_nuclides, save_dir_S2)
+S2_endfb8r1_edep0_pcc1.plot_keff()
 for iso in tracked_nuclides:
-    S2_endfb8r1_edep0.plot_Ni(iso)
+    S2_endfb8r1_edep0_pcc1.plot_concentrations([iso])
 
-S2_endfb8r1_edep1 = S2_case("AT10_45Gd", "endfb8r1_pynjoy2012", 1, False, 1, 38.6, tracked_nuclides, save_dir_S2)
-S2_endfb8r1_edep1.plot_keffs()
-for iso in tracked_nuclides:
-    S2_endfb8r1_edep1.plot_Ni(iso)
+#S2_endfb8r1_edep1 = S2_case("AT10_45Gd", "endfb8r1_pynjoy2012", 1, False, 1, 38.6, tracked_nuclides, save_dir_S2)
+#S2_endfb8r1_edep1.plot_keffs()
+#for iso in tracked_nuclides:
+#    S2_endfb8r1_edep1.plot_Ni(iso)
 
-S2_cases = [S2_endfb8r1_edep0, S2_endfb8r1_edep1]
-
-for case in S2_cases:
-    case.plot_keffs()
-    for iso in tracked_nuclides:
-        case.plot_Ni(iso)
+#S2_cases = [S2_endfb8r1_edep0, S2_endfb8r1_edep1]
 
 ### Compare DRAGON5 and SERPENT2 results
 
-D5_cases_to_endfb8r1_edep0 = multiD5S2("AT10_45Gd constant power evolution, Serpent2 edep0", D5_cases, S2_endfb8r1_edep0, tracked_nuclides, save_dir_comparison)
-D5_cases_to_endfb8r1_edep1 = multiD5S2("AT10_45Gd constant power evolution, Serpent2 edep1", D5_cases, S2_endfb8r1_edep1, tracked_nuclides, save_dir_comparison)
+D5_cases_to_endfb8r1_edep0 = multiD5S2("AT10_45Gd constant power evolution, Serpent2 edep0", D5_cases, S2_endfb8r1_edep0_pcc1, tracked_nuclides, save_dir_comparison)
+#D5_cases_to_endfb8r1_edep1 = multiD5S2("AT10_45Gd constant power evolution, Serpent2 edep1", D5_cases, S2_endfb8r1_edep1, tracked_nuclides, save_dir_comparison)
 
 D5_cases_to_endfb8r1_edep0.compare_keffs()
-D5_cases_to_endfb8r1_edep1.compare_keffs()
+#D5_cases_to_endfb8r1_edep1.compare_keffs()
 
 D5_cases_to_endfb8r1_edep0.compare_Ni()
-D5_cases_to_endfb8r1_edep1.compare_Ni()
+#D5_cases_to_endfb8r1_edep1.compare_Ni()
 
 D5_cases_to_endfb8r1_edep0.plot_delta_Keff()
-D5_cases_to_endfb8r1_edep1.plot_delta_Keff()
+#D5_cases_to_endfb8r1_edep1.plot_delta_Keff()
 D5_cases_to_endfb8r1_edep0.plot_delta_Ni()
-D5_cases_to_endfb8r1_edep1.plot_delta_Ni()
+#D5_cases_to_endfb8r1_edep1.plot_delta_Ni()
 
 

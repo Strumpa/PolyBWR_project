@@ -44,33 +44,38 @@ def parse_Serpent2_lattice_det(path_to_S2, name_case, edepmode, bu):
     else:
         detector = st.read(f"{path_to_S2}/{name_case}_edep{edepmode}_mc_det{bu}.m")
 
-    print(detector.detectors)
-    print(detector.detectors["_pins_2G"].tallies)
-    print(detector.detectors["_pins_2G"].tallies.shape) # shape = (2, 4, 10) = (energy group, cell, repsonse to mt ?)
+    ### _pins_2G is a lattice detector
+    #print(detector.detectors)
+    #print(detector.detectors["_pins_2G"].tallies)
+    #print(detector.detectors["_pins_2G"].tallies.shape) # shape = (2, 4, 10) = (energy group, cell, repsonse to mt ?)
     # Requested 2G energy groups, 4 cells/pins in the 2x2 lattice and 10 tallies / reactions (MT) in the detector
     # Reactions : MT=102 U235, U238, Pu239, Pu241, Xe135, Sm149 (microscopic rates), MT = -6 : fission macroscopic rates for U235, U238, Pu239, Pu241
     ngroups = detector.detectors["_pins_2G"].tallies.shape[0]
     ncells = detector.detectors["_pins_2G"].tallies.shape[1]
     ntallies = detector.detectors["_pins_2G"].tallies.shape[2]
     tally_index_to_react = {0: "U235_ngamma", 1: "U238_ngamma", 2: "Pu239_ngamma", 3: "Pu241_ngamma", 4: "Xe135_ngamma", 5: "Sm149_ngamma", 6: "U235_fiss", 7: "U238_fiss", 8: "Pu239_fiss", 9: "Pu241_fiss"}
-
+    N_U235 = [5.67035E-04, 7.560370E-04, 7.560370E-04, 1.051340E-03] # U235 densities in each cell
     reaction_rates = {}
-    U235_fiss_rates_S2 = {}
+    U235_fiss_rates_S2_lat_det = {}
     # Extracting the detector response
     # Strange that responses are not 0 for Pu isotopes fission rates at bu = 0 ?
     for i in range(ngroups):
         for j in range(ncells):
-            if f"cell{j+1}" not in U235_fiss_rates_S2.keys():
-                U235_fiss_rates_S2[f"cell{j+1}"] = {}
+            if f"cell{j+1}" not in U235_fiss_rates_S2_lat_det.keys():
+                U235_fiss_rates_S2_lat_det[f"cell{j+1}"] = {}
             for k in range(ntallies):
-                #print(f"Energy group {i+1}, Cell {j+1}, Reaction {tally_index_to_react[k]} : {detector.detectors['_pins_2G'].tallies[i,j,k]}")
-                print(detector.detectors['_pins_2G'].tallies[i,j,k])
+                print(f"Energy group {i+1}, Cell {j+1}, Reaction {tally_index_to_react[k]} : {detector.detectors['_pins_2G'].tallies[i,j,k]}")
+                #print(detector.detectors['_pins_2G'].tallies[i,j,k])
+                if tally_index_to_react[k] not in reaction_rates.keys():
+                    reaction_rates[tally_index_to_react[k]] = {}
+                reaction_rates[tally_index_to_react[k]][f"cell{j+1}_G{i+1}"] = detector.detectors['_pins_2G'].tallies[i,j,k]    
                 # For now extracting only the fission rates of U235
                 if k == 6:
-                    reaction_rates[f"U235_fiss_cell{j+1}_G{i+1}"] = detector.detectors['_pins_2G'].tallies[i,j,k]
+                    #reaction_rates[f"U235_fiss_cell{j+1}_G{i+1}"] = detector.detectors['_pins_2G'].tallies[i,j,k]*N_U235[f"C{j+1}"]
                     
-                    U235_fiss_rates_S2[f"cell{j+1}"][f"G{i+1}"] = detector.detectors['_pins_2G'].tallies[i,j,k]
-    return U235_fiss_rates_S2
+                    U235_fiss_rates_S2_lat_det[f"cell{j+1}"][f"G{i+1}"] = detector.detectors['_pins_2G'].tallies[i,j,k]*N_U235[j]
+
+    return reaction_rates
 
 def renormalize_rates(rates):
     """
@@ -127,7 +132,7 @@ def BWR_CLUSTER(name_geom, name_case, name_compo, reaction_type, n_groups, bu):
     path = os.getcwd()
     # List of all the files in the current directory
     files = os.listdir(path)
-    print(files)
+    #print(files)
     #print('$----------------------------'+path)
     
     # --- Creating the results storage directory
@@ -137,19 +142,21 @@ def BWR_CLUSTER(name_geom, name_case, name_compo, reaction_type, n_groups, bu):
         os.mkdir(name_DIR)
     
     # Access paths to multicompo and serpent results in Resultats_serpent4PyGan
-    SERPENT_path = f'{os.environ["SERPENT_RESULTS"]}/PyNjoy2016_results/{name_geom}/'
-    
+    #SERPENT_path = f'{os.environ["SERPENT_RESULTS"]}/PyNjoy2016_results/{name_geom}/'
+    SERPENT_path = f'{os.environ["SERPENT_RESULTS"]}'
     # Recovering multi-compos
     #name_compo = 'COMPO_' + name_geom + name_case 
     print(f"name_compo = {name_compo}")
     lenBU_D5 = 1
-    os.chdir("BWRresults_PyGan_2x2_UOX/")
+    os.chdir("Linux_aarch64/")
+    #print(name_compo)
     pyCOMPO = lcm.new('LCM_INP', name_compo, impx=0)
     os.chdir(path)
     #print(pyCOMPO['EDIBU_2gr']['MIXTURES'][0]['CALCULATIONS'][0]['MIXTURESVOL'])
 
     # Parse Serpent2 results
-    U235_fission_rates_S2 = parse_Serpent2_lattice_det(SERPENT_path, name_case, 2, 0)
+    reaction_rates = parse_Serpent2_lattice_det(SERPENT_path, name_case, edepmode=0, bu=0)
+    U235_fission_rates_S2 = reaction_rates["U235_fiss"]
 
     MIXES_S2 = [0,1,2,3]
     if name_geom == "AT10_2x2":
@@ -167,7 +174,8 @@ def BWR_CLUSTER(name_geom, name_case, name_compo, reaction_type, n_groups, bu):
     n_reac = 6
     rates_names = 'fission rates'
     #pyCOMPO['EDIBU'].lib()
-    len_isotot = np.shape(pyCOMPO['EDIBU']['MIXTURES'][0]['CALCULATIONS'][0]['ISOTOPESDENS'])[0] - 1
+    #print(pyCOMPO.keys())
+    len_isotot = np.shape(pyCOMPO['EDIBU_HOM']['MIXTURES'][0]['CALCULATIONS'][0]['ISOTOPESDENS'])[0] - 1
     ########## CALCULATIONS ##########
     
     # Calcul du facteur de normalisation
@@ -180,58 +188,69 @@ def BWR_CLUSTER(name_geom, name_case, name_compo, reaction_type, n_groups, bu):
     Iso_index_to_ALIAS = {}
     U235_fiss_rate = {}
     for iso in range(len_isotot):
-        isotope = pyCOMPO['EDIBU']['MIXTURES'][0]['CALCULATIONS'][0]['ISOTOPESLIST'][iso]['ALIAS'][0:5]
-        print(f"isotope = {isotope}, iso number = {iso}")
+        isotope = pyCOMPO['EDIBU_HOM']['MIXTURES'][0]['CALCULATIONS'][0]['ISOTOPESLIST'][iso]['ALIAS'][0:5]
+        #print(f"isotope = {isotope}, iso number = {iso}")
         Iso_index_to_ALIAS[iso] = isotope
     for iso in range(len_isotot):
-        print(f"iso index = {iso}, isotope = {Iso_index_to_ALIAS[iso]}")
-        isotope = pyCOMPO['EDIBU']['MIXTURES'][0]['CALCULATIONS'][0]['ISOTOPESLIST'][iso]['ALIAS'][0:5]
-        print(f"isotope = {isotope}")
+        #print(f"iso index = {iso}, isotope = {Iso_index_to_ALIAS[iso]}")
+        isotope = pyCOMPO['EDIBU_HOM']['MIXTURES'][0]['CALCULATIONS'][0]['ISOTOPESLIST'][iso]['ALIAS'][0:5]
+        #print(f"isotope = {isotope}")
         if isotope in ['U235 ']: #, 'U238 ']: #, 'Pu239', 'Pu241']:
             for mix in MIXES_idx:
                 U235_fiss_rate[f"mix{mix+1}"] = {}
                 if mix == 1:
                     U235_fiss_rate[f"mix{mix+1}_sym"] = {}
-                NWT0 = pyCOMPO['EDIBU_2gr']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NWT0']
-                N = pyCOMPO['EDIBU']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESDENS'][iso]
-                vol = pyCOMPO['EDIBU']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESVOL'][iso]
-                NFTOT = pyCOMPO['EDIBU_2gr']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NFTOT']
+                NWT0 = pyCOMPO['HOM2g']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NWT0']
+                N = pyCOMPO['HOM1g']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESDENS'][iso]
+                vol = pyCOMPO['HOM1g']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESVOL'][iso]
+                NFTOT = pyCOMPO['HOM2g']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NFTOT']
+                #print(f"for mix {mix} :")
+                #print(f"for isotope {isotope}, NFTOT = {NFTOT}")
+                #print(f"for isotope {isotope}, NWT0 = {NWT0}")
+                #print(f"for isotope {isotope}, N = {N}")
+                #print(f"for isotope {isotope}, vol = {vol}")
 #                NGAMMA = pyCOMPO['EDIBU_2gr']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NG']
                 
                 for gr in range(n_groups):
 #                    prodD5 += 6*NWT0[gr]*(NFTOT[gr]+NGAMMA[gr])*N*vol
                     prodD5 += NWT0[gr]*NFTOT[gr]*N*vol
-                    U235_fiss_rate[f"mix{mix+1}"][f"gr{gr+1}"] = NFTOT[gr]*NWT0[gr]*N*vol
-                    print(f"mix{mix+1}, gr{gr+1}, U235_fiss_rate = {U235_fiss_rate[f'mix{mix+1}'][f'gr{gr+1}']}")
                     if mix == 1:
-                        U235_fiss_rate[f"mix{mix+1}_sym"][f"gr{gr+1}"] = NFTOT[gr]*NWT0[gr]*N*vol
+                        U235_fiss_rate[f"mix{mix+1}_sym"][f"gr{gr+1}"] = NFTOT[gr]*NWT0[gr]*N*vol/2
+                        U235_fiss_rate[f"mix{mix+1}"][f"gr{gr+1}"] = NFTOT[gr]*NWT0[gr]*N*vol/2
+                    else:
+                        U235_fiss_rate[f"mix{mix+1}"][f"gr{gr+1}"] = NFTOT[gr]*NWT0[gr]*N*vol
+                        #print(f"mix{mix+1}, gr{gr+1}, U235_fiss_rate = {U235_fiss_rate[f'mix{mix+1}'][f'gr{gr+1}']}")
+
     
-    print('$$$$$$$$$$$$$$$$$$$$$$$$$$', prodS2,prodD5)
-    print([U235_fiss_rate[f"mix{mix+1}"][f"gr1"] for mix in MIXES_idx])
-    print([U235_fission_rates_S2[f"cell{mix_idx+1}"][f"G1"] for mix_idx in MIXES_S2])
+    #print('$$$$$$$$$$$$$$$$$$$$$$$$$$', prodS2,prodD5)
+    #print([U235_fiss_rate[f"mix{mix+1}"][f"gr1"] for mix in MIXES_idx])
+    #print([U235_fission_rates_S2[f"cell{mix_idx+1}"][f"G1"] for mix_idx in MIXES_S2])
     
 
     
     # normalize the rates : sum of rates = nCells
     # group 1 : U235 fast fissions : note that group numbers are in increasing lethargy in Dragon and in increasing energy in Serpent
     U235_fiss_rate_norm_1 = renormalize_rates([U235_fiss_rate[mix_key][f"gr1"] for mix_key in U235_fiss_rate.keys()])
-    U235_fission_rates_S2_norm_1 = renormalize_rates([U235_fission_rates_S2[f"cell{mix_idx+1}"][f"G2"] for mix_idx in MIXES_S2])
+    U235_fission_rates_S2_norm_1 = renormalize_rates([U235_fission_rates_S2[f"cell{mix_idx+1}_G2"] for mix_idx in MIXES_S2])
 
     # group 2 : U235 thermal fissions
     U235_fiss_rate_norm_2 = renormalize_rates([U235_fiss_rate[mix_key][f"gr2"] for mix_key in U235_fiss_rate.keys()])
-    U235_fission_rates_S2_norm_2 = renormalize_rates([U235_fission_rates_S2[f"cell{mix_idx+1}"][f"G1"] for mix_idx in MIXES_S2])
+    U235_fission_rates_S2_norm_2 = renormalize_rates([U235_fission_rates_S2[f"cell{mix_idx+1}_G1"] for mix_idx in MIXES_S2])
 
-    print(f"G1 : U235_fiss_rate_norm = {U235_fiss_rate_norm_1}")
-    print(f"G1 : U235_fission_rates_S2_norm = {U235_fission_rates_S2_norm_1}")
+    #print(f"G1 : U235_fiss_rate_norm = {U235_fiss_rate_norm_1}")
+    #U235_fiss_rate_norm_1 = U235_fiss_rate_norm_1[::-1]
+    #print(f"G1 : U235_fission_rates_S2_norm = {U235_fission_rates_S2_norm_1}")
+    relative_difference1 = [(U235_fiss_rate_norm_1[i] - U235_fission_rates_S2_norm_1[i])*100/U235_fission_rates_S2_norm_1[i] for i in range(nCell)]
+    #print(f"relative difference G1 = {relative_difference1} %")
 
+    #print(f"G2 : U235_fiss_rate_norm = {U235_fiss_rate_norm_2}")
+    #U235_fiss_rate_norm_2 = U235_fiss_rate_norm_2[::-1]
+    #print(f"G2 : U235_fission_rates_S2_norm = {U235_fission_rates_S2_norm_2}")
 
+    relative_difference2 = [(U235_fiss_rate_norm_2[i] - U235_fission_rates_S2_norm_2[i])*100/U235_fission_rates_S2_norm_2[i] for i in range(nCell)]
+    #print(f"relative difference G2 = {relative_difference2}%")
 
-    print(f"G2 : U235_fiss_rate_norm = {U235_fiss_rate_norm_2}")
-    print(f"G2 : U235_fission_rates_S2_norm = {U235_fission_rates_S2_norm_2}")
-
-
-
-
+    return relative_difference1, relative_difference2
 
 # Execute post treatment procedure
 
@@ -241,13 +260,35 @@ AT10_2x2_CLUSTER_GD=['AT10_2x2_UOX_Gd', '_UOx6_autop5_PT_MOC_noCalc']
 
 name_geom = "AT10_2x2"
 name_case = "AT10_2x2_UOX"
-name_compo = "COMPO_AT10_2x2_UOX_UOx6_autop5_PT_MOC_noCalc" 
+name_compo = "COMPO_2x2_UOX_inrs1" 
 print(f"name_geom = {name_geom}, name_case = {name_case}, name_compo = {name_compo}")
-BWR_CLUSTER(name_geom, name_case, name_compo, 'fission', 2, 0)
 
+diffg1,diffg2 = BWR_CLUSTER(name_geom, name_case, "COMPO_2x2_UOX", 'fission', 2, 0)
+print(f"diffg1 = {diffg1}")
+print(f"diffg2 = {diffg2}")
 
+diffg1, diffg2 = BWR_CLUSTER(name_geom, name_case, "COMPO_2x2_UOX_inrs1", 'fission', 2, 0)
+print(f"diffg1_inrs1 = {diffg1}")
+print(f"diffg2_inrs1 = {diffg2}")
 
+diffg1, diffg2 = BWR_CLUSTER(name_geom, name_case, "COMPO_2x2_UOX_finer_MOC", 'fission', 2, 0)
+print(f"diffg1_finerMOC = {diffg1}")
+print(f"diffg2_finerMOC = {diffg2}")
 
+diffg1, diffg2 = BWR_CLUSTER(name_geom, name_case, "COMPO_2x2_UOX_noMERGMIX", 'fission', 2, 0)
+print(f"diffg1_noMERGMIX = {diffg1}")
+print(f"diffg2_noMERGMIX = {diffg2}")
 
+diffg1, diffg2 = BWR_CLUSTER(name_geom, name_case, "COMPO_2x2_UOX_CORR", 'fission', 2, 0)
+print(f"diffg1_CORR = {diffg1}")
+print(f"diffg2_CORR = {diffg2}")
+
+diffg1, diffg2 = BWR_CLUSTER(name_geom, name_case, "COMPO_2x2_UOX_CORR_finerSSH", 'fission', 2, 0)
+print(f"diffg1_finerSSH+CORR = {diffg1}")
+print(f"diffg2_finerSSH+CORR = {diffg2}")
+
+diffg1, diffg2 = BWR_CLUSTER(name_geom, name_case, "COMPO_2x2_UOX_finerSSH", 'fission', 2, 0)
+print(f"diffg1_finerSSH = {diffg1}")
+print(f"diffg2_finerSSH = {diffg2}")
 
 
