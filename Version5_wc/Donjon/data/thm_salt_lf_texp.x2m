@@ -1,0 +1,117 @@
+*=====================================================================*
+* FILE:           thm_salt_of.x2m
+* TYPE:           DONJON input file
+* AUTHOR:         Cristian Garrido Tamm (cristian.garrido@idom.com)
+* PURPOSE:        Single pincell surrounded by FLiBe as coolant to
+*                 test the Molten Salt thermalhydraulics in THM.
+*                 Version considering fuel thermal axial expansion
+* CREATION DATE:  Wednesday Aug 16, 2023 21:13:01 CEST
+* LAST MODIFIED:  Saturday Feb 08, 2025 11:46:34 CET
+*=====================================================================*
+*---
+* DEFINE MODULES
+*---
+MODULE      GEO: RESINI: TRIVAT: TRIVAA: GREP: FIND0: NCR: FLUD: FLPOW:
+            MACINI: USPLIT: TINST: UTL: DELETE: ABORT: THM: END: ;
+*---
+* DEFINE PROCEDURES
+*---
+PROCEDURE   assertS thermExp ;
+*---
+* DEFINE DATA STRUCTURES
+*---
+LINKED_LIST Geom Track Flux Cpo Matex Lib MicroF MacroF Macro2 Fmap
+            System Power Burnup Thm MeshZ ;
+*---
+* DEFINE VARIABLES
+*---
+* Constants
+STRING DOUBLE_LINE := 
+"====================================================================" ;
+STRING SINGLE_LINE := 
+"--------------------------------------------------------------------" ;
+LOGICAL True False := $True_L $False_L ;
+STRING FILENAME := 'thm_salt_of' ;
+INTEGER MaxR := 10000 ;
+REAL Pi := 3.14159 ;
+* Input data
+REAL maxh := 100.0 ; ! cm
+REAL Cote := 1.26  ; ! cm
+REAL Rfuel := 4.55063E-1 ; ! cm
+REAL Rclad := 5.00184E-1 ; ! cm
+REAL Fuelpwr := 500.0 ; ! kW/l or W/cm3
+REAL Ucool := 3.0 ; ! m/s
+REAL Mass := 1.38694485303289E-01 ; ! kg
+REAL Tfuel := 800.15 ; (*fuel temperature (K)*)
+REAL Tcool :=  800.15 ; (*coolant temperature (K)*)
+REAL maxH := 5.000 ; ! Maximum axial node height (cm)
+REAL rhoA rhoB := 2.68 0.000685 ; ! rho in g/cm3
+REAL CONV := 1E-5 ;
+REAL A1 B1 T1 A2 B2 T2 := 400. 50. 0.5 -200. 250.0 0.9 ; ! Power time law
+* Variables
+REAL totH ; ! total height in current iteration (cm)
+REAL totH1 := 0.0 ; ! total height in previous iteration (cm)
+REAL deltaH ; ! difference in total height between two consecutive iterations
+INTEGER istep := 0 ; ! step counter
+REAL t tend dt := 0.0 1.0 0.01 ; ! time, end time, time step (s)
+REAL powi Volume ;
+
+*---
+* BEGIN CALCULATION
+*---
+ECHO DOUBLE_LINE ;
+ECHO 'BEGIN INPUT ' FILENAME ;
+ECHO DOUBLE_LINE ;
+
+* REAL Volume := Pi Rfuel * Rfuel * maxh * ; ! cm3
+* ECHO "Volume =" Volume "cm3" ;
+* REAL powi := Fuelpwr Volume * 1.E6 / ;
+* * EVALUATE powi := powi 1E3 * 20.0 / ;
+* ECHO "total reactor power=" powi "MW" ;
+
+WHILE t tend <= DO
+  EVALUATE istep := istep 1 + ;
+
+  IF t 0.0 > THEN
+    Geom Matex Fmap Thm := DELETE: Geom Matex Fmap Thm ;
+  ENDIF ;
+  IF t T1 <= THEN
+    EVALUATE Fuelpwr := A1 t * B1 + ;
+  ELSEIF t T1 > t T2 <= + THEN
+    EVALUATE Fuelpwr := t T1 - A2 * B2 + ;
+  ENDIF ;
+  EVALUATE Volume := Pi Rfuel * Rfuel * maxh * ; ! cm3
+  EVALUATE powi := Fuelpwr Volume * 1.E6 / ;
+
+  Geom Matex Fmap Thm := thermExp ::
+  <<Cote>> <<Rfuel>> <<Mass>> <<rhoA>> 
+  <<rhoB>> <<maxH>> <<powi>> 
+  >>totH<< ;
+
+  GREP: Thm :: GETVAL 'AVG-T-FUEL  ' 1 * >>Tfuel<< ;
+  GREP: Thm :: GETVAL 'AVG-T-COOL  ' 1 * >>Tcool<< ;
+  ECHO "%%9 istep t powi totH Tfuel Tcool = " istep t Fuelpwr totH 
+    Tfuel Tcool ;
+
+  EVALUATE t := t dt + ;
+ENDWHILE ;
+assertS Thm :: AVG-T-FUEL 1 1.014064E3 ;
+assertS Thm :: AVG-T-COOL 1 8.043126E2 ;
+
+*--
+* Dump objects
+*--
+UTL: Thm :: DIR DUMP ;
+UTL: Fmap :: DIR DUMP ;
+UTL: Geom :: DIR DUMP ;
+
+*---
+* END CALCULATION
+*---
+ECHO DOUBLE_LINE ;
+ECHO "END INPUT " FILENAME ;
+ECHO DOUBLE_LINE ;
+
+ECHO "test thm_salt_lf_texp.x2m completed" ;
+END: ;
+QUIT .

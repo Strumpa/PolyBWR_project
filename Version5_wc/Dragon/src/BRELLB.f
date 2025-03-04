@@ -1,5 +1,5 @@
 *DECK BRELLB
-      SUBROUTINE BRELLB(IPMAC1,NC,NG,NMIX1,ENER,JXM,FHETXM,IPRINT)
+      SUBROUTINE BRELLB(IPMAC1,NC,NG,NL,NMIX1,ENER,JXM,FHETXM,IPRINT)
 *
 *-----------------------------------------------------------------------
 *
@@ -19,6 +19,8 @@
 * IPMAC1  nodal macrolib.
 * NC      number of sn macrolibs (=2: Lefebvre-Lebigot method).
 * NG      number of energy groups.
+* NL      Legendre order of TOT1 and SCAT1 arrays (=1 for isotropic
+*         scattering in LAB).
 * NMIX1   number of mixtures in the nodal calculation.
 * ENER    energy limits.
 * JXM     left boundary currents.
@@ -36,8 +38,8 @@
 *  SUBROUTINE ARGUMENTS
 *----
       TYPE(C_PTR) IPMAC1
-      INTEGER NC,NG,NMIX1,IPRINT
-      REAL ENER(NG+1),JXM(NMIX1,NG,NC),FHETXM(NMIX1,NG,NC)
+      INTEGER NC,NG,NL,NMIX1,IPRINT
+      REAL ENER(NG+1),JXM(NMIX1,NG,NC),FHETXM(NMIX1,NG,NL,NC)
 *----
 *  LOCAL VARIABLES
 *----
@@ -67,9 +69,9 @@
 *----
       IBM=1
       DO IC=1,NC
-        BF1BF2(IC)=FHETXM(IBM,2,IC)/FHETXM(IBM,1,IC)
-        CUR1BF1(IC)=JXM(IBM,1,IC)/FHETXM(IBM,1,IC)
-        CUR2BF1(IC)=JXM(IBM,2,IC)/FHETXM(IBM,1,IC)
+        BF1BF2(IC)=FHETXM(IBM,2,1,IC)/FHETXM(IBM,1,1,IC)
+        CUR1BF1(IC)=JXM(IBM,1,IC)/FHETXM(IBM,1,1,IC)
+        CUR2BF1(IC)=JXM(IBM,2,IC)/FHETXM(IBM,1,1,IC)
       ENDDO
       DIF(1)=1.3
       DIF(2)=0.4

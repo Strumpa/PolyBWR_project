@@ -1,5 +1,5 @@
 *DECK BREERA
-      SUBROUTINE BREERA(IPMAC1,NC,NG,LX1,NMIX1,IMIX,ICODE,ISPH,ZKEFF,
+      SUBROUTINE BREERA(IPMAC1,NC,NG,NL,LX1,NMIX1,IMIX,ICODE,ISPH,ZKEFF,
      1 B2,ENER,XXX1,VOL1,FLX1,DC1,TOT1,CHI1,SIGF1,SCAT1,JXM,JXP,FHETXM,
      2 FHETXP,ADF1,NGET,ADFREF,IPRINT)
 *
@@ -21,6 +21,8 @@
 * IPMAC1  nodal macrolib.
 * NC      number of sn macrolibs.
 * NG      number of energy groups.
+* NL      Legendre order of TOT1 and SCAT1 arrays (=1 for isotropic
+*         scattering in LAB).
 * LX1     number of nodes in the reflector model.
 * NMIX1   number of mixtures in the nodal calculation.
 * IMIX    mix index of each node.
@@ -55,12 +57,12 @@
 *  SUBROUTINE ARGUMENTS
 *----
       TYPE(C_PTR) IPMAC1
-      INTEGER NC,NG,LX1,NMIX1,IMIX(LX1),ICODE(2),ISPH,NGET,IPRINT
+      INTEGER NC,NG,NL,LX1,NMIX1,IMIX(LX1),ICODE(2),ISPH,NGET,IPRINT
       REAL ZKEFF(NC),B2(NC),ENER(NG+1),XXX1(LX1+1),VOL1(NMIX1,NC),
-     1 FLX1(NMIX1,NG,NC),DC1(NMIX1,NG,NC),TOT1(NMIX1,NG,NC),
-     2 CHI1(NMIX1,NG,NC),SIGF1(NMIX1,NG,NC),SCAT1(NMIX1,NG,NG,NC),
-     3 JXM(NMIX1,NG,NC),JXP(NMIX1,NG,NC),FHETXM(NMIX1,NG,NC),
-     4 FHETXP(NMIX1,NG,NC),ADF1(NMIX1,NG,NC),ADFREF(NG)
+     1 FLX1(NMIX1,NG,NC),DC1(NMIX1,NG,NC),TOT1(NMIX1,NG,NL,NC),
+     2 CHI1(NMIX1,NG,NC),SIGF1(NMIX1,NG,NC),SCAT1(NMIX1,NG,NG,NL,NC),
+     3 JXM(NMIX1,NG,NC),JXP(NMIX1,NG,NC),FHETXM(NMIX1,NG,NL,NC),
+     4 FHETXP(NMIX1,NG,NL,NC),ADF1(NMIX1,NG,NC),ADFREF(NG)
 *----
 *  LOCAL VARIABLES
 *----
@@ -109,11 +111,11 @@
           DO IGR=1,NG
             FLX(IBM,IGR)=FLX(IBM,IGR)+FLX1(IBM,IGR,IC)
             DC(IBM,IGR)=DC(IBM,IGR)+DC1(IBM,IGR,IC)
-            TOT(IBM,IGR)=TOT(IBM,IGR)+TOT1(IBM,IGR,IC)
+            TOT(IBM,IGR)=TOT(IBM,IGR)+TOT1(IBM,IGR,1,IC)
             CHI(IBM,IGR)=CHI(IBM,IGR)+CHI1(IBM,IGR,IC)
             SIGF(IBM,IGR)=SIGF(IBM,IGR)+SIGF1(IBM,IGR,IC)
             DO JGR=1,NG
-              SCAT(IBM,IGR,JGR)=SCAT(IBM,IGR,JGR)+SCAT1(IBM,IGR,JGR,IC)
+             SCAT(IBM,IGR,JGR)=SCAT(IBM,IGR,JGR)+SCAT1(IBM,IGR,JGR,1,IC)
             ENDDO
             ADF(IBM,IGR)=ADF(IBM,IGR)+ADF1(IBM,IGR,IC)
           ENDDO
@@ -140,14 +142,13 @@
           IBM=IMIX(I)
           IF(IBM.EQ.0) CYCLE
           WORK1(:NG)=DC1(IBM,:NG,IC)
-          WORK3(:NG,:NG)=SCAT1(IBM,:NG,:NG,IC)
+          WORK3(:NG,:NG)=SCAT1(IBM,:NG,:NG,1,IC)
           WORK4(:NG)=CHI1(IBM,:NG,IC)
           WORK5(:NG)=SIGF1(IBM,:NG,IC)
           DO IGR=1,NG
             IF(SIGF1(IBM,IGR,IC).GT.0.0) J_FUEL=I
-            DIFF=DC1(IBM,IGR,IC)
-            WORK2(IGR)=TOT1(IBM,IGR,IC)+B2(IC)*DC1(IBM,IGR,IC)-
-     1      SCAT1(IBM,IGR,IGR,IC)
+            WORK2(IGR)=TOT1(IBM,IGR,1,IC)+B2(IC)*DC1(IBM,IGR,IC)-
+     1      SCAT1(IBM,IGR,IGR,1,IC)
           ENDDO
           VOL=XXX1(I+1)-XXX1(I)
           CALL NSSLR1(ZKEFF(IC),NG,VOL,WORK1,WORK2,WORK3,WORK4,WORK5,
@@ -186,8 +187,8 @@
           FDXM(IBM,:,:)=0.0
           FDXP(IBM,:,:)=0.0
           DO IGR=1,NG
-            FDXM(IBM,IGR,IGR)=FHETXM(IBM,IGR,1)/REAL(FHOMM(1,IGR,IBM))
-            FDXP(IBM,IGR,IGR)=FHETXP(IBM,IGR,1)/REAL(FHOMP(1,IGR,IBM))
+            FDXM(IBM,IGR,IGR)=FHETXM(IBM,IGR,1,1)/REAL(FHOMM(1,IGR,IBM))
+            FDXP(IBM,IGR,IGR)=FHETXP(IBM,IGR,1,1)/REAL(FHOMP(1,IGR,IBM))
           ENDDO
           IF(IBM.EQ.NMIX1) THEN
             DO IGR=1,NG
@@ -202,7 +203,7 @@
           DO IGR=1,NG
             DO IC=1,NC
               WORK2D(IC,IGR)=FHOMM(IC,IGR,IBM)
-              WORK2D(IC,NG+IGR)=FHETXM(IBM,IGR,IC)
+              WORK2D(IC,NG+IGR)=FHETXM(IBM,IGR,1,IC)
             ENDDO
           ENDDO
           CALL ALSBD(NC,NG,WORK2D,IER,NC)
@@ -215,7 +216,7 @@
           DO IGR=1,NG
             DO IC=1,NC
               WORK2D(IC,IGR)=FHOMP(IC,IGR,IBM)
-              WORK2D(IC,NG+IGR)=FHETXP(IBM,IGR,IC)
+              WORK2D(IC,NG+IGR)=FHETXP(IBM,IGR,1,IC)
             ENDDO
           ENDDO
           CALL ALSBD(NC,NG,WORK2D,IER,NC)
@@ -246,13 +247,13 @@
           ALLOCATE(TAU(NG),B(NC),X(NG))
           CALL ALST2F(NC,NC,NG,FHOMM(1,1,IBM),TAU)
           DO IGR=1,NG
-            B(:)=FHETXM(IBM,IGR,:)
+            B(:)=FHETXM(IBM,IGR,1,:)
             CALL ALST2S(NC,NC,NG,FHOMM(1,1,IBM),TAU,B,X)
             FDXM(IBM,IGR,:)=REAL(X(:))
           ENDDO
           CALL ALST2F(NC,NC,NG,FHOMP(1,1,IBM),TAU)
           DO IGR=1,NG
-            B(:)=FHETXP(IBM,IGR,:)
+            B(:)=FHETXP(IBM,IGR,1,:)
             CALL ALST2S(NC,NC,NG,FHOMP(1,1,IBM),TAU,B,X)
             FDXP(IBM,IGR,:)=REAL(X(:))
           ENDDO

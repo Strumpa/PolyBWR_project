@@ -893,7 +893,7 @@ $[$ \moc{MAXR} \dusa{maxpts} $]$ \\
 $[$ $\{$ \moc{PRIM} $[$ \dusa{ielem} \dusa{icol} $]$ \\
 ~~~~$|$ \moc{DUAL} $[$ \dusa{ielem} \dusa{icol} $]$ \\
 ~~~~$|$ \moc{MCFD} $\}~]$ \\
-$[~\{$ \moc{PN} $|$ \moc{SPN} $\}$ \dusa{n} $[$ \moc{SCAT} $[$ \moc{DIFF} $]$ \dusa{iscat} $]~[$ \moc{VOID} \dusa{nvd}~$]~]$ \\
+$[~\{$ \moc{PN} $|$ \moc{SPN} $\}$ $[$ \moc{DIFF} $]$ \dusa{nlf} $[$ \moc{SCAT} \dusa{iscat} $]~[$ \moc{VOID} \dusa{nvd}~$]~]$ \\
 {\tt ;}
 \end{DataStructure}
 
@@ -945,12 +945,12 @@ Gauss-Legendre quadrature corresponds to superconvergent finite elements.
 of the flux.\cite{nse2005,ane10a} This option is currently available with 1D and 2D Cartesian geometries
 and with 2D hexagonal geometries.
 
-\item[\dusa{n}] order of the $P_n$ or $SP_n$ expansion (odd number). Set to zero for diffusion theory (default value).
+\item[\moc{DIFF}] keyword to force using $1/3D^{g}$ as $\Sigma_1^{g}-\Sigma_{{\rm s}1}^{g}$ cross sections. A $P_1$ or $SP_1$ method
+will therefore behave as diffusion theory.
+
+\item[\dusa{nlf}] order of the $P_n$ or $SP_n$ expansion (odd number). Set to zero for diffusion theory (default value).
 
 \item[\moc{SCAT}] keyword to limit the anisotropy of scattering sources.
-
-\item[\moc{DIFF}] keyword to force using $1/3D^{g}$ as $\Sigma_1^{g}$ cross sections. A $P_1$ or $SP_1$ method
-will therefore behave as diffusion theory.
 
 \item[\dusa{iscat}] number of terms in the scattering sources. \dusa{iscat} $=1$ is used for
 isotropic scattering in the laboratory system. \dusa{iscat} $=2$ is used for
@@ -1038,7 +1038,7 @@ $[$ \moc{EDIT} \dusa{iprint} $]$ \\
 $[$ \moc{TITL} \dusa{TITLE} $]$ \\
 $[$ \moc{MAXR} \dusa{maxpts} $]$ \\
 $[~\{$ \moc{PRIM} $[$ \dusa{ielem} $]~|$ \moc{DUAL} $[$ \dusa{ielem} \dusa{icol} $]~|$ \moc{MCFD} $[$ \dusa{ielem} $]~|$ \moc{LUMP} $[$ \dusa{ielem} $]~\}~]$ \\
-$[$ \moc{SPN} \dusa{n} $[$ \moc{SCAT} $[$ \moc{DIFF} $]$ \dusa{iscat} $]~[$ \moc{VOID} \dusa{nvd} $]~]$ \\
+$[$ \moc{SPN} $[$ \moc{DIFF} $]$ \dusa{nlf} $[$ \moc{SCAT} \dusa{iscat} $]~[$ \moc{VOID} \dusa{nvd} $]~]$ \\
 $[$ \moc{ADI} \dusa{nadi} $]$ \\
 $[$ \moc{VECT} $[$ \dusa{iseg} $]~[$ \moc{PRTV} \dusa{impv} $]~]$ \\
 ;
@@ -1097,12 +1097,12 @@ finite elements.
 of the flux.\cite{nse2005,ane10a} This option is available with 1D, 2D and 3D Cartesian geometries and with 2D and 3D
 hexagonal geometries.
 
-\item[\dusa{n}] order of the $P_n$ or $SP_n$ expansion (odd number). Set to zero for diffusion theory (default value).
+\item[\moc{DIFF}] keyword to force using $1/3D^{g}$ as $\Sigma_1^{g}-\Sigma_{{\rm s}1}^{g}$ cross sections. A $P_1$ or $SP_1$ method
+will therefore behave as diffusion theory.
+
+\item[\dusa{nlf}] order of the $P_n$ or $SP_n$ expansion (odd number). Set to zero for diffusion theory (default value).
 
 \item[\moc{SCAT}] keyword to limit the anisotropy of scattering sources.
-
-\item[\moc{DIFF}] keyword to force using $1/3D^{g}$ as $\Sigma_1^{g}$ cross sections. A $P_1$ or $SP_1$ method
-will therefore behave as diffusion theory.
 
 \item[\dusa{iscat}] number of terms in the scattering sources. \dusa{iscat} $=1$ is used for
 isotropic scattering in the laboratory system. \dusa{iscat} $=2$ is used for

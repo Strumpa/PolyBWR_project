@@ -1,0 +1,440 @@
+*---
+*  Raviart-Thomas Reflector DF-RT equivalence prodedure
+*---
+PROCEDURE CreaStepList GetMolarMass MetalMix CreaMix CreaDilut
+  Geo15x15 Geo17x17 AdaptIso ;
+LINKED_LIST
+  Library LibDilut CP CALC XS AUTO_LIB MACRO MACRO_FUEL StepList
+  MolarMasses FeNat CrNat SnNat NiNat ZrNat TiNat SiNat
+  BNat AgNat CdNat SNat GdNat Zirc4 Incon SS304 M5 KNat
+  InNat AIC Gd2O3 BP
+  ConcMode Edition Multicompo
+  GEOM TRACK SYSTEM FLUX OUT OUTF TRKFIL
+  Discr DiscrAu nbZones FractionVol
+  MlticompTous
+  GeomRefl MacrRefl MacrFuel ;
+XSM_FILE TousPaliers :: FILE 'Multicompo_Refl_TousPaliers' ;
+SEQ_ASCII _FLX_CB1 :: FILE '_FLX_CB1.txt' ;
+SEQ_ASCII _FLX_CB2 :: FILE '_FLX_CB2.txt' ;
+SEQ_ASCII _VAL_CB1 :: FILE '_VAL_CB1.txt' ;
+SEQ_ASCII _VAL_CB2 :: FILE '_VAL_CB2.txt' ;
+MODULE
+  LIB: GEO: SYBILT: ASM: FLU: EDI: COMPO: DELETE:
+  USS: UTL: END: ABORT: MAC: SNT: GREP: MSTR: BREF: ;
+LINKED_LIST ListeIsot ListeAutop ;
+PROCEDURE assertS ;
+
+*---- General informations    --------------------------
+STRING  NuclData := "D172JEF22" ;
+STRING  LibType := "JEF22" ;
+STRING  LibGenre ;
+INTEGER LibId nbmix ;
+STRING  AssType  := "UOX"  ; ! 3 Char: UOX, MOX, ou UGd
+STRING  Gestion  := "BEAV" ; ! TIH ou BEAV
+STRING  InfoGado := "0Gd" ; ! Info sur le Gado
+STRING  ConfigPyrex := "None" ; ! None, Py8 ou Py12
+INTEGER Teneur_I := 310    ; ! X.YY % -> XYY [ex. 3.70 % -> 370]
+* Core boundary is mainly occupied by UOX assemblies, with
+* a 3.10% enrichement. Therefore, this is the one used in
+* the reflector calculation.
+STRING LEAKEQUATION LEAKIMPOSED CTRA ;
+EVALUATE LEAKEQUATION LEAKIMPOSED CTRA := "B1"   "SIGS" "APOL" ;
+!EVALUATE LEAKEQUATION LEAKIMPOSED CTRA := "P0TR" "NLKH" "OLDW" ;
+STRING Grid := "Note" ;
+REAL TempMod := 559.2 ; ! K
+REAL PowMWT ;
+INTEGER ThermaExpans := 0 ;
+INTEGER iPalierMax := 1 ;
+ECHO "LibType=" LibType ;
+
+*--- Depletion Conditions
+REAL    dmod tmod cbor tcom barr ;
+INTEGER BarType ;
+
+*-------------------------------------------------------
+* Procedures: - Create every burnup & parameters lists (CreaStepList)
+*             - Retrieve molar masses (GetMolarMasses)
+*             - Create Metal Mixes (MetalMix)
+*             - Using all of the above, create a Library with LIB: (CreaMix)
+*             - Generate tracking objects (Geo15x15 or Geo17x17)
+*---- 1) Burnup & parameter lists ----------------------
+StepList := CreaStepList ::
+  <<Gestion>> <<AssType>> <<ConfigPyrex>> 0 'DUMMY' ;
+GREP: StepList :: GETVAL 'DeplParam' 1 5
+  >>dmod<< >>cbor<< >>barr<< >>tcom<< >>tmod<< ;
+
+*---- 2) Molar Masses ----------------------------------
+MolarMasses := GetMolarMass :: <<NuclData>> <<LibType>> ;
+
+*---- 3) Metal Mixes -----------------------------------
+FeNat CrNat SnNat NiNat BNat
+ZrNat TiNat SiNat KNat
+AgNat CdNat SNat InNat
+Zirc4 Incon SS304 M5 AIC GdNat Gd2O3 BP := MetalMix
+MolarMasses ::
+<<LibType>> <<Gestion>> ;
+
+*---- 4) Library with all mixes ------------------------
+Library ConcMode := CreaMix
+FeNat CrNat SnNat NiNat BNat
+ZrNat TiNat SiNat KNat
+AgNat CdNat SNat InNat
+Zirc4 Incon SS304 M5 AIC GdNat Gd2O3 BP MolarMasses ::
+<<NuclData>> <<LibType>> <<Gestion>> <<AssType>>
+<<Teneur_I>> <<ThermaExpans>> <<CTRA>> <<Grid>> >>PowMWT<< ;
+ECHO "#PowMWT" PowMWT ;
+
+*---- 5) Geometry & Tracking ---------------------------
+EVALUATE BarType := barr R_TO_I ;
+IF Gestion "TIH" = THEN
+Discr DiscrAu := Geo15x15 ::
+  <<Gestion>> <<AssType>> <<ConfigPyrex>> <<ThermaExpans>>
+  <<BarType>> <<tcom>> <<tmod>> ;
+ELSE
+Discr DiscrAu := Geo17x17 ::
+  <<Gestion>> <<AssType>> <<ConfigPyrex>> <<ThermaExpans>>
+  <<BarType>> <<tcom>> <<tmod>> ;
+ENDIF ;
+
+*----
+*  Self-Shielding calculation SYBIL
+*  Transport calculation      SYBIL
+*  Flux calculation for B1 homogeneous leakage
+*----
+!AUTO_LIB := USS: Library DiscrAu :: EDIT 0 GRMIN 45 ;
+!CP := ASM: AUTO_LIB Discr :: EDIT 0 ARM ;
+!CALC := FLU: CP AUTO_LIB Discr :: TYPE B B1 SIGS ;
+!END: ;
+!QUIT "LIST" .
+*--------------------------------------------------------------------
+* Loop over the 2 cases, in order to have two different spectrum ratios
+*--------------------------------------------------------------------
+ListeIsot ListeAutop := AdaptIso :: <<NuclData>> <<LibType>>
+                         >>LibId<< >>LibGenre<< ;
+
+STRING NomH2O ;
+STRING NomH1 ;
+STRING NomO16 ;
+STRING NomB10 NomB11 ;
+STRING NomFe54 ;
+
+GREP: ListeIsot :: GETVAL 'H2O  ' <<LibId>> NVAL 8 >>NomH2O<<   ;
+GREP: ListeIsot :: GETVAL 'H1   ' <<LibId>> NVAL 8 >>NomH1<<    ;
+GREP: ListeIsot :: GETVAL 'O16  ' <<LibId>> NVAL 8 >>NomO16<<   ;
+GREP: ListeIsot :: GETVAL 'B10  ' <<LibId>> NVAL 8 >>NomB10<<   ;
+GREP: ListeIsot :: GETVAL 'B11  ' <<LibId>> NVAL 8 >>NomB11<<   ;
+GREP: ListeIsot :: GETVAL 'Fe54 ' <<LibId>> NVAL 8 >>NomFe54<<  ;
+
+REAL H1 O16 B10 B11 ;
+  EVALUATE B10 := 3.04836E-06 ;
+  EVALUATE B11 := 1.22700E-05 ;
+  EVALUATE H1  := 3.67705E-02 ;
+  EVALUATE O16 := 1.83852E-02 ;
+
+Library := LIB: Library ::
+* Borated water
+  MIXS LIB: <<LibGenre>> FIL: <<NuclData>>
+
+  MIX 10 <<TempMod>>
+    H1_H2O    = <<NomH1>>  <<H1>>  NOEV
+    O16       = <<NomO16>> <<O16>> NOEV
+    B10       = <<NomB10>> <<B10>> NOEV
+    B11       = <<NomB11>> <<B11>> NOEV
+  MIX 11 <<TempMod>>
+    H1_H2O    = <<NomH1>>  <<H1>>  NOEV
+    O16       = <<NomO16>> <<O16>> NOEV
+    B10       = <<NomB10>> <<B10>> NOEV
+    B11       = <<NomB11>> <<B11>> NOEV
+  MIX 12 <<TempMod>>
+    H1_H2O    = <<NomH1>>  <<H1>>  NOEV
+    O16       = <<NomO16>> <<O16>> NOEV
+    B10       = <<NomB10>> <<B10>> NOEV
+    B11       = <<NomB11>> <<B11>> NOEV
+  MIX 13 <<TempMod>>
+    H1_H2O    = <<NomH1>>  <<H1>>  NOEV
+    O16       = <<NomO16>> <<O16>> NOEV
+    B10       = <<NomB10>> <<B10>> NOEV
+    B11       = <<NomB11>> <<B11>> NOEV
+  MIX 14 <<TempMod>>
+    H1_H2O    = <<NomH1>>  <<H1>>  NOEV
+    O16       = <<NomO16>> <<O16>> NOEV
+    B10       = <<NomB10>> <<B10>> NOEV
+    B11       = <<NomB11>> <<B11>> NOEV
+;
+
+  AUTO_LIB := USS: Library DiscrAu ::
+    EDIT 0 GRMIN 45 MAXST 200 ;
+  CP := ASM: AUTO_LIB Discr :: EDIT 0 ARM ;
+  ECHO "debug" ;
+  UTL: AUTO_LIB :: DIR IMPR STATE-VECTOR 14 ;
+  CALC := FLU: CP AUTO_LIB Discr ::
+    TYPE B B1 SIGS ;
+  XS := EDI: AUTO_LIB Discr CALC ::
+    EDIT 0 SAVE MERGE COMP ;
+* Fuel cross sections are recovered in Mix 1
+  MACRO_FUEL := XS :: STEP UP 'REF-CASE0001' STEP UP MACROLIB ;
+  AUTO_LIB CP CALC XS := DELETE: AUTO_LIB CP CALC XS ;
+
+Library Discr := DELETE: Library Discr ;
+
+*--------------------------------------------------------------------
+*----------------- Equivalent reflector calculation -----------------
+*--------------------------------------------------------------------
+
+MlticompTous := COMPO: ::
+  EDIT 1
+  STEP UP 'Radial'
+    COMM 'Radial reflector XS' ENDC
+    PARA 'C-BORE'      VALU REAL
+    PARA 'Method'      VALU CHAR
+    PARA 'Palier'      VALU CHAR
+    INIT
+  STEP UP 'Bas'
+    COMM 'Lower reflector XS' ENDC
+    PARA 'C-BORE'      VALU REAL
+    PARA 'Method'      VALU CHAR
+    INIT
+  STEP UP 'Haut'
+    COMM 'Higher reflector XS' ENDC
+    PARA 'C-BORE'      VALU REAL
+    PARA 'Method'      VALU CHAR
+    INIT
+  ;
+
+REAL PHe := 20. ;        ! He pressure in fuel clad (bar)
+
+INTEGER iLocalistion ;
+
+! Donnees a fournir a CreaDilut, fonction de dilution, pour chaque zone
+REAL dMod TMil fvMod fvZr4 fvInc fvSS304 fvHe ;
+INTEGER iZone premierMIX ;
+STRING Localisation := 'Radial' ;
+
+FractionVol := MSTR: :: CD 'Radial' ;
+FractionVol := MSTR: FractionVol :: CD 'Bas' ;
+FractionVol := MSTR: FractionVol :: CD 'Haut' ;
+
+*--------------------------------------------------------------------
+* 1D radial core-reflector interface geometry and meshing
+*--------------------------------------------------------------------
+REAL FluxGap := 0.005 ; ! Flux gap
+REAL dClois dEnvel dEnvelEcran dEcran := 2.2225 5.715 0.5 5.715 ;
+REAL RefZnR := 3.5 ;
+REAL dCloisEnvel := 1.76 ; ! cm
+REAL FinClois := dClois ;
+REAL DebutEnvel := FinClois dCloisEnvel + ;
+REAL FinEnvel := DebutEnvel dEnvel + ;
+REAL DebutEcran := FinEnvel dEnvelEcran + ;
+REAL FinEcran := DebutEcran dEcran + ;
+REAL DebutCuve := FinEcran 20.0 + ;
+ECHO "radial mesh=" -43.0 -21.5 -5.0  0.0 FluxGap FinClois RefZnR
+   DebutEnvel FinEnvel DebutEcran FinEcran 21.5 21.505
+   DebutCuve ;
+
+*----------------------------------------------------------
+*  Reflector geometry
+*----------------------------------------------------------
+INTEGER MeshClsEnvel := dCloisEnvel 0.4 / R_TO_I ;
+ECHO "MeshClsEnvel (troncature)=" MeshClsEnvel ;
+
+GEOM := GEO: :: CAR1D 13
+   X- ALBE 1.0 X+ VOID
+   MESHX -43.0 -21.5 -5.0 0.0 <<FluxGap>> <<FinClois>> <<RefZnR>>
+   <<DebutEnvel>> <<FinEnvel>> <<DebutEcran>> <<FinEcran>> 21.5 21.505
+   <<DebutCuve>>
+   MIX     1  1  1   2           3            4          4
+           ! fuel  gap          ss       ss+h2o     ss+h2o
+                 3            5               6          5
+           !    ss          h2o       ss shield        h2o
+                 7            8
+           !   gap          h2o
+   SPLITX  20 15 20  1           25    20 <<MeshClsEnvel>>
+                10           5              6            5
+                 1           5
+;
+TRACK := SNT: GEOM ::
+  EDIT 1
+  MAXR 100000
+  SN 16 SCAT 2 QUAD 2 ;
+
+INTEGER nbZones := 7 ;
+nbZones := UTL: :: CREA 'Radial' 1 = <<nbZones>> ;
+
+REAL fvacier := 0.05 ;
+REAL fveau := 1.0 fvacier - ;
+FractionVol := UTL: FractionVol :: STEP UP 'Radial'
+                  ! MIX  2  3  4           5  6  7  8
+CREA 'Eau' <<nbZones>> = 0. 0. <<fveau>>   1. 0. 1. 1.
+CREA 'Zr4' <<nbZones>> = 0. 0. 0.          0. 0. 0. 0.
+CREA 'Inc' <<nbZones>> = 0. 0. 0.          0. 0. 0. 0.
+CREA 'SS ' <<nbZones>> = 1. 1. <<fvacier>> 0. 1. 0. 0.
+CREA 'He ' <<nbZones>> = 0. 0. 0.          0. 0. 0. 0. ;
+
+REAL dModBas := 0.753 ; ! Coolant density at input core
+REAL TMilBas := 286.4 ; ! Lower reflector temperature (Tmod)
+EVALUATE TMilBas := TMilBas 273.15 + ; ! Conversion to Kelvin
+
+! Reflector equivalence variables
+STRING Palier ;
+REAL Keff ;
+REAL CB ; ! ppm
+INTEGER IndexCB iPalier ;
+LINKED_LIST OVAL ;
+LINKED_LIST TRACK_REF FLUX_REF ;
+MODULE TRIVAT: TRIVAA: FLUD: VAL: ;
+
+*--------------------------------------------------------------------
+* Loop on Boron CB in reflector
+*--------------------------------------------------------------------
+ECHO "Loop on Boron density in reflector" ;
+EVALUATE IndexCB := 1 ;
+WHILE IndexCB 2 <= DO
+  IF IndexCB 1 = THEN
+    EVALUATE CB := 0.0 ; ! ppm
+  ELSEIF IndexCB 2 = THEN
+    EVALUATE CB := 20000.0 ; ! ppm
+  ELSE
+    ECHO "ERROR, INDEXCB NOT RECOGNIZED" ;
+    ABORT: ;
+  ENDIF ;
+
+  ! Donnees dependants du palier
+  EVALUATE iPalier := 1 ;
+  ECHO "Loop on reflector localization" ;
+  WHILE iPalier iPalierMax <= DO
+    IF iPalier 1 = THEN
+      EVALUATE Palier := 'FA3' ;
+    ENDIF ;
+    ECHO "Palier =" Palier ;
+
+    UTL: FractionVol :: DUMP ;
+    EVALUATE dMod := dModBas ;
+    EVALUATE TMil := TMilBas ;
+ 
+      MACRO := MACRO_FUEL ;
+
+      GREP: nbZones :: GETVAL <<Localisation>> 1 >>nbZones<< ;
+      EVALUATE iZone := 1 ;
+      WHILE iZone nbZones <= DO
+        ! On recupere la composition des zones
+        GREP: FractionVol :: STEP UP <<Localisation>>
+                             GETVAL 'Eau' <<iZone>> >>fvMod<<
+                             GETVAL 'Zr4' <<iZone>> >>fvZr4<<
+                             GETVAL 'Inc' <<iZone>> >>fvInc<<
+                             GETVAL 'SS ' <<iZone>> >>fvSS304<<
+                             GETVAL 'He ' <<iZone>> >>fvHe<<    ;
+        ! On affiche la composition des zones
+        ECHO "[Refl" Localisation
+             "] Composition de la zone : " iZone ;
+        ECHO "- eau   : " fvMod ' ;' ;
+        ECHO "- Zr4   : " fvZr4 ' ;' ;
+        ECHO "- Inc   : " fvInc ' ;' ;
+        ECHO "- SS304 : " fvSS304 ' ;' ;
+        ECHO "- He    : " fvHe '.' ;
+        ! Define MIX 1+iZone in reflector macrolib
+        LibDilut ConcMode MolarMasses
+        BNat Zirc4 Incon SS304 := CreaDilut ::
+        <<dMod>> <<TMil>> <<CB>> <<fvMod>> <<fvZr4>> <<fvInc>>
+        <<fvSS304>> <<NuclData>> <<LibType>> ;
+
+        ! Les MIX des melanges seront definis a partir de 2
+        EVALUATE premierMIX := 1 iZone + ;
+        ECHO 'Premier MIX : ' premierMIX ;
+        ! Recuperation du MIX constitutif de la zone
+
+        MACRO := MAC: MACRO LibDilut ::
+        NMIX <<premierMIX>> MIX <<premierMIX>> 1 OLDL ;
+
+        LibDilut := DELETE: LibDilut ;
+        EVALUATE iZone := iZone 1 + ;
+      ENDWHILE ;
+        
+      SYSTEM := ASM: MACRO TRACK :: ARM ;
+      GREP: MACRO :: GETVAL 'STATE-VECTOR' 2 2 >>nbmix<< ;
+      ECHO "call FLU: with nbmix=" nbmix ;
+      IF nbmix 8 = THEN
+        FLUX := FLU: SYSTEM MACRO TRACK :: EDIT 1 TYPE K P1
+                HETE 1 2 2 2 2 2 2 2 EXTE 1.0E-7 ;
+      ELSE
+        ECHO "ERROR, INVALID NUMBER OF MATERIAL MIXTURES" ;
+        ABORT: ;
+      ENDIF ;
+
+      GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 >>Keff<< ;
+      ECHO "IndexCB=" IndexCB "SN Keff=" Keff ;
+      *----------------------------------------------------------
+      *  Plot the 1D SN FLUX
+      *----------------------------------------------------------
+
+      OUT := EDI: MACRO TRACK FLUX GEOM ::
+      EDIT 3 UPS MERGE MIX 1 2 3 3 3 3 4 0
+      COND 0.625 SAVE ;
+      OUTF := EDI: MACRO TRACK FLUX GEOM ::
+      EDIT 3 UPS MERGE NONE
+      COND 0.625 SAVE ;
+      IF IndexCB 1 = THEN
+        _FLX_CB1 := OUTF :: STEP UP 'REF-CASE0001' STEP UP MACROLIB ;
+      ELSEIF IndexCB 2 = THEN
+        _FLX_CB2 := OUTF :: STEP UP 'REF-CASE0001' STEP UP MACROLIB ;
+      ENDIF ;
+      SYSTEM FLUX MACRO OUTF := DELETE: SYSTEM FLUX MACRO OUTF ;
+
+    !----------------------------------------------------------
+    !  Reflector equivalence procedure
+    !----------------------------------------------------------
+    GeomRefl MacrRefl := BREF: GEOM OUT ::
+       EDIT 2 MIX 1 3 GAP 2 4 MODEL DF-RT 3 3 SPH NGET 1.0 1.0 ;
+
+    !----------------------------------------------------------
+    !  Verification calculations
+    !----------------------------------------------------------
+    ECHO "recover IndexCB=" IndexCB ;
+    TRACK_REF := TRIVAT: GeomRefl :: TITLE "alpha.txt" DUAL 3 3  ;
+    MacrFuel := OUT :: STEP UP 'REF-CASE0001' STEP UP MACROLIB ;
+    MACRO := MacrRefl ;
+    MACRO := MAC: MACRO MacrFuel ::
+        MIX 1 1 OLDL ; ! Recover fuel data
+    MacrFuel := DELETE: MacrFuel ;
+      
+    SYSTEM := TRIVAA: MACRO TRACK_REF ;
+    FLUX_REF := FLUD: SYSTEM TRACK_REF :: EDIT 3 EXTE 1000 1.0E-10 ;
+    OVAL := VAL: TRACK_REF FLUX_REF MACRO ::
+         EDIT 2
+         POWR 1.0 DIM 1 0.7
+    ;
+    ECHO "...IndexCB=" IndexCB ;
+    IF IndexCB 1 = THEN
+         assertS FLUX_REF :: K-EFFECTIVE 1 1.191874 ;
+         _VAL_CB1 := OVAL ;
+    ELSEIF IndexCB 2 = THEN
+         assertS FLUX_REF :: K-EFFECTIVE 1 1.190132 ;
+         _VAL_CB2 := OVAL ;
+    ENDIF ;
+    FLUX_REF SYSTEM MACRO OVAL := DELETE: FLUX_REF SYSTEM MACRO OVAL ;
+    TRACK_REF OUT := DELETE: TRACK_REF OUT ;
+
+    !----------------------------------------------------------
+    !  Multicompo creation
+    !----------------------------------------------------------
+    Edition := EDI: MacrRefl :: EDIT 3 SAVE ;
+    GeomRefl MacrRefl := DELETE: GeomRefl MacrRefl ;
+
+    MlticompTous := COMPO: MlticompTous Edition :: EDIT 1
+      STEP UP <<Localisation>>
+      C-BORE <<CB>>
+      Method ERM-NEM
+      Palier <<Palier>>
+      MACRO ;
+    Edition := DELETE: Edition ;
+
+    EVALUATE iPalier := iPalier 1 + ;
+  ENDWHILE ; ! Loop over iPalier
+
+  EVALUATE IndexCB := IndexCB 1 + ;
+ENDWHILE ; ! Loop over IndexCB
+
+TousPaliers := MlticompTous ;
+
+ECHO "test DF_RTBeavrsPwrRefl completed" ;
+END: ;
+QUIT "LIST" .

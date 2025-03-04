@@ -186,6 +186,15 @@
         ENDIF
       ENDIF
 
+      ! X-BOUNDARIES CONDITIONS (NO SHOOTING)
+      IF(.NOT.LSHOOT) THEN
+        IF(U(M).GT.0.0) THEN
+          XNI=FUNKNO(LFLX+M)*ZCODE(1)
+        ELSE
+          XNI=FUNKNO(LFLX+M)*ZCODE(2)
+        ENDIF
+      ENDIF
+
       ! BOUNDARY FIXED SOURCES
       IF(U(M).GT.0.0) THEN
         IF(ISBS.EQ.1.AND.ISBSM(1,M).NE.0) XNI=XNI+BS(ISBSM(1,M))
@@ -197,15 +206,6 @@
       DO 30 I0=1,LX
       I=I0
       IF(U(M).LT.0.0) I=LX+1-I0
-
-      ! X-BOUNDARIES CONDITIONS (NO SHOOTING)
-      IF(.NOT.LSHOOT.AND.I0.EQ.1) THEN
-        IF(U(M).GT.0.0) THEN
-          XNI=FUNKNO(LFLX+M)*ZCODE(1)
-        ELSE
-          XNI=FUNKNO(LFLX+M)*ZCODE(2)
-        ENDIF
-      ENDIF
       
       ! DATA
       IBM=MAT(I)

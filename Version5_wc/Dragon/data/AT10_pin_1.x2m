@@ -22,7 +22,7 @@ SEQ_BINARY TF_EXC ;
 SEQ_BINARY TF_EXC_SS ;
 
 STRING geo_name := "AT10_UOX" ; 
-STRING ssh_opt := "RSE" ; ! "PT", "RSE", "SUBG"
+STRING ssh_opt := "PT" ; ! "PT", "RSE", "SUBG"
 STRING track_opt := "SALT" ; ! "SYBNXT" "SALT" "NXTNXT"
 
 SEQ_ASCII FIG_SS.ps :: FILE './PIN_AT10_FIG_SS.ps' ;
@@ -32,6 +32,7 @@ SEQ_ASCII _COMPO :: FILE './COMPO_AT10_PIN1' ;
 REAL Kinf ;
 REAL Tbeg := 0.0 ;
 
+STRING Library := "ENDFB8r1_295" ;
 ************************************************************************
 
 IF track_opt "SALT" = THEN
@@ -43,7 +44,7 @@ ELSEIF track_opt "SYBNXT" = THEN
 
 ENDIF ;
 
-LIBRARY := Mix_C1 :: J311_295 <<ssh_opt>> ;
+LIBRARY := Mix_C1 :: <<Library>> <<ssh_opt>> ;
 
 IF track_opt "SALT" = THEN 
         CELL FIG_FLX.ps TRACK TF_EXC CELL_SS FIG_SS.ps TRACK_SS TF_EXC_SS := TRK_C_SALT GEOM GEOM_SS ;
@@ -124,7 +125,7 @@ ECHO track_opt " tracking, MOC on AT10 C1: Kinf NOM =" Kinf ;
 
 LIBRARY LIBRARY2 SYS FLUX := DELETE: LIBRARY LIBRARY2 SYS FLUX ;
 
-LIBRARY := Mix_C1_V :: J311_295 <<ssh_opt>> ;
+LIBRARY := Mix_C1_V :: <<Library>> <<ssh_opt>> ;
 
 IF track_opt "SALT" = THEN
         LIBRARY2 := Mix_AUTOP1 LIBRARY TRACK_SS TF_EXC_SS :: <<ssh_opt>> <<track_opt>> ;
@@ -145,7 +146,7 @@ ECHO track_opt " tracking, MOC on AT10 C1: Kinf VOID =" Kinf ;
 
 LIBRARY LIBRARY2 SYS FLUX := DELETE: LIBRARY LIBRARY2 SYS FLUX ;
 
-LIBRARY := Mix_C1_D :: J311_295 <<ssh_opt>> ;
+LIBRARY := Mix_C1_D :: <<Library>> <<ssh_opt>> ;
 
 IF track_opt "SALT" = THEN
         LIBRARY2 := Mix_AUTOP1 LIBRARY TRACK_SS TF_EXC_SS :: <<ssh_opt>> <<track_opt>> ;

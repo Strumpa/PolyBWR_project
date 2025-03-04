@@ -73,7 +73,6 @@
 *         The linear power (W/m) is given as 2*PI*(ZF(1)-TSURF*ZF(2)).
 *
 *-----------------------------------------------------------------------
-*
       USE t_saltdata
 *----
 *  SUBROUTINE ARGUMENTS
@@ -102,7 +101,7 @@
 *  COMPUTE ARs AND VOLUMES
 *----
       DAR(:NDTOT)=0.0
-      ARF=0.5*RAD(NFD)**2    ! at fuel radius
+      ARF=0.5*RAD(NFD)**2    ! at fuel radius/clad interface
       ARCE=0.5*RAD(NDTOT)**2 ! at external clad radius
       DO I=1,NFD
         DAR(I)=0.5*(RAD(I+1)**2-RAD(I)**2)
@@ -175,7 +174,11 @@
       COEF(3)=0.0
       DO I=1,NDTOT
         TRID(I,NDTOT+1)=CONDXA(I)
-        IF(I.LE.NFD-1) THEN
+        IF(I.LE.NFD-2) THEN
+          ARI=0.5*RAD(I+1)**2
+          COEF(3)=4.0*ARI*ZK(I)/(DAR(I)+DAR(I+1))
+          TRID(I,NDTOT+1)=TRID(I,NDTOT+1)+QFUEL*FRO(I)*DAR(I)
+        ELSE IF(I.EQ.NFD-1) THEN
           ARI=0.5*RAD(I+1)**2
           COEF(3)=4.0*ARI*ZK(I)/(DAR(I)+DAR(I+1))
           TRID(I,NDTOT+1)=TRID(I,NDTOT+1)+QFUEL*FRO(I)*DAR(I)

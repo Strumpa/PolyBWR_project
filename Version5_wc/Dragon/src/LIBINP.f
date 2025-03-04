@@ -91,7 +91,7 @@
 *----
 *  LOCAL PARAMETERS
 *----
-      PARAMETER (IOUT=6,NHOBL=17,MAXPAR=5,MAXLIB=20,NSTATE=40,
+      PARAMETER (IOUT=6,NHOBL=18,MAXPAR=5,MAXLIB=20,NSTATE=40,
      > MAXTRA=10000)
       TYPE(C_PTR) JPLIB
       DOUBLE PRECISION DBLINP
@@ -120,7 +120,7 @@
      >            'N4N     ','NA      ','NP      ','N2A     ',
      >            'NNP     ','ND      ','NT      ','NX      ',
      >            'TRANC   ','BSTC    ','BSTR    ','CSTC    ',
-     >            'CSTR    '/
+     >            'CSTR    ','H-FACTOR'/
 *----
 *  SCRATCH STORAGE ALLOCATION
 *----

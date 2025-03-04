@@ -49,8 +49,9 @@ Param := UTL: :: CREA PARAMVALU 1 = 975.
                  CREA 1 2 = 'C-BO' 'RE  ' ;
 UTL: Param :: DUMP ;
 
+INTEGER nlf := 1 ;
 MpoRefl := REFL_MPO Geom FVol Param :: <<nameFeed>> <<nameRefl>> <<Palier>> <<htype>>
-                            <<LibType>> <<NuclData>> <<OptSph>> <<OptNoal>>
+                            <<nlf>> <<LibType>> <<NuclData>> <<OptSph>> <<OptNoal>>
                             <<OptSS>> ;
 
 ************************************************************************

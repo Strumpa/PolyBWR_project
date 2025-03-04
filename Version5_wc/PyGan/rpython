@@ -100,7 +100,7 @@ if [ $typ = 'intel' ]; then
   export COMPILER=INTELTOOLS
 elif [ $typ = 'nvidia' ]; then
   export COMPILER=NVTOOLS
-elif [ $typ = 'flang' ]; then
+elif [ $typ = 'llvm' ]; then
   export COMPILER=LLVMTOOLS
 else
   export COMPILER=FORTRANPATH

@@ -53,7 +53,7 @@
 *----
       TYPE(C_PTR) IPMACR,JPMACR,KPMACR
       INTEGER IOUT,NREACD,NTREA,IGR,IEN,IMIX,IPRG
-      PARAMETER (IOUT=6,NREACD=16)
+      PARAMETER (IOUT=6,NREACD=14)
 *----
 *  ALLOCATABLE ARRAYS
 *----
@@ -67,8 +67,8 @@
       DATA         NAMREA
      >  /'NTOT0       ','NTOT1       ','TRANC       ','FIXE        ',
      >   'DIFF        ','DIFFX       ','DIFFY       ','DIFFZ       ',
-     >   'NTOT0       ','NTOT1       ','NSPH        ','H-FACTOR    ',
-     >   'C-FACTOR    ','OVERV       ','FLUX-INTG   ','FLUX-INTG-P1'/
+     >   'NSPH        ','H-FACTOR    ','C-FACTOR    ','OVERV       ',
+     >   'FLUX-INTG   ','FLUX-INTG-P1'/
 *----
 *  SCRATCH STORAGE ALLOCATION
 *----

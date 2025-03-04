@@ -8,8 +8,8 @@ is currently limited to a SN discretization.
 The calling specifications are:
 
 \begin{DataStructure}{Structure \dstr{PSOUR:}}
-\dusa{SOURCE}~\moc{:=}~\moc{PSOUR:}~$[$~\dusa{SOURCE}~$]~\{$~\dusa{MICRO}~$|$~\dusa{MACRO}~$\}$~\dusa{TRACK}~$[$~\dusa{GEONAM}~$]~[[$~\dusa{FLUX}~$]]$ \\
-\hspace*{0.5cm}  $[[$~\dusa{SOURCE2}~$]]$ \moc{::}~\dstr{PSOUR\_data} \\
+\dusa{SOURCE}~\moc{:=}~\moc{PSOUR:}~$[$~\dusa{SOURCE}~$]~\{$~\dusa{MICRO}~$|$~\dusa{MACRO}~$\}$~\dusa{TRACK}~$[$~\dusa{TRACK2}~$]$~$[$~\dusa{GEONAM}~$]$ \\
+\hspace*{0.5cm}  $[[$~\dusa{FLUX}~$]]$~$[[$~\dusa{SOURCE2}~$]]$ \moc{::}~\dstr{PSOUR\_data} \\
 \end{DataStructure}
 
 \noindent where
@@ -25,6 +25,8 @@ the embedded macrolib is used.
 
 \item[\dusa{TRACK}] {\tt character*12} name of a reference {\sc tracking} (type {\tt L\_TRACK}) object, corresponding to {\tt L\_SOURCE} object, open in read-only mode.
 
+\item[\dusa{TRACK2}] {\tt character*12} name of a reference {\sc tracking} (type {\tt L\_TRACK}) object, corresponding to the companion particle, open in read-only mode. This object is required for sources from companion particles.
+
 \item[\dusa{GEONAM}] {\tt character*12} name of a reference {\sc geometry} (type {\tt L\_GEOM}) object, corresponding to {\tt L\_SOURCE} object, open in read-only mode. This
 object is required if and only if one of keywords \moc{ISO} or \moc{MONO} is set.
 
@@ -37,6 +39,7 @@ added to \dusa{SOURCE}.
 \item[\dusa{PSOUR\_data}] input data structure containing specific data (see \Sect{descPSOUR}).
 
 \end{ListeDeDescription}
+\eject
 
 \subsubsection{Data input for module {\tt PSOUR:}}\label{sect:descPSOUR}
 

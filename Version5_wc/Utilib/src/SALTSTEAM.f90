@@ -121,6 +121,16 @@ subroutine THMSPT(tp, t, zrho, h, zk, zmu, zcp, impx)
         write(*,*) 'THERMAL CAPACITY =', zcp, '(J/K/kg)'
         write(*,*) 'SPECIFIC ENTHALPY =', h, '(J/kg)'
     endif
+    if (zrho <= 0.0) then
+        call XABORT('THMSPT: NEGATIVE SALT DENSITY.')
+    endif
+    if (zk <= 0.0) then
+        call XABORT('THMSPT: NEGATIVE SALT THERMAL CONDUCTIVITY.')
+    endif
+    if (zcp <= 0.0) then
+        call XABORT('THMSPT: NEGATIVE SALT HEAT CAPACITY.')
+    endif
+
 end subroutine THMSPT
 
 subroutine THMSH(tp, h, zrho, t, impx)

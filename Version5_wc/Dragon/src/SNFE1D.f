@@ -191,14 +191,14 @@
           IF(NCODE(1).NE.4) THEN
             DO IEL=1,EELEM
             IOF=(M-1)*EELEM+IEL
-            FUNKNO(LFLX+IOF)=FUNKNO(LFLX+LXNI-IOF+1)
+            FUNKNO(LFLX+LXNI+IOF)=FUNKNO(LFLX+LXNI-IOF+1)
             ENDDO
           ENDIF
         ELSE
           IF(NCODE(2).NE.4) THEN
             DO IEL=1,EELEM
             IOF=(M-1)*EELEM+IEL
-            FUNKNO(LFLX+IOF)=FUNKNO(LFLX+LXNI-IOF+1)
+            FUNKNO(LFLX+LXNI+IOF)=FUNKNO(LFLX+LXNI-IOF+1)
             ENDDO
           ENDIF
         ENDIF
@@ -210,6 +210,18 @@
             XNI(:EELEM)=ZCODE(1)*XNI(:EELEM)
           ENDIF
         ENDIF
+      ENDIF
+
+      ! X-BOUNDARIES CONDITIONS (NO SHOOTING)
+      IF(.NOT.LSHOOT) THEN
+        DO IEL=1,EELEM
+        IOF=(M-1)*EELEM+IEL
+        IF(U(M).GT.0.0) THEN
+          XNI(IEL)=FUNKNO(LFLX+IOF)*ZCODE(1)
+        ELSE
+          XNI(IEL)=FUNKNO(LFLX+IOF)*ZCODE(2)
+        ENDIF
+        ENDDO
       ENDIF
 
       ! BOUNDARY FIXED SOURCES
@@ -227,18 +239,6 @@
       DO 30 I0=1,LX
       I=I0
       IF(U(M).LT.0) I=LX+1-I
-
-      ! X-BOUNDARIES CONDITIONS (NO SHOOTING)
-      IF(.NOT.LSHOOT.AND.I0.EQ.1) THEN
-        DO IEL=1,EELEM
-        IOF=(M-1)*EELEM+IEL
-        IF(U(M).GT.0.0) THEN
-          XNI=FUNKNO(LFLX+IOF)*ZCODE(1)
-        ELSE
-          XNI=FUNKNO(LFLX+IOF)*ZCODE(2)
-        ENDIF
-        ENDDO
-      ENDIF
       
       ! DATA
       IBM=MAT(I)
@@ -419,7 +419,7 @@
       IF(.NOT.LSHOOT) THEN
         DO IEL=1,EELEM
         IOF=(M-1)*EELEM+IEL
-        IF(.NOT.LSHOOT) FUNKNO(LFLX+IOF)=REAL(XNI(IEL))
+        FUNKNO(LFLX+IOF)=REAL(XNI(IEL))
         ENDDO
       ENDIF
 

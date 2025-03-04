@@ -505,5 +505,6 @@ ENDWHILE ; ! Loop over IndexCB
 
 TousPaliers := MlticompTous ;
 
+ECHO "test ErmBeavrsPwrRefl completed" ;
 END: ;
 QUIT "LIST" .

@@ -1,0 +1,924 @@
+*=====================================================================*
+* FILE:           thermExp.c2m
+* TYPE:           DRAGON/DONJON proc file
+* AUTHOR:         Cristian Garrido Tamm (cristian.garrido@idom.com)
+* PURPOSE:        Generate a geometry, fuel map and matex objects
+*                 considering the thermal axial expansion of the fuel at
+*                 a given temperature
+* CREATION DATE:  Thursday Jan 09, 2025 13:43:33 CET
+* LAST MODIFIED:  Wednesday Jan 15, 2025 17:23:51 CET
+*---------------------------------------------------------------------*
+* INPUT:
+*     TYPE        | NAME    | DEFINITION
+*     ------------|---------|-----------------------------
+*     REAL        | Cote    | Node side (cm)
+*     REAL        | Rfuel    | Fuel tube radius (cm)
+*     REAL        | Tfuel   | Average Fuel Temperature (K)
+*     REAL        | Tcool   | Average Coolant Temperature (K)
+*     REAL        | Mass    | Fuel Mass (kg)
+*     REAL        | rhoA    | coefficient in fuel density-temp relation
+*     REAL        | rhoB    | coefficient in fuel density-temp relation
+*     REAL        | maxH    | Maximum axial node height (cm)
+*     REAL        | powi    | Reactor power (MW)
+* OUTPUT:
+*     TYPE        | NAME    | DEFINITION
+*     ------------|---------|-----------------------------
+*     LINKED_LIST | MESHZ   | Linked list with the axial discretization
+*     REAL        | totH    | Total height of the fuel
+* CALL:
+*     GEOM MATEX FMAP := thermExp ::
+*     <<Cote>> <<Rfuel>> <<Tacg>> <<Mass>> <<rhoA>> <<rhoB>> <<maxH>> 
+*     <<powi>> >>totH<< ;
+*=====================================================================*
+*---
+* RECOVER INPUT DATA STRUCTURES
+*---
+PARAMETER GEOM MATEX FMAP THM ::
+  EDIT 0
+    ::: LINKED_LIST GEOM MATEX FMAP THM ;
+  ;  
+*---
+* RECOVER INPUT PARAMETERS
+*---
+REAL Cote Rfuel Mass rhoA rhoB maxH powi ;
+:: >>Cote<< >>Rfuel<< >>Mass<< >>rhoA<< 
+>>rhoB<< >>maxH<< >>powi<< ;
+*---
+* DEFINE MODULES
+*---
+MODULE UTL: GREP: END: GEO: USPLIT: RESINI: THM: ABORT: DELETE: ;
+*---
+* DEFINE DATA STRUCTURES
+*---
+LINKED_LIST MESHZ GEOMTMP MATEXTMP FMAPTMP THMTMP ;
+*---
+* DEFINE VARIABLES
+*---
+REAL rho ;
+REAL totH := 0.0 ; ! total height in current iteration (cm)
+REAL deltaH ; ! difference in total height between two consecutive iterations
+REAL totH1 := 0.0 ; ! total height in previous iteration (cm)
+REAL Nz_R h ;
+INTEGER Nz ;
+INTEGER I ;
+REAL z1 z2 z3 z4 z5 z6 z7 z8 z9 z10 z11 z12 z13 z14 z15 z16 z17 z18 z19
+ z20 z21 z22 z23 z24 z25 z26 z27 z28 z29 z30 ;
+* Constants
+STRING DOUBLE_LINE := 
+"====================================================================" ;
+STRING SINGLE_LINE := 
+"--------------------------------------------------------------------" ;
+LOGICAL True False := $True_L $False_L ;
+STRING FILENAME := 'thermExp' ;
+REAL Pi := $Pi_R ;
+INTEGER MaxR := 10000 ;
+REAL CONV := 1E-5 ;
+INTEGER iter := 0 ;
+INTEGER maxiter := 100 ;
+REAL Tfuel := 800.15 ; (*fuel temperature (K)*)
+REAL Tcool :=  800.15 ; (*coolant temperature (K)*)
+
+*---
+* BEGIN CALCULATION
+*---
+ECHO DOUBLE_LINE ;
+ECHO 'BEGIN PROCEDURE ' FILENAME ;
+ECHO DOUBLE_LINE ;
+
+EVALUATE deltaH := totH totH1 - ;
+
+REPEAT 
+  ECHO "iter=" iter ;
+ IF iter 0 > THEN
+   MESHZ := DELETE: MESHZ ;
+   GEOMTMP := DELETE: GEOMTMP ;
+   MATEXTMP := DELETE: MATEXTMP ;
+   FMAPTMP := DELETE: FMAPTMP ;
+   THMTMP := DELETE: THMTMP ;
+ ENDIF ;
+
+EVALUATE iter := iter 1 + ;
+EVALUATE totH1 := totH ;
+
+* Calculate density of fuel at given temperature
+EVALUATE rho := rhoA rhoB Tfuel * - ;
+ECHO "%%1 rho = " rho ;
+* Calculate the fuel height at this temperature
+EVALUATE totH := Mass 1000. * rho / Pi / Rfuel / Rfuel / ;
+ECHO "%%1 totH = " totH ;
+* Calculate number of nodes
+EVALUATE Nz_R := totH maxH / ;
+EVALUATE Nz := Nz_R R_TO_I ;
+ECHO "%%1 Nz_R Nz = " Nz_R Nz ;
+EVALUATE h := Nz I_TO_R maxH * ;
+ECHO "%%1 h = " h ;
+IF totH h > THEN
+  EVALUATE Nz := Nz 1 + ;
+ENDIF ;
+ECHO "%%1 Nz = " Nz ;
+
+* Create MESHZ list
+MESHZ := UTL: :: CREA 'NZ       ' 1 = <<Nz>> ;
+
+* Generate Axial Mesh
+EVALUATE h := 0.0 ;
+EVALUATE I := 1 ;
+WHILE I Nz 1 - <= DO
+  ECHO "%%2 I h = " I h ;
+  EVALUATE h := totH Nz I_TO_R / h + ;
+  IF I 1 = THEN
+    MESHZ := UTL: MESHZ :: 
+    EDIT 100
+        CREA 'MESHZ    ' 1 = <<h>>  ;
+  ELSE
+    MESHZ := UTL: MESHZ :: 
+    EDIT 100
+    CREA 'MESHZ    ' <<I>> <<I>> = <<h>>  ;
+  ENDIF ;
+  EVALUATE I := I 1 + ;
+ENDWHILE ;
+MESHZ := UTL: MESHZ :: 
+EDIT 100
+CREA 'MESHZ    ' <<I>> <<I>> = <<totH>>  ;
+
+UTL: MESHZ :: DIR DUMP ;
+
+* Generate the geometry depending on the axial discretization
+IF Nz 19 = THEN
+  GREP: MESHZ :: GETVAL 'MESHZ    ' 1 <<Nz>>
+    >>z1<< >>z2<< >>z3<< >>z4<< >>z5<< >>z6<< >>z7<< >>z8<< >>z9<< 
+    >>z10<< >>z11<< >>z12<< >>z13<< >>z14<< >>z15<< >>z16<< >>z17<< 
+    >>z18<< >>z19<< ;
+  GEOMTMP := GEO: :: CAR3D 1 1 <<Nz>>
+     X- REFL X+ REFL    Y- REFL Y+ REFL    Z- REFL Z+ REFL
+     MESHX 0.0 <<Cote>>
+     MESHY 0.0 <<Cote>>
+     MESHZ  0.0 <<z1>> <<z2>> <<z3>> <<z4>> <<z5>> <<z6>> <<z7>> <<z8>>
+       <<z9>> <<z10>> <<z11>> <<z12>> <<z13>> <<z14>> <<z15>> <<z16>> 
+       <<z17>> <<z18>> <<z19>> 
+     MIX
+     PLANE 1
+        1
+     PLANE 2 SAME 1
+     PLANE 3 SAME 1
+     PLANE 4 SAME 1
+     PLANE 5 SAME 1
+     PLANE 6 SAME 1
+     PLANE 7 SAME 1
+     PLANE 8 SAME 1
+     PLANE 9 SAME 1
+     PLANE 10 SAME 1
+     PLANE 11 SAME 1
+     PLANE 12 SAME 1
+     PLANE 13 SAME 1
+     PLANE 14 SAME 1
+     PLANE 15 SAME 1
+     PLANE 16 SAME 1
+     PLANE 17 SAME 1
+     PLANE 18 SAME 1
+     PLANE 19 SAME 1
+  ;
+  GEOMTMP MATEXTMP := USPLIT: GEOMTMP :: NGRP 2 MAXR <<MaxR>>
+     NFUEL 1  FMIX  1
+  ;
+  FMAPTMP MATEXTMP := RESINI: MATEXTMP ::
+     ::: GEO: CAR3D 1 1 <<Nz>>
+     X- REFL X+ REFL    Y- REFL Y+ REFL    Z- REFL Z+ REFL
+     MESHX 0.0 <<Cote>>
+     MESHY 0.0 <<Cote>>
+     MESHZ  0.0 <<z1>> <<z2>> <<z3>> <<z4>> <<z5>> <<z6>> <<z7>> <<z8>>
+       <<z9>> <<z10>> <<z11>> <<z12>> <<z13>> <<z14>> <<z15>> <<z16>> 
+       <<z17>> <<z18>> <<z19>> 
+     MIX
+     PLANE 1
+        1
+     PLANE 2 SAME 1
+     PLANE 3 SAME 1
+     PLANE 4 SAME 1
+     PLANE 5 SAME 1
+     PLANE 6 SAME 1
+     PLANE 7 SAME 1
+     PLANE 8 SAME 1
+     PLANE 9 SAME 1
+     PLANE 10 SAME 1
+     PLANE 11 SAME 1
+     PLANE 12 SAME 1
+     PLANE 13 SAME 1
+     PLANE 14 SAME 1
+     PLANE 15 SAME 1
+     PLANE 16 SAME 1
+     PLANE 17 SAME 1
+     PLANE 18 SAME 1
+     PLANE 19 SAME 1
+  ;
+  NXNAME '01' NYNAME  'A'
+  NCOMB 1
+  B-ZONE 1
+  ADD-PARAM PNAME 'T-FUEL' PARKEY 'TFA' GLOBAL
+  ADD-PARAM PNAME 'T-COOL' PARKEY 'TCA' GLOBAL
+  BTYPE INST-BURN
+  INST-BVAL CHAN 0.0
+  REACTOR-POW <<powi>> 
+  AXIAL-PFORM  1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
+   1.0 1.0 1.0 1.0 
+*  BUNDLE-POW SAME <<powi>>
+  SET-PARAM 'T-FUEL' <<Tfuel>>
+  SET-PARAM 'T-COOL' <<Tcool>>
+*  FUEL WEIGHT <<Mass>>
+  ;
+ELSEIF Nz 20 = THEN
+  GREP: MESHZ :: GETVAL 'MESHZ    ' 1 <<Nz>>
+    >>z1<< >>z2<< >>z3<< >>z4<< >>z5<< >>z6<< >>z7<< >>z8<< >>z9<< 
+    >>z10<< >>z11<< >>z12<< >>z13<< >>z14<< >>z15<< >>z16<< >>z17<< 
+    >>z18<< >>z19<< >>z20<< ;
+  GEOMTMP := GEO: :: CAR3D 1 1 <<Nz>>
+     X- REFL X+ REFL    Y- REFL Y+ REFL    Z- REFL Z+ REFL
+     MESHX 0.0 <<Cote>>
+     MESHY 0.0 <<Cote>>
+     MESHZ  0.0 <<z1>> <<z2>> <<z3>> <<z4>> <<z5>> <<z6>> <<z7>> <<z8>>
+       <<z9>> <<z10>> <<z11>> <<z12>> <<z13>> <<z14>> <<z15>> <<z16>> 
+       <<z17>> <<z18>> <<z19>> <<z20>>
+     MIX
+     PLANE 1
+        1
+     PLANE 2 SAME 1
+     PLANE 3 SAME 1
+     PLANE 4 SAME 1
+     PLANE 5 SAME 1
+     PLANE 6 SAME 1
+     PLANE 7 SAME 1
+     PLANE 8 SAME 1
+     PLANE 9 SAME 1
+     PLANE 10 SAME 1
+     PLANE 11 SAME 1
+     PLANE 12 SAME 1
+     PLANE 13 SAME 1
+     PLANE 14 SAME 1
+     PLANE 15 SAME 1
+     PLANE 16 SAME 1
+     PLANE 17 SAME 1
+     PLANE 18 SAME 1
+     PLANE 19 SAME 1
+     PLANE 20 SAME 1
+  ;
+  GEOMTMP MATEXTMP := USPLIT: GEOMTMP :: NGRP 2 MAXR <<MaxR>>
+     NFUEL 1  FMIX  1
+  ;
+  FMAPTMP MATEXTMP := RESINI: MATEXTMP ::
+     ::: GEO: CAR3D 1 1 <<Nz>>
+     X- REFL X+ REFL    Y- REFL Y+ REFL    Z- REFL Z+ REFL
+     MESHX 0.0 <<Cote>>
+     MESHY 0.0 <<Cote>>
+     MESHZ  0.0 <<z1>> <<z2>> <<z3>> <<z4>> <<z5>> <<z6>> <<z7>> <<z8>>
+       <<z9>> <<z10>> <<z11>> <<z12>> <<z13>> <<z14>> <<z15>> <<z16>> 
+       <<z17>> <<z18>> <<z19>> <<z20>>
+     MIX
+     PLANE 1
+        1
+     PLANE 2 SAME 1
+     PLANE 3 SAME 1
+     PLANE 4 SAME 1
+     PLANE 5 SAME 1
+     PLANE 6 SAME 1
+     PLANE 7 SAME 1
+     PLANE 8 SAME 1
+     PLANE 9 SAME 1
+     PLANE 10 SAME 1
+     PLANE 11 SAME 1
+     PLANE 12 SAME 1
+     PLANE 13 SAME 1
+     PLANE 14 SAME 1
+     PLANE 15 SAME 1
+     PLANE 16 SAME 1
+     PLANE 17 SAME 1
+     PLANE 18 SAME 1
+     PLANE 19 SAME 1
+     PLANE 20 SAME 1
+  ;
+  NXNAME '01' NYNAME  'A'
+  NCOMB 1
+  B-ZONE 1
+  ADD-PARAM PNAME 'T-FUEL' PARKEY 'TFA' GLOBAL
+  ADD-PARAM PNAME 'T-COOL' PARKEY 'TCA' GLOBAL
+  BTYPE INST-BURN
+  INST-BVAL CHAN 0.0
+  REACTOR-POW <<powi>> 
+  AXIAL-PFORM  1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
+   1.0 1.0 1.0 1.0 1.0
+*  BUNDLE-POW SAME <<powi>>
+  SET-PARAM 'T-FUEL' <<Tfuel>>
+  SET-PARAM 'T-COOL' <<Tcool>>
+*  FUEL WEIGHT <<Mass>>
+  ;
+ELSEIF Nz 21 = THEN
+  GREP: MESHZ :: GETVAL 'MESHZ    ' 1 <<Nz>>
+    >>z1<< >>z2<< >>z3<< >>z4<< >>z5<< >>z6<< >>z7<< >>z8<< >>z9<< 
+    >>z10<< >>z11<< >>z12<< >>z13<< >>z14<< >>z15<< >>z16<< >>z17<< 
+    >>z18<< >>z19<< >>z20<< >>z21<< ;
+  GEOMTMP := GEO: :: CAR3D 1 1 <<Nz>>
+     X- REFL X+ REFL    Y- REFL Y+ REFL    Z- REFL Z+ REFL
+     MESHX 0.0 <<Cote>>
+     MESHY 0.0 <<Cote>>
+     MESHZ  0.0 <<z1>> <<z2>> <<z3>> <<z4>> <<z5>> <<z6>> <<z7>> <<z8>>
+       <<z9>> <<z10>> <<z11>> <<z12>> <<z13>> <<z14>> <<z15>> <<z16>> 
+       <<z17>> <<z18>> <<z19>> <<z20>> <<z21>>
+     MIX
+     PLANE 1
+        1
+     PLANE 2 SAME 1
+     PLANE 3 SAME 1
+     PLANE 4 SAME 1
+     PLANE 5 SAME 1
+     PLANE 6 SAME 1
+     PLANE 7 SAME 1
+     PLANE 8 SAME 1
+     PLANE 9 SAME 1
+     PLANE 10 SAME 1
+     PLANE 11 SAME 1
+     PLANE 12 SAME 1
+     PLANE 13 SAME 1
+     PLANE 14 SAME 1
+     PLANE 15 SAME 1
+     PLANE 16 SAME 1
+     PLANE 17 SAME 1
+     PLANE 18 SAME 1
+     PLANE 19 SAME 1
+     PLANE 20 SAME 1
+     PLANE 21 SAME 1
+  ;
+  GEOMTMP MATEXTMP := USPLIT: GEOMTMP :: NGRP 2 MAXR <<MaxR>>
+     NFUEL 1  FMIX  1
+  ;
+  FMAPTMP MATEXTMP := RESINI: MATEXTMP ::
+     ::: GEO: CAR3D 1 1 <<Nz>>
+     X- REFL X+ REFL    Y- REFL Y+ REFL    Z- REFL Z+ REFL
+     MESHX 0.0 <<Cote>>
+     MESHY 0.0 <<Cote>>
+     MESHZ  0.0 <<z1>> <<z2>> <<z3>> <<z4>> <<z5>> <<z6>> <<z7>> <<z8>>
+       <<z9>> <<z10>> <<z11>> <<z12>> <<z13>> <<z14>> <<z15>> <<z16>> 
+       <<z17>> <<z18>> <<z19>> <<z20>> <<z21>>
+     MIX
+     PLANE 1
+        1
+     PLANE 2 SAME 1
+     PLANE 3 SAME 1
+     PLANE 4 SAME 1
+     PLANE 5 SAME 1
+     PLANE 6 SAME 1
+     PLANE 7 SAME 1
+     PLANE 8 SAME 1
+     PLANE 9 SAME 1
+     PLANE 10 SAME 1
+     PLANE 11 SAME 1
+     PLANE 12 SAME 1
+     PLANE 13 SAME 1
+     PLANE 14 SAME 1
+     PLANE 15 SAME 1
+     PLANE 16 SAME 1
+     PLANE 17 SAME 1
+     PLANE 18 SAME 1
+     PLANE 19 SAME 1
+     PLANE 20 SAME 1
+     PLANE 21 SAME 1
+  ;
+  NXNAME '01' NYNAME  'A'
+  NCOMB 1
+  B-ZONE 1
+  ADD-PARAM PNAME 'T-FUEL' PARKEY 'TFA' GLOBAL
+  ADD-PARAM PNAME 'T-COOL' PARKEY 'TCA' GLOBAL
+  BTYPE INST-BURN
+  INST-BVAL CHAN 0.0
+  REACTOR-POW <<powi>> 
+  AXIAL-PFORM  1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
+   1.0 1.0 1.0 1.0 1.0 1.0
+*  BUNDLE-POW SAME <<powi>>
+  SET-PARAM 'T-FUEL' <<Tfuel>>
+  SET-PARAM 'T-COOL' <<Tcool>>
+*  FUEL WEIGHT <<Mass>>
+  ;
+
+ELSEIF Nz 22 = THEN
+  GREP: MESHZ :: GETVAL 'MESHZ    ' 1 <<Nz>>
+    >>z1<< >>z2<< >>z3<< >>z4<< >>z5<< >>z6<< >>z7<< >>z8<< >>z9<< 
+    >>z10<< >>z11<< >>z12<< >>z13<< >>z14<< >>z15<< >>z16<< >>z17<< 
+    >>z18<< >>z19<< >>z20<< >>z21<< >>z22<< ;
+  GEOMTMP := GEO: :: CAR3D 1 1 <<Nz>>
+     X- REFL X+ REFL    Y- REFL Y+ REFL    Z- REFL Z+ REFL
+     MESHX 0.0 <<Cote>>
+     MESHY 0.0 <<Cote>>
+     MESHZ  0.0 <<z1>> <<z2>> <<z3>> <<z4>> <<z5>> <<z6>> <<z7>> <<z8>>
+       <<z9>> <<z10>> <<z11>> <<z12>> <<z13>> <<z14>> <<z15>> <<z16>> 
+       <<z17>> <<z18>> <<z19>> <<z20>> <<z21>> <<z22>>
+     MIX
+     PLANE 1
+        1
+     PLANE 2 SAME 1
+     PLANE 3 SAME 1
+     PLANE 4 SAME 1
+     PLANE 5 SAME 1
+     PLANE 6 SAME 1
+     PLANE 7 SAME 1
+     PLANE 8 SAME 1
+     PLANE 9 SAME 1
+     PLANE 10 SAME 1
+     PLANE 11 SAME 1
+     PLANE 12 SAME 1
+     PLANE 13 SAME 1
+     PLANE 14 SAME 1
+     PLANE 15 SAME 1
+     PLANE 16 SAME 1
+     PLANE 17 SAME 1
+     PLANE 18 SAME 1
+     PLANE 19 SAME 1
+     PLANE 20 SAME 1
+     PLANE 21 SAME 1
+     PLANE 22 SAME 1
+  ;
+  GEOMTMP MATEXTMP := USPLIT: GEOMTMP :: NGRP 2 MAXR <<MaxR>>
+     NFUEL 1  FMIX  1
+  ;
+  FMAPTMP MATEXTMP := RESINI: MATEXTMP ::
+     ::: GEO: CAR3D 1 1 <<Nz>>
+     X- REFL X+ REFL    Y- REFL Y+ REFL    Z- REFL Z+ REFL
+     MESHX 0.0 <<Cote>>
+     MESHY 0.0 <<Cote>>
+     MESHZ  0.0 <<z1>> <<z2>> <<z3>> <<z4>> <<z5>> <<z6>> <<z7>> <<z8>>
+       <<z9>> <<z10>> <<z11>> <<z12>> <<z13>> <<z14>> <<z15>> <<z16>> 
+       <<z17>> <<z18>> <<z19>> <<z20>> <<z21>> <<z22>>
+     MIX
+     PLANE 1
+        1
+     PLANE 2 SAME 1
+     PLANE 3 SAME 1
+     PLANE 4 SAME 1
+     PLANE 5 SAME 1
+     PLANE 6 SAME 1
+     PLANE 7 SAME 1
+     PLANE 8 SAME 1
+     PLANE 9 SAME 1
+     PLANE 10 SAME 1
+     PLANE 11 SAME 1
+     PLANE 12 SAME 1
+     PLANE 13 SAME 1
+     PLANE 14 SAME 1
+     PLANE 15 SAME 1
+     PLANE 16 SAME 1
+     PLANE 17 SAME 1
+     PLANE 18 SAME 1
+     PLANE 19 SAME 1
+     PLANE 20 SAME 1
+     PLANE 21 SAME 1
+     PLANE 22 SAME 1
+  ;
+  NXNAME '01' NYNAME  'A'
+  NCOMB 1
+  B-ZONE 1
+  ADD-PARAM PNAME 'T-FUEL' PARKEY 'TFA' GLOBAL
+  ADD-PARAM PNAME 'T-COOL' PARKEY 'TCA' GLOBAL
+  BTYPE INST-BURN
+  INST-BVAL CHAN 0.0
+  REACTOR-POW <<powi>> 
+  AXIAL-PFORM  1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
+   1.0 1.0 1.0 1.0 1.0 1.0 1.0
+*  BUNDLE-POW SAME <<powi>>
+  SET-PARAM 'T-FUEL' <<Tfuel>>
+  SET-PARAM 'T-COOL' <<Tcool>>
+*  FUEL WEIGHT <<Mass>>
+  ;
+
+ELSEIF Nz 23 = THEN
+  GREP: MESHZ :: GETVAL 'MESHZ    ' 1 <<Nz>>
+    >>z1<< >>z2<< >>z3<< >>z4<< >>z5<< >>z6<< >>z7<< >>z8<< >>z9<< 
+    >>z10<< >>z11<< >>z12<< >>z13<< >>z14<< >>z15<< >>z16<< >>z17<< 
+    >>z18<< >>z19<< >>z20<< >>z21<< >>z22<< >>z23<< ;
+  GEOMTMP := GEO: :: CAR3D 1 1 <<Nz>>
+     X- REFL X+ REFL    Y- REFL Y+ REFL    Z- REFL Z+ REFL
+     MESHX 0.0 <<Cote>>
+     MESHY 0.0 <<Cote>>
+     MESHZ  0.0 <<z1>> <<z2>> <<z3>> <<z4>> <<z5>> <<z6>> <<z7>> <<z8>>
+       <<z9>> <<z10>> <<z11>> <<z12>> <<z13>> <<z14>> <<z15>> <<z16>> 
+       <<z17>> <<z18>> <<z19>> <<z20>> <<z21>> <<z22>> <<z23>>
+     MIX
+     PLANE 1
+        1
+     PLANE 2 SAME 1
+     PLANE 3 SAME 1
+     PLANE 4 SAME 1
+     PLANE 5 SAME 1
+     PLANE 6 SAME 1
+     PLANE 7 SAME 1
+     PLANE 8 SAME 1
+     PLANE 9 SAME 1
+     PLANE 10 SAME 1
+     PLANE 11 SAME 1
+     PLANE 12 SAME 1
+     PLANE 13 SAME 1
+     PLANE 14 SAME 1
+     PLANE 15 SAME 1
+     PLANE 16 SAME 1
+     PLANE 17 SAME 1
+     PLANE 18 SAME 1
+     PLANE 19 SAME 1
+     PLANE 20 SAME 1
+     PLANE 21 SAME 1
+     PLANE 22 SAME 1
+     PLANE 23 SAME 1
+  ;
+  GEOMTMP MATEXTMP := USPLIT: GEOMTMP :: NGRP 2 MAXR <<MaxR>>
+     NFUEL 1  FMIX  1
+  ;
+  FMAPTMP MATEXTMP := RESINI: MATEXTMP ::
+     ::: GEO: CAR3D 1 1 <<Nz>>
+     X- REFL X+ REFL    Y- REFL Y+ REFL    Z- REFL Z+ REFL
+     MESHX 0.0 <<Cote>>
+     MESHY 0.0 <<Cote>>
+     MESHZ  0.0 <<z1>> <<z2>> <<z3>> <<z4>> <<z5>> <<z6>> <<z7>> <<z8>>
+       <<z9>> <<z10>> <<z11>> <<z12>> <<z13>> <<z14>> <<z15>> <<z16>> 
+       <<z17>> <<z18>> <<z19>> <<z20>> <<z21>> <<z22>> <<z23>> 
+     MIX
+     PLANE 1
+        1
+     PLANE 2 SAME 1
+     PLANE 3 SAME 1
+     PLANE 4 SAME 1
+     PLANE 5 SAME 1
+     PLANE 6 SAME 1
+     PLANE 7 SAME 1
+     PLANE 8 SAME 1
+     PLANE 9 SAME 1
+     PLANE 10 SAME 1
+     PLANE 11 SAME 1
+     PLANE 12 SAME 1
+     PLANE 13 SAME 1
+     PLANE 14 SAME 1
+     PLANE 15 SAME 1
+     PLANE 16 SAME 1
+     PLANE 17 SAME 1
+     PLANE 18 SAME 1
+     PLANE 19 SAME 1
+     PLANE 20 SAME 1
+     PLANE 21 SAME 1
+     PLANE 22 SAME 1
+     PLANE 23 SAME 1
+  ;
+  NXNAME '01' NYNAME  'A'
+  NCOMB 1
+  B-ZONE 1
+  ADD-PARAM PNAME 'T-FUEL' PARKEY 'TFA' GLOBAL
+  ADD-PARAM PNAME 'T-COOL' PARKEY 'TCA' GLOBAL
+  BTYPE INST-BURN
+  INST-BVAL CHAN 0.0
+  REACTOR-POW <<powi>> 
+  AXIAL-PFORM  1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
+   1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
+*  BUNDLE-POW SAME <<powi>>
+  SET-PARAM 'T-FUEL' <<Tfuel>>
+  SET-PARAM 'T-COOL' <<Tcool>>
+*  FUEL WEIGHT <<Mass>>
+  ;
+
+ELSEIF Nz 24 = THEN
+  GREP: MESHZ :: GETVAL 'MESHZ    ' 1 <<Nz>>
+    >>z1<< >>z2<< >>z3<< >>z4<< >>z5<< >>z6<< >>z7<< >>z8<< >>z9<< 
+    >>z10<< >>z11<< >>z12<< >>z13<< >>z14<< >>z15<< >>z16<< >>z17<< 
+    >>z18<< >>z19<< >>z20<< >>z21<< >>z22<< >>z23<< >>z24<< ;
+  GEOMTMP := GEO: :: CAR3D 1 1 <<Nz>>
+     X- REFL X+ REFL    Y- REFL Y+ REFL    Z- REFL Z+ REFL
+     MESHX 0.0 <<Cote>>
+     MESHY 0.0 <<Cote>>
+     MESHZ  0.0 <<z1>> <<z2>> <<z3>> <<z4>> <<z5>> <<z6>> <<z7>> <<z8>>
+       <<z9>> <<z10>> <<z11>> <<z12>> <<z13>> <<z14>> <<z15>> <<z16>> 
+       <<z17>> <<z18>> <<z19>> <<z20>> <<z21>> <<z22>> <<z23>> <<z24>>
+     MIX
+     PLANE 1
+        1
+     PLANE 2 SAME 1
+     PLANE 3 SAME 1
+     PLANE 4 SAME 1
+     PLANE 5 SAME 1
+     PLANE 6 SAME 1
+     PLANE 7 SAME 1
+     PLANE 8 SAME 1
+     PLANE 9 SAME 1
+     PLANE 10 SAME 1
+     PLANE 11 SAME 1
+     PLANE 12 SAME 1
+     PLANE 13 SAME 1
+     PLANE 14 SAME 1
+     PLANE 15 SAME 1
+     PLANE 16 SAME 1
+     PLANE 17 SAME 1
+     PLANE 18 SAME 1
+     PLANE 19 SAME 1
+     PLANE 20 SAME 1
+     PLANE 21 SAME 1
+     PLANE 22 SAME 1
+     PLANE 23 SAME 1
+     PLANE 24 SAME 1
+  ;
+  GEOMTMP MATEXTMP := USPLIT: GEOMTMP :: NGRP 2 MAXR <<MaxR>>
+     NFUEL 1  FMIX  1
+  ;
+  FMAPTMP MATEXTMP := RESINI: MATEXTMP ::
+     ::: GEO: CAR3D 1 1 <<Nz>>
+     X- REFL X+ REFL    Y- REFL Y+ REFL    Z- REFL Z+ REFL
+     MESHX 0.0 <<Cote>>
+     MESHY 0.0 <<Cote>>
+     MESHZ  0.0 <<z1>> <<z2>> <<z3>> <<z4>> <<z5>> <<z6>> <<z7>> <<z8>>
+       <<z9>> <<z10>> <<z11>> <<z12>> <<z13>> <<z14>> <<z15>> <<z16>> 
+       <<z17>> <<z18>> <<z19>> <<z20>> <<z21>> <<z22>> <<z23>> <<z24>>
+     MIX
+     PLANE 1
+        1
+     PLANE 2 SAME 1
+     PLANE 3 SAME 1
+     PLANE 4 SAME 1
+     PLANE 5 SAME 1
+     PLANE 6 SAME 1
+     PLANE 7 SAME 1
+     PLANE 8 SAME 1
+     PLANE 9 SAME 1
+     PLANE 10 SAME 1
+     PLANE 11 SAME 1
+     PLANE 12 SAME 1
+     PLANE 13 SAME 1
+     PLANE 14 SAME 1
+     PLANE 15 SAME 1
+     PLANE 16 SAME 1
+     PLANE 17 SAME 1
+     PLANE 18 SAME 1
+     PLANE 19 SAME 1
+     PLANE 20 SAME 1
+     PLANE 21 SAME 1
+     PLANE 22 SAME 1
+     PLANE 23 SAME 1
+     PLANE 24 SAME 1
+  ;
+  NXNAME '01' NYNAME  'A'
+  NCOMB 1
+  B-ZONE 1
+  ADD-PARAM PNAME 'T-FUEL' PARKEY 'TFA' GLOBAL
+  ADD-PARAM PNAME 'T-COOL' PARKEY 'TCA' GLOBAL
+  BTYPE INST-BURN
+  INST-BVAL CHAN 0.0
+  REACTOR-POW <<powi>> 
+  AXIAL-PFORM  1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
+   1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
+*  BUNDLE-POW SAME <<powi>>
+  SET-PARAM 'T-FUEL' <<Tfuel>>
+  SET-PARAM 'T-COOL' <<Tcool>>
+*  FUEL WEIGHT <<Mass>>
+  ;
+
+ELSEIF Nz 25 = THEN
+  GREP: MESHZ :: GETVAL 'MESHZ    ' 1 <<Nz>>
+    >>z1<< >>z2<< >>z3<< >>z4<< >>z5<< >>z6<< >>z7<< >>z8<< >>z9<< 
+    >>z10<< >>z11<< >>z12<< >>z13<< >>z14<< >>z15<< >>z16<< >>z17<< 
+    >>z18<< >>z19<< >>z20<< >>z21<< >>z22<< >>z23<< >>z24<< >>z25<< ;
+  GEOMTMP := GEO: :: CAR3D 1 1 <<Nz>>
+     X- REFL X+ REFL    Y- REFL Y+ REFL    Z- REFL Z+ REFL
+     MESHX 0.0 <<Cote>>
+     MESHY 0.0 <<Cote>>
+     MESHZ  0.0 <<z1>> <<z2>> <<z3>> <<z4>> <<z5>> <<z6>> <<z7>> <<z8>>
+       <<z9>> <<z10>> <<z11>> <<z12>> <<z13>> <<z14>> <<z15>> <<z16>> 
+       <<z17>> <<z18>> <<z19>> <<z20>> <<z21>> <<z22>> <<z23>> <<z24>>
+       <<z25>>
+     MIX
+     PLANE 1
+        1
+     PLANE 2 SAME 1
+     PLANE 3 SAME 1
+     PLANE 4 SAME 1
+     PLANE 5 SAME 1
+     PLANE 6 SAME 1
+     PLANE 7 SAME 1
+     PLANE 8 SAME 1
+     PLANE 9 SAME 1
+     PLANE 10 SAME 1
+     PLANE 11 SAME 1
+     PLANE 12 SAME 1
+     PLANE 13 SAME 1
+     PLANE 14 SAME 1
+     PLANE 15 SAME 1
+     PLANE 16 SAME 1
+     PLANE 17 SAME 1
+     PLANE 18 SAME 1
+     PLANE 19 SAME 1
+     PLANE 20 SAME 1
+     PLANE 21 SAME 1
+     PLANE 22 SAME 1
+     PLANE 23 SAME 1
+     PLANE 24 SAME 1
+     PLANE 25 SAME 1
+  ;
+  GEOMTMP MATEXTMP := USPLIT: GEOMTMP :: NGRP 2 MAXR <<MaxR>>
+     NFUEL 1  FMIX  1
+  ;
+  FMAPTMP MATEXTMP := RESINI: MATEXTMP ::
+     ::: GEO: CAR3D 1 1 <<Nz>>
+     X- REFL X+ REFL    Y- REFL Y+ REFL    Z- REFL Z+ REFL
+     MESHX 0.0 <<Cote>>
+     MESHY 0.0 <<Cote>>
+     MESHZ  0.0 <<z1>> <<z2>> <<z3>> <<z4>> <<z5>> <<z6>> <<z7>> <<z8>>
+       <<z9>> <<z10>> <<z11>> <<z12>> <<z13>> <<z14>> <<z15>> <<z16>> 
+       <<z17>> <<z18>> <<z19>> <<z20>> <<z21>> <<z22>> <<z23>> <<z24>>
+       <<z25>>
+     MIX
+     PLANE 1
+        1
+     PLANE 2 SAME 1
+     PLANE 3 SAME 1
+     PLANE 4 SAME 1
+     PLANE 5 SAME 1
+     PLANE 6 SAME 1
+     PLANE 7 SAME 1
+     PLANE 8 SAME 1
+     PLANE 9 SAME 1
+     PLANE 10 SAME 1
+     PLANE 11 SAME 1
+     PLANE 12 SAME 1
+     PLANE 13 SAME 1
+     PLANE 14 SAME 1
+     PLANE 15 SAME 1
+     PLANE 16 SAME 1
+     PLANE 17 SAME 1
+     PLANE 18 SAME 1
+     PLANE 19 SAME 1
+     PLANE 20 SAME 1
+     PLANE 21 SAME 1
+     PLANE 22 SAME 1
+     PLANE 23 SAME 1
+     PLANE 24 SAME 1
+     PLANE 25 SAME 1
+  ;
+  NXNAME '01' NYNAME  'A'
+  NCOMB 1
+  B-ZONE 1
+  ADD-PARAM PNAME 'T-FUEL' PARKEY 'TFA' GLOBAL
+  ADD-PARAM PNAME 'T-COOL' PARKEY 'TCA' GLOBAL
+  BTYPE INST-BURN
+  INST-BVAL CHAN 0.0
+  REACTOR-POW <<powi>> 
+  AXIAL-PFORM  1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
+   1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
+*  BUNDLE-POW SAME <<powi>>
+  SET-PARAM 'T-FUEL' <<Tfuel>>
+  SET-PARAM 'T-COOL' <<Tcool>>
+*  FUEL WEIGHT <<Mass>>
+  ;
+
+ELSEIF Nz 26 = THEN
+  GREP: MESHZ :: GETVAL 'MESHZ    ' 1 <<Nz>>
+    >>z1<< >>z2<< >>z3<< >>z4<< >>z5<< >>z6<< >>z7<< >>z8<< >>z9<< 
+    >>z10<< >>z11<< >>z12<< >>z13<< >>z14<< >>z15<< >>z16<< >>z17<< 
+    >>z18<< >>z19<< >>z20<< >>z21<< >>z22<< >>z23<< >>z24<< >>z25<< 
+    >>z26<< ;
+  GEOMTMP := GEO: :: CAR3D 1 1 <<Nz>>
+     X- REFL X+ REFL    Y- REFL Y+ REFL    Z- REFL Z+ REFL
+     MESHX 0.0 <<Cote>>
+     MESHY 0.0 <<Cote>>
+     MESHZ  0.0 <<z1>> <<z2>> <<z3>> <<z4>> <<z5>> <<z6>> <<z7>> <<z8>>
+       <<z9>> <<z10>> <<z11>> <<z12>> <<z13>> <<z14>> <<z15>> <<z16>> 
+       <<z17>> <<z18>> <<z19>> <<z20>> <<z21>> <<z22>> <<z23>> <<z24>>
+       <<z25>> <<z26>>
+     MIX
+     PLANE 1
+        1
+     PLANE 2 SAME 1
+     PLANE 3 SAME 1
+     PLANE 4 SAME 1
+     PLANE 5 SAME 1
+     PLANE 6 SAME 1
+     PLANE 7 SAME 1
+     PLANE 8 SAME 1
+     PLANE 9 SAME 1
+     PLANE 10 SAME 1
+     PLANE 11 SAME 1
+     PLANE 12 SAME 1
+     PLANE 13 SAME 1
+     PLANE 14 SAME 1
+     PLANE 15 SAME 1
+     PLANE 16 SAME 1
+     PLANE 17 SAME 1
+     PLANE 18 SAME 1
+     PLANE 19 SAME 1
+     PLANE 20 SAME 1
+     PLANE 21 SAME 1
+     PLANE 22 SAME 1
+     PLANE 23 SAME 1
+     PLANE 24 SAME 1
+     PLANE 25 SAME 1
+     PLANE 26 SAME 1
+  ;
+  GEOMTMP MATEXTMP := USPLIT: GEOMTMP :: NGRP 2 MAXR <<MaxR>>
+     NFUEL 1  FMIX  1
+  ;
+  FMAPTMP MATEXTMP := RESINI: MATEXTMP ::
+     ::: GEO: CAR3D 1 1 <<Nz>>
+     X- REFL X+ REFL    Y- REFL Y+ REFL    Z- REFL Z+ REFL
+     MESHX 0.0 <<Cote>>
+     MESHY 0.0 <<Cote>>
+     MESHZ  0.0 <<z1>> <<z2>> <<z3>> <<z4>> <<z5>> <<z6>> <<z7>> <<z8>>
+       <<z9>> <<z10>> <<z11>> <<z12>> <<z13>> <<z14>> <<z15>> <<z16>> 
+       <<z17>> <<z18>> <<z19>> <<z20>> <<z21>> <<z22>> <<z23>> <<z24>>
+       <<z25>> <<z26>>
+     MIX
+     PLANE 1
+        1
+     PLANE 2 SAME 1
+     PLANE 3 SAME 1
+     PLANE 4 SAME 1
+     PLANE 5 SAME 1
+     PLANE 6 SAME 1
+     PLANE 7 SAME 1
+     PLANE 8 SAME 1
+     PLANE 9 SAME 1
+     PLANE 10 SAME 1
+     PLANE 11 SAME 1
+     PLANE 12 SAME 1
+     PLANE 13 SAME 1
+     PLANE 14 SAME 1
+     PLANE 15 SAME 1
+     PLANE 16 SAME 1
+     PLANE 17 SAME 1
+     PLANE 18 SAME 1
+     PLANE 19 SAME 1
+     PLANE 20 SAME 1
+     PLANE 21 SAME 1
+     PLANE 22 SAME 1
+     PLANE 23 SAME 1
+     PLANE 24 SAME 1
+     PLANE 25 SAME 1
+     PLANE 26 SAME 1
+  ;
+  NXNAME '01' NYNAME  'A'
+  NCOMB 1
+  B-ZONE 1
+  ADD-PARAM PNAME 'T-FUEL' PARKEY 'TFA' GLOBAL
+  ADD-PARAM PNAME 'T-COOL' PARKEY 'TCA' GLOBAL
+  BTYPE INST-BURN
+  INST-BVAL CHAN 0.0
+  REACTOR-POW <<powi>> 
+  AXIAL-PFORM  1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
+   1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
+*  BUNDLE-POW SAME <<powi>>
+  SET-PARAM 'T-FUEL' <<Tfuel>>
+  SET-PARAM 'T-COOL' <<Tcool>>
+*  FUEL WEIGHT <<Mass>>
+  ;
+ENDIF ;
+
+ECHO "%%3 Tfuel = " Tfuel ;
+
+*--
+* THMTMP single-stage calculation
+*--
+THMTMP FMAPTMP := THM: FMAPTMP ::
+    EDIT 1
+    FLUID SALT LiF-BeF2 0.66-0.34 
+    FUEL SALT LiF-NaF-KF 0.465-0.115-0.42
+    TIME 0.0
+    FPUISS 1.0
+    INLET 101325.0 800.15
+    * CONDF 0 2.48 (*W/m/K*) KELVIN
+    * CONDC 0 35.0 (*W/m/K*) KELVIN
+    CRITFL 9E12
+    SPEED 3.0
+    ASSMB 1 0
+    RADIUS 4.55063E-3 4.55063E-3 5.00184E-3 5.00184E-3 (* m *)
+*    POROS 0.0
+    RODMESH 15 20
+    MONO
+;
+
+ GREP: THMTMP :: GETVAL 'AVG-T-FUEL  ' 1 * >>Tfuel<< ;
+ GREP: THMTMP :: GETVAL 'AVG-T-COOL  ' 1 * >>Tcool<< ;
+ EVALUATE deltaH := totH totH1 - ABS ;
+ ECHO '%%0 iter maxiter totH totH1 deltaH Tfuel Tcool = ' iter maxiter 
+ totH totH1 deltaH Tfuel Tcool ;
+ ECHO "%%3 deltaH CONV iter maxiter = " deltaH CONV iter maxiter ;
+
+UNTIL deltaH CONV < iter maxiter = + ;
+
+ECHO "FINAL HEIGHT = " totH ;
+
+GEOM := GEOMTMP ;
+FMAP := FMAPTMP ;
+MATEX := MATEXTMP ;
+THM := THMTMP ;
+* UTL: GEOMTMP :: DIR DUMP ;
+* UTL: FMAPTMP :: DIR DUMP ;
+
+*---
+* END CALCULATION
+*---
+ECHO DOUBLE_LINE ;
+ECHO 'END PROCEDURE ' FILENAME ;
+ECHO DOUBLE_LINE ;
+
+* Return totH
+:: <<totH>> ;
+
+END: ;
+QUIT "LIST" .
+

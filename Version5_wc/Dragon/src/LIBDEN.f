@@ -562,22 +562,20 @@
   330       CONTINUE
          ENDIF
       ENDIF
-      
       !-----------------------------------------------------------
       !APPLY STERNHEIMER DENSITY CORRECTION ON HEAT DEPOSITION FOR
-      !ELECTRON AND POSITRON. 
+      !ELECTRON AND POSITRON.
       !REASON: SOFT INLEASTIC HEAT DEPOSITION IN ELECTR
       !CONTAINS A COLLISONNAL STOPPING POWER WHICH HAS NOT
       !BEEN CORRECTED IN NJOY.
       !-----------------------------------------------------------
       IF (STERN.EQ.1) THEN
-         IF (HPRT1.EQ.'B'.OR.HPRT1.EQ.'C') THEN 
+         IF (HPRT1.EQ.'B'.OR.HPRT1.EQ.'C') THEN
             DO LLL=1,NGROUP
-               GAF(IBM,LLL,7)=GAF(IBM,LLL,7)-DENMAT(IBM,LLL) !MeV/cm
-            ENDDO   
+               GAF(IBM,LLL,7)=GAF(IBM,LLL,7)-DENMAT(IBM,LLL) !eV/cm
+            ENDDO
           ENDIF
-      ENDIF  
-
+      ENDIF
   340 CONTINUE
       DO 420 LLL=1,NGROUP
       KPLIB=IPGRP(LLL,1)
@@ -625,7 +623,7 @@
                IF(.NOT.MASK(IBM)) GAF(IBM,LLL,7)=GAF(IBM,LLL,8)
   390          CONTINUE
             ENDIF
-            CALL LCMPUT(KPLIB,'H-FACTOR',NBMIX,2,GAF(1,LLL,7)) !MeV/cm
+            CALL LCMPUT(KPLIB,'H-FACTOR',NBMIX,2,GAF(1,LLL,7)) !eV/cm
          ENDIF
          IF(LC) THEN
             IF(MASKK) THEN
@@ -919,6 +917,7 @@
       IF(CV(:2).EQ.'NW') GO TO 770
       IF(CV.EQ.'TRANC') GO TO 770
       IF((CV(:3).EQ.'BST').OR.(CV(:3).EQ.'CST')) GO TO 770
+      IF(CV(:8).EQ.'H-FACTOR') GO TO 770
       EXIST=.FALSE.
       DO 740 IBM=1,NBMIX
       IF(MASK(IBM).OR.(.NOT.MASKK)) THEN

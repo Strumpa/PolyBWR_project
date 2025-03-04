@@ -57,6 +57,7 @@ tests :
 	./rdragon -c $(fcompilerSuite) -q C2D20.x2m
 	./rdragon -c $(fcompilerSuite) -q CFC-CELL.x2m
 	./rdragon -c $(fcompilerSuite) -q ErmBeavrsPwrRefl.x2m
+	./rdragon -c $(fcompilerSuite) -q DF_RTBeavrsPwrRefl.x2m
 	./rdragon -c $(fcompilerSuite) -q rep900_het_gff_jef2p2.x2m
 	./rdragon -c $(fcompilerSuite) -q RegtestCNG_mccg.x2m
 	./rdragon -c $(fcompilerSuite) -q RegtestLZC_mccg.x2m

@@ -85,6 +85,7 @@ tests :
 	./rdonjon -c $(fcompilerSuite) -q test_channBWR.x2m
 	./rdonjon -c $(fcompilerSuite) -q thm_salt.x2m
 	./rdonjon -c $(fcompilerSuite) -q thm_salt_lf.x2m
+	./rdonjon -c $(fcompilerSuite) -q thm_salt_lf_texp.x2m
 	./rdonjon -c $(fcompilerSuite) -q thm_salt_lf_trans.x2m
 	./rdonjon -c $(fcompilerSuite) -q vver_test.x2m
 ifeq ($(hdf5),1)
@@ -100,6 +101,8 @@ ifeq ($(hdf5),1)
 	./rdonjon -c $(fcompilerSuite) -q pincell_mpo_concat.x2m
 	./rdonjon -c $(fcompilerSuite) -q Reflector_beavrs_DF-NEM.x2m
 	./rdonjon -c $(fcompilerSuite) -q Reflector_beavrs_DF-ANM.x2m
+	./rdonjon -c $(fcompilerSuite) -q Reflector_beavrs_DF-RT.x2m
+	./rdonjon -c $(fcompilerSuite) -q Reflector_beavrs_DF-RT-SPN.x2m
 	./rdonjon -c $(fcompilerSuite) -q Reflector_beavrs_ERM-NEM.x2m
 	./rdonjon -c $(fcompilerSuite) -q Reflector_beavrs_ERM-ANM.x2m
 	./rdonjon -c $(fcompilerSuite) -q Reflector_beavrs_Koebke.x2m

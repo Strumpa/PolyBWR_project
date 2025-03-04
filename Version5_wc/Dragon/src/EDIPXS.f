@@ -256,7 +256,7 @@
               FAC1=0.0D0
               FAC2=0.0D0
               DO 204 IKK=1,NMERGE
-                FAC1=FAC1+RATECM(IKK,IGR,5)*FLUXCM(IKK,IGR,1)
+                FAC1=FAC1+RATECM(IKK,IGR,NW+5)*FLUXCM(IKK,IGR,1)
                 FAC2=FAC2+FLUXCM(IKK,IGR,1)/(3.0*(RATECM(IKK,IGR,1)-
      >          SIGS(IKK,IGR,2)))
  204          CONTINUE

@@ -1,7 +1,7 @@
 *DECK BREMAC
-      SUBROUTINE BREMAC(NC,IPMAC2,NG,LX1,NMIX1,NMIX2,IMIX,IMIX1,IGAP,
-     1 ILEAKS,IDF,IPRINT,ZKEFF,B2,VOL1,FLX1,DC1,TOT1,CHI1,SIGF1,SCAT1,
-     2 JXM,JXP,FHETXM,FHETXP,ADF1)
+      SUBROUTINE BREMAC(NC,IPMAC2,NG,NL,LX1,NMIX1,NMIX2,IMIX,IMIX1,
+     1 IGAP,ILEAKS,IDF,IPRINT,ZKEFF,B2,VOL1,FLX1,DC1,TOT1,CHI1,SIGF1,
+     2 SCAT1,JXM,JXP,FHETXM,FHETXP,ADF1)
 *
 *-----------------------------------------------------------------------
 *
@@ -19,8 +19,10 @@
 *
 *Parameters: input
 * NC      number of sn macrolibs.
-* IPMAC2  sn macrolib.
+* IPMAC2  pointer to the sn macrolib.
 * NG      number of energy groups.
+* NL      Legendre order of TOT1 and SCAT1 arrays (=1 for isotropic
+*         scattering in LAB).
 * LX1     number of nodes in the reflector model.
 * NMIX1   number of mixtures in the nodal calculation.
 * NMIX2   number of mixtures in the sn calculation after edition.
@@ -42,7 +44,7 @@
 * TOT1    total cross sections.
 * CHI1    fission spectra.
 * SIGF1   nu*fission cross sections.
-* SCAT1   scattering P0 cross sections.
+* SCAT1   scattering cross sections.
 * JXM     left boundary currents.
 * JXP     right boundary currents.
 * FHETXM  left boundary fluxes.
@@ -57,33 +59,34 @@
 *----
       INTEGER NC
       TYPE(C_PTR) IPMAC2(NC)
-      INTEGER NG,LX1,NMIX1,NMIX2,IMIX(LX1),IMIX1(LX1),IGAP(LX1),ILEAKS,
-     1 IDF,IPRINT
+      INTEGER NG,NL,LX1,NMIX1,NMIX2,IMIX(LX1),IMIX1(LX1),IGAP(LX1),
+     1 ILEAKS,IDF,IPRINT
       REAL ZKEFF(NC),B2(NC),VOL1(NMIX1,NC),FLX1(NMIX1,NG,NC),
-     1 DC1(NMIX1,NG,NC),TOT1(NMIX1,NG,NC),CHI1(NMIX1,NG,NC),
-     2 SIGF1(NMIX1,NG,NC),SCAT1(NMIX1,NG,NG,NC),JXM(NMIX1,NG,NC),
-     3 JXP(NMIX1,NG,NC),FHETXM(NMIX1,NG,NC),FHETXP(NMIX1,NG,NC),
+     1 DC1(NMIX1,NG,NC),TOT1(NMIX1,NG,NL,NC),CHI1(NMIX1,NG,NC),
+     2 SIGF1(NMIX1,NG,NC),SCAT1(NMIX1,NG,NG,NL,NC),JXM(NMIX1,NG,NC),
+     3 JXP(NMIX1,NG,NC),FHETXM(NMIX1,NG,NL,NC),FHETXP(NMIX1,NG,NL,NC),
      4 ADF1(NMIX1,NG,NC)
 *----
 *  LOCAL VARIABLES
 *----
       TYPE(C_PTR) JPMAC2,KPMAC2
       DOUBLE PRECISION DSFIS
-      CHARACTER HADF*8
+      CHARACTER CM*2,HADF*8,TEXT12*12
 *----
 *  ALLOCATABLE ARRAYS
 *----
       INTEGER, ALLOCATABLE, DIMENSION(:) :: IJJ,NJJ,IPOS,IMIX2
       REAL, ALLOCATABLE, DIMENSION(:) :: VOL,WORK,SFIS,SFIS1
-      REAL, ALLOCATABLE, DIMENSION(:,:) :: FLX,TOT,DC,CHI,SIGF
-      REAL, ALLOCATABLE, DIMENSION(:,:,:) :: SCAT
+      REAL, ALLOCATABLE, DIMENSION(:,:) :: DC,CHI,SIGF
+      REAL, ALLOCATABLE, DIMENSION(:,:,:) :: FLX,TOT
+      REAL, ALLOCATABLE, DIMENSION(:,:,:,:) :: SCAT
       DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:,:) :: DCOU
 *----
 *  SCRATCH STORAGE ALLOCATION
 *----
-      ALLOCATE(VOL(NMIX2),FLX(NMIX2,NG),TOT(NMIX2,NG),DC(NMIX2,NG),
-     1 CHI(NMIX2,NG),SIGF(NMIX2,NG),SCAT(NMIX2,NG,NG),IMIX2(NMIX2),
-     2 SFIS(NMIX2),SFIS1(NMIX1),DCOU(NMIX2+1,NG))
+      ALLOCATE(VOL(NMIX2),FLX(NMIX2,NG,NL),TOT(NMIX2,NG,NL),
+     1 DC(NMIX2,NG),CHI(NMIX2,NG),SIGF(NMIX2,NG),SCAT(NMIX2,NG,NG,NL),
+     2 IMIX2(NMIX2),SFIS(NMIX2),SFIS1(NMIX1),DCOU(NMIX2+1,NG))
       ALLOCATE(IJJ(NMIX2),NJJ(NMIX2),IPOS(NMIX2),WORK(NG*NMIX2))
 *----
 *  SET IMIX2
@@ -112,59 +115,119 @@
           IF(ILONG.EQ.1) CALL LCMGET(IPMAC2(IC),'B2  B1HOM',B2(IC))
         ENDIF
         JPMAC2=LCMGID(IPMAC2(IC),'GROUP')
+        SCAT(:,:,:,:)=0.0
         DO IGR=1,NG
           KPMAC2=LCMGIL(JPMAC2,IGR)
-          CALL LCMGET(KPMAC2,'FLUX-INTG',FLX(1,IGR))
-          CALL LCMGET(KPMAC2,'NTOT0',TOT(1,IGR))
+          CALL LCMGET(KPMAC2,'FLUX-INTG',FLX(1,IGR,1))
+          CALL LCMGET(KPMAC2,'NTOT0',TOT(1,IGR,1))
+          IF(NL.GE.2) THEN
+            CALL LCMLEN(KPMAC2,'FLUX-INTG-P1',ILCMLN,ITYLCM)
+            IF(ILCMLN.GT.0) THEN
+              CALL LCMGET(KPMAC2,'FLUX-INTG-P1',FLX(1,IGR,2))
+            ELSE
+              FLX(:NMIX2,IGR,2)=FLX(:NMIX2,IGR,1)
+            ENDIF
+            CALL LCMLEN(KPMAC2,'NTOT1',ILCMLN,ITYLCM)
+            IF(ILCMLN.GT.0) THEN
+              CALL LCMGET(KPMAC2,'NTOT1',TOT(1,IGR,2))
+            ELSE
+              TOT(:NMIX2,IGR,2)=TOT(:NMIX2,IGR,1)
+            ENDIF
+            DO IL=3,NL
+              WRITE(TEXT12,'(11HFLUX-INTG-P,I1)') IL-1
+              CALL LCMLEN(KPMAC2,TEXT12,ILCMLN,ITYLCM)
+              IF(ILCMLN.GT.0) THEN
+                CALL LCMGET(KPMAC2,TEXT12,FLX(1,IGR,IL))
+              ELSE
+                FLX(:NMIX2,IGR,IL)=FLX(:NMIX2,IGR,IL-2)
+              ENDIF
+              WRITE(TEXT12,'(4HNTOT,I1)') IL-1
+              CALL LCMLEN(KPMAC2,TEXT12,ILCMLN,ITYLCM)
+              IF(ILCMLN.GT.0) THEN
+                CALL LCMGET(KPMAC2,TEXT12,TOT(1,IGR,IL))
+              ELSE
+                TOT(:NMIX2,IGR,IL)=TOT(:NMIX2,IGR,IL-2)
+              ENDIF
+            ENDDO
+          ENDIF
           CALL LCMGET(KPMAC2,'DIFF',DC(1,IGR))
           CALL LCMGET(KPMAC2,'CHI',CHI(1,IGR))
           CALL LCMGET(KPMAC2,'NUSIGF',SIGF(1,IGR))
-          CALL LCMGET(KPMAC2,'IJJS00',IJJ)
-          CALL LCMGET(KPMAC2,'NJJS00',NJJ)
-          CALL LCMGET(KPMAC2,'IPOS00',IPOS)
-          CALL LCMGET(KPMAC2,'SCAT00',WORK)
-          DO IBM=1,NMIX2
-            SCAT(IBM,IGR,:)=0.0
-            IPOSDE=IPOS(IBM)-1
-            DO JGR=IJJ(IBM),IJJ(IBM)-NJJ(IBM)+1,-1
-              IPOSDE=IPOSDE+1
-              SCAT(IBM,IGR,JGR)=WORK(IPOSDE) ! IGR <-- JGR
+          DO IL=1,NL
+            WRITE(CM,'(I2.2)') IL-1
+            CALL LCMLEN(KPMAC2,'IJJS'//CM,ILONG,ITYLCM)
+            IF(ILONG.EQ.0) CYCLE
+            CALL LCMGET(KPMAC2,'IJJS'//CM,IJJ)
+            CALL LCMGET(KPMAC2,'NJJS'//CM,NJJ)
+            CALL LCMGET(KPMAC2,'IPOS'//CM,IPOS)
+            CALL LCMGET(KPMAC2,'SCAT'//CM,WORK)
+            DO IBM=1,NMIX2
+              IPOSDE=IPOS(IBM)-1
+              DO JGR=IJJ(IBM),IJJ(IBM)-NJJ(IBM)+1,-1
+                IPOSDE=IPOSDE+1
+                SCAT(IBM,IGR,JGR,IL)=WORK(IPOSDE) ! IGR <-- JGR
+              ENDDO
             ENDDO
-            FLX(IBM,IGR)=FLX(IBM,IGR)/VOL(IBM)
+          ENDDO
+          DO IBM=1,NMIX2
+            FLX(IBM,IGR,:NL)=FLX(IBM,IGR,:NL)/VOL(IBM)
           ENDDO
         ENDDO
 *----
-*  COMPUTE NET CURRENTS BETWEEN NODES
+*  COMPUTE NET CURRENTS BETWEEN NODES USING A BALANCE RELATION
 *----
         DCOU(:NMIX2+1,:NG)=0.0D0
         DO IBM=1,NMIX2
           DSFIS=0.0D0
           DO IGR=1,NG
-            DSFIS=DSFIS+SIGF(IBM,IGR)*FLX(IBM,IGR)
+            DSFIS=DSFIS+SIGF(IBM,IGR)*FLX(IBM,IGR,1)
           ENDDO
           DSFIS=DSFIS/ZKEFF(IC)
           DO IGR=1,NG
             DCOU(IBM+1,IGR)=DCOU(IBM,IGR)+VOL(IBM)*(CHI(IBM,IGR)*DSFIS-
-     1      (TOT(IBM,IGR)+B2(IC)*DC(IBM,IGR))*FLX(IBM,IGR))
+     1      (TOT(IBM,IGR,1)+B2(IC)*DC(IBM,IGR))*FLX(IBM,IGR,1))
             DO JGR=1,NG
-              DCOU(IBM+1,IGR)=DCOU(IBM+1,IGR)+VOL(IBM)*SCAT(IBM,IGR,JGR)
-     1        *FLX(IBM,JGR)
+              DCOU(IBM+1,IGR)=DCOU(IBM+1,IGR)+VOL(IBM)*
+     1        SCAT(IBM,IGR,JGR,1)*FLX(IBM,JGR,1)
             ENDDO
           ENDDO
         ENDDO
+*----
+*  NORMALIZE THE ODD FLUX UNKNOWNS BETWEEN NODES
+*----
+        IF(NL.GT.1) THEN
+          DO J=1,LX1
+            IBM=IMIX1(J)
+            IBG=IGAP(J)
+            IF((IBM.GT.0).AND.(IBG.GT.0)) THEN
+              DO IGR=1,NG
+                FACT=REAL(DCOU(IBM+1,IGR))/FLX(IBG,IGR,2)
+                DO IL=2,NL,2
+                  FLX(IBG,IGR,IL)=FLX(IBG,IGR,IL)*FACT
+                ENDDO
+              ENDDO
+            ENDIF
+          ENDDO
+        ENDIF
 *----
 *  HOMOGENIZATION OVER THE GAPS AND NODES
 *----
         VOL1(:,IC)=0.0
         SFIS1(:)=0.0
         FLX1(:,:,IC)=0.0
-        TOT1(:,:,IC)=0.0
+        TOT1(:,:,:,IC)=0.0
         DC1(:,:,IC)=0.0
         SIGF1(:,:,IC)=0.0
         CHI1(:,:,IC)=0.0
-        SCAT1(:,:,:,IC)=0.0
-        FHETXM(:,:,IC)=1.0
-        FHETXP(:,:,IC)=1.0
+        SCAT1(:,:,:,:,IC)=0.0
+        DO IL=1,NL,2
+          FHETXM(:,:,IL,IC)=1.0
+          FHETXP(:,:,IL,IC)=1.0
+        ENDDO
+        DO IL=2,NL,2
+          FHETXM(:,:,IL,IC)=0.0
+          FHETXP(:,:,IL,IC)=0.0
+        ENDDO
         JXM(:,:,IC)=0.0
         JXP(:,:,IC)=0.0
         ADF1(:,:,IC)=0.0
@@ -172,10 +235,14 @@
           IBM=IMIX1(J)
           IBG=IGAP(J)
           IF(IBG.GT.0) THEN
-            IF(IMIX(J).GT.0) FHETXP(IMIX(J),:,IC)=FLX(IBG,:)
-            IF(J.LT.LX1) THEN
-              IF(IMIX(J+1).GT.0) FHETXM(IMIX(J+1),:,IC)=FLX(IBG,:)
-            ENDIF
+            DO IL=1,NL
+              IF(IMIX(J).GT.0) FHETXP(IMIX(J),:,IL,IC)=FLX(IBG,:,IL)
+              IF(J.LT.LX1) THEN
+                IF(IMIX(J+1).GT.0) THEN
+                  FHETXM(IMIX(J+1),:,IL,IC)=FLX(IBG,:,IL)
+                ENDIF
+              ENDIF
+            ENDDO
           ENDIF
           IF(IBM.GT.0) THEN
             IF(IMIX(J).GT.0) THEN
@@ -190,34 +257,43 @@
           VOL1(IBM,IC)=VOL1(IBM,IC)+VOL(IBM2)
           SFIS(IBM2)=0.0
           DO IGR=1,NG
-            SFIS(IBM2)=SFIS(IBM2)+VOL(IBM2)*FLX(IBM2,IGR)*SIGF(IBM2,IGR)
+            SFIS(IBM2)=SFIS(IBM2)+VOL(IBM2)*FLX(IBM2,IGR,1)*
+     1      SIGF(IBM2,IGR)
           ENDDO
           SFIS1(IBM)=SFIS1(IBM)+SFIS(IBM2)
           DO IGR=1,NG
-            FLX1(IBM,IGR,IC)=FLX1(IBM,IGR,IC)+VOL(IBM2)*FLX(IBM2,IGR)
-            TOT1(IBM,IGR,IC)=TOT1(IBM,IGR,IC)+VOL(IBM2)*FLX(IBM2,IGR)*
-     1      TOT(IBM2,IGR)
-            DC1(IBM,IGR,IC)=DC1(IBM,IGR,IC)+VOL(IBM2)*FLX(IBM2,IGR)*
+            FLX1(IBM,IGR,IC)=FLX1(IBM,IGR,IC)+VOL(IBM2)*FLX(IBM2,IGR,1)
+            DO IL=1,NL
+              TOT1(IBM,IGR,IL,IC)=TOT1(IBM,IGR,IL,IC)+VOL(IBM2)*
+     1        FLX(IBM2,IGR,1)*TOT(IBM2,IGR,IL)
+            ENDDO
+            DC1(IBM,IGR,IC)=DC1(IBM,IGR,IC)+VOL(IBM2)*FLX(IBM2,IGR,1)*
      1      DC(IBM2,IGR)
-            SIGF1(IBM,IGR,IC)=SIGF1(IBM,IGR,IC)+VOL(IBM2)*FLX(IBM2,IGR)*
-     1      SIGF(IBM2,IGR)
+            SIGF1(IBM,IGR,IC)=SIGF1(IBM,IGR,IC)+VOL(IBM2)*
+     1      FLX(IBM2,IGR,1)*SIGF(IBM2,IGR)
             CHI1(IBM,IGR,IC)=CHI1(IBM,IGR,IC)+SFIS(IBM2)*CHI(IBM2,IGR)
-            DO JGR=1,NG
-              SCAT1(IBM,IGR,JGR,IC)=SCAT1(IBM,IGR,JGR,IC)+VOL(IBM2)*
-     1        FLX(IBM2,JGR)*SCAT(IBM2,IGR,JGR)
+            DO IL=1,NL
+              DO JGR=1,NG
+                SCAT1(IBM,IGR,JGR,IL,IC)=SCAT1(IBM,IGR,JGR,IL,IC)+
+     1          VOL(IBM2)*FLX(IBM2,JGR,1)*SCAT(IBM2,IGR,JGR,IL)
+              ENDDO
             ENDDO
           ENDDO
         ENDDO
         DO IBM=1,NMIX1
           DO IGR=1,NG
-            TOT1(IBM,IGR,IC)=TOT1(IBM,IGR,IC)/FLX1(IBM,IGR,IC)
+            DO IL=1,NL
+              TOT1(IBM,IGR,IL,IC)=TOT1(IBM,IGR,IL,IC)/FLX1(IBM,IGR,IC)
+            ENDDO
             DC1(IBM,IGR,IC)=DC1(IBM,IGR,IC)/FLX1(IBM,IGR,IC)
             IF(SFIS1(IBM).NE.0.0) CHI1(IBM,IGR,IC)=CHI1(IBM,IGR,IC)/
      1      SFIS1(IBM)
             SIGF1(IBM,IGR,IC)=SIGF1(IBM,IGR,IC)/FLX1(IBM,IGR,IC)
             DO JGR=1,NG
-              SCAT1(IBM,IGR,JGR,IC)=SCAT1(IBM,IGR,JGR,IC)/
-     1        FLX1(IBM,JGR,IC)
+              DO IL=1,NL
+                SCAT1(IBM,IGR,JGR,IL,IC)=SCAT1(IBM,IGR,JGR,IL,IC)/
+     1          FLX1(IBM,JGR,IC)
+              ENDDO
             ENDDO
           ENDDO
           DO IGR=1,NG
@@ -242,6 +318,7 @@
 *----
         IF(IPRINT.GT.1) THEN
           WRITE(6,'(/36H BREMAC: CROSS SECTION FOR MACROLIB=,I5)') IC
+          WRITE(6,'(31H BREMAC: SCATTERING ANISOTROPY=,I5)') NL-1
           WRITE(6,'(/6H KEFF=,1P E13.5,4H B2=,E13.5/)') ZKEFF(IC),B2(IC)
           WRITE(6,10) 'IMIX',IMIX(:)
           WRITE(6,20) 'VOL1',VOL1(:,IC)
@@ -249,22 +326,33 @@
           DO IGR=1,NG
             WRITE(6,'(/29H BREMAC: PROCESS ENERGY GROUP,I5)') IGR
             WRITE(6,20) 'FLX1',FLX1(:,IGR,IC)
-            WRITE(6,20) 'TOT1',TOT1(:,IGR,IC)
-            WRITE(6,20) 'SIGR',TOT1(:,IGR,IC)-SCAT1(:,IGR,IGR,IC)
+            WRITE(6,20) 'TOT1-P0',TOT1(:,IGR,1,IC)
+            IF(NL.GE.2) WRITE(6,20) 'TOT1-P1',TOT1(:,IGR,2,IC)
+            WRITE(6,20) 'SIGR',TOT1(:,IGR,1,IC)-SCAT1(:,IGR,IGR,1,IC)
             WRITE(6,20) 'DC1',DC1(:,IGR,IC)
             WRITE(6,20) 'CHI1',CHI1(:,IGR,IC)
             WRITE(6,20) 'SIGF1',SIGF1(:,IGR,IC)
             DO JGR=1,NG
               IF(IGR.EQ.JGR) THEN
-                WRITE(6,20) 'INSCAT1',SCAT1(:,IGR,IGR,IC)
+                WRITE(6,20) 'INSCAT1-P0',SCAT1(:,IGR,IGR,1,IC)
+                IF(NL.EQ.2) THEN
+                  WRITE(6,20) 'INSCAT1-P1',SCAT1(:,IGR,IGR,2,IC)
+                ENDIF
               ELSE
-                WRITE(6,20) 'OUTSCAT1',SCAT1(:,JGR,IGR,IC)
+                WRITE(6,20) 'OUTSCAT1-P0',SCAT1(:,JGR,IGR,1,IC)
+                IF(NL.GE.2) THEN
+                  WRITE(6,20) 'OUTSCAT1-P1',SCAT1(:,JGR,IGR,2,IC)
+                ENDIF
               ENDIF
             ENDDO
             WRITE(6,20) 'JXM',JXM(:,IGR,IC)
             WRITE(6,20) 'JXP',JXP(:,IGR,IC)
-            WRITE(6,20) 'FHETXM',FHETXM(:,IGR,IC)
-            WRITE(6,20) 'FHETXP',FHETXP(:,IGR,IC)
+            DO IL=1,NL
+              WRITE(TEXT12,'(8HFHETXM-P,I1)') IL-1
+              WRITE(6,20) TEXT12(:9),FHETXM(:,IGR,IL,IC)
+              WRITE(TEXT12,'(8HFHETXP-P,I1)') IL-1
+              WRITE(6,20) TEXT12(:9),FHETXP(:,IGR,IL,IC)
+            ENDDO
             IF(IDF.EQ.3) WRITE(6,20) 'ADF1',ADF1(:,IGR,IC)
           ENDDO
         ENDIF
@@ -276,6 +364,6 @@
      1 DC,TOT,FLX,VOL)
       RETURN
 *
-   10 FORMAT(1X,A9,10I13,/(10X,10I13))
-   20 FORMAT(1X,A9,1P,10E13.5,/(10X,10E13.5))
+   10 FORMAT(1X,A12,10I13/(12X,10I13))
+   20 FORMAT(1X,A12,1P,10E13.5/(12X,10E13.5))
       END

@@ -211,7 +211,7 @@
       IOF2H=8+NED+NL+3*NW+2*NDEL
       JJISO=0
       JJNDFI=0
-      CONV=1.0E6*XDRCST('eV','J')
+      CONV=1.0E6 ! convert MeV to eV
       DO 430 INM=1,NMERGE
 *----
 *  PRELIMINARY CALCULATIONS FOR STRD CROSS SECTIONS
@@ -516,23 +516,30 @@
             DO 186 IGR=1,NGROUP
             GAR(IGR,5+NED+NL+3*NW)=0.0
   186       CONTINUE
-            IF(LMEVF) THEN
-               CALL LCMGET(KPLIB,'NFTOT',WORK)
+            CALL LCMLEN(KPLIB,'H-FACTOR',LENGTH,ITYLCM)
+            IF(LENGTH.GT.0) THEN
+               CALL LCMGET(KPLIB,'H-FACTOR',GAR(1,5+NED+NL+3*NW))
                HMAKE(5+NED+NL+3*NW)='H-FACTOR'
-               DO 190 IGR=1,NGROUP
-               GAR(IGR,5+NED+NL+3*NW)=GAR(IGR,5+NED+NL+3*NW)+WORK(IGR)*
-     1         EMEVF(ISO)*REAL(CONV)
-  190          CONTINUE
-            ENDIF
-            IF(LMEVG) THEN
-               CALL LCMGET(KPLIB,'NG',WORK)
-               HMAKE(5+NED+NL+3*NW)='H-FACTOR'
-               DO 195 IGR=1,NGROUP
-               GAR(IGR,5+NED+NL+3*NW)=GAR(IGR,5+NED+NL+3*NW)+WORK(IGR)*
-     1         EMEVG(ISO)*REAL(CONV)
-  195          CONTINUE
+            ELSE
+               IF(LMEVF) THEN
+                  CALL LCMGET(KPLIB,'NFTOT',WORK)
+                  HMAKE(5+NED+NL+3*NW)='H-FACTOR'
+                  DO 190 IGR=1,NGROUP
+                  GAR(IGR,5+NED+NL+3*NW)=GAR(IGR,5+NED+NL+3*NW)+
+     1            WORK(IGR)*EMEVF(ISO)*REAL(CONV)
+  190             CONTINUE
+               ENDIF
+               IF(LMEVG) THEN
+                  CALL LCMGET(KPLIB,'NG',WORK)
+                  HMAKE(5+NED+NL+3*NW)='H-FACTOR'
+                  DO 195 IGR=1,NGROUP
+                  GAR(IGR,5+NED+NL+3*NW)=GAR(IGR,5+NED+NL+3*NW)+
+     1            WORK(IGR)*EMEVG(ISO)*REAL(CONV)
+  195             CONTINUE
+               ENDIF
             ENDIF
             DO 200 IED=1,NED
+            IF(HVECT(IED).EQ.'H-FACTOR') GO TO 200
             CALL LCMLEN(KPLIB,HVECT(IED),LENGTH,ITYLCM)
             IF((LENGTH.GT.0).AND.(HVECT(IED).NE.'TRANC')) THEN
                CALL LCMGET(KPLIB,HVECT(IED),GAR(1,4+NL+3*NW+IED))

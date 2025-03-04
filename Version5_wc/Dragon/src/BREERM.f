@@ -1,7 +1,7 @@
 *DECK BREERM
-      SUBROUTINE BREERM(IPMAC1,NC,NG,LX1,NMIX1,ITRIAL,IMIX,ICODE,ISPH,
-     1 ZKEFF,B2,ENER,VOL1,FLX1,DC1,TOT1,CHI1,SIGF1,SCAT1,JXM,JXP,FHETXM,
-     2 FHETXP,ADF1,NGET,ADFREF,IPRINT)
+      SUBROUTINE BREERM(IPMAC1,NC,NG,NL,LX1,NMIX1,ITRIAL,IMIX,ICODE,
+     1 ISPH,ZKEFF,B2,ENER,VOL1,FLX1,DC1,TOT1,CHI1,SIGF1,SCAT1,JXM,JXP,
+     2 FHETXM,FHETXP,ADF1,NGET,ADFREF,IPRINT)
 *
 *-----------------------------------------------------------------------
 *
@@ -21,6 +21,8 @@
 * IPMAC1  nodal macrolib.
 * NC      number of sn macrolibs.
 * NG      number of energy groups.
+* NL      Legendre order of TOT1 and SCAT1 arrays (=1 for isotropic
+*         scattering in LAB).
 * LX1     number of nodes in the reflector model.
 * NMIX1   number of mixtures in the nodal calculation.
 * ITRIAL  type of expansion functions in the nodal calculation.
@@ -56,12 +58,12 @@
 *  SUBROUTINE ARGUMENTS
 *----
       TYPE(C_PTR) IPMAC1
-      INTEGER NC,NG,LX1,NMIX1,ITRIAL(NG),IMIX(LX1),ICODE(2),ISPH,NGET,
-     1 IPRINT
+      INTEGER NC,NG,NL,LX1,NMIX1,ITRIAL(NG),IMIX(LX1),ICODE(2),ISPH,
+     1 NGET,IPRINT
       REAL ZKEFF(NC),B2(NC),ENER(NG+1),VOL1(NMIX1,NC),FLX1(NMIX1,NG,NC),
-     1 DC1(NMIX1,NG,NC),TOT1(NMIX1,NG,NC),CHI1(NMIX1,NG,NC),
-     2 SIGF1(NMIX1,NG,NC),SCAT1(NMIX1,NG,NG,NC),JXM(NMIX1,NG,NC),
-     3 JXP(NMIX1,NG,NC),FHETXM(NMIX1,NG,NC),FHETXP(NMIX1,NG,NC),
+     1 DC1(NMIX1,NG,NC),TOT1(NMIX1,NG,NL,NC),CHI1(NMIX1,NG,NC),
+     2 SIGF1(NMIX1,NG,NC),SCAT1(NMIX1,NG,NG,NL,NC),JXM(NMIX1,NG,NC),
+     3 JXP(NMIX1,NG,NC),FHETXM(NMIX1,NG,NL,NC),FHETXP(NMIX1,NG,NL,NC),
      4 ADF1(NMIX1,NG,NC),ADFREF(NG)
 *----
 *  LOCAL VARIABLES
@@ -107,11 +109,11 @@
           DO IGR=1,NG
             FLX(IBM,IGR)=FLX(IBM,IGR)+FLX1(IBM,IGR,IC)
             DC(IBM,IGR)=DC(IBM,IGR)+DC1(IBM,IGR,IC)
-            TOT(IBM,IGR)=TOT(IBM,IGR)+TOT1(IBM,IGR,IC)
+            TOT(IBM,IGR)=TOT(IBM,IGR)+TOT1(IBM,IGR,1,IC)
             CHI(IBM,IGR)=CHI(IBM,IGR)+CHI1(IBM,IGR,IC)
             SIGF(IBM,IGR)=SIGF(IBM,IGR)+SIGF1(IBM,IGR,IC)
             DO JGR=1,NG
-              SCAT(IBM,IGR,JGR)=SCAT(IBM,IGR,JGR)+SCAT1(IBM,IGR,JGR,IC)
+             SCAT(IBM,IGR,JGR)=SCAT(IBM,IGR,JGR)+SCAT1(IBM,IGR,JGR,1,IC)
             ENDDO
             ADF(IBM,IGR)=ADF(IBM,IGR)+ADF1(IBM,IGR,IC)
           ENDDO
@@ -146,16 +148,16 @@
             J_FUEL=J
             ALLOCATE(AB(4*NG,4*NG+1))
             DO IGR=1,NG
-              DIFF=DC1(IBM,IGR,IC)
-              SIGR=TOT1(IBM,IGR,IC)+B2(IC)*DIFF-SCAT1(IBM,IGR,IGR,IC)
-              ETA(IGR)=VOL1(IBM,IC)*SQRT(SIGR/DIFF)
-              DO JGR=1,NG
+             DIFF=DC1(IBM,IGR,IC)
+             SIGR=TOT1(IBM,IGR,1,IC)+B2(IC)*DIFF-SCAT1(IBM,IGR,IGR,1,IC)
+             ETA(IGR)=VOL1(IBM,IC)*SQRT(SIGR/DIFF)
+             DO JGR=1,NG
                 IF(JGR.EQ.IGR) THEN
                   SIGT=SIGR-CHI1(IBM,IGR,IC)*SIGF1(IBM,IGR,IC)/ZKEFF(IC)
                   CALL BRESS1(ITRIAL(IGR),VOL1(IBM,IC),DIFF,SIGR,SIGT,
      1            AA11)
                 ELSE
-                  SIGT=-SCAT1(IBM,JGR,IGR,IC)-CHI1(IBM,JGR,IC)*
+                  SIGT=-SCAT1(IBM,JGR,IGR,1,IC)-CHI1(IBM,JGR,IC)*
      1            SIGF1(IBM,IGR,IC)/ZKEFF(IC)
                   CALL BRESS2(ITRIAL(IGR),VOL1(IBM,IC),DIFF,SIGR,SIGT,
      1            AA11)
@@ -165,11 +167,11 @@
                     AB((JGR-1)*4+K1,(IGR-1)*4+K2)=AA11(K1,K2)
                   ENDDO
                 ENDDO
-              ENDDO
-              SX = (/0.0,0.0,0.0,JXM(IBM,IGR,IC),JXP(IBM,IGR,IC)/) 
-              DO K1=1,4
+             ENDDO
+             SX = (/0.0,0.0,0.0,JXM(IBM,IGR,IC),JXP(IBM,IGR,IC)/) 
+             DO K1=1,4
                 AB((IGR-1)*4+K1,4*NG+1)=SX(K1+1)
-              ENDDO
+             ENDDO
             ENDDO
             CALL ALSB(4*NG,1,AB,IER,4*NG)
             IF (IER.NE.0) CALL XABORT('BREERM: ALBS FAILURE(1).')
@@ -262,8 +264,8 @@
           FDXM(IBM,:,:)=0.0
           FDXP(IBM,:,:)=0.0
           DO IGR=1,NG
-            FDXM(IBM,IGR,IGR)=FHETXM(IBM,IGR,1)/REAL(FHOMM(1,IGR,IBM))
-            FDXP(IBM,IGR,IGR)=FHETXP(IBM,IGR,1)/REAL(FHOMP(1,IGR,IBM))
+            FDXM(IBM,IGR,IGR)=FHETXM(IBM,IGR,1,1)/REAL(FHOMM(1,IGR,IBM))
+            FDXP(IBM,IGR,IGR)=FHETXP(IBM,IGR,1,1)/REAL(FHOMP(1,IGR,IBM))
           ENDDO
           IF(IBM.EQ.NMIX1) THEN
             DO IGR=1,NG
@@ -278,7 +280,7 @@
           DO IGR=1,NG
             DO IC=1,NC
               WORK2(IC,IGR)=FHOMM(IC,IGR,IBM)
-              WORK2(IC,NG+IGR)=FHETXM(IBM,IGR,IC)
+              WORK2(IC,NG+IGR)=FHETXM(IBM,IGR,1,IC)
             ENDDO
           ENDDO
           CALL ALSBD(NC,NG,WORK2,IER,NC)
@@ -291,7 +293,7 @@
           DO IGR=1,NG
             DO IC=1,NC
               WORK2(IC,IGR)=FHOMP(IC,IGR,IBM)
-              WORK2(IC,NG+IGR)=FHETXP(IBM,IGR,IC)
+              WORK2(IC,NG+IGR)=FHETXP(IBM,IGR,1,IC)
             ENDDO
           ENDDO
           CALL ALSBD(NC,NG,WORK2,IER,NC)
@@ -322,13 +324,13 @@
           ALLOCATE(TAU(NG),B(NC),X(NG))
           CALL ALST2F(NC,NC,NG,FHOMM(1,1,IBM),TAU)
           DO IGR=1,NG
-            B(:)=FHETXM(IBM,IGR,:)
+            B(:)=FHETXM(IBM,IGR,1,:)
             CALL ALST2S(NC,NC,NG,FHOMM(1,1,IBM),TAU,B,X)
             FDXM(IBM,IGR,:)=REAL(X(:))
           ENDDO
           CALL ALST2F(NC,NC,NG,FHOMP(1,1,IBM),TAU)
           DO IGR=1,NG
-            B(:)=FHETXP(IBM,IGR,:)
+            B(:)=FHETXP(IBM,IGR,1,:)
             CALL ALST2S(NC,NC,NG,FHOMP(1,1,IBM),TAU,B,X)
             FDXP(IBM,IGR,:)=REAL(X(:))
           ENDDO

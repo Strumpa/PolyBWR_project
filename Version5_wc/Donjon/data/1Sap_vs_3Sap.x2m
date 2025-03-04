@@ -8,8 +8,8 @@
 ***********************************************************
 LINKED_LIST GeoRes MicroFuel MacroFuel Track System Flux Thermo
             Matex GeoCoeur MacroRefl MacroAll Fmap Power Burnup ;
-MODULE      TRIVAT: TRIVAA: FLUD: GREP: MACINI: UTL: NCR: ABORT: THM:
-            SCR: RESINI: GEO: USPLIT: MAC: FLPOW: DELETE: END: EVO: ;
+MODULE      TRIVAT: TRIVAA: FLUD: GREP: MACINI: NCR: ABORT: THM: SCR:
+            RESINI: GEO: USPLIT: MAC: FLPOW: DELETE: END: EVO: ;
 SEQ_ASCII   CpRefl :: FILE './CpRefl' ;
 SEQ_ASCII   Saphyb_as :: FILE './Saphyb_as' ;
 XSM_FILE    Saphyb1 Saphyb2 Saphyb3 CpRefl_xsm ;
@@ -955,7 +955,7 @@ GREP: Flux :: GETVAL 'K-EFFECTIVE ' 1 >>keff3Sap0<< ;
 *-------------------------------------------------------------------
 * k-eff comparison
 *-------------------------------------------------------------------
-assertS Flux :: K-EFFECTIVE 1 1.175465 ;
+assertS Flux :: K-EFFECTIVE 1 1.2122624 ;
 EVALUATE delrho := 1. keff1Sap0 / 1. keff3Sap0 / - 1.E+5 * ;
 IF delrho ABS 1. < THEN
   ECHO "Normal end: delta rho =" delrho ;

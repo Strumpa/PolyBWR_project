@@ -437,7 +437,7 @@ The following records and sub-directories will be found on the first level of a
 \dir{depletion} directory:
 
 \begin{DescriptionEnregistrement}{Main records and sub-directories in
-\dir{depletion}}{7.5cm}
+\dir{depletion}}{6.0cm}
 \label{tabl:tabchain}
 \IntEnr
   {STATE-VECTOR}{$40$}
@@ -460,7 +460,9 @@ The following records and sub-directories will be found on the first level of a
   {List of identifier for the depletion of an isotope $K_{r,i}^{\rm d}$}
 \RealEnr
   {DEPLETE-ENER}{$M_{\mathrm{R}}\times N_{\mathrm{depl}}$}{Mev}
-  {Energy per reaction associated with each depletion reaction $R_{r,i}^{\rm d}$}
+  {Energy per reaction associated with each depletion reaction $R_{r,i}^{\rm d}$. If {\tt H-FACTOR}
+  information is available for an isotope, $R_{r,i}^{\rm d}$ contains only energy of lumped isotopes
+  associated with this isotope.}
 \RealEnr
   {DEPLETE-DECA}{$N_{\mathrm{depl}}$}{$10^{-8}$ s$^{-1}\ $}
   {Radioactive decay constants}
@@ -989,7 +991,7 @@ section directory may be:
   {NG\blank{10}}{$G$}{b} 
   {The multigroup neutron capture cross section $\sigma_{c}^{g}$}
 \RealEnr
-  {H-FACTOR\blank{4}}{$G$}{J b}
+  {H-FACTOR\blank{4}}{$G$}{eV b}
   {Energy production coefficients $H^{g}$ (product of each microscopic cross section
   times the energy emitted by this reaction).}
 \OptRealEnr

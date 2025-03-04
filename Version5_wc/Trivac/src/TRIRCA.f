@@ -104,28 +104,29 @@
             CALL LCMGET(KPMACP,'DIFF',SGD(1,2))
             IF(IPR.EQ.0) THEN
               DO 20 IBM=1,NBMIX
-              RCAT(IGR,IGR,IBM)=OTH/SGD(IBM,2)-SGD(IBM,1)
+              RCAT(IGR,IGR,IBM)=OTH/SGD(IBM,2)
    20         CONTINUE
             ELSE IF(IPR.EQ.1) THEN
               KPMACR=LCMGIL(JPMACR,IGR)
               CALL LCMGET(KPMACR,'DIFF',SGD(1,3))
               DO 30 IBM=1,NBMIX
-              RCAT(IGR,IGR,IBM)=-OTH*SGD(IBM,2)/SGD(IBM,3)**2-SGD(IBM,1)
+              RCAT(IGR,IGR,IBM)=-OTH*SGD(IBM,2)/SGD(IBM,3)**2
    30         CONTINUE
             ELSE IF(IPR.EQ.2) THEN
               KPMACR=LCMGIL(JPMACR,IGR)
               CALL LCMGET(KPMACR,'DIFF',SGD(1,3))
               DO 40 IBM=1,NBMIX
               RCAT(IGR,IGR,IBM)=OTH/(SGD(IBM,2)+SGD(IBM,3))
-     1                         -OTH/SGD(IBM,3)-SGD(IBM,1)
+     1                         -OTH/SGD(IBM,3)
    40         CONTINUE
             ELSE IF(IPR.EQ.3) THEN
               KPMACR=LCMGIL(JPMACR,IGR)
               CALL LCMGET(KPMACR,'DIFF',SGD(1,3))
               DO 50 IBM=1,NBMIX
-              RCAT(IGR,IGR,IBM)=OTH/(SGD(IBM,2)+SGD(IBM,3))-SGD(IBM,1)
+              RCAT(IGR,IGR,IBM)=OTH/(SGD(IBM,2)+SGD(IBM,3))
    50         CONTINUE
             ENDIF
+            GO TO 100
          ELSE
             IF(LENGT.EQ.NBMIX) THEN
                CALL LCMGET(KPMACP,TEXT12,SGD(1,2))
