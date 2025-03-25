@@ -22,9 +22,11 @@ import lifo
 import lcm
 import cle2000
 from MeshHandler import energyMeshHandler as ENEMESH
-from PT_D5S2 import postTreatment_rates_XS_D5 as PT_D5
-from PT_D5S2 import postTreatment_rates_XS_S2 as PT_S2
-from D5_vs_S2 import compare_D5_S2_rates_XS as CD5S2
+from PT_D5S2OpenMC import postTreatment_rates_XS_D5 as PT_D5
+from PT_D5S2OpenMC import postTreatment_rates_XS_S2 as PT_S2
+from PT_D5S2OpenMC import postTreatment_OpenMC as PT_OMC
+from D5_vs_S2OpenMC import compare_D5_S2_rates_XS as CD5S2
+from D5_vs_S2OpenMC import compare_D5_OMC_rates_XS as CD5OMC
 
 def generate_latex_table_EMESH(library, mesh, data):
     """
@@ -1339,6 +1341,7 @@ def post_Treat_HOM_UOX_Gd157_RSECORR():
     grmax_zoom = 295
     # Path to Serpent2 results
     path_to_S2_results = f"{os.environ['SERPENT_RESULTS']}/HOM_CELL_study/HOM_UOX_Gd157/XS_rates_study"
+    path_to_OpenMC_results = f"{os.environ['OPENMC_RESULTS']}/HOM_UOX_Gd157/reaction_rate_tallies"
     # Import COMPO object
     path = os.getcwd()
     name_compo='COMPO_HOM_UOX_Gd157_RSECORR'
@@ -1349,12 +1352,16 @@ def post_Treat_HOM_UOX_Gd157_RSECORR():
     path=os.getcwd()
     save_path = f"Gd157_Rates_and_XS_results_PyGan/RSE_CORR_study"
     save_path_comparison = f"{save_path}/comparison_D5_S2"
+    save_path_comparison_OMC = f"{save_path}/comparison_D5_OMC"
     a=os.path.exists(save_path)
     if a==False:
         os.makedirs(save_path)
     a=os.path.exists(save_path_comparison)
     if a==False:
         os.makedirs(save_path_comparison)
+    a=os.path.exists(save_path_comparison_OMC)
+    if a==False:
+        os.makedirs(save_path_comparison_OMC)
     case_name = "HOM_UOX_Gd157"
     meshes = ["SHEM295"]
     COMPO_keys = ["J311", "ENDFb8r1"]
@@ -1464,12 +1471,11 @@ def post_Treat_HOM_UOX_Gd157_RSECORR():
     # only BU=0 is considered for XS
     # All BU are considered for rates
     S2_case_name = "HOM_UOX_Gd157"
-    SERPENT2_case = PT_S2(S2_case_name, mesh_objects, ["PyNjoy2016", "oldlib"], range(0,1), save_path)
+    SERPENT2_case = PT_S2(S2_case_name, mesh_objects, ["PyNjoy2016", "oldlib", "endfb8r1_pynjoy2012"], range(0,1), save_path)
     SERPENT2_case.parse_S2_outputs(path_to_S2_results)
 
-    # Compare D5 results for different IRSET settings with S2 results
     comparison_D5_S2 = CD5S2("HOM_UOX_Gd157_rates_XS_study", "EVAL_CORR", DRAGON5_BU0, SERPENT2_case, 
-                            S2_libs = ["oldlib", "PyNjoy2016"], compo_keywords = COMPO_keys, isotopes = ["Gd157", "U238"], self_shielding_methods = ssh_keys,
+                            S2_libs = ["oldlib", "PyNjoy2016", "endfb8r1_pynjoy2012"], compo_keywords = COMPO_keys, isotopes = ["Gd157", "U238"], self_shielding_methods = ssh_keys,
                             save_path =   save_path_comparison)
     all_ssh_methods = ["AUTO","RSE","RSE_CORR"]
     diff_data_rates = {"PyNjoy2016":{}, "oldlib":{}}
@@ -1486,22 +1492,53 @@ def post_Treat_HOM_UOX_Gd157_RSECORR():
     # for now focus on SHEM295, Gd157_ngamma, IRSET = noIRSET. Compare Autosecol, SHI and Tone in a first plot
     # Plot the reaction rates
     comparison_D5_S2.plot_zoom_rates_and_errors("PyNjoy2016", "Gd157_ngamma", "J311", "SHEM295", ["AUTO", "RSE", "RSE_CORR"], grmin_zoom, grmax_zoom)
-    comparison_D5_S2.plot_zoom_XS_and_errors("oldlib", "Gd157_ngamma", "J311", "SHEM295", ["AUTO", "RSE", "RSE_CORR"], grmin_zoom, grmax_zoom)
+    comparison_D5_S2.plot_zoom_rates_and_errors("oldlib", "Gd157_ngamma", "J311", "SHEM295", ["AUTO", "RSE", "RSE_CORR"], grmin_zoom, grmax_zoom)
+    comparison_D5_S2.plot_zoom_rates_and_errors("endfb8r1_pynjoy2012", "Gd157_ngamma", "ENDFb8r1", "SHEM295", ["AUTO", "RSE", "RSE_CORR"], grmin_zoom, grmax_zoom)
     # Plot the cross sections 
-    comparison_D5_S2.plot_zoom_XS_and_errors("PyNjoy2016", "Gd157_ngamma", "ENDFb8r1", "SHEM295", ["AUTO", "RSE", "RSE_CORR"], grmin_zoom, grmax_zoom)
-    comparison_D5_S2.plot_zoom_XS_and_errors("oldlib", "Gd157_ngamma", "ENDFb8r1", "SHEM295", ["AUTO", "RSE", "RSE_CORR"], grmin_zoom, grmax_zoom)
+    #comparison_D5_S2.plot_zoom_XS_and_errors("PyNjoy2016", "Gd157_ngamma", "ENDFb8r1", "SHEM295", ["AUTO", "RSE", "RSE_CORR"], grmin_zoom, grmax_zoom)
+    #comparison_D5_S2.plot_zoom_XS_and_errors("oldlib", "Gd157_ngamma", "ENDFb8r1", "SHEM295", ["AUTO", "RSE", "RSE_CORR"], grmin_zoom, grmax_zoom)
+    comparison_D5_S2.plot_zoom_XS_and_errors("endfb8r1_pynjoy2012", "Gd157_ngamma", "ENDFb8r1", "SHEM295", ["AUTO", "RSE", "RSE_CORR"], grmin_zoom, grmax_zoom)
 
+
+    ## Post treating OpenMC results
+    COMPO_keys = ["ENDFb8r1"]
+
+    # look at Gd157 and U238 n,gamma reaction rates
+    # Create a PT_OpenMC object
+    openMC_case = PT_OMC(case_name = "HOM_UOX_Gd157", mesh_objects = mesh_objects, XS_libraries=["endfb8r1_NJOY2016"], BU_steps_to_treat = 0, save_path = save_path_comparison_OMC)
+    openMC_case.parse_OpenMC_outputs(path_to_OpenMC_results)
+    # Plot the reaction rates
+    openMC_case.plot_rates_OpenMC("Gd157_ngamma", "endfb8r1_NJOY2016", bu_step=0)
+    openMC_case.plot_rates_OpenMC("U238_ngamma", "endfb8r1_NJOY2016", bu_step=0)
+    
+
+    # Compare with Dragon5 results
+    comparison_D5_OMC = CD5OMC("HOM_UOX_Gd157_rates_XS_study", "EVAL_CORR", DRAGON5_BU0, openMC_case, 
+                            OMC_XS_libs = ["endfb8r1_NJOY2016"], compo_keywords = COMPO_keys, isotopes = ["Gd157", "U238"], self_shielding_methods = ssh_keys,
+                            save_path =   save_path_comparison_OMC)
+    comparison_D5_OMC.renorm_rates("Gd157_ngamma", "ENDFb8r1", "SHEM295")
+    comparison_D5_OMC.renorm_rates("U238_ngamma", "ENDFb8r1", "SHEM295")
+    comparison_D5_OMC.compare_reaction_rates("Gd157_ngamma", "ENDFb8r1", all_ssh_methods)
+    comparison_D5_OMC.compare_reaction_rates("U238_ngamma", "ENDFb8r1", all_ssh_methods)
+
+    comparison_D5_OMC.plot_zoom_rates_and_errors("endfb8r1_NJOY2016", "Gd157_ngamma", "ENDFb8r1", "SHEM295", all_ssh_methods, grmin_zoom, grmax_zoom)
+    comparison_D5_OMC.plot_zoom_rates_and_errors("endfb8r1_NJOY2016", "U238_ngamma", "ENDFb8r1", "SHEM295", all_ssh_methods, grmin_zoom, grmax_zoom)
+
+
+
+
+    print("Post treatment for OpenMC case completed")
 
     
 if __name__ == "__main__":
     print("Post-treating HOM_UOX_Gd157 results")
-    post_treating_MESHES_study = True
+    post_treating_MESHES_study = False
     post_treating_AUTOlib_study = False
     post_treating_IRSET_study = False
     post_treating_TONE_SHI_IRSET_study = False
     post_treating_TONE_SHI_IRSET_study_newGen = False
     compare_IRSET_study_with_newGen = False
-    post_treating_HOM_UOX_Gd157_RSECORR = False
+    post_treating_HOM_UOX_Gd157_RSECORR = True
 
     if post_treating_MESHES_study:
         print("Post-treating HOM_UOX_Gd157_MESHES : noCORR")

@@ -1,8 +1,8 @@
 *DECK SNTT3D
-      SUBROUTINE SNTT3D(IGE,IMPX,LX,LY,LZ,SIDE,IELEM,ISPLH,NLF,NPQ,NSCT,
-     1 IQUAD,NCODE,ZCODE,MAT,XXX,YYY,ZZZ,VOL,IDL,DU,DE,DZ,W,MRMX,MRMY,
-     2 MRMZ,DC,DB,DA,PL,LL4,NUN,EELEM,WX,WE,CST,IBFP,
-     3 ISCHM,ESCHM,IGLK,MN,DN,IL,IM,ISCAT)
+      SUBROUTINE SNTT3D(IGE,IMPX,LX,LY,LZ,SIDE,IELEM,NLF,NPQ,NSCT,IQUAD,
+     1 NCODE,ZCODE,MAT,XXX,YYY,ZZZ,VOL,IDL,DU,DE,DZ,W,MRMX,MRMY,MRMZ,DC,
+     2 DB,DA,PL,LL4,NUN,EELEM,WX,WE,CST,IBFP,ISCHM,ESCHM,IGLK,MN,DN,IL,
+     3 IM,ISCAT)
 *
 *-----------------------------------------------------------------------
 *
@@ -20,9 +20,13 @@
 *Author(s): N. Martin and C. Bienvenue
 *
 *Parameters: input
-* IGE     geometry type with (=1 for Cartesian, =2 for hexagonal).
+* IGE     geometry type with (=0 for Cartesian, =2 for hexagonal).
 * IMPX    print parameter.
-* LX      number of elements along the X axis.
+* LX      number of elements along the X axis;
+*         OR, number of elements in X-Y plane in hexagonal geometry,
+*         including lozenges and further submeshing of lozenges
+*         e.g. domain of 7 hex. by 5 levels with a submeshing of 2
+*         will have LX=7*3*2*2=84 
 * LY      number of elements along the Y axis.
 * LZ      number of elements along the Z axis.
 * SIDE    side of hexagon.
@@ -32,7 +36,6 @@
 *         =2 linear - default for DG;
 *         =3 parabolic;
 *         =4 cubic - only for DG.
-* ISPLH   hexagone splitting option.
 * NLF     SN order for the flux (even number).
 * NPQ     number of SN directions in eight octants.
 * NSCT    maximum number of spherical harmonics moments of the flux.
@@ -529,7 +532,7 @@
         IF((NCODE(5)==1).and.(NCODE(5)==NCODE(6)))THEN
            NUN=LL4
         ELSE
-           NUN=LL4+(LX*LY*LZ)*ISPLH*ISPLH*NPQ*IELEM*IELEM
+           NUN=LL4+(LX*LY*LZ)*NMZ*NPQ
         ENDIF
       ELSE
          CALL XABORT('SNTT3D: CHECK SPATIAL SCHEME DISCRETISATION '//

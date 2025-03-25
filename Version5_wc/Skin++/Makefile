@@ -9,6 +9,11 @@ OS = $(shell uname -s | cut -d"_" -f1)
 ifneq (,$(filter $(OS),SunOS AIX))
   MAKE = gmake
 endif
+ifeq ($(openmp),1)
+  nomp = 16
+else
+  nomp = 0
+endif
 ifeq ($(intel),1)
   fcompilerSuite = intel
 else
@@ -27,4 +32,4 @@ all :
 clean :
 	$(MAKE) clean -C src
 tests :
-	./rskin -c $(fcompilerSuite) -q
+	./rskin -c $(fcompilerSuite) -p $(nomp) -q

@@ -11,7 +11,7 @@ import lifo
 import cle2000
 
 def MIX_NG0(Library):
-  # Lifo
+  # Lifo stack
   myLifo=lifo.new()
   myLifo.pushEmpty("LIBRARY", "LCM")
   myLifo.push(Library)
@@ -24,6 +24,7 @@ def MIX_NG0(Library):
   # Recover
   myLifo.lib()
   pyMIX = myLifo.node("LIBRARY")
+
 
   # Clear stack before next execution
   while myLifo.getMax() > 0:

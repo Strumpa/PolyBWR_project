@@ -317,7 +317,7 @@ If = 8
 I1 = 3
 
 # Sensitivity to the meshing parameters
-Iz1 = 70 # number of control volumes in the axial direction, added 70 for comparison with GeN-Foam
+Iz1 = 10 # number of control volumes in the axial direction, added 70 for comparison with GeN-Foam
 # Iz1 = 10, 20, 40, 50, 70, 80 and 160 are supported for the DONJON solution
 
 
@@ -339,7 +339,7 @@ pitch = 1.295e-2 # m : ATRIUM10 pincell pitch
 fuelRadius = 0.4435e-2 # m : fuel rod radius
 gapRadius = 0.4520e-2 # m : expansion gap radius : "void" between fuel and clad - equivalent to inner clad radius
 cladRadius = 0.5140e-2 # m : clad external radius
-height = 1.555 # m : height : 3.8 m : active core height in BWRX-300 SMR, 1.555 m : for GeNFoam comparison.
+height = 3.8 # m : height : 3.8 m : active core height in BWRX-300 SMR, 1.555 m : for GeNFoam comparison.
 
 
 ## Fluid parameters

@@ -63,12 +63,11 @@ $[~[$ \moc{QUAB} \dusa{iquab} $]~[~\{$ \moc{SAPO} $|$ \moc{HEBE} $|$ \moc{SLSI} 
 
 \item[\moc{ONEG}] keyword to specify that the multigroup flux is computed as a sequence of one-group solutions using Gauss-Seidel iterations. This is the default option.
 
-\item[\moc{ALLG}] keyword to specify that the multigroup flux is computed in parallel for a set of energy groups.
+\item[\moc{ALLG}] keyword to specify that the multigroup flux is computed in parallel for a set of energy groups, using the Jacobi method.
 
-\item[\moc{KBA}] keyword to specify that Koch-Baker-Alcouffe (KBA) type nested loops over both angles and macrocells are used for
-multithreading in 2D and 3D geometries.\cite{kba,domino}
+\item[\moc{KBA}] keyword to specify that nested loops over both macrocells (in each wavefront) and energy (dependent on whether \moc{ONEG} or \moc{ALLG} is selected) are used for multithreading in 2D and 3D geometries, somewhat similar to the Koch-Baker-Alcouffe (KBA) algorithm.\cite{kba,domino}
 
-\item[\dusa{m}] use $m\times m$ or $m \times m \times m$ macrocells in KBA swapping.
+\item[\dusa{m}] for Cartesian geometries, subdivide the domain into $m\times m$ (2D) or $m \times m \times m$ (3D) macrocells for the sweep algorithm. This is irrespective of the meshing of the domain, as long as $m$ is smaller than the mesh length along each axis. For 2D hexagonal geometry, the subdivision of the domain is limited to the hexagons being macrocells; hence, any value of $m>1$ triggers this method but results in exactly the same behaviour. For 3D hexagonal geometry, the $z$-axis is divided into $m$ macrocells. 
 
 %Update to tabular format?
 \item[\moc{SCHM}] keyword to specify the spatial discretisation scheme. 

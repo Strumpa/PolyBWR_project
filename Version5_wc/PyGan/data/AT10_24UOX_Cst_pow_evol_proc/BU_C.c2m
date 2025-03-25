@@ -100,11 +100,11 @@ WHILE istep nstep < DO
      ECHO ".perform self-shielding at" Tbeg "days" ;
       IF ssh_method "AUTO" = THEN
         LIBRARY2 := AUTO: LIBRARY TRACK_SS TF_EXC_SS ::
-            EDIT 0 PASS 3
+            EDIT 0 PASS 4 GRMIN 52 GRMAX 206
         ;
       ELSE 
         LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
-            EDIT 0 PASS 3 
+            EDIT 0 PASS 4 GRMIN 52 GRMAX 206
         ;
       ENDIF ;
   ELSE

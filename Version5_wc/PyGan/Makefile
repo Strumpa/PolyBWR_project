@@ -10,6 +10,11 @@ OS = $(shell uname -s | cut -d"_" -f1)
 ifneq (,$(filter $(OS),SunOS AIX))
   MAKE = gmake
 endif
+ifeq ($(openmp),1)
+  nomp = 16
+else
+  nomp = 0
+endif
 ifeq ($(intel),1)
   fcompilerSuite = intel
 else
@@ -26,10 +31,10 @@ endif
 
 ifeq ($(pip),1)
   MAKE_PY = $(MAKE) -f Makefile_pip
-  options = -q -e
+  options = -p $(nomp) -q -e
 else
   MAKE_PY = $(MAKE)
-  options = -q
+  options = -p $(nomp) -q
 endif
 
 all :

@@ -485,8 +485,10 @@ $$ n +^{A}X_Z \to ^4{\rm He}_2 + ^{A-3}X_{Z-2}$$
 
 \item[\dusa{energy}] energy (in MeV) recoverable per neutron-induced
 reaction of type \dusa{reaction}. If the energy associated to radiative capture
-is not explicitely given, it should be added to the energy released per fission. By
-default, \dusa{energy}=0.0 MeV.
+is not explicitely given, it should be added to the energy released per fission.
+If {\tt H-FACTOR} information is available for isotope \dusa{NAMDPL}, \dusa{energy}
+contains only decay energy of lumped isotopes produced by \dusa{reaction} of \dusa{NAMDPL}.
+By default, \dusa{energy}=0.0 MeV.
 
 \item[\moc{STABLE}] non depleting isotope. Such an isotope may produces
 energy by neutron-induced reactions (such as radiative capture).

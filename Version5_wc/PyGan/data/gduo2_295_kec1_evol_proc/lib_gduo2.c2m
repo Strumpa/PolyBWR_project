@@ -12,9 +12,8 @@ PARAMETER  LIBRARY  ::
   EDIT 0
     ::: LINKED_LIST LIBRARY  ;
 ;
-STRING eval_name correlation ;
-:: >>eval_name<< >>correlation<< ;
-
+STRING dlib_name correlation ;
+:: >>dlib_name<< >>correlation<< ;
 MODULE LIB: END: ;
 
 INTEGER COMB0101 COMB0102 COMB0103 COMB0104 COMB0105 COMB0106 GAIN1
@@ -27,17 +26,20 @@ REAL N_Zr0 := 3.88E-2 ;
 REAL N_Zr90       N_Zr91       N_Zr92       N_Zr94       N_Zr96    :=
      N_Zr0 P_Zr90 *  N_Zr0 P_Zr91 *  N_Zr0 P_Zr92 *  N_Zr0 P_Zr94 *
      N_Zr0 P_Zr96 *  ;
+
+
+
 IF correlation "NOCORR" = THEN
    LIBRARY := LIB: ::
-   EDIT 1
+   EDIT 10
    NMIX 8    (*MAXIMUM OF MATERIAL MIXTURES*)
    CTRA APOL (*APOLLO TYPE TRANSPORT CORRECTION*)
    ANIS 2
    ADED 4 NELAS N4N N2N N3N
    RSE       (*RESONANCE SPECTRUM EXPANSION METHOD*)
    *
-   DEPL LIB: DRAGON FIL: <<eval_name>>
-   MIXS LIB: DRAGON FIL: <<eval_name>>
+   DEPL LIB: DRAGON FIL: <<dlib_name>>
+   MIXS LIB: DRAGON FIL: <<dlib_name>>
    MIX <<COMB0101>> 294.0 (*COMB0101*)
       O16     = O16    4.59036E-2
       U235    = U235   7.90006E-4 1
@@ -65,19 +67,19 @@ IF correlation "NOCORR" = THEN
    ;
 ELSEIF correlation "CORR" = THEN
    LIBRARY := LIB: ::
-   EDIT 1
+   EDIT 10
    NMIX 8    (*MAXIMUM OF MATERIAL MIXTURES*)
    CTRA APOL (*APOLLO TYPE TRANSPORT CORRECTION*)
    ANIS 2
    ADED 4 NELAS N4N N2N N3N
    RSE       (*RESONANCE SPECTRUM EXPANSION METHOD*)
    *
-   DEPL LIB: DRAGON FIL: <<eval_name>>
-   MIXS LIB: DRAGON FIL: <<eval_name>>
+   DEPL LIB: DRAGON FIL: <<dlib_name>>
+   MIXS LIB: DRAGON FIL: <<dlib_name>>
    MIX <<COMB0101>> 294.0 (*COMB0101*)
       O16     = O16    4.59036E-2
-      U235    = U235   7.90006E-4 1
-      U238    = U238   2.08874E-2  CORR 1
+      U235    = U235   7.90006E-4 CORR 1
+      U238    = U238   2.08874E-2 CORR 1
       Gd154   = Gd154  3.78440E-5 1
       Gd155   = Gd155  2.55262E-4 CORR 1
       Gd156   = Gd156  3.50791E-4 1

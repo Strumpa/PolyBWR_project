@@ -119,7 +119,7 @@
          IQUA10=0
          IBIHET=2
          INSB=0
-         NKBA=0
+         MCELL=0
          NMPI=0
          NFOU=0
          LSHOOT=.TRUE.
@@ -157,7 +157,7 @@
          ICL2=IGP(25)
          ISPLH=IGP(26)
          INSB=IGP(27)
-         NKBA=IGP(28)
+         MCELL=IGP(28)
          LSHOOT=IGP(30).EQ.1
          NMPI=IGP(32)
          ISOLVSA=IGP(33)
@@ -277,35 +277,37 @@
          INSB=0
       ELSE IF(TEXT4.EQ.'ALLG') THEN
          INSB=1
-      ELSE IF(TEXT4.EQ.'NOKB') THEN
-         NKBA=0
       ELSE IF(TEXT4.EQ.'KBA') THEN
-         CALL REDGET(INDIC,NKBA,FLOTT,TEXT4,DFLOTT)
+         ! Enable parallelisation over macrocells in wavefront (and 
+         ! energies depending ONEG/ALLG)
+         CALL REDGET(INDIC,MCELL,FLOTT,TEXT4,DFLOTT)
          IF(INDIC.NE.1) CALL XABORT('SNT: INTEGER DATA EXPECTED(15).')
-         IF(NKBA.LE.0) CALL XABORT('SNT: POSITIVE INTEGER EXPECTED.')
+         IF(MCELL.LE.0) CALL XABORT('SNT: POSITIVE INTEGER EXPECTED.')
       ELSE IF(TEXT4.EQ.'MPIM') THEN
+         ! Compute graph and mpi rank/process allocation depending on 
+         ! the problem for Wyvern
          CALL REDGET(INDIC,NMPI,FLOTT,TEXT4,DFLOTT)
          IF(INDIC.NE.1) CALL XABORT('SNT: INTEGER DATA EXPECTED(16).')
          IF(NMPI.LE.0) CALL XABORT('SNT: POSITIVE INTEGER EXPECTED.')
       ELSE IF(TEXT4.EQ.'NSHT') THEN
          LSHOOT=.FALSE.
       ELSE IF(TEXT4.EQ.'BTE') THEN
-*        Boltzmann transport equation
+         ! Boltzmann transport equation
          IBFP=0
       ELSE IF(TEXT4.EQ.'BFPG') THEN
-*        Boltzmann Fokker-Planck equation with Galerkin energy
-*        propagation factors
+         ! Boltzmann Fokker-Planck equation with Galerkin energy
+         ! propagation factors
          IBFP=1
       ELSE IF(TEXT4.EQ.'BFPL') THEN
-*        Boltzmann Fokker-Planck equation with Przybylski and Ligou
-*        energy propagation factors
+         ! Boltzmann Fokker-Planck equation with Przybylski and Ligou
+         ! energy propagation factors
          IBFP=2
       ELSE IF(TEXT4.EQ.'FOUR') THEN
-*        Perform Fourier Analysis
+         ! Perform Fourier Analysis
          CALL REDGET(INDIC,NFOU,FLOTT,TEXT4,DFLOTT)
          IF(INDIC.NE.1) CALL XABORT('SNT: INTEGER DATA EXPECTED(17).')
       ELSE IF(TEXT4.EQ.'GQ') THEN
-*        Galerkin quadrature
+         ! Galerkin quadrature
          CALL REDGET(INDIC,IGLK,FLOTT,TEXT4,DFLOTT)
          IF(INDIC.NE.1) CALL XABORT('SNT: INTEGER DATA EXPECTED(14).')
       ELSE IF(TEXT4.EQ.';') THEN
@@ -324,7 +326,7 @@
       IF(IGLK.EQ.0) ISCAT=MIN(ISCAT,NLF)
       CALL SNTRK(MAXPTS,IPTRK,IPGEOM,IMPX,ISCHM,IELEM,ISPLH,INSB,
      1 NLF,MAXIT,EPSI,ISCAT,IQUAD,LFIXUP,LIVO,ICL1,ICL2,LDSA,NSTART,
-     2 NSDSA,IELEMSA,ISOLVSA,LBIHET,LSHOOT,IBFP,NKBA,NMPI,NFOU,
+     2 NSDSA,IELEMSA,ISOLVSA,LBIHET,LSHOOT,IBFP,MCELL,NMPI,NFOU,
      3 EELEM,ESCHM,IGLK)
 *
       IF(IMPX.GT.1) THEN
@@ -379,15 +381,15 @@
      4 7H ISPLH ,I8,46H   (DEGREE OF LOZENGE SPLITTING FOR HEXAGONAL ,
      5 9HGEOMETRY)/
      6 7H INSB  ,I8,36H   (0/1: GROUP VECTORIZATION OFF/ON)/
-     7 7H NMCEL ,I8,30H   (0/>0: KBA SWAPPING OFF/ON)/
+     7 7H MCELL ,I8,37H   (0/>0: KBA WAVEFRONT SWEEP OFF/ON)/
      8 7H IGAV  ,I8,45H   (CONDITION AT AXIAL AXIS FOR CYL./SPH. 1D)/
      9 7H LSHOOT,I8,38H   (0/1: SHOOTING METHOD IN 1D OFF/ON)/
      1 7H IBFP  ,I8,43H   (0/1/2: BFP SOLUTION OFF/GALERKIN/LIGOU)/
-     2 7H EELEM ,I8,45H   (ORDER OF POLYNOMIAL USED IN ENERGY APPROX ,
+     2 7H EELEM ,I8,45H   (ORDER OF POLYNOMIAL USED IN ENERGY APPROX,
      3 38H./1=CONSTANT/2=LINEAR/3=PARABOLIC/...)/
-     4 7H ESCHM ,I8,45H   (METHOD OF ENERGY DISCRETISATION/1=HODD/2= ,
-     5 9HDG/3=AWD)
-     6 7H IGLK  ,I8,45H   (0=CLASSICAL SN/>0=GALERKIN QUADRATURE)/
+     4 7H ESCHM ,I8,45H   (METHOD OF ENERGY DISCRETISATION/1=HODD/2=,
+     5 9HDG/3=AWD)/
+     6 7H IGLK  ,I8,42H   (0=CLASSICAL SN/>0=GALERKIN QUADRATURE)/
      7 7H IBIHET,I8,47H   (0/1: DOUBLE HETEROGENEITY IS NOT/IS ACTIVE)/
      8 7H EPSI  ,E11.1,45H  (CONVERGENCE CRITERION ON INNER ITERATIONS))
       END

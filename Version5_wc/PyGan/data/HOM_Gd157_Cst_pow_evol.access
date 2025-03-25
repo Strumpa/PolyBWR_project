@@ -31,7 +31,8 @@ fi
 if [ -f "$pos"/draglibJeff3p1p1SHEM295 ]
 then
 ln -s "$pos"/draglibJeff3p1p1SHEM295 J311_295
-ln -s "$pos"/libraries/l_endian/newGen_draglibJeff3p1p1SHEM295 newJ311_295
+ln -s "$pos"/draglibJeff3p1p1SHEM295Kerma J311_295K
+#cp $PYGAN_RESULTS/HOM_Gd157_Cst_pow_evol_results/_COMPO_HOM_Gd157_J311_295_USS_RSE_CORR_RUNG _COMPO_HOM_Gd157_J311_295_USS_RSE_CORR_RUNG
 else
 echo "HOM_Gd157_Cst_pwr_evol.access script terminated"
 fi

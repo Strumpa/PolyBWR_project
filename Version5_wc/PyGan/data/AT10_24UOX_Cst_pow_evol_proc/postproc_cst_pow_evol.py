@@ -232,22 +232,27 @@ class multiD5S2_comparisons:
     def compare_keffs(self):
         for case in self.D5_cases:
             delta_keff = (case.DRAGON_Keff - self.S2_case.keffs)*1e5 # error on Keff in pcm
+            print(f"For case {case.draglib_name}_{case.ssh_opt}_{case.correlation}_to_S2_edep{self.S2_case.edep_id}")
+            print(f"delta keff = {delta_keff}")
             self.delta_keffs[f"{case.draglib_name}_{case.ssh_opt}_{case.correlation}_to_S2_edep{self.S2_case.edep_id}"] = delta_keff
         return
     def compare_Ni(self):
         for iso in self.tracked_nuclides:
-            delta_Niso_case = {}
             for case in self.D5_cases:
                 delta_Niso = [(case.DRAGON_ISOTOPESDENS[iso][idx] - self.S2_case.Ni[iso][idx]) * 100 / self.S2_case.Ni[iso][idx]
                     if self.S2_case.Ni[iso][idx] != 0 else 0
                     for idx in range(len(self.S2_case.Ni[iso]))]
-                delta_Niso_case[f"{case.draglib_name}_{case.ssh_opt}_{case.correlation}_to_S2_edep{self.S2_case.edep_id}"] = delta_Niso
-            self.delta_Niso[f"{iso}"] = delta_Niso_case
+                #delta_Niso_case[f"{case.draglib_name}_{case.ssh_opt}_{case.correlation}_to_S2_edep{self.S2_case.edep_id}"] = delta_Niso
+                if iso not in self.delta_Niso.keys():
+                    self.delta_Niso[f"{iso}"] = {}
+                    self.delta_Niso[f"{iso}"][f"{case.draglib_name}_{case.ssh_opt}_{case.correlation}_to_S2_edep{self.S2_case.edep_id}"] = delta_Niso
+                else:
+                    self.delta_Niso[f"{iso}"][f"{case.draglib_name}_{case.ssh_opt}_{case.correlation}_to_S2_edep{self.S2_case.edep_id}"] = delta_Niso
         return
 
     def plot_delta_Keff(self):
         """
-        Plot the delta Keff for all cases : 1 D5 case compared to several S2 cases
+        Plot the delta Keff for all cases : seceral D5 cases compared to one S2 case
         """
         plt.figure()
         for comparison_case in self.delta_keffs.keys():
@@ -270,6 +275,8 @@ class multiD5S2_comparisons:
         for iso in self.tracked_nuclides:
             plt.figure()
             for comparison_case in self.delta_Niso[iso].keys():
+                print(f"Plotting delta N{iso} for {comparison_case}")
+                print(f"delta N{iso} = {self.delta_Niso[iso][comparison_case]}")
                 plt.plot(self.S2_case.BU, self.delta_Niso[iso][comparison_case], label = f"{comparison_case}".replace("_"," "), marker = "x", linestyle = "--")
             plt.xlabel(f"Burnup [{self.S2_case.unitsBU}]")
             plt.ylabel(f"$\\Delta$ N{iso} [%]")

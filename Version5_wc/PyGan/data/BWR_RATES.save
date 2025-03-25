@@ -16,6 +16,6 @@ else
    MACH=`uname -sm | sed 's/[ ]/_/'`
 fi
 ls -l
-cp *.ps ./DRAGON_ASS*
-cp -r DRAGON_ASS* $1/"$MACH"/
+cp *.ps ./DRAGON_*
+cp -r DRAGON_* $1/"$MACH"/
 echo "-----.save----- BWR_RATES save script terminated"

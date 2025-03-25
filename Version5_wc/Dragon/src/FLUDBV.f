@@ -65,7 +65,6 @@
 * FUNKNO  neutron flux.
 * SUNKNO  sources with additional db2 contributions.
 * FLUXC   flux at the cutoff energy.
-* FLUXC   flux at the cutoff energy.
 *
 *-----------------------------------------------------------------------
 *

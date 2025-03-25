@@ -9,7 +9,7 @@ import cle2000
 
 def lib_gduo2(evaluation_name, correlation):
   """
-  evaluation_name : str, choice between 'J311_295' or 'ENDFb8r1_295' to create the library with the corresponding evaluation.
+  evaluation_name : str, choice between 'J311_295' or 'ENDFb8r1_295' or 'E8R1295K' or 'J311295K' (same but with KERMA) to create the library with the corresponding evaluation.
   correlation : str, choice between 'CORR' and 'NOCORR' to create the library with correlated resonant effects between Gd157 and U238 or not.
   """
   # Lifo

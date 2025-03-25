@@ -441,7 +441,7 @@ The following records and sub-directories will be found on the first level of a
 \label{tabl:tabchain}
 \IntEnr
   {STATE-VECTOR}{$40$}
-  {Vector describing the various parameters associated with this data structure $\mathcal{S}^{d}_{i}$,
+  {$\mathcal{S}^{d}_{i}$ is the vector describing the various parameters associated with this data structure,
   as defined in \Sect{chainlibstate}.}
 \CharEnr
   {ISOTOPESDEPL}{$(N_{\mathrm{depl}})*12$}
@@ -457,28 +457,28 @@ The following records and sub-directories will be found on the first level of a
   {Reference name of the depletion reactions}
 \IntEnr
   {DEPLETE-REAC}{$M_{\mathrm{R}}\times N_{\mathrm{depl}}$}
-  {List of identifier for the depletion of an isotope $K_{r,i}^{\rm d}$}
+  {$K_{r,i}^{\rm d}$ is the list of identifier for the depletion of an isotope.}
 \RealEnr
   {DEPLETE-ENER}{$M_{\mathrm{R}}\times N_{\mathrm{depl}}$}{Mev}
-  {Energy per reaction associated with each depletion reaction $R_{r,i}^{\rm d}$. If {\tt H-FACTOR}
-  information is available for an isotope, $R_{r,i}^{\rm d}$ contains only energy of lumped isotopes
-  associated with this isotope.}
+  {$R_{r,i}^{\rm d}$ is the energy produced with each depletion reaction $r$ of the father isotope. If {\tt H-FACTOR}
+  information is available for an isotope $i$, $R_{r,i}^{\rm d}$ contains only decay energy of lumped isotopes
+  produced by reaction $r$.}
 \RealEnr
   {DEPLETE-DECA}{$N_{\mathrm{depl}}$}{$10^{-8}$ s$^{-1}\ $}
-  {Radioactive decay constants}
+  {Radioactive decay constants.}
 \IntEnr
   {PRODUCE-REAC}{$M_{\mathrm{S}}\times N_{\mathrm{depl}}$}
-  {List of identifier for the production of an isotope $K_{s,i}^{\rm p}$}
+  {$K_{s,i}^{\rm p}$ is the list of identifier for the production of an isotope.}
 \RealEnr
   {PRODUCE-RATE}{$M_{\mathrm{S}}\times N_{\mathrm{depl}}$}{1}
-  {Branching ratio associated with each production reaction $R_{s,i}^{\rm p}$}
+  {$R_{s,i}^{\rm p}$ is the branching ratio associated with each production reaction.}
 \RealEnr
   {FISSIONYIELD}{$N_{\mathrm{ndp}} \times N_{\mathrm{dfi}}\times N_{\mathrm{dfp}}$}{1}
-  {Fission yield for each direct fissile isotope $i$ to each fission fragment $j$ in fission yield
-  macrogroup $k$ $Y_{k,{i\to j}}$}
+  {$Y_{k,{i\to j}}$ is the fission yield for each direct fissile isotope $i$ to each fission fragment $j$ in fission yield
+  macrogroup $k$.}
 \OptRealEnr
   {ENERGY-YIELD}{$N_{\mathrm{ndp}+1}$}{$N_\mathrm{ndp}\ge 2$}{eV}
-  {Energy limits of fission yield macrogroups $E_{k}^{\rm fiss}$}
+  {$E_{k}^{\rm fiss}$ are the energy limits of fission yield macrogroups.}
 \end{DescriptionEnregistrement}
 
 An isotope $\mathsf{NISO}_{i}$ defined in \Sect{microlibdirmain} is considered

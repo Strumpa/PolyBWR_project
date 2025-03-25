@@ -28,4 +28,5 @@ def bu_gduo2(namCOMPO, pyLIB, pyTRACK, pyTF_EXC, pyTRACK_SS,  StepList, name_com
   # Recover
   myLifo.lib()
   pyCOMPO = myLifo.node(namCOMPO)
-  return pyCOMPO
+  #StepList = myLifo.node("burnup_steps")
+  return pyCOMPO#, StepList

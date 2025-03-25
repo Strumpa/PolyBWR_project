@@ -380,7 +380,7 @@ N_{\rm angl}={1\over 2}(N+4)N
 $$
 
 \begin{DescriptionEnregistrement}{The \moc{snt} records in
-\dir{tracking} (Cartesian 2-D and R-Z geometries)}{8.0cm}
+\dir{tracking} (2-D and R-Z geometries)}{8.0cm}
 \RealEnr
   {DU\blank{10}}{$N_{\rm angl}$}{$1$}
   {Direction cosines of the angular four-octants spherical harmonics quadrature in $\mu$.} 
@@ -423,6 +423,13 @@ $$
 \RealEnr
   {DN\blank{10}}{$\mathcal{S}^{t}_{7},N_{\rm angl}$}{$1$}
   {Discrete-to-moment matrix $\shadowD$.} 
+\OptRealEnr
+  {SIDE\blank{8}}{1}{$\mathcal{S}^{t}_{6}\geq8$}{cm}
+  {Length of the side of each hexagon element.} 
+\OptIntEnr
+  {LOZSWP\blank{6}}{3,6}{$\mathcal{S}^{t}_{6}\geq8$}{Lozenge sweep order depending on direction.} 
+\OptIntEnr
+  {COORDMAP\blank{4}}{3,$\mathcal{S}^{t}_{12}/(3\times(\mathcal{S}^{t}_{26})^2)$}{$\mathcal{S}^{t}_{6}\geq8$}{Coordinate map mapping each hexagon from DRAGON geometry indices to the axial coordinate system, using $p$, $r$, $s$ axes.} 
 \end{DescriptionEnregistrement}
 
 If $\mathcal{S}^{t}_{6}=7$ (Cartesian 3-D geometry), the following records will also be present on the main level of a \dir{tracking}
@@ -432,7 +439,7 @@ N_{\rm angl}=(N+2)N
 $$
 
 \begin{DescriptionEnregistrement}{The \moc{snt} records in
-\dir{tracking} (Cartesian 3-D geometry)}{8.0cm}
+\dir{tracking} (3-D geometry)}{8.0cm}
 \RealEnr
   {DU\blank{10}}{$N_{\rm angl}$}{$1$}
   {Direction cosines of the angular height-octants spherical harmonics quadrature in $\mu$.} 
@@ -446,7 +453,7 @@ $$
   {W\blank{11}}{$N_{\rm angl}$}{$1$}
   {Weights of the angular height-octants spherical harmonics quadrature.} 
 \IntEnr
-  {MRMX\blank{9}}{$N_{\rm angl}$}
+  {MRMX\blank{8}}{$N_{\rm angl}$}
   {Quadrature offsets.} 
 \IntEnr
   {MRMY\blank{8}}{$N_{\rm angl}$}
@@ -481,6 +488,13 @@ $$
 \RealEnr
   {DN\blank{10}}{$\mathcal{S}^{t}_{7},N_{\rm angl}$}{$1$}
   {Discrete-to-moment matrix $\shadowD$.} 
+\OptRealEnr
+  {SIDE\blank{8}}{1}{$\mathcal{S}^{t}_{6}\geq8$}{cm}
+  {Length of the side of each hexagon element.} 
+\OptIntEnr
+  {LOZSWP\blank{6}}{3,6}{$\mathcal{S}^{t}_{6}\geq8$}{Lozenge sweep order depending on direction.} 
+\OptIntEnr
+  {COORDMAP\blank{4}}{3,$\mathcal{S}^{t}_{12}/(3\times(\mathcal{S}^{t}_{26})^2)$}{$\mathcal{S}^{t}_{6}\geq8$}{Coordinate map mapping each hexagon from DRAGON geometry indices to the axial coordinate system, using $p$, $r$, $s$ axes.} 
 \end{DescriptionEnregistrement}
 
 \eject
