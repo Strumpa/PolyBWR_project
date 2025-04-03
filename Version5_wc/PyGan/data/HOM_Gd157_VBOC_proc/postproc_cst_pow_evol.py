@@ -9,14 +9,18 @@ import os
 # S2 PT class :
 
 class Serpent2_case:
-    def __init__(self, case_name, lib_name, edep_id, isEcaptSet, pcc_id, specific_power, tracked_nuclides, save_dir):
+    def __init__(self, case_name, lib_name, edep_id, areQfissSet, isEcaptSet, pcc_id, specific_power, tracked_nuclides, save_dir):
         self.case_name = case_name
         self.lib_name = lib_name        
         self.isEcaptSet = isEcaptSet # Option to be activated when energy deposition mode is set to 1 in Serpent2 and Ecapt has been manually set in Serpent2.
-        if self.isEcaptSet:
+        if self.isEcaptSet and edep_id == 1:
             self.edep_id = f"{edep_id}_Ecapt"
         else:
             self.edep_id = edep_id
+        if self.edep_id == 2 or self.edep_id == 1 or self.edep_id == "1_Ecapt":
+            self.areQfissSet = False
+        else:
+            self.areQfissSet = areQfissSet
         self.pcc_id = pcc_id
         self.specific_power = specific_power
         self.tracked_nuclides = tracked_nuclides
@@ -51,21 +55,24 @@ class Serpent2_case:
     
     def read_S2_outputs(self):
         # Read the results and depletion files
-        self.res = st.read(f"{os.environ['SERPENT_RESULTS']}/{self.case_name}/{self.case_name}_{self.lib_name}_edep{self.edep_id}_pcc{self.pcc_id}_mc_res.m")
-        self.depl = st.read(f"{os.environ['SERPENT_RESULTS']}/{self.case_name}/{self.case_name}_{self.lib_name}_edep{self.edep_id}_pcc{self.pcc_id}_mc_dep.m")
+        if self.areQfissSet:
+            self.res = st.read(f"{os.environ['SERPENT_RESULTS']}/{self.case_name}/{self.case_name}_qfiss_{self.lib_name}_edep{self.edep_id}_pcc{self.pcc_id}_mc_res.m")
+            self.depl = st.read(f"{os.environ['SERPENT_RESULTS']}/{self.case_name}/{self.case_name}_qfiss_{self.lib_name}_edep{self.edep_id}_pcc{self.pcc_id}_mc_dep.m")
+        else:
+            self.res = st.read(f"{os.environ['SERPENT_RESULTS']}/{self.case_name}/{self.case_name}_{self.lib_name}_edep{self.edep_id}_pcc{self.pcc_id}_mc_res.m")
+            self.depl = st.read(f"{os.environ['SERPENT_RESULTS']}/{self.case_name}/{self.case_name}_{self.lib_name}_edep{self.edep_id}_pcc{self.pcc_id}_mc_dep.m")
+        self.keffs = self.res.resdata["absKeff"].T[0] # Retrieve the keffs
+        self.sigmas_keff = self.res.resdata["absKeff"].T[1] # Retrieve the uncertainties (standard deviation) on the keffs
+        self.mat = self.depl.materials['total'] # Retrieve the total, homogenized material
+        self.BU = self.mat.burnup # Burnup in MWd/kgU
         
-        self.keffs = self.res.resdata["absKeff"].T[0]
-        print(f"Keffs = {self.keffs}, with shape = {np.shape(self.keffs)}")
-        self.sigmas_keff = self.res.resdata["absKeff"].T[1]
-        print(f"Sigmas Keff = {self.sigmas_keff}, with shape = {np.shape(self.sigmas_keff)}")
-        self.mat = self.depl.materials['total']
-        self.BU = self.mat.burnup
-        print(f"BU = {self.BU}, with shape = {np.shape(self.BU)}")
-        data_frame = self.mat.toDataFrame("adens", names = self.tracked_nuclides, time = "days")
-        self.Ni = {}
+        data_frame = self.mat.toDataFrame("adens", names = self.tracked_nuclides, time = "days") # Convert the material to a pandas dataframe
+        self.BUdays = data_frame.index.to_numpy() # retrieve the burnup points in days
+        
+        self.Ni = {} # Dictionary to store the isotopic densities
         for isotope in data_frame.columns:
-            self.BUdays = data_frame.index.to_numpy()
-            self.Ni[isotope] = data_frame[isotope].to_numpy()
+            self.Ni[isotope] = data_frame[isotope].to_numpy() # Convert the pandas series to numpy array
+        
         return 
     
     def rescale_BU(self, units):
@@ -75,8 +82,6 @@ class Serpent2_case:
 
     def plot_keff(self):
         plt.figure()
-        print(self.keffs)
-        print(self.BU)
         plt.plot(self.BU, self.keffs, label = f"edepmode {self.edep_id} pcc {self.pcc_id}", marker = "x", linestyle = "--")
         plt.xlabel(f"Burnup [{self.unitsBU}]")
         plt.ylabel("Keff")
@@ -152,21 +157,16 @@ class DRAGON_case:
         lenBU_DRAGON=np.shape(self.COMPO_BU_steps)[0]
         ISOTOPES=self.pyCOMPO[self.DIR]['MIXTURES'][0]['CALCULATIONS'][0]['ISOTOPESDENS']
         print(f"Dragon isotopes = {ISOTOPES}")
-        #lenISOT_DRAGON=np.shape(ISOTOPES)[0]-1
+        #lenISOT_DRAGON=np.shape(ISOTOPES)[0]-1, check this for consistency : the last isotope is the total density "MAC"
         lenISOT_DRAGON=np.shape(ISOTOPES)[0]
         DRAGON_BU=self.COMPO_BU_steps
         DRAGON_ISOTOPESDENS=np.zeros((lenISOT_DRAGON,lenBU_DRAGON))
         DRAGON_Keff=np.zeros(lenBU_DRAGON)
 
-        #print("$$$ ---------------- DRAGON_ISOTOPESDENS shape = ",lenISOT_DRAGON,lenBU_DRAGON)
-
         for k in range(lenBU_DRAGON):
             DRAGON_Keff[k]=self.pyCOMPO[self.DIR]['MIXTURES'][0]['CALCULATIONS'][k]['K-EFFECTIVE']
-            #print("$$$ ---------------- ISOTOPES BU step ",k,"/",lenBU_DRAGON," = ",COMPO_py['EDIBU_HOM']['MIXTURES'][0]['CALCULATIONS'][k]['ISOTOPESDENS'])    
             for j in range(lenISOT_DRAGON):
-                #print("$$$ ---------------- ISOTOPES ",j,"/",lenISOT_DRAGON," = ",COMPO_py['EDIBU']['MIXTURES'][0]['CALCULATIONS'][k]['ISOTOPESDENS'][j])
                 DRAGON_ISOTOPESDENS[j][k]=self.pyCOMPO[self.DIR]['MIXTURES'][0]['CALCULATIONS'][k]['ISOTOPESDENS'][j]
-
 
         # --------- List of isotopes from the DRAGON Multicompo results
         isotopes2=[]
@@ -183,7 +183,7 @@ class DRAGON_case:
         for n in range(len(self.tracked_nuclides)):
             for m in range(len(isotopes)):
                 if self.tracked_nuclides[n]==isotopes[m]:
-                    print(f"tracked_nuclides[{n}] = {self.tracked_nuclides[n]} is isotopes[{m}] = {isotopes[m]}")
+                    #print(f"tracked_nuclides[{n}] = {self.tracked_nuclides[n]} is isotopes[{m}] = {isotopes[m]}")
                     indices[n]=m
 
         for k in range(len(self.tracked_nuclides)):
@@ -218,6 +218,46 @@ class DRAGON_case:
         plt.grid()
         plt.savefig(f"{self.save_dir}/DRAGON_{isotope}_{self.draglib_name}_{self.ssh_opt}_sat_{self.sat}_sol{self.depl_sol}.png")
         plt.close()
+        return
+    
+class OpenMC_case:
+    def __init__(self, case_name, lib_name, edep_id, areQfissSet, integrator, specific_power, tracked_nuclides, save_dir):
+        self.case_name = case_name
+        self.lib_name = lib_name
+        self.edep_id = edep_id
+        self.areQfissSet = areQfissSet
+        if edep_id == "energy_deposition":
+            self.areQfissSet = False # If energy deposition mode is set, Qfiss values are not set as KERMA coefficients are used instead
+        self.integrator = integrator
+        self.specific_power = specific_power
+        self.tracked_nuclides = tracked_nuclides
+        self.save_dir = save_dir
+        self.unitsBU = "days"
+        self.read_OpenMC_outputs()
+
+    def read_OpenMC_outputs(self):
+        # Read the results and depletion
+        if self.areQfissSet == True and self.edep_id == "fissq":
+            path_to_results = f"{os.environ['OPENMC_RESULTS']}/{self.case_name}/{self.edep_id}_{self.integrator}/results_set_qfiss"
+        elif self.areQfissSet == False and self.edep_id == "fissq":
+            path_to_results = f"{os.environ['OPENMC_RESULTS']}/{self.case_name}/{self.edep_id}_{self.integrator}/results_default_Q_values"
+        elif self.areQfissSet == False and self.edep_id == "energy_deposition":
+            path_to_results = f"{os.environ['OPENMC_RESULTS']}/{self.case_name}/{self.edep_id}_{self.integrator}/"
+        self.keffs = np.loadtxt(f"{path_to_results}/{self.case_name}_depl_keff.txt")
+        self.sigmas_keff = self.keffs[:,1]
+        self.keffs = self.keffs[:,0]
+        self.BUdays = np.loadtxt(f"{path_to_results}/{self.case_name}_depl_time.txt")
+        self.BU = self.BUdays * self.specific_power # Convert the time in days to burnup in MWd/tU
+        
+        print(f"Reading OpenMC results for {self.case_name} with {self.edep_id} and {self.integrator}")
+        # Sanity check
+        print(f"OpenMC keffs shape : {self.keffs.shape}")
+        print(f"OpenMC BU_days shape : {self.BUdays.shape}")
+
+        self.Ni = {}
+        for isotope in self.tracked_nuclides:
+            self.Ni[isotope] = np.loadtxt(f"{path_to_results}/{self.case_name}_depl_N{isotope}.txt")
+
         return
     
 
