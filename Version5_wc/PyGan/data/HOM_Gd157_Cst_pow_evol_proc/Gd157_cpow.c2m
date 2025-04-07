@@ -56,10 +56,6 @@ TRACK := SYBILT: GEOM ::
     ;
 
 
-************************************************************************
-*  REFERENCE LOCAL PARAMETERS                                          *
-************************************************************************
-SEQ_ASCII FIG_BWR :: FILE './FIG_BWR_CELL_1level.ps' ;
 
 ************************************************************************
 *  BEGIN DECLARATION                                                   *
@@ -163,7 +159,7 @@ WHILE istep nstep < DO
 ************************************************************************
 *  BEGIN FLUX CALCULATION                                              *
 ************************************************************************
-  SYS := ASM: LIBRARY2 TRACK :: PIJ EDIT 0 ;    
+  SYS := ASM: LIBRARY2 TRACK :: PIJ PNOR HELI ;    
 
   IF istep 1 = THEN     
      FLUX := FLU: LIBRARY2 SYS TRACK :: 
@@ -224,14 +220,19 @@ WHILE istep nstep < DO
 
     IF sat "SAT" = sat "SATOFF" = + THEN
       ECHO "sat = " sat ;
-      BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX TRACK ::
-      EDIT 3 <<depl_sol>> DEPL <<Tbeg>> <<Tend>> DAY POWR <<Norm_f2>>
-      EXPM 1.0E15 GLOB <<sat>> DIRA ;
+        BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX TRACK ::
+            EDIT 2
+            DEPL <<Tbeg>> <<Tend>> DAY POWR <<Norm_f2>>
+            EPS1 1.0E-5  EPS2 1.0E-5
+            EXPM 1.E15 RUNG NOEX <<sat>> NODI GLOB
+        ;
     ELSE
-      ECHO "no SAT keyword" ;
-      BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX TRACK ::
-      EDIT 3 <<depl_sol>> DEPL <<Tbeg>> <<Tend>> DAY POWR <<Norm_f2>>
-      EXPM 1.0E15 GLOB DIRA ;
+        BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX TRACK ::
+            EDIT 2
+            DEPL <<Tbeg>> <<Tend>> DAY POWR <<Norm_f2>>
+            EPS1 1.0E-5  EPS2 1.0E-5
+            EXPM 1.E15 RUNG NOEX NODI GLOB
+        ;
     ENDIF ;
   
   ENDIF ;

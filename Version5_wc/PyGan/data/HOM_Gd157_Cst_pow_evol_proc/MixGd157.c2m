@@ -142,6 +142,7 @@ ELSEIF ssh_method "PT" = THEN
             EDIT 1
             NMIX 1    ! MAXIMUM OF MATERIAL MIXTURES
             CALENDF 4 PT 
+            ADED 4 NELAS N4N N2N N3N
             ANIS 2
 
             DEPL LIB: DRAGON FIL: <<draglib>>

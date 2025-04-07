@@ -114,7 +114,7 @@ if post_process_D5:
 
     
     ## Load the COMPOs
-    os.chdir("Linux_aarch64/")
+    os.chdir("D5_COMPOs_path/")
     #print(os.listdir())
     #print(name_compo)
     pyCOMPO_VBOC_OMC = lcm.new('LCM_INP', name_compo_OMC, impx=0)

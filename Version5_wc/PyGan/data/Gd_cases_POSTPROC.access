@@ -1,10 +1,10 @@
 #!/bin/sh
 if [ $# = 0 ]
    then
-   echo "-----.access----- HOM_Gd157_VBOC access script begun" 1>&2
+   echo "-----.access----- Gd_cases_postproc access script begun" 1>&2
    exit 1
 fi
-echo "-----.access----- HOM_Gd157_VBOC access script begun"
+echo "-----.access----- Gd_cases_postproc access script begun"
 MACH=`uname -s`
 Sysx="`echo $MACH | cut -b -6`"
 if [ $Sysx = "CYGWIN" ]; then
@@ -14,6 +14,7 @@ elif [ $Sysx = "Darwin" ]; then
 elif [ $Sysx = "SunOS" ]; then
    MACH=`uname -sm | sed 's/[ ]/_/'`
 fi
-ln -s $DRAGON_RESULTS D5_COMPOs_path
+ln -s $PYGAN_RESULTS PYGAN_COMPOS_path
+ln -s $DRAGON_RESULTS DRAGON_COMPOS_path
 ls -l
-echo -"----.access----- HOM_Gd157_VBOC access script terminated"
+echo -"----.access----- Gd_cases_postproc access script terminated"
