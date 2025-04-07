@@ -23,8 +23,9 @@ PARAMETER COMPO LIBRARY TRACK TF_EXC TRACK_SS TF_EXC_SS StepList ::
 STRING name_compo ;
 :: >>name_compo<< ;
 
-STRING ssh_method deplsolopt glob_opt sat_opt ;
-:: >>ssh_method<< >>deplsolopt<< >>glob_opt<< >>sat_opt<< ;
+STRING ssh_method deplsolopt glob_opt sat_opt rates_extr ;
+:: >>ssh_method<< >>deplsolopt<< >>glob_opt<< >>sat_opt<< >>rates_extr<< ; 
+
 DOUBLE val_exp ;
 :: >>val_exp<< ;
 
@@ -146,12 +147,12 @@ WHILE istep nstep < DO
   IF istep 1 = THEN
     BURNUP LIBRARY2 := EVO: LIBRARY2 FLUX TRACK ::
       EDIT 1
-      SAVE <<Tbeg>> DAY POWR <<Norm_f2>>
+      SAVE <<Tbeg>> DAY POWR <<Norm_f2>> <<rates_extr>>
     ;
   ELSE
     BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX TRACK ::
       EDIT 1
-      SAVE <<Tbeg>> DAY POWR <<Norm_f2>>
+      SAVE <<Tbeg>> DAY POWR <<Norm_f2>> <<rates_extr>>
     ;
   ENDIF ;
 
@@ -184,11 +185,8 @@ WHILE istep nstep < DO
   
     BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX TRACK ::
      EDIT 3 DEPL <<Tbeg>> <<Tend>> DAY 
-     POWR <<Norm_f2>> 
-     <<deplsolopt>>
-     <<sat_opt>> 
-     EXPM <<valexp>> 
-     <<glob_opt>> ;
+     POWR <<Norm_f2>> <<deplsolopt>> <<sat_opt>> <<rates_extr>>
+     EXPM <<valexp>> <<glob_opt>> ;
   
   ENDIF ;
  

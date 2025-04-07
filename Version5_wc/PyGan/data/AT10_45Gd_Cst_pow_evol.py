@@ -53,7 +53,6 @@ tracking_option = "SALT" #, "SYBNXT"
 # ENDFb8r1_295 or J311_295
 #
 evaluation = "endfb8r1" # Jeff3.1.1 or ENDF/B-VIII.1
-
 draglib_name = "endfb8r1_295"
 
 # 3) Selecting the self-shielding method
@@ -72,12 +71,17 @@ burnup_points = "Gd"
 # val_exp : list of values to impose saturation for isotopes with lambda * (xtf - xti) >= val_exp
 #
 solver_option = "RUNG"
-saturation_option = "NODI" #, "DIRA"]
+saturation_option = "NODI" #, "DIRA"
+rates_extr = "EXTR" #, "NOEX"
 
 # 6) Selecting the energy deposition options
 # Global energy deposition : "NOGL"=only energy release in fuel is used for normalization or "GLOB" = global energy release model, 
 
 glob_opt = "GLOB"
+
+# 7) Select which D5 case to run
+exec_D5_no_modif = False # True : run DRAGON5 calculations, False : skip DRAGON5 calculations
+exec_D5_no_NG0 = True # True : run DRAGON5 calculations with NG0 depletion chain, False : skip DRAGON5 calculations
 
 ######## Options for DRAGON5-SERPENT2 comparison ########
 # Select origin of SERPENT2 data + evaluation
@@ -130,43 +134,44 @@ else:
     print("Tracking option not recognized")
     sys.exit(1)
 
+if exec_D5_no_modif:
+    print(f"Self-shielding option : {ssh_option}")
+    LIB = MIX_C(draglib_name,ssh_option)
 
-print(f"Self-shielding option : {ssh_option}")
-LIB = MIX_C(draglib_name,ssh_option)
-
-print(f"Saturation option : {saturation_option}")
-print(f"Global energy deposition option : {glob_opt}") 
-name_compo = f"_COMPO_AT10_45Gd_{draglib_name}_{ssh_option}_{tracking_option}_{solver_option}_{saturation_option}_{glob_opt}_{burnup_points}"
-if tracking_option == "SALT":
-    CPO = BU_C("COMPO", LIB, TRK, TF_EXC, TRK_SS, TF_EXC_SS, StepList, name_compo, ssh_option, solver_option, glob_opt, saturation_option, val_exp = 80.0)
-elif tracking_option == "SYBNXT": 
-    CPO = BU_C_SYBNXT("COMPO", LIB, TRK, TF_EXC, TRK_SS, TF_EXC_SS, StepList, name_compo, ssh_option, solver_option, glob_opt, saturation_option, val_exp = 80.0)
-print(f"creating D5 case for {name_compo}")
-D5case = D5_case(CPO, draglib_name, burnup_points, ssh_option, "CORR", saturation_option, solver_option, tracked_nuclides, BU_lists, save_dir_D5)
-D5case.plot_keffs()
-for iso in tracked_nuclides:
-    D5case.plot_Ni(iso)
+    print(f"Saturation option : {saturation_option}")
+    print(f"Global energy deposition option : {glob_opt}") 
+    name_compo = f"_COMPO_AT10_45Gd_{draglib_name}_{ssh_option}_{tracking_option}_{solver_option}_{saturation_option}_{glob_opt}_{burnup_points}"
+    if tracking_option == "SALT":
+        CPO = BU_C("COMPO", LIB, TRK, TF_EXC, TRK_SS, TF_EXC_SS, StepList, name_compo, ssh_option, solver_option, glob_opt, saturation_option, rates_extr, val_exp = 80.0)
+    elif tracking_option == "SYBNXT": 
+        CPO = BU_C_SYBNXT("COMPO", LIB, TRK, TF_EXC, TRK_SS, TF_EXC_SS, StepList, name_compo, ssh_option, solver_option, glob_opt, saturation_option, val_exp = 80.0)
+    print(f"creating D5 case for {name_compo}")
+    D5case = D5_case(CPO, draglib_name, burnup_points, ssh_option, "CORR", saturation_option, solver_option, tracked_nuclides, BU_lists, save_dir_D5)
+    D5case.plot_keffs()
+    for iso in tracked_nuclides:
+        D5case.plot_Ni(iso)
 
 
-### Begin calculations with modified DEPL structure ###
-    
-# --- Call to DRAGON5 CLE-2000 procedures :
-# --- DRAGON5 microlib generation
-pyLIB_NG0 = MIX_NG0(draglib_name) # Creation of the microlib, default D5 energy deposition mode
-#
-# names for exportation
-print(f"State of the calculation NG0 : {draglib_name} {ssh_option} {saturation_option} {solver_option}")
-compo_name = f"_COMPO_AT10_45Gd_{draglib_name}_NG0_{ssh_option}_{tracking_option}_{solver_option}_{saturation_option}_{glob_opt}_{burnup_points}"
-# run DRAGON5 calculation with BU evolution
-if tracking_option == "SALT":
-    CPO_NG0 = BU_C("COMPO", pyLIB_NG0, TRK, TF_EXC, TRK_SS, TF_EXC_SS, StepList, compo_name, ssh_option, solver_option, glob_opt, saturation_option)
-elif tracking_option == "SYBNXT": 
-    CPO_NG0 = BU_C_SYBNXT("COMPO", pyLIB_NG0, TRK, TF_EXC, TRK_SS, TF_EXC_SS, StepList, compo_name, ssh_option, solver_option, glob_opt, saturation_option)
-print(f"creating D5 case for {compo_name}")
-D5case_NG0 = D5_case(CPO_NG0, draglib_name, burnup_points, ssh_option, "CORR", saturation_option, solver_option, tracked_nuclides, BU_lists, save_dir_D5)
-D5case_NG0.plot_keffs()
-for iso in tracked_nuclides:
-    D5case_NG0.plot_Ni(iso)
-# --- Post-processing of DRAGON5 results
-    
-#### END SCRIPT #### 
+if exec_D5_no_NG0:
+    ### Begin calculations with modified DEPL structure ###
+        
+    # --- Call to DRAGON5 CLE-2000 procedures :
+    # --- DRAGON5 microlib generation
+    pyLIB_NG0 = MIX_NG0(draglib_name) # Creation of the microlib, default D5 energy deposition mode
+    #
+    # names for exportation
+    print(f"State of the calculation NG0 : {draglib_name} {ssh_option} {saturation_option} {solver_option}")
+    compo_name = f"_CPO_{draglib_name}_NG0_{ssh_option}_{tracking_option}_{burnup_points}_{solver_option}_{saturation_option}_{rates_extr}_{glob_opt}"
+    # run DRAGON5 calculation with BU evolution
+    if tracking_option == "SALT":
+        CPO_NG0 = BU_C("COMPO", pyLIB_NG0, TRK, TF_EXC, TRK_SS, TF_EXC_SS, StepList, compo_name, ssh_option, solver_option, glob_opt, rates_extr, saturation_option)
+    elif tracking_option == "SYBNXT": 
+        CPO_NG0 = BU_C_SYBNXT("COMPO", pyLIB_NG0, TRK, TF_EXC, TRK_SS, TF_EXC_SS, StepList, compo_name, ssh_option, solver_option, glob_opt, saturation_option)
+    print(f"creating D5 case for {compo_name}")
+    D5case_NG0 = D5_case(CPO_NG0, draglib_name, burnup_points, ssh_option, "CORR", saturation_option, solver_option, tracked_nuclides, BU_lists, save_dir_D5)
+    D5case_NG0.plot_keffs()
+    for iso in tracked_nuclides:
+        D5case_NG0.plot_Ni(iso)
+    # --- Post-processing of DRAGON5 results
+        
+    #### END SCRIPT #### 

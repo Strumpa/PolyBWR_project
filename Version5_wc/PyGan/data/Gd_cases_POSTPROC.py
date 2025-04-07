@@ -51,258 +51,468 @@ if not os.path.exists(save_dir_gduo2_295_kec1):
 
 ### Begin post treatment of DRAGON and SERPENT2 results
 # Case 0 : HOM_Gd157_VBOC_OMC (already done in HOM_Gd157_VBOC.py from DRAGON5 results (not called from PyGan)) <-- not a priority
+post_treat_case0 = False
 # Case 1 : HOM_Gd157_VBOC, focus on this
+post_treat_case1 = True
 # Case 2 : HOM_UOX_Gd157, focus on this
+post_treat_case2 = False
 # Case 3 : AT10_45Gd, focus on this
 # Case 4 : gduo2_295_kec1
 
-# Case 1 : HOM_Gd157_VBOC
+
+if post_treat_case1:
+    # Case 1 : HOM_Gd157_VBOC
     """
     _COMPO_HOM_Gd157_VBOC_endfb8r1_295_PCC0
     _COMPO_HOM_Gd157_VBOC_endfb8r1_295_NG0_PCC0
     """
 
-# Load COMPOS from DRAGON_RESULTS
-    
-path_to_DRAGON_results = f"{os.getcwd()}/DRAGON_COMPOS_path/"
-cwd_path = os.getcwd()
-os.chdir(path_to_DRAGON_results)
-# Load the data
-name_CPO_HOM_Gd157_VBOC_NG0 = f"COMPO_HOM_Gd157_VBOC_{evaluation}_295_NG0"
-name_CPO_HOM_Gd157_VBOC_NG0_PCC0 = f"COMPO_HOM_Gd157_VBOC_{evaluation}_295_NG0_PCC0"
-name_CPO_HOM_Gd157_VBOC_NG0_DIRA = f"COMPO_HOM_Gd157_VBOC_{evaluation}_295_NG0_DIRA"
-name_CPO_HOM_Gd157_VBOC_NG0_PCC0_DIRA = f"COMPO_HOM_Gd157_VBOC_{evaluation}_295_NG0_PCC0_DIRA"
-name_CPO_HOM_Gd157_VBOC_NG0_PCC0_SAT = f"COMPO_HOM_Gd157_VBOC_{evaluation}_295_NG0_PCC0_SAT"
-name_CPO_HOM_Gd157_VBOC_NG0_SAT = f"COMPO_HOM_Gd157_VBOC_{evaluation}_295_NG0_SAT"
+    # Load COMPOS from DRAGON_RESULTS
+        
+    path_to_DRAGON_results = f"{os.getcwd()}/DRAGON_COMPOS_path/"
+    cwd_path = os.getcwd()
+    os.chdir(path_to_DRAGON_results)
+    # Load the data
+    name_CPO_HOM_Gd157_VBOC_NG0_EXTR = f"COMPO_HOM_Gd157_VBOC_{evaluation}_295_NG0"
+    name_CPO_HOM_Gd157_VBOC_NG0_NOEX = f"COMPO_HOM_Gd157_VBOC_{evaluation}_295_NG0_PCC0"
+    name_CPO_HOM_Gd157_VBOC_NG0_EXTR_DIRA = f"COMPO_HOM_Gd157_VBOC_{evaluation}_295_NG0_DIRA"
+    name_CPO_HOM_Gd157_VBOC_NG0_NOEX_DIRA = f"COMPO_HOM_Gd157_VBOC_{evaluation}_295_NG0_PCC0_DIRA"
+    name_CPO_HOM_Gd157_VBOC_NG0_NOEX_SAT = f"COMPO_HOM_Gd157_VBOC_{evaluation}_295_NG0_PCC0_SAT"
+    name_CPO_HOM_Gd157_VBOC_NG0_EXTR_SAT = f"COMPO_HOM_Gd157_VBOC_{evaluation}_295_NG0_SAT"
 
-CPO_HOM_Gd157_VBOC_NG0 = lcm.new('LCM_INP', name_CPO_HOM_Gd157_VBOC_NG0, impx=0)
-CPO_HOM_Gd157_VBOC_NG0_PCC0 = lcm.new('LCM_INP', name_CPO_HOM_Gd157_VBOC_NG0_PCC0, impx=0)
-CPO_HOM_Gd157_VBOC_NG0_DIRA = lcm.new('LCM_INP', name_CPO_HOM_Gd157_VBOC_NG0_DIRA, impx=0)
-CPO_HOM_Gd157_VBOC_NG0_PCC0_DIRA = lcm.new('LCM_INP', name_CPO_HOM_Gd157_VBOC_NG0_PCC0_DIRA, impx=0)
-CPO_HOM_Gd157_VBOC_NG0_PCC0_SAT = lcm.new('LCM_INP', name_CPO_HOM_Gd157_VBOC_NG0_PCC0_SAT, impx=0)
-CPO_HOM_Gd157_VBOC_NG0_SAT = lcm.new('LCM_INP', name_CPO_HOM_Gd157_VBOC_NG0_SAT, impx=0)
+    CPO_HOM_Gd157_VBOC_NG0_EXTR_NODI = lcm.new('LCM_INP', name_CPO_HOM_Gd157_VBOC_NG0_EXTR, impx=0)
+    CPO_HOM_Gd157_VBOC_NG0_NOEX_NODI = lcm.new('LCM_INP', name_CPO_HOM_Gd157_VBOC_NG0_NOEX, impx=0)
+    CPO_HOM_Gd157_VBOC_NG0_EXTR_DIRA = lcm.new('LCM_INP', name_CPO_HOM_Gd157_VBOC_NG0_EXTR_DIRA, impx=0)
+    CPO_HOM_Gd157_VBOC_NG0_NOEX_DIRA = lcm.new('LCM_INP', name_CPO_HOM_Gd157_VBOC_NG0_NOEX_DIRA, impx=0)
+    CPO_HOM_Gd157_VBOC_NG0_NOEX_SAT = lcm.new('LCM_INP', name_CPO_HOM_Gd157_VBOC_NG0_NOEX_SAT, impx=0)
+    CPO_HOM_Gd157_VBOC_NG0_EXTR_SAT = lcm.new('LCM_INP', name_CPO_HOM_Gd157_VBOC_NG0_EXTR_SAT, impx=0)
 
-os.chdir(cwd_path)    
+    os.chdir(cwd_path)    
 
-## Load S2 results with set fission Q-values, edepmode 0, pcc 0
+    ## Load S2 results with set fission Q-values, edepmode 0, pcc 0
 
-# reminder of S2_case object contrustructor (case_name, lib_name, edep_id, areQfissSet, isEcaptSet, pcc_id, specific_power, tracked_nuclides, save_dir)
-S2_edep0_setQfiss_pcc0 = S2_case(case_name = "HOM_Gd157_VBOC",
-                                lib_name = "endfb8r1_pynjoy2012_kerma",
-                                edep_id = 0, areQfissSet = True, isEcaptSet = False,
-                                pcc_id = 0, specific_power = 38.6, tracked_nuclides = tracked_nuclides, save_dir = save_dir_HOM_Gd157_VBOC)
-S2_edep0_setQfiss_pcc1 = S2_case(case_name = "HOM_Gd157_VBOC",
-                                lib_name = "endfb8r1_pynjoy2012_kerma",
-                                edep_id = 0, areQfissSet = True, isEcaptSet = False,
-                                pcc_id = 1, specific_power = 38.6, tracked_nuclides = tracked_nuclides, save_dir = save_dir_HOM_Gd157_VBOC)
-S2_edep0_setQfiss_pcc2 = S2_case(case_name = "HOM_Gd157_VBOC",
-                                lib_name = "endfb8r1_pynjoy2012_kerma",
-                                edep_id = 0, areQfissSet = True, isEcaptSet = False,
-                                pcc_id = 2, specific_power = 38.6, tracked_nuclides = tracked_nuclides, save_dir = save_dir_HOM_Gd157_VBOC)
+    # reminder of S2_case object contrustructor (case_name, lib_name, edep_id, areQfissSet, isEcaptSet, pcc_id, specific_power, tracked_nuclides, save_dir)
+    S2_edep0_setQfiss_pcc0 = S2_case(case_name = "HOM_Gd157_VBOC",
+                                    lib_name = "endfb8r1_pynjoy2012_kerma",
+                                    edep_id = 0, areQfissSet = True, isEcaptSet = False,
+                                    pcc_id = 0, specific_power = 38.6, tracked_nuclides = tracked_nuclides, save_dir = save_dir_HOM_Gd157_VBOC)
+    S2_edep0_setQfiss_pcc1 = S2_case(case_name = "HOM_Gd157_VBOC",
+                                    lib_name = "endfb8r1_pynjoy2012_kerma",
+                                    edep_id = 0, areQfissSet = True, isEcaptSet = False,
+                                    pcc_id = 1, specific_power = 38.6, tracked_nuclides = tracked_nuclides, save_dir = save_dir_HOM_Gd157_VBOC)
+    S2_edep0_setQfiss_pcc2 = S2_case(case_name = "HOM_Gd157_VBOC",
+                                    lib_name = "endfb8r1_pynjoy2012_kerma",
+                                    edep_id = 0, areQfissSet = True, isEcaptSet = False,
+                                    pcc_id = 2, specific_power = 38.6, tracked_nuclides = tracked_nuclides, save_dir = save_dir_HOM_Gd157_VBOC)
 
-# Create D5 cases with and without (n,gamma) energy deposition
-# reminder of D5_case object contrustructor (pyCOMPO, dlib_name, bu_points, ssh_opt, correlation, sat, depl_sol, tracked_nuclides, BU_lists, save_dir)
+    # Create D5 cases with and without (n,gamma) energy deposition
+    # reminder of D5_case object contrustructor (pyCOMPO, dlib_name, bu_points, ssh_opt, correlation, sat, depl_sol, tracked_nuclides, BU_lists, save_dir)
 
 
-D5_HOM_Gd157_VBOC_NG0 = D5_case(pyCOMPO = CPO_HOM_Gd157_VBOC_NG0,
-                            dlib_name = "endfb8r1_295_NG0",
-                            bu_points = "VBOC",
-                            ssh_opt = "PT",
-                            correlation = "CORR",
-                            sat = "",
-                            depl_sol = "RUNG",
-                            tracked_nuclides = tracked_nuclides,
-                            BU_lists = getLists("VBOC"),
-                            save_dir = save_dir_HOM_Gd157_VBOC)
+    D5_HOM_Gd157_VBOC_NG0_EXTR_NODI = D5_case(pyCOMPO = CPO_HOM_Gd157_VBOC_NG0_EXTR_NODI,
+                                dlib_name = "endfb8r1_295_NG0",
+                                bu_points = "VBOC",
+                                ssh_opt = "PT",
+                                correlation = "CORR",
+                                sat = "",
+                                depl_sol = "RUNG",
+                                tracked_nuclides = tracked_nuclides,
+                                BU_lists = getLists("VBOC"),
+                                save_dir = save_dir_HOM_Gd157_VBOC)
 
-D5_HOM_Gd157_VBOC_NG0_PCC0 = D5_case(pyCOMPO = CPO_HOM_Gd157_VBOC_NG0_PCC0,
-                            dlib_name = "endfb8r1_295_NG0",
-                            bu_points = "VBOC",
-                            ssh_opt = "PT",
-                            correlation = "CORR",
-                            sat = "",
-                            depl_sol = "RUNG",
-                            tracked_nuclides = tracked_nuclides,
-                            BU_lists = getLists("VBOC"),
-                            save_dir = save_dir_HOM_Gd157_VBOC)
+    D5_HOM_Gd157_VBOC_NG0_NOEX_NODI = D5_case(pyCOMPO = CPO_HOM_Gd157_VBOC_NG0_NOEX_NODI,
+                                dlib_name = "endfb8r1_295_NG0",
+                                bu_points = "VBOC",
+                                ssh_opt = "PT",
+                                correlation = "CORR",
+                                sat = "",
+                                depl_sol = "RUNG",
+                                tracked_nuclides = tracked_nuclides,
+                                BU_lists = getLists("VBOC"),
+                                save_dir = save_dir_HOM_Gd157_VBOC)
 
-D5_HOM_Gd157_VBOC_NG0_DIRA = D5_case(pyCOMPO = CPO_HOM_Gd157_VBOC_NG0_DIRA,
-                            dlib_name = "endfb8r1_295_NG0",
-                            bu_points = "VBOC",
-                            ssh_opt = "PT",
-                            correlation = "CORR",
-                            sat = "DIRA",
-                            depl_sol = "RUNG",
-                            tracked_nuclides = tracked_nuclides,
-                            BU_lists = getLists("VBOC"),
-                            save_dir = save_dir_HOM_Gd157_VBOC)
+    D5_HOM_Gd157_VBOC_NG0_EXTR_DIRA = D5_case(pyCOMPO = CPO_HOM_Gd157_VBOC_NG0_EXTR_DIRA,
+                                dlib_name = "endfb8r1_295_NG0",
+                                bu_points = "VBOC",
+                                ssh_opt = "PT",
+                                correlation = "CORR",
+                                sat = "DIRA",
+                                depl_sol = "RUNG",
+                                tracked_nuclides = tracked_nuclides,
+                                BU_lists = getLists("VBOC"),
+                                save_dir = save_dir_HOM_Gd157_VBOC)
 
-D5_HOM_Gd157_VBOC_NG0_PCC0_DIRA = D5_case(pyCOMPO = CPO_HOM_Gd157_VBOC_NG0_PCC0_DIRA,
-                            dlib_name = "endfb8r1_295_NG0",
-                            bu_points = "VBOC",
-                            ssh_opt = "PT",
-                            correlation = "CORR",
-                            sat = "DIRA",
-                            depl_sol = "RUNG",
-                            tracked_nuclides = tracked_nuclides,
-                            BU_lists = getLists("VBOC"),
-                            save_dir = save_dir_HOM_Gd157_VBOC)
+    D5_HOM_Gd157_VBOC_NG0_NOEX_DIRA = D5_case(pyCOMPO = CPO_HOM_Gd157_VBOC_NG0_NOEX_DIRA,
+                                dlib_name = "endfb8r1_295_NG0",
+                                bu_points = "VBOC",
+                                ssh_opt = "PT",
+                                correlation = "CORR",
+                                sat = "DIRA",
+                                depl_sol = "RUNG",
+                                tracked_nuclides = tracked_nuclides,
+                                BU_lists = getLists("VBOC"),
+                                save_dir = save_dir_HOM_Gd157_VBOC)
 
-D5_HOM_Gd157_VBOC_NG0_PCC0_SAT = D5_case(pyCOMPO = CPO_HOM_Gd157_VBOC_NG0_PCC0_SAT,
-                            dlib_name = "endfb8r1_295_NG0",
-                            bu_points = "VBOC",
-                            ssh_opt = "PT",
-                            correlation = "CORR",
-                            sat = "SAT",
-                            depl_sol = "RUNG",
-                            tracked_nuclides = tracked_nuclides,
-                            BU_lists = getLists("VBOC"),
-                            save_dir = save_dir_HOM_Gd157_VBOC)
-D5_HOM_Gd157_VBOC_NG0_SAT = D5_case(pyCOMPO = CPO_HOM_Gd157_VBOC_NG0_SAT,
-                            dlib_name = "endfb8r1_295_NG0",
-                            bu_points = "VBOC",
-                            ssh_opt = "PT",
-                            correlation = "CORR",
-                            sat = "SAT",
-                            depl_sol = "RUNG",
-                            tracked_nuclides = tracked_nuclides,
-                            BU_lists = getLists("VBOC"),
-                            save_dir = save_dir_HOM_Gd157_VBOC)
+    D5_HOM_Gd157_VBOC_NG0_NOEX_SAT = D5_case(pyCOMPO = CPO_HOM_Gd157_VBOC_NG0_NOEX_SAT,
+                                dlib_name = "endfb8r1_295_NG0",
+                                bu_points = "VBOC",
+                                ssh_opt = "PT",
+                                correlation = "CORR",
+                                sat = "SAT",
+                                depl_sol = "RUNG",
+                                tracked_nuclides = tracked_nuclides,
+                                BU_lists = getLists("VBOC"),
+                                save_dir = save_dir_HOM_Gd157_VBOC)
+    D5_HOM_Gd157_VBOC_NG0_EXTR_SAT = D5_case(pyCOMPO = CPO_HOM_Gd157_VBOC_NG0_EXTR_SAT,
+                                dlib_name = "endfb8r1_295_NG0",
+                                bu_points = "VBOC",
+                                ssh_opt = "PT",
+                                correlation = "CORR",
+                                sat = "SAT",
+                                depl_sol = "RUNG",
+                                tracked_nuclides = tracked_nuclides,
+                                BU_lists = getLists("VBOC"),
+                                save_dir = save_dir_HOM_Gd157_VBOC)
 
-# Compare the results of DRAGON5 and SERPENT2
-BU_points_plot = getLists("VBOC")["BU"]
-# compare NG0 NOEX + NODI with S2 edepmode 0 pcc0
-delta_keff_NG0_NOEX_HOM_Gd157_VBOC_pcc0 = (D5_HOM_Gd157_VBOC_NG0_PCC0.keff - S2_edep0_setQfiss_pcc0.keff) * 1e5 # pcm <-- This one works, use as a reference / building bloc for other cases
-# compare NG0 NOEX + DIRA with S2 edepmode 0 pcc0
-delta_keff_NG0_NOEX_DIRA_HOM_Gd157_VBOC_pcc0 = (D5_HOM_Gd157_VBOC_NG0_PCC0_DIRA.keff - S2_edep0_setQfiss_pcc0.keff) * 1e5 # pcm
+    # Compare the results of DRAGON5 and SERPENT2
+    BU_points_plot = getLists("VBOC")["COMPO"]
+    # compare NG0 NOEX + NODI with S2 edepmode 0 pcc0
+    delta_keff_NG0_NOEX_NODI_HOM_Gd157_VBOC_pcc0 = (D5_HOM_Gd157_VBOC_NG0_NOEX_NODI.keff - S2_edep0_setQfiss_pcc0.keff) * 1e5 # pcm <-- This one works, use as a reference / building bloc for other cases
+    # compare NG0 NOEX + DIRA with S2 edepmode 0 pcc0
+    delta_keff_NG0_NOEX_DIRA_HOM_Gd157_VBOC_pcc0 = (D5_HOM_Gd157_VBOC_NG0_NOEX_DIRA.keff - S2_edep0_setQfiss_pcc0.keff) * 1e5 # pcm
 
-# compare NG0 EXTR + NODI with S2 edepmode 0 pcc2
-delta_keff_EXTR_NG0_HOM_Gd157_VBOC_pcc2 = (D5_HOM_Gd157_VBOC_NG0.keff - S2_edep0_setQfiss_pcc2.keff) * 1e5 # pcm
-# compare NG0 EXTR + DIRA with S2 edepmode 0 pcc2
-delta_keff_EXTR_NG0_DIRA_HOM_Gd157_VBOC_pcc2 = (D5_HOM_Gd157_VBOC_NG0_DIRA.keff - S2_edep0_setQfiss_pcc2.keff) * 1e5 # pcm
+    # compare NG0 EXTR + NODI with S2 edepmode 0 pcc2
+    delta_keff_NG0_EXTR_NODI_HOM_Gd157_VBOC_pcc2 = (D5_HOM_Gd157_VBOC_NG0_EXTR_NODI.keff - S2_edep0_setQfiss_pcc2.keff) * 1e5 # pcm
+    # compare NG0 EXTR + DIRA with S2 edepmode 0 pcc2
+    delta_keff_NG0_EXTR_DIRA_HOM_Gd157_VBOC_pcc2 = (D5_HOM_Gd157_VBOC_NG0_EXTR_DIRA.keff - S2_edep0_setQfiss_pcc2.keff) * 1e5 # pcm
 
-# compare NOEX + SAT with S2 edepmode 0 pcc0
-delta_keff_NG0_NOEX_SAT_HOM_Gd157_VBOC_pcc0 = (D5_HOM_Gd157_VBOC_NG0_PCC0_SAT.keff - S2_edep0_setQfiss_pcc0.keff) * 1e5 # pcm
-# compare EXTR + SAT with S2 edepmode 0 pcc2
-delta_keff_EXTR_SAT_HOM_Gd157_VBOC_pcc2 = (D5_HOM_Gd157_VBOC_NG0_SAT.keff - S2_edep0_setQfiss_pcc2.keff) * 1e5 # pcm
+    # compare NOEX + SAT with S2 edepmode 0 pcc0
+    delta_keff_NG0_NOEX_SAT_HOM_Gd157_VBOC_pcc0 = (D5_HOM_Gd157_VBOC_NG0_NOEX_SAT.keff - S2_edep0_setQfiss_pcc0.keff) * 1e5 # pcm
+    # compare EXTR + SAT with S2 edepmode 0 pcc2
+    delta_keff_NG0_EXTR_SAT_HOM_Gd157_VBOC_pcc2 = (D5_HOM_Gd157_VBOC_NG0_EXTR_SAT.keff - S2_edep0_setQfiss_pcc2.keff) * 1e5 # pcm
 
-plt.figure(figsize=(10, 6))
-plt.plot(BU_points_plot, delta_keff_NG0_NOEX_HOM_Gd157_VBOC_pcc0, label="D5 NG0 NOEX - S2 edepmode 0 - pcc 0", color='red', linestyle='--', marker='x')
-plt.plot(BU_points_plot, delta_keff_NG0_NOEX_DIRA_HOM_Gd157_VBOC_pcc0, label="D5 NG0 NOEX DIRA - S2 edepmode 0 - pcc 0", color='blue', linestyle='--', marker='x')
-plt.plot(BU_points_plot, delta_keff_EXTR_NG0_HOM_Gd157_VBOC_pcc2, label="D5 NG0 EXTR - S2 edepmode 0 - pcc 2", color='brown', linestyle='--', marker='x')
-plt.plot(BU_points_plot, delta_keff_EXTR_NG0_DIRA_HOM_Gd157_VBOC_pcc2, label="D5 NG0 EXTR DIRA - S2 edepmode 0 - pcc 2", color='green', linestyle='--', marker='x')
-plt.plot(BU_points_plot, delta_keff_NG0_NOEX_SAT_HOM_Gd157_VBOC_pcc0, label="D5 NG0 NOEX SAT - S2 edepmode 0 - pcc 0", color='orange', linestyle='--', marker='x')
-plt.plot(BU_points_plot, delta_keff_EXTR_SAT_HOM_Gd157_VBOC_pcc2, label="D5 NG0 EXTR SAT - S2 edepmode 0 - pcc 2", color='purple', linestyle='--', marker='x')
-plt.plot(BU_points_plot, 300*np.ones_like(BU_points_plot),  color='red', linestyle='--')
-plt.plot(BU_points_plot, -300*np.ones_like(BU_points_plot),  color='red', linestyle='--')
-plt.xlabel("Burnup (MWd/tU)")
-plt.ylabel("Delta keff (pcm)")
-plt.title("Delta keff between D5 and S2 for HOM_Gd157_VBOC")
-plt.legend()
-plt.grid()
-plt.savefig(f"{save_dir_HOM_Gd157_VBOC}/delta_keff_HOM_Gd157_VBOC.png")
-plt.close()
-
-## Compare results on the isotopic inventory
-
-for iso in tracked_nuclides:
-    delta_Niso_NOEX = [(D5_HOM_Gd157_VBOC_NG0_PCC0.DRAGON_ISOTOPESDENS[iso][idx] - S2_edep0_setQfiss_pcc0.Ni[iso][idx]) * 100 / S2_edep0_setQfiss_pcc0.Ni[iso][idx]
-                    if S2_edep0_setQfiss_pcc0.Ni[iso][idx] != 0 else 0
-                    for idx in range(len(S2_edep0_setQfiss_pcc0.Ni[iso]))]
-    delta_Niso_EXTR = [(D5_HOM_Gd157_VBOC_NG0.DRAGON_ISOTOPESDENS[iso][idx] - S2_edep0_setQfiss_pcc2.Ni[iso][idx]) * 100 / S2_edep0_setQfiss_pcc2.Ni[iso][idx]
-                    if S2_edep0_setQfiss_pcc2.Ni[iso][idx] != 0 else 0
-                    for idx in range(len(S2_edep0_setQfiss_pcc2.Ni[iso]))]
     plt.figure(figsize=(10, 6))
-    plt.plot(BU_points_plot, delta_Niso_NOEX, label=f"D5 NG0 NOEX - S2 edepmode 0 - pcc 0 - {iso}", color='blue', linestyle='--', marker='x')
-    plt.plot(BU_points_plot, delta_Niso_EXTR, label=f"D5 NG0 EXTR - S2 edepmode 0 - pcc 2 - {iso}", color='green', linestyle='--', marker='x')
+    plt.plot(BU_points_plot, delta_keff_NG0_NOEX_NODI_HOM_Gd157_VBOC_pcc0, label="D5 NG0 NOEX NODI - S2 edepmode 0 - pcc 0", color='blue', linestyle='--', marker='x')
+    plt.plot(BU_points_plot, delta_keff_NG0_NOEX_DIRA_HOM_Gd157_VBOC_pcc0, label="D5 NG0 NOEX DIRA - S2 edepmode 0 - pcc 0", color='red', linestyle='--', marker='x')
+    plt.plot(BU_points_plot, delta_keff_NG0_EXTR_NODI_HOM_Gd157_VBOC_pcc2, label="D5 NG0 EXTR NODI - S2 edepmode 0 - pcc 2", color='green', linestyle='--', marker='D')
+    plt.plot(BU_points_plot, delta_keff_NG0_EXTR_DIRA_HOM_Gd157_VBOC_pcc2, label="D5 NG0 EXTR DIRA - S2 edepmode 0 - pcc 2", color='orange', linestyle='--', marker='D')
+    plt.plot(BU_points_plot, delta_keff_NG0_NOEX_SAT_HOM_Gd157_VBOC_pcc0, label="D5 NG0 NOEX SAT - S2 edepmode 0 - pcc 0", color='purple', linestyle='--', marker='x')
+    plt.plot(BU_points_plot, delta_keff_NG0_EXTR_SAT_HOM_Gd157_VBOC_pcc2, label="D5 NG0 EXTR SAT - S2 edepmode 0 - pcc 2", color='brown', linestyle='--', marker='D')
+    plt.plot(BU_points_plot, 300*np.ones_like(BU_points_plot),  color='red', linestyle='--')
+    plt.plot(BU_points_plot, -300*np.ones_like(BU_points_plot),  color='red', linestyle='--')
     plt.xlabel("Burnup (MWd/tU)")
-    plt.ylabel(f"Delta N {iso} (%)")
-    plt.title(f"Delta N {iso} between D5 and S2 for HOM_Gd157_VBOC")
+    plt.ylabel("Delta keff (pcm)")
+    plt.title("Delta keff between D5 and S2 for HOM_Gd157_VBOC")
     plt.legend()
     plt.grid()
-    plt.savefig(f"{save_dir_HOM_Gd157_VBOC}/delta_Niso_{iso}_HOM_Gd157_VBOC.png")
+    plt.savefig(f"{save_dir_HOM_Gd157_VBOC}/delta_keff_HOM_Gd157_VBOC.png")
+    plt.close()
+
+    ## Compare results on the isotopic inventory
+
+    for iso in tracked_nuclides:
+        delta_Niso_NOEX_NODI = [(D5_HOM_Gd157_VBOC_NG0_NOEX_NODI.DRAGON_ISOTOPESDENS[iso][idx] - S2_edep0_setQfiss_pcc0.Ni[iso][idx]) * 100 / S2_edep0_setQfiss_pcc0.Ni[iso][idx]
+                        if S2_edep0_setQfiss_pcc0.Ni[iso][idx] != 0 else 0
+                        for idx in range(len(S2_edep0_setQfiss_pcc0.Ni[iso]))]
+        delta_Niso_EXTR_NODI = [(D5_HOM_Gd157_VBOC_NG0_EXTR_NODI.DRAGON_ISOTOPESDENS[iso][idx] - S2_edep0_setQfiss_pcc2.Ni[iso][idx]) * 100 / S2_edep0_setQfiss_pcc2.Ni[iso][idx]
+                        if S2_edep0_setQfiss_pcc2.Ni[iso][idx] != 0 else 0
+                        for idx in range(len(S2_edep0_setQfiss_pcc2.Ni[iso]))]
+        plt.figure(figsize=(10, 6))
+        plt.plot(BU_points_plot, delta_Niso_NOEX_NODI, label=f"D5 NG0 NOEX NODI - S2 edepmode 0 - pcc 0 - {iso}", color='blue', linestyle='--', marker='x')
+        plt.plot(BU_points_plot, delta_Niso_EXTR_NODI, label=f"D5 NG0 EXTR NODI - S2 edepmode 0 - pcc 2 - {iso}", color='green', linestyle='--', marker='D')
+        plt.axhline(y=2.0, color='red', linestyle='--')
+        plt.axhline(y=-2.0, color='red', linestyle='--')
+        plt.xlabel("Burnup (MWd/tU)")
+        plt.ylabel(f"Delta N {iso} (%)")
+        plt.title(f"Delta N {iso} between D5 and S2 for HOM_Gd157_VBOC")
+        plt.legend()
+        plt.grid()
+        plt.savefig(f"{save_dir_HOM_Gd157_VBOC}/delta_Niso_{iso}_HOM_Gd157_VBOC.png")
+        plt.close()
+
+
+    ### Compare D5 NG0 NOEX with D5 NG0 EXTR and S2 edepmode 0 pcc0 with pcc2
+    # compare keffs
+    delta_keff_D5_NG0_NODI_EXTR_vs_NOEX = (D5_HOM_Gd157_VBOC_NG0_EXTR_NODI.keff - D5_HOM_Gd157_VBOC_NG0_NOEX_NODI.keff) * 1e5 # pcm
+    delta_keff_D5_NG0_DIRA_EXTR_vs_NOEX = (D5_HOM_Gd157_VBOC_NG0_EXTR_DIRA.keff - D5_HOM_Gd157_VBOC_NG0_NOEX_DIRA.keff) * 1e5 # pcm
+    delta_keff_S2_pcc2_vs_pcc0 = (S2_edep0_setQfiss_pcc2.keff - S2_edep0_setQfiss_pcc0.keff) * 1e5 # pcm
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(BU_points_plot, delta_keff_D5_NG0_NODI_EXTR_vs_NOEX, label="D5 NG0 EXTR vs NOEX NODI", color='blue', linestyle='--', marker='x')
+    plt.plot(BU_points_plot, delta_keff_D5_NG0_DIRA_EXTR_vs_NOEX, label="D5 NG0 EXTR vs NOEX DIRA", color='green', linestyle='--', marker='D')
+    plt.plot(BU_points_plot, delta_keff_S2_pcc2_vs_pcc0, label="S2 edepmode 0 pcc2 vs pcc0", color='red', linestyle='--', marker='o')
+    plt.xlabel("Burnup (MWd/tU)")
+    plt.ylabel("Delta keff (pcm)")
+    plt.axhline(y=300, color='red', linestyle='--')
+    plt.axhline(y=-300, color='red', linestyle='--')
+    plt.title("Delta keff (EXTR-NOEX) D5 and (pcc2-pcc0) S2")
+    plt.legend()
+    plt.grid()
+    plt.savefig(f"{save_dir_HOM_Gd157_VBOC}/delta_keff_D5_NG0_NODI_DIRA_EXTR_vs_NOEX_delta_keff_S2_pcc2_vs_pcc0.png")
+    plt.close()
+
+    # compare NGd157 for EXTR vs NOEX:
+    delta_NGd157_D5_NG0_NODI_EXTR_vs_NOEX = [(D5_HOM_Gd157_VBOC_NG0_EXTR_NODI.DRAGON_ISOTOPESDENS["Gd157"][idx] - D5_HOM_Gd157_VBOC_NG0_NOEX_NODI.DRAGON_ISOTOPESDENS["Gd157"][idx]) * 100 / D5_HOM_Gd157_VBOC_NG0_NOEX_NODI.DRAGON_ISOTOPESDENS["Gd157"][idx]
+                        if D5_HOM_Gd157_VBOC_NG0_NOEX_NODI.DRAGON_ISOTOPESDENS["Gd157"][idx] != 0 else 0
+                        for idx in range(len(D5_HOM_Gd157_VBOC_NG0_NOEX_NODI.DRAGON_ISOTOPESDENS["Gd157"]))]
+    delta_NGd157_D5_NG0_DIRA_EXTR_vs_NOEX = [(D5_HOM_Gd157_VBOC_NG0_EXTR_DIRA.DRAGON_ISOTOPESDENS["Gd157"][idx] - D5_HOM_Gd157_VBOC_NG0_NOEX_DIRA.DRAGON_ISOTOPESDENS["Gd157"][idx]) * 100 / D5_HOM_Gd157_VBOC_NG0_NOEX_DIRA.DRAGON_ISOTOPESDENS["Gd157"][idx]
+                        if D5_HOM_Gd157_VBOC_NG0_NOEX_DIRA.DRAGON_ISOTOPESDENS["Gd157"][idx] != 0 else 0
+                        for idx in range(len(D5_HOM_Gd157_VBOC_NG0_NOEX_DIRA.DRAGON_ISOTOPESDENS["Gd157"]))]
+    delta_NGd157_S2_pcc2_vs_pcc0 = [(S2_edep0_setQfiss_pcc2.Ni["Gd157"][idx] - S2_edep0_setQfiss_pcc0.Ni["Gd157"][idx]) * 100 / S2_edep0_setQfiss_pcc0.Ni["Gd157"][idx]
+                        if S2_edep0_setQfiss_pcc0.Ni["Gd157"][idx] != 0 else 0
+                        for idx in range(len(S2_edep0_setQfiss_pcc0.Ni["Gd157"]))]
+    plt.figure(figsize=(10, 6))
+    plt.plot(BU_points_plot, delta_NGd157_D5_NG0_NODI_EXTR_vs_NOEX, label="D5 NG0 EXTR vs NOEX NODI", color='blue', linestyle='--', marker='x')
+    plt.plot(BU_points_plot, delta_NGd157_D5_NG0_DIRA_EXTR_vs_NOEX, label="D5 NG0 EXTR vs NOEX DIRA", color='green', linestyle='--', marker='D')
+    plt.plot(BU_points_plot, delta_NGd157_S2_pcc2_vs_pcc0, label="S2 edepmode 0 pcc2 vs pcc0", color='red', linestyle='--', marker='o')
+    plt.axhline(y=2.0, color='red', linestyle='--')
+    plt.axhline(y=-2.0, color='red', linestyle='--')
+    plt.xlabel("Burnup (MWd/tU)")
+    plt.ylabel("Delta N Gd157 (%)")
+    plt.title("Delta N Gd157 (EXTR-NOEX) D5 and (pcc2-pcc0) S2")
+    plt.legend()
+    plt.grid()
+    plt.savefig(f"{save_dir_HOM_Gd157_VBOC}/delta_NGd157_D5_NG0_NODI_DIRA_EXTR_vs_NOEX_delta_NGd157_S2_pcc2_vs_pcc0.png")
     plt.close()
 
 
+    #### Idea : Add BU points to BU lists in HOM_Gd15_Cst_pow_evol_proc/getLists.py and investigate if :
+    #   - switching from BU_points = VBOC to BU_points = VBOC_finerBU affects the results stored in the COMPO.
+    #   - refining BU list gives similar results for NG0 NOEX cases in comparison with S2 edepmode 0 pcc 0
+    #   - refining BU list gives similar or better results for NG0 EXTR cases in comparison with S2 edepmode 0 pcc 2 
 
-# Case 2 : HOM_UOX_Gd157
+    # format of COMPO name "_COMPO_HOM_Gd157_{dlib_name}_{ssh_module}_{ssh_method}_{correlation}_{burnup_points}_{depl_solution}_{rates_extrapolation}{SAT}_{DIRA_opt}",
+    # stored in PYGAN_RESULTS/HOM_Gd157_Cst_pow_evol_results/
+    # _COMPO_HOM_Gd157_endfb8r1_295_NG0_USS_PT_CORR_VBOC_RUNG_NOEX_DIRA
 
-# Load COMPOS from PYGAN_RESULTS
-name_CPO_HOM_UOX_Gd157 = f"COMPO_HOM_Gd157_{evaluation}_295_USS_PT_CORR_RUNG"
-name_CPO_HOM_UOX_Gd157_NG0 = f"COMPO_HOM_Gd157_{evaluation}_295_NG0_USS_PT_CORR_RUNG"
+    # Case 1.2 : HOM_Gd157_VBOC through PyGan : sanity check --> checked
+    # Load COMPOS from PYGAN_RESULTS
+    name_CPO_HOM_Gd157_VBOC_NG0_NOEX_DIRA = f"CPO_endfb8r1_295_NG0_USS_PT_CORR_VBOC_RUNG_NOEX_DIRA_550K"
+    name_CPO_HOM_Gd157_VBOC_NG0_EXTR_DIRA = f"CPO_endfb8r1_295_NG0_USS_PT_CORR_VBOC_RUNG_EXTR_DIRA_550K"
 
-path_to_PYGAN_results = f"{os.getcwd()}/PYGAN_COMPOS_path/HOM_Gd157_Cst_pow_evol_results/"
-cwd_path = os.getcwd()
-os.chdir(path_to_PYGAN_results)
-# Load the data
-CPO_HOM_UOX_Gd157 = lcm.new('LCM_INP', name_CPO_HOM_UOX_Gd157, impx=0)
-CPO_HOM_UOX_Gd157_NG0 = lcm.new('LCM_INP', name_CPO_HOM_UOX_Gd157_NG0, impx=0)
-os.chdir(cwd_path)
+    path_to_PYGAN_results = f"{os.getcwd()}/PYGAN_COMPOS_path/HOM_Gd157_Cst_pow_evol_results/"
+    cwd_path = os.getcwd()
+    os.chdir(path_to_PYGAN_results)
+    # Load the data
+    CPO_HOM_Gd157_VBOC_NG0_NOEX_DIRA = lcm.new('LCM_INP', name_CPO_HOM_Gd157_VBOC_NG0_NOEX_DIRA, impx=0)
+    CPO_HOM_Gd157_VBOC_NG0_EXTR_DIRA = lcm.new('LCM_INP', name_CPO_HOM_Gd157_VBOC_NG0_EXTR_DIRA, impx=0)
 
-# Load S2 results with set fission Q-values, edepmode 0, pcc 0, 1 and 2
-# reminder of S2_case object contrustructor (case_name, lib_name, edep_id, areQfissSet, isEcaptSet, pcc_id, specific_power, tracked_nuclides, save_dir)
-S2_edep0_setQfiss_pcc0 = S2_case(case_name = "HOM_UOX_Gd157", 
-                                lib_name = "endfb8r1_pynjoy2012_kerma", 
-                                edep_id = 0, areQfissSet = True, isEcaptSet = False, 
-                                pcc_id = 0, specific_power = 38.6, tracked_nuclides = tracked_nuclides, save_dir = save_dir_HOM_UOX_Gd157)
+    os.chdir(cwd_path)
 
-S2_edep0_setQfiss_pcc2 = S2_case(case_name = "HOM_UOX_Gd157",
-                                lib_name = "endfb8r1_pynjoy2012_kerma",
-                                edep_id = 0, areQfissSet = True, isEcaptSet = False,
-                                pcc_id = 2, specific_power = 38.6, tracked_nuclides = tracked_nuclides, save_dir = save_dir_HOM_UOX_Gd157)
-# Create DRAGON5 cases with and without (n,gamma) energy deposition 
-# reminder of D5_case object contrustructor (pyCOMPO, dlib_name, bu_points, ssh_opt, correlation, sat, depl_sol, tracked_nuclides, BU_lists, save_dir)
-D5_HOM_UOX_Gd157 = D5_case(pyCOMPO = CPO_HOM_UOX_Gd157,
-                            dlib_name = "endfb8r1_295",
-                            bu_points = "BOC_fine_autop5",
-                            ssh_opt = "RSE",
-                            correlation = "CORR",
-                            sat = "",
-                            depl_sol = "RUNG",
-                            tracked_nuclides = tracked_nuclides,
-                            BU_lists = getLists("BOC_fine_autop5"),
-                            save_dir = save_dir_HOM_UOX_Gd157)
+    # Create D5 cases without (n,gamma) energy deposition
+    Case_1_2_VBOC_NG0_NOEX_DIRA = D5_case(pyCOMPO = CPO_HOM_Gd157_VBOC_NG0_NOEX_DIRA,
+                                            dlib_name = "endfb8r1_295_NG0",
+                                            bu_points = "VBOC",
+                                            ssh_opt = "PT",
+                                            correlation = "CORR",
+                                            sat = "",
+                                            depl_sol = "RUNG",
+                                            tracked_nuclides = tracked_nuclides,
+                                            BU_lists = getLists("VBOC"),
+                                            save_dir = save_dir_HOM_Gd157_VBOC)
+    Case_1_2_VBOC_NG0_EXTR_DIRA = D5_case(pyCOMPO = CPO_HOM_Gd157_VBOC_NG0_EXTR_DIRA,
+                                            dlib_name = "endfb8r1_295_NG0",
+                                            bu_points = "VBOC",
+                                            ssh_opt = "PT",
+                                            correlation = "CORR",
+                                            sat = "",
+                                            depl_sol = "RUNG",
+                                            tracked_nuclides = tracked_nuclides,
+                                            BU_lists = getLists("VBOC"),
+                                            save_dir = save_dir_HOM_Gd157_VBOC)
 
-D5_HOM_UOX_Gd157_NG0 = D5_case(pyCOMPO = CPO_HOM_UOX_Gd157_NG0,
-                            dlib_name = "endfb8r1_295_NG0",
-                            bu_points = "BOC_fine_autop5",
-                            ssh_opt = "RSE",
-                            correlation = "CORR",
-                            sat = "",
-                            depl_sol = "RUNG",
-                            tracked_nuclides = tracked_nuclides,
-                            BU_lists = getLists("BOC_fine_autop5"),
-                            save_dir = save_dir_HOM_UOX_Gd157)
+    # Compare the results of DRAGON5 and SERPENT2
+    # compare NG0 NOEX + DIRA with S2 edepmode 0 pcc0
+    delta_keff_CASE_1_2_VBOC_NG0_NOEX_DIRA = (Case_1_2_VBOC_NG0_NOEX_DIRA.keff - S2_edep0_setQfiss_pcc0.keff) * 1e5 # pcm
+    delta_keff_CASE_1_2_VBOC_NG0_EXTR = (Case_1_2_VBOC_NG0_EXTR_DIRA.keff - S2_edep0_setQfiss_pcc2.keff) * 1e5 # pcm
 
-# Compare the results of DRAGON5 and SERPENT2
-# could use D5multiS2 object to compare D5 and S2 results
-# gonna do it manually for now
+    plt.figure(figsize=(10, 6))
+    plt.plot(BU_points_plot, delta_keff_CASE_1_2_VBOC_NG0_NOEX_DIRA, label="D5 NG0 NOEX DIRA - S2 edepmode 0 - pcc 0", color='blue', linestyle='--', marker='x')
+    plt.plot(BU_points_plot, delta_keff_CASE_1_2_VBOC_NG0_EXTR, label="D5 NG0 EXTR - S2 edepmode 0 - pcc 2", color='green', linestyle='--', marker='D')
+    plt.plot(BU_points_plot, 300*np.ones_like(BU_points_plot),  color='red', linestyle='--')
+    plt.plot(BU_points_plot, -300*np.ones_like(BU_points_plot),  color='red', linestyle='--')
+    plt.xlabel("Burnup (MWd/tU)")
+    plt.ylabel("Delta keff (pcm)")
+    plt.title("Delta keff between D5 and S2 for HOM_Gd157_VBOC (PyGan)")
+    plt.legend()
+    plt.grid()
+    plt.savefig(f"{save_dir_HOM_Gd157_VBOC}/delta_keff_PyGan_CASE_1_2_VBOC_NG0_NOEX_DIRA.png")
 
-delta_keff_HOM_UOX_Gd157_edep0_set_qfiss_pcc0 = (D5_HOM_UOX_Gd157.keff - S2_edep0_setQfiss_pcc0.keff) * 1e5 # pcm
-#delta_keff_HOM_UOX_Gd157_edep0_set_qfiss_pcc1 = (D5_HOM_UOX_Gd157.keff - S2_edep0_setQfiss_pcc1.keff) * 1e5 # pcm
-delta_keff_HOM_UOX_Gd157_edep0_set_qfiss_pcc2 = (D5_HOM_UOX_Gd157.keff - S2_edep0_setQfiss_pcc2.keff) * 1e5 # pcm
-delta_keff_HOM_UOX_Gd157_NG0_edep0_set_qfiss_pcc0 = (D5_HOM_UOX_Gd157_NG0.keff - S2_edep0_setQfiss_pcc0.keff) * 1e5 # pcm
-#delta_keff_HOM_UOX_Gd157_NG0_edep0_set_qfiss_pcc1 = (D5_HOM_UOX_Gd157_NG0.keff - S2_edep0_setQfiss_pcc1.keff) * 1e5 # pcm
-delta_keff_HOM_UOX_Gd157_NG0_edep0_set_qfiss_pcc2 = (D5_HOM_UOX_Gd157_NG0.keff - S2_edep0_setQfiss_pcc2.keff) * 1e5 # pcm
+    # Case 1.3 : compare with finer BU list, on same COMPO BU points : hypothesis, this should reduce error because of more points
+    name_CPO_VBOC_finerBU_NG0_NOEX_DIRA = f"CPO_endfb8r1_295_NG0_USS_PT_CORR_VBOC_finerBU_RUNG_NOEX_DIRA_550K"
+    name_CPO_VBOC_finer2_NG0_NOEX_DIRA = f"CPO_endfb8r1_295_NG0_USS_PT_CORR_VBOC_finer2_RUNG_NOEX_DIRA_550K"
+    name_CPO_VBOC_finerBU_NG0_EXTR_DIRA = f"CPO_endfb8r1_295_NG0_USS_PT_CORR_VBOC_finerBU_RUNG_EXTR_DIRA_550K"
+    name_CPO_VBOC_finer2_NG0_EXTR_DIRA = f"CPO_endfb8r1_295_NG0_USS_PT_CORR_VBOC_finer2_RUNG_EXTR_DIRA_550K"
+    os.chdir(path_to_PYGAN_results)
+    CPO_VBOC_finerBU_NG0_NOEX_DIRA = lcm.new('LCM_INP', name_CPO_VBOC_finerBU_NG0_NOEX_DIRA, impx=0)
+    CPO_VBOC_finerBU_NG0_EXTR_DIRA = lcm.new('LCM_INP', name_CPO_VBOC_finerBU_NG0_EXTR_DIRA, impx=0)
+    CPO_VBOC_finer2_NG0_NOEX_DIRA = lcm.new('LCM_INP', name_CPO_VBOC_finer2_NG0_NOEX_DIRA, impx=0)
+    CPO_VBOC_finer2_NG0_EXTR_DIRA = lcm.new('LCM_INP', name_CPO_VBOC_finer2_NG0_EXTR_DIRA, impx=0)
+    os.chdir(cwd_path)
 
-# Plot the results
-print(f"{save_dir_HOM_UOX_Gd157}/delta_keff_HOM_UOX_Gd157.png")
-plt.figure(figsize=(10, 6))
-plt.plot(D5_HOM_UOX_Gd157.BU, delta_keff_HOM_UOX_Gd157_edep0_set_qfiss_pcc0, label="D5 HOM_UOX_Gd157 - S2 edepmode 0 - pcc 0", color='blue', linestyle='--', marker='x')
-#plt.plot(D5_HOM_UOX_Gd157.DRAGON_BU, delta_keff_HOM_UOX_Gd157_edep0_set_qfiss_pcc1, label="D5 HOM_UOX_Gd157 - S2 edepmode 0 - pcc 1", color='orange')
-plt.plot(D5_HOM_UOX_Gd157.BU, delta_keff_HOM_UOX_Gd157_edep0_set_qfiss_pcc2, label="D5 HOM_UOX_Gd157 - S2 edepmode 0 - pcc 2", color='green', linestyle='--', marker='x')
-plt.plot(D5_HOM_UOX_Gd157_NG0.BU, delta_keff_HOM_UOX_Gd157_NG0_edep0_set_qfiss_pcc0, label="D5 HOM_UOX_Gd157 NG0 - S2 edepmode 0 - pcc 0", color='red', linestyle='--', marker='x')
-#plt.plot(D5_HOM_UOX_Gd157_NG0.DRAGON_BU, delta_keff_HOM_UOX_Gd157_NG0_edep0_set_qfiss_pcc1, label="D5 HOM_UOX_Gd157 NG0 - S2 edepmode 0 - pcc 1", color='purple')
-plt.plot(D5_HOM_UOX_Gd157_NG0.BU, delta_keff_HOM_UOX_Gd157_NG0_edep0_set_qfiss_pcc2, label="D5 HOM_UOX_Gd157 NG0 - S2 edepmode 0 - pcc 2", color='green', linestyle='--', marker='x')
-plt.xlabel("Burnup (MWd/tU)")
-plt.ylabel("Delta keff (pcm)")
-plt.axhline(y=300, color='red', linestyle='--')
-plt.axhline(y=-300, color='red', linestyle='--')
-plt.title("Delta keff between D5 and S2 for HOM_UOX_Gd157")
-plt.legend()
-plt.grid()
-plt.savefig(f"{save_dir_HOM_UOX_Gd157}/delta_keff_HOM_UOX_Gd157.png")
-plt.close()
+    # Create D5 cases without (n,gamma) energy deposition
+    Case_1_3_VBOC_finerBU_NG0_NOEX_DIRA = D5_case(pyCOMPO = CPO_VBOC_finerBU_NG0_NOEX_DIRA,
+                                            dlib_name = "endfb8r1_295_NG0",
+                                            bu_points = "VBOC_finerBU",
+                                            ssh_opt = "PT",
+                                            correlation = "CORR",
+                                            sat = "",
+                                            depl_sol = "RUNG",
+                                            tracked_nuclides = tracked_nuclides,
+                                            BU_lists = getLists("VBOC_finerBU"),
+                                            save_dir = save_dir_HOM_Gd157_VBOC)
+    Case_1_3_VBOC_finer2_NG0_NOEX_DIRA = D5_case(pyCOMPO = CPO_VBOC_finer2_NG0_NOEX_DIRA,
+                                            dlib_name = "endfb8r1_295_NG0",
+                                            bu_points = "VBOC_finer2",
+                                            ssh_opt = "PT",
+                                            correlation = "CORR",
+                                            sat = "",
+                                            depl_sol = "RUNG",
+                                            tracked_nuclides = tracked_nuclides,
+                                            BU_lists = getLists("VBOC_finer2"),
+                                            save_dir = save_dir_HOM_Gd157_VBOC)
+    Case_1_3_VBOC_finerBU_NG0_EXTR_DIRA = D5_case(pyCOMPO = CPO_VBOC_finerBU_NG0_EXTR_DIRA,
+                                            dlib_name = "endfb8r1_295_NG0",
+                                            bu_points = "VBOC_finerBU",
+                                            ssh_opt = "PT",
+                                            correlation = "CORR",
+                                            sat = "",
+                                            depl_sol = "RUNG",
+                                            tracked_nuclides = tracked_nuclides,
+                                            BU_lists = getLists("VBOC_finerBU"),
+                                            save_dir = save_dir_HOM_Gd157_VBOC)
+    Case_1_3_VBOC_finer2_NG0_EXTR_DIRA = D5_case(pyCOMPO = CPO_VBOC_finer2_NG0_EXTR_DIRA,
+                                            dlib_name = "endfb8r1_295_NG0",
+                                            bu_points = "VBOC_finer2",
+                                            ssh_opt = "PT",
+                                            correlation = "CORR",
+                                            sat = "",
+                                            depl_sol = "RUNG",
+                                            tracked_nuclides = tracked_nuclides,
+                                            BU_lists = getLists("VBOC_finer2"),
+                                            save_dir = save_dir_HOM_Gd157_VBOC)
+    # Compare the results of DRAGON5 and SERPENT2
+    # compare NG0 NOEX + DIRA with S2 edepmode 0 pcc0
+    delta_keff_CASE_1_3_VBOC_finerBU_NG0_NOEX_DIRA = (Case_1_3_VBOC_finerBU_NG0_NOEX_DIRA.keff - S2_edep0_setQfiss_pcc0.keff) * 1e5 # pcm
+    delta_keff_CASE_1_3_VBOC_finerBU_NG0_EXTR = (Case_1_3_VBOC_finerBU_NG0_EXTR_DIRA.keff - S2_edep0_setQfiss_pcc2.keff) * 1e5 # pcm
+    delta_keff_CASE_1_3_VBOC_finer2_NG0_NOEX_DIRA = (Case_1_3_VBOC_finer2_NG0_NOEX_DIRA.keff - S2_edep0_setQfiss_pcc0.keff) * 1e5 # pcm
+    delta_keff_CASE_1_3_VBOC_finer2_NG0_EXTR = (Case_1_3_VBOC_finer2_NG0_EXTR_DIRA.keff - S2_edep0_setQfiss_pcc2.keff) * 1e5 # pcm
+    plt.figure(figsize=(10, 6))
+    plt.plot(BU_points_plot, delta_keff_CASE_1_3_VBOC_finerBU_NG0_NOEX_DIRA, label="D5 NG0 NOEX DIRA - S2 edepmode 0 - pcc 0", color='blue', linestyle='--', marker='x')
+    plt.plot(BU_points_plot, delta_keff_CASE_1_3_VBOC_finerBU_NG0_EXTR, label="D5 NG0 EXTR - S2 edepmode 0 - pcc 2", color='green', linestyle='--', marker='D')
+    plt.plot(BU_points_plot, delta_keff_CASE_1_3_VBOC_finer2_NG0_NOEX_DIRA, label="D5 NG0 NOEX DIRA - S2 edepmode 0 - pcc 0, finer2", color='red', linestyle='--', marker='x')
+    plt.plot(BU_points_plot, delta_keff_CASE_1_3_VBOC_finer2_NG0_EXTR, label="D5 NG0 EXTR - S2 edepmode 0 - pcc 2, finer2", color='orange', linestyle='--', marker='D')
+    plt.plot(BU_points_plot, 300*np.ones_like(BU_points_plot),  color='red', linestyle='--')
+    plt.plot(BU_points_plot, -300*np.ones_like(BU_points_plot),  color='red', linestyle='--')
+    plt.xlabel("Burnup (MWd/tU)")
+    plt.ylabel("Delta keff (pcm)")
+    plt.title("Delta keff between D5 and S2 for HOM_Gd157_VBOC (PyGan) with finer BU list")
+    plt.legend()
+    plt.grid()
+    plt.savefig(f"{save_dir_HOM_Gd157_VBOC}/delta_keff_PyGan_CASE_1_3_VBOC_finerBU_NG0_NOEX_DIRA.png")
+    plt.close()
+
+
+    # Compare D5 EXTR to D5 NOEX
+    delta_keff_D5_NG0_EXTR_vs_NOEX_Case12 = (Case_1_2_VBOC_NG0_EXTR_DIRA.keff - Case_1_2_VBOC_NG0_NOEX_DIRA.keff) * 1e5 # pcm
+    delta_keff_D5_NG0_EXTR_vs_NOEX_Case13 = (Case_1_3_VBOC_finerBU_NG0_EXTR_DIRA.keff - Case_1_3_VBOC_finerBU_NG0_NOEX_DIRA.keff) * 1e5 # pcm
+    delta_keff_D5_NG0_EXTR_vs_NOEX_VBOC_finer2 = (Case_1_3_VBOC_finer2_NG0_EXTR_DIRA.keff - Case_1_3_VBOC_finer2_NG0_NOEX_DIRA.keff) * 1e5 # pcm
+    delta_keff_S2_pcc2_vs_pcc0 = (S2_edep0_setQfiss_pcc2.keff - S2_edep0_setQfiss_pcc0.keff) * 1e5 # pcm
+    plt.figure(figsize=(10, 6))
+    plt.plot(BU_points_plot, delta_keff_D5_NG0_EXTR_vs_NOEX_Case12, label="D5 NG0 EXTR vs NOEX : VBOC", color='blue', linestyle='--', marker='x')
+    plt.plot(BU_points_plot, delta_keff_D5_NG0_EXTR_vs_NOEX_Case13, label="D5 NG0 EXTR vs NOEX : VBOC_finerBU", color='green', linestyle='--', marker='D')
+    plt.plot(BU_points_plot, delta_keff_D5_NG0_EXTR_vs_NOEX_VBOC_finer2, label="D5 NG0 EXTR vs NOEX : VBOC_finer2", color='orange', linestyle='--', marker='D')
+    plt.plot(BU_points_plot, delta_keff_S2_pcc2_vs_pcc0, label="S2 edepmode 0 pcc2 vs pcc0 : VBOC", color='red', linestyle='--', marker='o')
+    plt.axhline(y=300, color='red', linestyle='--')
+    plt.axhline(y=-300, color='red', linestyle='--')
+    plt.xlabel("Burnup (MWd/tU)")
+    plt.ylabel("Delta keff (pcm)")
+    plt.title("Delta keff between (EXTR-NOEX) D5 and (pcc2-pcc0) S2")
+    plt.legend()
+    plt.grid()
+    plt.savefig(f"{save_dir_HOM_Gd157_VBOC}/delta_keff_D5_NG0_EXTR_vs_NOEX_Case12_Case13.png")
+    plt.close()
+
+
+if post_treat_case2:
+    # Case 2 : HOM_UOX_Gd157
+
+    # Load COMPOS from PYGAN_RESULTS
+    name_CPO_HOM_UOX_Gd157 = f"COMPO_HOM_Gd157_{evaluation}_295_USS_PT_CORR_RUNG"
+    name_CPO_HOM_UOX_Gd157_NG0 = f"COMPO_HOM_Gd157_{evaluation}_295_NG0_USS_PT_CORR_RUNG"
+
+    path_to_PYGAN_results = f"{os.getcwd()}/PYGAN_COMPOS_path/HOM_Gd157_Cst_pow_evol_results/"
+    cwd_path = os.getcwd()
+    os.chdir(path_to_PYGAN_results)
+    # Load the data
+    CPO_HOM_UOX_Gd157 = lcm.new('LCM_INP', name_CPO_HOM_UOX_Gd157, impx=0)
+    CPO_HOM_UOX_Gd157_NG0 = lcm.new('LCM_INP', name_CPO_HOM_UOX_Gd157_NG0, impx=0)
+    os.chdir(cwd_path)
+
+    # Load S2 results with set fission Q-values, edepmode 0, pcc 0, 1 and 2
+    # reminder of S2_case object contrustructor (case_name, lib_name, edep_id, areQfissSet, isEcaptSet, pcc_id, specific_power, tracked_nuclides, save_dir)
+    S2_edep0_setQfiss_pcc0 = S2_case(case_name = "HOM_UOX_Gd157", 
+                                    lib_name = "endfb8r1_pynjoy2012_kerma", 
+                                    edep_id = 0, areQfissSet = True, isEcaptSet = False, 
+                                    pcc_id = 0, specific_power = 38.6, tracked_nuclides = tracked_nuclides, save_dir = save_dir_HOM_UOX_Gd157)
+
+    S2_edep0_setQfiss_pcc2 = S2_case(case_name = "HOM_UOX_Gd157",
+                                    lib_name = "endfb8r1_pynjoy2012_kerma",
+                                    edep_id = 0, areQfissSet = True, isEcaptSet = False,
+                                    pcc_id = 2, specific_power = 38.6, tracked_nuclides = tracked_nuclides, save_dir = save_dir_HOM_UOX_Gd157)
+    # Create DRAGON5 cases with and without (n,gamma) energy deposition 
+    # reminder of D5_case object contrustructor (pyCOMPO, dlib_name, bu_points, ssh_opt, correlation, sat, depl_sol, tracked_nuclides, BU_lists, save_dir)
+    D5_HOM_UOX_Gd157 = D5_case(pyCOMPO = CPO_HOM_UOX_Gd157,
+                                dlib_name = "endfb8r1_295",
+                                bu_points = "BOC_fine_autop5",
+                                ssh_opt = "RSE",
+                                correlation = "CORR",
+                                sat = "",
+                                depl_sol = "RUNG",
+                                tracked_nuclides = tracked_nuclides,
+                                BU_lists = getLists("BOC_fine_autop5"),
+                                save_dir = save_dir_HOM_UOX_Gd157)
+
+    D5_HOM_UOX_Gd157_NG0 = D5_case(pyCOMPO = CPO_HOM_UOX_Gd157_NG0,
+                                dlib_name = "endfb8r1_295_NG0",
+                                bu_points = "BOC_fine_autop5",
+                                ssh_opt = "RSE",
+                                correlation = "CORR",
+                                sat = "",
+                                depl_sol = "RUNG",
+                                tracked_nuclides = tracked_nuclides,
+                                BU_lists = getLists("BOC_fine_autop5"),
+                                save_dir = save_dir_HOM_UOX_Gd157)
+
+    # Compare the results of DRAGON5 and SERPENT2
+    # could use D5multiS2 object to compare D5 and S2 results
+    # gonna do it manually for now
+
+    delta_keff_HOM_UOX_Gd157_edep0_set_qfiss_pcc0 = (D5_HOM_UOX_Gd157.keff - S2_edep0_setQfiss_pcc0.keff) * 1e5 # pcm
+    #delta_keff_HOM_UOX_Gd157_edep0_set_qfiss_pcc1 = (D5_HOM_UOX_Gd157.keff - S2_edep0_setQfiss_pcc1.keff) * 1e5 # pcm
+    delta_keff_HOM_UOX_Gd157_edep0_set_qfiss_pcc2 = (D5_HOM_UOX_Gd157.keff - S2_edep0_setQfiss_pcc2.keff) * 1e5 # pcm
+    delta_keff_HOM_UOX_Gd157_NG0_edep0_set_qfiss_pcc0 = (D5_HOM_UOX_Gd157_NG0.keff - S2_edep0_setQfiss_pcc0.keff) * 1e5 # pcm
+    #delta_keff_HOM_UOX_Gd157_NG0_edep0_set_qfiss_pcc1 = (D5_HOM_UOX_Gd157_NG0.keff - S2_edep0_setQfiss_pcc1.keff) * 1e5 # pcm
+    delta_keff_HOM_UOX_Gd157_NG0_edep0_set_qfiss_pcc2 = (D5_HOM_UOX_Gd157_NG0.keff - S2_edep0_setQfiss_pcc2.keff) * 1e5 # pcm
+
+    # Plot the results
+    print(f"{save_dir_HOM_UOX_Gd157}/delta_keff_HOM_UOX_Gd157.png")
+    plt.figure(figsize=(10, 6))
+    plt.plot(D5_HOM_UOX_Gd157.BU, delta_keff_HOM_UOX_Gd157_edep0_set_qfiss_pcc0, label="D5 HOM_UOX_Gd157 - S2 edepmode 0 - pcc 0", color='blue', linestyle='--', marker='x')
+    #plt.plot(D5_HOM_UOX_Gd157.DRAGON_BU, delta_keff_HOM_UOX_Gd157_edep0_set_qfiss_pcc1, label="D5 HOM_UOX_Gd157 - S2 edepmode 0 - pcc 1", color='orange')
+    plt.plot(D5_HOM_UOX_Gd157.BU, delta_keff_HOM_UOX_Gd157_edep0_set_qfiss_pcc2, label="D5 HOM_UOX_Gd157 - S2 edepmode 0 - pcc 2", color='green', linestyle='--', marker='x')
+    plt.plot(D5_HOM_UOX_Gd157_NG0.BU, delta_keff_HOM_UOX_Gd157_NG0_edep0_set_qfiss_pcc0, label="D5 HOM_UOX_Gd157 NG0 - S2 edepmode 0 - pcc 0", color='red', linestyle='--', marker='x')
+    #plt.plot(D5_HOM_UOX_Gd157_NG0.DRAGON_BU, delta_keff_HOM_UOX_Gd157_NG0_edep0_set_qfiss_pcc1, label="D5 HOM_UOX_Gd157 NG0 - S2 edepmode 0 - pcc 1", color='purple')
+    plt.plot(D5_HOM_UOX_Gd157_NG0.BU, delta_keff_HOM_UOX_Gd157_NG0_edep0_set_qfiss_pcc2, label="D5 HOM_UOX_Gd157 NG0 - S2 edepmode 0 - pcc 2", color='green', linestyle='--', marker='x')
+    plt.xlabel("Burnup (MWd/tU)")
+    plt.ylabel("Delta keff (pcm)")
+    plt.axhline(y=300, color='red', linestyle='--')
+    plt.axhline(y=-300, color='red', linestyle='--')
+    plt.title("Delta keff between D5 and S2 for HOM_UOX_Gd157")
+    plt.legend()
+    plt.grid()
+    plt.savefig(f"{save_dir_HOM_UOX_Gd157}/delta_keff_HOM_UOX_Gd157.png")
+    plt.close()
 
 
 

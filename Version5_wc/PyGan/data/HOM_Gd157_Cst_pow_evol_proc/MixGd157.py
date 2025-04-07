@@ -7,11 +7,12 @@
 import lifo
 import cle2000
 
-def MixGd157(draglib_name, ssh_method, correlation):
+def MixGd157(draglib_name, ssh_method, correlation, T_hom):
     """
     draglib_name : str, choice of draglib to create the library with the corresponding evaluation. USe .access script to declare symbolic link to the draglib.
     ssh_method : str, choice between 'RSE', 'PT' and 'SUBG' to create the library with the corresponding self-shielding method.
     correlation : str, choice between 'CORR' and 'NOCORR' to create the library with correlated resonant effects between Gd157 and U238 or not.
+    T_hom : double, Homogeneous fuel temperature in K
     """
     # Lifo
     namLIB = "LIBRARY"
@@ -20,6 +21,7 @@ def MixGd157(draglib_name, ssh_method, correlation):
     myLifo.push(draglib_name)
     myLifo.push(ssh_method)
     myLifo.push(correlation)
+    myLifo.push(T_hom)
     myLifo.lib()
 
     # Execution

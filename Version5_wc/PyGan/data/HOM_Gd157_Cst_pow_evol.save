@@ -17,5 +17,6 @@ else
 fi
 
 cp _COMPO* ./HOM_Gd157_Cst_pow_evol_results
+cp *CPO* ./HOM_Gd157_Cst_pow_evol_results
 cp -r HOM_Gd157_Cst_pow_evol_results $1/"$MACH"/
 echo '$$$ ----- HOM_Gd157_Cst_pow_evol.save : script finish'

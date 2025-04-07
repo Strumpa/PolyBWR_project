@@ -21,8 +21,8 @@ STRING name_compo ;
 STRING ssh_module ;
 :: >>ssh_module<< ;
 
-STRING sat depl_sol ;
-:: >>sat<< >>depl_sol<< ;
+STRING sat depl_sol rates_extr DIRA_opt ;
+:: >>sat<< >>depl_sol<< >>rates_extr<< >>DIRA_opt<< ;
 
 SEQ_BINARY TF_EXC TF_EXC_SS ;
 
@@ -224,14 +224,14 @@ WHILE istep nstep < DO
             EDIT 2
             DEPL <<Tbeg>> <<Tend>> DAY POWR <<Norm_f2>>
             EPS1 1.0E-5  EPS2 1.0E-5
-            EXPM 1.E15 RUNG NOEX <<sat>> NODI GLOB
+            EXPM 1.E15 <<depl_sol>> <<rates_extr>> <<sat>> <<DIRA_opt>> GLOB
         ;
     ELSE
         BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX TRACK ::
             EDIT 2
             DEPL <<Tbeg>> <<Tend>> DAY POWR <<Norm_f2>>
             EPS1 1.0E-5  EPS2 1.0E-5
-            EXPM 1.E15 RUNG NOEX NODI GLOB
+            EXPM 1.E15 <<depl_sol>> <<rates_extr>> <<DIRA_opt>> GLOB
         ;
     ENDIF ;
   

@@ -14,6 +14,10 @@ PARAMETER  LIBRARY  ::
 ;
 STRING draglib ssh_method correlation ;
 :: >>draglib<< >>ssh_method<< >>correlation<< ;
+DOUBLE T_hom ;
+:: >>T_hom<< ;
+
+REAL Thom := T_hom D_TO_R ;
 
 MODULE LIB: END: ;
 
@@ -32,7 +36,7 @@ IF ssh_method "RSE" = THEN
             DEPL LIB: DRAGON FIL: <<draglib>> 
             MIXS LIB: DRAGON FIL: <<draglib>>
 
-            MIX 1 750.0
+            MIX 1 <<Thom>>
             O16  = O16   2.955339E-02 
             H1  = H1_H2O   2.497844E-02
             U234  = U234   3.482587E-06 1
@@ -89,7 +93,7 @@ IF ssh_method "RSE" = THEN
 
             MIXS LIB: DRAGON FIL: <<draglib>>
 
-            MIX 1 750.0
+            MIX 1 <<Thom>>
             O16  = O16   2.955339E-02 
             H1  = H1_H2O   2.497844E-02
             U234  = U234   3.482587E-06 1
@@ -148,7 +152,7 @@ ELSEIF ssh_method "PT" = THEN
             DEPL LIB: DRAGON FIL: <<draglib>>
             MIXS LIB: DRAGON FIL: <<draglib>>
 
-            MIX 1 750.0
+            MIX 1 <<Thom>>
             O16  = O16   2.955339E-02 
             H1  = H1_H2O   2.497844E-02
             U234  = U234   3.482587E-06 1
@@ -204,7 +208,7 @@ ELSEIF ssh_method "PT" = THEN
             DEPL LIB: DRAGON FIL: <<draglib>>
             MIXS LIB: DRAGON FIL: <<draglib>>
 
-            MIX 1 750.0
+            MIX 1 <<Thom>>
             O16  = O16   2.955339E-02 
             H1  = H1_H2O   2.497844E-02
             U234  = U234   3.482587E-06 1
@@ -261,7 +265,7 @@ ELSEIF ssh_method "SUBG" = THEN
     DEPL LIB: DRAGON FIL: <<draglib>>
     MIXS LIB: DRAGON FIL: <<draglib>>
 
-    MIX 1 750.0
+    MIX 1 <<Thom>>
       O16  = O16   2.955339E-02 
       H1  = H1_H2O   2.497844E-02
       U234  = U234   3.482587E-06 1

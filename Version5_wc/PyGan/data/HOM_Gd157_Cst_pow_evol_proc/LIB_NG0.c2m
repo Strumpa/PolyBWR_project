@@ -14,6 +14,10 @@ PARAMETER  LIBRARY  ::
 ;
 STRING draglib_name ;
 :: >>draglib_name<< ;
+DOUBLE T_hom ;
+:: >>T_hom<< ;
+
+REAL Thom := T_hom D_TO_R ;
 
 MODULE LIB: END: ;
 
@@ -5462,7 +5466,7 @@ LIBRARY := LIB: ::
         MIXS LIB: DRAGON FIL: <<draglib_name>>
         
 
-        MIX 1 750.0
+        MIX 1 <<Thom>>
         O16  = O16   2.955339E-02 
         H1  = H1_H2O   2.497844E-02
         U234  = U234   3.482587E-06 1

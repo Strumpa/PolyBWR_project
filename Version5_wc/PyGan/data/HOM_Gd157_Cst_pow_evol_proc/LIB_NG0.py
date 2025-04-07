@@ -7,16 +7,18 @@
 import lifo
 import cle2000
 
-def LIB_NG0(draglib_name):
+def LIB_NG0(draglib_name, T_hom):
     """
     draglib_name : str, choice of draglib to create the library with the corresponding evaluation. USe .access script to declare symbolic link to the draglib.
     ## WARNING : Compatibility with the DEPLTION structure is not guaranteed : only endfb8r1 draglibs are supported here.
+    T_hom : Homogeneous fuel temperature in K
     """
     # Lifo
     namLIB = "LIBRARY"
     myLifo=lifo.new()
     myLifo.pushEmpty(namLIB, "LCM")
     myLifo.push(draglib_name)
+    myLifo.push(T_hom)
     myLifo.lib()
 
     # Execution

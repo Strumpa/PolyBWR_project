@@ -17,5 +17,6 @@ else
 fi
 
 cp _COMPO* ./AT10_45Gd_Cst_pow_evol_results
+cp *CPO* ./AT10_45Gd_Cst_pow_evol_results
 cp -r AT10_45Gd_Cst_pow_evol_results $1/"$MACH"/
 echo '$$$ ----- AT10_45Gd_Cst_pow_evol.save : script finish'

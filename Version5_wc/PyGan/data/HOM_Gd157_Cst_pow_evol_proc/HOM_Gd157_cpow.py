@@ -10,7 +10,7 @@
 import lifo
 import cle2000
 
-def HOM_Gd157_cpow(namCOMPO, pyLIB, StepList, name_compo, ssh_module, sat, depl_sol):
+def HOM_Gd157_cpow(namCOMPO, pyLIB, StepList, name_compo, ssh_module, sat, depl_sol, rates_extr, DIRA_opt):
 
   # Lifo
   myLifo=lifo.new()
@@ -21,6 +21,8 @@ def HOM_Gd157_cpow(namCOMPO, pyLIB, StepList, name_compo, ssh_module, sat, depl_
   myLifo.push(ssh_module)
   myLifo.push(sat)
   myLifo.push(depl_sol)
+  myLifo.push(rates_extr)
+  myLifo.push(DIRA_opt)
   myLifo.lib()
 
   # Execution 

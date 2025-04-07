@@ -8,8 +8,8 @@ PARAMETER  LIBRARY  ::
     ::: LINKED_LIST LIBRARY  ;
 ;
 
-STRING Library ssh_method ;
-:: >>Library<< >>ssh_method<< ;
+STRING Library ;
+:: >>Library<< ;
 
 MODULE LIB: END: ;
 
