@@ -321,6 +321,8 @@ if post_treat_case1:
                                             BU_lists = getLists("VBOC"),
                                             save_dir = save_dir_HOM_Gd157_VBOC)
 
+        
+
     # Compare the results of DRAGON5 and SERPENT2
     # compare NG0 NOEX + DIRA with S2 edepmode 0 pcc0
     delta_keff_CASE_1_2_VBOC_NG0_NOEX_DIRA = (Case_1_2_VBOC_NG0_NOEX_DIRA.keff - S2_edep0_setQfiss_pcc0.keff) * 1e5 # pcm
@@ -338,19 +340,29 @@ if post_treat_case1:
     plt.grid()
     plt.savefig(f"{save_dir_HOM_Gd157_VBOC}/delta_keff_PyGan_CASE_1_2_VBOC_NG0_NOEX_DIRA.png")
 
-    # Case 1.3 : compare with finer BU list, on same COMPO BU points : hypothesis, this should reduce error because of more points
+    # Case 1.3 : compare with finer BU list, on same COMPO BU points : hypothesis, (1) this should reduce error because of more points
+    # Original hypothesis (1) proved wrong by comparing with D5 with VBOC_finerBU vs S2 edepmode 0 pcc 0 with VBOC list.
+    # Hypothesis (2) : S2 results on VBOC are not "temporaly converged" : study S2 results with VBOC_finerBU and VBOC_finer2 
     name_CPO_VBOC_finerBU_NG0_NOEX_DIRA = f"CPO_endfb8r1_295_NG0_USS_PT_CORR_VBOC_finerBU_RUNG_NOEX_DIRA_550K"
-    name_CPO_VBOC_finer2_NG0_NOEX_DIRA = f"CPO_endfb8r1_295_NG0_USS_PT_CORR_VBOC_finer2_RUNG_NOEX_DIRA_550K"
     name_CPO_VBOC_finerBU_NG0_EXTR_DIRA = f"CPO_endfb8r1_295_NG0_USS_PT_CORR_VBOC_finerBU_RUNG_EXTR_DIRA_550K"
+
+    name_CPO_VBOC_finerBU2_NG0_NOEX_DIRA = f"CPO_endfb8r1_295_NG0_USS_PT_CORR_VBOC_finerBU2_RUNG_NOEX_DIRA_550K"
+    name_CPO_VBOC_finerBU2_NG0_EXTR_DIRA = f"CPO_endfb8r1_295_NG0_USS_PT_CORR_VBOC_finerBU2_RUNG_EXTR_DIRA_550K"
+    # Case 1.4 : refine the BU list to VBOC_finer2
+    name_CPO_VBOC_finer2_NG0_NOEX_DIRA = f"CPO_endfb8r1_295_NG0_USS_PT_CORR_VBOC_finer2_RUNG_NOEX_DIRA_550K"
     name_CPO_VBOC_finer2_NG0_EXTR_DIRA = f"CPO_endfb8r1_295_NG0_USS_PT_CORR_VBOC_finer2_RUNG_EXTR_DIRA_550K"
+
     os.chdir(path_to_PYGAN_results)
     CPO_VBOC_finerBU_NG0_NOEX_DIRA = lcm.new('LCM_INP', name_CPO_VBOC_finerBU_NG0_NOEX_DIRA, impx=0)
     CPO_VBOC_finerBU_NG0_EXTR_DIRA = lcm.new('LCM_INP', name_CPO_VBOC_finerBU_NG0_EXTR_DIRA, impx=0)
+    CPO_VBOC_finerBU2_NG0_NOEX_DIRA = lcm.new('LCM_INP', name_CPO_VBOC_finerBU2_NG0_NOEX_DIRA, impx=0)
+    CPO_VBOC_finerBU2_NG0_EXTR_DIRA = lcm.new('LCM_INP', name_CPO_VBOC_finerBU2_NG0_EXTR_DIRA, impx=0)
     CPO_VBOC_finer2_NG0_NOEX_DIRA = lcm.new('LCM_INP', name_CPO_VBOC_finer2_NG0_NOEX_DIRA, impx=0)
     CPO_VBOC_finer2_NG0_EXTR_DIRA = lcm.new('LCM_INP', name_CPO_VBOC_finer2_NG0_EXTR_DIRA, impx=0)
     os.chdir(cwd_path)
 
-    # Create D5 cases without (n,gamma) energy deposition
+    # Create D5 cases without (n,gamma) energy deposition for case 1.3
+    # Case 1.3.1 :
     Case_1_3_VBOC_finerBU_NG0_NOEX_DIRA = D5_case(pyCOMPO = CPO_VBOC_finerBU_NG0_NOEX_DIRA,
                                             dlib_name = "endfb8r1_295_NG0",
                                             bu_points = "VBOC_finerBU",
@@ -361,16 +373,7 @@ if post_treat_case1:
                                             tracked_nuclides = tracked_nuclides,
                                             BU_lists = getLists("VBOC_finerBU"),
                                             save_dir = save_dir_HOM_Gd157_VBOC)
-    Case_1_3_VBOC_finer2_NG0_NOEX_DIRA = D5_case(pyCOMPO = CPO_VBOC_finer2_NG0_NOEX_DIRA,
-                                            dlib_name = "endfb8r1_295_NG0",
-                                            bu_points = "VBOC_finer2",
-                                            ssh_opt = "PT",
-                                            correlation = "CORR",
-                                            sat = "",
-                                            depl_sol = "RUNG",
-                                            tracked_nuclides = tracked_nuclides,
-                                            BU_lists = getLists("VBOC_finer2"),
-                                            save_dir = save_dir_HOM_Gd157_VBOC)
+    
     Case_1_3_VBOC_finerBU_NG0_EXTR_DIRA = D5_case(pyCOMPO = CPO_VBOC_finerBU_NG0_EXTR_DIRA,
                                             dlib_name = "endfb8r1_295_NG0",
                                             bu_points = "VBOC_finerBU",
@@ -381,7 +384,33 @@ if post_treat_case1:
                                             tracked_nuclides = tracked_nuclides,
                                             BU_lists = getLists("VBOC_finerBU"),
                                             save_dir = save_dir_HOM_Gd157_VBOC)
-    Case_1_3_VBOC_finer2_NG0_EXTR_DIRA = D5_case(pyCOMPO = CPO_VBOC_finer2_NG0_EXTR_DIRA,
+    
+    # Case 1.3.2 :
+    Case_1_32_VBOC_finerBU2_NG0_NOEX_DIRA = D5_case(pyCOMPO = CPO_VBOC_finerBU2_NG0_NOEX_DIRA,
+                                            dlib_name = "endfb8r1_295_NG0",
+                                            bu_points = "VBOC_finerBU2",
+                                            ssh_opt = "PT",
+                                            correlation = "CORR",
+                                            sat = "",
+                                            depl_sol = "RUNG",
+                                            tracked_nuclides = tracked_nuclides,
+                                            BU_lists = getLists("VBOC_finerBU2"),
+                                            save_dir = save_dir_HOM_Gd157_VBOC)
+    
+    Case_1_32_VBOC_finerBU2_NG0_EXTR_DIRA = D5_case(pyCOMPO = CPO_VBOC_finerBU2_NG0_EXTR_DIRA,
+                                            dlib_name = "endfb8r1_295_NG0",
+                                            bu_points = "VBOC_finerBU2",
+                                            ssh_opt = "PT",
+                                            correlation = "CORR",
+                                            sat = "",
+                                            depl_sol = "RUNG",
+                                            tracked_nuclides = tracked_nuclides,
+                                            BU_lists = getLists("VBOC_finerBU2"),
+                                            save_dir = save_dir_HOM_Gd157_VBOC)
+    
+
+    # Case 1.4 : refine the BU list to VBOC_finer2
+    Case_1_4_VBOC_finer2_NG0_NOEX_DIRA = D5_case(pyCOMPO = CPO_VBOC_finer2_NG0_NOEX_DIRA,
                                             dlib_name = "endfb8r1_295_NG0",
                                             bu_points = "VBOC_finer2",
                                             ssh_opt = "PT",
@@ -391,38 +420,105 @@ if post_treat_case1:
                                             tracked_nuclides = tracked_nuclides,
                                             BU_lists = getLists("VBOC_finer2"),
                                             save_dir = save_dir_HOM_Gd157_VBOC)
+
+    Case_1_4_VBOC_finer2_NG0_EXTR_DIRA = D5_case(pyCOMPO = CPO_VBOC_finer2_NG0_EXTR_DIRA,
+                                            dlib_name = "endfb8r1_295_NG0",
+                                            bu_points = "VBOC_finer2",
+                                            ssh_opt = "PT",
+                                            correlation = "CORR",
+                                            sat = "",
+                                            depl_sol = "RUNG",
+                                            tracked_nuclides = tracked_nuclides,
+                                            BU_lists = getLists("VBOC_finer2"),
+                                            save_dir = save_dir_HOM_Gd157_VBOC)
+    # Create S2 Post Treatment objects for VBOC_finer2 BU list
+    # 
+
+    # Case 1.3 : S2 results with VBOC_finerBU list
+    S2_edep0_setQfiss_pcc0_VBOC_finerBU = S2_case(case_name = "HOM_Gd157_VBOC_finerBU",
+                                    lib_name = "endfb8r1_pynjoy2012_kerma",
+                                    edep_id = 0, areQfissSet = True, isEcaptSet = False,
+                                    pcc_id = 0, specific_power = 38.6, tracked_nuclides = tracked_nuclides, save_dir = save_dir_HOM_Gd157_VBOC)
+    S2_edep0_setQfiss_pcc1_VBOC_finerBU = S2_case(case_name = "HOM_Gd157_VBOC_finerBU",
+                                    lib_name = "endfb8r1_pynjoy2012_kerma",
+                                    edep_id = 0, areQfissSet = True, isEcaptSet = False,
+                                    pcc_id = 1, specific_power = 38.6, tracked_nuclides = tracked_nuclides, save_dir = save_dir_HOM_Gd157_VBOC)
+    S2_edep0_setQfiss_pcc2_VBOC_finerBU = S2_case(case_name = "HOM_Gd157_VBOC_finerBU",
+                                    lib_name = "endfb8r1_pynjoy2012_kerma",
+                                    edep_id = 0, areQfissSet = True, isEcaptSet = False,
+                                    pcc_id = 2, specific_power = 38.6, tracked_nuclides = tracked_nuclides, save_dir = save_dir_HOM_Gd157_VBOC)
+
+    # Case 1.3.2 : S2 results with VBOC_finerBU list
+    S2_edep0_setQfiss_pcc0_VBOC_finerBU2 = S2_case(case_name = "HOM_Gd157_VBOC_finerBU2",
+                                    lib_name = "endfb8r1_pynjoy2012_kerma",
+                                    edep_id = 0, areQfissSet = True, isEcaptSet = False,
+                                    pcc_id = 0, specific_power = 38.6, tracked_nuclides = tracked_nuclides, save_dir = save_dir_HOM_Gd157_VBOC)
+    S2_edep0_setQfiss_pcc1_VBOC_finerBU2 = S2_case(case_name = "HOM_Gd157_VBOC_finerBU2",
+                                    lib_name = "endfb8r1_pynjoy2012_kerma",
+                                    edep_id = 0, areQfissSet = True, isEcaptSet = False,
+                                    pcc_id = 1, specific_power = 38.6, tracked_nuclides = tracked_nuclides, save_dir = save_dir_HOM_Gd157_VBOC)
+    S2_edep0_setQfiss_pcc2_VBOC_finerBU2 = S2_case(case_name = "HOM_Gd157_VBOC_finerBU2",
+                                    lib_name = "endfb8r1_pynjoy2012_kerma",
+                                    edep_id = 0, areQfissSet = True, isEcaptSet = False,
+                                    pcc_id = 2, specific_power = 38.6, tracked_nuclides = tracked_nuclides, save_dir = save_dir_HOM_Gd157_VBOC)
+
+    BU_points_plot_finerBU = getLists("VBOC_finerBU")["BU"]
+    BU_points_plot_finerBU2 = getLists("VBOC_finerBU2")["BU"]
+    # Case 1.4 : S2 results with VBOC_finer2 list
+    S2_edep0_setQfiss_pcc0_VBOC_finer2 = S2_case(case_name = "HOM_Gd157_VBOC_finer2",
+                                    lib_name = "endfb8r1_pynjoy2012_kerma",
+                                    edep_id = 0, areQfissSet = True, isEcaptSet = False,
+                                    pcc_id = 0, specific_power = 38.6, tracked_nuclides = tracked_nuclides, save_dir = save_dir_HOM_Gd157_VBOC)
+    S2_edep0_setQfiss_pcc1_VBOC_finer2 = S2_case(case_name = "HOM_Gd157_VBOC_finer2",
+                                    lib_name = "endfb8r1_pynjoy2012_kerma",
+                                    edep_id = 0, areQfissSet = True, isEcaptSet = False,
+                                    pcc_id = 1, specific_power = 38.6, tracked_nuclides = tracked_nuclides, save_dir = save_dir_HOM_Gd157_VBOC)
+    S2_edep0_setQfiss_pcc2_VBOC_finer2 = S2_case(case_name = "HOM_Gd157_VBOC_finer2",
+                                    lib_name = "endfb8r1_pynjoy2012_kerma",
+                                    edep_id = 0, areQfissSet = True, isEcaptSet = False,
+                                    pcc_id = 2, specific_power = 38.6, tracked_nuclides = tracked_nuclides, save_dir = save_dir_HOM_Gd157_VBOC)
+    BU_points_plot_finer2 = getLists("VBOC_finer2")["BU"]
     # Compare the results of DRAGON5 and SERPENT2
-    # compare NG0 NOEX + DIRA with S2 edepmode 0 pcc0
+    # compare NG0 NOEX + DIRA with S2 edepmode 0 pcc0 (original VBOC)
     delta_keff_CASE_1_3_VBOC_finerBU_NG0_NOEX_DIRA = (Case_1_3_VBOC_finerBU_NG0_NOEX_DIRA.keff - S2_edep0_setQfiss_pcc0.keff) * 1e5 # pcm
     delta_keff_CASE_1_3_VBOC_finerBU_NG0_EXTR = (Case_1_3_VBOC_finerBU_NG0_EXTR_DIRA.keff - S2_edep0_setQfiss_pcc2.keff) * 1e5 # pcm
-    delta_keff_CASE_1_3_VBOC_finer2_NG0_NOEX_DIRA = (Case_1_3_VBOC_finer2_NG0_NOEX_DIRA.keff - S2_edep0_setQfiss_pcc0.keff) * 1e5 # pcm
-    delta_keff_CASE_1_3_VBOC_finer2_NG0_EXTR = (Case_1_3_VBOC_finer2_NG0_EXTR_DIRA.keff - S2_edep0_setQfiss_pcc2.keff) * 1e5 # pcm
+    delta_keff_CASE_1_32_VBOC_finerBU2_NG0_NOEX_DIRA = (Case_1_32_VBOC_finerBU2_NG0_NOEX_DIRA.keff - S2_edep0_setQfiss_pcc0.keff) * 1e5 # pcm
+    delta_keff_CASE_1_32_VBOC_finerBU2_NG0_EXTR = (Case_1_32_VBOC_finerBU2_NG0_EXTR_DIRA.keff - S2_edep0_setQfiss_pcc2.keff) * 1e5 # pcm
+    delta_keff_CASE_1_4_VBOC_finer2_NG0_NOEX_DIRA = (Case_1_4_VBOC_finer2_NG0_NOEX_DIRA.keff - S2_edep0_setQfiss_pcc0.keff) * 1e5 # pcm
+    delta_keff_CASE_1_4_VBOC_finer2_NG0_EXTR = (Case_1_4_VBOC_finer2_NG0_EXTR_DIRA.keff - S2_edep0_setQfiss_pcc2.keff) * 1e5 # pcm
+
     plt.figure(figsize=(10, 6))
-    plt.plot(BU_points_plot, delta_keff_CASE_1_3_VBOC_finerBU_NG0_NOEX_DIRA, label="D5 NG0 NOEX DIRA - S2 edepmode 0 - pcc 0", color='blue', linestyle='--', marker='x')
-    plt.plot(BU_points_plot, delta_keff_CASE_1_3_VBOC_finerBU_NG0_EXTR, label="D5 NG0 EXTR - S2 edepmode 0 - pcc 2", color='green', linestyle='--', marker='D')
-    plt.plot(BU_points_plot, delta_keff_CASE_1_3_VBOC_finer2_NG0_NOEX_DIRA, label="D5 NG0 NOEX DIRA - S2 edepmode 0 - pcc 0, finer2", color='red', linestyle='--', marker='x')
-    plt.plot(BU_points_plot, delta_keff_CASE_1_3_VBOC_finer2_NG0_EXTR, label="D5 NG0 EXTR - S2 edepmode 0 - pcc 2, finer2", color='orange', linestyle='--', marker='D')
+    plt.plot(BU_points_plot, delta_keff_CASE_1_3_VBOC_finerBU_NG0_NOEX_DIRA, label="D5 NOEX (finerBU) - S2 - pcc 0 (VBOC)", color='blue', linestyle='--', marker='x')
+    plt.plot(BU_points_plot, delta_keff_CASE_1_3_VBOC_finerBU_NG0_EXTR, label="D5 EXTR - (finerBU) - S2 - pcc 2 (VBOC)", color='green', linestyle='--', marker='D')
+    plt.plot(BU_points_plot, delta_keff_CASE_1_32_VBOC_finerBU2_NG0_NOEX_DIRA, label="D5 NOEX (finerBU2) - S2 - pcc 0 (VBOC)", color='purple', linestyle='--', marker='o')
+    plt.plot(BU_points_plot, delta_keff_CASE_1_32_VBOC_finerBU2_NG0_EXTR, label="D5 EXTR (finerBU2) - S2 - pcc 2 (VBOC)", color='brown', linestyle='--', marker='o')
+    plt.plot(BU_points_plot, delta_keff_CASE_1_4_VBOC_finer2_NG0_NOEX_DIRA, label="D5 NOEX (finer2) - S2 - pcc 0 (VBOC)", color='red', linestyle='--', marker='x')
+    plt.plot(BU_points_plot, delta_keff_CASE_1_4_VBOC_finer2_NG0_EXTR, label="D5 EXTR (finer2) - S2 - pcc 2 (VBOC)", color='orange', linestyle='--', marker='D')
     plt.plot(BU_points_plot, 300*np.ones_like(BU_points_plot),  color='red', linestyle='--')
     plt.plot(BU_points_plot, -300*np.ones_like(BU_points_plot),  color='red', linestyle='--')
     plt.xlabel("Burnup (MWd/tU)")
-    plt.ylabel("Delta keff (pcm)")
-    plt.title("Delta keff between D5 and S2 for HOM_Gd157_VBOC (PyGan) with finer BU list")
+    plt.ylabel("$\\Delta$ keff (pcm)")
+    plt.title("$\\Delta$ keff between D5 (NG0) and S2 edep 0 for HOM_Gd157, refining D5 BU lists")
     plt.legend()
     plt.grid()
-    plt.savefig(f"{save_dir_HOM_Gd157_VBOC}/delta_keff_PyGan_CASE_1_3_VBOC_finerBU_NG0_NOEX_DIRA.png")
+    plt.savefig(f"{save_dir_HOM_Gd157_VBOC}/delta_keff_PyGan_CASES_1_3_1_4_VBOC_finerBU_finer2_NG0_vs_edepmode0.png")
     plt.close()
 
 
     # Compare D5 EXTR to D5 NOEX
     delta_keff_D5_NG0_EXTR_vs_NOEX_Case12 = (Case_1_2_VBOC_NG0_EXTR_DIRA.keff - Case_1_2_VBOC_NG0_NOEX_DIRA.keff) * 1e5 # pcm
     delta_keff_D5_NG0_EXTR_vs_NOEX_Case13 = (Case_1_3_VBOC_finerBU_NG0_EXTR_DIRA.keff - Case_1_3_VBOC_finerBU_NG0_NOEX_DIRA.keff) * 1e5 # pcm
-    delta_keff_D5_NG0_EXTR_vs_NOEX_VBOC_finer2 = (Case_1_3_VBOC_finer2_NG0_EXTR_DIRA.keff - Case_1_3_VBOC_finer2_NG0_NOEX_DIRA.keff) * 1e5 # pcm
+    delta_keff_D5_NG0_EXTR_vs_NOEX_Case14 = (Case_1_4_VBOC_finer2_NG0_EXTR_DIRA.keff - Case_1_4_VBOC_finer2_NG0_NOEX_DIRA.keff) * 1e5 # pcm
     delta_keff_S2_pcc2_vs_pcc0 = (S2_edep0_setQfiss_pcc2.keff - S2_edep0_setQfiss_pcc0.keff) * 1e5 # pcm
+    delta_keff_S2_pcc2_vs_pcc0_finerBU = (S2_edep0_setQfiss_pcc2_VBOC_finerBU.keff - S2_edep0_setQfiss_pcc0_VBOC_finerBU.keff) * 1e5 # pcm
+    delta_keff_S2_pcc2_vs_pcc0_finer2 = (S2_edep0_setQfiss_pcc2_VBOC_finer2.keff - S2_edep0_setQfiss_pcc0_VBOC_finer2.keff) * 1e5 # pcm 
     plt.figure(figsize=(10, 6))
     plt.plot(BU_points_plot, delta_keff_D5_NG0_EXTR_vs_NOEX_Case12, label="D5 NG0 EXTR vs NOEX : VBOC", color='blue', linestyle='--', marker='x')
     plt.plot(BU_points_plot, delta_keff_D5_NG0_EXTR_vs_NOEX_Case13, label="D5 NG0 EXTR vs NOEX : VBOC_finerBU", color='green', linestyle='--', marker='D')
-    plt.plot(BU_points_plot, delta_keff_D5_NG0_EXTR_vs_NOEX_VBOC_finer2, label="D5 NG0 EXTR vs NOEX : VBOC_finer2", color='orange', linestyle='--', marker='D')
+    plt.plot(BU_points_plot, delta_keff_D5_NG0_EXTR_vs_NOEX_Case14, label="D5 NG0 EXTR vs NOEX : VBOC_finer2", color='orange', linestyle='--', marker='D')
     plt.plot(BU_points_plot, delta_keff_S2_pcc2_vs_pcc0, label="S2 edepmode 0 pcc2 vs pcc0 : VBOC", color='red', linestyle='--', marker='o')
+    plt.plot(BU_points_plot_finerBU, delta_keff_S2_pcc2_vs_pcc0_finerBU, label="S2 edepmode 0 pcc2 vs pcc0 : VBOC_finerBU", color='purple', linestyle='--', marker='o')
+    plt.plot(BU_points_plot_finer2, delta_keff_S2_pcc2_vs_pcc0_finer2, label="S2 edepmode 0 pcc2 vs pcc0 : VBOC_finer2", color='brown', linestyle='--', marker='o')
     plt.axhline(y=300, color='red', linestyle='--')
     plt.axhline(y=-300, color='red', linestyle='--')
     plt.xlabel("Burnup (MWd/tU)")
@@ -432,6 +528,289 @@ if post_treat_case1:
     plt.grid()
     plt.savefig(f"{save_dir_HOM_Gd157_VBOC}/delta_keff_D5_NG0_EXTR_vs_NOEX_Case12_Case13.png")
     plt.close()
+
+
+    ### Study S2 convergence between VBOC, VBOC_finerBU and VBOC_finer2
+    ## 08/04/2025 : Adding VBOC_finerBU2 to the study, corresponds to VBOC_finerBU, with delta BU = 100 MWd/t on the [4000,8000] MWd/t range
+    # ie VBOC_finerBU2 = VBOC_finerBU with VBOC_finer2 points on [4000,8000] MWd/t interval. 
+    # assume that VBOC_finer2 is the most converged : 112 BU points vs 58 and 40
+
+    keff_interp_VBOC = np.interp(BU_points_plot_finer2, BU_points_plot, S2_edep0_setQfiss_pcc0.keff) # interpolate S2 edepmode 0 pcc0 keffs to VBOC_finer2
+    keff_interp_VBOC_finerBU = np.interp(BU_points_plot_finer2, BU_points_plot_finerBU, S2_edep0_setQfiss_pcc0_VBOC_finerBU.keff) # interpolate S2 edepmode 0 pcc0 keffs to VBOC_finer2
+    keff_interp_VBOC_finerBU2 = np.interp(BU_points_plot_finer2, BU_points_plot_finerBU2, S2_edep0_setQfiss_pcc0_VBOC_finerBU2.keff) # interpolate S2 edepmode 0 pcc0 keffs to VBOC_finer2
+    keff_VBOC_finer2 = S2_edep0_setQfiss_pcc0_VBOC_finer2.keff # S2 edepmode 0 pcc0 keffs on VBOC_finer2
+    delta_keff_VBOC_finer2_VBOC = (keff_interp_VBOC - keff_VBOC_finer2) * 1e5 # pcm
+    delta_keff_VBOC_finer2_VBOC_finerBU = (keff_interp_VBOC_finerBU - keff_VBOC_finer2) * 1e5 # pcm
+    delta_keff_VBOC_finer2_VBOC_finerBU2 = (keff_interp_VBOC_finerBU2 - keff_VBOC_finer2) * 1e5 # pcm
+
+    
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(BU_points_plot_finer2, delta_keff_VBOC_finer2_VBOC, label="S2 edepmode 0 pcc0 VBOC - VBOC_finer2", color='blue', linestyle='--', marker='x')
+    plt.plot(BU_points_plot_finer2, delta_keff_VBOC_finer2_VBOC_finerBU, label="S2 edepmode 0 pcc0 VBOC_finerBU - VBOC_finer2", color='green', linestyle='--', marker='D')
+    plt.plot(BU_points_plot_finer2, delta_keff_VBOC_finer2_VBOC_finerBU2, label="S2 edepmode 0 pcc0 VBOC_finerBU2 - VBOC_finer2", color='purple', linestyle='--', marker='o')
+    plt.axhline(y=300, color='red', linestyle='--')
+    plt.axhline(y=-300, color='red', linestyle='--')
+    plt.xlabel("Burnup (MWd/tU)")
+    plt.ylabel("Delta keff (pcm)")
+    plt.title("Delta keff between S2 edepmode 0 pcc0 VBOC and VBOC_finer2")
+    plt.legend()
+    plt.grid()
+    plt.savefig(f"{save_dir_HOM_Gd157_VBOC}/delta_keff_S2_edepmode0_pcc0_VBOC_VBOC_finerBU_vs_VBOC_finer2.png")
+    plt.close()
+
+    # Try interpolating S2 edepmode 0 pcc0 VBOC_finerBU, VBOC_finerBU2 and VBOC_finer2 to VBOC
+    # pcc0
+    keff_interp_VBOC_finerBU_pcc0 = np.interp(BU_points_plot, BU_points_plot_finerBU, S2_edep0_setQfiss_pcc0_VBOC_finerBU.keff) # interpolate S2 edepmode 0 pcc0 keffs to VBOC
+    keff_interp_VBOC_finerBU2_pcc0 = np.interp(BU_points_plot, BU_points_plot_finerBU2, S2_edep0_setQfiss_pcc0_VBOC_finerBU2.keff) # interpolate S2 edepmode 0 pcc0 keffs to VBOC
+    keff_interp_VBOC_finer2_pcc0 = np.interp(BU_points_plot, BU_points_plot_finer2, S2_edep0_setQfiss_pcc0_VBOC_finer2.keff) # interpolate S2 edepmode 0 pcc0 keffs to VBOC
+    keff_VBOC_pcc0 = S2_edep0_setQfiss_pcc0.keff # S2 edepmode 0 pcc0 keffs on VBOC
+    # pcc1
+    keff_interp_VBOC_finer2_pcc1 = np.interp(BU_points_plot, BU_points_plot_finer2, S2_edep0_setQfiss_pcc1_VBOC_finer2.keff) # interpolate S2 edepmode 0 pcc1 keffs to VBOC
+    keff_interp_VBOC_finerBU_pcc1 = np.interp(BU_points_plot, BU_points_plot_finerBU, S2_edep0_setQfiss_pcc1_VBOC_finerBU.keff) # interpolate S2 edepmode 0 pcc1 keffs to VBOC
+    keff_interp_VBOC_finerBU2_pcc1 = np.interp(BU_points_plot, BU_points_plot_finerBU2, S2_edep0_setQfiss_pcc1_VBOC_finerBU2.keff) # interpolate S2 edepmode 0 pcc1 keffs to VBOC
+    keff_VBOC_pcc1 = S2_edep0_setQfiss_pcc1.keff # S2 edepmode 0 pcc1 keffs on VBOC
+    # pcc2
+    keff_interp_VBOC_finerBU_pcc2 = np.interp(BU_points_plot, BU_points_plot_finerBU, S2_edep0_setQfiss_pcc2_VBOC_finerBU.keff) # interpolate S2 edepmode 0 pcc2 keffs to VBOC
+    keff_interp_VBOC_finerBU2_pcc2 = np.interp(BU_points_plot, BU_points_plot_finerBU2, S2_edep0_setQfiss_pcc2_VBOC_finerBU2.keff) # interpolate S2 edepmode 0 pcc2 keffs to VBOC
+    keff_interp_VBOC_finer2_pcc2 = np.interp(BU_points_plot, BU_points_plot_finer2, S2_edep0_setQfiss_pcc2_VBOC_finer2.keff) # interpolate S2 edepmode 0 pcc2 keffs to VBOC
+    keff_VBOC_pcc2 = S2_edep0_setQfiss_pcc2.keff # S2 edepmode 0 pcc2 keffs on VBOC
+
+    # pcc0
+    delta_keff_VBOC_VBOC_finer2_pcc0 = (keff_VBOC_pcc0 - keff_interp_VBOC_finer2_pcc0) * 1e5 # pcm
+    delta_keff_VBOC_finerBU_VBOC_finer2_pcc0 = (keff_interp_VBOC_finerBU_pcc0 - keff_interp_VBOC_finer2_pcc0) * 1e5 # pcm
+    delta_keff_VBOC_finerBU2_VBOC_finer2_pcc0 = (keff_interp_VBOC_finerBU2_pcc0 - keff_interp_VBOC_finer2_pcc0) * 1e5 # pcm
+    # pcc1
+    delta_keff_VBOC_VBOC_finer2_pcc1 = (keff_VBOC_pcc0 - keff_interp_VBOC_finer2_pcc1) * 1e5 # pcm
+    delta_keff_VBOC_finerBU_VBOC_finer2_pcc1 = (keff_interp_VBOC_finerBU_pcc1 - keff_interp_VBOC_finer2_pcc1) * 1e5 # pcm
+    delta_keff_VBOC_finerBU2_VBOC_finer2_pcc1 = (keff_interp_VBOC_finerBU2_pcc1 - keff_interp_VBOC_finer2_pcc1) * 1e5 # pcm
+    # pcc2
+    delta_keff_VBOC_VBOC_finer2_pcc2 = (keff_VBOC_pcc2 - keff_interp_VBOC_finer2_pcc2) * 1e5 # pcm
+    delta_keff_VBOC_finerBU_VBOC_finer2_pcc2 = (keff_interp_VBOC_finerBU_pcc2 - keff_interp_VBOC_finer2_pcc2) * 1e5 # pcm
+    delta_keff_VBOC_finerBU2_VBOC_finer2_pcc2 = (keff_interp_VBOC_finerBU2_pcc2 - keff_interp_VBOC_finer2_pcc2) * 1e5 # pcm
+
+    # pcc0
+    plt.figure(figsize=(10, 6))
+    plt.plot(BU_points_plot, delta_keff_VBOC_VBOC_finer2_pcc0, label="S2 VBOC - VBOC_finer 2 (pcc0)", color='blue', linestyle='--', marker='x')
+    plt.plot(BU_points_plot, delta_keff_VBOC_finerBU_VBOC_finer2_pcc0, label="S2 VBOC_finerBU - VBOC_finer 2 (pcc0)", color='red', linestyle='--', marker='x')
+    plt.plot(BU_points_plot, delta_keff_VBOC_finerBU2_VBOC_finer2_pcc0, label="S2 VBOC_finerBU2 - VBOC_finer 2 (pcc0)", color='green', linestyle='--', marker='D')
+    plt.axhline(y=300, color='red', linestyle='--')
+    plt.axhline(y=-300, color='red', linestyle='--')
+    plt.xlabel("Burnup (MWd/tU)")
+    plt.ylabel("$\\Delta$ keff (pcm)")
+    plt.title("$\\Delta$ keff between S2 pcc 0 VBOC, finerBU, finerBU2 vs VBOC_finer2")
+    plt.legend()
+    plt.grid()
+    plt.savefig(f"{save_dir_HOM_Gd157_VBOC}/delta_keff_S2_VBOC_VBOC_finerBU_finerBU2_vs_VBOC_finer2_pcc0.png")
+    plt.close()
+
+
+    # pcc1
+    plt.figure(figsize=(10, 6))
+    plt.plot(BU_points_plot, delta_keff_VBOC_VBOC_finer2_pcc1, label="S2 VBOC - VBOC_finer 2 (pcc1)", color='green', linestyle='--', marker='D')
+    plt.plot(BU_points_plot, delta_keff_VBOC_finerBU_VBOC_finer2_pcc1, label="S2 VBOC_finerBU - VBOC_finer 2 (pcc1)", color='purple', linestyle='--', marker='D')
+    plt.plot(BU_points_plot, delta_keff_VBOC_finerBU2_VBOC_finer2_pcc1, label="S2 VBOC_finerBU2 - VBOC_finer 2 (pcc1)", color='orange', linestyle='--', marker='D')
+    print(f"delta keff VBOC_finerBU - VBOC_finer2 pcc1 : {delta_keff_VBOC_finerBU_VBOC_finer2_pcc1}")
+    plt.axhline(y=300, color='red', linestyle='--')
+    plt.axhline(y=-300, color='red', linestyle='--')
+    plt.xlabel("Burnup (MWd/tU)")
+    plt.ylabel("$\\Delta$ keff (pcm)")
+    plt.title("$\\Delta$ keff between S2 pcc 1 VBOC, finerBU, finerBU2 vs VBOC_finer2")
+    plt.legend()
+    plt.grid()
+    plt.savefig(f"{save_dir_HOM_Gd157_VBOC}/delta_keff_S2_VBOC_VBOC_finerBU_finerBU2_vs_VBOC_finer2_pcc1.png")
+    plt.close()
+
+
+    #pcc2
+    plt.figure(figsize=(10, 6))
+    plt.plot(BU_points_plot, delta_keff_VBOC_VBOC_finer2_pcc2, label="S2 VBOC - VBOC_finer2 (pcc2)", color='orange', linestyle='--', marker='D')
+    plt.plot(BU_points_plot, delta_keff_VBOC_finerBU_VBOC_finer2_pcc2, label="S2 VBOC_finerBU - VBOC_finer2 (pcc2)", color='brown', linestyle='--', marker='D')
+    plt.plot(BU_points_plot, delta_keff_VBOC_finerBU2_VBOC_finer2_pcc2, label="S2 VBOC_finerBU2 - VBOC_finer2 (pcc2)", color='purple', linestyle='--', marker='D')
+    plt.axhline(y=300, color='red', linestyle='--')
+    plt.axhline(y=-300, color='red', linestyle='--')
+    plt.xlabel("Burnup (MWd/tU)")
+    plt.ylabel("$\\Delta$ keff (pcm)")
+    plt.title("$\\Delta$ keff between S2 pcc 2 VBOC, finerBU, finerBU2 vs VBOC_finer2")
+    plt.legend()
+    plt.grid()
+    plt.savefig(f"{save_dir_HOM_Gd157_VBOC}/delta_keff_S2_VBOC_VBOC_finerBU_finerBU2_vs_VBOC_finer2_pcc2.png")
+    plt.close()
+
+    # Check S2 convergence for VBOC_finer2 : compare to pcc0 and assess variation when changing pcc
+
+    # Compare S2 edepmode 0 pcc0 and pcc1
+    delta_keff_S2_pcc1_vs_pcc0 = (S2_edep0_setQfiss_pcc1_VBOC_finer2.keff - S2_edep0_setQfiss_pcc0_VBOC_finer2.keff) * 1e5 # pcm
+    delta_keff_S2_pcc2_vs_pcc0 = (S2_edep0_setQfiss_pcc2_VBOC_finer2.keff - S2_edep0_setQfiss_pcc0_VBOC_finer2.keff) * 1e5 # pcm
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(BU_points_plot_finer2, delta_keff_S2_pcc1_vs_pcc0, label="S2 edepmode 0 pcc1 - pcc0", color='blue', linestyle='--', marker='x')
+    plt.plot(BU_points_plot_finer2, delta_keff_S2_pcc2_vs_pcc0, label="S2 edepmode 0 pcc2 - pcc0", color='green', linestyle='--', marker='D')
+    plt.axhline(y=300, color='red', linestyle='--')
+    plt.axhline(y=-300, color='red', linestyle='--')
+    plt.xlabel("Burnup (MWd/tU)")
+    plt.ylabel("$\\Delta$ keff (pcm)")
+    plt.title("$\\Delta$ keff between S2 edepmode 0 pcc1 and pcc0, VBOC_finer2")
+    plt.legend()
+    plt.grid()
+    plt.savefig(f"{save_dir_HOM_Gd157_VBOC}/delta_keff_S2_pcc1_pcc2_vs_pcc0_VBOC_finer2.png")
+    plt.close()
+
+    # Check S2 convergence for VBOC_finerBU : compare to pcc0 and assess variation when changing pcc
+
+    # Compare S2 edepmode 0 pcc0 and pcc1
+    delta_keff_S2_pcc1_vs_pcc0 = (S2_edep0_setQfiss_pcc1_VBOC_finerBU.keff - S2_edep0_setQfiss_pcc0_VBOC_finerBU.keff) * 1e5 # pcm
+    delta_keff_S2_pcc2_vs_pcc0 = (S2_edep0_setQfiss_pcc2_VBOC_finerBU.keff - S2_edep0_setQfiss_pcc0_VBOC_finerBU.keff) * 1e5 # pcm
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(BU_points_plot_finerBU, delta_keff_S2_pcc1_vs_pcc0, label="S2 edepmode 0 pcc1 - pcc0", color='blue', linestyle='--', marker='x')
+    plt.plot(BU_points_plot_finerBU, delta_keff_S2_pcc2_vs_pcc0, label="S2 edepmode 0 pcc2 - pcc0", color='green', linestyle='--', marker='D')
+    plt.axhline(y=300, color='red', linestyle='--')
+    plt.axhline(y=-300, color='red', linestyle='--')
+    plt.xlabel("Burnup (MWd/tU)")
+    plt.ylabel("$\\Delta$ keff (pcm)")
+    plt.title("$\\Delta$ keff between S2 edepmode 0 pcc1 and pcc0, VBOC_finerBU")
+    plt.legend()
+    plt.grid()
+    plt.savefig(f"{save_dir_HOM_Gd157_VBOC}/delta_keff_S2_pcc1_pcc2_vs_pcc0_VBOC_finerBU.png")
+    plt.close()
+
+    # Check S2 convergence for VBOC : compare to pcc0 and assess variation when changing pcc
+
+    # Compare S2 edepmode 0 pcc0 and pcc1
+    delta_keff_S2_pcc1_vs_pcc0 = (S2_edep0_setQfiss_pcc1.keff - S2_edep0_setQfiss_pcc0.keff) * 1e5 # pcm
+    delta_keff_S2_pcc2_vs_pcc0 = (S2_edep0_setQfiss_pcc2.keff - S2_edep0_setQfiss_pcc0.keff) * 1e5 # pcm
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(BU_points_plot, delta_keff_S2_pcc1_vs_pcc0, label="S2 edepmode 0 pcc1 - pcc0", color='blue', linestyle='--', marker='x')
+    plt.plot(BU_points_plot, delta_keff_S2_pcc2_vs_pcc0, label="S2 edepmode 0 pcc2 - pcc0", color='green', linestyle='--', marker='D')
+    plt.axhline(y=300, color='red', linestyle='--')
+    plt.axhline(y=-300, color='red', linestyle='--')
+    plt.xlabel("Burnup (MWd/tU)")
+    plt.ylabel("$\\Delta$ keff (pcm)")
+    plt.title("$\\Delta$ keff between S2 edepmode 0 pcc1 and pcc0, VBOC")
+    plt.legend()
+    plt.grid()
+    plt.savefig(f"{save_dir_HOM_Gd157_VBOC}/delta_keff_S2_pcc1_pcc2_vs_pcc0_VBOC.png")
+    plt.close()
+
+    ### Compare D5 to S2 now --> Assess convergence in D5 - S2 comparison
+    # because getLists("VBOC_finer2")["COMPO"] is the same as VBOC, (ie DRAGON calculations are performed on VBOC_finer2 but only saved if BU_pt in VBOC)
+    # --> need to interpolate S2 results to ListCOMPO
+    keff_S2_pcc0_VBOC_finer2_interp = np.interp(BU_points_plot, BU_points_plot_finer2, S2_edep0_setQfiss_pcc0_VBOC_finer2.keff) # interpolate S2 edepmode 0 pcc0 keffs to VBOC
+    keff_S2_pcc1_VBOC_finer2_interp = np.interp(BU_points_plot, BU_points_plot_finer2, S2_edep0_setQfiss_pcc1_VBOC_finer2.keff) # interpolate S2 edepmode 0 pcc1 keffs to VBOC
+    keff_S2_pcc2_VBOC_finer2_interp = np.interp(BU_points_plot, BU_points_plot_finer2, S2_edep0_setQfiss_pcc2_VBOC_finer2.keff) # interpolate S2 edepmode 0 pcc2 keffs to VBOC
+    # Compare D5 to S2 for VBOC_finer2
+    # compare NOEX results with S2 edepmode 0 pcc0
+    delta_keff_D5_NOEX_VBOC_finer2_pcc0 = (Case_1_4_VBOC_finer2_NG0_NOEX_DIRA.keff - keff_S2_pcc0_VBOC_finer2_interp) * 1e5 # pcm
+    # compare EXTR results with S2 edepmode 0 pcc2
+    delta_keff_D5_EXTR_VBOC_finer2_pcc2 = (Case_1_4_VBOC_finer2_NG0_EXTR_DIRA.keff - keff_S2_pcc2_VBOC_finer2_interp) * 1e5 # pcm
+    # compare NOEX results with S2 edepmode 0 pcc1
+    delta_keff_D5_NOEX_VBOC_finer2_pcc1 = (Case_1_4_VBOC_finer2_NG0_NOEX_DIRA.keff - keff_S2_pcc1_VBOC_finer2_interp) * 1e5 # pcm
+    # compare EXTR results with S2 edepmode 0 pcc1
+    delta_keff_D5_EXTR_VBOC_finer2_pcc1 = (Case_1_4_VBOC_finer2_NG0_EXTR_DIRA.keff - keff_S2_pcc1_VBOC_finer2_interp) * 1e5 # pcm
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(BU_points_plot, delta_keff_D5_NOEX_VBOC_finer2_pcc0, label="D5 NOEX - S2 edepmode 0 pcc0, VBOC_finer2", color='blue', linestyle='--', marker='x')
+    plt.plot(BU_points_plot, delta_keff_D5_EXTR_VBOC_finer2_pcc2, label="D5 EXTR - S2 edepmode 0 pcc2, VBOC_finer2", color='green', linestyle='--', marker='D')
+    plt.plot(BU_points_plot, delta_keff_D5_NOEX_VBOC_finer2_pcc1, label="D5 NOEX - S2 edepmode 0 pcc1, VBOC_finer2", color='red', linestyle='--', marker='x')
+    plt.plot(BU_points_plot, delta_keff_D5_EXTR_VBOC_finer2_pcc1, label="D5 EXTR - S2 edepmode 0 pcc1, VBOC_finer2", color='purple', linestyle='--', marker='D')
+    plt.axhline(y=300, color='red', linestyle='--')
+    plt.axhline(y=-300, color='red', linestyle='--')
+    plt.xlabel("Burnup (MWd/tU)")
+    plt.ylabel("$\\Delta$ keff (pcm)")
+    plt.title("$\\Delta$ keff between D5 and S2, VBOC_finer2")
+    plt.legend()
+    plt.grid()
+    plt.savefig(f"{save_dir_HOM_Gd157_VBOC}/delta_keff_D5_NOEX_EXTR_VBOC_finer2_vs_S2_edepmode0_pcc0_pcc1_pcc2.png")
+    plt.close()
+
+
+    # Case 1.5 : refine the BU list to VBOC_finer2 and save all points to CPO
+    name_CPO_VBOC_finer2_NG0_NOEX_DIRA = f"CPO_endfb8r1_295_NG0_USS_PT_CORR_VBOC_finer2_CPO_RUNG_NOEX_DIRA_550K"
+    name_CPO_VBOC_finer2_NG0_EXTR_DIRA = f"CPO_endfb8r1_295_NG0_USS_PT_CORR_VBOC_finer2_CPO_RUNG_EXTR_DIRA_550K"
+
+    os.chdir(path_to_PYGAN_results)
+    CPO_VBOC_finer2_NG0_NOEX_DIRA_test = lcm.new('LCM_INP', name_CPO_VBOC_finer2_NG0_NOEX_DIRA, impx=0)
+    CPO_VBOC_finer2_NG0_EXTR_DIRA_test = lcm.new('LCM_INP', name_CPO_VBOC_finer2_NG0_EXTR_DIRA, impx=0)
+    os.chdir(cwd_path)
+
+    # Case 1.5 : refine the BU list to VBOC_finer2 and save all points to CPO
+    Case_1_5_VBOC_finer2_NG0_NOEX_DIRA = D5_case(pyCOMPO = CPO_VBOC_finer2_NG0_NOEX_DIRA_test,
+                                            dlib_name = "endfb8r1_295_NG0",
+                                            bu_points = "VBOC_finer2_CPO",
+                                            ssh_opt = "PT",
+                                            correlation = "CORR",
+                                            sat = "",
+                                            depl_sol = "RUNG",
+                                            tracked_nuclides = tracked_nuclides,
+                                            BU_lists = getLists("VBOC_finer2_CPO"),
+                                            save_dir = save_dir_HOM_Gd157_VBOC)
+
+    Case_1_5_VBOC_finer2_NG0_EXTR_DIRA = D5_case(pyCOMPO = CPO_VBOC_finer2_NG0_EXTR_DIRA_test,
+                                            dlib_name = "endfb8r1_295_NG0",
+                                            bu_points = "VBOC_finer2_CPO",
+                                            ssh_opt = "PT",
+                                            correlation = "CORR",
+                                            sat = "",
+                                            depl_sol = "RUNG",
+                                            tracked_nuclides = tracked_nuclides,
+                                            BU_lists = getLists("VBOC_finer2_CPO"),
+                                            save_dir = save_dir_HOM_Gd157_VBOC)
+    
+    delta_keff_NOEX_finer2_CPO_pcc0 = (Case_1_5_VBOC_finer2_NG0_NOEX_DIRA.keff - S2_edep0_setQfiss_pcc0_VBOC_finer2.keff) * 1e5 # pcm
+    delta_keff_EXTR_finer2_CPO_pcc2 = (Case_1_5_VBOC_finer2_NG0_EXTR_DIRA.keff - S2_edep0_setQfiss_pcc2_VBOC_finer2.keff) * 1e5 # pcm
+    delta_keff_NOEX_finer2_CPO_pcc1 = (Case_1_5_VBOC_finer2_NG0_NOEX_DIRA.keff - S2_edep0_setQfiss_pcc1_VBOC_finer2.keff) * 1e5 # pcm
+    delta_keff_EXTR_finer2_CPO_pcc1 = (Case_1_5_VBOC_finer2_NG0_EXTR_DIRA.keff - S2_edep0_setQfiss_pcc1_VBOC_finer2.keff) * 1e5 # pcm
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(BU_points_plot_finer2, delta_keff_NOEX_finer2_CPO_pcc0, label="D5 NOEX - S2 edepmode 0 pcc0, VBOC_finer2", color='blue', linestyle='--', marker='x')
+    plt.plot(BU_points_plot_finer2, delta_keff_EXTR_finer2_CPO_pcc2, label="D5 EXTR - S2 edepmode 0 pcc2, VBOC_finer2", color='green', linestyle='--', marker='D')
+    plt.plot(BU_points_plot_finer2, delta_keff_NOEX_finer2_CPO_pcc1, label="D5 NOEX - S2 edepmode 0 pcc1, VBOC_finer2", color='red', linestyle='--', marker='x')
+    plt.plot(BU_points_plot_finer2, delta_keff_EXTR_finer2_CPO_pcc1, label="D5 EXTR - S2 edepmode 0 pcc1, VBOC_finer2", color='purple', linestyle='--', marker='D')
+    plt.axhline(y=300, color='red', linestyle='--')
+    plt.axhline(y=-300, color='red', linestyle='--')
+    plt.xlabel("Burnup (MWd/tU)")
+    plt.ylabel("$\\Delta$ keff (pcm)")
+    plt.title("$\\Delta$ keff between D5 and S2, VBOC_finer2")
+    plt.legend()
+    plt.grid()
+    plt.savefig(f"{save_dir_HOM_Gd157_VBOC}/delta_keff_D5_NOEX_EXTR_VBOC_finer2_CPO_vs_S2_edepmode0_pcc0_pcc1_pcc2.png")
+
+    ### Similarly to Serpent2 results : analyse convergence of solutions on coarser BU lists to VBOC_finer2
+
+    # NOEX cases : 
+    # VBOC vs VBOC_finer2
+    delta_keff_D5_NOEX_VBOC_vs_VBOC_finer2 = (Case_1_2_VBOC_NG0_NOEX_DIRA.keff - Case_1_4_VBOC_finer2_NG0_NOEX_DIRA.keff) * 1e5 # pcm
+    # VBOC_finerBU vs VBOC_finer2
+    delta_keff_D5_NOEX_VBOC_finerBU_vs_VBOC_finer2 = (Case_1_3_VBOC_finerBU_NG0_NOEX_DIRA.keff - Case_1_4_VBOC_finer2_NG0_NOEX_DIRA.keff) * 1e5 # pcm
+    # VBOC_finerBU2 vs VBOC_finer2
+    delta_keff_D5_NOEX_VBOC_finerBU2_vs_VBOC_finer2 = (Case_1_32_VBOC_finerBU2_NG0_NOEX_DIRA.keff - Case_1_4_VBOC_finer2_NG0_NOEX_DIRA.keff) * 1e5 # pcm
+    # EXTR cases :
+    # VBOC vs VBOC_finer2
+    delta_keff_D5_EXTR_VBOC_vs_VBOC_finer2 = (Case_1_2_VBOC_NG0_EXTR_DIRA.keff - Case_1_4_VBOC_finer2_NG0_EXTR_DIRA.keff) * 1e5 # pcm
+    # VBOC_finerBU vs VBOC_finer2
+    delta_keff_D5_EXTR_VBOC_finerBU_vs_VBOC_finer2 = (Case_1_3_VBOC_finerBU_NG0_EXTR_DIRA.keff - Case_1_4_VBOC_finer2_NG0_EXTR_DIRA.keff) * 1e5 # pcm
+    # VBOC_finerBU2 vs VBOC_finer2
+    delta_keff_D5_EXTR_VBOC_finerBU2_vs_VBOC_finer2 = (Case_1_32_VBOC_finerBU2_NG0_EXTR_DIRA.keff - Case_1_4_VBOC_finer2_NG0_EXTR_DIRA.keff) * 1e5 # pcm
+    # Plot the results
+    plt.figure(figsize=(10, 6))
+    plt.plot(BU_points_plot, delta_keff_D5_NOEX_VBOC_vs_VBOC_finer2, label="D5 NOEX VBOC - VBOC_finer2", color='blue', linestyle='--', marker='x')
+    plt.plot(BU_points_plot, delta_keff_D5_NOEX_VBOC_finerBU_vs_VBOC_finer2, label="D5 NOEX VBOC_finerBU - VBOC_finer2", color='red', linestyle='--', marker='x')
+    plt.plot(BU_points_plot, delta_keff_D5_NOEX_VBOC_finerBU2_vs_VBOC_finer2, label="D5 NOEX VBOC_finerBU2 - VBOC_finer2", color='green', linestyle='--', marker='D')
+    plt.plot(BU_points_plot, delta_keff_D5_EXTR_VBOC_vs_VBOC_finer2, label="D5 EXTR VBOC - VBOC_finer2", color='purple', linestyle='--', marker='D')
+    plt.plot(BU_points_plot, delta_keff_D5_EXTR_VBOC_finerBU_vs_VBOC_finer2, label="D5 EXTR VBOC_finerBU - VBOC_finer2", color='orange', linestyle='--', marker='D')
+    plt.plot(BU_points_plot, delta_keff_D5_EXTR_VBOC_finerBU2_vs_VBOC_finer2, label="D5 EXTR VBOC_finerBU2 - VBOC_finer2", color='brown', linestyle='--', marker='D')
+    plt.axhline(y=300, color='red', linestyle='--')
+    plt.axhline(y=-300, color='red', linestyle='--')
+    plt.xlabel("Burnup (MWd/tU)")
+    plt.ylabel("$\\Delta$ keff (pcm)")
+    plt.title("$\\Delta$ keff between D5 BU lists compared to VBOC_finer2, EXTR and NOEX")
+    plt.legend()
+    plt.grid()
+    plt.savefig(f"{save_dir_HOM_Gd157_VBOC}/delta_keff_D5_NOEX_EXTR_VBOC_finerBU_finerBU2_vs_VBOC_finer2.png")
+    plt.close()
+    
 
 
 if post_treat_case2:

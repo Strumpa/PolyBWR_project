@@ -80,7 +80,7 @@ COMPO := COMPO: ::
 INTEGER istepNext ;
 REAL BUbeg Tbeg ;
 REAL BU BUautop BUcompo := 0.0 0.0 0.0 ;
-REAL Norm_f2 := 38.6 ; ! SPECIFIC POWER MW/t
+REAL Norm_f2 := 26.5 ; ! SPECIFIC POWER MW/t
 REAL BUend Tend := 0. 0. ;
 INTEGER istep :=  0 ;
 INTEGER iauto :=  1 ;

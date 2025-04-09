@@ -26,9 +26,6 @@ STRING name_compo ;
 STRING ssh_method deplsolopt glob_opt sat_opt rates_extr ;
 :: >>ssh_method<< >>deplsolopt<< >>glob_opt<< >>sat_opt<< >>rates_extr<< ; 
 
-DOUBLE val_exp ;
-:: >>val_exp<< ;
-
 
 * ---
 * STRUCTURES AND MODULES
@@ -42,7 +39,6 @@ SEQ_ASCII _COMPO :: FILE <<name_compo>> ;
 *  REFERENCE LOCAL PARAMETERS                                          *
 ************************************************************************
 REAL Kinf ;
-REAL valexp := val_exp D_TO_R ;
 
 ************************************************************************
 *  BEGIN DECLARATION                                                   *
@@ -78,7 +74,7 @@ COMPO := COMPO: ::
 INTEGER istepNext ;
 REAL BUbeg Tbeg ;
 REAL BU BUautop BUcompo := 0.0 0.0 0.0 ;
-REAL Norm_f2 := 38.6 ; ! SPECIFIC POWER MW/t
+REAL Norm_f2 := 26.5 ; ! SPECIFIC POWER MW/t
 REAL BUend Tend := 0. 0. ;
 INTEGER istep :=  0 ;
 INTEGER iauto :=  1 ;
@@ -185,8 +181,7 @@ WHILE istep nstep < DO
   
     BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX TRACK ::
      EDIT 3 DEPL <<Tbeg>> <<Tend>> DAY 
-     POWR <<Norm_f2>> <<deplsolopt>> <<sat_opt>> <<rates_extr>>
-     EXPM <<valexp>> <<glob_opt>> ;
+     POWR <<Norm_f2>> <<deplsolopt>> <<sat_opt>> <<rates_extr>> <<glob_opt>> ;
   
   ENDIF ;
  

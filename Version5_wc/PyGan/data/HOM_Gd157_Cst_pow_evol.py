@@ -51,7 +51,7 @@ depl_solution = "RUNG" # "RUNG" : 5th order Runge-Kutta (Cash-Karp) or "KAPS": 4
 rates_extrapolation = "EXTR" # "EXTR" : linear extrapolation of rates over time stage, "NOEX" : no extrapolation aka constant extrapolation
 DIRA_opt = "DIRA" # "DIRA" : option to use dirac for saturation calculation, "NODI" : no dirac for saturation.
 #
-burnup_points = "VBOC_finer2" # "VBOC" or "VBOC_finerBU", "BOC_fine_autop5", 'Gd_VBOC_fine2_autop9' #'Gd_BOC_fine', 'Gd_autop4', 'Gd_autop3', 'Gd_VBOC_fine', 'Gd_BOC_fine'
+burnup_points = "VBOC_finerBU2" # "VBOC" or "VBOC_finerBU", "BOC_fine_autop5", 'Gd_VBOC_fine2_autop9' #'Gd_BOC_fine', 'Gd_autop4', 'Gd_autop3', 'Gd_VBOC_fine', 'Gd_BOC_fine'
 # suffixe = suffixe added to name_geom for creation of figures, MULTICOMPO and BU vector
 tracked_nuclides = ["U235","U238","Pu239", 
                     "Gd157","Gd158", "Xe135","Sm149"]
