@@ -58,12 +58,12 @@ draglib_name = "endfb8r1_295"
 # 3) Selecting the self-shielding method
 # RSE, PT or AUTO
 #
-ssh_option = "RSE" # , "PT", "SUBG", "AUTO"
+ssh_option = "RSE" # "RSE" , "PT", "SUBG", "AUTO"
 
 # 4) Selecting the burnup calculation options
 # burnup_steps = "UOx", "UOx_autop5", "UOx2_autop5", "UOx4_autop5", "UOx6_autop5" etc
 #
-burnup_points = "Gd"
+burnup_points = "Gd_autop3" # "Gd_autop3", "Gd_autop4", "Gd"
 
 # 5) Selecting the burnup calculation options
 # Solver : "RUNG" or "KAPS"
@@ -72,7 +72,7 @@ burnup_points = "Gd"
 #
 solver_option = "RUNG"
 saturation_option = "NODI" #, "DIRA"
-rates_extr = "EXTR" #, "NOEX"
+rates_extr = "NOEX" # "EXTR", "NOEX"
 
 # 6) Selecting the energy deposition options
 # Global energy deposition : "NOGL"=only energy release in fuel is used for normalization or "GLOB" = global energy release model, 
@@ -97,9 +97,9 @@ tracked_nuclides = ["U235","U238","Pu239","Pu240","Pu241","Pu242","Am241","Xe135
 #
 # Create the results directory
 path=os.getcwd()
-save_dir_D5 = f"{path}/AT10_45Gd_Cst_pow_evol_results/D5_{evaluation}_{glob_opt}"
+save_dir_D5 = f"{path}/AT10_45Gd_Cst_pow_evol_results/D5_{evaluation}"
 save_dir_S2 = f"{path}/AT10_45Gd_Cst_pow_evol_results/S2_{evaluation}"
-save_dir_comparison = f"{path}/AT10_45Gd_Cst_pow_evol_results/Comparison_{evaluation}_{glob_opt}"
+save_dir_comparison = f"{path}/AT10_45Gd_Cst_pow_evol_results/Comparison_{evaluation}"
 if not os.path.exists(save_dir_D5):
     os.makedirs(save_dir_D5)
 if not os.path.exists(save_dir_S2):
@@ -158,6 +158,7 @@ if exec_D5_no_NG0:
     # --- Call to DRAGON5 CLE-2000 procedures :
     # --- DRAGON5 microlib generation
     pyLIB_NG0 = MIX_NG0(draglib_name) # Creation of the microlib, default D5 energy deposition mode
+    ssh_option = "RSE"
     #
     # names for exportation
     print(f"State of the calculation NG0 : {draglib_name} {ssh_option} {saturation_option} {solver_option}")

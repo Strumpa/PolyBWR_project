@@ -53,10 +53,11 @@ if not os.path.exists(save_dir_gduo2_295_kec1):
 # Case 0 : HOM_Gd157_VBOC_OMC (already done in HOM_Gd157_VBOC.py from DRAGON5 results (not called from PyGan)) <-- not a priority
 post_treat_case0 = False
 # Case 1 : HOM_Gd157_VBOC, focus on this
-post_treat_case1 = True
+post_treat_case1 = False
 # Case 2 : HOM_UOX_Gd157, focus on this
 post_treat_case2 = False
 # Case 3 : AT10_45Gd, focus on this
+post_treat_case3 = True
 # Case 4 : gduo2_295_kec1
 
 
@@ -894,4 +895,118 @@ if post_treat_case2:
     plt.close()
 
 
+if post_treat_case3:
+    print("Post-treatment of case 3 : AT10_45Gd_Cst_pow_evol")
 
+    name_CPO_45Gd_Gdautop3_EXTR = "CPO_endfb8r1_295_NG0_RSE_SALT_Gd_autop3_RUNG_NODI_EXTR_GLOB"
+    name_CPO_45Gd_Gdautop3_NOEX = "CPO_endfb8r1_295_NG0_RSE_SALT_Gd_autop3_RUNG_NODI_NOEX_GLOB"
+
+    path_to_PYGAN_results = f"{os.getcwd()}/PYGAN_COMPOS_path/AT10_45Gd_Cst_pow_evol_results/"
+    cwd_path = os.getcwd()
+    os.chdir(path_to_PYGAN_results)
+    # Load the data
+    CPO_45Gd_Gdautop3_EXTR = lcm.new('LCM_INP', name_CPO_45Gd_Gdautop3_EXTR, impx=0)
+    CPO_45Gd_Gdautop3_NOEX = lcm.new('LCM_INP', name_CPO_45Gd_Gdautop3_NOEX, impx=0)
+    os.chdir(cwd_path)
+    # Load S2 results with set fission Q-values, edepmode 0, pcc 0, 1 and 2
+
+    # reminder of S2_case object contrustructor (case_name, lib_name, edep_id, areQfissSet, isEcaptSet, pcc_id, specific_power, tracked_nuclides, save_dir)
+    S2_edep0_setQfiss_pcc0 = S2_case(case_name = "AT10_45Gd", 
+                                    lib_name = "endfb8r1_pynjoy2012_kerma", 
+                                    edep_id = 0, areQfissSet = True, isEcaptSet = False, 
+                                    pcc_id = 0, specific_power = 26.5, tracked_nuclides = tracked_nuclides, save_dir = save_dir_AT10_45Gd)
+    
+    S2_edep0_setQfiss_pcc1 = S2_case(case_name = "AT10_45Gd",
+                                    lib_name = "endfb8r1_pynjoy2012_kerma",
+                                    edep_id = 0, areQfissSet = True, isEcaptSet = False,
+                                    pcc_id = 1, specific_power = 26.5, tracked_nuclides = tracked_nuclides, save_dir = save_dir_AT10_45Gd)
+    
+    S2_edep0_setQfiss_pcc2 = S2_case(case_name = "AT10_45Gd",
+                                    lib_name = "endfb8r1_pynjoy2012_kerma",
+                                    edep_id = 0, areQfissSet = True, isEcaptSet = False,
+                                    pcc_id = 2, specific_power = 26.5, tracked_nuclides = tracked_nuclides, save_dir = save_dir_AT10_45Gd)
+    
+    # Create DRAGON5 cases without (n,gamma) energy deposition
+
+    # reminder of D5_case object contrustructor (pyCOMPO, dlib_name, bu_points, ssh_opt, correlation, sat, depl_sol, tracked_nuclides, BU_lists, save_dir)
+    D5_45Gd_Gdautop3_EXTR = D5_case(pyCOMPO = CPO_45Gd_Gdautop3_EXTR,
+                                dlib_name = "endfb8r1_295_NG0",
+                                bu_points = "Gd_autop3",
+                                ssh_opt = "RSE",
+                                correlation = "CORR",
+                                sat = "",
+                                depl_sol = "RUNG",
+                                tracked_nuclides = tracked_nuclides,
+                                BU_lists = getLists("Gd_autop3"),
+                                save_dir = save_dir_AT10_45Gd)
+    D5_45Gd_Gdautop3_NOEX = D5_case(pyCOMPO = CPO_45Gd_Gdautop3_NOEX,
+                                dlib_name = "endfb8r1_295_NG0",
+                                bu_points = "Gd_autop3",
+                                ssh_opt = "RSE",
+                                correlation = "CORR",
+                                sat = "",
+                                depl_sol = "RUNG",
+                                tracked_nuclides = tracked_nuclides,
+                                BU_lists = getLists("Gd_autop3"),
+                                save_dir = save_dir_AT10_45Gd)
+    
+    print(f"Gd_autop3 BU : {getLists('Gd_autop3')['BU']}, with len : {len(getLists('Gd_autop3')['BU'])}")
+    print(f"Gd_autop3 COMPO : {getLists('Gd_autop3')['COMPO']}, with len : {len(getLists('Gd_autop3')['COMPO'])}")
+    print(f"delta COMPO-BU = {np.array(getLists('Gd_autop3')['COMPO']) - np.array(getLists('Gd_autop3')['BU'])}")
+    
+    
+    # Compare the results of DRAGON5 and SERPENT2
+    # NOEX and EXTR cases vs pcc 0
+    delta_keff_45Gd_Gdautop3_NOEX_pcc0 = (D5_45Gd_Gdautop3_NOEX.keff - S2_edep0_setQfiss_pcc0.keff) * 1e5 # pcm
+    delta_keff_45Gd_Gdautop3_EXTR_pcc0 = (D5_45Gd_Gdautop3_EXTR.keff - S2_edep0_setQfiss_pcc0.keff) * 1e5 # pcm
+
+    # NOEX and EXTR cases vs pcc 1
+    delta_keff_45Gd_Gdautop3_NOEX_pcc1 = (D5_45Gd_Gdautop3_NOEX.keff - S2_edep0_setQfiss_pcc1.keff) * 1e5 # pcm
+    delta_keff_45Gd_Gdautop3_EXTR_pcc1 = (D5_45Gd_Gdautop3_EXTR.keff - S2_edep0_setQfiss_pcc1.keff) * 1e5 # pcm
+
+    # NOEX and EXTR cases vs pcc 2
+    delta_keff_45Gd_Gdautop3_NOEX_pcc2 = (D5_45Gd_Gdautop3_NOEX.keff - S2_edep0_setQfiss_pcc2.keff) * 1e5 # pcm
+    delta_keff_45Gd_Gdautop3_EXTR_pcc2 = (D5_45Gd_Gdautop3_EXTR.keff - S2_edep0_setQfiss_pcc2.keff) * 1e5 # pcm
+
+    # Plot the results
+    # D5 vs pcc 0
+    plt.figure(figsize=(10, 6))
+    plt.plot(D5_45Gd_Gdautop3_NOEX.BU, delta_keff_45Gd_Gdautop3_NOEX_pcc0, label="D5 NOEX - S2 edepmode 0 - pcc 0", color='blue', linestyle='--', marker='x')
+    plt.plot(D5_45Gd_Gdautop3_EXTR.BU, delta_keff_45Gd_Gdautop3_EXTR_pcc0, label="D5 EXTR - S2 edepmode 0 - pcc 0", color='green', linestyle='--', marker='D')
+    plt.axhline(y=300, color='red', linestyle='--')
+    plt.axhline(y=-300, color='red', linestyle='--')
+    plt.xlabel("Burnup (MWd/tU)")
+    plt.ylabel("$\\Delta$ keff (pcm)")
+    plt.title("$\\Delta$ keff between D5 and S2 edepmode 0 pcc 0")
+    plt.legend()
+    plt.grid()
+    plt.savefig(f"{save_dir_AT10_45Gd}/delta_keff_D5_NOEX_EXTR_vs_S2_edepmode0_pcc0.png")
+    plt.close()
+    
+    # D5 vs pcc 1 
+    plt.figure(figsize=(10, 6))
+    plt.plot(D5_45Gd_Gdautop3_NOEX.BU, delta_keff_45Gd_Gdautop3_NOEX_pcc1, label="D5 NOEX - S2 edepmode 0 - pcc 1", color='red', linestyle='--', marker='x')
+    plt.plot(D5_45Gd_Gdautop3_EXTR.BU, delta_keff_45Gd_Gdautop3_EXTR_pcc1, label="D5 EXTR - S2 edepmode 0 - pcc 1", color='purple', linestyle='--', marker='D')
+    plt.axhline(y=300, color='red', linestyle='--')
+    plt.axhline(y=-300, color='red', linestyle='--')
+    plt.xlabel("Burnup (MWd/tU)")
+    plt.ylabel("$\\Delta$ keff (pcm)")
+    plt.title("$\\Delta$ keff between D5 and S2 edepmode 0 pcc 1")
+    plt.legend()
+    plt.grid()
+    plt.savefig(f"{save_dir_AT10_45Gd}/delta_keff_D5_NOEX_EXTR_vs_S2_edepmode0_pcc1.png")
+    plt.close()
+
+    # D5 vs pcc 2
+    plt.figure(figsize=(10, 6))
+    plt.plot(D5_45Gd_Gdautop3_NOEX.BU, delta_keff_45Gd_Gdautop3_NOEX_pcc2, label="D5 NOEX - S2 edepmode 0 - pcc 2", color='blue', linestyle='--', marker='x')
+    plt.plot(D5_45Gd_Gdautop3_EXTR.BU, delta_keff_45Gd_Gdautop3_EXTR_pcc2, label="D5 EXTR - S2 edepmode 0 - pcc 2", color='green', linestyle='--', marker='D')
+    plt.axhline(y=300, color='red', linestyle='--')
+    plt.axhline(y=-300, color='red', linestyle='--')
+    plt.xlabel("Burnup (MWd/tU)")
+    plt.ylabel("$\\Delta$ keff (pcm)")
+    plt.title("$\\Delta$ keff between D5 and S2 edepmode 0 pcc 2")
+    plt.legend()
+    plt.grid()
+    plt.savefig(f"{save_dir_AT10_45Gd}/delta_keff_D5_NOEX_EXTR_vs_S2_edepmode0_pcc2.png")
+    plt.close()

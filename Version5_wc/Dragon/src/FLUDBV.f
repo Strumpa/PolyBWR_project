@@ -44,7 +44,7 @@
 *         =1 the scattering modified cp matrix is multiplied by PNLR;
 *         =2 the reduced cp matrix is multiplied by PNL;
 *         =3 sigs0-db2 approximation;
-*         =4 (not available);
+*         =4 albedo approximation;
 *         =5 Todorova-type isotropic streaming model;
 *         =6 Ecco-type isotropic streaming model;
 *         >6 Tibere type anisotropic streaming model.

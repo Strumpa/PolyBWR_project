@@ -60,3 +60,6 @@ ifeq ($(hdf5),1)
 	./rpython $(options) -c $(fcompilerSuite) Equivalence_SPH_APEX.py
 	./rpython $(options) -c $(fcompilerSuite) pincell_mpo_concat.py
 endif
+ifeq ($(vtk),1)
+	./rpython $(options) -c $(fcompilerSuite) rDragView.py
+endif

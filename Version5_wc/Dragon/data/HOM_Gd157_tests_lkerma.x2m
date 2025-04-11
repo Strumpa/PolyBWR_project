@@ -1,0 +1,182 @@
+*** HOM_Gd157_VBOC PROCEDURE
+** Homgeneous cell with UOX+Clad+Moderator + Gd157.
+
+** Evolution over Very Beginning of Cycle
+
+MODULE LIB: GEO: SYBILT: USS: ASM: FLU: GREP: UTL: EVO: DELETE: END: ;
+
+LINKED_LIST GEOM TRACK LIBRARY LIBRARY2 CP CALC BURNUP StepList ;
+
+STRING draglib_name := 'endfb8r1_295K' ; 
+* Problème lecture des KERMA en utilisant 'endfb8r1_295K' et 'endfb8r1_295K2' : LKERMA = False
+* Fonctionne avec J311_295K (seulement KERMA MT=301)
+
+REAL Kinf ;
+
+StepList := UTL: :: CREA 'ListBU' 2 =
+   0.0     25.0   ;
+
+
+
+** Prepare for evolution loop
+REAL BUbeg := 0.0 ;
+REAL Tbeg := 0.0 ;
+REAL Tend := 0.0 ;
+REAL BUend := 0.0 ;
+
+REAL Pow_dens := 26.5 ; ! W/gHM 
+
+INTEGER nsteps ;
+GREP: StepList :: LENGTH ListBU >>nsteps<< ;
+
+
+** Prepare Calculation for t0 step.
+
+* Create homogeneous geometry for DRAGON
+GEOM := GEO: :: HOMOGE 
+        MIX 1
+      ;
+
+* Create track for DRAGON using SYBIL
+TRACK := SYBILT: GEOM ::
+    TITLE 'HOM_Gd157 test case'
+    MAXR 2
+    ;
+
+* Create library for DRAGON
+
+LIBRARY := LIB: ::
+    EDIT 50
+    NMIX 1    ! MAXIMUM OF MATERIAL MIXTURES
+    PT
+    ANIS 2
+    ADED 4 NELAS N4N N2N N3N
+    DEPL LIB: DRAGON FIL: <<draglib_name>>
+    MIXS LIB: DRAGON FIL: <<draglib_name>>
+    
+
+    MIX 1 550.0
+    O16  = O16   2.955339E-02 
+    H1  = H1_H2O   2.497844E-02
+    U234  = U234   3.482587E-06 1
+    U235  = U235   3.664503E-04 1
+    U238  = U238   7.765571E-03 1
+
+    Gd157  = Gd157 7.899877E-05 1
+
+    Zr90  = Zr90   2.449439E-03  1
+    Zr91  = Zr91   5.341629E-04  1
+    Zr92  = Zr92   8.164794E-04  1
+    Zr94  = Zr94   8.274287E-04  1
+    Zr96  = Zr96   1.333029E-04  1
+
+    Cr50  = Cr50   3.698141E-07
+    Cr52  = Cr52   7.131555E-06
+    Cr53  = Cr53   8.086515E-07
+    Cr54  = Cr54   2.012894E-07
+
+    Fe54  = Fe54   6.253124E-07
+    Fe56  = Fe56   9.816079E-06  1
+    Fe57  = Fe57   2.266963E-07
+    Fe58  = Fe58   3.016907E-08
+
+    Ni58  = Ni58   2.823166E-06
+    Ni60  = Ni60   1.087478E-06
+    Ni61  = Ni61   4.727185E-08
+    Ni62  = Ni62   1.507292E-07
+    Ni64  = Ni64   3.838073E-08
+
+    O17  = O17   1.316917E-08
+
+    Sn112  = Sn112   5.243423E-07
+    Sn114  = Sn114   3.567679E-07
+    Sn115  = Sn115   1.837913E-07
+    Sn116  = Sn116   7.859755E-06
+    Sn117  = Sn117   4.151493E-06
+    Sn118  = Sn118   1.309232E-05
+    Sn119  = Sn119   4.643408E-06
+    Sn120  = Sn120   1.761148E-05
+    Sn122  = Sn122   2.502800E-06
+    Sn124  = Sn124   3.129844E-06
+
+    He4  = He4   2.145381E-06
+;
+
+************************************************************************
+
+INTEGER istep := 0 ;
+INTEGER istepnext ;
+
+ECHO "start burnup loop" ;
+WHILE istep nsteps < DO
+
+
+    EVALUATE istep := istep 1 + ;
+    ECHO "burnup step: " istep "/" nsteps ;
+    
+    EVALUATE BUbeg Tbeg := BUend Tend ;
+    GREP: StepList :: GETVAL 'ListBU' <<istep>> >>BUend<< ;
+    EVALUATE Tend := BUend Pow_dens / ;
+    IF istep 1 = THEN 
+        ECHO "Performing first step calculation at " Tbeg "days" ;
+    ELSE
+        ECHO "Performing depletion between " Tbeg " and" Tend "days" ;
+    ENDIF ;
+
+    IF istep 1 = THEN
+    * perform t=0 self-shielding calculation
+        LIBRARY2 := USS: LIBRARY TRACK :: EDIT 1 PASS 3 ;
+
+        * perform t=0 flux calculation
+        CP := ASM: LIBRARY2 TRACK :: EDIT 1 PIJ PNOR HELI ;
+        CALC := FLU: CP LIBRARY2 TRACK :: EDIT 1 TYPE K EXTE 5 ;
+        CP := DELETE: CP ;
+        GREP: CALC :: GETVAL 'K-INFINITY  ' 1 1 1 >>Kinf<< ;
+        ECHO 'Kinf = ' Kinf ' at step' istep ;
+
+*       Normalise Begining of Stage rates
+        BURNUP LIBRARY2 := EVO: LIBRARY2 CALC TRACK ::
+            EDIT 1
+            SAVE <<Tbeg>> DAY POWR <<Pow_dens>>
+        ;
+    ELSE 
+*       Normalise Begining of Stage rates
+        BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 CALC TRACK ::
+            EDIT 1
+            SAVE <<Tbeg>> DAY POWR <<Pow_dens>>
+        ;
+*       perform self-shielding calculation
+        ECHO "Self-shielding calculation" istep "at" Tbeg "DAY and step" istep ;
+
+        LIBRARY2 := USS: LIBRARY LIBRARY2  TRACK ::
+            EDIT 1 PASS 3
+        ;
+
+        CP := ASM: LIBRARY2 TRACK :: PIJ PNOR HELI ;
+        CALC := FLU: CP LIBRARY2 TRACK CALC :: EDIT 1 TYPE K EXTE 5 ;
+
+        GREP: CALC :: GETVAL 'K-INFINITY  ' 1 1 1 >>Kinf<< ;
+        ECHO 'Kinf =' Kinf 'at step' istep ;
+
+    ENDIF ;
+
+    IF istep nsteps < THEN
+        EVALUATE istepnext := istep 1 + ;
+        GREP: StepList :: GETVAL 'ListBU' <<istepnext>> >>BUend<< ;
+        EVALUATE Tend := BUend Pow_dens / ;
+        ECHO "Perform BU evolution between " Tbeg " and " Tend " days" ;
+        BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 CALC TRACK ::
+            EDIT 1
+            DEPL <<Tbeg>> <<Tend>> DAY POWR <<Pow_dens>>
+            EPS1 1.0E-5  EPS2 1.0E-5
+            EXPM 1.E15 RUNG NODI GLOB
+        ;
+        ECHO "End of burnup step" istep ;
+    ENDIF ;
+
+ENDWHILE ;
+
+END: ;
+QUIT .
+
+

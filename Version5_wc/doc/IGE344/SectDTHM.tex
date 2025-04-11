@@ -53,6 +53,9 @@ The following records and sub-directories will be found in the first level of a 
   {ERROR-T-COOL}{1}{K}
   {absolute error in coolant temperature}
 \RealEnr
+  {ERROR-P-COOL}{1}{Pa}
+  {absolute error in coolant pressure}
+\RealEnr
   {MIN-T-FUEL\blank{2}}{1}{K}
   {minimum fuel temperature}
 \RealEnr
@@ -62,6 +65,9 @@ The following records and sub-directories will be found in the first level of a 
   {MIN-T-COOL\blank{2}}{1}{K}
   {minimum coolant temperature}
 \RealEnr
+  {MIN-P-COOL\blank{2}}{1}{Pa}
+  {minimum coolant pressure}
+\RealEnr
   {MAX-T-FUEL\blank{2}}{1}{K}
   {maximum fuel temperature}
 \RealEnr
@@ -70,6 +76,9 @@ The following records and sub-directories will be found in the first level of a 
 \RealEnr
   {MAX-T-COOL\blank{2}}{1}{K}
   {maximum coolant temperature}
+\RealEnr
+  {MAX-P-COOL\blank{2}}{1}{Pa}
+  {maximum coolant pressure}
  \DirEnr
   {HISTORY-DATA}
   {sub-directory containing the historical values taken by the thermal-hydraulics parameters (mass flux, density, pressure, enthalpy, temperature)
@@ -192,6 +201,14 @@ coolant parameters (velocity, pressure, enthapy, density) in case of a transient
 \begin{array}{rl}
  0 & \textrm{gap is considered} \\
  1 & \textrm{is not.} \\
+\end{array} \right.
+\end{displaymath}
+
+\item $\mathcal{S}^{th}_{22}$ flag indicating the pressure drop option:
+\begin{displaymath} \mathcal{S}^{th}_{22} = \left\{
+\begin{array}{rl}
+ 0 & \textrm{no pressure drop} \\
+ 1 & \textrm{pressure drop is computed.} \\
 \end{array} \right.
 \end{displaymath}
 

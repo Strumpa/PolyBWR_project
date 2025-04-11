@@ -69,6 +69,8 @@ tests :
 	./rdonjon -c $(fcompilerSuite) -p $(nomp) -q fbr_core.x2m
 	./rdonjon -c $(fcompilerSuite) -p $(nomp) -q history_mphy.x2m
 	./rdonjon -c $(fcompilerSuite) -p $(nomp) -q pincell_mphy_thm.x2m
+	./rdonjon -c $(fcompilerSuite) -p $(nomp) -q pincell_diphasic_pdrop.x2m
+	./rdonjon -c $(fcompilerSuite) -p $(nomp) -q pincell_pdrop.x2m
 	./rdonjon -c $(fcompilerSuite) -p $(nomp) -q pmox_sap.x2m
 	./rdonjon -c $(fcompilerSuite) -p $(nomp) -q pulseTHM_0d.x2m
 	./rdonjon -c $(fcompilerSuite) -p $(nomp) -q rep1300_reflector.x2m

@@ -1,7 +1,7 @@
 #!/bin/sh
 if [ $# = 0 ]
    then
-   echo "usage: HOM_Gd157_VBOC.access directory" 1>&2
+   echo "usage: HOM_Gd157_tests_lkerma.access directory" 1>&2
    exit 1
 fi
 MACH=`uname -s`
@@ -38,4 +38,4 @@ if [ -f "$pos"/draglibJeff3p1p1SHEM295 ]
     ln -s "$pos"/draglibendfb8r1SHEM295Kerma2 endfb8r1_295K2
 fi
 ls -l
-echo "HOM_Gd157_VBOC access script terminated"
+echo "HOM_Gd157_tests_lkerma access script terminated"

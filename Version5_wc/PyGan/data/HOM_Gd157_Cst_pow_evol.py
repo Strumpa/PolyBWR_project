@@ -48,7 +48,7 @@ T_hom = 550.0 # Temperature of the homogeneous fuel cell in K
 
 saturation_option = "" # "NSAT", "SAT", "" for short-lived nuclide saturation or not
 depl_solution = "RUNG" # "RUNG" : 5th order Runge-Kutta (Cash-Karp) or "KAPS": 4th order Kaps-Rentrop
-rates_extrapolation = "EXTR" # "EXTR" : linear extrapolation of rates over time stage, "NOEX" : no extrapolation aka constant extrapolation
+rates_extrapolation = "NOEX" # "EXTR" : linear extrapolation of rates over time stage, "NOEX" : no extrapolation aka constant extrapolation
 DIRA_opt = "DIRA" # "DIRA" : option to use dirac for saturation calculation, "NODI" : no dirac for saturation.
 #
 burnup_points = "VBOC_finerBU2" # "VBOC" or "VBOC_finerBU", "BOC_fine_autop5", 'Gd_VBOC_fine2_autop9' #'Gd_BOC_fine', 'Gd_autop4', 'Gd_autop3', 'Gd_VBOC_fine', 'Gd_BOC_fine'
