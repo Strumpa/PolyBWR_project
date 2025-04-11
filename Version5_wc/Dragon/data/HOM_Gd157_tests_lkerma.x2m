@@ -7,7 +7,7 @@ MODULE LIB: GEO: SYBILT: USS: ASM: FLU: GREP: UTL: EVO: DELETE: END: ;
 
 LINKED_LIST GEOM TRACK LIBRARY LIBRARY2 CP CALC BURNUP StepList ;
 
-STRING draglib_name := 'endfb8r1_295K' ; 
+STRING draglib_name := 'dev_295K2' ; 
 * Problème lecture des KERMA en utilisant 'endfb8r1_295K' et 'endfb8r1_295K2' : LKERMA = False
 * Fonctionne avec J311_295K (seulement KERMA MT=301)
 
