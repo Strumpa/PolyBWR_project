@@ -25,8 +25,6 @@ STRING name_compo ;
 
 STRING ssh_method deplsolopt glob_opt sat_opt ;
 :: >>ssh_method<< >>deplsolopt<< >>glob_opt<< >>sat_opt<< ;
-DOUBLE val_exp ;
-:: >>val_exp<< ;
 
 
 * ---
@@ -41,7 +39,6 @@ SEQ_ASCII _COMPO :: FILE <<name_compo>> ;
 *  REFERENCE LOCAL PARAMETERS                                          *
 ************************************************************************
 REAL Kinf ;
-REAL valexp := val_exp D_TO_R ;
 
 ************************************************************************
 *  BEGIN DECLARATION                                                   *
@@ -100,11 +97,11 @@ WHILE istep nstep < DO
      ECHO ".perform self-shielding at" Tbeg "days" ;
       IF ssh_method "AUTO" = THEN
         LIBRARY2 := AUTO: LIBRARY TRACK_SS TF_EXC_SS ::
-            EDIT 0 PASS 4 GRMIN 52 GRMAX 206
+            EDIT 0 PASS 4
         ;
       ELSE 
         LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
-            EDIT 0 PASS 4 GRMIN 52 GRMAX 206
+            EDIT 0 PASS 4
         ;
       ENDIF ;
   ELSE
@@ -116,11 +113,11 @@ WHILE istep nstep < DO
        ECHO "perform self-shielding at" Tbeg "days" ;
       IF ssh_method "AUTO" = THEN
         LIBRARY2 := AUTO: LIBRARY LIBRARY2 TRACK_SS TF_EXC_SS ::
-            EDIT 0 PASS 3
+            EDIT 0 PASS 4
         ;
       ELSE
         LIBRARY2 := USS: LIBRARY LIBRARY2 TRACK_SS TF_EXC_SS ::
-          EDIT 0 PASS 3
+          EDIT 0 PASS 4
         ;
       ENDIF ;
       EVALUATE iauto := iauto 1 + ;
@@ -187,7 +184,6 @@ WHILE istep nstep < DO
      POWR <<Norm_f2>> 
      <<deplsolopt>>
      <<sat_opt>> 
-     EXPM <<valexp>> 
      <<glob_opt>> ;
   
   ENDIF ;

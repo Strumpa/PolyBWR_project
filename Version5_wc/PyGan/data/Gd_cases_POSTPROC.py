@@ -11,9 +11,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 import sys
-import lifo
 import lcm
-import cle2000
 
 
 from postproc_cst_pow_evol import DRAGON_case as D5_case

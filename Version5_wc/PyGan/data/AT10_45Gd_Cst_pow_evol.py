@@ -53,7 +53,7 @@ tracking_option = "SALT" #, "SYBNXT"
 # ENDFb8r1_295 or J311_295
 #
 evaluation = "endfb8r1" # Jeff3.1.1 or ENDF/B-VIII.1
-draglib_name = "endfb8r1_295"
+draglib_name = "endfb81295K" # "endfb8r1_295", "endfb81295K" : with total KERMA (MT301), "endfb81295K2" : with modified KERMA (MT301-MT318)+MT458 data.
 
 # 3) Selecting the self-shielding method
 # RSE, PT or AUTO
@@ -63,7 +63,7 @@ ssh_option = "RSE" # "RSE" , "PT", "SUBG", "AUTO"
 # 4) Selecting the burnup calculation options
 # burnup_steps = "UOx", "UOx_autop5", "UOx2_autop5", "UOx4_autop5", "UOx6_autop5" etc
 #
-burnup_points = "Gd_autop3" # "Gd_autop3", "Gd_autop4", "Gd"
+burnup_points = "Gd" # "Gd_autop3", "Gd_autop4", "Gd"
 
 # 5) Selecting the burnup calculation options
 # Solver : "RUNG" or "KAPS"

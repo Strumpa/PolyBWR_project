@@ -42,7 +42,7 @@ def parse_Serpent2_lattice_det(path_to_S2, name_case, XS_lib_S2, edepmode, pcc, 
     # energy deposition mode 0 (default) : Constant energy deposition per fission.
     # at bu = 0
     if edepmode == 0:
-        detector = st.read(f"{path_to_S2}/{name_case}_{XS_lib_S2}_bc3_mc_det{bu}.m")
+        detector = st.read(f"{path_to_S2}/{name_case}_{XS_lib_S2}_mc_det{bu}.m")
     else:
         detector = st.read(f"{path_to_S2}/{name_case}_edep{edepmode}_mc_det{bu}.m")
 
@@ -247,6 +247,10 @@ def BWR_CLUSTER(name_case, name_compo, reaction_type, n_groups, bu):
         if isotope in ['U235 ']: #, 'U238 ']: #, 'Pu239', 'Pu241']:
             for mix in MIXES_idx:
                 U235_fiss_rate[f"mix{mix+1}"] = {}
+                print(f"mix index is = {mix} with corresponding C name = {MIXES[mix]}")
+                print(f"isotope is = {isotope}")
+                print("burnup is = ", bu)
+                print(pyCOMPO['HOM2g']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso].keys())
                 NWT0 = pyCOMPO['HOM2g']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NWT0']
                 N = pyCOMPO['HOM1g']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESDENS'][iso]
                 vol = pyCOMPO['HOM1g']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESVOL'][iso]
@@ -288,12 +292,12 @@ def BWR_CLUSTER(name_case, name_compo, reaction_type, n_groups, bu):
 
 if __name__ == "__main__":
     name_case = "AT10_2x2_UOX" # "bench_3x3_UOX" #"AT10_2x2_UOX"
-    name_compo = "COMPO_2x2_UOX_12032025_RSE" #"COMPO_bench_3x3_UOX_CALC" # "COMPO_bench_3x3_UOX_C1_inrs1" # "COMPO_2x2_UOX_12032025_RSE" 
+    name_compo = "COMPO_2x2_UOX_TRAN" #"COMPO_2x2_UOX_12032025_RSE" #"COMPO_bench_3x3_UOX_CALC" # "COMPO_bench_3x3_UOX_C1_inrs1" # "COMPO_2x2_UOX_12032025_RSE" 
     print(f"name_case = {name_case}, name_case = {name_case}, name_compo = {name_compo}")
 
-    diffg1,diffg2 = BWR_CLUSTER(name_case, name_compo, 'fission', 2, 0)
-    print(f"diffg1 = {diffg1}")
-    print(f"diffg2 = {diffg2}")
+    #diffg1,diffg2 = BWR_CLUSTER(name_case, name_compo, 'fission', 2, 0)
+    #print(f"diffg1 = {diffg1}")
+    #print(f"diffg2 = {diffg2}")
 
 
     #name_case = "AT10_2x2_UOX"
@@ -303,5 +307,12 @@ if __name__ == "__main__":
     #diffg1,diffg2 = BWR_CLUSTER(name_case, name_compo, 'fission', 2, 0)
     #print(f"diffg1 = {diffg1}")
     #print(f"diffg2 = {diffg2}")
+
+    name_case = "bench_3x3_UOX"
+    name_compo = "COMPO_bench_3x3_UOX_TRAN" # "COMPO_bench_3x3_UOX_TRAN" #"COMPO_bench_3x3_UOX_C1_inrs1" # "COMPO_2x2_UOX_12032025_RSE"
+    diffg1,diffg2 = BWR_CLUSTER(name_case, name_compo, 'fission', 2, 0)
+    print(f"name_case = {name_case}, name_case = {name_case}, name_compo = {name_compo}")
+    print(f"diffg1 = {diffg1}")
+    print(f"diffg2 = {diffg2}")
 
 

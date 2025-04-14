@@ -13,14 +13,13 @@ MODULE GEO: G2S: NXT: SYBILT: SALT: MCCGT: LIB: USS: ASM: FLU: GREP: EDI: COMPO:
 LINKED_LIST GEOM_3x3 GEOM_3x3_SS LIBRARY LIBRARY2 TRACK_SS TRACK SYS FLUX EDIRATES COMPO ;
 
 SEQ_ASCII Geo_G2S GeoSS_G2S ;
-SEQ_ASCII _COMPO :: FILE './COMPO_bench_3x3_UOX_TRAN' ;
+SEQ_ASCII _COMPO :: FILE './COMPO_bench_3x3_UOX_REFL' ;
 SEQ_ASCII FIG_main.ps :: FILE './FIG_main_bench3x3.ps' ;
 SEQ_ASCII FIG_SS.ps :: FILE './FIG_selfshielding.ps' ;
 
 SEQ_BINARY TF_EXC TF_EXC_SS ;
 
 STRING Library := "J311_295" ;
-STRING exec := "FLUX" ;
 
 REAL Kinf ;
 
@@ -100,8 +99,8 @@ GEOM_3x3_SS := GEO: :: CAR2D 3 3
 
 
 GEOM_3x3 := GEO: :: CAR2D 3 3
-    X- TRAN X+ TRAN
-    Y- TRAN Y+ TRAN
+    X- REFL X+ REFL
+    Y- REFL Y+ REFL
     CELL
     C1 C2 C3
     C2 C4 C1
@@ -137,7 +136,7 @@ GEOM_3x3 := GEO: :: CAR2D 3 3
                             <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                             <<COOL>> <<COOL>> <<COOL>> <<COOL>>
     ;
-    ::: C6 := GEO: C1 MIX <<COMB0401>> <<COMB0402>> <<COMB0403>> <<COMB0404>>
+    ::: C6 := GEO: C1 MIX <<COMB0601>> <<COMB0602>> <<COMB0603>> <<COMB0604>>
                             <<GAP>> <<CLAD>> 
                             <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                             <<COOL>> <<COOL>> <<COOL>> <<COOL>>
@@ -152,7 +151,7 @@ GEOM_3x3 := GEO: :: CAR2D 3 3
 
 LIBRARY := LIB: ::
     EDIT 0
-    NMIX 100    ! MAXIMUM OF MATERIAL MIXTURES 
+    NMIX 50    ! MAXIMUM OF MATERIAL MIXTURES 
     ANIS 2
     PT CALENDF 4
     ADED 4 NELAS N4N N2N N3N
@@ -361,11 +360,7 @@ COMPO := COMPO: ::
             EDIT 1
             MICR 2 U235 U238
             MERG MIX 
-            1 1 1 1 1
-            1 1 1 1 1
-            1 1 1 1 1
-            1 1 1 1 1 
-            0 0 0
+            1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0
             COND
             SAVE ON EDIBU_HOM
         ;
@@ -380,22 +375,17 @@ EDIRATES := DELETE: EDIRATES ;
 ***** Cell-wise homogenization
 *** Condense all rates on 1 group :
 EDIRATES := EDI: FLUX LIBRARY2 TRACK ::
-            EDIT 1
-            MICR 2 U235 U238
-            MERG MIX 
-            1 1 1 1 
-            2 2 2 2 
-            3 3 3 3 
-            4 4 4 4
-            5 5 5 5
-            0 0 0
-            COND
-            SAVE ON HOM1g
+        EDIT 1
+        MICR 2 U235 U238
+        MERG MIX 
+        1 1 1 1 2 2 2 2 3 3 3 3 4 4 4 4 5 5 5 5 0 0 0
+        COND
+        SAVE ON HOM1g
         ;
 
 COMPO := COMPO: COMPO EDIRATES LIBRARY2 ::
-            EDIT 1
-            STEP UP 'HOM1g'
+        EDIT 1
+        STEP UP 'HOM1g'
         ;
 
 EDIRATES := DELETE: EDIRATES ;
@@ -404,17 +394,12 @@ EDIRATES := DELETE: EDIRATES ;
 *** Condense rates to 2 groups with division between groups at 0.625 eV
 
 EDIRATES := EDI: FLUX LIBRARY2 TRACK ::
-            EDIT 1
-            MICR 2 U235 U238
-            MERG MIX 
-            1 1 1 1 
-            2 2 2 2 
-            3 3 3 3 
-            4 4 4 4 
-            5 5 5 5 
-            0 0 0
-            COND 0.625
-            SAVE ON HOM2g 
+        EDIT 1
+        MICR 2 U235 U238
+        MERG MIX 
+        1 1 1 1 2 2 2 2 3 3 3 3 4 4 4 4 5 5 5 5 0 0 0
+        COND 0.625
+        SAVE ON HOM2g 
         ;
 
 COMPO := COMPO: COMPO EDIRATES LIBRARY2 ::

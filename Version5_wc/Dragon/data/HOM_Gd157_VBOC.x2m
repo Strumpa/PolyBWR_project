@@ -10,9 +10,9 @@ LINKED_LIST GEOM TRACK LIBRARY LIBRARY2 CP CALC BURNUP StepList COMPO EDIBU ;
 
 SEQ_ASCII _COMPO :: FILE './_COMPO_HOM_Gd157_VBOC_endfb8r1_295K2_EXTR_NODI' ;
 
-STRING draglib_name := 'endfb8r1_295K2' ;
+STRING draglib_name := 'endfb8r1K2' ;
 STRING activate_NG0 := 'No' ;
-STRING pcc_opt := 'NOEX' ; ! 'EXTR' or 'NOEX'
+STRING pcc_opt := 'EXTR' ; ! 'EXTR' or 'NOEX'
 REAL Kinf ;
 
 * Total of 40 steps between 0.0 to 10.0 GWd/tHM

@@ -59,7 +59,7 @@ tracking_options = ["SALT"] #, "SYBNXT"]
 # ENDFb8r1_295 or J311_295
 #
 evaluation = "endfb8r1" # "endfb8r1" # "Jeff311"
-draglibs = ["endfb8r1_295", "endfb8r1_295K"]  # ["endfb8r1_295", "endfb8r1_295K"] # ["J311_295", "J311_295K"] #, "ENDFb8r1_295"]
+draglibs = ["endfb8r1_295", "endfb81295K", "endfb81295K2"]  # ["endfb8r1_295", "endfb81295K", "endfb81295K2"] # ["J311_295", "J311_295K"] #, "ENDFb8r1_295"]
 
 # 3) Selecting the self-shielding method
 # RSE, PT or AUTO
@@ -84,7 +84,6 @@ burnup_steps_to_test = ["UOx2_autop5"]
 #
 solver_options = ["RUNG"]
 saturation_options = ["NODI"]
-valexp = 80.0 # 1e5, default = 80.0
 
 # 6) Selecting the energy deposition options
 # Global energy deposition : "NOGL"=only energy release in fuel is used for normalization or "GLOB" = global energy release model, 
@@ -105,9 +104,9 @@ tracked_nuclides = ["U235","U238","Pu239","Pu240","Pu241","Pu242","Am241","Xe135
 #
 # Create the results directory
 path=os.getcwd()
-save_dir_D5 = f"{path}/AT10_24UOX_Cst_pow_evol_results/D5_{evaluation}_{glob_opt}"
+save_dir_D5 = f"{path}/AT10_24UOX_Cst_pow_evol_results/D5_{evaluation}"
 save_dir_S2 = f"{path}/AT10_24UOX_Cst_pow_evol_results/S2_{evaluation}"
-save_dir_comparison = f"{path}/AT10_24UOX_Cst_pow_evol_results/Comparison_{evaluation}_{glob_opt}"
+save_dir_comparison = f"{path}/AT10_24UOX_Cst_pow_evol_results/Comparison_{evaluation}"
 if not os.path.exists(save_dir_D5):
     os.makedirs(save_dir_D5)
 if not os.path.exists(save_dir_S2):
@@ -149,11 +148,11 @@ for trk_opt in tracking_options:
 
                 for solver_opt in solver_options:
                     for sat_opt in saturation_options: 
-                        name_compo = f"COMPO_AT10_24UOX_{dlib_name}_{ssh_opt}_{trk_opt}_{solver_opt}_{sat_opt}_{glob_opt}_{burnup_points}"
+                        name_compo = f"_CPO_AT10_24UOX_{dlib_name}_{ssh_opt}_{trk_opt}_{solver_opt}_{sat_opt}_{glob_opt}_{burnup_points}"
                         if trk_opt == "SALT":
-                            CPO = BU_C("COMPO", LIB, TRK, TF_EXC, TRK_SS, TF_EXC_SS, StepList, name_compo, ssh_opt, solver_opt, glob_opt, sat_opt, val_exp = valexp)
+                            CPO = BU_C("COMPO", LIB, TRK, TF_EXC, TRK_SS, TF_EXC_SS, StepList, name_compo, ssh_opt, solver_opt, glob_opt, sat_opt)
                         elif trk_opt == "SYBNXT": 
-                            CPO = BU_C_SYBNXT("COMPO", LIB, TRK, TF_EXC, TRK_SS, TF_EXC_SS, StepList, name_compo, ssh_opt, solver_opt, glob_opt, sat_opt, val_exp = valexp)
+                            CPO = BU_C_SYBNXT("COMPO", LIB, TRK, TF_EXC, TRK_SS, TF_EXC_SS, StepList, name_compo, ssh_opt, solver_opt, glob_opt, sat_opt)
                         print(f"DRAGON5 calculation for {name_compo}")
                         D5case = D5_case(CPO, dlib_name, burnup_points, ssh_opt, "noCORR", sat_opt, solver_opt, tracked_nuclides, BU_lists, save_dir_D5)
                         D5case.plot_keffs()
@@ -161,70 +160,6 @@ for trk_opt in tracking_options:
                             D5case.plot_Ni(iso)
                         print(f"appendind D5case for dl {dlib_name}, burnup {burnup_points}, ssh {ssh_opt}, trk {trk_opt}, solver {solver_opt}, sat {sat_opt}")
                         D5_cases.append(D5case)
-
-### BEGIN SERPENT2 post treatment
-                            
-if evaluation == "Jeff311":
-
-    S2_edep0_pcc1 = S2_case("AT10_24UOX", "J311_pynjoy2016", 0, False, 1, 38.6, tracked_nuclides, save_dir_S2)
-    S2_edep0_pcc1.plot_keff()
-    for iso in tracked_nuclides:
-        S2_edep0_pcc1.plot_concentrations([iso])
-
-    S2_edep2_pcc1 = S2_case("AT10_24UOX", "J311_pynjoy2016", 2, False, 1, 38.6, tracked_nuclides, save_dir_S2)
-    S2_edep2_pcc1.plot_keff()
-    for iso in tracked_nuclides:
-        S2_edep2_pcc1.plot_concentrations([iso])
-
-    S2_edep2_pcc2 = S2_case("AT10_24UOX", "J311_pynjoy2016", 2, False, 2, 38.6, tracked_nuclides, save_dir_S2)
-    S2_edep2_pcc2.plot_keff()
-    for iso in tracked_nuclides:
-        S2_edep2_pcc2.plot_concentrations([iso])
-
-elif evaluation == "endfb8r1":
-    S2_endfb8r1_edep0_pcc1 = S2_case("AT10_24UOX", "endfb8r1_pynjoy2012", 0, False, 1, 38.6, tracked_nuclides, save_dir_S2)
-    S2_endfb8r1_edep0_pcc1.plot_keff()
-    for iso in tracked_nuclides:
-        S2_endfb8r1_edep0_pcc1.plot_concentrations([iso])
-
-    S2_endfb8r1_edep0_pcc2 = S2_case("AT10_24UOX", "endfb8r1_pynjoy2012", 0, False, 2, 38.6, tracked_nuclides, save_dir_S2)
-    S2_endfb8r1_edep0_pcc2.plot_keff()
-    for iso in tracked_nuclides:
-        S2_endfb8r1_edep0_pcc2.plot_concentrations([iso])
-
-
-### Compare DRAGON5 and SERPENT2 results
-print("DRAGON5-DRAGON5 sanity check")
-print((D5_cases[0].DRAGON_Keff - D5_cases[1].DRAGON_Keff)*1e5)
-print((D5_cases[0].DRAGON_ISODENS["U235"] - D5_cases[1].DRAGON_Keff)*1e5)
-if evaluation == "Jeff311":
-    D5_cases_to_edep0_pcc1 = multiD5S2(f"24UOX {burnup_steps_to_test[0].split('_')[0]} {ssh_options[0]} vs Serpent2 edep0 pcc1", D5_cases, S2_edep0_pcc1, tracked_nuclides, save_dir_comparison)
-    D5_cases_to_edep2_pcc1 = multiD5S2(f"24UOX {burnup_steps_to_test[0].split('_')[0]} {ssh_options[0]} vs Serpent2 edep2 pcc1", D5_cases, S2_edep2_pcc1, tracked_nuclides, save_dir_comparison)
-    D5_cases_to_edep2_pcc2 = multiD5S2(f"24UOX {burnup_steps_to_test[0].split('_')[0]} {ssh_options[0]} vs Serpent2 edep2 pcc2", D5_cases, S2_edep2_pcc2, tracked_nuclides, save_dir_comparison)
-    D5_cases_to_edep0_pcc1.compare_keffs()
-    D5_cases_to_edep2_pcc1.compare_keffs()
-    D5_cases_to_edep2_pcc2.compare_keffs()
-    D5_cases_to_edep0_pcc1.compare_Ni()
-    D5_cases_to_edep2_pcc1.compare_Ni()
-    D5_cases_to_edep2_pcc2.compare_Ni()
-    D5_cases_to_edep0_pcc1.plot_delta_Keff()
-    D5_cases_to_edep2_pcc1.plot_delta_Keff()
-    D5_cases_to_edep2_pcc2.plot_delta_Keff()
-    D5_cases_to_edep0_pcc1.plot_delta_Ni()
-    D5_cases_to_edep2_pcc1.plot_delta_Ni()
-    D5_cases_to_edep2_pcc2.plot_delta_Ni()
-
-elif evaluation == "endfb8r1":
-    D5_cases_to_edep0_pcc1 = multiD5S2(f"24UOX {burnup_steps_to_test[0].split('_')[0]} {ssh_options[0]} vs Serpent2 edep0 pcc1", D5_cases, S2_endfb8r1_edep0_pcc1, tracked_nuclides, save_dir_comparison)
-    D5_cases_to_edep0_pcc2 = multiD5S2(f"24UOX {burnup_steps_to_test[0].split('_')[0]} {ssh_options[0]} vs Serpent2 edep0 pcc2", D5_cases, S2_endfb8r1_edep0_pcc2, tracked_nuclides, save_dir_comparison)
-    D5_cases_to_edep0_pcc1.compare_keffs()
-    D5_cases_to_edep0_pcc2.compare_keffs()
-    D5_cases_to_edep0_pcc1.compare_Ni()
-    D5_cases_to_edep0_pcc2.compare_Ni()
-    D5_cases_to_edep0_pcc1.plot_delta_Keff()
-    D5_cases_to_edep0_pcc2.plot_delta_Keff()
-    D5_cases_to_edep0_pcc1.plot_delta_Ni()
-    D5_cases_to_edep0_pcc2.plot_delta_Ni()
 
 
 if run_NG0:
@@ -248,74 +183,17 @@ if run_NG0:
 
                 for solver_opt in solver_options:
                     for sat_opt in saturation_options:
-                        name_compo_NG0 = f"COMPO_AT10_24UOX_{dlib_name}NG0_{ssh_opt}_{trk_opt}_{solver_opt}_{sat_opt}_{glob_opt}_{burnup_points}"
+                        name_compo_NG0 = f"_CPO_AT10_24UOX_{dlib_name}NG0_{ssh_opt}_{trk_opt}_{solver_opt}_{sat_opt}_{glob_opt}_{burnup_points}"
                         if trk_opt == "SALT":
-                            CPO_NG0 = BU_C("COMPO_NG0", LIB_NG0, TRK, TF_EXC, TRK_SS, TF_EXC_SS, StepList, name_compo_NG0, ssh_opt, solver_opt, glob_opt, sat_opt, val_exp = valexp)
+                            CPO_NG0 = BU_C("COMPO_NG0", LIB_NG0, TRK, TF_EXC, TRK_SS, TF_EXC_SS, StepList, name_compo_NG0, ssh_opt, solver_opt, glob_opt, sat_opt)
                         elif trk_opt == "SYBNXT": 
-                            CPO_NG0 = BU_C_SYBNXT("COMPO_NG0", LIB_NG0, TRK, TF_EXC, TRK_SS, TF_EXC_SS, StepList, name_compo_NG0, ssh_opt, solver_opt, glob_opt, sat_opt, val_exp = valexp)
+                            CPO_NG0 = BU_C_SYBNXT("COMPO_NG0", LIB_NG0, TRK, TF_EXC, TRK_SS, TF_EXC_SS, StepList, name_compo_NG0, ssh_opt, solver_opt, glob_opt, sat_opt)
                         D5NG0case = D5_case(CPO_NG0, f"{dlib_name}NG0", burnup_points, ssh_opt, "noCORR", sat_opt, solver_opt, tracked_nuclides, BU_lists, save_dir_D5)
                         D5NG0case.plot_keffs()
                         for iso in tracked_nuclides:
                             D5NG0case.plot_Ni(iso)
                         D5_NG0_cases.append(D5NG0case)
 
-    ## Compare with NG0 results : Q-values of n,gamma reactions set to 0 in DRAGON5 DEPL structure
-    D5_NG0_cases_to_endfb8r1_edep0_pcc1 = multiD5S2(f"24UOX {burnup_steps_to_test[0].split('_')[0]} {ssh_options[0]} NG0 vs Serpent2 edep0 pcc1", D5_NG0_cases, S2_endfb8r1_edep0_pcc1, tracked_nuclides, save_dir_comparison)
-    D5_NG0_cases_to_endfb8r1_edep0_pcc2 = multiD5S2(f"24UOX {burnup_steps_to_test[0].split('_')[0]} {ssh_options[0]} NG0 vs Serpent2 edep0 pcc2", D5_NG0_cases, S2_endfb8r1_edep0_pcc2, tracked_nuclides, save_dir_comparison)
-
-    D5_NG0_cases_to_endfb8r1_edep0_pcc1.compare_keffs()
-    D5_NG0_cases_to_endfb8r1_edep0_pcc2.compare_keffs()
-    D5_NG0_cases_to_endfb8r1_edep0_pcc1.compare_Ni()
-    D5_NG0_cases_to_endfb8r1_edep0_pcc2.compare_Ni()
-    D5_NG0_cases_to_endfb8r1_edep0_pcc1.plot_delta_Keff()
-    D5_NG0_cases_to_endfb8r1_edep0_pcc2.plot_delta_Keff()
-    D5_NG0_cases_to_endfb8r1_edep0_pcc1.plot_delta_Ni()
-    D5_NG0_cases_to_endfb8r1_edep0_pcc2.plot_delta_Ni()
-
-
-if run_E0:
-    ### Begin calculations with NG0 and Qfiss modified.
-    D5_E0_cases = []
-    for dlib_name in draglibs:
-        for ssh_opt in ssh_options:
-            LIB_E0 = MIX_E0(dlib_name) ### Only modified for ENDFb8r1 chain!!!!! ---> fix this or Im gonna jump
-            for burnup_points in burnup_steps_to_test:
-                # Recovering ListBU ListAUTOP ListCOMPO
-                [ListeBU,ListeAUTOP,ListeCOMPO]=getLists(burnup_points)
-                BU_lists = {"BU": ListeBU, "AUTOP": ListeAUTOP, "COMPO": ListeCOMPO}
-                # Create Steplist for BU - SELFSHIELDING - COMPO save 
-                StepList = lcm.new('LCM','burnup_steps')
-                StepList['ListBU']    = np.array(ListeBU, dtype='f')
-                StepList['ListAutop'] = np.array(ListeAUTOP, dtype='f')
-                StepList['ListCompo'] = np.array(ListeCOMPO, dtype='f')
-                StepList.close()
-                for solver_opt in solver_options:
-                    for sat_opt in saturation_options:
-                        name_compo_E0 = f"COMPO_AT10_24UOX_{dlib_name}E0_{ssh_opt}_{trk_opt}_{solver_opt}_{sat_opt}_{glob_opt}_{burnup_points}"
-                        if trk_opt == "SALT":
-                            CPO_E0 = BU_C("COMPO_E0", LIB_E0, TRK, TF_EXC, TRK_SS, TF_EXC_SS, StepList, name_compo_E0, ssh_opt, solver_opt, glob_opt, sat_opt, val_exp = valexp)
-                        elif trk_opt == "SYBNXT": 
-                            CPO_E0 = BU_C_SYBNXT("COMPO_E0", LIB_E0, TRK, TF_EXC, TRK_SS, TF_EXC_SS, StepList, name_compo_E0, ssh_opt, solver_opt, glob_opt, sat_opt, val_exp = valexp)
-                        D5E0case = D5_case(CPO_E0, f"{dlib_name}E0", burnup_points, ssh_opt, "noCORR", sat_opt, solver_opt, tracked_nuclides, BU_lists, save_dir_D5)
-                        D5E0case.plot_keffs()
-                        for iso in tracked_nuclides:
-                            D5E0case.plot_Ni(iso)
-                        D5_E0_cases.append(D5E0case)
-
-    ## Compare S2 results with edepmode 0 results
-    D5_E0_cases_to_endfb8r1_edep0_pcc1 = multiD5S2(f"24UOX {burnup_steps_to_test[0].split('_')[0]} {ssh_options[0]} E0 vs Serpent2 edep0 pcc1", D5_E0_cases, S2_endfb8r1_edep0_pcc1, tracked_nuclides, save_dir_comparison)
-    D5_E0_cases_to_endfb8r1_edep0_pcc2 = multiD5S2(f"24UOX {burnup_steps_to_test[0].split('_')[0]} {ssh_options[0]} E0 vs Serpent2 edep0 pcc2", D5_E0_cases, S2_endfb8r1_edep0_pcc2, tracked_nuclides, save_dir_comparison)
-
-    D5_E0_cases_to_endfb8r1_edep0_pcc1.compare_keffs()
-    D5_E0_cases_to_endfb8r1_edep0_pcc2.compare_keffs()
-    D5_E0_cases_to_endfb8r1_edep0_pcc1.compare_Ni()
-    D5_E0_cases_to_endfb8r1_edep0_pcc2.compare_Ni()
-    D5_E0_cases_to_endfb8r1_edep0_pcc1.plot_delta_Keff()
-    D5_E0_cases_to_endfb8r1_edep0_pcc2.plot_delta_Keff()
-    D5_E0_cases_to_endfb8r1_edep0_pcc1.plot_delta_Ni()
-    D5_E0_cases_to_endfb8r1_edep0_pcc2.plot_delta_Ni()                       
-
-    ### END DRAGON5-SERPENT2 comparison ###
 
 # --- END OF SCRIPT --- #
 

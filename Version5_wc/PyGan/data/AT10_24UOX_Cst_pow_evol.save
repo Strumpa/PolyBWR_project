@@ -17,5 +17,6 @@ else
 fi
 
 cp _COMPO* ./AT10_24UOX_Cst_pow_evol_results
+cp _CPO* ./AT10_24UOX_Cst_pow_evol_results
 cp -r AT10_24UOX_Cst_pow_evol_results $1/"$MACH"/
 echo '$$$ ----- AT10_24UOX_Cst_pow_evol.save : script finish'

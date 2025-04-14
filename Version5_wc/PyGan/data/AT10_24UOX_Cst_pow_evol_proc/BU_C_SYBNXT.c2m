@@ -27,8 +27,6 @@ STRING  name_compo ;
 
 STRING ssh_method deplsolopt glob_opt sat_opt ;
 :: >>ssh_method<< >>deplsolopt<< >>glob_opt<< >>sat_opt<< ;
-DOUBLE val_exp ;
-:: >>val_exp<< ;
 
 
 * ---
@@ -43,7 +41,6 @@ SEQ_ASCII _COMPO :: FILE <<name_compo>> ;
 *  REFERENCE LOCAL PARAMETERS                                          *
 ************************************************************************
 REAL Kinf ;
-REAL valexp := val_exp D_TO_R ;
 
 
 ************************************************************************
@@ -196,8 +193,7 @@ WHILE istep nstep < DO
      EDIT 3 DEPL <<Tbeg>> <<Tend>> DAY 
      POWR <<Norm_f2>> 
      <<deplsolopt>>
-     <<sat_opt>> 
-     EXPM <<valexp>> 
+     <<sat_opt>>  
      <<glob_opt>> ;
   
   ENDIF ;
