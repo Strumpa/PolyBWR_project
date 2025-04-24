@@ -8,9 +8,6 @@ PARAMETER  LIBRARY  ::
     ::: LINKED_LIST LIBRARY  ;
 ;
 
-STRING Library ;
-:: >>Library<< ;
-
 MODULE LIB: END: ;
 
 INTEGER COMB0101 COMB0102 COMB0103 COMB0104 COMB0105 COMB0106 GAP CLAD MODE ;
@@ -20,7 +17,7 @@ EVALUATE COMB0101 COMB0102 COMB0103 COMB0104 COMB0105 COMB0106 GAP CLAD MODE :=
           1 2 3 4 5 6 7 8 9 ;
 
 LIBRARY := LIB: ::
-        EDIT 1
+        EDIT 0
         NMIX 9    ! MAXIMUM OF MATERIAL MIXTURES
         RSE
         CTRA APOL (*APOLLO TYPE TRANSPORT CORRECTION*)
@@ -5466,14 +5463,14 @@ LIBRARY := LIB: ::
         MIX <<COMB0101>> 750.0
             O16     = O16    4.621410E-02
             U234    = U234   9.451580E-06 1 
-            U235    = U235   9.945290E-04 CORR 1 
+            U235    = U235   9.945290E-04 1 
             U238    = U238   2.107540E-02 CORR 1
             Pu239   = Pu239  0.0     1
-            Pu240   = Pu240  0.0     1
+            Pu240   = Pu240  0.0  CORR  1
             Pu241   = Pu241  0.0     1
             Pu242   = Pu242  0.0     1 
             Gd154    = Gd154   2.986510E-05 1
-            Gd155    = Gd155   2.027540E-04 CORR 1
+            Gd155    = Gd155   2.027540E-04 1
             Gd156    = Gd156   2.804310E-04 1
             Gd157    = Gd157   2.143990E-04 CORR 1
             Gd158    = Gd158   3.403000E-04 1

@@ -180,6 +180,8 @@
 *----
 *  RECOVER INFORMATION FROM L_PIJ OBJECT.
 *----
+      ITPIJ=2
+      IPHASE=1
       IF(C_ASSOCIATED(IPSYS)) THEN
          CALL LCMGTC(IPSYS,'LINK.MACRO',12,TEXT12)
          IF(HPMACR.NE.TEXT12) THEN
@@ -200,14 +202,12 @@
          IPHASE=ISTATE(5)
          IF(ISTATE(8).NE.NGRP) CALL XABORT('FLU: INVALID NUMBER OF ENE'
      1   //'RGY GROUPS.')
-         IF(ISTATE(10).NE.NMAT) CALL XABORT('FLU: INVALID NUMBER OF MI'
+         IF(ISTATE(10).GT.NMAT) CALL XABORT('FLU: INVALID NUMBER OF MI'
      1   //'XTURES.')
          IF(LEAKSW) THEN
             IF((ISTATE(2).EQ.0).OR.(ISTATE(3).EQ.0)) LEAKSW=.FALSE.
          ENDIF
       ELSE
-         ITPIJ=2
-         IPHASE=1
          CALL LCMPTC(IPFLUX,'LINK.TRACK',12,HPTRK)
       ENDIF
 *----
@@ -387,7 +387,7 @@
       CALL LCMSIX(IPMACR,' ',0)
       RETURN
 *
-6000  FORMAT(' FLUX SOLUTION DOOR          =',4X,A6/
+6000  FORMAT(' FLUX SOLUTION DOOR          = ** ',A6,' ** '/
      > ' NB. OF GROUPS               =',I10/
      > ' NB. OF REGIONS              =',I10/
      > ' NB. OF UNKNOWNS PER GROUP   =',I10/

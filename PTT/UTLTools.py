@@ -77,6 +77,35 @@ def getLists(burnup_points):
         ListeAUTOP=[50.0, 200.0, 1500, 6550.0]
         ListeBU = convert_Serpent_to_UTL(ListeBU)
         ListeCOMPO = ListeBU
+
+    elif burnup_points=='Gd2_autop6':
+        ListeBU=[0.000e+00, 5.000e+00, 1.000e+01, 1.500e+01, 2.000e+01, 2.500e+01, 3.000e+01,
+                3.500e+01, 4.000e+01, 4.500e+01, 5.000e+01, 5.500e+01, 6.000e+01, 6.500e+01,
+                7.500e+01, 8.000e+01, 8.500e+01, 9.000e+01, 9.500e+01, 1.000e+02, 1.200e+02,
+                1.250e+02, 1.300e+02, 1.350e+02, 1.400e+02, 1.450e+02, 1.500e+02, 1.550e+02,
+                1.600e+02, 1.650e+02, 1.700e+02, 1.750e+02, 1.800e+02, 1.850e+02, 1.900e+02,
+                1.950e+02, 2.000e+02, 2.100e+02, 2.200e+02, 2.300e+02, 2.400e+02, 2.500e+02,
+                2.600e+02, 2.700e+02, 2.800e+02, 2.900e+02, 3.000e+02, 3.100e+02, 3.200e+02,
+                3.300e+02, 3.400e+02, 3.500e+02, 3.600e+02, 3.700e+02, 3.750e+02, 3.800e+02,
+                3.900e+02, 4.000e+02, 4.250e+02, 4.500e+02, 4.750e+02, 5.000e+02, 5.250e+02,
+                5.500e+02, 5.750e+02, 6.000e+02, 6.250e+02, 6.500e+02, 6.750e+02, 7.000e+02,
+                7.250e+02, 7.500e+02, 7.750e+02, 8.000e+02, 8.250e+02, 8.500e+02, 8.750e+02,
+                9.000e+02, 9.250e+02, 9.500e+02, 9.750e+02, 1.000e+03, 1.100e+03, 1.250e+03,
+                1.300e+03, 1.400e+03, 1.500e+03, 1.600e+03, 1.750e+03, 1.800e+03, 1.900e+03,
+                2.000e+03, 2.100e+03, 2.250e+03, 2.300e+03, 2.400e+03, 2.500e+03, 2.600e+03,
+                2.750e+03, 2.800e+03, 2.900e+03, 3.000e+03, 3.250e+03, 3.500e+03, 3.750e+03,
+                4.000e+03, 4.250e+03, 4.500e+03, 4.750e+03, 5.000e+03, 5.250e+03, 5.500e+03,
+                5.750e+03, 6.000e+03, 6.100e+03, 6.250e+03, 6.400e+03, 6.500e+03, 6.600e+03,
+                6.750e+03, 6.800e+03, 6.900e+03, 7.000e+03, 7.100e+03, 7.250e+03, 7.400e+03,
+                7.500e+03, 7.600e+03, 7.750e+03, 7.800e+03, 7.900e+03, 8.000e+03, 8.100e+03,
+                8.250e+03, 8.400e+03, 8.500e+03, 8.600e+03, 8.750e+03, 8.800e+03, 8.900e+03,
+                9.000e+03, 9.100e+03, 9.250e+03, 9.400e+03, 9.500e+03, 9.600e+03, 9.750e+03,
+                9.800e+03, 9.900e+03, 1.000e+04, 1.025e+04, 1.050e+04, 1.075e+04, 1.100e+04,
+                1.150e+04, 1.200e+04, 1.300e+04, 1.400e+04, 1.500e+04, 1.600e+04, 1.700e+04,
+                1.800e+04, 1.900e+04, 2.000e+04, 2.400e+04, 2.800e+04, 3.200e+04, 3.600e+04,
+                4.000e+04, 4.400e+04, 4.800e+04, 5.200e+04, 5.600e+04, 6.000e+04]
+        ListeAUTOP=[100.0, 1000.0, 10000.0, 20000.0,  65000.0]
+        ListeCOMPO=[0.0, 15.0, 30.0, 50.0, 75.0, 150.0, 200.0, 250.0, 375.0, 500.0, 625.0, 750.0, 875.0, 1000.0, 1250.0, 1500.0, 1750.0, 2000.0, 2250.0, 2500.0, 2750.0, 3000.0, 3250.0, 3500.0, 3750.0, 4000.0, 4250.0, 4500.0, 4750.0, 5000.0, 5250.0, 5500.0, 5750.0, 6000.0, 6250.0, 6500.0, 6750.0, 7000.0, 7250.0, 7500.0, 7750.0, 8000.0, 8250.0, 8500.0, 8750.0, 9000.0, 9250.0, 9500.0, 9750.0, 10000.0, 10250.0, 10500.0, 11000.0, 11500.0, 12000.0, 13000.0, 14000.0, 15000.0, 16000.0, 17000.0, 18000.0, 19000.0, 20000.0, 24000.0, 28000.0, 32000.0, 36000.0, 40000.0, 44000.0, 48000.0, 52000.0, 56000.0, 60000.0] 
 ################################## CASMO-5 BU steps for comparison
 
     elif burnup_points=="CASMO-5":
@@ -97,7 +126,7 @@ def getLists(burnup_points):
     return [ListeBU,ListeAUTOP,ListeCOMPO]
 
 
-def convert_to_UTL_lists(ListBU, ListAUTOP, ListCOMPO,Serpent):
+def convert_to_UTL_lists(ListBU, ListAUTOP, ListCOMPO, Serpent):
     BU=""
     AUTOP=""
     
@@ -130,10 +159,34 @@ def convert_Serpent_to_UTL(BU_Serpent_list):
     BU_Dragon_list = 1000*BU_Serpent_list
     return BU_Dragon_list
 
+def convert_UTL_to_Serpent(BU_UTL_list):
+    BU_UTL_list = np.array(BU_UTL_list)
+    BU_Serpent_list = BU_UTL_list/1000
+    return BU_Serpent_list
+
+def check_COMPO_AUTOP_in_BU(BU_list, AUTOP_list, COMPO_list):
+    """
+    Check that AUTOP (except last one) and COMPO points are in BU points
+    """
+    for i in range(len(AUTOP_list)-1):
+        if AUTOP_list[i] not in BU_list:
+            print(f"Error: AUTOP point {AUTOP_list[i]} not in BU list")
+            return False
+    for i in range(len(COMPO_list)):
+        if COMPO_list[i] not in BU_list:
+            print(f"Error: COMPO point {COMPO_list[i]} not in BU list")
+            return False
+    return True
 
 
 
 #ListBU, ListAUTOP, ListCOMP = getLists("CASMO-5")
 #convert_to_UTL_lists(ListBU, ListAUTOP, ListCOMP)
-ListBU, ListAUTOP, ListCOMP = getLists('Gd_BOC') #'UOx4_autop5' for AT10_24UOX, 'UOx2_autop5' for others ?. 'Gd_autop5' for AT10_45Gd
-convert_to_UTL_lists(ListBU, ListAUTOP, ListCOMP, Serpent=True)
+ListBU, ListAUTOP, ListCOMP = getLists('Gd2_autop6') #'UOx4_autop5' for AT10_24UOX, 'UOx2_autop5' for others ?. 'Gd_autop5' for AT10_45Gd
+#convert_to_UTL_lists(ListBU, ListAUTOP, ListCOMP, Serpent=True)
+print("ListBU is :")
+print(ListBU)
+S2_BU_Gd2 = convert_Serpent_to_UTL(ListBU)
+print(f"ListBU length is: {len(ListBU):.0f}")
+
+print(check_COMPO_AUTOP_in_BU(ListBU, ListAUTOP, ListCOMP))

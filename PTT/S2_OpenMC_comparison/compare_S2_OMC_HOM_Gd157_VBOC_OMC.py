@@ -48,6 +48,7 @@ def plot_delta_keffs(S2_edep0, S2_edep0_fissh, S2_edep2, OMC_fissq, OMC_fissq_se
     plt.plot(time_days, delta_keff_edep2, label="Serpent2 - OpenMC, edep2", marker="x", linestyle="--")
     plt.plot(time_days, 200*np.ones_like(time_days), label="200 pcm", linestyle="--", color="red")
     plt.plot(time_days, -200*np.ones_like(time_days), label="-200 pcm", linestyle="--", color="red")
+    plt.title(f"Delta keff comparison for S2 and OpenMC, {integrator}")
     plt.xlabel("Time [days]")
     plt.ylabel("Delta Keff [pcm]")
     plt.legend()
@@ -277,12 +278,12 @@ def checkGdsum_correlation(S2_edep0, S2_edep0_fissh, S2_edep2, OMC_fissq, OMC_fi
     return
 
 
-def compare_energy_deposition(case_name, lib_name, OMC_integrator,tracked_nuclides,specific_power,save_dir,openMC_save_dir,S2_save_dir):
+def compare_energy_deposition(S2_case_name, OMC_case_name, lib_name, OMC_integrator,tracked_nuclides,specific_power,save_dir,openMC_save_dir,S2_save_dir):
     integrator_to_pccid = {"Predictor": 0, "CELI": 1, "LE": 2, "LELI": 3, "LEQI": 4, "CECE": 6}
     S2_pcc_id = integrator_to_pccid[OMC_integrator]
 
     # Constructor input for S2_case obj : case_name, lib_name, edep_id, areQfissSet, isEcaptSet, pcc_id, specific_power, tracked_nuclides, save_dir
-    S2_edep0 = S2_case(case_name, lib_name, 
+    S2_edep0 = S2_case(S2_case_name, lib_name, 
                             edep_id=0, 
                             areQfissSet=False,
                             isEcaptSet=False, 
@@ -291,7 +292,7 @@ def compare_energy_deposition(case_name, lib_name, OMC_integrator,tracked_nuclid
                             tracked_nuclides=tracked_nuclides, 
                             save_dir=S2_save_dir)
 
-    S2_edep0_fissh = S2_case(case_name, lib_name, 
+    S2_edep0_fissh = S2_case(S2_case_name, lib_name, 
                             edep_id=0, 
                             areQfissSet=True,
                             isEcaptSet=False, 
@@ -300,7 +301,7 @@ def compare_energy_deposition(case_name, lib_name, OMC_integrator,tracked_nuclid
                             tracked_nuclides=tracked_nuclides, 
                             save_dir=S2_save_dir)
 
-    S2_edep2 = S2_case(case_name, lib_name, 
+    S2_edep2 = S2_case(S2_case_name, lib_name, 
                             edep_id=2, 
                             areQfissSet=False,
                             isEcaptSet=False,
@@ -310,7 +311,7 @@ def compare_energy_deposition(case_name, lib_name, OMC_integrator,tracked_nuclid
                             save_dir=S2_save_dir)
 
     # OpenMC results
-    OMC_fissq = OMC_case(case_name, lib_name, 
+    OMC_fissq = OMC_case(OMC_case_name, lib_name, 
                                 edep_id="fissq", 
                                 areQfissSet=False, 
                                 integrator=OMC_integrator, 
@@ -318,7 +319,7 @@ def compare_energy_deposition(case_name, lib_name, OMC_integrator,tracked_nuclid
                                 tracked_nuclides=tracked_nuclides, 
                                 save_dir=openMC_save_dir)
 
-    OMC_fissq_set = OMC_case(case_name, lib_name, 
+    OMC_fissq_set = OMC_case(OMC_case_name, lib_name, 
                                 edep_id="fissq", 
                                 areQfissSet=True, 
                                 integrator=OMC_integrator, 
@@ -326,7 +327,7 @@ def compare_energy_deposition(case_name, lib_name, OMC_integrator,tracked_nuclid
                                 tracked_nuclides=tracked_nuclides, 
                                 save_dir=openMC_save_dir)
 
-    OMC_energy_deposition = OMC_case(case_name, lib_name, 
+    OMC_energy_deposition = OMC_case(OMC_case_name, lib_name, 
                                 edep_id="energy_deposition", 
                                 areQfissSet=False, 
                                 integrator=OMC_integrator, 
@@ -361,13 +362,14 @@ if __name__ == "__main__":
         # Expected results : 
         # - S2 edep0 and OpenMC fissq should be similar : fission q-values are used for constant power evolution normalization of reaction rates
         # - S2 edep2 and OpenMC energy_deposition should be similar : MT301-MT318 + (MT458 data) used for constant power evolution normalization of reaction rates
-    case_name = "HOM_Gd157_VBOC_OMC"
+    OMC_case_name = "HOM_Gd157_VBOC"
+    S2_case_name = "HOM_Gd157_VBOC_OMC"
     lib_name = "endfb8r1_pynjoy2012_kerma"
     specific_power = 38.6
     tracked_nuclides = ["Gd157", "Gd158", "U235", "U238", "Pu239", "Xe135", "Sm149"]
 
-    compare_energy_deposition(case_name, lib_name, "Predictor", tracked_nuclides, specific_power, save_dir, OpenMC_save_dir, S2_save_dir)
-    compare_energy_deposition(case_name, lib_name, "CELI", tracked_nuclides, specific_power, save_dir, OpenMC_save_dir, S2_save_dir)
+    compare_energy_deposition(S2_case_name, OMC_case_name, lib_name, "Predictor", tracked_nuclides, specific_power, save_dir, OpenMC_save_dir, S2_save_dir)
+    compare_energy_deposition(S2_case_name, OMC_case_name, lib_name, "CELI", tracked_nuclides, specific_power, save_dir, OpenMC_save_dir, S2_save_dir)
 
 
 

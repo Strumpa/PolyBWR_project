@@ -108,7 +108,7 @@ class OpenMC_case:
         elif self.areQfissSet == False and self.edep_id == "fissq":
             path_to_results = f"{os.environ['OPENMC_RESULTS']}/{self.case_name}/{self.edep_id}_{self.integrator}/results_default_Q_values"
         elif self.areQfissSet == False and self.edep_id == "energy_deposition":
-            path_to_results = f"{os.environ['OPENMC_RESULTS']}/{self.case_name}/{self.edep_id}_{self.integrator}/"
+            path_to_results = f"{os.environ['OPENMC_RESULTS']}/{self.case_name}/{self.edep_id}_{self.integrator}"
         self.keffs = np.loadtxt(f"{path_to_results}/{self.case_name}_depl_keff.txt")
         self.sigmas_keff = self.keffs[:,1]
         self.keffs = self.keffs[:,0]

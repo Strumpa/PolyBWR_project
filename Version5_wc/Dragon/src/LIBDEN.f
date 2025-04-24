@@ -521,12 +521,8 @@
             ENDIF
          ENDIF
          CALL LCMLEN(JPLIB,'H-FACTOR'//NORD(IXSPER),ILONG,ITYLCM)
-         CALL LCMLIB(JPLIB)
          CALL LCMLEN(JPLIB,'H-FACTOR',LENGTZ,ITYLCM)
          LKERMA=LENGTZ.EQ.NGROUP
-         print *, 'NGROUP=', NGROUP
-         print *, 'LENGTZ=', LENGTZ
-         print *, 'LKERMA=', LKERMA
 
          IF(ILONG.GT.0) THEN
             LH=.TRUE.

@@ -195,6 +195,16 @@ class DRAGON_case:
         print(f"DRAGON_Keff = {self.keff} with shape = {np.shape(self.keff)}")
 
         return
+    
+    def set_BUscheme(self, BUscheme, extrapolation_type):
+        """
+        Set the burnup scheme for the DRAGON case
+        BUscheme : (str) "predictor" or "precitor-corrector"
+        extrapolation_type : (str) "EXTR" or "NOEX" if predictor or ("EXTR" or "NOEX", "EXTR" no "EXTR") if predictor-corrector
+        """
+        self.BUScheme = BUscheme
+        self.extrapolation_type = extrapolation_type
+        return
 
     def plot_keffs(self):
         plt.figure()

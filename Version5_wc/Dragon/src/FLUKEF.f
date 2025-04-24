@@ -1,7 +1,7 @@
 *DECK FLUKEF
-      SUBROUTINE FLUKEF(IPRT,IPMACR,NGRP,NREG,NUNKNO,NMAT,NIFIS,MATCOD,
-     1 VOL,KEYFLX,XSTOT,XSNUF,XSCHI,NMERG,IMERG,DIFHET,FLUX,B2,ILEAK,
-     2 LEAKSW,OLDBIL,AKEFF,AFLNOR)
+      SUBROUTINE FLUKEF(IPRT,IPMACR,NGRP,NREG,NUNKNO,NMAT,NIFIS,NANIS,
+     1 MATCOD,VOL,KEYFLX,XSTRC,XSDIA,XSNUF,XSCHI,NMERG,IMERG,DIFHET,
+     2 FLUX,B2,ILEAK,LEAKSW,OLDBIL,AKEFF,AFLNOR)
 *
 *-----------------------------------------------------------------------
 *
@@ -27,10 +27,13 @@
 *         currents.
 * NMAT    number of mixtures.
 * NIFIS   number of fissile isotopes.
+* NANIS   maximum cross section Legendre order.
 * MATCOD  mixture indices.
 * VOL     volumes.
 * KEYFLX  index of region flux components in unknown vector.
-* XSTOT   non transport-corrected macroscopic total cross sections.
+* XSTRC   transport-corrected macroscopic total cross sections.
+* XSDIA   transport-corrected macroscopic within-group scattering cross
+*         sections.
 * XSNUF   nu*macroscopic fission cross sections.
 * XSCHI   fission spectrum.
 * NMERG   number of leakage zones.
@@ -61,11 +64,11 @@
 *  SUBROUTINE ARGUMENTS
 *----
       TYPE(C_PTR) IPMACR
-      INTEGER IPRT,NGRP,NREG,NUNKNO,NMAT,NIFIS,MATCOD(NREG),
+      INTEGER IPRT,NGRP,NREG,NUNKNO,NMAT,NIFIS,NANIS,MATCOD(NREG),
      1 KEYFLX(NREG),NMERG,IMERG(NMAT),ILEAK
-      REAL VOL(NREG),XSTOT(0:NMAT,NGRP),XSNUF(0:NMAT,NIFIS,NGRP),
-     1 XSCHI(0:NMAT,NIFIS,NGRP),DIFHET(NMERG,NGRP),FLUX(NUNKNO,NGRP),
-     2 B2(4)
+      REAL VOL(NREG),XSTRC(0:NMAT,NGRP),XSDIA(0:NMAT,0:NANIS,NGRP),
+     1 XSNUF(0:NMAT,NIFIS,NGRP),XSCHI(0:NMAT,NIFIS,NGRP),
+     2 DIFHET(NMERG,NGRP),FLUX(NUNKNO,NGRP),B2(4)
       DOUBLE PRECISION OLDBIL,AKEFF,AFLNOR
       LOGICAL LEAKSW
 *----
@@ -96,7 +99,7 @@
       IBM=MATCOD(IREG)
       IF(IBM.EQ.0) GO TO 15
       PHIC=FLUX(IND,IGRP)*VOL(IREG)
-      LOSS=LOSS+XSTOT(IBM,IGRP)*PHIC
+      LOSS=LOSS+XSTRC(IBM,IGRP)*PHIC
       IF((ILEAK.GE.1).AND.(ILEAK.LE.5)) THEN
          INM=IMERG(IBM)
          IF(INM.GT.0) LOSS=LOSS+B2(4)*DIFHET(INM,IGRP)*PHIC
@@ -123,7 +126,11 @@
          IND=KEYFLX(IREG)
          JGRP=IJJ(IBM)
          DO 20 JND=1,NJJ(IBM)
-         LOSS=LOSS-XSCAT(IPOS(IBM)+JND-1)*FLUX(IND,JGRP)*VOL(IREG)
+         IF(JGRP.EQ.IGRP) THEN
+           LOSS=LOSS-XSDIA(IBM,0,IGRP)*FLUX(IND,IGRP)*VOL(IREG)
+         ELSE
+           LOSS=LOSS-XSCAT(IPOS(IBM)+JND-1)*FLUX(IND,JGRP)*VOL(IREG)
+         ENDIF
          JGRP=JGRP-1
    20    CONTINUE
       ENDIF

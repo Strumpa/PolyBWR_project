@@ -9,6 +9,6 @@ if [ $# = 0 ]
 fi
 echo access draglib_converter.access
 pos=$1/../../../libraries/l_endian
-ln -s "$pos"/draglibendfb8r1SHEM295KermaASCII EXPORT
+ln -s "$pos"/draglibshem295_endfb8r1_kerma2 EXPORT
 ls -l
 echo "Conversion data set draglib_converter.x2m accessed"

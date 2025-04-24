@@ -10,26 +10,69 @@
 import lifo
 import cle2000
 
-def MIX_NG0(Library):
-  """
-  Due to length of DEPL structure : only RSE + CORR ssh_option is supported here.
-  """
-  # Lifo
-  myLifo=lifo.new()
-  myLifo.pushEmpty("LIBRARY", "LCM")
-  myLifo.push(Library)
-  myLifo.lib()
+def MIX_NG0(ssh_option, correlation):
+    """
+    Library : ENDF/B-VIII.1 (only supported here as DEPL structure is edited)
+    ssh_option : self-shielding option (RSE or PT)
+    correlation : correlation option (CORR or NOCORR)
+    """
+    if ssh_option == "RSE" and correlation == "CORR":
+        # Lifo
+        myLifo=lifo.new()
+        myLifo.pushEmpty("LIBRARY", "LCM")
+        myLifo.lib()
 
-  # Execution
-  mixNG0 = cle2000.new('MIX_NG0',myLifo,1)
-  mixNG0.exec()
+        # Execution
+        mixNG0 = cle2000.new('NG0_RSEC',myLifo,1)
+        mixNG0.exec()
 
-  # Recover
-  myLifo.lib()
-  pyMIX = myLifo.node("LIBRARY")
+        # Recover
+        myLifo.lib()
+        pyMIX = myLifo.node("LIBRARY")
+    elif ssh_option == "RSE" and correlation == "NOCORR":
+        # Lifo
+        myLifo=lifo.new()
+        myLifo.pushEmpty("LIBRARY", "LCM")
+        myLifo.lib()
 
-  # Clear stack before next execution
-  while myLifo.getMax() > 0:
-    myLifo.pop()
+        # Execution
+        mixNG0 = cle2000.new('NG0_RSE',myLifo,1)
+        mixNG0.exec()
 
-  return pyMIX
+        # Recover
+        myLifo.lib()
+        pyMIX = myLifo.node("LIBRARY")
+
+    elif ssh_option == "PT" and correlation == "CORR":
+        # Lifo
+        myLifo=lifo.new()
+        myLifo.pushEmpty("LIBRARY", "LCM")
+        myLifo.lib()
+
+        # Execution
+        mixNG0 = cle2000.new('NG0_PTC',myLifo,1)
+        mixNG0.exec()
+
+        # Recover
+        myLifo.lib()
+        pyMIX = myLifo.node("LIBRARY")
+
+    elif ssh_option == "PT" and correlation == "NOCORR":
+        # Lifo
+        myLifo=lifo.new()
+        myLifo.pushEmpty("LIBRARY", "LCM")
+        myLifo.lib()
+
+        # Execution
+        mixNG0 = cle2000.new('NG0_PT',myLifo,1)
+        mixNG0.exec()
+
+        # Recover
+        myLifo.lib()
+        pyMIX = myLifo.node("LIBRARY")
+
+    # Clear stack before next execution
+    while myLifo.getMax() > 0:
+        myLifo.pop()
+
+    return pyMIX

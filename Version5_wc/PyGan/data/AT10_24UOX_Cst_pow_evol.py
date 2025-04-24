@@ -59,7 +59,7 @@ tracking_options = ["SALT"] #, "SYBNXT"]
 # ENDFb8r1_295 or J311_295
 #
 evaluation = "endfb8r1" # "endfb8r1" # "Jeff311"
-draglibs = ["endfb8r1_295", "endfb81295K", "endfb81295K2"]  # ["endfb8r1_295", "endfb81295K", "endfb81295K2"] # ["J311_295", "J311_295K"] #, "ENDFb8r1_295"]
+draglibs = ["endfb8r1_295", "endfb81295K","EB81K2_fix"]  # ["endfb8r1_295", "endfb81295K", "endfb81295K2"] # ["J311_295", "J311_295K"] #, "ENDFb8r1_295"]
 
 # 3) Selecting the self-shielding method
 # RSE, PT or AUTO
@@ -88,7 +88,7 @@ saturation_options = ["NODI"]
 # 6) Selecting the energy deposition options
 # Global energy deposition : "NOGL"=only energy release in fuel is used for normalization or "GLOB" = global energy release model, 
 
-glob_opt = "GLOB" # ["GLOB"] #, "NOGL"]
+glob_opt = "NOGL" # ["GLOB"] #, "NOGL"]
 
 ######## Options for DRAGON5-SERPENT2 comparison ########
 # Select origin of SERPENT2 data + evaluation

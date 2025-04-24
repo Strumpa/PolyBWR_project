@@ -120,7 +120,7 @@ if [ $nomp != 0 ]; then
   echo 'number of OpenMP threads=' $nomp
   export OMP_NUM_THREADS=$nomp
   if command -v numactl >&2; then
-    numactl --cpunodebind=0 --membind=0
+    numactl --cpunodebind=0 --membind=0 2>/dev/null
     echo "use NUMA memory policy"
   fi
 else
