@@ -5458,7 +5458,7 @@ LIBRARY := LIB: ::
                         N2N      N3N      N4N                                                                                           
         FROM NG        1.000000E+00 'Cf252   '                                                                                           
         ENDCHAIN
-        MIXS LIB: DRAGON FIL: <<Library>>
+        MIXS LIB: DRAGON FIL: endfb8r1_295
 
         MIX <<COMB0101>> 750.0
             O16     = O16    4.621410E-02

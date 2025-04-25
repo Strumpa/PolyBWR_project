@@ -20,7 +20,6 @@ from postproc_cst_pow_evol import multiD5S2_comparisons as multiD5S2
 from postproc_cst_pow_evol import D5multiS2_comparisons as D5multiS2 
 from getLists import getLists
 
-
 # evaluation and origin of S2 data
 
 evaluation = "endfb8r1"
@@ -1700,18 +1699,19 @@ if post_treat_case3_1:
     os.chdir(path_to_PYGAN_results)
 
     list_of_extr_options = [("NOEX","NOEX"), ("EXTR","EXTR"), ("NOEX","EXTR"), ("EXTR","NOEX")] # type of exrtapolation used at (predictor,corrector) step
-    BU_lists_to_test = ["Gd5_BOC","Gdf_BOC"]
+    BU_lists_to_test = ["Gd0_BOC", "Gd1_BOC", "Gd2_BOC", "Gd3_BOC", "Gd4_BOC", "Gd5_BOC", "Gdf_BOC"]
 
     list_D5_PT_obj = []
     # Loop over the options
     for name_BUlist in BU_lists_to_test:
         for extr_opt in list_of_extr_options:
-            name_compo = f"CPO_endfb8r1_295_NG0_RSE_SALT_{name_BUlist}_KAPS_pcc{extr_opt[0]}_{extr_opt[1]}_GLOB"
+            name_compo = f"CPO_endfb8r1_295_NG0_PT_N_SALT_{name_BUlist}_KAPS_pcc{extr_opt[0]}_{extr_opt[1]}_GLOB"
+            print(f"Processing {name_compo}")
             pyCOMPO = lcm.new('LCM_INP', name_compo, impx=0)
             case = D5_case(pyCOMPO,
-                            dlib_name = "endfb8r1_295",
+                            dlib_name = "endfb8r1_295_NG0",
                             bu_points = name_BUlist,
-                            ssh_opt = "RSE",
+                            ssh_opt = "PT",
                             correlation = "NOCORR",
                             sat = "",
                             depl_sol = "KAPS",
@@ -1719,13 +1719,14 @@ if post_treat_case3_1:
                             BU_lists = getLists(name_BUlist),
                             save_dir = save_dir_AT10_45Gd
                         )
+            print(f"for BU points : {name_BUlist}, compo points are {getLists(name_BUlist)['COMPO']} with length {len(getLists(name_BUlist)['COMPO'])}")
             case.set_BUscheme("predictor-corrector", f"{extr_opt[0]}-{extr_opt[1]}")
             list_D5_PT_obj.append(case)
     os.chdir(cwd_path)
 
     plt.figure(figsize=(10, 6))
     for D5_PCC_case in list_D5_PT_obj:
-        plt.plot(D5_PCC_case.BU, D5_PCC_case.keff, label=f"{D5_PCC_case.BUScheme} {D5_PCC_case.extrapolation_type[0]} {D5_PCC_case.extrapolation_type[1]}", linestyle='--', marker='x')
+        plt.plot(D5_PCC_case.BU, D5_PCC_case.keff, label=f"{D5_PCC_case.BUScheme} {D5_PCC_case.extrapolation_type}", linestyle='--', marker='x')
     plt.xlabel("Burnup (MWd/tU)")
     plt.ylabel("keff")
     plt.title("D5 keff Predictor-Corrector")
@@ -1736,8 +1737,7 @@ if post_treat_case3_1:
 
     plt.figure(figsize=(10, 6))
     for D5_PCC_case in list_D5_PT_obj:
-        print(D5_PCC_case.DRAGON_ISOTOPESDENS)
-        plt.plot(D5_PCC_case.BU, D5_PCC_case.DRAGON_ISOTOPESDENS["Gd157"], label=f"{D5_PCC_case.BUScheme} {D5_PCC_case.extrapolation_type[0]} {D5_PCC_case.extrapolation_type[1]}", linestyle='--', marker='x')
+        plt.plot(D5_PCC_case.BU, D5_PCC_case.DRAGON_ISOTOPESDENS["Gd157"], label=f"{D5_PCC_case.BUScheme} {D5_PCC_case.extrapolation_type}", linestyle='--', marker='x')
     plt.xlabel("Burnup (MWd/tU)")
     plt.ylabel("Gd157 density (#/b-cm)")
     plt.title("D5 Gd157 density Predictor-Corrector")
@@ -1745,4 +1745,160 @@ if post_treat_case3_1:
     plt.grid()
     plt.savefig(f"{save_dir_AT10_45Gd}/D5_PCC_Gd157_density.png")
     plt.close()
+
+    # compute relative difference to Gd0_BOC
+    # Gd0_BOC is the reference case, for each EXTRAPOLATION type
+    # NOEX + NOEX
+    for extr_type in ["NOEX-NOEX", "EXTR-EXTR", "NOEX-EXTR", "EXTR-NOEX"]:
+        Gd0_BOC_case = [case for case in list_D5_PT_obj if case.bu_points == "Gd0_BOC" and case.extrapolation_type == extr_type][0]
+        print(f"Gd0_BOC case : {Gd0_BOC_case}")
+        
+        plt.figure(figsize=(10, 6))
+        # cases to compare : all other GdX_BOC with NOEX-NOEX
+        for BU_pts in ["Gd1_BOC", "Gd2_BOC", "Gd3_BOC", "Gd4_BOC", "Gd5_BOC", "Gdf_BOC"]:
+            
+            GdX_BOC_case = [case for case in list_D5_PT_obj if case.bu_points == BU_pts and case.extrapolation_type == extr_type][0]
+
+            delta_keff = (GdX_BOC_case.keff - Gd0_BOC_case.keff) * 1e5 # pcm
+
+            plt.plot(GdX_BOC_case.BU, delta_keff, label=f"{GdX_BOC_case.bu_points} {GdX_BOC_case.extrapolation_type}", linestyle='--', marker='x')
+        plt.axhline(y=300, color='red', linestyle='--')
+        plt.axhline(y=-300, color='red', linestyle='--')
+        plt.xlabel("Burnup (MWd/tU)")
+        plt.ylabel("$\\Delta$ keff (pcm)")
+        plt.title(f"$\\Delta$ keff between D5 GdX_BOC and D5 Gd0_BOC {extr_type}")
+        plt.legend()
+        plt.grid()
+        plt.savefig(f"{save_dir_AT10_45Gd}/delta_keff_D5_GdX_BOC_vs_D5_Gd0_BOC_{extr_type}.png")
+        plt.close()
+
+        
+    for extr_type in ["NOEX-NOEX", "EXTR-EXTR", "NOEX-EXTR", "EXTR-NOEX"]:
+        Gd0_BOC_case = [case for case in list_D5_PT_obj if case.bu_points == "Gd0_BOC" and case.extrapolation_type == extr_type][0]
+        print(f"Gd0_BOC case : {Gd0_BOC_case}")
+        
+        plt.figure(figsize=(10, 6))
+        # cases to compare : all other GdX_BOC with NOEX-NOEX
+        for BU_pts in ["Gd1_BOC", "Gd2_BOC", "Gd3_BOC", "Gd4_BOC", "Gd5_BOC", "Gdf_BOC"]:
+            
+            GdX_BOC_case = [case for case in list_D5_PT_obj if case.bu_points == BU_pts and case.extrapolation_type == extr_type][0]
+
+            delta_NGd157 = (GdX_BOC_case.DRAGON_ISOTOPESDENS["Gd157"] - Gd0_BOC_case.DRAGON_ISOTOPESDENS["Gd157"]) * 100 / Gd0_BOC_case.DRAGON_ISOTOPESDENS["Gd157"] 
+
+            plt.plot(GdX_BOC_case.BU, delta_NGd157, label=f"{GdX_BOC_case.bu_points} {GdX_BOC_case.extrapolation_type}", linestyle='--', marker='x')
+        plt.axhline(y=2, color='red', linestyle='--')
+        plt.axhline(y=-2, color='red', linestyle='--')
+        plt.xlabel("Burnup (MWd/tU)")
+        plt.ylabel("$\\Delta$ Gd157 density (%)")
+        plt.title(f"$\\Delta$ Gd157 density between D5 GdX_BOC and D5 Gd0_BOC {extr_type}")
+        plt.legend()
+        plt.grid()
+        plt.savefig(f"{save_dir_AT10_45Gd}/delta_Gd157_D5_GdX_BOC_vs_D5_Gd0_BOC_{extr_type}.png")
+        plt.close()
+
+
+    ## look at pcc results on Gd2
+    list_D5_PT_obj_Gd2 = []
+    os.chdir(path_to_PYGAN_results)
+    for list_bu in ["Gd2_autop6", "Gd2_autop7"]:
+        for extr_opt in list_of_extr_options:
+                name_compo = f"CPO_endfb8r1_295_NG0_PT_N_SALT_{list_bu}_KAPS_pcc{extr_opt[0]}_{extr_opt[1]}_GLOB"
+                print(f"Processing {name_compo}")
+                pyCOMPO = lcm.new('LCM_INP', name_compo, impx=0)
+                case = D5_case(pyCOMPO,
+                                dlib_name = "endfb8r1_295_NG0",
+                                bu_points = list_bu,
+                                ssh_opt = "PT",
+                                correlation = "NOCORR",
+                                sat = "",
+                                depl_sol = "KAPS",
+                                tracked_nuclides = tracked_nuclides,
+                                BU_lists = getLists(list_bu),
+                                save_dir = save_dir_AT10_45Gd
+                            )
+                #print(f"for BU points : {name_BUlist}, compo points are {getLists(name_BUlist)['COMPO']} with length {len(getLists(name_BUlist)['COMPO'])}")
+                case.set_BUscheme("predictor-corrector", f"{extr_opt[0]}-{extr_opt[1]}")
+                list_D5_PT_obj_Gd2.append(case)
+    os.chdir(cwd_path)
+
+    S2_edep0_setQfiss_pcc0 = S2_case(case_name = "AT10_45Gd_BUGd2",
+                                    lib_name = "endfb8r1_pynjoy2012_kerma",
+                                    edep_id = 0, areQfissSet = True, isEcaptSet = False,
+                                    pcc_id = 0, specific_power = 26.5, tracked_nuclides = tracked_nuclides, save_dir = save_dir_AT10_45Gd)
+    
+    S2_edep0_setQfiss_pcc1 = S2_case(case_name = "AT10_45Gd_BUGd2",
+                                lib_name = "endfb8r1_pynjoy2012_kerma",
+                                edep_id = 0, areQfissSet = True, isEcaptSet = False,
+                                pcc_id = 1, specific_power = 26.5, tracked_nuclides = tracked_nuclides, save_dir = save_dir_AT10_45Gd)
+    
+    S2_edep0_setQfiss_pcc2 = S2_case(case_name = "AT10_45Gd_BUGd2",
+                                lib_name = "endfb8r1_pynjoy2012_kerma",
+                                edep_id = 0, areQfissSet = True, isEcaptSet = False,
+                                pcc_id = 2, specific_power = 26.5, tracked_nuclides = tracked_nuclides, save_dir = save_dir_AT10_45Gd)
+    
+    for D5_test_case in list_D5_PT_obj_Gd2:
+        # interpolate D5 keffs to S2 BU points
+        interp_D5_keff_pcc0 = np.interp(S2_edep0_setQfiss_pcc0.BU, D5_test_case.BU, D5_test_case.keff)
+        delta_keff_pcc0 = (interp_D5_keff_pcc0 - S2_edep0_setQfiss_pcc0.keff) * 1e5
+        print("Sanity check on BU points")
+        print((S2_edep0_setQfiss_pcc0.BU-D5_test_case.EVO_BU_steps)*100/D5_test_case.EVO_BU_steps)
+        print((S2_edep0_setQfiss_pcc1.BU-D5_test_case.EVO_BU_steps)*100/D5_test_case.EVO_BU_steps)
+        print((S2_edep0_setQfiss_pcc2.BU-D5_test_case.EVO_BU_steps)*100/D5_test_case.EVO_BU_steps)
+
+        interp_D5_keff_pcc1 = np.interp(S2_edep0_setQfiss_pcc1.BU, D5_test_case.BU, D5_test_case.keff)
+        delta_keff_pcc1 = (interp_D5_keff_pcc1 - S2_edep0_setQfiss_pcc1.keff) * 1e5
+        
+        interp_D5_keff_pcc2 = np.interp(S2_edep0_setQfiss_pcc2.BU, D5_test_case.BU, D5_test_case.keff)
+        delta_keff_pcc2 = (interp_D5_keff_pcc2 - S2_edep0_setQfiss_pcc2.keff) * 1e5
+
+        
+
+        # plot results : delta keff
+        plt.figure(figsize=(10, 6))
+        plt.plot(S2_edep0_setQfiss_pcc0.BU, delta_keff_pcc0, label=f"{D5_test_case.extrapolation_type} - S2 edep 0 - pcc 0", linestyle='--', marker='x')
+        plt.plot(S2_edep0_setQfiss_pcc1.BU, delta_keff_pcc1, label=f"{D5_test_case.extrapolation_type} - S2 edep 0 - pcc 1", linestyle='--', marker='D')
+        plt.plot(S2_edep0_setQfiss_pcc2.BU, delta_keff_pcc2, label=f"{D5_test_case.extrapolation_type} - S2 edep 0 - pcc 2", linestyle='--', marker='o')
+        plt.axhline(y=300, color='red', linestyle='--')
+        plt.axhline(y=-300, color='red', linestyle='--')
+        plt.xlabel("Burnup (MWd/tU)")
+        plt.ylabel("$\\Delta$ keff (pcm)")
+        plt.title(f"$\\Delta$ keff between D5 PCC {D5_test_case.extrapolation_type} Gd2_autop6 and S2 edepmode 0")
+        plt.legend()
+        plt.grid()
+        plt.savefig(f"{save_dir_AT10_45Gd}/delta_keff_D5_pcc_{D5_test_case.bu_points}_vs_S2_edepmode0_{D5_test_case.extrapolation_type}.png")
+        plt.close()
+
+
+        for iso in tracked_nuclides:
+
+            interp_D5_Niso_pcc0 = np.interp(S2_edep0_setQfiss_pcc0.BU, D5_test_case.BU, D5_test_case.DRAGON_ISOTOPESDENS[iso])
+            delta_Niso_pcc0 = [(interp_D5_Niso_pcc0[i] - S2_edep0_setQfiss_pcc0.Ni[iso][i]) * 100 / S2_edep0_setQfiss_pcc0.Ni[iso][i]
+                               if S2_edep0_setQfiss_pcc0.Ni[iso][i] != 0 else 0
+                               for i in range(len(S2_edep0_setQfiss_pcc0.Ni[iso]))]
+
+            interp_D5_Niso_pcc1 = np.interp(S2_edep0_setQfiss_pcc1.BU, D5_test_case.BU, D5_test_case.DRAGON_ISOTOPESDENS[iso])
+            delta_Niso_pcc1 = [(interp_D5_Niso_pcc1[i] - S2_edep0_setQfiss_pcc1.Ni[iso][i]) * 100 / S2_edep0_setQfiss_pcc1.Ni[iso][i]
+                                 if S2_edep0_setQfiss_pcc1.Ni[iso][i] != 0 else 0
+                                 for i in range(len(S2_edep0_setQfiss_pcc1.Ni[iso]))]
+
+            interp_D5_Niso_pcc2 = np.interp(S2_edep0_setQfiss_pcc2.BU, D5_test_case.BU, D5_test_case.DRAGON_ISOTOPESDENS[iso])
+            delta_Niso_pcc2 = [(interp_D5_Niso_pcc2[i] - S2_edep0_setQfiss_pcc2.Ni[iso][i]) * 100 / S2_edep0_setQfiss_pcc2.Ni[iso][i]
+                                    if S2_edep0_setQfiss_pcc2.Ni[iso][i] != 0 else 0
+                                    for i in range(len(S2_edep0_setQfiss_pcc2.Ni[iso]))]
+            # plot results : delta NGd157
+            plt.figure(figsize=(10, 6))
+            plt.plot(S2_edep0_setQfiss_pcc0.BU, delta_Niso_pcc0, label=f"{D5_test_case.extrapolation_type} - S2 edep 0 - pcc 0", linestyle='--', marker='x')
+            plt.plot(S2_edep0_setQfiss_pcc1.BU, delta_Niso_pcc1, label=f"{D5_test_case.extrapolation_type} - S2 edep 0 - pcc 1", linestyle='--', marker='D')
+            plt.plot(S2_edep0_setQfiss_pcc2.BU, delta_Niso_pcc2, label=f"{D5_test_case.extrapolation_type} - S2 edep 0 - pcc 2", linestyle='--', marker='o')
+            plt.axhline(y=2, color='red', linestyle='--')
+            plt.axhline(y=-2, color='red', linestyle='--')
+            plt.xlabel("Burnup (MWd/tU)")
+            plt.ylabel(f"$\\Delta$ {iso} density (%)")
+            plt.title(f"$\\Delta$ {iso} density between D5 PCC {D5_test_case.extrapolation_type} Gd2_autop6 and S2 edepmode 0")
+            plt.legend()
+            plt.grid()
+            plt.savefig(f"{save_dir_AT10_45Gd}/delta_{iso}_D5_pcc_{D5_test_case.bu_points}_vs_S2_edepmode0_{D5_test_case.extrapolation_type}.png")
+            plt.close()
+
+
 

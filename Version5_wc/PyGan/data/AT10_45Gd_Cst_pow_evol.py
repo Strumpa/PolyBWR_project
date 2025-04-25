@@ -59,8 +59,8 @@ draglib_name = "endfb8r1_295" # "endfb8r1_295", "endfb81295K" : with total KERMA
 # 3) Selecting the self-shielding method
 # RSE, PT or AUTO
 #
-ssh_option = "PT" # "RSE" , "PT", "SUBG", "AUTO"
-corr = "NOCORR" # "CORR" or "NOCORR"
+ssh_option = "RSE" # "RSE" , "PT", "SUBG", "AUTO"
+corr = "CORR" # "CORR" or "NOCORR"
 
 # 4) Selecting the burnup calculation options
 # burnup_steps = "UOx", "UOx_autop5", "UOx2_autop5", "UOx4_autop5", "UOx6_autop5" etc
@@ -77,8 +77,8 @@ solver_option = "KAPS"
 saturation_option = "NODI" #, "DIRA"
 rates_extr = "EXTR" # "EXTR", "NOEX"
 # Options for PCC scheme :
-bos_rates_opt = "EXTR" # "EXTR", "NOEX"
-eos_rates_opt = "NOEX" # "EXTR", "NOEX"
+bos_rates_opt = "NOEX" # "EXTR", "NOEX"
+eos_rates_opt = "EXTR" # "EXTR", "NOEX"
 
 # 6) Selecting the energy deposition options
 # Global energy deposition : "NOGL"=only energy release in fuel is used for normalization or "GLOB" = global energy release model, 

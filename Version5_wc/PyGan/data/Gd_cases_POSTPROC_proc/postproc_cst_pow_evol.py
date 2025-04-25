@@ -162,7 +162,7 @@ class DRAGON_case:
         DRAGON_BU=self.COMPO_BU_steps
         DRAGON_ISOTOPESDENS=np.zeros((lenISOT_DRAGON,lenBU_DRAGON))
         DRAGON_Keff=np.zeros(lenBU_DRAGON)
-
+        print(f"DRAGON_ISOTOPESDENS shape = {lenISOT_DRAGON} {lenBU_DRAGON}")
         for k in range(lenBU_DRAGON):
             DRAGON_Keff[k]=self.pyCOMPO[self.DIR]['MIXTURES'][0]['CALCULATIONS'][k]['K-EFFECTIVE']
             for j in range(lenISOT_DRAGON):
@@ -408,3 +408,10 @@ class D5multiS2_comparisons:
             plt.savefig(f"{self.save_dir}/Delta_{iso}_{self.comparison_name}.png")
             plt.close()
         return
+    
+def interp_on_BU(BU_points_to_interp, BU_points_ref, values_ref):
+    """
+    Interpolate the values_ref on the BU_points_to_interp using linear interpolation
+    """
+    interp_values = np.interp(BU_points_to_interp, BU_points_ref, values_ref)
+    return interp_values

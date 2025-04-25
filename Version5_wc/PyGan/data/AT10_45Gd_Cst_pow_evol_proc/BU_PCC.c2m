@@ -128,6 +128,7 @@ WHILE istep nstep < DO
             LIB2 := USS: LIBRARY LIB2 TRACK_SS TF_EXC_SS  ::
                         EDIT 0 PASS 4
                         ;
+            EVALUATE iauto := iauto 1 + ;
         ENDIF ;
     ENDIF ;
     SYS := ASM: LIB2 TRACK TF_EXC :: ARM EDIT 0 ; 
@@ -158,12 +159,12 @@ WHILE istep nstep < DO
     ENDIF ;
     * Perform self-shielding of EOS library ?
     
-    IF BUautop BUbeg = THEN
-        ECHO "Call to USS: 2" ;
-        LIB2 := USS: LIBRARY LIB2 TRACK_SS TF_EXC_SS  ::
-                    EDIT 0 PASS 4
-                    ;
-    ENDIF ;
+    *IF BUautop BUbeg = THEN
+    *    ECHO "Call to USS: 2" ;
+    *    LIB2 := USS: LIBRARY LIB2 TRACK_SS TF_EXC_SS  ::
+    *                EDIT 0 PASS 4
+    *                ;
+    *ENDIF ;
     ECHO "iauto is = " iauto ;
     ECHO "HERE, step is =" istep "iauto is =" iauto ;
     ECHO "Correspinding BUbeg =" BUbeg ;
@@ -181,14 +182,14 @@ WHILE istep nstep < DO
         SET <<evoend>> DAY 
         <<deplsolopt>> <<eosratesopt>> <<glob_opt>>
         ;
-    ECHO "BUautop =" BUautop " BUbeg =" BUbeg ;
-    IF BUautop BUbeg = THEN
-        ECHO "Call to USS: at EoS" ;
-        LIB2 := USS: LIBRARY LIB2 TRACK_SS TF_EXC_SS  ::
-                    EDIT 0 PASS 4
-                    ;
-        EVALUATE iauto := iauto 1 + ;            
-    ENDIF ;
+    *ECHO "BUautop =" BUautop " BUbeg =" BUbeg ;
+    *IF BUautop BUbeg = THEN
+    *    ECHO "Call to USS: at EoS" ;
+    *    LIB2 := USS: LIBRARY LIB2 TRACK_SS TF_EXC_SS  ::
+    *                EDIT 0 PASS 4
+    *                ;
+    *    EVALUATE iauto := iauto 1 + ;            
+    *ENDIF ;
     SYS := ASM: LIB2 TRACK TF_EXC :: ARM EDIT 0 ;
     FLUX := FLU: FLUX LIB2 SYS TRACK TF_EXC :: 
         EDIT 1 TYPE K ;
