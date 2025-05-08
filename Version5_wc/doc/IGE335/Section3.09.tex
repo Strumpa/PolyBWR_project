@@ -242,7 +242,7 @@ $[$ $\{$ \moc{SAVE} \dusa{xts} $\{$ \moc{S} $|$ \moc{DAY} $|$ \moc{YEAR} $\}~\{$
 \moc{NOSA} $\}$ $]$ \\
 $[$ \moc{EPS1} \dusa{valeps1} $]~~[$ \moc{EPS2} \dusa{valeps2} $]~~[~\{$ \moc{EXPM} \dusa{valexp} $|$ \moc{SATOFF} $\}~]$ \\
 $[$ \moc{H1} \dusa{valh1} $]~[$ $\{$ \moc{RUNG} $|$ \moc{KAPS} $\}$ $]$ \\
-$[~\{$ \moc{TIXS} $|$ \moc{TDXS} $\}~]~[~\{$\moc{NOEX} $|$ \moc{EXTR}$\}~]$~~$[~\{$\moc{NOGL} $|$ \moc{GLOB}$\}~]$~~$[~\{$\moc{NSAT} $|$ \moc{SAT}$\}~]$~~
+$[~\{$ \moc{TIXS} $|$ \moc{TDXS} $\}~]~[~\{$\moc{NOEX} $|$ \moc{EXTR} $[$ \dusa{iextr} $]~\}~]$~$[~\{$\moc{NOGL} $|$ \moc{GLOB}$\}~]$~$[~\{$\moc{NSAT} $|$ \moc{SAT}$\}~]$~
 $[~\{$\moc{NODI} $|$ \moc{DIRA}$\}~]$ \\
 $[~\{$\moc{FLUX\_FLUX} $|$ \moc{FLUX\_MAC} $|$ \moc{FLUX\_POW} $\}~]~[~\{$ \moc{CHAIN} $|$ \moc{PIFI} $\}~]$ \\
 $[$ \moc{DEPL} $\{$\dusa{xti} \dusa{xtf} $|$ \dusa{dxt} $\}~\{$ \moc{S} $|$ \moc{DAY} $|$ \moc{YEAR} $\}$ $\{$ \moc{COOL} $|$
@@ -396,9 +396,11 @@ This is the default option when time dependent cross sections are provided.
 microscopic reaction rates in
 the solution of the burnup equations.
 
-\item[\moc{EXTR}] keyword to perform a linear extrapolation of the microscopic reaction rates, using
+\item[\moc{EXTR}] keyword to perform an extrapolation of the microscopic reaction rates, using
 the available information preceding the initial time \dusa{xti}. This is the
 default option.
+
+\item[\dusa{iextr}] extrapolation order ($=1$: linear (default value); $=2$: parabolic).
 
 \item[\moc{NOGL}] keyword to compute the burnup using the energy released in
 fuel only. This is the default option.

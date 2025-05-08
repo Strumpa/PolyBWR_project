@@ -26,40 +26,20 @@ from bu_gduo2 import *
 # --- OTHERS
 from getLists import *
 
-# --- Post-treatment
-
-from Serpent2_edep_pcc import Serpent2_case 
-from Serpent2_edep_pcc import SERPENT2_comparisons
-from POSTPROC_gduo2_evol import DRAGON_case
-from POSTPROC_gduo2_evol import D5S2_comparisons
 
 # Input data
-burnup_points = 'Gd_autop3' # 'Gd_autop4' or 'Gd_autop3', refine if necessary
-# Recovering BUlist SSHlist COMPOlist
-[BUlist, SSHlist, COMPOlist]=getLists(burnup_points)
+burnup_points = ["Gd_autop3", "Gd_autop4", "Gd_autop5"] # 'Gd_autop4' or 'Gd_autop3', refine if necessary
 
-post_process_D5S2 = True # True or False
+post_process_D5S2 = False # True or False
 
 # Evaluation name
-evaluation_name = 'J311_295' # 'J311_295' or 'J311295K' or 'ENDFb8r1_295' or 'E8R1295K'
-evaluation_name_kerma = 'J311295K'
-correlation = 'NOCORR' # 'CORR' or 'NOCORR'
+evaluation_name = 'endfb8r1_295' # 'J311_295' or 'endfb8r1_295'
+evaluation_name_kerma = 'endfb81295K' # 'endfb81295K' or 'endfb81295K2'  or 'J311_295K
+evaluation_name_kerma2 = 'endfb81295K2'
+self_shielding_methods = ['RSE', 'PT'] # 'PT' or 'RSE'
+correlations = ['NOCORR', 'CORR'] # 'CORR' or 'NOCORR'
 
 tracked_nuclides = ["U235", "U234", "U238", "Pu239", "Pu240", "Pu241", "Pu242", "Gd155", "Gd157", "Xe135", "Sm149"]
-
-# StepList
-StepList = lcm.new('LCM','burnup_steps')
-StepList['BUlist']    = np.array(BUlist, dtype='f')
-StepList['SSHlist'] = np.array(SSHlist, dtype='f')
-StepList['COMPOlist'] = np.array(COMPOlist, dtype='f')
-StepList.close() # close without erasing
-
-# StepList
-StepList2 = lcm.new('LCM','burnup_steps')
-StepList2['BUlist']    = np.array(BUlist, dtype='f')
-StepList2['SSHlist'] = np.array(SSHlist, dtype='f')
-StepList2['COMPOlist'] = np.array(COMPOlist, dtype='f')
-StepList2.close() # close without erasing
 
 # Creation of results directory
 path=os.getcwd()
@@ -72,97 +52,60 @@ if a==False:
 
 # Geometry
 pyGEOM = geom_gduo2()
-
-# Materials library
-pyLIB = lib_gduo2(evaluation_name, correlation)
-puLIB_KERMA = lib_gduo2(evaluation_name_kerma, correlation)
-
 # Tracking
 pyUOX_TBH, pyTRACK, pyTF_EXC, pyTRACK_SS = trk_gduo2(pyGEOM)
 
-# Burnup evolution
-pyCOMPO = bu_gduo2("COMPO", pyLIB, pyTRACK, pyTF_EXC, pyTRACK_SS, StepList, name_compo=f'_COMPO_gduo2_295_kec1_{evaluation_name}_{correlation}')
-pyCOMPO_KERMA = bu_gduo2("COMPO", puLIB_KERMA, pyTRACK, pyTF_EXC, pyTRACK_SS, StepList2, name_compo=f'_COMPO_gduo2_295_kec1_{evaluation_name_kerma}_{correlation}')
+for self_shielding_method in self_shielding_methods:
+	for correlation in correlations:
+		if correlation == 'CORR':
+			corr_name = 'C'
+		elif correlation == 'NOCORR':
+			corr_name = 'N'
 
+		# Materials library
+		pyLIB_NG0 = lib_gduo2(evaluation_name, self_shielding_method, correlation, NG0=True)
+		pyLIB = lib_gduo2(evaluation_name, self_shielding_method, correlation, NG0=False)
+		puLIB_KERMA = lib_gduo2(evaluation_name_kerma, self_shielding_method, correlation, NG0=False)
+		puLIB_KERMA2 = lib_gduo2(evaluation_name_kerma2, self_shielding_method, correlation, NG0=False)
+
+		for bu_pts in burnup_points:
+			[BUList,SSHList,COMPOList] = getLists(bu_pts)
+			# Burnup evolution
+			name_compo_default = f"_CPO_{evaluation_name}_{self_shielding_method}_{corr_name}_SALT_KAPS_NODI_GLOB_EXTR_{burnup_points}"
+			# StepList
+			StepList = lcm.new('LCM','burnup_steps')
+			StepList['BUlist']    = np.array(BUList, dtype='f')
+			StepList['SSHlist'] = np.array(SSHList, dtype='f')
+			StepList['COMPOlist'] = np.array(COMPOList, dtype='f')
+			StepList.close() # close without erasing
+			pyCOMPO = bu_gduo2("COMPO", pyLIB, pyTRACK, pyTF_EXC, pyTRACK_SS, StepList, name_compo_default)
+
+			name_compo_NG0 = f"_CPO_{evaluation_name}_NG0_{self_shielding_method}_{corr_name}_SALT_KAPS_NODI_GLOB_EXTR_{burnup_points}"
+			# StepList 2
+			StepList2 = lcm.new('LCM','burnup_steps')
+			StepList2['BUlist']    = np.array(BUList, dtype='f')
+			StepList2['SSHlist'] = np.array(SSHList, dtype='f')
+			StepList2['COMPOlist'] = np.array(COMPOList, dtype='f')
+			StepList2.close() # close without erasing
+			pyCOMP_NG0 = bu_gduo2("COMPO", pyLIB, pyTRACK, pyTF_EXC, pyTRACK_SS, StepList2, name_compo_NG0)
+
+			name_compo_KERMA = f"_CPO_{evaluation_name_kerma}_{self_shielding_method}_{corr_name}_SALT_KAPS_NODI_GLOB_EXTR_{burnup_points}"
+			# StepList 3
+			StepList3 = lcm.new('LCM','burnup_steps')
+			StepList3['BUlist']    = np.array(BUList, dtype='f')
+			StepList3['SSHlist'] = np.array(SSHList, dtype='f')
+			StepList3['COMPOlist'] = np.array(COMPOList, dtype='f')
+			StepList3.close() # close without erasing
+			pyCOMPO_KERMA = bu_gduo2("COMPO", puLIB_KERMA, pyTRACK, pyTF_EXC, pyTRACK_SS, StepList3, name_compo_KERMA)
+			
+			name_compo_KERMA2 = f"_CPO_{evaluation_name_kerma2}_{self_shielding_method}_{corr_name}_SALT_KAPS_NODI_GLOB_EXTR_{burnup_points}"
+			# StepList 4
+			StepList4 = lcm.new('LCM','burnup_steps')
+			StepList4['BUlist']    = np.array(BUList, dtype='f')
+			StepList4['SSHlist'] = np.array(SSHList, dtype='f')
+			StepList4['COMPOlist'] = np.array(COMPOList, dtype='f')
+			StepList4.close() # close without erasing
+
+			pyCOMPO_KERMA2 = bu_gduo2("COMPO", puLIB_KERMA, pyTRACK, pyTF_EXC, pyTRACK_SS, StepList4, name_compo_KERMA2)
 
 # End of calculation procedure for gduo2_kec1 evolution study
-# Post treat results once Serpent2 / OpenMC has run.
-
-if post_process_D5S2:
-	D5_savedir = "gduo2_295_kec1_evol_results_PyGan/D5_results"
-	S2_savedir = "gduo2_295_kec1_evol_results_PyGan/S2_results"
-	COMP_savedir = "gduo2_295_kec1_evol_results_PyGan/D5_S2_comparison"
-	# Check if the directories exist and create them if necesary
-	if not os.path.exists(D5_savedir):
-		os.makedirs(D5_savedir)
-	if not os.path.exists(S2_savedir):
-		os.makedirs(S2_savedir)
-	if not os.path.exists(COMP_savedir):
-		os.makedirs(COMP_savedir)
-	edep_id = 2
-	pcc_id = 1
-	BUlists = {}
-	draglib_name = evaluation_name
-	draglib_name_kerma = evaluation_name_kerma
-	bu_points = burnup_points
-	lists = getLists(bu_points)
-	BUlists["BU"] = lists[0]
-	BUlists["AUTOP"] = lists[1]
-	BUlists["COMPO"] = lists[2]
-	
-	D5_case = DRAGON_case(pyCOMPO, draglib_name, pcc_id, bu_points, "USS", "RSE", correlation, tracked_nuclides, BUlists, save_dir=D5_savedir)
-	D5_case.plot_keffs()
-	for iso in tracked_nuclides:
-		D5_case.plot_Ni(iso)
-	
-	D5_case_kerma = DRAGON_case(pyCOMPO_KERMA, draglib_name_kerma, pcc_id, bu_points, "USS", "RSE", correlation, tracked_nuclides, BUlists, save_dir=D5_savedir)
-	D5_case_kerma.plot_keffs()
-	for iso in tracked_nuclides:
-		D5_case_kerma.plot_Ni(iso)
-	
-
-	### Compare KERMA vs non-KERMA
-	## Keffs :
-	diff_keffs = (D5_case_kerma.DRAGON_Keff - D5_case.DRAGON_Keff)*1e5
-	plt.figure()
-	plt.plot(D5_case.DRAGON_BU, diff_keffs, label = f"KERMA - non-KERMA", marker = "x", linestyle = "--")
-	plt.xlabel("Burnup [MWd/kgU]")
-	plt.ylabel("Keff difference [pcm]")
-	plt.title(f"Keff difference between KERMA and non-KERMA cases for {draglib_name} and {draglib_name_kerma} cases")
-	plt.legend()
-	plt.grid()
-	plt.savefig(f"{D5_savedir}/DRAGON_Keff_diff_{draglib_name}_{draglib_name_kerma}_{correlation}_PCC{pcc_id}.png")
-	plt.close()
-
-	## Ni :
-	delta_Niso = {}
-	for iso in tracked_nuclides:
-		delta_Niso = [(D5_case_kerma.DRAGON_ISOTOPESDENS[iso][idx] - D5_case.DRAGON_ISOTOPESDENS[iso][idx]) * 100 / D5_case.DRAGON_ISOTOPESDENS[iso][idx]
-			if D5_case.DRAGON_ISOTOPESDENS[iso][idx] != 0 else 0
-			for idx in range(len(D5_case.DRAGON_ISOTOPESDENS[iso]))]
-		plt.figure()
-		plt.plot(D5_case.DRAGON_BU, delta_Niso, label = f"KERMA - non-KERMA", marker = "x", linestyle = "--")
-		plt.xlabel("Burnup [MWd/kgU]")
-		plt.ylabel(f"{iso} density difference [%]")
-		plt.title(f"{iso} density difference between KERMA and non-KERMA cases for {draglib_name} and {draglib_name_kerma} cases")
-		plt.legend()
-		plt.grid()
-		plt.savefig(f"{D5_savedir}/DRAGON_{iso}_diff_{draglib_name}_{draglib_name_kerma}_{correlation}_PCC{pcc_id}.png")
-		plt.close()
-
-	S2_case = Serpent2_case("gduo2_295_kec1", "J311_pynjoy2016", edep_id = 2, pcc_id = 1, specific_power = 38.6, tracked_nuclides=tracked_nuclides, save_dir=S2_savedir)
-
-	# Compare D5 and S2
-	
-	D5S2_case = D5S2_comparisons("gduo2_295_kec1_evol", D5_case, [S2_case], tracked_nuclides, save_dir=COMP_savedir)
-	D5S2_case.compare_keffs()
-	D5S2_case.compare_Ni()
-	D5S2_case.plot_delta_Keff()
-	D5S2_case.plot_delta_Ni()
-	
-
-	D5S2_case_kerma = D5S2_comparisons("gduo2_295_kec1_evol_KERMA", D5_case_kerma, [S2_case], tracked_nuclides, save_dir=COMP_savedir)
-	D5S2_case_kerma.compare_keffs()
-	D5S2_case_kerma.compare_Ni()
-	D5S2_case_kerma.plot_delta_Keff()
-	D5S2_case_kerma.plot_delta_Ni()

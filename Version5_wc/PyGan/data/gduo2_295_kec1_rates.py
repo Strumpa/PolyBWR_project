@@ -37,7 +37,7 @@ if not os.path.exists(save_path_D5vsS2):
     os.makedirs(save_path_D5vsS2)
 
 Cpo_keys = ["ENDFb8r1_295", "J311_295"]
-ssh_keys = ["RSE", "RSE_CORR", "AUTO"]
+ssh_keys = ["RSE", "RSE_C_87", "RSE_C_857", "AUTO", "PT", "PT_C_87", "PT_C_857"]
 
 # Parse COMPO : 
 # extract absorption rates for Gd157, Gd155 and U238 for RSE, RSE_CORR and AUTO
@@ -131,35 +131,68 @@ for eval in Cpo_keys:
     DRAGON5_BU0.plot_reaction_rates(eval, "SHEM295", "Gd157_ngamma")
     # Compute relative differences on cross sections and reaction rates between AUTO: and RSE and RSE_CORR
     # U238 
-    DRAGON5_BU0.compute_relative_differences_XS("U238_ngamma", eval, "AUTO", ["RSE", "RSE_CORR"])
-    DRAGON5_BU0.compute_relative_differences_Rates("U238_ngamma", eval, "AUTO", ["RSE", "RSE_CORR"])
+    DRAGON5_BU0.compute_relative_differences_XS("U238_ngamma", eval, "AUTO", ["RSE", "RSE_C_87", "RSE_C_857", "PT", "PT_C_87", "PT_C_857"])
+    DRAGON5_BU0.compute_relative_differences_Rates("U238_ngamma", eval, "AUTO", ["RSE", "RSE_C_87", "RSE_C_857", "PT", "PT_C_87", "PT_C_857"])
     # Gd155
-    DRAGON5_BU0.compute_relative_differences_XS("Gd155_ngamma", eval, "AUTO", ["RSE", "RSE_CORR"])
-    DRAGON5_BU0.compute_relative_differences_Rates("Gd155_ngamma", eval, "AUTO", ["RSE", "RSE_CORR"])
+    DRAGON5_BU0.compute_relative_differences_XS("Gd155_ngamma", eval, "AUTO", ["RSE", "RSE_C_87", "RSE_C_857", "PT", "PT_C_87", "PT_C_857"])
+    DRAGON5_BU0.compute_relative_differences_Rates("Gd155_ngamma", eval, "AUTO", ["RSE", "RSE_C_87", "RSE_C_857", "PT", "PT_C_87", "PT_C_857"])
     # Gd157
-    DRAGON5_BU0.compute_relative_differences_XS("Gd157_ngamma", eval, "AUTO", ["RSE", "RSE_CORR"])
-    DRAGON5_BU0.compute_relative_differences_Rates("Gd157_ngamma", eval, "AUTO", ["RSE", "RSE_CORR"])
+    DRAGON5_BU0.compute_relative_differences_XS("Gd157_ngamma", eval, "AUTO", ["RSE", "RSE_C_87", "RSE_C_857", "PT", "PT_C_87", "PT_C_857"])
+    DRAGON5_BU0.compute_relative_differences_Rates("Gd157_ngamma", eval, "AUTO", ["RSE", "RSE_C_87", "RSE_C_857", "PT", "PT_C_87", "PT_C_857"])
     
-# Zoom on self-shielded region
+# Zoom on self-shielded region : RSE and RSE_CORR with CORR for U238 and Gd157
 # U238, Jeff3.1.1
-DRAGON5_BU0.plot_zoom_XS_and_errors_D5_AUTO("U238_ngamma", "J311_295", "SHEM295", ["RSE", "RSE_CORR"], grmin=70, grmax=206)
-DRAGON5_BU0.plot_zoom_rates_and_errors_D5_AUTO("U238_ngamma", "J311_295", "SHEM295", ["RSE", "RSE_CORR"], grmin=70, grmax=206)
+DRAGON5_BU0.plot_zoom_XS_and_errors_D5_AUTO("U238_ngamma", "J311_295", "SHEM295", ["RSE", "RSE_C_87"], grmin=70, grmax=206)
+DRAGON5_BU0.plot_zoom_rates_and_errors_D5_AUTO("U238_ngamma", "J311_295", "SHEM295", ["RSE", "RSE_C_87"], grmin=70, grmax=206)
 # Gd155, Jeff3.1.1
-DRAGON5_BU0.plot_zoom_XS_and_errors_D5_AUTO("Gd155_ngamma", "J311_295", "SHEM295", ["RSE", "RSE_CORR"], grmin=70, grmax=206)
-DRAGON5_BU0.plot_zoom_rates_and_errors_D5_AUTO("Gd155_ngamma", "J311_295", "SHEM295", ["RSE", "RSE_CORR"], grmin=70, grmax=206)
+DRAGON5_BU0.plot_zoom_XS_and_errors_D5_AUTO("Gd155_ngamma", "J311_295", "SHEM295", ["RSE", "RSE_C_87"], grmin=70, grmax=206)
+DRAGON5_BU0.plot_zoom_rates_and_errors_D5_AUTO("Gd155_ngamma", "J311_295", "SHEM295", ["RSE", "RSE_C_87"], grmin=70, grmax=206)
 # Gd157, Jeff3.1.1
-DRAGON5_BU0.plot_zoom_XS_and_errors_D5_AUTO("Gd157_ngamma", "J311_295", "SHEM295", ["RSE", "RSE_CORR"], grmin=70, grmax=206)
-DRAGON5_BU0.plot_zoom_rates_and_errors_D5_AUTO("Gd157_ngamma", "J311_295", "SHEM295", ["RSE", "RSE_CORR"], grmin=70, grmax=206)
+DRAGON5_BU0.plot_zoom_XS_and_errors_D5_AUTO("Gd157_ngamma", "J311_295", "SHEM295", ["RSE", "RSE_C_87"], grmin=70, grmax=206)
+DRAGON5_BU0.plot_zoom_rates_and_errors_D5_AUTO("Gd157_ngamma", "J311_295", "SHEM295", ["RSE", "RSE_C_87"], grmin=70, grmax=206)
 
-# Zoom on self-shielded region
+# Zoom on self-shielded region : RSE and RSE_CORR with CORR for U238 and Gd157
 # U238, ENDFb-VIII-1
-DRAGON5_BU0.plot_zoom_XS_and_errors_D5_AUTO("U238_ngamma", "ENDFb8r1_295", "SHEM295", ["RSE", "RSE_CORR"], grmin=70, grmax=206)
-DRAGON5_BU0.plot_zoom_rates_and_errors_D5_AUTO("U238_ngamma", "ENDFb8r1_295", "SHEM295", ["RSE", "RSE_CORR"], grmin=70, grmax=206)
+DRAGON5_BU0.plot_zoom_XS_and_errors_D5_AUTO("U238_ngamma", "ENDFb8r1_295", "SHEM295", ["RSE", "RSE_C_87"], grmin=70, grmax=206)
+DRAGON5_BU0.plot_zoom_rates_and_errors_D5_AUTO("U238_ngamma", "ENDFb8r1_295", "SHEM295", ["RSE", "RSE_C_87"], grmin=70, grmax=206)
 # Gd155, ENDFb-VIII-1
-DRAGON5_BU0.plot_zoom_XS_and_errors_D5_AUTO("Gd155_ngamma", "ENDFb8r1_295", "SHEM295", ["RSE", "RSE_CORR"], grmin=70, grmax=206)
-DRAGON5_BU0.plot_zoom_rates_and_errors_D5_AUTO("Gd155_ngamma", "ENDFb8r1_295", "SHEM295", ["RSE", "RSE_CORR"], grmin=70, grmax=206)
+DRAGON5_BU0.plot_zoom_XS_and_errors_D5_AUTO("Gd155_ngamma", "ENDFb8r1_295", "SHEM295", ["RSE", "RSE_C_87"], grmin=70, grmax=206)
+DRAGON5_BU0.plot_zoom_rates_and_errors_D5_AUTO("Gd155_ngamma", "ENDFb8r1_295", "SHEM295", ["RSE", "RSE_C_87"], grmin=70, grmax=206)
 # Gd157, ENDFb-VIII-1
-DRAGON5_BU0.plot_zoom_XS_and_errors_D5_AUTO("Gd157_ngamma", "ENDFb8r1_295", "SHEM295", ["RSE", "RSE_CORR"], grmin=70, grmax=206)
-DRAGON5_BU0.plot_zoom_rates_and_errors_D5_AUTO("Gd157_ngamma", "ENDFb8r1_295", "SHEM295", ["RSE", "RSE_CORR"], grmin=70, grmax=206)
+DRAGON5_BU0.plot_zoom_XS_and_errors_D5_AUTO("Gd157_ngamma", "ENDFb8r1_295", "SHEM295", ["RSE", "RSE_C_87"], grmin=70, grmax=206)
+DRAGON5_BU0.plot_zoom_rates_and_errors_D5_AUTO("Gd157_ngamma", "ENDFb8r1_295", "SHEM295", ["RSE", "RSE_C_87"], grmin=70, grmax=206)
+
+# Zoom on self-shielded region : RSE and RSE_CORR with CORR for U238, Gd155 and Gd157
+# U238, ENDFb-VIII-1
+DRAGON5_BU0.plot_zoom_XS_and_errors_D5_AUTO("U238_ngamma", "ENDFb8r1_295", "SHEM295", ["RSE", "RSE_C_857"], grmin=70, grmax=206)
+DRAGON5_BU0.plot_zoom_rates_and_errors_D5_AUTO("U238_ngamma", "ENDFb8r1_295", "SHEM295", ["RSE", "RSE_C_857"], grmin=70, grmax=206)
+# Gd155, ENDFb-VIII-1
+DRAGON5_BU0.plot_zoom_XS_and_errors_D5_AUTO("Gd155_ngamma", "ENDFb8r1_295", "SHEM295", ["RSE", "RSE_C_857"], grmin=70, grmax=206)
+DRAGON5_BU0.plot_zoom_rates_and_errors_D5_AUTO("Gd155_ngamma", "ENDFb8r1_295", "SHEM295", ["RSE", "RSE_C_857"], grmin=70, grmax=206)
+# Gd157, ENDFb-VIII-1
+DRAGON5_BU0.plot_zoom_XS_and_errors_D5_AUTO("Gd157_ngamma", "ENDFb8r1_295", "SHEM295", ["RSE", "RSE_C_857"], grmin=70, grmax=206)
+DRAGON5_BU0.plot_zoom_rates_and_errors_D5_AUTO("Gd157_ngamma", "ENDFb8r1_295", "SHEM295", ["RSE", "RSE_C_857"], grmin=70, grmax=206)
+
+# Zoom on self-shielded region : PT and PT_CORR with CORR for U238 and Gd157
+# U238, ENDFb-VIII-1
+DRAGON5_BU0.plot_zoom_XS_and_errors_D5_AUTO("U238_ngamma", "ENDFb8r1_295", "SHEM295", ["PT", "PT_C_87"], grmin=70, grmax=206)
+DRAGON5_BU0.plot_zoom_rates_and_errors_D5_AUTO("U238_ngamma", "ENDFb8r1_295", "SHEM295", ["PT", "PT_C_87"], grmin=70, grmax=206)
+# Gd155, ENDFb-VIII-1
+DRAGON5_BU0.plot_zoom_XS_and_errors_D5_AUTO("Gd155_ngamma", "ENDFb8r1_295", "SHEM295", ["PT", "PT_C_87"], grmin=70, grmax=206)
+DRAGON5_BU0.plot_zoom_rates_and_errors_D5_AUTO("Gd155_ngamma", "ENDFb8r1_295", "SHEM295", ["PT", "PT_C_87"], grmin=70, grmax=206)
+# Gd157, ENDFb-VIII-1
+DRAGON5_BU0.plot_zoom_XS_and_errors_D5_AUTO("Gd157_ngamma", "ENDFb8r1_295", "SHEM295", ["PT", "PT_C_87"], grmin=70, grmax=206)
+DRAGON5_BU0.plot_zoom_rates_and_errors_D5_AUTO("Gd157_ngamma", "ENDFb8r1_295", "SHEM295", ["PT", "PT_C_87"], grmin=70, grmax=206)
+
+# Zoom on self-shielded region : PT and PT_CORR with CORR for U238, Gd155 and Gd157
+# U238, ENDFb-VIII-1
+DRAGON5_BU0.plot_zoom_XS_and_errors_D5_AUTO("U238_ngamma", "ENDFb8r1_295", "SHEM295", ["PT", "PT_C_857"], grmin=70, grmax=206)
+DRAGON5_BU0.plot_zoom_rates_and_errors_D5_AUTO("U238_ngamma", "ENDFb8r1_295", "SHEM295", ["PT", "PT_C_857"], grmin=70, grmax=206)
+# Gd155, ENDFb-VIII-1
+DRAGON5_BU0.plot_zoom_XS_and_errors_D5_AUTO("Gd155_ngamma", "ENDFb8r1_295", "SHEM295", ["PT", "PT_C_857"], grmin=70, grmax=206)
+DRAGON5_BU0.plot_zoom_rates_and_errors_D5_AUTO("Gd155_ngamma", "ENDFb8r1_295", "SHEM295", ["PT", "PT_C_857"], grmin=70, grmax=206)
+# Gd157, ENDFb-VIII-1
+DRAGON5_BU0.plot_zoom_XS_and_errors_D5_AUTO("Gd157_ngamma", "ENDFb8r1_295", "SHEM295", ["PT", "PT_C_857"], grmin=70, grmax=206)
+DRAGON5_BU0.plot_zoom_rates_and_errors_D5_AUTO("Gd157_ngamma", "ENDFb8r1_295", "SHEM295", ["PT", "PT_C_857"], grmin=70, grmax=206)
 
 print("Post treatment for BU=0 case completed")

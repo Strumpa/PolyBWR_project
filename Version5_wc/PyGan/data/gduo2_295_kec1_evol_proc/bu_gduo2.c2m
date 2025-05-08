@@ -156,8 +156,8 @@ WHILE istep nstep < DO
     EVALUATE Tend := BUend Norm_f2 / ;
     ECHO "Nominal depletion between" Tbeg " and" Tend "days" ;
     BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX TRACK ::
-     EDIT 3 DEPL <<Tbeg>> <<Tend>> DAY POWR <<Norm_f2>> 
-     EXPM 1.0E15 GLOB ;
+     EDIT 1 DEPL <<Tbeg>> <<Tend>> DAY POWR <<Norm_f2>> 
+     KAPS NODI EXTR GLOB ;
   
   ENDIF ;
  

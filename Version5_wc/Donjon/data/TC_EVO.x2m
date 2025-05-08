@@ -164,7 +164,7 @@ WHILE Timei Timec < DO
 ENDWHILE ;
 
 GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 >>Keff<< ;
-assertS FLUX :: 'K-EFFECTIVE' 1 0.9679434 ;
+assertS FLUX :: 'K-EFFECTIVE' 1 0.9674789 ;
 
 ECHO "test TC_EVO completed" ;
 END: ;

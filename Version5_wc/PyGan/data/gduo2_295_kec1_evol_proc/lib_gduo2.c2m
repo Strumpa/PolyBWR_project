@@ -31,7 +31,7 @@ REAL N_Zr90       N_Zr91       N_Zr92       N_Zr94       N_Zr96    :=
 
 IF correlation "NOCORR" = THEN
    LIBRARY := LIB: ::
-   EDIT 10
+   EDIT 0
    NMIX 8    (*MAXIMUM OF MATERIAL MIXTURES*)
    CTRA APOL (*APOLLO TYPE TRANSPORT CORRECTION*)
    ANIS 2

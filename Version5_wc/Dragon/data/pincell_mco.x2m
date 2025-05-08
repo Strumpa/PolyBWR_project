@@ -202,7 +202,7 @@ WHILE istep maxstep < DO
   EVALUATE Tend := BUend Fuelpwr / ;
 
   BURN164 LIBRARY2 := EVO: BURN164 LIBRARY2 FLUX TRACKN ::
-    EDIT 2 DEPL <<Tbeg>> <<Tend>> DAY POWR <<Fuelpwr>>
+    EDIT 2 NOEX DEPL <<Tbeg>> <<Tend>> DAY POWR <<Fuelpwr>>
     PICK >>burnup<< ;
 
   ECHO "BURNUP_sortie = " BUend "Next SS = " BUnextSS ;
@@ -257,11 +257,11 @@ WHILE istep maxstep < DO
 ENDWHILE ; ! reference burnup loop
 
 IF iDcaStep_0 1 = THEN
-  assertS FLUX :: K-INFINITY 1 1.048944 ;
+  assertS FLUX :: K-INFINITY 1 1.049062 ;
 ELSEIF iDcaStep_0 2 = THEN
-  assertS FLUX :: K-INFINITY 1 1.153645 ;
+  assertS FLUX :: K-INFINITY 1 1.153705 ;
 ELSEIF iDcaStep_0 3 = THEN
-  assertS FLUX :: K-INFINITY 1 1.224508 ;
+  assertS FLUX :: K-INFINITY 1 1.224496 ;
 ENDIF ;
 
 LIBRARY LIBRARY2 := DELETE: LIBRARY LIBRARY2 ;

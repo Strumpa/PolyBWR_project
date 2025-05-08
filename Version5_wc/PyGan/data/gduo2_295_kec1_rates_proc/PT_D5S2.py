@@ -393,15 +393,26 @@ class postTreatment_rates_XS_D5:
         number_of_subplot = len(SSH_methods)+1
         fig,ax = plt.subplots(number_of_subplot,1,figsize=(20, 3*number_of_subplot))
         for SSH in SSH_methods:
+            if SSH == "PT_C_87":
+                SSH_label = "PT + CORR U8, Gd157"
+            elif SSH == "PT_C_857":
+                SSH_label = "PT + CORR U8, Gd155, Gd157"
+            elif SSH == "RSE_C_87":
+                SSH_label = "RSE + CORR U8 Gd157"
+            elif SSH == "RSE_C_857":
+                SSH_label = "RSE + CORR U8 Gd155, Gd157"
+            else:
+                SSH_label = SSH
             D5_XS_to_plot = []     
             D5_XS = self.reaction_data_pair[reaction_id][keyword][SSH]["XS"][grmin-1:grmax]
-            AUTO_XS_to_plot = []
-            AUTO_XS = self.reaction_data_pair[reaction_id][keyword]["AUTO"]["XS"][grmin-1:grmax]
             for i in range(len(D5_XS)):
                 D5_XS_to_plot.extend([D5_XS[i],D5_XS[i]])
-                AUTO_XS_to_plot.extend([AUTO_XS[i],AUTO_XS[i]])
-            ax[0].step(u, D5_XS_to_plot, where='post', label=f"{SSH}: $\\sigma$ {reaction_print} for {iso}")
-            ax[0].step(u, AUTO_XS_to_plot, where='post', label=f"AUTO: $\\sigma$ {reaction_print} for {iso}")
+            ax[0].step(u, D5_XS_to_plot, where='post', label=f"$\\sigma$ {reaction_print} for {iso} : {SSH_label}")
+        AUTO_XS_to_plot = []
+        AUTO_XS = self.reaction_data_pair[reaction_id][keyword]["AUTO"]["XS"][grmin-1:grmax]
+        for i in range(len(AUTO_XS)):
+            AUTO_XS_to_plot.extend([AUTO_XS[i],AUTO_XS[i]])
+        ax[0].step(u, AUTO_XS_to_plot, where='post', label=f"$\\sigma$ {reaction_print} for {iso} : AUTO:")
         ax[0].set_xlabel("Lethargy")
         ax[0].set_ylabel("Cross section [barn]")
         ax[0].set_yscale("log")
@@ -410,27 +421,36 @@ class postTreatment_rates_XS_D5:
         ax[0].set_title(f"Comparison of {iso} {reaction_print} cross sections for DRAGON5 {keyword}")
 
         for i, SSH in enumerate(SSH_methods):
+            if SSH == "PT_C_87":
+                SSH_label = "PT + CORR U8, Gd157"
+            elif SSH == "PT_C_857":
+                SSH_label = "PT + CORR U8, Gd155, Gd157"
+            elif SSH == "RSE_C_87":
+                SSH_label = "RSE + CORR U8 Gd157"
+            elif SSH == "RSE_C_857":
+                SSH_label = "RSE + CORR U8 Gd155, Gd157"
+            else:
+                SSH_label = SSH
             ssh_id += SSH
             D5_XS_diff_to_plot = []     
             D5_XS_diff = self.delta_XS[reaction_id][keyword][SSH][grmin-1:grmax]
             for j in range(len(D5_XS_diff)):
                 D5_XS_diff_to_plot.extend([D5_XS_diff[j],D5_XS_diff[j]])
-            ax[i+1].step(u, D5_XS_diff_to_plot, label=f"{SSH} - AUTO : {iso} {reaction_print}")
+            ax[i+1].step(u, D5_XS_diff_to_plot, label=f"{SSH_label} - AUTO : {iso} {reaction_print}")
             ax[i+1].set_xlabel("Lethargy")
             ax[i+1].set_ylabel(f"$\\Delta \\sigma$ {reaction_print} {iso}  [%]")
-            ax[i+1].set_title(f"Relative difference on $\\sigma$ {reaction_print} {iso} between DRAGON5 {SSH} and AUTO")
+            ax[i+1].set_title(f"Relative difference on $\\sigma$ {reaction_print} {iso} between DRAGON5 {SSH_label} and AUTO")
             ax[i+1].grid()
             ax[i+1].legend()
         
         plt.tight_layout()
-        #plt.title(f"Comparison of {iso} {reaction_print} cross sections between DRAGON5 and SERPENT2")
         plt.savefig(f"{self.save_path}/{iso}_{reaction}_XS_D5_{keyword}_{ssh_id}_{mesh_name}_zoomed_{grmin}_{grmax}.png")
         plt.close()
         return
     
     def plot_zoom_rates_and_errors_D5_AUTO(self, reaction_id, keyword, mesh_name, SSH_methods, grmin, grmax):
         """
-        use subplot to plot 1) XS (D5 and AUTO) and 2) relative errors on XS (D5-AUTO)/AUTO for each SSH method
+        use subplot to plot 1) tau (D5 and AUTO) and 2) relative errors on tau (D5-AUTO)/AUTO for each SSH method
         grmin and grmax are the group indices to zoom in
         """
         ssh_id = ""
@@ -447,37 +467,58 @@ class postTreatment_rates_XS_D5:
         number_of_subplot = len(SSH_methods)+1
         fig,ax = plt.subplots(number_of_subplot,1,figsize=(20, 3*number_of_subplot))
         for SSH in SSH_methods:
+            if SSH == "PT_C_87":
+                SSH_label = "PT + CORR U8, Gd157"
+            elif SSH == "PT_C_857":
+                SSH_label = "PT + CORR U8, Gd155, Gd157"
+            elif SSH == "RSE_C_87":
+                SSH_label = "RSE + CORR U8 Gd157"
+            elif SSH == "RSE_C_857":
+                SSH_label = "RSE + CORR U8 Gd155, Gd157"
+            else:
+                SSH_label = SSH
             D5_rates_to_plot = []     
             D5_rates = self.reaction_data_pair[reaction_id][keyword][SSH]["rates"][grmin-1:grmax]
-            AUTO_rates_to_plot = []
-            AUTO_rates = self.reaction_data_pair[reaction_id][keyword]["AUTO"]["rates"][grmin-1:grmax]
             for i in range(len(D5_rates)):
                 D5_rates_to_plot.extend([D5_rates[i],D5_rates[i]])
-                AUTO_rates_to_plot.extend([AUTO_rates[i],AUTO_rates[i]])
-            ax[0].step(u, D5_rates_to_plot, where='post', label=f"{SSH}: $\\sigma$ {reaction_print} for {iso}")
-            ax[0].step(u, AUTO_rates_to_plot, where='post', label=f"AUTO: $\\sigma$ {reaction_print} for {iso}")
+            ax[0].step(u, D5_rates_to_plot, where='post', label=f"$\\tau$ {reaction_print} for {iso} : {SSH_label}")
+            
+        AUTO_rates_to_plot = []
+        AUTO_rates = self.reaction_data_pair[reaction_id][keyword]["AUTO"]["rates"][grmin-1:grmax]
+        for i in range(len(AUTO_rates)):
+            AUTO_rates_to_plot.extend([AUTO_rates[i],AUTO_rates[i]])
+        ax[0].step(u, AUTO_rates_to_plot, where='post', label=f"$\\tau$ {reaction_print} for {iso} : AUTO:")
         ax[0].set_xlabel("Lethargy")
         ax[0].set_ylabel("Cross section [barn]")
         ax[0].set_yscale("log")
         ax[0].grid()
         ax[0].legend()
-        ax[0].set_title(f"Comparison of {iso} {reaction_print} cross sections for DRAGON5 {keyword}")
+        ax[0].set_title(f"Comparison of {iso} {reaction_print} rates for DRAGON5 {keyword}")
 
         for i, SSH in enumerate(SSH_methods):
+            if SSH == "PT_C_87":
+                SSH_label = "PT + CORR U8, Gd157"
+            elif SSH == "PT_C_857":
+                SSH_label = "PT + CORR U8, Gd155, Gd157"
+            elif SSH == "RSE_C_87":
+                SSH_label = "RSE + CORR U8 Gd157"
+            elif SSH == "RSE_C_857":
+                SSH_label = "RSE + CORR U8 Gd155, Gd157"
+            else:
+                SSH_label = SSH
             ssh_id += SSH
             D5_rates_diff_to_plot = []     
             D5_rates_diff = self.delta_Rates[reaction_id][keyword][SSH][grmin-1:grmax]
             for j in range(len(D5_rates_diff)):
                 D5_rates_diff_to_plot.extend([D5_rates_diff[j],D5_rates_diff[j]])
-            ax[i+1].step(u, D5_rates_diff_to_plot, label=f"{SSH} - AUTO : {iso} {reaction_print}")
+            ax[i+1].step(u, D5_rates_diff_to_plot, label=f"{SSH_label} - AUTO : {iso} {reaction_print}")
             ax[i+1].set_xlabel("Lethargy")
-            ax[i+1].set_ylabel(f"$\\Delta \\sigma$ {reaction_print} {iso}  [%]")
-            ax[i+1].set_title(f"Relative difference on $\\sigma$ {reaction_print} {iso} between DRAGON5 {SSH} and AUTO")
+            ax[i+1].set_ylabel(f"$\\Delta \\tau$ {reaction_print} {iso}  [%]")
+            ax[i+1].set_title(f"Relative difference on $\\tau$ {reaction_print} {iso} between DRAGON5 {SSH_label} and AUTO")
             ax[i+1].grid()
             ax[i+1].legend()
         
         plt.tight_layout()
-        #plt.title(f"Comparison of {iso} {reaction_print} cross sections between DRAGON5 and SERPENT2")
         plt.savefig(f"{self.save_path}/{iso}_{reaction}_rates_D5_{keyword}_{ssh_id}_{mesh_name}_zoomed_{grmin}_{grmax}.png")
         plt.close()
         return

@@ -279,13 +279,13 @@ WHILE istep nstep <= DO
     BURNUP LIBRARY := EVO: LIBRARY CALC TRACK :: EDIT 3
          DEPL <<evobeg>> <<evoend>> DAY POWR <<Norm_f2>>
          EPS1 .025  EPS2 .1
-         EXPM 1.E15 RUNG EXTR NSAT NODI
+         EXPM 1.E15 RUNG EXTR 1 NSAT NODI
          ;
   ELSE
     BURNUP LIBRARY := EVO: BURNUP LIBRARY CALC TRACK :: EDIT 2
          DEPL <<evobeg>> <<evoend>> DAY POWR <<Norm_f2>>
          EPS1 .025  EPS2 .1
-         EXPM 1.E15 RUNG EXTR NSAT NODI
+         EXPM 1.E15 RUNG EXTR 1 NSAT NODI
          ;
   ENDIF ;
 

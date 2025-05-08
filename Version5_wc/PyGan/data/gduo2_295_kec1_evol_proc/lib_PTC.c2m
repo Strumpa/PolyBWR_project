@@ -1,0 +1,68 @@
+* lib_gdou2
+*----
+*  Type          : DRAGON procedure
+*  Use           : Microlib generation with Draglibs for gduo2 benchmrk cell
+*  Author        : R. Guasch
+
+*  Procedure called as:
+*
+*    LIBRARY    : Microlib generated using PT method
+
+PARAMETER  LIBRARY  ::
+  EDIT 0
+    ::: LINKED_LIST LIBRARY  ;
+;
+STRING dlib_name ;
+:: >>dlib_name<< ;
+MODULE LIB: END: ;
+
+INTEGER COMB0101 COMB0102 COMB0103 COMB0104 COMB0105 COMB0106 GAIN1
+        MODE1 := 
+        1 2 3 4 5 6 7 8 ; (* DISTRIBUTED SELF-SHIELDING *)
+
+REAL P_Zr90     P_Zr91     P_Zr92    P_Zr94    P_Zr96    :=
+     51.45E-02  11.22E-02  17.15E-02 17.38E-02 2.80E-02  ;
+REAL N_Zr0 := 3.88E-2 ;
+REAL N_Zr90       N_Zr91       N_Zr92       N_Zr94       N_Zr96    :=
+     N_Zr0 P_Zr90 *  N_Zr0 P_Zr91 *  N_Zr0 P_Zr92 *  N_Zr0 P_Zr94 *
+     N_Zr0 P_Zr96 *  ;
+
+LIBRARY := LIB: ::
+EDIT 0
+NMIX 8    (*MAXIMUM OF MATERIAL MIXTURES*)
+CTRA APOL (*APOLLO TYPE TRANSPORT CORRECTION*)
+ANIS 2
+ADED 4 NELAS N4N N2N N3N
+PT CALENDF 4
+*
+DEPL LIB: DRAGON FIL: <<dlib_name>>
+MIXS LIB: DRAGON FIL: <<dlib_name>>
+MIX <<COMB0101>> 294.0 (*COMB0101*)
+   O16     = O16    4.59036E-2
+   U235    = U235   7.90006E-4 1
+   U238    = U238   2.08874E-2 CORR 1
+   Gd154   = Gd154  3.78440E-5 1
+   Gd155   = Gd155  2.55262E-4 1
+   Gd156   = Gd156  3.50791E-4 1
+   Gd157   = Gd157  2.66479E-4 CORR 1
+   Gd158   = Gd158  4.20283E-4 1
+   Gd160   = Gd160  3.65230E-4 1
+MIX <<COMB0102>> COMB <<COMB0101>> 1.0 (*COMB0102*)
+MIX <<COMB0103>> COMB <<COMB0101>> 1.0 (*COMB0103*)
+MIX <<COMB0104>> COMB <<COMB0101>> 1.0 (*COMB0104*)
+MIX <<COMB0105>> COMB <<COMB0101>> 1.0 (*COMB0105*)
+MIX <<COMB0106>> COMB <<COMB0101>> 1.0 (*COMB0106*)
+MIX <<GAIN1>> 294.0 (*GAIN1*)
+   Zr90    = Zr90   <<N_Zr90>> 2
+   Zr91    = Zr91   <<N_Zr91>> 2
+   Zr92    = Zr92   <<N_Zr92>> 2
+   Zr94    = Zr94   <<N_Zr94>>
+   Zr96    = Zr96   <<N_Zr96>>
+MIX <<MODE1>> 294.0 (*MODE1*)
+   H1      = H1_H2O 4.744E-2
+   O16     = O16    2.372E-2
+;
+
+
+END: ;
+QUIT .

@@ -9,24 +9,27 @@ import cle2000
 
 def bu_gduo2(namCOMPO, pyLIB, pyTRACK, pyTF_EXC, pyTRACK_SS,  StepList, name_compo):
 
-  # Lifo
-  myLifo=lifo.new()
-  myLifo.pushEmpty(namCOMPO,"LCM")
-  myLifo.push(pyLIB)
-  myLifo.push(pyTRACK)
-  myLifo.push(pyTF_EXC)
-  myLifo.push(pyTRACK_SS)
-  myLifo.push(StepList)
-  myLifo.push(name_compo)
+    # Lifo
+    myLifo=lifo.new()
+    myLifo.pushEmpty(namCOMPO,"LCM")
+    myLifo.push(pyLIB)
+    myLifo.push(pyTRACK)
+    myLifo.push(pyTF_EXC)
+    myLifo.push(pyTRACK_SS)
+    myLifo.push(StepList)
+    myLifo.push(name_compo)
 
-  myLifo.lib()
+    myLifo.lib()
 
-  # Execution 
-  calcBWR = cle2000.new('bu_gduo2',myLifo,1)
-  calcBWR.exec()
+    # Execution 
+    calcBWR = cle2000.new('bu_gduo2',myLifo,1)
+    calcBWR.exec()
 
-  # Recover
-  myLifo.lib()
-  pyCOMPO = myLifo.node(namCOMPO)
-  #StepList = myLifo.node("burnup_steps")
-  return pyCOMPO#, StepList
+    # Recover
+    myLifo.lib()
+    pyCOMPO = myLifo.node(namCOMPO)
+    # Clear stack before next execution
+    while myLifo.getMax() > 0: 
+        myLifo.pop()
+
+    return pyCOMPO

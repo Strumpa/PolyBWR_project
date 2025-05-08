@@ -110,8 +110,10 @@ REPEAT
     ! Evolution jusqu'a l'equilibre seulement si demande
     ! Sinon on va rechercher la CB crit sans etre a l'equilibre Xe
     IF evo THEN
+      ECHO "bugg1" ;
       Burn MicroF := EVO: Burn MicroF PowerIter ::
         EDIT 0 FLUX_POW DEPL 100. DAY KEEP ;
+      ECHO "bugg2" ;
       Burn MicroF := EVO: Burn MicroF PowerIter ::
         EDIT 0 FLUX_POW SAVE 100. DAY KEEP ;
     ENDIF ;
@@ -194,12 +196,12 @@ REPEAT
         B11      STABLE
         I135     NG    0.
         Xe135    NG    0. FROM DECAY 1.0E+00 I135
-*        Nd147   STABLE
-*        Pm147   STABLE
-*        Pm148   STABLE
-*        Pm148m  STABLE
-*        Pm149   STABLE
-*        Sm149   STABLE
+        Nd147   STABLE
+        Pm147   STABLE
+        Pm148   STABLE
+        Pm148m  STABLE
+        Pm149   STABLE
+        Sm149   STABLE
 *--------- With Samarium -----------------------------------
              Nd147    NG    0.
              Pm147    NG    0. FROM DECAY 1.0E+00 Nd147

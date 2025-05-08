@@ -54,18 +54,18 @@ tracking_option = "SALT" #, "SYBNXT"
 # ENDFb8r1_295 or J311_295
 #
 evaluation = "endfb8r1" # Jeff3.1.1 or ENDF/B-VIII.1
-draglib_name = "endfb8r1_295" # "endfb8r1_295", "endfb81295K" : with total KERMA (MT301), "endfb81295K2" : with modified KERMA (MT301-MT318)+MT458 data.
+draglib_name = "endfb81295K" # "endfb8r1_295", "endfb81295K" : with total KERMA (MT301), "endfb81295K2" : with modified KERMA (MT301-MT318)+MT458 data.
 
 # 3) Selecting the self-shielding method
 # RSE, PT or AUTO
 #
-ssh_option = "RSE" # "RSE" , "PT", "SUBG", "AUTO"
-corr = "CORR" # "CORR" or "NOCORR"
+ssh_option = "PT" # "RSE" , "PT", "SUBG", "AUTO"
+corr = "NOCORR" # "CORR" or "NOCORR"
 
 # 4) Selecting the burnup calculation options
 # burnup_steps = "UOx", "UOx_autop5", "UOx2_autop5", "UOx4_autop5", "UOx6_autop5" etc
 #
-burnup_points = "Gdf_BOC" # "Gd_autop3", "Gd_autop4", "Gd", "Gd2_autop6"
+burnup_points = "Gd2_autop6" #"Gd_autop3" # "Gd_autop3", "Gd_autop4", "Gd", "Gd2_autop6"
 # New tests are "Gd_BOC_finest", "Gd_BOC_fine1", "Gd_BOC_t1", "Gd_BOC_test2", "Gd_BOC_test3", "Gd_BOC_test4", "Gd_BOC_test5"
 
 # 5) Selecting the burnup calculation options
@@ -75,10 +75,6 @@ burnup_points = "Gdf_BOC" # "Gd_autop3", "Gd_autop4", "Gd", "Gd2_autop6"
 #
 solver_option = "KAPS"
 saturation_option = "NODI" #, "DIRA"
-rates_extr = "EXTR" # "EXTR", "NOEX"
-# Options for PCC scheme :
-bos_rates_opt = "NOEX" # "EXTR", "NOEX"
-eos_rates_opt = "EXTR" # "EXTR", "NOEX"
 
 # 6) Selecting the energy deposition options
 # Global energy deposition : "NOGL"=only energy release in fuel is used for normalization or "GLOB" = global energy release model, 
@@ -86,10 +82,12 @@ eos_rates_opt = "EXTR" # "EXTR", "NOEX"
 glob_opt = "GLOB" # "GLOB", "NOGL"
 
 # 7) Select which D5 case to run
-exec_D5_no_modif = False # True : run DRAGON5 calculations, False : skip DRAGON5 calculations
+exec_D5_no_modif = True # True : run DRAGON5 calculations, False : skip DRAGON5 calculations
 exec_D5_no_NG0 = True # True : run DRAGON5 calculations with NG0 depletion chain, False : skip DRAGON5 calculations
-exec_PCC_case = True # True : run PCC calculations, False : skip PCC calculations
 
+#time_integrator = "CECM" # "CECM", "CECE", "EXTR", "NOEX", "EXTR2"
+#time_intedrator_list = ["CECM", "CECE", "EXTR", "NOEX", "EXTR2"]
+time_intedrator_list = ["CECE", "EXTR", "NOEX", "EXTR2"]
 
 ######## 
 # Result handling and creation of the results directory
@@ -111,15 +109,12 @@ if not os.path.exists(save_dir_comparison):
 
 
 print(f"Burnup points : {burnup_points}")
-# Recovering ListBU ListAUTOP ListCOMPO
-[ListeBU,ListeAUTOP,ListeCOMPO]=getLists(burnup_points)
-BU_lists = {"BU": ListeBU, "AUTOP": ListeAUTOP, "COMPO": ListeCOMPO}
-# Create Steplist for BU - SELFSHIELDING - COMPO save 
-StepList = lcm.new('LCM','burnup_steps')
-StepList['ListBU']    = np.array(ListeBU, dtype='f')
-StepList['ListAutop'] = np.array(ListeAUTOP, dtype='f')
-StepList['ListCompo'] = np.array(ListeCOMPO, dtype='f')
-StepList.close() # close without erasing
+
+# names for exportation
+if corr == "CORR":
+    corr_name = "C"
+elif corr == "NOCORR":
+    corr_name = "N"
 
 
 ### BEGIN DRAGON5 calculations with default DEPL structure ###
@@ -128,7 +123,7 @@ if tracking_option == "SALT":
     # geometry definition
     GEOM, GEOM_SS = GEO_C_SALT()
     # tracking of geometries
-    TRK, TF_EXC, TRK_SS, TF_EXC_SS = TRK_C_SALT(GEOM,GEOM_SS) # CP = Collision Probability, MOC = Method of Characteristics
+    TRK, TF_EXC, TRK_SS, TF_EXC_SS = TRK_C_SALT(GEOM,GEOM_SS) 
 elif tracking_option == "SYBNXT":
     GEOM, GEOM_SS = GEO_C_NXT()
     TRK, TF_EXC, TRK_SS = TRK_C_SYBNXT(GEOM,GEOM_SS)
@@ -138,27 +133,29 @@ else:
 
 if exec_D5_no_modif:
     print(f"Self-shielding option : {ssh_option}")
-    LIB = MIX_C(draglib_name,ssh_option)
+    LIB = MIX_C(draglib_name,ssh_option,corr) # Creation of the microlib, default D5 energy deposition mode
 
     print(f"Saturation option : {saturation_option}")
     print(f"Global energy deposition option : {glob_opt}") 
-    name_compo = f"_CPO_{draglib_name}_{ssh_option}_{tracking_option}_{solver_option}_{saturation_option}_{glob_opt}_{rates_extr}_{burnup_points}"
-    if tracking_option == "SALT":
-        if exec_PCC_case:
-            name_compo = f"_CPO_{draglib_name}_{ssh_option}_{tracking_option}_{solver_option}_{glob_opt}_pcc{bos_rates_opt}_{eos_rates_opt}_{burnup_points}"
-            CPO = BU_PCC("COMPO", LIB, TRK, TF_EXC, TRK_SS, TF_EXC_SS, StepList, name_compo, solver_option, glob_opt, bos_rates_opt, eos_rates_opt)
-        else:
-            name_compo = f"_CPO_{draglib_name}_{ssh_option}_{corr}_{tracking_option}_{solver_option}_{saturation_option}_{glob_opt}_{rates_extr}_{burnup_points}"
-            CPO = BU_C("COMPO", LIB, TRK, TF_EXC, TRK_SS, TF_EXC_SS, StepList, name_compo, ssh_option, solver_option, glob_opt, saturation_option, rates_extr)
-    elif tracking_option == "SYBNXT": 
-        name_compo = f"_CPO_{draglib_name}_{ssh_option}_{corr}_{tracking_option}_{solver_option}_{saturation_option}_{glob_opt}_{rates_extr}_{burnup_points}"
-        CPO = BU_C_SYBNXT("COMPO", LIB, TRK, TF_EXC, TRK_SS, TF_EXC_SS, StepList, name_compo, ssh_option, solver_option, glob_opt, saturation_option)
-    print(f"creating D5 case for {name_compo}")
-    D5case = D5_case(CPO, draglib_name, burnup_points, ssh_option, "CORR", saturation_option, solver_option, tracked_nuclides, BU_lists, save_dir_D5)
-    D5case.plot_keffs()
-    for iso in tracked_nuclides:
-        D5case.plot_Ni(iso)
-
+    for time_integrator in time_intedrator_list:
+        [BUList,SSHList,COMPOList]=getLists(burnup_points)
+        # Create Steplist for BU - SELFSHIELDING - COMPO save 
+        StepList = lcm.new('LCM','burnup_steps')
+        StepList['ListBU']    = np.array(BUList, dtype='f')
+        StepList['ListAutop'] = np.array(SSHList, dtype='f')
+        StepList['ListCompo'] = np.array(COMPOList, dtype='f')
+        StepList.close() # close without erasing
+        name_compo = f"_CPO_{draglib_name}_{ssh_option}_{corr_name}_{tracking_option}_{solver_option}_{saturation_option}_{glob_opt}_{time_integrator}_{burnup_points}"
+        if time_integrator == "CECM":
+            CPO = CECM("COMPO", LIB, TRK, TF_EXC, TRK_SS, TF_EXC_SS, StepList, name_compo, solver_option, glob_opt)
+        elif time_integrator == "CECE":
+            CPO = CECE("COMPO", LIB, TRK, TF_EXC, TRK_SS, TF_EXC_SS, StepList, name_compo, solver_option, glob_opt)
+        elif time_integrator == "EXTR":
+            CPO = BU_C("COMPO", LIB, TRK, TF_EXC, TRK_SS, TF_EXC_SS, StepList, name_compo, ssh_option, solver_option, glob_opt, saturation_option, rates_extr="EXTR")
+        elif time_integrator == "NOEX":
+            CPO = BU_C("COMPO", LIB, TRK, TF_EXC, TRK_SS, TF_EXC_SS, StepList, name_compo, ssh_option, solver_option, glob_opt, saturation_option, rates_extr="NOEX")
+        elif time_integrator == "EXTR2":
+            CPO = BU_EXTR2("COMPO", LIB, TRK, TF_EXC, TRK_SS, TF_EXC_SS, StepList, name_compo, ssh_option, solver_option, glob_opt, saturation_option)
 
 if exec_D5_no_NG0:
     ### Begin calculations with modified DEPL structure ###
@@ -167,29 +164,28 @@ if exec_D5_no_NG0:
     # --- DRAGON5 microlib generation
     pyLIB_NG0 = MIX_NG0(ssh_option,corr) # Creation of the microlib, default D5 energy deposition mode
     #
-    # names for exportation
-    if corr == "CORR":
-        corr_name = "C"
-    elif corr == "NOCORR":
-        corr_name = "N"
     print(f"State of the calculation NG0 : {draglib_name} {ssh_option} {saturation_option} {solver_option}")
-    compo_name = f"_CPO_{draglib_name}_NG0_{ssh_option}_{tracking_option}_{burnup_points}_{solver_option}_{saturation_option}_{rates_extr}_{glob_opt}"
-    # run DRAGON5 calculation with BU evolution
-    if tracking_option == "SALT":
-        if exec_PCC_case:
-            compo_name = f"_CPO_{draglib_name}_NG0_{ssh_option}_{corr_name}_{tracking_option}_{burnup_points}_{solver_option}_pcc{bos_rates_opt}_{eos_rates_opt}_{glob_opt}"
-            CPO_NG0 = BU_PCC("COMPO", pyLIB_NG0, TRK, TF_EXC, TRK_SS, TF_EXC_SS, StepList, compo_name, solver_option, glob_opt, bos_rates_opt, eos_rates_opt)
-        else:
-            compo_name = f"_CPO_{draglib_name}_NG0_{ssh_option}_{corr_name}_{tracking_option}_{burnup_points}_{solver_option}_{saturation_option}_{rates_extr}_{glob_opt}"
+    for time_integrator in time_intedrator_list:
+        [BUList,SSHList,COMPOList]=getLists(burnup_points)
+        # Create Steplist for BU - SELFSHIELDING - COMPO save 
+        StepList = lcm.new('LCM','burnup_steps')
+        print(f"StepList : {BUList}")
+        StepList['ListBU']    = np.array(BUList, dtype='f')
+        StepList['ListAutop'] = np.array(SSHList, dtype='f')
+        StepList['ListCompo'] = np.array(COMPOList, dtype='f')
+        StepList.close() # close without erasing
+        compo_name = f"_CPO_{draglib_name}_NG0_{ssh_option}_{corr_name}_{tracking_option}_{burnup_points}_{solver_option}_{saturation_option}_{time_integrator}_{glob_opt}"
+        # run DRAGON5 calculation with BU evolution
+        if time_integrator == "CECM":
+            CPO_NG0 = CECM("COMPO", pyLIB_NG0, TRK, TF_EXC, TRK_SS, TF_EXC_SS, StepList, compo_name, solver_option, glob_opt)
+        elif time_integrator == "CECE":
+            CPO_NG0 = CECE("COMPO", pyLIB_NG0, TRK, TF_EXC, TRK_SS, TF_EXC_SS, StepList, compo_name, solver_option, glob_opt)
+        elif time_integrator == "EXTR":
+            rates_extr = "EXTR"
             CPO_NG0 = BU_C("COMPO", pyLIB_NG0, TRK, TF_EXC, TRK_SS, TF_EXC_SS, StepList, compo_name, ssh_option, solver_option, glob_opt, rates_extr, saturation_option)
-    elif tracking_option == "SYBNXT": 
-        compo_name = f"_CPO_{draglib_name}_NG0_{ssh_option}_{corr_name}_{tracking_option}_{burnup_points}_{solver_option}_{saturation_option}_{rates_extr}_{glob_opt}"
-        CPO_NG0 = BU_C_SYBNXT("COMPO", pyLIB_NG0, TRK, TF_EXC, TRK_SS, TF_EXC_SS, StepList, compo_name, ssh_option, solver_option, glob_opt, saturation_option)
-    print(f"creating D5 case for {compo_name}")
-    D5case_NG0 = D5_case(CPO_NG0, draglib_name, burnup_points, ssh_option, "CORR", saturation_option, solver_option, tracked_nuclides, BU_lists, save_dir_D5)
-    D5case_NG0.plot_keffs()
-    for iso in tracked_nuclides:
-        D5case_NG0.plot_Ni(iso)
-    # --- Post-processing of DRAGON5 results
-        
-    #### END SCRIPT #### 
+        elif time_integrator == "NOEX":
+            rates_extr = "NOEX"
+            CPO_NG0 = BU_C("COMPO", pyLIB_NG0, TRK, TF_EXC, TRK_SS, TF_EXC_SS, StepList, compo_name, ssh_option, solver_option, glob_opt, rates_extr, saturation_option)
+        elif time_integrator == "EXTR2":
+            CPO_NG0 = BU_EXTR2("COMPO", pyLIB_NG0, TRK, TF_EXC, TRK_SS, TF_EXC_SS, StepList, compo_name, ssh_option, solver_option, glob_opt, saturation_option)    
+#### END SCRIPT #### 

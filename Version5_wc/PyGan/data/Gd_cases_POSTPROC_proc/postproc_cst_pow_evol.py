@@ -273,12 +273,13 @@ class OpenMC_case:
 
 # Comparison between several DRAGON cases and 1 reference Serpent2 case:
 class multiD5S2_comparisons:
-    def __init__(self, comparison_name, D5_cases, S2_case, tracked_nuclides, save_dir):
+    def __init__(self, comparison_name, D5_cases, S2_case, burnup_points, tracked_nuclides, save_dir):
         self.comparison_name = comparison_name
         self.D5_cases = D5_cases
         self.S2_case = S2_case
         self.delta_keffs = {}
         self.delta_Niso = {}
+        self.burnup_points = burnup_points
         self.tracked_nuclides = tracked_nuclides
         self.save_dir = save_dir
         # check if the save directory exists and create it if not
@@ -289,25 +290,37 @@ class multiD5S2_comparisons:
 
     def compare_keffs(self):
         for case in self.D5_cases:
-            delta_keff = (case.DRAGON_Keff - self.S2_case.keffs)*1e5 # error on Keff in pcm
-            self.delta_keffs[f"{case.draglib_name}_{case.ssh_opt}_{case.correlation}_to_S2_edep{self.S2_case.edep_id}"] = delta_keff
+            if len(case.keff) == len(self.S2_case.keff):
+                delta_keff = (case.keff - self.S2_case.keff)*1e5 # error on Keff in pcm
+            else:
+                # Interpolate the D5 keffs on the S2 BU points
+                interp_keff = np.interp(self.S2_case.BU, case.BU, case.keff)
+                delta_keff = (interp_keff - self.S2_case.keff)*1e5
+            self.delta_keffs[f"{case.draglib_name}_{case.ssh_opt}_{case.correlation}_{case.extrapolation_type}_to_S2_edep{self.S2_case.edep_id}"] = delta_keff
         return
     def compare_Ni(self):
         for iso in self.tracked_nuclides:
             delta_Niso_case = {}
             for case in self.D5_cases:
-                delta_Niso = [(case.DRAGON_ISOTOPESDENS[iso][idx] - self.S2_case.Ni[iso][idx]) * 100 / self.S2_case.Ni[iso][idx]
-                    if self.S2_case.Ni[iso][idx] != 0 else 0
-                    for idx in range(len(self.S2_case.Ni[iso]))]
-                delta_Niso_case[f"{case.draglib_name}_{case.ssh_opt}_{case.correlation}_to_S2_edep{self.S2_case.edep_id}"] = delta_Niso
+                if len(case.DRAGON_ISOTOPESDENS[iso]) == len(self.S2_case.Ni[iso]):
+                    delta_Niso = [(case.DRAGON_ISOTOPESDENS[iso][idx] - self.S2_case.Ni[iso][idx]) * 100 / self.S2_case.Ni[iso][idx]
+                        if self.S2_case.Ni[iso][idx] != 0 else 0
+                        for idx in range(len(self.S2_case.Ni[iso]))]
+                else:
+                    # Interpolate the D5 isotopic densities on the S2 BU points
+                    interp_Niso = np.interp(self.S2_case.BU, case.BU, case.DRAGON_ISOTOPESDENS[iso])
+                    delta_Niso = [(interp_Niso[idx] - self.S2_case.Ni[iso][idx]) * 100 / self.S2_case.Ni[iso][idx]
+                        if self.S2_case.Ni[iso][idx] != 0 else 0
+                        for idx in range(len(self.S2_case.Ni[iso]))]
+                delta_Niso_case[f"{case.draglib_name}_{case.ssh_opt}_{case.correlation}_{case.extrapolation_type}_to_S2_edep{self.S2_case.edep_id}"] = delta_Niso
             self.delta_Niso[f"{iso}"] = delta_Niso_case
         return
 
-    def plot_delta_Keff(self):
+    def plot_delta_keff(self):
         """
         Plot the delta Keff for all cases : 1 D5 case compared to several S2 cases
         """
-        plt.figure()
+        plt.figure(figsize=(10, 6))
         for comparison_case in self.delta_keffs.keys():
             plt.plot(self.S2_case.BU, self.delta_keffs[comparison_case], label = f"{comparison_case}".replace("_"," "), marker = "x", linestyle = "--")
         plt.xlabel(f"Burnup [{self.S2_case.unitsBU}]")
@@ -317,7 +330,7 @@ class multiD5S2_comparisons:
         plt.title(f"$\\Delta$ Keff evolution for {self.comparison_name} case")
         plt.legend()
         plt.grid()
-        plt.savefig(f"{self.save_dir}/Delta_Keff_{self.comparison_name}.png")
+        plt.savefig(f"{self.save_dir}/Delta_Keff_{self.comparison_name}_{self.burnup_points}.png")
         plt.close()
         return
     
@@ -326,7 +339,7 @@ class multiD5S2_comparisons:
         Plot the delta Ni for all cases : several D5 cases compared to one S2 case
         """
         for iso in self.tracked_nuclides:
-            plt.figure()
+            plt.figure(figsize=(10, 6))
             for comparison_case in self.delta_Niso[iso].keys():
                 plt.plot(self.S2_case.BU, self.delta_Niso[iso][comparison_case], label = f"{comparison_case}".replace("_"," "), marker = "x", linestyle = "--")
             plt.xlabel(f"Burnup [{self.S2_case.unitsBU}]")
@@ -336,7 +349,7 @@ class multiD5S2_comparisons:
             plt.title(f"$\\Delta$ N{iso} evolution for {self.comparison_name} case")
             plt.legend()
             plt.grid()
-            plt.savefig(f"{self.save_dir}/Delta_{iso}_{self.comparison_name}.png")
+            plt.savefig(f"{self.save_dir}/Delta_{iso}_{self.comparison_name}_{self.burnup_points}.png")
             plt.close()
         return
     
@@ -358,7 +371,7 @@ class D5multiS2_comparisons:
 
     def compare_keffs(self):
         for case in self.S2_cases:
-            delta_keff = (self.D5_case.DRAGON_Keff - case.keffs)*1e5 # error on Keff in pcm
+            delta_keff = (self.D5_case.keff - case.keff)*1e5 # error on Keff in pcm
             self.delta_keffs[f"{self.D5_case.draglib_name}_{self.D5_case.ssh_opt}_{self.D5_case.correlation}_to_S2_edep{case.edep_id}"] = delta_keff
         return
     def compare_Ni(self):
@@ -372,13 +385,13 @@ class D5multiS2_comparisons:
             self.delta_Niso[f"{iso}"] = delta_Niso_case
         return
 
-    def plot_delta_Keff(self):
+    def plot_delta_keff(self):
         """
         Plot the delta Keff for all cases : 1 D5 case compared to several S2 cases
         """
-        plt.figure()
+        plt.figure(figsize=(10, 6))
         for comparison_case in self.delta_keffs.keys():
-            plt.plot(self.D5_case.DRAGON_BU, self.delta_keffs[comparison_case], label = f"{comparison_case}".replace("_"," "), marker = "x", linestyle = "--")
+            plt.plot(self.D5_case.BU, self.delta_keffs[comparison_case], label = f"{comparison_case}".replace("_"," "), marker = "x", linestyle = "--")
         plt.xlabel(f"Burnup [MWd/tU]")
         plt.ylabel("$\\Delta$ Keff [pcm]")
         plt.axhline(y = 300.0, color = 'r', linestyle = '-')
@@ -395,9 +408,9 @@ class D5multiS2_comparisons:
         Plot the delta Ni for all cases : several D5 cases compared to one S2 case
         """
         for iso in self.tracked_nuclides:
-            plt.figure()
+            plt.figure(figsize=(10, 6))
             for comparison_case in self.delta_Niso[iso].keys():
-                plt.plot(self.D5_case.DRAGON_BU, self.delta_Niso[iso][comparison_case], label = f"{comparison_case}".replace("_"," "), marker = "x", linestyle = "--")
+                plt.plot(self.D5_case.BU, self.delta_Niso[iso][comparison_case], label = f"{comparison_case}".replace("_"," "), marker = "x", linestyle = "--")
             plt.xlabel(f"Burnup [MWd/tU]")
             plt.ylabel(f"$\\Delta$ N{iso} [%]")
             plt.axhline(y = 2.0, color = 'r', linestyle = '-')

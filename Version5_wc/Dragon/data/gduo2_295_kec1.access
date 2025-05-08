@@ -38,9 +38,9 @@ fi
 
 # Create symbolic links to ENDF8r1 SHEM295 draglib
 pos=$1/../../../libraries/l_endian
-if [ -f "$pos"/draglibshem295_endfb8r1 ]
+if [ -f "$pos"/draglibendfb8r1SHEM295 ]
    then
-    ln -s "$pos"/draglibshem295_endfb8r1 ENDFb8r1_295 
+    ln -s "$pos"/draglibendfb8r1SHEM295 ENDFb8r1_295 
 fi
 ls
 echo "gduo2_295_kec1 access script terminated"

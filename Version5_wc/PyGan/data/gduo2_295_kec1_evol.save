@@ -17,5 +17,6 @@ else
 fi
 
 cp _COMPO* ./gduo2_295_kec1_evol_results_PyGan/
+cp *CPO* ./gduo2_295_kec1_evol_results_PyGan/
 cp -r gduo2_295_kec1_evol_results_PyGan $1/"$MACH"/
 echo '$$$ ----- gduo2_295_kec1_evol.save : script finish'
