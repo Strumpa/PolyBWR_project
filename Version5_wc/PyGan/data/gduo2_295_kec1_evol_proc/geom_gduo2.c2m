@@ -16,11 +16,11 @@
 PARAMETER GEOM ::
 ::: LINKED_LIST GEOM ;  ;
 
-
 * -------------------------------
 *    STRUCTURES AND MODULES
 * -------------------------------
 MODULE  GEO: END: ECHO: ;
+
 INTEGER COMB0101 COMB0102 COMB0103 COMB0104 COMB0105 COMB0106 GAIN1
         MODE1 := 
         1 2 3 4 5 6 7 8 ; (* DISTRIBUTED SELF-SHIELDING *)
@@ -43,7 +43,7 @@ GEOM := GEO: :: CARCEL 8
       MIX <<COMB0101>> <<COMB0102>> <<COMB0103>> <<COMB0104>>
           <<COMB0105>> <<COMB0106>> <<GAIN1>> <<MODE1>> <<MODE1>>
       MESHX 0.0 1.26 MESHY 0.0 1.26
-          ;
+    ;
 
 END: ;
 QUIT .

@@ -28,12 +28,116 @@ from serpentTools.settings import rc
 
 matplotlib.use('Agg')
 
-def parse_Serpent2_lattice_det(path_to_S2, name_case, XS_lib_S2, edepmode, pcc, bu):
+def parse_Serpent2_material_det(path_to_S2, name_case, XS_lib_S2, bcond, edepmode, pcc, bu):
+    """
+    Material detector post-treatment for Serpent2 simulations
+    path_to_S2 : (str) path to the Serpent2 output files
+    name_case : (str) name of the Serpent2 output file
+    XS_lib_S2 : (str) name of the Serpent2 XS library
+    bcond : (int) boundary condition : (1) : vacuum (2) : reflective, (3) : periodic
+    edepmode : (int) energy deposition mode
+    pcc : (int) predictor corrector option
+    bu : (int) burnup step
+    """
+    # energy deposition mode 0 (default) : Constant energy deposition per fission.
+    # at bu = 0
+    if edepmode == 0:
+        detector = st.read(f"{path_to_S2}/{name_case}_{XS_lib_S2}_mc_det{bu}.m")
+        res = st.read(f"{path_to_S2}/{name_case}_{XS_lib_S2}_mc_res.m")
+    else:
+        detector = st.read(f"{path_to_S2}/{name_case}_edep{edepmode}_mc_det{bu}.m")
+        res = st.read(f"{path_to_S2}/{name_case}_edep{edepmode}_mc_res.m")
+    # retrieve keff
+    keff = res.resdata["absKeff"].T[0]
+
+    # Extracting the detector response
+
+    n_groups = detector.detectors['_C1_2G'].tallies.shape[0]
+    n_reactions = detector.detectors['_C1_2G'].tallies.shape[1]
+    tally_index_to_react = {0: "U235_ngamma", 1: "U238_ngamma", 2: "Pu239_ngamma", 3: "Pu241_ngamma", 4: "Xe135_ngamma", 5: "Sm149_ngamma", 6: "U235_fiss", 7: "U238_fiss", 8: "Pu239_fiss", 9: "Pu241_fiss"}
+    reaction_rates = {}
+    vol = np.pi * 0.4435 ** 2
+    U235_fiss_rates_S2_mat_det = {}
+    
+    if name_case == "AT10_2x2_UOX":
+        """
+        1 2 
+        2 4 
+        """
+        N_U235 = {"C1" : 5.67035E-04, "C2" : 7.560370E-04, "C4": 1.051340E-03}
+        vol_factor = {"C1": 1, "C2": 2, "C4": 1}
+        cells_in_problem = ["C1", "C2", "C4"]
+        reg_idx_to_cell = {0 : "C1", 1 : "C2", 
+                           2 : "C2", 3 : "C4"}
+        n_reg = 4
+
+
+    elif name_case == "bench_3x3_UOX":       
+        """
+        1 2 3 
+        2 4 1
+        3 1 6
+        """
+        N_U235 = {"C1" : 5.67035E-04, "C2" : 7.560370E-04, "C3" : 9.686590E-04, "C4": 1.051340E-03, "C6" : 1.169460E-03} 
+        vol_factor = {"C1": 3, "C2": 2, "C3": 2, "C4": 1, "C6": 1}
+        cells_in_problem = ["C1", "C2", "C3", "C4", "C6"]
+        reg_idx_to_cell = {0 : "C1", 1 : "C2", 2 : "C3", 
+                           3 : "C2", 4 : "C4", 5 : "C1", 
+                           6 : "C3", 7 : "C1", 8 : "C6"}
+        n_reg = 9
+    
+    elif name_case == "AT10_3x3_UOX_Gd":
+        """
+        1 2 3 
+        2 4 7 
+        3 7 6
+        """
+        N_U235 = {"C1" : 5.67035E-04, "C2" : 7.560370E-04, "C3" : 9.686590E-04, "C4": 1.051340E-03, "C6" : 1.169460E-03, "C7": 9.945290E-04} 
+        vol_factor = {"C1": 1, "C2": 2, "C3": 2, "C4": 1, "C6": 1, "C7": 2}
+        cells_in_problem = ["C1", "C2", "C3", "C4", "C6","C7"]
+        reg_idx_to_cell = {0 : "C1", 1 : "C2", 2 : "C3", 
+                           3 : "C2", 4 : "C4", 5 : "C7", 
+                           6 : "C3", 7 : "C7", 8 : "C6"}
+        n_reg = 9
+    
+    for cell in cells_in_problem:
+        cell_scores = detector.detectors[f'_{cell}_2G'].tallies
+        for gr in range(n_groups):
+            if f"{cell}" not in U235_fiss_rates_S2_mat_det.keys():
+                U235_fiss_rates_S2_mat_det[f"{cell}"] = {}
+            for k in range(n_reactions):
+                print(f"Cell {cell}, Energy group {gr+1}, Reaction {tally_index_to_react[k]} : {cell_scores[gr,k]}")
+                if tally_index_to_react[k] not in reaction_rates.keys():
+                    reaction_rates[tally_index_to_react[k]] = {}
+                reaction_rates[tally_index_to_react[k]][f"{cell}_G{gr+1}"] = cell_scores[gr,k]
+                # For now extracting only the fission rates of U235
+                if k == 6:
+                    #reaction_rates[f"U235_fiss_cell{j+1}_G{i+1}"] = detector.detectors['_pins_2G'].tallies[i,j,k]*N_U235[f"C{j+1}"]
+                    U235_fiss_rates_S2_mat_det[f"{cell}"][f"G{gr+1}"] = cell_scores[gr,k] * N_U235[cell] * vol / vol_factor[cell]
+    
+    # Symmetrizing the fission rates for the 3x3 lattice
+        
+    symmetrized_U235_fiss_rates_S2_mat_det = {}
+    for i in range(n_reg):
+        cell = reg_idx_to_cell[i]
+        if cell not in symmetrized_U235_fiss_rates_S2_mat_det.keys():
+            symmetrized_U235_fiss_rates_S2_mat_det[i] = {}
+        for gr in range(n_groups):
+            symmetrized_U235_fiss_rates_S2_mat_det[i][f"G{gr+1}"] = U235_fiss_rates_S2_mat_det[reg_idx_to_cell[i]][f"G{gr+1}"]
+    print(f"U235_fiss_rates_S2_mat_det = {U235_fiss_rates_S2_mat_det}")
+    print(f"symmetrized_U235_fiss_rates_S2_mat_det = {symmetrized_U235_fiss_rates_S2_mat_det}")
+    
+    
+    return keff, symmetrized_U235_fiss_rates_S2_mat_det
+
+
+def parse_Serpent2_lattice_det(path_to_S2, name_case, XS_lib_S2, bcond, edepmode, pcc, bu):
     """
     Lattice detector post-treatment for Serpent2 simulations
     path_to_S2 : (str) path to the Serpent2 output files
     name_case : (str) name of the Serpent2 output file
     XS_lib_S2 : (str) name of the Serpent2 XS library
+    bcond : (int) boundary condition : (1) : vacuum (2) : reflective, (3) : periodic
     edepmode : (int) energy deposition mode
     pcc : (int) predictor corrector option
     bu : (int) burnup step
@@ -43,9 +147,13 @@ def parse_Serpent2_lattice_det(path_to_S2, name_case, XS_lib_S2, edepmode, pcc, 
     # at bu = 0
     if edepmode == 0:
         detector = st.read(f"{path_to_S2}/{name_case}_{XS_lib_S2}_mc_det{bu}.m")
+        res = st.read(f"{path_to_S2}/{name_case}_{XS_lib_S2}_mc_res.m")
     else:
         detector = st.read(f"{path_to_S2}/{name_case}_edep{edepmode}_mc_det{bu}.m")
-
+        res = st.read(f"{path_to_S2}/{name_case}_edep{edepmode}_mc_res.m")
+    # retrieve keff
+    keff = res.resdata["absKeff"].T[0]
+        
     ### _pins_2G is a lattice detector
     # For 2x2 lattice :
     #print(detector.detectors["_pins_2G"].tallies.shape) # shape = (2, 4, 10) = (energy group, cell, repsonse to mt ?)
@@ -93,7 +201,7 @@ def parse_Serpent2_lattice_det(path_to_S2, name_case, XS_lib_S2, edepmode, pcc, 
         U235_fiss_rates_S2_lat_det["cell2"]["G2"] = (U235_fiss_rates_S2_lat_det["cell2"]["G2"] + U235_fiss_rates_S2_lat_det["cell3"]["G2"]) / 2
         U235_fiss_rates_S2_lat_det["cell3"]["G2"] = U235_fiss_rates_S2_lat_det["cell2"]["G2"]
     
-    return U235_fiss_rates_S2_lat_det
+    return keff, U235_fiss_rates_S2_lat_det
 
 def renormalize_rates(rates):
     """
@@ -106,7 +214,7 @@ def renormalize_rates(rates):
     rates = np.array(rates)
     return rates/np.sum(rates)
 
-def plot_error_grid_from_list(name_case, name_compo, group, error_list, N, cmap="bwr", text_color="black"):
+def plot_error_grid_from_list(plot_title, name_case, name_compo, group, error_list, N, bcond, cmap="bwr", text_color="black"):
     """
     Plots an N x N grid where each cell is colored according to the error value.
     
@@ -157,11 +265,13 @@ def plot_error_grid_from_list(name_case, name_compo, group, error_list, N, cmap=
     sm = plt.cm.ScalarMappable(cmap=color_map, norm=norm)
     sm.set_array([])
     cbar = plt.colorbar(sm, ax=ax, fraction=0.046, pad=0.04)
-    cbar.set_label("Relative errors on \\tau_f for U235 (%)", fontsize=12)
+    cbar.set_label("Relative errors on $\\tau_f$ for U235 (%)", fontsize=12)
 
     # Show the plot
     plt.title("Spatial Error (D5-S2) Distribution on U235 fission rates", fontsize=14)
-    plt.savefig(f"DRAGON_RATES_{name_case}/{name_compo}_error_grid_U235_fission_rates_g{group}.png", dpi=300)
+    plt.savefig(f"DRAGON_RATES_{name_case}/{plot_title}.png", dpi=300)
+    plt.close(fig)
+    return
 
 
 def BWR_CLUSTER(name_case, name_compo, reaction_type, n_groups, bu):
@@ -191,9 +301,6 @@ def BWR_CLUSTER(name_case, name_compo, reaction_type, n_groups, bu):
     pyCOMPO = lcm.new('LCM_INP', name_compo, impx=0)
     os.chdir(path)
 
-    # Parse Serpent2 results
-    U235_fission_rates_S2 = parse_Serpent2_lattice_det(SERPENT_path, name_case, XS_lib_S2="j311_pynjoy2016" , edepmode=0, pcc=1, bu=0)
-
     if name_case == "AT10_2x2_UOX":
         """
         C1 C2
@@ -215,8 +322,23 @@ def BWR_CLUSTER(name_case, name_compo, reaction_type, n_groups, bu):
         nCell = 9   # 1,2,3,4,5 = C1, C2, C3, C4, C6
         MIXES_idx = [0,1,2,3,4]
         cell_S2_to_mix_indx = {0:0, 1:1, 2:2, 3:1, 4:3, 5:0, 6:2, 7:0, 8:4}
+        reg_idx_to_cell = {0 : "C1", 1: "C2", 2 : "C3", 3: "C2", 4: "C4", 5: "C1", 6: "C3", 7: "C1", 8: "C6"}
         MIXES = ["C1", "C2", "C3", "C4", "C6"]    
         number_of_each_mix = {"C1":3, "C2":2, "C3":2, "C4":1, "C6":1}
+    elif name_case == "AT10_3x3_UOX_Gd":
+        """
+            C1 C2 C3    cell1 cell2 cell3
+            C2 C4 C7 =  cell4 cell5 cell6
+            C3 C7 C6    cell7 cell8 cell9
+        """
+        N_col=3
+        nCell = 9   # C1, C2, C3, C4, C6, C7
+        MIXES_idx = [0,1,2,3,4,5]
+        cell_S2_to_mix_indx = {0:0, 1:1, 2:2, 3:1, 4:3, 5:5, 6:2, 7:5, 8:4}
+        reg_idx_to_cell = {0 : "C1", 1: "C2", 2 : "C3", 3: "C2", 4: "C4", 5: "C7", 6: "C3", 7: "C7", 8: "C6"}
+        MIXES = ["C1", "C2", "C3", "C4", "C6", "C7"]
+        number_of_each_mix = {"C1":1, "C2":2, "C3":2, "C4":1, "C6":1, "C7":2}
+
     # Isotopes souhaites et nb total d'isotopes
     iso_study = ['U235 ', 'U238 ', 'Pu239', 'Pu241']
     reaction_name = 'NFTOT'
@@ -226,7 +348,8 @@ def BWR_CLUSTER(name_case, name_compo, reaction_type, n_groups, bu):
     #print(pyCOMPO.keys())
     len_isotot = np.shape(pyCOMPO['EDIBU_HOM']['MIXTURES'][0]['CALCULATIONS'][0]['ISOTOPESDENS'])[0] - 1
     ########## CALCULATIONS ##########
-    
+    # Retrieve keff from pyCOMPO
+    keff_D5 = pyCOMPO['EDIBU_HOM']['MIXTURES'][0]['CALCULATIONS'][0]['K-EFFECTIVE']
     # Calcul du facteur de normalisation
     prodD5 = 0.0
     prodS2 = 0.0
@@ -254,6 +377,7 @@ def BWR_CLUSTER(name_case, name_compo, reaction_type, n_groups, bu):
                 NWT0 = pyCOMPO['HOM2g']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NWT0']
                 N = pyCOMPO['HOM1g']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESDENS'][iso]
                 vol = pyCOMPO['HOM1g']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESVOL'][iso]
+                print(f"for mix {mix+1}, N = {N}, vol = {vol}")
                 NFTOT = pyCOMPO['HOM2g']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NFTOT']
 #                NGAMMA = pyCOMPO['EDIBU_2gr']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NG']
                 print(f"mix index is = {mix} with corresponding C name = {MIXES[mix]}")
@@ -262,57 +386,79 @@ def BWR_CLUSTER(name_case, name_compo, reaction_type, n_groups, bu):
                     U235_fiss_rate[f"mix{mix+1}"][f"gr{gr+1}"] = NFTOT[gr]*NWT0[gr]*N*vol/number_of_each_mix[MIXES[mix]]
 
     print(f"U235_fiss_rate = {U235_fiss_rate}")
+    U235_fiss_rates_regi = {}
     # duplicate rates from individual mixes to form the cells lattice
-    U235_fiss_rates_cells = {}
-    
-    for cell in cell_S2_to_mix_indx.keys():
-        U235_fiss_rates_cells[f"cell{cell+1}"] = {}
+    for i in range(nCell):
+        U235_fiss_rates_regi[f"reg{i+1}"] = {}
         for gr in range(n_groups):
-            print(f"adding score of mix{cell_S2_to_mix_indx[cell]+1} to cell{cell+1}, in group {gr+1}")
-            U235_fiss_rates_cells[f"cell{cell+1}"][f"G{gr+1}"] = U235_fiss_rate[f"mix{cell_S2_to_mix_indx[cell]+1}"][f"gr{gr+1}"]
+            U235_fiss_rates_regi[f"reg{i+1}"][f"G{gr+1}"] = U235_fiss_rate[f"mix{cell_S2_to_mix_indx[i]+1}"][f"gr{gr+1}"]
+
+
+    
+    
+    
+    # Parse Serpent2 results
+    keff_S2, U235_material_det_fission_Rates_S2 = parse_Serpent2_material_det(SERPENT_path, name_case, XS_lib_S2="endfb8r1_pynjoy2012", bcond=2, edepmode=0, pcc=1, bu=0)
+    
+    print(f"U235_material_det_fission_Rates_S2 = {U235_material_det_fission_Rates_S2}")
     # normalize the rates : sum of rates = nCells
     # group 1 : U235 fast fissions : note that group numbers are in increasing lethargy in Dragon and in increasing energy in Serpent
-    U235_fiss_rate_norm_1 = renormalize_rates([U235_fiss_rates_cells[cell]["G1"] for cell in U235_fiss_rates_cells.keys()])
-    U235_fission_rates_S2_norm_1 = renormalize_rates([U235_fission_rates_S2[f"cell{mix_idx+1}"]["G2"] for mix_idx in cell_S2_to_mix_indx.keys()])
+    U235_fiss_rate_norm_1 = renormalize_rates([U235_fiss_rates_regi[reg]["G1"] for reg in U235_fiss_rates_regi.keys()])
 
     # group 2 : U235 thermal fissions
-    U235_fiss_rate_norm_2 = renormalize_rates([U235_fiss_rates_cells[cell]["G2"] for cell in U235_fiss_rates_cells.keys()])
-    U235_fission_rates_S2_norm_2 = renormalize_rates([U235_fission_rates_S2[f"cell{mix_idx+1}"]["G1"] for mix_idx in cell_S2_to_mix_indx.keys()])
+    U235_fiss_rate_norm_2 = renormalize_rates([U235_fiss_rates_regi[reg]["G2"] for reg in U235_fiss_rates_regi.keys()])
 
-    relative_difference1 = [(U235_fiss_rate_norm_1[i] - U235_fission_rates_S2_norm_1[i])*100/U235_fission_rates_S2_norm_1[i] for i in range(nCell)]
-    relative_difference2 = [(U235_fiss_rate_norm_2[i] - U235_fission_rates_S2_norm_2[i])*100/U235_fission_rates_S2_norm_2[i] for i in range(nCell)]
+    print(f"for bcond = 2, name_compo = {name_compo}, delta keff = {(keff_D5 - keff_S2)*1e5}")
 
-    #print(f"relative_difference1 = {relative_difference1}")
-    plot_error_grid_from_list(name_case, name_compo, 1, relative_difference1, N_col) 
-    plot_error_grid_from_list(name_case, name_compo, 2, relative_difference2, N_col) 
-    return relative_difference1, relative_difference2
+
+    ### Material detector
+    # group 1 : U235 fast fissions : note that group numbers are in increasing lethargy in Dragon and in increasing energy in Serpent
+    U235_fission_rates_S2_mat_det_norm_1 = renormalize_rates([U235_material_det_fission_Rates_S2[cell]["G2"] for cell in U235_material_det_fission_Rates_S2.keys()])
+    # group 2 : U235 thermal fissions
+    U235_fission_rates_S2_mat_det_norm_2 = renormalize_rates([U235_material_det_fission_Rates_S2[cell]["G1"] for cell in U235_material_det_fission_Rates_S2.keys()])
+
+    # relative difference
+    relative_difference1_mat_det = [(U235_fiss_rate_norm_1[i] - U235_fission_rates_S2_mat_det_norm_1[i])*100/U235_fission_rates_S2_mat_det_norm_1[i] for i in range(nCell)]
+    relative_difference2_mat_det = [(U235_fiss_rate_norm_2[i] - U235_fission_rates_S2_mat_det_norm_2[i])*100/U235_fission_rates_S2_mat_det_norm_2[i] for i in range(nCell)]
+
+    plot_error_grid_from_list(f"{name_compo}_bc2_error_grid_U235_fission_rates_g1_vs_mat_det", name_case, name_compo, 1, relative_difference1_mat_det, N_col, bcond=2)
+    plot_error_grid_from_list(f"{name_compo}_bc2_error_grid_U235_fission_rates_g2_vs_mat_det", name_case, name_compo, 2, relative_difference2_mat_det, N_col, bcond=2)
+
+    return
 
 # Execute post treatment procedure
 
 
 if __name__ == "__main__":
-    name_case = "AT10_2x2_UOX" # "bench_3x3_UOX" #"AT10_2x2_UOX"
-    name_compo = "COMPO_2x2_UOX_TRAN" #"COMPO_2x2_UOX_12032025_RSE" #"COMPO_bench_3x3_UOX_CALC" # "COMPO_bench_3x3_UOX_C1_inrs1" # "COMPO_2x2_UOX_12032025_RSE" 
+    # AT10_2x2_UOX
+    name_case = "AT10_2x2_UOX"
+    name_compo = "COMPO_2x2_UOX_REFL_REFL" #"COMPO_2x2_UOX_12032025_RSE" #"COMPO_bench_3x3_UOX_CALC" # "COMPO_bench_3x3_UOX_C1_inrs1" # "COMPO_2x2_UOX_12032025_RSE" 
     print(f"name_case = {name_case}, name_case = {name_case}, name_compo = {name_compo}")
+    BWR_CLUSTER("AT10_2x2_UOX", "COMPO_2x2_UOX_REFL_REFL", 'fission', 2, 0)
 
-    #diffg1,diffg2 = BWR_CLUSTER(name_case, name_compo, 'fission', 2, 0)
-    #print(f"diffg1 = {diffg1}")
-    #print(f"diffg2 = {diffg2}")
-
-
-    #name_case = "AT10_2x2_UOX"
-    #name_compo = "COMPO_2x2_UOX_12032025_RSE" 
-    #print(f"name_case = {name_case}, name_case = {name_case}, name_compo = {name_compo}")
-
-    #diffg1,diffg2 = BWR_CLUSTER(name_case, name_compo, 'fission', 2, 0)
-    #print(f"diffg1 = {diffg1}")
-    #print(f"diffg2 = {diffg2}")
-
+    
+    # bench_3x3_UOX
     name_case = "bench_3x3_UOX"
-    name_compo = "COMPO_bench_3x3_UOX_TRAN" # "COMPO_bench_3x3_UOX_TRAN" #"COMPO_bench_3x3_UOX_C1_inrs1" # "COMPO_2x2_UOX_12032025_RSE"
-    diffg1,diffg2 = BWR_CLUSTER(name_case, name_compo, 'fission', 2, 0)
-    print(f"name_case = {name_case}, name_case = {name_case}, name_compo = {name_compo}")
-    print(f"diffg1 = {diffg1}")
-    print(f"diffg2 = {diffg2}")
+    name_compo = "COMPO_bench_3x3_UOX_REFL_REFL" #"COMPO_bench_3x3_UOX_CALC" # "COMPO_bench_3x3_UOX_C1_inrs1" # "COMPO_2x2_UOX_12032025_RSE"
 
+    BWR_CLUSTER("bench_3x3_UOX", "COMPO_bench_3x3_UOX_REFL_REFL", 'fission', 2, 0)
 
+    # AT10_3x3_UOX_Gd
+    name_case = "AT10_3x3_UOX_Gd"
+    name_compo = "COMPO_AT10_3x3_UOX_Gd_REFL_REFL" #"COMPO_bench_3x3_UOX_CALC" # "COMPO_bench_3x3_UOX_C1_inrs1" # "COMPO_2x2_UOX_12032025_RSE"
+
+    BWR_CLUSTER("AT10_3x3_UOX_Gd", "COMPO_AT10_3x3_UOX_Gd_REFL_REFL_CORR_7inrsGd", 'fission', 2, 0)
+
+    BWR_CLUSTER("AT10_3x3_UOX_Gd", "COMPO_AT10_3x3_UOX_Gd_REFL_REFL_CORR_allinrs", 'fission', 2, 0)
+
+    BWR_CLUSTER("AT10_3x3_UOX_Gd", "COMPO_AT10_3x3_UOX_Gd_REFL_REFL_allinrs", 'fission', 2, 0)
+
+    BWR_CLUSTER("AT10_3x3_UOX_Gd", "COMPO_AT10_3x3_UOX_Gd_REFL_REFL_CTRA_allinrs_REGI_U238", 'fission', 2, 0)
+
+    BWR_CLUSTER("AT10_3x3_UOX_Gd", "COMPO_AT10_3x3_UOX_Gd_REFL_REFL_allinrs_SECT", 'fission', 2, 0)
+
+    BWR_CLUSTER("AT10_3x3_UOX_Gd", "COMPO_AT10_3x3_UOX_Gd_REFL_REFL_allinrs_SECT_REGI", 'fission', 2, 0)
+    #COMPO_AT10_3x3_UOX_Gd_REFL_REFL_allinrs_SECT_fine
+    BWR_CLUSTER("AT10_3x3_UOX_Gd", "COMPO_AT10_3x3_UOX_Gd_REFL_REFL_allinrs_SECT_fine", 'fission', 2, 0)
+
+    BWR_CLUSTER("AT10_3x3_UOX_Gd", "COMPO_AT10_3x3_UOX_Gd_REFL_REFL_allinrs_SECT_REGI_fine", 'fission', 2, 0)

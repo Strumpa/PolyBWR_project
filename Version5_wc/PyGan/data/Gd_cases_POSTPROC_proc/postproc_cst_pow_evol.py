@@ -130,7 +130,7 @@ class DRAGON_case:
         """
         time step to BU step normalization factor
         """
-        self.specific_power = 38.6 # W/gU
+        self.specific_power = 26.5 # W/gU
         
         """
         Output options

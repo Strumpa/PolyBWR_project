@@ -17,9 +17,7 @@ else
 fi
 ls -l
 
-mv COMPO_AT10_MPHYS_PT_SYBNXT $1/"$MACH"
-mv COMPO_AT10_MPHYS_RSE $1/"$MACH"
-mv COMPO_AT10_MPHYS_PT $1/"$MACH"
+mv COMPO* $1/"$MACH"
 
 mv PIN_AT10_FIG_SS.ps $1/"$MACH"
 mv PIN_AT10_FIG_FLX.ps $1/"$MACH"

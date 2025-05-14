@@ -1,8 +1,9 @@
 * bench_3x3_UOX.x2m, CLE-2000 script to call Dragon5
 * Purpose : Refining calculation scheme for BWR ATRIUM-10 type heterogeneous assemlies.
-* 2x2 pins, no Gd loaded pins.
+* 3x3 pins, no Gd loaded pins.
 * Reference Serpen2 case : bench_3x3_UOX_mc
 * No Burnup calculation 
+* idea is to test different mix for C1 pins that are not at bottom left
 
 
 ****************************************************************************
@@ -13,7 +14,7 @@ MODULE GEO: G2S: NXT: SYBILT: SALT: MCCGT: LIB: USS: ASM: FLU: GREP: EDI: COMPO:
 LINKED_LIST GEOM_3x3 GEOM_3x3_SS LIBRARY LIBRARY2 TRACK_SS TRACK SYS FLUX EDIRATES COMPO ;
 
 SEQ_ASCII Geo_G2S GeoSS_G2S ;
-SEQ_ASCII _COMPO :: FILE './COMPO_bench_3x3_UOX_REFL_TRAN' ;
+SEQ_ASCII _COMPO :: FILE './COMPO_bench_3x3_UOX_REFL_REFL' ;
 SEQ_ASCII FIG_main.ps :: FILE './FIG_main_bench3x3.ps' ;
 SEQ_ASCII FIG_SS.ps :: FILE './FIG_selfshielding.ps' ;
 
@@ -99,8 +100,8 @@ GEOM_3x3_SS := GEO: :: CAR2D 3 3
 
 
 GEOM_3x3 := GEO: :: CAR2D 3 3
-    X- TRAN X+ TRAN
-    Y- TRAN Y+ TRAN
+    X- REFL X+ REFL 
+    Y- REFL Y+ REFL
     CELL
     C1 C2 C3
     C2 C4 C1
@@ -289,7 +290,7 @@ Geo_G2S FIG_main.ps := G2S: GEOM_3x3 :: ;
 TRACK TF_EXC := SALT: Geo_G2S ::
   EDIT 1
   ALLG
-  BATCH 1000
+  BATCH 100
   ANIS 2
   TSPC EQW2 <<an2d>> <<densur>> REND LONG
 ;
@@ -330,8 +331,8 @@ SYS := ASM: LIBRARY2 TRACK TF_EXC :: ARM EDIT 0 ;
 FLUX := FLU: LIBRARY2 SYS TRACK TF_EXC :: 
              EDIT 1 TYPE K  
       ;
-!GREP: FLUX :: GETVAL 'K-EFFECTIVE  ' 1 1 1 >>Kinf<< ;
-ECHO "SS tracking = SALT and FLX tracking = SALT TSPC, MOC on bench_3x3_UOX: Kinf=" Kinf ;
+GREP: FLUX :: GETVAL 'K-EFFECTIVE  ' 1 1 1 >>Kinf<< ;
+ECHO "SS tracking = SYBILT and FLX tracking = SALT TSPC, MOC on bench_3x3_UOX: Kinf=" Kinf ;
 
 **********************************************************************************************************
 ********************          EXPORTS FOR POST-TREATMENT OF REACTION RATES               *****************

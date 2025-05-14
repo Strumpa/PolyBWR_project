@@ -317,11 +317,14 @@ If = 8
 I1 = 3
 
 # Sensitivity to the meshing parameters
-Iz1 = 10 # number of control volumes in the axial direction, added 70 for comparison with GeN-Foam
+Iz1 = 20 # number of control volumes in the axial direction, added 70 for comparison with GeN-Foam
 # Iz1 = 10, 20, 40, 50, 70, 80 and 160 are supported for the DONJON solution
+## "interesting" Divisors of 380 are 10 -> 38cm per mesh, 20 -> 19cm per mesh, 38 -> 10cm per mesh, 76 -> 5 cm per mesh, 95 -> 4cm per mesh
+
+# --> implement 38 and 76 nodes for AT10_24UOX cell extruded on 380 cm. 
 
 
-power_scaling_factor = 1 # 1, 2, 4, 8 # Scaling factor for the power axial distribution
+power_scaling_factor = 8 # 1, 2, 4, 8 # Scaling factor for the power axial distribution
 
 ########## Choice of Thermalhydraulics correlation ##########
 voidFractionCorrel = 'EPRIvoidModel' # 'modBestion', 'HEM1', 'GEramp', 'EPRIvoidModel'

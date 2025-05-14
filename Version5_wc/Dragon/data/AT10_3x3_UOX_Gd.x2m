@@ -9,19 +9,16 @@
 ************************** VARIABLES DEFINITION ****************************
 ****************************************************************************
 
-MODULE GEO: G2S: NXT: SYBILT: SALT: MCCGT: LIB: USS: ASM: FLU: GREP: END: ;
-LINKED_LIST GEOM_3x3 GEOM_3x3_SS LIBRARY LIBRARY2 TRACK_SS TRACK SYS FLUX ;
+MODULE GEO: G2S: NXT: SYBILT: SALT: MCCGT: LIB: USS: ASM: FLU: EDI: COMPO: GREP: END: DELETE: ;
+LINKED_LIST GEOM_3x3 GEOM_3x3_SS LIBRARY LIBRARY2 TRACK_SS TRACK SYS FLUX COMPO EDIRATES ;
 
 SEQ_ASCII Geo_G2S GeoSS_G2S ;
-
+SEQ_ASCII _COMPO :: FILE './_COMPO_AT10_3x3_UOX_Gd_REFL_REFL_allinrs_SECT_finer_30_100' ;
+SEQ_ASCII FIG_main.ps :: FILE './FIG_main_SECT.ps' ;
 
 SEQ_BINARY TF_EXC TF_EXC_SS ;
 
-STRING Library := "J311_295" ;
-
-STRING ssh_sol := "CP" ;
-STRING flx_sol := "MOC" ;
-STRING ssh_opt := "ALL" ;
+STRING Library := "endfb8r1_295" ;
 
 REAL Kinf ;
 
@@ -42,19 +39,19 @@ EVALUATE COMB0101 COMB0102 COMB0103 COMB0104 := 1 2 3 4 ;
 
 !Mix numbers for C2 fuel 
 INTEGER COMB0201 COMB0202 COMB0203 COMB0204 ;
-EVALUATE COMB0201 COMB0202 COMB0203 COMB0204 := 21 22 23 24 ;
+EVALUATE COMB0201 COMB0202 COMB0203 COMB0204 := 5 6 7 8 ;
 
 !Mix numbers for C3 fuel 
 INTEGER COMB0301 COMB0302 COMB0303 COMB0304 ;
-EVALUATE COMB0301 COMB0302 COMB0303 COMB0304 := 31 32 33 34 ;
+EVALUATE COMB0301 COMB0302 COMB0303 COMB0304 := 9 10 11 12 ;
 
 !Mix numbers for C4 fuel 
 INTEGER COMB0401 COMB0402 COMB0403 COMB0404 ;
-EVALUATE COMB0401 COMB0402 COMB0403 COMB0404 := 41 42 43 44 ;
+EVALUATE COMB0401 COMB0402 COMB0403 COMB0404 := 13 14 15 16 ;
 
 !Mix numbers for C6 fuel 
 INTEGER COMB0601 COMB0602 COMB0603 COMB0604 ;
-EVALUATE COMB0601 COMB0602 COMB0603 COMB0604 := 61 62 63 64 ;
+EVALUATE COMB0601 COMB0602 COMB0603 COMB0604 := 17 18 19 20 ;
 
 ! UOX + Gd Pincell scale data
 
@@ -64,12 +61,12 @@ EVALUATE RcombGd1 RcombGd2 RcombGd3 RcombGd4 RcombGd5 RcombGd6
 
 ! Mix numbers C7 fuel
 INTEGER COMB0701 COMB0702 COMB0703 COMB0704 COMB0705 COMB0706 ;
-EVALUATE COMB0701 COMB0702 COMB0703 COMB0704 COMB0705 COMB0706 := 71 72 73 74 75 76 ;
+EVALUATE COMB0701 COMB0702 COMB0703 COMB0704 COMB0705 COMB0706 := 21 22 23 24 25 26 ;
 
 ! Pin level common mixes : Clad, Gap, Coolant (intra-pin water) :
 
 INTEGER GAP CLAD COOL ;
-EVALUATE GAP CLAD COOL := 5 6 7 ;
+EVALUATE GAP CLAD COOL := 27 28 29 ;
 
 ! Multiples of cell pitch : used to define 2nd level geometry mesh 
 REAL 2_Pitch_C 3_Pitch_C 4_Pitch_C ;
@@ -80,8 +77,8 @@ EVALUATE 4_Pitch_C := Pitch_C 4.0 * ;
 
 
 GEOM_3x3_SS := GEO: :: CAR2D 3 3
-    X- DIAG X+ REFL 
-    Y- REFL Y+ DIAG
+    X- REFL X+ REFL 
+    Y- REFL Y+ REFL
     CELL
     C1 C2 C3
     C2 C4 C7
@@ -118,8 +115,8 @@ GEOM_3x3_SS := GEO: :: CAR2D 3 3
 
 
 GEOM_3x3 := GEO: :: CAR2D 3 3
-    X- DIAG X+ REFL 
-    Y- REFL Y+ DIAG
+    X- REFL X+ REFL 
+    Y- REFL Y+ REFL
     CELL
     C1 C2 C3
     C2 C4 C7
@@ -162,11 +159,25 @@ GEOM_3x3 := GEO: :: CAR2D 3 3
                             <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
     ;
     ::: C7 := GEO: CARCEL 8
-              SECT 4 8 
+              SECT 4 0 
               RADIUS 0.0 <<RcombGd1>> <<RcombGd2>> <<RcombGd3>> <<RcombGd4>>
                           <<RcombGd5>> <<RcombGd6>> <<Rgap>> <<Rclad>> 
-              MIX <<COMB0701>> <<COMB0702>> <<COMB0703>> <<COMB0704>> <<COMB0705>> <<COMB0706>>
-                  <<GAP>> <<CLAD>> 
+              MIX <<COMB0701>> <<COMB0701>> <<COMB0701>> <<COMB0701>> 
+                  <<COMB0701>> <<COMB0701>> <<COMB0701>> <<COMB0701>>
+                  <<COMB0702>> <<COMB0702>> <<COMB0702>> <<COMB0702>>
+                  <<COMB0702>> <<COMB0702>> <<COMB0702>> <<COMB0702>>
+                  <<COMB0703>> <<COMB0703>> <<COMB0703>> <<COMB0703>>
+                  <<COMB0703>> <<COMB0703>> <<COMB0703>> <<COMB0703>> 
+                  <<COMB0704>> <<COMB0704>> <<COMB0704>> <<COMB0704>>
+                  <<COMB0704>> <<COMB0704>> <<COMB0704>> <<COMB0704>> 
+                  <<COMB0705>> <<COMB0705>> <<COMB0705>> <<COMB0705>>
+                  <<COMB0705>> <<COMB0705>> <<COMB0705>> <<COMB0705>> 
+                  <<COMB0706>> <<COMB0706>> <<COMB0706>> <<COMB0706>>
+                  <<COMB0706>> <<COMB0706>> <<COMB0706>> <<COMB0706>>
+                  <<GAP>> <<GAP>> <<GAP>> <<GAP>> 
+                  <<GAP>> <<GAP>> <<GAP>> <<GAP>>
+                  <<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>>
+                  <<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>>
                   <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                   <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>>
               MESHX 0.0 <<Pitch_C>> MESHY 0.0 <<Pitch_C>>
@@ -182,9 +193,7 @@ GEOM_3x3 := GEO: :: CAR2D 3 3
 LIBRARY := LIB: ::
     EDIT 0
     NMIX 150    ! MAXIMUM OF MATERIAL MIXTURES
-    !RSE 5.0E-1
     PT
-*    CTRA APOL ! APOLLO TYPE TRANSPORT CORRECTION
     ANIS 3
     ADED 4 NELAS N4N N2N N3N
     CALENDF 3 PT      ! CALENDF TYPE PROBABILITY TABLES
@@ -246,15 +255,15 @@ LIBRARY := LIB: ::
   ! C7 fuel compo "AT10_45Gd":
   MIX <<COMB0701>> 750.0
     O16     = O16    4.621410E-02
-    U234    = U234   9.451580E-06 7
-    U235    = U235   9.945290E-04 7 
-    U238    = U238   2.107540E-02 7 
-    Gd154    = Gd154   2.986510E-05 7 
-    Gd155    = Gd155   2.027540E-04 7 
-    Gd156    = Gd156   2.804310E-04 7 
-    Gd157    = Gd157   2.143990E-04 7 
-    Gd158    = Gd158   3.403000E-04 7 
-    Gd160    = Gd160   2.994740E-04 7 
+    U234    = U234   9.451580E-06 1
+    U235    = U235   9.945290E-04 1 
+    U238    = U238   2.107540E-02 1 
+    Gd154    = Gd154   2.986510E-05 1 
+    Gd155    = Gd155   2.027540E-04 1 
+    Gd156    = Gd156   2.804310E-04 1 
+    Gd157    = Gd157   2.143990E-04 1 
+    Gd158    = Gd158   3.403000E-04 1
+    Gd160    = Gd160   2.994740E-04 1 
   MIX <<COMB0702>> COMB <<COMB0701>> 1.0
   MIX <<COMB0703>> COMB <<COMB0701>> 1.0
   MIX <<COMB0704>> COMB <<COMB0701>> 1.0
@@ -309,11 +318,8 @@ LIBRARY := LIB: ::
 * TRACKING PARAMTERES
 * ---
 
-INTEGER an2d := 18 ;  ! ANGULAR QUADRATURE PARAMETER
-REAL densur := 35.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
-
-INTEGER an2d_SS := 8 ;
-REAL densur_SS := 15.0 ;
+INTEGER an2d := 30 ;  ! ANGULAR QUADRATURE PARAMETER
+REAL densur := 100.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
 
 
 * polar angles for MCCGT:
@@ -322,161 +328,136 @@ INTEGER nmu := 4 ;
 * size allocation for MCCGT:
 INTEGER mcu := 50000 ;
 
+* if using SYBILT:
+INTEGER iqua2 := 32 ;
+INTEGER nseg := 10 ;
+
 * ---
 * FLUX CALC TRACKING
 * ---
-Geo_G2S := G2S: GEOM_3x3 :: ;
+Geo_G2S FIG_main.ps := G2S: GEOM_3x3 :: ;
 
 TRACK TF_EXC := SALT: Geo_G2S ::
   EDIT 1
   ALLG
-  BATCH 5000
+  BATCH 500
   ANIS 3
   TSPC EQW2 <<an2d>> <<densur>> REND LONG
 ;
 
-IF flx_sol "MOC" = THEN
-  * MOC tracking
-  TRACK := MCCGT: TRACK TF_EXC ::
-    EDIT 1
-    CACB <<nmu>> AAC 80 TMT EPSI 1E-5 MCU <<mcu>> ! tried CACB but is limited to isotropic ?
-  ;
-ENDIF ;
+
+* MOC tracking
+TRACK := MCCGT: TRACK TF_EXC ::
+  EDIT 1
+  CACB <<nmu>> AAC 80 TMT EPSI 1E-5 MCU <<mcu>> ! tried CACB but is limited to isotropic ?
+;
+
 
 * ---
 * SELF-SHIELDING TRACKING
 * ---
-GeoSS_G2S := G2S: GEOM_3x3_SS :: ;
 
-TRACK_SS TF_EXC_SS := SALT: GeoSS_G2S ::
-  EDIT 1
-  ALLG
-  BATCH 1000
-  TSPC <<an2d_SS>> <<densur_SS>> REND
-  MERGMIX
+TRACK_SS := SYBILT: GEOM_3x3_SS ::
+    TITLE 'TRACKING FOR bench 3x3 UOX'
+    MAXR 100 QUA2 <<iqua2>> <<nseg>> DP01 MAXZ 750000 
 ;
-
-IF ssh_sol "MOC" = THEN
-  TRACK_SS := MCCGT: TRACK_SS TF_EXC_SS ::
-    EDIT 1
-    CACB <<nmu>> AAC 80 TMT EPSI 1E-5 MCU <<mcu>> ! tried CACB but is limited to isotropic ?
-  ;
-ENDIF ;
-
 
 
 ****************************************************************************************
 *********************** BEGIN SELF-SHIELDING CALCULATION WITH USS **********************
 ****************************************************************************************
 
+LIBRARY2 := USS: LIBRARY TRACK_SS ::
+      EDIT 1 PASS 4 MAXST 50
+      ;
 
-IF ssh_sol "MOC" = THEN
-  LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
-          EDIT 1 PASS 3 MAXST 20 ARM
-        ;
-ELSEIF ssh_sol "CP" = THEN
-    IF ssh_opt "REGI" = THEN
-    LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS :: !EDIT 1 PASS 3 GRMIN 52
-              EDIT 1 PASS 2 GRMIN 52 NOTR MAXST 100
-              CALC  
-                    REGI W1 U234 ALL   
-                    REGI W1 U235 ALL     
-                    REGI W1 Zr90 ALL
-                    REGI W1 Zr91 ALL
+SYS := ASM: LIBRARY2 TRACK TF_EXC :: ARM EDIT 0 ; 
 
-                    REGI W1 U238 <<COMB0101>> <<COMB0201>> <<COMB0301>> <<COMB0401>> <<COMB0601>>
-                    REGI W2 U238 <<COMB0102>> <<COMB0202>> <<COMB0302>> <<COMB0402>> <<COMB0602>>
-                    REGI W3 U238 <<COMB0103>> <<COMB0203>> <<COMB0303>> <<COMB0403>> <<COMB0602>>
-                    REGI W4 U238 <<COMB0104>> <<COMB0204>> <<COMB0304>> <<COMB0404>> <<COMB0604>>
-
-                    REGI W11 U238 <<COMB0701>>
-                    REGI W12 U238 <<COMB0702>>
-                    REGI W13 U238 <<COMB0703>>
-                    REGI W14 U238 <<COMB0704>>
-                    REGI W15 U238 <<COMB0705>>
-                    REGI W16 U238 <<COMB0706>>
-
-                    REGI W11 Gd154 <<COMB0701>>
-                    REGI W12 Gd154 <<COMB0702>>
-                    REGI W13 Gd154 <<COMB0703>>
-                    REGI W14 Gd154 <<COMB0704>>
-                    REGI W15 Gd154 <<COMB0705>>
-                    REGI W16 Gd154 <<COMB0706>>
-                    
-                    REGI W11 Gd155 <<COMB0701>>
-                    REGI W12 Gd155 <<COMB0702>>
-                    REGI W13 Gd155 <<COMB0703>>
-                    REGI W14 Gd155 <<COMB0704>>
-                    REGI W15 Gd155 <<COMB0705>>
-                    REGI W16 Gd155 <<COMB0706>>
-
-                    REGI W11 Gd156 <<COMB0701>>
-                    REGI W12 Gd156 <<COMB0702>>
-                    REGI W13 Gd156 <<COMB0703>>
-                    REGI W14 Gd156 <<COMB0704>>
-                    REGI W15 Gd156 <<COMB0705>>
-                    REGI W16 Gd156 <<COMB0706>>
-
-                    REGI W11 Gd157 <<COMB0701>>
-                    REGI W12 Gd157 <<COMB0702>>
-                    REGI W13 Gd157 <<COMB0703>>
-                    REGI W14 Gd157 <<COMB0704>>
-                    REGI W15 Gd157 <<COMB0705>>
-                    REGI W16 Gd157 <<COMB0706>>
-
-                    REGI W11 Gd158 <<COMB0701>>
-                    REGI W12 Gd158 <<COMB0702>>
-                    REGI W13 Gd158 <<COMB0703>>
-                    REGI W14 Gd158 <<COMB0704>>
-                    REGI W15 Gd158 <<COMB0705>>
-                    REGI W16 Gd158 <<COMB0706>>
-
-                    REGI W11 Gd160 <<COMB0701>>
-                    REGI W12 Gd160 <<COMB0702>>
-                    REGI W13 Gd160 <<COMB0703>>
-                    REGI W14 Gd160 <<COMB0704>>
-                    REGI W15 Gd160 <<COMB0705>>
-                    REGI W16 Gd160 <<COMB0706>>
-          ENDC
-          ;
-    ELSEIF ssh_opt "ALL" = THEN
-            LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
-              EDIT 1 PASS 2 GRMIN 52 NOTR MAXST 100
-                CALC 
-                    * ALL CELLS
-                    REGI W1 U235  ALL
-                    REGI W1 U238  ALL
-                    REGI W1 Pu239 ALL
-                    REGI W1 Pu240 ALL
-                    REGI W1 Pu241 ALL
-                    REGI W1 Pu242 ALL
-
-                    REGI W1 Gd154 ALL
-                    REGI W1 Gd155 ALL
-                    REGI W1 Gd156 ALL
-                    REGI W1 Gd157 ALL
-                    REGI W1 Gd158 ALL
-
-                    REGI W1 Zr90 ALL
-                    REGI W1 Zr91 ALL
-                    REGI W1 Zr92 ALL
-                    REGI W1 Zr94 ALL
-                    REGI W1 Zr96 ALL
-
-                ENDC
-              ;
-      ENDIF ;
-ENDIF ;
-
-IF flx_sol "MOC" = THEN
-  SYS := ASM: LIBRARY2 TRACK TF_EXC :: ARM EDIT 0 ; 
-ELSEIF flx_sol "CP" = THEN
-  SYS := ASM: LIBRARY2 TRACK TF_EXC :: PIJ EDIT 0 ;
-ENDIF ;
 
 FLUX := FLU: LIBRARY2 SYS TRACK TF_EXC :: 
              EDIT 1 TYPE K  
       ;
 GREP: FLUX :: GETVAL 'K-EFFECTIVE  ' 1 1 1 >>Kinf<< ;
-ECHO ssh_sol " SS tracking = SALT, and FLX tracking = SALT TSPC, " flx_sol  " on 3x3_UOX_Gd: Kinf=" Kinf ;
-END: ;
+ECHO "SSH tracking = SYBILT, and FLX tracking = SALT TSPC, on 3x3_UOX_Gd: Kinf=" Kinf ;
+**********************************************************************************************************
+********************          EXPORTS FOR POST-TREATMENT OF REACTION RATES               *****************
+**********************************************************************************************************
+COMPO := COMPO: ::
+    EDIT 1
+    STEP UP 'EDIBU_HOM'
+     MAXCAL 5
+     COMM 'Reaction rates- Condensed, Homogenized over all fuel cells' ENDC
+     ISOT 2 U235 U238
+    INIT
+    STEP UP 'HOM1g'
+     MAXCAL 5
+     COMM 'Reaction rates- Condensed, Homogenized' ENDC
+     ISOT 2 U235 U238
+    INIT
+    STEP UP 'HOM2g'
+     MAXCAL 5
+     COMM 'Reaction rates - Condensed 2gr, Homogenized' ENDC
+     ISOT 2 U235 U238
+    INIT
+  ;
+
+**** homogenization over all fuel cells
+  EDIRATES := EDI: FLUX LIBRARY2 TRACK ::
+            EDIT 1
+            MICR 2 U235 U238
+            MERG MIX 
+            1 1 1 1 1 1 1 1 1 1
+            1 1 1 1 1 1 1 1 1 1 
+            1 1 1 1 1 1 0 0 0
+            COND
+            SAVE ON EDIBU_HOM
+        ;
+
+COMPO := COMPO: COMPO EDIRATES LIBRARY2 ::
+            EDIT 1
+            STEP UP 'EDIBU_HOM'
+        ;
+
+EDIRATES := DELETE: EDIRATES ;
+
+***** Cell-wise homogenization
+*** Condense all rates on 1 group :
+EDIRATES := EDI: FLUX LIBRARY2 TRACK ::
+        EDIT 1
+        MICR 2 U235 U238
+        MERG MIX 
+        1 1 1 1 2 2 2 2 3 3 3 3 4 4 4 4 5 5 5 5 6 6 6 6 6 6 0 0 0
+        COND
+        SAVE ON HOM1g
+        ;
+
+COMPO := COMPO: COMPO EDIRATES LIBRARY2 ::
+        EDIT 1
+        STEP UP 'HOM1g'
+        ;
+
+EDIRATES := DELETE: EDIRATES ;
+
+
+*** Condense rates to 2 groups with division between groups at 0.625 eV
+
+EDIRATES := EDI: FLUX LIBRARY2 TRACK ::
+        EDIT 1
+        MICR 2 U235 U238
+        MERG MIX 
+        1 1 1 1 2 2 2 2 3 3 3 3 4 4 4 4 5 5 5 5 6 6 6 6 6 6 0 0 0
+        COND 0.625
+        SAVE ON HOM2g 
+        ;
+
+COMPO := COMPO: COMPO EDIRATES LIBRARY2 ::
+            EDIT 1
+            STEP UP 'HOM2g'
+        ;
+
+EDIRATES := DELETE: EDIRATES ;
+
+
+_COMPO := COMPO ;
+
+QUIT "LIST" .

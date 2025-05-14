@@ -1,0 +1,337 @@
+*** Procedure to generate EDI object to retreive MACROscopic cross sections
+* These will in turn be used in reflector calculations, on SN 1D geometry
+* The procedure is based on the 2D geometry of the AT10 pin cell
+* This procdure thus generates and saves an EDI object in ASCII format, 
+* representing "meaningful" fuel cross sections to be used in reflector calculations
+* Author : R. Guasch
+* Date : 2025/05/13
+
+
+*
+************************************************************************
+*                          BEGIN DECLARATION                           *
+************************************************************************
+MODULE GEO: LIB: SYBILT: NXT: MCCGT: UTL: GREP: DELETE: COMPO: USS: ASM: FLU: EDI: END: ;
+MODULE MAC: SNT: ;
+LINKED_LIST GEOML GEOMU GEOMSSHL GEOMSSHU ;
+LINKED_LIST LIBRARYL LIBRARY2L LIBRARYU LIBRARY2U ;
+LINKED_LIST TRACKSSL TRACKSSU TRACK SYS FLUX  ;
+LINKED_LIST COMPO EDIOBJ PARAMS ;
+SEQ_BINARY TF_EXC ;
+
+STRING Library := "J311_295" ;
+REAL Kinf ;
+
+**************************************** APPROXIMATIVE TH PARAMS ************************************
+
+REAL TFuel1 TFuel2 :=  961.2 562.7 ;
+REAL TCool_in TCool1 TCool2 :=  543.15 560.4 561.2 ;
+REAL cool_dens_in cool_dens1 cool_dens2 :=  0.732 0.440 0.241 ;
+
+**************************************** GEOMETRICAL PARAMETERS *************************************
+
+REAL Rcomb1 Rcomb2 Rcomb3 Rcomb4 :=  0.313602 0.396678 0.43227 0.4435 ;
+REAL Rgap Rclad pitch := 0.4520 0.5140 1.295 ;
+REAL Rmode := 0.64 ;
+REAL A_pitch := 15.24 ;
+REAL Hrefl := 2.0 A_pitch * ;
+REAL Htot := Hrefl pitch + ;
+
+******************************************** MIX NUMBERING ****************************************
+INTEGER COMB0101 COMB0102 COMB0103 COMB0104 GAP1 CLAD1 MODE1 := 1 2 3 4 5 6 7 ;
+INTEGER COMB0201 COMB0202 COMB0203 COMB0204 GAP2 CLAD2 MODE2 := 1 2 3 4 5 6 7 ;
+INTEGER MODE_l MODE_u := 8 9 ;
+
+
+******************************************* 2D Geometry definition *****************************************
+** Lower fuel slice 2D geometry definition for flux calculation
+GEOML := GEO: :: CARCEL 7 
+    X- REFL X+ REFL
+    Y- REFL Y+ REFL
+    RADIUS 0.0 <<Rcomb1>> <<Rcomb2>> <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>> <<Rmode>>
+    MIX <<COMB0101>> <<COMB0102>> <<COMB0103>> <<COMB0104>> <<GAP1>> <<CLAD1>> <<MODE1>> <<MODE1>> ! Lower fuel slice
+    MESHX 0.0 <<pitch>> 
+    MESHY 0.0 <<pitch>>
+;
+** Lower fuel slice 2D geometry definition for self-shielding calculation
+GEOMSSHL := GEO: :: CARCEL 6 
+    X- REFL X+ REFL
+    Y- REFL Y+ REFL
+    RADIUS 0.0 <<Rcomb1>> <<Rcomb2>> <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>> 
+    MIX <<COMB0101>> <<COMB0102>> <<COMB0103>> <<COMB0104>> <<GAP1>> <<CLAD1>> <<MODE1>> ! Lower fuel slice
+    MESHX 0.0 <<pitch>> 
+    MESHY 0.0 <<pitch>>
+;
+
+** Upper fuel slice 2D geometry definition for flux calculation
+GEOMU := GEO: :: CARCEL 7 
+    X- REFL X+ REFL
+    Y- REFL Y+ REFL
+    RADIUS 0.0 <<Rcomb1>> <<Rcomb2>> <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>> <<Rmode>>
+    MIX <<COMB0201>> <<COMB0202>> <<COMB0203>> <<COMB0204>> <<GAP2>> <<CLAD2>> <<MODE2>> <<MODE2>> ! Lower fuel slice
+    MESHX 0.0 <<pitch>> 
+    MESHY 0.0 <<pitch>>
+;
+** Lower fuel slice 2D geometry definition for self-shielding calculation
+GEOMSSHU := GEO: :: CARCEL 6 
+    X- REFL X+ REFL
+    Y- REFL Y+ REFL
+    RADIUS 0.0 <<Rcomb1>> <<Rcomb2>> <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>> 
+    MIX <<COMB0201>> <<COMB0202>> <<COMB0203>> <<COMB0204>> <<GAP2>> <<CLAD2>> <<MODE2>> ! Lower fuel slice
+    MESHX 0.0 <<pitch>> 
+    MESHY 0.0 <<pitch>>
+;
+
+
+********************************************* LIBRARY ************************************************
+
+* Calculation of moderator data
+* AVOGADRO's number
+REAL A := 6.022094E-1 ; ! Normalisation des concentrations par 10E-24
+REAL M_H2O := 15.9994 2.0 1.00794 * + ;
+
+* Water in lower reflector
+REAL N_H2O_in := cool_dens_in A * M_H2O / ;
+REAL N_O_in := N_H2O_in ;
+REAL N_H_in := 2.0 N_H2O_in * ;
+
+* Height 1 = water in lower fuel slice
+REAL N_H2O_1 := cool_dens1 A * M_H2O / ;
+REAL N_O_1 := N_H2O_1 ;
+REAL N_H_1 := 2.0 N_H2O_1 * ;
+
+* Height 2 = water in upper fuel slice
+REAL N_H2O_2 := cool_dens2 A * M_H2O / ;
+REAL N_O_2 := N_H2O_2 ;
+REAL N_H_2 := 2.0 N_H2O_2 * ;
+
+ECHO "Water density in lower reflector = " cool_dens_in ;
+ECHO "Corresponding H2O density = " N_H2O_in ;
+ECHO "Corresponding O density = " N_O_in ;
+ECHO "Corresponding H density = " N_H_in ;
+
+ECHO "Water density in lower fuel = " cool_dens1 ;
+ECHO "Corresponding H2O density = " N_H2O_1 ;
+ECHO "Corresponding O density = " N_O_1 ;
+ECHO "Corresponding H density = " N_H_1 ;
+
+ECHO "Water density in upper fuel = " cool_dens2 ;
+ECHO "Corresponding H2O density = " N_H2O_2 ;
+ECHO "Corresponding O density = " N_O_2 ;
+ECHO "Corresponding H density = " N_H_2 ;
+
+
+LIBRARYL := LIB: ::
+    EDIT 1
+    NMIX 10    ! MAXIMUM OF MATERIAL MIXTURES
+    PT CALENDF 4
+    ANIS 3
+    MIXS LIB: DRAGON FIL: <<Library>>
+*** Lower Zone ***
+! C1 fuel compo "AT10_24UOX" in silce 1:
+    MIX <<COMB0101>> <<TFuel1>>
+        O16     = O16    4.66705E-02
+        U234    = U234   5.15910E-06 1
+        U235    = U235   5.67035E-04 1 
+        U238    = U238   2.27631E-02 1 
+    MIX <<COMB0102>> COMB <<COMB0101>> 1.0
+    MIX <<COMB0103>> COMB <<COMB0101>> 1.0
+    MIX <<COMB0104>> COMB <<COMB0101>> 1.0
+
+* Cladding around lower fuel
+    MIX <<CLAD1>> <<TCool1>> NOEV
+        Cr50  = Cr50   3.29613E-06
+        Cr52  = Cr52   6.35631E-05
+        Cr53  = Cr53   7.20746E-06
+        Cr54  = Cr54   1.79408E-06
+        Fe54  = Fe54   5.57337E-06
+        Fe56  = Fe56   8.74901E-05 2
+        Fe57  = Fe57   2.02053E-06
+        Fe58  = Fe58   2.68895E-07
+        Ni58  = Ni58   2.51627E-05
+        Ni60  = Ni60   9.69262E-06
+        Ni61  = Ni61   4.21331E-07
+        Ni62  = Ni62   1.34344E-06
+        Ni64  = Ni64   3.42085E-07
+        Zr90  = Zr90   2.18317E-02 2
+        Zr91  = Zr91   4.76096E-03 2
+        Zr92  = Zr92   7.27723E-03 2
+        Zr94  = Zr94   7.37482E-03 2
+        Zr96  = Zr96   1.18812E-03 2
+        Sn112  = Sn112   4.67343E-06
+        Sn114  = Sn114   3.17985E-06
+        Sn115  = Sn115   1.63812E-06
+        Sn116  = Sn116   7.00535E-05
+        Sn117  = Sn117   3.70020E-05
+        Sn118  = Sn118   1.16691E-04
+        Sn119  = Sn119   4.13864E-05
+        Sn120  = Sn120   1.56970E-04 
+        Sn122  = Sn122   2.23073E-05
+        Sn124  = Sn124   2.78961E-05
+        O16  = O16   3.08132E-04
+        O17  = O17   1.17376E-07
+* Expansion Gap 
+    MIX <<GAP1>> <<TFuel1>> NOEV
+        He4      = He4 1.50456E-04
+
+* Moderator in fuel slice 1
+    MIX <<MODE1>> <<TCool1>> NOEV
+        H1      = H1_H2O <<N_H_1>>  
+        O16     = O16    <<N_O_1>> 
+* Moderator in lower reflector
+    MIX <<MODE_l>> <<TCool_in>> NOEV
+        H1      = H1_H2O <<N_H_in>>  
+        O16     = O16    <<N_O_in>> 
+;
+
+LIBRARYU := LIB: ::
+    EDIT 1
+    NMIX 10    ! MAXIMUM OF MATERIAL MIXTURES
+    PT CALENDF 4
+    ANIS 3
+    MIXS LIB: DRAGON FIL: <<Library>>
+    *** Upper Zone ***
+* C1 fuel compo "AT10_24UOX" in silce 2:
+    MIX <<COMB0201>> <<TFuel2>>
+        O16     = O16    4.66705E-02
+        U234    = U234   5.15910E-06 1
+        U235    = U235   5.67035E-04 1 
+        U238    = U238   2.27631E-02 1 
+    MIX <<COMB0202>> COMB <<COMB0201>> 1.0
+    MIX <<COMB0203>> COMB <<COMB0201>> 1.0
+    MIX <<COMB0204>> COMB <<COMB0201>> 1.0
+* Cladding around upper fuel
+    MIX <<CLAD2>> <<TCool2>> NOEV
+        Cr50  = Cr50   3.29613E-06
+        Cr52  = Cr52   6.35631E-05
+        Cr53  = Cr53   7.20746E-06
+        Cr54  = Cr54   1.79408E-06
+        Fe54  = Fe54   5.57337E-06
+        Fe56  = Fe56   8.74901E-05 2
+        Fe57  = Fe57   2.02053E-06
+        Fe58  = Fe58   2.68895E-07
+        Ni58  = Ni58   2.51627E-05
+        Ni60  = Ni60   9.69262E-06
+        Ni61  = Ni61   4.21331E-07
+        Ni62  = Ni62   1.34344E-06
+        Ni64  = Ni64   3.42085E-07
+        Zr90  = Zr90   2.18317E-02 2
+        Zr91  = Zr91   4.76096E-03 2
+        Zr92  = Zr92   7.27723E-03 2
+        Zr94  = Zr94   7.37482E-03 2
+        Zr96  = Zr96   1.18812E-03 2
+        Sn112  = Sn112   4.67343E-06
+        Sn114  = Sn114   3.17985E-06
+        Sn115  = Sn115   1.63812E-06
+        Sn116  = Sn116   7.00535E-05
+        Sn117  = Sn117   3.70020E-05
+        Sn118  = Sn118   1.16691E-04
+        Sn119  = Sn119   4.13864E-05
+        Sn120  = Sn120   1.56970E-04 
+        Sn122  = Sn122   2.23073E-05
+        Sn124  = Sn124   2.78961E-05
+        O16  = O16   3.08132E-04
+        O17  = O17   1.17376E-07    
+* Expansion Gap
+    MIX <<GAP2>> <<TFuel2>> NOEV
+        He4      = He4 1.50456E-04
+* Moderator in upper fuel slice
+    MIX <<MODE2>> <<TCool2>> NOEV
+        H1      = H1_H2O <<N_H2O_2>>  
+        O16     = O16    <<N_O_2>>
+* Moderator in upper reflector
+    MIX <<MODE_u>> COMB <<MODE2>> 1.0
+;
+
+******************************************** Self-shielding calculations *****************************************
+*** SYBILT: tracking 
+* Lower fuel slice
+
+TRACKSSL := SYBILT: GEOMSSHL ::
+    TITLE 'TRACKING AXIAL SLICE 1'
+    MAXR 50 QUA2 24 5 DP01 MAXZ 200000 
+;
+
+* Upper fuel slice
+*RACKSSU := SYBILT: GEOMSSHU ::
+*    TITLE 'TRACKING AXIAL SLICE 2'
+*    MAXR 50 QUA2 24 5 DP01 MAXZ 200000
+*;
+
+*** Call to USS:
+
+* Lower fuel slice
+
+LIBRARY2L := USS: LIBRARYL TRACKSSL ::
+          EDIT 0
+          PASS 3
+;
+
+* Upper fuel slice
+*LIBRARY2U := USS: LIBRARYU TRACKSSU ::
+*          EDIT 0
+*          PASS 3
+*;
+
+*************************************** 2D NXT+MCCGT TRACKING FOR MOC solution ***************************************
+* Start with LOWER reflector
+* NXT tracking
+
+INTEGER an2d := 18 ;  ! ANGULAR QUADRATURE PARAMETER
+REAL densur := 30.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
+
+TRACK TF_EXC := NXT: GEOML ::
+  EDIT 1
+  ANIS 3
+  ALLG
+  TSPC EQW2 <<an2d>> <<densur>> REND
+;
+
+* MOC tracking
+TRACK := MCCGT: TRACK TF_EXC ::
+  EDIT 1
+  CACB 4 AAC 80 TMT EPSI 1E-5 MCU 50000
+;
+
+
+********************************************* FLUX SOLUTION USING 2D-MOC ************************************************
+
+SYS := ASM: LIBRARY2L TRACK TF_EXC :: ARM EDIT 1 ; 
+
+FLUX := FLU: LIBRARY2L SYS TRACK TF_EXC :: 
+             EDIT 1 TYPE K B1 SIGS 
+      ;
+GREP: FLUX :: GETVAL 'K-EFFECTIVE  ' 1 1 1 >>Kinf<< ;
+ECHO "SSH tracking = SYBILT and FLX tracking = NXT TSPC, 2D-MOC on Lower geometry : Kinf=" Kinf ;
+
+EDIOBJ := EDI: FLUX LIBRARY2L TRACK ::
+            EDIT 0
+            MERG MIX 1 1 1 1 1 1 1
+            SAVE ON EDIMAC
+        ;
+
+!GREP: EDIOBJ :: GETVAL 'MACROLIB' ;
+LINKED_LIST MACROLIB GEOM1D TRK1D ;
+EDIOBJ := UTL: EDIOBJ :: STEP UP EDIMAC STEP UP MACROLIB DIR ;  
+
+*UTL: EDIOBJ :: DUMP ;
+
+GEOM1D := GEO: :: CAR1D 2 
+    X- REFL X+ VOID
+    MIX 1 2
+    MESHX 0.0 <<pitch>> <<Htot>>
+    SPLITX 5 20
+;
+
+*TRK1D := SNT: GEOM1D ::
+*    ALLG
+*    SN 2
+*;
+
+EDIOBJ := MAC: EDIOBJ LIBRARY2L ::
+    EDIT 10
+    NMIX 2
+    CTRA OFF
+    MIX 1 1 UPDL
+    MIX 2 8 OLDL
+; 

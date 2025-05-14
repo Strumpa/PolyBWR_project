@@ -8,6 +8,9 @@ import lifo
 import cle2000
 
 def geom_gduo2():
+  """
+  Geometry definition for gduo2_kec1 benchmark cell
+  """
   namGEOM = "GEOM"
   # Lifo  
   myLifo=lifo.new()

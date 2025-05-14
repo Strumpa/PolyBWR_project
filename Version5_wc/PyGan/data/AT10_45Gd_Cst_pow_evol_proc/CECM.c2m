@@ -152,7 +152,6 @@ WHILE istep nstep < DO
     ECHO "Calling EVO for BOS depletion between Tbeg =" evobeg " and Tmid =" evomid ;
     * First deplete BOS material with BOS flux to obtain first guess of EOS material
     BURNUP LIB2 := EVO: BURNUP LIB2 FLUX TRACK ::
-        SAVE <<evobeg>> DAY POWR <<Norm_f2>>
         DEPL <<evobeg>> <<evomid>> DAY POWR <<Norm_f2>> 
         <<deplsolopt>> NOEX <<glob_opt>> 
     ;
@@ -171,8 +170,8 @@ WHILE istep nstep < DO
     SYS := DELETE: SYS ;
 
     * Renormalize reaction rates @ BoS using MoS rates :
-    BURNUP LIB2 := EVO: BURNUP LIB2 FLUX TRACK ::
-        SAVE <<evobeg>> DAY POWR <<Norm_f2>> ;
+    *BURNUP LIB2 := EVO: BURNUP LIB2 FLUX TRACK ::
+    *    SAVE <<evobeg>> DAY POWR <<Norm_f2>> ;
 
     ECHO "Calling EVO for CM depletion between Tbeg =" evobeg " and Tend =" evoend ;
     BURNUP LIB2 := EVO: BURNUP LIB2 FLUX TRACK ::

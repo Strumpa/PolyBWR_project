@@ -22,21 +22,20 @@ SEQ_BINARY TF_EXC ;
 SEQ_BINARY TF_EXC_SS ;
 
 STRING geo_name := "AT10_UOX" ; 
-STRING ssh_opt := "PT" ; ! "PT", "RSE", "SUBG"
-STRING track_opt := "SYNXT" ; ! "SYBNXT" "SALT" "NXTNXT"
+STRING ssh_opt := "RSE" ; ! "PT", "RSE", "SUBG"
+STRING track_opt := "SALT" ; ! "SYBNXT" "SALT" "NXTNXT"
 
 SEQ_ASCII FIG_SS.ps :: FILE './PIN_AT10_FIG_SS.ps' ;
 SEQ_ASCII FIG_FLX.ps :: FILE './PIN_AT10_FIG_FLX.ps' ;
 
-SEQ_ASCII _COMPO :: FILE './COMPO_AT10_MPHYS_PT_SYBNXT' ;
-SEQ_ASCII _COMPO :: FILE './COMPO_AT10_MPHYS_RSE' ;
+*SEQ_ASCII _COMPO :: FILE './COMPO_AT10_MPHYS_PT_SYBNXT' ;
+SEQ_ASCII _COMPO :: FILE './COMPO_AT10_MPHYS_RSE_B1_HETE' ;
 
 REAL Kinf ;
 
 ************************************************************************
 *                      BEGIN PARAMETER DEFINITION                      *
 ************************************************************************
-INTEGER iAutopMax := 3 ;
 INTEGER fuel_t_pts := 8 ;
 INTEGER cool_t_pts := 5 ;
 INTEGER cool_d_pts := 9 ;
@@ -133,7 +132,7 @@ WHILE Tfuel_step fuel_t_pts < DO
             SYS := ASM: LIBRARY2 TRACK TF_EXC :: ARM EDIT 0 ; 
 
             FLUX := FLU: LIBRARY2 SYS TRACK TF_EXC :: 
-                    EDIT 1 TYPE K B1 SIGS ;
+                    EDIT 1 TYPE K B1 HETE ;
 
             GREP: FLUX :: GETVAL 'K-EFFECTIVE  ' 1 1 1 >>Kinf<< ;
             ECHO "End of State point calculation TFuel =" TFuel ", TCool =" TCool ", H2O density =" DCool ; 
@@ -144,14 +143,13 @@ WHILE Tfuel_step fuel_t_pts < DO
             ************************************************************************
             EDIOBJ := EDI: FLUX LIBRARY2 TRACK ::
                     EDIT 0
-                    MICR 11 U235 U236 U238 Pu239 Pu240 Pu241 Pu242 Gd155 Gd157 Xe135 Sm149
                     MERG COMP
                     COND 0.625
                     SAVE ON EDIPARAM 
                 ;
             
             ************************************************************************
-            *  INITIAL MULTICOMPO FEEDING                                          *
+            *   MULTICOMPO FEEDING                                                 *
             ************************************************************************
             COMPO := COMPO: COMPO EDIOBJ LIBRARY ::
                     EDIT 2

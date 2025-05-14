@@ -51,7 +51,7 @@ name_CPO_4 = f"CPO_{cell_name}_EB81K2_fix_{ssh_method}_{tracking_opt}_{sol_depl}
 glob_opt = "NOGL"
 name_CPO_1_NOGL = f"CPO_{cell_name}_endfb8r1_295_{ssh_method}_{tracking_opt}_{sol_depl}_{dirac_opt}_{glob_opt}_{burnup_points}"
 name_CPO_2_NOGL = f"CPO_{cell_name}_endfb81295K_{ssh_method}_{tracking_opt}_{sol_depl}_{dirac_opt}_{glob_opt}_{burnup_points}"
-#name_CPO_3_NOGL = f"CPO_{cell_name}_endfb81295K2_{ssh_method}_{tracking_opt}_{sol_depl}_{dirac_opt}_{glob_opt}_{burnup_points}"
+name_CPO_3_NOGL = f"CPO_{cell_name}_endfb81295K2_{ssh_method}_{tracking_opt}_{sol_depl}_{dirac_opt}_{glob_opt}_{burnup_points}"
 name_CPO_4_NOGL = f"CPO_{cell_name}_EB81K2_fix_{ssh_method}_{tracking_opt}_{sol_depl}_{dirac_opt}_{glob_opt}_{burnup_points}"
 
 
@@ -160,6 +160,7 @@ delta_keff_24UOX_KERMA2_fix = (D5_AT10_24UOX_KERMA2_fix.keff - D5_AT10_24UOX_noK
 
 plt.figure(figsize=(10, 6))
 plt.plot(D5_AT10_24UOX_noKERMA.BU, delta_keff_24UOX_KERMAtot, label='KERMAtot', marker='x')
+plt.plot(D5_AT10_24UOX_noKERMA.BU, delta_keff_24UOX_KERMA2, label='KERMA, MT301-MT318+MT458 <- to check', marker='x')
 plt.plot(D5_AT10_24UOX_noKERMA.BU, delta_keff_24UOX_KERMA2_fix, label='KERMA, MT301-MT318+MT458', marker='x')
 plt.xlabel('Burnup (MWd/tU)')
 plt.ylabel('Delta keff (pcm)')

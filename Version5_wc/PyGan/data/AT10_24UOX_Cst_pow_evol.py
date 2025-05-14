@@ -27,7 +27,6 @@ from GEO_C_NXT import *
 # MIXTURES class
 from MIX_C import *
 from MIX_NG0 import *
-from MIX_E0 import *
 # TRACKING class
 from TRK_C_SALT import *
 from TRK_C_SYBNXT import *
@@ -63,18 +62,16 @@ draglibs = ["endfb8r1_295", "endfb81295K","endfb81295K2"]  # ["endfb8r1_295", "e
 # 3) Selecting the self-shielding method
 # RSE, PT or AUTO
 #
-ssh_options = ["PT"]
+ssh_options = ["PT_N", "RSE_N", "PT_C", "RSE_C"]
 
 # 4) Selecting the burnup calculation options
 # burnup_steps = "UOx", "UOx_autop5", "UOx2_autop5", "UOx4_autop5", "UOx6_autop5" etc
 #
-burnup_steps_to_test = ["UOx2_autop5"]
-
-# ["UOx_autop1", "UOx_autop2", "UOx_autop4", "UOx_autop5"]
-# ["UOx2_autop1", "UOx2_autop3", "UOx2_autop4", "UOx2_autop5", "UOx2_autop6"]
-# ["UOx4_autop1", "UOx4_autop3", "UOx4_autop4", "UOx4_autop5"]
-# ["UOx6_autop1", "UOx6_autop3", "UOx6_autop4", "UOx6_autop6", "UOx6_autop7", "UOx6_autop8"]
-# ["UOx8_autop8", "UOx8_autop9"]
+burnup_steps_to_test = ["UOx_autop5", 
+                        "UOx2_autop5", 
+                        "UOx4_autop5", 
+                        "UOx6_autop5", "UOx6_autop6",
+                        "UOx8_autop6"]
 
 # 5) Selecting the burnup calculation options
 # Solver : "RUNG" or "KAPS"
@@ -89,11 +86,6 @@ saturation_options = ["NODI"]
 
 glob_opt = "GLOB" # ["GLOB"] #, "NOGL"]
 
-######## Options for DRAGON5-SERPENT2 comparison ########
-# Select origin of SERPENT2 data + evaluation
-#
-S2_evaluations = ["endfb8r1","J311"]
-Njoy_versions = ["pynjoy2012","NJOY2016", "PyNjoy2016"]
 
 ######## 
 # Result handling and creation of the results directory
@@ -147,7 +139,7 @@ for trk_opt in tracking_options:
 
                 for solver_opt in solver_options:
                     for sat_opt in saturation_options: 
-                        name_compo = f"_CPO_AT10_24UOX_{dlib_name}_{ssh_opt}_{trk_opt}_{solver_opt}_{sat_opt}_{glob_opt}_{burnup_points}"
+                        name_compo = f"_CPO_{dlib_name}_{ssh_opt}_{trk_opt}_{burnup_points}_{solver_opt}_{sat_opt}_EXTR_{glob_opt}"
                         if trk_opt == "SALT":
                             CPO = BU_C("COMPO", LIB, TRK, TF_EXC, TRK_SS, TF_EXC_SS, StepList, name_compo, ssh_opt, solver_opt, glob_opt, sat_opt)
                         elif trk_opt == "SYBNXT": 
@@ -161,12 +153,11 @@ for trk_opt in tracking_options:
                         D5_cases.append(D5case)
 
 
-if run_NG0:
-    D5_NG0_cases = []
 
-    ### BEGIN DRAGON5 calculations for NG Q-values = 0 ###
-    D5_NG0_cases = []
-    for dlib_name in draglibs:
+### BEGIN DRAGON5 calculations for NG Q-values = 0 ###
+D5_NG0_cases = []
+for dlib_name in draglibs:
+    if dlib_name == "endfb8r1_295":
         for ssh_opt in ssh_options:
             LIB_NG0 = MIX_NG0(dlib_name) ### Only modified for ENDFb8r1 chain!!!!! ---> fix this or Im gonna jump
             for burnup_points in burnup_steps_to_test:
@@ -182,7 +173,7 @@ if run_NG0:
 
                 for solver_opt in solver_options:
                     for sat_opt in saturation_options:
-                        name_compo_NG0 = f"_CPO_AT10_24UOX_{dlib_name}NG0_{ssh_opt}_{trk_opt}_{solver_opt}_{sat_opt}_{glob_opt}_{burnup_points}"
+                        name_compo_NG0 = f"_CPO_{dlib_name}_NG0_{ssh_opt}_SALT_{burnup_points}_{solver_opt}_{sat_opt}_EXTR_{glob_opt}"
                         if trk_opt == "SALT":
                             CPO_NG0 = BU_C("COMPO_NG0", LIB_NG0, TRK, TF_EXC, TRK_SS, TF_EXC_SS, StepList, name_compo_NG0, ssh_opt, solver_opt, glob_opt, sat_opt)
                         elif trk_opt == "SYBNXT": 
