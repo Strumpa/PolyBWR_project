@@ -1,37 +1,21 @@
-***************************************************************************
-* Deck Geom_A                                                             *
-*                                                                         *
-* Treatment of main flux calculation geometry for BWR Assembly            *
-* Benchmark : ATRIUM-10 assembly, geometry provided by M. Hursin (PSI)    *
-*                                                                         *
-* Author : R. Guasch                                                      *
-*                                                                         *
-*                                                                         *
-* Dragon Procedure called as :                                            *
-* GEOM GEOM_SS := Geom_A :: <<name_geom>> ;                               *
-*                                                                         *
-* Input data :                                                            *
-* name_geom : name for the given assembly geometry                        *
-* cases implemented are :                                                 *
-*      - AT10_ASSBLY_test : Windmill for in cell water, no mode subdiv    * 
-*      - AT10_ASSBLY_fine : Windmill + fine mode mesh                     *
-*      - AT10_ASSBLY_ctrl : Presence of control cross                     *
-*                                                                         *
-* Output data :                                                           *
-* GEOM : geometry used for main flux calculation                          *
-* GEOM_SS : geometry used for self-shielding calculation                  *
-*                                                                         *
-***************************************************************************
+******************************************************************************
+* Deck Geom_tester                                                           *
+*                                                                            *
+* Treatment of main flux calculation geometry for BWR Assembly               *
+* Benchmark : ATRIUM-10 assembly, geometry provided by M. Hursin (PSI)       *
+*                                                                            *
+* Author : R. Guasch                                                         *
+* Purpose : represent controlled assembly in a 3-level GEO: native geometry  *
+*                                                                            *
+* GEOM : geometry created : goal is to create geometry with inserter CTRL    *
+*                                                                            *
+******************************************************************************
 
 * --------------------------------
 *    INPUT & OUTPUT PARAMETERS
 * --------------------------------
 PARAMETER GEOM GEOMSS ::
-::: LINKED_LIST GEOM ; 
-::: LINKED_LIST GEOMSS ; ;
-
-STRING name_geom ;
-:: >>name_geom<< ;
+::: LINKED_LIST GEOM GEOMSS ; ;
 
 
 * -------------------------------
@@ -39,8 +23,9 @@ STRING name_geom ;
 * -------------------------------
 MODULE  GEO: END: ;
 
-!Assembly scale data
+********************************** Geometric parameters **********************************
 
+! Assembly scale data
 REAL Pitch_A W_gap := 15.24 0.75 ; ! Assembly pitch and water gap thickness
 REAL Box_out Box_in Box_thi := 13.74 13.4 0.17 ; ! Outer box outer, inner sides and thickness
 REAL Chan_out Chan_in Chan_thi := 3.5 3.34 0.08 ; ! Channel box outer, inner sides and thickness
@@ -50,35 +35,7 @@ REAL Chan_out Chan_in Chan_thi := 3.5 3.34 0.08 ; ! Channel box outer, inner sid
 
 REAL Pitch_C := 1.29500 ;
 REAL Rgap Rclad pitch := 0.4520 0.5140 1.29500 ;
-REAL Rcomb1 Rcomb2 Rcomb3 Rcomb4 ;
-EVALUATE Rcomb4 := 0.4435 ;
-EVALUATE Rcomb1 := 0.313602 ;
-EVALUATE Rcomb2 := 0.396678 ; 
-EVALUATE Rcomb3 := 0.43227 ;
-
-!Mix numbers for C1 fuel 
-INTEGER COMB0101 COMB0102 COMB0103 COMB0104 ;
-EVALUATE COMB0101 COMB0102 COMB0103 COMB0104 := 1 2 3 4 ;
-
-!Mix numbers for C2 fuel 
-INTEGER COMB0201 COMB0202 COMB0203 COMB0204 ;
-EVALUATE COMB0201 COMB0202 COMB0203 COMB0204 := 21 22 23 24 ;
-
-!Mix numbers for C3 fuel 
-INTEGER COMB0301 COMB0302 COMB0303 COMB0304 ;
-EVALUATE COMB0301 COMB0302 COMB0303 COMB0304 := 31 32 33 34 ;
-
-!Mix numbers for C4 fuel 
-INTEGER COMB0401 COMB0402 COMB0403 COMB0404 ;
-EVALUATE COMB0401 COMB0402 COMB0403 COMB0404 := 41 42 43 44 ;
-
-!Mix numbers for C5 fuel 
-INTEGER COMB0501 COMB0502 COMB0503 COMB0504 ;
-EVALUATE COMB0501 COMB0502 COMB0503 COMB0504 := 51 52 53 54 ;
-
-!Mix numbers for C6 fuel 
-INTEGER COMB0601 COMB0602 COMB0603 COMB0604 ;
-EVALUATE COMB0601 COMB0602 COMB0603 COMB0604 := 61 62 63 64 ;
+REAL Rcomb1 Rcomb2 Rcomb3 Rcomb4 := 0.313602 0.396678 0.43227 0.4435 ;
 
 ! UOX + Gd Pincell scale data
 
@@ -86,23 +43,61 @@ REAL RcombGd1 RcombGd2 RcombGd3 RcombGd4 RcombGd5 RcombGd6 ;
 EVALUATE RcombGd1 RcombGd2 RcombGd3 RcombGd4 RcombGd5 RcombGd6 
          := 0.19834 0.28049 0.34353 0.39668 0.43227 0.4435 ;
 
+
+
+
+*********************************** Mix numbering *********************************
+!Mix numbers for C1 fuel 
+INTEGER COMB0101 COMB0102 COMB0103 COMB0104 ;
+EVALUATE COMB0101 COMB0102 COMB0103 COMB0104 := 1 2 3 4 ;
+
+!Mix numbers for C2 fuel 
+INTEGER COMB0201 COMB0202 COMB0203 COMB0204 ;
+EVALUATE COMB0201 COMB0202 COMB0203 COMB0204 := 5 6 7 8 ;
+
+!Mix numbers for C3 fuel 
+INTEGER COMB0301 COMB0302 COMB0303 COMB0304 ;
+EVALUATE COMB0301 COMB0302 COMB0303 COMB0304 := 9 10 11 12 ;
+
+!Mix numbers for C4 fuel 
+INTEGER COMB0401 COMB0402 COMB0403 COMB0404 ;
+EVALUATE COMB0401 COMB0402 COMB0403 COMB0404 := 13 14 15 16 ;
+
+!Mix numbers for C5 fuel 
+INTEGER COMB0501 COMB0502 COMB0503 COMB0504 ;
+EVALUATE COMB0501 COMB0502 COMB0503 COMB0504 := 17 18 19 20 ;
+
+!Mix numbers for C6 fuel 
+INTEGER COMB0601 COMB0602 COMB0603 COMB0604 ;
+EVALUATE COMB0601 COMB0602 COMB0603 COMB0604 := 21 22 23 24 ;
+
+
 ! Mix numbers C7 fuel
 INTEGER COMB0701 COMB0702 COMB0703 COMB0704 COMB0705 COMB0706 ;
-EVALUATE COMB0701 COMB0702 COMB0703 COMB0704 COMB0705 COMB0706 := 71 72 73 74 75 76 ;
-! Mix numbers C7 fuel
+EVALUATE COMB0701 COMB0702 COMB0703 COMB0704 COMB0705 COMB0706 := 25 26 27 28 29 30 ;
+! Mix numbers C8 fuel
 INTEGER COMB0801 COMB0802 COMB0803 COMB0804 COMB0805 COMB0806 ;
-EVALUATE COMB0801 COMB0802 COMB0803 COMB0804 COMB0805 COMB0806 := 81 82 83 84 85 86 ;
+EVALUATE COMB0801 COMB0802 COMB0803 COMB0804 COMB0805 COMB0806 := 31 32 33 34 35 36 ;
 
 ! Pin level common mixes : Clad, Gap, Coolant (intra-pin water) :
 
 INTEGER GAP CLAD COOL ;
-EVALUATE GAP CLAD COOL := 5 6 7 ;
+EVALUATE GAP CLAD COOL := 37 38 39 ;
 
 ! Assembly level common mixes water, channel and box
 ! Careful : some intra assembly water is treated at the 2nd geometry level
 ! MODE is associated with H20 OUTSIDE assembly box and INSIDE channel box, the rest is COOL
 INTEGER BOX MODE ;
-EVALUATE BOX MODE := 60 70 ;
+EVALUATE BOX MODE := 40 41 ; 
+
+! Control rod mix :
+! CTRL_CRS : control cross material
+! CTRL_ROD : control rod material
+
+! Control cross mixes :
+INTEGER CTRL_CRS CTRL_ROD ;
+EVALUATE CTRL_CRS CTRL_ROD := 42 43 ;
+
 
 !--> check compositions for box and channel, the same --> Yes !
 ! Treating Cladding and Boxes with different mixes but outer box and channel are the same !
@@ -110,22 +105,28 @@ EVALUATE BOX MODE := 60 70 ;
 ! Evaluating dependencies
 
 ! Multiples of cell pitch : used to define 2nd level geometry mesh 
-REAL 2_Pitch_C 3_Pitch_C 4_Pitch_C ;
+REAL 2_Pitch_C 3_Pitch_C 4_Pitch_C 5_Pitch_C 6_Pitch_C 7_Pitch_C 8_Pitch_C 9_Pitch_C ;
 EVALUATE 2_Pitch_C := Pitch_C 2.0 * ;
 EVALUATE 3_Pitch_C := Pitch_C 3.0 * ;
 EVALUATE 4_Pitch_C := Pitch_C 4.0 * ;
+EVALUATE 5_Pitch_C := Pitch_C 5.0 * ;
+EVALUATE 6_Pitch_C := Pitch_C 6.0 * ;
+EVALUATE 7_Pitch_C := Pitch_C 7.0 * ;
+EVALUATE 8_Pitch_C := Pitch_C 8.0 * ;
+EVALUATE 9_Pitch_C := Pitch_C 9.0 * ;
+REAL LLat := Pitch_C 10.0 * ;
 
 
 ! X1 = Water gap + outer box thickness +extra water : in box water not a multiple of Pitch_C
-REAL XtraMode ;
-EVALUATE XtraMode := Box_in 10.0 Pitch_C * - 2.0 / ;
+REAL XtraCool ;
+EVALUATE XtraCool := Box_in 10.0 Pitch_C * - 2.0 / ;
 
 !Meshing points for macro geometry :
 REAL X1 X2 X3 X4  ;
 ! X2 = X1 + 4*Pitch_C
 ! X3 = X2 + 3*Pitch_C
 ! X4 = X3 + 3*Pitch_C
-EVALUATE X1 := W_gap Box_thi + XtraMode + ;
+EVALUATE X1 := W_gap Box_thi + XtraCool + ;
 EVALUATE X2 := 4.0 Pitch_C * X1 + ;
 EVALUATE X3 := 3.0 Pitch_C * X2 + ;
 EVALUATE X4 := 3.0 Pitch_C * X3 + ;  
@@ -149,7 +150,7 @@ EVALUATE H3 := Y4 Y3 - ;
 REAL x_step y_step ; ! allows for submeshing of in-assembly box water
 ! in-assembly box water included in geom level with outer assembly water and box
 EVALUATE x_step := W_gap Box_thi + ;
-EVALUATE y_step := XtraMode Box_thi + ;
+EVALUATE y_step := XtraCool Box_thi + ;
 
 ! inner CHaNneL box related parameters, used to define 2nd level CHNL Geometry
 ! CHNL = channel box + surroudning water to fit with pin CARCEL edges 
@@ -160,350 +161,398 @@ EVALUATE XCHNL3 := XCHNL2 Chan_in + ;
 EVALUATE XCHNL4 := XCHNL3 Chan_thi + ;
 EVALUATE XCHNL5 := L2 ;
 
-GEOMSS := GEO: :: CAR2D 5 5 
+REAL X1sym := Pitch_C XCHNL2 - ;
+REAL X2sym := Pitch_C XCHNL1 - ;
+
+
+! Control cross data 
+REAL ctrl_w := 0.35216 ; ! control cross half width (symmetry along y=0 axis)
+! Relative in BMidW coodinate system
+REAL ctrl_l := 10.40994 1.6544 + ctrl_w + X1 - ; ! control cross length after corner (structure + roded part)
+REAL crs_struct := 1.6544 ctrl_w + X1 - ; ! control cross structure after corner 
+REAL crod_pitch := 0.57833 ;
+REAL crod1 := crs_struct crod_pitch + ;
+REAL crod2 := crod1 crod_pitch + ;
+REAL crod3 := crod2 crod_pitch + ;
+REAL crod4 := crod3 crod_pitch + ;
+REAL crod5 := crod4 crod_pitch + ;
+REAL crod6 := crod5 crod_pitch + ;
+REAL crod7 := crod6 crod_pitch + ;
+REAL crod8 := crod7 crod_pitch + ;
+REAL crod9 := crod8 crod_pitch + ;
+REAL crod10 := crod9 crod_pitch + ;
+REAL crod11 := crod10 crod_pitch + ;
+REAL crod12 := crod11 crod_pitch + ;
+REAL crod13 := crod12 crod_pitch + ;
+REAL crod14 := crod13 crod_pitch + ;
+REAL crod15 := crod14 crod_pitch + ;
+REAL crod16 := crod15 crod_pitch + ;
+REAL crod17 := crod16 crod_pitch + ;
+REAL crod18 := crod17 crod_pitch + ; ! == to ctrl_l --> check
+
+
+REAL hwater_crs := W_gap ctrl_w - ; ! water height above the control cross
+REAL lwater_crs := LLat ctrl_l - ; ! water length right of the control cross 
+
+REAL Rctrl_rod := 0.21082 ;
+REAL offset := ctrl_w 2.0 / -1.0 * ;
+
+GEOMSS := GEO: :: CAR2D 3 3  
 EDIT 1
 X- DIAG X+ REFL
 Y- REFL Y+ DIAG
 CELL
-WBC1 WB1 WB2 WB3 WBC2
-      C01 C02 C03 WR1
-         CHNL C04 WR2
-              C05 WR3
-                  WTC
+BotCL BMidW BotCR
+       LAT RMidW
+           TopCR
+MESHX 0.0 <<X1>> <<X4>> <<Pitch_A>>
+MESHY 0.0 <<Y1>> <<Y4>> <<Pitch_A>>
 
-MESHX 0.0 <<X1>> <<X2>> <<X3>> <<X4>> <<Pitch_A>>
-MESHY 0.0 <<Y1>> <<Y2>> <<Y3>> <<Y4>> <<Pitch_A>>
-::: WTC := GEO: CAR2D 3 3
-    MESHX 0.0 <<XtraMode>> <<y_step>> <<X1>>
-    MESHY 0.0 <<XtraMode>> <<y_step>> <<Y1>>
-    MIX <<COOL>> <<BOX>> <<MODE>> 
+::: BotCL :=  GEO: CAR2D 4 4
+        MESHX 0.0 <<ctrl_w>> <<W_gap>> <<x_step>> <<X1>>
+        MESHY 0.0 <<ctrl_w>> <<W_gap>> <<x_step>> <<Y1>>
+        MIX <<CTRL_CRS>> <<CTRL_CRS>> <<CTRL_CRS>> <<CTRL_CRS>>
+            <<CTRL_CRS>> <<MODE>>     <<MODE>>     <<MODE>> 
+            <<CTRL_CRS>> <<MODE>>     <<BOX>>      <<BOX>>
+            <<CTRL_CRS>> <<MODE>>     <<BOX>>      <<COOL>>
+    ;  
+
+::: BotCR := GEO: CAR2D 3 3
+        MESHX 0.0 <<XtraCool>> <<y_step>> <<X1>>
+        MESHY 0.0 <<W_gap>> <<x_step>> <<X1>>
+        MIX <<MODE>> <<MODE>> <<MODE>> 
+            <<BOX>>  <<BOX>> <<MODE>> 
+            <<COOL>> <<BOX>> <<MODE>> 
+    ;
+::: TopCR := GEO: CAR2D 3 3
+        MESHX 0.0 <<XtraCool>> <<y_step>> <<X1>>
+        MESHY 0.0 <<XtraCool>> <<y_step>> <<Y1>>
+        MIX <<COOL>> <<BOX>> <<MODE>> 
             <<BOX>> <<BOX>> <<MODE>> 
-        <<MODE>> <<MODE>> <<MODE>>
+            <<MODE>> <<MODE>> <<MODE>>
     ;
-::: WBC1 := GEO: CAR2D 3 3 
-    MESHX 0.0 <<W_gap>> <<x_step>> <<X1>>
-    MESHY 0.0 <<W_gap>> <<x_step>> <<Y1>>
-    MIX <<MODE>> <<MODE>> <<MODE>> 
-        <<MODE>> <<BOX>> <<BOX>>
-            <<MODE>> <<BOX>> <<COOL>>
+::: RMidW := GEO: CAR2D 3 1
+        MESHX 0.0 <<XtraCool>> <<y_step>> <<X1>>
+        MESHY 0.0 <<LLat>>
+        MIX <<COOL>> <<BOX>> <<MODE>>
     ;
-::: WR3 := GEO: CAR2D 3 1
-    MESHX 0.0 <<XtraMode>> <<y_step>> <<X1>>
-    MESHY 0.0 <<L3>>
-    MIX <<COOL>> <<BOX>> <<MODE>>
-    ;
-::: WR2 := GEO: CAR2D 3 1
-    MESHX 0.0 <<XtraMode>> <<y_step>> <<X1>>
-    MESHY 0.0 <<L2>>
-    MIX <<COOL>> <<BOX>> <<MODE>>
-    ; 
-::: WR1 := GEO: CAR2D 3 1
-    MESHX 0.0 <<XtraMode>> <<y_step>> <<X1>>
-    MESHY 0.0 <<L1>>
-    MIX <<COOL>> <<BOX>> <<MODE>>
-    ; 
-::: WB1 := GEO: CAR2D 1 3
-    MESHX 0.0 <<L1>>
-    MESHY 0.0 <<W_gap>> <<x_step>> <<Y1>>
-    MIX <<MODE>> <<BOX>> <<COOL>>
-    ;
-::: WB2 := GEO: CAR2D 1 3
-    MESHX 0.0 <<L2>>
-    MESHY 0.0 <<W_gap>> <<x_step>> <<Y1>>
-    MIX <<MODE>> <<BOX>> <<COOL>>
-    ;
-::: WB3 := GEO: CAR2D 1 3
-    MESHX 0.0 <<L3>>
-    MESHY 0.0 <<W_gap>> <<x_step>> <<Y1>>
-    MIX <<MODE>> <<BOX>> <<COOL>>
-    ;
-::: WBC2 := GEO: CAR2D 3 3
-    MESHX 0.0 <<XtraMode>> <<y_step>> <<X1>>
-    MESHY 0.0 <<W_gap>> <<x_step>> <<X1>>
-    MIX <<MODE>> <<MODE>> <<MODE>> 
-        <<BOX>>  <<BOX>> <<MODE>> 
-        <<COOL>> <<BOX>> <<MODE>> 
-    ;
-ECHO "After Sides and corners" ;
-::: C01 := GEO: CAR2D 4 4
-    EDIT 1
-    CELL
-    C11 C21 C31 C51
-    C21 C41 C71 C61 
-    C31 C71 C61 C61
-    C51 C61 C61 C61
-    MESHX 0.0 <<Pitch_C>> <<2_Pitch_C>> <<3_Pitch_C>> <<4_Pitch_C>>
-    MESHY 0.0 <<Pitch_C>> <<2_Pitch_C>> <<3_Pitch_C>> <<4_Pitch_C>>
-    ::: C11 :=  GEO: CARCEL 6 
-                RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
-                <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
-                MIX <<COMB0101>> <<COMB0102>> <<COMB0103>> <<COMB0104>>
-                    <<GAP>> <<CLAD>> <<COOL>> 
-                    MESHX 0.0 <<pitch>> MESHY 0.0 <<pitch>>
-            ;
-    ::: C21 := GEO: C11 MIX <<COMB0201>> <<COMB0202>> <<COMB0203>> <<COMB0204>>
-                            <<GAP>> <<CLAD>> <<COOL>>
-            ;
-    ::: C31 := GEO: C11 MIX <<COMB0301>> <<COMB0302>> <<COMB0303>> <<COMB0304>>
-                            <<GAP>> <<CLAD>> <<COOL>>  
-            ;
-    ::: C41 := GEO: C11 MIX <<COMB0401>> <<COMB0402>> <<COMB0403>> <<COMB0404>>
-                            <<GAP>> <<CLAD>> <<COOL>>
-            ;
-    ::: C51 := GEO: C11 MIX <<COMB0501>> <<COMB0502>> <<COMB0503>> <<COMB0504>>
-                            <<GAP>> <<CLAD>> <<COOL>> 
-            ; 
-    ::: C61 := GEO: C11 MIX <<COMB0601>> <<COMB0602>> <<COMB0603>> <<COMB0604>>
-                            <<GAP>> <<CLAD>> <<COOL>> 
-            ;
-    ::: C71 := GEO: CARCEL 8
-                RADIUS 0.0 <<RcombGd1>> <<RcombGd2>> <<RcombGd3>> <<RcombGd4>>
-                            <<RcombGd5>> <<RcombGd6>> <<Rgap>> <<Rclad>> 
-                MIX <<COMB0701>> <<COMB0702>> <<COMB0703>> <<COMB0704>> <<COMB0705>> <<COMB0706>>
-                    <<GAP>> <<CLAD>> <<COOL>>
-                MESHX 0.0 <<pitch>> MESHY 0.0 <<pitch>>
-            ; 
-    ;
-ECHO "C01 done" ;
-::: C02 := GEO: CAR2D 3 4 
-    CELL
-    C62 C52 C42
-    C72 C62 C62
-    C62 C72 C62
-    C62 C62 C72
-    MESHX 0.0 <<Pitch_C>> <<2_Pitch_C>> <<3_Pitch_C>> 
-    MESHY 0.0 <<Pitch_C>> <<2_Pitch_C>> <<3_Pitch_C>> <<4_Pitch_C>>
-    ::: C62 := GEO: CARCEL 6 
-                RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
-                <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
-                MIX <<COMB0601>> <<COMB0602>> <<COMB0603>> <<COMB0604>>
+
+::: BMidW := GEO:  CAR2D 20 4
+        MESHX 0.0 <<crs_struct>> <<crod1>> <<crod2>> <<crod3>> <<crod4>> <<crod5>> 
+        <<crod6>> <<crod7>> <<crod8>> <<crod9>> <<crod10>> 
+        <<crod11>> <<crod12>> <<crod13>> <<crod14>> <<crod15>> 
+        <<crod16>> <<crod17>> <<ctrl_l>> <<LLat>>
+        MESHY 0.0 <<ctrl_w>> <<W_gap>> <<x_step>> <<Y1>>
+        CELL 
+        CRS ROD ROD ROD ROD ROD ROD ROD ROD ROD ROD ROD ROD ROD ROD ROD ROD ROD ROD MODER1
+        MODEL MODE MODE MODE MODE MODE MODE MODE MODE MODE MODE MODE MODE MODE MODE MODE MODE MODE MODE MODER2
+        BOXL BOX BOX BOX BOX BOX BOX BOX BOX BOX BOX BOX BOX BOX BOX BOX BOX BOX BOX BOXR 
+        COOL COO COO COO COO COO COO COO COO COO COO COO COO COO COO COO COO COO COO COOR
+        ::: CRS := GEO: CAR2D 1 1
+            MESHX 0.0 <<crs_struct>>
+            MESHY 0.0 <<ctrl_w>>
+            MIX <<CTRL_CRS>> 
+        ;
+        ::: ROD := GEO: CARCEL 1
+            RADIUS 0.0 <<Rctrl_rod>> ! Check this and offset circle for its center to be on y=0 axis
+            MESHX 0.0 <<crod_pitch>>
+            MESHY 0.0 <<ctrl_w>>
+            OFFCENTER 0.0 <<offset>>
+            MIX <<CTRL_ROD>> <<CTRL_CRS>>
+        ;
+        ::: MODER1 := GEO: CAR2D 1 1
+            MESHX 0.0 <<lwater_crs>>
+            MESHY 0.0 <<ctrl_w>>
+            MIX <<MODE>>
+        ;
+        ::: MODEL := GEO: CAR2D 1 1
+            MESHX 0.0 <<crs_struct>>
+            MESHY 0.0 <<hwater_crs>>
+            MIX <<MODE>>
+        ;
+        ::: MODE := GEO: CAR2D 1 1
+            MESHX 0.0 <<crod_pitch>>
+            MESHY 0.0 <<hwater_crs>>
+            MIX <<MODE>>
+        ;
+
+        ::: MODER2 := GEO: CAR2D 1 1
+            MESHX 0.0 <<lwater_crs>>
+            MESHY 0.0 <<hwater_crs>>
+            MIX <<MODE>>
+        ;
+        ::: BOXL := GEO: CAR2D 1 1
+            MESHX 0.0 <<crs_struct>>
+            MESHY 0.0 <<Box_thi>>
+            MIX <<BOX>>
+        ;
+        ::: BOX := GEO: CAR2D 1 1
+            MESHX 0.0 <<crod_pitch>>
+            MESHY 0.0 <<Box_thi>>
+            MIX <<MODE>>
+        ;
+        ::: BOXR := GEO: CAR2D 1 1
+            MESHX 0.0 <<lwater_crs>>
+            MESHY 0.0 <<Box_thi>>
+            MIX <<BOX>>
+        ;
+        ::: COOL := GEO: CAR2D 1 1
+            MESHX 0.0 <<crs_struct>>
+            MESHY 0.0 <<XtraCool>>
+            MIX <<COOL>>
+        ;
+        ::: COO := GEO: CAR2D 1 1
+            MESHX 0.0 <<crod_pitch>>
+            MESHY 0.0 <<XtraCool>>
+            MIX <<COOL>>
+        ;
+        ::: COOR := GEO: CAR2D 1 1
+            MESHX 0.0 <<lwater_crs>>
+            MESHY 0.0 <<XtraCool>>
+            MIX <<COOL>>
+        ;
+;
+::: LAT :=  GEO: CAR2D 10 10 
+        MESHX 0.0 <<Pitch_C>> <<2_Pitch_C>> <<3_Pitch_C>> <<4_Pitch_C>> <<5_Pitch_C>> 
+                <<6_Pitch_C>> <<7_Pitch_C>> <<8_Pitch_C>> <<9_Pitch_C>> <<LLat>>
+        MESHY 0.0 <<Pitch_C>> <<2_Pitch_C>> <<3_Pitch_C>> <<4_Pitch_C>> <<5_Pitch_C>> 
+                <<6_Pitch_C>> <<7_Pitch_C>> <<8_Pitch_C>> <<9_Pitch_C>> <<LLat>>
+        CELL
+        C1 C2 C3 C5 C6 C5 C4 C3 C2 C1
+        C2 C4 C7 C6 C7 C6 C6 C7 C4 C2
+        C3 C7 C6 C6 C6 C7 C6 C6 C7 C3
+        C5 C6 C6 C6 C6 C6 C7 C6 C5 C4
+        C6 C7 C6 C6 W1 WB W2 C4 C6 C4
+        C5 C6 C7 C6 WL W0 WR C3 C7 C4
+        C4 C6 C6 C7 W3 WT W4 C4 C4 C4
+        C3 C7 C6 C6 C4 C3 C4 C4 C8 C3 
+        C2 C4 C7 C5 C6 C7 C4 C8 C4 C2
+        C1 C2 C3 C4 C4 C4 C4 C3 C2 C1
+        ::: C1 :=  GEO: CARCEL 6 
+            RADIUS 0.0 <<Rcomb1>> <<Rcomb2>> <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
+            MIX <<COMB0101>> <<COMB0102>> <<COMB0103>> <<COMB0104>> <<GAP>> <<CLAD>> <<COOL>> 
+            MESHX 0.0 <<Pitch_C>> MESHY 0.0 <<Pitch_C>>
+        ;
+        ::: C2 := GEO: C1 MIX <<COMB0201>> <<COMB0202>> <<COMB0203>> <<COMB0204>>
+                <<GAP>> <<CLAD>> <<COOL>>
+        ;
+        ::: C3 := GEO: C1 MIX <<COMB0301>> <<COMB0302>> <<COMB0303>> <<COMB0304>>
+                <<GAP>> <<CLAD>> <<COOL>>  
+        ;
+        ::: C4 := GEO: C1 MIX <<COMB0401>> <<COMB0402>> <<COMB0403>> <<COMB0404>>
+                <<GAP>> <<CLAD>> <<COOL>>
+        ;
+        ::: C5 := GEO: C1 MIX <<COMB0501>> <<COMB0502>> <<COMB0503>> <<COMB0504>>
                 <<GAP>> <<CLAD>> <<COOL>> 
-                MESHX 0.0 <<pitch>> MESHY 0.0 <<pitch>>
-            ;
-    ::: C52 := GEO: C62 MIX <<COMB0501>> <<COMB0502>> <<COMB0503>> <<COMB0504>>
-                            <<GAP>> <<CLAD>> <<COOL>> 
-            ; 
-    ::: C42 := GEO: C62 MIX <<COMB0401>> <<COMB0402>> <<COMB0403>> <<COMB0404>>
-                            <<GAP>> <<CLAD>> <<COOL>> 
-            ;
-    ::: C72 := GEO: CARCEL 8
-                RADIUS 0.0 <<RcombGd1>> <<RcombGd2>> <<RcombGd3>> <<RcombGd4>>
-                            <<RcombGd5>> <<RcombGd6>> <<Rgap>> <<Rclad>> 
-                MIX <<COMB0701>> <<COMB0702>> <<COMB0703>> <<COMB0704>> <<COMB0705>> <<COMB0706>>
-                    <<GAP>> <<CLAD>> <<COOL>> 
-                MESHX 0.0 <<pitch>> MESHY 0.0 <<pitch>>
-            ; 
-    ;
-ECHO "C02 done" ;
-::: C03 := GEO: CAR2D 3 4
-    CELL
-    C33 C23 C13
-    C73 C43 C23
-    C63 C73 C33
-    C63 C53 C43
-    MESHX 0.0 <<Pitch_C>> <<2_Pitch_C>> <<3_Pitch_C>> 
-    MESHY 0.0 <<Pitch_C>> <<2_Pitch_C>> <<3_Pitch_C>> <<4_Pitch_C>>
-    ::: C13 :=  GEO: CARCEL 6 
-                RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
-                <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
-                MIX <<COMB0101>> <<COMB0102>> <<COMB0103>> <<COMB0104>>
+        ; 
+        ::: C6 := GEO: C1 MIX <<COMB0601>> <<COMB0602>> <<COMB0603>> <<COMB0604>>
                 <<GAP>> <<CLAD>> <<COOL>> 
-                MESHX 0.0 <<pitch>> MESHY 0.0 <<pitch>>
-            ;
-    ::: C23 := GEO: C13 MIX <<COMB0201>> <<COMB0202>> <<COMB0203>> <<COMB0204>>
-                            <<GAP>> <<CLAD>> <<COOL>>
-            ;
-    ::: C33 :=  GEO: C13 MIX <<COMB0301>> <<COMB0302>> <<COMB0303>> <<COMB0304>>
-                            <<GAP>> <<CLAD>> <<COOL>>
-            ;
-    ::: C43 :=  GEO: C13 MIX <<COMB0401>> <<COMB0402>> <<COMB0403>> <<COMB0404>>
-                            <<GAP>> <<CLAD>> <<COOL>> 
-            ;
-    ::: C53 :=  GEO: C13 MIX <<COMB0501>> <<COMB0502>> <<COMB0503>> <<COMB0504>>
-                            <<GAP>> <<CLAD>> <<COOL>>
-            ; 
-    ::: C63 := GEO: C13 MIX <<COMB0601>> <<COMB0602>> <<COMB0603>> <<COMB0604>>
-                            <<GAP>> <<CLAD>> <<COOL>> 
-            ;
-    ::: C73 := GEO: CARCEL 8
+        ;
+        ::: C7 := GEO: CARCEL 8
                 RADIUS 0.0 <<RcombGd1>> <<RcombGd2>> <<RcombGd3>> <<RcombGd4>>
-                            <<RcombGd5>> <<RcombGd6>> <<Rgap>> <<Rclad>> 
+                <<RcombGd5>> <<RcombGd6>> <<Rgap>> <<Rclad>> 
                 MIX <<COMB0701>> <<COMB0702>> <<COMB0703>> <<COMB0704>> <<COMB0705>> <<COMB0706>>
-                    <<GAP>> <<CLAD>> <<COOL>> 
-                MESHX 0.0 <<pitch>> MESHY 0.0 <<pitch>>
-            ; 
+                <<GAP>> <<CLAD>> <<COOL>>
+                MESHX 0.0 <<Pitch_C>> MESHY 0.0 <<Pitch_C>>
+        ;
+        ::: C8 := GEO: C7 MIX <<COMB0801>> <<COMB0802>> <<COMB0803>> <<COMB0804>> 
+                <<COMB0805>> <<COMB0806>> <<GAP>> <<CLAD>> <<COOL>>
+        ; 
+        ::: W1 := GEO: CAR2D 3 3
+            MESHX 0.0 <<XCHNL1>> <<XCHNL2>> <<Pitch_C>> 
+            MESHY 0.0 <<XCHNL1>> <<XCHNL2>> <<Pitch_C>>
+            MIX <<COOL>> <<COOL>> <<COOL>>
+                <<COOL>> <<BOX>> <<BOX>>
+                <<COOL>> <<BOX>> <<MODE>> 
+        ;
+        ::: WB := GEO: CAR2D 1 3
+            MESHX 0.0 <<Pitch_C>>
+            MESHY 0.0 <<XCHNL1>> <<XCHNL2>> <<Pitch_C>>
+            MIX <<COOL>> <<BOX>> <<MODE>>
+        ;
+        ::: W2 := GEO: CAR2D 3 3
+            MESHX 0.0 <<X1sym>> <<X2sym>> <<Pitch_C>>
+            MESHY 0.0 <<XCHNL1>> <<XCHNL2>> <<Pitch_C>>
+            MIX <<COOL>> <<COOL>> <<COOL>>
+                <<BOX>> <<BOX>> <<COOL>>
+                <<MODE>> <<BOX>> <<COOL>> 
+        ;
+        ::: WL := GEO: CAR2D 3 1 
+            MESHX 0.0 <<XCHNL1>> <<XCHNL2>> <<Pitch_C>>
+            MESHY 0.0 <<Pitch_C>>
+            MIX <<COOL>> <<BOX>> <<MODE>>
+        ;
+        ::: W0 := GEO: CAR2D 1 1
+            MESHX 0.0 <<Pitch_C>>
+            MESHY 0.0 <<Pitch_C>>
+            MIX <<MODE>>
+        ;
+        ::: WR := GEO: CAR2D 3 1
+            MESHX 0.0 <<X1sym>> <<X2sym>> <<Pitch_C>>
+            MESHY 0.0 <<Pitch_C>>
+            MIX <<MODE>> <<BOX>> <<COOL>>
+        ;
+        ::: W3 := GEO: CAR2D 3 3 
+            MESHX 0.0 <<XCHNL1>> <<XCHNL2>> <<Pitch_C>>
+            MESHY 0.0 <<X1sym>> <<X2sym>> <<Pitch_C>>
+            MIX <<COOL>> <<BOX>> <<MODE>>
+                <<COOL>> <<BOX>> <<BOX>>
+                <<COOL>> <<COOL>> <<COOL>>
+        ;
+        ::: WT := GEO: CAR2D 1 3 
+            MESHX 0.0 <<Pitch_C>>
+            MESHY 0.0 <<X1sym>> <<X2sym>> <<Pitch_C>>
+            MIX <<MODE>> <<BOX>> <<COOL>>
+        ;
+        ::: W4 := GEO: CAR2D 3 3
+            MESHX 0.0 <<X1sym>> <<X2sym>> <<Pitch_C>>
+            MESHY 0.0 <<X1sym>> <<X2sym>> <<Pitch_C>>
+            MIX <<MODE>> <<BOX>> <<COOL>>
+                <<BOX>> <<BOX>> <<COOL>>
+                <<COOL>> <<COOL>> <<COOL>>
+        ;
     ;
-ECHO "C03 done" ;
-::: C04 := GEO: CAR2D 3 3 
-    CELL
-    C44 C64 C44
-    C34 C74 C44 
-    C44 C44 C44
-    MESHX 0.0 <<Pitch_C>> <<2_Pitch_C>> <<3_Pitch_C>>
-    MESHY 0.0 <<Pitch_C>> <<2_Pitch_C>> <<3_Pitch_C>>
-    ::: C34 :=  GEO: CARCEL 6 
-                RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
-                <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
-                MIX <<COMB0301>> <<COMB0302>> <<COMB0303>> <<COMB0304>>
-                <<GAP>> <<CLAD>> <<COOL>> 
-                MESHX 0.0 <<pitch>> MESHY 0.0 <<pitch>>
-            ;
-    ::: C44 :=  GEO: C34 MIX <<COMB0401>> <<COMB0402>> <<COMB0403>> <<COMB0404>>
-                            <<GAP>> <<CLAD>> <<COOL>> 
-            ;
-    ::: C64 := GEO: C34 MIX <<COMB0601>> <<COMB0602>> <<COMB0603>> <<COMB0604>>
-                            <<GAP>> <<CLAD>> <<COOL>> 
-            ;
-    ::: C74 := GEO: CARCEL 8
-                RADIUS 0.0 <<RcombGd1>> <<RcombGd2>> <<RcombGd3>> <<RcombGd4>>
-                            <<RcombGd5>> <<RcombGd6>> <<Rgap>> <<Rclad>> 
-                MIX <<COMB0701>> <<COMB0702>> <<COMB0703>> <<COMB0704>> <<COMB0705>> <<COMB0706>>
-                    <<GAP>> <<CLAD>> <<COOL>>
-                MESHX 0.0 <<pitch>> MESHY 0.0 <<pitch>> 
-            ; 
-    ;
-ECHO "C04 done" ;
-::: C05 := GEO: CAR2D 3 3
-    CELL
-    C45 C85 C35
-    C85 C45 C25 
-    C35 C25 C15
-    MESHX 0.0 <<Pitch_C>> <<2_Pitch_C>> <<3_Pitch_C>>
-    MESHY 0.0 <<Pitch_C>> <<2_Pitch_C>> <<3_Pitch_C>>
-    ::: C15 :=  GEO: CARCEL 6 
-                RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
-                <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
-                MIX <<COMB0101>> <<COMB0102>> <<COMB0103>> <<COMB0104>>
-                <<GAP>> <<CLAD>> <<COOL>> 
-                MESHX 0.0 <<pitch>> MESHY 0.0 <<pitch>>
-            ;
-    ::: C25 := GEO: C15 MIX <<COMB0201>> <<COMB0202>> <<COMB0203>> <<COMB0204>>
-                            <<GAP>> <<CLAD>> <<COOL>> 
-            ;
-    ::: C35 :=  GEO: C15 MIX <<COMB0301>> <<COMB0302>> <<COMB0303>> <<COMB0304>>
-                            <<GAP>> <<CLAD>> <<COOL>> 
-            ;
-    ::: C45 :=  GEO: C15 MIX <<COMB0401>> <<COMB0402>> <<COMB0403>> <<COMB0404>>
-                            <<GAP>> <<CLAD>> <<COOL>> 
-            ;
-    ::: C85 := GEO: CARCEL 8 
-                RADIUS 0.0 <<RcombGd1>> <<RcombGd2>> <<RcombGd3>> <<RcombGd4>>
-                            <<RcombGd5>> <<RcombGd6>> <<Rgap>> <<Rclad>> 
-                MIX <<COMB0801>> <<COMB0802>> <<COMB0803>> <<COMB0804>> <<COMB0805>> <<COMB0806>>
-                    <<GAP>> <<CLAD>> <<COOL>>
-                MESHX 0.0 <<pitch>> MESHY 0.0 <<pitch>>
-            ; 
-    ;
-    ECHO "C05 done" ;
-::: CHNL := GEO: CAR2D 5 5
-    MESHX 0.0 <<XCHNL1>> <<XCHNL2>> <<XCHNL3>> <<XCHNL4>> <<XCHNL5>>
-    MESHY 0.0 <<XCHNL1>> <<XCHNL2>> <<XCHNL3>> <<XCHNL4>> <<XCHNL5>>
-    MIX <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
-        <<COOL>> <<BOX>> <<BOX>> <<BOX>> <<COOL>>
-        <<COOL>> <<BOX>> <<MODE>> <<BOX>> <<COOL>>
-        <<COOL>> <<BOX>> <<BOX>> <<BOX>> <<COOL>>
-        <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-    ;
-    ECHO "CHNL done" ;
 ;
 
 
 
-IF name_geom 'AT10_ASSBLY_CTRL_fine' = THEN
 
-  GEOM := GEO: :: CAR2D 5 5 
-    EDIT 1
-    X- DIAG X+ REFL
-    Y- REFL Y+ DIAG
-    CELL
-    WBC1 WB1 WB2 WB3 WBC2
-          C01 C02 C03 WR1
-             CHNL C04 WR2
-                  C05 WR3
-                      WTC
+GEOM := GEO: :: CAR2D 3 3  
+EDIT 1
+X- DIAG X+ REFL
+Y- REFL Y+ DIAG
+CELL
+BotCL BMidW BotCR
+       LAT RMidW
+           TopCR
+MESHX 0.0 <<X1>> <<X4>> <<Pitch_A>>
+MESHY 0.0 <<Y1>> <<Y4>> <<Pitch_A>>
 
-    MESHX 0.0 <<X1>> <<X2>> <<X3>> <<X4>> <<Pitch_A>>
-    MESHY 0.0 <<Y1>> <<Y2>> <<Y3>> <<Y4>> <<Pitch_A>>
-    ::: WTC := GEO: CAR2D 3 3
-        MESHX 0.0 <<XtraMode>> <<y_step>> <<X1>>
-        MESHY 0.0 <<XtraMode>> <<y_step>> <<Y1>>
-        SPLITX 4 1 10
-        SPLITY 4 1 10
+::: BotCL :=  GEO: CAR2D 4 4
+        MESHX 0.0 <<ctrl_w>> <<W_gap>> <<x_step>> <<X1>>
+        MESHY 0.0 <<ctrl_w>> <<W_gap>> <<x_step>> <<Y1>>
+        MIX <<CTRL_CRS>> <<CTRL_CRS>> <<CTRL_CRS>> <<CTRL_CRS>>
+            <<CTRL_CRS>> <<MODE>>     <<MODE>>     <<MODE>> 
+            <<CTRL_CRS>> <<MODE>>     <<BOX>>      <<BOX>>
+            <<CTRL_CRS>> <<MODE>>     <<BOX>>      <<COOL>>
+    ;  
+
+::: BotCR := GEO: CAR2D 3 3
+    MESHX 0.0 <<XtraCool>> <<y_step>> <<X1>>
+    MESHY 0.0 <<W_gap>> <<x_step>> <<X1>>
+    SPLITX 4 1 5
+    SPLITY 5 1 4
+    MIX <<MODE>> <<MODE>> <<MODE>> 
+        <<BOX>>  <<BOX>> <<MODE>> 
+        <<COOL>> <<BOX>> <<MODE>> 
+;
+::: TopCR := GEO: CAR2D 3 3
+        MESHX 0.0 <<XtraCool>> <<y_step>> <<X1>>
+        MESHY 0.0 <<XtraCool>> <<y_step>> <<Y1>>
         MIX <<COOL>> <<BOX>> <<MODE>> 
-             <<BOX>> <<BOX>> <<MODE>> 
+            <<BOX>> <<BOX>> <<MODE>> 
             <<MODE>> <<MODE>> <<MODE>>
-      ;
-    ::: WBC1 := GEO: CAR2D 3 3 
-        MESHX 0.0 <<W_gap>> <<x_step>> <<X1>>
-        MESHY 0.0 <<W_gap>> <<x_step>> <<Y1>>
-        SPLITX 4 1 10
-        SPLITY 4 1 10 
-        MIX <<MODE>> <<MODE>> <<MODE>> 
-            <<MODE>> <<BOX>> <<BOX>>
-             <<MODE>> <<BOX>> <<COOL>>
-      ;
-    ::: WR3 := GEO: CAR2D 3 1
-        MESHX 0.0 <<XtraMode>> <<y_step>> <<X1>>
-        MESHY 0.0 <<L3>>
-        SPLITX 4 1 10
-        SPLITY 12
+    ;
+::: RMidW := GEO: CAR2D 3 1
+        MESHX 0.0 <<XtraCool>> <<y_step>> <<X1>>
+        MESHY 0.0 <<LLat>>
         MIX <<COOL>> <<BOX>> <<MODE>>
-      ;
-    ::: WR2 := GEO: CAR2D 3 1
-        MESHX 0.0 <<XtraMode>> <<y_step>> <<X1>>
-        MESHY 0.0 <<L2>>
-        SPLITX 4 1 10
-        SPLITY 12
-        MIX <<COOL>> <<BOX>> <<MODE>>
-      ; 
-    ::: WR1 := GEO: CAR2D 3 1
-        MESHX 0.0 <<XtraMode>> <<y_step>> <<X1>>
-        MESHY 0.0 <<L1>>
-        SPLITX 4 1 10
-        SPLITY 16
-        MIX <<COOL>> <<BOX>> <<MODE>>
-      ; 
-    ::: WB1 := GEO: CAR2D 1 3
-        MESHX 0.0 <<L1>>
-        MESHY 0.0 <<W_gap>> <<x_step>> <<Y1>>
-        SPLITX 16
-        SPLITY 10 1 4
-        MIX <<MODE>> <<BOX>> <<COOL>>
-      ;
-    ::: WB2 := GEO: CAR2D 1 3
-        MESHX 0.0 <<L2>>
-        MESHY 0.0 <<W_gap>> <<x_step>> <<Y1>>
-        SPLITX 12
-        SPLITY 10 1 4
-        MIX <<MODE>> <<BOX>> <<COOL>>
-      ;
-    ::: WB3 := GEO: CAR2D 1 3
-        MESHX 0.0 <<L3>>
-        MESHY 0.0 <<W_gap>> <<x_step>> <<Y1>>
-        MIX <<MODE>> <<BOX>> <<COOL>>
-        SPLITX 12
-        SPLITY 10 1 4
-      ;
-    ::: WBC2 := GEO: CAR2D 3 3
-        MESHX 0.0 <<XtraMode>> <<y_step>> <<X1>>
-        MESHY 0.0 <<W_gap>> <<x_step>> <<X1>>
-        SPLITX 4 1 10
-        SPLITY 10 1 4
-        MIX <<MODE>> <<MODE>> <<MODE>> 
-            <<BOX>>  <<BOX>> <<MODE>> 
-            <<COOL>> <<BOX>> <<MODE>> 
-      ;
-    ECHO "After Sides and corners" ;
-    ::: C01 := GEO: CAR2D 4 4
-        EDIT 1
+        SPLITY 10
+        SPLITX  4 1 5
+    ;
+
+::: BMidW := GEO:  CAR2D 20 4
+        MESHX 0.0 <<crs_struct>> <<crod1>> <<crod2>> <<crod3>> <<crod4>> <<crod5>> 
+        <<crod6>> <<crod7>> <<crod8>> <<crod9>> <<crod10>> 
+        <<crod11>> <<crod12>> <<crod13>> <<crod14>> <<crod15>> 
+        <<crod16>> <<crod17>> <<ctrl_l>> <<LLat>>
+        MESHY 0.0 <<ctrl_w>> <<W_gap>> <<x_step>> <<Y1>>
+        CELL 
+        CRS ROD ROD ROD ROD ROD ROD ROD ROD ROD ROD ROD ROD ROD ROD ROD ROD ROD ROD MODER1
+        MODEL MODE MODE MODE MODE MODE MODE MODE MODE MODE MODE MODE MODE MODE MODE MODE MODE MODE MODE MODER2
+        BOXL BOX BOX BOX BOX BOX BOX BOX BOX BOX BOX BOX BOX BOX BOX BOX BOX BOX BOX BOXR 
+        COOL COO COO COO COO COO COO COO COO COO COO COO COO COO COO COO COO COO COO COOR
+        ::: CRS := GEO: CAR2D 1 1
+            MESHX 0.0 <<crs_struct>>
+            MESHY 0.0 <<ctrl_w>>
+            MIX <<CTRL_CRS>> 
+        ;
+        ::: ROD := GEO: CARCEL 1
+            RADIUS 0.0 <<Rctrl_rod>> ! Check this and offset circle for its center to be on y=0 axis
+            MESHX 0.0 <<crod_pitch>>
+            MESHY 0.0 <<ctrl_w>>
+            OFFCENTER 0.0 <<offset>>
+            MIX <<CTRL_ROD>> <<CTRL_CRS>>
+        ;
+        ::: MODER1 := GEO: CAR2D 1 1
+            MESHX 0.0 <<lwater_crs>>
+            MESHY 0.0 <<ctrl_w>>
+            MIX <<MODE>>
+        ;
+        ::: MODEL := GEO: CAR2D 1 1
+            MESHX 0.0 <<crs_struct>>
+            MESHY 0.0 <<hwater_crs>>
+            MIX <<MODE>>
+        ;
+        ::: MODE := GEO: CAR2D 1 1
+            MESHX 0.0 <<crod_pitch>>
+            MESHY 0.0 <<hwater_crs>>
+            MIX <<MODE>>
+        ;
+
+        ::: MODER2 := GEO: CAR2D 1 1
+            MESHX 0.0 <<lwater_crs>>
+            MESHY 0.0 <<hwater_crs>>
+            MIX <<MODE>>
+        ;
+        ::: BOXL := GEO: CAR2D 1 1
+            MESHX 0.0 <<crs_struct>>
+            MESHY 0.0 <<Box_thi>>
+            MIX <<BOX>>
+        ;
+        ::: BOX := GEO: CAR2D 1 1
+            MESHX 0.0 <<crod_pitch>>
+            MESHY 0.0 <<Box_thi>>
+            MIX <<MODE>>
+        ;
+        ::: BOXR := GEO: CAR2D 1 1
+            MESHX 0.0 <<lwater_crs>>
+            MESHY 0.0 <<Box_thi>>
+            MIX <<BOX>>
+        ;
+        ::: COOL := GEO: CAR2D 1 1
+            MESHX 0.0 <<crs_struct>>
+            MESHY 0.0 <<XtraCool>>
+            MIX <<COOL>>
+        ;
+        ::: COO := GEO: CAR2D 1 1
+            MESHX 0.0 <<crod_pitch>>
+            MESHY 0.0 <<XtraCool>>
+            MIX <<COOL>>
+        ;
+        ::: COOR := GEO: CAR2D 1 1
+            MESHX 0.0 <<lwater_crs>>
+            MESHY 0.0 <<XtraCool>>
+            MIX <<COOL>>
+        ;
+;
+::: LAT :=  GEO: CAR2D 10 10 
+        MESHX 0.0 <<Pitch_C>> <<2_Pitch_C>> <<3_Pitch_C>> <<4_Pitch_C>> <<5_Pitch_C>> 
+                <<6_Pitch_C>> <<7_Pitch_C>> <<8_Pitch_C>> <<9_Pitch_C>> <<LLat>>
+        MESHY 0.0 <<Pitch_C>> <<2_Pitch_C>> <<3_Pitch_C>> <<4_Pitch_C>> <<5_Pitch_C>> 
+                <<6_Pitch_C>> <<7_Pitch_C>> <<8_Pitch_C>> <<9_Pitch_C>> <<LLat>>
         CELL
-        C11 C21 C31 C51
-        C21 C41 C71 C61 
-        C31 C71 C61 C61
-        C51 C61 C61 C61
-        MESHX 0.0 <<Pitch_C>> <<2_Pitch_C>> <<3_Pitch_C>> <<4_Pitch_C>>
-        MESHY 0.0 <<Pitch_C>> <<2_Pitch_C>> <<3_Pitch_C>> <<4_Pitch_C>>
-        ::: C11 :=  GEO: CARCEL 6 
+        C1 C2 C3 C5 C6 C5 C4 C3 C2 C1
+        C2 C4 C7 C6 C7 C6 C6 C7 C4 C2
+        C3 C7 C6 C6 C6 C7 C6 C6 C7 C3
+        C5 C6 C6 C6 C6 C6 C7 C6 C5 C4
+        C6 C7 C6 C6 W1 WB W2 C4 C6 C4
+        C5 C6 C7 C6 WL W0 WR C3 C7 C4
+        C4 C6 C6 C7 W3 WT W4 C4 C4 C4
+        C3 C7 C6 C6 C4 C3 C4 C4 C8 C3 
+        C2 C4 C7 C5 C6 C7 C4 C8 C4 C2
+        C1 C2 C3 C4 C4 C4 C4 C3 C2 C1
+        ::: C1 :=  GEO: CARCEL 6 
                    SECT 4 6
                    RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
                    <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
@@ -512,265 +561,105 @@ IF name_geom 'AT10_ASSBLY_CTRL_fine' = THEN
                        <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                        <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                        <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
-                       MESHX 0.0 <<pitch>> MESHY 0.0 <<pitch>>
-                ;
-        ::: C21 := GEO: C11 MIX <<COMB0201>> <<COMB0202>> <<COMB0203>> <<COMB0204>>
-                              <<GAP>> <<CLAD>>
-                              <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                              <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                              <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
-              ;
-        ::: C31 := GEO: C11 MIX <<COMB0301>> <<COMB0302>> <<COMB0303>> <<COMB0304>>
-                              <<GAP>> <<CLAD>>
-                              <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                              <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                              <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
-              ;
-        ::: C41 := GEO: C11 MIX <<COMB0401>> <<COMB0402>> <<COMB0403>> <<COMB0404>>
-                              <<GAP>> <<CLAD>>
-                              <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                              <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                              <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
-              ;
-        ::: C51 := GEO: C11 MIX <<COMB0501>> <<COMB0502>> <<COMB0503>> <<COMB0504>>
-                              <<GAP>> <<CLAD>>
-                              <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                              <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                              <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
-              ; 
-        ::: C61 := GEO: C11 MIX <<COMB0601>> <<COMB0602>> <<COMB0603>> <<COMB0604>>
-                              <<GAP>> <<CLAD>>
-                              <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                              <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                              <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
-             ;
-        ::: C71 := GEO: CARCEL 8
-                  SECT 4 8 
-                  RADIUS 0.0 <<RcombGd1>> <<RcombGd2>> <<RcombGd3>> <<RcombGd4>>
-                             <<RcombGd5>> <<RcombGd6>> <<Rgap>> <<Rclad>> 
-                  MIX <<COMB0701>> <<COMB0702>> <<COMB0703>> <<COMB0704>> <<COMB0705>> <<COMB0706>>
-                      <<GAP>> <<CLAD>> 
-                      <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                      <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                  MESHX 0.0 <<pitch>> MESHY 0.0 <<pitch>>
-             ; 
-      ;
-    ECHO "C01 done" ;
-    ::: C02 := GEO: CAR2D 3 4 
-        CELL
-        C62 C52 C42
-        C72 C62 C62
-        C62 C72 C62
-        C62 C62 C72
-        MESHX 0.0 <<Pitch_C>> <<2_Pitch_C>> <<3_Pitch_C>> 
-        MESHY 0.0 <<Pitch_C>> <<2_Pitch_C>> <<3_Pitch_C>> <<4_Pitch_C>>
-        ::: C62 := GEO: CARCEL 6 
-                   SECT 4 6
-                   RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
-                   <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
-                   MIX <<COMB0601>> <<COMB0602>> <<COMB0603>> <<COMB0604>>
-                   <<GAP>> <<CLAD>>
-                   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                   <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
-                   MESHX 0.0 <<pitch>> MESHY 0.0 <<pitch>>
-             ;
-        ::: C52 := GEO: C62 MIX <<COMB0501>> <<COMB0502>> <<COMB0503>> <<COMB0504>>
-                               <<GAP>> <<CLAD>>
-                               <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                               <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                               <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
-             ; 
-        ::: C42 := GEO: C62 MIX <<COMB0401>> <<COMB0402>> <<COMB0403>> <<COMB0404>>
-                              <<GAP>> <<CLAD>>
-                              <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                              <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                              <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
-             ;
-        ::: C72 := GEO: CARCEL 8
-                  SECT 4 8 
-                  RADIUS 0.0 <<RcombGd1>> <<RcombGd2>> <<RcombGd3>> <<RcombGd4>>
-                             <<RcombGd5>> <<RcombGd6>> <<Rgap>> <<Rclad>> 
-                  MIX <<COMB0701>> <<COMB0702>> <<COMB0703>> <<COMB0704>> <<COMB0705>> <<COMB0706>>
-                      <<GAP>> <<CLAD>>
-                      <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                      <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                  MESHX 0.0 <<pitch>> MESHY 0.0 <<pitch>>
-             ; 
-      ;
-    ECHO "C02 done" ;
-    ::: C03 := GEO: CAR2D 3 4
-        CELL
-        C33 C23 C13
-        C73 C43 C23
-        C63 C73 C33
-        C63 C53 C43
-        MESHX 0.0 <<Pitch_C>> <<2_Pitch_C>> <<3_Pitch_C>> 
-        MESHY 0.0 <<Pitch_C>> <<2_Pitch_C>> <<3_Pitch_C>> <<4_Pitch_C>>
-        ::: C13 :=  GEO: CARCEL 6 
-                   SECT 4 6
-                   RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
-                   <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
-                   MIX <<COMB0101>> <<COMB0102>> <<COMB0103>> <<COMB0104>>
-                   <<GAP>> <<CLAD>>
-                   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                   <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
-                   MESHX 0.0 <<pitch>> MESHY 0.0 <<pitch>>
-             ;
-        ::: C23 := GEO: C13 MIX <<COMB0201>> <<COMB0202>> <<COMB0203>> <<COMB0204>>
-                              <<GAP>> <<CLAD>>
-                              <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                              <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                              <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
-             ;
-        ::: C33 :=  GEO: C13 MIX <<COMB0301>> <<COMB0302>> <<COMB0303>> <<COMB0304>>
-                               <<GAP>> <<CLAD>>
-                               <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                               <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                               <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
-             ;
-        ::: C43 :=  GEO: C13 MIX <<COMB0401>> <<COMB0402>> <<COMB0403>> <<COMB0404>>
-                               <<GAP>> <<CLAD>>
-                               <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                               <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                               <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
-             ;
-        ::: C53 :=  GEO: C13 MIX <<COMB0501>> <<COMB0502>> <<COMB0503>> <<COMB0504>>
-                               <<GAP>> <<CLAD>>
-                               <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                               <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                               <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
-             ; 
-        ::: C63 := GEO: C13 MIX <<COMB0601>> <<COMB0602>> <<COMB0603>> <<COMB0604>>
-                              <<GAP>> <<CLAD>>
-                              <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                              <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                              <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
-             ;
-        ::: C73 := GEO: CARCEL 8
-                  SECT 4 8 
-                  RADIUS 0.0 <<RcombGd1>> <<RcombGd2>> <<RcombGd3>> <<RcombGd4>>
-                             <<RcombGd5>> <<RcombGd6>> <<Rgap>> <<Rclad>> 
-                  MIX <<COMB0701>> <<COMB0702>> <<COMB0703>> <<COMB0704>> <<COMB0705>> <<COMB0706>>
-                      <<GAP>> <<CLAD>> 
-                      <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                      <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                  MESHX 0.0 <<pitch>> MESHY 0.0 <<pitch>>
-             ; 
-      ;
-    ECHO "C03 done" ;
-    ::: C04 := GEO: CAR2D 3 3 
-        CELL
-        C44 C64 C44
-        C34 C74 C44 
-        C44 C44 C44
-        MESHX 0.0 <<Pitch_C>> <<2_Pitch_C>> <<3_Pitch_C>>
-        MESHY 0.0 <<Pitch_C>> <<2_Pitch_C>> <<3_Pitch_C>>
-        ::: C34 :=  GEO: CARCEL 6 
-                   SECT 4 6
-                   RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
-                   <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
-                   MIX <<COMB0301>> <<COMB0302>> <<COMB0303>> <<COMB0304>>
-                   <<GAP>> <<CLAD>>
-                   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                   <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
-                   MESHX 0.0 <<pitch>> MESHY 0.0 <<pitch>>
-             ;
-        ::: C44 :=  GEO: C34 MIX <<COMB0401>> <<COMB0402>> <<COMB0403>> <<COMB0404>>
-                               <<GAP>> <<CLAD>>
-                               <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                               <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                               <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
-             ;
-        ::: C64 := GEO: C34 MIX <<COMB0601>> <<COMB0602>> <<COMB0603>> <<COMB0604>>
-                              <<GAP>> <<CLAD>>
-                              <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                              <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                              <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
-             ;
-        ::: C74 := GEO: CARCEL 8
-                  SECT 4 8 
-                  RADIUS 0.0 <<RcombGd1>> <<RcombGd2>> <<RcombGd3>> <<RcombGd4>>
-                             <<RcombGd5>> <<RcombGd6>> <<Rgap>> <<Rclad>> 
-                  MIX <<COMB0701>> <<COMB0702>> <<COMB0703>> <<COMB0704>> <<COMB0705>> <<COMB0706>>
-                      <<GAP>> <<CLAD>> 
-                      <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                      <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                  MESHX 0.0 <<pitch>> MESHY 0.0 <<pitch>> 
-             ; 
-      ;
-    ECHO "C04 done" ;
-    ::: C05 := GEO: CAR2D 3 3
-        CELL
-        C45 C85 C35
-        C85 C45 C25
-        C35 C25 C15
-        MESHX 0.0 <<Pitch_C>> <<2_Pitch_C>> <<3_Pitch_C>>
-        MESHY 0.0 <<Pitch_C>> <<2_Pitch_C>> <<3_Pitch_C>>
-        ::: C15 :=  GEO: CARCEL 6 
-                   SECT 4 6
-                   RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
-                   <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
-                   MIX <<COMB0101>> <<COMB0102>> <<COMB0103>> <<COMB0104>>
-                   <<GAP>> <<CLAD>>
-                   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                   <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
-                   MESHX 0.0 <<pitch>> MESHY 0.0 <<pitch>>
-             ;
-        ::: C25 := GEO: C15 MIX <<COMB0201>> <<COMB0202>> <<COMB0203>> <<COMB0204>>
-                              <<GAP>> <<CLAD>>
-                              <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                              <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                              <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
-             ;
-        ::: C35 :=  GEO: C15 MIX <<COMB0301>> <<COMB0302>> <<COMB0303>> <<COMB0304>>
-                               <<GAP>> <<CLAD>>
-                               <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                               <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                               <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
-             ;
-        ::: C45 :=  GEO: C15 MIX <<COMB0401>> <<COMB0402>> <<COMB0403>> <<COMB0404>>
-                               <<GAP>> <<CLAD>>
-                               <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                               <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                               <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
-             ;
-         ::: C85 := GEO: CARCEL 8
-                  SECT 4 8 
-                  RADIUS 0.0 <<RcombGd1>> <<RcombGd2>> <<RcombGd3>> <<RcombGd4>>
-                             <<RcombGd5>> <<RcombGd6>> <<Rgap>> <<Rclad>> 
-                  MIX <<COMB0801>> <<COMB0802>> <<COMB0803>> <<COMB0804>> <<COMB0805>> <<COMB0806>>
-                      <<GAP>> <<CLAD>> 
-                      <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                      <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                  MESHX 0.0 <<pitch>> MESHY 0.0 <<pitch>>
-             ; 
-      ;
-      ECHO "C05 done" ;
-    ::: CHNL := GEO: CAR2D 5 5
-        MESHX 0.0 <<XCHNL1>> <<XCHNL2>> <<XCHNL3>> <<XCHNL4>> <<XCHNL5>>
-        MESHY 0.0 <<XCHNL1>> <<XCHNL2>> <<XCHNL3>> <<XCHNL4>> <<XCHNL5>>
-        SPLITX 2 2 20 2 2
-        SPLITY 2 2 20 2 2
-        MIX <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
-            <<COOL>> <<BOX>> <<BOX>> <<BOX>> <<COOL>>
-            <<COOL>> <<BOX>> <<MODE>> <<BOX>> <<COOL>>
-            <<COOL>> <<BOX>> <<BOX>> <<BOX>> <<COOL>>
-            <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-     ;
-     ECHO "CHNL done" ;
-  ;
-
-
-
-ELSEIF name_geom 'AT10_ASSBLY_ctrl' = THEN
-
-ECHO "ATRIUM 10 geometry with control cross not implemented yet" ;
-
-ENDIF ;
-
-END: ;
-QUIT .
+            MESHX 0.0 <<Pitch_C>> MESHY 0.0 <<Pitch_C>>
+        ;
+        ::: C2 := GEO: C1 MIX <<COMB0201>> <<COMB0202>> <<COMB0203>> <<COMB0204>>
+                <<GAP>> <<CLAD>> 
+                <<COOL>> <<COOL>> <<COOL>> <<COOL>>
+                <<COOL>> <<COOL>> <<COOL>> <<COOL>>
+                <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
+        ;
+        ::: C3 := GEO: C1 MIX <<COMB0301>> <<COMB0302>> <<COMB0303>> <<COMB0304>>
+                <<GAP>> <<CLAD>> 
+                <<COOL>> <<COOL>> <<COOL>> <<COOL>>
+                <<COOL>> <<COOL>> <<COOL>> <<COOL>>
+                <<COOL>> <<COOL>> <<COOL>> <<COOL>>   
+        ;
+        ::: C4 := GEO: C1 MIX <<COMB0401>> <<COMB0402>> <<COMB0403>> <<COMB0404>>
+                <<GAP>> <<CLAD>> 
+                <<COOL>> <<COOL>> <<COOL>> <<COOL>>
+                <<COOL>> <<COOL>> <<COOL>> <<COOL>>
+                <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
+        ;
+        ::: C5 := GEO: C1 MIX <<COMB0501>> <<COMB0502>> <<COMB0503>> <<COMB0504>>
+                <<GAP>> <<CLAD>> 
+                <<COOL>> <<COOL>> <<COOL>> <<COOL>>
+                <<COOL>> <<COOL>> <<COOL>> <<COOL>>
+                <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
+        ; 
+        ::: C6 := GEO: C1 MIX <<COMB0601>> <<COMB0602>> <<COMB0603>> <<COMB0604>>
+                <<GAP>> <<CLAD>> 
+                <<COOL>> <<COOL>> <<COOL>> <<COOL>>
+                <<COOL>> <<COOL>> <<COOL>> <<COOL>>
+                <<COOL>> <<COOL>> <<COOL>> <<COOL>>  
+        ;
+        ::: C7 := GEO: CARCEL 8
+            SECT 4 8 
+            RADIUS 0.0 <<RcombGd1>> <<RcombGd2>> <<RcombGd3>> <<RcombGd4>>
+            <<RcombGd5>> <<RcombGd6>> <<Rgap>> <<Rclad>> 
+            MIX <<COMB0701>> <<COMB0702>> <<COMB0703>> <<COMB0704>> <<COMB0705>> <<COMB0706>>
+            <<GAP>> <<CLAD>> 
+            <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>>
+            <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>>
+            MESHX 0.0 <<Pitch_C>> MESHY 0.0 <<Pitch_C>>
+        ;
+        ::: C8 := GEO: C7 MIX <<COMB0801>> <<COMB0802>> <<COMB0803>> <<COMB0804>> 
+                <<COMB0805>> <<COMB0806>> <<GAP>> <<CLAD>> 
+                <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>>
+                <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>>
+        ; 
+        ::: W1 := GEO: CAR2D 3 3
+            MESHX 0.0 <<XCHNL1>> <<XCHNL2>> <<Pitch_C>> 
+            MESHY 0.0 <<XCHNL1>> <<XCHNL2>> <<Pitch_C>>
+            MIX <<COOL>> <<COOL>> <<COOL>>
+                <<COOL>> <<BOX>> <<BOX>>
+                <<COOL>> <<BOX>> <<MODE>> 
+        ;
+        ::: WB := GEO: CAR2D 1 3
+            MESHX 0.0 <<Pitch_C>>
+            MESHY 0.0 <<XCHNL1>> <<XCHNL2>> <<Pitch_C>>
+            MIX <<COOL>> <<BOX>> <<MODE>>
+        ;
+        ::: W2 := GEO: CAR2D 3 3
+            MESHX 0.0 <<X1sym>> <<X2sym>> <<Pitch_C>>
+            MESHY 0.0 <<XCHNL1>> <<XCHNL2>> <<Pitch_C>>
+            MIX <<COOL>> <<COOL>> <<COOL>>
+                <<BOX>> <<BOX>> <<COOL>>
+                <<MODE>> <<BOX>> <<COOL>> 
+        ;
+        ::: WL := GEO: CAR2D 3 1 
+            MESHX 0.0 <<XCHNL1>> <<XCHNL2>> <<Pitch_C>>
+            MESHY 0.0 <<Pitch_C>>
+            MIX <<COOL>> <<BOX>> <<MODE>>
+        ;
+        ::: W0 := GEO: CAR2D 1 1
+            MESHX 0.0 <<Pitch_C>>
+            MESHY 0.0 <<Pitch_C>>
+            MIX <<MODE>>
+        ;
+        ::: WR := GEO: CAR2D 3 1
+            MESHX 0.0 <<X1sym>> <<X2sym>> <<Pitch_C>>
+            MESHY 0.0 <<Pitch_C>>
+            MIX <<MODE>> <<BOX>> <<COOL>>
+        ;
+        ::: W3 := GEO: CAR2D 3 3 
+            MESHX 0.0 <<XCHNL1>> <<XCHNL2>> <<Pitch_C>>
+            MESHY 0.0 <<X1sym>> <<X2sym>> <<Pitch_C>>
+            MIX <<COOL>> <<BOX>> <<MODE>>
+                <<COOL>> <<BOX>> <<BOX>>
+                <<COOL>> <<COOL>> <<COOL>>
+        ;
+        ::: WT := GEO: CAR2D 1 3 
+            MESHX 0.0 <<Pitch_C>>
+            MESHY 0.0 <<X1sym>> <<X2sym>> <<Pitch_C>>
+            MIX <<MODE>> <<BOX>> <<COOL>>
+        ;
+        ::: W4 := GEO: CAR2D 3 3
+            MESHX 0.0 <<X1sym>> <<X2sym>> <<Pitch_C>>
+            MESHY 0.0 <<X1sym>> <<X2sym>> <<Pitch_C>>
+            MIX <<MODE>> <<BOX>> <<COOL>>
+                <<BOX>> <<BOX>> <<COOL>>
+                <<COOL>> <<COOL>> <<COOL>>
+        ;
+    ;
+;

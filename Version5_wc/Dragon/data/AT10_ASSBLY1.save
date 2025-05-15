@@ -20,5 +20,6 @@ mv tracks_SALT_ASSBLY.m $1/"$MACH"
 mv tracks_SALT_SS_ASSBLY.m $1/"$MACH"
 mv FIG_*.ps $1/"$MACH"
 mv FIG_selfshielding.ps $1/"$MACH"
+mv *CPO* $1/"$MACH"
 echo "AT10_ASSBLY.save completed"
 

@@ -66,7 +66,7 @@
 *----
 #if defined(HDF5_LIB)
       LOGICAL LFROM,LMPO
-      CHARACTER TEXT24*24,RECNAM*80
+      CHARACTER TEXT80*80,RECNAM*80
       CHARACTER(LEN=100), ALLOCATABLE, DIMENSION(:) :: LIST
       INTEGER, ALLOCATABLE, DIMENSION(:) :: DIMS_APX
       REAL, ALLOCATABLE, DIMENSION(:) :: XVOLM
@@ -811,13 +811,20 @@
           CALL SPHSTM(IPAPX,ICAL,IPRINT,LNEW,HEQNAM,HEDIT,NMERGE,NGCOND,
      >    SPH2)
         ELSE
-          DO IBM=1,NMERGE
-            WRITE(TEXT24,'(4Hcalc,I8,3H/xs,I8,1H/)') ICAL,IBM
-            WORK1(:NGCOND)=SPH2(IBM,:NGCOND)
-            CALL hdf5_create_group(IPAPX,TEXT24//"MEDIA_SPH/")
-            CALL hdf5_write_data(IPAPX,TEXT24//"MEDIA_SPH/"//HEQNAM,
-     >      WORK1)
-          ENDDO
+          IF(NMERGE.EQ.1) THEN
+              WRITE(TEXT80,'(4Hcalc,I8,14H/xs/MEDIA_SPH/)') ICAL
+              WORK1(:NGCOND)=SPH2(IBM,:NGCOND)
+              CALL hdf5_create_group(IPAPX,TRIM(TEXT80))
+              CALL hdf5_write_data(IPAPX,TRIM(TEXT80)//HEQNAM,WORK1)
+          ELSE
+            DO IBM=1,NMERGE
+              WRITE(TEXT80,'(4Hcalc,I8,3H/xs,I8,11H/MEDIA_SPH/)') ICAL,
+     >        IBM
+              WORK1(:NGCOND)=SPH2(IBM,:NGCOND)
+              CALL hdf5_create_group(IPAPX,TRIM(TEXT80))
+              CALL hdf5_write_data(IPAPX,TRIM(TEXT80)//HEQNAM,WORK1)
+            ENDDO
+          ENDIF
         ENDIF
         DEALLOCATE(WORK1)
 #else

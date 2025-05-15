@@ -287,7 +287,7 @@
          DCHI(IGR,IPRC)=WORK1(IMIL)
    40    CONTINUE
       ELSE
-         DNUSIG(:NG,:NPRC+1)=0.0
+         DNUSIG(IGR,:NPRC+1)=0.0
       ENDIF
 *
       DO 80 IREA=1,NREA

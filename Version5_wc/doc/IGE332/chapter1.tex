@@ -2553,7 +2553,7 @@ hdf5_read_data_string_c(ifile, namp, idata);
 
 \subsubsection{hdf5\_write\_data\_int\_c}
 
-Copy an integer array from memory into a HDF5 dataset
+Copy an integer array from memory into a HDF5 dataset. If dataset {\tt namp} exists, it is replaced.
 
 \begin{verbatim}
 
@@ -2579,7 +2579,7 @@ hdf5_write_data_int_c(ifile, namp, rank, dimsr, idata);
 
 \subsubsection{hdf5\_write\_data\_real4\_c}
 
-Copy a real(4) array from memory into a HDF5 dataset
+Copy a real(4) array from memory into a HDF5 dataset. If dataset {\tt namp} exists, it is replaced.
 
 \begin{verbatim}
 
@@ -2605,7 +2605,7 @@ hdf5_write_data_real4_c(ifile, namp, rank, dimsr, rdata);
 
 \subsubsection{hdf5\_write\_data\_real8\_c}
 
-Copy a real(8) array from memory into a HDF5 dataset
+Copy a real(8) array from memory into a HDF5 dataset. If dataset {\tt namp} exists, it is replaced.
 
 \begin{verbatim}
 
@@ -2631,7 +2631,7 @@ hdf5_write_data_real8_c(ifile, namp, rank, dimsr, rdata);
 
 \subsubsection{hdf5\_write\_data\_string\_c}
 
-Copy an character array from memory into a HDF5 dataset
+Copy an character array from memory into a HDF5 dataset.  If dataset {\tt namp} exists, it is replaced.
 
 \begin{verbatim}
 
@@ -6035,7 +6035,7 @@ this variable has not the allocatable status.\\
 
 \subsubsection{hdf5\_write\_data\index{hdf5WriteData}}
 
-Copy an array from memory into a HDF5 dataset
+Copy an array from memory into a HDF5 dataset.  If dataset {\tt name} exists, it is replaced.
 
 \begin{verbatim}
 

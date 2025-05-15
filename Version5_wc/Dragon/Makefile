@@ -71,7 +71,9 @@ tests :
 ifeq ($(hdf5),1)
 	./rdragon -c $(fcompilerSuite) -p $(nomp) -q UOX_5x5_TG6_sym8_multiDom.x2m
 	./rdragon -c $(fcompilerSuite) -p $(nomp) -q uo2_evo_hdf.x2m
+	./rdragon -c $(fcompilerSuite) -p $(nomp) -q pincell_apx.x2m
 	./rdragon -c $(fcompilerSuite) -p $(nomp) -q pincell_mpo.x2m
+	./rdragon -c $(fcompilerSuite) -p $(nomp) -q ASSBLY_CASEA_1level_apex_boron.x2m
 	./rdragon -c $(fcompilerSuite) -p $(nomp) -q ASSBLY_CASEA_1level_mpo.x2m
 	./rdragon -c $(fcompilerSuite) -p $(nomp) -q ASSBLY_VVER_1level_mpo.x2m
 endif

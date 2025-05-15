@@ -598,10 +598,22 @@ void hdf5_write_data_int_c(hid_t *ifile, const char *namp, int_32 rank, int_32 *
       sprintf(AbortString,"%s: rank > 10 on object '%.72s'.",nomsub,namp);
       xabort_c(AbortString);
   }
+  hid_t dataset = -1;
+  H5E_BEGIN_TRY {
+  dataset = H5Dopen(loc_id,namp,H5P_DEFAULT);
+  } H5E_END_TRY;
+  if (dataset  >= 0) {
+    iretcd = H5Ldelete(loc_id,namp,H5P_DEFAULT);
+    if (iretcd < 0) {
+      sprintf(AbortString,"%s: HDF5 delete failure. iretcd=%d\n", nomsub, iretcd);
+      xabort_c(AbortString);
+    }
+    H5Dclose(dataset);
+  }
   for (i = 0; i < rank; ++i) dimsr_t[i] = dimsr[i];
   hid_t dataspace = H5Screate_simple(rank, dimsr_t, NULL); 
   hid_t datatype = H5Tcopy(H5T_NATIVE_INT);
-  hid_t dataset = H5Dcreate(loc_id, namp, datatype, dataspace,
+  dataset = H5Dcreate(loc_id, namp, datatype, dataspace,
 			H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
   if (dataset < 0) {
       sprintf(AbortString,"%s: H5Dcreate failure on object '%.72s'.",nomsub,namp);
@@ -640,10 +652,22 @@ void hdf5_write_data_real4_c(hid_t *ifile, const char *namp, int_32 rank, int_32
       sprintf(AbortString,"%s: rank > 10 on object '%.72s'.",nomsub,namp);
       xabort_c(AbortString);
   }
+  hid_t dataset = -1;
+  H5E_BEGIN_TRY {
+  dataset = H5Dopen(loc_id,namp,H5P_DEFAULT);
+  } H5E_END_TRY;
+  if (dataset  >= 0) {
+    iretcd = H5Ldelete(loc_id,namp,H5P_DEFAULT);
+    if (iretcd < 0) {
+      sprintf(AbortString,"%s: HDF5 delete failure. iretcd=%d\n", nomsub, iretcd);
+      xabort_c(AbortString);
+    }
+    H5Dclose(dataset);
+  }
   for (i = 0; i < rank; ++i) dimsr_t[i] = dimsr[i];
   hid_t dataspace = H5Screate_simple(rank, dimsr_t, NULL); 
   hid_t datatype = H5Tcopy(H5T_NATIVE_FLOAT);
-  hid_t dataset = H5Dcreate(loc_id, namp, datatype, dataspace,
+  dataset = H5Dcreate(loc_id, namp, datatype, dataspace,
 			H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
   if (dataset < 0) {
       sprintf(AbortString,"%s: H5Dcreate failure on object '%.72s'.",nomsub,namp);
@@ -682,10 +706,22 @@ void hdf5_write_data_real8_c(hid_t *ifile, const char *namp, int_32 rank, int_32
       sprintf(AbortString,"%s: rank > 10 on object '%.72s'.",nomsub,namp);
       xabort_c(AbortString);
   }
+  hid_t dataset = -1;
+  H5E_BEGIN_TRY {
+  dataset = H5Dopen(loc_id,namp,H5P_DEFAULT);
+  } H5E_END_TRY;
+  if (dataset  >= 0) {
+    iretcd = H5Ldelete(loc_id,namp,H5P_DEFAULT);
+    if (iretcd < 0) {
+      sprintf(AbortString,"%s: HDF5 delete failure. iretcd=%d\n", nomsub, iretcd);
+      xabort_c(AbortString);
+    }
+    H5Dclose(dataset);
+  }
   for (i = 0; i < rank; ++i) dimsr_t[i] = dimsr[i];
   hid_t dataspace = H5Screate_simple(rank, dimsr_t, NULL); 
   hid_t datatype = H5Tcopy(H5T_NATIVE_DOUBLE);
-  hid_t dataset = H5Dcreate(loc_id, namp, datatype, dataspace,
+  dataset = H5Dcreate(loc_id, namp, datatype, dataspace,
 			H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
   if (dataset < 0) {
       sprintf(AbortString,"%s: H5Dcreate failure on object '%.72s'.",nomsub,namp);
@@ -725,12 +761,24 @@ void hdf5_write_data_string_c(hid_t *ifile, const char *namp, int_32 rank, int_3
       sprintf(AbortString,"%s: rank > 10 on object '%.72s'.",nomsub,namp);
       xabort_c(AbortString);
   }
+  hid_t dataset = -1;
+  H5E_BEGIN_TRY {
+  dataset = H5Dopen(loc_id,namp,H5P_DEFAULT);
+  } H5E_END_TRY;
+  if (dataset  >= 0) {
+    iretcd = H5Ldelete(loc_id,namp,H5P_DEFAULT);
+    if (iretcd < 0) {
+      sprintf(AbortString,"%s: HDF5 delete failure. iretcd=%d\n", nomsub, iretcd);
+      xabort_c(AbortString);
+    }
+    H5Dclose(dataset);
+  }
   for (i = 0; i < rank; ++i) dimsr_t[i] = dimsr[i];
   hid_t dataspace = H5Screate_simple(rank, dimsr_t, NULL);
   hid_t datatype = H5Tcopy(H5T_C_S1);
   H5Tset_size(datatype, len * sizeof(char));
-  hid_t dataset = H5Dcreate(loc_id, namp, datatype , dataspace, H5P_DEFAULT,
-                  H5P_DEFAULT, H5P_DEFAULT);
+  dataset = H5Dcreate(loc_id, namp, datatype , dataspace, H5P_DEFAULT,
+      H5P_DEFAULT, H5P_DEFAULT);
   if (dataset < 0) {
       sprintf(AbortString,"%s: H5Dcreate failure on object '%.72s'.",nomsub,namp);
       xabort_c(AbortString);

@@ -44,7 +44,7 @@ fluxes, isotopic number densities, fission spectrum and a set
 of {\sl local variables}. The local variables are values that characterize each
 homogenized mixture: local power, burnup, exposure rate, etc. Some local variables
 are arrays of values (eg: SPH equivalence factors). Discontinuity factors and equivalent albedos
-are written in group {\tt flux}, as described in Sect.~\ref{sect:adf}. Finally, note that cross section
+are written in groups {\tt discontinuity} and {\tt flux}, respectively. Finally, note that cross section
 information written on the {\sc mpo} file is {\sl not} transport corrected and {\sl not}
 SPH corrected.
 
@@ -235,7 +235,7 @@ residual {\tt 'TotalResidual\_mix'} is always included as the last isotope in th
 \item[\dusa{HNAISO}(i)] {\tt character*12} user-defined isotope name. $N_{\rm iso}$ is the
 total number of explicitely--selected particularized isotopes.
 
-\item[\moc{REAC}] keyword used to select the set of nuclear reactions. By fefault, the following reactions are selected:
+\item[\moc{REAC}] keyword used to select the set of nuclear reactions. By default, the following reactions are selected:
 
 \begin{tabular}{p{3.5cm} p{12.5cm}|}
 \moc{Total} & Total cross sections as $\sigma_g^{\rm absorption}+\sigma_{0,g}^{\rm diffusion}$\\

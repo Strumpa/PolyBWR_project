@@ -1,0 +1,54 @@
+execute AT10_ASSBLY1 with Dragon on system Linux_aarch64 with custom compiler
+use the existing directory Linux_aarch64
+RunDirectory: /tmp/rundir87
+use little endian libraries
+AT10_ASSBLY access script terminated
+number of OpenMP threads= 30
+/usr/bin/numactl
+use NUMA memory policy
+End of execution. Total execution time: 0h 0min 5s
+access AT10_ASSBLY.save
+total 74892
+-rw-r--r-- 1 p117902 IGN      902 May 15 18:10 assertS.c2m
+-rw-r--r-- 1 p117902 IGN      798 May 15 18:10 assertV.c2m
+-rw-r--r-- 1 p117902 IGN  1483213 May 15 18:10 AT10_ASSBLY1.result
+-rwxr-xr-x 1 p117902 IGN 25141792 May 15 18:10 code
+-rw-r--r-- 1 p117902 IGN   384607 May 15 18:10 FIG_AT10_main_fine.ps
+-rw-r--r-- 1 p117902 IGN    64193 May 15 18:10 FIG_selfshielding.ps
+-rw-r--r-- 1 p117902 IGN  1334524 May 15 18:10 Geo_G2S
+-rw-r--r-- 1 p117902 IGN    47296 May 15 18:10 Geom_A.c2m
+-rw-r--r-- 1 p117902 IGN   136576 May 15 18:10 Geom_A.l2m
+-rw------- 1 p117902 IGN   207352 May 15 18:10 Geom_A.o2m
+-rw-r--r-- 1 p117902 IGN   145261 May 15 18:10 GeoSS_G2S
+lrwxrwxrwx 1 p117902 IGN      112 May 15 18:10 J311_295 -> /home/p117902/working_dir/PolyBWR_project/Version5_wc/Dragon/../../../libraries/l_endian/draglibJeff3p1p1SHEM295
+-rw------- 1 p117902 IGN    28940 May 15 18:10 _main001
+-rw-r--r-- 1 p117902 IGN    15817 May 15 18:10 Mix_ASSBLY1.c2m
+-rw-r--r-- 1 p117902 IGN    59130 May 15 18:10 Mix_ASSBLY1.l2m
+-rw------- 1 p117902 IGN    77832 May 15 18:10 Mix_ASSBLY1.o2m
+-rw-r--r-- 1 p117902 IGN     7931 May 15 18:10 mixAUTOP1.c2m
+-rw-r--r-- 1 p117902 IGN     4524 May 15 18:10 mydata
+-rw-r--r-- 1 p117902 IGN 44162220 May 15 18:10 TRACK_EXC
+-rw-r--r-- 1 p117902 IGN  3306068 May 15 18:10 TRACKSS_EXC
+-rw-r--r-- 1 p117902 IGN     2122 May 15 18:10 TRK_A_SALT.c2m
+-rw-r--r-- 1 p117902 IGN     9986 May 15 18:10 TRK_A_SALT.l2m
+-rw------- 1 p117902 IGN    13148 May 15 18:10 TRK_A_SALT.o2m
+mv: cannot stat 'tracks_SALT_ASSBLY.m': No such file or directory
+mv: cannot stat 'tracks_SALT_SS_ASSBLY.m': No such file or directory
+mv: cannot stat 'FIG_selfshielding.ps': No such file or directory
+AT10_ASSBLY.save completed
+the listing is located on ./Linux_aarch64
+ Tracking of geometry completed
+   Output from --SALTCG-- completed *)
+->@END MODULE   : SALT:       
+-->>MODULE SALT:       : TIME SPENT=        0.057 MEMORY USAGE= 0.000E+00
+->@BEGIN MODULE : MCCGT:      
+->@DESCRIPTION  : Method of characteristics in 2- and 3-D                                 
+->@CREDITS      : I. Suslov, R. Roy, R. Le Tellier, A. Hebert                             
+->@COPYRIGHTS   : ECOLE POLYTECHNIQUE DE MONTREAL  
+                  GNU LESSER GENERAL PUBLIC LICENSE
+->@END MODULE   : MCCGT:      
+-->>MODULE MCCGT:      : TIME SPENT=        0.004 MEMORY USAGE= 0.000E+00
+>|Geometry tracking with G2S: -> SALT: completed                                                                          |>0029
+! clepil: ERROR CODE IN >>clelog<< ERROR NUMBER (1)
+cle2000_c: COMPILING _MAIN.c2m FILE (ERROR CODE) IRC=1
+ DRAGON: kernel error (code=  666).

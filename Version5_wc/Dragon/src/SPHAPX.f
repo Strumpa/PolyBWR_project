@@ -60,8 +60,8 @@
      & NREA, NSURFD, NISOF, NISOP, NBYTE, RANK, TYPE, DIMSR(5),IRENT0
       INTEGER ISTATE(NSTATE)
       LOGICAL LSTRD,LDIFF,LHFACT
-      CHARACTER RECNAM*80,TEXT12*12,TEXT8*8,HSMG*131,HHAD(MAXFRD)*16,
-     & CM*2
+      CHARACTER RECNAM*80,RECNAM2*80,TEXT12*12,TEXT8*8,HSMG*131,
+     & HHAD(MAXFRD)*16,CM*2
       TYPE(C_PTR) JPMAC,KPMAC
 *----
 *  ALLOCATABLE ARRAYS
@@ -93,25 +93,25 @@
       NBMAC=0
       NREA=0
       IF(hdf5_group_exists(IPAPX,"/explicit/")) THEN
-        CALL hdf5_get_shape(IPAPX,"/explicit/ISONAME",DIMS_APX)
-        NBISO=DIMS_APX(1)
-        DEALLOCATE(DIMS_APX)
-        CALL hdf5_get_shape(IPAPX,"/explicit/MACNAME",DIMS_APX)
-        NBMAC=DIMS_APX(1)
-        DEALLOCATE(DIMS_APX)
-        CALL hdf5_get_shape(IPAPX,"/explicit/REANAME",DIMS_APX)
-        NREA=DIMS_APX(1)
-        DEALLOCATE(DIMS_APX)
+        NBISO=0
+        CALL hdf5_info(IPAPX,"/explicit/ISONAME",RANK,TYPE,NBYTE,DIMSR)
+        IF(RANK.NE.99) NBISO=DIMSR(1)
+        NBMAC=0
+        CALL hdf5_info(IPAPX,"/explicit/MACNAME",RANK,TYPE,NBYTE,DIMSR)
+        IF(RANK.NE.99) NBMAC=DIMSR(1)
+        NREA=0
+        CALL hdf5_info(IPAPX,"/explicit/REANAME",RANK,TYPE,NBYTE,DIMSR)
+        IF(RANK.NE.99) NREA=DIMSR(1)
       ELSE IF(hdf5_group_exists(IPAPX,"/expli001/")) THEN
-        CALL hdf5_get_shape(IPAPX,"/expli001/ISONAME",DIMS_APX)
-        NBISO=DIMS_APX(1)
-        DEALLOCATE(DIMS_APX)
-        CALL hdf5_get_shape(IPAPX,"/expli001/MACNAME",DIMS_APX)
-        NBMAC=DIMS_APX(1)
-        DEALLOCATE(DIMS_APX)
-        CALL hdf5_get_shape(IPAPX,"/expli001/REANAME",DIMS_APX)
-        NREA=DIMS_APX(1)
-        DEALLOCATE(DIMS_APX)
+        NBISO=0
+        CALL hdf5_info(IPAPX,"/expli001/ISONAME",RANK,TYPE,NBYTE,DIMSR)
+        IF(RANK.NE.99) NBISO=DIMSR(1)
+        NBMAC=0
+        CALL hdf5_info(IPAPX,"/expli001/MACNAME",RANK,TYPE,NBYTE,DIMSR)
+        IF(RANK.NE.99) NBMAC=DIMSR(1)
+        NREA=0
+        CALL hdf5_info(IPAPX,"/expli001/REANAME",RANK,TYPE,NBYTE,DIMSR)
+        IF(RANK.NE.99) NREA=DIMSR(1)
       ELSE
         CALL XABORT('SPHAPX: GROUP explicit NOT FOUND IN APEX FILE.')
       ENDIF
@@ -286,9 +286,13 @@
 *  FIND SCATTERING ANISOTROPY.
 *----
       WRITE(RECNAM,'(4Hcalc,I8,4H/xs/)') ICAL
+      IF(LFROM) WRITE(RECNAM,'(4Hcalc,I8,3H/xs,I8,1H/)') ICAL,1
       CALL hdf5_info(IPAPX,TRIM(RECNAM)//"mac/TOTAL/DIFF",RANK,
      1 TYPE,NBYTE,DIMSR)
-      IF(TYPE.EQ.99) CALL XABORT('SPHAPX: MISSING SCATTERING INFO.')
+      IF(TYPE.EQ.99) THEN
+        CALL HDF5_list(IPAPX,TRIM(RECNAM)//"mac/TOTAL")
+        CALL XABORT('SPHAPX: MISSING SCATTERING INFO.')
+      ENDIF
       NL=DIMSR(2)
       IF(IMPX.GT.1) THEN
         WRITE(IOUT,'(36H SPHAPX: number of Legendre orders =,I4)') NL
@@ -315,11 +319,10 @@
 *  RECOVER SPH FACTORS
 *----
         IF(HEQUI.NE.' ') THEN
-          CALL hdf5_info(IPAPX,TRIM(RECNAM)//"MEDIA_SPH/"//HEQUI,RANK,
-     1    TYPE,NBYTE,DIMSR)
+          WRITE(RECNAM2,'(A,11H/MEDIA_SPH/,A)') TRIM(RECNAM),TRIM(HEQUI)
+          CALL hdf5_info(IPAPX,TRIM(RECNAM2),RANK,TYPE,NBYTE,DIMSR)
           IF(TYPE.NE.99) THEN
-            CALL hdf5_read_data(IPAPX,TRIM(RECNAM)//"MEDIA_SPH/"//HEQUI,
-     1      WRK)
+            CALL hdf5_read_data(IPAPX,TRIM(RECNAM2),WRK)
             SPH(IBM,:NGROUP)=WRK(:NGROUP)
             DEALLOCATE(WRK)
           ENDIF
@@ -345,6 +348,11 @@
 *----
 *  RECOVER CROSS SECTIONS.
 *----
+        IRENT0=0
+        DO IREA=1,NREA
+          IF(NOMREA(IREA).EQ.'TOTA') IRENT0=IREA
+        ENDDO
+        IF(IRENT0.EQ.0) CALL XABORT('SPHAPX: MISSING NTOT0.')
         IMAC=ITOTM(IBM)
         IRES=IRESM(IBM)
         ALLOCATE(SIGSB(NGROUP,NL),SS2DB(NGROUP,NGROUP,NL),
@@ -424,11 +432,6 @@
 *
 *       UP-SCATTERING CORRECTION OF THE MACROLIB.
         IF(ILUPS.EQ.1) THEN
-          IRENT0=0
-          DO IREA=1,NREA
-            IF(NOMREA(IREA).EQ.'TOTA') IRENT0=IREA
-          ENDDO
-          IF(IRENT0.EQ.0) CALL XABORT('SPHAPX: MISSING NTOT0.')
           DO JGR=2,NGROUP
             DO IGR=1,JGR-1 ! IGR < JGR
               FF=NWT0(IBM,JGR)/NWT0(IBM,IGR)
@@ -446,7 +449,7 @@
           ENDDO
         ENDIF
 *       end of loop over apex mixtures
-      ENDDO
+      ENDDO ! IBM
 *----
 *  IDENTIFY SPECIAL FLUX EDITS
 *----

@@ -1,0 +1,250 @@
+************************************************************************************************************************
+*                                                                                                                      *
+* Procedure :  lower_refl_2D.x2m                                                                                       *
+* Purpose   :  Generate REFLECTOR COMPO for BWR multi-physics coupled iterations in DONJON5/THM:                       * 
+*              --> Water squares neighboring fuel CARCELs to model axial reflectors                                    *
+* Author    :  R. Guasch                                                                                               *
+*                                                                                                                      *
+* CALL      :  ./rdragon lower_refl_2D.x2m                                                                             *
+*                                                                                                                      *
+************************************************************************************************************************
+
+************************************************************************
+*                          BEGIN DECLARATION                           *
+************************************************************************
+MODULE GEO: LIB: SYBILT: NXT: MCCGT: UTL: GREP: DELETE: COMPO: USS: ASM: FLU: EDI: END: ;
+LINKED_LIST GEOM2D GEOMSSH LIBRARY LIBRARY2 TRACKSSH TRACK SYS FLUX COMPO EDIOBJ ;
+SEQ_BINARY TF_EXC ;
+
+SEQ_ASCII _COMPO :: FILE './COMPO_REFL_2DMOC_splitY_smaller_REFLcond' ;
+
+REAL Kinf ;
+
+STRING Library := "J311_295" ;
+
+* Idea : 3D representation of fuel channel, with lower and upper axial reflectors
+* Use 3D MOC approach with "representative" fuel properties in order to get axial reflector XS
+
+* Use CARCELZ based geometry with ~ a few axial slices with T_fuel(z) and most importantly rho_m(z).
+**************************************** APPROXIMATIVE TH PARAMS ************************************
+
+REAL TFuel1 :=  961.2 ;
+REAL TCool_in TCool1 :=  543.15 560.4 ;
+REAL cool_dens_in cool_dens1 :=  0.732 0.440 ;
+
+**************************************** GEOMETRICAL PARAMETERS *************************************
+
+REAL Rcomb1 Rcomb2 Rcomb3 Rcomb4 :=  0.313602 0.396678 0.43227 0.4435 ;
+REAL Rgap Rclad pitch := 0.4520 0.5140 1.295 ;
+REAL Rmode := 0.64 ;
+REAL A_pitch := 15.24 ;
+
+* According to "Burnup Credit Evaluation for BWR Spent Fuel from Full Core Calculations" - Detkina et al. 2020
+* bottom/top axial reflector ~ 2*assembly size, use this as height for the reflectors
+
+REAL Hrefl := 2.0 pitch * ;
+
+REAL Htot := Hrefl pitch + ;
+
+
+******************************************** MIX NUMBERING ****************************************
+INTEGER MODE_l := 1 ;
+INTEGER COMB0101 COMB0102 COMB0103 COMB0104 GAP1 CLAD1 MODE1 := 3 4 5 6 7 8 9 ;
+
+
+******************************************* 2D Geometry definition *****************************************
+
+*** Self-shielding geometry for lower reflector ***
+GEOMSSH := GEO: :: CARCEL 6 
+    X- REFL X+ REFL
+    Y- REFL Y+ REFL
+    RADIUS 0.0 <<Rcomb1>> <<Rcomb2>> <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
+    MIX <<COMB0101>> <<COMB0102>> <<COMB0103>> <<COMB0104>> <<GAP1>> <<CLAD1>> <<MODE1>> ! Lower fuel slice
+    MESHX 0.0 <<pitch>> 
+    MESHY 0.0 <<pitch>>
+;
+
+*** Flux calculation geometry ***
+*** Lower reflector geometry ***
+
+GEOM2D := GEO: :: CAR2D 1 2
+    X- REFL X+ REFL
+    Y- REFL Y+ REFL
+    CELL 
+    C1 WREFL
+    MESHX 0.0 <<pitch>>
+    MESHY 0.0 <<pitch>> <<Htot>>
+    ::: C1 := GEO: CARCEL 7 
+        RADIUS 0.0 <<Rcomb1>> <<Rcomb2>> <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>> <<Rmode>>
+        MIX <<COMB0101>> <<COMB0102>> <<COMB0103>> <<COMB0104>> <<GAP1>> <<CLAD1>> <<MODE1>> <<MODE1>> ! Lower fuel slice
+        MESHX 0.0 <<pitch>> 
+        MESHY 0.0 <<pitch>>
+    ;
+    ::: WREFL := GEO: CAR2D 1 1
+        MIX <<MODE_l>>
+        MESHX 0.0 <<pitch>> 
+        MESHY 0.0 <<Hrefl>>
+        SPLITY 5
+    ;
+;
+
+********************************************* LIBRARY ************************************************
+
+* Calculation of moderator data
+* AVOGADRO's number
+REAL A := 6.022094E-1 ; ! Normalisation des concentrations par 10E-24
+REAL M_H2O := 15.9994 2.0 1.00794 * + ;
+
+* Water in lower reflector
+REAL N_H2O_in := cool_dens_in A * M_H2O / ;
+REAL N_O_in := N_H2O_in ;
+REAL N_H_in := 2.0 N_H2O_in * ;
+
+* Height 1 = water in lower fuel slice
+REAL N_H2O_1 := cool_dens1 A * M_H2O / ;
+REAL N_O_1 := N_H2O_1 ;
+REAL N_H_1 := 2.0 N_H2O_1 * ;
+
+
+LIBRARY := LIB: ::
+    EDIT 1
+    NMIX 10    ! MAXIMUM OF MATERIAL MIXTURES
+    PT CALENDF 4
+    ANIS 3
+    MIXS LIB: DRAGON FIL: <<Library>>
+*** Lower Zone ***
+! C1 fuel compo "AT10_24UOX" in slice 1:
+    MIX <<COMB0101>> 961.2
+        O16     = O16    4.66705E-02
+        U234    = U234   5.15910E-06 1
+        U235    = U235   5.67035E-04 1 
+        U238    = U238   2.27631E-02 1 
+    MIX <<COMB0102>> COMB <<COMB0101>> 1.0
+    MIX <<COMB0103>> COMB <<COMB0101>> 1.0
+    MIX <<COMB0104>> COMB <<COMB0101>> 1.0
+
+* Cladding around lower fuel
+    MIX <<CLAD1>> 560.4 NOEV
+        Cr50  = Cr50   3.29613E-06
+        Cr52  = Cr52   6.35631E-05
+        Cr53  = Cr53   7.20746E-06
+        Cr54  = Cr54   1.79408E-06
+        Fe54  = Fe54   5.57337E-06
+        Fe56  = Fe56   8.74901E-05 2
+        Fe57  = Fe57   2.02053E-06
+        Fe58  = Fe58   2.68895E-07
+        Ni58  = Ni58   2.51627E-05
+        Ni60  = Ni60   9.69262E-06
+        Ni61  = Ni61   4.21331E-07
+        Ni62  = Ni62   1.34344E-06
+        Ni64  = Ni64   3.42085E-07
+        Zr90  = Zr90   2.18317E-02 2
+        Zr91  = Zr91   4.76096E-03 2
+        Zr92  = Zr92   7.27723E-03 2
+        Zr94  = Zr94   7.37482E-03 2
+        Zr96  = Zr96   1.18812E-03 2
+        Sn112  = Sn112   4.67343E-06
+        Sn114  = Sn114   3.17985E-06
+        Sn115  = Sn115   1.63812E-06
+        Sn116  = Sn116   7.00535E-05
+        Sn117  = Sn117   3.70020E-05
+        Sn118  = Sn118   1.16691E-04
+        Sn119  = Sn119   4.13864E-05
+        Sn120  = Sn120   1.56970E-04 
+        Sn122  = Sn122   2.23073E-05
+        Sn124  = Sn124   2.78961E-05
+        O16  = O16   3.08132E-04
+        O17  = O17   1.17376E-07
+* Expansion Gap 
+    MIX <<GAP1>> 961.2  NOEV
+        He4      = He4  1.50456E-04
+
+* Moderator in fuel slice 1
+    MIX <<MODE1>> 560.4 NOEV
+        H1      = H1_H2O 2.941638E-02  
+        O16     = O16    1.470819E-02
+* Moderator in lower reflector
+    MIX <<MODE_l>> 543.15 NOEV
+        H1      = H1_H2O 4.893816E-02  
+        O16     = O16    2.446908E-02 
+;
+
+
+************************************************* SELF-SHIELDING ************************************************
+* 1. TRACKING :
+
+TRACKSSH := SYBILT: GEOMSSH ::
+    TITLE 'TRACKING FOR LOWER REFLECTOR'
+    MAXR 50 QUA2 24 5 MAXZ 200000 
+;
+
+
+
+* 2. 2D self-shielding calculation for each fuel slice
+
+LIBRARY2 := USS: LIBRARY TRACKSSH ::
+          EDIT 0
+          PASS 3
+;
+
+
+*************************************** 2D NXT+MCCGT TRACKING FOR MOC solution ***************************************
+* Start with LOWER reflector
+* NXT: tracking : consider SALT: tracking too ?
+
+INTEGER an2d := 18 ;  ! ANGULAR QUADRATURE PARAMETER
+REAL densur := 20.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
+
+TRACK TF_EXC := NXT: GEOM2D ::
+  EDIT 1
+  ANIS 3
+  ALLG
+  TISO EQW <<an2d>> <<densur>> REND
+;
+
+* MOC tracking
+TRACK := MCCGT: TRACK TF_EXC ::
+  EDIT 1
+  CACB 4 AAC 80 TMT EPSI 1E-5 MCU 50000
+;
+
+********************************************* FLUX SOLUTION USING 2D-MOC ************************************************
+
+SYS := ASM: LIBRARY2 TRACK TF_EXC :: ARM EDIT 1 ; 
+
+FLUX := FLU: LIBRARY2 SYS TRACK TF_EXC :: 
+             EDIT 1 TYPE K B1 SIGS 
+      ;
+GREP: FLUX :: GETVAL 'K-EFFECTIVE  ' 1 1 1 >>Kinf<< ;
+ECHO "SSH tracking = SYBILT and FLX tracking = NXT TSPC, 2D-MOC on Lower geometry : Kinf=" Kinf ;
+
+
+********************************************* EDI: and COMPO: for exportation **********************************************
+
+
+COMPO := COMPO: ::
+    EDIT 0
+    STEP UP 'EDIREFL'
+    MAXCAL 5
+    COMM 'AXIAL (Lower/Upper) Reflector calculation, 3D-MOC' ENDC
+    PARA 'POS' VALU CHAR
+    INIT
+;
+
+EDIOBJ := EDI: FLUX LIBRARY2 TRACK ::
+            EDIT 0
+            MERG MIX 1 0 0 0 0 0 0 0 0
+            COND 0.625
+            SAVE ON EDIREFL
+        ;
+COMPO := COMPO: COMPO EDIOBJ LIBRARY ::
+        EDIT 2
+        STEP UP 'EDIREFL'
+        POS 'Lower'
+;
+
+_COMPO := COMPO ;
+
+END: ;
+QUIT .
+

@@ -22,7 +22,7 @@ quiet=0
 term=0
 nomp=0
 
-while getopts ":c:qw" opt; do
+while getopts ":c:qwp:" opt; do
   case $opt in
     c) typ="$OPTARG"
     ;;

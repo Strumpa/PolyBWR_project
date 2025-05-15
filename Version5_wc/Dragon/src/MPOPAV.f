@@ -97,11 +97,7 @@
            ENDIF
            DEALLOCATE(VREAL_OLD)
          ENDIF
-         IF(LGNEW) THEN
-           CALL hdf5_info(IPMPO,TRIM(RECNAM),RANK,TYPE,NBYTE,DIMSR)
-           IF(TYPE.NE.99) CALL hdf5_delete(IPMPO,TRIM(RECNAM))
-           CALL hdf5_write_data(IPMPO,TRIM(RECNAM),VREAL)
-         ENDIF
+         IF(LGNEW) CALL hdf5_write_data(IPMPO,TRIM(RECNAM),VREAL)
          DEALLOCATE(VREAL)
       ELSE IF(TTYPE.EQ.'INTEGER') THEN
          IF(NVALUE(IPAR).EQ.0) THEN
@@ -135,11 +131,7 @@
            ENDIF
            DEALLOCATE(VINTE_OLD)
          ENDIF
-         IF(LGNEW) THEN
-           CALL hdf5_info(IPMPO,TRIM(RECNAM),RANK,TYPE,NBYTE,DIMSR)
-           IF(TYPE.NE.99) CALL hdf5_delete(IPMPO,TRIM(RECNAM))
-           CALL hdf5_write_data(IPMPO,TRIM(RECNAM),VINTE)
-         ENDIF
+         IF(LGNEW) CALL hdf5_write_data(IPMPO,TRIM(RECNAM),VINTE)
          DEALLOCATE(VINTE)
       ELSE IF(TTYPE.EQ.'STRING') THEN
          IF(NVALUE(IPAR).EQ.0) THEN
@@ -170,18 +162,13 @@
            ENDIF
            DEALLOCATE(VCHAR_OLD)
          ENDIF
-         IF(LGNEW) THEN
-           CALL hdf5_info(IPMPO,TRIM(RECNAM),RANK,TYPE,NBYTE,DIMSR)
-           IF(TYPE.NE.99) CALL hdf5_delete(IPMPO,TRIM(RECNAM))
-           CALL hdf5_write_data(IPMPO,TRIM(RECNAM),VCHAR)
-         ENDIF
+         IF(LGNEW) CALL hdf5_write_data(IPMPO,TRIM(RECNAM),VCHAR)
          DEALLOCATE(VCHAR)
       ELSE
          CALL XABORT('MPOPAV: UNKNOWN TYPE='//TTYPE//'.')
       ENDIF
 *
       IF(LGNEW) THEN
-        CALL hdf5_delete(IPMPO,"/parameters/info/NVALUE")
         CALL hdf5_write_data(IPMPO,"/parameters/info/NVALUE",NVALUE)
       ENDIF
       IF(LSHIFT) THEN
@@ -189,13 +176,15 @@
         DO 90 ICAL=1,NCALAR
         WRITE(RECNAM,'(8H/output/,A,9H/statept_,I0,14H/PARAMVALUEORD)')
      1  TRIM(HEDIT),ICAL-1
-        CALL hdf5_read_data(IPMPO,TRIM(RECNAM),MUPLET)
-        IF(MUPLET(IPAR).GE.IV) THEN
-          MUPLET(IPAR)=MUPLET(IPAR)+1
-          CALL hdf5_delete(IPMPO,TRIM(RECNAM))
-          CALL hdf5_write_data(IPMPO,TRIM(RECNAM),MUPLET)
+        CALL hdf5_info(IPMPO,TRIM(RECNAM),RANK,TYPE,NBYTE,DIMSR)
+        IF(RANK.EQ.1) THEN
+          CALL hdf5_read_data(IPMPO,TRIM(RECNAM),MUPLET)
+          IF(MUPLET(IPAR).GE.IV) THEN
+            MUPLET(IPAR)=MUPLET(IPAR)+1
+            CALL hdf5_write_data(IPMPO,TRIM(RECNAM),MUPLET)
+          ENDIF
+          DEALLOCATE(MUPLET)
         ENDIF
-        DEALLOCATE(MUPLET)
   90    CONTINUE
       ENDIF
       DEALLOCATE(NVALUE)

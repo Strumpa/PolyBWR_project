@@ -19,7 +19,7 @@ LINKED_LIST TRACKSSL TRACKSSU TRACK SYS FLUX  ;
 LINKED_LIST COMPO EDIOBJ PARAMS ;
 SEQ_BINARY TF_EXC ;
 
-SEQ_ASCII _COMPO :: FILE './COMPO_REFL_2DMOC_2squares_splitY_REFLcond' ;
+SEQ_ASCII _COMPO :: FILE './COMPO_REFL_2DMOC_splitY_smaller_REFLcond' ;
 
 REAL Kinf ;
 
@@ -45,7 +45,7 @@ REAL A_pitch := 15.24 ;
 * According to "Burnup Credit Evaluation for BWR Spent Fuel from Full Core Calculations" - Detkina et al. 2020
 * bottom/top axial reflector ~ 2*assembly size, use this as height for the reflectors
 
-REAL Hrefl := 2.0 A_pitch * ;
+REAL Hrefl := 2.0 pitch * ;
 
 REAL Htot := Hrefl pitch + ;
 
@@ -177,7 +177,7 @@ LIBRARYL := LIB: ::
     ANIS 3
     MIXS LIB: DRAGON FIL: <<Library>>
 *** Lower Zone ***
-! C1 fuel compo "AT10_24UOX" in silce 1:
+! C1 fuel compo "AT10_24UOX" in slice 1:
     MIX <<COMB0101>> <<TFuel1>>
         O16     = O16    4.66705E-02
         U234    = U234   5.15910E-06 1
@@ -221,7 +221,7 @@ LIBRARYL := LIB: ::
         O17  = O17   1.17376E-07
 * Expansion Gap 
     MIX <<GAP1>> <<TFuel1>> NOEV
-        He4      = He4 1.50456E-04
+        He4      = He4  1.50456E-04
 
 * Moderator in fuel slice 1
     MIX <<MODE1>> <<TCool1>> NOEV
@@ -241,7 +241,7 @@ LIBRARYU := LIB: ::
     ANIS 3
     MIXS LIB: DRAGON FIL: <<Library>>
     *** Upper Zone ***
-* C1 fuel compo "AT10_24UOX" in silce 2:
+* C1 fuel compo "AT10_24UOX" in slice 2:
     MIX <<COMB0201>> <<TFuel2>>
         O16     = O16    4.66705E-02
         U234    = U234   5.15910E-06 1
@@ -297,13 +297,13 @@ LIBRARYU := LIB: ::
 
 TRACKSSL := SYBILT: GEOMSSL ::
     TITLE 'TRACKING FOR LOWER REFLECTOR'
-    MAXR 50 QUA2 24 5 DP01 MAXZ 200000 
+    MAXR 50 QUA2 24 5 MAXZ 200000 
 ;
 
 
 TRACKSSU := SYBILT: GEOMSSU ::
     TITLE 'TRACKING FOR UPPER REFLECTOR'
-    MAXR 50 QUA2 24 5 DP01 MAXZ 200000 
+    MAXR 50 QUA2 24 5 MAXZ 200000 
 ;
 
 
@@ -325,8 +325,8 @@ LIBRARY2U := USS: LIBRARYU TRACKSSU ::
 * Start with LOWER reflector
 * NXT tracking
 
-INTEGER an2d := 30 ;  ! ANGULAR QUADRATURE PARAMETER
-REAL densur := 150.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
+INTEGER an2d := 24 ;  ! ANGULAR QUADRATURE PARAMETER
+REAL densur := 50.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
 
 TRACK TF_EXC := NXT: GEOM2DL ::
   EDIT 1
