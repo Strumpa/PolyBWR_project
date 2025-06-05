@@ -144,7 +144,7 @@ LIBRARY := Mix_UOX ::
   <<temp_comb_0>> <<temp_mode_0>> ;
 
 ************************************************************************
-*  INITIAL FLUX CALCULATION                                  *
+*  INITIAL FLUX CALCULATION                                            *
 ************************************************************************
 EVALUATE istep iautop := 1 1 ;
 EVALUATE Tend BUend := 0.0 0.0 ;
@@ -208,7 +208,7 @@ WHILE istep maxstep < DO
   ECHO "BURNUP_sortie = " BUend "Next SS = " BUnextSS ;
 
 ************************************************************************
-*  FLUX CALCULATION                                          *
+*  FLUX CALCULATION                                                    *
 ************************************************************************
   ECHO "call CalcFlux(2)" ;
   LIBRARY2 FLUX := CalcFlux LIBRARY2 FLUX LIBRARY TRACKN
@@ -288,7 +288,7 @@ LIBRARY := Mix_UOX ::
   <<temp_comb_0>> <<temp_mode_0>> ;
 
 ************************************************************************
-*  INITIAL FLUX CALCULATION                                  *
+*  INITIAL FLUX CALCULATION                                            *
 ************************************************************************
 EVALUATE istep iautop := 0 1 ;
 EVALUATE Tend BUend := 0.0 0.0 ;

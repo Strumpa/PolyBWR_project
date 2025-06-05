@@ -43,7 +43,7 @@ Geo_G2S FIG_main.ps TRACK TRACK_EXC GeoSS_G2S FIG_SS.ps TRACK_SS TRACKSS_EXC := 
 
 ECHO "Geometry tracking with G2S: -> SALT: completed" ;
 
-LIBRARY := Mix_A_CTRL :: J311_295 <<mix_opt>> ;
+!LIBRARY := Mix_A_CTRL :: J311_295 <<mix_opt>> ;
 
 ECHO "Mixes for ASSBLY : " mix_opt " retrieved"  ;
 
@@ -52,20 +52,20 @@ ECHO "Mixes for ASSBLY : " mix_opt " retrieved"  ;
 *  BEGIN SELF SHIELDING CALCULATION                                    *
 ************************************************************************
 ! AUTOP1 + ssh_opt = self shielding options used in VVER project for the treatement of 39AWU assembly.
-LIBRARY2 := mixAUTOP1 LIBRARY TRACK_SS TRACKSS_EXC :: <<geo_name>> <<ssh_opt>> ;
+!LIBRARY2 := mixAUTOP LIBRARY TRACK_SS TRACKSS_EXC :: <<geo_name>> <<ssh_opt>> ;
 
 ************************************************************************
 *  BEGIN MOC FLUX CALCULATION                                          *
 ************************************************************************
 
-SYS := ASM: LIBRARY2 TRACK TRACK_EXC :: ARM EDIT 0 ; 
+!SYS := ASM: LIBRARY2 TRACK TRACK_EXC :: ARM EDIT 0 ; 
 
-FLUX := FLU: LIBRARY2 SYS TRACK TRACK_EXC :: 
-             EDIT 1 TYPE K  
-      ;
-GREP: FLUX :: GETVAL 'K-INFINITY  ' 1 1 1 >>Kinf<< ;
+!FLUX := FLU: LIBRARY2 SYS TRACK TRACK_EXC :: 
+!             EDIT 1 TYPE K  
+!      ;
+!GREP: FLUX :: GETVAL 'K-INFINITY  ' 1 1 1 >>Kinf<< ;
 
-ECHO mix_opt " t=0 calculation completed, Kinf = " Kinf ;
+!ECHO mix_opt " t=0 calculation completed, Kinf = " Kinf ;
 ECHO "tracking of Geom_A done" ;
 
 

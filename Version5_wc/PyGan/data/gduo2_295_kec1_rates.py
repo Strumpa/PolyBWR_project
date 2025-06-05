@@ -24,15 +24,15 @@ from PT_D5S2 import postTreatment_rates_XS_D5 as PT_D5
 # Read Dragon output COMPO
 path = os.getcwd()
 os.chdir('gduo2_295_kec1_rates_proc')
-name_compo='COMPO_gduo2_kec1'
+name_compo='COMPO_gduo2_kec1_11rings'
 pyCOMPO=lcm.new('LCM_INP',name_compo,impx=0)
 os.chdir(path)
 
 
-save_path_D5vsAUTO='gduo2_295_kec1_rates_results/D5vsAUTO'
+save_path_D5vsAUTO='gduo2_295_kec1_11rings_rates_results/D5vsAUTO'
 if not os.path.exists(save_path_D5vsAUTO):
     os.makedirs(save_path_D5vsAUTO)
-save_path_D5vsS2='gduo2_295_kec1_rates_results/D5vsS2'
+save_path_D5vsS2='gduo2_295_kec1_11rings_rates_results/D5vsS2'
 if not os.path.exists(save_path_D5vsS2):
     os.makedirs(save_path_D5vsS2)
 

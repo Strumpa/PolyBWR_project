@@ -98,7 +98,7 @@ void hdf5_list_c(hid_t *ifile, const char *namp) {
   hid_t loc_id=*ifile;
   sprintf(name1024,"/%s",namp);
   printf("\nTable of contents --'%s'--\n", name1024);
-  if(hdf5_group_exists_c(ifile, namp)) {
+  if(!hdf5_group_exists_c(ifile, namp)) {
     printf("%s: HDF5 missing group=%s\n", nomsub, namp);
     return;
   }
@@ -290,7 +290,7 @@ void hdf5_info_c(hid_t *ifile, const char *namp, int_32 *rank, int_32 *type, int
  */
   char *nomsub="hdf5_info_c";
   hid_t loc_id=*ifile;
-  hsize_t dimsr_t[5];
+  hsize_t dimsr_t[10];
   int i;
   
   hid_t dataset = -1;
@@ -308,8 +308,8 @@ void hdf5_info_c(hid_t *ifile, const char *namp, int_32 *rank, int_32 *type, int
   if (*rank < 0) {
       sprintf(AbortString,"%s: H5Sget_simple_extent_ndims failure on object '%.72s'.",nomsub,namp);
       xabort_c(AbortString);
-  } else if (*rank > 5) {
-      sprintf(AbortString,"%s: the object '%.72s' has rank= %d > 5.",nomsub,namp,*rank);
+  } else if (*rank > 10) {
+      sprintf(AbortString,"%s: the object '%.72s' has rank= %d > 10.",nomsub,namp,*rank);
       xabort_c(AbortString);
   }
   hid_t htype = H5Dget_type(dataset);
@@ -379,9 +379,9 @@ H5E_BEGIN_TRY
   }
 H5E_END_TRY
   if (iretcd >= 0) {
-    if (statbuf.type == H5G_GROUP) return 0;
+    if (statbuf.type == H5G_GROUP) return 1;
   }
-  return 1;
+  return 0;
 }
 
 void hdf5_create_group_c(hid_t *ifile, const char *namp)
@@ -455,12 +455,49 @@ void hdf5_copy_c(hid_t *ifile_s, const char *namp_s, hid_t *ifile_d, const char 
  */
 {
   char *nomsub="hdf5_copy_c";
-  hid_t loc_id_s=*ifile_s;
-  hid_t loc_id_d=*ifile_d;
-  iretcd = H5Ocopy(loc_id_s,namp_s,loc_id_d,namp_d,H5P_DEFAULT,H5P_DEFAULT);
-  if (iretcd < 0) {
-    sprintf(AbortString,"%s: HDF5 copy failure. iretcd=%d\n", nomsub, iretcd);
-    xabort_c(AbortString);
+  if(hdf5_group_exists_c(ifile_s, namp_s)) {
+    /* namp_s is a group */
+    hid_t loc_id_s=*ifile_s;
+    hid_t loc_id_d=*ifile_d;
+    iretcd = H5Ocopy(loc_id_s,namp_s,loc_id_d,namp_d,H5P_DEFAULT,H5P_DEFAULT);
+    if (iretcd < 0) {
+      sprintf(AbortString,"%s: HDF5 copy failure. iretcd=%d\n", nomsub, iretcd);
+      xabort_c(AbortString);
+    }
+  } else {
+    /* namp_s is a dataset */
+    int i;
+    int_32 rank, type, nbyte, dimsr[10], dimsr2[10], length;
+    hdf5_info_c(ifile_s, namp_s, &rank, &type, &nbyte, dimsr);
+    length = 1;
+    for(i=0; i<rank; i++) {
+      dimsr2[i] = (int_32)dimsr[(rank)-i-1];
+      length = length*dimsr2[i];
+    }
+    if (type == 1) {
+      int_32 *idata = (int_32 *)malloc(sizeof(int_32)*length);
+      hdf5_read_data_int_c(ifile_s, namp_s, idata);
+      hdf5_write_data_int_c(ifile_d, namp_s, rank, dimsr2, idata);
+      free(idata);
+    } else if (type == 2) {
+      float *rdata = (float *)malloc(sizeof(float)*length);
+      hdf5_read_data_real4_c(ifile_s, namp_s, rdata);
+      hdf5_write_data_real4_c(ifile_d, namp_s, rank, dimsr2, rdata);
+      free(rdata);
+    } else if (type == 3) {
+      char *ihdata = (char *)malloc(nbyte*length);
+      hdf5_read_data_string_c(ifile_s, namp_s, ihdata);
+      hdf5_write_data_string_c(ifile_d, namp_s, rank, nbyte, dimsr2, ihdata);
+      free(ihdata);
+    } else if (type == 4) {
+      double *rddata = (double *)malloc(sizeof(double)*length);
+      hdf5_read_data_real8_c(ifile_s, namp_s, rddata);
+      hdf5_write_data_real8_c(ifile_d, namp_s, rank, dimsr2, rddata);
+      free(rddata);
+    } else {
+      sprintf(AbortString,"%s: dataset '%.60s' has the wrong type(2).", nomsub, namp_s);
+      xabort_c(AbortString);
+    }
   }
 }
 
@@ -804,7 +841,7 @@ herr_t print_info(hid_t loc_id, const char *name, void *opdata) {
      */
     H5Gget_objinfo(loc_id, name, 0, &statbuf);
     int rank, type, nbyte;
-    int_32 dimsr[5];
+    int_32 dimsr[6];
     switch (statbuf.type) {
     case H5G_GROUP: 
          printf(" '%-72s' GROUP \n", name);
@@ -823,6 +860,9 @@ herr_t print_info(hid_t loc_id, const char *name, void *opdata) {
          } else if (rank == 5) {
            printf(" '%-72s' %-16s   %-10d %d  %d  %d  %d  %d\n", name,ctype[type],nbyte,dimsr[0],
            dimsr[1],dimsr[2],dimsr[3],dimsr[4]);
+         } else if (rank == 6) {
+           printf(" '%-72s' %-16s   %-10d %d  %d  %d  %d  %d  %d\n", name,ctype[type],nbyte,dimsr[0],
+           dimsr[1],dimsr[2],dimsr[3],dimsr[4],dimsr[5]);
          }
          break;
     case H5G_TYPE: 

@@ -10,13 +10,12 @@
 * ---
 * INPUT & OUTPUT PARAMETERS
 * ---
-PARAMETER COMPO LIBRARY TRACK TF_EXC TRACK_SS TF_EXC_SS StepList ::
+PARAMETER COMPO LIBRARY TRACK TF_EXC TRACK_SS StepList ::
 ::: LINKED_LIST COMPO ;
 ::: LINKED_LIST LIBRARY ; 
 ::: LINKED_LIST TRACK ;
 ::: SEQ_BINARY TF_EXC ;
 ::: LINKED_LIST TRACK_SS ;
-::: SEQ_BINARY TF_EXC_SS ;
 ::: LINKED_LIST StepList ; ;
 STRING name_compo glob_opt ;
 :: >>name_compo<< >>glob_opt<< ;
@@ -63,11 +62,11 @@ COMPO := COMPO: ::
 EVALUATE evobeg := 0.0 ;
 ECHO "Performing self-shielding at t=0 to obtain first BoS Library2" ;
 
-LIB2 := USS: LIBRARY TRACK_SS TF_EXC_SS  ::
+LIB2 := USS: LIBRARY TRACK_SS  ::
             EDIT 2 PASS 4
             ;
 
-SYS := ASM: LIB2 TRACK TF_EXC :: ARM EDIT 0 ;  
+SYS := ASM: LIB2 TRACK TF_EXC :: PIJ EDIT 0 ;  
 ECHO "Performing flux calculation at t=0 to obtain first BoS flux" ;
 FLUX := FLU: LIB2 SYS TRACK TF_EXC :: 
     EDIT 1 TYPE K ;
@@ -82,7 +81,7 @@ EDITION := EDI: FLUX LIB2 TRACK ::
         EDIT 0
         MICR 14 U235 U238 Pu239 Pu240 Pu241 Pu242 
         Gd154 Gd155 Gd156 Gd157 Gd158 Gd160 Xe135 Sm149
-        MERG MIX 1 1 1 1 1 1 0 0 0
+        MERG MIX 1 1 1 1 1 1 0 0 
         COND
         SAVE ON FUEL 
   ;
@@ -122,13 +121,13 @@ WHILE istep nstep < DO
         ECHO "AT BoS BUautop =" BUautop " and BUbeg =" BUbeg ;
         IF BUautop BUbeg = THEN
             ECHO "Call to USS: at BoS" ;
-            LIB2 := USS: LIBRARY LIB2 TRACK_SS TF_EXC_SS  ::
+            LIB2 := USS: LIBRARY LIB2 TRACK_SS  ::
                         EDIT 0 PASS 4
                         ;
             EVALUATE iauto := iauto 1 + ;
         ENDIF ;
     ENDIF ;
-    SYS := ASM: LIB2 TRACK TF_EXC :: ARM EDIT 0 ; 
+    SYS := ASM: LIB2 TRACK TF_EXC :: PIJ EDIT 0 ; 
     ECHO "Performing flux calculation at step = " istep " to obtain first BoS flux" ;
     IF istep 1 > THEN
         FLUX := FLU: FLUX LIB2 SYS TRACK TF_EXC :: 
@@ -141,7 +140,7 @@ WHILE istep nstep < DO
         BURNUP LIB2 := EVO: LIB2 FLUX TRACK ::
         SAVE <<evobeg>> DAY POWR <<Norm_f2>>
         DEPL <<evobeg>> <<evoend>> DAY POWR <<Norm_f2>> 
-        <<deplsolopt>> NOEX <<glob_opt>>
+        KAPS NOEX <<glob_opt>>
         SET <<evoend>> DAY ;
 
     ELSE
@@ -151,21 +150,15 @@ WHILE istep nstep < DO
         BURNUP LIB2 := EVO: BURNUP LIB2 FLUX TRACK ::
         SAVE <<evobeg>> DAY POWR <<Norm_f2>>
         DEPL <<evobeg>> <<evoend>> DAY POWR <<Norm_f2>> 
-        <<deplsolopt>> NOEX <<glob_opt>>
+        KAPS NOEX <<glob_opt>>
         SET <<evoend>> DAY ;
     ENDIF ;
     * Perform self-shielding of EOS library ?
     
-    *IF BUautop BUbeg = THEN
-    *    ECHO "Call to USS: 2" ;
-    *    LIB2 := USS: LIBRARY LIB2 TRACK_SS TF_EXC_SS  ::
-    *                EDIT 0 PASS 4
-    *                ;
-    *ENDIF ;
     ECHO "iauto is = " iauto ;
     ECHO "HERE, step is =" istep "iauto is =" iauto ;
     ECHO "Correspinding BUbeg =" BUbeg ;
-    SYS := ASM: LIB2 TRACK TF_EXC :: ARM EDIT 0 ;
+    SYS := ASM: LIB2 TRACK TF_EXC :: PIJ EDIT 0 ;
 
     * Perform flux calculation with guess EoS materials to obtain EoS flux
     FLUX := FLU: FLUX LIB2 SYS TRACK TF_EXC :: 
@@ -177,17 +170,10 @@ WHILE istep nstep < DO
         SAVE <<evoend>> DAY POWR <<Norm_f2>>
         DEPL <<evobeg>> <<evoend>> DAY POWR <<Norm_f2>> 
         SET <<evoend>> DAY 
-        <<deplsolopt>> NOEX <<glob_opt>>
+        KAPS NOEX <<glob_opt>>
         ;
-    *ECHO "BUautop =" BUautop " BUbeg =" BUbeg ;
-    *IF BUautop BUbeg = THEN
-    *    ECHO "Call to USS: at EoS" ;
-    *    LIB2 := USS: LIBRARY LIB2 TRACK_SS TF_EXC_SS  ::
-    *                EDIT 0 PASS 4
-    *                ;
-    *    EVALUATE iauto := iauto 1 + ;            
-    *ENDIF ;
-    SYS := ASM: LIB2 TRACK TF_EXC :: ARM EDIT 0 ;
+    * Necessity to perform EoS flux calculation ?
+    SYS := ASM: LIB2 TRACK TF_EXC :: PIJ EDIT 0 ;
     FLUX := FLU: FLUX LIB2 SYS TRACK TF_EXC :: 
         EDIT 1 TYPE K ;
     SYS := DELETE: SYS ;
@@ -206,7 +192,7 @@ WHILE istep nstep < DO
             EDIT 0
             MICR 14 U235 U238 Pu239 Pu240 Pu241 Pu242 
             Gd154 Gd155 Gd156 Gd157 Gd158 Gd160 Xe135 Sm149
-            MERG MIX 1 1 1 1 1 1 0 0 0
+            MERG MIX 1 1 1 1 1 1 0 0 
             COND
             SAVE ON FUEL 
             ;

@@ -41,7 +41,7 @@ INTEGER an2d := 18 ;  ! ANGULAR QUADRATURE PARAMETER
 REAL densur := 45.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
 
 INTEGER an2d_ss := 8 ;  ! ANGULAR QUADRATURE PARAMETER #18
-REAL densur_ss := 15.0 ; ! DENSITY OF INTEGRATION LINES CM^-1 #30
+REAL densur_ss := 25.0 ; ! DENSITY OF INTEGRATION LINES CM^-1 #30
 
 * polar angles for MCCGT:
 INTEGER nmu := 4 ;
@@ -52,10 +52,10 @@ INTEGER mcu := 50000 ;
 * ---
 * FLUX CALC TRACKING
 * ---
-Geo_G2S FIG_main.ps := G2S: GEOM :: ;
+Geo_G2S FIG_main.ps := G2S: GEOM :: EDIT 0 ;
 
 TRACK TF_EXC := SALT: Geo_G2S ::
-  EDIT 1
+  EDIT 0
   ALLG BATCH 800 ! keyword to specify the number of tracks assigned to each OpenMP core
   ANIS 3
   TSPC EQW2 <<an2d>> <<densur>> REND
@@ -71,20 +71,15 @@ TRACK := MCCGT: TRACK TF_EXC ::
 * ---
 * SELF-SHIELDING TRACKING
 * ---
-GeoSS_G2S FIG_SS.ps := G2S: GEOM_SS :: ;
+GeoSS_G2S FIG_SS.ps := G2S: GEOM_SS :: EDIT 0 ;
 
 TRACK_SS TF_EXC_SS := SALT: GeoSS_G2S ::
-  EDIT 1
+  EDIT 0
   ALLG BATCH 400
   TSPC <<an2d_ss>> <<densur_ss>> REND
   MERGMIX
 ;
 
-* MOC tracking
-TRACK_SS := MCCGT: TRACK_SS TF_EXC_SS ::
-  EDIT 0
-  CACB <<nmu>> AAC 80 TMT EPSI 1E-5 MCU <<mcu>> ! tried CACB but is limited to isotropic ?
-;
 
 END: ;
 QUIT .

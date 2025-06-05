@@ -387,7 +387,7 @@
       CALL LCMSIX(IPMACR,' ',0)
       RETURN
 *
-6000  FORMAT(' FLUX SOLUTION DOOR          = ** ',A6,' ** '/
+6000  FORMAT(' FLUX SOLUTION DOOR          = ** ',A6,' **'/
      > ' NB. OF GROUPS               =',I10/
      > ' NB. OF REGIONS              =',I10/
      > ' NB. OF UNKNOWNS PER GROUP   =',I10/

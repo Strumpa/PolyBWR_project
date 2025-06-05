@@ -6,8 +6,8 @@
 *                                                                              *
 * CALL      :                                                                  *
 *  MpoRefl := REFL_MPO Geom FVol Param :: <<nameFeed>> <<nameRefl>> <<Palier>> *
-*                            <<htype>> <<LibType>> <<NuclData>> <<OptSph>>     *
-*                            <<OptNoal>> <<OptSS>> ;                           *
+*                            <<htype>> <<nlf>> <<LibType>> <<NuclData>>        *
+*                            <<OptSph>> <<OptNoal>> <<OptSS>> ;                *
 *                                                                              *
 *  Input objects:                                                              *
 *    Geom    : macro-geometry LCM object                                       *

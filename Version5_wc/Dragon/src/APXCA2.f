@@ -37,7 +37,7 @@
 *         object. A given isotope may appear in many mixtures.
 * ICAL    index of the current elementary calculation.
 * FNORM   flux normalization factor.
-* IMPX    print flag.
+* IMPX    print parameter.
 *
 *Parameters: output
 * NMILNR  number of mixtures with delayed neutron data.
@@ -226,13 +226,13 @@
       CALL LCMLEN(IPTEMP,'K-EFFECTIVE',ILONG,ITYLCM)
       IF(ILONG.EQ.1) THEN
          CALL LCMGET(IPTEMP,'K-EFFECTIVE',FLOTT)
+         CALL hdf5_write_data(IPAPX,TRIM(RECNAM)//"KEFF",FLOTT)
       ENDIF
-      CALL hdf5_write_data(IPAPX,TRIM(RECNAM)//"KEFF",FLOTT)
       CALL LCMLEN(IPTEMP,'K-INFINITY',ILONG,ITYLCM)
       IF(ILONG.EQ.1) THEN
          CALL LCMGET(IPTEMP,'K-INFINITY',FLOTT)
+         CALL hdf5_write_data(IPAPX,TRIM(RECNAM)//"KINF",FLOTT)
       ENDIF
-      CALL hdf5_write_data(IPAPX,TRIM(RECNAM)//"KINF",FLOTT)
       CALL LCMLEN(IPTEMP,'B2  B1HOM',ILONG,ITYLCM)
       IF(ILONG.EQ.1) THEN
          CALL LCMGET(IPTEMP,'B2  B1HOM',B2)
@@ -241,7 +241,7 @@
       ENDIF
       IF(B2.EQ.0.0) B2=1.0E-10
       CALL hdf5_write_data(IPAPX,TRIM(RECNAM)//"B2",B2)
-      CALL LCMSIX(IPTEMP,' ',2)   
+      CALL LCMSIX(IPTEMP,' ',2)
 *----
 *  LOOP OVER APEX MIXTURES.
 *----

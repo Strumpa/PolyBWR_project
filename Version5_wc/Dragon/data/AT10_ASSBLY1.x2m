@@ -24,7 +24,7 @@ SEQ_ASCII FIG_main.ps :: FILE './FIG_AT10_main_fine.ps' ;
 SEQ_ASCII FIG_SS.ps :: FILE './FIG_selfshielding.ps' ;
 REAL Kinf ;
 
-SEQ_ASCII _COMPO :: FILE './_CPO_AT10_ASSBLY_RSE_fine_J311' ;
+SEQ_ASCII _COMPO :: FILE './_CPO_AT10_ASSBLY_RSE_CORR_fine_J311' ;
 
 
 STRING geo_name := "AT10_ASSBLY_fine" ; ! Geometry choice for tests and benchmarks

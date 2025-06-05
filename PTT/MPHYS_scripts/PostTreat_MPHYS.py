@@ -384,16 +384,16 @@ def post_treat_Fields_SpatialConvergence_interp(height, power_scaling_factor, nu
         VF_all_meshes.append(parse_MPHYS_output_field(height, n, power_scaling_factor, "voidFraction", pow_relax, th_relax, voidFractionCorrel,  frfaccorel, P2Pcorel))
 
     # plot the spatial convergence of the fields
-    plot_spatial_convergence_field("power density distribution", "W/$m^3$", Qfiss_all_meshes, height, number_axial_slices)
-    plot_piecewise_constant_field("Power density", "W/$m^3$", Qfiss_all_meshes, height, number_axial_slices)
-    plot_spatial_convergence_field("fuel temperature", "K", TF_all_meshes, height, number_axial_slices)
-    plot_piecewise_constant_field("Fuel temperature", "K", TF_all_meshes, height, number_axial_slices)
-    plot_spatial_convergence_field("coolant temperature", "K", TC_all_meshes, height, number_axial_slices)
-    plot_piecewise_constant_field("Coolant temperature", "K", TC_all_meshes, height, number_axial_slices)
-    plot_spatial_convergence_field("coolant density", "kg/$m^3$", DC_all_meshes, height, number_axial_slices)
-    plot_piecewise_constant_field("Coolant density", "kg/$m^3$", DC_all_meshes, height, number_axial_slices)
-    plot_spatial_convergence_field("void fraction", "", VF_all_meshes, height, number_axial_slices)
-    plot_piecewise_constant_field("Void fraction", "", VF_all_meshes, height, number_axial_slices)
+    mphysplt.plot_spatial_convergence_field("power density distribution", "W/$m^3$", Qfiss_all_meshes, height, number_axial_slices)
+    mphysplt.plot_piecewise_constant_field("Power density", "W/$m^3$", Qfiss_all_meshes, height, number_axial_slices)
+    mphysplt.plot_spatial_convergence_field("fuel temperature", "K", TF_all_meshes, height, number_axial_slices)
+    mphysplt.plot_piecewise_constant_field("Fuel temperature", "K", TF_all_meshes, height, number_axial_slices)
+    mphysplt.plot_spatial_convergence_field("coolant temperature", "K", TC_all_meshes, height, number_axial_slices)
+    mphysplt.plot_piecewise_constant_field("Coolant temperature", "K", TC_all_meshes, height, number_axial_slices)
+    mphysplt.plot_spatial_convergence_field("coolant density", "kg/$m^3$", DC_all_meshes, height, number_axial_slices)
+    mphysplt.plot_piecewise_constant_field("Coolant density", "kg/$m^3$", DC_all_meshes, height, number_axial_slices)
+    mphysplt.plot_spatial_convergence_field("void fraction", "", VF_all_meshes, height, number_axial_slices)
+    mphysplt.plot_piecewise_constant_field("Void fraction", "", VF_all_meshes, height, number_axial_slices)
 
     # comapre all distribution to the most spatially converged one, consider different interpolation types
     interp_type ="linear"
@@ -405,16 +405,16 @@ def post_treat_Fields_SpatialConvergence_interp(height, power_scaling_factor, nu
     spatial_errors_VF, percent_spatial_errors_VF = compute_nodal_error_to_most_converged(VF_all_meshes[:-1], VF_all_meshes[-1], interp_type, height)
 
     # plot the nodal spatial errors for each field
-    plot_nodal_spatial_errors(height, "power density distribution", "W/$m^3$", spatial_errors_Qfiss, interp_type) 
-    plot_nodal_spatial_errors(height, "power density distribution", "%", percent_spatial_errors_Qfiss, interp_type)
-    plot_nodal_spatial_errors(height, "fuel temperature", "K", spatial_errors_TF, interp_type)
-    plot_nodal_spatial_errors(height, "fuel temperature", "%", percent_spatial_errors_TF, interp_type)
-    plot_nodal_spatial_errors(height, "coolant temperature", "K", spatial_errors_TC, interp_type)
-    plot_nodal_spatial_errors(height, "coolant temperature", "%", percent_spatial_errors_TC, interp_type)
-    plot_nodal_spatial_errors(height, "coolant density", "kg/$m^3$", spatial_errors_DC, interp_type)
-    plot_nodal_spatial_errors(height, "coolant density", "%", percent_spatial_errors_DC, interp_type)
-    plot_nodal_spatial_errors(height, "void fraction", "", spatial_errors_VF, interp_type)
-    plot_nodal_spatial_errors(height, "void fraction", "%", percent_spatial_errors_VF, interp_type)
+    mphysplt.plot_nodal_spatial_errors(height, "power density distribution", "W/$m^3$", spatial_errors_Qfiss, interp_type) 
+    mphysplt.plot_nodal_spatial_errors(height, "power density distribution", "%", percent_spatial_errors_Qfiss, interp_type)
+    mphysplt.plot_nodal_spatial_errors(height, "fuel temperature", "K", spatial_errors_TF, interp_type)
+    mphysplt.plot_nodal_spatial_errors(height, "fuel temperature", "%", percent_spatial_errors_TF, interp_type)
+    mphysplt.plot_nodal_spatial_errors(height, "coolant temperature", "K", spatial_errors_TC, interp_type)
+    mphysplt.plot_nodal_spatial_errors(height, "coolant temperature", "%", percent_spatial_errors_TC, interp_type)
+    mphysplt.plot_nodal_spatial_errors(height, "coolant density", "kg/$m^3$", spatial_errors_DC, interp_type)
+    mphysplt.plot_nodal_spatial_errors(height, "coolant density", "%", percent_spatial_errors_DC, interp_type)
+    mphysplt.plot_nodal_spatial_errors(height, "void fraction", "", spatial_errors_VF, interp_type)
+    mphysplt.plot_nodal_spatial_errors(height, "void fraction", "%", percent_spatial_errors_VF, interp_type)
 
     # compute RMS errors (%) on the fields vs the most spatially converged one
 
@@ -530,19 +530,19 @@ def post_treat_Fields_spatial_convergence_condense(height, power_scaling_factor,
         RMS_VF.append(compute_RMS_error(VF_all_meshes[i], most_conv_VF_condensed[i], "absolute"))
 
     # plot the relative errors for each field
-    plot_nodal_spatial_errors(height, "power density", "%", rel_errors_Qfiss, "condensed")
-    plot_nodal_spatial_errors(height, "fuel temperature", "%", rel_errors_TF, "condensed")
-    plot_nodal_spatial_errors(height, "coolant temperature", "%", rel_errors_TC, "condensed")
-    plot_nodal_spatial_errors(height, "coolant density", "%", rel_errors_DC, "condensed")
-    plot_nodal_spatial_errors(height, "void fraction", "%", rel_errors_VF, "condensed")
+    mphysplt.plot_nodal_spatial_errors(height, "power density", "%", rel_errors_Qfiss, "condensed")
+    mphysplt.plot_nodal_spatial_errors(height, "fuel temperature", "%", rel_errors_TF, "condensed")
+    mphysplt.plot_nodal_spatial_errors(height, "coolant temperature", "%", rel_errors_TC, "condensed")
+    mphysplt.plot_nodal_spatial_errors(height, "coolant density", "%", rel_errors_DC, "condensed")
+    mphysplt.plot_nodal_spatial_errors(height, "void fraction", "%", rel_errors_VF, "condensed")
 
     # plot absolute errors for each field
 
-    plot_nodal_spatial_errors(height, "power density", "W/$m^3$", abs_errors_Qfiss, "condensed")
-    plot_nodal_spatial_errors(height, "fuel temperature", "K", abs_errors_TF, "condensed")
-    plot_nodal_spatial_errors(height, "coolant temperature", "K", abs_errors_TC, "condensed")
-    plot_nodal_spatial_errors(height, "coolant density", "kg/$m^3$", abs_errors_DC, "condensed")
-    plot_nodal_spatial_errors(height, "void fraction", "", abs_errors_VF, "condensed")
+    mphysplt.plot_nodal_spatial_errors(height, "power density", "W/$m^3$", abs_errors_Qfiss, "condensed")
+    mphysplt.plot_nodal_spatial_errors(height, "fuel temperature", "K", abs_errors_TF, "condensed")
+    mphysplt.plot_nodal_spatial_errors(height, "coolant temperature", "K", abs_errors_TC, "condensed")
+    mphysplt.plot_nodal_spatial_errors(height, "coolant density", "kg/$m^3$", abs_errors_DC, "condensed")
+    mphysplt.plot_nodal_spatial_errors(height, "void fraction", "", abs_errors_VF, "condensed")
 
 
     # print the RMS errors for each field

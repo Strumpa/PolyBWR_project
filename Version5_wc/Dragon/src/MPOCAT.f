@@ -208,6 +208,7 @@
       WRITE(RECNAM,'(8H/output/,A,9H/statept_,I0)') TRIM(HEDIT),NCALS-1
       WRITE(RECNA2,'(8H/output/,A,9H/statept_,I0)') TRIM(HEDIT),ICALR-1
       call hdf5_copy(IPRHS,RECNA2,IPMPO,RECNAM) ! IPRHS -> IPMPO
+      CALL hdf5_create_group(IPMPO,TRIM(RECNAM))
       CALL hdf5_write_data(IPMPO,TRIM(RECNAM)//"/PARAMVALUEORD",MUPLET)
       CALL hdf5_write_data(IPMPO,"/parameters/tree/NSTATEPOINT",NCALS)
   130 DEALLOCATE(LGNEW,MUPLET,MUPRHS,NVALUE,PARFMT,PARKEY)

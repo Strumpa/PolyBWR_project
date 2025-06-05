@@ -14,7 +14,7 @@ SEQ_BINARY TF_EXC TF_EXC_SS ;
 
 
 STRING Library := "endfb8r1_295" ; 
-STRING ssh_method := "PT" ;
+STRING ssh_method := "RSE" ;
 REAL Tfuel := 550.0 ;
 REAL TCool := 559.0 ;
 REAL Kinf ;
@@ -77,14 +77,14 @@ IF ssh_method "PT" = THEN
     MIX <<COMB0101>> <<Tfuel>>
       O16     = O16    4.621410E-02
       U234    = U234   9.451580E-06 1 
-      U235    = U235   9.945290E-04 CORR 1 
+      U235    = U235   9.945290E-04 1 
       U238    = U238   2.107540E-02 CORR 1
       Pu239   = Pu239  0.0     1
       Pu240   = Pu240  0.0     1
       Pu241   = Pu241  0.0     1
       Pu242   = Pu242  0.0     1
       Gd154    = Gd154   2.986510E-05 1
-      Gd155    = Gd155   2.027540E-04 CORR 1
+      Gd155    = Gd155   2.027540E-04 1
       Gd156    = Gd156   2.804310E-04 1
       Gd157    = Gd157   2.143990E-04 CORR 1
       Gd158    = Gd158   3.403000E-04 1
@@ -146,10 +146,10 @@ ELSEIF ssh_method "RSE" = THEN
     MIX <<COMB0101>> <<Tfuel>>
       O16     = O16    4.621410E-02
       U234    = U234   9.451580E-06 1 
-      U235    = U235   9.945290E-04 CORR 1 
+      U235    = U235   9.945290E-04 1 
       U238    = U238   2.107540E-02 CORR 1
       Gd154    = Gd154   2.986510E-05 1
-      Gd155    = Gd155   2.027540E-04 CORR 1
+      Gd155    = Gd155   2.027540E-04 1
       Gd156    = Gd156   2.804310E-04 1
       Gd157    = Gd157   2.143990E-04 CORR 1
       Gd158    = Gd158   3.403000E-04 1

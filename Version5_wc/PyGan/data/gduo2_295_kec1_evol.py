@@ -40,7 +40,7 @@ correlations = ['NOCORR', 'CORR'] # 'CORR' or 'NOCORR'
 tracked_nuclides = ["U235", "U234", "U238", "Pu239", "Pu240", "Pu241", "Pu242", "Gd155", "Gd157", "Xe135", "Sm149"]
 
 # Time integrator
-time_integrators = ["NOEX", "EXTR2", "CECE"] # "EXTR" + "CECM" --> to debug
+time_integrators = ["EXTR"] # ["NOEX", "EXTR2", "CECE", "EXTR"] # "EXTR" + "CECM" --> to debug
 
 glob_opt = "GLOB" # "GLOB" or "NOGL"
 

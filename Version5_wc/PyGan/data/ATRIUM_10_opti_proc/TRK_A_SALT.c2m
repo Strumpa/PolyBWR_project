@@ -1,0 +1,77 @@
+* Deck TRK_A_SALT 
+* CLE-2000 procedure for SALT: tracking on flux geom
+* Currently 3-level BWR geometry treatment limited to surfacic (G2S: --> SALT:) 
+*
+* Goal : get reference deterministic t=0 results to compare with NXT capabilities.
+*
+* CALL      :                                                                     
+* TRACK TF_EXC FIG.ps := TRK_A_SALT GEOM :: 
+*          <<num_ang>> <<densur>> <<refl_type>> <<batch_size>> ;
+*              
+*       
+************************************************************************************
+
+* ---
+* INPUT & OUTPUT PARAMETERS
+* ---
+PARAMETER TRACK  TF_EXC  GEOM  FIG.ps ::
+::: LINKED_LIST TRACK ;
+::: SEQ_BINARY TF_EXC ;
+::: LINKED_LIST GEOM ;
+::: SEQ_ASCII FIG.ps ; ;
+* ---
+* RECOVER TRACKING PARAMTERES
+* ---
+INTEGER num_ang ;
+:: >>num_ang<< ; ! ANGULAR QUADRATURE PARAMETER
+DOUBLE Ddensur ;
+:: >>Ddensur<< ; ! DENSITY OF INTEGRATION LINES CM^-1
+STRING refl_type ;
+:: >>refl_type<< ; ! reflection type for tracking : "TSPC" or "TISO"
+INTEGER anis_level ;
+:: >>anis_level<< ; ! anisotropic level for tracking, e.g. 1, 2, 3, etc...
+STRING isMOC ;
+:: >>isMOC<< ; ! flag to indicate if MOC tracking is used, e.g. "MOC" or "CP"
+STRING quad ;
+:: >>quad<< ; ! angular quadrature type for MOC tracking, e.g. "LCMD", "GAUS", "CACB" etc...
+INTEGER nmu ;
+:: >>nmu<< ; ! number of polar angles for MOC tracking
+INTEGER batch ;
+:: >>batch<< ; ! batch size for tracking
+
+* ---
+* STRUCTURES AND MODULES
+* ---
+MODULE G2S: SALT: MCCGT: END: ;
+SEQ_ASCII Geo_G2S ;
+REAL densur := Ddensur D_TO_R ; ! DENSITY OF INTEGRATION LINES CM^-1
+
+* size allocation for MCCGT:
+INTEGER mcu := 50000 ;
+
+* ---
+* SALT TRACKING
+* ---
+Geo_G2S FIG.ps := G2S: GEOM :: EDIT 0 ;
+
+TRACK TF_EXC := SALT: Geo_G2S ::
+  EDIT 1
+  ALLG 
+  BATCH <<batch>>
+  ANIS <<anis_level>>
+  <<refl_type>> EQW2 <<num_ang>> <<densur>> REND
+  LONG
+;
+
+IF isMOC "MOC" = THEN
+  * MOC tracking
+  TRACK := MCCGT: TRACK TF_EXC ::
+    EDIT 0
+    <<quad>> <<nmu>> AAC 80 TMT EPSI 1E-5 MCU <<mcu>> ! tried CACB but is limited to isotropic ?
+  ;
+ENDIF ;
+
+END: ;
+QUIT .
+
+

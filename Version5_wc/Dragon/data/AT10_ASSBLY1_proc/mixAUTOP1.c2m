@@ -76,7 +76,7 @@ IF name_geom 'AT10_ASSBLY_fine' = THEN
 
    IF ssh_option 'RSE' = THEN
     LIBRARY2 := USS: LIBRARY TRACK_SS TF_SS_EXC ::
-            EDIT 10 PASS 3 MAXST 50 ARM
+            EDIT 10 PASS 3 MAXST 50 PIJ
             CALC
                REGI W1 U238 ALL  
                REGI W1 U235 ALL

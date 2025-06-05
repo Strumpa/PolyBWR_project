@@ -289,7 +289,7 @@ IF compos_opt "AT10_ctrl_void_0" = THEN
     H1      = H1_H2O 4.94546E-02  
     O16     = O16    2.47298E-02 
 
-  MIX <<CROSS>> 559.0 NOEV
+  MIX <<CTRL_CRS>> 559.0 NOEV
     Si28  = Si28   8.00060E-04
     Si29  = Si29   3.91199E-05
     Si30  = Si30   2.48572E-05
@@ -308,10 +308,10 @@ IF compos_opt "AT10_ctrl_void_0" = THEN
     Ni62  = Ni62   3.26674E-04
     Ni64  = Ni64   8.05912E-05
 
-  MIX <<ROD>> 559.0 
-    B10  = B10   1.51794E-02 3
-    B11  = B11   6.16072E-02 3
-    C12  = C12   1.91830E-02
+  MIX <<CTRL_ROD>> 559.0 
+    B10  = B10   1.51794E-02 
+    B11  = B11   6.16072E-02
+    C0  = C0   1.91830E-02
 
 ;
 

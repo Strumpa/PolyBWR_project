@@ -88,8 +88,8 @@
                VREAL(IV)=RVAL
             ENDIF
          ENDIF
-!         IV=NVALUE(IPAR)
-         IF(LGNEW) CALL hdf5_write_data(IPAPX,TRIM(RECNAM),VREAL(:IV))
+         IF(LGNEW) CALL hdf5_write_data(IPAPX,TRIM(RECNAM),
+     1   VREAL(:NVALUE(IPAR)))
          DEALLOCATE(VREAL)
       ELSE IF(TYPE.EQ.'ENTIER') THEN
          ALLOCATE(VINTE(NVALUE(IPAR)+1))
@@ -121,8 +121,8 @@
                VINTE(IV)=IVAL
             ENDIF
          ENDIF
-!         IV=NVALUE(IPAR)
-         IF(LGNEW) CALL hdf5_write_data(IPAPX,TRIM(RECNAM),VINTE(:IV))
+         IF(LGNEW) CALL hdf5_write_data(IPAPX,TRIM(RECNAM),
+     1   VINTE(:NVALUE(IPAR)))
          DEALLOCATE(VINTE)
       ELSE IF(TYPE.EQ.'CHAINE') THEN
          ALLOCATE(VCHAR(NVALUE(IPAR)+1))
@@ -151,8 +151,8 @@
                VCHAR(IV)=CVAL
             ENDIF
          ENDIF
-!         IV=NVALUE(IPAR)
-         IF(LGNEW) CALL hdf5_write_data(IPAPX,TRIM(RECNAM),VCHAR(:IV))
+         IF(LGNEW) CALL hdf5_write_data(IPAPX,TRIM(RECNAM),
+     1   VCHAR(:NVALUE(IPAR)))
          DEALLOCATE(VCHAR)
       ENDIF
 *

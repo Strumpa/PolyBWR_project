@@ -100,7 +100,7 @@ def post_treat_Gd_case_vs_S2_edep_pcc(case, evaluation, draglib_name, self_shiel
     D5_NG0_result_cases = []
     for time_integrator in time_integrators:
         if D5_kerma_used:
-            CPO_NAME = f"CPO_{draglib_name}_{self_shielding_method}_{correlation}_SALT_{evo_solver}_NODI_GLOB_{time_integrator}_{burnup_points}"
+            CPO_NAME = f"CPO_{draglib_name}_{self_shielding_method}_{correlation}_SALT_{burnup_points}_{evo_solver}_NODI_{time_integrator}_GLOB"
             print(CPO_NAME)
             CPO = lcm.new('LCM_INP', CPO_NAME, impx=0)
             D5_NOM_case = D5_case(pyCOMPO = CPO,
@@ -172,7 +172,7 @@ def post_treat_Gd_case_vs_S2_edep_pcc(case, evaluation, draglib_name, self_shiel
         comparisonD5_S2.compare_Ni()
         comparisonD5_S2.plot_delta_Ni()
 
-def custom_plots(save_dir_case):
+def gduo2_custom_plots(save_dir_case):
     """
     Custom plots for the post-treatment
     """
@@ -258,7 +258,138 @@ def custom_plots(save_dir_case):
     comparisonD5_S2.plot_delta_Ni()
 
 
+def AT10_45Gd_custom_plots(save_dir_case):
+
+    tracked_nuclides = ["U235","U238","Pu239","Pu240","Pu241","Pu242","Am241","Xe135","Sm149","Gd155","Gd157"]
+    burnup_points = "Gd2_autop6"
+    case_name = "AT10_45Gd_Cst_pow_evol"
+    ssh_methods = ["PT","RSE"]
+    correlations = ["C","N"]
+    time_integrator = "EXTR"
+    draglib_kerma1 = "endfb81295K"
+    draglib_kerma2 = "endfb81295K2"
+    # reference S2 case with KERMAs
+    S2_edep2_pcc2 = S2_case(case_name = "AT10_45Gd_BUGd2",
+                                        lib_name = "endfb8r1_pynjoy2012_kerma",
+                                        edep_id = 2,
+                                        areQfissSet = False,
+                                        isEcaptSet = False,
+                                        pcc_id = 2,
+                                        specific_power = 26.5,
+                                        tracked_nuclides = tracked_nuclides,
+                                        save_dir = save_dir_case)
+    evo_solver = "KAPS"
+    path = os.getcwd()
+    path_to_PyGan_results = f"PYGAN_COMPOS_path/AT10_45Gd_Cst_pow_evol_results/"
+    kerma_1_cases = []
+    kerma_2_cases = []
+    os.chdir(path_to_PyGan_results)
     
+    for ssh_method in ssh_methods:
+        for correlation in correlations:
+            cpo_name_kerma1 = f"CPO_{draglib_kerma1}_{ssh_method}_{correlation}_SALT_{burnup_points}_{evo_solver}_NODI_{time_integrator}_GLOB"
+            print(f"cpo_name_kerma1 : {cpo_name_kerma1}")
+            CPO_kerma1 = lcm.new('LCM_INP', cpo_name_kerma1, impx=0)
+            cpo_name_kerma2 = f"CPO_{draglib_kerma2}_{ssh_method}_{correlation}_SALT_{burnup_points}_{evo_solver}_NODI_{time_integrator}_GLOB"
+            CPO_kerma2 = lcm.new('LCM_INP', cpo_name_kerma2, impx=0)
+            
+
+            D5_case_custom_kerma1 = D5_case(pyCOMPO = CPO_kerma1,
+                                    dlib_name = draglib_kerma1,
+                                    bu_points = burnup_points,
+                                    ssh_opt = ssh_method,
+                                    correlation = correlation,
+                                    sat = "NODI",
+                                    depl_sol = evo_solver,
+                                    tracked_nuclides = tracked_nuclides,
+                                    BU_lists = getLists(burnup_points),
+                                    save_dir = save_dir_case)
+            D5_case_custom_kerma1.set_BUscheme("Predicor", time_integrator)
+            kerma_1_cases.append(D5_case_custom_kerma1)
+
+            D5_case_custom_kerma2 = D5_case(pyCOMPO = CPO_kerma2,
+                                    dlib_name = draglib_kerma2,
+                                    bu_points = burnup_points,
+                                    ssh_opt = ssh_method,
+                                    correlation = correlation,
+                                    sat = "NODI",
+                                    depl_sol = evo_solver,
+                                    tracked_nuclides = tracked_nuclides,
+                                    BU_lists = getLists(burnup_points),
+                                    save_dir = save_dir_case)
+            D5_case_custom_kerma2.set_BUscheme("Predicor", time_integrator)
+            kerma_2_cases.append(D5_case_custom_kerma2)
+    os.chdir(path)
+    ### Plot D5_custom_case vs S2_edep2_pcc2
+    comparisonD5_S2_kerma1 = multiD5S2(f"AT10_45Gd BU : Gd2_autop6 total Kerma", kerma_1_cases, S2_edep2_pcc2, burnup_points, tracked_nuclides, f"{save_dir_case}/{draglib_kerma1}")
+    comparisonD5_S2_kerma1.compare_keffs()
+    comparisonD5_S2_kerma1.plot_delta_keff()
+    comparisonD5_S2_kerma1.compare_Ni()
+    comparisonD5_S2_kerma1.plot_delta_Ni()
+
+    comparisonD5_S2_kerma2 = multiD5S2(f"AT10_45Gd BU : Gd2_autop6 modified Kerma", kerma_2_cases, S2_edep2_pcc2, burnup_points, tracked_nuclides, f"{save_dir_case}/{draglib_kerma2}")
+    comparisonD5_S2_kerma2.compare_keffs()
+    comparisonD5_S2_kerma2.plot_delta_keff()
+    comparisonD5_S2_kerma2.compare_Ni()
+    comparisonD5_S2_kerma2.plot_delta_Ni()
+
+    return
+
+def AT10_45Gd_plot_old_dlib_with_new_EXTR(save_dir_case):
+    tracked_nuclides = ["U235","U238","Pu239","Pu240","Pu241","Pu242","Am241","Xe135","Sm149","Gd155","Gd157"]
+    burnup_points = "Gd2_autop6"
+    case_name = "AT10_45Gd_Cst_pow_evol"
+    ssh_methods = ["PT","RSE"]
+    correlations = ["C","N"]
+    time_integrator = "EXTR"
+    old_dlib_name = "endfb8r1_295"
+    # reference S2 case with KERMAs
+    S2_edep2_pcc2 = S2_case(case_name = "AT10_45Gd_BUGd2",
+                                        lib_name = "endfb8r1_pynjoy2012_kerma",
+                                        edep_id = 2,
+                                        areQfissSet = False,
+                                        isEcaptSet = False,
+                                        pcc_id = 2,
+                                        specific_power = 26.5,
+                                        tracked_nuclides = tracked_nuclides,
+                                        save_dir = save_dir_case)
+    evo_solver = "KAPS"
+    path = os.getcwd()
+    path_to_PyGan_results = f"PYGAN_COMPOS_path/AT10_45Gd_Cst_pow_evol_results/"
+    old_dlib_cases = []
+    os.chdir(path_to_PyGan_results)
+    
+    for ssh_method in ssh_methods:
+        for correlation in correlations:
+            cpo_name = f"CPO_{old_dlib_name}_{ssh_method}_{correlation}_SALT_{burnup_points}_{evo_solver}_NODI_{time_integrator}_GLOB"
+            print(f"cpo_name : {cpo_name}")
+            CPO = lcm.new('LCM_INP', cpo_name, impx=0) 
+
+            D5_case_custom = D5_case(pyCOMPO = CPO,
+                                    dlib_name = old_dlib_name,
+                                    bu_points = burnup_points,
+                                    ssh_opt = ssh_method,
+                                    correlation = correlation,
+                                    sat = "NODI",
+                                    depl_sol = evo_solver,
+                                    tracked_nuclides = tracked_nuclides,
+                                    BU_lists = getLists(burnup_points),
+                                    save_dir = save_dir_case)
+            D5_case_custom.set_BUscheme("Predicor", time_integrator)
+            old_dlib_cases.append(D5_case_custom)
+
+    os.chdir(path)
+    ### Plot D5_custom_case vs S2_edep2_pcc2
+    comparisonD5_S2_kerma1 = multiD5S2(f"AT10_45Gd BU : Gd2_autop6 draglib nomodif", old_dlib_cases, S2_edep2_pcc2, burnup_points, tracked_nuclides, f"{save_dir_case}/{old_dlib_name}")
+    comparisonD5_S2_kerma1.compare_keffs()
+    comparisonD5_S2_kerma1.plot_delta_keff()
+    comparisonD5_S2_kerma1.compare_Ni()
+    comparisonD5_S2_kerma1.plot_delta_Ni()
+
+    return
+            
+            
+            
 
 
 if __name__ == "__main__":
@@ -270,9 +401,9 @@ if __name__ == "__main__":
     # isotopes to be tracked 
     tracked_nuclides = ["U235","U238","Pu239","Pu240","Pu241","Pu242","Am241","Xe135","Sm149","Gd155","Gd157"]
     # time integrators to be used
-    time_integrators = ["EXTR", "NOEX", "EXTR2"] # ,"CECM"]
+    time_integrators = ["EXTR", "NOEX", "EXTR2"] # "CECE", "CECM" -> to debug
     # burnup points to be used
-    burnup_points = "Gd_autop3"
+    burnup_points = ["Gd_autop3", "Gd_autop4", "Gd_autop5"]
 
     ssh_methods = ["RSE","PT"]
     correlations = ["N", "C"]
@@ -295,90 +426,12 @@ if __name__ == "__main__":
 
 
     ### Begin post treatment of DRAGON and SERPENT2 results
-    # Case 0 : HOM_Gd157_VBOC_OMC (already done in HOM_Gd157_VBOC.py from DRAGON5 results (not called from PyGan)) <-- not a priority
-    post_treat_case0 = False
-    # Case 1 : HOM_Gd157_VBOC, focus on this
-    post_treat_case1 = False
-    # Case 2 : HOM_UOX_Gd157, focus on this
-    post_treat_case2 = False
     # Case 3 : AT10_45Gd, focus on this
-    post_treat_case3 = False
+    post_treat_AT10_45Gd = False
     # Case 4 : gduo2_295_kec1
-    post_treat_case4 = False
-    custom_plots(save_dir_gduo2_295_kec1)
+    post_treat_gduo2 = False
+    #custom_plots(save_dir_gduo2_295_kec1)
+    #AT10_45Gd_custom_plots(save_dir_AT10_45Gd)
 
-    if post_treat_case3:
 
-        ## --- DRAGON5-SERPENT2 comparison : post treatment
-        
-        for pcc in [0, 1, 2]:
-           # Gd BU
-            post_treat_Gd_case_vs_S2_edep_pcc("AT10_45Gd_Cst_pow_evol", evaluation, "endfb8r1_295", "PT", "N", "KAPS", time_integrators, "Gd", tracked_nuclides,  0, pcc, save_dir_AT10_45Gd)
-           
-            # Gd_autop3 BU
-           
-            for ssh_method in ssh_methods:
-                for correlation in correlations:
-                    post_treat_Gd_case_vs_S2_edep_pcc("AT10_45Gd_Cst_pow_evol",evaluation, "endfb8r1_295", ssh_method, correlation, "KAPS", time_integrators, "Gd_autop3", tracked_nuclides, 0, pcc, save_dir_AT10_45Gd)
-
-            # Gd2_autop6 BU
-            for ssh_method in ssh_methods:
-                for correlation in correlations:
-                    post_treat_Gd_case_vs_S2_edep_pcc("AT10_45Gd_Cst_pow_evol", evaluation, "endfb8r1_295", ssh_method, correlation, "KAPS", time_integrators, "Gd2_autop6", tracked_nuclides, 0, pcc, save_dir_AT10_45Gd)
-    
-        # Gd BU
-        post_treat_Gd_case_vs_S2_edep_pcc("AT10_45Gd_Cst_pow_evol", evaluation, "endfb81295K", "PT", "N", "KAPS", time_integrators, "Gd", tracked_nuclides,  2, 1, save_dir_AT10_45Gd)
-        
-        # Gd_autop3 BU
-        #post_treat_AT10_45Gd_vs_S2_edep_pcc(evaluation, "endfb81295K", "RSE", "C", "KAPS", time_integrators, "Gd_autop3", tracked_nuclides, 2, 1, save_dir_AT10_45Gd)
-        #post_treat_AT10_45Gd_vs_S2_edep_pcc(evaluation, "endfb81295K", "RSE", "N", "KAPS", time_integrators, "Gd_autop3", tracked_nuclides,  2, 1, save_dir_AT10_45Gd)
-        #post_treat_AT10_45Gd_vs_S2_edep_pcc(evaluation, "endfb81295K", "PT", "C", "KAPS", time_integrators, "Gd_autop3", tracked_nuclides,  2, 1, save_dir_AT10_45Gd)
-        post_treat_Gd_case_vs_S2_edep_pcc("AT10_45Gd_Cst_pow_evol", evaluation, "endfb81295K", "PT", "N", "KAPS", time_integrators, "Gd_autop3", tracked_nuclides,  2, 1, save_dir_AT10_45Gd)
-
-        # Gd2_autop6 BU
-        #post_treat_AT10_45Gd_vs_S2_edep_pcc(evaluation, "endfb81295K", "RSE", "C", "KAPS", time_integrators, "Gd2_autop6", tracked_nuclides, 2, 1, save_dir_AT10_45Gd)
-        #post_treat_AT10_45Gd_vs_S2_edep_pcc(evaluation, "endfb81295K", "RSE", "N", "KAPS", time_integrators, "Gd2_autop6", tracked_nuclides, 2, 1, save_dir_AT10_45Gd)
-        #post_treat_AT10_45Gd_vs_S2_edep_pcc(evaluation, "endfb81295K", "PT", "C", "KAPS", time_integrators, "Gd2_autop6", tracked_nuclides, 2, 1, save_dir_AT10_45Gd)
-        post_treat_Gd_case_vs_S2_edep_pcc("AT10_45Gd_Cst_pow_evol", evaluation, "endfb81295K", "PT", "N", "KAPS", time_integrators, "Gd2_autop6", tracked_nuclides, 2, 1, save_dir_AT10_45Gd)
-
-        
-        # Gd BU
-        post_treat_Gd_case_vs_S2_edep_pcc("AT10_45Gd_Cst_pow_evol", evaluation, "endfb81295K2", "PT", "N", "KAPS", time_integrators, "Gd_autop3", tracked_nuclides,  2, 1, save_dir_AT10_45Gd)
-
-        # Gd_autop3 BU
-        #post_treat_AT10_45Gd_vs_S2_edep_pcc(evaluation, "endfb81295K2", "RSE", "C", "KAPS", time_integrators, "Gd_autop3", tracked_nuclides, 2, 1, save_dir_AT10_45Gd)
-        #post_treat_AT10_45Gd_vs_S2_edep_pcc(evaluation, "endfb81295K2", "RSE", "N", "KAPS", time_integrators, "Gd_autop3", tracked_nuclides,  2, 1, save_dir_AT10_45Gd)
-        #post_treat_AT10_45Gd_vs_S2_edep_pcc(evaluation, "endfb81295K2", "PT", "C", "KAPS", time_integrators, "Gd_autop3", tracked_nuclides,  2, 1, save_dir_AT10_45Gd)
-        post_treat_Gd_case_vs_S2_edep_pcc("AT10_45Gd_Cst_pow_evol", evaluation, "endfb81295K2", "PT", "N", "KAPS", time_integrators, "Gd_autop3", tracked_nuclides,  2, 1, save_dir_AT10_45Gd)
-
-        # Gd2_autop6 BU
-        #post_treat_AT10_45Gd_vs_S2_edep_pcc(evaluation, "endfb81295K2", "RSE", "C", "KAPS", time_integrators, "Gd2_autop6", tracked_nuclides, 2, 1, save_dir_AT10_45Gd)
-        #post_treat_AT10_45Gd_vs_S2_edep_pcc(evaluation, "endfb81295K2", "RSE", "N", "KAPS", time_integrators, "Gd2_autop6", tracked_nuclides, 2, 1, save_dir_AT10_45Gd)
-        #post_treat_AT10_45Gd_vs_S2_edep_pcc(evaluation, "endfb81295K2", "PT", "C", "KAPS", time_integrators, "Gd2_autop6", tracked_nuclides, 2, 1, save_dir_AT10_45Gd)
-        post_treat_Gd_case_vs_S2_edep_pcc("AT10_45Gd_Cst_pow_evol", evaluation, "endfb81295K2", "PT", "N", "KAPS", time_integrators, "Gd2_autop6", tracked_nuclides, 2, 1, save_dir_AT10_45Gd)
-
-    if post_treat_case4:
-        
-        # gduo2_295_kec1
-        # edepmode = 0
-        time_integrators = ["EXTR"]
-        for ssh_method in ["RSE", "PT"]:
-            for correlation in ["N", "C"]:
-                for bu_pts in ["Gd_autop3", "Gd_autop4", "Gd_autop5"]:
-                    post_treat_Gd_case_vs_S2_edep_pcc("gduo2_295_kec1_evol", evaluation, "endfb8r1_295", ssh_method, correlation, "KAPS", time_integrators, bu_pts, tracked_nuclides, 0, 1, save_dir_gduo2_295_kec1)
-                    post_treat_Gd_case_vs_S2_edep_pcc("gduo2_295_kec1_evol", evaluation, "endfb8r1_295", ssh_method, correlation, "KAPS", time_integrators, bu_pts, tracked_nuclides, 0, 2, save_dir_gduo2_295_kec1)
-
-        # edepmode = 2 
-        for ssh_method in ["RSE", "PT"]:
-            for correlation in ["N", "C"]:
-                for bu_pts in ["Gd_autop3", "Gd_autop4", "Gd_autop5"]:
-
-                    post_treat_Gd_case_vs_S2_edep_pcc("gduo2_295_kec1_evol", evaluation, "endfb81295K", ssh_method, correlation, "KAPS", time_integrators, bu_pts, tracked_nuclides, 2, 1, save_dir_gduo2_295_kec1)
-                    post_treat_Gd_case_vs_S2_edep_pcc("gduo2_295_kec1_evol", evaluation, "endfb81295K", ssh_method, correlation, "KAPS", time_integrators, bu_pts, tracked_nuclides, 2, 2, save_dir_gduo2_295_kec1) 
-        
-        
-
-                    post_treat_Gd_case_vs_S2_edep_pcc("gduo2_295_kec1_evol", evaluation, "endfb81295K2", ssh_method, correlation, "KAPS", time_integrators, bu_pts, tracked_nuclides, 2, 1, save_dir_gduo2_295_kec1)
-                    post_treat_Gd_case_vs_S2_edep_pcc("gduo2_295_kec1_evol", evaluation, "endfb81295K2", ssh_method, correlation, "KAPS", time_integrators, bu_pts, tracked_nuclides, 2, 2, save_dir_gduo2_295_kec1) 
-        
-        
+    AT10_45Gd_plot_old_dlib_with_new_EXTR(save_dir_AT10_45Gd)

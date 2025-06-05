@@ -37,7 +37,7 @@
 *         currents.
 * NREG    number of regions.
 * NSOUT   number of outer surfaces.
-* NANIS   maximum cross section Legendre order.
+* NANIS   maximum cross section Legendre order in object IPMACR.
 * NLF     number of Legendre orders for the flux.
 * NLIN    number of polynomial components in flux spatial expansion.
 * NFUNL   number of spherical harmonics components.
@@ -204,8 +204,11 @@
       NFOU=0
       LX=0
       ITYPE=0
+      NANIS_TRK=1
       IF(CXDOOR.EQ.'MCCG') THEN
          CALL LCMGET(IPTRK,'STATE-VECTOR',JPAR)
+         NANIS_TRK=JPAR(6)
+         NDIM=JPAR(16)
          INSB=JPAR(22)
          CALL LCMLEN(IPTRK,'KEYCUR$MCCG',ICREB,ITYLCM)
          IF(ICREB.GT.0) THEN
@@ -223,16 +226,19 @@
          NDIM=JPAR(9)
          LX=JPAR(12)
          LY=JPAR(13)
+         NANIS_TRK=JPAR(16)
          INSB=JPAR(27)
          IBFP=JPAR(31)
          NFOU=JPAR(34)
       ELSE IF(CXDOOR.EQ.'BIVAC') THEN
          CALL LCMGET(IPTRK,'STATE-VECTOR',JPAR)
          IELEM=JPAR(8)
+         NANIS_TRK=ABS(JPAR(16))
          IF(IELEM.NE.1) CALL XABORT('FLU2DR: ONLY IELEM=1 AVAILABLE.')
       ELSE IF(CXDOOR.EQ.'TRIVAC') THEN
          CALL LCMGET(IPTRK,'STATE-VECTOR',JPAR)
          IELEM=JPAR(9)
+         NANIS_TRK=ABS(JPAR(32))
          IF(IELEM.NE.1) CALL XABORT('FLU2DR: ONLY IELEM=1 AVAILABLE.')
       ENDIF
 *----
@@ -638,9 +644,21 @@
          DO 62 IE=1,NLIN
          DO 61 IAL=0,MIN(NLF-1,NANIS)
          XXS=XSDIA(IBM,IAL,IG)*REAL(2*IAL+1)
-         DO 60 IAM=0,IAL
-         IND=KEYFLX(IR,IE,1+IAL*(IAL+1)/2+IAM)
-         IF(IND.GT.0) FLUX(IND,IG,8)=FLUX(IND,IG,8)+XXS*FLUX(IND,IG,7)
+         DO 60 IAM=0,MIN(NLF-1,NANIS)
+         IND=0
+         IF(NDIM.EQ.3) THEN
+           IND=KEYFLX(IR,IE,1+IAL*NANIS_TRK+IAM)
+         ELSE IF((NDIM.EQ.2).AND.(IAM.LE.IAL)) THEN
+           IND=KEYFLX(IR,IE,1+IAL*(IAL+1)/2+IAM)
+         ELSE IF(IAM.EQ.IAL) THEN
+           IND=KEYFLX(IR,IE,1+IAL)
+         ENDIF
+         IF(IND.EQ.0) THEN
+           GO TO 60
+         ELSE IF(IND.GT.NUNKNO) THEN
+           CALL XABORT('FLU2DR: NFUNL OVERFLOW(1).')
+         ENDIF
+         FLUX(IND,IG,8)=FLUX(IND,IG,8)+XXS*FLUX(IND,IG,7)
    60    CONTINUE
    61    CONTINUE
    62    CONTINUE
@@ -730,8 +748,20 @@
             IBM=MATCOD(IR)
             IF(IBM.GT.0) THEN
                DO 92 IE=1,NLIN
-               DO 91 IAM=0,IAL
-               IND=KEYFLX(IR,IE,1+IAL*(IAL+1)/2+IAM)
+               DO 91 IAM=0,MIN(NLF-1,NANIS)
+               IND=0
+               IF(NDIM.EQ.3) THEN
+                 IND=KEYFLX(IR,IE,1+IAL*NANIS_TRK+IAM)
+               ELSE IF((NDIM.EQ.2).AND.(IAM.LE.IAL)) THEN
+                 IND=KEYFLX(IR,IE,1+IAL*(IAL+1)/2+IAM)
+               ELSE IF(IAM.EQ.IAL) THEN
+                 IND=KEYFLX(IR,IE,1+IAL)
+               ENDIF
+               IF(IND.EQ.0) THEN
+                 GO TO 91
+               ELSE IF(IND.GT.NUNKNO) THEN
+                 CALL XABORT('FLU2DR: NFUNL OVERFLOW(2).')
+               ENDIF
                JG=IJJ(IBM)
                DO 90 JND=1,NJJ(IBM)
                IF(JG.NE.IG) THEN
@@ -859,8 +889,20 @@
             DO 180 IR=1,NREG
             IBM=MATCOD(IR)
             IF(IBM.GT.0) THEN
-               DO 175 IAM=0,IAL
-               IND=KEYFLX(IR,IE,1+IAL*(IAL+1)/2+IAM)
+               DO 175 IAM=0,MIN(NLF-1,NANIS)
+               IND=0
+               IF(NDIM.EQ.3) THEN
+                 IND=KEYFLX(IR,IE,1+IAL*NANIS_TRK+IAM)
+               ELSE IF((NDIM.EQ.2).AND.(IAM.LE.IAL)) THEN
+                 IND=KEYFLX(IR,IE,1+IAL*(IAL+1)/2+IAM)
+               ELSE IF(IAM.EQ.IAL) THEN
+                 IND=KEYFLX(IR,IE,1+IAL)
+               ENDIF
+               IF(IND.EQ.0) THEN
+                 GO TO 175
+               ELSE IF(IND.GT.NUNKNO) THEN
+                 CALL XABORT('FLU2DR: NFUNL OVERFLOW(3).')
+               ENDIF
                JG=IJJ(IBM)
                DO 170 JND=1,NJJ(IBM)
                IF(JG.NE.IG) THEN

@@ -17,5 +17,6 @@ else
 fi
 
 cp -r gduo2_295_kec1_rates_results $1/"$MACH"/
+cp -r gduo2_295_kec1_11rings_rates_results $1/"$MACH"/
 
 echo '$$$ -----gduo2_295_kec1_rates.save : script finish'

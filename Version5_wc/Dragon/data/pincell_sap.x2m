@@ -258,7 +258,7 @@ LIBRARY := Mix_UOX ::
   <<temp_comb_0>> <<temp_mode_0>> ;
 
 ************************************************************************
-*  INITIAL FLUX CALCULATION                                  *
+*  INITIAL FLUX CALCULATION                                            *
 ************************************************************************
 EVALUATE istep iautop := 0 1 ;
 EVALUATE Tend BUend := 0.0 0.0 ;
@@ -277,7 +277,7 @@ WHILE istep maxstep < DO
   EVALUATE Tend := BUend Fuelpwr / ;
 
 ************************************************************************
-*  FLUX CALCULATION                                          *
+*  FLUX CALCULATION                                                    *
 ************************************************************************
   ECHO "call BranchFlux" ;
   IF istep 1 = THEN
@@ -308,7 +308,7 @@ WHILE istep maxstep < DO
     SAVE ON EDI2B ;
 
 ************************************************************************
-*  SAPHYB FEEDING                                                  *
+*  SAPHYB FEEDING                                                      *
 ************************************************************************
   IF dens_mod dens_mod_0 = THEN
     ECHO "Duplicate branch calculation at dens_mod=" dens_mod ;

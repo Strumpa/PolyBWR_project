@@ -67,7 +67,6 @@ def convergence_pcm(keffNew, keffOld, tol):
         conv = True
     return conv
 
-
 def compute_RMS(Field):
     return np.sqrt(np.sum(Field**2)/len(Field))
 
@@ -324,7 +323,7 @@ Iz1 = 20 # number of control volumes in the axial direction, added 70 for compar
 # --> implement 38 and 76 nodes for AT10_24UOX cell extruded on 380 cm. 
 
 
-power_scaling_factor = 8 # 1, 2, 4, 8 # Scaling factor for the power axial distribution
+power_scaling_factor = 1 # 1, 2, 4, 8 # Scaling factor for the power axial distribution
 
 ########## Choice of Thermalhydraulics correlation ##########
 voidFractionCorrel = 'EPRIvoidModel' # 'modBestion', 'HEM1', 'GEramp', 'EPRIvoidModel'
@@ -393,7 +392,9 @@ print(f"Fuel rod power before scaling = {fuel_rod_power} W")
 
 compo_name = "_COMPO_24UOX" # Name of the COMPO object to be used in the neutronics solution
 
-PFiss = fuel_rod_power/power_scaling_factor # W
+#PFiss = fuel_rod_power/power_scaling_factor # W
+
+PFiss = 40e3
 print(f"PFiss = {PFiss} = fuel_rod_power (scaled) W")
 
 ########## Fields of the TH problem ##########

@@ -3,8 +3,8 @@ RECURSIVE INTEGER FUNCTION NCRCAL(II,NVP,NPTOT,DEBARB,ARBVAL,MUPLET) RESULT(ICAL
 !-----------------------------------------------------------------------
 !
 !Purpose:
-! find the position of an elementary calculation in the multicompo or
-! in the Saphyb.
+! find the position of an elementary calculation in the multicompo, Apex
+! file or in the Saphyb.
 !
 !Copyright:
 ! Copyright (C) 2012 Ecole Polytechnique de Montreal

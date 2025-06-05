@@ -241,7 +241,7 @@
         KWA=99
         DO
           ITER=ITER+1
-          IF(ITER.GT.50) THEN
+          IF(ITER.GT.100) THEN
             WRITE(HSMG,'(30HTHMH2O: HCONV FAILURE IN SLICE,I5,1H.)') K
             CALL XABORT(HSMG)
           ENDIF

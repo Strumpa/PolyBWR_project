@@ -119,7 +119,7 @@ LIBRARY := Mix_UOX ::
   <<temp_comb_0>> <<temp_mode_0>> ;
 
 ************************************************************************
-*  BEGIN APEX INITIALIZATION                                         *
+*  BEGIN APEX INITIALIZATION                                           *
 ************************************************************************
   MyApex := APX: LIBRARY ::
     EDIT 10
