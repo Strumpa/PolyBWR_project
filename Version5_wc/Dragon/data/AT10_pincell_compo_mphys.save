@@ -17,7 +17,7 @@ else
 fi
 ls -l
 
-mv COMPO* $1/"$MACH"
+mv _COMPO* $1/"$MACH"
 
 mv PIN_AT10_FIG_SS.ps $1/"$MACH"
 mv PIN_AT10_FIG_FLX.ps $1/"$MACH"

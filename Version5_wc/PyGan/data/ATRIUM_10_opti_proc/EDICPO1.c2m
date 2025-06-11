@@ -1,12 +1,12 @@
-* iniEdiCpo1.c2m Deck
+* EDICPO1.c2m Deck
 * This procedure is used to call EDI: and COMPO: modules to homogenize and condense cross sections and fluxes.
 * These can then be used for post treatment of reaction rates.
 
 PARAMETER COMPO FLUX LIBRARY2 TRACK ::
-::: COMPO ;
-::: FLUX ;
-::: LIBRARY2 ;
-::: LINKED_LIST TRACK ;
+::: LINKED_LIST COMPO ;
+::: LINKED_LIST FLUX ;
+::: LINKED_LIST LIBRARY2 ;
+::: LINKED_LIST TRACK ; ;
 
 STRING name_cpo save_opt ;
 :: >>name_cpo<< >>save_opt<< ; ! save option for COMPO: module, e.g. "SAVE" or "NOSAVE"

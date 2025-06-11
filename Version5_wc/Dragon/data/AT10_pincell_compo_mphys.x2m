@@ -22,14 +22,14 @@ SEQ_BINARY TF_EXC ;
 SEQ_BINARY TF_EXC_SS ;
 
 STRING geo_name := "AT10_UOX" ; 
-STRING ssh_opt := "RSE" ; ! "PT", "RSE", "SUBG"
+STRING ssh_opt := "PT" ; ! "PT", "RSE", "SUBG"
 STRING track_opt := "SALT" ; ! "SYBNXT" "SALT" "NXTNXT"
 
 SEQ_ASCII FIG_SS.ps :: FILE './PIN_AT10_FIG_SS.ps' ;
 SEQ_ASCII FIG_FLX.ps :: FILE './PIN_AT10_FIG_FLX.ps' ;
 
 *SEQ_ASCII _COMPO :: FILE './COMPO_AT10_MPHYS_PT_SYBNXT' ;
-SEQ_ASCII _COMPO :: FILE './COMPO_AT10_MPHYS_RSE_B1_HETE' ;
+SEQ_ASCII _COMPO :: FILE './_COMPO_AT10_MPHYS_PT_addeddens' ;
 
 REAL Kinf ;
 
@@ -38,7 +38,7 @@ REAL Kinf ;
 ************************************************************************
 INTEGER fuel_t_pts := 8 ;
 INTEGER cool_t_pts := 5 ;
-INTEGER cool_d_pts := 9 ;
+INTEGER cool_d_pts := 10 ;
 PARAMS := UTL: ::
         CREA
             fuel_temp <<fuel_t_pts>> = 
@@ -48,7 +48,7 @@ PARAMS := UTL: ::
                  500.0 540.0 550.0 560.0 570.0
         CREA
             cool_dens <<cool_d_pts>> =
-                0.8 0.7 0.6 0.5 0.4 0.3 0.2 0.1 0.01
+                0.8 0.7 0.6 0.5 0.4 0.3 0.25 0.2 0.1 0.01
 ;
 
 
@@ -132,7 +132,7 @@ WHILE Tfuel_step fuel_t_pts < DO
             SYS := ASM: LIBRARY2 TRACK TF_EXC :: ARM EDIT 0 ; 
 
             FLUX := FLU: LIBRARY2 SYS TRACK TF_EXC :: 
-                    EDIT 1 TYPE K B1 HETE ;
+                    EDIT 1 TYPE K B1 SIGS ;
 
             GREP: FLUX :: GETVAL 'K-EFFECTIVE  ' 1 1 1 >>Kinf<< ;
             ECHO "End of State point calculation TFuel =" TFuel ", TCool =" TCool ", H2O density =" DCool ; 

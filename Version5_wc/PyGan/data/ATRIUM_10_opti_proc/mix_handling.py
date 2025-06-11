@@ -12,7 +12,8 @@ import cle2000
 from collections import defaultdict
 
 
-def createLib(mix_numbering_option, draglib_name, anisotropy_level, self_shielding_method, resonance_correlation, transport_correction, composition_option, mix_connectivity=None):
+def createLib(mix_numbering_option, draglib_name, anisotropy_level, self_shielding_method, resonance_correlation, transport_correction, composition_option, 
+              mix_connectivity=None, Tfuel=750.0, Tbox=559.0, Tclad=559.0, Tcool=559.0, Tmode=559.0):
     """
     mix_numbering_option : (str)
         Option for mix numbering, can be "number_mix_families_per_enrichment" or "number_mix_families_per_region" or "number_mix_families_per_selfshielding_region".
@@ -49,23 +50,23 @@ def createLib(mix_numbering_option, draglib_name, anisotropy_level, self_shieldi
     if mix_numbering_option == "number_mix_families_per_enrichment":
         # Use Mix_ASSBLY1.c2m procedure
         print("Creating LIBRARY with mix numbering per enrichment.")
-        myLifo = lifo.new()
-        myLifo.pushEmpty("LIBRARY", "LCM")
-        myLifo.push(draglib_name)
-        myLifo.push(composition_option)
-        myLifo.push(self_shielding_method)
-        myLifo.push(resonance_correlation)
-        myLifo.push(anisotropy_level)
-        myLifo.push(transport_correction)
+        ipLifo = lifo.new()
+        ipLifo.pushEmpty("LIBRARY", "LCM")
+        ipLifo.push(draglib_name)
+        ipLifo.push(composition_option)
+        ipLifo.push(self_shielding_method)
+        ipLifo.push(resonance_correlation)
+        ipLifo.push(anisotropy_level)
+        ipLifo.push(transport_correction)
 
         # Create a cle2000 object to handle the library creation
-        lib_proc = cle2000.new('MIX_ASSBLY1', myLifo, 1)
+        lib_proc = cle2000.new('MIX_ASSBLY1', ipLifo, 1)
         # Execute the library creation procedure
         lib_proc.exec()
 
         # Recover the results from the LIFO stack
-        myLifo.lib()
-        lib_lcm = myLifo.node('LIBRARY')   
+        ipLifo.lib()
+        lib_lcm = ipLifo.node('LIBRARY')   
 
     elif mix_numbering_option == "number_mix_families_per_region":
         """
@@ -75,6 +76,26 @@ def createLib(mix_numbering_option, draglib_name, anisotropy_level, self_shieldi
 
         proc_name = "MIX_R_A.c2m"
         fill_lib_proc(proc_name, composition_option, mix_connectivity, resonance_correlation)
+        # Create a lifo stack to pass parameters to the procedure
+        ipLifo = lifo.new()
+        ipLifo.pushEmpty("LIBRARY", "LCM")
+        ipLifo.push(draglib_name)
+        ipLifo.push(self_shielding_method)
+        ipLifo.push(anisotropy_level)
+        ipLifo.push(transport_correction)
+        ipLifo.push(Tfuel)
+        ipLifo.push(Tbox)
+        ipLifo.push(Tclad)
+        ipLifo.push(Tcool)
+        ipLifo.push(Tmode)
+        # Create a cle2000 object to handle the library creation
+        lib_proc = cle2000.new(proc_name.split(".")[0], ipLifo, 1)
+        # Execute the library creation procedure
+        lib_proc.exec()
+        # Recover the results from the LIFO stack
+        ipLifo.lib()
+        lib_lcm = ipLifo.node('LIBRARY')
+
     
     return lib_lcm
 
@@ -93,7 +114,7 @@ def fill_generating_fuel_mix_definition_template(fuel_compositions_dict, correla
         """
         _, composition_id, unique_id, ring_id = key.split("_")
         mix_compo = fuel_compositions_dict[str(composition_id)]
-        definition_of_fuel_mixes += f"    MIX <<FMIX{composition_id}{unique_id}{ring_id}>> 750.0 \n" # Could pass temperature as input / depending on composition option ?
+        definition_of_fuel_mixes += f"    MIX <<FMIX{composition_id}{unique_id}{ring_id}>> <<TFUEL>> \n"
         for isotope, value in mix_compo.items():
             # Check if correlation is needed for specific isotopes
             if correlation_option == "CORR" and isotope in corr_isotopes:
@@ -111,7 +132,27 @@ def duplicate_fuel_mixes(definition_of_fuel_mixes, generating_mixes_keys, mix_co
     Generating mixes have already been defined in the mix_composition_definition function.
     This function duplicates the fuel mixes based on the mix connectivity dictionary.
 
+    Composition_id fully defines the fuel mix's composition, so other combinations of unique_id and ring_id for the came composition_id can be duplicated as :
+    "MIX <<FMIX{same_composition_id}{different_unique_id}{different_ring_id}>> COMB <<FMIX{same_composition_id}{generating_unique_id}{generating_ring_id}>> 1.0"
     """
+    for key in mix_connectivity_dict.keys():
+        if key.startswith("FMIX_"):
+            try:
+                _, composition_id, unique_id, ring_id = key.split("_")
+                # Check if the mix is a generating mix
+                if f"FMIX_{composition_id}_{unique_id}_{ring_id}" not in generating_mixes_keys:
+                    # Find the generating mix that corresponds to this composition_id
+                    generating_mixes_keys_same_comp_id = [gk for gk in generating_mixes_keys if gk.startswith(f"FMIX_{composition_id}_")]
+                    # Duplicate the mix definition
+                    definition_of_fuel_mixes += (
+                        f"    MIX <<FMIX{composition_id}{unique_id}{ring_id}>> COMB "
+                        f"<<FMIX{generating_mixes_keys_same_comp_id[0].split('_')[1]}{generating_mixes_keys_same_comp_id[0].split('_')[2]}{generating_mixes_keys_same_comp_id[0].split('_')[3]}>> 1.0\n"
+                    )
+            except ValueError:
+                raise ValueError(f"Unexpected FMIX key format: {key}")
+
+
+    return definition_of_fuel_mixes
 
 def fill_lib_call(composition_option, mix_connectivity_dict, correlation_option):
     """
@@ -133,7 +174,6 @@ def fill_lib_call(composition_option, mix_connectivity_dict, correlation_option)
     definition_of_fuel_mixes = fill_generating_fuel_mix_definition_template(fuel_compositions_dict, correlation_option, generating_mixes_keys)
     definition_of_fuel_mixes = duplicate_fuel_mixes(definition_of_fuel_mixes, generating_mixes_keys, mix_connectivity_dict)
 
-    print(definition_of_fuel_mixes)
     lib_call = (
         "LIBRARY := LIB: ::\n"
         "EDIT 0\n"
@@ -147,8 +187,7 @@ def fill_lib_call(composition_option, mix_connectivity_dict, correlation_option)
         f"{non_fuel_mixes}\n"
         ";\n"
     )
-    print(lib_call)
-    return
+    return lib_call
 
 def findGeneratingMixesKeys(mix_connectivity_dict):
     """
@@ -194,15 +233,25 @@ def fill_lib_proc(file_name, composition_option, mix_connectivity_dict, correlat
                 "PARAMETER LIBRARY ::\n"
                 "::: LINKED_LIST LIBRARY ; ;\n"
                 "\n"
-                "! Library name, composition option, ssh method\n"
-                "STRING Library compos_opt ssh_method ;\n"
-                ":: >>Library<<  >>compos_opt<< >>ssh_method<< ;\n" 
+                "! Library name, ssh method\n"
+                "STRING Library ssh_method ;\n"
+                ":: >>Library<<  >>ssh_method<< ;\n" 
                 "INTEGER anis_level ;\n"
                 ":: >>anis_level<< ; ! Anisotropy level for sections angular depedance e.g. 1, 2, 3, 4, etc...\n"
                 "STRING tran_correc ;\n"
                 ":: >>tran_correc<< ; ! Transport correction option, e.g. , 'APOL', 'NONE'\n"
+                "DOUBLE DTFUEL DTBOX DTCLAD DTCOOL DTMODE ;\n"
+                ":: >>DTFUEL<< >>DTBOX<< >>DTCLAD<< >>DTCOOL<< >>DTMODE<< ; ! Fuel, box, clad, coolant and moderator temperature\n"
                 "\n"
-                "* -------------------------------\n"
+                "* --------------------------------------------\n"
+                "*  CONVERT DOUBLE TO REALS for TEMPERATURES\n"
+                "* --------------------------------------------\n"
+                "REAL TFUEL := DTFUEL D_TO_R ;\n"
+                "REAL TBOX := DTBOX D_TO_R ;\n"
+                "REAL TCLAD := DTCLAD D_TO_R ;\n"
+                "REAL TCOOL := DTCOOL D_TO_R ;\n"
+                "REAL TMODE := DTMODE D_TO_R ;\n"
+                "\n"
                 "*    STRUCTURES AND MODULES\n"
                 "* -------------------------------\n"
                 "MODULE  LIB: UTL: DELETE: END: ABORT: ;\n"
@@ -211,7 +260,6 @@ def fill_lib_proc(file_name, composition_option, mix_connectivity_dict, correlat
     
     variable_declaration = cle2000_variable_declaration(mix_connectivity_dict)
     
-    print(variable_declaration)
     lib_proc = (
         f"*PROCEDURE {file_name}\n"
         f"{header}\n"
@@ -224,11 +272,19 @@ def fill_lib_proc(file_name, composition_option, mix_connectivity_dict, correlat
         "*    CALL TO LIB: MODULE\n"
         "* --------------------------------\n"
         f"{fill_lib_call(composition_option, mix_connectivity_dict, correlation_option)}\n"
+        "* -----------------------------------------\n"
+        "*         END OF LIBRARY DEFINITION\n"
+        "* -----------------------------------------\n"
+        "END: ;\n"
+        "QUIT ."
         )
+    # Write the procedure to a file
+    with open(file_name, 'w') as file:
+        file.write(lib_proc)
     return
 
 
-def mix_composition_definition(composition_option, fuel_temperature=750.0, coolant_temperature=559.0):
+def mix_composition_definition(composition_option):
     """
     This function retrieves the mix composition definition based on the specified option.
     Parameters:
@@ -254,21 +310,16 @@ def mix_composition_definition(composition_option, fuel_temperature=750.0, coola
     "8":{"O16": 4.621230E-02, "U234": 8.668470E-06, "U235": 9.163120E-04, "U238": 2.115350E-02, "Pu239": 0.0, "Pu240": 0.0, "Pu241": 0.0,"Pu242": 0.0,
         "Gd154": 2.986510E-05, "Gd155": 2.027540E-04, "Gd156": 2.804310E-04, "Gd157": 2.143990E-04, "Gd158": 3.403000E-04, "Gd160": 2.994740E-04}
     }
-    ### Look to pass these as input potentially, to prepare for multi-physics MULTICOMPO creation (temperatures).
-    clad_temperature = 559.0  # Clad temperature in Kelvin
-    box_temperature = 559.0  # Box temperature in Kelvin
-    mode_temperature = 559.0  # Mode temperature in Kelvin
-    fuel_temperature = 750.0  # Fuel temperature in Kelvin
     inrs_box = 2  # INRS option for box
     inrs_clad = 2  # INRS option for clad
     NOEV_definition = (
-    f"MIX <<BOX>> {box_temperature} NOEV\n"
+    f"MIX <<BOX>> <<TBOX>> NOEV\n"
     "    O16  = O16   3.08132E-04\n"
     "    O17  = O17   1.17376E-07\n"
     "    Cr50  = Cr50   3.29613E-06\n"
     "    Cr52  = Cr52   6.35631E-05\n"
     "    Cr53  = Cr53   7.20746E-06\n"
-     "   Cr54  = Cr54   1.79408E-06\n"
+    "    Cr54  = Cr54   1.79408E-06\n"
     "    Fe54  = Fe54   5.57337E-06\n"
     "    Fe56  = Fe56   8.74901E-05\n"
     "    Fe57  = Fe57   2.02053E-06\n"
@@ -294,7 +345,7 @@ def mix_composition_definition(composition_option, fuel_temperature=750.0, coola
     "    Sn122  = Sn122   2.23073E-05\n"
     "    Sn124  = Sn124   2.78961E-05\n"
     "\n"
-    f"MIX <<CLAD>> {clad_temperature} NOEV\n"
+    f"MIX <<CLAD>> <<TCLAD>> NOEV\n"
     "    O16  = O16   3.08132E-04\n"
     "    O17  = O17   1.17376E-07\n"
     "    Cr50  = Cr50   3.29613E-06\n"
@@ -326,34 +377,34 @@ def mix_composition_definition(composition_option, fuel_temperature=750.0, coola
     "    Sn122  = Sn122   2.23073E-05\n"
     "    Sn124  = Sn124   2.78961E-05\n"
     "\n"
-    f"MIX <<GAP>> {fuel_temperature} NOEV\n"
+    f"MIX <<GAP>> <<TFUEL>> NOEV\n"
     "    He4      = He4 1.50456E-04\n"
     "\n"
-    f"MIX <<MODE>> {mode_temperature} NOEV"
+    f"MIX <<MODE>> <<TMODE>> NOEV\n"
     "    H1      = H1_H2O 4.94546E-02 ! Hydrogen in moderating water\n" 
     "    O16     = O16    2.47298E-02 ! Oxygen in moderating water\n"
     )
     if composition_option == "AT10_void_0":
         NOEV_definition += (
-        "MIX <<COOL>> 559.0 NOEV\n"
+        "MIX <<COOL>> <<TCOOL>> NOEV\n"
         f"    H1      = H1_H2O {N_H_H20:.5E}  ! variable void coolant\n" 
         f"    O16     = O16    {N_O16_H2O:.5E}  ! variable void coolant\n"
         )
     elif composition_option == "AT10_void_40":
         NOEV_definition += (
-        "MIX <<COOL>> 559.0 NOEV\n"
+        "MIX <<COOL>> <<TCOOL>> NOEV\n"
         f"    H1      = H1_H2O {N_H_H20*0.4:.5E}  ! variable void coolant\n" 
         f"    O16     = O16    {N_O16_H2O*0.4:.5E}  ! variable void coolant\n"
         )
     elif composition_option == "AT10_void_60":
         NOEV_definition += (
-        "MIX <<COOL>> 559.0 NOEV\n"
+        "MIX <<COOL>> <<TCOOL>> NOEV\n"
         f"    H1      = H1_H2O {N_H_H20*0.6:.5E}  ! variable void coolant\n" 
         f"    O16     = O16    {N_O16_H2O*0.6:.5E}  ! variable void coolant\n"
         )
     elif composition_option == "AT10_void_80":
         NOEV_definition += (
-        "MIX <<COOL>> 559.0 NOEV\n"
+        "MIX <<COOL>> <<TCOOL>> NOEV\n"
         f"    H1      = H1_H2O {N_H_H20*0.8:.5E}  ! variable void coolant\n" 
         f"    O16     = O16    {N_O16_H2O*0.8:.5E}  ! variable void coolant\n"
         )

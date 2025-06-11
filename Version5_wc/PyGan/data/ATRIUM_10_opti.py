@@ -28,7 +28,7 @@ if not os.path.exists(save_dir):
 
 
 ########################################################### PARAMETER SELECTION ##########################################################################
-exec = False
+exec = True
 
 # Options from DRAGON calculation setup.
 # Geometry parameters : ATRIUM-10 BWR fuel assembly
@@ -38,11 +38,11 @@ split_water_around_moderator_box = 2
 split_intra_assembly_coolant = 4
 split_assembly_box = 2
 split_out_assembly_moderator = 10
-mix_numbering_option = "number_mix_families_per_region" # "number_mix_families_per_enrichment" # # 
+mix_numbering_option =  "number_mix_families_per_region" #"number_mix_families_per_enrichment" # # 
 name_geom = "AT10_ASSBLY"
 
 # Tracking parameters : main flux geometry
-# (24, 75.0) --> SALTLC: Global RMS, maximum and average errors (%) on region volumes :     0.15415     0.89377     0.00094, below 1% on max : satisfactory.
+# (24, 75.0) --> SALTLC: Global RMS, maximum and average errors (%) on region volumes :  0.15415    0.89377    0.00094, below 1% on max : satisfactory.
 # Could be optimized further, but not necessary for the moment.
 num_angles = 24
 line_density = 75.0
@@ -51,7 +51,7 @@ anisotropy_level = 4 # Level of anisotropy for the tracking, can be 1 (isotropic
 solution_door = "MOC"  # Flag to indicate whether the tracking should be modified for a MOC solution, or not., else : set it to CP (Collision Probability) tracking.
 moc_angular_quandrature = "GAUS"
 nmu = 4  # Number of polar angles for MOC tracking : conservation ensured up to the order of P_{nmu-1} scattering : # nmu = 4 -> P3 scattering
-batch = 1000
+batch = 750 # 750 was found to be "optimal" with 20 omp procs and (24, 75.0) tracking parameters for MOC. 
 postscript_file = "AT10_FIG_MAIN_test.ps"
 
 # Tracking parameters : self-shielding geometry
@@ -72,7 +72,7 @@ composition_option = "AT10_void_0"  # Specify which composition of mixes should 
 ssh_option = "default"  # Option to specify specific groupings of self-shielding regions, to be tested. "default" is default from USS: based on LIB: data, "RSE" is for Resonant Spectrum Expansion method, and groups all U8, U5 and Zr isotopes in a single self-shielding region --> to be tested.
 
 # EDI: and COMPO: calls to save the results to a MULTICOMPO file
-name_compo = f"_n{num_angles}_ld{int(line_density)}_n{num_angles_ssh}_ld{int(line_density_ssh)}_{reflection_type}_{anisotropy_level}_{solution_door}_{moc_angular_quandrature}_{nmu}_{batch}_{batch_ssh}"
+name_compo = f"_CPO_n{num_angles}_ld{int(line_density)}_n{num_angles_ssh}_ld{int(line_density_ssh)}_{reflection_type}_{anisotropy_level}_{solution_door}_{moc_angular_quandrature}_{nmu}_{batch}_{batch_ssh}"
 
 ########################################################### END OF PARAMETER SELECTION #####################################################################
 
@@ -108,10 +108,11 @@ current_time = time.time()
 if exec:
     ###################################################### USS: : self-shielding calculations ##########################################
     # Perform the self-shielding calculations
-    lib_ssh = selfShieldingUSS(mix_numbering_option, lib_lcm, track_lcm_ssh, track_binary_ssh, name_geom, ssh_option)
+    lib_ssh = selfShieldingUSS(mix_numbering_option, lib_lcm, track_lcm_ssh, track_binary_ssh, name_geom, ssh_option, connectivity_dict)
     # Time taken for self-shielding calculations
     time_self_shielding = time.time() - current_time
     current_time = time.time()
+
 
     ###################################################### ASM: and FLU: calls ######################################################
 
@@ -120,19 +121,25 @@ if exec:
     # Time taken for flux calculation
     time_flux_calculation = time.time() - current_time
     current_time = time.time()
+else:
+    flux_lcm = None
+    lib_ssh = None
 
-    #################################################### EDI: and COMPO: ############################################################
-    # Call EDI: and COMPO: to save the results to a MULTICOMPO file
-    compo_lcm = ediCompo(mix_numbering_option, track_lcm, lib_ssh, name_compo, save_option="SAVE")
-    # Time taken for EDI: and COMPO: calls
-    time_edi_compo = time.time() - current_time
-    current_time = time.time()
+#################################################### EDI: and COMPO: ############################################################
+# Call EDI: and COMPO: to save the results to a MULTICOMPO file
+compo_lcm = ediCompo(mix_numbering_option, flux_lcm, lib_ssh, track_lcm, name_compo, save_option="SAVE", mix_connectivity_dict=connectivity_dict)
+# Time taken for EDI: and COMPO: calls
+time_edi_compo = time.time() - current_time
+current_time = time.time()
 
-
+if exec:
     ######################################################### EXPORTS ############################################################
-
+    if mix_numbering_option == "number_mix_families_per_region":
+        numbering_save_opt = "region_num"
+    elif mix_numbering_option == "number_mix_families_per_enrichment":
+        numbering_save_opt = "enrich_num"
     # Save the MULTICOMPO to a specific directory
-    save_dir_case = f"{save_dir}/{composition_option}_{draglib_name}_{self_shielding_method}_{resonance_correlation}" 
+    save_dir_case = f"{save_dir}/{composition_option}_{draglib_name}_{self_shielding_method}_{resonance_correlation}_{numbering_save_opt}" 
     if not os.path.exists(save_dir_case):
         os.makedirs(save_dir_case)
     # Save the LCM objects to the specified directory
