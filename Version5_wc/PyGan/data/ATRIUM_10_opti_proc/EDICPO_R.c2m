@@ -31,16 +31,20 @@ COMPO := COMPO: ::
    STEP UP 'EDIHOM_COND'
        COMM 'Reaction rates - Condensed, Homogenized over all fuel cells' ENDC
       ISOT 5 U235 U238 U234 Gd155 Gd157
-   INIT   STEP UP 'EDIHOM_295'
+   INIT
+   STEP UP 'EDIHOM_295'
        COMM 'Reaction rates - Homogenized over all fuel cells, 295g' ENDC
       ISOT 5 U235 U238 U234 Gd155 Gd157
-   INIT   STEP UP 'H_EDI_REGI_1g'
+   INIT
+   STEP UP 'H_EDI_REGI_1g'
        COMM 'Reaction rates - Condensed, Homogenized over unique regions' ENDC
       ISOT 5 U235 U238 U234 Gd155 Gd157
-   INIT   STEP UP 'H_EDI_REGI_2g'
+   INIT
+   STEP UP 'H_EDI_REGI_2g'
        COMM 'Reaction rates- Condensed to 2 groups, Homogenized over unique regions' ENDC
       ISOT 5 U235 U238 U234 Gd155 Gd157
-   INIT;
+   INIT
+;
 * --------------------------------
 *    EDI: CALL FOR EDIHOM
 * --------------------------------
@@ -48,7 +52,7 @@ EDIRATES := EDI: FLUX LIBRARY2 TRACK ::
    EDIT 1
   MICR 5 U235 U238 U234 Gd155 Gd157
    MERG MIX
-      1 1 1 1 1 1 1 1 1 1 
+  1 1 1 1 1 1 1 1 1 1 
 1 1 1 1 1 1 1 1 1 1 
 1 1 1 1 1 1 1 1 1 1 
 1 1 1 1 1 1 1 1 1 1 
@@ -69,7 +73,8 @@ EDIRATES := EDI: FLUX LIBRARY2 TRACK ::
 1 1 1 1 1 1 1 1 1 1 
 1 1 1 1 1 1 1 1 1 1 
 1 1 1 1 1 1 1 1 1 1 
-1 1 0 0 0 0 0   
+1 1 0 0 0 0 0
+  COND
   SAVE ON EDIHOM_COND
 ;
 * --------------------------------
@@ -87,7 +92,7 @@ EDIRATES := EDI: FLUX LIBRARY2 TRACK ::
    EDIT 1
   MICR 5 U235 U238 U234 Gd155 Gd157
    MERG MIX
-      1 1 1 1 1 1 1 1 1 1 
+  1 1 1 1 1 1 1 1 1 1 
 1 1 1 1 1 1 1 1 1 1 
 1 1 1 1 1 1 1 1 1 1 
 1 1 1 1 1 1 1 1 1 1 
@@ -108,7 +113,8 @@ EDIRATES := EDI: FLUX LIBRARY2 TRACK ::
 1 1 1 1 1 1 1 1 1 1 
 1 1 1 1 1 1 1 1 1 1 
 1 1 1 1 1 1 1 1 1 1 
-1 1 1 1 1 1 1   
+1 1 1 1 1 1 1
+  
   SAVE ON EDIHOM_295
 ;
 * --------------------------------
@@ -127,7 +133,7 @@ EDIRATES := EDI: FLUX LIBRARY2 TRACK ::
    EDIT 1
   MICR 5 U235 U238 U234 Gd155 Gd157
    MERG MIX
-      1 1 1 1 2 2 2 2 3 3 
+  1 1 1 1 2 2 2 2 3 3 
 3 3 4 4 4 4 5 5 5 5 
 6 6 6 6 7 7 7 7 8 8 
 8 8 9 9 9 9 10 10 10 10 
@@ -148,7 +154,8 @@ EDIRATES := EDI: FLUX LIBRARY2 TRACK ::
 48 48 49 49 49 49 50 50 50 50 
 51 51 51 51 51 51 52 52 52 52 
 53 53 53 53 54 54 54 54 55 55 
-55 55 0 0 0 0 0   
+55 55 0 0 0 0 0
+  COND
   SAVE ON H_EDI_REGI_1g
 ;
 * --------------------------------
@@ -167,7 +174,7 @@ EDIRATES := EDI: FLUX LIBRARY2 TRACK ::
    EDIT 1
   MICR 5 U235 U238 U234 Gd155 Gd157
    MERG MIX
-      1 1 1 1 2 2 2 2 3 3 
+  1 1 1 1 2 2 2 2 3 3 
 3 3 4 4 4 4 5 5 5 5 
 6 6 6 6 7 7 7 7 8 8 
 8 8 9 9 9 9 10 10 10 10 
@@ -188,7 +195,8 @@ EDIRATES := EDI: FLUX LIBRARY2 TRACK ::
 48 48 49 49 49 49 50 50 50 50 
 51 51 51 51 51 51 52 52 52 52 
 53 53 53 53 54 54 54 54 55 55 
-55 55 0 0 0 0 0  COND 0.625
+55 55 0 0 0 0 0
+  COND 0.625
   SAVE ON H_EDI_REGI_2g
 ;
 * --------------------------------
@@ -205,4 +213,3 @@ IF save_opt 'SAVE' = THEN
    _COMPO := COMPO ;
 ENDIF ;
 END: ;
-QUIT .

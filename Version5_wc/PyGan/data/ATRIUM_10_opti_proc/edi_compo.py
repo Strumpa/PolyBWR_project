@@ -6,7 +6,9 @@ import lcm
 import cle2000
 import lifo
 import numpy as np
+import os
 
+# mix_numbering_option, flux_lcm, lib_ssh, track_lcm, name_compo, save_option="SAVE", mix_connectivity_dict=connectivity_dict
 def ediCompo(mix_numbering_option, flux_lcm, self_shielded_microlib, track_lcm, name_compo, save_option, mix_connectivity_dict=None):
     """
     This function prepares a DRAGON5 EDI: and COMPO: procedure call.
@@ -38,10 +40,19 @@ def ediCompo(mix_numbering_option, flux_lcm, self_shielded_microlib, track_lcm, 
         ipLifo = lifo.new()
         
         # Push necessary data onto the LIFO stack
+        """
+        PARAMETER COMPO FLUX LIBRARY2 TRACK ::
+        ::: LINKED_LIST COMPO ;
+        ::: LINKED_LIST FLUX ;
+        ::: LINKED_LIST LIBRARY2 ;
+        ::: LINKED_LIST TRACK ; ;
+        STRING name_cpo save_opt ;
+        :: >>name_cpo<< >>save_opt<< ;
+        """
         ipLifo.pushEmpty("COMPO", "LCM")
         ipLifo.push(flux_lcm)
-        ipLifo.push(track_lcm)
         ipLifo.push(self_shielded_microlib)
+        ipLifo.push(track_lcm)
         ipLifo.push(name_compo)
         ipLifo.push(save_option)  # Save option for the composition data
 
@@ -62,16 +73,26 @@ def ediCompo(mix_numbering_option, flux_lcm, self_shielded_microlib, track_lcm, 
         proc_name = 'EDICPO_R.c2m'
         # Fill the procedure with the necessary parameters
         fill_edi_compo_proc(proc_name, mix_numbering_option, mix_connectivity_dict, iso_list=["U235", "U238", "U234", "Gd155", "Gd157"])
+        os.chmod(proc_name, 0o755)  # Make the procedure executable
 
         # Initialize the LIFO stack for EDI: and COMPO: procedure
         ipLifo = lifo.new()
         # Push necessary data onto the LIFO stack
+        """
+        PARAMETER COMPO FLUX LIBRARY2 TRACK ::
+        ::: LINKED_LIST COMPO ;
+        ::: LINKED_LIST FLUX ;
+        ::: LINKED_LIST LIBRARY2 ;
+        ::: LINKED_LIST TRACK ; ;
+        STRING name_cpo save_opt ;
+        :: >>name_cpo<< >>save_opt<< ; 
+        """
         ipLifo.pushEmpty("COMPO", "LCM")
         ipLifo.push(flux_lcm)
-        ipLifo.push(track_lcm)
         ipLifo.push(self_shielded_microlib)
+        ipLifo.push(track_lcm)
         ipLifo.push(name_compo)
-        ipLifo.push(save_option)
+        ipLifo.push(save_option)  # Save option for the composition data
 
         # Create a cle2000 object to handle the EDI: and COMPO: procedure call
         edi_compo_proc = cle2000.new(proc_name.split(".")[0], ipLifo, 1)
@@ -132,7 +153,7 @@ def fill_edi_compo_proc(proc_name, mix_numbering_option, mix_connectivity_dict, 
         f"*    COMPO: CALL FOR EDIHOM\n"
         "* --------------------------------\n"
         f"{fill_COMPO_call('EDIHOM_COND')}\n"
-        f"EDIRATES := DELETE EDIRATES ;\n"
+        f"EDIRATES := DELETE: EDIRATES ;\n"
         "* --------------------------------\n"
         f"*    EDI: CALL FOR EDIHOM_295\n"
         "* --------------------------------\n"
@@ -142,7 +163,7 @@ def fill_edi_compo_proc(proc_name, mix_numbering_option, mix_connectivity_dict, 
         "* --------------------------------\n"
         f"{fill_COMPO_call('EDIHOM_295')}\n"
         "* --------------------------------\n"
-        f"EDIRATES := DELETE EDIRATES ;\n"
+        f"EDIRATES := DELETE: EDIRATES ;\n"
         "* --------------------------------\n"
         f"*    EDI: CALL FOR REGI_1g\n"
         f"* --------------------------------\n"
@@ -152,7 +173,7 @@ def fill_edi_compo_proc(proc_name, mix_numbering_option, mix_connectivity_dict, 
         f"* --------------------------------\n"
         f"{fill_COMPO_call(f'H_EDI_REGI_1g')}\n"
         "* --------------------------------\n"
-        f"EDIRATES := DELETE EDIRATES ;\n"
+        f"EDIRATES := DELETE: EDIRATES ;\n"
         "* --------------------------------\n"
         f"*    EDI: CALL FOR REGI_2g\n"
         f"* --------------------------------\n"
@@ -162,15 +183,14 @@ def fill_edi_compo_proc(proc_name, mix_numbering_option, mix_connectivity_dict, 
         f"* --------------------------------\n"
         f"{fill_COMPO_call(f'H_EDI_REGI_2g')}\n"
         "* --------------------------------\n"
-        f"EDIRATES := DELETE EDIRATES ;\n"
+        f"EDIRATES := DELETE: EDIRATES ;\n"
         "* --------------------------------\n"
         "IF save_opt 'SAVE' = THEN\n"
         "   _COMPO := COMPO ;\n"
         "ENDIF ;\n"
         "END: ;\n"
-        "QUIT .\n"
     )
-    print(f"Generated EDI: and COMPO: procedure:\n{edi_cpo_proc}")
+    #print(f"Generated EDI: and COMPO: procedure:\n{edi_cpo_proc}")
     # Write the procedure to a file
     with open(proc_name, 'w') as proc_file:
         proc_file.write(edi_cpo_proc)
@@ -197,19 +217,19 @@ def initialize_cpo(mix_numbering_option, list_isos):
         "   STEP UP 'EDIHOM_COND'\n"
         "       COMM 'Reaction rates - Condensed, Homogenized over all fuel cells' ENDC\n"
         f"      ISOT {len(list_isos)} {iso_formatted}\n"
-        "   INIT"
+        "   INIT\n"
         "   STEP UP 'EDIHOM_295'\n"
         "       COMM 'Reaction rates - Homogenized over all fuel cells, 295g' ENDC\n"
         f"      ISOT {len(list_isos)} {iso_formatted}\n"
-        "   INIT"
+        "   INIT\n"
         f"   STEP UP '{DIRNAME}_1g'\n"
         f"       COMM 'Reaction rates - Condensed, {comment}' ENDC\n"
         f"      ISOT {len(list_isos)} {iso_formatted}\n"
-        "   INIT"
+        "   INIT\n"
         f"   STEP UP '{DIRNAME}_2g'\n"
         f"       COMM 'Reaction rates- Condensed to 2 groups, {comment}' ENDC\n"
         f"      ISOT {len(list_isos)} {iso_formatted}\n"
-        "   INIT"
+        "   INIT\n"
         ";\n"
     )
     return cpo_init.strip()
@@ -239,7 +259,7 @@ def fill_EDI_call(DIRNAME, energy_mesh_for_condensation, spatial_homogenisation,
         "   EDIT 1\n"
         f"  MICR {len(iso_list)} {formatted_iso_list}\n"
         "   MERG MIX\n" 
-        f"      {merge_mix_option}"
+        f"  {merge_mix_option}\n"
         f"  {cond_option}\n"
         f"  SAVE ON {DIRNAME}\n"
         ";\n"
@@ -288,13 +308,13 @@ def getMixIndicesFromConnectivityDict(mix_connectivity_dict, spatial_homogenisat
             elif spatial_homogenisation == "ALL":
                 MERGMIX_LIST[mix_index-1] = 1
         
-        print(f"Processing mix {key} with index {mix_index} and unique ID {unique_id}")
+        #print(f"Processing mix {key} with index {mix_index} and unique ID {unique_id}")
     # Format MERGMIX_LIST to create the mergmix_argument
     for index, unique_id in enumerate(MERGMIX_LIST):
         mergmix_argument += f"{unique_id} "
         if index % 10 == 9:
             mergmix_argument += "\n"
-    print(f"Generated MERG MIX argument: {mergmix_argument.strip()}")
+    #print(f"Generated MERG MIX argument: {mergmix_argument.strip()}")
 
     return mergmix_argument.strip()
 

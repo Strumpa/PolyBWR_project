@@ -38,7 +38,7 @@ split_water_around_moderator_box = 2
 split_intra_assembly_coolant = 4
 split_assembly_box = 2
 split_out_assembly_moderator = 10
-mix_numbering_option =  "number_mix_families_per_region" #"number_mix_families_per_enrichment" # # 
+mix_numbering_option =  "number_mix_families_per_region" # "number_mix_families_per_enrichment" # # # # 
 name_geom = "AT10_ASSBLY"
 
 # Tracking parameters : main flux geometry
