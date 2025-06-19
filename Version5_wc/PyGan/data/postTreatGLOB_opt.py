@@ -62,9 +62,6 @@ def create_D5_S2_comparison(D5_case, S2_case):
         'BU Points': D5_case.BU,
         'delta_keff': (D5_case.keff - S2_case.keff) * 1e5 ,
     })
-    print(f"Initial delta keff in D5 vs S2: {comparison_df['delta_keff'][0]} pcm")
-    print(f"keff D5 = {D5_case.keff[0]}") 
-    print(f"keff S2 = {S2_case.keff[0]}")
 
     # Add isotopic comparisons
     for nuclide in D5_case.tracked_nuclides:
@@ -72,30 +69,28 @@ def create_D5_S2_comparison(D5_case, S2_case):
         comparison_df[f'delta {nuclide} (%)'] = [(D5_case.DRAGON_ISOTOPESDENS[nuclide][i] - S2_case.Ni[nuclide][i])*100/S2_case.Ni[nuclide][i] 
                                                 if S2_case.Ni[nuclide][i] != 0 else 0
                                                 for i in range(len(S2_case.Ni[nuclide]))]
-        print(f"Delta {nuclide} in D5 vs S2")
-        print(comparison_df[f'delta {nuclide} (%)'])
 
     return comparison_df
 
 
 if __name__ == "__main__":
-    name_D5_case = "AT10_24UOX_Cst_pow_evol"
-    name_S2_case = "AT10_24UOX"
+    name_D5_case = "AT10_45Gd_Cst_pow_evol"
+    name_S2_case = "AT10_45Gd"
     # define path to NOGL_HM data
     path_to_EVOmodif_data =  f"EVO_modif_path/{name_D5_case}_results"
     path_to_ref_data = f"PYGAN_COMPOS_path/{name_D5_case}_results"
 
     # Define calculation options for the CPOs name reconstruction
     time_integrator = "EXTR"
-    BU_points = "UOx2_autop5"  # "Gd_autop3"
+    BU_points = "Gd_autop3" #"UOx2_autop5"  # "Gd_autop3"
     tracking_option = "SALT"
-    draglib = "endfb8r1_295" # "endfb8r1_295", "endfb81295K", "endfb81295K2"
+    draglib = "endfb8r1_295" #"endfb8r1_295" # "endfb8r1_295", "endfb81295K", "endfb81295K2"
     ssh_option = "PT"
     correlation = "N"
     tracked_nuclides = ["U235","U238","Pu239","Pu240","Pu241","Pu242","Am241","Xe135","Sm149","Gd155","Gd157"]
 
-    name_cpo_NOGL = f"CPO_{draglib}_{ssh_option}_{correlation}_{tracking_option}_{BU_points}_RUNG_NODI_EXTR_NOGL"
-    name_cpo_GLOB = f"CPO_{draglib}_{ssh_option}_{correlation}_{tracking_option}_{BU_points}_RUNG_NODI_EXTR_GLOB"
+    name_cpo_NOGL = f"CPO_{draglib}_{ssh_option}_{correlation}_{tracking_option}_{BU_points}_KAPS_NODI_EXTR_NOGL"
+    name_cpo_GLOB = f"CPO_{draglib}_{ssh_option}_{correlation}_{tracking_option}_{BU_points}_KAPS_NODI_EXTR_GLOB"
 
     path = os.getcwd()
     save_dir_case = f"{path}/postTreatGLOB_opt_results/{name_D5_case}/{draglib}_D5"
@@ -185,7 +180,7 @@ if __name__ == "__main__":
     comparison_NOGL_S2 = create_D5_S2_comparison(D5_case_NOGL_ref, S2_case_edep0_no_qfiss)
     comparison_GLOB_modif_S2 = create_D5_S2_comparison(D5_case_GLOB_modif, S2_case_edep0_no_qfiss)
     comparison_GLOB_S2 = create_D5_S2_comparison(D5_case_GLOB_ref, S2_case_edep0_no_qfiss)
-
+    print(f"delta_keff vs S2_case_edep0: {comparison_NOGL_modif_S2['delta_keff'].values}")
     print(f"Initial delta keff for modif NOGL vs S2 edep0 : {comparison_NOGL_modif_S2['delta_keff'][0]} pcm")
     print(f"Initial delta keff for original NOGL vs S2 edep0 : {comparison_NOGL_S2['delta_keff'][0]} pcm")
     print(f"Initial delta keff for modif GLOB vs S2 edep0 : {comparison_GLOB_modif_S2['delta_keff'][0]} pcm")
@@ -195,8 +190,8 @@ if __name__ == "__main__":
     plt.figure(figsize=(12, 6))
     plt.plot(comparison_NOGL_modif_S2['BU Points'], comparison_NOGL_modif_S2['delta_keff'], marker='o', label='NOGL, modified', linestyle='--', linewidth=.5)
     plt.plot(comparison_NOGL_S2['BU Points'], comparison_NOGL_S2['delta_keff'], marker='o', label='NOGL', linestyle='--', linewidth=.5)
-    plt.plot(comparison_GLOB_modif_S2['BU Points'], comparison_GLOB_modif_S2['delta_keff'], marker='x', label='GLOB, modified', linestyle='--', linewidth=.5)
-    plt.plot(comparison_GLOB_S2['BU Points'], comparison_GLOB_S2['delta_keff'], marker='x', label='GLOB', linestyle='--', linewidth=.5)
+    #plt.plot(comparison_GLOB_modif_S2['BU Points'], comparison_GLOB_modif_S2['delta_keff'], marker='x', label='GLOB, modified', linestyle='--', linewidth=.5)
+    #plt.plot(comparison_GLOB_S2['BU Points'], comparison_GLOB_S2['delta_keff'], marker='x', label='GLOB', linestyle='--', linewidth=.5)
     plt.title('Comparison NOGL - GLOB vs S2, edep=0 default fission Q-values')
     plt.xlabel('BU Points')
     plt.ylabel('Delta keff (pcm)')
@@ -212,8 +207,8 @@ if __name__ == "__main__":
         plt.figure(figsize=(12, 6))
         plt.plot(comparison_NOGL_modif_S2['BU Points'], comparison_NOGL_modif_S2[f'delta {isotope} (%)'], marker='o', label=f'NOGL modif {isotope}', linestyle='--', linewidth=.5)
         plt.plot(comparison_NOGL_S2['BU Points'], comparison_NOGL_S2[f'delta {isotope} (%)'], marker='o', label=f'NOGL {isotope}', linestyle='--', linewidth=.5)
-        plt.plot(comparison_GLOB_modif_S2['BU Points'], comparison_GLOB_modif_S2[f'delta {isotope} (%)'], marker='x', label=f'GLOB modif {isotope}', linestyle='--', linewidth=.5)
-        plt.plot(comparison_GLOB_S2['BU Points'], comparison_GLOB_S2[f'delta {isotope} (%)'], marker='x', label=f'GLOB {isotope}', linestyle='--', linewidth=.5)
+        #plt.plot(comparison_GLOB_modif_S2['BU Points'], comparison_GLOB_modif_S2[f'delta {isotope} (%)'], marker='x', label=f'GLOB modif {isotope}', linestyle='--', linewidth=.5)
+        #plt.plot(comparison_GLOB_S2['BU Points'], comparison_GLOB_S2[f'delta {isotope} (%)'], marker='x', label=f'GLOB {isotope}', linestyle='--', linewidth=.5)
         plt.title(f'Comparison NOGL - GLOB vs S2 for {isotope}, edep=0 default fission Q-values')
         plt.xlabel('BU Points')
         plt.ylabel(f'Delta {isotope} (%)')
@@ -237,11 +232,12 @@ if __name__ == "__main__":
     print(f"Initial delta keff for original GLOB vs S2 edep0 setQfiss : {comparison_GLOB_S2['delta_keff'][0]} pcm")
 
     # plot the results
+    print(f"delta_keff vs S2_case_edep0_qfiss : {comparison_NOGL_modif_S2['delta_keff'].values}")
     plt.figure(figsize=(12, 6))
     plt.plot(comparison_NOGL_modif_S2['BU Points'], comparison_NOGL_modif_S2['delta_keff'], marker='o', label='NOGL, modified', linestyle='--', linewidth=.5)
     plt.plot(comparison_NOGL_S2['BU Points'], comparison_NOGL_S2['delta_keff'], marker='o', label='NOGL', linestyle='--', linewidth=.5)
-    plt.plot(comparison_GLOB_modif_S2['BU Points'], comparison_GLOB_modif_S2['delta_keff'], marker='x', label='GLOB, modified', linestyle='--', linewidth=.5)
-    plt.plot(comparison_GLOB_S2['BU Points'], comparison_GLOB_S2['delta_keff'], marker='x', label='GLOB', linestyle='--', linewidth=.5)
+    #plt.plot(comparison_GLOB_modif_S2['BU Points'], comparison_GLOB_modif_S2['delta_keff'], marker='x', label='GLOB, modified', linestyle='--', linewidth=.5)
+    #plt.plot(comparison_GLOB_S2['BU Points'], comparison_GLOB_S2['delta_keff'], marker='x', label='GLOB', linestyle='--', linewidth=.5)
     plt.title('Comparison NOGL - GLOB vs S2, edep=0 with set fission Q-values')
     plt.xlabel('BU Points')
     plt.ylabel('Delta keff (pcm)')
@@ -257,8 +253,8 @@ if __name__ == "__main__":
         plt.figure(figsize=(12, 6))
         plt.plot(comparison_NOGL_modif_S2['BU Points'], comparison_NOGL_modif_S2[f'delta {isotope} (%)'], marker='o', label=f'NOGL modif {isotope}', linestyle='--', linewidth=.5)
         plt.plot(comparison_NOGL_S2['BU Points'], comparison_NOGL_S2[f'delta {isotope} (%)'], marker='o', label=f'NOGL {isotope}', linestyle='--', linewidth=.5)
-        plt.plot(comparison_GLOB_modif_S2['BU Points'], comparison_GLOB_modif_S2[f'delta {isotope} (%)'], marker='x', label=f'GLOB modif {isotope}', linestyle='--', linewidth=.5)
-        plt.plot(comparison_GLOB_S2['BU Points'], comparison_GLOB_S2[f'delta {isotope} (%)'], marker='x', label=f'GLOB {isotope}', linestyle='--', linewidth=.5)
+        #plt.plot(comparison_GLOB_modif_S2['BU Points'], comparison_GLOB_modif_S2[f'delta {isotope} (%)'], marker='x', label=f'GLOB modif {isotope}', linestyle='--', linewidth=.5)
+        #plt.plot(comparison_GLOB_S2['BU Points'], comparison_GLOB_S2[f'delta {isotope} (%)'], marker='x', label=f'GLOB {isotope}', linestyle='--', linewidth=.5)
         plt.title(f'Comparison NOGL - GLOB vs S2 for {isotope}, edep=0 with set fission Q-values')
         plt.xlabel('BU Points')
         plt.ylabel(f'Delta {isotope} (%)')
@@ -276,6 +272,7 @@ if __name__ == "__main__":
     comparison_GLOB_modif_S2 = create_D5_S2_comparison(D5_case_GLOB_modif, S2_case_edep2)
     comparison_GLOB_S2 = create_D5_S2_comparison(D5_case_GLOB_ref, S2_case_edep2)
     
+    print(f"delta_keff vs S2_case_edep2 : {comparison_NOGL_modif_S2['delta_keff'].values}")
     print(f"Initial delta keff for modif NOGL vs S2 edep2 : {comparison_NOGL_modif_S2['delta_keff'][0]} pcm")
     print(f"Initial delta keff for original NOGL vs S2 edep2 : {comparison_NOGL_S2['delta_keff'][0]} pcm")
     print(f"Initial delta keff for modif GLOB vs S2 edep2 : {comparison_GLOB_modif_S2['delta_keff'][0]} pcm")
@@ -285,8 +282,8 @@ if __name__ == "__main__":
     plt.figure(figsize=(12, 6))
     plt.plot(comparison_NOGL_modif_S2['BU Points'], comparison_NOGL_modif_S2['delta_keff'], marker='o', label='NOGL, modified', linestyle='--', linewidth=.5)
     plt.plot(comparison_NOGL_S2['BU Points'], comparison_NOGL_S2['delta_keff'], marker='o', label='NOGL', linestyle='--', linewidth=.5)
-    plt.plot(comparison_GLOB_modif_S2['BU Points'], comparison_GLOB_modif_S2['delta_keff'], marker='x', label='GLOB, modified', linestyle='--', linewidth=.5)
-    plt.plot(comparison_GLOB_S2['BU Points'], comparison_GLOB_S2['delta_keff'], marker='x', label='GLOB', linestyle='--', linewidth=.5)
+    #plt.plot(comparison_GLOB_modif_S2['BU Points'], comparison_GLOB_modif_S2['delta_keff'], marker='x', label='GLOB, modified', linestyle='--', linewidth=.5)
+    #plt.plot(comparison_GLOB_S2['BU Points'], comparison_GLOB_S2['delta_keff'], marker='x', label='GLOB', linestyle='--', linewidth=.5)
     # plot +/- 300 pcm lines
     plt.axhline(y=300, color='r', linestyle='--', label='+300 pcm')
     plt.axhline(y=-300, color='r', linestyle='--', label='-300 pcm')
@@ -302,8 +299,8 @@ if __name__ == "__main__":
         plt.figure(figsize=(12, 6))
         plt.plot(comparison_NOGL_modif_S2['BU Points'], comparison_NOGL_modif_S2[f'delta {isotope} (%)'], marker='o', label=f'NOGL modif {isotope}', linestyle='--', linewidth=.5)
         plt.plot(comparison_NOGL_S2['BU Points'], comparison_NOGL_S2[f'delta {isotope} (%)'], marker='o', label=f'NOGL {isotope}', linestyle='--', linewidth=.5)
-        plt.plot(comparison_GLOB_modif_S2['BU Points'], comparison_GLOB_modif_S2[f'delta {isotope} (%)'], marker='x', label=f'GLOB modif {isotope}', linestyle='--', linewidth=.5)
-        plt.plot(comparison_GLOB_S2['BU Points'], comparison_GLOB_S2[f'delta {isotope} (%)'], marker='x', label=f'GLOB {isotope}', linestyle='--', linewidth=.5)
+        #plt.plot(comparison_GLOB_modif_S2['BU Points'], comparison_GLOB_modif_S2[f'delta {isotope} (%)'], marker='x', label=f'GLOB modif {isotope}', linestyle='--', linewidth=.5)
+        #plt.plot(comparison_GLOB_S2['BU Points'], comparison_GLOB_S2[f'delta {isotope} (%)'], marker='x', label=f'GLOB {isotope}', linestyle='--', linewidth=.5)
         plt.title(f'Comparison NOGL - GLOB vs S2 for {isotope}, edep=2')
         plt.xlabel('BU Points')
         plt.ylabel(f'Delta {isotope} (%)')
