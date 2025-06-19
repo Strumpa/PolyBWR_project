@@ -52,11 +52,11 @@ Keff_conv = pyCOMPO['EDIBU']['MIXTURES'][0]['CALCULATIONS'][0]['K-INFINITY']
 print("testVVER: step 1 converged K-effective=", Keff_conv)
 Microlib = pyCOMPO['EDIBU']['MIXTURES'][0]['CALCULATIONS'][0]
 Microlib.lib()
-assertS(Microlib,'K-EFFECTIVE', 0, 1.269933)
+assertS(Microlib,'K-EFFECTIVE', 0, 1.2699327)
 
 Keff_conv = pyCOMPO['EDIBU']['MIXTURES'][0]['CALCULATIONS'][2]['K-INFINITY']
 print("testVVER: step 3 converged K-effective=", Keff_conv)
 Microlib = pyCOMPO['EDIBU']['MIXTURES'][0]['CALCULATIONS'][2]
 Microlib.lib()
-assertS(Microlib,'K-EFFECTIVE', 0, 1.271787)
+assertS(Microlib,'K-EFFECTIVE', 0, 1.2717869)
 print("test testVVER completed")

@@ -1,6 +1,6 @@
 *DECK SNT1DS
       SUBROUTINE SNT1DS (IMPX,LX,NCODE,ZCODE,XXX,NLF,NSCT,U,W,ALPHA,
-     1 PLZ,PL,VOL,IDL,SURF,IQUAD,IL,IM)
+     1 PLZ,PL,VOL,IDL,SURF)
 *
 *-----------------------------------------------------------------------
 *
@@ -28,9 +28,6 @@
 * XXX     coordinates along the R axis.
 * NLF     order of the SN approximation (even number).
 * NSCT    maximum number of spherical harmonics moments of the flux.
-* IQUAD   quadrature type:
-*         =1 Gauss-Lobatto;
-*         =2 Gauss-Legendre.
 *
 *Parameters: output
 * U       base points in $\\xi$ of the axial quadrature.
@@ -43,17 +40,13 @@
 * VOL     volume of each element.
 * IDL     position of integrated fluxes into unknown vector.
 * SURF    surfaces.
-* IL      indexes (l) of each spherical harmonics in the
-*         interpolation basis.
-* IM      indexes (m) of each spherical harmonics in the
-*         interpolation basis.
 *
 *-----------------------------------------------------------------------
 *
 *----
 *  SUBROUTINE ARGUMENTS
 *----
-      INTEGER IMPX,LX,NCODE(2),NLF,NSCT,IDL(LX),IQUAD,IL(NSCT),IM(NSCT)
+      INTEGER IMPX,LX,NCODE(2),NLF,NSCT,IDL(LX)
       REAL ZCODE(2),XXX(LX+1),U(NLF),W(NLF),PLZ(NSCT),PL(NSCT,NLF),
      1 ALPHA(NLF),VOL(LX),SURF(LX+1)
 *----
@@ -64,12 +57,13 @@
 *  GENERATE QUADRATURE BASE POINTS AND CORRESPONDING WEIGHTS.
 *----
       IF(MOD(NLF,2).EQ.1) CALL XABORT('SNT1DS: EVEN NLF EXPECTED.')
-      IF(IQUAD.EQ.1) THEN
-        CALL SNQU07(NLF,U,W)         ! GAUSS-LOBATTO
-      ELSEIF(IQUAD.EQ.2) THEN 
-        CALL ALGPT(NLF,-1.0,1.0,U,W) ! GAUSS-LEGENDRE
+      IF(NLF.EQ.2) THEN
+      	U(1)=-1.0/SQRT(3.0)
+      	W(1)=1.0
+      	U(2)=1.0/SQRT(3.0)
+      	W(2)=1.0
       ELSE
-        CALL XABORT('SNT1DS: UNKNOWN QUADRATURE TYPE.')
+        CALL ALGPT(NLF,-1.0,1.0,U,W)
       ENDIF
 *----
 *  COMPUTE ALPHA.
@@ -95,17 +89,12 @@
 *----
 *  GENERATE LEGENDRE POLYNOMIALS FOR SCATTERING SOURCE.
 *----
-      IL(:NSCT)=0
-      IM(:NSCT)=0
       DO 150 M=1,NLF
       PL(1,M)=1.0
-      IL(1)=0
       IF(NSCT.GT.1) THEN
          PL(2,M)=U(M)
-         IL(2)=1
          DO 140 L=2,NSCT-1
          PL(L+1,M)=((2.0*L-1.0)*U(M)*PL(L,M)-(L-1)*PL(L-1,M))/REAL(L)
-         IL(L+1)=L
   140    CONTINUE
       ENDIF
   150 CONTINUE

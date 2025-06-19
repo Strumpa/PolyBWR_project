@@ -102,6 +102,7 @@
          IF(NZI.LT.0) THEN
 *        Boundary Condition
             LNEW=.TRUE.
+
             IF(LPS.GT.0) THEN
 *           SCR for a non-cyclic tracking
                IF(I.EQ.1) THEN

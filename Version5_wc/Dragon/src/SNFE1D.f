@@ -1,7 +1,7 @@
 *DECK SNFE1P
-      SUBROUTINE SNFE1D(LX,NMAT,IELEM,EELEM,NM,NLF,NSCT,U,MAT,
+      SUBROUTINE SNFE1D(LX,NMAT,IELEM,EELEM,NM,NLF,NSCT,U,W,PL,MAT,
      1 VOL,TOTAL,ESTOPW,NCODE,ZCODE,DELTAE,QEXT,LFIXUP,LSHOOT,
-     2 FUNKNO,ISBS,NBS,ISBSM,BS,WX,WE,CST,ISADPT,IBFP,NUN,MN,DN)
+     2 FUNKNO,ISBS,NBS,ISBSM,BS,WX,WE,CST,ISADPT,IBFP,NUN)
 *
 *-----------------------------------------------------------------------
 *
@@ -38,8 +38,8 @@
 *         =2: linearly anisotropic sources.
 * U       base points in $\\mu$ of the SN quadrature.
 * W       weights of the SN quadrature.
-* MN      moment-to-discrete matrix.
-* DN      discrete-to-moment matrix.
+* PL      discrete values of the Legendre polynomials corresponding
+*         to the SN quadrature.
 * MAT     material mixture index in each region.
 * VOL     volumes of each region.
 * TOTAL   macroscopic total cross sections.
@@ -77,9 +77,11 @@
 *----
       INTEGER LX,NMAT,IELEM,EELEM,NLF,NSCT,MAT(LX),
      1 NCODE(2),ISBS,NBS,ISBSM(2*ISBS,NLF*ISBS),NM,IBFP,NUN
-      REAL U(NLF),VOL(LX),TOTAL(0:NMAT),ESTOPW(0:NMAT,2),ZCODE(2),
-     1 DELTAE,QEXT(NUN),FUNKNO(NUN),BS(NBS*ISBS),WX(IELEM+1),
-     2 WE(EELEM+1),CST(MAX(IELEM,EELEM)),MN(NLF,NSCT),DN(NSCT,NLF)
+      REAL U(NLF),W(NLF),PL(NSCT,NLF),VOL(LX),TOTAL(0:NMAT),
+     1 ESTOPW(0:NMAT,2),ZCODE(2),DELTAE,QEXT(NUN),
+     2 FUNKNO(NUN),
+     3 BS(NBS*ISBS),WX(IELEM+1),WE(EELEM+1),
+     4 CST(MAX(IELEM,EELEM))
       LOGICAL LFIXUP,LSHOOT,ISADPT(2)
 *----
 *  LOCAL VARIABLES
@@ -257,11 +259,11 @@
 
       ! SOURCE DENSITY TERM
       DO IEL=1,NM
-        Q(IEL)=0.0
-        DO L=1,NSCT
-          IOF=(I-1)*NSCT*NM+(L-1)*NM+IEL
-          Q(IEL)=Q(IEL)+QEXT(IOF)*MN(M,L)
-        ENDDO
+      Q(IEL)=0.0
+      DO L=1,NSCT
+      IOF=(I-1)*NSCT*NM+(L-1)*NM+IEL
+      Q(IEL)=Q(IEL)+QEXT(IOF)*PL(L,M)/2.0
+      ENDDO
       ENDDO
 
       ! ENERGY GROUP UPPER BOUNDARY INCIDENT FLUX
@@ -407,10 +409,10 @@
 
       ! SAVE LEGENDRE MOMENT OF THE FLUX
       DO L=1,NSCT
-        DO IEL=1,NM
-          IOF=(I-1)*NSCT*NM+(L-1)*NM+IEL
-          FUNKNO(IOF)=FUNKNO(IOF)+REAL(Q2(IEL,NM+1))*DN(L,M)
-        ENDDO
+      DO IEL=1,NM
+      IOF=(I-1)*NSCT*NM+(L-1)*NM+IEL
+      FUNKNO(IOF)=FUNKNO(IOF)+W(M)*REAL(Q2(IEL,NM+1))*PL(L,M)
+      ENDDO
       ENDDO
 
    30 CONTINUE ! END OF X-LOOP

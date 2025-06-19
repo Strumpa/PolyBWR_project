@@ -1,7 +1,9 @@
 *DECK SNFTH2
       SUBROUTINE SNFTH2(NUN,NGEFF,IMPX,INCONV,NGIND,NHEX,IELEM,ISPLH,
+
      1 NMAT,NPQ,NSCT,MAT,VOL,TOTAL,QEXT,DU,DE,W,DB,DA,MN,DN,SIDE,
      2 LOZSWP,COORDMAP,FUNKNO)
+
 *
 *-----------------------------------------------------------------------
 *
@@ -20,6 +22,7 @@
 *Author(s): A. A. Calloo
 *
 *Parameters: input
+
 * NUN      total number of unknowns in vector FUNKNO.
 * NGEFF    number of energy groups processed in parallel.
 * IMPX     print flag (equal to zero for no print).
@@ -52,6 +55,7 @@
 * COORDMAP coordinate map - mapping the hexagons from the indices 
 *          within the DRAGON geometry to a Cartesian axial coordinate
 *          array (see redblobgames.com website).
+
 *
 *Parameters: output
 * FUNKNO   Legendre components of the flux and boundary fluxes.
@@ -88,6 +92,7 @@
       INTEGER NUN,NGEFF,IMPX,NGIND(NGEFF),NHEX,IELEM,ISPLH,NMAT,NPQ,
      > NSCT,MAT(ISPLH,ISPLH,3,NHEX),LOZSWP(3,6),COORDMAP(3,NHEX)
       LOGICAL INCONV(NGEFF)
+
       REAL SIDE,VOL(ISPLH,ISPLH,3,NHEX),TOTAL(0:NMAT,NGEFF),
      > QEXT(NUN,NGEFF),DU(NPQ),DB(ISPLH,ISPLH,3,NHEX,NPQ),
      > DA(ISPLH,ISPLH,3,NHEX,NPQ),MN(NPQ,NSCT),DN(NSCT,NPQ),DE(NPQ),
@@ -95,6 +100,7 @@
 *----
 *  LOCAL VARIABLES
 *----
+
       PARAMETER(IUNOUT=6,PI=3.141592654)
       INTEGER :: NPQD(6),IIND(6),P,DCOORD
       DOUBLE PRECISION :: Q(IELEM**2), Q2(IELEM**2,(IELEM**2)+1),
@@ -345,6 +351,7 @@
       ! perspective, it might be more efficient to assign values 
       ! than to sweep over the half matrix.
       Q2(:IELEM**2,:IELEM**2+1)=0.0D0
+
       IF(IELEM.EQ.1) THEN
       Q2(1,1) = VT + ABS(ETAH) + ABS(MUH) 
       Q2(1,2) = Q(1)*VOL(I2,J2,ILOZ,IHEX) 
@@ -770,6 +777,7 @@
         ENDIF
       ENDIF
 
+
       ! Compute flux
       IOF=((ILOZ-1)*ISPLH+(J2-1))*ISPLH+I2
       DO P=1,NSCT
@@ -786,6 +794,7 @@
 
       ENDDO ! iii, ncol
       ENDDO ! jjj, ncol
+
 
       FLUX_G(:,:,:,:,IG)=FLUX_G(:,:,:,:,IG)+FLUX(:,:,:,:)
 

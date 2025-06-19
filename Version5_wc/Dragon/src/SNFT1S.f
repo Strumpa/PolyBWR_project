@@ -29,8 +29,8 @@
 * ALPHA   angular redistribution terms.
 * PLZ     discrete values of the spherical harmonics corresponding
 *         to the 1D quadrature. Used with zero-weight points.
-* MN      moment-to-discrete matrix.
-* DN      discrete-to-moment matrix.
+* PL      discrete values of the spherical harmonics corresponding
+*         to the 2D SN quadrature.
 * MAT     material mixture index in each region.
 * VOL     volumes of each region.
 * SURF    surfaces surrounding each region.
@@ -84,7 +84,7 @@
          IBM=MAT(I)
          IOF=0
          DO 20 IL=0,NSCT-1
-         Q=Q+QEXT(IL+1,I)*PLZ(IL+1)*(2.0*IL+1.0)/2.0
+         Q=Q+QEXT(IL+1,I)*PLZ(IL+1)/2.0
    20    CONTINUE
          Q1=(XXX(I+1)-XXX(I))*Q+2.0*AFB
          Q2=(XXX(I+1)-XXX(I))*TOTAL(IBM)+2.0
@@ -115,7 +115,7 @@
          IBM=MAT(I)
          IOF=0
          DO 40 IL=0,NSCT-1
-         Q=Q+QEXT(IL+1,I)*PL(IL+1,IP)*(2.0*IL+1.0)/2.0
+         Q=Q+QEXT(IL+1,I)*PL(IL+1,IP)/2.0
    40    CONTINUE
          Q1=Q*VOL(I)-U(IP)*(SURF(I)+SURF(I+1))*AFB+0.5D0*(SURF(I+1)-
      1   SURF(I))*(ALPMIN+ALPMAX)*AFGL(I)/W(IP)
@@ -157,7 +157,7 @@
          IBM=MAT(I)
          IOF=0
          DO 90 IL=0,NSCT-1
-         Q=Q+QEXT(IL+1,I)*PL(IL+1,IP)*(2.0*IL+1.0)/2.0
+         Q=Q+QEXT(IL+1,I)*PL(IL+1,IP)/2.0
    90    CONTINUE
          Q1=Q*VOL(I)+U(IP)*(SURF(I)+SURF(I+1))*AFB+0.5D0*(SURF(I+1)-
      1   SURF(I))*(ALPMIN+ALPMAX)*AFGL(I)/W(IP)

@@ -115,16 +115,16 @@ ISOT := DATABASE :: STEP UP fuel
                     STEP UP MIXTURES STEP AT 1
                     STEP UP CALCULATIONS STEP AT 5
                     STEP UP ISOTOPESLIST STEP AT 1 ;
-assertS ISOT :: 'NWT0' 1 1.149079E1 ;
-assertS ISOT :: 'NWT0' 2 2.586806E1 ;
+assertS ISOT :: 'NWT0' 1 1.149079E+01 ;
+assertS ISOT :: 'NWT0' 2 2.586806E+01 ;
 ISOT := DELETE: ISOT ;
 
 ISOT := DATABASE :: STEP UP moderator
                     STEP UP MIXTURES STEP AT 1
                     STEP UP CALCULATIONS STEP AT 1
                     STEP UP ISOTOPESLIST STEP AT 1 ;
-assertS ISOT :: 'NWT0' 1 9.095950E-2 ;
-assertS ISOT :: 'NWT0' 2 3.246065E-1 ;
+assertS ISOT :: 'NWT0' 1 9.095950E-02 ;
+assertS ISOT :: 'NWT0' 2 3.246065E-01 ;
 
 INTLINF INTLINS := DELETE: INTLINF INTLINS ;
 ECHO "test TCDR13 completed" ;

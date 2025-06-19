@@ -116,33 +116,5 @@ tracking lines (see \Sect{TLMData}).
 
 \item[\moc{DUO:}] module to perform a perturbative analysis of two systems using the Clio formula and to determine the origins
 of Keff discrepancies (see \Sect{DUOData}).
+
 \end{ListeDeDescription}
-
-A few modules ({\tt G2S:}, {\tt G2MC:} and {\tt SALT:}) have been introduced in DRAGON Version5 in
-order to facilitate the
-processing of geometries originating from the Geometry module of SALOME.\cite{salome}
-The methods presented in this section have been initially developed at CEA SERMA and
-integrated in the TDT code.\cite{tdt,lyioussi} In the course of year 2001, a subset of
-these methods have been integrated into a development version of DRAGON under the terms
-of its LGPL license as a prototyping exercise of the DESCARTES operation.\cite{salt}
-
-\vskip 0.08cm
-
-The track generator {\tt SALT:} is a direct descendent of this prototyping exercise.
-Later, we have extracted the 5000 lines of Fortran-90 code responsible for the track
-calculation and have rewritten them in a way consistent with the {\tt NXT:} tracking
-methodology and with the DRAGON architecture.
-
-\vskip 0.08cm
-
-The {\tt SALT:} module can process two types of geometries:
-\begin{itemize}
-\item {\sl Native geometries} are those defined using the {\tt GEO:} module and transformed into surfacic
-geometries using the {\tt G2S:} module. These geometries have many limitations related to their
-definition.
-\item {\sl Non-native geometries} are surfacic representations based on extensions of the SALOME platform.
-A first extension is the SALOMON tool presented in Ref.~\citen{ane15b}. ALAMOS is a more recent tool
-available at the Commissariat \`a l'\'Energie Atomique.\cite{alamos} Surfacic geometries produced by
-ALAMOS must be converted to the SALOMON format using the {\tt G2S:} module before calling the track
-generator {\tt SALT:}.
-\end{itemize}

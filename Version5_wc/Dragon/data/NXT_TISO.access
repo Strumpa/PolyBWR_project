@@ -16,11 +16,11 @@ fi
 if [ "$MACH" = "Linux" -o "$MACH" = "OSF1" -o "$MACH" = "Cygwin" -o "$MACH" = "SunOS i86pc" -o \
 "$MACH" = "Darwin i386" -o "$MACH" = "Darwin x86_64" -o "$MACH" = "Darwin_arm64" ]
 then 
-  echo 'use little endian libraries'
-  pos=$1/../../../libraries/l_endian
+echo 'use little endian libraries'
+pos=$1/../../libraries/l_endian
 else
-  echo 'use big endian libraries'
-  pos=$1/../../../libraries/b_endian
+echo 'use big endian libraries'
+pos=$1/../../libraries/b_endian
 fi
 if [ -f "$pos"/draglibJeff3p1p1SHEM295.gz ]
 then

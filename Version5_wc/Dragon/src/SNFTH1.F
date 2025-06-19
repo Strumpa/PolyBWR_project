@@ -2,6 +2,7 @@
       SUBROUTINE SNFTH1(NUN,NGEFF,IMPX,INCONV,NGIND,NHEX,IELEM,ISPLH,
      1 NMAT,NPQ,NSCT,MAT,VOL,TOTAL,QEXT,DU,DE,W,DB,DA,MN,DN,SIDE,
      2 LOZSWP,COORDMAP,FUNKNO)
+
 *
 *-----------------------------------------------------------------------
 *
@@ -52,6 +53,7 @@
 * COORDMAP coordinate map - mapping the hexagons from the indices 
 *          within the DRAGON geometry to a Cartesian axial coordinate
 *          array (see redblobgames.com website).
+
 *
 *Parameters: output
 * FUNKNO   Legendre components of the flux and boundary fluxes.
@@ -95,6 +97,7 @@
 *----
 *  LOCAL VARIABLES
 *----
+
       PARAMETER(IUNOUT=6,PI=3.141592654)
       INTEGER :: NPQD(6),IIND(6),P,DCOORD
       DOUBLE PRECISION :: Q(IELEM**2), Q2(IELEM**2,(IELEM**2)+1), VT,
@@ -344,6 +347,7 @@
 
       ! Initialise and compute matrix of coefficients, and source
       Q2(:IELEM**2,:IELEM**2+1)=0.0D0
+
       IF(IELEM.EQ.1) THEN
         Q2(1,1)= 2.0D0*ABS(MUH) + 2.0D0*ABS(ETAH) + VT
         !------
@@ -490,6 +494,7 @@
 
       ENDDO ! iii, ncol
       ENDDO ! jjj, ncol
+
 
       FLUX_G(:,:,:,:,IG)=FLUX_G(:,:,:,:,IG)+FLUX(:,:,:,:)
 

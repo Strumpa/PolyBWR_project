@@ -55,6 +55,8 @@
       LOGICAL LEXA,LEXF,CYCLIC,LTMT,LACA,LPJJ,LPJJAN,LVOID,LPRISM,
      1 LBIHET
       TYPE(C_PTR) JPSYS
+      EXTERNAL MCGDSCA,MCGDSCE,MCGDDDF,MCGDS2,MOCDS2,MCGDSP,MOCDSP,
+     1 MCGDS2A,MCGDS2E
 *----
 *  ALLOCATABLE ARRAYS
 *----
@@ -63,6 +65,7 @@
       DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:) :: CAZ0,CAZ1,CAZ2
       TYPE(C_PTR), ALLOCATABLE, DIMENSION(:) :: KPSYS
 *----
+
 *  GENERIC INTERFACES
 *----
       INTERFACE
@@ -107,6 +110,7 @@
       PROCEDURE(SUBDSC_TEMPLATE) :: MCGDS2E,MCGDS2A
       PROCEDURE(SUBDS2_TEMPLATE) :: MOCDS2,MCGDS2
 *----
+
 *  RECOVER MCCG3D SPECIFIC PARAMETERS
 *----
       CALL LCMGET(IPTRK,'STATE-VECTOR',JPAR)
@@ -235,89 +239,126 @@
 *     PJJ/SCR: Step-Characteristics Scheme with Tabulated Exponentials
          IF(CYCLIC) THEN
 *        ACA: cyclic tracking
-            SUBPJJ => MCGDSCA
-            SUBDS2 => MOCDS2
-            SUBDSP => MOCDSP
             IF(LEXA) THEN
 *           ACA: Exact Exponentials
-              SUBDSC => MCGDS2E
+               CALL MCGASM(MCGDSCA,MOCDS2,MOCDSP,MCGDS2E,IPTRK,
+     1              KPSYS,IMPX,IFTRAK,NANI,NGEFF,NFI,NREG,NLONG,
+     2              NBMIX,NMU,NANGL,NMAX,LC,NDIM,NGIND,CYCLIC,ISCR,
+     3              CAZ0,CAZ1,CAZ2,CPO,LC0,PACA,LPS,LTMT,NPJJM,LACA,
+     4              LPJJ,LPJJAN,SIGAL,LPRISM,N2REG,N2SOU,NZP,DELU,
+     5              FACSYM,ISTRM)
             ELSE
 *           ACA: Tabulated Exponentials
-*           ACA: Exact Exponentials
-              SUBDSC => MCGDS2A
+               CALL MCGASM(MCGDSCA,MOCDS2,MOCDSP,MCGDS2A,IPTRK,
+     1              KPSYS,IMPX,IFTRAK,NANI,NGEFF,NFI,NREG,NLONG,
+     2              NBMIX,NMU,NANGL,NMAX,LC,NDIM,NGIND,CYCLIC,ISCR,
+     3              CAZ0,CAZ1,CAZ2,CPO,LC0,PACA,LPS,LTMT,NPJJM,LACA,
+     4              LPJJ,LPJJAN,SIGAL,LPRISM,N2REG,N2SOU,NZP,DELU,
+     5              FACSYM,ISTRM)
             ENDIF
          ELSE
 *        ACA: non-cyclic tracking
-            SUBPJJ => MCGDSCA
-            SUBDS2 => MCGDS2
-            SUBDSP => MCGDSP
             IF(LEXA) THEN
 *           ACA: Exact Exponentials
-              SUBDSC => MCGDS2E
+               CALL MCGASM(MCGDSCA,MCGDS2,MCGDSP,MCGDS2E,IPTRK,
+     1              KPSYS,IMPX,IFTRAK,NANI,NGEFF,NFI,NREG,NLONG,
+     2              NBMIX,NMU,NANGL,NMAX,LC,NDIM,NGIND,CYCLIC,ISCR,
+     3              CAZ0,CAZ1,CAZ2,CPO,LC0,PACA,LPS,LTMT,NPJJM,LACA,
+     4              LPJJ,LPJJAN,SIGAL,LPRISM,N2REG,N2SOU,NZP,DELU,
+     5              FACSYM,ISTRM)
             ELSE
 *           ACA: Tabulated Exponentials
-              SUBDSC => MCGDS2A
+               CALL MCGASM(MCGDSCA,MCGDS2,MCGDSP,MCGDS2A,IPTRK,
+     1              KPSYS,IMPX,IFTRAK,NANI,NGEFF,NFI,NREG,NLONG,
+     2              NBMIX,NMU,NANGL,NMAX,LC,NDIM,NGIND,CYCLIC,ISCR,
+     3              CAZ0,CAZ1,CAZ2,CPO,LC0,PACA,LPS,LTMT,NPJJM,LACA,
+     4              LPJJ,LPJJAN,SIGAL,LPRISM,N2REG,N2SOU,NZP,DELU,
+     5              FACSYM,ISTRM)
             ENDIF
          ENDIF        
       ELSEIF(ISCH.EQ.0) THEN
 *     PJJ/SCR: Diamond-Differencing Scheme
          IF(CYCLIC) THEN
 *        ACA: cyclic tracking
-            SUBPJJ => MCGDDDF
-            SUBDS2 => MOCDS2
-            SUBDSP => MOCDSP
             IF(LEXA) THEN
 *           ACA: Exact Exponentials
-              SUBDSC => MCGDS2E
+               CALL MCGASM(MCGDDDF,MOCDS2,MOCDSP,MCGDS2E,IPTRK,
+     1              KPSYS,IMPX,IFTRAK,NANI,NGEFF,NFI,NREG,NLONG,
+     2              NBMIX,NMU,NANGL,NMAX,LC,NDIM,NGIND,CYCLIC,ISCR,
+     3              CAZ0,CAZ1,CAZ2,CPO,LC0,PACA,LPS,LTMT,NPJJM,LACA,
+     4              LPJJ,LPJJAN,SIGAL,LPRISM,N2REG,N2SOU,NZP,DELU,
+     5              FACSYM,ISTRM)
             ELSE
 *           ACA: Tabulated Exponentials
-              SUBDSC => MCGDS2A
+               CALL MCGASM(MCGDDDF,MOCDS2,MOCDSP,MCGDS2A,IPTRK,
+     1              KPSYS,IMPX,IFTRAK,NANI,NGEFF,NFI,NREG,NLONG,
+     2              NBMIX,NMU,NANGL,NMAX,LC,NDIM,NGIND,CYCLIC,ISCR,
+     3              CAZ0,CAZ1,CAZ2,CPO,LC0,PACA,LPS,LTMT,NPJJM,LACA,
+     4              LPJJ,LPJJAN,SIGAL,LPRISM,N2REG,N2SOU,NZP,DELU,
+     5              FACSYM,ISTRM)
             ENDIF
          ELSE
 *        ACA: non-cyclic tracking
-            SUBPJJ => MCGDDDF
-            SUBDS2 => MCGDS2
-            SUBDSP => MCGDSP
             IF(LEXA) THEN
 *           ACA: Exact Exponentials
-              SUBDSC => MCGDS2E
+               CALL MCGASM(MCGDDDF,MCGDS2,MCGDSP,MCGDS2E,IPTRK,
+     1              KPSYS,IMPX,IFTRAK,NANI,NGEFF,NFI,NREG,NLONG,
+     2              NBMIX,NMU,NANGL,NMAX,LC,NDIM,NGIND,CYCLIC,ISCR,
+     3              CAZ0,CAZ1,CAZ2,CPO,LC0,PACA,LPS,LTMT,NPJJM,LACA,
+     4              LPJJ,LPJJAN,SIGAL,LPRISM,N2REG,N2SOU,NZP,DELU,
+     5              FACSYM,ISTRM)
             ELSE
 *           ACA: Tabulated Exponentials
-              SUBDSC => MCGDS2A
+               CALL MCGASM(MCGDDDF,MCGDS2,MCGDSP,MCGDS2A,IPTRK,
+     1              KPSYS,IMPX,IFTRAK,NANI,NGEFF,NFI,NREG,NLONG,
+     2              NBMIX,NMU,NANGL,NMAX,LC,NDIM,NGIND,CYCLIC,ISCR,
+     3              CAZ0,CAZ1,CAZ2,CPO,LC0,PACA,LPS,LTMT,NPJJM,LACA,
+     4              LPJJ,LPJJAN,SIGAL,LPRISM,N2REG,N2SOU,NZP,DELU,
+     5              FACSYM,ISTRM)
             ENDIF
          ENDIF
       ELSEIF(ISCH.EQ.-1) THEN
 *     PJJ/SCR: Step-Characteristics Scheme with Exact Exponentials
          IF(CYCLIC) THEN
 *        ACA: cyclic tracking
-            SUBPJJ => MCGDSCE
-            SUBDS2 => MOCDS2
-            SUBDSP => MOCDSP
             IF(LEXA) THEN
 *           ACA: Exact Exponentials
-              SUBDSC => MCGDS2E
+               CALL MCGASM(MCGDSCE,MOCDS2,MOCDSP,MCGDS2E,IPTRK,
+     1              KPSYS,IMPX,IFTRAK,NANI,NGEFF,NFI,NREG,NLONG,
+     2              NBMIX,NMU,NANGL,NMAX,LC,NDIM,NGIND,CYCLIC,ISCR,
+     3              CAZ0,CAZ1,CAZ2,CPO,LC0,PACA,LPS,LTMT,NPJJM,LACA,
+     4              LPJJ,LPJJAN,SIGAL,LPRISM,N2REG,N2SOU,NZP,DELU,
+     5              FACSYM,ISTRM)
             ELSE
 *           ACA: Tabulated Exponentials
-              SUBDSC => MCGDS2A
+               CALL MCGASM(MCGDSCE,MOCDS2,MOCDSP,MCGDS2A,IPTRK,
+     1              KPSYS,IMPX,IFTRAK,NANI,NGEFF,NFI,NREG,NLONG,
+     2              NBMIX,NMU,NANGL,NMAX,LC,NDIM,NGIND,CYCLIC,ISCR,
+     3              CAZ0,CAZ1,CAZ2,CPO,LC0,PACA,LPS,LTMT,NPJJM,LACA,
+     4              LPJJ,LPJJAN,SIGAL,LPRISM,N2REG,N2SOU,NZP,DELU,
+     5              FACSYM,ISTRM)
             ENDIF
          ELSE
 *        ACA: non-cyclic tracking
-            SUBPJJ => MCGDSCE
-            SUBDS2 => MCGDS2
-            SUBDSP => MCGDSP
             IF(LEXA) THEN
 *           ACA: Exact Exponentials
-              SUBDSC => MCGDS2E
+               CALL MCGASM(MCGDSCE,MCGDS2,MCGDSP,MCGDS2E,IPTRK,
+     1              KPSYS,IMPX,IFTRAK,NANI,NGEFF,NFI,NREG,NLONG,
+     2              NBMIX,NMU,NANGL,NMAX,LC,NDIM,NGIND,CYCLIC,ISCR,
+     3              CAZ0,CAZ1,CAZ2,CPO,LC0,PACA,LPS,LTMT,NPJJM,LACA,
+     4              LPJJ,LPJJAN,SIGAL,LPRISM,N2REG,N2SOU,NZP,DELU,
+     5              FACSYM,ISTRM)
             ELSE
 *           ACA: Tabulated Exponentials
-              SUBDSC => MCGDS2A
+               CALL MCGASM(MCGDSCE,MCGDS2,MCGDSP,MCGDS2A,IPTRK,
+     1              KPSYS,IMPX,IFTRAK,NANI,NGEFF,NFI,NREG,NLONG,
+     2              NBMIX,NMU,NANGL,NMAX,LC,NDIM,NGIND,CYCLIC,ISCR,
+     3              CAZ0,CAZ1,CAZ2,CPO,LC0,PACA,LPS,LTMT,NPJJM,LACA,
+     4              LPJJ,LPJJAN,SIGAL,LPRISM,N2REG,N2SOU,NZP,DELU,
+     5              FACSYM,ISTRM)
             ENDIF
          ENDIF
       ENDIF
-      CALL MCGASM(SUBPJJ,SUBDS2,SUBDSP,SUBDSC,IPTRK,KPSYS,IMPX,IFTRAK,
-     1 NANI,NGEFF,NFI,NREG,NLONG,NBMIX,NMU,NANGL,NMAX,LC,NDIM,NGIND,
-     2 CYCLIC,ISCR,CAZ0,CAZ1,CAZ2,CPO,LC0,PACA,LPS,LTMT,NPJJM,LACA,
-     3 LPJJ,LPJJAN,SIGAL,LPRISM,N2REG,N2SOU,NZP,DELU,FACSYM,ISTRM)
 *
    10 DEALLOCATE(SIGAL,KPSYS,NGIND,CPO,CAZ2,CAZ1,CAZ0)
       RETURN

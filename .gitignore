@@ -11,7 +11,10 @@
 *.png
 *.out
 *.pyc
-libraries/
+
+*CPO*
+*COMPO*
+
 
 */__pycache__/
 PTT/DMLG_proj/__pycache__/
