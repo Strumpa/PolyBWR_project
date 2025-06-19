@@ -165,12 +165,12 @@ def getRegionToComposition(name_geom):
         UOX_mixes = ["C1", "C2", "C3", "C4", "C5", "C6"] # these require 4 mix numbers per unique position in the lower diagonal lattice
         Gd_mixes = ["C7", "C8"] # these require 6 mix numbers per unique position in the lower diagonal lattice
 
-        water_box_desc = {"WB":"WT", "WR":"WL", "W2":"W3", "W0":"W0", "W1":"W1",  "W4":"W4"}
+        water_box_desc = {"WB":"WL", "WR":"WT", "W2":"W3", "W0":"W0", "W1":"W1",  "W4":"W4"}
 
     return lower_diag, UOX_mixes, Gd_mixes, water_box_desc
 
 
-def renumber_lattice_REGI(lower_diag, water_box_desc = {"WB":"WT", "WR":"WL", "W2":"W3", "W0":"W0", "W1":"W1",  "W4":"W4"}):
+def renumber_lattice_REGI(lower_diag, water_box_desc = {"WB":"WL", "WR":"WT", "W2":"W3", "W0":"W0", "W1":"W1",  "W4":"W4"}):
     """
     Renumber lattice according to the "number_mix_families_per_region" rule.
     

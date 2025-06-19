@@ -38,7 +38,7 @@ split_water_around_moderator_box = 2
 split_intra_assembly_coolant = 4
 split_assembly_box = 2
 split_out_assembly_moderator = 10
-mix_numbering_option =  "number_mix_families_per_region" # "number_mix_families_per_enrichment" # # # # 
+mix_numbering_option =  "number_mix_families_per_region" # "number_mix_families_per_region" , "number_mix_families_per_enrichment"
 name_geom = "AT10_ASSBLY"
 
 # Tracking parameters : main flux geometry
@@ -62,7 +62,7 @@ batch_ssh = 200
 postscript_file_ssh = "AT10_FIG_SSH_test.ps"
 
 # Parameters for the LIBRARY creation
-draglib_name = "endfb8r1_295"
+draglib_name = "J311_295" # "endfb8r1_295" # "J311_295"
 self_shielding_method = "PT"  # Method to be used for self-shielding calculations, "PT" for Mathematical Probability Tables, "SUBG" for Physical Probaility tables, "RSE" for Resonant Spectrum Expansion.
 resonance_correlation = "NOCORR"  # Specify if the resonance correlation model should be applied. Only available for "RSE" and "PT". This will use a correlation model to treat reonances of U238, Pu240 and Gd157.
 transport_correction = "NONE"

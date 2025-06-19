@@ -84,7 +84,7 @@ COMPO := COMPO: COMPO EDIRATES LIBRARY2 ::
    EDIT 1
     STEP UP EDIHOM_COND
 ;
-EDIRATES := DELETE EDIRATES ;
+EDIRATES := DELETE: EDIRATES ;
 * --------------------------------
 *    EDI: CALL FOR EDIHOM_295
 * --------------------------------
@@ -125,7 +125,7 @@ COMPO := COMPO: COMPO EDIRATES LIBRARY2 ::
     STEP UP EDIHOM_295
 ;
 * --------------------------------
-EDIRATES := DELETE EDIRATES ;
+EDIRATES := DELETE: EDIRATES ;
 * --------------------------------
 *    EDI: CALL FOR REGI_1g
 * --------------------------------
@@ -166,7 +166,7 @@ COMPO := COMPO: COMPO EDIRATES LIBRARY2 ::
     STEP UP H_EDI_REGI_1g
 ;
 * --------------------------------
-EDIRATES := DELETE EDIRATES ;
+EDIRATES := DELETE: EDIRATES ;
 * --------------------------------
 *    EDI: CALL FOR REGI_2g
 * --------------------------------
@@ -207,7 +207,7 @@ COMPO := COMPO: COMPO EDIRATES LIBRARY2 ::
     STEP UP H_EDI_REGI_2g
 ;
 * --------------------------------
-EDIRATES := DELETE EDIRATES ;
+EDIRATES := DELETE: EDIRATES ;
 * --------------------------------
 IF save_opt 'SAVE' = THEN
    _COMPO := COMPO ;
