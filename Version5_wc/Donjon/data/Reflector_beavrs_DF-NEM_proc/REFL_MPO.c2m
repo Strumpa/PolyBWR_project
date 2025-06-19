@@ -43,11 +43,13 @@ LINKED_LIST
   DONNEES Geom_refl LibDilut MACRO LibFuel MolarMasses FeNat CrNat SnNat
   NiNat ZrNat TiNat SiNat BNat AgNat CdNat SNat GdNat Zirc4 Incon SS304
   M5 KNat InNat AIC Gd2O3 Edition Multicompo TRACK TRACK_refl SYSTEM
-  FLUX TRKFIL MCompRefl GeomRefl MacrRefl MacrFuel ;
+  FLUX TRKFIL MCompRefl GeomRefl MacrRefl MacrFuel OUTF FLX_CB1 OVAL ;
 HDF5_FILE MpoFeed  :: FILE <<nameFeed>> ;
+SEQ_ASCII _FLX_CB1  :: FILE '_FLX_CB1_plot.txt' ;
+SEQ_ASCII _VAL_CB1  :: FILE '_VAL_CB1_plot.txt' ;
 MODULE
   GEO: MCR: ASM: FLU: EDI: MPO: DELETE: UTL: HUTL: END: ABORT: MAC: SNT: TONE:
-  GREP: MSTR: BREF: ;
+  GREP: MSTR: BREF: VAL: ;
 INTEGER ilong nbParam ;
 STRING paramname1 paramname2 paramname3 ;
 REAL paramvalu1 paramvalu2 paramvalu3 ;
@@ -280,7 +282,16 @@ WHILE IndexCB iBoreMax < DO
   OUT_1 := EDI: MACRO TRACK FLUX Geom ::
       EDIT 3 UPS MERGE MIX 1 2 3 3 3 3 4 0
       COND 0.625 PNW_SP GOLVER SAVE ;
+      ECHO "ici1" ;
+  IF IndexCB 1 = THEN
+    OUTF := EDI: MACRO TRACK FLUX Geom ::
+      EDIT 3 UPS MERGE NONE
+      COND 0.625 SAVE ;
 
+    FLX_CB1 := OUTF :: STEP UP 'REF-CASE0001' STEP UP MACROLIB ;
+    _FLX_CB1 := FLX_CB1 ;
+    OUTF := DELETE: OUTF ;
+  ENDIF ;
   SYSTEM FLUX MACRO := DELETE: SYSTEM FLUX MACRO ;
 
   !----------------------------------------------------------
@@ -334,6 +345,15 @@ WHILE IndexCB iBoreMax < DO
   ENDIF ;
   ECHO "...IndexCB=" IndexCB ;
   assertS MACR_FLUX :: 'K-EFFECTIVE' 1 <<Keff>> ;
+     ECHO "ici2" ;
+   IF IndexCB 1 = THEN
+    OVAL := VAL: MACR_TRAC MACR_FLUX MACRO ::
+      EDIT 2
+      POWR 1.0 DIM 1 0.1
+    ;
+    _VAL_CB1 := OVAL ;
+    OVAL := DELETE: OVAL ;
+  ENDIF ;
 
   MACRO MacrFuel OUT_1 MACR_TRAC MACR_FLUX := DELETE:
   MACRO MacrFuel OUT_1 MACR_TRAC MACR_FLUX ;

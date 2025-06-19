@@ -97,9 +97,6 @@ module segArc
   !type of geometry
   integer :: typgeo
 
-  !medium per node
-  integer, dimension(:), allocatable :: medium
-
   !variable globale de type tableau d'elements geometriques
   type(t_segArc), dimension(:), pointer :: tabSegArc
 

@@ -1,5 +1,5 @@
 *DECK SALTCG
-      SUBROUTINE SALTCG(IPTRK ,IFTRK ,IPRINT,IGTRK ,NBSLIN)
+      SUBROUTINE SALTCG(IPTRK ,IFTRK ,IPRINT,IGTRK ,NBSLIN, GG)
 *
 *-----------------------------------------------------------------------
 *
@@ -32,11 +32,12 @@
 *         computed by default in SALTCG but limited to 100000
 *         elements. This default value can be bypassed using
 *         keyword NBSLIN.
+* GG      geometry basic information.
 *
 *----------
 *
       USE              GANLIB
-      USE SAL_GEOMETRY_MOD, ONLY : GG
+      USE SAL_GEOMETRY_TYPES, ONLY : T_G_BASIC
       IMPLICIT         NONE
 *----
 *  Subroutine arguments
@@ -45,6 +46,7 @@
       INTEGER          IFTRK
       INTEGER          IPRINT,IGTRK
       INTEGER          NBSLIN
+      TYPE(T_G_BASIC)  GG
 *----
 *  Local parameters
 *----
@@ -405,14 +407,14 @@
         MAXSUB=1
         CALL SALTLS(IFTEMP,IPRINT,IGTRK ,NFREG ,NBANGL, NQUAD ,
      >              RENO  ,NBDR  ,IFMT  ,DENUSR,DANGLT, DDENWT,
-     >              NBTDIR,MAXSGL,NTLINE,DVNOR )
+     >              GG    ,NBTDIR,MAXSGL,NTLINE,DVNOR )
       ELSE
 *----
 *  Cyclic (specular) tracking (mirror like boundary conditions)
 *----
         NBTDIR=0
         CALL SALTLC(IFTEMP,IPRINT,IGTRK,NDIM,NFREG,NBANGL,RENO,NBDR,
-     >              IFMT  ,DENUSR,DANGLT,DDENWT,NBSANG,MAXSUB,MAXSGL,
+     >              IFMT,DENUSR,DANGLT,DDENWT,NBSANG,GG,MAXSUB,MAXSGL,
      >              NTLINE,DVNOR )
       ENDIF
 *----

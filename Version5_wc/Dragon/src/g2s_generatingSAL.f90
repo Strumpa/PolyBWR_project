@@ -41,10 +41,10 @@ module generSAL
  
 contains
 
-  subroutine generateSALFile(fileNbr,szSA,nbNode,nbCLP,nbFlux,merg,name_geom)
-   integer,intent(in) :: fileNbr,szSA,nbNode,nbCLP,nbFlux
+  subroutine generateSALFile(fileNbr,szSA,nbNode,nbCLP,nbFlux,nbMacro,merg,imacro)
+   integer,intent(in) :: fileNbr,szSA,nbNode,nbCLP,nbFlux,nbMacro
     integer,dimension(nbNode),intent(in) :: merg
-    character(len=*),intent(in) :: name_geom
+    integer,dimension(nbFlux),intent(in) :: imacro
 
     type(t_segArc)                   :: sa
     integer                          :: i,j,nmoins,nplus
@@ -64,29 +64,35 @@ contains
     write(fileNbr,'(a24/)') '=============='
 
     write(fileNbr,'(a28/)') '1.main dimensions:'
-    write(fileNbr,'(a32)')  '*typgeo  nbfold  nbnode  nbelem '
+    write(fileNbr,'(a48)')  '*typgeo  nbfold  nbnode  nbelem  nbmacro  nbflux'
     call calculTypgeo(typgeo,nbfold)
-    write(fileNbr,'(10'//formati//')') typgeo,nbfold,nbNode,szSA,1,nbFlux
+    write(fileNbr,'(10'//formati//')') typgeo,nbfold,nbNode,szSA,nbMacro,nbFlux
 
     write(fileNbr,'(/a37)') '2.impression and precision:'
     write(fileNbr,'(/a21)') '*index   kndex   prec'
     write(fileNbr,'(10'//formati//')') 0,0,1
 
-    write(fileNbr,'(/a40)') '3.precision of geometry data:'
+    write(fileNbr,'(/a39)') '3.precision of geometry data:'
     write(fileNbr,'(/a4)')  '*eps'
     write(fileNbr,'('//formatr//')') gSALeps
 
     write(fileNbr,'(/a58)') '4.flux region number per geometry region (mesh):'
     write(fileNbr,'(/a6)')  '*merge'
-    write(fileNbr,'(10'//formati//')') merg
+    write(fileNbr,'(10'//formati//')') (merg(i),i=1,nbNode)
 
     write(fileNbr,'(/a29)') '5.name of geometry:'
-    write(fileNbr,'(/a11)')  '*macro_name'
-    write(fileNbr,'(4(3x,a12))') name_geom
+    write(fileNbr,'(/a12)')  '*macro_names'
+    write(fileNbr,'(4'//formath//')') (i,i=1,nbMacro)
 
-    write(fileNbr,'(/a46)') '6.macro order number per flux region:'
+    write(fileNbr,'(/a47)') '6.macro order number per flux region:'
     write(fileNbr,'(/a14)')  '*macro_indices'
-    write(fileNbr,'(10'//formati//')') (1,i=1,nbFlux)
+    allocate(tmpTab(nbFlux))
+    tmpTab(:nbFlux) = 0
+    do i = 1,nbNode
+      tmpTab(merg(i)) = imacro(i)
+    enddo
+    write(fileNbr,'(10'//formati//')') (tmpTab(i),i=1,nbFlux)
+    deallocate(tmpTab)
 
     write(fileNbr,'(/a57)') '7.read integer and real data for each elements:'
     do i = 1,szSA
@@ -175,7 +181,6 @@ contains
 
     write(fileNbr,'(/a3)') 'END'
   end subroutine generateSALFile
-
 
   subroutine calculTypgeo(typgeo,nbfold)
     integer,intent(out) :: typgeo,nbfold

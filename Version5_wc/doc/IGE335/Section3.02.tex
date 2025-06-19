@@ -553,7 +553,7 @@ the physical properties, such as the temperature and density, of a mixture.
     $|$ \moc{INF} $\}~]$\\
 \hskip 2.0cm $[~[$ \moc{CORR} $]$ \dusa{inrs} $]~[$ \moc{DBYE} \dusa{tempd} $]~[$ \moc{SHIB} \dusa{NAMS} $]$ \\
 \hskip 2.0cm $[$ \moc{THER} \dusa{ntfg} \dusa{HINC} $[$ \moc{TCOH} \dusa{HCOH} $]~[$ \moc{RESK} $]~]$ \\
-\hskip 2.0cm $[$ \moc{IRSET} $\{$ \dusa{gir} $|~\{$ \moc{PT} $|$ \moc{PTMC} $|$ \moc{PTSL}$\}~\}~\{$
+\hskip 2.0cm $[$ \moc{IRSET} $\{$ \dusa{gir} $|~\{$ \moc{PT} $|$ \moc{PTMC} $|$ \moc{PTSL} $|$ \moc{RSE} $\}~\}~\{$
 \dusa{nir} $|$ \moc{NONE} $\}~]~~[~\{$ \moc{NOEV} $|$ \moc{EVOL} $|$ \moc{SAT} $\}~]~]]$ \\
 \hskip 1.0cm $|$ \\
 \hskip 1.0cm \moc{COMB} $[[$ \dusa{mati} \dusa{relvol} $]]~\}$
@@ -675,8 +675,9 @@ thermalization and resonant elastic scattering kernel effects.
 approximation or the {\sl Ribon extended} model for some energy groups. By default, an
 IR approximation with the value of the Goldstein-Cohen parameter found on the library
 is used. If no value is found on the library, a statistical (ST) model\cite{st} is set in
-all groups by default. The ``{\tt IRSET PT 1}'' option is set by default if keyword \moc{PT}, \moc{PTMC} or
-\moc{PTSL} is selected in structure \dstr{desclib}.
+all groups by default. The ``{\tt IRSET PT 1}'' option is set by default if keyword \moc{PT}
+is selected in structure \dstr{desclib}. The same rule applies for \moc{PTMC}, \moc{PTSL} or
+\moc{RSE}.
 
 \item[\dusa{gir}]  imposed Goldstein-Cohen IR parameter. A Goldstein-Cohen IR parameter
 $0 \le \lambda_g\le 1$ is set in energy group $g$. A value of 1.0 stands for
@@ -693,6 +694,8 @@ to fission and scattering cross sections and to components of the transfer scatt
 
 \item[\moc{PTSL}] keyword to enable the calculation of CALENDF--type probability tables, consistent
 with the Ribon extended model, in some energy groups.
+
+\item[\moc{RSE}] keyword to enable the calculation of RSE--type probability tables in some energy groups.
 
 \item[\dusa{nir}]  the intermediate resonance (IR) approximation or the Ribon extended
 model is imposed for energy groups with an index equal or greater than \dusa{nir}.
@@ -832,8 +835,8 @@ Mathematical (CALENDF) probability tables are used in each energy group where Au
 The structure \dstr{descmix2} is used to describe the modifications in the isotopic composition of a mixture.
 
 \begin{DataStructure}{Structure \dstr{descmix2}}
-\moc{MIX}  \dusa{matnum} $[$ \dusa{matold} $]$ $[$ \dusa{relden} $]$
-$[$ \dusa{NAMALI} \dusa{dens} $]~[~\{$ \moc{NOEV} $|$ \moc{EVOL} $\}~]$
+$\{$ \moc{MIX}  \dusa{matnum} $[$ \dusa{matold} $]$ $[$ \dusa{relden} $]$
+$[$ \dusa{NAMALI} \dusa{dens} $]~[~\{$ \moc{NOEV} $|$ \moc{EVOL} $\}~]~|$ \moc{ALL} $\}$
 \end{DataStructure}
 
 \vspace{-0.15cm}
@@ -868,6 +871,9 @@ capability to produce energy.
 
 \item[\moc{EVOL}] keyword to force a mixture to be depleting. By default, only
 mixtures containing fission products and/or fissile isotopes are depleting.
+
+\item[\moc{ALL}] keyword to copy all isotopes from \dusa{MICRHS} into \dusa{MICLIB}. Isotopes in \dusa{MICRHS}
+must be assigned to mixture indices not existing in \dusa{MICLIB}.
 
 \end{ListeDeDescription}
 

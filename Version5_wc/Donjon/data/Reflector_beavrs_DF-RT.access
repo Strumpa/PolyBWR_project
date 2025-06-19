@@ -46,6 +46,6 @@ if [ -f "$pos"/Depletion_Data_CH_STD_CEA93_V10_withYields.h5 ]
     ln -s "$pos"/Depletion_Data_CH_STD_CEA93_V10_withYields.h5 CLA99CEA93_EVO
 fi
 ln -s $1/data/Reflector_beavrs_DF-NEM_proc/assbly_caseA_mpo_boron.hdf .
-cp $1/data/Reflector_beavrs_DF-NEM_proc/*.c2m .
+ln -s $1/data/Reflector_beavrs_DF-NEM_proc/*.c2m .
 ls -l
 echo "Reflector_beavrs_DF-RT terminated"

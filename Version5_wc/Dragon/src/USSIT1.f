@@ -311,7 +311,11 @@
 *----
         ITER=0
   140   ITER=ITER+1
-        IF(ITER.GT.MAXST) CALL XABORT('USSIT1: TOO MANY ITERATIONS.')
+        IF(ITER.GT.MAXST) THEN
+          WRITE(HSMG,'(35HUSSIT1: TOO MANY ITERATIONS (MAXST=,I4,2H).)')
+     1    MAXST
+          CALL XABORT(HSMG)
+        ENDIF
         ERR1=0.0
         ERR2=0.0
 *----

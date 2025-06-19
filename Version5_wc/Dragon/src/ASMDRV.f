@@ -175,8 +175,9 @@
         IF(ITRAN2.NE.0) THEN
 *         INCLUDE TRANSPORT CORRECTION.
           DO 40 IMAT=1,NBMIX
+            DELTA=XSSIGT(IMAT,IGR,1)-XSSIGW(IMAT,1,IGR)
             XSSIGT(IMAT,IGR,1)=XSSIGT(IMAT,IGR,1)-XSSCOR(IMAT,IGR)
-            XSSIGW(IMAT,1,IGR)=XSSIGW(IMAT,1,IGR)-XSSCOR(IMAT,IGR)
+            XSSIGW(IMAT,1,IGR)=XSSIGT(IMAT,IGR,1)-DELTA
 *           Tibere is using transport-corrected XS for the second
 *           equation. Scattering reduction must be performed with
 *           transport-corrected SIGS1 values.

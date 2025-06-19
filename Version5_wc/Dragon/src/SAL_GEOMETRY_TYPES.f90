@@ -51,7 +51,7 @@ MODULE SAL_GEOMETRY_TYPES
   ! axial symmetry :  cx cy cos(theta) sin(theta) theta
   !                   (c= center,theta= axis angle)
   ! central symetry : cx cy (c= center)
-  INTEGER, PARAMETER :: G_BC_MAX_LEN=5
+  INTEGER, PARAMETER :: G_BC_MAX_LEN=6
   ! max bc data length
   INTEGER, PARAMETER :: NRPAR=6, NIPAR=3
   !       TYPGEO              = type of geometry:
@@ -106,7 +106,12 @@ MODULE SAL_GEOMETRY_TYPES
   !
      INTEGER                      :: NBER
      INTEGER,DIMENSION(:),POINTER :: ELEMNB
-     REAL(PDB),DIMENSION(5)       :: BCDATA
+  !    BCDATA(1:2) : perimeter origin
+  !    BCDATA(3)   : perimeter cos(angle)
+  !    BCDATA(4)   : perimeter sin(angle)
+  !    BCDATA(5)   : perimeter angle (radians)
+  !    BCDATA(6)   : perimeter albedo
+     REAL(PDB),DIMENSION(G_BC_MAX_LEN) :: BCDATA
   END TYPE T_SALBCDATA
   !
   !       geometry basic
@@ -115,7 +120,9 @@ MODULE SAL_GEOMETRY_TYPES
      LOGICAL, DIMENSION (N_LG) :: V_LG
      REAL,    DIMENSION (N_RE) :: V_RE
      !
-     INTEGER :: NB_ELEM ! NUMBER OF ELEMENTS IN THE MACRO
+     INTEGER :: NB_ELEM ! NUMBER OF SURFACIC ELEMENTS
+     INTEGER :: NB_MACRO ! NUMBER OF MACROS
+     INTEGER :: NB_FLUX ! NUMBER OF FLUX VALUES
      !       definition of elements in a macro
      INTEGER, POINTER, DIMENSION(:,:) &
           :: IPAR         ! descriptors for elements
@@ -205,13 +212,12 @@ MODULE SAL_GEOMETRY_TYPES
      ! dim: MED(NBNODE)
      REAL(PDB), POINTER, DIMENSION(:,:) &
           :: BCDATA       ! TABLE OF BC DATA
-     ! BCDATA(:,1) : BC DATA for macro connection surfaces
-     ! BCDATA(:,2) : 'DEFAUL' bc data
      ! dim: BCDATA(G_BC_MAX_LEN,NT_BC)
-     CHARACTER(LEN=12) :: NAME_GEOM
-     ! NAME_GEOM : character name of macro
+     CHARACTER(LEN=12), POINTER, DIMENSION(:) :: NAME_MACRO
      INTEGER, POINTER, DIMENSION(:) :: NUM_MERGE
      ! NUM_MERGE : merge index per node
+     INTEGER, POINTER, DIMENSION(:) :: NUM_MACRO
+     ! NUM_MACRO : macro index per flux region
      INTEGER            :: NALBG
      ! NALBG : number of boundary condition types in BCDATA
   END TYPE T_G_BASIC

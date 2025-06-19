@@ -58,9 +58,9 @@ subroutine G2MC(NENTRY,HENTRY,IENTRY,JENTRY,KENTRY)
   double precision :: dflott
   integer      :: lgMaxGig=0
   integer,dimension(10) :: datain
-  integer,allocatable,dimension(:) :: merg
-  character(len=12) :: name_geom,text12
-  logical      :: drawNod,drawMix
+  integer,allocatable,dimension(:) :: merg,imacro
+  character(len=12) :: text12
+  logical      :: drawNod,drawMix,lmacro
   real,dimension(2) :: zoomx,zoomy
 
   ipGeo_1=c_null_ptr ! no geometry read
@@ -115,6 +115,7 @@ subroutine G2MC(NENTRY,HENTRY,IENTRY,JENTRY,KENTRY)
   zoomx = (/ 0.0, 1.0 /)
   zoomy = (/ 0.0, 1.0 /)
   typgeo=0
+  lmacro=.false.
   10 call REDGET(indic,nitma,flott,text12,dflott)
   if (indic == 10) go to 20
   if (indic /= 3) call XABORT('G2MC: character data expected.')
@@ -184,10 +185,11 @@ subroutine G2MC(NENTRY,HENTRY,IENTRY,JENTRY,KENTRY)
      call appliBoundariConditions(ipGeo,sizeSA,nbCLP)
 
      !calcul des nodes delimites par les elements
-     allocate(merg(dimTabCelluleBase),stat=alloc_ok)
+     allocate(merg(dimTabCelluleBase),imacro(dimTabCelluleBase),stat=alloc_ok)
      if (alloc_ok /= 0) call XABORT("G2MC: g2s_g2mc(1) => allocation pb(1)")
-     call createNodes(sizeSA,dimTabCelluleBase,nbNode,merg)
+     call createNodes(sizeSA,dimTabCelluleBase,lmacro,nbNode,merg,imacro)
      if (sizeSA > dimTabSegArc) call XABORT('g2s_g2mc: sizeSA overflow')
+     deallocate(imacro)
   else
      if (JENTRY(nentry) == 0) call XABORT('G2M: an existing Salomon file is expected')
      !initialisation de TabSegArc
@@ -195,11 +197,11 @@ subroutine G2MC(NENTRY,HENTRY,IENTRY,JENTRY,KENTRY)
      nbNode=datain(3)
      sizeSA=datain(4)
      rewind(ipSal)
-     allocate(tabSegArc(sizeSA),medium(nbNode))
+     allocate(tabSegArc(sizeSA))
      call initializebCData()  
      allocate(merg(nbNode),stat=alloc_ok)
      if (alloc_ok /= 0) call XABORT("G2MC: g2s_g2mc => allocation pb")
-     call generateTabSegArc(ipSal,sizeSA,nbNode,nbCLP,nbFlux,merg,name_geom,impx)
+     call generateTabSegArc(ipSal,sizeSA,nbNode,nbCLP,nbFlux,merg,impx)
   endif
   deallocate(merg)
 

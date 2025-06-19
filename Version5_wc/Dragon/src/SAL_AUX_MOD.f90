@@ -15,7 +15,6 @@
 MODULE SAL_AUX_MOD
 
   USE PRECISION_AND_KINDS, ONLY : PDB,SMALL,PI,TWOPI,HALFPI,INFINITY
-  USE SAL_GEOMETRY_MOD,    ONLY : GG
   USE SAL_NUMERIC_MOD,     ONLY : SAL141
 
 CONTAINS
@@ -101,7 +100,7 @@ CONTAINS
     !
   END SUBROUTINE SAL231
   !
-  SUBROUTINE SAL232(ITRACK,RTRACK,FACNRM,SURFN,CURRN)
+  SUBROUTINE SAL232(ITRACK,RTRACK,FACNRM,GG,SURFN,CURRN)
     !
     !---------------------------------------------------------------------
     !
@@ -116,9 +115,11 @@ CONTAINS
     ! FACNRM    numerical volumes per direction
     ! SURFN     numerical areas
     ! CURRN     numerical currents
+    ! GG        geometry basic information.
     !
     !---------------------------------------------------------------------
     !
+    USE SAL_GEOMETRY_TYPES, ONLY : T_G_BASIC
     USE SAL_TRACKING_TYPES, ONLY : NNN
     !***
     IMPLICIT NONE
@@ -126,6 +127,7 @@ CONTAINS
     REAL(PDB), INTENT(IN),    DIMENSION(:)   :: RTRACK
     REAL(PDB), INTENT(INOUT), DIMENSION(:), OPTIONAL   :: SURFN,CURRN
     REAL(PDB), INTENT(INOUT), DIMENSION(:,:) :: FACNRM
+    TYPE(T_G_BASIC) :: GG
     !     DIMENSION        ITRACK(*),RTRACK(*),FACNRM(NBREG,NPHI),
     !                      SURFN(NCURR,2),CURRN(NCURR,2)
     !***
@@ -337,7 +339,7 @@ CONTAINS
       ! hexagonal geometry
       NNQ=(NQ-ABS(MQ))/2
       X2=3.*LENGTHX/REAL(ABS(MQ)+2*NNQ)
-      IF(X2<=LENGTHX) THEN
+      IF(X2<=LENGTHX+EPS3) THEN
          IAXIS=1
          IF(MQ>0) THEN
            X1=0.
@@ -417,7 +419,6 @@ CONTAINS
         ENDIF
       ELSE IF(TYPGEO==12) THEN
         IMQ=ABS(MQ)
-        print *,'SAL237: debug IMQ=',IMQ,' NQ=',NQ
         IF(((IMQ==1).AND.(NQ==15)).OR.((IMQ==7).AND.(NQ==9)).OR.((IMQ==8).AND.(NQ==6))) THEN
           DR=DR/6.0
         ELSE IF(((IMQ==1).AND.(NQ==9)).OR.((IMQ==4).AND.(NQ==6)).OR.((IMQ==5).AND.(NQ==3))) THEN

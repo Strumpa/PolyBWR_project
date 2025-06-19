@@ -91,7 +91,5 @@
         ENDDO
       ENDIF
       HGAP=HGAP*1.0E4
-      ! Print the value of HGAP
-      PRINT *, 'HGAP = ', HGAP
       RETURN
       END

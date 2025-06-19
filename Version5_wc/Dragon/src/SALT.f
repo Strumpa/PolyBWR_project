@@ -4,8 +4,8 @@
 *-----------------------------------------------------------------------
 *
 *Purpose:
-* To analyze and track a geometry data structure using the SALT
-* algorithm.
+* To analyze and track a geometry data structure using the Sanchez
+* algorithm for a PIJ or MOC solution of the flux.
 *
 *Copyright:
 * Copyright (C) 2014 Ecole Polytechnique de Montreal
@@ -39,7 +39,7 @@
 *     VOLTRK   : tracking data structure (signature L_TRACK)
 *     SURFIL   : sequential ascii file used to store the surfacic
 *                elements of the geometry.
-*     GEOMETRY : optional geometry data structure used id BIHET is set
+*     GEOMETRY : optional geometry data structure used if BIHET is set
 *                (signature L_GEOM)
 *     (saltget): Processing options
 *                (read from input using the NXTGET routine).
@@ -47,7 +47,8 @@
 *-----------------------------------------------------------------------
 *
       USE              GANLIB
-      USE SAL_GEOMETRY_TYPES,  ONLY : LMERGM
+      USE SAL_GEOMETRY_TYPES,  ONLY : T_G_BASIC,LMERGM
+      USE SAL_TRACKING_TYPES, ONLY : ITRAC2,RTRAC2,IPART,RPART
       IMPLICIT         NONE
 *----
 *  Subroutine arguments
@@ -83,6 +84,11 @@
       INTEGER          NBSLIN
       INTEGER          ILONG,ITYLCM
       DOUBLE PRECISION RCUTOF
+      INTEGER          OK
+*----
+*  Allocatable types
+*----
+      TYPE(T_G_BASIC), ALLOCATABLE :: GG
 *----
 *  Validate entry parameters
 *----
@@ -155,10 +161,7 @@
         ISTATT(15)=8 ! replace EQW by EQW2
       ENDIF
       LMERGM=(ISTATT(26)==1)
-*----
-*  Compute Bickley functions
-*----
-      IF(ISTATT(23).GT.0) CALL XDRTA1(IPTRK,.TRUE.,.TRUE.)
+      IF(IPRINT.GT.0) WRITE(IOUT,90) TITLE
 *----
 *  Save updated STATE-VECTOR, TITLE and EXCELL track options
 *  on tracking data structure
@@ -169,19 +172,25 @@
 *----
 *  Analyse geometry if required
 *----
+      ALLOCATE(GG, STAT= OK)
+      IF(OK /= 0) CALL XABORT('SALT: failure to allocate GG')
       RCUTOF=DBLE(RSTATT(3))
-      CALL SALACG(FGEO ,IPTRK, NBSLIN, RCUTOF, IPRINT)
+      CALL SALACG(FGEO ,IPTRK, NBSLIN, RCUTOF, IPRINT, GG)
 *----
 *  Track geometry if required
 *----
       IF(ISTATT(9) .GE. 0 .AND. ISTATT(23) .EQ. 1) THEN
         IGTRK=1
-        CALL SALTCG(IPTRK,IFTRK,IPRINT,IGTRK,NBSLIN)
+        CALL SALTCG(IPTRK, IFTRK, IPRINT, IGTRK, NBSLIN, GG)
       ENDIF
 *----
 *  Release allocated memory in SALT module
 *----
-      CALL SALEND()
+      CALL SALEND(GG)
+      DEALLOCATE(GG, STAT= OK)
+      IF(OK /= 0) CALL XABORT('SALT: failure to deallocate GG')
+      DEALLOCATE(RPART,RTRAC2,IPART,ITRAC2,STAT =OK)
+      IF(OK /= 0) CALL XABORT('SALT: failure to deallocate storage')
 *----
 *  Process double heterogeneity (BIHET) data (if available)
 *----
@@ -195,12 +204,21 @@
          CALL LCMGET(IPTRK,'STATE-VECTOR',ISTATT)
          WRITE(IOUT,100) (ISTATT(ITC),ITC=1,10)
          WRITE(IOUT,120) (ISTATT(ITC),ITC=11,22)
-         WRITE(IOUT,130) ISTATT(23),ISTATT(24),ISTATT(40)
+         WRITE(IOUT,130) ISTATT(23),ISTATT(26:27),ISTATT(40)
       ENDIF
       RETURN
 *----
 *  Formats
 *----
+   90  FORMAT(/1H1,31H SSSSS    AA   LL     TTTTTTTT ,95(1H*)/
+     1 32H SSSSSSS  AAAA  LL     TTTTTTTT ,58(1H*),
+     2 37H MULTIGROUP VERSION.  X. WARIN (2001)/
+     3 28H SS   SS  AAAA  LL        TT/
+     4 28H  SS     AA  AA LL        TT/
+     5 28H    SS   AAAAAA LL        TT/
+     6 28H SS   SS AAAAAA LL        TT/
+     7 28H SSSSSSS AA  AA LLLLLLL   TT/
+     8 28H  SSSSS  AA  AA LLLLLLL   TT//1X,A72/)
   100 FORMAT(/
      1 14H STATE VECTOR:/
      2 7H NREG  ,I9,22H   (NUMBER OF REGIONS)/
@@ -232,6 +250,7 @@
   130 FORMAT(
      1 7H ITRACK,I9,47H   (-1=MONTE-CARLO/0=DESACTIVATES TRACKING FILE,
      2 39H BUILD/1=ACTIVATES TRACKING FILE BUILD)/
-     3 7H NBATCH,I9,41H   (NUMBER OF TRACKS IN EACH OPENMP CORE)/
-     4 7H IBIHET,I9,46H   (0/1=DOUBLE HETEROGENEITY IS NOT/IS ACTIVE))
+     3 7H MERGMX,I9,33H   (0/1= MERGMIX ACTICATION FLAG)/
+     4 7H NBATCH,I9,41H   (NUMBER OF TRACKS IN EACH OPENMP CORE)/
+     5 7H IBIHET,I9,46H   (0/1=DOUBLE HETEROGENEITY IS NOT/IS ACTIVE))
       END

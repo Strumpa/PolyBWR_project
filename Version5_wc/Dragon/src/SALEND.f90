@@ -2,7 +2,7 @@
 !---------------------------------------------------------------------
 !
 !Purpose:
-! To release allocated memory in SALT: module.
+! To release allocated T_G_BASIC in SALT: module.
 !
 !Copyright:
 ! Copyright (C) 2014 Ecole Polytechnique de Montreal.
@@ -16,29 +16,34 @@
 !
 !---------------------------------------------------------------------
 !
-SUBROUTINE SALEND()
-  USE SAL_GEOMETRY_MOD,   ONLY : GG
-  USE SAL_TRACKING_TYPES, ONLY : ITRAC2,RTRAC2,IPART,RPART
+SUBROUTINE SALEND(GG)
+  USE SAL_GEOMETRY_TYPES, ONLY : T_G_BASIC
+  TYPE(T_G_BASIC) :: GG
   INTEGER :: OK,ELEM
-  !----
-  !  Release allocated memory for tracking data
-  !----
-  DEALLOCATE(RPART,RTRAC2,IPART,ITRAC2,STAT =OK)
-  IF(OK /= 0) CALL XABORT('SALEND: failure to deallocate tracking storage')
   !----
   !  Release geometry allocated memory
   !----
   DEALLOCATE(GG%IPAR,GG%RPAR,GG%IBC2_ELEM,GG%ISURF2_ELEM,GG%VOL_NODE,GG%PPERIM_NODE, &
-       GG%TYPE_BC2,GG%IDATA_BC2,GG%PERIM_MAC2,GG%PPERIM_MAC2,GG%MED,  &
-       GG%BCDATA, GG%PERIM_NODE,STAT =OK)
-  IF(OK /= 0) CALL XABORT('SALEND: failure to deallocate GG members')
-  
+       GG%TYPE_BC2,GG%IDATA_BC2,GG%PERIM_MAC2,GG%MED,GG%PERIM_NODE,STAT =OK)
+  IF(OK /= 0) CALL XABORT('SALEND: failure to deallocate GG members(1)')
+  IF(ASSOCIATED(GG%BCDATA)) THEN
+    IF(GG%PPERIM_MAC2(SIZE(GG%PPERIM_MAC2,1))-1>0) THEN
+      DEALLOCATE(GG%DIST_AXIS,STAT=OK)
+      IF(OK.NE.0) CALL XABORT('SALEND: FAILURE TO DEALLOCATE GG%DIST_AXIS')
+    ENDIF
+    DEALLOCATE(GG%BCDATA,GG%PPERIM_MAC2,STAT=OK)
+    IF(OK /= 0) CALL XABORT('SALEND: failure to deallocate GG members(2)')
+  ENDIF
   IF(GG%NB_SURF2>0)  THEN
      DEALLOCATE(GG%IBC2_SURF2,GG%IELEM_SURF2,GG%SURF2,STAT =OK)
      IF(OK /= 0) CALL XABORT('SALEND: failure to deallocate GG surf members')
   ENDIF
   DEALLOCATE(GG%NUM_MERGE,STAT =OK)
   IF(OK /= 0) CALL XABORT('SALEND: failure to deallocate GG%NUM_MERGE')
+  DEALLOCATE(GG%NAME_MACRO,STAT =OK)
+  IF(OK /= 0) CALL XABORT('SALEND: failure to deallocate GG%NAME_MACRO')
+  DEALLOCATE(GG%NUM_MACRO,STAT =OK)
+  IF(OK /= 0) CALL XABORT('SALEND: failure to deallocate GG%NUM_MACRO')
   IF(GG%NBBCDA>0)  THEN
     DO ELEM=1,GG%NBBCDA
       DEALLOCATE(GG%BCDATAREAD(ELEM)%ELEMNB,STAT =OK)
@@ -47,6 +52,4 @@ SUBROUTINE SALEND()
     DEALLOCATE(GG%BCDATAREAD,STAT =OK)
     IF(OK /= 0) CALL XABORT('SALEND: FAILURE TO DEALLOCATE GG%BCDATAREAD')
   ENDIF
-  DEALLOCATE(GG, STAT= OK)
-  IF(OK /= 0) CALL XABORT('SALEND: failure to deallocate GG')
 END SUBROUTINE SALEND

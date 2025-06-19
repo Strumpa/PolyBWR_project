@@ -27,12 +27,11 @@ module generTabSegArc
 
 contains
 
-  subroutine generateTabSegArc(ipSal,sizeSA,nbNode,nbCLP,nbFlux,merg,name_geom,impx)
+  subroutine generateTabSegArc(ipSal,sizeSA,nbNode,nbCLP,nbFlux,merg,impx)
     integer,intent(inout) :: ipSal
     integer,intent(in) :: nbNode,sizeSA,impx
     integer,intent(out) :: nbCLP,nbFlux
     integer,dimension(nbNode),intent(out) :: merg
-    character(len=12),intent(out) :: name_geom
 
     integer, parameter :: n_datain=25, n_datare=20
     integer, dimension (n_datain) :: datain
@@ -40,6 +39,7 @@ contains
     real(pdb),    dimension (n_datare) :: datade
     integer :: type,nber,prec,elem,i,nbMacro,fout0
     integer, parameter, dimension(0:4) :: read_bc_len=(/1,1,2,3,3/)
+    character(len=12) :: name_geom
     ! internal : albedo
     ! vacuum surface : albedo
     ! specular reflexion : none
@@ -49,7 +49,8 @@ contains
     ! axial symmetry :  cx cy cos(theta) sin(theta) theta
     !                   (c= center,theta= axis angle)
     ! central symetry : cx cy (c= center)
-    integer, allocatable, dimension(:) :: iflux
+    integer, allocatable, dimension(:) :: iflux, medium
+    integer,parameter :: dimTabCelluleBase = 20000
 
     fout0=6
     if(impx == 0) fout0=0
@@ -64,8 +65,8 @@ contains
     call SALGET(datare,1,ipSal,fout0,'eps')
     call SALGET(merg,nbNode,ipSal,fout0,'flux index per node')
     call SALGET(name_geom,ipSal,fout0,'names of macros')
-  allocate(iflux(nbFlux),stat=alloc_ok)
-  if (alloc_ok /= 0) call XABORT("G2S: generateTabSegArc(1) => allocation pb")
+    allocate(iflux(nbFlux),stat=alloc_ok)
+    if (alloc_ok /= 0) call XABORT("G2S: generateTabSegArc(1) => allocation pb")
     call SALGET(iflux,nbFlux,ipSal,fout0,'macro order number per flux region')
     deallocate(iflux)
     do elem=1,sizeSA
@@ -133,10 +134,12 @@ contains
           SALbCDataTab(i)%angle=real(datade(3))
        end select
     enddo
+    allocate(medium(dimTabCelluleBase))
     call SALGET(medium,nbNode,ipSal,fout0,'media per node')
     do i=1,sizeSA
        if(tabSegArc(i)%nodeg>0) tabSegArc(i)%neutronicMixg=medium(tabSegArc(i)%nodeg)
        if(tabSegArc(i)%noded>0) tabSegArc(i)%neutronicMixd=medium(tabSegArc(i)%noded)
     enddo
+    deallocate(medium)
   end subroutine generateTabSegArc
 end module generTabSegArc

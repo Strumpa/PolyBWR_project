@@ -55,7 +55,7 @@
 *
 *Parameters: output
 * AKEFF   effective multiplication factor.
-* AFLNOR  flux normatization factor.
+* AFLNOR  flux normalization factor.
 *
 *-----------------------------------------------------------------------
 *

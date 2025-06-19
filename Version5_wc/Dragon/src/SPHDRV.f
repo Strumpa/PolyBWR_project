@@ -154,7 +154,7 @@
          ENDIF
 *
 *        RECOVER TABULATED FUNCTIONS.
-         CALL XDRTA2(IPTRK)
+         CALL XDRTA2
       ELSE
          ISCAT=1
          ILK=.FALSE.

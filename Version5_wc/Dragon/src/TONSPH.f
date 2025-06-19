@@ -1,7 +1,8 @@
 *DECK TONSPH
       SUBROUTINE TONSPH(IPLIB,IPTRK,IFTRAK,NREG,NUN,NBM,NBISO,ISONAM,
      1 MAT,VOL,KEYFLX,CDOOR,INRS,LEAKSW,IMPX,DEN,MIX,LSHI,ITRANC,
-     2 IPHASE,NGRO,IGRMIN,IGRMAX,NBNRS,TITR,SIGT2,SIGT3,SN,SPH,ICPIJ)
+     2 IPHASE,NGRO,IGRMIN,IGRMAX,NBNRS,TITR,SIGT2,SIGT3,SN,SPH,ICPIJ,
+     3 TK3,TK4)
 *
 *-----------------------------------------------------------------------
 *
@@ -57,6 +58,10 @@
 * SPH     SPH factors.
 * ICPIJ   number of flux solution door calls.
 *
+*Parameters: input/output
+* TK3     cpu time to compute system matrices.
+* TK4     cpu time to compute fluxes.
+*
 *-----------------------------------------------------------------------
 *
       USE GANLIB
@@ -68,7 +73,7 @@
      1 KEYFLX(NREG),INRS,IMPX,MIX(NBISO),LSHI(NBISO),ITRANC,IPHASE,
      2 NGRO,IGRMIN,IGRMAX,NBNRS,ICPIJ
       REAL VOL(NREG),DEN(NBISO),SIGT2(NBM,NGRO),SIGT3(NBM,NGRO),
-     1 SN(NGRO,NBISO),SPH(NBM,NGRO)
+     1 SN(NGRO,NBISO),SPH(NBM,NGRO),TK3,TK4
       LOGICAL LEAKSW
       CHARACTER CDOOR*12,TITR*72,HNAMIS*12
 *----
@@ -250,6 +255,7 @@
 *----
 *  SOLVE FOR THE FLUX USING DIRECT SELF-SHIELDED CROSS SECTIONS
 *----
+      CALL KDRCPU(TKA)
       ISTRM=1
       NANI=1
       NW=0
@@ -266,6 +272,9 @@
          CALL DOORPV(CDOOR,JPLIB,NPSYS,IPTRK,IFTRAK,IMPY,NGRO,NREG,
      1   NBM,NANI,MAT,VOL,KNORM,IPIJK,LEAKSW,ITPIJ,.FALSE.,TITR,NALBP)
       ENDIF
+      CALL KDRCPU(TKB)
+      TK3=TK3+(TKB-TKA)
+      CALL KDRCPU(TKA)
       IDIR=0
       LEXAC=.FALSE.
       IPMACR=C_NULL_PTR
@@ -275,6 +284,7 @@
      1 NREG,NUN,IPHASE,LEXAC,MAT,VOL,KEYFLX,TITR,SUNKNO,FUNKNO,IPMACR,
      2 IPSOU,REBFLG)
       CALL LCMSIX(IPLIB,' ',2)
+      TK4=TK4+(TKB-TKA)
 *----
 *  HOMOGENIZE THE FLUX
 *----

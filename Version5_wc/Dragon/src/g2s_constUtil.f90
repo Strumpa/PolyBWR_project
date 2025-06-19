@@ -54,7 +54,8 @@ module constUtiles
   double precision,parameter  :: infinity = 1.d99
   double precision,parameter  :: sqrt3_2d = 8.66025403784439d-1 !=sqrt(3)/2
   character*10,parameter      :: formatr = '(1p,e18.7)'
-  character*5,parameter       :: formati = 'i6'
+  character*5,parameter       :: formati = '(i6)'
+  character*21,parameter      :: formath = '(3x,4hMACR,i6.6,:,2x)'
   real,parameter              :: gSALeps = 1e-4
 
   ! Numerical Constants

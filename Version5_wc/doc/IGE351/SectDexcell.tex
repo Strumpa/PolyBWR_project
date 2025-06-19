@@ -21,7 +21,8 @@ $\mathcal{S}^{t}_{i}$ will also be defined.
  1 & \textrm{Cartesian 2D/3D assembly using {\tt EXCELT:}} \\
  2 & \textrm{hexagonal 2D/3D assembly using {\tt EXCELT:}} \\
  3 & \textrm{2D cluster geometry using {\tt EXCELT:}} \\
- 4 & \textrm{2D and 3D Cartesian assemblies with clusters using {\tt NXT:}.} \\
+ 4 & \textrm{2D or 3D geometry using {\tt NXT:} or {\tt SALT:}} \\
+ 5 & \textrm{2D multicell surfacic approximation using {\tt MUST:}.} \\
 \end{array} \right.
 \end{displaymath}
 
@@ -159,11 +160,20 @@ $N_{\rm dir}=3n(n+2)/8$ for the $LC_n$ quadrature and $N_{\rm dir}=3n^2/2$ for t
 \end{array} \right.
 \end{displaymath}
 
-\item $\mathcal{S}^{t}_{24}$ (not used)
+\item $\mathcal{S}^{t}_{24}$ is the interface current flag, where
+\begin{displaymath}
+\mathcal{S}^{t}_{24} = \left\{
+\begin{array}{rl}
+ 0 & \textrm{do not use the interface current method.} \\
+ {\tt NMACRO} & \textrm{number of macro geometries for the interface current method.} \\
+\end{array} \right.
+\end{displaymath}
 
-\item $\mathcal{S}^{t}_{25}$ is the {\tt MERGMIX} activation flag (0/1: off/on).
+\item $\mathcal{S}^{t}_{25}$ is the number of normal planes considered in NXT tracking.
 
-\item $\mathcal{S}^{t}_{26}$ is the number of tracks assigned to each OpenMP core.
+\item $\mathcal{S}^{t}_{26}$ is the {\tt MERGMIX} activation flag (0/1: off/on).
+
+\item $\mathcal{S}^{t}_{27}$ is the number of tracks assigned to each OpenMP core.
 
 \item $\mathcal{S}^{t}_{39}$ is the prismatic tracking activation flag along $z$ axis for 3D geometry (0/3: off/on-$z$ axis).
 

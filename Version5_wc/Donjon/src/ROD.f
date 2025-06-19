@@ -102,7 +102,7 @@
         IF(ITYP.NE.3) CALL XABORT('@ROD: CHARACTER'
      1   //' DATA FOR PARAMETER NAME EXPECTED.')
 * Checking of the record existence
-        JPMAP=LCMGID(IPMAP,'PARAM')
+        IF(NPARAM.GT.0) JPMAP=LCMGID(IPMAP,'PARAM')
         EXISTENCE=.FALSE.
         DO IPAR=1,NPARAM,1
           KPMAP=LCMGIL(JPMAP,IPAR)

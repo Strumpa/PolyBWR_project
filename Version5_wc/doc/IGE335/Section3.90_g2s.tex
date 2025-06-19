@@ -44,6 +44,7 @@ in the ALAMOS surfacic file.
 \begin{DataStructure}{Structure \dstr{G2S\_data}}
 $[$~\moc{EDIT} \dusa{iprint}~$]$ \\
 $[$~\moc{ALAMOS} \dusa{typgeo}~$]$ \\
+$[$~\moc{MACRO} $]$ \\
 $[~\{$~\moc{DRAWNOD} $|$ \moc{DRAWMIX} $\}~]~[$ \moc{ZOOMX} \dusa{facx1} \dusa{facx2} $]~[$ \moc{ZOOMY} \dusa{facy1} \dusa{facy2} $]$ \\
 \moc{;}
 \end{DataStructure}
@@ -81,6 +82,9 @@ Otherwise, a specular boundary condition is used without unfolding.
 & \textrm{tion.}
 \end{array} \right.
 \end{displaymath}
+
+\item[\moc{MACRO}] keyword used to add macro-geometry information into file \dusa{SURFIL}. Macro geometries are made of inner-defined gigognes such as {\tt CARCEL}
+or {\tt HEXCEL} subgeometries. Macro-geometry information is not used by module {\tt SALT:}. By default, a unique macro-geometry is defined containing the complete domain.
 
 \item[\moc{DRAWNOD}] keyword used to print the region indices on the LHS postscript plot \dusa{PSFIL}. By default, no indices are printed.
 

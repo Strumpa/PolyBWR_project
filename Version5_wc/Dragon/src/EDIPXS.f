@@ -286,7 +286,8 @@
             IF(NEDMAC.GT.0) THEN
               DO 211 IED=1,NEDMAC
                 CEDNAM=HVECT(IED)
-                IF(CEDNAM(:2).EQ.'NW') GO TO 211
+                IF((CEDNAM(:2).EQ.'NW').OR.
+     >             (CEDNAM.EQ.'H-FACTOR')) GO TO 211
                 CALL LCMPUT(KPEDIT,CEDNAM,NMERGE,2,TAUXE(1,IGR,IED))
  211          CONTINUE
             ENDIF
@@ -300,7 +301,7 @@
             CALL LCMPUT(KPEDIT,'ABS',NMERGE,2,RATECM(1,IGR,NW+2))
             CALL LCMPUT(KPEDIT,'PRODUCTION',NMERGE,2,RATECM(1,IGR,NW+4))
             DO 212 IKK=1,NMERGE
-             RATECM(IKK,IGR,NW+6)=RATECM(IKK,IGR,1)-RATECM(IKK,IGR,NW+2)
+            RATECM(IKK,IGR,NW+6)=RATECM(IKK,IGR,1)-RATECM(IKK,IGR,NW+2)
  212        CONTINUE
             IF(IDATA(4).EQ.1) THEN
               CALL LCMPUT(KPEDIT,'NUSIGF',NMERGE,2,RATECM(1,IGR,NW+3))

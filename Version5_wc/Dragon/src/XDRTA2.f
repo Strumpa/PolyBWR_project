@@ -1,10 +1,11 @@
 *DECK XDRTA2
-      SUBROUTINE XDRTA2(IPTRK)
+      SUBROUTINE XDRTA2
 *
 *-----------------------------------------------------------------------
 *
 *Purpose:
-* Recover the tabulated functions required by the flux solution.
+* Recover the tabulated functions required by the flux solution and
+* store them in common blocks.
 *
 *Copyright:
 * Copyright (C) 2002 Ecole Polytechnique de Montreal
@@ -15,9 +16,6 @@
 *
 *Author(s): R. Roy and A. Hebert
 *
-*Parameters: input
-* IPTRK   pointer to the tracking information (L_TRACK signature).
-*
 *-----------------------------------------------------------------------
 *
 ***** OUTPUT:   THE FIVE COMMONS OF BICKLEY QUADRATIC TABLES ARE FILLED
@@ -26,97 +24,75 @@
 *
 *               A COMMON FOR LINEAR EXPONENTIAL TABLES IS FILLED
 *               AND SAVED WITH NAME: /EXP1/
-      USE GANLIB
 *----
-*  SUBROUTINE ARGUMENTS
+*  BICKLEY FUNCTION COMMONS
 *----
-      TYPE(C_PTR) IPTRK
+      DOUBLE PRECISION DX
+      INTEGER MLOG(5)      
+      PARAMETER (NBX=600,DX=0.02D0,MLOG=(/30,15,0,0,0/))
+      REAL BIV(0:NBX,3,5),XLIMV(5),PASV(5)
+      COMMON /BICKL1/BI1(0:NBX),BI11(0:NBX),BI12(0:NBX),PAS1,XLIM1,L1
+      COMMON /BICKL2/BI2(0:NBX),BI21(0:NBX),BI22(0:NBX),PAS2,XLIM2,L2
+      COMMON /BICKL3/BI3(0:NBX),BI31(0:NBX),BI32(0:NBX),PAS3,XLIM3,L3
+      COMMON /BICKL4/BI4(0:NBX),BI41(0:NBX),BI42(0:NBX),PAS4,XLIM4,L4
+      COMMON /BICKL5/BI5(0:NBX),BI51(0:NBX),BI52(0:NBX),PAS5,XLIM5,L5
+      SAVE /BICKL1/,/BICKL2/,/BICKL3/,/BICKL4/,/BICKL5/
 *----
-*  LOCAL VARIABLES
+*  EXPONENTIAL COMMONS
 *----
-      REAL PASV(5),XLIMV(5),PARAM(3)
-      INTEGER MLOG(5)
-*
-      PARAMETER (MKI1=600,MKI2=600,MKI3=600,MKI4=600,MKI5=600)
-      COMMON /BICKL1/BI1(0:MKI1),BI11(0:MKI1),BI12(0:MKI1)
-     >              ,PAS1,XLIM1,L1
-      COMMON /BICKL2/BI2(0:MKI2),BI21(0:MKI2),BI22(0:MKI2)
-     >              ,PAS2,XLIM2,L2
-      COMMON /BICKL3/BI3(0:MKI3),BI31(0:MKI3),BI32(0:MKI3)
-     >              ,PAS3,XLIM3,L3
-      COMMON /BICKL4/BI4(0:MKI4),BI41(0:MKI4),BI42(0:MKI4)
-     >              ,PAS4,XLIM4,L4
-      COMMON /BICKL5/BI5(0:MKI5),BI51(0:MKI5),BI52(0:MKI5)
-     >              ,PAS5,XLIM5,L5
-      SAVE  /BICKL1/,/BICKL2/,/BICKL3/,/BICKL4/,/BICKL5/
-*
-      PARAMETER (MEX1=7936)
-      COMMON /EXP1/ E0(0:MEX1),E1(0:MEX1),PASE1,DXE1,XLIME1
-      COMMON /EXP0/ E00(0:MEX1),E01(0:MEX1),PASE0,DXE0,XLIME0
+      DOUBLE PRECISION DEX
+      REAL PARAM(3)
+      PARAMETER (NBEX=7936,DEX=1.D0/512.D0)
+      COMMON /EXP1/ E10(0:NBEX),E11(0:NBEX),PASE1,DXE1,XLIME1
+      COMMON /EXP0/ E00(0:NBEX),E01(0:NBEX),PASE0,DXE0,XLIME0
       SAVE   /EXP1/,/EXP0/
 *----
 *  CHARGE BICKLEY TABLES INTO COMMON
 *----
-      CALL LCMLEN(IPTRK,'FUNC-TABLES',ILENG,ITYLCM)
-      IF(ILENG.EQ.0) RETURN
-      CALL LCMSIX(IPTRK,'FUNC-TABLES',1)
-      CALL LCMLEN(IPTRK,'PAS',ILENG,ITYLCM)
-      IF(ILENG.GT.0) THEN
-         CALL LCMGET(IPTRK,'PAS',PASV)
-         CALL LCMGET(IPTRK,'XLIM',XLIMV)
-         CALL LCMGET(IPTRK,'MLOG',MLOG)
-         CALL LCMLEN(IPTRK,'BI1',ILENG2,ITYLCM)
-         IF(ILENG2.NE.MKI1+1) CALL XABORT('XDRTA2: INVALID BICKLEY.')
-         CALL LCMGET(IPTRK,'BI1',BI1(0))
-         CALL LCMGET(IPTRK,'BI11',BI11(0))
-         CALL LCMGET(IPTRK,'BI12',BI12(0))
-         CALL LCMGET(IPTRK,'BI2',BI2(0))
-         CALL LCMGET(IPTRK,'BI21',BI21(0))
-         CALL LCMGET(IPTRK,'BI22',BI22(0))
-         CALL LCMGET(IPTRK,'BI3',BI3(0))
-         CALL LCMGET(IPTRK,'BI31',BI31(0))
-         CALL LCMGET(IPTRK,'BI32',BI32(0))
-         CALL LCMGET(IPTRK,'BI4',BI4(0))
-         CALL LCMGET(IPTRK,'BI41',BI41(0))
-         CALL LCMGET(IPTRK,'BI42',BI42(0))
-         CALL LCMGET(IPTRK,'BI5',BI5(0))
-         CALL LCMGET(IPTRK,'BI51',BI51(0))
-         CALL LCMGET(IPTRK,'BI52',BI52(0))
-         PAS1=PASV(1)
-         PAS2=PASV(2)
-         PAS3=PASV(3)
-         PAS4=PASV(4)
-         PAS5=PASV(5)
-         XLIM1=XLIMV(1)
-         XLIM2=XLIMV(2)
-         XLIM3=XLIMV(3)
-         XLIM4=XLIMV(4)
-         XLIM5=XLIMV(5)
-         L1=MLOG(1)
-         L2=MLOG(2)
-         L3=MLOG(3)
-         L4=MLOG(4)
-         L5=MLOG(5)
-      ENDIF
+      CALL XDRKIN(DX,NBX,MLOG,BIV,PASV,XLIMV)
+      PAS1=PASV(1)
+      PAS2=PASV(2)
+      PAS3=PASV(3)
+      PAS4=PASV(4)
+      PAS5=PASV(5)
+      XLIM1=XLIMV(1)
+      XLIM2=XLIMV(2)
+      XLIM3=XLIMV(3)
+      XLIM4=XLIMV(4)
+      XLIM5=XLIMV(5)
+      L1=MLOG(1)
+      L2=MLOG(2)
+      L3=MLOG(3)
+      L4=MLOG(4)
+      L5=MLOG(5)
+      BI1(0:NBX)=BIV(0:NBX,1,1)
+      BI11(0:NBX)=BIV(0:NBX,2,1)
+      BI12(0:NBX)=BIV(0:NBX,3,1)
+*
+      BI2(0:NBX)=BIV(0:NBX,1,2)
+      BI21(0:NBX)=BIV(0:NBX,2,2)
+      BI22(0:NBX)=BIV(0:NBX,3,2)
+*
+      BI3(0:NBX)=BIV(0:NBX,1,3)
+      BI31(0:NBX)=BIV(0:NBX,2,3)
+      BI32(0:NBX)=BIV(0:NBX,3,3)
+*
+      BI4(0:NBX)=BIV(0:NBX,1,4)
+      BI41(0:NBX)=BIV(0:NBX,2,4)
+      BI42(0:NBX)=BIV(0:NBX,3,4)
+*
+      BI5(0:NBX)=BIV(0:NBX,1,5)
+      BI51(0:NBX)=BIV(0:NBX,2,5)
+      BI52(0:NBX)=BIV(0:NBX,3,5)
 *----
 *  CHARGE EXPONENTIAL TABLES INTO COMMON
 *----
-      CALL LCMLEN(IPTRK,'PARAM',ILENG,ITYLCM)
-      IF(ILENG.GT.0) THEN
-         CALL LCMGET(IPTRK,'PARAM',PARAM)
-         CALL LCMLEN(IPTRK,'E10',ILENG2,ITYLCM)
-         IF(ILENG2.NE.MEX1+1) CALL XABORT('XDRTA2: INVALID EXP.')
-         CALL LCMGET(IPTRK,'E10',E0(0))
-         CALL LCMGET(IPTRK,'E11',E1(0))
-         CALL LCMGET(IPTRK,'E00',E00(0))
-         CALL LCMGET(IPTRK,'E01',E01(0))
-         PASE1=PARAM(1)
-         DXE1=PARAM(2)
-         XLIME1=PARAM(3)
-         PASE0=PARAM(1)
-         DXE0=PARAM(2)
-         XLIME0=PARAM(3)
-      ENDIF
-      CALL LCMSIX(IPTRK,' ',2)
+      CALL XDREXP(DEX,NBEX,PARAM,E00,E01,E10,E11)
+      PASE1=PARAM(1)
+      DXE1=PARAM(2)
+      XLIME1=PARAM(3)
+      PASE0=PARAM(1)
+      DXE0=PARAM(2)
+      XLIME0=PARAM(3)
       RETURN
       END

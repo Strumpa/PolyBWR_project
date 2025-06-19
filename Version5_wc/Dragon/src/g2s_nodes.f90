@@ -37,7 +37,7 @@
 !    suivant l'ordre des point minimaux de chacunes des regions considerees.
 ! \\\\
 ! Finalement on obtient une numerotation de ce type :
-! \\\\     ________
+!      ________
 !     | 4 |   /|
 !     |___|2 / |
 !     | 1 | / 3|
@@ -137,16 +137,18 @@ module ptNodes
      integer  :: merge          !merge du node
      integer  :: dragSector     !indice de type DRAGON du node
      logical  :: clust          !.true. si le node est un cercle de cluster
+     integer  :: imacro         !TDT macro index
   end type t_nodeGigSect
 
   type(t_nodeGigSect),dimension(:),allocatable,save :: tabNodeGigSect
 
 contains
 
-  subroutine createNodes(szSA,dimTabCelluleBase,nbNode,merg)
+  subroutine createNodes(szSA,dimTabCelluleBase,lmacro,nbNode,merg,imacro)
     implicit none
     integer,intent(in)  :: szSA,dimTabCelluleBase
-    integer,intent(out) :: nbNode,merg(dimTabCelluleBase)
+    logical,intent(in)  :: lmacro
+    integer,intent(out) :: nbNode,merg(dimTabCelluleBase),imacro(dimTabCelluleBase)
     
     integer  :: i,nbPts,nbCers,nbNode_noclust
 
@@ -158,6 +160,7 @@ contains
     tabPtNode(1:szSA*2)%sz=0
     nbPts=0
     nbNode=0
+    imacro(:dimTabCelluleBase)=0
     !creation d'un systeme comprenant une liste d'indices
     ! d'elements geometriques decrits dans le sens trigo
     ! tels que : chaque element de la liste represente
@@ -206,16 +209,32 @@ contains
     enddo
     deallocate(tabCercNode)
 
+    !allocate tabNodeGigSect
+    allocate(tabNodeGigSect(nbNode),stat=alloc_ok)
+    if (alloc_ok /= 0) call XABORT("G2S: getGigogneData(1) => allocation pb")
+    !initialisation
+    do i = 1,nbNode
+       tabNodeGigSect(i)%indTabCellPlac = 0
+       tabNodeGigSect(i)%ring = 0
+       tabNodeGigSect(i)%sect = 0
+       tabNodeGigSect(i)%neutronicMix = 0
+       tabNodeGigSect(i)%merge = 0
+       tabNodeGigSect(i)%dragSector = 0
+       tabNodeGigSect(i)%clust = .false.
+    enddo
+
     !renumerotation des nodes dans l'ordre lexicographique
     call renumNodes(szSA,nbNode,nbNode_noclust)
 
     !recuperation des informations sur les gigognes
-    call getGigogneData(szSA,nbNode)
+    call getGigogneData(szSA,nbNode,lmacro)
     if(nbNode.gt.dimTabCelluleBase) call XABORT('createNodes: merg overflow.')
     do i = 1,nbNode
       merg(i)=tabNodeGigSect(i)%merge
+      imacro(i)=tabNodeGigSect(i)%imacro
     enddo
     deallocate(tabNodeGigSect)
+
   end subroutine createNodes
 
   subroutine associatePoints(szSA,nbPts)
@@ -772,7 +791,7 @@ contains
     type(t_ptMinNode) :: tmpPtMN
     type(t_segArc)    :: sa
     type(t_point)     :: toOrig
-    integer           :: i,j,numNod
+    integer           :: i,j,numNod,numNodg,numNodd
     integer,dimension(:),allocatable :: newNumNode
 
     allocate(tabPtMN(nbNode),stat=alloc_ok)
@@ -816,6 +835,20 @@ contains
     case default
       toOrig = tabPtMN(1)%ptMin
     end select
+
+    ! correction of MERGE cluster bug by Alain Hebert (May 2025)
+    tabNodeGigSect(:nbNode)%clust = .false.
+    do i = 1,szSA
+       sa = tabSegArc(i)
+       numNodg = sa%nodeg
+       numNodd = sa%noded
+       if(numNodg.gt.nbNode_noclust) then
+         tabNodeGigSect(newNumNode(numNodg))%clust = .true.
+       endif
+       if(numNodd.gt.nbNode_noclust) then
+         tabNodeGigSect(newNumNode(numNodd))%clust = .true.
+       endif
+    enddo
 
     !renumerotation des nodes
     do i = 1,szSA
@@ -925,28 +958,17 @@ contains
     enddo
   end subroutine sortTabPtMN
 
-  subroutine getGigogneData(szSA,nbNode)
+  subroutine getGigogneData(szSA,nbNode,lmacro)
     integer,intent(in) :: szSA,nbNode
+    logical,intent(in)    :: lmacro ! set lmacro=.true. to use TDT macros
 
     type(t_segArc)        :: sa
     type(t_cellulePlaced) :: tcp
     type(t_celluleBase)   :: tcb
-    integer               :: i,j,numNod,typCell,sectori,sectorj,ds,cluster,lg,szM
+    integer               :: i,j,numNod,typCell,sectori,sectorj,ds,cluster,lg,szM,nbMacro
     logical               :: cl
-    integer,dimension(:),allocatable :: neutronicMix,mrg
+    integer,dimension(:),allocatable :: neutronicMix,mrg,newMacro
 
-    allocate(tabNodeGigSect(nbNode),stat=alloc_ok)
-    if (alloc_ok /= 0) call XABORT("G2S: getGigogneData(1) => allocation pb")
-    !initialisation
-    do i = 1,nbNode
-       tabNodeGigSect(i)%indTabCellPlac = 0
-       tabNodeGigSect(i)%ring = 0
-       tabNodeGigSect(i)%sect = 0
-       tabNodeGigSect(i)%neutronicMix = 0
-       tabNodeGigSect(i)%merge = 0
-       tabNodeGigSect(i)%dragSector = 0
-       tabNodeGigSect(i)%clust = .false.
-    enddo
     !remplissage
     do i = 1,szSA
        sa = tabSegArc(i)
@@ -954,7 +976,8 @@ contains
        if(numNod>0) then
           call setIntIfPos(tabNodeGigSect(numNod)%indTabCellPlac,sa%indCellPg)
           call setIntIfPos(tabNodeGigSect(numNod)%ring,sa%mixg)
-          tabNodeGigSect(numNod)%clust=tabNodeGigSect(numNod)%clust.or.sa%clusg
+          ! correction of MERGE cluster bug by Alain Hebert (May 2025)
+          ! tabNodeGigSect(numNod)%clust=tabNodeGigSect(numNod)%clust.or.sa%clusg
           if(sa%typ==tarc) then
              !sur le node interieur, en cas de sectorisation exterieure,
              !il doit apparaitre une discontinuite de sectorisation.
@@ -968,9 +991,26 @@ contains
        if(numNod>0) then
           call setIntIfPos(tabNodeGigSect(numNod)%indTabCellPlac,sa%indCellPd)
           call setIntIfPos(tabNodeGigSect(numNod)%ring,sa%mixd)
-          tabNodeGigSect(numNod)%clust=tabNodeGigSect(numNod)%clust.or.sa%clusd
+          ! correction of MERGE cluster bug by Alain Hebert (May 2025)
+          ! tabNodeGigSect(numNod)%clust=tabNodeGigSect(numNod)%clust.or.sa%clusd
           call setIntIfPos(tabNodeGigSect(numNod)%sect,sa%sectd)
        endif
+    enddo
+    !calcul des numeros de macros
+    nbMacro = maxval(tabNodeGigSect(:nbNode)%indTabCellPlac)
+    allocate(newMacro(nbMacro))
+    newMacro(:nbMacro) = 0
+    do i = 1,nbNode
+      newMacro(tabNodeGigSect(i)%indTabCellPlac) = 1
+    enddo
+    j = 0
+    do i = 1,nbMacro
+      if((newMacro(i) /= 0).and.(lmacro)) then
+        j = j+1
+        newMacro(i) = j
+      else if(newMacro(i) /= 0) then
+        newMacro(i) = 1
+      endif
     enddo
     !calcul des secteurs et des milieux neutroniques
     do i = 1,nbNode
@@ -1086,7 +1126,10 @@ contains
        endif
        tabNodeGigSect(i)%dragSector = ds
        deallocate(neutronicMix,mrg)
+       ! define TDT macros
+       tabNodeGigSect(i)%imacro = newMacro(tabNodeGigSect(i)%indTabCellPlac)
     enddo
+    deallocate(newMacro)
 ! CS-IV : visualisation pour debug
 !    call PrintTabNodeGigSect(nbNode)
 

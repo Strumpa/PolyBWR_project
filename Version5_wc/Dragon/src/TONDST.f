@@ -1,7 +1,7 @@
 *DECK TONDST
       SUBROUTINE TONDST (IPSYS,NPSYS,IPTRK,IFTRAK,CDOOR,IMPX,NBM,NBNRS,
      1 NREG,NUN,NGRO,IPHASE,MAT,VOL,KEYFLX,LEAKSW,IRES,DENM,SIG0,SIG1,
-     2 SIG2,TITR,DILAV)
+     2 SIG2,TITR,DILAV,TK3,TK4)
 *
 *-----------------------------------------------------------------------
 *
@@ -52,6 +52,10 @@
 *Parameters: output
 * DILAV   average dilution.
 *
+*Parameters: input/output
+* TK3     cpu time to compute system matrices.
+* TK4     cpu time to compute fluxes.
+*
 *-----------------------------------------------------------------------
 *
       USE GANLIB
@@ -64,7 +68,7 @@
       INTEGER NPSYS(NGRO),IFTRAK,IMPX,NBM,NBNRS,NREG,NUN,NGRO,IPHASE,
      1 MAT(NREG),KEYFLX(NREG),IRES(NBM)
       REAL VOL(NREG),DENM(NBM),SIG0(NBM,NGRO),SIG1(NBM,NGRO),
-     1 SIG2(NBM,NGRO),DILAV(NBNRS,NGRO)
+     1 SIG2(NBM,NGRO),DILAV(NBNRS,NGRO),TK3,TK4
 *----
 *  LOCAL VARIABLES
 *----
@@ -110,6 +114,7 @@
 *----
 *  ASSEMBLY MATRIX OR REDUCED COLLISION PROBABILITIES CALCULATION.
 *----
+      CALL KDRCPU(TKA)
       ISTRM=1
       IF(IPHASE.EQ.1) THEN
 *        USE A NATIVE DOOR.
@@ -120,6 +125,8 @@
          CALL DOORPV(CDOOR,JPSYS,NPSYS,IPTRK,IFTRAK,IMPX,NGRO,NREG,
      1   NBM,NANI,MAT,VOL,KNORM,IPIJK,LEAKSW,ITPIJ,LNORM,TITR,NALBP)
       ENDIF
+      CALL KDRCPU(TKB)
+      TK3=TK3+(TKB-TKA)
 *----
 *  ALLOCATE MEMORY.
 *----
@@ -127,6 +134,7 @@
 *----
 *  SOLVE FOR THE FLUX AND SET UP VECTOR DILAV.
 *----
+      CALL KDRCPU(TKA)
       SUN(:NUN,:NGRO)=0.0
       DO 40 LLL=1,NGRO
       IF(NPSYS(LLL).NE.0) THEN
@@ -192,13 +200,12 @@
       ENDIF
    80 CONTINUE
       DEALLOCATE(TOT2,TOT1)
-*----
-*  RELEASE MEMORY.
-*----
-      DEALLOCATE(SUN,FUN2,FUN1)
+      CALL KDRCPU(TKB)
+      TK4=TK4+(TKB-TKA)
 *----
 *  SCRATCH STORAGE DEALLOCATION
 *----
+      DEALLOCATE(SUN,FUN2,FUN1)
       DEALLOCATE(SSIGW,SSIGT)
       RETURN
       END

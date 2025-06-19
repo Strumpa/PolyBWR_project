@@ -18,32 +18,32 @@ MODULE SAL_GEOMETRY_MOD
   USE PRECISION_AND_KINDS, ONLY : PDB, PI,TWOPI,HALFPI
   USE SAL_NUMERIC_MOD,    ONLY : SAL141
   USE SALGET_FUNS_MOD
-  TYPE(T_G_BASIC), POINTER :: GG
 
 CONTAINS
 
-  SUBROUTINE SAL100()
+  SUBROUTINE SAL100(GG)
     !
     !---------------------------------------------------------------------
     !
     !Purpose:
     ! perform input data and first allocation for geometry OBJECT T_G_BASIC
     !
+    !Parameters: input/output
+    ! GG    geometry basic information.
+    !
     !---------------------------------------------------------------------
     !
-    USE SAL_GEOMETRY_TYPES, ONLY : TYPGEO,NBFOLD,EPS,ANGGEO, &
+    USE SAL_GEOMETRY_TYPES, ONLY : T_G_BASIC,TYPGEO,NBFOLD,EPS,ANGGEO, &
          INDEX,KNDEX,PREC,ISPEC,LGSPEC
     USE SAL_TRACKING_TYPES, ONLY : PRTIND
-    !****
     IMPLICIT NONE
+    TYPE(T_G_BASIC) :: GG
     !*****
     ! local variable
     ! **************
     INTEGER, PARAMETER :: N_DATAIN=25, N_DATARE=20
     INTEGER, DIMENSION (N_DATAIN) :: DATAIN
     REAL,    DIMENSION (N_DATARE) :: DATARE
-    INTEGER :: NBFLUX
-    INTEGER, DIMENSION(:), ALLOCATABLE :: IFLUX
     INTEGER :: OK
     INTEGER, PARAMETER :: FOUT =6
     !*****
@@ -57,7 +57,8 @@ CONTAINS
     NBFOLD=DATAIN(2)
     GG%NB_NODE=DATAIN(3)
     GG%NB_ELEM=DATAIN(4)
-    NBFLUX=DATAIN(6)
+    GG%NB_MACRO=DATAIN(5)
+    GG%NB_FLUX=DATAIN(6)
     SELECT CASE(TYPGEO)
        CASE(1)
        ANGGEO=TWOPI/NBFOLD
@@ -109,11 +110,12 @@ CONTAINS
     ALLOCATE(GG%NUM_MERGE(GG%NB_NODE),STAT =OK)
     IF(OK /= 0) CALL XABORT('SAL100: failure to allocate NB_NODE')
     CALL SALGET(GG%NUM_MERGE,GG%NB_NODE,F_GEO,FOUT0,'FLUX INDEX PER NODE')
-    IF(MAXVAL(GG%NUM_MERGE) /= NBFLUX) CALL XABORT('SAL100: inconsistent NBFLUX')
-    CALL SALGET(GG%NAME_GEOM,F_GEO,FOUT0,'NAMES OF MACROS')
-    ALLOCATE(IFLUX(NBFLUX))
-    CALL SALGET(IFLUX,NBFLUX,F_GEO,FOUT0,'macro order number per flux region')
-    DEALLOCATE(IFLUX)
+    IF(MAXVAL(GG%NUM_MERGE) /= GG%NB_FLUX) CALL XABORT('SAL100: inconsistent NBFLUX')
+    ALLOCATE(GG%NAME_MACRO(GG%NB_MACRO),STAT =OK)
+    IF(OK /= 0) CALL XABORT('SAL100: failure to allocate NB_MACRO')
+    CALL SALGET(GG%NAME_MACRO,GG%NB_MACRO,F_GEO,FOUT0,'NAMES OF MACROS')
+    ALLOCATE(GG%NUM_MACRO(GG%NB_FLUX))
+    CALL SALGET(GG%NUM_MACRO,GG%NB_FLUX,F_GEO,FOUT0,'macro order number per flux region')
     !*    do the work (SAL100_2 is called here!):
     CALL SAL110(GG)
     !
@@ -127,7 +129,7 @@ CONTAINS
     ! constructs geometrical domain
     !
     !Parameters: input/output
-    ! GG    geometry descriptor
+    ! GG    geometry basic information.
     !
     !---------------------------------------------------------------------
     !
@@ -233,22 +235,22 @@ CONTAINS
     ENDIF
     IF(PRTIND>0) WRITE(FOUT,*) 'SAL110: after unfolding -- NB_ELEM=',GG%NB_ELEM
 
-    IF(PRTIND>-5) THEN
+    IF(PRTIND>5) THEN
       !*    print surfacic file
       WRITE(FOUT,'(5H--cut,75(1H-))')
       WRITE(FOUT,'(5HBEGIN)')
       WRITE(FOUT,'(42H* typgeo nbfold nbnode nbelem nbmacr nbreg)')
-      WRITE(FOUT,'(6I7)') TYPGEO,NBFOLD,GG%NB_NODE,GG%NB_ELEM,1,GG%NB_NODE
+      WRITE(FOUT,'(6I7)') TYPGEO,NBFOLD,GG%NB_NODE,GG%NB_ELEM,GG%NB_MACRO,GG%NB_NODE
       WRITE(FOUT,'(20H* index  kndex  prec)')
       WRITE(FOUT,'(4I7)') 0,0,1
       WRITE(FOUT,'(18H* eps         eps0)')
       WRITE(FOUT,'(1P,2E18.9)') 1.0E-03,1.0E-05
       WRITE(FOUT,'(20H* num_of_region/mesh)')
-      WRITE(FOUT,'(10I7)') (I,I=1,GG%NB_NODE)
-      WRITE(FOUT,'(18H* name_of_geometry)')
-      WRITE(FOUT,'(7H   GEOM)')
+      WRITE(FOUT,'(10I7)') (GG%NUM_MERGE(I),I=1,GG%NB_NODE)
+      WRITE(FOUT,'(13H* macro names)')
+      WRITE(FOUT,'(4(3x,a10,2x))') (GG%NAME_MACRO(I),I=1,GG%NB_MACRO)
       WRITE(FOUT,'(35H* macro_order_index_per_flux_region)')
-      WRITE(FOUT,'(10I7)') (1,I=1,GG%NB_NODE)
+      WRITE(FOUT,'(10I7)') (GG%NUM_MACRO(I),I=1,GG%NB_FLUX)
       DO ELEM=1,GG%NB_ELEM
         TYPE=GG%IPAR(1,ELEM)
         WRITE(FOUT,'(7h elem =,I6)') ELEM
@@ -274,10 +276,10 @@ CONTAINS
         WRITE(FOUT,'(1P,10I8)') (GG%BCDATAREAD(ELEM)%ELEMNB(I),I=1,GG%BCDATAREAD(ELEM)%NBER)
         IF(GG%BCDATAREAD(ELEM)%SALTYPE==0) THEN
           WRITE(FOUT,'(7H*albedo)')
-          WRITE(FOUT,'(1P,E18.9)') GG%BCDATAREAD(ELEM)%BCDATA(1)
+          WRITE(FOUT,'(1P,E18.9)') GG%BCDATAREAD(ELEM)%BCDATA(6)
         ELSE
           WRITE(FOUT,'(22H*cx      cy      angle)')
-          WRITE(FOUT,'(1P,3E18.9)') (GG%BCDATAREAD(ELEM)%BCDATA(I),I=1,3)
+          WRITE(FOUT,'(1P,3E18.9)') GG%BCDATAREAD(ELEM)%BCDATA(1:2),GG%BCDATAREAD(ELEM)%BCDATA(5)*180._PDB/PI
         ENDIF
       ENDDO
     ENDIF
@@ -299,7 +301,7 @@ CONTAINS
     !
     !*    volumes, surfaces, put local nbers in node, and read media:
     CALL SAL160(GG)
-    IF(PRTIND>-5) THEN
+    IF(PRTIND>5) THEN
       WRITE(FOUT,'(12H* mil(nbreg))')
       WRITE(FOUT,'(10I7)') (GG%MED(I),I=1,GG%NB_NODE)
       WRITE(FOUT,'(3HEND)')
@@ -335,6 +337,7 @@ CONTAINS
     INTEGER   :: ELEM,I,TYPE,NBER
     INTEGER, PARAMETER, DIMENSION(0:4) :: READ_BC_LEN=(/1,1,3,3,3/)
     INTEGER, PARAMETER :: FOUT =6
+    REAL(PDB) :: ANGLE,BCDATA_TDT(3)
     !
     !*    read element data
     DO ELEM=1,GG%NB_ELEM
@@ -364,7 +367,7 @@ CONTAINS
     IF(GG%NBBCDA>0)THEN
        ALLOCATE(GG%BCDATAREAD(GG%NBBCDA))
        DO I=1,GG%NBBCDA
-          GG%BCDATAREAD(I)%BCDATA(:5)=0.0
+          GG%BCDATAREAD(I)%BCDATA(:6)=0.0
           CALL SALGET(DATAIN,2,F_GEO,FOUT0,'SPECIFIC BC: TYPE NBER')
           TYPE=DATAIN(1)
           NBER=DATAIN(2)
@@ -377,10 +380,20 @@ CONTAINS
           ALLOCATE(GG%BCDATAREAD(I)%ELEMNB(NBER))
           CALL SALGET(GG%BCDATAREAD(I)%ELEMNB,NBER,F_GEO,FOUT0,'BC ELEMENTS')
           !           read bc motion
-          CALL SALGET(GG%BCDATAREAD(I)%BCDATA,READ_BC_LEN(TYPE),F_GEO,FOUT0,PREC, &
-               'data for specific bc condition')
-          LBCDIAG=LBCDIAG.OR.((GG%BCDATAREAD(I)%BCDATA(1)==0._PDB).AND.(GG%BCDATAREAD(I)%BCDATA(2)==0._PDB) &
-                         .AND.(GG%BCDATAREAD(I)%BCDATA(3)==45._PDB))
+          CALL SALGET(BCDATA_TDT,READ_BC_LEN(TYPE),F_GEO,FOUT0,PREC,'data for specific bc condition')
+          IF(READ_BC_LEN(TYPE).EQ.1) THEN
+            GG%BCDATAREAD(I)%BCDATA(1:5)=0._PDB
+            GG%BCDATAREAD(I)%BCDATA(6)=BCDATA_TDT(1)
+          ELSE
+            GG%BCDATAREAD(I)%BCDATA(1:2)=BCDATA_TDT(1:2)
+            ANGLE=BCDATA_TDT(3)*PI/180._PDB
+            GG%BCDATAREAD(I)%BCDATA(3)=COS(ANGLE)
+            GG%BCDATAREAD(I)%BCDATA(4)=SIN(ANGLE)
+            GG%BCDATAREAD(I)%BCDATA(5)=ANGLE
+            GG%BCDATAREAD(I)%BCDATA(6)=1._PDB
+            LBCDIAG=LBCDIAG.OR.((GG%BCDATAREAD(I)%BCDATA(1)==0._PDB).AND.(GG%BCDATAREAD(I)%BCDATA(2)==0._PDB) &
+                           .AND.(GG%BCDATAREAD(I)%BCDATA(5)==PI/4._PDB))
+          ENDIF
        ENDDO
     ENDIF
   END SUBROUTINE SALINP
@@ -1517,15 +1530,15 @@ CONTAINS
     !---------------------------------------------------------------------
     !
     IMPLICIT NONE
-    INTEGER, INTENT(IN)                    :: NB_ELEM
-    INTEGER, INTENT(OUT)                   :: NB_BC
-    INTEGER, INTENT(INOUT), DIMENSION(:,:) :: IPAR
-    INTEGER, INTENT(OUT),  DIMENSION(:)    :: IBC2_ELEM,LIST_BC
+    INTEGER, INTENT(IN)                 :: NB_ELEM
+    INTEGER, INTENT(OUT)                :: NB_BC
+    INTEGER, INTENT(IN), DIMENSION(:,:) :: IPAR
+    INTEGER, INTENT(OUT),  DIMENSION(:) :: IBC2_ELEM,LIST_BC
     !****
     INTEGER :: ELEM
     !****
     !     initiation
-    IBC2_ELEM=0
+    IBC2_ELEM(:)=0
     NB_BC=0
     DO ELEM=1, NB_ELEM
        IF(IPAR(2,ELEM)<=0.AND.IPAR(3,ELEM)<=0) THEN
@@ -1562,9 +1575,9 @@ CONTAINS
     USE SAL_GEOMETRY_TYPES, ONLY : G_BC_TYPE
     !****
     IMPLICIT NONE
-    INTEGER, INTENT(IN)                    :: NSURF
-    INTEGER, INTENT(IN),   DIMENSION(:)    :: IBC2_SURF2,IELEM_BC2
-    INTEGER, INTENT(OUT),  DIMENSION(:)    :: IELEM_SURF2
+    INTEGER, INTENT(IN)                 :: NSURF
+    INTEGER, INTENT(IN),   DIMENSION(:) :: IBC2_SURF2,IELEM_BC2
+    INTEGER, INTENT(OUT),  DIMENSION(:) :: IELEM_SURF2
     !****
     INTEGER :: SURF,IBC,ELEM
     !****
@@ -1710,8 +1723,7 @@ CONTAINS
     !*    allocate and set dist_axis
     IF(PPERIM(NAXES+1)-1>0) THEN
        ALLOCATE(DIST_AXIS(PPERIM(NAXES+1)-1),STAT=OK)
-       IF(OK.NE.0) &
-            CALL XABORT('SAL130_8: not enough memory R')
+       IF(OK.NE.0) CALL XABORT('SAL130_8: not enough memory R')
        DO I=1,NAXES
           DIST_AXIS(PPERIM(I):PPERIM(I+1)-1)=AUX_DIST(1:NBE(I),I)
        ENDDO
@@ -2170,15 +2182,15 @@ CONTAINS
     LGALLS=ALLSUR/=0
     ITBC=1      ! the first bc data
     TMP_BCDATA(:,:) = 0._PDB
-    TMP_BCDATA(1,ITBC)=1._PDB
+    TMP_BCDATA(6,ITBC)=1._PDB
     ITBC=ITBC+1
-    TMP_BCDATA(1,ITBC)=GG%ALBEDO
+    TMP_BCDATA(6,ITBC)=GG%ALBEDO
     !*    treat approximate boundary condictions
     IF(LGALLS)THEN
        !        ALL BC'S PRODUIT SURFACES
        IF(GG%DEFAUL==1)THEN
           !           SPECULAR REFLEXION -> ISOTROPIC REFLEXION WITH ALBEDO=1
-          GG%DEFAUL=0 ; TMP_BCDATA(1,ITBC)=1.
+          GG%DEFAUL=0 ; TMP_BCDATA(6,ITBC)=1._PDB
        ENDIF
     ENDIF
     !
@@ -2194,10 +2206,10 @@ CONTAINS
              CASE(1)
              IF(LGALLS)THEN
                 !                specular reflexion -> isotropic reflexion with albedo=1
-                TYPE=0 ; TMP_BCDATA(1,ITBC)=1.
+                TYPE=0 ; TMP_BCDATA(6,ITBC)=1._PDB
              ENDIF
              CASE(2)
-             ANGLE=TMP_BCDATA(3,ITBC)*(TWOPI/360._PDB)
+             ANGLE=TMP_BCDATA(5,ITBC)
              SELECT CASE(TYPGEO)
                 CASE(5) 
                 !                adjust translation data according to the sides of rectangle
@@ -2248,12 +2260,12 @@ CONTAINS
                 !                 perform array shift
                 TMP_BCDATA(:,ITBC)=CSHIFT(TMP_BCDATA(:,ITBC),1)
                 !                 albedo=1
-                TMP_BCDATA(1,ITBC)=1._PDB
+                TMP_BCDATA(6,ITBC)=1._PDB
              ENDIF
              CASE(3) 
              !              cases of rotation:
              !              read angle, compute cos and sin
-             ANGLE=TMP_BCDATA(3,ITBC)*(TWOPI/360._PDB)
+             ANGLE=TMP_BCDATA(5,ITBC)
              IF(TYPGEO==1.OR.TYPGEO==2) THEN
                 IF(ABS(ANGLE-ANGGEO)<EPS) THEN
                    !                    for the axis 1:keep anggeo,cos(anggeo),sin(anggeo)
@@ -2277,12 +2289,12 @@ CONTAINS
                 !                 perform array shift
                 TMP_BCDATA(:,ITBC)=CSHIFT(TMP_BCDATA(:,ITBC),1)
                 !                 albedo=1
-                TMP_BCDATA(1,ITBC)=1._PDB
+                TMP_BCDATA(6,ITBC)=1._PDB
              ENDIF
              CASE(4)
              !              cases of specular symmetry:
              !              read center and angle, compute cos and sin
-             ANGLE=TMP_BCDATA(3,ITBC)*(TWOPI/360._PDB)
+             ANGLE=TMP_BCDATA(5,ITBC)
              SELECT CASE(TYPGEO)
                 CASE(1,2)
                 IF(ABS(ANGLE-0.)<EPS) THEN
@@ -2310,7 +2322,7 @@ CONTAINS
                 !                 perform array shift
                 TMP_BCDATA(:,ITBC)=CSHIFT(TMP_BCDATA(:,ITBC),1)
                 !                 albedo=1
-                TMP_BCDATA(1,ITBC)=1._PDB
+                TMP_BCDATA(6,ITBC)=1._PDB
              ENDIF
           END SELECT
           !
@@ -2347,7 +2359,6 @@ CONTAINS
     !     - compute the nber of surfaces (type -1,0,-12,-13,-14,-15) : nbsur2
     !     - allocate structures for the surfaces
     !     - compute surf_mac2
-    GG%NB_SURF2=0
     TYPE_BC2=>GG%TYPE_BC2
     ISURF2_ELEM=>GG%ISURF2_ELEM
     IELEM_BC2=>GG%PERIM_MAC2
@@ -2363,7 +2374,6 @@ CONTAINS
        IF(TYPE_BC2(IBC)==G_BC_TYPE(-1) .OR. TYPE_BC2(IBC)==G_BC_TYPE(0) .OR. &
           TYPE_BC2(IBC)==G_BC_TYPE(1)) THEN
           NN=NN+1
-          GG%NB_SURF2=GG%NB_SURF2+1
           AUX_ARR(NN)=IBC
           ISURF2_ELEM(IELEM)=NN
        ELSE
@@ -2731,7 +2741,7 @@ CONTAINS
     !
     !*    read medium per region
     CALL SALGET(DATAIN,GG%NB_NODE,F_GEO,FOUT0,'media per node')
-	
+  
     ! number of media fixed to maximum of datain
     NBMED = MAXVAL(DATAIN(1:GG%NB_NODE))
     !
@@ -3227,7 +3237,7 @@ CONTAINS
         ENDDO
         TMP_BCDATAREAD(TMP_IBC)%SALTYPE=GG%BCDATAREAD(IBC)%SALTYPE
         TMP_BCDATAREAD(TMP_IBC)%NBER=2*GG%BCDATAREAD(IBC)%NBER
-        TMP_BCDATAREAD(TMP_IBC)%BCDATA=GG%BCDATAREAD(IBC)%BCDATA
+        TMP_BCDATAREAD(TMP_IBC)%BCDATA(:)=GG%BCDATAREAD(IBC)%BCDATA(:)
       ELSE
         ALLOCATE(TMP_BCDATAREAD(TMP_IBC)%ELEMNB(GG%BCDATAREAD(IBC)%NBER))
         DO I=1,GG%BCDATAREAD(IBC)%NBER
@@ -3238,7 +3248,7 @@ CONTAINS
         TMP_BCDATAREAD(TMP_IBC)%NBER=GG%BCDATAREAD(IBC)%NBER
         TMP_BCDATAREAD(TMP_IBC)%BCDATA(1)=GG%BCDATAREAD(IBC)%BCDATA(1)-XMIN
         TMP_BCDATAREAD(TMP_IBC)%BCDATA(2)=GG%BCDATAREAD(IBC)%BCDATA(2)-YMIN
-        TMP_BCDATAREAD(TMP_IBC)%BCDATA(3)=GG%BCDATAREAD(IBC)%BCDATA(3)
+        TMP_BCDATAREAD(TMP_IBC)%BCDATA(3:6)=GG%BCDATAREAD(IBC)%BCDATA(3:6)
         !
         DO ISYM=1,NSYM
           TMP_NBBCDA=TMP_NBBCDA+1
@@ -3258,21 +3268,20 @@ CONTAINS
             TMP_BCDATAREAD(TMP_NBBCDA)%BCDATA(2)=Y4-YMIN
           ELSE
             ! X1 is the albedo
-            TMP_BCDATAREAD(TMP_NBBCDA)%BCDATA(1)=X1-XMIN
-            TMP_BCDATAREAD(TMP_NBBCDA)%BCDATA(2)=Y1-YMIN
+            TMP_BCDATAREAD(TMP_NBBCDA)%BCDATA(1)=X1
           ENDIF
-          IF((HSYM=='DIAG').AND.GG%BCDATAREAD(IBC)%BCDATA(3).EQ.0.0) THEN
-            TMP_BCDATAREAD(TMP_NBBCDA)%BCDATA(3)=90.0
-          ELSE IF((HSYM=='DIAG').AND.GG%BCDATAREAD(IBC)%BCDATA(3).EQ.90.0) THEN
-            TMP_BCDATAREAD(TMP_NBBCDA)%BCDATA(3)=0.0
+          IF((HSYM=='DIAG').AND.GG%BCDATAREAD(IBC)%BCDATA(5).EQ.0.0) THEN
+            TMP_BCDATAREAD(TMP_NBBCDA)%BCDATA(5)=PI/2._PDB
+          ELSE IF((HSYM=='DIAG').AND.GG%BCDATAREAD(IBC)%BCDATA(5).EQ.PI/2.0_PDB) THEN
+            TMP_BCDATAREAD(TMP_NBBCDA)%BCDATA(5)=0._PDB
           ELSE IF((HSYM=='SA60').AND.(ISYM==1)) THEN
-            TMP_BCDATAREAD(TMP_NBBCDA)%BCDATA(3)=120.0
+            TMP_BCDATAREAD(TMP_NBBCDA)%BCDATA(5)=PI/1.5_PDB
           ELSE IF((HSYM=='SA60').AND.(ISYM==2)) THEN
-            TMP_BCDATAREAD(TMP_NBBCDA)%BCDATA(3)=-120.0
+            TMP_BCDATAREAD(TMP_NBBCDA)%BCDATA(5)=-PI/1.5_PDB
           ELSE IF((HSYM=='S30').AND.(ISYM==1)) THEN
-            TMP_BCDATAREAD(TMP_NBBCDA)%BCDATA(3)=60.0
+            TMP_BCDATAREAD(TMP_NBBCDA)%BCDATA(5)=PI/3._PDB
           ELSE
-            TMP_BCDATAREAD(TMP_NBBCDA)%BCDATA(3)=GG%BCDATAREAD(IBC)%BCDATA(3)
+            TMP_BCDATAREAD(TMP_NBBCDA)%BCDATA(3:6)=GG%BCDATAREAD(IBC)%BCDATA(3:6)
           ENDIF
         ENDDO
       ENDIF
@@ -3294,8 +3303,8 @@ CONTAINS
     ! unfold the domain with rotation
     !
     !Parameters: input
-    ! HSYM: type of symmetry: SR60': dual 60-degree rotation; SR180: 180-degree
-    !       rotation; SR120: dual 120-degree rotation
+    ! HSYM: type of symmetry: SR60': dual 60-degree rotation; R180: 180-degree
+    !       rotation; R120: dual 120-degree rotation
     !
     !Parameters: input/output
     ! GG    geometry descriptor

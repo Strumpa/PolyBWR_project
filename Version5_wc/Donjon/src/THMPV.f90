@@ -46,7 +46,7 @@ SUBROUTINE THMPV(SPEED, POULET, VCOOL, DCOOL, PCOOL, MUT, XFL, HD, NZ, HZ)
     REAL PHIL0, TPMULT, TPMULT0
     REAL REY, REY0, FRIC, FRIC0
 
-    g = 9.81 !gravity
+    g =  - 9.81 !gravity
     ALLOCATE(A(2*NZ,2*NZ+1))
     FORALL (I=1:2*NZ, J=1:2*NZ+1) A(I, J) = 0.0
 !----

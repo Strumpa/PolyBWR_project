@@ -1,5 +1,5 @@
 *DECK XDREXP
-      SUBROUTINE XDREXP(IPTRK,DX,NBX)
+      SUBROUTINE XDREXP(DX,NBX,PARAM,E00,E01,E10,E11)
 *
 *-----------------------------------------------------------------------
 *
@@ -16,24 +16,29 @@
 *Author(s): R. Roy, R. Le Tellier 
 *
 *Parameters: input
-* IPTRK   pointer to the LCM table.
 * DX      step for tables (here, DX=0.02d0).
 * NBX     order of tables (here, NBX=7936).
+*
+*Parameters: output
+* PARAM   exponential table characteristics.
+* E00     exponential table.
+* E01     exponential table.
+* E10     exponential table.
+* E11     exponential table.
 *
 *Comments:
 *  Modified in order to tabulate (1-exp(-x))/x instead of (1-exp(-x))).
 *
 *-----------------------------------------------------------------------
 *
-      USE GANLIB
-***** NOTE:     YOU MAY UNCOMMENT THE FOLLOWING FORTRAN INSTRUCTION:
-*     IMPLICIT NONE
+      IMPLICIT NONE
 *----
 *  SUBROUTINE ARGUMENTS
 *----
-      TYPE(C_PTR)      IPTRK
       INTEGER          NBX
       DOUBLE PRECISION DX
+      REAL             PARAM(3), E00(0:NBX), E01(0:NBX), E10(0:NBX),
+     >                 E11(0:NBX)
 *----
 *  LOCAL VARIABLES
 *----
@@ -48,12 +53,6 @@
 *----
       INTEGER          MEX1
       PARAMETER      ( MEX1=7936 )
-      REAL             E00(0:MEX1), E01(0:MEX1), PARAM(3)
-      REAL             E10(0:MEX1), E11(0:MEX1)
-*
-      CALL LCMSIX(IPTRK,'FUNC-TABLES',1)
-      CALL LCMLEN(IPTRK,'PARAM',ILENG,ITYLCM)
-      IF(ILENG.GT.0) GO TO 30
 *
       IF( NBX.NE.  MEX1 ) GO TO 97
       IF( DX .GT. DREF+DEPS .OR. DX .LT. DREF-DEPS  ) GO TO 98
@@ -90,26 +89,18 @@
          EX00= EX01
          EX10= EX11
    20 CONTINUE
+      PARAM(1)=REAL(PAS)
+      PARAM(2)=REAL(DX)
+      PARAM(3)=REAL(XLIM)
       E10(NBX)= REAL(1.D0/XLIM)
       E11(NBX)= 0.0
       E00(NBX)= 1.0
       E01(NBX)= 0.0
-*----
-*  CHARGE LCM
-*----
-      PARAM(1)=REAL(PAS)
-      PARAM(2)=REAL(DX)
-      PARAM(3)=REAL(XLIM)
-      CALL LCMPUT(IPTRK,'PARAM',3,2,PARAM)
-      CALL LCMPUT(IPTRK,'E00',NBX+1,2,E00(0))
-      CALL LCMPUT(IPTRK,'E01',NBX+1,2,E01(0))
-      CALL LCMPUT(IPTRK,'E10',NBX+1,2,E10(0))
-      CALL LCMPUT(IPTRK,'E11',NBX+1,2,E11(0))
-   30 CALL LCMSIX(IPTRK,' ',2)
       RETURN
 *----
 *  ERROR SECTION
 *----
-   97 CALL XABORT('XDREXP: EXP LINEAR TABLES HAVE 7937 ELEMENTS')
+   97 CALL XABORT('XDREXP: EXP LINEAR TABLES HAVE MORE THAN 7936 ELEM'
+     > //'ENTS')
    98 CALL XABORT('XDREXP: EXP LINEAR TABLES HAVE A STEP OF 1/512')
       END

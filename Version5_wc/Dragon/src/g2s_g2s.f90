@@ -48,17 +48,16 @@ subroutine G2S(NENTRY,HENTRY,IENTRY,JENTRY,KENTRY)
   character*12 HENTRY
   dimension IENTRY(*),JENTRY(*),KENTRY(*),HENTRY(*)
 
-
   integer,parameter :: dimTabCelluleBase = 20000
   integer,parameter :: dimTabSegArc = 100000
 
   type(c_ptr)  :: ipGeo,ipGeo_1
-  integer      :: sizeB,sizeP,sizeSA,nbNode,nbCLP,ilong,nbFlux,ipSal,ipPs,ipAl, &
+  integer      :: sizeB,sizeP,sizeSA,nbNode,nbCLP,nbFlux,nbMacro,ipSal,ipPs,ipAl, &
                   ipZa,indic,nitma,impx
-  character(len=12) :: name_geom,nammy,text12
-  logical      :: empty,lcm,drawNod,drawMix
+  character(len=12) :: text12
+  logical      :: drawNod,drawMix,lmacro
   real,dimension(2) :: zoomx,zoomy
-  integer,allocatable,dimension(:) :: gig,merg
+  integer,allocatable,dimension(:) :: gig,merg,imacro
   integer,dimension(10) :: datain
   real :: flott
   double precision :: dflott
@@ -139,6 +138,7 @@ subroutine G2S(NENTRY,HENTRY,IENTRY,JENTRY,KENTRY)
   zoomx = (/ 0.0, 1.0 /)
   zoomy = (/ 0.0, 1.0 /)
   typgeo=0
+  lmacro=.false.
   10 call REDGET(indic,nitma,flott,text12,dflott)
   if (indic == 10) go to 20
   if (indic /= 3) call XABORT('G2S: character data expected.')
@@ -173,6 +173,8 @@ subroutine G2S(NENTRY,HENTRY,IENTRY,JENTRY,KENTRY)
     if (ipAl == -1) call XABORT('G2S: no RHS Salomon file.')
     call REDGET(indic,typgeo,flott,text12,dflott)
     if (indic /= 1) call XABORT('G2S: integer data expected(2).')
+  else if (text12 == 'MACRO') then
+    lmacro=.true.
   else if (text12 == ';') then
      go to 20
   else
@@ -187,9 +189,6 @@ subroutine G2S(NENTRY,HENTRY,IENTRY,JENTRY,KENTRY)
   sizeP = 0   !cellules placees
   sizeSA = 0  !elements geometriques
   if (c_associated(ipGeo_1)) then
-     ! lecture of the geometry name
-     call LCMINF(ipGeo_1,name_geom,nammy,empty,ilong,lcm)
-  
      ! copy the input geometric object
      call lcmop(ipGeo,'geom_copy',0,1,0)
      call lcmequ(ipGeo_1,ipGeo)
@@ -220,9 +219,9 @@ subroutine G2S(NENTRY,HENTRY,IENTRY,JENTRY,KENTRY)
      call appliBoundariConditions(ipGeo,sizeSA,nbCLP)
 
      !calcul des nodes delimites par les elements
-     allocate(merg(dimTabCelluleBase),stat=alloc_ok)
+     allocate(merg(dimTabCelluleBase),imacro(dimTabCelluleBase),stat=alloc_ok)
      if (alloc_ok /= 0) call XABORT("G2S: g2s_g2s(1) => allocation pb(1)")
-     call createNodes(sizeSA,dimTabCelluleBase,nbNode,merg)
+     call createNodes(sizeSA,dimTabCelluleBase,lmacro,nbNode,merg,imacro)
      if (sizeSA > dimTabSegArc) call XABORT('g2s_g2s: sizeSA overflow')
      
      !calcul des arrays gig et merg
@@ -230,6 +229,7 @@ subroutine G2S(NENTRY,HENTRY,IENTRY,JENTRY,KENTRY)
      if (alloc_ok /= 0) call XABORT("G2S: g2s_g2s(1) => allocation pb(2)")
      call generateTrack(sizeP,sizeSA,nbNode,lgMaxGig,gig,merg)
      nbFlux=maxval(merg(:nbNode))
+     nbMacro=maxval(imacro(:nbFlux))
   else
      if (JENTRY(NENTRY) == 0) call XABORT('G2S: a RHS ascii file is expected')
      !initialisation de TabSegArc
@@ -237,12 +237,14 @@ subroutine G2S(NENTRY,HENTRY,IENTRY,JENTRY,KENTRY)
      nbNode=datain(3)
      sizeSA=datain(4)
      rewind(ipSal)
-     allocate(TabSegArc(sizeSA),medium(nbNode),stat=alloc_ok)
+     allocate(TabSegArc(sizeSA),stat=alloc_ok)
      if (alloc_ok /= 0) call XABORT("G2S: generateTabSegArc => allocation pb")
      call initializebCData()  
-     allocate(merg(nbNode),stat=alloc_ok)
+     allocate(merg(nbNode),imacro(nbNode),stat=alloc_ok)
      if (alloc_ok /= 0) call XABORT("G2S: g2s_g2s(2) => allocation pb")
-     call generateTabSegArc(ipSal,sizeSA,nbNode,nbCLP,nbFlux,merg,name_geom,impx)
+     call generateTabSegArc(ipSal,sizeSA,nbNode,nbCLP,nbFlux,merg,impx)
+     imacro(:nbFlux) = 1
+     nbMacro=1
   endif
 
   !impression des segArc charges
@@ -250,15 +252,17 @@ subroutine G2S(NENTRY,HENTRY,IENTRY,JENTRY,KENTRY)
 
   if (c_associated(ipGeo_1)) then
      !creation du fichier de commande SAL
-     call generateSALFile(ipSal,sizeSA,nbNode,nbCLP,nbFlux,merg,name_geom)
+     call generateSALFile(ipSal,sizeSA,nbNode,nbCLP,nbFlux,nbMacro,merg,imacro)
      deallocate(gig)
      call LCMCL(ipGeo,2)
   endif
-  deallocate(merg)
+  deallocate(imacro,merg)
 
   write(6,*) "  At end of G2S:"
   write(6,*) "    ",sizeSA,"segs or arcs"
   write(6,*) "    ",nbNode,"nodes"
+  write(6,*) "    ",nbFlux,"fluxes"
+  write(6,*) "    ",nbMacro,"macros"
   write(6,*) "    ",nbCLP,"boundary conditions other than default"
 
   !liberation de la memoire allouee
@@ -275,7 +279,7 @@ subroutine initializeData(dimTabCelluleBase,dimTabSegArc)
 
   call initializeTabCelluleBase(dimTabCelluleBase)
   call initializeTabCellulePlaced()
-  allocate(tabSegArc(dimTabSegArc),medium(dimTabCelluleBase))
+  allocate(tabSegArc(dimTabSegArc))
   call initializebCData()  
 end subroutine initializeData
 
@@ -288,7 +292,7 @@ subroutine destroyData(szB,szP)
   integer,intent(in) :: szB,szP
 
 !  if (szB /= 0) call destroyTabCelluleBase(szB)
-  deallocate(medium,tabSegArc)
+  deallocate(tabSegArc)
   if (szB /= 0) deallocate(TabCelluleBase)
   if (szP /= 0) call destroyTabCellulePlaced(szP)
     call destroybCData()

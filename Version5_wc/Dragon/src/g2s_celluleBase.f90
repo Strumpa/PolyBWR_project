@@ -164,7 +164,7 @@ contains
        cell%merge(:lgm) = (/(i,i=1,lgm)/)
     end if
 
-   call LCMLEN(ip,'RADIUS      ',lg,typ)
+    call LCMLEN(ip,'RADIUS      ',lg,typ)
     cell%ok(n_radius) = (lg/=0)
     if(cell%ok(n_radius)) then
        allocate(cell%radius(lg),tmpTabReal(lg),stat=alloc_ok)
