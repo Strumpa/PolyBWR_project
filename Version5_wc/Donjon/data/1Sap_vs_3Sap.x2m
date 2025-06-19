@@ -9,7 +9,7 @@
 LINKED_LIST GeoRes MicroFuel MacroFuel Track System Flux Thermo
             Matex GeoCoeur MacroRefl MacroAll Fmap Power Burnup ;
 MODULE      TRIVAT: TRIVAA: FLUD: GREP: MACINI: NCR: ABORT: THM: SCR:
-            RESINI: GEO: USPLIT: MAC: FLPOW: DELETE: END: EVO: ;
+            GEO: RESINI: USPLIT: MAC: FLPOW: EVO: DELETE: END: ;
 SEQ_ASCII   CpRefl :: FILE './CpRefl' ;
 SEQ_ASCII   Saphyb_as :: FILE './Saphyb_as' ;
 XSM_FILE    Saphyb1 Saphyb2 Saphyb3 CpRefl_xsm ;
