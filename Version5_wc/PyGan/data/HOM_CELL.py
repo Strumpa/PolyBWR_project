@@ -64,9 +64,13 @@ iso_chain_tests = [] #["NO_NG_toGd158","NO_NG_NO_ENE_toGd158"] # "NO_NP_toGd158"
 iso_chain = "Nominal" # "Nominal", "NO_NP_toGd158", "NO_NG_toGd158", "NO_NG_NO_ENE_toGd158"
 
 S2_libs = ["PyNjoy2016"]#,"oldlib"]
+# Serpent2 energy deposition mode : set edep 0 = "Constant energy deposition per fission" --> "PyNjoy2016" and "oldlib" / default setting
+# 											 1 = "Local energy deposition based on ENDF MT458 data"  --> "PyNjoy2016" and "oldlib" 
+# 											 2 = "Local photon energy deposition" --> "PyNjoy2016" only
+set_edep_mode_to_treat = {"PyNjoy2016":[0,1,2],"oldlib":[0]}
 
-ssh_module = "USS" #"USS", "AUTO"
-ssh_method = "PT" #"PT", "RSE", "SUBG" all supported for USS: but AUTO: only takes SUBG
+ssh_module = "AUTO" #"USS", "AUTO"
+ssh_method = "SUBG" #"PT", "RSE", "SUBG" all supported for USS: but AUTO: only takes SUBG
 # for RSE method : test with eps_RSE = 1.0E-1, 5.0E-2, 1.0E-2, 5.0E-3, 1.0E-3, 1.0E-4
 correlation = "noCORR" # "CORR", "noCORR"
 
@@ -200,13 +204,13 @@ if "HOM_UOX_Gd157" in cases_to_run:
 	# -- Test Case 7 :
 	print("In test case 7")
 	if "NO_NP_toGd158" in iso_chain_tests:
-		pyCOMPO_HOM_UOX_Gd157_test_noNP = CHAIN_Gd157("COMPO_Gd157_test_noNP",StepList,f"./_COMPO_HOM_UOX_Gd157_testNONP_{suffixe}_{depl_sol}{SAT}",ssh_module,sat,depl_sol,chain_modif="NO_NP_toGd158")
+		pyCOMPO_HOM_UOX_Gd157_test_noNP = CHAIN_Gd157("COMPO_Gd157_test_noNP",StepList,f"./_COMPO_HOM_UOX_Gd157_NONP_{suffixe}_{depl_sol}{SAT}",ssh_module,sat,depl_sol,chain_modif="NO_NP_toGd158")
 		pyCOMPOs["HOM_UOX_Gd157_NO_NP_toGd158"] = pyCOMPO_HOM_UOX_Gd157_test_noNP
 	if "NO_NG_toGd158" in iso_chain_tests:
-		pyCOMPO_HOM_UOX_Gd157_test_noNG = CHAIN_Gd157("COMPO_Gd157_test_noNG",StepList,f"./_COMPO_HOM_UOX_Gd157_testNONG_{suffixe}_{depl_sol}{SAT}",ssh_module,sat,depl_sol,chain_modif="NO_NG_toGd158")
+		pyCOMPO_HOM_UOX_Gd157_test_noNG = CHAIN_Gd157("COMPO_Gd157_test_noNG",StepList,f"./_COMPO_HOM_UOX_Gd157_NONG_{suffixe}_{depl_sol}{SAT}",ssh_module,sat,depl_sol,chain_modif="NO_NG_toGd158")
 		pyCOMPOs["HOM_UOX_Gd157_NO_NG_toGd158"] = pyCOMPO_HOM_UOX_Gd157_test_noNG
 	if "NO_NG_NO_ENE_toGd158" in iso_chain_tests:
-		pyCOMPO_HOM_UOX_Gd157_test_noNG_noENE = CHAIN_Gd157("COMPO_Gd157_test_noNG_noENE",StepList,f"./_COMPO_HOM_UOX_Gd157_testNONGNOENE_{suffixe}_{depl_sol}{SAT}",ssh_module,sat,depl_sol,chain_modif="NO_NG_NO_ENE_toGd158")
+		pyCOMPO_HOM_UOX_Gd157_test_noNG_noENE = CHAIN_Gd157("COMPO_Gd157_test_noNG_noENE",StepList,f"./_COMPO_HOM_UOX_Gd157_NONGNOENE_{suffixe}_{depl_sol}{SAT}",ssh_module,sat,depl_sol,chain_modif="NO_NG_NO_ENE_toGd158")
 		pyCOMPOs["HOM_UOX_Gd157_NO_NG_NO_ENE_toGd158"] = pyCOMPO_HOM_UOX_Gd157_test_noNG_noENE
 	
 	pyCOMPO_HOM_UOX_Gd157 = UOX_Gd157("COMPO_Gd157",StepList,f"./_COMPO_HOM_UOX_Gd157_{suffixe}_{depl_sol}{SAT}_{ssh_module}_{ssh_method}",ssh_module,ssh_method,sat,depl_sol)
@@ -226,4 +230,4 @@ if "HOM_UOXGd" in cases_to_run:
 
 print(pyCOMPOs)
 #POSTPROC_hom(pyCOMPO, ListeCOMPO, ListeAUTOP, name_geom, name_mix, suffixe, VISU_param, Nmin, GdCompo, S2_libs, ssh_module, ssh_method, correlation, sat, depl_sol)
-MULTI_SERP_POSTPROC(pyCOMPOs, ListeCOMPO, ListeAUTOP, name_geom, suffixe, VISU_param, Nmin, S2_libs, ssh_module, ssh_method, correlation, depl_sol, sat)
+MULTI_SERP_POSTPROC(pyCOMPOs, ListeCOMPO, ListeAUTOP, name_geom, suffixe, VISU_param, Nmin, S2_libs, ssh_module, ssh_method, correlation, depl_sol, sat, set_edep_mode_to_treat)

@@ -283,7 +283,7 @@ GEOM := GEO: :: CAR1D 13
 TRACK := SNT: GEOM ::
   EDIT 1
   MAXR 100000
-  SN 16 SCAT 2 QUAD 10 ;
+  SN 16 SCAT 2 QUAD 2 ;
 
 INTEGER nbZones := 7 ;
 nbZones := UTL: :: CREA 'Radial' 1 = <<nbZones>> ;

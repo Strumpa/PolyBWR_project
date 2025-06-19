@@ -1,7 +1,8 @@
 *DECK SNFDH2
       SUBROUTINE SNFDH2(NUN,NGEFF,IMPX,INCONV,NGIND,NHEX,NBC,IELEM,
-     1 ISPLH,NMAT,NPQ,NSCT,MAT,VOL,TOTAL,QEXT,DU,DE,W,DB,DA,PL,CONNEC,
-     2 SIDE,CONFROM,TASKLST,TASKSINWAVE,CON_WHOAMI,CON_TOWHOM,FUNKNO)
+     1 ISPLH,NMAT,NPQ,NSCT,MAT,VOL,TOTAL,QEXT,DU,DE,W,DB,DA,CONNEC,
+     2 SIDE,CONFROM,TASKLST,TASKSINWAVE,CON_WHOAMI,CON_TOWHOM,FUNKNO,
+     3 MN,DN)
 *
 *-----------------------------------------------------------------------
 *
@@ -45,8 +46,8 @@
 * W       weights.
 * DB      diamond-scheme parameter.
 * DA      diamond-scheme parameter.
-* PL      discrete values of the spherical harmonics corresponding
-*         to the 2D SN quadrature.
+* MN      moment-to-discrete matrix.
+* DN      discrete-to-moment matrix.
 * SIDE    side of an hexagon.
 * CONNEC  connectivity matrix for flux swapping -- which lozenges is the
 *         lozenge under consideration connected to; in order to pass the
@@ -71,14 +72,14 @@
      2 CONFROM(2,3,6),TASKLST(2,NBC,((NBC-1)*4 +1),6), 
      3 TASKSINWAVE(((NBC-1)*4 +1))
       LOGICAL INCONV(NGEFF)
-      REAL SIDE,VOL(ISPLH,ISPLH,3,NHEX), TOTAL(0:NMAT,NGEFF),
-     1 QEXT(NUN,NGEFF), DU(NPQ), DB(ISPLH,ISPLH,3,NHEX,NPQ),
-     2 DA(ISPLH,ISPLH,3,NHEX,NPQ), PL(NSCT,NPQ), DE(NPQ), W(NPQ),
-     3 FUNKNO(NUN,NGEFF)
+      REAL SIDE,VOL(ISPLH,ISPLH,3,NHEX),TOTAL(0:NMAT,NGEFF),
+     1 QEXT(NUN,NGEFF),DU(NPQ),DB(ISPLH,ISPLH,3,NHEX,NPQ),
+     2 DA(ISPLH,ISPLH,3,NHEX,NPQ),DE(NPQ),W(NPQ),
+     3 FUNKNO(NUN,NGEFF),MN(NPQ,NSCT),DN(NSCT,NPQ)
 *----
 *  LOCAL VARIABLES
 *----
-      INTEGER NPQD(6),IIND(6)
+      INTEGER NPQD(6),IIND(6),P
       DOUBLE PRECISION :: Q(IELEM**2), Q2(IELEM**2,(IELEM**2)+1),
      1 VT, CONST0, CONST1, CONST2
       PARAMETER(IUNOUT=6,PI=3.141592654)
@@ -92,7 +93,7 @@
       INTEGER, ALLOCATABLE, DIMENSION(:,:) :: INDANG
       DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:,:) :: FLUX
       DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:,:,:,:,:) :: FLUX_G
-      DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:,:,:,:) :: BFLUX
+      DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:,:,:,:,:) :: BFLUX
       INTEGER MAXWAVECNT
       INTEGER :: CON_WHOAMI(2,(NHEX*3)*2,6), CON_TOWHOM(2,(NHEX*3)*2,6)
       INTEGER CHEXx,CSIDEx,CHEXy,CSIDEy
@@ -111,7 +112,7 @@
       ALLOCATE(INDANG(NPQ,6))
       ALLOCATE(FLUX(IELEM**2,NSCT))
       ALLOCATE(FLUX_G(IELEM**2,NSCT,3*ISPLH**2,NHEX,NGEFF))
-      ALLOCATE(BFLUX(3,NCOL,ISPLH,IELEM))
+      ALLOCATE(BFLUX(3,NCOL,ISPLH,IELEM,NPQ/6))
 
       FLUX_G(:IELEM**2,:NSCT,:3*ISPLH**2,:NHEX,:NGEFF)=0.0D0
 *----
@@ -188,7 +189,7 @@
 *----
 *  KBA DIAGONAL LOOP
 *----
-      BFLUX(:3,:NCOL,:ISPLH,:IELEM)=0.0D0
+      BFLUX(:3,:NCOL,:ISPLH,:IELEM,:)=0.0D0
       DO 230 IDI=1,MAXWAVECNT
 
 * Loop over hexes in same sweep front
@@ -208,7 +209,6 @@
       IF(IMPX.GT.5) WRITE(IUNOUT,400) ITID,NGIND(IG),IPQD
       IF(.NOT.INCONV(IG)) GO TO 200
       M=INDANG(IPQD,IND)
-C       IG=INGIND(IG)
       IF(W(M).EQ.0.0) GO TO 200
 
 * Loop over lozenges
@@ -246,12 +246,18 @@ C       IG=INGIND(IG)
       IF(CONFROM(1,J,IND).EQ.3) I2=ISPLH+1-I2
       I4=I2
 
-!     TO BE CHECKED:
+* It is important that when going from lozenge 3 to 1, the Boundary 
+* Surface  Fluxes (BSF) are not stored in "reverse" order; as it is 
+* done when going from loz. 1 to 3 (this happens when storing the BSF 
+* after flux computation below). This is because the BSF in this KBA 
+* sweep are stored in a "wavefront" array, where the different x and y 
+* boundaries of the lozenges are not tracked. Therefore, for lozenge 1, 
+* the BSF are instead  picked up in "reverse" order (line below).
       IF(J.EQ.1) I4=ISPLH+1-I2
 
       DO IEL=1,IELEM
-         XNJ(IEL) = BFLUX(MSIDEy,MHEXy,I4,IEL)
-         BFLUX(MSIDEy,MHEXy,I4,IEL) = 0
+         XNJ(IEL) = BFLUX(MSIDEy,MHEXy,I4,IEL,IPQD)
+         BFLUX(MSIDEy,MHEXy,I4,IEL,IPQD) = 0
       ENDDO
 
       DO 160 JL=1,ISPLH
@@ -259,12 +265,10 @@ C       IG=INGIND(IG)
       IF(CONFROM(2,J,IND).EQ.4) J2=ISPLH+1-J2
       J4=J2
 
-!     UNCOMMENTING THIS LINE BREAKS THE CODE
-C       IF(J.EQ.3) J4=ISPLH+1-J2
       IF(IL.EQ.1)THEN
          DO IEL=1,IELEM
-            XNI(IEL,J2) = BFLUX(MSIDEx,MHEXx,J4,IEL)
-            BFLUX(MSIDEx,MHEXx,J4,IEL) = 0
+            XNI(IEL,J2) = BFLUX(MSIDEx,MHEXx,J4,IEL,IPQD)
+            BFLUX(MSIDEx,MHEXx,J4,IEL,IPQD) = 0
          ENDDO
       ENDIF
 
@@ -280,10 +284,10 @@ C       IF(J.EQ.3) J4=ISPLH+1-J2
 *     -----------------------------------------------------
       DO 110 IEL=1,IELEM**2
       Q(IEL)=0.0D0
-      DO 100 K=1,NSCT
+      DO 100 P=1,NSCT
       IOF=((((((I-1)*3+(J-1))*ISPLH+(J2-1))*ISPLH+(I2-1))*NSCT+
-     1 (K-1))*IELEM**2)+IEL
-      Q(IEL)=Q(IEL)+QEXT(IOF,IG)*PL(K,M)/(4.0D0*PI)
+     1 (P-1))*IELEM**2)+IEL
+      Q(IEL)=Q(IEL)+QEXT(IOF,IG)*MN(M,P)
   100 CONTINUE
   110 CONTINUE
 *     -----------------------------------------------------
@@ -633,31 +637,32 @@ C       IF(J.EQ.3) J4=ISPLH+1-J2
          C1=-1.0D0
       ENDIF
       IF((IELEM.EQ.1).AND.(CHEXy.NE.0)) THEN
-      BFLUX(CSIDEy,CHEXy,I3,1) =Q2(1,2)
+      BFLUX(CSIDEy,CHEXy,I3,1,IPQD) =Q2(1,2)
+         WRITE(*,*) 'SNFDH2: bflux 1', IHEXJ, NHEX!,BFLUX!(CSIDEy,CHEXy,I3,1,IPQD)
       ELSEIF(IELEM.EQ.2) THEN
-      BFLUX(CSIDEy,CHEXy,I3,1) =Q2(1,5) + 
+      BFLUX(CSIDEy,CHEXy,I3,1,IPQD) =Q2(1,5) + 
      >      SIGN(1.0,ETAH)*Q2(3,5)*(3**(0.5D0))
-      BFLUX(CSIDEy,CHEXy,I3,2) =(Q2(2,5) + 
+      BFLUX(CSIDEy,CHEXy,I3,2,IPQD) =(Q2(2,5) + 
      >      SIGN(1.0,ETAH)*Q2(4,5)*(3**(0.5D0)))*C1
       ELSEIF(IELEM.EQ.3) THEN
-      BFLUX(CSIDEy,CHEXy,I3,1) =Q2(1,10)+
+      BFLUX(CSIDEy,CHEXy,I3,1,IPQD) =Q2(1,10)+
      >      SIGN(1.0,ETAH)*(3**(0.5D0))*Q2(4,10)+(5**(0.5D0))*Q2(7,10)
-      BFLUX(CSIDEy,CHEXy,I3,2) =(Q2(2,10)+
+      BFLUX(CSIDEy,CHEXy,I3,2,IPQD) =(Q2(2,10)+
      >      SIGN(1.0,ETAH)*(3**(0.5D0))*Q2(5,10)+(5**(0.5D0))*Q2(8,10)
      >      )*C1
-      BFLUX(CSIDEy,CHEXy,I3,3) =Q2(3,10)+
+      BFLUX(CSIDEy,CHEXy,I3,3,IPQD) =Q2(3,10)+
      >      SIGN(1.0,ETAH)*(3**(0.5D0))*Q2(6,10)+(5**(0.5D0))*Q2(9,10)
       ELSEIF(IELEM.EQ.4)THEN
-      BFLUX(CSIDEy,CHEXy,I3,1) =Q2(1,17)+
+      BFLUX(CSIDEy,CHEXy,I3,1,IPQD) =Q2(1,17)+
      >      SIGN(1.0,ETAH)*(3**(0.5D0))*Q2(5,17)+(5**(0.5D0))*Q2(9,17)+
      >      SIGN(1.0,ETAH)*(7**(0.5D0))*Q2(13,17)
-      BFLUX(CSIDEy,CHEXy,I3,2) =(Q2(2,17)+
+      BFLUX(CSIDEy,CHEXy,I3,2,IPQD) =(Q2(2,17)+
      >      SIGN(1.0,ETAH)*(3**(0.5D0))*Q2(6,17)+(5**(0.5D0))*Q2(10,17)
      >      +SIGN(1.0,ETAH)*(7**(0.5D0))*Q2(14,17))*C1
-      BFLUX(CSIDEy,CHEXy,I3,3) =Q2(3,17)+
+      BFLUX(CSIDEy,CHEXy,I3,3,IPQD) =Q2(3,17)+
      >      SIGN(1.0,ETAH)*(3**(0.5D0))*Q2(7,17)+(5**(0.5D0))*Q2(11,17)
      >      +SIGN(1.0,ETAH)*(7**(0.5D0))*Q2(15,17)
-      BFLUX(CSIDEy,CHEXy,I3,4) =(Q2(4,17)+
+      BFLUX(CSIDEy,CHEXy,I3,4,IPQD) =(Q2(4,17)+
      >      SIGN(1.0,ETAH)*(3**(0.5D0))*Q2(8,17)+(5**(0.5D0))*Q2(12,17)
      >      +SIGN(1.0,ETAH)*(7**(0.5D0))*Q2(16,17))*C1
       ENDIF
@@ -694,39 +699,40 @@ C          J3=ISPLH+1-J2
          C1=-1.0D0
       ENDIF
       IF((IELEM.EQ.1).AND.(CHEXx.NE.0)) THEN
-      BFLUX(CSIDEx,CHEXx,J3,1) = Q2(1,2)
+      BFLUX(CSIDEx,CHEXx,J3,1,IPQD) = Q2(1,2)
+         WRITE(*,*) 'SNFDH2: bflux 2', IHEXI, NHEX!,BFLUX!(CSIDEx,CHEXx,J3,1,IPQD)
       ELSEIF(IELEM.EQ.2) THEN
-      BFLUX(CSIDEx,CHEXx,J3,1)=Q2(1,5) + 
+      BFLUX(CSIDEx,CHEXx,J3,1,IPQD)=Q2(1,5) + 
      >      SIGN(1.0,MUH)*Q2(2,5)*(3**(0.5D0))
-      BFLUX(CSIDEx,CHEXx,J3,2)=(Q2(3,5) + 
+      BFLUX(CSIDEx,CHEXx,J3,2,IPQD)=(Q2(3,5) + 
      >      SIGN(1.0,MUH)*Q2(4,5)*(3**(0.5D0)))*C1
       ELSEIF(IELEM.EQ.3) THEN
-      BFLUX(CSIDEx,CHEXx,J3,1)=Q2(1,10)+
+      BFLUX(CSIDEx,CHEXx,J3,1,IPQD)=Q2(1,10)+
      >      SIGN(1.0,MUH)*(3**(0.5D0))*Q2(2,10)+(5**(0.5D0))*Q2(3,10)
-      BFLUX(CSIDEx,CHEXx,J3,2)=(Q2(4,10)+
+      BFLUX(CSIDEx,CHEXx,J3,2,IPQD)=(Q2(4,10)+
      >      SIGN(1.0,MUH)*(3**(0.5D0))*Q2(5,10)+(5**(0.5D0))*Q2(6,10)
      >      )*C1
-      BFLUX(CSIDEx,CHEXx,J3,3)=Q2(7,10)+
+      BFLUX(CSIDEx,CHEXx,J3,3,IPQD)=Q2(7,10)+
      >      SIGN(1.0,MUH)*(3**(0.5D0))*Q2(8,10)+(5**(0.5D0))*Q2(9,10)
       ELSEIF(IELEM.EQ.4)THEN
-      BFLUX(CSIDEx,CHEXx,J3,1)=Q2(01,17)+
+      BFLUX(CSIDEx,CHEXx,J3,1,IPQD)=Q2(01,17)+
      >      SIGN(1.0,MUH)*(3**(0.5D0))*Q2(02,17)+(5**(0.5D0))*Q2(03,17)
      >      +SIGN(1.0,MUH)*(7**(0.5D0))*Q2(04,17)
-      BFLUX(CSIDEx,CHEXx,J3,2)=(Q2(05,17)+
+      BFLUX(CSIDEx,CHEXx,J3,2,IPQD)=(Q2(05,17)+
      >      SIGN(1.0,MUH)*(3**(0.5D0))*Q2(06,17)+(5**(0.5D0))*Q2(07,17)
      >      +SIGN(1.0,MUH)*(7**(0.5D0))*Q2(08,17))*C1
-      BFLUX(CSIDEx,CHEXx,J3,3)=Q2(09,17)+
+      BFLUX(CSIDEx,CHEXx,J3,3,IPQD)=Q2(09,17)+
      >      SIGN(1.0,MUH)*(3**(0.5D0))*Q2(10,17)+(5**(0.5D0))*Q2(11,17)
      >      +SIGN(1.0,MUH)*(7**(0.5D0))*Q2(12,17)
-      BFLUX(CSIDEx,CHEXx,J3,4)=(Q2(13,17)+
+      BFLUX(CSIDEx,CHEXx,J3,4,IPQD)=(Q2(13,17)+
      >      SIGN(1.0,MUH)*(3**(0.5D0))*Q2(14,17)+(5**(0.5D0))*Q2(15,17)
      >      +SIGN(1.0,MUH)*(7**(0.5D0))*Q2(16,17))*C1
       ENDIF
       ENDIF
 *
-      DO 150 K=1,NSCT
+      DO 150 P=1,NSCT
       DO 140 IEL=1,IELEM**2
-      FLUX(IEL,K) = FLUX(IEL,K) + 2.0D0*W(M)*Q2(IEL,IELEM**2+1)*PL(K,M)
+      FLUX(IEL,P) = FLUX(IEL,P) + Q2(IEL,IELEM**2+1)*DN(P,M)
   140 CONTINUE
   150 CONTINUE
 

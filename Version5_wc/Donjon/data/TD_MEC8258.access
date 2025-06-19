@@ -1,0 +1,9 @@
+#!/bin/sh
+if [ $# = 0 ]
+   then
+   echo "usage: pincell_mphy_thm.access directory" 1>&2
+   exit 1
+fi
+ln -s "$1"/data/TD_MEC8258_proc/COMPO_TD _COMPO_TD
+ls -l
+echo "pincell_mphy_thm access script terminated"

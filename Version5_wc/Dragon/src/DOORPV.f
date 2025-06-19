@@ -1,6 +1,6 @@
 *DECK DOORPV
       SUBROUTINE DOORPV (CDOOR,JPSYS,NPSYS,IPTRK,IFTRAK,IMPX,NGRP,NREG,
-     1 NBMIX,NANI,MAT,VOL,KNORM,IPIJK,LEAKSW,LNORM,TITR,NALBP)
+     1 NBMIX,NANI,MAT,VOL,KNORM,IPIJK,LEAKSW,ITPIJ,LNORM,TITR,NALBP)
 *
 *-----------------------------------------------------------------------
 *
@@ -37,6 +37,11 @@
 * IPIJK   pij option (=1 pij, =4 pijk).
 * LEAKSW  leakage flag (=.true. if neutron leakage through external
 *         boundary is present).
+* ITPIJ   type of collision probability information available:
+*         =1 scattering modified pij (wij);
+*         =2 standard pij;
+*         =3 scattering modified pij+pijk (wij,wijk);
+*         =4 standard pij+pijk.
 * LNORM   logical switch for removing leakage from collision
 *         probabilities and keeping the PIS information.
 * TITR    title.
@@ -52,7 +57,7 @@
       LOGICAL LEAKSW,LNORM
       TYPE(C_PTR) JPSYS,IPTRK
       INTEGER NPSYS(NGRP),IFTRAK,IMPX,NGRP,NREG,NBMIX,NANI,MAT(NREG),
-     > KNORM,IPIJK,NALBP
+     > KNORM,IPIJK,ITPIJ,NALBP
       REAL VOL(NREG)
       INTEGER NNPSYS(1)
 *----
@@ -121,7 +126,14 @@
         KPSYS=LCMGIL(JPSYS,IOFSET)
         IF(LBIHET) CALL LCMSIX(KPSYS,'BIHET',1)
         CALL LCMGET(KPSYS,'DRAGON-TXSC',SGAR)
-        CALL LCMGET(KPSYS,'DRAGON-S0XSC',SGAS)
+        CALL LCMLEN(KPSYS,'DRAGON-S0XSC',ILONG,ITYLCM)
+        IF(ILONG.GT.NB1*NANI) CALL XABORT('DOORPV: S0XSC OVERFLOW(1).')
+        IF(MOD(ITPIJ,2).EQ.1) THEN
+          CALL LCMGET(KPSYS,'DRAGON-S0XSC',SGAS)
+        ELSE
+          ! avoid scattering reduction
+          SGAS(:NB1*NANI)=0.0
+        ENDIF
         IF(NALBP.GT.0) CALL LCMGET(KPSYS,'ALBEDO',ALBP)
         IF(CDOOR.EQ.'EXCELL') THEN
           IF(IPIJK.EQ.4) THEN
@@ -198,7 +210,14 @@
         KPSYS=LCMGIL(JPSYS,IOFSET)
         IF(LBIHET) CALL LCMSIX(KPSYS,'BIHET',1)
         CALL LCMGET(KPSYS,'DRAGON-TXSC',SGAR((IGR-1)*NB1+1))
-        CALL LCMGET(KPSYS,'DRAGON-S0XSC',SGAS((IGR-1)*NB1*NANI+1))
+        CALL LCMLEN(KPSYS,'DRAGON-S0XSC',ILONG,ITYLCM)
+        IF(ILONG.GT.NB1*NANI) CALL XABORT('DOORPV: S0XSC OVERFLOW(2).')
+        IF(MOD(ITPIJ,2).EQ.1) THEN
+          CALL LCMGET(KPSYS,'DRAGON-S0XSC',SGAS((IGR-1)*NB1*NANI+1))
+        ELSE
+          ! avoid scattering reduction
+          SGAS((IGR-1)*NB1*NANI+1:IGR*NB1*NANI)=0.0
+        ENDIF
         IF(NALBP.GT.0) CALL LCMGET(KPSYS,'ALBEDO',ALBP(1,IGR))
         IF(LBIHET) CALL LCMSIX(KPSYS,' ',2)
       ENDIF

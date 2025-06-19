@@ -1,7 +1,7 @@
 *DECK SNFT22
       SUBROUTINE SNFT22(NUN,NGEFF,IMPX,INCONV,NGIND,LX,LY,IELEM,NMAT,
      1 NPQ,NSCT,MAT,VOL,TOTAL,NCODE,ZCODE,QEXT,DU,DE,W,MRM,MRMY,DB,DA,
-     2 PL,FUNKNO,ISBS,NBS,ISBSM,BS,MAXL)
+     2 FUNKNO,ISBS,NBS,ISBSM,BS,MAXL,MN,DN)
 *
 *-----------------------------------------------------------------------
 *
@@ -48,8 +48,8 @@
 * MRMY    quadrature index.
 * DB      diamond-scheme parameter.
 * DA      diamond-scheme parameter.
-* PL      discrete values of the spherical harmonics corresponding
-*         to the 2D SN quadrature.
+* MN      moment-to-discrete matrix.
+* DN      discrete-to-moment matrix.
 *
 *Parameters: input/output
 * FUNKNO  Legendre components of the flux and boundary fluxes.
@@ -67,12 +67,13 @@
      2 ISBSM(4*ISBS,NPQ*ISBS,NGEFF*ISBS),MAXL
       LOGICAL INCONV(NGEFF)
       REAL VOL(LX,LY),TOTAL(0:NMAT,NGEFF),ZCODE(4),QEXT(NUN,NGEFF),
-     1 DU(NPQ),DE(NPQ),W(NPQ),DB(LX,NPQ),DA(LX,LY,NPQ),PL(NSCT,NPQ),
-     2 FUNKNO(NUN,NGEFF),BS(MAXL*ISBS,NBS*ISBS)
+     1 DU(NPQ),DE(NPQ),W(NPQ),DB(LX,NPQ),DA(LX,LY,NPQ),
+     2 FUNKNO(NUN,NGEFF),BS(MAXL*ISBS,NBS*ISBS),MN(NPQ,NSCT),
+     3 DN(NSCT,NPQ)
 *----
 *  LOCAL VARIABLES
 *----
-      INTEGER NPQD(4),IIND(4)
+      INTEGER NPQD(4),IIND(4),P
       DOUBLE PRECISION Q(IELEM**2),Q2(IELEM**2,(IELEM**2)+1),XNJ(IELEM),
      1 VT
       PARAMETER(IUNOUT=6,PI=3.141592654)
@@ -256,9 +257,9 @@
       IF(MAT(I,J).EQ.0) GO TO 140
       DO 115 IEL=1,IELEM**2
       Q(IEL)=0.0D0
-      DO 110 K=1,NSCT
-      IOF=((J-1)*LX*NSCT+(I-1)*NSCT+(K-1))*IELEM*IELEM+IEL
-      Q(IEL)=Q(IEL)+QEXT(IOF,IG)*PL(K,M)/(4.0D0*PI)
+      DO 110 P=1,NSCT
+      IOF=((J-1)*LX*NSCT+(I-1)*NSCT+(P-1))*IELEM*IELEM+IEL
+      Q(IEL)=Q(IEL)+QEXT(IOF,IG)*MN(M,P)
   110 CONTINUE
   115 CONTINUE
 
@@ -608,10 +609,9 @@
      >    (5**(0.5D0))*Q2(12,17)+SIGN(1.0,DE(M))*(7**(0.5D0))*Q2(16,17)
       ENDIF
 *
-      DO 135 K=1,NSCT
+      DO 135 P=1,NSCT
       DO 130 IEL=1,IELEM**2
-      FLUX(IEL,K,I,J)=FLUX(IEL,K,I,J)+2.0D0*W(M)*Q2(IEL,IELEM**2+1)*
-     1 PL(K,M)
+      FLUX(IEL,P,I,J)=FLUX(IEL,P,I,J)+Q2(IEL,IELEM**2+1)*DN(P,M)
   130 CONTINUE
   135 CONTINUE
 *--
