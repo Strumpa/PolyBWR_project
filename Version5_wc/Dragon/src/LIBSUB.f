@@ -115,9 +115,9 @@
    30 CONTINUE
    35 CONTINUE
       CALL KDRCPU(TK1)
-*     -----------------------------------
-      CALL LIBLIB(IPLIB,NBISO,MASKJ,IMPX)
-*     -----------------------------------
+*     --------------------------------------
+      CALL LIBLIB(IPLIB,NBISO,MASKJ(1),IMPX)
+*     --------------------------------------
       CALL KDRCPU(TK2)
       TKSUB=TKSUB+(TK2-TK1)
       CALL LCMLEN(IPLIB,'ENERGY',ILENG,ITYLCM)
@@ -146,7 +146,7 @@
          CALL LCMGET(IPLIB,'ISOTOPESCOH',IHLIB(1,1,2))
          CALL LCMGET(IPLIB,'ISOTOPESINC',IHLIB(1,1,3))
       ELSE
-         CALL XDISET(NTFG,NBISO,0)
+         NTFG(:NBISO)=0
       ENDIF
       CALL LCMLEN(IPLIB,'ISOTOPESRESK',ILENG,ITYLCM)
       IF(ILENG.GT.0) THEN
@@ -165,8 +165,8 @@
          CALL LCMGET(IPLIB,'ISOTOPESNIR',NIR)
          CALL LCMGET(IPLIB,'ISOTOPESGIR',GIR)
       ELSE
-         CALL XDISET(NIR,NBISO,0)
-         CALL XDRSET(GIR,NBISO,1.0)
+         NIR(:NBISO)=0
+         GIR(:NBISO)=0.0
       ENDIF
 *----
 *  PROCESS THE RESONANT ISOTOPES.
@@ -365,9 +365,9 @@
          DEALLOCATE(KTN,KSN)
 *
          CALL KDRCPU(TK1)
-*        ------------------------------------
-         CALL LIBLIB(IPTMP,NDIL+1,MASK2,IMPY)
-*        ------------------------------------
+*        ---------------------------------------
+         CALL LIBLIB(IPTMP,NDIL+1,MASK2(1),IMPY)
+*        ---------------------------------------
          CALL KDRCPU(TK2)
          TKSUB=TKSUB+(TK2-TK1)
 *
@@ -465,7 +465,7 @@
          ENDIF
 *
 *        RESET ALIAS
-         CALL LCMPTC(KPLIB,'ALIAS',12,1,HNAMIS)
+         CALL LCMPTC(KPLIB,'ALIAS',12,HNAMIS)
          CALL KDRCPU(TK2)
          TKTAB=TKTAB+(TK2-TK1)
       ENDIF

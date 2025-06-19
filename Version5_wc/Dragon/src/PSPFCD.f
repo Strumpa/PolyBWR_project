@@ -48,7 +48,7 @@
       TYPE(C_PTR)      JPFL
       INTEGER          IGC,IGD,IGF,IUN
 *
-      CALL XDRSET(FLUXC,NUNKNO,0.0)
+      FLUXC(:NUNKNO)=0.0
       IGF=ICOND(IGR)
       IF(IGR .EQ. 1) THEN
         IGD=1

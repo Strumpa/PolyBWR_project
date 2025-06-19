@@ -86,7 +86,7 @@
          CALL LCMGET(IPLIB,'NUSIGF',SIGF)
          LFIS2=LFIS
       ELSE
-         CALL XDRSET(SIGF,NGRO,0.0)
+         SIGF(:NGRO)=0.0
          LFIS2=.FALSE.
       ENDIF
 *----

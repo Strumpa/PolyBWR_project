@@ -31,5 +31,7 @@ fi
 if [ -f "$pos"/draglibJeff3p1p1SHEM295 ]
 then
 ln -s "$pos"/draglibJeff3p1p1SHEM295 J311_295
+ln -s ../../../libraries/l_endian/newGen_draglibJeff3p1p1SHEM295 newJ311_295
+else
 echo "HOM_CELL.access script terminated"
 fi

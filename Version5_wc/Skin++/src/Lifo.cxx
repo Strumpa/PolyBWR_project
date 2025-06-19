@@ -34,7 +34,7 @@ ganlib::Lifo::~Lifo() {
   int_32 nitma = clecls(&(this->addr));
   if(nitma != 0) {
     char hsmg[132];
-    sprintf(hsmg,"Lifo destruction failure: Lifo not empty");
+    snprintf(hsmg,42,"%s\n","Lifo destruction failure: Lifo not empty");
     xabort_c(hsmg);
   }
   delete this->global_list;

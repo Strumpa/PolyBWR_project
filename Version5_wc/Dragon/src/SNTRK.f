@@ -1,7 +1,7 @@
 *DECK SNTRK
       SUBROUTINE SNTRK(MAXPTS,IPTRK,IPGEOM,IMPX,ISCHM,IELEM,ISPLH,INSB,
      1 NLF,MAXIT,EPSI,ISCAT,IQUAD,LFIXUP,LIVO,ICL1,ICL2,LDSA,NSTART,
-     2 NSDSA,IELEMSA,ISOLVSA,LBIHET,LSHOOT,IBFP,NKBA,NMPI,NFOU,
+     2 NSDSA,IELEMSA,ISOLVSA,LBIHET,LSHOOT,IBFP,MCELL,NMPI,NFOU,
      3 EELEM,ESCHM,IGLK)
 *
 *-----------------------------------------------------------------------
@@ -60,7 +60,9 @@
 *         =0 no Fokker-Planck term;
 *         =1 Galerkin type;
 *         =2 heuristic Przybylski and Ligou type.
-* NKBA    number of macrocells along each axis (in Cartesian geometry)
+* MCELL   number of macrocells along each axis (in Cartesian geometry)
+*         for the parallelisation using the OpenMP paradigm; OR
+*         number of macrocells along the z-axis (in hexagonal geometry)
 *         for the parallelisation using the OpenMP paradigm.
 * NMPI    number of macrocells along each axis (in Cartesian geometry)
 *         or along the z-axis for the hexagonal geometry for the
@@ -88,7 +90,7 @@
 *----
       TYPE(C_PTR) IPTRK,IPGEOM
       INTEGER MAXPTS,IMPX,ISCHM,IELEM,ISPLH,INSB,NLF,ISCAT,IQUAD,
-     1 MAXIT,ICL1,ICL2,NSTART,NSDSA,IELEMSA,ISOLVSA,NKBA,NMPI,NFOU,
+     1 MAXIT,ICL1,ICL2,NSTART,NSDSA,IELEMSA,ISOLVSA,MCELL,NMPI,NFOU,
      2 EELEM,ESCHM,IGLK
       REAL EPSI
       LOGICAL LFIXUP,LDSA,LBIHET,LIVO,LSHOOT
@@ -98,21 +100,14 @@
       PARAMETER(NSTATE=40)
       LOGICAL ILK
       CHARACTER HSMG*131
-      INTEGER ISTATE(NSTATE),IGP(NSTATE),NCODE(6),ICODE(6),ILOZSWP(3,6),
-     1 CONFROM(2,3,6),P
+      INTEGER ISTATE(NSTATE),IGP(NSTATE),NCODE(6),ICODE(6),LOZSWP(3,6),P
       REAL ZCODE(6)
       INTEGER, ALLOCATABLE, DIMENSION(:) :: MAT,IDL,ISPLX,ISPLY,ISPLZ,
-     1 JOP,MRMX,MRMY,MRMZ,IZGLOB,CONNEC,IL,IM
+     1 JOP,MRMX,MRMY,MRMZ,IL,IM
+      INTEGER, ALLOCATABLE, DIMENSION(:,:) :: COORDMAP
       INTEGER, ALLOCATABLE, DIMENSION(:,:,:) :: KEYANI
       REAL, ALLOCATABLE, DIMENSION(:) :: VOL,XXX,YYY,ZZZ,UU,WW,PL,TPQ,
-     1 UPQ,VPQ,WPQ,ALPHA,PLZ,SURF,DU,DE,DZ,DC,DB,DA,DAL,WX,WE,CST,MN,DN 
-*
-      INTEGER, ALLOCATABLE, DIMENSION(:,:) :: TASKSINWAVE
-      INTEGER, ALLOCATABLE, DIMENSION(:) :: TASKLST
-      INTEGER, ALLOCATABLE, DIMENSION(:,:,:) :: CON_WHOAMI, CON_TOWHOM
-
-      INTEGER :: MAXCELLCNT, MAXWAVECNT, PLNCELLCNT, PLNWAVECNT,
-     1   APPCELLCNT
+     1 UPQ,VPQ,WPQ,ALPHA,PLZ,SURF,DU,DE,DZ,DC,DB,DA,DAL,WX,WE,CST,MN,DN
 *----
 *  SCRATCH STORAGE ALLOCATION
 *----
@@ -414,6 +409,7 @@
          IGE=0
 *
          IF(ITYPE.EQ.5) THEN
+            ! 2D Cartesian
             IF(NFOU.GT.0)THEN
                XLEN = XXX(LX+1)
                YLEN = YYY(LY+1)
@@ -424,57 +420,20 @@
                CALL LCMPUT(IPTRK,'YLEN',1,2,YLEN)
             ENDIF
          ELSEIF(ITYPE.EQ.6) THEN
+            ! 2D Tube
             IGE=1
          ELSEIF(ITYPE.EQ.8) THEN
+            ! 2D Hexagonal
             IGE=2
             NHEX=LX/(3*ISPLH**2)
-            ! NPQ=(NLF/2)*6
-            MAXCON   =(NHEX*3)*2*3*6
-            ALLOCATE(IZGLOB(NHEX*6),CONNEC(MAXCON))
-            CONNEC = 0 
-            CONFROM = 0
-            CALL SNTSFH(IMPX,NHEX,ISPLH,MAT,IZGLOB,ILOZSWP,CONNEC,
-     1      CONFROM)
-*
-            ! Graph building for parallel sweep on hexagonal geometry
-            ! using MPI in WYVERN
-            NBC=INT((SQRT(  REAL((4*NHEX-1)/3)  )+1.)/2.)
-            MAXCELLCNT = NBC
-            MAXWAVECNT = ((NBC-1)*4) +1
-            IF((NKBA.GE.1).OR.(NMPI.GE.1)) THEN
-              IF(NMPI.EQ.0) NTHR = NKBA
-              IF(NKBA.EQ.0) NTHR = NMPI
-              ALLOCATE(TASKLST(2*MAXCELLCNT*MAXWAVECNT*6))
-              ALLOCATE(TASKSINWAVE(MAXWAVECNT,6))
-              ALLOCATE(CON_WHOAMI(2,(NHEX*3)*2,6))
-              ALLOCATE(CON_TOWHOM(2,(NHEX*3)*2,6))
-              TASKLST(:)=0
-              TASKSINWAVE(:,:)=0
-              CON_WHOAMI(:,:,:)=0
-              CON_TOWHOM(:,:,:)=0
-*
-
-              CALL SNGRPH(IMPX,NTHR,NHEX,LZ,NBC,MAXCELLCNT,MAXWAVECNT,
-     1         IZGLOB,CONNEC,TASKLST,TASKSINWAVE,NWAVES,MAXLOZ,
-     2         CON_WHOAMI,CON_TOWHOM)
-*
-              CALL LCMPUT(IPTRK,'TASKLIST',2*MAXCELLCNT*MAXWAVECNT*6,
-     1            1,TASKLST)
-              CALL LCMPUT(IPTRK,'TASKSINWAVE',MAXWAVECNT,1,TASKSINWAVE)
-              CALL LCMPUT(IPTRK,'CON_WHOAMI',2*(NHEX*3)*2*6,1,
-     1            CON_WHOAMI)
-              CALL LCMPUT(IPTRK,'CON_TOWHOM',2*(NHEX*3)*2*6,1,
-     1            CON_TOWHOM)
-*
-              DEALLOCATE(TASKLST,TASKSINWAVE,CON_WHOAMI,CON_TOWHOM)
-            ENDIF
-*
-            CALL LCMPUT(IPTRK,'CONNEC',MAXCON,1,CONNEC)
-            CALL LCMPUT(IPTRK,'IZGLOB',NHEX*6,1,IZGLOB)
-            CALL LCMPUT(IPTRK,'ILOZSWP',3*6,1,ILOZSWP)
+            ALLOCATE(COORDMAP(3,NHEX))
+            COORDMAP(:,:)=0
+            CALL SNTSFH(IMPX,ITYPE,NHEX,LZ,MCELL,ISPLH,MAT,LOZSWP,
+     >         COORDMAP)
+            CALL LCMPUT(IPTRK,'LOZSWP',3*6,1,LOZSWP)
+            CALL LCMPUT(IPTRK,'COORDMAP',3*NHEX,1,COORDMAP)
             CALL LCMPUT(IPTRK,'SIDE',1,2,SIDE)
-            CALL LCMPUT(IPTRK,'CONFROM',2*3*6,1,CONFROM)
-            DEALLOCATE(IZGLOB,CONNEC)
+            DEALLOCATE(COORDMAP)
          ENDIF
 *
          ALLOCATE(MRMX(NPQ),MRMY(NPQ))
@@ -520,70 +479,30 @@
             NSCT=ISCAT*(ISCAT+1)
          ENDIF
          IGE=0
+*
          IF(ITYPE.EQ.9) THEN
+            ! 3D Hexagonal
             IGE=2
             NHEX     =LX/(3*ISPLH**2)
-            MAXCON   =(NHEX*3)*2*3*6
-            ALLOCATE(IZGLOB(NHEX*6),CONNEC(MAXCON))
-            CONNEC = 0 
-            CONFROM = 0
-            CALL SNTSFH(IMPX,NHEX,ISPLH,MAT,IZGLOB,ILOZSWP,CONNEC,
-     1      CONFROM)
-*
-            ! Graph building for parallel sweep on hexagonal geometry
-            ! using MPI in WYVERN
-            NBC=INT((SQRT(  REAL((4*NHEX-1)/3)  )+1.)/2.)
-
-            IF((NKBA.GE.1).OR.(NMPI.GE.1)) THEN
-              IF(NMPI.EQ.0) NTHR = NKBA
-              IF(NKBA.EQ.0) NTHR = NMPI
-              NMZ=NTHR
-*
-              PLNCELLCNT = NBC
-              APPCELLCNT = NBC*NMZ
-              PLNWAVECNT = ((NBC-1)*4) +1
-              MAXWAVECNT = PLNWAVECNT +NMZ -1
-              ALLOCATE(TASKLST(2*APPCELLCNT*MAXWAVECNT*6))
-              ALLOCATE(TASKSINWAVE(MAXWAVECNT,6))
-              ALLOCATE(CON_WHOAMI(2,(NHEX*3)*2,6))
-              ALLOCATE(CON_TOWHOM(2,(NHEX*3)*2,6))
-*
-              TASKLST(:) = 0
-              TASKSINWAVE(:,:) = 0
-              CON_WHOAMI(:,:,:)=0
-              CON_TOWHOM(:,:,:)=0
-*
-              CALL SNGRPH(IMPX,NTHR,NHEX,LZ,NBC,APPCELLCNT,MAXWAVECNT,
-     1         IZGLOB,CONNEC,TASKLST,TASKSINWAVE,NWAVES,MAXLOZ,
-     2         CON_WHOAMI,CON_TOWHOM)
-*
-              CALL LCMPUT(IPTRK,'TASKLIST',2*APPCELLCNT*MAXWAVECNT*6,1,
-     1            TASKLST)
-              CALL LCMPUT(IPTRK,'TASKSINWAVE',MAXWAVECNT,1,TASKSINWAVE)
-              CALL LCMPUT(IPTRK,'CON_WHOAMI',2*(NHEX*3)*2*6,1,
-     1            CON_WHOAMI)
-              CALL LCMPUT(IPTRK,'CON_TOWHOM',2*(NHEX*3)*2*6,1,
-     1            CON_TOWHOM)
-*
-              DEALLOCATE(TASKLST,TASKSINWAVE,CON_WHOAMI,CON_TOWHOM)
-            ENDIF
-*
-            CALL LCMPUT(IPTRK,'CONNEC',MAXCON,1,CONNEC)
-            CALL LCMPUT(IPTRK,'IZGLOB',NHEX*6,1,IZGLOB)
-            CALL LCMPUT(IPTRK,'ILOZSWP',3*6,1,ILOZSWP)
+            ALLOCATE(COORDMAP(3,NHEX))
+            COORDMAP(:,:)=0
+            CALL SNTSFH(IMPX,ITYPE,NHEX,LZ,MCELL,ISPLH,MAT,LOZSWP,
+     >         COORDMAP)
+            CALL LCMPUT(IPTRK,'LOZSWP',3*6,1,LOZSWP)
+            CALL LCMPUT(IPTRK,'COORDMAP',3*NHEX,1,COORDMAP)
             CALL LCMPUT(IPTRK,'SIDE',1,2,SIDE)
-            CALL LCMPUT(IPTRK,'CONFROM',2*3*6,1,CONFROM)
-            DEALLOCATE(IZGLOB,CONNEC)
+            DEALLOCATE(COORDMAP)
          ENDIF
+*
          ALLOCATE(MRMX(NPQ),MRMY(NPQ),MRMZ(NPQ))
          ALLOCATE(DU(NPQ),DE(NPQ),DZ(NPQ),WW(NPQ),DC(LX*LY*NPQ),
      1   DB(LX*LZ*NPQ),DA(LY*LZ*NPQ),WX(IELEM+1),
      2   WE(EELEM+1),CST(MAX(IELEM,EELEM)),MN(NSCT*NPQ),DN(NPQ*NSCT),
      3   IL(NSCT),IM(NSCT),PL(NSCT*NPQ))
-         CALL SNTT3D(IGE,IMPX,LX,LY,LZ,SIDE,IELEM,ISPLH,NLF,NPQ,NSCT,
-     1   IQUAD,NCODE,ZCODE,MAT,XXX,YYY,ZZZ,VOL,IDL,DU,DE,DZ,WW,MRMX,
-     2   MRMY,MRMZ,DC,DB,DA,PL,LL4,NUN,EELEM,WX,WE,
-     3   CST,IBFP,ISCHM,ESCHM,IGLK,MN,DN,IL,IM,ISCAT)
+         CALL SNTT3D(IGE,IMPX,LX,LY,LZ,SIDE,IELEM,NLF,NPQ,NSCT,IQUAD,
+     1   NCODE,ZCODE,MAT,XXX,YYY,ZZZ,VOL,IDL,DU,DE,DZ,WW,MRMX,MRMY,
+     2   MRMZ,DC,DB,DA,PL,LL4,NUN,EELEM,WX,WE,CST,IBFP,ISCHM,ESCHM,
+     3   IGLK,MN,DN,IL,IM,ISCAT)
 *
          CALL LCMPUT(IPTRK,'DU',NPQ,2,DU)
          CALL LCMPUT(IPTRK,'DE',NPQ,2,DE)
@@ -677,7 +596,7 @@
 *----
 *  SAVE GENERAL AND SN-SPECIFIC TRACKING INFORMATION.
 *----
-      CALL XDISET(IGP,NSTATE,0)
+      IGP(:NSTATE)=0
       IGP(1)=NEL
       IGP(2)=NUN
       IF(ILK) THEN
@@ -711,7 +630,7 @@
       IGP(25)=ICL2
       IGP(26)=ISPLH
       IGP(27)=INSB
-      IGP(28)=NKBA
+      IGP(28)=MCELL
       IF((ITYPE.EQ.3).OR.(ITYPE.GE.4)) IGP(29)=1
       IGP(30)=0
       IF(LSHOOT) IGP(30)=1

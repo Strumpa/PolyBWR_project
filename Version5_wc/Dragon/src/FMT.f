@@ -82,7 +82,7 @@
         SENTRY(IEN)='            '
         IF(IENTRY(IEN) .EQ. 1 .OR. IENTRY(IEN) .EQ. 2) THEN
           IF(JENTRY(IEN) .NE. 0) THEN
-            CALL LCMGTC(KENTRY(IEN),'SIGNATURE',12,1,HSIGN)
+            CALL LCMGTC(KENTRY(IEN),'SIGNATURE',12,HSIGN)
             SENTRY(IEN)=HSIGN
           ENDIF
         ENDIF
@@ -91,7 +91,7 @@
 *  Recover processing option
 *----
       NOPT=MXOPT
-      CALL XDISET(IOPT,NOPT,0)
+      IOPT(:NOPT)=0
       CALL FMTGET(IPRINT,NOPT,IOPT)
 *----
 *  Process files

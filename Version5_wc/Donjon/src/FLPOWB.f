@@ -68,9 +68,9 @@
       POWER=0.0D0
       IBMX=0
       ICMX=0
-      CALL XDISET(FMAT,NMAT,0)
+      FMAT(:NMAT)=0
       CALL LCMGET(IPMTX,'MAT',FMAT)
-      CALL XDRSET(POWB,NCH*NB,0.)
+      POWB(:NCH,:NB)=0.0
       IF(IMPX.GT.0)WRITE(IOUT,1004)
 *
       NTOT=0
@@ -132,9 +132,8 @@
    50 PCMX=0.
       CAVG=0.0D0
       POWER=0.0D0
-      CALL XDRSET(POWC,NCH,0.)
+      POWC(:NCH)=0.0
       DO 70 ICH=1,NCH
-      POWC(ICH)=0.
       VOLCH=0.0
       DO 60 IB=1,NB
       POWC(ICH)=POWC(ICH)+POWB(ICH,IB)

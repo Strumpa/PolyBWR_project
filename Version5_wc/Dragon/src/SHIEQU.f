@@ -90,7 +90,7 @@
          CALL LCMGET(KPLIB,'BIN-NTOT0',TBIN)
          CALL LCMGET(KPLIB,'BIN-SIGS00',SBIN)
       ELSE
-         CALL XDISET(NFS,NGRO,0)
+         NFS(:NGRO)=0
       ENDIF
       LBIN=0
       DO 110 IGRP=1,NGRO

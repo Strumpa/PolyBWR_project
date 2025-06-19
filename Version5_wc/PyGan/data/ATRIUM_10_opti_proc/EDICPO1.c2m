@@ -1,0 +1,124 @@
+* EDICPO1.c2m Deck
+* This procedure is used to call EDI: and COMPO: modules to homogenize and condense cross sections and fluxes.
+* These can then be used for post treatment of reaction rates.
+
+PARAMETER COMPO FLUX LIBRARY2 TRACK ::
+::: LINKED_LIST COMPO ;
+::: LINKED_LIST FLUX ;
+::: LINKED_LIST LIBRARY2 ;
+::: LINKED_LIST TRACK ; ;
+
+STRING name_cpo save_opt ;
+:: >>name_cpo<< >>save_opt<< ; ! save option for COMPO: module, e.g. "SAVE" or "NOSAVE"
+
+MODULE EDI: COMPO: DELETE: END: ;
+
+LINKED_LIST EDIRATES ;
+SEQ_ASCII _COMPO :: FILE <<name_cpo>> ;
+
+
+**********************************************************************************************************
+********************          EXPORTS FOR POST-TREATMENT OF REACTION RATES               *****************
+**********************************************************************************************************
+COMPO := COMPO: ::
+EDIT 1
+STEP UP 'EDI_HOM'
+    MAXCAL 5
+    COMM 'Reaction rates- Condensed, Homogenized over all fuel cells' ENDC
+    ISOT 5 U234 U235 U238 Gd155 Gd157
+INIT
+STEP UP 'H_ENRICH_1'
+    MAXCAL 5
+    COMM 'Reaction rates- Condensed, Homogenized per enrichment' ENDC
+    ISOT 5 U234 U235 U238 Gd155 Gd157
+INIT
+STEP UP 'H_ENRICH_2'
+    MAXCAL 5
+    COMM 'Reaction rates - Condensed 2gr, Homogenized per enrichment' ENDC
+    ISOT 5 U234 U235 U238 Gd155 Gd157
+INIT
+;
+
+**** homogenization over all fuel cells
+EDIRATES := EDI: FLUX LIBRARY2 TRACK ::
+    EDIT 1
+    MICR 5 U234 U235 U238 Gd155 Gd157
+    MERG MIX 
+        1 1 1 1 
+        1 1 1 1 
+        1 1 1 1 
+        1 1 1 1 
+        1 1 1 1 
+        1 1 1 1 
+        1 1 1 1 1 1 
+        1 1 1 1 1 1
+        0 0 0 0 0
+    COND
+    SAVE ON EDI_HOM
+    ;
+
+COMPO := COMPO: COMPO EDIRATES LIBRARY2 ::
+        EDIT 1
+        STEP UP 'EDI_HOM'
+    ;
+
+EDIRATES := DELETE: EDIRATES ;
+
+***** Cell-wise homogenization
+*** Condense all rates on 1 group :
+EDIRATES := EDI: FLUX LIBRARY2 TRACK ::
+    EDIT 1
+    MICR 5 U234 U235 U238 Gd155 Gd157
+    MERG MIX 
+        1 1 1 1 
+        2 2 2 2 
+        3 3 3 3  
+        4 4 4 4 
+        5 5 5 5 
+        6 6 6 6  
+        7 7 7 7 7 7 
+        8 8 8 8 8 8
+        0 0 0 0 0
+    COND
+    SAVE ON H_ENRICH_1
+    ;
+
+COMPO := COMPO: COMPO EDIRATES LIBRARY2 ::
+    EDIT 1
+    STEP UP 'H_ENRICH_1'
+    ;
+
+EDIRATES := DELETE: EDIRATES ;
+
+
+*** Condense rates to 2 groups with division between groups at 0.625 eV
+
+EDIRATES := EDI: FLUX LIBRARY2 TRACK ::
+    EDIT 1
+    MICR 5 U234 U235 U238 Gd155 Gd157
+    MERG MIX 
+        1 1 1 1 
+        2 2 2 2 
+        3 3 3 3  
+        4 4 4 4 
+        5 5 5 5 
+        6 6 6 6  
+        7 7 7 7 7 7 
+        8 8 8 8 8 8
+        0 0 0 0 0
+    COND 0.625
+    SAVE ON H_ENRICH_2 
+    ;
+
+COMPO := COMPO: COMPO EDIRATES LIBRARY2 ::
+        EDIT 1
+        STEP UP 'H_ENRICH_2'
+    ;
+
+EDIRATES := DELETE: EDIRATES ;
+
+IF save_opt "SAVE" = THEN
+    _COMPO := COMPO ;
+ENDIF ;
+
+END: ;

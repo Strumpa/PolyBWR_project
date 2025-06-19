@@ -27,13 +27,13 @@ endif
 
 ifeq ($(intel),1)
   fcompiler = ifort
-  ccompiler = gcc
+  ccompiler = icc
 else
   ifeq ($(nvidia),1)
     fcompiler = nvfortran
     ccompiler = nvc
   else
-    ifeq ($(flang),1)
+    ifeq ($(llvm),1)
       fcompiler = flang-new
       ccompiler = clang
     else
@@ -67,15 +67,15 @@ ifeq ($(OS),Linux)
   F90 = $(fcompiler)
   C = $(ccompiler)
   CFLAGS = -Wall $(nbit) -fPIC
-  FFLAGS = -Wall $(nbit) -fPIC
-  FFLAG77 = -Wall $(nbit) -fPIC
+  FFLAGS = $(nbit) -fPIC
+  FFLAG77 = $(nbit) -fPIC
 else
 ifeq ($(OS),CYGWIN)
   F90 = $(fcompiler)
   C = $(ccompiler)
   CFLAGS = -Wall $(nbit) -fPIC
-  FFLAGS = -Wall $(nbit) -fPIC
-  FFLAG77 = -Wall $(nbit) -fPIC
+  FFLAGS = $(nbit) -fPIC
+  FFLAG77 = $(nbit) -fPIC
 else
 ifeq ($(OS),SunOS)
   fcompiler =
@@ -110,8 +110,8 @@ ifeq ($(fcompiler),gfortran)
   ifeq ($(OS),Darwin)
     summary = -ffpe-summary=none
   endif
-  FFLAGS += $(summary)
-  FFLAG77 += -frecord-marker=4 $(summary)
+  FFLAGS += -Wall $(summary)
+  FFLAG77 += -Wall -frecord-marker=4 $(summary)
 endif
 
 ifeq ($(intel),1)
@@ -124,9 +124,11 @@ else
     lib = ../lib/$(DIRNAME)_nvidia
     lib_module = ../lib/$(DIRNAME)_nvidia/modules
   else
-    ifeq ($(flang),1)
-      lib = ../lib/$(DIRNAME)_flang
-      lib_module = ../lib/$(DIRNAME)_flang/modules
+    ifeq ($(llvm),1)
+      lib = ../lib/$(DIRNAME)_llvm
+      lib_module = ../lib/$(DIRNAME)_llvm/modules
+      FFLAGS += -mmlir -fdynamic-heap-array
+      LFLAGS += -lclang_rt.osx
     else
       lib = ../lib/$(DIRNAME)
       lib_module = ../lib/$(DIRNAME)/modules
@@ -153,10 +155,10 @@ ifeq ($(intel),1)
 	@echo 'Utilib: intel is defined'
 endif
 ifeq ($(nvidia),1)
-  @echo 'Utilib: nvidia is defined'
+	@echo 'Utilib: nvidia is defined'
 endif
-ifeq ($(flang),1)
-  @echo 'Utilib: flang is defined'
+ifeq ($(llvm),1)
+]	@echo 'Utilib: llvm is defined'
 endif
 	@echo "Utilib: python version=" ${python_version_major}
 %.o : %.c

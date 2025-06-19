@@ -1,6 +1,6 @@
 *DECK EDIDEP
       SUBROUTINE EDIDEP(IPRINT,IPLIB,IPEDIT,NBNISO,HNNRF,ILNRF,IEVOL,
-     1           LISO,NBCH)
+     1           LISO,KERMA,NBCH)
 *
 *-----------------------------------------------------------------------
 *
@@ -28,6 +28,7 @@
 * IEVOL   flag making an isotope non-depleting:
 *         =1 to force an isotope to be non-depleting.
 * LISO    =.true. if we want to register each isotope after merging.
+* KERMA   kerma availability (=1 if 'H-FACTOR' is available).
 *
 *Parameters: output
 * NBCH    number of depleting nuclides after lumping
@@ -40,16 +41,20 @@
 *----
       TYPE(C_PTR) IPLIB,IPEDIT
       INTEGER IPRINT,NBNISO,HNNRF(3,NBNISO),ILNRF(NBNISO),IEVOL(NBNISO),
-     & NBCH
+     & KERMA(NBNISO),NBCH
       LOGICAL LISO
 *----
 *  LOCAL VARIABLES
 *----
       PARAMETER (NSTATE=40,MAXBCH=500)
       INTEGER ISTATE(NSTATE),HICH(3,MAXBCH)
+*----
+*  ALLOCATABLE ARRAYS
+*----
       INTEGER, ALLOCATABLE, DIMENSION(:) :: MYLIS,IHREAC,IDREA,IPREA
       INTEGER, ALLOCATABLE, DIMENSION(:,:) :: IHISO
-      REAL, ALLOCATABLE, DIMENSION(:) :: DENER,DDECA,PRATE,YIELD
+      REAL, ALLOCATABLE, DIMENSION(:) :: DDECA
+      REAL, ALLOCATABLE, DIMENSION(:,:) :: DENER,PRATE,YIELD
 *----
 *  FIND THE DEPLETING ISOTOPES IN THE EDITION MICROLIB
 *----
@@ -96,12 +101,16 @@
          MAXFP=NBDPF+30 ! reserve 30 location for lumped fp daughters
          NBFPCH=NBCH
          ALLOCATE(MYLIS(NBISO),IHREAC(2*NREAC),IDREA(NREAC*NBISO),
-     1   DENER(NREAC*NBISO),DDECA(NBISO),IPREA(NFATH*NBISO),
-     2   PRATE(NFATH*NBISO),YIELD(NBFISS*MAXFP))
+     1   DENER(NREAC,NBISO),DDECA(NBISO),IPREA(NFATH*NBISO),
+     2   PRATE(NFATH,NBISO),YIELD(NBFISS,MAXFP))
          CALL LCMGET(IPLIB,'CHARGEWEIGHT',MYLIS)
          CALL LCMGET(IPLIB,'DEPLETE-IDEN',IHREAC)
          CALL LCMGET(IPLIB,'DEPLETE-REAC',IDREA)
          CALL LCMGET(IPLIB,'DEPLETE-ENER',DENER)
+         DO ISO=1,NBISO
+           ! set DENER=0.0 if H-FACTOR is defined.
+           IF(KERMA(ISO).EQ.1) DENER(2:NREAC,ISO)=0.0
+         ENDDO
          CALL LCMGET(IPLIB,'DEPLETE-DECA',DDECA)
          CALL LCMGET(IPLIB,'PRODUCE-REAC',IPREA)
          CALL LCMGET(IPLIB,'PRODUCE-RATE',PRATE)

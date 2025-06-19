@@ -63,7 +63,7 @@
 *----
 *  COMPUTE THE PIJ MATRIX
 *----
-      CALL XDRSET(PIJ,MAXPTS*NPIJ,0.0)
+      PIJ(:MAXPTS,:NPIJ)=0.0
       IF(BC.EQ.'VOID') THEN
          DO 10 IP=1,NPIJ
          AUXI(IP,1)=Y(IP+1)-Y(IP)
@@ -98,7 +98,7 @@
          M=-1
    60    M=M+1
          IF(M.GT.100) CALL XABORT('SYBALP: UNABLE TO CONVERGE(1).')
-         CALL XDRSET(F2,4*NPIJ*NPIJ,0.0)
+         F2(:2*NPIJ,:2*NPIJ)=0.0
          SMALL=0.0
          DO 75 IP=1,NPIJ
          CALL SYBRII(RIIP,1.0,M*TAUCEL,AUXI(IP,3))
@@ -137,7 +137,7 @@
          AUXI(2*NPIJ-IP+1,3)=AUXI(IP,3)
          TAUCEL=TAUCEL+2.0*AUXI(IP,3)
   110    CONTINUE
-         CALL XDRSET(F2,4*NPIJ*NPIJ,0.0)
+         F2(:2*NPIJ,:2*NPIJ)=0.0
          DO 125 IP=1,2*NPIJ
          CALL SYBRII(RIIP,1.0,0.0,AUXI(IP,3))
          F2(IP,IP)=F2(IP,IP)+RIIP/AUXI(IP,2)**2
@@ -157,7 +157,7 @@
          M=0
   140    M=M+1
          IF(M.GT.100) CALL XABORT('UNABLE TO CONVERGE(2).')
-         CALL XDRSET(F2,4*NPIJ*NPIJ,0.0)
+         F2(:2*NPIJ,:2*NPIJ)=0.0
          SMALL=0.0
          DO 155 IP=1,2*NPIJ
          CALL SYBRII(RIIP,1.0,M*TAUCEL,AUXI(IP,3))
@@ -180,7 +180,7 @@
      1   *F2(2*NPIJ+1-IP,JP)
   160    CONTINUE
   165    CONTINUE
-         CALL XDRSET(F2,4*NPIJ*NPIJ,0.0)
+         F2(:2*NPIJ,:2*NPIJ)=0.0
          DO 175 IP=1,NPIJ
          CALL SYBRII(RIIM,-1.0,M*TAUCEL,AUXI(IP,3))
          F2(IP,IP)=F2(IP,IP)+ALB(1)**M*RIIM/AUXI(IP,2)**2

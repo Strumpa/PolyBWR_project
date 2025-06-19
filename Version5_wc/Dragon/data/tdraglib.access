@@ -33,5 +33,5 @@ if [ -f "$pos"/draglibJef2p2 ]
    then
     ln -s "$pos"/draglibJef2p2 DLIB_J2
 fi
-ls
+ls -l
 echo "tdraglib access script terminated"

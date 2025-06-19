@@ -2340,7 +2340,7 @@ ierr = hdf5_group_exists_c(ifile, namp);
 \hline
 \multicolumn{3}{|c|}{\bf output parameter:} \\
 \hline
-{\tt ierr} & {\it int\_32*} & existence flag: =0/1 the group does/does not exist. \\
+{\tt ierr} & {\it int\_32*} & existence flag: =1/0 the group does/does not exist. \\
 \hline
 \end{tabular}
 
@@ -2553,7 +2553,7 @@ hdf5_read_data_string_c(ifile, namp, idata);
 
 \subsubsection{hdf5\_write\_data\_int\_c}
 
-Copy an integer array from memory into a HDF5 dataset
+Copy an integer array from memory into a HDF5 dataset. If dataset {\tt namp} exists, it is replaced.
 
 \begin{verbatim}
 
@@ -2579,7 +2579,7 @@ hdf5_write_data_int_c(ifile, namp, rank, dimsr, idata);
 
 \subsubsection{hdf5\_write\_data\_real4\_c}
 
-Copy a real(4) array from memory into a HDF5 dataset
+Copy a real(4) array from memory into a HDF5 dataset. If dataset {\tt namp} exists, it is replaced.
 
 \begin{verbatim}
 
@@ -2605,7 +2605,7 @@ hdf5_write_data_real4_c(ifile, namp, rank, dimsr, rdata);
 
 \subsubsection{hdf5\_write\_data\_real8\_c}
 
-Copy a real(8) array from memory into a HDF5 dataset
+Copy a real(8) array from memory into a HDF5 dataset. If dataset {\tt namp} exists, it is replaced.
 
 \begin{verbatim}
 
@@ -2631,7 +2631,7 @@ hdf5_write_data_real8_c(ifile, namp, rank, dimsr, rdata);
 
 \subsubsection{hdf5\_write\_data\_string\_c}
 
-Copy an character array from memory into a HDF5 dataset
+Copy an character array from memory into a HDF5 dataset.  If dataset {\tt namp} exists, it is replaced.
 
 \begin{verbatim}
 
@@ -4976,7 +4976,7 @@ CALL LCMEXP(IPLIST,IMPX,NUNIT,IMODE,IDIR)
 {\tt NUNIT} & {\it INTEGER} & unit number of the sequential file. \\
 \hline
 {\tt IMODE} & {\it INTEGER} & =1 binary sequential file; 
-                                    =2 {\sc ascii} sequential file. \\
+                              =2 {\sc ascii} sequential file. \\
 \hline
 {\tt IDIR} & {\it INTEGER} & =1 to export; =2 to import. \\
 \hline
@@ -5011,7 +5011,7 @@ Subroutine used to recover a character array from a block of data stored in an a
 
 \begin{verbatim}
 
-CALL LCMGTC(IPLIST,NAMP,LENG,NLIN,HDATA)
+CALL LCMGTC(IPLIST,NAMP,LENG,[NLIN,]HDATA)
 \end{verbatim}
 
 \noindent
@@ -5024,9 +5024,10 @@ CALL LCMGTC(IPLIST,NAMP,LENG,NLIN,HDATA)
 {\tt NAMP} & {\it CHARACTER*12} &  name of the character array
 to recover. A call to {\tt XABORT} is performed if the block does't exist. \\
 \hline
-{\tt LENG} & {\it INTEGER} & length of each character variable in the array {\tt HDATA}. \\
+{\tt LENG} & {\it INTEGER} & length of each character string in the array {\tt HDATA}. \\
 \hline
-{\tt NLIN} & {\it INTEGER} & dimension of array {\tt HDATA}. \\
+{\tt NLIN} & {\it INTEGER} & dimension of array {\tt HDATA}. This parameter is omitted if {\tt HDATA} \\
+& & is a single character string. \\
 \hline
 \end{tabular}
 
@@ -5049,7 +5050,7 @@ in a LCM object open in {\tt read-only} mode.
 
 \begin{verbatim}
 
-CALL LCMPTC(IPLIST,NAMP,LENG,NLIN,HDATA)
+CALL LCMPTC(IPLIST,NAMP,LENG,[NLIN,]HDATA)
 \end{verbatim}
 
 \noindent
@@ -5062,9 +5063,10 @@ CALL LCMPTC(IPLIST,NAMP,LENG,NLIN,HDATA)
 {\tt NAMP} & {\it CHARACTER*12} & name of the character array
 to store. \\
 \hline
-{\tt LENG} & {\it INTEGER} & length of each character variable in the array {\tt HDATA}. \\
+{\tt LENG} & {\it INTEGER} & length of each character string in the array {\tt HDATA}. \\
 \hline
-{\tt NLIN} & {\it INTEGER} & dimension of array {\tt HDATA}. \\
+{\tt NLIN} & {\it INTEGER} & dimension of array {\tt HDATA}. This parameter is omitted if {\tt HDATA} \\
+& & is a single character string. \\
 \hline
 {\tt HDATA} & {\it CHARACTER*(*)(*)} & character array of dimension $\ge$ {\tt NLIN} from which the character information is recovered. \\
 \hline
@@ -5106,7 +5108,7 @@ Subroutine used to recover a character array from a block of data stored in an h
 
 \begin{verbatim}
 
-CALL LCMGLC(IPLIST,ISET,LENG,NLIN,HDATA)
+CALL LCMGLC(IPLIST,ISET,LENG,[NLIN,]HDATA)
 \end{verbatim}
 
 \noindent
@@ -5119,9 +5121,10 @@ CALL LCMGLC(IPLIST,ISET,LENG,NLIN,HDATA)
 {\tt ISET} & {\it INTEGER} & index of the block in the list.
 The first element of the list is located at index $1$. \\
 \hline
-{\tt LENG} & {\it INTEGER} & length of each character variable in the array {\tt HDATA}. \\
+{\tt LENG} & {\it INTEGER} & length of each character string in the array {\tt HDATA}. \\
 \hline
-{\tt NLIN} & {\it INTEGER} & dimension of array {\tt HDATA}. \\
+{\tt NLIN} & {\it INTEGER} & dimension of array {\tt HDATA}. This parameter is omitted if {\tt HDATA} \\
+& & is a single character string. \\
 \hline
 \end{tabular}
 
@@ -5144,7 +5147,7 @@ in a LCM object open in {\tt read-only} mode.
 
 \begin{verbatim}
 
-CALL LCMPLC(IPLIST,USET,LENG,NLIN,HDATA)
+CALL LCMPLC(IPLIST,USET,LENG,[NLIN,]HDATA)
 \end{verbatim}
 
 \noindent
@@ -5157,9 +5160,10 @@ CALL LCMPLC(IPLIST,USET,LENG,NLIN,HDATA)
 {\tt ISET} & {\it INTEGER} & index of the block in the list.
 The first element of the list is located at index $1$. \\
 \hline
-{\tt LENG} & {\it INTEGER} & length of each character variable in the array {\tt HDATA}. \\
+{\tt LENG} & {\it INTEGER} & length of each character string in the array {\tt HDATA}. \\
 \hline
-{\tt NLIN} & {\it INTEGER} & dimension of array {\tt HDATA}. \\
+{\tt NLIN} & {\it INTEGER} & dimension of array {\tt HDATA}. This parameter is omitted if {\tt HDATA} \\
+& & is a single character string. \\
 \hline
 {\tt HDATA} & {\it CHARACTER*(*)(*)} & character array of dimension $\ge$ {\tt NLIN} from which the character information is recovered. \\
 \hline
@@ -6031,7 +6035,7 @@ this variable has not the allocatable status.\\
 
 \subsubsection{hdf5\_write\_data\index{hdf5WriteData}}
 
-Copy an array from memory into a HDF5 dataset
+Copy an array from memory into a HDF5 dataset.  If dataset {\tt name} exists, it is replaced.
 
 \begin{verbatim}
 

@@ -144,7 +144,7 @@ LIBRARY := Mix_UOX ::
   <<temp_comb_0>> <<temp_mode_0>> ;
 
 ************************************************************************
-*  INITIAL FLUX CALCULATION                                  *
+*  INITIAL FLUX CALCULATION                                            *
 ************************************************************************
 EVALUATE istep iautop := 1 1 ;
 EVALUATE Tend BUend := 0.0 0.0 ;
@@ -202,13 +202,13 @@ WHILE istep maxstep < DO
   EVALUATE Tend := BUend Fuelpwr / ;
 
   BURN164 LIBRARY2 := EVO: BURN164 LIBRARY2 FLUX TRACKN ::
-    EDIT 2 DEPL <<Tbeg>> <<Tend>> DAY POWR <<Fuelpwr>>
+    EDIT 2 NOEX DEPL <<Tbeg>> <<Tend>> DAY POWR <<Fuelpwr>>
     PICK >>burnup<< ;
 
   ECHO "BURNUP_sortie = " BUend "Next SS = " BUnextSS ;
 
 ************************************************************************
-*  FLUX CALCULATION                                          *
+*  FLUX CALCULATION                                                    *
 ************************************************************************
   ECHO "call CalcFlux(2)" ;
   LIBRARY2 FLUX := CalcFlux LIBRARY2 FLUX LIBRARY TRACKN
@@ -257,15 +257,11 @@ WHILE istep maxstep < DO
 ENDWHILE ; ! reference burnup loop
 
 IF iDcaStep_0 1 = THEN
-  assertS FLUX :: K-INFINITY 1 1.035191 ;
+  assertS FLUX :: K-INFINITY 1 1.049062 ;
 ELSEIF iDcaStep_0 2 = THEN
-  assertS FLUX :: K-INFINITY 1 1.145360 ;
+  assertS FLUX :: K-INFINITY 1 1.153705 ;
 ELSEIF iDcaStep_0 3 = THEN
-  assertS FLUX :: K-INFINITY 1 1.233190 ;
-ELSEIF iDcaStep_0 4 = THEN
-  assertS FLUX :: K-INFINITY 1 0.7890815 ;
-ELSEIF iDcaStep_0 5 = THEN
-  assertS FLUX :: K-INFINITY 1 0.7531368 ;
+  assertS FLUX :: K-INFINITY 1 1.224496 ;
 ENDIF ;
 
 LIBRARY LIBRARY2 := DELETE: LIBRARY LIBRARY2 ;
@@ -292,7 +288,7 @@ LIBRARY := Mix_UOX ::
   <<temp_comb_0>> <<temp_mode_0>> ;
 
 ************************************************************************
-*  INITIAL FLUX CALCULATION                                  *
+*  INITIAL FLUX CALCULATION                                            *
 ************************************************************************
 EVALUATE istep iautop := 0 1 ;
 EVALUATE Tend BUend := 0.0 0.0 ;

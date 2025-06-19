@@ -115,8 +115,8 @@
 *----
 *  Initialize input vectors
 *----
-      CALL XDRSET(PARAML,(MAXL+1)*2,0.0)
-      CALL XDRSET(TIMPOW,       2*2,0.0)
+      PARAML(0:MAXL,:2)=0.0
+      TIMPOW(:2,:2)=0.0
 *----
 *  Initialize variables
 *  IUPDC  -> channel number to process or update.

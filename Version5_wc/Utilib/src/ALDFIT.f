@@ -52,7 +52,7 @@
       PARAM(0)=BB/CC
       IF(MA.EQ.0) RETURN
       ALLOCATE(GAMMA(MA,3),POLY(N,0:2),PP(0:MA,0:2))
-      CALL XDDSET(POLY(1,0),N,1.0D0)
+      POLY(:N,0)=1.0D0
       GAMMA(1,1)=AA/CC
       GAMMA(1,2)=0.0D0
       AA=0.0D0

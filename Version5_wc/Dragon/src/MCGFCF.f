@@ -192,7 +192,7 @@
 *     Anisotropic Scattering
 *     ----------------------
          ALLOCATE(STOT(NMAX,NMU,2),B(2*NMAX))
-         ALLOCATE(RHARM(NMU,NFUNL,NBATCH),TRHAR(NMU,NFUNL,NMOD))
+         ALLOCATE(RHARM(NMU,NFUNL,NBATCH),TRHAR(NMU,NFUNL,2))
          IANG0=0
          IF(NDIM.EQ.3) THEN
 *        ---
@@ -207,7 +207,7 @@
            IF(IANG(IL1).NE.IANG0) THEN
              IANG0=IANG(IL1)
              XMUANG(1)=REAL(CAZ0(IANG(IL1)))
-             CALL MOCCHR(3,NLF-1,NFUNL,1,XMUANG,CAZ1(IANG(IL1)),
+             CALL MOCCHR(3,NLF-1,NFUNL,1,XMUANG(1),CAZ1(IANG(IL1)),
      1                   CAZ2(IANG(IL1)),RHARM(1,1,IL1))
            ELSE IF(IL1.EQ.1) THEN
              RHARM(:NMU,:NFUNL,IL1)=RHARM(:NMU,:NFUNL,NBATCH)
@@ -225,7 +225,7 @@
                IL1=ILINE-(IBATCH-1)*NBATCH
                DO 10 JF=1,NFUNL
                  TRHAR(1,JF,1)=ISGNR(1,JF)*RHARM(1,JF,IL1)
-                 TRHAR(1,JF,NMOD)=ISGNR(NMOD,JF)*RHARM(1,JF,IL1)
+                 TRHAR(1,JF,2)=ISGNR(NMOD,JF)*RHARM(1,JF,IL1)
  10            CONTINUE
                STOT(:NMAX,:NMU,:2)=0.0D0
 *              incoming flux in + direction
@@ -244,7 +244,7 @@
                  DO JF=1,NFUNL
                    IND=KEYFLX(NOMI,1,JF)         
                    Q0=Q0+S(IND,II)*TRHAR(1,JF,1)
-                   Q1=Q1+S(IND,II)*TRHAR(1,JF,NMOD)
+                   Q1=Q1+S(IND,II)*TRHAR(1,JF,2)
                  ENDDO                       
                  STOT(I0,1,1)=WEITF(IL1)*Q0
                  STOT(I0,1,2)=WEITF(IL1)*Q1
@@ -254,8 +254,8 @@
 *                   MCGFFAT: 'MOCC/MCI' Iterative Strategy
                CALL SUBFFA(SUBSCH,K,KPN,M,NSEG(IL1),HTF(1,IL1),
      1              NOM(1,IL1),NZON,SIGAL(0,II),STOT(1,1,1),
-     2              STOT(1,1,2),NREG,1,NLF,NFUNL,NMOD,TRHAR,KEYFLX,
-     3              KEYCUR,1,FLUX,B,1,NMOD)
+     2              STOT(1,1,2),NREG,1,NLF,NFUNL,TRHAR,KEYFLX,
+     3              KEYCUR,1,FLUX,B)
              ENDDO ! ILINE
              PHI(:KPN,II)=PHI(:KPN,II)+FLUX(:KPN)
            ENDIF
@@ -277,7 +277,7 @@
            IF(NSUB.NE.1) CALL XABORT('MCGFCF: NSUB.NE.1.')
            IF(IANG(IL1).NE.IANG0) THEN
              IANG0=IANG(IL1)
-             CALL MOCCHR(2,NLF-1,NFUNL,NMU,CPO,CAZ1(IANG(IL1)),
+             CALL MOCCHR(2,NLF-1,NFUNL,NMU,CPO(1),CAZ1(IANG(IL1)),
      1                   CAZ2(IANG(IL1)),RHARM(1,1,IL1))
            ELSE IF(IL1.EQ.1) THEN
              RHARM(:NMU,:NFUNL,IL1)=RHARM(:NMU,:NFUNL,NBATCH)
@@ -296,7 +296,7 @@
                DO 25 JF=1,NFUNL
                DO 20 IMU=1,NMU
                  TRHAR(IMU,JF,1)=ISGNR(1,JF)*RHARM(IMU,JF,IL1)
-                 TRHAR(IMU,JF,NMOD)=ISGNR(NMOD,JF)*RHARM(IMU,JF,IL1)
+                 TRHAR(IMU,JF,2)=ISGNR(NMOD,JF)*RHARM(IMU,JF,IL1)
  20            CONTINUE
  25            CONTINUE
                STOT(:NMAX,:NMU,:2)=0.0D0
@@ -321,7 +321,7 @@
                    DO JF=1,NFUNL
                      IND=KEYFLX(NOMI,1,JF)         
                      Q0=Q0+S(IND,II)*TRHAR(IMU,JF,1)
-                     Q1=Q1+S(IND,II)*TRHAR(IMU,JF,NMOD)
+                     Q1=Q1+S(IND,II)*TRHAR(IMU,JF,2)
                    ENDDO                       
                    STOT(I0,IMU,1)=WEIGHT*Q0
                    STOT(I0,IMU,2)=WEIGHT*Q1
@@ -334,9 +334,8 @@
                    T2D(I)=HTF(I,IL1)*ZMUI
                  ENDDO
                  CALL SUBFFA(SUBSCH,K,KPN,M,NSEG(IL1),T2D,NOM(1,IL1),
-     1                NZON,SIGAL(0,II),STOT(1,IMU,1),
-     2                STOT(1,IMU,2),NREG,NMU,NLF,NFUNL,NMOD,TRHAR,
-     3                KEYFLX,KEYCUR,IMU,FLUX,B,1,NMOD)
+     1                NZON,SIGAL(0,II),STOT(1,IMU,1),STOT(1,IMU,2),
+     2                NREG,NMU,NLF,NFUNL,TRHAR,KEYFLX,KEYCUR,IMU,FLUX,B)
                ENDDO
              ENDDO ! ILINE
              PHI(:KPN,II)=PHI(:KPN,II)+FLUX(:KPN)
@@ -354,7 +353,7 @@
 *     -----------------------------------------
          NDFUNLX=NDIM*NFUNLX
          ALLOCATE(B(6*NMAX))
-         ALLOCATE(RHARM(NMU,NFUNLX,NBATCH),TRHAR(NMU,NFUNLX,NMOD))
+         ALLOCATE(RHARM(NMU,NFUNLX,NBATCH),TRHAR(NMU,NFUNLX,2))
          ALLOCATE(PHIV(NFUNLX,NREG,NGEFF),DPHIV(NDFUNLX,NREG,NGEFF))
          ALLOCATE(FLUV(NFUNLX,NREG),DFLUV(NDFUNLX,NREG))
          ALLOCATE(STOT(NMAX,NMU,2),DSTOT(NMAX,NMU,2))
@@ -380,7 +379,7 @@
            IF(NSUB.NE.1) CALL XABORT('MCGFCF: NSUB.NE.1.')
            IF(IANG(IL1).NE.IANG0) THEN
              IANG0=IANG(IL1)
-             CALL MOCCHR(2,NLFX-1,NFUNLX,NMU,CPO,CAZ1(IANG(IL1)),
+             CALL MOCCHR(2,NLFX-1,NFUNLX,NMU,CPO(1),CAZ1(IANG(IL1)),
      1                   CAZ2(IANG(IL1)),RHARM(1,1,IL1))
            ELSE IF(IL1.EQ.1) THEN
              RHARM(:NMU,:NFUNLX,IL1)=RHARM(:NMU,:NFUNLX,NBATCH)
@@ -402,7 +401,7 @@
                DO 35 JF=1,NFUNLX
                DO 30 IMU=1,NMU
                  TRHAR(IMU,JF,1)=ISGNR(1,JF)*RHARM(IMU,JF,IL1)
-                 TRHAR(IMU,JF,NMOD)=ISGNR(NMOD,JF)*RHARM(IMU,JF,IL1)
+                 TRHAR(IMU,JF,2)=ISGNR(NMOD,JF)*RHARM(IMU,JF,IL1)
  30            CONTINUE
  35            CONTINUE
                STOT(:NMAX,:NMU,:2)=0.0D0
@@ -432,11 +431,11 @@
                      INDX=KEYFLX(NOMI,2,JF)         
                      INDY=KEYFLX(NOMI,3,JF)         
                      Q0=Q0+S(IND,II)*TRHAR(IMU,JF,1)
-                     Q1=Q1+S(IND,II)*TRHAR(IMU,JF,NMOD)
+                     Q1=Q1+S(IND,II)*TRHAR(IMU,JF,2)
                      Q0X=Q0X+S(INDX,II)*TRHAR(IMU,JF,1)
-                     Q1X=Q1X+S(INDX,II)*TRHAR(IMU,JF,NMOD)
+                     Q1X=Q1X+S(INDX,II)*TRHAR(IMU,JF,2)
                      Q0Y=Q0Y+S(INDY,II)*TRHAR(IMU,JF,1)
-                     Q1Y=Q1Y+S(INDY,II)*TRHAR(IMU,JF,NMOD)
+                     Q1Y=Q1Y+S(INDY,II)*TRHAR(IMU,JF,2)
                    ENDDO                       
                    STOT(I0,IMU,1)=Q0
                    STOT(I0,IMU,2)=Q1
@@ -456,8 +455,7 @@
                  CALL SUBLDC(SUBSCH,K,KPN,M,NSEG(IL1),T2D,NOM(1,IL1),
      1               NZON,WEIGHT,SIGAL(0,II),STOT(1,IMU,1),
      2               STOT(1,IMU,2),DSTOT(1,IMU,1),DSTOT(1,IMU,2),NREG,
-     3               NMU,NLF,NFUNLX,NMOD,TRHAR,KEYCUR,IMU,B,1,NMOD,
-     4               FLUX,FLUV,DFLUV)
+     3               NMU,NLF,NFUNLX,TRHAR,KEYCUR,IMU,B,FLUX,FLUV,DFLUV)
                ENDDO
              ENDDO ! ILINE
              PHI(:KPN,II)=PHI(:KPN,II)+FLUX(:KPN)

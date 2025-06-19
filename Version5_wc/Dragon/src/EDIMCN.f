@@ -94,8 +94,8 @@
 *  Initialise some arrays
 *----
       CALL LCMGET(IPTRK,'KEYMRG      ',KEYMRG)
-      CALL XDISET(ICMRG,NBUCEL,0)
-      CALL XDISET(IMERGE,NREGIO,0)
+      ICMRG(:NBUCEL)=0
+      IMERGE(:NREGIO)=0
       IF(IPRINT .GE. 10) THEN
         WRITE(IOUT,*) 'MAXREG =',MAXREG
         WRITE(IOUT,*) 'KEYMRG=',-NFSUR,NFREG
@@ -149,7 +149,7 @@
               ILEV=1
               WRITE(NAMCEL,'(A1,I8.8)') CLEV(ILEV),ICELT
               NAMREC=NAMCEL//'DIM'
-              CALL XDISET(IEDIMC,NSTATE,0)
+              IEDIMC(:NSTATE)=0
               CALL LCMGET(IPTRK,NAMREC,IEDIMC)
               NREGC=IEDIMC(8)
               IF(NREGC .GT. MAXREG) CALL XABORT(NAMSBR//': MAXREG for '

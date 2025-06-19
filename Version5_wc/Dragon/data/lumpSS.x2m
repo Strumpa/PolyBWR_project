@@ -201,11 +201,11 @@ WHILE istep maxstep < DO
 *  NON-REGRESSION                                          *
 ************************************************************
   IF istep 1 = THEN
-    assertS FLUX :: K-EFFECTIVE 1 1.329498 ;
+    assertS FLUX :: K-EFFECTIVE 1 1.329496 ;
   ELSEIF istep 2 = THEN
-    assertS FLUX :: K-EFFECTIVE 1 1.314721 ;
+    assertS FLUX :: K-EFFECTIVE 1 1.314719 ;
   ELSEIF istep 3 = THEN
-    assertS FLUX :: K-EFFECTIVE 1 1.291761 ;
+    assertS FLUX :: K-EFFECTIVE 1 1.292018 ;
   ENDIF ;
 
 ************************************************************
@@ -255,7 +255,7 @@ WHILE istep maxstep < DO
   
     BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX TRACK_2L ::
      EDIT 0 
-     DEPL <<Tbeg>> <<Tend>> DAY 
+     NOEX DEPL <<Tbeg>> <<Tend>> DAY 
      POWR <<Norm_f2>> 
      EXPM 1.0E15 GLOB ;
   

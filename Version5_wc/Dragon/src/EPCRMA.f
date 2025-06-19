@@ -98,7 +98,7 @@
 *     >    IGR,XSREC(IGR,ITOTL),XSREC(IGR,ISCAT),RST(IGR)
         ENDDO
       ELSE
-        CALL XDRSET(RST,NGR,0.0)
+        RST(:NGR)=0.0
       ENDIF
 *----
 *  Process all vector cross section types
@@ -113,7 +113,7 @@
             IF(ILCMLN .EQ. NGR) THEN
               CALL LCMGET(IPMIC,NAMDXS(IXS),VAROLD)
             ELSE
-              CALL XDRSET(VAROLD,NGR,0.0)
+              VAROLD(:NGR)=0.0
             ENDIF
             IDR=ISOF
             DO IGR=1,NGR
@@ -142,7 +142,7 @@
           IF(ILCMLN .EQ. NGR) THEN
             CALL LCMGET(IPMIC,NAMDXS(IXS),VAROLD)
           ELSE
-            CALL XDRSET(VAROLD,NGR,0.0)
+            VAROLD(:NGR)=0
           ENDIF
           IF(KTOPT .EQ. 1) THEN
 *----
@@ -223,7 +223,7 @@
           IF(ILCMLN .EQ. NGR) THEN
             CALL LCMGET(IPMIC,NAMDXS(IXS),VAROLD)
           ELSE
-            CALL XDRSET(VAROLD,NGR,0.0)
+            VAROLD(:NGR)=0
           ENDIF
           DO IGR=1,NGR
             VAR(IGR)=REAL(COV(ILOC,IXS)*XSREC(IGR,IXS)*DRVAR(IGR,IXS))

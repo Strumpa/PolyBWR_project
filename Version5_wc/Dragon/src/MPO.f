@@ -43,7 +43,7 @@
 *----
 *  LOCAL VARIABLES
 *----
-      PARAMETER (NSTATE=40,MAXPAR=50,MAXISO=800,NKEYS=8,NREAK=10,
+      PARAMETER (NSTATE=40,MAXPAR=50,MAXISO=800,NKEYS=7,NREAK=10,
      1 MAXMAC=2,MAXREA=50,MAXCAD=153)
       TYPE(C_PTR) IPMPO,IPLB1,IPLB2,IPDEPL,IPEDIT
       CHARACTER TEXT24*24,TEXT8*8,TEXT12*12,TEXT20*20,HSMPO*132,
@@ -68,8 +68,7 @@
 *----
 *  DATA STATEMENTS
 *----
-      DATA KEYWRD/'NOML','PARA','LOCA','ISOT','MACR','REAC','NAME',
-     1            ';   '/
+      DATA KEYWRD/'NOML','PARA','LOCA','ISOT','MACR','REAC',';   '/
       DATA REANAM/'Total               ','Absorption          ',
      1            'Diffusion           ','Fission             ',
      2            'FissionSpectrum     ','Nexcess             ',
@@ -90,7 +89,7 @@
          CALL KDRVER(REV,DATE)
          HSMPO='DRAGON5 generated file'
          CALL hdf5_create_group(IPMPO,"info")
-         CALL hdf5_write_data(IPMPO,"/info/APOLLO3_VERSION",
+         CALL hdf5_write_data(IPMPO,"/info/DRAGON5_VERSION",
      1   TRIM(HSMPO))
          IVERS=1
          CALL hdf5_write_data(IPMPO,"/info/MPO_VERSION",IVERS)
@@ -117,7 +116,7 @@
       DO 10 I=2,NENTRY
       IF(JENTRY(I).NE.2) CALL XABORT('MPO: READ-ONLY RHS EXPECTED.')
       IF(IENTRY(I).LE.2) THEN
-         CALL LCMGTC(KENTRY(I),'SIGNATURE',12,1,HSIGN)
+         CALL LCMGTC(KENTRY(I),'SIGNATURE',12,HSIGN)
          IF(HSIGN.EQ.'L_LIBRARY') THEN
             IF(.NOT.C_ASSOCIATED(IPLB1)) THEN
                IPLB1=KENTRY(I)
@@ -169,7 +168,6 @@
       ELSE IF(TEXT8.EQ.'COMM') THEN
          CALL REDGET(INDIC,NITMA,FLOTT,HSMPO,DFLOTT)
          IF(INDIC.NE.3) CALL XABORT('MPO: COMMENTS EXPECTED.')
-         CALL hdf5_delete(IPMPO,"info/MPO_CREATION_INFO")
          CALL hdf5_write_data(IPMPO,"info/MPO_CREATION_INFO",
      1   TRIM(HSMPO))
       ELSE IF(TEXT8.EQ.'PARA') THEN
@@ -438,6 +436,7 @@
       ITIM=0
       LWARN=.FALSE.
       HEDIT='output_0'
+      IMPX=0
   310 CALL REDGET(INDIC,NITMA,FLOTT,TEXT24,DFLOTT)
       IF(INDIC.EQ.10) GO TO 350
       IF(INDIC.NE.3) CALL XABORT('MPO: CHARACTER DATA EXPECTED(18).')
@@ -541,9 +540,6 @@
         ALLOCATE(OUPUTID2(NENERG+1,NGEOME+1))
         OUPUTID2(:NENERG+1,:NGEOME+1)=0
         OUPUTID2(:NENERG,:NGEOME)=OUPUTID(:NENERG,:NGEOME)
-        CALL hdf5_delete(IPMPO,"/energymesh/NENERGYMESH")
-        CALL hdf5_delete(IPMPO,"/geometry/NGEOMETRY")
-        CALL hdf5_delete(IPMPO,"/output/OUPUTID")
         DEALLOCATE(OUPUTID)
       ELSE
         CALL hdf5_create_group(IPMPO,"/output")
@@ -565,7 +561,7 @@
 *----
 *  RECOVER ENERGY GROUP AND VOLUME INFORMATION.
 *----
-      CALL LCMGTC(IPEDIT,'LAST-EDIT',12,1,CDIRO)
+      CALL LCMGTC(IPEDIT,'LAST-EDIT',12,CDIRO)
       CALL LCMSIX(IPEDIT,CDIRO,1)
         CALL LCMSIX(IPEDIT,'MACROLIB',1)
           CALL LCMGET(IPEDIT,'STATE-VECTOR',ISTATE)
@@ -637,13 +633,14 @@
 *     -------------------------------------------
       IF(ITIM.GT.0) CALL LCMSIX(IPDEPL,' ',2)
       NG=0
-      CALL MPOTOC(IPMPO,HEDIT,IMPX,NREA,NBISO,NMIL,NPAR,NLOC,NISOF,
-     1 NISOP,NISOS,NCALS,NG,NSURFD,NALBP,NPRC)
+      IF(IMPX.GT.0) THEN
+        CALL MPOTOC(IPMPO,HEDIT,IMPX,NREA,NBISO,NMIL,NPAR,NLOC,NISOF,
+     1  NISOP,NISOS,NCALS,NG,NSURFD,NALBP,NPRC)
+      ENDIF
 *----
 *  RECOVER REMAINING GLOBAL PARAMETER AND LOCAL VALUES.
 *----
       NCALS=NCALS+1
-      CALL hdf5_delete(IPMPO,"/parameters/tree/NSTATEPOINT")
       CALL hdf5_write_data(IPMPO,"/parameters/tree/NSTATEPOINT",NCALS)
       CALL MPOGEP(IPMPO,IPDEPL,IPLB1,IPLB2,IPEDIT,HEDIT,IMPX,ITIM,NPAR,
      1 NLOC,MUPLET,LGNEW,NMIL,NG,NCALS)

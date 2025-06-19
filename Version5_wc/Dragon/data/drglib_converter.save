@@ -1,13 +1,13 @@
 #!/bin/sh
 #
-# SAVE FILE OF CONVERSION DATA SET a2b_drglib_jeff3p1.x2m
+# SAVE FILE OF CONVERSION DATA SET drglib_converter.x2m
 #
 if [ $# = 0 ]
    then
-   echo "usage: a2b_drglib_jeff3p1.save directory" 1>&2
+   echo "usage: drglib_converter.save directory" 1>&2
    exit 1
 fi
-echo access a2b_drglib_jeff3p1.save
+echo access drglib_converter.save
 MACH=`uname -s`
 Sysx="`echo $MACH | cut -b -6`"
 if [ $Sysx = "CYGWIN" ]; then
@@ -22,10 +22,10 @@ if [ "$MACH" = "Linux" -o "$MACH" = "OSF1" -o "$MACH" = "Cygwin" -o "$MACH" = "S
 -o "$MACH" = "Linux_aarch64" ]
 then 
   echo 'use little endian libraries'
-  pos=$1/../../libraries/l_endian
+  pos=$1/../../../libraries/l_endian
 else
   echo 'use big endian libraries'
-  pos=$1/../../libraries/b_endian
+  pos=$1/../../../libraries/b_endian
 fi
-mv DRGLIB "$pos"/dlibJ311295Gd157_12modif
+mv DRGLIB "$pos"/draglibendfb8r1SHEM295KermaK2_fix
 ls -l

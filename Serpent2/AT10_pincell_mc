@@ -186,7 +186,7 @@ set sym 4
 % --- 5.3 Neutron population and criticality cycles:
 set bumode 2  % CRAM method
 set pcc 1     % Predictor-corrector calculation on
-set powdens 38.6E-3
+set powdens 26.5E-3
 set gcu 0
 set nfg 2 0.625E-6
 set pop 16000 500 20

@@ -73,7 +73,7 @@
       IF (IPRINT.GT.1) THEN
          WRITE(*,*) '--------------------'
          WRITE(*,*) 'ANISOTROPY INDEX FOR L=',NANI-1,' IN ',CDIM
-         CALL PRINIM('NU->L ',KEYANI,MAXNU)
+         CALL PRINIM('NU->L ',KEYANI(1),MAXNU)
          WRITE(*,*) '--------------------'
          WRITE(*,*) NPJJM,
      1      ' PJJ(NU <- NU'') MODES OUT OF',MAXPJJM,' TO BE STORED'
@@ -100,7 +100,7 @@
       CALL LCMPUT(IPTRK,'PJJIND$MCCG',2*NPJJM,1,IPJJM)
       IF (IPRINT.GT.1) THEN
          WRITE(*,*) 'INDEXES FOR THE CORRESPONDING',NPJJM,' MODES:'
-         CALL PRINIM('-> NU ',IPJJM,NPJJM)
+         CALL PRINIM('-> NU ',IPJJM(1),NPJJM)
          CALL PRINIM('NU''-> ',IPJJM(NPJJM+1),NPJJM)
       ENDIF
       DEALLOCATE(IPJJM)

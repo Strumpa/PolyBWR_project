@@ -71,6 +71,7 @@
 *----
       CALL LCMGET(IPTRK,'STATE-VECTOR',ISTATE)
       ITYPE=ISTATE(6)
+      NSCT=ISTATE(7)
       IELEM=ISTATE(8)
       ISCAT=ISTATE(16)
       EELEM=ISTATE(35)
@@ -123,7 +124,6 @@
 
       ! CALCULATE THE SOURCE DENSITY
       NORM=0.0
-      NSCT=ISCAT
       DO 40 IX=1,LX
       IR=IX
       DO 30 N=1,NSOUR
@@ -182,7 +182,6 @@
 
       ! CALCULATE THE SOURCE DENSITY
       NORM=0.0
-      NSCT=ISCAT*(ISCAT+1)/2
       DO 150 IY=1,LY
       DO 140 IX=1,LX
       IR=IX+(IY-1)*LX
@@ -260,7 +259,6 @@
 
       ! CALCULATE THE SOURCE DENSITY
       NORM=0.0
-      NSCT=(ISCAT)**2
       DO 270 IZ=1,LZ
       DO 260 IY=1,LY
       DO 250 IX=1,LX

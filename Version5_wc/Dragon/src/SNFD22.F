@@ -198,8 +198,8 @@
 *----
 *  KBA DIAGONAL LOOP
 *----
-      CALL XDDSET(XNI,IELEM*LY*NPQ*NGEFF,0.0D0)
-      CALL XDDSET(XNJ,IELEM*LX*NPQ*NGEFF,0.0D0)
+      XNI(:IELEM,:LY,:NPQ,:NGEFF)=0.0D0
+      XNJ(:IELEM,:LX,:NPQ,:NGEFF)=0.0D0
       DO 230 IDI=1,NMX+NMY-1
 *----
 *  MAIN SWAPPING LOOPS FOR SN FLUX CALCULATION
@@ -262,11 +262,11 @@
       Q(IEL)=0.0D0
       DO 120 P=1,NSCT
       IOF=((J-1)*LX*NSCT+(I-1)*NSCT+(P-1))*IELEM*IELEM+IEL
-      Q(IEL)=Q(IEL)+QEXT(IOF,IG)*MN(P,M)
+      Q(IEL)=Q(IEL)+QEXT(IOF,IG)*MN(M,P)
   120 CONTINUE
   125 CONTINUE
       VT=VOL(I,J)*TOTAL(MAT(I,J),IG)
-      CALL XDDSET(Q2,(IELEM**2)*((IELEM**2)+1),0.0D0)
+      Q2(:IELEM**2,:(IELEM**2)+1)=0.0D0
 *----------
 * BUILD MATRIX FOR THE RELEVANT ORDER
 * Note: the matrix does seem to be skew-symmetric (or antisymmetric), 

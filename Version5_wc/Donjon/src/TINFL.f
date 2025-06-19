@@ -39,10 +39,8 @@
 *
 *------- MODE DE RECHARGEMENT DIRECT
 *
-         CALL XDISET(NW2,NK,0)
-         DO 10 I=1,MODEID
-            NW(I) = 0
- 10      CONTINUE
+         NW2(:NK)=0
+         NW(:MODEID)=0
 *
          IF(MODEID.NE.NK) THEN
             NL = NK - MODEID

@@ -57,17 +57,17 @@
 *  Test if valid tracking data structure
 *  EXCELL with type 4 tracking
 *----
-      CALL LCMGTC(IPTRK,'SIGNATURE',12,1,HSIGN)
+      CALL LCMGTC(IPTRK,'SIGNATURE',12,HSIGN)
 *----
 *  TEST IF GEOMETRY OR EXCELL TRACK DATA STRUCTURE
 *----
       IF(HSIGN .NE. 'L_TRACK     ') CALL XABORT(NAMSBR//
      >': Invalid data structure for merge by cell')
-      CALL LCMGTC(IPTRK,'TRACK-TYPE',12,1,HSIGN)
+      CALL LCMGTC(IPTRK,'TRACK-TYPE',12,HSIGN)
       IF((HSIGN .NE. 'EXCELL') .AND. (HSIGN .NE. 'MCCG')) THEN
         CALL XABORT(NAMSBR//': Invalid tracking for merge by cell')
       ENDIF
-      CALL XDISET(ISTATE,NSTATE,0)
+      ISTATE(:NSTATE)=0
       CALL LCMGET(IPTRK,'STATE-VECTOR',ISTATE)
       IF(ISTATE(7) .NE. 4) CALL XABORT(NAMSBR//
      >': Only NXT tracking permitted for merge by cell')

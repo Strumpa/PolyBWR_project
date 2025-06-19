@@ -160,7 +160,7 @@
       PI=XDRCST('Pi',' ')
       IF(NDIM .EQ. 1) CALL XABORT(NAMSBR//
      >': Only 2-D and 3-D problems permitted')
-      CALL XDDSET(SURVOL,(MAXSUR+MAXREG+1),DZERO)
+      SURVOL(-MAXSUR:MAXREG)=DZERO
 *----
 *  Prepare loops over spatial directions as a function
 *  of IDIRC and NDIM.

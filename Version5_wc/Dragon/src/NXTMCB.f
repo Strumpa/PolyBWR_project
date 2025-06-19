@@ -63,7 +63,7 @@
          ICEL=IUNFLD(1,I,J,K)
          WRITE(NAMCEL,'(A1,I8.8)') 'C',ICEL
          NAMREC=NAMCEL//'DIM'
-         CALL XDISET(ESTATE,NSTATE,0)
+         ESTATE(:NSTATE)=0
          CALL LCMGET(IPTRK,NAMREC,ESTATE)
          NREGC=ESTATE(8)
          NSURC=ESTATE(9)
@@ -86,7 +86,7 @@
                IF (IPIN.EQ.IPINO) GOTO 20
                WRITE(NAMCEL,'(A1,I8.8)') 'P',IPIN
                NAMREC=NAMCEL//'DIM'
-               CALL XDISET(ESTATE,NSTATE,0)
+               ESTATE(:NSTATE)=0
                CALL LCMGET(IPTRK,NAMREC,ESTATE)
                NREGC=ESTATE(8)
                NSURC=ESTATE(9)

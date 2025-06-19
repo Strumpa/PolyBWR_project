@@ -77,8 +77,8 @@
 *----
 *  Get data from input file
 *----
-      CALL XDISET(IPLP,6*NPLOTS,0)
-      CALL XDDSET(DPLP,4*NPLOTS,0.0)
+      IPLP(:6,:NPLOTS)=0
+      DPLP(:4,:NPLOTS)=0.0D0
       ITYPLU=3
       CARLIR=CARLST
       IPLOT=0

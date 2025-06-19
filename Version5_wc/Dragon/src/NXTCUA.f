@@ -110,9 +110,9 @@
       IF(IPRINT .GE. 10) THEN
         WRITE(IOUT,6000) NAMSBR
       ENDIF
-      CALL XDISET(IDFEX ,11*NBOCEL,0)
-      CALL XDISET(IDFRT ,8*NBOCEL,0)
-      CALL XDISET(ITSYM ,4*NBOCEL,0)
+      IDFEX(0:10,:NBOCEL)=0
+      IDFRT(:8,:NBOCEL)=0
+      ITSYM(:4,:NBOCEL)=0
 *----
 *  Prepare direction control vector for
 *  original assembly

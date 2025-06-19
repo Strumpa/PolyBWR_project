@@ -102,7 +102,7 @@
       IF(LENGT.GT.0) THEN
          CALL LCMGET(KPDRL,'NUSIGF',SIGF(1,IDIL))
       ELSE
-         CALL XDRSET(SIGF(1,IDIL),NGRO,0.0)
+         SIGF(:NGRO,IDIL)=0.0
       ENDIF
       CALL XDRLGS(KPDRL,-1,IMPX,0,NL-1,1,NGRO,SIGS(1,1,IDIL),
      1 SCAT(1,1,1,IDIL),ITYPRO)
@@ -131,7 +131,7 @@
          IF(LGOLD) THEN
             CALL LCMGET(KPDRL,'NGOLD',GOLD)
          ELSE
-            CALL XDRSET(GOLD,NGRO,1.0)
+            GOLD(:NGRO)=1.0
          ENDIF
       ENDIF
    80 CONTINUE

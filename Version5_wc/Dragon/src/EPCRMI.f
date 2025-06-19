@@ -83,8 +83,8 @@
       CALL LCMGET(IPMIC,'FISSIONINDEX',FID)
       CALL LCMGET(IPMIC,'FISSIONNAMES',FNM)
       CALL LCMSIX(IPMIC,'MACROLIB    ',ILCMDN)
-      CALL XDISET(IDVF,2*NIS,0)
-      CALL XDISET(IDMF,2*NBISO,0)
+      IDVF(:2,:NIS)=0
+      IDMF(:2,:NBISO)=0
       DO ISO=1,NIS
 *----
 *  Test if isotope used in Microlib

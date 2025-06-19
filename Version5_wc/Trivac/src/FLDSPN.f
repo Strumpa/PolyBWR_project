@@ -439,7 +439,7 @@
             ELSE IF(ISEG.GT.0) THEN
 *              SUPERVECTORIAL SOLUTION FOR A W-ORIENTED LINEAR SYSTEM.
                ALLOCATE(GAR(LL4VW))
-               CALL XDRSET(GAR,LL4VW,0.0)
+               GAR(:LL4VW)=0.0
                DO 120 I=1,LL4W
                GAR(IPVW(I))=FW(I)
   120          CONTINUE
@@ -503,7 +503,7 @@
          ELSE IF(ISEG.GT.0) THEN
 *           SUPERVECTORIAL SOLUTION FOR A X-ORIENTED LINEAR SYSTEM.
             ALLOCATE(GAR(LL4VX))
-            CALL XDRSET(GAR,LL4VX,0.0)
+            GAR(:LL4VX)=0.0
             DO 230 I=1,LL4X
             GAR(IPVX(I))=FX(I)
   230       CONTINUE
@@ -567,7 +567,7 @@
             ELSE IF(ISEG.GT.0) THEN
 *              SUPERVECTORIAL SOLUTION FOR A Y-ORIENTED LINEAR SYSTEM.
                ALLOCATE(GAR(LL4VY))
-               CALL XDRSET(GAR,LL4VY,0.0)
+               GAR(:LL4VY)=0.0
                DO 340 I=1,LL4Y
                GAR(IPVY(I))=FY(I)
   340          CONTINUE
@@ -624,7 +624,7 @@
             ELSE IF(ISEG.GT.0) THEN
 *              SUPERVECTORIAL SOLUTION FOR A Z-ORIENTED LINEAR SYSTEM.
                ALLOCATE(GAR(LL4VZ))
-               CALL XDRSET(GAR,LL4VZ,0.0)
+               GAR(:LL4VZ)=0.0
                DO 450 I=1,LL4Z
                GAR(IPVZ(I))=FZ(I)
   450          CONTINUE

@@ -818,14 +818,14 @@
           ENDDO
           IF(IBTYP.EQ.3)THEN
              IF(ZONEDP(ICH,JB).NE.0) THEN
-                CALL MCRTRP(IPMPO,LCUB2,IMPY,NPAR,NCAL,MUPLT2,MUTYPE,
-     1                      PARTYP,VALR,VARVAL,MUBASE,TERP(1,NTOT))
+                CALL MCRTRP(IPMPO,LCUB2,IMPY,NPAR,NCAL,MUPLT2,MUTYPE(1),
+     1                      PARTYP,VALR(1,1),VARVAL,MUBASE,TERP(1,NTOT))
              ELSE
                 TERP(:NCAL,NTOT)=0.0
              ENDIF
           ELSE
-             CALL MCRTRP(IPMPO,LCUB2,IMPY,NPAR,NCAL,MUPLT2,MUTYPE,
-     1                   PARTYP,VALR,VARVAL,MUBASE,TERP(1,NTOT))
+             CALL MCRTRP(IPMPO,LCUB2,IMPY,NPAR,NCAL,MUPLT2,MUTYPE(1),
+     1                   PARTYP,VALR(1,1),VARVAL,MUBASE,TERP(1,NTOT))
           ENDIF
 *         DELTA-ADD
           DO 270 IPAR=1,NPAR
@@ -845,8 +845,8 @@
                   ENDIF
                 ENDDO
                 ALLOCATE(TERPA(NCAL))
-                CALL MCRTRP(IPMPO,LCUB2,IMPY,NPAR,NCAL,MUPLT2,MUTYP2,
-     1          PARTYP,VALRA(1,1,IDLTA1),VARVAL,MUBASE,TERPA)
+                CALL MCRTRP(IPMPO,LCUB2,IMPY,NPAR,NCAL,MUPLT2,MUTYP2(1),
+     1          PARTYP,VALRA(1,1,IDLTA1),VARVAL,MUBASE,TERPA(1))
                 DO 275 JCAL=1,NCAL
                 TERP(JCAL,NTOT)=TERP(JCAL,NTOT)+TERPA(JCAL)
   275           CONTINUE

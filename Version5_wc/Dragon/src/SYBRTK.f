@@ -84,9 +84,9 @@
 *     
       IF(IQW.EQ.0) THEN
 *        GAUSS-LEGENDRE AND GAUSS-JACOBI INTEGRATION POINTS.
-         CALL ALGPT(NX,-1.,1.,ZX,WX)
+         CALL ALGPT(NX,-1.,1.,ZX(1),WX(1))
          CALL ALGJP(NX,ZXJ,WXJ)
-         CALL ALGPT(NA,-1.,0.,ZA,WA)
+         CALL ALGPT(NA,-1.,0.,ZA(1),WA(1))
          CALL ALGPT(NA,0.,1.,ZA(NA+1),WA(NA+1))
       ELSE
 *        EQUAL WEIGHT INTEGRATION POINTS.
@@ -155,7 +155,7 @@
       L3=LR+1
       L5=LI+1
       LI=LI+3
-      CALL XDRSET(VAP,NREG,0.0)
+      VAP(:NREG)=0.0
       DO 50 IX=1,NX
       IF(K0.EQ.NREG) THEN
          S=0.5*(X2-X1)*SI*WX(IX)
@@ -262,7 +262,7 @@
       L3=LR+1
       L5=LI+1
       LI=LI+3
-      CALL XDRSET(VAP,NREG,0.0)
+      VAP(:NREG)=0.0
       DO 150 IX=1,NX
       IF(K0.EQ.NREG) THEN
          S=0.5*(X2-X1)*SI*WX(IX)
@@ -369,7 +369,7 @@
       L3=LR+1
       L5=LI+1
       LI=LI+3
-      CALL XDRSET(VAP,NREG,0.0)
+      VAP(:NREG)=0.0
       DO 270 IX=1,NX
       IF(K0.EQ.NREG) THEN
          S=0.5*(X2-X1)*SI*WX(IX)

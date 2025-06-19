@@ -146,8 +146,8 @@
 *----
       WRITE(NAMCEL,'(A1,I8.8)') CLEV(ILEV),ICEL
       NAMREC=NAMCEL//'DIM'
-      CALL XDISET(IEDIMC,NSTATE,0)
-      CALL XDDSET(DCMESH(-1,1),(MAXMSH+2)*5,DZERO)
+      IEDIMC(:NSTATE)=0
+      DCMESH(-1:MAXMSH,:5)=DZERO
       CALL LCMGET(IPTRK,NAMREC,IEDIMC)
       ITYPG=IEDIMC(1)
       MESHC(1)=IEDIMC(3)
@@ -189,8 +189,8 @@
       IF(IPRLOC .GT. 1000) THEN
         WRITE(IOUT,6030) ICEL,ITRN
       ENDIF
-      CALL XDDSET(TRKORR,3,DZERO)
-      CALL XDDSET(ANGROT,3,DZERO)
+      TRKORR(:3)=DZERO
+      ANGROT(:3)=DZERO
       CALL NXTRTL(IPRLOC,NDIM  ,ITRN  ,TRKORT,ANGLES,
      >            TRKORR,ANGROT)
       ITL=1
@@ -337,7 +337,7 @@
 *  Translate TRKORT in such a way that it is now defined with
 *  respect to the pin center.
 *----
-          CALL XDDSET(PINPOS,15,DZERO)
+          PINPOS(-1:1,:5)=DZERO
           IDIRP=ABS(ITPIN(3,IPIN))
           PINPOS(1,4)=DRAPIN(4,IPIN)
           IF(IDIRP .EQ. 3) THEN
@@ -420,7 +420,7 @@
 *----
             WRITE(NAMCEL,'(A1,I8.8)') CLEV(ILEV),ITPIN(2,IPIN)
             NAMREC=NAMCEL//'DIM'
-            CALL XDISET(IEDIMP,NSTATE,0)
+            IEDIMP(:NSTATE)=0
             CALL LCMGET(IPTRK,NAMREC,IEDIMP)
             ITYPG=IEDIMP(1)
             MESHSP(1)=IEDIMP(3)

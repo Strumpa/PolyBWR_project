@@ -1,10 +1,11 @@
 #!/bin/sh
 #
 # author : A. Hebert
-# use    : rskin [-c:|-q|-w]
+# use    : rskin [-c:|-q|-w|-p:]
 #          -c name of compiler
 #          -q quiet execution for regression testing
 #          -w to execute in console (for debug purpose)
+#          -p number of parallel threads (=1 by default)
 #
 System=`uname -s`
 Sysx="`echo $System | cut -b -6`"
@@ -19,15 +20,17 @@ fi
 typ='custom'
 quiet=0
 term=0
-nomp=1
+nomp=0
 
-while getopts ":c:qw" opt; do
+while getopts ":c:qwp:" opt; do
   case $opt in
     c) typ="$OPTARG"
     ;;
     q) quiet=1
     ;;
     w) term=1
+    ;;
+    p) nomp=$OPTARG
     ;;
     \?) echo "Invalid option $opt -$OPTARG" >&2
     exit 1
@@ -84,6 +87,16 @@ fi
 ln -s "$CodeDir"/data/* .
 
 before=$(date +%s)
+if [ $nomp != 0 ]; then
+  echo 'number of OpenMP threads=' $nomp
+  export OMP_NUM_THREADS=$nomp
+  if command -v numactl >&2; then
+    numactl --cpunodebind=0 --membind=0 2>/dev/null
+    echo "use NUMA memory policy"
+  fi
+else
+  export OMP_NUM_THREADS=1
+fi
 if [ $term = 0 ]; then
   ./code >result
 else

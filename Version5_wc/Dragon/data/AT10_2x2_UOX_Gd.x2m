@@ -20,7 +20,7 @@ SEQ_ASCII FIG_SS.ps :: FILE './FIG_selfshielding_2.ps' ;
 
 SEQ_BINARY TF_EXC TF_EXC_SS ;
 
-STRING Library := "J311_295" ;
+STRING Library := "endfb8r1_295" ;
 
 REAL Kinf ;
 

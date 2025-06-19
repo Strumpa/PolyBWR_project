@@ -38,7 +38,7 @@
 *
       ALLOCATE(GAR(NGRP))
       GAR(:NGRP)=SIGT(:NGRP)
-      CALL XDRSET(SIGT,LBIN,0.0)
+      SIGT(:LBIN)=0.0
       IPO=LBIN
       DO J=NGRP,1,-1
         ND=ABS(NFS(J))

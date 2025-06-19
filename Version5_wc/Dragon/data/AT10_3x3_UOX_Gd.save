@@ -17,9 +17,7 @@ else
 fi
 ls -l
 
-mv FIG_main_3.ps $1/"$MACH"
-mv FIG_selfshielding_3.ps $1/"$MACH"
-mv tracks_SALT_FLX_3x3_UOX.m $1/"$MACH"
-mv tracks_SALT_SSH_3x3_UOX.m $1/"$MACH"
+mv FIG*.ps $1/"$MACH"
+mv *COMPO* $1/"$MACH"
 echo "AT10_3x3_UOX_Gd.save completed"
 

@@ -69,8 +69,8 @@
 *----
 *  MODIFY CROSS SECTION
 *----
-      CALL XDRSET(XSECT,NGRP,0.0)
-      CALL XDRSET(GAR1,NGRP,0.0)
+      XSECT(:NGRP)=0.0
+      GAR1(:NGRP)=0.0
       IF(TYPSEC.EQ.'NTOT0') THEN
          CALL LCMGET(IPLIB,TYPSEC,XSECT)
          CALL CHAB02(NGRP,IMOD,VALUE,IGM,IGP,VAL,XSECT,DELTA,FMULT)
@@ -83,7 +83,7 @@
          CALL LCMGET(IPLIB,TYPSEC,XSECT)
          CALL CHAB02(NGRP,IMOD,VALUE,IGM,IGP,VAL,XSECT,DELTA,FMULT)
          CALL LCMPUT(IPLIB,TYPSEC,NGRP,2,XSECT)
-         CALL XDRSET(XSECT,NGRP,0.0)
+         XSECT(:NGRP)=0.0
          CALL LCMGET(IPLIB,'NTOT0',XSECT)
          DO 10 IG1=1,NGRP
          XSECT(IG1)=XSECT(IG1)+DELTA(IG1)
@@ -97,11 +97,11 @@
          IF(ILONG.NE.0.0) THEN
 *           application of the perturbation
             WRITE(IOUT,*) 'CHAB01: REACTION CAPTURE INCLUDES ',TYPSEC
-            CALL XDRSET(XSECT,NGRP,0.0)
+            XSECT(:NGRP)=0.0
             CALL LCMGET(IPLIB,TYPSEC,XSECT)
             CALL CHAB02(NGRP,IMOD,VALUE,IGM,IGP,VAL,XSECT,DELTA,FMULT)
             CALL LCMPUT(IPLIB,TYPSEC,NGRP,2,XSECT)
-            CALL XDRSET(XSECT,NGRP,0.0)
+            XSECT(:NGRP)=0.0
             CALL LCMGET(IPLIB,'NTOT0',XSECT)
             DO 310 IG1=1,NGRP
             XSECT(IG1)=XSECT(IG1)+DELTA(IG1)
@@ -123,7 +123,7 @@
 *        multiplicative modification of transport correction
          CALL LCMLEN(IPLIB,'TRANC',ILONG,ITYLCM)
          IF(ILONG.GT.0) THEN
-            CALL XDRSET(XSECT,NGRP,0.0)
+            XSECT(:NGRP)=0.0
             CALL LCMGET(IPLIB,'TRANC',XSECT)
             DO 20 IG1=1,NGRP
             XSECT(IG1)=XSECT(IG1)*FMULT(IG1)
@@ -144,7 +144,7 @@
    30    CONTINUE
 *
 *        additive modification of total cross section
-         CALL XDRSET(XSECT,NGRP,0.0)
+         XSECT(:NGRP)=0.0
          CALL LCMGET(IPLIB,'NTOT0',XSECT)
          DO 40 IG1=1,NGRP
          XSECT(IG1)=XSECT(IG1)+DELTA(IG1)
@@ -197,7 +197,7 @@
          READ(TYPSEC(5:6),'(I2)') IL
 *        additive or multiplicative modification of Pn scattering
 *        information
-         CALL XDRSET(XSECT,NGRP,0.0)
+         XSECT(:NGRP)=0.0
          IF(IMOD.EQ.1) THEN
             DO 100 IG=IGM,IGP
             XSECT(IG)=VAL(IG)
@@ -213,7 +213,7 @@
 *        multiplicative modification of transport correction
          CALL LCMLEN(IPLIB,'TRANC',ILONG,ITYLCM)
          IF((IL.LE.1).AND.(ILONG.GT.0)) THEN
-            CALL XDRSET(XSECT,NGRP,0.0)
+         XSECT(:NGRP)=0.0
             CALL LCMGET(IPLIB,'TRANC',XSECT)
             DO 120 IG1=1,NGRP
             XSECT(IG1)=XSECT(IG1)*FMULT(IG1)
@@ -223,7 +223,7 @@
 *
 *        additive modification of total cross-section
          IF(IL.EQ.0) THEN
-            CALL XDRSET(XSECT,NGRP,0.0)
+            XSECT(:NGRP)=0.0
             CALL LCMGET(IPLIB,'NTOT0',XSECT)
             DO 130 IG1=1,NGRP
             XSECT(IG1)=XSECT(IG1)+DELTA(IG1)
@@ -256,7 +256,7 @@
   190    CONTINUE
          CALL LCMPUT(IPLIB,'NFTOT',NGRP,2,GAR1)
          CALL LCMPUT(IPLIB,'NUSIGF',NGRP,2,XSECT)
-         CALL XDRSET(XSECT,NGRP,0.0)
+         XSECT(:NGRP)=0.0
          CALL LCMGET(IPLIB,'NTOT0',XSECT)
          DO 200 IG1=1,NGRP
          XSECT(IG1)=XSECT(IG1)+DELTA(IG1)

@@ -350,7 +350,7 @@
       ENDIF
       IERR = 0
 *
-      CALL XDDSET(XOBJ,N0,0.0D0)
+      XOBJ(:N0)=0.0D0
       DO 280 I=1,N
          UI = U(I) + XTAU*V(I)
          IF (UI.EQ.0.0) GO TO 280

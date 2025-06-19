@@ -125,8 +125,8 @@
       NBCOR(1)=0
       NBCOR(2)=0
       NBSINT=0
-      CALL XDISET(ISINT,6*LINMAX,0)
-      CALL XDDSET(TRKLSI,LINMAX,DZERO)
+      ISINT(0:5,:LINMAX)=0
+      TRKLSI(:LINMAX)=DZERO
 *----
 *  IDG1 is first direction of plane perpendicular
 *       to main direction ($Y, $Z$ or $X$).

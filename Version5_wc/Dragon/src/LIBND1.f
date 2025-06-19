@@ -182,7 +182,7 @@
           IF(IMPX.GT.5) THEN
             WRITE(IOUT,120) IHEAD(1),IHEAD(2),RHEAD(3),(IHEAD(I),I=4,12)
           ENDIF
-          CALL LCMPTC(KPLIB,'ALIAS',12,1,HNAMIS)
+          CALL LCMPTC(KPLIB,'ALIAS',12,HNAMIS)
           CALL LCMPUT(KPLIB,'AWR',1,2,RHEAD(3)/REAL(ANEUT))
           NF=IHEAD(5)
           NBTEM=IHEAD(6)
@@ -200,8 +200,8 @@
           CALL XSDISO(7002,5013,IND,GAR1(:,1),IERR)
           CALL XSDISO(7002,5004,IND,GAR1(:,2),IERR)
           IF(NGTHER.GT.0) THEN
-            CALL XDRSET(GAR1(NGFR+1,1),NGTHER,0.0)
-            CALL XDRSET(GAR1(NGFR+1,2),NGTHER,0.0)
+            GAR1(NGFR+1:NGFR+NGTHER,1)=0.0
+            GAR1(NGFR+1:NGFR+NGTHER,2)=0.0
             DO I=1,NBTEM
               WW=TERPT(I)
               IF(ABS(WW).GT.1.0E-6) THEN
@@ -219,7 +219,7 @@
 *         fission spectrum, fission XS and nu*fission XS
           IF(IHEAD(11).EQ.1) THEN
             ALLOCATE(CHI(NGRO))
-            CALL XDRSET(CHI,NGRO,0.0)
+            CHI(:NGRO)=0.0
             CALL XSDISO(7002,5008,IND,CHI,IERR)
             SUM=0.0
             DO I=1,NGRO
@@ -233,8 +233,8 @@
             CALL XSDISO(7002,5005,IND,GAR1(:,3),IERR)
             CALL XSDISO(7002,5006,IND,GAR1(:,4),IERR)
             IF(NGTHER.GT.0) THEN
-              CALL XDRSET(GAR1(NGFR+1,3),NGTHER,0.0)
-              CALL XDRSET(GAR1(NGFR+1,4),NGTHER,0.0)
+              GAR1(NGFR+1:NGFR+NGTHER,3)=0.0
+              GAR1(NGFR+1:NGFR+NGTHER,4)=0.0
               DO I=1,NBTEM
                 WW=TERPT(I)
                 IF(ABS(WW).GT.1.0E-6) THEN
@@ -249,19 +249,19 @@
               ENDDO
             ENDIF
           ELSE
-            CALL XDRSET(GAR1(1,3),NGRO,0.0)
-            CALL XDRSET(GAR1(1,4),NGRO,0.0)
+            GAR1(:NGRO,3)=0.0
+            GAR1(:NGRO,4)=0.0
           ENDIF
 *
 *         (n,2n) XS
           CALL XSDISO(7001,5007,IND,GAR1(:,7),IERR)
-          CALL XDRSET(GAR1(NGF+1,7),NGRO-NGF,0.0)
+          GAR1(NGF+1:NGRO,7)=0.0
           CALL LCMPUT(KPLIB,'N2N',NGRO,2,GAR1(1,7))
 *
 *         P0 differential scattering XS
           CALL XSDISO(7002,5015,IND,LOAD,IERR)
-          CALL XDRSET(GAR1(1,5),NGRO,0.0)
-          CALL XDRSET(SCAT(1,1,1),NGRO*NGRO,0.0)
+          GAR1(:NGRO,5)=0.0
+          SCAT(:NGRO,:NGRO,1)=0.0
           IJ=0
           DO IG=1,NGFR
             IM=NINT(LOAD(IJ+2))
@@ -275,8 +275,8 @@
             IJ=IJ+IM
           ENDDO
           IF(NGTHER.GT.0) THEN
-            CALL XDRSET(GAR1(NGFR+1,5),NGTHER,0.0)
-            CALL XDRSET(SCAT(1,NGFR+1,1),NGRO*NGTHER,0.0)
+            SCAT(:NGRO,NGFR+1:NGFR+NGTHER,1)=0.0
+            GAR1(NGFR+1:NGFR+NGTHER,5)=0.0
             DO I=1,NBTEM
               WW=TERPT(I)
               IF(ABS(WW).GT.1.0E-6) THEN
@@ -300,8 +300,8 @@
           IF(NP1.GT.0) THEN
 *           P1 differential scattering XS
             CALL XSDISO(7002,5016,IND,LOAD,IERR)
-            CALL XDRSET(GAR1(1,6),NGRO,0.0)
-            CALL XDRSET(SCAT(1,1,2),NGRO*NGRO,0.0)
+            GAR1(:NGRO,6)=0.0
+            SCAT(:NGRO,:NGRO,2)=0.0
             IJ=0
             DO IG=1,NGFR
               IM=NINT(LOAD(IJ+2))
@@ -315,8 +315,8 @@
               IJ=IJ+IM
             ENDDO
             IF(NGTHER.GT.0) THEN
-              CALL XDRSET(GAR1(NGFR+1,6),NGTHER,0.0)
-              CALL XDRSET(SCAT(1,NGFR+1,2),NGRO*NGTHER,0.0)
+              GAR1(NGFR+1:NGFR+NGTHER,6)=0.0
+              SCAT(:NGRO,NGFR+1:NGFR+NGTHER,2)=0.0
               DO I=1,NBTEM
                 WW=TERPT(I)
                 IF(ABS(WW).GT.1.0E-6) THEN
@@ -342,12 +342,12 @@
 *  Recover self-shielding data
 *----
           ALLOCATE(WT0(NGRO))
-          CALL XDRSET(WT0,NGRO,1.0)
+          WT0(:NGRO)=1.0
           IF((NF.GE.1).AND.(NF.LE.3)) THEN
 *
 *           --- Recover Goldstein-Sehgal parameters
             ALLOCATE(GC(NGRO))
-            CALL XDRSET(GC,NGRO,1.0)
+            GC(:NGRO)=1.0
             CALL XSDISO(7000,5012,IND,GC(NGF+1:),IERR)
             CALL LCMPUT(KPLIB,'NGOLD',NGRO,2,GC)
             DEALLOCATE(GC)
@@ -372,10 +372,10 @@
             DO I=1,NBDIL
               DILUS(I)=RHEAD(2+NBTEM+I)
             ENDDO
-            CALL XDRSET(XA,(NGFR-NGF)*NBDIL,0.0)
-            CALL XDRSET(XS,(NGFR-NGF)*NBDIL,0.0)
-            CALL XDRSET(XF,(NGFR-NGF)*NBDIL,0.0)
-            CALL XDRSET(XN,(NGFR-NGF)*NBDIL,0.0)
+            XA(:NGFR-NGF,:NBDIL)=0.0
+            XS(:NGFR-NGF,:NBDIL)=0.0
+            XF(:NGFR-NGF,:NBDIL)=0.0
+            XN(:NGFR-NGF,:NBDIL)=0.0
             DO IG=1,NGFR-NGF
 *             --- Absorption
               CALL XSDTAB(5004,IND,IG,RESD,IERR)

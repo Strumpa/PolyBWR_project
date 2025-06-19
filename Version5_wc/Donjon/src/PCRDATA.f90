@@ -273,36 +273,4 @@ contains
       XS%yldxe  = 0.0
       XS%yldpm  = 0.0            
    END SUBROUTINE Default_XS   
-   
-!---------------------------------------------------------------------
-   SUBROUTINE Allocate_TIV
-!---------------------------------------------------------------------
-     if(xinv .GT. 0)then
-       allocate(TIV%sig(NGROUP,xinv))
-     else
-       allocate(TIV%sig(1,1))
-     endif
-     if(EDHL .GT. 0)then
-       allocate(TIV%kinp(EDHL))
-     else
-       allocate(TIV%kinp(1))
-     endif
-     TIV%sig=0
-     TIV%kinp=0
-     TIV%yld=0
-     TIV%power=0.0
-     TIV%days=0.0
-     TIV%burnup=0.0      
-     TIV%ndxe=0.0
-     TIV%ndsm=0.0
-     TIV%ndi =0.0
-     TIV%ndpm=0.0      
-   END SUBROUTINE Allocate_TIV
-
-!---------------------------------------------------------------------
-   SUBROUTINE Deallocate_TIV
-!---------------------------------------------------------------------
-     deallocate(TIV%sig)
-     deallocate(TIV%kinp)
-   END SUBROUTINE Deallocate_TIV
 END MODULE PCRDATA

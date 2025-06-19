@@ -37,7 +37,15 @@ StepList := UTL: ::
                 0.0 15.0 30.0 50.0 75.0 
 ;
 
-REAL Norm_f2 := 38.6 ; ! SPECIFIC POWER MW/t
+REAL Norm_f2 := 26.5 ; ! SPECIFIC POWER MW/t
+
+
+INTEGER nstep nauto maxcompo ;
+GREP: StepList :: LENGTH ListBU >>nstep<< ;
+GREP: StepList :: LENGTH ListAutop >>nauto<< ;
+GREP: StepList :: LENGTH ListCompo >>maxcompo<< ;
+ECHO "nstep=" nstep "nauto=" nauto "maxcompo=" maxcompo ;
+
 
 *----
 *  Geometry GEOM : homogeneous cell with UOX+Clad+Gd157+moderator
@@ -167,7 +175,7 @@ WHILE istep nstep < DO
           COND
           SAVE ON FUEL 
     ;
-    ECHO "Dummy call to EVO to create BU object" ;
+    ECHO "Call to EVO to create BU object and normalize rates" ;
     BURNUP LIBRARY2 := EVO: LIBRARY2 FLUX TRACK ::
       SAVE <<evobeg>> DAY POWR <<Norm_f2>>
     ;

@@ -60,8 +60,7 @@
          POLY(0)=0.0
          POLY(1)=1.0
       ELSE
-         CALL XDRSET(CALC(0,0),IL+1,0.0)
-         CALL XDRSET(CALC(0,1),IL+1,0.0)
+         CALC(0:MAXNL,0:1)=0.0
          CALC(0,0)=1.0
          CALC(1,1)=1.0
          DO 15 J=2,IL

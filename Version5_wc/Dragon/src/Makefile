@@ -29,13 +29,13 @@ endif
 
 ifeq ($(intel),1)
   fcompiler = ifort
-  ccompiler = gcc
+  ccompiler = icc
 else
   ifeq ($(nvidia),1)
     fcompiler = nvfortran
     ccompiler = nvc
   else
-    ifeq ($(flang),1)
+    ifeq ($(llvm),1)
       fcompiler = flang-new
       ccompiler = clang
     else
@@ -72,8 +72,8 @@ ifeq ($(OS),Linux)
   C = $(ccompiler)
   FLAGS = -DLinux -DUnix
   CFLAGS = -Wall $(nbit) -fPIC
-  FFLAGS = -Wall $(nbit) -fPIC
-  FFLAG77 = -Wall $(nbit) -fPIC
+  FFLAGS = $(nbit) -fPIC
+  FFLAG77 = $(nbit) -fPIC
   LFLAGS = $(nbit)
 else
 ifeq ($(OS),CYGWIN)
@@ -81,8 +81,8 @@ ifeq ($(OS),CYGWIN)
   C = $(ccompiler)
   FLAGS = -DLinux -DUnix
   CFLAGS = -Wall $(nbit) -fPIC
-  FFLAGS = -Wall $(nbit) -fPIC
-  FFLAG77 = -Wall $(nbit) -fPIC
+  FFLAGS = $(nbit) -fPIC
+  FFLAG77 = $(nbit) -fPIC
   LFLAGS = $(nbit)
 else
 ifeq ($(OS),SunOS)
@@ -125,8 +125,8 @@ ifeq ($(fcompiler),gfortran)
   ifeq ($(OS),Darwin)
     summary = -ffpe-summary=none
   endif
-  FFLAGS += $(summary)
-  FFLAG77 += -frecord-marker=4 $(summary)
+  FFLAGS += -Wall $(summary)
+  FFLAG77 += -Wall -frecord-marker=4 $(summary)
 endif
 
 ifeq ($(intel),1)
@@ -149,14 +149,16 @@ else
     lib_module = ../lib/$(DIRNAME)_nvidia/modules
     INCLUDE = -I../../Ganlib/lib/$(DIRNAME)_nvidia/modules/
   else
-    ifeq ($(flang),1)
-      lib = ../lib/$(DIRNAME)_flang
-      libUtl = ../../Utilib/lib/$(DIRNAME)_flang
-      libGan = ../../Ganlib/lib/$(DIRNAME)_flang
-      libTri = ../../Trivac/lib/$(DIRNAME)_flang
-      bin = ../bin/$(DIRNAME)_flang
-      lib_module = ../lib/$(DIRNAME)_flang/modules
-      INCLUDE = -I../../Ganlib/lib/$(DIRNAME)_flang/modules/
+    ifeq ($(llvm),1)
+      lib = ../lib/$(DIRNAME)_llvm
+      libUtl = ../../Utilib/lib/$(DIRNAME)_llvm
+      libGan = ../../Ganlib/lib/$(DIRNAME)_llvm
+      libTri = ../../Trivac/lib/$(DIRNAME)_llvm
+      bin = ../bin/$(DIRNAME)_llvm
+      lib_module = ../lib/$(DIRNAME)_llvm/modules
+      INCLUDE = -I../../Ganlib/lib/$(DIRNAME)_llvm/modules/
+      FFLAGS += -mmlir -fdynamic-heap-array
+      LFLAGS += -lclang_rt.osx
     else
       lib = ../lib/$(DIRNAME)
       libUtl = ../../Utilib/lib/$(DIRNAME)
@@ -197,14 +199,14 @@ endif
 ifeq ($(nvidia),1)
 	@echo 'Dragon: nvidia is defined'
 endif
-ifeq ($(flang),1)
-	@echo 'Dragon: flang is defined'
+ifeq ($(llvm),1)
+	@echo 'Dragon: llvm is defined'
 endif
 ifeq ($(hdf5),1)
 	@echo 'Dragon: hdf5 is defined'
 endif
 sub-make:
-	$(MAKE) openmp=$(openmp) intel=$(intel) nvidia=$(nvidia) flang=$(flang) hdf5=$(hdf5) -C ../../Trivac/src
+	$(MAKE) openmp=$(openmp) intel=$(intel) nvidia=$(nvidia) llvm=$(llvm) hdf5=$(hdf5) -C ../../Trivac/src
 %.o : %.c
 	$(C) $(CFLAGS) $(opt) $(COMP) -c $< -o $@
 %.o : %.f90

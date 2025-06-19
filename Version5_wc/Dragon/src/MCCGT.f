@@ -121,13 +121,13 @@
         IPGEO=C_NULL_PTR
       ENDIF
 *      
-      CALL LCMGTC(IPTRK,'SIGNATURE',12,1,HSIGN)
+      CALL LCMGTC(IPTRK,'SIGNATURE',12,HSIGN)
       IF(HSIGN.NE.'L_TRACK') THEN
          TEXT12=HENTRY(ITRK)
          CALL XABORT('MCCGT: SIGNATURE OF '//TEXT12//' IS '//HSIGN//
      1   '. L_TRACK EXPECTED.')
       ENDIF
-      CALL LCMGTC(IPTRK,'TRACK-TYPE',12,1,HSIGN)
+      CALL LCMGTC(IPTRK,'TRACK-TYPE',12,HSIGN)
       IF(HSIGN.NE.'EXCELL') THEN
          TEXT12=HENTRY(ITRK)
          CALL XABORT('MCCGT: SIGNATURE OF '//TEXT12//' IS '//HSIGN//
@@ -137,20 +137,20 @@
 *  RECOVER GEOMETRY
 *----
       IF(C_ASSOCIATED(IPGEO)) THEN
-        CALL LCMGTC(IPGEO,'SIGNATURE',12,1,HSIGN)
+        CALL LCMGTC(IPGEO,'SIGNATURE',12,HSIGN)
         IF(HSIGN.NE.'L_GEOM') THEN
            TEXT12=HENTRY(IGEO)
            CALL XABORT('MCCGT: SIGNATURE OF '//TEXT12//' IS '//HSIGN//
      1          '. L_GEOM EXPECTED.')
         ENDIF
         TEXT12=HENTRY(IGEO)
-        CALL LCMPTC(IPTRK,'LINK.GEOM',12,1,TEXT12)
+        CALL LCMPTC(IPTRK,'LINK.GEOM',12,TEXT12)
       ENDIF
 *----
 *  RECOVER SEQUENTIAL BINARY TRACKING FILE CHARACTERISTICS
 *----
       CFTRAK=HENTRY(IFTR)
-      CALL LCMPTC(IPTRK,'LINK.FTRACK',12,1,CFTRAK)
+      CALL LCMPTC(IPTRK,'LINK.FTRACK',12,CFTRAK)
       REWIND IFTRAK
       READ(IFTRAK) TEXT4,NCOMNT,NBTR,IFMT
       DO ICOM=1,NCOMNT
@@ -162,7 +162,7 @@
 *----
 *  RECOVER TRACKING STATE-VECTOR AND USER INPUT INFORMATION
 *----
-      CALL XDISET(IGP,NSTATE,0) 
+      IGP(:NSTATE)=0 
       CALL LCMGET(IPTRK,'STATE-VECTOR',IGP)
       CALL LCMGET(IPTRK,'ALBEDO',ALBEDO)
       NREG=IGP(1)
@@ -412,13 +412,13 @@
       TMUIM=0.0
       IF(NDIM.EQ.2) THEN
          IF(LCACT.EQ.-1) THEN   
-            CALL ALGPT ( 2*NMU, -1.0, 1.0, XMU0, WZMU0)
+            CALL ALGPT ( 2*NMU, -1.0, 1.0, XMU0(1), WZMU0(1))
             DO IMU=1,NMU
                XMU(NMU-IMU+1)=XMU0(IMU)
                WZMU(NMU-IMU+1)=WZMU0(IMU)
             ENDDO
          ELSE IF(LCACT.EQ.0) THEN   
-            CALL ALGPT ( NMU, 0.0, 1.0, XMU, WZMU)
+            CALL ALGPT ( NMU, 0.0, 1.0, XMU(1), WZMU(1))
          ELSE
             IF(LCACT.GE.3) THEN
                IF(NMU.GT.4) NMU=4
@@ -447,9 +447,9 @@
             ENDDO
          ENDIF
          IF(IMPX.GT.3) THEN
-            CALL PRINAM('XMU   ',XMU,NMU)
-            CALL PRINAM('ZMU   ',ZMU,NMU)
-            CALL PRINAM('WZMU  ',WZMU,NMU)
+            CALL PRINAM('XMU   ',XMU(1),NMU)
+            CALL PRINAM('ZMU   ',ZMU(1),NMU)
+            CALL PRINAM('WZMU  ',WZMU(1),NMU)
          ENDIF
       ELSE ! NDIM.EQ.3
          NMU=1
@@ -530,18 +530,18 @@
       IF(ACFLAG) THEN
          IF(LMXMCU.EQ.0) LMXMCU=FACMCU(NDIM)*NFI
          ALLOCATE(MCUW(LMXMCU),MCUI(LMXMCU))
-         CALL XDISET(MCUW,LMXMCU,0)
-         CALL XDISET(MCUI,LMXMCU,0)
+         MCUW(:LMXMCU)=0
+         MCUI(:LMXMCU)=0
       ENDIF
       ALLOCATE(SEGLEN(MXSEG),NRSEG(MXSEG),KANGL(MXSUB))
       ALLOCATE(SURFD(NSOU),XSIXYZ(NSOU,3))
-      CALL XDDSET(SURFD,NSOU,0.D0)
-      CALL XDDSET(XSIXYZ,NSOU*3,0.D0)
+      SURFD(:NSOU)=0.0D0
+      XSIXYZ(:NSOU,:3)=0.0D0
       LMCU=NFI
       IF(LPRISM) THEN
 *       3D PRISMATIC GEOMETRY: 3D TRACKS ARE RECONSTRUCTED
         ALLOCATE(VNUM(2*NREG*NMU*NANGL))
-        CALL XDDSET(VNUM,2*NREG*NANGL*NMU,0.D0)
+        VNUM(:2*NREG*NMU*NANGL)=0.0D0
         ALLOCATE(T2D(MXSEG))
         N3MAX=(INT(FACSYM)+1)*MXSEG*(NZP+2)
         IF(SSYM.LT.2) THEN
@@ -731,10 +731,10 @@
                      IF(ALBEDO(-NZON(J)).EQ.0.0) NZONA(I)=IBCV
                   ENDIF
                ENDDO
-               CALL XDISET(JU,NLONG,0)
+               JU(:NLONG)=0
                IF(PACA.EQ.3) THEN
-                  CALL XDISET(IM0,(NLONG+1),LMCU)
-                  CALL XDISET(IWORK,NLONG,0)
+                  IM0(:NLONG+1)=LMCU
+                  IWORK(:NLONG)=0
                   ILAST=0
                   LMCU0=0
                ENDIF
@@ -768,7 +768,7 @@
    40                      CONTINUE
                            IF(IPOS.EQ.0) THEN
                            IF(ILAST.NE.I) THEN
-                           CALL XDISET(IM0(ILAST+1),(I-ILAST),LMCU0)
+                           IM0(ILAST+1:I)=LMCU0
                            ILAST=I
                            ENDIF
                            LMCU0=LMCU0+1
@@ -788,7 +788,7 @@
                IF(LMCU0.EQ.0) THEN
                   PACA=4 ! SPECIAL CASE WHEN THERE IS NO EXTRA-STORAGE FOR ILU0-ACA
                ELSE
-                  CALL XDISET(IM0(ILAST+1),(NLONG+1-ILAST),LMCU0)
+                  IM0(ILAST+1:NLONG+1)=LMCU0
                ENDIF
                ENDIF
             ELSE
@@ -804,29 +804,29 @@
          NZONA(NREG+1)=-1
       ENDIF
       IF(IMPX.GT.3) THEN
-         CALL PRINIM('MATALB',NZON,NFI)
-         CALL PRINAM('VOLSUR',VV,NFI)
+         CALL PRINIM('MATALB',NZON(1),NFI)
+         CALL PRINAM('VOLSUR',VV(1),NFI)
          IF(ACFLAG) THEN
-            CALL PRINIM('MATALA',NZONA,NFI)
+            CALL PRINIM('MATALA',NZONA(1),NFI)
             WRITE(IOUT,'(16H MCGREC : LMCU =,I6)') LMCU
-            CALL PRINIM('KM    ',KM,NLONG)
-            CALL PRINIM('MCU   ',MCU,LMCU)
+            CALL PRINIM('KM    ',KM(1),NLONG)
+            CALL PRINIM('MCU   ',MCU(1),LMCU)
             IF((LACA).AND.(PACA.GE.2)) THEN
-               CALL PRINIM('IPERM ',INVPI,NFI)
-               CALL PRINIM('KMROR ',KMROR,NLONG)
-               CALL PRINIM('MCUROR',MCUROR,LMCU)
-               CALL PRINIM('JU    ',JU,NLONG)
+               CALL PRINIM('IPERM ',INVPI(1),NFI)
+               CALL PRINIM('KMROR ',KMROR(1),NLONG)
+               CALL PRINIM('MCUROR',MCUROR(1),LMCU)
+               CALL PRINIM('JU    ',JU(1),NLONG)
                IF(PACA.GE.3) THEN
                   WRITE(IOUT,'(16H MCCGT : LMCU0 =,I6)') LMCU0
                   IF(LMCU0.GT.0) THEN
-                     CALL PRINIM('IM0    ',IM0,NLONG+1)
-                     CALL PRINIM('MCU0   ',MCU0,LMCU0)
+                     CALL PRINIM('IM0    ',IM0(1),NLONG+1)
+                     CALL PRINIM('MCU0   ',MCU0(1),LMCU0)
                   ENDIF
                ENDIF
             ENDIF
             IF(LSCR) THEN
-               CALL PRINIM('IS    ',IS,NSOU+1)
-               CALL PRINIM('JS    ',JS,LPS)
+               CALL PRINIM('IS    ',IS(1),NSOU+1)
+               CALL PRINIM('JS    ',JS(1),LPS)
             ENDIF
          ENDIF
       ENDIF
@@ -888,7 +888,7 @@
 
       IGP(2)=DIMKEYF
       TEXT12='MCCG'
-      CALL LCMPTC(IPTRK,'TRACK-TYPE',12,1,TEXT12)
+      CALL LCMPTC(IPTRK,'TRACK-TYPE',12,TEXT12)
 *     non-cyclic tracking -> MCCG used (else MOCC)
       IF(.NOT.CYCLIC) IGP(2)=IGP(2)+IGP(5)
 
@@ -953,7 +953,7 @@
 *---
 * GENERATE MCCG-STATE AND REAL-PARAM VECTORS
 *---
-      CALL XDISET(IGP,NSTATE,0)
+      IGP(:NSTATE)=0
       IGP(1)=LCACT
       IGP(2)=NMU
       IGP(3)=KRYL

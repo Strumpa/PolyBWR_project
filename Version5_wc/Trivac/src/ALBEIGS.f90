@@ -146,7 +146,7 @@ subroutine ALBEIGS(atv,n,blsz,K_org,maxit,tol,impx,iter,V,D,iptrk,ipsys,ipflux)
       if(m > blsz*(nbls+1)) exit
       allocate(work2d_r(n-m+blsz,blsz))
       work2d_r(:n-m+blsz,:blsz) = real(VC(m-blsz+1:n,m-blsz+1:m))
-      call ALST2F(n-m+blsz,n-m+blsz,blsz,work2d_r,tau)
+      call ALST2F(n-m+blsz,n-m+blsz,blsz,work2d_r(:,:),tau)
       VC(m-blsz+1:n,m-blsz+1:m) = work2d_r(:n-m+blsz,:blsz)
       deallocate(work2d_r)
       if(m > blsz) then

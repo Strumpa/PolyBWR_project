@@ -130,7 +130,7 @@
 *  Cells are identified:
 *  Extract dimensioning vectors.
 *----
-              CALL XDISET(IEDIMC,NSTATE*2,0)
+              IEDIMC(:NSTATE,:2)=0
               DO IG=1,2
                 WRITE(NAMREC,'(A1,I8.8,A3)') CLEV(ILEV),IGEN(IG),'DIM'
                 CALL LCMGET(IPTRK,NAMREC,IEDIMC(1,IG))
@@ -154,7 +154,7 @@
                   IF(ILCMLN .GT. 0) THEN
                     CALL LCMGET(IPTRK,NAMREC,DAMESH(-1,IDIR,IG))
                   ELSE
-                    CALL XDDSET(DAMESH(-1,IDIR,IG),MAXMSP+2,0.0D0)
+                    DAMESH(-1:MAXMSP,IDIR,IG)=0.0D0
                   ENDIF
                 ELSE
 *----
@@ -167,7 +167,7 @@
                     IF(ILCMLN .GT. 0) THEN
                       CALL LCMGET(IPTRK,NAMREC,DAMESH(-1,IDIR,IG))
                     ELSE
-                      CALL XDDSET(DAMESH(-1,IDIR,IG),MAXMSP+2,0.0D0)
+                      DAMESH(-1:MAXMSP,IDIR,IG)=0.0D0
                     ENDIF
                   ENDDO
                 ENDIF
@@ -176,7 +176,7 @@
                 IF(ILCMLN .GT. 0) THEN
                   CALL LCMGET(IPTRK,NAMREC,DRAPIN(-1,1,IG))
                 ELSE
-                  CALL XDDSET(DRAPIN(-1,1,IG),6,0.0D0)
+                  DRAPIN(-1:4,1,IG)=0.0D0
                 ENDIF
               ENDDO
 *----
@@ -226,7 +226,7 @@
 *  Start correction 2010/11/10
 *----
               ILEV=2
-              CALL XDISET(IEDIMP,NSTATE*2,0)
+              IEDIMP(:NSTATE,:2)=0
               IG1=1
               IG2=2
               IGEN(IG1)=IEDIMC(17,IG1)-1
@@ -244,7 +244,7 @@
                   IF(ILCMLN .GT. 0) THEN
                     CALL LCMGET(IPTRK,NAMREC,DAMESH(-1,IDIR,IG))
                   ELSE
-                    CALL XDDSET(DAMESH(-1,IDIR,IG),MAXMSP+2,0.0D0)
+                    DAMESH(-1:MAXMSP,IDIR,IG)=0.0D0
                   ENDIF
                 ENDDO
                 NR1=IEDIMP(8,1)
@@ -271,7 +271,7 @@
                     IF(ILCMLN .GT. 0) THEN
                       CALL LCMGET(IPTRK,NAMREC,DAMESH(-1,IDIR,IG))
                     ELSE
-                      CALL XDDSET(DAMESH(-1,IDIR,IG),MAXMSP+2,0.0D0)
+                      DAMESH(-1:MAXMSP,IDIR,IG)=0.0D0
                     ENDIF
                   ENDDO
                   NR2=IEDIMP(8,IG2)

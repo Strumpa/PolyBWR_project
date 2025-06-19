@@ -21,7 +21,7 @@ def main():
     libNv=os.environ.get("NVTOOLS", None)+"/../lib"
     extralink=["-lnvc","-lnvcpumath"]
   elif Compiler == "LLVMTOOLS":
-    libdir="../../lib/"+mach+"_flang"
+    libdir="../../lib/"+mach+"_llvm"
     libNv=" "
     extralink=[ ]
   elif Compiler == "INTELTOOLS":

@@ -95,7 +95,7 @@
          NBMIX=ITP(7)
          NAN=ITP(8)
          IF(NAN.EQ.0) CALL XABORT('MTLDLM: SPN-ONLY ALGORITHM(1).')
-         CALL XDRSET(F3,LL4,0.0)
+         F3(:LL4)=0.0
          CALL FLDBSM(NAMP,IPTRK,IPSYS,LL4,NBMIX,NAN,F2,F3)
          RETURN
       ELSE IF(ITY.EQ.13) THEN
@@ -104,7 +104,7 @@
          NBMIX=ITP(7)
          NAN=ITP(8)
          IF(NAN.EQ.0) CALL XABORT('MTLDLM: SPN-ONLY ALGORITHM(2).')
-         CALL XDRSET(F3,LL4,0.0)
+         F3(:LL4)=0.0
          CALL FLDTSM(NAMP,IPTRK,IPSYS,LL4,NBMIX,NAN,F2,F3)
          RETURN
       ENDIF
@@ -129,7 +129,7 @@
          CALL LCMGPD(IPSYS,NAMT,ASS_PTR)
          CALL C_F_POINTER(MU_PTR,MU,(/ LL4 /))
          CALL C_F_POINTER(ASS_PTR,ASS,(/ MU(LL4) /))
-         CALL ALLDLM(LL4,ASS,F2,F3,MU,1)
+         CALL ALLDLM(LL4,ASS,F2(1),F3(1),MU,1)
       ELSE IF(ISEG.EQ.0) THEN
 *        SCALAR MULTIPLICATION FOR A W- OR X-ORIENTED MATRIX.
          IF(LMUW) THEN
@@ -160,7 +160,7 @@
    20    CONTINUE
          CALL LCMGPD(IPSYS,TEXT12,ASS_PTR)
          CALL C_F_POINTER(ASS_PTR,ASS,(/ MU(LL4) /))
-         CALL ALLDLM(LL4,ASS,F2,GAR,MU,1)
+         CALL ALLDLM(LL4,ASS,F2(1),GAR(1),MU,1)
          DO 30 I=1,LL4
          II=IP(I)
          F3(I)=GAR(II)
@@ -187,7 +187,7 @@
    60       CONTINUE
             CALL LCMGPD(IPSYS,'X_'//NAMT,ASS_PTR)
             CALL C_F_POINTER(ASS_PTR,ASS,(/ MU(LL4) /))
-            CALL ALLDLM(LL4,ASS,F2,GAR,MU,2)
+            CALL ALLDLM(LL4,ASS,F2(1),GAR(1),MU,2)
             DO 70 I=1,LL4
             II=IP(I)
             F3(I)=GAR(II)
@@ -215,7 +215,7 @@
   100       CONTINUE
             CALL LCMGPD(IPSYS,'Y_'//NAMT,ASS_PTR)
             CALL C_F_POINTER(ASS_PTR,ASS,(/ MU(LL4) /))
-            CALL ALLDLM(LL4,ASS,F2,GAR,MU,2)
+            CALL ALLDLM(LL4,ASS,F2(1),GAR(1),MU,2)
             DO 110 I=1,LL4
             II=IP(I)
             F3(I)=GAR(II)
@@ -243,7 +243,7 @@
   140       CONTINUE
             CALL LCMGPD(IPSYS,'Z_'//NAMT,ASS_PTR)
             CALL C_F_POINTER(ASS_PTR,ASS,(/ MU(LL4) /))
-            CALL ALLDLM(LL4,ASS,F2,GAR,MU,2)
+            CALL ALLDLM(LL4,ASS,F2(1),GAR(1),MU,2)
             DO 150 I=1,LL4
             II=IP(I)
             F3(I)=GAR(II)
@@ -299,7 +299,7 @@
          DO 165 I=1,LL4
          IPB(I)=IPV(IP(I))
   165    CONTINUE
-         CALL XDRSET(GAR,LL4V,0.0)
+         GAR(:LL4V)=0.0
          DO 180 I=1,LL4
          GAR(IPB(I))=F2(I)
   180    CONTINUE
@@ -334,8 +334,8 @@
             DO 200 I=1,LL4
             IPB(I)=IPV(IP(I))
   200       CONTINUE
-            CALL XDRSET(GAR,LL4V,0.0)
-            CALL XDRSET(GAF,LL4V,0.0)
+            GAR(:LL4V)=0.0
+            GAF(:LL4V)=0.0
             DO 220 I=1,LL4
             II=IPB(I)
             GAR(II)=F2(I)
@@ -373,8 +373,8 @@
             DO 235 I=1,LL4
             IPB(I)=IPV(IP(I))
   235       CONTINUE
-            CALL XDRSET(GAR,LL4V,0.0)
-            CALL XDRSET(GAF,LL4V,0.0)
+            GAR(:LL4V)=0.0
+            GAF(:LL4V)=0.0
             DO 260 I=1,LL4
             II=IPB(I)
             GAR(II)=F2(I)
@@ -412,8 +412,8 @@
             DO 275 I=1,LL4
             IPB(I)=IPV(IP(I))
   275       CONTINUE
-            CALL XDRSET(GAR,LL4V,0.0)
-            CALL XDRSET(GAF,LL4V,0.0)
+            GAR(:LL4V)=0.0
+            GAF(:LL4V)=0.0
             DO 300 I=1,LL4
             II=IPB(I)
             GAR(II)=F2(I)

@@ -92,7 +92,7 @@
       IF(IMPX.GT.3) THEN
         ALLOCATE(FGAR(NREG))
         DO II=1,NGEFF
-          CALL XDRSET(FGAR,NREG,0.0)
+          FGAR(:NREG)=0.0
           DO I=1,NREG
             IF(KEYFLX(I).NE.0) FGAR(I)=SUNKNO(KEYFLX(I),II)
           ENDDO
@@ -118,12 +118,12 @@
          ALLOCATE(INCONV(NGEFF),OLD1(NUN,NGEFF),OLD2(NUN,NGEFF),
      1   TEST(NGEFF),OLD3(NUN,NGEFF))
 *
-         CALL XDLSET(INCONV,NGEFF,.TRUE.)
-         CALL XDRSET(TEST,NGEFF,0.0)
+         INCONV(:NGEFF)=.TRUE.
+         TEST(:NGEFF)=0.0
 *
-         CALL XDRSET(OLD1,NUN*NGEFF,0.0)
-         CALL XDRSET(OLD2,NUN*NGEFF,0.0)
-         IF(NFOU.GT.0) CALL XDRSET(OLD3,NUN*NGEFF,0.0)
+         OLD1(:NUN,:NGEFF)=0.0
+         OLD2(:NUN,:NGEFF)=0.0
+         IF(NFOU.GT.0) OLD3(:NUN,:NGEFF)=0.0
 *
          ITER=0
    10    ITER=ITER+1
@@ -211,7 +211,7 @@
      1     AAA/BBB,DMU
            IF(IMPX.GT.5) THEN
              ALLOCATE(FGAR(NREG))
-             CALL XDRSET(FGAR,NREG,0.0)
+             FGAR(:NREG)=0.0
              DO I=1,NREG
               IF(KEYFLX(I).NE.0) FGAR(I)=FUNKNO(KEYFLX(I),II)
              ENDDO

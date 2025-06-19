@@ -2,8 +2,8 @@
       SUBROUTINE SNFG3D(NUN,NGEFF,IMPX,INCONV,NGIND,LX,LY,LZ,
      1 IELEM,NM,NMX,NMY,NMZ,NMAT,NPQ,NSCT,MAT,VOL,TOTAL,
      2 NCODE,ZCODE,QEXT,LFIXUP,DU,DE,DZ,W,MRMX,MRMY,MRMZ,
-     3 DC,DB,DA,PL,FUNKNO,ISBS,NBS,ISBSM,BS,MAXL,WX,WY,WZ,
-     4 CST,ISADPT)
+     3 DC,DB,DA,FUNKNO,ISBS,NBS,ISBSM,BS,MAXL,WX,WY,WZ,
+     4 CST,ISADPT,MN,DN)
 *
 *-----------------------------------------------------------------------
 *
@@ -60,8 +60,8 @@
 * DC      diamond-scheme parameter.
 * DB      diamond-scheme parameter.
 * DA      diamond-scheme parameter.
-* PL      discrete values of the spherical harmonics corresponding
-*         to the 3D SN quadrature.
+* MN      moment-to-discrete matrix.
+* DN      discrete-to-moment matrix.
 * ISBS    flag to indicate the presence or not of boundary fixed
 *         sources.
 * NBS     number of boundary fixed sources.
@@ -96,20 +96,18 @@
       LOGICAL INCONV(NGEFF)
       REAL VOL(LX,LY,LZ),TOTAL(0:NMAT,NGEFF),
      1 ZCODE(6),QEXT(NUN,NGEFF),DU(NPQ),DE(NPQ),DZ(NPQ),
-     2 W(NPQ),DC(LX,LY,NPQ),DB(LX,LZ,NPQ),DA(LY,LZ,NPQ),PL(NSCT,NPQ),
+     2 W(NPQ),DC(LX,LY,NPQ),DB(LX,LZ,NPQ),DA(LY,LZ,NPQ),
      3 FUNKNO(NUN,NGEFF),BS(MAXL*ISBS,NBS*ISBS),
      4 WX(IELEM+1),WY(IELEM+1),WZ(IELEM+1),
-     5 CST(IELEM)
+     5 CST(IELEM),MN(NPQ,NSCT),DN(NSCT,NPQ)
       LOGICAL LFIXUP,ISADPT(4)
 *----
 *  LOCAL VARIABLES
 *----
-      INTEGER NPQD(8),IIND(8)
+      INTEGER NPQD(8),IIND(8),P
       PARAMETER(IUNOUT=6,RLOG=1.0E-8,PI=3.141592654)
       REAL WX0(IELEM+1),WY0(IELEM+1),WZ0(IELEM+1)
-      DOUBLE PRECISION V,
-     1 Q(NM),Q2(NM,NM+1),
-     2 XNK(NMZ)
+      DOUBLE PRECISION V,Q(NM),Q2(NM,NM+1),XNK(NMZ)
       LOGICAL ISFIX(3)
 *----
 *  ALLOCATABLE ARRAYS
@@ -418,9 +416,9 @@
       ! SOURCE DENSITY TERM
       DO IEL=1,NM
       Q(IEL)=0.0D0
-      DO L=1,NSCT
-      IOF=((((K-1)*LY+(J-1))*LX+(I-1))*NSCT+(L-1))*NM+IEL
-      Q(IEL)=Q(IEL)+QEXT(IOF,IG)*PL(L,M)/(4.0D0*PI)
+      DO P=1,NSCT
+      IOF=((((K-1)*LY+(J-1))*LX+(I-1))*NSCT+(P-1))*NM+IEL
+      Q(IEL)=Q(IEL)+QEXT(IOF,IG)*MN(M,P)
       ENDDO
       ENDDO
 
@@ -428,7 +426,7 @@
       DO WHILE (.NOT.ALL(ISFIX)) ! LOOP FOR ADAPTIVE CALCULATION
 
       ! FLUX MOMENT COEFFICIENTS MATRIX
-      CALL XDDSET(Q2,NM*(NM+1),0.0D0)
+      Q2(:NM,:NM+1)=0.0D0
 
       DO IZ=1,IELEM
       DO JZ=1,IELEM
@@ -623,10 +621,9 @@
       WZ=WZ0
 
       ! SAVE LEGENDRE MOMENT OF THE FLUX
-      DO L=1,NSCT
+      DO P=1,NSCT
       DO IEL=1,NM
-      FLUX(IEL,L,I,J,K)=FLUX(IEL,L,I,J,K)+W(M)*Q2(IEL,NM+1)*
-     1 PL(L,M)
+      FLUX(IEL,P,I,J,K)=FLUX(IEL,P,I,J,K)+Q2(IEL,NM+1)*DN(P,M)
       ENDDO
       ENDDO
 

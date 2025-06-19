@@ -54,10 +54,10 @@
 *----
       CALL LCMLIB(IPMAP)
 *     FUEL MIX
-      CALL XDISET(BUNDMIX,NCH*NB,0)
+      BUNDMIX(:NCH,:NB)=0
       CALL LCMGET(IPMAP,'FLMIX',BUNDMIX)
 *     BURN-INST
-      CALL XDRSET(BURNINS,NCH*NB,0.)
+      BURNINS(:NCH,:NB)=0.0
       CALL LCMGET(IPMAP,'BURN-INST',BURNINS)
 *     FUEL INFORMATION (WEIGHT & MIX)
       JPMAP=LCMGID(IPMAP,'FUEL')
@@ -76,7 +76,7 @@
 * the mix stored in FLMIX field of /FMAP/
 * is not the rank of the fuel in FUEL Dir list of /FMAP/
       ALLOCATE(IFLRANK(MAXFL))
-      CALL XDISET(IFLRANK,MAXFL,0)
+      IFLRANK(:MAXFL)=0
       DO IFL=1,NF
         IFLRANK(FLMIX(IFL))=IFL
       ENDDO

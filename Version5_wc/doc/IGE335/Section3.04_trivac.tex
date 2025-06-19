@@ -1,9 +1,8 @@
 \subsubsection{The {\tt TRIVAT:} tracking module}\label{sect:TRIVACData}
 
-The {\tt TRIVAT:} module is used to perform a TRIVAC-type ``tracking"  on a
-1D/2D/3D regular Cartesian or hexagonal geometry.\cite{BIVAC,TRIVAC} The
-geometry is analyzed and a LCM object with signature {\tt L\_TRIVAC} is
-created with the following information:
+The {\tt TRIVAT:} module provides an implementation of the diffusion or simplified $P_n$ method. The {\tt TRIVAT:} module is
+used to perform a TRIVAC-type ``tracking"  on a 1D/2D/3D regular Cartesian or hexagonal geometry.\cite{BIVAC,TRIVAC} The
+geometry is analyzed and a LCM object with signature {\tt L\_TRIVAC} is created with the following information:
 
 \begin{itemize}
 \item Diagonal and hexagonal symmetries are unfolded and the mesh-splitting 
@@ -48,7 +47,7 @@ The \moc{TRIVAT:} specific tracking data in \dstr{descTRIVAC} is defined as
 
 \begin{DataStructure}{Structure \dstr{descTRIVAC}}
 $[~\{$ \moc{PRIM} $[$ \dusa{ielem} $]~|$ \moc{DUAL} $[$ \dusa{ielem} \dusa{icol} $]~|$ \moc{MCFD} $[$ \dusa{ielem} $]~|$ \moc{LUMP} $[$ \dusa{ielem} $]~\}~]$ \\
-$[$ \moc{SPN} \dusa{n} $[$ \moc{SCAT} $[$ \moc{DIFF} $]$ \dusa{iscat} $]~[$ \moc{VOID} \dusa{nvd} $]~]$ \\
+$[$ \moc{SPN} $[$ \moc{DIFF} $]$ \dusa{nlf} $[$ \moc{SCAT} \dusa{iscat} $]~[$ \moc{VOID} \dusa{nvd} $]~]$ \\
 $[$ \moc{ADI} \dusa{nadi} $]$ \\
 $[$ \moc{VECT} $[$ \dusa{iseg} $]~[$ \moc{PRTV} \dusa{impv} $]~]$ \\
 {\tt ;}
@@ -92,12 +91,12 @@ finite elements.
 of the flux.\cite{nse2005,ane10a} This option is available with 1D, 2D and 3D Cartesian geometries and with 2D and 3D
 hexagonal geometries.
 
-\item[\dusa{n}] order of the $P_n$ or $SP_n$ expansion (odd number). Set to zero for diffusion theory (default value).
+\item[\moc{DIFF}] keyword to force using $1/3D^{g}$ as $\Sigma_1^{g}-\Sigma_{{\rm s}1}^{g}$ cross sections. A $P_1$ or $SP_1$ method
+will therefore behave as diffusion theory.
+
+\item[\dusa{nlf}] order of the $P_n$ or $SP_n$ expansion (odd number). Set to zero for diffusion theory (default value).
 
 \item[\moc{SCAT}] keyword to limit the anisotropy of scattering sources.
-
-\item[\moc{DIFF}] keyword to force using $1/3D^{g}$ as $\Sigma_1^{g}$ cross sections. A $P_1$ or $SP_1$ method
-will therefore behave as diffusion theory.
 
 \item[\dusa{iscat}] number of terms in the scattering sources. \dusa{iscat} $=1$ is used for
 isotropic scattering in the laboratory system. \dusa{iscat} $=2$ is used for

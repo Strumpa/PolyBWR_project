@@ -27,8 +27,9 @@
 *            ITIXS= 0 for flag ON;
 *            ITIXS= 1 for flag OFF.
 * IEXTR   flag for power normalization: 
-*            IEXTR= 0 for flag OFF;
-*            IEXTR= 1 for flag ON.
+*            IEXTR= 0 no extrapolation;
+*            IEXTR= 1 linear extrapolation;
+*            IEXTR= 2 parabolic extrapolation.
 * IGLOB   flag for power computation option: 
 *            IGLOB= 0 for flag OFF;
 *            IGLOB= 1 for flag ON.
@@ -179,6 +180,12 @@
         IEXTR=0
       ELSE IF(CARLIR(1:4) .EQ. 'EXTR') THEN
         IEXTR=1
+        CALL REDGET(ITYPLU,INTLIR,REALIR,CARLIR,DBLLIR)
+        IF(ITYPLU .NE. 1) GO TO 101
+        IEXTR=INTLIR
+        IF((IEXTR.NE.1).AND.(IEXTR.NE.2)) THEN
+          CALL XABORT('EVOGET: INVALID EXTR INDEX.')
+        ENDIF
       ELSE IF(CARLIR(1:4) .EQ. 'NOGL') THEN
         IGLOB=0
       ELSE IF(CARLIR(1:4) .EQ. 'GLOB') THEN
@@ -197,7 +204,7 @@
         ITIXS=0
       ELSE IF(CARLIR(1:4) .EQ. 'MIXB') THEN
         KMIXB=1
-        CALL XDISET(MIXBRN,NBMIX,0)
+        MIXBRN(:NBMIX)=0
         DO IMIX=1,NBMIX
           CALL REDGET(ITYPLU,INTLIR,REALIR,CARLIR,DBLLIR)
           IF(ITYPLU .NE. 1) GO TO 101
@@ -207,7 +214,7 @@
         ENDDO
       ELSE IF(CARLIR(1:4) .EQ. 'MIXP') THEN
         KMIXP=1
-        CALL XDISET(MIXPWR,NBMIX,0)
+        MIXPWR(:NBMIX)=0
         DO IMIX=1,NBMIX
           CALL REDGET(ITYPLU,INTLIR,REALIR,CARLIR,DBLLIR)
           IF(ITYPLU .NE. 1) GO TO 101

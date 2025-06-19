@@ -1,7 +1,7 @@
 *DECK MCGDDDF
-      SUBROUTINE MCGDDDF(M,N,LPS,IS,JS,H,NOM,NZON,TR,W,NFI,NREG,PJJ,PSJ,
-     1                   IMU,NMU,NFUNL,NMOD,NPJJM,TRHAR,LPJJAN,PJJIND,
-     2                   MODST)
+      SUBROUTINE MCGDDDF(M,NSEG,NSUB,LPS,IS,JS,H,KANGL,NOM,NZON,TR,W,
+     1                   NFI,NREG,PJJ,PSJ,IMU,NMU,NFUNL,NANGL,NPJJM,
+     2                   TRHAR,LPJJAN,PJJIND)
 *
 *-----------------------------------------------------------------------
 *
@@ -19,13 +19,15 @@
 *Author(s): R. Le Tellier
 *
 *Parameters: input
-* LPS     first dimension of PSJ.
+* LPS     dimension of PSJ.
 * M       number of material mixtures.
-* N       number of elements for this track.
+* NSEG    number of elements for this track.
+* NSUB    number of subtracks for this track.
 * IS      arrays for surfaces neighbors.
-* JS      JS(IS(ISOUT)+1:IS(ISOUT+1)) give the neighboring 
-*         regions to surface ISOUT.
+* JS      JS(IS(ISOUT)+1:IS(ISOUT+1)) give the neighboring regions to
+*         surface ISOUT.
 * H       real tracking elements.
+* KANGL   track direction indices.
 * NOM     integer tracking elements.
 * NZON    index-number of the mixture type assigned to each volume.
 * TR      macroscopic total cross section.
@@ -37,13 +39,12 @@
 * IMU     polar angle index.
 * NMU     order of the polar quadrature set.
 * NFUNL   number of moments of the flux (in 2D : NFUNL=NANI*(NANI+1)/2).
-* NMOD    first dimension of ISGNR.
+* NANGL   number of tracking angles in the plane.
 * NPJJM   number of pjj modes to store for LPJJAN option.
-* TRHAR   spherical harmonics components for this azimuthal 
-*         angle in the plan.
+* TRHAR   spherical harmonics components for each azimuthal angle in
+*         the plane.
 * LPJJAN  flag for the calculation of anisotropic moments of the pjj.
 * PJJIND  index of the modes for LPJJAN option.
-* MODST   starting angular mode index.
 *
 *Parameters: input/output
 * PJJ     collision probabilities.
@@ -55,66 +56,67 @@
 *---
 * SUBROUTINE ARGUMENTS
 *---
-      INTEGER M,N,NFI,NREG,LPS,IS(NFI-NREG+1),JS(LPS),NZON(NFI),NOM(N),
-     1 IMU,NMU,NFUNL,NMOD,NPJJM,PJJIND(NPJJM,2),MODST
-      REAL TR(0:M),PSJ(LPS),TRHAR(NMU,NFUNL,NMOD)
-      DOUBLE PRECISION W,H(N),PJJ(NREG,NPJJM)
+      INTEGER M,NSEG,NSUB,NFI,NREG,LPS,IS(NFI-NREG+1),JS(LPS),NZON(NFI),
+     1 KANGL(NSUB),NOM(NSEG),IMU,NMU,NFUNL,NANGL,NPJJM,PJJIND(NPJJM,2)
+      REAL TR(0:M),PSJ(LPS),TRHAR(NMU,NFUNL,NANGL)
+      DOUBLE PRECISION W,H(NSEG),PJJ(NREG,NPJJM)
       LOGICAL LPJJAN
 *---
 * LOCAL VARIABLES
 *---
-      INTEGER J,I,NOMI,IC,NZI,NOMJ,I0P,NOLDP,IFACE,IMOD,INU,INUP
-      DOUBLE PRECISION TRI,TRJ,TAU,EXPT,HI,HJ,HID,TAUD,EXPTD,TEMPD
+      INTEGER I,J,NOMI,IC,IC0,NZI,NOMJ,IMOD,INU,INUP,IANG,ISUB
+      DOUBLE PRECISION TRI,TRJ,TAU,EXPT,HJD,HID,TAUD,EXPTD,TEMPD
+      LOGICAL LNEW
 *
-      INTEGER   NEWMOD(8,3)
-      DATA      NEWMOD/ 2,1,4,3,6,5,8,7,
-     >                  3,4,1,2,7,8,5,6,
-     >                  5,6,7,8,1,2,3,4 /
-      SAVE      NEWMOD
-*
-      I0P=MODST
-      NOLDP=NOM(1)
-      DO I=1,N
+      ISUB=0
+      LNEW=.TRUE.
+      IANG=KANGL(1)
+      DO I=1,NSEG
          NOMI=NOM(I)
          NZI=NZON(NOMI)
-         HI=H(I)
-         IF (NZI.LT.0) THEN
+         IF(NZI.LT.0) THEN
 *        Boundary Condition
-            IF ((LPJJAN).AND.(NOLDP.NE.NOMI)) THEN
-               IFACE=(1-NZI)/2
-               I0P=NEWMOD(I0P,IFACE)
-            ENDIF
-            NOLDP=NOMI
-            IF (LPS.GT.0) THEN
+           LNEW=.TRUE.
+            IF(LPS.GT.0) THEN
 *           SCR for a non-cyclic tracking
-               IF (I.EQ.1) THEN
+               IF(I.EQ.1) THEN
                   J=I+1
-               ELSE !! I.EQ.N
+               ELSE !! I.EQ.NSEG
                   J=I-1
                ENDIF
                NOMJ=NOM(J)
-               DO IC=IS(NOMI-NREG)+1,IS(NOMI-NREG+1)
-                  IF (JS(IC).EQ.NOMJ) GOTO 10
+               IC=0
+               DO IC0=IS(NOMI-NREG)+1,IS(NOMI-NREG+1)
+                  IC=IC0
+                  IF(JS(IC0).EQ.NOMJ) GOTO 10
                ENDDO
- 10            HJ=H(J)
+               CALL XABORT('MCGDDDF: UNABLE TO SET IC.')
+ 10            HJD=H(J)
                TRJ=TR(NZON(NOMJ))
-               TAU=HJ*TRJ
-               EXPT=2.0*HJ/(2.0+TAU)
+               TAU=HJD*TRJ
+               EXPT=2.0D0*HJD/(2.0D0+TAU)
                PSJ(IC)=PSJ(IC)+REAL(W*EXPT)
             ENDIF
          ELSE
 *        this cell is a volume
+            IF(LNEW) THEN
+               ISUB=ISUB+1
+               IF(ISUB.GT.NSUB) CALL XABORT('MCGDDDF: NSUB OVERFLOW.')
+               LNEW=.FALSE.
+               IANG=KANGL(ISUB)
+               IF(IANG.GT.NANGL) CALL XABORT('MCGDDDF: NANGL OVERFLOW.')
+            ENDIF
             TRI=TR(NZI)
-            HID=HI
-            TAUD=HI*TRI
+            HID=H(I)
+            TAUD=HID*TRI
             EXPTD=HID/(2.D0+TAUD)
             EXPTD=EXPTD*W*HID
-            IF (LPJJAN) THEN
-               DO IMOD=1,NPJJM
+            IF(LPJJAN) THEN
+                DO IMOD=1,NPJJM
                   INU=PJJIND(IMOD,1)
                   INUP=PJJIND(IMOD,2)
-                  TEMPD=DBLE(TRHAR(IMU,INU,I0P))*
-     1                  DBLE(TRHAR(IMU,INUP,I0P))
+                  TEMPD=DBLE(TRHAR(IMU,INU,IANG))*
+     1                  DBLE(TRHAR(IMU,INUP,IANG))
                   PJJ(NOMI,IMOD)=PJJ(NOMI,IMOD)+EXPTD*TEMPD
                ENDDO
             ELSE

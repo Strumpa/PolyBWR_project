@@ -1,6 +1,6 @@
 *DECK SNDSA
       SUBROUTINE SNDSA (KPSYS,INCONV,NGIND,IPTRK,IMPX,NGEFF,NREG,
-     1 NBMIX,NUN,ISCAT,MAT,VOL,KEYFLX,KEYSPN,NUNSA,IELEMSA,ZCODE,
+     1 NBMIX,NUN,MAT,VOL,KEYFLX,KEYSPN,NUNSA,IELEMSA,ZCODE,
      2 FUNOLD,FUNKNO,NHEX)
 *
 *-----------------------------------------------------------------------
@@ -30,7 +30,6 @@
 *         neutron flux and reactions rates are required.
 * NBMIX   number of mixtures.
 * NUN     total number of unknowns in vectors FUNKNO.
-* ISCAT   anisotropy of one-speed sources in SN method.
 * MAT     index-number of the mixture type assigned to each volume.
 * VOL     volumes.
 * KEYFLX  position of averaged flux elements in FUNKNO vector.
@@ -55,7 +54,7 @@
 *  SUBROUTINE ARGUMENTS
 *----
       TYPE(C_PTR) KPSYS(NGEFF),IPTRK
-      INTEGER     NGEFF,NGIND(NGEFF),IMPX,NREG,NBMIX,NUN,ISCAT,
+      INTEGER     NGEFF,NGIND(NGEFF),IMPX,NREG,NBMIX,NUN,
      >            MAT(NREG),KEYFLX(NREG),KEYSPN(NREG),NUNSA,NHEX,
      >            IELEMSA
       LOGICAL     INCONV(NGEFF)
@@ -83,6 +82,7 @@
 *----
       CALL LCMGET(IPTRK,'STATE-VECTOR',IPAR)
       ITYPE=IPAR(6)
+      NSCT=IPAR(7)
       IELEM=IPAR(8)
       NDIM=IPAR(9)
       LX=IPAR(12)
@@ -91,19 +91,15 @@
       ISOLVSA=IPAR(33)
       ISPLH=1
       IF((ITYPE.EQ.8).OR.(ITYPE.EQ.9)) ISPLH=IPAR(26)
-      NSCT=0
       NLEG=0
       LL4=0
       IF(ITYPE.EQ.2) THEN
-         NSCT=ISCAT
          NLEG=IELEM
          LL4 =LX*NSCT*NLEG
       ELSE IF((ITYPE.EQ.5).OR.(ITYPE.EQ.8)) THEN
-         NSCT=ISCAT*(ISCAT+1)/2
          NLEG=IELEM*IELEM
          LL4 =LY*LX*NSCT*NLEG
       ELSE IF((ITYPE.EQ.7).OR.(ITYPE.EQ.9)) THEN
-         NSCT=(ISCAT)**2
          NLEG=IELEM*IELEM*IELEM
          LL4 =LZ*LY*LX*NSCT*NLEG
       ELSE
@@ -112,8 +108,8 @@
 *----
 *  INITIALISE DSA FLUX AND SOURCE ARRAYS.
 *----
-      CALL XDRSET(SUNSA,NUNSA*NGEFF,0.0)
-      CALL XDRSET(FUNSA,NUNSA*NGEFF,0.0)
+      FUNSA(:NUNSA,:NGEFF)=0.0
+      SUNSA(:NUNSA,:NGEFF)=0.0
 *----
 *  LOOP OVER ENERGY GROUPS.
 *----

@@ -1,0 +1,298 @@
+% Serpent2 reference input deck for gduo2_295_kec1 benchmark
+% Author : R. Guasch
+% Date : 10/01/2025
+
+% --- Problem title:
+set title "gduo2_295_kec1 cell benchmark"
+
+% --- Cross section library file path:
+
+set acelib "path/to/acefiles.xsdata"
+
+% --- Decay data library
+
+set declib "path/to/decaydata.dec"
+
+% --- Neutron-induced fission yield library
+
+set nfylib "path/to/neutronfissionyielddata.nfy"
+
+
+% --- 1. Pin cell geometry definition
+% 40%, 70%, 80%, 90%, 95% and 100% of fuel pellet
+pin 1
+GADO_A  2.593068e-01
+GADO_B  3.430306e-01
+GADO_C  3.667151e-01
+GADO_D  3.889601e-01
+GADO_E  3.996186e-01
+GADO_F  4.100000e-01
+clad   0.475
+H2O   
+
+surf 10 sqc 0.0 0.0 0.63
+cell 1 0  fill 1   -10
+cell 2 0  outside   10
+
+% --- 2. Materials definitions
+
+mat GADO_A sum burn 1 tmp 294.0      
+    8016.02c   4.59036e-02
+    92235.02c  7.90006e-04 
+    92238.02c  2.08874e-02
+    64154.02c  3.78440e-05
+    64155.02c  2.55262e-04 
+    64156.02c  3.50791e-04 
+    64157.02c  2.66479e-04  
+    64158.02c  4.20283e-04 
+    64160.02c  3.65230e-04 
+mat GADO_B sum burn 1 tmp 294.0      
+    8016.02c   4.59036e-02
+    92235.02c  7.90006e-04 
+    92238.02c  2.08874e-02
+    64154.02c  3.78440e-05
+    64155.02c  2.55262e-04 
+    64156.02c  3.50791e-04 
+    64157.02c  2.66479e-04  
+    64158.02c  4.20283e-04 
+    64160.02c  3.65230e-04 
+mat GADO_C sum burn 1 tmp 294.0      
+    8016.02c   4.59036e-02
+    92235.02c  7.90006e-04 
+    92238.02c  2.08874e-02
+    64154.02c  3.78440e-05
+    64155.02c  2.55262e-04 
+    64156.02c  3.50791e-04 
+    64157.02c  2.66479e-04  
+    64158.02c  4.20283e-04 
+    64160.02c  3.65230e-04 
+mat GADO_D sum burn 1 tmp 294.0      
+    8016.02c   4.59036e-02
+    92235.02c  7.90006e-04 
+    92238.02c  2.08874e-02
+    64154.02c  3.78440e-05
+    64155.02c  2.55262e-04 
+    64156.02c  3.50791e-04 
+    64157.02c  2.66479e-04  
+    64158.02c  4.20283e-04 
+    64160.02c  3.65230e-04 
+mat GADO_E sum burn 1 tmp 294.0      
+    8016.02c   4.59036e-02
+    92235.02c  7.90006e-04 
+    92238.02c  2.08874e-02
+    64154.02c  3.78440e-05
+    64155.02c  2.55262e-04 
+    64156.02c  3.50791e-04 
+    64157.02c  2.66479e-04  
+    64158.02c  4.20283e-04 
+    64160.02c  3.65230e-04 
+mat GADO_F sum burn 1 tmp 294.0      
+    8016.02c   4.59036e-02
+    92235.02c  7.90006e-04 
+    92238.02c  2.08874e-02
+    64154.02c  3.78440e-05
+    64155.02c  2.55262e-04 
+    64156.02c  3.50791e-04 
+    64157.02c  2.66479e-04  
+    64158.02c  4.20283e-04 
+    64160.02c  3.65230e-04 
+mat clad sum tmp 294.0
+    40090.02c 1.9963e-02
+    40091.02c 4.3534e-03
+    40092.02c 6.6542e-03
+    40094.02c 6.7434e-03
+    40096.02c 1.0864e-03
+mat H2O sum tmp 294.0 moder lwtr 1001
+    1001.02c  4.744e-02
+    8016.02c  2.372e-02
+
+% 3. Isotopes individual tenmperatures
+mat U235  1.0 tmp 294.0 92235.02c 1.0
+mat U238  1.0 tmp 294.0 92238.02c 1.0
+mat Pu239 1.0 tmp 294.0 94239.02c 1.0
+mat Pu241 1.0 tmp 294.0 94241.02c 1.0
+mat Xe135 1.0 tmp 294.0 54135.02c 1.0
+mat Sm149 1.0 tmp 294.0 62149.02c 1.0
+mat Gd154 1.0 tmp 294.0 64154.02c 1.0
+mat Gd155 1.0 tmp 294.0 64155.02c 1.0
+mat Gd156 1.0 tmp 294.0 64156.02c 1.0
+mat Gd157 1.0 tmp 294.0 64157.02c 1.0
+mat Gd158 1.0 tmp 294.0 64158.02c 1.0
+mat Gd160 1.0 tmp 294.0 64160.02c 1.0
+mat O16f  1.0 tmp 294.0 8016.02c  1.0
+mat O16m  1.0 tmp 294.0 8016.02c  1.0
+mat H1    1.0 tmp 294.0 1001.02c  1.0
+mat He4   1.0 tmp 294.0 2004.02c  1.0
+mat Zr90  1.0 tmp 294.0 40090.02c 1.0
+mat Zr91  1.0 tmp 294.0 40091.02c 1.0
+mat Zr92  1.0 tmp 294.0 40092.02c 1.0
+mat Zr94  1.0 tmp 294.0 40094.02c 1.0
+mat Zr96  1.0 tmp 294.0 40096.02c 1.0
+
+% --- 4. Detector definition
+
+det Gd_det 
+ dr 102 Gd157 
+ dr 101 Gd157
+ dr 102 Gd155
+ dr 101 Gd155
+ dr 102 U238
+ dr 101 U238
+ dr -6 U235
+ dr -6 U238
+ de SHEM295
+
+
+% --- 5. Serpent parameters
+
+% --- 5.1 Thermal scattering data for light water:
+
+therm lwtr lwtr.00t
+
+% --- 5.2 Reflective boundary condition:
+
+set bc 2
+
+% --- 5.2.2 Symmetry condition :
+set sym 4
+
+% --- 5.3 Neutron population and criticality cycles:
+set bumode 2  % CRAM method
+set pcc 1     % Predictor-corrector calculation on
+set nbuf 10.0
+set powdens 26.5E-3
+set edepmode 0
+set gcu 0
+set pop 25000 5000 500
+
+% --- 6. Options for burnup calculation:
+
+
+set inventory
+  922340
+  922350
+  922360
+  922380
+  932370
+  942380
+  942390
+  942400
+  942410
+  942420
+  952410
+  952421
+  952430
+  962420
+  962430
+  962440
+  962450
+  601450
+  601480
+  541350
+  451030
+  551330
+  641540
+  641550
+  641560
+  641570
+  641580
+  641600
+  420950
+  430990
+  441010
+  471090
+  621470
+  621490
+  621500
+  621510
+  621520
+  621540 % added to comapre with Dragon5 Sm154
+  631530
+  631540
+  631550 % added to comapre with Dragon5 Eu155, Eu156, Eu157
+  631560
+  631570
+
+
+% --- 7. Depletion steps:
+
+dep butot
+ 1.500e-02 
+ 3.000e-02 
+ 5.000e-02 
+ 7.500e-02 
+ 1.125e-01 
+ 1.500e-01
+ 2.000e-01 
+ 2.500e-01 
+ 3.750e-01 
+ 5.000e-01 
+ 6.250e-01 
+ 7.500e-01 
+ 8.750e-01
+ 1.000e+00 
+ 1.250e+00 
+ 1.500e+00 
+ 1.750e+00 
+ 2.000e+00 
+ 2.250e+00 
+ 2.500e+00
+ 2.750e+00 
+ 3.000e+00 
+ 3.250e+00 
+ 3.500e+00 
+ 3.750e+00 
+ 4.000e+00 
+ 4.250e+00
+ 4.500e+00 
+ 4.750e+00 
+ 5.000e+00 
+ 5.250e+00 
+ 5.500e+00 
+ 5.750e+00 
+ 6.000e+00
+ 6.250e+00 
+ 6.500e+00 
+ 6.750e+00 
+ 7.000e+00 
+ 7.250e+00 
+ 7.500e+00 
+ 7.750e+00
+ 8.000e+00 
+ 8.250e+00 
+ 8.500e+00 
+ 8.750e+00 
+ 9.000e+00 
+ 9.250e+00 
+ 9.500e+00
+ 9.750e+00 
+ 1.000e+01 
+ 1.025e+01 
+ 1.050e+01 
+ 1.075e+01 
+ 1.100e+01 
+ 1.125e+01
+ 1.150e+01 
+ 1.175e+01 
+ 1.200e+01 
+ 1.250e+01 
+ 1.300e+01 
+ 1.350e+01 
+ 1.400e+01
+ 1.450e+01 
+ 1.500e+01
+ 1.600e+01 
+ 1.700e+01 
+ 1.800e+01 
+ 1.900e+01 
+ 2.000e+01
+ 2.400e+01 
+ 2.800e+01 
+ 3.200e+01 
+ 3.600e+01 
+ 4.000e+01 
+ 4.400e+01 
+ 4.800e+01
+ 5.200e+01 
+ 5.600e+01 
+ 6.000e+01

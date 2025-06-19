@@ -173,6 +173,7 @@
          DEALLOCATE(TX1023)
          CALL hdf5_list_datasets(KENTRY(2),TRIM(NAMT),TX1023)
          DO I=1,SIZE(TX1023)
+           WRITE(RECNAM,'(A,1H/,A)') TRIM(NAMT),TRIM(TX1023(I))
            CALL hdf5_copy(KENTRY(2),RECNAM,KENTRY(1),TX1023(I))
          ENDDO
          DEALLOCATE(TX1023)

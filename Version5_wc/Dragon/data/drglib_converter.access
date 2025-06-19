@@ -9,10 +9,6 @@ if [ $# = 0 ]
 fi
 echo access draglib_converter.access
 pos=$1/../../../libraries/l_endian
-if [ -f "$pos"/draglibJ311SHEM295_Gd157.gz ]
-   then
-    echo 'gunzipping library'
-    gunzip "$pos"/draglibJ311SHEM295_Gd157.gz
-fi
-ln -s "$pos"/dlibshem295J311Gd_srcmodif EXPORT
+ln -s "$pos"/draglibshem295_endfb8r1_kerma2 EXPORT
 ls -l
+echo "Conversion data set draglib_converter.x2m accessed"

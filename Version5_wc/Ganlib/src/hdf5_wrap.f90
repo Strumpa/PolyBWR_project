@@ -306,7 +306,7 @@ function hdf5_group_exists(ifile, name) result(lexist)
       end function hdf5_group_exists_c
    end interface
    call STRCUT(name1024, name)
-   lexist = (hdf5_group_exists_c(ifile, name1024) == 0)
+   lexist = (hdf5_group_exists_c(ifile, name1024) /= 0)
 end function hdf5_group_exists
 !
 subroutine hdf5_create_group(ifile, name)

@@ -10,12 +10,12 @@
 import lifo
 import cle2000
 
-def MIX_C(namMIX,Library,name_geom,ssh_option):
+def MIX_C(Library,ssh_option):
   # Lifo
+  namLIB = "LIBRARY"
   myLifo=lifo.new()
-  myLifo.pushEmpty(namMIX, "LCM")
+  myLifo.pushEmpty(namLIB, "LCM")
   myLifo.push(Library)
-  myLifo.push(name_geom)
   myLifo.push(ssh_option)
   myLifo.lib()
 
@@ -25,5 +25,10 @@ def MIX_C(namMIX,Library,name_geom,ssh_option):
 
   # Recover
   myLifo.lib()
-  pyMIX = myLifo.node(namMIX)
+  pyMIX = myLifo.node(namLIB)
+
+  # Clear stack before next execution
+  while myLifo.getMax() > 0: 
+        myLifo.pop()
+  
   return pyMIX

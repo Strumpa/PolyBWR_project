@@ -57,7 +57,7 @@
 *         =2: constant fuel power depletion;
 *         =3: constant assembly power depletion.
 * IEXTR   flux extrapolation flag (=0: no extrapolation; =1: perform
-*         extrapolation).
+*         linear extrapolation; =2: perform parabolic extrapolation).
 * IGLOB   out-of-fuel power in flux normalization:
 *         =0: compute the burnup using the power released in the fuel;
 *         =1: compute the burnup using the power released in the global
@@ -128,7 +128,7 @@
       INTEGER IDIM(NSTATE),IPAR(NSTATE)
       REAL DELTA(3),RPAR(5),BRNWIR(2),TMPDAY(3),VPH(2),
      1 FUELDN(3),DELTAT(2,2),TIMEP(2,3)
-      DOUBLE PRECISION XDRCST,AVCON,VTOTD,VPHINI,DBLLIR
+      DOUBLE PRECISION T(3),WEI,DPD,XDRCST,AVCON,VTOTD,VPHINI,DBLLIR
 *----
 *  ALLOCATABLE ARRAYS
 *----
@@ -148,8 +148,9 @@
 *----
       ALLOCATE(JM(NBMIX,NDEPL),MILVO(NCOMB),ISOCMB(NBISO),
      1 INADPL(3,NDEPL),IEVOLB(NDEPL,NBMIX))
-      ALLOCATE(SIG(NDEPL-NSUPS+1,NREAC+1,NBMIX,0:2),VPHV(NBMIX,0:2),
-     1 ENERG(NBMIX),AWR(NDEPL),YDPL(NDEPL-NSUPS+1,2,NCOMB))
+      ALLOCATE(SIG(NDEPL-NSUPS+1,NREAC+1,NBMIX,1-IEXTR:2),
+     1 VPHV(NBMIX,1-IEXTR:2),ENERG(NBMIX),AWR(NDEPL),
+     2 YDPL(NDEPL-NSUPS+1,2,NCOMB))
       ALLOCATE(MASK(NBMIX),MASKL(NGROUP))
       ALLOCATE(IPISO(NBISO))
 *----
@@ -167,7 +168,7 @@
       IF(NTIM+2.GE.10000) CALL XABORT('EVODRV: No more than 9999'//
      >'burnup steps permitted.')
       ALLOCATE(TIMES(NTIM+2))
-      CALL XDRSET(TIMES,NTIM+2,0.0)
+      TIMES(:NTIM+2)=0.0
       IF(NTIM.EQ.0) THEN
         CALL LCMPUT(IPDEPL,'DEPL-TIMES',1,2,TIMES)
       ELSE
@@ -192,6 +193,11 @@
       ALLOCATE(BPAR(NDEPL,NPAR),YIELD2(NBESP,NFISS,NDFP),
      1 RER(NREAC,NDEPL),RRD(NDEPL))
       CALL LCMGET(IPLIB,'ISOTOPESDEPL',INADPL)
+      IF(IMPX.GT.1) THEN
+        WRITE(IUNOUT,'(/38HEVODRV: DEPLETING ISOTOPES FROM CHAIN:)')
+        WRITE(IUNOUT,'(1X,3A4,2X,3A4,2X,3A4,2X,3A4,2X,3A4,2X,3A4,2X,
+     1  3A4,2X,3A4,2X,3A4,2X,3A4,2X,3A4,2X,3A4)') INADPL(:3,:NVAR)
+      ENDIF
       CALL LCMGET(IPLIB,'PRODUCE-REAC',KPAR)
       CALL LCMGET(IPLIB,'PRODUCE-RATE',BPAR)
       CALL LCMGET(IPLIB,'DEPLETE-IDEN',HREAC)
@@ -208,12 +214,12 @@
 *  DETECT THE DEPLETING ISOTOPES AND MIXTURES IN THE MICROLIB.
 *----
       ICOMB=0
-      CALL XDISET(JM,NBMIX*NDEPL,0)
-      CALL XDISET(IEVOLB,NDEPL*NBMIX,1)
+      JM(:NBMIX,:NDEPL)=0
+      IEVOLB(:NDEPL,:NBMIX)=1
       ALLOCATE(NFISS2(NBMIX),NDFP2(NBMIX))
-      CALL XDISET(NFISS2,NBMIX,0)
-      CALL XDISET(NDFP2,NBMIX,0)
-      CALL XDRSET(AWR,NDEPL,0.0)
+      NFISS2(:NBMIX)=0
+      NDFP2(:NBMIX)=0
+      AWR(:NDEPL)=0.0
       DO 30 ISOT=1,NBISO
       IBM=MIX(ISOT)
       IF(IBM.EQ.0) GO TO 30
@@ -279,8 +285,8 @@
 *----
       ALLOCATE(KFISS(NFISS,NBMIX),KPF(NDFP,NBMIX),
      1         YIELD(NFISS,NDFP,NBMIX))
-      CALL XDISET(KFISS,NFISS*NBMIX,0)
-      CALL XDISET(KPF,NDFP*NBMIX,0)
+      KFISS(:NFISS,:NBMIX)=0
+      KPF(:NDFP,:NBMIX)=0
       IF(IYLMIX.EQ.0) THEN
 *        Use fission yield data from 'DEPL-CHAIN'
          DO 40 IS=1,NVAR
@@ -300,7 +306,7 @@
          ENDDO
       ELSE IF(IYLMIX.EQ.1) THEN
 *        Use isotopic PIFI/PYIELD fission yield data
-         CALL XDRSET(YIELD,NFISS*NDFP*NBMIX,0.0)
+         YIELD(:NFISS,:NDFP,:NBMIX)=0.0
          DO 65 IBM=1,NBMIX
          IFISS=0
          IDFP=0
@@ -509,7 +515,7 @@
          CALL LCMPUT(IPDEPL,'FUELDEN-MIX',NBMIX,2,ENERG)
 *
 *        COMPUTE THE TOTAL MASS PER MIXTURE.
-         CALL XDRSET(ENERG,NBMIX,0.0)
+         ENERG(:NBMIX)=0.0
          DO 170 IS=1,NBISO
          IF(DEN(IS).EQ.0.0) GO TO 170
          KPLIB=IPISO(IS) ! set IS-th isotope
@@ -666,91 +672,104 @@
           CALL LCMSIX(IPDEPL,' ',2)
         ELSE
           IF(IP.EQ.1) CALL XABORT('EVODRV: NO DEPLETION DATA STORED.')
-          IF((IEXTR.EQ.1).AND.(NTIM.GE.2).AND.(INR.NE.0)) THEN
-*            PERFORM MICRO REACTION RATE EXTRAPOLATION.
-             ITIM=0
-             DO 240 I=1,NTIM
-             IF(ABS(TIMES(I)-XT(1)).LE.1.0E-4*XT(1)) ITIM=I
-  240        CONTINUE
-             IF(ITIM.EQ.0) THEN
-                CALL XABORT('EVODRV: TABLE LOOKUP FAILURE.')
-             ELSE IF(ITIM.GE.2) THEN
-                NLENGT=(NVAR+1)*(NREAC+1)*NBMIX
-                T1=TIMES(ITIM-1)
-                T2=TIMES(ITIM)
-                IF(T1.GE.T2) CALL XABORT ('EVODRV: ALGORITHM FAILURE.')
-                FACT=(XT(2)-T1)/(T2-T1)
-                WRITE(TEXT12,'(8HDEPL-DAT,I4.4)') ITIM-1
-                CALL LCMSIX(IPDEPL,TEXT12,1)
-                CALL LCMLEN(IPDEPL,'MICRO-RATES',LENGT,ITYLCM)
-                IF(LENGT.EQ.NLENGT) THEN
-                  CALL LCMGET(IPDEPL,'MICRO-RATES',SIG(1,1,1,0))
-                  CALL LCMGET(IPDEPL,'INT-FLUX',VPHV(1,0))
-                  DO 252 IBM=1,NBMIX
-                  VPHV(IBM,2)=VPHV(IBM,1)+FACT*(VPHV(IBM,1)-VPHV(IBM,0))
-                  DO 251 IQ=1,NREAC+1
-                  DO 250 IS=1,NVAR+1
-                  SIG(IS,IQ,IBM,2)=SIG(IS,IQ,IBM,1)+
-     1               FACT*(SIG(IS,IQ,IBM,1)-SIG(IS,IQ,IBM,0))
-  250             CONTINUE
-  251             CONTINUE
-  252             CONTINUE
-                  IF(IMPX.GT.0) WRITE(IUNOUT,'(/18H EVODRV: USE EXTRA,
-     1            45HPOLATED MICRO REACTION RATES AT END-OF-STAGE.)')
-                ELSE
-                  DO 262 IBM=1,NBMIX
-                  VPHV(IBM,2)=VPHV(IBM,1)
-                  DO 261 IQ=1,NREAC+1
-                  DO 260 IS=1,NVAR+1
-                  SIG(IS,IQ,IBM,2)=SIG(IS,IQ,IBM,1)
-  260             CONTINUE
-  261             CONTINUE
-  262             CONTINUE
-                  IF(IMPX.GT.0) WRITE(IUNOUT,'(/18H EVODRV: USE BEGIN,
-     1            48HNNING-OF-STAGE MICRO REACTION RATES AT END-OF-ST,
-     2            7HAGE(1).)')
-                ENDIF
-                CALL LCMSIX(IPDEPL,' ',2)
-             ENDIF
+          IF((IEXTR.GE.1).AND.(NTIM.GE.2).AND.(INR.NE.0)) THEN
+*           PERFORM MICRO REACTION RATE EXTRAPOLATION.
+            ITIM=0
+            DO 240 I=1,NTIM
+            IF(ABS(TIMES(I)-XT(1)).LE.1.0E-4*XT(1)) ITIM=I
+  240       CONTINUE
+            IF(ITIM.EQ.0) CALL XABORT('EVODRV: TABLE LOOKUP FAILURE.')
+            NLENGT=(NVAR+1)*(NREAC+1)*NBMIX
+            DO IEX=1,MIN(ITIM-IEXTR+1,IEXTR)
+              WRITE(TEXT12,'(8HDEPL-DAT,I4.4)') ITIM-IEX
+              CALL LCMSIX(IPDEPL,TEXT12,1)
+              CALL LCMLEN(IPDEPL,'MICRO-RATES',LENGT,ITYLCM)
+              IF(LENGT.NE.NLENGT) THEN
+                CALL XABORT('EVODRV: MICRO-RATES OVERFLOW.')
+              ENDIF
+              CALL LCMGET(IPDEPL,'MICRO-RATES',SIG(1,1,1,1-IEX))
+              CALL LCMGET(IPDEPL,'INT-FLUX',VPHV(1,1-IEX))
+              CALL LCMSIX(IPDEPL,' ',2)
+            ENDDO
+            N=0
+            IF((IEXTR.GE.2).AND.(ITIM.GE.3)) THEN
+              ! parabolic extrapolation
+              N=3
+              T(1)=TIMES(ITIM-2)
+              T(2)=TIMES(ITIM-1)
+              T(3)=TIMES(ITIM)
+              IF(T(1).GE.T(3)) CALL XABORT ('EVODRV: T(1).GE.T(3).')
+              IF(IMPX.GT.0) WRITE(IUNOUT,'(/21H EVODRV: PARABOLIC EX,
+     1        51HTRAPOLAPOLATION OF MICRO REACTION RATES AT END-OF-S,
+     2        5HTAGE.)')
+            ELSE IF((IEXTR.GE.1).AND.(ITIM.GE.2)) THEN
+              ! linear extrapolation
+              N=2
+              T(1)=TIMES(ITIM-1)
+              T(2)=TIMES(ITIM)
+              IF(T(1).GE.T(2)) CALL XABORT ('EVODRV: T(1).GE.T(2).')
+              IF(IMPX.GT.0) WRITE(IUNOUT,'(/23H EVODRV: LINEAR EXTRAPO,
+     1        51HLAPOLATION OF MICRO REACTION RATES AT END-OF-STAGE.)')
+            ELSE IF(ITIM.EQ.1) THEN
+              N=1
+              T(1)=TIMES(ITIM)
+              IF(IMPX.GT.0) WRITE(IUNOUT,'(/21H EVODRV: NO EXTRAPOLA,
+     1        49HPOLATION OF MICRO REACTION RATES AT END-OF-STAGE.)')
+            ENDIF
+            DPD=1.0D0 ! perform Lagrange extrapolation
+            DO I=1,N
+              DPD=(XT(2)-T(I))*DPD
+            ENDDO
+            VPHV(:NBMIX,2)=0.0
+            SIG(:NVAR+1,:NREAC+1,:NBMIX,2)=0.0
+            DO I=1,N
+              WEI=DPD/(XT(2)-T(I))
+              DO J=1,N
+                IF(J.EQ.I) CYCLE
+                IF(T(I).EQ.T(J)) CALL XABORT('EVODRV: DIVIDE CHECK.')
+                WEI=WEI/(T(I)-T(J))
+              ENDDO
+              DO IBM=1,NBMIX
+                VPHV(IBM,2)=VPHV(IBM,2)+REAL(WEI)*VPHV(IBM,I-N+1)
+                SIG(:NVAR+1,:NREAC+1,IBM,2)=SIG(:NVAR+1,:NREAC+1,IBM,2)+
+     1          REAL(WEI)*SIG(:NVAR+1,:NREAC+1,IBM,I-N+1)
+              ENDDO
+            ENDDO
           ELSE
-             DO 267 IBM=1,NBMIX
-             VPHV(IBM,2)=VPHV(IBM,1)
-             DO 266 IQ=1,NREAC+1
-             DO 265 IS=1,NVAR+1
-             SIG(IS,IQ,IBM,2)=SIG(IS,IQ,IBM,1)
-  265        CONTINUE
-  266        CONTINUE
-  267        CONTINUE
-             IF(IMPX.GT.0) WRITE(IUNOUT,'(/23H EVODRV: USE BEGINNING-,
-     1       46HOF-STAGE MICRO REACTION RATES AT END-OF-STAGE.)')
+            DO IBM=1,NBMIX
+              VPHV(IBM,2)=VPHV(IBM,1)
+              SIG(:NVAR+1,:NREAC+1,IBM,2)=SIG(:NVAR+1,:NREAC+1,IBM,1)
+            ENDDO
+            IF(IMPX.GT.0) WRITE(IUNOUT,'(/23H EVODRV: USE BEGINNING-,
+     1      46HOF-STAGE MICRO REACTION RATES AT END-OF-STAGE.)')
           ENDIF
         ENDIF
         VPHD=0.0
-        DO 270 ICMB=1,NCOMB
+        DO 250 ICMB=1,NCOMB
         IBM=MILVO(ICMB)
         IF(IBM.GT.0) VPHD=VPHD+VPHV(IBM,IP)
-  270   CONTINUE
+  250   CONTINUE
         VPH(IP)=VPHD
 *
-        DO 285 ICMB=1,NCOMB
+        DO 270 ICMB=1,NCOMB
         IBM=MILVO(ICMB)
-        IF(IBM.EQ.0) GO TO 285
-        DO 280 IS=1,NVAR
+        IF(IBM.EQ.0) GO TO 270
+        DO 260 IS=1,NVAR
           IF(JM(IBM,IS).GT.0) THEN
              YDPL(IS,IP,ICMB)=DEN(JM(IBM,IS))
           ELSE
              YDPL(IS,IP,ICMB)=0.0
           ENDIF
-  280   CONTINUE
-  285   CONTINUE
+  260   CONTINUE
+  270   CONTINUE
 *
         IF(INR.NE.0) THEN
 *          CHECK FOR OUT-OF-CORE DEPLETION.
-           DO 295 IBM=1,NBMIX
-           DO 290 IU=1,NGROUP
+           DO 290 IBM=1,NBMIX
+           DO 280 IU=1,NGROUP
            LCOOL=LCOOL.AND.(FLUMIX(IU,IBM).EQ.0.)
+  280      CONTINUE
   290      CONTINUE
-  295      CONTINUE
         ENDIF
   300   CONTINUE
 *
@@ -774,7 +793,8 @@
         CALL EVOBLD(IMPX,INR2,IGLOB,NBMIX,NBISO,NCOMB,ISONAM,YDPL,VX,
      1  MILVO,JM,NVAR,NDFP,NSUPS,NREAC,NPAR,NFISS,XT,EPS1,EPS2,EXPMAX,
      2  H1,ITYPE,IDIRAC,FIT,DELTA,ENERG,KPAR,BPAR,YIELD,IDR,RER,RRD,
-     3  AWR,FUELDN,SIG(1,1,1,1),VPH,VPHV,MIXPWR,VTOTD,IEVOLB,KFISS,KPF)
+     3  AWR,FUELDN,SIG(1,1,1,1),VPH,VPHV(1,1),MIXPWR,VTOTD,IEVOLB,
+     4  KFISS,KPF)
 *----
 *  SAVE THE INITIAL SATURATED NUMBER DENSITIES IN THE DEPLETION TABLE
 *----
@@ -903,8 +923,8 @@
 *
       IF((IDEPL.EQ.1).OR.(ISET.EQ.1).AND.LMACRO) THEN
 *       COMPUTE THE NEW DEPLETED MACROSCOPIC CROSS SECTIONS.
-        CALL XDLSET(MASKL,NGROUP,.TRUE.)
-        CALL XDLSET(MASK,NBMIX,.FALSE.)
+        MASKL(:NGROUP)=.TRUE.
+        MASK(:NBMIX)=.FALSE.
         DO 380 ICOMB=1,NCOMB
         IBM=MILVO(ICOMB)
         IF(IBM.GT.0) MASK(IBM)=.TRUE.
@@ -924,7 +944,7 @@
       CALL LCMPUT(IPDEPL,'DEPLETE-MIX',NVAR*NBMIX,1,JM)
       CALL LCMPUT(IPDEPL,'MIXTURESBurn',NBMIX,1,MIXBRN)
       CALL LCMPUT(IPDEPL,'MIXTURESPowr',NBMIX,1,MIXPWR)
-      CALL XDISET(IPAR,NSTATE,0)
+      IPAR(:NSTATE)=0
       IPAR(1)=ITYPE
       IPAR(2)=INR
       IPAR(3)=NTIM
@@ -990,8 +1010,8 @@
      8 7H NREAC ,I8,34H   (NUMBER OF DEPLETING REACTIONS)/
      9 7H NVAR  ,I8,33H   (NUMBER OF DEPLETING ISOTOPES)/
      1 7H NBMIX ,I8,23H   (NUMBER OF MIXTURES)/
-     2 7H IEXTR ,I8,47H   (0=NO FLUX EXTRAPOLATION/1=FLUX EXTRAPOLATIO,
-     3 2HN))
+     2 7H IEXTR ,I8,47H   (FLUX EXTRAPOLATION: 0=NONE/1=LINEAR/2=PARAB,
+     3 5HOLIC))
   595 FORMAT(
      1 7H IGLOB ,I8,47H   (0=COMPUTE BURNUP IN FUEL/1=COMPUTE BURNUP I,
      2 14HN GLOBAL CELL)/

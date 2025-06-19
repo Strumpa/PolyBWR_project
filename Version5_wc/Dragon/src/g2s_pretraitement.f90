@@ -197,7 +197,7 @@ contains
                 call LCMPUT(jp,'NCODE       ',6,1,(/0,0,0,0,0,0/))
                 call LCMPUT(jp,'ICODE       ',6,1,(/0,0,0,0,0,0/))
                 text12='L_GEOM'
-                call LCMPTC(jp,'SIGNATURE',12,1,text12)
+                call LCMPTC(jp,'SIGNATURE',12,text12)
                 call LCMPUT(jp,'ZCODE       ',6,2,(/0.,0.,0.,0.,0.,0./))
              end if
           end do
@@ -537,7 +537,7 @@ contains
     character*12,dimension((size(inStr)+1)/2) :: tmpStr,workStr
     character*12,dimension(:),allocatable :: resStr
     real,dimension(:),allocatable :: mesh
-    character*12,dimension(1) :: name2
+    character*12 :: name2
     type(c_ptr)  :: workIp
     integer      :: i,j,k,nbOcc,szTS,szIS,nbRest,long,typ
     character*12 :: arrayName,name1,meshName,number,text12
@@ -591,11 +591,11 @@ contains
        !exploitation orthogonale de la chaine ('xa + xb' => ya=yb)
        name1 = tourne(tmpStr(i)(1:1),2) // tmpStr(i)(2:12)
        do k = 1,nbRest
-          name2(1) = tourne(workStr(k)(1:1),2) // workStr(k)(2:12)
+          name2 = tourne(workStr(k)(1:1),2) // workStr(k)(2:12)
           lignNbr = lignNbr + 1
           arrayName = "orth" // text12(:8)
           call LCMSIX(workIp,name1,1)
-          call LCMPTC(workIp,arrayName,12,1,name2)
+          call LCMPTC(workIp,arrayName,12,name2)
           call LCMSIX(workIp,name1,2)
        end do
     end do

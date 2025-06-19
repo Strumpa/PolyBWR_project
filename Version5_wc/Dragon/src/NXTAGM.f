@@ -125,7 +125,7 @@
 *----
 *  Compress MATRT to MATRTN
 *----
-      CALL XDISET(MATRTN,NESUR,0)
+      MATRTN(:NFSUR)=0
       DO IREG=1,NFSUR
         KSUR=-KEYMRG(-IREG)
         LSUR=-KEYMRG(-MATRT(IREG))

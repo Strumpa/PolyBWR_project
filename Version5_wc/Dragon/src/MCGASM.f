@@ -40,7 +40,7 @@
 * NLONG   order of the corrective system.
 * M       number of material mixtures.
 * NMU     order of the polar quadrature in 2D / 1 in 3D.
-* NANGL   number of tracking angles in the plan.
+* NANGL   number of tracking angles in the plane.
 * N2MAX   maximum number of elements in a track.
 * LC      dimension of vector MCU.
 * NDIM    number of dimensions for the geometry.
@@ -268,7 +268,6 @@
       ENDIF
       ALLOCATE(NOM(N2MAX))
       ALLOCATE(H(N2MAX),HH(N2MAX),ZMUA(NMU),WZMUA(NMU))
-      ALLOCATE(TRHAR(NMU,NFUNL,NMOD),RHARM(NMU,NFUNL))
       IF(LPJJ) THEN
 *     Self-Collision Probabilities
          ALLOCATE(PJJ(NREG*NPJJM*NGEFF),PJJX(NREG*NPJJM*NGEFF),
@@ -278,22 +277,22 @@
          IF(LPS.GT.0) THEN
             ALLOCATE(PSJ(LPS*NGEFF),PSJX(LPS*NGEFF),PSJY(LPS*NGEFF),
      >               PSJZ(LPS*NGEFF))
-            CALL XDRSET(PSJ,LPS*NGEFF,0.0)
-            CALL XDRSET(PSJX,LPS*NGEFF,0.0)
-            CALL XDRSET(PSJY,LPS*NGEFF,0.0)
-            CALL XDRSET(PSJZ,LPS*NGEFF,0.0)
+            PSJ(:LPS*NGEFF)=0.0
+            PSJX(:LPS*NGEFF)=0.0
+            PSJY(:LPS*NGEFF)=0.0
+            PSJZ(:LPS*NGEFF)=0.0
          ENDIF
          ALLOCATE(PJJD(NREG*NPJJM*NGEFF),PJJDX(NREG*NPJJM*NGEFF),
      >            PJJDXI(NREG*NPJJM*NGEFF),PJJDY(NREG*NPJJM*NGEFF),
      >            PJJDYI(NREG*NPJJM*NGEFF),PJJDZ(NREG*NPJJM*NGEFF),
      >            PJJDZI(NREG*NPJJM*NGEFF))
-         CALL XDDSET(PJJD,NREG*NPJJM*NGEFF,0.D0)
-         CALL XDDSET(PJJDX,NREG*NPJJM*NGEFF,0.D0)
-         CALL XDDSET(PJJDXI,NREG*NPJJM*NGEFF,0.D0)
-         CALL XDDSET(PJJDY,NREG*NPJJM*NGEFF,0.D0)
-         CALL XDDSET(PJJDYI,NREG*NPJJM*NGEFF,0.D0)
-         CALL XDDSET(PJJDZ,NREG*NPJJM*NGEFF,0.D0)
-         CALL XDDSET(PJJDZI,NREG*NPJJM*NGEFF,0.D0)
+         PJJD(:NREG*NPJJM*NGEFF)=0.0D0
+         PJJDX(:NREG*NPJJM*NGEFF)=0.0D0
+         PJJDXI(:NREG*NPJJM*NGEFF)=0.0D0
+         PJJDY(:NREG*NPJJM*NGEFF)=0.0D0
+         PJJDYI(:NREG*NPJJM*NGEFF)=0.0D0
+         PJJDZ(:NREG*NPJJM*NGEFF)=0.0D0
+         PJJDZI(:NREG*NPJJM*NGEFF)=0.0D0
       ENDIF
       IF(LACA) THEN
 *     Algebraic Collapsing Acceleration
@@ -310,10 +309,10 @@
             JPSYS=KPSYS(II)
             CALL LCMGET(JPSYS,'DRAGON-S0XSC',XSW((II-1)*(M+1)+1))
          ENDDO
-         CALL XDRSET(DIAGQ,NLONG*NGEFF,0.0)
-         CALL XDRSET(CQ,LC*NGEFF,0.0)
-         CALL XDDSET(DIAGF,NLONG*NGEFF,0.D0)
-         CALL XDDSET(CF,LC*NGEFF,0.D0)
+         CQ(:LC*NGEFF)=0.0
+         DIAGQ(:NLONG*NGEFF)=0.0
+         DIAGF(:NLONG,:NGEFF)=0.0D0
+         CF(:LC,:NGEFF)=0.0D0
       ENDIF 
 *
       NMUA=NMU
@@ -402,11 +401,10 @@
                HH(II+2)=HH(II+1)+H(II+2)
             ENDDO
             CALL MCGPTS(SUBPJJ,NFI,NREG,M,NANI,NFUNL,NANGL,NMU,NMOD,
-     1           LPS,NPJJM,NGEFF,IANGL,IANGL0,NSEG,ISGNR,NZON,NOM,
-     2           IS,JS,PJJIND,WEIGHT,CPO,CAZ1,CAZ2,RHARM,ZMU,WZMU,TRHAR,
-     3           SIGAL,HH,PSJ,PJJD,LPJJAN,NR2SE,NMAX,NZP,N2REG,N2SOU,
-     4           DELU,INDREG,NOM3D,H3D,ZZZ,VNORF,CMU,CMUI,SMU,SMUI,TMU,
-     5           TMUI,SSYM)
+     1           LPS,NPJJM,NGEFF,IANGL,NSEG,ISGNR,NZON,NOM,IS,JS,
+     2           PJJIND,WEIGHT,CPO,CAZ1,CAZ2,ZMU,WZMU,SIGAL,HH,PSJ,
+     3           PJJD,LPJJAN,NR2SE,NMAX,NZP,N2REG,N2SOU,DELU,INDREG,
+     4           ZZZ,VNORF,CMU,CMUI,SMU,SMUI,TMU,TMUI,SSYM)
          ENDIF
          IF(LTMT) THEN
 *        ----------------
@@ -463,6 +461,23 @@
       DEALLOCATE(H3D,NOM3D)
       ELSE
 *     REGULAR 2D OR 3D GEOMETRY
+      ALLOCATE(TRHAR(NMU,NFUNL,NANGL),RHARM(NMU,NFUNL))
+      DO IANGL=1,NANGL
+        IF(NDIM.EQ.2) THEN
+          CALL MOCCHR(NDIM,NANI-1,NFUNL,NMU,CPO(1),CAZ1(IANGL),
+     1                CAZ2(IANGL),RHARM)
+        ELSE
+          XMUANG(1)=REAL(CAZ0(IANGL))
+          CALL MOCCHR(NDIM,NANI-1,NFUNL,1,XMUANG(1),CAZ1(IANGL),
+     1                CAZ2(IANGL),RHARM)
+        ENDIF
+        DO JF=1,NFUNL
+          DO IE=1,NMU
+            TRHAR(IE,JF,IANGL)=ISGNR(1,JF)*RHARM(IE,JF)
+          ENDDO
+        ENDDO
+      ENDDO
+      DEALLOCATE(RHARM)
       DO 20 ILINE=1,NBTR
          READ(IFTRAK) NSUB,NSEG,WEIGHT,(KANGL(II),II=1,NSUB),
      1        (NOM(II),II=1,NSEG),(H(II),II=1,NSEG)
@@ -479,37 +494,15 @@
 *        ----------------------------
 *        Self-Collision Probabilities
 *        ----------------------------
-            IF(LPJJAN) THEN
-            IF(IANGL.NE.IANGL0) THEN
-               IANGL0=IANGL
-               IF(NDIM.EQ.2) THEN
-                 CALL MOCCHR(NDIM,NANI-1,NFUNL,NMU,CPO,CAZ1(IANGL),
-     1                       CAZ2(IANGL),RHARM)
-               ELSE
-                 XMUANG(1)=REAL(CAZ0(IANGL))
-                 CALL MOCCHR(NDIM,NANI-1,NFUNL,1,XMUANG,CAZ1(IANGL),
-     1                       CAZ2(IANGL),RHARM)
-               ENDIF
-               DO 23 JM=1,NMOD
-               DO 22 JF=1,NFUNL
-               DO 21 IE=1,NMU
-                  IND2=IE+(JF-1)*NMU
-                  IND1=IND2+(JM-1)*NFUNL*NMU
-                  TRHAR(IE,JF,JM)=ISGNR(JM,JF)*RHARM(IE,JF)
- 21            CONTINUE
- 22            CONTINUE
- 23            CONTINUE
-            ENDIF
-            ENDIF
             IF(ISTRM.LE.2) THEN
-              CALL MCGDS4(SUBPJJ,NSEG,NMU,LPS,NFUNL,NMOD,NGEFF,WEIGHT,
-     1           TRHAR,H,ZMU,WZMU,NOM,NZON,NFI,NREG,NDIM,M,IS,JS,PJJD,
-     2           PSJ,LPJJAN,NPJJM,PJJIND,SIGAL,1,1)
+              CALL MCGDS4(SUBPJJ,NSEG,NSUB,NMU,LPS,NFUNL,NANGL,NGEFF,
+     1           WEIGHT,KANGL,TRHAR,H,ZMU,WZMU,NOM,NZON,NFI,NREG,NDIM,
+     2           M,IS,JS,PJJD,PSJ,LPJJAN,NPJJM,PJJIND,SIGAL,1)
             ELSE IF(ISTRM.EQ.3) THEN
 *             TIBERE model
-              CALL MCGDSD(NSEG,NMU,LPS,NFUNL,NMOD,NGEFF,WEIGHT,
-     1           TRHAR,H,ZMU,WZMU,NOM,NZON,NFI,NREG,NDIM,M,IS,JS,PJJD,
-     2           PSJ,LPJJAN,NPJJM,PJJIND,SIGAL,1,1,CAZ1(IANGL),
+              CALL MCGDSD(NSEG,NSUB,NMU,LPS,NFUNL,NANGL,NGEFF,WEIGHT,
+     1           TRHAR,H,ZMU,WZMU,KANGL,NOM,NZON,NFI,NREG,NDIM,M,IS,
+     2           JS,PJJD,PSJ,LPJJAN,NPJJM,PJJIND,SIGAL,1,CAZ1(IANGL),
      3           CAZ2(IANGL),PJJDX,PJJDY,PJJDZ,PJJDXI,PJJDYI,PJJDZI,
      4           CAZ0(IANGL),PSJX,PSJY,PSJZ)
             ENDIF
@@ -537,6 +530,7 @@
      2           DIAGF,DIAGQ,CF,CQ,PREV,NEXT,SIGAL,XSW,WORK)
          ENDIF
  20   CONTINUE
+      DEALLOCATE(TRHAR)
       IF(LTMT) THEN
 *     process last integration line
          CALL MCGTMT(NMERG,NTRTMT,NSETMT,NSEG,NSEG0,NOM,NOM0,WEIGHT,
@@ -591,8 +585,8 @@
      3          CFR,LUDF,LUCF)
 *     
            IF(IPRINT.GT.3) THEN
-              CALL PRINAM('DIAGF ',DIAGFR,NLONG)
-              CALL PRINAM('CF    ',CFR,LC)
+              CALL PRINAM('DIAGF ',DIAGFR(1),NLONG)
+              CALL PRINAM('CF    ',CFR(1),LC)
            ENDIF
            CALL LCMPUT(JPSYS,'DIAGF$MCCG',NLONG,2,DIAGFR)
            CALL LCMPUT(JPSYS,'CF$MCCG',LC,2,CFR)
@@ -669,7 +663,6 @@
          DEALLOCATE(PJJ)
       ENDIF
 *
-      DEALLOCATE(RHARM,TRHAR)
       DEALLOCATE(KANGL,WZMUA,ZMUA,HH,H,NOM)
 *----
 *  SCRATCH STORAGE DEALLOCATION

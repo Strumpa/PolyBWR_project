@@ -110,13 +110,13 @@
       ENDIF
       INEWF=2
       INEWC=2
-      CALL XDRSET(DENI,MAXI+1,0.0)
-      CALL XDRSET(FDENC,2,0.0)
-      CALL XDRSET(FDENF,2,0.0)
-      CALL XDRSET(FDENB,2,0.0)
-      CALL XDRSET(BITH,3,0.0)
-      CALL XDRSET(BITB,3,0.0)
-      CALL XDRSET(PARAML,(MAXL+1)*2,0.0)
+      DENI(0:MAXI)=0.0
+      PARAML(0:MAXL,:2)=0.0
+      BITH(:3)=0.0
+      BITB(:3)=0.0
+      FDENC(:2)=0.0
+      FDENF(:2)=0.0
+      FDENB(:2)=0.0
 *----
 *  Read HISTORY information for cell specified
 *----
@@ -215,7 +215,7 @@
 *  Read calculation types on BURNUP
 *----     
         CALL LCMGET(IPEVO,'EVOLUTION-R ',REVOL)
-        CALL XDRSET(DEPLT,NBBTS+1,0.0)
+        DEPLT(0:NBBTS)=0.0
         CALL LCMGET(IPEVO,'DEPL-TIMES  ',DEPLT(1)) 
 *----
 *  Read initial burnup information (FOR FUEL TYPE)
@@ -284,9 +284,7 @@
         CALL LCMSIX(IPHST,NAMP,ILCMUP)
         IOK=-2
         CALL HSTGSL(IPHST ,MAXL  ,IOK   ,TIMPOW,PARAML(0,1)) 
-        IF(IOK .NE. 0) THEN 
-           CALL XDRSET(PARAML,MAXL+1,0.0)
-        ENDIF
+        IF(IOK .NE. 0) PARAML(0:MAXL,1)=0.0
         IOK=2
         TIMPOW(1)= DEPLT(NBBTS)/CDAY
         TIMPOW(2)= REVOL(5)

@@ -7,8 +7,7 @@
 *-----------------------------------------------------------------------
 *
 *Purpose:
-* Update list of fissile isotopes from fissile isotopes on a specific
-* macrolib.
+* Update list of fissile isotopes from those on a specific macrolib.
 *
 *Copyright:
 * Copyright (C) 2007 Ecole Polytechnique de Montreal
@@ -164,7 +163,7 @@
  145        CONTINUE
             GO TO 190
           ENDIF
-          CALL XDISET(NUMFO,NBMIXO*NIFISO,-1)
+          NUMFO(:NBMIXO,:NIFISO)=-1
         ELSE
           IF(ILCMLN.GT.NBMIXO*NIFISO)
      >    CALL XABORT('MACNFI: FISSIONINDEX OVERFLOW,')

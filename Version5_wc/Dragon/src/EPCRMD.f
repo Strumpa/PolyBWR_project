@@ -119,7 +119,7 @@
         ENDIF
         NCV=(NGR*(NGR+1))/2
         CALL EPCRMV(IPEPC,IPCOV,IPRINT,IFMT,NGR,NIS,NXS,NCV)
-        CALL XDISET(ISTATE,NSTATE,0)
+        ISTATE(:NSTATE)=0
         ISTATE(1)=IOPT(1)
         ISTATE(2)=NGR
         ISTATE(3)=NIS
@@ -130,7 +130,7 @@
 *----
 *  Get info for EPC data structure
 *----
-        CALL XDISET(ISTATE,NSTATE,0)
+        ISTATE(:NSTATE)=0
         CALL LCMGET(IPEPC,'STATE-VECTOR',ISTATE)
         IF(ISTATE(1) .NE. 3) CALL XABORT(NAMSBR//
      >': Invalid format for EPC data structure')
@@ -147,7 +147,7 @@
 *----
 *  Get info for microlib data structure
 *----
-        CALL XDISET(ISTATM,NSTATE,0)
+        ISTATM(:NSTATE)=0
         CALL LCMGET(IPMIC,'STATE-VECTOR',ISTATM)
         NMIXT=ISTATM(1)
         NBISO=ISTATM(2)
@@ -155,7 +155,7 @@
         IF(NGROUP .NE. NGR) CALL XABORT(NAMSBR//
      >': Number of groups in MICROLIB and EPC incoherent.')
         CALL LCMSIX(IPMIC,'MACROLIB    ',ILCMUP)
-        CALL XDISET(ISTATM,NSTATE,0)
+        ISTATM(:NSTATE)=0
         CALL LCMGET(IPMIC,'STATE-VECTOR',ISTATM)
         NIFISS=ISTATM(4)
         CALL LCMSIX(IPMIC,'MACROLIB    ',ILCMDN)

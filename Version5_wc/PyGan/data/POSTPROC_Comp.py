@@ -275,7 +275,7 @@ for iso in range(len_isotot):
 #                NGAMMA = pyCOMPO['EDIBU_2gr']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NG']
             for gr in range(2):
 #                    prodD5 += 6*NWT0[gr]*(NFTOT[gr]+NGAMMA[gr])*N*vol
-                prodD5 += 6*NWT0[gr]*NFTOT[gr]*N*vol
+                prodD5 += NWT0[gr]*NFTOT[gr]*N*vol
 
 
 valDRAGON_ALL_gr1=[]

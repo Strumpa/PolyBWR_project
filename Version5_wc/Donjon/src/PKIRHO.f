@@ -61,7 +61,7 @@
       TS(3)=T+H
       ALLOCATE(PARAM(3,NALPHA))
       DO IAL=1,NALPHA
-         CALL XDRSET(PARAM(1,IAL),3,PARAMB(IAL))
+         PARAM(:3,IAL)=PARAMB(IAL)
       ENDDO
       JPPAR=LCMGID(IPMAP,'ALPHA')
       DO IAL=1,NALPHA
@@ -89,7 +89,7 @@
 *----
 *  Compute the reactivity
 *----
-      CALL XDDSET(RHO,3,0.0D0)
+      RHO(:3)=0.0D0
       JPPAR=LCMGID(IPMAP,'ALPHA')
       DO IAL=1,NALPHA
         KPPAR=LCMGIL(JPPAR,IAL)

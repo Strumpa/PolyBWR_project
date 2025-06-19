@@ -34,8 +34,8 @@
 * ALPHA   angular redistribution terms.
 * PLZ     discrete values of the spherical harmonics corresponding
 *         to the 1D quadrature. Used with zero-weight points.
-* PL      discrete values of the spherical harmonics corresponding
-*         to the 2D SN quadrature.
+* MN      moment-to-discrete matrix.
+* DN      discrete-to-moment matrix.
 * MAT     material mixture index in each region.
 * VOL     volumes of each region.
 * SURF    surfaces surrounding each region.
@@ -81,7 +81,7 @@
 *----
 *  OUTER LOOP OVER AXIAL LEVELS.
 *----
-      CALL XDRSET(FLUX,NSCT*NREG,0.0)
+      FLUX(:NSCT,:NREG)=0.0
       CURSUM=0.0D0
       IPQ=0
       DO 200 IP=1,M2
@@ -98,7 +98,7 @@
          DO 20 IM=0,IL
          IF(MOD(IL+IM,2).EQ.1) GO TO 20
          IOF=IOF+1
-         Q=Q+QEXT(IOF,I)*PLZ(IOF,IP)/(4.0*PI)
+         Q=Q+QEXT(IOF,I)*PLZ(IOF,IP)*(2.0*IL+1.0)/(4.0*PI)
    20    CONTINUE
    25    CONTINUE
          Q1=-4.0D0*PI*SQRT(1.0-U(IP)*U(IP))/(SURF(I+1)-SURF(I))
@@ -130,7 +130,7 @@
             DO 40 IM=0,IL
             IF(MOD(IL+IM,2).EQ.1) GO TO 40
             IOF=IOF+1
-            Q=Q+QEXT(IOF,I)*PL(IOF,IPQ+M)/(4.0*PI)
+            Q=Q+QEXT(IOF,I)*PL(IOF,IPQ+M)*(2.0*IL+1.0)/(4.0*PI)
    40       CONTINUE
    45       CONTINUE
             Q1=Q*VOL(I)-UPQ(IPQ+M)*(SURF(I)+SURF(I+1))*AFB+(SURF(I+1)-
@@ -176,7 +176,7 @@
             DO 90 IM=0,IL
             IF(MOD(IL+IM,2).EQ.1) GO TO 90
             IOF=IOF+1
-            Q=Q+QEXT(IOF,I)*PL(IOF,IPQ+M)/(4.0*PI)
+            Q=Q+QEXT(IOF,I)*PL(IOF,IPQ+M)*(2.0*IL+1.0)/(4.0*PI)
    90       CONTINUE
   100       CONTINUE
             Q1=Q*VOL(I)+UPQ(IPQ+M)*(SURF(I)+SURF(I+1))*AFB+(SURF(I+1)-

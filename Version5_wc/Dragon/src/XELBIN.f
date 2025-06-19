@@ -105,7 +105,7 @@
             LL1=((NCODE(2).EQ.3).AND.(NCODE(3).EQ.3))
             LL2=((NCODE(1).EQ.3).AND.(NCODE(4).EQ.3))
          ENDIF
-         CALL XDISET(ISTATE,NSTATE,0)
+         ISTATE(:NSTATE)=0
          CALL LCMGET(IPGEOM,'STATE-VECTOR',ISTATE)
          ITYPG= ISTATE(1)
          IF( ITYPG.EQ.20) THEN

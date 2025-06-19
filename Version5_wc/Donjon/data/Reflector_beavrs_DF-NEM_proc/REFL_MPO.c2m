@@ -6,8 +6,8 @@
 *                                                                              *
 * CALL      :                                                                  *
 *  MpoRefl := REFL_MPO Geom FVol Param :: <<nameFeed>> <<nameRefl>> <<Palier>> *
-*                            <<htype>> <<LibType>> <<NuclData>> <<OptSph>>     *
-*                            <<OptNoal>> <<OptSS>> ;                           *
+*                            <<htype>> <<nlf>> <<LibType>> <<NuclData>>        *
+*                            <<OptSph>> <<OptNoal>> <<OptSS>> ;                *
 *                                                                              *
 *  Input objects:                                                              *
 *    Geom    : macro-geometry LCM object                                       *
@@ -16,7 +16,9 @@
 *    nameFeed: MPO fine group feeding assembly file name                       *
 *    nameRefl: MPO coarse group reflector file name                            *
 *    Palier  : type of reflector ('BEAVRS','EPR','VVER', etc.)                 *
-*    htype   : type of equivalence (DF-NEM','DF-ANM')                          *
+*    htype   : type of equivalence ('DF-NEM','DF-ANM','DF-RT','DF-RT-SPN')     *
+*    nlf     : order of SPN approximation (odd integer). Set to 1 for          *
+*              diffusion theory.                                               *
 *    LibType : type of cross-section library used for the reflector            *
 *    NuclData: name of the cross-section library used for the reflector as     *
 *              set in the .access script file                                  *
@@ -31,9 +33,11 @@
 PARAMETER MpoRefl Geom FVol Param ::
   ::: HDF5_FILE MpoRefl ;
   ::: LINKED_LIST Geom FVol Param ; ;
-STRING nameFeed nameRefl Palier htype LibType NuclData OptSph OptNoal OptSS ;
-  ::  >>nameFeed<< >>nameRefl<< >>Palier<< >>htype<< >>LibType<< >>NuclData<< 
-      >>OptSph<< >>OptNoal<< >>OptSS<< ;
+STRING nameFeed nameRefl Palier htype ;
+  ::  >>nameFeed<< >>nameRefl<< >>Palier<< >>htype<< ;
+INTEGER nlf ; :: >>nlf<< ;
+STRING LibType NuclData OptSph OptNoal OptSS ;
+  ::  >>LibType<< >>NuclData<< >>OptSph<< >>OptNoal<< >>OptSS<< ;
 PROCEDURE GetMolarMass MetalMix CreaDilut assertS ;
 LINKED_LIST
   DONNEES Geom_refl LibDilut MACRO LibFuel MolarMasses FeNat CrNat SnNat
@@ -42,11 +46,15 @@ LINKED_LIST
   FLUX TRKFIL MCompRefl GeomRefl MacrRefl MacrFuel ;
 HDF5_FILE MpoFeed  :: FILE <<nameFeed>> ;
 MODULE
-  GEO: MCR: ASM: FLU: EDI: MPO: DELETE: UTL: HUTL: END: ABORT: MAC: SNT: TONE: GREP:
-  MSTR: BREF: ;
+  GEO: MCR: ASM: FLU: EDI: MPO: DELETE: UTL: HUTL: END: ABORT: MAC: SNT: TONE:
+  GREP: MSTR: BREF: ;
 INTEGER ilong nbParam ;
 STRING paramname1 paramname2 paramname3 ;
 REAL paramvalu1 paramvalu2 paramvalu3 ;
+
+*---- Raviart-Thomas options   ------------------------
+INTEGER ielem := 3 ;
+INTEGER icol := 3 ;
 
 *---- Parameters    -----------------------------------
 ECHO "...FVol LCM object:" ;
@@ -78,7 +86,7 @@ InNat Zirc4 Incon SS304 M5 AIC GdNat Gd2O3 := MetalMix
 MolarMasses :: <<LibType>> ;
 
 *--------------------------------------------------------------------
-*-------------------------Compute LibFuel-------------------------
+*------------------------- Compute LibFuel --------------------------s
 *--------------------------------------------------------------------
 HUTL: MpoFeed :: DIR ;
 
@@ -144,17 +152,18 @@ REAL dMod TMil fvMod fvZr4 fvInc fvSS304 fvHe ;
 INTEGER premierMIX ;
 STRING Localisation := "output_0" ;
 
+INTEGER iscat := nlf 1 + ;
 TRACK := SNT: Geom ::
   EDIT 1
   MAXR 100000
-  SN 16 SCAT 2 ;
+  SN 16 SCAT <<iscat>> ;
 
 Geom_refl := GEO: Geom :: X+ REFL ;
 
 TRACK_refl := SNT: Geom_refl ::
   EDIT 1
   MAXR 100000
-  SN 16 SCAT 2 ;
+  SN 16 SCAT <<iscat>> ;
 
 INTEGER nbZones := 7 ;
 
@@ -167,7 +176,7 @@ REAL Keff ;
 REAL CB ; ! ppm
 INTEGER iPalier ;
 LINKED_LIST OUT_1 MACR_TRAC MACR_FLUX ;
-MODULE NSST: NSSF: VAL: ;
+MODULE NSST: NSSF: TRIVAT: TRIVAA: FLUD: VAL: ;
 
 *--------------------------------------------------------------------
 * Boron tabulation
@@ -270,7 +279,7 @@ WHILE IndexCB iBoreMax < DO
 
   OUT_1 := EDI: MACRO TRACK FLUX Geom ::
       EDIT 3 UPS MERGE MIX 1 2 3 3 3 3 4 0
-      COND 0.625 GOLVER SAVE ;
+      COND 0.625 PNW_SP GOLVER SAVE ;
 
   SYSTEM FLUX MACRO := DELETE: SYSTEM FLUX MACRO ;
 
@@ -280,17 +289,34 @@ WHILE IndexCB iBoreMax < DO
   ECHO "htype=" htype ;
   ECHO "OptSph=" OptSph ;
   ECHO "OptNoal=" OptNoal ;
-  GeomRefl MacrRefl := BREF: Geom OUT_1 ::
-     EDIT 2 MIX 1 3 GAP 2 4 HYPE 2 MODEL <<htype>> NGET 1.0 1.0
-     <<OptSph>> <<OptNoal>> ;
+  IF htype 'DF-RT' = THEN
+    GeomRefl MacrRefl := BREF: Geom OUT_1 ::
+      EDIT 2 MIX 1 3 GAP 2 4 MODEL DF-RT <<ielem>> <<icol>> NGET 1.0 1.0
+      SPH <<OptNoal>> ;
+  ELSEIF htype 'DF-RT-SPN' = THEN
+    GeomRefl MacrRefl := BREF: Geom OUT_1 ::
+      EDIT 2 MIX 1 3 GAP 2 4 MODEL DF-RT <<ielem>> <<icol>> SPN <<nlf>>
+      NGET 1.0 1.0 SPH <<OptNoal>> ;
+  ELSE
+    GeomRefl MacrRefl := BREF: Geom OUT_1 ::
+      EDIT 2 MIX 1 3 GAP 2 4 HYPE 2 MODEL <<htype>> NGET 1.0 1.0
+      <<OptSph>> <<OptNoal>> ;
+  ENDIF ;
 
   !----------------------------------------------------------
   !  Verification calculations
   !----------------------------------------------------------
+  ECHO "Macro-geometry used in verification calculation:" ;
+  UTL: GeomRefl :: DUMP ;
   IF htype 'DF-NEM' = htype 'ERM-NEM' = + THEN
     MACR_TRAC := NSST: GeomRefl :: EDIT 2 TITLE 'alpha1.txt' NEM HYPE 2 ;
   ELSEIF htype 'DF-ANM' = htype 'ERM-ANM' = + THEN
     MACR_TRAC := NSST: GeomRefl :: EDIT 2 TITLE 'alpha1.txt' ANM ;
+  ELSEIF htype 'DF-RT' = THEN
+    MACR_TRAC := TRIVAT: GeomRefl :: TITLE "alpha.txt" DUAL <<ielem>> <<icol>>  ;
+  ELSEIF htype 'DF-RT-SPN' = THEN
+    MACR_TRAC := TRIVAT: GeomRefl :: TITLE "alpha.txt" DUAL <<ielem>> <<icol>>
+    SPN <<nlf>> ;
   ELSE
     ECHO "REFL_MPO: invalid htype=" htype ;
     ABORT: ;
@@ -299,12 +325,14 @@ WHILE IndexCB iBoreMax < DO
   MACRO := MacrRefl ;
   MACRO := MAC: MACRO MacrFuel ::
     MIX 1 1 OLDL ; ! Recover fuel data for specific CASE
-        
-  MACR_FLUX := NSSF: MACR_TRAC MACRO ::
-    EDIT 1
-  ;
+  IF htype 'DF-RT' = htype 'DF-RT-SPN' = + THEN
+    SYSTEM := TRIVAA: MACRO MACR_TRAC ;
+    MACR_FLUX := FLUD: SYSTEM MACR_TRAC :: EDIT 1 ;
+    SYSTEM := DELETE: SYSTEM ;
+  ELSE
+    MACR_FLUX := NSSF: MACR_TRAC MACRO :: EDIT 1 ;
+  ENDIF ;
   ECHO "...IndexCB=" IndexCB ;
-  UTL: MACR_FLUX :: DIR ;
   assertS MACR_FLUX :: 'K-EFFECTIVE' 1 <<Keff>> ;
 
   MACRO MacrFuel OUT_1 MACR_TRAC MACR_FLUX := DELETE:
@@ -313,7 +341,11 @@ WHILE IndexCB iBoreMax < DO
   !----------------------------------------------------------
   !  MPO reflector creation
   !----------------------------------------------------------
-  Edition := EDI: MacrRefl :: EDIT 1 ADFM SAVE ;
+  IF htype 'DF-RT' = htype 'DF-RT-SPN' = + THEN
+    Edition := EDI: MacrRefl :: EDIT 1 SAVE ;
+  ELSE
+    Edition := EDI: MacrRefl :: EDIT 1 ADFM SAVE ;
+  ENDIF ;
   GeomRefl MacrRefl := DELETE: GeomRefl MacrRefl ;
 
   MpoRefl := MPO: MpoRefl Edition :: EDIT 1

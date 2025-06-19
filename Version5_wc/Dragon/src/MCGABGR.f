@@ -117,7 +117,7 @@
 *     initial corrective flux is set to rhs
 *     calculate (P times (D times RHS)) -> RI
       CALL MCGACA(LFORW,PACA,N,NG,NFIRST,NGEFF,M,LC,NGIND,NGINDV,NCONV,
-     1     KPSYS,JPMACR,NZON,IPERM,IM,MCU,JU,RHS,LC0,IM0,MCU0,RI)
+     1     KPSYS,JPMACR,NZON,IPERM,IM,MCU,JU,RHS(1,1),LC0,IM0,MCU0,RI)
       R=0.0
       FNORM=0.0
       DO II=NFIRST,NGEFF
@@ -142,8 +142,8 @@
          ITER=ITER+1
 *        calculate (P times (D times PI)) -> API
          CALL MCGACA(LFORW,PACA,N,NG,NFIRST,NGEFF,M,LC,NGIND,NGINDV,
-     1        NCONV,KPSYS,JPMACR,NZON,IPERM,IM,MCU,JU,PI,LC0,IM0,MCU0,
-     2        API)
+     1        NCONV,KPSYS,JPMACR,NZON,IPERM,IM,MCU,JU,PI(1,1),LC0,IM0,
+     2        MCU0,API)
 *
          AUX(2)=0.0
          DO II=NFIRST,NGEFF
@@ -162,8 +162,8 @@
          ITER=ITER+1
 *        calculate (P times (D times SI)) -> ASI
          CALL MCGACA(LFORW,PACA,N,NG,NFIRST,NGEFF,M,LC,NGIND,NGINDV,
-     1        NCONV,KPSYS,JPMACR,NZON,IPERM,IM,MCU,JU,SI,LC0,IM0,MCU0,
-     2        ASI)
+     1        NCONV,KPSYS,JPMACR,NZON,IPERM,IM,MCU,JU,SI(1,1),LC0,IM0,
+     2        MCU0,ASI)
 *
          ASIN2=0.0
          ASIN=0.0
@@ -179,7 +179,8 @@
 *        assuming lucky breakdown
             WI=1.0
          ENDIF
-!!!!*        Modification proposed by Sleijpen and Van der Vorst (Numerical Algorithms, 10:203-223, 1995)
+!!!!*        Modification proposed by Sleijpen and Van der Vorst
+!!!!*        (Numerical Algorithms, 10:203-223, 1995)
 !!!!         ASIN2=0.0
 !!!!         ASIN=0.0
 !!!!         SIN=0.0
@@ -239,7 +240,7 @@
       ITER=ITER+1
 *     calculate (P times (D times F)) -> RI
       CALL MCGACA(LFORW,PACA,N,NG,NFIRST,NGEFF,M,LC,NGIND,NGINDV,NCONV,
-     1     KPSYS,JPMACR,NZON,IPERM,IM,MCU,JU,F,LC0,IM0,MCU0,RI)
+     1     KPSYS,JPMACR,NZON,IPERM,IM,MCU,JU,F(1,1),LC0,IM0,MCU0,RI)
 *
       R=0.0
       FNORM=0.0 

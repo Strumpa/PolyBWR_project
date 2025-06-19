@@ -122,7 +122,7 @@
 *  SCRATCH STORAGE ALLOCATION
 *----
       ALLOCATE(SOUR(KPN,NGEFF),FLUX(KPN,NGEFF))
-      CALL XDDSET(SOUR,KPN*NGEFF,0.0D0)
+      SOUR(:KPN,:NGEFF)=0.0D0
 *---
       IF(IPRINT.GT.5) THEN
          DO II=1,NGEFF
@@ -133,7 +133,7 @@
 *----
 *  INNER ITERATIONS FOR THE TRANSPORT SOLUTION
 *----
-      IF (KRYL.EQ.0) THEN
+      IF(KRYL.EQ.0) THEN
 *     ---------------------------
 *     Richardson Iterative Scheme
 *     ---------------------------
@@ -151,8 +151,8 @@
      6           N2REG,N2SOU,NZP,DELU,FACSYM,IDIR,NBATCH)
 *           residual calculation and update NCONV
             DO II=1,NGEFF
-               IF (NCONV(II)) THEN
-                  IF (MAXI.GT.1) THEN
+               IF(NCONV(II)) THEN
+                  IF(MAXI.GT.1) THEN
                      MAXFL=0.0
                      MAXDIF=0.0
                      DO I=1,KPN
@@ -161,16 +161,16 @@
                         FIMEM(I,II)=FIMEM(I,II)-REAL(FLUX(I,II))
                         MAXDIF=MAX(ABS(FIMEM(I,II)),MAXDIF)
                      ENDDO
-                     IF (MAXFL.EQ.0.0) MAXFL=1.0
+                     IF(MAXFL.EQ.0.0) MAXFL=1.0
                      REPS(ITER,II)=MAXDIF/MAXFL
-                     IF (ITER.GT.2) THEN
-                     IF (REPS(ITER,II).GT.REPS(ITER-1,II)) THEN
+                     IF(ITER.GT.2) THEN
+                     IF(REPS(ITER,II).GT.REPS(ITER-1,II)) THEN
 *                    preconditioning cutoff
                         IAAC=0
                         ISCR=0
                      ENDIF
                      ENDIF
-                     IF ((REPS(ITER,II).LT.EPSI).OR.(ITER.EQ.MAXI)) THEN
+                     IF((REPS(ITER,II).LT.EPSI).OR.(ITER.EQ.MAXI)) THEN
                         NCONV(II)=.FALSE.
                         ITST(II)=ITER
                         EPS(II)=REPS(ITER,II)

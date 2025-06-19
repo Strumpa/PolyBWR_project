@@ -197,7 +197,7 @@
 *  AND USE A SINGLE CHI VECTOR
 *----
       IF(ICHIST .EQ. 2) THEN
-        CALL XDRSET(RICHI,NGCOND,0.0)
+        RICHI(:NGCOND)=0.0
         ICHIST = 1
       ENDIF
       NBISO=ISO
@@ -251,7 +251,7 @@
 *----
       MRECWR=(NBISO+12)*MULTA6+1+NBISO+(2+ICHIST)*NGCOND
       ALLOCATE(IREC(MRECWR))
-      CALL XDISET(IREC,MRECWR,0)
+      IREC(:MRECWR)=0
       IRECL=1
       ITITLE=1
       DO 160 IC6TIT=1,12
@@ -349,7 +349,7 @@
       DO 200 JSO=1,NBNISO
         IF(MIXISN(JSO).EQ.IMRG) THEN
           ISO=ISO+1
-          CALL XDISET(IRECGI,MRECGI,0)
+          IRECGI(:MRECGI)=0
           IRECG=1
           WRITE(NAMISO,'(3A4)') (ISNNAM(ITC,JSO),ITC=1,3)
           KPEDIT=IPISO(JSO) ! set JSO-th isotope
@@ -458,7 +458,7 @@
 *------
 *  PRINCIPAL CROSS SECTIONS
 *------
-          CALL XDRSET(RECPX,MRECPX,0.0)
+          RECPX(:MRECPX)=0.0
           IRECP=1
           CALL LCMLEN(KPEDIT,'STRD',ILENG,ILCMTY)
           IF(ILENG.NE.0) THEN
@@ -557,7 +557,7 @@
             IF(NRECWR.NE.0) THEN
               CALL LCMGET(KPEDIT,'SCAT'//CM,RECPS)
             ELSE
-              CALL XDRSET(RECPS,NGCOND,0.0)
+              RECPS(:NGCOND)=0.0
               NRECWR=NGCOND
             ENDIF
 *-----

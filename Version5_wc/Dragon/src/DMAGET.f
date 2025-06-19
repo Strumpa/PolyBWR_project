@@ -77,7 +77,7 @@
 *----
 *  COMPLETE MERGE
 *----
-            CALL XDISET(IMERGE,NFREG,1)
+            IMERGE(:NFREG)=1
             NMERGE=1
             GO TO 20
           ELSE IF(TEXT.EQ.'MIX') THEN

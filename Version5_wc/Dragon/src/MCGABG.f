@@ -99,7 +99,7 @@
 *     initial corrective flux is set to rhs
 *     calculate (P times (D times RHS)) -> RI
       CALL MCGPRA(LFORW,3,PACA,.FALSE.,N,LC,IM,MCU,JU,DIAGF,CF,ILUDF,
-     1     ILUCF,DIAGF,RHS,RI,LC0,IM0,MCU0,CF)
+     1     ILUCF,DIAGF,RHS(1),RI,LC0,IM0,MCU0,CF)
       DO I=1,N
          F(I)=RHS(I)
          RI(I)=RHS(I)-RI(I)
@@ -121,7 +121,7 @@
          ITER=ITER+1
 *        calculate (P times (D times PI)) -> API
          CALL MCGPRA(LFORW,3,PACA,.FALSE.,N,LC,IM,MCU,JU,DIAGF,CF,
-     1        ILUDF,ILUCF,DIAGF,PI,API,LC0,IM0,MCU0,CF)
+     1        ILUDF,ILUCF,DIAGF,PI(1),API,LC0,IM0,MCU0,CF)
 *
          AUX(2)=AUX(1)/DDOT(N,API,1,ROT,1)
          DO J=1,N
@@ -130,7 +130,7 @@
          ITER=ITER+1
 *        calculate (P times (D times SI)) -> ASI
          CALL MCGPRA(LFORW,3,PACA,.FALSE.,N,LC,IM,MCU,JU,DIAGF,CF,
-     1        ILUDF,ILUCF,DIAGF,SI,ASI,LC0,IM0,MCU0,CF)
+     1        ILUDF,ILUCF,DIAGF,SI(1),ASI,LC0,IM0,MCU0,CF)
 *
 !!!!         ASIN=DDOT(N,ASI,1,ASI,1)
 !!!!         ASIN2=DDOT(N,ASI,1,SI,1)
@@ -176,7 +176,7 @@
       ITER=ITER+1
 *     calculate (P times (D times F)) -> RI
       CALL MCGPRA(LFORW,3,PACA,.FALSE.,N,LC,IM,MCU,JU,DIAGF,CF,ILUDF,
-     1     ILUCF,DIAGF,F,RI,LC0,IM0,MCU0,CF)
+     1     ILUCF,DIAGF,F(1),RI,LC0,IM0,MCU0,CF)
       DO I=1,N
          RI(I)=RHS(I)-RI(I)
       ENDDO
@@ -196,7 +196,7 @@
       GO TO 40
 *
  30   IF(DEBUG) WRITE(6,300) ITER,FNORM,EPS2
-      CALL XDRSET(F,N,0.0)
+      F(:N)=0.0
 *----
 *  SCRATCH STORAGE DEALLOCATION
 *----

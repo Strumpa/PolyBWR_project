@@ -59,7 +59,7 @@
 *----
 *  Compute power as H*Phi*Vol.
 *----
-      CALL XDRSET(HF,NBM,0.0)
+      HF(:NBM)=0.0
       POWD=0.0D0
       DO 20 IGR=1,NGR
         KPMAC=LCMGIL(JPMAC,IGR)

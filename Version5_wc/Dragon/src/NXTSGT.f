@@ -126,7 +126,7 @@
 *  NSPS  =  number of surfaces in a z plane
 *----
       ALLOCATE(IREN(2,NEREN),MIXS(NMIXS,2))
-      CALL XDISET(MIXS,NMIXS*2,0)
+      MIXS(:NMIXS,:2)=0
       NR=NM(4)+1
       NRS=NMS(4)+1
       IDIRR=-99
@@ -294,8 +294,8 @@
           WRITE(IOUT,6012) (DAMESS(IR,4,1),IR=-1,NR)
         ENDIF
       ENDIF
-      CALL XDISET(IDREG,NREGS,0)
-      CALL XDISET(IDSUR,NSURS,0)
+      IDREG(:NREGS)=0
+      IDSUR(:NSURS)=0
 *----
 *  Loop over planes (3D)
 *----

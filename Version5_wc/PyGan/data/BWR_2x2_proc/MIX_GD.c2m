@@ -49,7 +49,7 @@ IF ssh_method "PT" = THEN
         EDIT 0
         NMIX 21    ! MAXIMUM OF MATERIAL MIXTURES
         CALENDF 4 PT 
-        ANIS 3
+        ANIS 2
         ADED 4 NELAS N4N N2N N3N
 
     DEPL LIB: DRAGON FIL: <<Library>>
@@ -104,7 +104,7 @@ IF ssh_method "PT" = THEN
         O16     = O16    4.621410E-02
         U234    = U234   9.451580E-06 1 
         U235    = U235   9.945290E-04 1 
-        U238    = U238   2.107540E-02 1
+        U238    = U238   2.107540E-02 CORR 1
         Pu239 = Pu239  0.0        1
         Pu240 = Pu240  0.0        
         Pu241 = Pu241  0.0        1 
@@ -112,7 +112,7 @@ IF ssh_method "PT" = THEN
         Gd154    = Gd154   2.986510E-05 1
         Gd155    = Gd155   2.027540E-04 1
         Gd156    = Gd156   2.804310E-04 1
-        Gd157    = Gd157   2.143990E-04 1
+        Gd157    = Gd157   2.143990E-04 CORR 1
         Gd158    = Gd158   3.403000E-04 1
         Gd160    = Gd160   2.994740E-04 1 
     MIX <<COMB0702>> COMB <<COMB0701>> 1.0
@@ -165,8 +165,8 @@ ELSEIF ssh_method "RSE" = THEN
     LIBRARY := LIB: ::
         EDIT 0
         NMIX 21    ! MAXIMUM OF MATERIAL MIXTURES
-        RSE 1.0E-02
-        ANIS 3
+        RSE 
+        ANIS 2
         ADED 4 NELAS N4N N2N N3N
 
     DEPL LIB: DRAGON FIL: <<Library>>
@@ -221,7 +221,7 @@ ELSEIF ssh_method "RSE" = THEN
         O16     = O16    4.621410E-02
         U234    = U234   9.451580E-06 1 
         U235    = U235   9.945290E-04 1 
-        U238    = U238   2.107540E-02 1
+        U238    = U238   2.107540E-02 CORR 1
         Pu239 = Pu239  0.0        1
         Pu240 = Pu240  0.0        
         Pu241 = Pu241  0.0        1 
@@ -229,7 +229,7 @@ ELSEIF ssh_method "RSE" = THEN
         Gd154    = Gd154   2.986510E-05 1
         Gd155    = Gd155   2.027540E-04 1
         Gd156    = Gd156   2.804310E-04 1
-        Gd157    = Gd157   2.143990E-04 1
+        Gd157    = Gd157   2.143990E-04 CORR 1
         Gd158    = Gd158   3.403000E-04 1
         Gd160    = Gd160   2.994740E-04 1 
     MIX <<COMB0702>> COMB <<COMB0701>> 1.0
@@ -282,7 +282,7 @@ ELSEIF ssh_method "SUBG" = THEN
         EDIT 0
         NMIX 21    ! MAXIMUM OF MATERIAL MIXTURES
         RSE 1.0E-02
-        ANIS 3
+        ANIS 2
         ADED 4 NELAS N4N N2N N3N
 
     DEPL LIB: DRAGON FIL: <<Library>>

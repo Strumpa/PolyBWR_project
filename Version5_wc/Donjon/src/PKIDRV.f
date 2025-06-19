@@ -74,7 +74,7 @@
       DO I=1,NGROUP
          BETA=BETA+BETAI(I)
       ENDDO
-      CALL XDDSET(A,(NGROUP+1)**2,0.0D0)
+      A(:NGROUP+1,:NGROUP+1)=0.0D0
       DO I=2,NGROUP+1
          A(I,1)=BETAI(I-1)/LAMBDA
       ENDDO
@@ -87,7 +87,7 @@
 *----
 *  Runge-Kutta convergence loop
 *----
-      CALL XDDSET(RHO,3,0.0D0)
+      RHO(:3)=0.0D0
       DO WHILE ((DPP.GE.EPSILON).AND.(NRK.LE.NRKMAX))
 *       time and time-step initialisation
         DH=DT/REAL(NRK)

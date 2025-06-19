@@ -93,10 +93,10 @@
          DO 10 J=1,NCST
             CONTR2(J)=-CONTR(J)
    10    CONTINUE
-         CALL XDLSET(LCST2,NCST,.TRUE.)
-         CALL XDLSET(LCST,NCST,.TRUE.)
+         LCST2(:NCST)=.TRUE.
+         LCST(:NCST)=.TRUE.
       ENDIF
-      CALL XDDSET(XOBJ,N0,0.0D0)
+      XOBJ(:N0)=0.0D0
 *----
 *  INTERNAL ITERATIONS FOR THE LINEAR PROBLEM
 *----
@@ -158,7 +158,7 @@
       NORM=NORM**0.5
 *
       IF(NORM.EQ.0.0) THEN
-         CALL XDDSET(XOBJ,N0,0.0D0)
+         XOBJ(:N0)=0.0D0
       ELSE
          DO 210 I=1,N0
             XOBJ(I)=-XDROIT**0.5*LAGF(I)/PDG(I)/NORM

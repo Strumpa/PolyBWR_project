@@ -140,6 +140,9 @@
         ELSE IF(NAMMOD .EQ.  'SAP:        ') THEN      
           USE='Create a Saphyb composition database'
           AUT='A. Hebert'
+        ELSE IF(NAMMOD .EQ.  'APX:        ') THEN      
+          USE='Create an APEX composition database'
+          AUT='A. Hebert'
         ELSE IF(NAMMOD .EQ.  'MPO:        ') THEN      
           USE='Create a MPO composition database'
           AUT='A. Hebert'

@@ -233,7 +233,7 @@
       ELSE
          NUNCUR=0
       ENDIF
-      CALL XDISET(IGP,NSTATE,0)
+      IGP(:NSTATE)=0
       IGP(1)=NREG
       IGP(2)=NREG
       IF(ILK) THEN

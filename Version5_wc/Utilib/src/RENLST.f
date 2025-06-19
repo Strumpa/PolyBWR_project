@@ -52,7 +52,7 @@
       INTEGER, DIMENSION(:), ALLOCATABLE :: DEG
 *
       ALLOCATE(DEG(N))
-      CALL XDISET(MASK,N,1)
+      MASK(:N)=1
       NLEV=1
       IDEB=1
       IEND=1

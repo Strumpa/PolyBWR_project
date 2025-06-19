@@ -64,7 +64,7 @@
       INTEGER N1,N2,NGEFF,NG,IPRINT,KPN,NREG,NANI,NFUNL,M,LC,PACA,
      1 KEYFLX(NREG,NFUNL),KEYCUR(*),NZON(N1),NGIND(NGEFF),MXACA,NPJJM,
      2 KEYANI(NFUNL),IDIR
-      REAL EPSACA,PHIIN(KPN,NG)
+      REAL EPSACA,PHIIN(KPN,NGEFF)
       DOUBLE PRECISION PHIOUT(KPN,NGEFF)
       LOGICAL LFORW,NCONV(NGEFF),MACFLG,REBFLG,COMBFLG
 *----
@@ -105,9 +105,9 @@
 *----
       ALLOCATE(NGINDV(NG),AR(N1,NGEFF),PSI(N1,NGEFF),XSW(0:M,NANI),
      1 ARSCR(KPN,NGEFF))
-      CALL XDRSET(XSW,(M+1)*NANI,0.0)
-      CALL XDDSET(AR,N1*NGEFF,0.0D0)
-      CALL XDDSET(ARSCR,KPN*NGEFF,0.0D0)
+      AR(:N1,:NGEFF)=0.0D0
+      XSW(0:M,:NANI)=0.0
+      ARSCR(:KPN,:NGEFF)=0.0D0
 *     recover connection matrices
       CALL LCMGPD(IPTRK,'IM$MCCG',IM_PTR)
       CALL LCMGPD(IPTRK,'MCU$MCCG',MCU_PTR)
@@ -146,7 +146,7 @@
 *----
 *  CONSTRUCT NGINDV (index to pass from "NGEFF format" to "NG format").
 *----
-      CALL XDISET(NGINDV,NG,0)
+      NGINDV(:NG)=0
       DO II=1,NGEFF
          IF(NCONV(II)) THEN
             IG=NGIND(II)
@@ -174,7 +174,7 @@
 *              residual for ACA system
                CALL MCGFCR(IPRINT,IG,II,NG,NGEFF,KPN,N1,NREG,NANI,NFUNL,
      1           M,.TRUE.,KEYFLX,KEYCUR,NZON,NGINDV,MACFLG,PHIOUT,PHIIN,
-     2           XSW,IPERM,NJJ,IJJ,IPOS,XSCAT,AR(1,II))
+     2           XSW,IPERM(1),NJJ,IJJ,IPOS,XSCAT,AR(1,II))
             ENDIF
          ENDDO
 *----
@@ -200,11 +200,11 @@
 *              residual for ACA system
                CALL MCGFCR(IPRINT,IG,II,NG,NGEFF,KPN,N1,NREG,NANI,NFUNL,
      1           M,.TRUE.,KEYFLX,KEYCUR,NZON,NGINDV,MACFLG,PHIOUT,PHIIN,
-     2           XSW,IPERM,NJJ,IJJ,IPOS,XSCAT,AR(1,II))
+     2           XSW,IPERM(1),NJJ,IJJ,IPOS,XSCAT,AR(1,II))
 *              residual for SCR-combined scheme
                CALL MCGFCR(IPRINT,IG,II,NG,NGEFF,KPN,N1,NREG,NANI,NFUNL,
      1           M,.FALSE.,KEYFLX,KEYCUR,NZON,NGINDV,MACFLG,PHIOUT,
-     2           PHIIN,XSW,KEYANI,NJJ,IJJ,IPOS,XSCAT,ARSCR(1,II))
+     2           PHIIN,XSW,KEYANI(1),NJJ,IJJ,IPOS,XSCAT,ARSCR(1,II))
                IF(NANI.GT.1) THEN
                IF(IDIR.EQ.0) THEN
                  CALL LCMGET(JPSYS,'PJJ$MCCG',PJJ)
@@ -246,7 +246,7 @@
       IF(MACFLG) THEN
 *     MULTIGROUP REBALANCING (GAUSS-SEIDEL SCHEME)
          NGTYP='GAUSS-SEIDEL'
-         CALL XDDSET(PSI,N1*NGEFF,0.D0)
+         PSI(:N1,:NGEFF)=0.0D0
          NGFAST=NGEFF
          IF(REBFLG) THEN
 *        ONLY FOR FAST GROUPS (thermal group will be treated iteratively)

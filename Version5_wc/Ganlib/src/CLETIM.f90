@@ -22,7 +22,7 @@ subroutine CLETIM(sec)
    interface
       subroutine cletim_c (sec) bind(c)
          use, intrinsic :: iso_c_binding
-         double precision :: sec
+         real(c_double) :: sec
       end subroutine cletim_c
    end interface
    call cletim_c(sec)

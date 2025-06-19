@@ -157,7 +157,6 @@
       MRANK(:NGRP)=0
       CALL LCMSIX(KPLIB1,'PT-TABLE',1)
       CALL LCMGET(KPLIB1,'NOR',MRANK)
-      CALL LCMGET(KPLIB1,'NJJS00',NJJ)
       LPLIB1=LCMGID(KPLIB1,'GROUP-RSE')
       DO IG=1,NGRP
         LGBIN=NFS(IG)
@@ -176,6 +175,7 @@
       ALLOCATE(DDD_M(NGRP))
       LLL=0
       DO IG=1,NGRP
+        NJJ(IG)=0
         LGBIN=NFS(IG)
         IF(LGBIN.EQ.0) CYCLE
         !
@@ -210,7 +210,7 @@
             STR(LLJ)=STIS(MM)*SIGS(LLJ)
           ENDDO
           LLJ=LLL
-          DO JG=IG,IG-NJJ(IG)+1,-1
+          DO JG=IG,1,-1
             LGBIN2=NFS(JG)
             IF(LLL+LI-MML+1.GT.LLJ+LGBIN2) EXIT
             IF(.NOT.ASSOCIATED(U_M(JG)%MATRIX)) THEN
@@ -219,6 +219,7 @@
             ENDIF
             MJ=MRANK(JG)
             IF(LI.EQ.1) THEN
+              NJJ(IG)=NJJ(IG)+1
               ALLOCATE(DDD_M(JG)%MATRIX(LGBIN,MJ))
               DDD_M(JG)%MATRIX(:LGBIN,:MJ)=0.0D0
             ENDIF
@@ -295,15 +296,17 @@
         NPOS=NPOS+NJJ(IG)
       ENDDO
       CALL LCMSIX(KPLIB1,'PT-TABLE',1)
-      LPLIB1=LCMGID(KPLIB1,'GROUP-RSE') ! holds TSIGT_M information
-      LPLIB2=LCMLID(KPLIB1,HNAMIS2,NPOS) ! holds TSCAT_M information
+      CALL LCMSIX(KPLIB1,HNAMIS2,1)
+        LPLIB1=LCMLID(KPLIB1,'SIGT_M',NGRP) ! holds TSIGT_M information
+        LPLIB2=LCMLID(KPLIB1,'SCAT_M',NPOS) ! holds TSCAT_M information
+        CALL LCMPUT(KPLIB1,'NJJS00',NGRP,1,NJJ)
+      CALL LCMSIX(KPLIB1,' ',2)
       IPOS=0
       DO IG=1,NGRP
         MI=MRANK(IG)
         IF(MI.EQ.0) CYCLE
         IF(ASSOCIATED(TSIGT_M(IG)%MATRIX)) THEN
-          MPLIB=LCMGIL(LPLIB1,IG)
-          CALL LCMPUT(MPLIB,HNAMIS2,MI*MI,4,TSIGT_M(IG)%MATRIX)
+          CALL LCMPDL(LPLIB1,IG,MI*MI,4,TSIGT_M(IG)%MATRIX)
           DEALLOCATE(TSIGT_M(IG)%MATRIX)
         ENDIF
         DO JG=IG,IG-NJJ(IG)+1,-1

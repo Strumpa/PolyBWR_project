@@ -81,7 +81,7 @@
       IF(JENTRY(1).NE.1) CALL XABORT('LNSR: OBJECT IN MODIFICATION MOD'
      1  //'E EXPECTED.')
       IPGRAD=KENTRY(1)
-      CALL LCMGTC(IPGRAD,'SIGNATURE',12,1,HSIGN)
+      CALL LCMGTC(IPGRAD,'SIGNATURE',12,HSIGN)
       IF(HSIGN.NE.'L_OPTIMIZE') THEN
          TEXT12=HENTRY(1)
          CALL XABORT('LNSR: SIGNATURE OF '//TEXT12//' IS '//HSIGN//
@@ -303,8 +303,8 @@
           ALLOCATE(SS(NVAR,hist_nr),YY(NVAR,hist_nr))
           P(:NVAR)=G(:NVAR)
           IF(IEXT.EQ.1) THEN
-            CALL XDDSET(SS,NVAR*hist_nr,0.0D0)
-            CALL XDDSET(YY,NVAR*hist_nr,0.0D0)
+            SS(:NVAR,:hist_nr)=0.0D0
+            YY(:NVAR,:hist_nr)=0.0D0
           ELSE
 *           quasi-Newton search
             ALLOCATE(GAMMA(hist_nr),XP(NVAR),GP(NVAR))
@@ -444,7 +444,7 @@
 *----
 *  SAVE THE STATE VECTORS
 *----
-      CALL XDISET(ISTATE,NSTATE,0)
+      ISTATE(:NSTATE)=0
       ISTATE(1)=NVAR
       ISTATE(3)=IOPT
       ISTATE(4)=ICONV
@@ -458,7 +458,7 @@
       ISTATE(13)=NSTART
       IF(IPRINT.GT.0) WRITE(6,140) (ISTATE(I),I=1,13)
       CALL LCMPUT(IPGRAD,'STATE-VECTOR',NSTATE,1,ISTATE)
-      CALL XDDSET(OPTPRR,NSTATE,0.0D0)
+      OPTPRR(:NSTATE)=0.0D0
       OPTPRR(1)=SR
       OPTPRR(2)=EPS1
       OPTPRR(3)=EPS2

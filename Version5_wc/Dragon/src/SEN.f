@@ -108,7 +108,7 @@
      >  ': LINKED_LIST or XSM_FILE expected')
         IF(JENTRY(IEN).NE.2) CALL XABORT(NAMSBR//
      >  ': data structure must be in READ_ONLY mode')
-        CALL LCMGTC(KENTRY(IEN),'SIGNATURE',12,1,HSIGN)
+        CALL LCMGTC(KENTRY(IEN),'SIGNATURE',12,HSIGN)
         IF(HSIGN.EQ.'L_FLUX') THEN
           CALL LCMGET(KENTRY(IEN),'STATE-VECTOR',ISTATE)
           ITYPE=ISTATE(3)        

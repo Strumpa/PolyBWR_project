@@ -33,20 +33,15 @@ INTEGER COMB0201 COMB0202 COMB0203 COMB0204 ;
 EVALUATE COMB0201 COMB0202 COMB0203 COMB0204 := 5 6 7 8 ;
 
 
-!Mix numbers for C2 fuel 
-INTEGER COMB2201 COMB2202 COMB2203 COMB2204 ;
-EVALUATE COMB2201 COMB2202 COMB2203 COMB2204 := 9 10 11 12 ;
-
-
 !Mix numbers for C4 fuel 
 INTEGER COMB0401 COMB0402 COMB0403 COMB0404 ;
-EVALUATE COMB0401 COMB0402 COMB0403 COMB0404 := 13 14 15 16 ;
+EVALUATE COMB0401 COMB0402 COMB0403 COMB0404 := 9 10 11 12 ;
 
 
 ! Pin level common mixes : Clad, Gap, Coolant (intra-pin water) :
 
 INTEGER GAP CLAD COOL ;
-EVALUATE GAP CLAD COOL := 17 18 19 ;
+EVALUATE GAP CLAD COOL := 13 14 15 ;
 
 ****************************************************************************
 *********************** LIBRARY DEFINTION OF 2x2 UOX ***********************
@@ -56,11 +51,9 @@ IF ssh_method "PT" = THEN
 
     LIBRARY := LIB: ::
         EDIT 0
-        NMIX 19    ! MAXIMUM OF MATERIAL MIXTURES
-        !RSE 1.0E-02
+        NMIX 15    ! MAXIMUM OF MATERIAL MIXTURES
         CALENDF 4 PT 
-        ANIS 3
-        ADED 4 NELAS N4N N2N N3N
+        ANIS 2
 
         DEPL LIB: DRAGON FIL: <<Library>>
 
@@ -83,43 +76,39 @@ IF ssh_method "PT" = THEN
         !C2 fuel compo "AT10_32UOX" :
         MIX <<COMB0201>> 750.0
             O16     = O16    4.667480E-02
-            U234    = U234   7.039170E-06 1
-            U235    = U235   7.560370E-04 1 
-            U238    = U238   2.257430E-02 1 
-            Pu239 = Pu239  0.0        1
-            Pu240 = Pu240  0.0        1
-            Pu241 = Pu241  0.0        1 
-            Pu242 = Pu242  0.0        1
+            U234    = U234   7.039170E-06 2
+            U235    = U235   7.560370E-04 2 
+            U238    = U238   2.257430E-02 2 
+            Pu239 = Pu239  0.0        2
+            Pu240 = Pu240  0.0        2
+            Pu241 = Pu241  0.0        2 
+            Pu242 = Pu242  0.0        2
         MIX <<COMB0202>> COMB <<COMB0201>> 1.0
         MIX <<COMB0203>> COMB <<COMB0201>> 1.0
         MIX <<COMB0204>> COMB <<COMB0201>> 1.0
 
-        MIX <<COMB2201>> COMB <<COMB0201>> 1.0
-        MIX <<COMB2202>> COMB <<COMB0202>> 1.0
-        MIX <<COMB2203>> COMB <<COMB0203>> 1.0
-        MIX <<COMB2204>> COMB <<COMB0204>> 1.0
 
         ! C4 fuel compo "AT10_45UOX" :
         MIX <<COMB0401>> 750.0
             O16     = O16    4.668150E-02
-            U234    = U234   9.991530E-06 1
-            U235    = U235   1.051340E-03 1
-            U238    = U238   2.227940E-02 1 
-            Pu239 = Pu239  0.0        1
-            Pu240 = Pu240  0.0        1
-            Pu241 = Pu241  0.0        1 
-            Pu242 = Pu242  0.0        1
+            U234    = U234   9.991530E-06 4
+            U235    = U235   1.051340E-03 4
+            U238    = U238   2.227940E-02 4 
+            Pu239 = Pu239  0.0        4
+            Pu240 = Pu240  0.0        4
+            Pu241 = Pu241  0.0        4 
+            Pu242 = Pu242  0.0        4
         MIX <<COMB0402>> COMB <<COMB0401>> 1.0
         MIX <<COMB0403>> COMB <<COMB0401>> 1.0
         MIX <<COMB0404>> COMB <<COMB0401>> 1.0
 
 
         MIX <<CLAD>> 559.0 NOEV
-            Zr90  = Zr90   2.18317E-02 2
-            Zr91  = Zr91   4.76096E-03 2
-            Zr92  = Zr92   7.27723E-03 2
-            Zr94  = Zr94   7.37482E-03 2
-            Zr96  = Zr96   1.18812E-03 2
+            Zr90  = Zr90   2.18317E-02 5
+            Zr91  = Zr91   4.76096E-03 5
+            Zr92  = Zr92   7.27723E-03 5
+            Zr94  = Zr94   7.37482E-03 5
+            Zr96  = Zr96   1.18812E-03 5
             Ni60  = Ni60   9.69262E-06
             Fe58  = Fe58   2.68895E-07
             Sn112  = Sn112   4.67343E-06
@@ -157,10 +146,9 @@ ELSEIF ssh_method "RSE" = THEN
 
     LIBRARY := LIB: ::
             EDIT 0
-            NMIX 19    ! MAXIMUM OF MATERIAL MIXTURES
-            RSE 1.0E-02
-            ANIS 3
-            ADED 4 NELAS N4N N2N N3N
+            NMIX 15    ! MAXIMUM OF MATERIAL MIXTURES
+            RSE
+            ANIS 2
 
         DEPL LIB: DRAGON FIL: <<Library>>
 
@@ -182,45 +170,38 @@ ELSEIF ssh_method "RSE" = THEN
         !C2 fuel compo "AT10_32UOX" :
         MIX <<COMB0201>> 750.0
             O16     = O16    4.667480E-02
-            U234    = U234   7.039170E-06 1
-            U235    = U235   7.560370E-04 1 
-            U238    = U238   2.257430E-02 1 
-            Pu239 = Pu239  0.0        1
-            Pu240 = Pu240  0.0        1
-            Pu241 = Pu241  0.0        1 
-            Pu242 = Pu242  0.0        1
+            U234    = U234   7.039170E-06 2
+            U235    = U235   7.560370E-04 2 
+            U238    = U238   2.257430E-02 2 
+            Pu239 = Pu239  0.0        2
+            Pu240 = Pu240  0.0        2
+            Pu241 = Pu241  0.0        2 
+            Pu242 = Pu242  0.0        2
         MIX <<COMB0202>> COMB <<COMB0201>> 1.0
         MIX <<COMB0203>> COMB <<COMB0201>> 1.0
         MIX <<COMB0204>> COMB <<COMB0201>> 1.0
 
-
-        MIX <<COMB2201>> COMB <<COMB0201>> 1.0
-        MIX <<COMB2202>> COMB <<COMB0202>> 1.0
-        MIX <<COMB2203>> COMB <<COMB0203>> 1.0
-        MIX <<COMB2204>> COMB <<COMB0204>> 1.0
-
-
         ! C4 fuel compo "AT10_45UOX" :
         MIX <<COMB0401>> 750.0
             O16     = O16    4.668150E-02
-            U234    = U234   9.991530E-06 1
-            U235    = U235   1.051340E-03 1 
-            U238    = U238   2.227940E-02 1 
-            Pu239 = Pu239  0.0        1
-            Pu240 = Pu240  0.0        1
-            Pu241 = Pu241  0.0        1 
-            Pu242 = Pu242  0.0        1
+            U234    = U234   9.991530E-06 4
+            U235    = U235   1.051340E-03 4 
+            U238    = U238   2.227940E-02 4 
+            Pu239 = Pu239  0.0        4
+            Pu240 = Pu240  0.0        4
+            Pu241 = Pu241  0.0        4 
+            Pu242 = Pu242  0.0        4
         MIX <<COMB0402>> COMB <<COMB0401>> 1.0
         MIX <<COMB0403>> COMB <<COMB0401>> 1.0
         MIX <<COMB0404>> COMB <<COMB0401>> 1.0
 
 
         MIX <<CLAD>> 559.0 NOEV
-            Zr90  = Zr90   2.18317E-02 2
-            Zr91  = Zr91   4.76096E-03 2
-            Zr92  = Zr92   7.27723E-03 2
-            Zr94  = Zr94   7.37482E-03 2
-            Zr96  = Zr96   1.18812E-03 2
+            Zr90  = Zr90   2.18317E-02 5
+            Zr91  = Zr91   4.76096E-03 5
+            Zr92  = Zr92   7.27723E-03 5
+            Zr94  = Zr94   7.37482E-03 5
+            Zr96  = Zr96   1.18812E-03 5
             Ni60  = Ni60   9.69262E-06
             Fe58  = Fe58   2.68895E-07
             Sn112  = Sn112   4.67343E-06
@@ -256,11 +237,10 @@ ELSEIF ssh_method "RSE" = THEN
 ELSEIF ssh_method "SUBG" = THEN
 
     LIBRARY := LIB: ::
-            EDIT 0
-            NMIX 19    ! MAXIMUM OF MATERIAL MIXTURES
-            SUBG
-            ANIS 3
-            ADED 4 NELAS N4N N2N N3N
+        EDIT 0
+        NMIX 15    ! MAXIMUM OF MATERIAL MIXTURES
+        SUBG
+        ANIS 2
 
         DEPL LIB: DRAGON FIL: <<Library>>
 
@@ -282,43 +262,38 @@ ELSEIF ssh_method "SUBG" = THEN
         !C2 fuel compo "AT10_32UOX" :
         MIX <<COMB0201>> 750.0
             O16     = O16    4.667480E-02
-            U234    = U234   7.039170E-06 1
-            U235    = U235   7.560370E-04 1 
-            U238    = U238   2.257430E-02 1 
-            Pu239 = Pu239  0.0        1
-            Pu240 = Pu240  0.0        1
-            Pu241 = Pu241  0.0        1 
-            Pu242 = Pu242  0.0        1
+            U234    = U234   7.039170E-06 2
+            U235    = U235   7.560370E-04 2 
+            U238    = U238   2.257430E-02 2 
+            Pu239 = Pu239  0.0        2
+            Pu240 = Pu240  0.0        2
+            Pu241 = Pu241  0.0        2 
+            Pu242 = Pu242  0.0        2
         MIX <<COMB0202>> COMB <<COMB0201>> 1.0
         MIX <<COMB0203>> COMB <<COMB0201>> 1.0
         MIX <<COMB0204>> COMB <<COMB0201>> 1.0
 
-        MIX <<COMB2201>> COMB <<COMB0201>> 1.0
-        MIX <<COMB2202>> COMB <<COMB0202>> 1.0
-        MIX <<COMB2203>> COMB <<COMB0203>> 1.0
-        MIX <<COMB2204>> COMB <<COMB0204>> 1.0
-
         ! C4 fuel compo "AT10_45UOX" :
         MIX <<COMB0401>> 750.0
             O16     = O16    4.668150E-02
-            U234    = U234   9.991530E-06 1
-            U235    = U235   1.051340E-03 1 
-            U238    = U238   2.227940E-02 1 
-            Pu239 = Pu239  0.0        1
-            Pu240 = Pu240  0.0        1
-            Pu241 = Pu241  0.0        1 
-            Pu242 = Pu242  0.0        1
+            U234    = U234   9.991530E-06 4
+            U235    = U235   1.051340E-03 4 
+            U238    = U238   2.227940E-02 4 
+            Pu239 = Pu239  0.0        4
+            Pu240 = Pu240  0.0        4
+            Pu241 = Pu241  0.0        4 
+            Pu242 = Pu242  0.0        4
         MIX <<COMB0402>> COMB <<COMB0401>> 1.0
         MIX <<COMB0403>> COMB <<COMB0401>> 1.0
         MIX <<COMB0404>> COMB <<COMB0401>> 1.0
 
 
         MIX <<CLAD>> 559.0 NOEV
-            Zr90  = Zr90   2.18317E-02 2
-            Zr91  = Zr91   4.76096E-03 2
-            Zr92  = Zr92   7.27723E-03 2
-            Zr94  = Zr94   7.37482E-03 2
-            Zr96  = Zr96   1.18812E-03 2
+            Zr90  = Zr90   2.18317E-02 5
+            Zr91  = Zr91   4.76096E-03 5
+            Zr92  = Zr92   7.27723E-03 5
+            Zr94  = Zr94   7.37482E-03 5
+            Zr96  = Zr96   1.18812E-03 5
             Ni60  = Ni60   9.69262E-06
             Fe58  = Fe58   2.68895E-07
             Sn112  = Sn112   4.67343E-06

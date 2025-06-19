@@ -91,7 +91,7 @@
          ELSE
             VEC_PTR=LCMARA(LL4F)
             CALL C_F_POINTER(VEC_PTR,VEC,(/ LL4F /))
-            CALL XDRSET(VEC,LL4F,0.0)
+            VEC(:LL4F)=0.0
          ENDIF
       ELSE
          IF(IPR.EQ.3) THEN
@@ -100,7 +100,7 @@
          ELSE
             VEC_PTR=LCMARA(LL4)
             CALL C_F_POINTER(VEC_PTR,VEC,(/ LL4 /))
-            CALL XDRSET(VEC,LL4,0.0)
+            VEC(:LL4)=0.0
          ENDIF
       ENDIF
 *----

@@ -28,12 +28,12 @@ def main():
     libDon="../../../Donjon/lib/"+mach+"_nvidia"
     extralink=["-lnvcpumath","-lnvf","-lnvc"]
   elif Compiler == "LLVMTOOLS":
-    libdir="../../lib/"+mach+"_flang"
-    libUtl="../../../Utilib/lib/"+mach+"_flang"
-    libTri="../../../Trivac/lib/"+mach+"_flang"
-    libDra="../../../Dragon/lib/"+mach+"_flang"
-    libDon="../../../Donjon/lib/"+mach+"_flang"
-    extralink=["-lFortranRuntime", "-lFortranDecimal"]
+    libdir="../../lib/"+mach+"_llvm"
+    libUtl="../../../Utilib/lib/"+mach+"_llvm"
+    libTri="../../../Trivac/lib/"+mach+"_llvm"
+    libDra="../../../Dragon/lib/"+mach+"_llvm"
+    libDon="../../../Donjon/lib/"+mach+"_llvm"
+    extralink=["-lFortranRuntime", "-lFortranDecimal", "-lclang_rt.osx"]
   elif Compiler == "INTELTOOLS":
     libdir="../../lib/"+mach+"_intel"
     libUtl="../../../Utilib/lib/"+mach+"_intel"

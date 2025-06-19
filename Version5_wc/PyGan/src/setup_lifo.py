@@ -16,7 +16,7 @@ def main():
   if Compiler == "NVTOOLS":
     libdir="../../lib/"+mach+"_nvidia"
   elif Compiler == "LLVMTOOLS":
-    libdir="../../lib/"+mach+"_flang"
+    libdir="../../lib/"+mach+"_llvm"
   elif Compiler == "INTELTOOLS":
     libdir="../../lib/"+mach+"_intel"
   else:

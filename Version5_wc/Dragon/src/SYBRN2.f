@@ -83,12 +83,8 @@
       ICARE=IZ(1).EQ.2
       ZERO=TRONC*(A+B)/(2.0*A*B)
       AOB=A/B
-      CALL XDRSET(PBB,28,0.0)
-      DO 15 I=1,12
-      DO 10 J=1,NREG
-      PVS(I,J)=0.0
-   10 CONTINUE
-   15 CONTINUE
+      PBB(:28)=0.0
+      PVS(:12,:NREG)=0.0
       IZ0=2
       IZR=4
       DO 205 IA=1,IZ(2)

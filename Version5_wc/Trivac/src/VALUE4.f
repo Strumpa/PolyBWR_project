@@ -64,7 +64,7 @@
 *----
 *  compute coefficient for legendre polynomials
 *----
-      CALL XDRSET(COEF,10,0.0)
+      COEF(:2,:5)=0.0
       COEF(1,1)=1.0
       COEF(1,2)=2.*3.**0.5
       DO IE=1,3

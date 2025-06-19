@@ -77,6 +77,7 @@
       REAL TMPPER(2,3),TIMFCT,DENISO,ENEAVG,FACT,TOTDEN,XTF
       DOUBLE PRECISION SQFMAS,XDRCST,NMASS,EVJ,ZNU
       TYPE(C_PTR) JPLIB,KPLIB
+      LOGICAL LKERMA
 *----
 *  ALLOCATABLE ARRAYS
 *----
@@ -154,7 +155,7 @@
       IF(ILONG.GT.0) THEN
         ALLOCATE(VOLMIX(NBMIX),VOLI(NBISO))
         CALL LCMGET(IPLIB,'ISOTOPESVOL',VOLI)
-        CALL XDRSET(VOLMIX,NBMIX,0.0)
+        VOLMIX(:NBMIX)=0.0
         DO ISOT=1,NBISO
           IBM=MIX(ISOT)
           IF(IBM.GT.0) VOLMIX(IBM)=VOLI(ISOT)
@@ -171,7 +172,7 @@
       MASKK=(ILONG.EQ.-1)
       IF(MASKK) THEN
          CALL LCMSIX(IPLIB,'MACROLIB',1)
-         CALL LCMGTC(IPLIB,'SIGNATURE',12,1,TEXT12)
+         CALL LCMGTC(IPLIB,'SIGNATURE',12,TEXT12)
          IF(TEXT12.NE.'L_MACROLIB') THEN
             CALL XABORT('LIBDEN: INVALID SIGNATURE ON THE MACROLIB.')
          ENDIF
@@ -245,19 +246,19 @@
         HPRT1=' '
         HNPART(1)=' '
       ELSE
-        CALL LCMGTC(IPLIB,'PARTICLE',1,1,HPRT1)
+        CALL LCMGTC(IPLIB,'PARTICLE',1,HPRT1)
         CALL LCMGTC(IPLIB,'PARTICLE-NAM',1,NPART+1,HNPART)
         CALL LCMGET(IPLIB,'PARTICLE-NGR',NGPART)
         CALL LCMGET(IPLIB,'PARTICLE-MC2',C2PART)
         CALL LCMSIX(IPLIB,'MACROLIB',1)
-        CALL LCMPTC(IPLIB,'PARTICLE',1,1,HPRT1)
+        CALL LCMPTC(IPLIB,'PARTICLE',1,HPRT1)
         CALL LCMPTC(IPLIB,'PARTICLE-NAM',1,NPART+1,HNPART)
         CALL LCMPUT(IPLIB,'PARTICLE-NGR',NPART+1,1,NGPART)
         CALL LCMPUT(IPLIB,'PARTICLE-MC2',NPART+1,2,C2PART)
         CALL LCMSIX(IPLIB,' ',2)
         IF(HPRT1.NE.HNPART(1)) THEN
-          WRITE(HSMG,'(26HLIBDEN: LIBTART PARTICLE (,A1,11H) IS DIFFER,
-     1    25HENT FROM PARTICLE-NAM(1)=,A1,1H.)') HPRT1,HNPART(1)
+          WRITE(HSMG,'(27HLIBDEN: MICROLIB PARTICLE (,A1,10H) IS DIFFE,
+     1    26HRENT FROM PARTICLE-NAM(1)=,A1,1H.)') HPRT1,HNPART(1)
           CALL XABORT(HSMG)
         ENDIF
         DO IP=2,NPART+1
@@ -387,7 +388,7 @@
          IF(MASKK) THEN
            ILONG=1
            IF(M.GT.1) CALL LCMLEN(KPLIB,'SIGS'//CM,ILONG,ITYLCM)
-           CALL XDRSET(GAR(1,NBLK+1),NBMIX,0.0)
+           GAR(:NBMIX,NBLK+1)=0.0
            IF(ILONG.GT.0) THEN
               CALL LCMGET(KPLIB,'SIGS'//CM,GAR(1,NBLK+1))
            ENDIF
@@ -520,6 +521,9 @@
             ENDIF
          ENDIF
          CALL LCMLEN(JPLIB,'H-FACTOR'//NORD(IXSPER),ILONG,ITYLCM)
+         CALL LCMLEN(JPLIB,'H-FACTOR',LENGTZ,ITYLCM)
+         LKERMA=LENGTZ.EQ.NGROUP
+
          IF(ILONG.GT.0) THEN
             LH=.TRUE.
             CALL LCMGET(JPLIB,'H-FACTOR'//NORD(IXSPER),GA1) !MeV-barns
@@ -562,28 +566,26 @@
   330       CONTINUE
          ENDIF
       ENDIF
-      
       !-----------------------------------------------------------
       !APPLY STERNHEIMER DENSITY CORRECTION ON HEAT DEPOSITION FOR
-      !ELECTRON AND POSITRON. 
+      !ELECTRON AND POSITRON.
       !REASON: SOFT INLEASTIC HEAT DEPOSITION IN ELECTR
       !CONTAINS A COLLISONNAL STOPPING POWER WHICH HAS NOT
       !BEEN CORRECTED IN NJOY.
       !-----------------------------------------------------------
       IF (STERN.EQ.1) THEN
-         IF (HPRT1.EQ.'B'.OR.HPRT1.EQ.'C') THEN 
+         IF (HPRT1.EQ.'B'.OR.HPRT1.EQ.'C') THEN
             DO LLL=1,NGROUP
-               GAF(IBM,LLL,7)=GAF(IBM,LLL,7)-DENMAT(IBM,LLL) !MeV/cm
-            ENDDO   
+               GAF(IBM,LLL,7)=GAF(IBM,LLL,7)-DENMAT(IBM,LLL) !eV/cm
+            ENDDO
           ENDIF
-      ENDIF  
-
+      ENDIF
   340 CONTINUE
       DO 420 LLL=1,NGROUP
       KPLIB=IPGRP(LLL,1)
       IF(MASKL(LLL).OR.LALL) THEN
          IF(MASKK) THEN
-            CALL XDRSET(GAF(1,LLL,2),NBMIX,0.0)
+            GAF(:NBMIX,LLL,2)=0.0
             CALL LCMGET(KPLIB,'NTOT0',GAF(1,LLL,2))
             DO 350 IBM=1,NBMIX
             IF(.NOT.MASK(IBM)) GAF(IBM,LLL,1)=GAF(IBM,LLL,2)
@@ -592,7 +594,7 @@
          CALL LCMPUT(KPLIB,'NTOT0',NBMIX,2,GAF(1,LLL,1))
          IF(LWP1) THEN
             IF(MASKK) THEN
-               CALL XDRSET(GAF(1,LLL,4),NBMIX,0.0)
+               GAF(:NBMIX,LLL,4)=0.0
                CALL LCMGET(KPLIB,'NTOT1',GAF(1,LLL,4))
                DO 360 IBM=1,NBMIX
                IF(.NOT.MASK(IBM)) GAF(IBM,LLL,3)=GAF(IBM,LLL,4)
@@ -602,7 +604,7 @@
          ENDIF
          IF(LSTRD) THEN
             IF(MASKK) THEN
-               CALL XDRSET(GAF(1,LLL,6),NBMIX,0.0)
+               GAF(:NBMIX,LLL,6)=0.0
                CALL LCMGET(KPLIB,'DIFF',GAF(1,LLL,6))
                DO 370 IBM=1,NBMIX
                IF(.NOT.MASK(IBM)) THEN
@@ -619,17 +621,17 @@
          ENDIF
          IF(LH) THEN
             IF(MASKK) THEN
-               CALL XDRSET(GAF(1,LLL,8),NBMIX,0.0)
+               GAF(:NBMIX,LLL,8)=0.0
                CALL LCMGET(KPLIB,'H-FACTOR',GAF(1,LLL,8))
                DO 390 IBM=1,NBMIX
                IF(.NOT.MASK(IBM)) GAF(IBM,LLL,7)=GAF(IBM,LLL,8)
   390          CONTINUE
             ENDIF
-            CALL LCMPUT(KPLIB,'H-FACTOR',NBMIX,2,GAF(1,LLL,7)) !MeV/cm
+            CALL LCMPUT(KPLIB,'H-FACTOR',NBMIX,2,GAF(1,LLL,7)) !eV/cm
          ENDIF
          IF(LC) THEN
             IF(MASKK) THEN
-               CALL XDRSET(GAF(1,LLL,14),NBMIX,0.0)
+               GAF(:NBMIX,LLL,14)=0.0
                CALL LCMGET(KPLIB,'C-FACTOR',GAF(1,LLL,14))
                DO 395 IBM=1,NBMIX
                IF(.NOT.MASK(IBM)) GAF(IBM,LLL,13)=GAF(IBM,LLL,14)
@@ -639,7 +641,7 @@
          ENDIF
          IF(LOVERV) THEN
             IF(MASKK) THEN
-               CALL XDRSET(GAF(1,LLL,10),NBMIX,0.0)
+               GAF(:NBMIX,LLL,10)=0.0
                CALL LCMGET(KPLIB,'OVERV',GAF(1,LLL,10))
                DO 400 IBM=1,NBMIX
                IF(.NOT.MASK(IBM)) GAF(IBM,LLL,9)=GAF(IBM,LLL,10)
@@ -649,7 +651,7 @@
          ENDIF
          IF(ITRANC.NE.0) THEN
             IF(MASKK) THEN
-               CALL XDRSET(GAF(1,LLL,12),NBMIX,0.0)
+               GAF(:NBMIX,LLL,12)=0.0
                CALL LCMGET(KPLIB,'TRANC',GAF(1,LLL,12))
                DO 410 IBM=1,NBMIX
                IF(.NOT.MASK(IBM)) GAF(IBM,LLL,11)=GAF(IBM,LLL,12)
@@ -709,8 +711,8 @@
          DO 480 LLL=1,NGROUP
          IF(MASKL(LLL).OR.LALL) THEN
             DO 465 IDEL=0,NDEL
-            CALL XDRSET(ZNUS(1,LLL,IDEL),NBMIX*NFISS0*NESP,0.0)
-            CALL XDRSET(ZCHI(1,LLL,IDEL),NBMIX*NFISS0*NESP,0.0)
+            ZNUS(:NBMIX*MAXNFI*NESP,LLL,IDEL)=0.0
+            ZCHI(:NBMIX*MAXNFI*NESP,LLL,IDEL)=0.0
   465       CONTINUE
             KPLIB=IPGRP(LLL,1)
             CALL LCMLEN(KPLIB,'NUSIGF',ILONG,ITYLCM)
@@ -919,6 +921,7 @@
       IF(CV(:2).EQ.'NW') GO TO 770
       IF(CV.EQ.'TRANC') GO TO 770
       IF((CV(:3).EQ.'BST').OR.(CV(:3).EQ.'CST')) GO TO 770
+      IF(CV(:8).EQ.'H-FACTOR') GO TO 770
       EXIST=.FALSE.
       DO 740 IBM=1,NBMIX
       IF(MASK(IBM).OR.(.NOT.MASKK)) THEN
@@ -953,7 +956,7 @@
             CALL LCMLEN(KPLIB,CV,ILONG,ITYLCM)
             IF(ILONG.GT.0) THEN
                EXIST=.TRUE.
-               CALL XDRSET(GAF(1,LLL,2),NBMIX,0.0)
+               GAF(:NBMIX,LLL,2)=0.0
                CALL LCMGET(KPLIB,CV,GAF(1,LLL,2))
                DO 750 IBM=1,NBMIX
                IF(.NOT.MASK(IBM)) GAF(IBM,LLL,1)=GAF(IBM,LLL,2)
@@ -982,7 +985,7 @@
         IDATA(4)=NFISSI*NESP
         IDATA(5)=NED
         TEXT12='L_MACROLIB'
-        CALL LCMPTC(IPLIB,'SIGNATURE',12,1,TEXT12)
+        CALL LCMPTC(IPLIB,'SIGNATURE',12,TEXT12)
         CALL LCMPUT(IPLIB,'ENERGY',NGROUP+1,2,GA1)
       ENDIF
 *----
@@ -1027,7 +1030,7 @@
          IF(NFISS0.GT.0) THEN
             CALL LCMLEN(IPLIB,'LAMBDA-D',ILONG,ITYLCM)
             IF(ILONG.EQ.0) THEN
-               CALL XDRSET(GA3(1,1),NDEL,0.0)
+               GA3(:NDEL,1)=0.0
             ELSE
                CALL LCMGET(IPLIB,'LAMBDA-D',GA3(1,1))
             ENDIF
@@ -1088,7 +1091,7 @@
         CALL LCMGET(IPLIB,'MIXTURESVOL',VOLMIX)
         LWT0=.FALSE.
         LWT1=.FALSE.
-        CALL XDRSET(FLUX,NBMIX*NGROUP*2,0.0)
+        FLUX(:NBMIX,:NGROUP,:2)=0.0
         DO 860 ISOT=1,NBISO
         IBM=MIX(ISOT)
         IF(IBM.GT.0) THEN

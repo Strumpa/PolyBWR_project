@@ -126,7 +126,7 @@
                IOFSET=NPSYS(IGR)
                IF(IOFSET.NE.0) THEN
                   KPSYS=LCMGIL(JPSYS,IOFSET)
-                  CALL XDISET(ISTATE,NSTATE,0)
+                  ISTATE(:NSTATE)=0
                   CALL LCMPUT(KPSYS,'STATE-VECTOR',NSTATE,1,ISTATE)
                   IF(LBIHET) CALL LCMSIX(KPSYS,'BIHET',1)
                   CALL LCMLEN(KPSYS,'DRAGON-TXSC',ILONG,ITYLCM)
@@ -250,7 +250,7 @@
                  DEALLOCATE(GAMMA,ALBP)
                ENDIF
 *
-               CALL XDISET(ISTATE,NSTATE,0)
+               ISTATE(:NSTATE)=0
                CALL LCMPUT(KPSYS,'STATE-VECTOR',NSTATE,1,ISTATE)
                IF(LBIHET) CALL LCMSIX(KPSYS,'BIHET',1)
                CALL LCMLEN(KPSYS,'DRAGON-TXSC',ILONG,ITYLCM)

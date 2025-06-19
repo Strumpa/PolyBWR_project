@@ -21,6 +21,7 @@ module GANLIB
    use FILMOD
    use LCMAUX
    use LCMMOD
+   use LCMTLC
    use OPNMOD
    use XDRMOD
    use, intrinsic :: iso_c_binding

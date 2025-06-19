@@ -88,7 +88,7 @@
 *----
       ISF=0
       ISP=0
-      CALL XDISET(ADRY,NISYS,0)
+      ADRY(:NISYS)=0
       DO 30 ISO=1,NISO
       DO 10 IBISO=1,NBISO
       WRITE(TEXT8,'(2A4)') (ISONAM(I0,IBISO),I0=1,2)

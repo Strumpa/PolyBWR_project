@@ -105,12 +105,8 @@
 *  INTEGRATION USING THE TRACKING
 *----
       ZERO=TRONC/(SQ3*SIDE)
-      CALL XDRSET(PBB,16,0.0)
-      DO 15 I=1,18
-      DO 10 J=1,NREG
-      PVS(I,J)=0.0
-   10 CONTINUE
-   15 CONTINUE
+      PBB(:16)=0.0
+      PVS(:18,:NREG)=0.0
       IZ0=2
       IZR=4
       DO 205 IA=1,IZ(2)

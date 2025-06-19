@@ -82,7 +82,7 @@
         IF((IENTRY(I).EQ.1).OR.(IENTRY(I).EQ.2)) THEN
           TEXT=HENTRY(I)
           CALL LCMSIX(KENTRY(I),' ',0)
-          CALL LCMGTC(KENTRY(I),'SIGNATURE',12,1,HSIGN)
+          CALL LCMGTC(KENTRY(I),'SIGNATURE',12,HSIGN)
           IF (HSIGN.EQ.'L_DETECT') THEN
             IPDET=KENTRY(I)
             LDET = .TRUE.

@@ -117,7 +117,7 @@
       PI=XDRCST('Pi',' ')
       ILEV=1
       IWCOL=1
-      CALL XDRSET(COLWHI,4,1.0)
+      COLWHI(:4)=1.0
 *----
 *  PSP print control
 *----
@@ -136,7 +136,7 @@
 *----
       WRITE(NAMCEL,'(A1,I8.8)') CLEV(ILEV),ICEL
       NAMREC=NAMCEL//'DIM'
-      CALL XDISET(IEDIMC,NSTATE,0)
+      IEDIMC(:NSTATE)=0
       CALL LCMGET(IPTRK,NAMREC,IEDIMC)
       NX=IEDIMC(3)
       NAR=IEDIMC(2)
@@ -418,7 +418,7 @@
 *----
           WRITE(NAMCEL,'(A1,I8.8)') CLEV(ILEV),ITPIN(2,IPIN)
           NAMREC=NAMCEL//'DIM'
-          CALL XDISET(IEDIMP,NSTATE,0)
+          IEDIMP(:NSTATE)=0
           CALL LCMGET(IPTRK,NAMREC,IEDIMP)
           MESHP(1)=IEDIMP(3)
           MESHP(2)=IEDIMP(4)

@@ -104,8 +104,8 @@
 *----
 *  Initialise output vectors
 *----
-      CALL XDISET(ISINT ,6*LINMAX,0)
-      CALL XDDSET(TRKLSI,LINMAX,DZERO)
+      ISINT(0:5,:LINMAX)=0
+      TRKLSI(:LINMAX)=DZERO
 *----
 *  Print header if required
 *----

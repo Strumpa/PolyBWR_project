@@ -39,8 +39,10 @@
       INTEGER ISTATE(NSTATE),ITYPR(1)
       REAL DENS(3)
       DOUBLE PRECISION DELTA
+      LOGICAL LEX
       CHARACTER(LEN=8) :: HVECT(3)
       CHARACTER(LEN=12) :: HNAME,HISONA(3)
+      CHARACTER(LEN=131) :: HSMG
       TYPE(XSBLOCK_TYPE),POINTER :: XSONE,XSREF
       TYPE(TH_INDEP_VAR),POINTER :: TIVONE
 *----
@@ -51,7 +53,16 @@
 *----
 *  SET SIGNATURE AND STATE VECTOR
 *----
-      OPEN(UNIT=39,FILE='PCRONE.txt',STATUS='UNKNOWN')
+      INQUIRE(FILE='PCRONE.txt',EXIST=LEX)
+      IF(LEX) THEN
+        NUNIT=KDROPN('PCRONE.txt',1,3,0)
+      ELSE
+        NUNIT=KDROPN('PCRONE.txt',0,3,0)
+      ENDIF
+      IF(NUNIT.LE.0) THEN
+        WRITE(HSMG,'(28HPCRONE: KDROPN FAILURE (IER=,I5,2H).)') NUNIT
+        CALL XABORT(HSMG)
+      ENDIF
 
       NED=1
       HVECT(1)='H-FACTOR'
@@ -66,7 +77,7 @@
       NBISO=1 ! number of isotopes
       IF(NXST.GT.4) NBISO=3 ! include Xe and Sm
       HNAME='L_LIBRARY'
-      CALL LCMPTC(IPMIC,'SIGNATURE',12,1,HNAME)
+      CALL LCMPTC(IPMIC,'SIGNATURE',12,HNAME)
       ISTATE(:)=0
       ISTATE(1)=1
       ISTATE(2)=NBISO
@@ -81,12 +92,12 @@
       ALLOCATE(SIG1(NGRP),SIG2(NGRP,NGRP))
       XSONE=>XS_CALC(ICAL)%XS
       XSREF=>XS_CALC(XS_CALC(ICAL)%IBURN)%XS
-      WRITE(39,*)XS_CALC(ICAL)%IBURN
+      WRITE(NUNIT,*)XS_CALC(ICAL)%IBURN
       TIVONE=>XS_CALC(ICAL)%TIV
       KPMIC=LCMDIL(JPMIC,1) ! step up isot 1
       HISONA(1)='*MAC*RES'
       DENS(1)=1.0
-      CALL LCMPTC(KPMIC,'ALIAS',12,1,HISONA(1))
+      CALL LCMPTC(KPMIC,'ALIAS',12,HISONA(1))
 *----
 *  PROCESS VECTORIAL CROSS SECTIONS
 *----
@@ -108,7 +119,7 @@
         CALL LCMPUT(KPMIC,'NTOT0',NGRP,2,SIG1)
         DO IG=1,NGRP
           SIG1(IG)=REAL(XSREF%sig(IG,3)+DELTA*XSONE%sig(IG,3))
-          WRITE(39,*)SIG1(IG)
+          WRITE(NUNIT,*)SIG1(IG)
         ENDDO
         CALL LCMPUT(KPMIC,'NUSIGF',NGRP,2,SIG1)
         DO IG=1,NGRP
@@ -170,7 +181,7 @@
           KPMIC=LCMDIL(JPMIC,2) ! step up isot 2
           HISONA(2)='Xe135'
           DENS(2)=0.0
-          CALL LCMPTC(KPMIC,'ALIAS',12,1,HISONA(2))
+          CALL LCMPTC(KPMIC,'ALIAS',12,HISONA(2))
           DO IG=1,NGRP
             SIG1(IG)=REAL(XSREF%sig(IG,5)+DELTA*XSONE%sig(IG,5))
           ENDDO
@@ -187,7 +198,7 @@
           KPMIC=LCMDIL(JPMIC,3) ! step up isot 3
           HISONA(3)='Sm149'
           DENS(3)=0.0
-          CALL LCMPTC(KPMIC,'ALIAS',12,1,HISONA(3))
+          CALL LCMPTC(KPMIC,'ALIAS',12,HISONA(3))
           DO IG=1,NGRP
             SIG1(IG)=REAL(XSREF%sig(IG,6)+DELTA*XSONE%sig(IG,6))
           ENDDO
@@ -221,7 +232,7 @@
         CALL LCMPUT(KPMIC,'NTOT0',NGRP,2,SIG1)
         DO IG=1,NGRP
           SIG1(IG)=REAL(XSONE%sig(IG,3))
-          WRITE(39,*)XSONE%sig(IG,3)
+          WRITE(NUNIT,*)XSONE%sig(IG,3)
         ENDDO
         CALL LCMPUT(KPMIC,'NUSIGF',NGRP,2,SIG1)
         DO IG=1,NGRP
@@ -283,7 +294,7 @@
           KPMIC=LCMDIL(JPMIC,2) ! step up isot 2
           HISONA(2)='Xe135'
           DENS(2)=0.0
-          CALL LCMPTC(KPMIC,'ALIAS',12,1,HISONA(2))
+          CALL LCMPTC(KPMIC,'ALIAS',12,HISONA(2))
           DO IG=1,NGRP
             SIG1(IG)=REAL(XSONE%sig(IG,5))
           ENDDO
@@ -300,7 +311,7 @@
           KPMIC=LCMDIL(JPMIC,3) ! step up isot 3
           HISONA(3)='Sm149'
           DENS(3)=0.0
-          CALL LCMPTC(KPMIC,'ALIAS',12,1,HISONA(3))
+          CALL LCMPTC(KPMIC,'ALIAS',12,HISONA(3))
           DO IG=1,NGRP
             SIG1(IG)=REAL(XSONE%sig(IG,6))
           ENDDO
@@ -319,6 +330,7 @@
         CALL LCMPUT(IPMIC,'ISOTOPESDENS',NBISO,2,DENS)
         DEALLOCATE(SIG2,SIG1)
       ENDIF
+      CLOSE(NUNIT)
 *----
 *  SET ENERGY MESH
 *----

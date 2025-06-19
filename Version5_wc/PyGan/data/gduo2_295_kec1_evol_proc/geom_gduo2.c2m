@@ -1,0 +1,50 @@
+***************************************************************************
+* Deck geom_gduo2.x2m                                                     *
+* Treatment geometry for gduo2_kec1 benchmark pincell                     *
+*                                                                         *
+* Author : R.Guasch, adapted from A.Hebert                                *
+*                                                                         *
+*                                                                         *
+* Output data :                                                           *
+* GEOM : geometry used for ssh/flux calculation                           *
+*                                                                         *
+***************************************************************************
+
+* --------------------------------
+*    INPUT & OUTPUT PARAMETERS
+* --------------------------------
+PARAMETER GEOM ::
+::: LINKED_LIST GEOM ;  ;
+
+* -------------------------------
+*    STRUCTURES AND MODULES
+* -------------------------------
+MODULE  GEO: END: ECHO: ;
+
+INTEGER COMB0101 COMB0102 COMB0103 COMB0104 COMB0105 COMB0106 GAIN1
+        MODE1 := 
+        1 2 3 4 5 6 7 8 ; (* DISTRIBUTED SELF-SHIELDING *)
+REAL RCOMB1 RCOMB2 RCOMB3 RCOMB4 RCOMB5 RCOMB6 ;
+
+
+EVALUATE RCOMB6 := 0.41 ;
+EVALUATE RCOMB1 := 0.4 SQRT RCOMB6 * ;
+EVALUATE RCOMB2 := 0.7 SQRT RCOMB6 * ;
+EVALUATE RCOMB3 := 0.8 SQRT RCOMB6 * ;
+EVALUATE RCOMB4 := 0.9 SQRT RCOMB6 * ;
+EVALUATE RCOMB5 := 0.95 SQRT RCOMB6 * ;
+
+ECHO "RCOMB1, RCOMB2, RCOMB3, RCOMB4, RCOMB5, RCOMB6 = " RCOMB1 RCOMB2 RCOMB3 RCOMB4 RCOMB5 RCOMB6 ;
+
+GEOM := GEO: :: CARCEL 8
+      X- REFL X+ REFL Y- REFL Y+ REFL
+      RADIUS 0.0 <<RCOMB1>> <<RCOMB2>> <<RCOMB3>> <<RCOMB4>>
+                 <<RCOMB5>> <<RCOMB6>> 0.475 0.6045552
+      MIX <<COMB0101>> <<COMB0102>> <<COMB0103>> <<COMB0104>>
+          <<COMB0105>> <<COMB0106>> <<GAIN1>> <<MODE1>> <<MODE1>>
+      MESHX 0.0 1.26 MESHY 0.0 1.26
+    ;
+
+END: ;
+QUIT .
+

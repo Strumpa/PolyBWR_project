@@ -370,7 +370,7 @@
   220 CONTINUE
   230 CONTINUE
       VT=VOL(I,J,K)*TOTAL(MAT(I,J,K),IG)
-      CALL XDDSET(Q2,(IELEM**3)*((IELEM**3)+1),0.0D0)
+      Q2(:IELEM**3,:(IELEM**3)+1)=0.0D0
 *---------------------------------------
       IF(IELEM.EQ.1) THEN
         Q2(1,1)=2.0D0*ABS(DA(J,K,M))+2.0D0*ABS(DB(I,K,M))+

@@ -130,7 +130,7 @@
      >      ': No EDITION structure available.')
       IF(IKEVO .EQ. 0) CALL XABORT(NAMSBR//
      >      ': No BURNUP structure available.')
-      CALL XDISET(ISTATE,NSTATE,0)
+      ISTATE(:NSTATE)=0
       CALL LCMGET(KENTRY(IKEVO),'STATE-VECTOR',ISTATE)
       NSTEP=ISTATE(3)
       NBISO=ISTATE(4)
@@ -138,7 +138,7 @@
 *----
 *  Get STATE-VECTOR from EDITION data structure
 *----
-      CALL XDISET(ISTATE,NSTATE,0)
+      ISTATE(:NSTATE)=0
       CALL LCMGET(KENTRY(IKEDI),'STATE-VECTOR',ISTATE)
       NGROUP=ISTATE(1)
       NBMIXE=ISTATE(2)

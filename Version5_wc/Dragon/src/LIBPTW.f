@@ -139,7 +139,7 @@
             ELSE
                ALLOCATE(SIGP(MAXNOR*NPART))
             ENDIF
-            CALL XDRSET(SIGP,MAXNOR*NPART,0.0)
+            SIGP(:MAXNOR*NPART)=0.0
             CALL LIBTAB(IGRP,NGRO,NL,MDIL,NPART,NED,NDEL,HNAMIS,IMPX,
      1      LSCAT,LSIGF,LADD,DILUT,TOTAL,SIGF,SIGS,SCAT,SADD,ZDEL,GOLD0,
      2      ISMIN,ISMAX,NOR(IGRP),SIGP)
@@ -202,7 +202,7 @@
                   LBSIGF=.TRUE.
                ENDIF
             ELSE
-               CALL XDISET(NFS,NGRO,0)
+               NFS(:NGRO)=0
                IGRMIN=1
                IGRMAX=0
             ENDIF

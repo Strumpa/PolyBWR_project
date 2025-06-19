@@ -1,8 +1,8 @@
 *DECK FLUDBV
       SUBROUTINE FLUDBV(CDOOR,IPHASE,JPSYS,JPSTR,NPSYS,IPTRK,IFTRAK,
-     1 IPRT,NREG,NUNKNO,NFUNL,NGRP,NMAT,LEXAC,MATCOD,VOL,KEYFLX,TITLE,
-     2 ILEAK,LEAKSW,B2,NMERG,IMERG,DIFHET,GAMMA,FLUOLD,SUNKNO,FUNKNO,
-     3 IPMACR,IPSOU,REBFLG,FLUXC)
+     1 IPRT,NREG,NUNKNO,NFUNL,NGRP,NMAT,NANIS,LEXAC,MATCOD,VOL,KEYFLX,
+     2 TITLE,ILEAK,LEAKSW,XSTRC,XSDIA,B2,NMERG,IMERG,DIFHET,GAMMA,
+     3 FLUOLD,SUNKNO,FUNKNO,IPMACR,IPSOU,REBFLG,FLUXC)
 *
 *-----------------------------------------------------------------------
 *
@@ -34,6 +34,7 @@
 * NGRP    number of energy groups.
 * NUNKNO  number of flux/sources unknowns per energy group.
 * NMAT    number of mixtures in the internal library.
+* NANIS   maximum cross section Legendre order.
 * LEXAC   type of exponential function calculation (=.false. to compute
 *         exponential functions using tables).
 * MATCOD  mixture indices.
@@ -44,12 +45,15 @@
 *         =1 the scattering modified cp matrix is multiplied by PNLR;
 *         =2 the reduced cp matrix is multiplied by PNL;
 *         =3 sigs0-db2 approximation;
-*         =4 (not available);
+*         =4 albedo approximation;
 *         =5 Todorova-type isotropic streaming model;
 *         =6 Ecco-type isotropic streaming model;
 *         >6 Tibere type anisotropic streaming model.
 * LEAKSW  leakage flag (=.true. if leakage is present on the outer
 *         surface).
+* XSTRC   transport-corrected macroscopic total cross sections.
+* XSDIA   transport-corrected macroscopic within-group scattering cross
+*         sections.
 * B2      buckling.
 * NMERG   number of leakage zones.
 * IMERG   leakage zone index in each material mixture zone.
@@ -65,7 +69,6 @@
 * FUNKNO  neutron flux.
 * SUNKNO  sources with additional db2 contributions.
 * FLUXC   flux at the cutoff energy.
-* FLUXC   flux at the cutoff energy.
 *
 *-----------------------------------------------------------------------
 *
@@ -76,9 +79,11 @@
       CHARACTER CDOOR*12,TITLE*72
       LOGICAL LEXAC,REBFLG
       TYPE(C_PTR) JPSYS,JPSTR,IPTRK,IPMACR,IPSOU
-      INTEGER IPHASE,NPSYS(NGRP),IFTRAK,IPRT,NREG,NUNKNO,NFUNL,NGRP,
-     1 NMAT,MATCOD(NREG),KEYFLX(NREG,NFUNL),ILEAK,NMERG,IMERG(NMAT)
-      REAL VOL(NREG),B2(4),DIFHET(NMERG,NGRP),GAMMA(NGRP),FLUXC(NREG)
+      INTEGER IPHASE,NPSYS(NGRP),IFTRAK,IPRT,NREG,NUNKNO,NFUNL,
+     1 NGRP,NMAT,NANIS,MATCOD(NREG),KEYFLX(NREG,NFUNL),ILEAK,NMERG,
+     2 IMERG(NMAT)
+      REAL VOL(NREG),XSTRC(0:NMAT,NGRP),XSDIA(0:NMAT,0:NANIS,NGRP),
+     1 B2(4),DIFHET(NMERG,NGRP),GAMMA(NGRP),FLUXC(NREG)
       REAL, INTENT(IN) :: FLUOLD(NUNKNO,NGRP)
       REAL, INTENT(INOUT) :: SUNKNO(NUNKNO,NGRP),FUNKNO(NUNKNO,NGRP)
       LOGICAL LEAKSW
@@ -92,10 +97,9 @@
 *----
 *  ALLOCATABLE ARRAYS
 *----
-      REAL, ALLOCATABLE, DIMENSION(:) :: SIGT0,SIGS0,SOURCE2,FUNKNO2,F1,
-     1 F2,PP
+      REAL, ALLOCATABLE, DIMENSION(:) :: SIGT0,SOURCE2,FUNKNO2,F1,F2,PP
       REAL, ALLOCATABLE, DIMENSION(:,:) :: SOURCE
-
+*
       ALLOCATE(SOURCE(NUNKNO,NGRP))
       SOURCE(:NUNKNO,:NGRP)=SUNKNO(:NUNKNO,:NGRP)
 *
@@ -104,23 +108,15 @@
          IF(LEAKSW) CALL XABORT('FLUDBV: PNLR OPTION FORBIDDEN.')
          DO 30 IGR=1,NGRP
          IF((NPSYS(IGR).NE.0).AND.(B2(4).NE.0.0)) THEN
-            KPSYS=LCMGIL(JPSYS,IGR)
-            CALL LCMLEN(KPSYS,'DRAGON-TXSC',ILCTXS,ITYLCM)
-            ALLOCATE(SIGT0(0:ILCTXS-1))
-            CALL LCMGET(KPSYS,'DRAGON-TXSC',SIGT0(0))
-            CALL LCMLEN(KPSYS,'DRAGON-S0XSC',ILCS0X,ITYLCM)
-            ALLOCATE(SIGS0(0:ILCS0X-1))
-            CALL LCMGET(KPSYS,'DRAGON-S0XSC',SIGS0(0))
             ZNUM=0.0
             ZDEN=0.0
             DO 10 IR=1,NREG
             IBM=MATCOD(IR)
             IND=KEYFLX(IR,1)
-            ZNUM=ZNUM+(SIGT0(IBM)-SIGS0(IBM))*FLUOLD(IND,IGR)*VOL(IR)
+            SSS=XSTRC(IBM,IGR)-XSDIA(IBM,0,IGR)
+            ZNUM=ZNUM+SSS*FLUOLD(IND,IGR)*VOL(IR)
             ZDEN=ZDEN+FLUOLD(IND,IGR)*VOL(IR)
    10       CONTINUE
-            DEALLOCATE(SIGS0)
-            DEALLOCATE(SIGT0)
             ALP1=ZNUM/(ZNUM+DIFHET(1,IGR)*B2(4)*ZDEN)
             DO 20 IR=1,NREG
             IND=KEYFLX(IR,1)
@@ -131,40 +127,32 @@
          IDIR=0
          CALL DOORFV(CDOOR,JPSYS,NPSYS,IPTRK,IFTRAK,IPRT,NGRP,NMAT,
      1        IDIR,NREG,NUNKNO,IPHASE,LEXAC,MATCOD,VOL,KEYFLX,TITLE,
-     2        SOURCE,FUNKNO,IPMACR,IPSOU,REBFLG,FLUXC)
+     2        SOURCE(1,1),FUNKNO(1,1),IPMACR,IPSOU,REBFLG,FLUXC)
       ELSE IF(ILEAK.EQ.2) THEN
          IF(NMERG.GT.1) CALL XABORT('FLUDBV: NB. LEAKAGE ZONES > 1.(2)')
          IF(LEAKSW) CALL XABORT('FLUDBV: PNL OPTION FORBIDDEN.')
          DO 50 IGR=1,NGRP
          IF((NPSYS(IGR).NE.0).AND.(B2(4).NE.0.0)) THEN
-            KPSYS=LCMGIL(JPSYS,IGR)
-            CALL LCMLEN(KPSYS,'DRAGON-TXSC',ILCTXS,ITYLCM)
-            ALLOCATE(SIGT0(0:ILCTXS-1))
-            CALL LCMGET(KPSYS,'DRAGON-TXSC',SIGT0(0))
-            CALL LCMLEN(KPSYS,'DRAGON-S0XSC',ILCS0X,ITYLCM)
-            ALLOCATE(SIGS0(0:ILCS0X-1))
-            CALL LCMGET(KPSYS,'DRAGON-S0XSC',SIGS0(0))
             ZNUM=0.0
             ZDEN=0.0
             DO 40 IR=1,NREG
             IBM=MATCOD(IR)
             IND=KEYFLX(IR,1)
-            ZNUM=ZNUM+SIGT0(IBM)*FLUOLD(IND,IGR)*VOL(IR)
+            ZNUM=ZNUM+XSTRC(IBM,IGR)*FLUOLD(IND,IGR)*VOL(IR)
             ZDEN=ZDEN+FLUOLD(IND,IGR)*VOL(IR)
    40       CONTINUE
             ALP1=ZNUM/(ZNUM+DIFHET(1,IGR)*B2(4)*ZDEN)
             DO 45 IR=1,NREG
             IND=KEYFLX(IR,1)
             SOURCE(IND,IGR)=ALP1*SOURCE(IND,IGR)-(1.0-ALP1)
-     >                 *SIGS0(MATCOD(IR))*FLUOLD(IND,IGR)
+     >                 *XSDIA(MATCOD(IR),0,IGR)*FLUOLD(IND,IGR)
    45       CONTINUE
-            DEALLOCATE(SIGS0,SIGT0)
          ENDIF
    50    CONTINUE
          IDIR=0
          CALL DOORFV(CDOOR,JPSYS,NPSYS,IPTRK,IFTRAK,IPRT,NGRP,NMAT,
      1        IDIR,NREG,NUNKNO,IPHASE,LEXAC,MATCOD,VOL,KEYFLX,TITLE,
-     2        SOURCE,FUNKNO,IPMACR,IPSOU,REBFLG,FLUXC)
+     2        SOURCE(1,1),FUNKNO(1,1),IPMACR,IPSOU,REBFLG,FLUXC)
       ELSE IF((ILEAK.EQ.3).OR.(ILEAK.EQ.5)) THEN
          DO 70 IGR=1,NGRP
          IF(NPSYS(IGR).NE.0) THEN
@@ -184,28 +172,22 @@
          IDIR=0
          CALL DOORFV(CDOOR,JPSYS,NPSYS,IPTRK,IFTRAK,IPRT,NGRP,NMAT,
      1        IDIR,NREG,NUNKNO,IPHASE,LEXAC,MATCOD,VOL,KEYFLX,TITLE,
-     2        SOURCE,FUNKNO,IPMACR,IPSOU,REBFLG,FLUXC)
+     2        SOURCE(1,1),FUNKNO(1,1),IPMACR,IPSOU,REBFLG,FLUXC)
       ELSE IF(ILEAK.EQ.4) THEN
          ALLOCATE(F1(NREG),F2(NREG))
          DO 80 IGR=1,NGRP
          IF(NPSYS(IGR).NE.0) THEN
            KPSYS=LCMGIL(JPSYS,IGR)
-           CALL LCMLEN(KPSYS,'DRAGON-TXSC',ILCTXS,ITYLCM)
-           ALLOCATE(SIGT0(0:ILCTXS-1))
-           CALL LCMGET(KPSYS,'DRAGON-TXSC',SIGT0(0))
-           CALL LCMLEN(KPSYS,'DRAGON-S0XSC',ILCS0X,ITYLCM)
-           ALLOCATE(SIGS0(0:ILCS0X-1))
-           CALL LCMGET(KPSYS,'DRAGON-S0XSC',SIGS0(0))
            CALL FLUALB(KPSYS,NREG,NUNKNO,ILCTXS,MATCOD,VOL,KEYFLX,
-     >     FLUOLD(1,IGR),SOURCE(1,IGR),SIGS0(0),SIGT0(0),F1,F2)
-           DEALLOCATE(SIGS0,SIGT0)
+     >     FLUOLD(1,IGR),SOURCE(1,IGR),XSDIA(0,0,IGR),XSTRC(0,IGR),
+     >     F1,F2)
 *
            IF(IPRT.GT.2) THEN
              WRITE(IOUT,'(//33H N E U T R O N    S O U R C E S :)')
              WRITE(IOUT,'(1P,6(5X,E15.7))') (SOURCE(KEYFLX(I,1),IGR),
      >       I=1,NREG)
            ENDIF
-           CALL XDRSET(FUNKNO(1,IGR),NUNKNO,0.0)
+           FUNKNO(:NUNKNO,IGR)=0.0
            DO 75 IR=1,NREG
            IBM=MATCOD(IR)
            IF(IBM.EQ.0) GO TO 75
@@ -241,7 +223,7 @@
          IDIR=0
          CALL DOORFV(CDOOR,JPSYS,NPSYS,IPTRK,IFTRAK,IPRT,NGRP,NMAT,
      1        IDIR,NREG,NUNKNO,IPHASE,LEXAC,MATCOD,VOL,KEYFLX,TITLE,
-     2        SOURCE,FUNKNO,IPMACR,IPSOU,REBFLG,FLUXC)
+     2        SOURCE(1,1),FUNKNO(1,1),IPMACR,IPSOU,REBFLG,FLUXC)
          DO 130 IGR=1,NGRP
          IF(NPSYS(IGR).NE.0) THEN
             KPSTR=LCMGIL(JPSTR,IGR)
@@ -284,7 +266,7 @@
          IDIR=0
          CALL DOORFV(CDOOR,JPSTR,NPSYS,IPTRK,IFTRAK,IPRT,NGRP,NMAT,
      1        IDIR,NREG,NUNKNO/2,IPHASE,LEXAC,MATCOD,VOL,KEYFLX,TITLE,
-     2        SOURCE2,FUNKNO2,IPMACR,IPSOU,REBFLG,FLUXC)
+     2        SOURCE2(1),FUNKNO2(1),IPMACR,IPSOU,REBFLG,FLUXC)
          IOF=0
          DO 155 IGR=1,NGRP
          DO 150 IND=1,NUNKNO/2
@@ -335,7 +317,7 @@
            ENDDO
            CALL DOORFV(CDOOR,JPSYS,NPSYS,IPTRK,IFTRAK,IPRT,NGRP,NMAT,
      1        IDIR,NREG,NUNKNO4,IPHASE,LEXAC,MATCOD,VOL,KEYFLX,TITLE,
-     2        SOURCE2,FUNKNO2,IPMACR,IPSOU,REBFLG,FLUXC)
+     2        SOURCE2(1),FUNKNO2(1),IPMACR,IPSOU,REBFLG,FLUXC)
            IOF=0
            DO IGR=1,NGRP
              DO IND=1,NUNKNO4
@@ -404,7 +386,7 @@
            ENDDO
            CALL DOORFV(CDOOR,JPSTR,NPSYS,IPTRK,IFTRAK,IPRT,NGRP,NMAT,
      1       IDIR,NREG,NUNKNO4,IPHASE,LEXAC,MATCOD,VOL,KEYFLX,TITLE,
-     2       SOURCE2,FUNKNO2,IPMACR,IPSOU,REBFLG,FLUXC)
+     2       SOURCE2(1),FUNKNO2(1),IPMACR,IPSOU,REBFLG,FLUXC)
            IOF=0
            DO IGR=1,NGRP
              DO IND=1,NUNKNO4
@@ -451,20 +433,16 @@
          IDIR=0
          CALL DOORFV(CDOOR,JPSYS,NPSYS,IPTRK,IFTRAK,IPRT,NGRP,NMAT,
      1        IDIR,NREG,NUNKNO,IPHASE,LEXAC,MATCOD,VOL,KEYFLX,TITLE,
-     2        SOURCE,FUNKNO,IPMACR,IPSOU,REBFLG,FLUXC)
+     2        SOURCE(1,1),FUNKNO(1,1),IPMACR,IPSOU,REBFLG,FLUXC)
          DO 260 IDIR=1,3
          DO 250 IGR=1,NGRP
          IF(NPSYS(IGR).NE.0) THEN
-           KPSYS=LCMGIL(JPSYS,IGR)
-           CALL LCMLEN(KPSYS,'DRAGON-TXSC',ILCTXS,ITYLCM)
-           ALLOCATE(SIGT0(0:ILCTXS-1))
-           CALL LCMGET(KPSYS,'DRAGON-TXSC',SIGT0(0))
            ZNUM=0.0
            ZDEN=0.0
            DO 220 IR=1,NREG
              IBM=MATCOD(IR)
              IND=KEYFLX(IR,1)
-             ZNUM=ZNUM+SIGT0(IBM)*FLUOLD(IND,IGR)*VOL(IR)
+             ZNUM=ZNUM+XSTRC(IBM,IGR)*FLUOLD(IND,IGR)*VOL(IR)
              ZDEN=ZDEN+FLUOLD(IND,IGR)*VOL(IR)
  220       CONTINUE
            DO 230 IR=1,NREG
@@ -472,9 +450,8 @@
            IND=KEYFLX(IR,1)
            IND2=INDD(IDIR)+IND
            SOURCE(IND2,IGR)=SOURCE(IND2,IGR)+(1.0-GAMMA(IGR))*
-     1     (ZNUM/ZDEN-SIGT0(IBM))*FLUOLD(IND2,IGR)
+     1     (ZNUM/ZDEN-XSTRC(IBM,IGR))*FLUOLD(IND2,IGR)
  230       CONTINUE
-           DEALLOCATE(SIGT0)
            DO 240 IND=1,NUN4
            IND2=INDD(IDIR)+IND
            SOURCE(IND2,IGR)=(SOURCE(IND2,IGR)+FUNKNO(IND,IGR)/3.0)/
@@ -499,15 +476,20 @@
         IF(ILEAK.GE.7) NUN=NUNKNO/4
         DO 280 IGR=1,NGRP
         IF(NPSYS(IGR).EQ.0) GO TO 280
-        KPSYS=LCMGIL(JPSYS,IGR)
-        DB2NEW=FLUFUI(KPSYS,NREG,NUN,MATCOD,VOL,KEYFLX,FUNKNO(1,IGR),
-     >                SUNKNO(1,IGR))
+        ZNUM=0.0
+        ZDEN=0.0
+        DO 265 IR=1,NREG
+        IND=KEYFLX(IR,1)
+        SSS=XSTRC(MATCOD(IR),IGR)-XSDIA(MATCOD(IR),0,IGR)
+        ZNUM=ZNUM+VOL(IR)*(SUNKNO(IND,IGR)-SSS*FUNKNO(IND,IGR))
+        ZDEN=ZDEN+VOL(IR)*FUNKNO(IND,IGR)
+  265   CONTINUE
+        DB2NEW=0.0
+        IF(ZDEN.GT.0.0) DB2NEW=ZNUM/ZDEN
         DB2OLD=0.0
         VOLTOT=0.0
         DO 270 IR=1,NREG
-        IBM=MATCOD(IR)
-        IF(IBM.EQ.0) GO TO 270
-        INM=IMERG(IBM)
+        INM=IMERG(IR)
         IF(INM.EQ.0) GO TO 270
         DB2OLD=DB2OLD+DIFHET(INM,IGR)*B2(4)*VOL(IR)
         VOLTOT=VOLTOT+VOL(IR)

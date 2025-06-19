@@ -104,7 +104,7 @@
 *----
 *  Renumber surfaces
 *----
-      CALL XDISET(INREN,NSURN,0)
+      INREN(:NSURN)=0
       INV=0
       DO ISUR=1,NSUR
         IND=IDSUR(ISUR)

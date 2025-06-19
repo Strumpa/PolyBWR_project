@@ -14,7 +14,7 @@ elif [ $Sysx = "Darwin" ]; then
 elif [ $Sysx = "SunOS" ]; then
    MACH=`uname -sm | sed 's/[ ]/_/'`
 fi
-ln -s $1/data/Resultats_serpent4PyGan/ ./
-ln -s $1/data/Resultats_serpent4PyGan/DRAGON_MULTICOMPO/ ./
+ln -s $1/Linux_aarch64/BWRresults_PyGan_2x2_UOX ./
+ln -s $DRAGON_RESULTS .
 ls -l
 echo -"----.access----- BWR_RATES access script terminated"

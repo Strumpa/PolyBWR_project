@@ -117,10 +117,10 @@
 *----
 *  COMPUTE H-FACTOR
 *----
-      CONV=1.0D6*XDRCST('eV','J')
+      CONV=1.0D6 ! convert MeV to eV
       IZFISS=0
-      CALL XDDSET(WORK,NMERGE*NGCOND*3,0.0D0)
-      CALL XDDSET(FLXMER,NMERGE*NGCOND,0.0D0)
+      FLXMER(:NMERGE,:NGCOND)=0.0D0
+      WORK(:NMERGE,:NGCOND,:3)=0.0D0
       DO 160 ISO=1,NBISO
         IDPL=INDX(ISO)
         IF(IDPL.EQ.0) GO TO 160
@@ -129,6 +129,31 @@
           WRITE(HSMG,'(17HEDIHFC: ISOTOPE '',3A4,16H'' IS NOT AVAILAB,
      >    19HLE IN THE MICROLIB.)') (ISONAM(I0,ISO),I0=1,3)
           CALL XABORT(HSMG)
+        ENDIF
+*----
+*  RECOVER H-FACTOR INFORMATION IF AVAILABLE
+*----
+        CALL LCMLEN(KPLIB,'H-FACTOR',ILLCM,ITLCM)
+        IF(ILLCM.EQ.NGROUP) THEN
+          IZFISS=IZFISS+1
+          CALL LCMGET(KPLIB,'H-FACTOR',SIG)
+          DO 90 IREG=1,NREGIO
+            IMR=IMERGE(IREG)
+            IF((IMR.GT.0).AND.(MATCOD(IREG).EQ.MIX(ISO))) THEN
+              IGRFIN=0
+              DO 80 IGC=1,NGCOND
+                IGRDEB=IGRFIN+1
+                IGRFIN=IGCOND(IGC)
+                GAR=0.0D0
+                DO 70 IGR=IGRDEB,IGRFIN
+                  GAR=GAR+FLUXES(IREG,IGR)*DEN(ISO)*VOLUME(IREG)*
+     >            SIG(IGR)
+  70            CONTINUE
+                WORK(IMR,IGC,1)=WORK(IMR,IGC,1)+GAR
+  80          CONTINUE
+            ENDIF
+  90      CONTINUE
+          GO TO 165
         ENDIF
 *----
 *  COMPUTE FISSION ENERGY
@@ -185,11 +210,11 @@
 *  Normalize total power to 1 W
 *  Print fission, capture and total power density
 *----
-      TOTPOW=0.0D0
+ 165  TOTPOW=0.0D0
       DO IGC=1,NGCOND
         DO IMR=1,NMERGE
           WORK(IMR,IGC,3)=WORK(IMR,IGC,1)+WORK(IMR,IGC,2)
-          TOTPOW=TOTPOW+WORK(IMR,IGC,3)
+          TOTPOW=TOTPOW+WORK(IMR,IGC,3)*XDRCST('eV','J')
         ENDDO
       ENDDO
       IF(TOTPOW.GT.0.0D0) THEN

@@ -100,8 +100,8 @@
         WRITE(IOUT,6011)
      >  (XPOL(IP,1),XPOL(IP,2),WPOL(IP),IP=1,POLOAQ)
       ENDIF
-      CALL XDRSET(FLUX,NREG*2*NGROUP*2,0.0)
-      CALL XDDSET(AFLUX,NREG*POLOAQ*AZMOAQ*2*2*NGROUP,0.0D0)
+      FLUX(:NREG,:2,:NGROUP,:2)=0.0
+      AFLUX(:NREG,:POLOAQ,:AZMOAQ*2,:2,:NGROUP)=0.0D0
 *----
 *  Get information from FLUX data structure.
 *  1. Flux

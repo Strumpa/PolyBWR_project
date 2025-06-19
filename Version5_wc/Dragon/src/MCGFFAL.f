@@ -1,7 +1,7 @@
 *DECK MCGFFAL
       SUBROUTINE MCGFFAL(SUBSCH,K,KPN,M,N,H,NOM,NZON,WEIGHT,XST,SP,SM,
-     1           DSP,DSM,NREG,NMU,NANI,NFUNLX,NMOD,TRHAR,KEYCUR,IMU,B,
-     2           MODP,MODM,F,PHIV,DPHIV)
+     1           DSP,DSM,NREG,NMU,NANI,NFUNLX,TRHAR,KEYCUR,IMU,B,F,
+     2           PHIV,DPHIV)
 *
 *-----------------------------------------------------------------------
 *
@@ -45,8 +45,6 @@
 * TRHAR   spherical harmonics components for this angle in the plane.
 * KEYCUR  position of current elements in PHI vector.
 * IMU     azimuthal angle corresponding to this track.
-* MODP    + direction angular mode index.
-* MODM    - direction angular mode index.
 *
 *Parameters: input/output
 * F       vector containing the zonal scalar flux (surface components).
@@ -62,9 +60,9 @@
 *----
 *  SUBROUTINE ARGUMENTS
 *----
-      INTEGER K,KPN,M,N,NOM(N),NZON(K),NMU,NFUNLX,NMOD,NREG,
-     1 KEYCUR(K-NREG),IMU,NANI,MODP,MODM
-      REAL XST(0:M),TRHAR(NMU,NFUNLX,NMOD)
+      INTEGER K,KPN,M,N,NOM(N),NZON(K),NMU,NFUNLX,NREG,
+     1 KEYCUR(K-NREG),IMU,NANI
+      REAL XST(0:M),TRHAR(NMU,NFUNLX,2)
       DOUBLE PRECISION WEIGHT,H(N),SP(N),SM(N),DSP(N),DSM(N),B(0:5,N),
      1 F(KPN),PHIV(NFUNLX,NREG),DPHIV(2*NFUNLX,NREG)
       EXTERNAL SUBSCH
@@ -94,8 +92,8 @@
       INDN=KEYCUR(-NOM(N))
       RM=SM(N)
 *     track angles in 3D
-      ETA=TRHAR(IMU,3,MODP)
-      XI=TRHAR(IMU,2,MODP)
+      ETA=TRHAR(IMU,3,1)
+      XI=TRHAR(IMU,2,1)
       DO I=2,N-1
 *        + direction
          NOMI=NOM(I)
@@ -107,11 +105,11 @@
          DF0=B(4,I)*RP-B(3,I)*SI/(DH*DH)+B(5,I)*DSIG*DSI
          RP=B(0,I)*RP+B(1,I)*SI-B(3,I)*DSIG*DSI
          DO JF=1,NFUNLX
-            PHIV(JF,NOMI)=PHIV(JF,NOMI)+WEIGHT*F0*TRHAR(IMU,JF,MODP)
+            PHIV(JF,NOMI)=PHIV(JF,NOMI)+WEIGHT*F0*TRHAR(IMU,JF,1)
             DPHIV(JF,NOMI)=DPHIV(JF,NOMI)+WEIGHT*DF0*ETA*
-     >                     TRHAR(IMU,JF,MODP)
+     >                     TRHAR(IMU,JF,1)
             DPHIV(NFUNLX+JF,NOMI)=DPHIV(NFUNLX+JF,NOMI)+WEIGHT*DF0*XI*
-     >                            TRHAR(IMU,JF,MODP)
+     >                            TRHAR(IMU,JF,1)
          ENDDO
 *        - direction
          J=N+1-I
@@ -124,11 +122,11 @@
          DF0=B(4,J)*RM-B(3,J)*SJ/(DH*DH)+B(5,J)*DSIG*DSJ
          RM=B(0,J)*RM+B(1,J)*SJ-B(3,J)*DSIG*DSJ
          DO JF=1,NFUNLX
-            PHIV(JF,NOMJ)=PHIV(JF,NOMJ)+WEIGHT*F0*TRHAR(IMU,JF,MODM)
+            PHIV(JF,NOMJ)=PHIV(JF,NOMJ)+WEIGHT*F0*TRHAR(IMU,JF,2)
             DPHIV(JF,NOMJ)=DPHIV(JF,NOMJ)-WEIGHT*DF0*ETA*
-     >                     TRHAR(IMU,JF,MODM)
+     >                     TRHAR(IMU,JF,2)
             DPHIV(NFUNLX+JF,NOMJ)=DPHIV(NFUNLX+JF,NOMJ)-WEIGHT*DF0*XI*
-     >                            TRHAR(IMU,JF,MODM)
+     >                            TRHAR(IMU,JF,2)
          ENDDO
       ENDDO
 *     outgoing flux in + direction

@@ -62,7 +62,7 @@
 *----
 *  PERFORM CALCULATION
 *----
-      CALL XDRSET(PXYZ,NEL,0.)
+      PXYZ(:LX,:LY,:LZ)=0.0
       IEL=0
       PMAX=0.
       DO 52 K=1,LZ

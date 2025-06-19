@@ -60,6 +60,7 @@ $[$ \moc{RELAX} \dusa{relax} $]$ \\
 $[$ \moc{TIME} \dusa{time} $[$ \dusa{timestep} $]~]$ \\
 $[$ \moc{FPUISS} \dusa{fract} $]~[$ \moc{CRITFL} \dusa{cflux} $]$ \\
 \moc{INLET} \dusa{poutlet} \dusa{tinlet} \\
+$[$ \moc{PDROP} \dusa{ipres} $]$ \\
 $\{$ \moc{CWSECT} \dusa{sect} \dusa{flow} $|$ \moc{INLET-Q} \dusa{sect} \dusa{qfluid} $|$ \moc{SPEED} \dusa{velocity} $\}$ \\
 $\{$ \moc{ASSMB} $\{$ \dusa{nbf} $|$ \moc{CHAN} (\dusa{nbf}(i), i = 1, \dusa{nch} ) $\}~\{$ \dusa{nbg} $|$ \moc{CHAN} (\dusa{nbg}(i), i = 1, \dusa{nch} ) $\}$ \\
 ~~~$|$ \moc{CLUSTER} \dusa{pitch} $\{$ \dusa{nbf} $|$ \moc{CHAN} (\dusa{nbf}(i), i = 1, \dusa{nch} ) $\}~\}$ \\
@@ -150,6 +151,10 @@ $\times$ 10$^6$ W/m$^2$.
 constant and equal to \dusa{poutlet} in permanent conditions.
 
 \item[\dusa{tinlet}] real value set to the inlet coolant absolute temperature in K.
+
+\item[\moc{PDROP}] keyword used to specify the pressure drop option.
+
+\item[\dusa{ipres}] integer value set to 0 for no pressure drop (default) or 1 to compute the pressure drop.
 
 \item[\moc{CWSECT}] keyword used to specify the core coolant section and the coolant inlet flow.
 

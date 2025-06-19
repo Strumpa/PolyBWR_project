@@ -42,7 +42,7 @@
       I1=1
       I2=NELE
       NORD=ABS(NOTX)
-      CALL XDDSET(TERP,NELE,0.0D0)
+      TERP(:NELE)=0.0D0
       DO 100 I=1,NELE
         IF(PNTE.EQ.ELMT(I)) THEN
            TERP(I)=1.0D0

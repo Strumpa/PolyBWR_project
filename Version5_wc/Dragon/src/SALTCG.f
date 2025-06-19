@@ -104,7 +104,7 @@
 *----
 *  Get state vectors
 *----
-      CALL XDISET(ISTATE,NSTATE,0)
+      ISTATE(:NSTATE)=0
       CALL LCMGET(IPTRK,'STATE-VECTOR',ISTATE)
       CALL LCMGET(IPTRK,'EXCELTRACKOP',RSTATT)
       NEREG=ISTATE(1)
@@ -133,7 +133,7 @@
 *----
 *  Get general dimensioning vector for geometry tracking
 *----
-      CALL XDISET(IEDIMG,NSTATE,0)
+      IEDIMG(:NSTATE)=0
       CALL LCMGET(IPTRK,'G00000001DIM',IEDIMG)
       NDIM     =IEDIMG( 1)
       ITYPBC   =IEDIMG( 2)

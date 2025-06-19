@@ -55,7 +55,7 @@
 *----
       ALLOCATE(IWRK(LX*LY*LZ))
 *
-      CALL XDISET(IWRK,LX*LY*LZ,0)
+      IWRK(:LX*LY*LZ)=0
       LL4=0
       KEL=0
       DO 22 K0=1,LZ

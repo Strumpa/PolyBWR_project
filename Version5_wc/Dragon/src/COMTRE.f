@@ -38,7 +38,7 @@
 *         element corresponding to the next node.
 * LAST    completion flag (=.true. if the node has not been found).
 *         If LAST=.true., a node will be added at the end of the tree.
-* COMTRE  index of the corresponding elementary calculation.
+* COMTRE  If COMTRE=.true., node already exists.
 *
 *-----------------------------------------------------------------------
 *

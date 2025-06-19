@@ -1,17 +1,16 @@
 *DECK SNTSFH
-      SUBROUTINE SNTSFH (IMPX,LXH,ISPLH,MAT,IZGLOB,ILOZSWP,CONNEC,
-     1 CONFROM)
+      SUBROUTINE SNTSFH (IMPX,ITYPE,NHEX,LZ,MCELL,ISPLH,MAT,LOZSWP,
+     >   COORDMAP)
 *
 *-----------------------------------------------------------------------
 *
 *Purpose:
-* Output matrices/arrays/graphs needed for resolution of the discrete
-* ordinates transport equation in hexagonal geometry, including the 
-* hexagon and lozenge sweep orders which both depend on the direction
-* of sweep.
+* Output arrays for lozenge sweep order (direction-dependent) and
+* coordinate map, both needed for resolution of the discrete ordinates
+* transport equation in hexagonal geometry.
 *
 *Copyright:
-* Copyright (C) 2019 Ecole Polytechnique de Montreal
+* Copyright (C) 2025 Ecole Polytechnique de Montreal
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU Lesser General Public
 * License as published by the Free Software Foundation; either
@@ -20,26 +19,29 @@
 *Author(s): A. A. Calloo
 *
 *Parameters: input
-* IMPX    print parameter.
-* LXH     number of hexagons.
-* ISPLH   type of hexagonal mesh-splitting:
-*         =1 no mesh splitting (complete hexagons);
-*         =K 6*(K-1)*(K-1) triangles per hexagon.
-* MAT     mixture index assigned to each element.
+* IMPX     print parameter.
+* ITYPE    geometry type (8:hexagonal 2D, 9:hexagonal 3D).
+* NHEX     number of hexagons (for 3D, in one plane only).
+* LZ       number of mesh elements in z-axis (including split).
+* MCELL    number of macrocells to use along z-axis.
+* ISPLH    mesh-splitting in 3*ISPLH**2 lozenges per hexagon.
+* MAT      mixture index assigned to each element.
+*
+*Parameters: local
+* NRINGS   number of hexagonal rings in the domain, assuming the centre 
+*          hexagon counts as 1 ring.
 *
 *Parameters: output
-* IZGLOB  hexagon sweep order depending on direction.
-* ILOZSWP lozenge sweep order depending on direction.
-* CONNEC  connectivity matrix for flux swapping -- which lozenges is the
-*         lozenge under consideration connected to; in order to pass the
-*         flux along. This is dependent on direction.
-* CONFROM matrix for incoming flux -- which lozenges are feeding into
-*         the lozenge under consideration. This is dependent on
-*         direction.
+* LOZSWP   lozenge sweep order depending on direction.
+* COORDMAP coordinate map: mapping hexagon from DRAGON geometry indices
+*          to the axial coordinate system, using p, r, s axes. The s
+*          axis is redundant, which means that using p and r axes
+*          effectively maps the hexagon geometry to a 2D map. Refer to 
+*          the redblobgames blog for more information. 
 *
 *Comments:
 * The lozenge under consideration is given by the position within the
-* the matrix. See user manual and/or data manual and/or thesis
+* matrix. See user manual and/or data manual and/or thesis
 *                                 _____
 *                                /   / \
 *                               / B /   \
@@ -60,224 +62,192 @@
 *----
 *  SUBROUTINE ARGUMENTS
 *----
-      INTEGER IMPX,LXH,ISPLH,MAT(3,ISPLH**2,LXH),IZGLOB(LXH,6)
-      INTEGER CONNEC(3,(LXH*3)*2,6)
-      INTEGER, DIMENSION(2,3,6) :: CONFROM
+      INTEGER IMPX,ITYPE,NHEX,LZ,MCELL,ISPLH,MAT(ISPLH**2,3,NHEX,LZ),
+     >   COORDMAP(3,NHEX)
 *----
 *  LOCAL VARIABLES
 *----
-      INTEGER, DIMENSION(:),ALLOCATABLE :: I1,I3,I4
-      INTEGER, DIMENSION(3,6) :: ILOZSWP
-      INTEGER, DIMENSION(2,3) :: IFROM
+      INTEGER, DIMENSION(3,6) :: LOZSWP,MAPCODE
+      INTEGER, ALLOCATABLE, DIMENSION(:,:,:,:,:) :: TMPMAT
+      INTEGER, ALLOCATABLE, DIMENSION(:) :: TASKSPERWAVE
 *----
-*  DISCRETE ORDINATES SWEEP SPECIFIC NUMEROTATION
+*  LOZENGE SWEEP ORDERING WITHIN HEXAGONS - DIRECTION DEPENDENT
 *----
+      LOZSWP = RESHAPE((/ 3, 2, 1, 3, 1, 2, 1, 3, 2, 1, 2, 3, 2, 1,
+     >   3, 2, 3, 1 /), SHAPE(LOZSWP))
+*----
+*  CREATE COORDIDATE MAP FROM DRAGON INDEX TO AXIAL COORDINATES
+*----
+      NRINGS=INT((SQRT(  REAL((4*NHEX-1)/3)  )+1.)/2.)
+      IF(NRINGS.EQ.1) CALL XABORT('NOT IMPLEMENTED FOR SINGLE HEX YET.')
+      IF(NHEX.NE.1+3*NRINGS*(NRINGS-1)) CALL XABORT('SNTSFH: INVALID '
+     1 //'VALUE OF NHEX(1).')
 *
-*--------
-*  Numbering of order of sweep of lozenges in each hexagon depending
-*  on direction
-*--------
-      ILOZSWP = RESHAPE((/ 3, 2, 1, 3, 1, 2, 1, 3, 2, 1, 2, 3, 2, 1,
-     1   3, 2, 3, 1 /), SHAPE(ILOZSWP))
-      DO I=1,3
-         WRITE(*,*) ILOZSWP(I,:)
-      ENDDO
-*--------
-*  Numbering of order of hexagons depending on direction
-*--------
-      NBC=INT((SQRT(  REAL((4*LXH-1)/3)  )+1.)/2.)
-      NCOL=2*NBC -1
-      NTOTHEX = (((NBC-1)*(NBC)/2)*6)+1
-      IF(NBC.EQ.1) CALL XABORT('does not work for single hexagon yet')
-      IF(LXH.NE.1+3*NBC*(NBC-1)) CALL XABORT('SNTSFH: INVALID VALUE OF'
-     1 //' LXH(1).')
+      MAPCODE = RESHAPE((/ -1, 0, 1, -1, 1, 0, 0, 1, -1, 1, 0, -1, 1, 
+     >   -1, 0, 0, -1, 1 /), SHAPE(MAPCODE))
 *
-      ALLOCATE(I1(6*LXH),I3(LXH),I4(LXH))
-*
-      LT3=0
-      LT4=0
-      DO 30 I=1,LXH
-         I3(I)=I
-         I4(I)=0
-         LT3=LT3+1
-         IF(MAT(1,1,I).GT.0) THEN
-            LT4=LT4+1
-            I4(I)=I
+      ! It should be noted that the algorithm below effectively 
+      ! reverses the y-axis. However, this should be of no consequence
+      ! whatsoever as it would akin to the user defining the domain
+      ! somewhat differently in the geometry. Calculations and results
+      ! should be unaffected. 
+      IHEX_DOM=1
+      DO IRING=1,NRINGS
+         ! Initialise first 'ring', i.e., centre hexagon
+         IF(IRING.EQ.1) THEN
+            ITMP1 = NRINGS
+            ITMP2 = NRINGS
+            ITMP3 = -2*(NRINGS)
+            COORDMAP(1,IHEX_DOM)=ITMP1
+            COORDMAP(2,IHEX_DOM)=ITMP2
+            COORDMAP(3,IHEX_DOM)=ITMP3
+
+            IHEX_DOM = IHEX_DOM+1
+            ! Ignore rest of this loop and move on to next ring
+            CYCLE
          ENDIF
-   30 CONTINUE
 
-      CALL XDISET(IZGLOB,6*LXH,0)
+         ! Find coordinates for hexagon when moving from ring n-1 to n
+         ITMP1 = ITMP1+1
+         ITMP2 = ITMP2-1
+         ITMP3 = ITMP3+0
+         COORDMAP(1,IHEX_DOM)=ITMP1
+         COORDMAP(2,IHEX_DOM)=ITMP2
+         COORDMAP(3,IHEX_DOM)=ITMP3
+         IHEX_DOM = IHEX_DOM+1
 
-      DO IND=1,6
-         J1 = LXH - ((NBC-2)*3 +2) + (NBC-1)*(IND-1)
-         IF(J1.GT.LXH) J1=J1 - ((NBC-1)*6)
-         CALL SNTPER(J1,IND,LXH,LT3,I1((IND-1)*LXH +1),I3)
+         ! 'Sweep' each of the 3 axes of the hexagonal plane and their 
+         ! negative directions
+         DO IND=1,6
+            ! Step through each hexagon per each axis
+            DO IHEX=1,IRING-1
+               ITMP1 = ITMP1+MAPCODE(1,IND)
+               ITMP2 = ITMP2+MAPCODE(2,IND)
+               ITMP3 = ITMP3+MAPCODE(3,IND)
+               ! Store each of the coordinates except the last hexagon 
+               ! in the last direction. This is because we already 
+               ! computed that hexagon when moving from ring n-1 to n
+               IF((IND.EQ.6).AND.(IHEX.EQ.IRING-1))THEN
+                  CONTINUE
+               ELSE
+                  COORDMAP(1,IHEX_DOM)=ITMP1
+                  COORDMAP(2,IHEX_DOM)=ITMP2
+                  COORDMAP(3,IHEX_DOM)=ITMP3
+                  IHEX_DOM = IHEX_DOM+1
+               ENDIF
+            ENDDO ! ihex
+         ENDDO ! ind
+      ENDDO ! iring
 
-         DO I=1,LXH
-            IOFIDIR = I1((IND-1)*LXH +I)
-            IZGLOB(IOFIDIR,IND) = I3(I)
+*----
+*  COMPUTE NUMBER OF CONCURRENT HEXAGONS PER WAVEFRONT FOR PRINTING
+*  PURPOSES ONLY
+*----
+      IF(MCELL > 0)THEN
+
+      ! Build material array in axial coordinates
+      NCOLS=2*NRINGS -1
+      ALLOCATE(TMPMAT(ISPLH**2,3,NCOLS,NCOLS,LZ))
+      TMPMAT(:,:,:,:,:)=-1
+      DO IZ=1,LZ
+         DO IHEX_XY=1,NHEX
+            TMPMAT(:,:,COORDMAP(1,IHEX_XY),COORDMAP(2,IHEX_XY),IZ) = 
+     >         MAT(:,:,IHEX_XY,IZ)
          ENDDO
       ENDDO
-*--------
-*  Numbering of connectivity of lozenges depending on directions
-*--------
-! I2    - hexagon currently under consideration
-! J2    - lozenge currently under consideration
-! IHEX1 - hexagon connected to side X of J2 lozenge
-! IHEX2 - hexagon connected to side Y of J2 lozenge
-! ILOZ1 - lozenge connected to side X of J2 lozenge
-! ILOZ2 - lozenge connected to side Y of J2 lozenge
-      IFACE1 = 0
-      IFACE2 = 0
-      IFACE3 = 0
-      DO IND=1,6
-         IF(IND.EQ.1) THEN
-            IFACE1 = 6
-            IFACE2 = 2
-            IFACE3 = 1
-         ELSE IF(IND.EQ.2) THEN
-            IFACE1 = 1
-            IFACE2 = 3
-            IFACE3 = 2
-         ELSE IF(IND.EQ.3) THEN
-            IFACE1 = 2
-            IFACE2 = 4
-            IFACE3 = 3
-         ELSE IF(IND.EQ.4) THEN
-            IFACE1 = 3
-            IFACE2 = 5
-            IFACE3 = 4
-         ELSE IF(IND.EQ.5) THEN
-            IFACE1 = 4
-            IFACE2 = 6
-            IFACE3 = 5
-         ELSE IF(IND.EQ.6) THEN
-            IFACE1 = 5
-            IFACE2 = 1
-            IFACE3 = 6
-         ELSE
-            CALL XABORT('SNTSFH: INVALID DATA')
-         ENDIF
 
-         IHEX1 = 0
-         IHEX2 = 0
-         ISIDE1 = 0
-         ISIDE2 = 0
-         DO I=1,LXH
-            I2=IZGLOB(I,IND)
-            DO J=1,3
-               J2=ILOZSWP(J,IND)
-               JINDEX = ((I2-1)*3*2) +((J2-1)*2) +1
-*
-               IF(J.EQ.1)THEN
-                  IHEX1 = I2
-                  IHEX2 = I2
-               ELSEIF(J.EQ.2)THEN
-                  IF((IND.EQ.1).OR.(IND.EQ.3).OR.(IND.EQ.5))THEN
-                     IFACE=IFACE2
-                  ELSE
-                     IFACE=IFACE1
-                  ENDIF
-                  IF((IND.EQ.1).OR.(IND.EQ.2).OR.(IND.EQ.6))THEN
-                     IHEX1 = I2
-                     IHEX2 = NEIGHB(I2,IFACE,9,LXH,POIDS)
-                  ELSE
-                     IHEX1 = NEIGHB(I2,IFACE,9,LXH,POIDS)
-                     IHEX2 = I2
-                  ENDIF
-               ELSEIF(J.EQ.3)THEN
-                  IF((IND.EQ.1).OR.(IND.EQ.5))THEN
-                     IFACEi=IFACE1
-                     IFACEj=IFACE3
-                  ELSEIF((IND.EQ.4).OR.(IND.EQ.6))THEN
-                     IFACEi=IFACE3
-                     IFACEj=IFACE2
-                  ELSEIF((IND.EQ.2))THEN
-                     IFACEi=IFACE2
-                     IFACEj=IFACE3
-                  ELSEIF((IND.EQ.3))THEN
-                     IFACEi=IFACE3
-                     IFACEj=IFACE1
-                  ENDIF
-                  IHEX1 = NEIGHB(I2,IFACEi,9,LXH,POIDS)
-                  IHEX2 = NEIGHB(I2,IFACEj,9,LXH,POIDS)
-               ENDIF
-*
-               ILOZ1=J2-2
-               ILOZ2=J2-1
-               IF(ILOZ1.LT.1) ILOZ1=ILOZ1+3
-               IF(ILOZ2.LT.1) ILOZ2=ILOZ2+3
-               IF(J2.EQ.2)THEN
-                  ILOZTEMP = ILOZ1
-                  ILOZ1 = ILOZ2
-                  ILOZ2 = ILOZTEMP
-               ENDIF
-*
-               IF((J2.EQ.3))THEN
-                  ISIDE1=2
-                  ISIDE2=2
-               ELSEIF(J2.EQ.1)THEN
-                  ISIDE1=1
-                  ISIDE2=1
-               ELSEIF(J2.EQ.2)THEN
-                  ISIDE1=1
-                  ISIDE2=2
-               ENDIF
-*
-               CONNEC(1,JINDEX,IND)   = IHEX1
-               CONNEC(2,JINDEX,IND)   = ILOZ1
-               CONNEC(3,JINDEX,IND)   = ISIDE1
-               CONNEC(1,JINDEX+1,IND) = IHEX2
-               CONNEC(2,JINDEX+1,IND) = ILOZ2
-               CONNEC(3,JINDEX+1,IND) = ISIDE2
-*
+      ! Build TasksPerWave array
+      IF(ITYPE==8)THEN
+         ! 2D Hexagonal
+         NWAVES=NCOLS+NCOLS-1
+         ALLOCATE(TASKSPERWAVE(NWAVES))
+         TASKSPERWAVE(:)=0
+
+         DO IWAVE=1,NWAVES
+            ICOUNT = 0
+            DO J=MAX(1,IWAVE-NCOLS+1),MIN(NCOLS,IWAVE)
+               I=IWAVE-J+1
+               I=NCOLS+1-I
+               IF((I.GT.NCOLS).OR.(I.LT.1)) CYCLE
+               IF((J.GT.NCOLS).OR.(J.LT.1)) CYCLE
+               ! If within corners of Cartesian axial coordinate map
+               ! (where there are no hexagons), skip loop
+               IF(TMPMAT(1,1,I,J,1).EQ.-1) CYCLE
+               ICOUNT = ICOUNT + 1
             ENDDO
+            TASKSPERWAVE(IWAVE) = ICOUNT
          ENDDO
-      ENDDO
+      ELSEIF(ITYPE==9)THEN
+         ! 3D Hexagonal
+         MCELLZ = MCELL
+         NWAVES=NCOLS+NCOLS+MCELLZ-2
+         ALLOCATE(TASKSPERWAVE(NWAVES))
+         TASKSPERWAVE(:)=0
 
-      IFROM(1,:)=0
-      IFROM(2,:)=1
-
-      DO IND=1,6
-
-         IFROM(1,:)=IFROM(1,:) +1
-         IFROM(2,:)=IFROM(2,:) +1
-
-         DO J=1,3
-            IF(J.EQ.1)THEN
-               IF((IND.EQ.4))THEN
-                  IFROM(1,J) = IFROM(1,J) -1
-                  IFROM(2,J) = IFROM(2,J) -1
-               ENDIF
-            ELSEIF(J.EQ.2)THEN
-               IF((IND.EQ.3).OR.(IND.EQ.6))THEN
-                  IFROM(1,J) = IFROM(1,J) -1
-                  IFROM(2,J) = IFROM(2,J) -1
-               ENDIF
-            ELSEIF(J.EQ.3)THEN
-               IF((IND.EQ.2).OR.(IND.EQ.5))THEN
-                  IFROM(1,J) = IFROM(1,J) -1
-                  IFROM(2,J) = IFROM(2,J) -1
-               ENDIF
-            ENDIF
-            IF(IFROM(1,J).GT.4) IFROM(1,J)=IFROM(1,J)-4
-            IF(IFROM(2,J).GT.4) IFROM(2,J)=IFROM(2,J)-4
-
-            IF(MOD(IFROM(1,J),2).EQ.1)THEN
-               CONFROM(1,J,IND) = IFROM(1,J)
-               CONFROM(2,J,IND) = IFROM(2,J)
-            ELSEIF(MOD(IFROM(1,J),2).EQ.0)THEN
-               CONFROM(1,J,IND) = IFROM(2,J)
-               CONFROM(2,J,IND) = IFROM(1,J)
-            ENDIF
+         DO IWAVE=1,NWAVES
+            ICOUNT = 0
+            J_STT=MAX(1,IWAVE-NCOLS-MCELLZ+2)
+            J_END=MIN(NCOLS,IWAVE)
+            DO J_MC=J_STT,J_END
+               J=J_MC
+               I_STT=MAX(1,IWAVE-J_MC-MCELLZ+2)
+               I_END=MIN(NCOLS,IWAVE-J_MC+1)
+               DO I_MC=I_STT,I_END
+                  I=I_MC
+                  I=NCOLS+1-I
+                  ! If within corners of Cartesian axial coordinate map
+                  ! (where there are no hexagons), skip loop
+                  IF(TMPMAT(1,1,I,J,1).EQ.-1) CYCLE
+                  K_MC=IWAVE-I_MC-J_MC+2
+                  ICOUNT = ICOUNT + 1
+               ENDDO
+            ENDDO
+            TASKSPERWAVE(IWAVE) = ICOUNT
          ENDDO
-      ENDDO
+      ENDIF
+
+      DEALLOCATE(TMPMAT)
+
+      ENDIF
+
 *----
 *  PRINT A FEW GEOMETRY CHARACTERISTICS
 *----
-      IF(IMPX.GT.0) THEN
-         write(6,*) ' '
-         write(6,*) 'NBC   =',NBC
+      IF(IMPX.GT.2) THEN
+         WRITE(*, 100)
+         WRITE(*, 101) NCOLS
+         WRITE(*, 102) NRINGS
+         WRITE(*, 103)
+         DO I=1,6
+            WRITE(*,104) I, LOZSWP(:,I)
+         ENDDO
+         IF(MCELL > 0)THEN
+            WRITE(*, 105) NWAVES
+            WRITE(*, 106)
+            DO I = 1, NWAVES
+               WRITE(*, 107) TASKSPERWAVE(I)
+            END DO
+            DEALLOCATE(TASKSPERWAVE)
+         ENDIF
       ENDIF
+      IF(IMPX.GT.4) THEN
+         WRITE(*, 109)
+         WRITE(*, 110)
+         DO I = 1, NHEX
+            WRITE(*, 111) I, COORDMAP(:, I)
+         END DO
+      ENDIF
+
       RETURN
+  100 FORMAT (' ')
+  101 FORMAT ('NCOLS    =', I4)
+  102 FORMAT ('NRINGS   =', I4)
+  103 FORMAT ('LOZENGE SWEEP ORDER')
+  104 FORMAT ('IND_XY:', I4, ' LOZ. ORDER:', 3I4)
+  105 FORMAT ('NWAVES   =', I4)
+  106 FORMAT ('TASKS PER WAVE')
+  107 FORMAT (I4) 
+  109 FORMAT (' ')
+  110 FORMAT ('COORDINATE MAP IS GIVEN BELOW:')
+  111 FORMAT ('DRAGON IND:', I4, ' AXIAL COORD:', 3I4)
       END

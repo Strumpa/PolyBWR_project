@@ -134,18 +134,18 @@
      >        ': INCOMPATIBLE PARAMETERS FOR '//NAMDIR)
             ENDIF
           ENDIF
-          CALL XDRSET(LOCALP,MNLOCP,0.0)
+          LOCALP(:MNLOCP)=0.0
           DO ILOCP=1,MNLOCP
             LOCALP(ILOCP)=PARRCI(ILOCP,IMIX)
           ENDDO
           CALL LCMPUT(IPCPO,'LOCAL-PARAMS',MNLOCP, 2,LOCALP)
-          CALL LCMPTC(IPCPO,'TITLE       ',    72, 1,        TITLE)
-          CALL LCMPTC(IPCPO,'SUB-TITLE   ',   240, 1,       SUBTIT)
-          CALL LCMPUT(IPCPO,'ISOTOPESNAME',   NTC, 3,        KCHAR)
+          CALL LCMPTC(IPCPO,'TITLE       ',    72,    TITLE)
+          CALL LCMPTC(IPCPO,'SUB-TITLE   ',   240,   SUBTIT)
+          CALL LCMPUT(IPCPO,'ISOTOPESNAME',   NTC, 3, KCHAR)
           CALL LCMSIX(IPCPO,NAMDIR,ILCMDN)
         ELSE IF(NMODRC .LT. 0) THEN
           CALL LCMSIX(IPCPO,NAMDIR,ILCMUP)
-          CALL XDRSET(LOCALP,MNLOCP,0.0)
+          LOCALP(:MNLOCP)=0.0
           DO ILOCP=1,MNLOCP
             LOCALP(ILOCP)=PARRCI(ILOCP,IMIX)
           ENDDO
@@ -194,10 +194,10 @@
                 ILOCL=IDLCPL(ILPAR,ILOCP)
                 LOCALP(ILOCL)=PARPER(IPER,ILPAR,ILOCP,IMIX)
               ENDDO
-              CALL LCMPUT(IPCPO,'LOCAL-PARAMS',MNLOCP, 2,       LOCALP)
-              CALL LCMPTC(IPCPO,'TITLE       ',    72, 1,        TITLE)
-              CALL LCMPTC(IPCPO,'SUB-TITLE   ',   240, 1,       SUBTIT)
-              CALL LCMPUT(IPCPO,'ISOTOPESNAME',   NTC, 3,        KCHAR)
+              CALL LCMPUT(IPCPO,'LOCAL-PARAMS',MNLOCP, 2,    LOCALP)
+              CALL LCMPTC(IPCPO,'TITLE       ',    72,        TITLE)
+              CALL LCMPTC(IPCPO,'SUB-TITLE   ',   240,       SUBTIT)
+              CALL LCMPUT(IPCPO,'ISOTOPESNAME',   NTC, 3,     KCHAR)
               CALL LCMSIX(IPCPO,NAMDIR,ILCMDN)
             ENDDO
           ENDIF

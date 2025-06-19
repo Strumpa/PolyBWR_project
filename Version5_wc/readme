@@ -52,19 +52,25 @@ export FORTRANPATH="/usr/lib/gcc/x86_64-linux-gnu/8/" # contains libgfortran.so
 #
 # Instructions for configuring Version5 of Dragon/Donjon on UNIX systems
 #
-# To configure Version5 components with custom compiler using makefiles:
+# To configure Version5 components with custom compilers using makefiles:
 cd ~/Version5_evn/Donjon/
 make
 make clean
 #
-# To configure Version5 components with Intel compiler using makefiles:
+# To configure Version5 components with Intel compilers (icc and ifort) using makefiles:
 cd ~/Version5_evn/Donjon/
 make intel=1
 make clean
 #
-# To configure Version5 components with Nvidia compiler using makefiles:
+# To configure Version5 components with Nvidia compilers (nvc and nvfortran) using
+# makefiles:
 cd ~/Version5_evn/Donjon/
 make nvidia=1
+make clean
+#
+# To configure Version5 components with LLVM compilers (clang and flang) using makefiles:
+cd ~/Version5_evn/Donjon/
+make llvm=1
 make clean
 #
 # To build an HDF5-enabled version, simply write
@@ -73,14 +79,17 @@ make hdf5=1
 # To build an OpenMP-enabled version, simply write
 make openmp=1
 #
-# To execute the non-regression tests with custom compiler:
+# To execute the non-regression tests with custom compilers:
 make tests
 #
-# To execute the non-regression tests with Intel compiler:
+# To execute the non-regression tests with Intel compilers:
 make tests intel=1
 #
-# To execute the non-regression tests with Nvidia compiler:
+# To execute the non-regression tests with Nvidia compilers:
 make tests nvidia=1
+#
+# To execute the non-regression tests with LLVM compilers:
+make tests llvm=1
 #
 # To execute the non-regression tests, including those requiring hdf5 support:
 make tests hdf5=1

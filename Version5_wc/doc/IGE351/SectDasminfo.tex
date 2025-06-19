@@ -255,10 +255,26 @@ This directory is containing the following records, corresponding to a single en
   used in this directory are {\sl not}--transport corrected.} 
 \end{DescriptionEnregistrement}
 
+Additional records are provided to support Boltzmann Fokker-Planck (BFP) solutions:
+
+\begin{DescriptionEnregistrement}{BFP records in \moc{GROUP}}{7.0cm}
+\OptRealEnr
+  {DRAGON-ESTOP}{$N_{m}+1,2$}{$I_{\rm bfp}>0$}{MeV cm$^{-1}$}
+  {Initial and final stopping power.}
+\OptRealEnr
+  {DRAGON-EMOMT}{$N_{m}+1$}{$I_{\rm bfp}>0$}{cm$^{-1}$}
+  {Restricted momentum transfer cross section. }
+\OptRealEnr
+  {DRAGON-DELTE}{$1$}{$I_{\rm bfp}>0$}{MeV}
+  {Energy width of the energy group.}
+\OptIntEnr
+  {DRAGON-ISLG\blank{1}}{$1$}{$I_{\rm bfp}>0$}
+  {Integer set to 0 in energy groups $< G$ and set to 1 in energy group $G$.}
+\end{DescriptionEnregistrement}
+
 \vskip -0.5cm
 
-\subsubsection{The \moc{trafict} dependent records on a
-\moc{GROUP} directory}\label{sect:traficgrpdiringdir}
+\subsubsection{The \moc{trafict} dependent records on a \moc{GROUP} directory}\label{sect:traficgrpdiringdir}
 
 If a collision probability method is used, the following records will also be
 found on the group sub-directory:

@@ -254,9 +254,8 @@ $[$ \moc{Z+}   $\{$ \moc{VOID} $|$ \moc{REFL} $|$ \moc{SSYM} $|$ \moc{TRAN} $|$ 
 $[$ \moc{R+}   $\{$ \moc{VOID} $|$ \moc{REFL} $|$
 \moc{ALBE} $\{$ \dusa{albedo} $|$ \dusa{icode} $\}$  $|$ \moc{ZERO} $\}$ $]$ \\
 $[$ \moc{HBC}  $\{$ \moc{S30} $|$ \moc{SA60} $|$ \moc{SB60} $|$ \moc{S90} $|$
-\moc{R120} $|$ \moc{R180} $|$ \moc{SA180} $|$ \moc{SB180} $|$ 
-\moc{COMPLETE} $\}$ \\ $\{$ \moc{VOID} $|$ \moc{REFL} $|$ \moc{SYME} $|$
-\moc{ALBE} $\{$ \dusa{albedo} $|$ \dusa{icode} $\}$ $|$ \moc{ZERO} $\}$ $]$ \\
+\moc{R120} $|$ \moc{R180} $|$ \moc{SA180} $|$ \moc{SB180} $|$ \moc{COMPLETE} $\}$ \\
+$\{$ \moc{VOID} $|$ \moc{REFL} $|$ \moc{SYME} $|$ \moc{ALBE} $\{$ \dusa{albedo} $|$ \dusa{icode} $\}$ $|$ \moc{TRAN} $|$ \moc{ZERO} $\}$ $]$ \\
 $[$ \moc{RADS} $[$ \moc{ANG} $]$ \dusa{nrads} (\dusa{xrad}(ir), \dusa{rrad}(ir) $[$, \dusa{ang}(ir) $]$, ir=1,nrads ) $]$
 \end{DataStructure}
 
@@ -284,8 +283,8 @@ the outer surface of an hexagonal geometry.
 zero re-entrant angular flux. This side is an external surface of the domain.
 
 \item[\moc{REFL}] keyword to specify that the surface under consideration has a reflective boundary condition. In 
-most DRAGON calculations, this implies white boundary conditions. The main exception to this 
-rule is when cyclic tracking in 2-D is considered and mirror like reflections are considered. A geometry is never
+most DRAGON calculations, this implies an isotropic or white boundary conditions. This condition defines a specular (or cyclic)
+boundary condition in case where the tracking is performed with module {\tt SALT:}. A Cartesian geometry is never
 unfolded to take into account a \moc{REFL} boundary condition.
 
 \item[\moc{SSYM}] keyword to specify that the surface under consideration has a specular (or mirror) reflective boundary condition. The 
@@ -310,8 +309,8 @@ X- DIAG Y+ DIAG
 \end{verbatim}
 
 \item[\moc{TRAN}] keyword to specify that the surface under consideration is
-connected to the opposite surface of a Cartesian domain (see \Fig{cartebcr}).
-This option  provides
+connected to the opposite surface of a Cartesian domain (see \Fig{cartebcr}) or to
+the opposite surface of a full hexagon. This option  provides
 the facility to treat an infinite geometry with translation symmetry. The only
 combinations of translational symmetry permitted are:
 
@@ -334,6 +333,12 @@ Y- TRAN Y+ TRAN
 Z- TRAN Z+ TRAN 
 \end{verbatim}
 
+\item Hexagonal translation
+
+\begin{verbatim}
+HBC COMPLETE TRAN
+\end{verbatim}
+
 \end{itemize}
 
 \item[\moc{SYME}] keyword to specify that the Cartesian surface under
@@ -347,7 +352,9 @@ is to be applied on this boundary.
 an arbitrary albedo. This side is an external surface of the domain.
 
 \item[\dusa{albedo}] geometric albedo corresponding to the boundary condition
-\moc{ALBE} (\dusa{albedo}$>$0.0). 
+\moc{ALBE} (\dusa{albedo}$>$0.0). The condition ``{\tt ALBE 1.0}" is used to define an isotropic (or white)
+boundary condition in case where the tracking is performed with module {\tt SALT:}. The default value is
+\dusa{albedo}$=$0.0.
 
 \item[\dusa{icode}] index of a physical albedo corresponding to the boundary
 condition \moc{ALBE}. The numerical values of the physical albedo are supplied

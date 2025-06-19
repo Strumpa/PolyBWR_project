@@ -4,6 +4,7 @@
 # Purpose : test and validate neutronics and thermalhydraulics coupling on a single BWR pincell
 from THM_main import Version5_THM_prototype as THM_prototype
 from THM_main import plotting
+from export_results import export_results_to_csv
 from iapws import IAPWS97
 import matplotlib.pyplot as plt
 import numpy as np
@@ -66,7 +67,6 @@ def convergence_pcm(keffNew, keffOld, tol):
     else:
         conv = True
     return conv
-
 
 def compute_RMS(Field):
     return np.sqrt(np.sum(Field**2)/len(Field))
@@ -317,11 +317,13 @@ If = 8
 I1 = 3
 
 # Sensitivity to the meshing parameters
-Iz1 = 70 # number of control volumes in the axial direction, added 70 for comparison with GeN-Foam
+Iz1 = 80 # number of control volumes in the axial direction, added 70 for comparison with GeN-Foam
 # Iz1 = 10, 20, 40, 50, 70, 80 and 160 are supported for the DONJON solution
+## "interesting" Divisors of 380 are 10 -> 38cm per mesh, 20 -> 19cm per mesh, 38 -> 10cm per mesh, 76 -> 5 cm per mesh, 95 -> 4cm per mesh
 
-
-power_scaling_factor = 1 # 1, 2, 4, 8 # Scaling factor for the power axial distribution
+# --> implement 38 and 76 nodes for AT10_24UOX cell extruded on 380 cm. 
+Pnom = 40e3
+power_scaling_factor = 8 # 1, 2, 4, 8 # Scaling factor for the power axial distribution
 
 ########## Choice of Thermalhydraulics correlation ##########
 voidFractionCorrel = 'EPRIvoidModel' # 'modBestion', 'HEM1', 'GEramp', 'EPRIvoidModel'
@@ -339,7 +341,7 @@ pitch = 1.295e-2 # m : ATRIUM10 pincell pitch
 fuelRadius = 0.4435e-2 # m : fuel rod radius
 gapRadius = 0.4520e-2 # m : expansion gap radius : "void" between fuel and clad - equivalent to inner clad radius
 cladRadius = 0.5140e-2 # m : clad external radius
-height = 1.555 # m : height : 3.8 m : active core height in BWRX-300 SMR, 1.555 m : for GeNFoam comparison.
+height = 3.8 # m : height : 3.8 m : active core height in BWRX-300 SMR, 1.555 m : for GeNFoam comparison.
 
 
 ## Fluid parameters
@@ -390,8 +392,7 @@ print(f"Fuel rod power before scaling = {fuel_rod_power} W")
 
 compo_name = "_COMPO_24UOX" # Name of the COMPO object to be used in the neutronics solution
 
-PFiss = fuel_rod_power/power_scaling_factor # W
-print(f"PFiss = {PFiss} = fuel_rod_power (scaled) W")
+PFiss = Pnom / power_scaling_factor
 
 ########## Fields of the TH problem ##########
 TeffFuel = []
@@ -871,3 +872,18 @@ print("$$$ - multiPhysics.py : SANITY CHECK - $$$")
 #TeffCheck, TwaterCheck, rhoCheck, voidFracCheck, Pche = check_case.get_TH_parameters()
 #print(f"Check case : TeffFuel = {TeffCheck}, Twater = {TwaterCheck}, rho = {rhoCheck}, voidFraction = {voidFracCheck}")
 #print("$$$ - multiPhysics.py : END OF SANITY CHECK - $$$")
+
+
+# export to pandas data Frame
+
+results = {"z_mesh": z_mesh, 
+            "TFUEL": TeffFuel[-1], 
+            "TCOOL": Twater[-1], 
+            "DCOOL": rho[-1], 
+            "EPS": voidFraction[-1], 
+            "PRESSURE": P_[-1], 
+            "VELOCITY": U_[-1], 
+            "ENTHALPY": H_[-1], 
+            "POWER": Power_Distribs[-1], 
+            "KEFF": Keffs}
+export_results_to_csv(Iz1, PFiss, "cosine", pitch, height, results, iter, SAVE_DIR)

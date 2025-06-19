@@ -402,10 +402,10 @@ already present on the burnup file.
 step must be already present on the burnup file.
 
 \item[\dstr{descmix1}] input structure describing the
-isotopic and physical properties of a given mixture (see \Sect{descmix}).
+isotopic and physical properties of a given mixture (see \Sect{descmix1}).
 
 \item[\dstr{descmix2}] input structure describing perturbations to the
-isotopic and physical properties of a given mixture (see \Sect{descmix}).
+isotopic and physical properties of a given mixture (see \Sect{descmix2}).
 
 
 \end{ListeDeDescription}
@@ -485,8 +485,10 @@ $$ n +^{A}X_Z \to ^4{\rm He}_2 + ^{A-3}X_{Z-2}$$
 
 \item[\dusa{energy}] energy (in MeV) recoverable per neutron-induced
 reaction of type \dusa{reaction}. If the energy associated to radiative capture
-is not explicitely given, it should be added to the energy released per fission. By
-default, \dusa{energy}=0.0 MeV.
+is not explicitely given, it should be added to the energy released per fission.
+If {\tt H-FACTOR} information is available for isotope \dusa{NAMDPL}, \dusa{energy}
+contains only decay energy of lumped isotopes produced by \dusa{reaction} of \dusa{NAMDPL}.
+By default, \dusa{energy}=0.0 MeV.
 
 \item[\moc{STABLE}] non depleting isotope. Such an isotope may produces
 energy by neutron-induced reactions (such as radiative capture).
@@ -538,7 +540,7 @@ structure \dstr{descdeplA2} are recovered from the APOLIB file. The
 radioactive decay constants of the other isotopes are set to zero.
 \end{itemize}
 
-\subsubsection{Mixture description structure}\label{sect:descmix}
+\subsubsection{Mixture description structure}\label{sect:descmix1}
 
 The structure \dstr{descmix1} is used to describe the isotopic composition and
 the physical properties, such as the temperature and density, of a mixture.
@@ -825,6 +827,8 @@ Mathematical (CALENDF) probability tables are used in each energy group where Au
 \vskip 0.25cm
 \goodbreak
 
+\subsubsection{Mixture description structure}\label{sect:descmix2}
+
 The structure \dstr{descmix2} is used to describe the modifications in the isotopic composition of a mixture.
 
 \begin{DataStructure}{Structure \dstr{descmix2}}
@@ -844,7 +848,7 @@ be updated.
 
 \item[\dusa{matnum}] mixture identifier on \dusa{MICLIB}. 
 
-\item[\dusa{matold}] mixture identifier on \dusa{MICRHS}. By default, \dusa{matold}]$=$\dusa{matnum}.
+\item[\dusa{matold}] mixture identifier on \dusa{MICRHS}. By default, \dusa{matold}$=$\dusa{matnum}.
 
 \item[\dusa{relden}] relative density of updated mixture. The  concentration
 of each isotope in the mixture is to be multiplied by this factor whether it 

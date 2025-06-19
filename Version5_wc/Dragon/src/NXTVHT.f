@@ -122,7 +122,7 @@
      >                     IVSI=-NBSUR,NBREG)
         WRITE(IOUT,6003)
       ENDIF
-      CALL XDDSET(SURVOL,MAXSUR+1+MAXREG,DZERO)
+      SURVOL(-MAXSUR:MAXREG)=DZERO
 *----
 *  All the triangles are equilateral and have the same surface area
 *  except possibly those in the last crown because this last crown
@@ -132,7 +132,7 @@
       SIDEU=DMESH(NX+1,1)-DMESH(NX,1)
       SIDEUP=SIDEU/DSQ3O2
       AREAT=DHALF*SIDEU*SIDEUP
-      CALL XDDSET(SURVOL(1),NRP,AREAT)
+      SURVOL(1:NRP)=AREAT
 *----
 *  Process last crown
 *  for right triangle remove volume past last cell boundary

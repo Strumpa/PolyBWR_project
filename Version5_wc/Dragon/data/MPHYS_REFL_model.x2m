@@ -1,0 +1,49 @@
+************************************************************************************************************************
+*                                                                                                                      *
+* Procedure :  AT10_pincell_compo_mphys.x2m                                                                            *
+* Purpose   :  Generate COMPO for BWR multi-physics coupled iterations in DONJON5/THM:                                 *
+* Author    :  R. Guasch                                                                                               *
+*                                                                                                                      *
+* CALL      :  ./rdragon AT10_pincell_compo_mphys.x2m                                                                  *
+*                                                                                                                      *
+************************************************************************************************************************
+
+************************************************************************
+*                          BEGIN DECLARATION                           *
+************************************************************************
+MODULE UTL: GREP: DELETE: COMPO: USS: ASM: FLU: EDI: BREF: END: ;
+LINKED_LIST GEOM GEOM_SS LIBRARY TRACK_SS TRACK SYS FLUX FIG LIBRARY2 ;
+LINKED_LIST PIN_CPO EDIOBJ PARAMS ;
+SEQ_ASCII CELL_SS ;
+SEQ_ASCII CELL ;
+SEQ_BINARY TF_EXC ;
+SEQ_BINARY TF_EXC_SS ;
+
+STRING geo_name := "AT10_UOX" ; 
+STRING ssh_opt := "RSE" ; ! "PT", "RSE", "SUBG"
+STRING track_opt := "SALT" ; ! "SYBNXT" "SALT" "NXTNXT"
+SEQ_ASCII CPO ;
+
+SEQ_ASCII _COMPO :: FILE './COMPO_REFL_2DMOC_2Zones' ;
+
+REAL Kinf ;
+
+PIN_CPO := CPO ;
+PIN_CPO := UTL: PIN_CPO :: EDIT 10 STEP UP EDIPARAM DIR IMPR STATE-VECTOR * ;
+PIN_CPO := UTL: PIN_CPO :: EDIT 10 STEP UP EDIPARAM DIR STEP UP GLOBAL DIR ;
+
+
+* compute MACROscopic cross sections for fuel as a function of (z)
+* ie vary rho_m for several axial slices
+*  -> get a representative fuel for reflector calculation.
+* This is performed on exact 2D geometry.
+* Then use homogenized macro XS in 1D geometry with axial reflector at appropriate density
+* Lower reflector ~ 800 kg/m3 ?, upper reflector ~ 3.7 kg/m3 (steam @~7 bars)
+* compute flux in reflector : use to obtain XS for axial reflectors.
+* Consider using BREF: module.
+
+
+
+END: ;
+QUIT .
+

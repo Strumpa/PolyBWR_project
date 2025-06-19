@@ -146,7 +146,7 @@
            INDX(IDIR,ILEV)=0
          ENDDO
       ENDDO
-      CALL XDISET(ODIR,3,1)
+      ODIR(:3)=1
 
       TRACK=ACTIVE
       LENGTH=0.D0

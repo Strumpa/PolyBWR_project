@@ -76,9 +76,9 @@
 *     
       IF(IQW.EQ.0) THEN
 *        GAUSS-LEGENDRE AND GAUSS-JACOBI INTEGRATION POINTS.
-         CALL ALGPT(NX,-1.,1.,ZX,WX)
+         CALL ALGPT(NX,-1.,1.,ZX(1),WX(1))
          CALL ALGJP(NX,ZXJ,WXJ)
-         CALL ALGPT(NA,-1.,-1./3.,ZA,WA)
+         CALL ALGPT(NA,-1.,-1./3.,ZA(1),WA(1))
          CALL ALGPT(NA,-1./3.,1./3.,ZA(NA+1),WA(NA+1))
          CALL ALGPT(NA,1./3.,1.,ZA(2*NA+1),WA(2*NA+1))
       ELSE
@@ -117,7 +117,7 @@
       ZN1=ZN1+SI*WA(IA)
       ZN2=ZN2+SI*SI*WA(IA)
       ZN3=ZN3+SI*SI*SI*WA(IA)
-      CALL XDRSET(Z(LR+1),6,0.0)
+      Z(LR+1:LR+6)=0.0
       Z(LR+9)=SI
       Z(LR+10)=CO
       IF(PHI.LT.PI/6.) THEN
@@ -149,7 +149,7 @@
       L3=LR+1
       L5=LI+1
       LI=LI+3
-      CALL XDRSET(VAP,NREG,0.0)
+      VAP(:NREG)=0.0
       DO 50 IX=1,NX
       IF(K0.EQ.NREG) THEN
          S=0.5*(X2-X1)*SI*WX(IX)
@@ -257,7 +257,7 @@
       L3=LR+1
       L5=LI+1
       LI=LI+3
-      CALL XDRSET(VAP,NREG,0.0)
+      VAP(:NREG)=0.0
       DO 150 IX=1,NX
       IF(K0.EQ.NREG) THEN
          S=0.5*(X2-X1)*SI*WX(IX)
@@ -363,7 +363,7 @@
       L3=LR+1
       L5=LI+1
       LI=LI+3
-      CALL XDRSET(VAP,NREG,0.0)
+      VAP(:NREG)=0.0
       DO 270 IX=1,NX
       IF(K0.EQ.NREG) THEN
          S=0.5*(X2-X1)*SI*WX(IX)

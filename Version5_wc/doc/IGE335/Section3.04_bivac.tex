@@ -1,7 +1,7 @@
 \subsubsection{The {\tt BIVACT:} tracking module}\label{sect:BIVACData}
 
-The {\tt BIVACT:} module can only process 1D/2D regular geometries
-of type \moc{CAR1D}, \moc{CAR2D} and \moc{HEX}. The geometry is analyzed and
+The {\tt BIVACT:} module provides an implementation of the diffusion or simplified $P_n$ method. The {\tt BIVACT:} module can only process
+1D/2D regular geometries of type \moc{CAR1D}, \moc{CAR2D} and \moc{HEX}. The geometry is analyzed and
 a LCM object with signature {\tt L\_BIVAC} is created with the tracking information.
 
 \vskip 0.2cm
@@ -42,7 +42,7 @@ The \moc{BIVACT:} specific tracking data in \dstr{descbivac} is defined as
 $[$ $\{$ \moc{PRIM} $[$ \dusa{ielem} \dusa{icol} $]$ \\
 ~~~~$|$ \moc{DUAL} $[$ \dusa{ielem} \dusa{icol} $]$ \\
 ~~~~$|$ \moc{MCFD} $\}~]$ \\
-$[~\{$ \moc{PN} $|$ \moc{SPN} $\}$ \dusa{n} $[$ \moc{SCAT} $[$ \moc{DIFF} $]$ \dusa{iscat} $]~[$ \moc{VOID} \dusa{nvd}~$]~]$ \\
+$[~\{$ \moc{PN} $|$ \moc{SPN} $\}$ $[$ \moc{DIFF} $]$ \dusa{nlf} $[$ \moc{SCAT} \dusa{iscat} $]~[$ \moc{VOID} \dusa{nvd}~$]~]$ \\
 {\tt ;}
 \end{DataStructure}
 
@@ -80,12 +80,12 @@ and 2D Cartesian geometries.
 of the flux.\cite{nse2005,ane10a} This option is currently available with 1D and 2D Cartesian geometries
 and with 2D hexagonal geometries.
 
-\item[\dusa{n}] order of the $P_n$ or $SP_n$ expansion (odd number). Set to zero for diffusion theory (default value).
+\item[\moc{DIFF}] keyword to force using $1/3D^{g}$ as $\Sigma_1^{g}-\Sigma_{{\rm s}1}^{g}$ cross sections. A $P_1$ or $SP_1$ method
+will therefore behave as diffusion theory.
+
+\item[\dusa{nlf}] order of the $P_n$ or $SP_n$ expansion (odd number). Set to zero for diffusion theory (default value).
 
 \item[\moc{SCAT}] keyword to limit the anisotropy of scattering sources.
-
-\item[\moc{DIFF}] keyword to force using $1/3D^{g}$ as $\Sigma_1^{g}$ cross sections. A $P_1$ or $SP_1$ method
-will therefore behave as diffusion theory.
 
 \item[\dusa{iscat}] number of terms in the scattering sources. \dusa{iscat} $=1$ is used for
 isotropic scattering in the laboratory system. \dusa{iscat} $=2$ is used for

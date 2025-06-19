@@ -51,7 +51,7 @@
       NW=1+(NLF*(NLF+8)-1)/48
       IF(NW.GT.MAXW) CALL XABORT('SNQU01: MAXW OVERFLOW.')
       ZMU1=0.0D0
-      CALL XDDSET(WEI,NW,0.0D0)
+      WEI(:NW)=0.0D0
       IF(NLF.EQ.2) THEN
          ZMU1=1.0D0/3.0D0
          WEI(1)=1.0D0

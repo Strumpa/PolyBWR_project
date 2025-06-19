@@ -116,7 +116,8 @@
             IF(ILONG.EQ.0) GO TO 30
             IF(ITY.EQ.13) THEN
                ALLOCATE(W(LL4))
-               CALL MTLDLM(TEXT12,IPTRK,IPSYS,LL4,ITY,WORK(1,JGR,3),W)
+               CALL MTLDLM(TEXT12,IPTRK,IPSYS,LL4,ITY,WORK(1,JGR,3),
+     1         W(1))
                DO 15 I=1,LL4
                GAR2(I,IGR)=GAR2(I,IGR)-W(I)
    15          CONTINUE
@@ -137,7 +138,7 @@
             IF(ILONG.EQ.0) GO TO 50
             IF(ITY.EQ.13) THEN
                ALLOCATE(W(LL4))
-               CALL MTLDLM(TEXT12,IPTRK,IPSYS,LL4,ITY,GAR2(1,JGR),W)
+               CALL MTLDLM(TEXT12,IPTRK,IPSYS,LL4,ITY,GAR2(1,JGR),W(1))
                DO 35 I=1,LL4
                GAR2(I,IGR)=GAR2(I,IGR)+W(I)
    35          CONTINUE
@@ -190,7 +191,8 @@
             IF(ILONG.EQ.0) GO TO 80
             IF(ITY.EQ.13) THEN
                ALLOCATE(W(LL4))
-               CALL MTLDLM(TEXT12,IPTRK,IPSYS,LL4,ITY,WORK(1,JGR,3),W)
+               CALL MTLDLM(TEXT12,IPTRK,IPSYS,LL4,ITY,WORK(1,JGR,3),
+     1         W(1))
                DO 65 I=1,LL4
                GAR2(I,IGR)=GAR2(I,IGR)-W(I)
    65          CONTINUE
@@ -211,7 +213,7 @@
             IF(ILONG.EQ.0) GO TO 100
             IF(ITY.EQ.13) THEN
                ALLOCATE(W(LL4))
-               CALL MTLDLM(TEXT12,IPTRK,IPSYS,LL4,ITY,GAR2(1,JGR),W)
+               CALL MTLDLM(TEXT12,IPTRK,IPSYS,LL4,ITY,GAR2(1,JGR),W(1))
                DO 85 I=1,LL4
                GAR2(I,IGR)=GAR2(I,IGR)+W(I)
    85          CONTINUE

@@ -191,7 +191,7 @@
 *----
 *  Find planes mormal to selected direction
 *----
-      CALL XDDSET(ANGLES,3*3,DZERO)
+      ANGLES(:3,:3)=DZERO
       DO IDIR=1,NDIM
         ANGLES(IDIR,1)=DANGLT(IDIR,ITDIR)
         TRKOR2(IDIR)=DORITR(IDIR,IPLANE,ITDIR)

@@ -55,7 +55,7 @@
       INTEGER MIX(NX,NZ)
       CHARACTER TEXT*12
 *
-      CALL XDISET(MIX,NX*NZ,0)
+      MIX(:NX,:NZ)=0
       CALL LCMGET(IPMAP,'BMIX',MIX)
 *----
 *  BUNDLE POWERS OVER EACH CHANNEL
@@ -87,7 +87,7 @@
 *----
 *  BUNDLE POWERS PER RADIAL PLANE
 *----
-      CALL XDRSET(RADB,NX*NB,0.)
+      RADB(:NX,:NB)=0.0
       WRITE(IOUT,1010)
       DO IB=1,NB
         IEL=0
@@ -111,7 +111,7 @@
 *----
 *  CHANNEL POWERS IN RADIAL PLANE
 *----
-      CALL XDRSET(RADC,NX,0.)
+      RADC(:NX)=0.0
       WRITE(IOUT,1013)
       IEL=0
       ICH=0

@@ -27,7 +27,7 @@ version 2.1 of the License, or (at your option) any later version.
 #include <string.h>
 #include "kdi.h"
 
-int_32 offset;
+long long offset;
 
 kdi_file * kdiop_c(char *nomC,int_32 iactio)
 {
@@ -74,11 +74,11 @@ kdi_file * kdiop_c(char *nomC,int_32 iactio)
 int_32 kdiput_c(kdi_file *my_file,int_32 *data,int_32 iofset,int_32 length)
 {
   int_32 irc=0;
-  offset=iofset*lnword;
+  offset=(long long)iofset*lnword;
   if (my_file == NULL) {
      irc = -1;
   } else if (fseek(my_file->fd,offset,0) >= 0) {
-     int_32 n, iof=0;
+     long long n, iof=0;
      while ((n = fwrite(&data[iof],lnword,length,my_file->fd)) < length-iof) {
         if (n < 0) return n-1;
         iof+=n;
@@ -92,11 +92,11 @@ int_32 kdiput_c(kdi_file *my_file,int_32 *data,int_32 iofset,int_32 length)
 int_32 kdiget_c(kdi_file *my_file,int_32 *data,int_32 iofset,int_32 length)
 {
   int_32 irc=0;
-  offset=iofset*lnword;
+  offset=(long long)iofset*lnword;
   if (my_file == NULL) {
      irc = -1;
   } else if (fseek(my_file->fd,offset,0) >= 0) {
-     int_32 n, iof=0;
+     long long n, iof=0;
      while ((n = fread(&data[iof],lnword,length,my_file->fd)) < length-iof) {
         if (n == 0) return -4;
         if (n < 0) return n-1;

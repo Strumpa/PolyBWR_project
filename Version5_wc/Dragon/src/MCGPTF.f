@@ -93,9 +93,12 @@
       INTEGER MODUR,MODDL,MODDR,MODUL
       PARAMETER(MODUR=1,MODDL=8,MODDR=5,MODUL=4)
       INTEGER II,I2LIN,IANG,N2SEG,NR2D,NBTR,KST,IST,ILINE,N3D,I,I1,I2,
-     1 IMU,IANG0,NOMP,INDP,NOMM,INDM,NOMI,JF,JM,IND,TIN,N3DP,NSUB
+     1 IMU,IANG0,NOMP,INDP,NOMM,INDM,NOMI,JF,IND,TIN,N3DP,NSUB
       DOUBLE PRECISION W2D,Q0,Q1,CPO,CPOI,SPO,SPOI,TPO,TPOI,LTOT,DELTE,
      1 DELZE,T,Z1,Z2,TP,Z1P,W3DPO,WPO,W3D,OMEGAX,OMEGAY,OMEGAZ
+*----
+*  ALLOCATABLE ARRAYS
+*----
       INTEGER, ALLOCATABLE, DIMENSION(:) :: NOM2D,NOM3D
       REAL, ALLOCATABLE, DIMENSION(:,:) :: RHARM
       REAL, ALLOCATABLE, DIMENSION(:,:,:) :: TRHAR
@@ -371,8 +374,8 @@
 *  ANISOTROPIC SCATTERING
 *---
       ALLOCATE(STOT(NMAX,NMU,NGEFF,2))
-      CALL XDDSET(STOT,2*NMU*NMAX*NGEFF,0.0D0)
-      ALLOCATE(RHARM(NMU,NFUNL),TRHAR(NMU,NFUNL,NMOD))
+      STOT(:NMAX,:NMU,:NGEFF,:2)=0.0D0
+      ALLOCATE(RHARM(NMU,NFUNL),TRHAR(NMU,NFUNL,4))
       IANG0=0
       DO I2LIN=1,N2BTR
          READ(IFTRAK) NSUB,N2SEG,W2D,IANG,(NOM2D(I),I=1,N2SEG),
@@ -387,13 +390,16 @@
             IANG0=IANG
             CALL MOCCHR(3,NANI-1,NFUNL,NMU,XMU,CAZ1(IANG),CAZ2(IANG),
      1                  RHARM)
-            DO 27 JM=1,NMOD
             DO 26 JF=1,NFUNL
             DO 25 IMU=1,NMU
-               TRHAR(IMU,JF,JM)=ISGNR(JM,JF)*RHARM(IMU,JF)
+               ! positive polar sine track
+               TRHAR(IMU,JF,1)=ISGNR(MODUR,JF)*RHARM(IMU,JF)
+               TRHAR(IMU,JF,2)=ISGNR(MODDL,JF)*RHARM(IMU,JF)
+               ! negative polar sine track
+               TRHAR(IMU,JF,3)=ISGNR(MODDR,JF)*RHARM(IMU,JF)
+               TRHAR(IMU,JF,4)=ISGNR(MODUL,JF)*RHARM(IMU,JF)
  25         CONTINUE
  26         CONTINUE
- 27         CONTINUE
          ENDIF
          DO IMU=1,NMU
          CPO=CMU(IMU)
@@ -457,7 +463,7 @@
                   DO JF=1,NFUNL
                      IND=KEYFLX(NOMI,JF)         
                      Q0=Q0+S(IND,II)*TRHAR(IMU,JF,1)
-                     Q1=Q1+S(IND,II)*TRHAR(IMU,JF,NMOD)
+                     Q1=Q1+S(IND,II)*TRHAR(IMU,JF,2)
                   ENDDO                       
                   STOT(I,IMU,II,1)=W3D*Q0
                   STOT(I,IMU,II,2)=W3D*Q1
@@ -467,8 +473,8 @@
 *              MCGFFAT: 'MOCC/MCI' Iterative Strategy
                CALL SUBFFA(SUBSCH,K,KPN,M,N3D,H3D,NOM3D,NZON,
      1              SIGAL(0,II),STOT(1,IMU,II,1),STOT(1,IMU,II,2),
-     2              NREG,NMU,NANI,NFUNL,NMOD,TRHAR,KEYFLX,KEYCUR,IMU,
-     3              PHI(1,II),B,MODUR,MODDL)
+     2              NREG,NMU,NANI,NFUNL,TRHAR(1,1,1),KEYFLX,KEYCUR,
+     3              IMU,PHI(1,II),B)
             ENDIF
             ENDDO
             T=TP
@@ -504,8 +510,8 @@
                   Q1=0.0D0
                   DO JF=1,NFUNL
                      IND=KEYFLX(NOMI,JF)         
-                     Q0=Q0+S(IND,II)*TRHAR(IMU,JF,1)
-                     Q1=Q1+S(IND,II)*TRHAR(IMU,JF,NMOD)
+                     Q0=Q0+S(IND,II)*TRHAR(IMU,JF,3)
+                     Q1=Q1+S(IND,II)*TRHAR(IMU,JF,4)
                   ENDDO                       
                   STOT(I,IMU,II,1)=W3D*Q0
                   STOT(I,IMU,II,2)=W3D*Q1
@@ -515,8 +521,8 @@
 *              MCGFFAT: 'MOCC/MCI' Iterative Strategy
                CALL SUBFFA(SUBSCH,K,KPN,M,N3D,H3D,NOM3D,NZON,
      1              SIGAL(0,II),STOT(1,IMU,II,1),STOT(1,IMU,II,2),
-     2              NREG,NMU,NANI,NFUNL,NMOD,TRHAR,KEYFLX,KEYCUR,IMU,
-     3              PHI(1,II),B,MODDR,MODUL)
+     2              NREG,NMU,NANI,NFUNL,TRHAR(1,1,3),KEYFLX,KEYCUR,
+     3              IMU,PHI(1,II),B)
             ENDIF
             ENDDO
 *           ---
@@ -579,7 +585,7 @@
                   DO JF=1,NFUNL
                      IND=KEYFLX(NOMI,JF)
                      Q0=Q0+S(IND,II)*TRHAR(IMU,JF,1)
-                     Q1=Q1+S(IND,II)*TRHAR(IMU,JF,NMOD)
+                     Q1=Q1+S(IND,II)*TRHAR(IMU,JF,2)
                   ENDDO                       
                   STOT(I,IMU,II,1)=W3D*Q0
                   STOT(I,IMU,II,2)=W3D*Q1
@@ -589,8 +595,8 @@
 *              MCGFFAT: 'MOCC/MCI' Iterative Strategy
                CALL SUBFFA(SUBSCH,K,KPN,M,N3D,H3D,NOM3D,NZON,
      1              SIGAL(0,II),STOT(1,IMU,II,1),STOT(1,IMU,II,2),
-     2              NREG,NMU,NANI,NFUNL,NMOD,TRHAR,KEYFLX,KEYCUR,IMU,
-     3              PHI(1,II),B,MODUR,MODDL)
+     2              NREG,NMU,NANI,NFUNL,TRHAR(1,1,1),KEYFLX,KEYCUR,
+     3              IMU,PHI(1,II),B)
             ENDIF
             ENDDO
             Z1=Z1P
@@ -626,8 +632,8 @@
                   Q1=0.0D0
                   DO JF=1,NFUNL
                      IND=KEYFLX(NOMI,JF)
-                     Q0=Q0+S(IND,II)*TRHAR(IMU,JF,1)
-                     Q1=Q1+S(IND,II)*TRHAR(IMU,JF,NMOD)
+                     Q0=Q0+S(IND,II)*TRHAR(IMU,JF,3)
+                     Q1=Q1+S(IND,II)*TRHAR(IMU,JF,4)
                   ENDDO                       
                   STOT(I,IMU,II,1)=W3D*Q0
                   STOT(I,IMU,II,2)=W3D*Q1
@@ -637,8 +643,8 @@
 *              MCGFFAT: 'MOCC/MCI' Iterative Strategy
                CALL SUBFFA(SUBSCH,K,KPN,M,N3D,H3D,NOM3D,NZON,
      1              SIGAL(0,II),STOT(1,IMU,II,1),STOT(1,IMU,II,2),
-     2              NREG,NMU,NANI,NFUNL,NMOD,TRHAR,KEYFLX,KEYCUR,IMU,
-     3              PHI(1,II),B,MODDR,MODUL)
+     2              NREG,NMU,NANI,NFUNL,TRHAR(1,1,3),KEYFLX,KEYCUR,
+     3              IMU,PHI(1,II),B)
             ENDIF
             ENDDO
 *           ---

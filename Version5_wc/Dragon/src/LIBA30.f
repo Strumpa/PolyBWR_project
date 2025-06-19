@@ -157,7 +157,7 @@
 *  SET THE CORRESPONDANCE BETWEEN THE APOLIB AND THE LIST OF ISOTOPES.
 *----
       IF(IMPX.GT.1) WRITE(IOUT,820) NISOT,NISOTS
-      CALL XDISET(IPR,2*NBISO,0)
+      IPR(:2,:NBISO)=0
       CALL KDRCPU(TK1)
       DO 50 IMX=1,NBISO
       IF(MASKI(IMX)) THEN
@@ -240,10 +240,10 @@
             CALL LCMLEN(KPLIB,'ALIAS',ILENG,ITYLCM)
             IF(ILENG.EQ.0) THEN
               WRITE(HNAMIS,'(3A4)') (ISONAM(I0,JMX),I0=1,3)
-              CALL LCMPTC(KPLIB,'ALIAS',12,1,HNAMIS)
+              CALL LCMPTC(KPLIB,'ALIAS',12,HNAMIS)
               IF(IPR(1,JMX).LE.0) CALL XABORT('LIBA30: BAD AWR.')
               CALL LCMPUT(KPLIB,'AWR',1,2,AMASS(IPR(1,JMX)))
-              CALL LCMPTC(KPLIB,'README',80,1,TEXT80)
+              CALL LCMPTC(KPLIB,'README',80,TEXT80)
             ENDIF
             IF(NBFLX.GT.0) THEN
               IOF=FLXADD(IWFLON+1)+1
@@ -291,7 +291,7 @@
                 SECT(:NGRO)=0.0
                 IF(IFGTD.GE.1) THEN
                   CALL LIBA22(NGDG,TN(JMX),NBTMP,NSECT0,IFGTD,
-     1            TEMPM(IADD+1),XS,SECT(IGR0))
+     1            TEMPM(IADD+1),XS(1),SECT(IGR0))
                 ELSE
                   IF(NSECT0.NE.NGDG) CALL XABORT('LIBA30: INVALID NSEC'
      1            //'T0(1).')

@@ -1,9 +1,8 @@
 *DECK XEL3T2
       SUBROUTINE XEL3T2(IX,IY,IZ,LDIM,N3MS,N3MR,N3RS,LMESH,NZP,N2MS,
-     1                  N2MR,N2RS,N3S,N3R,NFI,MINDIM,MAXDIM,REMESH,
-     2                  VOLSUR,MATALB,KEYMRG,INDEX,MAX2,MIN2,ICOR2,
-     3                  REM2,VOL2,MAT2,KEY2,IND2,IND2T3,MATMRG,VOLMRG,
-     4                  ZCOR)
+     1                  N2MR,N3S,N3R,NFI,MINDIM,MAXDIM,REMESH,VOLSUR,
+     2                  MATALB,KEYMRG,INDEX,MAX2,MIN2,ICOR2,REM2,VOL2,
+     3                  MAT2,KEY2,IND2,IND2T3,MATMRG,VOLMRG,ZCOR)
 *
 *-----------------------------------------------------------------------
 *
@@ -33,7 +32,6 @@
 * N2MS    maximum number of outer surfaces for the 2D projected
 *         geometry.
 * N2MR    maximum number of regions for the 2D projected geometry.
-* N2RS    second dimension of IND2 array.
 * MINDIM  min index values for the different axes of the 3D geometry.
 * MAXDIM  max index values for the different axes of the 3D geometry.
 * REMESH  different meshes of the 3D geometry.
@@ -69,7 +67,7 @@
 *----
 *  SUBROUTINE ARGUMENTS
 *----
-      INTEGER IX,IY,IZ,LDIM,N3MS,N3MR,N3RS,LMESH,NZP,N2MS,N2MR,N2RS,
+      INTEGER IX,IY,IZ,LDIM,N3MS,N3MR,N3RS,LMESH,NZP,N2MS,N2MR,
      1 N3S,N3R,NFI,MINDIM(LDIM),MAXDIM(LDIM),MATALB(-N3MS:N3MR),
      2 KEYMRG(-N3MS:N3MR),INDEX(4,N3RS),MAX2(LDIM),MIN2(LDIM),
      3 ICOR2(LDIM),MAT2(-N2MS:N2MR),KEY2(-N2MS:N2MR),IND2(4,N2MR),
@@ -89,7 +87,7 @@
 *---
 * CREATE MATMRG AND VOLMRG ARRAYS FOR 3D GEOMETRY
 *---
-      CALL XDRSET(VOLMRG,N3RS,0.0)
+      VOLMRG(:N3RS)=0.0
       N3S=0
       DO IS=-N3MS,-1
          N3S=MIN(KEYMRG(IS),N3S)
@@ -172,7 +170,7 @@
 * CREATE INDEX FOR 2D GEOMETRY (FROM FIRST Z-PLAN) AND MAPPING INDEX
 * BETWEEN 2D AND 3D
 *---      
-      CALL XDISET(IND2T3(-N2MS,0),N2RS*(NZP+2),0)
+      IND2T3(-N2MS:N2MR,0:NZP+1)=0
 *
       IR=0
       IS=-N3MS-1

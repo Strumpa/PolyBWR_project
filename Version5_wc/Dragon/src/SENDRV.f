@@ -96,13 +96,13 @@
 * b) MATCOL
 * c) KEYFLX
 *----
-      CALL XDRSET(VOL,NR,0.0)
+      VOL(:NR)=0.0
       CALL LCMGET(IPTRACK,'VOLUME',VOL)
 *----
-      CALL XDISET(MAT,NR,0)
+      MAT(:NR)=0
       CALL LCMGET(IPTRACK,'MATCOD',MAT)
 *----
-      CALL XDISET(KEY,NU,0)
+      KEY(:NU)=0
       CALL LCMGET(IPTRACK,'KEYFLX',KEY)
 *----
 *  Print information if required
@@ -121,15 +121,15 @@
 * c) ISOTOPES ALIAS
 * d) ISOTOPES DENSITIES
 *----
-      CALL XDRSET(ENERG,NG+1,0.0)
+      ENERG(:NG+1)=0.0
       CALL LCMGET(IPLIB,'ENERGY',ENERG)
 *----
-      CALL XDISET(MELISO,NI,0)
+      MELISO(:NI)=0
       CALL LCMGET(IPLIB,'ISOTOPESMIX',MELISO)
 *----
       CALL LCMGET(IPLIB,'ISOTOPESUSED',NAMISO)
 *----
-      CALL XDRSET(DENISO,NI,0.0)
+      DENISO(:NI)=0.0
       CALL LCMGET(IPLIB,'ISOTOPESDENS',DENISO)
 *----
 *  Scan library to determine number of sensitivity profiles:
@@ -165,8 +165,8 @@
       KEFF=0
       CALL LCMGET(IPFLUX,'K-EFFECTIVE',KEFF)
 *----
-      CALL XDRSET(FLUXI,NR*NLTERM*NG,0.0)
-      CALL XDRSET(AFLUX,NR*NLTERM*NG,0.0)
+      FLUXI(:NR,:NLTERM,:NG)=0.0
+      AFLUX(:NR,:NLTERM,:NG)=0.0
       CALL LCMLEN(IPFLUX,'FLUX',ILON,ITYLCM)
       IF(ILON.EQ.0) CALL XABORT(NAMSBR//': MISSING FLUX INFO.')
       JPFLUX=LCMGID(IPFLUX,'FLUX')
@@ -205,7 +205,7 @@
 * Step 4:
 * Computation of the P matrix used for sensitivity calculation
 *----
-      CALL XDRSET(P,NR*NANIS*NG*NG,0.0)
+      P(:NR,:NANIS,:NG,:NG)=0.0
       DO IG=1,NG
         DO JG=1,NG
           KL=0
@@ -237,8 +237,8 @@
         ENDIF
         CALL LCMLEN(KPISO,'NUSIGF',ILENG,ITYLCM)
         IF(ILENG.GT.0) THEN
-          CALL XDRSET(NUSIGF,NG,0.0)
-          CALL XDRSET(CHI,NG,0.0)
+          NUSIGF(:NG)=0.0
+          CHI(:NG)=0.0
           CALL LCMGET(KPISO,'NUSIGF',NUSIGF)
           CALL LCMGET(KPISO,'CHI',CHI)
           DO IR=1,NR

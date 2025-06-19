@@ -330,7 +330,7 @@ records associated with vectorial cross sections will be found:
   Otherwise, all the cross sections, diffusion coefficients and integrated fluxes stored on the {\sc
   macrolib} are SPH--corrected.}
 \OptRealEnr
-  {H-FACTOR\blank{4}}{$N_{m}$}{$\mathcal{M}=2$}{J cm$^{-1}$}  
+  {H-FACTOR\blank{4}}{$N_{m}$}{$\mathcal{M}=2$}{eV cm$^{-1}$}  
   {Energy production coefficients $H_{m}^{g}$ (product of each macroscopic cross section
   times the energy emitted by this reaction).}
 \OptRealEnr
@@ -338,7 +338,7 @@ records associated with vectorial cross sections will be found:
   {Initial and final stopping power. Information provided if {\tt PARTICLE}$=${\tt B}, {\tt C} or {\tt P}.}
 \OptRealEnr
   {EMOMTR\blank{6}}{$N_{m}$}{*}{cm$^{-1}$}  
-  {Restricted momentum transfer cross section. Information provided if {\tt PARTICLE}$=${\tt B}, {\tt C} or {\tt P}.}
+  {Restricted momentum transfer cross section. Information provided only if {\tt PARTICLE}$=${\tt B}, {\tt C} or {\tt P}.}
 \OptRealEnr
   {C-FACTOR\blank{4}}{$N_{m}$}{*}{electron cm$^{-1}$}  
   {Charge deposition cross section. Information provided if {\tt PARTICLE}$=${\tt B}, {\tt C} or {\tt P}.}
@@ -615,7 +615,7 @@ Sub-directory containing group form factor information. This information can be 
   {NWT0\blank{8}}{$N_{m},I_{\rm gff},G$}{s$^{-1}$cm$^{-2}$}
   {The multigroup neutron flux spectrum $\phi_{w}^{g}$} 
 \RealEnr
-  {H-FACTOR\blank{4}}{$N_{m},I_{\rm gff},G$}{J cm$^{-1}$}  
+  {H-FACTOR\blank{4}}{$N_{m},I_{\rm gff},G$}{eV cm$^{-1}$}  
   {Energy production coefficients $H_{m}^{g}$ (product of each macroscopic cross section
   times the energy emitted by this reaction).}
 \RealEnr

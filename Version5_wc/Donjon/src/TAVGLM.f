@@ -45,9 +45,9 @@
 *----
 *  COMPUTE BURNUP LIMITS
 *----
-      CALL XDRSET(BURN0,NB,0.)
-      CALL XDRSET(BURN1,NB,0.)
-      CALL XDRSET(DELT,NB,0.)
+      BURN0(:NB)=0.0
+      BURN1(:NB)=0.0
+      DELT(:NB)=0.0
       DO 10 IB=1,NB
       DELT(IB)=SHIFT*BCHAN*PSI(IB)
    10 CONTINUE

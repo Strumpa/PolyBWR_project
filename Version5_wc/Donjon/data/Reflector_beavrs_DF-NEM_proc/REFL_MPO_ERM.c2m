@@ -325,12 +325,12 @@ WHILE IndexCB iBoreMax < DO
   GeomRefl := GEO: GeomRefl ::
     MIX 1 2
   ;
-  ECHO "Macro-geometry used in verification calculation:" ;
-  UTL: GeomRefl :: DUMP ;
 
   !----------------------------------------------------------
   !  Verification calculations
   !----------------------------------------------------------
+  ECHO "Macro-geometry used in verification calculation:" ;
+  UTL: GeomRefl :: DUMP ;
   MACR_TRAC := NSST: GeomRefl :: EDIT 2 HYPE 2 ;
   EVALUATE CASE := 1 ;
   WHILE CASE 2 <= DO
@@ -383,7 +383,6 @@ WHILE IndexCB iBoreMax < DO
   Edition := EDI: MacrRefl :: EDIT 1 ADFM SAVE ;
   GeomRefl MacrRefl := DELETE: GeomRefl MacrRefl ;
 
-  UTL: Edition :: DUMP ;
   MpoRefl := MPO: MpoRefl Edition :: EDIT 1
       STEP <<Localisation>>
       C-BORE <<CB>>

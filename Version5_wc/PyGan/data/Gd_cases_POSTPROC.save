@@ -1,0 +1,20 @@
+#!/bin/sh
+#
+if [ $# = 0 ]
+   then
+   echo "-----.save----- Gd_cases_postproc save script begun" 1>&2
+   exit 1
+fi
+echo "-----.save----- Gd_cases_postproc save script begun"
+MACH=`uname -s`
+Sysx="`echo $MACH | cut -b -6`"
+if [ $Sysx = "CYGWIN" ]; then
+   MACH=`uname -o`
+elif [ $Sysx = "AIX" ]; then
+   MACH=`uname -s`
+else
+   MACH=`uname -sm | sed 's/[ ]/_/'`
+fi
+ls -l
+cp -r Gd_cases_POSTPROC $1/"$MACH"/
+echo "-----.save----- Gd_cases_postproc save script terminated"

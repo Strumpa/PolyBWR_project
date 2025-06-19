@@ -1,0 +1,157 @@
+*************************************************************************************
+* Input file :  thm_20_h155_cosine_pow_40000.0W_BOWR_PDROP1_DFM0.x2m         
+*                                                         
+* Test of a BWR single pincell                            
+*                                                         
+* The aim is to test the THM module of DONJON             
+****************************************************************************************************
+
+LINKED_LIST Geom Matex Fmap Thm ;
+MODULE      GEO: RESINI: USPLIT: THM: GREP: UTL: DELETE: ABORT: END: ;
+
+PROCEDURE   assertS ;
+REAL        Mass := 6.464E-3 ; ! kg
+
+*----
+*  Calculation options
+*----
+REAL   Tfuel := 900.0 ; (*fuel temperature (K)*)
+REAL   Tcool := 543.15 ; (*coolant temperature (K)*)
+REAL   Dfuel := 9.7413951 ; (*fuel density (g/cc)*)
+REAL   dens_mod_0 := 0.65 ;
+REAL   powi := 0.04 ; ! 40.0 kW
+ECHO "total reactor power=" powi "MW" ;
+
+INTEGER MaxR := 10000 ;
+REAL maxh := 155.0 ;
+REAL dz := maxh 20.0 / ;
+
+REAL z1 := dz ;
+REAL z2 := z1 dz + ;
+REAL z3 := z2 dz + ;
+REAL z4 := z3 dz + ;
+REAL z5 := z4 dz + ;
+REAL z6 := z5 dz + ;
+REAL z7 := z6 dz + ;
+REAL z8 := z7 dz + ;
+REAL z9 := z8 dz + ;
+REAL z10 := z9 dz + ;
+REAL z11 := z10 dz + ;
+REAL z12 := z11 dz + ;
+REAL z13 := z12 dz + ;
+REAL z14 := z13 dz + ;
+REAL z15 := z14 dz + ;
+REAL z16 := z15 dz + ;
+REAL z17 := z16 dz + ;
+REAL z18 := z17 dz + ;
+REAL z19 := z18 dz + ;
+REAL z20 := z19 dz + ;
+
+REAL Pitch := 1.295 ;
+Geom := GEO: :: CAR3D 1 1 20
+ X- REFL X+ REFL Y- REFL Y+ REFL Z- REFL Z+ REFL
+ MESHX 0.0 <<Pitch>>
+ MESHY 0.0 <<Pitch>>
+ MESHZ 0.0 <<z1>> <<z2>> <<z3>> <<z4>> <<z5>> <<z6>> <<z7>> <<z8>> <<z9>> <<z10>>
+<<z11>> <<z12>> <<z13>> <<z14>> <<z15>> <<z16>> <<z17>> <<z18>> <<z19>> <<z20>>
+ MIX
+PLANE 1  1
+PLANE 2 SAME 1
+PLANE 3 SAME 1
+PLANE 4 SAME 1
+PLANE 5 SAME 1
+PLANE 6 SAME 1
+PLANE 7 SAME 1
+PLANE 8 SAME 1
+PLANE 9 SAME 1
+PLANE 10 SAME 1
+PLANE 11 SAME 1
+PLANE 12 SAME 1
+PLANE 13 SAME 1
+PLANE 14 SAME 1
+PLANE 15 SAME 1
+PLANE 16 SAME 1
+PLANE 17 SAME 1
+PLANE 18 SAME 1
+PLANE 19 SAME 1
+PLANE 20 SAME 1 ;
+
+Geom Matex := USPLIT: Geom :: NGRP 2 MAXR <<MaxR>>
+            NFUEL 1  FMIX  1
+;
+
+
+*--
+* Fuel map definition
+*--
+Fmap Matex := RESINI: Matex ::
+    ::: GEO: CAR3D 1 1 20
+ X- REFL X+ REFL Y- REFL Y+ REFL Z- REFL Z+ REFL
+ MESHX 0.0 <<Pitch>>
+ MESHY 0.0 <<Pitch>>
+ MESHZ 0.0 <<z1>> <<z2>> <<z3>> <<z4>> <<z5>> <<z6>> <<z7>> <<z8>> <<z9>> <<z10>>
+<<z11>> <<z12>> <<z13>> <<z14>> <<z15>> <<z16>> <<z17>> <<z18>> <<z19>> <<z20>>
+ MIX
+PLANE 1  1
+PLANE 2 SAME 1
+PLANE 3 SAME 1
+PLANE 4 SAME 1
+PLANE 5 SAME 1
+PLANE 6 SAME 1
+PLANE 7 SAME 1
+PLANE 8 SAME 1
+PLANE 9 SAME 1
+PLANE 10 SAME 1
+PLANE 11 SAME 1
+PLANE 12 SAME 1
+PLANE 13 SAME 1
+PLANE 14 SAME 1
+PLANE 15 SAME 1
+PLANE 16 SAME 1
+PLANE 17 SAME 1
+PLANE 18 SAME 1
+PLANE 19 SAME 1
+PLANE 20 SAME 1
+;
+!
+NXNAME '01' NYNAME  'A'
+NCOMB 1
+B-ZONE 1
+
+ADD-PARAM PNAME 'T-FUEL' PARKEY 'TFuel' GLOBAL
+ADD-PARAM PNAME 'T-COOL' PARKEY 'TCool' GLOBAL
+ADD-PARAM PNAME 'D-COOL' PARKEY 'DCool' GLOBAL
+BTYPE INST-BURN
+INST-BVAL CHAN 0.0
+REACTOR-POW <<powi>> AXIAL-PFORM 
+1.5692 1.5595 1.5402 1.5114 1.4733 1.4261 1.3702 1.3057 1.2333 1.1532
+1.0660 0.9722 0.8725 0.7673 0.6575 0.5435 0.4263 0.3064 0.1846 0.0617
+SET-PARAM 'T-FUEL' <<Tfuel>>
+SET-PARAM 'T-COOL' <<Tcool>>
+SET-PARAM 'D-COOL' <<dens_mod_0>>
+FUEL WEIGHT <<Mass>>
+;
+
+*--
+* THM single-stage calculation
+*--
+Thm Fmap := THM: Fmap ::
+    EDIT 100
+    FLUID H2O
+    FPUISS 1.0
+    CRITFL 5.0E7
+    INLET 7.20E+06 (*Pa*) 543.15 (*K*)
+    INLET-Q 8.470E-05 (*m2*) 8.407E-02 (*inlet mass flow rate kg/s*)
+    ASSMB 1 0
+    RADIUS 4.435E-03 4.520E-03 5.140E-03 0.000E+00 (*m*)
+    RODMESH 8 11  
+    HGAP 10000.0
+    CONDC 0 21.5 KELVIN
+    CONDF 0 4.18 KELVIN
+    BOWR
+    PDROP 1
+;
+
+
+ECHO "test thm_20_h155_cosine_pow_40000.0W_BOWR_PDROP1_DFM0.x2m" ;
+END: ;

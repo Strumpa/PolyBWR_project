@@ -1,0 +1,49 @@
+*----
+*  TEST CASE pincell_apex_concat
+*  17 x 17 ASSEMBLY WITH TRIVAC
+*  Input cross section data interpolated from APEX
+*----
+*  Define STRUCTURES and MODULES used
+*----
+MODULE APX: ACR: GEO: TRIVAT: TRIVAA: FLUD: END: ;
+LINKED_LIST PINCELL TRACK MACRO SYSTEM FLUX ;
+STRING MyApex1 := 'MyApex1.hdf' ;
+STRING MyApex2 := 'MyApex2.hdf' ;
+STRING MyApexCat := 'MyApexCat.hdf' ;
+HDF5_FILE MyApex1 :: FILE <<MyApex1>> ;
+HDF5_FILE MyApex2 :: FILE <<MyApex2>> ;
+HDF5_FILE MyApexCat :: FILE <<MyApexCat>> ;
+PROCEDURE assertS ;
+
+************************************************************************
+*  Concatenation of two APEX files                                     *
+************************************************************************
+MyApexCat := MyApex1 ;
+MyApexCat := APX:  MyApexCat MyApex2 :: EDIT 10 ;
+
+************************************************************************
+*  APEX interpolation                                                  *
+************************************************************************
+MACRO :=  ACR:  MyApexCat :: EDIT 3 MACRO NMIX 1
+   APEX MyApexCat MIX 1 SET Burnup 900.0 SET CoolantDensity 0.8 ENDMIX ;
+
+************************************************************************
+*  numerical solution                                                  *
+************************************************************************
+REAL Cote := 1.26  ;
+REAL Precf := 1.E-5 ;
+PINCELL := GEO: :: CAR2D 1 1
+     MESHX 0.0 <<Cote>> MESHY 0.0 <<Cote>>
+     SPLITX 2 SPLITY 2
+     X- REFL X+ REFL    Y- REFL Y+ REFL
+     MIX  1
+;
+TRACK := TRIVAT: PINCELL ::
+     TITLE 'HOMOGENIZED PINCELL'
+     EDIT 0 MAXR 300 DUAL 3 1 ;
+SYSTEM := TRIVAA: MACRO TRACK :: EDIT 0 ;
+FLUX := FLUD: SYSTEM TRACK :: EDIT 0
+        ACCE 3 3  ADI 4  EXTE 1000 <<Precf>> THER 1000 ;
+assertS FLUX :: 'K-EFFECTIVE' 1 1.260696 ;
+ECHO "pincell_apex_concat completed" ;
+END: ;

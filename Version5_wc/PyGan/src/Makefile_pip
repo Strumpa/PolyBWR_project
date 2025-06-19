@@ -28,13 +28,13 @@ else
     lib = ../lib/$(DIRNAME)_nvidia
     libGan = ../../Ganlib/lib/$(DIRNAME)_nvidia
   else
-    ifeq ($(flang),1)
+    ifeq ($(llvm),1)
       ifeq ($(LLVMTOOLS),)
         $(error LLVMTOOLS is not set)
       endif
       COMPILER = LLVMTOOLS
-      lib = ../lib/$(DIRNAME)_flang
-      libGan = ../../Ganlib/lib/$(DIRNAME)_flang
+      lib = ../lib/$(DIRNAME)_llvm
+      libGan = ../../Ganlib/lib/$(DIRNAME)_llvm
     else
       ifeq ($(FORTRANPATH),)
         $(error FORTRANPATH is not set)

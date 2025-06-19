@@ -1,7 +1,7 @@
 #!/bin/sh
 if [ $# = 0 ]
    then
-   echo "usage: pincell_mco_mco.access directory" 1>&2
+   echo "usage: pincell_mco.access directory" 1>&2
    exit 1
 fi
 MACH=`uname -s`
@@ -34,4 +34,4 @@ if [ -f "$pos"/draglibJef2p2 ]
     ln -s "$pos"/draglibJef2p2 DLIB_J2
 fi
 ls -l
-echo "pincell_mco_mco access script terminated"
+echo "pincell_mco access script terminated"

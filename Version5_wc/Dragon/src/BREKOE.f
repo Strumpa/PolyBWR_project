@@ -1,6 +1,6 @@
 *DECK BREKOE
-      SUBROUTINE BREKOE(IPMAC1,NC,NG,NMIX1,ISPH,B2,ENER,DC1,TOT1,SCAT1,
-     1 JXM,FHETXM,IPRINT)
+      SUBROUTINE BREKOE(IPMAC1,NC,NG,NL,NMIX1,ISPH,B2,ENER,DC1,TOT1,
+     1 SCAT1,JXM,FHETXM,IPRINT)
 *
 *-----------------------------------------------------------------------
 *
@@ -20,6 +20,8 @@
 * IPMAC1  nodal macrolib.
 * NC      number of sn macrolibs (=2: Koebke method).
 * NG      number of energy groups.
+* NL      Legendre order of TOT1 and SCAT1 arrays (=1 for isotropic
+*         scattering in LAB).
 * NMIX1   number of mixtures in the nodal calculation.
 * ISPH    SPH flag (=0: use discontinuity factors; =1: use SPH factors).
 * B2      buckling.
@@ -37,9 +39,9 @@
 *  SUBROUTINE ARGUMENTS
 *----
       TYPE(C_PTR) IPMAC1
-      INTEGER NC,NG,NMIX1,ISPH,IPRINT
-      REAL B2(NC),ENER(NG+1),DC1(NMIX1,NG,NC),TOT1(NMIX1,NG,NC),
-     1 SCAT1(NMIX1,NG,NG,NC),JXM(NMIX1,NG,NC),FHETXM(NMIX1,NG,NC)
+      INTEGER NC,NG,NL,NMIX1,ISPH,IPRINT
+      REAL B2(NC),ENER(NG+1),DC1(NMIX1,NG,NC),TOT1(NMIX1,NG,NL,NC),
+     1 SCAT1(NMIX1,NG,NG,NL,NC),JXM(NMIX1,NG,NC),FHETXM(NMIX1,NG,NL,NC)
 *----
 *  LOCAL VARIABLES
 *----
@@ -68,17 +70,20 @@
 *----
       ALLOCATE(FDX(NG),DIF(NG))
       IBM=1
-      R11=.5*(FHETXM(IBM,1,1)/JXM(IBM,1,1)+FHETXM(IBM,1,2)/JXM(IBM,1,2))
-      R21=(FHETXM(IBM,2,1)*JXM(IBM,2,2)-FHETXM(IBM,2,2)*JXM(IBM,2,1))/
-     1 (JXM(IBM,1,1)*JXM(IBM,2,2)-JXM(IBM,1,2)*JXM(IBM,2,1))
-      R22=(FHETXM(IBM,2,2)*JXM(IBM,1,1)-FHETXM(IBM,2,1)*JXM(IBM,1,2))/
-     1 (JXM(IBM,1,1)*JXM(IBM,2,2)-JXM(IBM,1,2)*JXM(IBM,2,1))
+      R11=.5*(FHETXM(IBM,1,1,1)/JXM(IBM,1,1)+FHETXM(IBM,1,1,2)/
+     1 JXM(IBM,1,2))
+      R21=(FHETXM(IBM,2,1,1)*JXM(IBM,2,2)-FHETXM(IBM,2,1,2)*
+     1 JXM(IBM,2,1))/(JXM(IBM,1,1)*JXM(IBM,2,2)-JXM(IBM,1,2)*J
+     2 XM(IBM,2,1))
+      R22=(FHETXM(IBM,2,1,2)*JXM(IBM,1,1)-FHETXM(IBM,2,1,1)*
+     1 JXM(IBM,1,2))/(JXM(IBM,1,1)*JXM(IBM,2,2)-JXM(IBM,1,2)*
+     2 JXM(IBM,2,1))
       IF(IPRINT.GT.0) WRITE(6,10) R11,R21,R22
-      SIGR1=.5*(TOT1(IBM,1,1)+TOT1(IBM,1,2)-SCAT1(IBM,1,1,1)-
-     1          SCAT1(IBM,1,1,2)+B2(1)*DC1(IBM,1,1)+B2(2)*DC1(IBM,1,2))
-      SIGR2=.5*(TOT1(IBM,2,1)+TOT1(IBM,2,2)-SCAT1(IBM,2,2,1)-
-     1          SCAT1(IBM,2,2,2)+B2(1)*DC1(IBM,2,1)+B2(2)*DC1(IBM,2,2))
-      SIG21=.5*(SCAT1(IBM,2,1,1)+SCAT1(IBM,2,1,2))
+      SIGR1=.5*(TOT1(IBM,1,1,1)+TOT1(IBM,1,1,2)-SCAT1(IBM,1,1,1,1)-
+     1         SCAT1(IBM,1,1,1,2)+B2(1)*DC1(IBM,1,1)+B2(2)*DC1(IBM,1,2))
+      SIGR2=.5*(TOT1(IBM,2,1,1)+TOT1(IBM,2,1,2)-SCAT1(IBM,2,2,1,1)-
+     1         SCAT1(IBM,2,2,1,2)+B2(1)*DC1(IBM,2,1)+B2(2)*DC1(IBM,2,2))
+      SIG21=.5*(SCAT1(IBM,2,1,1,1)+SCAT1(IBM,2,1,1,2))
       IF(IPRINT.GT.0) WRITE(6,20) SIGR1,SIGR2,SIG21
       D1=1.0/(R11*R11*SIGR1)
       A=(R21*SIGR1-R22*SIG21)*SQRT(SIGR1/SIGR2)/(R22*R22)
@@ -101,10 +106,10 @@
 *----
       IF(ISPH.EQ.1) THEN
         DO IGR=1,NG
-          TOT1(IBM,IGR,:2)=TOT1(IBM,IGR,:2)/FDX(IGR)
+          TOT1(IBM,IGR,1,:2)=TOT1(IBM,IGR,1,:2)/FDX(IGR)
           DIF(IGR)=DIF(IGR)/FDX(IGR)
           DO JGR=1,NG
-            SCAT1(IBM,IGR,JGR,:2)=SCAT1(IBM,IGR,JGR,:2)/FDX(JGR)
+            SCAT1(IBM,IGR,JGR,1,:2)=SCAT1(IBM,IGR,JGR,1,:2)/FDX(JGR)
           ENDDO
         ENDDO
       ENDIF
@@ -127,12 +132,13 @@
       CALL LCMPUT(IPMAC1,'ENERGY',NG+1,2,ENER)
       WORK(1)=1.0
       CALL LCMPUT(IPMAC1,'VOLUME',NMIX1,2,WORK)
+      CALL LCMPUT(IPMAC1,'B2  B1HOM',1,2,B2)
       IF(ISPH.EQ.0) THEN
         CALL LCMSIX(IPMAC1,'ADF',1)
           NTYPE=1
           HADF='FD_B'
           CALL LCMPUT(IPMAC1,'NTYPE',1,1,NTYPE)
-          CALL LCMPTC(IPMAC1,'HADF',8,1,HADF)
+          CALL LCMPTC(IPMAC1,'HADF',8,HADF)
           CALL LCMPUT(IPMAC1,HADF,NG,2,FDX)
         CALL LCMSIX(IPMAC1,' ',2)
       ENDIF
@@ -141,7 +147,7 @@
         KPMAC1=LCMDIL(JPMAC1,IGR)
         WORK(1)=1.0
         CALL LCMPUT(KPMAC1,'FLUX-INTG',NMIX1,2,WORK)
-        WORK(1)=0.5*(TOT1(IBM,IGR,1)+TOT1(IBM,IGR,2))
+        WORK(1)=0.5*(TOT1(IBM,IGR,1,1)+TOT1(IBM,IGR,1,2))
         CALL LCMPUT(KPMAC1,'NTOT0',NMIX1,2,WORK)
         WORK(1)=0.0
         CALL LCMPUT(KPMAC1,'SIGW00',NMIX1,2,WORK)
@@ -156,10 +162,10 @@
           J2=IGR
           J1=IGR
           DO JGR=1,NG
-            IF(SCAT1(IBM,IGR,JGR,1)+SCAT1(IBM,IGR,JGR,2).NE.0.0) THEN
+           IF(SCAT1(IBM,IGR,JGR,1,1)+SCAT1(IBM,IGR,JGR,1,2).NE.0.0) THEN
               J2=MAX(J2,JGR)
               J1=MIN(J1,JGR)
-            ENDIF
+           ENDIF
           ENDDO
           NJJ(J)=J2-J1+1
           IJJ(J)=J2
@@ -167,7 +173,8 @@
           DO JGR=J2,J1,-1
             IPOSDE=IPOSDE+1
             IF(IPOSDE.GT.NG*NMIX1) CALL XABORT('BREKOE: SCAT OVERFLOW.')
-            WORK(IPOSDE)=0.5*(SCAT1(IBM,IGR,JGR,1)+SCAT1(IBM,IGR,JGR,2))
+            WORK(IPOSDE)=0.5*(SCAT1(IBM,IGR,JGR,1,1)+
+     1                        SCAT1(IBM,IGR,JGR,1,2))
           ENDDO
         ENDDO
         CALL LCMPUT(KPMAC1,'SCAT00',IPOSDE,2,WORK)

@@ -148,7 +148,7 @@
             DO IX=0,NM(IDIR)
               DAMESH(IX,IDIR)=DBLE(RMESH(IX))
             ENDDO
-            CALL XDISET(ISPLT(1,IDIR),NM(IDIR),1)
+            ISPLT(:NM(IDIR),IDIR)=1
           ENDIF
         ELSE
           DAMESH(0,IDIR)=DZERO
@@ -169,7 +169,7 @@
               DO IX=0,NM(IDIR)
                 DAMESH(IX,IDIR)=DBLE(RMESH(IX))
               ENDDO
-              CALL XDISET(ISPLT(1,IDIR),NM(IDIR),1)
+              ISPLT(:NM(IDIR),IDIR)=1
             ENDIF
           ELSE
             DAMESH(0,IDIR)=DZERO
@@ -181,7 +181,7 @@
 *----
 *  2- Read cell OFFCENTER and store in position -1 of DAMESH
 *----
-      CALL XDRSET(OFFCEN,3,0.0)
+      OFFCEN(:3)=0.0
       CALL LCMLEN(IPGEO,'OFFCENTER   ',ILCMLN,ILCMTY)
       IF(ILCMLN .GT. 0)
      >  CALL LCMGET(IPGEO,'OFFCENTER   ',OFFCEN)
@@ -200,7 +200,7 @@
         DO IX=0,NM(IDIR)
           DAMESH(IX,IDIR)=DBLE(RMESH(IX))
         ENDDO
-        CALL XDISET(ISPLT(1,IDIR),NM(IDIR),1)
+        ISPLT(:NM(IDIR),IDIR)=1
       ENDIF
 *----
 *  4- Cartesian, radial and hexagonal split
@@ -208,7 +208,7 @@
       DO IDIR=1,4
         IF(NM(IDIR) .GT. 0) THEN
           NAMREC='SPLIT'//CDIR(IDIR)//'      '
-          CALL XDISET(ISPLT(1,IDIR),NM(IDIR),1)
+          ISPLT(:NM(IDIR),IDIR)=1
           CALL LCMLEN(IPGEO,NAMREC,ILCMLN,ILCMTY)
           IF(ILCMLN .EQ. NM(IDIR))
      >      CALL LCMGET(IPGEO,NAMREC,ISPLT(1,IDIR))
@@ -225,7 +225,7 @@
         NAMREC='SPLITH      '
         IDIR=1
         CALL LCMLEN(IPGEO,NAMREC,ILCMLN,ILCMTY)
-        CALL XDISET(ISPLT(1,IDIR),1,1)
+        ISPLT(1,IDIR)=1
         IF(ILCMLN .EQ. NM(IDIR))
      >  CALL LCMGET(IPGEO,NAMREC,ISPLT(1,IDIR))
         NMS(IDIR)=NM(IDIR)*ABS(ISPLT(1,IDIR))

@@ -694,7 +694,7 @@
 *----
       DO IDIR=1,3
         NMTMP=NMT(IDIR)
-        CALL XDDSET(DAMESH(-1,IDIR),NM(IDIR)+2,DZERO)
+        DAMESH(-1:NM(IDIR),IDIR)=DZERO
         NM(IDIR)=NMTMP
         DDD=DZERO
         DO IX=0,NMTMP-1

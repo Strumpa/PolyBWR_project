@@ -128,17 +128,17 @@
             ENDDO
 *           compute E^{g}*temp
             CALL MCGPRA(LFORW,1,PACA,.FALSE.,N,LC,IM,MCU,JU,DIAGQ,CQ,
-     1           LUDF,LUCF,DIAGF,TEMP,XOUT(1,II),LC0,IM0,MCU0,CF)
+     1           LUDF,LUCF,DIAGF,TEMP(1),XOUT(1,II),LC0,IM0,MCU0,CF)
 *           compute D^{g}*XIN^{g}
             CALL MCGPRA(LFORW,1,PACA,.FALSE.,N,LC,IM,MCU,JU,DIAGF,CF,
-     1           LUDF,LUCF,DIAGF,XIN(1,II),TEMP,LC0,IM0,MCU0,CF)
+     1           LUDF,LUCF,DIAGF,XIN(1,II),TEMP(1),LC0,IM0,MCU0,CF)
 *           temp=D^{g}*XIN^{g}-E^{g}*sum_{g' ne g} Sigma_s^{g<-g'} XIN^{g'}
             DO I=1,N
                TEMP(I)=TEMP(I)-XOUT(I,II)
             ENDDO
 *           apply single-group preconditioner XOUT^{g}=P^{g}*temp
             CALL MCGPRA(LFORW,2,PACA,.TRUE.,N,LC,IM,MCU,JU,DIAGF,CF,
-     1           LUDF,LUCF,DIAGF,XOUT(1,II),TEMP,LC0,IM0,MCU0,CF)
+     1           LUDF,LUCF,DIAGF,XOUT(1,II),TEMP(1),LC0,IM0,MCU0,CF)
          ENDIF
       ENDDO
 *----

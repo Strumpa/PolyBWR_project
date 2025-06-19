@@ -216,7 +216,7 @@
          VOL2(K)=VOL(K)
    40    CONTINUE
       ELSE
-         CALL XDRSET(VOL2,NEL,0.0)
+         VOL2(:NEL)=0.0
          IF(ICHX.EQ.3) THEN
 *           MCFD CASE.
             NUM1=0
@@ -290,7 +290,7 @@
             IF(IALB.NE.0) QFR(IQW)=QFR(IQW)*GAMMA(IALB)
          ENDDO
       ELSE IF(IPR.GT.0) THEN
-         CALL XDRSET(QFR,MAXQF,0.0)
+         QFR(:MAXQF)=0.0
       ENDIF
 *----
 *  ASSEMBLY OF THE ADI SPLITTED SYSTEM MATRICES
@@ -318,7 +318,7 @@
             ELSE
                ALLOCATE(WA(IIMAW))
             ENDIF
-            CALL XDRSET(WA,IIMAW,0.0)
+            WA(:IIMAW)=0.0
          ELSE
             IF(ISEG.GT.0) CALL MTBLD('W_'//TEXT10,IPTRK,IPSYS,1)
             CALL LCMGPD(IPSYS,'W_'//TEXT10,WA_PTR)
@@ -338,8 +338,8 @@
                AW_PTR=LCMARA(IIMAW)
                CALL C_F_POINTER(TF_PTR,TF,(/ LL4F /))
                CALL C_F_POINTER(AW_PTR,AW,(/ IIMAW /))
-               CALL XDRSET(TF,LL4F,0.0)
-               CALL XDRSET(AW,IIMAW,0.0)
+               TF(:LL4F)=0.0
+               AW(:IIMAW)=0.0
             ELSE
                IF(ISEG.GT.0) CALL MTBLD('WA'//TEXT10,IPTRK,IPSYS,1)
                CALL LCMGPD(IPSYS,'TF'//TEXT10,TF_PTR)
@@ -397,7 +397,7 @@
          IF(IPR.NE.3) THEN
             AX_PTR=LCMARA(IIMAX)
             CALL C_F_POINTER(AX_PTR,AX,(/ IIMAX /))
-            CALL XDRSET(AX,IIMAX,0.0)
+            AX(:IIMAX)=0.0
          ELSE
             IF(ISEG.GT.0) CALL MTBLD('XA'//TEXT10,IPTRK,IPSYS,1)
             CALL LCMGPD(IPSYS,'XA'//TEXT10,AX_PTR)
@@ -429,8 +429,8 @@
             IF(IPR.NE.3) THEN
                TF_PTR=LCMARA(LL4F)
                CALL C_F_POINTER(TF_PTR,TF,(/ LL4F /))
-               CALL XDRSET(TF,LL4F,0.0)
-               CALL XDRSET(AX,IIMAX,0.0)
+               TF(:LL4F)=0.0
+               AX(:IIMAX)=0.0
             ELSE
                IF(ISEG.GT.0) CALL MTBLD('XA'//TEXT10,IPTRK,IPSYS,1)
                CALL LCMGPD(IPSYS,'TF'//TEXT10,TF_PTR)
@@ -444,8 +444,8 @@
                AX_PTR=LCMARA(IIMAX)
                CALL C_F_POINTER(TF_PTR,TF,(/ LL4F /))
                CALL C_F_POINTER(AX_PTR,AX,(/ IIMAX /))
-               CALL XDRSET(TF,LL4F,0.0)
-               CALL XDRSET(AX,IIMAX,0.0)
+               TF(:LL4F)=0.0
+               AX(:IIMAX)=0.0
             ELSE
                IF(ISEG.GT.0) CALL MTBLD('XA'//TEXT10,IPTRK,IPSYS,1)
                CALL LCMGPD(IPSYS,'TF'//TEXT10,TF_PTR)
@@ -472,11 +472,11 @@
          CALL C_F_POINTER(IPX_PTR,IPX,(/ LL4 /))
          IF(DIAG) THEN
             ALLOCATE(XA(IIMAX))
-            CALL XDRSET(XA,IIMAX,0.0)
+            XA(:IIMAX)=0.0
          ELSE IF(IPR.NE.3) THEN
             XA_PTR=LCMARA(IIMAX)
             CALL C_F_POINTER(XA_PTR,XA,(/ IIMAX /))
-            CALL XDRSET(XA,IIMAX,0.0)
+            XA(:IIMAX)=0.0
          ELSE
             IF(ISEG.GT.0) CALL MTBLD('X_'//TEXT10,IPTRK,IPSYS,1)
             CALL LCMGPD(IPSYS,'X_'//TEXT10,XA_PTR)
@@ -528,7 +528,7 @@
             IF(IPR.NE.3) THEN
                AY_PTR=LCMARA(IIMAY)
                CALL C_F_POINTER(AY_PTR,AY,(/ IIMAY /))
-               CALL XDRSET(AY,IIMAY,0.0)
+               AY(:IIMAY)=0.0
             ELSE
                IF(ISEG.GT.0) CALL MTBLD('YA'//TEXT10,IPTRK,IPSYS,1)
                CALL LCMGPD(IPSYS,'YA'//TEXT10,AY_PTR)
@@ -558,7 +558,7 @@
             IF(IPR.NE.3) THEN
                AY_PTR=LCMARA(IIMAY)
                CALL C_F_POINTER(AY_PTR,AY,(/ IIMAY /))
-               CALL XDRSET(AY,IIMAY,0.0)
+               AY(:IIMAY)=0.0
             ELSE
                IF(ISEG.GT.0) CALL MTBLD('YA'//TEXT10,IPTRK,IPSYS,1)
                CALL LCMGPD(IPSYS,'YA'//TEXT10,AY_PTR)
@@ -585,7 +585,7 @@
             IF(IPR.NE.3) THEN
                YA_PTR=LCMARA(IIMAY)
                CALL C_F_POINTER(YA_PTR,YA,(/ IIMAY /))
-               CALL XDRSET(YA,IIMAY,0.0)
+               YA(:IIMAY)=0.0
              ELSE
                IF(ISEG.GT.0) CALL MTBLD('Y_'//TEXT10,IPTRK,IPSYS,1)
                CALL LCMGPD(IPSYS,'Y_'//TEXT10,YA_PTR)
@@ -629,7 +629,7 @@
             IF(IPR.NE.3) THEN
                AZ_PTR=LCMARA(IIMAZ)
                CALL C_F_POINTER(AZ_PTR,AZ,(/ IIMAZ /))
-               CALL XDRSET(AZ,IIMAZ,0.0)
+               AZ(:IIMAZ)=0.0
             ELSE
                IF(ISEG.GT.0) CALL MTBLD('ZA'//TEXT10,IPTRK,IPSYS,1)
                CALL LCMGPD(IPSYS,'ZA'//TEXT10,AZ_PTR)
@@ -660,7 +660,7 @@
             IF(IPR.NE.3) THEN
                AZ_PTR=LCMARA(IIMAZ)
                CALL C_F_POINTER(AZ_PTR,AZ,(/ IIMAZ /))
-               CALL XDRSET(AZ,IIMAZ,0.0)
+               AZ(:IIMAZ)=0.0
             ELSE
                IF(ISEG.GT.0) CALL MTBLD('ZA'//TEXT10,IPTRK,IPSYS,1)
                CALL LCMGPD(IPSYS,'ZA'//TEXT10,AZ_PTR)
@@ -686,7 +686,7 @@
             IF(IPR.NE.3) THEN
                ZA_PTR=LCMARA(IIMAZ)
                CALL C_F_POINTER(ZA_PTR,ZA,(/ IIMAZ /))
-               CALL XDRSET(ZA,IIMAZ,0.0)
+               ZA(:IIMAZ)=0.0
             ELSE
                IF(ISEG.GT.0) CALL MTBLD('Z_'//TEXT10,IPTRK,IPSYS,1)
                CALL LCMGPD(IPSYS,'Z_'//TEXT10,ZA_PTR)

@@ -86,7 +86,7 @@
       CALL LCMSIX(IPDAT,'SAPHYB_INFO',1)
       IF(LADF) THEN
        ADF_T="   "
-       CALL LCMGTC(IPDAT,'ADF_TYPE',3,1,ADF_T)
+       CALL LCMGTC(IPDAT,'ADF_TYPE',3,ADF_T)
        IF ((ADF_T.NE.'DRA').AND.(ADF_T.NE.'GEN')) THEN
         WRITE(6,*)'@D2PRFL:',ADF_T,'ADF NOT SUPPORTED ',
      >  'WITH REFL CALCULATION'
@@ -172,7 +172,7 @@
        SMNG(IGR)=0
        XTR(IGR)=1/(3*DIFF(IGR,MIX))
 
-       CALL XDRSET(GAR2,NGP*NGP*NBMIX*NANI,0.0)
+       GAR2(:NGP,:NGP,:NBMIX,:NANI)=0.0
        DO IL=1,NANI
           WRITE(CM,'(I2.2)') IL-1
           LENGTH=1

@@ -71,7 +71,7 @@
          IELEM=ISTATE(8)
          ICOL=ISTATE(9)
          DO IGR=1,NGRP
-            CALL XDRSET(GAMMA(1,IGR),NALBP,0.0)
+            GAMMA(:NALBP,IGR)=0.0
             DO IALB=1,NALBP
                IF((IELEM.LT.0).OR.(ICOL.EQ.4)) THEN
                   GAMMA(IALB,IGR)=ALB(ALBP(IALB,IGR))
@@ -219,7 +219,7 @@
      1   //'FOR NUSIGF INFORMATION.')
          IF(LENGT.GT.0) THEN
             CALL LCMGET(KPMACR,'NUSIGF',ZUFIS)
-            CALL XDRSET(SGD(1,1),NBMIX,0.0)
+            SGD(:NBMIX,1)=0.0
             DO 115 IBM=1,NBMIX
             DO 110 IFISS=1,NBFIS
             SGD(IBM,1)=SGD(IBM,1)+CHI(IBM,IFISS,IGR)*ZUFIS(IBM,IFISS)
