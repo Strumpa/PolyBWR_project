@@ -5,6 +5,7 @@
 #
 
 from GEOM import GEO
+from CARCEL import CARCEL
 import numpy as np
 from matplotlib import pyplot as plt
 
@@ -47,7 +48,7 @@ class CAR2D(GEO):
 
         if self.level == 1 :
             print("$$- CAR2D: Initializing boundary conditions to reflective for level 1")
-            self.BoundaryConditions = {"X- ":"RELF", "X+ ":"RELF", "Y- ":"RELF", "Y+ ":"RELF"}\
+            self.BoundaryConditions = {"X- ":"RELF", "X+ ":"RELF", "Y- ":"RELF", "Y+ ":"RELF"}
             
         self.number_regions()
         self.number_bounding_surfaces()
@@ -68,6 +69,8 @@ class CAR2D(GEO):
                     self.region_numbering.append([i, j, k, l]) # Equation 3.1 from NXT guide
                     self.volumes_of_regions.append([l,(self.meshx[i]-self.meshx[i-1])*(self.meshy[j]-self.meshy[j-1])*(self.meshz[k]-self.meshz[k-1])]) # Equation 3.2 from NXT guide
         self.region_numbering = np.array(self.region_numbering)
+        self.volumes_of_regions = np.array(self.volumes_of_regions)
+        self.filled_regions = [False] * self.number_of_regions
         return
     
     def number_bounding_surfaces(self):
@@ -157,6 +160,53 @@ class CAR2D(GEO):
 
         return
     
+    def add_CARCEL(self, fuel_identifier, host_region, radii, meshx, meshy):
+        """
+        Add a CARCEL object to the geometry object
+        :param fuel_identifier (str): fuel identifier of the CARCEL object
+        :param host_region: region where the CARCEL object is added
+        """
+
+        # Sanity check : does the CARCEL fit in the region ?
+        # get the bounds of the region
+        position = self.getPositionFromRegion(host_region)
+        region_bounds = self.getBoundsFromPosition(position[0], position[1], position[2])
+        delta_x = region_bounds[1] - region_bounds[0]
+        delta_y = region_bounds[3] - region_bounds[2]
+        print(f"$$- CAR2D: Region {host_region} bounds: {region_bounds}")
+        if max(meshx)-min(meshx) > delta_x or max(meshy)-min(meshy) > delta_y:
+            print(f"$$- CAR2D: Error : CARCEL object {fuel_identifier} does not fit in region {host_region}")
+            print(f"$$- CAR2D: CARCEL object {fuel_identifier} bounds: {min(meshx), max(meshx), min(meshy), max(meshy)}")
+            print(f"$$- CAR2D: Region {host_region} bounds: {region_bounds}")
+            print(f"Error encountered defining the geometry, please check the mesh and the CARCEL object bounds")
+            return
+        # Check if the CARCEL object is already in the geometry
+        if self.filled_regions[host_region-1]:
+            print(f"$$- CAR2D: Error : region {host_region} already filled with a sub-geometry")
+            return
+        if host_region in self.region_numbering[:,3]:
+            # Create a new CARCEL object to fill region
+            print(f"$$- CAR2D: Adding CARCEL object {fuel_identifier} to region {host_region}")
+            cell = CARCEL(name=fuel_identifier, level=self.level+1, nr=len(radii)-1, radii=radii, meshx=meshx, meshy=meshy)
+            cell.setHostGeometry(self.name)
+            cell.setHostRegion(host_region)
+            position = self.getPositionFromRegion(host_region)
+            print(f"$$- CAR2D: Position of the region: {position}")
+            bounds = self.getBoundsFromPosition(position[0], position[1], position[2])
+            for correspondance_reg_to_surf in self.region_to_surfaces:
+                if correspondance_reg_to_surf[0] == host_region:
+                    surfaces = correspondance_reg_to_surf[1]
+                    print(f"$$- CAR2D: Surfaces bounding region {host_region}: {surfaces}")
+                    cell.setHostBoundingSurfaces(surfaces)
+                    break
+            self.sub_geometries.append(cell)
+            self.filled_regions[host_region-1] = True
+            print(f"$$- CAR2D: Cell {cell.name} added to region {host_region} with bounds {bounds}")
+        else:
+            print(f"$$- CAR2D: Error : host region {host_region} not found in the geometry")
+
+        return
+        
 
     def add_cell(self, cell, host_region):
         """
@@ -169,6 +219,16 @@ class CAR2D(GEO):
             print("$$- CAR2D: Error : cell level, must be 1 above the host geometry level")
             return
         if host_region in self.region_numbering[:,3]:
+            cell.setHostGeometry(self.name)
+            # Check if the cell is already in the geometry
+            if cell in self.sub_geometries:
+                self.counter += 1
+                print(f"$$- CAR2D: Cell {cell.name} already in the geometry")
+                print(f"Attemping to create a new cell object with updated cell name")
+                cell = cell.__class__(f"{cell.name}{self.counter}", level=cell.level, nr=len(cell.radii)-1, radii=cell.radii, meshx=cell.meshx, meshy=cell.meshy)
+            else:
+                print(f"$$- CAR2D: Cell {cell.name} not in the list of sub-geometries")
+                self.counter = 0
             print(f"$$- CAR2D: Adding cell {cell.name} to region {host_region}")
             cell.setHostRegion(host_region)
             position = self.getPositionFromRegion(host_region)
@@ -181,6 +241,7 @@ class CAR2D(GEO):
                     cell.setHostBoundingSurfaces(surfaces)
                     break
             self.sub_geometries.append(cell)
+            print(f"appending cell {cell.name} to the list of sub-geometries")
             print(f"$$- CAR2D: Cell {cell.name} added to region {host_region} with bounds {bounds}")
 
         else:
@@ -219,7 +280,6 @@ class CAR2D(GEO):
             temp = [] # temporary list to store the surfaces bounding the region
             # Get the surfaces bounding the region
             for surface in self.all_surfaces:
-                print
                 if (surface[0] == i and surface[1] == j and surface[2] == k): # Problem with the surface numbering, do this to prototype but might need to change
                     print(f"$$- CAR2D: Surface {surface} bounding region {region}")
                     if surface[3]<=self.number_of_x_oriented_surfaces:

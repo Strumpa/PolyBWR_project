@@ -56,6 +56,7 @@ class CARCEL(GEO):
 
         self.createRadialSurfaces()
         self.bounding_surfaces = self.local_bounding_surfaces
+        #self.all_surfaces = np.concatenate((self.bounding_surfaces, self.radial_surfaces[:, 1]))
 
     def setHostRegion(self, host_region):
         if self.level == 1:
