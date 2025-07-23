@@ -142,24 +142,26 @@
 *----
 *  RECOVER SPH FACTOR INFORMATION.
 *----
-      CALL LCMSIX(IPEDIT,' ',2)
+      CALL LCMSIX(IPEDIT,'MACROLIB',1)
       CALL LCMLEN(IPEDIT,'SPH',ILEN,ITYLCM)
+      CALL LCMSIX(IPEDIT,' ',2)
+      CALL LCMSIX(IPEDIT,' ',2)
       IF(ILEN.NE.0) THEN
         IF(HEQUI.EQ.' ') HEQUI='default'
         ALLOCATE(WORK1(NG),RVAL0(NG,NMIL))
-        CALL SAPSPH(IPEDIT,NG,NMIL,1,NG,RVALO)
+        CALL SAPSPH(IPEDIT,NG,NMIL,1,NG,RVAL0)
         IF(NMIL.EQ.1) THEN
-          WRITE(RECNAM,'(4Hcalc,I8,4H/xs/)') ICAL
-          WRITE(RECNAM2,'(A,11H/MEDIA_SPH/,A)') TRIM(RECNAM),HEQUI
           WORK1(:NG)=RVAL0(:NG,1)
+          WRITE(RECNAM,'(4Hcalc,I8,14H/xs/MEDIA_SPH/)') ICAL
           CALL hdf5_create_group(IPAPX,TRIM(RECNAM))
+          WRITE(RECNAM2,'(A,A)') TRIM(RECNAM),TRIM(HEQUI)
           CALL hdf5_write_data(IPAPX,TRIM(RECNAM2),WORK1)
         ELSE
           DO IBM=1,NMIL
-            WRITE(RECNAM,'(4Hcalc,I8,3H/xs,I8,1H/)') ICAL,IBM
-            WRITE(RECNAM2,'(A,11H/MEDIA_SPH/,A)') TRIM(RECNAM),HEQUI
             WORK1(:NG)=RVAL0(:NG,IBM)
+            WRITE(RECNAM,'(4Hcalc,I8,3H/xs,I8,11H/MEDIA_SPH/)') ICAL,IBM
             CALL hdf5_create_group(IPAPX,TRIM(RECNAM))
+            WRITE(RECNAM2,'(A,A)') TRIM(RECNAM),TRIM(HEQUI)
             CALL hdf5_write_data(IPAPX,TRIM(RECNAM2),WORK1)
           ENDDO
         ENDIF

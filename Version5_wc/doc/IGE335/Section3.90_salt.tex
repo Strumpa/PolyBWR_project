@@ -1,24 +1,37 @@
 \subsubsection{The {\tt SALT:} tracking module}\label{sect:SALTData1}
 
-The {\tt SALT:} module provides an implementation of the collision probability (PIJ) method or of the method of characteristics (MOC).
+The {\tt SALT:} tracking module supports solutions of the Boltzmann transport equation based on a {\sl surfacic} representation of the
+geometry. Supported solutions are:
+\begin{itemize}
+\item the collision probability method (PIJ)
+\item the method of characteristics (MOC)
+\item the multicell surfacic approximation where macro geometries are coupled using incoming and outgoing interface currents. This option
+is enabled automatically if macro geometries are defined in the SALOMON--formatted file \dusa{SURFIL}.
+\end{itemize}
+
 The \moc{{\tt SALT:}} module can process general 2-D geometries defined from {\sl surfacic elements}. It is used to compute the tracking
-information requested in the method of collision probabilities or in the method of characteristics. The {\tt SALT:} module with keyword
-{\tt TSPC} has the capability to perform {\sl cyclic tracking} over a closed square, rectangular
+information requested in flux solution. Two types of tracking are supported:
+\begin{itemize}
+\item The {\tt SALT:} module with keyword {\tt TISO} produces non-cycling tracks distributed uniformally over the domain.
+\item The {\tt SALT:} module with keyword {\tt TSPC} has the capability to perform {\sl cyclic tracking} over a closed square, rectangular
 or equilateral triangular domain. Each track cover a certain surface before going back to the starting point after a distance $L$, as
 depicted in Figs.~\ref{fig:cart_tspc} and~\ref{fig:hex_tspc}. Only specific angles, function of integer values $n$ and $m$, make
-possible the cycling of trajectories.
+possible the cycling of trajectories. The {\tt TSPC} option is not available with the multicell surfacic approximation.
+\end{itemize}
 
 \begin{figure}[h!]
 \begin{center} 
 \epsfxsize=9cm \centerline{ \epsffile{cart_tspc.eps}}
 \parbox{14.0cm}{\caption{Cycling tracking over a Cartesian domain.}\label{fig:cart_tspc}}
+\end{center}  
+\end{figure}
 
+\begin{figure}[h!]
+\begin{center} 
 \epsfxsize=14cm \centerline{ \epsffile{hex_tspc.eps}}
 \parbox{14.0cm}{\caption{Cycling tracking over an hexagonal domain.}\label{fig:hex_tspc}}
 \end{center}  
 \end{figure}
-
-\clearpage
 
 The calling specification for this module is:
 \begin{DataStructure}{Structure \dstr{SALT:}}
@@ -69,6 +82,7 @@ $[$ \moc{NOTR} $]$\\
 $[$ \moc{NBSLIN} \dusa{nbslin} $]$ \\
 $[$ \moc{MERGMIX} $]$\\
 $[$ \moc{LONG} $]$\\
+$[$ \moc{EPSJ} \dusa{epsj} $]$ \\
 {\tt ;}
 \end{DataStructure}
 
@@ -210,6 +224,12 @@ undertaken.
 \item[\moc{MERGMIX}] keyword to specify that all regions belonging to the same mixture will be merged together. This option should only be used as an attempt to reduce CPU costs in resonance self-shielding calculations.
 
 \item[\moc{LONG}] keyword to specify that a ``long'' tracking file will be generated. This option is required if the tracking file is to be used by the \moc{TLM:} module (see \Sect{TLMData}).
+
+\item[\moc{EPSJ}] keyword to specify the stopping criterion for the flux-current iterations of the
+multicell surfacic approximation, in case where the {\tt ARM} keyword is set in the {\tt ASM:} module or in
+a resonance self-shielding module ({\tt SHI:}, {\tt USS:}, etc.).
+
+\item[\dusa{epsj}] the stopping criterion value. The default value is \dusa{epsj} $= 0.5 \times 10^{-5}$.
 
 \end{ListeDeDescription}
 \clearpage

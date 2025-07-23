@@ -87,7 +87,6 @@
          ENDIF
    50 CONTINUE
 *
-*
 *     MAIN ITERATION LOOP
       IF(IPRT.GT.2) WRITE(IUNOUT,'(A24)')
      >       'ITER.     MU      ERROR '
@@ -101,7 +100,7 @@
                WFSPAD = WFSPAD - CHI(JR)*WEIG(JR,3)*PROB(IND(IR,JR))
                WFSP = WFSP + CHI(JR)*PROB(IND(IR,JR))
   200       CONTINUE
-            WEIG(IR,3) = WFSPAD / WFSP
+            IF(WFSP.NE.0.0) WEIG(IR,3) = WFSPAD / WFSP
   220    CONTINUE
 *
 *        ACCELERATION TECHNIQUE

@@ -35,7 +35,7 @@ from getLists import *
 ########################################################################################################################################################################################
 # run options :
 exec_D5_no_modif = True # True : run DRAGON5 calculations with default depletion chain, False : skip DRAGON5 calculations
-exec_D5_no_NG0 = True # True : run DRAGON5 calculations with NG0 depletion chain, False : skip DRAGON5 calculations
+exec_D5_no_NG0 = Fasle # True : run DRAGON5 calculations with NG0 depletion chain, False : skip DRAGON5 calculations
 #
 # Library = name of the draglib used to build LIB: object
 dlib_name = "endfb8r1_295" # or 'nJ311_295' : new JEFF3.1.1 library with more Gd157 dilutions and finer autolib data 

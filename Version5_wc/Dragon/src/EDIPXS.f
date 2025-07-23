@@ -3,8 +3,8 @@
      >                  NGCOND,NMERGE,ILEAKS,NW,NTAUXT,EIGENK,B2,IGOVE,
      >                  CUREIN,NIFISS,CURNAM,NEDMAC,VOLMER,WLETYC,
      >                  WENERG,SCATTD,RATECM,FLUXCM,FADJCM,SIGS,SCATTS,
-     >                  DISFCT,ALBP,TAUXE,HVECT,OVERV,HFACT,NENER,TIMEF,
-     >                  LH)
+     >                  DISFCT,ALBP,TAUXE,HVECT,OVERV,HFACT,HSPH,NENER,
+     >                  TIMEF,LH,LSPH)
 *
 *-----------------------------------------------------------------------
 *
@@ -70,6 +70,7 @@
 * NENER   number of energy groups limits.
 * TIMEF   time stamp in day/burnup/irradiation.
 * LH      flag set to true if H-factors are set.
+* LSPH    flag set to true if SPH factors are set.
 *
 *Parameters: output
 * RATECM  averaged region/group cross sections:
@@ -102,6 +103,7 @@
 * HVECT   extra edit names.
 * OVERV   1/v merge condensed.
 * HFACT   H-factors condensed.
+* HSPH    SPH factors condensed.
 *
 *-----------------------------------------------------------------------
 *
@@ -118,8 +120,9 @@
      >            SIGS(NMERGE,NGCOND,NL),
      >            SCATTS(NMERGE,NGCOND,NGCOND,NL),DISFCT(NGCOND),
      >            ALBP(NALBP,NGCOND,NGCOND),TAUXE(NMERGE,NGCOND,NEDMAC),
-     >            OVERV(NMERGE,NGCOND),HFACT(NMERGE,NGCOND),TIMEF(3)
-      LOGICAL     LH
+     >            OVERV(NMERGE,NGCOND),HFACT(NMERGE,NGCOND),
+     >            HSPH(NMERGE,NGCOND),TIMEF(3)
+      LOGICAL     LH,LSPH
       CHARACTER   CURNAM*12,HVECT(NEDMAC)*8
       DOUBLE PRECISION SCATTD(NMERGE,NGCOND,NGCOND,NL)
 *----
@@ -129,7 +132,7 @@
       CHARACTER   APG*3
       PARAMETER  (IUNOUT=6,APG=' > ',ILCMUP=1,ILCMDN=2,NSTATE=40)
       CHARACTER   CEDNAM*12,HSIGN*12,CM*2
-      INTEGER     IDATA(NSTATE)
+      INTEGER     IDATA(NSTATE),ISTATE(NSTATE)
       DOUBLE PRECISION SCATWG,SCATTN,FAC1,FAC2
       LOGICAL     LAL1D
 *----
@@ -168,6 +171,7 @@
               RATECM(IKK,IGR,NW+4)=RATECM(IKK,IGR,NW+4)*FACT(IKK,1)
               IF(NENER.GT.0) OVERV(IKK,IGR)=OVERV(IKK,IGR)*FACT(IKK,1)
               IF(LH) HFACT(IKK,IGR)=HFACT(IKK,IGR)*FACT(IKK,1)
+              IF(LSPH) HSPH(IKK,IGR)=HSPH(IKK,IGR)*FACT(IKK,1)
               IF(ITRANC.NE.0) RATECM(IKK,IGR,NW+9)=RATECM(IKK,IGR,NW+9)
      >        *FACT(IKK,1)
               DO 10 IL=1,NL
@@ -185,6 +189,7 @@
               IF(NENER.GT.0) OVERV(IKK,IGR)=OVERV(IKK,IGR)*FACT(IKK,1)
      >        /FAD1
               IF(LH) HFACT(IKK,IGR)=HFACT(IKK,IGR)*FACT(IKK,1)/FAD1
+              IF(LSPH) HSPH(IKK,IGR)=HSPH(IKK,IGR)*FACT(IKK,1)/FAD1
               IF(ITRANC.NE.0) RATECM(IKK,IGR,NW+9)=RATECM(IKK,IGR,NW+9)
      >        *FACT(IKK,1)/FAD1
               DO 20 IL=1,NL
@@ -294,6 +299,7 @@
             IF(NENER.GT.0) CALL LCMPUT(KPEDIT,'OVERV',NMERGE,2,
      >      OVERV(1,IGR))
             IF(LH) CALL LCMPUT(KPEDIT,'H-FACTOR',NMERGE,2,HFACT(1,IGR))
+            IF(LSPH) CALL LCMPUT(KPEDIT,'NSPH',NMERGE,2,HSPH(1,IGR))
             DO IW=1,MIN(NW+1,10)
               WRITE(CEDNAM,'(4HNTOT,I1)') IW-1
               CALL LCMPUT(KPEDIT,CEDNAM,NMERGE,2,RATECM(1,IGR,IW))
@@ -395,6 +401,18 @@
              IDATA(9)=2
           ENDIF
           IDATA(10)=NW
+          IF(LSPH) THEN
+            IDATA(14)=1
+            CALL LCMSIX(IPEDIT,'SPH',1)
+            ISTATE(:)=0
+            ISTATE(1)=4
+            ISTATE(2)=1
+            ISTATE(6)=1
+            ISTATE(7)=1
+            ISTATE(8)=NGCOND
+            CALL LCMPUT(IPEDIT,'STATE-VECTOR',NSTATE,1,ISTATE)
+            CALL LCMSIX(IPEDIT,' ',2)
+          ENDIF
           CALL LCMPUT(IPEDIT,'STATE-VECTOR',NSTATE,1,IDATA)
           HSIGN='L_MACROLIB'
           CALL LCMPTC(IPEDIT,'SIGNATURE',12,HSIGN)

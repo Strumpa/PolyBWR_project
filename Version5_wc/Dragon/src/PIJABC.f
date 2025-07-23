@@ -22,6 +22,7 @@
 * NPRB    number of probabilities.
 * SIGTAL  albedo-sigt vector.
 * MATRT   reflection/transmission vector.
+* PROB    directional cp matrix for all types.
 *
 *Parameters: output
 * PROB    directional cp matrix for all types.

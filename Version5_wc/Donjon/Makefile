@@ -73,6 +73,7 @@ tests :
 	./rdonjon -c $(fcompilerSuite) -p $(nomp) -q pincell_pdrop.x2m
 	./rdonjon -c $(fcompilerSuite) -p $(nomp) -q pmox_sap.x2m
 	./rdonjon -c $(fcompilerSuite) -p $(nomp) -q pulseTHM_0d.x2m
+	./rdonjon -c $(fcompilerSuite) -p $(nomp) -q Reflector_beavrs_DF-RT_Jeff3p1SHEM295_mco.x2m
 	./rdonjon -c $(fcompilerSuite) -p $(nomp) -q rep1300_reflector.x2m
 	./rdonjon -c $(fcompilerSuite) -p $(nomp) -q rep1300_reflector_sp1.x2m
 	./rdonjon -c $(fcompilerSuite) -p $(nomp) -q rep900.x2m

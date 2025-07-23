@@ -1,0 +1,618 @@
+!
+!---------------------------------------------------------------------
+!
+!Purpose:
+! To extract a macro geometry and construct its geometry basic
+! information.
+!
+!Copyright:
+! Copyright (C) 2025 Ecole Polytechnique de Montreal.
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Lesser General Public
+! License as published by the Free Software Foundation; either
+! version 2.1 of the License, or (at your option) any later version
+!
+!Author(s):
+! A. Hebert
+!
+!Parameters: input
+! ITRACK   pointer to the tracking in IMACROth macro geometry.
+! IFTRK    pointer to the TRACKING file in creation mode.
+! IPRINT   print level.
+! IMACRO   macro geometry index.
+! NBSLIN   maximum number of segments in a single tracking line.
+! RCUTOF   minimum distance between two surfacic elements.
+! GG       geometry basic information.
+!
+!Parameters: output
+! LGINF        leakage flag (=.true. if no leakage).
+! NBNODE_MACRO number of nodes in macro IMACRO.
+! NSURF_MACRO  number of boundary surfaces in macro IMACRO.
+! GG_MAC       geometry basic information.
+!
+!---------------------------------------------------------------------
+!
+SUBROUTINE MUSACG(ITRACK,IFTRK,IPRINT,IMACRO,NBSLIN,RCUTOF,GG,LGINF,NBNODE_MACRO,NSURF_MACRO)
+  USE GANLIB
+  USE PRECISION_AND_KINDS, ONLY : PDB, PI
+  USE SAL_GEOMETRY_TYPES,  ONLY : T_G_BASIC,NIPAR,NRPAR,G_BC_TYPE,ISPEC,TYPGEO,NBFOLD,ALLSUR
+  USE SAL_GEOMETRY_MOD,  ONLY : SAL130_2,SAL130_4,SAL130_6,SAL130_8,SAL130_10,SAL131_2, &
+                                & SAL140,SAL160_2,SAL170
+  USE SAL_TRACKING_TYPES,  ONLY : PRTIND,NIPART,NRPART,EPS1
+  !----
+  !  Subroutine arguments
+  !----
+  TYPE(C_PTR) ITRACK
+  INTEGER  IFTRK,IPRINT,IMACRO
+  REAL(PDB) RCUTOF
+  LOGICAL LGINF
+  TYPE(T_G_BASIC) :: GG
+  !----
+  !  Local variables
+  !----
+  INTEGER, PARAMETER :: NSTATE=40
+  INTEGER, PARAMETER :: FOUT=6
+  INTEGER, PARAMETER ::  NDIM=2 ! NUMBER OF DIMENSIONS
+  INTEGER, PARAMETER ::  NALBG=6 ! NUMBER OF ALBEDOS
+  INTEGER ELEM, OK, ICODE(NALBG)
+  REAL(PDB) :: X1,X2,Y1,Y2,DET1,DET2
+  REAL(PDB) :: DGMESHX(2),DGMESHY(2)
+  REAL :: GALBED(NALBG)
+  INTEGER, DIMENSION(NSTATE) :: I_STATE,IEDIMG
+  CHARACTER(LEN=72) :: TEXT72
+  !----
+  !  Allocatable arrays
+  !----
+  INTEGER, ALLOCATABLE, DIMENSION(:) :: ELEM_LIST,NODE_LIST,NODE_MACRO, &
+    & ELEM_MACRO,PERIM_MACRO,AUX_ARR,SURF_MACRO
+  INTEGER, DIMENSION(:) , ALLOCATABLE :: ITAB ! LOCAL ARRAY
+  REAL(PDB), ALLOCATABLE, DIMENSION(:) :: ANGLE
+  REAL, ALLOCATABLE, DIMENSION(:) :: VOLUME ! LOCAL VOLUME SINGLE PRECISION
+  INTEGER, ALLOCATABLE, DIMENSION(:) :: MATALB,KEYMRG,IBC
+  REAL(PDB), ALLOCATABLE, DIMENSION(:) :: VOLSUR
+  REAL(PDB), ALLOCATABLE, DIMENSION(:,:,:) :: ALIGN
+  TYPE(T_G_BASIC), ALLOCATABLE :: GG_MAC
+  !----
+  !  Data statements
+  !----
+  INTEGER   SDIRE(6)
+  DATA      SDIRE/ 5,6,3,4,1,2 /
+  !----
+  !  GG_MAC allocation
+  !----
+  ALLOCATE(GG_MAC)
+  !----
+  !  Set isotropic tracking
+  !----
+  ISPEC=0
+  !----
+  !  List of nodes and surface elements in IMACRO
+  !----
+     print *,'************* IMACRO=',IMACRO,' ********************'
+  ALLOCATE(ELEM_LIST(GG%NB_ELEM),NODE_LIST(GG%NB_NODE))
+  ELEM_LIST(:GG%NB_ELEM) = 0
+  NODE_LIST(:GG%NB_NODE) = -9999
+  I=0
+  DO ELEM=1,GG%NB_ELEM
+    IF(GG%IPAR(1,ELEM) /= 1) CYCLE
+    I2=GG%IPAR(2,ELEM)
+    I3=GG%IPAR(3,ELEM)
+      IF((I2.GT.0).AND.(ELEM_LIST(ELEM) == 0)) THEN
+      IF(GG%NUM_MACRO(GG%NUM_MERGE(I2)) == IMACRO) THEN
+        I=I+1
+        ELEM_LIST(ELEM)=I
+        NODE_LIST(I2)=1
+      ENDIF
+    ENDIF
+    IF((I3.GT.0).AND.(ELEM_LIST(ELEM) == 0)) THEN
+      IF(GG%NUM_MACRO(GG%NUM_MERGE(I3)) == IMACRO) THEN
+        I=I+1
+        ELEM_LIST(ELEM)=I
+        NODE_LIST(I3)=1
+      ENDIF
+    ENDIF
+  ENDDO ! ELEM
+  DO J=1,GG%NB_NODE
+    IF(NODE_LIST(J) /= -9999) THEN
+      NBNODE_MACRO = NBNODE_MACRO+1
+      NODE_LIST(J) = NBNODE_MACRO
+    ENDIF
+  ENDDO
+  NELEM_MACRO=I
+  ALLOCATE(NODE_MACRO(NBNODE_MACRO),ELEM_MACRO(NELEM_MACRO))
+  DO I=1,NELEM_MACRO
+    ELEM = FINDLC(ELEM_LIST,I)
+    ELEM_MACRO(I) = ELEM
+  ENDDO
+  DO I=1,NBNODE_MACRO
+    NODE_MACRO(I) = FINDLC(NODE_LIST,I)
+  ENDDO
+  DEALLOCATE(NODE_LIST,ELEM_LIST)
+  !----
+  !  Find perimeter. Three points are colinear if the determinant is zero.
+  !----
+  ALLOCATE(PERIM_MACRO(NELEM_MACRO),ANGLE(NELEM_MACRO))
+  ALLOCATE(ALIGN(3,3,NELEM_MACRO))
+  ALIGN(:3,3,:NELEM_MACRO)=1.0_PDB
+  PERIM_MACRO(:NELEM_MACRO) = 0
+  NPERIM=0
+  ITER0: DO I=1,NELEM_MACRO
+    ELEM = ELEM_MACRO(I)
+    DO J=1,NBNODE_MACRO
+      IF(GG%IPAR(2,ELEM).EQ.NODE_MACRO(J)) GO TO 10
+    ENDDO
+    GO TO 20
+    10 DO J=1,NBNODE_MACRO
+      IF(GG%IPAR(3,ELEM).EQ.NODE_MACRO(J)) CYCLE ITER0
+    ENDDO
+    20 TYPE=GG%IPAR(1,ELEM)
+    IF(TYPE==1) THEN
+      X1=GG%RPAR(1,ELEM); Y1=GG%RPAR(2,ELEM);
+      X2=X1+GG%RPAR(3,ELEM); Y2=Y1+GG%RPAR(4,ELEM);
+      DO J=1,NPERIM
+        ALIGN(3,1,J)=X1; ALIGN(3,2,J)=Y1;
+        DET1 = DET_ROSETTA(ALIGN(1,1,J),3)
+        ALIGN(3,1,J)=X2; ALIGN(3,2,J)=Y2;
+        DET2 = DET_ROSETTA(ALIGN(1,1,J),3)
+        IF((ABS(DET1).LE.1.0E-4).AND.(ABS(DET2).LE.1.0E-4)) THEN
+          PERIM_MACRO(I) = J
+          CYCLE ITER0
+        ENDIF
+      ENDDO
+      NPERIM=NPERIM+1
+      PERIM_MACRO(I) = NPERIM
+      ANGLE(NPERIM)=ATAN((Y2-Y1)/(X2-X1))
+      ALIGN(1,1,NPERIM)=X1; ALIGN(1,2,NPERIM)=Y1
+      ALIGN(2,1,NPERIM)=X2; ALIGN(2,2,NPERIM)=Y2
+    ENDIF
+  ENDDO ITER0
+  DEALLOCATE(ALIGN)
+  !----
+  !  Printouts
+  !----
+  IF(IPRINT.GT.1) THEN
+    WRITE(FOUT,'(5H ELEM,20I5/(5X,20I5))') ELEM_MACRO(:NELEM_MACRO)
+    WRITE(FOUT,'(5H    -,20I5/(5X,20I5))') GG%IPAR(2,ELEM_MACRO(:NELEM_MACRO))
+    WRITE(FOUT,'(5H    +,20I5/(5X,20I5))') GG%IPAR(3,ELEM_MACRO(:NELEM_MACRO))
+  ENDIF
+  !----
+  !  Create volume and merge information
+  !----
+  ALLOCATE(GG_MAC%VOL_NODE(NBNODE_MACRO),GG_MAC%MED(NBNODE_MACRO),GG_MAC%NAME_MACRO(1), &
+  & GG_MAC%NUM_MERGE(NBNODE_MACRO), STAT=OK)
+  IF(OK/=0) CALL XABORT('MUSACG: not enough memory I,R')
+  GG_MAC%NAME_MACRO(1) = 'MACR000001'
+  DO I=1,NBNODE_MACRO
+    J = NODE_MACRO(I)
+    GG_MAC%VOL_NODE(I) = GG%VOL_NODE(J)
+    GG_MAC%MED(I) = GG%MED(J)
+    GG_MAC%NUM_MERGE(I) = GG%NUM_MERGE(J)
+  ENDDO
+  GG_MAC%NB_FLUX = GG%NB_FLUX
+  DO I=GG%NB_FLUX,1,-1
+    J = FINDLC(GG_MAC%NUM_MERGE,I)
+    IF(J.GT.0) CYCLE
+    DO J=1,NBNODE_MACRO
+      IF(GG_MAC%NUM_MERGE(J).GT.I) GG_MAC%NUM_MERGE(J)=GG_MAC%NUM_MERGE(J)-1
+    ENDDO
+    GG_MAC%NB_FLUX = GG_MAC%NB_FLUX-1
+  ENDDO
+  IF(IPRINT.GT.1) THEN
+    WRITE(FOUT,'(/32H MUSACG: number of flux in macro,I4,1H=,I5)') MACRO,GG_MAC%NB_FLUX
+    WRITE(FOUT,'(5H NODE,20I5/(5X,20I5))') (I,I=1,NBNODE_MACRO)
+    WRITE(FOUT,'(5H MERG,20I5/(5X,20I5))') (GG_MAC%NUM_MERGE(I),I=1,NBNODE_MACRO)
+  ENDIF
+  ALLOCATE(GG_MAC%NUM_MACRO(GG_MAC%NB_FLUX), STAT=OK)
+  IF(OK/=0) CALL XABORT('MUSACG: not enough memory NUM_MACRO')
+  GG_MAC%NUM_MACRO(:GG_MAC%NB_FLUX) = 1
+  !----
+  !  Fill the GG_MAC tracking structure
+  !----
+  GG_MAC%NBBCDA = NPERIM
+  GG_MAC%NB_ELEM = NELEM_MACRO
+  GG_MAC%NB_NODE = NBNODE_MACRO
+  GG_MAC%NB_MACRO = 1
+  GG_MAC%DEFAUL = GG%DEFAUL
+  ALLOCATE(GG_MAC%IPAR(NIPAR,NELEM_MACRO),GG_MAC%RPAR(NRPAR,NELEM_MACRO), STAT=OK)
+  IF(OK/=0) CALL XABORT('MUSACG: not enough memory I,R')
+  GG_MAC%IPAR(:3,:GG_MAC%NB_ELEM)=0
+  GG_MAC%RPAR(:3,:GG_MAC%NB_ELEM)=0.0
+  DO ELEM=1, GG_MAC%NB_ELEM
+    GG_MAC%IPAR(1,ELEM) = GG%IPAR(1,ELEM_MACRO(ELEM)) ! elem type
+    I = GG%IPAR(2,ELEM_MACRO(ELEM)) ! node-
+    J = FINDLC(NODE_MACRO,I)
+    IF(J.GT.0) THEN
+      GG_MAC%IPAR(2,ELEM) = J
+    ELSE
+      GG_MAC%IPAR(3,ELEM) = MIN(I,0)
+    ENDIF
+    I = GG%IPAR(3,ELEM_MACRO(ELEM)) ! node+
+    J = FINDLC(NODE_MACRO,I)
+    IF(J.GT.0) THEN
+      GG_MAC%IPAR(3,ELEM) = J
+    ELSE
+      GG_MAC%IPAR(3,ELEM) = MIN(I,0)
+    ENDIF
+    GG_MAC%RPAR(:NRPAR,ELEM) = GG%RPAR(:NRPAR,ELEM_MACRO(ELEM))
+  ENDDO
+  IF(IPRINT.GT.1) THEN
+    WRITE(FOUT,'(/19H MUSACG: IPAR ARRAY)')
+    WRITE(FOUT,'(5H ELEM,20I5/(5X,20I5))') (I,I=1,GG_MAC%NB_ELEM)
+    WRITE(FOUT,'(5H TYPE,20I5/(5X,20I5))') GG_MAC%IPAR(1,:GG_MAC%NB_ELEM)
+    WRITE(FOUT,'(5H    -,20I5/(5X,20I5))') GG_MAC%IPAR(2,:GG_MAC%NB_ELEM)
+    WRITE(FOUT,'(5H    +,20I5/(5X,20I5))') GG_MAC%IPAR(3,:GG_MAC%NB_ELEM)
+  ENDIF
+  ALLOCATE(GG_MAC%BCDATAREAD(NPERIM))
+  DO IB=1, GG_MAC%NBBCDA
+    GG_MAC%BCDATAREAD(IB)%NBER = COUNT(PERIM_MACRO(:NELEM_MACRO) == IB)
+    ALLOCATE(GG_MAC%BCDATAREAD(IB)%ELEMNB(GG_MAC%BCDATAREAD(IB)%NBER))
+    J=0
+    DO I=1,NELEM_MACRO
+      IF(PERIM_MACRO(I) == IB) THEN
+        J=J+1
+        GG_MAC%BCDATAREAD(IB)%ELEMNB(J) = I
+      ENDIF
+    ENDDO
+    ELEM = GG_MAC%BCDATAREAD(IB)%ELEMNB(1)
+    GG_MAC%BCDATAREAD(IB)%BCDATA(1:2) = GG%RPAR(1:2,ELEM)
+    GG_MAC%BCDATAREAD(IB)%BCDATA(3) = COS(ANGLE(IB))
+    GG_MAC%BCDATAREAD(IB)%BCDATA(4) = SIN(ANGLE(IB))
+    GG_MAC%BCDATAREAD(IB)%BCDATA(5) = ANGLE(IB)
+    GG_MAC%BCDATAREAD(IB)%BCDATA(6) = GG%ALBEDO
+  ENDDO
+  !****
+  !*    compute node perimeters for the macro
+  ALLOCATE (GG_MAC%PPERIM_NODE(GG_MAC%NB_NODE+1),STAT=OK)
+  IF(OK/=0) CALL XABORT('MUSACG: not enough memory PPERIM_NODE')
+  ALLOCATE(AUX_ARR(2*GG_MAC%NB_ELEM))
+  CALL SAL130_2(GG_MAC%NB_ELEM,GG_MAC%NB_NODE,GG_MAC%IPAR,GG_MAC%PPERIM_NODE, &
+     GG_MAC%PERIM_NODE,AUX_ARR)
+  !
+  !*    - compute number of bc's per 2D macro,
+  !       NB_BC2 counts total nber of 2D bc's
+  !     - compute IBC2_ELEM, keep relative 2D bc nber to elements
+  !     - allocation : 2D bc structures
+  !                    2D perimeter structure for a macro
+  !     - get list of elements in 2d macro perimeter
+  ALLOCATE(GG_MAC%IBC2_ELEM(GG_MAC%NB_ELEM),GG_MAC%ISURF2_ELEM(GG_MAC%NB_ELEM))
+  CALL SAL130_4(GG_MAC%NB_ELEM,NN,GG_MAC%IPAR,GG_MAC%IBC2_ELEM,AUX_ARR)
+  GG_MAC%NB_BC2 = NN
+  GG_MAC%NALBG = 6
+  !
+  !*    put default value in all bc elements:
+  ALLOCATE(GG_MAC%TYPE_BC2(NN),GG_MAC%IDATA_BC2(NN),GG_MAC%PERIM_MAC2(NN),STAT=OK)
+  IF(OK/=0) CALL XABORT('MUSACG: not enough memory I,R')
+  GG_MAC%PERIM_MAC2(1:NN) = AUX_ARR(1:NN)
+  GG_MAC%NPERIM_MAC2 = NN
+  DEALLOCATE(AUX_ARR)
+  GG_MAC%TYPE_BC2(:NN) = 0
+  CALL SAL131_2(GG_MAC%NB_ELEM,GG_MAC%DEFAUL,GG_MAC%IPAR,GG_MAC%IBC2_ELEM,GG_MAC%TYPE_BC2, &
+    & GG_MAC%IDATA_BC2)
+  !
+  !*    - set BCDATA position for surfaces of type G_BC_TYPE(-1)
+  !     - compute the nber of surfaces (type -1,0,-12,-13,-14,-15) : nbsur2
+  !     - allocate structures for the surfaces
+  !     - compute surf_mac2
+  ALLOCATE(AUX_ARR(GG_MAC%NB_ELEM))
+  NSURF_MACRO=0
+  DO IB=1,GG_MAC%NB_BC2
+    !           relative element nber
+    IELEM=GG_MAC%PERIM_MAC2(IB)
+    !           count 2D surfaces number
+    IF(GG_MAC%TYPE_BC2(IB)==G_BC_TYPE(-1) .OR. GG_MAC%TYPE_BC2(IB)==G_BC_TYPE(0) .OR. &
+      & GG_MAC%TYPE_BC2(IB)==G_BC_TYPE(1)) THEN
+      NSURF_MACRO=NSURF_MACRO+1
+      AUX_ARR(NSURF_MACRO)=IB
+      GG_MAC%ISURF2_ELEM(IELEM)=NSURF_MACRO
+    ELSE
+      GG_MAC%ISURF2_ELEM(IELEM)=0
+    ENDIF
+  ENDDO
+  GG_MAC%NB_SURF2 = NSURF_MACRO
+  ALLOCATE(SURF_MACRO(NSURF_MACRO))
+  IF(NSURF_MACRO>0) THEN
+    DO I=1,NSURF_MACRO
+      ELEM = FINDLC(GG_MAC%ISURF2_ELEM,I)
+      IF(ELEM.GT.NELEM_MACRO) CALL XABORT('MUSACG: ELEM_MACRO IVERFLOW.')
+      SURF_MACRO(I) = ELEM_MACRO(ELEM)
+    ENDDO
+    ALLOCATE (GG_MAC%IBC2_SURF2(NSURF_MACRO),GG_MAC%IELEM_SURF2(NSURF_MACRO),STAT=OK)
+    IF(OK/=0) CALL XABORT('MUSACG: NOT ENOUGH MEMORY I,R')
+    GG_MAC%IBC2_SURF2(1:NSURF_MACRO)=AUX_ARR(1:NSURF_MACRO)
+    !
+    !     - define IELEM_SURF2 ???
+    ALLOCATE(GG_MAC%SURF2(GG_MAC%NB_SURF2),STAT = OK)
+    IF(OK /= 0) CALL XABORT('MUSACG: not enough memory I,R')
+    CALL SAL130_6(GG_MAC%NB_SURF2,GG_MAC%IBC2_SURF2,GG_MAC%PERIM_MAC2, &
+    & GG_MAC%IELEM_SURF2)
+    CALL LCMSIX(ITRACK,'GEOMETRY  ',1)
+    CALL LCMPUT(ITRACK,'SURF_MACRO',NSURF_MACRO,1,SURF_MACRO)
+    CALL LCMSIX(ITRACK,'          ',2)
+  ELSE
+    NULLIFY(GG_MAC%IBC2_SURF2,GG_MAC%IELEM_SURF2)
+  ENDIF
+  DEALLOCATE(ELEM_MACRO,NODE_MACRO)
+  DEALLOCATE(AUX_ARR,ANGLE,PERIM_MACRO,SURF_MACRO)
+  !
+  !* topological check
+  ALLOCATE (GG_MAC%VOL_NODE(GG_MAC%NB_NODE), STAT=OK)
+  IF(OK/=0) CALL XABORT('MUSACG: not enough memory VOL')
+  CALL SAL140(GG_MAC%NB_NODE,GG_MAC%RPAR,GG%IPAR,GG_MAC%PPERIM_NODE,GG_MAC%PERIM_NODE)
+  !
+  !*    volumes, surfaces, put local nbers in node, and read media:
+  CALL SAL160_2(GG_MAC%NB_ELEM,GG_MAC%IPAR,GG_MAC%RPAR,GG_MAC%VOL_NODE,GG_MAC%ISURF2_ELEM, &
+      GG_MAC%NB_SURF2,GG_MAC%SURF2)
+  IF(PRTIND>5) THEN
+    !*    print surfacic file
+    WRITE(FOUT,'(5H--cut,70(1H-),I5)') IMACRO
+    WRITE(FOUT,'(5HBEGIN)')
+    WRITE(FOUT,'(42H* typgeo nbfold nbnode nbelem nbmacr nbreg)')
+    WRITE(FOUT,'(6I7)') TYPGEO,NBFOLD,GG_MAC%NB_NODE,GG_MAC%NB_ELEM,GG_MAC%NB_MACRO,GG_MAC%NB_NODE
+    WRITE(FOUT,'(20H* index  kndex  prec)')
+    WRITE(FOUT,'(4I7)') 0,0,1
+    WRITE(FOUT,'(18H* eps         eps0)')
+    WRITE(FOUT,'(1P,2E18.9)') 1.0E-03,1.0E-05
+    WRITE(FOUT,'(20H* num_of_region/mesh)')
+    WRITE(FOUT,'(10I7)') (GG_MAC%NUM_MERGE(I),I=1,GG_MAC%NB_NODE)
+    WRITE(FOUT,'(13H* macro names)')
+    WRITE(FOUT,'(4(3x,a10,2x))') (GG_MAC%NAME_MACRO(I),I=1,GG_MAC%NB_MACRO)
+    WRITE(FOUT,'(35H* macro_order_index_per_flux_region)')
+    WRITE(FOUT,'(10I7)') (GG_MAC%NUM_MACRO(I),I=1,GG_MAC%NB_FLUX)
+    DO ELEM=1,GG_MAC%NB_ELEM
+      TYPE=GG_MAC%IPAR(1,ELEM)
+      WRITE(FOUT,'(7h elem =,I6)') ELEM
+      WRITE(FOUT,'(22H*type    node-   node+)')
+      WRITE(FOUT,'(3I6)') (GG_MAC%IPAR(I,ELEM),I=1,3)
+      WRITE(FOUT,'(63H*cx            cy            ex_or_R       ey_or_theta1  theta2)')
+      IF(TYPE<=2) THEN
+        WRITE(FOUT,'(1P,5E18.9)') (GG_MAC%RPAR(I,ELEM),I=1,5)
+      ELSE IF(TYPE==3) THEN
+        WRITE(FOUT,'(1P,5E18.9)') (GG_MAC%RPAR(I,ELEM),I=1,3),GG_MAC%RPAR(4,ELEM)*180._PDB/PI, &
+                                (GG_MAC%RPAR(5,ELEM)-GG_MAC%RPAR(4,ELEM))*180._PDB/PI
+      ENDIF
+    ENDDO
+    WRITE(FOUT,'(40H*defaul  nbbcda  allsur  divsur  ndivsur)')
+    WRITE(FOUT,'(1P,5I8)') GG_MAC%DEFAUL,GG_MAC%NBBCDA,ALLSUR,0,0
+    WRITE(FOUT,'(17H*albedo  deltasur)')
+    WRITE(FOUT,'(1P,2E18.9)') GG_MAC%ALBEDO,0.0
+    DO ELEM=1,GG_MAC%NBBCDA
+      WRITE(FOUT,'(37H particular boundary condition number,i12)') ELEM
+      WRITE(FOUT,'(13H*type    nber)')
+      WRITE(FOUT,'(1P,2I8)') GG_MAC%BCDATAREAD(ELEM)%SALTYPE,GG_MAC%BCDATAREAD(ELEM)%NBER
+      WRITE(FOUT,'(14H*elems(1,nber))')
+      WRITE(FOUT,'(1P,10I8)') (GG_MAC%BCDATAREAD(ELEM)%ELEMNB(I),I=1,GG_MAC%BCDATAREAD(ELEM)%NBER)
+      IF(GG_MAC%BCDATAREAD(ELEM)%SALTYPE/=0) CALL XABORT('MUSACG: SALTYPE=0 expected')
+      WRITE(FOUT,'(7H*albedo)')
+      WRITE(FOUT,'(1P,E18.9)') GG_MAC%BCDATAREAD(ELEM)%BCDATA(6)
+    ENDDO
+    WRITE(FOUT,'(12H* mil(nbreg))')
+    WRITE(FOUT,'(10I7)') (GG_MAC%MED(I),I=1,GG_MAC%NB_NODE)
+    WRITE(FOUT,'(3HEND)')
+    WRITE(FOUT,'(5H--cut,70(1H-),I5)') IMACRO
+  ENDIF
+    !
+    !*    printout basic domain
+    CALL SAL170(GG_MAC)
+  !----
+  !  Save MUST tracking information on LCM
+  !----
+  CALL LCMSIX(ITRACK,'GEOMETRY  ',1)
+  CALL LCMPUT(ITRACK,'NB_ELEM   ',1,1,GG_MAC%NB_ELEM)
+  CALL LCMPUT(ITRACK,'NIPAR     ',1,1,SIZE(GG_MAC%IPAR,1))
+  CALL LCMPUT(ITRACK,'IPAR    ',SIZE(GG_MAC%IPAR),1,GG_MAC%IPAR)
+  CALL LCMPUT(ITRACK,'RPAR    ',SIZE(GG_MAC%RPAR),4,GG_MAC%RPAR)
+  CALL LCMPUT(ITRACK,'ISURF2_ELEM ',SIZE(GG_MAC%ISURF2_ELEM),1,GG_MAC%ISURF2_ELEM)
+  CALL LCMPUT(ITRACK,'NB_NODE   ',1,1,GG_MAC%NB_NODE)
+  CALL LCMPUT(ITRACK,'VOL_NOD   ',GG_MAC%NB_NODE,4,GG_MAC%VOL_NODE)
+  CALL LCMPUT(ITRACK,'NB_SURF2  ',1,1,GG_MAC%NB_SURF2)
+  LGINF = .TRUE.
+  DO IB=1, GG_MAC%NBBCDA
+    LGINF = LGINF .AND. (GG_MAC%BCDATAREAD(IB)%BCDATA(6) == 1._PDB)
+  ENDDO
+  IF(GG_MAC%NB_SURF2 > 0) THEN
+     CALL LCMPUT(ITRACK,'IBC2_SURF2  ',SIZE(GG_MAC%IBC2_SURF2),1,GG_MAC%IBC2_SURF2)
+     CALL LCMPUT(ITRACK,'IELEM_SURF2 ',SIZE(GG_MAC%IELEM_SURF2),1,GG_MAC%IELEM_SURF2)
+     CALL LCMPUT(ITRACK,'SURF2     ',SIZE(GG_MAC%SURF2),4,GG_MAC%SURF2)
+  ENDIF
+  CALL LCMPUT(ITRACK,'NPERIM_MAC2 ',1,1,GG_MAC%NPERIM_MAC2)
+  CALL LCMPUT(ITRACK,'PERIM_MAC2  ',SIZE(GG_MAC%PERIM_MAC2),1,GG_MAC%PERIM_MAC2)
+  CALL LCMPUT(ITRACK,'PERIM_NODE  ',SIZE(GG_MAC%PERIM_NODE),1,GG_MAC%PERIM_NODE)
+  CALL LCMPUT(ITRACK,'PPERIM_NODE ',SIZE(GG_MAC%PPERIM_NODE),1,GG_MAC%PPERIM_NODE)
+  CALL LCMPUT(ITRACK,'BC_DATA_DIM2',1,1,SIZE(GG_MAC%BCDATA,2))
+  CALL LCMPUT(ITRACK,'NB_BC2    ',1,1,GG_MAC%NB_BC2)
+  CALL LCMSIX(ITRACK,' ',2) ! come back to father directory
+  !----
+  ! Print tracking object directory
+  !----
+  IF(IPRINT.GT.2) THEN
+    WRITE(FOUT,'(/24H MUSACG: MACRO GEOMETRY=,I5,1H:)') IMACRO
+    CALL LCMLIB(ITRACK)
+    CALL LCMSIX(ITRACK,'GEOMETRY',1)
+    CALL LCMLIB(ITRACK)
+    CALL LCMSIX(ITRACK,' ',2)
+  ENDIF
+  !----
+  ! store the STATE VECTOR
+  !----
+  NREG=MAXVAL(GG_MAC%NUM_MERGE)
+  LEAK=1
+  IF(.NOT.LGINF) LEAK=0 ! reset the leakage flag
+  CALL LCMGET(ITRACK,'STATE-VECTOR',I_STATE)   
+  I_STATE(1) = NREG ! number of regions
+  I_STATE(2) = NREG ! number of unknowns in DRAGON
+  I_STATE(3) = LEAK ! 1 = absent leakage, 0 leakage
+  I_STATE(4) = MAXVAL(GG_MAC%MED(1:GG_MAC%NB_NODE)) ! maximum number of mixture
+  I_STATE(5) = GG_MAC%NB_SURF2 ! number of outer surface
+  I_STATE(9) = ISPEC
+  I_STATE(24)= 0
+  NSOUT=GG_MAC%NB_SURF2
+  CALL LCMPUT(ITRACK,'STATE-VECTOR',NSTATE,1,I_STATE)   
+  !
+  ! fill-in medium number per region
+  ALLOCATE(ITAB(NREG),VOLUME(NREG), STAT =OK)
+  IF(OK /= 0) CALL XABORT('MUSACG: failure to allocate integer ITAB')
+  ! fill in MATCOD
+  DO J=1,GG_MAC%NB_NODE
+    ITAB(GG_MAC%NUM_MERGE(J)) = GG_MAC%MED(J)
+  ENDDO
+  CALL LCMPUT(ITRACK,'MATCOD',NREG,1,ITAB(1:NREG) ) 
+  ! fill-in KEYFLX per region
+  DO I=1,NREG
+    ITAB(I) = I
+  ENDDO
+  CALL LCMPUT(ITRACK,'MERGE',NREG,1,ITAB)
+  CALL LCMPUT(ITRACK,'KEYFLX',NREG,1,ITAB)
+  ! fill-in volumes per region
+  VOLUME(:NREG) =0.
+  DO I=1,GG_MAC%NB_NODE
+    VOLUME(GG_MAC%NUM_MERGE(I)) = VOLUME(GG_MAC%NUM_MERGE(I)) + REAL(GG_MAC%VOL_NODE(I))
+  ENDDO
+  CALL LCMPUT(ITRACK,'VOLUME',NREG,2,VOLUME)
+  DEALLOCATE(VOLUME,ITAB)
+
+  ! useful values in SAL_TRACKING_TYPES module
+  NFREG=GG_MAC%NB_NODE
+  CALL LCMSIX(ITRACK,'NXTRecords',1)
+    DGMESHX=(/ 1.E10_PDB , -1.E10_PDB /)
+    DGMESHY=(/ 1.E10_PDB , -1.E10_PDB /)
+    DO ELEM=1,GG_MAC%NB_ELEM
+      DGMESHX(1)=MIN(DGMESHX(1),GG_MAC%RPAR(1,ELEM))
+      DGMESHX(2)=MAX(DGMESHX(2),GG_MAC%RPAR(1,ELEM))
+      DGMESHY(1)=MIN(DGMESHY(1),GG_MAC%RPAR(2,ELEM))
+      DGMESHY(2)=MAX(DGMESHY(2),GG_MAC%RPAR(2,ELEM))
+    ENDDO
+    CALL LCMPUT(ITRACK,'G00000001SMX',2,4,DGMESHX)
+    CALL LCMPUT(ITRACK,'G00000001SMY',2,4,DGMESHY)
+    IEDIMG(:NSTATE)=0
+    IEDIMG(1)=NDIM
+    IEDIMG(2)=0 ! Cartesian geometry
+    IF(TYPGEO.EQ.8) IEDIMG(2)=2 ! Isocel geometry with specular reflection
+    IF(TYPGEO.EQ.9) IEDIMG(2)=3 ! Hexagonal geometry with translation
+    IF(TYPGEO.EQ.10) IEDIMG(2)=4 ! Isocel geometry with RA60 symmetry
+    IF(TYPGEO.EQ.11) IEDIMG(2)=5 ! Lozenge geometry with R120 rotation
+    IF(TYPGEO.EQ.12) IEDIMG(2)=6 ! S30 geometry with specular reflection
+    IEDIMG(5)=1 ! 1 cellule
+    IEDIMG(13)=1 ! 1 cellule
+    IEDIMG(14)=1 ! 1 cellule
+    IEDIMG(22)=NSOUT ! number of external surfaces for this geometry
+    IEDIMG(23)=NFREG ! number of regions for this geometry
+    IEDIMG(25)=GG_MAC%NB_NODE
+    CALL LCMPUT(ITRACK,'G00000001DIM',NSTATE,1,IEDIMG)
+  CALL LCMSIX(ITRACK,' ',2)  ! come back to father directory
+  !----
+  ! process boundary conditions
+  !----
+  IF(IPRINT.GT.0) WRITE(FOUT,*) 'number of regions,surfaces,nodes',NREG,NSOUT,NFREG
+  ICODE(:NALBG)=0
+  ICODE(1)=-1
+  ICODE(2)=-2
+  ICODE(3)=-3
+  ICODE(4)=-4
+  ALLOCATE(MATALB(-NSOUT:NFREG),VOLSUR(-NSOUT:NFREG),KEYMRG(-NSOUT:NFREG))
+  CALL LCMGET(ITRACK,'MATCOD',MATALB(1))
+  ALLOCATE(VOLUME(NREG))
+  CALL LCMGET(ITRACK,'VOLUME',VOLUME)
+  VOLSUR(1:NREG)=VOLUME(:NREG)
+  DEALLOCATE(VOLUME)
+  ! boundary conditions structures
+  GALBED(:NALBG)=REAL(GG_MAC%ALBEDO)
+  IF(GG_MAC%NALBG > 8) CALL XABORT('MUSACG: Albedo array overflow(1).')
+  DO I=1,NSOUT
+    VOLSUR(-I)=GG_MAC%SURF2(I)
+    INDEX=GG_MAC%IDATA_BC2(GG_MAC%IBC2_SURF2(I))
+    IF((INDEX <= 0).OR.(INDEX > GG_MAC%NALBG)) THEN
+      CALL XABORT('MUSACG: Albedo array overflow(2).')
+    ENDIF
+    KEYMRG(-I)=-I
+    MATALB(-I)=-SDIRE(INDEX)
+    GALBED(SDIRE(INDEX))=1.0
+  ENDDO
+  MATALB(0)=0
+  KEYMRG(0)=0
+  VOLSUR(0)=0._PDB
+  DO I=1,NREG
+    KEYMRG(I)=I
+  ENDDO
+  !
+  IF(IPRINT.GT.1) THEN
+     CALL PRINDM('VOLUME',VOLSUR(-NSOUT),NREG+NSOUT+1)
+     CALL PRINIM('MATALB',MATALB(-NSOUT),NREG+NSOUT+1)
+     CALL PRINIM('KEYMRG',KEYMRG(-NSOUT),NREG+NSOUT+1)
+  ENDIF
+  IF(IPRINT.GT.0) THEN
+     CALL PRINIM('ICODE ',ICODE(1),NALBG)
+     CALL PRINAM('GALBED',GALBED(1),NALBG)
+  ENDIF
+  !----
+  ! fill in tracking LCM object in excelt format
+  !----
+  TEXT72='SAL TRACKING'
+  CALL LCMPTC(ITRACK,'TITLE',72,TEXT72)
+  CALL LCMPUT(ITRACK,'ICODE',NALBG,1,ICODE)
+  CALL LCMSIX(ITRACK,'NXTRecords',1)
+  CALL LCMPUT(ITRACK,'SAreaRvolume',NREG+NSOUT+1,4,VOLSUR(-NSOUT))
+  CALL LCMPUT(ITRACK,'MATALB',NREG+NSOUT+1,1,MATALB(-NSOUT))
+  CALL LCMPUT(ITRACK,'KEYMRG',NREG+NSOUT+1,1,KEYMRG(-NSOUT))
+  CALL LCMSIX(ITRACK,' ',2)
+  IF(NSOUT>0) THEN
+     ALLOCATE(IBC(NSOUT))
+     DO I=1,NSOUT
+        IBC(I)=I
+     ENDDO
+     CALL LCMPUT(ITRACK,'BC-REFL+TRAN',NSOUT,1,IBC)
+     DEALLOCATE(IBC)
+  ENDIF
+  CALL LCMPUT(ITRACK,'MATCOD',NREG,1,MATALB(1))
+  CALL LCMPUT(ITRACK,'ALBEDO',NALBG,2,GALBED)
+  DEALLOCATE(KEYMRG,VOLSUR,MATALB)
+  !----
+  !  Track macro geometry IMACR
+  !----
+  PRTIND=IPRINT
+  F_GEO=FGEO
+  EPS1=1.E-5_PDB
+  IF(RCUTOF>0._PDB) THEN
+    EPS1=RCUTOF
+    IF(PRTIND>0) WRITE(*,*) "MUSACG: set eps1 to ",EPS1
+  ENDIF
+  IGTRK=1
+  CALL SALTCG(ITRACK, IFTRK, IPRINT, IGTRK, NBSLIN, GG_MAC)
+  !----
+  !  Release allocated memory for macro IMACR
+  !----
+  CALL SALEND(GG_MAC)
+  DEALLOCATE(GG_MAC, STAT= OK)
+  IF(OK /= 0) CALL XABORT('MUSACG: failure to deallocate GG_MAC')
+CONTAINS
+  FUNCTION FINDLC(ISET,ITEST) RESULT(II)
+    ! FUNCTION EMULATING THE FINDLOC FUNCTION IN FORTRAN 2008
+    INTEGER, DIMENSION(:), INTENT(IN) :: ISET
+    INTEGER, INTENT(IN) :: ITEST
+    INTEGER :: II
+    II=0
+    DO J=1,SIZE(ISET)
+      IF(ISET(J) == ITEST) THEN
+        II=J
+        EXIT
+      ENDIF
+    ENDDO
+  END FUNCTION FINDLC
+  RECURSIVE FUNCTION DET_ROSETTA(MAT, N) RESULT(ACCUM)
+    INTEGER, INTENT(IN) :: N
+    REAL(PDB), INTENT(IN) :: MAT(N, N)
+    REAL(PDB) :: SUBMAT(N-1, N-1), ACCUM
+    INTEGER :: I, SGN
+    IF(N == 1) THEN
+      ACCUM = MAT(1,1)
+    ELSE
+      ACCUM = 0.0
+      SGN = 1
+      DO I = 1, N
+        SUBMAT(1:N-1, 1:I-1) = MAT(2:N, 1:I-1)
+        SUBMAT(1:N-1, I:N-1) = MAT(2:N, I+1:N)
+        ACCUM = ACCUM + SGN * MAT(1, I) * DET_ROSETTA(SUBMAT, N-1)
+        SGN = - SGN
+      ENDDO
+    ENDIF
+  END FUNCTION DET_ROSETTA
+END SUBROUTINE MUSACG

@@ -283,7 +283,7 @@ def parse_S2_ASSBLY_rates(name_case, XS_lib_S2, fission_isotopes, n_gamma_isotop
     return keff, fission_rates, ngamma_rates
 
 
-def parse_S2_ASSBLY_rates_lat_det(name_case, XS_lib_S2, fission_isotopes, n_gamma_isotopes, bu, unfold_symmetry):
+def parse_S2_ASSBLY_rates_lat_det(name_case, XS_lib_S2, fission_isotopes, n_gamma_isotopes, bu):
     """
     Serpent2 assembly detector post-treatment for Assembly reaction rates :
     use lattice detector definition
@@ -302,28 +302,24 @@ def parse_S2_ASSBLY_rates_lat_det(name_case, XS_lib_S2, fission_isotopes, n_gamm
 
     print(f"keff = {keff}")
     print(detector.detectors.keys())
-    if unfold_symmetry:
-        sym_factor = 1
-    else:
-        sym_factor = 0.5
 
     # Extracting the detector response
-    ngroups = detector.detectors["_pins_2G"].tallies.shape[0]
-    ncells = detector.detectors["_pins_2G"].tallies.shape[1]
-    ntallies = detector.detectors["_pins_2G"].tallies.shape[2]
-    tally_index_to_react = { 0: "U235_ngamma", 1 : "U238_ngamma", 2 : "Pu239_ngamma", 3 : "Pu241_ngamma",
-                             4 : "Gd155_ngamma", 5: "Gd157_ngamma", 6: "Xe135_ngamma", 7 : "Sm149_ngamma", 
-                             8 : "U235_fiss", 9 : "U238_fiss", 10 : "Pu239_fiss", 11 : "Pu241_fiss"}
-    number_of_each_mix = {"pin1":4, "pin2":8, "pin3":10, "pin4":20, "pin5":6, "pin6":27, "pin7":14, "pin8":2}
+    ngroups = detector.detectors["_lattice_2G"].tallies.shape[0] # 2 = n_groups
+    ncells = detector.detectors["_lattice_2G"].tallies.shape[1] # 144 = 12*12 = ncells in lattice but pins are only 10 * 10 : water "pins" around fuel lattice.
+    ntallies = detector.detectors["_lattice_2G"].tallies.shape[2] # 7 reactions
+    print(f"lattice detector shape : {detector.detectors['_lattice_2G'].tallies.shape}")
+    tally_index_to_react = { 0: "U235_ngamma", 1 : "U238_ngamma",
+                             2 : "Gd155_ngamma", 3: "Gd157_ngamma", 
+                             4 : "U234_fiss", 5 : "U235_fiss", 6 : "U238_fiss"}
     vol = np.pi * 0.4435 ** 2
-    N_iso = {"pin1" : {"U234":  5.15910E-06, "U235":  5.67035E-04, "U238":  2.27631E-02, "O16" :  4.66705E-02}, 
-            "pin2" : {"O16": 4.667480e-02, "U238": 2.257430e-02, "U234": 7.039170e-06, "U235": 7.560370e-04},
-            "pin3": {"U235": 9.686590e-04, "U234": 9.163680e-06, "U238": 2.236200e-02, "O16": 4.667960e-02}, 
-            "pin4": {"O16": 4.668150e-02, "U238": 2.227940e-02, "U234": 9.991530e-06, "U235": 1.051340e-03},
-            "pin5": {"U234": 1.058330e-05, "U235": 1.110400e-03, "U238": 2.222040e-02, "O16": 4.668280e-02}, 
-            "pin6":{"U234": 1.117530e-05, "U235": 1.169460e-03, "O16": 4.668410e-02, "U238": 2.216140e-02}, 
-            "pin7":{"Gd160": 2.994740e-04, "Gd157": 2.143990e-04, "Gd158": 3.403000e-04, "Gd156": 2.804310e-04,"U238": 2.107540e-02, "O16": 4.621410e-02, "Gd155": 2.027540e-04, "U234": 9.451580e-06, "Gd154": 2.986510e-05, "U235": 9.945290e-04}, 
-            "pin8": {"O16": 4.621230e-02, "U238": 2.115350e-02, "Gd156": 2.804310e-04, "Gd158": 3.403000e-04, "U235": 9.163120e-04, "Gd154": 2.986510e-05, "U234": 8.668470e-06, "Gd155": 2.027540e-04, "Gd157": 2.143990e-04, "Gd160": 2.994740e-04}
+    N_iso = {"pin1" : {"U234":  5.15910E-06, "U235":  5.67035E-04, "U238":  2.27631E-02, "O16" :  4.66705E-02, "Pu239":0.0, "Pu241":0.0, "Gd155":0.0, "Gd157":0.0, "Xe135":0.0, "Sm149":0.0}, 
+            "pin2" : {"O16": 4.667480e-02, "U238": 2.257430e-02, "U234": 7.039170e-06, "U235": 7.560370e-04, "Pu239":0.0, "Pu241":0.0, "Gd155":0.0, "Gd157":0.0, "Xe135":0.0, "Sm149":0.0},
+            "pin3": {"U235": 9.686590e-04, "U234": 9.163680e-06, "U238": 2.236200e-02, "O16": 4.667960e-02, "Pu239":0.0, "Pu241":0.0, "Gd155":0.0, "Gd157":0.0, "Xe135":0.0, "Sm149":0.0}, 
+            "pin4": {"O16": 4.668150e-02, "U238": 2.227940e-02, "U234": 9.991530e-06, "U235": 1.051340e-03, "Pu239":0.0, "Pu241":0.0, "Gd155":0.0, "Gd157":0.0, "Xe135":0.0, "Sm149":0.0},
+            "pin5": {"U234": 1.058330e-05, "U235": 1.110400e-03, "U238": 2.222040e-02, "O16": 4.668280e-02, "Pu239":0.0, "Pu241":0.0, "Gd155":0.0, "Gd157":0.0, "Xe135":0.0, "Sm149":0.0}, 
+            "pin6":{"U234": 1.117530e-05, "U235": 1.169460e-03, "O16": 4.668410e-02, "U238": 2.216140e-02, "Pu239":0.0, "Pu241":0.0, "Gd155":0.0, "Gd157":0.0, "Xe135":0.0, "Sm149":0.0}, 
+            "pin7":{"Gd160": 2.994740e-04, "Gd157": 2.143990e-04, "Gd158": 3.403000e-04, "Gd156": 2.804310e-04,"U238": 2.107540e-02, "O16": 4.621410e-02, "Gd155": 2.027540e-04, "U234": 9.451580e-06, "Gd154": 2.986510e-05, "U235": 9.945290e-04, "Pu239":0.0, "Pu241":0.0, "Xe135":0.0, "Sm149":0.0}, 
+            "pin8": {"O16": 4.621230e-02, "U238": 2.115350e-02, "Gd156": 2.804310e-04, "Gd158": 3.403000e-04, "U235": 9.163120e-04, "Gd154": 2.986510e-05, "U234": 8.668470e-06, "Gd155": 2.027540e-04, "Gd157": 2.143990e-04, "Gd160": 2.994740e-04, "Pu239":0.0, "Pu241":0.0, "Xe135":0.0, "Sm149":0.0}
         }
     fission_rates = {}
     ngamma_rates={}
@@ -335,7 +331,7 @@ def parse_S2_ASSBLY_rates_lat_det(name_case, XS_lib_S2, fission_isotopes, n_gamm
             if f"cell{j+1}" not in ngamma_rates.keys():
                 ngamma_rates[f"cell{j+1}"] = {}
             for k in range(ntallies):
-                print(f"Energy group {i+1}, Cell {j+1}, Reaction {tally_index_to_react[k]} : {detector.detectors['_pins_2G'].tallies[i,j,k]}")
+                print(f"Energy group {i+1}, Cell {j+1}, Reaction {tally_index_to_react[k]} : {detector.detectors['_lattice_2G'].tallies[i,j,k]}")
                 #print(detector.detectors['_pins_2G'].tallies[i,j,k])
                 if tally_index_to_react[k] not in fission_rates[f"cell{j+1}"].keys():
                     fission_rates[f"cell{j+1}"][tally_index_to_react[k]] = []
@@ -343,15 +339,17 @@ def parse_S2_ASSBLY_rates_lat_det(name_case, XS_lib_S2, fission_isotopes, n_gamm
                     ngamma_rates[f"cell{j+1}"][tally_index_to_react[k]] = []
                     
                 if tally_index_to_react[k].endswith("ngamma"):
-                    ngamma_rates[f"cell{j+1}"][tally_index_to_react[k]].append(detector.detectors['_pins_2G'].tallies[i,j,k] * N_iso[f"pin{j+1}"][tally_index_to_react[k][:-7]] * vol * sym_factor / number_of_each_mix[f"pin{j+1}"])
+                    ngamma_rates[f"cell{j+1}"][tally_index_to_react[k]].append(detector.detectors['_lattice_2G'].tallies[i,j,k] * N_iso[f"pin{j+1}"][tally_index_to_react[k][:-7]] * vol)
                 elif tally_index_to_react[k].endswith("fiss"):
-                    fission_rates[f"cell{j+1}"][tally_index_to_react[k]].append(detector.detectors['_pins_2G'].tallies[i,j,k] * N_iso[f"pin{j+1}"][tally_index_to_react[k][:-5]] * vol * sym_factor / number_of_each_mix[f"pin{j+1}"])
+                    fission_rates[f"cell{j+1}"][tally_index_to_react[k]].append(detector.detectors['_lattice_2G'].tallies[i,j,k] * N_iso[f"pin{j+1}"][tally_index_to_react[k][:-5]] * vol)
 
 
     summed_fission_rates_over_isos = sum_S2rates_over_iso(fission_rates)
     summed_ngamma_rates_over_isos = sum_S2rates_over_iso(ngamma_rates)
     fission_rates["TOT"] = summed_fission_rates_over_isos
     ngamma_rates["TOT"] = summed_ngamma_rates_over_isos
+
+    n_groups_fine = detector.detectors['spectrum_295G'].tallies.shape[0]
 
 
     return keff, fission_rates, ngamma_rates

@@ -29,7 +29,7 @@
 *
 *Parameters: output
 * PVS     leakage probability:
-*         PVS(j,i) for volume i to side j with i=1,nr and j=1,18.
+*         PVS(i,j) for volume i to side j with i=1,nr and j=1,18.
 * PSS     transmission probability:
 *         PSS(i,j) for side i to side j with i=1,18 and j=1,18.
 *
@@ -58,7 +58,7 @@
 *  SUBROUTINE ARGUMENTS
 *----
       INTEGER NREG,NSURF,IZ(*)
-      REAL Z(*),SIDE,SIGT(NREG),TRONC,VOL(NREG),PVS(3*NSURF,NREG),
+      REAL Z(*),SIDE,SIGT(NREG),TRONC,VOL(NREG),PVS(NREG,3*NSURF),
      1 PSS(3*NSURF,3*NSURF)
 *----
 *  LOCAL VARIABLES
@@ -106,7 +106,7 @@
 *----
       ZERO=TRONC/(SQ3*SIDE)
       PBB(:16)=0.0
-      PVS(:18,:NREG)=0.0
+      PVS(:NREG,:18)=0.0
       IZ0=2
       IZR=4
       DO 205 IA=1,IZ(2)
@@ -143,18 +143,18 @@
          POP=POP+SIGTI*Z(IZR+I)
          IF(POP.LT.XLIM3) GO TO 30
          IF(SIGTI.LE.ZERO) GO TO 50
-         PVS(1,III)=PVS(1,III)+KI3*Z1
-         PVS(2,III)=PVS(2,III)+KI4*DW1
+         PVS(III,1)=PVS(III,1)+KI3*Z1
+         PVS(III,2)=PVS(III,2)+KI4*DW1
          GO TO 50
    30    K=NINT(POP*PAS3)
          WI3=BI3(K)+POP*(BI31(K)+POP*BI32(K))
          WI4=BI4(K)+POP*(BI41(K)+POP*BI42(K))
          IF(SIGTI.LE.ZERO) THEN
-            PVS(1,III)=PVS(1,III)+TABKI(2,POP0)*Z(IZR+I)*Z1
-            PVS(2,III)=PVS(2,III)+KI3*Z(IZR+I)*DW1
+            PVS(III,1)=PVS(III,1)+TABKI(2,POP0)*Z(IZR+I)*Z1
+            PVS(III,2)=PVS(III,2)+KI3*Z(IZR+I)*DW1
          ELSE
-            PVS(1,III)=PVS(1,III)+(KI3-WI3)*Z1
-            PVS(2,III)=PVS(2,III)+(KI4-WI4)*DW1
+            PVS(III,1)=PVS(III,1)+(KI3-WI3)*Z1
+            PVS(III,2)=PVS(III,2)+(KI4-WI4)*DW1
          ENDIF
          KI3=WI3
          KI4=WI4
@@ -170,18 +170,18 @@
          POP=POP+SIGTI*Z(IZR+NH+1-I)
          IF(POP.LT.XLIM3) GO TO 70
          IF(SIGTI.LE.ZERO) GO TO 185
-         PVS(1,III)=PVS(1,III)+KI3*Z1
-         PVS(2,III)=PVS(2,III)+KI4*DW2
+         PVS(III,1)=PVS(III,1)+KI3*Z1
+         PVS(III,2)=PVS(III,2)+KI4*DW2
          GO TO 185
    70    K=NINT(POP*PAS3)
          WI3=BI3(K)+POP*(BI31(K)+POP*BI32(K))
          WI4=BI4(K)+POP*(BI41(K)+POP*BI42(K))
          IF(SIGTI.LE.ZERO) THEN
-            PVS(1,III)=PVS(1,III)+TABKI(2,POP0)*Z(IZR+NH+1-I)*Z1
-            PVS(2,III)=PVS(2,III)+KI3*Z(IZR+NH+1-I)*DW2
+            PVS(III,1)=PVS(III,1)+TABKI(2,POP0)*Z(IZR+NH+1-I)*Z1
+            PVS(III,2)=PVS(III,2)+KI3*Z(IZR+NH+1-I)*DW2
          ELSE
-            PVS(1,III)=PVS(1,III)+(KI3-WI3)*Z1
-            PVS(2,III)=PVS(2,III)+(KI4-WI4)*DW2
+            PVS(III,1)=PVS(III,1)+(KI3-WI3)*Z1
+            PVS(III,2)=PVS(III,2)+(KI4-WI4)*DW2
          ENDIF
          KI3=WI3
          KI4=WI4
@@ -207,18 +207,18 @@
          POP=POP+SIGTI*Z(IZR+I)
          IF(POP.LT.XLIM3) GO TO 90
          IF(SIGTI.LE.ZERO) GO TO 110
-         PVS(1,III)=PVS(1,III)+KI3*Z1
-         PVS(2,III)=PVS(2,III)+KI4*DW1
+         PVS(III,1)=PVS(III,1)+KI3*Z1
+         PVS(III,2)=PVS(III,2)+KI4*DW1
          GO TO 110
    90    K=NINT(POP*PAS3)
          WI3=BI3(K)+POP*(BI31(K)+POP*BI32(K))
          WI4=BI4(K)+POP*(BI41(K)+POP*BI42(K))
          IF(SIGTI.LE.ZERO) THEN
-            PVS(1,III)=PVS(1,III)+TABKI(2,POP0)*Z(IZR+I)*Z1
-            PVS(2,III)=PVS(2,III)+KI3*Z(IZR+I)*DW1
+            PVS(III,1)=PVS(III,1)+TABKI(2,POP0)*Z(IZR+I)*Z1
+            PVS(III,2)=PVS(III,2)+KI3*Z(IZR+I)*DW1
          ELSE
-            PVS(1,III)=PVS(1,III)+(KI3-WI3)*Z1
-            PVS(2,III)=PVS(2,III)+(KI4-WI4)*DW1
+            PVS(III,1)=PVS(III,1)+(KI3-WI3)*Z1
+            PVS(III,2)=PVS(III,2)+(KI4-WI4)*DW1
          ENDIF
          KI3=WI3
          KI4=WI4
@@ -233,18 +233,18 @@
          POP=POP+SIGTI*Z(IZR+NH+1-I)
          IF(POP.LT.XLIM3) GO TO 120
          IF(SIGTI.LE.ZERO) GO TO 185
-         PVS(1,III)=PVS(1,III)+KI3*Z1
-         PVS(2,III)=PVS(2,III)+KI4*DW2
+         PVS(III,1)=PVS(III,1)+KI3*Z1
+         PVS(III,2)=PVS(III,2)+KI4*DW2
          GO TO 185
   120    K=NINT(POP*PAS3)
          WI3=BI3(K)+POP*(BI31(K)+POP*BI32(K))
          WI4=BI4(K)+POP*(BI41(K)+POP*BI42(K))
          IF(SIGTI.LE.ZERO) THEN
-            PVS(1,III)=PVS(1,III)+TABKI(2,POP0)*Z(IZR+NH+1-I)*Z1
-            PVS(2,III)=PVS(2,III)+KI3*Z(IZR+NH+1-I)*DW2
+            PVS(III,1)=PVS(III,1)+TABKI(2,POP0)*Z(IZR+NH+1-I)*Z1
+            PVS(III,2)=PVS(III,2)+KI3*Z(IZR+NH+1-I)*DW2
          ELSE
-            PVS(1,III)=PVS(1,III)+(KI3-WI3)*Z1
-            PVS(2,III)=PVS(2,III)+(KI4-WI4)*DW2
+            PVS(III,1)=PVS(III,1)+(KI3-WI3)*Z1
+            PVS(III,2)=PVS(III,2)+(KI4-WI4)*DW2
          ENDIF
          KI3=WI3
          KI4=WI4
@@ -268,18 +268,18 @@
          POP=POP+SIGTI*Z(IZR+I)
          IF(POP.LT.XLIM3) GO TO 140
          IF(SIGTI.LE.ZERO) GO TO 160
-         PVS(1,III)=PVS(1,III)+KI3*Z1
-         PVS(2,III)=PVS(2,III)+KI4*Z2
+         PVS(III,1)=PVS(III,1)+KI3*Z1
+         PVS(III,2)=PVS(III,2)+KI4*Z2
          GO TO 160
   140    K=NINT(POP*PAS3)
          WI3=BI3(K)+POP*(BI31(K)+POP*BI32(K))
          WI4=BI4(K)+POP*(BI41(K)+POP*BI42(K))
          IF(SIGTI.LE.ZERO) THEN
-            PVS(1,III)=PVS(1,III)+TABKI(2,POP0)*Z(IZR+I)*Z1
-            PVS(2,III)=PVS(2,III)+KI3*Z(IZR+I)*Z2
+            PVS(III,1)=PVS(III,1)+TABKI(2,POP0)*Z(IZR+I)*Z1
+            PVS(III,2)=PVS(III,2)+KI3*Z(IZR+I)*Z2
          ELSE
-            PVS(1,III)=PVS(1,III)+(KI3-WI3)*Z1
-            PVS(2,III)=PVS(2,III)+(KI4-WI4)*Z2
+            PVS(III,1)=PVS(III,1)+(KI3-WI3)*Z1
+            PVS(III,2)=PVS(III,2)+(KI4-WI4)*Z2
          ENDIF
          KI3=WI3
          KI4=WI4
@@ -295,18 +295,18 @@
          POP=POP+SIGTI*Z(IZR+NH+1-I)
          IF(POP.LT.XLIM3) GO TO 170
          IF(SIGTI.LE.ZERO) GO TO 185
-         PVS(1,III)=PVS(1,III)+KI3*Z1
-         PVS(2,III)=PVS(2,III)+KI4*Z2
+         PVS(III,1)=PVS(III,1)+KI3*Z1
+         PVS(III,2)=PVS(III,2)+KI4*Z2
          GO TO 185
   170    K=NINT(POP*PAS3)
          WI3=BI3(K)+POP*(BI31(K)+POP*BI32(K))
          WI4=BI4(K)+POP*(BI41(K)+POP*BI42(K))
          IF(SIGTI.LE.ZERO) THEN
-            PVS(1,III)=PVS(1,III)+TABKI(2,POP0)*Z(IZR+NH+1-I)*Z1
-            PVS(2,III)=PVS(2,III)+KI3*Z(IZR+NH+1-I)*Z2
+            PVS(III,1)=PVS(III,1)+TABKI(2,POP0)*Z(IZR+NH+1-I)*Z1
+            PVS(III,2)=PVS(III,2)+KI3*Z(IZR+NH+1-I)*Z2
          ELSE
-            PVS(1,III)=PVS(1,III)+(KI3-WI3)*Z1
-            PVS(2,III)=PVS(2,III)+(KI4-WI4)*Z2
+            PVS(III,1)=PVS(III,1)+(KI3-WI3)*Z1
+            PVS(III,2)=PVS(III,2)+(KI4-WI4)*Z2
          ENDIF
          KI3=WI3
          KI4=WI4
@@ -349,12 +349,12 @@
       DO 210 I=1,NREG
       COEF=0.25*SIDE/VOL(I)
       IF(SIGT(I).LE.ZERO) THEN
-         PVS(2,I)=COEF*E1*(E2*PVS(2,I)-E3*PVS(1,I))
-         PVS(1,I)=COEF*PVS(1,I)*E1*E1
+         PVS(I,2)=COEF*E1*(E2*PVS(I,2)-E3*PVS(I,1))
+         PVS(I,1)=COEF*PVS(I,1)*E1*E1
       ELSE
          SIGTI=COEF/SIGT(I)
-         PVS(2,I)=SIGTI*E1*(E2*PVS(2,I)-E3*PVS(1,I))
-         PVS(1,I)=SIGTI*PVS(1,I)*E1*E1
+         PVS(I,2)=SIGTI*E1*(E2*PVS(I,2)-E3*PVS(I,1))
+         PVS(I,1)=SIGTI*PVS(I,1)*E1*E1
       ENDIF
   210 CONTINUE
 *----
@@ -386,8 +386,8 @@
       K=3
       DO 230 I=1,5
       K=K+3
-      PVS(K-1,J)=PVS(2,J)
-      PVS(K-2,J)=PVS(1,J)
+      PVS(J,K-1)=PVS(J,2)
+      PVS(J,K-2)=PVS(J,1)
   230 CONTINUE
   235 CONTINUE
 *----

@@ -246,7 +246,9 @@ is the total number of selected reactions. \dusa{HNAREA}(i) is chosen among the 
 $[$ \moc{EDIT} \dusa{iprint} $]$ \\
 $[[$ \dusa{parkey} \dusa{value} $]]$ \\
 $[$ \moc{ORIG} \dusa{orig} $]$ \\
+$[$ \moc{EQUI} \dusa{hequi} $]$ \\
 $[$ \moc{SET} \dusa{xtr} $\{$ \moc{S} $|$ \moc{DAY} $|$ \moc{YEAR} $\}$ $]$ \\
+$[$ \moc{ICAL} {\tt >>} \dusa{ical} {\tt <<} $]$ \\
 {\tt ;}
 \end{DataStructure}
 
@@ -265,11 +267,16 @@ parameter.
 \item[\dusa{value}] floating-point, integer or {\tt character*12} value of a user-defined
 global parameter.
 
-\item[\moc{ORIG}] key word used to define the father node in the global parameter tree. By
+\item[\moc{ORIG}] keyword used to define the father node in the global parameter tree. By
 default, the index of the previous elementary calculation is used.
 
 \item[\dusa{orig}] index of the elementary calculation associated to the father node in the
 global parameter tree.
+
+\item[\moc{EQUI}] keyword used to define the name of a SPH equivalence factor set. By
+default, \dusa{hequi}$=$ {\tt 'default'}.
+
+\item[\dusa{hequi}] \texttt{character*80} name of a SPH equivalence factor set.
 
 \item[\moc{SET}] keyword used to recover the flux normalization factor already
 stored on \dusa{BRNNAM} from a sub-directory corresponding to a specific time.
@@ -285,6 +292,10 @@ with the time \dusa{xtr}.
 \item[\moc{DAY}] keyword to specify that the time is given in days.
 
 \item[\moc{YEAR}] keyword to specify that the time is given in years.
+
+\item[\moc{ICAL}]  keyword used to recover the last calculation index.
+
+\item[\dusa{ical}] \texttt{character*12} CLE-2000 variable name in which the last calculation index will be placed.
 
 \end{ListeDeDescription}
 

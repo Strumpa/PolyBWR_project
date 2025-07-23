@@ -1,0 +1,264 @@
+*-----------------------------------------------------
+* PROCEDURE CLE 2000 INTERPOLATION                   *
+*-----------------------------------------------------
+*
+* Procedure appelee par 
+* <<a_comb>> <<a_acier_AIM1>> <<a_acier_AIM1_Na>> <<a_acier_EM10>> 
+* <<a_acier_F17>> <<a_na>> <<a_B>>
+* := rnr_interpol :: >>T_comb<< >>T_clad<< >>T_Na<< ;
+*
+* Donnees en entree :
+*     T_X           : température moyenne du milieu X (en C)
+*
+* Resultat          :
+*     a_X           : coefficient de dilatation lineaire de la
+*                     substance X (en C^-1)
+*
+
+*-----------------------------------------------------
+* RECUPERATION DES DONNEES D ENTREE                  *
+*-----------------------------------------------------
+
+REAL T_comb T_clad T_Na ;
+MODULE END: ABORT: ;
+
+:: >>T_comb<< >>T_clad<< >>T_Na<< ;
+
+*-----------------------------------------------------
+* CALCUL COMBUSTIBLE                                 *
+*-----------------------------------------------------
+
+REAL a b ya yb ;
+
+IF T_comb 100.0 < THEN
+EVALUATE a b ya yb := 0.0 100.0 0.0 1.0578E-05 ;
+ELSEIF T_comb 200.0 <= THEN
+EVALUATE a b ya yb := 100.0 200.0 1.0578E-05 1.0577E-05 ;
+ELSEIF T_comb 300.0 <= THEN
+EVALUATE a b ya yb := 200.0 300.0 1.0577E-05 1.0602E-05 ;
+ELSEIF T_comb 400.0 <= THEN
+EVALUATE a b ya yb := 300.0 400.0 1.0602E-05 1.0640E-05 ;
+ELSEIF T_comb 500.0 <= THEN
+EVALUATE a b ya yb := 400.0 500.0 1.0640E-05 1.0690E-05 ;
+ELSEIF T_comb 600.0 <= THEN
+EVALUATE a b ya yb := 500.0 600.0 1.0690E-05 1.0750E-05 ;
+ELSEIF T_comb 700.0 <= THEN
+EVALUATE a b ya yb := 600.0 700.0 1.0750E-05 1.0803E-05 ;
+ELSEIF T_comb 800.0 <= THEN
+EVALUATE a b ya yb := 700.0 800.0 1.0803E-05 1.0888E-05 ;
+ELSEIF T_comb 900.0 <= THEN
+EVALUATE a b ya yb := 800.0 900.0 1.0888E-05 1.0990E-05 ;
+ELSEIF T_comb 1000.0 <= THEN
+EVALUATE a b ya yb := 900.0 1000.0 1.0990E-05 1.1111E-05 ;
+ELSEIF T_comb 1100.0 <= THEN
+EVALUATE a b ya yb := 1000.0 1100.0 1.1111E-05 1.1254E-05 ;
+ELSEIF T_comb 1200.0 <= THEN
+EVALUATE a b ya yb := 1100.0 1200.0 1.1254E-05 1.1420E-05 ;
+ELSE
+ECHO "rnr_interpol: out of interpolation domain(1)" ;
+ABORT: ;
+ENDIF ;
+
+REAL coeff1 := yb ya - b a - / ;
+REAL coeff2 := b ya * a yb * - b a - / ;
+REAL a_comb := coeff1 T_comb * coeff2 + ;
+
+*-----------------------------------------------------
+* CALCUL ACIER AIM1 A T CLAD                         *
+*-----------------------------------------------------
+
+IF T_clad 100.0 < THEN
+EVALUATE a b ya yb := 0.0 100.0 0.0 1.6400E-05 ;
+ELSEIF T_clad 200.0 <= THEN
+EVALUATE a b ya yb := 100.0 200.0 1.6400E-05 1.6900E-05 ;
+ELSEIF T_clad 300.0 <= THEN
+EVALUATE a b ya yb := 200.0 300.0 1.6900E-05 1.7350E-05 ;
+ELSEIF T_clad 400.0 <= THEN
+EVALUATE a b ya yb := 300.0 400.0 1.7350E-05 1.7800E-05 ;
+ELSEIF T_clad 500.0 <= THEN
+EVALUATE a b ya yb := 400.0 500.0 1.7800E-05 1.8200E-05 ;
+ELSEIF T_clad 600.0 <= THEN
+EVALUATE a b ya yb := 500.0 600.0 1.8200E-05 1.8500E-05 ;
+ELSEIF T_clad 700.0 <= THEN
+EVALUATE a b ya yb := 600.0 700.0 1.8500E-05 1.8800E-05 ;
+ELSEIF T_clad 800.0 <= THEN
+EVALUATE a b ya yb := 700.0 800.0 1.8800E-05 1.9000E-05 ;
+ELSE
+ECHO "rnr_interpol: out of interpolation domain(2)" ;
+ABORT: ;
+ENDIF ;
+
+EVALUATE coeff1 := yb ya - b a - / ;
+EVALUATE coeff2 := b ya * a yb * - b a - / ;
+REAL a_AIM1 := coeff1 T_clad * coeff2 + ;
+
+*-----------------------------------------------------
+* CALCUL ACIER AIM1 A T SODIUM                       *
+*-----------------------------------------------------
+
+IF T_Na 100.0 < THEN
+EVALUATE a b ya yb := 0.0 100.0 0.0 1.6400E-05 ;
+ELSEIF T_Na 200.0 <= THEN
+EVALUATE a b ya yb := 100.0 200.0 1.6400E-05 1.6900E-05 ;
+ELSEIF T_Na 300.0 <= THEN
+EVALUATE a b ya yb := 200.0 300.0 1.6900E-05 1.7350E-05 ;
+ELSEIF T_Na 400.0 <= THEN
+EVALUATE a b ya yb := 300.0 400.0 1.7350E-05 1.7800E-05 ;
+ELSEIF T_Na 500.0 <= THEN
+EVALUATE a b ya yb := 400.0 500.0 1.7800E-05 1.8200E-05 ;
+ELSEIF T_Na 600.0 <= THEN
+EVALUATE a b ya yb := 500.0 600.0 1.8200E-05 1.8500E-05 ;
+ELSEIF T_Na 700.0 <= THEN
+EVALUATE a b ya yb := 600.0 700.0 1.8500E-05 1.8800E-05 ;
+ELSEIF T_Na 800.0 <= THEN
+EVALUATE a b ya yb := 700.0 800.0 1.8800E-05 1.9000E-05 ;
+ELSE
+ECHO "rnr_interpol: out of interpolation domain(2)" ;
+ABORT: ;
+ENDIF ;
+
+EVALUATE coeff1 := yb ya - b a - / ;
+EVALUATE coeff2 := b ya * a yb * - b a - / ;
+REAL a_AIM1_Na := coeff1 T_clad * coeff2 + ;
+
+*-----------------------------------------------------
+* CALCUL ACIER EM10                                  *
+*-----------------------------------------------------
+
+* Hypohèse : T_box = T_Na
+
+IF T_Na 100.0 < THEN
+EVALUATE a b ya yb := 0.0 100.0 0.0 1.0620E-05 ;
+ELSEIF T_Na 200.0 <= THEN
+EVALUATE a b ya yb := 100.0 200.0 1.0620E-05 1.1060E-05 ;
+ELSEIF T_Na 300.0 <= THEN
+EVALUATE a b ya yb := 200.0 300.0 1.1060E-05 1.1460E-05 ;
+ELSEIF T_Na 400.0 <= THEN
+EVALUATE a b ya yb := 300.0 400.0 1.1460E-05 1.1830E-05 ;
+ELSEIF T_Na 500.0 <= THEN
+EVALUATE a b ya yb := 400.0 500.0 1.1830E-05 1.2170E-05 ;
+ELSEIF T_Na 600.0 <= THEN
+EVALUATE a b ya yb := 500.0 600.0 1.2170E-05 1.2480E-05 ;
+ELSEIF T_Na 700.0 <= THEN
+EVALUATE a b ya yb := 600.0 700.0 1.2480E-05 1.2750E-05 ;
+ELSEIF T_Na 750.0 <= THEN
+EVALUATE a b ya yb := 700.0 750.0 1.2750E-05 1.2880E-05 ;
+ELSEIF T_Na 800.0 <= THEN
+EVALUATE a b ya yb := 750.0 800.0 1.2880E-05 1.2990E-05 ;
+ELSE
+ECHO "rnr_interpol: out of interpolation domain(3)" ;
+ABORT: ;
+ENDIF ;
+
+EVALUATE coeff1 := yb ya - b a - / ;
+EVALUATE coeff2 := b ya * a yb * - b a - / ;
+REAL a_EM10 := coeff1 T_Na * coeff2 + ;
+
+*-----------------------------------------------------
+* CALCUL ACIER F17                                   *
+*-----------------------------------------------------
+
+IF T_Na 100.0 < THEN
+EVALUATE a b ya yb := 0.0 100.0 0.0 1.0600E-05 ;
+ELSEIF T_Na 200.0 <= THEN
+EVALUATE a b ya yb := 100.0 200.0 1.0600E-05 1.1000E-05 ;
+ELSEIF T_Na 300.0 <= THEN
+EVALUATE a b ya yb := 200.0 300.0 1.1000E-05 1.1350E-05 ;
+ELSEIF T_Na 400.0 <= THEN
+EVALUATE a b ya yb := 300.0 400.0 1.1350E-05 1.1700E-05 ;
+ELSEIF T_Na 500.0 <= THEN
+EVALUATE a b ya yb := 400.0 500.0 1.1700E-05 1.2000E-05 ;
+ELSEIF T_Na 600.0 <= THEN
+EVALUATE a b ya yb := 500.0 600.0 1.2000E-05 1.2300E-05 ;
+ELSEIF T_Na 700.0 <= THEN
+EVALUATE a b ya yb := 600.0 700.0 1.2300E-05 1.2550E-05 ;
+ELSEIF T_Na 800.0 <= THEN
+EVALUATE a b ya yb := 700.0 800.0 1.2550E-05 1.2800E-05 ;
+ELSE
+ECHO "rnr_interpol: out of interpolation domain(4)" ;
+ABORT: ;
+ENDIF ;
+
+EVALUATE coeff1 := yb ya - b a - / ;
+EVALUATE coeff2 := b ya * a yb * - b a - / ;
+REAL a_F17 := coeff1 T_Na * coeff2 + ;
+
+
+
+*-----------------------------------------------------
+* CALCUL SODIUM                                      *
+*-----------------------------------------------------
+
+IF T_Na 100.0 < THEN
+EVALUATE a b ya yb := 0.0 100.0 0.0 8.6560E-05 ;
+ELSEIF T_Na 200.0 <= THEN
+EVALUATE a b ya yb := 100.0 200.0 8.6560E-05 8.9030E-05 ;
+ELSEIF T_Na 300.0 <= THEN
+EVALUATE a b ya yb := 200.0 300.0 8.9030E-05 9.1380E-05 ;
+ELSEIF T_Na 400.0 <= THEN
+EVALUATE a b ya yb := 300.0 400.0 9.1380E-05 9.3910E-05 ;
+ELSEIF T_Na 500.0 <= THEN
+EVALUATE a b ya yb := 400.0 500.0 9.3910E-05 9.6690E-05 ;
+ELSEIF T_Na 600.0 <= THEN
+EVALUATE a b ya yb := 500.0 600.0 9.6690E-05 9.9540E-05 ;
+ELSEIF T_Na 700.0 <= THEN
+EVALUATE a b ya yb := 600.0 700.0 9.9540E-05 1.0270E-04 ;
+ELSEIF T_Na 800.0 <= THEN
+EVALUATE a b ya yb := 700.0 800.0 1.0270E-04 1.0590E-04 ;
+ELSEIF T_Na 900.0 <= THEN
+EVALUATE a b ya yb := 800.0 900.0 1.0590E-04 1.0920E-04 ;
+ELSEIF T_Na 1000.0 <= THEN
+EVALUATE a b ya yb := 900.0 1000.0 1.0920E-04 1.1260E-04 ;
+ELSEIF T_Na 1100.0 <= THEN
+EVALUATE a b ya yb := 1000.0 1100.0 1.1260E-04 1.1620E-04 ;
+ELSEIF T_Na 1200.0 <= THEN
+EVALUATE a b ya yb := 1100.0 1200.0 1.1620E-04 1.1980E-04 ;
+ELSEIF T_Na 1300.0 <= THEN
+EVALUATE a b ya yb := 1200.0 1300.0 1.1980E-04 1.2350E-04 ;
+ELSEIF T_Na 2300.0 <= THEN
+EVALUATE a b ya yb := 1300.0 2300.0 1.2350E-04 1.2351E-04 ;
+ELSE
+ECHO "rnr_interpol: out of interpolation domain(5)" ;
+ABORT: ;
+ENDIF ;
+
+EVALUATE coeff1 := yb ya - b a - / ;
+EVALUATE coeff2 := b ya * a yb * - b a - / ;
+REAL a_na := coeff1 T_Na * coeff2 + ;
+
+
+*-----------------------------------------------------
+* CALCUL BORE                                        *
+*-----------------------------------------------------
+
+IF T_Na 100.0 < THEN
+EVALUATE a b ya yb := 0.0 100.0 0.0 3.95041E-06 ;
+ELSEIF T_Na 200.0 <= THEN
+EVALUATE a b ya yb := 100.0 200.0 3.95041E-06 4.11101E-06 ;
+ELSEIF T_Na 400.0 <= THEN
+EVALUATE a b ya yb := 200.0 400.0 4.11101E-06 4.42185E-06 ;
+ELSEIF T_Na 500.0 <= THEN
+EVALUATE a b ya yb := 400.0 500.0 4.42185E-06 4.57209E-06 ;
+ELSEIF T_Na 700.0 <= THEN
+EVALUATE a b ya yb := 500.0 700.0 4.57209E-06 4.86222E-06 ;
+ELSEIF T_Na 800.0 <= THEN
+EVALUATE a b ya yb := 700.0 800.0 4.86222E-06 5.0021E-06 ;
+ELSE
+ECHO "rnr_interpol: out of interpolation domain(6)" ;
+ABORT: ;
+ENDIF ;
+
+EVALUATE coeff1 := yb ya - b a - / ;
+EVALUATE coeff2 := b ya * a yb * - b a - / ;
+REAL a_B := coeff1 T_Na * coeff2 + ;
+*Hypothese : disp de commande a la temperature du sodium
+
+*-----------------------------------------------------
+* AFFICHAGE DES RESULTATS                            *
+*-----------------------------------------------------
+
+:: <<a_comb>> <<a_AIM1>> <<a_AIM1_Na>>
+<<a_EM10>> <<a_F17>> <<a_na>> <<a_B>> ;
+
+END: ;
+QUIT .

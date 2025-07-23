@@ -1,0 +1,73 @@
+************************************************************************************************************************
+*                                                                                                                      *
+* Procedure :  TRK_C_SALT.c2m                                                                                          *
+* Purpose   :  Tracking and figure printing for pin cells using the SALT module                                        *
+* Author    :  R. Guasch                                                                                               *
+*                                                                                                                      *
+* CALL      :                                                                                                          *
+* TRACK TF_EXC TRACK_SS TF_EXC_SS := TRK_C_SALT GEOM GEOM_SS                                                           *
+*                                                                                                                      *
+************************************************************************************************************************
+* ---
+* INPUT & OUTPUT PARAMETERS
+* ---
+PARAMETER TRACK TRACK_SS TF_EXC TF_EXC_SS GEOM GEOM_SS  ::
+::: LINKED_LIST TRACK ;
+::: LINKED_LIST TRACK_SS ;
+::: SEQ_BINARY TF_EXC ; 
+::: SEQ_BINARY TF_EXC_SS ;
+::: LINKED_LIST GEOM ;
+::: LINKED_LIST GEOM_SS ; ;
+
+* ---
+* STRUCTURES AND MODULES
+* ---
+
+MODULE G2S: MCCGT: SALT: END: ;
+
+SEQ_ASCII UOX_TBH FIG1.ps UOX_TBH_SS FIG_SS.ps ;
+
+
+INTEGER an2d := 24 ;  ! ANGULAR QUADRATURE PARAMETER
+REAL densur := 35.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
+
+INTEGER an2d_SS := 8 ;
+REAL densur_SS := 15.0 ;
+
+* polar angles for MCCGT:
+INTEGER nmu := 4 ;
+
+* size allocation for MCCGT:
+INTEGER mcu := 50000 ;
+
+* ---
+* FLUX CALC TRACKING
+* ---
+UOX_TBH FIG1.ps := G2S: GEOM :: ;
+
+TRACK TF_EXC := SALT: UOX_TBH ::
+  EDIT 0
+  ALLG
+  TSPC EQW2 <<an2d>> <<densur>> REND
+;
+
+* MOC tracking for main flux calculation
+TRACK := MCCGT: TRACK TF_EXC ::
+  EDIT 0
+  CACB <<nmu>> AAC 80 TMT EPSI 1E-5 MCU <<mcu>>
+;
+
+* ---
+* SELF-SHIELDING TRACKING
+* ---
+UOX_TBH_SS FIG_SS.ps := G2S: GEOM_SS :: ;
+
+TRACK_SS TF_EXC_SS := SALT: UOX_TBH_SS ::
+  EDIT 0
+  ALLG
+  TSPC <<an2d_SS>> <<densur_SS>> REND
+;
+
+
+END: ;
+QUIT .

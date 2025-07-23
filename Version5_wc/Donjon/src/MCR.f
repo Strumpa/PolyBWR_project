@@ -7,7 +7,7 @@
 * Recover and interpolate Microlib or Macrolib information from one or
 * many MPO database files.
 *
-*Copyright:
+*Copyright
 * Copyright (C) 2022 Ecole Polytechnique de Montreal
 *
 *Author(s): 
@@ -229,7 +229,6 @@
    60   WRITE(IOUT,320) HENTRY(ITH)
         CALL MPOTOC(IPMPO,HEDIT,IMPX,NREA,NBISO,NMIL,NPAR,NLOC,MY1,MY2,
      1  NISOS,NCAL,NGRP,NSURFD,NALBP,NPRC)
-        IF(NPAR.EQ.0) CALL XABORT('MCR: NO PARAMETERS IN MPO FILE(1).')
         ALLOCATE(MIXC(NMIX),NISO(NMIX),LISO(NMIX),HISO(NMIX,NBISO),
      1  ITODO(NMIX*NBISO))
         ALLOCATE(TERP(NCAL,NMIX),CONC(NMIX*NBISO))

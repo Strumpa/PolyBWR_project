@@ -117,8 +117,8 @@
       INTEGER, ALLOCATABLE, DIMENSION(:,:) :: IHNISO,IHNIRF
       REAL, ALLOCATABLE, DIMENSION(:) :: WDLA,SDEN,VOLISO,TNISO,WORK,
      1 WPY,DENTOT,DAWR,TNTOT,YIELD2,PYIELD2
-      REAL, ALLOCATABLE, DIMENSION(:,:) :: GAS,SIGS
-      REAL, ALLOCATABLE, DIMENSION(:,:,:) :: WSCAT,PNFIRA,WORK2
+      REAL, ALLOCATABLE, DIMENSION(:,:) :: GAS,SIGS,PNFIRA
+      REAL, ALLOCATABLE, DIMENSION(:,:,:) :: WSCAT,WORK2
       CHARACTER(LEN=8), ALLOCATABLE, DIMENSION(:) :: HMAKE
 *----
 *  SCRATCH STORAGE ALLOCATION (PART 1)
@@ -126,7 +126,7 @@
       MAXH=9+NBESP+2*NDEL+NED+NL+3*NW
       ALLOCATE(LSIS2(NBISO),IEVOL2(NBISO),JPIFI(NDFI),ITYPRO(NL))
       ALLOCATE(WDLA(NDEL),WSCAT(NGCOND,NGCOND,NL),GAS(NGCOND,MAXH),
-     1 WORK(NGCOND+1),WPY(NDFI),PNFIRA(NGCOND,0:NDEL,2),
+     1 WORK(NGCOND+1),WPY(NDFI),PNFIRA(0:NDEL,2),
      2 WORK2(NGCOND,NGCOND,NL),DENTOT(NMERGE),DAWR(NMERGE),
      3 TNTOT(NMERGE),YIELD2(1+NGCOND),PYIELD2(NDFI))
       ALLOCATE(HMAKE(MAXH+NL))
@@ -208,7 +208,7 @@
    20 CONTINUE
       GAS(:NGCOND,:MAXH)=0.0
       WSCAT(:NGCOND,:NGCOND,:NL)=0.0
-      PNFIRA(:NGCOND,0:NDEL,2)=0.0
+      PNFIRA(0:NDEL,2)=0.0
       YIELD2(:1+NGCOND)=0.0
       PYIELD2(:NDFI)=0.0
       DENTOT(INM)=0.0
@@ -308,6 +308,7 @@
    85    CONTINUE
          IF(IOF.NE.MAXH) CALL XABORT('EDIRES: WRONG OFFSET.')
 *
+         PNFIRA(0:NDEL,1)=0.0
          DO 150 J=1,MAXH
          IF(HMAKE(J).NE.' ') THEN
             CALL LCMLEN(KPWORK,HMAKE(J),ILONG,ITYLCM)
@@ -316,16 +317,16 @@
                IF(HMAKE(J).EQ.'NUSIGF') THEN
                   DO 90 IGR=1,NGCOND
                     DEL=WORK(IGR)*GAS(IGR,1)*DDEN
-                    PNFIRA(IGR,0,1)=DEL
-                    PNFIRA(IGR,0,2)=PNFIRA(IGR,0,2)+DEL
+                    PNFIRA(0,1)=PNFIRA(0,1)+DEL
+                    PNFIRA(0,2)=PNFIRA(0,2)+DEL
                     GAS(IGR,J)=GAS(IGR,J)+WORK(IGR)*DDEN
    90             CONTINUE
                ELSE IF(HMAKE(J)(:3).EQ.'NUS') THEN
                   IDEL=J-IOF0H
                   DO 100 IGR=1,NGCOND
                     DEL=WORK(IGR)*GAS(IGR,1)*DDEN
-                    PNFIRA(IGR,IDEL,1)=DEL
-                    PNFIRA(IGR,IDEL,2)=PNFIRA(IGR,IDEL,2)+DEL
+                    PNFIRA(IDEL,1)=PNFIRA(IDEL,1)+DEL
+                    PNFIRA(IDEL,2)=PNFIRA(IDEL,2)+DEL
                     GAS(IGR,J)=GAS(IGR,J)+WORK(IGR)*DDEN
   100             CONTINUE
                ELSE IF(HMAKE(J)(:3).EQ.'NWT') THEN
@@ -335,12 +336,12 @@
                ELSE IF((HMAKE(J).EQ.'CHI').OR.
      1                 (HMAKE(J)(:5).EQ.'CHI--')) THEN
                   DO 120 IGR=1,NGCOND
-                    GAS(IGR,J)=GAS(IGR,J)+WORK(IGR)*PNFIRA(IGR,0,1)
+                    GAS(IGR,J)=GAS(IGR,J)+WORK(IGR)*PNFIRA(0,1)
   120             CONTINUE
                ELSE IF(HMAKE(J)(:3).EQ.'CHI') THEN
                   IDEL=J-IOF1H-1
                   DO 130 IGR=1,NGCOND
-                    GAS(IGR,J)=GAS(IGR,J)+WORK(IGR)*PNFIRA(IGR,IDEL,1)
+                    GAS(IGR,J)=GAS(IGR,J)+WORK(IGR)*PNFIRA(IDEL,1)
   130             CONTINUE
                ELSE
                   DO 140 IGR=1,NGCOND
@@ -406,14 +407,14 @@
          ELSE IF((HMAKE(J).EQ.'CHI').OR.(HMAKE(J)(:5).EQ.'CHI--')) THEN
             DO 190 IGR=1,NGCOND
             IF(GAS(IGR,J).NE.0.0) THEN
-               GAS(IGR,J)=GAS(IGR,J)/PNFIRA(IGR,0,2)
+               GAS(IGR,J)=GAS(IGR,J)/PNFIRA(0,2)
             ENDIF
   190       CONTINUE
          ELSE IF(HMAKE(J)(:3).EQ.'CHI') THEN
             IDEL=J-IOF1H-1
             DO 200 IGR=1,NGCOND
             IF(GAS(IGR,J).NE.0.0) THEN
-               GAS(IGR,J)=GAS(IGR,J)/PNFIRA(IGR,IDEL,2)
+               GAS(IGR,J)=GAS(IGR,J)/PNFIRA(IDEL,2)
             ENDIF
   200       CONTINUE
          ENDIF

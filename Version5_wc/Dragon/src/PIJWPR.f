@@ -70,9 +70,9 @@
 *
 *NOTE:
 *     IF( SIGT(I).NE.0.0 )THEN
-*        PROB(IND(I,0)= SIGT(I) * VOLSUR(I)
+*        PROB(IND(I,0))= SIGT(I) * VOLSUR(I)
 *     ELSE
-*        PROB(IND(I,0)= VOLSUR(I)
+*        PROB(IND(I,0))= VOLSUR(I)
 *     ENDIF
 *
       NSUR= -NSOUT

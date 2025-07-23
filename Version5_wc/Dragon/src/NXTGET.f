@@ -65,8 +65,9 @@
 *         RSTATU( 6) is the $X$ cell center;
 *         RSTATU( 7) is the $y$ cell center;
 *         RSTATU( 8) is the $Z$ cell center;
-*         RSTATU(11) is the spatial cutoff factor for
-*               tracking;
+*         RSTATU(11) is the spatial cutoff factor for tracking;
+*         RSTATU(12) is the stopping criterion for flux-current
+*         iterations of the interface current method;
 *         RSTATU(39) is the minimum volume fraction of the
 *               grain in the representative volume for She-Liu-Shi 
 *               model. 
@@ -104,6 +105,7 @@
 *    [ { NOTR | MC } ]
 *    [ MERGMIX ]
 *    [ BATCH nbatch ]
+*    [ EPSJ epsj ]
 *    [ [ QUAB iqua10 ] [ { SAPO | HEBE | SLSI [frtm] | SLSS [frtm] } ] ]
 *    with frtm minimum volume fraction of the grain in the  
 *    representative volume for She-Liu-Shi model.
@@ -137,6 +139,7 @@
 *  Local variables
 *----
       INTEGER          IRT,IRMXR,NBATCH
+      REAL             EPSJ
 *----
 *  Initialize default values for IPRINT
 *----
@@ -146,6 +149,7 @@
       NBATCH=1
       IBIHET=2
       IQUA10=5
+      EPSJ=0.5E-5
 *----
 *  Get data from input file
 *----
@@ -373,6 +377,11 @@
         RSTATU(39)=REALIR
       ELSE IF(CARLIR(1:7) .EQ. 'MERGMIX') THEN
         ISTATU(26)=1
+      ELSE IF(CARLIR(1:4) .EQ. 'EPSJ') THEN
+        CALL REDGET(ITYPLU,INTLIR,EPSJ,CARLIR,DBLLIR)
+        IF(ITYPLU .NE. 2) CALL XABORT(NAMSBR//
+     >  ': Real value expected for EPSJ')
+        RSTATU(12)=EPSJ
       ELSE
         CALL XABORT(NAMSBR//': Keyword '//TRIM(CARLIR)//' is invalid.')
       ENDIF

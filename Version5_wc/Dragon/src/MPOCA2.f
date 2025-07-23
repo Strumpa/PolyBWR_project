@@ -393,7 +393,7 @@
             CALL LCMGET(KPEDIT,'SIGS00',WORK1)
             DATA1(IGR,IREA)=DATA1(IGR,IREA)-WORK1(IMIL)
          ENDIF
-         CALL LCMLEN(KPEDIT,'Nexcess',ILONG,ITYLCM)
+         CALL LCMLEN(KPEDIT,'N2N',ILONG,ITYLCM)
          IF(ILONG.GT.0) THEN
             CALL LCMGET(KPEDIT,'N2N',WORK1)
             DATA1(IGR,IREA)=DATA1(IGR,IREA)+WORK1(IMIL)
@@ -566,172 +566,172 @@
                WORK2(IGR)=WORK2(IGR)+2.0*WORK1(IGR)
   320          CONTINUE
              ENDIF
-           ELSE IF(NOMREA(IREA).EQ.'Nexcess') THEN
-             CALL LCMLEN(KPTEMP,'N2N',ILONG,ITYLCM)
-             IF(ILONG.GT.0) CALL LCMGET(KPTEMP,'N2N',WORK2)
-             CALL LCMLEN(KPTEMP,'N3N',ILONG,ITYLCM)
-             IF(ILONG.GT.0) THEN
-               CALL LCMGET(KPTEMP,'N3N',WORK1)
-               DO 330 IGR=1,NG
-               WORK2(IGR)=WORK2(IGR)+2.0*WORK1(IGR)
-  330          CONTINUE
-             ENDIF
-           ELSE IF(NOMREA(IREA).EQ.'Fission') THEN
-             CALL LCMLEN(KPTEMP,'NFTOT',ILONG,ITYLCM)
-             IF(ILONG.GT.0) CALL LCMGET(KPTEMP,'NFTOT',WORK2)
-           ELSE IF(NOMREA(IREA).EQ.'FissionSpectrum') THEN
-             CALL LCMLEN(KPTEMP,'CHI',ILONG,ITYLCM)
-             IF(ILONG.GT.0) CALL LCMGET(KPTEMP,'CHI',WORK2)
-           ELSE IF(NOMREA(IREA).EQ.'NuFission') THEN
-             CALL LCMLEN(KPTEMP,'NUSIGF',ILONG,ITYLCM)
-             IF(ILONG.GT.0) CALL LCMGET(KPTEMP,'NUSIGF',WORK2)
-           ELSE IF(NOMREA(IREA).EQ.'Energy') THEN
-             CALL LCMLEN(KPTEMP,'MEVF',ILONG,ITYLCM)
-             IF(ILONG.GT.0) THEN
-               CALL LCMGET(KPTEMP,'NFTOT',WORK2)
-               CALL LCMGET(KPTEMP,'MEVF',FLOTT)
-               DO340 IGR=1,NG
-               WORK2(IGR)=WORK2(IGR)*FLOTT
-  340          CONTINUE
-             ENDIF
-             CALL LCMLEN(KPTEMP,'MEVG',ILONG,ITYLCM)
-             IF(ILONG.GT.0) THEN
-               CALL LCMGET(KPTEMP,'NG',WORK1)
-               CALL LCMGET(KPTEMP,'MEVG',FLOTT)
-               DO 350 IGR=1,NG
-               WORK2(IGR)=WORK2(IGR)+WORK1(IGR)*FLOTT
-  350          CONTINUE
-             ENDIF
-           ELSE IF(NOMREA(IREA).EQ.'FissionEnergyFission') THEN
-             CALL LCMLEN(KPTEMP,'MEVF',ILONG,ITYLCM)
-             IF(ILONG.GT.0) THEN
-               CALL LCMGET(KPTEMP,'NFTOT',WORK2)
-               CALL LCMGET(KPTEMP,'MEVF',FLOTT)
-               DO 360 IGR=1,NG
-               WORK2(IGR)=WORK2(IGR)*FLOTT
-  360          CONTINUE
-             ENDIF
-           ELSE IF(NOMREA(IREA).EQ.'CaptureEnergyCapture') THEN
-             CALL LCMLEN(KPTEMP,'MEVG',ILONG,ITYLCM)
-             IF(ILONG.GT.0) THEN
-               CALL LCMGET(KPTEMP,'NG',WORK2)
-               CALL LCMGET(KPTEMP,'MEVG',FLOTT)
-               DO 370 IGR=1,NG
-               WORK2(IGR)=WORK2(IGR)*FLOTT
-  370          CONTINUE
-             ENDIF
-           ELSE IF(NOMREA(IREA).EQ.'STRD') THEN
-             CALL LCMLEN(KPTEMP,'STRD',ILONG,ITYLCM)
-             IF(ILONG.GT.0) CALL LCMGET(KPTEMP,'STRD',WORK2)
-           ELSE IF(NOMREA(IREA).EQ.'Diffusion') THEN
-             ADRX(IREA,IISO,NADRX+1)=IOR
-             ADRX(NREA+1,IISO,NADRX+1)=NL
-             IOR=IOR+NG*NL
-             IF(IOR.GT.MAXRDA) CALL XABORT('MPOCA2: RDATAX OVERFLOW(1)')
-             DO 420 IL=1,NL
-             WRITE (CM,'(I2.2)') IL-1
-             CALL LCMLEN(KPTEMP,'SIGS'//CM,ILONG,ITYLCM)
-             IF(ILONG.GT.0) THEN
-               CALL LCMGET(KPTEMP,'SIGS'//CM,WORK2)
-             ELSE
-               WORK2(:NG)=0.0
-             ENDIF
-             CALL LCMLEN(KPTEMP,'N2N',ILONG,ITYLCM)
-             IF((IL.EQ.1).AND.(ILONG.GT.0)) THEN
-               CALL LCMGET(KPTEMP,'N2N',WORK1)
-               DO 390 IGR=1,NG
-               WORK2(IGR)=WORK2(IGR)-WORK1(IGR)
-  390          CONTINUE
-             ENDIF
-             CALL LCMLEN(KPTEMP,'N3N',ILONG,ITYLCM)
-             IF((IL.EQ.1).AND.(ILONG.GT.0)) THEN
-               CALL LCMGET(KPTEMP,'N3N',WORK1)
-               DO 400 IGR=1,NG
-               WORK2(IGR)=WORK2(IGR)-2.0*WORK1(IGR)
-  400          CONTINUE
-             ENDIF
-             DO 410 IGR=1,NG
-             RDATAX(ADRX(IREA,IISO,NADRX+1)+(IL-1)*NG+IGR-1)=WORK2(IGR)
-  410        CONTINUE
-  420        CONTINUE
-             GO TO 530
-           ELSE IF(NOMREA(IREA).EQ.'Transport') THEN
-             IF((ITRANC.EQ.1).AND.(NL.GE.2)) THEN
-               CALL LCMGET(KPTEMP,'SIGS01',WORK2)
-             ELSE IF(ITRANC.EQ.2) THEN
-               CALL LCMGET(KPTEMP,'TRANC',WORK2)
-             ENDIF
-           ELSE IF(NOMREA(IREA).EQ.'Scattering') THEN
-             DO 430 IGR=1,NG
-             IFD2(IGR)=NG+1
-             IAD2(IGR+1)=0
-  430        CONTINUE
-             DO 450 IL=1,NL
-             WRITE (CM,'(I2.2)') IL-1
-             CALL LCMLEN(KPTEMP,'IJJS'//CM,ILONG,ITYLCM)
-             IF(ILONG.EQ.0) GO TO 450
-             CALL LCMGET(KPTEMP,'IJJS'//CM,IJJ2)
-             CALL LCMGET(KPTEMP,'NJJS'//CM,NJJ2)
-             DO 445 JGR=1,NG
-             DO 440 IGR=IJJ2(JGR)-NJJ2(JGR)+1,IJJ2(JGR) ! JGR <-- IGR
-             IFD2(IGR)=MIN(IFD2(IGR),JGR)
-             IAD2(IGR+1)=MAX(IAD2(IGR+1),JGR)
-  440        CONTINUE
-  445        CONTINUE
-  450        CONTINUE
-             IAD2(1)=0
-             DO 460 IGR=1,NG
-             IAD2(IGR+1)=IAD2(IGR)+(IAD2(IGR+1)-IFD2(IGR)+1)
-  460        CONTINUE
-             ADRX(NREA+1,IISO,NADRX+1)=NL
-             ADRX(NREA+2,IISO,NADRX+1)=NL
-             ADRX(NREA+3,IISO,NADRX+1)=IOI
-             IF(IOI+2*NG+1.GT.(2*NG+1)*NISO) THEN
-               CALL XABORT('MPOCA2: IDATAP_MIL OVERFLOW(1).')
-             ENDIF
-             DO 470 IGR=1,NG
-             IDATAP_MIL(IOI+IGR)=IFD2(IGR)-1
-             IDATAP_MIL(IOI+NG+IGR)=IAD2(IGR)
-  470        CONTINUE
-             IDATAP_MIL(IOI+2*NG+1)=IAD2(NG+1)
-             ADRX(NREA+3,IISO,NADRX+1)=IOI
-             IOI=IOI+2*NG+1
+          ELSE IF(NOMREA(IREA).EQ.'Nexcess') THEN
+            CALL LCMLEN(KPTEMP,'N2N',ILONG,ITYLCM)
+            IF(ILONG.GT.0) CALL LCMGET(KPTEMP,'N2N',WORK2)
+            CALL LCMLEN(KPTEMP,'N3N',ILONG,ITYLCM)
+            IF(ILONG.GT.0) THEN
+              CALL LCMGET(KPTEMP,'N3N',WORK1)
+              DO 330 IGR=1,NG
+              WORK2(IGR)=WORK2(IGR)+2.0*WORK1(IGR)
+  330         CONTINUE
+            ENDIF
+          ELSE IF(NOMREA(IREA).EQ.'Fission') THEN
+            CALL LCMLEN(KPTEMP,'NFTOT',ILONG,ITYLCM)
+            IF(ILONG.GT.0) CALL LCMGET(KPTEMP,'NFTOT',WORK2)
+          ELSE IF(NOMREA(IREA).EQ.'FissionSpectrum') THEN
+            CALL LCMLEN(KPTEMP,'CHI',ILONG,ITYLCM)
+            IF(ILONG.GT.0) CALL LCMGET(KPTEMP,'CHI',WORK2)
+          ELSE IF(NOMREA(IREA).EQ.'NuFission') THEN
+            CALL LCMLEN(KPTEMP,'NUSIGF',ILONG,ITYLCM)
+            IF(ILONG.GT.0) CALL LCMGET(KPTEMP,'NUSIGF',WORK2)
+          ELSE IF(NOMREA(IREA).EQ.'Energy') THEN
+            CALL LCMLEN(KPTEMP,'MEVF',ILONG,ITYLCM)
+            IF(ILONG.GT.0) THEN
+              CALL LCMGET(KPTEMP,'NFTOT',WORK2)
+              CALL LCMGET(KPTEMP,'MEVF',FLOTT)
+              DO 340 IGR=1,NG
+              WORK2(IGR)=WORK2(IGR)*FLOTT
+  340         CONTINUE
+            ENDIF
+            CALL LCMLEN(KPTEMP,'MEVG',ILONG,ITYLCM)
+            IF(ILONG.GT.0) THEN
+              CALL LCMGET(KPTEMP,'NG',WORK1)
+              CALL LCMGET(KPTEMP,'MEVG',FLOTT)
+              DO 350 IGR=1,NG
+              WORK2(IGR)=WORK2(IGR)+WORK1(IGR)*FLOTT
+  350         CONTINUE
+            ENDIF
+          ELSE IF(NOMREA(IREA).EQ.'FissionEnergyFission') THEN
+            CALL LCMLEN(KPTEMP,'MEVF',ILONG,ITYLCM)
+            IF(ILONG.GT.0) THEN
+              CALL LCMGET(KPTEMP,'NFTOT',WORK2)
+              CALL LCMGET(KPTEMP,'MEVF',FLOTT)
+              DO 360 IGR=1,NG
+              WORK2(IGR)=WORK2(IGR)*FLOTT
+  360         CONTINUE
+            ENDIF
+          ELSE IF(NOMREA(IREA).EQ.'CaptureEnergyCapture') THEN
+            CALL LCMLEN(KPTEMP,'MEVG',ILONG,ITYLCM)
+            IF(ILONG.GT.0) THEN
+              CALL LCMGET(KPTEMP,'NG',WORK2)
+              CALL LCMGET(KPTEMP,'MEVG',FLOTT)
+              DO 370 IGR=1,NG
+              WORK2(IGR)=WORK2(IGR)*FLOTT
+  370         CONTINUE
+            ENDIF
+          ELSE IF(NOMREA(IREA).EQ.'STRD') THEN
+            CALL LCMLEN(KPTEMP,'STRD',ILONG,ITYLCM)
+            IF(ILONG.GT.0) CALL LCMGET(KPTEMP,'STRD',WORK2)
+          ELSE IF(NOMREA(IREA).EQ.'Diffusion') THEN
+            ADRX(IREA,IISO,NADRX+1)=IOR
+            ADRX(NREA+1,IISO,NADRX+1)=NL
+            IOR=IOR+NG*NL
+            IF(IOR.GT.MAXRDA) CALL XABORT('MPOCA2: RDATAX OVERFLOW(1)')
+            DO 420 IL=1,NL
+            WRITE (CM,'(I2.2)') IL-1
+            CALL LCMLEN(KPTEMP,'SIGS'//CM,ILONG,ITYLCM)
+            IF(ILONG.GT.0) THEN
+              CALL LCMGET(KPTEMP,'SIGS'//CM,WORK2)
+            ELSE
+              WORK2(:NG)=0.0
+            ENDIF
+            CALL LCMLEN(KPTEMP,'N2N',ILONG,ITYLCM)
+            IF((IL.EQ.1).AND.(ILONG.GT.0)) THEN
+              CALL LCMGET(KPTEMP,'N2N',WORK1)
+              DO 390 IGR=1,NG
+              WORK2(IGR)=WORK2(IGR)-WORK1(IGR)
+  390         CONTINUE
+            ENDIF
+            CALL LCMLEN(KPTEMP,'N3N',ILONG,ITYLCM)
+            IF((IL.EQ.1).AND.(ILONG.GT.0)) THEN
+              CALL LCMGET(KPTEMP,'N3N',WORK1)
+              DO 400 IGR=1,NG
+              WORK2(IGR)=WORK2(IGR)-2.0*WORK1(IGR)
+  400         CONTINUE
+            ENDIF
+            DO 410 IGR=1,NG
+            RDATAX(ADRX(IREA,IISO,NADRX+1)+(IL-1)*NG+IGR-1)=WORK2(IGR)
+  410       CONTINUE
+  420       CONTINUE
+            GO TO 530
+          ELSE IF(NOMREA(IREA).EQ.'Transport') THEN
+            IF((ITRANC.EQ.1).AND.(NL.GE.2)) THEN
+              CALL LCMGET(KPTEMP,'SIGS01',WORK2)
+            ELSE IF(ITRANC.EQ.2) THEN
+              CALL LCMGET(KPTEMP,'TRANC',WORK2)
+            ENDIF
+          ELSE IF(NOMREA(IREA).EQ.'Scattering') THEN
+            DO 430 IGR=1,NG
+            IFD2(IGR)=NG+1
+            IAD2(IGR+1)=0
+  430       CONTINUE
+            DO 450 IL=1,NL
+            WRITE (CM,'(I2.2)') IL-1
+            CALL LCMLEN(KPTEMP,'IJJS'//CM,ILONG,ITYLCM)
+            IF(ILONG.EQ.0) GO TO 450
+            CALL LCMGET(KPTEMP,'IJJS'//CM,IJJ2)
+            CALL LCMGET(KPTEMP,'NJJS'//CM,NJJ2)
+            DO 445 JGR=1,NG
+            DO 440 IGR=IJJ2(JGR)-NJJ2(JGR)+1,IJJ2(JGR) ! JGR <-- IGR
+            IFD2(IGR)=MIN(IFD2(IGR),JGR)
+            IAD2(IGR+1)=MAX(IAD2(IGR+1),JGR)
+  440       CONTINUE
+  445       CONTINUE
+  450       CONTINUE
+            IAD2(1)=0
+            DO 460 IGR=1,NG
+            IAD2(IGR+1)=IAD2(IGR)+(IAD2(IGR+1)-IFD2(IGR)+1)
+  460       CONTINUE
+            ADRX(NREA+1,IISO,NADRX+1)=NL
+            ADRX(NREA+2,IISO,NADRX+1)=NL
+            ADRX(NREA+3,IISO,NADRX+1)=IOI
+            IF(IOI+2*NG+1.GT.(2*NG+1)*NISO) THEN
+              CALL XABORT('MPOCA2: IDATAP_MIL OVERFLOW(1).')
+            ENDIF
+            DO 470 IGR=1,NG
+            IDATAP_MIL(IOI+IGR)=IFD2(IGR)-1
+            IDATAP_MIL(IOI+NG+IGR)=IAD2(IGR)
+  470       CONTINUE
+            IDATAP_MIL(IOI+2*NG+1)=IAD2(NG+1)
+            ADRX(NREA+3,IISO,NADRX+1)=IOI
+            IOI=IOI+2*NG+1
 *
-             ADRX(IREA,IISO,NADRX+1)=IOR
-             IOR=IOR+IAD2(NG+1)*NL
-             IF(IOR.GT.MAXRDA) CALL XABORT('MPOCA2: RDATAX OVERFLOW(2)')
-             JOFS=0
-             DO 500 IL=1,NL
-             CALL XDRLGS(KPTEMP,-1,0,IL-1,IL-1,1,NG,WORK2,DATA4,ITYPRO)
-             ZIL=REAL(2*IL-1)
-             DO 490 IGR=1,NG
-             DO 480 JGR=IFD2(IGR),IFD2(IGR)+(IAD2(IGR+1)-IAD2(IGR))-1 ! JGR <-- IGR
-             JOFS=JOFS+1
-             RDATAX(ADRX(IREA,IISO,NADRX+1)+JOFS-1)=DATA4(JGR,IGR)*ZIL
-  480        CONTINUE
-  490        CONTINUE
-  500        CONTINUE
-             GO TO 530
-           ELSE
-             CALL LCMLEN(KPTEMP,NOMREA(IREA),ILONG,ITYLCM)
-             IF(ILONG.GT.0) CALL LCMGET(KPTEMP,NOMREA(IREA),WORK2)
-           ENDIF
+            ADRX(IREA,IISO,NADRX+1)=IOR
+            IOR=IOR+IAD2(NG+1)*NL
+            IF(IOR.GT.MAXRDA) CALL XABORT('MPOCA2: RDATAX OVERFLOW(2)')
+            JOFS=0
+            DO 500 IL=1,NL
+            CALL XDRLGS(KPTEMP,-1,0,IL-1,IL-1,1,NG,WORK2,DATA4,ITYPRO)
+            ZIL=REAL(2*IL-1)
+            DO 490 IGR=1,NG
+            DO 480 JGR=IFD2(IGR),IFD2(IGR)+(IAD2(IGR+1)-IAD2(IGR))-1 ! JGR <-- IGR
+            JOFS=JOFS+1
+            RDATAX(ADRX(IREA,IISO,NADRX+1)+JOFS-1)=DATA4(JGR,IGR)*ZIL
+  480       CONTINUE
+  490       CONTINUE
+  500       CONTINUE
+            GO TO 530
+          ELSE
+            CALL LCMLEN(KPTEMP,NOMREA(IREA),ILONG,ITYLCM)
+            IF(ILONG.GT.0) CALL LCMGET(KPTEMP,NOMREA(IREA),WORK2)
+          ENDIF
 *
-           EXIST=.FALSE.
-           DO 510 IGR=1,NG
-           EXIST=EXIST.OR.(WORK2(IGR).NE.0.0)
-  510      CONTINUE
-           IF(EXIST) THEN
-             ADRX(IREA,IISO,NADRX+1)=IOR
-             IOR=IOR+NG
-             IF(IOR.GT.MAXRDA) CALL XABORT('MPOCA2: RDATAX OVERFLOW(3)')
-             DO 520 IGR=1,NG
-             RDATAX(ADRX(IREA,IISO,NADRX+1)+IGR)=WORK2(IGR)
-  520        CONTINUE
-           ELSE
-             ADRX(IREA,IISO,NADRX+1)=-1
-           ENDIF
-  530      CONTINUE
+          EXIST=.FALSE.
+          DO 510 IGR=1,NG
+          EXIST=EXIST.OR.(WORK2(IGR).NE.0.0)
+  510     CONTINUE
+          IF(EXIST) THEN
+            ADRX(IREA,IISO,NADRX+1)=IOR
+            IOR=IOR+NG
+            IF(IOR.GT.MAXRDA) CALL XABORT('MPOCA2: RDATAX OVERFLOW(3)')
+            DO 520 IGR=1,NG
+            RDATAX(ADRX(IREA,IISO,NADRX+1)+IGR)=WORK2(IGR)
+  520       CONTINUE
+          ELSE
+            ADRX(IREA,IISO,NADRX+1)=-1
+          ENDIF
+  530     CONTINUE
         ENDIF
   540   CONTINUE
       ENDIF
@@ -743,58 +743,58 @@
       ADRX(NREA+3,NISO,NADRX+1)=0
       DO 680 IREA=1,NREA
       IF(NOMREA(IREA).EQ.'Diffusion') THEN
-         ADRX(IREA,NISO,NADRX+1)=IOR
-         ADRX(NREA+1,NISO,NADRX+1)=NL
-         IOR=IOR+NG*NL
-         IF(IOR.GT.MAXRDA) CALL XABORT('MPOCA2: RDATAX OVERFLOW(4)')
-         JOFS=0
-         DO 570 IL=1,NL
-         DO 560 IGR=1,NG
-         JOFS=JOFS+1
-         RDATAX(ADRX(IREA,NISO,NADRX+1)+JOFS)=DATA2(IGR,IL)
-  560    CONTINUE
-  570    CONTINUE
+        ADRX(IREA,NISO,NADRX+1)=IOR
+        ADRX(NREA+1,NISO,NADRX+1)=NL
+        IOR=IOR+NG*NL
+        IF(IOR.GT.MAXRDA) CALL XABORT('MPOCA2: RDATAX OVERFLOW(4)')
+        JOFS=0
+        DO 570 IL=1,NL
+        DO 560 IGR=1,NG
+        JOFS=JOFS+1
+        RDATAX(ADRX(IREA,NISO,NADRX+1)+JOFS)=DATA2(IGR,IL)
+  560   CONTINUE
+  570   CONTINUE
       ELSE IF(NOMREA(IREA).EQ.'Scattering') THEN
-         ADRX(NREA+2,NISO,NADRX+1)=NL
-         ADRX(NREA+3,NISO,NADRX+1)=IOI
-         IF(IOI+2*NG+1.GT.(2*NG+1)*NISO) THEN
-           CALL XABORT('MPOCA2: IDATAP_MIL OVERFLOW(2).')
-         ENDIF
-         DO 590 IGR=1,NG
-         IDATAP_MIL(IOI+IGR)=IFD1(IGR)-1
-         IDATAP_MIL(IOI+NG+IGR)=IAD1(IGR)
-  590    CONTINUE
-         IDATAP_MIL(IOI+2*NG+1)=IAD1(NG+1)
-         ADRX(NREA+3,NISO,NADRX+1)=IOI
-         IOI=IOI+2*NG+1
+        ADRX(NREA+2,NISO,NADRX+1)=NL
+        ADRX(NREA+3,NISO,NADRX+1)=IOI
+        IF(IOI+2*NG+1.GT.(2*NG+1)*NISO) THEN
+          CALL XABORT('MPOCA2: IDATAP_MIL OVERFLOW(2).')
+        ENDIF
+        DO 590 IGR=1,NG
+        IDATAP_MIL(IOI+IGR)=IFD1(IGR)-1
+        IDATAP_MIL(IOI+NG+IGR)=IAD1(IGR)
+  590   CONTINUE
+        IDATAP_MIL(IOI+2*NG+1)=IAD1(NG+1)
+        ADRX(NREA+3,NISO,NADRX+1)=IOI
+        IOI=IOI+2*NG+1
 *
-         ADRX(IREA,NISO,NADRX+1)=IOR
-         IOR=IOR+IAD1(NG+1)*NL
-         IF(IOR.GT.MAXRDA) CALL XABORT('MPOCA2: RDATAX OVERFLOW(5)')
-         JOFS=0
-         DO 630 IL=1,NL
-         DO 620 IGR=1,NG
-         DO 610 JGR=IFD1(IGR),IFD1(IGR)+(IAD1(IGR+1)-IAD1(IGR))-1 ! JGR <-- IGR
-         JOFS=JOFS+1
-         RDATAX(ADRX(IREA,NISO,NADRX+1)+JOFS)=DATA3(JGR,IGR,IL)
-  610    CONTINUE
-  620    CONTINUE
-  630    CONTINUE
+        ADRX(IREA,NISO,NADRX+1)=IOR
+        IOR=IOR+IAD1(NG+1)*NL
+        IF(IOR.GT.MAXRDA) CALL XABORT('MPOCA2: RDATAX OVERFLOW(5)')
+        JOFS=0
+        DO 630 IL=1,NL
+        DO 620 IGR=1,NG
+        DO 610 JGR=IFD1(IGR),IFD1(IGR)+(IAD1(IGR+1)-IAD1(IGR))-1 ! JGR <-- IGR
+        JOFS=JOFS+1
+        RDATAX(ADRX(IREA,NISO,NADRX+1)+JOFS)=DATA3(JGR,IGR,IL)
+  610   CONTINUE
+  620   CONTINUE
+  630   CONTINUE
       ELSE
-         EXIST=.FALSE.
-         DO 650 IGR=1,NG
-         EXIST=EXIST.OR.(DATA1(IGR,IREA).NE.0.0)
-  650    CONTINUE
-         IF(EXIST) THEN
-            ADRX(IREA,NISO,NADRX+1)=IOR
-            IOR=IOR+NG
-            IF(IOR.GT.MAXRDA) CALL XABORT('MPOCA2: RDATAX OVERFLOW(6)')
-            DO 660 IGR=1,NG
-            RDATAX(ADRX(IREA,NISO,NADRX+1)+IGR)=DATA1(IGR,IREA)
-  660       CONTINUE
-          ELSE
-            ADRX(IREA,NISO,NADRX+1)=-1
-         ENDIF
+        EXIST=.FALSE.
+        DO 650 IGR=1,NG
+        EXIST=EXIST.OR.(DATA1(IGR,IREA).NE.0.0)
+  650   CONTINUE
+        IF(EXIST) THEN
+          ADRX(IREA,NISO,NADRX+1)=IOR
+          IOR=IOR+NG
+          IF(IOR.GT.MAXRDA) CALL XABORT('MPOCA2: RDATAX OVERFLOW(6)')
+          DO 660 IGR=1,NG
+          RDATAX(ADRX(IREA,NISO,NADRX+1)+IGR)=DATA1(IGR,IREA)
+  660     CONTINUE
+        ELSE
+          ADRX(IREA,NISO,NADRX+1)=-1
+        ENDIF
       ENDIF
   680 CONTINUE
 *----

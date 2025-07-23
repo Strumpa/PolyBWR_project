@@ -272,6 +272,16 @@
           CALL LCMPTC(IPMAC1,'HADF',8,HADF)
           CALL LCMPUT(IPMAC1,HADF,NMIX1*NG,2,FDXM)
         CALL LCMSIX(IPMAC1,' ',2)
+      ELSE IF(ISPH.EQ.1) THEN
+        CALL LCMSIX(IPMAC1,'SPH',1)
+          ISTATE(:)=0
+          ISTATE(1)=4
+          ISTATE(2)=1
+          ISTATE(6)=1
+          ISTATE(7)=1
+          ISTATE(8)=NG
+          CALL LCMPUT(IPMAC1,'STATE-VECTOR',NSTATE,1,ISTATE)
+        CALL LCMSIX(IPMAC1,' ',2)
       ENDIF
       JPMAC1=LCMLID(IPMAC1,'GROUP',NG)
       DO IGR=1,NG

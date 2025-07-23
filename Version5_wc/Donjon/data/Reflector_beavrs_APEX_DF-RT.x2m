@@ -8,7 +8,7 @@ STRING Palier := "BEAVRS" ;
 STRING htype := "DF-RT" ;
 STRING LibType := "CLA99CEA93" ;
 STRING NuclData := "CLA99CEA93:CLA99CEA93_SS" ;
-STRING OptSph := "NOSP" ;
+STRING OptSph := "SPH" ;
 STRING OptNoal := "ALBE" ;
 STRING OptSS := "TONE" ;
 MODULE GEO: UTL: ACR: END: ;

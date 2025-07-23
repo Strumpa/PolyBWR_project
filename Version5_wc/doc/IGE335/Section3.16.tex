@@ -305,6 +305,7 @@ $[$ \moc{STEP} \moc{UP} $\{$ \dusa{NAMDIR} $|$ \moc{*} $\}~]$ \\
 $[$ \moc{ORIG} \dusa{orig} $]$ \\
 $[[$ \dusa{PARKEY} \dusa{value} $]]$ \\
 $[$ \moc{MACRO} $]~[$ \moc{SET} \dusa{xtr} $\{$ \moc{S} $|$ \moc{DAY} $|$ \moc{YEAR} $\}$ $]$ \\
+$[$ \moc{ICAL} {\tt >>} \dusa{ical} {\tt <<} $]$ \\
 {\tt ;}
 \end{DataStructure}
 
@@ -360,6 +361,10 @@ with the time \dusa{xtr}.
 \item[\moc{DAY}] keyword to specify that the time is given in days.
 
 \item[\moc{YEAR}] keyword to specify that the time is given in years.
+
+\item[\moc{ICAL}]  keyword used to recover the last calculation index.
+
+\item[\dusa{ical}] \texttt{character*12} CLE-2000 variable name in which the last calculation index will be placed.
 
 \end{ListeDeDescription}
 

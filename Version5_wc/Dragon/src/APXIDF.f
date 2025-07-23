@@ -109,14 +109,14 @@
 *----
         WRITE(RECNAM,'(4Hcalc,I8,15H/miscellaneous/)') ICAL
         IF((IDF.EQ.2).OR.(IDF.EQ.3)) THEN
-          IF(IMIL.EQ.1) THEN
+          IF(NMIL.EQ.1) THEN
             ALLOCATE(VREAL(NSURFD,NG))
             VREAL(:NSURFD,:NG)=DISFAC(:NSURFD,:NG,1)
             CALL hdf5_write_data(IPAPX,TRIM(RECNAM)//"ADF",VREAL)
             DEALLOCATE(VREAL)
           ELSE
             DO IMIL=1,NMIL
-              WRITE(RECNAM2,'(A,4HADF,I8)') TRIM(RECNAM),IMIL
+              WRITE(RECNAM2,'(A,3HADF,I8)') TRIM(RECNAM),IMIL
               ALLOCATE(VREAL(NSURFD,NG))
               VREAL(:NSURFD,:NG)=DISFAC(:NSURFD,:NG,IMIL)
               CALL hdf5_write_data(IPAPX,TRIM(RECNAM2),VREAL)

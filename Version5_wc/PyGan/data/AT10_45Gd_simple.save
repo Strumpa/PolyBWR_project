@@ -1,0 +1,21 @@
+#!/bin/sh
+#
+if [ $# = 0 ]
+   then
+   echo '$$$ ----- AT10_45Gd_simple.save : script begin' 1>&2
+   exit 1
+fi
+echo '$$$ ----- AT10_45Gd_simple.save : script begin'
+MACH=`uname -s`
+Sysx="`echo $MACH | cut -b -6`"
+if [ $Sysx = "CYGWIN" ]; then
+   MACH=`uname -o`
+elif [ $Sysx = "AIX" ]; then
+   MACH=`uname -s`
+else
+   MACH=`uname -sm | sed 's/[ ]/_/'`
+fi
+
+cp *CPO* ./AT10_45Gd_1fuel_reg_results
+cp -r AT10_45Gd_1fuel_reg_results $1/"$MACH"/
+echo '$$$ ----- AT10_45Gd_simple.save : script finish'

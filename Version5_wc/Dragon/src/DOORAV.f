@@ -94,7 +94,30 @@
      1   MAT,VOL)
       ENDIF
 *
-      IF (CDOOR.EQ.'SYBIL') THEN
+      IF ((CDOOR.EQ.'EXCELL').AND.(ISTATE(7).EQ.5)) THEN
+         ! MULTICELL SURFACIC APPROXIMATION
+         IF(ISTATE(10).NE.0) CALL XABORT('DOORAV: TISO EXPECTED.')
+*        recover the number of tracks dispached in eack OpenMP core
+         NBATCH=ISTATE(27)
+         IF(NBATCH.EQ.0) NBATCH=1
+         ALLOCATE(SGAR(NBMIX+1),SGAS((NBMIX+1)*NANI))
+         DO 90 IGR=1,NGRP
+            IOFSET=NPSYS(IGR)
+            IF(IOFSET.NE.0) THEN
+               KPSYS=LCMGIL(JPSYS,IOFSET)
+               IF(LBIHET) CALL LCMSIX(KPSYS,'BIHET',1)
+               CALL LCMLEN(KPSYS,'DRAGON-TXSC',ILONG,ITYLCM)
+               IF(ILONG.NE.NBMIX+1) CALL XABORT('DOORAV: INVALID TXSC '
+     1         //'LENGTH(1).')
+               CALL LCMGET(KPSYS,'DRAGON-TXSC',SGAR)
+               CALL LCMGET(KPSYS,'DRAGON-S0XSC',SGAS)
+               CALL MUSA(KPSYS,IPTRK,IFTRAK,IMPX,NREG,NBMIX,MAT,SGAR,
+     1         SGAS,NBATCH,TITR)
+               IF(LBIHET) CALL LCMSIX(KPSYS,' ',2)
+            ENDIF
+  90     CONTINUE
+         DEALLOCATE(SGAS,SGAR)
+      ELSE IF (CDOOR.EQ.'SYBIL') THEN
          ALLOCATE(SGAR(NBMIX+1),SGAS((NBMIX+1)*NANI))
          DO 100 IGR=1,NGRP
             IOFSET=NPSYS(IGR)

@@ -1,0 +1,145 @@
+*** Cle-2000 procedure to call DRAGON5 and treat OECD/NEA Phase IIIB BWR assembly benchmark.
+* Author : R. Guasch
+* Ref. : "OECD/NEA Burnup Credit Criticality Benchmarks Phase IIIB: 
+* Burnup Calculations of BWR Fuel Assemblies for Storage and Transport"
+* Hiroshi OKUNO, Yoshitaka NAITO* and Kenya SUYAMA - JAERI-Research, 
+* Report NEA/NSC/DOC(2002)2, 2002.
+
+
+*********************
+* MODULE IMPORTS
+*********************
+MODULE GEO: G2S: ;
+
+*********************************
+* DRAGON VARIABLES DECLARATIONS
+*********************************
+
+LINKED_LIST GEOM GEO_G2S ;
+SEQ_ASCII Fic_SAL :: FILE 'Fic_SAL_PhaseIIIB.tdt' ;
+SEQ_ASCII Fic_SAL.ps :: FILE 'Fig_PhaseIIIB.ps' ;
+**********************************
+* VARIABLE INITIALIZATION
+**********************************
+* MIX NUMBERING :
+* mix variables are identified by a "position number" and a "rod id" ie composition number. 
+* According to Ref. the numbering goes 01_04, 02_03, 03_02, 04_02,  
+*                                             05_02, 06_Gd, 07_01,
+*                                                    08_01, 09_01,
+*                                                              WR,
+* This coresponds to the upper diagonal of the top left corner of the assembly.
+* Using symmetries, the lower diagonal of the upper right corner is deduced and defined here.
+
+INTEGER FUEL0104 := 1 ; ! fuel, position 01 (symmetrical equivalent), composition 04, 
+INTEGER F0203 := 2 ; ! fuel, position 02, composition 03
+INTEGER F0302 := 3 ; ! fuel, position 03, composition 02
+INTEGER F0402 := 4 ; ! fuel, position 04, composition 02
+INTEGER F0502 := 5 ; ! fuel, position 05, composition 02
+INTEGER F06Gd := 6 ; ! fuel, position 06, composition Gd
+INTEGER F0701 := 7 ; ! fuel, position 07, composition 01
+INTEGER F0801 := 8 ; ! fuel, position 08, composition 01
+INTEGER F0901 := 9 ; ! fuel, position 09, composition 01
+INTEGER CLAD := 10 ; ! clad, composition 10
+INTEGER MODE := 11 ; ! moderating water, composition 11 : in water rod and out-of-assembly water
+INTEGER COOL := 12 ; ! coolant water, composition 12 : in assembly water
+INTEGER WROD := 13 ; ! cladding of water rod, composition 13
+INTEGER BOX := 14 ; ! channel box, composition 14
+
+
+
+* Geometrical data
+
+* Assembly pitch
+REAL Pitch_A := 15.24 ; ! cm
+REAL Pitch_A2 := Pitch_A 2.0 /  ; ! cm
+* 1/2 thickness of water gap (between x=0 and channel box)
+REAL w_gap := 0.846 ; ! cm
+* channel box thickness
+REAL chan_thi := 0.254 ; ! cm
+REAL xlim := chan_thi w_gap + ; ! cm, x limit of the geometry in frame of R1/R2/TC
+* cell pitch
+REAL Pitch_C := 1.63 ; ! cm
+REAL 2_Pitch_C := Pitch_C 2.0 * ; ! cm
+REAL 3_Pitch_C := Pitch_C 3.0 * ; ! cm
+REAL 4_Pitch_C := Pitch_C 4.0 * ; ! cm
+* Fuel rod radius
+REAL fuelRad := 0.529 ; ! cm
+* Clad radius
+REAL cladRad := 0.615 ; ! cm
+* outer water rod radius
+REAL waterRad_o := 1.6 ; ! cm
+* inner water rod radius
+REAL waterRad_i := 1.5 ; ! cm
+
+REAL disp_wr := Pitch_C 2.0 / -1.0 * ; ! cm, displacement of water rod with respect to center of its bounding CARCEL
+*** 8th symmetry : SYME at -Y, DIAG at -X, +Y and REFL at +X 
+
+GEOM := GEO: :: CAR2D 3 3 
+    EDIT 1
+    X- DIAG X+ REFL
+    Y- REFL Y+ DIAG
+    CELL WR LAT1 R1 
+            LAT2 R2 
+                 TC 
+    MESHX 0.0 <<Pitch_C>> <<4_Pitch_C>> <<Pitch_A2>> 
+    MESHX 0.0 <<Pitch_C>> <<4_Pitch_C>> <<Pitch_A2>>
+    ::: WR := GEO: CARCEL 2
+            MESHX 0.0 <<Pitch_C>>
+            MESHY 0.0 <<Pitch_C>>
+            RADIUS 0.0 <<waterRad_i>> <<waterRad_o>>
+            OFFCENTER <<disp_wr>> <<disp_wr>>
+            MIX <<MODE>> <<WROD>> <<COOL>> ! water, clad, intra-assembly water
+        ;
+    ::: LAT1 := GEO: CAR2D 3 1 
+        MESHX 0.0 <<Pitch_C>> <<2_Pitch_C>> <<3_Pitch_C>>
+        MESHY 0.0 <<Pitch_C>>
+        CELL C11 C12 C21
+        ::: C11 := GEO: CARCEL 2
+                MESHX 0.0 <<Pitch_C>>
+                MESHY 0.0 <<Pitch_C>>
+                RADIUS 0.0 <<fuelRad>> <<cladRad>>
+                MIX <<F0901>> <<CLAD>> <<COOL>> ! fuel, clad, intra-assembly water
+            ;
+        ::: C12 := GEO: C11 MIX <<F0701>> <<CLAD>> <<COOL>> ;
+        ::: C21 := GEO: C11 MIX <<F0402>> <<CLAD>> <<COOL>> ;
+    ;
+    ::: LAT2 := GEO: CAR2D 3 3
+        MESHX 0.0 <<Pitch_C>> <<2_Pitch_C>> <<3_Pitch_C>>
+        MESHY 0.0 <<Pitch_C>> <<2_Pitch_C>> <<3_Pitch_C>>
+        CELL C13 CG1 C22 
+             CG1 C23 C31 
+             C22 C31 C41
+        ::: C13 := GEO: CARCEL 2
+                MESHX 0.0 <<Pitch_C>>
+                MESHY 0.0 <<Pitch_C>>
+                RADIUS 0.0 <<fuelRad>> <<cladRad>>
+                MIX <<F0801>> <<CLAD>> <<COOL>> ! fuel, clad, intra-assembly water
+            ;
+        ::: CG1 := GEO: C13 MIX <<F06Gd>> <<CLAD>> <<COOL> ;
+        ::: C22 := GEO: C13 MIX <<F0302>> <<CLAD>> <<COOL> ;
+        ::: C23 := GEO: C13 MIX <<F0502>> <<CLAD>> <<COOL> ;
+        ::: C31 := GEO: C13 MIX <<F0203>> <<CLAD>> <<COOL> ;
+        ::: C41 := GEO: C13 MIX <<F0104>> <<CLAD>> <<COOL> ;
+    ;
+    ::: R1 := GEO: CAR2D 2 1
+        MESHX 0.0 <<chan_thi>> <<xlim>>
+        MESHY 0.0 <<Pitch_C>>
+        MIX <<BOX>> <<MODE>> ! channel box, out-of-assembly water
+    ;
+    ::: R2 := GEO: CAR2D 2 1
+        MESHX 0.0 <<chan_thi>> <<xlim>>
+        MESHY 0.0 <<3_Pitch_C>>
+        MIX <<BOX>> <<MODE>> ! channel box, out-of-assembly water
+    ;
+    ::: TC := GEO: CAR2D 2 2
+        MESHX 0.0 <<chan_thi>> <<xlim>>
+        MESHY 0.0 <<chan_thi>> <<xlim>>
+        MIX <<BOX>> <<MODE>> <<BOX>> <<MODE>> ! channel box corner surrounded by out-of-assembly water
+    ;
+;
+
+    
+    
+       
+
+Fic_SAL Fic_SAL.ps := G2S: GEOM :: MACRO ;

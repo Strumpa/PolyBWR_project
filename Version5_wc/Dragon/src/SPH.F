@@ -131,7 +131,7 @@
          ELSE IF(HSIGN.EQ.'L_OPTIMIZE') THEN
             IPOPT=KENTRY(I)
          ELSE
-            HFORMAT='(40HSPH: UNKNOWN TYPE OF PARAMETER(1). NAME='//
+            HFORMAT='(40HSPH: UNKNOWN TYPE OF PARAMETER(1). NAME=,'//
      1      'A12,11H<--- HSIGN=,A12,5H<---.)'
             WRITE(HSMG,HFORMAT) HENTRY(I),HSIGN
             CALL XABORT(HSMG)
@@ -210,6 +210,7 @@
          LARM=(NSPH.EQ.4)
       ELSE
          NSPH=3
+         IF(.NOT.C_ASSOCIATED(IPTRK)) NSPH=2
          KSPH=1
          MAXIT=200
          MAXNBI=10
@@ -677,7 +678,6 @@
             !
             DEALLOCATE(SPH2)
             ALLOCATE(SPH2(NMERGE,NGCOND))
-            LFROM=.TRUE.
             HMASL=' '
             CALL SPHMPO(IPAPX,IPMACR,ICAL,IPRINT,HEQNAM,HMASL,NMERGE,
      >      NALBP,NGCOND,HEDIT,XVOLM,ILUPS,SPH2,B2)
@@ -703,7 +703,7 @@
             DEALLOCATE(LIST)
             DEALLOCATE(SPH2)
             ALLOCATE(SPH2(NMERGE,NGCOND))
-            LFROM=.TRUE.
+            LFROM=(NMERGE.GT.1)
             CALL SPHAPX(IPAPX,IPMACR,ICAL,IPRINT,HEQNAM,NMERGE,NGCOND,
      >      LFROM,ILUPS,SPH2,B2)
          ENDIF

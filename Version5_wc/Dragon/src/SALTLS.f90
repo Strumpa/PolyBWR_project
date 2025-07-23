@@ -166,7 +166,9 @@ SUBROUTINE SALTLS(IFTEMP,IPRINT,IGTRK,NFREG,NBANGL,NQUAD,RENO,NBDR,IFMT,DENUSR, 
                     ENDIF
                  ENDDO
                  ! a trajectory has been completed: store angle order nber, total weight and wr
-                 ITRAC2(CNT0+4)=IPHI
+                 !!! corrected by A. Hebert in ev3874
+                 !!! ITRAC2(CNT0+4)=IPHI
+                 ITRAC2(CNT0+7)=IPHI
                  RTRAC2(CNT0+7)=DDENWT(IQUAD,IANGL)*WR*NORM
                  RTRAC2(CNT0+8)=WR
                  II0=CNT0+1

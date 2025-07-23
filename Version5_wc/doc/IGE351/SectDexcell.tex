@@ -22,7 +22,7 @@ $\mathcal{S}^{t}_{i}$ will also be defined.
  2 & \textrm{hexagonal 2D/3D assembly using {\tt EXCELT:}} \\
  3 & \textrm{2D cluster geometry using {\tt EXCELT:}} \\
  4 & \textrm{2D or 3D geometry using {\tt NXT:} or {\tt SALT:}} \\
- 5 & \textrm{2D multicell surfacic approximation using {\tt MUST:}.} \\
+ 5 & \textrm{2D multicell surfacic approximation.} \\
 \end{array} \right.
 \end{displaymath}
 
@@ -160,12 +160,12 @@ $N_{\rm dir}=3n(n+2)/8$ for the $LC_n$ quadrature and $N_{\rm dir}=3n^2/2$ for t
 \end{array} \right.
 \end{displaymath}
 
-\item $\mathcal{S}^{t}_{24}$ is the interface current flag, where
+\item $\mathcal{S}^{t}_{24}$ is the multicell surfacic flag, where
 \begin{displaymath}
 \mathcal{S}^{t}_{24} = \left\{
 \begin{array}{rl}
- 0 & \textrm{do not use the interface current method.} \\
- {\tt NMACRO} & \textrm{number of macro geometries for the interface current method.} \\
+ 0 & \textrm{do not use the multicell surfacic approximation.} \\
+ {\tt NMACRO} & \textrm{number of macro geometries for the multicell surfacic approximation.} \\
 \end{array} \right.
 \end{displaymath}
 
@@ -175,14 +175,17 @@ $N_{\rm dir}=3n(n+2)/8$ for the $LC_n$ quadrature and $N_{\rm dir}=3n^2/2$ for t
 
 \item $\mathcal{S}^{t}_{27}$ is the number of tracks assigned to each OpenMP core.
 
+\item $\mathcal{S}^{t}_{28}$ is the number of interface currents for the multicell surfacic approximation. These interface currents are additional unknowns
+components if a flux-current iteration solution is used.
+
 \item $\mathcal{S}^{t}_{39}$ is the prismatic tracking activation flag along $z$ axis for 3D geometry (0/3: off/on-$z$ axis).
 
 \end{itemize}
 
-The following records will also be present on the main level of a \dir{tracking}
-directory.
+The following records will also be present on the main level of a \dir{tracking} directory.
 
 \begin{DescriptionEnregistrement}{The \moc{EXCELT:} records in \dir{tracking}}{8.0cm}
+\label{tabl:main-structure}
 \RealEnr
   {EXCELTRACKOP}{$40$}{}
   {array ${\cal R}_i$ containing additional EXCELL or NXT tracking parameters.} 
@@ -221,8 +224,39 @@ only if $\mathcal{S}^{t}_{7}=4$).
 only if $\mathcal{S}^{t}_{7}=4$). 
 \item ${\cal R}_{10}$ is the $z$ position of the center of the minimal circle (2-D) or sphere (3-D) containing the geometry (used 
 only if $\mathcal{S}^{t}_{7}=4$). 
+\item ${\cal R}_{11}$ is the spatial cutoff factor for tracking.
+\item ${\cal R}_{12}$ is the stopping criterion for flux-current iterations of the multicell surfacic approximation.
 \item ${\cal R}_{40}$ user requested tracking density in cm$^{-1}$ for inline contruction of 3D tracks when a prismatic tracking is considered (only used if $\mathcal{S}^{t}_{39}>0$).
 \end{itemize}
+
+Additional records are defined in the structure of Table~\ref{tabl:main-structure} in case where the multicell surfacic
+approximation is used (if $\mathcal{S}^{t}_{7}=5$):
+
+\begin{DescriptionEnregistrement}{The additional multicell surfacic records in \dir{tracking}}{8.0cm}
+\DirlEnr
+  {MACRO-TRACK\blank{1}}{$\mathcal{S}^{t}_{24}$}
+  {List of directories. Each component of this list contains the the tracking information for a macro geometry.
+  Each directory of the list follows the specification presented in Table~\ref{tabl:main-structure} for a case with
+  a unique macro geometry ($\mathcal{S}^{t}_{7}=4$ and $\mathcal{S}^{t}_{24}=1$).}
+\IntEnr
+  {NMC\_NODE\blank{4}}{$\mathcal{S}^{t}_{24}+1$}
+  {Offset of the first region in each macro geometry}
+\IntEnr
+  {NMC\_SURF\blank{4}}{$\mathcal{S}^{t}_{24}+1$}
+  {Offset of the first boundary surface in each macro geometry}
+\IntEnr
+  {IFR\blank{9}}{$\mathcal{S}^{t}_{28}$}
+  {Index numbers of incoming currents}
+\RealEnr
+  {ALB\blank{9}}{$\mathcal{S}^{t}_{28}$}{}
+  {Albedo or transmission factors corresponding to incoming currents}
+\IntEnr
+  {MIX\blank{9}}{$\mathcal{S}^{t}_{28}$}
+  {Index  numbers of outgoing currents}
+\RealEnr
+  {DVX\blank{9}}{$\mathcal{S}^{t}_{28}$}{}
+  {Weights corresponding to outgoing currents}
+\end{DescriptionEnregistrement}
 
 The \namedir{NXTRecords} directory contains the information required to track the geometry using the \moc{NXT:} module module once it has been analyzed. The contents of this directory is presented in Table~\ref{tabl:NXTRecords}.
 

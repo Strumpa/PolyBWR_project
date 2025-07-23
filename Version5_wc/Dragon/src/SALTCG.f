@@ -37,7 +37,9 @@
 *----------
 *
       USE              GANLIB
-      USE SAL_GEOMETRY_TYPES, ONLY : T_G_BASIC
+      USE SAL_GEOMETRY_TYPES, ONLY : T_G_BASIC,ISPEC
+      USE SAL_TRACKING_TYPES, ONLY : NMAX2,ITRAC2,RTRAC2,IPART,RPART,
+     >                        NIPART,NRPART
       IMPLICIT         NONE
 *----
 *  Subroutine arguments
@@ -55,9 +57,10 @@
       PARAMETER       (IOUT=6,NAMSBR='SALTCG')
       INTEGER          NSTATE
       PARAMETER       (NSTATE=40)
+      INTEGER          NMAX0
       DOUBLE PRECISION PI,DZERO,DONE,DTWO,DSUM
       PARAMETER       (PI=3.14159265358979, DZERO=0.0D0,DONE=1.0D0,
-     >                 DTWO=2.0D0)
+     >                 DTWO=2.0D0,NMAX0=100000)
 *----
 *  Functions
 *----
@@ -68,15 +71,14 @@
       INTEGER          ISTATE(NSTATE),IEDIMG(NSTATE),ICODE(6)
       REAL             RSTATT(NSTATE),ALBEDO(6)
       INTEGER          RENO,LTRK,AZMOAQ,ISYMM,POLQUA,POLOAQ,AZMQUA,
-     >                 AZMNBA
+     >                 AZMNBA,OK
       DOUBLE PRECISION DENUSR,RCUTOF,DENLIN,SPACLN,WEIGHT
       DOUBLE PRECISION RADIUS,CENTER(3)
       INTEGER          NDIM,ITYPBC,IDIRG,NBOCEL,NBUCEL,IDIAG,
      >                 ISAXIS(3),NOCELL(3),NUCELL(3),MXMSH,MAXMSH,
      >                 MAXREG,NBTCLS,MAXMSP,MAXRSP,NFSUR,NFREG,
      >                 MXGSUR,NUNK,NPLANE,NPOINT,NTLINE,NBTDIR,
-     >                 MAXSUB,MAXSGL,NBDR,NUNKF,ILONG,ITYLCM
-      INTEGER          IPER(3)
+     >                 MAXSUB,MAXSGL,NBDR,ILONG,ITYLCM,IPER(3)
       INTEGER          JJ,KK,NCOR,NQUAD,NANGL,NBANGL,LINMAX
       DOUBLE PRECISION DQUAD(4),ABSC(3,2),RCIRC,SIDEH,ANGLE
       CHARACTER        CTRK*4,COMENT*80
@@ -386,6 +388,44 @@
       RSTATT(8)=REAL(CENTER(1))
       RSTATT(9)=REAL(CENTER(2))
 *----
+*  Allocate memory to hold tracking data
+*----
+**      tracking data buffer:
+*       integers
+*       ITRAC2(NMAX OR 2*NMAX) = integer tracking array
+*
+*       *integer descriptors in itrac2:
+*           1 = address of last data
+*           2 = total number of sub-trajectories
+*           3 = 
+*           4 = phi for trajectory (2D)
+*
+*       reals
+*       RTRAC2(nmax or 2*nmax) = real tracking array
+*
+*       *real descriptors:
+*           1 =
+*           2 = cos phi entering basic
+*           3 = sin phi left surface
+*           4 = sin phi right surface
+*           5 = cos phi left surface
+*           6 = cos phi right surface
+*           7 = total weight (DELR*WPHI)
+*           8 = radial weight (DELR)
+*
+*       IPART(NIPART,MXELEM)   = to store integer intersection data
+*       RPART(NRPART,MXELEM)   = to store real intersection data
+*
+      IF(NBSLIN <= 0)THEN
+         NMAX2=NMAX0
+      ELSE
+         NMAX2=NBSLIN
+      ENDIF
+      IF(ISPEC == 1) NMAX2=NMAX2*100
+      ALLOCATE(ITRAC2(2*NMAX2),IPART(NIPART,GG%NB_ELEM),RTRAC2(NMAX2),
+     1 RPART(NRPART,GG%NB_ELEM),STAT=OK)
+      IF(OK/=0) CALL XABORT('SALTCG: not enough memory IRD')
+*----
 *  Track
 *----
       LINMAX=MAX(LINMAX,NBSLIN)
@@ -418,6 +458,11 @@
      >              NTLINE,DVNOR )
       ENDIF
 *----
+*  Release allocated memory for SALT tracking
+*----
+      DEALLOCATE(RPART,RTRAC2,IPART,ITRAC2,STAT =OK)
+      IF(OK /= 0) CALL XABORT('SALTCG: failure to deallocate storage')
+*----
 *  Save track normalisation vector
 *----
       CALL LCMPUT(IPTRK,'NumMerge    ',NFREG,1,GG%NUM_MERGE)
@@ -430,10 +475,10 @@
 *----
 *  Get cell description of geometry
 *----
-      NUNKF=NFREG+NFSUR+1
-      ALLOCATE(KEYMRG(NUNKF),MATALB(NUNKF),SURVOL(NUNKF))
+      ALLOCATE(KEYMRG(-NFSUR:NFREG),MATALB(-NFSUR:NFREG),
+     > SURVOL(-NFSUR:NFREG))
       CALL LCMLEN(IPTRK,'KEYMRG      ',ILONG,ITYLCM)
-      IF(ILONG>NUNKF) CALL XABORT('SALTCG: NUNKF OVERLOW.')
+      IF(ILONG>NFREG+NFSUR+1) CALL XABORT('SALTCG: KEYMRG OVERLOW.')
       CALL LCMGET(IPTRK,'KEYMRG      ',KEYMRG)
       CALL LCMGET(IPTRK,'MATALB      ',MATALB)
       CALL LCMGET(IPTRK,'SAreaRvolume',SURVOL)
@@ -492,9 +537,9 @@
           WRITE(IFTRK) NDIM,LTRK,NEREG,NESUR,6,NCOR,4*NBANGL,MAXSUB,
      >    MAXSGL
         ENDIF
-        KEYMRG(NFSUR+2:NUNKF)=GG%NUM_MERGE(:NFREG)
-        SURVOL(NFSUR+2:NUNKF)=GG%VOL_NODE(:NFREG)
-        MATALB(NFSUR+2:NUNKF)=GG%MED(:NFREG)
+        KEYMRG(1:NFREG)=GG%NUM_MERGE(:NFREG)
+        SURVOL(1:NFREG)=GG%VOL_NODE(:NFREG)
+        MATALB(1:NFREG)=GG%MED(:NFREG)
         CALL NXTCVM(IFTRK,IPRINT,NFREG,NFSUR,NEREG,NESUR,MATALB,SURVOL,
      >              KEYMRG)
         WRITE(IFTRK) ( ICODE(JJ),JJ=1,6)

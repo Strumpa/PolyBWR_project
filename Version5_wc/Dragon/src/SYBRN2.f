@@ -41,7 +41,7 @@
 *  SUBROUTINE ARGUMENTS
 *----
       INTEGER NREG,NSURF,IZ(*)
-      REAL A,B,Z(*),VOL(NREG),SIGT(NREG),TRONC,PVS(3*NSURF,NREG),
+      REAL A,B,Z(*),VOL(NREG),SIGT(NREG),TRONC,PVS(NREG,3*NSURF),
      1 PSS(3*NSURF,3*NSURF)
 *----
 *  LOCAL VARIABLES
@@ -84,7 +84,7 @@
       ZERO=TRONC*(A+B)/(2.0*A*B)
       AOB=A/B
       PBB(:28)=0.0
-      PVS(:12,:NREG)=0.0
+      PVS(:NREG,:12)=0.0
       IZ0=2
       IZR=4
       DO 205 IA=1,IZ(2)
@@ -120,18 +120,18 @@
          POP=POP+SIGTI*Z(IZR+I)
          IF(POP.LT.XLIM3) GO TO 30
          IF(SIGTI.LE.ZERO) GO TO 50
-         PVS(7,III)=PVS(7,III)+2.0*KI3*Z1
-         PVS(8,III)=PVS(8,III)+2.0*KI4*Z3
+         PVS(III,7)=PVS(III,7)+2.0*KI3*Z1
+         PVS(III,8)=PVS(III,8)+2.0*KI4*Z3
          GO TO 50
    30    K=NINT(POP*PAS3)
          WI3=BI3(K)+POP*(BI31(K)+POP*BI32(K))
          WI4=BI4(K)+POP*(BI41(K)+POP*BI42(K))
          IF(SIGTI.LE.ZERO) THEN
-            PVS(7,III)=PVS(7,III)+2.0*TABKI(2,POP0)*Z(IZR+I)*Z1
-            PVS(8,III)=PVS(8,III)+2.0*KI3*Z(IZR+I)*Z3
+            PVS(III,7)=PVS(III,7)+2.0*TABKI(2,POP0)*Z(IZR+I)*Z1
+            PVS(III,8)=PVS(III,8)+2.0*KI3*Z(IZR+I)*Z3
          ELSE
-            PVS(7,III)=PVS(7,III)+2.0*(KI3-WI3)*Z1
-            PVS(8,III)=PVS(8,III)+2.0*(KI4-WI4)*Z3
+            PVS(III,7)=PVS(III,7)+2.0*(KI3-WI3)*Z1
+            PVS(III,8)=PVS(III,8)+2.0*(KI4-WI4)*Z3
          ENDIF
          KI3=WI3
          KI4=WI4
@@ -147,18 +147,18 @@
          POP=POP+SIGTI*Z(IZR+NH+1-I)
          IF(POP.LT.XLIM3) GO TO 70
          IF(SIGTI.LE.ZERO) GO TO 185
-         PVS(1,III)=PVS(1,III)+2.0*KI3*Z1*AOB
-         PVS(2,III)=PVS(2,III)+2.0*KI4*Z2*AOB
+         PVS(III,1)=PVS(III,1)+2.0*KI3*Z1*AOB
+         PVS(III,2)=PVS(III,2)+2.0*KI4*Z2*AOB
          GO TO 185
    70    K=NINT(POP*PAS3)
          WI3=BI3(K)+POP*(BI31(K)+POP*BI32(K))
          WI4=BI4(K)+POP*(BI41(K)+POP*BI42(K))
          IF(SIGTI.LE.ZERO) THEN
-            PVS(1,III)=PVS(1,III)+2.0*TABKI(2,POP0)*Z(IZR+NH+1-I)*Z1*AOB
-            PVS(2,III)=PVS(2,III)+2.0*KI3*Z(IZR+NH+1-I)*Z2*AOB
+            PVS(III,1)=PVS(III,1)+2.0*TABKI(2,POP0)*Z(IZR+NH+1-I)*Z1*AOB
+            PVS(III,2)=PVS(III,2)+2.0*KI3*Z(IZR+NH+1-I)*Z2*AOB
          ELSE
-            PVS(1,III)=PVS(1,III)+2.0*(KI3-WI3)*Z1*AOB
-            PVS(2,III)=PVS(2,III)+2.0*(KI4-WI4)*Z2*AOB
+            PVS(III,1)=PVS(III,1)+2.0*(KI3-WI3)*Z1*AOB
+            PVS(III,2)=PVS(III,2)+2.0*(KI4-WI4)*Z2*AOB
          ENDIF
          KI3=WI3
          KI4=WI4
@@ -185,18 +185,18 @@
          POP=POP+SIGTI*Z(IZR+I)
          IF(POP.LT.XLIM3) GO TO 90
          IF(SIGTI.LE.ZERO) GO TO 110
-         PVS(7,III)=PVS(7,III)+KI3*Z1
-         PVS(8,III)=PVS(8,III)+KI4*Z2
+         PVS(III,7)=PVS(III,7)+KI3*Z1
+         PVS(III,8)=PVS(III,8)+KI4*Z2
          GO TO 110
    90    K=NINT(POP*PAS3)
          WI3=BI3(K)+POP*(BI31(K)+POP*BI32(K))
          WI4=BI4(K)+POP*(BI41(K)+POP*BI42(K))
          IF(SIGTI.LE.ZERO) THEN
-            PVS(7,III)=PVS(7,III)+TABKI(2,POP0)*Z(IZR+I)*Z1
-            PVS(8,III)=PVS(8,III)+KI3*Z(IZR+I)*Z2
+            PVS(III,7)=PVS(III,7)+TABKI(2,POP0)*Z(IZR+I)*Z1
+            PVS(III,8)=PVS(III,8)+KI3*Z(IZR+I)*Z2
          ELSE
-            PVS(7,III)=PVS(7,III)+(KI3-WI3)*Z1
-            PVS(8,III)=PVS(8,III)+(KI4-WI4)*Z2
+            PVS(III,7)=PVS(III,7)+(KI3-WI3)*Z1
+            PVS(III,8)=PVS(III,8)+(KI4-WI4)*Z2
          ENDIF
          KI3=WI3
          KI4=WI4
@@ -211,18 +211,18 @@
          POP=POP+SIGTI*Z(IZR+NH+1-I)
          IF(POP.LT.XLIM3) GO TO 120
          IF(SIGTI.LE.ZERO) GO TO 185
-         PVS(7,III)=PVS(7,III)+KI3*Z1
-         PVS(8,III)=PVS(8,III)+KI4*Z2
+         PVS(III,7)=PVS(III,7)+KI3*Z1
+         PVS(III,8)=PVS(III,8)+KI4*Z2
          GO TO 185
   120    K=NINT(POP*PAS3)
          WI3=BI3(K)+POP*(BI31(K)+POP*BI32(K))
          WI4=BI4(K)+POP*(BI41(K)+POP*BI42(K))
          IF(SIGTI.LE.ZERO) THEN
-            PVS(7,III)=PVS(7,III)+TABKI(2,POP0)*Z(IZR+NH+1-I)*Z1
-            PVS(8,III)=PVS(8,III)+KI3*Z(IZR+NH+1-I)*Z2
+            PVS(III,7)=PVS(III,7)+TABKI(2,POP0)*Z(IZR+NH+1-I)*Z1
+            PVS(III,8)=PVS(III,8)+KI3*Z(IZR+NH+1-I)*Z2
          ELSE
-            PVS(7,III)=PVS(7,III)+(KI3-WI3)*Z1
-            PVS(8,III)=PVS(8,III)+(KI4-WI4)*Z2
+            PVS(III,7)=PVS(III,7)+(KI3-WI3)*Z1
+            PVS(III,8)=PVS(III,8)+(KI4-WI4)*Z2
          ENDIF
          KI3=WI3
          KI4=WI4
@@ -246,18 +246,18 @@
          POP=POP+SIGTI*Z(IZR+I)
          IF(POP.LT.XLIM3) GO TO 140
          IF(SIGTI.LE.ZERO) GO TO 160
-         PVS(1,III)=PVS(1,III)+KI3*Z1
-         PVS(2,III)=PVS(2,III)+KI4*Z2
+         PVS(III,1)=PVS(III,1)+KI3*Z1
+         PVS(III,2)=PVS(III,2)+KI4*Z2
          GO TO 160
   140    K=NINT(POP*PAS3)
          WI3=BI3(K)+POP*(BI31(K)+POP*BI32(K))
          WI4=BI4(K)+POP*(BI41(K)+POP*BI42(K))
          IF(SIGTI.LE.ZERO) THEN
-            PVS(1,III)=PVS(1,III)+TABKI(2,POP0)*Z(IZR+I)*Z1
-            PVS(2,III)=PVS(2,III)+KI3*Z(IZR+I)*Z2
+            PVS(III,1)=PVS(III,1)+TABKI(2,POP0)*Z(IZR+I)*Z1
+            PVS(III,2)=PVS(III,2)+KI3*Z(IZR+I)*Z2
          ELSE
-            PVS(1,III)=PVS(1,III)+(KI3-WI3)*Z1
-            PVS(2,III)=PVS(2,III)+(KI4-WI4)*Z2
+            PVS(III,1)=PVS(III,1)+(KI3-WI3)*Z1
+            PVS(III,2)=PVS(III,2)+(KI4-WI4)*Z2
          ENDIF
          KI3=WI3
          KI4=WI4
@@ -273,18 +273,18 @@
          POP=POP+SIGTI*Z(IZR+NH+1-I)
          IF(POP.LT.XLIM3) GO TO 170
          IF(SIGTI.LE.ZERO) GO TO 185
-         PVS(1,III)=PVS(1,III)+KI3*Z1
-         PVS(2,III)=PVS(2,III)+KI4*Z2
+         PVS(III,1)=PVS(III,1)+KI3*Z1
+         PVS(III,2)=PVS(III,2)+KI4*Z2
          GO TO 185
   170    K=NINT(POP*PAS3)
          WI3=BI3(K)+POP*(BI31(K)+POP*BI32(K))
          WI4=BI4(K)+POP*(BI41(K)+POP*BI42(K))
          IF(SIGTI.LE.ZERO) THEN
-            PVS(1,III)=PVS(1,III)+TABKI(2,POP0)*Z(IZR+NH+1-I)*Z1
-            PVS(2,III)=PVS(2,III)+KI3*Z(IZR+NH+1-I)*Z2
+            PVS(III,1)=PVS(III,1)+TABKI(2,POP0)*Z(IZR+NH+1-I)*Z1
+            PVS(III,2)=PVS(III,2)+KI3*Z(IZR+NH+1-I)*Z2
          ELSE
-            PVS(1,III)=PVS(1,III)+(KI3-WI3)*Z1
-            PVS(2,III)=PVS(2,III)+(KI4-WI4)*Z2
+            PVS(III,1)=PVS(III,1)+(KI3-WI3)*Z1
+            PVS(III,2)=PVS(III,2)+(KI4-WI4)*Z2
          ENDIF
          KI3=WI3
          KI4=WI4
@@ -315,10 +315,10 @@
          PBB(16)=PBB(14)
          PBB(28)=PBB(26)
          DO 210 I=1,NREG
-         PVS(7,I)=PVS(7,I)+PVS(1,I)
-         PVS(8,I)=PVS(8,I)+PVS(2,I)
-         PVS(1,I)=PVS(7,I)
-         PVS(2,I)=PVS(8,I)
+         PVS(I,7)=PVS(I,7)+PVS(I,1)
+         PVS(I,8)=PVS(I,8)+PVS(I,2)
+         PVS(I,1)=PVS(I,7)
+         PVS(I,2)=PVS(I,8)
   210    CONTINUE
       ENDIF
       PBB(10)=PBB(6)
@@ -361,12 +361,12 @@
       PBB(22+I)=(Z2*PBB(22+I)-Z3*DEN2)*Z4
   290 CONTINUE
       DO 300 J=1,NREG
-      DEN1=PVS(7,J)
-      DEN2=PVS(1,J)
-      PVS(7,J)=Z1*Z1*DEN1
-      PVS(1,J)=Z1*Z1*DEN2
-      PVS(8,J)=Z1*(Z2*PVS(8,J)-Z3*DEN1)
-      PVS(2,J)=Z1*(Z2*PVS(2,J)-Z3*DEN2)
+      DEN1=PVS(J,7)
+      DEN2=PVS(J,1)
+      PVS(J,7)=Z1*Z1*DEN1
+      PVS(J,1)=Z1*Z1*DEN2
+      PVS(J,8)=Z1*(Z2*PVS(J,8)-Z3*DEN1)
+      PVS(J,2)=Z1*(Z2*PVS(J,2)-Z3*DEN2)
   300 CONTINUE
 *
       Z1=0.0
@@ -377,16 +377,16 @@
       X=4.0*VOL(J)
       SIGTI=SIGT(J)
       IF(SIGTI.GT.ZERO) THEN
-         Z1=Z1+PVS(7,J)
-         Z2=Z2+PVS(8,J)
-         Z4=Z4+PVS(1,J)
-         Z5=Z5+PVS(2,J)
+         Z1=Z1+PVS(J,7)
+         Z2=Z2+PVS(J,8)
+         Z4=Z4+PVS(J,1)
+         Z5=Z5+PVS(J,2)
          X=X*SIGTI
       ENDIF
-      PVS(7,J)=PVS(7,J)*A/X
-      PVS(8,J)=PVS(8,J)*A/X
-      PVS(1,J)=PVS(1,J)*B/X
-      PVS(2,J)=PVS(2,J)*B/X
+      PVS(J,7)=PVS(J,7)*A/X
+      PVS(J,8)=PVS(J,8)*A/X
+      PVS(J,1)=PVS(J,1)*B/X
+      PVS(J,2)=PVS(J,2)*B/X
   510 CONTINUE
       IF((Z1.GT.TRONC).AND.(Z2.GT.TRONC).AND.(Z4.GT.TRONC).AND.(Z5.GT.
      1 TRONC)) THEN
@@ -395,18 +395,18 @@
          Z4=(1.0-2.0*PBB(3)-PBB(4))/Z4
          Z5=(-2.0*PBB(11)-PBB(12))/Z5
          DO 520 J=1,NREG
-         PVS(7,J)=PVS(7,J)*Z1
-         PVS(8,J)=PVS(8,J)*Z2
-         PVS(1,J)=PVS(1,J)*Z4
-         PVS(2,J)=PVS(2,J)*Z5
+         PVS(J,7)=PVS(J,7)*Z1
+         PVS(J,8)=PVS(J,8)*Z2
+         PVS(J,1)=PVS(J,1)*Z4
+         PVS(J,2)=PVS(J,2)*Z5
   520    CONTINUE
       ENDIF
 *
       DO 540 I=1,NREG
-      PVS(4,I)=PVS(1,I)
-      PVS(5,I)=PVS(2,I)
-      PVS(10,I)=PVS(7,I)
-      PVS(11,I)=PVS(8,I)
+      PVS(I,4)=PVS(I,1)
+      PVS(I,5)=PVS(I,2)
+      PVS(I,10)=PVS(I,7)
+      PVS(I,11)=PVS(I,8)
   540 CONTINUE
       DO 560 JC=1,12
       DO 550 IC=1,12
