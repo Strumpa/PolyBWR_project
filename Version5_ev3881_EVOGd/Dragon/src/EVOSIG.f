@@ -97,10 +97,46 @@
       LOGICAL LKERMA
       REAL, ALLOCATABLE, DIMENSION(:) :: ZKERMA
       REAL, ALLOCATABLE, DIMENSION(:,:) :: XSREC
+* Heating value for U-235, used in EDEP0 normalisation. 
+* Similarly as in Serpent2's "set edemode 0"
+      REAL H_235 
+* Energy deposition mode, for now : set to 0
+      INTEGER EDEP
+* U235 fission Q-value, used in EDEP0 normalisation.
+      REAL Q235 
 *----
 *  SCRATCH STORAGE ALLOCATION
 *----
       ALLOCATE(XSREC(NGROUP,NREAC-1))
+
+*----
+*  INITIALIZATION
+*----
+* Ref : "New energy deposition treatment in the Serpent 2 Monte Carlo transport code" 
+*       - Tuominen et al. (2018)
+* H_235 in MeV, from Serpent2's "set edemode 0"
+      H_235 = 202.27  
+      Q235 = 0.0
+* EDEP = 0: use Serpent2's energy deposition mode 0
+      EDEP = 0 
+
+*---- 
+*  RECOVER U235 Fission Q-value
+*----
+      DO IST=1,NVAR
+         IF((AWR(IST).GE.233.0).AND.(AWR(IST).LT.234.0)) THEN
+            Q235 = RER(2,IST)
+            PRINT *, 'EVOSIG: U235 fission Q-value =', Q235
+            GO TO 10
+         ENDIF
+      END DO
+   10 CONTINUE
+*      IF(Q235.EQ.0.0) THEN
+* Format string properly for warning
+*         WRITE(HSMG,'(17HEVOSIG: U235 FISSION Q-VALUE NOT FOUND)')
+*         CALL XABORT(HSMG)
+*      ENDIF
+
 *----
 *  COMPUTE MICRO RATES
 *----
@@ -141,11 +177,11 @@
          FACT=DEN(K)*VX(IBM)
       ENDIF
       SIG(IS,NREAC+1,IBM)=SIG(IS,NREAC+1,IBM)+FACT*RER(1,IST)*RRD(IST)
-      IF ((IMPX.GE.10).AND.(AWR(IS).GE.210.0)) THEN
-       PRINT *, 'EVOSIG: IS,IST,K=',IS,IST,K
-       PRINT *, 'EVOSIG: IBM=',IBM 
-       PRINT *, 'EVOSIG: SIG(IS,NREAC+1,IBM)=',SIG(IS,NREAC+1,IBM)
-      ENDIF
+*      IF ((IMPX.GE.10).AND.(AWR(IS).GE.210.0)) THEN
+*       PRINT *, 'EVOSIG: IS,IST,K=',IS,IST,K
+*       PRINT *, 'EVOSIG: IBM=',IBM 
+*       PRINT *, 'EVOSIG: SIG(IS,NREAC+1,IBM)=',SIG(IS,NREAC+1,IBM)
+*      ENDIF
       IF(INR.EQ.0) GO TO 210
 *----
 *  RECOVER KERMA FACTORS, IF AVAILABLE
@@ -182,6 +218,7 @@
          IF((IREAC.EQ.2).AND.(MOD(IDR(2,IST),100).EQ.5)) GO TO 120
          IF(IMPX.GT.90) CALL LCMLIB(KPLIB)
          IF(IMPX.GT.3) THEN
+           PRINT *, "IST =",IST," K=",K," IREAC=",IREAC
            WRITE(HSMG,'(17HEVOSIG: REACTION ,A6,18H IS MISSING FOR IS,
      1     7HOTOPE '',3A4,2H''.)') NAMDXS(IREAC-1),(ISONAM(I0,K),I0=1,3)
            WRITE(IOUT,'(1X,A)') HSMG
@@ -199,13 +236,16 @@
      1     7HOTOPE '',3A4,2H''.)') NAMDXS(IREAC-1),(ISONAM(I0,K),I0=1,3)
          WRITE(IOUT,'(1X,A)') HSMG
          PRINT *, 'EVOSIG: SIG(IS,IREAC-1,IBM)=',SIG(IS,IREAC-1,IBM)
+         PRINT *, 'EVOSIG: AWR(IS)=',AWR(IS)
       ENDIF
       ! if(LKERMA), add energy from lumped isotopes not present in the
       ! microlib. Otherwise, add energy for all isotopes.
 * Exclude N,GAMMA reactions from the normalization
-      IF (IREAC.EQ.2) THEN
+!      IF (IREAC.NE.3) THEN
+* Only include fission energy in normalisation
+      IF ((IREAC.EQ.2).AND.(EDEP.EQ.0)) THEN
         SIG(IS,NREAC,IBM)=SIG(IS,NREAC,IBM)+1.0E-3*FACT*RER(IREAC,IST)*
-     1 REAL(GAR)*DELTAT(IXSPER)
+     1 REAL(GAR)*DELTAT(IXSPER)*H_235/Q235
       ENDIF 
       IF ((IMPX.GE.10).AND.(AWR(IS).GE.210.0)) THEN
          PRINT *, 'EVOSIG: RER(IREAC,IST)=',RER(IREAC,IST)

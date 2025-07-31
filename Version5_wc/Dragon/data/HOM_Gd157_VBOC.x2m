@@ -8,10 +8,10 @@ MODULE LIB: GEO: SYBILT: USS: ASM: FLU: GREP: UTL: EVO: COMPO: EDI: DELETE: ;
 
 LINKED_LIST GEOM TRACK LIBRARY LIBRARY2 CP CALC BURNUP StepList COMPO EDIBU ;
 
-SEQ_ASCII _COMPO :: FILE './_COMPO_HOM_Gd157_VBOC_endfb8r1_NG0_EXTR_NODI' ;
+SEQ_ASCII _COMPO :: FILE './_COMPO_HOM_Gd157_VBOC_endfb8r1_EXTR_NODI' ;
 
 STRING draglib_name := 'endfb8r1_295' ;
-STRING activate_NG0 := 'Yes' ;
+STRING activate_NG0 := 'No' ;
 STRING pcc_opt := 'EXTR' ; ! 'EXTR' or 'NOEX'
 REAL Kinf ;
 
@@ -26,12 +26,14 @@ REAL Kinf ;
 *5500.0   6000.0    6500.0   7000.0    7500.0    
 *8000.0   8500.0    9000.0   9500.0   10000.0   ;
 
-* Total of 18 steps between 0.0 to 10.0 GWd/tHM, used for OpenMC comparison and EVO prototyping
-StepList := UTL: :: CREA 'ListBU' 18 = 
+* Total of 39 steps between 0.0 to 10.0 GWd/tHM, used for OpenMC comparison and EVO prototyping
+StepList := UTL: :: CREA 'ListBU' 39 = 
    0.0    25.0    50.0   100.0   200.0   400.0    600.0  
- 800.0  1000.0  2000.0  3000.0  4000.0  5000.0   6000.0  
- 7000.0 8000.0  9000.0 10000.0 ;
-
+ 800.0  1000.0  1500.0  2000.0  2500.0  3000.0   3500.0  
+4000.0  4250.0  4500.0  4750.0  5000.0  5250.0   5500.0
+5750.0  6000.0  6250.0  6500.0  6750.0  7000.0   7250.0 
+7500.0  7750.0  8000.0  8250.0  8500.0  8750.0   9000.0  
+9250.0  9500.0  9750.0 10000.0 ;
 
 
 ** Prepare for evolution loop
