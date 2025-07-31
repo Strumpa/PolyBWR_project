@@ -1,0 +1,378 @@
+\subsection{The {\tt APX:} module}\label{sect:APEXData}
+
+This component of the lattice code is dedicated to the constitution of the
+reactor database in APEX format, similar to the file produced by APOLLO2-A.\cite{Apollo2}
+The APEX file intended to store {\sl all} the nuclear data, produced in
+the lattice code, that is useful
+in reactor calculations including fuel management and space-time kinetics.
+Multigroup lattice calculations are too expensive to be executed dynamically
+from the driver of the global reactor calculation. A more feasible
+approach is to create a reactor database where a finite number of lattice
+calculation results are tabulated against selected {\sl global parameters}
+chosen so as to represent expected operating conditions of the reactor. The
+\moc{APX:} operator is used to create and construct a {\sc APEX} file.
+The APEX file is written in {\sc hdf5} format, allowing full portability and hierarchical
+data organization. It can be edited and modified using the HDFView tool.
+
+\vskip 0.1cm
+
+Each elementary calculation is characterized by a tuple of {\sl global parameters}.
+These global parameters are of different types, depending on the nature of the
+study under consideration: type of assembly, power, temperature in a mixture,
+concentration of an isotope, time, burnup or exposure rate in a depletion calculation,
+etc. Each step of a depletion calculation represents an elementary calculation.
+The {\sc APEX} file is often presented as a {\sl multi-parameter reactor database}.
+
+\vskip 0.1cm
+
+For each elementary calculation, the results are recovered from the output of the
+\moc{EDI:} operator and stored in a set of {\sl homogenized mixture}
+directories. The \moc{EDI:} operator is responsible for performing condensation
+in energy and homogenization in space of the macroscopic and microscopic cross
+sections. All the elementary calculations gathered in a single {\sc apex} file are
+characterized by a single output geometry and a unique output energy-group
+structure.
+
+\vskip 0.1cm
+
+In each homogenized mixture directory, the \moc{APX:} operator recover
+cross sections for a number of {\sl particularized isotopes} and {\sl macroscopic total and/or
+residual sets}, a collection of isotopic cross sections weighted by isotopic number densities.
+Cross sections for particularized isotopes and macroscopic sets are recovered for
+{\sl selected reactions}. Other information is also recovered: multigroup neutron
+fluxes, isotopic number densities, fission spectrum and yields, SPH or discontinuity factors and
+albedos. Discontinuity factors and equivalent albedos are written in group {\tt miscelleaneous}.
+Finally, note that cross section information written on the {\sc apex} file is {\sl not}
+transport corrected and {\sl not} SPH corrected.
+
+\vskip 0.1cm
+
+A different specification of the \moc{APX:} function call is used for
+creation and construction of the {\sc apex} file.
+\begin{itemize}
+\item The first specification is used to initialize the {\sc apex} data structure
+as a function of the \dds{microlib} used in the reference calculation. The initialization
+call is also used to set the choice of global parameters, local variables, particularized
+isotopes, macroscopic sets and selected reactions.
+\item A modification call to the \moc{APX:} function is performed after each
+elementary calculation in order to recover output information processed by \moc{EDI:}
+(condensed and homogenized cross sections) and \moc{EVO:} (burnup dependant values).
+Global parameters and local variables can optionnally be recovered from \dds{microlib}
+objects. The \moc{EDI:} calculation is generally performed with option {\tt MICR ALL}.
+\end{itemize}
+
+The calling specifications are:
+
+\vskip -0.5cm
+
+\begin{DataStructure}{Structure \dstr{APX:}}
+$\{$~~\dusa{APXNAM} \moc{:=} \moc{APX:} $[$ \dusa{APXNAM} $]~[$~\dusa{HMIC} $]$ \moc{::} \dstr{apex\_data1} \\
+~~~$|$~~~\dusa{APXNAM} \moc{:=} \moc{APX:} \dusa{APXNAM}~\dusa{EDINAM}~$[$ \dusa{BRNNAM} $]$ \moc{::} \dstr{apex\_data2} \\
+~~~$|$~~~\dusa{APXNAM} \moc{:=} \moc{APX:} \dusa{APXNAM} $[[$ \dusa{APXRHS} $]]$ \moc{::} \dstr{apex\_data3} $\}$ \\
+\end{DataStructure}
+
+\noindent where
+\begin{ListeDeDescription}{mmmmmmm}
+
+\item[\dusa{APXNAM}] {\tt character*12} name of the {\sc lcm} object containing the
+{\sl master} {\sc apex} data structure.
+
+\item[\dusa{HMIC}] {\tt character*12} name of the reference \dds{microlib} (type {\tt
+L\_LIBRARY}) containing the microscopic cross sections. Isotope names are recovered
+from \dusa{HMIC}.
+
+\item[\dusa{EDINAM}] {\tt character*12} name of the {\sc lcm} object (type {\tt
+L\_EDIT}) containing the {\sc edition} data structure corresponding to an elementary
+calculation. The {\sc edition} data produced by the last call to the {\tt EDI:} module
+is used.
+
+\item[\dusa{BRNNAM}] {\tt character*12} name of the {\sc lcm} object (type {\tt
+L\_BURNUP}) containing the {\sc burnup} data structure. This object is compulsory if one
+of the following parameters is used: \moc{IRRA}, \moc{FLUB} and/or \moc{TIME}.
+
+\item[\dusa{APXRHS}] {\tt character*12} name of the {\sl read-only} {\sc apex} file. This
+data structure is concatenated to \dusa{APXNAM} using the \dusa{apex\_data3} data structure,
+as presented in \Sect{descsapx3}. \dusa{APXRHS} must be defined with the same number of energy
+groups and the same number of homogeneous regions as \dusa{APXNAM}. Moreover, all the
+global and local parameters of \dusa{APXRHS} must be defined in \dusa{APXNAM}. \dusa{APXNAM}
+may be defined with {\sl global} parameters not defined in \dusa{APXRHS}.
+
+\item[\dusa{apex\_data1}] input data structure containing initialization information (see \Sect{descsapx1}).
+
+\item[\dusa{apex\_data2}] input data structure containing information related to the recovery of an
+elementary calculation (see \Sect{descsapx2}).
+
+\item[\dusa{apex\_data3}] input data structure containing information related to the catenation of one or many
+{\sl read-only} {\sc apex} (see \Sect{descsapx3}).
+
+\end{ListeDeDescription}
+
+\subsubsection{Initialization data input for module {\tt APX:}}\label{sect:descsapx1}
+
+\vskip -0.8cm
+
+\begin{DataStructure}{Structure \dstr{apex\_data1}}
+$[$~\moc{EDIT} \dusa{iprint}~$]$ \\
+$[$~\moc{NOML}~\dusa{nomlib}~$]$ \\
+$[[$~\moc{PARA}~\dusa{parnam}~\dusa{parkey}~\{~\moc{BURN}~$|$~\moc{VALE}~\{~\moc{FLOT}~$|$~\moc{CHAI}~$|$~\moc{ENTI}~\}~\} $]]$ \\
+$[$~\moc{ISOT}~\{~\moc{TOUT}~$|$ \moc{MILI}~\dusa{imil}~$|~[$~\moc{FISS}~$]~[$~\moc{PF}~$]~[$~(\dusa{HNAISO}(i),~i=1,$N_{\rm iso}$) $]$~\}~$]$ \\
+$[[$~\moc{MACR}~\{~\moc{TOUT}~$|$~\moc{REST}~\}~$]]$ \\
+$[$~\moc{REAC}~(\dusa{HNAREA}(i),~i=1,$N_{\rm reac}$) $]$ \\
+{\tt ;}
+\end{DataStructure}
+
+\goodbreak
+\noindent where
+\begin{ListeDeDescription}{mmmmmmmm}
+
+\item[\moc{EDIT}] key word used to set \dusa{iprint}.
+
+\item[\dusa{iprint}] index used to control the printing in module {\tt
+APX:}. =0 for no print; =1 for minimum printing (default value).
+
+\item[\moc{NOML}] key word used to input a user--defined name for the {\sc apex} file.
+
+\item[\dusa{nomlib}] {\tt character*80} user-defined name.
+
+\item[\moc{PARA}] keyword used to define a single global parameter.
+
+\item[\dusa{parnam}] {\tt character*80} user-defined name of a global parameter. The
+following names are recommended:
+
+\begin{center}
+\begin{tabular}{| l | l | l |}
+\hline
+\dusa{parnam} & type & recovered from \\
+\hline
+Burnup & fuel burnup (MW-d/tonne) & \dusa{BRNNAM} \\
+Time & time (s) & \dusa{BRNNAM} \\
+Power & reactor power (MeV/s) & \dusa{BRNNAM} \\
+Exposure & flux exposure (n/Kb) & \dusa{BRNNAM} \\
+Flux & neutron flux (n/cm$^2$/s) & \dusa{BRNNAM} \\
+Heavy & heavy mass in fuel (g) & \dusa{BRNNAM} \\
+ModeratorDensity & moderator density (g/cc) & {\tt VALE FLOT} \\
+CoolantDensity & coolant density (g/cc) & {\tt VALE FLOT} \\
+BoronPPM & Boron concentration (ppm) & {\tt VALE FLOT} \\
+ModeratorTemperature & moderator temperature (K) & {\tt VALE FLOT} \\
+CoolantTemperature & coolant temperature (K) & {\tt VALE FLOT} \\
+FuelTemperature & fuel temperature (K) & {\tt VALE FLOT} \\
+ModeratorVoid & void fraction in coolant & {\tt VALE FLOT} \\
+\hline
+\end{tabular}
+\end{center}
+
+\item[\moc{BURN}] keyword used to recover the local parameter value from input object \dusa{BRNNAM}.
+This keyword cal be used if \dusa{parnam} $=$ \moc{Burnup}, \moc{Time}, \moc{Power}, \moc{Exposure}, \moc{Flux} or \moc{Heavy}.
+
+\item[\moc{VALE}] keyword used to define a user-defined quantity as global parameter.
+This keyword must be followed by the type of parameter.
+
+\item[\moc{FLOT}] keyword used to indicate that the user-defined global parameter
+is a floating point value.
+
+\item[\moc{CHAI}] keyword used to indicate that the user-defined global parameter
+is a {\tt character*12} value.
+
+\item[\moc{ENTI}] keyword used to indicate that the user-defined global parameter
+is an integer value.
+
+\item[\moc{ISOT}] keyword used to select the set of particularized isotopes.
+
+\item[\moc{TOUT}] keyword used to select all the available isotopes in the reference
+\dds{microlib} named \dusa{HMIC} as particularized isotopes.
+
+\item[\moc{MILI}] keyword used to select the isotopes in the reference
+\dds{microlib} named \dusa{HMIC} from a specific mixture as particularized isotopes.
+
+\item[\dusa{imil}] index of the mixture where the particularized isotopes are recovered.
+
+\item[\moc{FISS}] keyword used to select all the available fissile isotopes in the reference
+\dds{microlib} named \dusa{HMIC} as particularized isotopes.
+
+\item[\moc{PF}] keyword used to select all the available fission products in the reference
+\dds{microlib} named \dusa{HMIC} as particularized isotopes.
+
+\item[\dusa{HNAISO}(i)] {\tt character*12} user-defined isotope name. $N_{\rm iso}$ is the
+total number of explicitely--selected particularized isotopes.
+
+\item[\moc{MACR}] keyword used to select a type of macroscopic set. A maximum of two macroscopic sets is allowed.
+
+\item[\moc{TOUT}] keyword used to select all the available isotopes in the macroscopic set.
+
+\item[\moc{REST}] keyword used to remove all the particularized isotope contributions
+from the macroscopic set.
+
+\item[\moc{REAC}] keyword used to select the set of nuclear reactions.
+
+\item[\dusa{HNAREA}(i)] {\tt character*4} name of a user-selected reaction. $N_{\rm reac}$
+is the total number of selected reactions. \dusa{HNAREA}(i) is chosen among the following values:
+
+\begin{center}
+\begin{tabular}{| l | l |}
+\hline
+\dusa{HNAREA} & type \\
+\hline
+\moc{TOTA} & Total cross sections \\
+\moc{TOP1} & Total $P_1$-weighted cross sections \\
+\moc{ABSO} & Absorption cross sections. Note: \moc{ABSO}$=$\moc{TOTA}$-$\moc{DIFF}$_{\ell=0}$ \\
+\moc{N2N} & (n,2n) reactions \\
+\moc{N3N} & (n,3n) reactions \\
+\moc{FISS} & Fission cross section \\
+\moc{CHI}  & Steady-state fission spectrum \\
+\moc{NUFI} & $\nu\Sigma_{\rm f}$ cross sections \\
+\moc{KAFI} & $\kappa\Sigma_{\rm f}$ cross sections \\
+\moc{LEAK} & $B^2$ times the leakage coefficient \\
+\moc{DIFF} & Scattering cross section for each available Legendre order.\\
+& These cross sections {\sl not} multiply by the $2\ell+1$ factor.\\
+\moc{SCAT} & Transfer cross section matrices for each available Legendre order.\\
+& These cross sections are multiply by the $2\ell+1$ factor.\\
+\moc{CORR} & Transport correction. Note that the cross sections stored in the \\
+& {\sc apex} are {\sl not} transport corrected.\\
+\moc{STRD} & STRD cross sections used to compute the diffusion coefficients \\
+\moc{NP}   & (n,p) production cross sections \\
+\moc{NT}   & (n,t) production cross sections \\
+\moc{NA}   & (n,$\alpha$) production cross sections \\
+\hline
+\end{tabular}
+\end{center}
+
+\end{ListeDeDescription}
+
+\subsubsection{Modification data input for module {\tt APX:}}\label{sect:descsapx2}
+
+\vskip -0.8cm
+
+\begin{DataStructure}{Structure \dstr{apex\_data2}}
+$[$ \moc{EDIT} \dusa{iprint} $]$ \\
+$[[$ \dusa{parkey} \dusa{value} $]]$ \\
+$[$ \moc{ORIG} \dusa{orig} $]$ \\
+$[$ \moc{EQUI} \dusa{hequi} $]$ \\
+$[$ \moc{SET} \dusa{xtr} $\{$ \moc{S} $|$ \moc{DAY} $|$ \moc{YEAR} $\}$ $]$ \\
+$[$ \moc{ICAL} {\tt >>} \dusa{ical} {\tt <<} $]$ \\
+{\tt ;}
+\end{DataStructure}
+
+\goodbreak
+\noindent where
+\begin{ListeDeDescription}{mmmmmmmm}
+
+\item[\moc{EDIT}] key word used to set \dusa{iprint}.
+
+\item[\dusa{iprint}] index used to control the printing in module {\tt
+APX:}. =0 for no print; =1 for minimum printing (default value).
+
+\item[\dusa{parkey}] {\tt character*4} keyword associated to a user-defined global
+parameter.
+
+\item[\dusa{value}] floating-point, integer or {\tt character*12} value of a user-defined
+global parameter.
+
+\item[\moc{ORIG}] keyword used to define the father node in the global parameter tree. By
+default, the index of the previous elementary calculation is used.
+
+\item[\dusa{orig}] index of the elementary calculation associated to the father node in the
+global parameter tree.
+
+\item[\moc{EQUI}] keyword used to define the name of a SPH equivalence factor set. By
+default, \dusa{hequi}$=$ {\tt 'default'}.
+
+\item[\dusa{hequi}] \texttt{character*80} name of a SPH equivalence factor set.
+
+\item[\moc{SET}] keyword used to recover the flux normalization factor already
+stored on \dusa{BRNNAM} from a sub-directory corresponding to a specific time.
+
+\item[\dusa{xtr}] time associated with the current flux calculation. The
+name of the sub-directory where this information is stored will be given by
+`{\tt DEPL-DAT}'//{\tt CNN} where {\tt CNN} is a  {\tt character*4} variable
+defined by  {\tt WRITE(CNN,'(I4)') INN} where {\tt INN} is an index associated
+with the time \dusa{xtr}.
+
+\item[\moc{S}] keyword to specify that the time is given in seconds.
+
+\item[\moc{DAY}] keyword to specify that the time is given in days.
+
+\item[\moc{YEAR}] keyword to specify that the time is given in years.
+
+\item[\moc{ICAL}]  keyword used to recover the last calculation index.
+
+\item[\dusa{ical}] \texttt{character*12} CLE-2000 variable name in which the last calculation index will be placed.
+
+\end{ListeDeDescription}
+
+\subsubsection{Modification (catenate) data input for module {\tt APX:}}\label{sect:descsapx3}
+
+\vskip -0.5cm
+
+\begin{DataStructure}{Structure \dstr{apex\_data3}}
+$[$ \moc{EDIT} \dusa{iprint} $]$ \\
+$[$ \moc{ORIG} \dusa{orig} $]$ \\
+$[[$ \dusa{parkey} \dusa{value} $]]$ \\
+$[$ \moc{WARNING-ONLY} $]$ \\
+{\tt ;}
+\end{DataStructure}
+
+\noindent where
+\begin{ListeDeDescription}{mmmmmmmm}
+
+\item[\moc{EDIT}] keyword used to set \dusa{iprint}.
+
+\item[\dusa{iprint}] index used to control the printing in module {\tt
+APX:}. =0 for no print; =1 for minimum printing (default value).
+
+\item[\dusa{parkey}] {\tt character*4} .keyword associated to a
+global parameter that is specific to \dusa{APXNAM} (not defined in \dusa{APXRHS}).
+
+\item[\dusa{value}] floating-point, integer or {\tt character*12} value of a user-defined
+global parameter.
+
+\item[\moc{ORIG}] keyword used to define the father node in the parameter tree. By
+default, the index of the previous elementary calculation is used.
+
+\item[\dusa{orig}] index of the elementary calculation associated to the father node in the
+parameter tree.
+
+\item[\moc{WARNING-ONLY}] This option is useful if an elementary calculation in \dusa{APXRHS} 
+is already present in \dusa{APXNAM}. If this keyword is set, a warning is send and the \dusa{APXNAM} values
+are kept, otherwise the run is aborted (default).
+
+\end{ListeDeDescription}
+
+\subsubsection{Specification of SPH, discontinuity factor and albedo information}\label{sect:df_apx}
+
+SPH factors for different equivalence types are written in group {\tt MEDIA\_SPH} included in each state point of the Apex file.
+
+\vskip -0.15cm
+
+\begin{DescriptionEnregistrement}{Group /calc\_id/xs\_iq/MEDIA\_SPH of the Apex file}{7.5cm}
+\label{tabl:tabiso202a}
+\RealEnr
+  {\{hequi\}}{$N_{\rm grp}$}{$1$}
+  {SPH factors in zone {\tt iq}. \{hequi\} is a user-defined name corresponding to a specific type of SPH equivalence.}
+\end{DescriptionEnregistrement}
+
+\noindent where $N_{\rm grp}$ is the number of energy groups. A Dragon mixture is a zone in Apex terminology. Discontinuity factors and
+equivalent albedos are written in group {\tt miscellaneous} included in each state point of the Apex file.
+If the Apex file contains a unique output zone, suffix {\tt \_iq} can be omitted. Specification of some datasets are slightly modified to hold this new information:
+
+\vskip -0.15cm
+
+\begin{DescriptionEnregistrement}{Group /calc\_id/miscellaneous/ of the Apex file}{7.5cm}
+\label{tabl:tabiso202a}
+\RealEnr
+  {\{hadf\}}{$N_{\rm surf}\times N_{\rm grp}$}{$1$}
+  {Discontinuity factors $F^{\rm d}_{{\tt iq},b,g}$ on external surfaces $b\le N_{\rm surf}$ obtained with a nodal equivalence procedure within zone {\tt iq}.}
+\OptRealEnr
+  {ALBEDO}{$N_{\rm alb}\times N_{\rm grp}$}{$N_{\rm alb}\ge 1$}{1}
+  {Multigroup albedos $\beta_{a,g}$ obtained with a nodal equivalence procedure.}
+\end{DescriptionEnregistrement}
+
+\vskip -0.3cm
+
+If the Apex file contains a unique output zone, {\sl \{hadf\}} is set to ``{\tt ADF}''. Otherwise, the name of the discontinuity
+factor set {\sl \{hadf\}} is composed using the following FORTRAN instruction:
+  \begin{displaymath}
+    \mathtt{WRITE(}\mathsf{HADF}\mathtt{,'(3HADF,I8)')} \ iq
+  \end{displaymath}
+\noindent where {\tt iq} $\le N_{\rm mil}$.
+
+\clearpage

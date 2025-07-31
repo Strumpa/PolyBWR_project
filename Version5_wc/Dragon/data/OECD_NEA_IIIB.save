@@ -16,7 +16,7 @@ else
    MACH=`uname -sm | sed 's/[ ]/_/'`
 fi
 ls -l
-mv Fic_SAL_PhaseIIIB.tdt $1/"$MACH"
 mv Fig_PhaseIIIB.ps $1/"$MACH"
+mv Fig_PhaseIIIB_SSH.ps $1/"$MACH"
 echo "OECD_NEA_IIIB.save.save completed"
 

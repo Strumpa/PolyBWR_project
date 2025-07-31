@@ -14,15 +14,26 @@ class Material_Mixture:
     This class is used to handle the isotopic composition of a material mixture.
     """
 
-    def __init__(self, name: str, composition: dict):
+    def __init__(self, name: str, composition: dict, temperature:float, evaluation_name: str = None, isdepletable: bool = False):
         """
         Initialize the Material_Mixture object.
 
         :param name: Name of the material mixture.
         :param composition: Dictionary containing the isotopic composition of the material mixture.
         """
+        self.therm_isotopes = {"H1": "H1_H2O"}
+        self.HM_isotopes = ["U234", "U235", "U236", "U238", "Pu239", "Pu240", "Pu241", "Pu242", "Am241", "Am243", "Cm244", "Cm245", "Cm246"]
         self.name = name
         self.composition = composition
+        self.set_mixture_temperature(temperature)
+        if evaluation_name is not None:
+            self.set_evalutation(evaluation_name)
+        if isdepletable:
+            self.isdepletable = True
+        else:
+            self.isdepletable = False
+
+        self.convert_nat_to_iso()  # Convert natural isotopic composition to isotopic composition if needed
 
     def get_composition(self):
         """Return the isotopic composition of the material mixture."""
@@ -58,15 +69,15 @@ class Material_Mixture:
         iso_composition = {}
         for nuclide in self.composition.keys():
             ## Identify if the nuclide is in natural format : ends in 0 or in "_nat" or in "_NAT" or doesnt have a nucleon number and just atomic symbol.
-            if nuclide.endswith('0') or nuclide.endswith('_nat') or nuclide.endswith('_NAT') or nuclide.isalpha():
+            if nuclide.endswith('_nat') or nuclide.endswith('_NAT') or nuclide.isalpha():
                 # try converting to isotopic composition
-                nuclide = nuclide.replace('_nat', '').replace('_NAT', '').replace('0', '')
-                nat_nuclides.append(nuclide)
+                nuclide_symbol = nuclide.replace('_nat', '').replace('_NAT', '').replace('0', '')
+                nat_nuclides.append(nuclide_symbol)
                 try:
                     ## use mendeleev to get the isotopes of element
-                    isotopes = mendeleev.element(nuclide).isotopes
+                    isotopes = mendeleev.element(nuclide_symbol).isotopes
                     if not isotopes:
-                        raise ValueError(f"No isotopes found for element {nuclide}.")
+                        raise ValueError(f"No isotopes found for element {nuclide_symbol}.")
                     # create a dictionary to hold the isotopic composition
                     for iso in isotopes:
                         if iso.mass_number is None or iso.abundance is None:
@@ -74,12 +85,13 @@ class Material_Mixture:
                         # print the conversion for debugging
                         print(f"Converting nuclide {nuclide} to isotopic composition: {iso.mass_number}, abundance: {iso.abundance}")
                         print(iso.mass_number, iso.abundance)
-                        print(f"compute isotopic density for {nuclide}{iso.mass_number} = {self.composition[nuclide]*iso.abundance/100}")
-                        iso_composition[f"{nuclide}{iso.mass_number}"] = self.composition[nuclide] * iso.abundance/100 # convert natural element density to densities of natural isotopic abundances
+                        print(f"compostion - {self.composition}")
+                        print(f"compute isotopic density for {nuclide_symbol}{iso.mass_number} = {self.composition[nuclide]*iso.abundance/100}")
+                        iso_composition[f"{nuclide_symbol}{iso.mass_number}"] = self.composition[nuclide] * iso.abundance/100 # convert natural element density to densities of natural isotopic abundances
                 
                     # remove the natural element from the composition
                 except Exception as e:
-                    raise ValueError(f"Error converting nuclide {nuclide} to isotopic composition: {e}")
+                    raise ValueError(f"Error converting nuclide {nuclide_symbol} to isotopic composition: {e}")
                 
         # remove the natural elements from the composition
         for nuclide in nat_nuclides:
@@ -212,13 +224,29 @@ class Material_Mixture:
             else:
                 print(f"{zaid} {density:.6E}") 
 
+    def print_to_D5_format(self):
+        """
+        Print the material mixture definition to DRAGON5 format.
+        """
+        print(f"Material: {self.name}")
+        dens_definitions = ()
+        for iso, density in self.composition.items():
+            if iso in self.therm_isotopes:
+                # Special treatment for thermal scattering data
+                dens_definitions += (f"{iso}    = {self.therm_isotopes[iso]}  {density:.6E}",)
+            elif iso in self.HM_isotopes:
+                # Special treatment for elf shielding of heavy metal isotopes
+                dens_definitions += (f"{iso}    = {iso}  {density:.6E}  1",)
+            else:
+                dens_definitions += (f"{iso}    = {iso}  {density:.6E}",)
+
+        return dens_definitions
+
+
+
         
 
 if __name__ == "__main__":
-
-    # Load the YAML file
-    with open("eval_temp_suffix.yml", "r") as f:
-        data = yaml.safe_load(f)
 
     # Test / Example usage :
     # Clad / box from OECD/NEA/Phase IIIB BWR benchmark :

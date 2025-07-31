@@ -107,12 +107,12 @@ if __name__ == "__main__":
     # path to OpenMC data
     path_to_OpenMC_data = f"{os.environ['HOME']}/working_dir/OpenMC_cases/post_treat"
     # OpenMC tracked nuclides :
-    OpenMC_tracked_nuclides = ["Gd157", "Gd158", "U235", "U238", "Pu239", "Xe135", "Sm149"]
+    OpenMC_tracked_nuclides = ["Gd155", "Gd157", "Gd158", "U235", "U238", "Pu239", "Xe135", "Sm149"]
     # Define calculation options for the CPOs name reconstruction
     time_integrator = "EXTR"
     BU_points = "Gd_autop3" #"UOx2_autop5"  # "Gd_autop3"
     tracking_option = "SALT"
-    draglib = "endfb8r1_295" #"endfb8r1_295" # "endfb8r1_295", "endfb81295K", "endfb81295K2"
+    draglib = "endfb81295K2" # "endfb8r1_295_NG0" #"endfb8r1_295" # "endfb8r1_295", "endfb81295K", "endfb81295K2"
     ssh_option = "PT"
     correlation = "N"
     tracked_nuclides = ["U235","U238","Pu239","Pu240","Pu241","Pu242","Am241","Xe135","Sm149","Gd155","Gd157"]
@@ -204,6 +204,7 @@ if __name__ == "__main__":
     # Create OpenMC cases :
     OpenMC_case_edep0 = pd.read_csv(f"{path_to_OpenMC_data}/df_openmc_deplete_results_AT10_45Gd_default_fissq_CELI.csv")
     OpenMC_case_edep0_qfiss = pd.read_csv(f"{path_to_OpenMC_data}/df_openmc_deplete_results_AT10_45Gd_set_fissq_CELI.csv")
+    OpenMC_case_edep2 = pd.read_csv(f"{path_to_OpenMC_data}/df_openmc_deplete_results_AT10_45Gd_energy_deposition_CELI.csv")
 
     
 
@@ -317,6 +318,10 @@ if __name__ == "__main__":
     comparison_NOGL_S2 = create_D5_S2_comparison(D5_case_NOGL_ref, S2_case_edep2)
     comparison_GLOB_modif_S2 = create_D5_S2_comparison(D5_case_GLOB_modif, S2_case_edep2)
     comparison_GLOB_S2 = create_D5_S2_comparison(D5_case_GLOB_ref, S2_case_edep2)
+    # Create OpenMC cases with edep=2:
+    #OpenMC_case_edep2 = pd.read_csv(f"{path_to_OpenMC_data}/df_openmc_deplete_results_AT10_45Gd_energy_deposition_CELI.csv")
+    comparison_NOGL_modif_OpenMC = create_D5_OpenMC_comparison(D5_case_NOGL_modif, OpenMC_case_edep2, OpenMC_tracked_nuclides)
+    comparison_NOGL_OpenMC = create_D5_OpenMC_comparison(D5_case_NOGL_ref, OpenMC_case_edep2, OpenMC_tracked_nuclides)
     
     print(f"delta_keff vs S2_case_edep2 : {comparison_NOGL_modif_S2['delta_keff'].values}")
     print(f"Initial delta keff for modif NOGL vs S2 edep2 : {comparison_NOGL_modif_S2['delta_keff'][0]} pcm")
@@ -328,8 +333,8 @@ if __name__ == "__main__":
     plt.figure(figsize=(12, 6))
     plt.plot(comparison_NOGL_modif_S2['BU Points'], comparison_NOGL_modif_S2['delta_keff'], marker='o', label='NOGL, modified', linestyle='--', linewidth=.5)
     plt.plot(comparison_NOGL_S2['BU Points'], comparison_NOGL_S2['delta_keff'], marker='o', label='NOGL', linestyle='--', linewidth=.5)
-    #plt.plot(comparison_GLOB_modif_S2['BU Points'], comparison_GLOB_modif_S2['delta_keff'], marker='x', label='GLOB, modified', linestyle='--', linewidth=.5)
-    #plt.plot(comparison_GLOB_S2['BU Points'], comparison_GLOB_S2['delta_keff'], marker='x', label='GLOB', linestyle='--', linewidth=.5)
+    plt.plot(comparison_NOGL_modif_OpenMC['BU Points'], comparison_NOGL_modif_OpenMC['delta_keff'], marker='x', label='NOGL, modified vs OpenMC', linestyle='--', linewidth=.5)
+    plt.plot(comparison_NOGL_OpenMC['BU Points'], comparison_NOGL_OpenMC['delta_keff'], marker='x', label='NOGL vs OpenMC', linestyle='--', linewidth=.5)
     # plot +/- 300 pcm lines
     plt.axhline(y=300, color='r', linestyle='--', label='+300 pcm')
     plt.axhline(y=-300, color='r', linestyle='--', label='-300 pcm')
@@ -338,15 +343,16 @@ if __name__ == "__main__":
     plt.ylabel('Delta keff (pcm)')
     plt.legend()
     plt.grid()
-    plt.savefig(f"{save_dir_case}/comparison_keff_NOGL_GLOB_{draglib}_S2_edep2.png")
+    plt.savefig(f"{save_dir_case}/comparison_keff_NOGL_GLOB_{draglib}_S2_edep2_OpenMC_energy_deposition.png")
     plt.close()
     
     for isotope in tracked_nuclides:
         plt.figure(figsize=(12, 6))
         plt.plot(comparison_NOGL_modif_S2['BU Points'], comparison_NOGL_modif_S2[f'delta {isotope} (%)'], marker='o', label=f'NOGL modif {isotope}', linestyle='--', linewidth=.5)
         plt.plot(comparison_NOGL_S2['BU Points'], comparison_NOGL_S2[f'delta {isotope} (%)'], marker='o', label=f'NOGL {isotope}', linestyle='--', linewidth=.5)
-        #plt.plot(comparison_GLOB_modif_S2['BU Points'], comparison_GLOB_modif_S2[f'delta {isotope} (%)'], marker='x', label=f'GLOB modif {isotope}', linestyle='--', linewidth=.5)
-        #plt.plot(comparison_GLOB_S2['BU Points'], comparison_GLOB_S2[f'delta {isotope} (%)'], marker='x', label=f'GLOB {isotope}', linestyle='--', linewidth=.5)
+        if isotope in OpenMC_tracked_nuclides: 
+            plt.plot(comparison_NOGL_modif_OpenMC['BU Points'], comparison_NOGL_modif_OpenMC[f'delta {isotope} (%)'], marker='x', label=f'NOGL modif {isotope} vs OpenMC', linestyle='--', linewidth=.5)
+            plt.plot(comparison_NOGL_OpenMC['BU Points'], comparison_NOGL_OpenMC[f'delta {isotope} (%)'], marker='x', label=f'NOGL {isotope} vs OpenMC', linestyle='--', linewidth=.5)
         plt.title(f'Comparison NOGL - GLOB vs S2 for {isotope}, edep=2')
         plt.xlabel('BU Points')
         plt.ylabel(f'Delta {isotope} (%)')
@@ -357,72 +363,5 @@ if __name__ == "__main__":
         plt.grid()
         plt.savefig(f"{save_dir_case}/comparison_{isotope}_NOGL_GLOB_{draglib}_S2_edep2.png")
         plt.close()
-    
-
-    # I messed up by not discretizing the fuel pin properly in openmc results, to take this into account : did the same thing in Dragon
-        
-    # Create new D5 cases with simplified fuel pin geometry (no radial discretization):
-    path_to_EVOmodif_1reg_data =  f"EVO_modif_path/AT10_45Gd_1fuel_reg_results" 
-    path_to_ref_data_1reg = f"PYGAN_COMPOS_path/AT10_45Gd_1fuel_reg_results"
-
-    os.chdir(path_to_EVOmodif_1reg_data)
-    CPO_NOGL_modif = lcm.new('LCM_INP', name_cpo_NOGL, impx=0)
-    os.chdir(path)
-
-    os.chdir(path_to_ref_data_1reg)
-    CPO_NOGL_ref = lcm.new('LCM_INP', name_cpo_NOGL, impx=0)
-    os.chdir(path)
-
-    # Create D5 cases :
-    D5_case_NOGL_ref_1reg = D5_case(pyCOMPO=CPO_NOGL_ref, dlib_name=draglib, bu_points=BU_points,
-                                ssh_opt="PT", correlation=correlation, sat="NODI", depl_sol="EXTR",
-                                tracked_nuclides=tracked_nuclides, BU_lists=getLists(BU_points), save_dir=save_dir_case)
-    D5_case_NOGL_modif_1reg = D5_case(pyCOMPO=CPO_NOGL_modif, dlib_name=draglib, bu_points=BU_points,
-                                ssh_opt="PT", correlation=correlation, sat="NODI", depl_sol="EXTR",
-                                tracked_nuclides=tracked_nuclides, BU_lists=getLists(BU_points), save_dir=save_dir_case)
-
-    # Create D5-OpenMC comparisons
-    comparison_NOGL_ref_OpenMC_setqfiss = create_D5_OpenMC_comparison(D5_case_NOGL_ref_1reg, OpenMC_case_edep0_qfiss, OpenMC_tracked_nuclides)
-    comparison_NOGL_ref_OpenMC_default_qfiss = create_D5_OpenMC_comparison(D5_case_NOGL_ref_1reg, OpenMC_case_edep0, OpenMC_tracked_nuclides)
-
-    comparison_NOGL_modif_OpenMC_setqfiss = create_D5_OpenMC_comparison(D5_case_NOGL_modif_1reg, OpenMC_case_edep0_qfiss, OpenMC_tracked_nuclides)
-    comparison_NOGL_modif_OpenMC_default_qfiss = create_D5_OpenMC_comparison(D5_case_NOGL_modif_1reg, OpenMC_case_edep0, OpenMC_tracked_nuclides)
-    # plot the results
-    plt.figure(figsize=(12, 6))
-    plt.plot(comparison_NOGL_modif_OpenMC_setqfiss['BU Points'], comparison_NOGL_modif_OpenMC_setqfiss['delta_keff'], marker='o', label='NOGL modif OpenMC, set qfiss', linestyle='--', linewidth=.5)
-    plt.plot(comparison_NOGL_modif_OpenMC_default_qfiss['BU Points'], comparison_NOGL_modif_OpenMC_default_qfiss['delta_keff'], marker='x', label='NOGL modif vs OpenMC default qfiss', linestyle='--', linewidth=.5)
-    plt.plot(comparison_NOGL_ref_OpenMC_setqfiss['BU Points'], comparison_NOGL_ref_OpenMC_setqfiss['delta_keff'], marker='o', label='NOGL ref OpenMC, set qfiss', linestyle='--', linewidth=.5)
-    plt.plot(comparison_NOGL_ref_OpenMC_default_qfiss['BU Points'], comparison_NOGL_ref_OpenMC_default_qfiss['delta_keff'], marker='x', label='NOGL ref vs OpenMC default qfiss', linestyle='--', linewidth=.5)
-    plt.title('Keff comparison D5 1reg vs OpenMC, edep=0 fission Q-values used for normalization') 
-    plt.xlabel('BU Points')
-    plt.ylabel('Delta keff (pcm)')
-    # plot +/- 300 pcm lines
-    plt.axhline(y=300, color='r', linestyle='--', label='+300 pcm')
-    plt.axhline(y=-300, color='r', linestyle='--', label='-300 pcm')
-    plt.legend()
-    plt.grid()
-    plt.savefig(f"{save_dir_case}/comparison_keff_NOGL_GLOB_{draglib}_1reg_OpenMC_fissionqvalues.png")
-    plt.close()
-
-    for isotope in tracked_nuclides:
-        if isotope not in OpenMC_tracked_nuclides:
-            continue
-        plt.figure(figsize=(12, 6))
-        plt.plot(comparison_NOGL_modif_OpenMC_default_qfiss['BU Points'], comparison_NOGL_modif_OpenMC_default_qfiss[f'delta {isotope} (%)'], marker='o', label=f'NOGL modif {isotope}, default fission q values', linestyle='--', linewidth=.5)
-        plt.plot(comparison_NOGL_modif_OpenMC_setqfiss['BU Points'], comparison_NOGL_modif_OpenMC_setqfiss[f'delta {isotope} (%)'], marker='o', label=f'NOGL modif {isotope}, set fission q values', linestyle='--', linewidth=.5)
-        plt.plot(comparison_NOGL_ref_OpenMC_default_qfiss['BU Points'], comparison_NOGL_ref_OpenMC_default_qfiss[f'delta {isotope} (%)'], marker='x', label=f'NOGL ref {isotope}, default fission q values', linestyle='--', linewidth=.5)
-        plt.plot(comparison_NOGL_ref_OpenMC_setqfiss['BU Points'], comparison_NOGL_ref_OpenMC_setqfiss[f'delta {isotope} (%)'], marker='x', label=f'NOGL ref {isotope}, set fission q values', linestyle='--', linewidth=.5)
-        plt.title(f'$\\Delta$ N{isotope} comparison D5 1reg vs OpenMC, edep=0 fission Q-values used for normalization')
-        plt.xlabel('BU Points')
-        plt.ylabel(f'Delta {isotope} (%)')
-        # plot +2/-2% lines
-        plt.axhline(y=2, color='r', linestyle='--', label='+2%')
-        plt.axhline(y=-2, color='r', linestyle='--', label='-2%')
-        plt.legend()
-        plt.grid()
-        plt.savefig(f"{save_dir_case}/comparison_{isotope}_NOGL_GLOB_{draglib}_1reg_OpenMC_set_fissq.png")
-        plt.close()
-
-        
 
     

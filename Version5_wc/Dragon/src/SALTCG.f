@@ -131,6 +131,8 @@
 *----
 *  Get main tracking records
 *----
+      CALL LCMLEN(IPTRK,'ICODE       ',ILONG,ITYLCM)
+      IF(ILONG.GT.6) CALL XABORT('SALTCG: ALBEDO OVERFLOW.')
       CALL LCMGET(IPTRK,'ICODE       ',ICODE )
       CALL LCMGET(IPTRK,'ALBEDO      ',ALBEDO)
       CALL LCMSIX(IPTRK,'NXTRecords  ',1)
