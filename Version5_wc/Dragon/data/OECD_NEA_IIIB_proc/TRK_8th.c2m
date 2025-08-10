@@ -1,0 +1,81 @@
+***************************************************************************
+* Deck TRK_8th
+* CLE-2000 procedure for 8th symmetry BWR assembly: tracking on self-shielding and flux geom
+* Currently 3-level BWR geometry treatment limited to surfacic (G2S: --> SALT:)
+* 8th symmetry case for OECD/NEA Phase IIIB benchmark.
+* Limitation : doesn't allow for multicell tracking because of split central water rod.
+* Author : R. Guasch
+
+
+* ---
+* INPUT & OUTPUT PARAMETERS
+* ---
+PARAMETER GEO_G2S     TRK    TF_EXC
+          GEOSSH_G2S  TRKSSH TF_EXC_SS
+          GEOM       GEOMSSH ::
+::: SEQ_ASCII GEO_G2S ;
+::: LINKED_LIST TRK ;
+::: SEQ_BINARY TF_EXC ;
+::: SEQ_ASCII GEOSSH_G2S ;
+::: LINKED_LIST TRKSSH ;
+::: SEQ_BINARY TF_EXC_SS ;
+::: LINKED_LIST GEOM ;
+::: LINKED_LIST GEOMSSH ; ;
+
+INTEGER an2d an2d_ss ;
+:: >>an2d<< >>an2d_ss<< ;
+REAL densur densur_ss ;
+:: >>densur<< >>densur_ss<< ;
+INTEGER nmu mcu ;
+:: >>nmu<< >>mcu<< ; 
+
+
+SEQ_ASCII FigMain.ps :: FILE 'Fig_PhaseIIIB_8th.ps' ;
+SEQ_ASCII FigSSH.ps :: FILE 'Fig_PhaseIIIB_SSH_8th.ps' ;
+
+* ---
+* STRUCTURES AND MODULES
+* ---
+MODULE G2S: MCCGT: SALT: END: ;
+
+
+
+***************************************************
+*   SURFACE ELEMENT TRACKING OF THE GEOMETRIES
+***************************************************
+
+! USE MACRO KEYWORD TO INCLUDE MACRO GEOM INFO FOR MULTICELL TRACKING
+GEOSSH_G2S FigSSH.ps := G2S: GEOMSSH :: 
+! MACRO 
+ ;
+GEO_G2S FigMain.ps := G2S: GEOM :: ;
+
+! TISO only available option for multicell tracking
+! "SAL100: TISO option is incompatible with the surfacic file"
+! Check : this probably has something to do with the splitting of cells along the diagonal
+TRKSSH TF_EXC_SS := SALT: GEOSSH_G2S ::
+  EDIT 10
+  ALLG 
+  BATCH 100
+  TSPC EQW2 <<an2d_ss>> <<densur_ss>> REND
+  MERGMIX
+;
+
+TRK TF_EXC := SALT: GEO_G2S ::
+  EDIT 10
+  ALLG
+  BATCH 1500
+  ANIS 3
+  TSPC EQW2 <<an2d>> <<densur>> REND
+  LONG
+;
+
+* MOC tracking
+TRK := MCCGT: TRK TF_EXC ::
+  EDIT 0
+  CACB <<nmu>> AAC 80 TMT EPSI 1E-5 MCU <<mcu>> ! tried CACB but is limited to isotropic ?
+;
+
+
+END: ;
+QUIT .

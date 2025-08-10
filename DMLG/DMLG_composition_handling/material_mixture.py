@@ -229,16 +229,16 @@ class Material_Mixture:
         Print the material mixture definition to DRAGON5 format.
         """
         print(f"Material: {self.name}")
-        dens_definitions = ()
+        dens_definitions = ""
         for iso, density in self.composition.items():
             if iso in self.therm_isotopes:
                 # Special treatment for thermal scattering data
-                dens_definitions += (f"{iso}    = {self.therm_isotopes[iso]}  {density:.6E}",)
+                dens_definitions += f"{iso}    = {self.therm_isotopes[iso]}  {density:.6E}\n"
             elif iso in self.HM_isotopes:
                 # Special treatment for elf shielding of heavy metal isotopes
-                dens_definitions += (f"{iso}    = {iso}  {density:.6E}  1",)
+                dens_definitions += f"{iso}    = {iso}  {density:.6E}  1\n"
             else:
-                dens_definitions += (f"{iso}    = {iso}  {density:.6E}",)
+                dens_definitions += f"{iso}    = {iso}  {density:.6E}\n"
 
         return dens_definitions
 

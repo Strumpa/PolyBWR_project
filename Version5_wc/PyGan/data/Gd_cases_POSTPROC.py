@@ -433,5 +433,5 @@ if __name__ == "__main__":
     #custom_plots(save_dir_gduo2_295_kec1)
     #AT10_45Gd_custom_plots(save_dir_AT10_45Gd)
 
-
+    post_treat_Gd_case_vs_S2_edep_pcc("AT10_45Gd_Cst_pow_evol", evaluation, "endfb8r1_295_NG0", "PT", "N", "KAPS", time_integrators, "Gd_autop3", tracked_nuclides, 0, 1, save_dir_AT10_45Gd)
     AT10_45Gd_plot_old_dlib_with_new_EXTR(save_dir_AT10_45Gd)

@@ -73,6 +73,8 @@ MODULE SAL_GEOMETRY_TYPES
   INTEGER            :: TYPGEO,NBFOLD,ALLSUR
   !       NANIS               = 0: isotropic scattering in the laboratory system/ >1: anisotropic
   INTEGER            :: NANIS
+  !       IC                  = 4: PIJ or MOC/ 5: multicell surfacic or short characteristics
+  INTEGER            :: IC
   !       ISPEC               = 0: isotropic boundary condition/ 1: specular boundary condition
   INTEGER            :: ISPEC
   !       LGALLS              = TRUE, if 'allsur' equal to 1

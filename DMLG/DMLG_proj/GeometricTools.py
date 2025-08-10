@@ -102,12 +102,13 @@ class geom_ASSBLY:
     """
     Class used to help define and check native 3 level definition of BWR Assemly geometries
     """
-    def __init__(self, pitch_A, C_list, Box_o, Chan_o, Box_i, Chan_i):
+    def __init__(self, pitch_A, C_list, Box_o, moder_box_o, Box_i, moder_box_i, moderating_box_type):
         """
         ALL dimensions in cm
         pitch_A : float, pitch for assembly 
         C_list = list of fuel pin cell object built from class geom_PIN (pins taken to be in CARCELs) assuming that the pin lattice is regular
-        Box_o/i, Chan_o/i : outer and inner dimensions for outer box and coolant channel
+        Box_o/i, moder_box_o/i : outer and inner dimensions for outer box and coolant channel
+        moderating_box_type : "square" or "cylindrical" 
         """
         self.pitch_A = pitch_A
         #self.pitch_C = C_list[0].pitch()
@@ -118,40 +119,16 @@ class geom_ASSBLY:
         # Assuming square BOX and CHNL but could generalize from the class inputs
         self.Box_o = Box_o
         self.Box_i = Box_i
-        self.Chan_o = Chan_o
-        self.Chan_i = Chan_i
+        self.moder_box_o = moder_box_o
+        self.moder_box_i = moder_box_i
+        self.moder_box_type = moderating_box_type
         
         # Initializing gaps and thicknesses
         self.outer_Water_gap = (self.pitch_A - self.Box_o)/2.0
         self.box_thickness = (self.Box_o - self.Box_i)/2.0
-        self.chan_thickness = (self.Chan_o - self.Chan_i)/2.0
+        self.chan_thickness = (self.moder_box_o - self.moder_box_i)/2.0
 
 
-        """
-        Cell_pitch = 1.295
-        L1 = Channel_box_xL_out+6.7
-        L3 = 6.7-Channel_box_XR_out
-        #Xtra_water = 2.0*6.7-10.0*Cell_pitch
-        Xtra_water = 0.45
-        print(Xtra_water)
-        sum = Water_gap + Box_thickness + Xtra_water + 10*Cell_pitch + Box_thickness + Water_gap
-        print(sum)
-        Xtra_water_side = Xtra_water/2.0
-        X1 = Water_gap+Box_thickness + Xtra_water_side
-        X2 = X1 + 4*Cell_pitch 
-        X3 = X2 + 3*Cell_pitch
-        X4 = X3 + 3*Cell_pitch
-        print(X3 + 3*Cell_pitch+Xtra_water_side)
-        X_points = [0.0, X1, X2, X3, X4, 2*7.62]
-        print(X_points)
-        print(X4+Xtra_water_side+Box_thickness+Water_gap)
-        
-
-        Xmax_box=6.7-3*Cell_pitch-Xtra_water_side
-        Xmin_box = -6.7+Xtra_water_side + 4*Cell_pitch
-
-        print(Xmax_box-Xmin_box)
-        """
     def setPins(self, fuel_radius, gap_radius, clad_radius):
         """
         pins_names = list of pin names
@@ -192,9 +169,14 @@ class geom_ASSBLY:
             #self.FuelVolumes[pin_type] = self.pins[pin_type].volumes*self.numberOfPinsperType[pin_type]  .volumes*self.numberOfPinsperType[pin_type]
             #print(self.pins[pin_type].height)
         
-        self.Volumes["box"] = (self.Box_o**2-self.Box_i**2 + self.Chan_o**2 - self.Chan_i**2)
+        self.Volumes["box"] = (self.Box_o**2-self.Box_i**2)
         self.Volumes["clad"] = (np.pi*self.pins[0].clad_radius**2 - np.pi*self.pins[0].gap_radius**2) * self.Total_Nb_Pins
         self.Volumes["gap"] = (np.pi*self.pins[0].gap_radius**2 - np.pi*self.pins[0].outer_fuel_radius**2) * self.Total_Nb_Pins
+        
+        if self.moder_box_type == "square":
+            self.Volumes["moder_box"] = (self.moder_box_o**2 - self.moder_box_i**2)
+        elif self.moder_box_type == "cylinder":
+            self.Volumes["moder_box"] = (np.pi*self.moder_box_o**2 - np.pi*self.moder_box_i**2)
 
         return
     

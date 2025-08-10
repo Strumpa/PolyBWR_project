@@ -87,7 +87,7 @@ exec_D5_EDEP0 = True # True : run DRAGON5 calculations with modified DEPL chain 
 # Instead of MT=458(ER-END-EGD-EB) + energy from Lumping (done in regular DEPL chain)
 
 #time_integrator = "CECM" # "CECM", "CECE", "EXTR", "NOEX", "EXTR2"
-time_integrator_list = ["EXTR", "NOEX", "EXTR2", "CECE", "CECM"] #, "EXTR2", "CECM"
+time_integrator_list = ["CECM"]#["EXTR", "NOEX", "EXTR2", "CECE", "CECM"] #, "EXTR2", "CECM"
 #time_integrator_list = ["CECE", "EXTR", "NOEX", "EXTR2", "CECM"]
 
 ######## 

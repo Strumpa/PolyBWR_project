@@ -190,7 +190,7 @@ WHILE istep nstep < DO
     IF iCompo ncompo <= THEN
     GREP: StepList :: GETVAL "ListCompo" <<iCompo>> >>BUcompo<< ;
     ECHO "here istep = " istep "and iCompo =" iCompo BUcompo ;
-        IF BUcompo BUend = THEN
+        IF BUcompo BUbeg = THEN
                 ECHO "Saving COMPO at BU =" BUcompo ;
                 EDITION := EDI: FLUX LIB2 TRACK ::
                 EDIT 0

@@ -1,0 +1,112 @@
+ !************************************************
+ !    Auto Generation of input file for D2P      *
+ ! - Recovering of information from D2P PHASE 1  *
+ ! - call to the interpolation module(SCR|NCR)   *
+ ! - call of D2P for PHASE 2 and 3               *
+ ! Author(s) : J. TAFOREAU (2016)                *
+ !************************************************
+
+  SEQ_ASCII GENPMAXS :: FILE 'GENPMAXS.inp' ; 
+  SEQ_ASCII HELIOS :: FILE 'HELIOS.dra' ; 
+  XSM_FILE XSLIB :: FILE 'XSLIB' ;  
+  XSM_FILE D2PINFO :: FILE 'Info.xsm' ; 
+  LINKED_LIST INFO ; 
+ LINKED_LIST XSL ; 
+ LINKED_LIST Micro ; 
+ MODULE END: D2P: SCR: NCR: GREP: DELETE: UTL: ;
+
+ !************************************************
+ !  STEP 0 :   Initializing state parameters     *
+ !************************************************
+
+ STRING  BARR := "AIC" ; 
+ REAL    BARR_VAL     ; 
+ STRING  DMOD := "DCA" ; 
+ REAL    DMOD_VAL     ; 
+ STRING  CBOR := "ppmB" ; 
+ REAL    CBOR_VAL     ; 
+ STRING  TCOM := "TF" ; 
+ REAL    TCOM_VAL     ; 
+ STRING  TMOD := "TCA" ; 
+ REAL    TMOD_VAL     ; 
+ STRING  BURN := "BURN" ; 
+ REAL    BURN_VAL     ; 
+ INFO := D2PINFO ; 
+ XSL := XSLIB ;
+ INTEGER NVAR :=            6  ; 
+ INTEGER STOP REWIND ITER := 0 0 0 ; 
+
+ WHILE STOP 1 <> DO
+
+ !************************************************
+ !  STEP 1 :   recovering state parameters       *
+ !************************************************
+
+ GREP: INFO :: STEP UP 'BRANCH_INFO'
+ GETVAL  STATE            1  NVAL 1 >>BARR_VAL<< ;
+ GREP: INFO :: STEP UP 'BRANCH_INFO'
+ GETVAL  STATE            2  NVAL 1 >>DMOD_VAL<< ;
+ GREP: INFO :: STEP UP 'BRANCH_INFO'
+ GETVAL  STATE            3  NVAL 1 >>CBOR_VAL<< ;
+ GREP: INFO :: STEP UP 'BRANCH_INFO'
+ GETVAL  STATE            4  NVAL 1 >>TCOM_VAL<< ;
+ GREP: INFO :: STEP UP 'BRANCH_INFO'
+ GETVAL  STATE            5  NVAL 1 >>TMOD_VAL<< ;
+ GREP: INFO :: STEP UP 'BRANCH_INFO'
+ GETVAL  STATE            6  NVAL 1 >>BURN_VAL<< ;
+
+ !************************************************
+ !  STEP 2 :   interpolation of cross sections   *
+ !  warning => check the isotopes names          *
+ !************************************************
+
+ EVALUATE ITER := ITER 1 + ;
+   Micro := SCR: XSL    ::
+    EDIT            1
+    MICRO LINEAR NMIX 1
+    SAPHYB XSL   
+    MIX 1
+      SET LINEAR <<BARR>> <<BARR_VAL>>
+      SET LINEAR <<DMOD>> <<DMOD_VAL>>
+      SET LINEAR <<CBOR>> <<CBOR_VAL>>
+      SET LINEAR <<TCOM>> <<TCOM_VAL>>
+      SET LINEAR <<TMOD>> <<TMOD_VAL>>
+      SET LINEAR <<BURN>> <<BURN_VAL>>
+     ENDMIX
+     ;
+
+ !************************************************
+ !  STEP 3 :   branching calculation             *
+ !************************************************
+
+ IF ITER 1 = THEN 
+ HELIOS GENPMAXS INFO Micro := D2P: 
+ Micro INFO XSL    ::
+ PHASE 2 EDIT           1 ;
+ ELSE
+ HELIOS GENPMAXS INFO Micro := D2P: 
+ Micro INFO GENPMAXS XSL    HELIOS ::
+ PHASE 2 EDIT           1 ;
+
+ ENDIF ;
+ Micro := DELETE: Micro ;
+
+ GREP: INFO :: STEP UP 'BRANCH_INFO'
+ GETVAL REWIND 1 NVAL 1 >>REWIND<< ;
+ !************************************************
+ !  STEP 4 :   storing the current branch        *
+ !************************************************
+
+ IF REWIND 1 = THEN
+
+  HELIOS GENPMAXS INFO := D2P: INFO 
+  GENPMAXS HELIOS ::
+  PHASE 3 EDIT           1  ;
+  GREP: INFO :: STEP UP 'BRANCH_INFO'
+  GETVAL STOP 1 NVAL 1 >>STOP<< ;
+ ENDIF ;
+
+ ENDWHILE ;
+
+ END: ;
+ QUIT .

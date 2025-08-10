@@ -6,7 +6,8 @@ geometry. Supported solutions are:
 \item the collision probability method (PIJ)
 \item the method of characteristics (MOC)
 \item the multicell surfacic approximation where macro geometries are coupled using incoming and outgoing interface currents. This option
-is enabled automatically if macro geometries are defined in the SALOMON--formatted file \dusa{SURFIL}.
+is enabled automatically if macro geometries are defined in the SALOMON--formatted file \dusa{SURFIL}. Macro geometries lying on a symmetry
+axis of the domain are unfolded.
 \end{itemize}
 
 The \moc{{\tt SALT:}} module can process general 2-D geometries defined from {\sl surfacic elements}. It is used to compute the tracking
@@ -82,7 +83,7 @@ $[$ \moc{NOTR} $]$\\
 $[$ \moc{NBSLIN} \dusa{nbslin} $]$ \\
 $[$ \moc{MERGMIX} $]$\\
 $[$ \moc{LONG} $]$\\
-$[$ \moc{EPSJ} \dusa{epsj} $]$ \\
+$[~\{$ \moc{IC} $|$ \moc{NOIC} $\}~]~[$ \moc{EPSJ} \dusa{epsj} $]$ \\
 {\tt ;}
 \end{DataStructure}
 
@@ -224,6 +225,12 @@ undertaken.
 \item[\moc{MERGMIX}] keyword to specify that all regions belonging to the same mixture will be merged together. This option should only be used as an attempt to reduce CPU costs in resonance self-shielding calculations.
 
 \item[\moc{LONG}] keyword to specify that a ``long'' tracking file will be generated. This option is required if the tracking file is to be used by the \moc{TLM:} module (see \Sect{TLMData}).
+
+\item[\moc{IC}] keyword to force the use of the multicell surfacic approximation. By default, the multicell surfacic approximation is used if the number of
+macro geometries in the SALOMON--formatted file \dusa{SURFIL} is greater than one.
+
+\item[\moc{NOIC}] keyword to avoid using the multicell surfacic approximation. By default, the multicell surfacic approximation is used if the number of
+macro geometries in the SALOMON--formatted file \dusa{SURFIL} is greater than one.
 
 \item[\moc{EPSJ}] keyword to specify the stopping criterion for the flux-current iterations of the
 multicell surfacic approximation, in case where the {\tt ARM} keyword is set in the {\tt ASM:} module or in

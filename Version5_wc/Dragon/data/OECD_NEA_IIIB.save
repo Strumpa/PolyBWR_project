@@ -2,10 +2,10 @@
 #
 if [ $# = 0 ]
    then
-   echo "usage: OECD_NEA_IIIB.save.save directory" 1>&2
+   echo "usage: OECD_NEA_IIIB.save directory" 1>&2
    exit 1
 fi
-echo "access OECD_NEA_IIIB.save.save"
+echo "access OECD_NEA_IIIB.save"
 MACH=`uname -s`
 Sysx="`echo $MACH | cut -b -6`"
 if [ $Sysx = "CYGWIN" ]; then
@@ -16,7 +16,8 @@ else
    MACH=`uname -sm | sed 's/[ ]/_/'`
 fi
 ls -l
-mv Fig_PhaseIIIB.ps $1/"$MACH"
-mv Fig_PhaseIIIB_SSH.ps $1/"$MACH"
-echo "OECD_NEA_IIIB.save.save completed"
+mv Fig_PhaseIIIB*.ps $1/"$MACH"
+mv Fig_PhaseIIIB_SSH*.ps $1/"$MACH"
+mv _CPO_OECD_NEA_PHASE_IIIB* $1/"$MACH"
+echo "OECD_NEA_IIIB.save completed"
 

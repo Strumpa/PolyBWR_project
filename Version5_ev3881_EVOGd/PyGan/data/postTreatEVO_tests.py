@@ -327,12 +327,15 @@ def post_treat_AT10_45Gd():
     Post-treat the AT10_45Gd case.
     """
     name_D5_case = "AT10_45Gd_Cst_pow_evol"
-    name_S2_case = "AT10_45Gd"
     # define path to NOGL_HM data
     path_to_EVOmodif_data =  "EVOGd_modif_path_PyGan"
     # Define calculation options for the CPOs name reconstruction
     time_integrator = "EXTR"
     BU_points = "Gd_autop3" # 25 burnup points to be used
+    name_S2_case = "AT10_45Gd"
+    if BU_points == "Gd2_autop6":
+        name_S2_case = "AT10_45Gd_BUGd2"
+
     tracking_option = "SALT"
     draglib = "endfb8r1_295" # "endfb8r1_295_NG0" #"endfb8r1_295" # "endfb8r1_295", "endfb81295K", "endfb81295K2"
     ssh_option = "PT"
@@ -340,22 +343,22 @@ def post_treat_AT10_45Gd():
     tracked_nuclides = ["U235", "U238", "Pu239", "Pu240", "Pu241", "Pu242", "Am241", "Gd155", "Gd157", "Xe135", "Sm149"]
 
     name_CPO_EDEP0_decay = f"CPO_endfb8r1_295_{ssh_option}_{correlation}_{tracking_option}_{BU_points}_KAPS_NODI_{time_integrator}_NOGL"
-    name_CPO_EDEP0_no_decay = f"CPO_endfb8r1_295_{ssh_option}_{correlation}_{tracking_option}_{BU_points}_KAPS_NODI_{time_integrator}_NOGL_no_decay"
+    #name_CPO_EDEP0_no_decay = f"CPO_endfb8r1_295_{ssh_option}_{correlation}_{tracking_option}_{BU_points}_KAPS_NODI_{time_integrator}_NOGL_no_decay"
     path = os.getcwd()
     save_dir_case = f"{path}/postTreatEVO_tests_results/{name_D5_case}/{draglib}_D5"
     if not os.path.exists(save_dir_case):
         os.makedirs(save_dir_case)
-    save_dir_D5_vs_D5 = f"{save_dir_case}/D5_vs_D5"
+    save_dir_D5_vs_D5 = f"{save_dir_case}/D5_vs_D5_{BU_points}"
     if not os.path.exists(save_dir_D5_vs_D5):
         os.makedirs(save_dir_D5_vs_D5)
-    save_dir_D5_vs_S2 = f"{save_dir_case}/D5_vs_S2"
+    save_dir_D5_vs_S2 = f"{save_dir_case}/D5_vs_S2_{BU_points}"
     if not os.path.exists(save_dir_D5_vs_S2):
         os.makedirs(save_dir_D5_vs_S2)
     
     # Load the "reference" wc data, before modifications to source code
     os.chdir(f"{path_to_EVOmodif_data}/{name_D5_case}_results")
     CPO_EDEP0_decay = lcm.new('LCM_INP', name_CPO_EDEP0_decay, impx=0)
-    CPO_EDEP0_no_decay = lcm.new('LCM_INP', name_CPO_EDEP0_no_decay, impx=0)
+    #CPO_EDEP0_no_decay = lcm.new('LCM_INP', name_CPO_EDEP0_no_decay, impx=0)
     os.chdir(path)
 
 
@@ -363,12 +366,15 @@ def post_treat_AT10_45Gd():
     D5_case_EDEP0_decay = D5_case(pyCOMPO=CPO_EDEP0_decay, dlib_name=draglib, bu_points=BU_points, 
                                 ssh_opt=ssh_option, correlation=correlation, sat="NODI", depl_sol="EXTR", 
                                 tracked_nuclides=tracked_nuclides, BU_lists=getBULists(BU_points), save_dir=save_dir_case)
-    D5_case_EDEP0_no_decay = D5_case(pyCOMPO=CPO_EDEP0_no_decay, dlib_name=draglib, bu_points=BU_points, 
-                                ssh_opt=ssh_option, correlation=correlation, sat="NODI", depl_sol="EXTR", 
-                                tracked_nuclides=tracked_nuclides, BU_lists=getBULists(BU_points), save_dir=save_dir_case)
+    #D5_case_EDEP0_no_decay = D5_case(pyCOMPO=CPO_EDEP0_no_decay, dlib_name=draglib, bu_points=BU_points, 
+    #                            ssh_opt=ssh_option, correlation=correlation, sat="NODI", depl_sol="EXTR", 
+    #                            tracked_nuclides=tracked_nuclides, BU_lists=getBULists(BU_points), save_dir=save_dir_case)
 
     print(f"D5 BU points are : {D5_case_EDEP0_decay.BU}")
     # Create S2 case
+    S2_case_edep0_pcc0 = S2_case(case_name=name_S2_case, lib_name="endfb8r1_pynjoy2012_kerma",
+                                edep_id=0, areQfissSet=False, isEcaptSet=False, pcc_id=0, 
+                                specific_power=26.5, tracked_nuclides=tracked_nuclides, save_dir=save_dir_case)
     S2_case_edep0_pcc1 = S2_case(case_name=name_S2_case, lib_name="endfb8r1_pynjoy2012_kerma",
                                 edep_id=0, areQfissSet=False, isEcaptSet=False, pcc_id=1, 
                                 specific_power=26.5, tracked_nuclides=tracked_nuclides, save_dir=save_dir_case)
@@ -402,14 +408,16 @@ def post_treat_AT10_45Gd():
             print("Burnup points are different in D5 and S2 pcc 2 case.")
 
     ## Compare DRAGON5 cases with Serpent2 case
+    comp_D5_EDEP0_decay_S2_pcc0 = create_D5_S2_comparison(D5_case_EDEP0_decay, S2_case_edep0_pcc0)
     comp_D5_EDEP0_decay_S2_pcc1 = create_D5_S2_comparison(D5_case_EDEP0_decay, S2_case_edep0_pcc1)
     comp_D5_EDEP0_decay_S2_pcc2 = create_D5_S2_comparison(D5_case_EDEP0_decay, S2_case_edep0_pcc2)
-    comp_D5_EDEP0_no_decay_S2_pcc1 = create_D5_S2_comparison(D5_case_EDEP0_no_decay, S2_case_edep0_pcc1)
-    comp_D5_EDEP0_no_decay_S2_pcc2 = create_D5_S2_comparison(D5_case_EDEP0_no_decay, S2_case_edep0_pcc2)
+    #comp_D5_EDEP0_no_decay_S2_pcc1 = create_D5_S2_comparison(D5_case_EDEP0_no_decay, S2_case_edep0_pcc1)
+    #comp_D5_EDEP0_no_decay_S2_pcc2 = create_D5_S2_comparison(D5_case_EDEP0_no_decay, S2_case_edep0_pcc2)
     # Plot delta keff for D5 EDEP0 decay vs S2
     plt.figure(figsize=(10, 6))
-    plt.plot(comp_D5_EDEP0_decay_S2_pcc1['BU Points'], comp_D5_EDEP0_decay_S2_pcc1['delta_keff'], label='D5 EDEP0 + decay energy - S2 edep 0 pcc 1', marker='o')
-    plt.plot(comp_D5_EDEP0_decay_S2_pcc2['BU Points'], comp_D5_EDEP0_decay_S2_pcc2['delta_keff'], label='D5 EDEP0 + decay energy - S2 edep 0 pcc 2', marker='o')
+    plt.plot(comp_D5_EDEP0_decay_S2_pcc0['BU Points'], comp_D5_EDEP0_decay_S2_pcc0['delta_keff'], label='D5 EDEP0 + decay energy - S2 edep 0 pcc 0', marker='o')
+    plt.plot(comp_D5_EDEP0_decay_S2_pcc1['BU Points'], comp_D5_EDEP0_decay_S2_pcc1['delta_keff'], label='D5 EDEP0 + decay energy - S2 edep 0 pcc 1', marker='x')
+    plt.plot(comp_D5_EDEP0_decay_S2_pcc2['BU Points'], comp_D5_EDEP0_decay_S2_pcc2['delta_keff'], label='D5 EDEP0 + decay energy - S2 edep 0 pcc 2', marker='x')
     # plot +/- 300 pcm lines
     plt.axhline(y=300, color='r', linestyle='--', label='+300 pcm')
     plt.axhline(y=-300, color='r', linestyle='--', label='-300 pcm')
@@ -418,24 +426,24 @@ def post_treat_AT10_45Gd():
     plt.title('DRAGON5 EDEP0 + decay energy vs Serpent2 Delta keff Comparison')
     plt.legend()
     plt.grid()
-    plt.savefig(f"{save_dir_D5_vs_S2}/D5_EDEP0_decay_vs_S2_delta_keff_{ssh_option}_{correlation}.png")
+    plt.savefig(f"{save_dir_D5_vs_S2}/D5_EDEP0_decay_vs_S2_delta_keff_{ssh_option}_{correlation}_{time_integrator}.png")
     plt.close()
 
-    # Plot delta keff for D5 EDEP0 no decay vs S2
-    plt.figure(figsize=(10, 6))
-    plt.plot(comp_D5_EDEP0_no_decay_S2_pcc1['BU Points'], comp_D5_EDEP0_no_decay_S2_pcc1['delta_keff'], label='D5 EDEP0, no decay energy - S2 edep 0 pcc 1', marker='o')
-    plt.plot(comp_D5_EDEP0_no_decay_S2_pcc2['BU Points'], comp_D5_EDEP0_no_decay_S2_pcc2['delta_keff'], label='D5 EDEP0, no decay energy - S2 edep 0 pcc 2', marker='o')
-    # plot +/- 300 pcm lines
-    plt.axhline(y=300, color='r', linestyle='--', label='+300 pcm')
-    plt.axhline(y=-300, color='r', linestyle='--', label='-300 pcm')
-    plt.xlabel('Burnup Points (MWd/kgU)')
-    plt.ylabel('Delta keff (pcm)')
-    plt.title('DRAGON5 EDEP0 no decay energy vs Serpent2 Delta keff Comparison')
-    plt.legend()
-    plt.grid()
-    plt.savefig(f"{save_dir_D5_vs_S2}/D5_EDEP0_no_decay_vs_S2_delta_keff_{ssh_option}_{correlation}.png")
-    plt.close()
-
+    for iso in tracked_nuclides:
+        plt.figure(figsize=(10, 6))
+        plt.plot(comp_D5_EDEP0_decay_S2_pcc0['BU Points'], comp_D5_EDEP0_decay_S2_pcc0[f'delta {iso} (%)'], label=f'D5 EDEP0 + decay energy - S2 edep 0 pcc 0 {iso}', marker='o')
+        plt.plot(comp_D5_EDEP0_decay_S2_pcc1['BU Points'], comp_D5_EDEP0_decay_S2_pcc1[f'delta {iso} (%)'], label=f'D5 EDEP0 + decay energy - S2 edep 0 pcc 1 {iso}', marker='x')
+        plt.plot(comp_D5_EDEP0_decay_S2_pcc2['BU Points'], comp_D5_EDEP0_decay_S2_pcc2[f'delta {iso} (%)'], label=f'D5 EDEP0 + decay energy - S2 edep 0 pcc 2 {iso}', marker='x')
+        # plot +/- 2 % lines
+        plt.axhline(y=2, color='r', linestyle='--', label='+2 %')
+        plt.axhline(y=-2, color='r', linestyle='--', label='-2 %')
+        plt.xlabel('Burnup Points (MWd/kgU)')
+        plt.ylabel(f'Delta {iso} (%)')
+        plt.title(f'DRAGON5 EDEP0 + decay energy vs Serpent2 Delta {iso} Comparison')
+        plt.legend()
+        plt.grid()
+        plt.savefig(f"{save_dir_D5_vs_S2}/D5_EDEP0_decay_vs_S2_delta_{iso}_{ssh_option}_{correlation}_{time_integrator}.png")
+        plt.close()
 
 
     
@@ -443,7 +451,7 @@ def post_treat_AT10_45Gd():
 
 if __name__ == "__main__":
 
-    #post_treat_HOM_Gd157_VBOC()
+    post_treat_HOM_Gd157_VBOC()
     post_treat_AT10_45Gd()
     
     

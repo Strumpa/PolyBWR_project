@@ -188,6 +188,10 @@ contains
     integer :: i
     integer,dimension(4) :: bc
 
+    ! typgeo = 0 : no information about perimeter orientation (albedo
+    !              information is available for each axis)
+    ! typgeo = 1 : information used by isotropic tracking with unfolding
+    ! typgeo > 1 : information used by specular tracking
     typgeo = 0 ; nbfold = 0
     select case(geomTyp)
     case(RecTyp)
@@ -217,17 +221,18 @@ contains
        else if ( ( ((bc(1)==B_Syme).or.(bc(1)==B_Refl).or.(bc(1)==B_Ssym))   &
             & .and.((bc(2)==B_Syme).or.(bc(2)==B_Refl).or.(bc(2)==B_Ssym)) ) &
             & .or.(((bc(3)==B_Syme).or.(bc(3)==B_Refl).or.(bc(3)==B_Ssym))   &
-            & .and.((bc(4)==B_Syme).or.(bc(4)==B_Refl).or.(bc(4)==B_Ssym)) ) )then
+            & .and.((bc(4)==B_Syme).or.(bc(4)==B_Refl).or.(bc(4)==B_Ssym)) ) ) then
           typgeo = 3
        else if ((bc(1)==B_Pi_2).and.(bc(3)==B_Pi_2)) then
           typgeo = 2 ; nbfold = 4
-       else if (   ((bc(1)==B_Syme).or.(bc(1)==B_Refl).or.(bc(1)==B_Ssym))   &
-            & .and.((bc(3)==B_Syme).or.(bc(3)==B_Refl).or.(bc(3)==B_Ssym)) ) then
+       else if (   ((bc(1)==B_Syme).or.(bc(1)==B_Ssym))   &
+            & .and.((bc(3)==B_Syme).or.(bc(3)==B_Ssym)) ) then
           typgeo = 1 ; nbfold = 4
-       else if ((bc(1)==B_Diag).and.(bc(3)==B_Syme.or.bc(3)==B_Refl.or.bc(3)==B_Ssym) &
-            .and. (bc(4)==B_Diag)) then
+       else if ((bc(1)==B_Diag).and.((bc(3)==B_Syme).or.(bc(3)==B_Ssym)).and.(bc(4)==B_Diag)) then
           typgeo = 1 ; nbfold = 8
-       else if ((bc(3)==B_Syme).or.(bc(3)==B_Refl).or.(bc(3)==B_Ssym)) then
+       else if ((bc(1)==B_Diag).and.(bc(4)==B_Diag)) then
+          typgeo = 1 ; nbfold = 3 ! nbfold=2 is assigned below
+       else if ((bc(3)==B_Syme).or.(bc(3)==B_Ssym)) then
           typgeo = 1 ; nbfold = 2
        end if
        if (typgeo==0 .and. all((/ &
@@ -247,7 +252,7 @@ contains
           typgeo = 1 ; nbfold = 12
        end if
     case(TubeTyp)
-       !rien de particulier
+       !nothing special
     end select
   end subroutine calculTypgeo
 
@@ -257,8 +262,13 @@ contains
     character*4,intent(out) :: strDCL
 
     defautCl = 0
-    albedo   = 0.0
-    strDCL   = 'VOID'
+    if (bCData%bc(1) == B_Diag) THEN
+      albedo   = 1.0
+      strDCL   = 'REFL'
+    else
+      albedo   = 0.0
+      strDCL   = 'VOID'
+    endif
     select case(geomTyp)
     case(HexTyp) 
        select case(bCData%bc(1))

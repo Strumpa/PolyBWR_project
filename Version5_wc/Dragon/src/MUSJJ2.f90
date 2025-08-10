@@ -46,6 +46,8 @@
 !          the geometrical 'A' matrix.
 ! IGEN     index-number of the generating cell associated with each
 !          merged cell.
+! IMAC     global merge index assigned to each node in the surfacic
+!          geometry.
 ! PIJW     cellwise scattering-reduced collision probability matrices.
 ! PISW     cellwise scattering-reduced escape probability matrices.
 ! PSJW     cellwise scattering-reduced collision probability matrices
@@ -59,14 +61,14 @@
 !
 SUBROUTINE MUSJJ2(IPAS,NMCEL,NMERGE,NGEN,IJAT,NPIJ,NPIS,NPSS,EPSJ,NUNKNO, &
   & NMIX,NIFR,FUNKNO,SUNKNO,IMPX,NMC_NODE,NMC_SURF,IFR,ALB,INUM,MIX,DVX, &
-  & IGEN,PIJW,PISW,PSJW,PSSW)
+  & IGEN,IMAC,PIJW,PISW,PSJW,PSSW)
   IMPLICIT DOUBLE PRECISION (A-H,O-Z)
   !----
   !  SUBROUTINE ARGUMENTS
   !----
   INTEGER IPAS,NMCEL,NMERGE,NGEN,IJAT,NPIJ,NPIS,NUNKNO,NMIX,NIFR,IMPX, &
   & NMC_NODE(NGEN+1),NMC_SURF(NGEN+1),IFR(NIFR),INUM(NMCEL),MIX(NMIX), &
-  & IGEN(NMERGE)
+  & IGEN(NMERGE),IMAC(IPAS)
   REAL EPSJ,FUNKNO(NUNKNO),SUNKNO(NUNKNO),ALB(NIFR),DVX(NMIX),PIJW(NPIJ), &
   & PISW(NPIS),PSJW(NPIS),PSSW(NPSS)
   !----
@@ -122,7 +124,7 @@ SUBROUTINE MUSJJ2(IPAS,NMCEL,NMERGE,NGEN,IJAT,NPIJ,NPIS,NPSS,EPSJ,NUNKNO, &
       DO IC=1,I3
         JCC=MIX(IT+IC)
         PBJ=PSJW(IPSJ+(I-1)*I3+IC)
-        CIT0(JCC)=CIT0(JCC)+PBJ*DVX(IT+IC)*SUNKNO(KNMC+I)
+        CIT0(JCC)=CIT0(JCC)+PBJ*DVX(IT+IC)*SUNKNO(IMAC(KNMC+I))
       ENDDO
     ENDDO
   ENDDO
@@ -338,7 +340,7 @@ SUBROUTINE MUSJJ2(IPAS,NMCEL,NMERGE,NGEN,IJAT,NPIJ,NPIS,NPSS,EPSJ,NUNKNO, &
       DO JC=1,I3
         J1=IFR(IS+JC)
         PIS=PISW(IPIS+(JC-1)*I2+J)
-        FUNKNO(KNMC+J)=FUNKNO(KNMC+J)+PIS*ALB(IS+JC)*FUNKNO(IPAS+J1)
+        FUNKNO(IMAC(KNMC+J))=FUNKNO(IMAC(KNMC+J))+PIS*ALB(IS+JC)*FUNKNO(IPAS+J1)
       ENDDO
     ENDDO
   ENDDO
@@ -356,7 +358,7 @@ SUBROUTINE MUSJJ2(IPAS,NMCEL,NMERGE,NGEN,IJAT,NPIJ,NPIS,NPSS,EPSJ,NUNKNO, &
     DO I=1,I2
       DO J=1,I2
         PIJ=PIJW(IPIJ+(I-1)*I2+J)
-        FUNKNO(KNMC+J)=FUNKNO(KNMC+J)+PIJ*SUNKNO(KNMC+I)
+        FUNKNO(IMAC(KNMC+J))=FUNKNO(IMAC(KNMC+J))+PIJ*SUNKNO(IMAC(KNMC+I))
       ENDDO
     ENDDO
   ENDDO

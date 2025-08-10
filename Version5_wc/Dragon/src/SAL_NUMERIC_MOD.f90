@@ -100,5 +100,52 @@ CONTAINS
     ENDIF
     !
   END SUBROUTINE SAL141
-
+  !
+  RECURSIVE FUNCTION DET_ROSETTA(MAT, N) RESULT(ACCUM)
+    !
+    !---------------------------------------------------------------------
+    !
+    !Purpose:
+    ! compute the determinant of matrix MAT(N, N)
+    !
+    !---------------------------------------------------------------------
+    !
+    INTEGER, INTENT(IN) :: N
+    REAL(PDB), INTENT(IN) :: MAT(N, N)
+    REAL(PDB) :: SUBMAT(N-1, N-1), ACCUM
+    INTEGER :: I, SGN
+    IF(N == 1) THEN
+      ACCUM = MAT(1,1)
+    ELSE
+      ACCUM = 0.0
+      SGN = 1
+      DO I = 1, N
+        SUBMAT(1:N-1, 1:I-1) = MAT(2:N, 1:I-1)
+        SUBMAT(1:N-1, I:N-1) = MAT(2:N, I+1:N)
+        ACCUM = ACCUM + SGN * MAT(1, I) * DET_ROSETTA(SUBMAT, N-1)
+        SGN = - SGN
+      ENDDO
+    ENDIF
+  END FUNCTION DET_ROSETTA
+  !
+  FUNCTION FINDLC(ISET,ITEST) RESULT(II)
+    !
+    !---------------------------------------------------------------------
+    !
+    !Purpose:
+    ! function emulating the findloc function in fortran 2008
+    !
+    !---------------------------------------------------------------------
+    !
+    INTEGER, DIMENSION(:), INTENT(IN) :: ISET
+    INTEGER, INTENT(IN) :: ITEST
+    INTEGER :: II
+    II=0
+    DO J=1,SIZE(ISET)
+      IF(ISET(J) == ITEST) THEN
+        II=J
+        EXIT
+      ENDIF
+    ENDDO
+  END FUNCTION FINDLC
 END MODULE SAL_NUMERIC_MOD

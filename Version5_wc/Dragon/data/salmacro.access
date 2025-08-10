@@ -12,5 +12,6 @@ ln -s $1/data/salmacro_proc/KML2_ARO_13AU_SSH.za .
 ln -s $1/data/salmacro_proc/30AV5_SSH.ap3 .
 ln -s $1/data/salmacro_proc/lattice_hex_tiso_S30_7cells.dat .
 ln -s $1/data/salmacro_proc/lattice_hex_tspc_S30_7cells.dat .
+ln -s $1/data/salmacro_proc/lattice_hex_tiso_S30_7cells_macro.dat .
 ls -l
 echo "salmacro access script terminated"

@@ -30,7 +30,7 @@
 *         ISTATU( 4) is the maximum number of mixture used;
 *         ISTATU( 5) is the number of outer surfaces;
 *         ISTATU( 6) is the flux anisotropy order;
-*         ISTATU( 7) is the tracking option used;
+*         ISTATU( 7) is the solution method used;
 *         ISTATU( 8) is the track normalization option;
 *         ISTATU( 9) is the type of tracks considered;
 *         ISTATU(10) is the CP calculation option;
@@ -105,7 +105,7 @@
 *    [ { NOTR | MC } ]
 *    [ MERGMIX ]
 *    [ BATCH nbatch ]
-*    [ EPSJ epsj ]
+*    [ { IC | NOIC } ] [ EPSJ epsj ]
 *    [ [ QUAB iqua10 ] [ { SAPO | HEBE | SLSI [frtm] | SLSS [frtm] } ] ]
 *    with frtm minimum volume fraction of the grain in the  
 *    representative volume for She-Liu-Shi model.
@@ -377,6 +377,10 @@
         RSTATU(39)=REALIR
       ELSE IF(CARLIR(1:7) .EQ. 'MERGMIX') THEN
         ISTATU(26)=1
+      ELSE IF(CARLIR(1:2) .EQ. 'IC') THEN
+        ISTATU(7)=5
+      ELSE IF(CARLIR(1:4) .EQ. 'NOIC') THEN
+        ISTATU(7)=4
       ELSE IF(CARLIR(1:4) .EQ. 'EPSJ') THEN
         CALL REDGET(ITYPLU,INTLIR,EPSJ,CARLIR,DBLLIR)
         IF(ITYPLU .NE. 2) CALL XABORT(NAMSBR//

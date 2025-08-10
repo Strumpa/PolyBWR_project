@@ -49,29 +49,29 @@ class DMLG_case:
         This will create a .c2m file with a LIBRARY definition throught the LIB: module of DRAGON5.
         """
         c2m_file_path = self.case_dir / f"MIX_DEF.c2m"
-        LIB_definition = (
-            "LIBRARY := LIB: ::\n",       
-                          )
+        LIB_definition = ['LIBRARY := LIB: ::\n']    
+                          
         if self.settings["DRAGON5"]["Self-Shiedling Method"]:
-            LIB_definition += (f'{self.settings["DRAGON5"]["Self-Shiedling Method"]}',)
+            LIB_definition.append(f'{self.settings["DRAGON5"]["Self-Shiedling Method"]}\n')
         if self.settings["DRAGON5"]["Order Anisotropic Scattering"]:
-            LIB_definition += (f'ANIS {self.settings["DRAGON5"]["Order Anisotropic Scattering"]}',)
+            LIB_definition.append(f'ANIS {self.settings["DRAGON5"]["Order Anisotropic Scattering"]}\n')
         if self.settings["DRAGON5"]["Number of mixtures"]:
-            LIB_definition += (f'NMIX {self.settings["DRAGON5"]["Number of mixtures"]}',)
+            LIB_definition.append(f'NMIX {self.settings["DRAGON5"]["Number of mixtures"]}\n')
         if self.settings["DRAGON5"]["DRAGLIB"]:
-            LIB_definition += (f'MIXS LIB: DRAGON FIL: {self.settings["DRAGON5"]["DRAGLIB"]}',)
+            LIB_definition.append(f'MIXS LIB: DRAGON FIL: {self.settings["DRAGON5"]["DRAGLIB"]}\n')
         if self.settings["DRAGON5"]["Depletion"] and self.settings["DRAGON5"]["DRAGLIB"]:
-            LIB_definition += (f'DEPL LIB: DRAGON FIL: {self.settings["DRAGON5"]["DRAGLIB"]}',)
+            LIB_definition.append(f'DEPL LIB: DRAGON FIL: {self.settings["DRAGON5"]["DRAGLIB"]}\n')
 
         for material_name, material in self.materials.items():
             if material.isdepletable:
-                LIB_definition += (f'MIX {material_name.split(" ")[0]} {material_name.split(" ")[-1]}',)
-            else: 
-                LIB_definition += (f'MIX {material_name.split(" ")[0]} {material_name.split(" ")[-1]} NOEV',)
-            LIB_definition += (material.print_to_D5_format(),)
+                LIB_definition.append(f'MIX {material_name.split(" ")[0]} {material_name.split(" ")[-1]}\n')
+            else:
+                LIB_definition.append(f'MIX {material_name.split(" ")[0]} {material_name.split(" ")[-1]} NOEV\n')
+            LIB_definition.append(material.print_to_D5_format())
 
         with open(c2m_file_path, 'w') as c2m_file:
             for line in LIB_definition:
+                print(line)
                 c2m_file.write(line)
 
         return

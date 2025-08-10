@@ -178,6 +178,9 @@ $N_{\rm dir}=3n(n+2)/8$ for the $LC_n$ quadrature and $N_{\rm dir}=3n^2/2$ for t
 \item $\mathcal{S}^{t}_{28}$ is the number of interface currents for the multicell surfacic approximation. These interface currents are additional unknowns
 components if a flux-current iteration solution is used.
 
+\item $\mathcal{S}^{t}_{29}$ is the sum $\sum_{i=1}^{\mathcal{S}^{t}_{24}} N_i$ where $N_i$ is the number of perimeter elements after unfolding in macro
+geometry $i$.
+
 \item $\mathcal{S}^{t}_{39}$ is the prismatic tracking activation flag along $z$ axis for 3D geometry (0/3: off/on-$z$ axis).
 
 \end{itemize}
@@ -245,17 +248,20 @@ approximation is used (if $\mathcal{S}^{t}_{7}=5$):
   {NMC\_SURF\blank{4}}{$\mathcal{S}^{t}_{24}+1$}
   {Offset of the first boundary surface in each macro geometry}
 \IntEnr
-  {IFR\blank{9}}{$\mathcal{S}^{t}_{28}$}
+  {IFR\blank{9}}{$\mathcal{S}^{t}_{29}$}
   {Index numbers of incoming currents}
 \RealEnr
-  {ALB\blank{9}}{$\mathcal{S}^{t}_{28}$}{}
+  {ALB\blank{9}}{$\mathcal{S}^{t}_{29}$}{}
   {Albedo or transmission factors corresponding to incoming currents}
 \IntEnr
-  {MIX\blank{9}}{$\mathcal{S}^{t}_{28}$}
-  {Index  numbers of outgoing currents}
+  {MIX\blank{9}}{$\mathcal{S}^{t}_{29}$}
+  {Index numbers of outgoing currents}
 \RealEnr
-  {DVX\blank{9}}{$\mathcal{S}^{t}_{28}$}{}
+  {DVX\blank{9}}{$\mathcal{S}^{t}_{29}$}{}
   {Weights corresponding to outgoing currents}
+\IntEnr
+  {MERGE\_MACRO\blank{1}}{$\mathcal{S}^{t}_{1}$}
+  {Merge index assigned to each node in the global surfacic geometry}
 \end{DescriptionEnregistrement}
 
 The \namedir{NXTRecords} directory contains the information required to track the geometry using the \moc{NXT:} module module once it has been analyzed. The contents of this directory is presented in Table~\ref{tabl:NXTRecords}.
