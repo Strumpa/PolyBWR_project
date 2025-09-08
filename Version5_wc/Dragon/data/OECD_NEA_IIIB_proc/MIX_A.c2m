@@ -37,7 +37,7 @@ ECHO "MIX_A.c2m : Library definition for Microlib with table of probabilities" ;
 * Numbering of fuel rods is done according to the following scheme :
 * F<pos_id><rod_id><ring_id>
 ! fuel, position 01 (symmetrical equivalent), composition 04, ring number
-INTEGER F010401 F010402 F010403 F010404 := 1 2 3 4 ; 
+INTEGER F010401 F010402 F010403 F010404 := 1 2 3 4 ; ! fuel, postition 01, composition 04 
 INTEGER F020301 F020302 F020303 F020304 := 5 6 7 8 ; ! fuel, position 02, composition 03
 INTEGER F030201 F030202 F030203 F030204 := 9 10 11 12 ; ! fuel, position 03, composition 02
 INTEGER F040201 F040202 F040203 F040204 := 13 14 15 16 ; ! fuel, position 04, composition 02
@@ -46,11 +46,11 @@ INTEGER F06Gd01 F06Gd02 F06Gd03 F06Gd04 F06Gd05 F06Gd06 := 21 22 23 24 25 26 ; !
 INTEGER F070101 F070102 F070103 F070104 := 27 28 29 30 ; ! fuel, position 07, composition 01
 INTEGER F080101 F080102 F080103 F080104 := 31 32 33 34 ; ! fuel, position 08, composition 01
 INTEGER F090101 F090102 F090103 F090104 := 35 36 37 38 ; ! fuel, position 09, composition 01
-INTEGER CLAD := 39 ; ! clad, composition 10
-INTEGER MODE := 40 ; ! moderating water, composition 11 : in water rod and out-of-assembly water
-INTEGER COOL := 41 ; ! coolant water, composition 12 : in assembly water
-INTEGER WROD := 42 ; ! cladding of water rod, composition 13
-INTEGER BOX := 43 ; ! channel box, composition 14
+INTEGER CLAD := 39 ; ! clad, composition 39
+INTEGER MODE := 40 ; ! moderating water, composition 40 : in water rod and out-of-assembly water
+INTEGER COOL := 41 ; ! coolant water, composition 41 : in assembly water
+INTEGER WROD := 42 ; ! cladding of water rod, composition 42
+INTEGER BOX := 43 ; ! channel box, composition 43
 
 REAL N_O_Cool N_H_Cool := 0.0 0.0 ;
 IF compos_opt "VOID_0" = THEN
@@ -73,13 +73,13 @@ ENDIF ;
 LIBRARY := LIB: ::
     EDIT 1
     NMIX 44   ! MAXIMUM OF MATERIAL MIXTURES
-    PT 
-    ANIS 3
+    PT CALENDF 4
+    ANIS 4
     DEPL LIB: DRAGON FIL: <<Library>>
     MIXS LIB: DRAGON FIL: <<Library>>
     ! ROD_ID_1 with position 07
     MIX <<F070101>> 900.0 EVOL
-        U234 = U234  1.0443E-05  1
+        U234 = U234  1.0443E-05
         U235 = U235  1.1284E-03  1
         U236 = U236  6.9317E-06  1
         U238 = U238  2.1606E-02  1
@@ -89,7 +89,7 @@ LIBRARY := LIB: ::
     MIX <<F070104>> COMB <<F070101>> 1.0
     ! ROD_ID_1 with position 08
     MIX <<F080101>> 900.0 EVOL
-        U234 = U234  1.0443E-05  1
+        U234 = U234  1.0443E-05
         U235 = U235  1.1284E-03  1
         U236 = U236  6.9317E-06  1
         U238 = U238  2.1606E-02  1
@@ -99,7 +99,7 @@ LIBRARY := LIB: ::
     MIX <<F080104>> COMB <<F080101>> 1.0
     ! ROD_ID_1 with position 09
     MIX <<F090101>> 900.0 EVOL
-        U234 = U234  1.0443E-05  1
+        U234 = U234  1.0443E-05
         U235 = U235  1.1284E-03  1
         U236 = U236  6.9317E-06  1
         U238 = U238  2.1606E-02  1
@@ -110,7 +110,7 @@ LIBRARY := LIB: ::
 
     ! ROD_ID_2 with position 03
     MIX <<F030201>> 900.0 EVOL
-        U234 = U234  7.5720E-06  1
+        U234 = U234  7.5720E-06
         U235 = U235  8.2904E-04  1
         U236 = U236  5.1701E-06  1
         U238 = U238  2.1907E-02  1
@@ -120,7 +120,7 @@ LIBRARY := LIB: ::
     MIX <<F030204>> COMB <<F030201>> 1.0
     ! ROD_ID_2 with position 04
     MIX <<F040201>> 900.0 EVOL
-        U234 = U234  7.5720E-06  1
+        U234 = U234  7.5720E-06
         U235 = U235  8.2904E-04  1
         U236 = U236  5.1701E-06  1
         U238 = U238  2.1907E-02  1
@@ -130,7 +130,7 @@ LIBRARY := LIB: ::
     MIX <<F040204>> COMB <<F040201>> 1.0
     ! ROD_ID_2 with position 05
     MIX <<F050201>> 900.0 EVOL
-        U234 = U234  7.5720E-06  1
+        U234 = U234  7.5720E-06
         U235 = U235  8.2904E-04  1
         U236 = U236  5.1701E-06  1
         U238 = U238  2.1907E-02  1
@@ -141,10 +141,10 @@ LIBRARY := LIB: ::
     
     ! ROD_ID_3 with position 02
     MIX <<F020301>> 900.0 EVOL
-        U234 = U234  6.2468E-06  1
-        U235 = U235  6.9087E-04  1
+        U234 = U234  6.2468E-06
+        U235 = U235  6.9087E-04  1 
         U236 = U236  4.3570E-06  1
-        U238 = U238  2.2046E-02  1
+        U238 = U238  2.2046E-02  1 
         O16 = O16  4.5494E-02
     MIX <<F020302>> COMB <<F020301>> 1.0
     MIX <<F020303>> COMB <<F020301>> 1.0
@@ -152,7 +152,7 @@ LIBRARY := LIB: ::
     
     ! ROD_ID_4 with position 01
     MIX <<F010401>> 900.0 EVOL
-        U234 = U234  4.7008E-06  1
+        U234 = U234  4.7008E-06 
         U235 = U235  5.2968E-04  1
         U236 = U236  3.4083E-06  1
         U238 = U238  2.2208E-02  1
@@ -163,17 +163,17 @@ LIBRARY := LIB: ::
 
     ! ROD_ID_5 with position 06
     MIX <<F06Gd01>> 900.0 EVOL
-        U234 = U234  5.8824E-06  1
+        U234 = U234  5.8824E-06 
         U235 = U235  6.5057E-04  1
         U236 = U236  4.1028E-06  1
-        U238 = U238  2.0759E-02 1
+        U238 = U238  2.0759E-02  1
         O16 = O16  4.5095E-02
         Gd154 = Gd154  3.2253E-05  1
         Gd155 = Gd155  2.2141E-04  1
         Gd156 = Gd156  3.0778E-04  1
-        Gd157 = Gd157  2.3576E-04  1
-        Gd158 = Gd158  3.7393E-04  1
-        Gd160 = Gd160  3.3200E-04  1
+        Gd157 = Gd157  2.3576E-04  1 
+        Gd158 = Gd158  3.7393E-04  1 
+        Gd160 = Gd160  3.3200E-04  1 
     MIX <<F06Gd02>> COMB <<F06Gd01>> 1.0
     MIX <<F06Gd03>> COMB <<F06Gd01>> 1.0
     MIX <<F06Gd04>> COMB <<F06Gd01>> 1.0
@@ -186,14 +186,14 @@ LIBRARY := LIB: ::
         Cr53 = Cr53  7.210404E-06
         Cr54 = Cr54  1.794822E-06
         Fe54 = Fe54  8.672811E-06
-        Fe56 = Fe56  1.361446E-04  2
+        Fe56 = Fe56  1.361446E-04  1
         Fe57 = Fe57  3.144172E-06
         Fe58 = Fe58  4.184316E-07
-        Zr90 = Zr90  2.211424E-02  2
-        Zr91 = Zr91  4.822580E-03  2
-        Zr92 = Zr92  7.371413E-03  2
-        Zr94 = Zr94  7.470272E-03  2
-        Zr96 = Zr96  1.203496E-03  2
+        Zr90 = Zr90  2.211424E-02  1
+        Zr91 = Zr91  4.822580E-03  1
+        Zr92 = Zr92  7.371413E-03  1
+        Zr94 = Zr94  7.470272E-03  1
+        Zr96 = Zr96  1.203496E-03  1
     
     MIX <<WROD>> 559.0 NOEV
         Cr50 = Cr50  3.297464E-06
@@ -201,14 +201,14 @@ LIBRARY := LIB: ::
         Cr53 = Cr53  7.210404E-06
         Cr54 = Cr54  1.794822E-06
         Fe54 = Fe54  8.672811E-06
-        Fe56 = Fe56  1.361446E-04  3
+        Fe56 = Fe56  1.361446E-04  1
         Fe57 = Fe57  3.144172E-06
         Fe58 = Fe58  4.184316E-07
-        Zr90 = Zr90  2.211424E-02  3
-        Zr91 = Zr91  4.822580E-03  3
-        Zr92 = Zr92  7.371413E-03  3
-        Zr94 = Zr94  7.470272E-03  3
-        Zr96 = Zr96  1.203496E-03  3
+        Zr90 = Zr90  2.211424E-02  1
+        Zr91 = Zr91  4.822580E-03  1
+        Zr92 = Zr92  7.371413E-03  1
+        Zr94 = Zr94  7.470272E-03  1
+        Zr96 = Zr96  1.203496E-03  1
     
     MIX <<BOX>> 559.0 NOEV
         Cr50 = Cr50  3.297464E-06
@@ -216,14 +216,14 @@ LIBRARY := LIB: ::
         Cr53 = Cr53  7.210404E-06
         Cr54 = Cr54  1.794822E-06
         Fe54 = Fe54  8.672811E-06
-        Fe56 = Fe56  1.361446E-04  4
+        Fe56 = Fe56  1.361446E-04  1
         Fe57 = Fe57  3.144172E-06
         Fe58 = Fe58  4.184316E-07
-        Zr90 = Zr90  2.211424E-02  4
-        Zr91 = Zr91  4.822580E-03  4
-        Zr92 = Zr92  7.371413E-03  4
-        Zr94 = Zr94  7.470272E-03  4
-        Zr96 = Zr96  1.203496E-03  4
+        Zr90 = Zr90  2.211424E-02  1
+        Zr91 = Zr91  4.822580E-03  1
+        Zr92 = Zr92  7.371413E-03  1
+        Zr94 = Zr94  7.470272E-03  1
+        Zr96 = Zr96  1.203496E-03  1
 
     MIX <<MODE>> 559.0 NOEV
         H1 = H1_H2O  4.9316E-02

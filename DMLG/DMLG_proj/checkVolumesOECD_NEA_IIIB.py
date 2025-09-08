@@ -55,7 +55,7 @@ def check_SerpentvsDragon_vols(Serpent2_case, Dragon5_case, material_assocoation
                 relative_error = (D5_vols[i]*8-S2_vols[i]/2)*100/S2_vols[i]/2
                 errors.append(error)
                 rel_errors.append(relative_error)
-                if abs(relative_error)>=0.01:
+                if abs(relative_error)>=0.001:
                     print(f"Warning in region {list(S2_material_volumes.keys())[list(S2_material_volumes.values()).index(S2_vols[i])]}, with S2 volume {S2_vols[i]/2} and D5 volume {D5_vols[i]*8}")
             sum=0
             for err in errors:
@@ -85,11 +85,13 @@ ASSBLY_Serp = DMLG.DMLG_Interface(assbly_serp_vols, type="Serpent2",mode="check_
 ASSBLY_Serp.createS2_geom("OECD NEA Phase IIIB benchmark", 1)
 #print(AT10_ASSBLY_Serp.S2_geom.getOrderedMaterialVols()["box"])
 
-
+print("Checking volumes between Serpent2 and Dragon5 cases for OECD NEA Phase IIIB benchmark")
+print("Using Dragon5 case with SSH tracking")
 ASSBLY_SSH_drag = DMLG.DMLG_Interface(assbly_drag_vols_SSH, type="Dragon",mode="output")
 ASSBLY_SSH_drag.Dragon5_geom.ComputeOrderedVolumesandRegions()
 check_SerpentvsDragon_vols(ASSBLY_Serp, ASSBLY_SSH_drag)
 
+print("Using Dragon5 case with FLX tracking")
 assbly_drag_vols_FLX = DMLG.DMLG_Interface(assbly_drag_vols_FLX, type="Dragon",mode="output")
 assbly_drag_vols_FLX.Dragon5_geom.ComputeOrderedVolumesandRegions()
 check_SerpentvsDragon_vols(ASSBLY_Serp, assbly_drag_vols_FLX)

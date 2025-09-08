@@ -43,7 +43,7 @@
 *         IAPT(I)=0.
 * MASKI   isotopic flag (MASKI(ISO)=.TRUE. to process isotope ISO).
 * SPH     SPH factors.
-* PHGAR   averaged fluxes.
+* PHGAR   averaged fluxes in correlated fuel regions.
 * STGAR   microscopic self-shielded total x-s.
 * SFGAR   microscopic self-shielded fission x-s.
 * SSGAR   microscopic self-shielded scattering x-s.

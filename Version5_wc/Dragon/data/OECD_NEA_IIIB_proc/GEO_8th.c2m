@@ -79,6 +79,10 @@ REAL waterRad_i := 1.5 ; ! cm
 REAL disp_wr := Pitch_C 2.0 / -1.0 * ; ! cm, displacement of water rod with respect to center of its bounding CARCEL
 *** 8th symmetry : SYME at -Y, DIAG at -X, +Y and REFL at +X 
 
+! Add a radius for SPLITR discretisation of moderator box
+
+REAL rr := 2.0 SQRT Pitch_C * 0.001 - ;
+
 
 **************************************************
 *               GEOMETRY DEFINITIONS
@@ -158,6 +162,7 @@ GEOMSSH := GEO: :: CAR2D 3 3
     ;
 ;
 
+ECHO "IN 8th geom, building flux calculation geometry" ;
 
 GEOM := GEO: :: CAR2D 3 3 
     EDIT 1
@@ -168,23 +173,13 @@ GEOM := GEO: :: CAR2D 3 3
                  TC 
     MESHX 0.0 <<Pitch_C>> <<4_Pitch_C>> <<Pitch_A2>> 
     MESHX 0.0 <<Pitch_C>> <<4_Pitch_C>> <<Pitch_A2>>
-    ::: WR := GEO: CARCEL 2
+    ::: WR := GEO: CARCEL 3
             MESHX 0.0 <<Pitch_C>>
             MESHY 0.0 <<Pitch_C>>
-            SECT 4 0 !: fonctionne mais augmente le delta k-eff vs Serpent2, 
-            ! Les volumes obtenus par SALT: + MERGMIX ne sont pas equivalents à ceux de la geometrie d'autop
-            ! si je mets SECT 4 0
-            ! SECT 4 2 crash dans G2S
-            SPLITR 30 4
-            RADIUS 0.0 <<waterRad_i>> <<waterRad_o>>
+            SPLITR 20 2 10
+            RADIUS 0.0 <<waterRad_i>> <<waterRad_o>> <<rr>>
             OFFCENTER <<disp_wr>> <<disp_wr>>
-            MIX <<MODE>> <<MODE>> <<MODE>> <<MODE>>
-                <<MODE>> <<MODE>> <<MODE>> <<MODE>>
-                <<WROD>> <<WROD>> <<WROD>> <<WROD>>
-                <<WROD>> <<WROD>> <<WROD>> <<WROD>>
-                <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                <<COOL>> <<COOL>> <<COOL>> <<COOL>>
-                <<COOL>> <<COOL>> <<COOL>> <<COOL>>  ! water, clad, intra-assembly water
+            MIX <<MODE>> <<WROD>> <<COOL>> <<COOL>>  ! water, clad, intra-assembly water
         ;
     ::: LAT1 := GEO: CAR2D 3 1 
         MESHX 0.0 <<Pitch_C>> <<2_Pitch_C>> <<3_Pitch_C>>
@@ -264,14 +259,14 @@ GEOM := GEO: :: CAR2D 3 3
         MESHX 0.0 <<chan_thi>> <<xlim>>
         MESHY 0.0 <<Pitch_C>>
         MIX <<BOX>> <<MODE>> ! channel box, out-of-assembly water
-        SPLITX 4 32
+        SPLITX 2 16
         SPLITY 6
     ;
     ::: R2 := GEO: CAR2D 2 1
         MESHX 0.0 <<chan_thi>> <<xlim>>
         MESHY 0.0 <<3_Pitch_C>>
         MIX <<BOX>> <<MODE>> ! channel box, out-of-assembly water
-        SPLITX 4 32
+        SPLITX 2 16
         SPLITY 18
     ;
     ::: TC := GEO: CAR2D 2 2
@@ -279,8 +274,8 @@ GEOM := GEO: :: CAR2D 3 3
         MESHY 0.0 <<chan_thi>> <<xlim>>
         MIX <<BOX>> <<MODE>> <<MODE>> <<MODE>> 
         ! channel box corner surrounded by out-of-assembly water
-        SPLITX 4 32
-        SPLITY 4 32
+        SPLITX 2 16
+        SPLITY 2 16 
     ;
 ;
 

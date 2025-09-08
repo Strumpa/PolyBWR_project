@@ -66,11 +66,12 @@
 * VOLMER  volumes of the resonant regions.
 *
 *Parameters: output
-* UNGAR   averaged fluxes per volume.
+* UNGAR   averaged flux unknowns.
 *
 *-----------------------------------------------------------------------
 *
       USE GANLIB
+      USE DOORS_MOD
 *----
 *  SUBROUTINE ARGUMENTS
 *----
@@ -79,7 +80,7 @@
      1 MAXST,MAT(NREG),KEYFLX(NREG),IREX(NBMIX),ICORR,NIRES,NBNRS,
      2 IPPT2(NIRES,4)
       REAL VOL(NREG),SIGGAR(NBMIX,0:NIRES,NGRP,3),CONR(NBNRS,NIRES),
-     1 GOLD(NIRES,NGRP),VOLMER(0:NBNRS),UNGAR(NREG,NIRES,NGRP)
+     1 GOLD(NIRES,NGRP),VOLMER(0:NBNRS),UNGAR(NUN,NIRES,NGRP)
       CHARACTER CDOOR*12,TITR*72
       LOGICAL LEAKSW,MASKG(NGRP)
 *----
@@ -88,7 +89,7 @@
       REAL ERR1,ERR2
       DOUBLE PRECISION T1
       CHARACTER CBDPNM*12,TEXT12*12
-      LOGICAL LEXAC,REBFLG
+      LOGICAL LEXAC,REBFLG,LSOUR
       TYPE(C_PTR) IPLIB,JPLI0,JPLIB1,KPLIB,IPSYS,KPSYS,IOFSET,
      1 IPMACR,IPSOU
 *----
@@ -97,7 +98,7 @@
       TYPE(C_PTR), ALLOCATABLE, DIMENSION(:) ::  JPLIB2,JPLIB3
       INTEGER, ALLOCATABLE, DIMENSION(:) :: NPSYS,MRANK
       INTEGER, ALLOCATABLE, DIMENSION(:,:) :: NJJ
-      REAL, ALLOCATABLE, DIMENSION(:) :: SIGTXS,SIGS0X
+      REAL, ALLOCATABLE, DIMENSION(:) :: SIGTXS,SIGS0X,SIGG
       REAL, ALLOCATABLE, DIMENSION(:,:) :: FUN,SUN
       REAL, ALLOCATABLE, DIMENSION(:,:,:) :: XFLUX2
       TYPE VECTOR_ARRAY
@@ -311,41 +312,45 @@
 *----
 *  COMPUTE THE AVERAGED SOURCE TAKING INTO ACCOUNT CORRELATION EFFECTS.
 *----
-        ALLOCATE(FUN(NUN,MI),SUN(NUN,MI))
+        ALLOCATE(FUN(NUN,MI),SUN(NUN,MI),SIGG(0:NBMIX))
         SUN(:NUN,:MI)=0.0
         DO IM=1,MI
           FUN(:NUN,IM)=PSI_M(IG)%MATRIX(:NUN,IM)
           NPSYS(IM)=IASM+IM
-          DO I=1,NREG
-            IBM=MAT(I)
-            IF(IBM.EQ.0) CYCLE
-            IUN=KEYFLX(I)
-            IND=IREX(IBM)
-            T1=0.0D0
-            DO JRES=0,NIRES
-              IF(JRES.EQ.0) THEN
-                T1=T1+SIGGAR(IBM,0,IG,3)*GAMMA_V(IG)%VECTOR(IM)
-              ELSE IF(IND.GT.0) THEN
-                DENSIT=CONR(IND,JRES)
-                DO JG=IG-NJJ(IG,JRES)+1,IG
-                  IF(GOLD(IRES,JG).NE.-1001.) CYCLE
-                  DO JM=1,MRANK(JG)
-                    IF((JG.EQ.IG).AND.(JM.EQ.IM)) CYCLE
-                    T1=T1+DENSIT*SCAT_M(IG,JG,JRES)%MATRIX(IM,JM)*
-     1              PSI_M(JG)%MATRIX(IUN,JM)
-                  ENDDO
-                ENDDO
-                ! process off-diagonal terms in SIGT_M(IG,JRES)%MATRIX
-                DO JM=1,MRANK(IG)
-                  IF((JM.EQ.IM).OR.(JRES.EQ.IRES)) CYCLE
-                  T1=T1-DENSIT*SIGT_M(IG,JRES)%MATRIX(IM,JM)*
-     1            PSI_M(IG)%MATRIX(IUN,JM)
-                ENDDO
-              ENDIF
-            ENDDO
-            SUN(IUN,IM)=REAL(T1,4)
+          SIGG(0)=0.0
+          DO IBM=1,NBMIX
+            SIGG(IBM)=REAL(SIGGAR(IBM,0,IG,3)*GAMMA_V(IG)%VECTOR(IM),4)
           ENDDO
-        ENDDO
+          CALL DOORS(CDOOR,IPTRK,NBMIX,0,NUN,SIGG,SUN(1,IM))
+          DO JG=1,IG
+            DO JM=1,MRANK(JG)
+              IF((JG.EQ.IG).AND.(JM.EQ.IM)) CYCLE
+              SIGG(0:NBMIX)=0.0
+              LSOUR=.FALSE.
+              DO IBM=1,NBMIX
+                IND=IREX(IBM)
+                IF(IND.LE.0) CYCLE
+                DO JRES=1,NIRES
+                  DENSIT=CONR(IND,JRES)
+                  IF((JG.EQ.IG).AND.(JRES.NE.IRES)) THEN
+                    ! process off-diagonal terms in SIGT_M(IG,JRES)%MATRIX
+                    LSOUR=.TRUE.
+                    SIGG(IBM)=SIGG(IBM)-REAL(DENSIT*
+     1                 SIGT_M(IG,JRES)%MATRIX(IM,JM),4)
+                  ENDIF
+                  IF(JG.LT.IG-NJJ(IG,JRES)+1) CYCLE
+                  IF(GOLD(IRES,JG).NE.-1001.) CYCLE
+                  LSOUR=.TRUE.
+                  SIGG(IBM)=SIGG(IBM)+DENSIT*REAL(
+     1               SCAT_M(IG,JG,JRES)%MATRIX(IM,JM),4)
+                ENDDO ! JRES
+              ENDDO ! IBM
+              IF(LSOUR) CALL DOORS(CDOOR,IPTRK,NBMIX,0,NUN,SIGG,
+     1        SUN(1,IM),PSI_M(JG)%MATRIX(:,JM))
+            ENDDO ! JM
+          ENDDO ! JG
+        ENDDO ! IM
+        DEALLOCATE(SIGG)
 *----
 *  SOLVE FOR THE MULTIBAND FLUX.
 *----
@@ -406,14 +411,12 @@
           ENDDO
         ENDDO
 *----
-* USE SNAPSHOT WEIGHTS AND HOMOGENIZE THE FLUX.
+* USE SNAPSHOT WEIGHTS TO AVERAGE SUBGROUP FLUX UNKNOWNS.
 *----
-        UNGAR(:NREG,IRES,IG)=0.0
-        DO I=1,NREG
-          IF(MAT(I).EQ.0) CYCLE
-          IUN=KEYFLX(I)
+        UNGAR(:NUN,IRES,IG)=0.0
+        DO IUN=1,NUN
           DO IM=1,MI
-            UNGAR(I,IRES,IG)=UNGAR(I,IRES,IG)+
+            UNGAR(IUN,IRES,IG)=UNGAR(IUN,IRES,IG)+
      1      REAL(WEIGHT_V(IG)%VECTOR(IM)*PSI_M(IG)%MATRIX(IUN,IM),4)
           ENDDO
         ENDDO

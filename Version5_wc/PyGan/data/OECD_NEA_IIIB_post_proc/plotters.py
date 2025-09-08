@@ -4,12 +4,18 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 
-def plot_spectrum_comparison(energy_mesh, FLUX_295groups, S2_spectrum, results_dir):
+def plot_spectrum_comparison(energy_mesh, FLUX_295groups, S2_spectrum, cpo_name, results_dir):
+    results_dir = f"{results_dir}/{cpo_name}"
+    if not os.path.exists(results_dir):
+        os.makedirs(results_dir)
+
     # plot flux spectrum
     plt.figure(figsize=(10, 6))
     # FLUX has 295 values = 1 per group, extend so that it is ploted as piecewise constant between energy groups
     plt.step(np.repeat(energy_mesh, 2)[1:-1], np.repeat(FLUX_295groups, 2), where='post', label='DRAGON5 Flux Spectrum', color='blue', linewidth=2)
     plt.plot(np.repeat(energy_mesh, 2)[1:-1], np.repeat(S2_spectrum, 2), label='Serpent2 Flux Spectrum', color='orange', linewidth=2)
+    # plot vertical line at 0.625 eV
+    plt.vlines([0.625, 10, 1000], 0.0, 0.032, colors = ["red"])
     plt.xscale('log')
     plt.xlabel('Energy (eV)')
     plt.ylabel('Flux (n/cm²/s)')

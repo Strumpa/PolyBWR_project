@@ -1,0 +1,22 @@
+MODULE END: ;
+ECHO "Début de AdjustB1.c2m" ;
+REAL Dk s e B ADk ;
+:: >>B<< >>Dk<< >>s<< >>e<< ;
+***
+EVALUATE ADk := Dk ABS ;
+IF     ADk 0.075 >                THEN EVALUATE B := B 10000.0 s * + ;
+ELSEIF ADk 0.075 <= ADk 0.050 > * THEN EVALUATE B := B  5000.0 s * + ;
+ELSEIF ADk 0.050 <= ADk 0.025 > * THEN EVALUATE B := B  2000.0 s * + ;
+ELSEIF ADk 0.025 <= ADk 0.010 > * THEN EVALUATE B := B  1000.0 s * + ;
+ELSEIF ADk 0.010 <= ADk 0.005 > * THEN EVALUATE B := B   500.0 s * + ;
+ELSEIF ADk 0.010 <= ADk 0.005 > e 0.05 < * * THEN
+   EVALUATE B := B 250.0 s * + ;
+ELSEIF ADk 0.010 <= ADk 0.005 > e 0.05 < * * THEN
+   EVALUATE B := B 125.0 s * + ;
+ENDIF ;
+***
+:: <<B>> ;
+***
+ECHO "Fin de AdjustB1.c2m" ;
+END: ;
+QUIT "LIST" .

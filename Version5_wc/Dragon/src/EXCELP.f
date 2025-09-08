@@ -170,7 +170,6 @@
       NPLANE = 1
       IF(IFTRAK .NE. 0) THEN
         READ(IFTRAK) CTRKT,NCOMNT,NTRK,IFMT
-        print *,'bug',CTRKT,NCOMNT,NTRK
         IF( CTRKT .NE.'$TRK' .OR.
      >      NCOMNT.LT.0      .OR.
      >      NTRK  .EQ.0          ) CALL XABORT(NAMSBR//

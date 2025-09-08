@@ -1,6 +1,6 @@
 *DECK TRIFLV
       SUBROUTINE TRIFLV(KPSYS,INCONV,NGIND,IPTRK,IMPX,MAXIT,NGEFF,NREG,
-     1 NUN,MAT,VOL,KEYFLX,FUNKNO,SUNKNO)
+     1 NUN,KEYFLX,FUNKNO,SUNKNO)
 *
 *-----------------------------------------------------------------------
 *
@@ -28,8 +28,6 @@
 * NREG    total number of regions for which specific values of the
 *         neutron flux and reactions rates are required.
 * NUN     total number of unknowns in vectors SUNKNO and FUNKNO.
-* MAT     index-number of the mixture type assigned to each volume.
-* VOL     volumes.
 * KEYFLX  position of averaged flux elements in FUNKNO vector.
 * SUNKNO  input source vector.
 *
@@ -43,15 +41,13 @@
 *  SUBROUTINE ARGUMENTS
 *----
       TYPE(C_PTR) KPSYS(NGEFF),IPTRK
-      INTEGER     MAXIT,NGEFF,NGIND(NGEFF),IMPX,NREG,NUN,MAT(NREG),
-     1            KEYFLX(NREG)
+      INTEGER     MAXIT,NGEFF,NGIND(NGEFF),IMPX,NREG,NUN,KEYFLX(NREG)
       LOGICAL     INCONV(NGEFF)
-      REAL        VOL(NREG),FUNKNO(NUN,NGEFF),SUNKNO(NUN,NGEFF)
+      REAL        FUNKNO(NUN,NGEFF),SUNKNO(NUN,NGEFF)
 *----
 *  LOCAL VARIABLES
 *----
-      PARAMETER  (IUNOUT=6,NSTATE=40,EPSINR=1.0E-5,ICL1=3,
-     1            ICL2=3)
+      PARAMETER  (IUNOUT=6,NSTATE=40,EPSINR=1.0E-5,ICL1=3,ICL2=3)
       DOUBLE PRECISION F1,F2,R1,R2,DMU
       INTEGER     IPAR(NSTATE)
       CHARACTER   NAMP*12
@@ -86,14 +82,6 @@
       IF(IMPX.GT.1) WRITE(IUNOUT,'(/25H TRIFLV: PROCESSING GROUP,I5,
      1 6H WITH ,A,1H.)') NGIND(II),'TRIVAC'
 *----
-*  MULTIPLICATION OF THE SOURCES BY THE VOLUMES.
-*----
-      DO 10 K=1,NREG
-      IF(MAT(K).EQ.0) GO TO 10
-      JND1=KEYFLX(K)
-      SUNKNO(JND1,II)=SUNKNO(JND1,II)*VOL(K)
-   10 CONTINUE
-*----
 *  SOLVE FOR THE FLUXES. USE EQUATION (C.24) IN IGE-281.
 *----
       NAMP='A001001'
@@ -104,7 +92,7 @@
       IF(ITER.GT.MAXIT) THEN
       WRITE(IUNOUT,'(46H TRIFLV: MAXIMUM NUMBER OF ONE-SPEED ITERATION,
      1   9H REACHED.)')
-         GO TO 110
+         GO TO 130
       ENDIF
       DO 30 I=1,NUN
       OLD1(I)=OLD2(I)
@@ -150,22 +138,14 @@
       BBB=MAX(BBB,ABS(FUNKNO(KEYFLX(I),II)))
   100 CONTINUE
       IF(IMPX.GT.2) WRITE(IUNOUT,300) ITER,AAA,BBB,DMU
-      IF(AAA.LE.EPSINR*BBB) GO TO 110
+      IF(AAA.LE.EPSINR*BBB) GO TO 130
       IF(ITER.EQ.1) TEST=AAA
       IF((ITER.GE.10).AND.(AAA.GT.TEST)) THEN
          WRITE(IUNOUT,'(43H TRIFLV: UNABLE TO CONVERGE ONE-SPEED ITERA,
      1   6HTIONS.)')
-         GO TO 110
+         GO TO 130
       ENDIF
       GO TO 20
-*----
-*  DIVISION OF THE SOURCES BY THE VOLUMES.
-*----
-  110 DO 120 K=1,NREG
-      IF(MAT(K).EQ.0) GO TO 120
-      JND1=KEYFLX(K)
-      SUNKNO(JND1,II)=SUNKNO(JND1,II)/VOL(K)
-  120 CONTINUE
 *----
 * END OF LOOP OVER ENERGY GROUPS
 *----

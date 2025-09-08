@@ -1,0 +1,755 @@
+*DECK SNFKC3
+      SUBROUTINE SNFKC3(NKBA,NUN,NGEFF,IMPX,INCONV,NGIND,LX,LY,LZ,IELEM,
+     1 NM,NMX,NMY,NMZ,NMAT,NPQ,NSCT,MAT,VOL,TOTAL,NCODE,ZCODE,QEXT,
+     2 LFIXUP,DU,DE,DZ,W,MRMX,MRMY,MRMZ,DC,DB,DA,MN,DN,WX,WY,WZ,CST,
+     3 ISADPT,ISBS,NBS,ISBSM,BS,MAXL,FUNKNO)
+*
+*-----------------------------------------------------------------------
+*
+*Purpose:
+* Perform one inner iteration for solving SN equations in 3D Cartesian
+* geometry for the HODD method. Energy-angle multithreading. Albedo
+* boundary conditions. Boltzmann (BTE) discretization.
+*
+*Copyright:
+* Copyright (C) 2025 Ecole Polytechnique de Montreal
+* This library is free software; you can redistribute it and/or
+* modify it under the terms of the GNU Lesser General Public
+* License as published by the Free Software Foundation; either
+* version 2.1 of the License, or (at your option) any later version
+*
+*Author(s): A. Hebert, A. A. Calloo and C. Bienvenue
+*
+*Parameters: input
+* NKBA    number of macrocells along each axis
+* NUN     total number of unknowns in vector FUNKNO.
+* NGEFF   number of energy groups processed in parallel.
+* IMPX    print flag (equal to zero for no print).
+* INCONV  energy group convergence flag (set to .FALSE. if converged).
+* NGIND   energy group indices assign to the NGEFF set.
+* LX      number of meshes along X axis.
+* LY      number of meshes along Y axis.
+* LZ      number of meshes along Z axis.
+* IELEM   measure of order of the spatial approximation polynomial:
+*         =1 constant - default for HODD;
+*         =2 linear - default for DG;
+*         >3 higher orders.
+* NM      number of moments in space for flux components
+* NMX     number of moments for X axis boundaries components
+* NMY     number of moments for Y axis boundaries components
+* NMZ     number of moments for Z axis boundaries components
+* NMAT    number of material mixtures.
+* NPQ     number of SN directions in height octants.
+* NSCT    maximum number of spherical harmonics moments of the flux.
+* MAT     material mixture index in each region.
+* VOL     volumes of each region.
+* TOTAL   macroscopic total cross sections.
+* ESTOPW  stopping power.
+* NCODE   boundary condition indices.
+* ZCODE   albedos.
+* DELTAE  energy group width in MeV.
+* QEXT    Legendre components of the fixed source.
+* LFIXUP  flag to enable negative flux fixup.
+* DU      first direction cosines ($\\mu$).
+* DE      second direction cosines ($\\eta$).
+* DZ      third direction cosines ($\\xi$).
+* W       weights.
+* MRMX    quadrature index.
+* MRMY    quadrature index.
+* MRMZ    quadrature index.
+* DC      diamond-scheme parameter.
+* DB      diamond-scheme parameter.
+* DA      diamond-scheme parameter.
+* MN      moment-to-discrete matrix.
+* DN      discrete-to-moment matrix.
+* ISBS    flag to indicate the presence or not of boundary fixed
+*         sources.
+* NBS     number of boundary fixed sources.
+* ISBSM   flag array to indicate the presence or not of boundary fixed
+*         source in each unit surface.
+* BS      boundary source array with their intensities.
+* MAXL    maximum size of boundary source array.
+* WX      spatial X axis closure relation weighting factors.
+* WY      spatial Y axis closure relation weighting factors.
+* WZ      spatial Z axis closure relation weighting factors.
+* CST     constants for the polynomial approximations.
+* ISADPT  flag to enable/disable adaptive flux calculations.
+*
+*Parameters: input/output
+* FUNKNO  Legendre components of the flux and boundary fluxes.
+* FLUXC   flux at the cutoff energy.
+*
+*-----------------------------------------------------------------------
+*
+#if defined(_OPENMP)
+      USE omp_lib
+#endif
+*----
+*  SUBROUTINE ARGUMENTS
+*----
+      INTEGER NUN,NGEFF,IMPX,NGIND(NGEFF),LX,LY,LZ,IELEM,NM,NMX,NMY,NMZ,
+     1 NMAT,NPQ,NSCT,MAT(LX,LY,LZ),NCODE(6),MRMX(NPQ),MRMY(NPQ),
+     2 MRMZ(NPQ),ISBS,NBS,ISBSM(6*ISBS,NPQ*ISBS,NGEFF*ISBS),MAXL
+      LOGICAL INCONV(NGEFF)
+      REAL VOL(LX,LY,LZ),TOTAL(0:NMAT,NGEFF),ZCODE(6),QEXT(NUN,NGEFF),
+     1 DU(NPQ),DE(NPQ),DZ(NPQ),W(NPQ),DC(LX,LY,NPQ),DB(LX,LZ,NPQ),
+     2 DA(LY,LZ,NPQ),FUNKNO(NUN,NGEFF),BS(MAXL*ISBS,NBS*ISBS),
+     3 WX(IELEM+1),WY(IELEM+1),WZ(IELEM+1),CST(IELEM),MN(NPQ,NSCT),
+     4 DN(NSCT,NPQ)
+      LOGICAL LFIXUP,ISADPT(3)
+*----
+*  LOCAL VARIABLES
+*----
+      INTEGER NPQD(8),IIND(8),P
+      PARAMETER(IUNOUT=6,RLOG=1.0E-8,PI=3.141592654)
+      REAL WX0(IELEM+1),WY0(IELEM+1),WZ0(IELEM+1)
+      DOUBLE PRECISION V,Q(NM),Q2(NM,NM+1)
+      LOGICAL ISFIX(3)
+*----
+*  ALLOCATABLE ARRAYS
+*----
+      INTEGER, ALLOCATABLE, DIMENSION(:) :: III,JJJ
+      INTEGER, ALLOCATABLE, DIMENSION(:,:) :: INDANG
+      DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:,:) :: FLUX
+      DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:,:,:,:,:,:) :: FLUX_G
+      DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:,:,:,:,:) :: XNI,XNJ,XNK
+*----
+*  SCRATCH STORAGE ALLOCATION
+*----
+      ALLOCATE(INDANG(NPQ,8))
+      ALLOCATE(XNI(NMX,LY,LZ,NPQ,NGEFF),XNJ(NMY,LX,LZ,NPQ,NGEFF),
+     1   XNK(NMZ,LX,LY,NPQ,NGEFF))
+      ALLOCATE(FLUX(NM,NSCT))
+      ALLOCATE(FLUX_G(NM,NSCT,LX,LY,LZ,NGEFF))
+*----
+*  LENGTH OF FUNKNO COMPONENTS (IN ORDER)
+*----
+      LFLX=NM*LX*LY*LZ*NSCT
+      LXNI=NMX*LY*LZ*NPQ
+      LXNJ=NMY*LX*LZ*NPQ
+      LXNK=NMZ*LX*LY*NPQ
+*----
+*  NUMBER OF MACROCELLS (MACRO*)
+*  NUMBER OF LZ LAYERS IN EACH MACROCELL (NCELL*)
+*----
+      MACROX=NKBA
+      MACROY=NKBA
+      MACROZ=NKBA
+      NCELLX=1+(LX-1)/MACROX
+      NCELLY=1+(LY-1)/MACROY
+      NCELLZ=1+(LZ-1)/MACROZ
+*----
+*  SET OCTANT SWAPPING ORDER.
+*----
+      NPQD(:8)=0
+      INDANG(:NPQ,:8)=0
+      IIND(:)=0
+      DO 10 M=1,NPQ
+        VU=DU(M)
+        VE=DE(M)
+        VZ=DZ(M)
+        IF(W(M).EQ.0) CYCLE
+        IF((VU.GE.0.0).AND.(VE.GE.0.0).AND.(VZ.GE.0.0)) THEN
+          IND=1
+          JND=8
+        ELSE IF((VU.LE.0.0).AND.(VE.GE.0.0).AND.(VZ.GE.0.0)) THEN
+          IND=2
+          JND=7
+        ELSE IF((VU.LE.0.0).AND.(VE.LE.0.0).AND.(VZ.GE.0.0)) THEN
+          IND=3
+          JND=5
+        ELSE IF((VU.GE.0.0).AND.(VE.LE.0.0).AND.(VZ.GE.0.0)) THEN
+          IND=4
+          JND=6
+        ELSE IF((VU.GE.0.0).AND.(VE.GE.0.0).AND.(VZ.LE.0.0)) THEN
+          IND=5
+          JND=4
+        ELSE IF((VU.LE.0.0).AND.(VE.GE.0.0).AND.(VZ.LE.0.0)) THEN
+          IND=6
+          JND=3
+        ELSE IF((VU.LE.0.0).AND.(VE.LE.0.0).AND.(VZ.LE.0.0)) THEN
+          IND=7
+          JND=1
+        ELSE
+          IND=8
+          JND=2
+        ENDIF
+        IIND(JND)=IND
+        NPQD(IND)=NPQD(IND)+1
+        INDANG(NPQD(IND),IND)=M
+   10 CONTINUE
+*----
+*  MAIN LOOP OVER OCTANTS.
+*----
+
+      FLUX_G(:NM,:NSCT,:LX,:LY,:LZ,:NGEFF)=0.0D0
+      WX0=WX
+      WY0=WY
+      WZ0=WZ
+
+      DO 520 JND=1,8
+      IND=IIND(JND)
+*----
+*  PRELIMINARY LOOPS FOR SETTING BOUNDARY CONDITIONS.
+*----
+
+*$OMP  PARALLEL DO
+*$OMP+ PRIVATE(M,IG,VU,VE,VZ,M1,E1,IOF,JOF,IEL,I,J,K,IPQD)
+*$OMP+ SHARED(FUNKNO) COLLAPSE(2)
+
+      DO 150 IG=1,NGEFF
+      DO 140 IPQD=1,NPQD(IND)
+      IF(.NOT.INCONV(IG)) GO TO 140
+      M=INDANG(IPQD,IND)
+      VU=DU(M)
+      VE=DE(M)
+      VZ=DZ(M)
+      ! X-BOUNDARY
+      IF(VU.GT.0.0)THEN
+         M1=MRMX(M)
+         IF(NCODE(1).NE.4)THEN
+         DO IEL=1,NMX
+            DO J=1,LY
+            DO K=1,LZ
+             IOF=(((M-1)*LZ+(K-1))*LY+(J-1))*NMX+IEL
+             JOF=(((M1-1)*LZ+(K-1))*LY+(J-1))*NMX+IEL
+             FUNKNO(LFLX+IOF,IG)=FUNKNO(LFLX+JOF,IG)
+            ENDDO
+            ENDDO
+         ENDDO
+         ENDIF
+      ELSEIF(VU.LT.0.0)THEN
+         M1=MRMX(M)
+         IF(NCODE(2).NE.4)THEN
+         DO IEL=1,NMX
+            DO J=1,LY
+            DO K=1,LZ
+             IOF=(((M-1)*LZ+(K-1))*LY+(J-1))*NMX+IEL
+             JOF=(((M1-1)*LZ+(K-1))*LY+(J-1))*NMX+IEL
+             FUNKNO(LFLX+IOF,IG)=FUNKNO(LFLX+JOF,IG)
+            ENDDO
+            ENDDO
+         ENDDO
+         ENDIF
+      ENDIF
+      ! Y-BOUNDARY
+      IF(VE.GT.0.0)THEN
+         M1=MRMY(M)
+         IF(NCODE(3).NE.4)THEN
+         DO IEL=1,NMY
+            DO I=1,LX
+            DO K=1,LZ
+             IOF=(((M-1)*LZ+(K-1))*LX+(I-1))*NMY+IEL
+             JOF=(((M1-1)*LZ+(K-1))*LX+(I-1))*NMY+IEL
+             FUNKNO(LFLX+LXNI+IOF,IG)=FUNKNO(LFLX+LXNI+JOF,IG)
+            ENDDO
+            ENDDO
+         ENDDO
+         ENDIF
+      ELSEIF(VE.LT.0.0)THEN
+         M1=MRMY(M)
+         IF(NCODE(4).NE.4)THEN
+         DO IEL=1,NMY
+            DO I=1,LX
+            DO K=1,LZ
+             IOF=(((M-1)*LZ+(K-1))*LX+(I-1))*NMY+IEL
+             JOF=(((M1-1)*LZ+(K-1))*LX+(I-1))*NMY+IEL
+             FUNKNO(LFLX+LXNI+IOF,IG)=FUNKNO(LFLX+LXNI+JOF,IG)
+            ENDDO
+            ENDDO
+         ENDDO
+         ENDIF
+      ENDIF
+      ! Z-BOUNDARY
+      IF(VZ.GT.0.0)THEN
+         M1=MRMZ(M)
+         IF(NCODE(5).NE.4)THEN
+         DO IEL=1,NMZ
+            DO I=1,LX
+            DO J=1,LY
+             IOF=(((M-1)*LY+(J-1))*LX+(I-1))*NMZ+IEL
+             JOF=(((M1-1)*LY+(J-1))*LX+(I-1))*NMZ+IEL
+             E1=FUNKNO(LFLX+LXNI+LXNJ+IOF,IG)
+             FUNKNO(LFLX+LXNI+LXNJ+IOF,IG)=FUNKNO(LFLX+LXNI+LXNJ+JOF,IG)
+             FUNKNO(LFLX+LXNI+LXNJ+JOF,IG)=E1
+            ENDDO
+            ENDDO
+         ENDDO
+         ENDIF
+      ELSEIF(VZ.LT.0.0)THEN
+         M1=MRMZ(M)
+         IF(NCODE(6).NE.4)THEN
+         DO IEL=1,NMZ
+            DO I=1,LX
+            DO J=1,LY
+             IOF=(((M-1)*LY+(J-1))*LX+(I-1))*NMZ+IEL
+             JOF=(((M1-1)*LY+(J-1))*LX+(I-1))*NMZ+IEL
+             E1=FUNKNO(LFLX+LXNI+LXNJ+IOF,IG)
+             FUNKNO(LFLX+LXNI+LXNJ+IOF,IG)=FUNKNO(LFLX+LXNI+LXNJ+JOF,IG)
+             FUNKNO(LFLX+LXNI+LXNJ+JOF,IG)=E1
+            ENDDO
+            ENDDO
+         ENDDO
+         ENDIF
+      ENDIF
+  140 CONTINUE
+  150 CONTINUE
+
+*$OMP END PARALLEL DO
+
+*----
+*  KBA DIAGONAL LOOP
+*----
+      XNI(:NMX,:LY,:LZ,:NPQ,:NGEFF)=0.0D0
+      XNJ(:NMY,:LX,:LZ,:NPQ,:NGEFF)=0.0D0
+      XNK(:NMZ,:LX,:LY,:NPQ,:NGEFF)=0.0D0
+
+      DO 510 IDI=1,MACROX+MACROY+MACROZ-2
+
+      ! SET KBA SWAPPING INDICES
+      MACROMAX=MIN(MACROX,IDI)*MIN(MACROY,IDI)
+      ALLOCATE(III(MACROMAX),JJJ(MACROMAX))
+      NCWAVEF=0
+      DO ICEL=MAX(1,IDI-MACROY-MACROZ+2),MIN(MACROX,IDI)
+      DO JCEL=MAX(1,IDI-ICEL-MACROZ+2),MIN(MACROY,IDI-ICEL+1)
+      NCWAVEF=NCWAVEF+1
+      IF(NCWAVEF.GT.MACROMAX) CALL XABORT('SNFD13: MACROMAX OVERFLOW.')
+      III(NCWAVEF)=ICEL
+      JJJ(NCWAVEF)=JCEL
+      ENDDO
+      ENDDO
+
+*----
+*  MAIN SWAPPING LOOPS FOR SN FLUX CALCULATION
+*----
+
+*$OMP  PARALLEL DO
+*$OMP+ PRIVATE(ITID,FLUX,M,IG,Q,Q2,IOF,IER,II,JJ,I,J,K,ICEL,JCEL,KCEL)
+*$OMP+ PRIVATE(IPQD,IMX,IMY,IMZ,IBM,SIGMA,V,ISFIX,IX,JX,IY,JY,IZ,JZ,IEL)
+*$OMP+ PRIVATE(IIX,IIY,IIZ,P) FIRSTPRIVATE(WX,WY,WZ,WX0,WY0,WZ0)
+*$OMP+ SHARED(XNI,XNJ,XNK,FUNKNO) REDUCTION(+:FLUX_G) COLLAPSE(3)
+      
+      ! LOOP FOR GROUPS TO EXECUTE IN PARALLEL
+      DO 500 IG=1,NGEFF
+
+      ! LOOP OVER ALL DIRECTIONS
+      DO 490 IPQD=1,NPQD(IND)
+
+      ! LOOP OVER MACROCELLS IN WAVEFRONT
+      DO 480 ICWAVEF=1,NCWAVEF
+
+      IF(.NOT.INCONV(IG)) GO TO 480
+      M=INDANG(IPQD,IND)
+      IF(W(M).EQ.0.0) GO TO 480
+
+      ! GET AND PRINT THREAD NUMBER 
+#if defined(_OPENMP)
+      ITID=omp_get_thread_num()
+#else
+      ITID=0
+#endif
+      IF(IMPX.GT.5) WRITE(IUNOUT,600) ITID,NGIND(IG),IPQD,ICEL,JCEL,KCEL
+
+*----
+*  LOOP OVER X-, Y- AND Z-DIRECTED AXES.
+*----
+      ICEL=III(ICWAVEF)
+      JCEL=JJJ(ICWAVEF)
+      KCEL=IDI-ICEL-JCEL+2
+
+      ! Z-BOUNDARIES CONDITIONS
+      IF(KCEL.EQ.1) THEN
+        DO IMX=1,MIN(NCELLX,LX-(ICEL-1)*NCELLX)
+        I=(ICEL-1)*NCELLX+IMX
+        IF((IND.EQ.2).OR.(IND.EQ.3).OR.(IND.EQ.6).OR.(IND.EQ.7))I=LX+1-I
+        DO IMY=1,MIN(NCELLX,LY-(JCEL-1)*NCELLX)
+        J=(JCEL-1)*NCELLX+IMY
+        IF((IND.EQ.3).OR.(IND.EQ.4).OR.(IND.EQ.7).OR.(IND.EQ.8))J=LY+1-J
+        
+        DO IEL=1,NMZ
+        IOF=(((M-1)*LY+(J-1))*LX+(I-1))*NMZ+IEL
+        IF((IND.EQ.1).OR.(IND.EQ.2).OR.(IND.EQ.3).OR.(IND.EQ.4)) THEN
+          XNK(IEL,I,J,IPQD,IG)=FUNKNO(LFLX+LXNI+LXNJ+IOF,IG)*ZCODE(5)
+        ELSE
+          XNK(IEL,I,J,IPQD,IG)=FUNKNO(LFLX+LXNI+LXNJ+IOF,IG)*ZCODE(6)
+        ENDIF
+        ENDDO
+        ! Z-BOUNDARIES FIXED SOURCES
+        IF(ISBS.EQ.1) THEN
+          IF(((IND.EQ.5).OR.(IND.EQ.6).OR.(IND.EQ.7).OR.(IND.EQ.8))
+     1    .AND.ISBSM(6,M,IG).NE.0) THEN
+            XNK(1,I,J,IPQD,IG)=XNK(1,I,J,IPQD,IG)+
+     1      BS((I-1)*LY+J,ISBSM(6,M,IG))
+          ELSEIF(((IND.EQ.1).OR.(IND.EQ.2).OR.(IND.EQ.3).OR.(IND.EQ.4))
+     1    .AND.ISBSM(5,M,IG).NE.0) THEN
+            XNK(1,I,J,IPQD,IG)=XNK(1,I,J,IPQD,IG)+
+     1      BS((I-1)*LY+J,ISBSM(5,M,IG))
+          ENDIF
+        ENDIF
+
+        ENDDO
+        ENDDO
+      ENDIF
+
+      ! Y-BOUNDARIES CONDITIONS
+      IF(JCEL.EQ.1) THEN
+        DO IMX=1,MIN(NCELLX,LX-(ICEL-1)*NCELLX)
+        I=(ICEL-1)*NCELLX+IMX
+        IF((IND.EQ.2).OR.(IND.EQ.3).OR.(IND.EQ.6).OR.(IND.EQ.7))I=LX+1-I
+        DO IMZ=1,MIN(NCELLX,LZ-(KCEL-1)*NCELLX)
+        K=(KCEL-1)*NCELLX+IMZ
+        IF((IND.EQ.5).OR.(IND.EQ.6).OR.(IND.EQ.7).OR.(IND.EQ.8))K=LZ+1-K
+
+        DO IEL=1,NMY
+        IOF=(((M-1)*LZ+(K-1))*LX+(I-1))*NMY+IEL
+        IF((IND.EQ.1).OR.(IND.EQ.2).OR.(IND.EQ.5).OR.(IND.EQ.6)) THEN
+          XNJ(IEL,I,K,IPQD,IG)=FUNKNO(LFLX+LXNI+IOF,IG)*ZCODE(3)
+        ELSE
+          XNJ(IEL,I,K,IPQD,IG)=FUNKNO(LFLX+LXNI+IOF,IG)*ZCODE(4)
+        ENDIF
+        ENDDO
+        !Y-BOUNDARIES FIXED SOURCES
+        IF(ISBS.EQ.1) THEN
+          IF(((IND.EQ.3).OR.(IND.EQ.4).OR.(IND.EQ.7).OR.(IND.EQ.8))
+     1    .AND.ISBSM(4,M,IG).NE.0) THEN
+            XNJ(1,I,K,IPQD,IG)=XNJ(1,I,K,IPQD,IG)+
+     1      BS((I-1)*LZ+K,ISBSM(4,M,IG))
+          ELSEIF(((IND.EQ.1).OR.(IND.EQ.2).OR.(IND.EQ.5).OR.(IND.EQ.6))
+     1    .AND.ISBSM(3,M,IG).NE.0) THEN
+            XNJ(1,I,K,IPQD,IG)=XNJ(1,I,K,IPQD,IG)+
+     1      BS((I-1)*LZ+K,ISBSM(3,M,IG))
+          ENDIF
+        ENDIF
+
+        ENDDO
+        ENDDO
+      ENDIF
+
+      ! X-BOUNDARIES CONDITIONS
+      IF(ICEL.EQ.1) THEN
+        DO IMY=1,MIN(NCELLX,LY-(JCEL-1)*NCELLX)
+        J=(JCEL-1)*NCELLX+IMY
+        IF((IND.EQ.3).OR.(IND.EQ.4).OR.(IND.EQ.7).OR.(IND.EQ.8))J=LY+1-J
+        DO IMZ=1,MIN(NCELLX,LZ-(KCEL-1)*NCELLX)
+        K=(KCEL-1)*NCELLX+IMZ
+        IF((IND.EQ.5).OR.(IND.EQ.6).OR.(IND.EQ.7).OR.(IND.EQ.8))K=LZ+1-K
+
+        DO IEL=1,NMX
+        IOF=(((M-1)*LZ+(K-1))*LY+(J-1))*NMX+IEL
+        IF((IND.EQ.1).OR.(IND.EQ.4).OR.(IND.EQ.5).OR.(IND.EQ.8)) THEN
+          XNI(IEL,J,K,IPQD,IG)=FUNKNO(LFLX+IOF,IG)*ZCODE(1)
+        ELSE
+          XNI(IEL,J,K,IPQD,IG)=FUNKNO(LFLX+IOF,IG)*ZCODE(2)
+        ENDIF
+        ENDDO
+        ! X-BOUNDARIES FIXED SOURCES
+        IF(ISBS.EQ.1) THEN
+          IF(((IND.EQ.2).OR.(IND.EQ.3).OR.(IND.EQ.6).OR.(IND.EQ.7))
+     1    .AND.ISBSM(2,M,IG).NE.0) THEN
+            XNI(1,J,K,IPQD,IG)=XNI(1,J,K,IPQD,IG)+
+     1      BS((J-1)*LZ+K,ISBSM(2,M,IG)) 
+          ELSEIF(((IND.EQ.1).OR.(IND.EQ.4).OR.(IND.EQ.5).OR.(IND.EQ.8))
+     1    .AND.ISBSM(1,M,IG).NE.0) THEN
+            XNI(1,J,K,IPQD,IG)=XNI(1,J,K,IPQD,IG)+
+     1      BS((J-1)*LZ+K,ISBSM(1,M,IG)) 
+          ENDIF
+        ENDIF
+
+        ENDDO
+        ENDDO
+      ENDIF
+
+      ! X-AXIS LOOP
+      DO 470 IMX=1,MIN(NCELLX,LX-(ICEL-1)*NCELLX)
+      I=(ICEL-1)*NCELLX+IMX
+      IF((IND.EQ.2).OR.(IND.EQ.3).OR.(IND.EQ.6).OR.(IND.EQ.7)) I=LX+1-I
+
+      ! Y-AXIS LOOP
+      DO 460 IMY=1,MIN(NCELLX,LY-(JCEL-1)*NCELLX)
+      J=(JCEL-1)*NCELLX+IMY
+      IF((IND.EQ.3).OR.(IND.EQ.4).OR.(IND.EQ.7).OR.(IND.EQ.8)) J=LY+1-J
+
+      ! Z-AXIS LOOP
+      DO 450 IMZ=1,MIN(NCELLX,LZ-(KCEL-1)*NCELLX)
+      K=(KCEL-1)*NCELLX+IMZ
+      IF((IND.EQ.5).OR.(IND.EQ.6).OR.(IND.EQ.7).OR.(IND.EQ.8)) K=LZ+1-K
+
+      ! INITIALIZE FLUXES
+      FLUX(:NM,:NSCT)=0.0D0
+
+      ! DATA
+      IBM=MAT(I,J,K)
+      IF(IBM.EQ.0) GO TO 450
+      SIGMA=TOTAL(IBM,IG)
+      V=VOL(I,J,K)
+
+      ! SOURCE DENSITY TERM
+      DO IEL=1,NM
+      Q(IEL)=0.0D0
+      DO P=1,NSCT
+      IOF=((((K-1)*LY+(J-1))*LX+(I-1))*NSCT+(P-1))*NM+IEL
+      Q(IEL)=Q(IEL)+QEXT(IOF,IG)*MN(M,P)
+      ENDDO
+      ENDDO
+
+      ISFIX=.FALSE.
+      DO WHILE (.NOT.ALL(ISFIX)) ! LOOP FOR ADAPTIVE CALCULATION
+
+      ! FLUX MOMENT COEFFICIENTS MATRIX
+      Q2(:NM,:NM+1)=0.0D0
+
+      DO IZ=1,IELEM
+      DO JZ=1,IELEM
+      DO IY=1,IELEM
+      DO JY=1,IELEM
+      DO IX=1,IELEM
+      DO JX=1,IELEM
+
+        II=IELEM**2*(IZ-1)+IELEM*(IY-1)+IX
+        JJ=IELEM**2*(JZ-1)+IELEM*(JY-1)+JX
+
+        ! DIAGONAL TERMS
+        IF(II.EQ.JJ) THEN
+          Q2(II,JJ)=SIGMA*V
+     1              +CST(IX)**2*WX(JX+1)*ABS(DA(J,K,M))
+     2              +CST(IY)**2*WY(JY+1)*ABS(DB(I,K,M))
+     3              +CST(IZ)**2*WZ(JZ+1)*ABS(DC(I,J,M))
+
+        ! UPPER DIAGONAL TERMS
+         ELSEIF(II.LT.JJ) THEN
+           IF(IZ.EQ.JZ) THEN
+           IF(IY.EQ.JY) THEN
+             ! X-SPACE TERMS
+             IF(MOD(IX+JX,2).EQ.1) THEN
+               Q2(II,JJ)=CST(IX)*CST(JX)*WX(JX+1)*DA(J,K,M)
+             ELSE
+               Q2(II,JJ)=CST(IX)*CST(JX)*WX(JX+1)*ABS(DA(J,K,M))
+             ENDIF
+           ELSEIF(IX.EQ.JX) THEN
+             ! Y-SPACE TERMS
+             IF(MOD(IY+JY,2).EQ.1) THEN
+               Q2(II,JJ)=CST(IY)*CST(JY)*WY(JY+1)*DB(I,K,M)
+             ELSE
+               Q2(II,JJ)=CST(IY)*CST(JY)*WY(JY+1)*ABS(DB(I,K,M))
+             ENDIF
+           ENDIF
+           ELSEIF(IY.EQ.JY.AND.IX.EQ.JX) THEN
+             ! Z-SPACE TERMS
+             IF(MOD(IZ+JZ,2).EQ.1) THEN
+               Q2(II,JJ)=CST(IZ)*CST(JZ)*WZ(JZ+1)*DC(I,J,M)
+             ELSE
+               Q2(II,JJ)=CST(IZ)*CST(JZ)*WZ(JZ+1)*ABS(DC(I,J,M))
+             ENDIF
+           ENDIF
+
+         ! UNDER DIAGONAL TERMS
+         ELSE
+           IF(IZ.EQ.JZ) THEN
+           IF(IY.EQ.JY) THEN
+             ! X-SPACE TERMS
+             IF(MOD(IX+JX,2).EQ.1) THEN
+               Q2(II,JJ)=CST(IX)*CST(JX)*(WX(JX+1)-2)*DA(J,K,M)
+             ELSE
+               Q2(II,JJ)=CST(IX)*CST(JX)*WX(JX+1)*ABS(DA(J,K,M))
+             ENDIF
+           ELSEIF(IX.EQ.JX) THEN
+             ! Y-SPACE TERMS
+             IF(MOD(IY+JY,2).EQ.1) THEN
+               Q2(II,JJ)=CST(IY)*CST(JY)*(WY(JY+1)-2)*DB(I,K,M)
+             ELSE
+               Q2(II,JJ)=CST(IY)*CST(JY)*WY(JY+1)*ABS(DB(I,K,M))
+             ENDIF
+           ENDIF
+           ELSEIF(IY.EQ.JY.AND.IX.EQ.JX) THEN
+             ! Z-SPACE TERMS
+             IF(MOD(IZ+JZ,2).EQ.1) THEN
+               Q2(II,JJ)=CST(IZ)*CST(JZ)*(WZ(JZ+1)-2)*DC(I,J,M)
+             ELSE
+               Q2(II,JJ)=CST(IZ)*CST(JZ)*WZ(JZ+1)*ABS(DC(I,J,M))
+             ENDIF
+           ENDIF
+        ENDIF
+      ENDDO
+      ENDDO
+      ENDDO
+      ENDDO
+      ENDDO
+      ENDDO
+
+      ! FLUX SOURCE VECTOR
+      DO IZ=1,IELEM
+      DO IY=1,IELEM
+      DO IX=1,IELEM
+        II=IELEM**2*(IZ-1)+IELEM*(IY-1)+IX
+        IIX=IELEM*(IZ-1)+IY
+        IIY=IELEM*(IZ-1)+IX
+        IIZ=IELEM*(IY-1)+IX
+        Q2(II,NM+1)=Q(II)*V
+        ! X-SPACE TERMS
+        IF(MOD(IX,2).EQ.1) THEN
+          Q2(II,NM+1)=Q2(II,NM+1)+CST(IX)*(1-WX(1))
+     1                *XNI(IIX,J,K,IPQD,IG)*ABS(DA(J,K,M))
+        ELSE
+          Q2(II,NM+1)=Q2(II,NM+1)-CST(IX)*(1+WX(1))
+     1                *XNI(IIX,J,K,IPQD,IG)*DA(J,K,M)
+        ENDIF
+        ! Y-SPACE TERMS
+        IF(MOD(IY,2).EQ.1) THEN
+          Q2(II,NM+1)=Q2(II,NM+1)+CST(IY)*(1-WY(1))
+     1                *XNJ(IIY,I,K,IPQD,IG)*ABS(DB(I,K,M))
+        ELSE
+          Q2(II,NM+1)=Q2(II,NM+1)-CST(IY)*(1+WY(1))
+     1                *XNJ(IIY,I,K,IPQD,IG)*DB(I,K,M)
+        ENDIF
+        ! Z-SPACE TERMS
+        IF(MOD(IZ,2).EQ.1) THEN
+          Q2(II,NM+1)=Q2(II,NM+1)+CST(IZ)*(1-WZ(1))
+     1                *XNK(IIZ,I,J,IPQD,IG)*ABS(DC(I,J,M))
+        ELSE
+          Q2(II,NM+1)=Q2(II,NM+1)-CST(IZ)*(1+WZ(1))
+     1                *XNK(IIZ,I,J,IPQD,IG)*DC(I,J,M)
+        ENDIF
+      ENDDO
+      ENDDO
+      ENDDO
+
+      CALL ALSBD(NM,1,Q2,IER,NM)
+      IF(IER.NE.0) CALL XABORT('SNFKC3: SINGULAR MATRIX.')
+
+      ! ADAPTIVE CORRECTION OF WEIGHTING PARAMETERS
+      IF(ANY(ISADPT)) THEN
+        IF(ISADPT(1)) THEN
+          CALL SNADPT(IELEM,NM,IELEM**2,Q2(1:IELEM:1,NM+1),
+     1    XNI(:NMX,J,K,IPQD,IG),1.0,WX,ISFIX(1))
+        ELSE
+          ISFIX(1)=.TRUE.
+        ENDIF
+        IF(ISADPT(2)) THEN
+          CALL SNADPT(IELEM,NM,IELEM**2,Q2(1:IELEM**2:IELEM,NM+1),
+     1    XNJ(:NMY,I,K,IPQD,IG),1.0,WY,ISFIX(2))
+        ELSE
+          ISFIX(2)=.TRUE.
+        ENDIF
+        IF(ISADPT(3)) THEN
+          CALL SNADPT(IELEM,NM,IELEM**2,Q2(1:NM:IELEM**2,NM+1),
+     1    XNK(:NMZ,I,J,IPQD,IG),1.0,WZ,ISFIX(3))
+        ELSE
+          ISFIX(3)=.TRUE.
+        ENDIF
+      ELSE
+        ISFIX=.TRUE.
+      ENDIF
+
+      END DO ! END OF ADAPTIVE LOOP
+
+      ! CLOSURE RELATIONS
+      IF(IELEM.EQ.1.AND.LFIXUP.AND.(Q2(1,2).LE.RLOG)) Q2(1,2)=0.0
+      XNI(:NMX,J,K,IPQD,IG)=WX(1)*XNI(:NMX,J,K,IPQD,IG)
+      XNJ(:NMY,I,K,IPQD,IG)=WY(1)*XNJ(:NMY,I,K,IPQD,IG)
+      XNK(:NMZ,I,J,IPQD,IG)=WZ(1)*XNK(:NMZ,I,J,IPQD,IG)
+      DO IZ=1,IELEM
+      DO IY=1,IELEM
+      DO IX=1,IELEM
+        II=IELEM**2*(IZ-1)+IELEM*(IY-1)+IX
+        IIX=IELEM*(IZ-1)+IY
+        IIY=IELEM*(IZ-1)+IX
+        IIZ=IELEM*(IY-1)+IX
+        ! X-SPACE
+        IF(MOD(IX,2).EQ.1) THEN
+          XNI(IIX,J,K,IPQD,IG)=XNI(IIX,J,K,IPQD,IG)+CST(IX)*WX(IX+1)
+     1                 *Q2(II,NM+1)
+        ELSE
+          XNI(IIX,J,K,IPQD,IG)=XNI(IIX,J,K,IPQD,IG)+CST(IX)*WX(IX+1)
+     1                 *Q2(II,NM+1)*SIGN(1.0,DA(J,K,M))
+        ENDIF
+        ! Y-SPACE
+        IF(MOD(IY,2).EQ.1) THEN
+          XNJ(IIY,I,K,IPQD,IG)=XNJ(IIY,I,K,IPQD,IG)+CST(IY)*WY(IY+1)
+     1                 *Q2(II,NM+1)
+        ELSE
+          XNJ(IIY,I,K,IPQD,IG)=XNJ(IIY,I,K,IPQD,IG)+CST(IY)*WY(IY+1)
+     1                 *Q2(II,NM+1)*SIGN(1.0,DB(I,K,M))
+        ENDIF
+        ! Z-SPACE
+        IF(MOD(IZ,2).EQ.1) THEN
+          XNK(IIZ,I,J,IPQD,IG)=XNK(IIZ,I,J,IPQD,IG)+CST(IZ)*WZ(IZ+1)
+     1                 *Q2(II,NM+1)
+        ELSE
+          XNK(IIZ,I,J,IPQD,IG)=XNK(IIZ,I,J,IPQD,IG)+CST(IZ)*WZ(IZ+1)
+     1                 *Q2(II,NM+1)*SIGN(1.0,DC(I,J,M))
+        ENDIF
+      ENDDO
+      ENDDO
+      ENDDO
+      IF(IELEM.EQ.1.AND.LFIXUP.AND.(XNI(1,J,K,IPQD,IG).LE.RLOG))
+     1 XNI(1,J,K,IPQD,IG)=0.0
+      IF(IELEM.EQ.1.AND.LFIXUP.AND.(XNJ(1,I,K,IPQD,IG).LE.RLOG))
+     1 XNJ(1,I,K,IPQD,IG)=0.0
+      IF(IELEM.EQ.1.AND.LFIXUP.AND.(XNK(1,I,J,IPQD,IG).LE.RLOG))
+     1 XNK(1,I,J,IPQD,IG)=0.0
+      WX=WX0
+      WY=WY0
+      WZ=WZ0
+
+      ! SAVE LEGENDRE MOMENT OF THE FLUX
+      DO P=1,NSCT
+      DO IEL=1,NM
+      FLUX(IEL,P)=FLUX(IEL,P)+Q2(IEL,NM+1)*DN(P,M)
+      ENDDO
+      ENDDO
+
+      ! SAVE X-BOUNDARY CONDITIONS
+      IF((ICEL-1)*NCELLX+IMX.EQ.LX) THEN
+        DO IEL=1,NMX
+        IOF=(((M-1)*LZ+(K-1))*LY+(J-1))*NMX+IEL
+        FUNKNO(LFLX+IOF,IG)=REAL(XNI(IEL,J,K,IPQD,IG))
+        ENDDO
+      ENDIF
+
+      ! SAVE Y-BOUNDARY CONDITIONS
+      IF((JCEL-1)*NCELLX+IMY.EQ.LY) THEN
+        DO IEL=1,NMY
+        IOF=(((M-1)*LZ+(K-1))*LX+(I-1))*NMY+IEL
+        FUNKNO(LFLX+LXNI+IOF,IG)=REAL(XNJ(IEL,I,K,IPQD,IG))
+        ENDDO
+      ENDIF
+
+      ! SAVE Z-BOUNDARY CONDITIONS
+      IF((KCEL-1)*NCELLX+IMZ.EQ.LZ) THEN
+        DO IEL=1,NMZ
+        IOF=(((M-1)*LY+(J-1))*LX+(I-1))*NMZ+IEL
+        FUNKNO(LFLX+LXNI+LXNJ+IOF,IG)=REAL(XNK(IEL,I,J,IPQD,IG))
+        ENDDO
+      ENDIF
+
+      ! SAVE FLUX INFORMATION
+      FLUX_G(:,:,I,J,K,IG)=FLUX_G(:,:,I,J,K,IG)+FLUX(:,:)
+
+  450 CONTINUE ! END OF Z-LOOP
+  460 CONTINUE ! END OF Y-LOOP
+  470 CONTINUE ! END OF X-LOOP
+
+  480 CONTINUE ! END OF MACROCELL LOOP
+  490 CONTINUE ! END OF DIRECTION LOOP
+  500 CONTINUE ! END OF ENERGY LOOP
+*$OMP END PARALLEL DO
+      DEALLOCATE(JJJ,III)
+  510 CONTINUE ! END OF WAVEFRONT LOOP
+  520 CONTINUE ! END OF OCTANT LOOP
+
+      ! SAVE FLUX INFORMATION
+      DO 530 IG=1,NGEFF
+        IF(.NOT.INCONV(IG)) GO TO 530
+        FUNKNO(:LFLX,IG)=
+     1  RESHAPE(REAL(FLUX_G(:NM,:NSCT,:LX,:LY,:LZ,IG)), (/LFLX/))
+  530 CONTINUE
+
+*----
+*  SCRATCH STORAGE DEALLOCATION
+*----
+      DEALLOCATE(FLUX_G,FLUX,XNK,XNJ,XNI,INDANG)
+      RETURN
+*
+  600 FORMAT(16H SNFKC3: thread=,I8,12H --->(group=,I4,7H angle=,I4,
+     1 11H macrocell=,3I5,1H))
+      END

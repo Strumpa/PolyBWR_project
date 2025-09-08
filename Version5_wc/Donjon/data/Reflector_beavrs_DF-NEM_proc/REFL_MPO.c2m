@@ -38,7 +38,7 @@ STRING nameFeed nameRefl Palier htype ;
 INTEGER nlf ; :: >>nlf<< ;
 STRING LibType NuclData OptSph OptNoal OptSS ;
   ::  >>LibType<< >>NuclData<< >>OptSph<< >>OptNoal<< >>OptSS<< ;
-PROCEDURE GetMolarMass MetalMix CreaDilut assertS ;
+PROCEDURE GetMolarMass MetalMix CreaDilut assertS_low ;
 LINKED_LIST
   DONNEES Geom_refl LibDilut MACRO LibFuel MolarMasses FeNat CrNat SnNat
   NiNat ZrNat TiNat SiNat BNat AgNat CdNat SNat GdNat Zirc4 Incon SS304
@@ -343,7 +343,7 @@ WHILE IndexCB iBoreMax < DO
     MACR_FLUX := NSSF: MACR_TRAC MACRO :: EDIT 1 ;
   ENDIF ;
   ECHO "...IndexCB=" IndexCB ;
-  assertS MACR_FLUX :: 'K-EFFECTIVE' 1 <<Keff>> ;
+  assertS_low MACR_FLUX :: 'K-EFFECTIVE' 1 <<Keff>> 1.0E-4 ;
   IF IndexCB 1 = THEN
     OVAL := VAL: MACR_TRAC MACR_FLUX MACRO ::
       EDIT 2

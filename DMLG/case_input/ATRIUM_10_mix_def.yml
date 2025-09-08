@@ -1,0 +1,233 @@
+# mix definition : isotopic compositions,
+# ATRIUM-10 BWR assembly benchmark,
+MIX_COMPOSITIONS:
+  - name: "24UOX"
+    isotopic_composition:
+      U234: 5.15910E-06
+      U235: 5.67035E-04
+      U238: 2.27631E-02
+      O16: 4.66705E-02
+    temperature_points:
+      - 900.0
+    depletable: true
+  
+  - name: "32UOX"
+    isotopic_composition:
+      U234: 7.039170E-06
+      U235: 7.560370E-04
+      U238: 2.257430E-02
+      O16: 4.667480E-02
+    temperature_points:
+      - 900.0
+    depletable: true
+  
+  - name: "42UOX"
+    isotopic_composition:
+      U234: 9.163680E-06
+      U235: 9.686590E-04
+      U238: 2.236200E-02
+      O16: 4.667960E-02
+    temperature_points:
+      - 900.0
+    depletable: true
+  
+  - name: "45UOX"
+    isotopic_composition:
+      U234: 9.991530E-06
+      U235: 1.051340E-03
+      U238: 2.227940E-02
+      O16: 4.668150E-02
+    temperature_points:
+      - 900.0
+    depletable: true
+
+  - name: "48UOX"
+    isotopic_composition:
+      U234: 1.058330E-05
+      U235: 1.110400E-03
+      U238: 2.222040E-02
+      O16: 4.668280E-02
+    temperature_points:
+      - 900.0
+    depletable: true
+
+  - name: "50UOX"
+    isotopic_composition:
+      U234: 1.117530E-05
+      U235: 1.169460E-03
+      U238: 2.216140E-02
+      O16: 4.668410E-02
+    temperature_points:
+      - 900.0
+    depletable: true
+  
+  - name: "45Gd"
+    isotopic_composition:
+      U234: 9.451580E-06
+      U235: 9.945290E-04
+      U238: 2.107540E-02
+      O16: 4.621410E-02
+      Gd154: 2.986510E-05
+      Gd155: 2.027540E-04
+      Gd156: 2.804310E-04
+      Gd157: 2.143990E-04
+      Gd158: 3.403000E-04
+      Gd160: 2.994740E-04
+    temperature_points:
+      - 900.0
+    depletable: true
+
+  - name: "42Gd"
+    isotopic_composition:
+      U234: 8.668470E-06
+      U235: 9.163120E-04
+      U238: 2.115350E-02
+      O16: 4.621230E-02
+      Gd154: 2.986510E-05
+      Gd155: 2.027540E-04
+      Gd156: 2.804310E-04
+      Gd157: 2.143990E-04
+      Gd158: 3.403000E-04
+      Gd160: 2.994740E-04
+    temperature_points:
+      - 900.0
+    depletable: true
+  
+  - name: "MODERATION_BOX"
+    isotopic_composition:
+      O16: 3.08132E-04
+      O17: 1.17376E-07
+      Cr50: 3.29613E-06
+      Cr52: 6.35631E-05
+      Cr53: 7.20746E-06
+      Cr54: 1.79408E-06
+      Fe54: 5.57337E-06
+      Fe56: 8.74901E-05
+      Fe57: 2.02053E-06
+      Fe58: 2.68895E-07
+      Ni58: 2.51627E-05
+      Ni60: 9.69262E-06
+      Ni61: 4.21331E-07 
+      Ni62: 1.34344E-06
+      Ni64: 3.42085E-07
+      Zr90: 2.18317E-02
+      Zr91: 4.76096E-03
+      Zr92: 7.27723E-03
+      Zr94: 7.37482E-03
+      Zr96: 1.18812E-03
+      Sn112: 4.67343E-06
+      Sn114: 3.17985E-06
+      Sn115: 1.63812E-06
+      Sn116: 7.00535E-05
+      Sn117: 3.70020E-05
+      Sn118: 1.16691E-04
+      Sn119: 4.13864E-05
+      Sn120: 1.56970E-04
+      Sn122: 2.23073E-05
+      Sn124: 2.78961E-05
+    temperature_points:
+      - 559.0
+    depletable: false
+
+  - name: "CHANNEL_BOX"
+    isotopic_composition:
+      O16: 3.08132E-04
+      O17: 1.17376E-07
+      Cr50: 3.29613E-06
+      Cr52: 6.35631E-05
+      Cr53: 7.20746E-06
+      Cr54: 1.79408E-06
+      Fe54: 5.57337E-06
+      Fe56: 8.74901E-05
+      Fe57: 2.02053E-06
+      Fe58: 2.68895E-07
+      Ni58: 2.51627E-05
+      Ni60: 9.69262E-06
+      Ni61: 4.21331E-07 
+      Ni62: 1.34344E-06
+      Ni64: 3.42085E-07
+      Zr90: 2.18317E-02
+      Zr91: 4.76096E-03
+      Zr92: 7.27723E-03
+      Zr94: 7.37482E-03
+      Zr96: 1.18812E-03
+      Sn112: 4.67343E-06
+      Sn114: 3.17985E-06
+      Sn115: 1.63812E-06
+      Sn116: 7.00535E-05
+      Sn117: 3.70020E-05
+      Sn118: 1.16691E-04
+      Sn119: 4.13864E-05
+      Sn120: 1.56970E-04
+      Sn122: 2.23073E-05
+      Sn124: 2.78961E-05
+    temperature_points:
+      - 559.0
+    depletable: false
+
+  - name: "CLAD"
+    isotopic_composition:
+      O16: 3.08132E-04
+      O17: 1.17376E-07
+      Cr50: 3.29613E-06
+      Cr52: 6.35631E-05
+      Cr53: 7.20746E-06
+      Cr54: 1.79408E-06
+      Fe54: 5.57337E-06
+      Fe56: 8.74901E-05
+      Fe57: 2.02053E-06
+      Fe58: 2.68895E-07
+      Ni58: 2.51627E-05
+      Ni60: 9.69262E-06
+      Ni61: 4.21331E-07 
+      Ni62: 1.34344E-06
+      Ni64: 3.42085E-07
+      Zr90: 2.18317E-02
+      Zr91: 4.76096E-03
+      Zr92: 7.27723E-03
+      Zr94: 7.37482E-03
+      Zr96: 1.18812E-03
+      Sn112: 4.67343E-06
+      Sn114: 3.17985E-06
+      Sn115: 1.63812E-06
+      Sn116: 7.00535E-05
+      Sn117: 3.70020E-05
+      Sn118: 1.16691E-04
+      Sn119: 4.13864E-05
+      Sn120: 1.56970E-04
+      Sn122: 2.23073E-05
+      Sn124: 2.78961E-05
+    temperature_points:
+      - 559.0
+    depletable: false
+
+  - name: "GAP"
+    isotopic_composition:
+      He4:  1.50456E-04
+    temperature_points:
+      - 900.0
+    depletable : false
+  
+  - name: "WROD"
+    isotopic_composition:
+      O16: 2.47298E-02
+      H1: 4.94546E-02
+    temperature_points:
+      - 559.
+    depletable: false
+
+  - name: "MODE_OUT"
+    isotopic_composition:
+      O16: 2.47298E-02
+      H1: 4.94546E-02
+    temperature_points:
+      - 559.0
+    depletable: false
+
+  - name: "COOL_0VOID"
+    isotopic_composition:
+      O16: 2.47298E-02
+      H1: 4.94546E-02
+    temperature_points:
+      - 559.0
+    depletable: false

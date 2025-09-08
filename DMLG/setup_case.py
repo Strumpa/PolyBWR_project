@@ -5,8 +5,11 @@
 
 # General philosophy : yaml files for configuration, python for logic and setting up the case.
 import yaml
+import numpy as np
 from pathlib import Path
 from DMLG_composition_handling.material_mixture import Material_Mixture
+from template.Serpent2.geometry_definitions import Lattice_Definition, Pin_Universe_Definition
+#from DMLG_geometry_handling.lattice import BWR_lattice
 
 
 
@@ -54,7 +57,7 @@ class DMLG_case:
         if self.settings["DRAGON5"]["Self-Shiedling Method"]:
             LIB_definition.append(f'{self.settings["DRAGON5"]["Self-Shiedling Method"]}\n')
         if self.settings["DRAGON5"]["Order Anisotropic Scattering"]:
-            LIB_definition.append(f'ANIS {self.settings["DRAGON5"]["Order Anisotropic Scattering"]}\n')
+            LIB_definition.append(f'ANIS {self.settings["DRAGON5"]["Order Anisotropic Scattering"]+1}\n')
         if self.settings["DRAGON5"]["Number of mixtures"]:
             LIB_definition.append(f'NMIX {self.settings["DRAGON5"]["Number of mixtures"]}\n')
         if self.settings["DRAGON5"]["DRAGLIB"]:
@@ -75,9 +78,32 @@ class DMLG_case:
                 c2m_file.write(line)
 
         return
+
+    def set_lattice_description(self, lattice_desc:list, pitch:float):
+        """setting the lattice desciption associated to treated case. 
+        assume square cartesian lattice without symmeties (for now).
+        Args:
+            lattice_desc (list): list of pincell identifiers making up the lattice in x-increasing y-increasing order.
+                    --> Only cells interior to outer box should be included in this description.
             
+        """
+        ## assuming square lattice : 
+        nx = int(np.sqrt(len(lattice_desc)))
+        ny = nx
+        
+
+
+        if "Serpent2" in self.output_codes:
+            # assume lattice is centered at (0.0, 0.0)
+            self.lattice_description = Lattice_Definition("BWR_lattice", pitch, 0.0, 0.0, nx, ny, pincell_universes)
             
     
+    def set_pincell_id_to_mat_id(self, pincell_to_material_association):
+        """ 
+        set a dictionnary associating pincell id to material id.
+        each pair of ends of getting a unique id 
+        """
+        self.pincell_nb_to_mat_name = pincell_to_material_association
 
 if __name__ == "__main__":
     # Test usage on OECD PHASE IIIB BWR assembly benchmark case :
@@ -88,3 +114,24 @@ if __name__ == "__main__":
                                 "Number of mixtures": 10,
                                 "Depletion": True}}
     case.print_materials_to_D5()
+
+    # Usage on ATRIUM-10 BWR fuel bundle.
+
+    ATRIUM10 = DMLG_case(name="ATRIUM10", output_codes = ["Serpent2", "DRAGON5"], nuclear_data_evaluation="endfb8r1")
+    ATRIUM10.settings = {"DRAGON5": {"DRAGLIB": "endfb8r1_295",
+                                "Self-Shiedling Method": "PT",
+                                "Order Anisotropic Scattering": 3,
+                                "Number of mixtures": 10,
+                                "Depletion": True}}
+    ATRIUM10.set_pincell_id_to_mat_id({1:"24UOX", 2:"32UOX", 3:"42UOX", 4:"45UOX", 5:"48UOX", 6:"50UOX", 7:"45Gd", 8:"42Gd"})
+    ATRIUM10.set_lattice_description([  1, 2, 3, 4, 4, 4, 4, 3, 2, 1,
+                                        2, 4, 7, 5, 6, 7, 4, 8, 4, 2,
+                                        3, 7, 6, 6, 4, 3, 4, 4, 8, 3,
+                                        4, 6, 6, 7, 9, 9, 9, 4, 4, 4,
+                                        5, 6, 7, 6, 9, 9, 9, 3, 7, 4,
+                                        6, 7, 6, 6, 9, 9, 9, 4, 6, 4,
+                                        5, 6, 6, 6, 6, 6, 7, 6, 5, 4,
+                                        3, 7, 6, 6, 6, 7, 6, 6, 7, 3,
+                                        2, 4, 7, 6, 7, 6, 6, 7, 4, 2,	
+                                        1, 2, 3, 5, 6, 5, 4, 3, 2, 1
+                                    ])

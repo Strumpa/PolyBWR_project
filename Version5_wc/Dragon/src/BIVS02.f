@@ -20,7 +20,7 @@
 *Parameters: input
 * CYLIND  cylinderization flag (=.TRUE. for cylindrical geometry).
 * IELEM   degree of the Lagrangian finite elements: =1 (linear);
-*          =2 (parabolic); =3 (cubic); =4 (quartic).
+*         =2 (parabolic); =3 (cubic); =4 (quartic).
 * ICOL    type of quadrature: =1 (analytical integration);
 *         =2 (Gauss-Lobatto); =3 (Gauss-Legendre).
 * NREG    number of elements in BIVAC.

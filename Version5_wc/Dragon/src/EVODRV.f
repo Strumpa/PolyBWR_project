@@ -58,10 +58,10 @@
 *         =3: constant assembly power depletion.
 * IEXTR   flux extrapolation flag (=0: no extrapolation; =1: perform
 *         linear extrapolation; =2: perform parabolic extrapolation).
-* IGLOB   out-of-fuel power in flux normalization:
-*         =0: compute the burnup using the power released in the fuel;
-*         =1: compute the burnup using the power released in the global
-*         geometry.
+* IGLOB   out-of-fuel power in flux normalization. Compute the burnup:
+*         =-1: using the Serpent mode 0 empirical formula in the fuel;
+*         =0: using the power released in the fuel;
+*         =1: using the power released in the global geometry.
 * ISAT    initial saturation flag (=1 to save initial saturated number
 *         densities).
 * IDIRAC  saturation model flag (=1 to use Dirac function contributions
@@ -133,7 +133,7 @@
 *  ALLOCATABLE ARRAYS
 *----
       INTEGER, ALLOCATABLE, DIMENSION(:) :: MILVO,ISOCMB,NFISS2,
-     1 NDFP2,HREAC,IPIFI
+     1 NDFP2,HREAC,IPIFI,IZAE
       INTEGER, ALLOCATABLE, DIMENSION(:,:) :: JM,INADPL,IEVOLB,KFISS,
      1 KPAR,IDR,KPF
       REAL, ALLOCATABLE, DIMENSION(:) :: ENERG,RRD,AWR,PYIELD,TIMES
@@ -149,7 +149,7 @@
       ALLOCATE(JM(NBMIX,NDEPL),MILVO(NCOMB),ISOCMB(NBISO),
      1 INADPL(3,NDEPL),IEVOLB(NDEPL,NBMIX))
       ALLOCATE(SIG(NDEPL-NSUPS+1,NREAC+1,NBMIX,1-IEXTR:2),
-     1 VPHV(NBMIX,1-IEXTR:2),ENERG(NBMIX),AWR(NDEPL),
+     1 VPHV(NBMIX,1-IEXTR:2),ENERG(NBMIX),AWR(NDEPL),IZAE(NDEPL),
      2 YDPL(NDEPL-NSUPS+1,2,NCOMB))
       ALLOCATE(MASK(NBMIX),MASKL(NGROUP))
       ALLOCATE(IPISO(NBISO))
@@ -204,6 +204,7 @@
       CALL LCMGET(IPLIB,'DEPLETE-REAC',IDR)
       CALL LCMGET(IPLIB,'DEPLETE-ENER',RER)
       CALL LCMGET(IPLIB,'DEPLETE-DECA',RRD)
+      CALL LCMGET(IPLIB,'CHARGEWEIGHT',IZAE)
       IF(NFISS*NDFP.GT.0) CALL LCMGET(IPLIB,'FISSIONYIELD',YIELD2)
       CALL LCMSIX(IPLIB,' ',2)
 *----
@@ -438,7 +439,7 @@
 *
 *        COMPUTE THE GLOBAL HEAVY-ELEMENT MASS FOR ISOTOPES IN MIXPWR.
          FUELDN(1)=0.0
-         IF(IGLOB.EQ.0) THEN
+         IF(IGLOB.LE.0) THEN
            DO 120 ICMB=1,NCOMB
            IBM=MILVO(ICMB)
            IF(IBM.EQ.0) GO TO 120
@@ -567,7 +568,7 @@
 *----
         CALL EVOSIG(IMPX,INR,IGLOB,NGROUP,NBMIX,NBISO,NCOMB,ISONAM,
      1  IPISO,DEN,FLUMIX,VX,MILVO,JM,NVAR,NSUPS,NREAC,HREAC,IDR,
-     2  RER,RRD,FIT,FUELDN,NXSPER,DELTAT(1,IP),MIXPWR,PFACT,
+     2  RER,RRD,FIT,AWR,IZAE,FUELDN,NXSPER,DELTAT(1,IP),MIXPWR,PFACT,
      3  SIG(1,1,1,IP),VPHV(1,IP))
         NLENGT=(NVAR+1)*(NREAC+1)*NBMIX
         CALL LCMPUT(IPDEPL,'MICRO-RATES',NLENGT,2,SIG(1,1,1,IP))
@@ -618,7 +619,7 @@
 *----
         CALL EVOSIG(IMPX,INR,IGLOB,NGROUP,NBMIX,NBISO,NCOMB,ISONAM,
      1  IPISO,DEN,FLUMIX,VX,MILVO,JM,NVAR,NSUPS,NREAC,HREAC,IDR,
-     2  RER,RRD,FIT,FUELDN,NXSPER,DELTAT(1,IP),MIXPWR,PFACT,
+     2  RER,RRD,FIT,AWR,IZAE,FUELDN,NXSPER,DELTAT(1,IP),MIXPWR,PFACT,
      3  SIG(1,1,1,IP),VPHV(1,IP))
         NLENGT=(NVAR+1)*(NREAC+1)*NBMIX
         CALL LCMPUT(IPDEPL,'MICRO-RATES',NLENGT,2,SIG(1,1,1,IP))
@@ -978,7 +979,7 @@
       DEALLOCATE(TIMES)
       DEALLOCATE(IPISO)
       DEALLOCATE(MASKL,MASK)
-      DEALLOCATE(YDPL,AWR,ENERG,VPHV,SIG)
+      DEALLOCATE(YDPL,IZAE,AWR,ENERG,VPHV,SIG)
       DEALLOCATE(IEVOLB,INADPL,ISOCMB,MILVO,JM)
       RETURN
 *
@@ -1013,8 +1014,8 @@
      2 7H IEXTR ,I8,47H   (FLUX EXTRAPOLATION: 0=NONE/1=LINEAR/2=PARAB,
      3 5HOLIC))
   595 FORMAT(
-     1 7H IGLOB ,I8,47H   (0=COMPUTE BURNUP IN FUEL/1=COMPUTE BURNUP I,
-     2 14HN GLOBAL CELL)/
+     1 7H IGLOB ,I8,47H   (-1=SERPENT EDEPMODE-0 FORMULA/0=COMPUTE BUR,
+     2 44HNUP IN FUEL/1=COMPUTE BURNUP IN GLOBAL CELL)/
      3 7H ISAT  ,I8,47H   (0/1=DO NOT/DO SAVE SATURATED INITIAL NUMBER,
      4 11H DENSITIES)/
      5 7H IDIRAC,I8,47H   (0/1=DO NOT/DO USE DIRAC FUNCTION CONTRIBUTI,

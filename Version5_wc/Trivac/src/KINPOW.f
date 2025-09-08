@@ -25,7 +25,7 @@
 * IMPX    print parameter (equal to zero for no print).
 *
 *Parameters: output
-* POWTOT  power.
+* POWTOT  power in MW.
 *
 *-----------------------------------------------------------------------
 *
@@ -40,7 +40,7 @@
 *----
 *  LOCAL VARIABLES
 *----
-      DOUBLE PRECISION POWD
+      DOUBLE PRECISION POWD,XDRCST,EVJ
       INTEGER IGR,IEL,ITYLCM,LENGT
       TYPE(C_PTR) JPMAC,KPMAC
       REAL, DIMENSION(:), ALLOCATABLE :: HF
@@ -59,6 +59,7 @@
 *----
 *  Compute power as H*Phi*Vol.
 *----
+      EVJ=XDRCST('eV','J')
       HF(:NBM)=0.0
       POWD=0.0D0
       DO 20 IGR=1,NGR
@@ -66,11 +67,11 @@
         CALL LCMGET(KPMAC,'H-FACTOR',HF)
         DO 10 IEL=1,NEL
           IF(MAT(IEL).GT.0) THEN
-            POWD=POWD+VOL(IEL)*HF(MAT(IEL))*EVECT(IDL(IEL),IGR)
+            POWD=POWD+VOL(IEL)*HF(MAT(IEL))*EVECT(IDL(IEL),IGR)*EVJ
           ENDIF
    10   CONTINUE
    20 CONTINUE
-      POWTOT=REAL(POWD)
+      POWTOT=REAL(POWD)/1.0E6
 *----
 *  SCRATCH STORAGE DEALLOCATION
 *----

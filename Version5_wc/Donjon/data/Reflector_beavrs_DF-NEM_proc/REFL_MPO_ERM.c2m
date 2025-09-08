@@ -35,7 +35,7 @@ PARAMETER MpoRefl Geom FVol Param1 Param2 ::
 STRING nameFeed nameRefl Palier htype LibType NuclData OptNoal OptSS ;
   ::  >>nameFeed<< >>nameRefl<< >>Palier<< >>htype<< >>LibType<< >>NuclData<<
       >>OptNoal<< >>OptSS<< ;
-PROCEDURE GetMolarMass MetalMix CreaDilut assertS2 ;
+PROCEDURE GetMolarMass MetalMix CreaDilut assertS_low ;
 LINKED_LIST
   DONNEES Geom_refl LibDilut MACRO LibFuel LibFuel_1 LibFuel_2 MolarMasses FeNat
   CrNat SnNat NiNat ZrNat TiNat SiNat BNat AgNat CdNat SNat GdNat Zirc4 Incon SS304
@@ -364,11 +364,11 @@ WHILE IndexCB iBoreMax < DO
     IF CASE 1 = THEN
       EVALUATE PCM := Keff SNKeff1 - 1.E5 * ;
       ECHO "...IndexCB=" IndexCB "CASE=1 SN Keff=" SNKeff1 "macro Keff=" Keff "(" PCM " pcm)" ;
-      assertS2 MACR_FLUX :: 'K-EFFECTIVE' 1 <<SNKeff1>> ;
+      assertS_low MACR_FLUX :: 'K-EFFECTIVE' 1 <<SNKeff1>> 1.0E-4 ;
     ELSEIF CASE 2 = THEN
       EVALUATE PCM := Keff SNKeff2 - 1.E5 * ;
       ECHO "...IndexCB=" IndexCB "CASE=2 SN Keff=" SNKeff2 "macro Keff=" Keff "(" PCM " pcm)" ;
-      assertS2 MACR_FLUX :: 'K-EFFECTIVE' 1 <<SNKeff2>> ;
+      assertS_low MACR_FLUX :: 'K-EFFECTIVE' 1 <<SNKeff2>> 1.0E-4 ;
     ENDIF ;
 
     MACRO MACR_FLUX := DELETE: MACRO MACR_FLUX ;

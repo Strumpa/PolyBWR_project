@@ -1,0 +1,13 @@
+[project]
+name = "dmlg"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "matplotlib>=3.7.5",
+    "numpy>=1.24.4",
+    "pandas>=2.0.3",
+    "serpenttools>=0.10.1",
+    "sympy>=1.13.3",
+]

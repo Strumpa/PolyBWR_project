@@ -1,7 +1,7 @@
 *DECK AUTIT1
       SUBROUTINE AUTIT1(IPTRK,IFTRAK,IPSYS,MAXTRA,KNORM,LBIN,NREG,
      1 NBMIX,NBISO,MAT,VOL,NIRES,IAPT,CDOOR,LEAKSW,TITR,IMPX,CONC,
-     2 SIGS,SIGT,SIGS1,DIL,PRI,UUU,DELI,ITRANC,NEXT,III,PHI)
+     2 SIGS,SIGT,SIGS1,DIL,PRI,UUU,DELI,ITRANC,NEXT,III,FUNKNO)
 *
 *-----------------------------------------------------------------------
 *
@@ -51,7 +51,7 @@
 * III     offset in PRI array.
 *
 *Parameters: output
-* PHI     neutron flux per unit lethargy.
+* FUNKNO  neutron flux per unit lethargy.
 *
 *-----------------------------------------------------------------------
 *
@@ -64,7 +64,7 @@
      1 NIRES,IAPT(NBISO),IMPX,ITRANC,NEXT(NBISO),III(NBISO+1)
       REAL VOL(NREG),CONC(NBMIX,NBISO),SIGS(LBIN,NBISO),
      1 SIGT(LBIN,NBISO),SIGS1(LBIN,NBISO),DIL(NBISO),PRI(MAXTRA),
-     2 UUU(LBIN+1),DELI,PHI(LBIN,NREG)
+     2 UUU(LBIN+1),DELI,FUNKNO(NREG,LBIN)
       LOGICAL LEAKSW
       CHARACTER CDOOR*12,TITR*72
 *----
@@ -194,7 +194,7 @@
       M=MAT(NRE)
       IF(M.GT.0) THEN
          DO 120 MM=2,MIN(LLL,NLET(M))
-         Q(NRE)=Q(NRE)+STR(MM,M)*PHI(LLL-MM+1,NRE)
+         Q(NRE)=Q(NRE)+STR(MM,M)*FUNKNO(NRE,LLL-MM+1)
   120    CONTINUE
       ENDIF
   130 CONTINUE
@@ -210,10 +210,10 @@
       DO 140 NNRE=1,NREG
       SSUM=SSUM+PIJ(NRE,NNRE)*Q(NNRE)
   140 CONTINUE
-      PHI(LLL,NRE)=REAL(SSUM)
+      FUNKNO(NRE,LLL)=REAL(SSUM)
   150 CONTINUE
       IF(IMPX.GE.8) WRITE(6,'(7H GROUP=,I8,7H  FLUX=,2X,1P,9E12.4/
-     1 (21X,9E12.4))') LLL,(PHI(LLL,NRE),NRE=1,NREG)
+     1 (21X,9E12.4))') LLL,(FUNKNO(NRE,LLL),NRE=1,NREG)
   160 CONTINUE
 *----
 *  SCRATCH STORAGE DEALLOCATION

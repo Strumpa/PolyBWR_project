@@ -1,0 +1,51 @@
+MODULE    END: ;
+PROCEDURE p9_Data ;
+ECHO "Début de ObjStrat.c2m" ;
+STRING proc := "TAVG" ;
+REAL B1 R2 R3 PC PG eA F BREF BEND LIMC LIMG P E B PGb PCb ;
+:: >>BEND<< >>PC<< >>PG<< >>eA<< ;
+p9_Data :: <<proc>> >>BREF<< >>LIMC<< >>LIMG<< ;
+EVALUATE PGb := LIMG PG - LIMG /  10. * ;
+EVALUATE PCb := LIMC PC - LIMC / 120. * ;
+ECHO "BEND BREF: " BEND BREF ;
+*** Calcul de fréquence maximale
+IF proc "TAVG-MX" = THEN
+EVALUATE P := 0.0 PGb + PCb + ;            
+IF     eA 0.050 >=                 THEN EVALUATE F := -500.0 ;
+ELSEIF eA 0.0500 <  eA 0.0100 >= * THEN EVALUATE E :=  -10.0 ;
+ELSEIF eA 0.0100 <  eA 0.0050 >= * THEN EVALUATE E :=   -4.0 ;
+ELSEIF eA 0.0050 <  eA 0.0010 >= * THEN EVALUATE E :=   -1.0 ;
+ELSEIF eA 0.0010 <  eA 0.0005 >= * THEN EVALUATE E :=   -0.5 ;
+ELSEIF eA 0.0005 <                 THEN EVALUATE E :=    0.0 ;
+ENDIF ;
+EVALUATE B := BEND BREF / ;
+ECHO "Maximisation burnup - P E B: " P E B ;
+IF eA 0.050 < THEN EVALUATE F := P E B + + ;
+ENDIF ;
+*** Atteinte cible et bonus diminution facteur de puissance
+ELSE 
+* Facteurs bonus pour baisser les puissances max
+IF     PC LIMC >  PG LIMG >  * THEN EVALUATE P := -200. PCb + ;
+ELSEIF PC LIMC >  PG LIMG <= * THEN EVALUATE P := -100. PGb + PCb + ;      
+ELSEIF PC LIMC <= PG LIMG >  * THEN EVALUATE P :=  -50. PGb + PCb + ;      
+ELSEIF PC LIMC <= PG LIMG <= * THEN EVALUATE P :=    0. PGb + PCb + ;
+ENDIF ;
+IF     eA 0.050 >=                 THEN EVALUATE F := -500.0 ;
+ELSEIF eA 0.0500 <  eA 0.0100 >= * THEN EVALUATE E :=  -10.0 ;
+ELSEIF eA 0.0100 <  eA 0.0050 >= * THEN EVALUATE E :=   -4.0 ;
+ELSEIF eA 0.0050 <  eA 0.0010 >= * THEN EVALUATE E :=   -1.0 ;
+ELSEIF eA 0.0010 <  eA 0.0005 >= * THEN EVALUATE E :=   -0.5 ;
+ELSEIF eA 0.0005 <                 THEN EVALUATE E :=    0.0 ;
+ENDIF ;
+EVALUATE B := BEND BREF - BREF / ABS -100. * ;
+ECHO proc " Atteinte cible - P E B: " P E B ;
+IF eA 0.050 < THEN EVALUATE F := P E B + + ;
+ENDIF ;
+***
+ENDIF ;
+***
+:: <<F>> ;
+***
+ECHO "Fin de ObjStrat.c2m" ;
+END: ;
+QUIT "LIST" .

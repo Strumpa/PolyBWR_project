@@ -331,14 +331,14 @@ def post_treat_AT10_45Gd():
     path_to_EVOmodif_data =  "EVOGd_modif_path_PyGan"
     # Define calculation options for the CPOs name reconstruction
     time_integrator = "EXTR"
-    BU_points = "Gd_autop3" # 25 burnup points to be used
+    BU_points = "Gd2_autop6" # 25 burnup points to be used
     name_S2_case = "AT10_45Gd"
     if BU_points == "Gd2_autop6":
         name_S2_case = "AT10_45Gd_BUGd2"
 
     tracking_option = "SALT"
     draglib = "endfb8r1_295" # "endfb8r1_295_NG0" #"endfb8r1_295" # "endfb8r1_295", "endfb81295K", "endfb81295K2"
-    ssh_option = "PT"
+    ssh_option = "RSE"
     correlation = "N"
     tracked_nuclides = ["U235", "U238", "Pu239", "Pu240", "Pu241", "Pu242", "Am241", "Gd155", "Gd157", "Xe135", "Sm149"]
 
@@ -451,7 +451,7 @@ def post_treat_AT10_45Gd():
 
 if __name__ == "__main__":
 
-    post_treat_HOM_Gd157_VBOC()
+    #post_treat_HOM_Gd157_VBOC()
     post_treat_AT10_45Gd()
     
     

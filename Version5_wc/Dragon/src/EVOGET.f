@@ -30,9 +30,10 @@
 *            IEXTR= 0 no extrapolation;
 *            IEXTR= 1 linear extrapolation;
 *            IEXTR= 2 parabolic extrapolation.
-* IGLOB   flag for power computation option: 
-*            IGLOB= 0 for flag OFF;
-*            IGLOB= 1 for flag ON.
+* IGLOB   flag for out-of-fuel power in flux normalization.
+*            GLOB=-1: using the Serpent mode 0 emperical formula;
+*            GLOB= 0: using the power released in the fuel;
+*            GLOB= 1: using the power released in the global geometry.
 * ISAT    flag for saturaton: 
 *            ISAT= 0 for flag OFF;
 *            ISAT= 1 for flag ON.
@@ -186,6 +187,8 @@
         IF((IEXTR.NE.1).AND.(IEXTR.NE.2)) THEN
           CALL XABORT('EVOGET: INVALID EXTR INDEX.')
         ENDIF
+      ELSE IF(CARLIR(1:4) .EQ. 'EDP0') THEN
+        IGLOB=-1
       ELSE IF(CARLIR(1:4) .EQ. 'NOGL') THEN
         IGLOB=0
       ELSE IF(CARLIR(1:4) .EQ. 'GLOB') THEN

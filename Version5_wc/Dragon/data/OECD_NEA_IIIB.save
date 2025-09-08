@@ -19,5 +19,6 @@ ls -l
 mv Fig_PhaseIIIB*.ps $1/"$MACH"
 mv Fig_PhaseIIIB_SSH*.ps $1/"$MACH"
 mv _CPO_OECD_NEA_PHASE_IIIB* $1/"$MACH"
+mv _CPO_* $1/"$MACH"
 echo "OECD_NEA_IIIB.save completed"
 

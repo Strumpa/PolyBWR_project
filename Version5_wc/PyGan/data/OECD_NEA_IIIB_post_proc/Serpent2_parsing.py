@@ -464,6 +464,7 @@ def parse_material_det(path_to_S2, name_case, bu_step=0):
     
     detector = st.read(f"{path_to_S2}/{name_case}_det{bu_step}.m")
     res = st.read(f"{path_to_S2}/{name_case}_res.m")
+    #dep = st.read(f"{path_to_S2}/{name_case}_dep.m")
     keff = res.resdata["absKeff"].T[0]
     
     print(f"keff = {keff}")
@@ -474,9 +475,9 @@ def parse_material_det(path_to_S2, name_case, bu_step=0):
 
     
     # Material detectors were defined through unique material names given the 8th symmetry of the lattice
-    print(f"detector shape : {detector.detectors['_pin_pos_1'].tallies.shape}")
-    n_groups = detector.detectors['_pin_pos_1'].tallies.shape[0]
-    n_reactions = detector.detectors['_pin_pos_1'].tallies.shape[1]
+    print(f"detector shape : {detector.detectors['_pin_pos_1_2G'].tallies.shape}")
+    n_groups = detector.detectors['_pin_pos_1_2G'].tallies.shape[0]
+    n_reactions = detector.detectors['_pin_pos_1_2G'].tallies.shape[1]
     tally_index_to_react = {0 : "U234_fission", 1 : "U235_fission",
                             2 : "U236_fission", 3 : "U238_fission",
                             4 : "Pu239_fission", 5 : "Pu241_fission",
@@ -491,16 +492,16 @@ def parse_material_det(path_to_S2, name_case, bu_step=0):
     fission_rates = np.zeros((n_groups, n_cells))  # Initialize the array for fission rates
     ngamma_rates = np.zeros((n_groups, n_cells))  # Initialize the array
     vol = np.pi * 0.529 ** 2
-
+    prodS2 = 0
 
     for cell_idx in range(n_cells):
-        detector_name = f'_pin_pos_{cell_idx+1}'
+        detector_name = f'_pin_pos_{cell_idx+1}_2G'
         if detector_name in detector.detectors.keys():
             print(f"Processing detector: {detector_name}")
-            n_goups = detector.detectors[detector_name].tallies.shape[0]
+            n_groups = detector.detectors[detector_name].tallies.shape[0]
             n_reactions = detector.detectors[detector_name].tallies.shape[1]
             print(f"detector shape : {detector.detectors[detector_name].tallies.shape}")
-            for g in range(n_goups):
+            for g in range(n_groups):
                 for r in range(n_reactions):
                     rate = detector.detectors[detector_name].tallies[g, r]
                     reaction = tally_index_to_react[r]
@@ -511,15 +512,15 @@ def parse_material_det(path_to_S2, name_case, bu_step=0):
                     if isotope not in mix_desc[rod_id].keys():
                         continue
                     iso_dens = mix_desc[rod_id][isotope]
-                    if reaction.endswith("fission"):
-                        fission_rates[g, cell_idx] += rate * iso_dens * vol / POS_ID_TO_NUM[pos_id]
+                    if reaction.endswith("fission") and isotope in ["U235", "U238"]:
+                        fission_rates[g, cell_idx] += rate / POS_ID_TO_NUM[pos_id] * iso_dens #* vol / POS_ID_TO_NUM[pos_id]
                     elif reaction.endswith("ngamma"):
-                        ngamma_rates[g, cell_idx] += rate * iso_dens * vol / POS_ID_TO_NUM[pos_id]
+                        ngamma_rates[g, cell_idx] += rate / POS_ID_TO_NUM[pos_id] * iso_dens #* vol / POS_ID_TO_NUM[pos_id]
                     print(f"Group {g+1}, Cell {cell_idx+1}, Reaction {reaction}, Rate: {rate}, Iso dens: {iso_dens}")
         else:
             print(f"Detector {detector_name} not found in the results.")
             
-    return keff, fission_rates, ngamma_rates
+    return keff, fission_rates, ngamma_rates, mix_desc
                         
 
 

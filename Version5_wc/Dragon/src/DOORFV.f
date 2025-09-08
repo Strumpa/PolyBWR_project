@@ -46,7 +46,8 @@
 * VOL     volumes.
 * KEYFLX  index of L-th order flux components in unknown vector.
 * TITR    title.
-* SUNKNO  input source vector.
+* SUNKNO  input source vector. Depending on the solution technique
+*         used, sources may oy may not include volumes.
 * FUNKNO  unknown vector.
 * IPMACR  pointer to the macrolib LCM object.
 * IPSOU   pointer to the fixed source LCM object.
@@ -247,8 +248,8 @@
       IF(IPHASE.EQ.1) THEN
 *     USE A NATIVE DOOR
          IF ((CDOOR.EQ.'EXCELL').AND.(IPAR(7).EQ.5)) THEN
-            CALL MUSF(KPSYS,IPTRK,IFTRAK,IMPX,NGEFF,NGIND,IDIR,NREG,
-     >                NUN,MAT,VOL,FUNKNO2,SUNKNO2,TITR)
+            CALL MUSF(KPSYS,IPTRK,IMPX,NGEFF,NGIND,IDIR,NREG,NUN,MAT,
+     >                VOL,FUNKNO2,SUNKNO2,TITR)
          ELSE IF(CDOOR.EQ.'SYBIL') THEN
             CALL SYBILF(KPSYS,IPTRK,IFTRAK,IMPX,NGEFF,NGIND,IDIR,NREG,
      >                  NUN,MAT,VOL,FUNKNO2,SUNKNO2,TITR)
@@ -274,7 +275,7 @@
             INCONV(:NGEFF)=.TRUE.
             MAXIT=20
             CALL TRIFLV(KPSYS,INCONV,NGIND,IPTRK,IMPX,MAXIT,NGEFF,NREG,
-     >                  NUN,MAT,VOL,KEYFLX,FUNKNO2,SUNKNO2)
+     >                  NUN,KEYFLX,FUNKNO2,SUNKNO2)
             DEALLOCATE(INCONV)
          ELSE IF(CDOOR.EQ.'SN') THEN
             CALL SNF(KPSYS,IPTRK,IFTRAK,IMPX,NGEFF,NGIND,IDIR,NREG,

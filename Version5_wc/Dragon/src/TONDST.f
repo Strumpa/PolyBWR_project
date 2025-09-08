@@ -1,7 +1,7 @@
 *DECK TONDST
       SUBROUTINE TONDST (IPSYS,NPSYS,IPTRK,IFTRAK,CDOOR,IMPX,NBM,NBNRS,
-     1 NREG,NUN,NGRO,IPHASE,MAT,VOL,KEYFLX,LEAKSW,IRES,DENM,SIG0,SIG1,
-     2 SIG2,TITR,DILAV,TK3,TK4)
+     1 NREG,NUN,NGRO,IPHASE,MAT,VOL,KEYFLX,LEAKSW,IRES,DENM,SIGT0,SIGT2,
+     2 SIGT3,TITR,DILAV,TK3,TK4)
 *
 *-----------------------------------------------------------------------
 *
@@ -42,11 +42,11 @@
 *         surface).
 * IRES    resonant mixture number assigned to each mixture.
 * DENM    number density of the resonant isotope in each mixture.
-* SIG0    total macroscopic cross sections of the resonant isotope
+* SIGT0   total macroscopic cross sections of the resonant isotope
 *         in each mixture.
-* SIG1    total macroscopic cross sections of the light materials in
+* SIGT2   total macroscopic cross sections of the light materials in
 *         each mixture.
-* SIG2    transport correction in each mixture.
+* SIGT3   transport correction in each mixture.
 * TITR    title.
 *
 *Parameters: output
@@ -59,6 +59,7 @@
 *-----------------------------------------------------------------------
 *
       USE GANLIB
+      USE DOORS_MOD
 *----
 *  SUBROUTINE ARGUMENTS
 *----
@@ -67,8 +68,8 @@
       LOGICAL LEAKSW
       INTEGER NPSYS(NGRO),IFTRAK,IMPX,NBM,NBNRS,NREG,NUN,NGRO,IPHASE,
      1 MAT(NREG),KEYFLX(NREG),IRES(NBM)
-      REAL VOL(NREG),DENM(NBM),SIG0(NBM,NGRO),SIG1(NBM,NGRO),
-     1 SIG2(NBM,NGRO),DILAV(NBNRS,NGRO),TK3,TK4
+      REAL VOL(NREG),DENM(0:NBM),SIGT0(0:NBM,NGRO),SIGT2(0:NBM,NGRO),
+     1 SIGT3(0:NBM,NGRO),DILAV(NBNRS,NGRO),TK3,TK4
 *----
 *  LOCAL VARIABLES
 *----
@@ -103,8 +104,8 @@
       DO 20 LLL=1,NGRO
       IF(NPSYS(LLL).NE.0) THEN
          DO 10 IBM=1,NBM
-         SSIGT(IBM)=SIG0(IBM,LLL)+SIG1(IBM,LLL)-SIG2(IBM,LLL)
-         SSIGW(IBM)=-SIG2(IBM,LLL)
+         SSIGT(IBM)=SIGT0(IBM,LLL)+SIGT2(IBM,LLL)-SIGT3(IBM,LLL)
+         SSIGW(IBM)=-SIGT3(IBM,LLL)
    10    CONTINUE
          KPSYS=LCMDIL(JPSYS,LLL)
          CALL LCMPUT(KPSYS,'DRAGON-TXSC',NBM+1,2,SSIGT(0))
@@ -136,14 +137,11 @@
 *----
       CALL KDRCPU(TKA)
       SUN(:NUN,:NGRO)=0.0
-      DO 40 LLL=1,NGRO
+      DO 30 LLL=1,NGRO
       IF(NPSYS(LLL).NE.0) THEN
-         DO 30 I=1,NREG
-         IBM=MAT(I)
-         IF(IBM.GT.0) SUN(KEYFLX(I),LLL)=SIG1(IBM,LLL)
-   30    CONTINUE
+         CALL DOORS(CDOOR,IPTRK,NBM,0,NUN,SIGT2(0,LLL),SUN(1,LLL))
       ENDIF
-   40 CONTINUE
+   30 CONTINUE
       CALL LCMLEN(IPSYS,'FLUX1',ILON1,ITYLCM)
       IF(ILON1.EQ.NUN*NGRO) THEN
          CALL LCMGET(IPSYS,'FLUX1',FUN1)
@@ -159,15 +157,11 @@
       CALL LCMPUT(IPSYS,'FLUX1',NUN*NGRO,2,FUN1)
 *
       SUN(:NUN,:NGRO)=0.0
-      DO 60 LLL=1,NGRO
+      DO 40 LLL=1,NGRO
       IF(NPSYS(LLL).NE.0) THEN
-         DO 50 I=1,NREG
-         IBM=MAT(I)
-         IF(IBM.EQ.0) GO TO 50
-         IF(IRES(IBM).GT.0) SUN(KEYFLX(I),LLL)=DENM(IBM)
-   50    CONTINUE
+         CALL DOORS(CDOOR,IPTRK,NBM,0,NUN,DENM,SUN(1,LLL))
       ENDIF
-   60 CONTINUE
+   40 CONTINUE
       CALL LCMLEN(IPSYS,'FLUX2',ILON2,ITYLCM)
       IF(ILON2.EQ.NUN*NGRO) THEN
          CALL LCMGET(IPSYS,'FLUX2',FUN2)
@@ -181,24 +175,24 @@
      2 IPSOU,REBFLG)
       CALL LCMPUT(IPSYS,'FLUX2',NUN*NGRO,2,FUN2)
       ALLOCATE(TOT2(NBNRS),TOT1(NBNRS))
-      DO 80 LLL=1,NGRO
+      DO 70 LLL=1,NGRO
       IF(NPSYS(LLL).NE.0) THEN
          TOT2(:)=0.0D0
          TOT1(:)=0.0D0
-         DO 70 I=1,NREG
+         DO 50 I=1,NREG
          IBM=MAT(I)
-         IF(IBM.EQ.0) GO TO 70
+         IF(IBM.EQ.0) GO TO 50
          IRS=IRES(IBM)
          IF(IRS.GT.0) THEN
             TOT1(IRS)=TOT1(IRS)+FUN1(KEYFLX(I),LLL)*VOL(I)
             TOT2(IRS)=TOT2(IRS)+FUN2(KEYFLX(I),LLL)*VOL(I)
          ENDIF
-   70    CONTINUE
-         DO 75 IRS=1,NBNRS
+   50    CONTINUE
+         DO 60 IRS=1,NBNRS
          DILAV(IRS,LLL)=REAL(TOT1(IRS)/TOT2(IRS))
-   75    CONTINUE
+   60    CONTINUE
       ENDIF
-   80 CONTINUE
+   70 CONTINUE
       DEALLOCATE(TOT2,TOT1)
       CALL KDRCPU(TKB)
       TK4=TK4+(TKB-TKA)

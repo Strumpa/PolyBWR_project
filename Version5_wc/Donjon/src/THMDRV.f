@@ -1,10 +1,11 @@
 *DECK THMDRV
       SUBROUTINE THMDRV(MPTHM,IMPX,IX,IY,NZ,XBURN,VOLXY,HZ,CFLUX,POROS,
      > FNFU,NFD,NDTOT,IFLUID,SNAME,SCOMP,IGAP,IFUEL,FNAME,FCOMP,FCOOL,
-     > FFUEL,ACOOL,HD,PCH,RAD,MAXIT1,MAXITL,ERMAXT,SPEED,TINLET,PINLET,
+     > FFUEL,ACOOL,HD,PCH,RAD,
+     > MAXIT1,MAXITL,ERMAXT,SPEED,TINLET,POUTLET,
      > FRACPU,ICONDF,NCONDF,KCONDF,UCONDF,ICONDC,NCONDC,KCONDC,UCONDC,
-     > IHGAP,KHGAP,IHCONV,KHCONV,WTEFF,IFRCDI,ISUBM,FRO,POW,IPRES,TCOMB,
-     > DCOOL,TCOOL,TSURF,HCOOL,PCOOL)
+     > IHGAP,KHGAP,IHCONV,KHCONV,WTEFF,IFRCDI,ISUBM,FRO,POW,IPRES,IDFM,
+     > TCOMB, DCOOL,TCOOL,TSURF,HCOOL,PCOOL)
 *
 *-----------------------------------------------------------------------
 *
@@ -23,6 +24,9 @@
 *          fuel
 * C. Huet
 * 02/2025: Modifications to include pressure drop calculation
+* R. Guasch & M. Bellier
+* 08/2025: Modifications to include mass+momentum+energy conservation equation
+*  solution using a Drift-Flux Model.
 *
 *Parameters: input
 * MPTHM   directory of the THM object containing steady-state
@@ -54,7 +58,7 @@
 * ERMAXT  convergence criterion.
 * SPEED   inlet flow velocity in m/s.
 * TINLET  inlet temperature in K.
-* PINLET  inlet pressure in Pa.
+* POUTLET outlet pressure in Pa.
 * FRACPU  plutonium fraction in fuel.
 * ICONDF  fuel conductivity flag (0=Stora-Chenebault or COMETHE/
 *         1=user-provided polynomial + inverse term).
@@ -89,6 +93,9 @@
 * FCOMP   Composition of the molten salt (e.g. "0.66-0.34")
 * IPRES   flag indicating if pressure is to be computed (0=nonstant/
 *         1=variable).
+* IDFM    flag indicating if the drift flux model is to be used 
+*         (0=Without modifications(Chexal correlation for epsilon, no drift flux model in the Navier-Stokes equations)
+*           /1=EPRI/2=MODEBSTION/3=GERAMP/4=HEM1(VGJ=0)) 
 *
 *Parameters: output
 * TCOMB   averaged fuel temperature distribution in K.
@@ -107,12 +114,13 @@
 *----
       TYPE(C_PTR) MPTHM
       INTEGER IMPX,IX,IY,NZ,NFD,NDTOT,IFLUID,MAXIT1,MAXITL,IHGAP,IGAP,
-     > IFUEL,IPRES
-      REAL XBURN(NZ),VOLXY,HZ(NZ),CFLUX,POROS,FNFU,FCOOL,FFUEL,ACOOL,
-     > HD,PCH,RAD(NDTOT-1,NZ),ERMAXT,SPEED,TINLET,PINLET,FRACPU,
+     > IFUEL,IPRES, IDFM
+      REAL XBURN(NZ),VOLXY,CFLUX,POROS,FRACPU,ERMAXT,
+     > SPEED,TINLET,POUTLET,
+     > FFUEL(NZ),ACOOL(NZ),RAD(NDTOT-1,NZ),FNFU(NZ),FCOOL(NZ),HZ(NZ),
      > KCONDF(NCONDF+3),KCONDC(NCONDC+1),KHGAP,KHCONV,WTEFF,FRO(NFD-1),
      > POW(NZ),TCOMB(NZ),DCOOL(NZ),TCOOL(NZ),TSURF(NZ),HCOOL(NZ),
-     > PCOOL(NZ),MUT(NZ)
+     > PCOOL(NZ),MUT(NZ), HD(NZ), PCH(NZ)
       CHARACTER UCONDF*12,UCONDC*12
 *----
 *  LOCAL VARIABLES
@@ -122,30 +130,34 @@
       REAL TRE11(MAXNPO),RADD(MAXNPO),ENT(4),MFLOW,TLC(NZ)
       CHARACTER HSMG*131,SNAME*32,SCOMP*32,FNAME*32,FCOMP*32
       REAL XS(4),TC1,PC(NZ),TP(NZ),RHOL,XFL(NZ),EPS(NZ),HINLET,
-     > TCLAD(NZ),ENTH(NZ),SLIP(NZ),AGM(NZ),QFUEL(NZ),QCOOL(NZ),K11
+     > TCLAD(NZ),ENTH(NZ),SLIP(NZ),AGM(NZ),QFUEL(NZ),QCOOL(NZ),K11,
+     > VLIQ(NZ),VVAP(NZ)
       INTEGER KWA(NZ)
       REAL XX2(MAXNPO),XX3(MAXNPO),ZF(2)
       DATA XS/-0.861136,-0.339981,0.339981,0.861136/
 
-      REAL TBUL(NZ)
+      REAL TBUL(NZ),VGJprime(NZ),HLV(NZ),DGCOOL(NZ),DLCOOL(NZ)
 
       INTEGER I
-      REAL ERRV, ERRP
+      REAL PINLET, ERRV, ERRP, ERRD, NORMV, NORMP, NORMD
 *----
 *  ALLOCATABLE ARRAYS
 *----
-      REAL, ALLOCATABLE, DIMENSION(:) :: VCOOL,TCENT,DLCOOL
+      REAL, ALLOCATABLE, DIMENSION(:) :: VCOOL,TCENT
       REAL, ALLOCATABLE, DIMENSION(:,:) :: TEMPT
 
-      REAL, ALLOCATABLE, DIMENSION(:) :: PTEMP, VTEMP
+      REAL, ALLOCATABLE, DIMENSION(:) :: PTEMP, VTEMP, DTEMP
 *----
 *  SCRATCH STORAGE ALLOCATION
 *----
-      ALLOCATE(VCOOL(NZ),TEMPT(NDTOT,NZ),TCENT(NZ),DLCOOL(NZ))
-      ALLOCATE(PTEMP(NZ), VTEMP(NZ))
+      ALLOCATE(VCOOL(NZ),TEMPT(NDTOT,NZ),TCENT(NZ))
+      ALLOCATE(PTEMP(NZ), VTEMP(NZ), DTEMP(NZ))
 *----
 *  COMPUTE THE INLET FLOW ENTHALPY AND VELOCITY
+*   INITIALIZE PINLET TO POUTLET, WILL BE UPDATED IF IPRES=1
+*   ELSE PINLET = POUTLET
 *----
+      PINLET = POUTLET
       IF(NDTOT.GT.MAXNPO) CALL XABORT('THMDRV: MAXNPO OVERFLOW.')
       IF(IFLUID.EQ.0) THEN
          CALL THMSAT(PINLET,TSAT)
@@ -186,12 +198,16 @@
          KWA(K)=0
          MUT(K)=0.0
          QFUEL(K)=0.0
+         VGJprime(K)=0.0
+         HLV(K)=0.0
 
          PCOOL(K)=PINLET
          VCOOL(K)=MFLOW/RHOIN
          DCOOL(K)=RHOIN
          DLCOOL(K)=RHOIN
+         DGCOOL(K)=0.0 
          TCOOL(K)=TINLET
+         HCOOL(K)=HINLET
 *----
 *  COMPUTE THE SATURATION TEMPERATURE AND THE THERMODYNAMIC PROPERTIES
 *  IF THE PRESSURE DROP IS COMPUTED
@@ -230,6 +246,10 @@
 *----
       ERRV = 1.0
       ERRP = 1.0
+      ERRD = 1.0
+      NORMP = PINLET
+      NORMV = SPEED
+      NORMD = RHOIN
       I=0
       IF (IPRES .EQ. 0) GOTO 30
    10 CONTINUE
@@ -243,19 +263,41 @@
 *  CHECK FOR CONVERGENCE
 *----
         IF (I .GT. 1000) GOTO 20
-        IF ((ERRP < 1E-3) .AND. (ERRV < 1E-3)) GOTO 20
+        IF ((ERRP.LT.5E-4).AND.(ERRV.LT.5E-4).AND.(IDFM.EQ.0)) GOTO 20
+
+        IF ((IDFM.GT.0).AND.(I.GT.3)) THEN
+        IF ((ERRP.LT.5E-4).AND.(ERRV.LT.5E-4).AND.(ERRD.LT.5E-4)) THEN
+        GOTO 20
+        ENDIF
+        ENDIF
 
           I = I + 1
 
           PTEMP = PCOOL
           VTEMP = VCOOL
-          CALL THMPV(SPEED, PINLET, VCOOL, DCOOL, 
-     >              PCOOL, MUT, XFL, HD, NZ, HZ)
+          DTEMP = DCOOL
+
+          SPEED = MFLOW/DCOOL(1)
+          CALL THMPV(SPEED, PCOOL(NZ), VCOOL, DCOOL, 
+     >              PCOOL, TCOOL, MUT, XFL, HD, NZ,
+     >              HZ, EPS, DLCOOL,DGCOOL, VGJprime, IDFM, ACOOL)
+* Extrapolate from first two values of PCOOL to get PINLET at first face.
+* This ensures that computed HINLET is not HCOOL(1)
+          PINLET = (3.0/2.0)*PCOOL(1) - (1.0/2.0)*PCOOL(2)
+          IF (IFLUID.EQ.0) THEN
+            CALL THMPT(PINLET, TINLET, RHOIN, HINLET, R3, R4, R5)
+          ELSE IF(IFLUID.EQ.1) THEN
+            CALL THMHPT(PINLET,TINLET,RHOIN,HINLET,R3,R4,R5)
+          ELSE IF(IFLUID.EQ.2) THEN
+            CALL THMSPT(STP,TINLET,RHOIN,HINLET,R3,R4,R5,IMPX)
+          ENDIF
+*   Update inlet enthalpy based on computed inlet pressure.
+          HMSUP = HINLET
    30 CONTINUE
 *----
 *  MAIN LOOP ALONG THE 1D CHANNEL.
 *----
-      K0=0 ! onset of nuclear boiling point
+      K0=0 ! onset of nucleate boiling point
       DO K=1,NZ
         IF(POW(K).EQ.0.0) CYCLE
         IF(IFLUID.EQ.0) THEN
@@ -270,10 +312,10 @@
 *----
         DV=VOLXY*HZ(K)
 *       linear power in W/m
-        POWLIN=(POW(K)/DV)*VOLXY/FNFU
+        POWLIN=(POW(K)/DV)*VOLXY/FNFU(K)
 *       volumic power in W/m^3
-        QFUEL(K)=POW(K)*FFUEL/DV
-        QCOOL(K)=POW(K)*FCOOL/DV
+        QFUEL(K)=POW(K)*FFUEL(K)/DV
+        QCOOL(K)=POW(K)*FCOOL(K)/DV
 *----
 *  INITIALIZATION OF PINCELL TEMPERATURES
 *----
@@ -301,8 +343,24 @@
 *----
 *  COMPUTE FOUR VALUES OF ENTHALPY IN J/KG TO BE USED IN GAUSSIAN
 *  INTEGRATION. DELTH1 IS THE ENTHALPY INCREASE IN EACH AXIAL MESH.
-*----
-        DELTH1=(PCH/ACOOL*PHI2+QCOOL(K))*HZ(K)/MFLOW
+*---- 
+        IF (IDFM.EQ.0) THEN
+          DELTH1=(PCH(K)/ACOOL(K)*PHI2+QCOOL(K))*HZ(K)/MFLOW
+        ELSE
+          DELTH1= (PCH(K)/ACOOL(K)*PHI2+QCOOL(K))*HZ(K)*ACOOL(K)
+        ENDIF
+        IF ((K.GT.1).AND.(IDFM.GT.0)) THEN
+          DELTH1= (PCH(K)/ACOOL(K)*PHI2+QCOOL(K))*HZ(K)*ACOOL(K)
+          DELTH1 = DELTH1 + ((VCOOL(K-1) + EPS(K-1)*(DLCOOL(K-1)-
+     >      DGCOOL(K-1))/DCOOL(K-1)*VGJprime(K-1))
+     >      + (VCOOL(K) + EPS(K)*(DLCOOL(K)-DGCOOL(K))/
+     >      DCOOL(K)*VGJprime(K)))/2*(PCOOL(K-1)*ACOOL(K-1)-PCOOL(K)
+     >      *ACOOL(K))
+          DELTH1 = DELTH1 +(EPS(K-1)*DGCOOL(K-1)*(DLCOOL(K-1)/
+     >      DCOOL(K-1))*HLV(K-1)*VGJprime(K-1)*ACOOL(K-1))-(EPS(K)*
+     >      DGCOOL(K)*(DLCOOL(K)/DCOOL(K))*HLV(K)*VGJprime(K)*ACOOL(K))   
+          DELTH1 = DELTH1/MFLOW/ACOOL(K)
+        ENDIF
         DO I1=1,4
           POINT=(1.0+XS(I1))/2.0
           ENT(I1)=HMSUP+POINT*DELTH1
@@ -319,11 +377,12 @@
         ENDIF
 *CGT
         IF ((IFLUID.EQ.0).OR.(IFLUID.EQ.1)) THEN
-          CALL THMH2O(0,IX,IY,K,K0,PCOOL(K),MFLOW,HMSUP,ENT,HD,IFLUID,
-     >    IHCONV,KHCONV,ISUBM,RAD(NDTOT-1,K),ZF,PHI2,XFL(K),EPS(K),
-     >    SLIP(K),ACOOL,PCH,HZ(K),TCALO,RHO,RHOL,TRE11(NDTOT),KWA(K))
+          CALL THMH2O(0,IX,IY,K,K0,PCOOL(K),MFLOW,HMSUP,ENT,HD(K),
+     >    IFLUID,IHCONV,KHCONV,ISUBM,RAD(NDTOT-1,K),ZF,VCOOL(K),
+     >    IDFM,PHI2,XFL(K),EPS(K),SLIP(K),ACOOL(K),PCH(K),HZ(K),TCALO,
+     >    RHO,RHOL,RHOG,TRE11(NDTOT),KWA(K),VGJprime(K),HLV(K))
         ELSEIF (IFLUID.EQ.2) THEN
-          CALL THMSAL(IMPX,0,IX,IY,K,K0,MFLOW,HMSUP,ENT,HD,STP,
+          CALL THMSAL(IMPX,0,IX,IY,K,K0,MFLOW,HMSUP,ENT,HD(K),STP,
      >    IHCONV,KHCONV,ISUBM,RAD(NDTOT-1,K),ZF,PHI2,XFL(K),
      >    EPS(K),SLIP(K),HZ(K),TCALO,RHO,RHOL,TRE11(NDTOT),
      >    KWA(K))
@@ -361,7 +420,6 @@
         DCOOL(K)=RHO
         DLCOOL(K)=RHOL
         HCOOL(K)=HMSUP
-        !PCOOL(K)=PINLET
         PC(K)=PINLET
         TP(K)=TCLAD(K)
         TLC(K)=TCOOL(K)
@@ -409,25 +467,65 @@
 *----
 * IF THE PRESSURE DROP IS COMPUTED, COMPUTE THE 
 * THE PRESSURE AND VELOCITY RESIDUALS
+* IF DFM IS ACTIVATED, COMPUTE DCOOL RESIDUALS
 *----
       IF (IPRES .EQ. 0) GOTO 20
-      ERRV = 0
-      ERRP = 0
+      ERRV = 0.0
+      ERRP = 0.0
+      ERRD = 0.0
+      NORMV = 0.0
+      NORMP = 0.0
+      NORMD = 0.0
+
       DO K=1,NZ
-        ERRV = ERRV + ABS(VCOOL(K) - VTEMP(K))/VTEMP(K)
-        ERRP = ERRP + ABS(PCOOL(K) - PTEMP(K))/PTEMP(K)
+*         Under relaxation of coolant pressure and velocity.
+          VCOOL(K) = 0.40*VCOOL(K) + (1.00-0.40)*VTEMP(K)
+          PCOOL(K) = 0.40*PCOOL(K) + (1.00-0.40)*PTEMP(K)
+          ERRV = ERRV + (VCOOL(K)-VTEMP(K))**2
+          NORMV = NORMV + VCOOL(K)**2
+          ERRP = ERRP + (PCOOL(K)-PTEMP(K))**2
+          NORMP = NORMP + PCOOL(K)**2
+        IF (IDFM.GT.0) THEN
+*         Under relaxation of coolant density.
+          DCOOL(K) = 0.40*DCOOL(K) + (1.00-0.40)*DTEMP(K)
+          ERRD = ERRD + (DCOOL(K) - DTEMP(K))**2
+          NORMD = NORMD + DCOOL(K)**2
+        ENDIF
       ENDDO
-      ERRV = ERRV/NZ
-      ERRP = ERRP/NZ
+      NORMV = SQRT(NORMV)
+      NORMP = SQRT(NORMP)
+      ERRV = SQRT(ERRV) / NORMV
+      ERRP = SQRT(ERRP) / NORMP
+      IF (IDFM.GT.0) THEN
+        NORMD = SQRT(NORMD)
+        ERRD = SQRT(ERRD) / NORMD
+      ENDIF
       GO TO 10
 
    20 CONTINUE
 
       IF (I.GE.1000) THEN
+        PRINT *, 'ERRV =', ERRV
+        PRINT *, 'ERRP =', ERRP
+        PRINT *, 'ERRD =', ERRD
         CALL XABORT('THMDRV: MAXIMUM NB OF ITERATIONS REACHED.')
       ELSE IF(IMPX.GT.0) THEN
         WRITE(6,'(37H THMDRV: CONVERGENCE REACHED AT ITER=,I5,1H.)') I
       ENDIF
+
+*----
+* RECONSTRUCT THE PHASE VELOCITIES FROM VCOOL, EPS and VGJ
+*----
+      DO K=1,NZ
+        IF (IDFM .GT. 0) THEN
+          VLIQ(K) = VCOOL(K) - (1.0/(1.0- EPS(K)) - DLCOOL(K)/DCOOL(K))
+     >     * VGJprime(K)
+          VVAP(K) = VCOOL(K) + DLCOOL(K)/DCOOL(K) *VGJprime(K)
+        ELSE
+          VLIQ(K) = VCOOL(K)
+          VVAP(K) = VCOOL(K) 
+        ENDIF
+      ENDDO     
 *----
 * PRINT THE THERMOHYDRAULICAL PARAMETERS
 *----
@@ -496,6 +594,11 @@
       CALL LCMPUT(MPTHM,'LIQUID-DENS',NZ,2,DLCOOL)
       CALL LCMPUT(MPTHM,'ENTHALPY',NZ,2,HCOOL)
       CALL LCMPUT(MPTHM,'VELOCITIES',NZ,2,VCOOL)
+      CALL LCMPUT(MPTHM,'V-LIQ',NZ,2,VLIQ)
+      CALL LCMPUT(MPTHM,'V-VAP',NZ,2,VVAP)
+      CALL LCMPUT(MPTHM,'EPSILON',NZ,2,EPS)
+      CALL LCMPUT(MPTHM,'EPSOUT',1,2,EPS(NZ))
+      CALL LCMPUT(MPTHM,'XFL',NZ,2,XFL)
       CALL LCMPUT(MPTHM,'CENTER-TEMPS',NZ,2,TCENT)
       CALL LCMPUT(MPTHM,'COOLANT-TEMP',NZ,2,TCOOL)
       CALL LCMPUT(MPTHM,'POWER',NZ,2,POW)
@@ -503,13 +606,13 @@
       CALL LCMPUT(MPTHM,'PINLET',1,2,PINLET)
       CALL LCMPUT(MPTHM,'TINLET',1,2,TINLET)
       CALL LCMPUT(MPTHM,'VINLET',1,2,SPEED)
-      CALL LCMPUT(MPTHM,'POULET',1,2,PINLET)
+      CALL LCMPUT(MPTHM,'POULET',1,2,POUTLET)
       CALL LCMPUT(MPTHM,'RADII',(NDTOT-1)*NZ,2,RAD)
 *----
 *  SCRATCH STORAGE DEALLOCATION
 *----
-      DEALLOCATE(DLCOOL,TCENT,TEMPT,VCOOL)
-      DEALLOCATE(PTEMP, VTEMP)
+      DEALLOCATE(TCENT,TEMPT,VCOOL)
+      DEALLOCATE(PTEMP, VTEMP, DTEMP)
       RETURN
 *
   190 FORMAT(/21H THMDRV: AXIAL SLICE=,I5)

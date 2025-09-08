@@ -55,6 +55,7 @@
 * NCPTL   number of free iterations in an acceleration cycle.
 * NCPTA   number of accelerated iterations in an acceleration cycle.
 * ITYPEC  type of flux evaluation:
+*         =-2 Fourier analysis;
 *         =-1 skip the flux calculation;
 *         =0 fixed sources;
 *         =1 fixed source eigenvalue problem (GPT type);
@@ -111,6 +112,7 @@
 *----
 *
       USE GANLIB
+      USE DOORS_MOD
 *----
 *  SUBROUTINE ARGUMENTS
 *----
@@ -122,7 +124,7 @@
       REAL EPSINR,EPSUNK,EPSOUT,VOL(NREG),XSTRC(0:NMAT,NGRP),
      1 XSDIA(0:NMAT,0:NANIS,NGRP),XSNUF(0:NMAT,NIFIS,NGRP),
      2 XSCHI(0:NMAT,NIFIS,NGRP)
-      CHARACTER CXDOOR*12,TITLE*72,OPTION*4
+      CHARACTER CXDOOR*12,TITLE*72,OPTION*4,HLEAK*6
       LOGICAL LFORW,LEAKSW,LREBAL,CFLI,CEXE
       DOUBLE PRECISION REFKEF
 *----
@@ -204,7 +206,6 @@
       NFOU=0
       LX=0
       ITYPE=0
-      NANIS_TRK=1
       IF(CXDOOR.EQ.'MCCG') THEN
          CALL LCMGET(IPTRK,'STATE-VECTOR',JPAR)
          NANIS_TRK=JPAR(6)
@@ -226,20 +227,9 @@
          NDIM=JPAR(9)
          LX=JPAR(12)
          LY=JPAR(13)
-         NANIS_TRK=JPAR(16)
          INSB=JPAR(27)
          IBFP=JPAR(31)
          NFOU=JPAR(34)
-      ELSE IF(CXDOOR.EQ.'BIVAC') THEN
-         CALL LCMGET(IPTRK,'STATE-VECTOR',JPAR)
-         IELEM=JPAR(8)
-         NANIS_TRK=ABS(JPAR(16))
-         IF(IELEM.NE.1) CALL XABORT('FLU2DR: ONLY IELEM=1 AVAILABLE.')
-      ELSE IF(CXDOOR.EQ.'TRIVAC') THEN
-         CALL LCMGET(IPTRK,'STATE-VECTOR',JPAR)
-         IELEM=JPAR(9)
-         NANIS_TRK=ABS(JPAR(32))
-         IF(IELEM.NE.1) CALL XABORT('FLU2DR: ONLY IELEM=1 AVAILABLE.')
       ENDIF
 *----
 *  SELECT THE CALCULATION DOORS FOR WHICH A GROUP-BY-GROUP SCALAR
@@ -319,12 +309,8 @@
          KPMACR=LCMGIL(JPMACR,IG)
          FXSOR(0)=0.0
          CALL LCMGET(KPMACR,'FIXE',FXSOR(1))
-         DO 15 IE=1,NLIN
-         DO 10 IR=1,NREG
-         IND=KEYFLX(IR,IE,1)
-         IF(IND.NE.0) FLUX(IND,IG,4)=FXSOR(MATCOD(IR))
-   10    CONTINUE
-   15    CONTINUE
+         CALL DOORS(CXDOOR,IPTRK,NMAT,0,NUNKNO,FXSOR,
+     >   FLUX(1,IG,4))
       ELSE IF(((ITYPEC.EQ.0).OR.(ITYPEC.EQ.1).OR.(ITYPEC.EQ.-2))
      1 .AND.C_ASSOCIATED(IPSOU))THEN
          IF(LFORW) THEN
@@ -362,7 +348,7 @@
       IFACOUNT=-1
    26 IFACOUNT=IFACOUNT+1
 *
-      IF(ITYPEC.EQ.-2)THEN
+      IF(ITYPEC.EQ.-2) THEN
          IF(NFOU.EQ.0)
      >      CALL XABORT('FLU2DR: NEED TO SPECIFY FOURIER ANALYSIS '
      >      //'KEYWORD NFOU IN TRACKING, AS WELL AS NUMBER OF '
@@ -546,10 +532,8 @@
           KPMACR=LCMGIL(JPMACR,IG)
           FXSOR(0)=0.0
           CALL LCMGET(KPMACR,'FIXE',FXSOR(1))
-          DO IR=1,NREG
-            IND=KEYFLX(IR,1,1)
-            IF(IND.GT.0) FLUX(IND,IG,4)=FXSOR(MATCOD(IR))
-          ENDDO
+          CALL DOORS(CXDOOR,IPTRK,NMAT,0,NUNKNO,FXSOR,
+     >    FLUX(1,IG,4))
         ENDDO
         DEALLOCATE(FXSOR)
       ELSE IF((ITYPEC.EQ.0).OR.(ITYPEC.EQ.-2)) THEN
@@ -570,50 +554,59 @@
           DO IUN=1,NUNKNO
             FLUX(IUN,IG,4)=-FLUX(IUN,IG,4)
           ENDDO
-          DO IA=1,NFUNL
-            DO IE=1,NLIN
-              DO IR=1,NREG
-                IUN=KEYFLX(IR,IE,IA)
-                IF(IUN.GT.0) FLUX(IUN,IG,4)=FLUX(IUN,IG,4)/VOL(IR)
-              ENDDO
-            ENDDO
-          ENDDO
         ENDDO
       ELSE
         FLUX(:NUNKNO,:NGRP,4)=0.0
       ENDIF
       IF(NIFIS.GT.0) THEN
-        DO 30 IR=1,NREG
-        IBM=MATCOD(IR)
-        IF(IBM.GT.0) THEN
-          DO IE=1,NLIN
-            IND=KEYFLX(IR,IE,1)
-            DO IS=1,NIFIS
-              FISOUR=0.0D0
-              DO IG=1,NGRP
-                FISOUR=FISOUR+XSNUF(IBM,IS,IG)*FLUX(IND,IG,2)
-              ENDDO
-              FISOUR=FISOUR*AFLNOR
-              DO  IG=1,NGRP
-                FLUX(IND,IG,4)=FLUX(IND,IG,4)+XSCHI(IBM,IS,IG)*
-     >          REAL(FISOUR)
+        IF(CXDOOR.EQ.'BIVAC') THEN
+          CALL BIVFIS(IPTRK,NREG,NMAT,NIFIS,NUNKNO,NGRP,MATCOD,VOL,
+     >    XSCHI,XSNUF,FLUX(1,1,2),FLUX(1,1,4))
+        ELSE IF(CXDOOR.EQ.'TRIVAC') THEN
+          CALL TRIFIS(IPTRK,NREG,NMAT,NIFIS,NUNKNO,NGRP,MATCOD,VOL,
+     >    XSCHI,XSNUF,FLUX(1,1,2),FLUX(1,1,4))
+        ELSE
+          ALLOCATE(FXSOR(NUNKNO))
+          DO IS=1,NIFIS
+            FXSOR(:NUNKNO)=0.0
+            DO IG=1,NGRP
+              CALL DOORS(CXDOOR,IPTRK,NMAT,0,NUNKNO,XSNUF(0,IS,IG),
+     >        FXSOR,FLUX(1,IG,2))
+            ENDDO
+            DO IR=1,NREG
+              IBM=MATCOD(IR)
+              IF(IBM.EQ.0) CYCLE
+              DO IE=1,NLIN
+                IND=KEYFLX(IR,IE,1)
+                IF(IND.EQ.0) CYCLE
+                DO IG=1,NGRP
+                  FLUX(IND,IG,4)=FLUX(IND,IG,4)+XSCHI(IBM,IS,IG)*
+     >            FXSOR(IND)
+                ENDDO
               ENDDO
             ENDDO
-          ENDDO
+          ENDDO ! IS
+          DEALLOCATE(FXSOR)
         ENDIF
-   30   CONTINUE
+        FLUX(:NUNKNO,:NGRP,4)=FLUX(:NUNKNO,:NGRP,4)*REAL(AFLNOR)
       ENDIF
+*----
+*  VOLUME-INTEGRATED SOURCE CALCULATION FOR USE IN NEUTRON BALANCE
+*----
       DO IG=1,NGRP
         XCSOU(IG)=0.0D0
         DO IR=1,NREG
           IND=KEYFLX(IR,1,1)
-          IF(IND.GT.0) XCSOU(IG)=XCSOU(IG)+FLUX(IND,IG,4)*VOL(IR)
+          IF((CXDOOR.EQ.'BIVAC').OR.(CXDOOR.EQ.'TRIVAC')) THEN
+            ! volumes are already included in the sources
+            IF(IND.GT.0) XCSOU(IG)=XCSOU(IG)+FLUX(IND,IG,4)
+          ELSE
+            IF(IND.GT.0) XCSOU(IG)=XCSOU(IG)+FLUX(IND,IG,4)*VOL(IR)
+          ENDIF
         ENDDO
       ENDDO
       ISBS=-1
-      IF(C_ASSOCIATED(IPSOU)) THEN
-        CALL LCMLEN(IPSOU,'NBS',ISBS,ITYLCM)
-      ENDIF
+      IF(C_ASSOCIATED(IPSOU)) CALL LCMLEN(IPSOU,'NBS',ISBS,ITYLCM)
 *----
 *  SET THE STARTING ENERGY GROUP
 *----
@@ -639,30 +632,8 @@
          IF((CXDOOR.EQ.'BIVAC').OR.(CXDOOR.EQ.'TRIVAC')) THEN
             CALL XABORT('FLU2DR: SCATTERING REDUCTION IS MANDATORY.')
          ENDIF
-         DO 63 IR=1,NREG
-         IBM=MATCOD(IR)
-         DO 62 IE=1,NLIN
-         DO 61 IAL=0,MIN(NLF-1,NANIS)
-         XXS=XSDIA(IBM,IAL,IG)*REAL(2*IAL+1)
-         DO 60 IAM=0,MIN(NLF-1,NANIS)
-         IND=0
-         IF(NDIM.EQ.3) THEN
-           IND=KEYFLX(IR,IE,1+IAL*NANIS_TRK+IAM)
-         ELSE IF((NDIM.EQ.2).AND.(IAM.LE.IAL)) THEN
-           IND=KEYFLX(IR,IE,1+IAL*(IAL+1)/2+IAM)
-         ELSE IF(IAM.EQ.IAL) THEN
-           IND=KEYFLX(IR,IE,1+IAL)
-         ENDIF
-         IF(IND.EQ.0) THEN
-           GO TO 60
-         ELSE IF(IND.GT.NUNKNO) THEN
-           CALL XABORT('FLU2DR: NFUNL OVERFLOW(1).')
-         ENDIF
-         FLUX(IND,IG,8)=FLUX(IND,IG,8)+XXS*FLUX(IND,IG,7)
-   60    CONTINUE
-   61    CONTINUE
-   62    CONTINUE
-   63    CONTINUE
+         CALL DOORS(CXDOOR,IPTRK,NMAT,NANIS,NUNKNO,XSDIA(0,0,IG),
+     >   FLUX(1,IG,8),FLUX(1,IG,7))
       ENDIF
       IF(ILEAK.EQ.6) THEN
 *        ECCO ISOTROPIC STREAMING MODEL.
@@ -725,106 +696,35 @@
 *----
       IF(.NOT.LSCAL) THEN 
          KPMACR=LCMGIL(JPMACR,IG)
+         NUNK2=NUNKNO
+         IF(ILEAK.EQ.6) NUNK2=NUNKNO/2
+         IF(ILEAK.GE.7) NUNK2=NUNKNO/4
          IF((CXDOOR.EQ.'SN').AND.(IBFP.EQ.0)) THEN
             NUNK2=NUNKNO
-            IF(ILEAK.EQ.6) NUNK2=NUNKNO/2
             CALL SNSOUR(NUNKNO,IG,IPTRK,KPMACR,NANIS,NREG,NMAT,NUNK2,
      1      NGRP,MATCOD,FLUX(1,1,7),FLUX(1,1,8))
          ELSE IF(CXDOOR.EQ.'SN') THEN
             NUNK2=NUNKNO
-            IF(ILEAK.EQ.6) NUNK2=NUNKNO/2
             IPSTR=LCMGID(IPSYS,'STREAMING')
             JPSTR=LCMGID(IPSTR,'GROUP')
             KPSYS=LCMGIL(JPSTR,IG)
             CALL SNSBFP(IG,IPTRK,KPMACR,KPSYS,NANIS,NLF,NREG,NMAT,
      1      NUNK2,NGRP,MATCOD,FLUX(1,1,7),FLUX(1,1,8))
          ELSE
-            DO 105 IAL=0,MIN(NLF-1,NANIS)
-            CALL LCMGET(KPMACR,'NJJS'//CAN(IAL),NJJ(1))
-            CALL LCMGET(KPMACR,'IJJS'//CAN(IAL),IJJ(1))
-            CALL LCMGET(KPMACR,'IPOS'//CAN(IAL),IPOS(1))
-            CALL LCMGET(KPMACR,'SCAT'//CAN(IAL),XSCAT(1))
-            DO 100 IR=1,NREG
-            IBM=MATCOD(IR)
-            IF(IBM.GT.0) THEN
-               DO 92 IE=1,NLIN
-               DO 91 IAM=0,MIN(NLF-1,NANIS)
-               IND=0
-               IF(NDIM.EQ.3) THEN
-                 IND=KEYFLX(IR,IE,1+IAL*NANIS_TRK+IAM)
-               ELSE IF((NDIM.EQ.2).AND.(IAM.LE.IAL)) THEN
-                 IND=KEYFLX(IR,IE,1+IAL*(IAL+1)/2+IAM)
-               ELSE IF(IAM.EQ.IAL) THEN
-                 IND=KEYFLX(IR,IE,1+IAL)
-               ENDIF
-               IF(IND.EQ.0) THEN
-                 GO TO 91
-               ELSE IF(IND.GT.NUNKNO) THEN
-                 CALL XABORT('FLU2DR: NFUNL OVERFLOW(2).')
-               ENDIF
-               JG=IJJ(IBM)
-               DO 90 JND=1,NJJ(IBM)
-               IF(JG.NE.IG) THEN
-                  FLUX(IND,IG,8)=FLUX(IND,IG,8)+REAL(2*IAL+1)*
-     >            XSCAT(IPOS(IBM)+JND-1)*FLUX(IND,JG,7)
-               ENDIF
-               JG=JG-1
-  90           CONTINUE
-  91           CONTINUE
-  92           CONTINUE
-            ENDIF
- 100        CONTINUE
- 105        CONTINUE
+            HLEAK='      '
+            CALL FLUSOU(CXDOOR,HLEAK,NUNKNO,IG,IPTRK,KPMACR,NMAT,NANIS,
+     1      NUNK2,NGRP,FLUX(1,1,7),FLUX(1,1,8))
          ENDIF
          IF((ILEAK.EQ.6).AND.(OPTION(2:2).EQ.'1')) THEN
 *           ECCO ISOTROPIC STREAMING MODEL.
-            CALL LCMGET(KPMACR,'NJJS01',NJJ(1))
-            CALL LCMGET(KPMACR,'IJJS01',IJJ(1))
-            CALL LCMGET(KPMACR,'IPOS01',IPOS(1))
-            CALL LCMGET(KPMACR,'SCAT01',XSCAT(1))
-            DO 125 IE=1,NLIN
-            DO 120 IR=1,NREG
-            IBM=MATCOD(IR)
-            IF(IBM.GT.0) THEN
-               IND=NUNKNO/2+KEYFLX(IR,IE,1)
-               JG=IJJ(IBM)
-               DO 110 JND=1,NJJ(IBM)
-               IF(JG.NE.IG) THEN
-                  FLUX(IND,IG,8)=FLUX(IND,IG,8)+XSCAT(IPOS(IBM)+JND-1)*
-     >            FLUX(IND,JG,7)
-               ENDIF
-               JG=JG-1
-  110          CONTINUE
-            ENDIF
-  120       CONTINUE
-  125       CONTINUE
+            HLEAK='ECCO  '
+            CALL FLUSOU(CXDOOR,HLEAK,NUNKNO,IG,IPTRK,KPMACR,NMAT,NANIS,
+     1      NUNK2,NGRP,FLUX(1,1,7),FLUX(1,1,8))
          ELSE IF(ILEAK.GE.7) THEN
 *           TIBERE ANISOTROPIC STREAMING MODEL.
-            CALL LCMGET(KPMACR,'NJJS01',NJJ(1))
-            CALL LCMGET(KPMACR,'IJJS01',IJJ(1))
-            CALL LCMGET(KPMACR,'IPOS01',IPOS(1))
-            CALL LCMGET(KPMACR,'SCAT01',XSCAT(1))
-            DO IE=1,NLIN
-              DO IR=1,NREG
-                IBM=MATCOD(IR)
-                IF(IBM.GT.0) THEN
-                  INDD(1)=NUNKNO/4+KEYFLX(IR,IE,1)
-                  INDD(2)=NUNKNO/2+KEYFLX(IR,IE,1)
-                  INDD(3)=3*NUNKNO/4+KEYFLX(IR,IE,1)
-                  DO IDIR=1,3
-                    IND=INDD(IDIR)
-                    JG=IJJ(IBM)
-                    DO JND=1,NJJ(IBM)
-                      IF(JG.NE.IG) THEN
-                        FLUX(IND,IG,8)=FLUX(IND,IG,8)+
-     >                  XSCAT(IPOS(IBM)+JND-1)*FLUX(IND,JG,7)
-                      ENDIF
-                      JG=JG-1
-                    ENDDO
-                  ENDDO
-                ENDIF
-              ENDDO
-            ENDDO
+            HLEAK='TIBERE'
+            CALL FLUSOU(CXDOOR,HLEAK,NUNKNO,IG,IPTRK,KPMACR,NMAT,NANIS,
+     1      NUNK2,NGRP,FLUX(1,1,7),FLUX(1,1,8))
          ENDIF
       ENDIF
   140 CONTINUE
@@ -865,12 +765,13 @@
          KPMACR=LCMGIL(JPMACR,IG)
          NUNK2=NUNKNO
          IF(ILEAK.EQ.6) NUNK2=NUNKNO/2
+         IF(ILEAK.GE.7) NUNK2=NUNKNO/4
          IF(CXDOOR.EQ.'BIVAC') THEN
             CALL BIVSOU(NUNKNO,IG,IPTRK,KPMACR,NANIS,NREG,NMAT,NUNK2,
      1      NGRP,MATCOD,VOL,FLUX(1,1,7),FLUX(1,1,8))
          ELSE IF(CXDOOR.EQ.'TRIVAC') THEN
             CALL TRIVSO(NUNKNO,IG,IPTRK,KPMACR,NANIS,NREG,NMAT,NUNK2,
-     1      NGRP,MATCOD,KEYFLX(1,1,1),VOL,FLUX(1,1,7),FLUX(1,1,8))
+     1      NGRP,MATCOD,VOL,FLUX(1,1,7),FLUX(1,1,8))
          ELSE IF((CXDOOR.EQ.'SN').AND.(IBFP.EQ.0)) THEN
             CALL SNSOUR(NUNKNO,IG,IPTRK,KPMACR,NANIS,NREG,NMAT,NUNK2,
      1      NGRP,MATCOD,FLUX(1,1,7),FLUX(1,1,8))
@@ -880,91 +781,20 @@
             CALL SNSBFP(IG,IPTRK,KPMACR,KPSYS,NANIS,NLF,NREG,NMAT,
      1      NUNK2,NGRP,MATCOD,FLUX(1,1,7),FLUX(1,1,8))
          ELSE
-            DO 182 IAL=0,MIN(NLF-1,NANIS)
-            CALL LCMGET(KPMACR,'NJJS'//CAN(IAL),NJJ(1))
-            CALL LCMGET(KPMACR,'IJJS'//CAN(IAL),IJJ(1))
-            CALL LCMGET(KPMACR,'IPOS'//CAN(IAL),IPOS(1))
-            CALL LCMGET(KPMACR,'SCAT'//CAN(IAL),XSCAT(1))
-            DO 181 IE=1,NLIN
-            DO 180 IR=1,NREG
-            IBM=MATCOD(IR)
-            IF(IBM.GT.0) THEN
-               DO 175 IAM=0,MIN(NLF-1,NANIS)
-               IND=0
-               IF(NDIM.EQ.3) THEN
-                 IND=KEYFLX(IR,IE,1+IAL*NANIS_TRK+IAM)
-               ELSE IF((NDIM.EQ.2).AND.(IAM.LE.IAL)) THEN
-                 IND=KEYFLX(IR,IE,1+IAL*(IAL+1)/2+IAM)
-               ELSE IF(IAM.EQ.IAL) THEN
-                 IND=KEYFLX(IR,IE,1+IAL)
-               ENDIF
-               IF(IND.EQ.0) THEN
-                 GO TO 175
-               ELSE IF(IND.GT.NUNKNO) THEN
-                 CALL XABORT('FLU2DR: NFUNL OVERFLOW(3).')
-               ENDIF
-               JG=IJJ(IBM)
-               DO 170 JND=1,NJJ(IBM)
-               IF(JG.NE.IG) THEN
-                  FLUX(IND,IG,8)=FLUX(IND,IG,8)+REAL(2*IAL+1)*
-     >            XSCAT(IPOS(IBM)+JND-1)*FLUX(IND,JG,7)
-               ENDIF
-               JG=JG-1
-  170          CONTINUE
-  175          CONTINUE
-            ENDIF
-  180       CONTINUE
-  181       CONTINUE
-  182       CONTINUE
+            HLEAK='      '
+            CALL FLUSOU(CXDOOR,HLEAK,NUNKNO,IG,IPTRK,KPMACR,NMAT,NANIS,
+     1      NUNK2,NGRP,FLUX(1,1,7),FLUX(1,1,8))
          ENDIF
-         IF((ILEAK.GE.6).AND.(OPTION(2:2).EQ.'1')) THEN
-            CALL LCMGET(KPMACR,'NJJS01',NJJ(1))
-            CALL LCMGET(KPMACR,'IJJS01',IJJ(1))
-            CALL LCMGET(KPMACR,'IPOS01',IPOS(1))
-            CALL LCMGET(KPMACR,'SCAT01',XSCAT(1))
-            IF(ILEAK.EQ.6) THEN
-*              ECCO ISOTROPIC STREAMING MODEL.
-               KPSTR=LCMGIL(JPSTR,IG)
-               DO 205 IE=1,NLIN
-               DO 200 IR=1,NREG
-               IBM=MATCOD(IR)
-               IF(IBM.GT.0) THEN
-                  IND=NUNKNO/2+KEYFLX(IR,IE,1)
-                  JG=IJJ(IBM)
-                  DO 190 JND=1,NJJ(IBM)
-                  IF(JG.NE.IG) THEN
-                     FLUX(IND,IG,8)=FLUX(IND,IG,8)+
-     >               XSCAT(IPOS(IBM)+JND-1)*FLUX(IND,JG,7)
-                  ENDIF
-                  JG=JG-1
-  190             CONTINUE
-               ENDIF
-  200          CONTINUE
-  205          CONTINUE
-            ELSE IF(ILEAK.GE.7) THEN
-*              TIBERE ANISOTROPIC STREAMING MODEL.
-               DO 225 IE=1,NLIN
-               DO 220 IR=1,NREG
-               IBM=MATCOD(IR)
-               IF(IBM.GT.0) THEN
-                  INDD(1)=NUNKNO/4+KEYFLX(IR,IE,1)
-                  INDD(2)=NUNKNO/2+KEYFLX(IR,IE,1)
-                  INDD(3)=3*NUNKNO/4+KEYFLX(IR,IE,1)
-                  DO 215 IDIR=1,3
-                  IND=INDD(IDIR)
-                  JG=IJJ(IBM)
-                  DO 210 JND=1,NJJ(IBM)
-                  IF(JG.NE.IG) THEN
-                     FLUX(IND,IG,8)=FLUX(IND,IG,8)+
-     >               XSCAT(IPOS(IBM)+JND-1)*FLUX(IND,JG,7)
-                  ENDIF
-                  JG=JG-1
-  210             CONTINUE
-  215             CONTINUE
-               ENDIF
-  220          CONTINUE
-  225          CONTINUE
-            ENDIF
+         IF((ILEAK.EQ.6).AND.(OPTION(2:2).EQ.'1')) THEN
+*           ECCO ISOTROPIC STREAMING MODEL.
+            HLEAK='ECCO  '
+            CALL FLUSOU(CXDOOR,HLEAK,NUNKNO,IG,IPTRK,KPMACR,NMAT,NANIS,
+     1      NUNK2,NGRP,FLUX(1,1,7),FLUX(1,1,8))
+         ELSE IF(ILEAK.GE.7) THEN
+*           TIBERE ANISOTROPIC STREAMING MODEL.
+            HLEAK='TIBERE'
+            CALL FLUSOU(CXDOOR,HLEAK,NUNKNO,IG,IPTRK,KPMACR,NMAT,NANIS,
+     1      NUNK2,NGRP,FLUX(1,1,7),FLUX(1,1,8))
          ENDIF
 *
          NPSYS(:NGRP)=0
@@ -1082,22 +912,38 @@
           CALL LCMGDL(JPFLUP1,NGRP-IG+1,FLUX(1,IG,6)) ! EVECT
         ENDIF
   300   CONTINUE
-        DO 335 IG=1,NGRP
-        FLUX(:NUNKNO,IG,7)=0.0
-        DO 325 IE=1,NLIN
-        DO 320 IR=1,NREG
-        IBM=MATCOD(IR)
-        IF(IBM.GT.0) THEN
-          IND=KEYFLX(IR,IE,1)
-          DO 315 IS=1,NIFIS
-          DO 310 JG=1,NGRP
-          FLUX(IND,IG,7)=FLUX(IND,IG,7)+VOL(IR)*XSNUF(IBM,IS,IG)*
-     1    XSCHI(IBM,IS,JG)*FLUX(IND,JG,6)
-  310     CONTINUE
-  315     CONTINUE
+        FLUX(:NUNKNO,:NGRP,7)=0.0
+        IF(CXDOOR.EQ.'BIVAC') THEN
+          CALL BIVFIS(IPTRK,NREG,NMAT,NIFIS,NUNKNO,NGRP,MATCOD,VOL,
+     >    XSCHI,XSNUF,FLUX(1,1,6),FLUX(1,1,7))
+        ELSE IF(CXDOOR.EQ.'TRIVAC') THEN
+          CALL TRIFIS(IPTRK,NREG,NMAT,NIFIS,NUNKNO,NGRP,MATCOD,VOL,
+     >    XSCHI,XSNUF,FLUX(1,1,6),FLUX(1,1,7))
+        ELSE
+          ALLOCATE(FXSOR(NUNKNO))
+          DO IS=1,NIFIS
+            FXSOR(:NUNKNO)=0.0
+            DO IG=1,NGRP
+              CALL DOORS(CXDOOR,IPTRK,NMAT,0,NUNKNO,XSNUF(0,IS,IG),
+     >        FXSOR,FLUX(1,IG,6))
+            ENDDO
+            DO IR=1,NREG
+              IBM=MATCOD(IR)
+              IF(IBM.EQ.0) CYCLE
+              DO IE=1,NLIN
+                IND=KEYFLX(IR,IE,1)
+                IF(IND.EQ.0) CYCLE
+                DO IG=1,NGRP
+                  FLUX(IND,IG,7)=FLUX(IND,IG,7)+XSCHI(IBM,IS,IG)*
+     >            FXSOR(IND)
+                ENDDO
+              ENDDO
+            ENDDO
+          ENDDO ! IS
+          DEALLOCATE(FXSOR)
         ENDIF
-  320   CONTINUE
-  325   CONTINUE
+*
+        DO 335 IG=1,NGRP
         DO 330 IND=1,NUNKNO
         DDELN1=DDELN1+FLUX(IND,IG,7)*FLUX(IND,IG,3)
         DDELD1=DDELD1+FLUX(IND,IG,7)*FLUX(IND,IG,5)

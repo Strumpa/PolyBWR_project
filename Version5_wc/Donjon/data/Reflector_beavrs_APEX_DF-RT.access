@@ -13,37 +13,25 @@ elif [ $Sysx = "Darwin" ]; then
 elif [ $Sysx = "SunOS" ]; then
    MACH=`uname -sm | sed 's/[ ]/_/'`
 fi
-pos=$1/../../libraries/hdf5
-echo 'library directory=' $pos
-if [ -f "$pos"/ap3lib-xsect-CEA93_CLA99_GV0LUX_N.h5.gz ]
+if [ "$MACH" = "Linux" -o "$MACH" = "OSF1" -o "$MACH" = "Cygwin" -o "$MACH" = "SunOS_i86pc" \
+-o "$MACH" = "Darwin_i386" -o "$MACH" = "Darwin_x86_64" -o "$MACH" = "Darwin_arm64" \
+-o "$MACH" = "Linux_aarch64" ]
+then 
+echo 'use little endian libraries'
+pos=$1/../../libraries/l_endian
+else
+echo 'use big endian libraries'
+pos=$1/../../libraries/b_endian
+fi
+if [ -f "$pos"/draglibJef2p2Apolib99.gz ]
    then
-    echo 'gunzipping CLA99CEA93'
+    echo 'gunzipping DLIB_99'
     chmod 755 "$pos"
-    gunzip "$pos"/ap3lib-xsect-CEA93_CLA99_GV0LUX_N.h5.gz
+    gunzip "$pos"/draglibJef2p2Apolib99.gz
 fi
-if [ -f "$pos"/ap3lib-xsect-CEA93_CLA99_GV0LUX_N.h5 ]
+if [ -f "$pos"/draglibJef2p2Apolib99 ]
    then
-    ln -s "$pos"/ap3lib-xsect-CEA93_CLA99_GV0LUX_N.h5 CLA99CEA93
-fi
-if [ -f "$pos"/ap3lib-autop-1-CEA93_CLA99_GV0LUX_N.h5.gz ]
-   then
-    echo 'gunzipping CLA99CEA93_SS'
-    chmod 755 "$pos"
-    gunzip "$pos"/ap3lib-autop-1-CEA93_CLA99_GV0LUX_N.h5.gz
-fi
-if [ -f "$pos"/ap3lib-autop-1-CEA93_CLA99_GV0LUX_N.h5 ]
-   then
-    ln -s "$pos"/ap3lib-autop-1-CEA93_CLA99_GV0LUX_N.h5 CLA99CEA93_SS
-fi
-if [ -f "$pos"/Depletion_Data_CH_STD_CEA93_V10_withYields.h5.gz ]
-   then
-    echo 'gunzipping CLA99CEA93_EVO'
-    chmod 755 "$pos"
-    gunzip "$pos"/Depletion_Data_CH_STD_CEA93_V10_withYields.h5.gz
-fi
-if [ -f "$pos"/Depletion_Data_CH_STD_CEA93_V10_withYields.h5 ]
-   then
-    ln -s "$pos"/Depletion_Data_CH_STD_CEA93_V10_withYields.h5 CLA99CEA93_EVO
+    ln -s "$pos"/draglibJef2p2Apolib99 DLIB_99
 fi
 ln -s $1/data/Reflector_beavrs_APEX_DF-RT_proc/assbly_caseA_apex.hdf .
 ls -l

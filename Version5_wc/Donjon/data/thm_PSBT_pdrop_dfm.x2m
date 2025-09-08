@@ -1,0 +1,22 @@
+* Series of non-regresion tests for PDROP+DFM keywords in THM:
+* Date 08/08/2025
+* Author : R.Guasch
+* PSBT : Steady State Void Distribution Test Series 1 - Internal Subchannel without a Guide Tube.
+* Single sub-channel with heated perimeter : constant axial power profile. 
+* Different tests involve varying :
+*       - normalization power, 
+*       - outlet pressure, 
+*       - inlet temperature,
+*       - coolant temperature.
+* Tests "1.1222", "1.2211", "1.4312", "1.5221", "1.6221"
+
+
+PROCEDURE PSBT_1_1222 PSBT_1_2211 PSBT_1_4312 PSBT_1_5221 PSBT_1_6221 ;
+
+
+PSBT_1_1222 ;
+PSBT_1_2211 ;
+PSBT_1_4312 ;
+PSBT_1_5221 ;
+PSBT_1_6221 ;
+

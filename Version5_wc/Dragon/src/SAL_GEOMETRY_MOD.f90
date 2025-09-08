@@ -2215,6 +2215,7 @@ CONTAINS
        ANGLE=0._PDB
        DO I=1,GG%NBBCDA
           ITBC=ITBC+1
+          IF(ITBC.GT.GG%NB_ELEM+5) CALL XABORT('SAL131: BCDATA overflow')
           TMP_BCDATA(:,ITBC)=GG%BCDATAREAD(I)%BCDATA(:)
           TYPE=GG%BCDATAREAD(I)%SALTYPE
           SELECT CASE(TYPE)
@@ -2435,7 +2436,6 @@ CONTAINS
     ENDIF
     !*    allocate bcdata
     ALLOCATE (GG%BCDATA(G_BC_MAX_LEN,ITBC), STAT=OK)
-    ! set to zero
     IF(OK/=0) CALL XABORT('SAL131: not enough memory R')
     GG%BCDATA(:,1:ITBC)=TMP_BCDATA(:,1:ITBC)
     GG%NALBG=ITBC

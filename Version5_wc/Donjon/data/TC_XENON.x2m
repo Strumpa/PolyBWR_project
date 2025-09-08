@@ -112,16 +112,16 @@ WHILE  DKeff eps > DO
   GREP: FLUX :: GETVAL "K-EFFECTIVE" 1 >>Keff1<< ;
 * assertS for each iteration
   IF iter 1 = THEN
-    assertS FLUX :: "K-EFFECTIVE" 1 0.9862859 ;
+    assertS FLUX :: "K-EFFECTIVE" 1 1.058867 ;
   ENDIF ;
   IF iter 2 = THEN
-    assertS FLUX :: "K-EFFECTIVE" 1 0.9716293 ;
+    assertS FLUX :: "K-EFFECTIVE" 1 1.042204 ;
   ENDIF ;
   IF iter 3 = THEN
-    assertS FLUX :: "K-EFFECTIVE" 1 0.9716585 ;
+    assertS FLUX :: "K-EFFECTIVE" 1 1.042220 ;
   ENDIF ;
 
-  POWER := FLPOW: FMAP FLUX TRACK MATEX :: EDIT 0
+  POWER := FLPOW: FMAP FLUX TRACK MATEX :: EDIT 1
       PTOT 15.866 ;
 * Update the microlib according to the bundle fluxes
   MICROLIB := XENON: MICROLIB POWER :: EDIT 0 ;

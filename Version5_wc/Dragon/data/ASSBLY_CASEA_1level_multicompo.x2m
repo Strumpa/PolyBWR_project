@@ -1,0 +1,245 @@
+*************************************************************************
+*  case ASSBLY_CASEA                                                    *
+*  295-group 1/8-th assembly in DRAGON -- 1-level scheme                *
+*  production of a Multicompo file for TC_EVO and TC_XENON Donjon cases *
+*  Author: A. Canbakan                                                  *
+*************************************************************************
+
+! BEGIN STRUCTURES and MODULES
+SEQ_ASCII _MyCompo :: FILE './MyCompo.txt' ;
+LINKED_LIST MyCompo GEOSS GEON2 TRACKSS TRACKN2 LIBRARY LIBRARY2
+            SYS FLUX2 EDIOBJ DONNEES BURNUP ;
+MODULE SYBILT: G2S: SALT: MCCGT: USS: ASM: FLU: EDI: UTL: DELETE:
+       END: EVO: GREP: LIB: COMPO: SPH: ABORT: ;
+REAL Rcomb1 Rcomb2 Rcomb3 Rcomb4 R_int_TG R_ext_TG R_int_TI R_ext_TI
+     R_int_G R_ext_G Cote CoteL RmodeN1 Lame ;
+SEQ_ASCII ASSBLY_CASEA :: FILE './ASSBLY_CASEA_g2s.txt' ;
+SEQ_ASCII FIGASB_CASEA :: FILE './FIGASB_CASEA.ps' ;
+SEQ_BINARY TF_EXC ;
+INTEGER an2d := 8 ;
+REAL densur := 20.0 ;
+INTEGER ical ;
+INTEGER istep maxstep istepNext maxautop iAutop iEdit := 0 20 0 16 1 1 ;
+REAL delr BUbeg BUend Tbeg Tend := 0.01 0.0 0.0 0.0 0.0 ;
+REAL Fuelpwr Kinf := 39.0 0.0 ;
+REAL BU BUautop  := 0.0 0.0 ;
+STRING Library := "DLIB_J3" ;
+PROCEDURE Geo_SS Geo_N2 Mix_UOX ;
+PROCEDURE assertS ;
+! END STRUCTURES AND MODULES
+
+! BEGIN GEOMETRY
+EVALUATE Rcomb4 := 0.4096 ;
+EVALUATE Rcomb1 := 0.5 SQRT Rcomb4 * ;
+EVALUATE Rcomb2 := 0.8 SQRT Rcomb4 * ;
+EVALUATE Rcomb3 := 0.95 SQRT Rcomb4 * ;
+EVALUATE R_int_TG := 0.5605 ;
+EVALUATE R_ext_TG := 0.6225 ;
+EVALUATE R_int_TI := 0.5725 ;
+EVALUATE R_ext_TI := 0.6225 ;
+EVALUATE R_int_G := 0.4180 ;
+EVALUATE R_ext_G := 0.4750 ;
+EVALUATE Cote := 1.26 ;
+EVALUATE CoteL := 1.302 ;
+EVALUATE Lame := CoteL Cote - ;
+EVALUATE RmodeN1 := 0.670 ;
+
+GEOSS := Geo_SS :: <<Rcomb1>> <<Rcomb2>> <<Rcomb3>> <<Rcomb4>>
+                      <<R_int_TG>> <<R_ext_TG>> <<R_int_TI>>
+                      <<R_ext_TI>> <<R_int_G>> <<R_ext_G>> <<Cote>>
+                      <<CoteL>> ;
+
+GEON2 := Geo_N2 :: <<Rcomb1>> <<Rcomb2>> <<Rcomb3>> <<Rcomb4>>
+                      <<R_int_TG>> <<R_ext_TG>> <<R_int_TI>>
+                      <<R_ext_TI>> <<R_int_G>> <<R_ext_G>> <<Cote>>
+                      <<Lame>> ;
+
+ASSBLY_CASEA FIGASB_CASEA := G2S: GEON2 ;
+! END GEOMETRY
+
+! BEGIN DECLARATION
+DONNEES := UTL: ::
+  CREA
+    BURN <<maxstep>> =
+            0.0      10.0      30.0      50.0      75.0     150.0
+          250.0     375.0     500.0     625.0     750.0    1000.0
+         1250.0    1500.0    1750.0    2000.0    2500.0    3000.0
+         3500.0    4000.0
+;
+DONNEES := UTL: DONNEES ::
+  CREA
+    AUTOP <<maxautop>> =
+           10.0     150.0     250.0     375.0     500.0     625.0
+          750.0    1000.0    1250.0    1500.0    1750.0    2000.0
+         2500.0    3000.0    3500.0    4000.0
+;
+! END DECLARATION
+
+! BEGIN TRACKING
+! Level One
+TRACKSS := SYBILT: GEOSS ::
+  EDIT 0
+  MAXR 500
+  MAXZ  1000000
+  TITLE 'TRACKING FOR ASSEMBLY SS'
+  QUA2 20 3
+  DP01  
+;
+! MOC tracking for flux calculation
+TRACKN2 TF_EXC := SALT: ASSBLY_CASEA ::
+  EDIT 3
+  ALLG BATCH 300
+  TSPC EQW2 <<an2d>> <<densur>> REND
+;
+TRACKN2 := MCCGT: TRACKN2 TF_EXC ::
+  CACB 4 AAC 80 TMT EPSI 1E-5 MCU 10000
+;
+! END TRACKING
+
+************************************************************************
+*  BEGIN MyCompo INITIALIZATION                                        *
+************************************************************************
+  MyCompo := COMPO: ::
+    EDIT 10
+    STEP UP 'fuel'
+    MAXCAL 5
+    COMM 'Burnup-dependent assembly' ENDC
+    PARA 'BURN' IRRA
+    ISOT 20 U235 U238 Np239 Pu239 Pu240 Pu241 Pm147 Pm148 Pm148m Pm149
+    Sm147 Sm148 Sm149 Sm150 Nd146 Nd147 Nd148 Nd150 Xe135 I135
+    INIT
+    ;
+************************************************************************
+*  END MyCompo INITIALIZATION                                          *
+************************************************************************
+
+! BEGIN LIBRARY READING
+LIBRARY := Mix_UOX :: <<Library>> ;
+! END LIBRARY READING
+
+! BEGIN DEPLETION
+WHILE istep maxstep < DO
+
+  ! BEGIN FIRST LEVEL FLUX CALCULATION
+  EVALUATE istep := istep 1 + ;
+  ECHO "istep: " istep "/" maxstep ;
+
+  EVALUATE BUbeg Tbeg := BUend Tend ;
+  GREP: DONNEES :: GETVAL 'BURN' <<istep>> >>BUend<< ;
+  EVALUATE Tend := BUend Fuelpwr / ;
+  ECHO Tbeg ;
+  ECHO Tend ;
+
+  ! BEGIN SELF-SHIELDING CALCULATION
+  IF istep 1 = THEN
+    LIBRARY2 := USS: LIBRARY TRACKSS :: EDIT 1 PASS 2 GRMIN 52 ARM
+      CALC  REGI W1 U235   ALL
+            REGI W1 U236   ALL
+            REGI W1 Pu239  ALL
+            REGI W1 Pu240  ALL
+            REGI W1 Pu241  ALL
+            REGI W1 Pu242  ALL
+      ENDC ;
+  ELSE
+    GREP: DONNEES :: GETVAL "AUTOP" <<iAutop>> >>BUautop<< ;
+    GREP: DONNEES :: GETVAL "BURN" <<istep>> >>BU<< ;
+    IF BUautop BU = THEN
+      LIBRARY2 := USS: LIBRARY LIBRARY2 TRACKSS :: EDIT 1 PASS 2 ARM
+        GRMIN 52
+        CALC  REGI W1 U235   ALL
+              REGI W1 U236   ALL
+              REGI W1 Pu239  ALL
+              REGI W1 Pu240  ALL
+              REGI W1 Pu241  ALL
+              REGI W1 Pu242  ALL
+        ENDC ;
+      EVALUATE iAutop := iAutop 1 + ;
+    ENDIF ;
+  ENDIF ;
+  ! END SELF-SHIELDING CALCULATION
+
+  ! BEGIN MOC FLUX CALCULATION
+  SYS := ASM: LIBRARY2 TRACKN2 TF_EXC :: ARM EDIT 1 ;
+
+  IF istep 1 = THEN
+    FLUX2 := FLU: LIBRARY2 SYS TRACKN2 TF_EXC ::
+      EDIT 1 TYPE B B1 SIGS ;
+  ELSE
+    FLUX2 := FLU: FLUX2 LIBRARY2 SYS TRACKN2 TF_EXC ::
+      EDIT 1 TYPE B B1 SIGS ;
+  ENDIF ;
+  SYS := DELETE: SYS ;
+
+  GREP: FLUX2 :: GETVAL 'K-INFINITY  ' 1 1 1 >>Kinf<< ;
+  ECHO "+++ Burnup=" BUend " Kinf=" Kinf ;
+
+************************************************************************
+*  SAVE BURNUP INFORMATION AT Tbeg                                     *
+************************************************************************
+  IF istep 1 = THEN
+    BURNUP LIBRARY2 := EVO: LIBRARY2 FLUX2 TRACKN2 ::
+      EDIT 0 SAVE <<Tbeg>> DAY POWR <<Fuelpwr>> ;
+  ELSE
+    BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX2 TRACKN2 ::
+      EDIT 0 SAVE <<Tbeg>> DAY POWR <<Fuelpwr>> ;
+  ENDIF ;
+
+************************************************************************
+*  EDITION AND MyCompo FEEDING                                         *
+************************************************************************
+  GREP: DONNEES :: GETVAL "AUTOP" <<iEdit>> >>BUautop<< ;
+  GREP: DONNEES :: GETVAL "BURN" <<istep>> >>BU<< ;
+  IF istep 1 = BUautop BU = + THEN
+    EDIOBJ := EDI: FLUX2 LIBRARY2 TRACKN2 :: EDIT 1                              
+      MICR 34 U234  U235  U236  U237  U238  Np237 Np238 Np239 Pu238
+      Am243 Pu239 Pu240 Pu241 Pu242  Cm242 Cm243 Cm244 Cm245 Am241
+      Am242m Pm147 Pm148 Pm148m Pm149 Sm147 Sm148 Sm149 Sm150 Nd146
+      Nd147 Nd148 Nd150 Xe135 I135
+      MERG COMP
+      ADF 'FD_B' MIX 162 ENDM
+      COND 0.625
+      SAVE ON fuel
+      ;
+    ! Perform Selengut normalization of Multicompo contents
+    MyCompo := COMPO: MyCompo EDIOBJ BURNUP :: EDIT 5
+      STEP UP 'fuel'
+      SET <<Tbeg>> DAY
+      ICAL >>ical<<
+      ;
+    MyCompo := SPH: MyCompo :: EDIT 1
+      STEP UP 'fuel' STEP AT <<ical>>
+      SELE_FD
+      ;
+    EDIOBJ := DELETE: EDIOBJ ;
+    EVALUATE iEdit := iEdit 1 + ;
+  ENDIF ;
+
+************************************************************************
+*  SOLUTION OF BATEMAN EQUATIONS                                       *
+************************************************************************
+  IF istep maxstep < THEN
+    EVALUATE istepNext := istep 1 + ;
+    GREP: DONNEES :: GETVAL 'BURN' <<istepNext>> >>BUend<< ;
+    EVALUATE Tend := BUend Fuelpwr / ;
+
+    IF istep 5 < THEN
+      BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX2 TRACKN2 ::
+        EDIT 0 DEPL <<Tbeg>> <<Tend>> DAY POWR <<Fuelpwr>> NOEX ;
+    ELSE
+      BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX2 TRACKN2 ::
+        EDIT 0 DEPL <<Tbeg>> <<Tend>> DAY POWR <<Fuelpwr>> ;
+    ENDIF ;
+  ENDIF ;
+
+ENDWHILE ;
+! END DEPLETION CALCULATION
+
+************************************************************************
+*  EXPORT MULTICOMPO IN ASCII FORMAT                                   *
+************************************************************************
+_MyCompo := MyCompo ;
+
+assertS FLUX2 :: K-INFINITY 1 1.014468 ;
+
+ECHO "test ASSBLY_CASEA_1level_multicompo completed" ;
+END: ;

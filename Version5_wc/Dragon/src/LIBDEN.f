@@ -522,7 +522,7 @@
          CALL LCMLEN(JPLIB,'H-FACTOR'//NORD(IXSPER),ILONG,ITYLCM)
          IF(ILONG.GT.0) THEN
             LH=.TRUE.
-            CALL LCMGET(JPLIB,'H-FACTOR'//NORD(IXSPER),GA1) !MeV-barns
+            CALL LCMGET(JPLIB,'H-FACTOR'//NORD(IXSPER),GA1) !eV-barns
             DO 290 LLL=1,NGROUP
             GAF(IBM,LLL,7)=GAF(IBM,LLL,7)+GA1(LLL)*DENISO !MeV/cm
   290       CONTINUE
@@ -618,10 +618,13 @@
          IF(LH) THEN
             IF(MASKK) THEN
                GAF(:NBMIX,LLL,8)=0.0
-               CALL LCMGET(KPLIB,'H-FACTOR',GAF(1,LLL,8))
-               DO 390 IBM=1,NBMIX
-               IF(.NOT.MASK(IBM)) GAF(IBM,LLL,7)=GAF(IBM,LLL,8)
-  390          CONTINUE
+               CALL LCMLEN(KPLIB,'H-FACTOR',ILONG,ITYLCM)
+               IF(ILONG.GT.0) THEN
+                  CALL LCMGET(KPLIB,'H-FACTOR',GAF(1,LLL,8))
+                  DO 390 IBM=1,NBMIX
+                  IF(.NOT.MASK(IBM)) GAF(IBM,LLL,7)=GAF(IBM,LLL,8)
+  390             CONTINUE
+               ENDIF
             ENDIF
             CALL LCMPUT(KPLIB,'H-FACTOR',NBMIX,2,GAF(1,LLL,7)) !eV/cm
          ENDIF

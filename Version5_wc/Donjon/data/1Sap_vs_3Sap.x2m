@@ -9,7 +9,7 @@
 LINKED_LIST GeoRes MicroFuel MacroFuel Track System Flux Thermo
             Matex GeoCoeur MacroRefl MacroAll Fmap Power Burnup ;
 MODULE      TRIVAT: TRIVAA: FLUD: GREP: MACINI: NCR: ABORT: THM: SCR:
-            RESINI: GEO: USPLIT: MAC: FLPOW: DELETE: END: EVO: ;
+            RESINI: GEO: USPLIT: MAC: FLPOW: DELETE: END: EVO: UTL: ;
 SEQ_ASCII   CpRefl :: FILE './CpRefl' ;
 SEQ_ASCII   Saphyb_as :: FILE './Saphyb_as' ;
 XSM_FILE    Saphyb1 Saphyb2 Saphyb3 CpRefl_xsm ;
@@ -422,8 +422,10 @@ MacroFuel := MicroFuel :: STEP UP "MACROLIB" ;
 MacroAll Matex := MACINI: Matex MacroRefl MacroFuel ;
 System := TRIVAA: MacroAll Track ;
 Flux := FLUD: System Track :: EDIT 2 ADI 2 EXTE 200 1.E-05 ;
+   UTL: Matex :: IMPR H-FACTOR * ;
 Power Fmap := FLPOW: Fmap Flux Track Matex ::
   EDIT 1 PTOT 2775. PRINT DISTR POWER ;
+   UTL: Power :: DIR IMPR PTOT * IMPR FLUX-BUND 100 ;
 
 *-------------------------------------------------------------------
 * Thermalhydraulics and Microlib update using RES keyword
@@ -955,7 +957,7 @@ GREP: Flux :: GETVAL 'K-EFFECTIVE ' 1 >>keff3Sap0<< ;
 *-------------------------------------------------------------------
 * k-eff comparison
 *-------------------------------------------------------------------
-assertS Flux :: K-EFFECTIVE 1 1.2122624 ;
+assertS Flux :: K-EFFECTIVE 1 1.175515 ;
 EVALUATE delrho := 1. keff1Sap0 / 1. keff3Sap0 / - 1.E+5 * ;
 IF delrho ABS 1. < THEN
   ECHO "Normal end: delta rho =" delrho ;

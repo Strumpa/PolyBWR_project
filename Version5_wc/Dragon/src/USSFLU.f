@@ -70,8 +70,8 @@
 *
 *Parameters: output
 * GOLD    Goldstein-Cohen parameters.
-* UNGAR   averaged fluxes per volume.
-* PHGAR   averaged fluxes.
+* UNGAR   averaged flux unknowns.
+* PHGAR   averaged fluxes in correlated fuel regions.
 * STGAR   microscopic self-shielded total x-s.
 * SFGAR   microscopic self-shielded fission x-s.
 * SSGAR   microscopic self-shielded scattering x-s.
@@ -98,7 +98,7 @@
      1 ISONAM(3,NBISO),ISOBIS(3,NBISO),MAT(NREG),KEYFLX(NREG),IMPX,
      2 MIX(NBISO),IAPT(NBISO),IPHASE,NGRP,IGRMIN,IGRMAX,NBNRS,
      3 IREX(NBMIX),ICORR,ISUBG,MAXST
-      REAL VOL(NREG),DEN(NBISO),GOLD(NIRES,NGRP),UNGAR(NREG,NIRES,NGRP),
+      REAL VOL(NREG),DEN(NBISO),GOLD(NIRES,NGRP),UNGAR(NUN,NIRES,NGRP),
      1 PHGAR(NBNRS,NIRES,NGRP),STGAR(NBNRS,NIRES,NGRP),
      2 SFGAR(NBNRS,NIRES,NGRP),SSGAR(NBNRS,NIRES,NL,NGRP),
      3 S0GAR(NBNRS,NIRES,NL,NGRP,NGRP),SAGAR(NBNRS,NIRES,NED,NGRP),

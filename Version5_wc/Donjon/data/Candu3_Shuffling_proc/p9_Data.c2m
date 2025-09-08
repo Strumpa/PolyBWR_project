@@ -1,0 +1,171 @@
+*--------------------------------------------------------
+*  Procédure p9_Data
+*  Base de données grappe de combustible, supercellule et coeur CANDU3
+*  Appel :   
+*      p9_Data :: <<proc>> [>>XXXXX<<]
+*  avec en entree
+*  S   procAPPEL = procédure d'appel pour les données de sortie
+*  et en sortie
+*      XXXXX = données associées à la procédure d'appel
+*  Auteur : Emmanuel Saint Aubin 
+*           D&Dv5 Ivan Trancart - 28-11-2024 (maj 05-05-2025)
+*--------------------------------------------------------
+MODULE END: ;
+******
+STRING procAPPEL ;
+:: >>procAPPEL<< ;
+***
+REAL Pitch RinTF RoutTF RinTC RoutTC RinAs RoutAs RinBs RoutBs Lgrap 
+     RC0s RC1s RC2s RC3s AC0s AC1s AC2s AC3s RinAc RoutAc RinBc 
+     RC0c RC1c RC2c RC3c AC0c AC1c AC2c AC3c Rcyl
+     r1s r2s r3s r4s r5s r6s r7s r8s r1c r2c r3c r4c r5c r6c r7c r8c ;
+REAL fwt dens denss densf Pgrap Bdev eF eK eA alp Pth B1g dB1 
+     Tcalo Tmod Tfuel Pcalo Pmod Peau Dforce Dgaz Dcala Dgaine Dstnlss
+     Dzrii Dcadm Dunat Dth Ddupic devpitch PLIMC PLIMG VfuelS VfuelC 
+     RoutBc Bref BrG2 BrPL BrHP Pg n0s n1s n2s n3s n0c n1c n2c n3c ;
+INTEGER N0s N1s N2s N3s N0c N1c N2c N3c nang nangs nangf ;
+***
+INTEGER s1 s2 s3 s4 ns4 ns8 ;
+STRING MeM MeP MeD ;
+******
+*** GRAPPES - GÉOMÉTRIE 2D (+ devpitch)
+EVALUATE Pitch Lgrap Rcyl devpitch := 28.575 49.53 16.12171 7.0 ;
+EVALUATE RinTF RoutTF RinTC RoutTC := 5.168878 5.6032 6.4478 6.587482 ;
+EVALUATE r1s r2s r3s := 0.7221626 2.160324 3.600681 ;
+EVALUATE RinAs RoutAs RinBs RoutBs := 0.6122 0.654 0.6122 0.654 ;
+EVALUATE RC0s RC1s   RC2s   RC3s   AC0s AC1s AC2s     AC3s :=
+         0.0  1.4885 2.8755 4.3305 0.0  0.0  0.261799 0.0  ;
+EVALUATE N0s N1s N2s N3s := 1 6 12 18 ;
+EVALUATE n0s n1s n2s n3s := 1.0 6.0 12.0 18.0 ;
+EVALUATE r1c r2c r3c := 0.865 2.4525 3.7295 ;
+EVALUATE RinAc RoutAc RinBc RoutBc := 0.631 0.675 0.536 0.575 ;
+EVALUATE RC0c RC1c RC2c  RC3c  AC0c AC1c AC2c     AC3c :=
+         0.0  1.73 3.075 4.384 0.0  0.0  0.224399 0.0  ;
+EVALUATE N0c N1c N2c N3c := 1 7 14 21 ;
+EVALUATE n0c n1c n2c n3c := 1.0 7.0 14.0 21.0 ;
+EVALUATE VfuelS := 37.0 $Pi_R RinAs RinAs Lgrap * * * * ;
+EVALUATE VfuelC := 8.0 RinAc RinAc * * 35.0 RinBc RinBc * * + 
+                      $Pi_R Lgrap * * ;
+******
+*** TRACKING - TRANSPORT 2D
+EVALUATE nangs nangf := 7    11   ;
+EVALUATE denss densf := 10.0 20.0 ;
+******
+*** TRACKING - TRANSPORT 3D
+EVALUATE dens := 5.0 ;
+EVALUATE nang := 6 ;
+******
+*** GEOMÉTRIE CANDU 3D
+EVALUATE MeM MeP MeD := "MCFD" "PRIM" "DUAL" ;
+EVALUATE s1 s2 s3 s4 := 1 2 3 4 ;
+EVALUATE ns4 ns8 := 4 8 ;
+EVALUATE fwt := 19.2 ;  ! kg
+******
+*** FLUX - DIFFUSION
+EVALUATE eF   := 1.0E-6 ;
+EVALUATE eK   := 1.0E-4 ;
+EVALUATE eA   := 1.0E-3 ;
+EVALUATE alp  := 0.65   ;  !<1
+******
+*** PARAMÈTRES IMPOSÉS
+EVALUATE Pth   := 1390.0 ;  !MW thermique CANDU3
+EVALUATE Pg    := 615.0  ;  !kW thermique A VERIFIER CANDU3
+EVALUATE Bdev  := 4000.0 ;  !MWj/T
+******
+*** TAUX DE COMBUSTION (GUESS à partir des données officielles)
+EVALUATE PLIMC := 6700.0 ; !kW
+EVALUATE PLIMG :=  860.0 ; !kW
+EVALUATE Bref  := 7498.708 ; !MWj/T
+EVALUATE BrG2  := Pth 15.531 fwt * / 1000. * ; !MWj/T
+EVALUATE BrPL  := Pth 15.498 fwt * / 1000. * ; !MWj/T
+EVALUATE BrHP  := Pth 14.244 fwt * / 1000. * ; !MWj/T
+******
+*** MÉLANGES CONSTANTS
+EVALUATE Tcalo Tmod Tfuel := 560.7 345.7 941.3 ;
+EVALUATE Pcalo Pmod Peau := 99.3 99.92 0.0 ;
+EVALUATE Dforce Dgaz   Dcala   Dgaine Dstnlss 
+         Dzrii  Dcadm  Dunat   Dth    Ddupic := 
+         6.57   0.0014 6.44    6.44   7.8894 
+         6.4003 1.16   10.4371 10.0   10.4   ;
+******
+! Sortie
+***
+IF procAPPEL "GEO2D-STANDARD" = THEN
+   :: <<r1s>> <<r2s>> <<r3s>> 
+      <<RinTF>> <<RoutTF>> <<RinTC>> <<RoutTC>> <<Rcyl>>
+      <<RC0s>> <<RC1s>> <<RC2s>> <<RC3s>> <<AC0s>> <<AC1s>>
+      <<AC2s>> <<AC3s>> <<N0s>> <<N1s>> <<N2s>> <<N3s>> 
+      <<RinAs>> <<RoutAs>> <<RinBs>> <<RoutBs>> <<Pitch>> 
+      <<nangs>> <<denss>> <<nangf>> <<densf>> ;
+ELSEIF procAPPEL "GEO2D-CANFLEX" = THEN
+   :: <<r1c>> <<r2c>> <<r3c>>
+      <<RinTF>> <<RoutTF>> <<RinTC>> <<RoutTC>> <<Rcyl>>
+      <<RC0c>> <<RC1c>> <<RC2c>> <<RC3c>> <<AC0c>> <<AC1c>> 
+      <<AC2c>> <<AC3c>> <<N0c>> <<N1c>> <<N2c>> <<N3c>> 
+      <<RinAc>> <<RoutAc>> <<RinBc>> <<RoutBc>> <<Pitch>> 
+      <<nangs>> <<denss>> <<nangf>> <<densf>> ;
+ELSEIF procAPPEL "GEOCELL-STANDARD" = THEN
+   :: <<r1s>> <<r2s>> <<r3s>> 
+      <<RinTF>> <<RoutTF>> <<RinTC>> <<RoutTC>> <<Rcyl>>
+      <<RC0s>> <<RC1s>> <<RC2s>> <<RC3s>> <<AC0s>> <<AC1s>>
+      <<AC2s>> <<AC3s>> <<N0s>> <<N1s>> <<N2s>> <<N3s>> 
+      <<RinAs>> <<RoutAs>> <<RinBs>> <<RoutBs>> <<nangs>> <<denss>>
+      <<nangf>> <<densf>> <<Pitch>> ;
+ELSEIF procAPPEL "GEOCELL-CANFLEX" = THEN
+   :: <<r1c>> <<r2c>> <<r3c>>
+      <<RinTF>> <<RoutTF>> <<RinTC>> <<RoutTC>> <<Rcyl>>
+      <<RC0c>> <<RC1c>> <<RC2c>> <<RC3c>> <<AC0c>> <<AC1c>> 
+      <<AC2c>> <<AC3c>> <<N0c>> <<N1c>> <<N2c>> <<N3c>> 
+      <<RinAc>> <<RoutAc>> <<RinBc>> <<RoutBc>> <<nangs>> <<denss>>
+      <<nangf>> <<densf>> <<Pitch>> ;
+ELSEIF procAPPEL "GEOSCELL-STANDARD" = THEN
+   :: <<r1s>> <<r2s>> <<r3s>> 
+      <<RinTF>> <<RoutTF>> <<RinTC>> <<RoutTC>> <<Rcyl>>
+      <<RC0s>> <<RC1s>> <<RC2s>> <<RC3s>> <<AC0s>> <<AC1s>>
+      <<AC2s>> <<AC3s>> <<N0s>> <<N1s>> <<N2s>> <<N3s>> 
+      <<RinAs>> <<RoutAs>> <<RinBs>> <<RoutBs>> <<Lgrap>> <<Pitch>> ;
+ELSEIF procAPPEL "GEOSCELL-CANFLEX" = THEN
+   :: <<r1c>> <<r2c>> <<r3c>>
+      <<RinTF>> <<RoutTF>> <<RinTC>> <<RoutTC>> <<Rcyl>>
+      <<RC0c>> <<RC1c>> <<RC2c>> <<RC3c>> <<AC0c>> <<AC1c>> 
+      <<AC2c>> <<AC3c>> <<N0c>> <<N1c>> <<N2c>> <<N3c>> 
+      <<RinAc>> <<RoutAc>> <<RinBc>> <<RoutBc>> <<Lgrap>> <<Pitch>> ;
+ELSEIF procAPPEL "MIXS-STANDARD" = THEN
+   :: <<Tcalo>> <<Tmod>> <<Tfuel>> <<Pcalo>> <<Pmod>> <<Peau>> 
+      <<Dforce>> <<Dgaz>> <<Dcala>> <<Dgaine>> <<Dstnlss>> 
+      <<Dzrii>> <<Dcadm>> <<Dunat>> <<Dth>> <<Ddupic>> <<Pg>>
+      <<RinAs>> <<RinAs>> <<n0s>> <<n1s>> <<n2s>> <<n3s>> <<Lgrap>> ;
+ELSEIF procAPPEL "MIXS-CANFLEX" = THEN
+   :: <<Tcalo>> <<Tmod>> <<Tfuel>> <<Pcalo>> <<Pmod>> <<Peau>> 
+      <<Dforce>> <<Dgaz>> <<Dcala>> <<Dgaine>> <<Dstnlss>> 
+      <<Dzrii>> <<Dcadm>> <<Dunat>> <<Dth>> <<Ddupic>> <<Pg>> 
+      <<RinAc>> <<RinBc>> <<n0c>> <<n1c>> <<n2c>> <<n3c>> <<Lgrap>> ;
+ELSEIF procAPPEL "GEO3D-STANDARD" = THEN
+   :: <<nang>> <<dens>> <<Pitch>> <<Lgrap>> <<devpitch>>
+      <<r1s>> <<r2s>> <<r3s>> <<RinTF>> <<RoutTC>> ;
+ELSEIF procAPPEL "GEO3D-CANFLEX" = THEN
+   :: <<nang>> <<dens>> <<Pitch>> <<Lgrap>> <<devpitch>>
+      <<r1c>> <<r2c>> <<r3c>> <<RinTF>> <<RoutTC>> ;
+ELSEIF procAPPEL "EVOL2D" = THEN :: <<Bdev>> ;
+ELSEIF procAPPEL "INSTAGE" = THEN :: <<eF>> <<Pth>> <<alp>> ;
+ELSEIF procAPPEL "TAVG-MX" = THEN :: <<Bref>> <<PLIMC>> <<PLIMG>> ;
+ELSEIF procAPPEL "TAVG"    = THEN :: <<Bref>> <<PLIMC>> <<PLIMG>> ;
+ELSEIF procAPPEL "TAVG-G2" = THEN :: <<BrG2>> <<PLIMC>> <<PLIMG>> ;
+ELSEIF procAPPEL "TAVG-PL" = THEN :: <<BrPL>> <<PLIMC>> <<PLIMG>> ;
+ELSEIF procAPPEL "TAVG-HP" = THEN :: <<BrHP>> <<PLIMC>> <<PLIMG>> ;
+ELSEIF procAPPEL "RADIAL" = THEN :: <<Bref>> <<PLIMC>> <<PLIMG>> ;
+ELSEIF procAPPEL "INSTREFUEL" = THEN :: <<eF>> <<Pth>> <<alp>> ;
+ELSEIF procAPPEL "REFUELDIRECT" = THEN :: <<eF>> <<Pth>> <<alp>> ;
+ELSEIF procAPPEL "REACTIVITY" = THEN :: <<eF>> <<Pth>> ;
+ELSEIF procAPPEL "CALFLX" = THEN :: <<eF>> <<Pth>> ;
+ELSEIF procAPPEL "FLUXAX" = THEN :: <<eA>> ;
+ELSEIF procAPPEL "EQUILIB" = THEN :: <<eK>> <<eA>> <<eF>> <<Pth>> ;
+***
+ELSEIF procAPPEL "CANDU6-M1" = THEN :: <<MeM>> <<s1>> <<s1>> ;
+ELSEIF procAPPEL "CANDU6-P2" = THEN :: <<MeP>> <<s2>> <<s4>> ;
+ELSEIF procAPPEL "CANDU6-M2" = THEN :: <<MeM>> <<s2>> <<s4>> ;
+ELSEIF procAPPEL "CANDU6-D2" = THEN :: <<MeD>> <<s2>> <<s4>> ;
+ELSEIF procAPPEL "CANDU6-M3" = THEN :: <<MeM>> <<s3>> <<s4>> ;
+ENDIF ;
+***
+END: ;

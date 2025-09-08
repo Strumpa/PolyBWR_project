@@ -38,6 +38,7 @@
 *
 *Parameters: output
 * ITYPEC  type of flux evaluation:
+*         =-2 Fourier analysis;
 *         =-1 skip the flux calculation;
 *         =0  fixed sources;
 *         =1  fixed source eigenvalue problem (GPT type);

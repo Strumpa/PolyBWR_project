@@ -76,7 +76,7 @@ $[$ \moc{ACTI} $[$ \moc{ISOTXS} $[$ \moc{ASCII} $]~]$ $\{$ \moc{NONE} $|$ (\dusa
 $[$ \moc{SAVE} $[$ \moc{ON} $\{$ \dusa{DIRN} $|$ \dusa{idirn} $\}$ $]$ $]$ \\
 $[$ \moc{PERT} $]$ \\
 $[$ \moc{STAT} $\{$ \moc{ALL} $|$ \moc{RATE} $|$ \moc{FLUX} $|$ \moc{DELS} $\}$  
-  $[$ \moc{REFE} $\{$ \dusa{DIRO} $|$ \dusa{idiro} $\}$$]$ $]$ \\
+  $[$ \moc{REFE} $\{$ \dusa{DIRO} $|$ \dusa{idiro} $\}$ $]$ $]$ \\
 $[$ \moc{NOHF} $]~[$ \moc{NBAL} $]$ \\
 $[$ \moc{MAXR} \dusa{maxpts} $]$ \\
 $[~\{$ \moc{DIRE} $|$ \moc{PROD} $\}~]$ \\
@@ -448,7 +448,7 @@ probabilities. This option requires a geometry with \moc{VOID} (see \Sect{descBC
 be closed using \moc{ALBS} in module \moc{ASM:} (see \Sect{descasm}).\cite{ALSB2}
 
 \item[\moc{JOUT}] keyword used to recover multigroup boundary current information ($J_{\rm out}$ and $J_{\rm in}$). This keyword
-is only compatible with \moc{MCCGT:} or \moc{SYBILT:} trackings and if keyword \moc{ARM} is set in module \moc{ASM:}
+is only compatible with \moc{MCCGT:} or interface current trackings (within \moc{SYBILT:} or \moc{SALT:}) and if keyword \moc{ARM} is set in module \moc{ASM:}
 (see \Sect{descasm}). The outgoing/ingoing interface currents are recovered by direct homogenization and condensation of the
 flux unknown components corresponding to external boundary and used with the current iteration method in Eurydice or from a MOC
 calculation. The boundary flux required by the SPH method is to be obtained from relation $\phi_{\rm surf}=4J_{\rm out}/S$ where

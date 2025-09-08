@@ -375,7 +375,8 @@
 *----
 *  END
 *----
- 1000 IF(ADJ) THEN
+ 1000 CALL LCMPTC(IPFLUP,'TRACK-TYPE',12,CMODUL)
+      IF(ADJ) THEN
          FLUPRM(3)=1000
       ELSE
          FLUPRM(3)=100

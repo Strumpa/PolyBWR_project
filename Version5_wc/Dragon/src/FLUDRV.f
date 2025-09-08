@@ -241,10 +241,14 @@
         DO 130 IGR=1,NGRP
           FLUXO(:NUN,IGR)=0.0
           IF(ITYPEC.GT.0) THEN
-            DO 120 IREGIO=1,NREG
-            IND=KEYFLX(IREGIO,1,1)
-            IF(IND.GT.0) FLUXO(IND,IGR)=1.0
-  120       CONTINUE
+            IF((CXDOOR.EQ.'BIVAC').OR.(CXDOOR.EQ.'TRIVAC')) THEN
+              FLUXO(:NUN,IGR)=1.0
+            ELSE
+              DO 120 IREGIO=1,NREG
+              IND=KEYFLX(IREGIO,1,1)
+              IF(IND.GT.0) FLUXO(IND,IGR)=1.0
+  120         CONTINUE
+              ENDIF
           ENDIF
           IF(LFORW) THEN
             CALL LCMPDL(JPFLUX,IGR,NUN,2,FLUXO(1,IGR))

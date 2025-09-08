@@ -54,7 +54,7 @@ GEO_G2S FigMain.ps := G2S: GEOM :: ;
 ! "SAL100: TISO option is incompatible with the surfacic file"
 ! Check : this probably has something to do with the splitting of cells along the diagonal
 TRKSSH TF_EXC_SS := SALT: GEOSSH_G2S ::
-  EDIT 10
+  EDIT 2
   ALLG 
   BATCH 100
   TSPC EQW2 <<an2d_ss>> <<densur_ss>> REND
@@ -62,18 +62,19 @@ TRKSSH TF_EXC_SS := SALT: GEOSSH_G2S ::
 ;
 
 TRK TF_EXC := SALT: GEO_G2S ::
-  EDIT 10
+  EDIT 2
   ALLG
   BATCH 1500
-  ANIS 3
+  ANIS 4
   TSPC EQW2 <<an2d>> <<densur>> REND
   LONG
+!  MERGMIX ! for easier volume checking
 ;
 
 * MOC tracking
 TRK := MCCGT: TRK TF_EXC ::
   EDIT 0
-  CACB <<nmu>> AAC 80 TMT EPSI 1E-5 MCU <<mcu>> ! tried CACB but is limited to isotropic ?
+  GAUS <<nmu>> AAC 80 TMT EPSI 1E-5 MCU <<mcu>> ! tried CACB but is limited to isotropic ?
 ;
 
 

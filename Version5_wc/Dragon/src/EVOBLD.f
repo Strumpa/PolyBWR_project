@@ -26,10 +26,10 @@
 *         =1: constant flux depletion;
 *         =2: constant fuel power depletion;
 *         =3: constant assembly power depletion.
-* IGLOB   out-of-fuel power in flux normalization:
-*         =0: compute the burnup using the power released in the fuel;
-*         =1: compute the burnup using the power released in the global
-*         geometry.
+* IGLOB   out-of-fuel power in flux normalization. Compute the burnup:
+*         =-1: using the Serpent mode 0 empirical formula in the fuel;
+*         =0: using the power released in the fuel;
+*         =1: using the power released in the global geometry.
 * NBMIX   number of mixtures.
 * NBISO   number of isotopes/materials including non-depleting ones.
 * NCOMB   number of depleting mixtures.
@@ -229,7 +229,7 @@
                GAR=GAR+SIG(NVAR+1,NREAC+1,IBM,2)
             ENDIF
   370       CONTINUE
-         ELSE IF(IGLOB.EQ.0) THEN
+         ELSE
             DO 380 ICMB=1,NCOMB
             IBM=MILVO(ICMB)
             IF(IBM.EQ.0) GO TO 380
@@ -369,7 +369,7 @@
       ENDIF
   516 CONTINUE
       DELTA(3)=0.0
-      IF(IGLOB.EQ.0) THEN
+      IF(IGLOB.LE.0) THEN
          DO 520 ICMB=1,NCOMB
          IBM=MILVO(ICMB)
          IF(IBM.EQ.0) GO TO 520
@@ -429,7 +429,7 @@
          DO 580 IP=1,2
          DELTA1=0.0
          DELTA2=0.0
-         IF(IGLOB.EQ.0) THEN
+         IF(IGLOB.LE.0) THEN
             DO 550 ICMB=1,NCOMB
             IBM=MILVO(ICMB)
             IF(IBM.EQ.0) GO TO 550

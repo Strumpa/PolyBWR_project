@@ -240,9 +240,9 @@ def parse_Spectrum_D5(pyCOMPO):
 
 def parse_D5_rates(pyCOMPO, bu=0):
     """
-    Parse fission rates for U235
+    Parse fission rates for U235 & U238 from DRAGON5 results
     """
-    fission_isotopes = ["U234", "U235", "U236", "U238"]
+    fission_isotopes = ["U235", "U238"]
     len_isotot = np.shape(pyCOMPO['EDI_HOM']['MIXTURES'][0]['CALCULATIONS'][0]['ISOTOPESDENS'])[0] - 1
     print(f"len_isotot = {len_isotot}")
     ########## CALCULATIONS ##########
@@ -287,8 +287,10 @@ def parse_D5_rates(pyCOMPO, bu=0):
                     sym_factor = 2
                 else:
                     sym_factor = 1
-                fiss_rates_D5[0, mix-1] = NFTOT[0]*NWT0[0]*N*vol*sym_factor  # multiply volume by 2 to account for diagonal symmetry of the assembly
-                fiss_rates_D5[1, mix-1] = NFTOT[1]*NWT0[1]*N*vol*sym_factor
+                #fiss_rates_D5[0, mix-1] += NFTOT[0]*NWT0[0]*N*vol*sym_factor  # multiply volume by 2 to account for diagonal symmetry of the assembly
+                
+                fiss_rates_D5[0, mix-1] = NFTOT[0]*NWT0[0]*N*vol*sym_factor
+                fiss_rates_D5[1, mix-1] += NFTOT[1]*NWT0[1]*N*vol*sym_factor
     #            fiss_rates[isotope] = U235_fiss_rates_D5
 
     return fiss_rates_D5, fiss_iso_dens

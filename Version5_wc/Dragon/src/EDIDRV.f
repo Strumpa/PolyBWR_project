@@ -440,15 +440,17 @@
             DEALLOCATE(COURI,HADF)
             CALL LCMSIX(IPMAC2,' ',2)
          ELSE IF(IADF.EQ.3) THEN
-*           recover outgoing current from interface currents in Eurydice
+*           recover outgoing current from interface currents
             CALL LCMGTC(IPTRK1,'TRACK-TYPE',12,TEXT12)
             IF(TEXT12.EQ.'SYBIL') THEN
               CALL EDIJO1(IPMAC2,IPTRK1,IPFLUX,IPRINT,NGCOND,IGCOND)
             ELSE IF(TEXT12.EQ.'MCCG') THEN
               CALL EDIJO2(IPMAC2,IPTRK1,IPFLUX,IPRINT,NGCOND,IGCOND)
+            ELSE IF(TEXT12.EQ.'EXCELL') THEN
+              CALL EDIJO3(IPMAC2,IPTRK1,IPFLUX,IPRINT,NGCOND,IGCOND)
             ELSE
               WRITE(HSMG,'(40HEDIDRV: INCOMPATIBLE SOLUTION TYPE. SYBI,
-     >        20HL OR MCCG EXPECTED. ,A12,6HFOUND.)') TEXT12
+     >        28HL, EXCELL OR MCCG EXPECTED. ,A12,6HFOUND.)') TEXT12
               CALL XABORT(HSMG)
             ENDIF
          ELSE IF(IADF.EQ.4) THEN

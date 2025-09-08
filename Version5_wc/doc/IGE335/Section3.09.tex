@@ -242,9 +242,9 @@ $[$ $\{$ \moc{SAVE} \dusa{xts} $\{$ \moc{S} $|$ \moc{DAY} $|$ \moc{YEAR} $\}~\{$
 \moc{NOSA} $\}$ $]$ \\
 $[$ \moc{EPS1} \dusa{valeps1} $]~~[$ \moc{EPS2} \dusa{valeps2} $]~~[~\{$ \moc{EXPM} \dusa{valexp} $|$ \moc{SATOFF} $\}~]$ \\
 $[$ \moc{H1} \dusa{valh1} $]~[$ $\{$ \moc{RUNG} $|$ \moc{KAPS} $\}$ $]$ \\
-$[~\{$ \moc{TIXS} $|$ \moc{TDXS} $\}~]~[~\{$\moc{NOEX} $|$ \moc{EXTR} $[$ \dusa{iextr} $]~\}~]$~$[~\{$\moc{NOGL} $|$ \moc{GLOB}$\}~]$~$[~\{$\moc{NSAT} $|$ \moc{SAT}$\}~]$~
-$[~\{$\moc{NODI} $|$ \moc{DIRA}$\}~]$ \\
-$[~\{$\moc{FLUX\_FLUX} $|$ \moc{FLUX\_MAC} $|$ \moc{FLUX\_POW} $\}~]~[~\{$ \moc{CHAIN} $|$ \moc{PIFI} $\}~]$ \\
+$[~\{$ \moc{TIXS} $|$ \moc{TDXS} $\}~]~[~\{$\moc{NOEX} $|$ \moc{EXTR} $[$ \dusa{iextr} $]~\}~]$ \\
+$[~\{$ \moc{EDP0} $|$ \moc{NOGL} $|$ \moc{GLOB}$\}~]~[~\{$\moc{NSAT} $|$ \moc{SAT}$\}~]~[~\{$\moc{NODI} $|$ \moc{DIRA}$\}~]$ \\
+$[~\{$ \moc{FLUX\_FLUX} $|$ \moc{FLUX\_MAC} $|$ \moc{FLUX\_POW} $\}~]~[~\{$ \moc{CHAIN} $|$ \moc{PIFI} $\}~]$ \\
 $[$ \moc{DEPL} $\{$\dusa{xti} \dusa{xtf} $|$ \dusa{dxt} $\}~\{$ \moc{S} $|$ \moc{DAY} $|$ \moc{YEAR} $\}$ $\{$ \moc{COOL} $|$
 \moc{FLUX} \dusa{flux} $|$ \moc{POWR} \dusa{fpower} $|$ \moc{W/CC} \dusa{apower} $|$ \moc{KEEP} $\}$ $]$ \\
 $[$ \moc{SET} \dusa{xtr} $\{$ \moc{S} $|$ \moc{DAY} $|$ \moc{YEAR} $\}$ $]$ \\
@@ -402,7 +402,16 @@ default option.
 
 \item[\dusa{iextr}] extrapolation order ($=1$: linear (default value); $=2$: parabolic).
 
-\item[\moc{NOGL}] keyword to compute the burnup using the energy released in
+\item[\moc{EDP0}] keyword to compute the burnup using the energy released by heavy isotopes in
+fuel only using the Serpent empirical formula ({\tt edepmode} $= 0$ in Serpent).\cite{edep}
+In this mode, all energy is deposited locally at fission sites and the energy deposition per
+fission for fissile nuclide $i$ is calculated as
+$$E_{{\rm fiss},i}={Q_i \over Q_{\rm 235}} H_{\rm 235}$$
+\noindent where $Q_i$ is the fission pseudo-Q value for fissile nuclide $i$; $Q_{\rm 235}$ is the fission
+pseudo-Q value for U235 and $H_{\rm 235} = 202.27$ MeV is an estimate for the energy deposition per
+fission (including the additional energy released in capture reactions) in a typical light water reactor.
+
+\item[\moc{NOGL}] keyword to compute the burnup using the energy released by all isotopes present in
 fuel only. This is the default option.
 
 \item[\moc{GLOB}]  keyword to compute the burnup using the energy released in
