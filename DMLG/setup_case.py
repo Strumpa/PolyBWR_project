@@ -4,11 +4,13 @@
 # Options could allow for different types of calculations.
 
 # General philosophy : yaml files for configuration, python for logic and setting up the case.
+from enum import unique
+from re import S
 import yaml
 import numpy as np
 from pathlib import Path
 from DMLG_composition_handling.material_mixture import Material_Mixture
-from template.Serpent2.geometry_definitions import Lattice_Definition, Pin_Universe_Definition
+from templates.Serpent2.geometry_definitions import Lattice_Definition, Pin_Universe_Definition
 #from DMLG_geometry_handling.lattice import BWR_lattice
 
 
@@ -83,19 +85,48 @@ class DMLG_case:
         """setting the lattice desciption associated to treated case. 
         assume square cartesian lattice without symmeties (for now).
         Args:
-            lattice_desc (list): list of pincell identifiers making up the lattice in x-increasing y-increasing order.
+            lattice_desc (list): list of lists of pincell identifiers making up the lattice in x-increasing y-increasing order.
                     --> Only cells interior to outer box should be included in this description.
             
         """
         ## assuming square lattice : 
-        nx = int(np.sqrt(len(lattice_desc)))
+        nx = int(len(lattice_desc))
         ny = nx
-        
-
-
+        pincell_universes = np.zeros((nx, ny), dtype=object)
+        position = 1
+        for j in range(ny):
+            for i in range(nx):
+                if i>=j: 
+                    #print(f"for i={i}, j={j}, adding pincell {lattice_desc[j][i]} at position {position}")
+                    
+                    #print(f"symmetric is : {lattice_desc[i][j]}")
+                    fuel_type = self.pincell_id_to_mat_name[lattice_desc[j][i]]
+                    if "Gd" in fuel_type:
+                        materials = [f"{fuel_type}_A_{position}", f"{fuel_type}_B_{position}", f"{fuel_type}_C_{position}", f"{fuel_type}_D_{position}", f"{fuel_type}_E_{position}", f"{fuel_type}_F_{position}", "GAP", "CLAD", "COOLANT"] 
+                        radii = [0.19834, 0.28049, 0.34353, 0.39668, 0.43227, 0.4435, 0.4520, 0.5140]
+                    elif "UOX" in fuel_type:
+                        materials = [f"{fuel_type}_A_{position}", f"{fuel_type}_B_{position}", f"{fuel_type}_C_{position}", f"{fuel_type}_D_{position}", "GAP", "CLAD", "COOLANT"]
+                        radii = [0.313602, 0.396678, 0.43227, 0.4435, 0.4520, 0.5140]
+                    else: 
+                        materials = ["COOLANT"]
+                        radii = []
+                    pincell_universes[j][i] = Pin_Universe_Definition(f"p{lattice_desc[j][i]}_{position}", materials, radii)
+                    pincell_universes[j][i].format_pincell_card()
+                    pincell_universes[j][i].print_pincell_card()
+                    #print(f" at i = {i} and j = {j}, adding pincell universe {pincell_universes[j][i].name}, with position {position}")
+                    if i!=j:
+                        pincell_universes[i][j] = Pin_Universe_Definition(f"p{lattice_desc[j][i]}_{position}", materials, radii)
+                    position += 1
+        for j in range(ny):
+            for i in range(nx):
+                print(f"at i={i}, j={j}, pincell universe is {pincell_universes[j][i].name}")
+        # flatten the array to a list
+        pincell_universes = pincell_universes.flatten().tolist()
         if "Serpent2" in self.output_codes:
             # assume lattice is centered at (0.0, 0.0)
             self.lattice_description = Lattice_Definition("BWR_lattice", pitch, 0.0, 0.0, nx, ny, pincell_universes)
+            self.lattice_description.format_lattice_card()
+            print(self.lattice_description.lattice_card)
             
     
     def set_pincell_id_to_mat_id(self, pincell_to_material_association):
@@ -103,7 +134,71 @@ class DMLG_case:
         set a dictionnary associating pincell id to material id.
         each pair of ends of getting a unique id 
         """
-        self.pincell_nb_to_mat_name = pincell_to_material_association
+        self.pincell_id_to_mat_name = pincell_to_material_association
+        
+    def get_individual_pin_universe(self):
+        """
+        filter out individual pins from lattice description
+        due to symmetry some of the pin universes are repeated : this function filters out the unique ones.
+        """
+        unique_pins = {}
+        for pin in self.lattice_description.pin_universes_list:
+            if pin.name not in unique_pins:
+                unique_pins[pin.name] = pin
+        return unique_pins.values()
+    
+    def print_materials_S2_format(self, fuel_temperature:float = 750.0, struct_temperature:float = 559.0):
+        unique_pins = self.get_individual_pin_universe()
+        print(f"materials are = {self.materials}")
+        print(len(unique_pins))
+        for pin in unique_pins:
+            pin_materials = pin.materials
+            print(f"% pin {pin.name} with position {pin.name.split('_')[-1]} : material {pin.name.split('_')[0]}")
+            for mat in pin_materials:
+                if "UOX" in mat or "Gd" in mat:
+                    print(f"mat {mat} sum tmp {fuel_temperature}  burn 1")
+                    self.materials[f"{mat.split('_')[0]} {fuel_temperature}"].print_to_S2_format()
+            
+            
+        # print coolant material
+        print(f"mat COOLANT sum tmp {struct_temperature}  burn 0")
+        self.materials[f"COOLANT {struct_temperature}"].print_to_S2_format()
+        # print clad material
+        print(f"mat CLAD sum tmp {struct_temperature}  burn 0")
+        self.materials[f"CLAD {struct_temperature}"].print_to_S2_format()
+        # print gap material
+        print(f"mat GAP sum tmp {fuel_temperature}  burn 0")
+        self.materials[f"GAP {fuel_temperature}"].print_to_S2_format()
+        
+        
+        return
+    
+    def print_detectors_S2_format(self):
+        unique_pins = self.get_individual_pin_universe()
+        for pin in unique_pins:
+            print(f"det _pin_pos_{pin.name.split('_')[-1]}_2G\n de 1\ndt -4")
+            for mat in pin.materials:
+                if "UOX" in mat or "Gd" in mat:
+                    print(f"dm {mat}")
+            print(f"dr -6 U234")
+            print(f"dr -6 U235")
+            print(f"dr -6 U236")
+            print(f"dr -6 U238")
+            print(f"dr -6 Pu239")
+            print(f"dr -6 Pu241")
+            print(f"dr 102 U235")
+            print(f"dr 102 U238")
+            print(f"dr 102 Pu239")
+            print(f"dr 102 Pu241")
+            print(f"dr 102 Xe135")
+            print(f"dr 102 Sm149")
+            print(f"dr 102 Gd154")
+            print(f"dr 102 Gd155")
+            print(f"dr 102 Gd156")
+            print(f"dr 102 Gd157")
+            print(f"dr 102 Gd158")
+            print(f"dr 102 Gd160")
+            
 
 if __name__ == "__main__":
     # Test usage on OECD PHASE IIIB BWR assembly benchmark case :
@@ -117,21 +212,54 @@ if __name__ == "__main__":
 
     # Usage on ATRIUM-10 BWR fuel bundle.
 
-    ATRIUM10 = DMLG_case(name="ATRIUM10", output_codes = ["Serpent2", "DRAGON5"], nuclear_data_evaluation="endfb8r1")
+    ATRIUM10 = DMLG_case(name="ATRIUM_10", output_codes = ["Serpent2", "DRAGON5"], nuclear_data_evaluation="endfb8r1")
     ATRIUM10.settings = {"DRAGON5": {"DRAGLIB": "endfb8r1_295",
                                 "Self-Shiedling Method": "PT",
                                 "Order Anisotropic Scattering": 3,
                                 "Number of mixtures": 10,
                                 "Depletion": True}}
-    ATRIUM10.set_pincell_id_to_mat_id({1:"24UOX", 2:"32UOX", 3:"42UOX", 4:"45UOX", 5:"48UOX", 6:"50UOX", 7:"45Gd", 8:"42Gd"})
-    ATRIUM10.set_lattice_description([  1, 2, 3, 4, 4, 4, 4, 3, 2, 1,
-                                        2, 4, 7, 5, 6, 7, 4, 8, 4, 2,
-                                        3, 7, 6, 6, 4, 3, 4, 4, 8, 3,
-                                        4, 6, 6, 7, 9, 9, 9, 4, 4, 4,
-                                        5, 6, 7, 6, 9, 9, 9, 3, 7, 4,
-                                        6, 7, 6, 6, 9, 9, 9, 4, 6, 4,
-                                        5, 6, 6, 6, 6, 6, 7, 6, 5, 4,
-                                        3, 7, 6, 6, 6, 7, 6, 6, 7, 3,
-                                        2, 4, 7, 6, 7, 6, 6, 7, 4, 2,	
-                                        1, 2, 3, 5, 6, 5, 4, 3, 2, 1
-                                    ])
+    ATRIUM10.set_pincell_id_to_mat_id({1:"24UOX", 2:"32UOX", 3:"42UOX", 4:"45UOX", 5:"48UOX", 6:"50UOX", 7:"45Gd", 8:"42Gd", 9:"coolant"})
+    ATRIUM10.set_lattice_description([  [1, 2, 3, 5, 6, 5, 4, 3, 2, 1],
+                                        [2, 4, 7, 6, 7, 6, 6, 7, 4, 2],
+                                        [3, 7, 6, 6, 6, 7, 6, 6, 7, 3],
+                                        [5, 6, 6, 6, 6, 6, 7, 6, 5, 4],
+                                        [6, 7, 6, 6, 9, 9, 9, 4, 6, 4],
+                                        [5, 6, 7, 6, 9, 9, 9, 3, 7, 4],
+                                        [4, 6, 6, 7, 9, 9, 9, 4, 4, 4],
+                                        [3, 7, 6, 6, 4, 3, 4, 4, 8, 3],
+                                        [2, 4, 7, 5, 6, 7, 4, 8, 4, 2],
+                                        [1, 2, 3, 4, 4, 4, 4, 3, 2, 1]
+                                    ],
+                                     pitch=1.295)
+    
+    ATRIUM10.print_materials_S2_format()
+    ATRIUM10.print_detectors_S2_format()
+    
+
+    
+    
+    
+"""
+1 2 3 5 6 5 4 3 2 1
+2 4 7 6 7 6 6 7 4 2
+3 7 6 6 6 7 6 6 7 3
+5 6 6 6 6 6 7 6 5 4
+6 7 6 6 9 9 9 4 6 4
+5 6 7 6 9 9 9 3 7 4
+4 6 6 7 9 9 9 4 4 4
+3 7 6 6 4 3 4 4 8 3
+2 4 7 5 6 7 4 8 4 2
+1 2 3 4 4 4 4 3 2 1
+
+
+[[1, 2, 3, 5, 6, 5, 4, 3, 2, 1],
+ [2, 4, 7, 6, 7, 6, 6, 7, 4, 2],
+ [3, 7, 6, 6, 6, 7, 6, 6, 7, 3],
+ [5, 6, 6, 6, 6, 6, 7, 6, 5, 4],
+ [6, 7, 6, 6, 9, 9, 9, 4, 6, 4],
+ [5, 6, 7, 6, 9, 9, 9, 3, 7, 4],
+ [4, 6, 6, 7, 9, 9, 9, 4, 4, 4],
+ [3, 7, 6, 6, 4, 3, 4, 4, 8, 3],
+ [2, 4, 7, 5, 6, 7, 4, 8, 4, 2],
+ [1, 2, 3, 4, 4, 4, 4, 3, 2, 1]]
+""" 

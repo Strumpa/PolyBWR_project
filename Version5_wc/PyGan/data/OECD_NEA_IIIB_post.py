@@ -48,7 +48,7 @@ def post_treat_CPO(COMPO_name, path_to_CPOs, draglib):
     # Read Serpent results
     path_to_S2 = os.environ["SERPENT_RESULTS"]
     if draglib == "J311_295":
-        name_case = "OECD_NEA_PHASE_IIIB_jeff311_no_therm_interp_inp"
+        name_case = "OECD_NEA_PHASE_IIIB_jeff311_inp"
     
 
     keff_S2, S2_spectrum = parse_Spectrum_detector(path_to_S2, name_case)
@@ -56,7 +56,7 @@ def post_treat_CPO(COMPO_name, path_to_CPOs, draglib):
     delta_keff = (keff_D5 - keff_S2)*1e5
     print("keff_D5:", keff_D5)
     print("keff_S2:", keff_S2)
-    print(f"delta_keff: {(keff_D5 - keff_S2)*1e5:.6f}")
+    print(f"delta_keff: {(keff_D5 - keff_S2)*1e5:.1f}")
 
     plot_spectrum_comparison(energy_mesh, FLUX_295groups, S2_spectrum, COMPO_name, results_dir)
 
@@ -103,6 +103,18 @@ def post_treat_CPO(COMPO_name, path_to_CPOs, draglib):
 
     print(f"delta_rel_therm_fission_rates: {delta_rel_therm_fission_rates}")
     print(f"delta_rel_fast_fission_rates: {delta_rel_fast_fission_rates}")
+
+    print(f"sum of delta_rel_therm_fission_rates: {np.sum(delta_rel_therm_fission_rates)}")
+    print(f"sum of delta_rel_fast_fission_rates: {np.sum(delta_rel_fast_fission_rates)}")
+
+    delta_therm_fiss_rates = (thermal_fiss_rates_D5 - thermal_fission_rates_S2)
+    delta_fast_fiss_rates = (fast_fiss_rates_D5 - fast_fission_rates_S2)
+    
+    print(f"delta_therm_fission_rates: {delta_therm_fiss_rates}")
+    print(f"delta_fast_fission_rates: {delta_fast_fiss_rates}")
+
+    print(f"sum of delta_therm_fission_rates: {np.sum(delta_therm_fiss_rates)}")
+    print(f"sum of delta_fast_fission_rates: {np.sum(delta_fast_fiss_rates)}")
 
     plot_eighth_lattice(COMPO_name, [delta_rel_therm_fission_rates, delta_rel_fast_fission_rates], results_dir)
 

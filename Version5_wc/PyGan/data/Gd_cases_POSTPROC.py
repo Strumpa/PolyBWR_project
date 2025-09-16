@@ -53,10 +53,10 @@ def post_treat_Gd_case_vs_S2_edep_pcc(case, evaluation, draglib_name, self_shiel
         S2_case_name = "gduo2_295_kec1"
 
     if S2_edep == 0:
-        set_qfiss = True
+        set_qfiss = False
     else:
         set_qfiss = False
-    origin_of_S2_data = "pynjoy2012_kerma"
+    origin_of_S2_data = "pynjoy2016"
     if correlation == "NOCORR":
         correlation = "N"
     elif correlation == "CORR":
@@ -65,7 +65,7 @@ def post_treat_Gd_case_vs_S2_edep_pcc(case, evaluation, draglib_name, self_shiel
     if draglib_name == "endfb8r1_295":
         D5_kerma_used = False
     else:
-        D5_kerma_used = True
+        D5_kerma_used = False
     
     if burnup_points == "Gd_autop3" or burnup_points == "Gd_autop4" or burnup_points == "Gd" or burnup_points == "Gd_autop5":
         S2_ref_case = S2_case(case_name = S2_case_name,
@@ -335,6 +335,7 @@ def AT10_45Gd_custom_plots(save_dir_case):
 
     return
 
+
 def AT10_45Gd_plot_old_dlib_with_new_EXTR(save_dir_case):
     tracked_nuclides = ["U235","U238","Pu239","Pu240","Pu241","Pu242","Am241","Xe135","Sm149","Gd155","Gd157"]
     burnup_points = "Gd2_autop6"
@@ -395,8 +396,8 @@ def AT10_45Gd_plot_old_dlib_with_new_EXTR(save_dir_case):
 if __name__ == "__main__":
     # evaluation and origin of S2 data
 
-    evaluation = "endfb8r1"
-    origin_of_S2_data = "pynjoy2012_kerma"
+    evaluation = "J311"
+    origin_of_S2_data = "pynjoy2016"
 
     # isotopes to be tracked 
     tracked_nuclides = ["U235","U238","Pu239","Pu240","Pu241","Pu242","Am241","Xe135","Sm149","Gd155","Gd157"]
@@ -433,5 +434,5 @@ if __name__ == "__main__":
     #custom_plots(save_dir_gduo2_295_kec1)
     #AT10_45Gd_custom_plots(save_dir_AT10_45Gd)
 
-    post_treat_Gd_case_vs_S2_edep_pcc("AT10_45Gd_Cst_pow_evol", evaluation, "endfb8r1_295_NG0", "PT", "N", "KAPS", time_integrators, "Gd_autop3", tracked_nuclides, 0, 1, save_dir_AT10_45Gd)
+    post_treat_Gd_case_vs_S2_edep_pcc("AT10_45Gd_Cst_pow_evol", evaluation, "J311_295E0", "PT", "N", "KAPS", time_integrators, "Gd_autop3", tracked_nuclides, 0, 2, save_dir_AT10_45Gd)
     AT10_45Gd_plot_old_dlib_with_new_EXTR(save_dir_AT10_45Gd)

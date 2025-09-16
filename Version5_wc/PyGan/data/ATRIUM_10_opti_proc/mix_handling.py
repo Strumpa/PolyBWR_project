@@ -311,7 +311,7 @@ def mix_composition_definition(composition_option):
         "Gd154": 2.986510E-05, "Gd155": 2.027540E-04, "Gd156": 2.804310E-04, "Gd157": 2.143990E-04, "Gd158": 3.403000E-04, "Gd160": 2.994740E-04}
     }
     inrs_box = 2  # INRS option for box
-    inrs_clad = 2  # INRS option for clad
+    inrs_clad = 3  # INRS option for clad
     NOEV_definition = (
     f"MIX <<BOX>> <<TBOX>> NOEV\n"
     "    O16  = O16   3.08132E-04\n"

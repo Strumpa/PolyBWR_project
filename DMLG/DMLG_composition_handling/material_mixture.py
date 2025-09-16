@@ -173,7 +173,7 @@ class Material_Mixture:
         :return: Suffix corresponding to the closest inferior temperature.
         :raises ValueError: If the evaluation or temperature is not found.
         """
-        with open("eval_temp_suffix.yml", "r") as file:
+        with open("DMLG_composition_handling/eval_temp_suffix.yml", "r") as file:
             data = yaml.safe_load(file)
         for eval in data["Evaluation"]:
             if eval["name"] == evaluation_name:
@@ -214,8 +214,9 @@ class Material_Mixture:
         """
         Print the material mixture composition in S2 format.
         """
-        print(f"Material: {self.name}")
+        #print(f"Material: {self.name}")
         for iso, density in self.composition.items():
+            #print(f"Processing isotope {iso} with density {density}")
             zaid = self.format_zaid(iso)
             # if temperature is set, get the suffix for the evaluation
             if hasattr(self, 'temperature'):

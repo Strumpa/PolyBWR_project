@@ -3,8 +3,11 @@
 *                                                                         *
 * Treatment of self-shielding and flux geometry for BWR Assembly          *
 * Benchmark : OECD/NEA Phase IIIB - 8th symmetry case.                    *
-*                                                                         *
+* BASALA type discretization presented in :                               *
+* "Advanced Neutronics Tools for BWR Design Calculations"                 *
+* - A. Santamarina et al. (2006)                                          *
 * Author : R. Guasch    
+
 
 * --------------------------------
 *    INPUT & OUTPUT PARAMETERS
@@ -13,10 +16,12 @@ PARAMETER GEOM GEOMSSH ::
 ::: LINKED_LIST GEOM ; 
 ::: LINKED_LIST GEOMSSH ; ;
 
+
 * -------------------------------
 *    STRUCTURES AND MODULES
 * -------------------------------
 MODULE  GEO: END: ;
+
 
 * MIX NUMBERING :
 * mix variables are identified by a "position number" and a "rod id" ie composition number. 
@@ -38,11 +43,11 @@ INTEGER F06Gd01 F06Gd02 F06Gd03 F06Gd04 F06Gd05 F06Gd06 := 21 22 23 24 25 26 ; !
 INTEGER F070101 F070102 F070103 F070104 := 27 28 29 30 ; ! fuel, position 07, composition 01
 INTEGER F080101 F080102 F080103 F080104 := 31 32 33 34 ; ! fuel, position 08, composition 01
 INTEGER F090101 F090102 F090103 F090104 := 35 36 37 38 ; ! fuel, position 09, composition 01
-INTEGER CLAD := 39 ; ! clad, composition 39
-INTEGER MODE := 40 ; ! moderating water, composition 40 : in water rod and out-of-assembly water
-INTEGER COOL := 41 ; ! coolant water, composition 41 : in assembly water
-INTEGER WROD := 42 ; ! cladding of water rod, composition 42
-INTEGER BOX := 43 ; ! channel box, composition 43
+INTEGER CLAD := 39 ; ! clad, composition 10
+INTEGER MODE := 40 ; ! moderating water, composition 11 : in water rod and out-of-assembly water
+INTEGER COOL := 41 ; ! coolant water, composition 12 : in assembly water
+INTEGER WROD := 42 ; ! cladding of water rod, composition 13
+INTEGER BOX := 43 ; ! channel box, composition 14
 
 * Geometrical data
 
@@ -74,9 +79,12 @@ REAL waterRad_o := 1.6 ; ! cm
 REAL waterRad_i := 1.5 ; ! cm
 
 REAL disp_wr := Pitch_C 2.0 / -1.0 * ; ! cm, displacement of water rod with respect to center of its bounding CARCEL
-*** 8th symmetry : SYME at -Y, DIAG at -X, +Y and REFL at +X
+*** 8th symmetry : SYME at -Y, DIAG at -X, +Y and REFL at +X 
+
+! Add a radius for SPLITR discretisation of moderator box
 
 REAL rr := 2.0 SQRT Pitch_C * 0.001 - ;
+
 
 **************************************************
 *               GEOMETRY DEFINITIONS
@@ -84,8 +92,8 @@ REAL rr := 2.0 SQRT Pitch_C * 0.001 - ;
 
 GEOMSSH := GEO: :: CAR2D 3 3 
     EDIT 1
-    X- DIAG X+ ALBE 1.0
-    Y- ALBE 1.0 Y+ DIAG
+    X- DIAG X+ REFL
+    Y- REFL Y+ DIAG
     CELL WR LAT1 R1 
             LAT2 R2 
                  TC 
@@ -147,7 +155,6 @@ GEOMSSH := GEO: :: CAR2D 3 3
     ::: R2 := GEO: CAR2D 2 1
         MESHX 0.0 <<chan_thi>> <<xlim>>
         MESHY 0.0 <<3_Pitch_C>>
-        SPLITY 3
         MIX <<BOX>> <<MODE>> ! channel box, out-of-assembly water
     ;
     ::: TC := GEO: CAR2D 2 2
@@ -156,6 +163,8 @@ GEOMSSH := GEO: :: CAR2D 3 3
         MIX <<BOX>> <<MODE>> <<MODE>> <<MODE>> ! channel box corner surrounded by out-of-assembly water
     ;
 ;
+
+ECHO "IN 8th geom, building flux calculation geometry" ;
 
 GEOM := GEO: :: CAR2D 3 3 
     EDIT 1
@@ -169,11 +178,10 @@ GEOM := GEO: :: CAR2D 3 3
     ::: WR := GEO: CARCEL 3
             MESHX 0.0 <<Pitch_C>>
             MESHY 0.0 <<Pitch_C>>
-            ! Changing last argument of splitr to <8 causes bug "SAL240_4_2: NB_TOT overflow" in SAL_TRAJECTORY_MOD.f90
-            SPLITR 10 2 5 
+            SPLITR 10 2 5
             RADIUS 0.0 <<waterRad_i>> <<waterRad_o>> <<rr>>
             OFFCENTER <<disp_wr>> <<disp_wr>>
-            MIX <<MODE>> <<WROD>> <<COOL>> <<COOL>>
+            MIX <<MODE>> <<WROD>> <<COOL>> <<COOL>>  ! water, clad, intra-assembly water
         ;
     ::: LAT1 := GEO: CAR2D 3 1 
         MESHX 0.0 <<Pitch_C>> <<2_Pitch_C>> <<3_Pitch_C>>
@@ -269,7 +277,7 @@ GEOM := GEO: :: CAR2D 3 3
         MIX <<BOX>> <<MODE>> <<MODE>> <<MODE>> 
         ! channel box corner surrounded by out-of-assembly water
         SPLITX 2 8
-        SPLITY 2 8
+        SPLITY 2 8 
     ;
 ;
 

@@ -10,7 +10,7 @@
 *********************
 
 PROCEDURE 
-        GEO_8th G8thMultCell GEO_4th 
+        GEO_8th GEO_8thB G8thMultCell GEO_4th 
         TRK_8th TRK_MultCell TRK_4th 
         MIX_A ; 
 
@@ -25,13 +25,14 @@ MODULE GEO: G2S: SALT: LIB: USS: MCCGT: ASM: FLU: EDI: COMPO: GREP: DELETE: ;
 
 LINKED_LIST GEOM GEOMSSH TRK TRKSSH LIBRARY LIBRARY2 ;
 LINKED_LIST SYS FLUX EDIRATES COMPO ;
-SEQ_ASCII _COMPO :: FILE './_CPO_IIIB_J311_295_inrs1_NOTR_eighth_PIJ_30_140_GAUS_fine' ;
+SEQ_ASCII _COMPO :: FILE './_CPO_IIIB_J311_295_inrs1_2c_NOTR_eighth_PIJ_30_140_GAUS_finer_wind' ;
 SEQ_BINARY TF_EXC TF_EXC_SS ;
 SEQ_ASCII GEO_G2S :: FILE 'Fic_SAL_PhaseIIIB.tdt' ;
 SEQ_ASCII GEOSSH_G2S :: FILE 'Fic_SAL_PhaseIIIB_SSH.tdt' ;
 REAL Kinf ;
 
 STRING symmetry := "eighth" ; ! symmetry of the assembly : "eighth", "quarter", or "full"
+STRING cool_sect := "windmill" ; ! coolant sectorization : "windmill" or "basala"
 STRING exec_case := "TRUE" ; ! 'TRUE' to execute the case, 'FALSE' to skip it
 STRING Library := "J311_295" ; ! name of the library to use, e.g. "endfb8r1_295", "J311_295"
 STRING autop_door := "full_PIJ" ; !"surfacic_multicell" ; ! "surfacic_multicell" or "full_PIJ"
@@ -44,7 +45,7 @@ STRING calc_opt := "FALSE" ;
 * RMS : 0.21866% MAX: 2.42000% and AVG: -0.00581% for finer geom
 * (30, 140.0) : RMS: 0.14888%  MAX: 1.15671% and AVG: 0.00017% for finer geom
 INTEGER an2d := 30 ;  ! ANGULAR QUADRATURE PARAMETER,
-REAL densur := 140.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
+REAL densur := 100.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
 
 INTEGER an2d_ss := 12 ;  ! ANGULAR QUADRATURE PARAMETER #18
 REAL densur_ss := 40.0 ; ! DENSITY OF INTEGRATION LINES CM^-1 #30
@@ -63,33 +64,34 @@ STRING door := "" ;
 ********************************************************************
 *       BEGIN 1 Level calculation scheme
 ********************************************************************
+IF cool_sect 'windmill' = THEN
+    IF symmetry 'eighth' = THEN
 
-IF symmetry 'eighth' = THEN
+        IF autop_door 'full_PIJ' = THEN
+            ! Define the flux and self-shielding geometry
+            GEOM GEOMSSH := GEO_8th ;
+            ! Call to tracking module
+            GEO_G2S TRK TF_EXC GEOSSH_G2S TRKSSH TF_EXC_SS := TRK_8th GEOM GEOMSSH 
+            :: <<an2d>> <<an2d_ss>> <<densur>> <<densur_ss>> <<nmu>> <<mcu>> ;
+        ELSEIF autop_door 'surfacic_multicell' = THEN 
+            ! Define the flux and self-shielding geometry
+            GEOM GEOMSSH := G8thMultCell ;
+            ! Call to tracking module
+            GEO_G2S TRK TF_EXC GEOSSH_G2S TRKSSH TF_EXC_SS := TRK_MultCell GEOM GEOMSSH 
+            :: <<an2d>> <<an2d_ss>> <<densur>> <<densur_ss>> <<nmu>> <<mcu>> ;
+        ENDIF ;
 
-    IF autop_door 'full_PIJ' = THEN
-        ! Define the flux and self-shielding geometry
-        GEOM GEOMSSH := GEO_8th ;
-        ! Call to tracking module
-        GEO_G2S TRK TF_EXC GEOSSH_G2S TRKSSH TF_EXC_SS := TRK_8th GEOM GEOMSSH 
+
+    ELSEIF symmetry 'quarter' = THEN
+        GEOM GEOMSSH := GEO_4th ;
+        GEO_G2S TRK TF_EXC GEOSSH_G2S TRKSSH TF_EXC_SS := TRK_4th GEOM GEOMSSH
         :: <<an2d>> <<an2d_ss>> <<densur>> <<densur_ss>> <<nmu>> <<mcu>> ;
-    ELSEIF autop_door 'surfacic_multicell' = THEN 
-        ! Define the flux and self-shielding geometry
-        GEOM GEOMSSH := G8thMultCell ;
-        ! Call to tracking module
-        GEO_G2S TRK TF_EXC GEOSSH_G2S TRKSSH TF_EXC_SS := TRK_MultCell GEOM GEOMSSH 
-        :: <<an2d>> <<an2d_ss>> <<densur>> <<densur_ss>> <<nmu>> <<mcu>> ;
+
+    ELSEIF symmetry 'full' = THEN
+    !    GEOM GEOMSSH := GEO_A ;
+        ECHO "Not implemented yet" ;
+
     ENDIF ;
-
-
-ELSEIF symmetry 'quarter' = THEN
-    GEOM GEOMSSH := GEO_4th ;
-    GEO_G2S TRK TF_EXC GEOSSH_G2S TRKSSH TF_EXC_SS := TRK_4th GEOM GEOMSSH
-    :: <<an2d>> <<an2d_ss>> <<densur>> <<densur_ss>> <<nmu>> <<mcu>> ;
-
-ELSEIF symmetry 'full' = THEN
-!    GEOM GEOMSSH := GEO_A ;
-    ECHO "Not implemented yet" ;
-
 ENDIF ;
 
 IF exec_case 'TRUE' = THEN

@@ -27,10 +27,10 @@ class Pin_Universe_Definition:
         format pincell card to faciliate Serpent2 deck generation
         """ 
         self.pincell_card += f"pin {self.name}\n"
-        for i in range len(self.radii):
-            self.pincell_card += f"\t {self.materials[i].name} {self.radii[i]}\n"
+        for i in range(len(self.radii)):
+            self.pincell_card += f"\t {self.materials[i]} {self.radii[i]}\n"
         # Add surrounding material
-        self.pincell_card += f"\t {self.materials[-1].name} \n"
+        self.pincell_card += f"\t {self.materials[-1]} \n"
 
     def print_pincell_card(self):
         print(self.pincell_card)
@@ -68,12 +68,11 @@ class Lattice_Definition:
 
         self.lattice_card += f"lat {self.name} 1 {self.x0:.2f} {self.y0:.2f} {self.nx} {self.ny} {self.pitch:.3f}\n"
         pin_univ_counter = 1
-        for pin in pin_universes_list:
+        for pin in self.pin_universes_list:
             self.lattice_card += f"{pin.name} "
-            pin_univ_counter += 1
             if pin_univ_counter%self.nx == 0:
                 self.lattice_card += "\n" # skip a line to indicate change in y coord once each x-increasing line is full
-
+            pin_univ_counter += 1
     def print_lattice_card(self):
         print(self.lattice_card)
 

@@ -176,7 +176,7 @@ GEOM := GEO: :: CAR2D 3 3
     ::: WR := GEO: CARCEL 3
             MESHX 0.0 <<Pitch_C>>
             MESHY 0.0 <<Pitch_C>>
-            SPLITR 20 2 10
+            SPLITR 10 2 8
             RADIUS 0.0 <<waterRad_i>> <<waterRad_o>> <<rr>>
             OFFCENTER <<disp_wr>> <<disp_wr>>
             MIX <<MODE>> <<WROD>> <<COOL>> <<COOL>>  ! water, clad, intra-assembly water
@@ -259,14 +259,14 @@ GEOM := GEO: :: CAR2D 3 3
         MESHX 0.0 <<chan_thi>> <<xlim>>
         MESHY 0.0 <<Pitch_C>>
         MIX <<BOX>> <<MODE>> ! channel box, out-of-assembly water
-        SPLITX 2 16
+        SPLITX 2 8
         SPLITY 6
     ;
     ::: R2 := GEO: CAR2D 2 1
         MESHX 0.0 <<chan_thi>> <<xlim>>
         MESHY 0.0 <<3_Pitch_C>>
         MIX <<BOX>> <<MODE>> ! channel box, out-of-assembly water
-        SPLITX 2 16
+        SPLITX 2 8
         SPLITY 18
     ;
     ::: TC := GEO: CAR2D 2 2
@@ -274,8 +274,8 @@ GEOM := GEO: :: CAR2D 3 3
         MESHY 0.0 <<chan_thi>> <<xlim>>
         MIX <<BOX>> <<MODE>> <<MODE>> <<MODE>> 
         ! channel box corner surrounded by out-of-assembly water
-        SPLITX 2 16
-        SPLITY 2 16 
+        SPLITX 2 8
+        SPLITY 2 8 
     ;
 ;
 

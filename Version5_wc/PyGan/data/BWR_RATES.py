@@ -26,8 +26,9 @@ from matplotlib.collections import PatchCollection
 from typing import List, Union
 import serpentTools as st
 from serpentTools.settings import rc
-from Serpent2_parsing import parse_S2_ASSBLY_rates, parse_Serpent2_material_det, parse_Serpent2_lattice_det, parse_S2_ASSBLY_rates_lat_det
+from Serpent2_parsing import parse_S2_ASSBLY_rates, parse_Serpent2_material_det, parse_Serpent2_lattice_det, parse_S2_ASSBLY_rates_lat_det, parse_S2_pin_mat_det
 from Dragon5_cpo_parsing import parse_DRAGON_rates_enrich_num, parse_DRAGON_DIAG_rates_regi_num
+from plotters import plot_errors_BWR_assembly,  plot_BWR_assembly, plot_pinwise_errors_BWR_assembly
 
 matplotlib.use('Agg')
 
@@ -68,312 +69,6 @@ def renormalize_rates_dict(rates_dict):
             normalized_dict[mix] = normalized_values
 
     return normalized_dict
-
-
-def plot_error_grid_from_list(plot_title, name_case, name_compo, group, error_list, N, cmap="bwr", text_color="black"):
-    """
-    Plots an N x N grid where each cell is colored according to the error value.
-    
-    Parameters:
-    - name_case (str): Name of the geometry.
-    - group (int): Group number.
-    - error_list (list or numpy.ndarray): 1D list of error values, ordered by increasing x first, then increasing y.
-    - N (int): Size of the grid (assumed to be N x N).
-    - cmap (str): Colormap name (default is 'coolwarm').
-    - text_color (str): Color of the text inside the squares (default is black).
-    
-    Returns:
-    - None (displays the plot)
-    """
-    # Convert list into an NxN array
-    error_matrix = np.array(error_list).reshape(N, N)  # Reshape row-wise
-
-    fig, ax = plt.subplots(figsize=(8, 8))
-
-    # Normalize colors based on error values
-    min_err, max_err = np.min(error_matrix), np.max(error_matrix)
-    norm = plt.Normalize(min_err, max_err)
-    color_map = plt.cm.get_cmap(cmap)
-
-    # Plot each square
-    for i in range(N):
-        for j in range(N):
-            value = error_matrix[i, j]
-            color = color_map(norm(value))  # Get color from colormap
-            
-            # The input ordering assumes row-major format (increasing x first), 
-            # but Matplotlib's (0,0) is at the top-left, so we flip vertically
-            ax.add_patch(plt.Rectangle((j, i), 1, 1, color=color, edgecolor='black'))
-
-            # Add text at the center of each square
-            ax.text(j + 0.5, i + 0.5, f"{value:.2f} %", 
-                    ha='center', va='center', fontsize=15, color=text_color)
-
-    # Set axis limits
-    ax.set_xlim(0, N)
-    ax.set_ylim(0, N)
-
-    # Remove axes ticks
-    ax.set_xticks([])
-    ax.set_yticks([])
-
-    # Add colorbar
-    sm = plt.cm.ScalarMappable(cmap=color_map, norm=norm)
-    sm.set_array([])
-    cbar = plt.colorbar(sm, ax=ax, fraction=0.046, pad=0.04)
-    cbar.set_label("Relative errors on $\\tau_f$ for U235 (%)", fontsize=12)
-
-    # Show the plot
-    plt.title("Spatial Error (D5-S2) Distribution on U235 fission rates", fontsize=14)
-    plt.savefig(f"DRAGON_RATES_{name_case}/{plot_title}.png", dpi=300)
-    plt.close(fig)
-    return
-
-
-def plot_errors_BWR_assembly(errors_rates, name_case, name_compo, fig_name, unfold_symmetry, cmap="Spectral"):
-    """
-        Assembly map for ATRIUM-10
-
-        C1 C2 C3 C5 C6 C5 C4 C3 C2 C1
-        C2 C4 C7 C6 C7 C6 C6 C7 C4 C2
-        C3 C7 C6 C6 C6 C7 C6 C6 C7 C3
-        C5 C6 C6 C6 C6 C6 C7 C6 C5 C4
-        C6 C7 C6 C6 WH WH WH C4 C6 C4
-        C5 C6 C7 C6 WH WH WH C3 C7 C4
-        C4 C6 C6 C7 WH WH WH C4 C4 C4
-        C3 C7 C6 C6 C4 C3 C4 C4 C8 C3
-        C2 C4 C7 C5 C6 C7 C4 C8 C4 C2
-        C1 C2 C3 C4 C4 C4 C4 C3 C2 C1
-
-        WH = Water Hole
-        Cn = Fuel Cell number n
-
-        Parameters:
-        - errors_rates (list) : list containing dictionnaries with relative errors. Element in list corresponds to the group number.
-            for each group number is a dictionary with key mix name and value the relative error.
-        - name_case (str): Name of the geometry.
-        - name_compo (str): Name of the MULTICOMPO obect with calculation parameter identifiers.
-        - fig_name (str): Name of the figure to be saved.
-        - unfold_symmetry (bool): If True, apply symmetry to the assembly map.
-    
-    """
-
-    if unfold_symmetry:
-            # Define the assembly map
-            assembly_map = np.array([
-                ["C1", "C2", "C3", "C5", "C6", "C5", "C4", "C3", "C2", "C1"],
-                ["C2", "C4", "C7", "C6", "C7", "C6", "C6", "C7", "C4", "C2"],
-                ["C3", "C7", "C6", "C6", "C6", "C7", "C6", "C6", "C7", "C3"],
-                ["C5", "C6", "C6", "C6", "C6", "C6", "C7", "C6", "C5", "C4"],
-                ["C6", "C7", "C6", "C6", "WH", "WH", "WH", "C4", "C6", "C4"],
-                ["C5", "C6", "C7", "C6", "WH", "WH", "WH", "C3", "C7", "C4"],
-                ["C4", "C6", "C6", "C7", "WH", "WH", "WH", "C4", "C4", "C4"],
-                ["C3", "C7", "C6", "C6", "C4", "C3", "C4", "C4", "C8", "C3"],
-                ["C2", "C4", "C7", "C5", "C6", "C7", "C4", "C8", "C4", "C2"],
-                ["C1", "C2", "C3", "C4", "C4", "C4", "C4", "C3", "C2", "C1"]
-            ])
-    else:
-            assembly_map = np.array([
-                ["C1", "C2", "C3", "C5", "C6", "C5", "C4", "C3", "C2", "C1"],
-                ["sy", "C4", "C7", "C6", "C7", "C6", "C6", "C7", "C4", "C2"],
-                ["sy", "sy", "C6", "C6", "C6", "C7", "C6", "C6", "C7", "C3"],
-                ["sy", "sy", "sy", "C6", "C6", "C6", "C7", "C6", "C5", "C4"],
-                ["sy", "sy", "sy", "sy", "WH", "WH", "WH", "C4", "C6", "C4"],
-                ["sy", "sy", "sy", "sy", "sy", "WH", "WH", "C3", "C7", "C4"],
-                ["sy", "sy", "sy", "sy", "sy", "sy", "WH", "C4", "C4", "C4"],
-                ["sy", "sy", "sy", "sy", "sy", "sy", "sy", "C4", "C8", "C3"],
-                ["sy", "sy", "sy", "sy", "sy", "sy", "sy", "sy", "C4", "C2"],
-                ["sy", "sy", "sy", "sy", "sy", "sy", "sy", "sy", "sy", "C1"]
-                ])
-
-    a = os.path.exists(f"DRAGON_RATES_{name_case}/{name_compo}")
-    if not a:
-        os.makedirs(f"DRAGON_RATES_{name_case}/{name_compo}")
-    for group_num in range(len(errors_rates)):
-        # Create a figure and axis
-        fig, ax = plt.subplots(figsize=(10, 10))
-
-        # Define the grid size
-        grid_size = 10
-
-        min_error = min(list(errors_rates[group_num].values()))
-        max_error = max(list(errors_rates[group_num].values()))
-        # Normalize colors based on error values
-        norm = plt.Normalize(min_error, max_error)
-        color_map = plt.cm.get_cmap(cmap)
-
-        # Loop through the assembly map and plot each cell
-        for row in range(assembly_map.shape[0]):
-            for col in range(assembly_map.shape[1]):
-                cell_name = assembly_map[row][col]
-                print(f"cell_name = {cell_name}")
-                
-                # Get the error on reaction rate for the current cell
-                if cell_name in errors_rates[group_num].keys():
-                    error_value = errors_rates[group_num][cell_name] if cell_name in errors_rates[group_num].keys() else 0
-                    color = color_map(norm(error_value))  # Get color from colormap
-                else:
-                    rate_g1 = cell_name
-                # Get the reaction rate for the current cell
-                # Plot the cell with the corresponding color
-                if cell_name == "sy" or cell_name == "WH":
-                    print("skip") 
-                else:
-                    rect = plt.Rectangle((col, grid_size - row - 1), 1, 1, facecolor=color, edgecolor='black', linewidth=2)
-                    ax.add_patch(rect)
-                    # Add the reaction rate text inside the cell
-                    ax.text(col + 0.5, grid_size - row - 0.5, f"{error_value:.2f}", ha='center', va='center', fontsize=12, color='black')
-        # Set the limits and aspect ratio
-        ax.set_xlim(0, grid_size)
-        ax.set_ylim(0, grid_size)
-        ax.set_aspect('equal')
-        # Set the title and labels
-        ax.set_title(f'{fig_name.replace("_"," ")}, group {group_num+1}', fontsize=16)
-        # Hide the axes
-        ax.set_xticks([])
-        ax.set_yticks([])
-        # Show the plot
-        plt.tight_layout()
-        fig.savefig(f"DRAGON_RATES_{name_case}/{name_compo}/assembly_map_{fig_name}_g{group_num+1}.png", dpi=300)
-        plt.close(fig)
-
-    return
-
-
-def plot_BWR_assembly(reaction_rates, name_case, name_compo, fig_name, unfold_symmetry):
-        """
-        Assembly map for ATRIUM-10
-
-        C1 C2 C3 C5 C6 C5 C4 C3 C2 C1
-        C2 C4 C7 C6 C7 C6 C6 C7 C4 C2
-        C3 C7 C6 C6 C6 C7 C6 C6 C7 C3
-        C5 C6 C6 C6 C6 C6 C7 C6 C5 C4
-        C6 C7 C6 C6 WH WH WH C4 C6 C4
-        C5 C6 C7 C6 WH WH WH C3 C7 C4
-        C4 C6 C6 C7 WH WH WH C4 C4 C4
-        C3 C7 C6 C6 C4 C3 C4 C4 C8 C3
-        C2 C4 C7 C5 C6 C7 C4 C8 C4 C2
-        C1 C2 C3 C4 C4 C4 C4 C3 C2 C1
-
-        WH = Water Hole
-        Cn = Fuel Cell number n
-
-        Parameters:
-        - reaction_rates (dict): Dictionary containing reaction rates for each cell.
-        - name_case (str): Name of the geometry.
-        - name_compo (str): Name of the MULTICOMPO obect with calculation parameter identifiers.
-        - fig_name (str): Name of the figure to be saved.
-        - unfold_symmetry (bool): If True, apply symmetry to the assembly map.
-        """
-        a = os.path.exists(f"DRAGON_RATES_{name_case}/{name_compo}")
-        if not a:
-            os.makedirs(f"DRAGON_RATES_{name_case}/{name_compo}")
-        # Create a figure and axis
-        fig1, ax1 = plt.subplots(figsize=(10, 10))
-        fig2, ax2 = plt.subplots(figsize=(10, 10))
-
-        # Define the grid size
-        grid_size = 10
-
-
-        # Define the colors for each cell
-        colors = {
-            "C1": "blue",
-            "C2": "green",
-            "C3": "yellow",
-            "C4": "orange",
-            "C5": "red",
-            "C6": "purple",
-            "C7": "pink",
-            "C8": "cyan",
-            "WH": "white",
-            "sy": "lightgrey"
-        }
-        if unfold_symmetry:
-            # Define the assembly map
-            assembly_map = np.array([
-                ["C1", "C2", "C3", "C5", "C6", "C5", "C4", "C3", "C2", "C1"],
-                ["C2", "C4", "C7", "C6", "C7", "C6", "C6", "C7", "C4", "C2"],
-                ["C3", "C7", "C6", "C6", "C6", "C7", "C6", "C6", "C7", "C3"],
-                ["C5", "C6", "C6", "C6", "C6", "C6", "C7", "C6", "C5", "C4"],
-                ["C6", "C7", "C6", "C6", "WH", "WH", "WH", "C4", "C6", "C4"],
-                ["C5", "C6", "C7", "C6", "WH", "WH", "WH", "C3", "C7", "C4"],
-                ["C4", "C6", "C6", "C7", "WH", "WH", "WH", "C4", "C4", "C4"],
-                ["C3", "C7", "C6", "C6", "C4", "C3", "C4", "C4", "C8", "C3"],
-                ["C2", "C4", "C7", "C5", "C6", "C7", "C4", "C8", "C4", "C2"],
-                ["C1", "C2", "C3", "C4", "C4", "C4", "C4", "C3", "C2", "C1"]
-            ])
-        else:
-            assembly_map = np.array([
-                ["C1", "C2", "C3", "C5", "C6", "C5", "C4", "C3", "C2", "C1"],
-                ["sy", "C4", "C7", "C6", "C7", "C6", "C6", "C7", "C4", "C2"],
-                ["sy", "sy", "C6", "C6", "C6", "C7", "C6", "C6", "C7", "C3"],
-                ["sy", "sy", "sy", "C6", "C6", "C6", "C7", "C6", "C5", "C4"],
-                ["sy", "sy", "sy", "sy", "WH", "WH", "WH", "C4", "C6", "C4"],
-                ["sy", "sy", "sy", "sy", "sy", "WH", "WH", "C3", "C7", "C4"],
-                ["sy", "sy", "sy", "sy", "sy", "sy", "WH", "C4", "C4", "C4"],
-                ["sy", "sy", "sy", "sy", "sy", "sy", "sy", "C4", "C8", "C3"],
-                ["sy", "sy", "sy", "sy", "sy", "sy", "sy", "sy", "C4", "C2"],
-                ["sy", "sy", "sy", "sy", "sy", "sy", "sy", "sy", "sy", "C1"]
-                ])
-
-        # Loop through the assembly map and plot each cell
-        for row in range(assembly_map.shape[0]):
-            for col in range(assembly_map.shape[1]):
-                cell_name = assembly_map[row][col]
-                if cell_name in colors.keys():
-                    color = colors[cell_name]
-                    # Get the reaction rate for the current cell
-                    if cell_name in reaction_rates.keys():
-                        rate_g1 = reaction_rates[cell_name][0]
-                        rate_g2 = reaction_rates[cell_name][1]
-                    else:
-                        rate_g1 = cell_name
-                        rate_g2 = cell_name
-                    # Get the reaction rate for the current cell
-                    # Plot the cell with the corresponding color
-                    if cell_name == "sy" or cell_name == "WH":
-                        print("skip") 
-                    else:
-                        rect1 = plt.Rectangle((col, grid_size - row - 1), 1, 1, color=color, edgecolor='black')
-                        rect2 = plt.Rectangle((col, grid_size - row - 1), 1, 1, color=color, edgecolor='black')
-                        ax1.add_patch(rect1)
-                        ax2.add_patch(rect2)
-                        # Add the reaction rate text inside the cell
-                        ax1.text(col + 0.5, grid_size - row - 0.5, f"{rate_g1:.2f}", ha='center', va='center', fontsize=8, color='black')
-                        ax2.text(col + 0.5, grid_size - row - 0.5, f"{rate_g2:.2f}", ha='center', va='center', fontsize=8, color='black')
-        # Set the limits and aspect ratio
-        ax1.set_xlim(0, grid_size)
-        ax1.set_ylim(0, grid_size)
-        ax1.set_aspect('equal')
-        # Set the title and labels
-        ax1.set_title(f"Assembly Map for {name_case} - {name_compo}, fast group", fontsize=16)
-        ax1.set_xlabel("X-axis", fontsize=12)
-        ax1.set_ylabel("Y-axis", fontsize=12)
-        # Hide the axes
-        ax1.set_xticks([])
-        ax1.set_yticks([])
-        # Show the plot
-        plt.tight_layout()
-        fig1.savefig(f"DRAGON_RATES_{name_case}/{name_compo}/assembly_map_{fig_name}_g1.png", dpi=300)
-        plt.close(fig1)
-
-        ax2.set_xlim(0, grid_size)
-        ax2.set_ylim(0, grid_size)
-        ax2.set_aspect('equal')
-        # Set the title and labels
-        ax2.set_title(f"Assembly Map for {name_case} - {name_compo},thermal group", fontsize=16)
-        ax2.set_xlabel("X-axis", fontsize=12)
-        ax2.set_ylabel("Y-axis", fontsize=12)
-        # Hide the axes
-        ax2.set_xticks([])
-        ax2.set_yticks([])
-        # Show the plot
-        plt.tight_layout()
-        fig2.savefig(f"DRAGON_RATES_{name_case}/{name_compo}/assembly_map_{fig_name}_g2.png", dpi=300)
-        plt.close(fig2)
-        return
-
 
 
 def BWR_CLUSTER(name_case, name_compo, reaction_type, n_groups, bu):
@@ -481,7 +176,7 @@ def BWR_CLUSTER(name_case, name_compo, reaction_type, n_groups, bu):
                 vol = pyCOMPO['HOM1g']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESVOL'][iso]
                 print(f"for mix {mix+1}, N = {N}, vol = {vol}")
                 NFTOT = pyCOMPO['HOM2g']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NFTOT']
-#                NGAMMA = pyCOMPO['EDIBU_2gr']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NG']
+                #NGAMMA = pyCOMPO['EDIBU_2gr']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NG']
                 print(f"mix index is = {mix} with corresponding C name = {MIXES[mix]}")
                 print(f"Number of each mix = {number_of_each_mix[MIXES[mix]]}")
                 for gr in range(n_groups):
@@ -528,6 +223,7 @@ def BWR_CLUSTER(name_case, name_compo, reaction_type, n_groups, bu):
 
     return
 
+
 def compute_diff_rates(D5_rates, S2_rates):
     """
     D5_rates (dict) : Dragon rates, mix as key, array of ngroups rates as values
@@ -567,29 +263,92 @@ if __name__ == "__main__":
 
     #### ATRIUM-10 assembly
     name_case = "ATRIUM10"
-    print(os.listdir())
-    CPO_name_test = "CPO_n24_ld75_n8_ld25_TSPC_4_MOC_GAUS_4_750_200"
+    # geometry_type : choice of discretisation for flux calculation geometry.
+    #geometry_type = "default" # "cool_ring_SECT40" # "default", "fine1", "corners1"
+    geometry_refinement_options = ["default", "fine1", "fine2", "coolant_ring", "finest_on_Gd_coolant_ring", "finest_on_Gd", "cool_ring_SECT40"] # "finest_geom", 
+    
     composition_option = "AT10_void_0"
     evaluation = "J311_295"
-    ssh_method = "PT"
-    correlation_option = "NOCORR"
-    results_test = parse_DRAGON_DIAG_rates_regi_num(name_case, CPO_name_test, composition_option, evaluation, ssh_method, correlation_option, fission_isotopes = ["U235", "U238", "U234"] , n_gamma_isotopes = ["U238", "Gd155", "Gd157"], bu=0)
-    S2_results_test = parse_S2_ASSBLY_rates_lat_det(name_case="AT10_ASSBLY_t0_Rates", XS_lib_S2="J311_pynjoy2016", fission_isotopes=["U235", "U238", "U234"], n_gamma_isotopes=["U238", "Gd155", "Gd157"], bu=0)
+    ssh_methods = ["RSE"]#, "PT"]
+    correlation_options = ["NOCORR"]#, "CORR"]
 
-    CPOS_to_treat = None # ["CPO_AT10_ASSBLY_RSE_fine_J311", "CPO_AT10_ASSBLY_RSE_CORR_fine_J311"]
-    #n_gamma_isotopes=["Gd155", "Gd157", "U238"]
-    for name_compo in CPOS_to_treat:
-        keff_D5, fiss_rates, ngamma_rates = parse_DRAGON_rates_enrich_num(name_case, name_compo, fission_isotopes=["U235", "U238"], n_gamma_isotopes=[], n_groups=2, bu=0, unfold_symmetry=True)
+    for geometry_type in geometry_refinement_options:
+        if geometry_type in ["default", "fine1", "fine2", "coolant_ring"]:
+            refinement_opt_name = geometry_type
+            num_angles = 24
+            line_density = 140.0
+            batch = 750
+            CPO_name = f"CPO_n{num_angles}_ld{int(line_density)}_n8_ld25_TSPC_4_MOC_GAUS_4_{batch}_200"
+        elif geometry_type in ["finest_on_Gd", "finest_on_Gd_coolant_ring"]:
+            refinement_opt_name = geometry_type
+            num_angles = 24
+            line_density = 140.0
+            if geometry_type == "finest_on_Gd_coolant_ring":
+                batch = 2000
+            elif geometry_type == "finest_on_Gd":
+                batch = 1000
+            CPO_name = f"CPO_n{num_angles}_ld{int(line_density)}_n8_ld25_TSPC_4_MOC_GAUS_4_{batch}_200"
+        elif geometry_type in ["finest_geom", "cool_ring_SECT40"]:
+            refinement_opt_name = geometry_type
+            num_angles = 24
+            line_density = 150.0
+            batch = 2000
+            if geometry_type == "cool_ring_SECT40":
+                ssh_methods = ["PT"]
+                batch = 3000
+            CPO_name = f"CPO_n{num_angles}_ld{int(line_density)}_n8_ld25_TSPC_4_MOC_GAUS_4_{batch}_200"
+        print(f"geometry_type : {geometry_type}, refinement_opt_name : {refinement_opt_name}, CPO_name = {CPO_name}")
+        deltas = {}
+        for ssh_method in ssh_methods:
+            if ssh_method not in deltas.keys():
+                deltas[ssh_method] = {}
+            for correlation_option in correlation_options:
+                if correlation_option not in deltas[ssh_method].keys():
+                    deltas[ssh_method][correlation_option] = {}
+                keff_D5, fiss_rates_D5, n_gamma_rates_D5, FLUX_295groups_D5 = parse_DRAGON_DIAG_rates_regi_num(name_case, CPO_name, composition_option, evaluation, ssh_method, correlation_option, geometry_type, fission_isotopes = ["U235", "U238"] , n_gamma_isotopes = ["U238", "Gd155", "Gd157"], bu=0)
+                #S2_results_test = parse_S2_ASSBLY_rates_lat_det(name_case="AT10_ASSBLY_t0_Rates", XS_lib_S2="J311_pynjoy2016", fission_isotopes=["U235", "U238", "U234"], n_gamma_isotopes=["U238", "Gd155", "Gd157"], bu=0)
+                keff_S2, fission_rates_S2, ngamma_rates_S2 = parse_S2_pin_mat_det(name_case="ATRIUM10_pin", XS_lib_S2="jeff311_pynjoy2016", fission_isotopes=["U235", "U238"], ngamma_isotopes=["U238", "Gd155", "Gd157"], bu=0)
 
-        renormed_tot_fiss_rate = renormalize_rates_dict(fiss_rates["TOT"])
-        plot_BWR_assembly(renormed_tot_fiss_rate, name_case, name_compo, fig_name="Total_fission_rates_renorm", unfold_symmetry=True)
-        
-        S2keff, S2fission_rates, S2ngamma_rates = parse_S2_ASSBLY_rates(name_case="AT10_ASSBLY_t0_Rates", XS_lib_S2="J311_pynjoy2016", fission_isotopes=["U235", "U238", "U234"], n_gamma_isotopes=[], bu=0, unfold_symmetry=True)
-        
-        renormed_tot_fiss_rate_S2 = renormalize_rates_dict(S2fission_rates["TOT"])
 
-        delta_rates = compute_diff_rates(renormed_tot_fiss_rate, renormed_tot_fiss_rate_S2)
-        print(f"For case : {name_case}, and compo : {name_compo}")
-        print(f"delta_keff = {(keff_D5 - S2keff)*1e5}")
+                print(fission_rates_S2)
+                # Normalise to nCells = 49 cells with fissile material.
+                fiss_rates_D5[0] =  fiss_rates_D5[0] * 49 / np.sum(fiss_rates_D5[0])
+                fission_rates_S2[0] = fission_rates_S2[0] * 49 / np.sum(fission_rates_S2[0])
+                fiss_rates_D5[1] =  fiss_rates_D5[1] * 49 / np.sum(fiss_rates_D5[1])
+                fission_rates_S2[1] = fission_rates_S2[1] * 49 / np.sum(fission_rates_S2[1])
 
-        plot_errors_BWR_assembly(delta_rates, name_case, name_compo, fig_name="Total_fission_rates_diff", unfold_symmetry=True)
+                delta_therm = fiss_rates_D5[0] - fission_rates_S2[0]
+                delta_fast = fiss_rates_D5[1] - fission_rates_S2[1]
+                
+                delta_rel_therm = [(fiss_rates_D5[0][i] - fission_rates_S2[0][i])*100 / fission_rates_S2[0][i] if fission_rates_S2[0][i]!=0 else 0.0 for i in range(len(fission_rates_S2[0]))]
+                delta_rel_fast = [(fiss_rates_D5[1][i] - fission_rates_S2[1][i])*100 / fission_rates_S2[1][i] if fission_rates_S2[1][i]!=0 else 0.0 for i in range(len(fission_rates_S2[1]))]
+
+                CPOS_to_treat = [] # ["CPO_AT10_ASSBLY_RSE_fine_J311", "CPO_AT10_ASSBLY_RSE_CORR_fine_J311"]
+                print(f"For geometry name : {geometry_type}")
+                print(f"keff_D5 = {keff_D5}, keff_S2 = {keff_S2}")
+                delta_keff = (keff_D5 - keff_S2)*1e5
+                print(f"error (D5-S2) on keff = {delta_keff:.1f}")
+                deltas[ssh_method][correlation_option]["keff"] = delta_keff
+                
+                # Compute RMS, MAX and AVG errors on fission rates
+                rms_therm = np.sqrt(np.mean(np.array(delta_rel_therm)**2))
+                rms_fast = np.sqrt(np.mean(np.array(delta_rel_fast)**2))
+                avg_therm = np.mean(np.abs(np.array(delta_rel_therm)))
+                avg_fast = np.mean(np.abs(np.array(delta_rel_fast)))
+                max_therm = np.max(np.abs(np.array(delta_rel_therm)))
+                max_fast = np.max(np.abs(np.array(delta_rel_fast)))
+                print(f"RMS errors on fission rates (thermal, fast) = {rms_therm:.2f} %, {rms_fast:.2f} %")
+                print(f"AVG errors on fission rates (thermal, fast) = {avg_therm:.2f} %, {avg_fast:.2f} %")
+                print(f"MAX errors on fission rates (thermal, fast) = {max_therm:.2f} %, {max_fast:.2f} %")
+                deltas[ssh_method][correlation_option]["rms_therm"] = rms_therm
+                deltas[ssh_method][correlation_option]["avg_therm"] = avg_therm
+                deltas[ssh_method][correlation_option]["max_therm"] = max_therm
+                deltas[ssh_method][correlation_option]["rms_fast"] = rms_fast
+                deltas[ssh_method][correlation_option]["avg_fast"] = avg_fast
+                deltas[ssh_method][correlation_option]["max_fast"] = max_fast
+                
+
+                plot_pinwise_errors_BWR_assembly(np.array([delta_rel_therm,delta_rel_fast]), name_case, CPO_name, calculation_opt = f"{geometry_type}_{ssh_method}_{correlation_option}", fig_name="Total_fission_rates_diff")
+
+
+        print(deltas)

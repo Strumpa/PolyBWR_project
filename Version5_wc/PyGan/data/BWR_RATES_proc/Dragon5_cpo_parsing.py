@@ -96,7 +96,7 @@ def parse_DRAGON_rates_enrich_num(name_case, name_compo, fission_isotopes, n_gam
     return keff_D5, fiss_rates, n_gamma_rates
 
 
-def parse_DRAGON_DIAG_rates_regi_num(name_case, name_compo, composition_option, evaluation, ssh_method, correlation_option, fission_isotopes, n_gamma_isotopes, bu):
+def parse_DRAGON_DIAG_rates_regi_num(name_case, name_compo, composition_option, evaluation, ssh_method, correlation_option, geometry_refinement_option, fission_isotopes, n_gamma_isotopes, bu):
     """
     Parse DRAGON5 rates from the specified COMPO file.
     
@@ -107,6 +107,7 @@ def parse_DRAGON_DIAG_rates_regi_num(name_case, name_compo, composition_option, 
     - evaluation (str): Nuclear data evaluation.
     - ssh_method (str): Self shielding method used.
     - correlation_option (str): Correlation option.
+    - geometry_refinement_option (str): identifictor for flux eometry refinement type.
     - fission_isotopes (list): List of isotopes for fission rates.
     - n_gamma_isotopes (list): List of isotopes for neutron gamma rates.
     - bu (int): Burnup step.
@@ -122,7 +123,7 @@ def parse_DRAGON_DIAG_rates_regi_num(name_case, name_compo, composition_option, 
     # Load the DRAGON rates
     path = os.getcwd()
     # AT10_void_0_J311_295_PT_NOCORR_region_num
-    os.chdir(f"PYGAN_RESULTS/{name_case}_results/{composition_option}_{evaluation}_{ssh_method}_{correlation_option}_region_num")
+    os.chdir(f"PYGAN_RESULTS/{name_case}_results/{geometry_refinement_option}_{composition_option}_{evaluation}_{ssh_method}_{correlation_option}_region_num")
     print(f"Loading {name_case} rates from {name_compo}")
     # Load the LCM file
     print(os.listdir())
@@ -134,7 +135,7 @@ def parse_DRAGON_DIAG_rates_regi_num(name_case, name_compo, composition_option, 
     print(f"len_isotot = {len_isotot}")
     ########## CALCULATIONS ##########
     # Retrieve keff from pyCOMPO
-    keff_D5 = pyCOMPO['EDIHOM_COND']['MIXTURES'][0]['CALCULATIONS'][0]['K-EFFECTIVE']
+    keff_D5 = pyCOMPO['EDIHOM_COND']['MIXTURES'][0]['CALCULATIONS'][0]['K-EFFECTIVE'][0]
     print(f"keff_D5 = {keff_D5}")
     MIXES_idx = [0,1,2,3,4,5,6,7,8,9,
                  10,11,12,13,14,15,16,17,18,
@@ -174,6 +175,7 @@ def parse_DRAGON_DIAG_rates_regi_num(name_case, name_compo, composition_option, 
     ]
     Iso_index_to_ALIAS = {}
     fiss_rates = {}
+    fission_rates = np.zeros((2,55))
     n_gamma_rates = {}
     for iso in range(len_isotot):
         #print(f"iso index = {iso}, isotope = {Iso_index_to_ALIAS[iso]}")
@@ -192,7 +194,8 @@ def parse_DRAGON_DIAG_rates_regi_num(name_case, name_compo, composition_option, 
                 else:
                     sym_factor = 1
                 isotope_fission_rate[f"{mix+1}"] = np.array(NFTOT)*np.array(NWT0)*N*vol*sym_factor # multiply volume by 2 to account for diagonal symmetry of the assembly
-            fiss_rates[isotope] = isotope_fission_rate
+                fission_rates[0][mix] += NFTOT[1]*NWT0[1]*N*vol*sym_factor
+                fission_rates[1][mix] += NFTOT[0]*NWT0[0]*N*vol*sym_factor
         
     
         """
@@ -209,13 +212,5 @@ def parse_DRAGON_DIAG_rates_regi_num(name_case, name_compo, composition_option, 
         """
 
     FLUX_295groups = pyCOMPO['EDIHOM_295']['MIXTURES'][0]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NWT0']
-    print(f"FLUX_295groups = {FLUX_295groups}")
-    #print(f"fiss_rates = {fiss_rates}")
-    sum_summed_fiss_rates = sum_rates_over_iso(fiss_rates)
 
-    sum_summed_n_gamma_rates = sum_rates_over_iso(n_gamma_rates)
-
-    fiss_rates["TOT"] = sum_summed_fiss_rates
-    #n_gamma_rates["TOT"] = sum_summed_n_gamma_rates
-
-    return keff_D5, fiss_rates, n_gamma_rates, FLUX_295groups, lattice_desc, MIX_unique_numbers
+    return keff_D5, fission_rates, n_gamma_rates, FLUX_295groups

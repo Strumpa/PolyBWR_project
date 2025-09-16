@@ -32,34 +32,119 @@ exec = True
 
 # Options from DRAGON calculation setup.
 # Geometry parameters : ATRIUM-10 BWR fuel assembly
-split_water_in_moderator_box = 20
-split_moderator_box = 2
-split_water_around_moderator_box = 2
-split_intra_assembly_coolant = 4
-split_assembly_box = 2
-split_out_assembly_moderator = 10
+refinement_opt_name = "fine1" # "default", "fine1", "fine2", "fine3", "coolant_ring", "finest_on_Gd", "finest_on_Gd_coolant_ring"
+
+refinement_options = {} 
+# posible keys to "moderator" entry
+# "default" -> coarse refinement of water in and out of assembly, windmills around cells
+#"fine1" -> finer refinement in inner box and outer water. Ibn thermal group : still ~-4% error on fission rates in assembly corners, 1.4% RMS and 1% average,
+#"fine2" -> splity in side water increased, same as fine1 apart from that
+#"fine3" -> refining moderator in central box : to test
+refinement_options["moderator"] = "fine2"
+# Possible keys to "UOX_cells" entry :
+# SECT_4_{n}, where n is the number of non discretized rings in cell
+# coolant_ring_SECT_4_{n}, where n is the number of non discretized rings in cell : added coolant ring 
+refinement_options["UOX_cells"] = "SECT_4_6" #"coolant_ring_SECT_4_6"
+# Possible keys to "Gd_cells" entry :
+# SECT_4_{n}, where n is the number of non discretized rings in cell
+# coolant_ring_SECT_4_{n}, where n is the number of non discretized rings in cell : added coolant ring 
+refinement_options["Gd_cells"] = "SECT_4_0" #"coolant_ring_SECT_4_0"
+
+
+if refinement_opt_name == "finest_geom": 
+    refinement_options["moderator"] = "fine2" 
+    refinement_options["UOX_cells"] = "coolant_ring_SECT_4_0"
+    refinement_options["Gd_cells"] = "coolant_ring_SECT_4_0"
+    num_angles = 24
+    line_density = 150.0
+    batch = 2000
+    
+elif refinement_opt_name == "fine2" or refinement_opt_name == "fine1" or refinement_opt_name == "default":
+    refinement_options["moderator"] = refinement_opt_name
+    refinement_options["UOX_cells"] = "SECT_4_6"
+    refinement_options["Gd_cells"] = "SECT_4_8"
+    num_angles = 24
+    line_density = 75.0
+    batch = 750
+    
+elif refinement_opt_name == "coolant_ring":
+    refinement_options["moderator"] = "fine2" 
+    refinement_options["UOX_cells"] = "coolant_ring_SECT_4_6"
+    refinement_options["Gd_cells"] = "coolant_ring_SECT_4_8"
+    num_angles = 24
+    line_density = 75.0
+    batch = 750
+    
+elif refinement_opt_name == "finest_on_Gd_coolant_ring": 
+    refinement_options["moderator"] = "fine2" 
+    refinement_options["UOX_cells"] = "coolant_ring_SECT_4_6"
+    refinement_options["Gd_cells"] = "coolant_ring_SECT_4_0"
+    num_angles = 24
+    line_density = 140.0
+    batch = 1500
+elif refinement_opt_name == "finest_on_Gd": 
+    refinement_options["moderator"] = "fine2" 
+    refinement_options["UOX_cells"] = "SECT_4_6"
+    refinement_options["Gd_cells"] = "SECT_4_0"
+    num_angles = 24
+    line_density = 140.0
+    batch = 1500
+else:
+    print(f"This combination of options {refinement_options} is not supported yet, please review options are add specific save name to support results post-treatment")
+
+if refinement_options["moderator"] == "default":
+    split_water_in_moderator_box = 10
+    split_moderator_box = 2
+    split_water_around_moderator_box = 4
+    split_intra_assembly_coolant = 4
+    split_assembly_box = 2
+    split_out_assembly_moderator = [5,5]
+elif refinement_options["moderator"] == "fine1":
+    split_water_in_moderator_box = 20
+    split_moderator_box = 2
+    split_water_around_moderator_box = 2
+    split_intra_assembly_coolant = 4
+    split_assembly_box = 2
+    split_out_assembly_moderator = [10,10]
+elif refinement_options["moderator"] == "fine2":
+    split_water_in_moderator_box = 20
+    split_moderator_box = 2
+    split_water_around_moderator_box = 2
+    split_intra_assembly_coolant = 4
+    split_assembly_box = 2
+    split_out_assembly_moderator = [10,30]
+elif refinement_options["moderator"] == "fine3":
+    split_water_in_moderator_box = 30
+    split_moderator_box = 2
+    split_water_around_moderator_box = 2
+    split_intra_assembly_coolant = 4
+    split_assembly_box = 2
+    split_out_assembly_moderator = [10,30]
+
 mix_numbering_option =  "number_mix_families_per_region" # "number_mix_families_per_region" , "number_mix_families_per_enrichment"
 name_geom = "AT10_ASSBLY"
 
 # Tracking parameters : main flux geometry
 # (24, 75.0) --> SALTLC: Global RMS, maximum and average errors (%) on region volumes :  0.15415    0.89377    0.00094, below 1% on max : satisfactory.
+# For SECT 4 0 with coolant ring : (24, 150)
+# SALTLC: Global RMS, maximum and average errors (%) on region volumes :     0.13502     0.95490    -0.00102, below 1% on max : satisfactory.
 # Could be optimized further, but not necessary for the moment.
-num_angles = 24
-line_density = 75.0
+#num_angles = 24
+#line_density = 150.0
+#batch = 1500 # 750 was found to be "optimal" with 20 omp procs and (24, 75.0) tracking parameters for MOC. 
 reflection_type = "TSPC"
 anisotropy_level = 4 # Level of anisotropy for the tracking, can be 1 (isotropic), 2 (linearly anisotropic), 3 (anisotropy order P_2), or 4 (anisotropy order P_3). 
 solution_door = "MOC"  # Flag to indicate whether the tracking should be modified for a MOC solution, or not., else : set it to CP (Collision Probability) tracking.
 moc_angular_quandrature = "GAUS"
 nmu = 4  # Number of polar angles for MOC tracking : conservation ensured up to the order of P_{nmu-1} scattering : # nmu = 4 -> P3 scattering
-batch = 750 # 750 was found to be "optimal" with 20 omp procs and (24, 75.0) tracking parameters for MOC. 
-postscript_file = "AT10_FIG_MAIN_test.ps"
+postscript_file = f"AT10_FIG_MAIN_{refinement_opt_name}.ps"
 
 # Tracking parameters : self-shielding geometry
 num_angles_ssh = 8
 line_density_ssh = 25.0
 reflection_type_ssh = "TSPC"
 batch_ssh = 200
-postscript_file_ssh = "AT10_FIG_SSH_test.ps"
+postscript_file_ssh = "AT10_FIG_SSH.ps"
 
 # Parameters for the LIBRARY creation
 draglib_name = "J311_295" # "endfb8r1_295" # "J311_295"
@@ -80,7 +165,7 @@ name_compo = f"_CPO_n{num_angles}_ld{int(line_density)}_n{num_angles_ssh}_ld{int
 start_time = time.time()
 geo_flx, geo_ssh, connectivity_dict = createGeo(name_geom, split_water_in_moderator_box, split_moderator_box, split_water_around_moderator_box, 
                                                 split_intra_assembly_coolant, split_assembly_box, split_out_assembly_moderator,
-                                                mix_numbering_option)
+                                                mix_numbering_option, refinement_options)
 time_creating_geo = time.time() - start_time
 current_time = time.time()
 
@@ -99,13 +184,14 @@ track_lcm_ssh, track_binary_ssh, figure_ssh = trackSSHGeomSALT(geo_ssh, num_angl
 time_tracking_ssh = time.time() - current_time
 current_time = time.time()
 
-###################################################### LIB: : LIBRARY creation ############################################################
-# Create the LIBRARY according to the options selected.
-lib_lcm = createLib(mix_numbering_option, draglib_name, anisotropy_level, self_shielding_method, resonance_correlation, transport_correction, composition_option, connectivity_dict)
-time_creating_lib = time.time() - current_time
-current_time = time.time()
-
 if exec:
+    ###################################################### LIB: : LIBRARY creation ############################################################
+    # Create the LIBRARY according to the options selected.
+    lib_lcm = createLib(mix_numbering_option, draglib_name, anisotropy_level, self_shielding_method, resonance_correlation, transport_correction, composition_option, connectivity_dict)
+    time_creating_lib = time.time() - current_time
+    current_time = time.time()
+
+
     ###################################################### USS: : self-shielding calculations ##########################################
     # Perform the self-shielding calculations
     lib_ssh = selfShieldingUSS(mix_numbering_option, lib_lcm, track_lcm_ssh, track_binary_ssh, name_geom, ssh_option, connectivity_dict)
@@ -121,25 +207,22 @@ if exec:
     # Time taken for flux calculation
     time_flux_calculation = time.time() - current_time
     current_time = time.time()
-else:
-    flux_lcm = None
-    lib_ssh = None
 
-#################################################### EDI: and COMPO: ############################################################
-# Call EDI: and COMPO: to save the results to a MULTICOMPO file
-compo_lcm = ediCompo(mix_numbering_option, flux_lcm, lib_ssh, track_lcm, name_compo, save_option="SAVE", mix_connectivity_dict=connectivity_dict)
-# Time taken for EDI: and COMPO: calls
-time_edi_compo = time.time() - current_time
-current_time = time.time()
+    #################################################### EDI: and COMPO: ############################################################
+    # Call EDI: and COMPO: to save the results to a MULTICOMPO file
+    compo_lcm = ediCompo(mix_numbering_option, flux_lcm, lib_ssh, track_lcm, name_compo, save_option="SAVE", mix_connectivity_dict=connectivity_dict)
+    # Time taken for EDI: and COMPO: calls
+    time_edi_compo = time.time() - current_time
+    current_time = time.time()
 
-if exec:
+
     ######################################################### EXPORTS ############################################################
     if mix_numbering_option == "number_mix_families_per_region":
         numbering_save_opt = "region_num"
     elif mix_numbering_option == "number_mix_families_per_enrichment":
         numbering_save_opt = "enrich_num"
     # Save the MULTICOMPO to a specific directory
-    save_dir_case = f"{save_dir}/{composition_option}_{draglib_name}_{self_shielding_method}_{resonance_correlation}_{numbering_save_opt}" 
+    save_dir_case = f"{save_dir}/{refinement_opt_name}_{composition_option}_{draglib_name}_{self_shielding_method}_{resonance_correlation}_{numbering_save_opt}"
     if not os.path.exists(save_dir_case):
         os.makedirs(save_dir_case)
     # Save the LCM objects to the specified directory

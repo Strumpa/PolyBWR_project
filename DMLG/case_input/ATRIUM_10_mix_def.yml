@@ -8,7 +8,7 @@ MIX_COMPOSITIONS:
       U238: 2.27631E-02
       O16: 4.66705E-02
     temperature_points:
-      - 900.0
+      - 750.0
     depletable: true
   
   - name: "32UOX"
@@ -18,7 +18,7 @@ MIX_COMPOSITIONS:
       U238: 2.257430E-02
       O16: 4.667480E-02
     temperature_points:
-      - 900.0
+      - 750.0
     depletable: true
   
   - name: "42UOX"
@@ -28,7 +28,7 @@ MIX_COMPOSITIONS:
       U238: 2.236200E-02
       O16: 4.667960E-02
     temperature_points:
-      - 900.0
+      - 750.0
     depletable: true
   
   - name: "45UOX"
@@ -38,7 +38,7 @@ MIX_COMPOSITIONS:
       U238: 2.227940E-02
       O16: 4.668150E-02
     temperature_points:
-      - 900.0
+      - 750.0
     depletable: true
 
   - name: "48UOX"
@@ -48,7 +48,7 @@ MIX_COMPOSITIONS:
       U238: 2.222040E-02
       O16: 4.668280E-02
     temperature_points:
-      - 900.0
+      - 750.0
     depletable: true
 
   - name: "50UOX"
@@ -58,7 +58,7 @@ MIX_COMPOSITIONS:
       U238: 2.216140E-02
       O16: 4.668410E-02
     temperature_points:
-      - 900.0
+      - 750.0
     depletable: true
   
   - name: "45Gd"
@@ -74,7 +74,7 @@ MIX_COMPOSITIONS:
       Gd158: 3.403000E-04
       Gd160: 2.994740E-04
     temperature_points:
-      - 900.0
+      - 750.0
     depletable: true
 
   - name: "42Gd"
@@ -90,7 +90,7 @@ MIX_COMPOSITIONS:
       Gd158: 3.403000E-04
       Gd160: 2.994740E-04
     temperature_points:
-      - 900.0
+      - 750.0
     depletable: true
   
   - name: "MODERATION_BOX"
@@ -205,7 +205,7 @@ MIX_COMPOSITIONS:
     isotopic_composition:
       He4:  1.50456E-04
     temperature_points:
-      - 900.0
+      - 750.0
     depletable : false
   
   - name: "WROD"
@@ -213,7 +213,7 @@ MIX_COMPOSITIONS:
       O16: 2.47298E-02
       H1: 4.94546E-02
     temperature_points:
-      - 559.
+      - 559.0
     depletable: false
 
   - name: "MODE_OUT"
@@ -224,7 +224,7 @@ MIX_COMPOSITIONS:
       - 559.0
     depletable: false
 
-  - name: "COOL_0VOID"
+  - name: "COOLANT"
     isotopic_composition:
       O16: 2.47298E-02
       H1: 4.94546E-02

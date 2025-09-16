@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.8"
 dependencies = [
     "matplotlib>=3.7.5",
+    "mendeleev>=0.12.1",
     "numpy>=1.24.4",
     "pandas>=2.0.3",
     "serpenttools>=0.10.1",

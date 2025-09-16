@@ -53,8 +53,8 @@ tracking_option = "SALT" #, "SYBNXT"
 # 2) Selecting the evaluation used for the simulation
 # ENDFb8r1_295 or J311_295
 #
-evaluation = "endfb8r1" # Jeff3.1.1 or ENDF/B-VIII.1
-draglibs_to_test = ["endfb8r1_295", "endfb81295K", "endfb81295K2"] # "endfb8r1_295", "endfb81295K" : with total KERMA (MT301), "endfb81295K2" : with modified KERMA (MT301-MT318)+MT458 data.
+evaluation = "J311" # Jeff3.1.1 or ENDF/B-VIII.1
+draglibs_to_test = ["J311_295", "J311_295K", "J311_295E0"] # "endfb8r1_295", "endfb81295K" : with total KERMA (MT301), "endfb81295K2" : with modified KERMA (MT301-MT318)+MT458 data.
 
 # 3) Selecting the self-shielding method
 # RSE, PT or AUTO
@@ -82,8 +82,8 @@ saturation_option = "NODI" #, "DIRA"
 glob_opt = "NOGL" # "GLOB", "NOGL"
 
 # 7) Select which D5 case to run
-exec_D5_no_modif = False # True : run DRAGON5 calculations, False : skip DRAGON5 calculations
-exec_D5_no_NG0 = True # True : run DRAGON5 calculations with NG0 depletion chain, False : skip DRAGON5 calculations
+exec_D5_no_modif = True # True : run DRAGON5 calculations, False : skip DRAGON5 calculations
+exec_D5_no_NG0 = False # True : run DRAGON5 calculations with NG0 depletion chain, False : skip DRAGON5 calculations
 
 #time_integrator = "CECM" # "CECM", "CECE", "EXTR", "NOEX", "EXTR2"
 time_integrator_list = ["EXTR"]
@@ -124,6 +124,10 @@ else:
 
 if exec_D5_no_modif:
     for draglib_name in draglibs_to_test:
+        if "E0" in draglib_name:
+            edp_opt = "edep0"
+        else:
+            edp_opt = "default"
         for ssh_option in ssh_options:
             for corr in corr_options:
                 if corr == "CORR":
@@ -152,9 +156,9 @@ if exec_D5_no_modif:
                         elif time_integrator == "CECE":
                             CPO = CECE("COMPO", LIB, TRK, TF_EXC, TRK_SS, TF_EXC_SS, StepList, name_compo, solver_option, glob_opt)
                         elif time_integrator == "EXTR":
-                            CPO = BU_C("COMPO", LIB, TRK, TF_EXC, TRK_SS, TF_EXC_SS, StepList, name_compo, ssh_option, solver_option, glob_opt, saturation_option, rates_extr="EXTR")
+                            CPO = BU_C("COMPO", LIB, TRK, TF_EXC, TRK_SS, TF_EXC_SS, StepList, name_compo, ssh_option, solver_option, glob_opt, saturation_option, rates_extr="EXTR", edep_mode=edp_opt)
                         elif time_integrator == "NOEX":
-                            CPO = BU_C("COMPO", LIB, TRK, TF_EXC, TRK_SS, TF_EXC_SS, StepList, name_compo, ssh_option, solver_option, glob_opt, saturation_option, rates_extr="NOEX")
+                            CPO = BU_C("COMPO", LIB, TRK, TF_EXC, TRK_SS, TF_EXC_SS, StepList, name_compo, ssh_option, solver_option, glob_opt, saturation_option, rates_extr="NOEX", edep_mode=edp_opt)
                         elif time_integrator == "EXTR2":
                             CPO = BU_EXTR2("COMPO", LIB, TRK, TF_EXC, TRK_SS, TF_EXC_SS, StepList, name_compo, ssh_option, solver_option, glob_opt, saturation_option)
 

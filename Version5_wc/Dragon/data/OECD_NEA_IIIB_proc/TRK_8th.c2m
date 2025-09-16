@@ -74,6 +74,7 @@ TRK TF_EXC := SALT: GEO_G2S ::
 * MOC tracking
 TRK := MCCGT: TRK TF_EXC ::
   EDIT 0
+  LEXF LDC HDD 1.0
   GAUS <<nmu>> AAC 80 TMT EPSI 1E-5 MCU <<mcu>> ! tried CACB but is limited to isotropic ?
 ;
 

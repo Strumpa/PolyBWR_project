@@ -10,7 +10,7 @@ import math
 
 def createGeo(geo_name, split_water_in_moderator_box, split_moderator_box, split_coolant_around_moderator_box,
             split_intra_assembly_coolant, split_assembly_box, split_out_assembly_moderator,
-            mix_numbering_option):
+            mix_numbering_option, refinement_option):
     """
     Create the geometry for the ATRIUM-10 BWR fuel assembly.
     Parameters
@@ -33,6 +33,11 @@ def createGeo(geo_name, split_water_in_moderator_box, split_moderator_box, split
     split_out_assembly_moderator : int
         Number of mesh splits for the outer assembly water (same value for X and Y splits).
         This splits the moderator surrounding the assembly box.
+    refinement_option : str
+        Choice of refinement option, 
+        if "default" or "fine" : use windmill sectorization for coolant around CARCEL, excluding fuel mixes. 
+        else : add moderator and fuel sectors to CARCEL geometries : 
+            add a ring of coolant + use SECT 4 0 so that fuel pins are sectorize in azimuthal angle.
     """
     
     if mix_numbering_option == "number_mix_families_per_enrichment":
@@ -78,9 +83,12 @@ def createGeo(geo_name, split_water_in_moderator_box, split_moderator_box, split
             # Think of how to specify geometric dimensions for the geometry creation, for now assume template with geometrical data defined in header.
             #rfuel, rclad_in, rclad_out = 0.4435, 0.4520, 0.5140
             ## Check if the procedure already exists, if not create it
+            if refinement_option in ["default", "fine1", "fine2", "fine3"]:
+                refinement_option = "windmill"
+            
             proc_file_name = "GEO_R_A.c2m"
             if proc_file_name is not os.listdir:
-                connectivity_dict = fill_geom_proc(proc_file_name, lattice_description, lower_diag, UOX_mixes, Gd_mixes, remaining_mixes)
+                connectivity_dict = fill_geom_proc(proc_file_name, lattice_description, lower_diag, UOX_mixes, Gd_mixes, remaining_mixes, refinement_option)
                 # change executable permission to the procedure file
                 os.chmod(proc_file_name, 0o755)
             else:
@@ -94,7 +102,8 @@ def createGeo(geo_name, split_water_in_moderator_box, split_moderator_box, split
         split_water_in_moderator_box_center = int(math.ceil(split_water_in_moderator_box * (cell_pitch / moderator_box_inner_side))) # proportion of lines in center of water box.
         split_water_in_moderator_box_sides = int((split_water_in_moderator_box - split_water_in_moderator_box_center)/2) # keep the same number of splits as in previous defition, 
         # recompute in order to match the geometry definition in the procedure file.
-
+        print("Checking split parameters")
+        print(split_water_in_moderator_box)
         print(split_water_in_moderator_box_center)
         print(split_water_in_moderator_box_sides)
         # Execution of the generated geometry procedure
@@ -102,13 +111,14 @@ def createGeo(geo_name, split_water_in_moderator_box, split_moderator_box, split
         ipLifo.pushEmpty("GEOM", "LCM")
         ipLifo.pushEmpty("GEOMSSH", "LCM")
         ipLifo.push(geo_name)
-        ipLifo.push(split_water_in_moderator_box_center)
-        ipLifo.push(split_water_in_moderator_box_sides)
+        ipLifo.push(split_water_in_moderator_box_center-1)
+        ipLifo.push(split_water_in_moderator_box_sides+1)
         ipLifo.push(split_moderator_box)
         ipLifo.push(split_coolant_around_moderator_box)
         ipLifo.push(split_intra_assembly_coolant)
         ipLifo.push(split_assembly_box)
-        ipLifo.push(split_out_assembly_moderator)
+        ipLifo.push(split_out_assembly_moderator[0]) # SPLITX argument
+        ipLifo.push(split_out_assembly_moderator[1]) # SPLITY argument
 
         # Create the geometry
         geomCreator = cle2000.new("GEO_R_A", ipLifo, 1)
@@ -316,7 +326,7 @@ def format_CELL_definition(lattice_description):
     return cell_definition.strip()
 
 
-def fill_CARCEL_template(index_in_lower_diag, lower_diag, UOX_mixes, Gd_mixes, sectorization, generating_cell):
+def fill_CARCEL_template_SSH(index_in_lower_diag, lower_diag, UOX_mixes, Gd_mixes, generating_cell):
     """
     Fill a generic CARCEL template for geometry definition according to a specific mix numbering.
     Assumes that sectorization is 4,n where n is the number of rings in the CARCEL. This ensure discretization of coolant only. 
@@ -331,9 +341,6 @@ def fill_CARCEL_template(index_in_lower_diag, lower_diag, UOX_mixes, Gd_mixes, s
         List of UO2 mixes, which require to have 4 unique mix numbers per position and 4 radii dividing the fuel, --> total .
     Gd_mixes : list
         List of Gd2O3 mixes, which require to have 6 unique mix numbers per position and 6 radii defining the cell.
-    sectorization : boolean
-        Flag to indicate whether the CARCEL should be sectorized or not. If True, sectorization is 4,n where n is the number of rings in the CARCEL.
-        Sectorization must only be set to true in flux geometry, not in self-shielding geometry.
     generating_cell : str
         Name of the generating cell : first CARCEL to be defined, then used to defined subsequent cells by simply updating mixes.
         ie should be first UOX and fist Gd cells.
@@ -344,90 +351,154 @@ def fill_CARCEL_template(index_in_lower_diag, lower_diag, UOX_mixes, Gd_mixes, s
     if composition in UOX_mixes:
         mix_numbering_list = [f"<<FMIX{composition_id}{index_in_lower_diag+1}0{i+1}>>" for i in range(4)]
         mix_numbering_str = " ".join(mix_numbering_list)
-        if sectorization:
-            if lower_diag[index_in_lower_diag] != generating_cell:
-                CARCEL_def = (f"::: {lower_diag[index_in_lower_diag]}  :=  GEO: {generating_cell}\n" 
-                            f"   MIX {mix_numbering_str} <<GAP>> <<CLAD>> \n"
-                            "   <<COOL>> <<COOL>> <<COOL>> <<COOL>>\n"
-                            "   <<COOL>> <<COOL>> <<COOL>> <<COOL>>\n"
-                            "   <<COOL>> <<COOL>> <<COOL>> <<COOL>> ;\n"
-                            )
-            else:
-                CARCEL_def = (f"::: {lower_diag[index_in_lower_diag]} :=  GEO: CARCEL 6\n"
-                            "    SECT 4 6\n"
-                            "    RADIUS 0.0 <<Rfuel1>> <<Rfuel2>> <<Rfuel3>> <<Rfuel4>> <<Rgap>> <<Rclad>>\n"
-                            f"    MIX {mix_numbering_str}\n"
-                            "   <<GAP>> <<CLAD>>\n" 
-                            "   <<COOL>> <<COOL>> <<COOL>> <<COOL>>\n"
-                            "   <<COOL>> <<COOL>> <<COOL>> <<COOL>>\n"
-                            "   <<COOL>> <<COOL>> <<COOL>> <<COOL>>\n"
-                            "   MESHX 0.0 <<pitch>>\n" 
-                            "   MESHY 0.0 <<pitch>> ;\n"
-                            "\n"
-                            )
-            return CARCEL_def.strip()
+        
+        if lower_diag[index_in_lower_diag] != generating_cell:
+            CARCEL_def = (f"::: {lower_diag[index_in_lower_diag]}  :=  GEO: {generating_cell}\n" 
+                        f"   MIX {mix_numbering_str}\n"
+                        "   <<GAP>> <<CLAD>> <<COOL>> ;\n"
+                        )
         else:
-            if lower_diag[index_in_lower_diag] != generating_cell:
-                CARCEL_def = (f"::: {lower_diag[index_in_lower_diag]}  :=  GEO: {generating_cell}\n" 
-                            f"   MIX {mix_numbering_str}\n"
-                            "   <<GAP>> <<CLAD>> <<COOL>> ;\n"
-                            )
-            else:
-                CARCEL_def = (f"::: {lower_diag[index_in_lower_diag]}  :=  GEO: CARCEL 6\n"
-                            "    RADIUS 0.0 <<Rfuel1>> <<Rfuel2>> <<Rfuel3>> <<Rfuel4>> <<Rgap>> <<Rclad>>\n"
-                            f"    MIX {mix_numbering_str}\n"
-                            "   <<GAP>> <<CLAD>> <<COOL>>\n" 
-                            "   MESHX 0.0 <<pitch>>\n" 
-                            "   MESHY 0.0 <<pitch>> ;\n"
-                            "\n"
-                            )
-            return CARCEL_def.strip()
+            CARCEL_def = (f"::: {lower_diag[index_in_lower_diag]}  :=  GEO: CARCEL 6\n"
+                        "    RADIUS 0.0 <<Rfuel1>> <<Rfuel2>> <<Rfuel3>> <<Rfuel4>> <<Rgap>> <<Rclad>>\n"
+                        f"    MIX {mix_numbering_str}\n"
+                        "   <<GAP>> <<CLAD>> <<COOL>>\n" 
+                        "   MESHX 0.0 <<pitch>>\n" 
+                        "   MESHY 0.0 <<pitch>> ;\n"
+                        "\n"
+                        )
+        return CARCEL_def.strip()
     elif composition in Gd_mixes:
         mix_numbering_list = [f"<<FMIX{composition_id}{index_in_lower_diag+1}0{i+1}>>" for i in range(6)]
         mix_numbering_str = " ".join(mix_numbering_list)
-        if sectorization:
-            if lower_diag[index_in_lower_diag] != generating_cell:
-                CARCEL_def = (f"::: {lower_diag[index_in_lower_diag]}  :=  GEO: {generating_cell}\n" 
-                            f"   MIX {mix_numbering_str}\n"
-                            "  <<GAP>> <<CLAD>> \n"
-                            "   <<COOL>> <<COOL>> <<COOL>> <<COOL>>\n"
-                            "   <<COOL>> <<COOL>> <<COOL>> <<COOL>>\n"
-                            "   <<COOL>> <<COOL>> <<COOL>> <<COOL>> ;\n"
-                            )
-            else:
-                CARCEL_def = (f"::: {lower_diag[index_in_lower_diag]}  :=  GEO: CARCEL 8\n"
-                            "    SECT 4 8\n"
-                            "    RADIUS 0.0 <<RfuelGd1>> <<RfuelGd2>> <<RfuelGd3>> <<RfuelGd4>> <<RfuelGd5>> <<RfuelGd6>> <<Rgap>> <<Rclad>>\n"
-                            f"    MIX {mix_numbering_str}\n"
-                            "   <<GAP>> <<CLAD>>\n" 
-                            "   <<COOL>> <<COOL>> <<COOL>> <<COOL>>\n"
-                            "   <<COOL>> <<COOL>> <<COOL>> <<COOL>>\n"
-                            "   <<COOL>> <<COOL>> <<COOL>> <<COOL>>\n"
-                            "   MESHX 0.0 <<pitch>>\n" 
-                            "   MESHY 0.0 <<pitch>> ;\n "
-                            "\n"
-                            ) 
-            return CARCEL_def.strip()
-        
+        if lower_diag[index_in_lower_diag] != generating_cell:
+            CARCEL_def = (f"::: {lower_diag[index_in_lower_diag]}  :=  GEO: {generating_cell}\n" 
+                            f"MIX {mix_numbering_str} \n"
+                            "<<GAP>> <<CLAD>> <<COOL>> ;\n"
+                        )
         else:
-            if lower_diag[index_in_lower_diag] != generating_cell:
-                CARCEL_def = (f"::: {lower_diag[index_in_lower_diag]}  :=  GEO: {generating_cell}\n" 
-                              f"MIX {mix_numbering_str} \n"
-                              "<<GAP>> <<CLAD>> <<COOL>> ;\n"
-                            )
-            else:
-                CARCEL_def = (f"::: {lower_diag[index_in_lower_diag]}  :=  GEO: CARCEL 8\n"
-                            "    RADIUS 0.0 <<RfuelGd1>> <<RfuelGd2>> <<RfuelGd3>> <<RfuelGd4>> <<RfuelGd5>> <<RfuelGd6>> <<Rgap>> <<Rclad>>\n"
-                            f"    MIX {mix_numbering_str}\n"
-                            "   <<GAP>> <<CLAD>> <<COOL>>\n" 
-                            "   MESHX 0.0 <<pitch>>\n" 
-                            "   MESHY 0.0 <<pitch>> ;\n"
-                            "\n"
-                            ) 
-            return CARCEL_def.strip()
+            CARCEL_def = (f"::: {lower_diag[index_in_lower_diag]}  :=  GEO: CARCEL 8\n"
+                        "    RADIUS 0.0 <<RfuelGd1>> <<RfuelGd2>> <<RfuelGd3>> <<RfuelGd4>> <<RfuelGd5>> <<RfuelGd6>> <<Rgap>> <<Rclad>>\n"
+                        f"    MIX {mix_numbering_str}\n"
+                        "   <<GAP>> <<CLAD>> <<COOL>>\n" 
+                        "   MESHX 0.0 <<pitch>>\n" 
+                        "   MESHY 0.0 <<pitch>> ;\n"
+                        "\n"
+                        ) 
+        return CARCEL_def.strip()
 
 
-def create_carcel_definitions(lower_diag, UOX_mixes, Gd_mixes, sectorization):
+def fill_CARCEL_template_SECT(index_in_lower_diag, lower_diag, UOX_mixes, Gd_mixes, generating_cell, refinement_options):
+    """
+    Fill a generic CARCEL template for geometry definition according to a specific mix numbering.
+    Attempt at generalizing to treat SECT keyword.
+    Parameters
+    ----------
+    index_in_lower_diag : int
+        Index of the mix in the lower diagonal list, which defines the unique mix according to its position in the lower diagonal of the lattice.
+    lower_diag : list
+        List of Cn materials, where n defines the composition / initial fuel composition.
+        The position [index] in the list defines the unique mix according to its postion in the lower diagonal of the lattice.
+    UOX_mixes : list
+        List of UO2 mixes, which require to have 4 unique mix numbers per position and 4 radii dividing the fuel, --> total .
+    Gd_mixes : list
+        List of Gd2O3 mixes, which require to have 6 unique mix numbers per position and 6 radii defining the cell.
+    generating_cell : str
+        Name of the generating cell : first CARCEL to be defined, then used to defined subsequent cells by simply updating mixes.
+        ie should be first UOX and fist Gd cells.
+    refinement_options : dictionnary : 
+        keys : "moderator" (not used here), "UOX_cells" : choice of discretization for UOX cells, "Gd_cells" : choice of discretization for "Gd" cells.
+    """
+
+    composition = lower_diag[index_in_lower_diag].split("_")[0]  # Extract the composition from the lower diagonal description, ie C1, C2, C3, C4, C5, C6, C7, C8
+    composition_id = composition[-1]  # Extract the composition number from the mix description, ie C1, C2, C3, C4, C5, C6, C7, C8
+    
+    print(refinement_options)
+
+    if composition in UOX_mixes:
+        n_fuel = 4
+        gap_int = 5
+        clad_int = 6
+        if "coolant_ring" in refinement_options["UOX_cells"]:
+            radii = "<<Rfuel1>> <<Rfuel2>> <<Rfuel3>> <<Rfuel4>> \n <<Rgap>> <<Rclad>> <<RCool>>"
+            n_rings = n_fuel + 3
+            added_cool_int = 7
+        else:
+            radii = "<<Rfuel1>> <<Rfuel2>> <<Rfuel3>> <<Rfuel4>> <<Rgap>> <<Rclad>> "
+            n_rings = n_fuel + 2
+            added_cool_int = 0
+
+        SECT_type = refinement_options["UOX_cells"].split("_")[-2]
+        n_nonSECT = refinement_options["UOX_cells"].split("_")[-1]
+
+    else: 
+        n_fuel = 6
+        gap_int = 7
+        clad_int = 8
+        
+        if "coolant_ring" in refinement_options["Gd_cells"]:
+            radii = "<<RfuelGd1>> <<RfuelGd2>> <<RfuelGd3>> <<RfuelGd4>> <<RfuelGd5>> <<RfuelGd6>> \n <<Rgap>> <<Rclad>> <<RCool>>"
+            n_rings = n_fuel + 3
+            added_cool_int = 9
+        else: 
+            radii = "<<RfuelGd1>> <<RfuelGd2>> <<RfuelGd3>> <<RfuelGd4>> <<RfuelGd5>> <<RfuelGd6>> \n <<Rgap>> <<Rclad>>"
+            n_rings = n_fuel + 2
+            added_cool_int = 0
+        SECT_type = refinement_options["Gd_cells"].split("_")[-2]
+        n_nonSECT = refinement_options["Gd_cells"].split("_")[-1]
+
+    
+    if gap_int > int(n_nonSECT):
+        gap_mix_numbering_str = "<<GAP>> <<GAP>> <<GAP>> <<GAP>> \n<<GAP>> <<GAP>> <<GAP>> <<GAP>>"
+    else: 
+        gap_mix_numbering_str = "<<GAP>>"
+    
+    if clad_int > int(n_nonSECT):
+        clad_mix_numbering_str = "<<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>> \n<<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>>"
+    else: 
+        clad_mix_numbering_str = "<<CLAD>>"
+
+    if added_cool_int > int(n_nonSECT):
+        cool_mix_numbering_str = "<<COOL>> <<COOL>> <<COOL>> <<COOL>> \n<<COOL>> <<COOL>> <<COOL>> <<COOL>>"
+    else: 
+        cool_mix_numbering_str = ""
+    
+    fmix_numbering_list = [[f"<<FMIX{composition_id}{index_in_lower_diag+1}0{i+1}>>\n"]*8  if i+1>int(n_nonSECT) else [f"<<FMIX{composition_id}{index_in_lower_diag+1}0{i+1}>>"] for i in range(n_fuel)]
+    fmix_numbering_list = [mix_list for list_ in fmix_numbering_list for mix_list in list_]
+    fmix_numbering_str = " ".join(fmix_numbering_list)
+    
+    if lower_diag[index_in_lower_diag] != generating_cell:
+        CARCEL_def = (f"::: {lower_diag[index_in_lower_diag]}  :=  GEO: {generating_cell}\n" 
+                    f"   MIX {fmix_numbering_str} \n"
+                    f" {gap_mix_numbering_str}\n"
+                    f" {clad_mix_numbering_str}\n"
+                    f" {cool_mix_numbering_str}\n"
+                    "  <<COOL>> <<COOL>> <<COOL>> <<COOL>>\n"
+                    "  <<COOL>> <<COOL>> <<COOL>> <<COOL>>\n"
+                    "  <<COOL>> <<COOL>> <<COOL>> <<COOL>> ;\n"
+                    )
+    else:
+        CARCEL_def = (f"::: {lower_diag[index_in_lower_diag]} :=  GEO: CARCEL {n_rings}\n"
+                    f"    SECT {SECT_type} {n_nonSECT}\n"
+                    f"    RADIUS 0.0 {radii}\n"
+                    f"    MIX {fmix_numbering_str}\n"
+                    f" {gap_mix_numbering_str}\n"
+                    f" {clad_mix_numbering_str}\n"
+                    f" {cool_mix_numbering_str}\n"
+                    "  <<COOL>> <<COOL>> <<COOL>> <<COOL>>\n"
+                    "  <<COOL>> <<COOL>> <<COOL>> <<COOL>>\n"
+                    "  <<COOL>> <<COOL>> <<COOL>> <<COOL>>\n"
+                    "   MESHX 0.0 <<pitch>>\n" 
+                    "   MESHY 0.0 <<pitch>> ;\n"
+                    "\n"
+                    )
+    #print(f"SECT type = {SECT_type}")
+    #print(f"non sectorized cylindered = {n_nonSECT}")
+    #print(CARCEL_def)
+    return CARCEL_def.strip()
+
+
+
+def create_carcel_definitions(lower_diag, UOX_mixes, Gd_mixes, refinement_options, isFluxGeom):
     """
     Create the CARCEL definitions for the ATRIUM-10 assembly geometry.
     """
@@ -448,17 +519,22 @@ def create_carcel_definitions(lower_diag, UOX_mixes, Gd_mixes, sectorization):
                 generating_cell = first_uox_cell
             elif composition in Gd_mixes:
                 generating_cell = first_gd_cell
-            carcel_definitions += fill_CARCEL_template(index_in_lower_diag, lower_diag, UOX_mixes, Gd_mixes, sectorization, generating_cell) + "\n"
+            #if refinement_option == "windmill" or sectorization == False:
+            #    carcel_definitions += fill_CARCEL_template_windmill(index_in_lower_diag, lower_diag, UOX_mixes, Gd_mixes, sectorization, generating_cell) + "\n"
+            #else: 
+            if isFluxGeom:
+                carcel_definitions += fill_CARCEL_template_SECT(index_in_lower_diag, lower_diag, UOX_mixes, Gd_mixes, generating_cell, refinement_options) + "\n"
+            else:
+                carcel_definitions += fill_CARCEL_template_SSH(index_in_lower_diag, lower_diag, UOX_mixes, Gd_mixes, generating_cell) + "\n"
     return carcel_definitions.strip()
 
 
-def fill_self_shielding_geometry_template(lattice_description, lower_diag, UOX_mixes, Gd_mixes):
+def fill_self_shielding_geometry_template(lattice_description, lower_diag, UOX_mixes, Gd_mixes, refinement_options = {}):
     """
     function used to fill the ATRIUM-10 geometry template with the appropriate fuel mix numbering
     geometrical dimensions are specificed in the geometrical_dimensions_template function.
     Need to handle control cross definition, for now stick to regular ATRIUM-10 geometry without control cross.
     """
-    sectorization = False # Set to True if sectorization is required, False otherwise.
 
     ATRIUM_10_geo_template = (
         "GEOMSSH := GEO: :: CAR2D 3 3\n"  
@@ -513,7 +589,7 @@ def fill_self_shielding_geometry_template(lattice_description, lower_diag, UOX_m
         "                 <<6_Pitch_C>> <<7_Pitch_C>> <<8_Pitch_C>> <<9_Pitch_C>> <<LLat>>\n"
         "       CELL\n"
         f"  {format_CELL_definition(lattice_description)}\n" # unfold geometry to fill the whole 10x10 square, creating a unique cell for each position in the lower diagonal, the same cell is used for the symmetric position in the upper diag.
-        f"  {create_carcel_definitions(lower_diag, UOX_mixes, Gd_mixes, sectorization)}\n"
+        f"  {create_carcel_definitions(lower_diag, UOX_mixes, Gd_mixes, refinement_options, False )}\n"
         "   ::: W1 := GEO: CAR2D 3 3\n"
         "       MESHX 0.0 <<XCHNL1>> <<XCHNL2>> <<Pitch_C>>\n" 
         "       MESHY 0.0 <<XCHNL1>> <<XCHNL2>> <<Pitch_C>>\n"
@@ -572,7 +648,7 @@ def fill_self_shielding_geometry_template(lattice_description, lower_diag, UOX_m
     return ATRIUM_10_geo_template.strip()
 
 
-def fill_flux_geometry_template(lattice_description, lower_diag, UOX_mixes, Gd_mixes):
+def fill_flux_geometry_template(lattice_description, lower_diag, UOX_mixes, Gd_mixes, refinement_options):
     """
     function used to fill the ATRIUM-10 geometry template with the appropriate fuel mix numbering
     geometrical dimensions are specificed in the geometrical_dimensions_template function.
@@ -595,8 +671,8 @@ def fill_flux_geometry_template(lattice_description, lower_diag, UOX_mixes, Gd_m
         "   ::: BotCL :=  GEO: CAR2D 3 3\n" # This depends on the presence of the control cross : have an option to handle both with and without control cross
         "       MESHX 0.0 <<W_gap>> <<x_step>> <<X1>>\n"
         "       MESHY 0.0 <<W_gap>> <<x_step>> <<Y1>>\n"
-        "       SPLITX <<sp_out_mod>> <<sp_as_box>> <<sp_in_as_co>>\n"
-        "       SPLITY <<sp_out_mod>> <<sp_as_box>> <<sp_in_as_co>>\n"
+        "       SPLITX <<s_out_modx>> <<sp_as_box>> <<sp_in_as_co>>\n"
+        "       SPLITY <<s_out_modx>> <<sp_as_box>> <<sp_in_as_co>>\n"
         "       MIX\n" 
         "           <<MODE>> <<MODE>> <<MODE>> \n" 
         "           <<MODE>>  <<BOX>>  <<BOX>> \n"
@@ -605,8 +681,8 @@ def fill_flux_geometry_template(lattice_description, lower_diag, UOX_mixes, Gd_m
         "   ::: BotCR := GEO: CAR2D 3 3\n"
         "       MESHX 0.0 <<XtraCool>> <<y_step>> <<X1>>\n"
         "       MESHY 0.0 <<W_gap>> <<x_step>> <<X1>>\n"
-        "       SPLITX <<sp_in_as_co>> <<sp_as_box>> <<sp_out_mod>>\n"
-        "       SPLITY <<sp_out_mod>> <<sp_as_box>> <<sp_in_as_co>>\n"
+        "       SPLITX <<sp_in_as_co>> <<sp_as_box>> <<s_out_modx>>\n"
+        "       SPLITY <<s_out_modx>> <<sp_as_box>> <<sp_in_as_co>>\n"
         "       MIX\n"
         "           <<MODE>> <<MODE>> <<MODE>>\n"
         "           <<BOX>>  <<BOX>> <<MODE>> \n"
@@ -615,8 +691,8 @@ def fill_flux_geometry_template(lattice_description, lower_diag, UOX_mixes, Gd_m
         "   ::: TopCR := GEO: CAR2D 3 3\n"
         "       MESHX 0.0 <<XtraCool>> <<y_step>> <<X1>>\n"
         "       MESHY 0.0 <<XtraCool>> <<y_step>> <<Y1>>\n"
-        "       SPLITX <<sp_in_as_co>> <<sp_as_box>> <<sp_out_mod>>\n"
-        "       SPLITY <<sp_in_as_co>> <<sp_as_box>> <<sp_out_mod>>\n"
+        "       SPLITX <<sp_in_as_co>> <<sp_as_box>> <<s_out_modx>>\n"
+        "       SPLITY <<sp_in_as_co>> <<sp_as_box>> <<s_out_modx>>\n"
         "       MIX\n"
         "           <<COOL>> <<BOX>> <<MODE>>\n"
         "           <<BOX>>  <<BOX>> <<MODE>> \n"
@@ -625,15 +701,15 @@ def fill_flux_geometry_template(lattice_description, lower_diag, UOX_mixes, Gd_m
         "   ::: RMidW := GEO: CAR2D 3 1\n"
         "       MESHX 0.0 <<XtraCool>> <<y_step>> <<X1>>\n"
         "       MESHY 0.0 <<LLat>>\n"
-        "       SPLITX <<sp_in_as_co>> <<sp_as_box>> <<sp_out_mod>>\n"
-        "       SPLITY <<sp_out_mod>>\n"
+        "       SPLITX <<sp_in_as_co>> <<sp_as_box>> <<s_out_modx>>\n"
+        "       SPLITY <<s_out_mody>>\n"
         "       MIX <<COOL>> <<BOX>> <<MODE>> ;\n"
 
         "   ::: BMidW := GEO:  CAR2D 1 3\n" # This depends on the presence of the control cross : have an option to handle both
         "       MESHX 0.0 <<LLat>>\n"
         "       MESHY 0.0 <<W_gap>> <<x_step>> <<Y1>>\n"
-        "       SPLITX <<sp_out_mod>>\n"
-        "       SPLITY <<sp_out_mod>> <<sp_as_box>> <<sp_in_as_co>>\n"
+        "       SPLITX <<s_out_mody>>\n"
+        "       SPLITY <<s_out_modx>> <<sp_as_box>> <<sp_in_as_co>>\n"
         "       MIX <<MODE>> <<BOX>> <<COOL>> ;\n" # This depends on the presence of the control cross : have an option to handle both, in case of control cross need to call a cell definition for 3rd level
     # Lattice definition ; where the newly implemented material numbering comes into play, could consider breaking down the lattice definition into a separate function        
         "   ::: LAT :=  GEO: CAR2D 10 10\n"
@@ -643,7 +719,7 @@ def fill_flux_geometry_template(lattice_description, lower_diag, UOX_mixes, Gd_m
         "                 <<6_Pitch_C>> <<7_Pitch_C>> <<8_Pitch_C>> <<9_Pitch_C>> <<LLat>>\n"
         "       CELL\n"
         f"  {format_CELL_definition(lattice_description)}\n" # unfold geometry to fill the whole 10x10 square, creating a unique cell for each position in the lower diagonal, the same cell is used for the symmetric position in the upper diag.
-        f"  {create_carcel_definitions(lower_diag, UOX_mixes, Gd_mixes, sectorization)}\n"
+        f"  {create_carcel_definitions(lower_diag, UOX_mixes, Gd_mixes, refinement_options, True)}\n"
         "   ::: W1 := GEO: CAR2D 3 3\n"
         "       MESHX 0.0 <<XCHNL1>> <<XCHNL2>> <<Pitch_C>>\n" 
         "       MESHY 0.0 <<XCHNL1>> <<XCHNL2>> <<Pitch_C>>\n"
@@ -720,7 +796,7 @@ def fill_flux_geometry_template(lattice_description, lower_diag, UOX_mixes, Gd_m
     return ATRIUM_10_geo_template.strip()
 
 
-def fill_geom_proc(file_name, lattice_description, lower_diag, UOX_mixes, Gd_mixes, remaining_mixes):
+def fill_geom_proc(file_name, lattice_description, lower_diag, UOX_mixes, Gd_mixes, remaining_mixes, refinement_options):
 
     """
     Function to fill/create the CLE2000 procedure file with the ATRIUM-10 geometry definition.
@@ -749,8 +825,8 @@ def fill_geom_proc(file_name, lattice_description, lower_diag, UOX_mixes, Gd_mix
                 "\n"
                 "STRING name_geom ;\n"
                 ":: >>name_geom<< ;\n"
-                "INTEGER sp_mod_c sp_mod_s sp_md_box sp_co_aroud sp_in_as_co sp_as_box sp_out_mod ;\n"
-                ":: >>sp_mod_c<< >>sp_mod_s<< >>sp_md_box<< >>sp_co_aroud<< >>sp_in_as_co<< >>sp_as_box<< >>sp_out_mod<< ;\n"
+                "INTEGER sp_mod_c sp_mod_s sp_md_box sp_co_aroud sp_in_as_co sp_as_box s_out_modx s_out_mody ;\n"
+                ":: >>sp_mod_c<< >>sp_mod_s<< >>sp_md_box<< >>sp_co_aroud<< >>sp_in_as_co<< >>sp_as_box<< >>s_out_modx<< >>s_out_mody<< ;\n"
                 "\n"
                 "* -------------------------------\n"
                 "*    STRUCTURES AND MODULES\n"
@@ -787,7 +863,7 @@ def fill_geom_proc(file_name, lattice_description, lower_diag, UOX_mixes, Gd_mix
         "* -----------------------------------------\n"
         "*         FLUX GEOMETRY DEFINITION\n"
         "* -----------------------------------------\n"
-        f"{fill_flux_geometry_template(lattice_description, lower_diag, UOX_mixes, Gd_mixes)}\n"
+        f"{fill_flux_geometry_template(lattice_description, lower_diag, UOX_mixes, Gd_mixes, refinement_options)}\n"
 
         "* -----------------------------------------\n"
         "*         END OF GEOMETRY DEFINITION\n"
@@ -836,6 +912,7 @@ EVALUATE Rfuel4 := 0.4435 ;
 EVALUATE Rfuel1 := 0.313602 ;
 EVALUATE Rfuel2 := 0.396678 ; 
 EVALUATE Rfuel3 := 0.43227 ;
+REAL RCool := 0.58075 ; ! radius half way between outer clad and pincell side.
 
 REAL RfuelGd1 RfuelGd2 RfuelGd3 RfuelGd4 RfuelGd5 RfuelGd6 ;
 EVALUATE RfuelGd1 RfuelGd2 RfuelGd3 RfuelGd4 RfuelGd5 RfuelGd6 
