@@ -10,7 +10,7 @@ import math
 
 def createGeo(geo_name, split_water_in_moderator_box, split_moderator_box, split_coolant_around_moderator_box,
             split_intra_assembly_coolant, split_assembly_box, split_out_assembly_moderator,
-            mix_numbering_option, refinement_option):
+            mix_numbering_option, refinement_option, ssh_BC, flx_BC):
     """
     Create the geometry for the ATRIUM-10 BWR fuel assembly.
     Parameters
@@ -38,6 +38,11 @@ def createGeo(geo_name, split_water_in_moderator_box, split_moderator_box, split
         if "default" or "fine" : use windmill sectorization for coolant around CARCEL, excluding fuel mixes. 
         else : add moderator and fuel sectors to CARCEL geometries : 
             add a ring of coolant + use SECT 4 0 so that fuel pins are sectorize in azimuthal angle.
+    ssh_BC : str
+        Boundary condition to be applied to the self shielding geometry. ("TISO" --> ALBE 1.0 in GEO:, "TSPC" --> REFL in GEO:)
+    flx_BC : str 
+        Boundary condition to be applied to the mainflux calculation geometry. ("TISO" --> ALBE 1.0 in GEO:, "TSPC" --> REFL in GEO:)
+    
     """
     
     if mix_numbering_option == "number_mix_families_per_enrichment":
@@ -88,7 +93,7 @@ def createGeo(geo_name, split_water_in_moderator_box, split_moderator_box, split
             
             proc_file_name = "GEO_R_A.c2m"
             if proc_file_name is not os.listdir:
-                connectivity_dict = fill_geom_proc(proc_file_name, lattice_description, lower_diag, UOX_mixes, Gd_mixes, remaining_mixes, refinement_option)
+                connectivity_dict = fill_geom_proc(proc_file_name, lattice_description, lower_diag, UOX_mixes, Gd_mixes, remaining_mixes, refinement_option, ssh_BC, flx_BC)
                 # change executable permission to the procedure file
                 os.chmod(proc_file_name, 0o755)
             else:
@@ -411,8 +416,6 @@ def fill_CARCEL_template_SECT(index_in_lower_diag, lower_diag, UOX_mixes, Gd_mix
 
     composition = lower_diag[index_in_lower_diag].split("_")[0]  # Extract the composition from the lower diagonal description, ie C1, C2, C3, C4, C5, C6, C7, C8
     composition_id = composition[-1]  # Extract the composition number from the mix description, ie C1, C2, C3, C4, C5, C6, C7, C8
-    
-    print(refinement_options)
 
     if composition in UOX_mixes:
         n_fuel = 4
@@ -491,9 +494,6 @@ def fill_CARCEL_template_SECT(index_in_lower_diag, lower_diag, UOX_mixes, Gd_mix
                     "   MESHY 0.0 <<pitch>> ;\n"
                     "\n"
                     )
-    #print(f"SECT type = {SECT_type}")
-    #print(f"non sectorized cylindered = {n_nonSECT}")
-    #print(CARCEL_def)
     return CARCEL_def.strip()
 
 
@@ -519,9 +519,6 @@ def create_carcel_definitions(lower_diag, UOX_mixes, Gd_mixes, refinement_option
                 generating_cell = first_uox_cell
             elif composition in Gd_mixes:
                 generating_cell = first_gd_cell
-            #if refinement_option == "windmill" or sectorization == False:
-            #    carcel_definitions += fill_CARCEL_template_windmill(index_in_lower_diag, lower_diag, UOX_mixes, Gd_mixes, sectorization, generating_cell) + "\n"
-            #else: 
             if isFluxGeom:
                 carcel_definitions += fill_CARCEL_template_SECT(index_in_lower_diag, lower_diag, UOX_mixes, Gd_mixes, generating_cell, refinement_options) + "\n"
             else:
@@ -529,18 +526,23 @@ def create_carcel_definitions(lower_diag, UOX_mixes, Gd_mixes, refinement_option
     return carcel_definitions.strip()
 
 
-def fill_self_shielding_geometry_template(lattice_description, lower_diag, UOX_mixes, Gd_mixes, refinement_options = {}):
+def fill_self_shielding_geometry_template(lattice_description, lower_diag, UOX_mixes, Gd_mixes, refinement_options = {}, boundary_cond = "TSPC"):
     """
     function used to fill the ATRIUM-10 geometry template with the appropriate fuel mix numbering
     geometrical dimensions are specificed in the geometrical_dimensions_template function.
     Need to handle control cross definition, for now stick to regular ATRIUM-10 geometry without control cross.
     """
 
+    if boundary_cond == "TSPC":
+        boundary_condition_str = "REFL"
+    elif boundary_cond == "TISO":
+        boundary_condition_str = "ALBE 1.0"
+
     ATRIUM_10_geo_template = (
         "GEOMSSH := GEO: :: CAR2D 3 3\n"  
         "   EDIT 1\n"
-        "   X- DIAG X+ REFL\n"
-        "   Y- REFL Y+ DIAG\n"
+        f"   X- DIAG X+ {boundary_condition_str}\n"
+        f"   Y- {boundary_condition_str} Y+ DIAG\n"
         "   CELL\n"
         "   BotCL BMidW BotCR\n"
         "           LAT RMidW\n"
@@ -575,11 +577,13 @@ def fill_self_shielding_geometry_template(lattice_description, lower_diag, UOX_m
         "   ::: RMidW := GEO: CAR2D 3 1\n"
         "       MESHX 0.0 <<XtraCool>> <<y_step>> <<X1>>\n"
         "       MESHY 0.0 <<LLat>>\n"
+        "       SPLITY 10\n"
         "       MIX <<COOL>> <<BOX>> <<MODE>> ;\n"
 
         "   ::: BMidW := GEO:  CAR2D 1 3\n" # This depends on the presence of the control cross : have an option to handle both
         "       MESHX 0.0 <<LLat>>\n"
         "       MESHY 0.0 <<W_gap>> <<x_step>> <<Y1>>\n"
+        "       SPLITX 10\n"
         "       MIX <<MODE>> <<BOX>> <<COOL>> ;\n" # This depends on the presence of the control cross : have an option to handle both, in case of control cross need to call a cell definition for 3rd level
     # Lattice definition ; where the newly implemented material numbering comes into play, could consider breaking down the lattice definition into a separate function        
         "   ::: LAT :=  GEO: CAR2D 10 10\n"
@@ -648,19 +652,26 @@ def fill_self_shielding_geometry_template(lattice_description, lower_diag, UOX_m
     return ATRIUM_10_geo_template.strip()
 
 
-def fill_flux_geometry_template(lattice_description, lower_diag, UOX_mixes, Gd_mixes, refinement_options):
+def fill_flux_geometry_template(lattice_description, lower_diag, UOX_mixes, Gd_mixes, refinement_options, boundary_cond):
     """
     function used to fill the ATRIUM-10 geometry template with the appropriate fuel mix numbering
     geometrical dimensions are specificed in the geometrical_dimensions_template function.
     Need to handle control cross definition, for now stick to regular ATRIUM-10 geometry without control cross.
     """
+    if boundary_cond == "TSPC":
+        boundary_condition_str = "REFL"
+    elif boundary_cond == "TISO":
+        boundary_condition_str = "ALBE 1.0"
+
     sectorization = True # Set to True if sectorization is required, False otherwise.
+
+
 
     ATRIUM_10_geo_template = (
         "GEOM := GEO: :: CAR2D 3 3\n"  
         "   EDIT 1\n"
-        "   X- DIAG X+ REFL\n"
-        "   Y- REFL Y+ DIAG\n"
+        f"   X- DIAG X+ {boundary_condition_str}\n"
+        f"   Y- {boundary_condition_str} Y+ DIAG\n"
         "   CELL\n"
         "   BotCL BMidW BotCR\n"
         "           LAT RMidW\n"
@@ -796,7 +807,7 @@ def fill_flux_geometry_template(lattice_description, lower_diag, UOX_mixes, Gd_m
     return ATRIUM_10_geo_template.strip()
 
 
-def fill_geom_proc(file_name, lattice_description, lower_diag, UOX_mixes, Gd_mixes, remaining_mixes, refinement_options):
+def fill_geom_proc(file_name, lattice_description, lower_diag, UOX_mixes, Gd_mixes, remaining_mixes, refinement_options, ssh_BC, flx_BC):
 
     """
     Function to fill/create the CLE2000 procedure file with the ATRIUM-10 geometry definition.
@@ -858,12 +869,12 @@ def fill_geom_proc(file_name, lattice_description, lower_diag, UOX_mixes, Gd_mix
         "*    SELF-SHIELDING GEOMETRY DEFINITION\n"
         "* -----------------------------------------\n"
 
-        f"{fill_self_shielding_geometry_template(lattice_description, lower_diag, UOX_mixes, Gd_mixes)}\n"
+        f"{fill_self_shielding_geometry_template(lattice_description, lower_diag, UOX_mixes, Gd_mixes, refinement_options={}, boundary_cond = ssh_BC)}\n"
         
         "* -----------------------------------------\n"
         "*         FLUX GEOMETRY DEFINITION\n"
         "* -----------------------------------------\n"
-        f"{fill_flux_geometry_template(lattice_description, lower_diag, UOX_mixes, Gd_mixes, refinement_options)}\n"
+        f"{fill_flux_geometry_template(lattice_description, lower_diag, UOX_mixes, Gd_mixes, refinement_options, boundary_cond = flx_BC)}\n"
 
         "* -----------------------------------------\n"
         "*         END OF GEOMETRY DEFINITION\n"

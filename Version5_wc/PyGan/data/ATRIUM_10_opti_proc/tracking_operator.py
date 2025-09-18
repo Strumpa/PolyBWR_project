@@ -90,7 +90,7 @@ def trackFluxGeomSALT(pyGEOM, num_angles, line_density, refl_type, anisotropy_le
 
     return track_lcm, track_binary, figure
 
-def trackSSHGeomSALT(pyGEOMSSH, num_angles_ssh, line_density_ssh, refl_type, batch, ps_file_ssh):
+def trackSSHGeomSALT(pyGEOMSSH, num_angles_ssh, line_density_ssh, refl_type, batch, ps_file_ssh, solution_door_ssh):
     """
     Function to track a self-shielding geometry object using the SALT: module in DRAGON5.
     Parameters : 
@@ -109,6 +109,10 @@ def trackSSHGeomSALT(pyGEOMSSH, num_angles_ssh, line_density_ssh, refl_type, bat
         To be optimized for parallel processing. --> depends on the number of tracks ie angles and line density, as well as number of regions.
     ps_file_ssh : (str)
         Name of the postscript file to be generated with the tracking results.
+    solution_door_ssh : (str)
+        Choice of method identifying spatial solution used for self-shielding calculation : 
+            - "IC" for multicell-interface currents method using the G2S: + SALT: surfacic formalism
+            - "PIJ" for full PIJ reconctruction
 
 
     Returns :
@@ -136,7 +140,10 @@ def trackSSHGeomSALT(pyGEOMSSH, num_angles_ssh, line_density_ssh, refl_type, bat
     myLifo.push(batch)
 
     # Create a new tracking operator using the SALT: module
-    track_proc = cle2000.new('TRK_SSH_SALT', myLifo, 1)
+    if solution_door_ssh == "PIJ":
+        track_proc = cle2000.new('TRK_SSH_SALT', myLifo, 1)
+    elif solution_door_ssh == "IC":
+        track_proc = cle2000.new('TRK_IC_SALT', myLifo, 1)
 
     # Execute the tracking operation
     track_proc.exec()

@@ -39,7 +39,7 @@ def createLib(mix_numbering_option, draglib_name, anisotropy_level, self_shieldi
         raise ValueError("Invalid anisotropy level selected. Must be 1, 2, 3, or 4.")
     if self_shielding_method not in ["PT", "SUBG", "RSE"]:
         raise ValueError("Invalid self-shielding method selected. Must be 'PT', 'SUBG', or 'RSE'.")
-    if transport_correction not in ["CTRA", "APOL", "NONE", ""]:
+    if transport_correction not in ["APOL", "NONE", ""]:
         raise ValueError("Invalid transport correction selected. Must be 'APOL', 'NONE', or ''.")
     if draglib_name == "":
         raise ValueError("Draglib name cannot be empty.")

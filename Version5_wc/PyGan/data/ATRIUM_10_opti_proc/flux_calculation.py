@@ -49,3 +49,83 @@ def fluxCalculationMOC(track_lcm, track_binary, self_shielded_microlib):
     keff = flux_lcm["K-EFFECTIVE"][0] 
 
     return keff, flux_lcm
+
+
+def fluxCalculationPIJ(track_lcm, track_binary, self_shielded_microlib):
+    """
+    This function prepares a DRAGON5 PIJ flux calculation.
+    Parameters:
+    ----------
+    track_lcm : (lcm object)
+        LCM object containing the tracking results.
+    track_binary : (binary)
+        Sequential binary tracking file containing the tracks lengths.
+    self_shielded_microlib : (lcm object)
+        LCM object containing the self-shielded cross sections library.
+
+    Returns:
+    ----------
+    keff : (float)
+        Effective multiplication factor from the flux calculation.
+    flux_lcm : (lcm object)
+        LCM object containing the flux calculation results.
+
+    """
+
+    # Run PIJ.c2m procedure
+    ipLifo = lifo.new()
+    ipLifo.pushEmpty("FLUX", "LCM")
+    ipLifo.push(track_lcm)
+    ipLifo.push(track_binary)
+    ipLifo.push(self_shielded_microlib)
+    # Create a cle2000 object to handle the flux calculation
+    pij_proc = cle2000.new('PIJ_K_NOL', ipLifo, 1)
+    # Execute the PIJ calculation procedure
+    pij_proc.exec()
+    
+    # Recover the results from the LIFO stack
+    ipLifo.lib()
+    flux_lcm = ipLifo.node('FLUX')
+    keff = flux_lcm["K-EFFECTIVE"][0]
+
+    return keff, flux_lcm
+
+
+def fluxCalculationIC(track_lcm, track_binary, self_shielded_microlib):
+    """
+    This function prepares a DRAGON5 IC flux calculation.
+    Parameters:
+    ----------
+    track_lcm : (lcm object)
+        LCM object containing the tracking results.
+    track_binary : (binary)
+        Sequential binary tracking file containing the tracks lengths.
+    self_shielded_microlib : (lcm object)
+        LCM object containing the self-shielded cross sections library.
+
+    Returns:
+    ----------
+    keff : (float)
+        Effective multiplication factor from the flux calculation.
+    flux_lcm : (lcm object)
+        LCM object containing the flux calculation results.
+
+    """
+
+    # Run IC.c2m procedure
+    ipLifo = lifo.new()
+    ipLifo.pushEmpty("FLUX", "LCM")
+    ipLifo.push(track_lcm)
+    ipLifo.push(track_binary)
+    ipLifo.push(self_shielded_microlib)
+    # Create a cle2000 object to handle the flux calculation
+    ic_proc = cle2000.new('IC_K_NOL', ipLifo, 1)
+    # Execute the IC calculation procedure
+    ic_proc.exec()
+
+    # Recover the results from the LIFO stack
+    ipLifo.lib()
+    flux_lcm = ipLifo.node('FLUX')
+    keff = flux_lcm["K-EFFECTIVE"][0]
+
+    return keff, flux_lcm

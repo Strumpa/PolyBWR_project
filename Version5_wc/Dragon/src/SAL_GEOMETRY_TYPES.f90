@@ -66,7 +66,7 @@ MODULE SAL_GEOMETRY_TYPES
   !                             9 = hexagonal geometry with translations on all sides
   !                            10 = equilateral triangle geometry with RA60 rotation and translation
   !                            11 = lozenge geometry with R120 rotation and translation
-  !                            12 = rectangular S30 triangle geometry with symmetries on all sides
+  !                            12 = S30 triangle geometry with symmetries on all sides
   !       NBFOLD              = n in angle definition of rotation or symmetry geometry
   !       NBMED               = nber of media in library file
   !       ALLSUR              = (have not been programmed!)

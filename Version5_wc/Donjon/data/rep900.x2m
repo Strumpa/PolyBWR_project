@@ -140,7 +140,7 @@ GREP: Flux   ::
   GETVAL 'K-EFFECTIVE ' 1  >>keff1<<  ;
 
 ECHO "densB1=" densB1 "K-effective 1 = " keff1   ;
-assertS Flux :: 'K-EFFECTIVE' 1 0.9917999 ;
+assertS Flux :: 'K-EFFECTIVE' 1 0.9950891 ;
 
 IF TypeCal "critique" = THEN
 
@@ -182,7 +182,7 @@ IF TypeCal "critique" = THEN
   GREP: Flux   ::
     GETVAL 'K-EFFECTIVE ' 1  >>keff2<<   ;
   ECHO "densB2=" densB2 "K-effective    2 = " keff2   ;
-  assertS Flux :: 'K-EFFECTIVE' 1 1.052038 ;
+  assertS Flux :: 'K-EFFECTIVE' 1 1.159043 ;
 
   EVALUATE Y1 := 1.0 1.0 keff1 / - ;
   EVALUATE Y2 := 1.0 1.0 keff2 / - ;
@@ -241,7 +241,7 @@ IF TypeCal "critique" = THEN
 
   UNTIL CONV ;
   ECHO "Zero is =" ROOT ;
-  EVALUATE REFVALUE := 1.705336E+03 ;
+  EVALUATE REFVALUE := 1.929362E3 ;
   EVALUATE DELTA := ROOT REFVALUE - REFVALUE / ABS ;
   IF DELTA 5.0E-5 < THEN
     PRINT "TEST SUCCESSFUL; DELTA=" DELTA ;

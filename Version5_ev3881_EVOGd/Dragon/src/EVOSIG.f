@@ -282,9 +282,9 @@
             IF(K.GT.0) THEN
                IF(DEN(K).EQ.0.0) GO TO 240
                GAR=GAR+VX(IBM)*DEN(K)*SIG(IS,NREAC,IBM)
-!               GARD=GARD+VX(IBM)*DEN(K)*SIG(IS,NREAC+1,IBM)
+               GARD=GARD+VX(IBM)*DEN(K)*SIG(IS,NREAC+1,IBM)
 !  Attempt normalisation without decay energy
-               GARD = 0.0D0
+!               GARD = 0.0D0
             ENDIF
   240       CONTINUE
          ENDIF

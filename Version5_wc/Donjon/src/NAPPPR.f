@@ -58,6 +58,7 @@
      2  FLUGP(NGPT,NGPT,NGPT)
       REAL E(25)
       LOGICAL LSPX,LSPY,LSPZ,LCH,LPOW,LNOINT,LDEBUG
+      DOUBLE PRECISION XDRCST,EVJ
 *----
 *  ALLOCATABLE ARRAYS
 *----
@@ -625,6 +626,7 @@ C       end IG
         CALL LCMSIX(IPMAC,'GFF-GEOM',2)
         CALL LCMSIX(IPMAC,'GFF',2)
 
+        EVJ=XDRCST('eV','J')
         DO IG=1,NG
         
         DO IASS=1,NASS
@@ -634,11 +636,12 @@ C       end IG
 !        > 1 for heterogeneous assembly
 !             Note that all values of HFM are identical 
 !             for all the mix in a specific assembly
+!             Conversion from eV to J
           IMIX=(IASS-1+(K-1)*NASS)*NAMIX+1
           DO J=1,NPIN
             DO I=1,NPIN
             IPIN=I+(J-1)*NPIN
-            HF(I,J,K,IG,IASS)=HFM(IMIX,BMIXP(IPIN),IG)
+            HF(I,J,K,IG,IASS)=HFM(IMIX,BMIXP(IPIN),IG)*REAL(EVJ)
             FTINF(I,J,K,IG,IASS)=FTINFM(IMIX,BMIXP(IPIN),IG)
             FDINF(I,J,K,IG,IASS)=FDINFM(IMIX,BMIXP(IPIN),IG)
             VOL(I,J,K,IASS)=(MXP(I+1)-MXP(I))*(MYP(J+1)-MYP(J))

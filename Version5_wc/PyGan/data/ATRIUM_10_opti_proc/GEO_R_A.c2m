@@ -169,8 +169,8 @@ INTEGER COOL := 217 ;
 * -----------------------------------------
 GEOMSSH := GEO: :: CAR2D 3 3
    EDIT 1
-   X- DIAG X+ REFL
-   Y- REFL Y+ DIAG
+   X- DIAG X+ ALBE 1.0
+   Y- ALBE 1.0 Y+ DIAG
    CELL
    BotCL BMidW BotCR
            LAT RMidW
@@ -201,10 +201,12 @@ GEOMSSH := GEO: :: CAR2D 3 3
    ::: RMidW := GEO: CAR2D 3 1
        MESHX 0.0 <<XtraCool>> <<y_step>> <<X1>>
        MESHY 0.0 <<LLat>>
+       SPLITY 10
        MIX <<COOL>> <<BOX>> <<MODE>> ;
    ::: BMidW := GEO:  CAR2D 1 3
        MESHX 0.0 <<LLat>>
        MESHY 0.0 <<W_gap>> <<x_step>> <<Y1>>
+       SPLITX 10
        MIX <<MODE>> <<BOX>> <<COOL>> ;
    ::: LAT :=  GEO: CAR2D 10 10
        MESHX 0.0 <<Pitch_C>> <<2_Pitch_C>> <<3_Pitch_C>> <<4_Pitch_C>> <<5_Pitch_C>>
@@ -490,12 +492,46 @@ GEOM := GEO: :: CAR2D 3 3
     C2_9 C4_18 C7_26 C5_33 C6_39 C7_44 C4_48 C8_51 C4_53 C2_54
     C1_10 C2_19 C3_27 C4_34 C4_40 C4_45 C4_49 C3_52 C2_54 C1_55
   ::: C1_1 :=  GEO: CARCEL 7
-    SECT 4 6
+    SECT 4 0
     RADIUS 0.0 <<Rfuel1>> <<Rfuel2>> <<Rfuel3>> <<Rfuel4>> 
  <<Rgap>> <<Rclad>> <<RCool>>
-    MIX <<FMIX1101>> <<FMIX1102>> <<FMIX1103>> <<FMIX1104>>
- <<GAP>>
- <<CLAD>>
+    MIX <<FMIX1101>>
+ <<FMIX1101>>
+ <<FMIX1101>>
+ <<FMIX1101>>
+ <<FMIX1101>>
+ <<FMIX1101>>
+ <<FMIX1101>>
+ <<FMIX1101>>
+ <<FMIX1102>>
+ <<FMIX1102>>
+ <<FMIX1102>>
+ <<FMIX1102>>
+ <<FMIX1102>>
+ <<FMIX1102>>
+ <<FMIX1102>>
+ <<FMIX1102>>
+ <<FMIX1103>>
+ <<FMIX1103>>
+ <<FMIX1103>>
+ <<FMIX1103>>
+ <<FMIX1103>>
+ <<FMIX1103>>
+ <<FMIX1103>>
+ <<FMIX1103>>
+ <<FMIX1104>>
+ <<FMIX1104>>
+ <<FMIX1104>>
+ <<FMIX1104>>
+ <<FMIX1104>>
+ <<FMIX1104>>
+ <<FMIX1104>>
+ <<FMIX1104>>
+
+ <<GAP>> <<GAP>> <<GAP>> <<GAP>> 
+<<GAP>> <<GAP>> <<GAP>> <<GAP>>
+ <<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>> 
+<<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>>
  <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
 <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
@@ -504,90 +540,430 @@ GEOM := GEO: :: CAR2D 3 3
    MESHX 0.0 <<pitch>>
    MESHY 0.0 <<pitch>> ;
 ::: C2_2  :=  GEO: C1_1
-   MIX <<FMIX2201>> <<FMIX2202>> <<FMIX2203>> <<FMIX2204>> 
- <<GAP>>
- <<CLAD>>
+   MIX <<FMIX2201>>
+ <<FMIX2201>>
+ <<FMIX2201>>
+ <<FMIX2201>>
+ <<FMIX2201>>
+ <<FMIX2201>>
+ <<FMIX2201>>
+ <<FMIX2201>>
+ <<FMIX2202>>
+ <<FMIX2202>>
+ <<FMIX2202>>
+ <<FMIX2202>>
+ <<FMIX2202>>
+ <<FMIX2202>>
+ <<FMIX2202>>
+ <<FMIX2202>>
+ <<FMIX2203>>
+ <<FMIX2203>>
+ <<FMIX2203>>
+ <<FMIX2203>>
+ <<FMIX2203>>
+ <<FMIX2203>>
+ <<FMIX2203>>
+ <<FMIX2203>>
+ <<FMIX2204>>
+ <<FMIX2204>>
+ <<FMIX2204>>
+ <<FMIX2204>>
+ <<FMIX2204>>
+ <<FMIX2204>>
+ <<FMIX2204>>
+ <<FMIX2204>>
+ 
+ <<GAP>> <<GAP>> <<GAP>> <<GAP>> 
+<<GAP>> <<GAP>> <<GAP>> <<GAP>>
+ <<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>> 
+<<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>>
  <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
 <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>> ;
 ::: C3_3  :=  GEO: C1_1
-   MIX <<FMIX3301>> <<FMIX3302>> <<FMIX3303>> <<FMIX3304>> 
- <<GAP>>
- <<CLAD>>
+   MIX <<FMIX3301>>
+ <<FMIX3301>>
+ <<FMIX3301>>
+ <<FMIX3301>>
+ <<FMIX3301>>
+ <<FMIX3301>>
+ <<FMIX3301>>
+ <<FMIX3301>>
+ <<FMIX3302>>
+ <<FMIX3302>>
+ <<FMIX3302>>
+ <<FMIX3302>>
+ <<FMIX3302>>
+ <<FMIX3302>>
+ <<FMIX3302>>
+ <<FMIX3302>>
+ <<FMIX3303>>
+ <<FMIX3303>>
+ <<FMIX3303>>
+ <<FMIX3303>>
+ <<FMIX3303>>
+ <<FMIX3303>>
+ <<FMIX3303>>
+ <<FMIX3303>>
+ <<FMIX3304>>
+ <<FMIX3304>>
+ <<FMIX3304>>
+ <<FMIX3304>>
+ <<FMIX3304>>
+ <<FMIX3304>>
+ <<FMIX3304>>
+ <<FMIX3304>>
+ 
+ <<GAP>> <<GAP>> <<GAP>> <<GAP>> 
+<<GAP>> <<GAP>> <<GAP>> <<GAP>>
+ <<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>> 
+<<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>>
  <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
 <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>> ;
 ::: C5_4  :=  GEO: C1_1
-   MIX <<FMIX5401>> <<FMIX5402>> <<FMIX5403>> <<FMIX5404>> 
- <<GAP>>
- <<CLAD>>
+   MIX <<FMIX5401>>
+ <<FMIX5401>>
+ <<FMIX5401>>
+ <<FMIX5401>>
+ <<FMIX5401>>
+ <<FMIX5401>>
+ <<FMIX5401>>
+ <<FMIX5401>>
+ <<FMIX5402>>
+ <<FMIX5402>>
+ <<FMIX5402>>
+ <<FMIX5402>>
+ <<FMIX5402>>
+ <<FMIX5402>>
+ <<FMIX5402>>
+ <<FMIX5402>>
+ <<FMIX5403>>
+ <<FMIX5403>>
+ <<FMIX5403>>
+ <<FMIX5403>>
+ <<FMIX5403>>
+ <<FMIX5403>>
+ <<FMIX5403>>
+ <<FMIX5403>>
+ <<FMIX5404>>
+ <<FMIX5404>>
+ <<FMIX5404>>
+ <<FMIX5404>>
+ <<FMIX5404>>
+ <<FMIX5404>>
+ <<FMIX5404>>
+ <<FMIX5404>>
+ 
+ <<GAP>> <<GAP>> <<GAP>> <<GAP>> 
+<<GAP>> <<GAP>> <<GAP>> <<GAP>>
+ <<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>> 
+<<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>>
  <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
 <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>> ;
 ::: C6_5  :=  GEO: C1_1
-   MIX <<FMIX6501>> <<FMIX6502>> <<FMIX6503>> <<FMIX6504>> 
- <<GAP>>
- <<CLAD>>
+   MIX <<FMIX6501>>
+ <<FMIX6501>>
+ <<FMIX6501>>
+ <<FMIX6501>>
+ <<FMIX6501>>
+ <<FMIX6501>>
+ <<FMIX6501>>
+ <<FMIX6501>>
+ <<FMIX6502>>
+ <<FMIX6502>>
+ <<FMIX6502>>
+ <<FMIX6502>>
+ <<FMIX6502>>
+ <<FMIX6502>>
+ <<FMIX6502>>
+ <<FMIX6502>>
+ <<FMIX6503>>
+ <<FMIX6503>>
+ <<FMIX6503>>
+ <<FMIX6503>>
+ <<FMIX6503>>
+ <<FMIX6503>>
+ <<FMIX6503>>
+ <<FMIX6503>>
+ <<FMIX6504>>
+ <<FMIX6504>>
+ <<FMIX6504>>
+ <<FMIX6504>>
+ <<FMIX6504>>
+ <<FMIX6504>>
+ <<FMIX6504>>
+ <<FMIX6504>>
+ 
+ <<GAP>> <<GAP>> <<GAP>> <<GAP>> 
+<<GAP>> <<GAP>> <<GAP>> <<GAP>>
+ <<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>> 
+<<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>>
  <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
 <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>> ;
 ::: C5_6  :=  GEO: C1_1
-   MIX <<FMIX5601>> <<FMIX5602>> <<FMIX5603>> <<FMIX5604>> 
- <<GAP>>
- <<CLAD>>
+   MIX <<FMIX5601>>
+ <<FMIX5601>>
+ <<FMIX5601>>
+ <<FMIX5601>>
+ <<FMIX5601>>
+ <<FMIX5601>>
+ <<FMIX5601>>
+ <<FMIX5601>>
+ <<FMIX5602>>
+ <<FMIX5602>>
+ <<FMIX5602>>
+ <<FMIX5602>>
+ <<FMIX5602>>
+ <<FMIX5602>>
+ <<FMIX5602>>
+ <<FMIX5602>>
+ <<FMIX5603>>
+ <<FMIX5603>>
+ <<FMIX5603>>
+ <<FMIX5603>>
+ <<FMIX5603>>
+ <<FMIX5603>>
+ <<FMIX5603>>
+ <<FMIX5603>>
+ <<FMIX5604>>
+ <<FMIX5604>>
+ <<FMIX5604>>
+ <<FMIX5604>>
+ <<FMIX5604>>
+ <<FMIX5604>>
+ <<FMIX5604>>
+ <<FMIX5604>>
+ 
+ <<GAP>> <<GAP>> <<GAP>> <<GAP>> 
+<<GAP>> <<GAP>> <<GAP>> <<GAP>>
+ <<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>> 
+<<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>>
  <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
 <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>> ;
 ::: C4_7  :=  GEO: C1_1
-   MIX <<FMIX4701>> <<FMIX4702>> <<FMIX4703>> <<FMIX4704>> 
- <<GAP>>
- <<CLAD>>
+   MIX <<FMIX4701>>
+ <<FMIX4701>>
+ <<FMIX4701>>
+ <<FMIX4701>>
+ <<FMIX4701>>
+ <<FMIX4701>>
+ <<FMIX4701>>
+ <<FMIX4701>>
+ <<FMIX4702>>
+ <<FMIX4702>>
+ <<FMIX4702>>
+ <<FMIX4702>>
+ <<FMIX4702>>
+ <<FMIX4702>>
+ <<FMIX4702>>
+ <<FMIX4702>>
+ <<FMIX4703>>
+ <<FMIX4703>>
+ <<FMIX4703>>
+ <<FMIX4703>>
+ <<FMIX4703>>
+ <<FMIX4703>>
+ <<FMIX4703>>
+ <<FMIX4703>>
+ <<FMIX4704>>
+ <<FMIX4704>>
+ <<FMIX4704>>
+ <<FMIX4704>>
+ <<FMIX4704>>
+ <<FMIX4704>>
+ <<FMIX4704>>
+ <<FMIX4704>>
+ 
+ <<GAP>> <<GAP>> <<GAP>> <<GAP>> 
+<<GAP>> <<GAP>> <<GAP>> <<GAP>>
+ <<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>> 
+<<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>>
  <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
 <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>> ;
 ::: C3_8  :=  GEO: C1_1
-   MIX <<FMIX3801>> <<FMIX3802>> <<FMIX3803>> <<FMIX3804>> 
- <<GAP>>
- <<CLAD>>
+   MIX <<FMIX3801>>
+ <<FMIX3801>>
+ <<FMIX3801>>
+ <<FMIX3801>>
+ <<FMIX3801>>
+ <<FMIX3801>>
+ <<FMIX3801>>
+ <<FMIX3801>>
+ <<FMIX3802>>
+ <<FMIX3802>>
+ <<FMIX3802>>
+ <<FMIX3802>>
+ <<FMIX3802>>
+ <<FMIX3802>>
+ <<FMIX3802>>
+ <<FMIX3802>>
+ <<FMIX3803>>
+ <<FMIX3803>>
+ <<FMIX3803>>
+ <<FMIX3803>>
+ <<FMIX3803>>
+ <<FMIX3803>>
+ <<FMIX3803>>
+ <<FMIX3803>>
+ <<FMIX3804>>
+ <<FMIX3804>>
+ <<FMIX3804>>
+ <<FMIX3804>>
+ <<FMIX3804>>
+ <<FMIX3804>>
+ <<FMIX3804>>
+ <<FMIX3804>>
+ 
+ <<GAP>> <<GAP>> <<GAP>> <<GAP>> 
+<<GAP>> <<GAP>> <<GAP>> <<GAP>>
+ <<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>> 
+<<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>>
  <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
 <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>> ;
 ::: C2_9  :=  GEO: C1_1
-   MIX <<FMIX2901>> <<FMIX2902>> <<FMIX2903>> <<FMIX2904>> 
- <<GAP>>
- <<CLAD>>
+   MIX <<FMIX2901>>
+ <<FMIX2901>>
+ <<FMIX2901>>
+ <<FMIX2901>>
+ <<FMIX2901>>
+ <<FMIX2901>>
+ <<FMIX2901>>
+ <<FMIX2901>>
+ <<FMIX2902>>
+ <<FMIX2902>>
+ <<FMIX2902>>
+ <<FMIX2902>>
+ <<FMIX2902>>
+ <<FMIX2902>>
+ <<FMIX2902>>
+ <<FMIX2902>>
+ <<FMIX2903>>
+ <<FMIX2903>>
+ <<FMIX2903>>
+ <<FMIX2903>>
+ <<FMIX2903>>
+ <<FMIX2903>>
+ <<FMIX2903>>
+ <<FMIX2903>>
+ <<FMIX2904>>
+ <<FMIX2904>>
+ <<FMIX2904>>
+ <<FMIX2904>>
+ <<FMIX2904>>
+ <<FMIX2904>>
+ <<FMIX2904>>
+ <<FMIX2904>>
+ 
+ <<GAP>> <<GAP>> <<GAP>> <<GAP>> 
+<<GAP>> <<GAP>> <<GAP>> <<GAP>>
+ <<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>> 
+<<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>>
  <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
 <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>> ;
 ::: C1_10  :=  GEO: C1_1
-   MIX <<FMIX11001>> <<FMIX11002>> <<FMIX11003>> <<FMIX11004>> 
- <<GAP>>
- <<CLAD>>
+   MIX <<FMIX11001>>
+ <<FMIX11001>>
+ <<FMIX11001>>
+ <<FMIX11001>>
+ <<FMIX11001>>
+ <<FMIX11001>>
+ <<FMIX11001>>
+ <<FMIX11001>>
+ <<FMIX11002>>
+ <<FMIX11002>>
+ <<FMIX11002>>
+ <<FMIX11002>>
+ <<FMIX11002>>
+ <<FMIX11002>>
+ <<FMIX11002>>
+ <<FMIX11002>>
+ <<FMIX11003>>
+ <<FMIX11003>>
+ <<FMIX11003>>
+ <<FMIX11003>>
+ <<FMIX11003>>
+ <<FMIX11003>>
+ <<FMIX11003>>
+ <<FMIX11003>>
+ <<FMIX11004>>
+ <<FMIX11004>>
+ <<FMIX11004>>
+ <<FMIX11004>>
+ <<FMIX11004>>
+ <<FMIX11004>>
+ <<FMIX11004>>
+ <<FMIX11004>>
+ 
+ <<GAP>> <<GAP>> <<GAP>> <<GAP>> 
+<<GAP>> <<GAP>> <<GAP>> <<GAP>>
+ <<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>> 
+<<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>>
  <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
 <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>> ;
 ::: C4_11  :=  GEO: C1_1
-   MIX <<FMIX41101>> <<FMIX41102>> <<FMIX41103>> <<FMIX41104>> 
- <<GAP>>
- <<CLAD>>
+   MIX <<FMIX41101>>
+ <<FMIX41101>>
+ <<FMIX41101>>
+ <<FMIX41101>>
+ <<FMIX41101>>
+ <<FMIX41101>>
+ <<FMIX41101>>
+ <<FMIX41101>>
+ <<FMIX41102>>
+ <<FMIX41102>>
+ <<FMIX41102>>
+ <<FMIX41102>>
+ <<FMIX41102>>
+ <<FMIX41102>>
+ <<FMIX41102>>
+ <<FMIX41102>>
+ <<FMIX41103>>
+ <<FMIX41103>>
+ <<FMIX41103>>
+ <<FMIX41103>>
+ <<FMIX41103>>
+ <<FMIX41103>>
+ <<FMIX41103>>
+ <<FMIX41103>>
+ <<FMIX41104>>
+ <<FMIX41104>>
+ <<FMIX41104>>
+ <<FMIX41104>>
+ <<FMIX41104>>
+ <<FMIX41104>>
+ <<FMIX41104>>
+ <<FMIX41104>>
+ 
+ <<GAP>> <<GAP>> <<GAP>> <<GAP>> 
+<<GAP>> <<GAP>> <<GAP>> <<GAP>>
+ <<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>> 
+<<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>>
  <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
 <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
@@ -658,9 +1034,43 @@ GEOM := GEO: :: CAR2D 3 3
    MESHX 0.0 <<pitch>>
    MESHY 0.0 <<pitch>> ;
 ::: C6_13  :=  GEO: C1_1
-   MIX <<FMIX61301>> <<FMIX61302>> <<FMIX61303>> <<FMIX61304>> 
- <<GAP>>
- <<CLAD>>
+   MIX <<FMIX61301>>
+ <<FMIX61301>>
+ <<FMIX61301>>
+ <<FMIX61301>>
+ <<FMIX61301>>
+ <<FMIX61301>>
+ <<FMIX61301>>
+ <<FMIX61301>>
+ <<FMIX61302>>
+ <<FMIX61302>>
+ <<FMIX61302>>
+ <<FMIX61302>>
+ <<FMIX61302>>
+ <<FMIX61302>>
+ <<FMIX61302>>
+ <<FMIX61302>>
+ <<FMIX61303>>
+ <<FMIX61303>>
+ <<FMIX61303>>
+ <<FMIX61303>>
+ <<FMIX61303>>
+ <<FMIX61303>>
+ <<FMIX61303>>
+ <<FMIX61303>>
+ <<FMIX61304>>
+ <<FMIX61304>>
+ <<FMIX61304>>
+ <<FMIX61304>>
+ <<FMIX61304>>
+ <<FMIX61304>>
+ <<FMIX61304>>
+ <<FMIX61304>>
+ 
+ <<GAP>> <<GAP>> <<GAP>> <<GAP>> 
+<<GAP>> <<GAP>> <<GAP>> <<GAP>>
+ <<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>> 
+<<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>>
  <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
 <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
@@ -726,18 +1136,86 @@ GEOM := GEO: :: CAR2D 3 3
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>> ;
 ::: C6_15  :=  GEO: C1_1
-   MIX <<FMIX61501>> <<FMIX61502>> <<FMIX61503>> <<FMIX61504>> 
- <<GAP>>
- <<CLAD>>
+   MIX <<FMIX61501>>
+ <<FMIX61501>>
+ <<FMIX61501>>
+ <<FMIX61501>>
+ <<FMIX61501>>
+ <<FMIX61501>>
+ <<FMIX61501>>
+ <<FMIX61501>>
+ <<FMIX61502>>
+ <<FMIX61502>>
+ <<FMIX61502>>
+ <<FMIX61502>>
+ <<FMIX61502>>
+ <<FMIX61502>>
+ <<FMIX61502>>
+ <<FMIX61502>>
+ <<FMIX61503>>
+ <<FMIX61503>>
+ <<FMIX61503>>
+ <<FMIX61503>>
+ <<FMIX61503>>
+ <<FMIX61503>>
+ <<FMIX61503>>
+ <<FMIX61503>>
+ <<FMIX61504>>
+ <<FMIX61504>>
+ <<FMIX61504>>
+ <<FMIX61504>>
+ <<FMIX61504>>
+ <<FMIX61504>>
+ <<FMIX61504>>
+ <<FMIX61504>>
+ 
+ <<GAP>> <<GAP>> <<GAP>> <<GAP>> 
+<<GAP>> <<GAP>> <<GAP>> <<GAP>>
+ <<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>> 
+<<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>>
  <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
 <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>> ;
 ::: C6_16  :=  GEO: C1_1
-   MIX <<FMIX61601>> <<FMIX61602>> <<FMIX61603>> <<FMIX61604>> 
- <<GAP>>
- <<CLAD>>
+   MIX <<FMIX61601>>
+ <<FMIX61601>>
+ <<FMIX61601>>
+ <<FMIX61601>>
+ <<FMIX61601>>
+ <<FMIX61601>>
+ <<FMIX61601>>
+ <<FMIX61601>>
+ <<FMIX61602>>
+ <<FMIX61602>>
+ <<FMIX61602>>
+ <<FMIX61602>>
+ <<FMIX61602>>
+ <<FMIX61602>>
+ <<FMIX61602>>
+ <<FMIX61602>>
+ <<FMIX61603>>
+ <<FMIX61603>>
+ <<FMIX61603>>
+ <<FMIX61603>>
+ <<FMIX61603>>
+ <<FMIX61603>>
+ <<FMIX61603>>
+ <<FMIX61603>>
+ <<FMIX61604>>
+ <<FMIX61604>>
+ <<FMIX61604>>
+ <<FMIX61604>>
+ <<FMIX61604>>
+ <<FMIX61604>>
+ <<FMIX61604>>
+ <<FMIX61604>>
+ 
+ <<GAP>> <<GAP>> <<GAP>> <<GAP>> 
+<<GAP>> <<GAP>> <<GAP>> <<GAP>>
+ <<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>> 
+<<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>>
  <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
 <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
@@ -803,45 +1281,215 @@ GEOM := GEO: :: CAR2D 3 3
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>> ;
 ::: C4_18  :=  GEO: C1_1
-   MIX <<FMIX41801>> <<FMIX41802>> <<FMIX41803>> <<FMIX41804>> 
- <<GAP>>
- <<CLAD>>
+   MIX <<FMIX41801>>
+ <<FMIX41801>>
+ <<FMIX41801>>
+ <<FMIX41801>>
+ <<FMIX41801>>
+ <<FMIX41801>>
+ <<FMIX41801>>
+ <<FMIX41801>>
+ <<FMIX41802>>
+ <<FMIX41802>>
+ <<FMIX41802>>
+ <<FMIX41802>>
+ <<FMIX41802>>
+ <<FMIX41802>>
+ <<FMIX41802>>
+ <<FMIX41802>>
+ <<FMIX41803>>
+ <<FMIX41803>>
+ <<FMIX41803>>
+ <<FMIX41803>>
+ <<FMIX41803>>
+ <<FMIX41803>>
+ <<FMIX41803>>
+ <<FMIX41803>>
+ <<FMIX41804>>
+ <<FMIX41804>>
+ <<FMIX41804>>
+ <<FMIX41804>>
+ <<FMIX41804>>
+ <<FMIX41804>>
+ <<FMIX41804>>
+ <<FMIX41804>>
+ 
+ <<GAP>> <<GAP>> <<GAP>> <<GAP>> 
+<<GAP>> <<GAP>> <<GAP>> <<GAP>>
+ <<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>> 
+<<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>>
  <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
 <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>> ;
 ::: C2_19  :=  GEO: C1_1
-   MIX <<FMIX21901>> <<FMIX21902>> <<FMIX21903>> <<FMIX21904>> 
- <<GAP>>
- <<CLAD>>
+   MIX <<FMIX21901>>
+ <<FMIX21901>>
+ <<FMIX21901>>
+ <<FMIX21901>>
+ <<FMIX21901>>
+ <<FMIX21901>>
+ <<FMIX21901>>
+ <<FMIX21901>>
+ <<FMIX21902>>
+ <<FMIX21902>>
+ <<FMIX21902>>
+ <<FMIX21902>>
+ <<FMIX21902>>
+ <<FMIX21902>>
+ <<FMIX21902>>
+ <<FMIX21902>>
+ <<FMIX21903>>
+ <<FMIX21903>>
+ <<FMIX21903>>
+ <<FMIX21903>>
+ <<FMIX21903>>
+ <<FMIX21903>>
+ <<FMIX21903>>
+ <<FMIX21903>>
+ <<FMIX21904>>
+ <<FMIX21904>>
+ <<FMIX21904>>
+ <<FMIX21904>>
+ <<FMIX21904>>
+ <<FMIX21904>>
+ <<FMIX21904>>
+ <<FMIX21904>>
+ 
+ <<GAP>> <<GAP>> <<GAP>> <<GAP>> 
+<<GAP>> <<GAP>> <<GAP>> <<GAP>>
+ <<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>> 
+<<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>>
  <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
 <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>> ;
 ::: C6_20  :=  GEO: C1_1
-   MIX <<FMIX62001>> <<FMIX62002>> <<FMIX62003>> <<FMIX62004>> 
- <<GAP>>
- <<CLAD>>
+   MIX <<FMIX62001>>
+ <<FMIX62001>>
+ <<FMIX62001>>
+ <<FMIX62001>>
+ <<FMIX62001>>
+ <<FMIX62001>>
+ <<FMIX62001>>
+ <<FMIX62001>>
+ <<FMIX62002>>
+ <<FMIX62002>>
+ <<FMIX62002>>
+ <<FMIX62002>>
+ <<FMIX62002>>
+ <<FMIX62002>>
+ <<FMIX62002>>
+ <<FMIX62002>>
+ <<FMIX62003>>
+ <<FMIX62003>>
+ <<FMIX62003>>
+ <<FMIX62003>>
+ <<FMIX62003>>
+ <<FMIX62003>>
+ <<FMIX62003>>
+ <<FMIX62003>>
+ <<FMIX62004>>
+ <<FMIX62004>>
+ <<FMIX62004>>
+ <<FMIX62004>>
+ <<FMIX62004>>
+ <<FMIX62004>>
+ <<FMIX62004>>
+ <<FMIX62004>>
+ 
+ <<GAP>> <<GAP>> <<GAP>> <<GAP>> 
+<<GAP>> <<GAP>> <<GAP>> <<GAP>>
+ <<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>> 
+<<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>>
  <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
 <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>> ;
 ::: C6_21  :=  GEO: C1_1
-   MIX <<FMIX62101>> <<FMIX62102>> <<FMIX62103>> <<FMIX62104>> 
- <<GAP>>
- <<CLAD>>
+   MIX <<FMIX62101>>
+ <<FMIX62101>>
+ <<FMIX62101>>
+ <<FMIX62101>>
+ <<FMIX62101>>
+ <<FMIX62101>>
+ <<FMIX62101>>
+ <<FMIX62101>>
+ <<FMIX62102>>
+ <<FMIX62102>>
+ <<FMIX62102>>
+ <<FMIX62102>>
+ <<FMIX62102>>
+ <<FMIX62102>>
+ <<FMIX62102>>
+ <<FMIX62102>>
+ <<FMIX62103>>
+ <<FMIX62103>>
+ <<FMIX62103>>
+ <<FMIX62103>>
+ <<FMIX62103>>
+ <<FMIX62103>>
+ <<FMIX62103>>
+ <<FMIX62103>>
+ <<FMIX62104>>
+ <<FMIX62104>>
+ <<FMIX62104>>
+ <<FMIX62104>>
+ <<FMIX62104>>
+ <<FMIX62104>>
+ <<FMIX62104>>
+ <<FMIX62104>>
+ 
+ <<GAP>> <<GAP>> <<GAP>> <<GAP>> 
+<<GAP>> <<GAP>> <<GAP>> <<GAP>>
+ <<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>> 
+<<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>>
  <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
 <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>> ;
 ::: C6_22  :=  GEO: C1_1
-   MIX <<FMIX62201>> <<FMIX62202>> <<FMIX62203>> <<FMIX62204>> 
- <<GAP>>
- <<CLAD>>
+   MIX <<FMIX62201>>
+ <<FMIX62201>>
+ <<FMIX62201>>
+ <<FMIX62201>>
+ <<FMIX62201>>
+ <<FMIX62201>>
+ <<FMIX62201>>
+ <<FMIX62201>>
+ <<FMIX62202>>
+ <<FMIX62202>>
+ <<FMIX62202>>
+ <<FMIX62202>>
+ <<FMIX62202>>
+ <<FMIX62202>>
+ <<FMIX62202>>
+ <<FMIX62202>>
+ <<FMIX62203>>
+ <<FMIX62203>>
+ <<FMIX62203>>
+ <<FMIX62203>>
+ <<FMIX62203>>
+ <<FMIX62203>>
+ <<FMIX62203>>
+ <<FMIX62203>>
+ <<FMIX62204>>
+ <<FMIX62204>>
+ <<FMIX62204>>
+ <<FMIX62204>>
+ <<FMIX62204>>
+ <<FMIX62204>>
+ <<FMIX62204>>
+ <<FMIX62204>>
+ 
+ <<GAP>> <<GAP>> <<GAP>> <<GAP>> 
+<<GAP>> <<GAP>> <<GAP>> <<GAP>>
+ <<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>> 
+<<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>>
  <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
 <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
@@ -907,18 +1555,86 @@ GEOM := GEO: :: CAR2D 3 3
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>> ;
 ::: C6_24  :=  GEO: C1_1
-   MIX <<FMIX62401>> <<FMIX62402>> <<FMIX62403>> <<FMIX62404>> 
- <<GAP>>
- <<CLAD>>
+   MIX <<FMIX62401>>
+ <<FMIX62401>>
+ <<FMIX62401>>
+ <<FMIX62401>>
+ <<FMIX62401>>
+ <<FMIX62401>>
+ <<FMIX62401>>
+ <<FMIX62401>>
+ <<FMIX62402>>
+ <<FMIX62402>>
+ <<FMIX62402>>
+ <<FMIX62402>>
+ <<FMIX62402>>
+ <<FMIX62402>>
+ <<FMIX62402>>
+ <<FMIX62402>>
+ <<FMIX62403>>
+ <<FMIX62403>>
+ <<FMIX62403>>
+ <<FMIX62403>>
+ <<FMIX62403>>
+ <<FMIX62403>>
+ <<FMIX62403>>
+ <<FMIX62403>>
+ <<FMIX62404>>
+ <<FMIX62404>>
+ <<FMIX62404>>
+ <<FMIX62404>>
+ <<FMIX62404>>
+ <<FMIX62404>>
+ <<FMIX62404>>
+ <<FMIX62404>>
+ 
+ <<GAP>> <<GAP>> <<GAP>> <<GAP>> 
+<<GAP>> <<GAP>> <<GAP>> <<GAP>>
+ <<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>> 
+<<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>>
  <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
 <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>> ;
 ::: C6_25  :=  GEO: C1_1
-   MIX <<FMIX62501>> <<FMIX62502>> <<FMIX62503>> <<FMIX62504>> 
- <<GAP>>
- <<CLAD>>
+   MIX <<FMIX62501>>
+ <<FMIX62501>>
+ <<FMIX62501>>
+ <<FMIX62501>>
+ <<FMIX62501>>
+ <<FMIX62501>>
+ <<FMIX62501>>
+ <<FMIX62501>>
+ <<FMIX62502>>
+ <<FMIX62502>>
+ <<FMIX62502>>
+ <<FMIX62502>>
+ <<FMIX62502>>
+ <<FMIX62502>>
+ <<FMIX62502>>
+ <<FMIX62502>>
+ <<FMIX62503>>
+ <<FMIX62503>>
+ <<FMIX62503>>
+ <<FMIX62503>>
+ <<FMIX62503>>
+ <<FMIX62503>>
+ <<FMIX62503>>
+ <<FMIX62503>>
+ <<FMIX62504>>
+ <<FMIX62504>>
+ <<FMIX62504>>
+ <<FMIX62504>>
+ <<FMIX62504>>
+ <<FMIX62504>>
+ <<FMIX62504>>
+ <<FMIX62504>>
+ 
+ <<GAP>> <<GAP>> <<GAP>> <<GAP>> 
+<<GAP>> <<GAP>> <<GAP>> <<GAP>>
+ <<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>> 
+<<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>>
  <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
 <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
@@ -984,36 +1700,172 @@ GEOM := GEO: :: CAR2D 3 3
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>> ;
 ::: C3_27  :=  GEO: C1_1
-   MIX <<FMIX32701>> <<FMIX32702>> <<FMIX32703>> <<FMIX32704>> 
- <<GAP>>
- <<CLAD>>
+   MIX <<FMIX32701>>
+ <<FMIX32701>>
+ <<FMIX32701>>
+ <<FMIX32701>>
+ <<FMIX32701>>
+ <<FMIX32701>>
+ <<FMIX32701>>
+ <<FMIX32701>>
+ <<FMIX32702>>
+ <<FMIX32702>>
+ <<FMIX32702>>
+ <<FMIX32702>>
+ <<FMIX32702>>
+ <<FMIX32702>>
+ <<FMIX32702>>
+ <<FMIX32702>>
+ <<FMIX32703>>
+ <<FMIX32703>>
+ <<FMIX32703>>
+ <<FMIX32703>>
+ <<FMIX32703>>
+ <<FMIX32703>>
+ <<FMIX32703>>
+ <<FMIX32703>>
+ <<FMIX32704>>
+ <<FMIX32704>>
+ <<FMIX32704>>
+ <<FMIX32704>>
+ <<FMIX32704>>
+ <<FMIX32704>>
+ <<FMIX32704>>
+ <<FMIX32704>>
+ 
+ <<GAP>> <<GAP>> <<GAP>> <<GAP>> 
+<<GAP>> <<GAP>> <<GAP>> <<GAP>>
+ <<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>> 
+<<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>>
  <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
 <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>> ;
 ::: C6_28  :=  GEO: C1_1
-   MIX <<FMIX62801>> <<FMIX62802>> <<FMIX62803>> <<FMIX62804>> 
- <<GAP>>
- <<CLAD>>
+   MIX <<FMIX62801>>
+ <<FMIX62801>>
+ <<FMIX62801>>
+ <<FMIX62801>>
+ <<FMIX62801>>
+ <<FMIX62801>>
+ <<FMIX62801>>
+ <<FMIX62801>>
+ <<FMIX62802>>
+ <<FMIX62802>>
+ <<FMIX62802>>
+ <<FMIX62802>>
+ <<FMIX62802>>
+ <<FMIX62802>>
+ <<FMIX62802>>
+ <<FMIX62802>>
+ <<FMIX62803>>
+ <<FMIX62803>>
+ <<FMIX62803>>
+ <<FMIX62803>>
+ <<FMIX62803>>
+ <<FMIX62803>>
+ <<FMIX62803>>
+ <<FMIX62803>>
+ <<FMIX62804>>
+ <<FMIX62804>>
+ <<FMIX62804>>
+ <<FMIX62804>>
+ <<FMIX62804>>
+ <<FMIX62804>>
+ <<FMIX62804>>
+ <<FMIX62804>>
+ 
+ <<GAP>> <<GAP>> <<GAP>> <<GAP>> 
+<<GAP>> <<GAP>> <<GAP>> <<GAP>>
+ <<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>> 
+<<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>>
  <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
 <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>> ;
 ::: C6_29  :=  GEO: C1_1
-   MIX <<FMIX62901>> <<FMIX62902>> <<FMIX62903>> <<FMIX62904>> 
- <<GAP>>
- <<CLAD>>
+   MIX <<FMIX62901>>
+ <<FMIX62901>>
+ <<FMIX62901>>
+ <<FMIX62901>>
+ <<FMIX62901>>
+ <<FMIX62901>>
+ <<FMIX62901>>
+ <<FMIX62901>>
+ <<FMIX62902>>
+ <<FMIX62902>>
+ <<FMIX62902>>
+ <<FMIX62902>>
+ <<FMIX62902>>
+ <<FMIX62902>>
+ <<FMIX62902>>
+ <<FMIX62902>>
+ <<FMIX62903>>
+ <<FMIX62903>>
+ <<FMIX62903>>
+ <<FMIX62903>>
+ <<FMIX62903>>
+ <<FMIX62903>>
+ <<FMIX62903>>
+ <<FMIX62903>>
+ <<FMIX62904>>
+ <<FMIX62904>>
+ <<FMIX62904>>
+ <<FMIX62904>>
+ <<FMIX62904>>
+ <<FMIX62904>>
+ <<FMIX62904>>
+ <<FMIX62904>>
+ 
+ <<GAP>> <<GAP>> <<GAP>> <<GAP>> 
+<<GAP>> <<GAP>> <<GAP>> <<GAP>>
+ <<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>> 
+<<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>>
  <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
 <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>> ;
 ::: C6_30  :=  GEO: C1_1
-   MIX <<FMIX63001>> <<FMIX63002>> <<FMIX63003>> <<FMIX63004>> 
- <<GAP>>
- <<CLAD>>
+   MIX <<FMIX63001>>
+ <<FMIX63001>>
+ <<FMIX63001>>
+ <<FMIX63001>>
+ <<FMIX63001>>
+ <<FMIX63001>>
+ <<FMIX63001>>
+ <<FMIX63001>>
+ <<FMIX63002>>
+ <<FMIX63002>>
+ <<FMIX63002>>
+ <<FMIX63002>>
+ <<FMIX63002>>
+ <<FMIX63002>>
+ <<FMIX63002>>
+ <<FMIX63002>>
+ <<FMIX63003>>
+ <<FMIX63003>>
+ <<FMIX63003>>
+ <<FMIX63003>>
+ <<FMIX63003>>
+ <<FMIX63003>>
+ <<FMIX63003>>
+ <<FMIX63003>>
+ <<FMIX63004>>
+ <<FMIX63004>>
+ <<FMIX63004>>
+ <<FMIX63004>>
+ <<FMIX63004>>
+ <<FMIX63004>>
+ <<FMIX63004>>
+ <<FMIX63004>>
+ 
+ <<GAP>> <<GAP>> <<GAP>> <<GAP>> 
+<<GAP>> <<GAP>> <<GAP>> <<GAP>>
+ <<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>> 
+<<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>>
  <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
 <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
@@ -1079,63 +1931,301 @@ GEOM := GEO: :: CAR2D 3 3
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>> ;
 ::: C6_32  :=  GEO: C1_1
-   MIX <<FMIX63201>> <<FMIX63202>> <<FMIX63203>> <<FMIX63204>> 
- <<GAP>>
- <<CLAD>>
+   MIX <<FMIX63201>>
+ <<FMIX63201>>
+ <<FMIX63201>>
+ <<FMIX63201>>
+ <<FMIX63201>>
+ <<FMIX63201>>
+ <<FMIX63201>>
+ <<FMIX63201>>
+ <<FMIX63202>>
+ <<FMIX63202>>
+ <<FMIX63202>>
+ <<FMIX63202>>
+ <<FMIX63202>>
+ <<FMIX63202>>
+ <<FMIX63202>>
+ <<FMIX63202>>
+ <<FMIX63203>>
+ <<FMIX63203>>
+ <<FMIX63203>>
+ <<FMIX63203>>
+ <<FMIX63203>>
+ <<FMIX63203>>
+ <<FMIX63203>>
+ <<FMIX63203>>
+ <<FMIX63204>>
+ <<FMIX63204>>
+ <<FMIX63204>>
+ <<FMIX63204>>
+ <<FMIX63204>>
+ <<FMIX63204>>
+ <<FMIX63204>>
+ <<FMIX63204>>
+ 
+ <<GAP>> <<GAP>> <<GAP>> <<GAP>> 
+<<GAP>> <<GAP>> <<GAP>> <<GAP>>
+ <<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>> 
+<<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>>
  <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
 <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>> ;
 ::: C5_33  :=  GEO: C1_1
-   MIX <<FMIX53301>> <<FMIX53302>> <<FMIX53303>> <<FMIX53304>> 
- <<GAP>>
- <<CLAD>>
+   MIX <<FMIX53301>>
+ <<FMIX53301>>
+ <<FMIX53301>>
+ <<FMIX53301>>
+ <<FMIX53301>>
+ <<FMIX53301>>
+ <<FMIX53301>>
+ <<FMIX53301>>
+ <<FMIX53302>>
+ <<FMIX53302>>
+ <<FMIX53302>>
+ <<FMIX53302>>
+ <<FMIX53302>>
+ <<FMIX53302>>
+ <<FMIX53302>>
+ <<FMIX53302>>
+ <<FMIX53303>>
+ <<FMIX53303>>
+ <<FMIX53303>>
+ <<FMIX53303>>
+ <<FMIX53303>>
+ <<FMIX53303>>
+ <<FMIX53303>>
+ <<FMIX53303>>
+ <<FMIX53304>>
+ <<FMIX53304>>
+ <<FMIX53304>>
+ <<FMIX53304>>
+ <<FMIX53304>>
+ <<FMIX53304>>
+ <<FMIX53304>>
+ <<FMIX53304>>
+ 
+ <<GAP>> <<GAP>> <<GAP>> <<GAP>> 
+<<GAP>> <<GAP>> <<GAP>> <<GAP>>
+ <<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>> 
+<<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>>
  <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
 <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>> ;
 ::: C4_34  :=  GEO: C1_1
-   MIX <<FMIX43401>> <<FMIX43402>> <<FMIX43403>> <<FMIX43404>> 
- <<GAP>>
- <<CLAD>>
+   MIX <<FMIX43401>>
+ <<FMIX43401>>
+ <<FMIX43401>>
+ <<FMIX43401>>
+ <<FMIX43401>>
+ <<FMIX43401>>
+ <<FMIX43401>>
+ <<FMIX43401>>
+ <<FMIX43402>>
+ <<FMIX43402>>
+ <<FMIX43402>>
+ <<FMIX43402>>
+ <<FMIX43402>>
+ <<FMIX43402>>
+ <<FMIX43402>>
+ <<FMIX43402>>
+ <<FMIX43403>>
+ <<FMIX43403>>
+ <<FMIX43403>>
+ <<FMIX43403>>
+ <<FMIX43403>>
+ <<FMIX43403>>
+ <<FMIX43403>>
+ <<FMIX43403>>
+ <<FMIX43404>>
+ <<FMIX43404>>
+ <<FMIX43404>>
+ <<FMIX43404>>
+ <<FMIX43404>>
+ <<FMIX43404>>
+ <<FMIX43404>>
+ <<FMIX43404>>
+ 
+ <<GAP>> <<GAP>> <<GAP>> <<GAP>> 
+<<GAP>> <<GAP>> <<GAP>> <<GAP>>
+ <<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>> 
+<<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>>
  <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
 <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>> ;
 ::: C4_38  :=  GEO: C1_1
-   MIX <<FMIX43801>> <<FMIX43802>> <<FMIX43803>> <<FMIX43804>> 
- <<GAP>>
- <<CLAD>>
+   MIX <<FMIX43801>>
+ <<FMIX43801>>
+ <<FMIX43801>>
+ <<FMIX43801>>
+ <<FMIX43801>>
+ <<FMIX43801>>
+ <<FMIX43801>>
+ <<FMIX43801>>
+ <<FMIX43802>>
+ <<FMIX43802>>
+ <<FMIX43802>>
+ <<FMIX43802>>
+ <<FMIX43802>>
+ <<FMIX43802>>
+ <<FMIX43802>>
+ <<FMIX43802>>
+ <<FMIX43803>>
+ <<FMIX43803>>
+ <<FMIX43803>>
+ <<FMIX43803>>
+ <<FMIX43803>>
+ <<FMIX43803>>
+ <<FMIX43803>>
+ <<FMIX43803>>
+ <<FMIX43804>>
+ <<FMIX43804>>
+ <<FMIX43804>>
+ <<FMIX43804>>
+ <<FMIX43804>>
+ <<FMIX43804>>
+ <<FMIX43804>>
+ <<FMIX43804>>
+ 
+ <<GAP>> <<GAP>> <<GAP>> <<GAP>> 
+<<GAP>> <<GAP>> <<GAP>> <<GAP>>
+ <<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>> 
+<<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>>
  <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
 <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>> ;
 ::: C6_39  :=  GEO: C1_1
-   MIX <<FMIX63901>> <<FMIX63902>> <<FMIX63903>> <<FMIX63904>> 
- <<GAP>>
- <<CLAD>>
+   MIX <<FMIX63901>>
+ <<FMIX63901>>
+ <<FMIX63901>>
+ <<FMIX63901>>
+ <<FMIX63901>>
+ <<FMIX63901>>
+ <<FMIX63901>>
+ <<FMIX63901>>
+ <<FMIX63902>>
+ <<FMIX63902>>
+ <<FMIX63902>>
+ <<FMIX63902>>
+ <<FMIX63902>>
+ <<FMIX63902>>
+ <<FMIX63902>>
+ <<FMIX63902>>
+ <<FMIX63903>>
+ <<FMIX63903>>
+ <<FMIX63903>>
+ <<FMIX63903>>
+ <<FMIX63903>>
+ <<FMIX63903>>
+ <<FMIX63903>>
+ <<FMIX63903>>
+ <<FMIX63904>>
+ <<FMIX63904>>
+ <<FMIX63904>>
+ <<FMIX63904>>
+ <<FMIX63904>>
+ <<FMIX63904>>
+ <<FMIX63904>>
+ <<FMIX63904>>
+ 
+ <<GAP>> <<GAP>> <<GAP>> <<GAP>> 
+<<GAP>> <<GAP>> <<GAP>> <<GAP>>
+ <<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>> 
+<<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>>
  <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
 <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>> ;
 ::: C4_40  :=  GEO: C1_1
-   MIX <<FMIX44001>> <<FMIX44002>> <<FMIX44003>> <<FMIX44004>> 
- <<GAP>>
- <<CLAD>>
+   MIX <<FMIX44001>>
+ <<FMIX44001>>
+ <<FMIX44001>>
+ <<FMIX44001>>
+ <<FMIX44001>>
+ <<FMIX44001>>
+ <<FMIX44001>>
+ <<FMIX44001>>
+ <<FMIX44002>>
+ <<FMIX44002>>
+ <<FMIX44002>>
+ <<FMIX44002>>
+ <<FMIX44002>>
+ <<FMIX44002>>
+ <<FMIX44002>>
+ <<FMIX44002>>
+ <<FMIX44003>>
+ <<FMIX44003>>
+ <<FMIX44003>>
+ <<FMIX44003>>
+ <<FMIX44003>>
+ <<FMIX44003>>
+ <<FMIX44003>>
+ <<FMIX44003>>
+ <<FMIX44004>>
+ <<FMIX44004>>
+ <<FMIX44004>>
+ <<FMIX44004>>
+ <<FMIX44004>>
+ <<FMIX44004>>
+ <<FMIX44004>>
+ <<FMIX44004>>
+ 
+ <<GAP>> <<GAP>> <<GAP>> <<GAP>> 
+<<GAP>> <<GAP>> <<GAP>> <<GAP>>
+ <<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>> 
+<<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>>
  <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
 <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>> ;
 ::: C3_43  :=  GEO: C1_1
-   MIX <<FMIX34301>> <<FMIX34302>> <<FMIX34303>> <<FMIX34304>> 
- <<GAP>>
- <<CLAD>>
+   MIX <<FMIX34301>>
+ <<FMIX34301>>
+ <<FMIX34301>>
+ <<FMIX34301>>
+ <<FMIX34301>>
+ <<FMIX34301>>
+ <<FMIX34301>>
+ <<FMIX34301>>
+ <<FMIX34302>>
+ <<FMIX34302>>
+ <<FMIX34302>>
+ <<FMIX34302>>
+ <<FMIX34302>>
+ <<FMIX34302>>
+ <<FMIX34302>>
+ <<FMIX34302>>
+ <<FMIX34303>>
+ <<FMIX34303>>
+ <<FMIX34303>>
+ <<FMIX34303>>
+ <<FMIX34303>>
+ <<FMIX34303>>
+ <<FMIX34303>>
+ <<FMIX34303>>
+ <<FMIX34304>>
+ <<FMIX34304>>
+ <<FMIX34304>>
+ <<FMIX34304>>
+ <<FMIX34304>>
+ <<FMIX34304>>
+ <<FMIX34304>>
+ <<FMIX34304>>
+ 
+ <<GAP>> <<GAP>> <<GAP>> <<GAP>> 
+<<GAP>> <<GAP>> <<GAP>> <<GAP>>
+ <<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>> 
+<<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>>
  <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
 <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
@@ -1201,45 +2291,215 @@ GEOM := GEO: :: CAR2D 3 3
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>> ;
 ::: C4_45  :=  GEO: C1_1
-   MIX <<FMIX44501>> <<FMIX44502>> <<FMIX44503>> <<FMIX44504>> 
- <<GAP>>
- <<CLAD>>
+   MIX <<FMIX44501>>
+ <<FMIX44501>>
+ <<FMIX44501>>
+ <<FMIX44501>>
+ <<FMIX44501>>
+ <<FMIX44501>>
+ <<FMIX44501>>
+ <<FMIX44501>>
+ <<FMIX44502>>
+ <<FMIX44502>>
+ <<FMIX44502>>
+ <<FMIX44502>>
+ <<FMIX44502>>
+ <<FMIX44502>>
+ <<FMIX44502>>
+ <<FMIX44502>>
+ <<FMIX44503>>
+ <<FMIX44503>>
+ <<FMIX44503>>
+ <<FMIX44503>>
+ <<FMIX44503>>
+ <<FMIX44503>>
+ <<FMIX44503>>
+ <<FMIX44503>>
+ <<FMIX44504>>
+ <<FMIX44504>>
+ <<FMIX44504>>
+ <<FMIX44504>>
+ <<FMIX44504>>
+ <<FMIX44504>>
+ <<FMIX44504>>
+ <<FMIX44504>>
+ 
+ <<GAP>> <<GAP>> <<GAP>> <<GAP>> 
+<<GAP>> <<GAP>> <<GAP>> <<GAP>>
+ <<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>> 
+<<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>>
  <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
 <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>> ;
 ::: C4_47  :=  GEO: C1_1
-   MIX <<FMIX44701>> <<FMIX44702>> <<FMIX44703>> <<FMIX44704>> 
- <<GAP>>
- <<CLAD>>
+   MIX <<FMIX44701>>
+ <<FMIX44701>>
+ <<FMIX44701>>
+ <<FMIX44701>>
+ <<FMIX44701>>
+ <<FMIX44701>>
+ <<FMIX44701>>
+ <<FMIX44701>>
+ <<FMIX44702>>
+ <<FMIX44702>>
+ <<FMIX44702>>
+ <<FMIX44702>>
+ <<FMIX44702>>
+ <<FMIX44702>>
+ <<FMIX44702>>
+ <<FMIX44702>>
+ <<FMIX44703>>
+ <<FMIX44703>>
+ <<FMIX44703>>
+ <<FMIX44703>>
+ <<FMIX44703>>
+ <<FMIX44703>>
+ <<FMIX44703>>
+ <<FMIX44703>>
+ <<FMIX44704>>
+ <<FMIX44704>>
+ <<FMIX44704>>
+ <<FMIX44704>>
+ <<FMIX44704>>
+ <<FMIX44704>>
+ <<FMIX44704>>
+ <<FMIX44704>>
+ 
+ <<GAP>> <<GAP>> <<GAP>> <<GAP>> 
+<<GAP>> <<GAP>> <<GAP>> <<GAP>>
+ <<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>> 
+<<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>>
  <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
 <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>> ;
 ::: C4_48  :=  GEO: C1_1
-   MIX <<FMIX44801>> <<FMIX44802>> <<FMIX44803>> <<FMIX44804>> 
- <<GAP>>
- <<CLAD>>
+   MIX <<FMIX44801>>
+ <<FMIX44801>>
+ <<FMIX44801>>
+ <<FMIX44801>>
+ <<FMIX44801>>
+ <<FMIX44801>>
+ <<FMIX44801>>
+ <<FMIX44801>>
+ <<FMIX44802>>
+ <<FMIX44802>>
+ <<FMIX44802>>
+ <<FMIX44802>>
+ <<FMIX44802>>
+ <<FMIX44802>>
+ <<FMIX44802>>
+ <<FMIX44802>>
+ <<FMIX44803>>
+ <<FMIX44803>>
+ <<FMIX44803>>
+ <<FMIX44803>>
+ <<FMIX44803>>
+ <<FMIX44803>>
+ <<FMIX44803>>
+ <<FMIX44803>>
+ <<FMIX44804>>
+ <<FMIX44804>>
+ <<FMIX44804>>
+ <<FMIX44804>>
+ <<FMIX44804>>
+ <<FMIX44804>>
+ <<FMIX44804>>
+ <<FMIX44804>>
+ 
+ <<GAP>> <<GAP>> <<GAP>> <<GAP>> 
+<<GAP>> <<GAP>> <<GAP>> <<GAP>>
+ <<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>> 
+<<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>>
  <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
 <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>> ;
 ::: C4_49  :=  GEO: C1_1
-   MIX <<FMIX44901>> <<FMIX44902>> <<FMIX44903>> <<FMIX44904>> 
- <<GAP>>
- <<CLAD>>
+   MIX <<FMIX44901>>
+ <<FMIX44901>>
+ <<FMIX44901>>
+ <<FMIX44901>>
+ <<FMIX44901>>
+ <<FMIX44901>>
+ <<FMIX44901>>
+ <<FMIX44901>>
+ <<FMIX44902>>
+ <<FMIX44902>>
+ <<FMIX44902>>
+ <<FMIX44902>>
+ <<FMIX44902>>
+ <<FMIX44902>>
+ <<FMIX44902>>
+ <<FMIX44902>>
+ <<FMIX44903>>
+ <<FMIX44903>>
+ <<FMIX44903>>
+ <<FMIX44903>>
+ <<FMIX44903>>
+ <<FMIX44903>>
+ <<FMIX44903>>
+ <<FMIX44903>>
+ <<FMIX44904>>
+ <<FMIX44904>>
+ <<FMIX44904>>
+ <<FMIX44904>>
+ <<FMIX44904>>
+ <<FMIX44904>>
+ <<FMIX44904>>
+ <<FMIX44904>>
+ 
+ <<GAP>> <<GAP>> <<GAP>> <<GAP>> 
+<<GAP>> <<GAP>> <<GAP>> <<GAP>>
+ <<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>> 
+<<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>>
  <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
 <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>> ;
 ::: C4_50  :=  GEO: C1_1
-   MIX <<FMIX45001>> <<FMIX45002>> <<FMIX45003>> <<FMIX45004>> 
- <<GAP>>
- <<CLAD>>
+   MIX <<FMIX45001>>
+ <<FMIX45001>>
+ <<FMIX45001>>
+ <<FMIX45001>>
+ <<FMIX45001>>
+ <<FMIX45001>>
+ <<FMIX45001>>
+ <<FMIX45001>>
+ <<FMIX45002>>
+ <<FMIX45002>>
+ <<FMIX45002>>
+ <<FMIX45002>>
+ <<FMIX45002>>
+ <<FMIX45002>>
+ <<FMIX45002>>
+ <<FMIX45002>>
+ <<FMIX45003>>
+ <<FMIX45003>>
+ <<FMIX45003>>
+ <<FMIX45003>>
+ <<FMIX45003>>
+ <<FMIX45003>>
+ <<FMIX45003>>
+ <<FMIX45003>>
+ <<FMIX45004>>
+ <<FMIX45004>>
+ <<FMIX45004>>
+ <<FMIX45004>>
+ <<FMIX45004>>
+ <<FMIX45004>>
+ <<FMIX45004>>
+ <<FMIX45004>>
+ 
+ <<GAP>> <<GAP>> <<GAP>> <<GAP>> 
+<<GAP>> <<GAP>> <<GAP>> <<GAP>>
+ <<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>> 
+<<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>>
  <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
 <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
@@ -1305,36 +2565,172 @@ GEOM := GEO: :: CAR2D 3 3
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>> ;
 ::: C3_52  :=  GEO: C1_1
-   MIX <<FMIX35201>> <<FMIX35202>> <<FMIX35203>> <<FMIX35204>> 
- <<GAP>>
- <<CLAD>>
+   MIX <<FMIX35201>>
+ <<FMIX35201>>
+ <<FMIX35201>>
+ <<FMIX35201>>
+ <<FMIX35201>>
+ <<FMIX35201>>
+ <<FMIX35201>>
+ <<FMIX35201>>
+ <<FMIX35202>>
+ <<FMIX35202>>
+ <<FMIX35202>>
+ <<FMIX35202>>
+ <<FMIX35202>>
+ <<FMIX35202>>
+ <<FMIX35202>>
+ <<FMIX35202>>
+ <<FMIX35203>>
+ <<FMIX35203>>
+ <<FMIX35203>>
+ <<FMIX35203>>
+ <<FMIX35203>>
+ <<FMIX35203>>
+ <<FMIX35203>>
+ <<FMIX35203>>
+ <<FMIX35204>>
+ <<FMIX35204>>
+ <<FMIX35204>>
+ <<FMIX35204>>
+ <<FMIX35204>>
+ <<FMIX35204>>
+ <<FMIX35204>>
+ <<FMIX35204>>
+ 
+ <<GAP>> <<GAP>> <<GAP>> <<GAP>> 
+<<GAP>> <<GAP>> <<GAP>> <<GAP>>
+ <<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>> 
+<<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>>
  <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
 <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>> ;
 ::: C4_53  :=  GEO: C1_1
-   MIX <<FMIX45301>> <<FMIX45302>> <<FMIX45303>> <<FMIX45304>> 
- <<GAP>>
- <<CLAD>>
+   MIX <<FMIX45301>>
+ <<FMIX45301>>
+ <<FMIX45301>>
+ <<FMIX45301>>
+ <<FMIX45301>>
+ <<FMIX45301>>
+ <<FMIX45301>>
+ <<FMIX45301>>
+ <<FMIX45302>>
+ <<FMIX45302>>
+ <<FMIX45302>>
+ <<FMIX45302>>
+ <<FMIX45302>>
+ <<FMIX45302>>
+ <<FMIX45302>>
+ <<FMIX45302>>
+ <<FMIX45303>>
+ <<FMIX45303>>
+ <<FMIX45303>>
+ <<FMIX45303>>
+ <<FMIX45303>>
+ <<FMIX45303>>
+ <<FMIX45303>>
+ <<FMIX45303>>
+ <<FMIX45304>>
+ <<FMIX45304>>
+ <<FMIX45304>>
+ <<FMIX45304>>
+ <<FMIX45304>>
+ <<FMIX45304>>
+ <<FMIX45304>>
+ <<FMIX45304>>
+ 
+ <<GAP>> <<GAP>> <<GAP>> <<GAP>> 
+<<GAP>> <<GAP>> <<GAP>> <<GAP>>
+ <<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>> 
+<<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>>
  <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
 <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>> ;
 ::: C2_54  :=  GEO: C1_1
-   MIX <<FMIX25401>> <<FMIX25402>> <<FMIX25403>> <<FMIX25404>> 
- <<GAP>>
- <<CLAD>>
+   MIX <<FMIX25401>>
+ <<FMIX25401>>
+ <<FMIX25401>>
+ <<FMIX25401>>
+ <<FMIX25401>>
+ <<FMIX25401>>
+ <<FMIX25401>>
+ <<FMIX25401>>
+ <<FMIX25402>>
+ <<FMIX25402>>
+ <<FMIX25402>>
+ <<FMIX25402>>
+ <<FMIX25402>>
+ <<FMIX25402>>
+ <<FMIX25402>>
+ <<FMIX25402>>
+ <<FMIX25403>>
+ <<FMIX25403>>
+ <<FMIX25403>>
+ <<FMIX25403>>
+ <<FMIX25403>>
+ <<FMIX25403>>
+ <<FMIX25403>>
+ <<FMIX25403>>
+ <<FMIX25404>>
+ <<FMIX25404>>
+ <<FMIX25404>>
+ <<FMIX25404>>
+ <<FMIX25404>>
+ <<FMIX25404>>
+ <<FMIX25404>>
+ <<FMIX25404>>
+ 
+ <<GAP>> <<GAP>> <<GAP>> <<GAP>> 
+<<GAP>> <<GAP>> <<GAP>> <<GAP>>
+ <<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>> 
+<<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>>
  <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
 <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>> ;
 ::: C1_55  :=  GEO: C1_1
-   MIX <<FMIX15501>> <<FMIX15502>> <<FMIX15503>> <<FMIX15504>> 
- <<GAP>>
- <<CLAD>>
+   MIX <<FMIX15501>>
+ <<FMIX15501>>
+ <<FMIX15501>>
+ <<FMIX15501>>
+ <<FMIX15501>>
+ <<FMIX15501>>
+ <<FMIX15501>>
+ <<FMIX15501>>
+ <<FMIX15502>>
+ <<FMIX15502>>
+ <<FMIX15502>>
+ <<FMIX15502>>
+ <<FMIX15502>>
+ <<FMIX15502>>
+ <<FMIX15502>>
+ <<FMIX15502>>
+ <<FMIX15503>>
+ <<FMIX15503>>
+ <<FMIX15503>>
+ <<FMIX15503>>
+ <<FMIX15503>>
+ <<FMIX15503>>
+ <<FMIX15503>>
+ <<FMIX15503>>
+ <<FMIX15504>>
+ <<FMIX15504>>
+ <<FMIX15504>>
+ <<FMIX15504>>
+ <<FMIX15504>>
+ <<FMIX15504>>
+ <<FMIX15504>>
+ <<FMIX15504>>
+ 
+ <<GAP>> <<GAP>> <<GAP>> <<GAP>> 
+<<GAP>> <<GAP>> <<GAP>> <<GAP>>
+ <<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>> 
+<<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>>
  <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
 <<COOL>> <<COOL>> <<COOL>> <<COOL>>
   <<COOL>> <<COOL>> <<COOL>> <<COOL>>

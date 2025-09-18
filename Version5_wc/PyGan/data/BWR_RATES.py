@@ -265,12 +265,13 @@ if __name__ == "__main__":
     name_case = "ATRIUM10"
     # geometry_type : choice of discretisation for flux calculation geometry.
     #geometry_type = "default" # "cool_ring_SECT40" # "default", "fine1", "corners1"
-    geometry_refinement_options = ["default", "fine1", "fine2", "coolant_ring", "finest_on_Gd_coolant_ring", "finest_on_Gd", "cool_ring_SECT40"] # "finest_geom", 
+    geometry_refinement_options = ["finest_geom"]#["default", "fine1", "fine2", "coolant_ring", "finest_on_Gd_coolant_ring", "finest_on_Gd", "cool_ring_SECT40"] # "finest_geom", 
     
     composition_option = "AT10_void_0"
     evaluation = "J311_295"
-    ssh_methods = ["RSE"]#, "PT"]
+    ssh_methods = ["PT"]#, "PT"]
     correlation_options = ["NOCORR"]#, "CORR"]
+    anisotropy_level = 2
 
     for geometry_type in geometry_refinement_options:
         if geometry_type in ["default", "fine1", "fine2", "coolant_ring"]:
@@ -278,7 +279,7 @@ if __name__ == "__main__":
             num_angles = 24
             line_density = 140.0
             batch = 750
-            CPO_name = f"CPO_n{num_angles}_ld{int(line_density)}_n8_ld25_TSPC_4_MOC_GAUS_4_{batch}_200"
+            
         elif geometry_type in ["finest_on_Gd", "finest_on_Gd_coolant_ring"]:
             refinement_opt_name = geometry_type
             num_angles = 24
@@ -287,16 +288,16 @@ if __name__ == "__main__":
                 batch = 2000
             elif geometry_type == "finest_on_Gd":
                 batch = 1000
-            CPO_name = f"CPO_n{num_angles}_ld{int(line_density)}_n8_ld25_TSPC_4_MOC_GAUS_4_{batch}_200"
         elif geometry_type in ["finest_geom", "cool_ring_SECT40"]:
             refinement_opt_name = geometry_type
             num_angles = 24
             line_density = 150.0
-            batch = 2000
+            batch = 6000
             if geometry_type == "cool_ring_SECT40":
                 ssh_methods = ["PT"]
                 batch = 3000
-            CPO_name = f"CPO_n{num_angles}_ld{int(line_density)}_n8_ld25_TSPC_4_MOC_GAUS_4_{batch}_200"
+        
+        CPO_name = f"CPO_n{num_angles}_ld{int(line_density)}_n8_ld25_TSPC_{anisotropy_level}_MOC_GAUS_4_{batch}_200"
         print(f"geometry_type : {geometry_type}, refinement_opt_name : {refinement_opt_name}, CPO_name = {CPO_name}")
         deltas = {}
         for ssh_method in ssh_methods:

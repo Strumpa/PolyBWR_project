@@ -30,8 +30,8 @@ STRING refl_type ;
 :: >>refl_type<< ; ! reflection type for tracking : "TSPC" or "TISO"
 INTEGER anis_level ;
 :: >>anis_level<< ; ! anisotropic level for tracking, e.g. 1, 2, 3, etc...
-STRING isMOC ;
-:: >>isMOC<< ; ! flag to indicate if MOC tracking is used, e.g. "MOC" or "CP"
+STRING sol_door ;
+:: >>sol_door<< ; ! flag to indicate if MOC tracking is used, e.g. "MOC" or "CP"
 STRING quad ;
 :: >>quad<< ; ! angular quadrature type for MOC tracking, e.g. "LCMD", "GAUS", "CACB" etc...
 INTEGER nmu ;
@@ -48,22 +48,44 @@ REAL densur := Ddensur D_TO_R ; ! DENSITY OF INTEGRATION LINES CM^-1
 
 * size allocation for MCCGT:
 INTEGER mcu := 50000 ;
+STRING eqw_opt ;
+IF refl_type "TSPC" = THEN
+  EVALUATE eqw_opt := "EQW2" ;
+ELSEIF refl_type "TISO" = THEN
+  EVALUATE eqw_opt := "EQW" ;
+ELSE
+  ECHO "Error in TRK_A_SALT.c2m : refl_type should be TSPC or TISO" ;
+ENDIF ;
 
 * ---
 * SALT TRACKING
 * ---
-Geo_G2S FIG.ps := G2S: GEOM :: EDIT 0 ;
+IF sol_door "IC" = THEN
+  Geo_G2S FIG.ps := G2S: GEOM :: EDIT 0 MACRO ;
+* IC tracking
+  TRACK TF_EXC := SALT: Geo_G2S ::
+    EDIT 1
+    ALLG 
+    BATCH <<batch>>
+    ANIS <<anis_level>>
+    <<refl_type>> <<eqw_opt>> <<num_ang>> <<densur>> REND
+    LONG 
+  ;
+ELSE
+  Geo_G2S FIG.ps := G2S: GEOM :: EDIT 0 ;
 
-TRACK TF_EXC := SALT: Geo_G2S ::
-  EDIT 1
-  ALLG 
-  BATCH <<batch>>
-  ANIS <<anis_level>>
-  <<refl_type>> EQW2 <<num_ang>> <<densur>> REND
-  LONG
-;
+  TRACK TF_EXC := SALT: Geo_G2S ::
+    EDIT 1
+    ALLG 
+    BATCH <<batch>>
+    <<quad>>
+    ANIS <<anis_level>>
+    <<refl_type>> <<eqw_opt>> <<num_ang>> <<densur>> REND
+    LONG
+  ;
+ENDIF ;
 
-IF isMOC "MOC" = THEN
+IF sol_door "MOC" = THEN
   * MOC tracking
   TRACK := MCCGT: TRACK TF_EXC ::
     EDIT 0
