@@ -155,7 +155,7 @@ postscript_file_ssh = "AT10_FIG_SSH.ps"
 
 # Parameters for the LIBRARY creation
 draglib_name = "J311_295" # "endfb8r1_295" # "J311_295"
-self_shielding_method = "RSE"  # Method to be used for self-shielding calculations, "PT" for Mathematical Probability Tables, "SUBG" for Physical Probaility tables, "RSE" for Resonant Spectrum Expansion.
+self_shielding_method = "PT"  # Method to be used for self-shielding calculations, "PT" for Mathematical Probability Tables, "SUBG" for Physical Probaility tables, "RSE" for Resonant Spectrum Expansion.
 resonance_correlation = "NOCORR"  # Specify if the resonance correlation model should be applied. Only available for "RSE" and "PT". This will use a correlation model to treat reonances of U238, Pu240 and Gd157.
 transport_correction = "NONE"
 composition_option = "AT10_void_0"  # Specify which composition of mixes should be used for the LIBRARY creation. For now "AT10_void_0" and "AT10_void_40" are available.
@@ -204,7 +204,7 @@ if exec:
 
     ###################################################### USS: : self-shielding calculations ##########################################
     # Perform the self-shielding calculations
-    lib_ssh = selfShieldingUSS(mix_numbering_option, lib_lcm, track_lcm_ssh, track_binary_ssh, name_geom, ssh_option, connectivity_dict)
+    lib_ssh = selfShieldingUSS(mix_numbering_option, lib_lcm, track_lcm_ssh, track_binary_ssh, name_geom, ssh_option, solution_door_ssh,connectivity_dict)
     # Time taken for self-shielding calculations
     time_self_shielding = time.time() - current_time
     current_time = time.time()
