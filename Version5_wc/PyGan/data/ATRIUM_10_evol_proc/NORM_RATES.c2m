@@ -1,0 +1,52 @@
+********************************************************************************************************************
+*                                                                                                                  *
+* Procedure :  NORM_RATES.c2m                                                                                      *
+* Purpose   :  Reaction rates normalisation in depletion calculations                                              *
+* Author    :  R.Guasch                                                                                            *
+*                                                                                                                  *
+
+PARAMETER LIBRARY2 BURNUP FLUX TRACK ::
+::: LINKED_LIST LIBRARY2 ; 
+::: LINKED_LIST BURNUP ;
+::: LINKED_LIST FLUX ;
+::: LINKED_LIST TRACK ; ;
+
+DOUBLE DBUbeg ;
+:: >>DBUbeg<<  ;
+DOUBLE DSpec_pow ;
+:: >>DSpec_pow<<  ;
+
+STRING rates_extr ;
+:: >>rates_extr<< ; 
+
+REAL BUbeg Tbeg Spec_pow ;
+EVALUATE BUbeg := DBUbeg D_TO_R ; ! convert double to real
+ECHO "Normalization at" BUbeg "MWd/kgU" ;
+EVALUATE Spec_pow := DSpec_pow D_TO_R ; ! convert double to real
+ECHO "Normalization at specific power" Spec_pow "MW/t" ;
+EVALUATE Tbeg := BUbeg Spec_pow / ; ! time in days
+ECHO "Normalization at time" Tbeg "days" ;
+
+MODULE  EVO: END: ;
+
+************************************************************************
+*                 BEGIN REACTION RATES NORMALIZATION                   *
+************************************************************************
+IF BUbeg 0.0 = THEN
+  BURNUP LIBRARY2 := EVO: LIBRARY2 FLUX TRACK ::
+    EDIT 1
+    SAVE <<Tbeg>> DAY POWR <<Spec_pow>> <<rates_extr>>
+  ;
+ELSE
+  BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX TRACK ::
+    EDIT 1
+    SAVE <<Tbeg>> DAY POWR <<Spec_pow>> <<rates_extr>>
+  ;
+ENDIF ;
+
+************************************************************************
+*                 END REACTION RATES NORMALIZATION                     *
+************************************************************************
+  
+END: ;
+QUIT .

@@ -10,24 +10,39 @@
 * ---
 * INPUT & OUTPUT PARAMETERS
 * ---
-PARAMETER FLUX TRACK TF_EXC LIBRARY2 ::
+PARAMETER FLUX SYS TRACK TF_EXC LIBRARY2  ::
 ::: LINKED_LIST FLUX ;
+::: LINKED_LIST SYS ;
 ::: LINKED_LIST TRACK ;
 ::: SEQ_BINARY TF_EXC ;
 ::: LINKED_LIST LIBRARY2 ; ;
-
-MODULE ASM: FLU: GREP: END: ;
-LINKED_LIST SYS ;
-REAL Kinf ;
 * ---
-SYS := ASM: LIBRARY2 TRACK TF_EXC :: ARM EDIT 1 ; 
+INTEGER BU ;
+:: >>BU<< ; ! Current burnup in MWd/kgU
 
-FLUX := FLU: LIBRARY2 SYS TRACK TF_EXC :: 
-            EDIT 1 TYPE K  
-    ;
+MODULE ASM: FLU: GREP: DELETE: END: ;
+REAL Kinf ;
+
+IF BU 0 = THEN
+* ---
+    SYS := ASM: LIBRARY2 TRACK TF_EXC :: ARM EDIT 1 ; 
+
+    FLUX := FLU: LIBRARY2 SYS TRACK TF_EXC :: 
+                EDIT 1 TYPE K  
+        ;
+* ---
+ELSE
+* ---
+    SYS := ASM: SYS LIBRARY2 TRACK TF_EXC :: ARM EDIT 1 ;
+    FLUX := FLU: LIBRARY2 SYS TRACK TF_EXC FLUX :: 
+                EDIT 1 TYPE K
+        ;
+* ---
+ENDIF ;
 GREP: FLUX :: GETVAL 'K-INFINITY  ' 1 1 1 >>Kinf<< ;
 
 ECHO "MOC_K_noL.c2m : K-infinity = " Kinf ;
+* ---
 
 * END OF MOC_K_noL.c2m
 END: ;

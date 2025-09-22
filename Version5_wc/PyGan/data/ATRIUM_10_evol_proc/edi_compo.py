@@ -9,7 +9,7 @@ import numpy as np
 import os
 
 # mix_numbering_option, flux_lcm, lib_ssh, track_lcm, name_compo, save_option="SAVE", mix_connectivity_dict=connectivity_dict
-def ediCompo(mix_numbering_option, flux_lcm, self_shielded_microlib, track_lcm, name_compo, save_option, mix_connectivity_dict=None):
+def ediCompoRates(compo_lcm, flux_lcm, self_shielded_microlib, track_lcm, burnup_lcm, BU):
     """
     This function prepares a DRAGON5 EDI: and COMPO: procedure call.
     It handles the composition and cross-section data for the ATRIUM-10 BWR fuel assembly.
@@ -35,74 +35,31 @@ def ediCompo(mix_numbering_option, flux_lcm, self_shielded_microlib, track_lcm, 
         LCM object containing the composition results.
     """
     
-    if mix_numbering_option == "number_mix_families_per_enrichment":
-        # Initialize the LIFO stack for EDI: and COMPO: procedure
-        ipLifo = lifo.new()
+    proc_name = 'EDICPO_R.c2m'
+
+    # Initialize the LIFO stack for EDI: and COMPO: procedure
+    ipLifo = lifo.new()
+    # Push necessary data onto the LIFO stack
+    if BU > 0:
+        ipLifo.push(compo_lcm)  # Push previous composition data for burnup > 0
+    else:
+        ipLifo.pushEmpty("COMPORATES", "LCM")
+    ipLifo.push(flux_lcm)
+    ipLifo.push(self_shielded_microlib)
+    ipLifo.push(track_lcm)
+    ipLifo.push(burnup_lcm)
+    ipLifo.push(BU)  # Burnup step in MWd/tU
+
+    # Create a cle2000 object to handle the EDI: and COMPO: procedure call
+    edi_compo_proc = cle2000.new(proc_name.split(".")[0], ipLifo, 1)
+    # Execute the EDI_COMPO procedure
+    edi_compo_proc.exec()
+    # Recover the results from the LIFO stack
+    ipLifo.lib()
+    compo_lcm = ipLifo.node('COMPORATES')
         
-        # Push necessary data onto the LIFO stack
-        """
-        PARAMETER COMPO FLUX LIBRARY2 TRACK ::
-        ::: LINKED_LIST COMPO ;
-        ::: LINKED_LIST FLUX ;
-        ::: LINKED_LIST LIBRARY2 ;
-        ::: LINKED_LIST TRACK ; ;
-        STRING name_cpo save_opt ;
-        :: >>name_cpo<< >>save_opt<< ;
-        """
-        ipLifo.pushEmpty("COMPO", "LCM")
-        ipLifo.push(flux_lcm)
-        ipLifo.push(self_shielded_microlib)
-        ipLifo.push(track_lcm)
-        ipLifo.push(name_compo)
-        ipLifo.push(save_option)  # Save option for the composition data
+    return compo_lcm
 
-        # Create a cle2000 object to handle the EDI: and COMPO: procedure call
-        edi_compo_proc = cle2000.new('EDICPO1', ipLifo, 1)
-        
-        # Execute the EDI_COMPO procedure
-        edi_compo_proc.exec()
-
-        # Recover the results from the LIFO stack
-        ipLifo.lib()
-        compo_lcm = ipLifo.node('COMPO')
-
-        return compo_lcm
-    
-    elif mix_numbering_option == "number_mix_families_per_region":
-        # Create the EDICPO_R procedure for region-based numbering
-        proc_name = 'EDICPO_R.c2m'
-        # Fill the procedure with the necessary parameters
-        fill_edi_compo_proc(proc_name, mix_numbering_option, mix_connectivity_dict, iso_list=["U235", "U238", "U234", "Gd155", "Gd157"])
-        os.chmod(proc_name, 0o755)  # Make the procedure executable
-
-        # Initialize the LIFO stack for EDI: and COMPO: procedure
-        ipLifo = lifo.new()
-        # Push necessary data onto the LIFO stack
-        """
-        PARAMETER COMPO FLUX LIBRARY2 TRACK ::
-        ::: LINKED_LIST COMPO ;
-        ::: LINKED_LIST FLUX ;
-        ::: LINKED_LIST LIBRARY2 ;
-        ::: LINKED_LIST TRACK ; ;
-        STRING name_cpo save_opt ;
-        :: >>name_cpo<< >>save_opt<< ; 
-        """
-        ipLifo.pushEmpty("COMPO", "LCM")
-        ipLifo.push(flux_lcm)
-        ipLifo.push(self_shielded_microlib)
-        ipLifo.push(track_lcm)
-        ipLifo.push(name_compo)
-        ipLifo.push(save_option)  # Save option for the composition data
-
-        # Create a cle2000 object to handle the EDI: and COMPO: procedure call
-        edi_compo_proc = cle2000.new(proc_name.split(".")[0], ipLifo, 1)
-        # Execute the EDI_COMPO procedure
-        edi_compo_proc.exec()
-        # Recover the results from the LIFO stack
-        ipLifo.lib()
-        compo_lcm = ipLifo.node('COMPO')
-        
-        return compo_lcm
 
 def fill_edi_compo_proc(proc_name, mix_numbering_option, mix_connectivity_dict, iso_list):
     """
@@ -196,6 +153,7 @@ def fill_edi_compo_proc(proc_name, mix_numbering_option, mix_connectivity_dict, 
         proc_file.write(edi_cpo_proc)
     proc_file.close()
     return
+
 
 def initialize_cpo(mix_numbering_option, list_isos):
     """
@@ -329,3 +287,61 @@ def fill_COMPO_call(DIRNAME):
     ";\n"
     )
     return compo_call.strip()
+
+
+def ediCompoBU(compo_bu_lcm, flux_lcm, self_shielded_microlib, track_lcm, burnup_lcm, BU):
+    """
+    This function prepares a DRAGON5 EDI: and COMPO: procedure call specifically for burnup calculations.
+    """
+    
+    # Call EDICPO_BU procedure
+    # Initialize the LIFO stack
+    ipLifo = lifo.new()
+    # Push necessary data onto the LIFO stack
+    if BU > 0:
+        ipLifo.push(compo_bu_lcm)
+    else:
+        ipLifo.pushEmpty("COMPOBU", "LCM")
+    ipLifo.push(flux_lcm)
+    ipLifo.push(self_shielded_microlib)
+    ipLifo.push(track_lcm)
+    ipLifo.push(burnup_lcm)
+    ipLifo.push(BU)  # Burnup step in MWd/tU
+    
+    # Create a cle2000 object to handle the EDI: and COMPO: procedure call
+    edi_compo_proc = cle2000.new('EDICPO_BU', ipLifo, 1)
+    # Execute the EDI_COMPO procedure
+    edi_compo_proc.exec()
+    # Recover the results from the LIFO stack
+    ipLifo.lib()
+    compo_bu_lcm = ipLifo.node('COMPOBU')
+    # Clear stack before next execution
+    while ipLifo.getMax() > 0:
+        ipLifo.pop();
+    
+    return compo_bu_lcm
+
+def saveCpoToFile(compo_bu_lcm, compo_rates_lcm, file_name_cpo_bu, file_name_cpo_rates):
+    """
+    Save the composition LCM object to a file in ASCII format.
+    Parameters:
+    ----------
+    compo_lcm : lcm object
+        LCM object containing the composition data.
+    file_name : str
+        Name of the file to save the composition data.
+    """
+    # Save compo_bu_lcm to file
+    myLifo = lifo.new()
+    myLifo.push(compo_bu_lcm)
+    myLifo.push(compo_rates_lcm)
+    myLifo.push(file_name_cpo_bu)
+    myLifo.push(file_name_cpo_rates)
+    
+    save_proc = cle2000.new('SAVE_CPOS', myLifo, 1)
+    save_proc.exec()
+    # Clear stack
+    while myLifo.getMax() > 0:
+        myLifo.pop();
+        
+    return

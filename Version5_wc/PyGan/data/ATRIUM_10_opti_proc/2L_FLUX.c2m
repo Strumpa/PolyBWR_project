@@ -1,0 +1,87 @@
+* 2L_FLUX.c2m deck
+* This procedure is used to run a 2-level flux calculation given :
+*   For each level :
+*     - a SALT tracking data structure (TRACK)
+*     - a binary tracking file containing track lengths (TF_EXC)
+*   and :
+*     - a library LCM object containing the self-shielded cross sections (LIBRARY2)
+*     
+* NOTE : NO leakage model is applied in this procedure.
+* This procedure returns a FLUX LCM object containing the results of the 2-level flux calculation.
+
+
+* ---
+* INPUT & OUTPUT PARAMETERS
+* ---
+PARAMETER FLUX LIBEQ TRACK TF_EXC TRACK_L1 TF_EXC_L1 LIBRARY2 ::
+::: LINKED_LIST FLUX ;
+::: LINKED_LIST LIBEQ ;
+::: LINKED_LIST TRACK ;
+::: SEQ_BINARY TF_EXC ;
+::: LINKED_LIST TRACK_L1 ;
+::: SEQ_BINARY TF_EXC_L1 ;
+::: LINKED_LIST LIBRARY2 ; ;
+* ---
+* Parameters for 1st-level solution
+* ---
+STRING sol_door ;
+:: >>sol_door<< ; ! choice of method identifying spatial solution used for first-level calculation : 
+            ! - "IC" for multicell-interface currents method using the G2S: + SALT: surfacic formalism
+            ! - "PIJ" for full PIJ
+
+* ---
+* STRUCTURES AND MODULES
+* ---
+
+MODULE ASM: FLU: GREP: EDI: SPH: DELETE: END: ;
+LINKED_LIST SYS FLUX EDITION ;
+
+REAL Kinf ;
+
+* ---
+* 1st LEVEL FLUX CALCULATION
+* ---
+IF sol_door "PIJ" = THEN
+    SYS := ASM: LIBRARY2 TRACK_L1 TF_EXC_L1 :: PIJ EDIT 1 ;
+ELSEIF sol_door "IC" = THEN
+    SYS := ASM: LIBRARY2 TRACK_L1 TF_EXC_L1 :: ARM EDIT 1 ; 
+ENDIF ;
+
+FLUX_L1 := FLU: LIBRARY2 SYS TRACK_L1 TF_EXC_L1 ::
+            EDIT 1 TYPE K B1 SIGS
+    ;
+GREP: FLUX_L1 :: GETVAL 'K-INFINITY  ' 1 1 1 >>Kinf<< ;
+
+ECHO "FOR 1st LEVEL FLUX CALCULATION WITH SOLUTION DOOR = " sol_door "--> K-infinity = " Kinf ;
+
+* ---
+* CONDENSATION OF 1st LEVEL FLUX on 295 energry groups to 26 energy groups
+* ---
+
+EDITION := EDI: FLUX_L1 LIBRARY2 TRACK_L1 ::
+    EDIT 0
+    MICR ALL
+    !MERG MIX
+    COND  10  14  18  26  33  40  49  56  66 84 150 210 241 244 247
+    252 255 258 261 268 273 277 281 286 291
+    SAVE ON COND26 
+;
+
+LIBEQ := EDITION :: STEP UP COND26 ;
+
+LIBEQ := SPH: LIBEQ TRACK_L1 TF_EXC_L1 :: EDIT 10 ;
+
+
+FLUX_L1 SYS EDITION := DELETE: FLUX_L1 SYS EDITION ;
+
+* ---
+* 2nd LEVEL FLUX CALCULATION
+* ---
+SYS := ASM: LIBEQ TRACK TF_EXC :: ARM EDIT 1 ;
+
+FLUX := FLU: LIBEQ SYS TRACK TF_EXC ::
+      EDIT 1 TYPE K 
+    ;
+
+END: ;
+QUIT .

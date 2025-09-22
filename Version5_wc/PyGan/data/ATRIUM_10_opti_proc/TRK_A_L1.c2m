@@ -14,11 +14,11 @@
 * ---
 * INPUT & OUTPUT PARAMETERS
 * ---
-PARAMETER TRACK_SSH  TF_EXC_SSH  GEOMSSH  SSH_FIG.ps ::
-::: LINKED_LIST TRACK_SSH ;
-::: SEQ_BINARY TF_EXC_SSH ;
-::: LINKED_LIST GEOMSSH ;
-::: SEQ_ASCII SSH_FIG.ps ; ;
+PARAMETER TRACK_L1  TF_EXC_L1  GEOML1  FIG_L1.ps ::
+::: LINKED_LIST TRACK_L1 ;
+::: SEQ_BINARY TF_EXC_L1 ;
+::: LINKED_LIST GEOML1 ;
+::: SEQ_ASCII FIG_L1.ps ; ;
 * ---
 * RECOVER TRACKING PARAMTERES
 * ---
@@ -48,29 +48,25 @@ REAL densur := Ddensur D_TO_R ; ! DENSITY OF INTEGRATION LINES CM^-1
 * ---
 IF sol_door "PIJ" = THEN
 
-  Geo_G2S SSH_FIG.ps := G2S: GEOMSSH :: EDIT 0 ;
+  Geo_G2S FIG_L1.ps := G2S: GEOML1 :: EDIT 0 ;
 
-  TRACK_SSH TF_EXC_SSH := SALT: Geo_G2S ::
+  TRACK_L1 TF_EXC_L1 := SALT: Geo_G2S ::
     EDIT 1
     BATCH <<batch>>
     <<refl_type>> EQW2 <<num_ang>> <<densur>>
-    MERGMIX
   ;
-
 ELSEIF sol_door "IC" = THEN
-  
-  Geo_G2S SSH_FIG.ps := G2S: GEOMSSH :: EDIT 0 MACRO ;
 
-  TRACK_SSH TF_EXC_SSH := SALT: Geo_G2S ::
-    EDIT 1
-    TITLE "MULTICELL SURFACIC ATRIUM-10 CASE - self-shielding"
-    BATCH <<batch>>
-    TISO EQW <<num_ang>> <<densur>>
-    IC EPSJ 1.0E-5
+  Geo_G2S FIG_L1.ps := G2S: GEOML1 :: EDIT 0 MACRO ;
+
+  TRACK_L1 TF_EXC_L1 := SALT: Geo_G2S ::
+      EDIT 6
+      TITLE "MULTICELL SURFACIC ATRIUM-10 CASE = 1st LEVEL"
+      BATCH <<batch>>
+      TISO EQW <<num_ang>> <<densur>>
+      IC EPSJ 1.0E-5
   ;
-
 ENDIF ;
-
 
 END: ;
 QUIT .

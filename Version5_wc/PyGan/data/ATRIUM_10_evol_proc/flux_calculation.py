@@ -8,7 +8,7 @@ import lcm
 import cle2000
 import lifo 
 
-def fluxCalculationMOC(track_lcm, track_binary, self_shielded_microlib):
+def fluxCalculationMOC(track_lcm, track_binary, self_shielded_microlib, flux_lcm=None, sys_lcm=None, burnup_point=0.0):
     """
     This function prepares a DRAGON5 MOC eigenvalue calculation.
     An option to include leakage model calculation is to be implemented.
@@ -20,6 +20,10 @@ def fluxCalculationMOC(track_lcm, track_binary, self_shielded_microlib):
         Sequential binary tracking file containing the tracks lengths.
     self_shielded_microlib : (lcm object)
         LCM object containing the self-shielded cross sections library.
+    flux_lcm : (lcm object)
+        LCM object containing the flux calculation results from a previous calculation, if None a new one will be created.
+    burnup_point : (float)
+        Current burnup point in MWd/kgU, used to check if BU>0 to use previous flux as initial guess.
     
         
     Returns:
@@ -34,10 +38,18 @@ def fluxCalculationMOC(track_lcm, track_binary, self_shielded_microlib):
 
     # Run MOC_K_noL.c2m procedure
     ipLifo = lifo.new()
-    ipLifo.pushEmpty("FLUX", "LCM")
+    if flux_lcm is None:
+        ipLifo.pushEmpty("FLUX", "LCM")
+    else:
+        ipLifo.push(flux_lcm)
+    if sys_lcm is None:
+        ipLifo.pushEmpty("SYS", "LCM")
+    else:
+        ipLifo.push(sys_lcm)
     ipLifo.push(track_lcm)
     ipLifo.push(track_binary)
     ipLifo.push(self_shielded_microlib)
+    ipLifo.push(int(burnup_point))
     # Create a cle2000 object to handle the flux calculation
     moc_proc = cle2000.new('MOC_K_NOL', ipLifo, 1)
     # Execute the MOC calculation procedure
@@ -46,9 +58,13 @@ def fluxCalculationMOC(track_lcm, track_binary, self_shielded_microlib):
     # Recover the results from the LIFO stack
     ipLifo.lib()
     flux_lcm = ipLifo.node('FLUX')
+    sys_lcm = ipLifo.node('SYS')
     keff = flux_lcm["K-EFFECTIVE"][0] 
+    ## Clear stack
+    while ipLifo.getMax() > 0:
+        ipLifo.pop();
 
-    return keff, flux_lcm
+    return keff, flux_lcm, sys_lcm
 
 
 def fluxCalculationPIJ(track_lcm, track_binary, self_shielded_microlib):

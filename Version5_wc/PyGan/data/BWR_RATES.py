@@ -27,7 +27,7 @@ from typing import List, Union
 import serpentTools as st
 from serpentTools.settings import rc
 from Serpent2_parsing import parse_S2_ASSBLY_rates, parse_Serpent2_material_det, parse_Serpent2_lattice_det, parse_S2_ASSBLY_rates_lat_det, parse_S2_pin_mat_det
-from Dragon5_cpo_parsing import parse_DRAGON_rates_enrich_num, parse_DRAGON_DIAG_rates_regi_num
+from Dragon5_cpo_parsing import parse_DRAGON_rates_enrich_num, parse_DRAGON_DIAG_rates_regi_num, parse_DRAGON_SCHEME
 from plotters import plot_errors_BWR_assembly,  plot_BWR_assembly, plot_pinwise_errors_BWR_assembly
 
 matplotlib.use('Agg')
@@ -258,10 +258,12 @@ def compute_diff_rates(D5_rates, S2_rates):
     return delta_rates
 # Execute post treatment procedure
 
-
-if __name__ == "__main__":
-
-    #### ATRIUM-10 assembly
+def analyze_main_flux_geometry_refinement():
+    """
+    Analyze the impact of geometry refinement on flux and rates accuracy for a BWR assembly.
+    Compares Dragon5 results with Serpent2 reference.
+    """
+#### ATRIUM-10 assembly
     name_case = "ATRIUM10"
     # geometry_type : choice of discretisation for flux calculation geometry.
     #geometry_type = "default" # "cool_ring_SECT40" # "default", "fine1", "corners1"
@@ -269,7 +271,7 @@ if __name__ == "__main__":
     
     composition_option = "AT10_void_0"
     evaluation = "J311_295"
-    ssh_methods = ["PT"]#, "PT"]
+    ssh_methods = ["RSE"]#, "PT"]
     correlation_options = ["NOCORR"]#, "CORR"]
     anisotropy_level = 2
 
@@ -298,6 +300,7 @@ if __name__ == "__main__":
                 batch = 3000
         
         CPO_name = f"CPO_n{num_angles}_ld{int(line_density)}_n8_ld25_TSPC_{anisotropy_level}_MOC_GAUS_4_{batch}_200"
+        CPO_name = "CPO_n24_ld150_n8_ld25_TSPC_2_MOC_GAUS_4_6000_200"
         print(f"geometry_type : {geometry_type}, refinement_opt_name : {refinement_opt_name}, CPO_name = {CPO_name}")
         deltas = {}
         for ssh_method in ssh_methods:
@@ -353,3 +356,84 @@ if __name__ == "__main__":
 
 
         print(deltas)
+        
+def analyze_computational_schemes():
+    """
+    Analyze the impact of different computational schemes on flux and rates accuracy for a BWR assembly.
+    Compares Dragon5 results with Serpent2 reference.
+    """
+    fission_isotopes = ["U235", "U238"]
+    #### ATRIUM-10 assembly
+    computational_schemes = ["1L_MOC", "2L_PIJ_MOC", "2L_IC_MOC"]
+    name_case = "ATRIUM10"
+    geometry_type = "finest_geom" # "cool_ring_SECT40" # "default", "fine1", "corners1"
+    composition_option = "AT10_void_0"
+    evaluation = "J311_295"
+    ssh_methods = ["PT"]
+    ssh_sol_doors = ["IC", "PIJ"]
+    correlation_option = "NOCORR"
+    anisotropy_level = 4
+    num_angles = 24
+    line_density = 150.0
+    batch = 3000
+    refinement_opt_name = geometry_type
+    deltas = {}
+    
+    for computational_scheme in computational_schemes:
+        if computational_scheme not in deltas.keys():
+            deltas[computational_scheme] = {}
+        for ssh_method in ssh_methods:
+            for ssh_sol in ssh_sol_doors:
+                if f"{ssh_method}_{ssh_sol}" not in deltas[computational_scheme].keys():
+                    deltas[computational_scheme][f"{ssh_method}_{ssh_sol}"] = {}
+                CPO_name = f"CPO_n{num_angles}_ld{int(line_density)}_n8_ld25_TSPC_{anisotropy_level}_{ssh_sol}_MOC_GAUS_4_{batch}_200"
+                keff_D5, fiss_rates_D5, n_gamma_rates_D5, FLUX_295groups_D5 = parse_DRAGON_SCHEME(name_case, CPO_name, composition_option, evaluation, ssh_method, correlation_option, geometry_type, fission_isotopes , n_gamma_isotopes = ["U238", "Gd155", "Gd157"], bu=0, computational_scheme=computational_scheme)
+                keff_S2, fission_rates_S2, ngamma_rates_S2 = parse_S2_pin_mat_det(name_case="ATRIUM10_pin", XS_lib_S2="jeff311_pynjoy2016", fission_isotopes=fission_isotopes, ngamma_isotopes=["U238", "Gd155", "Gd157"], bu=0)
+
+
+                print(fission_rates_S2)
+                # Normalise to nCells = 49 cells with fissile material.
+                fiss_rates_D5[0] =  fiss_rates_D5[0] * 49 / np.sum(fiss_rates_D5[0])
+                fission_rates_S2[0] = fission_rates_S2[0] * 49 / np.sum(fission_rates_S2[0])
+                fiss_rates_D5[1] =  fiss_rates_D5[1] * 49 / np.sum(fiss_rates_D5[1])
+                fission_rates_S2[1] = fission_rates_S2[1] * 49 / np.sum(fission_rates_S2[1])
+
+                delta_therm = fiss_rates_D5[0] - fission_rates_S2[0]
+                delta_fast = fiss_rates_D5[1] - fission_rates_S2[1]
+                
+                delta_rel_therm = [(fiss_rates_D5[0][i] - fission_rates_S2[0][i])*100 / fission_rates_S2[0][i] if fission_rates_S2[0][i]!=0 else 0.0 for i in range(len(fission_rates_S2[0]))]
+                delta_rel_fast = [(fiss_rates_D5[1][i] - fission_rates_S2[1][i])*100 / fission_rates_S2[1][i] if fission_rates_S2[1][i]!=0 else 0.0 for i in range(len(fission_rates_S2[1]))]
+
+                print(f"For geometry name : {geometry_type}")
+                print(f"For computational scheme : {computational_scheme}, ssh solution door : {ssh_sol}")
+                print(f"keff_D5 = {keff_D5}, keff_S2 = {keff_S2}")
+                delta_keff = (keff_D5 - keff_S2)*1e5
+                print(f"error (D5-S2) on keff = {delta_keff:.1f}")
+                deltas[computational_scheme][f"{ssh_method}_{ssh_sol}"]["keff"] = delta_keff
+
+                # Compute RMS, MAX and AVG errors on fission rates
+                rms_therm = np.sqrt(np.mean(np.array(delta_rel_therm)**2))
+                rms_fast = np.sqrt(np.mean(np.array(delta_rel_fast)**2))
+                avg_therm = np.mean(np.abs(np.array(delta_rel_therm)))
+                avg_fast = np.mean(np.abs(np.array(delta_rel_fast)))
+                max_therm = np.max(np.abs(np.array(delta_rel_therm)))
+                max_fast = np.max(np.abs(np.array(delta_rel_fast)))
+                print(f"RMS errors on fission rates (thermal, fast) = {rms_therm:.2f} %, {rms_fast:.2f} %")
+                print(f"AVG errors on fission rates (thermal, fast) = {avg_therm:.2f} %, {avg_fast:.2f} %")
+                print(f"MAX errors on fission rates (thermal, fast) = {max_therm:.2f} %, {max_fast:.2f} %")
+                deltas[computational_scheme][f"{ssh_method}_{ssh_sol}"]["rms_therm"] = rms_therm
+                deltas[computational_scheme][f"{ssh_method}_{ssh_sol}"]["avg_therm"] = avg_therm
+                deltas[computational_scheme][f"{ssh_method}_{ssh_sol}"]["max_therm"] = max_therm
+                deltas[computational_scheme][f"{ssh_method}_{ssh_sol}"]["rms_fast"] = rms_fast
+                deltas[computational_scheme][f"{ssh_method}_{ssh_sol}"]["avg_fast"] = avg_fast
+                deltas[computational_scheme][f"{ssh_method}_{ssh_sol}"]["max_fast"] = max_fast
+                
+
+                plot_pinwise_errors_BWR_assembly(np.array([delta_rel_therm,delta_rel_fast]), name_case, CPO_name, calculation_opt = f"{computational_scheme}_{geometry_type}_{ssh_method}_{ssh_sol}_{correlation_option}", fig_name="Total_fission_rates_diff")
+    print(deltas)
+
+if __name__ == "__main__":
+
+
+    #analyze_main_flux_geometry_refinement()
+    analyze_computational_schemes()

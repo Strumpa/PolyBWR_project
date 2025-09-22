@@ -10,7 +10,7 @@ import lifo
 import cle2000
 from mix_handling import cle2000_variable_declaration
 
-def selfShieldingUSS(mix_numbering_option, microlib, track_lcm, track_binary, name_geom, ssh_option, mix_connectivity_dict=None):
+def selfShieldingUSS(mix_numbering_option, microlib, ssh_microlib, track_lcm, track_binary, name_geom, ssh_option, solver, burnup_point, mix_connectivity_dict=None):
     """
     Parameters:
     ----------
@@ -46,7 +46,10 @@ def selfShieldingUSS(mix_numbering_option, microlib, track_lcm, track_binary, na
         # Use mixAUTOP1.c2m procedure
         print("Creating self-shielded library with mix numbering per enrichment.")
         ipLifo = lifo.new() 
-        ipLifo.pushEmpty("LIBRARY2", "LCM")
+        if ssh_microlib is None or burnup_point == 0.0:
+            ipLifo.pushEmpty("LIBRARY2", "LCM")
+        else:
+            ipLifo.push(ssh_microlib) # for burnup > 0, need to push the previous self-shielded library here
         ipLifo.push(microlib)
         ipLifo.push(track_lcm)
         ipLifo.push(track_binary)
@@ -67,15 +70,20 @@ def selfShieldingUSS(mix_numbering_option, microlib, track_lcm, track_binary, na
     elif mix_numbering_option == "number_mix_families_per_region":
         # Create the self sheilding procedure based on mix numbering definition
         print("Creating self-shielded library with mix numbering per region.")
-        proc_name = "SSH_R_A.c2m"
+        proc_name = "SSH_BU.c2m"
 
-        fill_ssh_proc(proc_name, mix_connectivity_dict, mix_numbering_option, ssh_option)
+        #fill_ssh_proc(proc_name, mix_connectivity_dict, mix_numbering_option, ssh_option)
 
         ipLifo = lifo.new() 
-        ipLifo.pushEmpty("LIBRARY2", "LCM")
+        if burnup_point == 0.0:
+            ipLifo.pushEmpty("LIBRARY2", "LCM")
+        else:
+            ipLifo.push(ssh_microlib) # for burnup > 0, need to push the previous self-shielded library here
         ipLifo.push(microlib)
         ipLifo.push(track_lcm)
         ipLifo.push(track_binary)
+        ipLifo.push(solver)
+        ipLifo.push(int(burnup_point)) # push current burnup point
 
         # Create a cle2000 object to handle the library creation
         uss_proc = cle2000.new(proc_name.split(".")[0], ipLifo, 1)
@@ -85,6 +93,11 @@ def selfShieldingUSS(mix_numbering_option, microlib, track_lcm, track_binary, na
         # Recover the results from the LIFO stack
         ipLifo.lib()
         library_ssh = ipLifo.node('LIBRARY2')
+        # Clear stack 
+        while ipLifo.getMax() > 0:
+            ipLifo.pop();
+
+        # return the self-shielded library
 
         return library_ssh
     
@@ -147,10 +160,16 @@ def fill_ssh_proc(file_name, mix_connectivity_dict, mix_numbering_option, ssh_op
         file.write(ssh_proc)
     file.close()    
     
-def fill_uss_call(ssh_option, iter_pass = 3, max_st_iter = 50, solver="PIJ"):
+def fill_uss_call(ssh_option, solution_door, iter_pass = 3, max_st_iter = 50):
     """
     define call to USS: module for self-shielding calculations.
     """
+    if solution_door not in ["PIJ", "IC"]:
+        raise ValueError("Invalid solution door option selected.")
+    if solution_door == "PIJ":
+        solver = "PIJ"
+    elif solution_door == "IC":
+        solver = "ARM"
     if ssh_option == "default":
         uss_call = (
         "LIBRARY2 := USS: LIBRARY TRACK_SS TF_SS_EXC ::\n"
