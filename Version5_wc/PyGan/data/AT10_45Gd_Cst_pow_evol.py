@@ -54,7 +54,7 @@ tracking_option = "SALT" #, "SYBNXT"
 # ENDFb8r1_295 or J311_295
 #
 evaluation = "J311" # Jeff3.1.1 or ENDF/B-VIII.1
-draglibs_to_test = ["J311_295", "J311_295K", "J311_295E0"] # "endfb8r1_295", "endfb81295K" : with total KERMA (MT301), "endfb81295K2" : with modified KERMA (MT301-MT318)+MT458 data.
+draglibs_to_test = ["J311_295E0"]#, "J311_295", "J311_295K", ] # "endfb8r1_295", "endfb81295K" : with total KERMA (MT301), "endfb81295K2" : with modified KERMA (MT301-MT318)+MT458 data.
 
 # 3) Selecting the self-shielding method
 # RSE, PT or AUTO

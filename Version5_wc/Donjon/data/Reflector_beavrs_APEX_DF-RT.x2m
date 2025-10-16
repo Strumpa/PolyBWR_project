@@ -50,9 +50,10 @@ Param := UTL: :: CREA PARAMVALU 1 = 975.
 UTL: Param :: DUMP ;
 
 INTEGER nlf := 1 ;
+EVALUATE nbZones := nbZones 1 - ; ! decreases nbZones by one
 ApexRefl := REFL_APEX Geom FVol Param :: <<nameFeed>> <<nameRefl>> <<Palier>> <<htype>>
                             <<nlf>> <<LibType>> <<NuclData>> <<OptSph>> <<OptNoal>>
-                            <<OptSS>> ;
+                            <<OptSS>> <<nbZones>> ;
 
 ************************************************************************
 * APEX extrapolation of the reflector at 350 ppm Boron

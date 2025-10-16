@@ -34,7 +34,7 @@ LIBEQ := SPH: LIBEQ TRACKLVL1 TF_EXC_L1 :: EDIT 10 ;
 *----
 *  DELETE intermediate LCM objects
 *----
-EDITION FLUXLVL1 := DELETE: EDITION FLUXLVL1 ;
+EDITION := DELETE: EDITION ;
 *----
 *  End of procedure
 *----

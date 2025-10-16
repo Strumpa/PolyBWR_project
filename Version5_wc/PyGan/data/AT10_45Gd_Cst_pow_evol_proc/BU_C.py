@@ -34,6 +34,7 @@ def BU_C(namCOMPO, pyMIX, pyTRACK, pyTF_EXC, pyTRACK_SS, pyTF_EXC_SS, StepList, 
     myLifo.lib()
     # Execution 
     if edep_mode == "edep0":
+        print(f"edep_mode = {edep_mode}, running EDP0 version of BU_C")
         calcBWR = cle2000.new('BU_C_E0',myLifo,1)
         calcBWR.exec()
     else:

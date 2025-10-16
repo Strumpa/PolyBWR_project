@@ -209,27 +209,25 @@
           CALL LCMLEN(KPMAC,'H-FACTOR',LENGT,ITYLCM)
           IF(LENGT.GT.0) THEN
             CALL LCMGET(KPMAC,'H-FACTOR',SGD)
+            SGD(:NMIX)=SGD(:NMIX)*REAL(EVJ*1.0D-6) ! convert eV to MW
           ELSE
-            ! assume 2.5 n and 200 MeV per fission
             WRITE(6,'(/44H VAL: *** WARNING *** NO H-FACTOR FOUND ON L,
      1      24HCM. USE NU*SIGF INSTEAD.)')
             ALLOCATE(ZUFIS(NMIX,NBFIS))
-            SGD(:NMIX)=0.0
             CALL LCMGET(KPMAC,'NUSIGF',ZUFIS)
-            DO IBM=1,NMIX
-              DO IFISS=1,NBFIS
-                SGD(IBM)=SGD(IBM)+ZUFIS(IBM,IFISS)*2.0E8/2.5
-              ENDDO
+            SGD(:NMIX)=0.0
+            DO IFISS=1,NBFIS
+              SGD(:NMIX)=SGD(:NMIX)+ZUFIS(:NMIX,IFISS)
             ENDDO
             DEALLOCATE(ZUFIS)
           ENDIF
           DO 20 K=1,NREG
           IBM=MAT(K)
           IF((IBM.EQ.0).OR.(KFLX(K).EQ.0)) GO TO 20
-          ZNORM=ZNORM+FLXD(KFLX(K))*VOL(K)*SGD(IBM)*EVJ
+          ZNORM=ZNORM+FLXD(KFLX(K))*VOL(K)*SGD(IBM)
    20     CONTINUE
         ENDDO
-        ZNORM=POWER*1.0D6/ZNORM
+        ZNORM=POWER/ZNORM
         WRITE(6,300) ' DIRECT',ZNORM
         DEALLOCATE(SGD,FLXD,VOL,KFLX,MAT)
       ELSE IF(TEXT12.EQ.'NOCCOR') THEN

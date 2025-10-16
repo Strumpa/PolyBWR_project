@@ -645,7 +645,7 @@ C       end IG
             FTINF(I,J,K,IG,IASS)=FTINFM(IMIX,BMIXP(IPIN),IG)
             FDINF(I,J,K,IG,IASS)=FDINFM(IMIX,BMIXP(IPIN),IG)
             VOL(I,J,K,IASS)=(MXP(I+1)-MXP(I))*(MYP(J+1)-MYP(J))
-     3         *(MZM(K1+K)-MZM(K1+K-1))
+     1         *(MZM(K1+K)-MZM(K1+K-1))
             ENDDO
           ENDDO
           ENDDO

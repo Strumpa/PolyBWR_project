@@ -1,4 +1,4 @@
-*PROCEDURE GEO_A_N1.c2m
+*PROCEDURE GEO_A_L2.c2m
 * --------------------------------
 *    FLUX GEOMETRY DEFINITION PROCEDURE
 *    ATRIUM-10 ASSEMBLY
@@ -7,8 +7,8 @@
 * --------------------------------
 *    INPUT & OUTPUT PARAMETERS
 * --------------------------------
-PARAMETER GEOMN1 ::
-::: LINKED_LIST GEOMN1 ; ;
+PARAMETER GEOML2 ::
+::: LINKED_LIST GEOML2 ; ;
 STRING name_geom ;
 :: >>name_geom<< ;
 INTEGER sp_mod_c sp_mod_s sp_md_box sp_co_aroud sp_in_as_co sp_as_box s_out_modx s_out_mody ;
@@ -165,7 +165,7 @@ INTEGER COOL := 217 ;
 * -----------------------------------------
 *         FLUX GEOMETRY DEFINITION
 * -----------------------------------------
-GEOMN1 := GEO: :: CAR2D 3 3
+GEOML2 := GEO: :: CAR2D 3 3
    EDIT 1
    X- DIAG X+ REFL
    Y- REFL Y+ DIAG

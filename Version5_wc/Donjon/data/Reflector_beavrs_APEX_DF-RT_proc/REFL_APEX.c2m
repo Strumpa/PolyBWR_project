@@ -7,7 +7,7 @@
 * CALL      :                                                                  *
 *  ApexRefl := REFL_APEX Geom FVol Param :: <<nameFeed>> <<nameRefl>>          *
 *                            <<Palier>> <<htype>> <<LibType>> <<NuclData>>     *
-*                            <<OptSph>> <<OptNoal>> <<OptSS>> ;                *
+*                            <<OptSph>> <<OptNoal>> <<OptSS>> <<nbZones>> ;    *
 *                                                                              *
 *  Input objects:                                                              *
 *    Geom    : macro-geometry LCM object                                       *
@@ -25,6 +25,7 @@
 *    OptSph  : 'SPH'/'NOSP' transform DF into ADF/keep DF                      *
 *    OptNoal : 'ALBE'/'NOAL' compute albedo/force right albedo to 0            *
 *    OptSS   : 'TONE'/'NOSS' do/don't activate self-shielding of Fe56 and Cr52 *
+*    nbZones : number of zones in the reflector                                *
 *                                                                              *
 *  Output objects:                                                             *
 *    ApexRefl : reflector APEX file                                            *
@@ -38,6 +39,7 @@ STRING nameFeed nameRefl Palier htype ;
 INTEGER nlf ; :: >>nlf<< ;
 STRING LibType NuclData OptSph OptNoal OptSS ;
   ::  >>LibType<< >>NuclData<< >>OptSph<< >>OptNoal<< >>OptSS<< ;
+INTEGER nbZones ; :: >>nbZones<< ;
 PROCEDURE GetMolarMass MetalMix CreaDilut assertS ;
 LINKED_LIST
   DONNEES Geom_refl LibDilut MACRO LibFuel MolarMasses FeNat CrNat SnNat
@@ -166,8 +168,6 @@ TRACK_refl := SNT: Geom_refl ::
   MAXR 100000
   SN 16 SCAT <<iscat>> ;
 
-INTEGER nbZones := 7 ;
-
 REAL dModBas := 0.753 ; ! Densite du moderateur en entree du coeur
 REAL TMilBas := 286.4 ; ! Temp du reflecteur bas (soit Tmod,entree)
 EVALUATE TMilBas := TMilBas 273.15 + ; ! Conversion en Kelvin
@@ -251,7 +251,7 @@ WHILE IndexCB iBoreMax < DO
 
     ! Define MIX 1 in reflector macrolib
     LibDilut := CreaDilut LibDilut MolarMasses BNat Zirc4 Incon SS304 ::
-    <<dMod>> <<premierMIX>> <<TMil>> <<CB>> <<fvMod>> <<fvZr4>> <<fvInc>>
+    <<dMod>> <<nbZones>> <<premierMIX>> <<TMil>> <<CB>> <<fvMod>> <<fvZr4>> <<fvInc>>
     <<fvSS304>> <<NuclData>> <<LibType>> ;
 
     EVALUATE iZone := iZone 1 + ;

@@ -17,6 +17,6 @@ else
 fi
 
 cp *.ps ./ATRIUM10_evol_results*
-cp -r ATRIUM10_evol_results* $1/"$MACH"/
-cp *.c2m $1/"$MACH"/../data/ATRIUM_10_evol_proc
+#cp -r ATRIUM10_evol_results* $1/"$MACH"/
+cp GEO*.c2m $1/"$MACH"/../data/ATRIUM_10_evol_proc
 echo '$$$ ----- ATRIUM_10_opti.save : script finish'

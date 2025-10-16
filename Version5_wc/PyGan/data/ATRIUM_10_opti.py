@@ -5,6 +5,7 @@
 
 # Import modules from python / python-CLE2000 API / python-LCM API
 import os
+import re
 import shutil
 import numpy as np
 import pandas as pd
@@ -29,15 +30,16 @@ if not os.path.exists(save_dir):
 ########################################################### PARAMETER SELECTION ##########################################################################
 exec = True
 
-computational_scheme = "2L_IC_MOC" # "1L_MOC", "2L_PIJ_MOC", "2L_IC_MOC"
+computational_scheme = "1L_MOC" # "1L_MOC", "2L_PIJ_MOC", "2L_IC_MOC"
+SPH_GRMAX = 19 # 16, 17, 18, 19, 20, 21, 22, 23.
 # Options from DRAGON calculation setup.
 # Geometry parameters : ATRIUM-10 BWR fuel assembly
-refinement_opt_name = "finest_geom" # "default", "fine1", "fine2", "fine3", "coolant_ring", "finest_on_Gd", "finest_on_Gd_coolant_ring"
+refinement_opt_name = "finest_geom" #"finest_geom" # "default", "fine1", "fine2", "fine3", "coolant_ring", "finest_on_Gd", "finest_on_Gd_coolant_ring"
 
 refinement_options = {} 
 # posible keys to "moderator" entry
 # "default" -> coarse refinement of water in and out of assembly, windmills around cells
-#"fine1" -> finer refinement in inner box and outer water. Ibn thermal group : still ~-4% error on fission rates in assembly corners, 1.4% RMS and 1% average,
+#"fine1" -> finer refinement in inner box and outer water. In thermal group : still ~-4% error on fission rates in assembly corners, 1.4% RMS and 1% average,
 #"fine2" -> splity in side water increased, same as fine1 apart from that
 #"fine3" -> refining moderator in central box : to test
 
@@ -52,75 +54,98 @@ refinement_options = {}
 
 
 if refinement_opt_name == "finest_geom": 
-    refinement_options["moderator"] = "fine2" 
-    refinement_options["UOX_cells"] = "coolant_ring_SECT_4_0"
-    refinement_options["Gd_cells"] = "coolant_ring_SECT_4_0"
+    refinement_options["L2"] = {}
+    refinement_options["L2"]["moderator"] = "fine2" 
+    refinement_options["L2"]["UOX_cells"] = "coolant_ring_SECT_4_0"
+    refinement_options["L2"]["Gd_cells"] = "coolant_ring_SECT_4_0"
     num_angles = 24
     line_density = 150.0
-    batch = 3000
-
+    batch = 1000
+    if "2L_IC" in computational_scheme:
+        refinement_options["L1"] = {}
+        refinement_options["L1"]["moderator"] = "NONE" 
+        refinement_options["L1"]["UOX_cells"] = "NONE"
+        refinement_options["L1"]["Gd_cells"] = "NONE"
+    if "2L_PIJ" in computational_scheme:
+        refinement_options["L1"] = {}
+        refinement_options["L1"]["moderator"] = "NONE" 
+        refinement_options["L1"]["UOX_cells"] = "NONE"
+        refinement_options["L1"]["Gd_cells"] = "NONE"
     
 elif refinement_opt_name == "fine2" or refinement_opt_name == "fine1" or refinement_opt_name == "default":
-    refinement_options["moderator"] = refinement_opt_name
-    refinement_options["UOX_cells"] = "SECT_4_6"
-    refinement_options["Gd_cells"] = "SECT_4_8"
+    refinement_options["L2"] = {}
+    refinement_options["L2"]["moderator"] = refinement_opt_name
+    refinement_options["L2"]["UOX_cells"] = "SECT_4_6"
+    refinement_options["L2"]["Gd_cells"] = "SECT_4_8"
     num_angles = 24
     line_density = 75.0
     batch = 750
     
 elif refinement_opt_name == "coolant_ring":
-    refinement_options["moderator"] = "fine2" 
-    refinement_options["UOX_cells"] = "coolant_ring_SECT_4_6"
-    refinement_options["Gd_cells"] = "coolant_ring_SECT_4_8"
+    refinement_options["L2"] = {}
+    refinement_options["L2"]["moderator"] = "fine2" 
+    refinement_options["L2"]["UOX_cells"] = "coolant_ring_SECT_4_6"
+    refinement_options["L2"]["Gd_cells"] = "coolant_ring_SECT_4_8"
     num_angles = 24
     line_density = 75.0
     batch = 750
     
 elif refinement_opt_name == "finest_on_Gd_coolant_ring": 
-    refinement_options["moderator"] = "fine2" 
-    refinement_options["UOX_cells"] = "coolant_ring_SECT_4_6"
-    refinement_options["Gd_cells"] = "coolant_ring_SECT_4_0"
+    refinement_options["L2"] = {}
+    refinement_options["L2"]["moderator"] = "fine2" 
+    refinement_options["L2"]["UOX_cells"] = "coolant_ring_SECT_4_6"
+    refinement_options["L2"]["Gd_cells"] = "coolant_ring_SECT_4_0"
     num_angles = 24
     line_density = 140.0
-    batch = 3000
+    batch = 1000
 elif refinement_opt_name == "finest_on_Gd": 
-    refinement_options["moderator"] = "fine2" 
-    refinement_options["UOX_cells"] = "SECT_4_6"
-    refinement_options["Gd_cells"] = "SECT_4_0"
+    refinement_options["L2"] = {}
+    refinement_options["L2"]["moderator"] = "fine2" 
+    refinement_options["L2"]["UOX_cells"] = "SECT_4_6"
+    refinement_options["L2"]["Gd_cells"] = "SECT_4_0"
     num_angles = 24
     line_density = 140.0
-    batch = 1500
+    batch = 1000
 else:
     print(f"This combination of options {refinement_options} is not supported yet, please review options are add specific save name to support results post-treatment")
 
-if refinement_options["moderator"] == "default":
+if refinement_options["L2"]["moderator"] == "default":
     split_water_in_moderator_box = 10
     split_moderator_box = 2
     split_water_around_moderator_box = 2
     split_intra_assembly_coolant = 4
     split_assembly_box = 2
     split_out_assembly_moderator = [5,5]
-elif refinement_options["moderator"] == "fine1":
+    
+elif refinement_options["L2"]["moderator"] == "fine1":
     split_water_in_moderator_box = 20
     split_moderator_box = 2
     split_water_around_moderator_box = 2
     split_intra_assembly_coolant = 4
     split_assembly_box = 2
     split_out_assembly_moderator = [10,10]
-elif refinement_options["moderator"] == "fine2":
+    
+elif refinement_options["L2"]["moderator"] == "fine2":
     split_water_in_moderator_box = 20
     split_moderator_box = 2
     split_water_around_moderator_box = 2
     split_intra_assembly_coolant = 4
     split_assembly_box = 2
     split_out_assembly_moderator = [10,30]
-elif refinement_options["moderator"] == "fine3":
+    if "2L_IC" in computational_scheme:
+        refinement_options["L1"] = {}
+        refinement_options["L1"]["moderator"] = "NONE" 
+        refinement_options["L1"]["UOX_cells"] = "NONE"
+        refinement_options["L1"]["Gd_cells"] = "NONE"
+    
+elif refinement_options["L2"]["moderator"] == "fine3":
     split_water_in_moderator_box = 30
     split_moderator_box = 2
     split_water_around_moderator_box = 2
     split_intra_assembly_coolant = 4
     split_assembly_box = 2
     split_out_assembly_moderator = [10,30]
+
 
 mix_numbering_option =  "number_mix_families_per_region" # "number_mix_families_per_region" , "number_mix_families_per_enrichment"
 name_geom = "AT10_ASSBLY"
@@ -177,6 +202,7 @@ else:
 reflection_type_lvl2 = "TSPC"
 anisotropy_level = 4 # Level of anisotropy for the tracking, can be 1 (isotropic), 2 (linearly anisotropic), 3 (anisotropy order P_2), or 4 (anisotropy order P_3). 
 solution_door_lvl2 = "MOC"  # Flag to indicate whether the tracking should be modified for a MOC solution, 
+src_approx = "SC"  # Source approximation for MOC tracking, can be "SC" (flat) or "LDC" (linear)
 # or set it to "IC" or "PIJ" for Surfacic interface current methods and Collision Probability methods.
 moc_angular_quadrature = "GAUS"
 nmu = 4  # Number of polar angles for MOC tracking : conservation ensured up to the order of P_{nmu-1} scattering : # nmu = 4 -> P3 scattering
@@ -204,7 +230,7 @@ if mix_numbering_option == "number_mix_families_per_region":
     numbering_save_opt = "region_num"
 elif mix_numbering_option == "number_mix_families_per_enrichment":
     numbering_save_opt = "enrich_num"
-save_dir_case = f"{save_dir}/{computational_scheme}_NOMERGMIX/{refinement_opt_name}_{composition_option}_{draglib_name}_{self_shielding_method}_{resonance_correlation}_{numbering_save_opt}"
+save_dir_case = f"{save_dir}/{computational_scheme}_{src_approx}/{refinement_opt_name}_{composition_option}_{draglib_name}_{self_shielding_method}_{resonance_correlation}_{numbering_save_opt}"
 if not os.path.exists(save_dir_case):
     os.makedirs(save_dir_case)
 ########################################################### END OF CREATE SAVE DIRECTORY #####################################################################
@@ -229,16 +255,17 @@ time_tracking_ssh = time.time() - current_time
 current_time = time.time()
 
 
-
-######################################################## SALT: : main flux geometry tracking ################################################################
+######################################################## SAL: : first level geometry tracking ###########################################################################
 
 if "2L" in computational_scheme:
     ## tracking for 1st level PIJ / IC calculation
     track_lcm_lvl1, track_binary_lvl1, figure_lvl1 = trackLVL1GeomSALT(geo_lvl1, num_angles_lvl1, line_density_lvl1, reflection_type_lvl1, batch_lvl1, postscript_file_lvl1, solution_door_lvl1)
-
+    time_tracking_lvl1 = time.time() - current_time
+    current_time = time.time()
+######################################################## SALT: : main flux geometry tracking ################################################################
 
 # Track the geometry using the SALT: module
-track_lcm, track_binary, figure = trackFluxGeomSALT(geo_flx, num_angles, line_density, reflection_type_lvl2, anisotropy_level, solution_door_lvl2, moc_angular_quadrature, nmu, batch, postscript_file)
+track_lcm, track_binary, figure = trackFluxGeomSALT(geo_flx, num_angles, line_density, reflection_type_lvl2, anisotropy_level, solution_door_lvl2, moc_angular_quadrature, nmu, src_approx, batch, postscript_file)
 time_tracking_flux = time.time() - current_time
 current_time = time.time()
 
@@ -263,12 +290,10 @@ if exec:
 
     ## First level flux calculation if 2L scheme is selected
     if "2L" in computational_scheme:
-        if solution_door_lvl1 == "PIJ":
-            print("Selected first level flux calculation solution door : PIJ")
-            keff, flux_lcm_lvl1, lib_ssh = fluxCalculation2LScheme(track_lcm, track_binary, track_lvl1, track_binary_lvl1, lib_ssh, first_level_solution_door="PIJ")
-        elif solution_door_lvl1 == "IC":
-            print("Selected first level flux calculation solution door : IC")
-            keff, flux_lcm_lvl1, lib_ssh = fluxCalculation2LScheme(track_lcm, track_binary, track_lvl1, track_binary_lvl1, lib_ssh, first_level_solution_door="IC")
+        print(f"Selected first level flux calculation solution door : {solution_door_lvl1}")
+        keff, flux_lcm, lib_ssh = fluxCalculation2LScheme(track_lcm, track_binary, track_lcm_lvl1, track_binary_lvl1, lib_ssh, solution_door_lvl1, SPH_GRMAX)
+        shutil.copyfile("_LEVEL1_FLX_CALC_CPO", f"{save_dir_case}/_LEVEL1_FLX_CALC_CPO")
+
 
     else:
         if solution_door_lvl2 == "PIJ":
@@ -314,7 +339,6 @@ if exec:
     }
     if "2L" in computational_scheme:
         times_dict["SALT: call [lvl1] (s)"] = time_tracking_lvl1
-        times_dict["ASM: + FLU: calls [lvl1] (s)"] = time_lvl1_flux_calculation
     # Create a DataFrame from the times dictionary
 
     times_df = pd.DataFrame.from_dict(times_dict, orient='index', columns=['Time (s)'])

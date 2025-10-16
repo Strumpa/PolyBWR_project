@@ -53,9 +53,10 @@ Param2 := UTL: :: CREA PARAMVALU 1 = 1400.0
                  CREA 1 2 = 'C-BO' 'RE  ' ;
 UTL: Param2 :: DUMP ;
 
+EVALUATE nbZones := nbZones 1 - ; ! decreases nbZones by one
 MpoRefl := REFL_MPO_RM Geom FVol Param1 Param2 :: <<nameFeed>> <<nameRefl>> <<Palier>> <<htype>>
                                        <<LibType>> <<NuclData>> <<OptSph>> <<OptNoal>>
-                                       <<OptSS>> ;
+                                       <<OptSS>> <<nbZones>> ;
 
 ************************************************************************
 * MPO extrapolation of the reflector at 350 ppm Boron

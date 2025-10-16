@@ -31,6 +31,10 @@ STRING refl_type ;
 :: >>refl_type<< ; ! reflection type for tracking : "TSPC" or "TISO"
 INTEGER batch ;
 :: >>batch<< ; ! batch size for tracking
+STRING sol_door ;
+:: >>sol_door<< ; ! choice of method identifying spatial solution used for first-level calculation : 
+            ! - "IC" for multicell-interface currents method using the G2S: + SALT: surfacic formalism
+            ! - "PIJ" for full PIJ
 
 * ---
 * STRUCTURES AND MODULES
@@ -42,14 +46,30 @@ REAL densur := Ddensur D_TO_R ; ! DENSITY OF INTEGRATION LINES CM^-1
 * ---
 * SALT TRACKING
 * ---
-Geo_G2S SSH_FIG.ps := G2S: GEOMSSH :: EDIT 0 ;
+IF sol_door "PIJ" = THEN
 
-TRACK_SSH TF_EXC_SSH := SALT: Geo_G2S ::
-  EDIT 1
-  BATCH <<batch>>
-  <<refl_type>> EQW2 <<num_ang>> <<densur>>
-  MERGMIX
-;
+  Geo_G2S SSH_FIG.ps := G2S: GEOMSSH :: EDIT 0 ;
+
+  TRACK_SSH TF_EXC_SSH := SALT: Geo_G2S ::
+    EDIT 1
+    BATCH <<batch>>
+    <<refl_type>> EQW2 <<num_ang>> <<densur>>
+    MERGMIX
+  ;
+
+ELSEIF sol_door "IC" = THEN
+  
+  Geo_G2S SSH_FIG.ps := G2S: GEOMSSH :: EDIT 0 MACRO ;
+
+  TRACK_SSH TF_EXC_SSH := SALT: Geo_G2S ::
+    EDIT 1
+    TITLE "MULTICELL SURFACIC ATRIUM-10 CASE - self-shielding"
+    BATCH <<batch>>
+    TISO EQW <<num_ang>> <<densur>>
+    IC EPSJ 1.0E-5
+  ;
+
+ENDIF ;
 
 
 END: ;

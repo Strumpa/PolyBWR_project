@@ -138,7 +138,7 @@ def fluxCalculationIC(track_lcm, track_binary, self_shielded_microlib):
 
     return keff, flux_lcm
 
-def fluxCalculation2LScheme(track_lcm, track_binary, track_lvl1, track_binary_lvl1, self_shielded_microlib, first_level_solution_door):
+def fluxCalculation2LScheme(track_lcm, track_binary, track_lvl1, track_binary_lvl1, self_shielded_microlib, first_level_solution_door, sph_grmax=22):
     """
     This function runs a DRAGON5 2-level flux calculation.
     Parameters:
@@ -164,8 +164,9 @@ def fluxCalculation2LScheme(track_lcm, track_binary, track_lvl1, track_binary_lv
     2nd level flux calculation is performed with the "MOC".
     """
     """ 
-    PARAMETER FLUX TRACK TF_EXC TRACK_L1 TF_EXC_L1 LIBRARY2 ::
+    PARAMETER FLUX LIB26G TRACK TF_EXC TRACK_L1 TF_EXC_L1 LIBRARY2 ::
     ::: LINKED_LIST FLUX ;
+    ::: LINKED_LIST LIB26G ;
     ::: LINKED_LIST TRACK ;
     ::: SEQ_BINARY TF_EXC ;
     ::: LINKED_LIST TRACK_L1 ;
@@ -176,13 +177,14 @@ def fluxCalculation2LScheme(track_lcm, track_binary, track_lvl1, track_binary_lv
     # Run 2L_FLUX.c2m procedure
     ipLifo = lifo.new()
     ipLifo.pushEmpty("FLUX", "LCM")
-    ipLifo.pushEmpty("LIBEQ", "LCM")
+    ipLifo.pushEmpty("LIB26G", "LCM")
     ipLifo.push(track_lcm)
     ipLifo.push(track_binary)
     ipLifo.push(track_lvl1)
     ipLifo.push(track_binary_lvl1)
     ipLifo.push(self_shielded_microlib)
     ipLifo.push(first_level_solution_door)
+    ipLifo.push(sph_grmax)
     
     # Create a cle2000 object to handle the flux calculation
     flux2l_proc = cle2000.new('2L_FLUX', ipLifo, 1)
@@ -191,7 +193,7 @@ def fluxCalculation2LScheme(track_lcm, track_binary, track_lvl1, track_binary_lv
     # Recover the results from the LIFO stack
     ipLifo.lib()
     flux_lcm = ipLifo.node('FLUX')
-    lib_26g = ipLifo.node('LIBEQ')
+    lib_26g = ipLifo.node('LIB26G')
     while ipLifo.getMax() > 0:
         ipLifo.pop()
     keff = flux_lcm["K-EFFECTIVE"][0]

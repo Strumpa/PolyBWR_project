@@ -120,13 +120,13 @@ def post_treat_Gd_case_vs_S2_edep_pcc(case, evaluation, draglib_name, self_shiel
             D5_NOM_case.set_BUscheme(scheme, time_integrator)
             D5_result_cases.append(D5_NOM_case)
         else:
-            CPO_NG0_NAME =  f"CPO_{draglib_name}_NG0_{self_shielding_method}_{correlation}_SALT_{burnup_points}_{evo_solver}_NODI_{time_integrator}_GLOB"
+            CPO_EDP0_NAME =  f"CPO_{draglib_name}E0_{self_shielding_method}_{correlation}_SALT_{burnup_points}_{evo_solver}_NODI_{time_integrator}_GLOB"
             CPO_NAME =  f"CPO_{draglib_name}_{self_shielding_method}_{correlation}_SALT_{burnup_points}_{evo_solver}_NODI_{time_integrator}_GLOB"
-            print(CPO_NG0_NAME)
-            CPO_NG0 = lcm.new('LCM_INP', CPO_NG0_NAME, impx=0)
+            print(CPO_EDP0_NAME)
+            CPO_EDP0 = lcm.new('LCM_INP', CPO_EDP0_NAME, impx=0)
             CPO = lcm.new('LCM_INP', CPO_NAME, impx=0)
-            D5_NG0_case = D5_case(pyCOMPO = CPO_NG0,
-                            dlib_name = f"{draglib_name}_NG0",
+            D5_EDP0_case = D5_case(pyCOMPO = CPO_EDP0,
+                            dlib_name = f"{draglib_name}E0",
                             bu_points = burnup_points,
                             ssh_opt = self_shielding_method,
                             correlation = correlation,
@@ -153,20 +153,20 @@ def post_treat_Gd_case_vs_S2_edep_pcc(case, evaluation, draglib_name, self_shiel
             else:
                 scheme = "predictor"
             D5_NOM_case.set_BUscheme(scheme, time_integrator)
-            D5_NG0_case.set_BUscheme(scheme, time_integrator)
+            D5_EDP0_case.set_BUscheme(scheme, time_integrator)
             D5_result_cases.append(D5_NOM_case)
-            D5_NG0_result_cases.append(D5_NG0_case)
+            D5_EDP0_result_cases.append(D5_EDP0_case)
     os.chdir(path)
-    if D5_NG0_result_cases:
-        comparisonD5_NG0_S2 = multiD5S2(f"D5 {self_shielding_method}-{correlation} - S2 : modified DEPL vs edep0 with set qfiss, pcc {S2_pcc}", D5_NG0_result_cases, S2_ref_case, burnup_points, tracked_nuclides, f"{save_dir_case}/{draglib_name}/{self_shielding_method}_{correlation}")
+    if D5_EDP0_result_cases:
+        comparisonD5_EDP0_S2 = multiD5S2(f"D5 {self_shielding_method}-{correlation} - S2 : EDP0 vs edep0 with set qfiss, pcc {S2_pcc}", D5_EDP0_result_cases, S2_ref_case, burnup_points, tracked_nuclides, f"{save_dir_case}/{draglib_name}/{self_shielding_method}_{correlation}")
 
-        comparisonD5_NG0_S2.compare_keffs()
-        comparisonD5_NG0_S2.plot_delta_keff()
+        comparisonD5_EDP0_S2.compare_keffs()
+        comparisonD5_EDP0_S2.plot_delta_keff()
 
-        comparisonD5_NG0_S2.compare_Ni()
-        comparisonD5_NG0_S2.plot_delta_Ni()
+        comparisonD5_EDP0_S2.compare_Ni()
+        comparisonD5_EDP0_S2.plot_delta_Ni()
     else:
-        comparisonD5_S2 = multiD5S2(f"D5 {self_shielding_method}-{correlation} - S2 : edep {S2_edep}, pcc {S2_pcc}", D5_result_cases, S2_ref_case, burnup_points, tracked_nuclides, f"{save_dir_case}/{draglib_name}/{self_shielding_method}_{correlation}")
+        comparisonD5_S2 = multiD5S2(f"D5 EDP0 {self_shielding_method}-{correlation} - S2 : edep {S2_edep}, pcc {S2_pcc}", D5_result_cases, S2_ref_case, burnup_points, tracked_nuclides, f"{save_dir_case}/{draglib_name}/{self_shielding_method}_{correlation}")
         comparisonD5_S2.compare_keffs()
         comparisonD5_S2.plot_delta_keff()
         comparisonD5_S2.compare_Ni()
@@ -434,5 +434,5 @@ if __name__ == "__main__":
     #custom_plots(save_dir_gduo2_295_kec1)
     #AT10_45Gd_custom_plots(save_dir_AT10_45Gd)
 
-    post_treat_Gd_case_vs_S2_edep_pcc("AT10_45Gd_Cst_pow_evol", evaluation, "J311_295E0", "PT", "N", "KAPS", time_integrators, "Gd_autop3", tracked_nuclides, 0, 2, save_dir_AT10_45Gd)
-    AT10_45Gd_plot_old_dlib_with_new_EXTR(save_dir_AT10_45Gd)
+    post_treat_Gd_case_vs_S2_edep_pcc("AT10_45Gd_Cst_pow_evol", evaluation, "J311_295", "PT", "N", "KAPS", time_integrators, "Gd_autop3", tracked_nuclides, S2_edep=0, S2_pcc=2, save_dir_case=save_dir_AT10_45Gd)
+    #AT10_45Gd_plot_old_dlib_with_new_EXTR(save_dir_AT10_45Gd)

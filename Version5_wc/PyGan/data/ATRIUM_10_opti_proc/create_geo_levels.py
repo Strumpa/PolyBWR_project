@@ -71,14 +71,14 @@ def createGeoLevels(geo_name, split_water_in_moderator_box, split_moderator_box,
             connectivity_dict = fill_geom_ssh_proc(proc_file_name_ssh, "GEOMSSH", lattice_description, lower_diag, UOX_mixes, Gd_mixes, remaining_mixes, refinement_option, ssh_BC)
             # change executable permission to the procedure file
             os.chmod(proc_file_name_ssh, 0o755)
-
-            proc_file_name_N1 = "GEO_A_L1.c2m"
-            connectivity_dict = fill_geom_ssh_proc(proc_file_name_N1, "GEOML1", lattice_description, lower_diag, UOX_mixes, Gd_mixes, remaining_mixes, refinement_option, lvl1_BC)
-            # change executable permission to the procedure file
-            os.chmod(proc_file_name_N1, 0o755)
+            if "L1" in refinement_option.keys():
+                proc_file_name_N1 = "GEO_A_L1.c2m"
+                connectivity_dict = fill_geom_fluxN1_proc(proc_file_name_N1, "GEOML1", lattice_description, lower_diag, UOX_mixes, Gd_mixes, remaining_mixes, refinement_option["L1"], lvl1_BC)
+                # change executable permission to the procedure file
+                os.chmod(proc_file_name_N1, 0o755)
 
             proc_file_name_N2 = "GEO_A_L2.c2m"
-            connectivity_dict = fill_geom_flux_proc(proc_file_name_N2, "GEOML2", lattice_description, lower_diag, UOX_mixes, Gd_mixes, remaining_mixes, refinement_option, lvl2_BC)
+            connectivity_dict = fill_geom_flux_proc(proc_file_name_N2, "GEOML2", lattice_description, lower_diag, UOX_mixes, Gd_mixes, remaining_mixes, refinement_option["L2"], lvl2_BC)
             # change executable permission to the procedure file
             os.chmod(proc_file_name_N2, 0o755)
 
@@ -440,9 +440,14 @@ def fill_CARCEL_template_SECT(index_in_lower_diag, lower_diag, UOX_mixes, Gd_mix
             radii = "<<Rfuel1>> <<Rfuel2>> <<Rfuel3>> <<Rfuel4>> <<Rgap>> <<Rclad>> "
             n_rings = n_fuel + 2
             added_cool_int = 0
-
-        SECT_type = refinement_options["UOX_cells"].split("_")[-2]
-        n_nonSECT = refinement_options["UOX_cells"].split("_")[-1]
+        if refinement_options["UOX_cells"] == "NONE":
+            sect = False
+            n_nonSECT = 1e3
+            SECT_type = "0"
+        else:
+            sect = True
+            SECT_type = refinement_options["UOX_cells"].split("_")[-2]
+            n_nonSECT = refinement_options["UOX_cells"].split("_")[-1]
 
     else: 
         n_fuel = 6
@@ -457,8 +462,15 @@ def fill_CARCEL_template_SECT(index_in_lower_diag, lower_diag, UOX_mixes, Gd_mix
             radii = "<<RfuelGd1>> <<RfuelGd2>> <<RfuelGd3>> <<RfuelGd4>> <<RfuelGd5>> <<RfuelGd6>> \n <<Rgap>> <<Rclad>>"
             n_rings = n_fuel + 2
             added_cool_int = 0
-        SECT_type = refinement_options["Gd_cells"].split("_")[-2]
-        n_nonSECT = refinement_options["Gd_cells"].split("_")[-1]
+        if refinement_options["Gd_cells"] == "NONE":
+            sect = False
+            n_nonSECT = 1e3
+            SECT_type = "0"
+        else: 
+            sect = True
+            SECT_type = refinement_options["Gd_cells"].split("_")[-2]
+            n_nonSECT = refinement_options["Gd_cells"].split("_")[-1]
+    
 
     
     if gap_int > int(n_nonSECT):
@@ -481,30 +493,54 @@ def fill_CARCEL_template_SECT(index_in_lower_diag, lower_diag, UOX_mixes, Gd_mix
     fmix_numbering_str = " ".join(fmix_numbering_list)
     
     if lower_diag[index_in_lower_diag] != generating_cell:
-        CARCEL_def = (f"::: {lower_diag[index_in_lower_diag]}  :=  GEO: {generating_cell}\n" 
-                    f"   MIX {fmix_numbering_str} \n"
-                    f" {gap_mix_numbering_str}\n"
-                    f" {clad_mix_numbering_str}\n"
-                    f" {cool_mix_numbering_str}\n"
-                    "  <<COOL>> <<COOL>> <<COOL>> <<COOL>>\n"
-                    "  <<COOL>> <<COOL>> <<COOL>> <<COOL>>\n"
-                    "  <<COOL>> <<COOL>> <<COOL>> <<COOL>> ;\n"
-                    )
+        if sect:
+            CARCEL_def = (f"::: {lower_diag[index_in_lower_diag]}  :=  GEO: {generating_cell}\n" 
+                        f"   MIX {fmix_numbering_str} \n"
+                        f" {gap_mix_numbering_str}\n"
+                        f" {clad_mix_numbering_str}\n"
+                        f" {cool_mix_numbering_str}\n"
+                        "  <<COOL>> <<COOL>> <<COOL>> <<COOL>>\n"
+                        "  <<COOL>> <<COOL>> <<COOL>> <<COOL>>\n"
+                        "  <<COOL>> <<COOL>> <<COOL>> <<COOL>>\n"
+                        ";\n"
+                        )
+        else:
+            CARCEL_def = (f"::: {lower_diag[index_in_lower_diag]}  :=  GEO: {generating_cell}\n" 
+                        f"   MIX {fmix_numbering_str} \n"
+                        f" {gap_mix_numbering_str}\n"
+                        f" {clad_mix_numbering_str}\n"
+                        f" {cool_mix_numbering_str}\n"
+                        "  <<COOL>>\n"
+                        ";\n"
+                        )
     else:
-        CARCEL_def = (f"::: {lower_diag[index_in_lower_diag]} :=  GEO: CARCEL {n_rings}\n"
-                    f"    SECT {SECT_type} {n_nonSECT}\n"
-                    f"    RADIUS 0.0 {radii}\n"
-                    f"    MIX {fmix_numbering_str}\n"
-                    f" {gap_mix_numbering_str}\n"
-                    f" {clad_mix_numbering_str}\n"
-                    f" {cool_mix_numbering_str}\n"
-                    "  <<COOL>> <<COOL>> <<COOL>> <<COOL>>\n"
-                    "  <<COOL>> <<COOL>> <<COOL>> <<COOL>>\n"
-                    "  <<COOL>> <<COOL>> <<COOL>> <<COOL>>\n"
-                    "   MESHX 0.0 <<pitch>>\n" 
-                    "   MESHY 0.0 <<pitch>> ;\n"
-                    "\n"
-                    )
+        if sect:
+            CARCEL_def = (f"::: {lower_diag[index_in_lower_diag]} :=  GEO: CARCEL {n_rings}\n"
+                        f"    SECT {SECT_type} {n_nonSECT}\n"
+                        f"    RADIUS 0.0 {radii}\n"
+                        f"    MIX {fmix_numbering_str}\n"
+                        f" {gap_mix_numbering_str}\n"
+                        f" {clad_mix_numbering_str}\n"
+                        f" {cool_mix_numbering_str}\n"
+                        "  <<COOL>> <<COOL>> <<COOL>> <<COOL>>\n"
+                        "  <<COOL>> <<COOL>> <<COOL>> <<COOL>>\n"
+                        "  <<COOL>> <<COOL>> <<COOL>> <<COOL>>\n"
+                        "   MESHX 0.0 <<pitch>>\n" 
+                        "   MESHY 0.0 <<pitch>> ;\n"
+                        "\n"
+                        )
+        else:
+            CARCEL_def = (f"::: {lower_diag[index_in_lower_diag]} :=  GEO: CARCEL {n_rings}\n"
+                        f"    RADIUS 0.0 {radii}\n"
+                        f"    MIX {fmix_numbering_str}\n"
+                        f" {gap_mix_numbering_str}\n"
+                        f" {clad_mix_numbering_str}\n"
+                        f" {cool_mix_numbering_str}\n"
+                        "  <<COOL>>\n"
+                        "   MESHX 0.0 <<pitch>>\n" 
+                        "   MESHY 0.0 <<pitch>> ;\n"
+                        "\n"
+                        )
     return CARCEL_def.strip()
 
 
@@ -632,6 +668,135 @@ def fill_self_shielding_geometry_template(geom_var_name, lattice_description, lo
         "       MESHX 0.0 <<Pitch_C>>\n"
         "       MESHY 0.0 <<Pitch_C>>\n"
         "        MIX <<MODE>> ;\n"
+
+        "   ::: WR := GEO: CAR2D 3 1\n"
+        "       MESHX 0.0 <<X1sym>> <<X2sym>> <<Pitch_C>>\n"
+        "       MESHY 0.0 <<Pitch_C>>\n"
+        "       MIX <<MODE>> <<BOX>> <<COOL>> ;\n"
+
+        "   ::: W3 := GEO: CAR2D 3 3\n" 
+        "       MESHX 0.0 <<XCHNL1>> <<XCHNL2>> <<Pitch_C>>\n"
+        "       MESHY 0.0 <<X1sym>> <<X2sym>> <<Pitch_C>>\n"
+        "       MIX <<COOL>> <<BOX>> <<MODE>>\n"
+        "           <<COOL>> <<BOX>> <<BOX>>\n"
+        "           <<COOL>> <<COOL>> <<COOL>> ;\n"
+            
+        "   ::: WT := GEO: CAR2D 1 3\n" 
+        "       MESHX 0.0 <<Pitch_C>>\n"
+        "       MESHY 0.0 <<X1sym>> <<X2sym>> <<Pitch_C>>\n"
+        "       MIX <<MODE>> <<BOX>> <<COOL>> ;\n"
+        
+        "   ::: W4 := GEO: CAR2D 3 3\n"
+        "        MESHX 0.0 <<X1sym>> <<X2sym>> <<Pitch_C>>\n"
+        "        MESHY 0.0 <<X1sym>> <<X2sym>> <<Pitch_C>>\n"
+        "        MIX <<MODE>> <<BOX>> <<COOL>>\n"
+        "            <<BOX>> <<BOX>> <<COOL>>\n"
+        "            <<COOL>> <<COOL>> <<COOL>> ;\n"
+        "   ;\n"
+        ";\n"
+    )
+    return ATRIUM_10_geo_template.strip()
+
+
+def fill_fluxN1_geometry_template(geom_var_name, lattice_description, lower_diag, UOX_mixes, Gd_mixes, refinement_options, boundary_cond):
+    """
+    function used to fill the ATRIUM-10 geometry template with the appropriate fuel mix numbering
+    geometrical dimensions are specificed in the geometrical_dimensions_template function.
+    Need to handle control cross definition, for now stick to regular ATRIUM-10 geometry without control cross.
+    """
+    if boundary_cond == "TSPC":
+        boundary_condition_str = "REFL"
+    elif boundary_cond == "TISO":
+        boundary_condition_str = "ALBE 1.0"
+
+    sectorization = True # Set to True if sectorization is required, False otherwise.
+
+
+
+    ATRIUM_10_geo_template = (
+        f"{geom_var_name} := GEO: :: CAR2D 3 3\n"  
+        "   EDIT 1\n"
+        f"   X- DIAG X+ {boundary_condition_str}\n"
+        f"   Y- {boundary_condition_str} Y+ DIAG\n"
+        "   CELL\n"
+        "   BotCL BMidW BotCR\n"
+        "           LAT RMidW\n"
+        "               TopCR\n"
+        "   MESHX 0.0 <<X1>> <<X4>> <<Pitch_A>>\n"
+        "   MESHY 0.0 <<Y1>> <<Y4>> <<Pitch_A>>\n"
+
+        "   ::: BotCL :=  GEO: CAR2D 3 3\n" # This depends on the presence of the control cross : have an option to handle both with and without control cross
+        "       MESHX 0.0 <<W_gap>> <<x_step>> <<X1>>\n"
+        "       MESHY 0.0 <<W_gap>> <<x_step>> <<Y1>>\n"
+        "       MIX\n" 
+        "           <<MODE>> <<MODE>> <<MODE>> \n" 
+        "           <<MODE>>  <<BOX>>  <<BOX>> \n"
+        "           <<MODE>>  <<BOX>> <<COOL>> ;\n"  
+
+        "   ::: BotCR := GEO: CAR2D 3 3\n"
+        "       MESHX 0.0 <<XtraCool>> <<y_step>> <<X1>>\n"
+        "       MESHY 0.0 <<W_gap>> <<x_step>> <<X1>>\n"
+        "       MIX\n"
+        "           <<MODE>> <<MODE>> <<MODE>>\n"
+        "           <<BOX>>  <<BOX>> <<MODE>> \n"
+        "           <<COOL>> <<BOX>> <<MODE>> ;\n"
+        
+        "   ::: TopCR := GEO: CAR2D 3 3\n"
+        "       MESHX 0.0 <<XtraCool>> <<y_step>> <<X1>>\n"
+        "       MESHY 0.0 <<XtraCool>> <<y_step>> <<Y1>>\n"
+        "       MIX\n"
+        "           <<COOL>> <<BOX>> <<MODE>>\n"
+        "           <<BOX>>  <<BOX>> <<MODE>> \n"
+        "           <<MODE>> <<MODE>> <<MODE>> ;\n"
+
+        "   ::: RMidW := GEO: CAR2D 3 1\n"
+        "       MESHX 0.0 <<XtraCool>> <<y_step>> <<X1>>\n"
+        "       MESHY 0.0 <<LLat>>\n"
+        "       SPLITY 10\n"
+        "       MIX <<COOL>> <<BOX>> <<MODE>> ;\n"
+
+        "   ::: BMidW := GEO:  CAR2D 1 3\n" # This depends on the presence of the control cross : have an option to handle both
+        "       MESHX 0.0 <<LLat>>\n"
+        "       MESHY 0.0 <<W_gap>> <<x_step>> <<Y1>>\n"
+        "       SPLITX 10\n"
+        "       MIX <<MODE>> <<BOX>> <<COOL>> ;\n" # This depends on the presence of the control cross : have an option to handle both, in case of control cross need to call a cell definition for 3rd level
+    # Lattice definition ; where the newly implemented material numbering comes into play, could consider breaking down the lattice definition into a separate function        
+        "   ::: LAT :=  GEO: CAR2D 10 10\n"
+        "       MESHX 0.0 <<Pitch_C>> <<2_Pitch_C>> <<3_Pitch_C>> <<4_Pitch_C>> <<5_Pitch_C>>\n"
+        "                 <<6_Pitch_C>> <<7_Pitch_C>> <<8_Pitch_C>> <<9_Pitch_C>> <<LLat>>\n"
+        "       MESHY 0.0 <<Pitch_C>> <<2_Pitch_C>> <<3_Pitch_C>> <<4_Pitch_C>> <<5_Pitch_C>>\n"
+        "                 <<6_Pitch_C>> <<7_Pitch_C>> <<8_Pitch_C>> <<9_Pitch_C>> <<LLat>>\n"
+        "       CELL\n"
+        f"  {format_CELL_definition(lattice_description)}\n" # unfold geometry to fill the whole 10x10 square, creating a unique cell for each position in the lower diagonal, the same cell is used for the symmetric position in the upper diag.
+        f"  {create_carcel_definitions(lower_diag, UOX_mixes, Gd_mixes, refinement_options, True)}\n"
+        "   ::: W1 := GEO: CAR2D 3 3\n"
+        "       MESHX 0.0 <<XCHNL1>> <<XCHNL2>> <<Pitch_C>>\n" 
+        "       MESHY 0.0 <<XCHNL1>> <<XCHNL2>> <<Pitch_C>>\n"
+        "       MIX <<COOL>> <<COOL>> <<COOL>>\n"
+        "           <<COOL>> <<BOX>> <<BOX>>\n"
+        "           <<COOL>> <<BOX>> <<MODE>> ;\n"
+
+        "   ::: WB := GEO: CAR2D 1 3\n"
+        "       MESHX 0.0 <<Pitch_C>>\n"
+        "       MESHY 0.0 <<XCHNL1>> <<XCHNL2>> <<Pitch_C>>\n"
+        "       MIX <<COOL>> <<BOX>> <<MODE>> ;\n"
+        
+        "   ::: W2 := GEO: CAR2D 3 3\n"
+        "       MESHX 0.0 <<X1sym>> <<X2sym>> <<Pitch_C>>\n"
+        "       MESHY 0.0 <<XCHNL1>> <<XCHNL2>> <<Pitch_C>>\n"
+        "       MIX <<COOL>> <<COOL>> <<COOL>>\n"
+        "           <<BOX>>  <<BOX>>  <<COOL>>\n"
+        "            <<MODE>> <<BOX>> <<COOL>> ;\n" 
+
+        "   ::: WL := GEO: CAR2D 3 1\n" 
+        "       MESHX 0.0 <<XCHNL1>> <<XCHNL2>> <<Pitch_C>>\n"
+        "       MESHY 0.0 <<Pitch_C>>\n"
+        "       MIX <<COOL>> <<BOX>> <<MODE>> ;\n"
+
+        "   ::: W0 := GEO: CAR2D 1 1\n"
+        "       MESHX 0.0 <<Pitch_C>>\n"
+        "       MESHY 0.0 <<Pitch_C>>\n"
+        "       MIX <<MODE>> ;\n"
 
         "   ::: WR := GEO: CAR2D 3 1\n"
         "       MESHX 0.0 <<X1sym>> <<X2sym>> <<Pitch_C>>\n"
@@ -877,6 +1042,81 @@ def fill_geom_ssh_proc(file_name, geom_var_name, lattice_description, lower_diag
 
         f"{fill_self_shielding_geometry_template(geom_var_name, lattice_description, lower_diag, UOX_mixes, Gd_mixes, refinement_options={}, boundary_cond = BC)}\n"
         
+
+        "* -----------------------------------------\n"
+        "*         END OF GEOMETRY DEFINITION\n"
+        "* -----------------------------------------\n"
+        "END: ;\n"
+        "QUIT ."
+    )
+
+    # Write the procedure file
+    with open(file_name, "w") as file:
+        file.write(geo_proc)
+    file.close()
+    print(f"Geometry procedure file {file_name} created successfully.")
+    return connectivity_dict
+
+
+def fill_geom_fluxN1_proc(file_name, geom_var_name, lattice_description, lower_diag, UOX_mixes, Gd_mixes, remaining_mixes, refinement_options, BC):
+    """
+    Function to fill/create the CLE2000 procedure file with the ATRIUM-10 geometry definition.
+    This function is used to create the geometry for the ATRIUM-10 assembly, which is a 10x10 lattice with a 3x3 moderating water box.
+    
+    Parameters
+    ----------
+    file_name : str
+        Name of the file to write the geometry definition to.
+    
+    Returns
+    -------
+    connectivity_dict : dict
+    """
+    
+    header = (  "* --------------------------------\n"
+                "*    FLUX GEOMETRY DEFINITION PROCEDURE\n"
+                "*    ATRIUM-10 ASSEMBLY\n"
+                "* Procedure generated by create_geo.py\n"
+                "* Author: R. Guasch\n"
+                "* --------------------------------\n"
+                "*    INPUT & OUTPUT PARAMETERS\n"
+                "* --------------------------------\n"
+                f"PARAMETER {geom_var_name} ::\n"
+                f"::: LINKED_LIST {geom_var_name} ; ;\n"
+                "STRING name_geom ;\n"
+                ":: >>name_geom<< ;\n"
+                "\n"
+                "* -------------------------------\n"
+                "*    STRUCTURES AND MODULES\n"
+                "* -------------------------------\n"
+                "\n"
+                "MODULE  GEO: END: ;\n"
+                "\n"
+            )
+    
+
+    # Fill the geometrical dimensions template
+    geometrical_dimensions = geometrical_dimensions_template()
+    # Mix numbers definition
+    mix_numbers_definition, connectivity_dict = fill_template_mixes(lower_diag, UOX_mixes, Gd_mixes, remaining_mixes)
+
+    
+    # consrtuct GEO_REGI_A.c2m procedure
+    
+    geo_proc = (
+        f"*PROCEDURE {file_name}\n"
+        f"{header}\n"
+        "* --------------------------------\n"
+        "*    DIMENSIONS DEFINITION\n"
+        "* --------------------------------\n"
+        f"{geometrical_dimensions}\n"
+        "*Mix numbering definition\n"
+        f"{mix_numbers_definition}\n"
+        
+        "* -----------------------------------------\n"
+        "*         FLUX GEOMETRY DEFINITION\n"
+        "* -----------------------------------------\n"
+        f"{fill_fluxN1_geometry_template(geom_var_name, lattice_description, lower_diag, UOX_mixes, Gd_mixes, refinement_options, boundary_cond = BC)}\n"
 
         "* -----------------------------------------\n"
         "*         END OF GEOMETRY DEFINITION\n"

@@ -9,7 +9,7 @@ import cle2000
 import lifo
 
 
-def trackFluxGeomSALT(pyGEOM, num_angles, line_density, refl_type, anisotropy_level, solution_door, moc_angular_quandrature, nmu, batch, ps_file):
+def trackFluxGeomSALT(pyGEOM, num_angles, line_density, refl_type, anisotropy_level, solution_door, moc_angular_quandrature, nmu, src_approx, batch, ps_file):
     """
     Function to track a main flux geometry object using the SALT: module in DRAGON5.
     Parameters : 
@@ -24,13 +24,15 @@ def trackFluxGeomSALT(pyGEOM, num_angles, line_density, refl_type, anisotropy_le
         Type of reflection used at the tracking step, can be "TISO" for isotropic relfections or "TSPC" for specular reflections.
         Note : "TSPC" is recommended to properly model boundaries in irregular lattices.
     anisotropy_level : (int)
-        Level of anisotropy for the tracking, can be 1 (isotropic), 2 (linearly anisotropic), 3 (anisotropy order P_2), or 4 (anisotropy order P_3).
+        Level of anisotropy for the tracking, can be 1 (isotropic, P0), 2 (linearly anisotropic, P1), 3 (anisotropy order P2), or 4 (anisotropy order P3).
     solution_door : (string)
         Flag to indicate whether the tracking should be modified for a MOC solution.
     moc_angular_quandrature : (str)
         Angular quadrature scheme used for MOC tracking, can be "LCMD", "OPP1", "OGAU", "GAUS", "DGAU", "CACA", or "CACB".
-    num_polar_angles : (int)
+    num : (int)
         Number of polar angles used for MOC tracking.
+    src_approx : (str)
+        Source approximation for MOC tracking, can be "SC" (flat) or "LDC" (linear).
     batch : (int)
         Number of batches to be used in the tracking process.
         To be optimized for parallel processing. --> depends on the number of tracks ie angles and line density, as well as number of regions.
@@ -47,12 +49,6 @@ def trackFluxGeomSALT(pyGEOM, num_angles, line_density, refl_type, anisotropy_le
         postscript file containing the tracking results in ASCII format, used for data visualization.
     
     """
-    print("Tracking geometry with SALT: module...")
-    print("Number of angles: ", num_angles)
-    print("Line density: ", line_density)
-    print("Reflection type: ", refl_type)
-    print("Batch size: ", batch)
-    print("Postscript file: ", ps_file)
 
     # Create a new LIFO object to manage the tracking process
     myLifo = lifo.new()
@@ -69,6 +65,7 @@ def trackFluxGeomSALT(pyGEOM, num_angles, line_density, refl_type, anisotropy_le
     myLifo.push(anisotropy_level)
     myLifo.push(solution_door)
     myLifo.push(moc_angular_quandrature)
+    myLifo.push(src_approx)  # Source approximation for MOC tracking, can be "SC" (flat) or "LDC" (linear)
     myLifo.push(nmu)
     myLifo.push(batch)
 
@@ -215,16 +212,16 @@ def trackLVL1GeomSALT(pyGEOM_L1, num_angles_L1, line_density_L1, refl_type, batc
     track_proc.exec()
     myLifo.lib()
     # Recover the results from the LIFO stack
-    ssh_track_lcm = myLifo.node('TRACK_L1')
-    ssh_track_binary = myLifo.node('TF_EXC_L1')
-    ssh_figure = myLifo.node(ps_file_L1)
+    track_lcm_lvl1 = myLifo.node('TRACK_L1')
+    track_binary_lvl1 = myLifo.node('TF_EXC_L1')
+    figure_lvl1 = myLifo.node(ps_file_L1)
 
     # empty the Lifo stack for TRK_A_SALT
     while myLifo.getMax() > 0:
         myLifo.pop();
     
 
-    return ssh_track_lcm, ssh_track_binary, ssh_figure
+    return track_lcm_lvl1, track_binary_lvl1, figure_lvl1
 
 
 

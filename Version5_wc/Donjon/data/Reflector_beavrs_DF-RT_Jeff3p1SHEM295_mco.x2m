@@ -47,9 +47,10 @@ UTL: FVol :: DUMP ;
 Param := UTL: ;
 
 INTEGER nlf := 1 ;
+EVALUATE nbZones := nbZones 1 - ; ! decreases nbZones by one
 _McoRefl := REFL_MCO Geom FVol Param :: <<nameFeed>> <<nameRefl>> <<Palier>> <<htype>>
                             <<nlf>> <<LibType>> <<NuclData>> <<OptSph>> <<OptNoal>>
-                            <<OptSS>> ;
+                            <<OptSS>> <<nbZones>> ;
 
 ************************************************************************
 * Multicompo extrapolation of the reflector at 350 ppm Boron

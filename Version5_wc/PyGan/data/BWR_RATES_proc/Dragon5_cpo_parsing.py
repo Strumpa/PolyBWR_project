@@ -246,6 +246,7 @@ def parse_DRAGON_SCHEME(name_case, name_compo, composition_option, evaluation, s
     else:
         os.chdir(f"PYGAN_RESULTS/{name_case}_results/{computational_scheme}/{geometry_refinement_option}_{composition_option}_{evaluation}_{ssh_method}_{correlation_option}_region_num")
     print(f"Loading {name_case} rates from {name_compo}")
+    print(f"Reading from directory : {os.getcwd()}")
     # Load the LCM file
     print(os.listdir())
     pyCOMPO = lcm.new('LCM_INP', name_compo, impx=0)
@@ -307,8 +308,8 @@ def parse_DRAGON_SCHEME(name_case, name_compo, composition_option, evaluation, s
             for mix in MIXES_idx:
                 isotope_fission_rate[f"{mix+1}"] = {}
                 NWT0 = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NWT0']
-                N = pyCOMPO['H_EDI_REGI_1']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESDENS'][iso]
-                vol = pyCOMPO['H_EDI_REGI_1']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESVOL'][iso]
+                N = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESDENS'][iso]
+                vol = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESVOL'][iso]
                 NFTOT = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NFTOT']
                 if mix+1 in unique_mixes_on_diag:
                     sym_factor = 2

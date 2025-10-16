@@ -321,7 +321,7 @@ def mix_composition_definition(composition_option):
     "    Cr53  = Cr53   7.20746E-06\n"
     "    Cr54  = Cr54   1.79408E-06\n"
     "    Fe54  = Fe54   5.57337E-06\n"
-    f"    Fe56  = Fe56   8.74901E-05 {inrs_clad}\n"
+    f"    Fe56  = Fe56   8.74901E-05 {inrs_box}\n"
     "    Fe57  = Fe57   2.02053E-06\n"
     "    Fe58  = Fe58   2.68895E-07\n"
     "    Ni58  = Ni58   2.51627E-05\n"

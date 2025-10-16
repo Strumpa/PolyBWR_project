@@ -34,6 +34,8 @@ STRING sol_door ;
 :: >>sol_door<< ; ! flag to indicate if MOC tracking is used, e.g. "MOC" or "CP"
 STRING quad ;
 :: >>quad<< ; ! angular quadrature type for MOC tracking, e.g. "LCMD", "GAUS", "CACB" etc...
+STRING src_approx ;
+:: >>src_approx<< ; ! source approximation for MOC ie linear or flat. e.g. "SC" or "LDC".
 INTEGER nmu ;
 :: >>nmu<< ; ! number of polar angles for MOC tracking
 INTEGER batch ;
@@ -89,7 +91,8 @@ IF sol_door "MOC" = THEN
   * MOC tracking
   TRACK := MCCGT: TRACK TF_EXC ::
     EDIT 0
-    <<quad>> <<nmu>> AAC 80 TMT EPSI 1E-5 MCU <<mcu>> ! tried CACB but is limited to isotropic ?
+    <<quad>> <<nmu>> AAC 80 TMT EPSI 1E-5 MCU <<mcu>> 
+    <<src_approx>>
   ;
 ENDIF ;
 

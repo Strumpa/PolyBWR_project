@@ -9,9 +9,9 @@ import numpy as np
 import math
 
 # Potentially split createGeo into createSSHGeo and createFlxGeo so that the user can specify different refinement options for different flux calculation geometries in the cased of 2L scheme.
-def createGeo(geo_name, split_water_in_moderator_box, split_moderator_box, split_coolant_around_moderator_box,
+def createGeoLevels(geo_name, split_water_in_moderator_box, split_moderator_box, split_coolant_around_moderator_box,
             split_intra_assembly_coolant, split_assembly_box, split_out_assembly_moderator,
-            mix_numbering_option, refinement_option, ssh_BC, flx_BC):
+            mix_numbering_option, refinement_option, ssh_BC, lvl1_BC, lvl2_BC):
     """
     Create the geometry for the ATRIUM-10 BWR fuel assembly.
     Parameters
@@ -68,15 +68,20 @@ def createGeo(geo_name, split_water_in_moderator_box, split_moderator_box, split
                 refinement_option = "windmill"
             
             proc_file_name_ssh = "GEO_A_SSH.c2m"
-            connectivity_dict = fill_geom_ssh_proc(proc_file_name_ssh, lattice_description, lower_diag, UOX_mixes, Gd_mixes, remaining_mixes, refinement_option, ssh_BC)
+            connectivity_dict = fill_geom_ssh_proc(proc_file_name_ssh, "GEOMSSH", lattice_description, lower_diag, UOX_mixes, Gd_mixes, remaining_mixes, refinement_option, ssh_BC)
             # change executable permission to the procedure file
             os.chmod(proc_file_name_ssh, 0o755)
 
-            proc_file_name_N1 = "GEO_A_N1.c2m"
-            connectivity_dict = fill_geom_flux_proc(proc_file_name_N1, lattice_description, lower_diag, UOX_mixes, Gd_mixes, remaining_mixes, refinement_option, flx_BC)
+            proc_file_name_N1 = "GEO_A_L1.c2m"
+            connectivity_dict = fill_geom_ssh_proc(proc_file_name_N1, "GEOML1", lattice_description, lower_diag, UOX_mixes, Gd_mixes, remaining_mixes, refinement_option, lvl1_BC)
             # change executable permission to the procedure file
             os.chmod(proc_file_name_N1, 0o755)
-            
+
+            proc_file_name_N2 = "GEO_A_L2.c2m"
+            connectivity_dict = fill_geom_flux_proc(proc_file_name_N2, "GEOML2", lattice_description, lower_diag, UOX_mixes, Gd_mixes, remaining_mixes, refinement_option, lvl2_BC)
+            # change executable permission to the procedure file
+            os.chmod(proc_file_name_N2, 0o755)
+
         # Execution of the generated geometry procedures
         ### Self-Shielding Geometry
         ## Prepare lifo for SSH geometry creation
@@ -94,9 +99,24 @@ def createGeo(geo_name, split_water_in_moderator_box, split_moderator_box, split
         # Clear stack 
         while ipLifoSSH.getMax() > 0:
             ipLifoSSH.pop();
+            
+        ### 1st Level Flux Geometry : intermediate geometry
+        ## Prepare lifo for FLX geometry creation
+        ipLifoN1 = lifo.new()
+        ipLifoN1.pushEmpty("GEOML1", "LCM")
+        ipLifoN1.push(geo_name)
+        # Create the geometry
+        geomCreatorN1 = cle2000.new("GEO_A_L1", ipLifoN1, 1)
+        geomCreatorN1.exec()
+        # Recover the geometry nodes
+        ipLifoN1.lib()
+        pyGEOM_L1 = ipLifoN1.node("GEOML1")
 
+        # Clear stack
+        while ipLifoN1.getMax() > 0:
+            ipLifoN1.pop();
 
-        ### 1st Level Flux Geometry
+        ### 2nd Level Flux Geometry : finest geometry
         ## Hardcoding geometrical info, should be recovered from config file and passed as argument when creating the procedure.
         moderator_box_inner_side = 3.34 # cm
         cell_pitch = 1.295 # cm
@@ -105,7 +125,7 @@ def createGeo(geo_name, split_water_in_moderator_box, split_moderator_box, split
         # recompute in order to match the geometry definition in the procedure file.
         # Prepare lifo for FLX geometry creation
         ipLifoFLX = lifo.new()
-        ipLifoFLX.pushEmpty("GEOMN1", "LCM")
+        ipLifoFLX.pushEmpty("GEOML2", "LCM")
         ipLifoFLX.push(geo_name)
         ipLifoFLX.push(split_water_in_moderator_box_center-1)
         ipLifoFLX.push(split_water_in_moderator_box_sides+1)
@@ -117,16 +137,16 @@ def createGeo(geo_name, split_water_in_moderator_box, split_moderator_box, split
         ipLifoFLX.push(split_out_assembly_moderator[1]) # SPLITY argument
 
         # Create the geometry
-        geomCreator = cle2000.new("GEO_A_N1", ipLifoFLX, 1)
+        geomCreator = cle2000.new("GEO_A_L2", ipLifoFLX, 1)
         geomCreator.exec()
         # Recover the geometry nodes
         ipLifoFLX.lib()
-        pyGEOM = ipLifoFLX.node("GEOMN1")
+        pyGEOM = ipLifoFLX.node("GEOML2")
         # Clear stack 
         while ipLifoFLX.getMax() > 0:
             ipLifoFLX.pop();
 
-        return pyGEOM, pyGEOM_SSH, connectivity_dict
+        return pyGEOM, pyGEOM_L1, pyGEOM_SSH, connectivity_dict
 
 
 def getRegionToComposition(name_geom):
@@ -516,7 +536,7 @@ def create_carcel_definitions(lower_diag, UOX_mixes, Gd_mixes, refinement_option
     return carcel_definitions.strip()
 
 
-def fill_self_shielding_geometry_template(lattice_description, lower_diag, UOX_mixes, Gd_mixes, refinement_options = {}, boundary_cond = "TSPC"):
+def fill_self_shielding_geometry_template(geom_var_name, lattice_description, lower_diag, UOX_mixes, Gd_mixes, refinement_options = {}, boundary_cond = "TSPC"):
     """
     function used to fill the ATRIUM-10 geometry template with the appropriate fuel mix numbering
     geometrical dimensions are specificed in the geometrical_dimensions_template function.
@@ -529,7 +549,7 @@ def fill_self_shielding_geometry_template(lattice_description, lower_diag, UOX_m
         boundary_condition_str = "ALBE 1.0"
 
     ATRIUM_10_geo_template = (
-        "GEOMSSH := GEO: :: CAR2D 3 3\n"  
+        f"{geom_var_name} := GEO: :: CAR2D 3 3\n"  
         "   EDIT 1\n"
         f"   X- DIAG X+ {boundary_condition_str}\n"
         f"   Y- {boundary_condition_str} Y+ DIAG\n"
@@ -642,7 +662,7 @@ def fill_self_shielding_geometry_template(lattice_description, lower_diag, UOX_m
     return ATRIUM_10_geo_template.strip()
 
 
-def fill_flux_geometry_template(lattice_description, lower_diag, UOX_mixes, Gd_mixes, refinement_options, boundary_cond):
+def fill_flux_geometry_template(geom_var_name, lattice_description, lower_diag, UOX_mixes, Gd_mixes, refinement_options, boundary_cond):
     """
     function used to fill the ATRIUM-10 geometry template with the appropriate fuel mix numbering
     geometrical dimensions are specificed in the geometrical_dimensions_template function.
@@ -658,7 +678,7 @@ def fill_flux_geometry_template(lattice_description, lower_diag, UOX_mixes, Gd_m
 
 
     ATRIUM_10_geo_template = (
-        "GEOMN1 := GEO: :: CAR2D 3 3\n"  
+        f"{geom_var_name} := GEO: :: CAR2D 3 3\n"  
         "   EDIT 1\n"
         f"   X- DIAG X+ {boundary_condition_str}\n"
         f"   Y- {boundary_condition_str} Y+ DIAG\n"
@@ -797,7 +817,7 @@ def fill_flux_geometry_template(lattice_description, lower_diag, UOX_mixes, Gd_m
     return ATRIUM_10_geo_template.strip()
 
 
-def fill_geom_ssh_proc(file_name, lattice_description, lower_diag, UOX_mixes, Gd_mixes, remaining_mixes, refinement_options, BC):
+def fill_geom_ssh_proc(file_name, geom_var_name, lattice_description, lower_diag, UOX_mixes, Gd_mixes, remaining_mixes, refinement_options, BC):
     """
     Function to fill/create the CLE2000 procedure file with the ATRIUM-10 geometry definition.
     This function is used to create the geometry for the ATRIUM-10 assembly, which is a 10x10 lattice with a 3x3 moderating water box.
@@ -819,8 +839,8 @@ def fill_geom_ssh_proc(file_name, lattice_description, lower_diag, UOX_mixes, Gd
                 "* --------------------------------\n"
                 "*    INPUT & OUTPUT PARAMETERS\n"
                 "* --------------------------------\n"
-                "PARAMETER GEOMSSH ::\n"
-                "::: LINKED_LIST GEOMSSH ; ;\n"
+                f"PARAMETER {geom_var_name} ::\n"
+                f"::: LINKED_LIST {geom_var_name} ; ;\n"
                 "\n"
                 "STRING name_geom ;\n"
                 ":: >>name_geom<< ;\n"
@@ -855,7 +875,7 @@ def fill_geom_ssh_proc(file_name, lattice_description, lower_diag, UOX_mixes, Gd
         "*    SELF-SHIELDING GEOMETRY DEFINITION\n"
         "* -----------------------------------------\n"
 
-        f"{fill_self_shielding_geometry_template(lattice_description, lower_diag, UOX_mixes, Gd_mixes, refinement_options={}, boundary_cond = BC)}\n"
+        f"{fill_self_shielding_geometry_template(geom_var_name, lattice_description, lower_diag, UOX_mixes, Gd_mixes, refinement_options={}, boundary_cond = BC)}\n"
         
 
         "* -----------------------------------------\n"
@@ -873,7 +893,7 @@ def fill_geom_ssh_proc(file_name, lattice_description, lower_diag, UOX_mixes, Gd
     return connectivity_dict
 
 
-def fill_geom_flux_proc(file_name, lattice_description, lower_diag, UOX_mixes, Gd_mixes, remaining_mixes, refinement_options, BC):
+def fill_geom_flux_proc(file_name, geom_var_name, lattice_description, lower_diag, UOX_mixes, Gd_mixes, remaining_mixes, refinement_options, BC):
     """
     Function to fill/create the CLE2000 procedure file with the ATRIUM-10 geometry definition.
     This function is used to create the geometry for the ATRIUM-10 assembly, which is a 10x10 lattice with a 3x3 moderating water box.
@@ -896,8 +916,8 @@ def fill_geom_flux_proc(file_name, lattice_description, lower_diag, UOX_mixes, G
                 "* --------------------------------\n"
                 "*    INPUT & OUTPUT PARAMETERS\n"
                 "* --------------------------------\n"
-                "PARAMETER GEOMN1 ::\n"
-                "::: LINKED_LIST GEOMN1 ; ;\n"
+                f"PARAMETER {geom_var_name} ::\n"
+                f"::: LINKED_LIST {geom_var_name} ; ;\n"
                 "STRING name_geom ;\n"
                 ":: >>name_geom<< ;\n"
                 "INTEGER sp_mod_c sp_mod_s sp_md_box sp_co_aroud sp_in_as_co sp_as_box s_out_modx s_out_mody ;\n"
@@ -933,7 +953,7 @@ def fill_geom_flux_proc(file_name, lattice_description, lower_diag, UOX_mixes, G
         "* -----------------------------------------\n"
         "*         FLUX GEOMETRY DEFINITION\n"
         "* -----------------------------------------\n"
-        f"{fill_flux_geometry_template(lattice_description, lower_diag, UOX_mixes, Gd_mixes, refinement_options, boundary_cond = BC)}\n"
+        f"{fill_flux_geometry_template(geom_var_name, lattice_description, lower_diag, UOX_mixes, Gd_mixes, refinement_options, boundary_cond = BC)}\n"
 
         "* -----------------------------------------\n"
         "*         END OF GEOMETRY DEFINITION\n"

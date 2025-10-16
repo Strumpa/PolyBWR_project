@@ -3320,7 +3320,7 @@ CONTAINS
     REAL(PDB),PARAMETER :: EPS=1.0E-5_PDB
     REAL(PDB) :: AXIS_X1(2),AXIS_X2(2),AXIS_Y1(2),AXIS_Y2(2)
     REAL(PDB) :: X1,X2,X4,Y1,Y2,Y4,DX4,DY4,RAD,THETA1,THETA2,X1B,Y1B,X4B, &
-                 Y4B,XMIN,YMIN,XMAX,YMAX,PHI1,PHI2,DELPHI,DET1,DET2
+                 Y4B,XMIN,YMIN,XMAX,YMAX,PHI1,PHI2,DELPHI,DET1,DET2,ALIGN3(3,3)
     LOGICAL :: NOCOPY(2)
     !
     ! allocatable arrays
@@ -3400,12 +3400,25 @@ CONTAINS
           CALL SALSYM(AXIS_X1(ISYM),AXIS_Y1(ISYM),AXIS_X2(ISYM),AXIS_Y2(ISYM),X2,Y2,DX4,DY4)
           NOCOPY(ISYM)=ABS(X1-X4)<10.0*EPS .AND. ABS(Y1-Y4)<10.0*EPS .AND. &
             ABS(X2-DX4)<10.0*EPS .AND. ABS(Y2-DY4)<10.0*EPS
-          IF((HSYM=='SB60').AND.(ISYM==2)) THEN
-            NOCOPY(2)=(ABS(2._PDB*ABS(Y1-YMIN)-ABS(X4-X1)*SQRT(3._PDB))<10.0*EPS .AND. &
-              ABS(Y1-Y4)<10.0*EPS .AND. ABS(2._PDB*ABS(Y2-YMIN)-ABS(DX4-X2)*SQRT(3._PDB))<10.0*EPS &
-              .AND. ABS(Y2-DY4)<10.0*EPS)
-          ENDIF
           IF(NOCOPY(ISYM)) CYCLE
+          IF(HSYM=='SB60') THEN
+            IF(ISYM==1) THEN
+              IF((ABS(Y1)<10.0*EPS).AND.(ABS(Y2)<10.0*EPS)) CYCLE
+            ELSE
+              IF((ABS(2._PDB*ABS(Y1-YMIN)-ABS(X4-X1)*SQRT(3._PDB))<10.0*EPS .AND. &
+                & ABS(Y1-Y4)<10.0*EPS .AND. ABS(2._PDB*ABS(Y2-YMIN)-ABS(DX4-X2)*SQRT(3._PDB))<10.0*EPS &
+                & .AND. ABS(Y2-DY4)<10.0*EPS)) CYCLE
+              ALIGN3(1,2)=YMIN ; ALIGN3(2,2)=YMIN+0.5_PDB*SQRT(3._PDB)*LENGTHX
+              ALIGN3(1,1)=-XMIN
+              ALIGN3(2,1)=-XMIN-0.5_PDB*LENGTHX
+              ALIGN3(:3,3)=1.0_PDB
+              ALIGN3(3,1)=X4; ALIGN3(3,2)=Y4;
+              DET1 = DET_ROSETTA(ALIGN3(1,1),3)
+              ALIGN3(3,1)=DX4; ALIGN3(3,2)=DY4;
+              DET2 = DET_ROSETTA(ALIGN3(1,1),3)
+              IF((ABS(DET1).LE.1.0E-4).AND.(ABS(DET2).LE.1.0E-4)) CYCLE
+            ENDIF
+          ENDIF
         ELSE IF(TYPE==2) THEN
           CALL SALSYM(AXIS_X1(ISYM),AXIS_Y1(ISYM),AXIS_X2(ISYM),AXIS_Y2(ISYM),X1,Y1,X4,Y4)
           THETA1=0._PDB; THETA2=0._PDB;
@@ -3437,7 +3450,6 @@ CONTAINS
           WRITE(*,*) " elem=",ELEM," type=",TYPE," isym=",ISYM
           CALL XABORT('SALFOLD_1: invalid type of surfacic element')
         ENDIF
-        IF((TYPE==1).AND.(HSYM=='SB60').AND.(ISYM==1).AND.(ABS(Y1)<10.0*EPS).AND.(ABS(Y2)<10.0*EPS)) CYCLE
         TMP_NB_ELEM=TMP_NB_ELEM+1
         IF(TMP_NB_ELEM>3*GG%NB_ELEM) CALL XABORT('SALFOLD_1: tmp_nb_elem overflow(1)')
         I2(ISYM+1,ELEM)=TMP_NB_ELEM
