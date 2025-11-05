@@ -241,10 +241,7 @@ def parse_DRAGON_SCHEME(name_case, name_compo, composition_option, evaluation, s
     """
     # Load the DRAGON rates
     path = os.getcwd()
-    if computational_scheme == "1L_MOC":
-        os.chdir(f"PYGAN_RESULTS/{name_case}_results/{geometry_refinement_option}_{composition_option}_{evaluation}_{ssh_method}_{correlation_option}_region_num")
-    else:
-        os.chdir(f"PYGAN_RESULTS/{name_case}_results/{computational_scheme}/{geometry_refinement_option}_{composition_option}_{evaluation}_{ssh_method}_{correlation_option}_region_num")
+    os.chdir(f"PYGAN_RESULTS/{name_case}_results/{computational_scheme}/{geometry_refinement_option}_{composition_option}_{evaluation}_{ssh_method}_{correlation_option}_region_num")
     print(f"Loading {name_case} rates from {name_compo}")
     print(f"Reading from directory : {os.getcwd()}")
     # Load the LCM file

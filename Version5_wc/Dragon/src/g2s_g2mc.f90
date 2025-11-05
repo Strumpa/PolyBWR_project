@@ -53,14 +53,14 @@ subroutine G2MC(NENTRY,HENTRY,IENTRY,JENTRY,KENTRY)
 
   type(c_ptr) :: ipGeo,ipGeo_1
   integer     :: ipMC,ipSal,ipPs,sizeB,sizeP,sizeSA,nbNode,nbCLP,nbFlux,indic, &
-                 & nitma,impx
+                 & nitma,impx,drawMix
   real :: flott
   double precision :: dflott
   integer      :: lgMaxGig=0
   integer,dimension(10) :: datain
   integer,allocatable,dimension(:) :: merg,imacro
   character(len=12) :: text12
-  logical      :: drawNod,drawMix,lmacro
+  logical      :: lmacro
   real,dimension(2) :: zoomx,zoomy
 
   ipGeo_1=c_null_ptr ! no geometry read
@@ -110,8 +110,7 @@ subroutine G2MC(NENTRY,HENTRY,IENTRY,JENTRY,KENTRY)
   end if
   !
   impx=1
-  drawNod = .false.
-  drawMix = .false.
+  drawMix = 0
   zoomx = (/ 0.0, 1.0 /)
   zoomy = (/ 0.0, 1.0 /)
   typgeo=0
@@ -124,11 +123,11 @@ subroutine G2MC(NENTRY,HENTRY,IENTRY,JENTRY,KENTRY)
     call REDGET(indic,impx,flott,text12,dflott)
     if (indic /= 1) call XABORT('G2MC: integer data expected.')
   else if (text12 == 'DRAWNOD') then
-     drawNod=.true.
-     drawmix=.true.
+     drawMix=1
   else if (text12 == 'DRAWMIX') then
-     drawNod=.true.
-     drawmix=.false.
+     drawMix=2
+  else if (text12 == 'DRAWELEM') then
+     drawMix=3
   else if (text12 == 'ZOOMX') then
     call REDGET(indic,nitma,zoomx(1),text12,dflott)
     if (indic /= 2) call XABORT('G2S: real data expected(1).')
@@ -206,7 +205,7 @@ subroutine G2MC(NENTRY,HENTRY,IENTRY,JENTRY,KENTRY)
   deallocate(merg)
 
   !impression des segArc charges
-  if (ipPs /= -1) call drawSegArc(ipPs,sizeSA,drawMix,drawNod,zoomx,zoomy)
+  if (ipPs /= -1) call drawSegArc(ipPs,sizeSA,drawMix,zoomx,zoomy)
 
   !creation du fichier de commande Monte-Carlo
   if (index(HENTRY(1),'.tp')/=0) then

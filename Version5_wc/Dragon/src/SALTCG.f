@@ -57,10 +57,10 @@
       PARAMETER       (IOUT=6,NAMSBR='SALTCG')
       INTEGER          NSTATE
       PARAMETER       (NSTATE=40)
-      INTEGER          NMAX0
+      INTEGER          NMAX0,MAXCDA
       DOUBLE PRECISION PI,DZERO,DONE,DTWO,DSUM
       PARAMETER       (PI=3.14159265358979, DZERO=0.0D0,DONE=1.0D0,
-     >                 DTWO=2.0D0,NMAX0=100000)
+     >                 DTWO=2.0D0,NMAX0=100000,MAXCDA=30)
 *----
 *  Functions
 *----
@@ -68,8 +68,8 @@
 *----
 *  Local variables
 *----
-      INTEGER          ISTATE(NSTATE),IEDIMG(NSTATE),ICODE(6)
-      REAL             RSTATT(NSTATE),ALBEDO(6)
+      INTEGER          ISTATE(NSTATE),IEDIMG(NSTATE),ICODE(MAXCDA)
+      REAL             RSTATT(NSTATE),ALBEDO(MAXCDA)
       INTEGER          RENO,LTRK,AZMOAQ,ISYMM,POLQUA,POLOAQ,AZMQUA,
      >                 AZMNBA,OK
       DOUBLE PRECISION DENUSR,RCUTOF,DENLIN,SPACLN,WEIGHT
@@ -81,7 +81,7 @@
      >                 MAXSUB,MAXSGL,NBDR,ILONG,ITYLCM,IPER(3)
       INTEGER          JJ,KK,NCOR,NQUAD,NANGL,NBANGL,LINMAX
       DOUBLE PRECISION DQUAD(4),ABSC(3,2),RCIRC,SIDEH,ANGLE
-      CHARACTER        CTRK*4,COMENT*80
+      CHARACTER        CTRK*4,COMENT*80,HSMG*131
       INTEGER          IFMT,NEREG,NESUR
 *----
 *  Allocatable arrays
@@ -132,7 +132,11 @@
 *  Get main tracking records
 *----
       CALL LCMLEN(IPTRK,'ICODE       ',ILONG,ITYLCM)
-      IF(ILONG.GT.6) CALL XABORT('SALTCG: ALBEDO OVERFLOW.')
+      IF(ILONG.GT.MAXCDA) THEN
+        WRITE(HSMG,'(24HSALTCG: The geometry has,I3,15H albedo values ,
+     1  2H(>,I3,2H).)') ILONG,MAXCDA
+        CALL XABORT(HSMG)
+      ENDIF
       CALL LCMGET(IPTRK,'ICODE       ',ICODE )
       CALL LCMGET(IPTRK,'ALBEDO      ',ALBEDO)
       CALL LCMSIX(IPTRK,'NXTRecords  ',1)

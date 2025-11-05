@@ -166,8 +166,8 @@ INTEGER COOL := 217 ;
 * -----------------------------------------
 GEOMSSH := GEO: :: CAR2D 3 3
    EDIT 1
-   X- DIAG X+ REFL
-   Y- REFL Y+ DIAG
+   X- DIAG X+ ALBE 1.0
+   Y- ALBE 1.0 Y+ DIAG
    CELL
    BotCL BMidW BotCR
            LAT RMidW

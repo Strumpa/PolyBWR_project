@@ -405,7 +405,6 @@ contains
     ! correction of plain CAR2D bug by Alain Hebert (May 2016)
     integer  :: nbFile
     logical  :: isOpen
-    logical,parameter :: drawMix = .true.
     real,parameter,dimension(2) :: zoomx = (/ 0.0, 1.0 /) ! no x zoom on postscript plot
     real,parameter,dimension(2) :: zoomy = (/ 0.0, 1.0 /) ! no y zoom on postscript plot
 
@@ -425,14 +424,14 @@ contains
                 nbFile = nbFile + 1
                 inquire(nbFile,opened=isOpen)
                 if(isOpen) cycle
-                open(nbFile,file='errorMix.ps')
+                open(nbFile,file='errorMix.eps')
                 exit
              enddo
-             call drawSegArc(nbFile,szSA,.false.,drawMix,zoomx,zoomy)
+             call drawSegArc(nbFile,szSA,2,zoomx,zoomy)
              close(nbFile)
              write(*,*) 'i,j,mixAv,mixAp : ',i,j,mixAv,mixAp
              call XABORT("G2S: internal problem for mix values. See the file &
-                  &errorMix.ps")
+                  &errorMix.eps")
           endif
 ! CS-IV : fin de la mise en commentaires de Alain
           indNodeAv=getNodeAv(i,j) ; indNodeAp=getNodeAp(i,j)

@@ -409,7 +409,8 @@ fission for fissile nuclide $i$ is calculated as
 $$E_{{\rm fiss},i}={Q_i \over Q_{\rm 235}} H_{\rm 235}$$
 \noindent where $Q_i$ is the fission pseudo-Q value for fissile nuclide $i$; $Q_{\rm 235}$ is the fission
 pseudo-Q value for U235 and $H_{\rm 235} = 202.27$ MeV is an estimate for the energy deposition per
-fission (including the additional energy released in capture reactions) in a typical light water reactor.
+fission (including the additional energy released in capture reactions) in a typical light water reactor. This option
+assumes that {\tt H-FACTOR} is defined for all heavy isotopes.
 
 \item[\moc{NOGL}] keyword to compute the burnup using the energy released by all isotopes present in
 fuel only. This is the default option.

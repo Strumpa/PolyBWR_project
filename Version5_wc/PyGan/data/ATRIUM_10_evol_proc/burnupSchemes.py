@@ -5,7 +5,7 @@
 import lifo
 import cle2000
 
-def burnup2LScheme(lib_lcm,TRACK,TF_EXC,TRACK_L1,TF_EXC_L1,TRACK_SSH,TF_EXC_SSH,StepList,name_compo,ssh_solver,lvl1_solver,name_geom):
+def burnup2LScheme(lib_lcm,TRACK,TF_EXC,TRACK_L1,TF_EXC_L1,TRACK_SSH,TF_EXC_SSH,StepList,name_compo,ssh_solver,lvl1_solver,name_geom, specific_power, rates_normalisation_option):
     """
     PARAMETER COMPO LIBRARY TRACK TF_EXC 
     TRACK_1L TF_EXC_L1 TRACK_SS TF_EXC_SS StepList ::
@@ -40,6 +40,8 @@ def burnup2LScheme(lib_lcm,TRACK,TF_EXC,TRACK_L1,TF_EXC_L1,TRACK_SSH,TF_EXC_SSH,
     myLifo.push(ssh_solver)
     myLifo.push(lvl1_solver)
     myLifo.push(name_geom)
+    myLifo.push(specific_power)
+    myLifo.push(rates_normalisation_option)
     myLifo.lib()
 
     # Execution 
@@ -51,7 +53,7 @@ def burnup2LScheme(lib_lcm,TRACK,TF_EXC,TRACK_L1,TF_EXC_L1,TRACK_SSH,TF_EXC_SSH,
     pyCOMPO = myLifo.node("COMPO")
     return pyCOMPO
 
-def burnup1LScheme(lib_lcm,TRACK,TF_EXC,TRACK_SSH,TF_EXC_SSH,StepList,name_compo,ssh_solver,name_geom):
+def burnup1LScheme(lib_lcm,TRACK,TF_EXC,TRACK_SSH,TF_EXC_SSH,StepList,name_compo,ssh_solver,name_geom, specific_power, rates_normalisation_option):
     """
     PARAMETER COMPO LIBRARY TRACK TF_EXC TRACK_SS TF_EXC_SS StepList ::
     ::: LINKED_LIST COMPO ;
@@ -80,6 +82,8 @@ def burnup1LScheme(lib_lcm,TRACK,TF_EXC,TRACK_SSH,TF_EXC_SSH,StepList,name_compo
     myLifo.push(name_compo)
     myLifo.push(ssh_solver)
     myLifo.push(name_geom)
+    myLifo.push(specific_power)
+    myLifo.push(rates_normalisation_option)
     myLifo.lib()
 
     # Execution 

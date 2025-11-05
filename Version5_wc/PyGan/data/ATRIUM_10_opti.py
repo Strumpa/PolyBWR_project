@@ -30,7 +30,8 @@ if not os.path.exists(save_dir):
 ########################################################### PARAMETER SELECTION ##########################################################################
 exec = True
 
-computational_scheme = "1L_MOC" # "1L_MOC", "2L_PIJ_MOC", "2L_IC_MOC"
+solution_door_ssh = "IC" # "PIJ"
+computational_scheme = "2L_IC_MOC" # "1L_MOC", "2L_PIJ_MOC", "2L_IC_MOC"
 SPH_GRMAX = 19 # 16, 17, 18, 19, 20, 21, 22, 23.
 # Options from DRAGON calculation setup.
 # Geometry parameters : ATRIUM-10 BWR fuel assembly
@@ -60,7 +61,7 @@ if refinement_opt_name == "finest_geom":
     refinement_options["L2"]["Gd_cells"] = "coolant_ring_SECT_4_0"
     num_angles = 24
     line_density = 150.0
-    batch = 1000
+    batch = 2000
     if "2L_IC" in computational_scheme:
         refinement_options["L1"] = {}
         refinement_options["L1"]["moderator"] = "NONE" 
@@ -132,11 +133,10 @@ elif refinement_options["L2"]["moderator"] == "fine2":
     split_intra_assembly_coolant = 4
     split_assembly_box = 2
     split_out_assembly_moderator = [10,30]
-    if "2L_IC" in computational_scheme:
-        refinement_options["L1"] = {}
-        refinement_options["L1"]["moderator"] = "NONE" 
-        refinement_options["L1"]["UOX_cells"] = "NONE"
-        refinement_options["L1"]["Gd_cells"] = "NONE"
+    refinement_options["L1"] = {}
+    refinement_options["L1"]["moderator"] = "NONE" 
+    refinement_options["L1"]["UOX_cells"] = "NONE"
+    refinement_options["L1"]["Gd_cells"] = "NONE"
     
 elif refinement_options["L2"]["moderator"] == "fine3":
     split_water_in_moderator_box = 30
@@ -154,7 +154,6 @@ name_geom = "AT10_ASSBLY"
 # Tracking parameters : self-shielding geometry
 num_angles_ssh = 8
 line_density_ssh = 25.0
-solution_door_ssh = "IC" # "PIJ"
 if solution_door_ssh == "PIJ":
     reflection_type_ssh = "TSPC"
 elif solution_door_ssh == "IC":
@@ -210,7 +209,7 @@ postscript_file = f"AT10_FIG_MAIN_{refinement_opt_name}.ps"
 
 # Parameters for the LIBRARY creation
 draglib_name = "J311_295" # "endfb8r1_295" # "J311_295"
-self_shielding_method = "PT"  # Method to be used for self-shielding calculations, "PT" for Mathematical Probability Tables, "SUBG" for Physical Probaility tables, "RSE" for Resonant Spectrum Expansion.
+self_shielding_method = "RSE"  # Method to be used for self-shielding calculations, "PT" for Mathematical Probability Tables, "SUBG" for Physical Probaility tables, "RSE" for Resonant Spectrum Expansion.
 resonance_correlation = "NOCORR"  # Specify if the resonance correlation model should be applied. Only available for "RSE" and "PT". This will use a correlation model to treat reonances of U238, Pu240 and Gd157.
 transport_correction = "NONE"
 composition_option = "AT10_void_0"  # Specify which composition of mixes should be used for the LIBRARY creation. For now "AT10_void_0" and "AT10_void_40" are available.
@@ -323,8 +322,9 @@ if exec:
     ######################################################### EXPORTS ############################################################
 
     # Save the MULTICOMPO to a specific directory
-    # Save the LCM objects to the specified directory
     shutil.copyfile(name_compo, f"{save_dir_case}/{name_compo}")
+    # Save .result file for easier analysis of time spent in modules
+    shutil.copyfile("ATRIUM_10_opti.result", f"{save_dir_case}/ATRIUM_10_opti_n{num_angles}_ld{int(line_density)}_n2{num_angles_ssh}_ld2{int(line_density_ssh)}_{self_shielding_method}_{solution_door_ssh}_{reflection_type_lvl2}_{anisotropy_level}_{solution_door_lvl2}_{moc_angular_quadrature}_{nmu}_{batch}_{batch_ssh}_{transport_correction}.result")
 
 
     # Save times per module in the same save_dir_case directory, in a pd.DataFrame
@@ -335,7 +335,8 @@ if exec:
         f"LIB: call ({self_shielding_method}) (s)": time_creating_lib,
         "USS: call (s)": time_self_shielding,
         "ASM: + FLU: calls (s)": time_flux_calculation,
-        "EDI: + COMPO: calls (s)": time_edi_compo
+        "EDI: + COMPO: calls (s)": time_edi_compo,
+        'Total time (s)': time.time() - start_time
     }
     if "2L" in computational_scheme:
         times_dict["SALT: call [lvl1] (s)"] = time_tracking_lvl1
@@ -343,4 +344,4 @@ if exec:
 
     times_df = pd.DataFrame.from_dict(times_dict, orient='index', columns=['Time (s)'])
     # Save the DataFrame to a CSV file in the specified directory
-    times_df.to_csv(f"{save_dir_case}/df_module_times_n{num_angles}_ld{int(line_density)}_n2{num_angles_ssh}_ld2{int(line_density_ssh)}_{reflection_type_lvl2}_{anisotropy_level}_{solution_door_lvl2}_{moc_angular_quadrature}_{nmu}_{batch}_{batch_ssh}_{transport_correction}.csv")
+    times_df.to_csv(f"{save_dir_case}/df_module_times_n{num_angles}_ld{int(line_density)}_n2{num_angles_ssh}_ld2{int(line_density_ssh)}_{self_shielding_method}_{solution_door_ssh}_{reflection_type_lvl2}_{anisotropy_level}_{solution_door_lvl2}_{moc_angular_quadrature}_{nmu}_{batch}_{batch_ssh}_{transport_correction}.csv")

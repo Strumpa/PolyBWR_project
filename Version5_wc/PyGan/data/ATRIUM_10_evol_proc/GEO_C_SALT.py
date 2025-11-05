@@ -10,7 +10,7 @@
 import lifo
 import cle2000
 
-def GEO_C_SALT():
+def GEO_C_SALT(name_geom):
 
     # Lifo
     myLifo=lifo.new()
@@ -20,7 +20,10 @@ def GEO_C_SALT():
     myLifo.lib()
 
     # Execution 
-    geoBWR = cle2000.new('GEO_C_SALT',myLifo,1)
+    if name_geom == "AT10_24UOX":
+        geoBWR = cle2000.new('GEO_C_UOX',myLifo,1)
+    elif name_geom == "AT10_45Gd":
+        geoBWR = cle2000.new('GEO_C_GD',myLifo,1)
     geoBWR.exec()
 
     # Recover

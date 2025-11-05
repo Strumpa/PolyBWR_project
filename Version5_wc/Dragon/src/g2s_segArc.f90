@@ -1216,9 +1216,8 @@ contains
          .or.(isEqualConst(cx,ex).and.isEqualConst(cy,ey)) )
   end function giveExtremalsAngles
 
-  subroutine drawSegArc(fileNbr,szSA,withNodes,drawMix,zoomx,zoomy)
-    integer,intent(in) :: fileNbr,szSA
-    logical,intent(in) :: withNodes,drawMix
+  subroutine drawSegArc(fileNbr,szSA,drawMix,zoomx,zoomy)
+    integer,intent(in) :: fileNbr,szSA,drawMix
     real,intent(in)    :: zoomx(2),zoomy(2)
 
     type(t_segArc) :: sa
@@ -1269,23 +1268,29 @@ contains
           call line(sa%x,sa%y,sa%dx,sa%dy)
           cx=real((sa%dx+sa%x)*0.5d0) ; cy=real((sa%dy+sa%y)*0.5d0)
           angl = real(calculeAngle(sa%x,sa%y,sa%dx,sa%dy)*rad2deg-90.d0)
-          if (withNodes .and. drawMix) then
+          if (drawMix==1) then
              call keknum(cx,cy,tailleNbr,real(sa%nodeg),angl,-1,2)
              call keknum(cx,cy,tailleNbr,real(sa%noded),angl,-1,0)
-          else if (drawMix) then
+          else if (drawMix==2) then
              call keknum(cx,cy,tailleNbr,real(sa%neutronicMixg),angl,-1,2)
              call keknum(cx,cy,tailleNbr,real(sa%neutronicMixd),angl,-1,0)
+          else if (drawMix==3) then
+             call keknum(cx,cy,tailleNbr,real(i),angl,-1,2)
+             call keknum(cx,cy,tailleNbr,real(i),angl,-1,0)
           end if
        else if (sa%typ==tcer) then
           call arc(sa%x,sa%y,sa%r,0.d0,180.d0)
           call arc(sa%x,sa%y,sa%r,180.d0,360.d0)
           cx=real(sa%x+sa%r) ; cy=real(sa%y)
-          if (withNodes .and. drawMix) then
+          if (drawMix==1) then
              call keknum(cx,cy,tailleNbr,real(sa%nodeg),0.,-1,2)
              call keknum(cx,cy,tailleNbr,real(sa%noded),0.,-1,0)
-          else if (drawMix) then
+          else if (drawMix==2) then
              call keknum(cx,cy,tailleNbr,real(sa%neutronicMixg),0.,-1,2)
              call keknum(cx,cy,tailleNbr,real(sa%neutronicMixd),0.,-1,0)
+          else if (drawMix==3) then
+             call keknum(cx,cy,tailleNbr,real(i),0.,-1,2)
+             call keknum(cx,cy,tailleNbr,real(i),0.,-1,0)
           end if
        else
           call arc(sa%x,sa%y,sa%r,sa%a*rad2deg,sa%b*rad2deg)
@@ -1296,12 +1301,15 @@ contains
           end if
           cx=real(sa%x+cos(angl)*sa%r) ; cy=real(sa%y+sin(angl)*sa%r)
           angl=real(angl*rad2deg)
-          if (withNodes .and. drawMix) then
+          if (drawMix==1) then
              call keknum(cx,cy,tailleNbr,real(sa%nodeg),angl,-1,2)
              call keknum(cx,cy,tailleNbr,real(sa%noded),angl,-1,0)
-          else if (drawMix) then
+          else if (drawMix==2) then
              call keknum(cx,cy,tailleNbr,real(sa%neutronicMixg),angl,-1,2)
              call keknum(cx,cy,tailleNbr,real(sa%neutronicMixd),angl,-1,0)
+          else if (drawMix==3) then
+             call keknum(cx,cy,tailleNbr,real(i),angl,-1,2)
+             call keknum(cx,cy,tailleNbr,real(i),angl,-1,0)
           end if
        end if
     end do

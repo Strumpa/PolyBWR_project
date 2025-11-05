@@ -374,7 +374,7 @@ def parse_S2_pin_mat_det(name_case, XS_lib_S2, fission_isotopes, ngamma_isotopes
     detectorFile = st.read(f"{os.environ['SERPENT_RESULTS']}/{name_case}_{XS_lib_S2}_inp_det{bu}.m")
     depletionFile = st.read(f"{os.environ['SERPENT_RESULTS']}/{name_case}_{XS_lib_S2}_inp_dep.m")
     resultsFile = st.read(f"{os.environ['SERPENT_RESULTS']}/{name_case}_{XS_lib_S2}_inp_res.m")
-    keff = resultsFile.resdata["absKeff"][bu].T[0]
+    keff = resultsFile.resdata["absKeff"].T[0]
 
     print(f"keff = {keff}")
     print(detectorFile.detectors.keys())

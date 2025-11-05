@@ -82,7 +82,7 @@ IF name_geom "AT10_ASSBLY" = THEN
     LIBCOND := EDICOND :: STEP UP CONDD ;
 ! Recover nuclide densities from LIBCOND to LIBRARY2
     LIBRARY2 := LIB: LIBRARY2 LIBCOND ::
-        EDIT 0
+        EDIT 1
         MAXS
             MIX 1 MIX 2 MIX 3 MIX 4
             MIX 5 MIX 6 MIX 7 MIX 8
@@ -152,6 +152,26 @@ ELSEIF name_geom "AT10_24UOX" = THEN
         MAXS
             MIX 1 MIX 2 MIX 3 MIX 4
             MIX 5 MIX 6 MIX 7
+    ;
+ELSEIF name_geom "AT10_45Gd" = THEN 
+        EDICOND := EDI: FLUX2 LIB26G TRACK ::
+        EDIT 0
+        MICR ALL
+        COND 
+        MERG MIX
+            1 2 3 4
+            5 6 7 8 
+            9 
+        SAVE ON CONDD
+        ;
+    LIBCOND := EDICOND :: STEP UP CONDD ;
+! Recover nuclide densities from LIBCOND to LIBRARY2
+    LIBRARY2 := LIB: LIBRARY2 LIBCOND ::
+        EDIT 0
+        MAXS
+            MIX 1 MIX 2 MIX 3 MIX 4
+            MIX 5 MIX 6 MIX 7 MIX 8
+            MIX 9
     ;
 ENDIF ;
 

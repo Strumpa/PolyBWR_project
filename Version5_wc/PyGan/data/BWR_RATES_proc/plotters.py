@@ -324,7 +324,7 @@ def plot_pinwise_errors_BWR_assembly(errors_rates, name_case, name_compo, calcul
         plt.figure(figsize=(10,10))
         im = plt.imshow(np.flipud(error_grid), origin="lower", cmap="bwr", vmin=np.min(errors_rates[gr]), vmax=np.max(errors_rates[gr]))
 
-        plt.colorbar(im, label="Relative Error on rates (%)")
+        plt.colorbar(im, label="Relative Difference (%)")
         
         nrows, ncols = error_grid.shape
         for i in range(nrows):
@@ -349,7 +349,7 @@ def plot_pinwise_errors_BWR_assembly(errors_rates, name_case, name_compo, calcul
             group_id = "thermal"
         elif gr == 1:
             group_id = "fast"
-        plt.title(f'(D5-S2) Relative errors on total fission rates, {group_id} group', fontsize=16)
+        plt.title(f'(D5-S2) Relative differences on fission rates, {group_id} group', fontsize=16)
         # Show the plot
         plt.tight_layout()
         plt.savefig(f"DRAGON_RATES_{name_case}/{calculation_opt}/{name_compo}/assembly_map_{fig_name}_g{gr+1}.png", dpi=300)

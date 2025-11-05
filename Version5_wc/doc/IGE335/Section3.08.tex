@@ -59,7 +59,8 @@ is set in data structure \dstr{descedi}.
 $[$ \moc{EDIT} \dusa{iprint} $]$ \\
 $[$ \moc{UPS} $]$ \\
 $[$ \moc{MERG} $\{$ \moc{NONE} $|$ \moc{COMP} $|$ \moc{GEO} $|$ \moc{HMIX} $|$ \\
-\hskip 0.8cm \moc{G2S} \dusa{nhom} $[[$ \moc{RECT} \dusa{xm} \dusa{xp} \dusa{ym} \dusa{yp} $]]~[[$ \moc{TRIA} \dusa{x1} \dusa{y1} \dusa{x2} \dusa{y2} \dusa{x3} \dusa{y3} $]]~[$ \moc{REMIX} (\dusa{imix2}(ii),ii=1,nhom) $]~|$ \\
+\hskip 0.8cm \moc{G2S} \dusa{nhom} $[[$ \moc{RECT} \dusa{xm} \dusa{xp} \dusa{ym} \dusa{yp} $]]~[[$ \moc{TRIA} \dusa{x1} \dusa{y1} \dusa{x2} \dusa{y2} \dusa{x3} \dusa{y3} $]]$ \\
+\hskip 1.6cm $[[$ \moc{QUAD} \dusa{x1} \dusa{y1} \dusa{x2} \dusa{y2} \dusa{x3} \dusa{y3} \dusa{x4} \dusa{y4} $]]~~[$ \moc{REMIX} (\dusa{imix2}(ii),ii=1,nhom) $]~|$ \\
 \hskip 0.8cm \moc{CELL} $[~\{$ \moc{SYBIL} $|$ \moc{EXCELL} $|$ \moc{NXT} $|$ \moc{DEFAULT} $|$ \moc{UNFOLD} $\}~]~[$ \moc{REMIX} (\dusa{imix2}(ii),ii=1,nbmix2) $]~|$ \\
 \hskip 0.8cm \moc{REGI} (\dusa{iregm}(ii),ii=1,nregio) $|$ \\
 \hskip 0.8cm \moc{MIX} $[$ (\dusa{imixm}(ii),ii=1,nbmix) $]~\}$ $]$ \\
@@ -179,6 +180,8 @@ repeating the \moc{RECT} and/or \moc{TRIA} data structures.
 
 \item[\moc{TRIA}] keyword used to specify a unique homogeneous mixture based on a triangular node.
 
+\item[\moc{QUAD}] keyword used to specify a unique homogeneous mixture based on a quadrilateral node. In this case, the corner list must be provided in clockwise or anticlockwise order.
+
 \item[\dusa{x1}] X--coordinate of the first corner.
 
 \item[\dusa{y1}] Y--coordinate of the first corner.
@@ -190,6 +193,10 @@ repeating the \moc{RECT} and/or \moc{TRIA} data structures.
 \item[\dusa{x3}] X--coordinate of the third corner.
 
 \item[\dusa{y3}] Y--coordinate of the third corner.
+
+\item[\dusa{x4}] X--coordinate of the fourth corner of a quadrilateral.
+
+\item[\dusa{y4}] Y--coordinate of the fourth corner of a quadrilateral.
 
 \item[\moc{HMIX}] keyword used to specify that the homogenization region will be selected using the information provided by the \moc{HMIX} option in the \moc{GEO:} module (see \Sect{descPP}). In this case, all the regions associated with a virtual homogenization mixture will be homogenized. If the virtual homogenization mixtures were not defined in the geometry, the real mixtures are used instead (see \moc{MIX} keyword in \Sect{descPP}). This option is valid only for \moc{NXT:} based \dds{tracking} data structure (this option uses the information stored on the reference \dds{TRKNAM} data structure).
 

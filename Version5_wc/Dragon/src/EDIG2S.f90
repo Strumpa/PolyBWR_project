@@ -76,7 +76,7 @@ CONTAINS
     CALL REDGET(ITYPLU,NMERGE,REALIR,CARLIR,DBLLIR)
     IF(ITYPLU.NE.1) CALL XABORT('EDIG2S: INTEGER VARIABLE EXPECTED.')
     IF(NMERGE.LE.0) CALL XABORT('EDIG2S: INVALID VALUE OF NMERGE.')
-    ALLOCATE(NODE(6,NMERGE),ITNODE(NMERGE))
+    ALLOCATE(NODE(8,NMERGE),ITNODE(NMERGE))
     DO IM=1,NMERGE
       CALL REDGET(ITYPLU,INTLIR,REALIR,CARLIR,DBLLIR)
       IF(ITYPLU.NE.3) CALL XABORT('EDIG2S: CHARACTER VARIABLE EXPECTED.')
@@ -95,8 +95,15 @@ CONTAINS
           IF(ITYPLU.NE.2) CALL XABORT('EDIG2S: REAL VARIABLE EXPECTED(2).')
           NODE(I,IM)=REALIR
         ENDDO
+      ELSE IF(CARLIR.EQ.'QUAD') THEN
+        ITNODE(IM)=3
+        DO I=1,8
+          CALL REDGET(ITYPLU,INTLIR,REALIR,CARLIR,DBLLIR)
+          IF(ITYPLU.NE.2) CALL XABORT('EDIG2S: REAL VARIABLE EXPECTED(3).')
+          NODE(I,IM)=REALIR
+        ENDDO
       ELSE
-        CALL XABORT('EDIG2S: *RECT* OR *TRIA* KEYWORD EXPECTED.')
+        CALL XABORT('EDIG2S: *RECT*, *TRIA* OR *QUAD* KEYWORD EXPECTED.')
       ENDIF
     ENDDO
     !----
@@ -177,6 +184,25 @@ CONTAINS
                 IF(IPAR(3).GT.0) ICOUNT(IPAR(3),IM)=ICOUNT(IPAR(3),IM)+1
               ENDIF
             ENDIF
+          ELSE IF(ITNODE(IM).EQ.3) THEN
+            ! the quadrilateral is represented as two triangles
+            DO ITRI=1,2
+              TLAMB1=EDIBAR(NODE((ITRI-1)*2+1:(ITRI-1)*2+6,IM),CX,CY)
+              TLAMB2=EDIBAR(NODE((ITRI-1)*2+1:(ITRI-1)*2+6,IM),DX,DY)
+              IF((TLAMB1(1).GE.-EPS).AND.(TLAMB1(2).GE.-EPS).AND.(TLAMB1(3).GE.-EPS).AND. &
+                 (TLAMB2(1).GE.-EPS).AND.(TLAMB2(2).GE.-EPS).AND.(TLAMB2(3).GE.-EPS)) THEN
+                IF((ABS(TLAMB1(1)).LE.EPS).AND.(ABS(TLAMB2(1)).LE.EPS)) THEN
+                  IF(IPAR(3).GT.0) ICOUNT(IPAR(3),IM)=ICOUNT(IPAR(3),IM)+1
+                ELSE IF((ABS(TLAMB1(2)).LE.EPS).AND.(ABS(TLAMB2(2)).LE.EPS)) THEN
+                  IF(IPAR(3).GT.0) ICOUNT(IPAR(3),IM)=ICOUNT(IPAR(3),IM)+1
+                ELSE IF((ABS(TLAMB1(3)).LE.EPS).AND.(ABS(TLAMB2(3)).LE.EPS)) THEN
+                  IF(IPAR(3).GT.0) ICOUNT(IPAR(3),IM)=ICOUNT(IPAR(3),IM)+1
+                ELSE
+                  IF(IPAR(2).GT.0) ICOUNT(IPAR(2),IM)=ICOUNT(IPAR(2),IM)+1
+                  IF(IPAR(3).GT.0) ICOUNT(IPAR(3),IM)=ICOUNT(IPAR(3),IM)+1
+                ENDIF
+              ENDIF
+            ENDDO
           ENDIF
         ENDDO
       ELSE IF(ITYPE.EQ.2) THEN
@@ -196,6 +222,15 @@ CONTAINS
               IF(IPAR(2).GT.0) ICOUNT(IPAR(2),IM)=ICOUNT(IPAR(2),IM)+1
               IF(IPAR(3).GT.0) ICOUNT(IPAR(3),IM)=ICOUNT(IPAR(3),IM)+1
             ENDIF
+          ELSE IF(ITNODE(IM).EQ.3) THEN
+            ! the quadrilateral is represented as two triangles
+            DO ITRI=1,2
+              TLAMB1=EDIBAR(NODE((ITRI-1)*2+1:(ITRI-1)*2+6,IM),CX,CY)
+              IF((TLAMB1(1).GE.-EPS).AND.(TLAMB1(2).GE.-EPS).AND.(TLAMB1(3).GE.-EPS)) THEN
+                IF(IPAR(2).GT.0) ICOUNT(IPAR(2),IM)=ICOUNT(IPAR(2),IM)+1
+                IF(IPAR(3).GT.0) ICOUNT(IPAR(3),IM)=ICOUNT(IPAR(3),IM)+1
+              ENDIF
+            ENDDO
           ENDIF
         ENDDO
       ELSE IF(ITYPE.EQ.3) THEN
@@ -221,6 +256,15 @@ CONTAINS
               IF(IPAR(2).GT.0) ICOUNT(IPAR(2),IM)=ICOUNT(IPAR(2),IM)+1
               IF(IPAR(3).GT.0) ICOUNT(IPAR(3),IM)=ICOUNT(IPAR(3),IM)+1
             ENDIF
+          ELSE IF(ITNODE(IM).EQ.3) THEN
+            ! the quadrilateral is represented as two triangles
+            DO ITRI=1,2
+              TLAMB1=EDIBAR(NODE((ITRI-1)*2+1:(ITRI-1)*2+6,IM),CX,CY)
+              IF((TLAMB1(1).GE.-EPS).AND.(TLAMB1(2).GE.-EPS).AND.(TLAMB1(3).GE.-EPS)) THEN
+                IF(IPAR(2).GT.0) ICOUNT(IPAR(2),IM)=ICOUNT(IPAR(2),IM)+1
+                IF(IPAR(3).GT.0) ICOUNT(IPAR(3),IM)=ICOUNT(IPAR(3),IM)+1
+              ENDIF
+            ENDDO
           ENDIF
         ENDDO
       ENDIF

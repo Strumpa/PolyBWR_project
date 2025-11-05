@@ -54,7 +54,7 @@ IF sol_door "PIJ" = THEN
     EDIT 1
     BATCH <<batch>>
     <<refl_type>> EQW2 <<num_ang>> <<densur>>
-    MERGMIX
+    !MERGMIX
   ;
 ELSEIF sol_door "IC" = THEN
 

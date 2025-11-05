@@ -64,12 +64,21 @@ ELSEIF name_geom "AT10_24UOX" = THEN
       COND
       SAVE ON EDIBU
    ;
+ELSEIF name_geom "AT10_45Gd" = THEN 
+   EDIBU := EDI: FLUX2 LIB26G TRACK ::
+      EDIT 1
+      MICR 12 U234 U235 U238 Pu239 Pu240 Pu241 Pu242 Am241 Gd155 Gd157 Xe135 Sm149
+      MERG MIX
+         1 1 1 1 1 1 0 0 0
+      COND
+      SAVE ON EDIBU
+   ;
 ENDIF ;
 * --------------------------------
 *    COMPO: CALL FOR EDIBU
 * --------------------------------
 COMPO := COMPO: COMPO EDIBU LIB26G BURNUP ::
-   EDIT 1
+   EDIT 10
    STEP UP 'EDIBU'
    SET <<Tbeg>> DAY 
 ;

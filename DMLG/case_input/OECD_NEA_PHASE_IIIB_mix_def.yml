@@ -76,7 +76,7 @@ MIX_COMPOSITIONS:
       H1: 4.9316E-02
       O16: 2.4658E-02
     temperature_points:
-      - 559.
+      - 559.0
     depletable: false
 
   - name: "MODE_OUT"

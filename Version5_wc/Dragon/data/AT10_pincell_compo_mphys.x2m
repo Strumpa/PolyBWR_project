@@ -29,26 +29,26 @@ SEQ_ASCII FIG_SS.ps :: FILE './PIN_AT10_FIG_SS.ps' ;
 SEQ_ASCII FIG_FLX.ps :: FILE './PIN_AT10_FIG_FLX.ps' ;
 
 *SEQ_ASCII _COMPO :: FILE './COMPO_AT10_MPHYS_PT_SYBNXT' ;
-SEQ_ASCII _COMPO :: FILE './_COMPO_AT10_MPHYS_RSE_addeddens' ;
+SEQ_ASCII _COMPO :: FILE './_COMPO_AT10_MPHYS_RSE_03112025' ;
 
 REAL Kinf ;
 
 ************************************************************************
 *                      BEGIN PARAMETER DEFINITION                      *
 ************************************************************************
-INTEGER fuel_t_pts := 8 ;
+INTEGER fuel_t_pts := 10 ;
 INTEGER cool_t_pts := 5 ;
-INTEGER cool_d_pts := 10 ;
+INTEGER cool_d_pts := 12 ;
 PARAMS := UTL: ::
         CREA
             fuel_temp <<fuel_t_pts>> = 
-                500.0 700.0 900.0 1100.0 1300.0 1500.0 1800.0 2000.0
+                500.0 700.0 900.0 1100.0 1300.0 1500.0 1800.0 2000.0 2500.0 3000.0
         CREA 
             cool_temp <<cool_t_pts>> =
                  500.0 540.0 550.0 560.0 570.0
         CREA
             cool_dens <<cool_d_pts>> =
-                0.8 0.7 0.6 0.5 0.4 0.3 0.25 0.2 0.1 0.01
+                0.8 0.7 0.6 0.5 0.4 0.3 0.25 0.2 0.15 0.1 0.05 0.01
 ;
 
 

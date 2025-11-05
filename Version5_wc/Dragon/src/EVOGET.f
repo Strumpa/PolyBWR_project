@@ -31,9 +31,9 @@
 *            IEXTR= 1 linear extrapolation;
 *            IEXTR= 2 parabolic extrapolation.
 * IGLOB   flag for out-of-fuel power in flux normalization.
-*            GLOB=-1: using the Serpent mode 0 emperical formula;
-*            GLOB= 0: using the power released in the fuel;
-*            GLOB= 1: using the power released in the global geometry.
+*            IGLOB=-1: using the Serpent mode 0 empirical formula;
+*            IGLOB= 0: using the power released in the fuel;
+*            IGLOB= 1: using the power released in the global geometry.
 * ISAT    flag for saturaton: 
 *            ISAT= 0 for flag OFF;
 *            ISAT= 1 for flag ON.

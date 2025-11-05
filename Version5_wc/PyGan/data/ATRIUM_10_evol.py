@@ -5,6 +5,9 @@
 # Import modules from python / python-CLE2000 API / python-LCM API
 import os
 import shutil
+
+from matplotlib import use
+from matplotlib.pyplot import uninstall_repl_displayhook
 import numpy as np
 import pandas as pd
 import lcm 
@@ -33,8 +36,8 @@ if not os.path.exists(save_dir):
 exec = True
 
 # Options from DRAGON calculation setup.
-name_geom = "AT10_24UOX" # "AT10_ASSBLY", "AT10_24UOX" for tests
-burnup_points = "ATRIUM_10_S2_BU" # "ATRIUM_10_S2_BU", "CASMO-5"
+name_geom = "AT10_ASSBLY" # "AT10_ASSBLY" for main study, "AT10_24UOX" and "AT10_45Gd" for tests
+burnup_points = "ATRIUM_10_S2_BU"  #"Gd_autop3" # "ATRIUM_10_S2_BU", "CASMO-5"
 ### Get burnup lists from getLists.py
 BU_lists = getLists(burnup_points)
 BU_pts = BU_lists[0]
@@ -53,8 +56,8 @@ print(f"COMPO points (MWd/kgU) : {COMPO_pts}")
 print(f"RATES points (MWd/kgU) : {RATES_pts}")
 
 ### Select computational scheme used for flux calculation in depletion loop.
-
-flux_computational_scheme = "1L_MOC" #"2L_PIJ_MOC" # "1L_MOC" : 1 Level direct flux calculation with MOC on 295 groups
+solution_door_ssh = "IC" # "PIJ", "IC"
+flux_computational_scheme = "2L_IC_MOC"  #"2L_PIJ_MOC" # "1L_MOC" : 1 Level direct flux calculation with MOC on 295 groups
 # "2L_IC_MOC" : 1st level 295gr IC flux calculation on coarse geometry, 2nd level 26gr MOC flux calculation on fine geometry
 # "2L_PIJ_MOC" : 1st level 295gr PIJ flux calculation on coarse geometry, 2nd level 26gr MOC flux calculation on fine geometry
 
@@ -91,6 +94,17 @@ if refinement_opt_name == "finest_geom":
     split_assembly_box = 2
     split_out_assembly_moderator = [10,30]
 
+if name_geom == "AT10_24UOX" or name_geom == "AT10_45Gd":
+    num_angles = 24
+    line_density = 35.0
+    specific_power = 26.5 # W/g
+    solution_door_ssh = "PIJ"
+    if "2L" in flux_computational_scheme:
+        flux_computational_scheme = "2L_PIJ_MOC"
+
+elif name_geom == "AT10_ASSBLY":
+    specific_power = 30.0 # W/g
+
 
 mix_numbering_option =  "number_mix_families_per_region" # "number_mix_families_per_region" , "number_mix_families_per_enrichment"
 
@@ -104,7 +118,7 @@ mix_numbering_option =  "number_mix_families_per_region" # "number_mix_families_
 #line_density = 150.0
 #batch = 1500 # 750 was found to be "optimal" with 20 omp procs and (24, 75.0) tracking parameters for MOC. 
 reflection_type_lvl2 = "TSPC"
-anisotropy_level = 2 # Level of anisotropy for the tracking, can be 1 (isotropic), 2 (linearly anisotropic), 3 (anisotropy order P_2), or 4 (anisotropy order P_3). 
+anisotropy_level = 4 # Level of anisotropy for the tracking, can be 1 (isotropic), 2 (linearly anisotropic), 3 (anisotropy order P_2), or 4 (anisotropy order P_3). 
 solution_door = "MOC"  # Flag to indicate whether the tracking should be modified for a MOC solution, or not., else : set it to CP (Collision Probability) tracking.
 moc_angular_quandrature = "GAUS"
 nmu = 4  # Number of polar angles for MOC tracking : conservation ensured up to the order of P_{nmu-1} scattering : # nmu = 4 -> P3 scattering
@@ -113,7 +127,7 @@ postscript_file = f"AT10_FIG_MAIN_{refinement_opt_name}.ps"
 # Tracking parameters : self-shielding geometry
 num_angles_ssh = 8
 line_density_ssh = 25.0
-solution_door_ssh = "PIJ" # "PIJ", "IC"
+
 if solution_door_ssh == "PIJ":
     reflection_type_ssh = "TSPC"
 elif solution_door_ssh == "IC":
@@ -151,18 +165,23 @@ else:
     postscript_file_lvl1 = None
 
 # Parameters for the LIBRARY creation
-draglib_name = "J311_295E0" # "endfb8r1_295" # "J311_295"
-self_shielding_method = "PT"  # Method to be used for self-shielding calculations, "PT" for Mathematical Probability Tables, "SUBG" for Physical Probaility tables, "RSE" for Resonant Spectrum Expansion.
+draglib_name = "J311_295E2" # "endfb8r1_295" # "J311_295"
+self_shielding_method = "RSE"  # Method to be used for self-shielding calculations, "PT" for Mathematical Probability Tables, "SUBG" for Physical Probaility tables, "RSE" for Resonant Spectrum Expansion.
 resonance_correlation = "NOCORR"  # Specify if the resonance correlation model should be applied. Only available for "RSE" and "PT". This will use a correlation model to treat reonances of U238, Pu240 and Gd157.
 transport_correction = "NONE"  # Specify if a transport correction should be applied in the self-shielding calculation. "NONE", "APOL"
 composition_option = "AT10_void_0"  # Specify which composition of mixes should be used for the LIBRARY creation. For now "AT10_void_0" and "AT10_void_40" are available.
 
 # USS: call parameters :
 ssh_option = "default"  # Option to specify specific groupings of self-shielding regions, to be tested. "default" is default from USS: based on LIB: data, "RSE" is for Resonant Spectrum Expansion method, and groups all U8, U5 and Zr isotopes in a single self-shielding region --> to be tested.
+# EVO: call parameters :
+rates_normalisation_option = "EDP0" # "EDP0", "NONE", "QFIS"
+use_modified_QFIS = False # True : set fission q-values in DEPL structure to Serpent .out values
+use_NG0 = False # True : set (n,gamma) q-values to 0 in DEPL structure
+mixP_mixB_opt = "ADDED_Pu_Am_Np" #"MIXB_MIXP"
 
 # EDI: and COMPO: calls to save the results to a MULTICOMPO file
 if transport_correction == "NONE":
-    name_compo = f"_CPO_n{num_angles}_ld{int(line_density)}_n{num_angles_ssh}_ld{int(line_density_ssh)}_{reflection_type_lvl2}_{anisotropy_level}_{solution_door_ssh}_{solution_door}_{moc_angular_quandrature}_{nmu}"
+    name_compo = f"_CPO_{name_geom}_{burnup_points}" # f"_CPO_n{num_angles}_ld{int(line_density)}_n{num_angles_ssh}_ld{int(line_density_ssh)}_{reflection_type_lvl2}_{anisotropy_level}_{solution_door_ssh}_{solution_door}_{moc_angular_quandrature}_{nmu}"
 else:
     name_compo = f"_CPO_n{num_angles}_ld{int(line_density)}_n{num_angles_ssh}_ld{int(line_density_ssh)}_{reflection_type_lvl2}_{anisotropy_level}_{solution_door_ssh}_{solution_door}_{moc_angular_quandrature}_{nmu}_{transport_correction}"
 ########################################################### END OF PARAMETER SELECTION #####################################################################
@@ -180,7 +199,9 @@ if "ASSBLY" in name_geom:
     time_creating_geo = time.time() - start_time
     current_time = time.time()
 elif name_geom == "AT10_24UOX":
-    geo_flx, geo_lvl1, geo_ssh = GEO_C_SALT()
+    geo_flx, geo_lvl1, geo_ssh = GEO_C_SALT("AT10_24UOX")
+elif name_geom == "AT10_45Gd":
+    geo_flx, geo_lvl1, geo_ssh = GEO_C_SALT("AT10_45Gd")
 
 
 ######################################################## SALT: : self-shielding geometry tracking ###########################################################
@@ -199,27 +220,36 @@ if "2L" in flux_computational_scheme:
 # Track the geometry using the SALT: module
 track_lcm, track_binary, figure = trackFluxGeomSALT(geo_flx, num_angles, line_density, reflection_type_lvl2, anisotropy_level, solution_door, moc_angular_quandrature, nmu, batch, postscript_file)
 
-
+###################################################### LIB: : LIBRARY creation ############################################################
+# Create the LIBRARY according to the options selected.
+if "ASSBLY" in name_geom:
+    lib_lcm = createLib(mix_numbering_option, draglib_name, anisotropy_level, self_shielding_method, resonance_correlation, transport_correction, composition_option, use_modified_QFIS, use_NG0, connectivity_dict)
+else:
+    lib_lcm = MIX_C(draglib_name, "PT_N", name_geom, setQFIS=use_modified_QFIS, setNGtozero=use_NG0)
 if exec:
-    ###################################################### LIB: : LIBRARY creation ############################################################
-    # Create the LIBRARY according to the options selected.
-    if "ASSBLY" in name_geom:
-        lib_lcm = createLib(mix_numbering_option, draglib_name, anisotropy_level, self_shielding_method, resonance_correlation, transport_correction, composition_option, connectivity_dict)
-    else:
-        lib_lcm = MIX_C(draglib_name, "PT_N")
-    
     if "2L" in flux_computational_scheme:
-        pyCOMPO = burnup2LScheme(lib_lcm, track_lcm, track_binary, track_lcm_lvl1, track_binary_lvl1, track_lcm_ssh, track_binary_ssh, StepList, name_compo, solution_door_ssh, solution_door_lvl1, name_geom)
+        pyCOMPO = burnup2LScheme(lib_lcm, track_lcm, track_binary, track_lcm_lvl1, track_binary_lvl1, track_lcm_ssh, track_binary_ssh, StepList, name_compo, solution_door_ssh, solution_door_lvl1, name_geom, specific_power, rates_normalisation_option)
     elif "1L" in flux_computational_scheme:
-        pyCOMPO = burnup1LScheme(lib_lcm, track_lcm, track_binary, track_lcm_ssh, track_binary_ssh, StepList, name_compo, solution_door_ssh, name_geom)
+        pyCOMPO = burnup1LScheme(lib_lcm, track_lcm, track_binary, track_lcm_ssh, track_binary_ssh, StepList, name_compo, solution_door_ssh, name_geom, specific_power, rates_normalisation_option)
     ######################################################### EXPORTS ############################################################
     if mix_numbering_option == "number_mix_families_per_region":
         numbering_save_opt = "region_num"
     elif mix_numbering_option == "number_mix_families_per_enrichment":
         numbering_save_opt = "enrich_num"
     # Save the MULTICOMPO to a specific directory
-    save_dir_case = f"{save_dir}/{flux_computational_scheme}/{refinement_opt_name}_{composition_option}_{draglib_name}_{self_shielding_method}_{resonance_correlation}_{numbering_save_opt}"
+    if use_modified_QFIS:
+        modif_QFIS = "modif_Q_fiss"
+    else:
+        modif_QFIS = "std_Q_fiss"
+    if use_NG0:
+        modif_NG = "no_NG_ALL"
+    else:
+        modif_NG = "std_NG_Q"
+    if mixP_mixB_opt is not None:
+        modif_NG = f"{modif_NG}_{mixP_mixB_opt}"
+    save_dir_case = f"{save_dir}/{solution_door_ssh}_{flux_computational_scheme}_norm_{rates_normalisation_option}_{modif_QFIS}_{modif_NG}/{name_geom}/{refinement_opt_name}_{composition_option}_{draglib_name}_{self_shielding_method}_{resonance_correlation}_{numbering_save_opt}"
     if not os.path.exists(save_dir_case):
         os.makedirs(save_dir_case)
     # Save the LCM objects to the specified directory
     shutil.copyfile(name_compo, f"{save_dir_case}/{name_compo}")
+    shutil.copyfile("ATRIUM_10_evol.result", f"{save_dir_case}/{name_geom}_{solution_door_ssh}_{flux_computational_scheme}_{burnup_points}_evol.result")
