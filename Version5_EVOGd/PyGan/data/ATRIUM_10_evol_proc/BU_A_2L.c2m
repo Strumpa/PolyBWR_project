@@ -1,0 +1,396 @@
+*********************************************************************************************************************************
+*                                                                                                                               *
+* Procedure :  BU_A_2L.c2m                                                                                                      *
+* Purpose   :  Depletion calculations for ATRIUM-10 BWR fuel assembly, using REL2005-like scheme                                *
+* Author    :  L.Fede, adapted by R.Guasch                                                                                      *
+*                                                                                                                               *
+*                                                                                                                               *
+*********************************************************************************************************************************
+
+* ---
+* INPUT & OUTPUT PARAMETERS
+* ---
+PARAMETER COMPO LIBRARY TRACK TF_EXC 
+    TRACK_L1 TF_EXC_L1 TRACK_SS TF_EXC_SS StepList ::
+::: LINKED_LIST COMPO ;
+::: LINKED_LIST LIBRARY ; 
+::: LINKED_LIST TRACK ;
+::: SEQ_BINARY TF_EXC ;
+::: LINKED_LIST TRACK_L1 ;
+::: SEQ_BINARY TF_EXC_L1 ;
+::: LINKED_LIST TRACK_SS ;
+::: SEQ_BINARY TF_EXC_SS ;
+::: LINKED_LIST StepList ; ;
+
+STRING name_compo ssh_sol lvl1_sol name_geom ;
+:: >>name_compo<< >>ssh_sol<< >>lvl1_sol<< >>name_geom<< ;
+DOUBLE Dspec_pow ;
+:: >>Dspec_pow<< ; ! SPECIFIC POWER MW/t
+STRING rates_norm ;
+:: >>rates_norm<< ; ! OPTION FOR RATES NORMALISATION: "NONE", "QFIS" (OpenMC), "EDP0" (Serpent)
+
+REAL spec_pow := Dspec_pow D_TO_R ;
+ECHO "Specific power (in W/gU) =" spec_pow ;
+ECHO "rates normalisation option =" rates_norm ;
+* ---
+* STRUCTURES AND MODULES
+* ---
+MODULE  DELETE: UTL: USS: ASM: FLU: EVO: GREP: LIB: COMPO:
+        SPH: EDI: END: ;
+PROCEDURE updateLIB EDI_BU_2L EDI_R_2L ;
+
+LINKED_LIST LIBRARY2 LIB26G SYS FLUX FLUX2 BURNUP EDITION EDIRATES ;
+
+SEQ_ASCII _COMPO :: FILE <<name_compo>> ;
+
+************************************************************************
+*  REFERENCE LOCAL PARAMETERS                                          *
+************************************************************************
+REAL Kinf ;
+ 
+************************************************************************
+*  BEGIN DECLARATION                                                   *
+************************************************************************
+INTEGER nstep nauto maxcompo maxrates ;
+GREP: StepList :: LENGTH BUList >>nstep<< ;
+GREP: StepList :: LENGTH SSHList >>nauto<< ;
+GREP: StepList :: LENGTH CompoList >>maxcompo<< ;
+GREP: StepList :: LENGTH RatesList >>maxrates<< ;
+ECHO "nstep=" nstep "nauto=" nauto "maxcompo=" maxcompo ;
+************************************************************************
+*  END DECLARATION                                                     *
+************************************************************************
+
+************************************************************************
+*  BEGIN COMPO INITIALIZATION                                          *
+************************************************************************
+COMPO := COMPO: ::
+    EDIT 1
+    STEP UP 'EDIBU'
+     MAXCAL 5
+     COMM 'Burnup evolution - Condensed - Assembly scale homogenized' ENDC
+     PARA 'Burnup' IRRA
+     ISOT 12 U234 U235 U238 Pu239 Pu240 Pu241 Pu242 Am241 Gd155 Gd157 Xe135 Sm149
+    INIT
+    STEP UP 'H_EDI_REGI_2'
+     MAXCAL 5
+     COMM 'Burnup evolution - Condensed - Cells scale homogenized' ENDC
+     PARA 'Burnup' IRRA
+     ISOT 12 U234 U235 U238 Pu239 Pu240 Pu241 Pu242 Am241 Gd155 Gd157 Xe135 Sm149
+    INIT
+;
+************************************************************************
+*  END COMPO INITIALIZATION                                            *
+************************************************************************
+
+************************************************************************
+*  NOMINAL REFERENCE CALCULATION                                       *
+************************************************************************
+INTEGER istepNext ;
+REAL BUbeg Tbeg ;
+REAL BU BUssh BUcompo BUrates := 0.0 0.0 0.0 0.0 ;
+REAL BUend Tend := 0. 0. ;
+INTEGER istep :=  0 ;
+INTEGER iauto :=  1 ;
+INTEGER iCompo :=  1 ;
+INTEGER iRates := 1 ;
+
+
+**********************************************
+*  BEGIN DEPLETION                           *
+**********************************************
+ECHO "start burnup loop" ;
+WHILE istep nstep < DO
+
+    EVALUATE istep := istep 1 + ;
+    ECHO "burnup step: " istep "/" nstep ;
+    
+    EVALUATE BUbeg Tbeg := BUend Tend ;
+    GREP: StepList :: GETVAL 'BUList' <<istep>> >>BUend<< ;
+    EVALUATE Tend := BUend spec_pow / ;
+
+
+****************************
+*  BEGIN SELF-SHIELDING    *
+****************************
+    IF istep 1 = THEN
+        ECHO ".perform initial self-shielding at" Tbeg "days" ;
+
+        ECHO "$$$ ------------- begin : CALL TO USS: " ;
+        IF ssh_sol "PIJ" = THEN
+            LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
+                EDIT 1 PASS 3 MAXST 50 PIJ
+            ;
+        ELSEIF ssh_sol "IC" = THEN
+            LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
+                EDIT 1 PASS 3 MAXST 50 ARM
+            ;
+        ELSE
+            ECHO "Error in BU_A_2L.c2m: unknown solution door option" ;
+        ENDIF ;
+        ECHO "$$$ ------------- end : CALL TO USS: " ;
+
+    ELSE
+        GREP: StepList :: GETVAL "SSHList" <<iauto>> >>BUssh<< ;
+        GREP: StepList :: GETVAL "BUList" <<istep>> >>BU<< ;
+        IF BUssh BU = THEN
+        ECHO "perform self-shielding at" Tbeg "days" ;
+
+        ECHO "$$$ ------------- begin : CALL TO USS: " ;
+        IF ssh_sol "PIJ" = THEN
+            LIBRARY2 := USS: LIBRARY LIBRARY2 TRACK_SS TF_EXC_SS ::
+                EDIT 1 PASS 3 MAXST 50 PIJ
+            ;
+        ELSEIF ssh_sol "IC" = THEN
+            LIBRARY2 := USS: LIBRARY LIBRARY2 TRACK_SS TF_EXC_SS ::
+                EDIT 1 PASS 3 MAXST 50 ARM
+            ;
+        ELSE
+            ECHO "Error in BU_A_2L.c2m: unknown solution door option" ;
+        ENDIF ;
+        ECHO "$$$ ------------- end : CALL TO USS: " ;
+
+        EVALUATE iauto := iauto 1 + ;
+        ECHO "$$ -- iauto =" iauto "/" nauto ;
+        ENDIF ;
+    ENDIF ;
+
+****************************
+*  END OF SELF-SHIELDING   *
+****************************
+
+************************************************************
+*  BEGIN 1st LEVEL CALCULATION                             *
+************************************************************
+    ECHO "$$$ ------------- begin : 1st LEVEL CALCULATION " "*** burnup step = " istep "/" nstep ;
+
+    IF istep 1 > THEN
+    ECHO "$$$ ------------- begin : mix reconstruction " "*** burnup step = " istep "/" nstep ;
+        
+        LIBRARY2 := updateLIB LIBRARY2 FLUX2 LIB26G TRACK :: <<name_geom>> ;
+        ECHO "$$$ ------------- begin : DELETE: " "*** burnup step = " istep "/" nstep ;
+        LIB26G := DELETE: LIB26G ;
+        ECHO "$$$ ------------- end : DELETE: " "*** burnup step = " istep "/" nstep ;
+
+    ECHO "$$$ ------------- end : mixHOM " "*** burnup step = " istep "/" nstep ;
+    ENDIF ;
+    ECHO "$$$ ------------- begin : ASM: 1L " "*** burnup step = " istep "/" nstep ;
+    IF lvl1_sol "PIJ" = THEN
+        SYS := ASM: LIBRARY2 TRACK_L1 TF_EXC_L1 :: EDIT 1 PIJ ;
+    ELSEIF lvl1_sol "IC" = THEN
+        SYS := ASM: LIBRARY2 TRACK_L1 TF_EXC_L1 :: EDIT 1 ARM ;
+    ENDIF ;
+    ECHO "$$$ ------------- end : ASM: 1L " "*** burnup step = " istep "/" nstep ;
+
+    FLUX := FLU: LIBRARY2 SYS TRACK_L1 ::
+        EDIT 1
+        TYPE K
+        B1
+        SIGS ;
+
+    ! 26 groups energy condensation
+    EDITION := EDI: FLUX LIBRARY2 TRACK_L1 ::
+        EDIT 0
+        MICR ALL
+        MERG MIX
+        COND  10  14  18  26  33  40  49  56  66 84 150 210 241 244 247
+        252 255 258 261 268 273 277 281 286 291
+        SAVE ON COND26 ;
+
+    LIB26G := EDITION ::
+        STEP UP COND26 ;
+
+    LIB26G := SPH: LIB26G TRACK_L1 TF_EXC_L1 ::
+        EDIT 0
+        GRMAX 19 ; 
+!AT BU = 0 : GRMAX 19 was found to be optimal with IC first level solution door, 
+!satisfies both keff (-244pcm) and rates accuracy (max -1.58% in worst Gd cell).
+
+    FLUX SYS EDITION := DELETE: FLUX SYS EDITION ;
+
+    ECHO "$$$ ------------- end : 1st LEVEL CALCULATION " "*** burnup step = " istep "/" nstep ;
+************************************************************
+*  END OF 1st LEVEL CALCULATION                            *
+************************************************************
+ 
+************************************************************
+*  BEGIN 2nd LEVEL CALCULATION                            *
+************************************************************
+    ECHO "$$$ ------------- begin : 2nd LEVEL CALCULATION " ;
+
+
+    ECHO "$$$ ------------- begin : ASM: 2L " "*** burnup step = " istep "/" nstep ;
+    SYS := ASM: LIB26G TRACK TF_EXC :: EDIT 0 ARM ;
+    ECHO "$$$ ------------- end : ASM: 2L " "*** burnup step = " istep "/" nstep ;
+
+    ECHO "$$$ ------------- begin : FLU: 2L " "*** burnup step = " istep "/" nstep ;
+    IF istep 1 = THEN
+        FLUX2 := FLU: LIB26G SYS TRACK TF_EXC ::
+                EDIT 1 TYPE K 
+        ;
+    ELSE
+        FLUX2 := FLU: FLUX2 LIB26G SYS TRACK TF_EXC ::
+                EDIT 1 TYPE K 
+        ;
+    
+    ENDIF ;
+    
+    ECHO "$$$ ------------- end : FLU: 2L " "*** burnup step = " istep "/" nstep ;
+
+    ECHO "$$$ ------------- begin : EVO: 2L " "*** burnup step = " istep "/" nstep ;
+    IF istep 1 = THEN
+        IF rates_norm "QFIS" = THEN
+            BURNUP LIB26G := EVO: LIB26G FLUX2 TRACK ::
+            EDIT 1
+            SAVE <<Tbeg>> DAY POWR <<spec_pow>> QFIS
+            ;
+        ELSEIF rates_norm "EDP0" = THEN
+
+            BURNUP LIB26G := EVO: LIB26G FLUX2 TRACK ::
+            EDIT 1
+            SAVE <<Tbeg>> DAY POWR <<spec_pow>> EDP0
+            ;
+        ELSE 
+            BURNUP LIB26G := EVO: LIB26G FLUX2 TRACK ::
+            EDIT 1
+            SAVE <<Tbeg>> DAY POWR <<spec_pow>> 
+            ;
+        ENDIF ;
+    ELSE
+        IF rates_norm "QFIS" = THEN
+            BURNUP LIB26G := EVO: BURNUP LIB26G FLUX2 TRACK ::
+            EDIT 1
+            SAVE <<Tbeg>> DAY POWR <<spec_pow>> QFIS
+            ;
+        ELSEIF rates_norm "EDP0" = THEN
+
+            BURNUP LIB26G := EVO: BURNUP LIB26G FLUX2 TRACK ::
+            EDIT 1
+            SAVE <<Tbeg>> DAY POWR <<spec_pow>> EDP0
+            ;
+        ELSE 
+            BURNUP LIB26G := EVO: BURNUP LIB26G FLUX2 TRACK ::
+            EDIT 1
+            SAVE <<Tbeg>> DAY POWR <<spec_pow>> 
+            ;
+        ENDIF ;
+    ENDIF ;
+    ECHO "$$$ ------------- end : EVO: 2L " "*** burnup step = " istep "/" nstep ;
+
+    SYS := DELETE: SYS ;
+
+    ECHO "$$$ ------------- end : 2nd LEVEL CALCULATION " "*** burnup step = " istep "/" nstep ;
+************************************************************
+*  END OF 2nd LEVEL CALCULATION                            *
+************************************************************
+
+************************************************************
+*  BEGIN EDITION & COMPO UPDATE                            *
+************************************************************
+
+    GREP: StepList :: GETVAL "CompoList" <<iCompo>> >>BUcompo<< ;
+    GREP: StepList :: GETVAL "RatesList" <<iRates>> >>BUrates<< ;
+    GREP: StepList :: GETVAL "BUList" <<istep>> >>BU<< ;
+ 
+    IF BUcompo BU = THEN
+* -------------------------------------------------
+*    EDI: + COMPO: calls to save nuclide densities
+* -------------------------------------------------
+        ECHO "$$$ ------------- begin : BWR BU EDIT " ;
+        COMPO := EDI_BU_2L FLUX2 LIB26G TRACK COMPO BURNUP :: <<Tbeg>> <<name_geom>> ;
+        EVALUATE iCompo := iCompo 1 + ;
+        ECHO "iCompo =" iCompo "/" maxcompo ;
+    ENDIF ;
+* -------------------------------------------------
+*    EDI: + COMPO: calls to save 2g reaction rates
+* -------------------------------------------------
+    IF BUrates BU = THEN
+        COMPO := EDI_R_2L FLUX2 LIB26G TRACK COMPO BURNUP :: <<Tbeg>> <<name_geom>> ;
+        ECHO "$$$ ------------- end : BWR BU edit " ;
+        EVALUATE iRates := iRates 1 + ;
+        ECHO "iRates =" iRates "/" maxrates ;
+    ENDIF ;
+
+************************************************
+*  END EDITION & COMPO UPDATE                  *
+************************************************
+
+    GREP: FLUX2 :: GETVAL 'K-INFINITY  ' 1 1 1 >>Kinf<< ;
+    ECHO "+++ Burnup=" BUend " Kinf=" Kinf " at step" istep ;
+
+    IF istep nstep < THEN
+        EVALUATE istepNext := istep 1 + ;
+        GREP: StepList :: GETVAL 'BUList' <<istepNext>> >>BUend<< ;
+        EVALUATE Tend := BUend spec_pow / ;
+        ECHO "Nominal depletion between" Tbeg " and" Tend "days" ;
+
+        IF rates_norm "QFIS" = THEN
+            BURNUP LIB26G := EVO: BURNUP LIB26G FLUX2 TRACK ::
+                EDIT 1 DEPL <<Tbeg>> <<Tend>> DAY POWR <<spec_pow>>
+                KAPS NODI EXTR QFIS EXPM 1.0E15
+            ;
+        ELSEIF rates_norm "EDP0" = THEN
+            BURNUP LIB26G := EVO: BURNUP LIB26G FLUX2 TRACK ::
+                EDIT 1 DEPL <<Tbeg>> <<Tend>> DAY POWR <<spec_pow>>
+                KAPS NODI EXTR EDP0 EXPM 1.0E15
+                !MIXB 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
+                !21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40
+                !41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60
+                !61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80
+                !81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100
+                !101 102 103 104 105 106 107 108 109 
+                !110 111 112 113 114 115 116 117 118 119
+                !120 121 122 123 124 125 126 127 128 129 
+                !130 131 132 133 134 135 136 137 138 139
+                !140 141 142 143 144 145 146 147 148 149 
+                !150 151 152 153 154 155 156 157 158 159
+                !160 161 162 163 164 165 166 167 168 169 
+                !170 171 172 173 174 175 176 177 178 179 
+                !180 181 182 183 184 185 186 187 188 189 
+                !190 191 192 193 194 195 196 197 198 199 
+                !200 201 202 203 204 205 206 207 208 209 210 
+                !211 212
+                ! MIXP option to include mixes from 1 to 212 in power normalization
+                !MIXP 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
+                !21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40
+                !41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60
+                !61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80
+                !81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100
+                !101 102 103 104 105 106 107 108 109 
+                !110 111 112 113 114 115 116 117 118 119
+                !120 121 122 123 124 125 126 127 128 129 
+                !130 131 132 133 134 135 136 137 138 139
+                !140 141 142 143 144 145 146 147 148 149 
+                !150 151 152 153 154 155 156 157 158 159
+                !160 161 162 163 164 165 166 167 168 169 
+                !170 171 172 173 174 175 176 177 178 179 
+                !180 181 182 183 184 185 186 187 188 189 
+                !190 191 192 193 194 195 196 197 198 199 
+                !200 201 202 203 204 205 206 207 208 209 210 
+                !211 212
+            ;
+        ELSE
+            BURNUP LIB26G := EVO: BURNUP LIB26G FLUX2 TRACK ::
+                EDIT 1 DEPL <<Tbeg>> <<Tend>> DAY POWR <<spec_pow>>
+                KAPS NODI EXTR NOGL EXPM 1.0E15 
+            ;
+        ENDIF ;
+  
+  ENDIF ;
+ 
+*********************************************************
+*  END FLUX CALCULATION                                 *
+*********************************************************
+ENDWHILE ;
+
+************************************************************************
+*  END OF REFERENCE BURNUP LOOP WITH DEPLETION                         *
+************************************************************************
+
+************************************************************************
+*  EXPORT MULTICOMPO IN ASCII FORMAT                                   *
+************************************************************************
+_COMPO := COMPO ;
+
+END: ;
+QUIT .
