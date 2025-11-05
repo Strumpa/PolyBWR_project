@@ -1,0 +1,21 @@
+#!/bin/sh
+if [ $# = 0 ]
+   then
+   echo "-----.access----- postTreatEVO_tests access script begun" 1>&2
+   exit 1
+fi
+echo "-----.access----- postTreatEVO_tests access script begun"
+MACH=`uname -s`
+Sysx="`echo $MACH | cut -b -6`"
+if [ $Sysx = "CYGWIN" ]; then
+   MACH=`uname -o`
+elif [ $Sysx = "Darwin" ]; then
+   MACH=`uname -sm | sed 's/[ ]/_/'`
+elif [ $Sysx = "SunOS" ]; then
+   MACH=`uname -sm | sed 's/[ ]/_/'`
+fi
+ln -s /home/p117902/working_dir/Version5_tests/5.1/PyGan/Linux_aarch64 Version5_1_results
+ln -s /home/p117902/working_dir/Version5_tests/5.1_edp0_debug/PyGan/Linux_aarch64 Version5_1_edp0_mixpwr_results
+ln -s /home/p117902/working_dir/Version5_tests/5.1_evoGd/PyGan/Linux_aarch64 Version5_1_evoGd_results
+ls -l
+echo -"----.access----- postTreatEVO_tests access script terminated"
