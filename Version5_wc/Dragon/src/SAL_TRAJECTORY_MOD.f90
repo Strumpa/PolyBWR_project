@@ -68,7 +68,7 @@ CONTAINS
     !
     !---------------------------------------------------------------------
     !
-    USE SAL_GEOMETRY_TYPES,  ONLY : ISPEC
+    USE SAL_GEOMETRY_TYPES,  ONLY : ISPEC,TYPGEO
     USE SAL_TRACKING_TYPES, ONLY : NNN,NMAX2,ITRAC2,ANGTAB,ELMTAB,CNT,CNT0,NB_TOT,DNEW,DINIT, &
                                    NNEW,LNEW,IERR,LGMORE,DD0,NTRACK,EPS1,EX0,EY0,LGOK,IPART,DELX, &
                                    N_AXIS
@@ -110,7 +110,7 @@ CONTAINS
       ELSE
         WRITE(*,*) 'PPERIM_MAC2(N_AXIS+1),PPERIM_MAC2(N_AXIS) :',PPERIM_MAC2(N_AXIS+1),PPERIM_MAC2(N_AXIS)
         WRITE(*,*) 'DIST_AXIS(PPERIM_MAC2(N_AXIS+1)-1) :',DIST_AXIS(PPERIM_MAC2(N_AXIS+1)-1)
-        WRITE(*,*) 'DELX :',DELX,' RADIA=',RADIA
+        WRITE(*,*) 'DELX :',DELX,' RADIA=',RADIA,' TYPGEO=',TYPGEO
         CALL XABORT('SALTRA: Cant find entry point')
       ENDIF
     ENDIF
@@ -164,6 +164,7 @@ CONTAINS
     !
     !---------------------------------------------------------------------
     !
+    USE SAL_GEOMETRY_TYPES, ONLY : TYPGEO
     USE SAL_TRACKING_TYPES, ONLY : IPART,N_AXIS,DNEW,DELX,NNEW,LNEW,COSINE,AX, &
                                    AY,HX,HY,BX,BY,EX,EY
     INTEGER,   INTENT(IN)                  :: NPERIM
@@ -171,6 +172,7 @@ CONTAINS
     REAL(PDB), INTENT(IN), DIMENSION(:)    :: DIST_AXIS
     INTEGER,   INTENT(IN), DIMENSION(:,:)  :: IPAR
     INTEGER    :: I,J
+    CHARACTER(LEN=131) :: HSMG
     !***
     LNEW=0
     !*    compute crossed element
@@ -180,7 +182,11 @@ CONTAINS
           EXIT
        ENDIF
     ENDDO
-    IF(LNEW==0) CALL XABORT('SAL241_2: Error of distances on the axis')
+    IF(LNEW==0) THEN
+      WRITE(HSMG,'(52HSAL241_2: Error of distances on the axis for typgeo=, &
+      & i3,1h.)') TYPGEO
+      CALL XABORT(HSMG)
+    ENDIF
     !*    get entered node
     NNEW=IPAR(2,LNEW)
     IF(NNEW<0) NNEW=IPAR(3,LNEW)

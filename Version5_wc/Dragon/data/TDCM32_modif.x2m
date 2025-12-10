@@ -87,7 +87,7 @@ GEOM := GEO: ::
           MIX 2 3
      ;
 ;
-Fic_SAL Fic_SAL.eps := G2S: GEOM :: MACRO ;
+Fic_SAL Fic_SAL.eps := G2S: GEOM :: ;
 
 TRACK TRACK_FIL := SALT: Fic_SAL ::
      EDIT 1

@@ -9,7 +9,7 @@
 *
 *  LIBRARY := Mix_Cell :: <<Library>> <<ssh_opt>> ;
 *
-*  Where library is JEFF3.1.1 SHEM295 and 
+*  Where library is JEFF3.1.1/ENDFB-VIII.1 SHEM295 and 
 *  Output data  :
 *    LIBRARY    : Microlib with table of probabilities
 

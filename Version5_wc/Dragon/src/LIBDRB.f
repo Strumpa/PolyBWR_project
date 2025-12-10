@@ -1,7 +1,7 @@
 *DECK LIBDRB
-      SUBROUTINE LIBDRB (IPDRL,NGRO,NL,NDEL,NBESP,SN,SB,NED,HVECT,DELTA,
-     1 LBIN,NFS,BENER,AWR,DELECC,IGECCO,IMPX,NGF,NGFR,LSCAT,LSIGF,LADD,
-     2 LGOLD,SIGS,SCAT,TOTAL,ZNPHI,SIGF,CHI,CHI4G,SADD,GOLD,BIN)
+      SUBROUTINE LIBDRB (IPDRL,NGRO,NL,NDEL,NBESP,ENER,SN,SB,NED,HVECT,
+     1 DELTA,LBIN,NFS,BENER,AWR,DELECC,IGECCO,IMPX,NGF,NGFR,LSCAT,LSIGF,
+     2 LADD,LGOLD,SIGS,SCAT,TOTAL,ZNPHI,SIGF,CHI,CHI4G,SADD,GOLD,BIN)
 *
 *-----------------------------------------------------------------------
 *
@@ -25,13 +25,14 @@
 *         NL=1 or higher.
 * NDEL    number of delayed precursor groups.
 * NBESP   number of energy-dependent fission spectra.
+* ENER    energy limits of the coarse groups.
 * SN      dilution cross section in each energy group. A value of
 *         1.0E10 is used for infinite dilution.
 * SB      dilution cross section as used in Livolant and Jeanpierre
 *         normalization.
 * NED     number of extra vector edits.
 * HVECT   names of the extra vector edits.
-* DELTA   lethargy widths.
+* DELTA   lethargy widths of the coarse groups.
 * LBIN    number of fine groups.
 * NFS     number of fine groups per coarse group.
 * BENER   energy limits of the fine groups.
@@ -75,8 +76,8 @@
       CHARACTER*(*) HVECT(NED)
       TYPE(C_PTR) IPDRL
       INTEGER NGRO,NL,NDEL,NBESP,NED,LBIN,NFS(NGRO),IGECCO,IMPX,NGF,NGFR
-      REAL SN(NGRO),SB(NGRO),DELTA(NGRO),BENER(LBIN+1),AWR,DELECC,
-     1 SIGS(NGRO,NL),SCAT(NGRO,NGRO,NL),TOTAL(NGRO),ZNPHI(NGRO),
+      REAL ENER(NGRO+1),SN(NGRO),SB(NGRO),DELTA(NGRO),BENER(LBIN+1),AWR,
+     1 DELECC,SIGS(NGRO,NL),SCAT(NGRO,NGRO,NL),TOTAL(NGRO),ZNPHI(NGRO),
      2 SIGF(NGRO,0:NDEL),CHI(NGRO,0:NDEL),CHI4G(NGRO,NBESP),
      3 SADD(NGRO,NED),GOLD(NGRO),BIN(LBIN,3)
       LOGICAL LSCAT(NL),LSIGF,LADD(NED),LGOLD
@@ -84,7 +85,7 @@
 *  LOCAL VARIABLES
 *----
       CHARACTER CM*2,CD*4,HSMG*131,HNUSIG*12,HCHI*12,HTOTAL*5
-      PARAMETER (IOUT=6,MAXTRA=10000)
+      PARAMETER (IOUT=6)
       INTEGER KTOTLR,KSIGFR,KCHIR,KPHIR
       LOGICAL LPCAT
       DOUBLE PRECISION TMP,ZNGAR,SQD,SQ0,SQ1,SQ2,SQ3,FACT1,FACT2
@@ -93,8 +94,8 @@
 *  ALLOCATABLE ARRAYS
 *----
       INTEGER, ALLOCATABLE, DIMENSION(:) :: NJJ,IJJ,KADDR
-      REAL, ALLOCATABLE, DIMENSION(:) :: GAR,PRI,STIS,UUU,SSS
-      REAL, ALLOCATABLE, DIMENSION(:,:) :: TERP,SIGT
+      REAL, ALLOCATABLE, DIMENSION(:) :: GAR
+      REAL, ALLOCATABLE, DIMENSION(:,:) :: TERP,SIGT,GAR2D
       LOGICAL, ALLOCATABLE, DIMENSION(:) :: LSDIL,LPDIL,LINF
 *----
 *  SCRATCH STORAGE ALLOCATION
@@ -148,9 +149,9 @@
       IF(LPCAT.AND.(IGECCO.EQ.0)) THEN
          CALL LCMGET(IPDRL,'NJJS'//CM,NJJ)
          CALL LCMGET(IPDRL,'IJJS'//CM,IJJ)
-         LENGT2=0
+         LENGT=0
          DO 20 I=1,NGRO
-         LENGT2=LENGT2+NJJ(I)
+         LENGT=LENGT+NJJ(I)
    20    CONTINUE
          GAR(:LENGT)=0.0
          CALL LCMGET(IPDRL,'SCAT'//CM,GAR)
@@ -163,41 +164,9 @@
    30    CONTINUE
    40    CONTINUE
       ELSE IF(LPCAT) THEN
-         ! on-flight elastic scattering kernel
-         CALL LCMGET(IPDRL,'NJJS'//CM,NJJ)
-         CALL LCMGET(IPDRL,'IJJS'//CM,IJJ)
-         ALLOCATE(PRI(MAXTRA),STIS(NGRO),UUU(NGRO),SSS(IGECCO))
-         CALL LIBPRI(MAXTRA,DELECC,AWR,0,IL,NPRI,PRI)
-         LENGT2=0
-         DO 50 I=1,NGRO
-         LENGT2=LENGT2+NJJ(I)
-   50    CONTINUE
-         GAR(:LENGT)=0.0
-         CALL LCMGET(IPDRL,'SCAT'//CM,GAR)
-         UUU(1)=DELTA(1)
-         DO 60 I=2,NGRO
-         UUU(I)=UUU(I-1)+DELTA(I)
-   60    CONTINUE
-         IGAR=0
-*        IG2 IS THE SECONDARY GROUP.
-         DO 90 IG2=1,NGRO
-         IF(IG2.LE.IGECCO) THEN
-           CALL LIBECT(MAXTRA,IG2,PRI,UUU,DELECC,DELTA,NPRI,1,MML,STIS)
-           IGAR=IGAR+NJJ(IG2)
-           SSS(IG2)=GAR(IGAR)
-           DO 70 I=1,MML
-           IG1=IG2-I+1
-           IF(IG1.LE.0) GO TO 90
-           SCAT(IG2,IG1,IL+1)=STIS(I)*SSS(IG1)
-   70      CONTINUE
-         ELSE
-           DO 80 IG1=IJJ(IG2),IJJ(IG2)-NJJ(IG2)+1,-1
-           IGAR=IGAR+1
-           SCAT(IG2,IG1,IL+1)=GAR(IGAR)
-   80      CONTINUE
-         ENDIF
-   90    CONTINUE
-         DEALLOCATE(SSS,UUU,STIS,PRI)
+         ! on-flight scattering kernel
+         CALL LIBECC(IPDRL,NGRO,IL,AWR,ENER,DELTA,DELECC,IGECCO,
+     1   SCAT(1,1,IL+1))
       ENDIF
       CALL LCMLEN(IPDRL,'SIGS'//CM,LENGT,ITYLCM)
       LSCAT(IL+1)=(LENGT.GT.0)
@@ -320,10 +289,10 @@
             WRITE (CM,'(I2.2)') IL
             CALL LCMLEN(IPDRL,'SCAT'//CM,LENGT,ITYLCM)
             IF(.NOT.LSDIL(IL+1))
-     >        LSDIL(IL+1)=(LENGT.GT.0).AND.LSCAT(IL+1)
+     1        LSDIL(IL+1)=(LENGT.GT.0).AND.LSCAT(IL+1)
             CALL LCMLEN(IPDRL,'SIGS'//CM,LENGT,ITYLCM)
             IF(.NOT.LPDIL(IL+1))
-     >        LPDIL(IL+1)=(LENGT.GT.0).AND.LSCAT(IL+1)
+     1        LPDIL(IL+1)=(LENGT.GT.0).AND.LSCAT(IL+1)
   220    CONTINUE
          CALL LCMLEN(IPDRL,HTOTAL,LENGT,ITYLCM)
          KTOTLR=MAX(KTOTLR,LENGT)
@@ -562,44 +531,18 @@
   480       CONTINUE
   490       CONTINUE
          ELSE IF(LSDIL(IL+1)) THEN
-            ! on-flight elastic scattering kernel
-            CALL LCMGET(IPDRL,'NJJS'//CM,NJJ)
-            CALL LCMGET(IPDRL,'IJJS'//CM,IJJ)
-            ALLOCATE(PRI(MAXTRA),STIS(NGRO),UUU(NGRO),SSS(IGECCO))
-            CALL LIBPRI(MAXTRA,DELECC,AWR,0,IL,NPRI,PRI)
-            LENGT2=0
-            DO 500 I=1,NGRO
-            LENGT2=LENGT2+NJJ(I)
-  500       CONTINUE
-            GAR(:LENGT)=0.0
-            CALL LCMGET(IPDRL,'SCAT'//CM,GAR)
-            UUU(1)=DELTA(1)
-            DO 510 I=2,NGRO
-            UUU(I)=UUU(I-1)+DELTA(I)
-  510       CONTINUE
-            IGAR=0
-*           IG2 IS THE SECONDARY GROUP.
+            ! on-flight scattering kernel
+            ALLOCATE(GAR2D(NGRO,NGRO))
+            CALL LIBECC(IPDRL,NGRO,IL,AWR,ENER,DELTA,DELECC,IGECCO,
+     1      GAR2D)
+            DO 550 IG1=1,NGRO
+            FNTRP=TERP(IDIL,IG1)
             DO 540 IG2=1,NGRO
-            IF(IG2.LE.IGECCO) THEN
-              CALL LIBECT(MAXTRA,IG2,PRI,UUU,DELECC,DELTA,NPRI,1,MML,
-     1        STIS)
-              IGAR=IGAR+NJJ(IG2)
-              SSS(IG2)=GAR(IGAR)
-              DO 520 I=1,MML
-              IG1=IG2-I+1
-              IF(IG1.LE.0) GO TO 540
-              SCAT(IG2,IG1,IL+1)=SCAT(IG2,IG1,IL+1)+TERP(IDIL,IG1)*
-     1        STIS(I)*SSS(IG1)
-  520         CONTINUE
-            ELSE
-              DO 530 IG1=IJJ(IG2),IJJ(IG2)-NJJ(IG2)+1,-1
-              IGAR=IGAR+1
-              SCAT(IG2,IG1,IL+1)=SCAT(IG2,IG1,IL+1)+TERP(IDIL,IG1)*
-     1        GAR(IGAR)
-  530         CONTINUE
-            ENDIF
+            ! IG2 is the secondary group
+            SCAT(IG2,IG1,IL+1)=SCAT(IG2,IG1,IL+1)+FNTRP*GAR2D(IG2,IG1)
   540       CONTINUE
-            DEALLOCATE(SSS,UUU,STIS,PRI)
+  550       CONTINUE
+            DEALLOCATE(GAR2D)
          ENDIF
          IF(LPDIL(IL+1)) THEN
             GAR(:NGRO)=0.0

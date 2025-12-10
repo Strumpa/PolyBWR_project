@@ -132,14 +132,14 @@
         DEALLOCATE(TEXT132V1)
       ENDIF
       IF(NPAR.GT.0) THEN
-         CALL hdf5_read_data(IPAPX,"/paramdescrip/PARNAM",PARKEY)
-         CALL hdf5_read_data(IPAPX,"/paramdescrip/PARFMT",PARFMT)
-      ENDIF
-      IF(IMPX.GT.1) THEN
-        WRITE(IOUT,*) 'NPAR=',NPAR,SIZE(PARKEY,1)
-        DO I=1,NPAR
-          WRITE(IOUT,*)'PARKEY(',I,')=',PARKEY(I),' PARFMT=',PARFMT(I)
-        ENDDO
+        CALL hdf5_read_data(IPAPX,"/paramdescrip/PARNAM",PARKEY)
+        CALL hdf5_read_data(IPAPX,"/paramdescrip/PARFMT",PARFMT)
+        IF(IMPX.GT.1) THEN
+          WRITE(IOUT,*) 'NPAR=',NPAR,SIZE(PARKEY,1)
+          DO I=1,NPAR
+            WRITE(IOUT,*)'PARKEY(',I,')=',PARKEY(I),' PARFMT=',PARFMT(I)
+          ENDDO
+        ENDIF
       ENDIF
       TERP(:NCAL,:NMIX)=0.0
       MIXC(:NMIX)=0

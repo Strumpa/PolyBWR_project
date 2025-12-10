@@ -195,7 +195,6 @@
          ENDIF
       ENDIF
   130 CONTINUE
-      IF(NISO.GT.0) DEALLOCATE(NOMISO)
 *----
 *  STORE INFORMATION IN THE statept_id/zone_id GROUP.
 *----
@@ -203,6 +202,7 @@
      > TRIM(HEDIT),ICAL-1,IMIL-1
       CALL hdf5_write_data(IPMPO,TRIM(RECNAM)//"yields/YIELD",YLDS)
   140 CONTINUE
+      IF(NISO.GT.0) DEALLOCATE(NOMISO)
 *
       CALL hdf5_write_data(IPMPO,TRIM(RECNAM)//"yields/ADDRY",ADRY)
 *----

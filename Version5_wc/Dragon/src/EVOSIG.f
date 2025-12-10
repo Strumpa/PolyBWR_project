@@ -97,7 +97,7 @@
       CHARACTER HSMG*131,NAMDXS(MAXREA)*6
       DOUBLE PRECISION GAR,GAR1,GAR2,GARD,XDRCST,EVJ,FITD,PHI,FNORM,VPH
       INTEGER IPRLOC
-      LOGICAL LKERMA
+      LOGICAL LKERMA, U235F
       REAL, ALLOCATABLE, DIMENSION(:) :: ZKERMA,ZNFTOT
       REAL, ALLOCATABLE, DIMENSION(:,:) :: XSREC
 *----
@@ -107,6 +107,7 @@
 *----
 *  FIND U235 POSITION IN DECAY CHAIN
 *----
+      U235F = .FALSE.
       IS235=0
       IF(IGLOB.EQ.-1) THEN
         DO 30 IST=1,NVAR+NSUPS
@@ -176,7 +177,11 @@
           ! use the empirical EDEPMODE=0 Serpent formula
           ! R. Tuominen et al., ANE 129 (2019) 224–232.
           K=JM(IBM,IS235)
-          IF(K.EQ.0) CALL XABORT('EVOSIG: NO U235 INFO(2).')
+          IF(K.NE.0) U235F = .TRUE.
+          IF((K.EQ.0).AND.(.NOT.U235F)) THEN 
+            CALL XABORT('EVOSIG: NO U235 INFO(2).')
+          ENDIF
+          IF(K.EQ.0) GO TO 115
           KPLIB5=IPISO(K)
           IF(.NOT.C_ASSOCIATED(KPLIB5)) THEN
             WRITE(HSMG,'(42HEVOSIG: ISOTOPE U235 IS NOT AVAILABLE IN T,
@@ -191,14 +196,24 @@
           DO 110 IU=1,NGROUP
           GAR1=GAR1+1.0E-6*DBLE(ZKERMA(IU)*FLUMIX(IU,IBM))
           GAR2=GAR2+DBLE(ZNFTOT(IU)*FLUMIX(IU,IBM))
+          PRINT *, 'In group i =', IU
+          PRINT *, 'Q = HFACTOR/SIGF =', ZKERMA(IU)/ZNFTOT(IU)*1.0E-6
   110     CONTINUE
+          IF(IZAE(IST).GE.900000) THEN
           GAR=202.27D0*GAR*GAR2/GAR1
+          ELSE 
+          GAR=0.0D0
+          ENDIF
+          PRINT *, 'FOR IZAE(IST) =', IZAE(IST)
+          PRINT *, 'GAR =', GAR
           DEALLOCATE(ZNFTOT)
         ENDIF
         SIG(IS,NREAC,IBM)=SIG(IS,NREAC,IBM)+1.0E-3*FACT*REAL(GAR)
-        DEALLOCATE(ZKERMA)
+  115   DEALLOCATE(ZKERMA)
       ELSE
-        IF((IGLOB.EQ.-1).AND.(AWR(IS).GT.210.0)) THEN
+        IF((IGLOB.EQ.-1).AND.(IZAE(IST).GT.900000)) THEN
+          PRINT *, 'AWR(IST) = ', AWR(IST)
+          PRINT *, 'IZAE(IST) = ', IZAE(IST)
           CALL XABORT('EVOSIG: EDP0 OPTION NEEDS H-FACTOR INFORMATION.')
         ENDIF
       ENDIF

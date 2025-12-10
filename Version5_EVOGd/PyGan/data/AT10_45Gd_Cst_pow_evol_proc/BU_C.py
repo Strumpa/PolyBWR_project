@@ -10,7 +10,7 @@
 import lifo
 import cle2000
 
-def BU_C(namCOMPO, pyMIX, pyTRACK, pyTF_EXC, pyTRACK_SS, pyTF_EXC_SS, StepList, name_compo, ssh_option, depl_sol_option, glob_option, sat_option, rates_extr, edep_mode):
+def BU_C(namCOMPO, pyMIX, pyTRACK, pyTF_EXC, pyTRACK_SS, pyTF_EXC_SS, StepList, name_compo, ssh_option, depl_sol_option, glob_option, sat_option, rates_extr):
     """
     0th order predictor : Constant extrapolation on dt, using BoS rates : NOEX
     1st order predictor : Linear extrapolation on dt, using BoS rates : EXTR
@@ -30,16 +30,15 @@ def BU_C(namCOMPO, pyMIX, pyTRACK, pyTF_EXC, pyTRACK_SS, pyTF_EXC_SS, StepList, 
     myLifo.push(glob_option)
     myLifo.push(sat_option)
     myLifo.push(rates_extr)
-
     myLifo.lib()
     # Execution 
-    if edep_mode == "edep0":
-        print(f"edep_mode = {edep_mode}, running EDP0 version of BU_C")
-        calcBWR = cle2000.new('BU_C_E0',myLifo,1)
-        calcBWR.exec()
-    else:
-        calcBWR = cle2000.new('BU_C',myLifo,1)
-        calcBWR.exec()
+    #if edep_mode == "edep0":
+    #    print(f"edep_mode = {edep_mode}, running EDP0 version of BU_C")
+    #    calcBWR = cle2000.new('BU_C_E0',myLifo,1)
+    #    calcBWR.exec()
+    #else:
+    calcBWR = cle2000.new('BU_C',myLifo,1)
+    calcBWR.exec()
 
     # Recover
     myLifo.lib()
@@ -57,8 +56,6 @@ def BU_EXTR2(namCOMPO, pyMIX, pyTRACK, pyTF_EXC, pyTRACK_SS, pyTF_EXC_SS, StepLi
     Testing PARABOLIC extrapolation for reaction rates in Predictor only method
     2nd order predictor : Parabolic extrapolation on dt, using BoS rates : EXTR 2
     """
-
-
     # Lifo
     myLifo=lifo.new()
     myLifo.pushEmpty(namCOMPO,"LCM")

@@ -1,0 +1,220 @@
+* AT10_3x3_UOX_Gd.x2m, CLE-2000 script to call Dragon5
+* Purpose : Refining calculation scheme for BWR ATRIUM-10 type heterogeneous assemlies.
+* 3x3 pins, pins 1, 2, 3, 4, 6 = UOX, pin 7 = Gd.
+* Reference Serpen2 case : AT10_3x3_UOX_Gd_mc
+* No Burnup calculation 
+
+
+****************************************************************************
+************************** VARIABLES DEFINITION ****************************
+****************************************************************************
+
+LINKED_LIST MACRO GEOM GEOMMOC TRACKIC TRACKCP TRACKMOC PIJ SYS FLUX ;
+MODULE MAC: GEO: G2S: SALT: ASM: MCCGT: FLU: GREP: DELETE: END: ;
+SEQ_BINARY TRACKFILIC TRACKFILCP TRACKFILMOC ;
+SEQ_ASCII Fic_IC :: FILE 'Fic_SAL_TDCM_3x3_UOX_Gd_IC.tdt' ;
+SEQ_ASCII Fic_IC.ps :: FILE 'Fic_SAL_TDCM_3x3_UOX_Gd_IC.ps' ;
+SEQ_ASCII Fic_CP :: FILE 'Fic_SAL_TDCM_3x3_UOX_Gd_CP.tdt' ;
+SEQ_ASCII Fic_CP.ps :: FILE 'Fic_SAL_TDCM_3x3_UOX_Gd5_CP.ps' ;
+SEQ_ASCII Fic_MOC :: FILE 'Fic_SAL_TDCM_3x3_UOX_Gd_MOC.tdt' ;
+SEQ_ASCII Fic_MOC.ps :: FILE 'Fic_SAL_TDCM_3x3_UOX_Gd_MOC.ps' ;
+
+REAL keffIC keffCP keffMOC ;
+PROCEDURE assertS ;
+
+****************************************************************************
+********************* GEOMETRY DEFINTION OF 3x3 UOX+Gd *********************
+****************************************************************************
+REAL Pitch_C := 1.29500 ;
+REAL Rgap Rclad := 0.4520 0.5140 ;
+REAL Rcomb1 Rcomb2 Rcomb3 Rcomb4 ;
+EVALUATE Rcomb4 := 0.4435 ;
+EVALUATE Rcomb1 := 0.313602 ;
+EVALUATE Rcomb2 := 0.396678 ; 
+EVALUATE Rcomb3 := 0.43227 ;
+
+!Mix numbers for C1 fuel 
+INTEGER COMB0101 COMB0102 COMB0103 COMB0104 ;
+EVALUATE COMB0101 COMB0102 COMB0103 COMB0104 := 1 1 1 1 ;
+
+!Mix numbers for C2 fuel 
+INTEGER COMB0201 COMB0202 COMB0203 COMB0204 ;
+EVALUATE COMB0201 COMB0202 COMB0203 COMB0204 := 1 1 1 1 ;
+
+!Mix numbers for C3 fuel 
+INTEGER COMB0301 COMB0302 COMB0303 COMB0304 ;
+EVALUATE COMB0301 COMB0302 COMB0303 COMB0304 := 1 1 1 1 ;
+
+!Mix numbers for C4 fuel 
+INTEGER COMB0401 COMB0402 COMB0403 COMB0404 ;
+EVALUATE COMB0401 COMB0402 COMB0403 COMB0404 := 1 1 1 1 ;
+
+!Mix numbers for C6 fuel 
+INTEGER COMB0601 COMB0602 COMB0603 COMB0604 ;
+EVALUATE COMB0601 COMB0602 COMB0603 COMB0604 := 1 1 1 1  ;
+
+! UOX + Gd Pincell scale data
+
+REAL RcombGd1 RcombGd2 RcombGd3 RcombGd4 RcombGd5 RcombGd6 ;
+EVALUATE RcombGd1 RcombGd2 RcombGd3 RcombGd4 RcombGd5 RcombGd6 
+         := 0.19834 0.28049 0.34353 0.39668 0.43227 0.4435 ;
+
+! Mix numbers C7 fuel
+INTEGER COMB0701 COMB0702 COMB0703 COMB0704 COMB0705 COMB0706 ;
+EVALUATE COMB0701 COMB0702 COMB0703 COMB0704 COMB0705 COMB0706 := 2 2 2 2 2 2 ;
+
+! Pin level common mixes : Clad, Gap, Coolant (intra-pin water) :
+
+INTEGER GAP CLAD COOL ;
+EVALUATE GAP CLAD COOL := 3 4 5 ;
+
+! Multiples of cell pitch : used to define 2nd level geometry mesh 
+REAL 2_Pitch_C 3_Pitch_C 4_Pitch_C ;
+EVALUATE 2_Pitch_C := Pitch_C 2.0 * ;
+EVALUATE 3_Pitch_C := Pitch_C 3.0 * ;
+EVALUATE 4_Pitch_C := Pitch_C 4.0 * ;
+
+
+
+GEOM := GEO: :: CAR2D 3 3
+    X- ALBE 1.0 X+ ALBE 1.0 
+    Y- ALBE 1.0 Y+ ALBE 1.0
+    CELL
+    C1 C2 C3
+    C2 C4 C7
+    C3 C7 C6
+    MESHX 0.0 <<Pitch_C>> <<2_Pitch_C>> <<3_Pitch_C>>
+    MESHX 0.0 <<Pitch_C>> <<2_Pitch_C>> <<3_Pitch_C>>
+    ::: C1 :=  GEO: CARCEL 6 
+                RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
+                <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
+                MIX <<COMB0101>> <<COMB0102>> <<COMB0103>> <<COMB0104>>
+                    <<GAP>> <<CLAD>> <<COOL>> 
+                    MESHX 0.0 <<Pitch_C>> MESHY 0.0 <<Pitch_C>>
+    ;
+    ::: C2 := GEO: C1 MIX <<COMB0201>> <<COMB0202>> <<COMB0203>> <<COMB0204>>
+                            <<GAP>> <<CLAD>> <<COOL>>
+    ;
+    ::: C3 := GEO: C1 MIX <<COMB0301>> <<COMB0302>> <<COMB0303>> <<COMB0304>>
+                            <<GAP>> <<CLAD>> <<COOL>>  
+    ;
+    ::: C4 := GEO: C1 MIX <<COMB0401>> <<COMB0402>> <<COMB0403>> <<COMB0404>>
+                            <<GAP>> <<CLAD>> <<COOL>>
+    ;
+    ::: C6 := GEO: C1 MIX <<COMB0601>> <<COMB0602>> <<COMB0603>> <<COMB0604>>
+                            <<GAP>> <<CLAD>> <<COOL>> 
+    ;
+    ::: C7 := GEO: CARCEL 8
+              RADIUS 0.0 <<RcombGd1>> <<RcombGd2>> <<RcombGd3>> <<RcombGd4>>
+                          <<RcombGd5>> <<RcombGd6>> <<Rgap>> <<Rclad>> 
+              MIX <<COMB0701>> <<COMB0702>> <<COMB0703>> <<COMB0704>> <<COMB0705>> <<COMB0706>>
+                  <<GAP>> <<CLAD>> <<COOL>>
+              MESHX 0.0 <<Pitch_C>> MESHY 0.0 <<Pitch_C>>
+    ; 
+;
+
+****************************************************************************
+*********************** LIBRARY DEFINTION OF 3x3 UOX ***********************
+****************************************************************************
+
+
+MACRO := MAC: ::
+     EDIT 2 NGRO 1 NMIX 5 NIFI 1
+     READ INPUT
+     MIX 1 (*COMBUSTIBLE UOX*)
+        TOTAL 4.53924567E-01    SCAT 1 1 3.98851156E-01
+        NUSIGF 7.21517801E-02   CHI 1.0
+    MIX 2 (*COMBUSTIBLE UOX+Gd*)
+        TOTAL 4.65317905E-01    SCAT 1 1 3.97105634E-01
+        NUSIGF 2.98699979E-02      CHI 1.0
+    MIX 3 (*GAP*)
+        TOTAL 3.00460903E-04  SCAT 1 1 3.00460844E-04
+    MIX 4 (*GAINE*)
+        TOTAL 3.15441370E-01        SCAT 1 1 3.13791692E-01
+    MIX 5 (*EAU*)
+        TOTAL 6.97522283E-01        SCAT 1 1 6.97020829E-01
+;
+
+****************************************************************************
+********************* TRAKING GEOM FOR FLUX CALCULATION ********************
+****************************************************************************
+
+* ---
+* TRACKING PARAMTERES
+* ---
+
+INTEGER an2d := 8 ;  ! ANGULAR QUADRATURE PARAMETER
+REAL densur := 40.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
+
+
+* polar angles for MCCGT:
+INTEGER nmu := 4 ;
+
+* size allocation for MCCGT:
+INTEGER mcu := 50000 ;
+
+
+* ---
+* FLUX CALC TRACKING
+* ---
+Fic_IC Fic_IC.ps := G2S: GEOM :: MACRO ;
+Fic_CP Fic_CP.ps := G2S: GEOM :: ;
+Fic_MOC Fic_MOC.ps := G2S: GEOM :: ;
+
+TRACKIC TRACKFILIC := SALT: Fic_IC ::
+     EDIT 2
+     TITLE "MULTICELL SURFACIC AT10_3x3_UOX_Gd CASE"
+     TISO <<an2d>> <<densur>>
+     IC EPSJ 1.0E-4
+     ;
+
+TRACKCP TRACKFILCP := SALT: Fic_CP ::
+     EDIT 2
+     TITLE "TISO CP SURFACIC AT10_3x3_UOX_Gd CASE"
+     TISO <<an2d>> <<densur>>
+     ;
+
+TRACKMOC TRACKFILMOC := SALT: Fic_MOC ::
+     EDIT 2
+     TITLE "TISO MOC SURFACIC AT10_3x3_UOX_Gd CASE"
+     TISO EQW <<an2d>> <<densur>>
+     ;
+
+* MOC tracking
+TRACKMOC := MCCGT: TRACKMOC TRACKFILMOC ::
+  EDIT 0
+;
+* ---
+* Flux calculation
+* ---
+
+* FULL PIJ MATRIX RECONSTRUCTION
+PIJ := ASM: MACRO TRACKIC TRACKFILIC :: PIJ EDIT 2 ;
+FLUX := FLU: PIJ MACRO TRACKIC :: TYPE K ;
+GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffCP<< ;
+PIJ FLUX := DELETE: PIJ FLUX ;
+ECHO "test TDCM AT10_3x3_UOX_Gd FULL PIJ reconstruction completed, keff=" keffCP ;
+
+* FLUX-CURRENT ITERATION WITHOUT FULL PIJ MATRIX RECONSTRUCTION
+PIJ := ASM: MACRO TRACKIC TRACKFILIC :: ARM EDIT 2 ;
+FLUX := FLU: PIJ MACRO TRACKIC :: EDIT 4 TYPE K ;
+GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffIC<< ;
+assertS FLUX :: 'K-EFFECTIVE' 1 <<keffCP>> ;
+PIJ FLUX := DELETE: PIJ FLUX ;
+ECHO "test TDCM AT10_3x3_UOX_Gd FLUX-CURRENT iteration completed, keff=" keffIC ;
+
+PIJ := ASM: MACRO TRACKCP TRACKFILCP :: PIJ EDIT 2 ;
+FLUX := FLU: PIJ MACRO TRACKCP :: TYPE K ;
+GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffCP<< ;
+PIJ FLUX := DELETE: PIJ FLUX ;
+ECHO "test TDCM AT10_3x3_UOX_Gd CP completed, keff=" keffCP ;
+
+SYS := ASM: MACRO TRACKMOC TRACKFILMOC :: ARM EDIT 10 ; 
+FLUX := FLU: SYS MACRO TRACKMOC TRACKFILMOC :: EDIT 1 TYPE K ;
+GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffMOC<< ;
+ECHO "test TDCM AT10_3x3_UOX_Gd MOC completed, keff=" keffMOC ;
+FLUX SYS TRACKMOC TRACKFILMOC := DELETE: FLUX SYS TRACKMOC TRACKFILMOC ;
+
+*----
+
+QUIT "LIST" .

@@ -552,7 +552,11 @@
         ENDIF
         IF(ITIM.EQ.0) THEN
           IF(NTIM.GT.0) THEN
-            IF(XT(IP).LT.TIMES(NTIM)) CALL XABORT('EVODRV: INVALID X1.')
+            IF(XT(IP).LT.TIMES(NTIM)) THEN
+              WRITE(HSMG,'(19HEVODRV: INVALID XT(,I4,2H)=,1P,E12.4,2H <,
+     >        E12.4,1H.)') IP,XT(IP),TIMES(NTIM)
+              CALL XABORT(HSMG)
+            ENDIF
           ENDIF
           NTIM=NTIM+1
           TIMES(NTIM)=XT(IP)
@@ -603,7 +607,11 @@
         ENDIF
         IF(ITIM.EQ.0) THEN
           IF(NTIM.GT.0) THEN
-            IF(XTI.LT.TIMES(NTIM)) CALL XABORT('EVODRV: INVALID X1.')
+            IF(XTI.LT.TIMES(NTIM)) THEN
+              WRITE(HSMG,'(20HEVODRV: INVALID XTI=,1P,E12.4,2H <,E12.4,
+     >        1H.)') XTI,TIMES(NTIM)
+              CALL XABORT(HSMG)
+            ENDIF
           ENDIF
           NTIM=NTIM+1
           TIMES(NTIM)=XTI

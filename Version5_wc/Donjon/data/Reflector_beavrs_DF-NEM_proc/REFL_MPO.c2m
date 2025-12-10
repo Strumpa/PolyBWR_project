@@ -369,7 +369,7 @@ WHILE IndexCB iBoreMax < DO
   !----------------------------------------------------------
   !  MPO reflector creation
   !----------------------------------------------------------
-  IF htype 'DF-RT' = htype 'DF-RT-SPN' = + THEN
+  IF OptSph 'SPH' = THEN
     Edition := EDI: MacrRefl :: EDIT 1 SAVE ;
   ELSE
     Edition := EDI: MacrRefl :: EDIT 1 ADFM SAVE ;

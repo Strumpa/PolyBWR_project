@@ -252,7 +252,7 @@ def plot_errors_BWR_assembly(errors_rates, name_case, name_compo, fig_name, unfo
     return
 
 
-def plot_pinwise_errors_BWR_assembly(errors_rates, name_case, name_compo, calculation_opt, fig_name, cmap="bwr"):
+def plot_pinwise_errors_BWR_assembly(errors_rates, name_case, name_compo, calculation_opt, fig_name, evaluation, cmap="bwr"):
     """
         Assembly map for ATRIUM-10
 
@@ -306,10 +306,10 @@ def plot_pinwise_errors_BWR_assembly(errors_rates, name_case, name_compo, calcul
                 
                 ])
 
-    a = os.path.exists(f"DRAGON_RATES_{name_case}/{calculation_opt}/{name_compo}")
+    a = os.path.exists(f"DRAGON_RATES_{name_case}_{evaluation}/{calculation_opt}/{name_compo}")
     if not a:
-        os.makedirs(f"DRAGON_RATES_{name_case}/{calculation_opt}/{name_compo}")
-        
+        os.makedirs(f"DRAGON_RATES_{name_case}_{evaluation}/{calculation_opt}/{name_compo}")
+
     ngroups = errors_rates.shape[0]
     ncells = errors_rates.shape[1]
     for gr in range(ngroups):

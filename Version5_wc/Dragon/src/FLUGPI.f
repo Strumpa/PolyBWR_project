@@ -235,6 +235,8 @@
      >          //'LEAKAGE MODEL OTHER THAN SIGS OR HETE.')
               ENDIF
               IF(ILEAK.EQ.5) THEN
+                IF(IPRINT.GT.0) WRITE(6,'(8H FLUGPI:,I5,11H INTEGER VA,
+     >          14HLUES EXPECTED.)') NMAT
                 DO IBM=1,NMAT
                   CALL REDGET(ITYPLU,INTLIR,REALIR,CARLIR,DBLINP)
                   IF((IBM.EQ.1).AND.(ITYPLU.EQ.3)) GO TO 30

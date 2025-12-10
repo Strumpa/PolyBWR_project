@@ -13,8 +13,8 @@ PROCEDURE Geom_C Geom_C_SALT Mix_C7 TRK_C_SALT TRK_C_SYBNXT Mix_AUTOP7 ;
 ************************************************************************
 *                          LOCAL PARAMETERS                            *
 ************************************************************************
-MODULE UTL: GREP: DELETE: USS: ASM: FLU: END: ;
-LINKED_LIST GEOM GEOM_SS LIBRARY TRACK_SS TRACK SYS FLUX FIG LIBRARY2 ;
+MODULE UTL: GREP: DELETE: USS: ASM: FLU: COMPO: EDI: END: ;
+LINKED_LIST GEOM GEOM_SS LIBRARY TRACK_SS TRACK SYS FLUX FIG LIBRARY2 EDIOBJ COMPO ;
 SEQ_ASCII CELL_SS ;
 SEQ_ASCII CELL ;
 SEQ_BINARY TF_EXC ;
@@ -26,6 +26,7 @@ STRING ssh_opt := "PT" ; ! "PT", "RSE", "SUBG"
 
 SEQ_ASCII FIG_SS.ps :: FILE './PIN_AT10_FIG_SS.ps' ;
 SEQ_ASCII FIG_FLX.ps :: FILE './PIN_AT10_FIG_FLX.ps' ;
+SEQ_ASCII _COMPO :: FILE './COMPO_AT10_PIN7' ;
 REAL Kinf ;
 
 
@@ -33,7 +34,7 @@ REAL Kinf ;
 
 GEOM GEOM_SS := Geom_C_SALT :: <<geo_name>> ; 
 
-LIBRARY := Mix_C7 :: J311_295 <<ssh_opt>> ;
+LIBRARY := Mix_C7 :: ENDFB8r1_295 <<ssh_opt>> ;
 
 ! CALL THIS FOR SALT TRACKING FOR BOTH SSH AND FLX + MOC SOLUTION
 CELL FIG_FLX.ps TRACK TF_EXC CELL_SS FIG_SS.ps TRACK_SS TF_EXC_SS := TRK_C_SALT GEOM GEOM_SS ;
@@ -49,6 +50,33 @@ FLUX := FLU: LIBRARY2 SYS TRACK TF_EXC ::
 GREP: FLUX :: GETVAL 'K-EFFECTIVE  ' 1 1 1 >>Kinf<< ;
 ECHO "SS tracking = SALT and FLX tracking = SALT TSPC, MOC on AT10 C7: Kinf=" Kinf ;
 
+COMPO := COMPO: ::
+    EDIT 1
+    STEP UP 'EDI_HOM'
+        MAXCAL 5
+        PARA 'TFuel' VALU REAL
+        PARA 'TCool' VALU REAL
+    INIT
+;
+
+EDIOBJ := EDI: FLUX LIBRARY2 TRACK ::
+        EDIT 1 
+        MERG MIX 
+        1 1 1 1 1 1 2 3 4   
+        COND
+        SAVE ON EDI_HOM 
+;
+
+COMPO := COMPO: COMPO EDIOBJ LIBRARY2 ::
+        EDIT 0
+        STEP UP 'EDI_HOM'
+        'TFuel' 750.0
+        'TCool' 559.0
+;
+
+EDIOBJ := DELETE: EDIOBJ ;
+
+_COMPO := COMPO ;
 END: ;
 
 QUIT .

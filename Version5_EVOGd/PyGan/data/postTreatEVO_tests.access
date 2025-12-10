@@ -17,5 +17,6 @@ fi
 ln -s /home/p117902/working_dir/Version5_tests/5.1/PyGan/Linux_aarch64 Version5_1_results
 ln -s /home/p117902/working_dir/Version5_tests/5.1_edp0_debug/PyGan/Linux_aarch64 Version5_1_edp0_mixpwr_results
 ln -s /home/p117902/working_dir/Version5_tests/5.1_evoGd/PyGan/Linux_aarch64 Version5_1_evoGd_results
+ln -s /home/p117902/working_dir/PolyBWR_project/Version5_EVOGd/PyGan/Linux_aarch64 Version5_EVOGd_data_path
 ls -l
 echo -"----.access----- postTreatEVO_tests access script terminated"

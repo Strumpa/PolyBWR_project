@@ -359,33 +359,33 @@ def plot_comparison(comparison_df_dict, tracked_nuclides, title, ssh_option, cor
         plt.close()
 
     
-def post_treat_AT10_45Gd():
+def post_treat_AT10_cell(cell_name, bu_points):
     """
-    Post-treat the AT10_45Gd case.
+    Post-treat a AT10 pincell case.
     """
-    name_D5_case = "AT10_45Gd_Cst_pow_evol"
+    name_D5_case = f"{cell_name}_Cst_pow_evol"
     # define path to NOGL_HM data
-    path_to_Version5_1_data =  "Version5_1_results"
-    path_to_Version5_1_evoGd_data =  "Version5_1_evoGd_results"
+    path_to_Version5_wc_data =  "Version5_EVOGd_data_path"
     # Define calculation options for the CPOs name reconstruction
     time_integrator = "EXTR"
-    BU_points = "Gd_autop3" #
-    name_S2_case = "AT10_45Gd"
+    BU_points = bu_points
+    name_S2_case = f"{cell_name}"
     if BU_points == "Gd2_autop6":
-        name_S2_case = "AT10_45Gd_BUGd2"
+        name_S2_case = f"{cell_name}_BUGd2"
 
     tracking_option = "SALT"
-    draglib = "J311_295" # "endfb8r1_295_NG0" #"endfb8r1_295" # "endfb8r1_295", "endfb81295K", "endfb81295K2"
+    evaluation = "ENDFB8R1"
+#    draglib = "endfb8r1dec" # "endfb8r1_295_NG0" #"endfb8r1_295" # "endfb8r1_295", "endfb81295K", "endfb81295K2"
     ssh_option = "PT"
     correlation = "N"
     tracked_nuclides = ["U235", "U238", "Pu239", "Pu240", "Pu241", "Pu242", "Am241", "Gd155", "Gd157", "Xe135", "Sm149"]
 
-    name_CPO_EDEP0_QFISS_modif = f"CPO_EDP0_J311_295_{ssh_option}_{correlation}_{tracking_option}_{BU_points}_KAPS_NODI_{time_integrator}_NOGL"
-    name_CPO_EDEP0 = f"CPO_J311_295_{ssh_option}_{correlation}_{tracking_option}_{BU_points}_KAPS_NODI_{time_integrator}_NOGL"
-    name_CPO_default = f"CPO_J311_295_{ssh_option}_{correlation}_{tracking_option}_{BU_points}_KAPS_NODI_{time_integrator}_NOGL"
-    name_CPO_kerma = f"CPO_J311_295K_{ssh_option}_{correlation}_{tracking_option}_{BU_points}_KAPS_NODI_{time_integrator}_NOGL"
+    name_CPO_NOGL = f"CPO_endfb8r1_295_{ssh_option}_{correlation}_{tracking_option}_{BU_points}_KAPS_NODI_{time_integrator}_NOGL"
+    name_CPO_EDP0 = f"CPO_endfb8r1_295_{ssh_option}_{correlation}_{tracking_option}_{BU_points}_KAPS_NODI_{time_integrator}_EDP0"
+    #name_CPO_NOGL_dec = f"CPO_endfb8r1dec_{ssh_option}_{correlation}_{tracking_option}_{BU_points}_KAPS_NODI_{time_integrator}_NOGL"
+    #name_CPO_EDP0_dec = f"CPO_endfb8r1dec_{ssh_option}_{correlation}_{tracking_option}_{BU_points}_KAPS_NODI_{time_integrator}_EDP0"
     path = os.getcwd()
-    save_dir_case = f"{path}/postTreatEVO_tests_results/{name_D5_case}/{draglib}_D5"
+    save_dir_case = f"{path}/postTreatEVO_tests_results/{name_D5_case}/{evaluation}_D5"
     if not os.path.exists(save_dir_case):
         os.makedirs(save_dir_case)
     save_dir_D5_vs_D5 = f"{save_dir_case}/D5_vs_D5_{BU_points}"
@@ -395,129 +395,72 @@ def post_treat_AT10_45Gd():
     if not os.path.exists(save_dir_D5_vs_S2):
         os.makedirs(save_dir_D5_vs_S2)
     
-    # Load the "reference" 5.1 data, before modifications to source code
-    os.chdir(f"{path_to_Version5_1_data}/{name_D5_case}_results")
+    # Load wc data, NOGL case
+    os.chdir(f"{path_to_Version5_wc_data}/{name_D5_case}_results")
     print(os.listdir())
-    print(name_CPO_kerma)
-    CPO_default = lcm.new('LCM_INP', name_CPO_default, impx=0)
-    CPO_kerma = lcm.new('LCM_INP', name_CPO_kerma, impx=0)
+    print(name_CPO_NOGL)
+    CPO_NOGL = lcm.new('LCM_INP', name_CPO_NOGL, impx=0)
+    CPO_EDP0 = lcm.new('LCM_INP', name_CPO_EDP0, impx=0)
+
     os.chdir(path)
+
+
+
+    # Create D5 cases
+    D5_case_EDP0 = D5_case(pyCOMPO=CPO_EDP0, dlib_name="endfb8r1v5p1", bu_points=BU_points, 
+                                ssh_opt=ssh_option, correlation=correlation, sat="NODI", depl_sol="EXTR", 
+                                tracked_nuclides=tracked_nuclides, BU_lists=getBULists(BU_points), save_dir=save_dir_case)
+
+    D5_case_NOGL = D5_case(pyCOMPO=CPO_NOGL, dlib_name="endfb8r1v5p1", bu_points=BU_points, 
+                                ssh_opt=ssh_option, correlation=correlation, sat="NODI", depl_sol="EXTR", 
+                                tracked_nuclides=tracked_nuclides, BU_lists=getBULists(BU_points), save_dir=save_dir_case)
     
-    # Load the modified EVO:Gd 5.1 data : testing modifications to the normalisation procedure in EVOSIG
-    os.chdir(f"{path_to_Version5_1_evoGd_data}/{name_D5_case}_results")
-    print(os.listdir())
-    CPO_EDEP0 = lcm.new('LCM_INP', name_CPO_EDEP0, impx=0)
-    CPO_EDP0_QFISS = lcm.new('LCM_INP', name_CPO_EDEP0_QFISS_modif, impx=0)
-    os.chdir(path)
 
 
-    # Create D5 case 
-    D5_case_EDEP0 = D5_case(pyCOMPO=CPO_EDEP0, dlib_name=draglib, bu_points=BU_points, 
-                                ssh_opt=ssh_option, correlation=correlation, sat="NODI", depl_sol="EXTR", 
-                                tracked_nuclides=tracked_nuclides, BU_lists=getBULists(BU_points), save_dir=save_dir_case)
-    D5_case_EDEP0_QFISS = D5_case(pyCOMPO=CPO_EDP0_QFISS, dlib_name=draglib, bu_points=BU_points, 
-                                ssh_opt=ssh_option, correlation=correlation, sat="NODI", depl_sol="EXTR", 
-                                tracked_nuclides=tracked_nuclides, BU_lists=getBULists(BU_points), save_dir=save_dir_case)
-    D5_case_default = D5_case(pyCOMPO=CPO_default, dlib_name=draglib, bu_points=BU_points, 
-                                ssh_opt=ssh_option, correlation=correlation, sat="NODI", depl_sol="EXTR", 
-                                tracked_nuclides=tracked_nuclides, BU_lists=getBULists(BU_points), save_dir=save_dir_case)
-    D5_case_kerma = D5_case(pyCOMPO=CPO_kerma, dlib_name=f"{draglib}K", bu_points=BU_points, 
-                                ssh_opt=ssh_option, correlation=correlation, sat="NODI", depl_sol="EXTR", 
-                                tracked_nuclides=tracked_nuclides, BU_lists=getBULists(BU_points), save_dir=save_dir_case)
-
-    print(f"D5 BU points are : {D5_case_EDEP0.BU}")
     # Create S2 case
     #S2_case_edep0_pcc0 = S2_case(case_name=name_S2_case, lib_name="J311_pynjoy2016",
     #                            edep_id=0, areQfissSet=False, isEcaptSet=False, pcc_id=0, 
     #                            specific_power=26.5, tracked_nuclides=tracked_nuclides, save_dir=save_dir_case)
-    S2_case_edep0_pcc1 = S2_case(case_name=name_S2_case, lib_name="J311_pynjoy2016",
+    S2_case_edep0_pcc1 = S2_case(case_name=name_S2_case, lib_name="endfb8r1_pynjoy2012_kerma",
                                 edep_id=0, areQfissSet=False, isEcaptSet=False, pcc_id=1, 
                                 specific_power=26.5, tracked_nuclides=tracked_nuclides, save_dir=save_dir_case)
     print(f"S2 edep0 pcc1 BU points are : {S2_case_edep0_pcc1.BU}")
-    S2_case_edep0_pcc2 = S2_case(case_name=name_S2_case, lib_name="J311_pynjoy2016",
-                                edep_id=0, areQfissSet=False, isEcaptSet=False, pcc_id=2, 
-                                specific_power=26.5, tracked_nuclides=tracked_nuclides, save_dir=save_dir_case)
-    print(f"S2 edep0 pcc2 BU points are : {S2_case_edep0_pcc2.BU}")
-    S2_case_edep2_pcc1 = S2_case(case_name=name_S2_case, lib_name="J311_pynjoy2016",
+    #S2_case_edep0_pcc2 = S2_case(case_name=name_S2_case, lib_name="endfb8r1_pynjoy2012_kerma",
+    #                            edep_id=0, areQfissSet=False, isEcaptSet=False, pcc_id=2, 
+    #                            specific_power=26.5, tracked_nuclides=tracked_nuclides, save_dir=save_dir_case)
+    #print(f"S2 edep0 pcc2 BU points are : {S2_case_edep0_pcc2.BU}")
+    S2_case_edep2_pcc1 = S2_case(case_name=name_S2_case, lib_name="endfb8r1_pynjoy2012_kerma",
                                 edep_id=2, areQfissSet=False, isEcaptSet=False, pcc_id=1, 
                                 specific_power=26.5, tracked_nuclides=tracked_nuclides, save_dir=save_dir_case)
     #S2_case_edep2_pcc2 = S2_case(case_name=name_S2_case, lib_name="J311_pynjoy2016",
     #                            edep_id=2, areQfissSet=False, isEcaptSet=False, pcc_id=2, 
     #                            specific_power=26.5, tracked_nuclides=tracked_nuclides, save_dir=save_dir_case)
     
-    ## Check BU points 
-    if len(D5_case_EDEP0.BU) != len(S2_case_edep0_pcc1.BU):
-        print("Warning: Different number of burnup points in D5 and S2 cases.")
-    else:
-        print("Same number of burnup points in D5 and S2 cases.")
-        difference_BU = np.array(D5_case_EDEP0.BU) - np.array(S2_case_edep0_pcc1.BU)
-        if np.all(difference_BU == 0):
-            print("Burnup points are the same in D5 and S2 pcc 1 case.")
-        else:
-            print(difference_BU)
-            print("Burnup points are different in D5 and S2 pcc 1 case.")
+   
 
-    if len(D5_case_EDEP0.BU) != len(S2_case_edep0_pcc2.BU):
-        print("Warning: Different number of burnup points in D5 and S2 cases.")
-    else:
-        print("Same number of burnup points in D5 and S2 cases.")
-        difference_BU = np.array(D5_case_EDEP0.BU) - np.array(S2_case_edep0_pcc2.BU)
-        if np.all(difference_BU == 0):
-            print("Burnup points are the same in D5 and S2 pcc 2 case.")
-        else:
-            print(difference_BU)
-            print("Burnup points are different in D5 and S2 pcc 2 case.")
-
-    ## Compare DRAGON5 cases with Serpent2 cases
-    
-    ## Default DRAGON5.1 case vs Serpent2 edep0 pcc1 and pcc2
-    comp_D5_default_S2_pcc1 = create_D5_S2_comparison(D5_case_default, S2_case_edep0_pcc1)
-    comp_D5_default_S2_pcc2 = create_D5_S2_comparison(D5_case_default, S2_case_edep0_pcc2)
-    
-    ## Default DRAGON5.1 case with kerma treatment vs Serpent2 edep2 pcc1 and pcc2
-    comp_D5_kerma_S2_pcc1 = create_D5_S2_comparison(D5_case_kerma, S2_case_edep2_pcc1)
-    #comp_D5_kerma_S2_pcc2 = create_D5_S2_comparison(D5_case_kerma, S2_case_edep2_pcc2)
-    
-    ## DRAGON5.1_evoGd : EDP0 formula, no Qfiss correction : read Q_fiss from draglib.
-    
-    comp_D5_EDEP0_S2_pcc1 = create_D5_S2_comparison(D5_case_EDEP0, S2_case_edep0_pcc1)
-    comp_D5_EDEP0_S2_pcc2 = create_D5_S2_comparison(D5_case_EDEP0, S2_case_edep0_pcc2)
-    
-    ## DRAGON5.1_evoGd : EDP0 formula, with Qfiss correction : read modified Q-fiss.
-    
-    comp_D5_EDEP0_QFISS_S2_pcc1 = create_D5_S2_comparison(D5_case_EDEP0_QFISS, S2_case_edep0_pcc1)
-    comp_D5_EDEP0_QFISS_S2_pcc2 = create_D5_S2_comparison(D5_case_EDEP0_QFISS, S2_case_edep0_pcc2)
+    ## Compare DRAGON5 cases with Serpent2 edep0 pcc1 and pcc2 cases
+    comp_D5_NOGL_S2_pcc1 = create_D5_S2_comparison(D5_case_NOGL, S2_case_edep0_pcc1)
+    #comp_D5_NOGL_S2_pcc2 = create_D5_S2_comparison(D5_case_NOGL, S2_case_edep0_pcc2)
+    comp_D5_EDP0_S2_pcc1 = create_D5_S2_comparison(D5_case_EDP0, S2_case_edep0_pcc1)
+    #comp_D5_EDP0_S2_pcc2 = create_D5_S2_comparison(D5_case_EDP0, S2_case_edep0_pcc2)
 
     # Plot comparisons
     
-    comparison_dict_default = {
-        'D5 default - S2 edep 0 pcc 1': comp_D5_default_S2_pcc1,
-        'D5 default - S2 edep 0 pcc 2': comp_D5_default_S2_pcc2
+    comparison_dict_NOGL = {
+        'D5 NOGL - S2 edep 0 pcc 1': comp_D5_NOGL_S2_pcc1,
+        #'D5 NOGL - S2 edep 0 pcc 2': comp_D5_NOGL_S2_pcc2,
     }
-    plot_comparison(comparison_dict_default, tracked_nuclides, title="D5 default vs S2 edep 0 pcc 1 and 2", 
+    plot_comparison(comparison_dict_NOGL, tracked_nuclides, title="D5 NOGL vs S2 edep 0 pcc 1", 
                     ssh_option=ssh_option, correlation=correlation, time_integrator=time_integrator, 
-                    save_name="D5_default_vs_S2_edep0_pcc1_pcc2", save_path=save_dir_D5_vs_S2)
-    comparison_dict_kerma = {
-        'D5 kerma - S2 edep 2 pcc 1': comp_D5_kerma_S2_pcc1,
-    #    'D5 kerma - S2 edep 2 pcc 2': comp_D5_kerma_S2_pcc2,
+                    save_name="D5_NOGL_vs_S2_edep0_pcc1", save_path=save_dir_D5_vs_S2)
+    
+    comparison_dict_EDP0 = {
+        'D5 EDP0 - S2 edep 0 pcc 1': comp_D5_EDP0_S2_pcc1,
+        #'D5 EDP0 - S2 edep 0 pcc 2': comp_D5_EDP0_S2_pcc2,
     }
-    plot_comparison(comparison_dict_kerma, tracked_nuclides, title="D5 kerma vs S2 edep 2 pcc 1 and 2", 
+    plot_comparison(comparison_dict_EDP0, tracked_nuclides, title="D5 EDEP0 vs S2 edep 0 pcc 1", 
                     ssh_option=ssh_option, correlation=correlation, time_integrator=time_integrator, 
-                    save_name="D5_kerma_vs_S2_edep2_pcc1_pcc2", save_path=save_dir_D5_vs_S2)
-    comparison_dict_EDEP0 = {
-        'D5 EDEP0 - S2 edep 0 pcc 1': comp_D5_EDEP0_S2_pcc1,
-        'D5 EDEP0 - S2 edep 0 pcc 2': comp_D5_EDEP0_S2_pcc2,
-    }
-    plot_comparison(comparison_dict_EDEP0, tracked_nuclides, title="D5 EDEP0 vs S2 edep 0 pcc 1 and 2", 
-                    ssh_option=ssh_option, correlation=correlation, time_integrator=time_integrator, 
-                    save_name="D5_EDEP0_vs_S2_edep0_pcc1_pcc2", save_path=save_dir_D5_vs_S2)
-    comparison_dict_EDEP0_QFISS = {
-        'D5 EDEP0 QFISS - S2 edep 0 pcc 1': comp_D5_EDEP0_QFISS_S2_pcc1,
-        'D5 EDEP0 QFISS - S2 edep 0 pcc 2': comp_D5_EDEP0_QFISS_S2_pcc2,
-    }
-    plot_comparison(comparison_dict_EDEP0_QFISS, tracked_nuclides, title="D5 EDEP0 QFISS vs S2 edep 0 pcc 1 and 2", 
-                    ssh_option=ssh_option, correlation=correlation, time_integrator=time_integrator, 
-                    save_name="D5_EDEP0_QFISS_vs_S2_edep0_pcc1_pcc2", save_path=save_dir_D5_vs_S2)
+                    save_name="D5_EDEP0_vs_S2_edep0_pcc1", save_path=save_dir_D5_vs_S2)
 
 
 def post_treat_AT10_24UOX_schemes():
@@ -963,10 +906,13 @@ def post_treat_EDP0_QFIS_tests(case_name, BU_points):
 if __name__ == "__main__":
 
     #post_treat_HOM_Gd157_VBOC()
-    #post_treat_AT10_45Gd()
+    post_treat_AT10_cell(cell_name="AT10_24UOX", bu_points="UOx2_autop5")
+    post_treat_AT10_cell(cell_name="AT10_24UOX", bu_points="UOx4_autop5")
+    post_treat_AT10_cell(cell_name="AT10_45Gd", bu_points="Gd_autop3")
+    post_treat_AT10_cell(cell_name="AT10_45Gd", bu_points="Gd_autop5")
     #post_treat_AT10_24UOX_schemes()
     #post_treat_AT10_45Gd_schemes()
-    post_treat_EDP0_QFIS_tests(case_name="AT10_ASSBLY", BU_points="ATRIUM_10_S2_BU")
+    #post_treat_EDP0_QFIS_tests(case_name="AT10_ASSBLY", BU_points="ATRIUM_10_S2_BU")
     
     
 

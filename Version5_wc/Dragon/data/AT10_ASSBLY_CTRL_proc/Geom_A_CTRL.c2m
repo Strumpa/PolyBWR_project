@@ -443,7 +443,7 @@ MESHY 0.0 <<Y1>> <<Y4>> <<Pitch_A>>
     MESHX 0.0 <<XtraCool>> <<y_step>> <<X1>>
     MESHY 0.0 <<W_gap>> <<x_step>> <<X1>>
     SPLITX 4 1 5
-    SPLITY 2 1 1 
+    SPLITY 4 1 5 
     MIX <<MODE>> <<MODE>> <<MODE>> 
         <<BOX>>  <<BOX>> <<MODE>> 
         <<COOL>> <<BOX>> <<MODE>> 
@@ -527,23 +527,20 @@ MESHY 0.0 <<Y1>> <<Y4>> <<Pitch_A>>
             MESHY 0.0 <<Box_thi>>
             MIX <<BOX>>
         ;
-        ::: COOL := GEO: CAR2D 1 1
+        ::: COOL := GEO: CAR2D 1 3
             MESHX 0.0 <<crs_struct>>
             MESHY 0.0 <<XtraCool>>
-            MIX <<COOL>>
-            SPLITY 2
+            MIX <<COOL>> <<COOL>> <<COOL>>
         ;
-        ::: COO := GEO: CAR2D 1 1
+        ::: COO := GEO: CAR2D 1 3
             MESHX 0.0 <<crod_pitch>>
             MESHY 0.0 <<XtraCool>>
-            MIX <<COOL>>
-            SPLITY 2
+            MIX <<COOL>> <<COOL>> <<COOL>>
         ;
-        ::: COOR := GEO: CAR2D 1 1
+        ::: COOR := GEO: CAR2D 1 3
             MESHX 0.0 <<lwater_crs>>
             MESHY 0.0 <<XtraCool>>
-            MIX <<COOL>>
-            SPLITY 2
+            MIX <<COOL>> <<COOL>> <<COOL>>
         ;
 ;
 ::: LAT :=  GEO: CAR2D 10 10 

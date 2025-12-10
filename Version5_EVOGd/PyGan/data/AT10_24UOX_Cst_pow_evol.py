@@ -26,7 +26,6 @@ from GEO_C_SALT import *
 from GEO_C_NXT import *
 # MIXTURES class
 from MIX_C import *
-from MIX_NG0 import *
 # TRACKING class
 from TRK_C_SALT import *
 from TRK_C_SYBNXT import *
@@ -46,7 +45,6 @@ from postproc_cst_pow_evol import D5multiS2_comparisons as D5multiS2
 
 # --- Selecting calculation options
 # 0) Select if executing stupid tests with ENDFb8r1 DEPL structure manually modified --> not compatible with Jeff311 lib 
-run_NG0 = True
 
 # 1) Selecting the geometry tracking options
 # Tracking : SALT or SYBNXT
@@ -63,7 +61,7 @@ draglibs = ["endfb8r1_295"]  # ["endfb8r1_295", "endfb81295K", "endfb81295K2"] #
 # RSE, PT or AUTO
 #
 #ssh_options = ["PT_N", "RSE_N", "PT_C", "RSE_C"]
-ssh_options = ["PT_N", "PT_C"] #, "AUTO_N", "AUTO_C"]
+ssh_options = ["PT_N"] #, "AUTO_N", "AUTO_C"]
 
 # 4) Selecting the burnup calculation options
 # burnup_steps = "UOx", "UOx_autop5", "UOx2_autop5", "UOx4_autop5", "UOx6_autop5" etc
@@ -78,13 +76,13 @@ burnup_steps_to_test = [
 # Saturation : "NODI" or "DIRA" : use eq 3.32 or eq 3.33 (with dirac delta) to treat saturation
 # val_exp : list of values to impose saturation for isotopes with lambda * (xtf - xti) >= val_exp
 #
-solver_options = ["RUNG"]
+solver_options = ["KAPS"]
 saturation_options = ["NODI"]
 
 # 6) Selecting the energy deposition options
 # Global energy deposition : "NOGL"=only energy release in fuel is used for normalization or "GLOB" = global energy release model, 
 
-glob_options = ["GLOB","NOGL"] # ["GLOB"] #, "NOGL"]
+glob_options = ["EDP0","NOGL"] # ["GLOB"] #, "NOGL"]
 
 
 ######## 
@@ -125,8 +123,8 @@ for trk_opt in tracking_options:
         sys.exit(1)
     for dlib_name in draglibs:
         for ssh_opt in ssh_options:
-            LIB = MIX_C(dlib_name,ssh_opt)
             for glob_opt in glob_options:
+                LIB = MIX_C(dlib_name,ssh_opt, glob_opt)
                 for burnup_points in burnup_steps_to_test:
                     # Recovering ListBU ListAUTOP ListCOMPO
                     [ListeBU,ListeAUTOP,ListeCOMPO]=getLists(burnup_points)
@@ -146,46 +144,6 @@ for trk_opt in tracking_options:
                             elif trk_opt == "SYBNXT": 
                                 CPO = BU_C_SYBNXT("COMPO", LIB, TRK, TF_EXC, TRK_SS, TF_EXC_SS, StepList, name_compo, ssh_opt, solver_opt, glob_opt, sat_opt)
                             print(f"DRAGON5 calculation for {name_compo}")
-                            D5case = D5_case(CPO, dlib_name, burnup_points, ssh_opt, "noCORR", sat_opt, solver_opt, tracked_nuclides, BU_lists, save_dir_D5)
-                            D5case.plot_keffs()
-                            for iso in tracked_nuclides:
-                                D5case.plot_Ni(iso)
-                            print(f"appendind D5case for dl {dlib_name}, burnup {burnup_points}, ssh {ssh_opt}, trk {trk_opt}, solver {solver_opt}, sat {sat_opt}")
-                            D5_cases.append(D5case)
-
-
-
-### BEGIN DRAGON5 calculations for NG Q-values = 0 ###
-D5_NG0_cases = []
-for dlib_name in draglibs:
-    if dlib_name == "endfb8r1_295":
-        for ssh_opt in ssh_options:
-            LIB_NG0 = MIX_NG0(dlib_name) ### Only modified for ENDFb8r1 chain!!!!! ---> fix this or Im gonna jump
-            for glob_opt in glob_options:
-                for burnup_points in burnup_steps_to_test:
-                    # Recovering ListBU ListAUTOP ListCOMPO
-                    [ListeBU,ListeAUTOP,ListeCOMPO]=getLists(burnup_points)
-                    BU_lists = {"BU": ListeBU, "AUTOP": ListeAUTOP, "COMPO": ListeCOMPO}
-                    # Create Steplist for BU - SELFSHIELDING - COMPO save 
-                    StepList = lcm.new('LCM','burnup_steps')
-                    StepList['ListBU']    = np.array(ListeBU, dtype='f')
-                    StepList['ListAutop'] = np.array(ListeAUTOP, dtype='f')
-                    StepList['ListCompo'] = np.array(ListeCOMPO, dtype='f')
-                    StepList.close() # close without erasing
-
-                    for solver_opt in solver_options:
-                        for sat_opt in saturation_options:
-                            name_compo_NG0 = f"_CPO_{dlib_name}_NG0_{ssh_opt}_SALT_{burnup_points}_{solver_opt}_{sat_opt}_EXTR_{glob_opt}"
-                            if trk_opt == "SALT":
-                                CPO_NG0 = BU_C("COMPO_NG0", LIB_NG0, TRK, TF_EXC, TRK_SS, TF_EXC_SS, StepList, name_compo_NG0, ssh_opt, solver_opt, glob_opt, sat_opt)
-                            elif trk_opt == "SYBNXT": 
-                                CPO_NG0 = BU_C_SYBNXT("COMPO_NG0", LIB_NG0, TRK, TF_EXC, TRK_SS, TF_EXC_SS, StepList, name_compo_NG0, ssh_opt, solver_opt, glob_opt, sat_opt)
-                            D5NG0case = D5_case(CPO_NG0, f"{dlib_name}NG0", burnup_points, ssh_opt, "noCORR", sat_opt, solver_opt, tracked_nuclides, BU_lists, save_dir_D5)
-                            D5NG0case.plot_keffs()
-                            for iso in tracked_nuclides:
-                                D5NG0case.plot_Ni(iso)
-                            D5_NG0_cases.append(D5NG0case)
-
 
 # --- END OF SCRIPT --- #
 

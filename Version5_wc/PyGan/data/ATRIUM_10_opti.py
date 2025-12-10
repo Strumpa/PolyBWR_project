@@ -40,9 +40,9 @@ refinement_opt_name = "finest_geom" #"finest_geom" # "default", "fine1", "fine2"
 refinement_options = {} 
 # posible keys to "moderator" entry
 # "default" -> coarse refinement of water in and out of assembly, windmills around cells
-#"fine1" -> finer refinement in inner box and outer water. In thermal group : still ~-4% error on fission rates in assembly corners, 1.4% RMS and 1% average,
-#"fine2" -> splity in side water increased, same as fine1 apart from that
-#"fine3" -> refining moderator in central box : to test
+# "fine1" -> finer refinement in inner box and outer water. In thermal group : still ~-4% error on fission rates in assembly corners, 1.4% RMS and 1% average,
+# "fine2" -> splity in side water increased, same as fine1 apart from that
+# "fine3" -> refining moderator in central box : to test
 
 # Possible keys to "UOX_cells" entry :
 # SECT_4_{n}, where n is the number of non discretized rings in cell
@@ -208,11 +208,11 @@ nmu = 4  # Number of polar angles for MOC tracking : conservation ensured up to 
 postscript_file = f"AT10_FIG_MAIN_{refinement_opt_name}.ps"
 
 # Parameters for the LIBRARY creation
-draglib_name = "J311_295" # "endfb8r1_295" # "J311_295"
+draglib_name = "endfb8r1_295" # "J311_295"
 self_shielding_method = "RSE"  # Method to be used for self-shielding calculations, "PT" for Mathematical Probability Tables, "SUBG" for Physical Probaility tables, "RSE" for Resonant Spectrum Expansion.
 resonance_correlation = "NOCORR"  # Specify if the resonance correlation model should be applied. Only available for "RSE" and "PT". This will use a correlation model to treat reonances of U238, Pu240 and Gd157.
 transport_correction = "NONE"
-composition_option = "AT10_void_0"  # Specify which composition of mixes should be used for the LIBRARY creation. For now "AT10_void_0" and "AT10_void_40" are available.
+composition_option = "AT10_void_80"  # Specify which composition of mixes should be used for the LIBRARY creation. For now "AT10_void_0" and "AT10_void_40" are available.
 
 # USS: call parameters :
 ssh_option = "default"  # Option to specify specific groupings of self-shielding regions, to be tested. "default" is default from USS: based on LIB: data, "RSE" is for Resonant Spectrum Expansion method, and groups all U8, U5 and Zr isotopes in a single self-shielding region --> to be tested.

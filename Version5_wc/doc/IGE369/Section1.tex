@@ -1585,7 +1585,7 @@ equal to the dominance ratio of the iterative matrix.
 The {\tt OUT:} module is used to compute the reaction rates and to store them in an extended {\sc macrolib} (type {\tt L\_MACROLIB}) corresponding to a solution (type {\tt L\_FLUX}) of the matrix system. The calling specifications are:
 
 \begin{DataStructure}{Structure \dstr{OUT:}}
-\dusa{MACRO2} \moc{:=} \moc{OUT:} \dusa{FLUX} \dusa{TRACK} \dusa{MACRO} \dusa{GEOM} \moc{::} \dstr{out\_data}
+\dusa{MACRO2} \moc{:=} \moc{OUT:} $[$ \dusa{MACRO2} $]$ \dusa{FLUX} \dusa{TRACK} \dusa{MACRO} \dusa{GEOM} \moc{::} \dstr{out\_data}
 \end{DataStructure}
 
 \noindent where
@@ -1613,7 +1613,7 @@ The {\tt OUT:} module is used to compute the reaction rates and to store them in
 $[$ \moc{EDIT} \dusa{iprint} $]$ \\
 $[$ \moc{MODE} \dusa{imode} $]$ \\
 $[~\{$ \moc{DIRE} $|$ \moc{PROD} $\}~]$ \\
-$[~\{$ \moc{POWR} \dusa{power} $|$ \moc{SOUR} \dusa{snumb} $\}~]$ \\
+$[~\{$ \moc{POWR} \dusa{power} $|$ \moc{FISS} \dusa{number} $|$ \moc{SOUR} \dusa{snumb} $\}~]$ \\
 $[$ \moc{COND} $[~\{$ \moc{NONE} $|$ (\dusa{icond}(i), i=1,ngcond) $\}~]~]$ \\
 $[$ \moc{INTG} $\{$ \moc{NONE} $|$ \moc{IN} $|$ \moc{MIX} $|$ (\dusa{ihom}(i), i=1,nreg) $\}~]$ \\
 ;
@@ -1638,6 +1638,11 @@ $[$ \moc{INTG} $\{$ \moc{NONE} $|$ \moc{IN} $|$ \moc{MIX} $|$ (\dusa{ihom}(i), i
 \item[\moc{POWR}] keyword used to set \dusa{power}.
 
 \item[\dusa{power}] value of the power in MW used to normalize the flux. By default, the flux is not normalized.
+
+\item[\moc{FISS}] keyword used to set \dusa{number}.
+
+\item[\dusa{number}] number of secondary neutrons produced by fission. This value may be set to 1.0 to obtain the
+legacy power method normalization. By default, the flux is not normalized.
 
 \item[\moc{SOUR}] keyword used to set \dusa{snumb}.
 

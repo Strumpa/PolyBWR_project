@@ -217,7 +217,7 @@ def analyze_computational_schemes():
     name_case = "ATRIUM10"
     geometry_type = "finest_geom" # "cool_ring_SECT40" # "default", "fine1", "corners1"
     composition_option = "AT10_void_0"
-    evaluation = "J311_295"
+    evaluation = "endfb8r1_295" #"J311_295"
     ssh_methods = ["RSE"]#, "RSE"]#, "PT"]
     ssh_sol_doors = ["IC"]#["PIJ", "IC"]
     correlation_option = "NOCORR"
@@ -229,6 +229,16 @@ def analyze_computational_schemes():
     refinement_opt_name = geometry_type
     deltas = {}
     
+    
+    if composition_option == "AT10_void_0":
+        S2_name_case = "ATRIUM10_pin"
+    elif composition_option == "AT10_void_40":
+        S2_name_case = "ATRIUM10_void40_pin"
+    elif composition_option == "AT10_void_60":
+        S2_name_case = "ATRIUM10_void60_pin"
+    elif composition_option == "AT10_void_80":
+        S2_name_case = "ATRIUM10_void80_pin"
+
     for computational_scheme in computational_schemes:
         if computational_scheme not in deltas.keys():
             deltas[computational_scheme] = {}
@@ -243,8 +253,8 @@ def analyze_computational_schemes():
                     CPO_name = f"CPO_n{num_angles}_ld{int(line_density)}_n8_ld25_TSPC_{anisotropy_level}_{ssh_sol}_MOC_GAUS_4_{batch}_200_{transport_correction}"
                 print(f"computational_scheme : {computational_scheme}, CPO_name = {CPO_name}")
                 keff_D5, fiss_rates_D5, n_gamma_rates_D5, FLUX_295groups_D5 = parse_DRAGON_SCHEME(name_case, CPO_name, composition_option, evaluation, ssh_method, correlation_option, geometry_type, fission_isotopes , n_gamma_isotopes = ["U238", "Gd155", "Gd157"], bu=0, computational_scheme=computational_scheme)
-                keff_S2, fission_rates_S2, ngamma_rates_S2 = parse_S2_pin_mat_det(name_case="ATRIUM10_pin", XS_lib_S2="jeff311_pynjoy2016", fission_isotopes=fission_isotopes, ngamma_isotopes=["U238", "Gd155", "Gd157"], bu=0)
-
+                #keff_S2, fission_rates_S2, ngamma_rates_S2 = parse_S2_pin_mat_det(name_case="ATRIUM10_pin", XS_lib_S2="jeff311_pynjoy2016", fission_isotopes=fission_isotopes, ngamma_isotopes=["U238", "Gd155", "Gd157"], bu=0)
+                keff_S2, fission_rates_S2, ngamma_rates_S2 = parse_S2_pin_mat_det(name_case="ATRIUM10_pin", XS_lib_S2="endfb8r1_pynjoy2012_kerma", fission_isotopes=fission_isotopes, ngamma_isotopes=["U238", "Gd155", "Gd157"], bu=0)
 
                 print(fission_rates_S2)
                 # Normalise to nCells = 49 cells with fissile material.
@@ -285,15 +295,15 @@ def analyze_computational_schemes():
                 print(f"{delta_keff:.0f} & {rms_fast:.2f}\\% & {rms_therm:.2f}\\% & {max_fast:.2f}\\% &  {max_therm:.2f}\\%")
                 
 
-                plot_pinwise_errors_BWR_assembly(np.array([delta_rel_therm,delta_rel_fast]), name_case, CPO_name, calculation_opt = f"{computational_scheme}_{geometry_type}_{ssh_method}_{ssh_sol}_{correlation_option}", fig_name="Total_fission_rates_diff")
+                plot_pinwise_errors_BWR_assembly(np.array([delta_rel_therm,delta_rel_fast]), name_case, CPO_name, calculation_opt = f"{computational_scheme}_{geometry_type}_{ssh_method}_{ssh_sol}_{correlation_option}", fig_name="Total_fission_rates_diff", evaluation=evaluation)
                 
                 ## Analysis of 1st level in the calculation scheme : PIJ / IC computed keff and rates.
                 if analyze_first_level and "2L" in computational_scheme:
                     print(f"Begin analysis of level 1 results")
                     CPO_name_level1 = f"LVL1__CPO_n{num_angles}_ld{int(line_density)}_n8_ld25_TSPC_{anisotropy_level}_{ssh_sol}_MOC_GAUS_4_{batch}_200"
                     keff_D5, fiss_rates_D5, n_gamma_rates_D5, FLUX_295groups_D5 = parse_DRAGON_SCHEME(name_case, CPO_name_level1, composition_option, evaluation, ssh_method, correlation_option, geometry_type, fission_isotopes , n_gamma_isotopes = ["U238", "Gd155", "Gd157"], bu=0, computational_scheme=computational_scheme)
-                    keff_S2, fission_rates_S2, ngamma_rates_S2 = parse_S2_pin_mat_det(name_case="ATRIUM10_pin", XS_lib_S2="jeff311_pynjoy2016", fission_isotopes=fission_isotopes, ngamma_isotopes=["U238", "Gd155", "Gd157"], bu=0)
-
+                    #keff_S2, fission_rates_S2, ngamma_rates_S2 = parse_S2_pin_mat_det(name_case="ATRIUM10_pin", XS_lib_S2="jeff311_pynjoy2016", fission_isotopes=fission_isotopes, ngamma_isotopes=["U238", "Gd155", "Gd157"], bu=0)
+                    keff_S2, fission_rates_S2, ngamma_rates_S2 = parse_S2_pin_mat_det(name_case="ATRIUM10_pin", XS_lib_S2="endfb8r1_pynjoy2012_kerma", fission_isotopes=fission_isotopes, ngamma_isotopes=["U238", "Gd155", "Gd157"], bu=0)
 
                     print(fission_rates_S2)
                     # Normalise to nCells = 49 cells with fissile material.
@@ -333,7 +343,7 @@ def analyze_computational_schemes():
                     deltas[computational_scheme][f"{ssh_method}_{ssh_sol}"]["max_fast"] = max_fast
                     
 
-                    plot_pinwise_errors_BWR_assembly(np.array([delta_rel_therm,delta_rel_fast]), name_case, CPO_name_level1, calculation_opt = f"LVL1_{computational_scheme}_{geometry_type}_{ssh_method}_{ssh_sol}_{correlation_option}", fig_name=f"Total_fission_rates_diff")
+                    plot_pinwise_errors_BWR_assembly(np.array([delta_rel_therm,delta_rel_fast]), name_case, CPO_name_level1, calculation_opt = f"LVL1_{computational_scheme}_{geometry_type}_{ssh_method}_{ssh_sol}_{correlation_option}", fig_name=f"Total_fission_rates_diff", evaluation=evaluation)
     print(deltas)
     
     

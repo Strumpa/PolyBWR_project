@@ -15,5 +15,7 @@ ln -s $1/data/salmacro_proc/lattice_hex_tspc_S30_7cells.dat .
 ln -s $1/data/salmacro_proc/lattice_hex_tiso_S30_7cells_macro.dat .
 ln -s $1/data/salmacro_proc/lattice_hex_tiso_S30_tdcm68.dat .
 ln -s $1/data/salmacro_proc/irena_tiso_s30.dat .
+ln -s $1/data/salmacro_proc/cr_f1_f2_tiso.dat .
+ln -s $1/data/salmacro_proc/cr_f1_f2_tspc.dat .
 ls -l
 echo "salmacro access script terminated"

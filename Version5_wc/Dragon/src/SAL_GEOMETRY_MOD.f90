@@ -154,6 +154,7 @@ CONTAINS
     ! local variable
     ! ***************
     INTEGER :: ELEM,OK,I,TYPE
+    REAL(PDB) :: X1,Y1,X2,Y2,XMIN,XMAX,YMIN,YMAX
     CHARACTER(LEN=4) :: HSYM
     REAL(PDB),PARAMETER :: CONV=PI/180._PDB
     INTEGER, PARAMETER :: FOUT =6
@@ -188,9 +189,47 @@ CONTAINS
     ENDIF
     ALLOCATE (GG%IPAR(NIPAR,GG%NB_ELEM), GG%RPAR(NRPAR,GG%NB_ELEM), STAT=OK)
     IF(OK/=0) CALL XABORT('SAL110: not enough memory I,R')
-
+    !
     !*    read surfacic file
     CALL SALINP(GG)
+    !
+    ! translate the domain for cyclic cases
+    XMIN=1.E10_PDB; YMIN=1.E10_PDB; XMAX=-1.E10_PDB; YMAX=-1.E10_PDB;
+    DO ELEM=1,GG%NB_ELEM
+      TYPE=GG%IPAR(1,ELEM)
+      IF(TYPE==1) THEN
+        X1=GG%RPAR(1,ELEM); Y1=GG%RPAR(2,ELEM);
+        XMIN=MIN(XMIN,X1); YMIN=MIN(YMIN,Y1); XMAX=MAX(XMAX,X1); YMAX=MAX(YMAX,Y1);
+        X2=X1+GG%RPAR(3,ELEM); Y2=Y1+GG%RPAR(4,ELEM);
+        XMIN=MIN(XMIN,X2); YMIN=MIN(YMIN,Y2); XMAX=MAX(XMAX,X2); YMAX=MAX(YMAX,Y2);
+      ENDIF
+    ENDDO
+    IF(ABS(XMIN).LT.1.D-10) XMIN=0.D0
+    IF(ABS(YMIN).LT.1.D-10) YMIN=0.D0
+    SELECT CASE(TYPGEO)
+    CASE(4,9)
+      DO ELEM=1,GG%NB_ELEM
+        GG%RPAR(1,ELEM)=GG%RPAR(1,ELEM)-(XMIN+XMAX)/2.D0
+        GG%RPAR(2,ELEM)=GG%RPAR(2,ELEM)-(XMIN+XMAX)/2.D0
+      ENDDO
+      DO I=1,GG%NBBCDA
+        GG%BCDATAREAD(I)%BCDATA(1)=GG%BCDATAREAD(I)%BCDATA(1)-(XMIN+XMAX)/2.D0
+        GG%BCDATAREAD(I)%BCDATA(2)=GG%BCDATAREAD(I)%BCDATA(2)-(XMIN+XMAX)/2.D0
+        IF(ABS(GG%BCDATAREAD(I)%BCDATA(1)).LT.1.D-10) GG%BCDATAREAD(I)%BCDATA(1)=0.D0
+        IF(ABS(GG%BCDATAREAD(I)%BCDATA(2)).LT.1.D-10) GG%BCDATAREAD(I)%BCDATA(2)=0.D0
+      ENDDO
+    CASE(5,6,7,8,10,11,12)
+      DO ELEM=1,GG%NB_ELEM
+        GG%RPAR(1,ELEM)=GG%RPAR(1,ELEM)-XMIN
+        GG%RPAR(2,ELEM)=GG%RPAR(2,ELEM)-YMIN
+      ENDDO
+      DO I=1,GG%NBBCDA
+        GG%BCDATAREAD(I)%BCDATA(1)=GG%BCDATAREAD(I)%BCDATA(1)-XMIN
+        GG%BCDATAREAD(I)%BCDATA(2)=GG%BCDATAREAD(I)%BCDATA(2)-YMIN
+        IF(ABS(GG%BCDATAREAD(I)%BCDATA(1)).LT.1.D-10) GG%BCDATAREAD(I)%BCDATA(1)=0.D0
+        IF(ABS(GG%BCDATAREAD(I)%BCDATA(2)).LT.1.D-10) GG%BCDATAREAD(I)%BCDATA(2)=0.D0
+      ENDDO
+    END SELECT
     !
     !*    unite the ends of elements, redefine elements
     CALL SAL128(GG%RPAR,GG%IPAR,GG%NB_ELEM)
@@ -426,8 +465,8 @@ CONTAINS
                 CALL XABORT(HSMG)
               ENDIF
             ELSE IF(TYPGEO.EQ.9) THEN
-              IF((ANGLE/=0.0).AND.(ANGLE/=PI/6._PDB).AND.(ANGLE/=2._PDB*PI/3._PDB).AND. &
-              & (ANGLE/=PI).AND.(ANGLE/=7._PDB*PI/6._PDB).AND.(ANGLE/=5._PDB*PI/3._PDB)) THEN
+              IF((ANGLE/=0.0).AND.(ANGLE/=PI/3._PDB).AND.(ANGLE/=2._PDB*PI/3._PDB).AND. &
+              & (ANGLE/=PI).AND.(ANGLE/=4._PDB*PI/3._PDB).AND.(ANGLE/=5._PDB*PI/3._PDB)) THEN
                 WRITE(HSMG,100) ANGLE,I,TYPGEO
                 CALL XABORT(HSMG)
               ENDIF
@@ -1818,7 +1857,7 @@ CONTAINS
     !
     !---------------------------------------------------------------------
     !
-    USE SAL_GEOMETRY_TYPES,     ONLY : TYPGEO,ANGGEO,EPS,LX=>LENGTHX,LY=>LENGTHY,G_BC_TYPE
+    USE SAL_GEOMETRY_TYPES, ONLY : TYPGEO,ANGGEO,EPS,LX=>LENGTHX,LY=>LENGTHY,G_BC_TYPE
     USE SAL_NUMERIC_MOD, ONLY : SAL141
     !****
     IMPLICIT NONE
@@ -1840,6 +1879,7 @@ CONTAINS
     REAL(PDB), DIMENSION(NPERIM,6) :: AUX_DIST
     INTEGER   :: I,J,K,M,ELEM,TYPBC,IBC,IDATA,NBE(6),OK,NAXES
     REAL(PDB) :: ANGLE,X,Y,D
+    CHARACTER(LEN=131) :: HSMG
     !****
     NAXES=0
     IF((TYPGEO==5).OR.(TYPGEO==6).OR.(TYPGEO==11)) THEN
@@ -1852,13 +1892,6 @@ CONTAINS
     !*    calculate number of elements on axes,
     !     and their distances to the origin of the axis
     NBE=0
-
-    DO I=1,NPERIM
-       ELEM=PERIM(I)
-       IBC=IBC2_ELEM(ELEM)
-       TYPBC=TYPE_BC2(IBC)
-       IDATA=IDATA_BC2(IBC)
-    ENDDO
     DO I=1,NPERIM
        ELEM=PERIM(I)
        IBC=IBC2_ELEM(ELEM)
@@ -2048,7 +2081,10 @@ CONTAINS
           CASE DEFAULT
              CALL XABORT('SAL130_10: boundary condition not implemented.')
        END SELECT
-       IF(M>=NAXES+1) CALL XABORT('SAL130_10: element not on axes')
+       IF(M>=NAXES+1) THEN
+         WRITE(HSMG,'(42HSAL130_10: element not on axes for typgeo=,i3,1h.)') TYPGEO
+         CALL XABORT(HSMG)
+       ENDIF
        NBE(M)=NBE(M)+1
        LIST_ELEMS(NBE(M),M)=ELEM
        !        sort the element list according their distance to

@@ -143,12 +143,12 @@ WHILE istep nstep < DO
   IF istep 1 = THEN
     BURNUP LIBRARY2 := EVO: LIBRARY2 FLUX TRACK ::
       EDIT 1
-      SAVE <<Tbeg>> DAY POWR <<Norm_f2>>
+      SAVE <<Tbeg>> DAY POWR <<Norm_f2>> <<glob_opt>>
     ;
   ELSE
     BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX TRACK ::
       EDIT 1
-      SAVE <<Tbeg>> DAY POWR <<Norm_f2>>
+      SAVE <<Tbeg>> DAY POWR <<Norm_f2>> <<glob_opt>>
     ;
   ENDIF ;
 
