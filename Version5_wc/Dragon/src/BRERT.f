@@ -334,6 +334,7 @@
       IF(J_FUEL.GT.0) ISTATE(4)=1
       IF(ICODE(2).NE.0) ISTATE(8)=1  ! physical albedo information
       ISTATE(9)=1  ! diffusion coefficient information
+      IF(IDIFF.EQ.1) ISTATE(10)=NL-1 ! NTOT1 is present
       IF(ISPH.EQ.0) ISTATE(12)=3 ! discontinuity factor information
       IF(ISPH.EQ.1) ISTATE(14)=1 ! SPH factor information
       CALL LCMPUT(IPMAC1,'STATE-VECTOR',NSTATE,1,ISTATE)

@@ -1,6 +1,6 @@
 *DECK BIVSPS
-      SUBROUTINE BIVSPS(IPTRK,IPMACR,IPSYS,IMPX,NGRP,NEL,NLF,NANI,NBFIS,
-     1 NALBP,LDIFF,MAT,VOL,NBMIX)
+      SUBROUTINE BIVSPS(IPTRK,IPMACR,IPSYS,IMPX,NGRP,NEL,NLF,NANI,NW,
+     1 NBFIS,NALBP,LDIFF,MAT,VOL,NBMIX)
 *
 *-----------------------------------------------------------------------
 *
@@ -27,6 +27,7 @@
 * NEL     total number of finite elements.
 * NLF     number of Legendre orders for the flux (even number).
 * NANI    number of Legendre orders for the scattering cross sections.
+* NW      maximum Legendre order (0 or 1) for the total cross sections.
 * NBFIS   number of fissionable isotopes.
 * NALBP   number of physical albedos per energy group.
 * LDIFF   flag set to .true. to use 1/3D as 'NTOT1' cross sections.
@@ -41,7 +42,7 @@
 *  SUBROUTINE ARGUMENTS
 *----
       TYPE(C_PTR) IPTRK,IPMACR,IPSYS
-      INTEGER IMPX,NGRP,NEL,NLF,NANI,NBFIS,NALBP,MAT(NEL),NBMIX
+      INTEGER IMPX,NGRP,NEL,NLF,NANI,NW,NBFIS,NALBP,MAT(NEL),NBMIX
       REAL VOL(NEL)
       LOGICAL LDIFF
 *----
@@ -105,6 +106,10 @@
       WRITE(TEXT12,'(4HNTOT,I1)') MIN(IL-1,9)
       CALL LCMLEN(KPMACR,TEXT12,LENGT,ITYLCM)
       CALL LCMLEN(KPMACR,'NTOT1',LENGT1,ITYLCM)
+      IF((LENGT1.GT.0).AND.(NW.EQ.0)) THEN
+        WRITE(6,'(49H BIVSPS: **WARNING** YOU HAVE NW=0 AND NTOT1 INFO,
+     1  27HRMATION IS PRESENT IN GROUP,I4,1H.)') IGR
+      ENDIF
       IF((IL.EQ.1).AND.(LENGT.NE.NBMIX)) CALL XABORT('BIVSPS: NO NTOT0'
      1 //' CROSS SECTIONS.')
       IF(MOD(IL-1,2).EQ.0) THEN
@@ -126,6 +131,8 @@
             DO 5 IBM=1,NBMIX
             SGD(IBM,2)=1.0/(3.0*SGD(IBM,2))
     5       CONTINUE
+         ELSE IF(NW.EQ.0) THEN
+            CALL LCMGET(KPMACR,'NTOT0',SGD(1,2))
          ELSE IF(LENGT.EQ.NBMIX) THEN
             CALL LCMGET(KPMACR,TEXT12,SGD(1,2))
          ELSE IF(LENGT1.EQ.NBMIX) THEN

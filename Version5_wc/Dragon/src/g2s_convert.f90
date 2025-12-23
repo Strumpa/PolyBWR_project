@@ -306,7 +306,7 @@ subroutine g2s_convert(impx,ipAl,ipZa,ipSal)
         tabSegArc(i)%b=real(anglEnd)
         tabSegArc(i)%a=real(anglStart)
       else
-        write(hsmg,'(35hg2s_convert: invalid element type=,i3,1h.)') itype
+        write(hsmg,'(34hg2s_convert: invalid element type=,i3,1h.)') itype
         call XABORT(hsmg)
       endif
       tabSegArc(i)%nodeg=nplus

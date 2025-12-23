@@ -26,7 +26,7 @@
 ! SIGT0   total macroscopic cross sections ordered by mixture.
 ! SIGW0   within-group scattering macroscopic cross section ordered
 !         by mixture.
-! NBATCH  number of tracks dispached in eack OpenMP core.
+! NBATCH  number of tracks dispatched in each OpenMP core.
 ! TITREC  title.
 ! NALBP   number of multigroup physical albedos.
 ! ALBP    multigroup physical albedos.
@@ -111,8 +111,12 @@ SUBROUTINE MUSA(IPSYS,IPTRK,IFTRAK,IMPX,NREG,NBMIX,SIGT0,SIGW0,NBATCH, &
   NPIJ=0
   NPIS=0
   NPSS=0
+  PRINT *, 'NMACRO = ', NMACRO 
   DO IMACRO=1,NMACRO
+    PRINT *, 'NMC_NODE(IMACRO+1) = ', NMC_NODE(IMACRO+1)
+    PRINT *, 'NMC_NODE(IMACRO) = ', NMC_NODE(IMACRO)
     J2=NMC_NODE(IMACRO+1)-NMC_NODE(IMACRO)
+    PRINT *, 'IN IMACRO =', IMACRO, 'J2 =', J2
     J3=NMC_SURF(IMACRO+1)-NMC_SURF(IMACRO)
     J1=J1+J2
     NMIX=NMIX+J3
@@ -120,6 +124,7 @@ SUBROUTINE MUSA(IPSYS,IPTRK,IFTRAK,IMPX,NREG,NBMIX,SIGT0,SIGW0,NBATCH, &
     NPIS=NPIS+J2*J3
     NPSS=NPSS+J3*J3
   ENDDO
+  PRINT *, 'MUSA: J1=',J1,' NREG=',NREG,' NMIX=',NMIX
   IF(J1.NE.NREG) CALL XABORT('MUSA: INVALID NREG.')
   IF(NMIX.NE.NMC_SURF(NMACRO+1)) CALL XABORT('MUSA: INVALID NMIX.')
   PIJW_PTR=LCMARA(NPIJ)

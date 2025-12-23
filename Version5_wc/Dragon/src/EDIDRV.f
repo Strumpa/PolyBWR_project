@@ -45,8 +45,9 @@
 * IADF    flag for assembly discontinuity factors (ADF) information:
 *         = 0 do not compute them;
 *         = 1 compute them using ALBS information;
-*         = 2 compute them using averaged fluxes in boundary regions;
-*         = 3 compute them using SYBIL/ARM interface currents.
+*         = -2/2 compute them using averaged fluxes in boundary regions;
+*         = 3 compute them using SYBIL/ARM or MOC interface currents;
+*         = 4 recover ADF information from input macrolib.
 * IDFM    flag for ADF info in input macrolib (0/1/2: absent/present).
 * NW      type of weighting for P1 cross section information:
 *         = 0 P0; = 1 P1.
@@ -407,16 +408,7 @@
      >      B2,NGROUP,NIFISS,NGCOND,ITRANC,ILEAKS,NREGIO,MATCOD,
      >      VOLUME,KEYFLX,IGCOND,FLUXES,NMLEAK)
          ELSE IF((IADF.EQ.2).OR.(IADF.EQ.-2)) THEN
-            ALLOCATE(WORKF(NGCOND))
-            IF(IADF.EQ.-2) THEN
-*             recover averaged fluxes used to compute ADF
-              DO IGR=1,NGCOND
-                WORKF(IGR)=SUM(FLUXC(:,IGR,1))/SUM(VOLME(:))
-              ENDDO
-            ELSE
-              WORKF(:NGCOND)=1.0
-            ENDIF
-*           use averaged fluxes obtained over boundary regions
+*           use averaged fluxes obtained over gap boundary regions
             IPADF=LCMGID(IPEDIT,'REF:ADF')
             CALL LCMGET(IPADF,'NTYPE',NTYPE)
             IF(NTYPE.EQ.0) CALL XABORT('EDIADF: NTYPE=0.')
@@ -426,15 +418,30 @@
             DO IT=1,NTYPE
               HTYPE=HADF(IT)
               CALL EDIGAP(IPADF,HTYPE,NGROUP,NGCOND,NREGIO,VOLUME,
-     >        IGCOND,FLUXES,WORKF,IPRINT,COURI)
+     >        IGCOND,FLUXES,IPRINT,COURI)
               ALLOCATE(ADF(NMERGE,NGCOND))
               DO IGR=1,NGCOND
-                ADF(:NMERGE,IGR)=COURI(IGR)
+                ZCOUR=COURI(IGR)
+                IF(IADF.EQ.-2) THEN
+*                 recover averaged fluxes used to compute ADF
+                  DO IMRG=1,NMERGE
+                    ADF(IMRG,IGR)=ZCOUR*VOLME(IMRG)/FLUXC(IMRG,IGR,1)
+                  ENDDO
+                ELSE
+                  ADF(:NMERGE,IGR)=ZCOUR
+                ENDIF
               ENDDO
               CALL LCMPUT(IPMAC2,HTYPE,NMERGE*NGCOND,2,ADF)
+              IF(IADF.EQ.2) THEN
+                DO IGR=1,NGCOND
+                  DO IMRG=1,NMERGE
+                    ADF(IMRG,IGR)=FLUXC(IMRG,IGR,1)/VOLME(IMRG)
+                  ENDDO
+                ENDDO
+                CALL LCMPUT(IPMAC2,'AVG_FLUX',NMERGE*NGCOND,2,ADF)
+              ENDIF
               DEALLOCATE(ADF)
             ENDDO
-            DEALLOCATE(WORKF)
             CALL LCMPUT(IPMAC2,'NTYPE',1,1,NTYPE)
             CALL LCMPTC(IPMAC2,'HADF',8,NTYPE,HADF)
             DEALLOCATE(COURI,HADF)
@@ -710,7 +717,7 @@
          DEALLOCATE(IPISO,ISONR,ISONA,IDEPL,TN,MIX,ITYPE,DEN,LSISO)
       ENDIF
 *----
-*  SET IADF IN MACROLIB AND MICROLIB STATE VECTORS
+*  RESET IADF IN MACROLIB AND MICROLIB STATE VECTORS
 *----
       IF((CURNAM.NE.' ').AND.(IADF.NE.0)) THEN
          IPMIC2=LCMDID(IPEDIT,CURNAM)

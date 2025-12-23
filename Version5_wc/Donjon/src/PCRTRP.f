@@ -61,6 +61,13 @@
 *----
       REAL, ALLOCATABLE, DIMENSION(:) :: TERPA
 *----
+*  TRIVAL CASE WHERE NCAL=1
+*----
+      IF(NCAL.EQ.1) THEN
+        TERP(1)=1.0
+        GO TO 110
+      ENDIF
+*----
 *  COMPUTE TERP FACTORS
 *----
       TERP(:NCAL)=0.0
@@ -172,7 +179,7 @@
           TERP(ICAL)=TERP(ICAL)+TERTMP
   100   CONTINUE
       ENDIF
-      IF(IMPX.GT.3) THEN
+  110 IF(IMPX.GT.3) THEN
         WRITE(IOUT,'(25H PCRTRP: TERP PARAMETERS:/(1X,1P,10E12.4))')
      1  (TERP(I),I=1,NCAL)
       ENDIF
