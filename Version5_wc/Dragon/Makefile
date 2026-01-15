@@ -69,6 +69,8 @@ tests :
 	./rdragon -c $(fcompilerSuite) -p $(nomp) -q RegtestLZC_mccg.x2m
 	./rdragon -c $(fcompilerSuite) -p $(nomp) -q pincell_mco.x2m
 	./rdragon -c $(fcompilerSuite) -p $(nomp) -q pincell_sap.x2m
+	./rdragon -c $(fcompilerSuite) -p $(nomp) -q tapollo1.x2m
+	./rdragon -c $(fcompilerSuite) -p $(nomp) -q tapollo2.x2m
 ifeq ($(hdf5),1)
 	./rdragon -c $(fcompilerSuite) -p $(nomp) -q UOX_5x5_TG6_sym8_multiDom.x2m
 	./rdragon -c $(fcompilerSuite) -p $(nomp) -q uo2_evo_hdf.x2m

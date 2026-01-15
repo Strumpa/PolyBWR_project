@@ -23,26 +23,26 @@ else
   echo 'use big endian libraries'
   pos=$1/../../libraries/b_endian
 fi
-if [ -f "$pos"/draglibJef2p2.gz ]
+if [ -f "$pos"/draglibJef2p2_v5p1.gz ]
    then
     echo 'gunzipping DLIB_J2'
     chmod 755 "$pos"
-    gunzip "$pos"/draglibJef2p2.gz
+    gunzip "$pos"/draglibJef2p2_v5p1.gz
 fi
-if [ -f "$pos"/draglibJef2p2 ]
+if [ -f "$pos"/draglibJef2p2_v5p1 ]
    then
-    ln -s "$pos"/draglibJef2p2 DLIB_J2
+    ln -s "$pos"/draglibJef2p2_v5p1 DLIB_J2
 fi
 
-if [ -f "$pos"/draglibJeff3p1p1SHEM295.gz ]
+if [ -f "$pos"/draglibJeff3p1p1SHEM295_v5p1.gz ]
    then
-    echo 'gunzipping draglibJeff3p1p1SHEM295'
+    echo 'gunzipping draglibJeff3p1p1SHEM295_v5p1'
     chmod 755 "$pos"
-    gunzip "$pos"/draglibJeff3p1p1SHEM295.gz
+    gunzip "$pos"/draglibJeff3p1p1SHEM295_v5p1.gz
 fi
-if [ -f "$pos"/draglibJeff3p1p1SHEM295 ]
+if [ -f "$pos"/draglibJeff3p1p1SHEM295_v5p1 ]
    then
-    ln -s "$pos"/draglibJeff3p1p1SHEM295 Jeff3sh295 
+    ln -s "$pos"/draglibJeff3p1p1SHEM295_v5p1 Jeff3sh295 
 fi
 ln -s $1/data/tmatxs2_proc/matxsH1_H2O.txt _matxsH2O
 ln -s $1/data/tmatxs2_proc/matxsU238.txt _matxsU238

@@ -377,7 +377,6 @@ subroutine g2s_convert(impx,ipAl,ipZa,ipSal)
     read(ipAl,'(10i7)',end=100) (idummy, i=1,nbNode)
     read(ipAl,'(a12)') text12
     if (text12 == ' ') read(ipAl,'(a12)') text12
-      print *,'read=',text12
     if (text12 /= ' Fin:') call XABORT('g2s_convert: keyword Fin: expected.')
     !
     ! set nbfold

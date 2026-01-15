@@ -23,15 +23,15 @@ else
   echo 'use big endian libraries'
   pos=$1/../../libraries/b_endian
 fi
-if [ -f "$pos"/draglibJef2p2.gz ]
+if [ -f "$pos"/draglibJef2p2_v5p1.gz ]
    then
     echo 'gunzipping DLIB_J2'
     chmod 755 "$pos"
-    gunzip "$pos"/draglibJef2p2.gz
+    gunzip "$pos"/draglibJef2p2_v5p1.gz
 fi
-if [ -f "$pos"/draglibJef2p2 ]
+if [ -f "$pos"/draglibJef2p2_v5p1 ]
    then
-    ln -s "$pos"/draglibJef2p2 DLIB_J2
+    ln -s "$pos"/draglibJef2p2_v5p1 DLIB_J2
 fi
 ls
 echo "sens access script terminated"

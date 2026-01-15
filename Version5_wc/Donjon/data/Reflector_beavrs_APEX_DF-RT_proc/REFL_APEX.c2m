@@ -177,7 +177,7 @@ REAL Keff ;
 REAL CB ; ! ppm
 INTEGER iPalier ;
 LINKED_LIST OUT_1 MACR_TRAC MACR_FLUX ;
-MODULE NSST: NSSF: TRIVAT: TRIVAA: FLUD: VAL: ;
+MODULE NSST: NSSF: TRIVAT: TRIVAA: FLUD: ;
 
 *--------------------------------------------------------------------
 * Boron tabulation

@@ -348,7 +348,7 @@ WHILE IndexCB iBoreMax < DO
   IF IndexCB 1 = THEN
     OVAL := VAL: MACR_TRAC MACR_FLUX MACRO ::
       EDIT 2
-      POWR 1.0 DIM 1 0.1
+      POWR 1.0 DIM 1 0.1 ! normalize to 1 MW
     ;
     _VAL_CB1 := OVAL ;
     OVAL := DELETE: OVAL ;

@@ -16,5 +16,5 @@ else
    MACH=`uname -sm | sed 's/[ ]/_/'`
 fi
 ls -l
-mv MyMpo.hdf $1/"$MACH"/assbly_caseA_mpo.hdf
+mv MyMpo.hdf $1/"$MACH"/assbly_caseA_mpo_feed.hdf
 echo "ASSBLY_CASEA_1level_mpo.save completed"

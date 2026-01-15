@@ -329,6 +329,6 @@ WHILE istep nstep <= DO
 
 ENDWHILE ;
 
-assertS CALC :: K-INFINITY 1 1.002347 ;
+assertS CALC :: K-INFINITY 1 1.002470 ;
 ECHO "test uo2_evo_xsm completed" ;
 QUIT "LIST" .

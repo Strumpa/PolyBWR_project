@@ -385,7 +385,7 @@ WHILE evoend step2 NORM_FCT / < DO
   EVALUATE istep := istep 1 + ;
 
 ENDWHILE ;
-assertS FLUX :: 'K-INFINITY' 1 0.9192253 ;
+assertS FLUX :: 'K-INFINITY' 1 0.9195393 ;
 
 BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX TRACK :: EDIT 2
         SAVE <<evoend>> DAY POWR <<NORM_FCT>> (*MW/TONNE*) ;

@@ -33,7 +33,7 @@ then
 ln -s "$pos"/draglibJeff3p1p1SHEM295 J311_295
 echo "AT10_GLOW_tests access script terminated"
 fi
-pos2="$1/data/AT10_GLOW_tests_proc"
+pos2="$1/../../../glow_data/tdt_data"
 chmod 755 "$pos2"
 ls -la
 ln -s "$pos2"/AT10_simple_cell_TSPC.dat AT10_simple_cell_TSPC.dat
@@ -41,23 +41,24 @@ ln -s "$pos2"/AT10_simple_cell_TISO.dat AT10_simple_cell_TISO.dat
 
 ln -s "$pos2"/AT10_2x2_cells_TSPC.dat AT10_2x2_cells_TSPC.dat
 ln -s "$pos2"/AT10_2x2_cells_TISO.dat AT10_2x2_cells_TISO.dat
-ln -s "$pos2"/AT10_2x2_cells_TISO_MACRO.dat AT10_2x2_cells_TISO_MACRO.dat
+ln -s "$pos2"/AT10_2x2_TISO_MACRO.dat AT10_2x2_TISO_MACRO.dat
 
 ln -s "$pos2"/AT10_3x3_cells_TSPC.dat AT10_3x3_cells_TSPC.dat
 ln -s "$pos2"/AT10_3x3_cells_TISO.dat AT10_3x3_cells_TISO.dat
-ln -s "$pos2"/AT10_3x3_cells_TISO_MACRO.dat AT10_3x3_cells_TISO_MACRO.dat
+ln -s "$pos2"/AT10_3x3_TISO_MACRO.dat AT10_3x3_TISO_MACRO.dat
 
 ln -s "$pos2"/AT10_4x4_cells_TSPC.dat AT10_4x4_cells_TSPC.dat
 ln -s "$pos2"/AT10_4x4_cells_TISO.dat AT10_4x4_cells_TISO.dat
-ln -s "$pos2"/AT10_4x4_cells_TISO_MACRO.dat AT10_4x4_cells_TISO_MACRO.dat
+ln -s "$pos2"/AT10_4x4_TISO_MACRO.dat AT10_4x4_TISO_MACRO.dat
 
 ln -s "$pos2"/AT10_lattice_TSPC.dat AT10_lattice_TSPC.dat
 ln -s "$pos2"/AT10_lattice_TISO.dat AT10_lattice_TISO.dat
-ln -s "$pos2"/AT10_lattice_TISO_MACRO.dat AT10_lattice_TISO_MACRO.dat
+ln -s "$pos2"/AT10_LAT_TISO_MACRO.dat AT10_LAT_TISO_MACRO.dat
 
 ln -s "$pos2"/AT10_lattice_MODEBOX_TSPC.dat AT10_lattice_MODEBOX_TSPC.dat
 ln -s "$pos2"/AT10_lattice_MODEBOX_TISO.dat AT10_lattice_MODEBOX_TISO.dat
-ln -s "$pos2"/AT10_lattice_MODEBOX_TISO_MACRO.dat AT10_lattice_MODEBOX_TISO_MACRO.dat
+ln -s "$pos2"/AT10_LAT_MB_TISO_MACRO.dat AT10_LAT_MB_TISO_MACRO.dat
 
 ln -s "$pos2"/AT10_assembly_TSPC.dat AT10_assembly_TSPC.dat
 ln -s "$pos2"/AT10_assembly_TISO.dat AT10_assembly_TISO.dat
+ln -s "$pos2"/AT10_assembly_TISO_MACRO.dat AT10_assembly_TISO_MACRO.dat

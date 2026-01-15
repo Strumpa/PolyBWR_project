@@ -196,7 +196,7 @@ TRACK_F1 := SYBILT: GEOM_F1 ::
 SYS := ASM: AUTO_LIB TRACK_F1 :: ;
 FLUX1 := FLU: AUTO_LIB TRACK_F1 SYS :: TYPE B B1 SIGS ;
 SYS := DELETE: SYS ;
-assertS FLUX1 :: 'K-INFINITY' 1 1.217577 ;
+assertS FLUX1 :: 'K-INFINITY' 1 1.217641 ;
 *
 ************************************************************************
 * burnup loop -- burnup loop -- burnup loop -- burnup loop -- burnup loo
@@ -276,7 +276,7 @@ WHILE Burni Burnc < DO
   EVALUATE Timei := Timef ;
 *
 ENDWHILE ;
-assertS FLUX1 :: 'K-INFINITY' 1 1.161285 ;
+assertS FLUX1 :: 'K-INFINITY' 1 1.161281 ;
 *
 LIBRARY GEOM_SS TRACK_SS AUTO_LIB BURN := DELETE: 
 LIBRARY GEOM_SS TRACK_SS AUTO_LIB BURN ;

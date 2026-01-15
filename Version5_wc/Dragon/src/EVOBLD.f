@@ -1,8 +1,8 @@
 *DECK EVOBLD
       SUBROUTINE EVOBLD(IMPX,INR,IGLOB,NBMIX,NBISO,NCOMB,ISONAM,IPISO,
      1 YDPL,VX,MILVO,JM,NVAR,NDFP,NSUPS,NREAC,NPAR,NFISS,XT,EPS1,EPS2,
-     2 EXPMAX,H1,ITYPE,IDIRAC,FIT,DELTA,ENERG,KPAR,BPAR,YIELD,IDR,RER,
-     3 RRD,AWR,FUELDN,SIG,VPH,VPHV,MIXPWR,VTOTD,IEVOLB,KFISS,KPF)
+     2 EXPMAX,H1,ITYPE,IDIRAC,FIT,DELTA,ENERG,KPAR,BPAR,YIELD,IDR,RRD,
+     3 AWR,FUELDN,SIG,VPH,VPHV,MIXPWR,VTOTD,IEVOLB,KFISS,KPF)
 *
 *-----------------------------------------------------------------------
 *
@@ -76,9 +76,6 @@
 * BPAR    branching ratio for neutron induced reactions.
 * YIELD   mixture-dependent fission yields.
 * IDR     identifier for each depleting reaction.
-* RER     energy (Mev) per reaction. If RER(3,J)=0., the fission energy
-*         includes radiative capture energy. Neutrino energy is
-*         never included.
 * RRD     sum of radioactive decay constants in 10**-8/s.
 * AWR     mass of the nuclides in unit of neutron mass.
 * FUELDN  fuel initial density and mass.
@@ -117,8 +114,8 @@
      4 KPF(NDFP,NBMIX)
       REAL YDPL(NVAR+1,2,NCOMB),VX(NBMIX),XT(2),EPS1,EPS2,EXPMAX,H1,FIT,
      1 DELTA(3),ENERG(NBMIX),BPAR(NPAR,NVAR),YIELD(NFISS,NDFP,NBMIX),
-     2 RER(NREAC,NVAR+NSUPS),RRD(NVAR+NSUPS),AWR(NVAR),FUELDN(3),
-     3 SIG(NVAR+1,NREAC+1,NBMIX,2),VPH(2),VPHV(NBMIX,2)
+     2 RRD(NVAR+NSUPS),AWR(NVAR),FUELDN(3),SIG(NVAR+1,NREAC+1,NBMIX,2),
+     3 VPH(2),VPHV(NBMIX,2)
       DOUBLE PRECISION VTOTD
 *----
 *  LOCAL VARIABLES
@@ -126,20 +123,12 @@
       TYPE(C_PTR) KPLIB
       CHARACTER TEXT8*8,HSMG*131
       DOUBLE PRECISION GAR,GARD,XDRCST,EVJ,FITD,PHI2
-      LOGICAL LCOOL,LSIMPL
+      LOGICAL LCOOL
       INTEGER, ALLOCATABLE, DIMENSION(:) :: MU1,IMA,LP,CHAIN
 *----
 *  SCRATCH STORAGE ALLOCATION
 *----
       ALLOCATE(MU1(NVAR+1),IMA(NVAR+1),LP(NVAR))
-*----
-*  CHECK IF ONLY THE HEAVY ISOTOPES ARE PRODUCING ENERGY. IN THIS CASE,
-*  SOME SIMPLIFICATIONS ARE POSSIBLE
-*----
-      LSIMPL=.TRUE.
-      DO 10 IS=1,NVAR
-      LSIMPL=LSIMPL.AND.(RER(3,IS).EQ.0.0)
-   10 CONTINUE
 *
       EVJ=XDRCST('eV','J')*1.0E22
       LCOOL=(INR.EQ.0)
@@ -186,8 +175,8 @@
               CALL XABORT(HSMG)
             ENDIF
             CALL LCMLEN(KPLIB,'H-FACTOR',LENGT,ITYLCM)
-            IF(((LENGT.GT.0).OR.(RER(3,IS).NE.0.0).OR.
-     1      (AWR(IS).GT.210.0)).AND.(LP(IS).EQ.0)) THEN
+            IF(((LENGT.GT.0).OR.(AWR(IS).GT.210.0)).AND.(LP(IS).EQ.0))
+     1      THEN
               NVAR2=NVAR2+1
               LP(IS)=NVAR2
             ENDIF

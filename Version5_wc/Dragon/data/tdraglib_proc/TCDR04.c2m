@@ -81,7 +81,7 @@ TRACK := SYBILT: MOSTELA ::
 SYS := ASM: LIBRARY TRACK ;
 FLUX := FLU: SYS LIBRARY TRACK ::
   TYPE K B1 SIGS BUCK 0.2948E-2 ;
-assertS FLUX :: 'K-INFINITY' 1 0.8247780 ;
+assertS FLUX :: 'K-INFINITY' 1 0.8248808 ;
 EDITION := EDI: LIBRARY TRACK FLUX ::
   EDIT 3 MICR 25 Th232 U233 U234 U235 U236 U238 Np237 Np238 Pu238 Pu239
                  Pu240 Pu241 Pu242 Am241 Am242 Am243 Cm242 Cm243 Cm244
@@ -139,7 +139,7 @@ WHILE evoend step2 < DO
            step3 step4 step5 step2 ;
   EVALUATE istep := istep 1 + ;
 ENDWHILE ;
-assertS FLUX :: 'K-EFFECTIVE' 1 0.7645292 ;
+assertS FLUX :: 'K-EFFECTIVE' 1 0.7644340 ;
 
 res := DATABASE ;
 
@@ -150,8 +150,8 @@ ISOT := DATABASE :: STEP UP default
                     STEP UP MIXTURES STEP AT 1
                     STEP UP CALCULATIONS STEP AT 2
                     STEP UP ISOTOPESLIST STEP AT 26 ;
-assertS ISOT :: 'NWT0' 1 37.66850 ;
-assertS ISOT :: 'NWT0' 2 16.65745 ;
+assertS ISOT :: 'NWT0' 1 3.786228E+01 ;
+assertS ISOT :: 'NWT0' 2 1.672558E+01 ;
 
 ECHO "test TCDR04 completed" ;
 END: ;   

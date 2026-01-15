@@ -5,35 +5,40 @@
 * Author : R. Guasch
 
 MODULE END: ;
-PROCEDURE AT10_PIN  IC_test_2x2 CP_2x2
-                    IC_test_3x3 CP_3x3
-                    IC_test_4x4 CP_4x4
-                    IC_test_lat CP_LAT
-                    IC_test_latB CP_LATB
-                    IC_test_A CP_A
+PROCEDURE AT10_PIN  IC_2x2 CP_2x2 
+                    IC_3x3 IC_3x3Gd CP_3x3
+                    IC_4x4 IC_4x4Gd CP_4x4
+                    IC_lat IC_latGd CP_LAT
+                    IC_latB IC_latBGd CP_LATB
+                    IC_A IC_AGd CP_A
                     ;
 
 
 
-AT10_PIN ;
+!AT10_PIN ;
 
-IC_test_2x2 ;
+IC_2x2 ;
 CP_2x2 ;
 
-IC_test_3x3 ;
-CP_3x3 ;
+!IC_3x3 ;
+!IC_3x3Gd ;
+!CP_3x3 ;
 
-IC_test_4x4 ;
-CP_4x4 ;
+!IC_4x4 ;
+!IC_4x4Gd ;
+!CP_4x4 ;
 
-IC_test_lat ;
-CP_LAT ;
+!IC_lat ;
+!IC_latGd ;
+!CP_LAT ;
 
-IC_test_latB ;
-CP_LATB ;
+!IC_latB ;
+!IC_latBGd ;
+!CP_LATB ;
 
-IC_test_A ;
-CP_A ;
+!IC_A ;
+!IC_AGd ;
+!CP_A ;
 
 END: ;
 

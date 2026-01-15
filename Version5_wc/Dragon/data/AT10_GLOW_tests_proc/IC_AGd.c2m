@@ -13,16 +13,15 @@ PROCEDURE assertS ;
 LINKED_LIST GEOISO GEOSPC MACRO MACROG TRACKIC TRACKCP TRACKMOC PIJ SYS FLUX ;
 
 SEQ_BINARY TRACKFILIC TRACKFILCP TRACKFILMOC ;
-SEQ_ASCII tdt_iso :: FILE 'AT10_assembly_TISO.dat' ;
-SEQ_ASCII glow_tiso.ps :: FILE 'AT10_assembly_GLOW_TISO.ps' ;
+SEQ_ASCII tdt_iso :: FILE 'AT10_assembly_TISO_MACRO.dat' ;
+SEQ_ASCII glow_tiso.ps ;
 
 SEQ_ASCII g2s_tdt g2s_tdt_IC ;
-SEQ_ASCII geo_tiso.ps :: FILE 'AT10_assembly_GEO_TISO.ps' ;
-SEQ_ASCII geoTisoIC.ps :: FILE 'AT10_assembly_GEO_TISO_IC.ps' ;
+SEQ_ASCII geo_tiso.ps geoTisoIC.ps ;
 
 REAL keffGEOCP keffGEOIC keffGEOMOC ;
 REAL keffGLOWCP keffGLOWIC keffGLOWMOC ;
-REAL delCPIC delMOCIC ;
+REAL delCPIC delMOCIC deltak ;
 
 * ---
 * TRACKING PARAMTERES
@@ -132,33 +131,33 @@ GEOISO := GEO: :: CAR2D 3 3
        MESHX 0.0 <<W_gap>> <<x_step>> <<X1>>
        MESHY 0.0 <<W_gap>> <<x_step>> <<Y1>>
        MIX
-           14 14 14 
-           14 12 12 
-           14 12 11 ;
+           13 13 13 
+           13 14 14 
+           13 14 11 ;
    ::: BotCR := GEO: CAR2D 3 3
        MESHX 0.0 <<XtraCool>> <<y_step>> <<X1>>
        MESHY 0.0 <<W_gap>> <<x_step>> <<X1>>
        MIX
-           14 14 14
-           12 12 14 
-           11 12 14 ;
+           13 13 13
+           14 14 13 
+           11 14 13 ;
    ::: TopCR := GEO: CAR2D 3 3
        MESHX 0.0 <<XtraCool>> <<y_step>> <<X1>>
        MESHY 0.0 <<XtraCool>> <<y_step>> <<Y1>>
        MIX
-           11 12 14  
-           12 12 14  
-           14 14 14 ;
+           11 14 13  
+           14 14 13  
+           13 13 13 ;
    ::: RMidW := GEO: CAR2D 3 1
        MESHX 0.0 <<XtraCool>> <<y_step>> <<X1>>
        MESHY 0.0 <<LLat>>
        SPLITY 10
-       MIX 11 12 14 ;
+       MIX 11 14 13 ;
    ::: BMidW := GEO:  CAR2D 1 3
        MESHX 0.0 <<LLat>>
        MESHY 0.0 <<W_gap>> <<x_step>> <<Y1>>
        SPLITX 10
-       MIX 14 12 11 ;
+       MIX 13 14 11 ;
    ::: LAT :=  GEO: CAR2D 10 10
        MESHX 0.0 <<pitch>> <<2_pitch>> <<3_pitch>> <<4_pitch>> <<5_pitch>>
                  <<6_pitch>> <<7_pitch>> <<8_pitch>> <<9_pitch>> <<LLat>>
@@ -288,75 +287,75 @@ MACRO := MAC: ::
         TOTAL 2.88040959E-04        SCAT 1 1 2.88040930E-04
       MIX 11 (*COOLANT*)
         TOTAL 7.66823292E-01        SCAT 1 1 7.65839636E-01
-      MIX 12 (*MODERATOR*)
-        TOTAL 7.66823292E-01        SCAT 1 1 7.65839636E-01
-      MIX 13 (*MODERATOR BOX*)
+      MIX 12 (*MODERATOR BOX*)
         TOTAL 2.88040959E-04        SCAT 1 1 2.88040930E-04
+      MIX 13 (*MODERATOR*)
+        TOTAL 7.66823292E-01        SCAT 1 1 7.65839636E-01
       MIX 14 (*CHANNEL BOX*)
         TOTAL 2.88040959E-04        SCAT 1 1 2.88040930E-04
 ;
 
-!#  1 - COOLANT
-!#  2 - CLAD
-!#  3 - GAP
-!#  4 - 24UOX
-!#  5 - 32UOX
-!#  6 - 42UOX
-!#  7 - 45UOX
-!#  8 - 42Gd
-!#  9 - 45Gd
-!# 10 - 50UOX
-!# 11 - 48UOX
-!# 12 - MODERATOR
-!# 13 - MODERATOR_BOX
-!# 14 - CHANNEL_BOX
+!#  1 - MODERATOR
+!#  2 - CHANNEL_BOX
+!#  3 - COOLANT
+!#  4 - MODERATOR_BOX
+!#  5 - CLAD
+!#  6 - GAP
+!#  7 - 24UOX
+!#  8 - 32UOX
+!#  9 - 42UOX
+!# 10 - 45UOX
+!# 11 - 42Gd
+!# 12 - 45Gd
+!# 13 - 50UOX
+!# 14 - 48UOX
 
 MACROG := MAC: ::
      EDIT 2 NGRO 1 NMIX 14 NIFI 1
      READ INPUT
-     MIX 4 (*24UOX*)
+     MIX 7 (*24UOX*)
         TOTAL 4.43890840E-01    SCAT 1 1 3.99300873E-01
         NUSIGF 5.23696020E-02      CHI 1.0
 
-      MIX 5 (*32UOX*)
+      MIX 8 (*32UOX*)
         TOTAL 4.47801262E-01    SCAT 1 1 3.98593932E-01
         NUSIGF 6.20270856E-02      CHI 1.0
 
-      MIX 6 (*42UOX*)
+      MIX 9 (*42UOX*)
         TOTAL 4.50964361E-01    SCAT 1 1 3.97878230E-01
         NUSIGF 7.01253936E-02      CHI 1.0
 
-      MIX 7 (*45UOX*)
+      MIX 10 (*45UOX*)
         TOTAL 4.52631325E-01    SCAT 1 1 3.98060858E-01
         NUSIGF 7.29189515E-02      CHI 1.0
 
-      MIX 11 (*48UOX*)
+      MIX 14 (*48UOX*)
         TOTAL 4.53984380E-01    SCAT 1 1 3.97542506E-01
         NUSIGF 7.79897496E-02      CHI 1.0
 
-      MIX 10 (*50UOX*)
+      MIX 13 (*50UOX*)
         TOTAL 4.53644007E-01    SCAT 1 1 3.96933615E-01
         NUSIGF 7.77277201E-02      CHI 1.0
       
-      MIX 9 (*45Gd*)
+      MIX 12 (*45Gd*)
         TOTAL 5.22946239E-01    SCAT 1 1 3.99194658E-01
         NUSIGF 3.58763784E-02      CHI 1.0
       
-      MIX 8 (*42Gd*)
+      MIX 11 (*42Gd*)
         TOTAL 5.12946239E-01    SCAT 1 1 3.99194658E-01
         NUSIGF 3.48763784E-02      CHI 1.0
     
-      MIX 3 (*GAP*)
+      MIX 6 (*GAP*)
         TOTAL 3.12748462E-01  SCAT 1 1 3.10926110E-01
-      MIX 2 (*CLAD*)
+      MIX 5 (*CLAD*)
         TOTAL 2.88040959E-04        SCAT 1 1 2.88040930E-04
-      MIX 1 (*COOLANT*)
+      MIX 3 (*COOLANT*)
         TOTAL 7.66823292E-01        SCAT 1 1 7.65839636E-01
-      MIX 12 (*MODERATOR*)
+      MIX 1 (*MODERATOR*)
         TOTAL 7.66823292E-01        SCAT 1 1 7.65839636E-01
-      MIX 13 (*MODERATOR BOX*)
+      MIX 4 (*MODERATOR BOX*)
         TOTAL 2.88040959E-04        SCAT 1 1 2.88040930E-04
-      MIX 14 (*CHANNEL BOX*)
+      MIX 2 (*CHANNEL BOX*)
         TOTAL 2.88040959E-04        SCAT 1 1 2.88040930E-04
 ;
 
@@ -473,19 +472,19 @@ TRACKMOC := MCCGT: TRACKMOC TRACKFILMOC ::
 * ---
 
 * FULL PIJ MATRIX RECONSTRUCTION
-!PIJ := ASM: MACROG TRACKIC TRACKFILIC :: PIJ EDIT 2 ;
-!FLUX := FLU: PIJ MACROG TRACKIC :: TYPE K ;
-!GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffGLOWCP<< ;
-!PIJ FLUX := DELETE: PIJ FLUX ;
-!ECHO "test multicell AT10_A (GLOW) FULL PIJ reconstruction completed, keff=" keffGLOWCP ;
+PIJ := ASM: MACROG TRACKIC TRACKFILIC :: PIJ EDIT 2 ;
+FLUX := FLU: PIJ MACROG TRACKIC :: TYPE K ;
+GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffGLOWCP<< ;
+PIJ FLUX := DELETE: PIJ FLUX ;
+ECHO "test multicell AT10_A (GLOW) FULL PIJ reconstruction completed, keff=" keffGLOWCP ;
 
 * FLUX-CURRENT ITERATION WITHOUT FULL PIJ MATRIX RECONSTRUCTION
-!PIJ := ASM: MACROG TRACKIC TRACKFILIC :: ARM EDIT 2 ;
-!FLUX := FLU: PIJ MACROG TRACKIC :: EDIT 4 TYPE K ;
-!GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffGLOWIC<< ;
-!assertS FLUX :: 'K-EFFECTIVE' 1 <<keffGLOWCP>> ;
-!PIJ FLUX := DELETE: PIJ FLUX ;
-!ECHO "test multicell AT10_A (GLOW) FLUX-CURRENT iteration completed, keff=" keffGLOWIC ;
+PIJ := ASM: MACROG TRACKIC TRACKFILIC :: ARM EDIT 2 ;
+FLUX := FLU: PIJ MACROG TRACKIC :: EDIT 4 TYPE K ;
+GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffGLOWIC<< ;
+assertS FLUX :: 'K-EFFECTIVE' 1 <<keffGLOWCP>> ;
+PIJ FLUX := DELETE: PIJ FLUX ;
+ECHO "test multicell AT10_A (GLOW) FLUX-CURRENT iteration completed, keff=" keffGLOWIC ;
 
 PIJ := ASM: MACROG TRACKCP TRACKFILCP :: PIJ EDIT 2 ;
 FLUX := FLU: PIJ MACROG TRACKCP :: TYPE K ;
@@ -493,16 +492,16 @@ GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffGLOWCP<< ;
 PIJ FLUX := DELETE: PIJ FLUX ;
 ECHO "test multicell AT10_A (GLOW) CP completed, keff=" keffGLOWCP ;
 
-!EVALUATE delCPIC := keffGLOWCP keffGLOWIC - 1E+5 * ;
-!ECHO "With GLOW: difference between CP and IC keff = " delCPIC ;
+EVALUATE delCPIC := keffGLOWCP keffGLOWIC - 1E+5 * ;
+ECHO "With GLOW: difference between CP and IC keff = " delCPIC ;
 
 SYS := ASM: MACROG TRACKMOC TRACKFILMOC :: ARM EDIT 2 ; 
 FLUX := FLU: SYS MACROG TRACKMOC TRACKFILMOC :: EDIT 1 TYPE K ;
 GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffGLOWMOC<< ;
 ECHO "test multicell AT10_A (GLOW) MOC completed, keff=" keffGLOWMOC ;
 
-!EVALUATE delMOCIC := keffGLOWMOC keffGLOWIC - 1E+5 * ;
-!ECHO "With GLOW: difference between MOC and IC keff = " delMOCIC ;
+EVALUATE delMOCIC := keffGLOWMOC keffGLOWIC - 1E+5 * ;
+ECHO "With GLOW: difference between MOC and IC keff = " delMOCIC ;
 
 FLUX SYS := DELETE: FLUX SYS ;
 TRACKIC TRACKFILIC := DELETE: TRACKIC TRACKFILIC ;

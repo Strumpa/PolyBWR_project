@@ -48,7 +48,7 @@
       TYPE(C_PTR)      IPEPC,IPMIC
       INTEGER          IPRINT,NGR,NIS,NXS,NCV,
      >                 NBISO,NMIXT,NIFISS,ITOTL,ISCAT
-      CHARACTER*6      NAMDXS(NXS)
+      CHARACTER*8      NAMDXS(NXS)
       INTEGER          NAMISO(3,NIS),NISOU(3,NBISO),ISOMIX(NBISO),
      >                 IDVF(2,NIS),IDMF(2,NBISO)
 *----
@@ -126,11 +126,11 @@
 *----
 *  Get covariance matrices
 *----
-            RECNAM='INDX'//NAMDXS(IXS)//'  '
+            RECNAM='INDX'//NAMDXS(IXS)
             CALL LCMLEN(IPEPC,RECNAM,ILCMLN,ILCMTY)
             IF(ILCMLN .EQ. NGR) THEN
               CALL LCMGET(IPEPC,RECNAM,ICOV(1,IXS))
-              RECNAM=NAMDXS(IXS)//'      '
+              RECNAM=NAMDXS(IXS)//'    '
               CALL LCMGET(IPEPC,RECNAM,COV(1,IXS))
 *----
 *  Generate random numbers from normal distribution

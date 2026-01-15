@@ -47,7 +47,7 @@
 *  SUBROUTINE ARGUMENTS
 *----
       INTEGER          NDPROC
-      PARAMETER       (NDPROC=20)
+      PARAMETER       (NDPROC=21)
       TYPE(C_PTR)      IPLIB
       INTEGER          IGS,IPRINT,IORD,NGROUP,INDPRO(NDPROC),
      >                 ITYPRO(NDPROC)
@@ -59,22 +59,24 @@
 *----
       INTEGER          IOUT
       PARAMETER       (IOUT=6)
-      CHARACTER        NAMDXS(NDPROC)*6,NORD*6,TEXT6*6,TEXT12*12,NAMT*12
+      CHARACTER        NAMDXS(NDPROC)*8,NORD*4,TEXT8*8,TEXT12*12,NAMT*12
       INTEGER          IODIV,LONG,ITYP,IXSR,IXSTN,IG,JG
       SAVE             NAMDXS
-      DATA    NAMDXS  /'NTOT0 ','TRANC ','NUSIGF','NFTOT ','CHI   ',
-     >                 'NU    ','NG    ','NHEAT ','N2N   ','N3N   ',
-     >                 'N4N   ','NP    ','NA    ','GOLD  ','ABS   ',
-     >                 'NWT0  ','STRD  ','STRD X','STRD Y','STRD Z'/
+      DATA    NAMDXS  /'NTOT0   ','TRANC   ','NUSIGF  ','NFTOT   ',
+     >                 'CHI     ','NU      ','NG      ','NHEAT   ',
+     >                 'N2N     ','N3N     ','N4N     ','NP      ',
+     >                 'NA      ','GOLD    ','ABS     ','NWT0    ',
+     >                 'STRD    ','STRD X  ','STRD Y  ','STRD Z  ',
+     >                 'H-FACTOR'/
       IODIV=0
       IF(IORD.EQ.1) THEN
-        NORD='      '
+        NORD='    '
         IODIV=1
       ELSE IF(IORD.EQ.2) THEN
-        NORD='   LIN'
+        NORD=' LIN'
         IODIV=2
       ELSE IF(IORD.EQ.3) THEN
-        NORD='   QUA'
+        NORD=' QUA'
         IODIV=4
       ENDIF
 *----
@@ -106,8 +108,8 @@
 *----
         IF(IGS.EQ.1) THEN
           DO 100 IXSR=1,NDPROC
-            TEXT6=NAMDXS(IXSR)
-            IF(IXSR.EQ.1) TEXT6='TOTAL'
+            TEXT8=NAMDXS(IXSR)
+            IF(IXSR.EQ.1) TEXT8='TOTAL'
             IF(INDPRO(IXSR).EQ.1) THEN
               IXSTN=MOD(ITYPRO(IXSR)/IODIV,2)
 *----
@@ -124,7 +126,7 @@
  110          CONTINUE
  115          CONTINUE
               IF((IXSTN.NE.0).OR.(IXSR.EQ.2)) THEN
-                CALL LCMPUT(IPLIB,TEXT6//NORD,NGROUP,2,XSREC(1,IXSR))
+                CALL LCMPUT(IPLIB,TEXT8//NORD,NGROUP,2,XSREC(1,IXSR))
               ENDIF
             ENDIF
  100      CONTINUE
@@ -136,8 +138,8 @@
 *----
         IF(IGS.EQ.-1) THEN
           DO 200 IXSR=1,NDPROC
-            TEXT6=NAMDXS(IXSR)
-            IF(IXSR.EQ.1) TEXT6='NTOT0'
+            TEXT8=NAMDXS(IXSR)
+            IF(IXSR.EQ.1) TEXT8='NTOT0'
             IF(INDPRO(IXSR).EQ.1) THEN
               IXSTN=MOD(ITYPRO(IXSR)/IODIV,2)
 *----
@@ -145,11 +147,11 @@
 *  INITIALIZE TO 0.0 IF IXSTN = 0
 *----
               IF(IXSTN.EQ.1) THEN
-                CALL LCMLEN(IPLIB,TEXT6//NORD,LONG,ITYP)
+                CALL LCMLEN(IPLIB,TEXT8//NORD,LONG,ITYP)
                 IF(LONG .EQ. 0) THEN 
                   XSREC(:NGROUP,IXSR)=0.0
                 ELSE
-                  CALL LCMGET(IPLIB,TEXT6//NORD,XSREC(1,IXSR))
+                  CALL LCMGET(IPLIB,TEXT8//NORD,XSREC(1,IXSR))
                 ENDIF
               ELSE
                 XSREC(:NGROUP,IXSR)=0.0

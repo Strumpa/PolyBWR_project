@@ -37,7 +37,7 @@
 *----
       TYPE(C_PTR)      IPMIC
       INTEGER          IPRINT,NGR,NXS,NMIXT,NIFISS
-      CHARACTER*6      NAMDXS(NXS)
+      CHARACTER*8      NAMDXS(NXS)
       REAL             XSMAC(NGR,NXS,NMIXT,NIFISS)
 *----
 *  Local parameters

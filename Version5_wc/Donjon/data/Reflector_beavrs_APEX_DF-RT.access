@@ -23,15 +23,15 @@ else
 echo 'use big endian libraries'
 pos=$1/../../libraries/b_endian
 fi
-if [ -f "$pos"/draglibJef2p2Apolib99.gz ]
+if [ -f "$pos"/draglibJef2p2Apolib99_v5p1.gz ]
    then
     echo 'gunzipping DLIB_99'
     chmod 755 "$pos"
-    gunzip "$pos"/draglibJef2p2Apolib99.gz
+    gunzip "$pos"/draglibJef2p2Apolib99_v5p1.gz
 fi
-if [ -f "$pos"/draglibJef2p2Apolib99 ]
+if [ -f "$pos"/draglibJef2p2Apolib99_v5p1 ]
    then
-    ln -s "$pos"/draglibJef2p2Apolib99 DLIB_99
+    ln -s "$pos"/draglibJef2p2Apolib99_v5p1 DLIB_99
 fi
 ln -s $1/data/Reflector_beavrs_APEX_DF-RT_proc/assbly_caseA_apex.hdf .
 ls -l

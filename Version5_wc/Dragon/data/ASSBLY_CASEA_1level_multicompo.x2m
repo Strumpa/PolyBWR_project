@@ -239,7 +239,7 @@ ENDWHILE ;
 ************************************************************************
 _MyCompo := MyCompo ;
 
-assertS FLUX2 :: K-INFINITY 1 1.014468 ;
+assertS FLUX2 :: K-INFINITY 1 1.014208 ;
 
 ECHO "test ASSBLY_CASEA_1level_multicompo completed" ;
 END: ;

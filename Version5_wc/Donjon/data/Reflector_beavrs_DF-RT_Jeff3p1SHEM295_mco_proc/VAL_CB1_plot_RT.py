@@ -23,7 +23,8 @@ for ig in range(ngr):
     o2 = my_lcm['GROUP'][ig].keys()
     flux_case1[ig] = my_lcm['GROUP'][ig]['FLUX-INTG']
     if 'H-FACTOR' in o2:
-        hfac_case1[ig] = my_lcm['GROUP'][ig]['H-FACTOR']
+        fact = 1.60217650E-25 # transform eV/s into MW
+        hfac_case1[ig] = my_lcm['GROUP'][ig]['H-FACTOR']*fact
     else:
         hfac_case1[ig] = my_lcm['GROUP'][ig]['NUSIGF']
     for iel in range(nel):

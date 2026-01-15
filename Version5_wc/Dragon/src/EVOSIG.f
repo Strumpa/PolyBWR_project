@@ -49,9 +49,7 @@
 *         HREAC(1)='DECAY'; HREAC(2)='NFTOT';
 *         HREAC(3)='NG'   ; HREAC(4)='N2N';  etc.
 * IDR     identifier for each depleting reaction.
-* RER     energy (Mev) per reaction. If RER(3,J)=0., the fission energy
-*         is including radiative capture energy. Neutrino energy is
-*         never included.
+* RER     decay energy (Mev).
 * RRD     sum of radioactive decay constants in 10**-8/s.
 * FIT     flux normalization factor:
 *         n/cm**2/s if INR=1;
@@ -86,7 +84,7 @@
      1 MILVO(NCOMB),JM(NBMIX,NVAR+NSUPS),NVAR,NSUPS,NREAC,
      2 HREAC(2,NREAC),IDR(NREAC,NVAR+NSUPS),IZAE(NVAR+NSUPS),NXSPER,
      3 MIXPWR(NBMIX)
-      REAL DEN(NBISO),VX(NBMIX),RER(NREAC,NVAR+NSUPS),RRD(NVAR+NSUPS),
+      REAL DEN(NBISO),VX(NBMIX),RER(NVAR+NSUPS),RRD(NVAR+NSUPS),
      1 FIT,AWR(NVAR+NSUPS),FUELDN(3),DELTAT(2),PFACT,VPHV(NBMIX),
      2 SIG(NVAR+1,NREAC+1,NBMIX),FLUMIX(NGROUP,NBMIX)
 *----
@@ -94,7 +92,7 @@
 *----
       PARAMETER(IOUT=6,MAXREA=20)
       TYPE(C_PTR) KPLIB,KPLIB5
-      CHARACTER HSMG*131,NAMDXS(MAXREA)*6
+      CHARACTER HSMG*131,NAMDXS(MAXREA)*8
       DOUBLE PRECISION GAR,GAR1,GAR2,GARD,XDRCST,EVJ,FITD,PHI,FNORM,VPH
       INTEGER IPRLOC
       LOGICAL LKERMA, U235F
@@ -153,7 +151,7 @@
          IS=NVAR+1
          FACT=DEN(K)*VX(IBM)
       ENDIF
-      SIG(IS,NREAC+1,IBM)=SIG(IS,NREAC+1,IBM)+FACT*RER(1,IST)*RRD(IST)
+      SIG(IS,NREAC+1,IBM)=SIG(IS,NREAC+1,IBM)+FACT*RER(IST)*RRD(IST)
       IF(INR.EQ.0) GO TO 210
 *----
 *  RECOVER KERMA FACTORS, IF AVAILABLE
@@ -228,7 +226,7 @@
          IF((IREAC.EQ.2).AND.(MOD(IDR(2,IST),100).EQ.5)) GO TO 120
          IF(IMPX.GT.90) CALL LCMLIB(KPLIB)
          IF(IMPX.GT.3) THEN
-           WRITE(HSMG,'(17HEVOSIG: REACTION ,A6,18H IS MISSING FOR IS,
+           WRITE(HSMG,'(17HEVOSIG: REACTION ,A8,18H IS MISSING FOR IS,
      1     7HOTOPE '',3A4,2H''.)') NAMDXS(IREAC-1),(ISONAM(I0,K),I0=1,3)
            WRITE(IOUT,'(1X,A)') HSMG
          ENDIF
@@ -239,13 +237,6 @@
   130 CONTINUE
       SIG(IS,IREAC-1,IBM)=SIG(IS,IREAC-1,IBM)+1.0E-3*FACT*REAL(GAR)*
      1 DELTAT(IXSPER)
-      ! if(LKERMA), add energy from lumped isotopes not present in the
-      ! microlib. Otherwise, add energy for all isotopes.
-      IF(IGLOB.NE.-1) THEN
-        ! Lumped energy is not included with EDEPMODE=0.
-        SIG(IS,NREAC,IBM)=SIG(IS,NREAC,IBM)+1.0E-3*FACT*RER(IREAC,IST)*
-     1  REAL(GAR)*DELTAT(IXSPER)
-      ENDIF
   140 CONTINUE
   150 CONTINUE
   210 CONTINUE

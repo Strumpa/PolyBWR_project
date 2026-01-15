@@ -141,10 +141,10 @@ LIBRARY := SHI: LIBRARY TRACK TRACK_FIL ::
  FLUX := FLU: SYS LIBRARY TRACK TRACK_FIL ::
   EDIT 1 
   TYPE K P1 EXTE 300 1E-5 THER 10 1E-5 ;
- assertS FLUX :: K-EFFECTIVE 1 1.083298 ;
+ assertS FLUX :: K-EFFECTIVE 1 1.083412 ;
 
 *--------------------------------------------------------
-*  Graphik
+*  Graphic
 *--------------------------------------------------------
 *
 Fig_reg.ps := PSP: TRACK ::

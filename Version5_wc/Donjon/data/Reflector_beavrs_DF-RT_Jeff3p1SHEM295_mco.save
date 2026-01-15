@@ -18,7 +18,7 @@ fi
 if [ -d $1/../PyGan/lib/ ]; then
    pyv=`echo $(python3 --version) | cut -d. -f2`
    echo "Use PyGan with python version= 3."$pyv
-   ln -s $1/data/Reflector_beavrs_DF-NEM_proc/VAL_CB1_plot_RT.py .
+   ln -s $1/data/Reflector_beavrs_DF-RT_Jeff3p1SHEM295_mco_proc/VAL_CB1_plot_RT.py .
    Rundir=$PWD
    cd "$1"
    if [ -d ../PyGan/lib/"$MACH"_nvidia ]; then

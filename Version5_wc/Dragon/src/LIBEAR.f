@@ -30,7 +30,7 @@
 *         atomic number z*10000 (digits) + mass number a*10 +
 *         energy state (0 = ground state, 1 = first state, etc.).
 * KPAX    complete reaction type matrix.
-* BPAX    complete branching ratio matrix.
+* BPAX    complete branching ratio matrix. Q values are not recovered.
 *
 *-----------------------------------------------------------------------
 *
@@ -50,7 +50,9 @@
       CHARACTER CFILNA*(*),NMDEPL(MAXR)*8
       INTEGER MAXR,NEL,ITNAM(3,NEL),ITZEA(NEL),KPAX(NEL+MAXR,NEL)
       REAL BPAX(NEL+MAXR,NEL)
-*
+*----
+*  LOCAL VARIABLES
+*----
       EXTERNAL LIBA21
       INTEGER ISFICH(3),NITCA(5)
       PARAMETER (IOUT=6)
@@ -288,7 +290,6 @@
          IF(NV.NE.0) THEN
             IF(RTSEGM(IDK).NE.0.0) THEN
                KPAX(NEL+3,ISO)=1
-               BPAX(NEL+3,ISO)=RTSEGM(IDK)
             ENDIF
          ENDIF
 *        AVAILABLE CROSS SECTION TYPES.
@@ -305,7 +306,6 @@
          IF(NMGEF.NE.0) THEN
             IF(RTSEGM(IDK+NMGEF-1).NE.0.0) THEN
                KPAX(NEL+2,ISO)=1
-               BPAX(NEL+2,ISO)=RTSEGM(IDK+NMGEF-1)
             ENDIF
          ENDIF
 *        RADIOACTIVE DECAY CONSTANTS.
