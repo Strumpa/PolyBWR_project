@@ -35,14 +35,14 @@ IF ssh_opt "RSE" = THEN
     LIBRARY := LIB: ::
     EDIT 0
     NMIX 7    ! MAXIMUM OF MATERIAL MIXTURES
-    RSE 1.0E-03
-    ANIS 3
+    RSE       ! USE Resonance Specrtum Expansion
+    ANIS 2
 
   DEPL LIB: DRAGON FIL: <<Library>>
   MIXS LIB: DRAGON FIL: <<Library>>
 
 ! C1 fuel compo "AT10_24UOX" :
-  MIX <<COMB0101>> 750.0
+  MIX <<COMB0101>> 900.0
     O16     = O16    4.66705E-02
     U234    = U234   5.15910E-06 1
     U235    = U235   5.67035E-04 1 
@@ -82,7 +82,7 @@ IF ssh_opt "RSE" = THEN
     Fe56  = Fe56   8.74901E-05
     Sn118  = Sn118   1.16691E-04
     Sn119  = Sn119   4.13864E-05
-  MIX <<GAP>> 750.0 NOEV
+  MIX <<GAP>> 900.0 NOEV
     He4      = He4 1.50456E-04
   MIX <<MODE>> 559.0 NOEV
     H1      = H1_H2O 4.94546E-02  
@@ -92,17 +92,16 @@ ELSEIF ssh_opt "PT" = THEN
   LIBRARY := LIB: ::
       EDIT 0
       NMIX 7    ! MAXIMUM OF MATERIAL MIXTURES
-      ANIS 3
+      ANIS 2
       CALENDF 3 
       PT      ! CALENDF TYPE MATHEMATICAL PROBABILITY TABLES
 
     DEPL LIB: DRAGON FIL: <<Library>>
     MIXS LIB: DRAGON FIL: <<Library>>
-  MIX <<COMB0101>> 750.0
+  MIX <<COMB0101>> 900.0
     O16     = O16    4.66705E-02
     U234    = U234   5.15910E-06 1
     U235    = U235   5.67035E-04 1 
-    !U235    = U235   2.00E-04 1
     U238    = U238   2.27631E-02 1 
   MIX <<COMB0102>> COMB <<COMB0101>> 1.0
   MIX <<COMB0103>> COMB <<COMB0101>> 1.0
@@ -138,7 +137,7 @@ ELSEIF ssh_opt "PT" = THEN
     Fe56  = Fe56   8.74901E-05
     Sn118  = Sn118   1.16691E-04
     Sn119  = Sn119   4.13864E-05
-    MIX <<GAP>> 750.0 NOEV
+    MIX <<GAP>> 900.0 NOEV
       He4      = He4 1.50456E-04
     MIX <<MODE>> 559.0 NOEV
       H1      = H1_H2O 4.94546E-02  
@@ -148,13 +147,13 @@ ELSEIF ssh_opt "SUBG" = THEN
   LIBRARY := LIB: ::
       EDIT 0
       NMIX 9    ! MAXIMUM OF MATERIAL MIXTURES
-      ANIS 3
+      ANIS 2
       SUBG      ! USE PHYSICAL PROBABILITY TABLES
 
     DEPL LIB: DRAGON FIL: <<Library>>
     MIXS LIB: DRAGON FIL: <<Library>>
 
-  MIX <<COMB0101>> 750.0
+  MIX <<COMB0101>> 900.0
     O16     = O16    4.66705E-02
     U234    = U234   5.15910E-06 1
     U235    = U235   5.67035E-04 1 
@@ -193,7 +192,7 @@ ELSEIF ssh_opt "SUBG" = THEN
     Fe56  = Fe56   8.74901E-05
     Sn118  = Sn118   1.16691E-04
     Sn119  = Sn119   4.13864E-05
-    MIX <<GAP>> 750.0 NOEV
+    MIX <<GAP>> 900.0 NOEV
       He4      = He4 1.50456E-04
     MIX <<MODE>> 559.0 NOEV
       H1      = H1_H2O 4.94546E-02  

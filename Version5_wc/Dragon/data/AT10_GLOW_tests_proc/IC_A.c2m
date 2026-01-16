@@ -395,7 +395,7 @@ PIJ := ASM: MACRO TRACKIC TRACKFILIC :: PIJ EDIT 2 ;
 FLUX := FLU: PIJ MACRO TRACKIC :: TYPE K ;
 GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffGEOPIJ<< ;
 PIJ FLUX := DELETE: PIJ FLUX ;
-ECHO "test multicell AT10_A (GEO) FULL PIJ reconstruction completed, keff=" keffGEOPIJ ;
+ECHO "test multicell AT10_A FULL PIJ reconstruction completed, keff=" keffGEOPIJ ;
 
 * FLUX-CURRENT ITERATION WITHOUT FULL PIJ MATRIX RECONSTRUCTION
 PIJ := ASM: MACRO TRACKIC TRACKFILIC :: ARM EDIT 2 ;
@@ -403,13 +403,13 @@ FLUX := FLU: PIJ MACRO TRACKIC :: EDIT 4 TYPE K ;
 GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffGEOIC<< ;
 assertS FLUX :: 'K-EFFECTIVE' 1 <<keffGEOPIJ>> ;
 PIJ FLUX := DELETE: PIJ FLUX ;
-ECHO "test multicell AT10_A (GEO) FLUX-CURRENT iteration completed, keff=" keffGEOIC ;
+ECHO "test multicell AT10_A FLUX-CURRENT iteration completed, keff=" keffGEOIC ;
 
 PIJ := ASM: MACRO TRACKCP TRACKFILCP :: PIJ EDIT 2 ;
 FLUX := FLU: PIJ MACRO TRACKCP :: TYPE K ;
 GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffGEOCP<< ;
 PIJ FLUX := DELETE: PIJ FLUX ;
-ECHO "test multicell AT10_A (GEO) CP completed, keff=" keffGEOCP ;
+ECHO "test multicell AT10_A CP completed, keff=" keffGEOCP ;
 
 EVALUATE delCPIC := keffGEOCP keffGEOIC - 1E+5 * ;
 ECHO "With GEO: difference between CP and IC keff = " delCPIC ;
@@ -417,7 +417,7 @@ ECHO "With GEO: difference between CP and IC keff = " delCPIC ;
 SYS := ASM: MACRO TRACKMOC TRACKFILMOC :: ARM EDIT 2 ; 
 FLUX := FLU: SYS MACRO TRACKMOC TRACKFILMOC :: EDIT 1 TYPE K ;
 GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffGEOMOC<< ;
-ECHO "test multicell AT10_A (GEO) MOC completed, keff=" keffGEOMOC ;
+ECHO "test multicell AT10_A MOC completed, keff=" keffGEOMOC ;
 
 EVALUATE delMOCIC := keffGEOMOC keffGEOIC - 1E+5 * ;
 ECHO "With GEO: difference between MOC and IC keff = " delMOCIC ;

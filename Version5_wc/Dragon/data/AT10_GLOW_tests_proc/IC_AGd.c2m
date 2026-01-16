@@ -372,20 +372,20 @@ glow_tiso.ps := G2S: tdt_iso :: DRAWMIX ;
 
 TRACKIC TRACKFILIC := SALT: g2s_tdt_IC ::
      EDIT 2
-     TITLE "MULTICELL SURFACIC AT10_A CASE"
+     TITLE "MULTICELL SURFACIC AT10_A_Gd CASE"
      TISO <<an2d>> <<densur>>
      IC EPSJ 1.0E-5
      ;
 
 TRACKCP TRACKFILCP := SALT: g2s_tdt ::
      EDIT 2
-     TITLE "TISO CP SURFACIC AT10_A CASE"
+     TITLE "TISO CP SURFACIC AT10_A_Gd CASE"
      TISO <<an2d>> <<densur>>
      ;
 
 TRACKMOC TRACKFILMOC := SALT: g2s_tdt ::
      EDIT 2
-     TITLE "TISO MOC SURFACIC AT10_A CASE"
+     TITLE "TISO MOC SURFACIC AT10_A_Gd CASE"
      TISO EQW <<an2d>> <<densur>>
      ;
 
@@ -404,7 +404,7 @@ PIJ := ASM: MACRO TRACKIC TRACKFILIC :: PIJ EDIT 2 ;
 FLUX := FLU: PIJ MACRO TRACKIC :: TYPE K ;
 GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffGEOCP<< ;
 PIJ FLUX := DELETE: PIJ FLUX ;
-ECHO "test multicell AT10_A (GEO) FULL PIJ reconstruction completed, keff=" keffGEOCP ;
+ECHO "test multicell AT10_A_Gd FULL PIJ reconstruction completed, keff=" keffGEOCP ;
 
 * FLUX-CURRENT ITERATION WITHOUT FULL PIJ MATRIX RECONSTRUCTION
 PIJ := ASM: MACRO TRACKIC TRACKFILIC :: ARM EDIT 2 ;
@@ -412,13 +412,13 @@ FLUX := FLU: PIJ MACRO TRACKIC :: EDIT 4 TYPE K ;
 GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffGEOIC<< ;
 assertS FLUX :: 'K-EFFECTIVE' 1 <<keffGEOCP>> ;
 PIJ FLUX := DELETE: PIJ FLUX ;
-ECHO "test multicell AT10_A (GEO) FLUX-CURRENT iteration completed, keff=" keffGEOIC ;
+ECHO "test multicell AT10_A_Gd FLUX-CURRENT iteration completed, keff=" keffGEOIC ;
 
 PIJ := ASM: MACRO TRACKCP TRACKFILCP :: PIJ EDIT 2 ;
 FLUX := FLU: PIJ MACRO TRACKCP :: TYPE K ;
 GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffGEOCP<< ;
 PIJ FLUX := DELETE: PIJ FLUX ;
-ECHO "test multicell AT10_A (GEO) CP completed, keff=" keffGEOCP ;
+ECHO "test multicell AT10_A_Gd CP completed, keff=" keffGEOCP ;
 
 EVALUATE delCPIC := keffGEOCP keffGEOIC - 1E+5 * ;
 ECHO "With GEO: difference between CP and IC keff = " delCPIC ;
@@ -426,7 +426,7 @@ ECHO "With GEO: difference between CP and IC keff = " delCPIC ;
 SYS := ASM: MACRO TRACKMOC TRACKFILMOC :: ARM EDIT 2 ; 
 FLUX := FLU: SYS MACRO TRACKMOC TRACKFILMOC :: EDIT 1 TYPE K ;
 GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffGEOMOC<< ;
-ECHO "test multicell AT10_A (GEO) MOC completed, keff=" keffGEOMOC ;
+ECHO "test multicell AT10_A_Gd MOC completed, keff=" keffGEOMOC ;
 
 EVALUATE delMOCIC := keffGEOMOC keffGEOIC - 1E+5 * ;
 ECHO "With GEO: difference between MOC and IC keff = " delMOCIC ;
@@ -443,21 +443,21 @@ ECHO " --- GLOW CASES TREATMENT --- " ;
 
 TRACKIC TRACKFILIC := SALT: tdt_iso ::
      EDIT 2
-     TITLE "MULTICELL SURFACIC AT10_A CASE"
+     TITLE "MULTICELL SURFACIC AT10_A_Gd CASE"
      TISO <<an2d>> <<densur>>
      IC EPSJ 1.0E-5
      ;
 
 TRACKCP TRACKFILCP := SALT: tdt_iso ::
      EDIT 2
-     TITLE "TISO CP SURFACIC AT10_A CASE"
+     TITLE "TISO CP SURFACIC AT10_A_Gd CASE"
      TISO <<an2d>> <<densur>>
      NOIC
      ;
 
 TRACKMOC TRACKFILMOC := SALT: tdt_iso ::
      EDIT 2
-     TITLE "TISO MOC SURFACIC AT10_A CASE"
+     TITLE "TISO MOC SURFACIC AT10_A_Gd CASE"
      TISO EQW <<an2d>> <<densur>>
      NOIC
      ;
@@ -476,7 +476,7 @@ PIJ := ASM: MACROG TRACKIC TRACKFILIC :: PIJ EDIT 2 ;
 FLUX := FLU: PIJ MACROG TRACKIC :: TYPE K ;
 GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffGLOWCP<< ;
 PIJ FLUX := DELETE: PIJ FLUX ;
-ECHO "test multicell AT10_A (GLOW) FULL PIJ reconstruction completed, keff=" keffGLOWCP ;
+ECHO "test multicell AT10_A_Gd (GLOW) FULL PIJ reconstruction completed, keff=" keffGLOWCP ;
 
 * FLUX-CURRENT ITERATION WITHOUT FULL PIJ MATRIX RECONSTRUCTION
 PIJ := ASM: MACROG TRACKIC TRACKFILIC :: ARM EDIT 2 ;
@@ -484,13 +484,13 @@ FLUX := FLU: PIJ MACROG TRACKIC :: EDIT 4 TYPE K ;
 GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffGLOWIC<< ;
 assertS FLUX :: 'K-EFFECTIVE' 1 <<keffGLOWCP>> ;
 PIJ FLUX := DELETE: PIJ FLUX ;
-ECHO "test multicell AT10_A (GLOW) FLUX-CURRENT iteration completed, keff=" keffGLOWIC ;
+ECHO "test multicell AT10_A_Gd (GLOW) FLUX-CURRENT iteration completed, keff=" keffGLOWIC ;
 
 PIJ := ASM: MACROG TRACKCP TRACKFILCP :: PIJ EDIT 2 ;
 FLUX := FLU: PIJ MACROG TRACKCP :: TYPE K ;
 GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffGLOWCP<< ;
 PIJ FLUX := DELETE: PIJ FLUX ;
-ECHO "test multicell AT10_A (GLOW) CP completed, keff=" keffGLOWCP ;
+ECHO "test multicell AT10_A_Gd (GLOW) CP completed, keff=" keffGLOWCP ;
 
 EVALUATE delCPIC := keffGLOWCP keffGLOWIC - 1E+5 * ;
 ECHO "With GLOW: difference between CP and IC keff = " delCPIC ;
@@ -498,7 +498,7 @@ ECHO "With GLOW: difference between CP and IC keff = " delCPIC ;
 SYS := ASM: MACROG TRACKMOC TRACKFILMOC :: ARM EDIT 2 ; 
 FLUX := FLU: SYS MACROG TRACKMOC TRACKFILMOC :: EDIT 1 TYPE K ;
 GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffGLOWMOC<< ;
-ECHO "test multicell AT10_A (GLOW) MOC completed, keff=" keffGLOWMOC ;
+ECHO "test multicell AT10_A_Gd (GLOW) MOC completed, keff=" keffGLOWMOC ;
 
 EVALUATE delMOCIC := keffGLOWMOC keffGLOWIC - 1E+5 * ;
 ECHO "With GLOW: difference between MOC and IC keff = " delMOCIC ;

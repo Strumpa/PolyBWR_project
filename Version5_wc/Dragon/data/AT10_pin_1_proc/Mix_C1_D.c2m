@@ -35,8 +35,8 @@ IF ssh_opt "RSE" = THEN
     LIBRARY := LIB: ::
     EDIT 0
     NMIX 7    ! MAXIMUM OF MATERIAL MIXTURES
-    RSE 1.0E-03
-    ANIS 3
+    RSE
+    ANIS 2
 
   DEPL LIB: DRAGON FIL: <<Library>>
   MIXS LIB: DRAGON FIL: <<Library>>
@@ -91,7 +91,7 @@ ELSEIF ssh_opt "PT" = THEN
   LIBRARY := LIB: ::
       EDIT 0
       NMIX 7    ! MAXIMUM OF MATERIAL MIXTURES
-      ANIS 3
+      ANIS 2
       CALENDF 3 
       PT      ! CALENDF TYPE MATHEMATICAL PROBABILITY TABLES
 
@@ -146,7 +146,7 @@ ELSEIF ssh_opt "SUBG" = THEN
   LIBRARY := LIB: ::
       EDIT 0
       NMIX 9    ! MAXIMUM OF MATERIAL MIXTURES
-      ANIS 3
+      ANIS 2
       SUBG      ! USE PHYSICAL PROBABILITY TABLES
 
     DEPL LIB: DRAGON FIL: <<Library>>

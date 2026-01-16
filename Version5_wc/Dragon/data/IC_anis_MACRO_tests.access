@@ -22,17 +22,6 @@ else
   echo 'use big endian libraries'
   pos=$1/../../../libraries/b_endian
 fi
-if [ -f "$pos"/draglibJeff3p1p1SHEM295.gz ]
-then
-echo 'gunzipping draglibJeff3p1p1SHEM295'
-chmod 755 "$pos"
-gunzip "$pos"/draglibJeff3p1p1SHEM295.gz
-fi
-if [ -f "$pos"/draglibJeff3p1p1SHEM295 ]
-then
-ln -s "$pos"/draglibJeff3p1p1SHEM295 J311_295
-echo "IC_anis_tests access script terminated"
-fi
 pos2="$1/../../../glow_data/tdt_data"
 chmod 755 "$pos2"
 ls -la
