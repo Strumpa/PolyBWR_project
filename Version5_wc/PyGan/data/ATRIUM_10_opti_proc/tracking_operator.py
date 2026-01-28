@@ -9,7 +9,8 @@ import cle2000
 import lifo
 
 
-def trackFluxGeomSALT(pyGEOM, num_angles, line_density, refl_type, anisotropy_level, solution_door, moc_angular_quandrature, nmu, src_approx, batch, ps_file):
+def trackFluxGeomSALT(pyGEOM, num_angles, line_density, refl_type, anisotropy_level, solution_door, moc_angular_quandrature, nmu, src_approx, batch, ps_file, 
+                      precond, xhdd, ikryl):
     """
     Function to track a main flux geometry object using the SALT: module in DRAGON5.
     Parameters : 
@@ -38,6 +39,13 @@ def trackFluxGeomSALT(pyGEOM, num_angles, line_density, refl_type, anisotropy_le
         To be optimized for parallel processing. --> depends on the number of tracks ie angles and line density, as well as number of regions.
     ps_file : (str)
         Name of the postscript file to be generated with the tracking results.
+    xhdd (float)
+        Integration scheme selection criterion if xhdd = 0.0 : Step Characterisitc scheme, else (> 0.0) diamod differencing scheme 
+    ikryl (integer) 
+        Used to enable Krylov acceleration of scattering iterations in each energy group
+        if ikyrl = 0 : no Bi-CGSTAB or GRMRES 
+        if ikyrl > 0 GMRES : dimension of Krylov space (default ikyrl=10) 
+        if ikyrl < 0 Bi-CGSTAB is used.
 
     Returns :
     ----------
@@ -68,6 +76,9 @@ def trackFluxGeomSALT(pyGEOM, num_angles, line_density, refl_type, anisotropy_le
     myLifo.push(src_approx)  # Source approximation for MOC tracking, can be "SC" (flat) or "LDC" (linear)
     myLifo.push(nmu)
     myLifo.push(batch)
+    myLifo.push(precond) # Bi-CGSTAB preconditionner for MOC
+    myLifo.push(xhdd)
+    myLifo.push(ikryl)
 
     # Create a new tracking operator using the SALT: module
     track_proc = cle2000.new('TRK_A_SALT', myLifo, 1)

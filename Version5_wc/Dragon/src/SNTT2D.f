@@ -155,27 +155,19 @@
       ELSE
          CALL XABORT('SNTT2D: UNKNOWN QUADRATURE TYPE.')
       ENDIF
-            N=0
+
+      ! UNFOLD FOUR-OCTANT QUADRATURES
+      N=0
       IOF=0
       DO 30 I=1,NLF/2
-         IF(IGLK.NE.0) THEN
-            JOF = NLF-2*I+2
-            KOF = (NLF+4)*NLF/4
-         ELSE
+         IF(IGE.EQ.1) THEN
             IOF=IOF+1
-            JOF=IOF+NLF-2*I+2
-            KOF=IOF+(NLF+4)*NLF/4
-            MRM(IOF)=JOF
-            MRMY(IOF)=KOF
             DU(IOF)=-SQRT(1.0-UU(I)*UU(I))
             DE(IOF)=-UU(I)
             W(IOF)=0.0
          ENDIF
          DO 10 J=0,NLF/2-I
             IOF=IOF+1
-            KOF=IOF+(NLF+4)*NLF/4
-            MRM(IOF)=JOF
-            MRMY(IOF)=KOF
             DU(IOF)=-UPQ(N+J+1)
             DE(IOF)=-VPQ(N+J+1)
             W(IOF)=WPQ(N+J+1)
@@ -183,9 +175,6 @@
    10    CONTINUE
             DO 20 J=NLF/2-I,0,-1
             IOF=IOF+1
-            KOF=IOF+(NLF+4)*NLF/4
-            MRM(IOF)=JOF
-            MRMY(IOF)=KOF
             DU(IOF)=UPQ(N+J+1)
             DE(IOF)=-VPQ(N+J+1)
             W(IOF)=WPQ(N+J+1)
@@ -195,24 +184,14 @@
    30 CONTINUE
       N=0
       DO 60 I=1,NLF/2
-         IF(IGLK.NE.0) THEN
-            JOF=NLF-2*I+2
-            KOF=-(NLF+4)*NLF/4
-         ELSE
+         IF(IGE.EQ.1) THEN
             IOF=IOF+1
-            JOF=IOF+NLF-2*I+2
-            KOF=IOF-(NLF+4)*NLF/4
-            MRM(IOF)=JOF
-            MRMY(IOF)=KOF
             DU(IOF)=-SQRT(1.0-UU(I)*UU(I))
             DE(IOF)=UU(I)
             W(IOF)=0.0
          ENDIF
          DO 40 J=0,NLF/2-I
             IOF=IOF+1
-            KOF=IOF-(NLF+4)*NLF/4
-            MRM(IOF)=JOF
-            MRMY(IOF)=KOF
             DU(IOF)=-UPQ(N+J+1)
             DE(IOF)=VPQ(N+J+1)
             W(IOF)=WPQ(N+J+1)
@@ -220,9 +199,6 @@
    40    CONTINUE
          DO 50 J=NLF/2-I,0,-1
             IOF=IOF+1
-            KOF=IOF-(NLF+4)*NLF/4
-            MRM(IOF)=JOF
-            MRMY(IOF)=KOF
             DU(IOF)=UPQ(N+J+1)
             DE(IOF)=VPQ(N+J+1)
             W(IOF)=WPQ(N+J+1)
@@ -230,6 +206,66 @@
    50    CONTINUE
          N=N+NLF/2-I+1
    60 CONTINUE
+
+      ! REFLEXION INDEXES IDENTIFICATION
+      DO M=1,NPQ
+         IF (IGLK.NE.0.AND.W(M)<=0.0D0) CYCLE
+
+         ! X-AXIS
+         DO K=1,NPQ
+         IF (IGLK.NE.0.AND.W(K)<=0.0D0) CYCLE
+         IF (ABS(DU(K)+DU(M))<RLOG.AND.ABS(DE(K)-DE(M))<RLOG) THEN
+            MRM(M)=K
+            EXIT
+         ENDIF
+         ENDDO
+
+         ! Y-AXIS
+         DO K=1,NPQ
+         IF (IGLK.NE.0.AND.W(K)<=0.0D0) CYCLE
+         IF (ABS(DU(K)-DU(M))<RLOG.AND.ABS(DE(K)+DE(M))<RLOG) THEN
+            MRMY(M)=K
+            EXIT
+         ENDIF
+         ENDDO
+      ENDDO
+
+      ! ADDITIONAL VIRTUAL DIRECTION FOR TUBE GEOMETRY
+      IF(IGE.EQ.1) THEN
+         N=0
+         IOF=0
+         DO I=1,NLF/2
+            IOF=IOF+1
+            MRM(IOF)=IOF+NLF-2*I+2
+            MRMY(IOF)=IOF+(NLF+4)*NLF/4
+            DU(IOF)=-SQRT(1.0-UU(I)*UU(I))
+            DE(IOF)=-UU(I)
+            W(IOF)=0.0
+            DO J=0,NLF/2-I
+               IOF=IOF+1
+            ENDDO
+            DO J=NLF/2-I,0,-1
+               IOF=IOF+1
+            ENDDO
+            N=N+NLF/2-I+1
+         ENDDO
+         N=0
+         DO I=1,NLF/2
+            IOF=IOF+1
+            MRM(IOF)=IOF+NLF-2*I+2
+            MRMY(IOF)=IOF-(NLF+4)*NLF/4
+            DU(IOF)=-SQRT(1.0-UU(I)*UU(I))
+            DE(IOF)=UU(I)
+            W(IOF)=0.0
+            DO J=0,NLF/2-I
+               IOF=IOF+1
+            ENDDO
+            DO J=NLF/2-I,0,-1
+               IOF=IOF+1
+            ENDDO
+            N=N+NLF/2-I+1
+         ENDDO
+      ENDIF
       DEALLOCATE(WPQ,VPQ,UPQ,TPQ,WW,UU,JOP)
       IF(IMPX.GE.4) THEN
          WRITE(6,'(/41H SNTT2D: FOUR-OCTANT ANGULAR QUADRATURES:/26X,

@@ -13,13 +13,18 @@ PROCEDURE Gd3x3C Gd3x3TR Gd3x3TC Gd3x3BC Gd3x3BL Gd3x3LC Gd3x3RC ;
 ! Test 3x3 motifs with all UOX cells, appart from 1 Gd placed in 
 ! center (C), top-right (TR), top-center (TC), bottom-center (BC) and bottom-left (BL) positions
 
-Gd3x3C ;
-Gd3x3TR ;
-Gd3x3TC ;
-Gd3x3BC ;
-Gd3x3BL ;
-Gd3x3RC ;
-Gd3x3LC ;
+INTEGER an2d := 24 ;
+REAL densur := 75.0 ; 
+INTEGER an2dIC := 18 ;
+REAL densurIC := 75.0 ;
+
+Gd3x3C :: <<an2d>> <<densur>> <<an2dIC>> <<densurIC>> ;
+Gd3x3TR :: <<an2d>> <<densur>> <<an2dIC>> <<densurIC>> ;
+Gd3x3TC :: <<an2d>> <<densur>> <<an2dIC>> <<densurIC>> ;
+Gd3x3BC :: <<an2d>> <<densur>> <<an2dIC>> <<densurIC>> ;
+Gd3x3BL :: <<an2d>> <<densur>> <<an2dIC>> <<densurIC>> ;
+Gd3x3RC :: <<an2d>> <<densur>> <<an2dIC>> <<densurIC>> ;
+Gd3x3LC :: <<an2d>> <<densur>> <<an2dIC>> <<densurIC>> ;
 
 END: ;
 

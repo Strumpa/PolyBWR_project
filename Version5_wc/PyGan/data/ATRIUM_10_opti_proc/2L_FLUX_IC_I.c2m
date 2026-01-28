@@ -1,0 +1,57 @@
+* 2L_FLUX_IC_I.c2m deck
+* This procedure is used to run a 2-level flux calculation given :
+*   For each level :
+*     - a SALT tracking data structure (TRACK)
+*     - a binary tracking file containing track lengths (TF_EXC)
+*   and :
+*     - a library LCM object containing the self-shielded cross sections (LIBRARY2)
+*     
+* NOTE : NO leakage model is applied in this procedure.
+* This procedure returns a FLUX LCM object containing the results of the 2-level flux calculation.
+
+
+* ---
+* INPUT & OUTPUT PARAMETERS
+* ---
+PARAMETER FLUX TRACK TF_EXC TRACK_L1 TF_EXC_L1 LIBRARY2 ::
+::: LINKED_LIST FLUX ;
+::: LINKED_LIST TRACK ;
+::: SEQ_BINARY TF_EXC ;
+::: LINKED_LIST TRACK_L1 ;
+::: SEQ_BINARY TF_EXC_L1 ;
+::: LINKED_LIST LIBRARY2 ; ;
+
+* ---
+* STRUCTURES AND MODULES
+* ---
+
+MODULE ASM: FLU: GREP: DELETE: END: ;
+LINKED_LIST SYS EDITION FLUX_L1 COMPOL1 EDIRATES ;
+
+REAL Kinf ;
+* ---
+* 1st LEVEL FLUX CALCULATION
+* ---
+
+SYS := ASM: LIBRARY2 TRACK_L1 TF_EXC_L1 :: ARM EDIT 1 ; 
+
+FLUX_L1 := FLU: LIBRARY2 SYS TRACK_L1 TF_EXC_L1 ::
+            EDIT 1 TYPE K B1 SIGS
+    ;
+GREP: FLUX_L1 :: GETVAL 'K-INFINITY  ' 1 1 1 >>Kinf<< ;
+
+ECHO "FOR 1st LEVEL FLUX CALCULATION WITH IC --> K-infinity = " Kinf ;
+
+SYS EDITION := DELETE: SYS EDITION ;
+
+* ---
+* 2nd LEVEL FLUX CALCULATION
+* ---
+SYS := ASM: LIBRARY2 TRACK TF_EXC :: ARM EDIT 1 ;
+
+FLUX := FLU: FLUX_L1 LIBRARY2 SYS TRACK TF_EXC ::
+      EDIT 1 TYPE K 
+    ;
+
+END: ;
+QUIT .

@@ -36,9 +36,14 @@ REAL delCPIC delMOCIC deltak ;
 * TRACKING PARAMTERES
 * ---
 
-INTEGER an2d := 24 ;  ! ANGULAR QUADRATURE PARAMETER
-REAL densur := 50.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
-
+INTEGER an2d ;
+:: >>an2d<< ;
+REAL densur ; 
+:: >>densur<< ;
+INTEGER an2dIC ;
+:: >>an2dIC<< ;
+REAL densurIC ;
+:: >>densurIC<< ;
 
 REAL Rgap Rclad pitch := 0.4520 0.5140 1.295 ;
 REAL Rcomb1 Rcomb2 Rcomb3 Rcomb4 := 0.313602 0.396678 0.43227 0.4435 ;
@@ -58,16 +63,14 @@ GEOISO := GEO: :: CAR2D 3 3
     C1 C1 C1
     MESHX 0.0 <<pitch>> <<2_pitch>> <<3_pitch>>
     MESHX 0.0 <<pitch>> <<2_pitch>> <<3_pitch>>
-    ::: C1 :=  GEO: CARCEL 6 
-                RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
-                <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
-                MIX 1 1 1 1 3 4 5
+    ::: C1 :=  GEO: CARCEL 3 
+                RADIUS 0.0 <<Rcomb4>> <<Rgap>> <<Rclad>>
+                MIX 1 3 4 5
                 MESHX 0.0 <<pitch>> MESHY 0.0 <<pitch>>
     ;
-    ::: C7 := GEO: CARCEL 8
-              RADIUS 0.0 <<RcombGd1>> <<RcombGd2>> <<RcombGd3>> <<RcombGd4>>
-                          <<RcombGd5>> <<RcombGd6>> <<Rgap>> <<Rclad>> 
-              MIX 2 2 2 2 2 2 3 4 5
+    ::: C7 := GEO: CARCEL 3
+              RADIUS 0.0 <<RcombGd6>> <<Rgap>> <<Rclad>> 
+              MIX 2 3 4 5
               MESHX 0.0 <<pitch>> MESHY 0.0 <<pitch>>
     ;
     
@@ -132,7 +135,7 @@ glow_tiso.ps := G2S: tdtMACRO :: ;
 TRACKIC TRACKFILIC := SALT: g2s_tdt_IC ::
      EDIT 2
      TITLE "MULTICELL SURFACIC 3x3_UOX_BL GEO CASE"
-     TISO <<an2d>> <<densur>>
+     TISO <<an2dIC>> <<densurIC>>
      IC EPSJ 1.0E-6
      ;
 
@@ -211,7 +214,7 @@ ECHO " --- GLOW CASES TREATMENT --- " ;
 TRACKIC TRACKFILIC := SALT: tdtMACRO ::
      EDIT 2
      TITLE "MULTICELL SURFACIC 3x3_UOX_BL GLOW CASE"
-     TISO <<an2d>> <<densur>>
+     TISO <<an2dIC>> <<densurIC>>
      IC EPSJ 1.0E-6
      ;
 

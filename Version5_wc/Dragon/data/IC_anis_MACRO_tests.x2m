@@ -18,18 +18,31 @@ PROCEDURE Gd3x3C  Gd3x3TR  Gd3x3TC  Gd3x3BC  Gd3x3BL Gd3x3LC Gd3x3RC
 REAL keffGEOTR keffGEOBL keffGLOWTR keffGLOWBL 
      keffGEOTC keffGEOBC keffGLOWTC keffGLOWBC ;
 
+* ---
+* TRACKING PARAMTERES
+* ---
 
+INTEGER an2d := 24 ;  ! ANGULAR QUADRATURE PARAMETER
+REAL densur := 75.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
+
+INTEGER an2dIC := 18 ;  ! ANGULAR QUADRATURE PARAMETER
+REAL densurIC := 75.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
+
+
+STRING exec_UOX exec_Gd := "TRUE" "TRUE" ;
+
+IF exec_UOX "TRUE" = THEN
 ! Test 3x3 motifs with all 24UOX cells, appart from 1 50UOX placed in 
 ! center (C), top-right (TR), top-center (TC), bottom-center (BC) and bottom-left (BL) positions
-UOX3x3C ;
+UOX3x3C :: <<an2d>> <<densur>> <<an2dIC>> <<densurIC>> ;
 
 ! Compute fluxes on UOX3x3 Top Right
-FLUXICGEOTR FLUXICGLOWTR := UOX3x3TR ;
+FLUXICGEOTR FLUXICGLOWTR := UOX3x3TR :: <<an2d>> <<densur>> <<an2dIC>> <<densurIC>> ;
 GREP: FLUXICGEOTR :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffGEOTR<< ;
 GREP: FLUXICGLOWTR :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffGLOWTR<< ;
 
 ! Compute fluxes on UOX3x3 Bottom Left
-FLUXICGEOBL FLUXICGLOWBL := UOX3x3BL ;
+FLUXICGEOBL FLUXICGLOWBL := UOX3x3BL :: <<an2d>> <<densur>> <<an2dIC>> <<densurIC>> ;
 GREP: FLUXICGEOBL :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffGEOBL<< ;
 GREP: FLUXICGLOWBL :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffGLOWBL<< ;
 
@@ -40,12 +53,12 @@ ECHO "Asserting GLOW results for UOX3x3TR and UOX3x3BL tests" ;
 assertS FLUXICGLOWTR :: 'K-EFFECTIVE' 1 <<keffGLOWBL>> ;
 
 ! Compute fluxes on UOX3x3 Top Center
-FLUXICGEOTC FLUXICGLOWTC := UOX3x3TC ;
+FLUXICGEOTC FLUXICGLOWTC := UOX3x3TC :: <<an2d>> <<densur>> <<an2dIC>> <<densurIC>> ;
 GREP: FLUXICGEOTC :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffGEOTC<< ;
 GREP: FLUXICGLOWTC :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffGLOWTC<< ;
 
 ! Compute fluxes on UOX3x3 Bottom Center
-FLUXICGEOBC FLUXICGLOWBC := UOX3x3BC ;
+FLUXICGEOBC FLUXICGLOWBC := UOX3x3BC :: <<an2d>> <<densur>> <<an2dIC>> <<densurIC>> ;
 GREP: FLUXICGEOBC :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffGEOBC<< ;
 GREP: FLUXICGLOWBC :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffGLOWBC<< ;
 
@@ -59,17 +72,18 @@ FLUXICGEOTR FLUXICGLOWTR := DELETE: FLUXICGEOTR FLUXICGLOWTR ;
 FLUXICGEOBL FLUXICGLOWBL := DELETE: FLUXICGEOBL FLUXICGLOWBL ;
 FLUXICGEOTC FLUXICGLOWTC := DELETE: FLUXICGEOTC FLUXICGLOWTC ;
 FLUXICGEOBC FLUXICGLOWBC := DELETE: FLUXICGEOBC FLUXICGLOWBC ;
+ENDIF ;
 
-
+IF exec_Gd "TRUE" = THEN
 ! Test 3x3 motifs with all 24UOX cells, appart from 1 45Gd placed in 
 ! center (C), top-right (TR), top-center (TC), bottom-center (BC) and bottom-left (BL) positions
 ! left center (LC), right center (RC)
 
-Gd3x3C ;
-FLUXICGEOTR FLUXICGLOWTR := Gd3x3TR ;
+Gd3x3C :: <<an2d>> <<densur>> <<an2dIC>> <<densurIC>> ;
+FLUXICGEOTR FLUXICGLOWTR := Gd3x3TR :: <<an2d>> <<densur>> <<an2dIC>> <<densurIC>> ;
 GREP: FLUXICGEOTR :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffGEOTR<< ;
 GREP: FLUXICGLOWTR :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffGLOWTR<< ;
-FLUXICGEOBL FLUXICGLOWBL := Gd3x3BL ;
+FLUXICGEOBL FLUXICGLOWBL := Gd3x3BL :: <<an2d>> <<densur>> <<an2dIC>> <<densurIC>> ;
 GREP: FLUXICGEOBL :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffGEOBL<< ;
 GREP: FLUXICGLOWBL :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffGLOWBL<< ;
 ECHO "Asserting GEO results for Gd3x3TR and Gd3x3BL tests" ;
@@ -77,10 +91,10 @@ assertS FLUXICGEOTR :: 'K-EFFECTIVE' 1 <<keffGEOBL>> ;
 ECHO "Asserting GLOW results for Gd3x3TR and Gd3x3BL tests" ;
 assertS FLUXICGLOWTR :: 'K-EFFECTIVE' 1 <<keffGLOWBL>> ;
 
-FLUXICGEOTC FLUXICGLOWTC := Gd3x3TC ;
+FLUXICGEOTC FLUXICGLOWTC := Gd3x3TC :: <<an2d>> <<densur>> <<an2dIC>> <<densurIC>> ;
 GREP: FLUXICGEOTC :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffGEOTC<< ;
 GREP: FLUXICGLOWTC :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffGLOWTC<< ;
-FLUXICGEOBC FLUXICGLOWBC := Gd3x3BC ;
+FLUXICGEOBC FLUXICGLOWBC := Gd3x3BC :: <<an2d>> <<densur>> <<an2dIC>> <<densurIC>> ;
 GREP: FLUXICGEOBC :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffGEOBC<< ;
 GREP: FLUXICGLOWBC :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffGLOWBC<< ;
 ECHO "Asserting GEO results for Gd3x3TC and Gd3x3BC tests" ;
@@ -93,8 +107,10 @@ FLUXICGEOBL FLUXICGLOWBL := DELETE: FLUXICGEOBL FLUXICGLOWBL ;
 FLUXICGEOTC FLUXICGLOWTC := DELETE: FLUXICGEOTC FLUXICGLOWTC ;
 FLUXICGEOBC FLUXICGLOWBC := DELETE: FLUXICGEOBC FLUXICGLOWBC ;
 
-Gd3x3RC ;
-Gd3x3LC ;
+Gd3x3RC :: <<an2d>> <<densur>> <<an2dIC>> <<densurIC>> ;
+Gd3x3LC :: <<an2d>> <<densur>> <<an2dIC>> <<densurIC>> ;
+
+ENDIF ;
 
 END: ;
 

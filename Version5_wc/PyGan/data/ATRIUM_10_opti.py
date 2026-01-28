@@ -2,6 +2,7 @@
 # Author : R. Guasch
 # Date : 2025-06-02, updated 2025-06-04
 ## 2025-06-04 : implmenting mix numbering per region
+## 2026-01-21 : optimizing tracking / MOC flux calculation parameters for reference scheme (1L_MOC)
 
 # Import modules from python / python-CLE2000 API / python-LCM API
 import os
@@ -20,6 +21,7 @@ from tracking_operator import trackSSHGeomSALT, trackLVL1GeomSALT, trackFluxGeom
 from mix_handling import createLib
 from self_shielding import selfShieldingUSS
 from flux_calculation import fluxCalculationMOC, fluxCalculationPIJ, fluxCalculationIC, fluxCalculation2LScheme
+from flux_calculation import fluxCalculationICMOC
 from edi_compo import ediCompo, condense295To26Groups, saveLVL1Compo
 
 save_dir = "ATRIUM10_results"
@@ -28,14 +30,14 @@ if not os.path.exists(save_dir):
 
 
 ########################################################### PARAMETER SELECTION ##########################################################################
-exec = True
+exec = True  # Set to True to execute the full calculation, False to only create the geometry and track it.
 
 solution_door_ssh = "IC" # "PIJ"
-computational_scheme = "2L_IC_MOC" # "1L_MOC", "2L_PIJ_MOC", "2L_IC_MOC"
+computational_scheme = "2L_IC_init_MOC" # "1L_MOC", "2L_PIJ_MOC", "2L_IC_MOC", "2L_IC_init_MOC"
 SPH_GRMAX = 19 # 16, 17, 18, 19, 20, 21, 22, 23.
 # Options from DRAGON calculation setup.
 # Geometry parameters : ATRIUM-10 BWR fuel assembly
-refinement_opt_name = "finest_geom" #"finest_geom" # "default", "fine1", "fine2", "fine3", "coolant_ring", "finest_on_Gd", "finest_on_Gd_coolant_ring"
+refinement_opt_name = "MOC_optimized_geom" #"finest_geom" # "default", "fine1", "fine2", "fine3", "coolant_ring", "finest_on_Gd", "finest_on_Gd_coolant_ring"
 
 refinement_options = {} 
 # posible keys to "moderator" entry
@@ -59,8 +61,8 @@ if refinement_opt_name == "finest_geom":
     refinement_options["L2"]["moderator"] = "fine2" 
     refinement_options["L2"]["UOX_cells"] = "coolant_ring_SECT_4_0"
     refinement_options["L2"]["Gd_cells"] = "coolant_ring_SECT_4_0"
-    num_angles = 24
-    line_density = 150.0
+    num_angles = 30 # REL-2005 paper : reference A2 MOC : N_angles = 36,  DRAGON limited at 30 for TSPC
+    line_density = 100.0 # REL-2005 paper : ref A2 MOC : line spacing = delta_r = 0.01 ie 100.0 lines / cm,
     batch = 2000
     if "2L_IC" in computational_scheme:
         refinement_options["L1"] = {}
@@ -72,7 +74,32 @@ if refinement_opt_name == "finest_geom":
         refinement_options["L1"]["moderator"] = "NONE" 
         refinement_options["L1"]["UOX_cells"] = "NONE"
         refinement_options["L1"]["Gd_cells"] = "NONE"
-    
+        
+elif refinement_opt_name == "MOC_optimized_geom":
+    refinement_options["L2"] = {}
+    refinement_options["L2"]["moderator"] = "fine2_optim" 
+    refinement_options["L2"]["UOX_cells"] = "SECT_4_6"
+    refinement_options["L2"]["Gd_cells"] = "SECT_4_0"
+    num_angles = 24
+    line_density = 50.0
+    # Testing results with these parameters :
+    # (24, 10.0) : SALTLC: Global RMS, maximum and average errors (%) on region volumes :     3.95495    34.59563    -0.05313
+    # (24, 20.0) : SALTLC: Global RMS, maximum and average errors (%) on region volumes :     1.30618    10.78767    -0.00139
+    # (24, 30.0) : SALTLC: Global RMS, maximum and average errors (%) on region volumes :     0.52880     4.15835    -0.00270
+    # (24, 40.0) : SALTLC: Global RMS, maximum and average errors (%) on region volumes :     0.33555     2.68846    -0.00247
+    # (24, 50.0) : SALTLC: Global RMS, maximum and average errors (%) on region volumes :     0.30244     1.84829    -0.00038
+    batch = 1000
+    if "2L_IC" in computational_scheme:
+        refinement_options["L1"] = {}
+        refinement_options["L1"]["moderator"] = "NONE" 
+        refinement_options["L1"]["UOX_cells"] = "NONE"
+        refinement_options["L1"]["Gd_cells"] = "NONE"
+    if "2L_PIJ" in computational_scheme:
+        refinement_options["L1"] = {}
+        refinement_options["L1"]["moderator"] = "NONE" 
+        refinement_options["L1"]["UOX_cells"] = "NONE"
+        refinement_options["L1"]["Gd_cells"] = "NONE"
+        
 elif refinement_opt_name == "fine2" or refinement_opt_name == "fine1" or refinement_opt_name == "default":
     refinement_options["L2"] = {}
     refinement_options["L2"]["moderator"] = refinement_opt_name
@@ -133,6 +160,18 @@ elif refinement_options["L2"]["moderator"] == "fine2":
     split_intra_assembly_coolant = 4
     split_assembly_box = 2
     split_out_assembly_moderator = [10,30]
+    refinement_options["L1"] = {}
+    refinement_options["L1"]["moderator"] = "NONE" 
+    refinement_options["L1"]["UOX_cells"] = "NONE"
+    refinement_options["L1"]["Gd_cells"] = "NONE"
+    
+elif refinement_options["L2"]["moderator"] == "fine2_optim":
+    split_water_in_moderator_box = 20
+    split_moderator_box = 1
+    split_water_around_moderator_box = 2
+    split_intra_assembly_coolant = 2
+    split_assembly_box = 1
+    split_out_assembly_moderator = [10,20]
     refinement_options["L1"] = {}
     refinement_options["L1"]["moderator"] = "NONE" 
     refinement_options["L1"]["UOX_cells"] = "NONE"
@@ -204,15 +243,25 @@ solution_door_lvl2 = "MOC"  # Flag to indicate whether the tracking should be mo
 src_approx = "SC"  # Source approximation for MOC tracking, can be "SC" (flat) or "LDC" (linear)
 # or set it to "IC" or "PIJ" for Surfacic interface current methods and Collision Probability methods.
 moc_angular_quadrature = "GAUS"
-nmu = 4  # Number of polar angles for MOC tracking : conservation ensured up to the order of P_{nmu-1} scattering : # nmu = 4 -> P3 scattering
+nmu = anisotropy_level  # Number of polar angles for MOC tracking : conservation ensured up to the order of P_{nmu-1} scattering : # nmu = 4 -> P3 scattering
+## MOC Acceleration options : 
+preconditionner = "ILU0" # "NONE", "DIAG", "FULL", "ILU0", "TMT" 
+# KRYL
+iKRYL = 10 # 0: GMRES/Bi-CGSTAB acceleration not used; > 0: dimension of the Krylov subspace in GMRES; < 0: Bi-CGSTAB is used. The default value is ikryl=10.
+# HDD
+if src_approx == "SC":
+    xHDD = 0.0 # selection criterion: xhdd 0.0 step characteristics scheme / xhdd > 0.0 diamond differencing scheme
+elif src_approx == "LDC":
+    xHDD = 1.0
+
 postscript_file = f"AT10_FIG_MAIN_{refinement_opt_name}.ps"
 
 # Parameters for the LIBRARY creation
-draglib_name = "endfb8r1_295" # "J311_295"
+draglib_name = "J311_295" # "endfb8r1_295" # "J311_295"
 self_shielding_method = "RSE"  # Method to be used for self-shielding calculations, "PT" for Mathematical Probability Tables, "SUBG" for Physical Probaility tables, "RSE" for Resonant Spectrum Expansion.
 resonance_correlation = "NOCORR"  # Specify if the resonance correlation model should be applied. Only available for "RSE" and "PT". This will use a correlation model to treat reonances of U238, Pu240 and Gd157.
 transport_correction = "NONE"
-composition_option = "AT10_void_80"  # Specify which composition of mixes should be used for the LIBRARY creation. For now "AT10_void_0" and "AT10_void_40" are available.
+composition_option = "AT10_void_0"  # Specify which composition of mixes should be used for the LIBRARY creation. For now "AT10_void_0" and "AT10_void_40" are available.
 
 # USS: call parameters :
 ssh_option = "default"  # Option to specify specific groupings of self-shielding regions, to be tested. "default" is default from USS: based on LIB: data, "RSE" is for Resonant Spectrum Expansion method, and groups all U8, U5 and Zr isotopes in a single self-shielding region --> to be tested.
@@ -229,7 +278,7 @@ if mix_numbering_option == "number_mix_families_per_region":
     numbering_save_opt = "region_num"
 elif mix_numbering_option == "number_mix_families_per_enrichment":
     numbering_save_opt = "enrich_num"
-save_dir_case = f"{save_dir}/{computational_scheme}_{src_approx}/{refinement_opt_name}_{composition_option}_{draglib_name}_{self_shielding_method}_{resonance_correlation}_{numbering_save_opt}"
+save_dir_case = f"{save_dir}/{computational_scheme}_{src_approx}_{preconditionner}/{refinement_opt_name}_{composition_option}_{draglib_name}_{self_shielding_method}_{resonance_correlation}_{numbering_save_opt}"
 if not os.path.exists(save_dir_case):
     os.makedirs(save_dir_case)
 ########################################################### END OF CREATE SAVE DIRECTORY #####################################################################
@@ -264,7 +313,8 @@ if "2L" in computational_scheme:
 ######################################################## SALT: : main flux geometry tracking ################################################################
 
 # Track the geometry using the SALT: module
-track_lcm, track_binary, figure = trackFluxGeomSALT(geo_flx, num_angles, line_density, reflection_type_lvl2, anisotropy_level, solution_door_lvl2, moc_angular_quadrature, nmu, src_approx, batch, postscript_file)
+track_lcm, track_binary, figure = trackFluxGeomSALT(geo_flx, num_angles, line_density, reflection_type_lvl2, anisotropy_level, solution_door_lvl2, moc_angular_quadrature, nmu, src_approx, batch, postscript_file,
+                                                    preconditionner, xHDD, iKRYL)
 time_tracking_flux = time.time() - current_time
 current_time = time.time()
 
@@ -289,9 +339,13 @@ if exec:
 
     ## First level flux calculation if 2L scheme is selected
     if "2L" in computational_scheme:
-        print(f"Selected first level flux calculation solution door : {solution_door_lvl1}")
-        keff, flux_lcm, lib_ssh = fluxCalculation2LScheme(track_lcm, track_binary, track_lcm_lvl1, track_binary_lvl1, lib_ssh, solution_door_lvl1, SPH_GRMAX)
-        shutil.copyfile("_LEVEL1_FLX_CALC_CPO", f"{save_dir_case}/_LEVEL1_FLX_CALC_CPO")
+        if "IC_init" in computational_scheme: 
+            print("Selected computational scheme : 2L_IC_init_MOC : with 295g-IC initial guess for 295g-MOC calculation")
+            keff, flux_lcm = fluxCalculationICMOC(track_lcm, track_binary, track_lcm_lvl1, track_binary_lvl1, lib_ssh,)
+        else:
+            print(f"Selected first level flux calculation solution door : {solution_door_lvl1}")
+            keff, flux_lcm, lib_ssh = fluxCalculation2LScheme(track_lcm, track_binary, track_lcm_lvl1, track_binary_lvl1, lib_ssh, solution_door_lvl1, SPH_GRMAX)
+        #shutil.copyfile("_LEVEL1_FLX_CALC_CPO", f"{save_dir_case}/_LEVEL1_FLX_CALC_CPO")
 
 
     else:
