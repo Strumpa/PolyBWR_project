@@ -68,7 +68,7 @@ CONTAINS
          ANGGEO=TWOPI/NBFOLD
        ENDIF
        CASE(2)
-       ANGGEO=TWOPI/NBFOLD
+       ANGGEO=PI/NBFOLD
        CASE(5:6)
        ANGGEO=HALFPI
        CASE(7)
@@ -153,11 +153,12 @@ CONTAINS
 
     ! local variable
     ! ***************
-    INTEGER :: ELEM,OK,I,TYPE
+    INTEGER :: ELEM,OK,I,TYPE,IMED,INB
     REAL(PDB) :: X1,Y1,X2,Y2,XMIN,XMAX,YMIN,YMAX
     CHARACTER(LEN=4) :: HSYM
     REAL(PDB),PARAMETER :: CONV=PI/180._PDB
     INTEGER, PARAMETER :: FOUT =6
+    INTEGER, ALLOCATABLE, DIMENSION(:) :: DATAIN
     !****
     ! allocate node arrays
     HSYM=' '
@@ -187,6 +188,7 @@ CONTAINS
       WRITE(*,*) "TYPGEO=",TYPGEO," NBFOLD=",NBFOLD
       CALL XABORT('SAL110: non supported type of symmetry')
     ENDIF
+    IF((PRTIND>0).AND.(HSYM.NE.' ')) WRITE(FOUT,'(18H SAL110: SYMMETRY=,A4,1H.)') HSYM
     ALLOCATE (GG%IPAR(NIPAR,GG%NB_ELEM), GG%RPAR(NRPAR,GG%NB_ELEM), STAT=OK)
     IF(OK/=0) CALL XABORT('SAL110: not enough memory I,R')
     !
@@ -337,10 +339,36 @@ CONTAINS
         ENDIF
       ENDDO
     ENDIF
-
-    ! allocate media and element arrays 
+    !
+    !*    read medium per region
+    ALLOCATE(DATAIN(GG%NB_NODE),GG%MED(GG%NB_NODE), STAT=OK)
+    IF(OK/=0) CALL XABORT('SAL110: not enough memory NODE')
+    CALL SALGET(DATAIN,GG%NB_NODE,F_GEO,FOUT0,'media per node')
+  
+    ! number of media fixed to maximum of datain
+    NBMED = MAXVAL(DATAIN(1:GG%NB_NODE))
+    !
+    !*    check and define med for code regions
+    DO INB=1,GG%NB_NODE
+       IMED=DATAIN(INB)
+       IF(IMED>NBMED.OR.IMED<0)THEN
+          WRITE(*,*) 'medium : ',IMED
+          WRITE(*,*) 'inb, nbmed, nbnode : ',INB,NBMED,GG%NB_NODE
+          CALL XABORT('SAL110: wrong medium in a region')
+       ENDIF
+       GG%MED(INB)=IMED
+    ENDDO
+    DEALLOCATE(DATAIN)
+    IF(PRTIND>5) THEN
+      WRITE(FOUT,'(12H* mil(nbreg))')
+      WRITE(FOUT,'(10I7)') (GG%MED(I),I=1,GG%NB_NODE)
+      WRITE(FOUT,'(3HEND)')
+      WRITE(FOUT,'(5H--cut,75(1H-))')
+    ENDIF
+    !
+    !* allocate media and element arrays 
     ALLOCATE (GG%VOL_NODE(GG%NB_NODE),GG%PPERIM_NODE(GG%NB_NODE+1),GG%IBC2_ELEM(GG%NB_ELEM), &
-         GG%ISURF2_ELEM(GG%NB_ELEM),GG%MED(GG%NB_NODE), STAT=OK)
+         GG%ISURF2_ELEM(GG%NB_ELEM), STAT=OK)
     IF(OK/=0) CALL XABORT('SAL110: not enough memory VOL')
     GG%ISURF2_ELEM(:GG%NB_ELEM)=0
 
@@ -354,14 +382,8 @@ CONTAINS
     !*    topological check
     CALL SAL140(GG%NB_NODE,GG%RPAR,GG%IPAR,GG%PPERIM_NODE,GG%PERIM_NODE)
     !
-    !*    volumes, surfaces, put local nbers in node, and read media:
+    !*    volumes, surfaces, put local nbers in node:
     CALL SAL160(GG)
-    IF(PRTIND>5) THEN
-      WRITE(FOUT,'(12H* mil(nbreg))')
-      WRITE(FOUT,'(10I7)') (GG%MED(I),I=1,GG%NB_NODE)
-      WRITE(FOUT,'(3HEND)')
-      WRITE(FOUT,'(5H--cut,75(1H-))')
-    ENDIF
     !
     !*    printout basic domain
     CALL SAL170(GG)
@@ -2379,7 +2401,7 @@ CONTAINS
                    !                    for the axis 1:keep anggeo,cos(anggeo),sin(anggeo)
                    ANGLE=ANGGEO
                    IF(IDATA(1)==0) IDATA(1)=ITBC
-                ELSEIF(ABS(ANGLE+ANGGEO)<EPS) THEN
+                ELSEIF((ABS(ANGLE+ANGGEO)<EPS).OR.(ABS(ANGLE)<EPS)) THEN
                    !                    for the axis 2:keep -anggeo,cos(-anggeo),sin(-anggeo)
                    ANGLE=-ANGGEO
                    IF(IDATA(2)==0) IDATA(2)=ITBC
@@ -2818,21 +2840,17 @@ CONTAINS
     ! analyse domain definition: 2D volumes, surfaces
     !  - compute node volumes
     !  - compute areas of 2d surfaces
-    !  - read medium data
     !
     !Parameters: input/output
     ! GG    geometry descriptor
     !
     !---------------------------------------------------------------------
     !
-    USE SAL_GEOMETRY_TYPES, ONLY : G_BC_TYPE,NBMED
+    USE SAL_GEOMETRY_TYPES, ONLY : G_BC_TYPE
     !****
     IMPLICIT NONE
     TYPE(T_G_BASIC), INTENT(INOUT)  :: GG
-    !****
-    INTEGER :: INB,IMED
-    INTEGER, DIMENSION(GG%NB_NODE) :: DATAIN
-    !****
+    !
     !     SUBROUTINE SAL160_2(NB_ELEM,IPAR,RPAR,VOL2,ISURF2_ELEM,NB_SURF2,SURF2)
     IF(GG%NB_SURF2==0) THEN
       CALL SAL160_2(GG%NB_ELEM,GG%IPAR,GG%RPAR,GG%VOL_NODE,GG%ISURF2_ELEM, &
@@ -2841,23 +2859,6 @@ CONTAINS
       CALL SAL160_2(GG%NB_ELEM,GG%IPAR,GG%RPAR,GG%VOL_NODE,GG%ISURF2_ELEM, &
          GG%NB_SURF2,GG%SURF2)
     ENDIF
-    !
-    !*    read medium per region
-    CALL SALGET(DATAIN,GG%NB_NODE,F_GEO,FOUT0,'media per node')
-  
-    ! number of media fixed to maximum of datain
-    NBMED = MAXVAL(DATAIN(1:GG%NB_NODE))
-    !
-    !*    check and define med for code regions
-    DO INB=1,GG%NB_NODE
-       IMED=DATAIN(INB)
-       IF(IMED>NBMED.OR.IMED<0)THEN
-          WRITE(*,*) 'medium : ',IMED
-          WRITE(*,*) 'inb, nbmed, nbnode : ',INB,NBMED,GG%NB_NODE
-          CALL XABORT('SAL160: wrong medium in a region')
-       ENDIF
-       GG%MED(INB)=IMED
-    ENDDO
     !
   END SUBROUTINE SAL160
   !
@@ -3410,7 +3411,7 @@ CONTAINS
     !
     INTEGER :: ELEM,TYPE,OK,TMP_NB_ELEM,TMP_NBBCDA,I,J,IBC,INDBC,IAUX,ISYM,NSYM
     REAL(PDB),PARAMETER :: EPS=1.0E-5_PDB
-    REAL(PDB) :: AXIS_X1(2),AXIS_X2(2),AXIS_Y1(2),AXIS_Y2(2)
+    REAL(PDB) :: AXIS_X1(2),AXIS_X2(2),AXIS_Y1(2),AXIS_Y2(2),SUMMITX,SUMMITY
     REAL(PDB) :: X1,X2,X4,Y1,Y2,Y4,DX4,DY4,RAD,THETA1,THETA2,X1B,Y1B,X4B, &
                  Y4B,XMIN,YMIN,XMAX,YMAX,PHI1,PHI2,DELPHI,DET1,DET2,ALIGN3(3,3)
     LOGICAL :: NOCOPY(2)
@@ -3448,10 +3449,11 @@ CONTAINS
     ELSE IF(HSYM=='SA60') THEN
       ! the hexagon side is on south
       NSYM=2
-      AXIS_X1(1)=XMIN; AXIS_Y1(1)=YMIN; AXIS_X2(1)=XMIN+0.5_PDB*LENGTHX
-      AXIS_Y2(1)=YMIN+0.5_PDB*SQRT(3._PDB)*LENGTHX
-      AXIS_X1(2)=XMIN+LENGTHX; AXIS_Y1(2)=YMIN; AXIS_X2(2)=XMIN+0.5_PDB*LENGTHX
-      AXIS_Y2(2)=YMIN+0.5_PDB*SQRT(3._PDB)*LENGTHX
+      SUMMITX=(XMIN+XMAX)/2._PDB ; SUMMITY=YMAX
+      AXIS_X1(1)=SUMMITX-0.5_PDB*LENGTHX ; AXIS_Y1(1)=SUMMITY-0.5_PDB*SQRT(3._PDB)*LENGTHX
+      AXIS_X2(1)=SUMMITX ; AXIS_Y2(1)=SUMMITY
+      AXIS_X1(2)=SUMMITX+0.5_PDB*LENGTHX ; AXIS_Y1(2)=SUMMITY-0.5_PDB*SQRT(3._PDB)*LENGTHX
+      AXIS_X2(2)=SUMMITX ; AXIS_Y2(2)=SUMMITY
     ELSE IF(HSYM=='SB60') THEN
       ! the hexagon side is on north-east
       NSYM=2
@@ -3463,7 +3465,7 @@ CONTAINS
       AXIS_X1(1)=XMIN; AXIS_Y1(1)=YMIN; AXIS_X2(1)=XMIN+0.75_PDB*LENGTHX
       AXIS_Y2(1)=YMIN+0.25_PDB*SQRT(3._PDB)*LENGTHX
     ELSE IF(HSYM=='SYMH') THEN
-      AXIS_X1(1)=XMIN ; AXIS_Y1(1)=YMIN+0.25_PDB*SQRT(3._PDB)*LENGTHX
+      AXIS_X1(1)=XMIN ; AXIS_Y1(1)=YMAX
       AXIS_X2(1)=XMIN+LENGTHX ; AXIS_Y2(1)=AXIS_Y1(1)
     ELSE
       CALL XABORT('SALFOLD_1: invalid type of symmetry axis')

@@ -18,5 +18,6 @@ ln -s $1/data/salmacro_proc/irena_tiso_s30.dat .
 ln -s $1/data/salmacro_proc/cr_f1_f2_tiso.dat .
 ln -s $1/data/salmacro_proc/cr_f1_f2_tspc.dat .
 ln -s $1/data/salmacro_proc/GE14_ctrl_simplified_for_test.dat .
+ln -s $1/data/salmacro_proc/fa_r120_tiso_macro.dat .
 ls -l
 echo "salmacro access script terminated"
