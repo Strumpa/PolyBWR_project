@@ -116,7 +116,7 @@ F_{\mathrm{dh}} = \left\{
 
 \item The number of cluster sub-geometry $N_{\mathrm{cl}}=\mathcal{S}^{G}_{13}$ 
 
-\item The type of sectorizarion $F_{\mathrm{sec}}=\mathcal{S}^{G}_{14}$.
+\item The type of sectorization $F_{\mathrm{sec}}=\mathcal{S}^{G}_{14}$.
 This information may be given only if $F_{t}\ge 20$.
 \begin{displaymath}
 F_{\mathrm{sec}} = \left\{
@@ -133,8 +133,10 @@ F_{\mathrm{sec}} = \left\{
 
 \item Number of tubes that are {\sl not} splitted by the sectors if $F_{\mathrm{sec}}\ne 0$. This integer is selected in interval $0 \le F_{\mathrm{sec2}} \le N_{r}$. $F_{\mathrm{sec2}}=\mathcal{S}^{G}_{15}$.
 
-\item  The pin location option $\mathcal{S}^{G}_{18}$. When  $\mathcal{S}^{G}_{18}>0$, the pin are located according to $(r,\theta)$ in 2-D and 3-D (center along the cylinder axis in the cell into which they are inserted)  while for $\mathcal{S}^{G}_{18}<0$, the pin are
+\item  The pin location option $\mathcal{S}^{G}_{18}$. When $\mathcal{S}^{G}_{18}>0$, the pin are located according to $(r,\theta)$ in 2-D and 3-D (center along the cylinder axis in the cell into which they are inserted)  while for $\mathcal{S}^{G}_{18}<0$, the pin are
 located according to $(x,y)$ in 2-D and $(x,y,z)$ in 3-D. A value of $\mathcal{S}^{G}_{18}=0$, implies that there is no pin in the geometry.
+
+\item  The merge option for triangles $\mathcal{S}^{G}_{19}$. If $=0$, no merging takes place. The value $=1$ implies merging the triangle on an hexagonal ring independently for each sector. This is possible only if the mixtures are defined per ring for all sectors or per ring per sector. The value $=2$ implies merging the triangle on an hexagonal ring.
 
 \end{itemize}
 

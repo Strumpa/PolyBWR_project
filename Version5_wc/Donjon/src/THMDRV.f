@@ -44,7 +44,7 @@
 * NFD     number of discretization points in fuel region.
 * NDTOT   number of total discretization points in the the fuel
 *         pellet and the cladding.
-* IFLUID  type of fluid (0=H2O; 1=D2O; 2=SALT).
+* IFLUID  type of fluid (0=H2O; 1=D2O; 2=SALT; 3=LEAD).
 * SNAME   Name of the molten salt (e.g. "LiF-BeF2")
 * SCOMP   Composition of the molten salt (e.g. "0.66-0.34")
 * FCOOL   power density fraction in coolant.
@@ -94,8 +94,9 @@
 * IPRES   flag indicating if pressure is to be computed (0=nonstant/
 *         1=variable).
 * IDFM    flag indicating if the drift flux model is to be used 
-*         (0=Without modifications(Chexal correlation for epsilon, no drift flux model in the Navier-Stokes equations)
-*           /1=EPRI/2=MODEBSTION/3=GERAMP/4=HEM1(VGJ=0)) 
+*         (0=Without modifications(Chexal correlation for epsilon, no
+*         drift flux model in the Navier-Stokes equations)
+*         /1=EPRI/2=MODEBSTION/3=GERAMP/4=HEM1(VGJ=0)) 
 *
 *Parameters: output
 * TCOMB   averaged fuel temperature distribution in K.
@@ -109,6 +110,7 @@
 *
       USE GANLIB
       USE t_saltdata
+      USE FREELFR, only: THMLT, THMLMBT 
 *----
 *  SUBROUTINE ARGUMENTS
 *----
@@ -168,6 +170,8 @@
          CALL THMSGT(SNAME,SCOMP,STP,IMPX)
          CALL THMSST(STP,TSAT,IMPX)
 *CGT
+      ELSE IF(IFLUID.EQ.3) THEN
+         CALL THMLMBT(TM,TSAT,TMAX)
       ENDIF
       IF (IFUEL.EQ.1) THEN
          CALL THMSGT(FNAME,FCOMP,FTP,IMPX)
@@ -184,6 +188,8 @@
         CALL THMHPT(PINLET,TINLET,RHOIN,HINLET,R3,R4,R5)
       ELSE IF(IFLUID.EQ.2) THEN
         CALL THMSPT(STP,TINLET,RHOIN,HINLET,R3,R4,R5,IMPX)
+      ELSE IF(IFLUID.EQ.3) THEN
+        CALL THMLT(TINLET,RHOIN,HINLET,R3,R4,R5)
       ENDIF
       MFLOW=SPEED*RHOIN
       HMSUP=HINLET
@@ -382,10 +388,21 @@
      >    IDFM,PHI2,XFL(K),EPS(K),SLIP(K),ACOOL(K),PCH(K),HZ(K),TCALO,
      >    RHO,RHOL,RHOG,TRE11(NDTOT),KWA(K),VGJprime(K),HLV(K))
         ELSEIF (IFLUID.EQ.2) THEN
+          IF(XFL(K).NE.0.0) THEN
+            CALL XABORT('THMLDRV: INVALID VALUE OF FLOW QUALITY(1).')
+          ENDIF
+          KWA(K)=0
           CALL THMSAL(IMPX,0,IX,IY,K,K0,MFLOW,HMSUP,ENT,HD(K),STP,
-     >    IHCONV,KHCONV,ISUBM,RAD(NDTOT-1,K),ZF,PHI2,XFL(K),
-     >    EPS(K),SLIP(K),HZ(K),TCALO,RHO,RHOL,TRE11(NDTOT),
-     >    KWA(K))
+     >    IHCONV,KHCONV,ISUBM,RAD(NDTOT-1,K),ZF,PHI2,HZ(K),TCALO,RHO,
+     >    RHOL,TRE11(NDTOT))
+        ELSEIF (IFLUID.EQ.3) THEN
+          IF(XFL(K).NE.0.0) THEN
+            CALL XABORT('THMLDRV: INVALID VALUE OF FLOW QUALITY(2).')
+          ENDIF
+          KWA(K)=0
+          CALL THMLEAD(0,IX,IY,K,K0,MFLOW,HMSUP,ENT,HD(K),IHCONV,
+     >    KHCONV,ISUBM,RAD(NDTOT-1,K),ZF,PHI2,TCALO,RHO,RHOL,
+     >    TRE11(NDTOT))
         ENDIF
 *CGT
 *----

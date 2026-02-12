@@ -16,7 +16,6 @@
 *                   - drift-flux model
 *                   - variable axial properties  
 *
-*
 *Parameters: input
 * NENTRY  number of data structures transfered to this module.
 * HENTRY  name of the data structures.
@@ -50,7 +49,8 @@
 *-----------------------------------------------------------------------
 *
       USE GANLIB
-*----
+      USE FREELFR, only: THMLT, THMLH, CHECKLIM, THMLMBT 
+*---- 
 *  SUBROUTINE ARGUMENTS
 *----
       INTEGER      NENTRY,IENTRY(NENTRY),JENTRY(NENTRY)
@@ -273,6 +273,8 @@
              CALL XABORT('@THM: CHARACTER FOR FLUID SALT COMPOSITION'
      >       //'EXPECTED.')
            ENDIF
+        ELSE IF (TEXT.EQ.'LEAD') THEN
+           IFLUID=3
         ELSE
            CALL XABORT('@THM: INVALID FLUID TYPE.')
         ENDIF
@@ -330,6 +332,8 @@
           CALL THMHPT(POULET,TINLET,RHOL,R2,R3,R4,R5)
         ELSE IF(IFLUID.EQ.2) THEN
           CALL THMSPT(SNAME,SCOMP,TINLET,RHOL,R2,R3,R4,R5,IMPX)
+        ELSE IF(IFLUID.EQ.3) THEN
+          CALL THMLT(TINLET, RHOL, R2, R3, R4, R5)
         ENDIF
         SPEED=QFLUID/(CWSECT*RHOL)
       ELSE IF(TEXT.EQ.'SPEED') THEN

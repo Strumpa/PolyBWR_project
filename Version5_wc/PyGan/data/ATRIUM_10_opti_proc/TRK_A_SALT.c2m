@@ -79,16 +79,19 @@ IF sol_door "IC" = THEN
     BATCH <<batch>>
     ANIS <<anis_level>>
     <<refl_type>> <<eqw_opt>> <<num_ang>> <<densur>> REND
+    IC
   ;
 ELSE
   Geo_G2S FIG.ps := G2S: GEOM :: EDIT 0 ;
 
   TRACK TF_EXC := SALT: Geo_G2S ::
     EDIT 1
+    ALLG LONG
     BATCH <<batch>>
     <<quad>>
     ANIS <<anis_level>>
     <<refl_type>> <<eqw_opt>> <<num_ang>> <<densur>> REND
+    NOIC
   ;
 ENDIF ;
 

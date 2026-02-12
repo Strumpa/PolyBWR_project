@@ -4,6 +4,7 @@ import numpy as np
 import lcm
 from collections import defaultdict
 from utilities import sum_rates_over_iso
+import pandas as pd
 
 def parse_DRAGON_rates_enrich_num(name_case, name_compo, fission_isotopes, n_gamma_isotopes, n_groups, bu, unfold_symmetry):
     """
@@ -244,9 +245,26 @@ def parse_DRAGON_SCHEME(name_case, name_compo, composition_option, evaluation, s
     os.chdir(f"PYGAN_RESULTS/{name_case}_results/{computational_scheme}/{geometry_refinement_option}_{composition_option}_{evaluation}_{ssh_method}_{correlation_option}_region_num")
     print(f"Loading {name_case} rates from {name_compo}")
     print(f"Reading from directory : {os.getcwd()}")
+    # recover information from name_compo 
+    nangle = name_compo.split("_")[1]
+    ld = name_compo.split("_")[2]
+    nangle2 = name_compo.split("_")[3].split("n")[-1]
+    ld2 = name_compo.split("_")[4].split("ld")[-1]
+    anis = name_compo.split("_")[6]
+    ssh_sol = name_compo.split("_")[7]
+    nmu = name_compo.split("_")[10]
+    if name_compo.split("_")[-1] == "APOL":
+        transport_correction = "_APOL"
+    else:
+        transport_correction = "_NONE"
+    times_df_name = f"df_module_times_{nangle}_{ld}_n2{nangle2}_ld2{ld2}_{ssh_method}_{ssh_sol}_TSPC_{anis}_MOC_GAUS_{nmu}_2000_200{transport_correction}.csv"
     # Load the LCM file
     print(os.listdir())
     pyCOMPO = lcm.new('LCM_INP', name_compo, impx=0)
+    times_df = pd.read_csv(times_df_name, header=None)
+    total_time = times_df.loc[times_df[0] == "Total time (s)", 1].iloc[0]
+    time_in_uss = times_df.loc[times_df[0] == "USS: call (s)", 1].iloc[0]
+    time_in_asm_flu = times_df.loc[times_df[0] == "ASM: + FLU: calls (s)", 1].iloc[0]
     os.chdir(path)
     # Retrieve the fission rates
 
@@ -320,4 +338,4 @@ def parse_DRAGON_SCHEME(name_case, name_compo, composition_option, evaluation, s
 
     FLUX_295groups = pyCOMPO['EDIHOM_295']['MIXTURES'][0]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NWT0']
 
-    return keff_D5, fission_rates, n_gamma_rates, FLUX_295groups
+    return keff_D5, fission_rates, n_gamma_rates, FLUX_295groups, [total_time, time_in_uss, time_in_asm_flu]

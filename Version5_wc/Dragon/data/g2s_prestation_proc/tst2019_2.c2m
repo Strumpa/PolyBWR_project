@@ -14,8 +14,8 @@ INTEGER an2d := 6 ;
 
 GEOM := GEO: :: CAR2D 9 5 
   EDIT 0
-  X- VOID     X+ VOID
-  Y- SYME     Y+ VOID
+  X- ALBE 0.0 X+ ALBE 0.0
+  Y- SYME     Y+ ALBE 0.0
   CELL
   C1 C1 C1 C2 C2 C2 C1 C1 C1
   C0 C1 C1 C2 C2 C2 C1 C1 C0

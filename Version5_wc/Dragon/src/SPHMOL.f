@@ -84,15 +84,14 @@
       CALL hdf5_read_data(IPMPO,TRIM(RECNAM)//"TOTALFLUX",VREAL)
       DO IGR=1,NGROUP
         DO IBM=1,NMIL
-          IOF=(IGR-1)*NMIL+IBM
-          VFLUX(IBM,IGR)=VREAL(IOF)/VOSAP(IBM)
+          VFLUX(IBM,IGR)=VREAL(IGR)/VOSAP(IBM)
         ENDDO
       ENDDO
+      print *,'NSURFD=',NSURFD,' NMIL=',NMIL,' NGROUP=',NGROUP
       DO I=1,NSURFD
         DO IGR=1,NGROUP
           DO IBM=1,NMIL
-            IOF=(IGR-1)*NMIL+IBM
-            DFACT(IBM,IGR,I)=SURFLX(I,IOF)/(VFLUX(IBM,IGR)*SURF(I))
+            DFACT(IBM,IGR,I)=SURFLX(I,IGR)/(VFLUX(IBM,IGR)*SURF(I))
           ENDDO
         ENDDO
       ENDDO

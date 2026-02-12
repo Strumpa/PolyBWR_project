@@ -14,6 +14,8 @@ LINKED_LIST TRACKMOC PIJ SYS FLUX ;
 SEQ_BINARY TRACKFILMOC ;
 SEQ_ASCII tdt_iso :: FILE 'GE-14_assembly_MOC_TISO.dat' ;
 SEQ_ASCII glow_tiso.ps :: FILE 'GE-14_assembly_MOC_TISO.ps' ;
+SEQ_ASCII tdt_ctrl :: FILE 'GE-14_assembly_ctrl_MOC_TISO.dat' ;
+SEQ_ASCII glow_ctrl.ps :: FILE 'GE-14_assembly_ctrl_MOC_TISO.ps' ;
 
 REAL keffGEOMOC ;
 REAL delCPIC delMOCIC deltak ;
@@ -21,8 +23,6 @@ REAL delCPIC delMOCIC deltak ;
 * ---
 * TRACKING PARAMTERES
 * ---
-ECHO "BEGIN GE14_ASSEMBLY MOC+TISO CASE" ;
-
 INTEGER an2d := 24 ;  ! ANGULAR QUADRATURE PARAMETER
 REAL densur := 100.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
 glow_tiso.ps := G2S: tdt_iso :: ;
@@ -31,10 +31,10 @@ glow_tiso.ps := G2S: tdt_iso :: ;
 ECHO " --- GLOW CASES TREATMENT --- " ;
 *** TREAT ALL GLOW CASES SECOND ***
 
-
+ECHO "BEGIN GE14_ASSEMBLY MOC+TISO CASE" ;
 TRACKMOC TRACKFILMOC := SALT: tdt_iso ::
      EDIT 2
-     TITLE "TISO MOC SURFACIC GE14_A GLOW+MACRO CASE"
+     TITLE "TISO MOC SURFACIC GE14_A GLOW CASE"
      TISO EQW <<an2d>> <<densur>>
      NOIC
      ;
@@ -42,6 +42,23 @@ TRACKMOC TRACKFILMOC := SALT: tdt_iso ::
 * MOC tracking
 TRACKMOC := MCCGT: TRACKMOC TRACKFILMOC ::
   EDIT 0
+;
+
+
+TRACKMOC TRACKFILMOC := DELETE: TRACKMOC TRACKFILMOC ;
+ECHO "BEGIN GE14_ASSEMBLY_CTRL MOC+TISO CASE" ;
+glow_ctrl.ps := G2S: tdt_ctrl :: ;
+
+TRACKMOC TRACKFILMOC := SALT: tdt_ctrl ::
+     EDIT 2
+     TITLE "TISO MOC SURFACIC GE14_A_CTRL GLOW CASE"
+     TISO EQW <<an2d>> <<densur>>
+     NOIC
+     ;
+
+* MOC tracking
+TRACKMOC := MCCGT: TRACKMOC TRACKFILMOC ::
+  EDIT 10
 ;
 
 

@@ -1,5 +1,5 @@
 *DECK MPOGEY
-      SUBROUTINE MPOGEY(IPMPO,IPEDIT,HEDIT,NISO,NG,NMIL,NBISO,ICAL,NDFI,
+      SUBROUTINE MPOGEY(IPMPO,IPMICR,HEDIT,NISO,NG,NMIL,NBISO,ICAL,NDFI,
      1 NISFS,NISPS)
 *
 *-----------------------------------------------------------------------
@@ -18,7 +18,7 @@
 *
 *Parameters: input
 * IPMPO   pointer to the MPO file.
-* IPEDIT  pointer to the edition object (L_EDIT signature).
+* IPMICR  pointer to the microlib to include (L_LIBRARY signature).
 * HEDIT   name of output group for a (multigroup mesh, output geometry)
 *         couple (generally equal to 'output_0').
 * NISO    number of particularized isotopes.
@@ -39,7 +39,7 @@
 *----
 *  SUBROUTINE ARGUMENTS
 *----
-      TYPE(C_PTR) IPMPO,IPEDIT
+      TYPE(C_PTR) IPMPO,IPMICR
       INTEGER NISO,NG,NMIL,NBISO,ICAL,NDFI,NISFS,NISPS
       CHARACTER(LEN=12) HEDIT
 *----
@@ -77,11 +77,11 @@
      1  NOMISO)
       ENDIF
 *
-      CALL LCMGET(IPEDIT,'ISOTOPESUSED',ISONAM)
-      CALL LCMGET(IPEDIT,'ISOTOPESMIX',MIX)
-      CALL LCMGET(IPEDIT,'ISOTOPESDENS',DEN)
-      CALL LCMGET(IPEDIT,'ISOTOPESTYPE',ITYPE)
-      CALL LIBIPS(IPEDIT,NBISO,IPISO)
+      CALL LCMGET(IPMICR,'ISOTOPESUSED',ISONAM)
+      CALL LCMGET(IPMICR,'ISOTOPESMIX',MIX)
+      CALL LCMGET(IPMICR,'ISOTOPESDENS',DEN)
+      CALL LCMGET(IPMICR,'ISOTOPESTYPE',ITYPE)
+      CALL LIBIPS(IPMICR,NBISO,IPISO)
 *----
 *  COMPUTE ARRAY ADRY.
 *----
@@ -112,13 +112,13 @@
 *----
 *  RECOVER THE NEUTRON FLUX.
 *----
-      CALL LCMSIX(IPEDIT,'MACROLIB',1)
-      JPEDIT=LCMGID(IPEDIT,'GROUP')
+      CALL LCMSIX(IPMICR,'MACROLIB',1)
+      JPEDIT=LCMGID(IPMICR,'GROUP')
       DO 40 IGR=1,NG
       KPEDIT=LCMGIL(JPEDIT,IGR)
       CALL LCMGET(KPEDIT,'FLUX-INTG',FLUXES(1,IGR))
    40 CONTINUE
-      CALL LCMSIX(IPEDIT,' ',2)
+      CALL LCMSIX(IPMICR,' ',2)
 *----
 *  RECOVER THE FISSION RATES.
 *----

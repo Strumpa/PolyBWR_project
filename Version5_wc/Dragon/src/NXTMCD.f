@@ -119,6 +119,7 @@
       INTEGER          NAREG,NASUR,NEREN
       INTEGER          NPIN,IP,IPINT,ICPIN,NPIR,IDGPP,NBPIN
       DOUBLE PRECISION DELTA,TWOPI,DROUT,DHPIN
+      INTEGER          IMRGT
 *----
 *  Allocatable arrays
 *----
@@ -200,6 +201,7 @@
         ITRN=ITURN(ICEL)
         IDIRC=IDIRR(ICEL)
         NBGCLS=ISTATG(13)
+        IMRGT=ISTATG(19)
         ILEV=1
         ITPIN(:3,:MAXPIN)=0
         ICPIN=0
@@ -584,7 +586,7 @@
      >                NMIXS ,NMS   ,DAMESR,
      >                ITSYM(1,ICEL),
      >                NREGS ,NSURS ,NREGN ,NSURN ,NEREN ,
-     >                IDREG ,IDSUR )
+     >                IDREG ,IDSUR ,IMRGT)
         ELSE
           CALL NXTSGI(IPTRK ,IPRINT,MAXMSH,ITYPG ,ICEL  ,ILEV  ,
      >                MAXMSS,NMIX  ,NM    ,MIX   ,DAMESH,ISPLT ,

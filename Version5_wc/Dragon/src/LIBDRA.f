@@ -111,7 +111,7 @@
          CALL LCMGTC(IPDRL,'README',80,LENGT,HTITLE)
          WRITE (IOUT,940)
          DO 10 J=1,LENGT
-         WRITE (IOUT,'(1X,A80)') HTITLE(J)
+         WRITE (IOUT,'(1X,A)') TRIM(HTITLE(J))
    10    CONTINUE
          DEALLOCATE(HTITLE)
          WRITE (IOUT,'(40H LIBDRA: NUMBER OF ISOTOPES IN MICROLIB=,I6)')
@@ -168,7 +168,7 @@
            IF(IMPX.GT.0) THEN
              WRITE (IOUT,930)
              DO 20 J=1,LTITLE
-             WRITE (IOUT,'(1X,A80)') HTITLE(J)
+             WRITE (IOUT,'(1X,A)') TRIM(HTITLE(J))
    20        CONTINUE
            ENDIF
          ENDIF

@@ -71,6 +71,7 @@ def createGeoLevels(geo_name, split_water_in_moderator_box, split_moderator_box,
             connectivity_dict = fill_geom_ssh_proc(proc_file_name_ssh, "GEOMSSH", lattice_description, lower_diag, UOX_mixes, Gd_mixes, remaining_mixes, refinement_option, ssh_BC)
             # change executable permission to the procedure file
             os.chmod(proc_file_name_ssh, 0o755)
+            print(refinement_option.keys())
             if "L1" in refinement_option.keys():
                 proc_file_name_N1 = "GEO_A_L1.c2m"
                 connectivity_dict = fill_geom_fluxN1_proc(proc_file_name_N1, "GEOML1", lattice_description, lower_diag, UOX_mixes, Gd_mixes, remaining_mixes, refinement_option["L1"], lvl1_BC)

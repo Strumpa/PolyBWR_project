@@ -54,7 +54,7 @@ object containing fuel regions description and local parameter informations.
 
 \begin{DataStructure}{Structure \dstr{descthm}}
 $[$ \moc{EDIT} \dusa{iprint} $]$ \\
-$[$ \moc{FLUID} $\{$ \moc{H2O} $|$ \moc{D2O} $|$ \moc{SALT} \dusa{sname} \dusa{scomp} $\}~]$ \\
+$[$ \moc{FLUID} $\{$ \moc{H2O} $|$ \moc{D2O} $|$ \moc{SALT} \dusa{sname} \dusa{scomp} $|$ \moc{LEAD} $\}~]$ \\
 $[$ \moc{FUEL} $\{$ \moc{UOX} $|$ \moc{SALT} \dusa{fname} \dusa{fcomp} $\}~]$ \\
 $[$ \moc{RELAX} \dusa{relax} $]$ \\
 $[$ \moc{TIME} \dusa{time} $[$ \dusa{timestep} $]~]$ \\
@@ -102,6 +102,8 @@ increasing amounts of output.
 \item[\dusa{sname}] molted salt formula in coolant.
 
 \item[\dusa{scomp}] molted salt composition in coolant.
+
+\item[\moc{LEAD}] use liquid lead as coolant.
 
 \item[\moc{FUEL}] keyword used to set the fuel type. By default, uranium oxyde is used.
 

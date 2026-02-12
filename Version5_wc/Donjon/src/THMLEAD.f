@@ -1,43 +1,38 @@
-*DECK THMSAL
-      SUBROUTINE THMSAL(IMPX,ITIME,I,J,K,K0,MFLOW,HMAVG,ENT,HD,STP,
-     > IHCONV,KHCONV,ISUBM,RADCL,ZF,PHI,DZ,TCALO,RHO,RHOLAV,TSCLAD)
+*DECK THMLEAD
+      SUBROUTINE THMLEAD(ITIME,I,J,K,K0,MFLOW,HMAVG,ENT,HD,IHCONV,
+     > KHCONV,ISUBM,RADCL,ZF,PHI,TCALO,RHO,RHOLAV,TSCLAD)
 *
 *-----------------------------------------------------------------------
 *
 *Purpose:
-* Adaptation of THMH2O.f for convection of Molten Salts using Gnielinski
+* Adaptation of THMH2O.f for convection of liquid lead using Gnielinski
 * correlation.
 *
 *Copyright:
-* Copyright (C) 2023 Ecole Polytechnique de Montreal.
+* Copyright (C) 2026 Ecole Polytechnique de Montreal.
 *
-*Author(s): 
-* Cristian Garrido Tamm (cristian.garrido@idom.com)
-*
+*Author(s): Francesco Pepe
+* 
 *Parameters: input
-* IMPX    printing index (=0 for no print).
-* ITIME   type of calculation  (0=steady-state; 1=transient).
+* ITIME   type of calculation  (0=steady-state; 1=transient.
 * I       position of channel alon X-axis
 * J       position of channel alon Y-axis
 * K       position of channel alon Z-axis
-* K0      onser of nuclear boiling point
+* K0      onset of nuclear boiling point
 * MFLOW   massic coolant flow rate in Kg/m^2/s
 * HMAVG   averaged enthalpy
 * ENT     four values of enthalpy in J/Kg to be used in Gaussian
 *         integration
 * HD      hydraulic diameter in m
-* STP     tpdata object with correlations to obtain properties of
-*         molten salt.
 * IHCONV  flag indicating HCONV chosen (0=default/1=user-provided).
 * KHCONV  fixed user-provided HCONV value in W/m^2/K.
 * ISUBM   subcooling model (0: one-phase; 1: Jens-Lottes model;
-*         2: Saha-Zuber model).
+*         2: Saha-Zuber model). [ERROR IF NOT 0]
 * RADCL   outer clad radius in m
 * ZF      parameters used to compute heat flux on clad surface in
 *         transient cases.
 * PHI     heat flow exchanged between clad and fluid in W/m^2.
 *         Given in steady-state cases.
-* DZ      axial mesh width in m.
 *
 *Parameters: output
 * PHI     heat flow exchanged between clad and fluid in W/m^2.
@@ -49,14 +44,13 @@
 *
 *-----------------------------------------------------------------------
 *
-      USE t_saltdata
+      USE FREELFR, only: THMLT, THMLH, CHECKLIM, THMLMBT 
 *----
 *  SUBROUTINE ARGUMENTS
 *----
-      TYPE(tpdata) STP
       INTEGER I,J,K,K0,IHCONV,ISUBM
       REAL MFLOW,HMAVG,ENT(4),HD,KHCONV,RADCL,ZF(2),PHI,TCALO,RHO,
-     > RHOLAV,TSCLAD,DZ
+     > RHOLAV,TSCLAD
 *----
 *  LOCAL VARIABLES
 *----
@@ -70,22 +64,23 @@
 *----
 *  COMPUTE THE DENSITY AND TEMPERATURE OF THE LIQUID
 *----
-      IF(HMAVG.LT.0.0) CALL XABORT('THMSAL: NEGATIVE INPUT ENTHALPY.')
-      IF(ISUBM.NE.0) CALL XABORT('THMSAL: NOT A ONE PHASE FLOW.')
-      CALL THMSST(STP,TSAT,IMPX)
+      IF(HMAVG.LT.0.0) CALL XABORT('THMLEAD: NEGATIVE INPUT ENTHALPY.')
+      IF(ISUBM.NE.0) CALL XABORT('THMLEAD: NOT A ONE PHASE FLOW.')
+      CALL THMLMBT(TM,TSAT,TMAX)
       HL(1)=ENT(1)
       HL(2)=ENT(2)
       HL(3)=ENT(3)
       HL(4)=ENT(4)
-      CALL THMSH(STP,HL(1),R11,TL1,IMPX)
-      CALL THMSH(STP,HL(2),R11,TL2,IMPX)
-      CALL THMSH(STP,HL(3),R11,TL3,IMPX)
-      CALL THMSH(STP,HL(4),R11,TL4,IMPX)
-      CALL THMSPT(STP,TL1,RHO1,R2,R3,R4,CP1,IMPX)
-      CALL THMSPT(STP,TL2,RHO2,R2,R3,R4,CP2,IMPX)
-      CALL THMSPT(STP,TL3,RHO3,R2,R3,R4,CP3,IMPX)
-      CALL THMSPT(STP,TL4,RHO4,R2,R3,R4,CP4,IMPX)
+      CALL THMLH(HL(1),R11,TL1)
+      CALL THMLH(HL(2),R11,TL2)
+      CALL THMLH(HL(3),R11,TL3)
+      CALL THMLH(HL(4),R11,TL4)
+      CALL THMLT(TL1,RHO1,R2,R3,R4,CP1)
+      CALL THMLT(TL2,RHO2,R2,R3,R4,CP2)
+      CALL THMLT(TL3,RHO3,R2,R3,R4,CP3)
+      CALL THMLT(TL4,RHO4,R2,R3,R4,CP4)
       TL=0.5*(W(1)*TL1+W(2)*TL2+W(3)*TL3+W(4)*TL4)
+      CALL CHECKLIM(TL)
       RHOLAV=0.5*(W(1)*RHO1+W(2)*RHO2+W(3)*RHO3+W(4)*RHO4)
       CPLAV=0.5*(W(1)*CP1+W(2)*CP2+W(3)*CP3+W(4)*CP4)
 *----
@@ -101,62 +96,40 @@
       ELSE
         TCALO=TB
       ENDIF
-      CALL THMSPT(STP,TCALO,R1,R2,ZKONE,ZMUONE,CPONE,IMPX)
+      CALL THMLT(TCALO,R1,R2,ZKONE,ZMUONE,CPONE)
       RHO=RHOLAV
       REL=MFLOW*HD/ZMUONE
       PRL=ZMUONE*CPONE/ZKONE
       ZKL=ZKONE
 *----
 *  THERMAL EXCHANGE BETWEEN CLAD AND FLUID USING THE DITTUS AND BOELTER
-*  CORRELATION (SINGLE PHASE) OR CHEN CORRELATION (SATURATED BOILING)
+*  CORRELATION (SINGLE PHASE) 
 *----
       IF(IHCONV.EQ.0) THEN
         ITER=0
-*CGT CHECK IF REYNOLDS AND PRANDTL ARE IN RANGE OF VALIDITY OF
-*    GNIELINSKI CORRELATION
         TSCLAD=TCALO
-        IF((REL.LT.2300).OR.(REL.GT.1E6)) THEN
-          WRITE(6,*) "  THMSAL: ***WARNING*** REYNOLDS OUT RANGE."
-        ENDIF
-        IF((PRL.LT.0.6).OR.(PRL.GT.1E5)) THEN
-          WRITE(6,*) "  THMSAL: ***WARNING*** PRANDTL OUT RANGE."
-        ENDIF
         DO
           ITER=ITER+1
-          IF(ITER.GT.50) THEN
-            WRITE(HSMG,'(30HTHMSAL: HCONV FAILURE IN SLICE,I5,1H.)') K
-            CALL XABORT(HSMG)
-          ENDIF
-*CGT Changed Dittus-Boelter by Gnielinski correlation
-*CGT PRW: Prandtl number of liquid at wall temperature
-          CALL THMSPT(STP,TSCLAD,R1,R2,ZKONE,ZMUONE,CPONE,IMPX)
-          PRW=ZMUONE*CPONE/ZKONE
-          HA=(ZKL/HD)*0.012*(REL**0.87-280)*PRL**0.8*(1+(HD/DZ)
-     >    **(2.0/3.0))*(PRL/PRW)**0.11
-          IF(IMPX.GT.4) THEN
-            WRITE(6,*) 'THMSAL: REL,PRL,PRW,HA=',REL,PRL,PRW,HA
-          ENDIF
+          IF(ITER.GT.50) CALL XABORT('THMLEAD: HCONV FAILURE.')
           IF(TSCLAD.GT.TSAT) THEN
-            CALL XABORT('THMSAL: INVALID HEAT TRANSFER REGIME')
+            CALL XABORT('THMLEAD: INVALID HEAT TRANSFER REGIME')
           ENDIF
+          HA=0.023*(ZKONE/HD)*REL**0.8*PRL**0.4
           F=1.0
           S=1.0
           HB=0.0
           K0=0
-*         Chen correlation
           HCONV=F*HA+S*HB
           IF(HCONV.LE.0.0) THEN
-            WRITE(HSMG,'(34HTHMSAL: DRY OUT REACHED IN CHANNEL,3I5)')
+            WRITE(HSMG,'(35HTHMLEAD: DRY OUT REACHED IN CHANNEL,3I5)')
      >      I,J,K
             CALL XABORT(HSMG)
           ENDIF
           IF(ITIME.EQ.0) THEN
             TWAL=(PHI+S*HB*TSAT+F*HA*TCALO)/(S*HB+F*HA)
           ELSE
-            ZNUM=ZF(1)+RADCL*S*HB*TSAT+RADCL*F*HA*TCALO
-            ZDEN=ZF(2)+RADCL*S*HB+RADCL*F*HA
-            TWAL=MAX(273.15,ZNUM/ZDEN)
-            PHI=MAX(0.0,(ZF(1)-TWAL*ZF(2))/RADCL)
+            TWAL=0.0
+            CALL XABORT('THMLEAD: TRANSIENT NOT IMPLEMENTED YET')
           ENDIF
           IF(ABS(TSCLAD-TWAL).GT.1.0E-5*TSCLAD) THEN
             TSCLAD=TWAL

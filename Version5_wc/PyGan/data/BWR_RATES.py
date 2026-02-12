@@ -26,9 +26,10 @@ from matplotlib.collections import PatchCollection
 from typing import List, Union
 import serpentTools as st
 from serpentTools.settings import rc
-from Serpent2_parsing import parse_S2_ASSBLY_rates, parse_Serpent2_material_det, parse_Serpent2_lattice_det, parse_S2_ASSBLY_rates_lat_det, parse_S2_pin_mat_det
-from Dragon5_cpo_parsing import parse_DRAGON_rates_enrich_num, parse_DRAGON_DIAG_rates_regi_num, parse_DRAGON_SCHEME
-from plotters import plot_errors_BWR_assembly,  plot_BWR_assembly, plot_pinwise_errors_BWR_assembly
+from Serpent2_parsing import  parse_S2_pin_mat_det
+from Dragon5_cpo_parsing import  parse_DRAGON_DIAG_rates_regi_num, parse_DRAGON_SCHEME
+from plotters import plot_pinwise_errors_BWR_assembly
+import pandas as pd
 
 matplotlib.use('Agg')
 
@@ -110,7 +111,7 @@ def analyze_main_flux_geometry_refinement():
     Analyze the impact of geometry refinement on flux and rates accuracy for a BWR assembly.
     Compares Dragon5 results with Serpent2 reference.
     """
-#### ATRIUM-10 assembly
+    #### ATRIUM-10 assembly
     name_case = "ATRIUM10"
     # geometry_type : choice of discretisation for flux calculation geometry.
     #geometry_type = "default" # "cool_ring_SECT40" # "default", "fine1", "corners1"
@@ -203,6 +204,7 @@ def analyze_main_flux_geometry_refinement():
 
 
         print(deltas)
+
         
 def analyze_computational_schemes():
     """
@@ -212,20 +214,20 @@ def analyze_computational_schemes():
     fission_isotopes = ["U235", "U238"]
     #### ATRIUM-10 assembly
     # Test 2L_PIJ_noMM_MOC_SC : should be similar to 2L_PIJ_MOC_SC but longer as MERGMIX keyword not used.
-    computational_schemes = ["2L_IC_MOC_SC"]#["2L_IC_MOC_SC", "2L_PIJ_MOC_SC"]#["2L_IC_MOC", "2L_IC_MOC_SC_GRMAX15", "2L_IC_MOC_SC_GRMAX16", "2L_IC_MOC_SC_GRMAX17", "2L_IC_MOC_SC_GRMAX18","2L_IC_MOC_SC_GRMAX19", "2L_IC_MOC_SC_GRMAX20", "2L_IC_MOC_SC_GRMAX21", "2L_IC_MOC_SC_GRMAX22", "2L_IC_MOC_SC_GRMAX23"]
+    computational_schemes = ["2L_IC_windmills_MOC_SC_ILU0"] # ["2L_IC_MOC_SC_ILU0", "2L_PIJ_MOC_SC_ILU0"] #["1L_MOC_SC_ILU0"]##["2L_IC_MOC_SC", "2L_PIJ_MOC_SC"]#["2L_IC_MOC", "2L_IC_MOC_SC_GRMAX15", "2L_IC_MOC_SC_GRMAX16", "2L_IC_MOC_SC_GRMAX17", "2L_IC_MOC_SC_GRMAX18","2L_IC_MOC_SC_GRMAX19", "2L_IC_MOC_SC_GRMAX20", "2L_IC_MOC_SC_GRMAX21", "2L_IC_MOC_SC_GRMAX22", "2L_IC_MOC_SC_GRMAX23"]
     analyze_first_level = False # False, flag to indicate if first levelof calculation should be analysed then another COMPO object is opened and 
     name_case = "ATRIUM10"
     geometry_type = "finest_geom" # "cool_ring_SECT40" # "default", "fine1", "corners1"
     composition_option = "AT10_void_0"
-    evaluation = "endfb8r1_295" #"J311_295"
+    evaluation = "J311_295" #"endfb8r1_295" #
     ssh_methods = ["RSE"]#, "RSE"]#, "PT"]
-    ssh_sol_doors = ["IC"]#["PIJ", "IC"]
+    ssh_sol_doors = ["IC"] #["PIJ", "IC"]
     correlation_option = "NOCORR"
     anisotropy_level = 4
     transport_correction = "NONE" # "APOL"
     num_angles = 24
     line_density = 150.0
-    batch = 2000
+    batch = 2000 # 1000 # 2000
     refinement_opt_name = geometry_type
     deltas = {}
     
@@ -248,13 +250,13 @@ def analyze_computational_schemes():
                     deltas[computational_scheme][f"{ssh_method}_{ssh_sol}"] = {}
                 
                 if transport_correction == "NONE":
-                    CPO_name = f"CPO_n{num_angles}_ld{int(line_density)}_n8_ld25_TSPC_{anisotropy_level}_{ssh_sol}_MOC_GAUS_4_{batch}_200"
+                    CPO_name = f"CPO_n{num_angles}_ld{int(line_density)}_n8_ld25_TSPC_{anisotropy_level}_{ssh_sol}_MOC_GAUS_{anisotropy_level}_{batch}_200"
                 else:
-                    CPO_name = f"CPO_n{num_angles}_ld{int(line_density)}_n8_ld25_TSPC_{anisotropy_level}_{ssh_sol}_MOC_GAUS_4_{batch}_200_{transport_correction}"
+                    CPO_name = f"CPO_n{num_angles}_ld{int(line_density)}_n8_ld25_TSPC_{anisotropy_level}_{ssh_sol}_MOC_GAUS_{anisotropy_level}_{batch}_200_{transport_correction}"
                 print(f"computational_scheme : {computational_scheme}, CPO_name = {CPO_name}")
-                keff_D5, fiss_rates_D5, n_gamma_rates_D5, FLUX_295groups_D5 = parse_DRAGON_SCHEME(name_case, CPO_name, composition_option, evaluation, ssh_method, correlation_option, geometry_type, fission_isotopes , n_gamma_isotopes = ["U238", "Gd155", "Gd157"], bu=0, computational_scheme=computational_scheme)
-                #keff_S2, fission_rates_S2, ngamma_rates_S2 = parse_S2_pin_mat_det(name_case="ATRIUM10_pin", XS_lib_S2="jeff311_pynjoy2016", fission_isotopes=fission_isotopes, ngamma_isotopes=["U238", "Gd155", "Gd157"], bu=0)
-                keff_S2, fission_rates_S2, ngamma_rates_S2 = parse_S2_pin_mat_det(name_case="ATRIUM10_pin", XS_lib_S2="endfb8r1_pynjoy2012_kerma", fission_isotopes=fission_isotopes, ngamma_isotopes=["U238", "Gd155", "Gd157"], bu=0)
+                keff_D5, fiss_rates_D5, n_gamma_rates_D5, FLUX_295groups_D5, times = parse_DRAGON_SCHEME(name_case, CPO_name, composition_option, evaluation, ssh_method, correlation_option, refinement_opt_name, fission_isotopes , n_gamma_isotopes = ["U238", "Gd155", "Gd157"], bu=0, computational_scheme=computational_scheme)
+                keff_S2, fission_rates_S2, ngamma_rates_S2 = parse_S2_pin_mat_det(name_case=S2_name_case, XS_lib_S2="jeff311_pynjoy2016", fission_isotopes=fission_isotopes, ngamma_isotopes=["U238", "Gd155", "Gd157"], bu=0)
+                #keff_S2, fission_rates_S2, ngamma_rates_S2 = parse_S2_pin_mat_det(name_case=S2_name_case, XS_lib_S2="endfb8r1_pynjoy2012_kerma", fission_isotopes=fission_isotopes, ngamma_isotopes=["U238", "Gd155", "Gd157"], bu=0)
 
                 print(fission_rates_S2)
                 # Normalise to nCells = 49 cells with fissile material.
@@ -292,9 +294,14 @@ def analyze_computational_schemes():
                 deltas[computational_scheme][f"{ssh_method}_{ssh_sol}"]["rms_fast"] = rms_fast
                 deltas[computational_scheme][f"{ssh_method}_{ssh_sol}"]["avg_fast"] = avg_fast
                 deltas[computational_scheme][f"{ssh_method}_{ssh_sol}"]["max_fast"] = max_fast
-                print(f"{delta_keff:.0f} & {rms_fast:.2f}\\% & {rms_therm:.2f}\\% & {max_fast:.2f}\\% &  {max_therm:.2f}\\%")
-                
-
+                total_time = times[0]
+                uss_time = times[1]
+                asm_flu_time = times[2]
+                print(total_time)
+                num_hours = int(float(total_time)/3600)
+                mins = (float(total_time)/3600 - float(num_hours)) * 60 
+                print(f"{delta_keff:.0f} & {rms_fast:.2f}\\% & {rms_therm:.2f}\\% & {max_fast:.2f}\\% &  {max_therm:.2f}\\% & $\\approx {num_hours}h{mins:.00f}$")
+                print(f"USS time = {uss_time} s, ASM+FLU time = {asm_flu_time} s")
                 plot_pinwise_errors_BWR_assembly(np.array([delta_rel_therm,delta_rel_fast]), name_case, CPO_name, calculation_opt = f"{computational_scheme}_{geometry_type}_{ssh_method}_{ssh_sol}_{correlation_option}", fig_name="Total_fission_rates_diff", evaluation=evaluation)
                 
                 ## Analysis of 1st level in the calculation scheme : PIJ / IC computed keff and rates.

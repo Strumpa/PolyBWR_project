@@ -38,5 +38,8 @@ chmod 755 "$pos2"
 ls -la
 
 ln -s "$pos2"/GE-14_assembly_IC_MACRO_TISO.dat GE-14_assembly_IC_MACRO_TISO.dat
+ln -s "$pos2"/GE-14_assembly_ctrl_IC_MACRO_TISO.dat GE-14_assembly_ctrl_IC_MACRO_TISO.dat
 ln -s "$pos2"/GE-14_assembly_MOC_TSPC.dat GE-14_assembly_MOC_TSPC.dat
+ln -s "$pos2"/GE-14_assembly_ctrl_MOC_TSPC.dat GE-14_assembly_ctrl_MOC_TSPC.dat
 ln -s "$pos2"/GE-14_assembly_MOC_TISO.dat GE-14_assembly_MOC_TISO.dat
+ln -s "$pos2"/GE-14_assembly_ctrl_MOC_TISO.dat GE-14_assembly_ctrl_MOC_TISO.dat

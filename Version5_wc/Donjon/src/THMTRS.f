@@ -43,7 +43,7 @@
 * NFD     number of discretisation points in fuel regions.
 * NDTOT   number of total discretization points in the the fuel
 *         pellet and the cladding.
-* IFLUID  type of fluid (0=H2O; 1=D2O).
+* IFLUID  type of fluid (0=H2O; 1=D2O; 2=SALT; 3=LEAD).
 * FCOOL   power density fraction in coolant.
 * FFUEL   power density fraction in fuel.
 * ACOOL   coolant cross section area in m^2.
@@ -190,6 +190,8 @@
         CALL THMHPT(POUT0,TIN0,RHOIN0,HINLE0,R3,R4,R5)
       ELSE IF(IFLUID.EQ.2) THEN
         CALL THMSPT(STP,TINLET,RHOIN0,HINLE0,R3,R4,R5,IMPX)
+      ELSE IF(IFLUID.EQ.3) THEN
+        CALL XABORT('THMTRS: LIQUID LEAD NOT IMPLEMENTED.')
       ENDIF
       MFLXIN0=SPDIN*RHOIN0
       IF(IFLUID.EQ.0) THEN
@@ -341,13 +343,22 @@
      >    IDFM,PHI(K),XFL(K),EPS(K),SLIP(K),ACOOL(K),PCH(K),HZ(K),TCALO,
      >    DCOOL(K),DLIQT(K),DGCOOL(K),TRE11(NDTOT),
      >    KWA(K),VGJprime,HLV(K))
-     
         ELSEIF (IFLUID.EQ.2) THEN
+          IF(XFL(K).NE.0.0) THEN
+            CALL XABORT('THMTRS: INVALID VALUE OF FLOW QUALITY(1).')
+          ENDIF
+          KWA(K)=0
           CALL THMSAL(IMPX,1,IX,IY,K,K0,MFLXT(K),ENTHT(K),ENT,HD(K),
-     >    STP,IHCONV,KHCONV,ISUBM,RAD(NDTOT-1,K),ZF,PHI(K),
-     >    XFL(K),
-     >    EPS(K),SLIP(K),HZ(K),TCALO,DCOOL(K),DLIQT(K),
-     >    TRE11(NDTOT),KWA(K))
+     >    STP,IHCONV,KHCONV,ISUBM,RAD(NDTOT-1,K),ZF,PHI(K),HZ(K),TCALO,
+     >    DCOOL(K),DLIQT(K),TRE11(NDTOT))
+        ELSEIF (IFLUID.EQ.3) THEN
+          IF(XFL(K).NE.0.0) THEN
+            CALL XABORT('THMTRS: INVALID VALUE OF FLOW QUALITY(2).')
+          ENDIF
+          KWA(K)=0
+          CALL THMLEAD(1,IX,IY,K,K0,MFLXT(K),ENTHT(K),ENT,HD(K),
+     >    IHCONV,KHCONV,ISUBM,RAD(NDTOT-1,K),ZF,PHI(K),TCALO,DCOOL(K),
+     >    DLIQT(K),TRE11(NDTOT))
         ENDIF
 *CGT
         DO L=1,NDTOT-1

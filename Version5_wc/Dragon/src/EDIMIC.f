@@ -771,9 +771,7 @@
             IF(LDECA) CALL LCMPUT(KPEDIT,'DECAY',1,2,DECAY(ISO))
             DO 380 J=1,MAXH
             IF(HMAKE(J).NE.' ') THEN
-              DO 375 IGCD=1,NGCOND
-                TMPXS(IGCD)=REAL(GAS(IGCD,J))
-  375         CONTINUE
+              TMPXS(:NGCOND)=REAL(GAS(:NGCOND,J))
               CALL LCMPUT(KPEDIT,HMAKE(J),NGCOND,2,TMPXS)
             ENDIF
   380       CONTINUE
@@ -781,23 +779,23 @@
             ITYPRO(IL)=0
             IF(HMAKE(MAXH+IL).NE.' ') ITYPRO(IL)=1
   390       CONTINUE
-            IF(ITYPRO(1).EQ.0) GO TO 405
+            IF(ITYPRO(1).EQ.0) GO TO 400
             ALLOCATE(GA1(NL*NGCOND),GA2(NL*NGCOND*NGCOND))
             IOF1=0
             IOF2=0
-            DO 402 IL=1,NL
-            DO 401 IG2=1,NGCOND
-            IOF1=IOF1+1
-            GA1(IOF1)=REAL(GAS(IG2,3+3*NW+IL))
-            DO 400 IG1=1,NGCOND
-            IOF2=IOF2+1
-            GA2(IOF2)=REAL(WSCAT(IG1,IG2,IL))
-  400       CONTINUE
-  401       CONTINUE
-  402       CONTINUE
+            DO IL=1,NL
+              DO IG2=1,NGCOND
+                IOF1=IOF1+1
+                GA1(IOF1)=REAL(GAS(IG2,3+3*NW+IL))
+                DO IG1=1,NGCOND
+                  IOF2=IOF2+1
+                  GA2(IOF2)=REAL(WSCAT(IG1,IG2,IL))
+                ENDDO
+              ENDDO
+            ENDDO
             CALL XDRLGS(KPEDIT,1,IPRINT,0,NL-1,1,NGCOND,GA1,GA2,ITYPRO)
             DEALLOCATE(GA2,GA1)
-  405       IF(NDEL.NE.0) THEN
+  400       IF(NDEL.NE.0) THEN
                IF(HMAKE(IOF0H+1).NE.' ') THEN
                   CALL LCMPUT(KPEDIT,'LAMBDA-D',NDEL,2,WDLA)
                ENDIF

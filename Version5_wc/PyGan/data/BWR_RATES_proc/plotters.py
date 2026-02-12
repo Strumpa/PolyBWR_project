@@ -199,6 +199,7 @@ def plot_errors_BWR_assembly(errors_rates, name_case, name_compo, fig_name, unfo
                 ])
 
     a = os.path.exists(f"DRAGON_RATES_{name_case}/{name_compo}")
+    print(f"DRAGON_RATES_{name_case}/{name_compo} already exists: {a}")
     if not a:
         os.makedirs(f"DRAGON_RATES_{name_case}/{name_compo}")
     for group_num in range(len(errors_rates)):
@@ -307,6 +308,7 @@ def plot_pinwise_errors_BWR_assembly(errors_rates, name_case, name_compo, calcul
                 ])
 
     a = os.path.exists(f"DRAGON_RATES_{name_case}_{evaluation}/{calculation_opt}/{name_compo}")
+    print(f"DRAGON_RATES_{name_case}_{evaluation}/{calculation_opt}/{name_compo} already exists: {a}")
     if not a:
         os.makedirs(f"DRAGON_RATES_{name_case}_{evaluation}/{calculation_opt}/{name_compo}")
 
@@ -352,7 +354,7 @@ def plot_pinwise_errors_BWR_assembly(errors_rates, name_case, name_compo, calcul
         plt.title(f'(D5-S2) Relative differences on fission rates, {group_id} group', fontsize=16)
         # Show the plot
         plt.tight_layout()
-        plt.savefig(f"DRAGON_RATES_{name_case}/{calculation_opt}/{name_compo}/assembly_map_{fig_name}_g{gr+1}.png", dpi=300)
+        plt.savefig(f"DRAGON_RATES_{name_case}_{evaluation}/{calculation_opt}/{name_compo}/assembly_map_{fig_name}_g{gr+1}.png", dpi=300)
         plt.close()
         
 

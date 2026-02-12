@@ -1,5 +1,5 @@
 *DECK APXGEY
-      SUBROUTINE APXGEY(IPAPX,IPEDIT,NISO,NG,NMIL,NBISO,NDFI,NISFS,
+      SUBROUTINE APXGEY(IPAPX,IPMICR,NISO,NG,NMIL,NBISO,NDFI,NISFS,
      1 NISPS)
 *
 *-----------------------------------------------------------------------
@@ -18,7 +18,7 @@
 *
 *Parameters: input
 * IPAPX   pointer to the Apex file.
-* IPEDIT  pointer to the edition object (L_EDIT signature).
+* IPMICR  pointer to the microlib to include (L_LIBRARY signature).
 * NISO    number of particularized isotopes.
 * NG      number of condensed energy groups.
 * NMIL    number of mixtures in the MPO file.
@@ -36,7 +36,7 @@
 *----
 *  SUBROUTINE ARGUMENTS
 *----
-      TYPE(C_PTR) IPAPX,IPEDIT
+      TYPE(C_PTR) IPAPX,IPMICR
       INTEGER NISO,NG,NMIL,NBISO,NDFI,NISFS,NISPS
 *----
 *  LOCAL VARIABLES
@@ -74,10 +74,10 @@
         CALL hdf5_read_data(IPAPX,"/physconst/ISOTYP",TYPISO)
       ENDIF
 *
-      CALL LCMGET(IPEDIT,'ISOTOPESUSED',ISONAM)
-      CALL LCMGET(IPEDIT,'ISOTOPESMIX',MIX)
-      CALL LCMGET(IPEDIT,'ISOTOPESDENS',DEN)
-      CALL LIBIPS(IPEDIT,NBISO,IPISO)
+      CALL LCMGET(IPMICR,'ISOTOPESUSED',ISONAM)
+      CALL LCMGET(IPMICR,'ISOTOPESMIX',MIX)
+      CALL LCMGET(IPMICR,'ISOTOPESDENS',DEN)
+      CALL LIBIPS(IPMICR,NBISO,IPISO)
 *----
 *  COMPUTE ARRAY ADRY.
 *----
@@ -104,13 +104,13 @@
 *----
 *  RECOVER THE NEUTRON FLUX.
 *----
-      CALL LCMSIX(IPEDIT,'MACROLIB',1)
-      JPEDIT=LCMGID(IPEDIT,'GROUP')
+      CALL LCMSIX(IPMICR,'MACROLIB',1)
+      JPEDIT=LCMGID(IPMICR,'GROUP')
       DO 40 IGR=1,NG
       KPEDIT=LCMGIL(JPEDIT,IGR)
       CALL LCMGET(KPEDIT,'FLUX-INTG',FLUXES(1,IGR))
    40 CONTINUE
-      CALL LCMSIX(IPEDIT,' ',2)
+      CALL LCMSIX(IPMICR,' ',2)
 *----
 *  RECOVER THE FISSION RATES.
 *----
