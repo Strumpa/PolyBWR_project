@@ -32,7 +32,7 @@ if not os.path.exists(save_dir):
 ########################################################### PARAMETER SELECTION ##########################################################################
 exec = True  # Set to True to execute the full calculation, False to only create the geometry and track it.
 
-solution_door_ssh = "IC" #"IC" # "PIJ" 
+solution_door_ssh = "PIJ" #"IC" # "PIJ" 
 computational_scheme = "1L_MOC" # "1L_MOC", "2L_PIJ_MOC", "2L_IC_MOC", "2L_IC_windmills_MOC"
 SPH_GRMAX = 19 # 16, 17, 18, 19, 20, 21, 22, 23.
 # Options from DRAGON calculation setup.
