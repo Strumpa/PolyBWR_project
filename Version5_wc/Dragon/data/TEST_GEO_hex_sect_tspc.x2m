@@ -189,7 +189,7 @@ OUT := EDI: MICRO2 TRACK FLUX TDT_LAT_SECT CP ::
     MERG COMP 
     COND
     ;
-assertS FLUX :: 'K-EFFECTIVE' 1 1.341990 ;
+assertS FLUX :: 'K-EFFECTIVE' 1 1.342777 ;
 
 ECHO "test TEST_GEO_hex_sect_tspc completed" ;
 END: ;

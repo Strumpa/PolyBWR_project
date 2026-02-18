@@ -83,10 +83,10 @@ I_{\rm step} = \left\{
 I_{\rm df} = \left\{
 \begin{array}{ll}
 0 & \textrm{no discontinuity factor information}\\
-1 & \textrm{multigroup boundary current information is available}\\
-2 & \textrm{boundary flux information (see \Sect{macroADF}) is available}\\
-3 & \textrm{discontinuity factor information (see \Sect{macroADF}) is available}\\
-4 & \textrm{matrix ($G \times G$) discontinuity factor information (see \Sect{macroADF}) is available.}
+1 & \textrm{multigroup boundary current information is recovered}\\
+2 & \textrm{boundary gap flux information (see \Sect{macroADF}) is recovered}\\
+3 & \textrm{ADF information (see \Sect{macroADF}) is recovered}\\
+4 & \textrm{recover matrix ADF information.}
 \end{array} \right.
 \end{displaymath}
 \item Adjoint macrolib flag $I_{\rm adj}=\mathcal{S}^{M}_{13}$:
@@ -588,7 +588,7 @@ normalization with the {\sl superhomog\'en\'eisation} (SPH) method.
   a \moc{VOID} or \moc{ALBE} boundary condition is set in DRAGON.}
 \OptRealEnr
   {AVG\_FLUX\blank{5}}{$N_{m},G$}{$I_{\rm df} = 2$}{}
-  {Averaged fluxes in the complete assembly. Used as denominator to compute the ADF in an homogeneous assembly.}
+  {Averaged fluxes in the complete assembly. Used as denominator to compute the ADF in an homogeneous assembly or to perform Selengut normalization.}
 \OptRealVar
   {\listedir{type}}{$N_{m},G$}{$I_{\rm df} = 2,\, 3$}{}
   {Averaged surfacic fluxes ($I_{\rm df} = 2$) or discontinuity factors ($I_{\rm df} = 3$) in a material mixture. Name {\sl type} is a component of

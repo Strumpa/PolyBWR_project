@@ -2,6 +2,7 @@
 import os
 import numpy as np
 import serpentTools as st
+import re
 
 def parse_Serpent2_lattice_det(path_to_S2, name_case, XS_lib_S2, bcond, edepmode, pcc, bu):
     """
@@ -283,7 +284,7 @@ def parse_S2_ASSBLY_rates(name_case, XS_lib_S2, fission_isotopes, n_gamma_isotop
     return keff, fission_rates, ngamma_rates
 
 
-def parse_S2_ASSBLY_rates_lat_det(name_case, XS_lib_S2, fission_isotopes, n_gamma_isotopes, bu, unfold_symmetry):
+def parse_S2_ASSBLY_rates_lat_det(name_case, XS_lib_S2, fission_isotopes, n_gamma_isotopes, bu):
     """
     Serpent2 assembly detector post-treatment for Assembly reaction rates :
     use lattice detector definition
@@ -302,28 +303,24 @@ def parse_S2_ASSBLY_rates_lat_det(name_case, XS_lib_S2, fission_isotopes, n_gamm
 
     print(f"keff = {keff}")
     print(detector.detectors.keys())
-    if unfold_symmetry:
-        sym_factor = 1
-    else:
-        sym_factor = 0.5
 
     # Extracting the detector response
-    ngroups = detector.detectors["_pins_2G"].tallies.shape[0]
-    ncells = detector.detectors["_pins_2G"].tallies.shape[1]
-    ntallies = detector.detectors["_pins_2G"].tallies.shape[2]
-    tally_index_to_react = { 0: "U235_ngamma", 1 : "U238_ngamma", 2 : "Pu239_ngamma", 3 : "Pu241_ngamma",
-                             4 : "Gd155_ngamma", 5: "Gd157_ngamma", 6: "Xe135_ngamma", 7 : "Sm149_ngamma", 
-                             8 : "U235_fiss", 9 : "U238_fiss", 10 : "Pu239_fiss", 11 : "Pu241_fiss"}
-    number_of_each_mix = {"pin1":4, "pin2":8, "pin3":10, "pin4":20, "pin5":6, "pin6":27, "pin7":14, "pin8":2}
+    ngroups = detector.detectors["_lattice_2G"].tallies.shape[0] # 2 = n_groups
+    ncells = detector.detectors["_lattice_2G"].tallies.shape[1] # 144 = 12*12 = ncells in lattice but pins are only 10 * 10 : water "pins" around fuel lattice.
+    ntallies = detector.detectors["_lattice_2G"].tallies.shape[2] # 7 reactions
+    print(f"lattice detector shape : {detector.detectors['_lattice_2G'].tallies.shape}")
+    tally_index_to_react = { 0: "U235_ngamma", 1 : "U238_ngamma",
+                             2 : "Gd155_ngamma", 3: "Gd157_ngamma", 
+                             4 : "U234_fiss", 5 : "U235_fiss", 6 : "U238_fiss"}
     vol = np.pi * 0.4435 ** 2
-    N_iso = {"pin1" : {"U234":  5.15910E-06, "U235":  5.67035E-04, "U238":  2.27631E-02, "O16" :  4.66705E-02}, 
-            "pin2" : {"O16": 4.667480e-02, "U238": 2.257430e-02, "U234": 7.039170e-06, "U235": 7.560370e-04},
-            "pin3": {"U235": 9.686590e-04, "U234": 9.163680e-06, "U238": 2.236200e-02, "O16": 4.667960e-02}, 
-            "pin4": {"O16": 4.668150e-02, "U238": 2.227940e-02, "U234": 9.991530e-06, "U235": 1.051340e-03},
-            "pin5": {"U234": 1.058330e-05, "U235": 1.110400e-03, "U238": 2.222040e-02, "O16": 4.668280e-02}, 
-            "pin6":{"U234": 1.117530e-05, "U235": 1.169460e-03, "O16": 4.668410e-02, "U238": 2.216140e-02}, 
-            "pin7":{"Gd160": 2.994740e-04, "Gd157": 2.143990e-04, "Gd158": 3.403000e-04, "Gd156": 2.804310e-04,"U238": 2.107540e-02, "O16": 4.621410e-02, "Gd155": 2.027540e-04, "U234": 9.451580e-06, "Gd154": 2.986510e-05, "U235": 9.945290e-04}, 
-            "pin8": {"O16": 4.621230e-02, "U238": 2.115350e-02, "Gd156": 2.804310e-04, "Gd158": 3.403000e-04, "U235": 9.163120e-04, "Gd154": 2.986510e-05, "U234": 8.668470e-06, "Gd155": 2.027540e-04, "Gd157": 2.143990e-04, "Gd160": 2.994740e-04}
+    N_iso = {"pin1" : {"U234":  5.15910E-06, "U235":  5.67035E-04, "U238":  2.27631E-02, "O16" :  4.66705E-02, "Pu239":0.0, "Pu241":0.0, "Gd155":0.0, "Gd157":0.0, "Xe135":0.0, "Sm149":0.0}, 
+            "pin2" : {"O16": 4.667480e-02, "U238": 2.257430e-02, "U234": 7.039170e-06, "U235": 7.560370e-04, "Pu239":0.0, "Pu241":0.0, "Gd155":0.0, "Gd157":0.0, "Xe135":0.0, "Sm149":0.0},
+            "pin3": {"U235": 9.686590e-04, "U234": 9.163680e-06, "U238": 2.236200e-02, "O16": 4.667960e-02, "Pu239":0.0, "Pu241":0.0, "Gd155":0.0, "Gd157":0.0, "Xe135":0.0, "Sm149":0.0}, 
+            "pin4": {"O16": 4.668150e-02, "U238": 2.227940e-02, "U234": 9.991530e-06, "U235": 1.051340e-03, "Pu239":0.0, "Pu241":0.0, "Gd155":0.0, "Gd157":0.0, "Xe135":0.0, "Sm149":0.0},
+            "pin5": {"U234": 1.058330e-05, "U235": 1.110400e-03, "U238": 2.222040e-02, "O16": 4.668280e-02, "Pu239":0.0, "Pu241":0.0, "Gd155":0.0, "Gd157":0.0, "Xe135":0.0, "Sm149":0.0}, 
+            "pin6":{"U234": 1.117530e-05, "U235": 1.169460e-03, "O16": 4.668410e-02, "U238": 2.216140e-02, "Pu239":0.0, "Pu241":0.0, "Gd155":0.0, "Gd157":0.0, "Xe135":0.0, "Sm149":0.0}, 
+            "pin7":{"Gd160": 2.994740e-04, "Gd157": 2.143990e-04, "Gd158": 3.403000e-04, "Gd156": 2.804310e-04,"U238": 2.107540e-02, "O16": 4.621410e-02, "Gd155": 2.027540e-04, "U234": 9.451580e-06, "Gd154": 2.986510e-05, "U235": 9.945290e-04, "Pu239":0.0, "Pu241":0.0, "Xe135":0.0, "Sm149":0.0}, 
+            "pin8": {"O16": 4.621230e-02, "U238": 2.115350e-02, "Gd156": 2.804310e-04, "Gd158": 3.403000e-04, "U235": 9.163120e-04, "Gd154": 2.986510e-05, "U234": 8.668470e-06, "Gd155": 2.027540e-04, "Gd157": 2.143990e-04, "Gd160": 2.994740e-04, "Pu239":0.0, "Pu241":0.0, "Xe135":0.0, "Sm149":0.0}
         }
     fission_rates = {}
     ngamma_rates={}
@@ -335,7 +332,7 @@ def parse_S2_ASSBLY_rates_lat_det(name_case, XS_lib_S2, fission_isotopes, n_gamm
             if f"cell{j+1}" not in ngamma_rates.keys():
                 ngamma_rates[f"cell{j+1}"] = {}
             for k in range(ntallies):
-                print(f"Energy group {i+1}, Cell {j+1}, Reaction {tally_index_to_react[k]} : {detector.detectors['_pins_2G'].tallies[i,j,k]}")
+                print(f"Energy group {i+1}, Cell {j+1}, Reaction {tally_index_to_react[k]} : {detector.detectors['_lattice_2G'].tallies[i,j,k]}")
                 #print(detector.detectors['_pins_2G'].tallies[i,j,k])
                 if tally_index_to_react[k] not in fission_rates[f"cell{j+1}"].keys():
                     fission_rates[f"cell{j+1}"][tally_index_to_react[k]] = []
@@ -343,9 +340,9 @@ def parse_S2_ASSBLY_rates_lat_det(name_case, XS_lib_S2, fission_isotopes, n_gamm
                     ngamma_rates[f"cell{j+1}"][tally_index_to_react[k]] = []
                     
                 if tally_index_to_react[k].endswith("ngamma"):
-                    ngamma_rates[f"cell{j+1}"][tally_index_to_react[k]].append(detector.detectors['_pins_2G'].tallies[i,j,k] * N_iso[f"pin{j+1}"][tally_index_to_react[k][:-7]] * vol * sym_factor / number_of_each_mix[f"pin{j+1}"])
+                    ngamma_rates[f"cell{j+1}"][tally_index_to_react[k]].append(detector.detectors['_lattice_2G'].tallies[i,j,k] * N_iso[f"pin{j+1}"][tally_index_to_react[k][:-7]] * vol)
                 elif tally_index_to_react[k].endswith("fiss"):
-                    fission_rates[f"cell{j+1}"][tally_index_to_react[k]].append(detector.detectors['_pins_2G'].tallies[i,j,k] * N_iso[f"pin{j+1}"][tally_index_to_react[k][:-5]] * vol * sym_factor / number_of_each_mix[f"pin{j+1}"])
+                    fission_rates[f"cell{j+1}"][tally_index_to_react[k]].append(detector.detectors['_lattice_2G'].tallies[i,j,k] * N_iso[f"pin{j+1}"][tally_index_to_react[k][:-5]] * vol)
 
 
     summed_fission_rates_over_isos = sum_S2rates_over_iso(fission_rates)
@@ -353,8 +350,167 @@ def parse_S2_ASSBLY_rates_lat_det(name_case, XS_lib_S2, fission_isotopes, n_gamm
     fission_rates["TOT"] = summed_fission_rates_over_isos
     ngamma_rates["TOT"] = summed_ngamma_rates_over_isos
 
+    n_groups_fine = detector.detectors['spectrum_295G'].tallies.shape[0]
+
 
     return keff, fission_rates, ngamma_rates
+
+
+def parse_S2_pin_mat_det(name_case, XS_lib_S2, fission_isotopes, ngamma_isotopes, bu):
+    """
+    Serpent2 assembly detector post-treatment for Assembly reaction rates :
+    use lattice detector definition
+    name_case : (str) name of the Serpent2 case
+    XS_lib_S2 : (str) name of the Serpent2 XS library
+    fission_isotopes : (list) list of fission isotopes
+    ngamma_isotopes : (list) list of (n,gamma) isotopes
+    bu : (int) burnup step
+    unfold_symmetry : (bool) if True, unfold the symmetry of the assembly : create a 10x10 diagonally symmetric grid
+
+    returns : reaction rates for fission and (n,gamma) reactions for the specified isotopes
+    """
+    iso_code_to_num = {"U235":1, "U238": 3, "Pu239": 5, "Pu241": 7, 
+                        "Xe135":18, "Sm149": 30, "Gd154":21, "Gd155":22, "Gd156":23, "Gd157":24}
+    detectorFile = st.read(f"{os.environ['SERPENT_RESULTS']}/{name_case}_{XS_lib_S2}_inp_det{bu}.m")
+    abs_det_file = st.read(f"{os.environ['SERPENT_RESULTS']}/{name_case}_{XS_lib_S2}_abs_inp_det{bu}.m")
+    print(f"{os.environ['SERPENT_RESULTS']}/{name_case}_{XS_lib_S2}_abs_inp_det{bu}.m")
+    resultsFile = st.read(f"{os.environ['SERPENT_RESULTS']}/{name_case}_{XS_lib_S2}_inp_res.m")
+    keff = resultsFile.resdata["absKeff"].T[0]
+    
+    # try reading depletion 
+    try:
+        depletionFile = st.read(f"{os.environ['SERPENT_RESULTS']}/{name_case}_{XS_lib_S2}_BU_inp_dep.m")
+    except:
+        depletionFile = None
+
+
+    print(f"keff = {keff}")
+    print(detectorFile.detectors.keys())
+    
+    N_iso = {"24UOX" : {"U234":  5.15910E-06, "U235":  5.67035E-04, "U238":  2.27631E-02, "O16" :  4.66705E-02, "Pu239":0.0, "Pu241":0.0, "Gd155":0.0, "Gd157":0.0, "Xe135":0.0, "Sm149":0.0}, 
+        "32UOX" : {"O16": 4.667480e-02, "U238": 2.257430e-02, "U234": 7.039170e-06, "U235": 7.560370e-04, "Pu239":0.0, "Pu241":0.0, "Gd155":0.0, "Gd157":0.0, "Xe135":0.0, "Sm149":0.0},
+        "42UOX": {"U235": 9.686590e-04, "U234": 9.163680e-06, "U238": 2.236200e-02, "O16": 4.667960e-02, "Pu239":0.0, "Pu241":0.0, "Gd155":0.0, "Gd157":0.0, "Xe135":0.0, "Sm149":0.0}, 
+        "45UOX": {"O16": 4.668150e-02, "U238": 2.227940e-02, "U234": 9.991530e-06, "U235": 1.051340e-03, "Pu239":0.0, "Pu241":0.0, "Gd155":0.0, "Gd157":0.0, "Xe135":0.0, "Sm149":0.0},
+        "48UOX": {"U234": 1.058330e-05, "U235": 1.110400e-03, "U238": 2.222040e-02, "O16": 4.668280e-02, "Pu239":0.0, "Pu241":0.0, "Gd155":0.0, "Gd157":0.0, "Xe135":0.0, "Sm149":0.0}, 
+        "50UOX":{"U234": 1.117530e-05, "U235": 1.169460e-03, "O16": 4.668410e-02, "U238": 2.216140e-02, "Pu239":0.0, "Pu241":0.0, "Gd155":0.0, "Gd157":0.0, "Xe135":0.0, "Sm149":0.0}, 
+        "45Gd":{"Gd160": 2.994740e-04, "Gd157": 2.143990e-04, "Gd158": 3.403000e-04, "Gd156": 2.804310e-04,"U238": 2.107540e-02, "O16": 4.621410e-02, "Gd155": 2.027540e-04, "U234": 9.451580e-06, "Gd154": 2.986510e-05, "U235": 9.945290e-04, "Pu239":0.0, "Pu241":0.0, "Xe135":0.0, "Sm149":0.0}, 
+        "42Gd": {"O16": 4.621230e-02, "U238": 2.115350e-02, "Gd156": 2.804310e-04, "Gd158": 3.403000e-04, "U235": 9.163120e-04, "Gd154": 2.986510e-05, "U234": 8.668470e-06, "Gd155": 2.027540e-04, "Gd157": 2.143990e-04, "Gd160": 2.994740e-04, "Pu239":0.0, "Pu241":0.0, "Xe135":0.0, "Sm149":0.0}
+    }
+
+
+    # Extracting the detector response
+    ngroups = detectorFile.detectors["_pin_pos_1_2G"].tallies.shape[0] # 2 = n_groups
+    ntallies = detectorFile.detectors["_pin_pos_1_2G"].tallies.shape[1] # 7 reactions
+    vol = np.pi * 0.4435 ** 2
+    tally_index_to_react = { 0: "U234_fission", 1: "U235_fission", 2:"U236_fission", 3:"U238_fission", 4:"Pu239_fission", 5:"Pu241_fission",
+                            6:"U235_ngamma", 7:"U238_ngamma", 8:"Pu239_ngamma", 9:"Pu241_ngamma", 
+                            10:"Xe135_ngamma", 11:"Sm149_ngamma", 12:"Gd154_ngamma", 13:"Gd155_ngamma", 14:"Gd156_ngamma", 15:"Gd157_ngamma", 16:"Gd158_ngamma", 17:"Gd160_ngamma"}
+
+    pin_positions = [1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 
+                        11, 12, 13, 14, 15, 16, 17, 18, 19,
+                            20, 21, 22, 23, 24, 25, 26, 27,
+                                28, 29, 30, 31, 32, 33, 34,
+                                                38, 39, 40, 
+                                                43, 44, 45,
+                                                47, 48, 49,
+                                                50, 51, 52,
+                                                    53, 54,
+                                                        55]
+    pos_on_diag = [1, 11, 20, 28, 50, 53, 55]
+    npos = max(pin_positions)
+    fission_rates = np.zeros((ngroups, npos))
+    ngamma_rates = np.zeros((ngroups, npos))
+    total_absorptions = np.zeros((ngroups, npos))
+    n_isotopes_per_mat = {}
+    groups = {}
+    pattern = re.compile(r"^(\d{2}(?:UOX|Gd))_([A-Za-z])_(\d+)$")
+    # Identify rings in groups of identical 'initial' materials ie same pin position, same initial enrichment.
+
+    for id_nb, material_name in enumerate(depletionFile):
+        print(f"Depletion File Material name {material_name}")
+        m = pattern.match(material_name)
+        n_iso = 0
+        if m:
+            material = m.group(1)   # ie material code example : "24UOX"
+            ring_number = m.group(2)   # ie "A", "B", "C" or "D" for UOX and + "E", "F" for Gd
+            pos  = int(m.group(3))  # e.g. 1
+            key = (material, pos)
+            groups.setdefault(key, []).append(material_name)
+            
+    #print(groups)
+    
+    for iso in fission_isotopes:
+        n_iso = 0
+        for key, material_names in groups.items():
+            #print(f"Processing isotope {iso} for material {key}")
+            material, pos = key
+            n_iso = 0
+            #print(f"Material {material}, Position {pos}, Material names : {material_names}")
+            for material_name in material_names:
+                # Example of material_name : "24UOX_A_1" or "45Gd_D_31"
+                if key not in n_isotopes_per_mat.keys():
+                    n_isotopes_per_mat[key] = {}
+                n_iso_ring = depletionFile[material_name]['adens'][iso_code_to_num[iso]][bu]*depletionFile[material_name]['volume'][bu]
+                #print(f"Material {material_name}, Isotope {iso}, Density {depletionFile[material_name]['adens'][iso_code_to_num[iso]][bu]}, Volume {depletionFile[material_name]['volume'][bu]}")
+                n_iso += n_iso_ring
+            #print(f"Total number density of isotope {iso} in material {material} at position {pos} : {n_iso/vol} atoms/b-cm")
+            #print(f"Comparing to pin definition : {N_iso[material][iso]} atoms/b-cm")
+            n_isotopes_per_mat[key][iso] = n_iso/vol
+            #print(f"Material {material_name}, Isotope {iso}, Density {n_iso}, pos {pos}")
+        print(n_isotopes_per_mat)
+    # extract fision rates
+    for pos_idx in pin_positions:
+        detector_name = f"_pin_pos_{pos_idx}_2G"
+        n_groups = detectorFile.detectors[detector_name].tallies.shape[0]
+        n_reactions = detectorFile.detectors[detector_name].tallies.shape[1]
+        for g in range(n_groups):
+            for r in range(n_reactions):
+                rate = detectorFile.detectors[detector_name].tallies[g, r]
+                reaction = tally_index_to_react[r]
+                isotope = reaction.split("_")[0]
+                # Identify material corresponding to the pin position
+                for key in n_isotopes_per_mat.keys():
+                    material, pos = key
+                    if pos == pos_idx:
+                        if isotope in fission_isotopes: #or isotope in ngamma_isotopes:
+                            ### Sanity check : compare N_iso from pin definition and from depletion file
+                            symmetry_factor = 1 if pos in pos_on_diag else 2
+                            N_iso_pin = N_iso[material][isotope]
+                            N_iso_dep = n_isotopes_per_mat[key][isotope] / symmetry_factor
+                            if abs(N_iso_pin - N_iso_dep)/N_iso_pin > 0.1:
+                                print(f"Warning : large discrepancy between N_iso from pin definition and from depletion file for isotope {isotope} in material {material} at position {pos_idx} : N_iso_pin = {N_iso_pin}, N_iso_dep = {N_iso_dep}")
+                            print(f"Material {material}, Position {pos_idx}, Isotope {isotope}, Rate {rate}, N_iso_pin = {N_iso_pin}, N_iso_dep = {N_iso_dep}")
+                            ### Now fill the rates arrays
+                            if reaction.endswith("fission") and isotope in fission_isotopes:
+                                fission_rates[g, pos_idx-1] += rate / symmetry_factor * N_iso_dep 
+                            elif reaction.endswith("ngamma") and isotope in ngamma_isotopes:
+                                ngamma_rates[g, pos_idx-1] += rate / symmetry_factor * N_iso_dep 
+                                total_absorptions[g, pos_idx-1] += rate / symmetry_factor * N_iso_dep
+                            print(f"Group {g+1}, Cell {pos_idx}, Reaction {reaction}, Rate: {rate}, N_iso_dep = {N_iso_dep}")
+    print(n_isotopes_per_mat)
+    
+    # recover 295g / 26g flux spectra
+    flux_295g = detectorFile.detectors["spectrum_295G"].tallies
+    flux_26g = detectorFile.detectors["spectrum_26G"].tallies
+    # recover absorption rate of U238 from the dedicated absorption detector
+    abs_U238 = abs_det_file.detectors["abs_U238_295G"].tallies 
+    print(f"Flux 295g : {flux_295g}")
+    print(f"Flux 26g : {flux_26g}")
+    fluxes = {"295g": flux_295g, "26g": flux_26g}
+    
+    fiss_over_abs = np.zeros((ngroups, npos))
+    for g in range(ngroups):
+        for pos_idx in pin_positions:
+            if total_absorptions[g, pos_idx-1] > 0:
+                fiss_over_abs[g, pos_idx-1] = fission_rates[g, pos_idx-1] / total_absorptions[g, pos_idx-1]
+            else:
+                fiss_over_abs[g, pos_idx-1] = 0.0
+    
+    print(f"Fission rates : {fission_rates}")
+    print(f"(n,gamma) rates : {ngamma_rates}")
+    print(f"Fission over absorption ratio : {fiss_over_abs}")
+    return keff, fission_rates, ngamma_rates, fiss_over_abs, fluxes, abs_U238
+
 
 def sum_S2rates_over_iso(rates_dict):
     """

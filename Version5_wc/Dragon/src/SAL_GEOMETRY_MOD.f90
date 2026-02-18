@@ -16,7 +16,7 @@ MODULE SAL_GEOMETRY_MOD
 
   USE SAL_GEOMETRY_TYPES
   USE PRECISION_AND_KINDS, ONLY : PDB, PI,TWOPI,HALFPI
-  USE SAL_NUMERIC_MOD,    ONLY : SAL141
+  USE SAL_NUMERIC_MOD, ONLY : SAL141
   USE SALGET_FUNS_MOD
 
 CONTAINS
@@ -59,11 +59,16 @@ CONTAINS
     GG%NB_ELEM=DATAIN(4)
     GG%NB_MACRO=DATAIN(5)
     GG%NB_FLUX=DATAIN(6)
+    ANGGEO=0.0D0
     SELECT CASE(TYPGEO)
        CASE(1)
-       ANGGEO=TWOPI/NBFOLD
+       IF(NBFOLD.EQ.3) THEN
+         ANGGEO=TWOPI/8.0D0 ! half diagonal symmetry case
+       ELSE
+         ANGGEO=TWOPI/NBFOLD
+       ENDIF
        CASE(2)
-       ANGGEO=TWOPI/NBFOLD
+       ANGGEO=PI/NBFOLD
        CASE(5:6)
        ANGGEO=HALFPI
        CASE(7)
@@ -73,7 +78,12 @@ CONTAINS
        CASE(12)
        ANGGEO=PI/6.
     END SELECT
-    IF(PRTIND >= 1) WRITE(FOUT,*) 'SAL100: TYPGEO=',TYPGEO,' NBFOLD=',NBFOLD
+    IF((PRTIND >= 1).AND.(TYPGEO.EQ.0)) THEN
+      WRITE(FOUT,*) 'SAL100: TYPGEO=',TYPGEO,' NBFOLD=',NBFOLD
+    ELSE IF(PRTIND >= 1) THEN
+      WRITE(FOUT,*) 'SAL100: TYPGEO=',TYPGEO,' NBFOLD=',NBFOLD, &
+      & ' ANGGEO=',ANGGEO,' radians'
+    ENDIF
     LGSPEC=(TYPGEO/=0).AND.(NBFOLD==0)
     IF(LGSPEC) THEN
       IF(ISPEC==0) THEN
@@ -133,7 +143,7 @@ CONTAINS
     !
     !---------------------------------------------------------------------
     !
-    USE SAL_GEOMETRY_TYPES, ONLY : TYPGEO,NBFOLD,NIPAR,NRPAR,ALLSUR,NANIS,ISPEC
+    USE SAL_GEOMETRY_TYPES, ONLY : TYPGEO,NBFOLD,NIPAR,NRPAR,ALLSUR,NANIS,IC,ISPEC,ANGGEO
     USE SAL_TRACKING_TYPES, ONLY : PRTIND
     !****
     IMPLICIT NONE
@@ -143,15 +153,19 @@ CONTAINS
 
     ! local variable
     ! ***************
-    INTEGER :: ELEM,OK,I,TYPE
+    INTEGER :: ELEM,OK,I,TYPE,IMED,INB
+    REAL(PDB) :: X1,Y1,X2,Y2,XMIN,XMAX,YMIN,YMAX
     CHARACTER(LEN=4) :: HSYM
     REAL(PDB),PARAMETER :: CONV=PI/180._PDB
     INTEGER, PARAMETER :: FOUT =6
+    INTEGER, ALLOCATABLE, DIMENSION(:) :: DATAIN
     !****
     ! allocate node arrays
     HSYM=' '
     IF((TYPGEO==0).OR.((TYPGEO==6).AND.(NBFOLD==0))) THEN
       CONTINUE
+    ELSE IF((TYPGEO==1).AND.(NBFOLD==3)) THEN
+      HSYM='QUAR'
     ELSE IF(((TYPGEO==1).AND.(NBFOLD==8)).OR.((TYPGEO==7).AND.(NBFOLD==0))) THEN
       HSYM='EIGH'
     ELSE IF(((TYPGEO==1).AND.(NBFOLD==6)).OR.((TYPGEO==8).AND.(NBFOLD==0))) THEN
@@ -174,24 +188,65 @@ CONTAINS
       WRITE(*,*) "TYPGEO=",TYPGEO," NBFOLD=",NBFOLD
       CALL XABORT('SAL110: non supported type of symmetry')
     ENDIF
+    IF((PRTIND>0).AND.(HSYM.NE.' ')) WRITE(FOUT,'(18H SAL110: SYMMETRY=,A4,1H.)') HSYM
     ALLOCATE (GG%IPAR(NIPAR,GG%NB_ELEM), GG%RPAR(NRPAR,GG%NB_ELEM), STAT=OK)
     IF(OK/=0) CALL XABORT('SAL110: not enough memory I,R')
-
+    !
     !*    read surfacic file
     CALL SALINP(GG)
+    !
+    ! translate the domain for cyclic cases
+    XMIN=1.E10_PDB; YMIN=1.E10_PDB; XMAX=-1.E10_PDB; YMAX=-1.E10_PDB;
+    DO ELEM=1,GG%NB_ELEM
+      TYPE=GG%IPAR(1,ELEM)
+      IF(TYPE==1) THEN
+        X1=GG%RPAR(1,ELEM); Y1=GG%RPAR(2,ELEM);
+        XMIN=MIN(XMIN,X1); YMIN=MIN(YMIN,Y1); XMAX=MAX(XMAX,X1); YMAX=MAX(YMAX,Y1);
+        X2=X1+GG%RPAR(3,ELEM); Y2=Y1+GG%RPAR(4,ELEM);
+        XMIN=MIN(XMIN,X2); YMIN=MIN(YMIN,Y2); XMAX=MAX(XMAX,X2); YMAX=MAX(YMAX,Y2);
+      ENDIF
+    ENDDO
+    IF(ABS(XMIN).LT.1.D-10) XMIN=0.D0
+    IF(ABS(YMIN).LT.1.D-10) YMIN=0.D0
+    SELECT CASE(TYPGEO)
+    CASE(4,9)
+      DO ELEM=1,GG%NB_ELEM
+        GG%RPAR(1,ELEM)=GG%RPAR(1,ELEM)-(XMIN+XMAX)/2.D0
+        GG%RPAR(2,ELEM)=GG%RPAR(2,ELEM)-(XMIN+XMAX)/2.D0
+      ENDDO
+      DO I=1,GG%NBBCDA
+        GG%BCDATAREAD(I)%BCDATA(1)=GG%BCDATAREAD(I)%BCDATA(1)-(XMIN+XMAX)/2.D0
+        GG%BCDATAREAD(I)%BCDATA(2)=GG%BCDATAREAD(I)%BCDATA(2)-(XMIN+XMAX)/2.D0
+        IF(ABS(GG%BCDATAREAD(I)%BCDATA(1)).LT.1.D-10) GG%BCDATAREAD(I)%BCDATA(1)=0.D0
+        IF(ABS(GG%BCDATAREAD(I)%BCDATA(2)).LT.1.D-10) GG%BCDATAREAD(I)%BCDATA(2)=0.D0
+      ENDDO
+    CASE(5,6,7,8,10,11,12)
+      DO ELEM=1,GG%NB_ELEM
+        GG%RPAR(1,ELEM)=GG%RPAR(1,ELEM)-XMIN
+        GG%RPAR(2,ELEM)=GG%RPAR(2,ELEM)-YMIN
+      ENDDO
+      DO I=1,GG%NBBCDA
+        GG%BCDATAREAD(I)%BCDATA(1)=GG%BCDATAREAD(I)%BCDATA(1)-XMIN
+        GG%BCDATAREAD(I)%BCDATA(2)=GG%BCDATAREAD(I)%BCDATA(2)-YMIN
+        IF(ABS(GG%BCDATAREAD(I)%BCDATA(1)).LT.1.D-10) GG%BCDATAREAD(I)%BCDATA(1)=0.D0
+        IF(ABS(GG%BCDATAREAD(I)%BCDATA(2)).LT.1.D-10) GG%BCDATAREAD(I)%BCDATA(2)=0.D0
+      ENDDO
+    END SELECT
     !
     !*    unite the ends of elements, redefine elements
     CALL SAL128(GG%RPAR,GG%IPAR,GG%NB_ELEM)
     !
-    IF(ISPEC==0) THEN
+    IF((ISPEC==0).AND.(IC.EQ.4)) THEN
       !*    unfold domain
-      IF((LBCDIAG.AND.(TYPGEO==0)).OR.(LBCDIAG.AND.(TYPGEO==7))) THEN
+      IF(HSYM=='QUAR') THEN
         IF(PRTIND>0) WRITE(*,*) "SAL110: DIAG unfold"
         IF(NANIS>1) CALL XABORT('SAL110: unfold unsupported with NANIS>1')
+        ANGGEO=2.0*ANGGEO
         CALL SALFOLD_1('DIAG',GG)
       ELSE IF(HSYM=='EIGH') THEN
         IF(PRTIND>0) WRITE(*,*) "SAL110: DIAG + SYME unfold"
         IF(NANIS>1) CALL XABORT('SAL110: unfold unsupported with NANIS>1')
+        ANGGEO=2.0*ANGGEO
         CALL SALFOLD_1('DIAG',GG)
         CALL SALFOLD_1('SYMX',GG)
         CALL SALFOLD_1('SYMY',GG)
@@ -233,7 +288,8 @@ CONTAINS
         TYPGEO=0; NBFOLD=0
       ENDIF
     ENDIF
-    IF(PRTIND>0) WRITE(FOUT,*) 'SAL110: after unfolding -- NB_ELEM=',GG%NB_ELEM
+    IF(PRTIND>0) WRITE(FOUT,*) 'SAL110: after unfolding -- NB_ELEM=',GG%NB_ELEM, &
+    & ' NB_PERIM=',GG%NBBCDA
 
     IF(PRTIND>5) THEN
       !*    print surfacic file
@@ -283,11 +339,38 @@ CONTAINS
         ENDIF
       ENDDO
     ENDIF
-
-    ! allocate media and element arrays 
+    !
+    !*    read medium per region
+    ALLOCATE(DATAIN(GG%NB_NODE),GG%MED(GG%NB_NODE), STAT=OK)
+    IF(OK/=0) CALL XABORT('SAL110: not enough memory NODE')
+    CALL SALGET(DATAIN,GG%NB_NODE,F_GEO,FOUT0,'media per node')
+  
+    ! number of media fixed to maximum of datain
+    NBMED = MAXVAL(DATAIN(1:GG%NB_NODE))
+    !
+    !*    check and define med for code regions
+    DO INB=1,GG%NB_NODE
+       IMED=DATAIN(INB)
+       IF(IMED>NBMED.OR.IMED<0)THEN
+          WRITE(*,*) 'medium : ',IMED
+          WRITE(*,*) 'inb, nbmed, nbnode : ',INB,NBMED,GG%NB_NODE
+          CALL XABORT('SAL110: wrong medium in a region')
+       ENDIF
+       GG%MED(INB)=IMED
+    ENDDO
+    DEALLOCATE(DATAIN)
+    IF(PRTIND>5) THEN
+      WRITE(FOUT,'(12H* mil(nbreg))')
+      WRITE(FOUT,'(10I7)') (GG%MED(I),I=1,GG%NB_NODE)
+      WRITE(FOUT,'(3HEND)')
+      WRITE(FOUT,'(5H--cut,75(1H-))')
+    ENDIF
+    !
+    !* allocate media and element arrays 
     ALLOCATE (GG%VOL_NODE(GG%NB_NODE),GG%PPERIM_NODE(GG%NB_NODE+1),GG%IBC2_ELEM(GG%NB_ELEM), &
-         GG%ISURF2_ELEM(GG%NB_ELEM),GG%MED(GG%NB_NODE), STAT=OK)
+         GG%ISURF2_ELEM(GG%NB_ELEM), STAT=OK)
     IF(OK/=0) CALL XABORT('SAL110: not enough memory VOL')
+    GG%ISURF2_ELEM(:GG%NB_ELEM)=0
 
     !*    2D boundary conditions and macro contacts:
     !     - defines NB_BC2, NBSUR2
@@ -299,14 +382,8 @@ CONTAINS
     !*    topological check
     CALL SAL140(GG%NB_NODE,GG%RPAR,GG%IPAR,GG%PPERIM_NODE,GG%PERIM_NODE)
     !
-    !*    volumes, surfaces, put local nbers in node, and read media:
+    !*    volumes, surfaces, put local nbers in node:
     CALL SAL160(GG)
-    IF(PRTIND>5) THEN
-      WRITE(FOUT,'(12H* mil(nbreg))')
-      WRITE(FOUT,'(10I7)') (GG%MED(I),I=1,GG%NB_NODE)
-      WRITE(FOUT,'(3HEND)')
-      WRITE(FOUT,'(5H--cut,75(1H-))')
-    ENDIF
     !
     !*    printout basic domain
     CALL SAL170(GG)
@@ -325,7 +402,7 @@ CONTAINS
     !
     !---------------------------------------------------------------------
     !
-    USE SAL_GEOMETRY_TYPES, ONLY : ALLSUR,PREC
+    USE SAL_GEOMETRY_TYPES, ONLY : TYPGEO,ALLSUR,PREC
     !****
     IMPLICIT NONE
     ! in variable
@@ -334,7 +411,8 @@ CONTAINS
     !****
     INTEGER, PARAMETER :: N_DATAIN=25
     INTEGER, DIMENSION (N_DATAIN) :: DATAIN
-    INTEGER   :: ELEM,I,TYPE,NBER
+    INTEGER   :: ELEM,I,TYPE,NBER,NBOUND1,NBOUND2
+    CHARACTER(LEN=131) :: HSMG
     INTEGER, PARAMETER, DIMENSION(0:4) :: READ_BC_LEN=(/1,1,3,3,3/)
     INTEGER, PARAMETER :: FOUT =6
     REAL(PDB) :: ANGLE,BCDATA_TDT(3)
@@ -393,9 +471,64 @@ CONTAINS
             GG%BCDATAREAD(I)%BCDATA(6)=1._PDB
             LBCDIAG=LBCDIAG.OR.((GG%BCDATAREAD(I)%BCDATA(1)==0._PDB).AND.(GG%BCDATAREAD(I)%BCDATA(2)==0._PDB) &
                            .AND.(GG%BCDATAREAD(I)%BCDATA(5)==PI/4._PDB))
+            IF((TYPGEO.EQ.3).OR.(TYPGEO.EQ.6).OR.(TYPGEO.EQ.6)) THEN
+              IF(DIS(ANGLE,0.0_PDB).AND.DIS(ANGLE,PI/2._PDB)) THEN
+                WRITE(HSMG,100) ANGLE,I,TYPGEO
+                CALL XABORT(HSMG)
+              ENDIF
+            ELSE IF(TYPGEO.EQ.7) THEN
+              IF(DIS(ANGLE,0.0_PDB).AND.DIS(ANGLE,PI/2._PDB).AND.DIS(ANGLE,PI/4._PDB)) THEN
+                WRITE(HSMG,100) ANGLE,I,TYPGEO
+                CALL XABORT(HSMG)
+              ENDIF
+            ELSE IF((TYPGEO.EQ.8).OR.(TYPGEO.EQ.10)) THEN
+              IF(DIS(ANGLE,0.0_PDB).AND.DIS(ANGLE,PI/3._PDB).AND.DIS(ANGLE,2._PDB*PI/3._PDB)) THEN
+                WRITE(HSMG,100) ANGLE,I,TYPGEO
+                CALL XABORT(HSMG)
+              ENDIF
+            ELSE IF(TYPGEO.EQ.9) THEN
+              IF(DIS(ANGLE,0.0_PDB).AND.DIS(ANGLE,PI/3._PDB).AND.DIS(ANGLE,2._PDB*PI/3._PDB).AND. &
+              & DIS(ANGLE,PI).AND.DIS(ANGLE,4._PDB*PI/3._PDB).AND.DIS(ANGLE,5._PDB*PI/3._PDB)) THEN
+                WRITE(HSMG,100) ANGLE,I,TYPGEO
+                CALL XABORT(HSMG)
+              ENDIF
+            ELSE IF(TYPGEO.EQ.11) THEN
+              IF(DIS(ANGLE,0.0_PDB).AND.DIS(ANGLE,PI/3._PDB)) THEN
+                WRITE(HSMG,100) ANGLE,I,TYPGEO
+                CALL XABORT(HSMG)
+              ENDIF
+            ELSE IF(TYPGEO.EQ.12) THEN
+              IF(DIS(ANGLE,0.0_PDB).AND.DIS(ANGLE,PI/6._PDB).AND.DIS(ANGLE,2._PDB*PI/3._PDB)) THEN
+                WRITE(HSMG,100) ANGLE,I,TYPGEO
+                CALL XABORT(HSMG)
+              ENDIF
+            ENDIF
           ENDIF
        ENDDO
+       !
+       !*  check consistency of BC data
+       NBOUND1=0
+       DO ELEM=1,GG%NB_ELEM
+          IF((GG%IPAR(2,ELEM).EQ.0).OR.(GG%IPAR(3,ELEM).EQ.0)) NBOUND1=NBOUND1+1
+       ENDDO
+       NBOUND2=0
+       DO I=1,GG%NBBCDA
+          NBOUND2=NBOUND2+GG%BCDATAREAD(I)%NBER
+       ENDDO
+       IF(NBOUND1.NE.NBOUND2) THEN
+          WRITE(HSMG,'(63HSALINP: BOUNDARY CONDITION ERROR. NB OF ELEMENTS ON PERIMETERS=, &
+          & I6,47H. NUMBER OF EXPLICIT BOUNDARY SEGMENTS IN DATA=,I6,1H.)') NBOUND1,NBOUND2
+          CALL XABORT(HSMG)
+       ENDIF
     ENDIF
+    100 FORMAT(34HSALINP: FORBIDDEN PERIMETER ANGLE=,1P,E13.4,18H RADIANS FOR SIDE=,I3, &
+    & 12H AND TYPGEO=,I3,1H.)
+    CONTAINS
+      FUNCTION DIS(A,B) RESULT(NOTID)
+        REAL(PDB) :: A,B
+        LOGICAL :: NOTID
+        NOTID=ABS(A-B).GT.1.0E-6
+      END FUNCTION DIS
   END SUBROUTINE SALINP
   !
   SUBROUTINE SAL126(RPAR,IPAR)
@@ -1767,7 +1900,7 @@ CONTAINS
     !
     !---------------------------------------------------------------------
     !
-    USE SAL_GEOMETRY_TYPES,     ONLY : TYPGEO,ANGGEO,EPS,LX=>LENGTHX,LY=>LENGTHY,G_BC_TYPE
+    USE SAL_GEOMETRY_TYPES, ONLY : TYPGEO,ANGGEO,EPS,LX=>LENGTHX,LY=>LENGTHY,G_BC_TYPE
     USE SAL_NUMERIC_MOD, ONLY : SAL141
     !****
     IMPLICIT NONE
@@ -1789,6 +1922,7 @@ CONTAINS
     REAL(PDB), DIMENSION(NPERIM,6) :: AUX_DIST
     INTEGER   :: I,J,K,M,ELEM,TYPBC,IBC,IDATA,NBE(6),OK,NAXES
     REAL(PDB) :: ANGLE,X,Y,D
+    CHARACTER(LEN=131) :: HSMG
     !****
     NAXES=0
     IF((TYPGEO==5).OR.(TYPGEO==6).OR.(TYPGEO==11)) THEN
@@ -1801,13 +1935,6 @@ CONTAINS
     !*    calculate number of elements on axes,
     !     and their distances to the origin of the axis
     NBE=0
-
-    DO I=1,NPERIM
-       ELEM=PERIM(I)
-       IBC=IBC2_ELEM(ELEM)
-       TYPBC=TYPE_BC2(IBC)
-       IDATA=IDATA_BC2(IBC)
-    ENDDO
     DO I=1,NPERIM
        ELEM=PERIM(I)
        IBC=IBC2_ELEM(ELEM)
@@ -1997,7 +2124,10 @@ CONTAINS
           CASE DEFAULT
              CALL XABORT('SAL130_10: boundary condition not implemented.')
        END SELECT
-       IF(M>=NAXES+1) CALL XABORT('SAL130_10: element not on axes')
+       IF(M>=NAXES+1) THEN
+         WRITE(HSMG,'(42HSAL130_10: element not on axes for typgeo=,i3,1h.)') TYPGEO
+         CALL XABORT(HSMG)
+       ENDIF
        NBE(M)=NBE(M)+1
        LIST_ELEMS(NBE(M),M)=ELEM
        !        sort the element list according their distance to
@@ -2156,8 +2286,8 @@ CONTAINS
     !
     !---------------------------------------------------------------------
     !
-    USE SAL_GEOMETRY_TYPES,      ONLY : G_BC_MAX_LEN,G_BC_LEN,G_BC_TYPE,NIPAR,EPS, &
-                                    ANGGEO,TYPGEO,LENGTHX,LENGTHY,ALLSUR
+    USE SAL_GEOMETRY_TYPES, ONLY : G_BC_MAX_LEN,G_BC_LEN,G_BC_TYPE,NIPAR,EPS, &
+                                   ANGGEO,TYPGEO,LENGTHX,LENGTHY,ALLSUR
     !****
     IMPLICIT NONE
     ! in variable
@@ -2180,13 +2310,11 @@ CONTAINS
     !*    BCDATA for surfaces of type G_BC_TYPE(-1)
     !
     LGALLS=ALLSUR/=0
-    ITBC=1      ! the first bc data
-    TMP_BCDATA(:,:) = 0._PDB
-    TMP_BCDATA(6,ITBC)=1._PDB
-    ITBC=ITBC+1
-    TMP_BCDATA(6,ITBC)=GG%ALBEDO
+    ITBC=0      ! the first bc data
+    !
     !*    treat approximate boundary condictions
     IF(LGALLS)THEN
+       ITBC=1
        !        ALL BC'S PRODUIT SURFACES
        IF(GG%DEFAUL==1)THEN
           !           SPECULAR REFLEXION -> ISOTROPIC REFLEXION WITH ALBEDO=1
@@ -2198,8 +2326,10 @@ CONTAINS
     CALL SAL131_2(GG%NB_ELEM,GG%DEFAUL,GG%IPAR,GG%IBC2_ELEM,GG%TYPE_BC2,GG%IDATA_BC2)
     !
     IF(GG%NBBCDA>0)THEN
+       ANGLE=0._PDB
        DO I=1,GG%NBBCDA
           ITBC=ITBC+1
+          IF(ITBC.GT.GG%NB_ELEM+5) CALL XABORT('SAL131: BCDATA overflow')
           TMP_BCDATA(:,ITBC)=GG%BCDATAREAD(I)%BCDATA(:)
           TYPE=GG%BCDATAREAD(I)%SALTYPE
           SELECT CASE(TYPE)
@@ -2271,7 +2401,7 @@ CONTAINS
                    !                    for the axis 1:keep anggeo,cos(anggeo),sin(anggeo)
                    ANGLE=ANGGEO
                    IF(IDATA(1)==0) IDATA(1)=ITBC
-                ELSEIF(ABS(ANGLE+ANGGEO)<EPS) THEN
+                ELSEIF((ABS(ANGLE+ANGGEO)<EPS).OR.(ABS(ANGLE)<EPS)) THEN
                    !                    for the axis 2:keep -anggeo,cos(-anggeo),sin(-anggeo)
                    ANGLE=-ANGGEO
                    IF(IDATA(2)==0) IDATA(2)=ITBC
@@ -2298,14 +2428,9 @@ CONTAINS
              SELECT CASE(TYPGEO)
                 CASE(1,2)
                 IF(ABS(ANGLE-0.)<EPS) THEN
-                   ANGLE=0.
                    IF(IDATA(1)==0) IDATA(1)=ITBC
-                ELSEIF(ABS(ANGLE-ANGGEO)<EPS) THEN
-                   ANGLE=ANGGEO
-                   IF(IDATA(2)==0) IDATA(2)=ITBC
                 ELSE
-                   WRITE(*,*) ' itbc=',ITBC,' angle=',ANGLE,' anggeo=',ANGGEO
-                   CALL XABORT('SAL131: error in angle of symmetry axis')
+                   IF(IDATA(2)==0) IDATA(2)=ITBC
                 ENDIF
                 CASE(6:8)
                 !                 adjust translation data according to the rectangle/triangle sides
@@ -2326,7 +2451,7 @@ CONTAINS
              ENDIF
           END SELECT
           !
-          !           modify notation for bd conditions
+          !           modify notation for boundary conditions
           NBER=GG%BCDATAREAD(I)%NBER
           DO J=1,NBER
              ELEM=GG%BCDATAREAD(I)%ELEMNB(J)
@@ -2339,7 +2464,7 @@ CONTAINS
                 II=2
              ELSE
                 LGBC=GG%IPAR(3,ELEM)<=0
-                IF(LGBC)II=3
+                IF(LGBC) II=3
              ENDIF
              IF(.NOT.LGBC) THEN
                 WRITE(*,*) 'elem :',ELEM
@@ -2395,10 +2520,11 @@ CONTAINS
           IF(IDATA(I)==0) THEN
              !              there is no elements on this axis,add a bcdata for this axis
              ITBC=ITBC+1
+             ANGLE=0._PDB
              IF(TYPGEO==1) THEN
                 !                 symmetry
                 IF(I==1) THEN
-                   ANGLE=0
+                   ANGLE=0._PDB
                 ELSE
                    ANGLE=ANGGEO
                 ENDIF
@@ -2410,8 +2536,8 @@ CONTAINS
                    ANGLE=-ANGGEO
                 ENDIF
              ENDIF
-             TMP_BCDATA(1,ITBC)=0.
-             TMP_BCDATA(2,ITBC)=0.
+             TMP_BCDATA(1,ITBC)=0._PDB
+             TMP_BCDATA(2,ITBC)=0._PDB
              TMP_BCDATA(3,ITBC)=COS(ANGLE)
              TMP_BCDATA(4,ITBC)=SIN(ANGLE)
              TMP_BCDATA(5,ITBC)=ANGLE
@@ -2424,7 +2550,6 @@ CONTAINS
     ENDIF
     !*    allocate bcdata
     ALLOCATE (GG%BCDATA(G_BC_MAX_LEN,ITBC), STAT=OK)
-    ! set to zero
     IF(OK/=0) CALL XABORT('SAL131: not enough memory R')
     GG%BCDATA(:,1:ITBC)=TMP_BCDATA(:,1:ITBC)
     GG%NALBG=ITBC
@@ -2485,8 +2610,8 @@ CONTAINS
           IF(IBC==0) CALL XABORT('SAL131_2: surf-element relation error')
           IF(TYPE_BC2(IBC)/=G_BC_TYPE(-1)) CALL XABORT('SAL131_2: two elements to a surface')
           TYPE_BC2(IBC)=G_BC_TYPE(DEFAUL)
-          !           put position of "defaul" in bcdata table (always the second position)
-          IDATA_BC2(IBC)=2
+          !           put position of "defaul" in bcdata table (use default albedo)
+          IDATA_BC2(IBC)=0
        ENDIF
     ENDDO
     !
@@ -2715,21 +2840,17 @@ CONTAINS
     ! analyse domain definition: 2D volumes, surfaces
     !  - compute node volumes
     !  - compute areas of 2d surfaces
-    !  - read medium data
     !
     !Parameters: input/output
     ! GG    geometry descriptor
     !
     !---------------------------------------------------------------------
     !
-    USE SAL_GEOMETRY_TYPES, ONLY : G_BC_TYPE,NBMED
+    USE SAL_GEOMETRY_TYPES, ONLY : G_BC_TYPE
     !****
     IMPLICIT NONE
     TYPE(T_G_BASIC), INTENT(INOUT)  :: GG
-    !****
-    INTEGER :: INB,IMED
-    INTEGER, DIMENSION(GG%NB_NODE) :: DATAIN
-    !****
+    !
     !     SUBROUTINE SAL160_2(NB_ELEM,IPAR,RPAR,VOL2,ISURF2_ELEM,NB_SURF2,SURF2)
     IF(GG%NB_SURF2==0) THEN
       CALL SAL160_2(GG%NB_ELEM,GG%IPAR,GG%RPAR,GG%VOL_NODE,GG%ISURF2_ELEM, &
@@ -2738,23 +2859,6 @@ CONTAINS
       CALL SAL160_2(GG%NB_ELEM,GG%IPAR,GG%RPAR,GG%VOL_NODE,GG%ISURF2_ELEM, &
          GG%NB_SURF2,GG%SURF2)
     ENDIF
-    !
-    !*    read medium per region
-    CALL SALGET(DATAIN,GG%NB_NODE,F_GEO,FOUT0,'media per node')
-  
-    ! number of media fixed to maximum of datain
-    NBMED = MAXVAL(DATAIN(1:GG%NB_NODE))
-    !
-    !*    check and define med for code regions
-    DO INB=1,GG%NB_NODE
-       IMED=DATAIN(INB)
-       IF(IMED>NBMED.OR.IMED<0)THEN
-          WRITE(*,*) 'medium : ',IMED
-          WRITE(*,*) 'inb, nbmed, nbnode : ',INB,NBMED,GG%NB_NODE
-          CALL XABORT('SAL160: wrong medium in a region')
-       ENDIF
-       GG%MED(INB)=IMED
-    ENDDO
     !
   END SUBROUTINE SAL160
   !
@@ -3005,6 +3109,283 @@ CONTAINS
     ENDIF
   END SUBROUTINE SALROT
   !
+  SUBROUTINE SALFOLD_0(GG,IPASS,IB,NBBCDA,ALIGN,LFOLD,IFOLD)
+    !
+    !---------------------------------------------------------------------
+    !
+    !Purpose:
+    ! unfold the domain with reflection relative to axis AXIS_XY
+    !
+    !Parameters: input
+    ! IB     actual unfolding axis
+    ! NBBCDA number of perimeters before unfolding
+    ! ALIGN  unfolding axes
+    ! LFOLD  identification flag to all unfolding axes
+    !
+    !Parameters: input/output
+    ! GG     geometry descriptor
+    !
+    !Parameters: output
+    ! IFOLD folded element indices corresponding to unfolded ones
+    !
+    !---------------------------------------------------------------------
+    !
+    USE SAL_GEOMETRY_TYPES, ONLY : NIPAR,NRPAR,LENGTHX,LENGTHY
+    USE SAL_NUMERIC_MOD,  ONLY : FINDLC,DET_ROSETTA
+    IMPLICIT NONE
+    INTEGER, INTENT(IN) :: IPASS,IB,NBBCDA
+    LOGICAL, DIMENSION(NBBCDA), INTENT(IN) :: LFOLD
+    REAL(PDB), DIMENSION(3,3,NBBCDA), INTENT(INOUT) :: ALIGN
+    TYPE(T_G_BASIC), INTENT(INOUT) :: GG
+    INTEGER, DIMENSION(:), INTENT(OUT) :: IFOLD
+    !
+    ! AXIS_XY values of AXIS_X1, AXIS_Y1, AXIS_X2 and AXIS_Y2 for the
+    !         reflecting axis
+    INTEGER :: ELEM,TYPE,OK,TMP_NB_ELEM,TMP_NBBCDA,I,J,IBC,INDBC,IAUX
+    INTEGER, DIMENSION(3) :: IPAR_TMP
+    REAL(PDB), DIMENSION(4) :: AXIS_XY
+    REAL(PDB), DIMENSION(6) :: RPAR_TMP
+    REAL(PDB),PARAMETER :: EPS=1.0E-5_PDB
+    REAL(PDB) :: X1,X2,X4,Y1,Y2,Y4,DX4,DY4,RAD,THETA1,THETA2,X1B,Y1B,X4B, &
+                 Y4B,XMIN,YMIN,XMAX,YMAX,PHI1,PHI2,DELPHI,DET1,DET2
+    !
+    ! allocatable arrays
+    INTEGER, ALLOCATABLE, DIMENSION(:) :: PERIM_ELEM
+    LOGICAL, ALLOCATABLE, DIMENSION(:) :: ISPERIM
+    INTEGER, POINTER, DIMENSION(:,:) :: TMP_IPAR
+    INTEGER, ALLOCATABLE, DIMENSION(:,:) :: I2
+    REAL(PDB), ALLOCATABLE, DIMENSION(:) :: ANGLE,ALBEDO
+    REAL(PDB), POINTER, DIMENSION(:,:) :: TMP_RPAR
+    REAL(PDB), ALLOCATABLE, DIMENSION(:,:,:) :: ALIGN2
+    TYPE(T_SALBCDATA), POINTER, DIMENSION(:) :: TMP_BCDATAREAD
+    !
+    ! compute size of the unfold geometry
+    XMIN=1.E10_PDB; YMIN=1.E10_PDB; XMAX=-1.E10_PDB; YMAX=-1.E10_PDB;
+    DO ELEM=1,GG%NB_ELEM
+      TYPE=GG%IPAR(1,ELEM)
+      IF(TYPE==1) THEN
+        X1=GG%RPAR(1,ELEM); Y1=GG%RPAR(2,ELEM);
+        XMIN=MIN(XMIN,X1); YMIN=MIN(YMIN,Y1); XMAX=MAX(XMAX,X1); YMAX=MAX(YMAX,Y1);
+        X2=X1+GG%RPAR(3,ELEM); Y2=Y1+GG%RPAR(4,ELEM);
+        XMIN=MIN(XMIN,X2); YMIN=MIN(YMIN,Y2); XMAX=MAX(XMAX,X2); YMAX=MAX(YMAX,Y2);
+      ENDIF
+    ENDDO
+    LENGTHX=XMAX-XMIN; LENGTHY=YMAX-YMIN;
+    !
+    ! allocate new surfacic element containers
+    XMIN=1.E10_PDB; YMIN=1.E10_PDB; XMAX=-1.E10_PDB; YMAX=-1.E10_PDB;
+    ALLOCATE(TMP_IPAR(NIPAR,3*GG%NB_ELEM), TMP_RPAR(NRPAR,3*GG%NB_ELEM), &
+             I2(2,GG%NB_ELEM), STAT=OK)
+    IF(OK/=0) CALL XABORT('SALFOLD_0: not enough memory')
+    TMP_IPAR(:,:)=0; TMP_RPAR(:,:)=0._PDB;
+    !
+    ! loop over old elements
+    TMP_NB_ELEM=0
+    THETA1=0._PDB; THETA2=0._PDB;
+    I2(:2,:GG%NB_ELEM)=0
+    AXIS_XY(1)=ALIGN(1,1,IB) ; AXIS_XY(2)=ALIGN(1,2,IB)
+    AXIS_XY(3)=ALIGN(2,1,IB) ; AXIS_XY(4)=ALIGN(2,2,IB)
+    OUT1: DO ELEM=1,GG%NB_ELEM
+      TYPE=GG%IPAR(1,ELEM)
+      X1=GG%RPAR(1,ELEM); Y1=GG%RPAR(2,ELEM); RAD=GG%RPAR(3,ELEM)
+      IF(TYPE==1) THEN
+        XMIN=MIN(XMIN,X1); YMIN=MIN(YMIN,Y1); XMAX=MAX(XMAX,X1); YMAX=MAX(YMAX,Y1);
+        X2=X1+GG%RPAR(3,ELEM); Y2=Y1+GG%RPAR(4,ELEM)
+        ! Cycle if this element is sitting on an unfolding axe
+        DO IBC=1,NBBCDA
+          IF(.NOT.LFOLD(IBC)) CYCLE
+          IF((IPASS.EQ.1).AND.(IBC.NE.IB)) CYCLE
+          ALIGN(3,1,IBC)=X1; ALIGN(3,2,IBC)=Y1
+          DET1 = DET_ROSETTA(ALIGN(1,1,IBC),3)
+          ALIGN(3,1,IBC)=X2; ALIGN(3,2,IBC)=Y2;
+          DET2 = DET_ROSETTA(ALIGN(1,1,IBC),3)
+          IF((ABS(DET1).LE.1.0E-4).AND.(ABS(DET2).LE.1.0E-4)) CYCLE OUT1
+        ENDDO
+        !
+        CALL SALSYM(AXIS_XY(1),AXIS_XY(2),AXIS_XY(3),AXIS_XY(4),X1,Y1,X4,Y4)
+        CALL SALSYM(AXIS_XY(1),AXIS_XY(2),AXIS_XY(3),AXIS_XY(4),X2,Y2,DX4,DY4)
+      ELSE IF(TYPE==2) THEN
+        CALL SALSYM(AXIS_XY(1),AXIS_XY(2),AXIS_XY(3),AXIS_XY(4),X1,Y1,X4,Y4)
+        THETA1=0._PDB; THETA2=0._PDB;
+      ELSE IF(TYPE==3) THEN
+        CALL SALSYM(AXIS_XY(1),AXIS_XY(2),AXIS_XY(3),AXIS_XY(4),X1,Y1,X4,Y4)
+        X1B=X1+RAD*COS(GG%RPAR(4,ELEM)); Y1B=Y1+RAD*SIN(GG%RPAR(4,ELEM));
+        CALL SALSYM(AXIS_XY(1),AXIS_XY(2),AXIS_XY(3),AXIS_XY(4),X1B,Y1B,X4B,Y4B)
+        IF((ABS(X4B-X4)<EPS*ABS(RAD)).AND.(Y4B-Y4 > 0._PDB)) THEN
+          THETA1=PI/2._PDB
+        ELSE IF((ABS(X4B-X4)<EPS*ABS(RAD)).AND.(Y4B-Y4 < 0._PDB)) THEN
+          THETA1=3._PDB*PI/2._PDB
+        ELSE IF(X4B-X4 > 0._PDB) THEN
+          THETA1=ATAN((Y4B-Y4)/(X4B-X4))
+        ELSE
+          THETA1=ATAN((Y4B-Y4)/(X4B-X4))+PI
+        ENDIF
+        X1B=X1+RAD*COS(GG%RPAR(5,ELEM)); Y1B=Y1+RAD*SIN(GG%RPAR(5,ELEM));
+        CALL SALSYM(AXIS_XY(1),AXIS_XY(2),AXIS_XY(3),AXIS_XY(4),X1B,Y1B,X4B,Y4B)
+        IF((ABS(X4B-X4)<EPS*ABS(RAD)).AND.(Y4B-Y4 > 0._PDB)) THEN
+          THETA2=PI/2._PDB
+        ELSE IF((ABS(X4B-X4)<EPS*ABS(RAD)).AND.(Y4B-Y4 < 0._PDB)) THEN
+          THETA2=3._PDB*PI/2._PDB
+        ELSE IF(X4B-X4 > 0._PDB) THEN
+          THETA2=ATAN((Y4B-Y4)/(X4B-X4))
+        ELSE
+          THETA2=ATAN((Y4B-Y4)/(X4B-X4))+PI
+        ENDIF
+      ELSE
+        WRITE(*,*) " elem=",ELEM," type=",TYPE
+        CALL XABORT('SALFOLD_0: invalid type of surfacic element')
+      ENDIF
+      IPAR_TMP(:3)=0
+      RPAR_TMP(:6)=0_PDB
+      RPAR_TMP(1)=X4; RPAR_TMP(2)=Y4;
+      IPAR_TMP(1)=TYPE;
+      IF(TYPE==1) THEN
+        RPAR_TMP(3)=DX4-X4; RPAR_TMP(4)=DY4-Y4;
+        RPAR_TMP(5)=SQRT(RPAR_TMP(3)**2+RPAR_TMP(4)**2)
+        XMIN=MIN(XMIN,X4); YMIN=MIN(YMIN,Y4); XMAX=MAX(XMAX,X4); YMAX=MAX(YMAX,Y4);
+        XMIN=MIN(XMIN,DX4); YMIN=MIN(YMIN,DY4); XMAX=MAX(XMAX,DX4); YMAX=MAX(YMAX,DY4);
+        IPAR_TMP(2)=GG%IPAR(3,ELEM); IPAR_TMP(3)=GG%IPAR(2,ELEM);
+      ELSE IF((TYPE==2).OR.(TYPE==3)) THEN
+        RPAR_TMP(3)=GG%RPAR(3,ELEM) ! RADIUS
+        IF(THETA2>THETA1) THETA1=THETA1+2._PDB*PI
+        PHI1=THETA2; DELPHI=THETA1-THETA2;
+        IF(DELPHI>0._PDB)THEN
+          PHI2=PHI1+DELPHI
+        ELSE
+          PHI2=PHI1
+          PHI1=PHI1+DELPHI
+        ENDIF
+        IF(TYPE==3)THEN
+          ! arc of circle: put phi1 within 0 and 2*pi
+          IF(PHI1>2._PDB*PI)THEN
+            IAUX=INT(PHI1/(2._PDB*PI))
+            DELPHI=(2._PDB*PI)*IAUX
+            PHI1=PHI1-DELPHI ; PHI2=PHI2-DELPHI
+          ELSEIF(PHI1<0._PDB)THEN
+            IAUX=INT((-PHI1+1.D-7)/(2._PDB*PI))+1
+            DELPHI=(2._PDB*PI)*IAUX
+            PHI1=PHI1+DELPHI ; PHI2=PHI2+DELPHI
+          ENDIF
+        ENDIF
+        RPAR_TMP(4)=PHI1; RPAR_TMP(5)=PHI2; ! ANGLES
+        IPAR_TMP(2)=GG%IPAR(2,ELEM); IPAR_TMP(3)=GG%IPAR(3,ELEM)
+      ENDIF
+      RPAR_TMP(6)=0._PDB
+      IF(IPASS==2) THEN
+        ! remove identical elements at pass 2
+        DO I=1,TMP_NB_ELEM
+          IF((ABS(TMP_RPAR(1,I)-RPAR_TMP(1))<=10.0*EPS).AND. &
+             (ABS(TMP_RPAR(2,I)-RPAR_TMP(2))<=10.0*EPS).AND. &
+             (ABS(TMP_RPAR(3,I)-RPAR_TMP(3))<=10.0*EPS).AND. &
+             (ABS(TMP_RPAR(4,I)-RPAR_TMP(4))<=10.0*EPS).AND. &
+             (ABS(TMP_RPAR(5,I)-RPAR_TMP(5))<=10.0*EPS)) THEN
+             CYCLE OUT1
+          ENDIF
+        ENDDO
+      ENDIF
+      TMP_NB_ELEM=TMP_NB_ELEM+1
+      IF(TMP_NB_ELEM>3*GG%NB_ELEM) CALL XABORT('SALFOLD_0: TMP_NB_ELEM overflow(1)')
+      TMP_IPAR(:3,TMP_NB_ELEM)=IPAR_TMP(:3)
+      TMP_RPAR(:6,TMP_NB_ELEM)=RPAR_TMP(:6)
+      I2(2,ELEM)=TMP_NB_ELEM
+      IF(IPASS==2) THEN
+        ! remove identical elements at pass 2
+        DO I=1,TMP_NB_ELEM
+          IF((ABS(TMP_RPAR(1,I)-GG%RPAR(1,ELEM))<=10.0*EPS).AND. &
+             (ABS(TMP_RPAR(2,I)-GG%RPAR(2,ELEM))<=10.0*EPS).AND. &
+             (ABS(TMP_RPAR(3,I)-GG%RPAR(3,ELEM))<=10.0*EPS).AND. &
+             (ABS(TMP_RPAR(4,I)-GG%RPAR(4,ELEM))<=10.0*EPS).AND. &
+             (ABS(TMP_RPAR(5,I)-GG%RPAR(5,ELEM))<=10.0*EPS)) THEN
+             CYCLE OUT1
+          ENDIF
+        ENDDO
+      ENDIF
+      TMP_NB_ELEM=TMP_NB_ELEM+1
+      IF(TMP_NB_ELEM>3*GG%NB_ELEM) CALL XABORT('SALFOLD_0: TMP_NB_ELEM overflow(2)')
+      TMP_IPAR(:,TMP_NB_ELEM)=GG%IPAR(:,ELEM)
+      TMP_RPAR(:,TMP_NB_ELEM)=GG%RPAR(:,ELEM)
+      I2(1,ELEM)=TMP_NB_ELEM
+    ENDDO OUT1
+    DEALLOCATE(GG%IPAR,GG%RPAR)
+    DO ELEM=1,GG%NB_ELEM
+      IF(I2(1,ELEM).EQ.0) CYCLE
+      IF(I2(1,ELEM).NE.0) IFOLD(I2(1,ELEM))=ELEM
+      IF(I2(2,ELEM).NE.0) IFOLD(I2(2,ELEM))=ELEM
+    ENDDO
+    GG%IPAR=>TMP_IPAR; GG%RPAR=>TMP_RPAR;
+    GG%NB_ELEM=TMP_NB_ELEM
+    !
+    ! loop over boundary conditions
+    ALLOCATE(ISPERIM(GG%NB_ELEM),ALIGN2(3,3,GG%NB_ELEM),ANGLE(GG%NB_ELEM), &
+    & ALBEDO(GG%NB_ELEM),PERIM_ELEM(GG%NB_ELEM))
+    ALIGN2(:3,3,:GG%NB_ELEM)=1.0_PDB
+    PERIM_ELEM(:GG%NB_ELEM)=0
+    ISPERIM(:GG%NB_ELEM)=.FALSE.
+    TMP_NBBCDA=0
+    DO IBC=1,NBBCDA
+      DO I=1,GG%BCDATAREAD(IBC)%NBER
+        INDBC=GG%BCDATAREAD(IBC)%ELEMNB(I)
+        IF(INDBC==0) CYCLE
+        IF(I2(1,INDBC)/=0) ISPERIM(I2(1,INDBC))=.TRUE.
+        IF(I2(2,INDBC)/=0) ISPERIM(I2(2,INDBC))=.TRUE.
+      ENDDO
+    ENDDO
+    ITER0: DO ELEM=1,GG%NB_ELEM
+      IF(.NOT.ISPERIM(ELEM)) CYCLE
+      X1=GG%RPAR(1,ELEM); Y1=GG%RPAR(2,ELEM);
+      X2=X1+GG%RPAR(3,ELEM); Y2=Y1+GG%RPAR(4,ELEM);
+      DO J=1,TMP_NBBCDA
+        ALIGN2(3,1,J)=X1; ALIGN2(3,2,J)=Y1;
+        DET1 = DET_ROSETTA(ALIGN2(1,1,J),3)
+        ALIGN2(3,1,J)=X2; ALIGN2(3,2,J)=Y2;
+        DET2 = DET_ROSETTA(ALIGN2(1,1,J),3)
+        IF((ABS(DET1).LE.1.0E-4).AND.(ABS(DET2).LE.1.0E-4)) THEN
+          PERIM_ELEM(ELEM) = J
+          CYCLE ITER0
+        ENDIF
+      ENDDO
+      TMP_NBBCDA=TMP_NBBCDA+1
+      PERIM_ELEM(ELEM) = TMP_NBBCDA
+      ANGLE(TMP_NBBCDA)=ATAN((Y2-Y1)/(X2-X1))
+      IF(ABS(ANGLE(TMP_NBBCDA)).LE.1.0E-5) ANGLE(TMP_NBBCDA)=0.0
+      ALIGN2(1,1,TMP_NBBCDA)=X1; ALIGN2(1,2,TMP_NBBCDA)=Y1
+      ALIGN2(2,1,TMP_NBBCDA)=X2; ALIGN2(2,2,TMP_NBBCDA)=Y2
+      ! Recover albedo from folded geometry
+      ALBEDO(TMP_NBBCDA)=1.0
+      DO IBC=1,NBBCDA
+        J = FINDLC(GG%BCDATAREAD(IBC)%ELEMNB,ELEM)
+        IF(J.EQ.1) THEN
+          ALBEDO(TMP_NBBCDA)=GG%BCDATAREAD(IBC)%BCDATA(6)
+          EXIT
+        ENDIF
+      ENDDO
+    ENDDO ITER0
+    ALLOCATE(TMP_BCDATAREAD(TMP_NBBCDA))
+    DO IBC=1,TMP_NBBCDA
+      TMP_BCDATAREAD(IBC)%NBER = COUNT(PERIM_ELEM(:GG%NB_ELEM) == IBC)
+      ALLOCATE(TMP_BCDATAREAD(IBC)%ELEMNB(TMP_BCDATAREAD(IBC)%NBER))
+      TMP_BCDATAREAD(IBC)%SALTYPE = 0
+      J=0
+      DO I=1,GG%NB_ELEM
+        IF(PERIM_ELEM(I) == IBC) THEN
+          J=J+1
+          TMP_BCDATAREAD(IBC)%ELEMNB(J) = I
+        ENDIF
+      ENDDO
+      TMP_BCDATAREAD(IBC)%BCDATA(1) = ALIGN2(1,1,IBC)
+      TMP_BCDATAREAD(IBC)%BCDATA(2) = ALIGN2(1,2,IBC)
+      TMP_BCDATAREAD(IBC)%BCDATA(3) = COS(ANGLE(IBC))
+      TMP_BCDATAREAD(IBC)%BCDATA(4) = SIN(ANGLE(IBC))
+      TMP_BCDATAREAD(IBC)%BCDATA(5) = ANGLE(IBC)
+      TMP_BCDATAREAD(IBC)%BCDATA(6) = ALBEDO(IBC)
+    ENDDO
+    DEALLOCATE(I2,PERIM_ELEM,ALBEDO,ANGLE,ALIGN2,ISPERIM)
+    DEALLOCATE(GG%BCDATAREAD)
+    GG%BCDATAREAD=>TMP_BCDATAREAD
+    GG%NBBCDA=TMP_NBBCDA
+    GG%ALBEDO=1.D0
+  END SUBROUTINE SALFOLD_0
+  !
   SUBROUTINE SALFOLD_1(HSYM,GG)
     !
     !---------------------------------------------------------------------
@@ -3022,24 +3403,27 @@ CONTAINS
     !
     !---------------------------------------------------------------------
     !
-    USE SAL_GEOMETRY_TYPES, ONLY : NIPAR,NRPAR,ANGGEO,LENGTHX,LENGTHY
+    USE SAL_GEOMETRY_TYPES, ONLY : NIPAR,NRPAR,LENGTHX,LENGTHY
+    USE SAL_NUMERIC_MOD,  ONLY : FINDLC,DET_ROSETTA
     IMPLICIT NONE
     CHARACTER(LEN=4),INTENT(IN)  :: HSYM
     TYPE(T_G_BASIC), INTENT(INOUT) :: GG
     !
-    INTEGER :: ELEM,TYPE,OK,TMP_NB_ELEM,TMP_NBBCDA,I,IBC,INDBC,TMP_IBC,IAUX, &
-               ISYM,NSYM,DIM_NBBCDA
+    INTEGER :: ELEM,TYPE,OK,TMP_NB_ELEM,TMP_NBBCDA,I,J,IBC,INDBC,IAUX,ISYM,NSYM
     REAL(PDB),PARAMETER :: EPS=1.0E-5_PDB
-    REAL(PDB) :: AXIS_X1(2),AXIS_X2(2),AXIS_Y1(2),AXIS_Y2(2)
+    REAL(PDB) :: AXIS_X1(2),AXIS_X2(2),AXIS_Y1(2),AXIS_Y2(2),SUMMITX,SUMMITY
     REAL(PDB) :: X1,X2,X4,Y1,Y2,Y4,DX4,DY4,RAD,THETA1,THETA2,X1B,Y1B,X4B, &
-                 Y4B,XMIN,YMIN,XMAX,YMAX,PHI1,PHI2,DELPHI
+                 Y4B,XMIN,YMIN,XMAX,YMAX,PHI1,PHI2,DELPHI,DET1,DET2,ALIGN3(3,3)
     LOGICAL :: NOCOPY(2)
     !
     ! allocatable arrays
+    INTEGER, ALLOCATABLE, DIMENSION(:) :: PERIM_ELEM
+    LOGICAL, ALLOCATABLE, DIMENSION(:) :: ISPERIM
     INTEGER, POINTER, DIMENSION(:,:) :: TMP_IPAR
-    INTEGER, ALLOCATABLE, DIMENSION(:) :: I1
     INTEGER, ALLOCATABLE, DIMENSION(:,:) :: I2
+    REAL(PDB), ALLOCATABLE, DIMENSION(:) :: ANGLE,ALBEDO
     REAL(PDB), POINTER, DIMENSION(:,:) :: TMP_RPAR
+    REAL(PDB), ALLOCATABLE, DIMENSION(:,:,:) :: ALIGN
     TYPE(T_SALBCDATA), POINTER, DIMENSION(:) :: TMP_BCDATAREAD
     !
     ! compute size of the unfold geometry
@@ -3062,14 +3446,14 @@ CONTAINS
       AXIS_X1(1)=0._PDB; AXIS_X2(1)=0._PDB; AXIS_Y1(1)=0._PDB; AXIS_Y2(1)=100._PDB;
     ELSE IF(HSYM=='DIAG') THEN
       AXIS_X1(1)=0._PDB; AXIS_X2(1)=100._PDB; AXIS_Y1(1)=0._PDB; AXIS_Y2(1)=100._PDB;
-      ANGGEO=2.0*ANGGEO
     ELSE IF(HSYM=='SA60') THEN
       ! the hexagon side is on south
       NSYM=2
-      AXIS_X1(1)=XMIN; AXIS_Y1(1)=YMIN; AXIS_X2(1)=XMIN+0.5_PDB*LENGTHX
-      AXIS_Y2(1)=YMIN+0.5_PDB*SQRT(3._PDB)*LENGTHX
-      AXIS_X1(2)=XMIN+LENGTHX; AXIS_Y1(2)=YMIN; AXIS_X2(2)=XMIN+0.5_PDB*LENGTHX
-      AXIS_Y2(2)=YMIN+0.5_PDB*SQRT(3._PDB)*LENGTHX
+      SUMMITX=(XMIN+XMAX)/2._PDB ; SUMMITY=YMAX
+      AXIS_X1(1)=SUMMITX-0.5_PDB*LENGTHX ; AXIS_Y1(1)=SUMMITY-0.5_PDB*SQRT(3._PDB)*LENGTHX
+      AXIS_X2(1)=SUMMITX ; AXIS_Y2(1)=SUMMITY
+      AXIS_X1(2)=SUMMITX+0.5_PDB*LENGTHX ; AXIS_Y1(2)=SUMMITY-0.5_PDB*SQRT(3._PDB)*LENGTHX
+      AXIS_X2(2)=SUMMITX ; AXIS_Y2(2)=SUMMITY
     ELSE IF(HSYM=='SB60') THEN
       ! the hexagon side is on north-east
       NSYM=2
@@ -3078,11 +3462,10 @@ CONTAINS
       AXIS_X1(2)=XMIN; AXIS_Y1(2)=YMIN; AXIS_X2(2)=XMIN
       AXIS_Y2(2)=YMIN+0.5_PDB*SQRT(3._PDB)*LENGTHX
     ELSE IF(HSYM=='S30') THEN
-      NSYM=1
       AXIS_X1(1)=XMIN; AXIS_Y1(1)=YMIN; AXIS_X2(1)=XMIN+0.75_PDB*LENGTHX
       AXIS_Y2(1)=YMIN+0.25_PDB*SQRT(3._PDB)*LENGTHX
     ELSE IF(HSYM=='SYMH') THEN
-      AXIS_X1(1)=XMIN ; AXIS_Y1(1)=YMIN+0.25_PDB*SQRT(3._PDB)*LENGTHX
+      AXIS_X1(1)=XMIN ; AXIS_Y1(1)=YMAX
       AXIS_X2(1)=XMIN+LENGTHX ; AXIS_Y2(1)=AXIS_Y1(1)
     ELSE
       CALL XABORT('SALFOLD_1: invalid type of symmetry axis')
@@ -3111,12 +3494,25 @@ CONTAINS
           CALL SALSYM(AXIS_X1(ISYM),AXIS_Y1(ISYM),AXIS_X2(ISYM),AXIS_Y2(ISYM),X2,Y2,DX4,DY4)
           NOCOPY(ISYM)=ABS(X1-X4)<10.0*EPS .AND. ABS(Y1-Y4)<10.0*EPS .AND. &
             ABS(X2-DX4)<10.0*EPS .AND. ABS(Y2-DY4)<10.0*EPS
-          IF((HSYM=='SB60').AND.(ISYM==2)) THEN
-            NOCOPY(2)=(ABS(2._PDB*ABS(Y1-YMIN)-ABS(X4-X1)*SQRT(3._PDB))<10.0*EPS .AND. &
-              ABS(Y1-Y4)<10.0*EPS .AND. ABS(2._PDB*ABS(Y2-YMIN)-ABS(DX4-X2)*SQRT(3._PDB))<10.0*EPS &
-              .AND. ABS(Y2-DY4)<10.0*EPS)
-          ENDIF
           IF(NOCOPY(ISYM)) CYCLE
+          IF(HSYM=='SB60') THEN
+            IF(ISYM==1) THEN
+              IF((ABS(Y1)<10.0*EPS).AND.(ABS(Y2)<10.0*EPS)) CYCLE
+            ELSE
+              IF((ABS(2._PDB*ABS(Y1-YMIN)-ABS(X4-X1)*SQRT(3._PDB))<10.0*EPS .AND. &
+                & ABS(Y1-Y4)<10.0*EPS .AND. ABS(2._PDB*ABS(Y2-YMIN)-ABS(DX4-X2)*SQRT(3._PDB))<10.0*EPS &
+                & .AND. ABS(Y2-DY4)<10.0*EPS)) CYCLE
+              ALIGN3(1,2)=YMIN ; ALIGN3(2,2)=YMIN+0.5_PDB*SQRT(3._PDB)*LENGTHX
+              ALIGN3(1,1)=-XMIN
+              ALIGN3(2,1)=-XMIN-0.5_PDB*LENGTHX
+              ALIGN3(:3,3)=1.0_PDB
+              ALIGN3(3,1)=X4; ALIGN3(3,2)=Y4;
+              DET1 = DET_ROSETTA(ALIGN3(1,1),3)
+              ALIGN3(3,1)=DX4; ALIGN3(3,2)=DY4;
+              DET2 = DET_ROSETTA(ALIGN3(1,1),3)
+              IF((ABS(DET1).LE.1.0E-4).AND.(ABS(DET2).LE.1.0E-4)) CYCLE
+            ENDIF
+          ENDIF
         ELSE IF(TYPE==2) THEN
           CALL SALSYM(AXIS_X1(ISYM),AXIS_Y1(ISYM),AXIS_X2(ISYM),AXIS_Y2(ISYM),X1,Y1,X4,Y4)
           THETA1=0._PDB; THETA2=0._PDB;
@@ -3148,7 +3544,6 @@ CONTAINS
           WRITE(*,*) " elem=",ELEM," type=",TYPE," isym=",ISYM
           CALL XABORT('SALFOLD_1: invalid type of surfacic element')
         ENDIF
-        IF((TYPE==1).AND.(HSYM=='SB60').AND.(ISYM==1).AND.(ABS(Y1)<10.0*EPS).AND.(ABS(Y2)<10.0*EPS)) CYCLE
         TMP_NB_ELEM=TMP_NB_ELEM+1
         IF(TMP_NB_ELEM>3*GG%NB_ELEM) CALL XABORT('SALFOLD_1: tmp_nb_elem overflow(1)')
         I2(ISYM+1,ELEM)=TMP_NB_ELEM
@@ -3206,93 +3601,76 @@ CONTAINS
     ENDDO
     LENGTHX=XMAX-XMIN ; LENGTHY=YMAX-YMIN ;
     !
-    ! allocate new boundary condition containers
-    ALLOCATE(I1(GG%NBBCDA))
-    I1(:)=0
-    !
     ! loop over boundary conditions
     TMP_NBBCDA=0
-    IF(ISPEC == 0) GO TO 100 ! remove perimeter information in isotropic cases
+    ALLOCATE(ISPERIM(GG%NB_ELEM),ALIGN(3,3,GG%NB_ELEM),ANGLE(GG%NB_ELEM), &
+    & ALBEDO(GG%NB_ELEM),PERIM_ELEM(GG%NB_ELEM))
+    ALIGN(:3,3,:GG%NB_ELEM)=1.0_PDB
+    PERIM_ELEM(:GG%NB_ELEM)=0
+    ISPERIM(:GG%NB_ELEM)=.FALSE.
     DO IBC=1,GG%NBBCDA
       DO I=1,GG%BCDATAREAD(IBC)%NBER
         INDBC=GG%BCDATAREAD(IBC)%ELEMNB(I)
         IF(INDBC==0) CYCLE
-        IF(I2(1,INDBC)/=0) GO TO 10
+        DO ISYM=1,NSYM+1
+          IF(I2(ISYM,INDBC)/=0) ISPERIM(I2(ISYM,INDBC))=.TRUE.
+        ENDDO
       ENDDO
-      CYCLE
-      10 TMP_NBBCDA=TMP_NBBCDA+1
-      I1(IBC)=TMP_NBBCDA
     ENDDO
-    DIM_NBBCDA=3*TMP_NBBCDA
-    ALLOCATE(TMP_BCDATAREAD(DIM_NBBCDA))
-    DO IBC=1,GG%NBBCDA
-      TMP_IBC=I1(IBC)
-      IF(TMP_IBC==0) CYCLE
-      IF(GG%BCDATAREAD(IBC)%SALTYPE==0) THEN
-        ALLOCATE(TMP_BCDATAREAD(TMP_IBC)%ELEMNB(2*GG%BCDATAREAD(IBC)%NBER))
-        DO I=1,GG%BCDATAREAD(IBC)%NBER
-          INDBC=GG%BCDATAREAD(IBC)%ELEMNB(I)
-          TMP_BCDATAREAD(TMP_IBC)%ELEMNB(2*I-1)=I2(1,INDBC)
-          TMP_BCDATAREAD(TMP_IBC)%ELEMNB(2*I)=I2(2,INDBC)
-        ENDDO
-        TMP_BCDATAREAD(TMP_IBC)%SALTYPE=GG%BCDATAREAD(IBC)%SALTYPE
-        TMP_BCDATAREAD(TMP_IBC)%NBER=2*GG%BCDATAREAD(IBC)%NBER
-        TMP_BCDATAREAD(TMP_IBC)%BCDATA(:)=GG%BCDATAREAD(IBC)%BCDATA(:)
-      ELSE
-        ALLOCATE(TMP_BCDATAREAD(TMP_IBC)%ELEMNB(GG%BCDATAREAD(IBC)%NBER))
-        DO I=1,GG%BCDATAREAD(IBC)%NBER
-          INDBC=GG%BCDATAREAD(IBC)%ELEMNB(I)
-          TMP_BCDATAREAD(TMP_IBC)%ELEMNB(I)=I2(1,INDBC)
-        ENDDO
-        TMP_BCDATAREAD(TMP_IBC)%SALTYPE=GG%BCDATAREAD(IBC)%SALTYPE
-        TMP_BCDATAREAD(TMP_IBC)%NBER=GG%BCDATAREAD(IBC)%NBER
-        TMP_BCDATAREAD(TMP_IBC)%BCDATA(1)=GG%BCDATAREAD(IBC)%BCDATA(1)-XMIN
-        TMP_BCDATAREAD(TMP_IBC)%BCDATA(2)=GG%BCDATAREAD(IBC)%BCDATA(2)-YMIN
-        TMP_BCDATAREAD(TMP_IBC)%BCDATA(3:6)=GG%BCDATAREAD(IBC)%BCDATA(3:6)
-        !
-        DO ISYM=1,NSYM
-          TMP_NBBCDA=TMP_NBBCDA+1
-          IF(TMP_NBBCDA>DIM_NBBCDA) CALL XABORT('SALFOLD_1: tmp_nbbcda overflow')
-          ALLOCATE(TMP_BCDATAREAD(TMP_NBBCDA)%ELEMNB(GG%BCDATAREAD(IBC)%NBER))
-          DO I=1,GG%BCDATAREAD(IBC)%NBER
-            INDBC=GG%BCDATAREAD(IBC)%ELEMNB(I)
-            TMP_BCDATAREAD(TMP_NBBCDA)%ELEMNB(I)=I2(ISYM+1,INDBC)
-          ENDDO
-          TMP_BCDATAREAD(TMP_NBBCDA)%SALTYPE=GG%BCDATAREAD(IBC)%SALTYPE
-          TMP_BCDATAREAD(TMP_NBBCDA)%NBER=GG%BCDATAREAD(IBC)%NBER
-          X1=GG%BCDATAREAD(IBC)%BCDATA(1)
-          Y1=GG%BCDATAREAD(IBC)%BCDATA(2)
-          IF(GG%BCDATAREAD(IBC)%SALTYPE >= 2) THEN
-            CALL SALSYM(AXIS_X1(ISYM),AXIS_Y1(ISYM),AXIS_X2(ISYM),AXIS_Y2(ISYM),X1,Y1,X4,Y4)
-            TMP_BCDATAREAD(TMP_NBBCDA)%BCDATA(1)=X4-XMIN
-            TMP_BCDATAREAD(TMP_NBBCDA)%BCDATA(2)=Y4-YMIN
-          ELSE
-            ! X1 is the albedo
-            TMP_BCDATAREAD(TMP_NBBCDA)%BCDATA(1)=X1
-          ENDIF
-          IF((HSYM=='DIAG').AND.GG%BCDATAREAD(IBC)%BCDATA(5).EQ.0.0) THEN
-            TMP_BCDATAREAD(TMP_NBBCDA)%BCDATA(5)=PI/2._PDB
-          ELSE IF((HSYM=='DIAG').AND.GG%BCDATAREAD(IBC)%BCDATA(5).EQ.PI/2.0_PDB) THEN
-            TMP_BCDATAREAD(TMP_NBBCDA)%BCDATA(5)=0._PDB
-          ELSE IF((HSYM=='SA60').AND.(ISYM==1)) THEN
-            TMP_BCDATAREAD(TMP_NBBCDA)%BCDATA(5)=PI/1.5_PDB
-          ELSE IF((HSYM=='SA60').AND.(ISYM==2)) THEN
-            TMP_BCDATAREAD(TMP_NBBCDA)%BCDATA(5)=-PI/1.5_PDB
-          ELSE IF((HSYM=='S30').AND.(ISYM==1)) THEN
-            TMP_BCDATAREAD(TMP_NBBCDA)%BCDATA(5)=PI/3._PDB
-          ELSE
-            TMP_BCDATAREAD(TMP_NBBCDA)%BCDATA(3:6)=GG%BCDATAREAD(IBC)%BCDATA(3:6)
-          ENDIF
-        ENDDO
-      ENDIF
-      DEALLOCATE(GG%BCDATAREAD(IBC)%ELEMNB)
+    ITER0: DO ELEM=1,GG%NB_ELEM
+      IF(.NOT.ISPERIM(ELEM)) CYCLE
+      X1=GG%RPAR(1,ELEM); Y1=GG%RPAR(2,ELEM);
+      X2=X1+GG%RPAR(3,ELEM); Y2=Y1+GG%RPAR(4,ELEM);
+      DO J=1,TMP_NBBCDA
+        ALIGN(3,1,J)=X1; ALIGN(3,2,J)=Y1;
+        DET1 = DET_ROSETTA(ALIGN(1,1,J),3)
+        ALIGN(3,1,J)=X2; ALIGN(3,2,J)=Y2;
+        DET2 = DET_ROSETTA(ALIGN(1,1,J),3)
+        IF((ABS(DET1).LE.1.0E-4).AND.(ABS(DET2).LE.1.0E-4)) THEN
+          PERIM_ELEM(ELEM) = J
+          CYCLE ITER0
+        ENDIF
+      ENDDO
+      TMP_NBBCDA=TMP_NBBCDA+1
+      PERIM_ELEM(ELEM) = TMP_NBBCDA
+      ANGLE(TMP_NBBCDA)=ATAN((Y2-Y1)/(X2-X1))
+      IF(ABS(ANGLE(TMP_NBBCDA)).LE.1.0E-5) ANGLE(TMP_NBBCDA)=0.0
+      ALIGN(1,1,TMP_NBBCDA)=X1; ALIGN(1,2,TMP_NBBCDA)=Y1
+      ALIGN(2,1,TMP_NBBCDA)=X2; ALIGN(2,2,TMP_NBBCDA)=Y2
+      ! Recover albedo from folded geometry
+      ALBEDO(TMP_NBBCDA)=1.0
+      DO IBC=1,GG%NBBCDA
+        J = FINDLC(GG%BCDATAREAD(IBC)%ELEMNB,ELEM)
+        IF(J.EQ.1) THEN
+          ALBEDO(TMP_NBBCDA)=GG%BCDATAREAD(IBC)%BCDATA(6)
+          EXIT
+        ENDIF
+      ENDDO
+    ENDDO ITER0
+    ALLOCATE(TMP_BCDATAREAD(TMP_NBBCDA))
+    DO IBC=1,TMP_NBBCDA
+      TMP_BCDATAREAD(IBC)%NBER = COUNT(PERIM_ELEM(:GG%NB_ELEM) == IBC)
+      ALLOCATE(TMP_BCDATAREAD(IBC)%ELEMNB(TMP_BCDATAREAD(IBC)%NBER))
+      TMP_BCDATAREAD(IBC)%SALTYPE = 0
+      J=0
+      DO I=1,GG%NB_ELEM
+        IF(PERIM_ELEM(I) == IBC) THEN
+          J=J+1
+          TMP_BCDATAREAD(IBC)%ELEMNB(J) = I
+        ENDIF
+      ENDDO
+      TMP_BCDATAREAD(IBC)%BCDATA(1) = ALIGN(1,1,IBC)
+      TMP_BCDATAREAD(IBC)%BCDATA(2) = ALIGN(1,2,IBC)
+      TMP_BCDATAREAD(IBC)%BCDATA(3) = COS(ANGLE(IBC))
+      TMP_BCDATAREAD(IBC)%BCDATA(4) = SIN(ANGLE(IBC))
+      TMP_BCDATAREAD(IBC)%BCDATA(5) = ANGLE(IBC)
+      TMP_BCDATAREAD(IBC)%BCDATA(6) = ALBEDO(IBC)
     ENDDO
+    DEALLOCATE(I2,PERIM_ELEM,ALBEDO,ANGLE,ALIGN,ISPERIM)
     DEALLOCATE(GG%BCDATAREAD)
     GG%BCDATAREAD=>TMP_BCDATAREAD
-    100 GG%NBBCDA=TMP_NBBCDA
+    GG%NBBCDA=TMP_NBBCDA
     GG%ALBEDO=1.D0
-    !
-    DEALLOCATE(I1,I2)
   END SUBROUTINE SALFOLD_1
   !
   SUBROUTINE SALFOLD_2(HSYM,GG)

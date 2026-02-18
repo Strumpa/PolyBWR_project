@@ -1,7 +1,7 @@
 *DECK BRERT
       SUBROUTINE BRERT(IPMAC1,IELEM,ICOL,NG,NL,LX1,NMIX1,IMIX,ICODE,
-     1 ISPH,IDIFF,ZKEFF,B2,ENER,XXX1,VOL1,FLX1,DC1,TOT1,CHI1,SIGF1,
-     2 SCAT1,JXM,JXP,FHETXM,FHETXP,ADF1,NGET,ADFREF,IMPX)
+     1 ISPH,IH,IDIFF,ZKEFF,B2,ENER,XXX1,VOL1,FLX1,DC1,TOT1,CHI1,SIGF1,
+     2 SCAT1,HFACT1,JXM,JXP,FHETXM,FHETXP,ADF1,NGET,ADFREF,IMPX)
 *
 *-----------------------------------------------------------------------
 *
@@ -30,6 +30,7 @@
 * IMIX    mix index of each node.
 * ICODE   physical albedo index on each side of the domain.
 * ISPH    SPH flag (=0: use discontinuity factors; =1: use SPH factors).
+* IH      H-FACTOR flag (=0: not used; =1: recovered).
 * IDIFF   PN calculation option (=0: diffusion theory; =1: SPN theory
 *         with 'NTOT1'; =2: SPN theory with 1/(3*D)).
 * ZKEFF   effective multiplication factor.
@@ -43,6 +44,7 @@
 * CHI1    fission spectra.
 * SIGF1   nu*fission cross sections.
 * SCAT1   scattering P0 cross sections.
+* HFACT1  H-FACTOR values.
 * JXM     left boundary currents.
 * JXP     right boundary currents.
 * FHETXM  left boundary fluxes.
@@ -61,12 +63,13 @@
 *  SUBROUTINE ARGUMENTS
 *----
       TYPE(C_PTR) IPMAC1
-      INTEGER IELEM,ICOL,NG,NL,LX1,NMIX1,IMIX(LX1),ICODE(2),ISPH,IDIFF,
-     1 NGET,IMPX
+      INTEGER IELEM,ICOL,NG,NL,LX1,NMIX1,IMIX(LX1),ICODE(2),ISPH,IH,
+     1 IDIFF,NGET,IMPX
       REAL ZKEFF,B2,ENER(NG+1),XXX1(LX1+1),VOL1(NMIX1),FLX1(NMIX1,NG),
      1 DC1(NMIX1,NG),TOT1(NMIX1,NG,NL),CHI1(NMIX1,NG),SIGF1(NMIX1,NG),
-     2 SCAT1(NMIX1,NG,NG,NL),JXM(NMIX1,NG),JXP(NMIX1,NG),
-     3 FHETXM(NMIX1,NG,NL),FHETXP(NMIX1,NG,NL),ADF1(NMIX1,NG),ADFREF(NG)
+     2 SCAT1(NMIX1,NG,NG,NL),HFACT1(NMIX1,NG),JXM(NMIX1,NG),
+     3 JXP(NMIX1,NG),FHETXM(NMIX1,NG,NL),FHETXP(NMIX1,NG,NL),
+     4 ADF1(NMIX1,NG),ADFREF(NG)
 *----
 *  LOCAL VARIABLES
 *----
@@ -214,6 +217,11 @@
         ENDIF
       ENDIF
 *----
+*     THE SPH PARAMETERS ARE NOT DEGENERATE IN NON-FUNDAMENTAL MODE
+*     CONDITION. THE ONLY SOLUTION CORRESPONDS TO J_FUEL=1
+*----
+      IF(ISPH.EQ.1) J_FUEL=1
+*----
 *  NGET NORMALIZATION OF THE DISCONTINUITY FACTORS
 *----
       IF(J_FUEL.GT.0) THEN
@@ -293,6 +301,9 @@
                SCAT1(IBM,IGR,JGR,IL)=SCAT1(IBM,IGR,JGR,IL)*FDXM(IBM,IGR)
               ENDDO
             ENDDO
+            IF(IH.EQ.1) THEN
+              HFACT1(IBM,IGR)=HFACT1(IBM,IGR)/FDXM(IBM,IGR)
+            ENDIF
           ENDDO
         ENDDO
         IF(ICODE(2).NE.0) THEN
@@ -329,7 +340,9 @@
       IF(J_FUEL.GT.0) ISTATE(4)=1
       IF(ICODE(2).NE.0) ISTATE(8)=1  ! physical albedo information
       ISTATE(9)=1  ! diffusion coefficient information
+      IF(IDIFF.EQ.1) ISTATE(10)=NL-1 ! NTOT1 is present
       IF(ISPH.EQ.0) ISTATE(12)=3 ! discontinuity factor information
+      IF(ISPH.EQ.1) ISTATE(14)=1 ! SPH factor information
       CALL LCMPUT(IPMAC1,'STATE-VECTOR',NSTATE,1,ISTATE)
       CALL LCMPUT(IPMAC1,'ENERGY',NG+1,2,ENER)
       CALL LCMPUT(IPMAC1,'VOLUME',NMIX1,2,VOL1)
@@ -342,6 +355,16 @@
           CALL LCMPUT(IPMAC1,'NTYPE',1,1,NTYPE)
           CALL LCMPTC(IPMAC1,'HADF',8,HADF)
           CALL LCMPUT(IPMAC1,HADF,NMIX1*NG,2,FDXM)
+        CALL LCMSIX(IPMAC1,' ',2)
+      ELSE IF(ISPH.EQ.1) THEN
+        CALL LCMSIX(IPMAC1,'SPH',1)
+          ISTATE(:)=0
+          ISTATE(1)=4
+          ISTATE(2)=1
+          ISTATE(6)=1
+          ISTATE(7)=1
+          ISTATE(8)=NG
+          CALL LCMPUT(IPMAC1,'STATE-VECTOR',NSTATE,1,ISTATE)
         CALL LCMSIX(IPMAC1,' ',2)
       ENDIF
       JPMAC1=LCMLID(IPMAC1,'GROUP',NG)
@@ -392,6 +415,7 @@
           CALL LCMPUT(KPMAC1,'IJJS'//CM,NMIX1,1,IJJ)
           CALL LCMPUT(KPMAC1,'IPOS'//CM,NMIX1,1,IPOS)
         ENDDO
+        IF(IH.EQ.1) CALL LCMPUT(KPMAC1,'H-FACTOR',NMIX1,2,HFACT1(:,IGR))
       ENDDO
 *----
 *  SCRATCH STORAGE DEALLOCATION

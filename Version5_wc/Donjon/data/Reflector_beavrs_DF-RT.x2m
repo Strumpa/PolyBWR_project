@@ -6,9 +6,9 @@ STRING nameFeed := "assbly_caseA_mpo_boron.hdf" ;
 STRING nameRefl := "reflector_beavrs_DF-RT_mpo.hdf" ;
 STRING Palier := "BEAVRS" ;
 STRING htype := "DF-RT" ;
-STRING LibType := "CLA99CEA93" ;
-STRING NuclData := "CLA99CEA93:CLA99CEA93_SS" ;
-STRING OptSph := "NOSP" ;
+STRING LibType := "JEF22" ;
+STRING NuclData := "DLIB_99" ;
+STRING OptSph := "SPH" ;
 STRING OptNoal := "ALBE" ;
 STRING OptSS := "TONE" ;
 MODULE GEO: UTL: MCR: END: ;
@@ -50,9 +50,10 @@ Param := UTL: :: CREA PARAMVALU 1 = 975.
 UTL: Param :: DUMP ;
 
 INTEGER nlf := 1 ;
+EVALUATE nbZones := nbZones 1 - ; ! decreases nbZones by one
 MpoRefl := REFL_MPO Geom FVol Param :: <<nameFeed>> <<nameRefl>> <<Palier>> <<htype>>
                             <<nlf>> <<LibType>> <<NuclData>> <<OptSph>> <<OptNoal>>
-                            <<OptSS>> ;
+                            <<OptSS>> <<nbZones>> ;
 
 ************************************************************************
 * MPO extrapolation of the reflector at 350 ppm Boron

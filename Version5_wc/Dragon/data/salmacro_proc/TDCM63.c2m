@@ -1,5 +1,5 @@
 *----
-*  TEST CASE TDCM54
+*  TEST CASE TDCM63
 *  MACROSCOPIC CROSS SECTIONS
 *  4-group equilateral triangular geometry
 *  Author: A. Hebert
@@ -7,7 +7,7 @@
 *  Define STRUCTURES and MODULES used
 *----
 MODULE G2S: SALT: MCCGT: MAC: ASM: FLU: TLM: DELETE: END: ;
-SEQ_ASCII LatTEST_b :: FILE './LatTEST_b_S60.ps' ;
+SEQ_ASCII LatTEST_b :: FILE './LatTEST_b_S60.eps' ;
 SEQ_ASCII GT_SAL :: FILE './lattice_hex_tspc_S30_7cells.dat' ;
 SEQ_ASCII GT_SAL_iso :: FILE './lattice_hex_tiso_S30_7cells.dat' ;
 LINKED_LIST TRACKF MACRO4G SYS FLUX ;

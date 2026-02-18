@@ -1,7 +1,7 @@
 *DECK MOCFFAR
-      SUBROUTINE MOCFFAR(SUBSCH,NR,NS,NUN,MT,LINE,SEGLEN,NRSEG,NE,NF,
-     1                  MATALB,SIGANG,KEYFLX,YG,FLUX,EXPT,EXP2,FLM,FLP,
-     2                  CYM,CYP,NPHI,NSUB,KANGL,TRHAR)
+      SUBROUTINE MOCFFAR(SUBSCH,NR,NS,NUN,NBCDA,MT,LINE,SEGLEN,NRSEG,NE,
+     1                  NF,MATALB,SIGANG,KEYFLX,YG,FLUX,EXPT,EXP2,FLM,
+     2                  FLP,CYM,CYP,NPHI,NSUB,KANGL,TRHAR)
 *
 *-----------------------------------------------------------------------
 *
@@ -23,6 +23,7 @@
 * NR      number of volumes.
 * NS      number of surfaces.
 * NUN     total number of unknowns in vectors FLUX.
+* NBCDA   number of perimeters.
 * MT      number of material mixtures.
 * LINE    number of segments on this tracking line.
 * SEGLEN  vector containing the lenght of the different segments of this
@@ -58,9 +59,9 @@
 *----
 *  SUBROUTINE ARGUMENTS
 *----
-      INTEGER NR,NS,NUN,MT,LINE,NRSEG(LINE),NE,NF,MATALB(-NS:NR),
+      INTEGER NR,NS,NUN,NBCDA,MT,LINE,NRSEG(LINE),NE,NF,MATALB(-NS:NR),
      1 KEYFLX(NR,NF),NPHI,NSUB,KANGL(NSUB)
-      REAL SIGANG(-6:MT),YG(NE),TRHAR(NE,NF,NPHI,2)
+      REAL SIGANG(-NBCDA:MT),YG(NE),TRHAR(NE,NF,NPHI,2)
       DOUBLE PRECISION SEGLEN(LINE),FLUX(NUN),EXPT(NE,LINE),
      1 EXP2(NE,LINE),FLM(NE,LINE),FLP(NE,LINE),CYM(NE,LINE),
      2 CYP(NE,LINE)
@@ -86,8 +87,8 @@
 *        MOCSCA: Step-Characteristics Scheme with Tabulated Exponentials
 *        MOCDDF: Diamond-Differencing Scheme
 *        MOCSCE: Step-Characteristics Scheme with Exact Exponentials
-      CALL SUBSCH(LINE,NR,NS,MT,NRSEG,MATALB,SEGLEN,SIGANG(-6),EXPT,
-     1     EXP2,NE,YG)
+      CALL SUBSCH(LINE,NR,NS,NBCDA,MT,NRSEG,MATALB,SEGLEN,
+     1     SIGANG(-NBCDA),EXPT,EXP2,NE,YG)
 *----
 *     Summation along the track in both directions
 *----

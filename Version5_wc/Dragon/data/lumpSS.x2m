@@ -11,7 +11,7 @@
 *----
 LINKED_LIST GEOM1 GEOM2 GEOM12 TRACK_SS1 TRACK_SS2 TRACK_2L LIBRARY LIBRARY2A LIBRARY2B
             LIBRARY2 ASB FLUX EDIBU BURNUP MCOMPO StepList ;
-MODULE LIB: GEO: SYBILT: USS: ASM: FLU: COMPO: EDI: EVO: UTL: GREP: DELETE: END: ;
+MODULE LIB: GEO: SYBILT: ASM: FLU: COMPO: EDI: EVO: UTL: GREP: DELETE: END: ;
 PROCEDURE assertS ;
 PROCEDURE mixA1_lumpSS ;
 REAL P_Zr90     P_Zr91     P_Zr92    P_Zr94    P_Zr96    :=
@@ -126,7 +126,6 @@ GEOM12 := GEO: :: CAR2D 2 1
 TRACK_2L := SYBILT: GEOM12 ::
   MAXR 20 MAXZ 30000 DP00 QUA2 20 3 ;
 
-
 ************************************************************************
 *  NOMINAL REFERENCE CALCULATION                                       *
 ************************************************************************
@@ -201,11 +200,11 @@ WHILE istep maxstep < DO
 *  NON-REGRESSION                                          *
 ************************************************************
   IF istep 1 = THEN
-    assertS FLUX :: K-EFFECTIVE 1 1.329496 ;
+    assertS FLUX :: K-EFFECTIVE 1 1.329378 ;
   ELSEIF istep 2 = THEN
-    assertS FLUX :: K-EFFECTIVE 1 1.314719 ;
+    assertS FLUX :: K-EFFECTIVE 1 1.314567 ;
   ELSEIF istep 3 = THEN
-    assertS FLUX :: K-EFFECTIVE 1 1.292018 ;
+    assertS FLUX :: K-EFFECTIVE 1 1.291854 ;
   ENDIF ;
 
 ************************************************************

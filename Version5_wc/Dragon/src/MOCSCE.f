@@ -1,6 +1,6 @@
 *DECK MOCSCE
-      SUBROUTINE MOCSCE(N,NREG,NSOUT,M,NOM,NZON,H,SIGANG,EXPT,EXP2,
-     1           NMU,ZMU)
+      SUBROUTINE MOCSCE(N,NREG,NSOUT,NBCDA,M,NOM,NZON,H,SIGANG,EXPT,
+     1           EXP2,NMU,ZMU)
 *
 *-----------------------------------------------------------------------
 *
@@ -22,6 +22,7 @@
 * N       number of elements in the current track.
 * NREG    number of volumes.
 * NSOUT   number of surfaces.
+* NBCDA   number of perimeters.
 * M       number of material mixtures.
 * NOM     vector containing the region number of the different segments
 *         of this track.
@@ -42,8 +43,8 @@
 *----
 *  SUBROUTINE ARGUMENTS
 *----
-      INTEGER N,NREG,NSOUT,M,NOM(N),NZON(-NSOUT:NREG),NMU
-      REAL SIGANG(-6:M),ZMU(NMU)
+      INTEGER N,NREG,NSOUT,NBCDA,M,NOM(N),NZON(-NSOUT:NREG),NMU
+      REAL SIGANG(-NBCDA:M),ZMU(NMU)
       DOUBLE PRECISION H(N),EXPT(NMU,N),EXP2(NMU,N)
 *----
 *  LOCAL VARIABLES

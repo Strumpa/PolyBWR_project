@@ -1,5 +1,5 @@
 *DECK LIBDEP
-      SUBROUTINE LIBDEP(IPLIB,IMPX,NDEPL)
+      SUBROUTINE LIBDEP(IPLIB,HHLIB,CFILNA,NEL,IMPX,NDEPL)
 *
 *-----------------------------------------------------------------------
 *
@@ -18,6 +18,9 @@
 *Parameters: input
 * IPLIB   pointer to the internal microscopic cross section library
 *         (L_LIBRARY signature).
+* HHLIB   library file type.
+* CFILNA  library file name.
+* NEL     user-defined number of depleting isotopes if CFILNA=' '.
 * IMPX    print flag.
 *
 *Parameters: output
@@ -34,19 +37,18 @@
 *  SUBROUTINE ARGUMENTS
 *----
       TYPE(C_PTR) IPLIB
-      INTEGER IMPX,NDEPL
+      INTEGER IMPX,NDEPL,NEL
+      CHARACTER HHLIB*8,CFILNA*64
 *----
 *  LOCAL PARAMETERS
 *----
       TYPE(C_PTR)      IPDRL
-      INTEGER          IOUT,NSTATE,MAXR,INDIC,NEL,IEVOT,NITMA,NDFI,
-     >                 NDFP,NHEAVY,NLIGHT,NOTHER,NSTABL,NREAC,NPAR,
-     >                 ITEXT4,I,J,ISTA,ILONG,ITYLCM,NBESP
-      REAL             FLOTT
+      INTEGER          IOUT,NSTATE,MAXR,IEVOT,NDFI,NDFP,NHEAVY,NLIGHT,
+     >                 NOTHER,NSTABL,NREAC,NPAR,ITEXT4,I,J,ISTA,ILONG,
+     >                 ITYLCM,NBESP
       PARAMETER       (IOUT=6,NSTATE=40,MAXR=12)
-      DOUBLE PRECISION DBLINP
-      CHARACTER        NMDEPL(MAXR)*8,TEXT4*4,HSMG*131,CFILNA*64,
-     >                 HHLIB*8,TEXT12*12,NAMLCM*12,NAMMY*12
+      CHARACTER        NMDEPL(MAXR)*8,TEXT4*4,HSMG*131,TEXT12*12,
+     >                 NAMLCM*12,NAMMY*12,HVERS*12
       LOGICAL          EMPTY,LCM,LEXIST
       INTEGER          ISTATE(NSTATE)
 #if defined(HDF5_LIB)
@@ -71,28 +73,11 @@
 *----
 *  READ INFORMATION AVAILABLE ON INPUT
 *----
-      CALL REDGET(INDIC,NEL,FLOTT,TEXT4,DBLINP)
       IEVOT=-99
       NBESP=1
-      IF(INDIC.EQ.1) THEN
-         IEVOT=0
-      ELSE IF((INDIC.EQ.3).AND.(TEXT4.EQ.'LIB:')) THEN
-        CALL REDGET(INDIC,NITMA,FLOTT,HHLIB,DBLINP)
-        IF(INDIC.NE.3) THEN
-          CALL XABORT('LIBDEP: CHARACTER LIBRARY NAME REQUIRED.')
-        ELSE IF((HHLIB.NE.'DRAGON  ') .AND. (HHLIB.NE.'WIMSAECL') .AND.
-     >          (HHLIB.NE.'WIMSD4  ') .AND. (HHLIB.NE.'WIMSE   ') .AND.
-     >          (HHLIB.NE.'APLIB2  ') .AND. (HHLIB.NE.'APLIB3  ') .AND.
-     >          (HHLIB.NE.'NDAS    ') .AND. (HHLIB.NE.'APXSM   ') ) THEN
-          WRITE(HSMG,'(30HLIBDEP: INVALID EVOL LIB TYPE ,A8)') HHLIB
-          CALL XABORT(HSMG)
-        ENDIF
-        CALL REDGET(INDIC,NITMA,FLOTT,TEXT4,DBLINP)
-        IF((INDIC.NE.3).OR.(TEXT4.NE.'FIL:'))
-     >    CALL XABORT('LIBDEP: FIL: EXPECTED.')
-        CFILNA=' '
-        CALL REDGET(INDIC,NITMA,FLOTT,CFILNA,DBLINP)
-        IF(INDIC.NE.3) CALL XABORT('LIBDEP: CHARACTER DATA EXPECTED.')
+      IF(CFILNA.EQ.' ') THEN
+        IEVOT=0
+      ELSE
         IF(HHLIB.EQ.'DRAGON') THEN
           TEXT12=CFILNA(:12)
           CALL LCMINF(IPLIB,NAMLCM,NAMMY,EMPTY,ILONG,LCM)
@@ -106,6 +91,15 @@
               CALL XABORT(HSMG)
             ENDIF
             CALL LCMOP(IPDRL,TEXT12,2,2,0)
+            HVERS='**UNKNOWN**'
+            CALL LCMLEN(IPDRL,'VERSION',ILONG,ITYLCM)
+            IF(ILONG.NE.0) CALL LCMGTC(IPDRL,'VERSION',12,HVERS)
+            IF(IMPX.GT.0) WRITE (IOUT,6010) TRIM(TEXT12),TRIM(HVERS)
+            IF(HVERS.EQ.'RELEASE_2003') THEN
+              HSMG='LIBDEP: ***WARNING*** RELEASE_2003 DRAGLIBS ARE DE'
+     >        //'PRECIATED.'
+              WRITE(IOUT,'(1X,A)') HSMG
+            ENDIF
           ENDIF
           CALL LCMLEN(IPDRL,'DEPL-CHAIN',ILONG,ITYLCM)
           IF(ILONG.EQ.0) THEN
@@ -184,8 +178,6 @@
           CALL XABORT('LIBDEP: THE HDF5 API IS NOT AVAILABLE(1).')
 #endif /* defined(HDF5_LIB) */
         ENDIF
-      ELSE
-        CALL XABORT('LIBDEP: INVALID KEY WORD.')
       ENDIF
       IF(IEVOT.EQ.0.OR.IEVOT.GT.1) THEN
 *----
@@ -310,4 +302,5 @@
      >  ' NPAR   ',I6,' (MAXIMUM NUMBER OF PARENT REACTIONS)'/
      >  ' NBESP  ',I6,' (NUMBER OF ENERGY-DEPENDENT FISSION YIELD MAT',
      >  'RICES)'/)
+ 6010 FORMAT(/33H PROCESSING DRAGON LIBRARY NAMED ,A,9H VERSION ,A,1H.)
       END

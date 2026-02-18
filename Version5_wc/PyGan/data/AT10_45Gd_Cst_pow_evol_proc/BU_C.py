@@ -32,8 +32,6 @@ def BU_C(namCOMPO, pyMIX, pyTRACK, pyTF_EXC, pyTRACK_SS, pyTF_EXC_SS, StepList, 
     myLifo.push(rates_extr)
 
     myLifo.lib()
-
-    # Execution 
     calcBWR = cle2000.new('BU_C',myLifo,1)
     calcBWR.exec()
 

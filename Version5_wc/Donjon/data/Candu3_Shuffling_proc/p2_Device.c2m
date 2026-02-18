@@ -1,0 +1,529 @@
+*--------------------------------------------------------
+*  Procédure p2_Device
+*  Définition des mécanismes dans la géométrie CANDU-3
+*  Appel :   
+*      DevInf GeoCalc := p2_Device GeoCalc :: 
+*           <<DEV>> >>fadj<< >>fmca<< >>fsor<<  ;
+*  avec en entree
+*  S   DEV   = type de mécanismes traités : NOMINAL
+*  et en sortie
+*      fadj  = niveau d'insertion des barres de compensation
+*      fmca  = niveau d'insertion des barres de contrôle
+*      fsor  = niveau d'insertion des barres de shutdown
+*  Auteur : Ivan Trancart - 05-05-2025 (maj 05-05-2025)
+*--------------------------------------------------------
+PARAMETER       DevInf GeoCalc :: 
+::: LINKED_LIST DevInf GeoCalc ; ;
+MODULE          DEVINI: LZC: END: ;
+ECHO "Début de Device.c2m" ;
+STRING DEVICE ;
+INTEGER CASE COMB ;
+INTEGER mA1i mA2i1 mA2i2 mA3i mA4i1 mA4i2 mA5i mA6i1 mA6i2 mA7i mA8i 
+        mA9i1 mA9i2 mA10i mA11i1 mA11i2 mA12i mA13i1 mA13i2 mA14i mA15i 
+        mA16i1 mA16i2 mA17i mA18i1 mA18i2 mA19i mA20i1 mA20i2 mA21i
+        mZ10i mZ10o mZ21i mZ21o mZ32i mZ32o mSi mSo mAout mno 
+        mBS1i mBS1o mBS2i mBS2o mBS3i mBS3o mBS4i mBS4o ;
+REAL ym1 ym2 ym3 ym4 ym5 ym6 ym7 ym8 ym9 ym10 ym11 ym12 ym13 ym14
+     yp1 yp2 yp3 yp4 yp5 yp6 yp7 yp8 yp9 yp10 yp11 yp12 yp13 yp14
+     yl1 yl2 yl3 yl4 yl5 yl6 yl7 yl8 yl9 yl10 yl11 yl12 yl13 yl14 ;
+REAL  f1  f2  f3  f4  f5  f6  f7  f8  f9  f10  f11  f12  f13  f14 
+      L1  L2  L3  L4  L5  P1  P2  P3  P4  P5  l1 l2 l3 l4 l5 l6 l7
+      l8 l9 l10 l11 l12 l13 l14 ;
+REAL fmca fsor fadj ;
+EVALUATE mAout mno := 4 3 ;
+EVALUATE mA1i mA2i1 mA2i2 mA3i mA4i1 mA4i2 mA5i mA6i1 mA6i2 mA7i 
+  mA8i mA9i1 mA9i2 mA10i mA11i1 mA11i2 mA12i mA13i1 mA13i2 mA14i 
+  mA15i mA16i1 mA16i2 mA17i mA18i1 mA18i2 mA19i mA20i1 mA20i2 mA21i :=
+          10 9 8 7 6 5 7 9 8 10  
+          10 9 8 7 6 5 7 9 8 10  
+          10 9 8 7 6 5 7 9 8 10 ;
+EVALUATE mZ10i mZ10o mZ21i mZ21o mZ32i mZ32o := 11 12 13 14 15 16 ;
+EVALUATE mSi mSo mBS1i mBS1o mBS2i mBS2o mBS3i mBS3o mBS4i mBS4o :=
+          18  17  18    17    18    17    18    17    18    17   ;
+*
+:: >>DEVICE<< ;
+***
+EVALUATE fadj fmca fsor := 1.0 0.0 0.0 ;
+* ----------------------------------------------------------------------
+*  Barre solides
+* ----------------------------------------------------------------------
+IF DEVICE "Lay1" = THEN
+DevInf GeoCalc := DEVINI: GeoCalc :: EDIT 0 NUM-ROD 12 FADE
+**  Première  Rangée d'adjusters posz = [276.36 325.89]
+ROD 1
+    ROD-NAME ADJ1
+    LEVEL <<fadj>> AXIS Y FROM H+
+    MAXPOS 197.1125  225.6875  68.525  182.825  196.36 245.89 !GT
+    DMIX <<mAout>> <<mno>>
+    MAXPOS 197.1125  225.6875  182.825 239.975  196.36 245.89 
+    DMIX <<mA4i1>> <<mno>> 
+    MAXPOS 197.1125  225.6875  239.975 354.275  196.36 245.89 
+    DMIX <<mA4i2>> <<mno>> 
+    MAXPOS 197.1125  225.6875  354.275 411.425  196.36 245.89 
+    DMIX <<mA4i1>> <<mno>> 
+    MAXPOS 197.1125  225.6875  411.425 525.725  196.36 245.89 !GT
+    DMIX <<mAout>> <<mno>>
+ENDROD
+ROD 2 
+    ROD-NAME ADJ2
+    LEVEL <<fadj>> AXIS Y FROM H+
+    MAXPOS 254.2625  282.8375   68.525 182.825  196.36 245.89 !GT
+    DMIX <<mAout>> <<mno>>
+    MAXPOS 254.2625  282.8375  182.825 411.425  196.36 245.89 
+    DMIX <<mA3i>>  <<mno>>
+    MAXPOS 254.2625  282.8375  411.425 525.725  196.36 245.89 !GT
+    DMIX <<mAout>> <<mno>>   
+ENDROD
+ROD 3
+    ROD-NAME ADJ3
+    LEVEL <<fadj>> AXIS Y FROM H+
+    MAXPOS 311.4125  339.9875   68.525 182.825  196.36 245.89 !GT
+    DMIX <<mAout>> <<mno>>
+    MAXPOS 311.4125  339.9875  182.825 411.425  196.36 245.89 
+    DMIX <<mA3i>>  <<mno>>
+    MAXPOS 311.4125  339.9875  411.425 525.725  196.36 245.89 !GT
+    DMIX <<mAout>> <<mno>>
+ENDROD
+ROD 4
+    ROD-NAME ADJ4
+    LEVEL <<fadj>> AXIS Y FROM H+   
+    MAXPOS 368.5625  397.1375  68.525  182.825  196.36 245.89 !GT
+    DMIX <<mAout>> <<mno>>
+    MAXPOS 368.5625  397.1375  182.825 239.975  196.36 245.89 
+    DMIX <<mA4i1>> <<mno>> 
+    MAXPOS 368.5625  397.1375  239.975 354.275  196.36 245.89 
+    DMIX <<mA4i2>> <<mno>> 
+    MAXPOS 368.5625  397.1375  354.275 411.425  196.36 245.89 
+    DMIX <<mA4i1>> <<mno>> 
+    MAXPOS 368.5625  397.1375  411.425 525.725  196.36 245.89 !GT
+    DMIX <<mAout>> <<mno>>
+ENDROD
+**  Deuxième  Rangée d'adjusters posz = [276.36 325.89]
+ROD 5
+    ROD-NAME ADJ1
+    LEVEL <<fadj>> AXIS Y FROM H+
+    MAXPOS 197.1125  225.6875  68.525  182.825  276.36 325.89 !GT
+    DMIX <<mAout>> <<mno>>
+    MAXPOS 197.1125  225.6875  182.825 239.975  276.36 325.89 
+    DMIX <<mA4i1>> <<mno>> 
+    MAXPOS 197.1125  225.6875  239.975 354.275  276.36 325.89 
+    DMIX <<mA4i2>> <<mno>> 
+    MAXPOS 197.1125  225.6875  354.275 411.425  276.36 325.89 
+    DMIX <<mA4i1>> <<mno>> 
+    MAXPOS 197.1125  225.6875  411.425 525.725  276.36 325.89 !GT
+    DMIX <<mAout>> <<mno>>
+ENDROD
+ROD 6 
+    ROD-NAME ADJ2
+    LEVEL <<fadj>> AXIS Y FROM H+
+    MAXPOS 254.2625  282.8375   68.525 182.825  276.36 325.89 !GT
+    DMIX <<mAout>> <<mno>>
+    MAXPOS 254.2625  282.8375  182.825 411.425  276.36 325.89 
+    DMIX <<mA3i>>  <<mno>>
+    MAXPOS 254.2625  282.8375  411.425 525.725  276.36 325.89 !GT
+    DMIX <<mAout>> <<mno>>   
+ENDROD
+ROD 7
+    ROD-NAME ADJ3
+    LEVEL <<fadj>> AXIS Y FROM H+
+    MAXPOS 311.4125  339.9875   68.525 182.825  276.36 325.89 !GT
+    DMIX <<mAout>> <<mno>>
+    MAXPOS 311.4125  339.9875  182.825 411.425  276.36 325.89 
+    DMIX <<mA3i>>  <<mno>>
+    MAXPOS 311.4125  339.9875  411.425 525.725  276.36 325.89 !GT
+    DMIX <<mAout>> <<mno>>
+ENDROD
+ROD 8
+    ROD-NAME ADJ4
+    LEVEL <<fadj>> AXIS Y FROM H+   
+    MAXPOS 368.5625  397.1375  68.525  182.825  276.36 325.89 !GT
+    DMIX <<mAout>> <<mno>>
+    MAXPOS 368.5625  397.1375  182.825 239.975  276.36 325.89 
+    DMIX <<mA4i1>> <<mno>> 
+    MAXPOS 368.5625  397.1375  239.975 354.275  276.36 325.89 
+    DMIX <<mA4i2>> <<mno>> 
+    MAXPOS 368.5625  397.1375  354.275 411.425  276.36 325.89 
+    DMIX <<mA4i1>> <<mno>> 
+    MAXPOS 368.5625  397.1375  411.425 525.725  276.36 325.89 !GT
+    DMIX <<mAout>> <<mno>>
+ENDROD
+**  Troisième Rangée d'ajusters posz = [356.36 405.89] 
+ROD 9
+    ROD-NAME ADJ1
+    LEVEL <<fadj>> AXIS Y FROM H+
+    MAXPOS 197.1125  225.6875  68.525  182.825  356.36 405.89 !GT
+    DMIX <<mAout>> <<mno>>
+    MAXPOS 197.1125  225.6875  182.825 239.975  356.36 405.89 
+    DMIX <<mA4i1>> <<mno>> 
+    MAXPOS 197.1125  225.6875  239.975 354.275  356.36 405.89 
+    DMIX <<mA4i2>> <<mno>> 
+    MAXPOS 197.1125  225.6875  354.275 411.425  356.36 405.89 
+    DMIX <<mA4i1>> <<mno>> 
+    MAXPOS 197.1125  225.6875  411.425 525.725  356.36 405.89 !GT
+    DMIX <<mAout>> <<mno>>
+ENDROD
+ROD 10 
+    ROD-NAME ADJ2
+    LEVEL <<fadj>> AXIS Y FROM H+
+    MAXPOS 254.2625  282.8375   68.525 182.825  356.36 405.89 !GT
+    DMIX <<mAout>> <<mno>>
+    MAXPOS 254.2625  282.8375  182.825 411.425  356.36 405.89 
+    DMIX <<mA3i>>  <<mno>>
+    MAXPOS 254.2625  282.8375  411.425 525.725  356.36 405.89 !GT
+    DMIX <<mAout>> <<mno>>   
+ENDROD
+ROD 11
+    ROD-NAME ADJ3
+    LEVEL <<fadj>> AXIS Y FROM H+
+    MAXPOS 311.4125  339.9875   68.525 182.825  356.36 405.89 !GT
+    DMIX <<mAout>> <<mno>>
+    MAXPOS 311.4125  339.9875  182.825 411.425  356.36 405.89 
+    DMIX <<mA3i>>  <<mno>>
+    MAXPOS 311.4125  339.9875  411.425 525.725  356.36 405.89 !GT
+    DMIX <<mAout>> <<mno>>
+ENDROD
+ROD 12
+    ROD-NAME ADJ4
+    LEVEL <<fadj>> AXIS Y FROM H+   
+    MAXPOS 368.5625  397.1375  68.525  182.825  356.36 405.89 !GT
+    DMIX <<mAout>> <<mno>>
+    MAXPOS 368.5625  397.1375  182.825 239.975  356.36 405.89 
+    DMIX <<mA4i1>> <<mno>> 
+    MAXPOS 368.5625  397.1375  239.975 354.275  356.36 405.89 
+    DMIX <<mA4i2>> <<mno>> 
+    MAXPOS 368.5625  397.1375  354.275 411.425  356.36 405.89 
+    DMIX <<mA4i1>> <<mno>> 
+    MAXPOS 368.5625  397.1375  411.425 525.725  356.36 405.89 !GT
+    DMIX <<mAout>> <<mno>>
+ENDROD
+					   
+*** Groupes de mécanismes
+CREATE ROD-GR 1
+    GROUP-ID 1  ALL
+;
+ELSEIF DEVICE "Lay2" = THEN
+DevInf GeoCalc := DEVINI: GeoCalc :: EDIT 0 NUM-ROD 12 FADE
+**  Première  Rangée d'adjusters posz = [276.36 325.89]
+ROD 1
+    ROD-NAME ADJ1
+    LEVEL <<fadj>> AXIS Y FROM H+
+    MAXPOS 197.1125  225.6875  68.525  182.825  196.36 245.89 !GT
+    DMIX <<mAout>> <<mno>>
+    MAXPOS 197.1125  225.6875  182.825 239.975  196.36 245.89 
+    DMIX <<mA4i1>> <<mno>> 
+    MAXPOS 197.1125  225.6875  239.975 354.275  196.36 245.89 
+    DMIX <<mA4i2>> <<mno>> 
+    MAXPOS 197.1125  225.6875  354.275 411.425  196.36 245.89 
+    DMIX <<mA4i1>> <<mno>> 
+    MAXPOS 197.1125  225.6875  411.425 525.725  196.36 245.89 !GT
+    DMIX <<mAout>> <<mno>>
+ENDROD
+ROD 2 
+    ROD-NAME ADJ2
+    LEVEL <<fadj>> AXIS Y FROM H+
+    MAXPOS 254.2625  282.8375   68.525 182.825  196.36 245.89 !GT
+    DMIX <<mAout>> <<mno>>
+    MAXPOS 254.2625  282.8375  182.825 411.425  196.36 245.89 
+    DMIX <<mA4i2>>  <<mno>>
+    MAXPOS 254.2625  282.8375  411.425 525.725  196.36 245.89 !GT
+    DMIX <<mAout>> <<mno>>   
+ENDROD
+ROD 3
+    ROD-NAME ADJ3
+    LEVEL <<fadj>> AXIS Y FROM H+
+    MAXPOS 311.4125  339.9875   68.525 182.825  196.36 245.89 !GT
+    DMIX <<mAout>> <<mno>>
+    MAXPOS 311.4125  339.9875  182.825 411.425  196.36 245.89 
+    DMIX <<mA4i2>>  <<mno>>
+    MAXPOS 311.4125  339.9875  411.425 525.725  196.36 245.89 !GT
+    DMIX <<mAout>> <<mno>>
+ENDROD
+ROD 4
+    ROD-NAME ADJ4
+    LEVEL <<fadj>> AXIS Y FROM H+   
+    MAXPOS 368.5625  397.1375  68.525  182.825  196.36 245.89 !GT
+    DMIX <<mAout>> <<mno>>
+    MAXPOS 368.5625  397.1375  182.825 239.975  196.36 245.89 
+    DMIX <<mA4i1>> <<mno>> 
+    MAXPOS 368.5625  397.1375  239.975 354.275  196.36 245.89 
+    DMIX <<mA4i2>> <<mno>> 
+    MAXPOS 368.5625  397.1375  354.275 411.425  196.36 245.89 
+    DMIX <<mA4i1>> <<mno>> 
+    MAXPOS 368.5625  397.1375  411.425 525.725  196.36 245.89 !GT
+    DMIX <<mAout>> <<mno>>
+ENDROD
+**  Deuxième  Rangée d'adjusters posz = [276.36 325.89]
+ROD 5
+    ROD-NAME ADJ1
+    LEVEL <<fadj>> AXIS Y FROM H+
+    MAXPOS 197.1125  225.6875  68.525  182.825  276.36 325.89 !GT
+    DMIX <<mAout>> <<mno>>
+    MAXPOS 197.1125  225.6875  182.825 239.975  276.36 325.89 
+    DMIX <<mA4i1>> <<mno>> 
+    MAXPOS 197.1125  225.6875  239.975 354.275  276.36 325.89 
+    DMIX <<mA4i2>> <<mno>> 
+    MAXPOS 197.1125  225.6875  354.275 411.425  276.36 325.89 
+    DMIX <<mA4i1>> <<mno>> 
+    MAXPOS 197.1125  225.6875  411.425 525.725  276.36 325.89 !GT
+    DMIX <<mAout>> <<mno>>
+ENDROD
+ROD 6 
+    ROD-NAME ADJ2
+    LEVEL <<fadj>> AXIS Y FROM H+
+    MAXPOS 254.2625  282.8375   68.525 182.825  276.36 325.89 !GT
+    DMIX <<mAout>> <<mno>>
+    MAXPOS 254.2625  282.8375  182.825 411.425  276.36 325.89 
+    DMIX <<mA3i>>  <<mno>>
+    MAXPOS 254.2625  282.8375  411.425 525.725  276.36 325.89 !GT
+    DMIX <<mAout>> <<mno>>   
+ENDROD
+ROD 7
+    ROD-NAME ADJ3
+    LEVEL <<fadj>> AXIS Y FROM H+
+    MAXPOS 311.4125  339.9875   68.525 182.825  276.36 325.89 !GT
+    DMIX <<mAout>> <<mno>>
+    MAXPOS 311.4125  339.9875  182.825 411.425  276.36 325.89 
+    DMIX <<mA3i>>  <<mno>>
+    MAXPOS 311.4125  339.9875  411.425 525.725  276.36 325.89 !GT
+    DMIX <<mAout>> <<mno>>
+ENDROD
+ROD 8
+    ROD-NAME ADJ4
+    LEVEL <<fadj>> AXIS Y FROM H+   
+    MAXPOS 368.5625  397.1375  68.525  182.825  276.36 325.89 !GT
+    DMIX <<mAout>> <<mno>>
+    MAXPOS 368.5625  397.1375  182.825 239.975  276.36 325.89 
+    DMIX <<mA4i1>> <<mno>> 
+    MAXPOS 368.5625  397.1375  239.975 354.275  276.36 325.89 
+    DMIX <<mA4i2>> <<mno>> 
+    MAXPOS 368.5625  397.1375  354.275 411.425  276.36 325.89 
+    DMIX <<mA4i1>> <<mno>> 
+    MAXPOS 368.5625  397.1375  411.425 525.725  276.36 325.89 !GT
+    DMIX <<mAout>> <<mno>>
+ENDROD
+**  Troisième Rangée d'ajusters posz = [356.36 405.89] 
+ROD 9
+    ROD-NAME ADJ1
+    LEVEL <<fadj>> AXIS Y FROM H+
+    MAXPOS 197.1125  225.6875  68.525  182.825  356.36 405.89 !GT
+    DMIX <<mAout>> <<mno>>
+    MAXPOS 197.1125  225.6875  182.825 239.975  356.36 405.89 
+    DMIX <<mA4i1>> <<mno>> 
+    MAXPOS 197.1125  225.6875  239.975 354.275  356.36 405.89 
+    DMIX <<mA4i2>> <<mno>> 
+    MAXPOS 197.1125  225.6875  354.275 411.425  356.36 405.89 
+    DMIX <<mA4i1>> <<mno>> 
+    MAXPOS 197.1125  225.6875  411.425 525.725  356.36 405.89 !GT
+    DMIX <<mAout>> <<mno>>
+ENDROD
+ROD 10 
+    ROD-NAME ADJ2
+    LEVEL <<fadj>> AXIS Y FROM H+
+    MAXPOS 254.2625  282.8375   68.525 182.825  356.36 405.89 !GT
+    DMIX <<mAout>> <<mno>>
+    MAXPOS 254.2625  282.8375  182.825 411.425  356.36 405.89 
+    DMIX <<mA4i2>>  <<mno>>
+    MAXPOS 254.2625  282.8375  411.425 525.725  356.36 405.89 !GT
+    DMIX <<mAout>> <<mno>>   
+ENDROD
+ROD 11
+    ROD-NAME ADJ3
+    LEVEL <<fadj>> AXIS Y FROM H+
+    MAXPOS 311.4125  339.9875   68.525 182.825  356.36 405.89 !GT
+    DMIX <<mAout>> <<mno>>
+    MAXPOS 311.4125  339.9875  182.825 411.425  356.36 405.89 
+    DMIX <<mA4i2>>  <<mno>>
+    MAXPOS 311.4125  339.9875  411.425 525.725  356.36 405.89 !GT
+    DMIX <<mAout>> <<mno>>
+ENDROD
+ROD 12
+    ROD-NAME ADJ4
+    LEVEL <<fadj>> AXIS Y FROM H+   
+    MAXPOS 368.5625  397.1375  68.525  182.825  356.36 405.89 !GT
+    DMIX <<mAout>> <<mno>>
+    MAXPOS 368.5625  397.1375  182.825 239.975  356.36 405.89 
+    DMIX <<mA4i1>> <<mno>> 
+    MAXPOS 368.5625  397.1375  239.975 354.275  356.36 405.89 
+    DMIX <<mA4i2>> <<mno>> 
+    MAXPOS 368.5625  397.1375  354.275 411.425  356.36 405.89 
+    DMIX <<mA4i1>> <<mno>> 
+    MAXPOS 368.5625  397.1375  411.425 525.725  356.36 405.89 !GT
+    DMIX <<mAout>> <<mno>>
+ENDROD
+					   
+*** Groupes de mécanismes
+CREATE ROD-GR 1
+    GROUP-ID 1  ALL
+;
+ELSE 
+DevInf GeoCalc := DEVINI: GeoCalc :: EDIT 0 NUM-ROD 24 FADE
+ROD 1
+    ROD-NAME ADJ1
+    LEVEL <<fadj>> AXIS Y FROM H+
+    MAXPOS 197.1125  225.6875  154.250 268.550  196.36 245.89 
+    DMIX <<mA1i>>  <<mAout>> 
+ENDROD
+ROD 2
+    ROD-NAME GTADJ1
+    LEVEL 1. AXIS Y FROM H+
+    MAXPOS 197.1125  225.6875  68.525 525.725  196.36 245.89 !GT
+    DMIX <<mAout>> <<mno>>
+ENDROD
+ROD 3
+    ROD-NAME ADJ2
+    LEVEL <<fadj>> AXIS Y FROM H+
+    MAXPOS 254.2625  282.8375  125.675 182.825  196.36 245.89
+    DMIX <<mA2i1>> <<mAout>> 
+    MAXPOS 254.2625  282.8375  182.825 325.700  196.36 245.89
+    DMIX <<mA2i2>> <<mAout>>
+    MAXPOS 254.2625  282.8375  325.700 382.850  196.36 245.89
+    DMIX <<mA2i1>> <<mAout>>     
+ENDROD
+ROD 4
+    ROD-NAME GTADJ2
+    LEVEL 1. AXIS Y FROM H+
+    MAXPOS 254.2625  282.8375   68.525 525.725  196.36 245.89 !GT
+    DMIX <<mAout>> <<mno>>
+ENDROD
+ROD 5
+    ROD-NAME ADJ3
+    LEVEL <<fadj>> AXIS Y FROM H+
+    MAXPOS 311.4125  339.9875  125.675 382.850  196.36 245.89 
+    DMIX <<mA3i>>  <<mAout>> 
+ENDROD
+ROD 6
+    ROD-NAME GTADJ3
+    LEVEL 1. AXIS Y FROM H+
+    MAXPOS 311.4125  339.9875   68.525 525.725  196.36 245.89 !GT
+    DMIX <<mAout>> <<mno>>
+ENDROD
+ROD 7
+    ROD-NAME ADJ4
+    LEVEL <<fadj>> AXIS Y FROM H+   
+    MAXPOS 368.5625  397.1375  154.250 268.550  196.36 245.89 
+    DMIX <<mA7i>>  <<mAout>>     
+ENDROD
+ROD 8
+    ROD-NAME GTADJ4
+    LEVEL 1. AXIS Y FROM H+
+    MAXPOS 368.5625  397.1375   68.525 525.725  196.36 245.89 !GT
+    DMIX <<mAout>> <<mno>>
+ENDROD
+**  Seconde Rangée d'adjusters
+ROD 9
+    ROD-NAME ADJ5
+    LEVEL <<fadj>> AXIS Y FROM H+
+    MAXPOS 197.1125  225.6875  154.250 268.550  276.36 325.89 
+    DMIX <<mA1i>>  <<mAout>> 
+ENDROD
+ROD 10
+    ROD-NAME GTADJ5
+    LEVEL 1. AXIS Y FROM H+
+    MAXPOS 197.1125  225.6875  68.525 525.725  276.36 325.89 !GT
+    DMIX <<mAout>> <<mno>>
+ENDROD
+ROD 11
+    ROD-NAME ADJ6
+    LEVEL <<fadj>> AXIS Y FROM H+
+    MAXPOS 254.2625  282.8375  125.675 182.825  276.36 325.89 
+    DMIX <<mA2i1>> <<mAout>> 
+    MAXPOS 254.2625  282.8375  182.825 325.700  276.36 325.89 
+    DMIX <<mA2i2>> <<mAout>>
+    MAXPOS 254.2625  282.8375  325.700 382.850  276.36 325.89 
+    DMIX <<mA2i1>> <<mAout>>     
+ENDROD
+ROD 12
+    ROD-NAME GTADJ6
+    LEVEL 1. AXIS Y FROM H+
+    MAXPOS 254.2625  282.8375   68.525 525.725  276.36 325.89 !GT
+    DMIX <<mAout>> <<mno>>
+ENDROD
+ROD 13
+    ROD-NAME ADJ7
+    LEVEL <<fadj>> AXIS Y FROM H+
+    MAXPOS 311.4125  339.9875  125.675 382.850  276.36 325.89 
+    DMIX <<mA3i>>  <<mAout>> 
+ENDROD
+ROD 14
+    ROD-NAME GTADJ7
+    LEVEL 1. AXIS Y FROM H+
+    MAXPOS 311.4125  339.9875   68.525 525.725  276.36 325.89 !GT
+    DMIX <<mAout>> <<mno>>
+ENDROD
+ROD 15
+    ROD-NAME ADJ8
+    LEVEL <<fadj>> AXIS Y FROM H+   
+    MAXPOS 368.5625  397.1375  154.250 268.550  276.36 325.89 
+    DMIX <<mA7i>>  <<mAout>>     
+ENDROD
+ROD 16
+    ROD-NAME GTADJ8
+    LEVEL 1. AXIS Y FROM H+
+    MAXPOS 368.5625  397.1375    68.525 525.725  276.36 325.89 !GT
+    DMIX <<mAout>> <<mno>>
+ENDROD
+**  3eme rangée d'ajusters 
+ROD 17
+    ROD-NAME ADJ9
+    LEVEL <<fadj>> AXIS Y FROM H+
+    MAXPOS 197.1125  225.6875  154.250 268.550  356.36 405.89 
+    DMIX <<mA1i>>  <<mAout>> 
+ENDROD
+ROD 18
+    ROD-NAME GTADJ9
+    LEVEL 1. AXIS Y FROM H+
+    MAXPOS 197.1125  225.6875  68.525 525.725  356.36 405.89 !GT
+    DMIX <<mAout>> <<mno>>
+ENDROD
+ROD 19
+    ROD-NAME ADJ10
+    LEVEL <<fadj>> AXIS Y FROM H+
+    MAXPOS 254.2625  282.8375  125.675 182.825  356.36 405.89 
+    DMIX <<mA2i1>> <<mAout>> 
+    MAXPOS 254.2625  282.8375  182.825 325.700  356.36 405.89 
+    DMIX <<mA2i2>> <<mAout>>
+    MAXPOS 254.2625  282.8375  325.700 382.850  356.36 405.89 
+    DMIX <<mA2i1>> <<mAout>>     
+ENDROD
+ROD 20
+    ROD-NAME GTADJ10
+    LEVEL 1. AXIS Y FROM H+
+    MAXPOS 254.2625  282.8375   68.525 525.725  356.36 405.89 !GT
+    DMIX <<mAout>> <<mno>>
+ENDROD
+ROD 21
+    ROD-NAME ADJ11
+    LEVEL <<fadj>> AXIS Y FROM H+
+    MAXPOS 311.4125  339.9875  125.675 382.850  356.36 405.89 
+    DMIX <<mA3i>>  <<mAout>> 
+ENDROD
+ROD 22
+    ROD-NAME GTADJ11
+    LEVEL 1. AXIS Y FROM H+
+    MAXPOS 311.4125  339.9875   68.525 525.725  356.36 405.89 !GT
+    DMIX <<mAout>> <<mno>>
+ENDROD
+ROD 23
+    ROD-NAME ADJ12
+    LEVEL <<fadj>> AXIS Y FROM H+   
+    MAXPOS 368.5625  397.1375  154.250 268.550  356.36 405.89
+    DMIX <<mA7i>>  <<mAout>>     
+ENDROD
+ROD 24
+    ROD-NAME GTADJ12
+    LEVEL 1. AXIS Y FROM H+
+    MAXPOS 368.5625  397.1375    68.525 525.725  356.36 405.89 !GT
+    DMIX <<mAout>> <<mno>>
+ENDROD
+					   
+*** Groupes de mécanismes
+CREATE ROD-GR 1
+    GROUP-ID 1  ALL
+;
+ENDIF ;
+***
+:: <<fadj>> <<fmca>> <<fsor>> ;
+**
+ECHO "Fin de Device.c2m" ;
+END: ;
+QUIT "LIST" .

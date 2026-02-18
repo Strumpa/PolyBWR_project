@@ -1,7 +1,8 @@
 *DECK EVOSIG
       SUBROUTINE EVOSIG(IMPX,INR,IGLOB,NGROUP,NBMIX,NBISO,NCOMB,
      1 ISONAM,IPISO,DEN,FLUMIX,VX,MILVO,JM,NVAR,NSUPS,NREAC,HREAC,
-     2 IDR,RER,RRD,FIT,FUELDN,NXSPER,DELTAT,MIXPWR,PFACT,SIG,VPHV)
+     2 IDR,RER,RRD,FIT,AWR,IZAE,FUELDN,NXSPER,DELTAT,MIXPWR,PFACT,
+     3 SIG,VPHV)
 *
 *-----------------------------------------------------------------------
 *
@@ -24,10 +25,10 @@
 *         =1: constant flux depletion;
 *         =2: constant fuel power depletion;
 *         =3: constant assembly power depletion.
-* IGLOB   out-of-fuel power in flux normalization:
-*         =0: compute the burnup using the power released in the fuel;
-*         =1: compute the burnup using the power released in the global
-*         geometry.
+* IGLOB   out-of-fuel power in flux normalization. Compute the burnup:
+*         =-1: using the Serpent mode 0 empirical formula in the fuel;
+*         =0: using the power released in the fuel;
+*         =1: using the power released in the global geometry.
 * NGROUP  number of energy groups.
 * NBMIX   number of mixtures.
 * NBISO   number of isotopes/materials including non-depleting ones.
@@ -48,14 +49,14 @@
 *         HREAC(1)='DECAY'; HREAC(2)='NFTOT';
 *         HREAC(3)='NG'   ; HREAC(4)='N2N';  etc.
 * IDR     identifier for each depleting reaction.
-* RER     energy (Mev) per reaction. If RER(3,J)=0., the fission energy
-*         is including radiative capture energy. Neutrino energy is
-*         never included.
+* RER     decay energy (Mev).
 * RRD     sum of radioactive decay constants in 10**-8/s.
 * FIT     flux normalization factor:
 *         n/cm**2/s if INR=1;
 *         MW/tonne of initial heavy elements if INR=2;
 *         W/cc of assembly volume if INR=3.
+* AWR     mass of the nuclides in unit of neutron mass.
+* IZAE    6-digit nuclide identifiers.
 * FUELDN  fuel initial density and mass.
 * NXSPER  perturbation order for cross sections.
 * DELTAT  perturbation coefficients for cross sections.
@@ -65,7 +66,7 @@
 * PFACT   form factor for out-of-fuel power production.
 * SIG     microscopic reaction rates for nuclide I in mixture IBM:
 *         SIG(I,1,IBM) fission reaction rate;
-*         SIG(I,2,IBM) gamma reaction rate;
+*         SIG(I,2,IBM) (n,gamma) reaction rate;
 *         SIG(I,3,IBM) N2N reaction rate;
 *         ...;
 *         SIG(I,NREAC,IBM) neutron-induced energy released;
@@ -81,25 +82,36 @@
       TYPE(C_PTR) IPISO(NBISO)
       INTEGER IMPX,INR,IGLOB,NGROUP,NBMIX,NBISO,NCOMB,ISONAM(3,NBISO),
      1 MILVO(NCOMB),JM(NBMIX,NVAR+NSUPS),NVAR,NSUPS,NREAC,
-     2 HREAC(2,NREAC),IDR(NREAC,NVAR+NSUPS),NXSPER,MIXPWR(NBMIX)
-      REAL DEN(NBISO),VX(NBMIX),RER(NREAC,NVAR+NSUPS),RRD(NVAR+NSUPS),
-     1 FIT,FUELDN(3),DELTAT(2),PFACT,SIG(NVAR+1,NREAC+1,NBMIX),
-     2 VPHV(NBMIX),FLUMIX(NGROUP,NBMIX)
+     2 HREAC(2,NREAC),IDR(NREAC,NVAR+NSUPS),IZAE(NVAR+NSUPS),NXSPER,
+     3 MIXPWR(NBMIX)
+      REAL DEN(NBISO),VX(NBMIX),RER(NVAR+NSUPS),RRD(NVAR+NSUPS),
+     1 FIT,AWR(NVAR+NSUPS),FUELDN(3),DELTAT(2),PFACT,VPHV(NBMIX),
+     2 SIG(NVAR+1,NREAC+1,NBMIX),FLUMIX(NGROUP,NBMIX)
 *----
 *  LOCAL VARIABLES
 *----
       PARAMETER(IOUT=6,MAXREA=20)
-      TYPE(C_PTR) KPLIB
-      CHARACTER HSMG*131,NAMDXS(MAXREA)*6
+      TYPE(C_PTR) KPLIB,KPLIB5
+      CHARACTER HSMG*131,NAMDXS(MAXREA)*8
       DOUBLE PRECISION GAR,GAR1,GAR2,GARD,XDRCST,EVJ,FITD,PHI,FNORM,VPH
       INTEGER IPRLOC
       LOGICAL LKERMA
-      REAL, ALLOCATABLE, DIMENSION(:) :: ZKERMA
+      REAL, ALLOCATABLE, DIMENSION(:) :: ZKERMA,ZNFTOT
       REAL, ALLOCATABLE, DIMENSION(:,:) :: XSREC
 *----
 *  SCRATCH STORAGE ALLOCATION
 *----
       ALLOCATE(XSREC(NGROUP,NREAC-1))
+*----
+*  FIND U235 POSITION IN DECAY CHAIN
+*----
+      IS235=0
+      IF(IGLOB.EQ.-1) THEN
+        DO 30 IST=1,NVAR+NSUPS
+          IF(IZAE(IST).EQ.922350) IS235=IST
+   30   CONTINUE
+        IF(IS235.EQ.0) CALL XABORT('EVOSIG: NO U235 INFO(1).')
+      ENDIF
 *----
 *  COMPUTE MICRO RATES
 *----
@@ -138,7 +150,7 @@
          IS=NVAR+1
          FACT=DEN(K)*VX(IBM)
       ENDIF
-      SIG(IS,NREAC+1,IBM)=SIG(IS,NREAC+1,IBM)+FACT*RER(1,IST)*RRD(IST)
+      SIG(IS,NREAC+1,IBM)=SIG(IS,NREAC+1,IBM)+FACT*RER(IST)*RRD(IST)
       IF(INR.EQ.0) GO TO 210
 *----
 *  RECOVER KERMA FACTORS, IF AVAILABLE
@@ -155,11 +167,38 @@
         ALLOCATE(ZKERMA(NGROUP))
         CALL LCMGET(KPLIB,'H-FACTOR',ZKERMA)
         GAR=0.0D0
-        DO 110 IU=1,NGROUP
-        GAR=GAR+1.0E-6*DBLE(ZKERMA(IU)*FLUMIX(IU,IBM))
-  110   CONTINUE
-        SIG(IS,NREAC,IBM)=1.0E-3*FACT*REAL(GAR)
+        DO 100 IU=1,NGROUP
+        GAR=GAR+1.0E-6*DBLE(ZKERMA(IU)*FLUMIX(IU,IBM)) ! convert to MeV
+  100   CONTINUE
+        IF(IGLOB.EQ.-1) THEN
+          ! use the empirical EDEPMODE=0 Serpent formula
+          ! R. Tuominen et al., ANE 129 (2019) 224–232.
+          K=JM(IBM,IS235)
+          IF(K.EQ.0) CALL XABORT('EVOSIG: NO U235 INFO(2).')
+          KPLIB5=IPISO(K)
+          IF(.NOT.C_ASSOCIATED(KPLIB5)) THEN
+            WRITE(HSMG,'(42HEVOSIG: ISOTOPE U235 IS NOT AVAILABLE IN T,
+     >      12HHE MICROLIB.)') (ISONAM(I0,K),I0=1,3)
+            CALL XABORT(HSMG)
+          ENDIF
+          ALLOCATE(ZNFTOT(NGROUP))
+          CALL LCMGET(KPLIB5,'H-FACTOR',ZKERMA)
+          CALL LCMGET(KPLIB5,'NFTOT',ZNFTOT)
+          GAR1=0.0D0
+          GAR2=0.0D0
+          DO 110 IU=1,NGROUP
+          GAR1=GAR1+1.0E-6*DBLE(ZKERMA(IU)*FLUMIX(IU,IBM))
+          GAR2=GAR2+DBLE(ZNFTOT(IU)*FLUMIX(IU,IBM))
+  110     CONTINUE
+          GAR=202.27D0*GAR*GAR2/GAR1
+          DEALLOCATE(ZNFTOT)
+        ENDIF
+        SIG(IS,NREAC,IBM)=SIG(IS,NREAC,IBM)+1.0E-3*FACT*REAL(GAR)
         DEALLOCATE(ZKERMA)
+      ELSE
+        IF((IGLOB.EQ.-1).AND.(AWR(IS).GT.210.0)) THEN
+          CALL XABORT('EVOSIG: EDP0 OPTION NEEDS H-FACTOR INFORMATION.')
+        ENDIF
       ENDIF
 *----
 *  RECOVER MULTIGROUP XS
@@ -172,7 +211,7 @@
          IF((IREAC.EQ.2).AND.(MOD(IDR(2,IST),100).EQ.5)) GO TO 120
          IF(IMPX.GT.90) CALL LCMLIB(KPLIB)
          IF(IMPX.GT.3) THEN
-           WRITE(HSMG,'(17HEVOSIG: REACTION ,A6,18H IS MISSING FOR IS,
+           WRITE(HSMG,'(17HEVOSIG: REACTION ,A8,18H IS MISSING FOR IS,
      1     7HOTOPE '',3A4,2H''.)') NAMDXS(IREAC-1),(ISONAM(I0,K),I0=1,3)
            WRITE(IOUT,'(1X,A)') HSMG
          ENDIF
@@ -183,10 +222,6 @@
   130 CONTINUE
       SIG(IS,IREAC-1,IBM)=SIG(IS,IREAC-1,IBM)+1.0E-3*FACT*REAL(GAR)*
      1 DELTAT(IXSPER)
-      ! if(LKERMA), add energy from lumped isotopes not present in the
-      ! microlib. Otherwise, add energy for all isotopes.
-      SIG(IS,NREAC,IBM)=SIG(IS,NREAC,IBM)+1.0E-3*FACT*RER(IREAC,IST)*
-     1 REAL(GAR)*DELTAT(IXSPER)
   140 CONTINUE
   150 CONTINUE
   210 CONTINUE
@@ -212,6 +247,7 @@
          IF(IBM.EQ.0) GO TO 245
          IF(MIXPWR(IBM).EQ.1) THEN
             DO 240 IS=1,NVAR
+            IF((IGLOB.EQ.-1).AND.(AWR(IS).LE.210.0)) GO TO 240
             K=JM(IBM,IS)
             IF(K.GT.0) THEN
                IF(DEN(K).EQ.0.0) GO TO 240
@@ -234,7 +270,7 @@
          PFACT=REAL(GAR2/GAR1)
          IF((IGLOB.EQ.1).OR.(INR.EQ.3)) THEN
             GAR=GAR2
-         ELSE IF(IGLOB.EQ.0) THEN
+         ELSE
             GAR=GAR1
          ENDIF
          IF(GAR.EQ.0.0D0) CALL XABORT('EVOSIG: UNABLE TO NORMALIZE.')

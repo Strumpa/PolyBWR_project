@@ -164,6 +164,9 @@
         ELSE IF(NAMMOD .EQ.  'SPH:        ') THEN      
           USE='Superhomogenization (SPH) calculation'
           AUT='A. Hebert'
+        ELSE IF(NAMMOD .EQ. 'FPSPH:') THEN
+          USE='Single SPH factor fixed point iteration'
+          AUT='A. Hebert'
         ELSE IF(NAMMOD .EQ.  'CFC:        ') THEN      
           USE='Construction of a feedback database for CANDU reactors'
           AUT='M. T. Sissaoui'

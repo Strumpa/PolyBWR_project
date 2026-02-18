@@ -362,6 +362,9 @@ void xsmrep(const char *namt, int_32 *ind, int_32 *idir, block2 *my_block2, int_
    if (strcmp(namt,"***HANDLE***") == 0) {
       sprintf(AbortString,"%s: ***HANDLE*** IS A RESERVED KEYWORD.",nomsub);
       xabort_c(AbortString);
+   } else if (strcmp(namt,"***DEL***") == 0) {
+      sprintf(AbortString,"%s: ***DEL*** IS A RESERVED KEYWORD.",nomsub);
+      xabort_c(AbortString);
    }
    strcpy(namp,namt);
    if (strcmp(namp," ") == 0) strcpy(namp,"***HANDLE***");
@@ -496,6 +499,7 @@ void xsmput_c(xsm **iplist, const char *namp, int_32 ilong, int_32 itype, int_32
    }
    return;
 }
+
 void xsmget_c(xsm **iplist, const char *namp, int_32 *data2)
 /*
  *-----------------------------------------------------------------------
@@ -530,6 +534,47 @@ void xsmget_c(xsm **iplist, const char *namp, int_32 *data2)
          sprintf(AbortString,"%s: kdiget_c ERROR NB. %d ON XSM FILE '%s'.",nomsub,(int)irc,nomC);
          xabort_c(AbortString);
       }
+   } else {
+      sprintf(AbortString,"%s: UNABLE TO FIND BLOCK '%s' INTO DIRECTORY '%s' IN THE XSM FILE '%.45s'.",
+              nomsub,namp,my_block2->mynam,(*iplist)->hname);
+      xabort_c(AbortString);
+   }
+   return;
+}
+
+void xsmdel_c(xsm **iplist, const char *namp)
+/*
+ *-----------------------------------------------------------------------
+ *
+ * delete a block in the xsm file.
+ *
+ * input parameter:
+ *  iplist : address of the handle to the xsm file.
+ *    namp : character*12 name of the current block.
+ *
+ *-----------------------------------------------------------------------
+ */
+{
+   char *nomsub="xsmdel_c";
+   char nomC[13] = "***DEL***";
+   block2 *my_block2;
+   int_32 iii;
+   if ((*iplist)->impf == 2) {
+      sprintf(AbortString,"%s: THE XSM FILE '%.60s' IS OPEN IN READ-ONLY MODE(1).",
+              nomsub,(*iplist)->hname);
+      xabort_c(AbortString);
+   } else if ((*iplist)->header != 200) {
+      sprintf(AbortString,"%s: THE XSM FILE '%.60s' HAVE THE WRONG HEADER.",
+              nomsub,(*iplist)->hname);
+      xabort_c(AbortString);
+   }
+   my_block2 = (*iplist)->ibloc;
+   xsmrep(namp, &c__1, &(*iplist)->idir, my_block2, &iii);
+   if (iii > 0) {
+      my_block2->modif = 1;
+      my_block2->jlon[iii - 1] = 0;
+      my_block2->jtyp[iii - 1] = 98;
+      strcpy(my_block2->cmt[iii - 1],nomC);
    } else {
       sprintf(AbortString,"%s: UNABLE TO FIND BLOCK '%s' INTO DIRECTORY '%s' IN THE XSM FILE '%.45s'.",
               nomsub,namp,my_block2->mynam,(*iplist)->hname);
@@ -682,9 +727,15 @@ void xsmnxt_c(xsm **iplist, char *namp)
    } else {
       xsmrep(namp, &c__1, &(*iplist)->idir, my_block2, &iii);
    }
+   int_32 icount=0;
+   L10: icount++;
+   if (icount >= 10000) {
+      sprintf(AbortString,"%s: PATHOLOGICAL CASE.",nomsub);
+      xabort_c(AbortString);
+   }
    if (iii == 0 && strcmp(namp, " ") == 0) {
 /*    EMPTY DIRECTORY */
-      sprintf(AbortString,"%s: THE ACTIVE DIRECTORY '%s' OF THE XSM FILE '%.45s' IS EMPTY.",
+      sprintf(AbortString,"%s: THE ACTIVE DIRECTORY '%s' OF THE XSM FILE '%.45s' IS EMPTY(1).",
               nomsub,my_block2->mynam,(*iplist)->hname);
       xabort_c(AbortString);
    } else if (iii == 0) {
@@ -693,6 +744,11 @@ void xsmnxt_c(xsm **iplist, char *namp)
       xabort_c(AbortString);
    } else if (iii + 1 <= my_block2->nmt) {
       strcpy(namp,my_block2->cmt[iii]);
+      if (strcmp(namp,"***DEL***") == 0) {
+         if (iii + 1 == my_block2->nmt) my_block2->nmt--;
+         iii++;
+         goto L10;
+      }
       return;
    }
 /* SWITCH TO THE NEXT DIRECTORY. */
@@ -702,8 +758,19 @@ void xsmnxt_c(xsm **iplist, char *namp)
 /*    RECOVER THE NEXT DIRECTORY. */
       xsmdir(&c__1, my_block2);
    }
-   strcpy(namp,my_block2->cmt[0]);
+   iii=0;
+   strcpy(namp,my_block2->cmt[iii]);
    if (strcmp(namp,"***HANDLE***") == 0) strcpy(namp," ");
+   if (strcmp(namp,"***DEL***") == 0) {
+      if (my_block2->nmt <= 1) {
+        sprintf(AbortString,"%s: THE ACTIVE DIRECTORY '%s' OF THE XSM FILE '%.45s' IS EMPTY(2).",
+                nomsub,my_block2->mynam,(*iplist)->hname);
+        xabort_c(AbortString);
+      }
+      if (iii + 1 == my_block2->nmt) my_block2->nmt--;
+      iii++;
+      goto L10;
+   }
    return;
 }
 

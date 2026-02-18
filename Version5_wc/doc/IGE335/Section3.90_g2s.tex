@@ -45,7 +45,7 @@ in the ALAMOS surfacic file.
 $[$~\moc{EDIT} \dusa{iprint}~$]$ \\
 $[$~\moc{ALAMOS} \dusa{typgeo}~$]$ \\
 $[$~\moc{MACRO} $]$ \\
-$[~\{$~\moc{DRAWNOD} $|$ \moc{DRAWMIX} $\}~]~[$ \moc{ZOOMX} \dusa{facx1} \dusa{facx2} $]~[$ \moc{ZOOMY} \dusa{facy1} \dusa{facy2} $]$ \\
+$[~\{$~\moc{DRAWNOD} $|$ \moc{DRAWMIX} $|$ \moc{DRAWELEM} $\}~]~[$ \moc{ZOOMX} \dusa{facx1} \dusa{facx2} $]~[$ \moc{ZOOMY} \dusa{facy1} \dusa{facy2} $]$ \\
 \moc{;}
 \end{DataStructure}
 
@@ -89,6 +89,8 @@ or {\tt HEXCEL} subgeometries. Macro-geometry information is not used by module 
 \item[\moc{DRAWNOD}] keyword used to print the region indices on the LHS postscript plot \dusa{PSFIL}. By default, no indices are printed.
 
 \item[\moc{DRAWMIX}] keyword used to print the material mixture indices on the LHS postscript plot \dusa{PSFIL}. By default, no indices are printed.
+
+\item[\moc{DRAWELEM}] keyword used to print the surfacic element indices on the LHS postscript plot \dusa{PSFIL}. By default, no indices are printed.
 
 \item[\moc{ZOOMX}] keyword used to plot a fraction of the $X$--domain. By default, all the $X$--domain is plotted.
 

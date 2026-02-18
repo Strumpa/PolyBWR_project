@@ -1,5 +1,5 @@
 *DECK APXIDF
-      SUBROUTINE APXIDF(IPAPX,IPEDIT,NG,NMIL,ICAL,IDF,NALBP,FNORM,
+      SUBROUTINE APXIDF(IPAPX,IPMICR,NG,NMIL,ICAL,IDF,NALBP,FNORM,
      1 VOLMIL,FLXMIL)
 *
 *-----------------------------------------------------------------------
@@ -18,7 +18,7 @@
 *
 *Parameters: input
 * IPAPX   pointer to the Apex file.
-* IPEDIT  pointer to the edition object (L_EDIT signature).
+* IPMICR  pointer to the microlib to include (L_LIBRARY signature).
 * NG      number of condensed energy groups.
 * NMIL    number of mixtures.
 * ICAL    index of the current elementary calculation.
@@ -35,7 +35,7 @@
 *----
 *  SUBROUTINE ARGUMENTS
 *----
-      TYPE(C_PTR) IPAPX,IPEDIT
+      TYPE(C_PTR) IPAPX,IPMICR
       INTEGER NG,NMIL,ICAL,IDF,NALBP
       REAL FNORM,VOLMIL(NMIL),FLXMIL(NMIL,NG)
 *----
@@ -52,11 +52,11 @@
 *----
 *  RECOVER DISCONTINUITY FACTOR INFORMATION FROM MACROLIB
 *----
-      CALL LCMSIX(IPEDIT,'MACROLIB',1)
-      CALL LCMLEN(IPEDIT,'ADF',ILONG,ITYLCM)
+      CALL LCMSIX(IPMICR,'MACROLIB',1)
+      CALL LCMLEN(IPMICR,'ADF',ILONG,ITYLCM)
       IF(ILONG.NE.0) THEN
-        CALL LCMSIX(IPEDIT,'ADF',1)
-        CALL LCMGET(IPEDIT,'NTYPE',NSURFD)
+        CALL LCMSIX(IPMICR,'ADF',1)
+        CALL LCMGET(IPMICR,'NTYPE',NSURFD)
         NGG=0
         IF((IDF.EQ.2).OR.(IDF.EQ.3)) THEN
           NGG=NG
@@ -64,9 +64,9 @@
           CALL XABORT('APXIDF: INVALID ADF OPTION.')
         ENDIF
         ALLOCATE(DISFAC(NSURFD,NGG,NMIL),SURF(NMIL*NGG),HADF(NSURFD))
-        CALL LCMGTC(IPEDIT,'HADF',8,NSURFD,HADF)
+        CALL LCMGTC(IPMICR,'HADF',8,NSURFD,HADF)
         DO I=1,NSURFD
-          CALL LCMLEN(IPEDIT,HADF(I),ILONG,ITYLCM)
+          CALL LCMLEN(IPMICR,HADF(I),ILONG,ITYLCM)
           IF(IDF.EQ.2) THEN
 *           boundary flux information
             IF(ILONG.NE.NMIL*NG) THEN
@@ -74,7 +74,7 @@
      1        10H EXPECTED=,I5,4H.(1))') HADF(I),ILONG,NMIL*NG
               CALL XABORT(HSMG)
             ENDIF
-            CALL LCMGET(IPEDIT,HADF(I),SURF)
+            CALL LCMGET(IPMICR,HADF(I),SURF)
             DO IMIL=1,NMIL
               DO IGR=1,NG
                 IF(FNORM.NE.1.0) THEN
@@ -93,7 +93,7 @@
      1        10H EXPECTED=,I5,4H.(2))') HADF(I),ILONG,NMIL*NG
               CALL XABORT(HSMG)
             ENDIF
-            CALL LCMGET(IPEDIT,HADF(I),SURF)
+            CALL LCMGET(IPMICR,HADF(I),SURF)
             DO IMIL=1,NMIL
               DO IGR=1,NG
                 IOF=(IGR-1)*NMIL+IMIL
@@ -103,20 +103,20 @@
           ENDIF
         ENDDO
         DEALLOCATE(HADF,SURF)
-        CALL LCMSIX(IPEDIT,' ',2)
+        CALL LCMSIX(IPMICR,' ',2)
 *----
 *  MOVE TO THE /calc_id/miscellaneous/ GROUP.
 *----
         WRITE(RECNAM,'(4Hcalc,I8,15H/miscellaneous/)') ICAL
         IF((IDF.EQ.2).OR.(IDF.EQ.3)) THEN
-          IF(IMIL.EQ.1) THEN
+          IF(NMIL.EQ.1) THEN
             ALLOCATE(VREAL(NSURFD,NG))
             VREAL(:NSURFD,:NG)=DISFAC(:NSURFD,:NG,1)
             CALL hdf5_write_data(IPAPX,TRIM(RECNAM)//"ADF",VREAL)
             DEALLOCATE(VREAL)
           ELSE
             DO IMIL=1,NMIL
-              WRITE(RECNAM2,'(A,4HADF,I8)') TRIM(RECNAM),IMIL
+              WRITE(RECNAM2,'(A,3HADF,I8)') TRIM(RECNAM),IMIL
               ALLOCATE(VREAL(NSURFD,NG))
               VREAL(:NSURFD,:NG)=DISFAC(:NSURFD,:NG,IMIL)
               CALL hdf5_write_data(IPAPX,TRIM(RECNAM2),VREAL)
@@ -131,16 +131,16 @@
 *----
       IF(NALBP.NE.0) THEN
         WRITE(RECNAM,'(4Hcalc,I8,15H/miscellaneous/)') ICAL
-        CALL LCMLEN(IPEDIT,'ALBEDO',ILONG,ITYLCM)
+        CALL LCMLEN(IPMICR,'ALBEDO',ILONG,ITYLCM)
         IF(ILONG.EQ.NALBP*NG) THEN
           ALLOCATE(ALBP(NALBP,NG))
-          CALL LCMGET(IPEDIT,'ALBEDO',ALBP)
+          CALL LCMGET(IPMICR,'ALBEDO',ALBP)
           CALL hdf5_write_data(IPAPX,TRIM(RECNAM)//"ALBEDO",ALBP)
           DEALLOCATE(ALBP)
         ELSE
           CALL XABORT('APXIDF: INCONSISTENT ALBEDO INFORMATION.')
         ENDIF
       ENDIF
-      CALL LCMSIX(IPEDIT,' ',2)
+      CALL LCMSIX(IPMICR,' ',2)
       RETURN
       END

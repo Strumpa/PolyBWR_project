@@ -1,5 +1,5 @@
 *DECK MOCFFAL
-      SUBROUTINE MOCFFAL(SUBSCH,NR,NS,MT,LINE,SEGLEN,NRSEG,NE,NFX,
+      SUBROUTINE MOCFFAL(SUBSCH,NR,NS,NBCDA,MT,LINE,SEGLEN,NRSEG,NE,NFX,
      1 MATALB,DWEIG,SIGANG,YG,FLM,FLP,DFLM,DFLP,NPHI,NSUB,KANGL,TRHAR,
      2 PHIV,DPHIV,DSIG,EXPT,EXP2,CYM1,CYP1,CYM2,CYP2)
 *
@@ -24,6 +24,7 @@
 * SUBSCH  track coefficients calculation subroutine.
 * NR      number of volumes.
 * NS      number of surfaces.
+* NBCDA   number of perimeters.
 * MT      number of material mixtures.
 * LINE    number of segments on this tracking line.
 * SEGLEN  vector containing the lenght of the different segments of this
@@ -65,9 +66,9 @@
 *----
 *  SUBROUTINE ARGUMENTS
 *----
-      INTEGER NR,NS,MT,LINE,NRSEG(LINE),NE,NFX,MATALB(-NS:NR),NPHI,
-     1 NSUB,KANGL(NSUB)
-      REAL SIGANG(-6:MT),YG(NE),TRHAR(NE,NFX,NPHI,2)
+      INTEGER NR,NS,NBCDA,MT,LINE,NRSEG(LINE),NE,NFX,MATALB(-NS:NR),
+     1 NPHI,NSUB,KANGL(NSUB)
+      REAL SIGANG(-NBCDA:MT),YG(NE),TRHAR(NE,NFX,NPHI,2)
       DOUBLE PRECISION SEGLEN(LINE),DWEIG(NE),FLM(NE,LINE),FLP(NE,LINE),
      1 DFLM(NE,LINE),DFLP(NE,LINE),PHIV(NFX,NR),DPHIV(2*NFX,NR),
      2 DSIG(LINE),EXPT(NE,LINE),EXP2(5,NE,LINE),CYM1(NE,LINE),
@@ -98,8 +99,8 @@
 *       MOCDDFL: Diamond-Differencing DD1 Scheme
 *       MOCSCEL: Linear discontinuous-Characteristics Scheme with
 *                Exact Exponentials
-      CALL SUBSCH(LINE,NR,NS,MT,NRSEG,MATALB,SEGLEN,SIGANG(-6),DSIG,
-     1     EXPT,EXP2,NE,YG)
+      CALL SUBSCH(LINE,NR,NS,NBCDA,MT,NRSEG,MATALB,SEGLEN,
+     1     SIGANG(-NBCDA),DSIG,EXPT,EXP2,NE,YG)
 *----
 *     Summation along the track in both directions
 *----

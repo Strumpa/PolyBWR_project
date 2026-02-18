@@ -1,5 +1,5 @@
 *DECK MPOIDF
-      SUBROUTINE MPOIDF(IPMPO,IPEDIT,HEDIT,NG,NMIL,ICAL,IDF,NALBP,
+      SUBROUTINE MPOIDF(IPMPO,IPMICR,HEDIT,NG,NMIL,ICAL,IDF,NALBP,
      1 FNORM,VOLMIL,FLXMIL)
 *
 *-----------------------------------------------------------------------
@@ -18,7 +18,7 @@
 *
 *Parameters: input
 * IPMPO   pointer to the MPO file.
-* IPEDIT  pointer to the edition object (L_EDIT signature).
+* IPMICR  pointer to the microlib to include (L_LIBRARY signature).
 * HEDIT   name of output group for a (multigroup mesh, output geometry)
 *         couple (generally equal to 'output_0').
 * NG      number of condensed energy groups.
@@ -37,7 +37,7 @@
 *----
 *  SUBROUTINE ARGUMENTS
 *----
-      TYPE(C_PTR) IPMPO,IPEDIT
+      TYPE(C_PTR) IPMPO,IPMICR
       INTEGER NG,NMIL,ICAL,IDF,NALBP
       REAL FNORM,VOLMIL(NMIL),FLXMIL(NMIL,NG)
       CHARACTER(LEN=12) HEDIT
@@ -55,11 +55,11 @@
 *----
 *  RECOVER DISCONTINUITY FACTOR INFORMATION FROM MACROLIB
 *----
-      CALL LCMSIX(IPEDIT,'MACROLIB',1)
-      CALL LCMLEN(IPEDIT,'ADF',ILONG,ITYLCM)
+      CALL LCMSIX(IPMICR,'MACROLIB',1)
+      CALL LCMLEN(IPMICR,'ADF',ILONG,ITYLCM)
       IF(ILONG.NE.0) THEN
-        CALL LCMSIX(IPEDIT,'ADF',1)
-        CALL LCMGET(IPEDIT,'NTYPE',NSURFD)
+        CALL LCMSIX(IPMICR,'ADF',1)
+        CALL LCMGET(IPMICR,'NTYPE',NSURFD)
         NGG=0
         IF((IDF.EQ.2).OR.(IDF.EQ.3)) THEN
           NGG=NG
@@ -69,9 +69,9 @@
           CALL XABORT('MPOIDF: INVALID ADF OPTION.')
         ENDIF
         ALLOCATE(DISFAC(NSURFD,NGG,NMIL),SURF(NMIL*NGG),HADF(NSURFD))
-        CALL LCMGTC(IPEDIT,'HADF',8,NSURFD,HADF)
+        CALL LCMGTC(IPMICR,'HADF',8,NSURFD,HADF)
         DO I=1,NSURFD
-          CALL LCMLEN(IPEDIT,HADF(I),ILONG,ITYLCM)
+          CALL LCMLEN(IPMICR,HADF(I),ILONG,ITYLCM)
           IF(IDF.EQ.2) THEN
 *           boundary flux information
             IF(ILONG.NE.NMIL*NG) THEN
@@ -79,7 +79,7 @@
      1        10H EXPECTED=,I5,4H.(1))') HADF(I),ILONG,NMIL*NG
               CALL XABORT(HSMG)
             ENDIF
-            CALL LCMGET(IPEDIT,HADF(I),SURF)
+            CALL LCMGET(IPMICR,HADF(I),SURF)
             DO IMIL=1,NMIL
               DO IGR=1,NG
                 IF(FNORM.NE.1.0) THEN
@@ -98,7 +98,7 @@
      1        10H EXPECTED=,I5,4H.(2))') HADF(I),ILONG,NMIL*NG
               CALL XABORT(HSMG)
             ENDIF
-            CALL LCMGET(IPEDIT,HADF(I),SURF)
+            CALL LCMGET(IPMICR,HADF(I),SURF)
             DO IMIL=1,NMIL
               DO IGR=1,NG
                 IOF=(IGR-1)*NMIL+IMIL
@@ -112,7 +112,7 @@
      1        10H EXPECTED=,I5,4H.(3))') HADF(I),ILONG,NMIL*NG*NG
               CALL XABORT(HSMG)
             ENDIF
-            CALL LCMGET(IPEDIT,HADF(I),SURF)
+            CALL LCMGET(IPMICR,HADF(I),SURF)
             DO IMIL=1,NMIL
               DO IGR=1,NG
                 DO JGR=1,NG
@@ -124,7 +124,7 @@
           ENDIF
         ENDDO
         DEALLOCATE(HADF,SURF)
-        CALL LCMSIX(IPEDIT,' ',2)
+        CALL LCMSIX(IPMICR,' ',2)
 *----
 *  MOVE TO THE /statept_id/zone_id/discontinuity GROUP.
 *----
@@ -157,23 +157,23 @@
 *  RECOVER AND SAVE ALBEDO INFORMATION
 *----
         CALL hdf5_write_data(IPMPO,TRIM(RECNAM)//"NALBP",NALBP)
-        CALL LCMLEN(IPEDIT,'ALBEDO',ILONG,ITYLCM)
+        CALL LCMLEN(IPMICR,'ALBEDO',ILONG,ITYLCM)
         IF(ILONG.EQ.NALBP*NG) THEN
 *         diagonal physical albedos
           ALLOCATE(ALBP(NALBP,NG))
-          CALL LCMGET(IPEDIT,'ALBEDO',ALBP)
+          CALL LCMGET(IPMICR,'ALBEDO',ALBP)
           CALL hdf5_write_data(IPMPO,TRIM(RECNAM)//"ALBEDO",ALBP)
           DEALLOCATE(ALBP)
         ELSE IF(ILONG.EQ.NALBP*NG*NG) THEN
 *         matrix physical albedos
           ALLOCATE(ALBP2(NALBP,NG,NG))
-          CALL LCMGET(IPEDIT,'ALBEDO',ALBP2)
+          CALL LCMGET(IPMICR,'ALBEDO',ALBP2)
           CALL hdf5_write_data(IPMPO,TRIM(RECNAM)//"ALBEDOGxG",ALBP2)
           DEALLOCATE(ALBP2)
         ELSE
           CALL XABORT('MPOIDF: INCONSISTENT ALBEDO INFORMATION.')
         ENDIF
       ENDIF
-      CALL LCMSIX(IPEDIT,' ',2)
+      CALL LCMSIX(IPMICR,' ',2)
       RETURN
       END

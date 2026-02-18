@@ -3,16 +3,16 @@
 Subversion pre-commit hook which currently checks that the card-index
 information is consistent and correctly given.
 """
-#Author: Alain Hebert, Ecole Polytechnique, 2006.
+#Author: Alain Hebert, Ecole Polytechnique, 2026.
 
-import os, sys, pysvn
+import os, sys
 
 def main(repos, txn):
   # Recover the transaction data:
-  print("pre-commit: repos=",repos)
-  t = pysvn.Transaction( repos, txn )
-  all_props = t.revproplist()
-  message = t.revproplist()['svn:log']
+  sys.stderr.write("pre-commit: repos=" + repos + "\n")
+  os.system("svnlook info -t " + txn + " " + repos + " > ./transaction")
+  os.system("svnlook changed -t " + txn + " " + repos + " >> ./transaction")
+  message = os.popen("svnlook log -t " + txn + " " + repos).readline().strip('\n')
   #
   # Validate the commit message:
   if message[:5] != 'issue':
@@ -25,17 +25,19 @@ def main(repos, txn):
     sys.stderr.write ("Please begin your commit message with 'issue' characters followed" \
     +" by a six-digit index. message=%s...\n"%message[:15])
     sys.exit(1)
-  fileName = message[:11]
+  newIssue = int(message[5:11])
   #
   # List of card-index
-  client = pysvn.Client()
-  myls = client.ls('file://'+repos+'/'+'/issues/')
+  revmax = int(os.popen("svnlook youngest " + repos).readline().strip('\n'))
+  sys.stderr.write ("commit message=" + message + "\n")
   maxIssue = -1
-  for k in range(len(myls)):
-    maxIssue=max(maxIssue, int(myls[k]['name'].split('/')[-1][5:]))
-  if int(fileName[5:]) > maxIssue+1:
+  for k in range(revmax):
+    fileName = os.popen("svnlook log -r " + str(k+1) + " " + repos).readline().strip('\n')
+    maxIssue=max(maxIssue, int(fileName.split(':')[0][5:]))
+  sys.stderr.write ("newIssue=" + str(newIssue) + " maxIssue=" + str(maxIssue) + "\n")
+  if newIssue > maxIssue+1:
     sys.stderr.write ("The six-digit index (%d) must be <= %d. message=%s...\n"% \
-    (int(fileName[5:]), maxIssue+1, message[:15]))
+    (newIssue, maxIssue+1, message[:20]))
     sys.exit(1)
   sys.exit(0)
 

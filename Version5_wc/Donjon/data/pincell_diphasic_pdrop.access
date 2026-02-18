@@ -4,6 +4,7 @@ if [ $# = 0 ]
    echo "usage: pincell_mphy_thm.access directory" 1>&2
    exit 1
 fi
-ln -s "$1"/data/pincell_mphy_thm_proc/_ACompo _ACompo
+ln -s "$1"/data/pincell_mphy_thm_proc/_ACompo_pincell _ACompo
+ln -s "$1"/data/assertS_low.c2m .
 ls -l
 echo "pincell_mphy_thm access script terminated"

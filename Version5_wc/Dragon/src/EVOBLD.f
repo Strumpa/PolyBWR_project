@@ -1,8 +1,8 @@
 *DECK EVOBLD
-      SUBROUTINE EVOBLD(IMPX,INR,IGLOB,NBMIX,NBISO,NCOMB,ISONAM,YDPL,
-     1 VX,MILVO,JM,NVAR,NDFP,NSUPS,NREAC,NPAR,NFISS,XT,EPS1,EPS2,EXPMAX,
-     2 H1,ITYPE,IDIRAC,FIT,DELTA,ENERG,KPAR,BPAR,YIELD,IDR,RER,RRD,AWR,
-     3 FUELDN,SIG,VPH,VPHV,MIXPWR,VTOTD,IEVOLB,KFISS,KPF)
+      SUBROUTINE EVOBLD(IMPX,INR,IGLOB,NBMIX,NBISO,NCOMB,ISONAM,IPISO,
+     1 YDPL,VX,MILVO,JM,NVAR,NDFP,NSUPS,NREAC,NPAR,NFISS,XT,EPS1,EPS2,
+     2 EXPMAX,H1,ITYPE,IDIRAC,FIT,DELTA,ENERG,KPAR,BPAR,YIELD,IDR,RRD,
+     3 AWR,FUELDN,SIG,VPH,VPHV,MIXPWR,VTOTD,IEVOLB,KFISS,KPF)
 *
 *-----------------------------------------------------------------------
 *
@@ -26,14 +26,15 @@
 *         =1: constant flux depletion;
 *         =2: constant fuel power depletion;
 *         =3: constant assembly power depletion.
-* IGLOB   out-of-fuel power in flux normalization:
-*         =0: compute the burnup using the power released in the fuel;
-*         =1: compute the burnup using the power released in the global
-*         geometry.
+* IGLOB   out-of-fuel power in flux normalization. Compute the burnup:
+*         =-1: using the Serpent mode 0 empirical formula in the fuel;
+*         =0: using the power released in the fuel;
+*         =1: using the power released in the global geometry.
 * NBMIX   number of mixtures.
 * NBISO   number of isotopes/materials including non-depleting ones.
 * NCOMB   number of depleting mixtures.
 * ISONAM  alias name of isotopes.
+* IPISO   pointer array towards microlib isotopes.
 * YDPL    initial/final number density of isotope in the depletion
 *         chain. YDPL(NVAR+1,2,ICMB) is the stage burnup increment
 *         in region ICMB.
@@ -75,9 +76,6 @@
 * BPAR    branching ratio for neutron induced reactions.
 * YIELD   mixture-dependent fission yields.
 * IDR     identifier for each depleting reaction.
-* RER     energy (Mev) per reaction. If RER(3,J)=0., the fission energy
-*         includes radiative capture energy. Neutrino energy is
-*         never included.
 * RRD     sum of radioactive decay constants in 10**-8/s.
 * AWR     mass of the nuclides in unit of neutron mass.
 * FUELDN  fuel initial density and mass.
@@ -104,9 +102,11 @@
 *
 *-----------------------------------------------------------------------
 *
+      USE GANLIB
 *----
 *  SUBROUTINE ARGUMENTS
 *----
+      TYPE(C_PTR) IPISO(NBISO)
       INTEGER IMPX,INR,IGLOB,NBMIX,NBISO,NCOMB,ISONAM(3,NBISO),
      1 MILVO(NCOMB),JM(NBMIX,NVAR+NSUPS),NVAR,NDFP,NSUPS,NREAC,NPAR,
      2 NFISS,ITYPE,IDIRAC,KPAR(NPAR,NVAR),IDR(NREAC,NVAR+NSUPS),
@@ -114,28 +114,21 @@
      4 KPF(NDFP,NBMIX)
       REAL YDPL(NVAR+1,2,NCOMB),VX(NBMIX),XT(2),EPS1,EPS2,EXPMAX,H1,FIT,
      1 DELTA(3),ENERG(NBMIX),BPAR(NPAR,NVAR),YIELD(NFISS,NDFP,NBMIX),
-     2 RER(NREAC,NVAR+NSUPS),RRD(NVAR+NSUPS),AWR(NVAR),FUELDN(3),
-     3 SIG(NVAR+1,NREAC+1,NBMIX,2),VPH(2),VPHV(NBMIX,2)
+     2 RRD(NVAR+NSUPS),AWR(NVAR),FUELDN(3),SIG(NVAR+1,NREAC+1,NBMIX,2),
+     3 VPH(2),VPHV(NBMIX,2)
       DOUBLE PRECISION VTOTD
 *----
 *  LOCAL VARIABLES
 *----
+      TYPE(C_PTR) KPLIB
       CHARACTER TEXT8*8,HSMG*131
       DOUBLE PRECISION GAR,GARD,XDRCST,EVJ,FITD,PHI2
-      LOGICAL LCOOL,LSIMPL
+      LOGICAL LCOOL
       INTEGER, ALLOCATABLE, DIMENSION(:) :: MU1,IMA,LP,CHAIN
 *----
 *  SCRATCH STORAGE ALLOCATION
 *----
       ALLOCATE(MU1(NVAR+1),IMA(NVAR+1),LP(NVAR))
-*----
-*  CHECK IF ONLY THE HEAVY ISOTOPES ARE PRODUCING ENERGY. IN THIS CASE,
-*  SOME SIMPLIFICATIONS ARE POSSIBLE
-*----
-      LSIMPL=.TRUE.
-      DO 10 IS=1,NVAR
-      LSIMPL=LSIMPL.AND.(RER(3,IS).EQ.0.0)
-   10 CONTINUE
 *
       EVJ=XDRCST('eV','J')*1.0E22
       LCOOL=(INR.EQ.0)
@@ -170,18 +163,27 @@
   270    CONTINUE
          NSUPL2=NVAR2
          DO 280 IS=1,NVAR
-         IF(LSIMPL.AND.(AWR(IS).LE.210.0)) GO TO 280
-         IF((JM(IBM,IS).GT.0).AND.(LP(IS).EQ.0)) THEN
-            NVAR2=NVAR2+1
-            LP(IS)=NVAR2
+         K=JM(IBM,IS)
+         IF(K.GT.0) THEN
+*           CHECK IF ONLY THE HEAVY ISOTOPES ARE PRODUCING ENERGY. IN
+*           THIS CASE, IT IS POSSIBLE TO AVOID THE SOLUTION FOR FISSION
+*           PRODUCTS.
+            KPLIB=IPISO(K) ! set K-th isotope
+            IF(.NOT.C_ASSOCIATED(KPLIB)) THEN
+              WRITE(HSMG,'(17HEVOBLD: ISOTOPE '',3A4,12H'' IS NOT AVA,
+     1        23HILABLE IN THE MICROLIB.)') (ISONAM(I0,K),I0=1,3)
+              CALL XABORT(HSMG)
+            ENDIF
+            CALL LCMLEN(KPLIB,'H-FACTOR',LENGT,ITYLCM)
+            IF(((LENGT.GT.0).OR.(AWR(IS).GT.210.0)).AND.(LP(IS).EQ.0))
+     1      THEN
+              NVAR2=NVAR2+1
+              LP(IS)=NVAR2
+            ENDIF
          ENDIF
   280    CONTINUE
          IF(NVAR2.EQ.0) GO TO 330
-*        CHECK IF ONLY THE HEAVY ISOTOPES ARE PRODUCING ENERGY. IN
-*        THIS CASE, IT IS POSSIBLE TO AVOID THE SOLUTION FOR FISSION
-*        PRODUCTS.
          NSUPF2=NVAR2-NSUPL2
-         IF(LSIMPL) NSUPF2=0
          CALL EVOMU1(IMPX,NVAR,NREAC,LP,XT,LCOOL,NPAR,KPAR,RRD,
      1   SIG(1,1,IBM,1),SIG(1,1,IBM,2),EXPMAX,IEVOLB(1,IBM),MU1,
      2   IMA,MAXA)
@@ -229,7 +231,7 @@
                GAR=GAR+SIG(NVAR+1,NREAC+1,IBM,2)
             ENDIF
   370       CONTINUE
-         ELSE IF(IGLOB.EQ.0) THEN
+         ELSE
             DO 380 ICMB=1,NCOMB
             IBM=MILVO(ICMB)
             IF(IBM.EQ.0) GO TO 380
@@ -369,7 +371,7 @@
       ENDIF
   516 CONTINUE
       DELTA(3)=0.0
-      IF(IGLOB.EQ.0) THEN
+      IF(IGLOB.LE.0) THEN
          DO 520 ICMB=1,NCOMB
          IBM=MILVO(ICMB)
          IF(IBM.EQ.0) GO TO 520
@@ -429,7 +431,7 @@
          DO 580 IP=1,2
          DELTA1=0.0
          DELTA2=0.0
-         IF(IGLOB.EQ.0) THEN
+         IF(IGLOB.LE.0) THEN
             DO 550 ICMB=1,NCOMB
             IBM=MILVO(ICMB)
             IF(IBM.EQ.0) GO TO 550

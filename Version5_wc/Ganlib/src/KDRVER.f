@@ -19,12 +19,12 @@
 *
       CHARACTER REV*48,DATE*64
 *
-      REV='Version 5.0.11 ($Revision: 3787 $)'
-      DATE='$Date: 2025-05-10 13:12:46 -0400 (Sat, 10 May 2025) $'
+      REV='Version 5.0.12 ($Revision: 3956 $)'
+      DATE='$Date: 2025-09-05 09:32:25 -0400 (Fri, 05 Sep 2025) $'
       IF(REV(22:).EQ.'ion$)') THEN
 *        CVS or SVN keyword expansion not performed
-         REV='Version 5.0.11'
-         DATE='April 13, 2025'
+         REV='Version 5.0.12'
+         DATE='September 5, 2025'
       ENDIF
       RETURN
       END

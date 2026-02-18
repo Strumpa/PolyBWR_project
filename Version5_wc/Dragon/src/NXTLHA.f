@@ -278,8 +278,7 @@
               ENDDO
             ENDIF
 *            WRITE(IOUT,*) '2-D tracking for cell= ',IH
-*            WRITE(IOUT,'(2I10,F20.15)')
-*     >      (ITF,IKS(ITF),DK(ITF),ITF=1,NS)
+*            WRITE(IOUT,'(2I8,F20.15)') (ITF,IKS(ITF),DK(ITF),ITF=1,NS)
           ELSE IF( NS .GE. 1) THEN
             WRITE(IOUT,9000) IH,NS
             WRITE(IOUT,9001) (ITF,IKS(ITF),IH,DK(ITF),ITF=1,NS)
@@ -425,6 +424,8 @@
 *----
               IBL=IEL
               DO ITL=1,IEL
+                DDK=2*(TRKLSI(ITL)-DK(2))/(TRKLSI(ITL)+DK(2))
+                IF(ABS(DDK) .LE. DCUTOF) DK(2)=TRKLSI(ITL)
                 IF(DK(2) .LE. TRKLSI(ITL) ) THEN
                   DO IBL=IEL,ITL,-1
                     TRKLSI(IBL+2)=TRKLSI(IBL)
@@ -463,9 +464,8 @@
                 TRKLSI(IBL)=DK(IS)
               ENDDO
             ENDIF
-*            write(IOUT,*) '3-D tracking results'
-*            write(IOUT,'(2I10/(2I10,F20.15))') IH,IZ,
-*     >      (ITF,IKS(ITF),DK(ITF),ITF=1,2)
+*            write(IOUT,*) '3-D tracking for cell= ',IH,IZ
+*            write(IOUT,'(2I8,F20.15)') (ITF,IKS(ITF),DK(ITF),ITF=1,2)
           ELSE IF( NS .GE. 1) THEN
             WRITE(IOUT,9010) IH,IZ,NS
             WRITE(IOUT,9011) (ITF,IKS(ITF),IH,IZ,DK(ITF),ITF=1,NS)

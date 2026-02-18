@@ -8,7 +8,7 @@
 * CALL      :                                                                  *
 *  MpoRefl := REFL_MPO_RM Geom FVol Param1 Param2 :: <<nameFeed>> <<nameRefl>> *
 *              <<Palier>> <<htype>> <<LibType>> <<NuclData>> <<OptSph>>        *
-*              <<OptNoal>> <<OptSS>> ;                                         *
+*              <<OptNoal>> <<OptSS>> <<nbZones>>  ;                            *
 *                                                                              *
 *  Input objects:                                                              *
 *    Geom    : macro-geometry LCM object                                       *
@@ -25,6 +25,7 @@
 *    OptSph  : 'SPH'/'NOSP' transform DF into ADF/keep DF                      *
 *    OptNoal : 'ALBE'/'NOAL' compute albedo/force right albedo to 0            *
 *    OptSS   : 'TONE'/'NOSS' do/don't activate self-shielding of Fe56 and Cr52 *
+*    nbZones : number of zones in the reflector                                *
 *                                                                              *
 *  Output objects:                                                             *
 *    MpoRefl : reflector MPO file                                              *
@@ -36,6 +37,7 @@ PARAMETER MpoRefl Geom FVol Param1 Param2 ::
 STRING nameFeed nameRefl Palier htype LibType NuclData OptSph OptNoal OptSS ;
   ::  >>nameFeed<< >>nameRefl<< >>Palier<< >>htype<< >>LibType<< >>NuclData<<
       >>OptSph<< >>OptNoal<< >>OptSS<< ;
+INTEGER nbZones ; :: >>nbZones<< ;
 PROCEDURE GetMolarMass MetalMix CreaDilut assertS ;
 LINKED_LIST
   DONNEES Library LibDilut MACRO LibFuel MolarMasses FeNat CrNat SnNat
@@ -100,8 +102,6 @@ TRACK := SNT: Geom ::
   EDIT 1
   MAXR 100000
   SN 16 SCAT 2 ;
-
-INTEGER nbZones := 7 ;
 
 REAL dModBas := 0.753 ; ! Densite du moderateur en entree du coeur
 REAL TMilBas := 286.4 ; ! Temp du reflecteur bas (soit Tmod,entree)
@@ -267,7 +267,7 @@ WHILE IndexCB iBoreMax < DO
       ! Define MIX 1 in reflector macrolib
       LibDilut := CreaDilut
       MolarMasses BNat Zirc4 Incon SS304 ::
-        <<dMod>> 1 <<TMil>> <<CB>> <<fvMod>> <<fvZr4>> <<fvInc>>
+        <<dMod>> <<nbZones>> 1 <<TMil>> <<CB>> <<fvMod>> <<fvZr4>> <<fvInc>>
         <<fvSS304>> <<NuclData>> <<LibType>> ;
 
       ! Recuperation du MIX constitutif de la zone
@@ -285,9 +285,19 @@ WHILE IndexCB iBoreMax < DO
     GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 >>Keff<< ;
     ECHO "IndexCB=" IndexCB "CASE=" CASE "SN Keff=" Keff ;
 
-    OUT := EDI: MACRO TRACK FLUX Geom ::
-       EDIT 3 UPS MERGE MIX 1 2 3 3 3 3 4 0
-       COND 0.625 GOLVER SAVE ;
+    IF nbZones 5 = THEN
+      OUT := EDI: MACRO TRACK FLUX Geom ::
+          EDIT 3 UPS MERGE MIX 1 2 3 3 4 0
+          COND 0.625 GOLVER SAVE ;
+    ELSEIF nbZones 6 = THEN
+      OUT := EDI: MACRO TRACK FLUX Geom ::
+          EDIT 3 UPS MERGE MIX 1 2 3 3 3 4 0
+          COND 0.625 GOLVER SAVE ;
+    ELSEIF nbZones 7 = THEN
+      OUT := EDI: MACRO TRACK FLUX Geom ::
+          EDIT 3 UPS MERGE MIX 1 2 3 3 3 3 4 0
+          COND 0.625 GOLVER SAVE ;
+    ENDIF ;
 
     IF CASE 1 = THEN
       EVALUATE SNKeff1 := Keff ;

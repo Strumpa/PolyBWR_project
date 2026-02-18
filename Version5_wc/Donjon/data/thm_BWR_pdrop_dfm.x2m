@@ -1,0 +1,30 @@
+* Series of non-regresion tests for PDROP+DFM keywords in THM:
+* Date 08/08/2025
+* Author : R.Guasch
+* Examples of BWR pincell calculations, model referred in : 
+* "Coupled Neutronics and Thermal Hydraulics Simulations of a BWR Fuel Channel in the Version5 Environment" - M&C2025.
+* Height = 3.8 m, Tinlet = 543.15K, Poutlet = 7.2MPa, 40 axial meshes.
+* Tests involve varrying powers : 
+* 10, 20, and 40kW with sine and cosine shaped axial power forms.
+* Tests for DFM and PDROP keywords (DFM 1 + PDROP 0 and DFM 1 + PDROP 1 combinations).
+
+PROCEDURE dfmp10s dfmp20s dfmp40s
+          dfmp10c dfmp20c dfmp40c 
+          dfm10c  dfm20c  dfm40c
+          dfm10s  dfm20s  dfm40s ;   
+MODULE END: ;
+         
+dfmp10s ;
+dfmp20s ;
+dfmp40s ;
+dfmp10c ;
+dfmp20c ;
+dfmp40c ;
+dfm10c  ;
+dfm10s  ;
+dfm20c  ;
+dfm20s  ;
+dfm40c  ;
+dfm40s  ;
+
+END: ;

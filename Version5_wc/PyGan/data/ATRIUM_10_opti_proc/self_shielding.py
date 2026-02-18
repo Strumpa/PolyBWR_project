@@ -10,7 +10,7 @@ import lifo
 import cle2000
 from mix_handling import cle2000_variable_declaration
 
-def selfShieldingUSS(mix_numbering_option, microlib, track_lcm, track_binary, name_geom, ssh_option, mix_connectivity_dict=None):
+def selfShieldingUSS(mix_numbering_option, microlib, track_lcm, track_binary, name_geom, ssh_option, solution_door, mix_connectivity_dict=None):
     """
     Parameters:
     ----------
@@ -32,7 +32,8 @@ def selfShieldingUSS(mix_numbering_option, microlib, track_lcm, track_binary, na
         "default" is default from USS: based on LIB: data,
         "RSE" is for Resonant Spectrum Expansion method, and groups all U8, U5 and Zr isotopes in a single self-shielding region --> to be tested.
         "VVER_REGI" is based of work done by the VVER team, to be tested.
-    
+    solution_door : (str)
+        Solution door to be used for self-shielding calculations, can be "PIJ" for full pij reconstruction or "IC" for interface current.
     Returns:
     ----------
     libary_ssh : (lcm object)
@@ -69,7 +70,7 @@ def selfShieldingUSS(mix_numbering_option, microlib, track_lcm, track_binary, na
         print("Creating self-shielded library with mix numbering per region.")
         proc_name = "SSH_R_A.c2m"
 
-        fill_ssh_proc(proc_name, mix_connectivity_dict, mix_numbering_option, ssh_option)
+        fill_ssh_proc(proc_name, mix_connectivity_dict, mix_numbering_option, ssh_option, solution_door)
 
         ipLifo = lifo.new() 
         ipLifo.pushEmpty("LIBRARY2", "LCM")
@@ -87,8 +88,8 @@ def selfShieldingUSS(mix_numbering_option, microlib, track_lcm, track_binary, na
         library_ssh = ipLifo.node('LIBRARY2')
 
         return library_ssh
-    
-def fill_ssh_proc(file_name, mix_connectivity_dict, mix_numbering_option, ssh_option):
+
+def fill_ssh_proc(file_name, mix_connectivity_dict, mix_numbering_option, ssh_option, solution_door):
     """
     Generate CLE-2000 procedure for self-shielding calculations.
     Parameters:
@@ -101,6 +102,9 @@ def fill_ssh_proc(file_name, mix_connectivity_dict, mix_numbering_option, ssh_op
         Option for mix numbering, can be "number_mix_families_per_enrichment" or "number_mix_families_per_region" or "number_mix_families_per_selfshielding_region".
     ssh_option : (str)
         Self-shielding option to be used in the procedure, for now only default is available. but should be developed to include optimized use of CALC / REGI keywords.
+    solution_door : (str)
+        Solution door to be used for self-shielding calculations, can be "PIJ" for full pij reconstruction or "IC" for interface current.
+    Returns:
     """
     header = (
             "* --------------------------------\n"
@@ -135,7 +139,7 @@ def fill_ssh_proc(file_name, mix_connectivity_dict, mix_numbering_option, ssh_op
     "*    SELF-SHIELDING OPERATOR DEFINITION\n"
     "*    CALL TO USS: MODULE\n"
     "* --------------------------------\n"
-    f"{fill_uss_call(ssh_option)}\n"
+    f"{fill_uss_call(ssh_option, solution_door)}\n"
     "* -----------------------------------------\n"
     "*     END OF USS: CALL\n"
     "* -----------------------------------------\n"
@@ -147,10 +151,16 @@ def fill_ssh_proc(file_name, mix_connectivity_dict, mix_numbering_option, ssh_op
         file.write(ssh_proc)
     file.close()    
     
-def fill_uss_call(ssh_option, iter_pass = 3, max_st_iter = 50, solver="PIJ"):
+def fill_uss_call(ssh_option, solution_door, iter_pass = 3, max_st_iter = 50):
     """
     define call to USS: module for self-shielding calculations.
     """
+    if solution_door not in ["PIJ", "IC"]:
+        raise ValueError("Invalid solution door option selected.")
+    if solution_door == "PIJ":
+        solver = "PIJ"
+    elif solution_door == "IC":
+        solver = "ARM"
     if ssh_option == "default":
         uss_call = (
         "LIBRARY2 := USS: LIBRARY TRACK_SS TF_SS_EXC ::\n"

@@ -30,7 +30,7 @@
 *         ISTATU( 4) is the maximum number of mixture used;
 *         ISTATU( 5) is the number of outer surfaces;
 *         ISTATU( 6) is the flux anisotropy order;
-*         ISTATU( 7) is the tracking option used;
+*         ISTATU( 7) is the solution method used;
 *         ISTATU( 8) is the track normalization option;
 *         ISTATU( 9) is the type of tracks considered;
 *         ISTATU(10) is the CP calculation option;
@@ -52,6 +52,7 @@
 *               1 tracking available).
 *         ISTATU(26) is the MERGE flag (0 no merge; 1 MERGMIX).
 *         ISTATU(27) is the number of tracks assigned to a OpenMP core.
+*         ISTATU(30) is the number of perimeters.
 * RSTATU  real parameters for tracking:
 *         RSTATU( 1) is the track length cutoff for
 *               exponential functions;
@@ -65,8 +66,9 @@
 *         RSTATU( 6) is the $X$ cell center;
 *         RSTATU( 7) is the $y$ cell center;
 *         RSTATU( 8) is the $Z$ cell center;
-*         RSTATU(11) is the spatial cutoff factor for
-*               tracking;
+*         RSTATU(11) is the spatial cutoff factor for tracking;
+*         RSTATU(12) is the stopping criterion for flux-current
+*         iterations of the interface current method;
 *         RSTATU(39) is the minimum volume fraction of the
 *               grain in the representative volume for She-Liu-Shi 
 *               model. 
@@ -104,6 +106,7 @@
 *    [ { NOTR | MC } ]
 *    [ MERGMIX ]
 *    [ BATCH nbatch ]
+*    [ { IC | NOIC } ] [ EPSJ epsj ]
 *    [ [ QUAB iqua10 ] [ { SAPO | HEBE | SLSI [frtm] | SLSS [frtm] } ] ]
 *    with frtm minimum volume fraction of the grain in the  
 *    representative volume for She-Liu-Shi model.
@@ -137,6 +140,7 @@
 *  Local variables
 *----
       INTEGER          IRT,IRMXR,NBATCH
+      REAL             EPSJ
 *----
 *  Initialize default values for IPRINT
 *----
@@ -146,6 +150,7 @@
       NBATCH=1
       IBIHET=2
       IQUA10=5
+      EPSJ=0.5E-5
 *----
 *  Get data from input file
 *----
@@ -373,6 +378,15 @@
         RSTATU(39)=REALIR
       ELSE IF(CARLIR(1:7) .EQ. 'MERGMIX') THEN
         ISTATU(26)=1
+      ELSE IF(CARLIR(1:2) .EQ. 'IC') THEN
+        ISTATU(7)=5
+      ELSE IF(CARLIR(1:4) .EQ. 'NOIC') THEN
+        ISTATU(7)=4
+      ELSE IF(CARLIR(1:4) .EQ. 'EPSJ') THEN
+        CALL REDGET(ITYPLU,INTLIR,EPSJ,CARLIR,DBLLIR)
+        IF(ITYPLU .NE. 2) CALL XABORT(NAMSBR//
+     >  ': Real value expected for EPSJ')
+        RSTATU(12)=EPSJ
       ELSE
         CALL XABORT(NAMSBR//': Keyword '//TRIM(CARLIR)//' is invalid.')
       ENDIF

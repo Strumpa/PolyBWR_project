@@ -1,0 +1,94 @@
+*** GLOW / SALT: + IC bug 
+* simple_box_fixed : tdt file defined through GLOW, central square added first, SALT+IC can perform tracking
+* simple_box_borken : tdt file defined through GLOW, central square NOT added first, SALT+IC performs tracking : 
+*        BUT : missing central region volume, nreg is set to nreg - 1, and nsrf = nsurf + 4
+* fixed : 9 regions, 12 outer surfaces
+* borken : 8 regions, 16 outer surfaces
+* Hypothesis : 
+
+
+MODULE GEO: G2S: SALT: GREP: DELETE: END: ;
+PROCEDURE assertS ;
+LINKED_LIST GEOISO TRACKIC ;
+
+SEQ_BINARY TRACKFILIC ;
+SEQ_ASCII g2s_tdt :: FILE 'simple_box_g2s.dat' ;
+SEQ_ASCII geo_tiso.ps :: FILE 'simple_box_GEO.ps' ;
+
+SEQ_ASCII tdt_box :: FILE 'simple_box_fixed.dat' ;
+SEQ_ASCII box.ps :: FILE 'simple_box_fixed_glow.ps' ;
+
+SEQ_ASCII tdt_bug :: FILE 'simple_box_broken.dat' ;
+SEQ_ASCII box_bug.ps :: FILE 'simple_box_broken_glow.ps' ;
+
+* --------------------------------
+*    DIMENSIONS DEFINITION
+* --------------------------------
+
+REAL pitch := 1.29500 ;
+
+! Multiples of cell pitch 
+REAL 2_pitch 3_pitch ;
+EVALUATE 2_pitch := pitch 2.0 * ;
+EVALUATE 3_pitch := pitch 3.0 * ;
+
+
+GEOISO := GEO: :: CAR2D 3 3 
+    X- ALBE 1.0 X+ ALBE 1.0
+    Y- ALBE 1.0 Y+ ALBE 1.0
+    MIX 1 1 1 1 1 1 1 1 1
+    MESHX 0.0 <<pitch>> <<2_pitch>> <<3_pitch>>
+    MESHY 0.0 <<pitch>> <<2_pitch>> <<3_pitch>>
+;
+* ---
+* TRACKING PARAMTERES
+* ---
+
+INTEGER an2d := 24 ;  ! ANGULAR QUADRATURE PARAMETER
+REAL densur := 100.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
+
+*** TISO case treatment ***
+
+g2s_tdt geo_tiso.ps := G2S: GEOISO :: ;
+box.ps := G2S: tdt_box :: ;
+box_bug.ps := G2S: tdt_bug :: ;
+
+*----
+ECHO " --- GLOW CASES TREATMENT --- " ;
+
+TRACKIC TRACKFILIC := SALT: tdt_box ::
+     EDIT 3
+     TITLE "MULTICELL simple_box_fixed CASE"
+     TISO <<an2d>> <<densur>>
+     IC EPSJ 1.0E-6
+     ;
+
+TRACKIC TRACKFILIC := DELETE: TRACKIC TRACKFILIC ;
+
+TRACKIC TRACKFILIC := SALT: tdt_bug ::
+     EDIT 6
+     TITLE "MULTICELL simple_box_broken CASE"
+     TISO <<an2d>> <<densur>>
+     IC EPSJ 1.0E-6
+     ;
+
+TRACKIC TRACKFILIC := DELETE: TRACKIC TRACKFILIC ;
+
+
+*----
+ECHO " --- GEO CASE TREATMENT --- " ;
+
+
+TRACKIC TRACKFILIC := SALT: g2s_tdt ::
+     EDIT 2
+     TITLE "MULTICELL simple_box GEO: CASE"
+     TISO <<an2d>> <<densur>>
+     IC EPSJ 1.0E-6
+     ;
+
+
+END: ;
+
+
+
+

@@ -1,0 +1,19 @@
+#!/bin/sh
+if [ $# = 0 ]
+   then
+   echo "usage: thm_salt_lf_texp.access directory" 1>&2
+   exit 1
+fi
+echo TINST.access
+MACH=`uname -s`
+Sysx="`echo $MACH | cut -b -6`"
+if [ $Sysx = "CYGWIN" ]; then
+   MACH=`uname -o`
+elif [ $Sysx = "Darwin" ]; then
+   MACH=`uname -sm | sed 's/[ ]/_/'`
+elif [ $Sysx = "SunOS" ]; then
+   MACH=`uname -sm | sed 's/[ ]/_/'`
+fi
+ln -s "$1"/data/thm_salt_lf_texp_proc/MSTPDB.data .
+ls -l
+echo "thm_salt_lf_texp access script terminated"

@@ -1,0 +1,38 @@
+#!/bin/sh
+if [ $# = 0 ]
+   then
+   echo "usage: IC_anis_MICRO_tests.access directory" 1>&2
+   exit 1
+fi
+MACH=`uname -s`
+Sysx="`echo $MACH | cut -b -6`"
+if [ $Sysx = "CYGWIN" ]; then
+MACH=`uname -o`
+elif [ $Sysx = "Darwin" ]; then
+MACH=`uname -sm`
+elif [ $Sysx = "SunOS" ]; then
+MACH=`uname -sm`
+fi
+if [ "$MACH" = "Linux" -o "$MACH" = "OSF1" -o "$MACH" = "Cygwin" -o "$MACH" = "SunOS i86pc" -o \
+"$MACH" = "Darwin i386" -o "$MACH" = "Darwin x86_64" -o "$MACH" = "Darwin_arm64" ]
+then 
+  echo 'use little endian libraries'
+  pos=$1/../../../libraries/l_endian
+else
+  echo 'use big endian libraries'
+  pos=$1/../../../libraries/b_endian
+fi
+ln -s "$pos"/draglibendfb8r1SHEM295_v5p1 endfb8r1_295
+pos2="$1/../../../glow_data/tdt_data"
+chmod 755 "$pos2"
+ls -la
+
+ln -s "$pos2"/3x3_Gd_C_TISO_MACRO.dat 3x3_Gd_C_TISO_MACRO.dat
+ln -s "$pos2"/3x3_Gd_TR_TISO_MACRO.dat 3x3_Gd_TR_TISO_MACRO.dat
+ln -s "$pos2"/3x3_Gd_TC_TISO_MACRO.dat 3x3_Gd_TC_TISO_MACRO.dat
+ln -s "$pos2"/3x3_Gd_BC_TISO_MACRO.dat 3x3_Gd_BC_TISO_MACRO.dat
+ln -s "$pos2"/3x3_Gd_BL_TISO_MACRO.dat 3x3_Gd_BL_TISO_MACRO.dat
+ln -s "$pos2"/3x3_Gd_LC_TISO_MACRO.dat 3x3_Gd_LC_TISO_MACRO.dat
+ln -s "$pos2"/3x3_Gd_RC_TISO_MACRO.dat 3x3_Gd_RC_TISO_MACRO.dat
+
+echo "IC_anis_MICRO_tests access script terminated"

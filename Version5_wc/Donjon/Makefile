@@ -34,6 +34,7 @@ clean :
 tests :
 	./rdonjon -c $(fcompilerSuite) -p $(nomp) -q 1Sap_vs_3Sap.x2m
 	./rdonjon -c $(fcompilerSuite) -p $(nomp) -q AFMtest.x2m
+	./rdonjon -c $(fcompilerSuite) -p $(nomp) -q Candu3_Shuffling.x2m
 	./rdonjon -c $(fcompilerSuite) -p $(nomp) -q Candu6.x2m
 	./rdonjon -c $(fcompilerSuite) -p $(nomp) -q candu6_iram.x2m
 	./rdonjon -c $(fcompilerSuite) -p $(nomp) -q Equivalence_SPH_SN_MCO.x2m
@@ -73,6 +74,7 @@ tests :
 	./rdonjon -c $(fcompilerSuite) -p $(nomp) -q pincell_pdrop.x2m
 	./rdonjon -c $(fcompilerSuite) -p $(nomp) -q pmox_sap.x2m
 	./rdonjon -c $(fcompilerSuite) -p $(nomp) -q pulseTHM_0d.x2m
+	./rdonjon -c $(fcompilerSuite) -p $(nomp) -q Reflector_beavrs_DF-RT_Jeff3p1SHEM295_mco.x2m
 	./rdonjon -c $(fcompilerSuite) -p $(nomp) -q rep1300_reflector.x2m
 	./rdonjon -c $(fcompilerSuite) -p $(nomp) -q rep1300_reflector_sp1.x2m
 	./rdonjon -c $(fcompilerSuite) -p $(nomp) -q rep900.x2m
@@ -94,6 +96,8 @@ tests :
 	./rdonjon -c $(fcompilerSuite) -p $(nomp) -q thm_salt_lf.x2m
 	./rdonjon -c $(fcompilerSuite) -p $(nomp) -q thm_salt_lf_texp.x2m
 	./rdonjon -c $(fcompilerSuite) -p $(nomp) -q thm_salt_lf_trans.x2m
+	./rdonjon -c $(fcompilerSuite) -p $(nomp) -q thm_PSBT_pdrop_dfm.x2m
+	./rdonjon -c $(fcompilerSuite) -p $(nomp) -q thm_BWR_pdrop_dfm.x2m
 	./rdonjon -c $(fcompilerSuite) -p $(nomp) -q vver_test.x2m
 ifeq ($(hdf5),1)
 	./rdonjon -c $(fcompilerSuite) -p $(nomp) -q AFA_180_310_type1_dual.x2m

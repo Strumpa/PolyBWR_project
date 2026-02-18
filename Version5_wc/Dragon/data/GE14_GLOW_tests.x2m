@@ -1,0 +1,18 @@
+*** CLE-2000 script meant to test different GLOW capabilities, 
+* Compare with GEO: generated geometries when possible,
+* Goal : fully undestand GLOW/SALOME material numbering and scale up to more complex geometries
+* Date : 10/12/2025
+* Author : R. Guasch
+
+MODULE END: ;
+PROCEDURE IC_A IC_A_CTRL MOC_TISO_A MOC_TSPC_A ;
+
+
+IC_A ;
+IC_A_CTRL ;
+MOC_TISO_A ;
+MOC_TSPC_A ;
+
+END: ;
+
+QUIT .

@@ -4,48 +4,48 @@ Subversion post-commit hook which copy (append) the issue-tracking information
 to a new (or existing) card-index in the /issues/ directory. A commit of this
 information is performed.
 """
-#Author: Alain Hebert, Ecole Polytechnique, 2006.
+#Author: Alain Hebert, Ecole Polytechnique, 2026.
 
-import os, sys, pysvn, time
+import os, sys
 
 def main(repos, rev):
   # Recover the revision data:
-  client = pysvn.Client()
-  log_message=client.log('file://' + repos + '', discover_changed_paths=True, \
-  revision_end=pysvn.Revision(pysvn.opt_revision_kind.number, rev))
-  message = str(log_message[0]['message'])
+  sys.stderr.write("post-commit: rev=" + rev + "\n")
+  message = os.popen("svnlook log -r " + rev + " " + repos).readline().strip('\n')
+  sys.stderr.write ("commit message=" + message + "\n")
   if message[11:] != ': Issue-tracking commit' and message[11:] != ':':
     # Recover the existing card-index
-    fileName = str(log_message[0]['message'])[:11]
+    fileName = message[:11]
     if os.path.isdir('/tmp/post-issues'):
       os.system("chmod -R 777 /tmp/post-issues/")
       os.system("rm -r /tmp/post-issues/")
-    myls = client.ls('file://'+repos+'/'+'/issues/')
-    myls2 = []
-    for k in range(len(myls)):
-      myls2.append(str(myls[k]['name']).split('/')[-1])
-    client.checkout('file://'+repos+'/'+'/issues/','/tmp/post-issues/',recurse=False)
-    if fileName in myls2:
+    os.system("mkdir /tmp/post-issues/")
+    isThere = False
+    revmax = int(os.popen("svnlook youngest " + repos).readline().strip('\n'))
+    for k in range(revmax):
+      if os.popen("svnlook log -r " + str(k+1) + " " + repos).readline().strip('\n') == fileName:
+        isThere = True
+        break
+    transaction = '/tmp/post-issues/' + fileName
+    sys.stderr.write ("issue card exists=" + str(isThere) + "\n")
+    sys.stderr.write ("transaction file=" + transaction + "\n")
+    if isThere:
       # Recover the existing card-index and open it
-      f = open('/tmp/post-issues/'+fileName, 'a')
+      os.system("svn checkout file://" + repos + "/issues/" + fileName + " /tmp/post-issues/")
     else:
       # Create a new card-index
-      f = open('/tmp/post-issues/'+fileName, 'w')
+      f = open(transaction, 'w')
       f.write('Card-index: '+fileName+'\n')
       f.write('---------------------------------------------------------\n')
-      client.add('/tmp/post-issues/'+fileName)
-    f.write(str(log_message[0]['author'])+'\n')
-    f.write(time.ctime(log_message[0]['date'])+'\n')
-    f.write('subversion revision=%d\n'%log_message[0]['revision'].number)
-    f.write(message+'\n')
-    for cpath in log_message[0]['changed_paths']:
-      f.write(cpath['action']+' '+cpath['path']+'\n')
+      f.close()
+    os.system("svnlook info -r " + rev + " " + repos + " >> " + transaction)
+    os.system("svnlook changed -r " + rev + " " + repos + " >> " + transaction)
+    f = open(transaction, 'a')
     f.write('---------------------------------------------------------\n')
     f.close()
     #committing the issue-tracking card-index to the repository
-    client.cleanup('/tmp/post-issues/')
-    client.checkin(['/tmp/post-issues/'], fileName+': Issue-tracking commit')
-    os.system("rm -r -f /tmp/post-issues/")
+    os.system("svn commit -m 'Issue-tracking commit' " + transaction)
+    #os.system("rm -r -f /tmp/post-issues/")
 
 if __name__ == '__main__':
   if len(sys.argv) < 3:

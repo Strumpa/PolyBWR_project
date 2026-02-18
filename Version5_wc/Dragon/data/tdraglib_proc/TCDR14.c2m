@@ -160,7 +160,7 @@ LIBRARY := SHI: LIBRARY DISCR :: LJ ;
 CP := ASM: LIBRARY DISCR ;
 CALC := FLU: CP LIBRARY DISCR ::
   TYPE B B1 PNL ;
-assertS CALC :: 'K-INFINITY' 1 1.256372 ;
+assertS CALC :: 'K-INFINITY' 1 1.256499 ;
 
 OUT := EDI: CALC LIBRARY DISCR ASSMB_HOM ::
   EDIT 3 UPS SAVE MICR ALL MERGE MIX 1 1 1 2 2 2 2 2
@@ -219,13 +219,13 @@ WHILE Timei Timec < DO
   ENDIF ;
   EVALUATE Timei := Timef ;
 ENDWHILE ;
-assertS CALC :: 'K-INFINITY' 1 1.211175 ;
+assertS CALC :: 'K-INFINITY' 1 1.211245 ;
 
 COMPO := CPO: OUT BURNUP ::  
   BURNUP REF-CASE NAME COMPO  ;
 
 RECORD := COMPO :: STEP UP 'COMPO      2' ;
-assertS RECORD :: 'BURNUP' 4 3.197132E+02 ;
+assertS RECORD :: 'BURNUP' 4 3.197130E+02 ;
 *----
 *  2 group Burnup initialization
 *----
@@ -240,7 +240,7 @@ DISCR := BIVACT: ASSMB_HOM ::
 CP := ASM: LIBRARY DISCR :: ARM ;
 CALC := FLU: CP LIBRARY DISCR ::
   TYPE K LKRD IDEM ;
-assertS CALC :: 'K-INFINITY' 1 1.256390 ;
+assertS CALC :: 'K-INFINITY' 1 1.256512 ;
 *----
 *  2 group Burnup
 *----
@@ -286,7 +286,7 @@ WHILE Timei Timec < DO
   EVALUATE Timei := Timef ;
 ENDWHILE ;
 saCOMPO := MCOMPO ;
-assertS CALC :: 'K-INFINITY' 1 1.212845 ;
+assertS CALC :: 'K-INFINITY' 1 1.212984 ;
 
 ECHO "test TCDR14 completed" ;
 END: ; 

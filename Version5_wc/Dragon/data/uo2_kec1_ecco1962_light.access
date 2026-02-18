@@ -23,15 +23,15 @@ else
   echo 'use big endian libraries'
   pos=$1/../../libraries/b_endian
 fi
-if [ -f "$pos"/draglibendfb8r1ecco1962_light.gz ]
+if [ -f "$pos"/draglibendfb8r1ecco1962_light_v5p1.gz ]
    then
-    echo 'gunzipping draglibendfb8r1ecco1962_light'
+    echo 'gunzipping draglibendfb8r1ecco1962_light_v5p1'
     chmod 755 "$pos"
-    gunzip "$pos"/draglibendfb8r1ecco1962_light.gz
+    gunzip "$pos"/draglibendfb8r1ecco1962_light_v5p1.gz
 fi
-if [ -f "$pos"/draglibendfb8r1ecco1962_light ]
+if [ -f "$pos"/draglibendfb8r1ecco1962_light_v5p1 ]
    then
-    ln -s "$pos"/draglibendfb8r1ecco1962_light DLIB_1962
+    ln -s "$pos"/draglibendfb8r1ecco1962_light_v5p1 DLIB_1962
 fi
 ls -l
 echo "uo2_kec1_ecco1962_light access script terminated"

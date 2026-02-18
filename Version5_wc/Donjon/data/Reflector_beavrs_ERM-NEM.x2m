@@ -6,8 +6,8 @@ STRING nameFeed := "assbly_caseA_mpo_boron.hdf" ;
 STRING nameRefl := "reflector_beavrs_ERM-NEM_mpo.hdf" ;
 STRING Palier := "BEAVRS" ;
 STRING htype := "ERM-NEM" ;
-STRING LibType := "CLA99CEA93" ;
-STRING NuclData := "CLA99CEA93:CLA99CEA93_SS" ;
+STRING LibType := "JEF22" ;
+STRING NuclData := "DLIB_99" ;
 STRING OptNoal := "ALBE" ;
 STRING OptSS := "TONE" ;
 MODULE GEO: UTL: MCR: END: ;
@@ -52,8 +52,10 @@ Param2 := UTL: :: CREA PARAMVALU 1 = 1400.0
                  CREA 1 2 = 'C-BO' 'RE  ' ;
 UTL: Param2 :: DUMP ;
 
+EVALUATE nbZones := nbZones 1 - ; ! decreases nbZones by one
 MpoRefl := REFL_MPO_ERM Geom FVol Param1 Param2 :: <<nameFeed>> <<nameRefl>> <<Palier>>  <<htype>>
-                                                   <<LibType>>  <<NuclData>> <<OptNoal>> <<OptSS>> ;
+                                                   <<LibType>>  <<NuclData>> <<OptNoal>> <<OptSS>>
+                                                   <<nbZones>> ;
 
 ************************************************************************
 * MPO extrapolation of the reflector at 350 ppm Boron

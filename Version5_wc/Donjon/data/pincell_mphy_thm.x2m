@@ -207,7 +207,7 @@ System MacroF Macro2 := DELETE: System MacroF Macro2 ;
 GREP: Flux :: GETVAL 'K-EFFECTIVE' 1 >>keff11<< ;
 ECHO "+++ Burnup= 0.0 Keff=" keff11 ;
 
-assertS Flux :: 'K-EFFECTIVE' 1 1.354165 ;
+assertS Flux :: 'K-EFFECTIVE' 1 1.335314 ;
 
 ECHO "test pincell_mphy_thm.x2m completed" ;
 END: ;

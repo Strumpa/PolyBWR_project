@@ -1,7 +1,7 @@
 *DECK MCGDS1
       SUBROUTINE MCGDS1(SUBDS2,SUBDSP,SUBDSC,N,NMU,NGEFF,WEITF,HTF,ZMU,
-     1                  WZMU,NOM,NZON,NLONG,NFI,NDIM,LC,M,KM,IM,MCU,
-     2                  DIAGF,DIAGQ,CF,CQ,PREV,NEXT,SIGAL,XSW,WORK)
+     1                  WZMU,NOM,NZON,NLONG,NFI,NDIM,LC,NBCDA,M,KM,IM,
+     2                  MCU,DIAGF,DIAGQ,CF,CQ,PREV,NEXT,SIGAL,XSW,WORK)
 *
 *-----------------------------------------------------------------------
 *
@@ -28,6 +28,7 @@
 * NFI     total number of volumes and surfaces.
 * NDIM    number of dimensions in the geometry.
 * NLONG   total number of cells with unknowns quantities.
+* NBCDA   number of perimeters.
 * M       number of material mixtures.
 * LC      dimension of vector MCU.
 * NZON    index-number of the mixture type assigned to each volume.
@@ -59,11 +60,11 @@
 *----
 *  SUBROUTINE ARGUMENTS
 *----
-      INTEGER NLONG,NFI,NDIM,LC,NGEFF,M,N,NMU,NOM(N),NZON(NFI),
+      INTEGER NLONG,NFI,NDIM,LC,NGEFF,NBCDA,M,N,NMU,NOM(N),NZON(NFI),
      1 KM(NLONG),IM(NLONG),MCU(LC),PREV(N),NEXT(N)
       DOUBLE PRECISION WEITF,HTF(N)
       REAL ZMU(NMU),WZMU(NMU),DIAGQ(NLONG,NGEFF),CQ(LC,NGEFF),
-     1 SIGAL(-6:M,NGEFF),XSW(0:M,NGEFF)
+     1 SIGAL(-NBCDA:M,NGEFF),XSW(0:M,NGEFF)
       DOUBLE PRECISION DIAGF(NLONG,NGEFF),CF(LC,NGEFF),WORK(N,3)
       EXTERNAL SUBDS2,SUBDSP,SUBDSC
 *----

@@ -1,0 +1,158 @@
+*----
+*  TEST CASE TDCM65
+*  MACROSCOPIC CROSS SECTIONS
+*  SIMPLE BWR WITH MULTICELL SURFACIC APPROXIMATION
+*----
+*  Define STRUCTURES and MODULES used
+*----
+LINKED_LIST MACRO GEOM GEOMMOC TRACKIC TRACKCP TRACKMOC PIJ SYS FLUX ;
+MODULE MAC: GEO: G2S: SALT: ASM: MCCGT: FLU: GREP: DELETE: END: ;
+SEQ_BINARY TRACKFILIC TRACKFILCP TRACKFILMOC ;
+SEQ_ASCII Fic_IC :: FILE 'Fic_SAL_TDCM65_IC.tdt' ;
+SEQ_ASCII Fic_IC.ps :: FILE 'Fic_SAL_TDCM65_IC.ps' ;
+SEQ_ASCII Fic_CP :: FILE 'Fic_SAL_TDCM65_CP.tdt' ;
+SEQ_ASCII Fic_CP.ps :: FILE 'Fic_SAL_TDCM65_CP.ps' ;
+SEQ_ASCII Fic_MOC :: FILE 'Fic_SAL_TDCM65_MOC.tdt' ;
+SEQ_ASCII Fic_MOC.ps :: FILE 'Fic_SAL_TDCM65_MOC.ps' ;
+REAL keffIC keffCP keffMOC ;
+PROCEDURE assertS ;
+
+INTEGER an2d := 12 ;
+REAL densur := 60.0 ;
+*
+MACRO := MAC: ::
+     EDIT 2 NGRO 1 NMIX 5 NIFI 1
+     READ INPUT
+     MIX 1 (*COMBUSTIBLE*)
+        TOTAL 0.3652    SCAT 1 1 0.3234
+        NUSIGF 0.05564      CHI 1.0
+     MIX 2 (*GAINE*)
+        TOTAL 0.4029        SCAT 1 1 0.4000
+     MIX 3 (*EAU*)
+        TOTAL 0.3683        SCAT 1 1 0.3661
+;
+GEOM := GEO: ::
+     CAR2D 2 2
+     X- ALBE 1.0  X+ ALBE 1.0
+     Y- ALBE 1.0  Y+ ALBE 1.0
+     MIX  C1 C2
+          C2 C4
+     TURN  A  A
+           F  A          
+     ::: C1 := GEO: CAR2D 4 4
+          MIX  SC1 SC2 SC2 SC2
+               SC2 SC3 SC3 SC3
+               SC2 SC3 SC3 SC3
+               SC2 SC3 SC3 SC3
+          TURN   A   A   A   A
+                 F   A   A   A
+                 F   A   A   A
+                 F   A   A   A
+          ::: SC1 := GEO: CARCEL 1
+               MESHX  0.0 2.25
+               MESHY  0.0 2.25
+               RADIUS 0.0 1.75
+               OFFCENTER -1.125 -1.125
+               MIX 2 3
+          ;
+          ::: SC2 := GEO: CAR2D 1 2
+               MIX SSC1 SC3
+               ::: SSC1 := GEO: CARCEL 2
+                    MESHX  0.0 1.5
+                    MESHY  0.0 0.75
+                    RADIUS 0.0 0.4 0.6
+                    OFFCENTER 0.0 -0.375
+                    MIX 1 2 3
+               ;
+          ;
+          ::: SC3 := GEO: CARCEL 2
+               MESHX  0.0 1.5
+               MESHY  0.0 1.5
+               RADIUS 0.0 0.4 0.6
+               MIX 1 2 3
+          ;
+     ;
+     ::: C2 := GEO: CAR2D 1 6
+          MIX  SC4 C3 C3 C3 C3 C3
+          ::: SC4 := GEO: CAR2D 1 1
+               MESHX  0.0 0.5
+               MESHY  0.0 1.75
+               MIX 3
+          ;
+          ::: C3 := GEO: CARCEL 1
+               MESHX  0.0 0.5
+               MESHY  0.0 1.0
+               RADIUS 0.0 0.3
+               OFFCENTER 0.25 0.0
+               MIX 2 3
+          ;
+     ;
+     ::: C4 := GEO: CARCEL 1
+          MESHX  0.0 0.5
+          MESHY  0.0 0.5
+          RADIUS 0.0 0.3
+          OFFCENTER 0.25 0.25
+          MIX 2 3
+     ;
+;
+Fic_IC Fic_IC.ps := G2S: GEOM :: MACRO ;
+Fic_CP Fic_CP.ps := G2S: GEOM :: ;
+Fic_MOC Fic_MOC.ps := G2S: GEOM :: ;
+
+TRACKIC TRACKFILIC := SALT: Fic_IC ::
+     EDIT 2
+     TITLE "MULTICELL SURFACIC BASALA CASE"
+     TISO <<an2d>> <<densur>>
+     IC EPSJ 1.0E-4
+     ;
+
+TRACKCP TRACKFILCP := SALT: Fic_CP ::
+     EDIT 2
+     TITLE "TISO CP SURFACIC BASALA CASE"
+     TISO <<an2d>> <<densur>>
+     ;
+
+TRACKMOC TRACKFILMOC := SALT: Fic_MOC ::
+     EDIT 2
+     TITLE "TISO MOC SURFACIC BASALA CASE"
+     TISO EQW <<an2d>> <<densur>>
+     ;
+
+* MOC tracking
+TRACKMOC := MCCGT: TRACKMOC TRACKFILMOC ::
+  EDIT 0
+;
+
+
+!!! Use TRACKIC for initial IC and CP calculations, then run CP and MOC
+* FULL PIJ MATRIX RECONSTRUCTION
+PIJ := ASM: MACRO TRACKIC TRACKFILIC :: PIJ EDIT 2 ;
+FLUX := FLU: PIJ MACRO TRACKIC :: TYPE K ;
+GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffCP<< ;
+PIJ FLUX := DELETE: PIJ FLUX ;
+ECHO "test TDCM65 FULL PIJ reconstruction completed, keff=" keffCP ;
+
+* FLUX-CURRENT ITERATION WITHOUT FULL PIJ MATRIX RECONSTRUCTION
+PIJ := ASM: MACRO TRACKIC TRACKFILIC :: ARM EDIT 2 ;
+FLUX := FLU: PIJ MACRO TRACKIC :: EDIT 4 TYPE K ;
+GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffIC<< ;
+assertS FLUX :: 'K-EFFECTIVE' 1 <<keffCP>> ;
+!assertS FLUX :: 'K-EFFECTIVE' 1 1.040232 ;
+PIJ FLUX := DELETE: PIJ FLUX ;
+ECHO "test TDCM65 FLUX-CURRENT iteration completed, keff=" keffIC ;
+
+PIJ := ASM: MACRO TRACKCP TRACKFILCP :: PIJ EDIT 2 ;
+FLUX := FLU: PIJ MACRO TRACKCP :: TYPE K ;
+GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffCP<< ;
+PIJ FLUX := DELETE: PIJ FLUX ;
+ECHO "test TDCM65 CP completed, keff=" keffCP ;
+
+SYS := ASM: MACRO TRACKMOC TRACKFILMOC :: ARM EDIT 10 ; 
+FLUX := FLU: SYS MACRO TRACKMOC TRACKFILMOC :: EDIT 1 TYPE K ;
+GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffMOC<< ;
+ECHO "test TDCM65 MOC completed, keff=" keffMOC ;
+FLUX SYS TRACKMOC TRACKFILMOC := DELETE: FLUX SYS TRACKMOC TRACKFILMOC ;
+
+
+ECHO "test TDCM65 completed" ;
+END: ;

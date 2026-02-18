@@ -1,0 +1,101 @@
+*----
+*  TEST CASE TDCM71
+*  MACROSCOPIC CROSS SECTIONS
+*  GE14 : simplified controlled assembly from GLOW 
+*  GE14 control cross with rounded corners on NW corner, 1 single fuel region per pin, rounded corners.
+*  Author : R. Guasch
+*----
+*  Define STRUCTURES and MODULES used
+*----
+MODULE GEO: MAC: G2S: SALT: ASM: FLU: GREP: DELETE: END: ;
+LINKED_LIST MACRO TRACKIC PIJ SYS FLUX ;
+SEQ_BINARY TRACKFILIC TRACKFILCP TRACKFILMOC ;
+SEQ_ASCII tdt_iso :: FILE 'GE14_ctrl_simplified_for_test.dat' ;
+SEQ_ASCII glow_tiso.ps :: FILE 'GE14_ctrl_simplified.eps' ;
+REAL keffIC keffPIJ ;
+PROCEDURE assertS ;
+
+*---
+* TRACKING PARAMETERS
+*---
+INTEGER an2d := 18 ;   ! ANGULAR QUADRATURE PARAMETER
+REAL densur := 100.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
+
+*** TISO case treatment ***
+glow_tiso.ps := G2S: tdt_iso :: ;
+
+!#  1 - COOLANT
+!#  2 - CLAD
+!#  3 - MODERATOR
+!#  4 - GAP
+!#  5 - UOX160
+!#  6 - UOX395_Gd8
+!#  7 - SS304
+!#  8 - CHANNEL_BOX
+!#  9 - B4C
+MACRO := MAC: ::
+     EDIT 2 NGRO 1 NMIX 9 NIFI 1
+     READ INPUT
+
+     MIX 1 (*COOLANT*)
+        TOTAL 0.3683        SCAT 1 1 0.3661
+     
+     MIX 2 (*CLAD*)
+        TOTAL 0.4029        SCAT 1 1 0.4000
+     
+     MIX 3 (*MODERATOR*)
+        TOTAL 0.3683        SCAT 1 1 0.3661
+     
+     MIX 4 (*GAP*)
+        TOTAL 3.00460903E-04  SCAT 1 1 3.00460844E-04
+     
+     MIX 5 (*UOX*)
+        TOTAL 4.50370818E-01    SCAT 1 1 3.97226244E-01
+        NUSIGF 7.04888850E-02      CHI 1.0
+      
+     MIX 6 (*UOX+Gd*)
+        TOTAL 5.11014581E-01    SCAT 1 1 3.98968190E-01
+        NUSIGF 3.49357314E-02      CHI 1.0
+     
+     MIX 7 (*SS304*)
+        TOTAL 0.4029        SCAT 1 1 0.4000
+
+     MIX 8 (*CHANNEL_BOX*)
+        TOTAL 0.4029        SCAT 1 1 0.4000
+
+     MIX 9 (*B4C*)  
+        TOTAL 5.11014581E-01    SCAT 1 1 3.98968190E-01
+;
+
+*---
+* Tracking
+*---
+TRACKIC TRACKFILIC := SALT: tdt_iso ::
+     EDIT 1
+     TITLE 'TISO MULTICELL SURFACIC GE14 controlled assembly CASE'
+     TISO EQW <<an2d>> <<densur>>
+     IC
+     ;
+
+*---
+* Flux calculation
+*---
+* FULL PIJ MATRIX RECONSTRUCTION
+PIJ := ASM: MACRO TRACKIC TRACKFILIC :: PIJ EDIT 2 ;
+FLUX := FLU: PIJ MACRO TRACKIC :: TYPE K ;
+GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffIC<< ;
+assertS FLUX :: 'K-EFFECTIVE' 1 0.8486847 ;
+PIJ FLUX := DELETE: PIJ FLUX ;
+ECHO "test multicell GE14 simple ctrl FULL PIJ reconstruction completed, keff=" keffIC ;
+
+* FLUX-CURRENT ITERATION WITHOUT FULL PIJ MATRIX RECONSTRUCTION
+PIJ := ASM: MACRO TRACKIC TRACKFILIC :: ARM EDIT 2 ;
+FLUX := FLU: PIJ MACRO TRACKIC :: EDIT 4 TYPE K ;
+GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffPIJ<< ;
+assertS FLUX :: 'K-EFFECTIVE' 1 <<keffIC>> ;
+PIJ FLUX := DELETE: PIJ FLUX ;
+ECHO "test multicell GE14 simple ctrl FLUX-CURRENT iteration completed, keff=" keffPIJ ;
+
+ECHO "test TDCM71 completed" ;
+
+END: ;

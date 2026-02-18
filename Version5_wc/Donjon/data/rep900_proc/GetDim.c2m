@@ -106,7 +106,6 @@ EVALUATE teneur1_Pu teneur2_Pu teneur3_Pu :=
 
 EVALUATE temp_comb temp_mode dens_mod := 800.0 600.0 0.659 ;
 
-
 :: <<Rcomb1>> <<Rcomb2>> <<Rcomb3>> <<Rcomb4>> <<R_int_TG>> <<R_ext_TG>>
    <<R_int_TI>> <<R_ext_TI>> <<R_int_G>> <<R_ext_G>> <<Cote>> <<Lame>>
    <<CoteL>> <<RmodeN1>> <<RmodeN2>> <<R_ext_G2>> <<R_ext_TGm>>

@@ -126,7 +126,7 @@ LIBRARY := SHI: LIBRARY DISCR :: LJ ;
 CP := ASM: LIBRARY DISCR :: ARM ;
 CALC := FLU: CP LIBRARY DISCR ::
   TYPE B B1 PNL ;
-assertS CALC :: 'K-INFINITY' 1 1.256444 ;
+assertS CALC :: 'K-INFINITY' 1 1.256550 ;
 
 *----
 *  Editing using SPH model for transport-diffusion with Selengut
@@ -154,8 +154,8 @@ ISOT := DATABASE :: STEP UP default
                     STEP UP MIXTURES STEP AT 5
                     STEP UP CALCULATIONS STEP AT 1
                     STEP UP ISOTOPESLIST STEP AT 1 ;
-assertS ISOT :: 'NWT0' 1 0.5218698 ;
-assertS ISOT :: 'NWT0' 2 0.1277670 ;
+assertS ISOT :: 'NWT0' 1 0.5221841 ;
+assertS ISOT :: 'NWT0' 2 0.1277635 ;
 
 ECHO "test TCDR02 completed" ;
 END: ; 

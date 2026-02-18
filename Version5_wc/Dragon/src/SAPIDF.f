@@ -1,5 +1,5 @@
 *DECK SAPIDF
-      SUBROUTINE SAPIDF(IPSAP,IPEDIT,NG,NMIL,ICAL,IDF,FNORM,REGFLX)
+      SUBROUTINE SAPIDF(IPSAP,IPMICR,NG,NMIL,ICAL,IDF,FNORM,REGFLX)
 *
 *-----------------------------------------------------------------------
 *
@@ -17,7 +17,7 @@
 *
 *Parameters: input
 * IPSAP   pointer to the Saphyb.
-* IPEDIT  pointer to the edition object (L_EDIT signature).
+* IPMICR  pointer to the microlib to include (L_LIBRARY signature).
 * NG      number of condensed energy groups.
 * NMIL    number of mixtures.
 * ICAL    index of the current elementary calculation.
@@ -31,7 +31,7 @@
 *----
 *  SUBROUTINE ARGUMENTS
 *----
-      TYPE(C_PTR) IPSAP,IPEDIT
+      TYPE(C_PTR) IPSAP,IPMICR
       INTEGER NG,NMIL,ICAL,IDF
       REAL FNORM,REGFLX(NG)
 *----
@@ -48,22 +48,22 @@
 *  RECOVER DISCONTINUITY FACTOR INFORMATION FROM MACROLIB
 *----
       IF(NMIL.NE.1) CALL XABORT('SAPIDF: NMIL=1 EXPECTED.')
-      CALL LCMSIX(IPEDIT,'MACROLIB',1)
-      CALL LCMLEN(IPEDIT,'ADF',ILONG,ITYLCM)
+      CALL LCMSIX(IPMICR,'MACROLIB',1)
+      CALL LCMLEN(IPMICR,'ADF',ILONG,ITYLCM)
       IF(ILONG.EQ.0) CALL XABORT('SAPIDF: MISSING ADF DIRECTORY IN EDI'
      1 //'TION OBJECT.')
-      CALL LCMSIX(IPEDIT,'ADF',1)
-      CALL LCMGET(IPEDIT,'NTYPE',NSURFD)
+      CALL LCMSIX(IPMICR,'ADF',1)
+      CALL LCMGET(IPMICR,'NTYPE',NSURFD)
       ALLOCATE(SURFLX(NSURFD,NG),SURF(NG),HADF(NSURFD))
-      CALL LCMGTC(IPEDIT,'HADF',8,NSURFD,HADF)
+      CALL LCMGTC(IPMICR,'HADF',8,NSURFD,HADF)
       DO I=1,NSURFD
-        CALL LCMLEN(IPEDIT,HADF(I),ILONG,ITYLCM)
+        CALL LCMLEN(IPMICR,HADF(I),ILONG,ITYLCM)
         IF(ILONG.NE.NG) THEN
           WRITE(HSMG,'(12HSAPIDF: BAD ,A,8H LENGTH=,I5,10H EXPECTED=,
      1    I5,1H.)') HADF(I),ILONG,NG
           CALL XABORT(HSMG)
         ENDIF
-        CALL LCMGET(IPEDIT,HADF(I),SURF)
+        CALL LCMGET(IPMICR,HADF(I),SURF)
         IF(IDF.EQ.2) THEN
           DO IGR=1,NG
             SURFLX(I,IGR)=SURF(IGR)*FNORM*1.0E13
@@ -76,8 +76,8 @@
         ENDIF
       ENDDO
       DEALLOCATE(HADF,SURF)
-      CALL LCMSIX(IPEDIT,' ',2)
-      CALL LCMSIX(IPEDIT,' ',2)
+      CALL LCMSIX(IPMICR,' ',2)
+      CALL LCMSIX(IPMICR,' ',2)
 *----
 *  MOVE TO THE 'calc' DIRECTORY.
 *----

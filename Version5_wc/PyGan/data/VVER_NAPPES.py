@@ -1,8 +1,7 @@
 ##############################################################################
 #                                                                            #
 # Description : Python3 scritp for BWR test cases                            #
-# Author      : R. Guasch, adapted from Lucas Fede and Mathias Francois      #
-# Date        : August 2024                                                  #
+# Author      : Lucas Fede and Mathias Francois                              #
 #                                                                            #
 ##############################################################################
 #

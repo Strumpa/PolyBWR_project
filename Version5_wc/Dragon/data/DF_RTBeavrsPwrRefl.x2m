@@ -404,10 +404,10 @@ WHILE IndexCB 2 <= DO
     ;
     ECHO "...IndexCB=" IndexCB ;
     IF IndexCB 1 = THEN
-         assertS FLUX_REF :: K-EFFECTIVE 1 1.191874 ;
+         assertS FLUX_REF :: K-EFFECTIVE 1 1.191647 ;
          _VAL_CB1 := OVAL ;
     ELSEIF IndexCB 2 = THEN
-         assertS FLUX_REF :: K-EFFECTIVE 1 1.190132 ;
+         assertS FLUX_REF :: K-EFFECTIVE 1 1.189905 ;
          _VAL_CB2 := OVAL ;
     ENDIF ;
     FLUX_REF SYSTEM MACRO OVAL := DELETE: FLUX_REF SYSTEM MACRO OVAL ;

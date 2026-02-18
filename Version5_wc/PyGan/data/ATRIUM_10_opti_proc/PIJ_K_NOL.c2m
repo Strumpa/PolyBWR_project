@@ -1,0 +1,34 @@
+* PIJ_K_NOL.c2m deck
+* This procedure is used to run a PIJ k-eff calculation given :
+*     - a binary tracking file containing track lengths (TF_EXC)
+*     - a library LCM object containing the self-shielded cross sections (LIBRARY2)
+*     - NO leakage model is applied in this procedure.
+* This procedure returns a FLUX LCM object containing the results of the PIJ eigenvalue calculation.
+
+
+* ---
+* INPUT & OUTPUT PARAMETERS
+* ---
+PARAMETER FLUX TRACK TF_EXC LIBRARY2 ::
+::: LINKED_LIST FLUX ;
+::: LINKED_LIST TRACK ;
+::: SEQ_BINARY TF_EXC ;
+::: LINKED_LIST LIBRARY2 ; ;
+
+MODULE ASM: FLU: GREP: END: DELETE: ;
+LINKED_LIST SYS ;
+REAL Kinf ;
+* ---
+SYS := ASM: LIBRARY2 TRACK TF_EXC :: PIJ EDIT 1 ; 
+
+FLUX := FLU: LIBRARY2 SYS TRACK TF_EXC :: 
+            EDIT 1 TYPE K B1 SIGS
+    ;
+GREP: FLUX :: GETVAL 'K-INFINITY  ' 1 1 1 >>Kinf<< ;
+
+ECHO "PIJ_K_NOL.c2m : K-infinity = " Kinf ;
+
+SYS := DELETE: SYS ;
+* END OF PIJ_K_NOL.c2m
+END: ;
+QUIT .

@@ -13,8 +13,9 @@ MODULE GEO: G2S: NXT: SYBILT: SALT: MCCGT: LIB: USS: ASM: FLU: EDI: COMPO: GREP:
 LINKED_LIST GEOM_3x3 GEOM_3x3_SS LIBRARY LIBRARY2 TRACK_SS TRACK SYS FLUX COMPO EDIRATES ;
 
 SEQ_ASCII Geo_G2S GeoSS_G2S ;
-SEQ_ASCII _COMPO :: FILE './_COMPO_AT10_3x3_UOX_Gd_REFL_REFL_allinrs_SECT_finer_30_100' ;
+SEQ_ASCII _COMPO :: FILE './_COMPO_AT10_3x3_UOX_Gd_REFL_REFL' ;
 SEQ_ASCII FIG_main.ps :: FILE './FIG_main_SECT.ps' ;
+SEQ_ASCII FIG_SSH.ps :: FILE './FIG_mselfshielding.ps' ;
 
 SEQ_BINARY TF_EXC TF_EXC_SS ;
 
@@ -77,8 +78,8 @@ EVALUATE 4_Pitch_C := Pitch_C 4.0 * ;
 
 
 GEOM_3x3_SS := GEO: :: CAR2D 3 3
-    X- REFL X+ REFL 
-    Y- REFL Y+ REFL
+    X- ALBE 1.0 X+ ALBE 1.0
+    Y- ALBE 1.0 Y+ ALBE 1.0
     CELL
     C1 C2 C3
     C2 C4 C7
@@ -159,25 +160,17 @@ GEOM_3x3 := GEO: :: CAR2D 3 3
                             <<COOL>> <<COOL>> <<COOL>> <<COOL>> 
     ;
     ::: C7 := GEO: CARCEL 8
-              SECT 4 0 
+              SECT 4 8 
               RADIUS 0.0 <<RcombGd1>> <<RcombGd2>> <<RcombGd3>> <<RcombGd4>>
                           <<RcombGd5>> <<RcombGd6>> <<Rgap>> <<Rclad>> 
-              MIX <<COMB0701>> <<COMB0701>> <<COMB0701>> <<COMB0701>> 
-                  <<COMB0701>> <<COMB0701>> <<COMB0701>> <<COMB0701>>
-                  <<COMB0702>> <<COMB0702>> <<COMB0702>> <<COMB0702>>
-                  <<COMB0702>> <<COMB0702>> <<COMB0702>> <<COMB0702>>
-                  <<COMB0703>> <<COMB0703>> <<COMB0703>> <<COMB0703>>
-                  <<COMB0703>> <<COMB0703>> <<COMB0703>> <<COMB0703>> 
-                  <<COMB0704>> <<COMB0704>> <<COMB0704>> <<COMB0704>>
-                  <<COMB0704>> <<COMB0704>> <<COMB0704>> <<COMB0704>> 
-                  <<COMB0705>> <<COMB0705>> <<COMB0705>> <<COMB0705>>
-                  <<COMB0705>> <<COMB0705>> <<COMB0705>> <<COMB0705>> 
-                  <<COMB0706>> <<COMB0706>> <<COMB0706>> <<COMB0706>>
-                  <<COMB0706>> <<COMB0706>> <<COMB0706>> <<COMB0706>>
-                  <<GAP>> <<GAP>> <<GAP>> <<GAP>> 
-                  <<GAP>> <<GAP>> <<GAP>> <<GAP>>
-                  <<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>>
-                  <<CLAD>> <<CLAD>> <<CLAD>> <<CLAD>>
+              MIX <<COMB0701>> 
+                  <<COMB0702>>
+                  <<COMB0703>>
+                  <<COMB0704>>
+                  <<COMB0705>> 
+                  <<COMB0706>>
+                  <<GAP>>
+                  <<CLAD>> 
                   <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>>
                   <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>> <<COOL>>
               MESHX 0.0 <<Pitch_C>> MESHY 0.0 <<Pitch_C>>
@@ -194,7 +187,7 @@ LIBRARY := LIB: ::
     EDIT 0
     NMIX 150    ! MAXIMUM OF MATERIAL MIXTURES
     PT
-    ANIS 3
+    ANIS 2
     ADED 4 NELAS N4N N2N N3N
     CALENDF 3 PT      ! CALENDF TYPE PROBABILITY TABLES
 
@@ -318,8 +311,11 @@ LIBRARY := LIB: ::
 * TRACKING PARAMTERES
 * ---
 
-INTEGER an2d := 30 ;  ! ANGULAR QUADRATURE PARAMETER
-REAL densur := 100.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
+INTEGER an2d := 24 ;  ! ANGULAR QUADRATURE PARAMETER 
+REAL densur := 75.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
+
+INTEGER an2d_ss := 8 ;  ! ANGULAR QUADRATURE PARAMETER 
+REAL densur_ss := 35.0 ; ! DENSITY OF INTEGRATION LINES CM^-1 
 
 
 * polar angles for MCCGT:
@@ -328,20 +324,17 @@ INTEGER nmu := 4 ;
 * size allocation for MCCGT:
 INTEGER mcu := 50000 ;
 
-* if using SYBILT:
-INTEGER iqua2 := 32 ;
-INTEGER nseg := 10 ;
-
 * ---
 * FLUX CALC TRACKING
 * ---
 Geo_G2S FIG_main.ps := G2S: GEOM_3x3 :: ;
+GeoSS_G2S FIG_SSH.ps := G2S: GEOM_3x3_SS :: MACRO ;
 
 TRACK TF_EXC := SALT: Geo_G2S ::
   EDIT 1
   ALLG
-  BATCH 500
-  ANIS 3
+  BATCH 300
+  ANIS 2
   TSPC EQW2 <<an2d>> <<densur>> REND LONG
 ;
 
@@ -352,112 +345,73 @@ TRACK := MCCGT: TRACK TF_EXC ::
   CACB <<nmu>> AAC 80 TMT EPSI 1E-5 MCU <<mcu>> ! tried CACB but is limited to isotropic ?
 ;
 
-
 * ---
 * SELF-SHIELDING TRACKING
 * ---
 
-TRACK_SS := SYBILT: GEOM_3x3_SS ::
-    TITLE 'TRACKING FOR bench 3x3 UOX'
-    MAXR 100 QUA2 <<iqua2>> <<nseg>> DP01 MAXZ 750000 
+TRACK_SS TF_EXC_SS := SALT: GeoSS_G2S ::
+  EDIT 1
+  BATCH 200
+  ANIS 2
+  TISO EQW <<an2d_ss>> <<densur_ss>>
+  IC EPSJ 1.0E-4
 ;
 
-
 ****************************************************************************************
-*********************** BEGIN SELF-SHIELDING CALCULATION WITH USS **********************
+********************* BEGIN SELF-SHIELDING CALCULATION WITH USS/RSE ********************
 ****************************************************************************************
 
-LIBRARY2 := USS: LIBRARY TRACK_SS ::
-      EDIT 1 PASS 4 MAXST 50
+
+LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
+        EDIT 1 PASS 4
       ;
 
 SYS := ASM: LIBRARY2 TRACK TF_EXC :: ARM EDIT 0 ; 
-
 
 FLUX := FLU: LIBRARY2 SYS TRACK TF_EXC :: 
              EDIT 1 TYPE K  
       ;
 GREP: FLUX :: GETVAL 'K-EFFECTIVE  ' 1 1 1 >>Kinf<< ;
-ECHO "SSH tracking = SYBILT, and FLX tracking = SALT TSPC, on 3x3_UOX_Gd: Kinf=" Kinf ;
+ECHO "SS tracking = SALT and FLX tracking = SALT TSPC, MOC on 2x2_UOX: Kinf=" Kinf ;
+
 **********************************************************************************************************
 ********************          EXPORTS FOR POST-TREATMENT OF REACTION RATES               *****************
 **********************************************************************************************************
 COMPO := COMPO: ::
     EDIT 1
-    STEP UP 'EDIBU_HOM'
-     MAXCAL 5
-     COMM 'Reaction rates- Condensed, Homogenized over all fuel cells' ENDC
-     ISOT 2 U235 U238
-    INIT
     STEP UP 'HOM1g'
      MAXCAL 5
-     COMM 'Reaction rates- Condensed, Homogenized' ENDC
-     ISOT 2 U235 U238
-    INIT
-    STEP UP 'HOM2g'
-     MAXCAL 5
-     COMM 'Reaction rates - Condensed 2gr, Homogenized' ENDC
-     ISOT 2 U235 U238
+     COMM 'Reaction rates- Condensed, Cells' ENDC
     INIT
   ;
 
-**** homogenization over all fuel cells
-  EDIRATES := EDI: FLUX LIBRARY2 TRACK ::
-            EDIT 1
-            MICR 2 U235 U238
-            MERG MIX 
-            1 1 1 1 1 1 1 1 1 1
-            1 1 1 1 1 1 1 1 1 1 
-            1 1 1 1 1 1 0 0 0
-            COND
-            SAVE ON EDIBU_HOM
-        ;
-
-COMPO := COMPO: COMPO EDIRATES LIBRARY2 ::
-            EDIT 1
-            STEP UP 'EDIBU_HOM'
-        ;
-
-EDIRATES := DELETE: EDIRATES ;
 
 ***** Cell-wise homogenization
 *** Condense all rates on 1 group :
 EDIRATES := EDI: FLUX LIBRARY2 TRACK ::
-        EDIT 1
-        MICR 2 U235 U238
-        MERG MIX 
-        1 1 1 1 2 2 2 2 3 3 3 3 4 4 4 4 5 5 5 5 6 6 6 6 6 6 0 0 0
-        COND
-        SAVE ON HOM1g
-        ;
-
-COMPO := COMPO: COMPO EDIRATES LIBRARY2 ::
-        EDIT 1
-        STEP UP 'HOM1g'
-        ;
-
-EDIRATES := DELETE: EDIRATES ;
-
-
-*** Condense rates to 2 groups with division between groups at 0.625 eV
-
-EDIRATES := EDI: FLUX LIBRARY2 TRACK ::
-        EDIT 1
-        MICR 2 U235 U238
-        MERG MIX 
-        1 1 1 1 2 2 2 2 3 3 3 3 4 4 4 4 5 5 5 5 6 6 6 6 6 6 0 0 0
-        COND 0.625
-        SAVE ON HOM2g 
+            EDIT 1
+            MERG MIX 
+            1 1 1 1 
+            2 2 2 2 
+            3 3 3 3 
+            4 4 4 4 
+            5 5 5 5 
+            6 6 6 6 6 6 
+            7 8 9
+            COND
+            SAVE ON HOM1g
         ;
 
 COMPO := COMPO: COMPO EDIRATES LIBRARY2 ::
             EDIT 1
-            STEP UP 'HOM2g'
+            STEP UP 'HOM1g'
         ;
 
 EDIRATES := DELETE: EDIRATES ;
+
 
 
 _COMPO := COMPO ;
 
 QUIT "LIST" .
+

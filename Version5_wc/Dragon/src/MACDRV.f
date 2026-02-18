@@ -1,6 +1,6 @@
 *DECK MACDRV
       SUBROUTINE MACDRV(IPLIST,INDREC,IPRINT,IDF,NBMIX,NGROUP,NANISO,
-     >                  NIFISS,NEDMAC,ITRANC,NDELG,NSTEP,NALBP)
+     >                  NIFISS,NEDMAC,ITRANC,NDELG,NSTEP,NALBP,ILEAK,NW)
 *
 *-----------------------------------------------------------------------
 *
@@ -37,6 +37,8 @@
 * NSTEP   number of delta cross-section sets used for generalized
 *         perturbation theory (GPT) or kinetics calculations.
 * NALBP   number of physical albedos.
+* ILEAK   type of diffusion coefficient information.
+* NW      weighting flag (=0/1: P1-weighted information absent/present).
 *
 *-----------------------------------------------------------------------
 *
@@ -46,7 +48,7 @@
 *----
       TYPE(C_PTR) IPLIST
       INTEGER     INDREC,IPRINT,IDF,NBMIX,NGROUP,NANISO,NIFISS,NEDMAC,
-     >            ITRANC,NDELG,NSTEP,NALBP
+     >            ITRANC,NDELG,NSTEP,NALBP,ILEAK,NW
 *----
 *  LOCAL VARIABLES
 *----
@@ -352,5 +354,13 @@
         CALL MACWXS(IPLIST,IPRINT,NGROUP,NBMIX,NIFISS,NANISO,
      >              ITRANC,NEDMAC)
       ENDIF
+*----
+*  SET STATE-VECTOR FLAGS
+*----
+      NW=0
+      IF(LNEWXS(9)) NW=1
+      ILEAK=0
+      IF(LNEWXS(7)) ILEAK=1
+      IF(LNEWXS(10).OR.LNEWXS(11).OR.LNEWXS(12)) ILEAK=2
       RETURN
       END

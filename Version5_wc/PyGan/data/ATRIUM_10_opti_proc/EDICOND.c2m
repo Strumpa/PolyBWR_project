@@ -1,0 +1,44 @@
+** Procedure EDICOND.c2m: 26 groups energy condensation for 2-level flux calculation
+************************************************************************************
+*  Name          : EDICOND.c2m
+*  Type          : DRAGON procedure
+*  Use           : 295->26 groups energy condensation for 2-level flux calculation
+*  Author        : A. Canbakan / modified by R. Guasch to adapt to PyGan/BWR calculations
+*  Date          : 20/09/2025
+
+PARAMETER LIBEQ  FLUXLVL1 LIBRARY2 TRACKLVL1 TF_EXC_L1 ::  
+    ::: LINKED_LIST LIBEQ ; 
+    ::: LINKED_LIST FLUXLVL1 ;
+    ::: LINKED_LIST LIBRARY2 ;
+    ::: LINKED_LIST TRACKLVL1 ;
+    ::: SEQ_BINARY TF_EXC_L1 ; ;
+
+LINKED_LIST EDITION ;
+MODULE EDI: SPH: END: DELETE: ;
+*----
+*  26 groups energy condensation
+*----
+EDITION := EDI: FLUXLVL1 LIBRARY2 TRACKLVL1 ::
+    EDIT 0
+    MICR ALL
+    MERG MIX
+    COND  10  14  18  26  33  40  49  56  66 84 150 210 241 244 247
+    252 255 258 261 268 273 277 281 286 291
+    SAVE ON COND26 
+;
+
+LIBEQ := EDITION :: STEP UP COND26 ;
+
+LIBEQ := SPH: LIBEQ TRACKLVL1 TF_EXC_L1 :: EDIT 10 ;
+
+*----
+*  DELETE intermediate LCM objects
+*----
+EDITION := DELETE: EDITION ;
+*----
+*  End of procedure
+*----
+END: ;
+*----
+QUIT .
+

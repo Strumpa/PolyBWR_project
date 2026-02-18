@@ -182,13 +182,16 @@ SRC77 = $(shell ls *.f)
 SRCF77 = $(shell ls *.F)
 ifeq ($(python_version_major),2)
   SRC90 = $(shell python ../../script/make_depend.py *.f90)
+  SRCF90 = $(shell python ../../script/make_depend.py *.F90)
 else
   SRC90 = $(shell python3 ../../script/make_depend_py3.py *.f90)
+  SRCF90 = $(shell python3 ../../script/make_depend_py3.py *.F90)
 endif
 OBJC = $(SRCC:.c=.o)
-OBJ90 = $(SRC90:.f90=.o)
 OBJ77 = $(SRC77:.f=.o)
 OBJF77 = $(SRCF77:.F=.o)
+OBJ90 = $(SRC90:.f90=.o)
+OBJF90 = $(SRCF90:.F90=.o)
 all : sub-make Dragon
 ifeq ($(openmp),1)
 	@echo 'Dragon: openmp is defined'
@@ -214,16 +217,20 @@ sub-make:
 %.o : %.f
 	@/bin/rm -f temp.f
 	$(F90) $(FFLAG77) $(opt) $(COMP) $(INCLUDE) -c $< -o $@
+%.o : %.F90
+	$(PREPRO) -P -W -traditional  $(FLAGS) $< temp.f90
+	$(F90) $(FFLAGS) $(opt) $(COMP) $(INCLUDE) -c temp.f90 -o $@
+	/bin/rm -f temp.f temp.f90
 %.o : %.F
 	$(PREPRO) -P -W -traditional  $(FLAGS) $< temp.f
 	$(F90) $(FFLAG77) $(opt) $(COMP) $(INCLUDE) -c temp.f -o $@
-	/bin/rm temp.f
+	/bin/rm -f temp.f temp.f90
 $(lib_module)/:
 	mkdir -p $(lib_module)/
 $(lib)/: $(lib_module)/
 	mkdir -p $(lib)/
-libDragon.a: $(OBJC) $(OBJ90) $(OBJ77) $(OBJF77) $(lib)/
-	ar r $@ $(OBJC) $(OBJ90) $(OBJ77) $(OBJF77)
+libDragon.a: $(OBJC) $(OBJ90) $(OBJF90) $(OBJ77) $(OBJF77) $(lib)/
+	ar r $@ $(OBJC) $(OBJ90) $(OBJF90) $(OBJ77) $(OBJF77)
 	cp $@ $(lib)/$@
 	cp *.mod $(lib_module)
 $(bin)/:

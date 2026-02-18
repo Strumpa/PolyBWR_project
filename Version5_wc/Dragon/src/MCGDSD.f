@@ -1,8 +1,8 @@
 *DECK MCGDSD
       SUBROUTINE MCGDSD(NSEG,NSUB,NMU,LPS,NFUNL,NANGL,NGEFF,WEI2D,
      1                  TRHAR,H2D,ZMU,WZMU,KANGL,NOMCEL,NZON,NFI,NREG,
-     2                  NDIM,M,IS,JS,PJJ,PSJ,LPJJAN,NPJJM,PJJIND,SIGAL,
-     3                  MUST,PHI1,PHI2,PJJX,PJJY,PJJZ,PJJXI,PJJYI,
+     2                  NDIM,NBCDA,M,IS,JS,PJJ,PSJ,LPJJAN,NPJJM,PJJIND,
+     3                  SIGAL,MUST,PHI1,PHI2,PJJX,PJJY,PJJZ,PJJXI,PJJYI,
      4                  PJJZI,CAZ0,PSJX,PSJY,PSJZ)
 *
 *-----------------------------------------------------------------------
@@ -33,6 +33,7 @@
 * NREG    number of volumes for which specific values
 *         of the neutron flux and reactions rates are required.
 * NDIM    number of dimensions for the geometry.
+* NBCDA   number of perimeters.
 * M       number of material mixtures.
 * IS      arrays for surfaces neighbors.
 * JS      JS(IS(ISOUT)+1:IS(ISOUT+1)) give the neighboring regions to
@@ -73,11 +74,11 @@
 *  SUBROUTINE ARGUMENTS
 *----
       INTEGER NGEFF,NSEG,NSUB,NMU,LPS,NFUNL,NANGL,KANGL(NSUB),
-     1 NOMCEL(NSEG),NZON(NFI),NFI,M,NREG,NDIM,IS(NFI-NREG+1),JS(LPS),
-     2 NPJJM,PJJIND(NPJJM,2),MUST
+     1 NOMCEL(NSEG),NZON(NFI),NFI,NREG,NDIM,NBCDA,M,IS(NFI-NREG+1),
+     2 JS(LPS),NPJJM,PJJIND(NPJJM,2),MUST
       DOUBLE PRECISION WEI2D,ZZZ,H2D(NSEG)
       REAL TRHAR(NMU,NFUNL,NANGL),ZMU(NMU),WZMU(NMU),PSJ(LPS,NGEFF),
-     1 SIGAL(-6:M,NGEFF),PSJX(LPS,NGEFF),PSJY(LPS,NGEFF),
+     1 SIGAL(-NBCDA:M,NGEFF),PSJX(LPS,NGEFF),PSJY(LPS,NGEFF),
      2 PSJZ(LPS,NGEFF)
       DOUBLE PRECISION PJJ(NREG,NPJJM,NGEFF),PHI1,PHI2,CAZ0
       DOUBLE PRECISION PJJX(NREG,NPJJM,NGEFF),PJJY(NREG,NPJJM,NGEFF),

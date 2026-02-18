@@ -100,7 +100,7 @@ LIBRARY := LIB: ::
   ;
   
 ISOT := LIBRARY :: STEP UP ISOTOPESLIST STEP AT 14 ; (*U238    0004*)
-assertS ISOT :: NG 35 2.219075E-01 ;
+assertS ISOT :: NG 35 2.219074E-01 ;
 ECHO "test TCDR12 completed" ;
 END: ;
 QUIT "LIST" .

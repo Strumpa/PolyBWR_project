@@ -7,7 +7,7 @@
 * CALL      :                                                                  *
 *  MpoRefl := REFL_MPO Geom FVol Param :: <<nameFeed>> <<nameRefl>> <<Palier>> *
 *                            <<htype>> <<nlf>> <<LibType>> <<NuclData>>        *
-*                            <<OptSph>> <<OptNoal>> <<OptSS>> ;                *
+*                            <<OptSph>> <<OptNoal>> <<OptSS>> <<nbZones>> ;    *
 *                                                                              *
 *  Input objects:                                                              *
 *    Geom    : macro-geometry LCM object                                       *
@@ -25,6 +25,7 @@
 *    OptSph  : 'SPH'/'NOSP' transform DF into ADF/keep DF                      *
 *    OptNoal : 'ALBE'/'NOAL' compute albedo/force right albedo to 0            *
 *    OptSS   : 'TONE'/'NOSS' do/don't activate self-shielding of Fe56 and Cr52 *
+*    nbZones : number of zones in the reflector                                *
 *                                                                              *
 *  Output objects:                                                             *
 *    MpoRefl : reflector MPO file                                              *
@@ -38,7 +39,8 @@ STRING nameFeed nameRefl Palier htype ;
 INTEGER nlf ; :: >>nlf<< ;
 STRING LibType NuclData OptSph OptNoal OptSS ;
   ::  >>LibType<< >>NuclData<< >>OptSph<< >>OptNoal<< >>OptSS<< ;
-PROCEDURE GetMolarMass MetalMix CreaDilut assertS ;
+INTEGER nbZones ; :: >>nbZones<< ;
+PROCEDURE GetMolarMass MetalMix CreaDilut assertS_low ;
 LINKED_LIST
   DONNEES Geom_refl LibDilut MACRO LibFuel MolarMasses FeNat CrNat SnNat
   NiNat ZrNat TiNat SiNat BNat AgNat CdNat SNat GdNat Zirc4 Incon SS304
@@ -167,8 +169,6 @@ TRACK_refl := SNT: Geom_refl ::
   MAXR 100000
   SN 16 SCAT <<iscat>> ;
 
-INTEGER nbZones := 7 ;
-
 REAL dModBas := 0.753 ; ! Densite du moderateur en entree du coeur
 REAL TMilBas := 286.4 ; ! Temp du reflecteur bas (soit Tmod,entree)
 EVALUATE TMilBas := TMilBas 273.15 + ; ! Conversion en Kelvin
@@ -252,8 +252,8 @@ WHILE IndexCB iBoreMax < DO
 
     ! Define MIX 1 in reflector macrolib
     LibDilut := CreaDilut LibDilut MolarMasses BNat Zirc4 Incon SS304 ::
-    <<dMod>> <<premierMIX>> <<TMil>> <<CB>> <<fvMod>> <<fvZr4>> <<fvInc>>
-    <<fvSS304>> <<NuclData>> <<LibType>> ;
+    <<dMod>> <<nbZones>> <<premierMIX>> <<TMil>> <<CB>> <<fvMod>> <<fvZr4>>
+    <<fvInc>> <<fvSS304>> <<NuclData>> <<LibType>> ;
 
     EVALUATE iZone := iZone 1 + ;
   ENDWHILE ;
@@ -279,10 +279,19 @@ WHILE IndexCB iBoreMax < DO
   GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 >>Keff<< ;
   ECHO "SN Keff=" Keff ;
 
-  OUT_1 := EDI: MACRO TRACK FLUX Geom ::
-      EDIT 3 UPS MERGE MIX 1 2 3 3 3 3 4 0
-      COND 0.625 PNW_SP GOLVER SAVE ;
-      ECHO "ici1" ;
+  IF nbZones 5 = THEN
+    OUT_1 := EDI: MACRO TRACK FLUX Geom ::
+        EDIT 3 UPS MERGE MIX 1 2 3 3 4 0
+        COND 0.625 PNW_SP GOLVER SAVE ;
+  ELSEIF nbZones 6 = THEN
+    OUT_1 := EDI: MACRO TRACK FLUX Geom ::
+        EDIT 3 UPS MERGE MIX 1 2 3 3 3 4 0
+        COND 0.625 PNW_SP GOLVER SAVE ;
+  ELSEIF nbZones 7 = THEN
+    OUT_1 := EDI: MACRO TRACK FLUX Geom ::
+        EDIT 3 UPS MERGE MIX 1 2 3 3 3 3 4 0
+        COND 0.625 PNW_SP GOLVER SAVE ;
+  ENDIF ;
   IF IndexCB 1 = THEN
     OUTF := EDI: MACRO TRACK FLUX Geom ::
       EDIT 3 UPS MERGE NONE
@@ -324,7 +333,7 @@ WHILE IndexCB iBoreMax < DO
   ELSEIF htype 'DF-ANM' = htype 'ERM-ANM' = + THEN
     MACR_TRAC := NSST: GeomRefl :: EDIT 2 TITLE 'alpha1.txt' ANM ;
   ELSEIF htype 'DF-RT' = THEN
-    MACR_TRAC := TRIVAT: GeomRefl :: TITLE "alpha.txt" DUAL <<ielem>> <<icol>>  ;
+    MACR_TRAC := TRIVAT: GeomRefl :: TITLE "alpha.txt" DUAL <<ielem>> <<icol>> ;
   ELSEIF htype 'DF-RT-SPN' = THEN
     MACR_TRAC := TRIVAT: GeomRefl :: TITLE "alpha.txt" DUAL <<ielem>> <<icol>>
     SPN <<nlf>> ;
@@ -344,12 +353,11 @@ WHILE IndexCB iBoreMax < DO
     MACR_FLUX := NSSF: MACR_TRAC MACRO :: EDIT 1 ;
   ENDIF ;
   ECHO "...IndexCB=" IndexCB ;
-  assertS MACR_FLUX :: 'K-EFFECTIVE' 1 <<Keff>> ;
-     ECHO "ici2" ;
-   IF IndexCB 1 = THEN
+  assertS_low MACR_FLUX :: 'K-EFFECTIVE' 1 <<Keff>> 1.0E-4 ;
+  IF IndexCB 1 = THEN
     OVAL := VAL: MACR_TRAC MACR_FLUX MACRO ::
       EDIT 2
-      POWR 1.0 DIM 1 0.1
+      POWR 1.0 DIM 1 0.1 ! normalize to 1 MW
     ;
     _VAL_CB1 := OVAL ;
     OVAL := DELETE: OVAL ;
@@ -361,7 +369,7 @@ WHILE IndexCB iBoreMax < DO
   !----------------------------------------------------------
   !  MPO reflector creation
   !----------------------------------------------------------
-  IF htype 'DF-RT' = htype 'DF-RT-SPN' = + THEN
+  IF OptSph 'SPH' = THEN
     Edition := EDI: MacrRefl :: EDIT 1 SAVE ;
   ELSE
     Edition := EDI: MacrRefl :: EDIT 1 ADFM SAVE ;

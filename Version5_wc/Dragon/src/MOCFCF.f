@@ -1,6 +1,6 @@
 *DECK MOCFCF
       SUBROUTINE MOCFCF(SUBFFI,SUBFFA,SUBLDC,SUBSCH,IFTRAK,NBTR,MXSUB,
-     1                  MXSEG,NDIM,KPN,NREG,NSOUT,NMAT,NALB,NGEFF,NPHI,
+     1                  MXSEG,NDIM,KPN,NREG,NSOUT,NMAT,NBCDA,NGEFF,NPHI,
      2                  NGSS,NLF,NFUNL,NMOD,NLFX,NLIN,NFUNLX,KEYFLX,
      3                  MATALB,NCONV,SIGANG,CAZ1,CAZ2,XGSS,YGSS,WGSS,
      4                  SOUR,ISGNR,IDIR,NBATCH,PHIOUT)
@@ -48,7 +48,7 @@
 * WGSS    polar weights.
 * XGSS    polar angle cosines.
 * YGSS    polar angle sines.
-* NALB    number of albedos.
+* NBCDA   number of perimeters.
 * SIGANG  arrays of total cross-sections and albedos.
 * CAZ1    first cosines of the different tracking azimuthal angles.
 * CAZ2    second cosines of the different tracking azimuthal angles.
@@ -70,9 +70,8 @@
 *----
       INTEGER IFTRAK,NGEFF,NMAT,NLF,NREG,NDIM,KPN,NGSS,NSOUT,MXSUB,
      1 MXSEG,NBTR,NPHI,NFUNL,NMOD,NLFX,NLIN,NFUNLX,ISGNR(NMOD,NFUNLX),
-     2 KEYFLX(NREG,NLIN,NFUNL),MATALB(-NSOUT:NREG),NALB,IDIR,NBATCH
-      REAL WGSS(NGSS),XGSS(NGSS),YGSS(NGSS),
-     1 SIGANG(-NALB:NMAT,NGEFF)
+     2 KEYFLX(NREG,NLIN,NFUNL),MATALB(-NSOUT:NREG),NBCDA,IDIR,NBATCH
+      REAL WGSS(NGSS),XGSS(NGSS),YGSS(NGSS),SIGANG(-NBCDA:NMAT,NGEFF)
       DOUBLE PRECISION CAZ1(NPHI),CAZ2(NPHI),SOUR(KPN,NGEFF),
      1 PHIOUT(KPN,NGEFF)
       LOGICAL NCONV(NGEFF)
@@ -186,9 +185,9 @@
 *               MOCFFIR: 'Source Term Isolation' Strategy turned on
 *               MOCFFIS: 'Source Term Isolation' Strategy turned off
 *               MOCFFIT: 'MOCC/MCI' Iterative Strategy
-              CALL SUBFFI(SUBSCH,NREG,NSOUT,KPN,NMAT,NSEG(IL1),
+              CALL SUBFFI(SUBSCH,NREG,NSOUT,KPN,NBCDA,NMAT,NSEG(IL1),
      1             SEGLEN(1,IL1),NRSEG(1,IL1),NGSS,MATALB,
-     2             SIGANG(-NALB,II),KEYFLX,YGSS,FLUX,EXPT,
+     2             SIGANG(-NBCDA,II),KEYFLX,YGSS,FLUX,EXPT,
      3             EXP2,FLM,FLP,CYM,CYP,IDIR,OMG2)
             ENDDO ! ILINE
             PHIOUT(:KPN,II)=PHIOUT(:KPN,II)+FLUX(:KPN)
@@ -265,9 +264,9 @@
 *                MOCFFAR: 'Source Term Isolation' Strategy turned on
 *                MOCFFAS: 'Source Term Isolation' Strategy turned off
 *                MOCFFAT: 'MOCC/MCI' Iterative Strategy
-              CALL SUBFFA(SUBSCH,NREG,NSOUT,KPN,NMAT,NSEG(IL1),
+              CALL SUBFFA(SUBSCH,NREG,NSOUT,KPN,NBCDA,NMAT,NSEG(IL1),
      1             SEGLEN(1,IL1),NRSEG(1,IL1),NGSS,NFUNL,MATALB,
-     2             SIGANG(-NALB,II),KEYFLX,YGSS,FLUX,EXPT,EXP2,FLM,
+     2             SIGANG(-NBCDA,II),KEYFLX,YGSS,FLUX,EXPT,EXP2,FLM,
      3             FLP,CYM,CYP,NPHI,NSUB(IL1),KANGL(1,IL1),TRHAR)
             ENDDO ! ILINE
             PHIOUT(:KPN,II)=PHIOUT(:KPN,II)+FLUX(:KPN)
@@ -370,9 +369,9 @@
               ENDDO
               IF(ISUB.NE.NSUB(IL1)) CALL XABORT('MOCFCF: NSUB ERROR.')
 *                MOCFFAL: 'Source Term Isolation' Strategy turned off
-              CALL SUBLDC(SUBSCH,NREG,NSOUT,NMAT,NSEG(IL1),
+              CALL SUBLDC(SUBSCH,NREG,NSOUT,NBCDA,NMAT,NSEG(IL1),
      1             SEGLEN(1,IL1),NRSEG(1,IL1),NGSS,NFUNLX,MATALB,
-     2             DWEIG,SIGANG(-NALB,II),YGSS,FLM,FLP,DFLM,DFLP,
+     2             DWEIG,SIGANG(-NBCDA,II),YGSS,FLM,FLP,DFLM,DFLP,
      3             NPHI,NSUB(IL1),KANGL(1,IL1),TRHAR,FLUV,
      4             DFLUV,DSIG,EXPT,EXP2,CYM,CYP,CYM2,CYP2)
             ENDDO ! ILINE

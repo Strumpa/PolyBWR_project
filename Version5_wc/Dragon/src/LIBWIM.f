@@ -47,7 +47,7 @@
 *  SUBROUTINE ARGUMENTS
 *----
       INTEGER    NDPROC
-      PARAMETER (NDPROC=10)
+      PARAMETER (NDPROC=11)
       TYPE(C_PTR) IPLIB,IPISO(NBISO)
       INTEGER    IPRINT,NGROUP,NBISO,NL,ISONAM(3,NBISO),ISONRF(3,NBISO),
      >           ISHINA(3,NBISO),NGF,NGFR
@@ -67,7 +67,7 @@
 *----
 *  LOCAL VARIABLES
 *----
-      CHARACTER  NAMDXS(NDPROC)*6,HNAMIS*12,HNISOR*12,HSHIR*8,
+      CHARACTER  NAMDXS(NDPROC)*8,HNAMIS*12,HNISOR*12,HSHIR*8,
      >           README*96,FMT*6
       INTEGER    IHGAR(24),IP1,NPROC,IUNIT,KDROPN,II,NEL,NGR,NGTHER,
      >           MXSCT,NGX,IG,ILOCX,ILOCY,ILOCS,NRDT,JSO,ITC,IDRES,IEL,
@@ -133,8 +133,9 @@
 *  DATA
 *----
       SAVE    NAMDXS
-      DATA    NAMDXS  /'NTOT0 ','TRANC ','NUSIGF','NFTOT ','CHI   ',
-     >                 'NU    ','NG    ','N2N   ','NGOLD ','NWT0  '/
+      DATA    NAMDXS  /'NTOT0   ','TRANC   ','NUSIGF  ','NFTOT   ',
+     >                 'CHI     ','NU      ','NG      ','N2N     ',
+     >                 'NGOLD   ','NWT0    ','H-FACTOR'/
 *----
 *  SCRATCH STORAGE ALLOCATION
 *   ITYPRO  cross section processed

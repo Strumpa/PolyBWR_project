@@ -1,0 +1,358 @@
+*************************************************************************************
+* Input file :  PSBT test case 1.2211    
+* Test for THM: DFM+PDROP
+*************************************************************************************
+
+LINKED_LIST Geom Matex Fmap Thm ;
+MODULE      GEO: RESINI: USPLIT: THM: GREP: UTL: DELETE: ABORT: END: ;
+
+PROCEDURE   assertS_low ;
+REAL        Mass := 6.464E-3 ; ! kg
+
+*----
+*  Calculation options
+*----
+REAL   Tfuel := 900.0 ; (*fuel temperature (K)*)
+REAL   Tcool := 543.15 ; (*coolant temperature (K)*)
+REAL   Dfuel := 9.7413951 ; (*fuel density (g/cc)*)
+REAL   dens_mod_0 := 0.65 ;
+REAL   powi := 0.09 ; ! 90.0 kW
+
+INTEGER MaxR := 10000 ;
+REAL maxh := 155.5 ;
+REAL dz := maxh 70.0 / ;
+
+REAL z1 := dz ;
+REAL z2 := z1 dz + ;
+REAL z3 := z2 dz + ;
+REAL z4 := z3 dz + ;
+REAL z5 := z4 dz + ;
+REAL z6 := z5 dz + ;
+REAL z7 := z6 dz + ;
+REAL z8 := z7 dz + ;
+REAL z9 := z8 dz + ;
+REAL z10 := z9 dz + ;
+REAL z11 := z10 dz + ;
+REAL z12 := z11 dz + ;
+REAL z13 := z12 dz + ;
+REAL z14 := z13 dz + ;
+REAL z15 := z14 dz + ;
+REAL z16 := z15 dz + ;
+REAL z17 := z16 dz + ;
+REAL z18 := z17 dz + ;
+REAL z19 := z18 dz + ;
+REAL z20 := z19 dz + ;
+REAL z21 := z20 dz + ;
+REAL z22 := z21 dz + ;
+REAL z23 := z22 dz + ;
+REAL z24 := z23 dz + ;
+REAL z25 := z24 dz + ;
+REAL z26 := z25 dz + ;
+REAL z27 := z26 dz + ;
+REAL z28 := z27 dz + ;
+REAL z29 := z28 dz + ;
+REAL z30 := z29 dz + ;
+REAL z31 := z30 dz + ;
+REAL z32 := z31 dz + ;
+REAL z33 := z32 dz + ;
+REAL z34 := z33 dz + ;
+REAL z35 := z34 dz + ;
+REAL z36 := z35 dz + ;
+REAL z37 := z36 dz + ;
+REAL z38 := z37 dz + ;
+REAL z39 := z38 dz + ;
+REAL z40 := z39 dz + ;
+REAL z41 := z40 dz + ;
+REAL z42 := z41 dz + ;
+REAL z43 := z42 dz + ;
+REAL z44 := z43 dz + ;
+REAL z45 := z44 dz + ;
+REAL z46 := z45 dz + ;
+REAL z47 := z46 dz + ;
+REAL z48 := z47 dz + ;
+REAL z49 := z48 dz + ;
+REAL z50 := z49 dz + ;
+REAL z51 := z50 dz + ;
+REAL z52 := z51 dz + ;
+REAL z53 := z52 dz + ;
+REAL z54 := z53 dz + ;
+REAL z55 := z54 dz + ;
+REAL z56 := z55 dz + ;
+REAL z57 := z56 dz + ;
+REAL z58 := z57 dz + ;
+REAL z59 := z58 dz + ;
+REAL z60 := z59 dz + ;
+REAL z61 := z60 dz + ;
+REAL z62 := z61 dz + ;
+REAL z63 := z62 dz + ;
+REAL z64 := z63 dz + ;
+REAL z65 := z64 dz + ;
+REAL z66 := z65 dz + ;
+REAL z67 := z66 dz + ;
+REAL z68 := z67 dz + ;
+REAL z69 := z68 dz + ;
+REAL z70 := z69 dz + ;
+
+REAL Pitch := 1.26 ;
+Geom := GEO: :: CAR3D 1 1 70
+ X- REFL X+ REFL Y- REFL Y+ REFL Z- REFL Z+ REFL
+ MESHX 0.0 <<Pitch>>
+ MESHY 0.0 <<Pitch>>
+ MESHZ 0.0 <<z1>> <<z2>> <<z3>> <<z4>> <<z5>> <<z6>> <<z7>> <<z8>> <<z9>> <<z10>>
+<<z11>> <<z12>> <<z13>> <<z14>> <<z15>> <<z16>> <<z17>> <<z18>> <<z19>> <<z20>>
+<<z21>> <<z22>> <<z23>> <<z24>> <<z25>> <<z26>> <<z27>> <<z28>> <<z29>> <<z30>>
+<<z31>> <<z32>> <<z33>> <<z34>> <<z35>> <<z36>> <<z37>> <<z38>> <<z39>> <<z40>>
+<<z41>> <<z42>> <<z43>> <<z44>> <<z45>> <<z46>> <<z47>> <<z48>> <<z49>> <<z50>>
+<<z51>> <<z52>> <<z53>> <<z54>> <<z55>> <<z56>> <<z57>> <<z58>> <<z59>> <<z60>>
+<<z61>> <<z62>> <<z63>> <<z64>> <<z65>> <<z66>> <<z67>> <<z68>> <<z69>> <<z70>>
+ MIX
+PLANE 1  1
+PLANE 2 SAME 1
+PLANE 3 SAME 1
+PLANE 4 SAME 1
+PLANE 5 SAME 1
+PLANE 6 SAME 1
+PLANE 7 SAME 1
+PLANE 8 SAME 1
+PLANE 9 SAME 1
+PLANE 10 SAME 1
+PLANE 11 SAME 1
+PLANE 12 SAME 1
+PLANE 13 SAME 1
+PLANE 14 SAME 1
+PLANE 15 SAME 1
+PLANE 16 SAME 1
+PLANE 17 SAME 1
+PLANE 18 SAME 1
+PLANE 19 SAME 1
+PLANE 20 SAME 1
+PLANE 21 SAME 1
+PLANE 22 SAME 1
+PLANE 23 SAME 1
+PLANE 24 SAME 1
+PLANE 25 SAME 1
+PLANE 26 SAME 1
+PLANE 27 SAME 1
+PLANE 28 SAME 1
+PLANE 29 SAME 1
+PLANE 30 SAME 1
+PLANE 31 SAME 1
+PLANE 32 SAME 1
+PLANE 33 SAME 1
+PLANE 34 SAME 1
+PLANE 35 SAME 1
+PLANE 36 SAME 1
+PLANE 37 SAME 1
+PLANE 38 SAME 1
+PLANE 39 SAME 1
+PLANE 40 SAME 1
+PLANE 41 SAME 1
+PLANE 42 SAME 1
+PLANE 43 SAME 1
+PLANE 44 SAME 1
+PLANE 45 SAME 1
+PLANE 46 SAME 1
+PLANE 47 SAME 1
+PLANE 48 SAME 1
+PLANE 49 SAME 1
+PLANE 50 SAME 1
+PLANE 51 SAME 1
+PLANE 52 SAME 1
+PLANE 53 SAME 1
+PLANE 54 SAME 1
+PLANE 55 SAME 1
+PLANE 56 SAME 1
+PLANE 57 SAME 1
+PLANE 58 SAME 1
+PLANE 59 SAME 1
+PLANE 60 SAME 1
+PLANE 61 SAME 1
+PLANE 62 SAME 1
+PLANE 63 SAME 1
+PLANE 64 SAME 1
+PLANE 65 SAME 1
+PLANE 66 SAME 1
+PLANE 67 SAME 1
+PLANE 68 SAME 1
+PLANE 69 SAME 1
+PLANE 70 SAME 1 ;
+
+Geom Matex := USPLIT: Geom :: NGRP 2 MAXR <<MaxR>>
+            NFUEL 1  FMIX  1
+;
+
+*--
+* Fuel map definition
+*--
+Fmap Matex := RESINI: Matex ::
+    ::: GEO: CAR3D 1 1 70
+ X- REFL X+ REFL Y- REFL Y+ REFL Z- REFL Z+ REFL
+ MESHX 0.0 <<Pitch>>
+ MESHY 0.0 <<Pitch>>
+ MESHZ 0.0 <<z1>> <<z2>> <<z3>> <<z4>> <<z5>> <<z6>> <<z7>> <<z8>> <<z9>> <<z10>>
+<<z11>> <<z12>> <<z13>> <<z14>> <<z15>> <<z16>> <<z17>> <<z18>> <<z19>> <<z20>>
+<<z21>> <<z22>> <<z23>> <<z24>> <<z25>> <<z26>> <<z27>> <<z28>> <<z29>> <<z30>>
+<<z31>> <<z32>> <<z33>> <<z34>> <<z35>> <<z36>> <<z37>> <<z38>> <<z39>> <<z40>>
+<<z41>> <<z42>> <<z43>> <<z44>> <<z45>> <<z46>> <<z47>> <<z48>> <<z49>> <<z50>>
+<<z51>> <<z52>> <<z53>> <<z54>> <<z55>> <<z56>> <<z57>> <<z58>> <<z59>> <<z60>>
+<<z61>> <<z62>> <<z63>> <<z64>> <<z65>> <<z66>> <<z67>> <<z68>> <<z69>> <<z70>>
+ MIX
+PLANE 1  1
+PLANE 2 SAME 1
+PLANE 3 SAME 1
+PLANE 4 SAME 1
+PLANE 5 SAME 1
+PLANE 6 SAME 1
+PLANE 7 SAME 1
+PLANE 8 SAME 1
+PLANE 9 SAME 1
+PLANE 10 SAME 1
+PLANE 11 SAME 1
+PLANE 12 SAME 1
+PLANE 13 SAME 1
+PLANE 14 SAME 1
+PLANE 15 SAME 1
+PLANE 16 SAME 1
+PLANE 17 SAME 1
+PLANE 18 SAME 1
+PLANE 19 SAME 1
+PLANE 20 SAME 1
+PLANE 21 SAME 1
+PLANE 22 SAME 1
+PLANE 23 SAME 1
+PLANE 24 SAME 1
+PLANE 25 SAME 1
+PLANE 26 SAME 1
+PLANE 27 SAME 1
+PLANE 28 SAME 1
+PLANE 29 SAME 1
+PLANE 30 SAME 1
+PLANE 31 SAME 1
+PLANE 32 SAME 1
+PLANE 33 SAME 1
+PLANE 34 SAME 1
+PLANE 35 SAME 1
+PLANE 36 SAME 1
+PLANE 37 SAME 1
+PLANE 38 SAME 1
+PLANE 39 SAME 1
+PLANE 40 SAME 1
+PLANE 41 SAME 1
+PLANE 42 SAME 1
+PLANE 43 SAME 1
+PLANE 44 SAME 1
+PLANE 45 SAME 1
+PLANE 46 SAME 1
+PLANE 47 SAME 1
+PLANE 48 SAME 1
+PLANE 49 SAME 1
+PLANE 50 SAME 1
+PLANE 51 SAME 1
+PLANE 52 SAME 1
+PLANE 53 SAME 1
+PLANE 54 SAME 1
+PLANE 55 SAME 1
+PLANE 56 SAME 1
+PLANE 57 SAME 1
+PLANE 58 SAME 1
+PLANE 59 SAME 1
+PLANE 60 SAME 1
+PLANE 61 SAME 1
+PLANE 62 SAME 1
+PLANE 63 SAME 1
+PLANE 64 SAME 1
+PLANE 65 SAME 1
+PLANE 66 SAME 1
+PLANE 67 SAME 1
+PLANE 68 SAME 1
+PLANE 69 SAME 1
+PLANE 70 SAME 1
+;
+!
+NXNAME '01' NYNAME  'A'
+NCOMB 1
+B-ZONE 1
+
+ADD-PARAM PNAME 'T-FUEL' PARKEY 'TFuel' GLOBAL
+ADD-PARAM PNAME 'T-COOL' PARKEY 'TCool' GLOBAL
+ADD-PARAM PNAME 'D-COOL' PARKEY 'DCool' GLOBAL
+BTYPE INST-BURN
+INST-BVAL CHAN 0.0
+REACTOR-POW <<powi>> AXIAL-PFORM 
+1.0000 1.0000 1.0000 1.0000 1.0000 1.0000 1.0000 1.0000 1.0000 1.0000
+1.0000 1.0000 1.0000 1.0000 1.0000 1.0000 1.0000 1.0000 1.0000 1.0000
+1.0000 1.0000 1.0000 1.0000 1.0000 1.0000 1.0000 1.0000 1.0000 1.0000
+1.0000 1.0000 1.0000 1.0000 1.0000 1.0000 1.0000 1.0000 1.0000 1.0000
+1.0000 1.0000 1.0000 1.0000 1.0000 1.0000 1.0000 1.0000 1.0000 1.0000
+1.0000 1.0000 1.0000 1.0000 1.0000 1.0000 1.0000 1.0000 1.0000 1.0000
+1.0000 1.0000 1.0000 1.0000 1.0000 1.0000 1.0000 1.0000 1.0000 1.0000
+SET-PARAM 'T-FUEL' <<Tfuel>>
+SET-PARAM 'T-COOL' <<Tcool>>
+SET-PARAM 'D-COOL' <<dens_mod_0>>
+FUEL WEIGHT <<Mass>>
+;
+
+*--
+* THM single-stage calculation
+*--
+Thm Fmap := THM: Fmap ::
+    EDIT 10
+    FLUID H2O
+    FPUISS 1.0
+    CRITFL 5.0E7
+    INLET 1.47E+07 (*Pa*) 568.55 (*K*)
+    INLET-Q 8.788E-05 (*m2*) 3.246E-01 (*inlet mass flow rate kg/s*)
+    ASSMB 1 0
+    RADIUS 0.0027115493728018247 0.0027116493728018247 4.74980E-03 0.00000E+00 (*m*)
+    RODMESH 8 11  
+    HGAP 10000.0
+    CONDC 0 21.5 KELVIN
+    CONDF 0 4.18 KELVIN
+    SAHA
+    PDROP 1
+    DFM 1 
+;
+
+UTL: Thm :: DIR DUMP ;
+
+assertS_low Thm :: 'AVG-T-FUEL' 1 1.761753E+03 1.0E-3 ;
+assertS_low Thm :: 'AVG-T-COOL' 1 5.914321E+02 1.0E-3 ;
+assertS_low Thm :: 'MIN-D-COOL' 1 5.766250E-01 1.0E-3 ;
+assertS_low Thm :: 'MAX-D-COOL' 1 7.342114E-01 1.0E-3 ;
+
+Thm := UTL: Thm :: STEP UP 'HISTORY-DATA' STEP UP 'TIMESTEP0000' STEP UP 'CHANNEL' STEP AT 1 DUMP ;
+REAL PINLET EPSOUT ;
+REAL DELTA ;
+REAL REFPVAL := 1.474836E+07 ;
+REAL REFEPSVAL := 8.383740E-02 ;
+
+GREP: Thm :: STEP UP 'HISTORY-DATA' STEP UP 'TIMESTEP0000' STEP UP 'CHANNEL'  
+            STEP AT 1 GETVAL 'PINLET' 1 1 1 >>PINLET<< ;
+
+EVALUATE DELTA := PINLET REFPVAL - REFPVAL / ABS ;
+IF DELTA 1.0E-2 < THEN
+  PRINT "TEST SUCCESSFUL; DELTA=" DELTA ;
+ELSE
+  PRINT "------------" ;
+  PRINT "TEST FAILURE" ;
+  PRINT "------------" ;
+  PRINT "REFERENCE=" REFPVAL " CALCULATED=" PINLET ;
+  ABORT: ;
+ENDIF ;
+
+GREP: Thm :: STEP UP 'HISTORY-DATA' STEP UP 'TIMESTEP0000' STEP UP 'CHANNEL'  
+            STEP AT 1 GETVAL 'EPSOUT' 1 1 1 >>EPSOUT<< ;
+
+EVALUATE DELTA := EPSOUT REFEPSVAL - REFEPSVAL / ABS ;
+IF DELTA 1.0E-2 < THEN
+  PRINT "TEST SUCCESSFUL; DELTA=" DELTA ;
+ELSE
+  PRINT "------------" ;
+  PRINT "TEST FAILURE" ;
+  PRINT "------------" ;
+  PRINT "REFERENCE=" REFEPSVAL " CALCULATED=" EPSOUT ;
+  ABORT: ;
+ENDIF ;
+
+ECHO "PSBT_1_2211 completed" ;
+END: ;

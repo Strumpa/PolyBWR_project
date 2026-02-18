@@ -1,5 +1,6 @@
 *DECK BRELLB
-      SUBROUTINE BRELLB(IPMAC1,NC,NG,NL,NMIX1,ENER,JXM,FHETXM,IPRINT)
+      SUBROUTINE BRELLB(IPMAC1,NC,NG,NL,NMIX1,IH,ENER,HFACT1,JXM,
+     1 FHETXM,IPRINT)
 *
 *-----------------------------------------------------------------------
 *
@@ -22,7 +23,9 @@
 * NL      Legendre order of TOT1 and SCAT1 arrays (=1 for isotropic
 *         scattering in LAB).
 * NMIX1   number of mixtures in the nodal calculation.
+* IH      H-FACTOR flag (=0: not used; =1: recovered).
 * ENER    energy limits.
+* HFACT1  H-FACTOR values.
 * JXM     left boundary currents.
 * FHETXM  left boundary fluxes.
 * IPRINT  edition flag.
@@ -38,8 +41,9 @@
 *  SUBROUTINE ARGUMENTS
 *----
       TYPE(C_PTR) IPMAC1
-      INTEGER NC,NG,NL,NMIX1,IPRINT
-      REAL ENER(NG+1),JXM(NMIX1,NG,NC),FHETXM(NMIX1,NG,NL,NC)
+      INTEGER NC,NG,NL,NMIX1,IH,IPRINT
+      REAL ENER(NG+1),HFACT1(NMIX1,NG,NC),JXM(NMIX1,NG,NC),
+     1 FHETXM(NMIX1,NG,NL,NC)
 *----
 *  LOCAL VARIABLES
 *----
@@ -145,6 +149,10 @@
         CALL LCMPUT(KPMAC1,'NJJS00',NMIX1,1,NJJ)
         CALL LCMPUT(KPMAC1,'IJJS00',NMIX1,1,IJJ)
         CALL LCMPUT(KPMAC1,'IPOS00',NMIX1,1,IPOS)
+        IF(IH.EQ.1) THEN
+          WORK(1)=0.5*(HFACT1(IBM,IGR,1)+HFACT1(IBM,IGR,2))
+          CALL LCMPUT(KPMAC1,'H-FACTOR',NMIX1,2,WORK)     
+        ENDIF
       ENDDO
 *----
 *  SCRATCH STORAGE DEALLOCATION

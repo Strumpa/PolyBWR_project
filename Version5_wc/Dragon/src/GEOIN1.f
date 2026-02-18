@@ -51,6 +51,7 @@
       REAL, ALLOCATABLE, DIMENSION(:) :: MESH,CYL,CENT,XR0,RR0,ANG,
      1 ARPIN,RS,FRACT,POURC,PROCE
       INTEGER IMIXHT,NRINGH,NZ,NAP1,NSETM,KREG,JREG,ITRI,IAN
+      INTEGER MRGHT
 *----
 *  Data
 *----
@@ -84,6 +85,7 @@
       MINICO=1
       NPIN=0
       IRLYZ=0
+      MRGHT=0
       LR=0
       LX=0
       LY=0
@@ -473,8 +475,8 @@
      5    (CARLIR(2:4).EQ.'PIN').OR.(CARLIR.EQ.'BIHET').OR.
      6    (CARLIR.EQ.'POURCE').OR.(CARLIR.EQ.'PROCEL').OR.
      7    (CARLIR.EQ.'SECT').OR.(CARLIR.EQ.'RADIUS').OR.
-     8    (CARLIR.EQ.'HMIX').OR.(CARLIR.EQ.';').OR.
-     9    (CARLIR.EQ.':::')) GO TO 90
+     8    (CARLIR.EQ.'HMIX').OR.(CARLIR.EQ.'HTMERGE').OR.
+     9    (CARLIR.EQ.';').OR.(CARLIR.EQ.':::')) GO TO 90
            IF(I.GT.LREG) CALL XABORT('GEOIN1: MIX/CELL INDEX OVERFLO'
      1     //'W.')
            DO 80 J=1,I-1
@@ -525,6 +527,7 @@
         ENDIF
 *-- Begin symmetric mixtures for HEXT, HEXTZ, HEXTCEL and HEXTCELZ
         IF(IMIXHT .GT. 0) THEN
+          ISTATE(19)=0
           IF(I-1 .NE. LREG) THEN
             LTOT=.FALSE.
             NRINGH=LX
@@ -536,6 +539,7 @@
 *  Mixture given per hexagonal rings
 *  create compatible complete mix array 
 *----
+              ISTATE(19)=2
               KREG=LREG
               DO IZ=NZ,1,-1
                 DO IS=6,1,-1
@@ -558,6 +562,7 @@
 *  Mixture given per hexagonal rings and per sector
 *  Create compatible complete mix array 
 *----
+              ISTATE(19)=1
               KREG=LREG
               DO IZ=NZ,1,-1
                 DO IS=6,1,-1
@@ -884,6 +889,11 @@
   140   CONTINUE
         CALL LCMPUT(IPLIST,CARLIR,LMESH,1,IMESH)
         DEALLOCATE(IMESH)
+      ELSE IF(CARLIR.EQ.'HTMERGE') THEN
+        CALL REDGET(ITYPLU,INTLIR,REALIR,CARLIR,DBLLIR)
+        IF(ITYPLU.NE.1) CALL XABORT('GEOIN1: HTMERGE LEVEL EXPECTED.')
+        IF((INTLIR.LT.0).OR.(INTLIR.GT.2)) INTLIR=0
+        MRGHT=INTLIR
       ELSE IF(CARLIR.EQ.'MERGE') THEN
 *       INPUT CELL-MERGING ITYPLUES.
         ISTATE(10)=1
@@ -993,19 +1003,21 @@
           IF(ITYPLU.NE.2) CALL XABORT('GEOIN1: REAL DATA EXPECTED.(7)')
           ARPIN(1)=REALIR
           CALL REDGET(ITYPLU,INTLIR,REALIR,CARLIR,DBLLIR)
-          IF(ITYPLU.NE.2) THEN
+          IF(ITYPLU.EQ.3) THEN
             CALL LCMPUT(IPLIST,NAMT,1,2,ARPIN)
             DEALLOCATE(ARPIN)
             GO TO 60
+          ELSE IF(ITYPLU.EQ.1) THEN
+            CALL XABORT('GEOIN1: REAL OR INTEGER DATA EXPECTED.(7.1)')
           ENDIF
           IF(NPIN.EQ.1) CALL XABORT('GEOIN1: Only one APIN or RPIN per'
      1    //'mitted.')
           ARPIN(2)=REALIR
-           DO IPIN=2,NPIN-1
+          DO IPIN=3,NPIN
             CALL REDGET(ITYPLU,INTLIR,REALIR,CARLIR,DBLLIR)
             IF(ITYPLU.NE.2) CALL XABORT('GEOIN1: REAL DATA EXPECTED.'
-     1        //'(8)')
-            ARPIN(IPIN+1)=REALIR
+     1       //'(8)')
+            ARPIN(IPIN)=REALIR
           ENDDO
           CALL LCMPUT(IPLIST,NAMT,NPIN,2,ARPIN)
           DEALLOCATE(ARPIN)
@@ -1323,6 +1335,7 @@
       ISTATE(4)=LY
       ISTATE(5)=LZ
       ISTATE(6)=LREG
+      ISTATE(19)=MIN(MRGHT,ISTATE(19))
       CALL LCMPUT(IPLIST,'STATE-VECTOR',NSTATE,1,ISTATE)
       CALL LCMPUT(IPLIST,'NCODE',6,1,NCODE)
       CALL LCMPUT(IPLIST,'ZCODE',6,2,ZCODE)
@@ -1338,7 +1351,7 @@
       ENDIF
       IF(IMPX.GT.1) THEN
         WRITE (IOUT,520) ISTATE(1),TYPE(ISTATE(1)),(ISTATE(I),I=2,12)
-        WRITE (IOUT,525) (ISTATE(I),I=13,15),ISTATE(18)
+        WRITE (IOUT,525) (ISTATE(I),I=13,15),ISTATE(18),ISTATE(19)
       ENDIF
       IF((ISTATE(8).EQ.1).AND.(ISTATE(9).EQ.0)) CALL XABORT('GEOIN1: '
      1 //'CELL OPTION ACTIVATED WITHOUT SUB-GEOMETRIES.')
@@ -1367,7 +1380,8 @@
      1 7H ICLUST,I6,28H   (NUMBER OF CLUSTER RINGS)/
      2 7H ISECT ,I6,26H   (TYPE OF SECTORIZATION)/
      3 7H JSECT ,I6,37H   (NUMBER OF NON-SECTORIZED ANNULII)/
-     4 7H IPIN  ,I6,24H   (PIN LOCATION OPTION))
+     4 7H IPIN  ,I6,24H   (PIN LOCATION OPTION)/
+     5 7H HTMRG ,I6,31H   (MERGE OPTION FOR TRIANGLES))
   530 FORMAT(' ***** Error in GEOIN1 *****'/
      1       ' Initial number of mixtures ',I10/
      2       ' Cannot be repeated an integer number of times',

@@ -1,5 +1,6 @@
 *DECK TRIRCA
-      SUBROUTINE TRIRCA(IPMACR,IPMACP,NGRP,NBMIX,NANI,LDIFF,IL,IPR,RCAT)
+      SUBROUTINE TRIRCA(IPMACR,IPMACP,NGRP,NBMIX,NANI,NW,LDIFF,IL,IPR,
+     1 RCAT)
 *
 *-----------------------------------------------------------------------
 *
@@ -22,6 +23,7 @@
 * NGRP    number of energy groups.
 * NBMIX   total number of material mixtures in the macrolib.
 * NANI    maximum scattering order recovered from tracking and macrolib.
+* NW      maximum Legendre order (0 or 1) for the total cross sections.
 * LDIFF   flag set to .true. to use 1/3D as 'NTOT1' cross sections.
 * IL      scattering Legendre order.
 * IPR     type of assembly:
@@ -41,7 +43,7 @@
 *  SUBROUTINE ARGUMENTS
 *----
       TYPE(C_PTR) IPMACR,IPMACP
-      INTEGER NGRP,NBMIX,NANI,IL,IPR
+      INTEGER NGRP,NBMIX,NANI,NW,IL,IPR
       LOGICAL LDIFF
       DOUBLE PRECISION RCAT(NGRP,NGRP,NBMIX)
 *----
@@ -59,7 +61,7 @@
 *----
       ALLOCATE(IJJ(NBMIX),NJJ(NBMIX),IPOS(NBMIX))
       ALLOCATE(SGD(NBMIX,3),WORK(NBMIX*NGRP))
-*      
+*
       JPMACR=LCMGID(IPMACR,'GROUP')
       JPMACP=LCMGID(IPMACP,'GROUP')
       WRITE(CM,'(I2.2)') IL-1
@@ -77,6 +79,10 @@
       WRITE(TEXT12,'(4HNTOT,I1)') MIN(IL-1,9)
       CALL LCMLEN(KPMACP,TEXT12,LENGT,ITYLCM)
       CALL LCMLEN(KPMACP,'NTOT1',LENGT1,ITYLCM)
+      IF((LENGT1.GT.0).AND.(NW.EQ.0)) THEN
+        WRITE(6,'(49H TRIRCA: **WARNING** YOU HAVE NW=0 AND NTOT1 INFO,
+     1  27HRMATION IS PRESENT IN GROUP,I4,1H.)') IGR
+      ENDIF
       IF((IL.EQ.1).AND.(LENGT.NE.NBMIX)) CALL XABORT('TRIRCA: NO NTOT0'
      1 //' CROSS SECTIONS.')
       IF(MOD(IL-1,2).EQ.0) THEN
@@ -128,7 +134,9 @@
             ENDIF
             GO TO 100
          ELSE
-            IF(LENGT.EQ.NBMIX) THEN
+            IF(NW.EQ.0) THEN
+               CALL LCMGET(KPMACP,'NTOT0',SGD(1,2))
+            ELSE IF(LENGT.EQ.NBMIX) THEN
                CALL LCMGET(KPMACP,TEXT12,SGD(1,2))
             ELSE IF(LENGT1.EQ.NBMIX) THEN
                CALL LCMGET(KPMACP,'NTOT1',SGD(1,2))

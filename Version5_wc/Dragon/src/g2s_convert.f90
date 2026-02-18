@@ -306,7 +306,7 @@ subroutine g2s_convert(impx,ipAl,ipZa,ipSal)
         tabSegArc(i)%b=real(anglEnd)
         tabSegArc(i)%a=real(anglStart)
       else
-        write(hsmg,'(35hg2s_convert: invalid element type=,i3,1h.)') itype
+        write(hsmg,'(34hg2s_convert: invalid element type=,i3,1h.)') itype
         call XABORT(hsmg)
       endif
       tabSegArc(i)%nodeg=nplus
@@ -377,7 +377,6 @@ subroutine g2s_convert(impx,ipAl,ipZa,ipSal)
     read(ipAl,'(10i7)',end=100) (idummy, i=1,nbNode)
     read(ipAl,'(a12)') text12
     if (text12 == ' ') read(ipAl,'(a12)') text12
-      print *,'read=',text12
     if (text12 /= ' Fin:') call XABORT('g2s_convert: keyword Fin: expected.')
     !
     ! set nbfold

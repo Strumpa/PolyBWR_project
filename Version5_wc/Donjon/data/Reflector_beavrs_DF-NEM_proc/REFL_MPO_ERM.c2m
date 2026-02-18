@@ -8,7 +8,7 @@
 * CALL      :                                                                  *
 *  MpoRefl := REFL_MPO_ERM Geom FVol Param1 Param2 :: <<nameFeed>>             *
 *                  <<nameRefl>> <<Palier>> <<htype>> <<LibType>> <<NuclData>>  *
-*                  <<OptNoal>> <<OptSS>> ;                                     *
+*                  <<OptNoal>> <<nbZones>> ;                                   *
 *                                                                              *
 *  Input objects:                                                              *
 *    Geom    : macro-geometry LCM object                                       *
@@ -24,6 +24,7 @@
 *              set in the .access script file                                  *
 *    OptNoal : 'ALBE'/'NOAL' compute albedo/force right albedo to 0            *
 *    OptSS   : 'TONE'/'NOSS' do/don't activate self-shielding of Fe56 and Cr52 *
+*    nbZones : number of zones in the reflector                                *
 *                                                                              *
 *  Output objects:                                                             *
 *    MpoRefl : reflector MPO file                                              *
@@ -35,7 +36,8 @@ PARAMETER MpoRefl Geom FVol Param1 Param2 ::
 STRING nameFeed nameRefl Palier htype LibType NuclData OptNoal OptSS ;
   ::  >>nameFeed<< >>nameRefl<< >>Palier<< >>htype<< >>LibType<< >>NuclData<<
       >>OptNoal<< >>OptSS<< ;
-PROCEDURE GetMolarMass MetalMix CreaDilut assertS2 ;
+INTEGER nbZones ; :: >>nbZones<< ;
+PROCEDURE GetMolarMass MetalMix CreaDilut assertS_low ;
 LINKED_LIST
   DONNEES Geom_refl LibDilut MACRO LibFuel LibFuel_1 LibFuel_2 MolarMasses FeNat
   CrNat SnNat NiNat ZrNat TiNat SiNat BNat AgNat CdNat SNat GdNat Zirc4 Incon SS304
@@ -105,8 +107,6 @@ TRACK_refl := SNT: Geom_refl ::
   EDIT 1
   MAXR 100000
   SN 16 SCAT 2 ;
-
-INTEGER nbZones := 7 ;
 
 REAL dModBas := 0.753 ; ! Densite du moderateur en entree du coeur
 REAL TMilBas := 286.4 ; ! Temp du reflecteur bas (soit Tmod,entree)
@@ -270,8 +270,8 @@ WHILE IndexCB iBoreMax < DO
 
       ! Define MIX 1 in reflector macrolib
       LibDilut := CreaDilut LibDilut MolarMasses BNat Zirc4 Incon SS304 ::
-      <<dMod>> <<premierMIX>> <<TMil>> <<CB>> <<fvMod>> <<fvZr4>> <<fvInc>>
-      <<fvSS304>> <<NuclData>> <<LibType>> ;
+      <<dMod>> <<nbZones>> <<premierMIX>> <<TMil>> <<CB>> <<fvMod>> <<fvZr4>>
+      <<fvInc>> <<fvSS304>> <<NuclData>> <<LibType>> ;
 
       EVALUATE iZone := iZone 1 + ;
     ENDWHILE ;
@@ -294,13 +294,22 @@ WHILE IndexCB iBoreMax < DO
     !----------------------------------------------------------
     SYSTEM := ASM: MACRO TRACK :: ARM ;
     FLUX := FLU: SYSTEM MACRO TRACK :: EDIT 0 TYPE K P1 HETE ;
-
     GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 >>Keff<< ;
     ECHO "IndexCB=" IndexCB "CASE=" CASE "SN Keff=" Keff ;
 
-    OUT := EDI: MACRO TRACK FLUX Geom ::
-       EDIT 3 UPS MERGE MIX 1 2 3 3 3 3 4 0
-       COND 0.625 GOLVER SAVE ;
+    IF nbZones 5 = THEN
+      OUT := EDI: MACRO TRACK FLUX Geom ::
+          EDIT 3 UPS MERGE MIX 1 2 3 3 4 0
+          COND 0.625 GOLVER SAVE ;
+    ELSEIF nbZones 6 = THEN
+      OUT := EDI: MACRO TRACK FLUX Geom ::
+          EDIT 3 UPS MERGE MIX 1 2 3 3 3 4 0
+          COND 0.625 GOLVER SAVE ;
+    ELSEIF nbZones 7 = THEN
+      OUT := EDI: MACRO TRACK FLUX Geom ::
+          EDIT 3 UPS MERGE MIX 1 2 3 3 3 3 4 0
+          COND 0.625 GOLVER SAVE ;
+    ENDIF ;
 
     IF CASE 1 = THEN
       EVALUATE SNKeff1 := Keff ;
@@ -364,11 +373,11 @@ WHILE IndexCB iBoreMax < DO
     IF CASE 1 = THEN
       EVALUATE PCM := Keff SNKeff1 - 1.E5 * ;
       ECHO "...IndexCB=" IndexCB "CASE=1 SN Keff=" SNKeff1 "macro Keff=" Keff "(" PCM " pcm)" ;
-      assertS2 MACR_FLUX :: 'K-EFFECTIVE' 1 <<SNKeff1>> ;
+      assertS_low MACR_FLUX :: 'K-EFFECTIVE' 1 <<SNKeff1>> 1.0E-4 ;
     ELSEIF CASE 2 = THEN
       EVALUATE PCM := Keff SNKeff2 - 1.E5 * ;
       ECHO "...IndexCB=" IndexCB "CASE=2 SN Keff=" SNKeff2 "macro Keff=" Keff "(" PCM " pcm)" ;
-      assertS2 MACR_FLUX :: 'K-EFFECTIVE' 1 <<SNKeff2>> ;
+      assertS_low MACR_FLUX :: 'K-EFFECTIVE' 1 <<SNKeff2>> 1.0E-4 ;
     ENDIF ;
 
     MACRO MACR_FLUX := DELETE: MACRO MACR_FLUX ;

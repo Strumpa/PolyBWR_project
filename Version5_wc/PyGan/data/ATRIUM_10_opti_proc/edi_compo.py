@@ -104,6 +104,7 @@ def ediCompo(mix_numbering_option, flux_lcm, self_shielded_microlib, track_lcm, 
         
         return compo_lcm
 
+
 def fill_edi_compo_proc(proc_name, mix_numbering_option, mix_connectivity_dict, iso_list):
     """
     Function used to fill the prcedure calling EDI: and COMPO: modules for rates condensation / homogenization.
@@ -157,13 +158,26 @@ def fill_edi_compo_proc(proc_name, mix_numbering_option, mix_connectivity_dict, 
         "* --------------------------------\n"
         f"*    EDI: CALL FOR EDIHOM_295\n"
         "* --------------------------------\n"
-        f"{fill_EDI_call('EDIHOM_295', None, 'ALL', iso_list, mix_connectivity_dict)}\n" # Fill by retrieving energy mesh from ENE_MESH_handling
+        f"{fill_EDI_call('EDIHOM_295', None, 'ALL', iso_list, mix_connectivity_dict)}\n"
         f"* --------------------------------\n"
         f"*    COMPO: CALL FOR EDIHOM_295\n"
         "* --------------------------------\n"
         f"{fill_COMPO_call('EDIHOM_295')}\n"
         "* --------------------------------\n"
         f"EDIRATES := DELETE: EDIRATES ;\n"
+        
+        "* --------------------------------\n"
+        f"*    EDI: CALL FOR U238_295\n"
+        "* --------------------------------\n"
+        f"{fill_EDI_call('U238_295', None, 'numbering', ['U238'], mix_connectivity_dict)}\n"
+        f"* --------------------------------\n"
+        f"*    COMPO: CALL FOR U238_295\n"
+        "* --------------------------------\n"
+        f"{fill_COMPO_call('U238_295')}\n"
+        "* --------------------------------\n"
+        f"EDIRATES := DELETE: EDIRATES ;\n"
+        
+        
         "* --------------------------------\n"
         f"*    EDI: CALL FOR REGI_1g\n"
         f"* --------------------------------\n"
@@ -197,6 +211,7 @@ def fill_edi_compo_proc(proc_name, mix_numbering_option, mix_connectivity_dict, 
     proc_file.close()
     return
 
+
 def initialize_cpo(mix_numbering_option, list_isos):
     """
     Initialize COMPO object with specified directories through STEP UP "DIRNAME" keyword.
@@ -219,8 +234,12 @@ def initialize_cpo(mix_numbering_option, list_isos):
         f"      ISOT {len(list_isos)} {iso_formatted}\n"
         "   INIT\n"
         "   STEP UP 'EDIHOM_295'\n"
-        "       COMM 'Reaction rates - Homogenized over all fuel cells, 295g' ENDC\n"
+        "       COMM 'Reaction rates - Homogenized, 295g' ENDC\n"
         f"      ISOT {len(list_isos)} {iso_formatted}\n"
+        "   INIT\n"
+        "   STEP UP 'U235_295'\n"
+        "       COMM 'U238 rates - Homogenized over all fuel cells, 295g' ENDC\n"
+        f"      ISOT 1 U238\n"
         "   INIT\n"
         f"   STEP UP '{DIRNAME}_1g'\n"
         f"       COMM 'Reaction rates - Condensed, {comment}' ENDC\n"
@@ -329,3 +348,72 @@ def fill_COMPO_call(DIRNAME):
     ";\n"
     )
     return compo_call.strip()
+
+
+def condense295To26Groups(flux_lcm_lvl1, self_shielded_microlib, track_lcm_lvl1, track_binary_lvl1):
+    """
+    Function to condense reaction rates from 295 groups to 26 groups using EDI: module.
+    """
+    # Initialize the LIFO stack for the condensation process
+    ipLifo = lifo.new()
+    
+    # Push necessary data onto the LIFO stack
+    """
+    PARAMETER LIBEQ  FLUXLVL1 LIBRARY2 TRACKLVL1 ::  
+    ::: LINKED_LIST LIBEQ  ; 
+    ::: LINKED_LIST FLUXLVL1  ;
+    ::: LINKED_LIST LIBRARY2  ;
+    ::: LINKED_LIST TRACKLVL1  ;
+    ::: SEQ_BINARY TRACKBINARY  ;
+   ;
+    """
+    ipLifo.pushEmpty("LIBEQ", "LCM")
+    ipLifo.push(flux_lcm_lvl1)
+    ipLifo.push(self_shielded_microlib)
+    ipLifo.push(track_lcm_lvl1)
+    ipLifo.push(track_binary_lvl1)
+
+    # Create a cle2000 object to handle the EDI: procedure call for condensation
+    compo_proc = cle2000.new('EDICOND', ipLifo, 1)
+    
+    # Execute the condensation operation
+    compo_proc.exec()
+
+    # Recover the results from the LIFO stack
+    ipLifo.lib()
+    lib_26g = ipLifo.node('LIBEQ')
+    print("Condensation to 26 groups completed.")
+    return lib_26g
+
+
+def saveLVL1Compo(flux_lcm_lvl1, self_shielded_microlib, track_lcm_lvl1, name_compo):
+    """
+    Function to save a COMPO: file from the 1-level flux calculation. 
+    
+    """
+    
+    ipLifo = lifo.new()
+    # Push necessary data onto the LIFO stack
+    """
+    
+    PARAMETER FLUX LIBRARY2 TRACK ::
+    ::: LINKED_LIST FLUX ;
+    ::: LINKED_LIST LIBRARY2 ;
+    ::: LINKED_LIST TRACK ; ;
+    STRING name_cpo save_opt ;
+    :: >>name_cpo<< >>save_opt<< ; ! save option  e.g. 'SAVE' or 'NOSAVE'
+    """
+    
+    ipLifo.push(flux_lcm_lvl1)
+    ipLifo.push(self_shielded_microlib)
+    ipLifo.push(track_lcm_lvl1)
+    ipLifo.push(name_compo)
+    ipLifo.push("SAVE")  # Save option for the composition data
+    # Create a cle2000 object to handle the EDI: and COMPO: procedure call
+    edi_compo_proc = cle2000.new('EDICPO_LVL1', ipLifo, 1)
+    # Execute the EDI_COMPO procedure
+    edi_compo_proc.exec()
+    # Recover the results from the LIFO stack
+    ipLifo.lib()
+    return
+

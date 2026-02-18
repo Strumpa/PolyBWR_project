@@ -3,6 +3,7 @@
 *  Auteur        : R. Vallerent
 *  PWR branch calculation and production of a Multicompo
 *  Le Tellier extended type
+*  Limit the maximum burnup to 39000 MWd/tonne to reduce multicompo size
 *----
 *  Define STRUCTURES and MODULES used
 *----
@@ -36,9 +37,9 @@ STRING Library := "DLIBJ3_281" ;
 *----
 *  Calculation data
 *----
-REAL Kinf1 Kinf2 Keff2 B2 ;
+REAL kinf Kinf1 Kinf2 Keff2 B2 ;
 INTEGER iBoreMax := 5 ;
-INTEGER iAutopMax := 9 ;
+INTEGER iAutopMax := 6 ;
 INTEGER iTfMax := 5 ;
 INTEGER iTcaMax := 3 ;
 INTEGER iDcaMax := 4 ;
@@ -80,7 +81,7 @@ ENDIF ;
 
 INTEGER maxstep ;
 IF Fuel "MOX" = THEN
-  EVALUATE maxstep := 55 ;
+  EVALUATE maxstep := 50 ;
   DONNEES := UTL: ::
     CREA
       burn <<maxstep>> =
@@ -92,11 +93,10 @@ IF Fuel "MOX" = THEN
         20000.0   21000.0   22000.0   23000.0   24000.0   25000.0
         26000.0   27000.0   28000.0   29000.0   30000.0   31000.0
         32000.0   33000.0   34000.0   35000.0   36000.0   37000.0
-        38000.0   39000.0   40000.0   50000.0   60000.0   70000.0
-        80000.0
+        38000.0   39000.0
     ;
 ELSEIF Fuel "UOX" = THEN
-  EVALUATE maxstep := 67 ;
+  EVALUATE maxstep := 63 ;
   DONNEES := UTL: ::
     CREA
       burn <<maxstep>> =
@@ -108,10 +108,9 @@ ELSEIF Fuel "UOX" = THEN
          9000.0    9500.0   10000.0   10500.0   11000.0   11500.0
         12000.0   12500.0   13000.0   13500.0   14000.0   14500.0
         15000.0   15500.0   16000.0   16500.0   17000.0   17500.0
-        18000.0   18500.0   19000.0   19500.0   20000.0   22000.0
-        24000.0   26000.0   28000.0   30000.0   32000.0   34000.0
-        36000.0   38000.0   40000.0   50000.0   60000.0   70000.0
-        80000.0
+        18000.0   18500.0   19000.0   19500.0   20000.0   21000.0
+        23000.0   25000.0   27000.0   29000.0   31000.0   33000.0
+        35000.0   37000.0   39000.0 
     ;
 ELSE
   ECHO "Fuel incorrect" ;
@@ -123,8 +122,7 @@ DONNEES := UTL: DONNEES ::
           0.0     500.0    1000.0    1500.0    2000.0
   CREA
     autop <<iAutopMax>> =
-          0.0    4000.0    8000.0   12000.0   24000.0   36000.0
-      40000.0   60000.0   80000.0
+          0.0    4000.0    8000.0   13000.0   25000.0   39000.0
   CREA
     tf <<iTfMax>> =
         550.0     800.0   1150.0   1500.0     2000.0
@@ -256,6 +254,10 @@ ENDIF ;
 ************************************************************************
 *  BEGIN LIBRARY READING                                               *
 ************************************************************************
+ECHO "nominal fuel temperature=" temp_comb_0 ;
+ECHO "nominal coolant temperature=" temp_mode_0 ;
+ECHO "nominal coolant density=" dens_mod_0 ;
+ECHO "nominal boron concentration=" pbore_0 ;
 IF TypeCal "Public" = THEN
   IF Fuel "MOX" = THEN
     LIBRARY := Mix_MOX_32 ::
@@ -326,7 +328,7 @@ EDIOBJ := DELETE: EDIOBJ ;
 ************************************************************************
 WHILE istep maxstep < DO
   EVALUATE istep := istep 1 + ;
-  ECHO "istep vaut" istep "sur" maxstep ;
+  ECHO "nominal burnup istep =" istep "over" maxstep ;
 
   EVALUATE BUbeg Tbeg := BUend Tend ;
   GREP: DONNEES :: GETVAL 'burn' <<istep>> >>BUend<< ;
@@ -349,12 +351,6 @@ WHILE istep maxstep < DO
     BURN164 LIBRARY TRACKSS TRACKN1 TRACKN2 TRKFILN2
     :: <<istep>> <<Fuel>> <<NbRegions>> <<BUend>> <<BUnextSS>>
        <<Fuelpwr>> ;
-  IF BUend BUnextSS - ABS 1E-5 < THEN
-   EVALUATE iautop := iautop 1 + ;
-   IF iautop iAutopMax <= THEN
-      GREP: DONNEES :: GETVAL 'autop' <<iautop>> >>BUnextSS<< ;
-   ENDIF ;
-  ENDIF ;
 
 ************************************************************************
 *  2-GROUPS ENERGY CONDENSATION AND HOMOGENISATION                     *
@@ -365,33 +361,49 @@ WHILE istep maxstep < DO
 ************************************************************************
 *  MULTICOMPO FEEDING                                                  *
 ************************************************************************
-  IF TypeCompo "PinByPin" = THEN
-    COMPO := COMPO: COMPO EDIOBJ BURN164 LIBRARY ::
-      EDIT 2
-      STEP UP 'EDI2A'
-      'ppmBore' <<pbore_0>>
-      'DCA' <<dens_mod_0>>
-      SET <<Tend>> DAY ;
-  ELSEIF TypeCompo "Assembly" = THEN
-    COMPO := COMPO: COMPO EDIOBJ BURN164 LIBRARY ::
-      EDIT 2
-      STEP UP 'EDI2B'
-      'ppmBore' <<pbore_0>>
-      'DCA' <<dens_mod_0>>
-      SET <<Tend>> DAY ;
-  ELSE
-    ECHO "TypeCompo incorrect" ;
-    ABORT: ;
+  IF BUend BUnextSS - ABS 1E-5 < THEN
+    ECHO "Multicompo feeding" ;
+    IF TypeCompo "PinByPin" = THEN
+      COMPO := COMPO: COMPO EDIOBJ BURN164 LIBRARY ::
+        EDIT 2
+        STEP UP 'EDI2A'
+        'ppmBore' <<pbore_0>>
+        'DCA' <<dens_mod_0>>
+        SET <<Tend>> DAY ;
+    ELSEIF TypeCompo "Assembly" = THEN
+      COMPO := COMPO: COMPO EDIOBJ BURN164 LIBRARY ::
+        EDIT 2
+        STEP UP 'EDI2B'
+        'ppmBore' <<pbore_0>>
+        'DCA' <<dens_mod_0>>
+        SET <<Tend>> DAY ;
+    ELSE
+      ECHO "TypeCompo incorrect" ;
+      ABORT: ;
+    ENDIF ;
   ENDIF ;
   EDIOBJ := DELETE: EDIOBJ ;
 
+  IF BUend BUnextSS - ABS 1E-5 < THEN
+   EVALUATE iautop := iautop 1 + ;
+   IF iautop iAutopMax <= THEN
+      GREP: DONNEES :: GETVAL 'autop' <<iautop>> >>BUnextSS<< ;
+   ENDIF ;
+  ENDIF ;
+
 ENDWHILE ; ! reference burnup loop
 IF Fuel "MOX" = THEN
-  assertS FLUX2 :: K-INFINITY 1 0.8468311 ;
+  GREP: FLUX2 :: GETVAL 'K-INFINITY' 1 >>kinf<< ;
+  ECHO "MOX Kinf=" kinf ;
+  assertS FLUX2 :: K-INFINITY 1 0.9599275 ;
 ELSEIF Fuel "UOX" = NbRegions 20 = * THEN
-  assertS FLUX2 :: K-INFINITY 1 0.7621447 ;
+  GREP: FLUX2 :: GETVAL 'K-INFINITY' 1 >>kinf<< ;
+  ECHO "UOX Kinf(20 regions)=" kinf ;
+  assertS FLUX2 :: K-INFINITY 1 0.9213967 ;
 ELSEIF Fuel "UOX" = NbRegions 32 = * THEN
-  assertS FLUX2 :: K-INFINITY 1 0.7621409 ;
+  GREP: FLUX2 :: GETVAL 'K-INFINITY' 1 >>kinf<< ;
+  ECHO "UOX Kinf(32 regions)=" kinf ;
+  assertS FLUX2 :: K-INFINITY 1 0.9213964 ;
 ENDIF ;
 
 LIBRARY LIBRARY2 LIBEQ := DELETE: LIBRARY LIBRARY2 LIBEQ ;
@@ -409,7 +421,7 @@ ECHO "$$$ Boron loop" ;
 INTEGER iBoreStep := 0 ;
 WHILE iBoreStep iBoreMax < DO
   EVALUATE iBoreStep := iBoreStep 1 + ;
-  ECHO "iBoreStep vaut" iBoreStep "sur" iBoreMax ;
+  ECHO "iBoreStep =" iBoreStep "over" iBoreMax ;
   GREP: DONNEES :: GETVAL 'ppmBore' <<iBoreStep>> >>pbore<< ;
 ************************************************************************
 *  BEGIN LIBRARY READING                                               *
@@ -448,7 +460,7 @@ ECHO "BUnextSS=" BUnextSS ;
 ************************************************************************
 WHILE istep maxstep < DO
   EVALUATE istep := istep 1 + ;
-  ECHO "branch istep vaut" istep "sur" maxstep ;
+  ECHO "branch burnup istep =" istep "over" maxstep ;
 
   EVALUATE BUbeg Tbeg := BUend Tend ;
   GREP: DONNEES :: GETVAL 'burn' <<istep>> >>BUend<< ;
@@ -482,12 +494,6 @@ WHILE istep maxstep < DO
     :: <<istep>> <<Fuel>> <<NbRegions>> <<BUend>> <<BUnextSS>>
        <<Fuelpwr>> ;
   ENDIF ;
-  IF BUend BUnextSS - ABS 1E-5 < THEN
-   EVALUATE iautop := iautop 1 + ;
-   IF iautop iAutopMax <= THEN
-      GREP: DONNEES :: GETVAL 'autop' <<iautop>> >>BUnextSS<< ;
-   ENDIF ;
-  ENDIF ;
 
 ************************************************************************
 *  2-GROUPS ENERGY CONDENSATION AND HOMOGENISATION                     *
@@ -498,24 +504,34 @@ WHILE istep maxstep < DO
 ************************************************************************
 *  MULTICOMPO FEEDING                                                  *
 ************************************************************************
-  IF pbore pbore_0 = THEN
-    ECHO "Duplicate branch calculation at pbore=" pbore ;
-  ELSEIF TypeCompo "PinByPin" = THEN
-    COMPO := COMPO: COMPO EDIOBJ BURN164 LIBRARY ::
-      EDIT 2
-      STEP UP 'EDI2A'
-      'ppmBore' <<pbore>>
-      'DCA' <<dens_mod_0>>
-      SET <<Tend>> DAY ;
-  ELSEIF TypeCompo "Assembly" = THEN
-    COMPO := COMPO: COMPO EDIOBJ BURN164 LIBRARY ::
-      EDIT 2
-      STEP UP 'EDI2B'
-      'ppmBore' <<pbore>>
-      'DCA' <<dens_mod_0>>
-      SET <<Tend>> DAY ;
+  IF BUend BUnextSS - ABS 1E-5 < THEN
+    ECHO "Multicompo feeding" ;
+    IF pbore pbore_0 = THEN
+      ECHO "Duplicate branch calculation at pbore=" pbore ;
+    ELSEIF TypeCompo "PinByPin" = THEN
+      COMPO := COMPO: COMPO EDIOBJ BURN164 LIBRARY ::
+        EDIT 2
+        STEP UP 'EDI2A'
+        'ppmBore' <<pbore>>
+        'DCA' <<dens_mod_0>>
+        SET <<Tend>> DAY ;
+    ELSEIF TypeCompo "Assembly" = THEN
+      COMPO := COMPO: COMPO EDIOBJ BURN164 LIBRARY ::
+        EDIT 2
+        STEP UP 'EDI2B'
+        'ppmBore' <<pbore>>
+        'DCA' <<dens_mod_0>>
+        SET <<Tend>> DAY ;
+    ENDIF ;
   ENDIF ;
   EDIOBJ := DELETE: EDIOBJ ;
+
+  IF BUend BUnextSS - ABS 1E-5 < THEN
+   EVALUATE iautop := iautop 1 + ;
+   IF iautop iAutopMax <= THEN
+      GREP: DONNEES :: GETVAL 'autop' <<iautop>> >>BUnextSS<< ;
+   ENDIF ;
+  ENDIF ;
 
 ENDWHILE ; ! burnup loop
 
@@ -529,7 +545,6 @@ ENDWHILE ; ! boron loop
 ************************************************************************
 ************************************************************************
 
-
 ************************************************************************
 *  FUEL TEMPERATURE LOOP                                               *
 ************************************************************************
@@ -537,7 +552,7 @@ ECHO "$$$ Fuel temperature loop" ;
 INTEGER iTfStep := 0 ;
 WHILE iTfStep iTfMax < DO
   EVALUATE iTfStep := iTfStep 1 + ;
-  ECHO "iTfStep vaut" iTfStep "sur" iTfMax ;
+  ECHO "iTfStep =" iTfStep "over" iTfMax ;
   GREP: DONNEES :: GETVAL 'tf' <<iTfStep>> >>temp_comb<< ;
 ************************************************************************
 *  BEGIN LIBRARY READING                                               *
@@ -576,7 +591,7 @@ ECHO "BUnextSS=" BUnextSS ;
 ************************************************************************
 WHILE istep maxstep < DO
   EVALUATE istep := istep 1 + ;
-  ECHO "branch istep vaut" istep "sur" maxstep ;
+  ECHO "branch burnup istep =" istep "over" maxstep ;
 
   EVALUATE BUbeg Tbeg := BUend Tend ;
   GREP: DONNEES :: GETVAL 'burn' <<istep>> >>BUend<< ;
@@ -610,12 +625,6 @@ WHILE istep maxstep < DO
     :: <<istep>> <<Fuel>> <<NbRegions>> <<BUend>> <<BUnextSS>>
        <<Fuelpwr>> ;
   ENDIF ;
-  IF BUend BUnextSS - ABS 1E-5 < THEN
-   EVALUATE iautop := iautop 1 + ;
-   IF iautop iAutopMax <= THEN
-      GREP: DONNEES :: GETVAL 'autop' <<iautop>> >>BUnextSS<< ;
-   ENDIF ;
-  ENDIF ;
 
 ************************************************************************
 *  2-GROUPS ENERGY CONDENSATION AND HOMOGENISATION                     *
@@ -626,24 +635,34 @@ WHILE istep maxstep < DO
 ************************************************************************
 *  MULTICOMPO FEEDING                                                  *
 ************************************************************************
-  IF temp_comb temp_comb_0 = THEN
-    ECHO "Duplicate branch calculation at temp_comb=" temp_comb ;
-  ELSEIF TypeCompo "PinByPin" = THEN
-    COMPO := COMPO: COMPO EDIOBJ BURN164 LIBRARY ::
-      EDIT 2
-      STEP UP 'EDI2A'
-      'ppmBore' <<pbore_0>>
-      'DCA' <<dens_mod_0>>
-      SET <<Tend>> DAY ;
-  ELSEIF TypeCompo "Assembly" = THEN
-    COMPO := COMPO: COMPO EDIOBJ BURN164 LIBRARY ::
-      EDIT 2
-      STEP UP 'EDI2B'
-      'ppmBore' <<pbore_0>>
-      'DCA' <<dens_mod_0>>
-      SET <<Tend>> DAY ;
+  IF BUend BUnextSS - ABS 1E-5 < THEN
+    ECHO "Multicompo feeding" ;
+    IF temp_comb temp_comb_0 = THEN
+      ECHO "Duplicate branch calculation at temp_comb=" temp_comb ;
+    ELSEIF TypeCompo "PinByPin" = THEN
+      COMPO := COMPO: COMPO EDIOBJ BURN164 LIBRARY ::
+        EDIT 2
+        STEP UP 'EDI2A'
+        'ppmBore' <<pbore_0>>
+        'DCA' <<dens_mod_0>>
+        SET <<Tend>> DAY ;
+    ELSEIF TypeCompo "Assembly" = THEN
+      COMPO := COMPO: COMPO EDIOBJ BURN164 LIBRARY ::
+        EDIT 2
+        STEP UP 'EDI2B'
+        'ppmBore' <<pbore_0>>
+        'DCA' <<dens_mod_0>>
+        SET <<Tend>> DAY ;
+    ENDIF ;
   ENDIF ;
   EDIOBJ := DELETE: EDIOBJ ;
+
+  IF BUend BUnextSS - ABS 1E-5 < THEN
+   EVALUATE iautop := iautop 1 + ;
+   IF iautop iAutopMax <= THEN
+      GREP: DONNEES :: GETVAL 'autop' <<iautop>> >>BUnextSS<< ;
+   ENDIF ;
+  ENDIF ;
 
 ENDWHILE ; ! burnup loop
 
@@ -657,7 +676,6 @@ ENDWHILE ; ! fuel temperature loop
 ************************************************************************
 ************************************************************************
 
-
 ************************************************************************
 *  MODERATOR TEMPERATURE LOOP                                          *
 ************************************************************************
@@ -665,7 +683,7 @@ ECHO "$$$ Moderator temperature loop" ;
 INTEGER iTcaStep := 0 ;
 WHILE iTcaStep iTcaMax < DO
   EVALUATE iTcaStep := iTcaStep 1 + ;
-  ECHO "iTcaStep vaut" iTcaStep "sur" iTcaMax ;
+  ECHO "iTcaStep =" iTcaStep "over" iTcaMax ;
   GREP: DONNEES :: GETVAL 'tca' <<iTcaStep>> >>temp_mode<< ;
 ************************************************************************
 *  BEGIN LIBRARY READING                                               *
@@ -704,7 +722,7 @@ ECHO "BUnextSS=" BUnextSS ;
 ************************************************************************
 WHILE istep maxstep < DO
   EVALUATE istep := istep 1 + ;
-  ECHO "branch istep vaut" istep "sur" maxstep ;
+  ECHO "branch burnup istep =" istep "over" maxstep ;
 
   EVALUATE BUbeg Tbeg := BUend Tend ;
   GREP: DONNEES :: GETVAL 'burn' <<istep>> >>BUend<< ;
@@ -738,12 +756,6 @@ WHILE istep maxstep < DO
     :: <<istep>> <<Fuel>> <<NbRegions>> <<BUend>> <<BUnextSS>>
        <<Fuelpwr>> ;
   ENDIF ;
-  IF BUend BUnextSS - ABS 1E-5 < THEN
-   EVALUATE iautop := iautop 1 + ;
-   IF iautop iAutopMax <= THEN
-      GREP: DONNEES :: GETVAL 'autop' <<iautop>> >>BUnextSS<< ;
-   ENDIF ;
-  ENDIF ;
 
 ************************************************************************
 *  2-GROUPS ENERGY CONDENSATION AND HOMOGENISATION                     *
@@ -754,24 +766,34 @@ WHILE istep maxstep < DO
 ************************************************************************
 *  MULTICOMPO FEEDING                                                  *
 ************************************************************************
-  IF temp_mode temp_mode_0 = THEN
-    ECHO "Duplicate branch calculation at temp_mode=" temp_mode ;
-  ELSEIF TypeCompo "PinByPin" = THEN
-    COMPO := COMPO: COMPO EDIOBJ BURN164 LIBRARY ::
-      EDIT 2
-      STEP UP 'EDI2A'
-      'ppmBore' <<pbore_0>>
-      'DCA' <<dens_mod_0>>
-      SET <<Tend>> DAY ;
-  ELSEIF TypeCompo "Assembly" = THEN
-    COMPO := COMPO: COMPO EDIOBJ BURN164 LIBRARY ::
-      EDIT 2
-      STEP UP 'EDI2B'
-      'ppmBore' <<pbore_0>>
-      'DCA' <<dens_mod_0>>
-      SET <<Tend>> DAY ;
+  IF BUend BUnextSS - ABS 1E-5 < THEN
+    ECHO "Multicompo feeding" ;
+    IF temp_mode temp_mode_0 = THEN
+      ECHO "Duplicate branch calculation at temp_mode=" temp_mode ;
+    ELSEIF TypeCompo "PinByPin" = THEN
+      COMPO := COMPO: COMPO EDIOBJ BURN164 LIBRARY ::
+        EDIT 2
+        STEP UP 'EDI2A'
+        'ppmBore' <<pbore_0>>
+        'DCA' <<dens_mod_0>>
+        SET <<Tend>> DAY ;
+    ELSEIF TypeCompo "Assembly" = THEN
+      COMPO := COMPO: COMPO EDIOBJ BURN164 LIBRARY ::
+        EDIT 2
+        STEP UP 'EDI2B'
+        'ppmBore' <<pbore_0>>
+        'DCA' <<dens_mod_0>>
+        SET <<Tend>> DAY ;
+    ENDIF ;
   ENDIF ;
   EDIOBJ := DELETE: EDIOBJ ;
+
+  IF BUend BUnextSS - ABS 1E-5 < THEN
+   EVALUATE iautop := iautop 1 + ;
+   IF iautop iAutopMax <= THEN
+      GREP: DONNEES :: GETVAL 'autop' <<iautop>> >>BUnextSS<< ;
+   ENDIF ;
+  ENDIF ;
 
 ENDWHILE ; ! burnup loop
 
@@ -785,7 +807,6 @@ ENDWHILE ; ! moderator temperature loop
 ************************************************************************
 ************************************************************************
 
-
 ************************************************************************
 *  MODERATOR DENSITY LOOP                                              *
 ************************************************************************
@@ -793,7 +814,7 @@ ECHO "$$$ Moderator density loop" ;
 INTEGER iDcaStep := 0 ;
 WHILE iDcaStep iDcaMax < DO
   EVALUATE iDcaStep := iDcaStep 1 + ;
-  ECHO "iDcaStep vaut" iDcaStep "sur" iDcaMax ;
+  ECHO "iDcaStep =" iDcaStep "over" iDcaMax ;
   GREP: DONNEES :: GETVAL 'dca' <<iDcaStep>> >>dens_mod<< ;
 ************************************************************************
 *  BEGIN LIBRARY READING                                               *
@@ -832,7 +853,7 @@ ECHO "BUnextSS=" BUnextSS ;
 ************************************************************************
 WHILE istep maxstep < DO
   EVALUATE istep := istep 1 + ;
-  ECHO "branch istep vaut" istep "sur" maxstep ;
+  ECHO "branch burnup istep =" istep "over" maxstep ;
 
   EVALUATE BUbeg Tbeg := BUend Tend ;
   GREP: DONNEES :: GETVAL 'burn' <<istep>> >>BUend<< ;
@@ -866,12 +887,6 @@ WHILE istep maxstep < DO
     :: <<istep>> <<Fuel>> <<NbRegions>> <<BUend>> <<BUnextSS>>
        <<Fuelpwr>> ;
   ENDIF ;
-  IF BUend BUnextSS - ABS 1E-5 < THEN
-   EVALUATE iautop := iautop 1 + ;
-   IF iautop iAutopMax <= THEN
-      GREP: DONNEES :: GETVAL 'autop' <<iautop>> >>BUnextSS<< ;
-   ENDIF ;
-  ENDIF ;
 
 ************************************************************************
 *  2-GROUPS ENERGY CONDENSATION AND HOMOGENISATION                     *
@@ -882,25 +897,34 @@ WHILE istep maxstep < DO
 ************************************************************************
 *  MULTICOMPO FEEDING                                                  *
 ************************************************************************
-  IF dens_mod dens_mod_0 = THEN
-    ECHO "Duplicate branch calculation at dens_mod=" dens_mod ;
-  ELSEIF TypeCompo "PinByPin" = THEN
-    COMPO := COMPO: COMPO EDIOBJ BURN164 LIBRARY ::
-      EDIT 2
-      STEP UP 'EDI2A'
-      'ppmBore' <<pbore_0>>
-      'DCA' <<dens_mod>>
-      SET <<Tend>> DAY ;
-  ELSEIF TypeCompo "Assembly" = THEN
-    COMPO := COMPO: COMPO EDIOBJ BURN164 LIBRARY ::
-      EDIT 2
-      STEP UP 'EDI2B'
-      'ppmBore' <<pbore_0>>
-      'DCA' <<dens_mod>>
-      SET <<Tend>> DAY ;
+ IF BUend BUnextSS - ABS 1E-5 < THEN
+    ECHO "Multicompo feeding" ;
+    IF dens_mod dens_mod_0 = THEN
+      ECHO "Duplicate branch calculation at dens_mod=" dens_mod ;
+    ELSEIF TypeCompo "PinByPin" = THEN
+      COMPO := COMPO: COMPO EDIOBJ BURN164 LIBRARY ::
+        EDIT 2
+        STEP UP 'EDI2A'
+        'ppmBore' <<pbore_0>>
+        'DCA' <<dens_mod>>
+        SET <<Tend>> DAY ;
+    ELSEIF TypeCompo "Assembly" = THEN
+      COMPO := COMPO: COMPO EDIOBJ BURN164 LIBRARY ::
+        EDIT 2
+        STEP UP 'EDI2B'
+        'ppmBore' <<pbore_0>>
+        'DCA' <<dens_mod>>
+        SET <<Tend>> DAY ;
+    ENDIF ;
   ENDIF ;
   EDIOBJ := DELETE: EDIOBJ ;
 
+  IF BUend BUnextSS - ABS 1E-5 < THEN
+   EVALUATE iautop := iautop 1 + ;
+   IF iautop iAutopMax <= THEN
+      GREP: DONNEES :: GETVAL 'autop' <<iautop>> >>BUnextSS<< ;
+   ENDIF ;
+  ENDIF ;
 ENDWHILE ; ! burnup loop
 
 LIBRARY LIBRARY2 LIBEQ := DELETE: LIBRARY LIBRARY2 LIBEQ ;

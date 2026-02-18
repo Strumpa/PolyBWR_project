@@ -65,9 +65,9 @@
 *----
 *  Local parameters
 *----
-      INTEGER          IOUT
+      INTEGER          IOUT,NBCDA
       CHARACTER        NAMSBR*6
-      PARAMETER       (IOUT=6,NAMSBR='NXT   ')
+      PARAMETER       (IOUT=6,NBCDA=6,NAMSBR='NXT   ')
       INTEGER          ILCMUP,ILCMDN
       PARAMETER       (ILCMUP=1,ILCMDN=2)
       INTEGER          NSTATE,MAXENT
@@ -192,8 +192,9 @@
         ISTATT(13)=1
         ISTATT(15)=1
         ISTATT(22)=0
-        ISTATT(23)=1
         IF(IMFTRK .EQ. 0) ISTATT(22)=3
+        ISTATT(23)=1
+        ISTATT(30)=NBCDA
         IF(IMTRK .EQ. 2 .AND. IMGEO .EQ. -1) THEN
           CALL LCMLEN(IPGEO,'BIHET',ILONG,ITYLCM)
           IF(ILONG.NE.0) ISTATT(40)=1

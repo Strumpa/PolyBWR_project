@@ -12,5 +12,12 @@ ln -s $1/data/salmacro_proc/KML2_ARO_13AU_SSH.za .
 ln -s $1/data/salmacro_proc/30AV5_SSH.ap3 .
 ln -s $1/data/salmacro_proc/lattice_hex_tiso_S30_7cells.dat .
 ln -s $1/data/salmacro_proc/lattice_hex_tspc_S30_7cells.dat .
+ln -s $1/data/salmacro_proc/lattice_hex_tiso_S30_7cells_macro.dat .
+ln -s $1/data/salmacro_proc/lattice_hex_tiso_S30_tdcm68.dat .
+ln -s $1/data/salmacro_proc/irena_tiso_s30.dat .
+ln -s $1/data/salmacro_proc/cr_f1_f2_tiso.dat .
+ln -s $1/data/salmacro_proc/cr_f1_f2_tspc.dat .
+ln -s $1/data/salmacro_proc/GE14_ctrl_simplified_for_test.dat .
+ln -s $1/data/salmacro_proc/fa_r120_tiso_macro.dat .
 ls -l
 echo "salmacro access script terminated"

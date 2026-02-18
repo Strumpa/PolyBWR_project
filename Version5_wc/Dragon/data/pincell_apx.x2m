@@ -104,9 +104,6 @@ TRACKN := SYBILT: GEOM ::
 ************************************************************************
 *  END TRACKING                                                        *
 ************************************************************************
-************************************************************************
-*  END APEX INITIALIZATION                                             *
-************************************************************************
 
 ************************************************************************
 *  REFERENCE BURNUP LOOP WITH DEPLETION                                *
@@ -131,6 +128,9 @@ LIBRARY := Mix_UOX ::
     MACR  TOUT  MACR  REST
     REAC  TOTA N2N FISS CHI NUFI ENER LEAK DIFF SCAT ABSO
     ;
+************************************************************************
+*  END APEX INITIALIZATION                                             *
+************************************************************************
 ************************************************************************
 *  INITIAL FLUX CALCULATION                                            *
 ************************************************************************
@@ -232,7 +232,7 @@ WHILE istep maxstep < DO
   EDIOBJ := DELETE: EDIOBJ ;
 
 ENDWHILE ; ! reference burnup loop
-assertS FLUX :: K-INFINITY 1 1.224515 ;
+assertS FLUX :: K-INFINITY 1 1.224364 ;
 
 LIBRARY LIBRARY2 := DELETE: LIBRARY LIBRARY2 ;
 FLUX := DELETE: FLUX ;
@@ -313,7 +313,7 @@ WHILE istep maxstep < DO
   IF dens_mod dens_mod_0 = THEN
     ECHO "Duplicate branch calculation at dens_mod=" dens_mod ;
   ELSE
-    ECHO "Feed MPO branch with dens_mod=" dens_mod ;
+    ECHO "Feed Apex branch with dens_mod=" dens_mod ;
     MyApex := APX: MyApex EDIOBJ BURN164 LIBRARY ::
       EDIT 2
       CoolantDensity <<dens_mod>>

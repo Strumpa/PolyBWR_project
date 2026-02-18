@@ -80,7 +80,7 @@ INTEGER COOL := 217 ;
 *    CALL TO USS: MODULE
 * --------------------------------
 LIBRARY2 := USS: LIBRARY TRACK_SS TF_SS_EXC ::
-    EDIT 1 PASS 3 MAXST 50 PIJ
+    EDIT 1 PASS 3 MAXST 50 ARM
 ;
 
 * -----------------------------------------

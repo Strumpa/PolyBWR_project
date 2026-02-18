@@ -253,7 +253,7 @@ LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
         EDIT 1 PASS 2 MAXST 20
         CALC
 
-        * Don't touch this :
+* Don't touch this :
             REGI W1 U235 ALL
             !REGI W1 U234 ALL
             REGI W1 Zr90 ALL
@@ -262,7 +262,7 @@ LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
             REGI W1 Zr94 ALL
             REGI W1 Zr96 ALL
             
-        * Options : 
+* Options : 
             !REGI W1 U238 ALL ! Just this gives the closest to Serpent2, but is it sufficient ? ~10 pcm to S2
             REGI W1 U238 <<COMB0101>> <<COMB0102>> <<COMB0103>> <<COMB0104>> ! This and next line give ~20 pcm diff to S2
             REGI W2 U238 <<COMB0201>> <<COMB0202>> <<COMB0203>> <<COMB0204>>

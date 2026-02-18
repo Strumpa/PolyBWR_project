@@ -496,7 +496,6 @@ EDIT 0
 ;
 AMACROH := Macro2H ;
 
-
 * Compute flux distribution
 System := TRIVAA: Macro2H Track ;
 
@@ -531,10 +530,9 @@ FmapH2 := FmapH ::
   STEP UP ASSEMBLY
   STEP AT 1 
 ;
-FmapH2 := UTL: FmapH2 :: 
-  DIR
-;
-assertS FmapH2 :: 'ASS-POWER' 1 6.361761E02 ;
+FmapH2 := UTL: FmapH2 :: DIR ;
+
+assertS FmapH2 :: 'ASS-POWER' 1 6.432535E2 ;
 
 ECHO "test testNAPhet.x2m completed" ;
 END: ;

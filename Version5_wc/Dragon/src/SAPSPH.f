@@ -1,11 +1,11 @@
 *DECK SAPSPH
-      SUBROUTINE SAPSPH(IPEDIT,NG,NMIL,ILOC,NLOC,RVALOC)
+      SUBROUTINE SAPSPH(IPMICR,NG,NMIL,ILOC,NLOC,RVALOC)
 *
 *-----------------------------------------------------------------------
 *
 *Purpose:
-* To recover a set of sph equivalence factors and store them as local
-* variables.
+* To recover a set of SPH equivalence factors from a microlib and store
+* them as local variables.
 *
 *Copyright:
 * Copyright (C) 2007 Ecole Polytechnique de Montreal
@@ -17,7 +17,7 @@
 *Author(s): A. Hebert
 *
 *Parameters: input
-* IPEDIT  pointer to the edition object (L_EDIT signature).
+* IPMICR  pointer to the microlib (L_LIBRARY signature).
 * NG      number of condensed energy groups.
 * NMIL    number of mixtures in the Saphyb.
 * ILOC    position of local parameter in RVALOC.
@@ -32,7 +32,7 @@
 *----
 *  SUBROUTINE ARGUMENTS
 *----
-      TYPE(C_PTR) IPEDIT
+      TYPE(C_PTR) IPMICR
       INTEGER NG,NMIL,ILOC,NLOC
       REAL RVALOC(NLOC,NMIL)
 *----
@@ -41,23 +41,20 @@
       PARAMETER (NSTATE=40)
       TYPE(C_PTR) JPEDIT,KPEDIT
       INTEGER ISTATE(NSTATE)
-      CHARACTER TEXT12*12
       REAL, ALLOCATABLE, DIMENSION(:) :: WORK
 *----
 *  SCRATCH STORAGE ALLOCATION
 *----
       ALLOCATE(WORK(NMIL))
 *
-      CALL LCMGTC(IPEDIT,'LAST-EDIT',12,TEXT12)
-      CALL LCMSIX(IPEDIT,TEXT12,1)
-      CALL LCMSIX(IPEDIT,'MACROLIB',1)
-      CALL LCMGET(IPEDIT,'STATE-VECTOR',ISTATE)
+      CALL LCMSIX(IPMICR,'MACROLIB',1)
+      CALL LCMGET(IPMICR,'STATE-VECTOR',ISTATE)
       IF(ISTATE(1).NE.NG) CALL XABORT('SAPSPH: BAD VALUE OF NG.')
       IF(ISTATE(2).NE.NMIL) CALL XABORT('SAPSPH: BAD VALUE OF NMIL.')
 *----
 *  RECOVER SPH EQUIVALENCE FACTORS.
 *----
-      JPEDIT=LCMGID(IPEDIT,'GROUP')
+      JPEDIT=LCMGID(IPMICR,'GROUP')
       DO 30 IGR=1,NG
       KPEDIT=LCMGIL(JPEDIT,IGR)
       CALL LCMLEN(KPEDIT,'NSPH',ILONG,ITYLCM)
@@ -72,8 +69,7 @@
    20    CONTINUE
       ENDIF
    30 CONTINUE
-      CALL LCMSIX(IPEDIT,' ',2)
-      CALL LCMSIX(IPEDIT,' ',2)
+      CALL LCMSIX(IPMICR,' ',2)
 *----
 *  SCRATCH STORAGE DEALLOCATION
 *----

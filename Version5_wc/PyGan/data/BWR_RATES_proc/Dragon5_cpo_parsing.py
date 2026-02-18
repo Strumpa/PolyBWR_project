@@ -1,0 +1,366 @@
+# Collection of function used to parse DRAGON5 COMPO output files for fission and neutron gamma rates post treatment.
+import os
+import numpy as np
+import lcm
+from collections import defaultdict
+from utilities import sum_rates_over_iso
+import pandas as pd
+
+def parse_DRAGON_rates_enrich_num(name_case, name_compo, fission_isotopes, n_gamma_isotopes, n_groups, bu, unfold_symmetry):
+    """
+    Parse DRAGON5 rates from the specified COMPO file.
+    
+    Parameters:
+    - name_case (str): Name of the case.
+    - name_compo (str): Name of the composition.
+    - reaction_type (str): Type of reaction to parse.
+    - n_groups (int): Number of energy groups.
+    - bu (int): Burnup step.
+    
+    Returns:
+    - None
+    """
+    if unfold_symmetry:
+        sym_factor = 2
+    else:
+        sym_factor = 1
+    # Load the DRAGON rates
+    path = os.getcwd()
+    os.chdir("Linux_aarch64")
+    print(f"Loading {name_case} rates from {name_compo}")
+    pyCOMPO = lcm.new('LCM_INP', name_compo, impx=0)
+    os.chdir(path)
+    # Retrieve the fission rates
+
+    len_isotot = np.shape(pyCOMPO['EDIBU_HOM']['MIXTURES'][0]['CALCULATIONS'][0]['ISOTOPESDENS'])[0] - 1
+    print(f"len_isotot = {len_isotot}")
+    ########## CALCULATIONS ##########
+    # Retrieve keff from pyCOMPO
+    keff_D5 = pyCOMPO['EDIBU_HOM']['MIXTURES'][0]['CALCULATIONS'][0]['K-EFFECTIVE']
+    print(f"keff_D5 = {keff_D5}")
+    MIXES_idx = [0,1,2,3,4,5,6,7]
+    MIXES = ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"]
+    """
+        C1 C2 C3 C5 C6 C5 C4 C3 C2 C1
+        C2 C4 C7 C6 C7 C6 C6 C7 C4 C2
+        C3 C7 C6 C6 C6 C7 C6 C6 C7 C3
+        C5 C6 C6 C6 C6 C6 C7 C6 C5 C4
+        C6 C7 C6 C6 W1 WB W2 C4 C6 C4
+        C5 C6 C7 C6 WL W0 WR C3 C7 C4
+        C4 C6 C6 C7 W3 WT W4 C4 C4 C4
+        C3 C7 C6 C6 C4 C3 C4 C4 C8 C3 
+        C2 C4 C7 C5 C6 C7 C4 C8 C4 C2
+        C1 C2 C3 C4 C4 C4 C4 C3 C2 C1
+    
+    """
+    number_of_each_mix = {"C1":4, "C2":8, "C3":10, "C4":20, "C5":6, "C6":27, "C7":14, "C8":2}
+    Iso_index_to_ALIAS = {}
+    fiss_rates = {}
+    n_gamma_rates = {}
+    for iso in range(len_isotot):
+        isotope = pyCOMPO['EDIBU_HOM']['MIXTURES'][0]['CALCULATIONS'][0]['ISOTOPESLIST'][iso]['ALIAS'][0:5].strip()
+        #print(f"isotope = {isotope}, iso number = {iso}")
+        Iso_index_to_ALIAS[iso] = isotope
+    for iso in range(len_isotot):
+        #print(f"iso index = {iso}, isotope = {Iso_index_to_ALIAS[iso]}")
+        isotope = pyCOMPO['EDIBU_HOM']['MIXTURES'][0]['CALCULATIONS'][0]['ISOTOPESLIST'][iso]['ALIAS'][0:5].strip()
+        #print(f"isotope = {isotope}")
+        if isotope in fission_isotopes:
+            isotope_fission_rate = {}
+            for mix in MIXES_idx:
+                isotope_fission_rate[f"C{mix+1}"] = {}
+                NWT0 = pyCOMPO['HOM2g']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NWT0']
+                N = pyCOMPO['HOM1g']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESDENS'][iso]
+                vol = pyCOMPO['HOM1g']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESVOL'][iso]
+                NFTOT = pyCOMPO['HOM2g']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NFTOT']
+                isotope_fission_rate[f"C{mix+1}"] = np.array(NFTOT)*np.array(NWT0)*N*vol*sym_factor/number_of_each_mix[MIXES[mix]] # multiply volume by 2 to account for diagonal symmetry of the assembly
+            fiss_rates[isotope] = isotope_fission_rate
+        if isotope in n_gamma_isotopes:
+            isotope_n_gamma_rate = {}
+            for mix in MIXES_idx:
+                isotope_n_gamma_rate[f"C{mix+1}"] = {}
+                NWT0 = pyCOMPO['HOM2g']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NWT0']
+                N = pyCOMPO['HOM1g']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESDENS'][iso]
+                vol = pyCOMPO['HOM1g']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESVOL'][iso]
+                NGAMMA = pyCOMPO['EDIBU_2gr']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NG']
+                isotope_n_gamma_rate[f"C{mix+1}"] = np.array(NGAMMA)*np.array(NWT0)*N*vol*sym_factor/number_of_each_mix[MIXES[mix]] # multiply volume by 2 to account for diagonal symmetry of the assembly
+            n_gamma_rates[isotope] = isotope_n_gamma_rate
+    
+    print(f"fiss_rates = {fiss_rates}")
+    sum_summed_fiss_rates = sum_rates_over_iso(fiss_rates)
+
+    sum_summed_n_gamma_rates = sum_rates_over_iso(n_gamma_rates)
+
+    fiss_rates["TOT"] = sum_summed_fiss_rates
+    #n_gamma_rates["TOT"] = sum_summed_n_gamma_rates
+
+    return keff_D5, fiss_rates, n_gamma_rates
+
+
+def parse_DRAGON_DIAG_rates_regi_num(name_case, name_compo, composition_option, evaluation, ssh_method, correlation_option, geometry_refinement_option, fission_isotopes, n_gamma_isotopes, bu):
+    """
+    Parse DRAGON5 rates from the specified COMPO file.
+    
+    Parameters:
+    - name_case (str): Name of the case.
+    - name_compo (str): Name of the composition file.
+    - composition_option (str): Isotopic compositon option.
+    - evaluation (str): Nuclear data evaluation.
+    - ssh_method (str): Self shielding method used.
+    - correlation_option (str): Correlation option.
+    - geometry_refinement_option (str): identifictor for flux geometry refinement type.
+    - fission_isotopes (list): List of isotopes for fission rates.
+    - n_gamma_isotopes (list): List of isotopes for neutron gamma rates.
+    - bu (int): Burnup step.
+    - computational_scheme (str): Computational scheme used, default is "1L_MOC".
+    
+    Returns:
+    - keff_D5 (float): The effective multiplication factor.
+    - fiss_rates (dict): Dictionary of fission rates by isotope and mix.
+    - n_gamma_rates (dict): Dictionary of neutron gamma rates by isotope and mix.
+    - FLUX_295groups (float): The flux on the SHEM295 energy groups.
+    
+    """
+    # Load the DRAGON rates
+    path = os.getcwd()
+    os.chdir(f"PYGAN_RESULTS/{name_case}_results/{geometry_refinement_option}_{composition_option}_{evaluation}_{ssh_method}_{correlation_option}_region_num")
+    print(f"Loading {name_case} rates from {name_compo}")
+    # Load the LCM file
+    pyCOMPO = lcm.new('LCM_INP', name_compo, impx=0)
+    os.chdir(path)
+    # Retrieve the fission rates
+
+    len_isotot = np.shape(pyCOMPO['EDIHOM_COND']['MIXTURES'][0]['CALCULATIONS'][0]['ISOTOPESDENS'])[0] - 1
+    print(f"len_isotot = {len_isotot}")
+    ########## CALCULATIONS ##########
+    # Retrieve keff from pyCOMPO
+    keff_D5 = pyCOMPO['EDIHOM_COND']['MIXTURES'][0]['CALCULATIONS'][0]['K-EFFECTIVE'][0]
+    print(f"keff_D5 = {keff_D5}")
+    MIXES_idx = [0,1,2,3,4,5,6,7,8,9,
+                 10,11,12,13,14,15,16,17,18,
+                 19,20,21,22,23,24,25,26,
+                 27,28,29,30,31,32,33,
+                 # 35-1, 36-1, 37-1 are W1, WB, W2
+                37, 38, 39,
+                 # 41-1, 42-1 are  W0, WR
+                42, 43, 44,
+                # 46-5 is W4
+                46, 47, 48,
+                49, 50, 51, 
+                52, 53, 
+                54]
+    MIX_unique_numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+                        11, 12, 13, 14, 15, 16, 17, 18, 19,
+                        20, 21, 22, 23, 24, 25, 26, 27,
+                        28, 29, 30, 31, 32, 33, 34,
+                        38, 39, 40,
+                        43, 44, 45,
+                        47, 48, 49,
+                        50, 51, 52,
+                        53, 54,
+                        55]
+    unique_mixes_on_diag = [1, 11, 20, 28, 50, 53, 55]
+    lattice_desc = [
+    ["C1_1", "C2_2", "C3_3", "C5_4", "C6_5", "C5_6", "C4_7", "C3_8", "C2_9", "C1_10"],
+    ["C2_2", "C4_11", "C7_12", "C6_13", "C7_14", "C6_15", "C6_16", "C7_17", "C4_18", "C2_19"],
+    ["C3_3", "C7_12", "C6_20", "C6_21", "C6_22", "C7_23", "C6_24", "C6_25", "C7_26", "C3_27"],
+    ["C5_4", "C6_13", "C6_21", "C6_28", "C6_29", "C6_30", "C7_31", "C6_32", "C5_33", "C4_34"],
+    ["C6_5", "C7_14", "C6_22", "C6_29", "W1", "WB", "W2", "C4_38", "C6_39", "C4_40"],
+    ["C5_6", "C6_15", "C7_23", "C6_30", "WL", "W0", "WR", "C3_43", "C7_44", "C4_45"],
+    ["C4_7", "C6_16", "C6_24", "C7_31", "W3", "WT", "W4", "C4_47", "C4_48", "C4_49"],
+    ["C3_8", "C7_17", "C6_25", "C6_32", "C4_38", "C3_43", "C4_47", "C4_50", "C8_51", "C3_52"],
+    ["C2_9", "C4_18", "C7_26", "C5_33", "C6_39", "C7_44", "C4_48", "C8_51", "C4_53", "C2_54"],
+    ["C1_10", "C2_19", "C3_27", "C4_34", "C4_40", "C4_45", "C4_49", "C3_52", "C2_54", "C1_55"],
+    ]
+    Iso_index_to_ALIAS = {}
+    fiss_rates = {}
+    fission_rates = np.zeros((2,55))
+    n_gamma_rates = {}
+    for iso in range(len_isotot):
+        #print(f"iso index = {iso}, isotope = {Iso_index_to_ALIAS[iso]}")
+        isotope = pyCOMPO['EDIHOM_COND']['MIXTURES'][0]['CALCULATIONS'][0]['ISOTOPESLIST'][iso]['ALIAS'][0:5].strip()
+        #print(f"isotope = {isotope}")
+        if isotope in fission_isotopes:
+            isotope_fission_rate = {}
+            for mix in MIXES_idx:
+                isotope_fission_rate[f"{mix+1}"] = {}
+                NWT0 = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NWT0']
+                N = pyCOMPO['H_EDI_REGI_1']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESDENS'][iso]
+                vol = pyCOMPO['H_EDI_REGI_1']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESVOL'][iso]
+                NFTOT = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NFTOT']
+                if mix+1 in unique_mixes_on_diag:
+                    sym_factor = 2
+                else:
+                    sym_factor = 1
+                isotope_fission_rate[f"{mix+1}"] = np.array(NFTOT)*np.array(NWT0)*N*vol*sym_factor # multiply volume by 2 to account for diagonal symmetry of the assembly
+                fission_rates[0][mix] += NFTOT[1]*NWT0[1]*N*vol*sym_factor
+                fission_rates[1][mix] += NFTOT[0]*NWT0[0]*N*vol*sym_factor
+        
+    
+        """
+        if isotope in n_gamma_isotopes:
+            isotope_n_gamma_rate = {}
+            for mix in MIXES_idx:
+                isotope_n_gamma_rate[f"C{mix+1}"] = {}
+                NWT0 = pyCOMPO['HOM2g']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NWT0']
+                N = pyCOMPO['HOM1g']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESDENS'][iso]
+                vol = pyCOMPO['HOM1g']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESVOL'][iso]
+                NGAMMA = pyCOMPO['EDIBU_2gr']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NG']
+                isotope_n_gamma_rate[f"C{mix+1}"] = np.array(NGAMMA)*np.array(NWT0)*N*vol*sym_factor/number_of_each_mix[MIXES[mix]] # multiply volume by 2 to account for diagonal symmetry of the assembly
+            n_gamma_rates[isotope] = isotope_n_gamma_rate
+        """
+
+    FLUX_295groups = pyCOMPO['EDIHOM_295']['MIXTURES'][0]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NWT0']
+
+    return keff_D5, fission_rates, n_gamma_rates, FLUX_295groups
+
+
+
+def parse_DRAGON_SCHEME(name_case, name_compo, composition_option, evaluation, ssh_method, correlation_option, geometry_refinement_option, fission_isotopes, n_gamma_isotopes, bu, computational_scheme="1L_MOC"):
+    """
+    Parse DRAGON5 rates from the specified COMPO file.
+    
+    Parameters:
+    - name_case (str): Name of the case.
+    - name_compo (str): Name of the composition file.
+    - composition_option (str): Isotopic compositon option.
+    - evaluation (str): Nuclear data evaluation.
+    - ssh_method (str): Self shielding method used.
+    - correlation_option (str): Correlation option.
+    - geometry_refinement_option (str): identifictor for flux geometry refinement type.
+    - fission_isotopes (list): List of isotopes for fission rates.
+    - n_gamma_isotopes (list): List of isotopes for neutron gamma rates.
+    - bu (int): Burnup step.
+    - computational_scheme (str): Computational scheme used, default is "1L_MOC".
+    
+    Returns:
+    - keff_D5 (float): The effective multiplication factor.
+    - fiss_rates (dict): Dictionary of fission rates by isotope and mix.
+    - n_gamma_rates (dict): Dictionary of neutron gamma rates by isotope and mix.
+    - FLUX_295groups (float): The flux on the SHEM295 energy groups.
+    
+    """
+    # Load the DRAGON rates
+    path = os.getcwd()
+    os.chdir(f"PYGAN_RESULTS/{name_case}_results/{computational_scheme}/{geometry_refinement_option}_{composition_option}_{evaluation}_{ssh_method}_{correlation_option}_region_num")
+    print(f"Loading {name_case} rates from {name_compo}")
+    print(f"Reading from directory : {os.getcwd()}")
+    # recover information from name_compo 
+    nangle = name_compo.split("_")[1]
+    ld = name_compo.split("_")[2]
+    nangle2 = name_compo.split("_")[3].split("n")[-1]
+    ld2 = name_compo.split("_")[4].split("ld")[-1]
+    anis = name_compo.split("_")[6]
+    ssh_sol = name_compo.split("_")[7]
+    nmu = name_compo.split("_")[10]
+    batch_size = name_compo.split("_")[11]
+    if name_compo.split("_")[-1] == "APOL":
+        transport_correction = "_APOL"
+    else:
+        transport_correction = "_NONE"
+    times_df_name = f"df_module_times_{nangle}_{ld}_n2{nangle2}_ld2{ld2}_{ssh_method}_{ssh_sol}_TSPC_{anis}_MOC_GAUS_{nmu}_{batch_size}_200{transport_correction}.csv"
+    # Load the LCM file
+    print(os.listdir())
+    pyCOMPO = lcm.new('LCM_INP', name_compo, impx=0)
+    times_df = pd.read_csv(times_df_name, header=None)
+    total_time = times_df.loc[times_df[0] == "Total time (s)", 1].iloc[0]
+    time_in_uss = times_df.loc[times_df[0] == "USS: call (s)", 1].iloc[0]
+    time_in_asm_flu = times_df.loc[times_df[0] == "ASM: + FLU: calls (s)", 1].iloc[0]
+    os.chdir(path)
+    # Retrieve the fission rates
+
+    len_isotot = np.shape(pyCOMPO['EDIHOM_COND']['MIXTURES'][0]['CALCULATIONS'][0]['ISOTOPESDENS'])[0] - 1
+    print(f"len_isotot = {len_isotot}")
+    ########## CALCULATIONS ##########
+    # Retrieve keff from pyCOMPO
+    keff_D5 = pyCOMPO['EDIHOM_COND']['MIXTURES'][0]['CALCULATIONS'][0]['K-EFFECTIVE'][0]
+    print(f"keff_D5 = {keff_D5}")
+    MIXES_idx = [0,1,2,3,4,5,6,7,8,9,
+                 10,11,12,13,14,15,16,17,18,
+                 19,20,21,22,23,24,25,26,
+                 27,28,29,30,31,32,33,
+                 # 35-1, 36-1, 37-1 are W1, WB, W2
+                37, 38, 39,
+                 # 41-1, 42-1 are  W0, WR
+                42, 43, 44,
+                # 46-5 is W4
+                46, 47, 48,
+                49, 50, 51, 
+                52, 53, 
+                54]
+    MIX_unique_numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+                        11, 12, 13, 14, 15, 16, 17, 18, 19,
+                        20, 21, 22, 23, 24, 25, 26, 27,
+                        28, 29, 30, 31, 32, 33, 34,
+                        38, 39, 40,
+                        43, 44, 45,
+                        47, 48, 49,
+                        50, 51, 52,
+                        53, 54,
+                        55]
+    unique_mixes_on_diag = [1, 11, 20, 28, 50, 53, 55]
+    lattice_desc = [
+    ["C1_1", "C2_2", "C3_3", "C5_4", "C6_5", "C5_6", "C4_7", "C3_8", "C2_9", "C1_10"],
+    ["C2_2", "C4_11", "C7_12", "C6_13", "C7_14", "C6_15", "C6_16", "C7_17", "C4_18", "C2_19"],
+    ["C3_3", "C7_12", "C6_20", "C6_21", "C6_22", "C7_23", "C6_24", "C6_25", "C7_26", "C3_27"],
+    ["C5_4", "C6_13", "C6_21", "C6_28", "C6_29", "C6_30", "C7_31", "C6_32", "C5_33", "C4_34"],
+    ["C6_5", "C7_14", "C6_22", "C6_29", "W1", "WB", "W2", "C4_38", "C6_39", "C4_40"],
+    ["C5_6", "C6_15", "C7_23", "C6_30", "WL", "W0", "WR", "C3_43", "C7_44", "C4_45"],
+    ["C4_7", "C6_16", "C6_24", "C7_31", "W3", "WT", "W4", "C4_47", "C4_48", "C4_49"],
+    ["C3_8", "C7_17", "C6_25", "C6_32", "C4_38", "C3_43", "C4_47", "C4_50", "C8_51", "C3_52"],
+    ["C2_9", "C4_18", "C7_26", "C5_33", "C6_39", "C7_44", "C4_48", "C8_51", "C4_53", "C2_54"],
+    ["C1_10", "C2_19", "C3_27", "C4_34", "C4_40", "C4_45", "C4_49", "C3_52", "C2_54", "C1_55"],
+    ]
+    Iso_index_to_ALIAS = {}
+    fiss_rates = {}
+    #prod_over_abs = np.zeros((2,55))
+    fiss_over_abs = np.zeros((2,55))
+    fission_rates = np.zeros((2,55))
+    n_gamma_rates = {}
+    for iso in range(len_isotot):
+        #print(f"iso index = {iso}, isotope = {Iso_index_to_ALIAS[iso]}")
+        isotope = pyCOMPO['EDIHOM_COND']['MIXTURES'][0]['CALCULATIONS'][0]['ISOTOPESLIST'][iso]['ALIAS'][0:5].strip()
+        
+        #print(f"isotope = {isotope}")
+        if isotope in fission_isotopes:
+            isotope_fission_rate = {}
+            for mix in MIXES_idx:
+                isotope_fission_rate[f"{mix+1}"] = {}
+                NWT0 = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NWT0']
+                N = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESDENS'][iso]
+                vol = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESVOL'][iso]
+                NFTOT = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NFTOT']
+                print(f"mix = {mix+1}, NWT0 = {NWT0}, N = {N}, vol = {vol}, NFTOT = {NFTOT}")
+                # absorption = sigma_g - sigma_sigs_g 
+                # = NTOT0 - SIGSS0
+                TOT = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NTOT0']
+                print(f"mix = {mix+1}, TOT = {TOT}")
+                SIGS0 = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['SIGS00']
+                print(f"mix = {mix+1}, SIGS0 = {SIGS0}")
+                ABS = np.array(TOT) - np.array(SIGS0)
+                print(f"mix = {mix+1}, ABS = {ABS}")
+                PROD = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NUSIGF']
+                 
+                if mix+1 in unique_mixes_on_diag:
+                    sym_factor = 2
+                else:
+                    sym_factor = 1
+                isotope_fission_rate[f"{mix+1}"] = np.array(NFTOT)*np.array(NWT0)*N*vol*sym_factor # multiply volume by 2 to account for diagonal symmetry of the assembly
+                fission_rates[0][mix] += NFTOT[1]*NWT0[1]*N*vol*sym_factor
+                fission_rates[1][mix] += NFTOT[0]*NWT0[0]*N*vol*sym_factor
+                
+                fiss_over_abs[0][mix] += (np.array(NFTOT[1])/np.array(ABS[1]))# *N*vol
+                fiss_over_abs[1][mix] += (np.array(NFTOT[0])/np.array(ABS[0])) # *N*vol
+            if isotope == "U238":
+                # Recover 295g absorption rates for U238
+                #FLUX_295groups = np.array(pyCOMPO['U238_295']['MIXTURES'][0]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NWT0'])
+                U238_TOT = pyCOMPO['U238_295']['MIXTURES'][0]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NTOT0']
+                U238_SIGS0 = pyCOMPO['U238_295']['MIXTURES'][0]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['SIGS00']
+                U238_ABS = (np.array(U238_TOT) - np.array(U238_SIGS0))*np.array(FLUX_295groups)
+                #U238_ABS = np.zeros(295)
+
+    FLUX_295groups = np.array(pyCOMPO['EDIHOM_295']['MIXTURES'][0]['CALCULATIONS'][bu]['ISOTOPESLIST'][0]['NWT0'])
+    energy_mesh = np.array(pyCOMPO['EDIHOM_295']['MIXTURES'][0]['CALCULATIONS'][0]['ENERGY'])
+    print(f"D5 fiss over abs = {fiss_over_abs}")
+    
+    return keff_D5, fission_rates, fiss_over_abs, U238_ABS[::-1], FLUX_295groups[::-1], [total_time, time_in_uss, time_in_asm_flu], energy_mesh[::-1]
