@@ -36,6 +36,7 @@ REAL avo_conc := avogadro 1.E-24 * ;
 REAL dSS   :=  7.792815 ; ! Densite de l'acier inoxydable (SS304)
 REAL dZr4  :=  6.49012  ; ! Densite du zircaloy 4
 REAL dInc  :=  8.303    ; ! Densite inconel (a 20 degres C...)
+INTEGER nbZones         ; ! Nombre de zones dans le reflecteur
 INTEGER iMil            ; ! Numero de la zone reflecteur
 REAL TMil               ; ! Temperature du moderateur en degres C (suppose = T de tout le milieu)
 REAL dZone              ; ! Densite de la zone consideree
@@ -49,7 +50,7 @@ INTEGER LibId ;
 *--------------------------------------------------------------------
 * Fractions volumiques des differents milieux presents dans la zone
 *--------------------------------------------------------------------
-:: >>dMod<< >>iMil<< >>TMil<< >>CB<< >>fvMod<< >>fvZr4<< >>fvInc<< >>fvSS304<<
+:: >>dMod<< >>nbZones<< >>iMil<< >>TMil<< >>CB<< >>fvMod<< >>fvZr4<< >>fvInc<< >>fvSS304<<
    >>NuclData<< >>LibType<< ;
 
 *------------------------------------------------------
@@ -423,9 +424,10 @@ ECHO "Nb93   " Nb93 ;
 * Definition du melange correspondant dans la librairie
 *--------------------------------------------------------------------
 ECHO "CreaDilut: call LIB" ;
+INTEGER nmix := nbZones 1 + ;
 IF iMil 1 = THEN
   LibDilut := LIB: ::
-    MXIS 300 NMIX 8
+    MXIS 300 NMIX <<nmix>>
     MIXS LIB: <<LibGenre>> FIL: <<NuclData>>
 *   Milieu generique issu de la dilution de tous les constituants
     MIX 1 <<TMil>>
@@ -465,7 +467,7 @@ IF iMil 1 = THEN
   ;
 ELSE
   LibDilut := LIB: LibDilut ::
-    MXIS 300 NMIX 8
+    MXIS 300 NMIX <<nmix>>
     MIXS LIB: <<LibGenre>> FIL: <<NuclData>>
 *   Milieu generique issu de la dilution de tous les constituants
     MIX <<iMil>> <<TMil>>

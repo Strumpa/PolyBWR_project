@@ -3,7 +3,7 @@
      >                  MAXMSS,NMIX  ,NM    ,MIX   ,DAMESH,ISPLT ,
      >                  NMIXS ,NMS   ,DAMESS,
      >                  ITSYM ,NREGS ,NSURS ,NREGN ,NSURN ,NEREN ,
-     >                  IDREG ,IDSUR )
+     >                  IDREG ,IDSUR ,IMRGT)
 *
 *-----------------------------------------------------------------------
 *
@@ -42,6 +42,10 @@
 * NREGN   number of regions in splitted geometry after symmetry.
 * NSURN   number of surfaces in splitted geometry after symmetry.
 * NEREN   maximum number of elements in IREN.
+* IMRGT   merging option for triangles in HEXT, HEXTZ, HEXTCEL 
+*         and HEXTCELZ gemmetries
+*         (=0 -> no merging; =2 -> all triangle in a ring are merged;
+*         =1 -> all triangles in a sector of a ring are merged)
 *
 *Parameters: input/output
 * DAMESS  mesh description for rotated geometry.
@@ -70,6 +74,7 @@
       DOUBLE PRECISION DAMESS(-1:MAXMSS,4,2)
       INTEGER          ITSYM(4),NREGS,NSURS,NREGN,NSURN,NEREN
       INTEGER          IDREG(NREGS),IDSUR(NSURS)
+      INTEGER          IMRGT
 *----
 *  Local parameters
 *----
@@ -96,10 +101,12 @@
       INTEGER          IDTRI,IGEN,IGENS,IOFT,IOFTS,IS,ISPZ,ITID,ITIDS,
      >                 NBS,NRR,NTL
       DOUBLE PRECISION DDI,DDO
+      INTEGER          IODS,IODX,ITRI,IIS
 *----
 *  Allocatable arrays
 *----
       INTEGER, ALLOCATABLE, DIMENSION(:,:) :: IREN,MIXS
+      INTEGER, ALLOCATABLE, DIMENSION(:) :: MRGT
 *----
 *  Data
 *----
@@ -489,7 +496,167 @@
         WRITE(IOUT,6032) 'before symmetries   '
         WRITE(IOUT,6034)  (IDSUR(III),III=1,NSURS)
         WRITE(IOUT,6035)   ITSYM
+        WRITE(IOUT,'(A23,2X,I5)') 'Triangular cell merging',IMRGT
       ENDIF
+*----
+* Triangular region and surfaces merging
+*----      
+      ALLOCATE(MRGT(NREGS))
+      IF(IMRGT.EQ.2) THEN
+*----
+*  MERGE FOR TRIANGLES BY HEXAGONAL RINGS
+*----
+        IOFTS=0
+        IRT=0                    
+        DO IZS=1,NZSMX1
+          IODZ=(IZS-1)*NRTPS*NRS
+          DO ISECT=1,6
+            IODX=IODZ
+            DO IX=1,NXS
+              DO ITRI=1,2*IX-1
+                DO IR=1,NRS
+                  IOFTS=IOFTS+1
+                  IF((ISECT.EQ.1).AND.(ITRI.EQ.1)) THEN 
+                    IRT=IRT+1
+                    MRGT(IOFTS)=IRT
+                  ELSE
+                    MRGT(IOFTS)=-(IODX+IR)
+                  ENDIF
+                ENDDO
+              ENDDO
+              IODX=IODX+(2*IX-1)
+            ENDDO
+          ENDDO
+        ENDDO
+*        WRITE(IOUT,*) 'Merge ID for triangle per ring   '
+*        WRITE(IOUT,6034)  (MRGT(III),III=1,NREGS)
+*----
+*  Renumber regions
+*----
+        DO IRO=1,NREGS
+          IODS=MRGT(IRO)
+          IF(IODS.GT.0) THEN
+            IDREG(IRO)=IODS
+          ELSE
+            IDREG(IRO)=IDREG(-IODS)
+          ENDIF 
+        ENDDO 
+*        WRITE(IOUT,*) 'Regions after merge for triangle per ring'
+*        WRITE(IOUT,6034) (IDREG(III),III=1,NREGS)
+*
+*  Triangular surfaces merging
+*  a) Hexagnal surfaces (1 surfave per level)
+*
+        ISBOT=0
+        IOFTS=0
+        DO IZS=1,NZSMX1
+          ISBOT=ISBOT+1
+          DO ISECT=1,6
+            DO III=1,2*NXS-1
+             IOFTS=IOFTS+1
+             IDSUR(IOFTS)=ISBOT
+            ENDDO
+          ENDDO
+        ENDDO
+        IF(NZ .GT. 0) THEN
+*
+*  b) Z- and Z+ surfaces
+*
+          ISTOP=ISBOT+NXS*NRS
+          DO ISECT=1,6
+            DO IX=1,NXS
+              IIS=(IX-1)*NRS
+              DO ITRI=1,2*IX-1
+                DO IR=1,NRS
+                  IOFTS=IOFTS+1
+                  IDSUR(IOFTS)=ISBOT+IIS+IR
+                  IDSUR(IOFTS+NRPS)=ISTOP+IIS+IR
+                ENDDO               
+              ENDDO               
+            ENDDO               
+          ENDDO
+        ENDIF 
+*       WRITE(IOUT,*) 'Surface after merge for triangle per ring'
+*        WRITE(IOUT,6034) (IDSUR(III),III=1,NSURS)             
+      ELSE IF(IMRGT.EQ.1) THEN 
+*----
+*  MERGE INDEX FOR TRIANGLES BY SECTOR IN HEXAGONAL RINGS
+*----
+        IOFTS=0
+        IRT=0                    
+        DO IZS=1,NZSMX1
+          IODZ=6*(IZS-1)*NRTPS*NRS
+          DO ISECT=1,6
+            IODS=IODZ+(ISECT-1)*NRTPS*NRS
+            IODX=IODS
+            DO IX=1,NXS
+              DO ITRI=1,2*IX-1
+                DO IR=1,NRS
+                  IOFTS=IOFTS+1
+                  IF(ITRI.EQ.1) THEN 
+                    IRT=IRT+1
+                    MRGT(IOFTS)=IRT
+                  ELSE
+                    MRGT(IOFTS)=-(IODX+IR)
+                  ENDIF
+                ENDDO
+              ENDDO
+              IODX=IODX+(2*IX-1)
+            ENDDO
+          ENDDO
+        ENDDO
+*        WRITE(IOUT,*) 'Merge ID for triangle per ring sector  '
+*        WRITE(IOUT,6034) (MRGT(III),III=1,NREGS)
+*----
+*  Renumber regions
+*----
+        DO IRO=1,NREGS
+          IODS=MRGT(IRO)
+          IF(IODS.GT.0) THEN
+            IDREG(IRO)=IODS
+          ELSE
+            IDREG(IRO)=IDREG(-IODS)
+          ENDIF 
+        ENDDO 
+*        WRITE(IOUT,*) 'Regions after merge for triangle per ring sector'
+*        WRITE(IOUT,6034) (IDREG(III),III=1,NREGS)
+*
+*  Triangular surfaces merging
+*  a) Hexagnal surfaces (6 surfave per level)
+*
+        ISBOT=0
+        IOFTS=0
+        DO IZS=1,NZSMX1
+          DO ISECT=1,6
+            ISBOT=ISBOT+1
+            DO III=1,2*NXS-1
+             IOFTS=IOFTS+1
+             IDSUR(IOFTS)=ISBOT
+            ENDDO
+          ENDDO
+        ENDDO
+        IF(NZ .GT. 0) THEN
+*
+*  b) Z- and Z+ surfaces
+*
+          ISTOP=ISBOT+NXS*NRS*6
+          DO ISECT=1,6
+            DO IX=1,NXS
+              IIS=NRS*((ISECT-1)*NXS+IX-1)
+              DO ITRI=1,2*IX-1
+                DO IR=1,NRS
+                  IOFTS=IOFTS+1
+                  IDSUR(IOFTS)=ISBOT+IIS+IR
+                  IDSUR(IOFTS+NRPS)=ISTOP+IIS+IR
+                ENDDO               
+              ENDDO               
+            ENDDO               
+          ENDDO
+        ENDIF 
+*        WRITE(IOUT,*) 'Surface after merge for triangle per ring sector'
+*        WRITE(IOUT,6034) (IDSUR(III),III=1,NSURS)
+      ENDIF
+      DEALLOCATE(MRGT)
 *----
 *  Z symmetry
 *----
@@ -537,17 +704,13 @@
       IRN=0
       DO IRO=1,NREGS
         IDV=IDREG(IRO)
-        IF(IDV .GT. 0) THEN
+        IF(IDV .GT. 0) THEN 
+          DO IRT=1,IRN
+            IF(IDV .EQ. IREN(1,IRT)) GO TO 100
+          ENDDO
           IRN=IRN+1
           IREN(1,IRN)=IDV
-          DO IRT=1,IRN-1
-            IF(IDV .LT. IREN(1,IRT)) THEN
-              DO IRR=IRN-1,IRT,-1
-                IREN(1,IRR+1)=IREN(1,IRR)
-              ENDDO
-              IREN(1,IRT)=IDV
-            ENDIF
-          ENDDO
+100       CONTINUE
         ENDIF
       ENDDO
       NREGN=IRN
@@ -568,16 +731,12 @@
       DO IRO=1,NSURS
         IDS=IDSUR(IRO)
         IF(IDS .GT. 0) THEN
+          DO IRT=1,IRN
+            IF(IDS .EQ. IREN(1,IRT)) GO TO 110
+          ENDDO
           IRN=IRN+1
           IREN(1,IRN)=IDS
-          DO IRT=1,IRN-1
-            IF(IDS .LT. IREN(1,IRT)) THEN
-              DO IRR=IRN-1,IRT,-1
-                IREN(1,IRR+1)=IREN(1,IRR)
-              ENDDO
-              IREN(1,IRT)=IDS
-            ENDIF
-          ENDDO
+110       CONTINUE
         ENDIF
       ENDDO
       NSURN=IRN

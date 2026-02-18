@@ -1,0 +1,103 @@
+*--------------------------------------------------------
+*  Procédure p4_Equilib
+*  Affine la stratégie pour un ensemble de paramètres donnés
+*  Appel :   
+*   FlxT FmapT := p5_Radial Flx Fmap FmapI GeoCalc Trkcore DevInf MacDev 
+*   CpoFuel :: <<B1o>> <<R2o>> <<R3o>> <<PCo>> 
+*              <<PGo>> <<Fo>> <<DRo>> <<eAo>> >>B1o<< >>R2o<< 
+*              >>R3o<< >>PCo<< >>PGo<< >>Fo<< >>eAo<< ;
+*  avec en entree
+*  S   DEV   = type de mécanismes traités : NOMINAL
+*  et en sortie
+*      fadj  = niveau d'insertion des barres de compensation
+*  Auteur : Emmanuel Saint Aubin 
+*           D&Dv5 Ivan Trancart - 15-12-2024 (maj 16-12-2024)
+*--------------------------------------------------------
+PARAMETER       FlxT FmapT FlxC FmapC FmapI GeoCalc Trkcore DevInf 
+                MacDev CpoFuel ::  
+::: LINKED_LIST FlxT FmapT FlxC FmapC FmapI GeoCalc Trkcore DevInf 
+                MacDev CpoFuel ; ; 
+LINKED_LIST     FmapFl Flxtmp Fmap Flx ;
+PROCEDURE       p4_Equilib p9_Data f2_ObjStrat ;
+MODULE          DELETE: GREP: END: ;
+ECHO "DÉBUT DE RADIAL.c2m" ;
+REAL B1 R2 R3 DR DR2m DR2p DR3m DR3p 
+     R2t R3t PC PG BREF F Fo B1o R2o R3o LIMC RMAX 
+     BEND PCo PGo LIMG eAo P E B eA ;
+INTEGER POINT PL ;
+STRING proc := "RADIAL" ;
+STRING SETC ;
+:: >>SETC<< >>B1<< >>R2<< >>R3<< >>PC<< >>PG<< 
+   >>F<< >>DR<< >>eA<< ;
+p9_Data :: <<proc>> >>BREF<< >>LIMC<< >>LIMG<< ;
+***
+IF     R2 1.0 = THEN EVALUATE DR2m DR2p := DR 2.0 / DR ;
+ELSEIF R2 1.0 < THEN EVALUATE DR2m DR2p := DR 2.0 / DR 2.0 / ;
+ELSEIF R2 1.0 > THEN EVALUATE DR2m DR2p := DR       DR ;
+ENDIF ;
+IF     R3 1.0 = THEN EVALUATE DR3m DR3p := DR 2.0 / DR ;
+ELSEIF R3 1.0 < THEN EVALUATE DR3m DR3p := DR 2.0 / DR 2.0 / ;
+ELSEIF R3 1.0 > THEN EVALUATE DR3m DR3p := DR       DR ;
+ENDIF ;
+***
+Flx  := FlxC ;
+Fmap := FmapC ;
+EVALUATE POINT PL := 1 8 ;
+* Nombre de points à 3 zones : 8
+EVALUATE B1o R2o R3o PCo PGo Fo eAo := 
+          B1  R2  R3  PC  PG  F  eA ;
+WHILE POINT PL <= DO
+   IF     POINT  1 = THEN 
+   EVALUATE R2t R3t := R2 DR2m - R3 DR3p + ;
+   ELSEIF POINT  2 = THEN 
+   EVALUATE R2t R3t := R2 DR2m - R3        ;
+   ELSEIF POINT  3 = THEN 
+   EVALUATE R2t R3t := R2 DR2m - R3 DR3m - ;
+   ELSEIF POINT  4 = THEN 
+   EVALUATE R2t R3t := R2        R3 DR3m - ;
+   ELSEIF POINT  5 = THEN 
+   EVALUATE R2t R3t := R2 DR2p + R3 DR3m - ;
+   ELSEIF POINT  6 = THEN 
+   EVALUATE R2t R3t := R2 DR2p + R3        ;
+   ELSEIF POINT  7 = THEN 
+   EVALUATE R2t R3t := R2 DR2p + R3 DR3p + ;
+   ELSEIF POINT  8 = THEN 
+   EVALUATE R2t R3t := R2        R3 DR3p + ;
+   ENDIF ;
+   FmapFl Flxtmp GeoCalc := p4_Equilib FmapI GeoCalc Trkcore 
+   DevInf MacDev CpoFuel :: 
+                    <<SETC>> <<B1>> <<R2t>> <<R3t>>  
+                    >>PC<< >>PG<< >>B1<< >>eA<< ;
+   GREP: FmapFl :: GETVAL B-EXIT 1 >>BEND<< ;
+   ***
+   ECHO "B1 B2 B3 BEND BREF: " B1 B1 R2t * B1 R3t * BEND BREF ;
+* F = P + E + B
+   f2_ObjStrat :: <<BEND>> <<PC>> <<PG>> <<eA>> >>F<< ;
+    IF F Fo > THEN 
+        Flx Fmap := DELETE: Flx Fmap ;
+        Flx  := Flxtmp ;
+        Fmap := FmapFl ;
+        EVALUATE Fo B1o R2o R3o PCo PGo eAo := 
+                  F  B1 R2t R3t  PC  PG  eA ;
+    ENDIF ;
+    ECHO "******    CYCLES    ******" ;
+    ECHO "epsAXC = " eA ;  
+    ECHO " B1 = " B1 ;
+    ECHO " R2 = " R2t ;
+    ECHO " R3 = " R3t ; 
+    ECHO " P.MAX. CANAL  = " PC ;
+    ECHO " P.MAX. GRAPPE = " PG ;
+    ECHO " F = " F ;
+    ECHO "**************************" ;
+    FmapFl Flxtmp := DELETE: FmapFl Flxtmp ;
+    EVALUATE POINT := POINT 1 + ;
+ENDWHILE ;
+***
+FlxT  := Flx ;
+FmapT := Fmap ;
+:: <<B1o>> <<R2o>> <<R3o>> <<PCo>> <<PGo>> <<Fo>> <<eAo>> ;
+Fmap Flx := DELETE: Fmap Flx ;
+***
+ECHO "FIN DE RADIAL.c2m" ;
+END: ;
+QUIT "LIST" .

@@ -874,6 +874,7 @@ $]$\\
 $[$ \moc{HMIX}  (\dusa{ihmix}(i), i=1,$N_t$) $[$ \moc{REPEAT} $]$ $]$\\
 $[$ \moc{CELL}  (\dusa{HCELL}(i),i=1,$N_t$) $]$\\
 $[$ \moc{MERGE} (\dusa{imerge}(i),i=1,$N_t$) $]$\\
+$[$ \moc{HTMERGE} \dusa{ihtm} $]$\\
 $[$ \moc{TURN}  (\dusa{HTURN}(i),i=1,$N_t$) $]$\\
 $[$ \moc{CLUSTER} (\dusa{NAMPIN}(i),i=1,$N_p$) $]$\\
 $[$ \moc{MIX-NAMES} (\dusa{NAMMIX}(i),i=1,\dusa{maxmix}) $]$
@@ -1377,6 +1378,10 @@ be merged.
 \item[\dusa{imerge}] array of numbers that associate a global sub-geometry or
 region number with each sub-geometry or region. All the sub-geometries  or
 regions with the same global number will be attributed the same flux.
+
+\item[\moc{HTMERGE}] keyword to merge the triangle in hexagonal rings for \moc{HEXT}, \moc{HEXTZ}, \moc{HEXTCEL} and \moc{HEXTCELZ} geometries. 
+
+\item[\dusa{ihtm}] merge level for \moc{HTMERGE}. By default, \dusa{ihtm}=0 and no merging takes place. The value \dusa{ihtm}=1 implies merging the triangle on an hexagonal ring independently for each sector. This is possible only if the mixtures are defined per ring for all sectors or per ring per sector. The value \dusa{ihtm}=2 implies merging the triangle on an hexagonal ring. This is possible only if the mixtures are defined per ring for all sectors.
 
 \item[\moc{TURN}] keyword to specify that some sub-geometries must be rotated
 in space before being located at a specific position.

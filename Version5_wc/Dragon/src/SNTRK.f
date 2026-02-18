@@ -398,10 +398,13 @@
          IF(IQUAD.GE.10) THEN
             NPQ=NLF**2  
          ELSE
-            NPQ=(NLF+4)*NLF/2
+            IF(ITYPE.EQ.6) THEN ! 2D TUBE REQUIRES ADDITIONAL DIRECTIONS 
+               NPQ=(NLF+4)*NLF/2
+            ELSE
+               NPQ=(NLF+2)*NLF/2
+            ENDIF
          ENDIF
          IF(IGLK.NE.0) THEN
-            NPQ=(NLF+2)*NLF/2
             NSCT=NPQ
          ELSE
             NSCT=ISCAT*(ISCAT+1)/2
@@ -435,6 +438,7 @@
             CALL LCMPUT(IPTRK,'SIDE',1,2,SIDE)
             DEALLOCATE(COORDMAP)
          ENDIF
+         
 *
          ALLOCATE(MRMX(NPQ),MRMY(NPQ))
          ALLOCATE(DU(NPQ),DE(NPQ),WW(NPQ),DB(LX*NPQ),DA(LX*LY*NPQ),

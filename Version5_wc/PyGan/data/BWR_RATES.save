@@ -17,5 +17,5 @@ else
 fi
 ls -l
 cp *.ps ./DRAGON_*
-cp -r DRAGON_* $1/"$MACH"/
+cp -r DRAGON_RATES* $1/"$MACH"/
 echo "-----.save----- BWR_RATES save script terminated"

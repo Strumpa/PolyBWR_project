@@ -222,7 +222,7 @@ WHILE evoend step2 NORM_FCT2 / < DO
   EVALUATE istep := istep 1 + ;
 
 ENDWHILE ;
-assertS FLUX :: K-INFINITY 1 1.346755 ;
+assertS FLUX :: K-INFINITY 1 1.346952 ;
 *
 * CONCATENATION
 *

@@ -19,8 +19,8 @@ which corresponds to its position in the fuel lattice.
 In a Candu reactor, the channels are refuelled according
 to the bidirectional refuelling scheme. The refuelling scheme of a channel
 corresponds to the number of displaced fuel bundles (bundle-shift) during
-each channel refuelling. The direction of refuelling corresponds to the
-direction of coolant flow along the channel. 
+each channel refuelling, or following a specific pattern. The direction of refuelling
+corresponds to the direction of coolant flow along the channel. 
 
 \vskip 0.08cm
 
@@ -305,7 +305,8 @@ $[$ \moc{TIMAV-BVAL} (\dusa{bvalue}(i) ,  i = 1, \dusa{ncomb} ) $]$ \\
 $[$ \moc{INST-BVAL} $\{$ \moc{SAME} \dusa{bvalue} $|$ \moc{CHAN} (\dusa{bvalue}(i) ,  i = 1, \dusa{nch} ) $|$ \moc{BUND} (\dusa{bvalue}(i) ,  i = 1, \dusa{nch}$\cdot$\dusa{nb} ) $|$ \\ ~ \moc{SMOOTH} $\}$ $|$ \moc{ASBLY} (\dusa{bvalue}(i) ,  i = 1, \dusa{na} ) $|$ \moc{OLDMAP}  $]$ \\
 $[$ \moc{BUNDLE-POW} $\{$ \moc{SAME} \dusa{pwvalue} $|$ \moc{CHAN} (\dusa{pwvalue}(i) ,  i = 1, \dusa{nch} ) $|$ \moc{BUND} (\dusa{pwvalue}(i) ,  i = 1, \dusa{nch}$\cdot$\dusa{nb} ) $\}$ $]$ \\
 $[$ \moc{REACTOR-POW} \dusa{pwtot} \moc{AXIAL-PFORM} (\dusa{fvalue}(i) ,  i = 1, \dusa{nb} ) $]$ \\
-$[$ \moc{REF-SHIFT} $\{$ \dusa{ishift} $|$ \moc{COMB} (\dusa{ishift}(i) ,  i = 1, \dusa{ncomb} ) $\}$ $]$ \\
+$[$ \moc{REF-SHIFT} $\{$ \dusa{ishift} $|$ \moc{COMB} (\dusa{ishift}(i) ,  i = 1, \dusa{ncomb} ) $|$ \moc{SHUFF} (\dusa{ipattern}(i) ,  i = 1, \dusa{ncomb} ) \\
+~~~$[[$ \moc{PATTERN} (\dusa{ipos}(i) ,  i = 1, \dusa{nb} ) $\{$ \moc{UNIDIR} $|$ \moc{BIDIR} $\}$ $]]$ $\}$ $]$ \\
 $[[$ \moc{ADD-PARAM} ~\moc{PNAME} \dusa{PNAME}
 ~\moc{PARKEY} \dusa{PARKEY} $\{$ \moc{GLOBAL} $|$ \moc{LOCAL} $\}$ $]]$ \\
 $[[$ \moc{SET-PARAM} \dusa{PNAME} $\{$ \dusa{pvalue} $|$ \moc{OLDMAP}   $|$
@@ -388,6 +389,18 @@ per combustion zone.
 A single \dusa{ishift} value means that the same bundle-shift will be applied for
 all combustion zones. Note that the bundle-shift value must be positive, it
 corresponds to the number of displaced fuel bundles during each channel refuelling.
+
+\item[\moc{SHUFF}] keyword used to enable the axial shuffling of specific channels, option used in time-averaged calculations only.
+
+\item[\dusa{ipattern}] integer array of the bundle-shuffling pattern indexes. The pattern indexes are associated with the order in which the patterns are declared with the keyword \moc{PATTERN}.
+
+\item[\moc{PATTERN}] keyword to specify a new bundle-shuffling pattern. The number of patterns must be equal to the maximum index \dusa{ipattern} indicated.
+
+\item[\dusa{ipos}] integer array of the bundle positions along the channel before refuelling. Values between 1 and \dusa{nb} indicate the previous positions in the same channel, a value of 0 indicates the entry of a fresh bundle.
+
+\item[\moc{UNIDIR}] keyword to indicate unidirectionnal coolant flow and bundle displacement for all channels in the combustion zone using this shuffling pattern.
+
+\item[\moc{BIDIR}] keyword to indicate bidirectionnal coolant flow and bundle displacement for all channels in the combustion zone using this shuffling pattern. This is the default option when not using the SHUFF keyword.
 
 \item[\moc{ADD-PARAM}] keyword used to indicate the input of information
 for a new global or local parameter. For more information about the parameter

@@ -8,28 +8,32 @@ MODULE LIB: GEO: SYBILT: USS: ASM: FLU: GREP: UTL: EVO: COMPO: EDI: DELETE: ;
 
 LINKED_LIST GEOM TRACK LIBRARY LIBRARY2 CP CALC BURNUP StepList COMPO EDIBU ;
 
-SEQ_ASCII _COMPO :: FILE './_COMPO_HOM_Gd157_VBOC_endfb8r1_295K2_EXTR_NODI' ;
+SEQ_ASCII _COMPO :: FILE './_COMPO_HOM_Gd157_VBOC_endfb8r1_EXTR_NODI' ;
 
-STRING draglib_name := 'endfb8r1K2' ;
+STRING draglib_name := 'endfb8r1_295' ;
 STRING activate_NG0 := 'No' ;
 STRING pcc_opt := 'EXTR' ; ! 'EXTR' or 'NOEX'
 REAL Kinf ;
 
 * Total of 40 steps between 0.0 to 10.0 GWd/tHM
-StepList := UTL: :: CREA 'ListBU' 40 =
-   0.0     25.0      50.0    100.0     150.0    
- 200.0    250.0     300.0    350.0     400.0 
- 450.0    500.0     550.0    600.0     650.0
- 700.0    750.0     800.0    850.0     900.0     
- 950.0   1000.0    1500.0   2000.0    2500.0
-3000.0   3500.0    4000.0   4500.0    5000.0    
-5500.0   6000.0    6500.0   7000.0    7500.0    
-8000.0   8500.0    9000.0   9500.0   10000.0   ;
+*StepList := UTL: :: CREA 'ListBU' 40 =
+*   0.0     25.0      50.0    100.0     150.0    
+* 200.0    250.0     300.0    350.0     400.0 
+* 450.0    500.0     550.0    600.0     650.0
+* 700.0    750.0     800.0    850.0     900.0     
+* 950.0   1000.0    1500.0   2000.0    2500.0
+*3000.0   3500.0    4000.0   4500.0    5000.0    
+*5500.0   6000.0    6500.0   7000.0    7500.0    
+*8000.0   8500.0    9000.0   9500.0   10000.0   ;
 
-* Total of 14 steps between 0.0 to 10.0 GWd/tHM, used for OpenMC comparison
-*StepList := UTL: :: CREA 'ListBU' 14 = 
-*   0.0    25.0    50.0   100.0   200.0   400.0    600.0  
-* 800.0  1000.0  2000.0  4000.0  6000.0  8000.0  10000.0 ;
+* Total of 39 steps between 0.0 to 10.0 GWd/tHM, used for OpenMC comparison and EVO prototyping
+StepList := UTL: :: CREA 'ListBU' 39 = 
+   0.0    25.0    50.0   100.0   200.0   400.0    600.0  
+ 800.0  1000.0  1500.0  2000.0  2500.0  3000.0   3500.0  
+4000.0  4250.0  4500.0  4750.0  5000.0  5250.0   5500.0
+5750.0  6000.0  6250.0  6500.0  6750.0  7000.0   7250.0 
+7500.0  7750.0  8000.0  8250.0  8500.0  8750.0   9000.0  
+9250.0  9500.0  9750.0 10000.0 ;
 
 
 ** Prepare for evolution loop
@@ -38,7 +42,7 @@ REAL Tbeg := 0.0 ;
 REAL Tend := 0.0 ;
 REAL BUend := 0.0 ;
 
-REAL Pow_dens := 38.6 ; ! W/gHM 
+REAL Pow_dens := 25.6 ; ! W/gHM 
 
 INTEGER nsteps ;
 GREP: StepList :: LENGTH ListBU >>nsteps<< ;
@@ -75,10 +79,10 @@ IF activate_NG0 'No' = THEN
         O16  = O16   2.955339E-02 
         H1  = H1_H2O   2.497844E-02
         U234  = U234   3.482587E-06 1
-        U235  = U235   3.664503E-04 CORR 1
-        U238  = U238   7.765571E-03 CORR 1
+        U235  = U235   3.664503E-04 1
+        U238  = U238   7.765571E-03 1
 
-        Gd157  = Gd157 7.899877E-05 CORR 1
+        Gd157  = Gd157 7.899877E-05 1
 
         Zr90  = Zr90   2.449439E-03  1
         Zr91  = Zr91   5.341629E-04  1
@@ -226,7 +230,7 @@ WHILE istep nsteps < DO
         EVALUATE Tend := BUend Pow_dens / ;
         ECHO "Perform BU evolution between " Tbeg " and " Tend " days" ;
         BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 CALC TRACK ::
-            EDIT 10
+            EDIT 1
             DEPL <<Tbeg>> <<Tend>> DAY POWR <<Pow_dens>>
             EPS1 1.0E-5  EPS2 1.0E-5
             EXPM 1.E15 RUNG <<pcc_opt>> NODI GLOB

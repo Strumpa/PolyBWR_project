@@ -1,0 +1,345 @@
+*** Cle-2000 procedure to call DRAGON5 and treat OECD/NEA Phase IIIB BWR assembly benchmark.
+* Author : R. Guasch
+* Ref. : "OECD/NEA Burnup Credit Criticality Benchmarks Phase IIIB: 
+* Burnup Calculations of BWR Fuel Assemblies for Storage and Transport"
+* Hiroshi OKUNO, Yoshitaka NAITO* and Kenya SUYAMA - JAERI-Research, 
+* Report NEA/NSC/DOC(2002)2, 2002.
+
+*********************
+* PROCEDURES
+*********************
+
+PROCEDURE 
+        GEO_8th GEO_8thB G8thMultCell GEO_4th 
+        TRK_8th TRK_MultCell TRK_4th 
+        MIX_A ; 
+
+*********************
+* MODULE IMPORTS
+*********************
+MODULE GEO: G2S: SALT: LIB: USS: MCCGT: ASM: FLU: EDI: COMPO: GREP: DELETE: ;
+
+*********************************
+* DRAGON VARIABLES DECLARATIONS
+*********************************
+
+LINKED_LIST GEOM GEOMSSH TRK TRKSSH LIBRARY LIBRARY2 ;
+LINKED_LIST SYS FLUX EDIRATES COMPO ;
+SEQ_ASCII _COMPO :: FILE './_CPO_IIIB_J311_295_inrs1_2c_NOTR_eighth_PIJ_30_140_GAUS_finer_wind' ;
+SEQ_BINARY TF_EXC TF_EXC_SS ;
+SEQ_ASCII GEO_G2S :: FILE 'Fic_SAL_PhaseIIIB.tdt' ;
+SEQ_ASCII GEOSSH_G2S :: FILE 'Fic_SAL_PhaseIIIB_SSH.tdt' ;
+REAL Kinf ;
+
+STRING symmetry := "eighth" ; ! symmetry of the assembly : "eighth", "quarter", or "full"
+STRING cool_sect := "windmill" ; ! coolant sectorization : "windmill" or "basala"
+STRING exec_case := "TRUE" ; ! 'TRUE' to execute the case, 'FALSE' to skip it
+STRING Library := "J311_295" ; ! name of the library to use, e.g. "endfb8r1_295", "J311_295"
+STRING autop_door := "full_PIJ" ; !"surfacic_multicell" ; ! "surfacic_multicell" or "full_PIJ"
+STRING calc_opt := "FALSE" ;
+
+* ---
+* TRACKING PARAMTERES
+* ---
+* (30, 100.0) : SALTLC errors : RMS : 0.07754%, MAX : 0.46623% and AVG : 0.00132%
+* RMS : 0.21866% MAX: 2.42000% and AVG: -0.00581% for finer geom
+* (30, 140.0) : RMS: 0.14888%  MAX: 1.15671% and AVG: 0.00017% for finer geom
+INTEGER an2d := 30 ;  ! ANGULAR QUADRATURE PARAMETER,
+REAL densur := 100.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
+
+INTEGER an2d_ss := 12 ;  ! ANGULAR QUADRATURE PARAMETER #18
+REAL densur_ss := 40.0 ; ! DENSITY OF INTEGRATION LINES CM^-1 #30
+
+* polar angles for MCCGT:
+INTEGER nmu := 4 ;
+
+* size allocation for MCCGT:
+INTEGER mcu := 50000 ;
+
+*---
+* COMPOSITION options
+*---
+STRING compos_opt := "VOID_0" ; ! options for composition, e.g. "no
+STRING door := "" ;
+********************************************************************
+*       BEGIN 1 Level calculation scheme
+********************************************************************
+IF cool_sect 'windmill' = THEN
+    IF symmetry 'eighth' = THEN
+
+        IF autop_door 'full_PIJ' = THEN
+            ! Define the flux and self-shielding geometry
+            GEOM GEOMSSH := GEO_8th ;
+            ! Call to tracking module
+            GEO_G2S TRK TF_EXC GEOSSH_G2S TRKSSH TF_EXC_SS := TRK_8th GEOM GEOMSSH 
+            :: <<an2d>> <<an2d_ss>> <<densur>> <<densur_ss>> <<nmu>> <<mcu>> ;
+        ELSEIF autop_door 'surfacic_multicell' = THEN 
+            ! Define the flux and self-shielding geometry
+            GEOM GEOMSSH := G8thMultCell ;
+            ! Call to tracking module
+            GEO_G2S TRK TF_EXC GEOSSH_G2S TRKSSH TF_EXC_SS := TRK_MultCell GEOM GEOMSSH 
+            :: <<an2d>> <<an2d_ss>> <<densur>> <<densur_ss>> <<nmu>> <<mcu>> ;
+        ENDIF ;
+
+
+    ELSEIF symmetry 'quarter' = THEN
+        GEOM GEOMSSH := GEO_4th ;
+        GEO_G2S TRK TF_EXC GEOSSH_G2S TRKSSH TF_EXC_SS := TRK_4th GEOM GEOMSSH
+        :: <<an2d>> <<an2d_ss>> <<densur>> <<densur_ss>> <<nmu>> <<mcu>> ;
+
+    ELSEIF symmetry 'full' = THEN
+    !    GEOM GEOMSSH := GEO_A ;
+        ECHO "Not implemented yet" ;
+
+    ENDIF ;
+ENDIF ;
+
+IF exec_case 'TRUE' = THEN
+
+************************************************
+*    LIBRARY DEFINITION : Microlib
+************************************************
+ECHO "Library definition for Microlib with table of probabilities" ;
+LIBRARY := MIX_A :: <<Library>> <<compos_opt>> ;
+************************************************
+*    USS LIBRARY DEFINITION : Self-Shielding
+************************************************
+
+IF autop_door 'surfacic_multicell' = THEN 
+    EVALUATE door := 'ARM' ; ! ARM for FLUX-CURRENT iterations instead of full PIJ reconstruction
+ELSEIF autop_door 'full_PIJ' = THEN 
+    EVALUATE door := 'PIJ' ; ! PIJ for full PIJ reconstruction
+ENDIF ;
+
+
+IF calc_opt "TRUE" = THEN
+    LIBRARY2 := USS: LIBRARY TRKSSH TF_EXC_SS ::
+            EDIT 1 PASS 4 GRMIN 52 NOTR MAXST 100 <<door>> ! try ARM for FLUX-CURRENT iterations instead of full PIJ reconstruction
+            CALC 
+                REGI W1 U235  ALL
+                REGI W1 U236  ALL    
+            
+
+            ! Pin ID 1
+                REGI W41 U238 1 
+                REGI W31 U238 2 
+                REGI W21 U238 3
+                REGI W11 U238 4
+
+            ! Pin ID 2
+                REGI W42 U238 5 
+                REGI W32 U238 6 
+                REGI W22 U238 7
+                REGI W12 U238 8   
+            ! Pin ID 3
+                REGI W43 U238 9 
+                REGI W33 U238 10 
+                REGI W23 U238 11
+                REGI W13 U238 12  
+            ! Pin ID 4
+                REGI W44 U238 13
+                REGI W34 U238 14
+                REGI W24 U238 15
+                REGI W14 U238 16
+            ! Pin ID 5
+                REGI W45 U238 17
+                REGI W35 U238 18
+                REGI W25 U238 19
+                REGI W15 U238 20
+            ! Pin ID 6
+                ! U238
+                REGI W66 U238 21
+                REGI W56 U238 22
+                REGI W46 U238 23
+                REGI W36 U238 24
+                REGI W26 U238 25
+                REGI W16 U238 26
+                ! Gd154
+                REGI W66 Gd154 21
+                REGI W56 Gd154 22
+                REGI W46 Gd154 23
+                REGI W36 Gd154 24
+                REGI W26 Gd154 25
+                REGI W16 Gd154 26
+                ! Gd155
+                REGI W66 Gd155 21
+                REGI W56 Gd155 22
+                REGI W46 Gd155 23
+                REGI W36 Gd155 24
+                REGI W26 Gd155 25
+                REGI W16 Gd155 26
+                ! Gd156
+                REGI W66 Gd156 21
+                REGI W56 Gd156 22
+                REGI W46 Gd156 23
+                REGI W36 Gd156 24
+                REGI W26 Gd156 25
+                REGI W16 Gd156 26
+                ! Gd157
+                REGI W66 Gd157 21
+                REGI W56 Gd157 22
+                REGI W46 Gd157 23
+                REGI W36 Gd157 24
+                REGI W26 Gd157 25
+                REGI W16 Gd157 26
+                ! Gd158
+                REGI W66 Gd158 21
+                REGI W56 Gd158 22
+                REGI W46 Gd158 23
+                REGI W36 Gd158 24
+                REGI W26 Gd158 25
+                REGI W16 Gd158 26
+                ! Gd160
+                REGI W66 Gd160 21
+                REGI W56 Gd160 22
+                REGI W46 Gd160 23
+                REGI W36 Gd160 24
+                REGI W26 Gd160 25
+                REGI W16 Gd160 26
+            ! Pin ID 7
+                REGI W47 U238 27
+                REGI W37 U238 28
+                REGI W27 U238 29
+                REGI W17 U238 30
+            ! Pin ID 8
+                REGI W48 U238 31
+                REGI W38 U238 32
+                REGI W28 U238 33
+                REGI W18 U238 34
+            ! Pin ID 9
+                REGI W49 U238 35
+                REGI W39 U238 36
+                REGI W29 U238 37
+                REGI W19 U238 38
+
+            ENDC 
+    ;
+ELSE 
+    LIBRARY2 := USS: LIBRARY TRKSSH TF_EXC_SS ::
+            EDIT 1 PASS 4 GRMIN 52 NOTR MAXST 100 <<door>> ! try ARM for FLUX-CURRENT iterations instead of full PIJ reconstruction 
+    ;
+ENDIF ;
+************************************************
+*          BEGIN MOC FLUX CALCULATION                                       
+************************************************
+
+SYS := ASM: LIBRARY2 TRK TF_EXC :: ARM EDIT 0 ; 
+
+FLUX := FLU: LIBRARY2 SYS TRK TF_EXC :: 
+            EDIT 1 TYPE K  
+    ;
+GREP: FLUX :: GETVAL 'K-INFINITY  ' 1 1 1 >>Kinf<< ;
+
+ECHO "OECD/NEA Phase IIIB VOID0, t=0 calculation completed, Kinf = " Kinf ;
+
+
+
+**********************************************************************************************************
+********************          EXPORTS FOR POST-TREATMENT OF REACTION RATES               *****************
+**********************************************************************************************************
+COMPO := COMPO: ::
+EDIT 1
+STEP UP 'EDI_HOM'
+    MAXCAL 5
+    COMM 'Reaction rates- Condensed, Homogenized over all fuel cells' ENDC
+    ISOT 4 U235 U238 Gd155 Gd157
+INIT
+STEP UP 'HOM2g'
+    MAXCAL 5
+    COMM 'Reaction rates - Condensed 2gr, Homogenized per cell' ENDC
+    ISOT 4 U235 U238 Gd155 Gd157
+INIT
+STEP UP 'HOM5g'
+    MAXCAL 5
+    COMM 'Reaction rates - Condensed 5gr, Homogenized per cell' ENDC
+    ISOT 4 U235 U238 Gd155 Gd157
+INIT
+;
+
+
+*** Condense rates to 2 groups with division between groups at 0.625 eV
+
+EDIRATES := EDI: FLUX LIBRARY2 TRK ::
+    EDIT 1
+    MICR 4 U235 U238 Gd155 Gd157
+    MERG MIX 
+        1 1 1 1 ! F010401 F010402 F010403 F010404
+        2 2 2 2 ! F020301 F020302 F020303 F020304
+        3 3 3 3 ! F030201 F030202 F030203 F030204
+        4 4 4 4 ! F040201 F040202 F040203 F040204
+        5 5 5 5 ! F050201 F050202 F050203 F050204
+        6 6 6 6 6 6 ! F06Gd01 F06Gd02 F06Gd03 F06Gd04 F06Gd05 F06Gd06
+        7 7 7 7 ! F070101 F070102 F070103 F070104
+        8 8 8 8 ! F080101 F080102 F080103 F080104
+        9 9 9 9 ! F090101 F090102 F090103 F090104
+        0 0 0 0 0
+
+    COND 0.625
+    SAVE ON HOM2g 
+    ;
+
+COMPO := COMPO: COMPO EDIRATES LIBRARY2 ::
+        EDIT 1
+        STEP UP 'HOM2g'
+    ;
+
+EDIRATES := DELETE: EDIRATES ;
+
+*** Condense rates to 5 groups with division between groups at 0.625, 10, 1000 and 100000 eV
+
+EDIRATES := EDI: FLUX LIBRARY2 TRK ::
+    EDIT 1
+    MICR 4 U235 U238 Gd155 Gd157
+    MERG MIX 
+        1 1 1 1 ! F010401 F010402 F010403 F010404
+        2 2 2 2 ! F020301 F020302 F020303 F020304
+        3 3 3 3 ! F030201 F030202 F030203 F030204
+        4 4 4 4 ! F040201 F040202 F040203 F040204
+        5 5 5 5 ! F050201 F050202 F050203 F050204
+        6 6 6 6 6 6 ! F06Gd01 F06Gd02 F06Gd03 F06Gd04 F06Gd05 F06Gd06
+        7 7 7 7 ! F070101 F070102 F070103 F070104
+        8 8 8 8 ! F080101 F080102 F080103 F080104
+        9 9 9 9 ! F090101 F090102 F090103 F090104
+        0 0 0 0 0
+
+    COND 0.625 10.0 1000.0 100000.0
+    SAVE ON HOM5g 
+    ;
+
+COMPO := COMPO: COMPO EDIRATES LIBRARY2 ::
+        EDIT 1
+        STEP UP 'HOM5g'
+    ;
+
+EDIRATES := DELETE: EDIRATES ;
+
+**** homogenization over all fuel cells
+EDIRATES := EDI: FLUX LIBRARY2 TRK ::
+    EDIT 1
+    MICR 4 U235 U238 Gd155 Gd157
+    MERG MIX 
+        1 1 1 1 ! F010401 F010402 F010403 F010404
+        1 1 1 1 ! F020301 F020302 F020303 F020304
+        1 1 1 1 ! F030201 F030202 F030203 F030204
+        1 1 1 1 ! F040201 F040202 F040203 F040204
+        1 1 1 1 ! F050201 F050202 F050203 F050204
+        1 1 1 1 1 1  ! F06Gd01 F06Gd02 F06Gd03 F06Gd04 F06Gd05 F06Gd06
+        1 1 1 1 ! F070101 F070102 F070103 F070104
+        1 1 1 1 ! F080101 F080102 F080103 F080104
+        1 1 1 1 ! F090101 F090102 F090103 F090104
+        1 1 1 1 1  ! CLAD WROD COOL MODE BOX
+        
+    SAVE ON EDIBU_HOM
+    ;
+
+COMPO := COMPO: COMPO EDIRATES LIBRARY2 ::
+    EDIT 1
+    STEP UP 'EDI_HOM'
+;
+
+_COMPO := COMPO ;
+
+ENDIF ;
+
+
+    

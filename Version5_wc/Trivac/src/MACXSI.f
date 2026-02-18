@@ -1,5 +1,6 @@
 *DECK MACXSI
-      SUBROUTINE MACXSI (IPLIST,IND,NMIXT,NGRP,NDG,NL,IMPX,NBMIX,JND)
+      SUBROUTINE MACXSI (IPLIST,IND,NMIXT,NGRP,NDG,NL,IMPX,NBMIX,ILEAK,
+     1 NW,JND)
 *
 *-----------------------------------------------------------------------
 *
@@ -27,6 +28,8 @@
 *
 *Parameters: output
 * NBMIX   number of mixtures.
+* ILEAK   type of diffusion coefficient.
+* NW      weighting flag (=0/1: P1-weighted information absent/present).
 * JND     REDGET flag (=1 ';' encountered; =2 'STEP' encountered).
 *
 *-----------------------------------------------------------------------
@@ -36,7 +39,7 @@
 *  SUBROUTINE ARGUMENTS
 *----
       TYPE(C_PTR) IPLIST
-      INTEGER IND,NMIXT,NGRP,NDG,NL,IMPX,NBMIX,JND
+      INTEGER IND,NMIXT,NGRP,NDG,NL,IMPX,NBMIX,ILEAK,NW,JND
 *----
 *  LOCAL VARIABLES
 *----
@@ -138,7 +141,7 @@
          CALL LCMLEN(KPLIST,'FIXE',ILENGT,ITYLCM)
          IF(ILENGT.EQ.NMIXT) CALL LCMGET(KPLIST,'FIXE',S(1,JGR))
          DO 30 IL=1,NL
-         WRITE (CM,'(I2.2)') IL-1
+         WRITE(CM,'(I2.2)') IL-1
          CALL LCMLEN(KPLIST,'SCAT'//CM,ILENGT,ITYLCM)
          IF(ILENGT.GT.NMIXT*NL*NGRP*NGRP) THEN
             CALL XABORT('MACXSI: INVALID INPUT MACROLIB(2).')
@@ -316,7 +319,7 @@
       ENDIF
       IF(LSC) THEN
          DO 200 IL=1,NL
-         WRITE (CM,'(I2.2)') IL-1
+         WRITE(CM,'(I2.2)') IL-1
          IPOSDE=0
          DO 195 IBM=1,NMIXT
          J2=JGR
@@ -344,6 +347,14 @@
       ENDIF
       IF(IMPX.GT.1) CALL LCMLIB(KPLIST)
   210 CONTINUE
+*----
+*  SET STATE-VECTOR FLAGS
+*----
+      NW=0
+      IF(LT1) NW=1
+      ILEAK=0
+      IF(LD) ILEAK=1
+      IF(LDX.OR.LDY.OR.LDZ) ILEAK=2
 *----
 *  SCRATCH STORAGE DEALLOCATION
 *----

@@ -102,7 +102,7 @@ GREP: Flux   ::
   GETVAL 'K-EFFECTIVE ' 1  >>keff1<<  ;
 
 ECHO "densB1=" densB1 "K-effective 1 = " keff1   ;
-assertS Flux :: 'K-EFFECTIVE' 1 0.9922666 ;
+assertS Flux :: 'K-EFFECTIVE' 1 0.9961346 ;
 
 ECHO "test rep900_anm.x2m completed" ;
 END: ;

@@ -175,7 +175,7 @@ OUT := EDI: MICRO2 TRACK FLUX ALFR_LATT_b CP ::
     COND
     ;
 
-assertS FLUX :: 'K-EFFECTIVE' 1 0.1612311 ;
+assertS FLUX :: 'K-EFFECTIVE' 1 0.1612761 ;
 ECHO "test TEST_GEO_latt_tspc_S30 completed" ;
 END: ;
 QUIT "LIST" . 

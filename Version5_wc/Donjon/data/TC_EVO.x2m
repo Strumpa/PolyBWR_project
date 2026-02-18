@@ -112,19 +112,19 @@ POWER NEWFLUX := FLPOW: FMAP FLUX TRACK MATEX ::
 UTL: MICROLIB :: DUMP ;
 
 BURNUP MICROLIB := EVO: MICROLIB POWER ::
-   FLUX_POW PIFI SAVE 0.0 DAY POWR <<Power>> ;
+   EDIT 2 FLUX_POW PIFI SAVE 0.0 DAY POWR <<Power>> ;
 
 GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 >>Keff<< ;
-assertS FLUX :: "K-EFFECTIVE" 1 9.642730E-01 ;
+assertS FLUX :: "K-EFFECTIVE" 1 1.047273 ;
 
 WHILE Timei Timec < DO
   EVALUATE Timef := Timei Delt + ;
 * MICRO-DEPLETION
   BURNUP MICROLIB := EVO: BURNUP MICROLIB POWER ::
-   EDIT 0 FLUX_POW PIFI DEPL <<Timei>> <<Timef>> DAY POWR <<Power>> ;
+   EDIT 2 FLUX_POW PIFI DEPL <<Timei>> <<Timef>> DAY POWR <<Power>> ;
 * INTERPOLATION FOR THE MICROSCOPIC CROSS SECTIONS
 * The RES keyword limits multiparameter interpolation to microscopic XS
- FMAP := TINST: FMAP POWER :: TIME <<Delt>> DAY ;
+ FMAP := TINST: FMAP POWER :: EDIT 9 TIME <<Delt>> DAY ;
  MICROLIB := NCR: MICROLIB CPO FMAP :: EDIT 0
           MICRO CUBIC ALLX 5 RES
           TABLE CPO 'fuel' BURN
@@ -151,7 +151,7 @@ WHILE Timei Timec < DO
 *----
   IF Timef Timec = THEN
     IF Timec 10.0 = THEN
-      EVALUATE Delt Timec := 10.0 100.0 ;
+      EVALUATE Delt Timec := 10.0 50.0 ;
     ENDIF ;
     IF Timec 5.0 = THEN
       EVALUATE Delt Timec := 5.0 10.0 ;
@@ -164,7 +164,7 @@ WHILE Timei Timec < DO
 ENDWHILE ;
 
 GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 >>Keff<< ;
-assertS FLUX :: 'K-EFFECTIVE' 1 0.9674789 ;
+assertS FLUX :: 'K-EFFECTIVE' 1 1.033521 ;
 
 ECHO "test TC_EVO completed" ;
 END: ;

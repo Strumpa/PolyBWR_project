@@ -1,6 +1,6 @@
 *DECK MACUPD
       SUBROUTINE MACUPD(NENTRY,KENTRY,IPRINT,NTOTMX,NBMIX ,NGROUP,
-     >                  NANISO,NIFISS,NEDMAC,ITRANC)
+     >                  NANISO,NIFISS,NEDMAC,ITRANC,ILEAK,NW)
 *
 *-----------------------------------------------------------------------
 *
@@ -27,6 +27,8 @@
 * NIFISS  number fissile isotopes per mixture.
 * NEDMAC  number of aditional edition x-s.
 * ITRANC  type of transport correction.
+* ILEAK   type of diffusion coefficient information.
+* NW      weighting flag (=0/1: P1-weighted information absent/present).
 *
 *-----------------------------------------------------------------------
 *
@@ -37,7 +39,7 @@
 *----
       TYPE(C_PTR)  KENTRY(NENTRY)
       INTEGER      NENTRY,IPRINT,NTOTMX,NBMIX,NGROUP,NANISO,NIFISS,
-     >             NEDMAC,ITRANC
+     >             NEDMAC,ITRANC,ILEAK,NW
 *----
 *  LOCAL VARIABLES
 *----
@@ -200,6 +202,8 @@
             NIFISO=ISTATE(4)
             NEDO=ISTATE(5)
             NDELO=ISTATE(7)
+            ILEAK=MIN(ILEAK,ISTATE(9))
+            NW=MIN(NW,ISTATE(10))
             CALL MACNFI(IPMACR,IPRINT,IEN   ,NTOTMX,NGROUP,NIFISS,
      >                  NEDMAC,NBMIXF,NGROF ,NIFISF,NEDF  ,NDELF ,
      >                  NBMIXO,NIFISO,NEDO  ,NDELO ,IMLOC ,ENERN ,

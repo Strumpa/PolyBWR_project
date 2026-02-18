@@ -1,0 +1,366 @@
+*--------------------------------------------------------
+*  Procédure p4_Equilib
+*  Trouve l'équilibre du rechargement pour une stratégie donnée
+*  Appel :   
+*      FmapT FlxT GeoCalc := p4_Equilib Fmap GeoCalc Trkcore DevInf MacDev MacFuel :: 
+*           <<B1>> <<R2>> <<R3>> 
+*           >>PmaxC<< >>PmaxG<< >>B1<< >>e<< ;
+*  avec en entree
+*  S   DEV   = type de mécanismes traités : NOMINAL
+*  et en sortie
+*      fadj  = niveau d'insertion des barres de compensation
+*  Auteur : Emmanuel Saint Aubin 
+*           D&Dv5 Ivan Trancart - 15-12-2024 (maj 15-12-2024)
+*--------------------------------------------------------
+PARAMETER       FmapT FlxT GeoCalc Fmap Trkcore DevInf MacDev CpoFuel ::  
+::: LINKED_LIST FmapT FlxT GeoCalc Fmap Trkcore DevInf MacDev CpoFuel ; ;
+LINKED_LIST     FmapFl Flx MacFuel MacInf MacComp System Pwr Flxtmp 
+                Logic ;
+MODULE          NCR: CRE: TAVG: NEWMAC: MACINI: FLUD: TRIVAA: FLPOW: 
+                GREP: FIND0: END: DELETE: ;
+PROCEDURE       p3_BurnOut p9_Data f1_AdjustB1 ;
+ECHO "Début de Equilib.c2m" ;
+STRING proc := "EQUILIB" ;
+REAL epsKEFF B1g dB1g B1 B2 B3 dB1 dB2 dB3 Dkp Dkm Dk Bend
+     eps keff k B1m B1p B2m B2p B3m B3p  
+     keff1 keff2 root epsFlx Ptot alp eMIN PmaxG PmaxC FmaxG FmaxC 
+     R2 R3 b1p b1m s eMAX e1 e2 k1 k2 e0 e DB1 ep em eb 
+     r c ;
+LOGICAL convKEFF ;
+INTEGER CASE BANC CALCUL BORNES PLUS MOINS itr itr2 
+        itrm itrB itrM C C1 C2 cpt ;
+STRING CONVERGE BRENT DEVICE SETC ;
+:: >>SETC<< >>B1<< >>R2<< >>R3<< ;
+p9_Data :: <<proc>> >>epsKEFF<< >>eMIN<< >>epsFlx<< >>Ptot<< ;
+EVALUATE eMAX := eMIN 50.0 * ;
+*** 
+FmapFl := Fmap ;
+EVALUATE Dkp Dkm b1m b1p := 0.005 -0.005 100000.0 0.0 ;
+EVALUATE BORNES PLUS MOINS itrm itrM itrB := 0 0 0 2 10 10 ;
+***
+Flxtmp := FmapFl ;
+EVALUATE C2 C1 C := 0 0 0 ;
+WHILE BORNES 2 < DO
+* Initialisation du réseau à B1, R2, R3 courants
+ EVALUATE B2      B3      CONVERGE itr := 
+          B1 R2 * B1 R3 * "NON"    0 ;
+ FmapFl := p3_BurnOut FmapFl :: <<B1>> <<R2>> <<R3>> ;
+ WHILE CONVERGE "NON" = DO
+  EVALUATE itr := itr 1 + ;
+  ECHO "ITERATION FLUX AXIAL: " itr ;
+    * Calcul de flux
+    IF SETC "CPO" = THEN
+       MacFuel := CRE: CpoFuel FmapFl :: EDIT 0 READ
+            TABLE CpoFuel MIX 1 'FUEL       1' ENDMIX ;
+    ELSE
+        MacFuel := NCR: CpoFuel FmapFl :: EDIT 0 MACRO 
+            TABLE CpoFuel 'MacBundle' 'Burnup' MIX 1 ENDMIX ;
+    ENDIF ;
+    MacInf GeoCalc := MACINI: GeoCalc MacDev MacFuel :: EDIT 0 ;
+    MacComp GeoCalc := NEWMAC: GeoCalc MacInf DevInf :: EDIT 0 XFAC 2. ;
+    System := TRIVAA: MacComp Trkcore :: EDIT 0 ;
+    Flx := FLUD: System Trkcore :: EDIT 0 EXTE <<epsFlx>> ;
+    Pwr := FLPOW: FmapFl Flx Trkcore GeoCalc :: EDIT 0 PTOT <<Ptot>> ;
+    FmapFl := TAVG: FmapFl Pwr :: EDIT 0 AX-SHAPE RELAX 0.65 B-EXIT ;
+    GREP: Flx :: GETVAL 'K-EFFECTIVE' 1 >>k<< ;
+    GREP: FmapFl :: GETVAL EPS-AX 1 >>e<< ;
+    GREP: Pwr :: GETVAL PMAX-CHAN 1 >>PmaxC<<   
+                 GETVAL PMAX-BUND 1 >>PmaxG<< 
+                 GETVAL FORM-CHAN 1 >>FmaxC<< 
+                 GETVAL FORM-BUND 1 >>FmaxG<< ;
+  IF itr 1 = THEN EVALUATE e1 e2 k1 k2 := e 1.0 k 1.0 ;
+  ELSE EVALUATE e2 k2 := e1 k1 ; EVALUATE e1 k1 := e k ;
+  ENDIF ;
+  EVALUATE Dk := k 1.0 - ;
+  IF Dk 0.0 >= THEN EVALUATE s := 1.0 ;
+  ELSE EVALUATE s := -1.0 ;
+  ENDIF ;
+* convergence axiale ?
+  IF e eMIN >= THEN ECHO "eA >= eMIN" ;         
+* itération minimale ?
+   IF itr itrm >= THEN ECHO "itr >= itrm" ;
+* Facteur de convergence décroissant ?
+    IF e1 e2 > THEN ECHO "eA croissant" ;
+       EVALUATE e0 := e1 ;
+* Facteur de convergence acceptable ?
+     IF e 0.050 > THEN ECHO "eA > eMAX" ;                  
+* Sur-critique à 5 mk près ?
+      IF Dk 0.005 >= THEN ECHO "Dk >= +5 mk" ;
+         EVALUATE CONVERGE BORNES e := "REJET" 10 1.0 ;
+      ELSE ECHO "Dk < +5 mk" ;
+* Combien de chance(s) ?
+       IF C 3 > THEN ECHO "Plus de 3 chances" ;
+          EVALUATE CONVERGE BORNES e := "REJET" 10 1.0 ;
+       ELSE EVALUATE CONVERGE := "OUIB1" ;
+       ENDIF ;
+       EVALUATE C := C 1 + ;
+       ECHO "CHANCES: " C ;
+      ENDIF ;
+* Première solution après eA minimal
+     ELSE ECHO "eA <= eMAX" ;
+* keff dans le bassin d'attraction ?
+      IF Dk ABS 0.005 >= THEN ECHO "ADk >= 5 mk" ;
+         EVALUATE CONVERGE := "OUIB1" ;
+      ELSE ECHO "BORNE TROUVÉE" ;
+         EVALUATE CONVERGE := "OUI" ;
+      ENDIF ;
+     ENDIF ;
+    ELSE ECHO "eA décroissant" ;
+     IF itr itrM >= THEN ECHO "itr = itrM" ;
+        EVALUATE e0 := e1 ;
+* Facteur de convergence acceptable ?
+      IF e 0.050 > THEN ECHO "eA > eMAX" ;   
+* Sur-critique à 5 mk près ?
+       IF Dk 0.005 >= THEN ECHO "Dk >= +5 mk" ;
+          EVALUATE CONVERGE BORNES e := "REJET" 10 1.0 ;
+       ELSE ECHO "Dk < +5 mk" ;
+* Combien de chance(s) ?
+        IF C 5 > THEN ECHO "Plus de 5 chances" ;
+           EVALUATE CONVERGE BORNES e := "REJET" 10 1.0 ;
+        ELSE EVALUATE CONVERGE := "OUIB1C" ;
+           EVALUATE C := C 1 + ;
+        ENDIF ;
+       ENDIF ;
+      ELSE ECHO "eA <= eMAX" ;
+* keff dans le bassin d'attraction ?
+       IF Dk ABS 0.005 >= THEN ECHO "ADk >= 5 mk" ;
+* Combien de chance(s) ?
+        IF C 5 > THEN ECHO "Plus de 5 chances" ;
+           EVALUATE CONVERGE BORNES e := "REJET" 10 1.0 ;
+        ELSE EVALUATE CONVERGE := "OUIB1C" ;
+           EVALUATE C := C 1 + ;
+        ENDIF ;
+       ELSE ECHO "BORNE TROUVÉE" ;
+          EVALUATE CONVERGE := "OUI" ;
+       ENDIF ;
+      ENDIF ;
+     ELSE ECHO "itr < itrM" ; 
+     ENDIF ;                  
+    ENDIF ;
+   ELSE ECHO "itr < itrM" ;
+   ENDIF ;
+  ELSE ECHO "eA < eMIN" ;
+     EVALUATE e0 := e ;
+* keff dans le bassin d'attraction ?
+   IF Dk ABS 0.005 >= THEN ECHO "ADk >= 5 mk" ;
+      EVALUATE CONVERGE := "OUIB1m" ;
+   ELSE ECHO "BORNE TROUVÉE" ;
+      EVALUATE CONVERGE := "OUI" ;
+   ENDIF ;
+  ENDIF ;
+* Effacer les structures avant la prochaine itération
+  Flxtmp := DELETE: Flxtmp ;
+  Flxtmp := Flx ;
+  Flx Pwr System MacComp MacInf MacFuel := DELETE: 
+  Flx Pwr System MacComp MacInf MacFuel ;
+ ENDWHILE ;
+ EVALUATE B2 B3 := B1 R2 * B1 R3 * ;
+ ECHO "**************************" ;
+ ECHO " CONVERGENCE AXIALE ? : " CONVERGE ;
+ ECHO "  B1 = " B1 ;
+ ECHO "  B2 = " B2 ;
+ ECHO "  B3 = " B3 ;
+ ECHO "keff = " k ;
+ ECHO "eAXC = " e ;
+ ECHO "**************************" ;
+ IF CONVERGE "OUI" <> CONVERGE "REJET" <> * THEN
+    f1_AdjustB1 :: <<B1>> <<Dk>> <<s>> <<e0>> >>B1<< ;    
+  IF CONVERGE "OUIB1C" = THEN
+     ECHO "*** WARNING : EDGE CASE " CONVERGE ;
+  ENDIF ;
+ ELSEIF CONVERGE "OUI" = THEN
+  IF Dk 0.0 > Dk Dkp < * THEN ECHO "BORNE SUR-CRITIQUE" ;
+     EVALUATE PLUS  Dkp b1p ep := PLUS  1 + Dk B1 1000.0 / e ;
+     EVALUATE B1 := B1 500.0 + ;
+   IF PLUS 1 = THEN EVALUATE BORNES := BORNES 1 + ;
+   ENDIF ;
+  ELSEIF Dk 0.0 < Dk Dkm > * THEN ECHO "BORNE SOUS-CRITIQUE" ;
+     EVALUATE MOINS Dkm b1m em := MOINS 1 + Dk B1 1000.0 / e ;
+     EVALUATE B1 := B1 500.0 - ;
+   IF MOINS 1 = THEN EVALUATE BORNES := BORNES 1 + ;
+   ENDIF ;
+  ENDIF ;
+ ELSEIF CONVERGE "REJET" = THEN
+    ECHO "*** WARNING : EDGE CASE " CONVERGE ;
+ ENDIF ;
+ENDWHILE ;
+***
+EVALUATE BRENT := "NON" ;
+EVALUATE cpt := 0 ;
+IF BORNES 2 = THEN
+* Initialisation de la méthode de Brent
+   IF em ep > THEN EVALUATE eb := em ;
+   ELSE EVALUATE eb := ep ;
+   ENDIF ;
+   IF eb 0.001 < THEN EVALUATE eb := 0.001 ;
+   ENDIF ;
+   EVALUATE B1m B1p := b1m 1000.0 * b1p 1000.0 * ;
+   EVALUATE B2m B2p B3m B3p := B1m R2 * B1p R2 * B1m R3 * B1p R3 * ;
+   ECHO "***********  K-  ************" ;
+   ECHO "***   dk = " Dkm "***" ;
+   ECHO "***  eAm = " em "***" ;
+   ECHO "***   B1 = " B1m "***" ;
+   ECHO "***   B2 = " B2m "***" ;
+   ECHO "***   B3 = " B3m "***" ; 
+   ECHO "***********  K+  ************" ;
+   ECHO "***   dk = " Dkp "***" ;
+   ECHO "***  eAp = " ep "***" ;
+   ECHO "***   B1 = " B1p "***" ;
+   ECHO "***   B2 = " B2p "***" ;
+   ECHO "***   B3 = " B3p "***" ;
+   ECHO "*****************************" ;
+   Logic := FIND0: :: TOL <<epsKEFF>> ITMAX 100  
+                   POINT X <<b1p>> Y <<Dkp>>
+                   POINT X <<b1m>> Y <<Dkm>> 
+                   >>convKEFF<< >>root<< ;
+   EVALUATE BRENT itr2 cpt := "NON" 0 0 ;
+* Méthode de Brent
+ WHILE BRENT "NON" = DO
+  EVALUATE itr2 B1 := itr2 1 + root 1000.0 * ;
+  ECHO "ITERATION BRENT COURANTE: " itr2 ;
+* Initialisation du réseau à B1, R2, R3 courants
+ EVALUATE B2      B3      CONVERGE itr := 
+          B1 R2 * B1 R3 * "NON"    0 ;
+ FmapFl := p3_BurnOut FmapFl :: <<B1>> <<R2>> <<R3>> ;
+* Flux axial convergé
+  WHILE CONVERGE "NON" = DO
+   EVALUATE itr := itr 1 + ;
+   ECHO "ITERATION FLUX AXIAL BRENT COURANTE: " itr ;
+    * Calcul de flux
+    IF SETC "CPO" = THEN
+       MacFuel := CRE: CpoFuel FmapFl :: EDIT 0 READ
+            TABLE CpoFuel MIX 1 'FUEL       1' ENDMIX ;
+    ELSE
+        MacFuel := NCR: CpoFuel FmapFl :: EDIT 0 MACRO 
+            TABLE CpoFuel 'MacBundle' 'Burnup' MIX 1 ENDMIX ;
+    ENDIF ;
+    MacInf GeoCalc := MACINI: GeoCalc MacDev MacFuel :: EDIT 0 ;
+    MacComp GeoCalc := NEWMAC: GeoCalc MacInf DevInf :: EDIT 0 XFAC 2. ;
+    System := TRIVAA: MacComp Trkcore :: EDIT 0 ;
+    Flx := FLUD: System Trkcore :: EDIT 0 EXTE <<epsFlx>> ;
+    Pwr := FLPOW: FmapFl Flx Trkcore GeoCalc :: EDIT 0 PTOT <<Ptot>> ;
+    FmapFl := TAVG: FmapFl Pwr :: EDIT 0 AX-SHAPE RELAX 0.65 B-EXIT ;
+    GREP: Flx :: GETVAL 'K-EFFECTIVE' 1 >>k<< ;
+    GREP: FmapFl :: GETVAL EPS-AX 1 >>e<< ;
+    GREP: Pwr :: GETVAL PMAX-CHAN 1 >>PmaxC<<   
+                 GETVAL PMAX-BUND 1 >>PmaxG<< 
+                 GETVAL FORM-CHAN 1 >>FmaxC<< 
+                 GETVAL FORM-BUND 1 >>FmaxG<< ;
+   IF itr 1 = THEN EVALUATE e1 e2 k1 k2 := e 1.0 k 1.0 ;
+   ELSE EVALUATE e2 k2 := e1 k1 ; EVALUATE e1 k1 := e k ;
+   ENDIF ;
+   EVALUATE Dk := k 1.0 - ;
+   IF Dk 0.0 >= THEN EVALUATE s := 1.0 ;
+   ELSE EVALUATE s := -1.0 ;
+   ENDIF ;
+* Convergence axiale à eAb=max(eAm,eAp) près ?
+   IF e eb >= THEN ECHO "eA >= eBRENT" ;
+* Itération minimale ?
+    IF itr itrm >= THEN ECHO "itr >= itrm" ;
+* Facteur de convergence décroissant ?
+     IF e1 e2 <= THEN ECHO "eA décroissant" ; 
+* Itération maximale ?
+      IF itr itrM >= THEN ECHO "itr = itrM" ;
+         EVALUATE CONVERGE := "ITRMAX" ;
+* Facteur de convergence acceptable ?
+       IF e 0.050 > THEN ECHO "eA > eMAX" ;  
+          EVALUATE CONVERGE := "NOWAY" ;
+       ENDIF ;
+      ELSE ECHO "itr < itrM" ;
+      ENDIF ;
+     ELSE ECHO "eA croissant" ; 
+        EVALUATE e0 := e1 ;
+       EVALUATE CONVERGE := "STOP" ;    
+     ENDIF ;
+    ELSE ECHO "itr < itrm" ;
+    ENDIF ;
+   ELSE ECHO "eA < eBRENT" ;
+      EVALUATE CONVERGE := "OUI" ; 
+      Flxtmp := DELETE: Flxtmp ;
+      Flxtmp := Flx ;     
+   ENDIF ;
+* Effacer les structures avant la prochaine itération
+  Flx Pwr System MacComp MacInf MacFuel := DELETE: 
+  Flx Pwr System MacComp MacInf MacFuel ;
+  ENDWHILE ;
+* Traitement de CONVERGE
+  IF     CONVERGE "NOWAY" = THEN EVALUATE BRENT := "REJET" ;  
+  ELSEIF CONVERGE "STOP" = THEN 
+   IF e 0.050 > THEN ECHO "FLUX AXIAL -> COS" ;
+    IF C2 5 > THEN ECHO "REJET DE LA STRATÉGIE" ;
+       EVALUATE BRENT e := "REJET" 1.0 ;
+    ELSE
+       EVALUATE C2 := C2 1 + ;
+       ECHO "CHANCES:" C2 ;
+    ENDIF ;
+   ELSE 
+    IF convKEFF THEN ECHO "CONVERGENCE DE BRENT" ;
+      EVALUATE BRENT := "OUI" ;
+    ELSE ECHO "KEFF NON CONVERGE" ;
+      EVALUATE r := root ;
+      Logic := FIND0: Logic :: Y <<Dk>> >>convKEFF<< >>root<< ;  
+      ECHO "NOUVELLE RACINE: " root 1000.0 * ;
+      EVALUATE c := r root - ABS 1000.0 * ;
+     IF c 1.0 < THEN ECHO "CONVERGENCE DE BRENT" ;
+        EVALUATE BRENT := "OUI" ;
+     ENDIF ;
+    ENDIF ;
+   ENDIF ;
+  ELSE
+   IF convKEFF THEN ECHO "CONVERGENCE DE BRENT" ;
+      EVALUATE BRENT := "OUI" ;
+   ELSE ECHO "KEFF NON CONVERGE" ;
+     EVALUATE r := root ;
+     Logic := FIND0: Logic :: Y <<Dk>> >>convKEFF<< >>root<< ;  
+     ECHO "NOUVELLE RACINE: " root 1000.0 * ;
+     EVALUATE c := r root - ABS 1000.0 * ;
+    IF c 1.0 < THEN ECHO "CONVERGENCE DE BRENT" ;
+       EVALUATE BRENT := "OUI" ;
+    ENDIF ;
+   ENDIF ;
+  ENDIF ;
+  IF itr2 itrB >= THEN EVALUATE BRENT := "ITRMAX" ;
+  ENDIF ;
+  ECHO "**************************" ;
+  ECHO " CONVERGENCE KEFF ?   : " BRENT ;
+  ECHO " CONVERGENCE AXIALE ? : " CONVERGE ;
+  ECHO "  B1 = " B1 ;
+  ECHO "  B2 = " B2 ;
+  ECHO "  B3 = " B3 ;
+  ECHO "keff = " k ;
+  ECHO "eAXC = " e ;
+  ECHO "**************************" ;
+ ENDWHILE ;
+ FmapFl := p3_BurnOut FmapFl :: <<B1>> <<R2>> <<R3>> ;
+* Effacer structure de Brent
+ Logic := DELETE: Logic ;
+ENDIF ;
+***
+IF BRENT "OUI" <> THEN EVALUATE e := 1.0 ;
+ENDIF ;
+EVALUATE B2 B3 := B1 R2 * B1 R3 * ;
+GREP: FmapFl :: GETVAL B-EXIT 1 >>Bend<< ;
+ECHO "******** ÉQUILIBRE DU RECHARGEMENT *******" ;
+ECHO "***     epsAXC = " e "       ***" ;
+ECHO "***         k  = " k "       ***" ;
+ECHO "***        B1  = " B1 " MWj/T ***" ;
+ECHO "***        B2  = " B2 " MWj/T ***" ;
+ECHO "***        B3  = " B3 " MWj/T ***" ;
+ECHO "***    Bmoyen  = " Bend " MWj/T ***" ;
+ECHO "***     B2/B1  = " R2 "       ***" ;
+ECHO "***     B3/B1  = " R3 "       ***" ;
+ECHO "*** PMAXcanal  = " PmaxC " kW    ***" ;
+ECHO "*** PMAXgrappe = " PmaxG " kW    ***" ; 
+ECHO "*** FMAXcanal  = " FmaxC "       ***" ;
+ECHO "*** FMAXgrappe = " FmaxG "       ***" ;
+ECHO "******************************************" ;
+***
+FmapT := FmapFl ;
+FlxT := Flxtmp ;
+***
+:: <<PmaxC>> <<PmaxG>> <<B1>> <<e>> ;
+FmapFl Flxtmp := DELETE: FmapFl Flxtmp ;
+***
+ECHO "Fin de Equilib.c2m" ;
+END: ;
+QUIT "LIST" .

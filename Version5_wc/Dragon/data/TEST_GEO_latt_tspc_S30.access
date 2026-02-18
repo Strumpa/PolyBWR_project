@@ -23,15 +23,15 @@ if [ "$MACH" = "Linux" -o "$MACH" = "OSF1" -o "$MACH" = "Cygwin" -o "$MACH" = "S
     echo 'use big endian libraries'
     pos=$1/../../libraries/b_endian
 fi
-if [ -f "$pos"/draglibendfb7r1SHEM315.gz ]
+if [ -f "$pos"/draglibendfb7r1SHEM315_v5p1.gz ]
    then
-    echo 'gunzipping draglibendfb7r1SHEM315'
+    echo 'gunzipping draglibendfb7r1SHEM315_v5p1'
     chmod 755 "$pos"
-    gunzip "$pos"/draglibendfb7r1SHEM315.gz
+    gunzip "$pos"/draglibendfb7r1SHEM315_v5p1.gz
 fi
-if [ -f "$pos"/draglibendfb7r1SHEM315 ]  
+if [ -f "$pos"/draglibendfb7r1SHEM315_v5p1 ]  
    then
-    ln -s "$pos"/draglibendfb7r1SHEM315 DLIB_8R0_315
+    ln -s "$pos"/draglibendfb7r1SHEM315_v5p1 DLIB_8R0_315
 fi
 ln -s "$1"/data/TEST_GEO_latt_tspc_S30_proc/lattice_hex_tspc_S30_7cells.dat .
 ls -l

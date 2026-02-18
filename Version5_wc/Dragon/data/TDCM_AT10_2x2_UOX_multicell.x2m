@@ -1,0 +1,189 @@
+* AT10_2x2_UOX_Gd.x2m, CLE-2000 script to call Dragon5
+* Purpose : Refining calculation scheme for BWR ATRIUM-10 type heterogeneous assemblies.
+* 2x2 pins, pins 1, 2, 4, = 24UOX, 32UOX, 45UOX
+* Reference Serpen2 case : AT10_2x2_UOX_Gd_mc
+* No Burnup calculation
+
+
+****************************************************************************
+************************** VARIABLES DEFINITION ****************************
+****************************************************************************
+
+LINKED_LIST MACRO GEOM GEOMMOC TRACKIC TRACKCP TRACKMOC PIJ SYS FLUX ;
+MODULE MAC: GEO: G2S: SALT: ASM: MCCGT: FLU: GREP: DELETE: END: ;
+SEQ_BINARY TRACKFILIC TRACKFILCP TRACKFILMOC ;
+SEQ_ASCII Fic_IC :: FILE 'Fic_SAL_TDCM_2x2_UOX_IC.tdt' ;
+SEQ_ASCII Fic_IC.ps :: FILE 'Fic_SAL_TDCM_2x2_UOX_IC.ps' ;
+SEQ_ASCII Fic_CP :: FILE 'Fic_SAL_TDCM_2x2_UOX_CP.tdt' ;
+SEQ_ASCII Fic_CP.ps :: FILE 'Fic_SAL_TDCM_2x2_UOX_CP.ps' ;
+SEQ_ASCII Fic_MOC :: FILE 'Fic_SAL_TDCM_2x2_UOX_MOC.tdt' ;
+SEQ_ASCII Fic_MOC.ps :: FILE 'Fic_SAL_TDCM_2x2_UOX_MOC.ps' ;
+
+REAL keffIC keffCP keffMOC ;
+PROCEDURE assertS ;
+
+****************************************************************************
+********************* GEOMETRY DEFINTION OF 2x2 UOX    *********************
+****************************************************************************
+REAL Pitch_C := 1.29500 ;
+REAL Rgap Rclad := 0.4520 0.5140 ;
+REAL Rcomb1 Rcomb2 Rcomb3 Rcomb4 ;
+EVALUATE Rcomb4 := 0.4435 ;
+EVALUATE Rcomb1 := 0.313602 ;
+EVALUATE Rcomb2 := 0.396678 ; 
+EVALUATE Rcomb3 := 0.43227 ;
+
+!Mix numbers for C1 fuel 
+INTEGER COMB0101 COMB0102 COMB0103 COMB0104 ;
+EVALUATE COMB0101 COMB0102 COMB0103 COMB0104 := 1 1 1 1 ;
+
+!Mix numbers for C2 fuel 
+INTEGER COMB0201 COMB0202 COMB0203 COMB0204 ;
+EVALUATE COMB0201 COMB0202 COMB0203 COMB0204 := 2 2 2 2 ;
+
+!Mix numbers for C4 fuel
+INTEGER COMB0401 COMB0402 COMB0403 COMB0404 ;
+EVALUATE COMB0401 COMB0402 COMB0403 COMB0404 := 3 3 3 3 ;
+
+! Pin level common mixes : Clad, Gap, Coolant (intra-pin water) :
+
+INTEGER GAP CLAD COOL ;
+EVALUATE GAP CLAD COOL := 4 5 6 ;
+
+! Multiples of cell pitch : used to define 2nd level geometry mesh 
+REAL 2_Pitch_C ;
+EVALUATE 2_Pitch_C := Pitch_C 2.0 * ;
+
+
+
+GEOM := GEO: :: CAR2D 2 2
+    X- ALBE 1.0 X+ ALBE 1.0
+    Y- ALBE 1.0 Y+ ALBE 1.0
+    CELL
+    C1 C2
+    C2 C4
+    MESHX 0.0 <<Pitch_C>> <<2_Pitch_C>>
+    MESHY 0.0 <<Pitch_C>> <<2_Pitch_C>>
+    ::: C1 :=  GEO: CARCEL 6 
+                RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
+                <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
+                MIX <<COMB0101>> <<COMB0102>> <<COMB0103>> <<COMB0104>>
+                    <<GAP>> <<CLAD>> <<COOL>> 
+                    MESHX 0.0 <<Pitch_C>> MESHY 0.0 <<Pitch_C>>
+    ;
+    ::: C2 := GEO: C1 MIX <<COMB0201>> <<COMB0202>> <<COMB0203>> <<COMB0204>>
+                            <<GAP>> <<CLAD>> <<COOL>>
+    ;
+    ::: C4 := GEO: C1 MIX <<COMB0401>> <<COMB0402>> <<COMB0403>> <<COMB0404>>
+                            <<GAP>> <<CLAD>> <<COOL>>
+    ;
+;
+
+****************************************************************************
+*********************** LIBRARY DEFINTION OF 2x2 UOX ***********************
+****************************************************************************
+
+
+MACRO := MAC: ::
+     EDIT 2 NGRO 1 NMIX 7 NIFI 1
+     READ INPUT
+     MIX 1 (*UOX_1*)
+        TOTAL 4.49087471E-01    SCAT 1 1 3.99089456E-01
+        NUSIGF 6.24837950E-02      CHI 1.0
+      MIX 2 (*UOX_2*)
+        TOTAL 4.55550849E-01    SCAT 1 1 3.98365676E-01
+        NUSIGF 7.73072839E-02      CHI 1.0
+      MIX 3 (*UOX_4*)
+        TOTAL 4.64771211E-01    SCAT 1 1 3.97388905E-01
+        NUSIGF 9.81869251E-02      CHI 1.0
+    MIX 4 (*GAP*)
+        TOTAL 3.00460903E-04  SCAT 1 1 3.00460844E-04
+     MIX 5 (*CLAD*)
+        TOTAL 0.4029        SCAT 1 1 0.4000
+     MIX 6 (*WATER*)
+        TOTAL 0.3683        SCAT 1 1 0.3661
+;
+****************************************************************************
+********************* TRAKING GEOM FOR FLUX CALCULATION ********************
+****************************************************************************
+
+* ---
+* TRACKING PARAMTERES
+* ---
+
+INTEGER an2d := 24 ;  ! ANGULAR QUADRATURE PARAMETER
+REAL densur := 50.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
+
+
+* polar angles for MCCGT:
+INTEGER nmu := 4 ;
+
+* size allocation for MCCGT:
+INTEGER mcu := 50000 ;
+
+
+* ---
+* FLUX CALC TRACKING
+* ---
+Fic_IC Fic_IC.ps := G2S: GEOM :: MACRO ;
+Fic_CP Fic_CP.ps := G2S: GEOM :: ;
+Fic_MOC Fic_MOC.ps := G2S: GEOM :: ;
+
+TRACKIC TRACKFILIC := SALT: Fic_IC ::
+     EDIT 2
+     TITLE "MULTICELL SURFACIC AT10_3x3_UOX_Gd CASE"
+     TISO <<an2d>> <<densur>>
+     IC EPSJ 1.0E-5
+     ;
+
+TRACKCP TRACKFILCP := SALT: Fic_CP ::
+     EDIT 2
+     TITLE "TISO CP SURFACIC AT10_3x3_UOX_Gd CASE"
+     TISO <<an2d>> <<densur>>
+     ;
+
+TRACKMOC TRACKFILMOC := SALT: Fic_MOC ::
+     EDIT 2
+     TITLE "TISO MOC SURFACIC AT10_3x3_UOX_Gd CASE"
+     TISO EQW <<an2d>> <<densur>>
+     ;
+
+* MOC tracking
+TRACKMOC := MCCGT: TRACKMOC TRACKFILMOC ::
+  EDIT 0
+;
+
+* ---
+* Flux calculation
+* ---
+
+* FULL PIJ MATRIX RECONSTRUCTION
+PIJ := ASM: MACRO TRACKIC TRACKFILIC :: PIJ EDIT 2 ;
+FLUX := FLU: PIJ MACRO TRACKIC :: TYPE K ;
+GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffCP<< ;
+PIJ FLUX := DELETE: PIJ FLUX ;
+ECHO "test TDCM AT10_2x2_UOX FULL PIJ reconstruction completed, keff=" keffCP ;
+
+* FLUX-CURRENT ITERATION WITHOUT FULL PIJ MATRIX RECONSTRUCTION
+PIJ := ASM: MACRO TRACKIC TRACKFILIC :: ARM EDIT 2 ;
+FLUX := FLU: PIJ MACRO TRACKIC :: EDIT 4 TYPE K ;
+GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffIC<< ;
+assertS FLUX :: 'K-EFFECTIVE' 1 <<keffCP>> ;
+PIJ FLUX := DELETE: PIJ FLUX ;
+ECHO "test TDCM AT10_2x2_UOX FLUX-CURRENT iteration completed, keff=" keffIC ;
+
+PIJ := ASM: MACRO TRACKCP TRACKFILCP :: PIJ EDIT 2 ;
+FLUX := FLU: PIJ MACRO TRACKCP :: TYPE K ;
+GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffCP<< ;
+PIJ FLUX := DELETE: PIJ FLUX ;
+ECHO "test TDCM AT10_2x2_UOX CP completed, keff=" keffCP ;
+
+SYS := ASM: MACRO TRACKMOC TRACKFILMOC :: ARM EDIT 10 ; 
+FLUX := FLU: SYS MACRO TRACKMOC TRACKFILMOC :: EDIT 1 TYPE K ;
+GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffMOC<< ;
+ECHO "test TDCM AT10_2x2_UOX MOC completed, keff=" keffMOC ;
+FLUX SYS TRACKMOC TRACKFILMOC := DELETE: FLUX SYS TRACKMOC TRACKFILMOC ;
+
+*----
+
+QUIT "LIST" .

@@ -53,7 +53,7 @@
       TYPE(C_PTR)      IPMIC
       INTEGER          IPRINT,NGR,NXS,NCV,NMIXT,NIFISS,IMIX,ISOF,ITOTL,
      >                 ISCAT
-      CHARACTER*6      NAMDXS(NXS)
+      CHARACTER*8      NAMDXS(NXS)
       REAL             DENSI
       INTEGER          ICOV(NGR,NXS)
       REAL             COV(NCV,NXS)

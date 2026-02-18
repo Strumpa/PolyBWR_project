@@ -460,9 +460,7 @@ The following records and sub-directories will be found on the first level of a
   {$K_{r,i}^{\rm d}$ is the list of identifier for the depletion of an isotope.}
 \RealEnr
   {DEPLETE-ENER}{$M_{\mathrm{R}}\times N_{\mathrm{depl}}$}{Mev}
-  {$R_{r,i}^{\rm d}$ is the energy produced with each depletion reaction $r$ of the father isotope. If {\tt H-FACTOR}
-  information is available for an isotope $i$, $R_{r,i}^{\rm d}$ contains only decay energy of lumped isotopes
-  produced by reaction $r$.}
+  {$R_{r,i}^{\rm d}$ is the energy produced by each depletion reaction $r$ of the father isotope. $r=1$ corresponds to radioactive decay}
 \RealEnr
   {DEPLETE-DECA}{$N_{\mathrm{depl}}$}{$10^{-8}$ s$^{-1}\ $}
   {Radioactive decay constants.}
@@ -480,6 +478,13 @@ The following records and sub-directories will be found on the first level of a
   {ENERGY-YIELD}{$N_{\mathrm{ndp}+1}$}{$N_\mathrm{ndp}\ge 2$}{eV}
   {$E_{k}^{\rm fiss}$ are the energy limits of fission yield macrogroups.}
 \end{DescriptionEnregistrement}
+
+In all cases, the first component $R_{1,:}^{\rm d}$ contains the decay energy of the isotopes present in the burnup chain. The remaining components $r>1$ of the {\tt DEPLETE-ENER} record have different meaning, depending of the object containing the record:
+\begin{description}
+\item[{\tt RELEASE\_2003} draglib:] The {\tt DEPLETE-ENER} components with $r>1$ contains $Q_x$ values for the isotopes present in the burnup chain. It may include corrections for lumped isotopes not explicitely represented in the burnup chain.
+\item[{\tt RELEASE\_2025} draglib:] The {\tt DEPLETE-ENER} components with $r>1$ contains only corrections for lumped isotopes not explicitely represented in the burnup chain.
+\item[microlib:] The {\tt DEPLETE-ENER} components with $r>1$ are set to zero.
+\end{description}
 
 An isotope $\mathsf{NISO}_{i}$ defined in \Sect{microlibdirmain} is considered
 to be part of the depletion chain only if one can find a value of $1 \le j \le N_{\rm depl}$
@@ -928,9 +933,6 @@ Table~\ref{tabl:tabiso3}.
 \begin{DescriptionEnregistrement}{Depletion-related information}{7.5cm}
 \label{tabl:tabiso3}
 \OptRealEnr
-  {MEVG\blank{8}}{$1$}{$N_d \ge 1$}{MeV}
-  {Energy in MeV produced by radiative capture. $N_d$ is defined in \Sect{microlibdir}.}
-\OptRealEnr
   {MEVF\blank{8}}{$1$}{$N_d \ge 1$}{MeV}
   {Energy in MeV produced by fission.}
 \OptRealEnr
@@ -1066,7 +1068,14 @@ section directory may be:
 
 \vskip 0.2cm
 
-We can also use this isotopic directory to store time dependent cross sections in the form of a power series expansion:
+The {\tt H-FACTOR} record has different meaning, depending of the object containing it:
+\begin{description}
+\item[{\tt RELEASE\_2003} draglib:] No {\tt H-FACTOR} record.
+\item[{\tt RELEASE\_2025} draglib:] The {\tt H-FACTOR} record contains $\sum_x Q_x \sigma_x$ or kerma values directly computed by NJOY for this specific isotope.
+\item[microlib:] The {\tt H-FACTOR} record contains $\sum_x Q_x \sigma_x$ or kerma values for this specific isotope. It may include corrections for lumped isotopes not explicitely represented in the associated burnup chain.
+\end{description}
+
+This isotopic directory can also be used to store time dependent cross sections in the form of a power series expansion:
 \begin{equation}
     v_{k}^{g}(t)=\sum_{i=0}^{I} v_{k,i}^{g} t^{i}
 \label{eq:TimeSerie}

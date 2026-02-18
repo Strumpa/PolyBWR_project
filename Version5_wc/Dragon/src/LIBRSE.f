@@ -371,15 +371,15 @@
         ENDDO
         DEALLOCATE(TTT)
         LLL=LLL+LGBIN
-        IF(IMPX.EQ.1) THEN
+        IF(IMPX.EQ.2) THEN
           WRITE(6,'(15H LIBRSE: RANK('',A12,2H'',,I4,2H)=,I3)') HNAMIS,
      1    IG,MI
-        ELSE IF(IMPX.GE.2) THEN
+        ELSE IF(IMPX.GE.3) THEN
           WRITE(6,'(/10H LIBRSE: '',A12,27H'' SIGT BASE POINTS IN GROUP,
      1    I5,1H:)') HNAMIS,IG
           WRITE(6,'(1X,1P,12E12.4)') SIGT_V(IG)%VECTOR(:MI)
         ENDIF
-        IF(IMPX.GE.3) THEN
+        IF(IMPX.GE.4) THEN
           WRITE(6,'(/10H LIBRSE: '',A12,23H'' NWT0 WEIGHTS IN GROUP,I5,
      1    1H:)') HNAMIS,IG
           WRITE(6,'(1X,1P,12E12.4)') WEIGHT_V(IG)%VECTOR(:MI)

@@ -31,10 +31,12 @@ fi
 if [ -f "$pos"/draglibJeff3p1p1SHEM295 ]
 then
 ln -s "$pos"/draglibJeff3p1p1SHEM295 J311_295
-ln -s "$pos"/draglibJeff3p1p1SHEM295Kerma J311_295K
-ln -s "$pos"/draglibendfb8r1SHEM295 endfb8r1_295
-ln -s "$pos"/draglibendfb8r1SHEM295Kerma endfb81295K
-ln -s "$pos"/draglibendfb8r1SHEM295KermaK2_fix endfb81295K2
+ln -s "$pos"/draglibJeff3p1p1SHEM295_v5p1_qvalue J311_295E0
+ln -s "$pos"/draglibendfb8r1SHEM295 endfb8r1
+ln -s "$pos"/draglibendfb8r1SHEM295_v5p1 endfb8r1v5p1 
+ln -s "$pos"/draglibendfb8r1SHEM295_idecay_v5p1 endfb8r1dec 
+
+
 else
 echo "AT10_45Gd_Cst_pow_evol.access script terminated"
 fi

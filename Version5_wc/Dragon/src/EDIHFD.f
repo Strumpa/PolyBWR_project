@@ -185,22 +185,30 @@
         ALLOCATE(HDFI(NDFI),HDFP(NDFP))
         HDFI(:NDFI)=' '
         HDFP(:NDFP)=' '
-        DO IFI=1,NDFI
+        LOOP1: DO IFI=1,NDFI
           DO ISO=1,NBISO
-            IF(FIPI(ISO,IMR).EQ.IFI) THEN
-              WRITE(HDFI(IFI),'(3A4)') ISONRF(:3,ISO)
-              EXIT
-            ENDIF
-          ENDDO
-        ENDDO
-        DO ISOFP=1,NDFP
+            DO IREG=1,NREGIO
+              IMR=IMERGE(IREG)
+              IF(IMR.EQ.0) CYCLE
+              IF(FIPI(ISO,IMR).EQ.IFI) THEN
+                WRITE(HDFI(IFI),'(3A4)') ISONRF(:3,ISO)
+                CYCLE LOOP1
+              ENDIF
+            ENDDO ! IREG
+          ENDDO ! ISO
+        ENDDO LOOP1
+        LOOP2: DO ISOFP=1,NDFP
           DO ISO=1,NBISO
-            IF(FIFP(ISO,IMR).EQ.ISOFP) THEN
-              WRITE(HDFP(ISOFP),'(3A4)') ISONRF(:3,ISO)
-              EXIT
-            ENDIF
-          ENDDO
-        ENDDO
+            DO IREG=1,NREGIO
+              IMR=IMERGE(IREG)
+              IF(IMR.EQ.0) CYCLE
+              IF(FIFP(ISO,IMR).EQ.ISOFP) THEN
+                WRITE(HDFP(ISOFP),'(3A4)') ISONRF(:3,ISO)
+                CYCLE LOOP2
+              ENDIF
+            ENDDO ! IREG
+          ENDDO ! ISO
+        ENDDO LOOP2
         DO IMR=1,NMERGE
           WRITE(6,'(41H EDIHFD: FISSION YIELDS IN MERGED MIXTURE,I5,
      >    1H:/1X,12HFISSILE-----,3X,16HYIELDS----------)') IMR

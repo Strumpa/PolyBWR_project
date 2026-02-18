@@ -2,7 +2,7 @@
       SUBROUTINE EDIACT(IPEDIT,IPRINT,NGROUP,NGCOND,NREGIO,NMERGE,NL,
      >                  NBISO,NED,VOLUME,MIX,IGCOND,IMERGE,FLUXES,
      >                  ITRANC,ISONAM,IPISO,HVECT,CURNAM,NACTI,IACTI,
-     >                  EMEVF2,EMEVG2)
+     >                  EMEVF2)
 *
 *-----------------------------------------------------------------------
 *
@@ -43,7 +43,6 @@
 * NACTI   number of mixture with WIMS activation edit.
 * IACTI   mixtures with activation edits.
 * EMEVF2  fission production energy.
-* EMEVG2  capture production energy.
 *
 *-----------------------------------------------------------------------
 *
@@ -56,8 +55,7 @@
       INTEGER     IPRINT,NGROUP,NGCOND,NREGIO,NMERGE,NL,NBISO,NED,
      >            MIX(NBISO),IGCOND(NGCOND),IMERGE(NREGIO),ITRANC,
      >            ISONAM(3,NBISO),NACTI,IACTI(NACTI)
-      REAL        VOLUME(NREGIO),FLUXES(NREGIO,NGROUP),
-     >            EMEVF2(NBISO),EMEVG2(NBISO)
+      REAL        VOLUME(NREGIO),FLUXES(NREGIO,NGROUP),EMEVF2(NBISO)
 *----
 *  LOCAL VARIABLES
 *----
@@ -65,7 +63,7 @@
       TYPE(C_PTR) KPLIB
       INTEGER     IPAR(NSTATE)
       CHARACTER   CACTI*12,CM*2,HMAKE(100)*8,HNEW*12,TEXT12*12,HSMG*131
-      LOGICAL     LMEVF,LMEVG,LLCM
+      LOGICAL     LMEVF,LLCM
       DOUBLE PRECISION DVOL,DFLI,DTMP,QEN,ERR
       INTEGER, ALLOCATABLE, DIMENSION(:) :: ISOMIX
       INTEGER, ALLOCATABLE, DIMENSION(:,:) :: KCJJ,HNISO
@@ -162,10 +160,6 @@
             CALL LCMLEN(KPLIB,'MEVF',LENGTH,ITYLCM)
             IF(LENGTH.EQ.1) CALL LCMGET(KPLIB,'MEVF',EVF)
             LMEVF=(LENGTH.EQ.1).OR.(EMEVF2(ISO).GT.0.0)
-            IF(EMEVG2(ISO).GT.0.0) EVG=EMEVG2(ISO)
-            CALL LCMLEN(KPLIB,'MEVG',LENGTH,ITYLCM)
-            IF(LENGTH.EQ.1) CALL LCMGET(KPLIB,'MEVG',EVG)
-            LMEVG=(LENGTH.EQ.1).OR.(EMEVG2(ISO).GT.0.0)
             DO 111 IL=1,NL
               WRITE (CM,'(I2.2)') IL-1
               CALL LCMLEN(KPLIB,'SIGS'//CM,LENGTH,ITYLCM)
@@ -353,7 +347,6 @@
                 CALL LCMSIX(IPEDIT,HNEW,1)
                 CALL LCMPUT(IPEDIT,'AWR',1,2,AWR)
                 IF(LMEVF) CALL LCMPUT(IPEDIT,'MEVF',1,2,EVF)
-                IF(LMEVG) CALL LCMPUT(IPEDIT,'MEVG',1,2,EVG)
                 DO 220 J=1,MAXH
                   IF(HMAKE(J).NE.' ') THEN
                     DO 221 IGCD=1,NGCOND

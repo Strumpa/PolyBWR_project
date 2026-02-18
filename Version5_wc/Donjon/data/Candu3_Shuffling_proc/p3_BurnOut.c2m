@@ -1,0 +1,43 @@
+*--------------------------------------------------------
+*  Procédure p3_BurnOut
+*  Changement des burnups de sortie selon une stratégie donnée CANDU3
+*  Appel :   
+*      Trkcore GeoRef GeoCalc Fmap := p3_BurnOut :: <<debug>> <<CASE>> ;
+*  avec en entree
+*  S   CASE = cas-type traité
+*  et en sortie
+*      XXXXX = données associées à la procédure d'appel
+*  Auteur : Ivan Trancart - 05-05-2025 (maj 05-05-2025)
+*--------------------------------------------------------
+PARAMETER       Fmap ::
+::: LINKED_LIST Fmap ; ;
+MODULE          RESINI: DELETE: END: ;
+ECHO "Début de BurnOut.c2m" ;
+REAL B1 R2 R3 ;
+***
+:: >>B1<< >>R2<< >>R3<< ;
+***
+* ----------------------------------------------------------------------
+*  Attribution des burnups de sortie par canal
+* ----------------------------------------------------------------------
+REAL B2 B3 := B1 B1 ;
+EVALUATE B2 B3 := B1 R2 * B1 R3 * ;
+***
+Fmap := RESINI: Fmap :: EDIT 0 TIMAV-BVAL 
+<<B1>> <<B1>> <<B1>> <<B1>> <<B1>> 
+<<B1>> <<B1>> <<B1>>                ! Z=1 -  8 chaBBels
+<<B2>> <<B2>> <<B2>> <<B2>> <<B2>> 
+<<B2>> <<B2>> <<B2>> <<B2>> <<B2>>
+<<B2>> <<B2>> <<B2>> <<B2>> <<B2>>  
+<<B2>> <<B2>> <<B2>> <<B2>> <<B2>>  ! Z=2 - 20 chaBBels
+<<B3>> <<B3>> <<B3>> <<B3>> <<B3>>
+<<B3>> <<B3>> <<B3>> <<B3>> <<B3>>
+<<B3>> <<B3>> <<B3>> <<B3>> <<B3>>
+<<B3>> <<B3>> <<B3>> <<B3>> <<B3>>
+<<B3>> <<B3>> <<B3>> <<B3>> <<B3>>
+<<B3>> <<B3>> <<B3>> <<B3>> <<B3>>  ! Z=3 - 30 chaBBels
+;
+***
+ECHO "Fin de BurnOut.c2m" ;
+END: ;
+QUIT "LIST" . 

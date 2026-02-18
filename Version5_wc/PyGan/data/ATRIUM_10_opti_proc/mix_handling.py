@@ -39,7 +39,7 @@ def createLib(mix_numbering_option, draglib_name, anisotropy_level, self_shieldi
         raise ValueError("Invalid anisotropy level selected. Must be 1, 2, 3, or 4.")
     if self_shielding_method not in ["PT", "SUBG", "RSE"]:
         raise ValueError("Invalid self-shielding method selected. Must be 'PT', 'SUBG', or 'RSE'.")
-    if transport_correction not in ["CTRA", "APOL", "NONE", ""]:
+    if transport_correction not in ["APOL", "NONE", ""]:
         raise ValueError("Invalid transport correction selected. Must be 'APOL', 'NONE', or ''.")
     if draglib_name == "":
         raise ValueError("Draglib name cannot be empty.")
@@ -295,8 +295,24 @@ def mix_composition_definition(composition_option):
     ----------
     mix_composition_definition : dict of dict with str keys [mix][isotope] = value
     """
-    N_H_H20 = 4.94546E-02  # Hydrogen in water
-    N_O16_H2O = 2.47298E-02  # Oxygen in water
+    if composition_option == "AT10_void_0":
+        N_H_H2O = 4.945460E-02 # Hydrogen in water
+        N_O16_H2O = 2.472980E-02  # Oxygen in water
+    elif composition_option == "AT10_void_40":
+        N_H_H2O = 3.064828E-02 # Hydrogen in water
+        N_O16_H2O = 1.532414E-02  # Oxygen in water
+    elif composition_option == "AT10_void_60":
+        N_H_H2O = 2.124639E-02 # Hydrogen in water
+        N_O16_H2O = 1.062319E-02  # Oxygen in water
+    elif composition_option == "AT10_void_80":
+        N_H_H2O = 1.184450E-02 # Hydrogen in water
+        N_O16_H2O = 5.922248E-03  # Oxygen in water
+    else:
+        raise ValueError("Invalid composition option selected.")
+    
+    N_H_H2O_moderator = 4.945460E-02
+    N_O16_H2O_moderator = 2.472980E-02 
+        
     
     fuel_composition = {
     "1": {"O16": 4.66705E-02, "U234": 5.15910E-06, "U235": 5.67035E-04, "U238": 2.27631E-02, "Pu239": 0.0, "Pu240": 0.0, "Pu241": 0.0, "Pu242": 0.0},
@@ -311,7 +327,7 @@ def mix_composition_definition(composition_option):
         "Gd154": 2.986510E-05, "Gd155": 2.027540E-04, "Gd156": 2.804310E-04, "Gd157": 2.143990E-04, "Gd158": 3.403000E-04, "Gd160": 2.994740E-04}
     }
     inrs_box = 2  # INRS option for box
-    inrs_clad = 2  # INRS option for clad
+    inrs_clad = 3  # INRS option for clad
     NOEV_definition = (
     f"MIX <<BOX>> <<TBOX>> NOEV\n"
     "    O16  = O16   3.08132E-04\n"
@@ -321,7 +337,7 @@ def mix_composition_definition(composition_option):
     "    Cr53  = Cr53   7.20746E-06\n"
     "    Cr54  = Cr54   1.79408E-06\n"
     "    Fe54  = Fe54   5.57337E-06\n"
-    "    Fe56  = Fe56   8.74901E-05\n"
+    f"    Fe56  = Fe56   8.74901E-05 {inrs_box}\n"
     "    Fe57  = Fe57   2.02053E-06\n"
     "    Fe58  = Fe58   2.68895E-07\n"
     "    Ni58  = Ni58   2.51627E-05\n"
@@ -351,9 +367,9 @@ def mix_composition_definition(composition_option):
     "    Cr50  = Cr50   3.29613E-06\n"
     "    Cr52  = Cr52   6.35631E-05\n"
     "    Cr53  = Cr53   7.20746E-06\n"
-     "   Cr54  = Cr54   1.79408E-06\n"
+    "    Cr54  = Cr54   1.79408E-06\n"
     "    Fe54  = Fe54   5.57337E-06\n"
-    "    Fe56  = Fe56   8.74901E-05\n"
+    f"    Fe56  = Fe56   8.74901E-05 {inrs_clad}\n"
     "    Fe57  = Fe57   2.02053E-06\n"
     "    Fe58  = Fe58   2.68895E-07\n"
     "    Ni58  = Ni58   2.51627E-05\n"
@@ -381,33 +397,14 @@ def mix_composition_definition(composition_option):
     "    He4      = He4 1.50456E-04\n"
     "\n"
     f"MIX <<MODE>> <<TMODE>> NOEV\n"
-    "    H1      = H1_H2O 4.94546E-02 ! Hydrogen in moderating water\n" 
-    "    O16     = O16    2.47298E-02 ! Oxygen in moderating water\n"
+    f"    H1      = H1_H2O {N_H_H2O_moderator:.5E}  ! Hydrogen in moderating water\n" 
+    f"    O16     = O16    {N_O16_H2O_moderator:.5E} ! Oxygen in moderating water\n"
+    "\n"
+    "MIX <<COOL>> <<TCOOL>> NOEV\n"
+    f"    H1      = H1_H2O {N_H_H2O:.5E}  ! variable void coolant\n" 
+    f"    O16     = O16    {N_O16_H2O:.5E}  ! variable void coolant\n"
     )
-    if composition_option == "AT10_void_0":
-        NOEV_definition += (
-        "MIX <<COOL>> <<TCOOL>> NOEV\n"
-        f"    H1      = H1_H2O {N_H_H20:.5E}  ! variable void coolant\n" 
-        f"    O16     = O16    {N_O16_H2O:.5E}  ! variable void coolant\n"
-        )
-    elif composition_option == "AT10_void_40":
-        NOEV_definition += (
-        "MIX <<COOL>> <<TCOOL>> NOEV\n"
-        f"    H1      = H1_H2O {N_H_H20*0.4:.5E}  ! variable void coolant\n" 
-        f"    O16     = O16    {N_O16_H2O*0.4:.5E}  ! variable void coolant\n"
-        )
-    elif composition_option == "AT10_void_60":
-        NOEV_definition += (
-        "MIX <<COOL>> <<TCOOL>> NOEV\n"
-        f"    H1      = H1_H2O {N_H_H20*0.6:.5E}  ! variable void coolant\n" 
-        f"    O16     = O16    {N_O16_H2O*0.6:.5E}  ! variable void coolant\n"
-        )
-    elif composition_option == "AT10_void_80":
-        NOEV_definition += (
-        "MIX <<COOL>> <<TCOOL>> NOEV\n"
-        f"    H1      = H1_H2O {N_H_H20*0.8:.5E}  ! variable void coolant\n" 
-        f"    O16     = O16    {N_O16_H2O*0.8:.5E}  ! variable void coolant\n"
-        )
+
     
     return fuel_composition, NOEV_definition
 

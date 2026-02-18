@@ -1,0 +1,44 @@
+# temperature points for Serpent2 acefiles
+Evaluation:
+  - name: "endfb8r1"
+    temperatures: 
+      - 293
+      - 550
+      - 900
+      - 1200
+      - 2000
+    suffixes:
+      - ".02c"
+      - ".05c"
+      - ".09c"
+      - ".12c"
+      - ".20c"
+
+  - name: "jeff311"
+    temperatures: 
+      - 293
+      - 550
+      - 900
+      - 1200
+      - 2000
+    suffixes:
+      - ".02c"
+      - ".05c"
+      - ".09c"
+      - ".12c"
+      - ".20c"
+
+  - name: "sss_jeff311"
+    temperatures: 
+      - 300
+      - 600
+      - 900
+      - 1200
+      - 1500
+      - 1800
+    suffixes:
+      - ".03c"
+      - ".06c"
+      - ".09c"
+      - ".12c"
+      - ".18c"

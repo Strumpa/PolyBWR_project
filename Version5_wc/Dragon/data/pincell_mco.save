@@ -16,5 +16,5 @@ else
    MACH=`uname -sm | sed 's/[ ]/_/'`
 fi
 ls -l
-mv ACOMPO $1/"$MACH"/_ACompo
+mv ACOMPO $1/"$MACH"/_ACompo_pincell
 echo "pincell_mco.save completed"

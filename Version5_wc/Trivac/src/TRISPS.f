@@ -1,6 +1,6 @@
 *DECK TRISPS
       SUBROUTINE TRISPS(IPTRK,IPMACR,IPMACP,IPSYS,IMPX,NGRP,NEL,NLF,
-     1 NANI,NBFIS,NALBP,LDIFF,IPR,MAT,VOL,NBMIX)
+     1 NANI,NW,NBFIS,NALBP,LDIFF,IPR,MAT,VOL,NBMIX)
 *
 *-----------------------------------------------------------------------
 *
@@ -30,6 +30,7 @@
 * NEL     total number of finite elements.
 * NLF     number of Legendre orders for the flux (even number).
 * NANI    number of Legendre orders for the scattering cross sections.
+* NW      maximum Legendre order (0 or 1) for the total cross sections.
 * NBFIS   number of fissionable isotopes.
 * NALBP   number of physical albedos per energy group.
 * LDIFF   flag set to .true. to use 1/3D as 'NTOT1' cross sections.
@@ -50,7 +51,7 @@
 *  SUBROUTINE ARGUMENTS
 *----
       TYPE(C_PTR) IPTRK,IPMACR,IPMACP,IPSYS
-      INTEGER IMPX,NGRP,NEL,NLF,NANI,NBFIS,NALBP,IPR,MAT(NEL),NBMIX
+      INTEGER IMPX,NGRP,NEL,NLF,NANI,NW,NBFIS,NALBP,IPR,MAT(NEL),NBMIX
       REAL VOL(NEL)
       LOGICAL LDIFF
 *----
@@ -84,7 +85,7 @@
       IF(NLF.EQ.0) CALL XABORT('TRISPS: SPN APPROXIMATION REQUESTED.')
       DO 142 IL=1,NLF
       WRITE(CM,'(I2.2)') IL-1
-      CALL TRIRCA(IPMACR,IPMACR,NGRP,NBMIX,NANI,LDIFF,IL,0,RCAT)
+      CALL TRIRCA(IPMACR,IPMACR,NGRP,NBMIX,NANI,NW,LDIFF,IL,0,RCAT)
       IF(IPR.EQ.0) THEN
          DO 20 IBM=1,NBMIX
          DO 15 JGR=1,NGRP
@@ -97,7 +98,8 @@
    20    CONTINUE
       ELSE
          ALLOCATE(RCAT2(NGRP,NGRP,NBMIX),GAR(NGRP))
-         CALL TRIRCA(IPMACR,IPMACP,NGRP,NBMIX,NANI,LDIFF,IL,IPR,RCAT2)
+         CALL TRIRCA(IPMACR,IPMACP,NGRP,NBMIX,NANI,NW,LDIFF,IL,IPR,
+     1   RCAT2)
          IF(IPR.EQ.1) THEN
             DO 62 IBM=1,NBMIX
             DO 31 JGR=1,NGRP

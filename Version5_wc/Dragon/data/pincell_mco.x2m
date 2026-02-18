@@ -257,11 +257,11 @@ WHILE istep maxstep < DO
 ENDWHILE ; ! reference burnup loop
 
 IF iDcaStep_0 1 = THEN
-  assertS FLUX :: K-INFINITY 1 1.049062 ;
+  assertS FLUX :: K-INFINITY 1 1.048820 ;
 ELSEIF iDcaStep_0 2 = THEN
-  assertS FLUX :: K-INFINITY 1 1.153705 ;
+  assertS FLUX :: K-INFINITY 1 1.153505 ;
 ELSEIF iDcaStep_0 3 = THEN
-  assertS FLUX :: K-INFINITY 1 1.224496 ;
+  assertS FLUX :: K-INFINITY 1 1.224352 ;
 ENDIF ;
 
 LIBRARY LIBRARY2 := DELETE: LIBRARY LIBRARY2 ;

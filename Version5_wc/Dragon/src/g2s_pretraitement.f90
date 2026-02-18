@@ -2025,7 +2025,7 @@ contains
        call LCMSIX(dIp,triName,1)
        call LCMLEN(dIp,'value',long,typ)
        if(long == 0) then
-         write(hsmg,'(36hG2S: value key missing for triName=,a,5h (3).)') trim(triName)
+         write(hsmg,'(35hG2S: value key missing for triName=,a,5h (3).)') trim(triName)
          call LCMLIB(dIp)
          call LCMLIB(dicoIp)
          call XABORT(hsmg)

@@ -1,0 +1,193 @@
+* 2L_FLUX.c2m deck
+* This procedure is used to run a 2-level flux calculation given :
+*   For each level :
+*     - a SALT tracking data structure (TRACK)
+*     - a binary tracking file containing track lengths (TF_EXC)
+*   and :
+*     - a library LCM object containing the self-shielded cross sections (LIBRARY2)
+*     
+* NOTE : NO leakage model is applied in this procedure.
+* This procedure returns a FLUX LCM object containing the results of the 2-level flux calculation.
+
+
+* ---
+* INPUT & OUTPUT PARAMETERS
+* ---
+PARAMETER FLUX LIB26G TRACK TF_EXC TRACK_L1 TF_EXC_L1 LIBRARY2 ::
+::: LINKED_LIST FLUX ;
+::: LINKED_LIST LIB26G ;
+::: LINKED_LIST TRACK ;
+::: SEQ_BINARY TF_EXC ;
+::: LINKED_LIST TRACK_L1 ;
+::: SEQ_BINARY TF_EXC_L1 ;
+::: LINKED_LIST LIBRARY2 ; ;
+* ---
+* Parameters for 1st-level solution
+* ---
+STRING SAVE_L1 := "NO" ; ! flag to indicate if 1st level flux calculation results are saved in a COMPO file for export
+STRING sol_door ;
+:: >>sol_door<< ; ! choice of method identifying spatial solution used for first-level calculation : 
+            ! - "IC" for multicell-interface currents method using the G2S: + SALT: surfacic formalism
+            ! - "PIJ" for full PIJ
+INTEGER sph_grmax ;
+:: >>sph_grmax<< ; ! maximum group to apply SPH correction (default = 22)
+
+* ---
+* STRUCTURES AND MODULES
+* ---
+
+MODULE ASM: FLU: GREP: EDI: SPH: COMPO: DELETE: END: ;
+LINKED_LIST SYS EDITION FLUX_L1 COMPOL1 EDIRATES ;
+
+REAL Kinf ;
+* ---
+* 1st LEVEL FLUX CALCULATION
+* ---
+IF sol_door "PIJ" = THEN
+    SYS := ASM: LIBRARY2 TRACK_L1 TF_EXC_L1 :: PIJ EDIT 1 ;
+ELSEIF sol_door "IC" = THEN
+    SYS := ASM: LIBRARY2 TRACK_L1 TF_EXC_L1 :: ARM EDIT 1 ; 
+ENDIF ;
+
+FLUX_L1 := FLU: LIBRARY2 SYS TRACK_L1 TF_EXC_L1 ::
+            EDIT 1 TYPE K B1 SIGS
+    ;
+GREP: FLUX_L1 :: GETVAL 'K-INFINITY  ' 1 1 1 >>Kinf<< ;
+
+ECHO "FOR 1st LEVEL FLUX CALCULATION WITH SOLUTION DOOR = " sol_door "--> K-infinity = " Kinf ;
+
+IF SAVE_L1 "YES" = THEN
+    * --------------------------------
+    *    COMPO FILE NAME FOR EXPORT
+    * --------------------------------
+    SEQ_ASCII _COMPOL1 :: FILE '_LEVEL1_FLX_CALC_CPO' ;
+    * --------------------------------
+    *   COMPO INITIALIZATION
+    * --------------------------------
+    COMPOL1 := COMPO: ::
+    STEP UP 'EDIHOM_COND'
+        COMM 'Reaction rates - Condensed, Homogenized over all fuel cells' ENDC
+        ISOT 5 U235 U238 U234 Gd155 Gd157
+    INIT
+    STEP UP 'H_EDI_REGI_2'
+        COMM 'Reaction rates- Condensed to 2 groups, Homogenized over unique regions' ENDC
+        ISOT 5 U235 U238 U234 Gd155 Gd157
+    INIT
+    ;
+    * --------------------------------
+    *    EDI: CALL FOR EDIHOM
+    * --------------------------------
+    EDIRATES := EDI: FLUX_L1 LIBRARY2 TRACK_L1 ::
+    EDIT 1
+        MICR 5 U235 U238 U234 Gd155 Gd157
+        MERG MIX
+        1 1 1 1 1 1 1 1 1 1 
+        1 1 1 1 1 1 1 1 1 1 
+        1 1 1 1 1 1 1 1 1 1 
+        1 1 1 1 1 1 1 1 1 1 
+        1 1 1 1 1 1 1 1 1 1 
+        1 1 1 1 1 1 1 1 1 1 
+        1 1 1 1 1 1 1 1 1 1 
+        1 1 1 1 1 1 1 1 1 1 
+        1 1 1 1 1 1 1 1 1 1 
+        1 1 1 1 1 1 1 1 1 1 
+        1 1 1 1 1 1 1 1 1 1 
+        1 1 1 1 1 1 1 1 1 1 
+        1 1 1 1 1 1 1 1 1 1 
+        1 1 1 1 1 1 1 1 1 1 
+        1 1 1 1 1 1 1 1 1 1 
+        1 1 1 1 1 1 1 1 1 1 
+        1 1 1 1 1 1 1 1 1 1 
+        1 1 1 1 1 1 1 1 1 1 
+        1 1 1 1 1 1 1 1 1 1 
+        1 1 1 1 1 1 1 1 1 1 
+        1 1 1 1 1 1 1 1 1 1 
+        1 1 0 0 0 0 0
+        COND
+        SAVE ON EDIHOM_COND
+    ;
+    * --------------------------------
+    *    COMPO: CALL FOR EDIHOM
+    * --------------------------------
+    COMPOL1 := COMPO: COMPOL1 EDIRATES LIBRARY2 ::
+    EDIT 1
+        STEP UP EDIHOM_COND
+    ;
+    EDIRATES := DELETE: EDIRATES ;
+    * --------------------------------
+    *    EDI: CALL FOR REGI_2g
+    * --------------------------------
+    EDIRATES := EDI: FLUX_L1 LIBRARY2 TRACK_L1 ::
+    EDIT 1
+        MICR 5 U235 U238 U234 Gd155 Gd157
+        MERG MIX
+        1 1 1 1 2 2 2 2 3 3 
+        3 3 4 4 4 4 5 5 5 5 
+        6 6 6 6 7 7 7 7 8 8 
+        8 8 9 9 9 9 10 10 10 10 
+        11 11 11 11 12 12 12 12 12 12 
+        13 13 13 13 14 14 14 14 14 14 
+        15 15 15 15 16 16 16 16 17 17 
+        17 17 17 17 18 18 18 18 19 19 
+        19 19 20 20 20 20 21 21 21 21 
+        22 22 22 22 23 23 23 23 23 23 
+        24 24 24 24 25 25 25 25 26 26 
+        26 26 26 26 27 27 27 27 28 28 
+        28 28 29 29 29 29 30 30 30 30 
+        31 31 31 31 31 31 32 32 32 32 
+        33 33 33 33 34 34 34 34 38 38 
+        38 38 39 39 39 39 40 40 40 40 
+        43 43 43 43 44 44 44 44 44 44 
+        45 45 45 45 47 47 47 47 48 48 
+        48 48 49 49 49 49 50 50 50 50 
+        51 51 51 51 51 51 52 52 52 52 
+        53 53 53 53 54 54 54 54 55 55 
+        55 55 0 0 0 0 0
+        COND 0.625
+        SAVE ON H_EDI_REGI_2g
+    ;
+    * --------------------------------
+    *    COMPO: CALL FOR REGI_2g
+    * --------------------------------
+    COMPOL1 := COMPO: COMPOL1 EDIRATES LIBRARY2 ::
+    EDIT 1
+        STEP UP H_EDI_REGI_2g
+    ;
+    * --------------------------------
+    EDIRATES := DELETE: EDIRATES ;
+    * --------------------------------
+
+    _COMPOL1 := COMPOL1 ;
+ENDIF ;
+
+* ---
+* CONDENSATION OF 1st LEVEL FLUX on 295 energry groups to 26 energy groups
+* ---
+
+EDITION := EDI: FLUX_L1 LIBRARY2 TRACK_L1 ::
+    EDIT 0
+    MICR ALL
+    MERG MIX
+    COND  10  14  18  26  33  40  49  56  66 84 150 210 241 244 247
+    252 255 258 261 268 273 277 281 286 291
+    SAVE ON COND26 
+;
+
+LIB26G := EDITION :: STEP UP COND26 ;
+
+LIB26G := SPH: LIB26G TRACK_L1 TF_EXC_L1 :: EDIT 1 GRMAX <<sph_grmax>> ;
+
+
+FLUX_L1 SYS EDITION := DELETE: FLUX_L1 SYS EDITION ;
+
+* ---
+* 2nd LEVEL FLUX CALCULATION
+* ---
+SYS := ASM: LIB26G TRACK TF_EXC :: ARM EDIT 1 ;
+
+FLUX := FLU: LIB26G SYS TRACK TF_EXC ::
+      EDIT 1 TYPE K 
+    ;
+
+END: ;
+QUIT .

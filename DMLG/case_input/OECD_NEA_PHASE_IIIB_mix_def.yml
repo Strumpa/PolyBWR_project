@@ -1,0 +1,112 @@
+# mix definition : isotopic compositions,
+# OECD NEA Phase IIIB BWR assembly benchmark,
+MIX_COMPOSITIONS:
+  - name: "ROD_ID_1"
+    isotopic_composition:
+      U234: 1.0443E-05
+      U235: 1.1284E-03
+      U236: 6.9317E-06
+      U238: 2.1606E-02
+      O16: 4.5504E-02
+    temperature_points:
+      - 900.0
+    depletable: true
+  
+  - name: "ROD_ID_2"
+    isotopic_composition:
+      U234: 7.5720E-06
+      U235: 8.2904E-04
+      U236: 5.1701E-06
+      U238: 2.1907E-02
+      O16: 4.5497E-02
+    temperature_points:
+      - 900.0
+    depletable: true
+  
+  - name: "ROD_ID_3"
+    isotopic_composition:
+      U234: 6.2468E-06
+      U235: 6.9087E-04
+      U236: 4.3570E-06
+      U238: 2.2046E-02
+      O16: 4.5494E-02
+    temperature_points:
+      - 900.0
+    depletable: true
+  
+  - name: "ROD_ID_4"
+    isotopic_composition:
+      U234: 4.7008E-06
+      U235: 5.2968E-04
+      U236: 3.4083E-06
+      U238: 2.2208E-02
+      O16: 4.5491E-02
+    temperature_points:
+      - 900.0
+    depletable: true
+  
+  - name: "ROD_ID_G"
+    isotopic_composition:
+      U234: 5.8824E-06
+      U235: 6.5057E-04
+      U236: 4.1028E-06
+      U238: 2.0759E-02
+      O16: 4.5095E-02
+      Gd154: 3.2253E-05
+      Gd155: 2.2141E-04
+      Gd156: 3.0778E-04
+      Gd157: 2.3576E-04
+      Gd158: 3.7393E-04
+      Gd160: 3.3200E-04
+    temperature_points:
+      - 900.0
+    depletable: true
+  
+  - name: "CLAD"
+    isotopic_composition:
+      Cr_NAT: 7.5891E-05
+      Fe_NAT: 1.4838E-04
+      Zr_NAT: 4.2982E-02
+    temperature_points:
+      - 559.0
+    depletable: false
+  
+  - name: "WROD"
+    isotopic_composition:
+      H1: 4.9316E-02
+      O16: 2.4658E-02
+    temperature_points:
+      - 559.0
+    depletable: false
+
+  - name: "MODE_OUT"
+    isotopic_composition:
+      H1: 4.9316E-02
+      O16: 2.4658E-02
+    temperature_points:
+      - 559.0
+    depletable: false
+
+  - name: "COOL_0VOID"
+    isotopic_composition:
+      H1: 4.9316E-02
+      O16: 2.4658E-02
+    temperature_points:
+      - 559.0
+    depletable: false
+  
+  - name: "COOL_40VOID"
+    isotopic_composition:
+      H1: 3.0588E-02
+      O16: 1.5294E-02
+    temperature_points:
+      - 559.0
+    depletable: false
+  
+  - name: "COOL_70VOID"
+    isotopic_composition:
+      H1: 1.6542E-02
+      O16: 8.2712E-03
+    temperature_points:
+      - 559.0
+    depletable: false

@@ -62,17 +62,19 @@ MODULE SAL_GEOMETRY_TYPES
   !                             5 = rectangular geometry with translation on all sides
   !                             6 = rectangular geometry with symmetry on all sides
   !                             7 = 1/8 assembly with symmetries on all sides
-  !                             8 = equilateral triangle geometry with symmetries on all sides
+  !                             8 = SA60 equilateral triangle geometry with symmetries on all sides
   !                             9 = hexagonal geometry with translations on all sides
   !                            10 = equilateral triangle geometry with RA60 rotation and translation
   !                            11 = lozenge geometry with R120 rotation and translation
-  !                            12 = rectangular S30 triangle geometry with symmetries on all sides
+  !                            12 = S30 triangle geometry with symmetries on all sides
   !       NBFOLD              = n in angle definition of rotation or symmetry geometry
   !       NBMED               = nber of media in library file
   !       ALLSUR              = (have not been programmed!)
   INTEGER            :: TYPGEO,NBFOLD,ALLSUR
   !       NANIS               = 0: isotropic scattering in the laboratory system/ >1: anisotropic
   INTEGER            :: NANIS
+  !       IC                  = 4: PIJ or MOC/ 5: multicell surfacic or short characteristics
+  INTEGER            :: IC
   !       ISPEC               = 0: isotropic boundary condition/ 1: specular boundary condition
   INTEGER            :: ISPEC
   !       LGALLS              = TRUE, if 'allsur' equal to 1

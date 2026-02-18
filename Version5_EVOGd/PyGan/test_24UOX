@@ -1,0 +1,52 @@
+execute AT10_24UOX_Cst_pow_evol with PyGan on system Linux_aarch64 with custom compiler
+use the existing directory Linux_aarch64
+RunDirectory: /tmp/rundir138
+Python version= 3.8
+PythonPath= /home/p117902/working_dir/PolyBWR_project/Version5_ev3881_EVOGd/PyGan/../PyGan/lib/Linux_aarch64/python/Lcm-5.0-py3.8-linux-aarch64.egg:/home/p117902/working_dir/PolyBWR_project/Version5_ev3881_EVOGd/PyGan/../PyGan/lib/Linux_aarch64/python/Lifo-5.0-py3.8-linux-aarch64.egg:/home/p117902/working_dir/PolyBWR_project/Version5_ev3881_EVOGd/PyGan/../PyGan/lib/Linux_aarch64/python/Cle2000-5.0-py3.8-linux-aarch64.egg:
+use little endian libraries
+total 860
+-rwxr-xr-x 1 p117902 IGN    449 Aug 28 11:00 assertS.py
+-rwxr-xr-x 1 p117902 IGN    486 Aug 28 11:00 assertV.py
+-rw-r--r-- 1 p117902 IGN   7700 Aug 28 11:00 BU_C.c2m
+-rw-r--r-- 1 p117902 IGN   1390 Aug 28 11:00 BU_C.py
+-rw-r--r-- 1 p117902 IGN   7957 Aug 28 11:00 BU_C_SYBNXT.c2m
+-rw-r--r-- 1 p117902 IGN   1266 Aug 28 11:00 BU_C_SYBNXT.py
+lrwxrwxrwx 1 p117902 IGN    125 Aug 28 11:00 endfb81295K -> /home/p117902/working_dir/PolyBWR_project/Version5_ev3881_EVOGd/PyGan/../../../libraries/l_endian/draglibendfb8r1SHEM295Kerma
+lrwxrwxrwx 1 p117902 IGN    131 Aug 28 11:00 endfb81295K2 -> /home/p117902/working_dir/PolyBWR_project/Version5_ev3881_EVOGd/PyGan/../../../libraries/l_endian/draglibendfb8r1SHEM295KermaK2_fix
+lrwxrwxrwx 1 p117902 IGN    120 Aug 28 11:00 endfb8r1_295 -> /home/p117902/working_dir/PolyBWR_project/Version5_ev3881_EVOGd/PyGan/../../../libraries/l_endian/draglibendfb8r1SHEM295
+-rw-r--r-- 1 p117902 IGN   3221 Aug 28 11:00 GEO_C_NXT.c2m
+-rw-r--r-- 1 p117902 IGN   1021 Aug 28 11:00 GEO_C_NXT.py
+-rw-r--r-- 1 p117902 IGN   3368 Aug 28 11:00 GEO_C_SALT.c2m
+-rw-r--r-- 1 p117902 IGN   1051 Aug 28 11:00 GEO_C_SALT.py
+-rw-r--r-- 1 p117902 IGN  24191 Aug 28 11:00 getLists.py
+lrwxrwxrwx 1 p117902 IGN    121 Aug 28 11:00 J311_295 -> /home/p117902/working_dir/PolyBWR_project/Version5_ev3881_EVOGd/PyGan/../../../libraries/l_endian/draglibJeff3p1p1SHEM295
+lrwxrwxrwx 1 p117902 IGN    126 Aug 28 11:00 J311_295K -> /home/p117902/working_dir/PolyBWR_project/Version5_ev3881_EVOGd/PyGan/../../../libraries/l_endian/draglibJeff3p1p1SHEM295Kerma
+-rw-r--r-- 1 p117902 IGN   8521 Aug 28 11:00 MIX_C.c2m
+-rw-r--r-- 1 p117902 IGN    985 Aug 28 11:00 MIX_C.py
+-rw-r--r-- 1 p117902 IGN 718881 Aug 28 11:00 MIX_NG0.c2m
+-rw-r--r-- 1 p117902 IGN    959 Aug 28 11:00 MIX_NG0.py
+-rw-r--r-- 1 p117902 IGN   8305 Aug 28 11:00 mydata
+-rw-r--r-- 1 p117902 IGN  15856 Aug 28 11:00 postproc_cst_pow_evol.py
+-rw-r--r-- 1 p117902 IGN   2332 Aug 28 11:00 TRK_C_SALT.c2m
+-rw-r--r-- 1 p117902 IGN   1301 Aug 28 11:00 TRK_C_SALT.py
+-rw-r--r-- 1 p117902 IGN   2204 Aug 28 11:00 TRK_C_SYBNXT.c2m
+-rw-r--r-- 1 p117902 IGN   1058 Aug 28 11:00 TRK_C_SYBNXT.py
+End of execution. Total execution time: 1h 46min 11s
+$$$ ----- AT10_24UOX_Cst_pow_evol.save : script begin
+$$$ ----- AT10_24UOX_Cst_pow_evol.save : script finish
+the listing is located on ./Linux_aarch64
+burnup_points:  UOx4_autop5
+Dragon isotopes = [5.15910e-06 5.67035e-04 2.27631e-02 0.00000e+00 0.00000e+00 0.00000e+00
+ 0.00000e+00 0.00000e+00 0.00000e+00 0.00000e+00 0.00000e+00 0.00000e+00
+ 1.00000e+00]
+Length of Burnup points list is : 56
+burnup_points:  UOx2_autop5
+Dragon isotopes = [5.15910e-06 5.67035e-04 2.27631e-02 0.00000e+00 0.00000e+00 0.00000e+00
+ 0.00000e+00 0.00000e+00 0.00000e+00 0.00000e+00 0.00000e+00 0.00000e+00
+ 1.00000e+00]
+Length of Burnup points list is : 76
+burnup_points:  UOx4_autop5
+Dragon isotopes = [5.15910e-06 5.67035e-04 2.27631e-02 0.00000e+00 0.00000e+00 0.00000e+00
+ 0.00000e+00 0.00000e+00 0.00000e+00 0.00000e+00 0.00000e+00 0.00000e+00
+ 1.00000e+00]
+cle2000_dealloc: deallocate a cle2000 object

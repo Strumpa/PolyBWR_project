@@ -1,0 +1,47 @@
+#####################################################################
+#                                                                   #
+# Description : PyGan scritp for BWR simulation with DRAGON5        #
+# Author      : L. Fede, adapted by R.Guasch                        #
+# Date        : 2024                                                #
+# Purpose     : Tracking for pin cells with SALT module             #
+#                                                                   #
+#####################################################################
+#
+import lifo
+import cle2000
+
+def TRK_C_SALT(pyGEOM, pyGEOM_SS):
+    # Lifo
+    myLifo=lifo.new()
+    myLifo.pushEmpty("TRACK","LCM")
+    myLifo.pushEmpty("TRACK_SS","LCM")
+    myLifo.pushEmpty("TF_EXC","BINARY")
+    myLifo.pushEmpty("TF_EXC_SS","BINARY")
+    myLifo.push(pyGEOM)
+    myLifo.push(pyGEOM_SS)
+
+    # Execution
+    trackBWR = cle2000.new('TRK_C_SALT',myLifo,1)
+    trackBWR.exec()
+
+    # Recover
+    myLifo.lib()
+
+    pyTRACK = myLifo.node("TRACK")
+    pyTF_EXC = myLifo.node("TF_EXC")
+
+    pyTRACK_SS = myLifo.node("TRACK_SS")
+    pyTF_EXC_SS = myLifo.node("TF_EXC_SS")
+
+    # Clear stack before next execution
+    while myLifo.getMax() > 0: 
+            myLifo.pop()
+
+    return pyTRACK,pyTF_EXC,pyTRACK_SS,pyTF_EXC_SS
+
+
+
+
+
+
+

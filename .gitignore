@@ -16,12 +16,14 @@
 
 */__pycache__/
 PTT/DMLG_proj/__pycache__/
+venv/
 
 Serpent2_para_bateman/src
 Serpent2_para_bateman/Linux_aarch64
 Serpent2_para_bateman/xs
 
 Version5_wc/.svn/
+*/.svn/
 
 Version5*/Donjon/data/history_mphy_proc/
 Version5*/Donjon/data/1Sap_vs_3Sap_proc/

@@ -1666,9 +1666,8 @@ void lcmdel_c(lcm **iplist,const char *namp)
       xabort_c(AbortString);
    } else if ((*iplist)->header == 200) {
       /* USE A XSM FILE. */
-      sprintf(AbortString,"%s: UNABLE TO DELETE RECORD '%s' FROM AN XSM FILE.",
-              nomsub,(*iplist)->hname);
-      xabort_c(AbortString);
+      xsmdel_c((xsm **)iplist,namp);
+      return;
    } else if ((*iplist)->imode == 0) {
       sprintf(AbortString,"%s: THE OBJECT '%.60s' IS CLOSED.",
               nomsub,(*iplist)->hname);

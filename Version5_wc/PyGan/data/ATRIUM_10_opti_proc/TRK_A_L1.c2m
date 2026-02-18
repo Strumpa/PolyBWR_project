@@ -1,0 +1,75 @@
+* Deck TRK_A_SALT 
+* CLE-2000 procedure for SALT: tracking on self-shielding geom
+* Currently 3-level BWR geometry treatment limited to surfacic (G2S: --> SALT:) 
+*
+* Goal : get reference deterministic t=0 results to compare with NXT capabilities.
+*
+* CALL      :                                                                     
+* TRACK_SSH TF_EXC_SSH SSH_FIG.ps := TRK_A_SALT GEOMSSH :: 
+*          <<num_ang>> <<densur>> <<refl_type>> <<batch_size>> ;
+*              
+*       
+************************************************************************************
+
+* ---
+* INPUT & OUTPUT PARAMETERS
+* ---
+PARAMETER TRACK_L1  TF_EXC_L1  GEOML1  FIG_L1.ps ::
+::: LINKED_LIST TRACK_L1 ;
+::: SEQ_BINARY TF_EXC_L1 ;
+::: LINKED_LIST GEOML1 ;
+::: SEQ_ASCII FIG_L1.ps ; ;
+* ---
+* RECOVER TRACKING PARAMTERES
+* ---
+INTEGER num_ang ;
+:: >>num_ang<< ; ! ANGULAR QUADRATURE PARAMETER
+DOUBLE Ddensur ;
+:: >>Ddensur<< ; ! DENSITY OF INTEGRATION LINES CM^-1
+
+STRING refl_type ;
+:: >>refl_type<< ; ! reflection type for tracking : "TSPC" or "TISO"
+INTEGER batch ;
+:: >>batch<< ; ! batch size for tracking
+STRING sol_door ;
+:: >>sol_door<< ; ! choice of method identifying spatial solution used for first-level calculation : 
+            ! - "IC" for multicell-interface currents method using the G2S: + SALT: surfacic formalism
+            ! - "PIJ" for full PIJ
+
+* ---
+* STRUCTURES AND MODULES
+* ---
+MODULE G2S: SALT: END: ;
+SEQ_ASCII Geo_G2S ;
+REAL densur := Ddensur D_TO_R ; ! DENSITY OF INTEGRATION LINES CM^-1
+
+* ---
+* SALT TRACKING
+* ---
+IF sol_door "PIJ" = THEN
+
+  Geo_G2S FIG_L1.ps := G2S: GEOML1 :: EDIT 0 ;
+
+  TRACK_L1 TF_EXC_L1 := SALT: Geo_G2S ::
+    EDIT 1
+    BATCH <<batch>>
+    <<refl_type>> EQW2 <<num_ang>> <<densur>>
+    !MERGMIX
+  ;
+ELSEIF sol_door "IC" = THEN
+
+  Geo_G2S FIG_L1.ps := G2S: GEOML1 :: EDIT 0 MACRO ;
+
+  TRACK_L1 TF_EXC_L1 := SALT: Geo_G2S ::
+      EDIT 6
+      TITLE "MULTICELL SURFACIC ATRIUM-10 CASE = 1st LEVEL"
+      BATCH <<batch>>
+      TISO EQW <<num_ang>> <<densur>>
+      IC EPSJ 1.0E-5
+  ;
+ENDIF ;
+
+END: ;
+QUIT .
+
+

@@ -62,9 +62,6 @@ def create_D5_S2_comparison(D5_case, S2_case):
         'BU Points': D5_case.BU,
         'delta_keff': (D5_case.keff - S2_case.keff) * 1e5 ,
     })
-    print(f"Initial delta keff in D5 vs S2: {comparison_df['delta_keff'][0]} pcm")
-    print(f"keff D5 = {D5_case.keff[0]}") 
-    print(f"keff S2 = {S2_case.keff[0]}")
 
     # Add isotopic comparisons
     for nuclide in D5_case.tracked_nuclides:
@@ -72,30 +69,56 @@ def create_D5_S2_comparison(D5_case, S2_case):
         comparison_df[f'delta {nuclide} (%)'] = [(D5_case.DRAGON_ISOTOPESDENS[nuclide][i] - S2_case.Ni[nuclide][i])*100/S2_case.Ni[nuclide][i] 
                                                 if S2_case.Ni[nuclide][i] != 0 else 0
                                                 for i in range(len(S2_case.Ni[nuclide]))]
-        print(f"Delta {nuclide} in D5 vs S2")
-        print(comparison_df[f'delta {nuclide} (%)'])
+
+    return comparison_df
+
+def create_D5_OpenMC_comparison(D5_case, OpenMC_case, OpenMC_tracked_nuclides):
+    """
+    Create a comparison between DRAGON5 cases and an OpenMC case.
+    OpenMC case is already a DataFrame.
+
+    """
+
+    comparison_df = pd.DataFrame({
+        'BU Points': D5_case.BU,
+        'delta_keff': (D5_case.keff - OpenMC_case['Keff']) * 1e5 ,
+    })
+
+    for nuclide in OpenMC_tracked_nuclides:
+        if nuclide in D5_case.DRAGON_ISOTOPESDENS:
+            comparison_df[f'delta {nuclide}'] = D5_case.DRAGON_ISOTOPESDENS[nuclide] - OpenMC_case[nuclide]
+            comparison_df[f'delta {nuclide} (%)'] = [(D5_case.DRAGON_ISOTOPESDENS[nuclide][i] - OpenMC_case[nuclide][i])*100/OpenMC_case[nuclide][i] 
+                                                    if OpenMC_case[nuclide][i] != 0 else 0
+                                                    for i in range(len(OpenMC_case[nuclide]))]
+        else:
+            print(f"Nuclide {nuclide} not found in DRAGON5 case.")
 
     return comparison_df
 
 
 if __name__ == "__main__":
-    name_D5_case = "AT10_24UOX_Cst_pow_evol"
-    name_S2_case = "AT10_24UOX"
+    name_D5_case = "AT10_45Gd_Cst_pow_evol"
+    name_S2_case = "AT10_45Gd"
     # define path to NOGL_HM data
     path_to_EVOmodif_data =  f"EVO_modif_path/{name_D5_case}_results"
     path_to_ref_data = f"PYGAN_COMPOS_path/{name_D5_case}_results"
+    
 
+    # path to OpenMC data
+    path_to_OpenMC_data = f"{os.environ['HOME']}/working_dir/OpenMC_cases/post_treat"
+    # OpenMC tracked nuclides :
+    OpenMC_tracked_nuclides = ["Gd155", "Gd157", "Gd158", "U235", "U238", "Pu239", "Xe135", "Sm149"]
     # Define calculation options for the CPOs name reconstruction
     time_integrator = "EXTR"
-    BU_points = "UOx2_autop5"  # "Gd_autop3"
+    BU_points = "Gd_autop3" #"UOx2_autop5"  # "Gd_autop3"
     tracking_option = "SALT"
-    draglib = "endfb8r1_295" # "endfb8r1_295", "endfb81295K", "endfb81295K2"
+    draglib = "endfb81295K2" # "endfb8r1_295_NG0" #"endfb8r1_295" # "endfb8r1_295", "endfb81295K", "endfb81295K2"
     ssh_option = "PT"
     correlation = "N"
     tracked_nuclides = ["U235","U238","Pu239","Pu240","Pu241","Pu242","Am241","Xe135","Sm149","Gd155","Gd157"]
 
-    name_cpo_NOGL = f"CPO_{draglib}_{ssh_option}_{correlation}_{tracking_option}_{BU_points}_RUNG_NODI_EXTR_NOGL"
-    name_cpo_GLOB = f"CPO_{draglib}_{ssh_option}_{correlation}_{tracking_option}_{BU_points}_RUNG_NODI_EXTR_GLOB"
+    name_cpo_NOGL = f"CPO_{draglib}_{ssh_option}_{correlation}_{tracking_option}_{BU_points}_KAPS_NODI_EXTR_NOGL"
+    name_cpo_GLOB = f"CPO_{draglib}_{ssh_option}_{correlation}_{tracking_option}_{BU_points}_KAPS_NODI_EXTR_GLOB"
 
     path = os.getcwd()
     save_dir_case = f"{path}/postTreatGLOB_opt_results/{name_D5_case}/{draglib}_D5"
@@ -178,6 +201,12 @@ if __name__ == "__main__":
                             edep_id=2, areQfissSet=False, isEcaptSet=False, pcc_id=1, 
                             specific_power=26.5, tracked_nuclides=tracked_nuclides, save_dir=save_dir_case)
     
+    # Create OpenMC cases :
+    OpenMC_case_edep0 = pd.read_csv(f"{path_to_OpenMC_data}/df_openmc_deplete_results_AT10_45Gd_default_fissq_CELI.csv")
+    OpenMC_case_edep0_qfiss = pd.read_csv(f"{path_to_OpenMC_data}/df_openmc_deplete_results_AT10_45Gd_set_fissq_CELI.csv")
+    OpenMC_case_edep2 = pd.read_csv(f"{path_to_OpenMC_data}/df_openmc_deplete_results_AT10_45Gd_energy_deposition_CELI.csv")
+
+    
 
     # Create S2 comparisons :
     # Compare to S2 edep0 with default Qfiss
@@ -185,19 +214,24 @@ if __name__ == "__main__":
     comparison_NOGL_S2 = create_D5_S2_comparison(D5_case_NOGL_ref, S2_case_edep0_no_qfiss)
     comparison_GLOB_modif_S2 = create_D5_S2_comparison(D5_case_GLOB_modif, S2_case_edep0_no_qfiss)
     comparison_GLOB_S2 = create_D5_S2_comparison(D5_case_GLOB_ref, S2_case_edep0_no_qfiss)
-
+    print(f"delta_keff vs S2_case_edep0: {comparison_NOGL_modif_S2['delta_keff'].values}")
     print(f"Initial delta keff for modif NOGL vs S2 edep0 : {comparison_NOGL_modif_S2['delta_keff'][0]} pcm")
     print(f"Initial delta keff for original NOGL vs S2 edep0 : {comparison_NOGL_S2['delta_keff'][0]} pcm")
     print(f"Initial delta keff for modif GLOB vs S2 edep0 : {comparison_GLOB_modif_S2['delta_keff'][0]} pcm")
     print(f"Initial delta keff for original GLOB vs S2 edep0 : {comparison_GLOB_S2['delta_keff'][0]} pcm")
 
+    # create D5 vs OpenMC comparisons
+    comparison_NOGL_modif_OpenMC = create_D5_OpenMC_comparison(D5_case_NOGL_modif, OpenMC_case_edep0, OpenMC_tracked_nuclides)
+    comparison_NOGL_OpenMC = create_D5_OpenMC_comparison(D5_case_NOGL_ref, OpenMC_case_edep0, OpenMC_tracked_nuclides)
+
     # plot the results
     plt.figure(figsize=(12, 6))
-    plt.plot(comparison_NOGL_modif_S2['BU Points'], comparison_NOGL_modif_S2['delta_keff'], marker='o', label='NOGL, modified', linestyle='--', linewidth=.5)
-    plt.plot(comparison_NOGL_S2['BU Points'], comparison_NOGL_S2['delta_keff'], marker='o', label='NOGL', linestyle='--', linewidth=.5)
-    plt.plot(comparison_GLOB_modif_S2['BU Points'], comparison_GLOB_modif_S2['delta_keff'], marker='x', label='GLOB, modified', linestyle='--', linewidth=.5)
-    plt.plot(comparison_GLOB_S2['BU Points'], comparison_GLOB_S2['delta_keff'], marker='x', label='GLOB', linestyle='--', linewidth=.5)
-    plt.title('Comparison NOGL - GLOB vs S2, edep=0 default fission Q-values')
+    plt.plot(comparison_NOGL_modif_S2['BU Points'], comparison_NOGL_modif_S2['delta_keff'], marker='o', label='NOGL, modified vs S2', linestyle='--', linewidth=.5)
+    plt.plot(comparison_NOGL_S2['BU Points'], comparison_NOGL_S2['delta_keff'], marker='o', label='NOGL vs S2', linestyle='--', linewidth=.5)
+    plt.plot(comparison_NOGL_modif_OpenMC['BU Points'], comparison_NOGL_modif_OpenMC['delta_keff'], marker='x', label='NOGL, modified vs OpenMC', linestyle='--', linewidth=.5)
+    plt.plot(comparison_NOGL_OpenMC['BU Points'], comparison_NOGL_OpenMC['delta_keff'], marker='x', label='NOGL vs OpenMC', linestyle='--', linewidth=.5)
+    #plt.plot(comparison_GLOB_S2['BU Points'], comparison_GLOB_S2['delta_keff'], marker='x', label='GLOB', linestyle='--', linewidth=.5)
+    plt.title('Keff comparison D5 vs S2/OpenMC default fission Q-values')
     plt.xlabel('BU Points')
     plt.ylabel('Delta keff (pcm)')
     # plot +/- 300 pcm lines
@@ -205,16 +239,19 @@ if __name__ == "__main__":
     plt.axhline(y=-300, color='r', linestyle='--', label='-300 pcm')
     plt.legend()
     plt.grid()
-    plt.savefig(f"{save_dir_case}/comparison_keff_NOGL_GLOB_{draglib}_S2_edep0.png")
+    plt.savefig(f"{save_dir_case}/comparison_keff_NOGL_GLOB_{draglib}_S2_edep0_OpenMC_default_qfiss.png")
     plt.close()
     
     for isotope in tracked_nuclides:
         plt.figure(figsize=(12, 6))
         plt.plot(comparison_NOGL_modif_S2['BU Points'], comparison_NOGL_modif_S2[f'delta {isotope} (%)'], marker='o', label=f'NOGL modif {isotope}', linestyle='--', linewidth=.5)
         plt.plot(comparison_NOGL_S2['BU Points'], comparison_NOGL_S2[f'delta {isotope} (%)'], marker='o', label=f'NOGL {isotope}', linestyle='--', linewidth=.5)
-        plt.plot(comparison_GLOB_modif_S2['BU Points'], comparison_GLOB_modif_S2[f'delta {isotope} (%)'], marker='x', label=f'GLOB modif {isotope}', linestyle='--', linewidth=.5)
-        plt.plot(comparison_GLOB_S2['BU Points'], comparison_GLOB_S2[f'delta {isotope} (%)'], marker='x', label=f'GLOB {isotope}', linestyle='--', linewidth=.5)
-        plt.title(f'Comparison NOGL - GLOB vs S2 for {isotope}, edep=0 default fission Q-values')
+        if isotope in OpenMC_tracked_nuclides:
+            plt.plot(comparison_NOGL_modif_OpenMC['BU Points'], comparison_NOGL_modif_OpenMC[f'delta {isotope} (%)'], marker='x', label=f'NOGL modif {isotope} vs OpenMC', linestyle='--', linewidth=.5)
+            plt.plot(comparison_NOGL_OpenMC['BU Points'], comparison_NOGL_OpenMC[f'delta {isotope} (%)'], marker='x', label=f'NOGL {isotope} vs OpenMC', linestyle='--', linewidth=.5)
+        #plt.plot(comparison_GLOB_modif_S2['BU Points'], comparison_GLOB_modif_S2[f'delta {isotope} (%)'], marker='x', label=f'GLOB modif {isotope}', linestyle='--', linewidth=.5)
+        #plt.plot(comparison_GLOB_S2['BU Points'], comparison_GLOB_S2[f'delta {isotope} (%)'], marker='x', label=f'GLOB {isotope}', linestyle='--', linewidth=.5)
+        plt.title(f'$\\Delta$ N{isotope} D5 vs S2 / OpenMC, edep=0 default fission Q-values')
         plt.xlabel('BU Points')
         plt.ylabel(f'Delta {isotope} (%)')
         # plot +2/-2% lines
@@ -222,7 +259,7 @@ if __name__ == "__main__":
         plt.axhline(y=-2, color='r', linestyle='--', label='-2%')
         plt.legend()
         plt.grid()
-        plt.savefig(f"{save_dir_case}/comparison_{isotope}_NOGL_GLOB_{draglib}_S2_edep0.png")
+        plt.savefig(f"{save_dir_case}/comparison_{isotope}_NOGL_GLOB_{draglib}_S2_edep0_OpenMC_default_qfiss.png")
         plt.close()
 
     # Compare to S2 edep0 with Qfiss set
@@ -236,13 +273,18 @@ if __name__ == "__main__":
     print(f"Initial delta keff for modif GLOB vs S2 edep0 setQfiss : {comparison_GLOB_modif_S2['delta_keff'][0]} pcm")
     print(f"Initial delta keff for original GLOB vs S2 edep0 setQfiss : {comparison_GLOB_S2['delta_keff'][0]} pcm")
 
+    # Create OpenMC cases with Qfiss set:
+    comparison_NOGL_modif_OpenMC = create_D5_OpenMC_comparison(D5_case_NOGL_modif, OpenMC_case_edep0_qfiss, OpenMC_tracked_nuclides)
+    comparison_NOGL_OpenMC = create_D5_OpenMC_comparison(D5_case_NOGL_ref, OpenMC_case_edep0_qfiss, OpenMC_tracked_nuclides)
+
     # plot the results
+    print(f"delta_keff vs S2_case_edep0_qfiss : {comparison_NOGL_modif_S2['delta_keff'].values}")
     plt.figure(figsize=(12, 6))
-    plt.plot(comparison_NOGL_modif_S2['BU Points'], comparison_NOGL_modif_S2['delta_keff'], marker='o', label='NOGL, modified', linestyle='--', linewidth=.5)
-    plt.plot(comparison_NOGL_S2['BU Points'], comparison_NOGL_S2['delta_keff'], marker='o', label='NOGL', linestyle='--', linewidth=.5)
-    plt.plot(comparison_GLOB_modif_S2['BU Points'], comparison_GLOB_modif_S2['delta_keff'], marker='x', label='GLOB, modified', linestyle='--', linewidth=.5)
-    plt.plot(comparison_GLOB_S2['BU Points'], comparison_GLOB_S2['delta_keff'], marker='x', label='GLOB', linestyle='--', linewidth=.5)
-    plt.title('Comparison NOGL - GLOB vs S2, edep=0 with set fission Q-values')
+    plt.plot(comparison_NOGL_modif_S2['BU Points'], comparison_NOGL_modif_S2['delta_keff'], marker='o', label='NOGL modified vs S2', linestyle='--', linewidth=.5)
+    plt.plot(comparison_NOGL_S2['BU Points'], comparison_NOGL_S2['delta_keff'], marker='o', label='NOGL vs S2', linestyle='--', linewidth=.5)
+    plt.plot(comparison_NOGL_modif_OpenMC['BU Points'], comparison_NOGL_modif_OpenMC['delta_keff'], marker='x', label='NOGL modified vs OpenMC', linestyle='--', linewidth=.5)
+    plt.plot(comparison_NOGL_OpenMC['BU Points'], comparison_NOGL_OpenMC['delta_keff'], marker='x', label='NOGL vs OpenMC', linestyle='--', linewidth=.5)
+    plt.title('Keff comparisons D5 vs S2/OpenMC, edep=0 with set fission Q-values')
     plt.xlabel('BU Points')
     plt.ylabel('Delta keff (pcm)')
     # plot +/- 300 pcm lines
@@ -250,16 +292,17 @@ if __name__ == "__main__":
     plt.axhline(y=-300, color='r', linestyle='--', label='-300 pcm')
     plt.legend()
     plt.grid()
-    plt.savefig(f"{save_dir_case}/comparison_keff_NOGL_GLOB_{draglib}_S2_edep0_setQfiss.png")
+    plt.savefig(f"{save_dir_case}/comparison_keff_NOGL_GLOB_{draglib}_S2_edep0_setQfiss_OpenMC_set_fissq.png")
     plt.close()
     
     for isotope in tracked_nuclides:
         plt.figure(figsize=(12, 6))
         plt.plot(comparison_NOGL_modif_S2['BU Points'], comparison_NOGL_modif_S2[f'delta {isotope} (%)'], marker='o', label=f'NOGL modif {isotope}', linestyle='--', linewidth=.5)
         plt.plot(comparison_NOGL_S2['BU Points'], comparison_NOGL_S2[f'delta {isotope} (%)'], marker='o', label=f'NOGL {isotope}', linestyle='--', linewidth=.5)
-        plt.plot(comparison_GLOB_modif_S2['BU Points'], comparison_GLOB_modif_S2[f'delta {isotope} (%)'], marker='x', label=f'GLOB modif {isotope}', linestyle='--', linewidth=.5)
-        plt.plot(comparison_GLOB_S2['BU Points'], comparison_GLOB_S2[f'delta {isotope} (%)'], marker='x', label=f'GLOB {isotope}', linestyle='--', linewidth=.5)
-        plt.title(f'Comparison NOGL - GLOB vs S2 for {isotope}, edep=0 with set fission Q-values')
+        if isotope in OpenMC_tracked_nuclides:
+            plt.plot(comparison_NOGL_modif_OpenMC['BU Points'], comparison_NOGL_modif_OpenMC[f'delta {isotope} (%)'], marker='x', label=f'NOGL modif {isotope} vs OpenMC', linestyle='--', linewidth=.5)
+            plt.plot(comparison_NOGL_OpenMC['BU Points'], comparison_NOGL_OpenMC[f'delta {isotope} (%)'], marker='x', label=f'NOGL {isotope} vs OpenMC', linestyle='--', linewidth=.5)
+        plt.title(f'$\\Delta$ N{isotope} D5 vs S2/OpenMC, edep=0 with set fission Q-values')
         plt.xlabel('BU Points')
         plt.ylabel(f'Delta {isotope} (%)')
         # plot +2/-2% lines
@@ -267,7 +310,7 @@ if __name__ == "__main__":
         plt.axhline(y=-2, color='r', linestyle='--', label='-2%')
         plt.legend()
         plt.grid()
-        plt.savefig(f"{save_dir_case}/comparison_{isotope}_NOGL_GLOB_{draglib}_S2_edep0_setQfiss.png")
+        plt.savefig(f"{save_dir_case}/comparison_{isotope}_NOGL_GLOB_{draglib}_S2_edep0_setQfiss_OpenMC_set_fissq.png")
         plt.close()
 
     # Create S2 comparisons with edep=2:
@@ -275,7 +318,12 @@ if __name__ == "__main__":
     comparison_NOGL_S2 = create_D5_S2_comparison(D5_case_NOGL_ref, S2_case_edep2)
     comparison_GLOB_modif_S2 = create_D5_S2_comparison(D5_case_GLOB_modif, S2_case_edep2)
     comparison_GLOB_S2 = create_D5_S2_comparison(D5_case_GLOB_ref, S2_case_edep2)
+    # Create OpenMC cases with edep=2:
+    #OpenMC_case_edep2 = pd.read_csv(f"{path_to_OpenMC_data}/df_openmc_deplete_results_AT10_45Gd_energy_deposition_CELI.csv")
+    comparison_NOGL_modif_OpenMC = create_D5_OpenMC_comparison(D5_case_NOGL_modif, OpenMC_case_edep2, OpenMC_tracked_nuclides)
+    comparison_NOGL_OpenMC = create_D5_OpenMC_comparison(D5_case_NOGL_ref, OpenMC_case_edep2, OpenMC_tracked_nuclides)
     
+    print(f"delta_keff vs S2_case_edep2 : {comparison_NOGL_modif_S2['delta_keff'].values}")
     print(f"Initial delta keff for modif NOGL vs S2 edep2 : {comparison_NOGL_modif_S2['delta_keff'][0]} pcm")
     print(f"Initial delta keff for original NOGL vs S2 edep2 : {comparison_NOGL_S2['delta_keff'][0]} pcm")
     print(f"Initial delta keff for modif GLOB vs S2 edep2 : {comparison_GLOB_modif_S2['delta_keff'][0]} pcm")
@@ -285,8 +333,8 @@ if __name__ == "__main__":
     plt.figure(figsize=(12, 6))
     plt.plot(comparison_NOGL_modif_S2['BU Points'], comparison_NOGL_modif_S2['delta_keff'], marker='o', label='NOGL, modified', linestyle='--', linewidth=.5)
     plt.plot(comparison_NOGL_S2['BU Points'], comparison_NOGL_S2['delta_keff'], marker='o', label='NOGL', linestyle='--', linewidth=.5)
-    plt.plot(comparison_GLOB_modif_S2['BU Points'], comparison_GLOB_modif_S2['delta_keff'], marker='x', label='GLOB, modified', linestyle='--', linewidth=.5)
-    plt.plot(comparison_GLOB_S2['BU Points'], comparison_GLOB_S2['delta_keff'], marker='x', label='GLOB', linestyle='--', linewidth=.5)
+    plt.plot(comparison_NOGL_modif_OpenMC['BU Points'], comparison_NOGL_modif_OpenMC['delta_keff'], marker='x', label='NOGL, modified vs OpenMC', linestyle='--', linewidth=.5)
+    plt.plot(comparison_NOGL_OpenMC['BU Points'], comparison_NOGL_OpenMC['delta_keff'], marker='x', label='NOGL vs OpenMC', linestyle='--', linewidth=.5)
     # plot +/- 300 pcm lines
     plt.axhline(y=300, color='r', linestyle='--', label='+300 pcm')
     plt.axhline(y=-300, color='r', linestyle='--', label='-300 pcm')
@@ -295,15 +343,16 @@ if __name__ == "__main__":
     plt.ylabel('Delta keff (pcm)')
     plt.legend()
     plt.grid()
-    plt.savefig(f"{save_dir_case}/comparison_keff_NOGL_GLOB_{draglib}_S2_edep2.png")
+    plt.savefig(f"{save_dir_case}/comparison_keff_NOGL_GLOB_{draglib}_S2_edep2_OpenMC_energy_deposition.png")
     plt.close()
     
     for isotope in tracked_nuclides:
         plt.figure(figsize=(12, 6))
         plt.plot(comparison_NOGL_modif_S2['BU Points'], comparison_NOGL_modif_S2[f'delta {isotope} (%)'], marker='o', label=f'NOGL modif {isotope}', linestyle='--', linewidth=.5)
         plt.plot(comparison_NOGL_S2['BU Points'], comparison_NOGL_S2[f'delta {isotope} (%)'], marker='o', label=f'NOGL {isotope}', linestyle='--', linewidth=.5)
-        plt.plot(comparison_GLOB_modif_S2['BU Points'], comparison_GLOB_modif_S2[f'delta {isotope} (%)'], marker='x', label=f'GLOB modif {isotope}', linestyle='--', linewidth=.5)
-        plt.plot(comparison_GLOB_S2['BU Points'], comparison_GLOB_S2[f'delta {isotope} (%)'], marker='x', label=f'GLOB {isotope}', linestyle='--', linewidth=.5)
+        if isotope in OpenMC_tracked_nuclides: 
+            plt.plot(comparison_NOGL_modif_OpenMC['BU Points'], comparison_NOGL_modif_OpenMC[f'delta {isotope} (%)'], marker='x', label=f'NOGL modif {isotope} vs OpenMC', linestyle='--', linewidth=.5)
+            plt.plot(comparison_NOGL_OpenMC['BU Points'], comparison_NOGL_OpenMC[f'delta {isotope} (%)'], marker='x', label=f'NOGL {isotope} vs OpenMC', linestyle='--', linewidth=.5)
         plt.title(f'Comparison NOGL - GLOB vs S2 for {isotope}, edep=2')
         plt.xlabel('BU Points')
         plt.ylabel(f'Delta {isotope} (%)')
@@ -314,6 +363,5 @@ if __name__ == "__main__":
         plt.grid()
         plt.savefig(f"{save_dir_case}/comparison_{isotope}_NOGL_GLOB_{draglib}_S2_edep2.png")
         plt.close()
-    
 
     

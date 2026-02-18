@@ -112,23 +112,23 @@ ListeIsot := UTL: ListeIsot ::  CREA 'Al27 ' <<NbBibli>> =
 'Al27' '    ' 'Al27' '    ' 'Al27' '    ' 'Al27' '    '
 'Al27' '    ' ;
 ListeIsot := UTL: ListeIsot ::  CREA 'SiNat' <<NbBibli>> =
-'Si0 ' '    ' 'FALS' 'E   ' 'FALS' 'E   ' 'FALS' 'E   '
+'Si0 ' '    ' 'FALS' 'E   ' 'FALS' 'E   ' 'Si0 ' '    '
 'Si0 ' '    ' 'FALS' 'E   ' 'FALS' 'E   ' 'Si_n' 'at  '
 'Si  ' '    ' ;
 ListeIsot := UTL: ListeIsot ::  CREA 'Si28 ' <<NbBibli>> =
-'FALS' 'E   ' 'Si28' '    ' 'Si28' '    ' 'Si28' '    '
+'FALS' 'E   ' 'Si28' '    ' 'Si28' '    ' 'FALS' 'E   '
 'FALS' 'E   ' 'Si28' '    ' 'Si28' '    ' 'Si28' '    '
 'FALS' 'E   ' ;
 ListeIsot := UTL: ListeIsot ::  CREA 'Si29 ' <<NbBibli>> =
-'FALS' 'E   ' 'Si29' '    ' 'Si29' '    ' 'Si29' '    '
+'FALS' 'E   ' 'Si29' '    ' 'Si29' '    ' 'FALS' 'E   '
 'FALS' 'E   ' 'Si29' '    ' 'Si29' '    ' 'Si29' '    '
 'FALS' 'E   ' ;
 ListeIsot := UTL: ListeIsot ::  CREA 'Si30 ' <<NbBibli>> =
-'FALS' 'E   ' 'Si30' '    ' 'Si30' '    ' 'Si30' '    '
+'FALS' 'E   ' 'Si30' '    ' 'Si30' '    ' 'FALS' 'E   '
 'FALS' 'E   ' 'Si30' '    ' 'Si30' '    ' 'Si30' '    '
 'FALS' 'E   ' ;
 ListeIsot := UTL: ListeIsot ::  CREA 'TiNat' <<NbBibli>> =
-'Ti0 ' '    ' 'FALS' 'E   ' 'FALS' 'E   ' 'FALS' 'E   '
+'Ti0 ' '    ' 'FALS' 'E   ' 'FALS' 'E   ' 'Ti0 ' '    '
 'Ti0 ' '    ' 'FALS' 'E   ' 'FALS' 'E   ' 'Ti_n' 'at  '
 'Ti  ' '    ' ;
 ListeIsot := UTL: ListeIsot ::  CREA 'Ti46 ' <<NbBibli>> =
@@ -136,19 +136,19 @@ ListeIsot := UTL: ListeIsot ::  CREA 'Ti46 ' <<NbBibli>> =
 'FALS' 'E   ' 'Ti46' '    ' 'Ti46' '    ' 'Ti46' '    '
 'FALS' 'E   ' ;
 ListeIsot := UTL: ListeIsot ::  CREA 'Ti47 ' <<NbBibli>> =
-'FALS' 'E   ' 'Ti47' '    ' 'Ti47' '    ' 'Ti47' '    '
+'FALS' 'E   ' 'Ti47' '    ' 'Ti47' '    ' 'FALS' 'E   '
 'FALS' 'E   ' 'Ti47' '    ' 'Ti47' '    ' 'Ti47' '    '
 'FALS' 'E   ' ;
 ListeIsot := UTL: ListeIsot ::  CREA 'Ti48 ' <<NbBibli>> =
-'FALS' 'E   ' 'Ti48' '    ' 'Ti48' '    ' 'Ti48' '    '
+'FALS' 'E   ' 'Ti48' '    ' 'Ti48' '    ' 'FALS' 'E   '
 'FALS' 'E   ' 'Ti48' '    ' 'Ti48' '    ' 'Ti48' '    '
 'FALS' 'E   ' ;
 ListeIsot := UTL: ListeIsot ::  CREA 'Ti49 ' <<NbBibli>> =
-'FALS' 'E   ' 'Ti49' '    ' 'Ti49' '    ' 'Ti49' '    '
+'FALS' 'E   ' 'Ti49' '    ' 'Ti49' '    ' 'FALS' 'E   '
 'FALS' 'E   ' 'Ti49' '    ' 'Ti49' '    ' 'Ti49' '    '
 'FALS' 'E   ' ;
 ListeIsot := UTL: ListeIsot ::  CREA 'Ti50 ' <<NbBibli>> =
-'FALS' 'E   ' 'Ti50' '    ' 'Ti50' '    ' 'Ti50' '    '
+'FALS' 'E   ' 'Ti50' '    ' 'Ti50' '    ' 'FALS' 'E   '
 'FALS' 'E   ' 'Ti50' '    ' 'Ti50' '    ' 'Ti50' '    '
 'FALS' 'E   ' ;
 ListeIsot := UTL: ListeIsot ::  CREA 'Cr50 ' <<NbBibli>> =
@@ -212,7 +212,7 @@ ListeIsot := UTL: ListeIsot ::  CREA 'Ni64 ' <<NbBibli>> =
 'Ni64' '    ' 'Ni64' '    ' 'Ni64' '    ' 'Ni64' '    '
 'Ni64' '    ' ;
 ListeIsot := UTL: ListeIsot ::  CREA 'ZrNat' <<NbBibli>> =
-'Zr0 ' '    ' 'FALS' 'E   ' 'FALS' 'E   ' 'FALS' 'E   '
+'Zr0 ' '    ' 'FALS' 'E   ' 'FALS' 'E   ' 'Zr0 ' '    '
 'Zr0 ' '    ' 'FALS' 'E   ' 'FALS' 'E   ' 'Zr_n' 'at  '
 'Zr  ' '    ' ;
 ListeIsot := UTL: ListeIsot ::  CREA 'Zr90 ' <<NbBibli>> =
@@ -412,7 +412,7 @@ ListeIsot := UTL: ListeIsot ::  CREA 'Na23 ' <<NbBibli>> =
 'Na23' '    ' 'Na23' '    ' 'Na23' '    ' 'Na23' '    '
 'Na23' '    ' ;
 ListeIsot := UTL: ListeIsot ::  CREA 'Knat ' <<NbBibli>> =
-'K0  ' '    ' 'FALS' 'E   ' 'FALS' 'E   ' 'FALS' 'E   '
+'K0  ' '    ' 'FALS' 'E   ' 'FALS' 'E   ' 'K0  ' '    '
 'K0  ' '    ' 'FALS' 'E   ' 'FALS' 'E   ' 'K_na' 't   '
 'K   ' '    ' ;
 ListeIsot := UTL: ListeIsot ::  CREA 'K39  ' <<NbBibli>> =

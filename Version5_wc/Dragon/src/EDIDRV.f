@@ -45,8 +45,9 @@
 * IADF    flag for assembly discontinuity factors (ADF) information:
 *         = 0 do not compute them;
 *         = 1 compute them using ALBS information;
-*         = 2 compute them using averaged fluxes in boundary regions;
-*         = 3 compute them using SYBIL/ARM interface currents.
+*         = -2/2 compute them using averaged fluxes in boundary regions;
+*         = 3 compute them using SYBIL/ARM or MOC interface currents;
+*         = 4 recover ADF information from input macrolib.
 * IDFM    flag for ADF info in input macrolib (0/1/2: absent/present).
 * NW      type of weighting for P1 cross section information:
 *         = 0 P0; = 1 P1.
@@ -120,7 +121,7 @@
 *----
 *  LOCAL VARIABLES
 *----
-      PARAMETER    (IUNOUT=6,MAXED=100,NSTATE=40,IOUT=6)
+      PARAMETER    (IUNOUT=6,MAXED=300,NSTATE=40,IOUT=6)
       TYPE(C_PTR)   JPFLUX,JPFLUA,IPMIC2,IPMAC2,IPADF,JPLIB,KPLIB,
      >              KPEDIT,JPMAC2,KPMAC2
       CHARACTER     HSIGN*12,TEXT8*8,HVECT(MAXED)*8,NISEXT*6,NISOTX*12,
@@ -135,7 +136,7 @@
       INTEGER, ALLOCATABLE, DIMENSION(:,:) :: FIPI,FIFP
       INTEGER, ALLOCATABLE, DIMENSION(:,:,:) :: KEYANI
       REAL, ALLOCATABLE, DIMENSION(:) :: WORKF,WORKA,VOLME,WLETY,WE,
-     > COURI,TAUXT,SIGT,SIGS,SCATS,FLINT,SCATD,DEN,TN,EMEVF,EMEVG,RER,
+     > COURI,TAUXT,SIGT,SIGS,SCATS,FLINT,SCATD,DEN,TN,EMEVF,RER,
      > DECAY,RRD,FIYI,ENERG,NAWR,NDEN,NTMP,NVOL,SNEJ,WORK1,WORK2
       REAL, ALLOCATABLE, DIMENSION(:,:) :: ADF
       REAL, ALLOCATABLE, DIMENSION(:,:,:) :: FLUXC,FADJC,FLUXES,AFLUXE,
@@ -407,16 +408,7 @@
      >      B2,NGROUP,NIFISS,NGCOND,ITRANC,ILEAKS,NREGIO,MATCOD,
      >      VOLUME,KEYFLX,IGCOND,FLUXES,NMLEAK)
          ELSE IF((IADF.EQ.2).OR.(IADF.EQ.-2)) THEN
-            ALLOCATE(WORKF(NGCOND))
-            IF(IADF.EQ.-2) THEN
-*             recover averaged fluxes used to compute ADF
-              DO IGR=1,NGCOND
-                WORKF(IGR)=SUM(FLUXC(:,IGR,1))/SUM(VOLME(:))
-              ENDDO
-            ELSE
-              WORKF(:NGCOND)=1.0
-            ENDIF
-*           use averaged fluxes obtained over boundary regions
+*           use averaged fluxes obtained over gap boundary regions
             IPADF=LCMGID(IPEDIT,'REF:ADF')
             CALL LCMGET(IPADF,'NTYPE',NTYPE)
             IF(NTYPE.EQ.0) CALL XABORT('EDIADF: NTYPE=0.')
@@ -426,29 +418,46 @@
             DO IT=1,NTYPE
               HTYPE=HADF(IT)
               CALL EDIGAP(IPADF,HTYPE,NGROUP,NGCOND,NREGIO,VOLUME,
-     >        IGCOND,FLUXES,WORKF,IPRINT,COURI)
+     >        IGCOND,FLUXES,IPRINT,COURI)
               ALLOCATE(ADF(NMERGE,NGCOND))
               DO IGR=1,NGCOND
-                ADF(:NMERGE,IGR)=COURI(IGR)
+                ZCOUR=COURI(IGR)
+                IF(IADF.EQ.-2) THEN
+*                 recover averaged fluxes used to compute ADF
+                  DO IMRG=1,NMERGE
+                    ADF(IMRG,IGR)=ZCOUR*VOLME(IMRG)/FLUXC(IMRG,IGR,1)
+                  ENDDO
+                ELSE
+                  ADF(:NMERGE,IGR)=ZCOUR
+                ENDIF
               ENDDO
               CALL LCMPUT(IPMAC2,HTYPE,NMERGE*NGCOND,2,ADF)
+              IF(IADF.EQ.2) THEN
+                DO IGR=1,NGCOND
+                  DO IMRG=1,NMERGE
+                    ADF(IMRG,IGR)=FLUXC(IMRG,IGR,1)/VOLME(IMRG)
+                  ENDDO
+                ENDDO
+                CALL LCMPUT(IPMAC2,'AVG_FLUX',NMERGE*NGCOND,2,ADF)
+              ENDIF
               DEALLOCATE(ADF)
             ENDDO
-            DEALLOCATE(WORKF)
             CALL LCMPUT(IPMAC2,'NTYPE',1,1,NTYPE)
             CALL LCMPTC(IPMAC2,'HADF',8,NTYPE,HADF)
             DEALLOCATE(COURI,HADF)
             CALL LCMSIX(IPMAC2,' ',2)
          ELSE IF(IADF.EQ.3) THEN
-*           recover outgoing current from interface currents in Eurydice
+*           recover outgoing current from interface currents
             CALL LCMGTC(IPTRK1,'TRACK-TYPE',12,TEXT12)
             IF(TEXT12.EQ.'SYBIL') THEN
               CALL EDIJO1(IPMAC2,IPTRK1,IPFLUX,IPRINT,NGCOND,IGCOND)
             ELSE IF(TEXT12.EQ.'MCCG') THEN
               CALL EDIJO2(IPMAC2,IPTRK1,IPFLUX,IPRINT,NGCOND,IGCOND)
+            ELSE IF(TEXT12.EQ.'EXCELL') THEN
+              CALL EDIJO3(IPMAC2,IPTRK1,IPFLUX,IPRINT,NGCOND,IGCOND)
             ELSE
               WRITE(HSMG,'(40HEDIDRV: INCOMPATIBLE SOLUTION TYPE. SYBI,
-     >        20HL OR MCCG EXPECTED. ,A12,6HFOUND.)') TEXT12
+     >        28HL, EXCELL OR MCCG EXPECTED. ,A12,6HFOUND.)') TEXT12
               CALL XABORT(HSMG)
             ENDIF
          ELSE IF(IADF.EQ.4) THEN
@@ -508,9 +517,8 @@
 *----
 *  EVALUATE H-FACTOR IF REQUIRED FOR THE EDITION MACROLIB
 *----
-      ALLOCATE(EMEVF(NBISO),EMEVG(NBISO))
+      ALLOCATE(EMEVF(NBISO))
       EMEVF(:NBISO)=0.0
-      EMEVG(:NBISO)=0.0
       IF((NSAVES.GE.2).AND.(IHF.NE.0)) THEN
         CALL LCMLEN(IPLIB,'DEPL-CHAIN',ILLCM,ITLCM)
         IF(ILLCM.NE.0) THEN
@@ -525,10 +533,9 @@
           CALL LCMGET(IPLIB,'DEPLETE-ENER',RER)
           CALL LCMSIX(IPLIB,' ',2)
 *
-          CALL EDIHFC(IPEDIT,NGROUP,NGCOND,NREGIO,NMERGE,NBISO,NDEPL,
-     >                NREAC,MATCOD,VOLUME,INADPL,ISONA,ISONR,IPISO,
-     >                MIX,FLUXES(1,1,1),DEN,IGCOND,IMERGE,RER,EMEVF,
-     >                EMEVG,VOLME,IPRINT)
+          CALL EDIHFC(IPEDIT,NGROUP,NGCOND,NREGIO,NMERGE,NBISO,
+     >                MATCOD,VOLUME,ISONA,IPISO,MIX,FLUXES(1,1,1),
+     >                DEN,IGCOND,IMERGE,VOLME,IPRINT,EMEVF)
 *
           DEALLOCATE(RER,INADPL)
           CALL LCMSIX(IPEDIT,' ',2)
@@ -596,8 +603,8 @@
      >              IPRINT,NGROUP,NGCOND,NBMIX,NREGIO,NMERGE,NDFI,
      >              NDFP,ILEAKS,ILUPS,NW,MATCOD,VOLUME,KEYFLX,CURNAM,
      >              IGCOND,IMERGE,FLUXES,AFLUXE,EIGENK,EIGINF,B2,DEN,
-     >              ITYPE,IDEPL,LSISO,EMEVF,EMEVG,DECAY,YIELD,FIPI,
-     >              FIFP,PYIELD,ITRANC,LISO,NMLEAK)
+     >              ITYPE,IDEPL,LSISO,EMEVF,DECAY,YIELD,FIPI,FIFP,
+     >              PYIELD,ITRANC,LISO,NMLEAK)
 *----
 *  ISOTX FILE PROCESSING
 *----
@@ -622,13 +629,10 @@
             KPEDIT=JPISO(ISO)
             CALL LCMGET(KPEDIT,'AWR',AWR)
             EMEVF2=0.0
-            EMEVG2=0.0
             CALL LCMLEN(KPEDIT,'MEVF',ILENF,ITYLCM)
-            CALL LCMLEN(KPEDIT,'MEVG',ILENG,ITYLCM)
             IF(ILENF.EQ.1) CALL LCMGET(KPEDIT,'MEVF',EMEVF2)
-            IF(ILENG.EQ.1) CALL LCMGET(KPEDIT,'MEVG',EMEVG2)
             NAWR(ISO)=AWR
-            SNEJ(ISO)=EMEVF2+EMEVG2
+            SNEJ(ISO)=EMEVF2
           ENDDO
 *
           NBIXS=IXEDI
@@ -672,8 +676,7 @@
      >             NGROUP,NGCOND,NBMIX,NREGIO,NMERGE,NDFI,NDFP,ILEAKS,
      >             ILUPS,NW,MATCOD,VOLUME,KEYFLX,CURNAM,IGCOND,IMERGE,
      >             FLUXES,AFLUXE,EIGENK,EIGINF,B2,DEN,ITYPE,LSISO,EMEVF,
-     >             EMEVG,DECAY,YIELD,FIPI,FIFP,PYIELD,ITRANC,LISO,
-     >             NMLEAK)
+     >             DECAY,YIELD,FIPI,FIFP,PYIELD,ITRANC,LISO,NMLEAK)
       ENDIF
 *----
 *  EDIT MICROSCOPIC ACTIVATION XS
@@ -681,7 +684,7 @@
       IF(NACTI.GT.0) THEN
         CALL EDIACT(IPEDIT,IPRINT,NGROUP,NGCOND,NREGIO,NMERGE,NL,NBISO,
      >              NED,VOLUME,MIX,IGCOND,IMERGE,FLUXES(1,1,1),ITRANC,
-     >              ISONA,IPISO,HVECT,CURNAM,NACTI,IACTI,EMEVF,EMEVG)
+     >              ISONA,IPISO,HVECT,CURNAM,NACTI,IACTI,EMEVF)
       ENDIF
 *----
 *  STATISTICS AND DELTA SIGMAS
@@ -700,15 +703,14 @@
       ENDIF
 *
       IF(ALLOCATED(PYIELD)) DEALLOCATE(PYIELD,YIELD,FIFP,FIPI)
-      DEALLOCATE(DECAY)
-      DEALLOCATE(EMEVG,EMEVF)
+      DEALLOCATE(DECAY,EMEVF)
       DEALLOCATE(SCATS,SIGS,FADJC,FLUXC,TAUXT)
       DEALLOCATE(WE,WLETY,VOLME)
       IF(HSIGN.EQ.'L_LIBRARY') THEN
          DEALLOCATE(IPISO,ISONR,ISONA,IDEPL,TN,MIX,ITYPE,DEN,LSISO)
       ENDIF
 *----
-*  SET IADF IN MACROLIB AND MICROLIB STATE VECTORS
+*  RESET IADF IN MACROLIB AND MICROLIB STATE VECTORS
 *----
       IF((CURNAM.NE.' ').AND.(IADF.NE.0)) THEN
          IPMIC2=LCMDID(IPEDIT,CURNAM)

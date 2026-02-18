@@ -1,6 +1,6 @@
 *DECK NCRISO
       SUBROUTINE NCRISO(IPLIB,LPCPO,NBISO1,IMICR,HNAME,JSO,IBM,NCAL,
-     1 NGRP,NL,NW,NED,HVECT,NDEL,NDFI,IMPX,FACT,TERP,LPURE)
+     1 NGRP,NL,NW,NED,HVECT,NDEL,NBESP,NDFI,IMPX,FACT,TERP,LPURE)
 *
 *-----------------------------------------------------------------------
 *
@@ -30,6 +30,7 @@
 * NED     number of extra vector edits.
 * HVECT   character names of the extra vector edits.
 * NDEL    number of delayed precursor groups.
+* NBESP   number of energy-dependent fission spectra.
 * NDFI    number of fissile isotopes.
 * IMPX    print parameter (equal to zero for no print).
 * FACT    number density factors.
@@ -45,7 +46,7 @@
 *----
       TYPE(C_PTR) IPLIB,LPCPO
       INTEGER NBISO1,IMICR(NBISO1),JSO,IBM,NCAL,NGRP,NL,NW,NED,NDEL,
-     1 NDFI,IMPX
+     1 NBESP,NDFI,IMPX
       REAL FACT(NCAL),TERP(NCAL)
       CHARACTER HNAME*12,HVECT(NED)*(*)
       LOGICAL LPURE
@@ -54,8 +55,8 @@
 *----
       INTEGER, PARAMETER::IOUT=6
       REAL AWR, DECAY, EMEVF, EMEVG, FACT0, TAUXFI, TAUXF, WEIGHT
-      INTEGER ICAL, IDEL, IED, IFI, IG1, IG2, IG, ILENG, IL, ITYLCM, J,
-     & LENGTH, IW, MAXH, IOF
+      INTEGER ICAL, IDEL, ISP, IED, IFI, IG1, IG2, IG, ILENG, IL,
+     & ITYLCM, J, LENGTH, IW, MAXH, IOF, IOF2H
       LOGICAL LAWR,LMEVF,LMEVG,LDECA,LWD,LYIELD,LPIFI
       CHARACTER CM*2,TEXT12*12
       TYPE(C_PTR) MPCPO,NPCPO,OPCPO
@@ -67,7 +68,7 @@
 *----
 *  SCRATCH STORAGE ALLOCATION
 *----
-      MAXH=9+3*NW+NL+NED+2*NDEL
+      MAXH=9+3*NW+NL+NED+2*NDEL+NBESP
       ALLOCATE(JPIF1(NDFI),JPIF2(NDFI),ITYPR(NL))
       ALLOCATE(GAR1(NGRP,MAXH),YIEL1(NGRP+1),PYIE1(NDFI),
      1 WSCA1(NGRP,NGRP,NL),GAR2(NGRP,MAXH),YIEL2(NGRP+1),PYIE2(NDFI),
@@ -196,6 +197,15 @@
             ENDDO
          ENDIF
       ENDIF
+      IOF2H=9+NED+NL+3*NW+2*NDEL
+      DO ISP=1,NBESP
+         WRITE(TEXT12,'(5HCHI--,I2.2)') ISP
+         CALL LCMLEN(OPCPO,TEXT12,LENGTH,ITYLCM)
+         IF(LENGTH.EQ.NGRP) THEN
+           CALL LCMGET(OPCPO,TEXT12,GAR1(1,IOF2H+ISP))
+           HMAKE(IOF2H+ISP)=TEXT12
+         ENDIF
+      ENDDO
       CALL LCMLEN(OPCPO,'H-FACTOR',LENGTH,ITYLCM)
       IF(LENGTH.EQ.NGRP) THEN
          CALL LCMGET(OPCPO,'H-FACTOR',GAR1(1,6+3*NW+NL+2*NDEL))
@@ -220,8 +230,8 @@
       ENDDO
       CALL LCMLEN(OPCPO,'STRD',LENGTH,ITYLCM)
       IF(LENGTH.EQ.NGRP) THEN
-         CALL LCMGET(OPCPO,'STRD',GAR1(1,MAXH))
-         HMAKE(MAXH)='STRD'
+         CALL LCMGET(OPCPO,'STRD',GAR1(1,9+3*NW+NL+NED+2*NDEL))
+         HMAKE(9+3*NW+NL+NED+2*NDEL)='STRD'
       ENDIF
 *----
 *  RECOVER FISSION YIELD DATA

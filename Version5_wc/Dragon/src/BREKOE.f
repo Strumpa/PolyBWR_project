@@ -1,6 +1,6 @@
 *DECK BREKOE
-      SUBROUTINE BREKOE(IPMAC1,NC,NG,NL,NMIX1,ISPH,B2,ENER,DC1,TOT1,
-     1 SCAT1,JXM,FHETXM,IPRINT)
+      SUBROUTINE BREKOE(IPMAC1,NC,NG,NL,NMIX1,ISPH,IH,B2,ENER,DC1,TOT1,
+     1 SCAT1,HFACT1,JXM,FHETXM,IPRINT)
 *
 *-----------------------------------------------------------------------
 *
@@ -24,10 +24,12 @@
 *         scattering in LAB).
 * NMIX1   number of mixtures in the nodal calculation.
 * ISPH    SPH flag (=0: use discontinuity factors; =1: use SPH factors).
+* IH      H-FACTOR flag (=0: not used; =1: recovered).
 * B2      buckling.
 * ENER    energy limits.
 * TOT1    total cross sections.
 * SCAT1   scattering P0 cross sections.
+* HFACT1  H-FACTOR values.
 * JXM     left boundary currents.
 * FHETXM  left boundary fluxes.
 * IPRINT  edition flag.
@@ -39,9 +41,10 @@
 *  SUBROUTINE ARGUMENTS
 *----
       TYPE(C_PTR) IPMAC1
-      INTEGER NC,NG,NL,NMIX1,ISPH,IPRINT
+      INTEGER NC,NG,NL,NMIX1,ISPH,IH,IPRINT
       REAL B2(NC),ENER(NG+1),DC1(NMIX1,NG,NC),TOT1(NMIX1,NG,NL,NC),
-     1 SCAT1(NMIX1,NG,NG,NL,NC),JXM(NMIX1,NG,NC),FHETXM(NMIX1,NG,NL,NC)
+     1 SCAT1(NMIX1,NG,NG,NL,NC),HFACT1(NMIX1,NG,NC),JXM(NMIX1,NG,NC),
+     2 FHETXM(NMIX1,NG,NL,NC)
 *----
 *  LOCAL VARIABLES
 *----
@@ -128,6 +131,7 @@
       ISTATE(3)=1
       ISTATE(9)=1  ! diffusion coefficient information
       IF(ISPH.EQ.0) ISTATE(12)=3 ! discontinuity factor information
+      IF(ISPH.EQ.1) ISTATE(14)=1 ! SPH factor information
       CALL LCMPUT(IPMAC1,'STATE-VECTOR',NSTATE,1,ISTATE)
       CALL LCMPUT(IPMAC1,'ENERGY',NG+1,2,ENER)
       WORK(1)=1.0
@@ -140,6 +144,16 @@
           CALL LCMPUT(IPMAC1,'NTYPE',1,1,NTYPE)
           CALL LCMPTC(IPMAC1,'HADF',8,HADF)
           CALL LCMPUT(IPMAC1,HADF,NG,2,FDX)
+        CALL LCMSIX(IPMAC1,' ',2)
+      ELSE IF(ISPH.EQ.1) THEN
+        CALL LCMSIX(IPMAC1,'SPH',1)
+          ISTATE(:)=0
+          ISTATE(1)=4
+          ISTATE(2)=1
+          ISTATE(6)=1
+          ISTATE(7)=1
+          ISTATE(8)=NG
+          CALL LCMPUT(IPMAC1,'STATE-VECTOR',NSTATE,1,ISTATE)
         CALL LCMSIX(IPMAC1,' ',2)
       ENDIF
       JPMAC1=LCMLID(IPMAC1,'GROUP',NG)
@@ -181,6 +195,10 @@
         CALL LCMPUT(KPMAC1,'NJJS00',NMIX1,1,NJJ)
         CALL LCMPUT(KPMAC1,'IJJS00',NMIX1,1,IJJ)
         CALL LCMPUT(KPMAC1,'IPOS00',NMIX1,1,IPOS)
+        IF(IH.EQ.1) THEN
+          WORK(1)=0.5*(HFACT1(IBM,IGR,1)+HFACT1(IBM,IGR,2))
+          CALL LCMPUT(KPMAC1,'H-FACTOR',NMIX1,2,WORK)     
+        ENDIF
       ENDDO
 *----
 *  SCRATCH STORAGE DEALLOCATION

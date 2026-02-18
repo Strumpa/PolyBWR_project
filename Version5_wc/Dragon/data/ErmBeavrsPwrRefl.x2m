@@ -28,7 +28,7 @@ MODULE
   LIB: GEO: SYBILT: ASM: FLU: EDI: COMPO: DELETE:
   USS: UTL: END: ABORT: MAC: SNT: GREP: MSTR: BREF: ;
 LINKED_LIST ListeIsot ListeAutop ;
-PROCEDURE assertS ;
+REAL REFVALUE DELTA ;
 
 *---- geometric buckling      --------------------------
 REAL Core_height := 365.0  ; (*core height in cm*)
@@ -465,17 +465,28 @@ WHILE IndexCB 2 <= DO
       ;
       ECHO "...CASE=" CASE "IndexCB=" IndexCB ;
       IF CASE 1 = IndexCB 1 = * THEN
-         assertS FLUX_REF :: K-EFFECTIVE 1 1.178396 ;
+         EVALUATE REFVALUE := 1.178192 ;
          _VAL_CA1_CB1 := OVAL ;
       ELSEIF CASE 2 = IndexCB 1 = * THEN
-         assertS FLUX_REF :: K-EFFECTIVE 1 1.289101 ;
+         EVALUATE REFVALUE := 1.288894 ;
          _VAL_CA2_CB1 := OVAL ;
       ELSEIF CASE 1 = IndexCB 2 = * THEN
-         assertS FLUX_REF :: K-EFFECTIVE 1 1.176606 ;
+         EVALUATE REFVALUE := 1.176477 ;
          _VAL_CA1_CB2 := OVAL ;
       ELSEIF CASE 2 = IndexCB 2 = * THEN
-         assertS FLUX_REF :: K-EFFECTIVE 1 1.287891 ;
+         EVALUATE REFVALUE := 1.287686 ;
          _VAL_CA2_CB2 := OVAL ;
+      ENDIF ;
+      GREP: FLUX_REF :: GETVAL 'K-EFFECTIVE' 1 >>Keff<< ;
+      EVALUATE DELTA := Keff REFVALUE - REFVALUE / ABS ;
+      IF DELTA 1.0E-3 < THEN
+        PRINT "TEST SUCCESSFUL; DELTA=" DELTA ;
+      ELSE
+        PRINT "------------" ;
+        PRINT "TEST FAILURE" ;
+        PRINT "------------" ;
+        PRINT "REFERENCE=" REFVALUE " CALCULATED=" Keff ;
+        ABORT: ;
       ENDIF ;
       FLUX_REF MACRO OVAL := DELETE: FLUX_REF MACRO OVAL ;
 

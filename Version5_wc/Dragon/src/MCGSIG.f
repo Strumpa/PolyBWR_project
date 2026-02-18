@@ -1,5 +1,5 @@
 *DECK MCGSIG
-      SUBROUTINE MCGSIG(IPTRK,NMAT,NGEFF,NALBP,KPSYS,SIGAL,LVOID)
+      SUBROUTINE MCGSIG(IPTRK,NMAT,NGEFF,NBCDA,NALBP,KPSYS,SIGAL,LVOID)
 *
 *-----------------------------------------------------------------------
 *
@@ -19,6 +19,7 @@
 * IPTRK   pointer to the tracking (L_TRACK signature).
 * NMAT    number of mixtures.
 * NGEFF   effective number of energy groups.
+* NBCDA   number of perimeters.
 * NALBP   number of physical albedos.
 * KPSYS   pointer array for each group properties.
 *
@@ -34,32 +35,35 @@
 * SUBROUTINES ARGUMENTS
 *---
       TYPE(C_PTR) IPTRK,KPSYS(NGEFF)
-      INTEGER NMAT,NGEFF,NALBP
-      REAL SIGAL(-6:NMAT,NGEFF)
+      INTEGER NMAT,NBCDA,NGEFF,NALBP
+      REAL SIGAL(-NBCDA:NMAT,NGEFF)
       LOGICAL LVOID
 *---
 * LOCAL VARIABLES
 *---
       TYPE(C_PTR) JPSYS
-      INTEGER I,II,ISA,ICODE(6)
-      REAL ALBG(6),ALBEDO(6)
+      INTEGER I,II,ISA
       REAL, ALLOCATABLE, DIMENSION(:) :: ALBP
+*---
+* ALLOCATABLE ARRAYS
+*---
+      INTEGER, ALLOCATABLE, DIMENSION(:) :: ICODE
+      REAL, ALLOCATABLE, DIMENSION(:) :: ALBG,ALBEDO
 *---
 * RECOVER ALBEDO INFORMATION FROM TRACKING
 *---
+      ALLOCATE(ICODE(NBCDA),ALBG(NBCDA),ALBEDO(NBCDA),ALBP(NALBP))
+      ICODE(:NBCDA)=0
       CALL LCMGET(IPTRK,'ICODE',ICODE)
       CALL LCMGET(IPTRK,'ALBEDO',ALBG)
 *
       LVOID=.FALSE.
-      ALLOCATE(ALBP(NALBP))
       DO II=1,NGEFF
          JPSYS=KPSYS(II)
-         DO ISA=1,6
-           ALBEDO(ISA)=ALBG(ISA)
-         ENDDO
+         ALBEDO(:NBCDA)=ALBG(:NBCDA)
          IF(NALBP .GT. 0) THEN
            CALL LCMGET(JPSYS,'ALBEDO',ALBP)
-           DO ISA=1,6
+           DO ISA=1,NBCDA
              IF(ICODE(ISA).GT.0) ALBEDO(ISA)=ALBP(ICODE(ISA))
            ENDDO
          ENDIF
@@ -67,11 +71,11 @@
          DO I=1,NMAT
             IF (SIGAL(I,II).EQ.0.0) LVOID=.TRUE.
          ENDDO
-         DO ISA=-6,-1
+         DO ISA=-NBCDA,-1
             SIGAL(ISA,II)=ALBEDO(-ISA)
          ENDDO
       ENDDO
-      DEALLOCATE(ALBP)
+      DEALLOCATE(ALBP,ALBEDO,ALBG,ICODE)
 *
       RETURN
       END

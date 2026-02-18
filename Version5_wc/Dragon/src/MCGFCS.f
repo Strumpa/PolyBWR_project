@@ -1,6 +1,6 @@
 *DECK MCGFCS
-      SUBROUTINE MCGFCS(N,NDIM,NZON,QN,FI,M,NANI,NLIN,NFUNL,SC,S,KPN,
-     1                  NREG,IPRINT,KEYFLX,KEYCUR,IBC,SIGAL,STIS)
+      SUBROUTINE MCGFCS(N,NDIM,NZON,QN,FI,NBCDA,M,NANI,NLIN,NFUNL,SC,
+     1                  S,KPN,NREG,IPRINT,KEYFLX,KEYCUR,IBC,SIGAL,STIS)
 *
 *-----------------------------------------------------------------------
 *
@@ -22,6 +22,7 @@
 * NZON    index-number of the mixture type assigned to each volume.
 * QN      input source (fission-other groups) vector.
 * FI      unknown vector.
+* NBCDA   number of perimeters.
 * M       number of material mixtures.
 * NANI    scattering anisotropy (=1 for isotropic scattering).
 * NLIN    linear discontinuous flag (=1 SC/DD0; =3 LDC/DD1).
@@ -44,9 +45,9 @@
 *----
 *  SUBROUTINE ARGUMENTS
 *----
-      INTEGER N,NDIM,NZON(N),M,NANI,NLIN,NFUNL,KPN,NREG,IPRINT,
+      INTEGER N,NDIM,NZON(N),NBCDA,M,NANI,NLIN,NFUNL,KPN,NREG,IPRINT,
      1 KEYFLX(NREG,NLIN,NFUNL),KEYCUR(N-NREG),IBC(N-NREG),STIS
-      REAL QN(KPN),FI(KPN),SC(0:M,NANI),SIGAL(-6:M)
+      REAL QN(KPN),FI(KPN),SC(0:M,NANI),SIGAL(-NBCDA:M)
       DOUBLE PRECISION S(KPN)
 *
       IF(NDIM.EQ.2) THEN

@@ -1,0 +1,556 @@
+*DECK APX
+      SUBROUTINE APX(NENTRY,HENTRY,IENTRY,JENTRY,KENTRY)
+*
+*-----------------------------------------------------------------------
+*
+*Purpose:
+* Creation and construction of an APEX database object.
+*
+*Copyright:
+* Copyright (C) 2025 Ecole Polytechnique de Montreal
+* This library is free software; you can redistribute it and/or
+* modify it under the terms of the GNU Lesser General Public
+* License as published by the Free Software Foundation; either
+* version 2.1 of the License, or (at your option) any later version.
+*
+*Author(s): A. Hebert
+*
+*Parameters: input/output
+* NENTRY  number of LCM objects or files used by the operator.
+* HENTRY  name of each LCM object or file:
+*         HENTRY(1) APEX database object;
+*         HENTRY(I) I>1 read-only type(L_BURNUP, L_LIBRARY or L_EDIT).
+* IENTRY  type of each LCM object or file:
+*         =1 LCM memory object; =2 XSM file; =3 sequential binary file;
+*         =4 sequential ascii file.
+* JENTRY  access of each LCM object or file:
+*         =0 the LCM object or file is created;
+*         =1 the LCM object or file is open for modifications;
+*         =2 the LCM object or file is open in read-only mode.
+* KENTRY  LCM object address or file unit number.
+*
+*-----------------------------------------------------------------------
+*
+      USE GANLIB
+      USE hdf5_wrap
+*----
+*  SUBROUTINE ARGUMENTS
+*----
+      INTEGER      NENTRY,IENTRY(NENTRY),JENTRY(NENTRY)
+      TYPE(C_PTR)  KENTRY(NENTRY)
+      CHARACTER    HENTRY(NENTRY)*12
+*----
+*  LOCAL VARIABLES
+*----
+      PARAMETER (NSTATE=40,MAXPAR=50,MAXISO=800,NKEYS=6,NREAK=20,
+     1 MAXLIN=50,MAXMAC=2)
+      INTEGER RANK,TYPE,NBYTE,DIMSR(5)
+      TYPE(C_PTR) IPAPX,IPLB1,IPDEPL,IPEDIT
+      CHARACTER TEXT4*4,TEXT8*8,TEXT12*12,TEXT20*20,HAPXX*80,HSIGN*12,
+     1 KEYWRD(NKEYS)*4,NOMISO(MAXISO)*8,NOMEVO(MAXISO)*12,
+     2 NOMREA(NREAK)*4,HSMG*131,NOMMAC(MAXMAC)*8
+      DOUBLE PRECISION DFLOTT
+      LOGICAL LINIT,LWARN,LGNEW(MAXPAR)
+      INTEGER IDATA(NSTATE),NVALUE(MAXPAR),TYPISO(MAXISO),MUPLET(MAXPAR)
+      CHARACTER REV*48,DATE*64,HEQUI*80
+*----
+*  ALLOCATABLE ARRAYS
+*----
+      INTEGER, POINTER, DIMENSION(:) :: HMIX
+      INTEGER, ALLOCATABLE, TARGET, DIMENSION(:) :: HMIX2
+      REAL, ALLOCATABLE, DIMENSION(:) :: TIMES,ENRGA
+      TYPE(C_PTR), ALLOCATABLE, DIMENSION(:) :: IPRHS
+      INTEGER, ALLOCATABLE, DIMENSION(:) :: DIMS_APX
+      CHARACTER(LEN=8), ALLOCATABLE, DIMENSION(:) :: PARFMT
+      CHARACTER(LEN=80), ALLOCATABLE, DIMENSION(:) :: PARNAM
+      CHARACTER(LEN=4), ALLOCATABLE, DIMENSION(:) :: TEXT4V1
+      CHARACTER(LEN=8), ALLOCATABLE, DIMENSION(:) :: TEXT8V1
+*----
+*  DATA STATEMENTS
+*----
+      DATA KEYWRD/'NOML','PARA','ISOT','MACR','REAC',';   '/
+*----
+*  SCRATCH STORAGE ALLOCATION
+*----
+      ALLOCATE(IPRHS(NENTRY))
+*----
+*  PARAMETER VALIDATION.
+*----
+      LINIT=.FALSE.
+      IF(NENTRY.EQ.0) CALL XABORT('APX: PARAMETERS EXPECTED.')
+      IF((IENTRY(1).EQ.6).AND.(JENTRY(1).EQ.0)) THEN
+         IPAPX=KENTRY(1)
+         LINIT=.TRUE.
+         HAPXX='DRAGON5_OUTPUT'
+         CALL hdf5_write_data(IPAPX,"/structure_type",TRIM(HAPXX))
+         CALL KDRVER(REV,DATE)
+         WRITE(6,400) REV
+         CALL hdf5_write_data(IPAPX,"/structure_version",TRIM(REV))
+         CALL hdf5_create_group(IPAPX,'explicit')
+      ELSE IF(IENTRY(1).EQ.6) THEN
+         IPAPX=KENTRY(1)
+         CALL hdf5_info(IPAPX,"/structure_type",RANK,TYPE,NBYTE,DIMSR)
+         IF(TYPE.EQ.99) THEN
+            TEXT12=HENTRY(1)
+            CALL XABORT('APX: HDF FILE '//TEXT12//' CANNOT BE READ.')
+         ENDIF
+         LINIT=.FALSE.
+      ELSE
+         CALL XABORT('APX: APEX HDF5 OBJECT EXPECTED.')
+      ENDIF
+      TYPISO(:MAXISO)=0
+      IPLB1=C_NULL_PTR
+      IPDEPL=C_NULL_PTR
+      IPEDIT=C_NULL_PTR
+      IPRHS(:NENTRY)=C_NULL_PTR
+      DO 10 I=2,NENTRY
+      IF(IENTRY(I).LE.2) THEN
+         IF(JENTRY(I).NE.2) CALL XABORT('APX: READ-ONLY RHS EXPECTE'
+     1   //'D.')
+         CALL LCMGTC(KENTRY(I),'SIGNATURE',12,HSIGN)
+         IF(HSIGN.EQ.'L_LIBRARY') THEN
+            IPLB1=KENTRY(I)
+         ELSE IF(HSIGN.EQ.'L_BURNUP') THEN
+            IPDEPL=KENTRY(I)
+         ELSE IF(HSIGN.EQ.'L_EDIT') THEN
+            IPEDIT=KENTRY(I)
+         ENDIF
+      ELSE IF(IENTRY(I).EQ.6) THEN
+         IPRHS(I)=KENTRY(I)
+      ELSE
+         CALL XABORT('APX: LCM OR HDF5 OBJECTS EXPECTED AT RHS.')
+      ENDIF
+   10 CONTINUE
+*----
+*  READ THE INPUT DATA.
+*----
+*     DEFAULT OPTIONS:
+      IMPX=1
+      IF(LINIT) THEN
+         NCOMLI=0
+         NPAR=0
+         NPCHR=0
+         NPPNT=0
+         NLOC=0
+         NPPNTL=0
+         NPCHRL=0
+         NISO=0
+         NMAC=0
+         NMIL=0
+         NREA=0
+         NISOF=0
+         NISOP=0
+      ELSE
+         GO TO 300
+      ENDIF
+      ALLOCATE(PARNAM(MAXPAR),PARFMT(MAXPAR))
+   20 CALL REDGET(INDIC,NITMA,FLOTT,TEXT8,DFLOTT)
+      IF(INDIC.NE.3) CALL XABORT('APX: CHARACTER DATA EXPECTED(1).')
+
+   30 IF(TEXT8.EQ.'EDIT') THEN
+*        READ THE PRINT INDEX.
+         CALL REDGET(INDIC,IMPX,FLOTT,TEXT4,DFLOTT)
+         IF(INDIC.NE.1) CALL XABORT('APX: INTEGER DATA EXPECTED(1).')
+      ELSE IF(TEXT8.EQ.'NOML') THEN
+         HAPXX=' '
+         CALL REDGET(INDIC,NITMA,FLOTT,HAPXX(:72),DFLOTT)
+         IF(INDIC.NE.3) CALL XABORT('APX: CHARACTER DATA EXPECTED'
+     1   //'(2).')
+         CALL hdf5_write_data(IPAPX,"/LIBNAME",TRIM(HAPXX))
+      ELSE IF(TEXT8.EQ.'PARA') THEN
+         NPAR=NPAR+1
+         IF(NPAR.GT.MAXPAR) CALL XABORT('APX: TOO MANY PARAMETERS.')
+         PARNAM(NPAR)=' '
+         CALL REDGET(INDIC,NITMA,FLOTT,PARNAM(NPAR),DFLOTT)
+         IF(INDIC.NE.3) CALL XABORT('APX: CHARACTER DATA EXPECTED'
+     1   //'(3).')
+         DO 40 I=1,NPAR-1
+         IF(PARNAM(NPAR).EQ.PARNAM(I)) CALL XABORT('APX: PARNAM '//
+     1   PARNAM(NPAR)//' ALREADY DEFINED(1).')
+   40    CONTINUE
+         CALL REDGET(INDIC,NITMA,FLOTT,TEXT4,DFLOTT)
+         IF(INDIC.NE.3) CALL XABORT('APX: CHARACTER DATA EXPECTED'
+     1   //'(4).')
+         IF(TEXT4.EQ.'BURN') THEN
+            IF((PARNAM(NPAR).NE.'Burnup').AND.(PARNAM(NPAR).NE.'Time')
+     1      .AND.(PARNAM(NPAR).NE.'Power').AND.
+     2      (PARNAM(NPAR).NE.'Exposure').AND.(PARNAM(NPAR).NE.'Flux')
+     3      .AND.(PARNAM(NPAR).NE.'Heavy')) THEN
+              WRITE(HSMG,'(15HAPX: PARAMETER ,A,19H CANNOT BE RECOVERE,
+     1        21HD FROM BURNUP OBJECT.)') TRIM(PARNAM(NPAR))
+              CALL XABORT(HSMG)
+            ENDIF
+            PARFMT(NPAR)='FLOTTANT'
+         ELSE IF(TEXT4.EQ.'VALE') THEN
+            CALL REDGET(INDIC,NITMA,FLOTT,TEXT8,DFLOTT)
+            IF(INDIC.NE.3) CALL XABORT('APX: CHARACTER DATA EXPECTED'
+     1      //'(5).')
+            IF(TEXT8.EQ.'FLOT')THEN
+               PARFMT(NPAR)='FLOTTANT'
+            ELSEIF(TEXT8.EQ.'CHAI')THEN
+               PARFMT(NPAR)='CHAINE'
+            ELSEIF(TEXT8.EQ.'ENTI')THEN
+               PARFMT(NPAR)='ENTIER'
+            ELSE
+               CALL XABORT('APX: INVALID KEYWORD='//TEXT4//'(1).')
+            ENDIF
+         ELSE
+            CALL XABORT('APX: INVALID KEYWORD='//TEXT4//'(2).')
+         ENDIF
+         NVALUE(NPAR)=0
+      ELSE IF(TEXT8.EQ.'ISOT') THEN
+   80    CALL REDGET(INDIC,NITMA,FLOTT,TEXT8,DFLOTT)
+         IF(INDIC.NE.3) CALL XABORT('APX: CHARACTER DATA EXPECTED'
+     1   //'(6).')
+         IF(.NOT.C_ASSOCIATED(IPLB1)) THEN
+            CALL XABORT('APX: MISSING HMIX OBJECT(1).')
+         ENDIF
+         DO 90 IKEY=1,NKEYS
+         IF(TEXT8.EQ.KEYWRD(IKEY)) GO TO 30
+   90    CONTINUE
+         IF(TEXT8.EQ.'TOUT') THEN
+            CALL COMISO(-1,MAXISO,IPLB1,NISO,NOMISO,NOMEVO,TYPISO)
+            GO TO 20
+         ELSE IF(TEXT8.EQ.'FISS') THEN
+            CALL COMISO(-2,MAXISO,IPLB1,NISO,NOMISO,NOMEVO,TYPISO)
+         ELSE IF(TEXT8.EQ.'PF') THEN
+            CALL COMISO(-3,MAXISO,IPLB1,NISO,NOMISO,NOMEVO,TYPISO)
+         ELSE IF(TEXT8.EQ.'MILI') THEN
+            CALL REDGET(INDIC,NITMA,FLOTT,TEXT4,DFLOTT)
+            IF(INDIC.NE.1) CALL XABORT('APX: INTEGER DATA EXPECTE'//
+     1      'D(4).')
+            CALL COMISO(NITMA,MAXISO,IPLB1,NISO,NOMISO,NOMEVO,TYPISO)
+         ELSE
+            DO 100 IKEY=1,NKEYS
+            IF(TEXT8.EQ.KEYWRD(IKEY)) GO TO 30
+  100       CONTINUE
+            NISO=NISO+1
+            IF(NISO.GT.MAXISO) CALL XABORT('APX: TOO MANY ISOTOPES.')
+            NOMISO(NISO)=TEXT8
+            TYPISO(NISO)=0
+         ENDIF
+         GO TO 80
+      ELSE IF(TEXT8.EQ.'MACR') THEN
+        NMAC=0
+        CALL hdf5_info(IPAPX,"/explicit/MACNAME",RANK,TYPE,NBYTE,DIMSR)
+        IF(TYPE.NE.99) THEN
+           CALL hdf5_read_data(IPAPX,"/explicit/MACNAME",TEXT8V1)
+           NMAC=SIZE(TEXT8V1)
+           NOMMAC(:NMAC)=TEXT8V1(:NMAC)
+           DEALLOCATE(TEXT8V1)
+         ENDIF
+         NMAC=NMAC+1
+         IF(NMAC.GT.MAXMAC) CALL XABORT('APX: MAXMAC OVERFLOW.')
+         CALL REDGET(INDIC,NITMA,FLOTT,TEXT4,DFLOTT)
+         IF(INDIC.NE.3) CALL XABORT('APX: CHARACTER DATA EXPECTED'
+     1    //'(7).')
+         IF(TEXT4.EQ.'TOUT') THEN
+           NOMMAC(NMAC)='TOTAL'
+         ELSE IF(TEXT4.EQ.'REST') THEN
+           NOMMAC(NMAC)='RESIDUAL'
+         ELSE
+           CALL XABORT('APX: INVALID KEYWORD='//TEXT4//'(3).')
+         ENDIF
+         CALL hdf5_write_data(IPAPX,"/explicit/MACNAME",NOMMAC(:NMAC))
+      ELSE IF(TEXT8.EQ.'REAC') THEN
+  110    CALL REDGET(INDIC,NITMA,FLOTT,TEXT8,DFLOTT)
+         IF(INDIC.NE.3) CALL XABORT('APX: CHARACTER DATA EXPECTED'
+     1   //'(8).')
+         DO 120 IKEY=1,NKEYS
+         IF(TEXT8.EQ.KEYWRD(IKEY)) GO TO 30
+  120    CONTINUE
+         DO 130 IKEY=1,NREA
+         IF(TEXT8.EQ.NOMREA(IKEY)) GO TO 110
+  130    CONTINUE
+         NREA=NREA+1
+         IF(NREA.GT.NREAK) CALL XABORT('APX: TOO MANY REACTIONS.')
+         NOMREA(NREA)=TEXT8(:4)
+         GO TO 110
+      ELSE IF(TEXT8.EQ.'NAME') THEN
+*        READ MIXTURE NAMES.
+         MAXMIL=30
+         ALLOCATE(HMIX(5*MAXMIL))
+  140    CALL REDGET(INDIC,NITMA,FLOTT,TEXT20,DFLOTT)
+         IF(INDIC.NE.3) CALL XABORT('APX: CHARACTER DATA EXPECTED'//
+     1   '(9).')
+         IF(TEXT20.EQ.';') GO TO 160
+         NMIL=NMIL+1
+         IF(NMIL.GT.MAXMIL) THEN
+            ALLOCATE(HMIX2(5*(MAXMIL+30)))
+            DO 150 I=1,5*MAXMIL
+            HMIX2(I)=HMIX(I)
+  150       CONTINUE
+            DEALLOCATE(HMIX)
+            MAXMIL=MAXMIL+30
+            HMIX=>HMIX2
+         ENDIF
+         READ(TEXT20,'(5A4)') (HMIX((NMIL-1)*5+I0),I0=1,5)
+         GO TO 140
+      ELSE IF(TEXT8.EQ.';') THEN
+         GO TO 160
+      ELSE
+         CALL XABORT('APX: INVALID KEYWORD='//TEXT8//'(4).')
+      ENDIF
+      GO TO 20
+*
+* ADD THE TIME PARAMETER.
+  160 DO 170 I=1,NPAR
+      IF((PARNAM(I).EQ.'Burnup').OR.(PARNAM(I).EQ.'Exposure')) GO TO 180
+  170 CONTINUE
+      GO TO 220
+  180 DO 210 I=1,NPAR
+      IF(PARNAM(I).EQ.'Time') GO TO 220
+  210 CONTINUE
+      NPAR=NPAR+1
+      IF(NPAR.GT.MAXPAR) CALL XABORT('APX: TOO MANY PARAMETERS.')
+      PARNAM(NPAR)='Time'
+      PARFMT(NPAR)='FLOTTANT'
+      NVALUE(NPAR)=0
+*----
+*  STORE THE APEX INITIALIZATION INFORMATION.
+*----
+  220 CALL hdf5_create_group(IPAPX,'physconst')
+      IF(NISO.GT.0) THEN
+         IF(.NOT.C_ASSOCIATED(IPLB1)) THEN
+            CALL XABORT('APX: MISSING HMIX OBJECT(2).')
+         ENDIF
+         CALL COMISO(0,MAXISO,IPLB1,NISO,NOMISO,NOMEVO,TYPISO)
+         CALL hdf5_write_data(IPAPX,"/explicit/ISONAME",NOMISO(:NISO))
+         ALLOCATE(TEXT4V1(NISO))
+         DO 230 I=1,NISO
+         IF(TYPISO(I).EQ.1) THEN
+           TEXT4V1(I)='OTHE'
+         ELSE IF(TYPISO(I).EQ.2) THEN
+           NISOF=NISOF+1
+           TEXT4V1(I)='FISS'
+         ELSE IF(TYPISO(I).EQ.3) THEN
+           NISOP=NISOP+1
+           TEXT4V1(I)='F.P.'
+         ENDIF
+  230    CONTINUE
+         CALL hdf5_write_data(IPAPX,"/physconst/ISOTYP",TEXT4V1)
+         CALL hdf5_write_data(IPAPX,"/physconst/ISOTA",NOMISO(:NISO))
+         DEALLOCATE(TEXT4V1)
+      ENDIF
+      IF(NREA.GT.0) THEN
+         CALL hdf5_write_data(IPAPX,"/explicit/REANAME",NOMREA(:NREA))
+      ENDIF
+      IF(NPAR.GT.0) THEN
+        CALL hdf5_write_data(IPAPX,"/Calculation_Content",PARNAM(:NPAR))
+        CALL hdf5_create_group(IPAPX,'paramvalues')
+        CALL hdf5_create_group(IPAPX,'paramdescrip')
+        CALL hdf5_write_data(IPAPX,"/paramdescrip/NVALUE",NVALUE(:NPAR))
+        CALL hdf5_write_data(IPAPX,"/paramdescrip/PARFMT",PARFMT(:NPAR))
+        CALL hdf5_write_data(IPAPX,"/paramdescrip/PARNAM",PARNAM(:NPAR))
+      ENDIF
+      DEALLOCATE(PARFMT,PARNAM)
+*----
+*  FILL THE 'physconst' GROUP.
+*----
+      IF(C_ASSOCIATED(IPLB1)) THEN
+         CALL LCMGET(IPLB1,'STATE-VECTOR',IDATA)
+         NBISO=IDATA(2)
+         NGA=IDATA(3)
+         ALLOCATE(ENRGA(NGA+1))
+         CALL LCMGET(IPLB1,'ENERGY',ENRGA)
+         DO 240 I=1,NGA+1
+         ENRGA(I)=ENRGA(I)*1.0E-6
+  240    CONTINUE
+         CALL hdf5_write_data(IPAPX,"/physconst/ENRGA",ENRGA)
+         DEALLOCATE(ENRGA)
+      ELSE
+         NBISO=0
+         NGA=0
+         NISOTA=0
+      ENDIF
+      NCALS=0
+      CALL hdf5_write_data(IPAPX,"/NCALS",NCALS)
+      GO TO 390
+* END OF APEX FILE INITIALIZATION. ********************************
+*----
+*  INPUT AN ELEMENTARY CALCULATION. *******************************
+*----
+  300 CALL hdf5_read_data(IPAPX,"NCALS",NCALS)
+      NORIG=NCALS
+      IF(hdf5_group_exists(IPAPX,"/paramdescrip")) THEN
+        CALL hdf5_get_shape(IPAPX,"/paramdescrip/NVALUE",DIMS_APX)
+        NPAR=DIMS_APX(1)
+        DEALLOCATE(DIMS_APX)
+      ELSE
+        NPAR=0
+      ENDIF
+      IF(NPAR.GT.0) THEN
+         CALL hdf5_read_data(IPAPX,"/paramdescrip/PARNAM",PARNAM)
+         CALL hdf5_read_data(IPAPX,"/paramdescrip/PARFMT",PARFMT)
+      ENDIF
+*
+      ITIM=0
+      LWARN=.FALSE.
+      IMPX=1
+      HEQUI=' '
+      IPICK=0
+  310 CALL REDGET(INDIC,NITMA,FLOTT,TEXT20,DFLOTT)
+      IF(INDIC.EQ.10) GO TO 350
+      IF(INDIC.NE.3) CALL XABORT('APX: CHARACTER DATA EXPECTED(10).')
+      IF(TEXT20.EQ.'EDIT') THEN
+*        READ THE PRINT INDEX.
+         CALL REDGET(INDIC,IMPX,FLOTT,TEXT4,DFLOTT)
+         IF(INDIC.NE.1) CALL XABORT('APX: INTEGER DATA EXPECTED(5).')
+      ELSE IF(TEXT20.EQ.'SET') THEN
+         CALL REDGET(INDIC,NITMA,XT,TEXT4,DFLOTT)
+         IF(INDIC.NE.2) CALL XABORT('APX: REAL DATA EXPECTED(1).')
+         CALL REDGET(INDIC,NITMA,FLOTT,TEXT4,DFLOTT)
+         IF(INDIC.NE.3) CALL XABORT('APX: CHARACTER DATA EXPECTED'
+     1   //'(11).')
+         IF(TEXT4.EQ.'S') THEN
+           XT=XT*1.0E-8
+         ELSE IF(TEXT4.EQ.'DAY') THEN
+           XT=XT*8.64E-4
+         ELSE IF(TEXT4.EQ.'YEAR') THEN
+           XT=XT*3.1536E-1
+         ELSE
+           CALL XABORT('APX: S, DAY OR YEAR EXPECTED.')
+         ENDIF
+         IF(.NOT.C_ASSOCIATED(IPDEPL)) CALL XABORT('APX: DEPLETION OBJ'
+     1   //'ECT EXPECTED AT RHS.')
+         CALL LCMLEN(IPDEPL,'DEPL-TIMES',NTIM,ITYLCM)
+         IF(NTIM.EQ.0) CALL XABORT('APX: NO DEPLETION TIME STEPS.')
+         ALLOCATE(TIMES(NTIM))
+         CALL LCMGET(IPDEPL,'DEPL-TIMES',TIMES)
+         DO 320 I=1,NTIM
+         IF(ABS(TIMES(I)-XT).LE.1.0E-4*XT) ITIM=I
+  320    CONTINUE
+         IF(ITIM.EQ.0) THEN
+            WRITE(HSMG,'(39HAPX: UNABLE TO FIND A DEPLETION DIRECTO,
+     1      12HRY AT TIME =,1P,E12.4,5H DAY.)') XT/8.64E-4
+            CALL XABORT(HSMG)
+         ENDIF
+         DEALLOCATE(TIMES)
+         IF(IMPX.GT.0) THEN
+            WRITE(TEXT12,'(8HDEPL-DAT,I4.4)') ITIM
+            WRITE(6,430) XT,XT/8.64E-4,TEXT12
+         ENDIF
+      ELSE IF(TEXT20.EQ.'ORIG') THEN
+         CALL REDGET(INDIC,NORIG,FLOTT,TEXT4,DFLOTT)
+         IF(INDIC.NE.1) CALL XABORT('APX: INTEGER DATA EXPECTED(6).')
+      ELSE IF(TEXT20.EQ.'EQUI') THEN
+         CALL REDGET(INDIC,NORIG,FLOTT,HEQUI,DFLOTT)
+         IF(INDIC.NE.3) CALL XABORT('APX: CHARACTER DATA EXPECTED(12).')
+      ELSE IF(TEXT20.EQ.';') THEN
+         GO TO 350
+      ELSE IF(TEXT20.EQ.'ICAL') THEN
+         IPICK=1
+         GO TO 350
+      ELSE IF(TEXT20.EQ.'WARN') THEN
+         LWARN=.TRUE.
+      ELSE
+         IPAR=0
+         DO 330 IKEY=1,NPAR
+         IF(TEXT20.EQ.PARNAM(IKEY)) THEN
+            IPAR=IKEY
+            GO TO 340
+         ENDIF
+  330    CONTINUE
+         CALL XABORT('APX: INVALID KEYWORD='//TEXT20//'(5).')
+  340    CALL REDGET(INDIC,NITMA,FLOTT,TEXT20,DFLOTT)
+         IF(PARFMT(IPAR).EQ.'ENTIER') THEN
+            IF(INDIC.NE.1) CALL XABORT('APX: INTEGER DATA EXPECTE'//
+     1      'D(7).')
+            IF(IMPX.GT.0) WRITE(6,450) TRIM(PARNAM(IPAR)),NITMA
+         ELSE IF(PARFMT(IPAR).EQ.'FLOTTANT') THEN
+            IF(INDIC.NE.2) CALL XABORT('APX: REAL DATA EXPECTED(2).')
+            IF(IMPX.GT.0) WRITE(6,440) TRIM(PARNAM(IPAR)),FLOTT
+         ELSE IF(PARFMT(IPAR).EQ.'CHAINE') THEN
+            IF(INDIC.NE.3) CALL XABORT('APX: CHARACTER DATA EXPEC'//
+     1      'TED(13).')
+            IF(IMPX.GT.0) WRITE(6,460) TRIM(PARNAM(IPAR)),TEXT20
+         ENDIF
+         CALL APXPAV(IPAPX,IPAR,NPAR,PARFMT(IPAR),FLOTT,NITMA,TEXT20,
+     1   MUPLET(IPAR),LGNEW(IPAR))
+      ENDIF
+      GO TO 310
+*----
+*  RECOVER AN ELEMENTARY CALCULATION FROM EDITION.
+*----
+  350 IF(NPAR.GT.0) DEALLOCATE(PARFMT,PARNAM)
+      NCALS=0
+      CALL hdf5_info(IPAPX,"/NCALS",RANK,TYPE,NBYTE,DIMSR)
+      IF(RANK.NE.99) CALL hdf5_read_data(IPAPX,"/NCALS",NCALS)
+      IF(NENTRY.GE.2) THEN
+         IF(C_ASSOCIATED(IPRHS(2))) GO TO 360
+      ENDIF
+      IF(IMPX.GT.0) WRITE(6,420) NCALS+1
+      IF(ITIM.GT.0) THEN
+         WRITE(TEXT12,'(8HDEPL-DAT,I4.4)') ITIM
+         CALL LCMSIX(IPDEPL,TEXT12,1)
+      ENDIF
+*     -------------------------------------------
+      CALL APXCAL(IMPX,IPAPX,IPDEPL,IPEDIT,HEQUI)
+*     -------------------------------------------
+      IF(ITIM.GT.0) CALL LCMSIX(IPDEPL,' ',2)
+*----
+*  RECOVER REMAINING GLOBAL PARAMETER AND LOCAL VALUES.
+*----
+      CALL APXGEP(IPAPX,IPDEPL,IMPX,ITIM,NORIG,NPAR,MUPLET,LGNEW,NVPNEW,
+     1 NCALS)
+      IF(IMPX.GT.0) THEN
+        CALL APXTOC(IPAPX,IMPX,NLAM,NREA,NBISO,NBMAC,NMIL,NPARR,NVP,
+     1  NISOF,NISOP,NISOS,NCALR,NG,NISOTS,NSURFD,NPRC)
+      ENDIF
+*----
+*  RECOVER THE CALCULATION INDEX AND SAVE IT IN A CLE-2000 VARIABLE
+*----
+      IF(IPICK.EQ.1) THEN
+        CALL REDGET(ITYP,NITMA,FLOTT,TEXT20,DFLOTT)
+        IF(ITYP.NE.-1) CALL XABORT('APX: OUTPUT INTEGER EXPECTED.')
+        ITYP=1
+        CALL hdf5_read_data(IPAPX,"NCALS",NITMA)
+        CALL REDPUT(ITYP,NITMA,FLOTT,TEXT20,DFLOTT)
+        CALL REDGET(ITYP,NITMA,FLOTT,TEXT20,DFLOTT)
+        IF((ITYP.NE.3).OR.(TEXT20.NE.';')) THEN
+          CALL XABORT('APX: ; CHARACTER EXPECTED.')
+        ENDIF
+      ENDIF
+      GO TO 390
+*----
+*  APEX CONCATENATION.
+*----
+  360 DO 370 I=2,NENTRY
+      IF(.NOT.C_ASSOCIATED(IPRHS(I))) GO TO 370
+      NG=0
+      CALL APXTOC(IPRHS(I),IMPX,NLAM,NREA,NBISO,NBMAC,NMIL,NPARR,NVP,
+     1 NISOF,NISOP,NISOS,NCALR,NG,NISOTS,NSURFD,NPRC)
+      IF(IMPX.GT.0) WRITE(6,470) NCALS+1,NCALS+NCALR
+*     ---------------------------------------------------------------
+      CALL APXCAT(IPAPX,IPRHS(I),NORIG,NPAR,NCALS,MUPLET,LGNEW,LWARN)
+*     ---------------------------------------------------------------
+      NCALS=NCALS+NCALR
+  370 CONTINUE
+      CALL hdf5_write_data(IPAPX,"/NCALS",NCALS)
+      IF(IMPX.GT.0) THEN
+        CALL APXTOC(IPAPX,IMPX,NLAM,NREA,NBISO,NBMAC,NMIL,NPAR,NVP,
+     1  NISOF,NISOP,NISOS,NCALS,NG,NISOTS,NSURFD,NPRC)
+      ENDIF
+*----
+*  SCRATCH STORAGE DEALLOCATION
+*----
+  390 DEALLOCATE(IPRHS)
+      IF(IMPX.GT.3) THEN
+        WRITE(6,'(/25H APX: APEX FILE CONTENTS:)')
+        FLUSH(6)
+        CALL hdf5_list(IPAPX,'')
+        WRITE(6,'()')
+      ENDIF
+      RETURN
+*
+  400 FORMAT(/14H APX: VERSION=,A)
+  420 FORMAT(/1X,43(1H*)/34H * APX: ELEMENTARY CALCULATION NB.,I8,
+     1 2H */1X,43(1H*))
+  430 FORMAT(/41H APX: RECOVER INFORMATION RELATED TO TIME,1P,E12.4,
+     1 8H E+8 S (,E12.4,32H DAY) FROM LCM DIRECTORY NAMED ',A12,2H'.)
+  440 FORMAT(28H APX: SET GLOBAL PARAMETER ',A,3H' =,1P,E12.4)
+  450 FORMAT(28H APX: SET GLOBAL PARAMETER ',A,3H' =,I10)
+  460 FORMAT(28H APX: SET GLOBAL PARAMETER ',A,5H' = ',A12,1H')
+  470 FORMAT(/1X,55(1H*)/35H * APX: ELEMENTARY CALCULATIONS NB.,I8,
+     1 3H TO,I8,2H */1X,55(1H*))
+      END

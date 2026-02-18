@@ -1,0 +1,59 @@
+* Deck TRK_IC_SALT
+* CLE-2000 procedure for SALT: tracking on self-shielding geom
+* Currently 3-level BWR geometry treatment limited to surfacic (G2S: --> SALT:) 
+* Make use of recent developments in G2S: and SALT: to generate surfacic IC tracking 
+*
+* Goal : get reference deterministic t=0 results to compare with NXT capabilities.
+*
+* CALL      :                                                                     
+* TRACK_SSH TF_EXC_SSH SSH_FIG.ps := TRK_A_SALT GEOMSSH :: 
+*          <<num_ang>> <<densur>> <<refl_type>> <<batch_size>> ;
+*              
+*       
+************************************************************************************
+
+* ---
+* INPUT & OUTPUT PARAMETERS
+* ---
+PARAMETER TRACK_SSH  TF_EXC_SSH  GEOMSSH  SSH_FIG.ps ::
+::: LINKED_LIST TRACK_SSH ;
+::: SEQ_BINARY TF_EXC_SSH ;
+::: LINKED_LIST GEOMSSH ;
+::: SEQ_ASCII SSH_FIG.ps ; ;
+* ---
+* RECOVER TRACKING PARAMTERES
+* ---
+INTEGER num_ang ;
+:: >>num_ang<< ; ! ANGULAR QUADRATURE PARAMETER
+DOUBLE Ddensur ;
+:: >>Ddensur<< ; ! DENSITY OF INTEGRATION LINES CM^-1
+
+STRING refl_type ;
+:: >>refl_type<< ; ! reflection type for tracking : "TSPC" or "TISO"
+INTEGER batch ;
+:: >>batch<< ; ! batch size for tracking
+* ---
+* STRUCTURES AND MODULES
+* ---
+MODULE G2S: SALT: END: ;
+SEQ_ASCII Geo_G2S ;
+REAL densur := Ddensur D_TO_R ; ! DENSITY OF INTEGRATION LINES CM^-1
+
+* ---
+* SALT TRACKING
+* ---
+Geo_G2S SSH_FIG.ps := G2S: GEOMSSH :: EDIT 0 MACRO ;
+
+TRACK_SSH TF_EXC_SSH := SALT: Geo_G2S ::
+  EDIT 1
+  TITLE "MULTICELL SURFACIC ATRIUM-10 CASE"
+  BATCH <<batch>>
+  TISO EQW <<num_ang>> <<densur>>
+  IC EPSJ 1.0E-5
+;
+
+
+END: ;
+QUIT .
+
+

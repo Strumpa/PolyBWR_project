@@ -279,7 +279,7 @@ $$
 \begin{itemize}
 \item We use collision probabilities. We define the reference geometry with \moc{VOID}
 external boundary conditions (see \Sect{descBC}) and to close the region for the collision probability calculations using the \moc{ALBS} option (see \Sect{descasm}).
-\item We perform a flux calculation with the current iteration method in Eurydice. This option is only available if a \moc{SYBILT:} tracking is used and if
+\item We perform a flux calculation with the current iteration method in Eurydice. This option is only available if the interface current method is used and if
 keyword \moc{ARM} is set in module \moc{ASM:} (see \Sect{descasm}).
 \end{itemize}
 
@@ -331,7 +331,7 @@ is performed.
 containing reflector zones.
 
 \item[\moc{ARM}] keyword to activate a solution technique other than the collision probability method. Used with the Eurydice
-solution technique within \moc{SYBILT:} to activate the current iteration method.
+solution technique within \moc{SYBILT:} or with the multicell surfacic method within \moc{SALT:} to activate the current iteration method.
 
 \item[\moc{ITER}] keyword to specify the main convergence parameters used to control SPH iterations.
 

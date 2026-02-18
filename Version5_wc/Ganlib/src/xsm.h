@@ -65,6 +65,7 @@ typedef struct Db2{       /* xsmiof database handle */
 void xsmop_c(xsm **, char *, int_32, int_32);
 void xsmput_c(xsm **, const char *, int_32, int_32, int_32 *);
 void xsmget_c(xsm **, const char *, int_32 *);
+void xsmdel_c(xsm **, const char *);
 void xsmcl_c(xsm **, int_32);
 void xsmnxt_c(xsm **, char *);
 void xsmlen_c(xsm **, const char *, int_32 *, int_32 *);

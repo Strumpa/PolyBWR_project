@@ -257,7 +257,7 @@ ECHO "+++ Burnup=" BUend " Kinf=" Kinf " at step" istep ;
 ************************************************************************
 
 ENDWHILE ;
-assertS FLUX2 :: K-INFINITY 1 1.039910 ;
+assertS FLUX2 :: K-INFINITY 1 1.039912 ;
 LIBRARY LIBRARY2 := DELETE: LIBRARY LIBRARY2 ;
 
 ************************************************************************
@@ -402,7 +402,7 @@ WHILE iBoreStep iBoreMax < DO
 ENDIF ; ! test no to repeat reference case
 
 ENDWHILE ; ! boron loop
-assertS FLUX2 :: K-INFINITY 1 1.039910 ;
+assertS FLUX2 :: K-INFINITY 1 1.039912 ;
 ************************************************************************
 *  END OF BORON LOOP                                                   *
 ************************************************************************

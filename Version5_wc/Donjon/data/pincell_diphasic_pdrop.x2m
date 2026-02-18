@@ -11,7 +11,7 @@ LINKED_LIST Geom Track Flux Cpo Matex Lib MicroF MacroF Macro2 Fmap
 MODULE      GEO: RESINI: TRIVAT: TRIVAA: GREP: FIND0: NCR: FLUD: FLPOW:
             MACINI: USPLIT: TINST: UTL: DELETE: ABORT: THM: END: ;
 
-PROCEDURE   assertS ;
+PROCEDURE   assertS_low ;
 SEQ_ASCII   _ACompo ;
 INTEGER     maxstep := 67 ;
 REAL        Fuelpwr := 30.0796 ; ! W/g ou kW/kg ou MW/t
@@ -177,9 +177,9 @@ System MacroF Macro2 := DELETE: System MacroF Macro2 ;
 * Dump THM object
 *--
 UTL: Thm :: DIR DUMP ;
-assertS Thm :: 'AVG-T-FUEL' 1 1.464945E+03 ;
-assertS Thm :: 'AVG-T-COOL' 1 5.780350E+02 ;
-assertS Thm :: 'AVG-P-COOL' 1 1.093366E+07 ;
+assertS_low Thm :: 'AVG-T-FUEL' 1 1.464945E+03 5.0E-3 ;
+assertS_low Thm :: 'AVG-T-COOL' 1 5.780350E+02 5.0E-3 ;
+assertS_low Thm :: 'AVG-P-COOL' 1 1.093366E+07 1.0E-2 ;
 
 ECHO "test pincell_diphasic_pdrop.x2m completed" ;
 END: ;

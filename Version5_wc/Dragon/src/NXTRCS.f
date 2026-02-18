@@ -109,8 +109,12 @@
       DO ISUR=1,NSUR
         IND=IDSUR(ISUR)
         IF(IND .GT. 0) THEN
+          DO ID=1,INV
+            IF(IND .EQ. INREN(ID)) GO TO 110
+          ENDDO
           INV=INV+1
           INREN(IND)=INV
+ 110      CONTINUE
         ENDIF
       ENDDO
       LSTSUR=INV+NASUR

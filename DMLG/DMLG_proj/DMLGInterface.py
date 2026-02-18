@@ -290,10 +290,12 @@ class DMLG_Interface:
                         mc_volume=line.split(" ")[2]
                         Material_Volumes[mat_name] = mc_volume
         self.Material_Volumes_data = Material_Volumes
+    
     def createSerpent2_Material_volumes(self):
         self.Material_Volumes = []
         for material_vol in self.Material_Volumes_data.keys():
             self.Material_Volumes.append(S2.S2_Material_Vol(material_vol,self.Material_Volumes_data[material_vol],nbDim=3))
+    
     def parseSerpent2_output(self):
         """
         parsing Serpent2 output file
@@ -339,8 +341,8 @@ class DMLG_Interface:
         #print(materials)
         #print(material_data_)
         self.Serpent2_output = material_data_
-
         return
+    
     def createSerpent2_output_cards(self):
         """
         calling Serpent2 cards class to create associated serpent2 objects
@@ -348,12 +350,14 @@ class DMLG_Interface:
         self.Serpent2_mat_cards=[]
         for mat in self.Serpent2_output.keys():
             self.Serpent2_mat_cards.append(S2.S2_material_output(mat, self.Serpent2_output[mat]))
+    
     def createS2_mat_properties(self, name):
         """
         Create material properties object from Serpent2 cards. Useful functions for checking materials compositions and volumes are implemented in the S2_geom class
         """
         self.S2_mat_properties = S2.S2_mat_properties(name, self.Serpent2_mat_cards)
         return
+    
     def createS2_geom(self, name, height=1):
         if height == 0:
             ndim = 2

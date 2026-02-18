@@ -1,0 +1,91 @@
+* PROCEDURE EDICPO_BU.c2m : calls to EDI: and COMPO: modules in burnup calculation
+* --------------------------------
+* Author: R. Guasch
+* --------------------------------
+*    INPUT & OUTPUT PARAMETERS
+* --------------------------------
+PARAMETER COMPO FLUX LIBRARY2 TRACK BURNUP ::
+::: LINKED_LIST COMPO ;
+::: LINKED_LIST FLUX ;
+::: LINKED_LIST LIBRARY2 ;
+::: LINKED_LIST TRACK ; 
+::: LINKED_LIST BURNUP ; ;
+REAL Tbeg ;
+:: >>Tbeg<< ;
+STRING name_geom ;
+:: >>name_geom<< ;
+
+
+* --------------------------------
+*    MODULES DEFINITION
+* --------------------------------
+MODULE EDI: COMPO: DELETE: END: ;
+* --------------------------------
+*    LOCAL VARIABLES DEFINITION
+* --------------------------------
+LINKED_LIST EDIBU ;
+
+* --------------------------------
+*    EDI: CALL FOR EDIBU
+* --------------------------------
+IF name_geom "AT10_ASSBLY" = THEN
+   EDIBU := EDI: FLUX LIBRARY2 TRACK ::
+      EDIT 1
+      MICR 12 U234 U235 U238 Pu239 Pu240 Pu241 Pu242 Am241 Gd155 Gd157 Xe135 Sm149
+      MERG MIX
+         1 1 1 1 1 1 1 1 1 1 
+         1 1 1 1 1 1 1 1 1 1 
+         1 1 1 1 1 1 1 1 1 1 
+         1 1 1 1 1 1 1 1 1 1 
+         1 1 1 1 1 1 1 1 1 1 
+         1 1 1 1 1 1 1 1 1 1 
+         1 1 1 1 1 1 1 1 1 1 
+         1 1 1 1 1 1 1 1 1 1 
+         1 1 1 1 1 1 1 1 1 1 
+         1 1 1 1 1 1 1 1 1 1 
+         1 1 1 1 1 1 1 1 1 1 
+         1 1 1 1 1 1 1 1 1 1 
+         1 1 1 1 1 1 1 1 1 1 
+         1 1 1 1 1 1 1 1 1 1 
+         1 1 1 1 1 1 1 1 1 1 
+         1 1 1 1 1 1 1 1 1 1 
+         1 1 1 1 1 1 1 1 1 1 
+         1 1 1 1 1 1 1 1 1 1 
+         1 1 1 1 1 1 1 1 1 1 
+         1 1 1 1 1 1 1 1 1 1 
+         1 1 1 1 1 1 1 1 1 1 
+         1 1 0 0 0 0 0
+      COND
+      SAVE ON EDIBU
+   ;
+ELSEIF name_geom "AT10_24UOX" = THEN 
+   EDIBU := EDI: FLUX LIBRARY2 TRACK ::
+      EDIT 1
+      MICR 12 U234 U235 U238 Pu239 Pu240 Pu241 Pu242 Am241 Gd155 Gd157 Xe135 Sm149
+      MERG MIX
+         1 1 1 1 0 0 0
+      COND
+      SAVE ON EDIBU
+   ;
+ELSEIF name_geom "AT10_45Gd" = THEN 
+   EDIBU := EDI: FLUX LIBRARY2 TRACK ::
+      EDIT 1
+      MICR 12 U234 U235 U238 Pu239 Pu240 Pu241 Pu242 Am241 Gd155 Gd157 Xe135 Sm149
+      MERG MIX
+         1 1 1 1 1 1 0 0 0
+      COND
+      SAVE ON EDIBU
+   ;
+ENDIF ;
+* --------------------------------
+*    COMPO: CALL FOR EDIBU
+* --------------------------------
+COMPO := COMPO: COMPO EDIBU LIBRARY2 BURNUP ::
+   EDIT 1
+   STEP UP 'EDIBU'
+   SET <<Tbeg>> DAY 
+;
+EDIBU := DELETE: EDIBU ;
+* --------------------------------
+
+END: ;

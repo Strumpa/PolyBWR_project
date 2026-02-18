@@ -49,10 +49,10 @@
 *----
       TYPE(C_PTR) IPLIB,IPISO(NBISO)
       INTEGER    NDPROC
-      PARAMETER (NDPROC=10)
+      PARAMETER (NDPROC=11)
       INTEGER    IPRINT,NGROUP,NBISO,NL,ISONAM(3,NBISO),ISONRF(3,NBISO),
      >           ISHINA(3,NBISO),NGF,NGFR
-      CHARACTER  NAMFIL*8,NAMDXS(NDPROC)*6
+      CHARACTER  NAMFIL*8,NAMDXS(NDPROC)*8
       LOGICAL    MASKI(NBISO)
       REAL       TN(NBISO),SN(NGROUP,NBISO),SB(NGROUP,NBISO)
 *----
@@ -116,12 +116,11 @@
 *----
 *  DATA
 *----
-      SAVE         NBATOM,NAMDXS
-      DATA         NBATOM
-     >            /1,2,16,12/
-      DATA         NAMDXS
-     >            /'NTOT0 ','TRANC ','NUSIGF','NFTOT ','CHI   ',
-     >             'NU    ','NG    ','N2N   ','NGOLD ','NWT0  '/
+      SAVE   NBATOM,NAMDXS
+      DATA   NBATOM   /1,2,16,12/
+      DATA   NAMDXS  /'NTOT0   ','TRANC   ','NUSIGF  ','NFTOT   ',
+     >                'CHI     ','NU      ','NG      ','N2N     ',
+     >                'NGOLD   ','NWT0    ','H-FACTOR'/
 *----
 *  SCRATCH STORAGE ALLOCATION
 *   ITYPRO  cross section processed

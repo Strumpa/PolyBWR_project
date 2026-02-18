@@ -1,0 +1,106 @@
+*-------------------------------------------------------*
+*  Test-case - Calculs CANDU3 équilibre du rechargement *
+*-------------------------------------------------------*
+* Stratégie axiale de rechargement à 1 machine à comb.  *
+* Auteurs : Ivan Trancart                               *
+* Ecriture : 05-05-2025  (maj 21-08-2025)               *
+* Durées d'éxecution : 1.5 seconds (CPO)                *
+*-------------------------------------------------------*
+*----------------------------- 
+*  Console
+*-----------------------------
+STRING  LIBR := 'ipow' ;        ! either 'iaea' or 'L172b8r1' : XS library
+STRING  SETC := "CPO" ;         ! could use "MPO" (useless here)
+STRING  CASE := "M1" ;          ! diffusion parameters
+STRING  AXST := "Upt4" ;        ! axial scheme (info at the end of p1_Candu3)
+STRING  BCO  := "VOID" ;        ! radial boundary condition (VOID/REFL/ZERO)
+INTEGER COMB := 0 ;             ! possibility for more fuel types
+REAL    ADJ  := 1. ;            ! level of adjusters insertion
+*----------------------------- 
+*  Définition des structures et modules utilisés
+*-----------------------------
+LINKED_LIST GeoRef GeoCalc Trkcore MacFuel MacDev MacInf DevInf FmapI 
+            CpoFuel CpoRefl CpoAbs CpoZcu CpoAdj CpoSor MacComp
+            Fmap Flx Pwr System ; 
+SEQ_ASCII   FileOut1 :: FILE 'UPT_ADJ.map' ;
+MODULE      NCR: TAVG: NEWMAC: MACINI: FLUD: TRIVAA: FLPOW:
+            DSET: GREP: UTL: END: DELETE: ;
+PROCEDURE   p0_ImportDev p1_Candu3 p2_Device p3_BurnOut p4_Equilib p9_Data  ;
+ECHO "*** Début de Core.x2m ***" ;
+*----------------------------- 
+*  Paramètres de calcul
+*-----------------------------
+ECHO "*** PARAMETRES ***" ;
+ECHO "*** XSLIBRARY = " LIBR ;
+ECHO "*** COMB      = " COMB ;
+ECHO "*** STRAT. AX = " AXST ;
+ECHO "*** DIFFUSION = " CASE ;
+ECHO "******************" ;
+*----------------------------- 
+*  Création de la géométrie et de la bibliothèque correspondante
+*-----------------------------
+*** Géométrie
+Trkcore GeoRef GeoCalc FmapI := p1_Candu3 :: <<BCO>> <<CASE>> <<AXST>> ;
+*--
+* Spécifications des mécanismes 
+*--
+STRING DEV := "Lay1" ; 
+REAL fmca fsor fadj ;
+DevInf GeoCalc := p2_Device GeoCalc :: <<DEV>> >>fadj<< >>fmca<< >>fsor<<  ;
+
+SEQ_ASCII CpoF :: FILE './0F-fuel-mac.cpo' ;
+SEQ_ASCII CpoR :: FILE './0R-refl.cpo' ;
+SEQ_ASCII CpoA :: FILE './0A-dev-NO.cpo' ;
+SEQ_ASCII CpoB :: FILE './0B-dev-ZCU.cpo' ;
+SEQ_ASCII CpoC :: FILE './0C-dev-ADJ.cpo' ;
+SEQ_ASCII CpoD :: FILE './0D-dev-SOR.cpo' ;
+
+CpoFuel := CpoF ;
+CpoRefl := CpoR ;
+CpoAbs  := CpoA ;
+CpoZcu  := CpoB ;
+CpoAdj  := CpoC ;
+CpoSor  := CpoD ;
+*** Importation des mélanges Refl et Dev
+MacDev := p0_ImportDev CpoRefl CpoAbs CpoZcu CpoAdj CpoSor :: 
+    <<SETC>> <<DEV>> ;
+*** Ajustement des mécanismes, au plaisir :
+DevInf := DSET: DevInf :: EDIT 1
+    ROD-GROUP 1  LEVEL <<ADJ>> END ;   ! ADJ  
+*----------------------------- 
+*  Calculs Time-averaged - 1 burnup
+*-----------------------------
+REAL B1 R2 R3 := 8000. 1. 1. ;
+*** Données de convergence
+REAL Keff Eps Bexit := 1. 1. 8000. ;
+REAL epsKEFF eMIN epsFlx Ptot e PC PG ;
+REAL BREF BEND RMAX RI DR LIMC 
+     LIMG eA P E B ;
+p9_Data :: "EQUILIB" >>epsKEFF<< >>eMIN<< >>epsFlx<< >>Ptot<< ;
+p9_Data :: "TAVG" >>BREF<< >>LIMC<< >>LIMG<< ;
+*** 
+Fmap Flx GeoCalc := p4_Equilib FmapI GeoCalc Trkcore 
+    DevInf MacDev CpoFuel :: 
+           <<SETC>> <<B1>> <<R2>> <<R3>> >>PC<< >>PG<< >>B1<< >>eA<< ;
+***
+GREP: Fmap :: GETVAL B-EXIT 1 >>BEND<< ;
+ECHO "****** BURNUP AND POWER ******" ;
+ECHO "epsAXC = " eA ;     
+ECHO "strAXC = " AXST ;
+ECHO " B1 = " B1 ;
+ECHO " MAX. CHANNEL P. = " PC ;
+ECHO " MAX. BUNDLE  P. = " PG ;
+ECHO " Be = " BEND ;
+ECHO "***************************************" ;
+*** edit resulting fluxes and powers:
+Pwr := FLPOW: Fmap Flx Trkcore GeoCalc :: EDIT 1 PTOT <<Ptot>> ;
+FileOut1 := Fmap ;
+***
+Pwr Fmap := DELETE: Pwr Fmap ;
+FmapI GeoCalc Trkcore DevInf GeoRef := DELETE:
+FmapI GeoCalc Trkcore DevInf GeoRef ;
+***
+ECHO "test Candu3_Shuffling.x2m completed" ;
+END: ;
+QUIT "LIST" .
+***

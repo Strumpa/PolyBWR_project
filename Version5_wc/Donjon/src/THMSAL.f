@@ -1,7 +1,6 @@
 *DECK THMSAL
       SUBROUTINE THMSAL(IMPX,ITIME,I,J,K,K0,MFLOW,HMAVG,ENT,HD,STP,
-     > IHCONV,KHCONV,ISUBM,RADCL,ZF,PHI,XFL,EPS,SLIP,DZ,TCALO,
-     > RHO,RHOLAV,TSCLAD,KWA)
+     > IHCONV,KHCONV,ISUBM,RADCL,ZF,PHI,DZ,TCALO,RHO,RHOLAV,TSCLAD)
 *
 *-----------------------------------------------------------------------
 *
@@ -27,7 +26,8 @@
 * ENT     four values of enthalpy in J/Kg to be used in Gaussian
 *         integration
 * HD      hydraulic diameter in m
-* STP     tpdata object with correlations to obtain properties of molten salt.
+* STP     tpdata object with correlations to obtain properties of
+*         molten salt.
 * IHCONV  flag indicating HCONV chosen (0=default/1=user-provided).
 * KHCONV  fixed user-provided HCONV value in W/m^2/K.
 * ISUBM   subcooling model (0: one-phase; 1: Jens-Lottes model;
@@ -37,23 +37,15 @@
 *         transient cases.
 * PHI     heat flow exchanged between clad and fluid in W/m^2.
 *         Given in steady-state cases.
-* XFL     input coolant flow quality
-* EPS     input coolant void fraction
-* SLIP    input slip ratio of vapor phase speed to liquid phase speed.
 * DZ      axial mesh width in m.
 *
 *Parameters: output
 * PHI     heat flow exchanged between clad and fluid in W/m^2.
 *         Computed in transient cases.
-* XFL     output coolant flow quality
-* EPS     output coolant void fraction
-* SLIP    output slip ratio of vapor phase speed to liquid phase speed.
 * TCALO   coolant temperature in K
 * RHO     coolant density in Kg/m^3
 * RHOLAV  liquid density in kg/m^3
 * TSCLAD  clad temperature in K
-* KWA     flow regime (=0: single-phase; =1: subcooled; =2: nucleate
-*         boiling; =3 superheated steam)
 *
 *-----------------------------------------------------------------------
 *
@@ -62,9 +54,9 @@
 *  SUBROUTINE ARGUMENTS
 *----
       TYPE(tpdata) STP
-      INTEGER I,J,K,K0,IHCONV,ISUBM,KWA
+      INTEGER I,J,K,K0,IHCONV,ISUBM
       REAL MFLOW,HMAVG,ENT(4),HD,KHCONV,RADCL,ZF(2),PHI,TCALO,RHO,
-     > RHOLAV,TSCLAD,XFL,EPS,SLIP,DZ
+     > RHOLAV,TSCLAD,DZ
 *----
 *  LOCAL VARIABLES
 *----
@@ -102,9 +94,6 @@
 *  REL: Reynolds number of liquid phase
 *  PRL: Prandtl number of liquid phase
 *----
-      IF(XFL.NE.0.0) THEN
-        CALL XABORT('THMSAL: INVALID VALUE OF FLOW QUALITY')
-      ENDIF
 *     One phase liquid
       TB=TSAT
       IF(TL.LT.TB) THEN
@@ -117,16 +106,12 @@
       REL=MFLOW*HD/ZMUONE
       PRL=ZMUONE*CPONE/ZKONE
       ZKL=ZKONE
-      XFL0=XFL
-      EPS0=EPS
-      SLIP0=SLIP
 *----
 *  THERMAL EXCHANGE BETWEEN CLAD AND FLUID USING THE DITTUS AND BOELTER
 *  CORRELATION (SINGLE PHASE) OR CHEN CORRELATION (SATURATED BOILING)
 *----
       IF(IHCONV.EQ.0) THEN
         ITER=0
-        KWA=99
 *CGT CHECK IF REYNOLDS AND PRANDTL ARE IN RANGE OF VALIDITY OF
 *    GNIELINSKI CORRELATION
         TSCLAD=TCALO
@@ -151,19 +136,13 @@
           IF(IMPX.GT.4) THEN
             WRITE(6,*) 'THMSAL: REL,PRL,PRW,HA=',REL,PRL,PRW,HA
           ENDIF
-          F=1.0
-          S=1.0
-          IF((XFL.EQ.XFL0).OR.(TSCLAD.LE.TSAT).OR.(KWA.EQ.0)) THEN
-*           Single-phase convection. Use Gnielinski correlation
-            KWA=0
-            HB=0.0
-            K0=0
-            XFL=XFL0
-            EPS=EPS0
-            SLIP=SLIP0
-          ELSE 
+          IF(TSCLAD.GT.TSAT) THEN
             CALL XABORT('THMSAL: INVALID HEAT TRANSFER REGIME')
           ENDIF
+          F=1.0
+          S=1.0
+          HB=0.0
+          K0=0
 *         Chen correlation
           HCONV=F*HA+S*HB
           IF(HCONV.LE.0.0) THEN

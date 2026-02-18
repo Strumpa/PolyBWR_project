@@ -1,0 +1,66 @@
+*---
+*  Raviart-Thomas Reflector DF-RT equivalence prodedure
+*---
+LINKED_LIST McoRefl Geom FVol Param MACRO ;
+STRING nameFeed := "assbly_caseA_mco_draglib_shem_feed.txt" ;
+STRING nameRefl := "Reflector_beavrs_DF-RT_Jeff3p1p1SHEM295_mco.txt" ;
+STRING Palier := "BEAVRS" ;
+STRING htype := "DF-RT" ;
+STRING LibType := "JEFF311" ;
+STRING NuclData := "DLIB_295" ;
+STRING OptSph := "SPH" ;
+STRING OptNoal := "ALBE" ;
+STRING OptSS := "TONE" ;
+MODULE GEO: UTL: NCR: END: ;
+SEQ_ASCII _McoRefl :: FILE <<nameRefl>> ;
+PROCEDURE REFL_MCO ;
+!
+Geom := GEO: ::
+   CAR1D 12
+   X- REFL X+ VOID
+   MESHX -43.0 -21.5 -5.0 0.0 0.005 2.2225 3.9825 9.6975 10.1975 15.9125 21.5 21.505
+         35.9125
+   MIX     1  1  1     2        3         4         3          5          6          5
+           !  fuel   gap       ss    ss+h2o        ss        h2o  ss_shield        h2o
+                 7            8
+           !   gap          h2o
+   SPLITX  20 15 20  1         25        24        10          5          6          5
+                 1            5
+;
+
+* Define volume fractions in 8 mixtures
+* mix=1 : feeding assembly (first fraction is always set to 0)
+* mix=2 : fuel-reflector gap
+* mix=7 : right-most gap to compute albedo
+* mix=8 : residual right reflector
+INTEGER nbZones := 8 ;
+REAL fvacier := 0.05 ;
+REAL fveau := 1.0 fvacier - ;
+FVol := UTL: ::
+                  ! MIX  1  2  3  4           5  6  7  8
+CREA 'H2O' <<nbZones>> = 0. 0. 0. <<fveau>>   1. 0. 1. 1.
+CREA 'SS ' <<nbZones>> = 0. 1. 1. <<fvacier>> 0. 1. 0. 0.
+;
+UTL: FVol :: DUMP ;
+
+* Define feeding assembly parameters (0 to 3 parameters allowed)
+Param := UTL: ;
+
+INTEGER nlf := 1 ;
+EVALUATE nbZones := nbZones 1 - ; ! decreases nbZones by one
+_McoRefl := REFL_MCO Geom FVol Param :: <<nameFeed>> <<nameRefl>> <<Palier>> <<htype>>
+                            <<nlf>> <<LibType>> <<NuclData>> <<OptSph>> <<OptNoal>>
+                            <<OptSS>> <<nbZones>> ;
+
+************************************************************************
+* Multicompo extrapolation of the reflector at 350 ppm Boron
+************************************************************************
+McoRefl := _McoRefl ;
+REAL densB1 := 350.0 ;
+MACRO :=  NCR:  McoRefl :: EDIT 3 MACRO NMIX 1
+   COMPO McoRefl 'COND2'
+   MIX  1 FROM 2 SET 'ppmBore' <<densB1>> SET 'Method' <<htype>> SET 'Palier' <<Palier>> ENDMIX
+;
+UTL: MACRO :: DIR DUMP ;
+ECHO "test Reflector_beavrs_DF-RT_Jeff3p1p1SHEM295_mco.x2m completed" ;
+END: ;

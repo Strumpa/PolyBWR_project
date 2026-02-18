@@ -1,0 +1,66 @@
+*--------------------------------------------------------
+*  Procédure p0_ImportDev
+*  Importation des données DRAGON pour le réflecteur et les mécanismes
+*  Appel :   
+*      MacDev := p0_ImportDev CpoRefl CpoAbs CpoZcu CpoAdj CpoSor :: <<DEV>> ;
+*  avec en entree
+*  S   DEV   = type de mécanismes traités : NOMINAL
+*  et en sortie
+*      XXXXX = données associées à la procédure d'appel
+*  Auteur : Emmanuel Saint Aubin 
+*           D&Dv5 Ivan Trancart - 12-12-2024 (maj 13-12-2024)
+*--------------------------------------------------------
+PARAMETER       MacDev CpoRefl CpoAbs CpoZcu CpoAdj CpoSor ::
+::: LINKED_LIST MacDev CpoRefl CpoAbs CpoZcu CpoAdj CpoSor ; ;
+MODULE          NCR: CRE: END: DELETE: ;
+ECHO "Début de ImportDev.c2m" ;
+STRING SETCPO DEVICE ;
+:: >>SETCPO<< >>DEVICE<< ;
+ECHO "DEVICE= " DEVICE ;
+ECHO "SETCPO= " SETCPO ;
+***
+IF SETCPO "CPO" = THEN
+   MacDev := CRE: CpoRefl CpoAbs CpoZcu CpoAdj CpoSor ::
+   EDIT 0 NMIX 18 READ
+      COMPO CpoRefl MIX  2  'REFL       1' ENDMIX
+      COMPO CpoAbs  MIX  3  'ABSENT     1' ENDMIX
+      COMPO CpoAdj  MIX  4  'ADJOUT     1' ENDMIX
+                    MIX  5  'ADJIN1     1' ENDMIX
+                    MIX  6  'ADJIN2     1' ENDMIX
+                    MIX  7  'ADJIN3     1' ENDMIX
+                    MIX  8  'ADJIN4     1' ENDMIX
+                    MIX  9  'ADJIN5     1' ENDMIX
+                    MIX 10  'ADJIN6     1' ENDMIX
+      COMPO CpoZcu  MIX 11  'ZCUOUT1    1' ENDMIX
+                    MIX 12  'ZCUIN1     1' ENDMIX
+                    MIX 13  'ZCUOUT2    1' ENDMIX
+                    MIX 14  'ZCUIN2     1' ENDMIX
+                    MIX 15  'ZCUOUT3    1' ENDMIX
+                    MIX 16  'ZCUIN3     1' ENDMIX
+      COMPO CpoSor  MIX 17  'SOROUT     1' ENDMIX
+                    MIX 18  'SORIN1     1' ENDMIX ;    
+ELSE
+   MacDev := NCR: CpoRefl CpoAbs CpoZcu CpoAdj CpoSor :: 
+   EDIT 0 MACRO NMIX 18
+      COMPO CpoRefl  'Reflector' MIX  2 ENDMIX
+      COMPO CpoAbs   'ABSENT   ' MIX  3 ENDMIX
+      COMPO CpoAdj   'ADJOUT   ' MIX  4 ENDMIX
+      COMPO CpoAdj   'ADJIN1   ' MIX  5 ENDMIX
+      COMPO CpoAdj   'ADJIN2   ' MIX  6 ENDMIX
+      COMPO CpoAdj   'ADJIN3   ' MIX  7 ENDMIX
+      COMPO CpoAdj   'ADJIN4   ' MIX  8 ENDMIX
+      COMPO CpoAdj   'ADJIN5   ' MIX  9 ENDMIX
+      COMPO CpoAdj   'ADJIN6   ' MIX 10 ENDMIX
+      COMPO CpoZcu   'ZCUOUT1  ' MIX 11 ENDMIX
+      COMPO CpoZcu   'ZCUIN1   ' MIX 12 ENDMIX
+      COMPO CpoZcu   'ZCUOUT2  ' MIX 13 ENDMIX
+      COMPO CpoZcu   'ZCUIN2   ' MIX 14 ENDMIX
+      COMPO CpoZcu   'ZCUOUT3  ' MIX 15 ENDMIX
+      COMPO CpoZcu   'ZCUIN3   ' MIX 16 ENDMIX
+      COMPO CpoSor   'SOROUT   ' MIX 17 ENDMIX
+      COMPO CpoSor   'SORIN1   ' MIX 18 ENDMIX ;     
+ENDIF ;
+***
+ECHO "Fin de ImportDev.c2m" ;
+END: ;
+QUIT "LIST" .

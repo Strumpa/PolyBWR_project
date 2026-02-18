@@ -1,0 +1,47 @@
+*** CLE-2000 script meant to test different GLOW capabilities, 
+* Compare with GEO: generated geometries when possible,
+* Goal : fully undestand GLOW/SALOME material numbering and scale up to more complex geometries
+* Date : 10/12/2025
+* Author : R. Guasch
+
+MODULE END: ;
+PROCEDURE AT10_PIN  IC_2x2 CP_2x2 
+                    IC_3x3 IC_3x3Gd CP_3x3
+                    IC_4x4 IC_4x4Gd CP_4x4
+                    IC_lat IC_latGd CP_LAT
+                    IC_latB IC_latBGd CP_LATB
+                    IC_A IC_AGd CP_A
+                    IC_AGd_DIAG
+                    ;
+
+
+
+!AT10_PIN ;
+
+!IC_2x2 ;
+!CP_2x2 ;
+
+!IC_3x3 ;
+!IC_3x3Gd ;
+!CP_3x3 ;
+
+!IC_4x4 ;
+!IC_4x4Gd ;
+!CP_4x4 ;
+
+!IC_lat ;
+!IC_latGd ;
+!CP_LAT ;
+
+!IC_latB ;
+!IC_latBGd ;
+!CP_LATB ;
+
+!IC_A ;
+!IC_AGd ;
+IC_AGd_DIAG ;
+!CP_A ;
+
+END: ;
+
+QUIT .

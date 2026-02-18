@@ -10,7 +10,7 @@
 PROCEDURE    Pgeotest Pfmaptest Pburntest Pfluxtest Pdevtest ;
 PROCEDURE    assertS ;
 *  
-MODULE       DELETE: GREP: USPLIT: TRIVAT: DSET: NCR: UTL: END: ;
+MODULE       DELETE: GREP: USPLIT: TRIVAT: DSET: NCR: UTL: END: ABORT: ;
 LINKED_LIST  GEOM TRACK MATEX FMAP FLUX POWER SYSTEM
              DEVICE MACRO1 MACFL MACRO2 MACRO KEFF ;
 LINKED_LIST  LMCPO18 LMCPO20 ;
@@ -60,7 +60,7 @@ INTEGER   nbItr ;
 *--
 * Save Multicompo as a linked_list
 *--
-LMCPO18 := SMCPO18 ; 
+LMCPO18 := SMCPO18 ;
 LMCPO20 := SMCPO20 ; 
 *--
 * geometry construction:

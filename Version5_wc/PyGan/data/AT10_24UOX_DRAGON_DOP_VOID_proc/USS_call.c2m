@@ -1,0 +1,37 @@
+* CLE2000 script to generate self-shielded Library object.
+* BWR ATRIUM-10 Assembly with square water channel.
+* Author : R. Guasch
+* Adapting from previous works by Lucas Fede (VVER project) and A. Canabakan / L. Ghasabyan (PWR reference scheme)
+* mixAUTOP1 : - testing USS: parameters as used in VVER project if ssh_opt = VVER_ARM or VVER_PIJ
+*             - testing USS: as used in PWR schemes if ssh_opt = PWR_ARM or PWR_PIJ.
+
+*  Procedure called as:
+*
+*  LIBRARY2 := mixAUTOP1 LIBRARY TRACK_SS TF_SS_EXC :: <<name_geom>> <<ssh_option>> ;
+*
+*  Input data   :
+*    LIBRARY      : Initial library
+*    TRACK_SS     : Self-shielding tracking
+*
+*  Output data  :
+*    LIBRARY2     : Self-shieled library
+*---
+
+PARAMETER LIBRARY2 LIBRARY TRACK_SS TF_SS_EXC ::
+::: LINKED_LIST LIBRARY2 ;
+::: LINKED_LIST LIBRARY ;
+::: LINKED_LIST TRACK_SS ;
+::: SEQ_BINARY TF_SS_EXC ; ; 
+
+
+MODULE USS: END: ;
+
+
+LIBRARY2 := USS: LIBRARY TRACK_SS TF_SS_EXC ::
+        EDIT 1 PASS 3 MAXST 50 PIJ
+;
+
+
+
+END: ;
+QUIT .

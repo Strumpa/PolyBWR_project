@@ -43,23 +43,20 @@
       TYPE(C_PTR)      IPLIB
       INTEGER          IGS,IPRINT,NPROC,IORD,NGROUP
       REAL             XSREC(NGROUP,NPROC)
-      CHARACTER        NAMDXS(NPROC)*6,NORD*6
+      CHARACTER        NAMDXS(NPROC)*8,NORD*4
 *----
 *  LOCAL VARIABLES
 *----
       INTEGER          IOUT
       PARAMETER       (IOUT=6)
-      INTEGER          IODIV,IXSR,IG,JG,ILENG,ITYLCM
+      INTEGER          IXSR,IG,JG,ILENG,ITYLCM
 *
       IF(IORD.EQ.1) THEN
-        NORD='      '
-        IODIV=1
+        NORD='    '
       ELSE IF(IORD.EQ.2) THEN
-        NORD='   LIN'
-        IODIV=2
+        NORD=' LIN'
       ELSE IF(IORD.EQ.3) THEN
-        NORD='   QUA'
-        IODIV=4
+        NORD=' QUA'
       ENDIF
       IF(NPROC.LE.0) THEN
         CALL XABORT('XDRLXS: ZERO OR NEGATIVE VALUE OF NPROC')
@@ -69,7 +66,8 @@
 *----
 *  SAVE LOCAL DEFAULT XS IF REQUIRED
 *----
-*
+        CALL LCMLEN(IPLIB,'H-FACTOR',ILENG,ITYLCM)
+        IF(ILENG.NE.0) CALL LCMDEL(IPLIB,'H-FACTOR')
         DO 100 IXSR=1,NPROC
 *----
 *  FIND IF XS NOT ALL 0.0

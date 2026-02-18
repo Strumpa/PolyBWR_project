@@ -22,7 +22,7 @@
 * AWR     mass ratio for current isotope.
 * IALTER  type of approximation (=0: use exponentials; =1: use Taylor
 *         expansions).
-* IL      Legendre order (=0: isotropic kernel).
+* IL      Legendre order (=0: isotropic kernel in LAB).
 *
 *Parameters: output
 * N       exact dimension of array PRI.

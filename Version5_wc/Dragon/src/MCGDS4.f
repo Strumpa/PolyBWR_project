@@ -1,8 +1,8 @@
 *DECK MCGDS4
       SUBROUTINE MCGDS4(SUBSCH,NSEG,NSUB,NMU,LPS,NFUNL,NANGL,NGEFF,
      1                  WEI2D,KANGL,TRHAR,H2D,ZMU,WZMU,NOMCEL,NZON,NFI,
-     2                  NREG,NDIM,M,IS,JS,PJJ,PSJ,LPJJAN,NPJJM,PJJIND,
-     3                  SIGAL,MUST)
+     2                  NREG,NDIM,NBCDA,M,IS,JS,PJJ,PSJ,LPJJAN,NPJJM,
+     3                  PJJIND,SIGAL,MUST)
 *
 *-----------------------------------------------------------------------
 *
@@ -32,6 +32,7 @@
 * NREG    number of volumes for which specific values
 *         of the neutron flux and reactions rates are required.
 * NDIM    number of dimensions for the geometry.
+* NBCDA   number of perimeters.
 * M       number of material mixtures.
 * IS      arrays for surfaces neighbors
 * JS      JS(IS(ISOUT)+1:IS(ISOUT+1)) give the neighboring regions to
@@ -60,11 +61,11 @@
 *  SUBROUTINE ARGUMENTS
 *----
       INTEGER NGEFF,NSEG,NSUB,NMU,LPS,NFUNL,NANGL,KANGL(NSEG),
-     1 NOMCEL(NSEG),NZON(NFI),NFI,M,NREG,NDIM,IS(NFI-NREG+1),JS(LPS),
-     2 NPJJM,PJJIND(NPJJM,2),MUST
+     1 NOMCEL(NSEG),NZON(NFI),NFI,NDIM,NBCDA,M,NREG,IS(NFI-NREG+1),
+     2 JS(LPS),NPJJM,PJJIND(NPJJM,2),MUST
       DOUBLE PRECISION WEI2D,H2D(NSEG)
       REAL TRHAR(NMU,NFUNL,NANGL),ZMU(NMU),WZMU(NMU),PSJ(LPS,NGEFF),
-     1 SIGAL(-6:M,NGEFF)
+     1 SIGAL(-NBCDA:M,NGEFF)
       DOUBLE PRECISION PJJ(NREG,NPJJM,NGEFF)
       LOGICAL LPJJAN
       EXTERNAL SUBSCH

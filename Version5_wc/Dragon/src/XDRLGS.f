@@ -66,7 +66,7 @@
       INTEGER          NPROC,IGAR(MAXGAR),IODIV,LONG,ITYP,LONG2,ILEG,
      >                 IXSR,IXSTN,IG,JG,NXSCMP,IGTO,IGMIN,IGMAX,IGFROM
       CHARACTER*12     NAMXS
-      CHARACTER        NAMLEG*2,NORD*6,HCM(0:10)*2
+      CHARACTER        NAMLEG*2,NORD*4,HCM(0:10)*2
       INTEGER, ALLOCATABLE, DIMENSION(:) :: NJJ,IJJ
       REAL, ALLOCATABLE, DIMENSION(:) :: XSSCMP
       DATA HCM         /'00','01','02','03','04','05','06','07','08',
@@ -78,13 +78,13 @@
 *
       IODIV=0
       IF(IORD.EQ.1) THEN
-        NORD='      '
+        NORD='    '
         IODIV=1
       ELSE IF(IORD.EQ.2) THEN
-        NORD='   LIN'
+        NORD=' LIN'
         IODIV=2
       ELSE IF(IORD.EQ.3) THEN
-        NORD='   QUA'
+        NORD=' QUA'
         IODIV=4
       ENDIF
       NPROC=MAXLEG-MINLEG+1
@@ -265,14 +265,14 @@
           IXSR=IXSR+1
           IXSTN=MOD(ITYPRO(ILEG)/IODIV,2)
           IF(IXSTN.NE.0) THEN
-            WRITE(NAMXS,'(A4,I2.2,A6)') 'SIGS',ILEG-1,NORD
+            WRITE(NAMXS,'(A4,I2.2,2X,A4)') 'SIGS',ILEG-1,NORD
             WRITE(IOUT,6000) NAMXS
             WRITE(IOUT,6010) (XSREC(IG,IXSR),IG=1,NGROUP)
 *----
 *  SCAT(IGTO,IGFROM) REPRESENT SCATTERING CROSS SECTION
 *  FROM GROUP "IGFROM" TO GROUP "IGTO"
 *----
-            WRITE(NAMXS,'(A4,I2.2,A6)') 'SCAT',ILEG-1,NORD
+            WRITE(NAMXS,'(A4,I2.2,2X,A4)') 'SCAT',ILEG-1,NORD
             WRITE(IOUT,6000) NAMXS
             DO IGFROM=1,NGROUP
               WRITE(IOUT,6001) IGFROM

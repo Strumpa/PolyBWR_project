@@ -23,15 +23,15 @@ else
 echo 'use big endian libraries'
 pos=$1/../../libraries/b_endian
 fi
-if [ -f "$pos"/draglibJeff3p1p1SHEM295.gz ]
+if [ -f "$pos"/draglibJeff3p1p1SHEM295_v5p1.gz ]
 then
-echo 'gunzipping draglibJeff3p1p1SHEM295'
+echo 'gunzipping draglibJeff3p1p1SHEM295_v5p1'
 chmod 755 "$pos"
-gunzip "$pos"/draglibJeff3p1p1SHEM295.gz
+gunzip "$pos"/draglibJeff3p1p1SHEM295_v5p1.gz
 fi
-if [ -f "$pos"/draglibJeff3p1p1SHEM295 ]
+if [ -f "$pos"/draglibJeff3p1p1SHEM295_v5p1 ]
 then
-ln -s "$pos"/draglibJeff3p1p1SHEM295 DLIB_295 
+ln -s "$pos"/draglibJeff3p1p1SHEM295_v5p1 DLIB_295 
 fi
 ln -s "$1"/data/UOX_TBH_eighth_1level_proc/UOX_TBH.dat .
 ls -l

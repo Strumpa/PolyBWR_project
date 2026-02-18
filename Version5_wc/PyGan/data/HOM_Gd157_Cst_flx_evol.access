@@ -17,12 +17,10 @@ if [ "$MACH" = "Linux" -o "$MACH" = "OSF1" -o "$MACH" = "Cygwin" -o "$MACH" = "S
 "$MACH" = "Darwin i386" -o "$MACH" = "Darwin x86_64" -o "$MACH" = "Darwin_arm64" ]
 then 
 echo 'use little endian libraries'
-pos=$1/../../libraries/l_endian
-pos2=$1/../../../libraries/l_endian
+pos=$1/../../../libraries/l_endian
 else
 echo 'use big endian libraries'
-pos=$1/../../libraries/b_endian
-pos2=$1/../../../libraries/l_endian
+pos=$1/../../../libraries/b_endian
 fi
 if [ -f "$pos"/draglibJeff3p1p1SHEM295.gz ]
 then
@@ -33,6 +31,6 @@ fi
 if [ -f "$pos"/draglibJeff3p1p1SHEM295 ]
 then
 ln -s "$pos"/draglibJeff3p1p1SHEM295 J311_295
-ln -s "$pos2"/newGen_draglibJeff3p1p1SHEM295 newJ311_295
+ln -s "$pos"/newGen_draglibJeff3p1p1SHEM295 newJ311_295
 echo "HOM_Gd157_Cst_flx_evol.access script terminated"
 fi
