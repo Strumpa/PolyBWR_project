@@ -16,28 +16,28 @@ def main(repos, rev):
   if message[11:] != ': Issue-tracking commit' and message[11:] != ':':
     # Recover the existing card-index
     fileName = message[:11]
-    if os.path.isdir('/tmp/post-issues'):
-      os.system("chmod -R 777 /tmp/post-issues/")
-      os.system("rm -r /tmp/post-issues/")
-    os.system("mkdir /tmp/post-issues/")
+    scratch_dir = '/tmp/post-issues/'
+    if os.path.isdir(scratch_dir):
+      os.system("chmod -R 777 scratch_dir")
+      os.system("rm -r scratch_dir")
+    os.system("mkdir scratch_dir")
+    os.system("svn checkout file://" + repos + "/issues/ " + scratch_dir)
     isThere = False
     revmax = int(os.popen("svnlook youngest " + repos).readline().strip('\n'))
     for k in range(revmax):
       if os.popen("svnlook log -r " + str(k+1) + " " + repos).readline().strip('\n') == fileName:
         isThere = True
         break
-    transaction = '/tmp/post-issues/' + fileName
+    transaction = scratch_dir + "/" + fileName
     sys.stderr.write ("issue card exists=" + str(isThere) + "\n")
     sys.stderr.write ("transaction file=" + transaction + "\n")
-    if isThere:
-      # Recover the existing card-index and open it
-      os.system("svn checkout file://" + repos + "/issues/" + fileName + " /tmp/post-issues/")
-    else:
+    if not isThere:
       # Create a new card-index
       f = open(transaction, 'w')
-      f.write('Card-index: '+fileName+'\n')
+      f.write('Card-index: '+ fileName + '\n')
       f.write('---------------------------------------------------------\n')
       f.close()
+      os.system("svn add " + transaction)
     os.system("svnlook info -r " + rev + " " + repos + " >> " + transaction)
     os.system("svnlook changed -r " + rev + " " + repos + " >> " + transaction)
     f = open(transaction, 'a')
@@ -46,6 +46,7 @@ def main(repos, rev):
     #committing the issue-tracking card-index to the repository
     os.system("svn commit -m 'Issue-tracking commit' " + transaction)
     #os.system("rm -r -f /tmp/post-issues/")
+  sys.exit(0)
 
 if __name__ == '__main__':
   if len(sys.argv) < 3:

@@ -10,8 +10,7 @@ import os, sys
 def main(repos, txn):
   # Recover the transaction data:
   sys.stderr.write("pre-commit: repos=" + repos + "\n")
-  os.system("svnlook info -t " + txn + " " + repos + " > ./transaction")
-  os.system("svnlook changed -t " + txn + " " + repos + " >> ./transaction")
+  sys.stderr.write("pre-commit: txn=" + txn + "\n")
   message = os.popen("svnlook log -t " + txn + " " + repos).readline().strip('\n')
   #
   # Validate the commit message:
