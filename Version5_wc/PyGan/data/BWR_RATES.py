@@ -357,10 +357,18 @@ def analyze_computational_schemes():
                 plot_U238_abs_rates(energy_mesh, D5_abs_U238, S2_abs_U238, name_case, CPO_name, calculation_opt = f"{computational_scheme}_{geometry_type}_{ssh_method}_{ssh_sol}_{correlation_option}", evaluation=evaluation)
     
                 delta_fiss_over_abs_therm = fiss_over_abs_rates_D5[0] - fiss_over_abs_S2[0]
+                print("thermal fiss/abs rates comparison :")
+                print(f"fiss_over_abs_rates_D5[0] = {fiss_over_abs_rates_D5[0]}")
+                print(f"fiss_over_abs_S2[0] = {fiss_over_abs_S2[0]}")
+                print(f"delta_fiss_over_abs_therm = {delta_fiss_over_abs_therm}")
                 delta_fiss_over_abs_fast = fiss_over_abs_rates_D5[1] - fiss_over_abs_S2[1]
+                print("fast fiss/abs rates comparison :")
+                print(f"fiss_over_abs_rates_D5[1] = {fiss_over_abs_rates_D5[1]}")
+                print(f"fiss_over_abs_S2[1] = {fiss_over_abs_S2[1]}")
+                print(f"delta_fiss_over_abs_fast = {delta_fiss_over_abs_fast}")
                 delta_rel_fiss_over_abs_therm = [(fiss_over_abs_rates_D5[0][i] - fiss_over_abs_S2[0][i])*100 / fiss_over_abs_S2[0][i] if fiss_over_abs_S2[0][i]!=0 else 0.0 for i in range(len(fiss_over_abs_S2[0]))]
                 delta_rel_fiss_over_abs_fast = [(fiss_over_abs_rates_D5[1][i] - fiss_over_abs_S2[1][i])*100 / fiss_over_abs_S2[1][i] if fiss_over_abs_S2[1][i]!=0 else 0.0 for i in range(len(fiss_over_abs_S2[1]))]
-                plot_pinwise_errors_BWR_assembly(np.array([delta_rel_fiss_over_abs_therm,delta_rel_fiss_over_abs_fast]), name_case, CPO_name, calculation_opt = f"{computational_scheme}_{geometry_type}_{ssh_method}_{ssh_sol}_{correlation_option}", fig_name="Fiss_over_abs_diff", evaluation=evaluation)
+                plot_pinwise_errors_BWR_assembly(np.array([delta_fiss_over_abs_therm,delta_fiss_over_abs_fast]), name_case, CPO_name, calculation_opt = f"{computational_scheme}_{geometry_type}_{ssh_method}_{ssh_sol}_{correlation_option}", fig_name="Fiss_over_abs_diff", evaluation=evaluation)
     
     print(deltas)
     

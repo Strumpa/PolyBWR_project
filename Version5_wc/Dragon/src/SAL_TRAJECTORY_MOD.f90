@@ -177,7 +177,7 @@ CONTAINS
     LNEW=0
     !*    compute crossed element
     DO I=1,NPERIM
-       IF(DELX<=DIST_AXIS(I)) THEN
+       IF(DELX<=DIST_AXIS(I)+1.0E-6) THEN
           LNEW=PERIM(I)
           EXIT
        ENDIF

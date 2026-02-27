@@ -7,8 +7,7 @@
 *-----------------------------------------------------------------------
 *
 *Purpose:
-* Reads the geometry and check if the geometry 
-* is acceptable for EXCELL.
+* Reads the geometry and check if the geometry is acceptable for EXCELL.
 *
 *Copyright:
 * Copyright (C) 1989 Ecole Polytechnique de Montreal

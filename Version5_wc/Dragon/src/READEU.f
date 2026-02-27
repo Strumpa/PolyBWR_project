@@ -202,10 +202,16 @@
             DO 36 IKK=1,NMCEL
             IF(-NBREG(IKK).LT.0) CALL XABORT('READEU: GENERATING CELL '
      1      //'EXPECTED.')
+            CALL LCMLEN(IPGEOM,CELL(-NBREG(IKK)),ILEN,ITYLCM)
+            IF(ILEN.EQ.0) THEN
+              WRITE(HSMG,'(21HREADEU: MISSING CELL ,A,12H DEFINITION.)')
+     1        TRIM(CELL(-NBREG(IKK)))
+              CALL XABORT(HSMG)
+            ENDIF
             IGEN(INUM(IKK))=-NBREG(IKK)
             NGEN=MAX(NGEN,-NBREG(IKK))
             NMERGE=MAX(NMERGE,INUM(IKK))
-            DO 35 JKK=1,NMCEL
+            DO 35 JKK=IKK+1,NMCEL
             IF(INUM(IKK).EQ.INUM(JKK)) THEN
               IF(NBREG(IKK).NE.NBREG(JKK)) THEN
                 WRITE(HSMG,'(38HREADEU: TWO CELLS WITH THE SAME MERGED,
@@ -216,8 +222,12 @@
             ENDIF
    35       CONTINUE
    36       CONTINUE
-            IF(NGEN.GT.ISTATE(9)) CALL XABORT('READEU: INVALID NUMBER'
-     1      //' OF SUB GEOMETRIES.')
+            IIII=0
+            IF(NGEN.GT.ISTATE(9)) THEN
+              WRITE(HSMG,'(34H READEU: NUMBER OF SUB GEOMETRIES=,I9,
+     1        11H; EXPECTED=,I9,1H.)') NGEN,ISTATE(9)
+              CALL XABORT(HSMG)
+            ENDIF
             DO 70 IKG=1,NGEN
             TEXT12=CELL(IKG)
             CALL LCMLEN(IPGEOM,TEXT12,ILEN,ITYLCM)

@@ -56,6 +56,9 @@
       IF( NR.LT.0 ) CALL XABORT('XL3SIG: # OF REGIONS  IS < 0')
 *
       DO 10 IUN= NS, NR
+      IF( IUN.LT.0 )THEN
+         IF(-MATALB(IUN).GT.6) CALL XABORT('XL3SIG: NBCDA>6.')
+      ENDIF
       DO 20 JG= 1, NGRP
          IF(NPSYS(JG).EQ.0) GO TO 20
          IF( IUN.LT.0 )THEN

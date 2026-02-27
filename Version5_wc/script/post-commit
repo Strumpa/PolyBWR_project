@@ -18,17 +18,12 @@ def main(repos, rev):
     fileName = message[:11]
     scratch_dir = '/tmp/post-issues/'
     if os.path.isdir(scratch_dir):
-      os.system("chmod -R 777 scratch_dir")
-      os.system("rm -r scratch_dir")
-    os.system("mkdir scratch_dir")
+      os.system("chmod -R 777 " + scratch_dir)
+      os.system("rm -r " + scratch_dir)
+    os.system("mkdir " + scratch_dir)
     os.system("svn checkout file://" + repos + "/issues/ " + scratch_dir)
-    isThere = False
-    revmax = int(os.popen("svnlook youngest " + repos).readline().strip('\n'))
-    for k in range(revmax):
-      if os.popen("svnlook log -r " + str(k+1) + " " + repos).readline().strip('\n') == fileName:
-        isThere = True
-        break
-    transaction = scratch_dir + "/" + fileName
+    isThere = os.path.exists(scratch_dir + "/" + fileName)
+    transaction = scratch_dir + fileName
     sys.stderr.write ("issue card exists=" + str(isThere) + "\n")
     sys.stderr.write ("transaction file=" + transaction + "\n")
     if not isThere:
@@ -40,12 +35,13 @@ def main(repos, rev):
       os.system("svn add " + transaction)
     os.system("svnlook info -r " + rev + " " + repos + " >> " + transaction)
     os.system("svnlook changed -r " + rev + " " + repos + " >> " + transaction)
+    os.system("echo subversion revision=" + rev + " >> " + transaction)
     f = open(transaction, 'a')
     f.write('---------------------------------------------------------\n')
     f.close()
     #committing the issue-tracking card-index to the repository
-    os.system("svn commit -m 'Issue-tracking commit' " + transaction)
-    #os.system("rm -r -f /tmp/post-issues/")
+    os.system("svn commit -m '" + fileName + ": Issue-tracking commit' " + transaction)
+    os.system("rm -r -f /tmp/post-issues/")
   sys.exit(0)
 
 if __name__ == '__main__':

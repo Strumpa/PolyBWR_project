@@ -4,8 +4,8 @@
 *-----------------------------------------------------------------------
 *
 *Purpose:
-* To analyse a 3D prismatic geometry from a general 
-* 3D geometry analysis.
+* To analyse a 3D prismatic geometry from a general 3D geometry
+* analysis.
 *
 *Copyright:
 * Copyright (C) 2006 Ecole Polytechnique de Montreal
@@ -39,7 +39,7 @@
      2 MAXPIN,MAXMSP,MAXRSP,MXGSUR,MXGREG,NUNK,IDIR,JJ,NUCELZ,NZP,
      3 N2REG,N2SUR,N2CEL,N2PIN,I,K,NUNK2,NFSURO,ISUR,NUNKO,ITEMP,
      4 ILON,ITYLCM
-      REAL RSTATT(NSTATE),ALBEDO(6)
+      REAL RSTATT(NSTATE),ALBEDO(NBCDA)
       DOUBLE PRECISION DZ1,DZ2
       CHARACTER NAMASG*9,NAMREC*12
       LOGICAL HALFS(2),SSYM(2),INVER

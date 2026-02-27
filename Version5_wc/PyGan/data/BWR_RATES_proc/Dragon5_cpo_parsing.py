@@ -331,7 +331,7 @@ def parse_DRAGON_SCHEME(name_case, name_compo, composition_option, evaluation, s
                 vol = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESVOL'][iso]
                 NFTOT = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NFTOT']
                 print(f"mix = {mix+1}, NWT0 = {NWT0}, N = {N}, vol = {vol}, NFTOT = {NFTOT}")
-                # absorption = sigma_g - sigma_sigs_g 
+                # absorption = sigma_g - sigma_sigs_g for multigroup keff estimate ?
                 # = NTOT0 - SIGSS0
                 TOT = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NTOT0']
                 print(f"mix = {mix+1}, TOT = {TOT}")
@@ -340,6 +340,34 @@ def parse_DRAGON_SCHEME(name_case, name_compo, composition_option, evaluation, s
                 ABS = np.array(TOT) - np.array(SIGS0)
                 print(f"mix = {mix+1}, ABS = {ABS}")
                 PROD = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NUSIGF']
+                ### Over ride ABS calculation with sum over capture reactions for comparison with Serpent2
+                try:
+                    NP = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NP']
+                except lcm.PyLcmError:
+                    NP = np.zeros(len(NWT0))
+                try: 
+                    NG = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NG']
+                except lcm.PyLcmError:
+                    NG = np.zeros(len(NWT0))
+                try: 
+                    ND = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['ND']
+                except lcm.PyLcmError:
+                    ND = np.zeros(len(NWT0))
+                try: 
+                    NT = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NT']
+                except lcm.PyLcmError:
+                    NT = np.zeros(len(NWT0))
+                try: 
+                    NA = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NA']
+                except lcm.PyLcmError:
+                    NA = np.zeros(len(NWT0))
+                try: 
+                    N2A = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['N2A']
+                except lcm.PyLcmError:
+                    N2A = np.zeros(len(NWT0))
+                #NNP = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NNP']
+                MT101_approx = NP+NG+ND+NT+NA+N2A
+                
                  
                 if mix+1 in unique_mixes_on_diag:
                     sym_factor = 2
@@ -351,13 +379,42 @@ def parse_DRAGON_SCHEME(name_case, name_compo, composition_option, evaluation, s
                 
                 fiss_over_abs[0][mix] += (np.array(NFTOT[1])/np.array(ABS[1]))# *N*vol
                 fiss_over_abs[1][mix] += (np.array(NFTOT[0])/np.array(ABS[0])) # *N*vol
-            if isotope == "U238":
-                # Recover 295g absorption rates for U238
-                #FLUX_295groups = np.array(pyCOMPO['U238_295']['MIXTURES'][0]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NWT0'])
-                U238_TOT = pyCOMPO['U238_295']['MIXTURES'][0]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NTOT0']
-                U238_SIGS0 = pyCOMPO['U238_295']['MIXTURES'][0]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['SIGS00']
-                U238_ABS = (np.array(U238_TOT) - np.array(U238_SIGS0))*np.array(FLUX_295groups)
-                #U238_ABS = np.zeros(295)
+                fiss_over_abs[0][mix] += (np.array(NFTOT[1])/np.array(MT101_approx[1])) # Using approximation of MT101 from Dragon available reactions
+                fiss_over_abs[1][mix] += (np.array(NFTOT[0])/np.array(MT101_approx[0])) # Using approximation of MT101 from Dragon available reactions
+            # Recover 295g absorption rates for U238
+            FLUX_295groups = np.array(pyCOMPO['U238_295']['MIXTURES'][0]['CALCULATIONS'][bu]['ISOTOPESLIST'][0]['NWT0'])
+            U238_TOT = pyCOMPO['U238_295']['MIXTURES'][0]['CALCULATIONS'][bu]['ISOTOPESLIST'][0]['NTOT0']
+            U238_SIGS0 = pyCOMPO['U238_295']['MIXTURES'][0]['CALCULATIONS'][bu]['ISOTOPESLIST'][0]['SIGS00']
+            U238_ABS = (np.array(U238_TOT) - np.array(U238_SIGS0))*np.array(FLUX_295groups)
+            # Do the same here for MT101 approximation over 295 groups
+            try:
+                NP_295 = np.array(pyCOMPO['U238_295']['MIXTURES'][0]['CALCULATIONS'][bu]['ISOTOPESLIST'][0]['NP'])
+            except lcm.PyLcmError:
+                NP_295 = np.zeros(len(FLUX_295groups))
+            try:
+                NG_295 = np.array(pyCOMPO['U238_295']['MIXTURES'][0]['CALCULATIONS'][bu]['ISOTOPESLIST'][0]['NG'])
+            except lcm.PyLcmError:
+                NG_295 = np.zeros(len(FLUX_295groups))
+            try:
+                ND_295 = np.array(pyCOMPO['U238_295']['MIXTURES'][0]['CALCULATIONS'][bu]['ISOTOPESLIST'][0]['ND'])
+            except lcm.PyLcmError:
+                ND_295 = np.zeros(len(FLUX_295groups))
+            try:
+                NT_295 = np.array(pyCOMPO['U238_295']['MIXTURES'][0]['CALCULATIONS'][bu]['ISOTOPESLIST'][0]['NT'])
+            except lcm.PyLcmError:
+                NT_295 = np.zeros(len(FLUX_295groups))
+            try:
+                NA_295 = np.array(pyCOMPO['U238_295']['MIXTURES'][0]['CALCULATIONS'][bu]['ISOTOPESLIST'][0]['NA'])
+            except lcm.PyLcmError:
+                NA_295 = np.zeros(len(FLUX_295groups))
+            try:
+                N2A_295 = np.array(pyCOMPO['U238_295']['MIXTURES'][0]['CALCULATIONS'][bu]['ISOTOPESLIST'][0]['N2A'])
+            except lcm.PyLcmError:
+                N2A_295 = np.zeros(len(FLUX_295groups))
+            U238_MT101_approx = NP_295 + NG_295 + ND_295 + NT_295 + NA_295 + N2A_295
+                                #np.array(pyCOMPO['U238_295']['MIXTURES'][0]['CALCULATIONS'][bu]['ISOTOPESLIST'][0]['NNP']))
+            U238_ABS = np.array(U238_MT101_approx)*np.array(FLUX_295groups)
+            #U238_ABS = np.zeros(295)
 
     FLUX_295groups = np.array(pyCOMPO['EDIHOM_295']['MIXTURES'][0]['CALCULATIONS'][bu]['ISOTOPESLIST'][0]['NWT0'])
     energy_mesh = np.array(pyCOMPO['EDIHOM_295']['MIXTURES'][0]['CALCULATIONS'][0]['ENERGY'])

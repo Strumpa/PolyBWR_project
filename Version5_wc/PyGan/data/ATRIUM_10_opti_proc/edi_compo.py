@@ -237,7 +237,7 @@ def initialize_cpo(mix_numbering_option, list_isos):
         "       COMM 'Reaction rates - Homogenized, 295g' ENDC\n"
         f"      ISOT {len(list_isos)} {iso_formatted}\n"
         "   INIT\n"
-        "   STEP UP 'U235_295'\n"
+        "   STEP UP 'U238_295'\n"
         "       COMM 'U238 rates - Homogenized over all fuel cells, 295g' ENDC\n"
         f"      ISOT 1 U238\n"
         "   INIT\n"

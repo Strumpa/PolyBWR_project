@@ -21,8 +21,8 @@
 *Author(s): R. Roy
 *
 *Parameters: input
-* IPTRK   pointer to the tracking (l_track).            
-* IPGEOM  pointer to the geometry (l_geom).             
+* IPTRK   pointer to the tracking (L_TRACK).            
+* IPGEOM  pointer to the geometry (L_GEOM).             
 * GEONAM  geometry name.                                
 * IFTEMP  unit number allocated to temporary file.      
 * IPRT    geometry print level.                         
@@ -53,16 +53,17 @@
 *
       USE             GANLIB
       IMPLICIT        NONE
+*
+      INTEGER         NSTATE, IOUT, NBCDA
+      PARAMETER     ( NSTATE=40, IOUT=6, NBCDA=6)
+*
       TYPE(C_PTR)     IPTRK ,IPGEOM
       INTEGER         IDISP ,IFTEMP,IPRT  ,NDIM  ,ITOPT ,NV    ,NS    ,
      >                NANGL ,ISYMM ,MXSUB ,MXSEG ,INSB  ,IZ    ,NPRISM
       LOGICAL         LPRISM
       REAL            DENUSR,RCUTOF
       CHARACTER       GEONAM*12, TITREC*72
-      INTEGER         ICODE(6)
-*
-      INTEGER         NSTATE, IOUT
-      PARAMETER     ( NSTATE=40, IOUT=6)
+      INTEGER         ICODE(NBCDA)
 *----
 *  ALLOCATABLE ARRAYS
 *----
@@ -78,11 +79,10 @@
       INTEGER         LTRK  ,NANGLE,SUBMAX,LINMAX
       INTEGER         NSUR  ,NVOL  ,NTOTCL,MAXR  ,NUNK  ,NEXTGE
       INTEGER         NTX   ,NTY   ,NTZ   ,NTR   ,ICL   ,NC    ,
-     >                NALBG ,JJ    ,INDLEC,ITYLCM,ILENGT,INDATA,
-     >                NCOR       
-      INTEGER         NCODE(6), LCLSYM(3), ISTATE(NSTATE)
+     >                JJ    ,INDLEC,ITYLCM,ILENGT,INDATA,NCOR       
+      INTEGER         NCODE(NBCDA), LCLSYM(3), ISTATE(NSTATE)
       LOGICAL         SWZERO
-      REAL            ALBEDO(6), EXTKOP(NSTATE), CUTOFX, REDATA
+      REAL            ALBEDO(NBCDA), EXTKOP(NSTATE), CUTOFX, REDATA
       DOUBLE PRECISION DBLINP
       CHARACTER       CTISO*8, CTSPC*8,  CCORN*8, CSYMM*8, CMEDI*8,
      >                CHALT*8, CBLAN*8, TEDATA*8, CTRK*4, COMENT*80
@@ -197,6 +197,7 @@
       ISTATE(9)=LTRK-1
       ISTATE(11)=NANGLE
       ISTATE(12)=ISYMM
+      ISTATE(30)=6
       CALL LCMPUT(IPTRK,'STATE-VECTOR',NSTATE,1,ISTATE)
       EXTKOP(1)=CUTOFX
       EXTKOP(2)=DENUSR
@@ -452,7 +453,6 @@
             LINMAX= 2*NANGL*(2*NVOL + 16)
          ENDIF
          CTRK  = '$TRK'
-         NALBG = 6
          WRITE(IFTEMP) CTRK,5,0,0
          COMENT='CREATOR  : DRAGON'
          WRITE(IFTEMP) COMENT
@@ -464,11 +464,11 @@
          WRITE(IFTEMP) COMENT
          COMENT=TITREC
          WRITE(IFTEMP) COMENT
-         WRITE(IFTEMP) NDIM,ITOPT,NV,NS,NALBG,NCOR,NANGL,SUBMAX,LINMAX
+         WRITE(IFTEMP) NDIM,ITOPT,NV,NS,NBCDA,NCOR,NANGL,SUBMAX,LINMAX
          WRITE(IFTEMP) (VOLSUR(JJ),JJ=1,NUNK)
          WRITE(IFTEMP) (MATALB(JJ),JJ=1,NUNK)
-         WRITE(IFTEMP) ( ICODE(JJ),JJ=1,NALBG)
-         WRITE(IFTEMP) (ALBEDO(JJ),JJ=1,NALBG)
+         WRITE(IFTEMP) ( ICODE(JJ),JJ=1,NBCDA)
+         WRITE(IFTEMP) (ALBEDO(JJ),JJ=1,NBCDA)
          ALLOCATE(NUMERO(LINMAX))
          ALLOCATE(LENGHT(LINMAX),ANGLES(3*MXANGL),DENSTY(MXANGL),
      >            DDENWT(MXANGL))

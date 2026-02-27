@@ -1,7 +1,7 @@
 *DECK FLUBAL
-      SUBROUTINE FLUBAL(IPMACR,NGRP,ILEAK,NMAT,NREG,ICREB,NUNKNO,
-     1 NANIS,MATCOD,VOL,KEYFLX,XSTRC,XSDIA,XCSOU,IGDEB,B2,NMERG,
-     2 IMERG,DIFHET,KEYCUR,MATALB,ALBEDO,SURFAC,FUNKNO)
+      SUBROUTINE FLUBAL(IPMACR,NGRP,ILEAK,NBCDA,NMAT,NREG,ICREB,NUNKNO,
+     1 NANIS,MATCOD,VOL,KEYFLX,XSTRC,XSDIA,XCSOU,IGDEB,B2,NMERG,IMERG,
+     2 DIFHET,KEYCUR,MATALB,ALBEDO,SURFAC,FUNKNO)
 *
 *-----------------------------------------------------------------------
 *
@@ -25,6 +25,7 @@
 *         =5 Todorova-type isotropic streaming model;
 *         =6 Ecco-type isotropic streaming model;
 *         >6 Tibere anisotropic streaming model.
+* NBCDA   number of perimeters.
 * NMAT    number of mixtures.
 * NREG    number of regions.
 * ICREB   number of outer surfaces where outgoing leakage occurs. If
@@ -59,12 +60,12 @@
 *  SUBROUTINE ARGUMENTS
 *----
       TYPE(C_PTR) IPMACR
-      INTEGER    NGRP,ILEAK,NMAT,NREG,ICREB,NUNKNO,NANIS,MATCOD(NREG),
-     >           KEYFLX(NREG),IGDEB,NMERG,IMERG(NMAT),KEYCUR(ICREB),
-     >           MATALB(ICREB)
+      INTEGER    NGRP,ILEAK,NBCDA,NMAT,NREG,ICREB,NUNKNO,NANIS,
+     >           MATCOD(NREG),KEYFLX(NREG),IGDEB,NMERG,IMERG(NMAT),
+     >           KEYCUR(ICREB),MATALB(ICREB)
       REAL       VOL(NREG),FUNKNO(NUNKNO,NGRP),XSTRC(0:NMAT,NGRP),
      >           XSDIA(0:NMAT,0:NANIS,NGRP),B2(4),DIFHET(NMERG,NGRP),
-     >           ALBEDO(6),SURFAC(ICREB)
+     >           ALBEDO(NBCDA),SURFAC(ICREB)
       DOUBLE PRECISION XCSOU(NGRP)
 *----
 *  LOCAL VARIABLES
@@ -111,9 +112,11 @@
 * SUM OVER SURFACES
 *----
         DO 35 ISUR=1,ICREB
+           IS=-MATALB(ISUR)
+           IF(IS.GT.NBCDA) CALL XABORT('FLUBAL: NBCDA OVERFLOW.')
            IND=KEYCUR(ISUR)
            REBAL(IOFF,IOFF)=REBAL(IOFF,IOFF)+
-     >     (1.0-ALBEDO(-MATALB(ISUR)))*FUNKNO(IND,IGR)*SURFAC(ISUR)
+     >     (1.0-ALBEDO(IS))*FUNKNO(IND,IGR)*SURFAC(ISUR)
  35     CONTINUE
 *----
 *  SUM OVER REGIONS
