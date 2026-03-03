@@ -18,7 +18,7 @@ MODULE EDI: COMPO: DELETE: END: ;
 * --------------------------------
 *    LOCAL VARIABLES DEFINITION
 * --------------------------------
-LINKED_LIST EDIRATES ;
+LINKED_LIST EDIRATES COMPO ;
 * --------------------------------
 *    COMPO FILE NAME FOR EXPORT
 * --------------------------------

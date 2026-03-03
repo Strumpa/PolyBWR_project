@@ -3,25 +3,22 @@
 * + glow with native DRAGON geometry and material numbering.
 
 * ssh : 295 groups IC selfshielding with RSE method, simple geometry
-* 1st level : 295 groups IC calculation on geometry with windmills in coolant
-* 2nd level : 26 groups MOC calculaion on finely meshed geometry with windmills in coolant, 
-* using 1st level cross sections condensed to 26 groups.
+* 1st level : 295 groups MOC calculaion on finely meshed geometry with windmills in coolant, 
 
 MODULE LIB: G2S: SALT: MCCGT: USS: ASM: FLU: EDI: SPH: GREP: DELETE: END: ;
 PROCEDURE assertS MIXGE14 EDIRGE14 ;
-LINKED_LIST  LIBRARY LIBRARY2 TRKSSH TRKIC TRKMOC SYS FLUX LIB26G EDITION ;
+LINKED_LIST  LIBRARY LIBRARY2 TRKSSH TRKMOC SYS FLUX ;
 
-SEQ_BINARY TRKFILSSH TRKFILIC TRKFILMOC ;
+SEQ_BINARY TRKFILSSH TRKFILMOC ;
 REAL keffIC keffMOC ;
 
 STRING exec := "True" ;
-
+INTEGER o_anis := 6 ;
 ***********************************************
 * TDT files from glow : imports
 ***********************************************
 
 SEQ_ASCII tdt_iso_ssh :: FILE 'GE14_DOM_SSH_IC_TISO_MACRO.dat' ;
-SEQ_ASCII tdt_iso_ic :: FILE 'GE14_DOM_FLUXL1_IC_TISO_MACRO.dat' ;
 SEQ_ASCII tdt_spc_moc :: FILE 'GE14_DOM_FLUXL2_MOC_TSPC.dat' ;
 
 *******************************************************
@@ -29,7 +26,6 @@ SEQ_ASCII tdt_spc_moc :: FILE 'GE14_DOM_FLUXL2_MOC_TSPC.dat' ;
 *******************************************************
 
 SEQ_ASCII ssh.ps :: FILE 'GE14_DOM_TISO_ssh_IC_glow.ps' ;
-SEQ_ASCII IC_tiso.ps :: FILE 'GE14_DOM_TISO_IC_glow.ps' ;
 SEQ_ASCII moc_tspc.ps :: FILE 'GE14_DOM_TSPC_moc_glow.ps' ;
 
 
@@ -38,7 +34,6 @@ SEQ_ASCII moc_tspc.ps :: FILE 'GE14_DOM_TSPC_moc_glow.ps' ;
 **********************************************************
 
 ssh.ps := G2S: tdt_iso_ssh :: ;
-IC_tiso.ps := G2S: tdt_iso_ic :: ;
 moc_tspc.ps := G2S: tdt_spc_moc :: ;
 
 
@@ -55,14 +50,6 @@ TRKSSH TRKFILSSH := SALT: tdt_iso_ssh ::
     IC EPSJ 1.0E-5
 ;
 
-* 1st level geometry with windmills in coolant
-TRKIC TRKFILIC := SALT: tdt_iso_ic ::
-	EDIT 1
-	TITLE 'IC GE14 DOM CASE - 1st level - glow'
-	BATCH 200
-	TISO EQW 12 45.0
-	IC EPSJ 1.0E-5
-;
 
 * 2nd level geometry with windmills in coolant
 TRKMOC TRKFILMOC := SALT: tdt_spc_moc ::
@@ -70,15 +57,15 @@ TRKMOC TRKFILMOC := SALT: tdt_spc_moc ::
     ALLG LONG
     BATCH 2000
     GAUS
-    ANIS 4
-    TSPC EQW2 24 40.0 REND
+    ANIS <<o_anis>>
+    TSPC EQW2 30 115.0 REND
     NOIC
 ;
 
 * MOC tracking
 TRKMOC := MCCGT: TRKMOC TRKFILMOC ::
     EDIT 2
-    GAUS 4 AAC 100 ILU0 
+    GAUS <<o_anis>> AAC 100 ILU0 
     HDD 0.0 SC KRYL 10
 ;
 
@@ -87,7 +74,7 @@ IF exec 'True' = THEN
 * LIBRARY creation 
 **********************************************
 
-LIBRARY := MIXGE14 :: 'endfb8r1_295' 'RSE' 4 'NONE' 900.0 600.0 600.0 600.0 600.0 600.0 ;
+LIBRARY := MIXGE14 :: 'endfb8r1_295' 'RSE' <<o_anis>> 'NONE' 900.0 600.0 600.0 600.0 600.0 600.0 ;
 
 ******************************************************************
 * USS: call to create the self-shielded cross sections library
@@ -102,7 +89,7 @@ TRKSSH TRKFILSSH := DELETE: TRKSSH TRKFILSSH ;
 *****************************************************************************
 * ASM: call to create system to be solved at the first level flux calculaton
 *****************************************************************************
-SYS := ASM: LIBRARY2 TRKIC TRKFILIC ::
+SYS := ASM: LIBRARY2 TRKMOC TRKFILMOC ::
 	EDIT 1 ARM
 	;
 	
@@ -110,42 +97,12 @@ SYS := ASM: LIBRARY2 TRKIC TRKFILIC ::
 * FLU: call to solve the system at the first level flux calculation
 *******************************************************************
 
-FLUX := FLU:  SYS LIBRARY2 TRKIC :: EDIT 4 TYPE K ;
-GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffIC<< ;
-ECHO "GE14 DOM assembly with glow @level 1, keff=" keffIC ;
-
-***************************************************************************
-* CONDENSATION OF 1st LEVEL FLUX on 295 energy groups to 26 energy groups
-***************************************************************************
-
-EDITION := EDI: FLUX LIBRARY2 TRKIC ::
-    EDIT 0
-    MICR ALL
-    MERG MIX
-    COND  10  14  18  26  33  40  49  56  66 84 150 210 241 244 247
-    252 255 258 261 268 273 277 281 286 291
-    SAVE ON COND26 
-;
-
-LIB26G := EDITION :: STEP UP COND26 ;
-
-LIB26G := SPH: LIB26G TRKIC TRKFILIC :: EDIT 1 GRMAX 19 ;
-
-FLUX SYS EDITION TRKIC TRKFILIC := DELETE: FLUX SYS EDITION TRKIC TRKFILIC ;
-
-***************************************
-* 	2nd LEVEL FLUX CALCULATION
-***************************************
-SYS := ASM: LIB26G TRKMOC TRKFILMOC :: ARM EDIT 1 ;
-
-FLUX := FLU: LIB26G SYS TRKMOC TRKFILMOC ::
-      EDIT 4 TYPE K 
-    ;
-
+FLUX := FLU:  SYS LIBRARY2 TRKMOC TRKFILMOC :: EDIT 4 TYPE K ;
 GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffMOC<< ;
-ECHO "GE14 DOM assembly with glow @level 2, keff=" keffMOC ;
+ECHO "GE14 DOM assembly with glow (1L_MOC), keff=" keffMOC ;
 
-EDIRGE14 FLUX LIB26G TRKMOC :: 'CPO_GE14_DOM_2L_IC_MOC_glow' ;
+
+EDIRGE14 FLUX LIBRARY2 TRKMOC :: '_CPO_GE14_DOM_00_IC_1L_MOC_ANIS6_glow_Zr_Fe_Gd152' ;
 ENDIF ;
 
 END: ;

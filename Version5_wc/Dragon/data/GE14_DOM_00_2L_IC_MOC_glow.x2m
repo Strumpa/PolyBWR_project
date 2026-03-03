@@ -1,4 +1,4 @@
-* Cle2000 procedure to treat the ATRIUM10 fuel bundle from glow defined geometry.
+* Cle2000 procedure to treat the GE14 DOM fuel bundle from glow defined geometry.
 * 2-level calculation scheme to ensure consistency between starterDD 
 * + glow with native DRAGON geometry and material numbering.
 
@@ -8,28 +8,29 @@
 * using 1st level cross sections condensed to 26 groups.
 
 MODULE LIB: G2S: SALT: MCCGT: USS: ASM: FLU: EDI: SPH: GREP: DELETE: END: ;
-PROCEDURE assertS MIX_AT10 EDIRAT10 ;
+PROCEDURE assertS MIXGE14 EDIRGE14 ;
 LINKED_LIST  LIBRARY LIBRARY2 TRKSSH TRKIC TRKMOC SYS FLUX LIB26G EDITION ;
 
 SEQ_BINARY TRKFILSSH TRKFILIC TRKFILMOC ;
 REAL keffIC keffMOC ;
 
+STRING exec := "True" ;
 
 ***********************************************
 * TDT files from glow : imports
 ***********************************************
 
-SEQ_ASCII tdt_iso_ssh :: FILE 'AT10_DOM_SSH_IC_TISO_MACRO.dat' ;
-SEQ_ASCII tdt_iso_ic :: FILE 'AT10_DOM_FLUXL1_IC_TISO_MACRO.dat' ;
-SEQ_ASCII tdt_spc_moc :: FILE 'AT10_DOM_FLUXL2_MOC_TSPC.dat' ;
+SEQ_ASCII tdt_iso_ssh :: FILE 'GE14_DOM_SSH_IC_TISO_MACRO.dat' ;
+SEQ_ASCII tdt_iso_ic :: FILE 'GE14_DOM_FLUXL1_IC_TISO_MACRO.dat' ;
+SEQ_ASCII tdt_spc_moc :: FILE 'GE14_DOM_FLUXL2_MOC_TSPC.dat' ;
 
 *******************************************************
 * Post script formatted files for plotting with G2S:
 *******************************************************
 
-SEQ_ASCII ssh.ps :: FILE 'AT10_DOM_TISO_ssh_IC_glow.ps' ;
-SEQ_ASCII IC_tiso.ps :: FILE 'AT10_DOM_TISO_IC_glow.ps' ;
-SEQ_ASCII moc_tspc.ps :: FILE 'AT10_DOM_TSPC_moc_glow.ps' ;
+SEQ_ASCII ssh.ps :: FILE 'GE14_DOM_TISO_ssh_IC_glow.ps' ;
+SEQ_ASCII IC_tiso.ps :: FILE 'GE14_DOM_TISO_IC_glow.ps' ;
+SEQ_ASCII moc_tspc.ps :: FILE 'GE14_DOM_TSPC_moc_glow.ps' ;
 
 
 **********************************************************
@@ -48,7 +49,7 @@ moc_tspc.ps := G2S: tdt_spc_moc :: ;
 * Self-shielding geometry
 TRKSSH TRKFILSSH := SALT: tdt_iso_ssh ::
     EDIT 1
-    TITLE 'IC ATRIUM-10 CASE - self-shielding - glow'
+    TITLE 'IC GE14 DOM CASE - self-shielding - glow'
     BATCH 200
     TISO EQW 8 25.0
     IC EPSJ 1.0E-5
@@ -57,7 +58,7 @@ TRKSSH TRKFILSSH := SALT: tdt_iso_ssh ::
 * 1st level geometry with windmills in coolant
 TRKIC TRKFILIC := SALT: tdt_iso_ic ::
 	EDIT 1
-	TITLE 'IC ATRIUM-10 CASE - 1st level - glow'
+	TITLE 'IC GE14 DOM CASE - 1st level - glow'
 	BATCH 200
 	TISO EQW 12 45.0
 	IC EPSJ 1.0E-5
@@ -70,7 +71,7 @@ TRKMOC TRKFILMOC := SALT: tdt_spc_moc ::
     BATCH 2000
     GAUS
     ANIS 4
-    TSPC EQW2 24 50.0 REND
+    TSPC EQW2 24 40.0 REND
     NOIC
 ;
 
@@ -81,11 +82,12 @@ TRKMOC := MCCGT: TRKMOC TRKFILMOC ::
     HDD 0.0 SC KRYL 10
 ;
 
+IF exec 'True' = THEN
 **********************************************
 * LIBRARY creation 
 **********************************************
 
-LIBRARY := MIX_AT10 :: 'endfb8r1_295' 'RSE' 4 'NONE' 750.0 559.0 559.0 559.0 559.0 ;
+LIBRARY := MIXGE14 :: 'endfb8r1_295' 'RSE' 4 'NONE' 900.0 600.0 600.0 600.0 600.0 600.0 ;
 
 ******************************************************************
 * USS: call to create the self-shielded cross sections library
@@ -110,7 +112,7 @@ SYS := ASM: LIBRARY2 TRKIC TRKFILIC ::
 
 FLUX := FLU:  SYS LIBRARY2 TRKIC :: EDIT 4 TYPE K ;
 GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffIC<< ;
-ECHO "ATRIUM10 assembly with glow @level 1, keff=" keffIC ;
+ECHO "GE14 DOM assembly with glow @level 1, keff=" keffIC ;
 
 ***************************************************************************
 * CONDENSATION OF 1st LEVEL FLUX on 295 energy groups to 26 energy groups
@@ -141,9 +143,10 @@ FLUX := FLU: LIB26G SYS TRKMOC TRKFILMOC ::
     ;
 
 GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffMOC<< ;
-ECHO "ATRIUM10 assembly with glow @level 2, keff=" keffMOC ;
+ECHO "GE14 DOM assembly with glow @level 2, keff=" keffMOC ;
 
-EDIRAT10 FLUX LIB26G TRKMOC :: 'CPO_AT10_2L_IC_MOC_glow' ;
+EDIRGE14 FLUX LIB26G TRKMOC :: 'CPO_GE14_DOM_2L_IC_MOC_glow_Zr_Fe_Gd152' ;
+ENDIF ;
 
 END: ;
 QUIT .
