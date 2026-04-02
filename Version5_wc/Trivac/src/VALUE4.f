@@ -1,11 +1,11 @@
 *DECK VALUE4
       SUBROUTINE VALUE4(IELEM,NUN,LX,LY,LZ,X,Y,Z,XXX,YYY,ZZZ,EVECT,ISS,
-     + KFLX,IXLG,IYLG,IZLG,AXYZ)
+     + KFLX,IXLG,IYLG,IZLG,MATXYZ,AXYZ)
 *
 *-----------------------------------------------------------------------
 *
 *Purpose:
-* Interpolate the flux distribution for DUAL method in 3D.
+* Interpolate the flux distribution for DUAL method in 3D Cartesian.
 *
 *Copyright:
 * Copyright (C) 2002 Ecole Polytechnique de Montreal
@@ -43,6 +43,7 @@
 * IZLG    number of interpolated points according to Z.
 *
 *Parameters: output
+* MATXYZ  mixture index assigned to each interpolation point.
 * AXYZ    interpolated fluxes.
 *
 *----------------------------------------------------------------------
@@ -52,7 +53,7 @@
 *  SUBROUTINE ARGUMENTS
 *----
       INTEGER IELEM,NUN,LX,LY,LZ,IXLG,IYLG,IZLG,ISS(LX*LY*LZ),
-     1   KFLX(LX*LY*LZ)
+     1   KFLX(LX*LY*LZ),MATXYZ(IXLG,IYLG,IZLG)
       REAL X(IXLG),Y(IYLG),Z(IZLG),XXX(LX+1),YYY(LY+1),ZZZ(LZ+1),
      1   EVECT(NUN),AXYZ(IXLG,IYLG,IZLG)
 *----
@@ -105,6 +106,7 @@
       CALL XABORT('VALUE4: WRONG INTERPOLATION(3).')
    70 IEL=(KS-1)*LX*LY+(JS-1)*LX+IS
 C
+      MATXYZ(I,J,K)=ISS(IEL)
       IF(ISS(IEL).EQ.0) GO TO 100
       U=(ABSC-0.5*(XXX(IS)+XXX(IS+1)))/(XXX(IS+1)-XXX(IS))
       FLX(1)=COEF(1,1)

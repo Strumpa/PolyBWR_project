@@ -29,7 +29,6 @@ STRING exec_void exec_dop := "FALSE" "FALSE" ;
 
 SEQ_ASCII FIG_SS.ps :: FILE './PIN_AT10_FIG_SS.ps' ;
 SEQ_ASCII FIG_FLX.ps :: FILE './PIN_AT10_FIG_FLX.ps' ;
-SEQ_ASCII _COMPO :: FILE './COMPO_AT10_24UOX' ;
 
 REAL Kinf ;
 REAL Tbeg := 0.0 ;
@@ -64,7 +63,6 @@ ELSEIF track_opt "NXTNXT" = THEN
         LIBRARY2 := Mix_AUTOP3 LIBRARY TRACK_SS TF_EXC_SS :: <<ssh_opt>> <<track_opt>> ;
 ENDIF ;
 
-LIBRARY2 := UTL: LIBRARY2 :: DUMP ;
 
 SYS := ASM: LIBRARY2 TRACK TF_EXC :: ARM EDIT 0 ; 
 
@@ -72,31 +70,6 @@ FLUX := FLU: LIBRARY2 SYS TRACK TF_EXC ::
         EDIT 1 TYPE K B1 SIGS ;
 
 
-COMPO := COMPO: ::
-    EDIT 1
-    STEP UP 'EDI_HOM'
-        MAXCAL 5
-        PARA 'TFuel' VALU REAL
-        PARA 'TCool' VALU REAL
-    INIT
-;
-
-EDIOBJ := EDI: FLUX LIBRARY2 TRACK ::
-        EDIT 1 
-        MERG MIX 
-        1 2 3 4 5 6 7   
-        COND
-        SAVE ON EDI_HOM 
-;
-
-COMPO := COMPO: COMPO EDIOBJ LIBRARY2 ::
-        EDIT 0
-        STEP UP 'EDI_HOM'
-        'TFuel' 900.0
-        'TCool' 559.0
-;
-
-EDIOBJ := DELETE: EDIOBJ ;
 
 GREP: FLUX :: GETVAL 'K-EFFECTIVE  ' 1 1 1 >>Kinf<< ;
 ECHO track_opt " tracking, MOC on AT10 C1: Kinf NOM =" Kinf ;
@@ -148,7 +121,6 @@ IF exec_dop "TRUE" = THEN
     LIBRARY LIBRARY2 SYS FLUX := DELETE: LIBRARY LIBRARY2 SYS FLUX ;
 ENDIF ;
 
-_COMPO := COMPO ;
 
 END: ;
 

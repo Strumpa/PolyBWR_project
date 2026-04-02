@@ -8,6 +8,80 @@ import matplotlib.patches as mpatches
 from matplotlib.collections import PatchCollection
 
 
+def plot_fluxes_U238_rates_perturbation(rates_and_spectra, assembly_ids, scheme, evaluation):
+    """
+    plotter for comparison of fluxes and U238 absorption rates for perturbed cases : reference vs controlled on vanished perturbation cases, for 295 group structure.
+    """
+    
+    ref_id = assembly_ids[0]
+    peturbed_id = assembly_ids[1]
+    a = os.path.exists(f"DRAGON_starterDD_RATES_{ref_id}_{evaluation}/{scheme}")
+    if not a:
+        os.makedirs(f"DRAGON_starterDD_RATES_{ref_id}_{evaluation}/{scheme}")
+
+    ngroups = len(rates_and_spectra[ref_id][scheme]["U238_rates"]["D5"])
+    energy_mesh = rates_and_spectra[ref_id][scheme]["U238_rates"]["energy_mesh"]
+    spectra_ref = rates_and_spectra[ref_id][scheme]["spectra"]
+    spectra_perturbed = rates_and_spectra[peturbed_id][scheme]["spectra"]
+    U238_rates_ref = rates_and_spectra[ref_id][scheme]["U238_rates"]
+    U238_rates_perturbed = rates_and_spectra[peturbed_id][scheme]["U238_rates"]
+    
+    plt.figure(figsize=(12, 6))
+    plt.step(energy_mesh[:-1], spectra_ref["D5"], label=f'{ref_id} DRAGON5 Spectrum', color='blue', linewidth=1, where='post')
+    plt.step(energy_mesh[:-1], spectra_perturbed["D5"], label=f'{peturbed_id} DRAGON5 Spectrum', color='orange', linewidth=1, where='post')
+    plt.xscale('log')
+    plt.yscale('log')
+    plt.xlabel('Energy (eV)')
+    plt.ylabel('Flux (n/cm²/s)')
+    plt.title('Flux Spectrum Comparison')
+    plt.legend()
+    plt.grid()
+    plt.tight_layout()
+    plt.savefig(f"DRAGON_starterDD_RATES_{ref_id}_{evaluation}/{scheme}/flux_spectrum_comparison_D5_{ref_id}_vs_{peturbed_id}.png")
+    
+    plt.figure(figsize=(12, 6))
+    plt.step(energy_mesh[:-1], spectra_ref["S2"][f"{ngroups}g"], label=f'{ref_id} Serpent2 Spectrum', color='blue', linewidth=1, where='post')
+    plt.step(energy_mesh[:-1], spectra_perturbed["S2"][f"{ngroups}g"], label=f'{peturbed_id} Serpent2 Spectrum', color='orange', linewidth=1, where='post')
+    plt.xscale('log')
+    plt.yscale('log')
+    plt.xlabel('Energy (eV)')
+    plt.ylabel('Flux (n/cm²/s)')
+    plt.title('Flux Spectrum Comparison')
+    plt.legend()
+    plt.grid()
+    plt.tight_layout()
+    plt.savefig(f"DRAGON_starterDD_RATES_{ref_id}_{evaluation}/{scheme}/flux_spectrum_comparison_S2_{ref_id}_vs_{peturbed_id}.png")
+    
+    
+    # same for U238 absorption rates
+    plt.figure(figsize=(12, 6))
+    plt.step(energy_mesh[:-1], U238_rates_ref["D5"], label=f'{ref_id} DRAGON5 U238 Absorption Rates', color='blue', linewidth=1,where='post')
+    plt.step(energy_mesh[:-1], U238_rates_perturbed["D5"], label=f'{peturbed_id} DRAGON5 U238 Absorption Rates', color='orange', linewidth=1, where='post')
+    plt.xscale('log')
+    plt.yscale('log')
+    plt.xlabel('Energy (eV)')
+    plt.ylabel('U238 Absorption Rate (1/s)')
+    plt.title('U238 Absorption Rates Comparison')
+    plt.legend()
+    plt.grid()
+    plt.tight_layout()
+    plt.savefig(f"DRAGON_starterDD_RATES_{ref_id}_{evaluation}/{scheme}/U238_absorption_rates_comparison_D5_{ref_id}_vs_{peturbed_id}.png")
+    
+    plt.figure(figsize=(12, 6))
+    plt.step(energy_mesh[:-1], U238_rates_ref["S2"][f"{ngroups}g"], label=f'{ref_id} Serpent2 U238 Absorption Rates', color='blue', linewidth=1, where='post')
+    plt.step(energy_mesh[:-1], U238_rates_perturbed["S2"][f"{ngroups}g"], label=f'{peturbed_id} Serpent2 U238 Absorption Rates', color='orange', linewidth=1, where='post')
+    plt.xscale('log')
+    plt.yscale('log')
+    plt.xlabel('Energy (eV)')
+    plt.ylabel('U238 Absorption Rate (1/s)')
+    plt.title('U238 Absorption Rates Comparison')
+    plt.legend()
+    plt.grid()
+    plt.tight_layout()
+    plt.savefig(f"DRAGON_starterDD_RATES_{ref_id}_{evaluation}/{scheme}/U238_absorption_rates_comparison_S2_{ref_id}_vs_{peturbed_id}.png")
+    
+
+
 def plot_pinwise_errors_BWR_assembly(errors_rates, assembly_model, assembly_id, name_compo, calculation_opt, fig_name, evaluation, cmap="Spectral"):
     """
     plot_pinwise_errors_BWR_assembly: Plot pin-wise relative differences in rates between Dragon5 and Serpent2 for a BWR assembly.
@@ -308,8 +382,9 @@ def plot_U238_abs_rates(energy_mesh, D5_U238_abs_rates, S2_U238_abs_rates_dict, 
         avg_rel_diff_zoom = np.mean(np.abs(y))
         rms_rel_diff_zoom = np.sqrt(np.mean(y**2))
         group_max_rel_diff_zoom = n_groups - cropping_window[0] - np.argmax(np.abs(y))
+        print(np.argmax(np.abs(y)))
         print(f"Zoom on energy range of interest [{energy_mesh[cropping_window[1]]:.2e} eV, {energy_mesh[cropping_window[0]]:.2e} eV]:")
-        print(f"Max relative difference in U238 absorption rates: {max_rel_diff_zoom:.2f}%, in group {group_max_rel_diff_zoom}, from E1: {energy_mesh[group_max_rel_diff_zoom-1]:.2e} eV to E2: {energy_mesh[group_max_rel_diff_zoom]:.2e} eV")
+        print(f"Max relative difference in U238 absorption rates: {max_rel_diff_zoom:.2f}%, in group {group_max_rel_diff_zoom}, from E1: {energy_mesh[295-group_max_rel_diff_zoom-1]:.2e} eV to E2: {energy_mesh[295-group_max_rel_diff_zoom]:.2e} eV")
         print(f"Average relative difference in U238 absorption rates: {avg_rel_diff_zoom:.2f}%")
         print(f"RMS relative difference in U238 absorption rates: {rms_rel_diff_zoom:.2f}%")
 

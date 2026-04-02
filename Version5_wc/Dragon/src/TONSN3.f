@@ -1,7 +1,7 @@
 *DECK TONSN3
       SUBROUTINE TONSN3 (IPLIB,IPTRK,IFTRAK,NGRO,NBISO,NBM,NREG,NUN,
      1 CDOOR,INRS,NBNRS,IMPX,ISONAM,MIX,DEN,SN,LSHI,IPHASE,MAT,VOL,
-     2 KEYFLX,LEAKSW,TITR,START,SIGT2,SIGT3,NOCONV,ICPIJ,TK3,TK4)
+     2 KEYFLX,LEAKSW,TITR,START,SIGT2,SIGT3,NOCONV,TCEPS,ICPIJ,TK3,TK4)
 *
 *-----------------------------------------------------------------------
 *
@@ -51,6 +51,7 @@
 * SIGT3   transport correction.
 * NOCONV  mixture convergence flag. (NOCONV(IBM,L)=.TRUE. if mixture IBM
 *         is not converged in group L).
+* TCEPS   relative tolerance for skipping DOORPV/AV.
 *
 *Parameters: input/output
 * SN      estimate of the dilution cross section in each energy group
@@ -78,7 +79,7 @@
      1 ISONAM(3,NBISO),MIX(NBISO),LSHI(NBISO),IPHASE,MAT(NREG),
      2 KEYFLX(NREG),ICPIJ
       REAL DEN(NBISO),SN(NGRO,NBISO),VOL(NREG),SIGT2(0:NBM,NGRO),
-     1 SIGT3(0:NBM,NGRO),TK3,TK4
+     1 SIGT3(0:NBM,NGRO),TCEPS,TK3,TK4
       CHARACTER CDOOR*12,TITR*72
       LOGICAL LEAKSW,START,NOCONV(NBM,NGRO)
 *----
@@ -194,7 +195,7 @@
       CALL LCMSIX(IPLIB,'--AVERAGE--',1)
       CALL TONDST(IPLIB,NPSYS,IPTRK,IFTRAK,CDOOR,IMPX,NBM,NBNRS,NREG,
      1 NUN,NGRO,IPHASE,MAT,VOL,KEYFLX,LEAKSW,IRES,DENM,SIGT0,SIGT2,
-     2 SIGT3,TITR,SIGE,TK3,TK4)
+     2 SIGT3,TCEPS,TITR,SIGE,TK3,TK4)
       CALL LCMSIX(IPLIB,' ',2)
       DO 130 LLL=1,NGRO
       IF(NPSYS(LLL).NE.0) THEN

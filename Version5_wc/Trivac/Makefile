@@ -35,6 +35,7 @@ tests :
 	./rtrivac -c $(fcompilerSuite) -p $(nomp) -q DIFtst.x2m
 	./rtrivac -c $(fcompilerSuite) -p $(nomp) -q Ktests.x2m
 	./rtrivac -c $(fcompilerSuite) -p $(nomp) -q SPNtst.x2m
+	./rtrivac -c $(fcompilerSuite) -p $(nomp) -q simple_hex_bivac.x2m
 	./rtrivac -c $(fcompilerSuite) -p $(nomp) -q iaea3d.x2m
 	./rtrivac -c $(fcompilerSuite) -p $(nomp) -q monju3D_spn.x2m
 	./rtrivac -c $(fcompilerSuite) -p $(nomp) -q multigroup_albedo_2d.x2m

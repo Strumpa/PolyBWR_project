@@ -30,7 +30,7 @@ CONTAINS
     TLAMB(1) = ((NODE(4) - NODE(6))*(CX - NODE(5)) + (NODE(5) - NODE(3))*(CY - NODE(6))) / &
             ((NODE(4) - NODE(6))*(NODE(1) - NODE(5)) + (NODE(5) - NODE(3))*(NODE(2) - NODE(6)))
     TLAMB(2) = ((NODE(6) - NODE(2))*(CX - NODE(5)) + (NODE(1) - NODE(5))*(CY - NODE(6))) / &
-           ((NODE(4) - NODE(6))*(NODE(1) - NODE(5)) + (NODE(5) - NODE(3))*(NODE(2) - NODE(6)))
+            ((NODE(4) - NODE(6))*(NODE(1) - NODE(5)) + (NODE(5) - NODE(3))*(NODE(2) - NODE(6)))
     TLAMB(3) = 1.0D0 - TLAMB(1) - TLAMB(2)
   END FUNCTION EDIBAR
   !
@@ -58,7 +58,7 @@ CONTAINS
     !----
     INTEGER PREC,DATAIN(25),IPAR(5)
     REAL DATARE(25)
-    REAL(PDB) CX,CY,DX,DY,SAA,SAB,ANGL,RPAR(5),TLAMB1(3),TLAMB2(3)
+    REAL(PDB) CX,CY,DX,DY,SAA,SAB,ANGL,RPAR(5),TLAMB1(3),TLAMB2(3),ZNODE(6)
     REAL(PDB) NODX1,NODX2,NODY1,NODY2
     REAL(PDB), PARAMETER :: CONV=3.141592654_PDB/180.0_PDB
     PARAMETER(IFOUT0=0)
@@ -69,6 +69,7 @@ CONTAINS
     !----
     INTEGER, DIMENSION(:), ALLOCATABLE :: NUM_MERGE,IFLUX,ITNODE
     INTEGER, DIMENSION(:,:), ALLOCATABLE :: ICOUNT
+    REAL(PDB), DIMENSION(:), ALLOCATABLE :: SURF
     REAL(PDB), DIMENSION(:,:), ALLOCATABLE :: NODE
     !----
     !  Read homogeneous node definitions
@@ -149,7 +150,7 @@ CONTAINS
       IF(ITYPE.EQ.1) THEN
         CX=RPAR(1) ; CY=RPAR(2)
         DX=CX+RPAR(3) ; DY=CY+RPAR(4)
-        DO IM=1,NMERGE
+        LOOP1: DO IM=1,NMERGE
           IF(ITNODE(IM).EQ.1) THEN
             NODX1=NODE(1,IM) ; NODX2=NODE(2,IM)
             NODY1=NODE(3,IM) ; NODY2=NODE(4,IM)
@@ -169,42 +170,58 @@ CONTAINS
               ENDIF
             ENDIF
           ELSE IF(ITNODE(IM).EQ.2) THEN
-            TLAMB1=EDIBAR(NODE(1,IM),CX,CY)
-            TLAMB2=EDIBAR(NODE(1,IM),DX,DY)
+            TLAMB1(:3)=EDIBAR(NODE(1,IM),CX,CY)
+            TLAMB2(:3)=EDIBAR(NODE(1,IM),DX,DY)
             IF((TLAMB1(1).GE.-EPS).AND.(TLAMB1(2).GE.-EPS).AND.(TLAMB1(3).GE.-EPS).AND. &
                (TLAMB2(1).GE.-EPS).AND.(TLAMB2(2).GE.-EPS).AND.(TLAMB2(3).GE.-EPS)) THEN
-              IF((ABS(TLAMB1(1)).LE.EPS).AND.(ABS(TLAMB2(1)).LE.EPS)) THEN
-                IF(IPAR(3).GT.0) ICOUNT(IPAR(3),IM)=ICOUNT(IPAR(3),IM)+1
-              ELSE IF((ABS(TLAMB1(2)).LE.EPS).AND.(ABS(TLAMB2(2)).LE.EPS)) THEN
-                IF(IPAR(3).GT.0) ICOUNT(IPAR(3),IM)=ICOUNT(IPAR(3),IM)+1
-              ELSE IF((ABS(TLAMB1(3)).LE.EPS).AND.(ABS(TLAMB2(3)).LE.EPS)) THEN
-                IF(IPAR(3).GT.0) ICOUNT(IPAR(3),IM)=ICOUNT(IPAR(3),IM)+1
-              ELSE
-                IF(IPAR(2).GT.0) ICOUNT(IPAR(2),IM)=ICOUNT(IPAR(2),IM)+1
-                IF(IPAR(3).GT.0) ICOUNT(IPAR(3),IM)=ICOUNT(IPAR(3),IM)+1
-              ENDIF
+              DO I=1,3
+                IP=1+MOD(I,3)
+                IF((ABS(TLAMB1(I)).LE.EPS).AND.(ABS(TLAMB2(I)).LE.EPS)) THEN
+                  IF(IPAR(2).EQ.0) THEN
+                    ICOUNT(IPAR(3),IM)=ICOUNT(IPAR(3),IM)+1
+                  ELSE IF(IPAR(3).EQ.0) THEN
+                    ICOUNT(IPAR(2),IM)=ICOUNT(IPAR(2),IM)+1
+                  ELSE IF(TLAMB1(IP).LT.TLAMB2(IP)) THEN
+                    IF(IPAR(2).GT.0) ICOUNT(IPAR(2),IM)=ICOUNT(IPAR(2),IM)+1
+                  ELSE IF(TLAMB1(IP).GT.TLAMB2(IP)) THEN
+                    IF(IPAR(3).GT.0) ICOUNT(IPAR(3),IM)=ICOUNT(IPAR(3),IM)+1
+                  ENDIF
+                  CYCLE LOOP1
+                ENDIF
+              ENDDO
+              IF(IPAR(2).GT.0) ICOUNT(IPAR(2),IM)=ICOUNT(IPAR(2),IM)+1
+              IF(IPAR(3).GT.0) ICOUNT(IPAR(3),IM)=ICOUNT(IPAR(3),IM)+1
             ENDIF
           ELSE IF(ITNODE(IM).EQ.3) THEN
             ! the quadrilateral is represented as two triangles
             DO ITRI=1,2
-              TLAMB1=EDIBAR(NODE((ITRI-1)*2+1:(ITRI-1)*2+6,IM),CX,CY)
-              TLAMB2=EDIBAR(NODE((ITRI-1)*2+1:(ITRI-1)*2+6,IM),DX,DY)
+              ZNODE(:6)=NODE(:6,IM)
+              IF(ITRI.EQ.2) ZNODE(3:6)=NODE(5:8,IM)
+              TLAMB1=EDIBAR(ZNODE,CX,CY)
+              TLAMB2=EDIBAR(ZNODE,DX,DY)
               IF((TLAMB1(1).GE.-EPS).AND.(TLAMB1(2).GE.-EPS).AND.(TLAMB1(3).GE.-EPS).AND. &
                  (TLAMB2(1).GE.-EPS).AND.(TLAMB2(2).GE.-EPS).AND.(TLAMB2(3).GE.-EPS)) THEN
-                IF((ABS(TLAMB1(1)).LE.EPS).AND.(ABS(TLAMB2(1)).LE.EPS)) THEN
-                  IF(IPAR(3).GT.0) ICOUNT(IPAR(3),IM)=ICOUNT(IPAR(3),IM)+1
-                ELSE IF((ABS(TLAMB1(2)).LE.EPS).AND.(ABS(TLAMB2(2)).LE.EPS)) THEN
-                  IF(IPAR(3).GT.0) ICOUNT(IPAR(3),IM)=ICOUNT(IPAR(3),IM)+1
-                ELSE IF((ABS(TLAMB1(3)).LE.EPS).AND.(ABS(TLAMB2(3)).LE.EPS)) THEN
-                  IF(IPAR(3).GT.0) ICOUNT(IPAR(3),IM)=ICOUNT(IPAR(3),IM)+1
-                ELSE
-                  IF(IPAR(2).GT.0) ICOUNT(IPAR(2),IM)=ICOUNT(IPAR(2),IM)+1
-                  IF(IPAR(3).GT.0) ICOUNT(IPAR(3),IM)=ICOUNT(IPAR(3),IM)+1
-                ENDIF
+                DO I=1,3
+                  IP=1+MOD(I,3)
+                  IF((ABS(TLAMB1(I)).LE.EPS).AND.(ABS(TLAMB2(I)).LE.EPS)) THEN
+                    IF(IPAR(2).EQ.0) THEN
+                      ICOUNT(IPAR(3),IM)=ICOUNT(IPAR(3),IM)+1
+                    ELSE IF(IPAR(3).EQ.0) THEN
+                      ICOUNT(IPAR(2),IM)=ICOUNT(IPAR(2),IM)+1
+                    ELSE IF(TLAMB1(IP).LT.TLAMB2(IP)) THEN
+                      IF(IPAR(2).GT.0) ICOUNT(IPAR(2),IM)=ICOUNT(IPAR(2),IM)+1
+                    ELSE IF(TLAMB1(IP).GT.TLAMB2(IP)) THEN
+                      IF(IPAR(3).GT.0) ICOUNT(IPAR(3),IM)=ICOUNT(IPAR(3),IM)+1
+                    ENDIF
+                    CYCLE LOOP1
+                  ENDIF
+                ENDDO
+                IF(IPAR(2).GT.0) ICOUNT(IPAR(2),IM)=ICOUNT(IPAR(2),IM)+1
+                IF(IPAR(3).GT.0) ICOUNT(IPAR(3),IM)=ICOUNT(IPAR(3),IM)+1
               ENDIF
-            ENDDO
+            ENDDO ! ITRI
           ENDIF
-        ENDDO
+        ENDDO LOOP1
       ELSE IF(ITYPE.EQ.2) THEN
         CX=RPAR(1) ; CY=RPAR(2)
         DO IM=1,NMERGE
@@ -225,7 +242,9 @@ CONTAINS
           ELSE IF(ITNODE(IM).EQ.3) THEN
             ! the quadrilateral is represented as two triangles
             DO ITRI=1,2
-              TLAMB1=EDIBAR(NODE((ITRI-1)*2+1:(ITRI-1)*2+6,IM),CX,CY)
+              ZNODE(:6)=NODE(:6,IM)
+              IF(ITRI.EQ.2) ZNODE(3:6)=NODE(5:8,IM)
+              TLAMB1=EDIBAR(ZNODE,CX,CY)
               IF((TLAMB1(1).GE.-EPS).AND.(TLAMB1(2).GE.-EPS).AND.(TLAMB1(3).GE.-EPS)) THEN
                 IF(IPAR(2).GT.0) ICOUNT(IPAR(2),IM)=ICOUNT(IPAR(2),IM)+1
                 IF(IPAR(3).GT.0) ICOUNT(IPAR(3),IM)=ICOUNT(IPAR(3),IM)+1
@@ -259,7 +278,9 @@ CONTAINS
           ELSE IF(ITNODE(IM).EQ.3) THEN
             ! the quadrilateral is represented as two triangles
             DO ITRI=1,2
-              TLAMB1=EDIBAR(NODE((ITRI-1)*2+1:(ITRI-1)*2+6,IM),CX,CY)
+              ZNODE(:6)=NODE(:6,IM)
+              IF(ITRI.EQ.2) ZNODE(3:6)=NODE(5:8,IM)
+              TLAMB1=EDIBAR(ZNODE,CX,CY)
               IF((TLAMB1(1).GE.-EPS).AND.(TLAMB1(2).GE.-EPS).AND.(TLAMB1(3).GE.-EPS)) THEN
                 IF(IPAR(2).GT.0) ICOUNT(IPAR(2),IM)=ICOUNT(IPAR(2),IM)+1
                 IF(IPAR(3).GT.0) ICOUNT(IPAR(3),IM)=ICOUNT(IPAR(3),IM)+1
@@ -276,7 +297,7 @@ CONTAINS
         IF(ICOUNT(INODE,IM).GT.0) THEN
           IF(IMERGE(NUM_MERGE(INODE)).NE.0) THEN
             WRITE(HSMG,'(46HEDIG2S: inconsistent homogenization in mixture,I8, &
-            & 11h, g2s node=,I8,1h.)') IM,INODE
+            & 14h, SURFIL node=,I8,29h belong to many output nodes.)') IM,INODE
             CALL XABORT(HSMG)
           ENDIF
           IMERGE(NUM_MERGE(INODE))=IM
@@ -284,12 +305,32 @@ CONTAINS
         ENDIF
       ENDDO
     ENDDO
-    DEALLOCATE(NUM_MERGE,ICOUNT,ITNODE,NODE)
     IF(IPRINT.GT.0) THEN
       WRITE(6,'(53H EDIG2S: NUMBER OF NODES PROCESSED BY HOMOGENIZATION=,I8/ &
       & 9X,32HNUMBER OF NODES IN THE GEOMETRY=,12X,I8/ &
       & 9X,31HNUMBER OF HOMOGENEOUS MIXTURES=,13X,I8)') ITEST,NBNODE,NMERGE
+      ALLOCATE(SURF(NMERGE))
+      DO IM=1,NMERGE
+        SURF(IM)=0.0D0
+        IF(ITNODE(IM).EQ.1) THEN
+          SURF(IM)=(NODE(2,IM)-NODE(1,IM))*(NODE(4,IM)-NODE(3,IM))
+        ELSE IF(ITNODE(IM).EQ.2) THEN
+          SURF(IM)=0.5D0*(NODE(1,IM)*(NODE(4,IM)-NODE(6,IM))+NODE(3,IM)*(NODE(6,IM)-NODE(2,IM))+ &
+          & NODE(5,IM)*(NODE(2,IM)-NODE(4,IM)))
+        ELSE IF(ITNODE(IM).EQ.3) THEN
+          DO ITRI=1,2
+            ZNODE(:6)=NODE(:6,IM)
+            IF(ITRI.EQ.2) ZNODE(3:6)=NODE(5:8,IM)
+            SURF(IM)=SURF(IM)+0.5D0*(ZNODE(1)*(ZNODE(4)-ZNODE(6))+ZNODE(3)*(ZNODE(6)-ZNODE(2))+ &
+            & ZNODE(5)*(ZNODE(2)-ZNODE(4)))
+          ENDDO ! ITRI
+        ENDIF
+      ENDDO
+      WRITE(6,'(53H EDIG2S: ANALYTICAL OUTPUT NODE SURFACES BEFORE REMIX/(5X,1P,12E12.4))') &
+      & SURF(:NMERGE)
+      DEALLOCATE(SURF)
     ENDIF
+    DEALLOCATE(NUM_MERGE,ICOUNT,ITNODE,NODE)
     RETURN
   END SUBROUTINE EDIG2S
 END MODULE EDIG2S_MOD

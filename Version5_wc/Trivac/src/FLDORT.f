@@ -4,7 +4,7 @@
 *-----------------------------------------------------------------------
 *
 *Purpose:
-* Test the biorthogonality of the direct-CADjoint eigenvectors.
+* Test the biorthogonality of the direct-ajoint eigenvectors.
 *
 *Copyright:
 * Copyright (C) 2020 Ecole Polytechnique de Montreal

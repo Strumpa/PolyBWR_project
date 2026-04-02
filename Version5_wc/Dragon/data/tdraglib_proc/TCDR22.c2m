@@ -17,7 +17,8 @@ MODULE
   BIVACA: OUT: ERROR: END: ;
 PROCEDURE SPH_FixedPt ;
 PROCEDURE assertS ;
-INTEGER IterEmax := 50 ;
+INTEGER IterEmax := 100 ;
+INTEGER m := 2 ; ! Anderson window size
 *----
 *  Microscopic cross sections from Jef 2.2 Draglib
 *----
@@ -193,7 +194,7 @@ MACRO := MAC: MACRO :: ALBP 1 0.0 0.0 ;
 * Perform fixed-point SPH equivalence
 *----
 MACRO2 OPTIM := SPH_FixedPt MACRO SPHGEOM MTRACK
-   :: 0.0 10.0 1.0E-7 <<IterEmax>> ;
+   :: 0.0 10.0 1.0E-7 <<IterEmax>> <<m>> ;
 ECHO "control variables at convergence" ;
 UTL: OPTIM :: IMPR 'VAR-VALUE' * ;
 *----

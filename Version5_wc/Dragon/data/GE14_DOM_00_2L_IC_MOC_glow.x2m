@@ -1,4 +1,4 @@
-* Cle2000 procedure to treat the GE14 DOM fuel bundle from glow defined geometry.
+* Cle2000 procedure to treat the GE14 DOM slice from glow defined geometry.
 * 2-level calculation scheme to ensure consistency between starterDD 
 * + glow with native DRAGON geometry and material numbering.
 
@@ -15,14 +15,18 @@ SEQ_BINARY TRKFILSSH TRKFILIC TRKFILMOC ;
 REAL keffIC keffMOC ;
 
 STRING exec := "True" ;
-
+STRING name_compo := '_CPO_GE14_DOM_IC_2L_IC_MOC_finer_water_rods_8_moder_3016_corners4_26g_mesh' ;
+STRING Draglib := 'endfb8r1_295' ;
 ***********************************************
 * TDT files from glow : imports
 ***********************************************
 
 SEQ_ASCII tdt_iso_ssh :: FILE 'GE14_DOM_SSH_IC_TISO_MACRO.dat' ;
 SEQ_ASCII tdt_iso_ic :: FILE 'GE14_DOM_FLUXL1_IC_TISO_MACRO.dat' ;
-SEQ_ASCII tdt_spc_moc :: FILE 'GE14_DOM_FLUXL2_MOC_TSPC.dat' ;
+!SEQ_ASCII tdt_spc_moc :: FILE 'GE14_DOM_FLUXL2_MOC_TSPC.dat' ;
+!SEQ_ASCII tdt_spc_moc :: FILE 'GE14_DOM_FLUXL2_finer_water_rods_MOC_TSPC.dat' ;
+SEQ_ASCII tdt_spc_moc :: FILE 'GE14_DOM_FLUXL2_finer_water_rods8_mode3016_subdcoolcorners4_MOC_TSPC.dat' ;
+
 
 *******************************************************
 * Post script formatted files for plotting with G2S:
@@ -71,13 +75,13 @@ TRKMOC TRKFILMOC := SALT: tdt_spc_moc ::
     BATCH 2000
     GAUS
     ANIS 4
-    TSPC EQW2 24 40.0 REND
+    TSPC EQW2 24 50.0 REND
     NOIC
 ;
 
 * MOC tracking
 TRKMOC := MCCGT: TRKMOC TRKFILMOC ::
-    EDIT 2
+    EDIT 1
     GAUS 4 AAC 100 ILU0 
     HDD 0.0 SC KRYL 10
 ;
@@ -110,7 +114,7 @@ SYS := ASM: LIBRARY2 TRKIC TRKFILIC ::
 * FLU: call to solve the system at the first level flux calculation
 *******************************************************************
 
-FLUX := FLU:  SYS LIBRARY2 TRKIC :: EDIT 4 TYPE K ;
+FLUX := FLU:  SYS LIBRARY2 TRKIC :: EDIT 1 TYPE K ;
 GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffIC<< ;
 ECHO "GE14 DOM assembly with glow @level 1, keff=" keffIC ;
 
@@ -122,7 +126,7 @@ EDITION := EDI: FLUX LIBRARY2 TRKIC ::
     EDIT 0
     MICR ALL
     MERG MIX
-    COND  10  14  18  26  33  40  49  56  66 84 150 210 241 244 247
+    COND  10  14  18  26  33  40  49  56  66 84 150 210 240 244 247
     252 255 258 261 268 273 277 281 286 291
     SAVE ON COND26 
 ;
@@ -139,13 +143,13 @@ FLUX SYS EDITION TRKIC TRKFILIC := DELETE: FLUX SYS EDITION TRKIC TRKFILIC ;
 SYS := ASM: LIB26G TRKMOC TRKFILMOC :: ARM EDIT 1 ;
 
 FLUX := FLU: LIB26G SYS TRKMOC TRKFILMOC ::
-      EDIT 4 TYPE K 
+      EDIT 1 TYPE K 
     ;
 
 GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffMOC<< ;
 ECHO "GE14 DOM assembly with glow @level 2, keff=" keffMOC ;
 
-EDIRGE14 FLUX LIB26G TRKMOC :: 'CPO_GE14_DOM_2L_IC_MOC_glow_Zr_Fe_Gd152' ;
+EDIRGE14 FLUX LIB26G TRKMOC :: <<name_compo>> ;
 ENDIF ;
 
 END: ;

@@ -1,0 +1,91 @@
+# Geometry description for the ATRIUM-10 BWR fuel bundle WITH control cross.
+# This file extends GEOM_ATRIUM10.yaml with a CONTROL_CROSS_GEOMETRY section.
+# Control-cross dimensions extracted from AT10_ASSBLY_CTRL_mc_example.
+
+PIN_GEOMETRY:
+  fuel_radius: 0.4435
+  gap_radius: 0.4520
+  clad_radius: 0.5140
+  pin_pitch: 1.295
+  self_shielding_option: "Santamarina"
+
+ASSEMBLY_GEOMETRY:
+  lattice_type: "cartesian"
+  reactor_type: "BWR"
+  lattice_description:
+    - ["ROD1", "ROD2", "ROD3", "ROD5", "ROD6", "ROD5", "ROD4", "ROD3", "ROD2", "ROD1"]
+    - ["ROD2", "ROD4", "ROD7", "ROD6", "ROD7", "ROD6", "ROD6", "ROD7", "ROD4", "ROD2"]
+    - ["ROD3", "ROD7", "ROD6", "ROD6", "ROD6", "ROD7", "ROD6", "ROD6", "ROD7", "ROD3"]
+    - ["ROD5", "ROD6", "ROD6", "ROD6", "ROD6", "ROD6", "ROD7", "ROD6", "ROD5", "ROD4"]
+    - ["ROD6", "ROD7", "ROD6", "ROD6", "WROD", "WROD", "WROD", "ROD4", "ROD6", "ROD4"]
+    - ["ROD5", "ROD6", "ROD7", "ROD6", "WROD", "WROD", "WROD", "ROD3", "ROD7", "ROD4"]
+    - ["ROD4", "ROD6", "ROD6", "ROD7", "WROD", "WROD", "WROD", "ROD4", "ROD4", "ROD4"]
+    - ["ROD3", "ROD7", "ROD6", "ROD6", "ROD4", "ROD3", "ROD4", "ROD4", "ROD8", "ROD3"]
+    - ["ROD2", "ROD4", "ROD7", "ROD5", "ROD6", "ROD7", "ROD4", "ROD8", "ROD4", "ROD2"]
+    - ["ROD1", "ROD2", "ROD3", "ROD4", "ROD4", "ROD4", "ROD4", "ROD3", "ROD2", "ROD1"]
+
+  assembly_pitch: 15.24
+  gap_wide: 0.75
+  channel_box_thickness: 0.17
+  corner_inner_radius_of_curvature: 0.0
+
+  Gd_rod_ids: ["ROD7", "ROD8"]
+  non_fuel_rod_ids: ["WROD"]
+
+WATER_ROD_GEOMETRY:
+  type: "square"
+  inner_side : 3.34
+  outer_side : 3.5
+  centers: [[7.1225, 7.1225]]
+
+# Control cross geometry for ATRIUM-10
+# ─────────────────────────────────────
+# Dimensions derived from the AT10_ASSBLY_CTRL_mc_example Serpent2 reference.
+#
+# Serpent2 cross surface (commented in reference):
+#   surf 6 cross -7.62 7.62 12.41654 0.35216
+#   → half_span = 12.41654 cm, half_thickness = 0.35216 cm
+#   → blade_thickness (full) = 2 × 0.35216 = 0.70432 cm
+#
+# Cross type: SOLID (no sheath / no moderator around tubes)
+# ─────────────────────────────────────────────────────────
+# This cross differs from GE-14-style sheathed crosses:
+#   • tip_radius = 0              → flat-ended blade (no rounded tip)
+#   • sheath_thickness = 0        → no distinct inner/outer sheath boundary;
+#                                   the blade fill material (sheath_material)
+#                                   is the structural material surrounding the
+#                                   absorber rods directly
+#   • absorber_tube_inner_radius == absorber_tube_outer_radius
+#                                 → solid B4C absorber rods (2-zone pin:
+#                                   absorber + surrounding blade material);
+#                                   no hollow annulus, no moderator inside tube
+#
+# Compare with GE-14-style SHEATHED crosses:
+#   • sheath_thickness > 0        → explicit inner/outer sheath walls
+#   • absorber_tube_inner_radius < absorber_tube_outer_radius
+#                                 → hollow absorber tubes with moderator fill
+#   • tip_radius > 0              → rounded blade tip
+#   • Space between tubes is filled with moderator (not blade material)
+#
+# Tube placement extracted from Serpent2 lattice cards:
+#   lat 12 11 -7.62  0.40843 0.0  1 18 1  0.7032 0.57833 2.0
+#   lat 13 11 -0.40843 7.62  0.0  18 1 1  0.57833 0.7032 2.0
+#   → 18 tubes per wing, tube_spacing = 0.57833 cm
+#   → tube region boundary at y = 5.6134 from cross center at y = 7.62
+#   → central_structure_half_span = 7.62 − 5.6134 = 2.0066 cm
+#   → first_tube_offset = 7.62 − (5.6134 − 0.57833/2) = 2.295765 cm
+#     (auto-computed correctly from central_structure_half_span + tube_spacing/2
+#      when sheath_thickness = 0)
+CONTROL_CROSS_GEOMETRY:
+  center: "south-west"
+  number_tubes_per_wing: 18
+  blade_half_span: 12.41654
+  blade_thickness: 0.70432 # full thickness (2 × half_thickness from cross card)
+  tip_radius: 0.0
+  central_structure_half_span: 2.0066 # distance from cross center to tube array boundary
+  sheath_thickness: 0.0
+  absorber_tube_outer_radius: 0.21082
+  absorber_tube_inner_radius: 0.21082 # == outer radius → solid absorber rod
+  absorber_material: "CTRL_ROD"
+  sheath_material: "CTRL_CROSS"
+  tube_spacing: 0.57833 # explicit override (auto formula uses n+0.5 divisor, AT10 needs n)

@@ -36,8 +36,8 @@ MODULE G2S: MCCGT: SALT: END: ;
 INTEGER an2d := 24 ;  ! ANGULAR QUADRATURE PARAMETER
 REAL densur := 50.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
 
-INTEGER an2d_SS := 24 ;
-REAL densur_SS := 50.0 ;
+INTEGER an2d_SS := 8 ;
+REAL densur_SS := 15.0 ;
 
 * polar angles for MCCGT:
 INTEGER nmu := 4 ;
@@ -53,7 +53,7 @@ UOX_TBH FIG1.ps := G2S: GEOM :: ;
 TRACK TF_EXC := SALT: UOX_TBH ::
   EDIT 1
   ALLG
-  ANIS 3
+  ANIS 1
   TSPC EQW2 <<an2d>> <<densur>> REND
 ;
 
@@ -71,7 +71,8 @@ UOX_TBH_SS FIG_SS.ps := G2S: GEOM_SS :: ;
 TRACK_SS TF_EXC_SS := SALT: UOX_TBH_SS ::
   EDIT 1
   ALLG
-  TSPC <<an2d_SS>> <<densur_SS>> REND
+  ANIS 1
+  TSPC EQW2 <<an2d_SS>> <<densur_SS>> REND
 ;
 
 

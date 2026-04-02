@@ -1,6 +1,6 @@
 *DECK VALU5B
       SUBROUTINE VALU5B (KPMAC,NX,NY,LL4F,LL4X,NUN,NMIX,X,Y,XXX,YYY,
-     1 EVT,ISS,KFLX,KN,IXLG,IYLG,ICORN,AXY)
+     1 EVT,ISS,KFLX,KN,IXLG,IYLG,ICORN,MATXY,AXY)
 *
 *-----------------------------------------------------------------------
 *
@@ -39,6 +39,7 @@
 * ICORN   flag to activate corner flux correction (0/1: OFF/ON).
 *                                                                      
 *Parameters: output
+* MATXY   mixture index assigned to each interpolation point.
 * AXY     interpolated fluxes.
 *                                                                      
 *----------------------------------------------------------------------
@@ -49,7 +50,7 @@
 *----
       TYPE(C_PTR) KPMAC
       INTEGER NX,NY,LL4F,LL4X,NUN,NMIX,ISS(NX*NY),KFLX(NX*NY),
-     1 KN(6,NX,NY),IXLG,IYLG,ICORN
+     1 KN(6,NX,NY),IXLG,IYLG,ICORN,MATXY(IXLG,IYLG)
       REAL X(IXLG),Y(IYLG),XXX(NX+1),YYY(NY+1),EVT(NUN),AXY(IXLG,IYLG)
 *----
 *  LOCAL VARIABLES
@@ -334,7 +335,8 @@
             GAR=GAR+DELC(1,IS,JS)*U*V + DELC(2,IS,JS)*P2U*V+
      1      DELC(3,IS,JS)*U*P2V + DELC(4,IS,JS)*P2U*P2V
           ENDIF
-   30     AXY(I,J)=REAL(GAR)
+   30     MATXY(I,J)=ISS(IEL)
+          AXY(I,J)=REAL(GAR)
         ENDDO
       ENDDO
       DEALLOCATE(DELC,DIFF)

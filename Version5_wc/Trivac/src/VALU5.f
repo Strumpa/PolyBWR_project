@@ -1,6 +1,6 @@
 *DECK VALU5
       SUBROUTINE VALU5 (KPMAC,NX,NY,NZ,LL4F,LL4X,LL4Y,NUN,NMIX,X,Y,Z,
-     1 XXX,YYY,ZZZ,EVT,ISS,KFLX,KN,IXLG,IYLG,IZLG,ICORN,AXYZ)
+     1 XXX,YYY,ZZZ,EVT,ISS,KFLX,KN,IXLG,IYLG,IZLG,ICORN,MATXYZ,AXYZ)
 *
 *-----------------------------------------------------------------------
 *
@@ -45,6 +45,7 @@
 * ICORN   flag to activate corner flux correction (0/1: ON/OFF).
 *                                                                      
 *Parameters: output
+* MATXYZ  mixture index assigned to each interpolation point.
 * AXYZ    interpolated fluxes.
 *                                                                      
 *----------------------------------------------------------------------
@@ -55,7 +56,8 @@
 *----
       TYPE(C_PTR) KPMAC
       INTEGER NX,NY,NZ,LL4F,LL4X,LL4Y,NUN,NMIX,ISS(NX*NY*NZ),
-     1 KFLX(NX*NY*NZ),KN(6,NX,NY,NZ),IXLG,IYLG,IZLG,ICORN
+     1 KFLX(NX*NY*NZ),KN(6,NX,NY,NZ),IXLG,IYLG,IZLG,ICORN,
+     2 MATXYZ(IXLG,IYLG,IZLG)
       REAL X(IXLG),Y(IYLG),Z(IZLG),XXX(NX+1),YYY(NY+1),ZZZ(NZ+1),
      1 EVT(NUN),AXYZ(IXLG,IYLG,IZLG)
 *----
@@ -549,7 +551,7 @@
           DO I=1,IXLG
             ABSC=X(I)
             GAR=0.0D0
-               AXYZ(I,J,K)=REAL(GAR)
+            AXYZ(I,J,K)=REAL(GAR)
 *                                                          
 *           Find the node index containing the interpolation point
             IS=0
@@ -663,7 +665,8 @@
      2        DELC(5,IS,JS,KS)*U*V*P2W + DELC(6,IS,JS,KS)*P2U*V*P2W+
      3        DELC(7,IS,JS,KS)*U*P2V*P2W + DELC(8,IS,JS,KS)*P2U*P2V*P2W
             ENDIF
-   40       AXYZ(I,J,K)=REAL(GAR)
+   40       MATXYZ(I,J,K)=ISS(IEL)
+            AXYZ(I,J,K)=REAL(GAR)
           ENDDO
         ENDDO
       ENDDO

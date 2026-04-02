@@ -53,3 +53,8 @@ ls -la
 ln -s "$pos2"/GE14_DOM_SSH_IC_TISO_MACRO.dat GE14_DOM_SSH_IC_TISO_MACRO.dat
 ln -s "$pos2"/GE14_DOM_FLUXL1_IC_TISO_MACRO.dat GE14_DOM_FLUXL1_IC_TISO_MACRO.dat
 ln -s "$pos2"/GE14_DOM_FLUXL2_MOC_TSPC.dat GE14_DOM_FLUXL2_MOC_TSPC.dat
+ln -s "$pos2"/GE14_DOM_FLUXL2_finer_water_rods_MOC_TSPC.dat GE14_DOM_FLUXL2_finer_water_rods_MOC_TSPC.dat
+ln -s "$pos2"/GE14_DOM_FLUXL2_finer_water_rods_8_and_moderator_30_10_MOC_TSPC.dat GE14_DOM_FLUXL2_finer_water_rods_8_and_moderator_30_10_MOC_TSPC.dat
+ln -s "$pos2"/GE14_DOM_FLUXL2_finer_water_rods_8_and_moderator_30_16_MOC_TSPC.dat GE14_DOM_FLUXL2_finer_water_rods_8_and_moderator_30_16_MOC_TSPC.dat
+ln -s "$pos2"/GE14_DOM_FLUXL2_finer_water_rods_8_and_moderator_30_16_subdivided_coolant_corners_4_MOC_TSPC.dat GE14_DOM_FLUXL2_finer_water_rods8_mode3016_subdcoolcorners4_MOC_TSPC.dat
+ln -s "$pos2"/GE14_DOM_FLUXL2_finer_water_rods_8_and_moderator_30_8_subdivided_coolant_corners_4_MOC_TSPC.dat GE14_DOM_FLUXL2_finer_water_rods8_mode308_subdcoolcorners4_MOC_TSPC.dat

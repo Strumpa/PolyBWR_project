@@ -55,18 +55,21 @@ IF name_geom "AT10_UOX" = THEN
           1 2 3 4 5 6 7 ; !  DISTRIBUTED SELF-SHIELDING 
 
   GEOM := GEO: :: CARCEL 6 
+    SECT 4 6
     X- REFL X+ REFL
     Y- REFL Y+ REFL
     RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
           <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
     MIX <<COMB0101>> <<COMB0102>> <<COMB0103>> <<COMB0104>>
-        <<GAP>> <<CLAD>> <<MODE>>
+        <<GAP>> <<CLAD>> 
+        <<MODE>> <<MODE>> <<MODE>> <<MODE>> <<MODE>> <<MODE>>
+        <<MODE>> <<MODE>> <<MODE>> <<MODE>> <<MODE>> <<MODE>>
     MESHX 0.0 <<pitch>> MESHY 0.0 <<pitch>>
   ;
 
   GEOM_SS := GEO: :: CARCEL 6 
-    X- REFL X+ REFL
-    Y- REFL Y+ REFL
+    X- REFL  X+ REFL
+    Y- REFL  Y+ REFL 
     RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
                <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
     MIX <<COMB0101>> <<COMB0102>> <<COMB0103>> <<COMB0104>>
@@ -81,8 +84,8 @@ ELSEIF name_geom "AT10_UOX_Gd2O3" = THEN
            0.198339 0.280494 0.343534 0.396678 0.43227 0.4435 ;
 
   GEOM := GEO: :: CARCEL 8 
-    X- REFL X+ REFL
-    Y- REFL Y+ REFL
+    X- ALBE 1.0 X+ ALBE 1.0
+    Y- ALBE 1.0 Y+ ALBE 1.0
     RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>  <<Rcomb3>> <<Rcomb4>> <<Rcomb5>> <<Rcomb6>>
                <<Rgap>> <<Rclad>>
     MIX <<COMB0101>> <<COMB0102>> <<COMB0103>> <<COMB0104>> <<COMB0105>> <<COMB0106>>
@@ -91,8 +94,8 @@ ELSEIF name_geom "AT10_UOX_Gd2O3" = THEN
   ;
 
   GEOM_SS := GEO: :: CARCEL 8 
-    X- REFL X+ REFL
-    Y- REFL Y+ REFL
+    X- ALBE 1.0 X+ ALBE 1.0
+    Y- ALBE 1.0 Y+ ALBE 1.0
     RADIUS 0.0 <<Rcomb1>> <<Rcomb2>> <<Rcomb3>> <<Rcomb4>> <<Rcomb5>> <<Rcomb6>>
                <<Rgap>> <<Rclad>>
     MIX <<COMB0101>> <<COMB0102>> <<COMB0103>> <<COMB0104>> <<COMB0105>> <<COMB0106>>

@@ -1,0 +1,110 @@
+* Cle2000 procedure to treat the controlled ATRIUM10 from glow defined geometry.
+* 1-level calculation scheme to ensure consistency between starterDD 
+* + glow with native DRAGON geometry and material numbering.
+
+* ssh : 295 groups IC selfshielding with RSE method, simple geometry
+* 2nd level : 295 groups MOC calculaion on finely meshed geometry with windmills in coolant,
+
+
+MODULE LIB: G2S: SALT: MCCGT: USS: ASM: FLU: EDI: SPH: GREP: DELETE: END: ;
+PROCEDURE assertS MIXAT10C EDIRAT10C ;
+LINKED_LIST  LIBRARY LIBRARY2 TRKSSH TRKMOC SYS FLUX ;
+
+SEQ_BINARY TRKFILSSH TRKFILMOC ;
+REAL keffIC keffMOC ;
+
+STRING exec := "True" ; 
+INTEGER o_anis := 4 ;
+***********************************************
+* TDT files from glow : imports
+***********************************************
+
+SEQ_ASCII tdt_iso_ssh :: FILE 'AT10_CTRL_SSH_IC_TISO_MACRO.dat' ;
+SEQ_ASCII tdt_spc_moc :: FILE 'AT10_CTRL_FLUXL2_MOC_TSPC.dat' ;
+
+*******************************************************
+* Post script formatted files for plotting with G2S:
+*******************************************************
+
+SEQ_ASCII ssh.ps :: FILE 'AT10_CTRL_TISO_ssh_IC_glow.ps' ;
+SEQ_ASCII moc_tspc.ps :: FILE 'AT10_CTRL_TSPC_moc_glow.ps' ;
+
+
+**********************************************************
+* Check geometries by printing surface elements with G2S:
+**********************************************************
+
+ssh.ps := G2S: tdt_iso_ssh :: ;
+moc_tspc.ps := G2S: tdt_spc_moc :: ;
+
+
+**********************************************************
+* Track tdt from glow with SALT: 
+**********************************************************
+
+* Self-shielding geometry
+TRKSSH TRKFILSSH := SALT: tdt_iso_ssh ::
+    EDIT 1
+    TITLE 'IC ATRIUM-10 CTRL CASE - self-shielding - glow'
+    BATCH 200
+    TISO EQW 8 25.0
+    IC EPSJ 1.0E-5
+;
+
+* 1st level geometry with windmills in coolant
+TRKMOC TRKFILMOC := SALT: tdt_spc_moc ::
+    EDIT 1
+    ALLG LONG
+    BATCH 2000
+    GAUS
+    ANIS <<o_anis>>
+    TSPC EQW2 30 100.0 REND
+    NOIC
+;
+
+* MOC tracking
+TRKMOC := MCCGT: TRKMOC TRKFILMOC ::
+    EDIT 1
+    GAUS <<o_anis>> AAC 100 ILU0 
+    HDD 0.0 SC KRYL 10
+;
+
+IF exec "True" = THEN
+**********************************************
+* LIBRARY creation 
+**********************************************
+
+LIBRARY := MIXAT10C :: 'endfb8r1_295' 'RSE' <<o_anis>> 'NONE' 750.0 559.0 559.0 559.0 559.0 559.0 ;
+
+******************************************************************
+* USS: call to create the self-shielded cross sections library
+******************************************************************
+
+LIBRARY2 := USS: LIBRARY TRKSSH TRKFILSSH ::
+	EDIT 1 ARM
+	;
+
+TRKSSH TRKFILSSH := DELETE: TRKSSH TRKFILSSH ;
+
+*****************************************************************************
+* ASM: call to create system to be solved at the first level flux calculaton
+*****************************************************************************
+SYS := ASM: LIBRARY2 TRKMOC TRKFILMOC ::
+	EDIT 1 ARM
+	;
+	
+*******************************************************************
+* FLU: call to solve the system at the first level flux calculation
+*******************************************************************
+
+FLUX := FLU:  SYS LIBRARY2 TRKMOC TRKFILMOC :: EDIT 1 TYPE K ;
+GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffMOC<< ;
+ECHO "ATRIUM10 CTRL assembly with 1L_MOC glow , keff=" keffMOC ;
+
+
+EDIRAT10C FLUX LIBRARY2 TRKMOC :: '_CPO_AT10-C_00_RSE_IC_1L_MOC_ANIS4_glow_Zr_Fe' ;
+ENDIF ;
+
+END: ;
+QUIT .
+

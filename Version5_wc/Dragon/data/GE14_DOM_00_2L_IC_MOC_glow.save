@@ -18,6 +18,6 @@ fi
 ls -l
 
 mv *.ps $1/"$MACH"
-mv CPO* $1/"$MACH"
+mv *CPO* $1/"$MACH"
 echo "GE14_DOM_00_2L_IC_MOC_glow.save completed"
 

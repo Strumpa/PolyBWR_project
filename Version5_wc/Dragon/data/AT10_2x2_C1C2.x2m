@@ -17,12 +17,9 @@ SEQ_ASCII Geo_G2S GeoSS_G2S ;
 SEQ_ASCII FIG_main.ps :: FILE './FIG_main.ps' ;
 SEQ_ASCII FIG_SS.ps :: FILE './FIG_selfshielding.ps' ;
 
-SEQ_ASCII TLM_F1 :: FILE 'tracks_SALT_FLX.m' ;
-SEQ_ASCII TLM_F2 :: FILE 'tracks_SALT_SSH.m' ;
-
 SEQ_BINARY TF_EXC TF_EXC_SS ;
 
-STRING Library := "J311_295" ;
+STRING Library := "J311_295" ; ! "endfb8r1_295"
 STRING ssh_option := "VVER_ALL" ;
 
 REAL Kinf ;
@@ -44,14 +41,14 @@ EVALUATE COMB0101 COMB0102 COMB0103 COMB0104 := 1 2 3 4 ;
 
 !Mix numbers for C2 fuel 
 INTEGER COMB0201 COMB0202 COMB0203 COMB0204 ;
-EVALUATE COMB0201 COMB0202 COMB0203 COMB0204 := 21 22 23 24 ;
+EVALUATE COMB0201 COMB0202 COMB0203 COMB0204 := 5 6 7 8 ;
 
 
 
 ! Pin level common mixes : Clad, Gap, Coolant (intra-pin water) :
 
 INTEGER GAP CLAD COOL ;
-EVALUATE GAP CLAD COOL := 5 6 7 ;
+EVALUATE GAP CLAD COOL := 9 10 11 ;
 
 ! Multiples of cell pitch : used to define 2nd level geometry mesh 
 REAL 2_Pitch_C 3_Pitch_C 4_Pitch_C ;
@@ -116,8 +113,10 @@ GEOM_2x2 := GEO: :: CAR2D 2 2
 LIBRARY := LIB: ::
     EDIT 0
     NMIX 100    ! MAXIMUM OF MATERIAL MIXTURES
-    RSE 1.0E-03
-    ANIS 3
+    PT CALENDF 4
+    ANIS 2
+    CTRA APOL
+    ADED 4 NELAS N4N N2N N3N
 
   DEPL LIB: DRAGON FIL: <<Library>>
 
@@ -210,16 +209,9 @@ Geo_G2S FIG_main.ps := G2S: GEOM_2x2 :: ;
 TRACK TF_EXC := SALT: Geo_G2S ::
   EDIT 1
   ALLG
-  ANIS 3
+  ANIS 2
   BATCH 150
   TSPC EQW2 <<an2d>> <<densur>> REND LONG
-;
-
-TLM_F1 := TLM: TRACK TF_EXC ::
-  EDIT 10
-  NTPO 1
-  DIRECTIONS
-  DIR 0
 ;
 
 * MOC tracking
@@ -237,11 +229,10 @@ TRACK_SS TF_EXC_SS := SALT: GeoSS_G2S ::
   EDIT 1
   ALLG
   BATCH 70
-  TSPC <<an2d_ss>> <<densur_ss>> REND
+  ANIS 2
+  TSPC EQW2 <<an2d_ss>> <<densur_ss>> REND
   MERGMIX
 ;
-
-
 
 
 ****************************************************************************************
@@ -250,27 +241,7 @@ TRACK_SS TF_EXC_SS := SALT: GeoSS_G2S ::
 
 
 LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
-        EDIT 1 PASS 2 MAXST 20
-        CALC
-
-* Don't touch this :
-            REGI W1 U235 ALL
-            !REGI W1 U234 ALL
-            REGI W1 Zr90 ALL
-            REGI W1 Zr91 ALL
-            REGI W1 Zr92 ALL
-            REGI W1 Zr94 ALL
-            REGI W1 Zr96 ALL
-            
-* Options : 
-            !REGI W1 U238 ALL ! Just this gives the closest to Serpent2, but is it sufficient ? ~10 pcm to S2
-            REGI W1 U238 <<COMB0101>> <<COMB0102>> <<COMB0103>> <<COMB0104>> ! This and next line give ~20 pcm diff to S2
-            REGI W2 U238 <<COMB0201>> <<COMB0202>> <<COMB0203>> <<COMB0204>>
-            !REGI W1 U238 <<COMB0101>> <<COMB0201>> ! This doesnt work --> ~660 pcm diff to S2  !
-            !REGI W2 U238 <<COMB0102>> <<COMB0202>>
-            !REGI W3 U238 <<COMB0103>> <<COMB0203>>
-            !REGI W4 U238 <<COMB0104>> <<COMB0204>>
-        ENDC
+        EDIT 1 PASS 3
       ;
 
 

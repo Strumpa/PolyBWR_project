@@ -1,6 +1,6 @@
 *DECK VALU2B
       SUBROUTINE VALU2B (LC,MKN,LX,LY,L4,X,Y,XXX,YYY,EVECT,ISS,KN,IXLG,
-     + IYLG,E,AXY)
+     + IYLG,E,MATXY,AXY)
 *
 *-----------------------------------------------------------------------
 *
@@ -38,6 +38,7 @@
 * E       Lagrange polynomial coefficients.
 *                                                                      
 *Parameters: output
+* MATXY   mixture index assigned to each interpolation point.
 * AXY     interpolated fluxes.
 *                                                                      
 *----------------------------------------------------------------------
@@ -45,7 +46,8 @@
 *----
 *  SUBROUTINE ARGUMENTS
 *----
-      INTEGER LC,MKN,LX,LY,L4,ISS(LX*LY),KN(LX*LY*MKN),IXLG,IYLG
+      INTEGER LC,MKN,LX,LY,L4,ISS(LX*LY),KN(LX*LY*MKN),IXLG,IYLG,
+     1 MATXY(IXLG,IYLG)
       REAL X(IXLG),Y(IYLG),XXX(LX+1),YYY(LY+1),EVECT(L4),AXY(IXLG,IYLG),
      1 E(LC,LC)
 *----
@@ -103,6 +105,7 @@
       CALL XABORT('VALU2B: WRONG INTERPOLATION(2).')
    70 IEL=(JS-1)*LX+IS
 *
+      MATXY(I,J)=ISS(IEL)
       IF(ISS(IEL).EQ.0) GO TO 100
       NUM=IWRK(IEL)
       IF (NUM.NE.-1) THEN

@@ -46,6 +46,7 @@ $[~$\moc{SPH} $\{$ \moc{PN} $|$ \moc{SN} $\}~]$ \\
 $[$ \moc{GRPMIN} \dusa{ngr1} $]~[$ \moc{GRPMAX} \dusa{ngr2} $]$\\
 $[$ \moc{OUT-STEP-EPS} \dusa{$\epsilon_{ext}$} \\
 $[$ \moc{VAR-VAL-MIN} \dusa{varmin} $]~[$ \moc{VAR-VAL-MAX} \dusa{varmax} $]$ \\
+$[$ \moc{ANDERSON} \dusa{m} $]$ \\
 $[$ \moc{OUT-CONV-TST} {\tt >>} \dusa{$l_{conv}$} {\tt <<} $[$ {\tt >>} \dusa{$rms_{conv}$} {\tt <<} $]~]$ \\
 ;
 \end{DataStructure}
@@ -85,6 +86,12 @@ to module {\tt GRAD:}.
 to module {\tt GRAD:}.
 
 \item[\dusa{varmax}] single real value used for all SPH factors.
+
+\item[\moc{ANDERSON}] keyword to activate Anderson acceleration of the SPH fixed-point iterations.
+
+\item[\dusa{m}] window size of the Anderson acceleration algorithm. \dusa{m}$+1$ values of the previous iterates and gradients are kept
+in the \dusa{OPTIM} object. \dusa{m} $=0$ is equivalent to free iterations (default option). \dusa{m} should be equal or smaller than
+the total number of SPH factors. A value smaller or equal to 10 is recommended.
 
 \item[\moc{OUT-CONV-TST}] keyword used to determine if the SPH convergence has been reached.
 

@@ -1,6 +1,6 @@
 *DECK VALU1B
       SUBROUTINE VALU1B (IDIM,LX,LY,L4,X,Y,XXX,YYY,EVT,ISS,IELEM,IXLG,
-     + IYLG,AXY)
+     + IYLG,MATXY,AXY)
 *
 *-----------------------------------------------------------------------
 *
@@ -35,6 +35,7 @@
 * IYLG    number of interpolated points according to Y.                                    
 *                                                                      
 *Parameters: output
+* MATXY   mixture index assigned to each interpolation point.
 * AXY     interpolated fluxes.
 *                                                                      
 *----------------------------------------------------------------------
@@ -42,7 +43,7 @@
 *----
 *  SUBROUTINE ARGUMENTS
 *----
-      INTEGER IDIM,LX,LY,L4,ISS(LX*LY),IELEM,IXLG,IYLG
+      INTEGER IDIM,LX,LY,L4,ISS(LX*LY),IELEM,IXLG,IYLG,MATXY(IXLG,IYLG)
       REAL X(IXLG),Y(IYLG),XXX(LX+1),YYY(LY+1),EVT(L4),AXY(IXLG,IYLG)
 *----
 *  ALLOCATABLE ARRAYS
@@ -55,7 +56,7 @@
 *
       NUM=0
       DO 10 K=1,LX*LY
-      IF (ISS(K).EQ.0) GO TO 10
+      IF(ISS(K).EQ.0) GO TO 10
       NUM=NUM+1
       IWRK(K)=NUM
   10  CONTINUE
@@ -81,6 +82,7 @@
    40 CONTINUE
       CALL XABORT('VALU1B: WRONG INTERPOLATION(2).')
    70 IEL=(JS-1)*LX+IS
+      MATXY(I,J)=ISS(IEL)
       IF(ISS(IEL).EQ.0) GO TO 100
       U=(ABSC-0.5*(XXX(IS)+XXX(IS+1)))/(XXX(IS+1)-XXX(IS))
       V=(ORDO-0.5*(YYY(JS)+YYY(JS+1)))/(YYY(JS+1)-YYY(JS))

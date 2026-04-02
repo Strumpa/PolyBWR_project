@@ -22,6 +22,7 @@
 *    fmax      : maximum acceptable correction factor          *
 *    epsout    : convergence criterion for outer iterations    *
 *    IterEmax  : maximum number of iterations                  *
+*    m         : Anderson window size                          *
 *                                                              *
 ****************************************************************
 PARAMETER  MACRO2 OPTIM MACRO1 MACROGEOM TRACK ::
@@ -31,8 +32,8 @@ LINKED_LIST SYSTEM CALC EDIT  ;
 LOGICAL Conv ;
 REAL Keff fmin fmax epsout ;
 DOUBLE rmsval ;
-INTEGER IterE IterEmax ;
-  :: >>fmin<< >>fmax<< >>epsout<< >>IterEmax<< ;
+INTEGER IterE IterEmax m ;
+  :: >>fmin<< >>fmax<< >>epsout<< >>IterEmax<< >>m<< ;
 
 !****************************************
 !****************************************
@@ -76,11 +77,13 @@ REPEAT
     OPTIM := FPSPH: EDIT MACRO1 :: EDIT 2 SPH PN
        VAR-VAL-MIN <<fmin>>
        VAR-VAL-MAX <<fmax>>
+       ANDERSON <<m>>
        OUT-STEP-EPS <<epsout>> OUT-CONV-TST >>Conv<< >>rmsval<< ;
   ELSE
     OPTIM := FPSPH: OPTIM EDIT MACRO1 :: EDIT 1
        VAR-VAL-MIN <<fmin>>
        VAR-VAL-MAX <<fmax>>
+       ANDERSON <<m>>
        OUT-CONV-TST >>Conv<< >>rmsval<< ;
   ENDIF ;
   ECHO "outer iteration=" IterE "rmsval=" rmsval D_TO_R "Keff=" Keff "Conv=" Conv ;

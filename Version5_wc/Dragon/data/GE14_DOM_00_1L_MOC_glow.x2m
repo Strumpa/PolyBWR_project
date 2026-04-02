@@ -1,5 +1,5 @@
-* Cle2000 procedure to treat the GE14 DOM fuel bundle from glow defined geometry.
-* 2-level calculation scheme to ensure consistency between starterDD 
+* Cle2000 procedure to treat the GE14 DOM slice from glow defined geometry.
+* 1-level calculation scheme to ensure consistency between starterDD 
 * + glow with native DRAGON geometry and material numbering.
 
 * ssh : 295 groups IC selfshielding with RSE method, simple geometry
@@ -13,13 +13,17 @@ SEQ_BINARY TRKFILSSH TRKFILMOC ;
 REAL keffIC keffMOC ;
 
 STRING exec := "True" ;
-INTEGER o_anis := 6 ;
+INTEGER o_anis := 4 ;
+STRING name_compo := '_CPO_GE14_DOM_IC_1L_MOC_ANIS4_finer_water_rods_8_moder_3016_corners4' ;
+STRING Draglib := 'endfb8r1_295' ; !'e81_295_P5'
 ***********************************************
 * TDT files from glow : imports
 ***********************************************
 
 SEQ_ASCII tdt_iso_ssh :: FILE 'GE14_DOM_SSH_IC_TISO_MACRO.dat' ;
-SEQ_ASCII tdt_spc_moc :: FILE 'GE14_DOM_FLUXL2_MOC_TSPC.dat' ;
+!SEQ_ASCII tdt_spc_moc :: FILE 'GE14_DOM_FLUXL2_MOC_TSPC.dat' ;
+!SEQ_ASCII tdt_spc_moc :: FILE 'GE14_DOM_FLUXL2_finer_water_rods_MOC_TSPC.dat' ;
+SEQ_ASCII tdt_spc_moc :: FILE 'GE14_DOM_FLUXL2_finer_water_rods8_mode3016_subdcoolcorners4_MOC_TSPC.dat' ;
 
 *******************************************************
 * Post script formatted files for plotting with G2S:
@@ -64,7 +68,7 @@ TRKMOC TRKFILMOC := SALT: tdt_spc_moc ::
 
 * MOC tracking
 TRKMOC := MCCGT: TRKMOC TRKFILMOC ::
-    EDIT 2
+    EDIT 1
     GAUS <<o_anis>> AAC 100 ILU0 
     HDD 0.0 SC KRYL 10
 ;
@@ -74,7 +78,7 @@ IF exec 'True' = THEN
 * LIBRARY creation 
 **********************************************
 
-LIBRARY := MIXGE14 :: 'endfb8r1_295' 'RSE' <<o_anis>> 'NONE' 900.0 600.0 600.0 600.0 600.0 600.0 ;
+LIBRARY := MIXGE14 :: <<Draglib>> 'RSE' <<o_anis>> 'NONE' 900.0 600.0 600.0 600.0 600.0 600.0 ;
 
 ******************************************************************
 * USS: call to create the self-shielded cross sections library
@@ -97,12 +101,12 @@ SYS := ASM: LIBRARY2 TRKMOC TRKFILMOC ::
 * FLU: call to solve the system at the first level flux calculation
 *******************************************************************
 
-FLUX := FLU:  SYS LIBRARY2 TRKMOC TRKFILMOC :: EDIT 4 TYPE K ;
+FLUX := FLU:  SYS LIBRARY2 TRKMOC TRKFILMOC :: EDIT 1 TYPE K ;
 GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffMOC<< ;
 ECHO "GE14 DOM assembly with glow (1L_MOC), keff=" keffMOC ;
 
 
-EDIRGE14 FLUX LIBRARY2 TRKMOC :: '_CPO_GE14_DOM_00_IC_1L_MOC_ANIS6_glow_Zr_Fe_Gd152' ;
+EDIRGE14 FLUX LIBRARY2 TRKMOC :: <<name_compo>> ;
 ENDIF ;
 
 END: ;

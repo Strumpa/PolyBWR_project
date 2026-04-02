@@ -1,0 +1,77 @@
+#!/bin/sh
+#
+if [ $# = 0 ]
+   then
+   echo "usage: simple_hex_bivac.save directory" 1>&2
+   exit 1
+fi
+echo access simple_hex_bivac.save
+MACH=`uname -s`
+Sysx="`echo $MACH | cut -b -6`"
+if [ $Sysx = "CYGWIN" ]; then
+   export MACH=`uname -o`
+elif [ $Sysx = "AIX" ]; then
+   export MACH=`uname -s`
+else
+   export MACH=`uname -sm | sed 's/[ ]/_/'`
+fi
+
+cat << EOF > symview.py
+# -*- coding: utf-8 -*-
+"""
+Plot 2D voxelized flux surface curve
+"""
+
+import lcm
+import numpy as np
+import matplotlib.pyplot as plt
+
+print('access voxelized flux')
+my_lcm=lcm.new('LCM_INP','HEXFLUD.txt')
+my_lcm.lib()
+print('object signature=', my_lcm['SIGNATURE'])
+state=my_lcm['STATE-VECTOR']
+ng=state[0]
+nx=state[1]
+ny=state[2]
+nz=state[3]
+print('ng=', ng, 'nx=', nx, 'ny=',ny,' nz=',nz)
+mxi=my_lcm['MXI']
+myi=my_lcm['MYI']
+flux=my_lcm['FLUX'][1] # thermal flux
+
+xx,yy = np.meshgrid(mxi,myi)
+zz = flux.reshape(nz,ny,nx)[0,:,:]
+print("flux size=",zz.size)
+
+fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+ax.plot_wireframe(xx, yy, zz)
+ax.set_xlabel('X')
+ax.set_ylabel('Y')
+ax.set_zlabel('thermal flux')
+plt.savefig('VAL_hex_plot.eps', bbox_inches='tight', format='eps', dpi=300)
+#plt.show()
+EOF
+
+if [ -d $1/../PyGan/lib/ ]; then
+   pyv=`echo $(python3 --version) | cut -d. -f2`
+   echo "Use PyGan with python version= 3."$pyv
+   Rundir=$PWD
+   cd "$1"
+   if [ -d ../PyGan/lib/"$MACH"_nvidia ]; then
+      export COMPILER="NVTOOLS"
+   elif [ -d ../PyGan/lib/"$MACH"_llvm ]; then
+      export COMPILER="LLVMTOOLS"
+   elif [ -d ../PyGan/lib/"$MACH"_intel ]; then
+      export COMPILER="INTELTOOLS"
+   fi
+   export PYTHONPATH="$(python3 ../script/set_pythonpath.py)"
+   echo "PYTHONPATH=" $PYTHONPATH
+   cd "$Rundir"
+   ls -l
+   python3 symview.py
+   ls -l
+   mv *.eps $1/"$MACH"/
+   mv *.txt $1/"$MACH"/
+fi
+echo "simple_hex_bivac.save completed"

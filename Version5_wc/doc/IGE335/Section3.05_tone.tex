@@ -47,7 +47,7 @@ these values will be used as floating defaults.
 \begin{DataStructure}{Structure \dstr{desctone}}
 $[$ \moc{EDIT} \dusa{iprint} $]$ \\
 $[$ \moc{GRMIN}  \dusa{lgrmin} $]~~[$ \moc{GRMAX}  \dusa{lgrmax} $]$ \\
-$[$ \moc{MXIT} \dusa{imxit} $]~~[$ \moc{EPS}  \dusa{valeps} $]$  \\
+$[$ \moc{MXIT} \dusa{imxit} $]~~[$ \moc{EPS} \dusa{valeps} $]~~[$ \moc{TCEPS} \dusa{vtceps} $]$ \\
 $[~\{$ \moc{SPH} $|$ \moc{NOSP} $\}~]$
 $[~\{$ \moc{TRAN} $|$ \moc{NOTR} $\}~]$
 $[~\{$ \moc{PIJ} $|$ \moc{ARM} $\}~]$ \\
@@ -90,6 +90,12 @@ self-shielding iteration.
 
 \item[\dusa{valeps}] the convergence criterion for the self-shielding iteration.
 By default, \dusa{valeps}=$1.0\times 10^{-4}$.
+
+\item[\moc{TCEPS}] keyword to specify the relative tolerance for skipping DOORPV or
+DOORAV calls.
+
+\item[\dusa{vtceps}] the convergence criterion for skipping DOORPV or
+DOORAV calls. By default, \dusa{valeps}=$1.0\times 10^{-5}$.
 
 \item[\moc{SPH}] keyword to activate the SPH equivalence scheme which
 modifies the self-shielded averaged neutron fluxes in

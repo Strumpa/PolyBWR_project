@@ -26,7 +26,7 @@ from typing import List, Union
 import serpentTools as st
 from Serpent2_parsing import  parse_S2_pin_mat_det
 from Dragon5_cpo_parsing import  parse_COMPO
-from plotters import plot_pinwise_errors_BWR_assembly, plot_spectrum_comparison, plot_U238_abs_rates
+from plotters import plot_pinwise_errors_BWR_assembly, plot_spectrum_comparison, plot_U238_abs_rates, plot_fluxes_U238_rates_perturbation
 import pandas as pd
 
 from starterDD.MaterialProperties.material_mixture import MaterialMixture, Composition
@@ -37,7 +37,7 @@ from starterDD.DDModel.helpers import associate_material_to_rod_ID
 matplotlib.use('Agg')
 
         
-def analyze_computational_schemes(assembly_id, computational_scheme, evaluation="endfb8r1"):
+def analyze_computational_schemes(assembly_id, computational_scheme, evaluation="endfb8r1", compo_name=None):
     """
     Analyze the impact of different computational schemes on flux and rates accuracy for a BWR assembly.
     Compares Dragon5 results with Serpent2 reference.
@@ -46,6 +46,8 @@ def analyze_computational_schemes(assembly_id, computational_scheme, evaluation=
     ssh_method = "RSE"
     fission_isotopes = ["U235", "U238"]
     deltas = {}
+    U238_rates_295g = {}
+    fluxes_295g = {}
     times = [0,0,0]
     # Create a starterDD assemmbly model to recover the geometry, material and compositions for the cases of interest.
     path_to_yaml_geometry = f"{os.environ['HOME']}/working_dir/PolyBWR_project/Version5_wc/PyGan/data/starterDD_postproc_proc/configs/{assembly_id}/GEOM.yaml"
@@ -68,10 +70,15 @@ def analyze_computational_schemes(assembly_id, computational_scheme, evaluation=
     assembly_model.set_material_compositions(compositions)
     assembly_model.number_fuel_material_mixtures_by_pin()
     
-    if assembly_id == "GE14_DOM":
-        COMPO_name = f"CPO_{assembly_id}_{computational_scheme}_glow_Zr_Fe_Gd152"    
-    elif assembly_id == "AT10":
-        COMPO_name = f"CPO_{assembly_id}_{computational_scheme}_glow_Zr_Fe"
+    print(f"Assembly model for {assembly_id} created. Number of fuel pins = {assembly_model.get_postprocessing_lattice_info()['n_fuel_pins']}")
+    if compo_name is not None:
+        print(f"Using provided compo name : {compo_name}")
+        COMPO_name = compo_name
+    else:
+        if assembly_id == "GE14_DOM" or assembly_id == "GE14_DOM-C":
+            COMPO_name = f"CPO_{assembly_id}_{computational_scheme}_glow_Zr_Fe_Gd152"    
+        elif assembly_id == "AT10" or assembly_id == "AT10-C":
+            COMPO_name = f"CPO_{assembly_id}_{computational_scheme}_glow_Zr_Fe"
    
     keff_D5, fiss_rates_D5, fiss_over_abs_rates_D5, D5_abs_U238, FLUX_groups_D5, energy_mesh = parse_COMPO(COMPO_name, assembly_model, fission_isotopes)
     keff_S2, fission_rates_S2, ngamma_rates_S2, fiss_over_abs_S2, fluxes_S2, S2_abs_U238 = parse_S2_pin_mat_det(assembly_model, assembly_id, evaluation, fission_isotopes)
@@ -92,13 +99,16 @@ def analyze_computational_schemes(assembly_id, computational_scheme, evaluation=
     delta_rel_fast = [(fiss_rates_D5[1][i] - fission_rates_S2[1][i])*100 / fission_rates_S2[1][i] if fission_rates_S2[1][i]!=0 else 0.0 for i in range(len(fission_rates_S2[1]))]
 
     #print(f"For geometry name : {geometry_type}")
+    print(f"For compo name : {COMPO_name}")
     print(f"For computational scheme : {computational_scheme}, ssh solution door : {ssh_sol}")
     print(f"keff_D5 = {keff_D5}, keff_S2 = {keff_S2}")
     delta_keff = (keff_D5 - keff_S2)*1e5
     print(f"error (D5-S2) on keff = {delta_keff:.1f}")
-    deltas[computational_scheme] = {}
-    deltas[computational_scheme][f"{ssh_method}_{ssh_sol}"] = {}
-    deltas[computational_scheme][f"{ssh_method}_{ssh_sol}"]["keff"] = delta_keff
+    
+    deltas[f"{ssh_method}_{ssh_sol}"] = {}
+    deltas[f"{ssh_method}_{ssh_sol}"]["keffD5"] = keff_D5
+    deltas[f"{ssh_method}_{ssh_sol}"]["keffS2"] = keff_S2
+    deltas[f"{ssh_method}_{ssh_sol}"]["delta_keff"] = delta_keff
 
     # Compute RMS, MAX and AVG errors on fission rates
     rms_therm = np.sqrt(np.mean(np.array(delta_rel_therm)**2))
@@ -110,12 +120,12 @@ def analyze_computational_schemes(assembly_id, computational_scheme, evaluation=
     print(f"RMS errors on fission rates (thermal, fast) = {rms_therm:.2f} %, {rms_fast:.2f} %")
     print(f"AVG errors on fission rates (thermal, fast) = {avg_therm:.2f} %, {avg_fast:.2f} %")
     print(f"MAX errors on fission rates (thermal, fast) = {max_therm:.2f} %, {max_fast:.2f} %")
-    deltas[computational_scheme][f"{ssh_method}_{ssh_sol}"]["rms_therm"] = rms_therm
-    deltas[computational_scheme][f"{ssh_method}_{ssh_sol}"]["avg_therm"] = avg_therm
-    deltas[computational_scheme][f"{ssh_method}_{ssh_sol}"]["max_therm"] = max_therm
-    deltas[computational_scheme][f"{ssh_method}_{ssh_sol}"]["rms_fast"] = rms_fast
-    deltas[computational_scheme][f"{ssh_method}_{ssh_sol}"]["avg_fast"] = avg_fast
-    deltas[computational_scheme][f"{ssh_method}_{ssh_sol}"]["max_fast"] = max_fast
+    deltas[f"{ssh_method}_{ssh_sol}"]["rms_therm"] = rms_therm
+    deltas[f"{ssh_method}_{ssh_sol}"]["avg_therm"] = avg_therm
+    deltas[f"{ssh_method}_{ssh_sol}"]["max_therm"] = max_therm
+    deltas[f"{ssh_method}_{ssh_sol}"]["rms_fast"] = rms_fast
+    deltas[f"{ssh_method}_{ssh_sol}"]["avg_fast"] = avg_fast
+    deltas[f"{ssh_method}_{ssh_sol}"]["max_fast"] = max_fast
     total_time = times[0]
     uss_time = times[1]
     asm_flu_time = times[2]
@@ -144,19 +154,101 @@ def analyze_computational_schemes(assembly_id, computational_scheme, evaluation=
     delta_rel_fiss_over_abs_therm = [(fiss_over_abs_rates_D5[0][i] - fiss_over_abs_S2[0][i])*100 / fiss_over_abs_S2[0][i] if fiss_over_abs_S2[0][i]!=0 else 0.0 for i in range(len(fiss_over_abs_S2[0]))]
     delta_rel_fiss_over_abs_fast = [(fiss_over_abs_rates_D5[1][i] - fiss_over_abs_S2[1][i])*100 / fiss_over_abs_S2[1][i] if fiss_over_abs_S2[1][i]!=0 else 0.0 for i in range(len(fiss_over_abs_S2[1]))]
     plot_pinwise_errors_BWR_assembly(np.array([delta_fiss_over_abs_therm,delta_fiss_over_abs_fast]), assembly_model, assembly_id, COMPO_name, calculation_opt = f"{ssh_method}_{ssh_sol}_{computational_scheme}", fig_name="fiss_over_abs_diff", evaluation=evaluation)
+    
+    U238_rates_295g= {"D5": D5_abs_U238, "S2": S2_abs_U238, "energy_mesh": energy_mesh} 
+    fluxes_295g = {"D5": FLUX_groups_D5, "S2": fluxes_S2, "energy_mesh": energy_mesh}
+    
+    return deltas, U238_rates_295g, fluxes_295g
+    
+def format_delta_in_latex_table(deltas, assembly_ids):
+    for assembly_id in assembly_ids:
+        print(f"\\multirow{{2}}{{*}}{{{assembly_id}}} & 1L_MOC & {deltas[assembly_id]['1L_MOC']['RSE_IC']['delta_keff']:.0f} & {deltas[assembly_id]['1L_MOC']['RSE_IC']['rms_fast']:.2f}\\% & {deltas[assembly_id]['1L_MOC']['RSE_IC']['rms_therm']:.2f}\\% & {deltas[assembly_id]['1L_MOC']['RSE_IC']['max_fast']:.2f}\\% &  {deltas[assembly_id]['1L_MOC']['RSE_IC']['max_therm']:.2f}\\% \\\\")
+        print(f"& 2L_IC_MOC & {deltas[assembly_id]['2L_IC_MOC']['RSE_IC']['delta_keff']:.0f} & {deltas[assembly_id]['2L_IC_MOC']['RSE_IC']['rms_fast']:.2f}\\% & {deltas[assembly_id]['2L_IC_MOC']['RSE_IC']['rms_therm']:.2f}\\% & {deltas[assembly_id]['2L_IC_MOC']['RSE_IC']['max_fast']:.2f}\\% &  {deltas[assembly_id]['2L_IC_MOC']['RSE_IC']['max_therm']:.2f}\\% \\\\")
 
-    print(deltas)
-    
-    
+def compute_cross_worth(deltas, assembly_id, assembly_id_controlled):
+    delta_controlled = deltas[assembly_id_controlled]
+    delta_uncontrolled = deltas[assembly_id]
+    ssh_opt = "RSE_IC"
+    print(f"Computing cross worth for assembly {assembly_id} with reference to controlled case {assembly_id_controlled} for ssh solution {ssh_opt}")
+    for scheme in delta_controlled.keys():
+        rho_cross_D5 = (1/delta_uncontrolled[scheme][ssh_opt]["keffD5"] - 1/delta_controlled[scheme][ssh_opt]["keffD5"])*1e5
+        rho_cross_S2 = (1/delta_uncontrolled[scheme][ssh_opt]["keffS2"] - 1/delta_controlled[scheme][ssh_opt]["keffS2"])*1e5
+        print(f"Cross worth for scheme {scheme} : rho_cross_D5 = {rho_cross_D5:.1f} pcm, rho_cross_S2 = {rho_cross_S2:.1f} pcm")
+        print(f"Cross worth difference (D5-S2) for scheme {scheme} : delta_rho_cross = {(rho_cross_D5 - rho_cross_S2):.1f} pcm")
+        
+            
     
 
 if __name__ == "__main__":
 
-
+    GE14_assembly_ids = []#["GE14_DOM", "GE14_DOM-C"]
+    AT10_assembly_ids = []#["AT10", "AT10-C"]
+    calculation_schemes = []#["1L_MOC", "2L_IC_MOC"]
+    deltas = {}
+    rates_and_spectra = {}
     #analyze_main_flux_geometry_refinement()
     #analyze_computational_schemes("GE14_DOM", "1L_MOC")
     #analyze_computational_schemes("AT10", "1L_MOC")
-    analyze_computational_schemes("AT10", "00_RSE_IC_1L_MOC_ANIS6")
-    #analyze_computational_schemes("GE14_DOM", "2L_IC_MOC")
-    analyze_computational_schemes("AT10", "2L_IC_MOC")
+    #analyze_computational_schemes("AT10", "00_RSE_IC_1L_MOC_ANIS6")
+    for assembly_id in GE14_assembly_ids:
+        for scheme in calculation_schemes:
+            delta_scheme, U238_rates, spectra = analyze_computational_schemes(assembly_id, scheme)
+            if assembly_id not in deltas.keys():
+                deltas[assembly_id] = {}
+            if assembly_id not in rates_and_spectra.keys():
+                rates_and_spectra[assembly_id] = {}
+            deltas[assembly_id][scheme] = delta_scheme
+            rates_and_spectra[assembly_id][scheme] = {"U238_rates": U238_rates, "spectra": spectra}
+    for assembly_id in AT10_assembly_ids:
+        for scheme in calculation_schemes:
+            if assembly_id not in deltas.keys():
+                deltas[assembly_id] = {}
+            if assembly_id not in rates_and_spectra.keys():
+                rates_and_spectra[assembly_id] = {}
+            delta_scheme, U238_rates, spectra = analyze_computational_schemes(assembly_id, scheme)
+            deltas[assembly_id][scheme] = delta_scheme
+            rates_and_spectra[assembly_id][scheme] = {"U238_rates": U238_rates, "spectra": spectra}
+            
+            
+            
+    #df = pd.DataFrame.from_dict({(i,j): deltas[i][j] for i in deltas.keys() for j in deltas[i].keys()},orient='index')
+    #df.to_csv("postproc_computational_schemes_comparison.csv")
     
+    #print(deltas)
+    #format_delta_in_latex_table(deltas, GE14_assembly_ids)
+    #format_delta_in_latex_table(deltas, AT10_assembly_ids)
+    #compute_cross_worth(deltas, "GE14_DOM", "GE14_DOM-C")
+    #compute_cross_worth(deltas, "AT10", "AT10-C")
+    
+    #plot_fluxes_U238_rates_perturbation(rates_and_spectra, GE14_assembly_ids, scheme="1L_MOC", evaluation="endfb8r1")
+    #plot_fluxes_U238_rates_perturbation(rates_and_spectra, AT10_assembly_ids, scheme="1L_MOC", evaluation="endfb8r1")
+    
+    ## Test taget compo with specific self-shielding options
+
+    #print(deltas)
+    # GE14 DOM cases
+    # 1L MOC
+    #deltas, U238_rates_295g, fluxes_295g = analyze_computational_schemes("GE14_DOM", "1L_MOC", evaluation="endfb8r1", compo_name="CPO_GE14_DOM_IC_1L_MOC_ANIS4_finer_water_rods_8_moder_3016_corners4")
+    deltas, U238_rates_295g, fluxes_295g = analyze_computational_schemes("GE14_DOM", "1L_MOC", evaluation="endfb8r1", compo_name="CPO_GE14_DOM_IC_1L_MOC_ANIS4_finer_water_rods_8_moder_308_corners4")
+    
+    #deltas, U238_rates_295g, fluxes_295g = analyze_computational_schemes("GE14_DOM", "1L_MOC", evaluation="endfb8r1", compo_name="CPO_GE14_DOM_IC_1L_MOC_ANIS6_finer_water_rods")
+    #deltas, U238_rates_295g, fluxes_295g = analyze_computational_schemes("GE14_DOM", "1L_MOC", evaluation="endfb8r1", compo_name="CPO_GE14_DOM_IC_1L_MOC_finer_water_rods_8_moder_3010")
+    #deltas, U238_rates_295g, fluxes_295g = analyze_computational_schemes("GE14_DOM", "1L_MOC", evaluation="endfb8r1", compo_name="CPO_GE14_DOM_IC_1L_MOC_glow_Zr_Fe_Gd152_Cr_Hf_finer_water_rods")
+    # 2L IC+MOC
+    #deltas, U238_rates_295g, fluxes_295g = analyze_computational_schemes("GE14_DOM", "2L_IC_MOC", evaluation="endfb8r1", compo_name="CPO_GE14_DOM_IC_2L_IC_MOC_finer_water_rods_8_moder_3016_corners4")
+    deltas, U238_rates_295g, fluxes_295g = analyze_computational_schemes("GE14_DOM", "2L_IC_MOC", evaluation="endfb8r1", compo_name="CPO_GE14_DOM_IC_2L_IC_MOC_finer_water_rods_8_moder_308_corners4")
+    #deltas, U238_rates_295g, fluxes_295g = analyze_computational_schemes("GE14_DOM", "2L_IC_MOC", evaluation="endfb8r1", compo_name="CPO_GE14_DOM_IC_2L_IC_MOC_finer_water_rods_8_moder_3016")
+    #deltas, U238_rates_295g, fluxes_295g = analyze_computational_schemes("GE14_DOM", "2L_IC_MOC", evaluation="endfb8r1", compo_name="CPO_GE14_DOM_2L_IC_MOC_glow_Zr_Fe_Gd152_Cr_Hf_finer_water_rods")
+    #deltas, U238_rates_295g, fluxes_295g = analyze_computational_schemes("GE14_DOM", "2L_IC_MOC", evaluation="endfb8r1", compo_name="CPO_GE14_DOM_2L_IC_MOC_glow_Zr_Fe_Gd152_Cr_Hf_finer_water_rods")
+    #deltas, U238_rates_295g, fluxes_295g = analyze_computational_schemes("GE14_DOM", "2L_IC_MOC", evaluation="endfb8r1", compo_name="CPO_GE14_DOM_IC_2L_MOC_finer_water_rods_8_moder_3010")
+    #deltas, U238_rates_295g, fluxes_295g = analyze_computational_schemes("GE14_DOM", "2L_IC_MOC", evaluation="endfb8r1", compo_name="CPO_GE14_DOM_2L_IC_MOC_glow_Zr_Fe_Gd152_Cr_Hf")
+    
+    # GE14 DOM-C cases
+    # 1L MOC
+    #deltas, U238_rates_295g, fluxes_295g = analyze_computational_schemes("GE14_DOM-C", "1L_MOC", evaluation="endfb8r1", compo_name="CPO_GE14_DOM-C_1L_MOC_water_rods_cross_submesh_extend_and_split_tubes")
+    deltas, U238_rates_295g, fluxes_295g = analyze_computational_schemes("GE14_DOM-C", "1L_MOC", evaluation="endfb8r1", compo_name="CPO_GE14_DOM-C_1L_MOC_water_rods_cross_submesh_extend")
+    
+    # 2L IC+MOC
+    deltas, U238_rates_295g, fluxes_295g = analyze_computational_schemes("GE14_DOM-C", "2L_IC_MOC", evaluation="endfb8r1", compo_name="CPO_GE14_DOM-C_2L_IC_MOC_water_rods_cross_submesh_extend")
+    #deltas, U238_rates_295g, fluxes_295g = analyze_computational_schemes("GE14_DOM-C", "2L_IC_MOC", evaluation="endfb8r1", compo_name="CPO_GE14_DOM-C_2L_IC_MOC_glow_Zr_Fe_Gd152_Cr_Hf")
+    #deltas, U238_rates_295g, fluxes_295g = analyze_computational_schemes("GE14_DOM-C", "2L_IC_MOC", evaluation="endfb8r1", compo_name="CPO_GE14_DOM-C_2L_IC_MOC_water_rods_cross_submesh_extend_and_split_tube")

@@ -13,7 +13,7 @@
 !-----------------------------------------------------------------------
 
 module FREELFR
-    use iso_fortran_env, only: sp => real32, dp => real64, int32
+    use iso_c_binding, only: sp => c_float, dp => c_double, int32 => c_int32_t
     implicit none
     
     private

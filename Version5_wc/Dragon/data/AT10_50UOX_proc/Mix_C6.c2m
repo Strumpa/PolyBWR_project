@@ -50,7 +50,7 @@ IF ssh_opt "RSE" = THEN
   MIX <<COMB0102>> COMB <<COMB0101>> 1.0
   MIX <<COMB0103>> COMB <<COMB0101>> 1.0
   MIX <<COMB0104>> COMB <<COMB0101>> 1.0
-  MIX <<CLAD>> 559.0 NOEV
+  MIX <<CLAD>> 600.0 NOEV
     Ni60  = Ni60   9.69262E-06
     Zr90  = Zr90   2.18317E-02 2
     Zr91  = Zr91   4.76096E-03 2
@@ -81,9 +81,9 @@ IF ssh_opt "RSE" = THEN
     Fe56  = Fe56   8.74901E-05
     Sn118  = Sn118   1.16691E-04
     Sn119  = Sn119   4.13864E-05
-  MIX <<GAP>> 900.0 NOEV
+  MIX <<GAP>> 600.0 NOEV
     He4      = He4 1.50456E-04
-  MIX <<MODE>> 559.0 NOEV
+  MIX <<MODE>> 600.0 NOEV
     H1      = H1_H2O 4.94546E-02  
     O16     = O16    2.47298E-02 
   ;
@@ -92,8 +92,10 @@ ELSEIF ssh_opt "PT" = THEN
       EDIT 0
       NMIX 7    ! MAXIMUM OF MATERIAL MIXTURES
       ANIS 2
-      CALENDF 3 
+      CTRA NONE
+      CALENDF 4 
       PT      ! CALENDF TYPE MATHEMATICAL PROBABILITY TABLES
+      ADED 4 NELAS N2N N3N N4N
 
     DEPL LIB: DRAGON FIL: <<Library>>
     MIXS LIB: DRAGON FIL: <<Library>>
@@ -105,7 +107,7 @@ ELSEIF ssh_opt "PT" = THEN
   MIX <<COMB0102>> COMB <<COMB0101>> 1.0
   MIX <<COMB0103>> COMB <<COMB0101>> 1.0
   MIX <<COMB0104>> COMB <<COMB0101>> 1.0
-    MIX <<CLAD>> 559.0 NOEV
+    MIX <<CLAD>> 600.0 NOEV
     Ni60  = Ni60   9.69262E-06
     Zr90  = Zr90   2.18317E-02 2
     Zr91  = Zr91   4.76096E-03 2
@@ -136,9 +138,9 @@ ELSEIF ssh_opt "PT" = THEN
     Fe56  = Fe56   8.74901E-05
     Sn118  = Sn118   1.16691E-04
     Sn119  = Sn119   4.13864E-05
-    MIX <<GAP>> 900.0 NOEV
+    MIX <<GAP>> 600.0 NOEV
       He4      = He4 1.50456E-04
-    MIX <<MODE>> 559.0 NOEV
+    MIX <<MODE>> 600.0 NOEV
       H1      = H1_H2O 4.94546E-02  
       O16     = O16    2.47298E-02 
   ;

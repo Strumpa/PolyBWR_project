@@ -51,7 +51,7 @@
 *----
 *  ALLOCATABLE ARRAYS
 *----
-      INTEGER, ALLOCATABLE, DIMENSION(:) :: KN
+      INTEGER, ALLOCATABLE, DIMENSION(:) :: KN,MATXYZ
       REAL, ALLOCATABLE, DIMENSION(:) :: X,Y,XX,YY,XXX,YYY,AXYZ
 *----
 *  RECOVER TRIVAC SPECIFIC TRACKING INFORMATION
@@ -68,7 +68,7 @@
       LP=MAX(LX,LY)*NP
       IDIM=2
       ALLOCATE(XX(LX*LY),YY(LX*LY),XXX(LX+1),YYY(LY+1))
-      ALLOCATE(X(3*LX),Y(3*LY),AXYZ(LP))
+      ALLOCATE(X(3*LX),Y(3*LY),MATXYZ(LP),AXYZ(LP))
       CALL LCMGET(IPTRK2,'XX',XX)
       CALL LCMGET(IPTRK2,'YY',YY)
       CALL LCMGET(IPTRK2,'NCODE',NCODE)
@@ -146,15 +146,15 @@
           CALL LCMGET(IPTRK2,'E',E)
           CALL LCMSIX(IPTRK2,' ',2)
           CALL VALU2B(LC,MKN,LX,LY,L4,XM(1),Y(1),XXX,YYY,FUNKNO,MAT,KN,
-     +    1,3*LY,E,AXYZ)
+     +    1,3*LY,E,MATXYZ,AXYZ)
         ELSE IF(ICHX.EQ.2) THEN
 *         Raviart-Thomas finite element method
           CALL VALU4B(IELEM,NUN,LX,LY,XM(1),Y(1),XXX,YYY,FUNKNO,MAT,KEY,
-     +    1,3*LY,AXYZ)
+     +    1,3*LY,MATXYZ,AXYZ)
         ELSE IF(ICHX.EQ.3) THEN
 *         Nodal collocation method (MCFD)
           CALL VALU1B(IDIM,LX,LY,L4,XM(1),Y(1),XXX,YYY,FUNKNO,MAT,IELEM,
-     +    1,3*LY,AXYZ)
+     +    1,3*LY,MATXYZ,AXYZ)
         ELSE
           CALL XABORT('SPHGAP: INTERPOLATION NOT IMPLEMENTED(1).')
         ENDIF
@@ -183,15 +183,15 @@
           CALL LCMGET(IPTRK2,'E',E)
           CALL LCMSIX(IPTRK2,' ',2)
           CALL VALU2B(LC,MKN,LX,LY,L4,XP(1),Y(1),XXX,YYY,FUNKNO,MAT,KN,
-     +    1,3*LY,E,AXYZ)
+     +    1,3*LY,E,MATXYZ,AXYZ)
         ELSE IF(ICHX.EQ.2) THEN
 *         Raviart-Thomas finite element method
           CALL VALU4B(IELEM,NUN,LX,LY,XP(1),Y(1),XXX,YYY,FUNKNO,MAT,KEY,
-     +    1,3*LY,AXYZ)
+     +    1,3*LY,MATXYZ,AXYZ)
         ELSE IF(ICHX.EQ.3) THEN
 *         Nodal collocation method (MCFD)
           CALL VALU1B(IDIM,LX,LY,L4,XP(1),Y(1),XXX,YYY,FUNKNO,MAT,IELEM,
-     +    1,3*LY,AXYZ)
+     +    1,3*LY,MATXYZ,AXYZ)
         ELSE
           CALL XABORT('SPHGAP: INTERPOLATION NOT IMPLEMENTED(2).')
         ENDIF
@@ -220,15 +220,15 @@
           CALL LCMGET(IPTRK2,'E',E)
           CALL LCMSIX(IPTRK2,' ',2)
           CALL VALU2B(LC,MKN,LX,LY,L4,X(1),YM(1),XXX,YYY,FUNKNO,MAT,KN,
-     +    3*LX,1,E,AXYZ)
+     +    3*LX,1,E,MATXYZ,AXYZ)
         ELSE IF(ICHX.EQ.2) THEN
 *         Raviart-Thomas finite element method
           CALL VALU4B(IELEM,NUN,LX,LY,X(1),YM(1),XXX,YYY,FUNKNO,MAT,KEY,
-     +    3*LX,1,AXYZ)
+     +    3*LX,1,MATXYZ,AXYZ)
         ELSE IF(ICHX.EQ.3) THEN
 *         Nodal collocation method (MCFD)
           CALL VALU1B(IDIM,LX,LY,L4,X(1),YM(1),XXX,YYY,FUNKNO,MAT,IELEM,
-     +    3*LX,1,AXYZ)
+     +    3*LX,1,MATXYZ,AXYZ)
         ELSE
           CALL XABORT('SPHGAP: INTERPOLATION NOT IMPLEMENTED(3).')
         ENDIF
@@ -257,15 +257,15 @@
           CALL LCMGET(IPTRK2,'E',E)
           CALL LCMSIX(IPTRK2,' ',2)
           CALL VALU2B(LC,MKN,LX,LY,L4,X(1),YP(1),XXX,YYY,FUNKNO,MAT,KN,
-     +    3*LX,1,E,AXYZ)
+     +    3*LX,1,E,MATXYZ,AXYZ)
         ELSE IF(ICHX.EQ.2) THEN
 *         Raviart-Thomas finite element method
           CALL VALU4B(IELEM,NUN,LX,LY,X(1),YP(1),XXX,YYY,FUNKNO,MAT,KEY,
-     +    3*LX,1,AXYZ)
+     +    3*LX,1,MATXYZ,AXYZ)
         ELSE IF(ICHX.EQ.3) THEN
 *         Nodal collocation method (MCFD)
           CALL VALU1B(IDIM,LX,LY,L4,X(1),YP(1),XXX,YYY,FUNKNO,MAT,IELEM,
-     +    3*LX,1,AXYZ)
+     +    3*LX,1,MATXYZ,AXYZ)
         ELSE
           CALL XABORT('SPHGAP: INTERPOLATION NOT IMPLEMENTED(4).')
         ENDIF
@@ -291,7 +291,7 @@
 *----
 *  DEALLOCATE
 *----
-      DEALLOCATE(AXYZ,Y,X)
+      DEALLOCATE(AXYZ,MATXYZ,Y,X)
       DEALLOCATE(YYY,XXX,YY,XX)
       RETURN
       END

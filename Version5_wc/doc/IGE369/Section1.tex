@@ -1585,7 +1585,7 @@ equal to the dominance ratio of the iterative matrix.
 The {\tt OUT:} module is used to compute the reaction rates and to store them in an extended {\sc macrolib} (type {\tt L\_MACROLIB}) corresponding to a solution (type {\tt L\_FLUX}) of the matrix system. The calling specifications are:
 
 \begin{DataStructure}{Structure \dstr{OUT:}}
-\dusa{MACRO2} \moc{:=} \moc{OUT:} $[$ \dusa{MACRO2} $]$ \dusa{FLUX} \dusa{TRACK} \dusa{MACRO} \dusa{GEOM} \moc{::} \dstr{out\_data}
+\dusa{MACRO2} \moc{:=} \moc{OUT:} $[$ \dusa{MACRO2} $]~\{$ \dusa{FLUX} $|$  \dusa{IFLU} $\}$ \dusa{TRACK} \dusa{MACRO} \dusa{GEOM} \moc{::} \dstr{out\_data}
 \end{DataStructure}
 
 \noindent where
@@ -1594,6 +1594,10 @@ The {\tt OUT:} module is used to compute the reaction rates and to store them in
 \item[\dusa{MACRO2}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_MACROLIB}) containing the extended {\sc macrolib}.
 
 \item[\dusa{FLUX}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_FLUX}) containing a solution.
+
+\item[\dusa{IFLU}] {\tt character*12} name of the \dds{interpflux} data structure ({\tt L\_FVIEW} signature) where the
+interpolated flux distribution will be stored. This file is required if and only if the keyword \moc{VAL}
+is set in data structure \dstr{out\_data}.
 
 \item[\dusa{TRACK}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_TRACK}) containing a {\sc tracking}.
 
@@ -1615,7 +1619,9 @@ $[$ \moc{MODE} \dusa{imode} $]$ \\
 $[~\{$ \moc{DIRE} $|$ \moc{PROD} $\}~]$ \\
 $[~\{$ \moc{POWR} \dusa{power} $|$ \moc{FISS} \dusa{number} $|$ \moc{SOUR} \dusa{snumb} $\}~]$ \\
 $[$ \moc{COND} $[~\{$ \moc{NONE} $|$ (\dusa{icond}(i), i=1,ngcond) $\}~]~]$ \\
-$[$ \moc{INTG} $\{$ \moc{NONE} $|$ \moc{IN} $|$ \moc{MIX} $|$ (\dusa{ihom}(i), i=1,nreg) $\}~]$ \\
+$[$ \moc{INTG} $\{$ \moc{NONE} $|$ \moc{IN} $|$ \moc{MIX} $|$ (\dusa{ihom}(i), i=1,nreg) $|$ \\
+\hskip 0.5cm \moc{VAL} \dusa{nhom} $[[$ \moc{RECT} \dusa{xm} \dusa{xp} \dusa{ym} \dusa{yp} $[$ \moc{AXIAL} \dusa{zm} \dusa{zp} $]~]]~[[$ \moc{TRIA} \dusa{x1} \dusa{y1} \dusa{x2} \dusa{y2} \dusa{x3} \dusa{y3} $[$ \moc{AXIAL} \dusa{zm} \dusa{zp} $]~]]$ \\
+\hskip 0.5cm $[[$ \moc{QUAD} \dusa{x1} \dusa{y1} \dusa{x2} \dusa{y2} \dusa{x3} \dusa{y3} \dusa{x4} \dusa{y4} $[$ \moc{AXIAL} \dusa{zm} \dusa{zp} $]~]]~[$ \moc{REMIX} (\dusa{imix2}(ii),ii=1,nhom) $]~\}~]$ \\
 ;
 \end{DataStructure}
 
@@ -1668,6 +1674,53 @@ to be performed, so that \dusa{ngcond}$=$\dusa{ngroup} (default option).
 \item[\moc{MIX}] keyword for computing the reaction rates on the mixture mesh previously used to define the geometry (see Sect.~\ref{sect:geo_data1}) before mesh-splitting.
 
 \item[\dusa{ihom}] index of the homogenized region corresponding to the each region of the geometry (see Sect.~\ref{sect:geo_data1}) before mesh-splitting.
+
+\item[\moc{VAL}] keyword used to specify that the homogenization will be based on the voxel information available in the \dds{interpflux} data structure \dusa{IFLU}. For
+hexagonal geometries, the origin of the radial plane is the center of the central hexagon.
+
+\item[\dusa{nhom}] number of homogeneous nodes to be defined using \moc{RECT} and/or \moc{TRIA} and/or \moc{QUAD} data structures. Many homogeneous mixtures can be defined by
+repeating the \moc{RECT} and/or \moc{TRIA} and/or \moc{QUAD} data structures.
+
+\item[\moc{RECT}] keyword used to specify a unique homogeneous mixture based on a rectangular node. 
+
+\item[\dusa{xm}] lower limit of the homogeneous node alonx X--axis.
+
+\item[\dusa{xp}] upper limit of the homogeneous node alonx X--axis.
+
+\item[\dusa{ym}] lower limit of the homogeneous node alonx Y--axis.
+
+\item[\dusa{yp}] upper limit of the homogeneous node alonx Y--axis.
+
+\item[\dusa{zm}] lower limit of the homogeneous node alonx Z--axis.
+
+\item[\dusa{zp}] upper limit of the homogeneous node alonx Z--axis.
+
+\item[\moc{TRIA}] keyword used to specify a unique homogeneous mixture based on a triangular node.
+
+\item[\moc{QUAD}] keyword used to specify a unique homogeneous mixture based on a quadrilateral node. In this case, the corner list must be provided in clockwise or anticlockwise order.
+
+\item[\dusa{x1}] X--coordinate of the first corner.
+
+\item[\dusa{y1}] Y--coordinate of the first corner.
+
+\item[\dusa{x2}] X--coordinate of the second corner.
+
+\item[\dusa{y2}] Y--coordinate of the second corner.
+
+\item[\dusa{x3}] X--coordinate of the third corner.
+
+\item[\dusa{y3}] Y--coordinate of the third corner.
+
+\item[\dusa{x4}] X--coordinate of the fourth corner of a quadrilateral.
+
+\item[\dusa{y4}] Y--coordinate of the fourth corner of a quadrilateral.
+
+\item[\moc{AXIAL}] keyword used to set \dusa{zm} and \dusa{zp} in 3D cases.
+
+\item[\moc{REMIX}] the homogenization produced by option \moc{VAL} is further homogenized according to \dusa{imix2} indices.
+
+\item[\dusa{imix2}] array of rehomogenized region numbers to which are associated the regions indices created {\sl after} the \moc{VAL} homogenization
+was performed. In the editing routines a value of \dusa{imix2}=0 allows the corresponding region to be neglected.
 
 \end{ListeDeDescription}
 \clearpage
@@ -2115,8 +2168,9 @@ is performed.
 
 \subsection{The {\tt VAL:} module}\label{sect:VALData}
 
-The \moc{VAL:} module supplies an interpolation of the flux in diffusion calculations for
-Cartesian geometries. This module also provide {\sl flux reconstruction} with nodal methods. The calling specifications are:
+The \moc{VAL:} module supplies an interpolation of the flux in diffusion or $SP_n$ calculations for Cartesian geometries and hexagonal geometries discretized
+with a Raviart-Thomas-Schneider approximation. A Cartesian voxel matrix is produced in all cases. This module also provide {\sl flux reconstruction} with nodal
+methods. The calling specifications are:
 
 \begin{DataStructure}{Structure \dstr{VAL:}}
 \dusa{IFLU} \moc{:=} \moc{VAL:} \dusa{TRKNAM} \dusa{FLUNAM} $[$ \dusa{MACRO} $]$ \moc{::} \dstr{descval} 

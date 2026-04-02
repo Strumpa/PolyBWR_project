@@ -5,8 +5,8 @@
 *  Fertile-fissile FBR colorset with the interface current method
 *----
 *
-MODULE  LIB: GEO: SYBILT: ASM: FLU: USS: EDI: DELETE: END: ;
-LINKED_LIST MICROLIB MICROLIB2 ASSMBH TRACK PIJ FLUX EDIOBJ ;
+MODULE  LIB: GEO: SYBILT: ASM: FLU: TONE: EDI: DELETE: END: ;
+LINKED_LIST MICROLIB ASSMBH TRACK PIJ FLUX EDIOBJ ;
 PROCEDURE rnr_cc rnr_interpol assertS ;
 STRING Library := "DLIB_315" ;
 
@@ -82,20 +82,20 @@ EVALUATE T_clad_K := T_clad 273.16 + ;
 EVALUATE T_Na_K := T_Na 273.16 + ;
 
 MICROLIB := LIB: ::
-EDIT 1 NMIX 18 PT
+EDIT 1 NMIX 18
 DEPL LIB: DRAGON FIL: <<Library>>  
 MIXS LIB: DRAGON FIL: <<Library>>  
 MIX 1 (*SODIUM FISSILE*) <<T_Na_K>> NOEV
  Na = 'Na23' <<N_Na>>
 MIX 2 (*COMBUSTIBLE FISSILE MOX*) <<T_comb_K>>
- U5 = 'U235' 0.0 1 IRSET PT 1
- U8 = 'U238' 0.0 1 IRSET PT 1
- Pu38 = 'Pu238' 0.0 1 IRSET PT 1
- Pu39 = 'Pu239' 0.0 1 IRSET PT 1
- Pu40 = 'Pu240' 0.0 1 IRSET PT 1
- Pu41 = 'Pu241' 0.0 1 IRSET PT 1
- Pu42 = 'Pu242' 0.0 1 IRSET PT 1
- Am = 'Am241' 0.0 1 IRSET PT 1
+ U5 = 'U235' 0.0
+ U8 = 'U238' 0.0
+ Pu38 = 'Pu238' 0.0
+ Pu39 = 'Pu239' 0.0
+ Pu40 = 'Pu240' 0.0
+ Pu41 = 'Pu241' 0.0
+ Pu42 = 'Pu242' 0.0
+ Am = 'Am241' 0.0
  O = 'O16' 0.0 NOEV
 MIX 3
  COMB 2 1.0
@@ -160,13 +160,13 @@ MIX 9 (*BOX EM10 FISSILE*) <<T_Na_K>> NOEV
 MIX 10 (*SODIUM FERTILE*)
  COMB 1 1.0
 MIX 11 (*COMBUSTIBLE FERTILE UOX*) <<T_comb_K>>
- U5_f = 'U235' <<N_U5_f>> 2 IRSET PT 1
- U8_f = 'U238' <<N_U8_f>> 2 IRSET PT 1
- Pu39_f = 'Pu239' 0.0 2 IRSET PT 1
- Pu40_f = 'Pu240' 0.0 2 IRSET PT 1
- Pu41_f = 'Pu241' 0.0 2 IRSET PT 1
- Pu42_f = 'Pu242' 0.0 2 IRSET PT 1
- Am_f = 'Am241' 0.0 2 IRSET PT 1
+ U5_f = 'U235' <<N_U5_f>> 1
+ U8_f = 'U238' <<N_U8_f>> 1
+ Pu39_f = 'Pu239' 0.0 1
+ Pu40_f = 'Pu240' 0.0 1
+ Pu41_f = 'Pu241' 0.0 1
+ Pu42_f = 'Pu242' 0.0 1
+ Am_f = 'Am241' 0.0 1
  O_f = 'O16' <<N_O_f>> NOEV
 MIX 12
  COMB 11 1.0
@@ -261,20 +261,20 @@ ROT+  ;
 * REFERENCE DEPLETION LOOP FOR THE FERTILE ASSEMBLY                    *
 ************************************************************************
 * SELF SHIELDING
-MICROLIB2 := USS: MICROLIB TRACK :: EDIT 0 ARM PASS 3 ;
+MICROLIB := TONE: MICROLIB TRACK :: EDIT 2 ARM MXIT 3 SPH ;
  
 * PIJ MATRIX
-PIJ := ASM: MICROLIB2 TRACK :: PIJ ;
+PIJ := ASM: MICROLIB TRACK :: PIJ ;
 
 * FLUX CALCULATION
-FLUX := FLU: PIJ MICROLIB2 TRACK :: EDIT 1
+FLUX := FLU: PIJ MICROLIB TRACK :: EDIT 1
         TYPE K B1 HETE 1 1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 2 BUCK 2.0E-3 ;
 PIJ := DELETE: PIJ ;
 
 ************************************************************************
 * HOMOGENIZATION/CONDENSATION                                          *
 ************************************************************************
-EDIOBJ := EDI:  FLUX MICROLIB2 TRACK ::
+EDIOBJ := EDI:  FLUX MICROLIB TRACK ::
     EDIT 0
     MICR RES
     MERG MIX 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1
@@ -283,6 +283,6 @@ EDIOBJ := EDI:  FLUX MICROLIB2 TRACK ::
     SAVE
   ;
 
-assertS FLUX :: 'K-EFFECTIVE' 1 0.1364715 ;
+assertS FLUX :: 'K-EFFECTIVE' 1 0.1364595 ;
 ECHO "test fbr_colorset completed" ;
 END: ;

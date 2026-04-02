@@ -1,11 +1,11 @@
 *DECK VALU4B
       SUBROUTINE VALU4B(IELEM,NUN,LX,LY,X,Y,XXX,YYY,EVECT,ISS,KFLX,
-     + IXLG,IYLG,AXY)
+     + IXLG,IYLG,MATXY,AXY)
 *
 *-----------------------------------------------------------------------
 *
 *Purpose:
-* Interpolate the flux distribution for DUAL method in 2D.
+* Interpolate the flux distribution for DUAL method in 2D Cartesian.
 *
 *Copyright:
 * Copyright (C) 2002 Ecole Polytechnique de Montreal
@@ -38,6 +38,7 @@
 * IYLG    number of interpolated points according to Y.
 *
 *Parameters: output
+* MATXY   mixture index assigned to each interpolation point.
 * AXY     interpolated fluxes.
 *
 *----------------------------------------------------------------------
@@ -46,7 +47,8 @@
 *----
 *  SUBROUTINE ARGUMENTS
 *----
-      INTEGER IELEM,NUN,LX,LY,IXLG,IYLG,ISS(LX*LY),KFLX(LX*LY)
+      INTEGER IELEM,NUN,LX,LY,IXLG,IYLG,ISS(LX*LY),KFLX(LX*LY),
+     1 MATXY(IXLG,IYLG)
       REAL X(IXLG),Y(IYLG),XXX(LX+1),YYY(LY+1),EVECT(NUN),AXY(IXLG,IYLG)
 *----
 *  LOCAL VARIABLES
@@ -90,6 +92,7 @@
       CALL XABORT('VALU4B: WRONG INTERPOLATION(2).')
    70 IEL=(JS-1)*LX+IS
 *
+      MATXY(I,J)=ISS(IEL)
       IF(ISS(IEL).EQ.0) GO TO 100
       U=(ABSC-0.5*(XXX(IS)+XXX(IS+1)))/(XXX(IS+1)-XXX(IS))
       FLX(1)=COEF(1,1)

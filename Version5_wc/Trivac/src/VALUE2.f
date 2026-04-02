@@ -1,6 +1,6 @@
 *DECK VALUE2
       SUBROUTINE VALUE2 (LC,MKN,LX,LY,LZ,L4,X,Y,Z,XXX,YYY,ZZZ,EVECT,
-     + ISS,KN,IXLG,IYLG,IZLG,E,AXYZ)
+     + ISS,KN,IXLG,IYLG,IZLG,E,MATXYZ,AXYZ)
 *
 *-----------------------------------------------------------------------
 *
@@ -43,6 +43,7 @@
 * E       Lagrange polynomial coefficients.
 *                                                                      
 *Parameters: output
+* MATXYZ  mixture index assigned to each interpolation point.
 * AXYZ    interpolated fluxes.
 *                                                                      
 *----------------------------------------------------------------------
@@ -51,7 +52,7 @@
 *  SUBROUTINE ARGUMENTS
 *----
       INTEGER LC,MKN,LX,LY,LZ,L4,ISS(LX*LY*LZ),KN(LX*LY*LZ*MKN),IXLG,
-     1 IYLG,IZLG
+     1 IYLG,IZLG,MATXYZ(IXLG,IYLG,IZLG)
       REAL X(IXLG),Y(IYLG),Z(IZLG),XXX(LX+1),YYY(LY+1),ZZZ(LZ+1),
      1 EVECT(L4),AXYZ(IXLG,IYLG,IZLG),E(LC,LC)
 *----
@@ -118,6 +119,7 @@
       CALL XABORT('VALUE2: WRONG INTERPOLATION(3).')
    70 IEL=(KS-1)*LX*LY+(JS-1)*LX+IS
 *
+      MATXYZ(I,J,K)=ISS(IEL)
       IF(ISS(IEL).EQ.0) GO TO 100
       NUM=IWRK(IEL)
       IF (NUM.NE.-1) THEN

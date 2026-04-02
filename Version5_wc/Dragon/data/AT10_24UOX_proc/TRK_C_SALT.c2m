@@ -36,8 +36,8 @@ MODULE G2S: MCCGT: SALT: END: ;
 INTEGER an2d := 24 ;  ! ANGULAR QUADRATURE PARAMETER
 REAL densur := 50.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
 
-INTEGER an2d_SS := 24 ;
-REAL densur_SS := 50.0 ;
+INTEGER an2d_SS := 8 ;
+REAL densur_SS := 15.0 ;
 
 * polar angles for MCCGT:
 INTEGER nmu := 4 ;
@@ -46,15 +46,17 @@ INTEGER nmu := 4 ;
 INTEGER mcu := 50000 ;
 
 * ---
-* FLUX CALC TRACKING
+* FLUX CALC TRACKING for CP
 * ---
 UOX_TBH FIG1.ps := G2S: GEOM :: ;
 
 TRACK TF_EXC := SALT: UOX_TBH ::
   EDIT 1
+  ANIS 1
+  TSPC EQW2 <<an2d>> <<densur>>
+  BATCH 200
   ALLG
-  ANIS 3
-  TSPC EQW2 <<an2d>> <<densur>> REND
+  REND
 ;
 
 * MOC tracking
@@ -63,6 +65,7 @@ TRACK := MCCGT: TRACK TF_EXC ::
   CACB <<nmu>> AAC 80 TMT EPSI 1E-5 MCU <<mcu>>
 ;
 
+
 * ---
 * SELF-SHIELDING TRACKING
 * ---
@@ -70,8 +73,8 @@ UOX_TBH_SS FIG_SS.ps := G2S: GEOM_SS :: ;
 
 TRACK_SS TF_EXC_SS := SALT: UOX_TBH_SS ::
   EDIT 1
-  ALLG
-  TSPC <<an2d_SS>> <<densur_SS>> REND
+  ANIS 1
+  TSPC <<an2d_SS>> <<densur_SS>>
 ;
 
 

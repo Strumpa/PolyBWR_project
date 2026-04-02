@@ -1,6 +1,6 @@
 *DECK VALUE1
       SUBROUTINE VALUE1 (IDIM,LX,LY,LZ,L4,X,Y,Z,XXX,YYY,ZZZ,EVT,ISS,
-     1 IELEM,IXLG,IYLG,IZLG,AXYZ)
+     1 IELEM,IXLG,IYLG,IZLG,MATXYZ,AXYZ)
 *
 *-----------------------------------------------------------------------
 *
@@ -40,6 +40,7 @@
 * IZLG    number of interpolated points according to Z.                                    
 *                                                                      
 *Parameters: output
+* MATXYZ  mixture index assigned to each interpolation point.
 * AXYZ    interpolated fluxes.
 *                                                                      
 *----------------------------------------------------------------------
@@ -47,7 +48,8 @@
 *----
 *  SUBROUTINE ARGUMENTS
 *----
-      INTEGER IDIM,LX,LY,LZ,L4,ISS(LX*LY*LZ),IELEM,IXLG,IYLG,IZLG
+      INTEGER IDIM,LX,LY,LZ,L4,ISS(LX*LY*LZ),IELEM,IXLG,IYLG,IZLG,
+     1 MATXYZ(IXLG,IYLG,IZLG)
       REAL X(IXLG),Y(IYLG),Z(IZLG),XXX(LX+1),YYY(LY+1),ZZZ(LZ+1),
      1 EVT(L4),AXYZ(IXLG,IYLG,IZLG)
 *----
@@ -110,7 +112,8 @@
       IF ((IDIM.EQ.2).AND.(N2.EQ.IELEM-1)) GO TO 100
    90 CONTINUE
    95 CONTINUE
-  100 AXYZ(I,J,K)=GAR
+  100 MATXYZ(I,J,K)=ISS(IEL)
+      AXYZ(I,J,K)=GAR
   110 CONTINUE
   120 CONTINUE
   130 CONTINUE

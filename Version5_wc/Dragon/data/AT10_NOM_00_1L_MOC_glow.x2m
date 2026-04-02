@@ -64,7 +64,7 @@ TRKMOC TRKFILMOC := SALT: tdt_spc_moc ::
 
 * MOC tracking
 TRKMOC := MCCGT: TRKMOC TRKFILMOC ::
-    EDIT 2
+    EDIT 1
     GAUS <<o_anis>> AAC 100 ILU0 
     HDD 0.0 SC KRYL 10
 ;
@@ -97,7 +97,7 @@ SYS := ASM: LIBRARY2 TRKMOC TRKFILMOC ::
 * FLU: call to solve the system at the first level flux calculation
 *******************************************************************
 
-FLUX := FLU:  SYS LIBRARY2 TRKMOC TRKFILMOC :: EDIT 4 TYPE K ;
+FLUX := FLU:  SYS LIBRARY2 TRKMOC TRKFILMOC :: EDIT 1 TYPE K ;
 GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffMOC<< ;
 ECHO "ATRIUM10 assembly with 1L_MOC glow , keff=" keffMOC ;
 

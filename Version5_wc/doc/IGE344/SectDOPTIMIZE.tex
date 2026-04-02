@@ -111,6 +111,16 @@ of times the line search algorithm is called.
 \end{array} \right.
 \end{displaymath}
 
+\item Anderson acceleration flag {\tt M:} ${S}^{o}_{15}$, where
+
+\begin{displaymath}
+\mathcal{S}^{o}_{15} = \left\{
+\begin{array}{rl}
+ 0 & \textrm{free iterations} \\
+ \ge 1 & \textrm{window size of the Anderson acceleration.} \\
+\end{array} \right.
+\end{displaymath}
+
 \end{itemize}
 
 \begin{DescriptionEnregistrement}{Main records and sub-directories in \dir{optimize}}{7.0cm}
@@ -185,6 +195,14 @@ decision variables are in first position, then follow the gradients of the const
 \OptDbleEnr
 {LNSR-INFO\blank{3}}{$9$}{$\mathcal{S}^{o}_{8}=2$}{}
 {Double precision values used by module {\tt LNSR:}.}
+
+\OptDbleEnr
+{ANDERSON-XX\blank{1}}{$N_{var}\times(M+1)$}{${S}^{o}_{15}>0$}{}
+{Previous values of the iterate vector over the Anderson window.}
+
+\OptDbleEnr
+{ANDERSON-GG\blank{1}}{$N_{var}\times(M+1)$}{${S}^{o}_{15}>0$}{}
+{Previous values of the gradient vector over the Anderson window.}
 
 \DirEnr
 {OLD-VALUE\blank{3}}

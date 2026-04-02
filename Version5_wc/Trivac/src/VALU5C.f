@@ -1,6 +1,6 @@
 *DECK VALU5C
       SUBROUTINE VALU5C (KPMAC,NX,NUN,NMIX,X,XXX,EVT,ISS,IXLG,ITRIAL,
-     1 AXY)
+     1 MATXYZ,AXY)
 *
 *-----------------------------------------------------------------------
 *
@@ -31,6 +31,7 @@
 *         (=0: CMFD; =1: polynomial NEM; =2: hyperbolic NEM).
 *                                                                      
 *Parameters: output
+* MATXYZ  mixture index assigned to each interpolation point.
 * AXY     interpolated fluxes.
 *                                                                      
 *----------------------------------------------------------------------
@@ -40,7 +41,7 @@
 *  SUBROUTINE ARGUMENTS
 *----
       TYPE(C_PTR) KPMAC
-      INTEGER NX,NUN,NMIX,ISS(NX),IXLG,ITRIAL
+      INTEGER NX,NUN,NMIX,ISS(NX),IXLG,ITRIAL,MATXYZ(IXLG)
       REAL X(IXLG),XXX(NX+1),EVT(NUN),AXY(IXLG)
 *----
 *  LOCAL VARIABLES
@@ -126,7 +127,8 @@
      1      WORK1(4,5)*(COSH(ETA*U)-2.0*SINH(ETA/2.0)/ETA)
           ENDIF
         ENDIF
-  100   AXY(I)=REAL(GAR)
+  100   MATXYZ(I)=ISS(IS)
+        AXY(I)=REAL(GAR)
       ENDDO
       DEALLOCATE(SIGW,SIGR,DIFF)
       RETURN

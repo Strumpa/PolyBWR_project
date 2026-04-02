@@ -33,7 +33,7 @@ def main():
     libTri="../../../Trivac/lib/"+mach+"_llvm"
     libDra="../../../Dragon/lib/"+mach+"_llvm"
     libDon="../../../Donjon/lib/"+mach+"_llvm"
-    extralink=["-lFortranRuntime", "-lFortranDecimal", "-lclang_rt.osx"]
+    extralink=["-lflang_rt.runtime", "-lFortranDecimal", "-lclang_rt.osx"]
   elif Compiler == "INTELTOOLS":
     libdir="../../lib/"+mach+"_intel"
     libUtl="../../../Utilib/lib/"+mach+"_intel"
