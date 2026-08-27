@@ -43,5 +43,5 @@ if [ -f "$pos"/CEA93.G172.V4.DIRECT ]
    then
     ln -s "$pos"/CEA93.G172.V4.DIRECT CEA93V4$
 fi
-ls
+ls -l
 echo "tapollo2 access script terminated"

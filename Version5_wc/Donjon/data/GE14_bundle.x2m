@@ -1,0 +1,227 @@
+****************************************************************
+*                                                              *
+* Input file :  GE14_bundle.x2m                                *
+* Purpose    :  Full-core bundle calculation                   *
+* Author     :  R. Guasch (2026/08)                            *
+* based on   :  NCRtest.x2m                                    *
+*                                                              *
+****************************************************************
+*  
+MODULE       DELETE: GREP: USPLIT: TRIVAA: TRIVAT: DSET: NCR: GEO: 
+            FLUD:
+            UTL: END: ABORT: ;
+LINKED_LIST  GEOM TRACK MATEX FMAP FLUX POWER SYSTEM
+             DEVICE MACRO1 MACFL MACRO2 MACRO KEFF ;
+LINKED_LIST  LCMDOM LCMVAN ;
+*--
+* compo files:
+*--
+SEQ_ASCII  DOMCPO :: FILE '_CPO_GE14_DOM_DIAG' ;
+SEQ_ASCII  VANCPO :: FILE '_CPO_GE14_VAN_DIAG' ;
+*--
+* compo directories:
+*--
+STRING   DIRDOM := "EDI2G_DOM" ;
+STRING   DIRVAN := "EDI2G_VAN" ;
+*--
+* variables declaration:
+*--
+INTEGER   MaxReg := 1000000 ;
+STRING    Method := "MCFD" ;
+INTEGER   splitZ := 1 ;
+INTEGER   degree quadr  := 1 1 ;
+*
+REAL      Pow := 3200. ;
+REAL      Prec epsil := 1.E-5 1.E-5 ;
+INTEGER   iEdit maxItr := 5 2 ;
+STRING    Btyp := "TIMAV-BURN" ;
+REAL      Eps Keff Bexit ;
+INTEGER   nbItr ;
+*---------------------------------------------------------------
+*
+*                SIMPLE GE14 FUEL BUNDLE DEFINITION
+*--
+* Save Multicompo as a linked_list
+*--
+LCMDOM := DOMCPO ;
+LCMVAN := VANCPO ; 
+*--
+* geometry construction:
+*--
+GEOM := GEO: :: CAR3D 1 1 20
+   X- REFL X+ REFL    Y- REFL Y+ REFL    Z- VOID Z+ VOID
+   MESHX 0.0 15.24
+   MESHY 0.0 15.24
+   MESHZ 0.0 19.0 38.0 57.0 76.0 95.0 114.0 133.0 152.0 171.0 
+        190.0 209.0 228.0 247.0 266.0 285.0 304.0 323.0 342.0 361.0 380.0
+   MIX
+   PLANE 1  1
+   PLANE 2  2
+   PLANE 3  3
+   PLANE 4  4
+   PLANE 5  5
+   PLANE 6  6
+   PLANE 7  7
+   PLANE 8  8
+   PLANE 9  9
+   PLANE 10 10
+   PLANE 11 11
+   PLANE 12 12
+   PLANE 13 13
+   PLANE 14 14
+   PLANE 15 15
+   PLANE 16 16
+   PLANE 17 17
+   PLANE 18 18
+   PLANE 19 19
+   PLANE 20 20
+;
+*--
+* link material index and geometry:
+*--
+GEOM MATEX := USPLIT: GEOM :: EDIT 0  NGRP 2
+            MAXR <<MaxReg>>
+            NMIX 20 NFUEL 20  
+            FMIX  1  2  3  4  5  6  7  8  9 10
+                 11 12 13 14 15 16 17 18 19 20 ;
+*--
+* numerical discretization:
+*--
+TRACK := TRIVAT: GEOM :: EDIT 1
+          MAXR <<MaxReg>> MCFD <<degree>> ;
+
+GEOM := DELETE: GEOM ;
+*--
+* macrolib for reflector:
+*--
+MACRO1 := NCR: LCMDOM LCMVAN :: 
+  EDIT 10 MACRO NMIX 20 
+    
+    COMPO LCMDOM <<DIRDOM>>
+      MIX 1
+      SET 'DCool' 7.36689985E-01
+      SET 'TFuel' 900.0
+      SET 'TCool' 600.0 
+      ENDMIX
+    COMPO LCMDOM <<DIRDOM>>
+      MIX 2
+        SET 'TFuel' 900.0
+        SET 'TCool' 600.0 
+        SET 'DCool' 7.36689985E-01
+      ENDMIX
+    COMPO LCMDOM <<DIRDOM>>
+      MIX 3
+      SET 'DCool' 7.36689985E-01
+      SET 'TFuel' 900.0
+      SET 'TCool' 600.0 
+      ENDMIX
+    COMPO LCMDOM <<DIRDOM>>
+      MIX 4
+        SET 'TFuel' 900.0
+        SET 'TCool' 600.0 
+        SET 'DCool' 7.36689985E-01
+      ENDMIX
+    COMPO LCMDOM <<DIRDOM>>
+      MIX 5
+      SET 'DCool' 5.96856594E-01
+      SET 'TFuel' 900.0
+      SET 'TCool' 600.0 
+      ENDMIX
+    COMPO LCMDOM <<DIRDOM>>
+      MIX 6
+        SET 'TFuel' 900.0
+        SET 'TCool' 600.0 
+        SET 'DCool' 5.96856594E-01
+      ENDMIX
+    COMPO LCMDOM <<DIRDOM>>
+      MIX 7
+      SET 'DCool' 5.96856594E-01
+      SET 'TFuel' 900.0
+      SET 'TCool' 600.0 
+      ENDMIX
+    COMPO LCMDOM <<DIRDOM>>
+      MIX 8
+        SET 'TFuel' 900.0
+        SET 'TCool' 600.0 
+        SET 'DCool' 5.96856594E-01
+      ENDMIX
+    COMPO LCMDOM <<DIRDOM>>
+      MIX 9
+      SET 'DCool' 4.57023203E-01
+      SET 'TFuel' 900.0
+      SET 'TCool' 600.0 
+      ENDMIX
+   COMPO LCMDOM <<DIRDOM>>
+      MIX 10
+        SET 'TFuel' 900.0
+        SET 'TCool' 600.0 
+        SET 'DCool' 4.57023203E-01
+      ENDMIX
+    COMPO LCMDOM <<DIRDOM>>
+      MIX 11
+      SET 'DCool' 4.57023203E-01
+      SET 'TFuel' 900.0
+      SET 'TCool' 600.0 
+      ENDMIX
+   COMPO LCMDOM <<DIRDOM>>
+      MIX 12
+        SET 'TFuel' 900.0
+        SET 'TCool' 600.0 
+        SET 'DCool' 4.57023203E-01
+      ENDMIX
+    COMPO LCMDOM <<DIRDOM>>
+      MIX 13
+        SET 'DCool' 4.57023203E-01
+        SET 'TFuel' 900.0
+        SET 'TCool' 600.0 
+      ENDMIX
+    COMPO LCMVAN <<DIRVAN>>
+      MIX 14
+        SET 'TFuel' 900.0
+        SET 'TCool' 600.0 
+        SET 'DCool' 3.17189813E-01
+      ENDMIX
+    COMPO LCMDOM <<DIRDOM>>
+      MIX 15
+        SET 'DCool' 3.17189813E-01
+        SET 'TFuel' 900.0
+        SET 'TCool' 600.0 
+      ENDMIX
+    COMPO LCMVAN <<DIRVAN>>
+      MIX 16
+        SET 'TFuel' 900.0
+        SET 'TCool' 600.0 
+        SET 'DCool' 3.17189813E-01
+      ENDMIX
+    COMPO LCMVAN <<DIRVAN>>
+      MIX 17
+        SET 'DCool' 3.17189813E-01
+        SET 'TFuel' 900.0
+        SET 'TCool' 600.0 
+      ENDMIX
+    COMPO LCMVAN <<DIRVAN>>
+      MIX 18
+        SET 'TFuel' 900.0
+        SET 'TCool' 600.0 
+        SET 'DCool' 1.77356407E-01
+      ENDMIX
+    COMPO LCMVAN <<DIRVAN>>
+      MIX 19
+        SET 'DCool' 1.77356407E-01
+        SET 'TFuel' 900.0
+        SET 'TCool' 600.0 
+      ENDMIX
+    COMPO LCMVAN <<DIRVAN>>
+      MIX 20
+        SET 'TFuel' 900.0
+        SET 'TCool' 600.0 
+        SET 'DCool' 1.77356407E-01
+      ENDMIX
+;
+
+SYSTEM := TRIVAA: MACRO1 TRACK ;
+FLUX := FLUD: SYSTEM TRACK :: EDIT 1 ADI 4 ACCE 5 3 ;
+
+
+END: ;
+QUIT .

@@ -550,6 +550,8 @@
                   CALL LCMPUT(KPLIB,'AWR',1,2,AMASS(IPR(1,JMX)))
                   CALL LCMPUT(KPLIB,'README',20,3,ITEXT)
                ENDIF
+               SECT(:NGRO)=1.0
+               CALL LCMPUT(KPLIB,'NWT0',NGRO,2,SECT)
                IF(ITSEC.EQ.1) THEN
                   SIGS(:NGRO,1)=0.0
                   CALL LCMPUT(KPLIB,'SIGS00',NGRO,2,SIGS)

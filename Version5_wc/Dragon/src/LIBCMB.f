@@ -2,7 +2,7 @@
       SUBROUTINE LIBCMB(MAXMIX,MAXISO,NBISO,NEWISO,NNMIX,MIXCMB,VOLTOT,
      >                  VOLFRA,DENMIX,ISONAM,ISONRF,SHINA,ISOMIX,HLIB,
      >                  ILLIB,DENISO,TMPISO,LSHI,SNISO,SBISO,NTFG,NIR,
-     >                  GIR,MASKI,IEVOL,ITYP)
+     >                  GIR,MASKI,IEVOL,ITYP,TMPNEW)
 *
 *-----------------------------------------------------------------------
 *
@@ -48,6 +48,7 @@
 * MASKI   treat isotope logical.
 * IEVOL   depletion suppression flag (=1/2 to suppress/force depletion).
 * ITYP    type of isotope.
+* TMPNEW  temperature (K) on the new mixture (=-1.0 if not modified).
 *
 *-----------------------------------------------------------------------
 *
@@ -61,7 +62,7 @@
       LOGICAL      MASKI(MAXISO)
       REAL         VOLTOT,VOLFRA,DENMIX(MAXMIX),DENISO(MAXISO),
      >             TMPISO(MAXISO),SNISO(MAXISO),SBISO(MAXISO),
-     >             GIR(MAXISO)
+     >             GIR(MAXISO),TMPNEW
       CHARACTER(LEN=12) SHINA(MAXISO)
       CHARACTER(LEN=8) HLIB(MAXISO,4)
       DOUBLE PRECISION TOTWPC
@@ -103,7 +104,7 @@
           ELSE
             IF(VOLTOT.GT.0.0)
      >        CALL XABORT('LIBCMB: CANNOT COMBINE MIXTURE WITH '//
-     >                    ' WEIGHT PERCENT AND ATOM CONTENTS')
+     >                    'WEIGHT PERCENT AND ATOM CONTENTS(1).')
 *----
 *  TRANSFER MIXTURE DENSITY WITH INITIAL WEIGHT PERCENT TO NEWISO
 *----
@@ -112,7 +113,7 @@
         ELSE
           IF(DENMIX(MIXCMB).EQ.-1.0)
      >      CALL XABORT('LIBCMB: CANNOT COMBINE MIXTURE WITH '//
-     >                  ' WEIGHT PERCENT AND ATOM CONTENTS')
+     >                  'WEIGHT PERCENT AND ATOM CONTENTS(2).')
 *----
 *  REDUCE MIXTURE DENSITY AND WEIGHT PERCENT FOR OLD ISO
 *  TRANSFER MIXTURE DENSITY WITH REDUCED WEIGHT PERCENT TO NEWISO
@@ -194,7 +195,11 @@
           ISO2=NEWISO
  113      ISOMIX(ISO2)=NNMIX
           DENISO(ISO2)=REAL(TOTWPC)*DENISO(ISO)*RMAS2
-          TMPISO(ISO2)=TMPISO(ISO)
+          IF(TMPNEW.EQ.-1.0) THEN
+            TMPISO(ISO2)=TMPISO(ISO)
+          ELSE
+            TMPISO(ISO2)=TMPNEW
+          ENDIF
           NTFG(ISO2)=NTFG(ISO)
           NIR(ISO2)=NIR(ISO)
           GIR(ISO2)=GIR(ISO)

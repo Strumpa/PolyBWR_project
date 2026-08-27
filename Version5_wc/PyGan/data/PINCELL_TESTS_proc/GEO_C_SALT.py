@@ -1,0 +1,37 @@
+#####################################################################
+#                                                                   #
+# Description : PyGan script for BWR simulation with DRAGON5        #
+# Author      : R.Guasch                                            #
+# Date        : 2025/02/25                                          #
+# Purpose     : Geometry definition of BWR pincell                  #
+#                                                                   #
+#####################################################################
+#
+import lifo
+import cle2000
+
+def GEO_C_SALT(name_case):
+
+    # Lifo
+    myLifo=lifo.new()
+    myLifo.pushEmpty("GEOM","LCM")
+    myLifo.pushEmpty("GEOM_SS","LCM")
+    myLifo.lib()
+
+    # Execution 
+    if name_case == "GD_BWR_PINCELL":
+        geoBWR = cle2000.new('GEO_GD',myLifo,1)
+    elif name_case == "UO2_BWR_PINCELL":
+        geoBWR = cle2000.new('GEO_UOX',myLifo,1)
+    geoBWR.exec()
+
+    # Recover
+    myLifo.lib()
+    pyGEOM = myLifo.node("GEOM")
+    pyGEOM_SS = myLifo.node("GEOM_SS")
+    
+    # Clear stack before next execution
+    while myLifo.getMax() > 0: 
+        myLifo.pop()
+    
+    return pyGEOM,pyGEOM_SS

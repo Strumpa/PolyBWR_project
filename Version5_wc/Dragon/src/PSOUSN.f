@@ -5,7 +5,7 @@
 *-----------------------------------------------------------------------
 *
 *Purpose:
-* Compute the source from companion particle for the solution of SN 
+* Compute the source from companion particle for the solution of SN
 * equations.
 *
 *Copyright:
@@ -15,7 +15,7 @@
 * License as published by the Free Software Foundation; either
 * version 2.1 of the License, or (at your option) any later version
 *
-*Author(s): A. Hebert 
+*Author(s): A. Hebert and B.A.H. Meunier
 *
 *Parameters: input
 * NUNF    first dimension of FLUX arrays.
@@ -47,10 +47,11 @@
 *----
 *  LOCAL VARIABLES
 *----
-      PARAMETER(NSTATE=40,PI4=12.5663706144)
+      PARAMETER(NSTATE=40,PI4=12.5663706144,XSMIN=TINY(1.0))
       INTEGER IPAR(NSTATE),JPAR(NSTATE),P,P2,IELEM,EELEM,IELEM2,EELEM2,
      1 NM,NM2,EEL,IEL,IND,IND2,EL,EL2
-      CHARACTER CANIL*2
+      CHARACTER CANIL*2,HSMG*131
+      DOUBLE PRECISION DPROD
 *----
 *  ALLOCATABLE ARRAYS
 *----
@@ -63,7 +64,11 @@
 *  SCRATCH STORAGE ALLOCATION
 *----
       ALLOCATE(IJJ(0:NMAT),NJJ(0:NMAT),IPOS(0:NMAT))
-      ALLOCATE(XSCAT(0:NMAT*NGRP1))
+      ALLOCATE(XSCAT(0:1))
+      IJJ(:NMAT)=0
+      NJJ(:NMAT)=0
+      IPOS(:NMAT)=0
+      XSCAT(:)=0.0
 *----
 *  RECOVER SNT SPECIFIC PARAMETERS.
 *----
@@ -80,7 +85,7 @@
       CALL C_F_POINTER(IM_PTR,IM,(/ NSCT /))
       CALL LCMGET(JPTRK,'STATE-VECTOR',JPAR)
       IF(JPAR(1).NE.NREG) CALL XABORT('PSOUSN: INCONSISTENT NREG.')
-      ITYPE2=IPAR(6)
+      ITYPE2=JPAR(6)
       NSCT2=JPAR(7)
       IELEM2=JPAR(8)
       ISCAT2=JPAR(16)
@@ -89,7 +94,7 @@
       CALL LCMGPD(JPTRK,'IM',IM2_PTR)
       CALL C_F_POINTER(IL2_PTR,IL2,(/ NSCT2 /))
       CALL C_F_POINTER(IM2_PTR,IM2,(/ NSCT2 /))
-      IF(ITYPE.NE.ITYPE2.OR.NSCT.NE.NSCT2.OR.ISCAT.NE.ISCAT2) 
+      IF(ITYPE.NE.ITYPE2.OR.NSCT.NE.NSCT2.OR.ISCAT.NE.ISCAT2)
      1 CALL XABORT('PSOUSN: INCONSISTENCE OF ANGULAR DISCRETISATION'
      2 //'BETWEEN THE PARTICLE AND ITS COMPANION PARTICLE.')
 *----
@@ -117,7 +122,7 @@
       DO EEL=1,EELEM
       IF(IEL.LE.NMX2.AND.EEL.LE.EELEM2) THEN
             IND=EELEM*(IEL-1)+EEL
-            MAP(IND)=M_INDEXES(IEL,EEL)       
+            MAP(IND)=M_INDEXES(IEL,EEL)
       ENDIF
       ENDDO
       ENDDO
@@ -132,8 +137,19 @@
       IOF0=0
       DO 100 P=1,NSCT
       ILP = IL(P)
-      IF(ILP.GT.NANIS-1) GO TO 100     
+      IF(ILP.GT.NANIS-1) GO TO 100
       WRITE(CANIL,'(I2.2)') ILP
+      CALL LCMLEN(KPMACR,'SCAT'//CANIL,ILEN,ITYLCM)
+      IF(ILEN.LE.0) THEN
+         WRITE(HSMG,'(A,A2,A)') 'PSOUSN: EMPTY SCAT',CANIL,
+     >   ' RECORD.'
+         CALL XABORT(HSMG)
+      ENDIF
+      IF(UBOUND(XSCAT,1).LT.ILEN) THEN
+         DEALLOCATE(XSCAT)
+         ALLOCATE(XSCAT(0:ILEN))
+      ENDIF
+      XSCAT(:ILEN)=0.0
       CALL LCMGET(KPMACR,'NJJS'//CANIL,NJJ(1))
       CALL LCMGET(KPMACR,'IJJS'//CANIL,IJJ(1))
       CALL LCMGET(KPMACR,'IPOS'//CANIL,IPOS(1))
@@ -148,13 +164,22 @@
          IBM=MATCOD(IR)
          IF(IBM.LE.0) GO TO 20
          DO 15 IEL=1,NM
-         IF(MAP(IEL).EQ.0) CONTINUE
+         IF(MAP(IEL).EQ.0) GO TO 15
          IND=(IR-1)*NSCT*NM+NM*(P-1)+IEL
          IND2=(IR-1)*NSCT*NM2+NM2*(P-1)+MAP(IEL)
          JG=IJJ(IBM)
          DO 10 JND=1,NJJ(IBM)
-         SOURCE(IND,IG)=SOURCE(IND,IG)+FLUX(IND2,JG)*
-     >   XSCAT(IPOS(IBM)+JND-1)
+         IF((IPOS(IBM)+JND-1).GT.ILEN) CALL XABORT('PSOUSN: SCATT'
+     >   //'ERING POSITION OVERFLOW.')
+         IF((JG.LT.1).OR.(JG.GT.NGRP1)) THEN
+           WRITE(HSMG,'(A,I8,A,I8,A,I8,A,I8,A)')
+     >     'PSOUSN: INVALID COMPANION GROUP=',JG,' MAXIMUM=',NGRP1,
+     >     ' MIXTURE=',IBM,' SECONDARY GROUP=',IG,'.'
+           CALL XABORT(HSMG)
+         ENDIF
+         DPROD=DBLE(FLUX(IND2,JG))*DBLE(XSCAT(IPOS(IBM)+JND-1))
+         IF(ABS(DPROD).GT.DBLE(XSMIN)) SOURCE(IND,IG)=
+     >   SOURCE(IND,IG)+REAL(DPROD)
          JG=JG-1
   10     CONTINUE
   15     CONTINUE
@@ -172,8 +197,17 @@
          IND=(IR-1)*NSCT+IOF0
          JG=IJJ(IBM)
          DO 30 JND=1,NJJ(IBM)
-         SOURCE(IND,IG)=SOURCE(IND,IG)+FLUX(IND,JG)*
-     >   XSCAT(IPOS(IBM)+JND-1)
+         IF((IPOS(IBM)+JND-1).GT.ILEN) CALL XABORT('PSOUSN: SCATT'
+     >   //'ERING POSITION OVERFLOW.')
+         IF((JG.LT.1).OR.(JG.GT.NGRP1)) THEN
+           WRITE(HSMG,'(A,I8,A,I8,A,I8,A,I8,A)')
+     >     'PSOUSN: INVALID COMPANION GROUP=',JG,' MAXIMUM=',NGRP1,
+     >     ' MIXTURE=',IBM,' SECONDARY GROUP=',IG,'.'
+           CALL XABORT(HSMG)
+         ENDIF
+         DPROD=DBLE(FLUX(IND,JG))*DBLE(XSCAT(IPOS(IBM)+JND-1))
+         IF(ABS(DPROD).GT.DBLE(XSMIN)) SOURCE(IND,IG)=
+     >   SOURCE(IND,IG)+REAL(DPROD)
          JG=JG-1
    30    CONTINUE
    40    CONTINUE
@@ -189,15 +223,24 @@
          IF(IBM.LE.0) GO TO 70
          DO 65 IEL=1,IELEM**2
          DO 64 EEL=1,EELEM
-         IF(IEL.GT.IELEM2**2.OR.EEL.GT.EELEM2) CONTINUE
+         IF(IEL.GT.IELEM2**2.OR.EEL.GT.EELEM2) GO TO 64
          EL=EELEM*(IEL-1)+EEL
          EL2=EELEM2*(IEL-1)+EEL
          IND=(IR-1)*NSCT*NM+NM*(P-1)+EL
          IND2=(IR-1)*NSCT*NM2+NM2*(P-1)+EL2
          JG=IJJ(IBM)
          DO 60 JND=1,NJJ(IBM)
-         SOURCE(IND,IG)=SOURCE(IND,IG)+FLUX(IND2,JG)*
-     >   XSCAT(IPOS(IBM)+JND-1)
+         IF((IPOS(IBM)+JND-1).GT.ILEN) CALL XABORT('PSOUSN: SCATT'
+     >   //'ERING POSITION OVERFLOW.')
+         IF((JG.LT.1).OR.(JG.GT.NGRP1)) THEN
+           WRITE(HSMG,'(A,I8,A,I8,A,I8,A,I8,A)')
+     >     'PSOUSN: INVALID COMPANION GROUP=',JG,' MAXIMUM=',NGRP1,
+     >     ' MIXTURE=',IBM,' SECONDARY GROUP=',IG,'.'
+           CALL XABORT(HSMG)
+         ENDIF
+         DPROD=DBLE(FLUX(IND2,JG))*DBLE(XSCAT(IPOS(IBM)+JND-1))
+         IF(ABS(DPROD).GT.DBLE(XSMIN)) SOURCE(IND,IG)=
+     >   SOURCE(IND,IG)+REAL(DPROD)
          JG=JG-1
    60    CONTINUE
    64    CONTINUE
@@ -214,15 +257,24 @@
          IF(IBM.LE.0) GO TO 90
          DO 85 IEL=1,IELEM**3
          DO 84 EEL=1,EELEM
-         IF(IEL.GT.IELEM2**3.OR.EEL.GT.EELEM2) CONTINUE
+         IF(IEL.GT.IELEM2**3.OR.EEL.GT.EELEM2) GO TO 84
          EL=EELEM*(IEL-1)+EEL
          EL2=EELEM2*(IEL-1)+EEL
          IND=(IR-1)*NSCT*NM+NM*(P-1)+EL
          IND2=(IR-1)*NSCT*NM2+NM2*(P-1)+EL2
          JG=IJJ(IBM)
          DO 80 JND=1,NJJ(IBM)
-         SOURCE(IND,IG)=SOURCE(IND,IG)+FLUX(IND2,JG)*
-     >   XSCAT(IPOS(IBM)+JND-1)      
+         IF((IPOS(IBM)+JND-1).GT.ILEN) CALL XABORT('PSOUSN: SCATT'
+     >   //'ERING POSITION OVERFLOW.')
+         IF((JG.LT.1).OR.(JG.GT.NGRP1)) THEN
+           WRITE(HSMG,'(A,I8,A,I8,A,I8,A,I8,A)')
+     >     'PSOUSN: INVALID COMPANION GROUP=',JG,' MAXIMUM=',NGRP1,
+     >     ' MIXTURE=',IBM,' SECONDARY GROUP=',IG,'.'
+           CALL XABORT(HSMG)
+         ENDIF
+         DPROD=DBLE(FLUX(IND2,JG))*DBLE(XSCAT(IPOS(IBM)+JND-1))
+         IF(ABS(DPROD).GT.DBLE(XSMIN)) SOURCE(IND,IG)=
+     >   SOURCE(IND,IG)+REAL(DPROD)
          JG=JG-1
   80     CONTINUE
   84     CONTINUE

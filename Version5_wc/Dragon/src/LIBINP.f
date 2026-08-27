@@ -2,7 +2,7 @@
       SUBROUTINE LIBINP (MAXMIX,MAXED,MAXISO,IPLIB,INDREC,IMPX,NBISO,
      1 NGRO,NGT,NL,ITRANC,IPROB,ITIME,NLIB,NGF,IGRMAX,NDEPL,NCOMB,
      2 NEDMAC,NBMIX,NRES,IPROC,IMAC,NDEL,ISOADD,MAXISM,HVECT,IPRECI,
-     3 SVDEPS,STERN)
+     3 SVDEPS,STERN,EDPMFLAG)
 *
 *-----------------------------------------------------------------------
 *
@@ -19,62 +19,63 @@
 *Author(s): A. Hebert
 *
 *Parameters: input/output
-* MAXMIX  maximum value of NBMIX.
-* MAXED   maximum value of NEDMAC.
-* MAXISO  maximum number of isotopes permitted.
-* IPLIB   pointer to the lattice microscopic cross section library
-*         (L_LIBRARY signature).
-* INDREC  type of action:
-*         =1 a new microlib is created; =2 the microlib is updated;
-*         =3 a read-only macrolib is copied in the microlib.
-* IMPX    print flag.
-* NBISO   number of isotopes present in the calculation domain.
-* NGRO    number of energy groups.
-* NGT     number of energy groups to test.
-* NL      number of Legendre orders required in the calculation.
-*         NL=1 (for isotropic scattering) or higher.
-* ITRANC  type of transport correction: =0 no transport correction
-*         =1 Apollo type transport correction; =2 recover from
-*         library; =3 WIMS-D type; =4 leakage correction alone.
-* IPROB   adjoint macrolib flag:
-*         =0 direct problem; =1 adjoint problem.
-* ITIME   MATXS type of fission spectrum:
-*         =1 steady-state; =2 prompt.
-* NLIB    number of cross-section libraries.
-* NGF     number of fast groups without self-shielding.
-* IGRMAX  maximum group index with self-shielding.
-* NDEPL   number of depleting isotopes (used by EVO:).
-* NCOMB   number of depleting mixtures (used by EVO:).
-* NEDMAC  number of extra vector edits.
-* NBMIX   number of mixtures defined in the microlib.
-* NRES    number of resonant mixtures (used by SHI:, TONE: or USS:).
-* IPROC   type of microlib processing:
-*         =-1: skip temperature/dilution interpolation;
-*         =0: perform temperature/dilution interpolation;
-*         =1: perform temperature interpolation and compute physical
-*             probability tables;
-*         =2: perform temperature interpolation and build a
-*             temperature-independent microlib;
-*         =3: perform temperature interpolation and compute calendf-
-*             type mathematical probability tables based on bin-type
-*             cross-sections for total cross sections;
-*         =4: compute slowing-down correlated probability tables.
-*         =5: perform temperature interpolation and compute calendf-
-*             type mathematical probability tables based on bin-type
-*             cross-sections for all available cross-sections types.
-*         =6: compute orthogonal bases for the resonance spectrum
-*             expansion (RSE) method.
-* IMAC    macrolib construction flag:
-*         =0 do not compute an embedded macrolib;
-*         =1 compute an embedded macrolib.
-* NDEL    number of precursor groups for delayed neutrons.
-* ISOADD  flag to complete the depletion chain:
-*         =0 complete; =1 do not complete.
-* MAXISM  maximum number of isotopes per mixture.
-* HVECT   matxs names of the extra vector edits.
-* IPRECI  accuracy index for probability tables in CALENDF.
-* SVDEPS  rank accuracy of the singular value decomposition.
-* STERN   Sternheimer flag (=0/1: off/on).
+* MAXMIX    maximum value of NBMIX.
+* MAXED     maximum value of NEDMAC.
+* MAXISO    maximum number of isotopes permitted.
+* IPLIB     pointer to the lattice microscopic cross section library
+*           (L_LIBRARY signature).
+* INDREC    type of action:
+*           =1 a new microlib is created; =2 the microlib is updated;
+*           =3 a read-only macrolib is copied in the microlib.
+* IMPX      print flag.
+* NBISO     number of isotopes present in the calculation domain.
+* NGRO      number of energy groups.
+* NGT       number of energy groups to test.
+* NL        number of Legendre orders required in the calculation.
+*           NL=1 (for isotropic scattering) or higher.
+* ITRANC    type of transport correction: =0 no transport correction
+*           =1 Apollo type transport correction; =2 recover from
+*           library; =3 WIMS-D type; =4 leakage correction alone.
+* IPROB     adjoint macrolib flag:
+*           =0 direct problem; =1 adjoint problem.
+* ITIME     MATXS type of fission spectrum:
+*           =1 steady-state; =2 prompt.
+* NLIB      number of cross-section libraries.
+* NGF       number of fast groups without self-shielding.
+* IGRMAX    maximum group index with self-shielding.
+* NDEPL     number of depleting isotopes (used by EVO:).
+* NCOMB     number of depleting mixtures (used by EVO:).
+* NEDMAC    number of extra vector edits.
+* NBMIX     number of mixtures defined in the microlib.
+* NRES      number of resonant mixtures (used by SHI:, TONE: or USS:).
+* IPROC     type of microlib processing:
+*           =-1: skip temperature/dilution interpolation;
+*           =0: perform temperature/dilution interpolation;
+*           =1: perform temperature interpolation and compute physical
+*               probability tables;
+*           =2: perform temperature interpolation and build a
+*               temperature-independent microlib;
+*           =3: perform temperature interpolation and compute calendf-
+*               type mathematical probability tables based on bin-type
+*               cross-sections for total cross sections;
+*           =4: compute slowing-down correlated probability tables.
+*           =5: perform temperature interpolation and compute calendf-
+*               type mathematical probability tables based on bin-type
+*               cross-sections for all available cross-sections types.
+*           =6: compute orthogonal bases for the resonance spectrum
+*               expansion (RSE) method.
+* IMAC      macrolib construction flag:
+*           =0 do not compute an embedded macrolib;
+*           =1 compute an embedded macrolib.
+* NDEL      number of precursor groups for delayed neutrons.
+* ISOADD    flag to complete the depletion chain:
+*           =0 complete; =1 do not complete.
+* MAXISM    maximum number of isotopes per mixture.
+* HVECT     matxs names of the extra vector edits.
+* IPRECI    accuracy index for probability tables in CALENDF.
+* SVDEPS    rank accuracy of the singular value decomposition.
+* STERN     Sternheimer flag (=0/1: off/on).
+* EDPMFLAG  flag to exclude the lumped isotopes contributions to H-FACTOR
 *
 *-----------------------------------------------------------------------
 *
@@ -85,7 +86,7 @@
       TYPE(C_PTR) IPLIB
       INTEGER MAXMIX,MAXED,MAXISO,INDREC,IMPX,NBISO,NGRO,NGT,NL,ITRANC,
      > IPROB,ITIME,NLIB,NGF,IGRMAX,NDEPL,NCOMB,NEDMAC,NBMIX,NRES,IPROC,
-     > IMAC,NDEL,ISOADD,MAXISM,IPRECI,STERN
+     > IMAC,NDEL,ISOADD,MAXISM,IPRECI,STERN,EDPMFLAG
       REAL SVDEPS
       CHARACTER*(*) HVECT(MAXED)
 *----
@@ -96,8 +97,8 @@
       TYPE(C_PTR) JPLIB
       DOUBLE PRECISION DBLINP
       CHARACTER TEXT4*4,TEXT12*12,HOBL(NHOBL)*8,HSMG*131,NAMFIL*64,
-     >          NAMLBT*8,NAMLCM*12,NAMMY*12
-      LOGICAL LNEW,EMPTY,LCM,LSET
+     >          NAMLBT*8
+      LOGICAL LNEW,LSET
       INTEGER KCHAR(2),ISTATE(NSTATE)
       REAL TMPDAY(3)
 *----
@@ -142,7 +143,7 @@
       ENDIF
       IF((INDREC.EQ.2).AND.(NBISO.GT.0)) THEN
 *        THE LIBRARY IS UPDATED. READ OLD LIBRARY INFORMATION.
-         CALL LIBINF(IPLIB,MAXISO,MAXLIB,MAXED,MAXMIX,NBISO,NGRO,NL,
+         CALL LIBINF(IPLIB,MAXISO,MAXLIB,MAXED,MAXMIX,NBISO,NGRO,NL,NW,
      1   ITRANC,NLIB,NCOMB,NEDMAC,NBMIX,ISONAM,ISONRF,ISOMIX,DENISO,
      2   TMPISO,SHINA,SNISO,SBISO,NTFG,LSHI,GIR,NIR,MASKI,HLIB,IEVOL,
      3   ITYP,ILLIB,KGAS,DENMIX,HVECT,HNAME)
@@ -160,11 +161,9 @@
          NBISO=0
          NELSN=0
          NNMIX=0
-         DO IIIMIX=1,MAXMIX
-           DENMIX(IIIMIX)=-1.0
-           TMPMIX(IIIMIX)=-1.0
-           KGAS(IIIMIX)=0
-         ENDDO
+         DENMIX(:MAXMIX)=-1.0
+         TMPMIX(:MAXMIX)=-1.0
+         KGAS(:MAXMIX)=0
       ENDIF
 *----
 *  READ THE SPECIFICATION FOR EACH ISOTOPE.
@@ -248,7 +247,6 @@
 *----
 *  THIS MIXTURE IS A COMBINATION OF OTHER MIXTURES.
 *----
-              CALL LCMINF(IPLIB,NAMLCM,NAMMY,EMPTY,ILONG,LCM)
               VOLTOT=0.0
   70          VOLFRA=0.0
               MIXCMB=0
@@ -260,15 +258,22 @@
               ENDIF
               IF(INDIC.EQ.2) CALL XABORT('LIBINP: MIXTURE NUMBER MISSI'
      >        //'NG FOR COMBINATION.')
-              CALL REDGET(INDIC,NITMA,VOLFRA,TEXT12,DBLINP)
+              CALL REDGET(INDIC,NITMA,FLOTT,TEXT12,DBLINP)
+              IF((INDIC.EQ.3).AND.(TEXT12.EQ.'TEMP')) THEN
+                CALL REDGET(INDIC,NITMA,TMPNEW,TEXT12,DBLINP)
+                CALL REDGET(INDIC,NITMA,FLOTT,TEXT12,DBLINP)
+              ELSE
+                TMPNEW=-1.0
+              ENDIF
               IF((INDIC.EQ.1).OR.(INDIC.EQ.3)) CALL XABORT('LIBINP: VO'
      >        //'LUME FRACTION MISSING FOR COMBINATION.')
+              VOLFRA=FLOTT
               IF(VOLFRA.EQ.0.0) CALL XABORT('LIBINP: INDIVIDUAL VOLUME'
      >        //' FRACTION OF 0.0 IS ILLEGAL.')
               CALL LIBCMB(MAXMIX,MAXISO,NBISO,NEWISO,NNMIX,MIXCMB,
      1        VOLTOT,VOLFRA,DENMIX,ISONAM,ISONRF,SHINA,ISOMIX,HLIB,
      2        ILLIB,DENISO,TMPISO,LSHI,SNISO,SBISO,NTFG,NIR,GIR,MASKI,
-     3        IEVOL,ITYP)
+     3        IEVOL,ITYP,TMPNEW)
               GO TO 70
            ELSE
              WRITE(HSMG,'(41HLIBINP: ONLY COMB KEYWORD CAN FOLLOW MIXT,
@@ -282,7 +287,7 @@
            IF(INDIC.EQ.2) THEN
              IF(DENMIX(NNMIX).EQ.-1.0) THEN
                 CALL LIBCON(IPLIB,NNMIX,NBISO,ISOMIX,DENISO,
-     >          DENMIX(NNMIX),2)
+     >          DENMIX(NNMIX),2,IMPX)
              ENDIF
              DENMIX(NNMIX)=FLOTT
              CALL REDGET(INDIC,NITMA,FLOTT,TEXT12,DBLINP)
@@ -414,6 +419,8 @@
          CALL REDGET(INDIC,NTFG(NEWISO),FLOTT,TEXT12,DBLINP)
          IF(INDIC.NE.1) CALL XABORT('LIBINP: NUMBER OF THERMALIZED '//
      >   'GROUPS REQUIRED.')
+         IF((NTFG(NEWISO).LE.0).OR.(NTFG(NEWISO).GT.NGRO))
+     >   CALL XABORT('LIBINP: INVALID NUMBER OF THERMALIZED GROUPS.')
          CALL REDGET(INDIC,NITMA,FLOTT,TEXT12,DBLINP)
          IF(INDIC.NE.3) CALL XABORT('LIBINP: CHARACTER DATA EXPECTED'//
      >   '(10).')
@@ -513,6 +520,7 @@
       IF(NEDMAC.GT.MAXED) CALL XABORT('LIBINP: TOO MANY EXTRA EDITS R'
      > //'EQUESTED.')
       HVECT(NEDMAC)=HOBL(I)
+*      PRINT *, "HVECT(NEDMAC) =", HVECT(NEDMAC)
   120 CONTINUE
 *----
 *  ADD THE MISSING ISOTOPES FROM THE DEPLETION CHAIN.
@@ -638,6 +646,7 @@
 *----
       NBMIX=0
       DO 220 I=1,NBISO
+      IF(IEVOL(I).EQ.0) IEVOL(I)=1
       NBMIX=MAX(NBMIX,ISOMIX(I))
   220 CONTINUE
       IF(NBMIX.GT.MAXMIX) CALL XABORT('LIBINP: MAXMIX TOO SMALL.')
@@ -667,6 +676,7 @@
       ISTATE(22)=MAXISM
       ISTATE(23)=IPRECI
       ISTATE(27)=STERN
+      ISTATE(28)=EDPMFLAG
       CALL LCMPUT(IPLIB,'STATE-VECTOR',NSTATE,1,ISTATE)
       CALL LCMPUT(IPLIB,'ISOTOPESUSED',3*NBISO,3,ISONAM)
       CALL LCMPUT(IPLIB,'ISOTOPERNAME',3*NBISO,3,ISONRF)
@@ -733,12 +743,14 @@
          NBESP=ISTATE(16)
          NDEL=ISTATE(19)
          NFISS=ISTATE(20)
+         IADF=ISTATE(24)
+         NW=ISTATE(25)
          NPART=ISTATE(26)
          STERN=ISTATE(27)
          WRITE (IOUT,300) IMPX,IPROB,ITIME,NLIB,NGF,IGRMAX,NBISO,NBMIX,
      1   NRES,NCOMB,NEDMAC,NGRO,NL
          WRITE (IOUT,305) ITRANC,NBESP,IPROC,IMAC,NDEL,NDEPL,NFISS,
-     1   ISOADD,MAXISM,IPRECI,NPART,STERN
+     1   ISOADD,MAXISM,IPRECI,IADF,NW,NPART,STERN
          IF(IPROC.EQ.6) WRITE(IOUT,306) SVDEPS
          IF(NEDMAC.GT.0) WRITE (IOUT,310) (I,HVECT(I),I=1,NEDMAC)
          IF(NLIB.GT.0) THEN
@@ -753,7 +765,7 @@
 *----
       DO 270 IMX=1,NBMIX
       IF(MASK(IMX).AND.(DENMIX(IMX).GE.0.0)) THEN
-         CALL LIBCON(IPLIB,IMX,NBISO,ISOMIX,DENISO,DENMIX(IMX),1)
+         CALL LIBCON(IPLIB,IMX,NBISO,ISOMIX,DENISO,DENMIX(IMX),1,IMPX)
       ENDIF
   270 CONTINUE
       IF(IMPX.GT.0) THEN
@@ -827,8 +839,11 @@
      3 7H ISOADD,I6,37H   (0=COMPLETE BURNUP CHAIN/1=DO NOT)/
      4 7H MAXISM,I6,40H   (MAX. NUMBER OF ISOTOPES PER MIXTURE)/
      5 7H IPRECI,I6,34H   (CALENDF ACCURACY FLAG:1/2/3/4)/
-     6 7H NPART ,I6,34H   (NUMBER OF COMPANION PARTICLES)/
-     7 7H STERN ,I6,47H   (STERNHEIMER FLAG FOR CHARGED PARTICLES:0/1))
+     6 7H IADF  ,I6,23H   (ADF FLAG:0/1/2/3/4)/
+     7 7H NW    ,I6,47H   (=0: FLUX WEIGHTING FOR P1 INFO; =1: CURRENT,
+     8 23H WEIGHTING FOR P1 INFO)/
+     9 7H NPART ,I6,34H   (NUMBER OF COMPANION PARTICLES)/
+     1 7H STERN ,I6,47H   (STERNHEIMER FLAG FOR CHARGED PARTICLES:0/1))
   306 FORMAT(7H SVDEPS,1P,E10.3,27H (RANK ACCURACY OF THE SVD))
   310 FORMAT(/45H CROSS SECTION EDIT NAME (LCM DIRECTORY NAME)/1X,
      1 44(1H-)/(1X,I3,2X,A6,5X,I3,2X,A6,5X,I3,2X,A6))

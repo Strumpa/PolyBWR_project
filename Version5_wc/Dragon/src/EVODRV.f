@@ -2,8 +2,8 @@
       SUBROUTINE EVODRV(IPDEPL,IPLIB,INDREC,IMPX,NBISO,NGROUP,NBMIX,
      1 ISONAM,ISONRF,MIX,DEN,IEVOL,ISTYP,VX,NDEPL,NSUPS,NREAC,NCOMB,
      2 EPS1,EPS2,EXPMAX,H1,ITYPE,INR,IEXTR,IGLOB,ISAT,IDIRAC,ITIXS,
-     3 IFLMAC,IYLMIX,FIT,ISAVE,ISET,IDEPL,XTI,XTF,XT,LMACRO,FLUMIX,
-     4 IPICK,MIXBRN,MIXPWR)
+     3 IFLMAC,IYLMIX,FIT,ENERGY,ISAVE,ISET,IDEPL,XTI,XTF,XT,LMACRO,
+     4 FLUMIX,IPICK,MIXBRN,MIXPWR)
 *
 *-----------------------------------------------------------------------
 *
@@ -74,6 +74,7 @@
 *         n/cm**2/s if INR=1;
 *         MW/tonne of initial heavy elements if INR=2;
 *         W/cc of assembly volume if INR=3.
+* ENERGY  incident neutron energy for fission yields.
 * ISAVE   save flag:
 *         =-1: do not save the last flux calculation in the depletion
 *         table;
@@ -114,7 +115,7 @@
      1 ISONRF(3,NBISO),MIX(NBISO),IEVOL(NBISO),ISTYP(NBISO),NDEPL,
      2 NSUPS,NREAC,NCOMB,ITYPE,INR,IEXTR,IGLOB,ISAT,IDIRAC,ITIXS,
      3 IFLMAC,IYLMIX,ISAVE,ISET,IDEPL,IPICK,MIXBRN(NBMIX),MIXPWR(NBMIX)
-      REAL DEN(NBISO),VX(NBMIX),EPS1,EPS2,EXPMAX,H1,FIT,XTI,XTF,
+      REAL DEN(NBISO),VX(NBMIX),EPS1,EPS2,EXPMAX,H1,FIT,ENERGY,XTI,XTF,
      1 XT(2),FLUMIX(NGROUP,NBMIX)
       LOGICAL LMACRO
 *----
@@ -125,7 +126,7 @@
       CHARACTER TEXT12*12,HSMG*131
       LOGICAL LCOOL
       INTEGER IDIM(NSTATE),IPAR(NSTATE)
-      REAL DELTA(3),RPAR(5),BRNWIR(2),TMPDAY(3),VPH(2),
+      REAL DELTA(3),RPAR(6),BRNWIR(2),TMPDAY(3),VPH(2),
      1 FUELDN(3),DELTAT(2,2),TIMEP(2,3)
       DOUBLE PRECISION T(3),WEI,DPD,XDRCST,AVCON,VTOTD,VPHINI,DBLLIR
 *----
@@ -135,7 +136,8 @@
      1 NDFP2,HREAC,IPIFI,IZAE
       INTEGER, ALLOCATABLE, DIMENSION(:,:) :: JM,INADPL,IEVOLB,KFISS,
      1 KPAR,IDR,KPF
-      REAL, ALLOCATABLE, DIMENSION(:) :: ENERG,RERD,RRD,AWR,PYIELD,TIMES
+      REAL, ALLOCATABLE, DIMENSION(:) :: ENERG,RERD,RRD,AWR,PYIELD,
+     1 TIMES,EEEE,TERP
       REAL, ALLOCATABLE, DIMENSION(:,:) :: BPAR,RER,VPHV
       REAL, ALLOCATABLE, DIMENSION(:,:,:) :: YDPL,YIELD,YIELD2
       REAL, ALLOCATABLE, DIMENSION(:,:,:,:) :: SIG
@@ -189,7 +191,7 @@
       NPAR=IDIM(9)
       NBESP=MAX(1,IDIM(10))
       ALLOCATE(KPAR(NDEPL,NPAR),HREAC(2*NREAC),IDR(NREAC,NDEPL))
-      ALLOCATE(BPAR(NDEPL,NPAR),YIELD2(NBESP,NFISS,NDFP),
+      ALLOCATE(BPAR(NDEPL,NPAR),YIELD2(NBESP,NFISS,NDFP),EEEE(NDEPL+1),
      1 RER(NREAC,NDEPL),RERD(NDEPL),RRD(NDEPL))
       CALL LCMGET(IPLIB,'ISOTOPESDEPL',INADPL)
       IF(IMPX.GT.1) THEN
@@ -205,6 +207,21 @@
       CALL LCMGET(IPLIB,'DEPLETE-DECA',RRD)
       CALL LCMGET(IPLIB,'CHARGEWEIGHT',IZAE)
       IF(NFISS*NDFP.GT.0) CALL LCMGET(IPLIB,'FISSIONYIELD',YIELD2)
+      INTERY=0
+      IF(NBESP.GT.1) THEN
+        CALL LCMLEN(IPLIB,'ENERGY-YIELD',ILONG,ITYLCM)
+        IF(ILONG.GT.0) THEN
+          ! fission yields sets are defined over macrogroups
+          INTERY=1
+          CALL LCMGET(IPLIB,'ENERGY-YIELD',EEEE)
+        ENDIF
+        CALL LCMLEN(IPLIB,'PENERG-YIELD',ILONG,ITYLCM)
+        IF(ILONG.GT.0) THEN
+          ! fission yields sets are set at pointwise energies
+          INTERY=2
+          CALL LCMGET(IPLIB,'PENERG-YIELD',EEEE)
+        ENDIF
+      ENDIF
       CALL LCMSIX(IPLIB,' ',2)
       RERD(:NDEPL)=RER(1,:NDEPL)
       DEALLOCATE(RER)
@@ -303,7 +320,42 @@
    40    CONTINUE
          DO IDFP=1,NDFP
             DO IFISS=1,NFISS
-               YIELD(IFISS,IDFP,:NBMIX)=YIELD2(NBESP,IFISS,IDFP)
+               IF(NBESP.EQ.1) THEN
+                 YIELD(IFISS,IDFP,:NBMIX)=YIELD2(1,IFISS,IDFP)
+               ELSE
+                 IF(ENERGY.GE.EEEE(1)) THEN
+                   YIELD(IFISS,IDFP,:NBMIX)=YIELD2(1,IFISS,IDFP)
+                 ELSE IF(ENERGY.LE.EEEE(NBESP)) THEN
+                   YIELD(IFISS,IDFP,:NBMIX)=YIELD2(NBESP,IFISS,IDFP)
+                 ELSE IF(INTERY.EQ.1) THEN
+                   ! fission yields sets are defined over macrogroups
+                   DO ILE=NBESP,1,-1
+                     IF(ENERGY.LE.EEEE(ILE)) THEN
+                       YIELD(IFISS,IDFP,:NBMIX)=YIELD2(ILE,IFISS,IDFP)
+                       EXIT
+                     ENDIF
+                   ENDDO
+                 ELSE IF(INTERY.EQ.2) THEN
+                   ! fission yields sets are set at pointwise energies
+                   ALLOCATE(TERP(NBESP))
+                   TERP(:NBESP)=0.0
+                   T1=LOG(1.0E7/ENERGY)
+                   DO ILE=NBESP,2,-1
+                     IF(ENERGY.LE.EEEE(ILE-1)) THEN
+                       T2=LOG(1.0E7/EEEE(ILE))
+                       T3=LOG(1.0E7/EEEE(ILE-1))
+                       TERP(ILE)=(T3-T1)/(T3-T2)
+                       TERP(ILE-1)=1.0-TERP(ILE)
+                       EXIT
+                     ENDIF
+                   ENDDO
+                   DO ILE=1,NBESP
+                     YIELD(IFISS,IDFP,:NBMIX)=YIELD(IFISS,IDFP,:NBMIX)+
+     1               YIELD2(ILE,IFISS,IDFP)*TERP(ILE)
+                   ENDDO
+                   DEALLOCATE(TERP)
+                 ENDIF
+               ENDIF
             ENDDO
          ENDDO
       ELSE IF(IYLMIX.EQ.1) THEN
@@ -333,7 +385,7 @@
          KPLIB=IPISO(ISOT) ! set ISOT-th isotope
          IF(.NOT.C_ASSOCIATED(KPLIB)) THEN
            WRITE(HSMG,'(17HEVODRV: ISOTOPE '',3A4,16H'' IS NOT AVAILAB,
-     >     22HLE IN THE MICROLIB(1).)') (ISONAM(I0,ISOT),I0=1,3)
+     >     22HLE IN THE MICROLIB(1).)') ISONAM(:3,ISOT)
            CALL XABORT(HSMG)
          ENDIF
          CALL LCMLEN(KPLIB,'PIFI',NDFI,ITYLCM)
@@ -352,13 +404,18 @@
                WRITE(IUNOUT,510) 'FISSION PRODUCT',IS,(KPF(I,IBM),
      1         I=1,NDFP)
                WRITE(HSMG,'(39HEVODRV: UNABLE TO FIND FP INDEX FOR ISO,
-     1         5HTOPE ,3A4,5H (1).)')(ISONAM(I0,ISOT),I0=1,3)
+     1         5HTOPE ,3A4,1H.)') ISONAM(:3,ISOT)
                CALL XABORT(HSMG)
             ENDIF
             DO 55 I=1,NDFI
-               IF(IPIFI(I).EQ.0) GO TO 55
+               JSOT=IPIFI(I)
+               IF(JSOT.EQ.0) GO TO 55
                DO JST=1,NVAR
-                  IF(ABS(JM(IBM,JST)).EQ.IPIFI(I)) THEN
+                  KSOT=ABS(JM(IBM,JST))
+                  IF(KSOT.EQ.0) CYCLE
+                  IF((ISONAM(1,KSOT).EQ.ISONAM(1,JSOT)).AND.
+     1               (ISONAM(2,KSOT).EQ.ISONAM(2,JSOT)).AND.
+     2               (ISONAM(3,KSOT).EQ.ISONAM(3,JSOT))) THEN
                      IFISS=0
                      DO J=1,NFISS
                         IF(KFISS(J,IBM).EQ.JST) THEN
@@ -376,8 +433,8 @@
                      GO TO 55
                   ENDIF
                ENDDO
-               WRITE(HSMG,'(39HEVODRV: UNABLE TO FIND FP INDEX FOR ISO,
-     1         5HTOPE ,3A4,5H (2).)')(ISONAM(I0,ISOT),I0=1,3)
+               WRITE(HSMG,'(39HEVODRV: UNABLE TO FIND FP INDEX FOR FIS,
+     1         13HSILE ISOTOPE ,3A4,1H.)') ISONAM(:3,JSOT)
                CALL XABORT(HSMG)
    55       CONTINUE
             DEALLOCATE(PYIELD,IPIFI)
@@ -387,7 +444,7 @@
       ELSE
          CALL XABORT('EVODRV: INVALID VALUE OF FLAG IYLMIX.')
       ENDIF
-      DEALLOCATE(YIELD2)
+      DEALLOCATE(EEEE,YIELD2)
 *----
 *  COMPUTE THE INITIAL INTEGRATED FLUX
 *----
@@ -976,7 +1033,8 @@
       RPAR(3)=EXPMAX
       RPAR(4)=H1
       RPAR(5)=FIT
-      CALL LCMPUT(IPDEPL,'EVOLUTION-R',5,2,RPAR)
+      RPAR(6)=ENERGY
+      CALL LCMPUT(IPDEPL,'EVOLUTION-R',6,2,RPAR)
       IF((IMPX.GT.1).OR.((IMPX.GT.0).AND.(INDREC.EQ.1))) THEN
          WRITE(IUNOUT,590) IMPX,ITYPE,INR,NTIM,NBISO,NCOMB,NREAC,
      1   NVAR,NBMIX,IEXTR

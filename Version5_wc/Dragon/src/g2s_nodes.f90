@@ -170,7 +170,7 @@ contains
     call associatePoints(szSA,nbPts)
 
     !resolution du systeme precedent
-    call solveNodeSystem(szSA,nbPts,nbNode)
+    call solveNodeSystem(szSA,nbPts,nbNode,imacro)
 
     ! nettoyage du tableau
     do i = 1,nbPts
@@ -397,8 +397,8 @@ contains
     isEqualPt = isEqualConst(p1%x,p2%x) .and. isEqualConst(p1%y,p2%y)
   end function isEqualPt
 
-  subroutine solveNodeSystem(szSA,nbPts,nbNode)
-    integer,intent(in)  :: szSA,nbPts
+  subroutine solveNodeSystem(szSA,nbPts,nbNode,imacro)
+    integer,intent(in)  :: szSA,nbPts,imacro(:)
     integer,intent(out) :: nbNode
 
     integer  :: i,j,indNodeAv,indNodeAp,mixAv,mixAp,sz
@@ -427,7 +427,7 @@ contains
                 open(nbFile,file='errorMix.eps')
                 exit
              enddo
-             call drawSegArc(nbFile,szSA,2,zoomx,zoomy)
+             call drawSegArc(nbFile,szSA,2,imacro,zoomx,zoomy)
              close(nbFile)
              write(*,*) 'i,j,mixAv,mixAp : ',i,j,mixAv,mixAp
              call XABORT("G2S: internal problem for mix values. See the file &

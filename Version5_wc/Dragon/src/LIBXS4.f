@@ -306,6 +306,8 @@
             CALL LCMPUT(KPLIB,'NTOT0',NGRO,2,SECT)
             CALL LCMPUT(KPLIB,'SIGS00',NGRO,2,SECT)
           ENDIF
+          SECT(:NGRO)=1.0
+          CALL LCMPUT(KPLIB,'NWT0',NGRO,2,SECT)
         ENDDO
         DEALLOCATE(RTSEGM)
         CALL LCMSIX(IPAP,' ',2)

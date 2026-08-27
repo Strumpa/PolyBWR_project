@@ -151,7 +151,7 @@
             DO 65 IBM=1,NBMIX
             IF(RCAT(IGR,IGR,IBM).LT.0.0) THEN
                WRITE(HSMG,'(39HTRIRCA: INVALID CROSS-SECTION DATA (IL=,
-     1         I3,2H).)') IL
+     1         I3,5H IGR=,I4,5H IBM=,I10,2H).)') IL,IGR,IBM
                CALL XABORT(HSMG)
             ENDIF
    65       CONTINUE

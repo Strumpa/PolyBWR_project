@@ -1,0 +1,20 @@
+#!/bin/sh
+#
+if [ $# = 0 ]
+   then
+   echo "usage: fa1_2level_370.save directory" 1>&2
+   exit 1
+fi
+echo "access fa1_2level_370.save"
+MACH=`uname -s`
+Sysx="`echo $MACH | cut -b -6`"
+if [ $Sysx = "CYGWIN" ]; then
+   MACH=`uname -o`
+elif [ $Sysx = "AIX" ]; then
+   MACH=`uname -s`
+else
+   MACH=`uname -sm | sed 's/[ ]/_/'`
+fi
+ls -l
+mv *.eps $1/"$MACH"
+echo "fa1_2level_370.save completed"

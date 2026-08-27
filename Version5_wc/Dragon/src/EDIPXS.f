@@ -4,7 +4,7 @@
      >                  CUREIN,NIFISS,CURNAM,NEDMAC,VOLMER,WLETYC,
      >                  WENERG,SCATTD,RATECM,FLUXCM,FADJCM,SIGS,SCATTS,
      >                  DISFCT,ALBP,TAUXE,HVECT,OVERV,HFACT,HSPH,NENER,
-     >                  TIMEF,LH,LSPH)
+     >                  TIMEF,LH,LSPH,LSAME,RFIS,RCHI)
 *
 *-----------------------------------------------------------------------
 *
@@ -71,6 +71,9 @@
 * TIMEF   time stamp in day/burnup/irradiation.
 * LH      flag set to true if H-factors are set.
 * LSPH    flag set to true if SPH factors are set.
+* LSAME   flag set to true if all fission spectra are identical.
+* RFIS    isotope-dependent NUSIGF values used if LSAME=.false.
+* RCHI    isotope-dependent CHI values used if LSAME=.false.
 *
 *Parameters: output
 * RATECM  averaged region/group cross sections:
@@ -121,8 +124,9 @@
      >            SCATTS(NMERGE,NGCOND,NGCOND,NL),DISFCT(NGCOND),
      >            ALBP(NALBP,NGCOND,NGCOND),TAUXE(NMERGE,NGCOND,NEDMAC),
      >            OVERV(NMERGE,NGCOND),HFACT(NMERGE,NGCOND),
-     >            HSPH(NMERGE,NGCOND),TIMEF(3)
-      LOGICAL     LH,LSPH
+     >            HSPH(NMERGE,NGCOND),RFIS(NMERGE,NIFISS,0:NDEL,NGCOND),
+     >            RCHI(NMERGE,NIFISS,0:NDEL,NGCOND),TIMEF(3)
+      LOGICAL     LH,LSPH,LSAME
       CHARACTER   CURNAM*12,HVECT(NEDMAC)*8
       DOUBLE PRECISION SCATTD(NMERGE,NGCOND,NGCOND,NL)
 *----
@@ -151,7 +155,7 @@
 *----
       IF(NSAVES.GE.1) THEN
         IDATA(4)=0
-        DO 200 IGR=1,NGCOND
+        DO 140 IGR=1,NGCOND
           DO 40 IKK=1,NMERGE
             DO 5 IL=1,NW+1
               IF(FLUXCM(IKK,IGR,1).EQ.0.0) THEN
@@ -162,7 +166,10 @@
     5       CONTINUE
             RATECM(IKK,IGR,NW+3)=RATECM(IKK,IGR,NW+3)*FACT(IKK,1)
             IF((RATECM(IKK,IGR,NW+3).NE.0.0).OR.
-     >         (RATECM(IKK,IGR,NW+8).NE.0.0)) IDATA(4)=1
+     >         (RATECM(IKK,IGR,NW+8).NE.0.0)) THEN
+              IDATA(4)=1
+              IF(.NOT.LSAME) IDATA(4)=NIFISS
+            ENDIF
             IF(IADJ.EQ.0) THEN
               DO IW=1,NW+1
                 RATECM(IKK,IGR,IW)=RATECM(IKK,IGR,IW)*FACT(IKK,IW)
@@ -251,22 +258,22 @@
               ENDIF
  120        CONTINUE
  130      CONTINUE
- 200    CONTINUE
+ 140    CONTINUE
         IF(NSAVES.EQ.2) THEN
 *----
 *  COMPUTE THE GOLFIER-VERGAIN FACTORS
 *----
           IF(IGOVE.EQ.1) THEN
-            DO 205 IGR=1,NGCOND
+            DO 160 IGR=1,NGCOND
               FAC1=0.0D0
               FAC2=0.0D0
-              DO 204 IKK=1,NMERGE
+              DO 150 IKK=1,NMERGE
                 FAC1=FAC1+RATECM(IKK,IGR,NW+5)*FLUXCM(IKK,IGR,1)
                 FAC2=FAC2+FLUXCM(IKK,IGR,1)/(3.0*(RATECM(IKK,IGR,1)-
      >          SIGS(IKK,IGR,2)))
- 204          CONTINUE
+ 150          CONTINUE
               ALPHA(IGR)=REAL(FAC1/FAC2)
- 205        CONTINUE
+ 160        CONTINUE
             IF(IPRINT.GE.3) WRITE(IUNOUT,6000) ALPHA(:)
           ENDIF
 *----
@@ -286,15 +293,15 @@
             CALL LCMPTC(IPEDIT,'ADDXSNAME-P0',8,NEDMAC,HVECT)
           ENDIF
           JPEDIT=LCMLID(IPEDIT,'GROUP',NGCOND)
-          DO 210 IGR=1,NGCOND
+          DO 250 IGR=1,NGCOND
             KPEDIT=LCMDIL(JPEDIT,IGR)
             IF(NEDMAC.GT.0) THEN
-              DO 211 IED=1,NEDMAC
+              DO 170 IED=1,NEDMAC
                 CEDNAM=HVECT(IED)
                 IF((CEDNAM(:2).EQ.'NW').OR.
-     >             (CEDNAM.EQ.'H-FACTOR')) GO TO 211
+     >             (CEDNAM.EQ.'H-FACTOR')) GO TO 170
                 CALL LCMPUT(KPEDIT,CEDNAM,NMERGE,2,TAUXE(1,IGR,IED))
- 211          CONTINUE
+ 170          CONTINUE
             ENDIF
             IF(NENER.GT.0) CALL LCMPUT(KPEDIT,'OVERV',NMERGE,2,
      >      OVERV(1,IGR))
@@ -306,19 +313,30 @@
             ENDDO
             CALL LCMPUT(KPEDIT,'ABS',NMERGE,2,RATECM(1,IGR,NW+2))
             CALL LCMPUT(KPEDIT,'PRODUCTION',NMERGE,2,RATECM(1,IGR,NW+4))
-            DO 212 IKK=1,NMERGE
+            DO 180 IKK=1,NMERGE
             RATECM(IKK,IGR,NW+6)=RATECM(IKK,IGR,1)-RATECM(IKK,IGR,NW+2)
- 212        CONTINUE
+ 180        CONTINUE
             IF(IDATA(4).EQ.1) THEN
               CALL LCMPUT(KPEDIT,'NUSIGF',NMERGE,2,RATECM(1,IGR,NW+3))
               CALL LCMPUT(KPEDIT,'CHI',NMERGE,2,RATECM(1,IGR,NW+8))
-              DO 901 IDEL=1,NDEL
+              DO 190 IDEL=1,NDEL
                 K=NW+12+IDEL
                 WRITE(CEDNAM,'(6HNUSIGF,I2.2)') IDEL
                 CALL LCMPUT(KPEDIT,CEDNAM,NMERGE,2,RATECM(1,IGR,K))
                 WRITE(CEDNAM,'(3HCHI,I2.2)') IDEL
                 CALL LCMPUT(KPEDIT,CEDNAM,NMERGE,2,RATECM(1,IGR,NDEL+K))
- 901          CONTINUE
+ 190          CONTINUE
+            ELSE IF(.NOT.LSAME) THEN
+              IF(IDATA(4).EQ.0) CALL XABORT('EDIPXS: MISSING FISSION.')
+              NF=NMERGE*IDATA(4)
+              CALL LCMPUT(KPEDIT,'NUSIGF',NF,2,RFIS(1,1,0,IGR))
+              CALL LCMPUT(KPEDIT,'CHI',NF,2,RCHI(1,1,0,IGR))
+              DO 200 IDEL=1,NDEL
+                WRITE(CEDNAM,'(6HNUSIGF,I2.2)') IDEL
+                CALL LCMPUT(KPEDIT,CEDNAM,NF,2,RFIS(1,1,IDEL,IGR))
+                WRITE(CEDNAM,'(3HCHI,I2.2)') IDEL
+                CALL LCMPUT(KPEDIT,CEDNAM,NF,2,RCHI(1,1,IDEL,IGR))
+ 200          CONTINUE
             ENDIF
             IF(ITRANC.NE.0) THEN
               CALL LCMPUT(KPEDIT,'TRANC',NMERGE,2,RATECM(1,IGR,NW+9))
@@ -352,38 +370,38 @@
                 CALL LCMPUT(KPEDIT,CEDNAM,NMERGE,2,FADJCM(1,IGR,IL))
               ENDDO
             ENDIF
-            DO 350 IL=1,NL
+            DO 240 IL=1,NL
             WRITE (CM,'(I2.2)') IL-1
             IPOSIT=0
-            DO 214 IKK=1,NMERGE
+            DO 230 IKK=1,NMERGE
               J2=IGR
               J1=IGR
-              DO 215 JGR=1,NGCOND
+              DO 210 JGR=1,NGCOND
                 IF(SCATTS(IKK,IGR,JGR,IL).NE.0.0) THEN
                   J2=MAX(J2,JGR)
                   J1=MIN(J1,JGR)
                 ENDIF
- 215          CONTINUE
+ 210          CONTINUE
               NJJ(IKK)=J2-J1+1
               IJJ(IKK)=J2
               IPOS(IKK)=IPOSIT+1
-              DO 216 JGR=J2,J1,-1
+              DO 220 JGR=J2,J1,-1
                 IPOSIT=IPOSIT+1
                 SCATC(IPOSIT)=SCATTS(IKK,IGR,JGR,IL)
- 216          CONTINUE
- 214        CONTINUE
+ 220          CONTINUE
+ 230        CONTINUE
             CALL LCMPUT(KPEDIT,'SIGS'//CM,NMERGE,2,SIGS(1,IGR,IL))
             CALL LCMPUT(KPEDIT,'SIGW'//CM,NMERGE,2,SCATTS(1,IGR,IGR,IL))
             CALL LCMPUT(KPEDIT,'SCAT'//CM,IPOSIT,2,SCATC)
             CALL LCMPUT(KPEDIT,'NJJS'//CM,NMERGE,1,NJJ)
             CALL LCMPUT(KPEDIT,'IJJS'//CM,NMERGE,1,IJJ)
             CALL LCMPUT(KPEDIT,'IPOS'//CM,NMERGE,1,IPOS)
- 350        CONTINUE
+ 240        CONTINUE
             IF(IPRINT.GE.4) THEN
               WRITE(IUNOUT,'(/14H G R O U P   :,I4)') IGR
               CALL LCMLIB(KPEDIT)
             ENDIF
- 210      CONTINUE
+ 250      CONTINUE
           IF((ILEAKS.EQ.1).OR.(ILEAKS.EQ.2).OR.(ILEAKS.EQ.10)) THEN
             CALL LCMPUT(IPEDIT,'B2  B1HOM',1,2,B2(4))
           ELSE IF((ILEAKS.EQ.3).OR.(ILEAKS.EQ.11)) THEN
@@ -391,9 +409,7 @@
             CALL LCMPUT(IPEDIT,'B2  HETE',3,2,B2)
           ENDIF
           IDATA(8)=NALBP
-          DO 217 I=9,NSTATE
-          IDATA(I)=0
- 217      CONTINUE
+          IDATA(9:NSTATE)=0
           IF((ILEAKS.EQ.1).OR.(ILEAKS.EQ.2).OR.(ILEAKS.EQ.4).OR.
      >    (ILEAKS.EQ.10)) THEN
              IDATA(9)=1
@@ -435,12 +451,12 @@
                 DO JGR=1,NGCOND
                   IF((IGR.NE.JGR).AND.(ALBP(IAL,IGR,JGR).NE.0.0)) THEN
                     LAL1D=.FALSE.
-                    GO TO 218
+                    GO TO 260
                   ENDIF
                 ENDDO
               ENDDO
             ENDDO
- 218        IF(LAL1D) THEN
+ 260        IF(LAL1D) THEN
 *             diagonal physical albedos
               ALLOCATE(ALB1(NALBP,NGCOND))
               DO IAL=1,NALBP
@@ -469,14 +485,14 @@
      >    43HATION FOR DIFFUSION COEFFICIENT CALCULATION)')
         ENDIF
         WRITE(IUNOUT,6010)
-        DO 170 IGR=1,NGCOND
+        DO 300 IGR=1,NGCOND
           IF((ILEAKS.EQ.1).OR.(ILEAKS.EQ.2).OR.(ILEAKS.EQ.4).OR.
      >    (ILEAKS.EQ.10)) THEN
             WRITE(IUNOUT,6020) IGR
           ELSE
             WRITE(IUNOUT,6021) IGR
           ENDIF
-          DO 171 IKK=1,NMERGE
+          DO 280 IKK=1,NMERGE
 *----
 *  UNCOMMENT THE 4 LINES TO PERFORM TRANSPORT CORRECTION
 *----
@@ -490,9 +506,9 @@
             IF (FLUXCM(IKK,IGR,1).NE.0.0) THEN
               FLXAVG=FLUXCM(IKK,IGR,1)/VOLMER(IKK)
               SCATTN=0.0D0
-              DO 172 JGR=1,NGCOND
-                 IF(JGR.NE.IGR) SCATTN=SCATTN+SCATTS(IKK,JGR,IGR,1)
- 172          CONTINUE
+              DO 270 JGR=1,NGCOND
+                IF(JGR.NE.IGR) SCATTN=SCATTN+SCATTS(IKK,JGR,IGR,1)
+ 270          CONTINUE
               IF((ILEAKS.EQ.1).OR.(ILEAKS.EQ.2).OR.(ILEAKS.EQ.4).OR.
      >        (ILEAKS.EQ.10)) THEN
                 WRITE(IUNOUT,6022) IKK,FLXAVG,TOTAL,
@@ -504,22 +520,22 @@
      >          RATECM(IKK,IGR,NW+8),SCATWG,SCATTN
               ENDIF
             ENDIF
- 171      CONTINUE
+ 280      CONTINUE
           IF((ILEAKS.EQ.3).OR.(ILEAKS.EQ.11)) THEN
             WRITE(IUNOUT,6024)
-            DO 173 IKK=1,NMERGE
+            DO 290 IKK=1,NMERGE
               WRITE(IUNOUT,6025) IKK,RATECM(IKK,IGR,NW+10),
      >        RATECM(IKK,IGR,NW+11),RATECM(IKK,IGR,NW+12),
      >        RATECM(IKK,IGR,NW+5)
- 173        CONTINUE
+ 290        CONTINUE
           ENDIF
           WRITE(IUNOUT,6026) DISFCT(IGR)
- 170    CONTINUE
+ 300    CONTINUE
       ENDIF
       IF(IPRINT.GE.4) THEN
-        DO 190 IKK=1,NMERGE
+        DO 320 IKK=1,NMERGE
           WRITE(IUNOUT,6027) IKK,(JGR,JGR=1,NGCOND)
-          DO 180 IGR=1,NGCOND
+          DO 310 IGR=1,NGCOND
 *----
 *  UNCOMMENT THE FOLLOWING LINE TO PERFORM TRANSPORT CORRECTION
 *----
@@ -528,9 +544,9 @@
 *
             WRITE(IUNOUT,6028) IGR,(SCATTS(IKK,JGR,IGR,1),JGR=1,IGR-1),
      >      SCATWG,(SCATTS(IKK,JGR,IGR,1),JGR=IGR+1,NGCOND)
- 180      CONTINUE
+ 310      CONTINUE
           WRITE (IUNOUT,'(//)')
- 190    CONTINUE
+ 320    CONTINUE
       ENDIF
 *----
 *  SCRATCH STORAGE DEALLOCATION

@@ -73,7 +73,9 @@
 *            RPAR(5) = FIT    flux (N/CM**2/S) OR
 *                             power (kW/kG INITIAL HEAVY)
 *                             W/CC  (W/CC)
-*                             normalization factor.
+*                             normalization factor;
+*            RPAR(6) = ENERGY incident neutron energy for fission
+*                             yields (default=0.0).
 * XT      time control table:
 *            XT(1)   = initial time for depletion;
 *            XT(2)   = final time for depletion;
@@ -97,7 +99,7 @@
       INTEGER          IPRINT,ITYPE,ITIXS,IEXTR,IGLOB,ISAT,
      >                 IDIRAC,ISAVE,ISET,INR,IDEPL,IFLMAC,IYLMIX,NBMIX,
      >                 IPICK,MIXBRN(NBMIX),MIXPWR(NBMIX)
-      REAL             RPAR(5),XT(5)
+      REAL             RPAR(6),XT(5)
 *----
 *  LOCAL VARIABLES
 *----
@@ -354,6 +356,11 @@
         ELSE
           GO TO 101
         ENDIF
+      ELSE IF(CARLIR(1:6) .EQ. 'ENERGY') THEN
+        CALL REDGET(ITYPLU,INTLIR,REALIR,CARLIR,DBLLIR)
+        IF(ITYPLU .NE. 2) CALL XABORT(NAMSBR//
+     >  ': REAL ENERGY EXPECTED')
+        RPAR(6)=REALIR
       ELSE IF(CARLIR(1:4) .EQ. 'SET') THEN
         ISET=1
         CALL REDGET(ITYPLU,INTLIR,REALIR,CARLIR,DBLLIR)

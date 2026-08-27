@@ -145,7 +145,7 @@ G23D2 INDEX MACRO DEVICE RESEAU
 !********************************************************
   FLUX MACOLD TRACK SYSOLD INDEX := Pcalflu INDEX MACRO2 DEVICE G23D2 ::
     <<iter>>  <<Maxreg>> <<Refl>> <<Xfacc>> <<Xfacp>> <<Precf>> ;
-  assertS FLUX :: "K-EFFECTIVE" 1 1.000627 ;
+  assertS FLUX :: "K-EFFECTIVE" 1 1.001378 ;
 
 !* Calcul des puissances (normalisees) de canal et de grappe
 !***********************************************************
@@ -262,7 +262,7 @@ UNTIL TPS 10 > ;
 !* Fichier de sortie
 !*******************
 GREP: KINET :: GETVAL E-POW 1 >>Powf<< ;
-EVALUATE REFVALUE := 2.357928E3 ;
+EVALUATE REFVALUE := 2.061399E3 ;
 EVALUATE DELTA := Powf REFVALUE - REFVALUE / ABS ;
 IF DELTA 1.0E-3 < THEN
   PRINT "TEST SUCCESSFUL; DELTA=" DELTA ;

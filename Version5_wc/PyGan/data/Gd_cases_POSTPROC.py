@@ -51,16 +51,14 @@ def post_treat_Gd_case_vs_S2_edep_pcc(case, evaluation, draglib_name, self_shiel
         S2_case_name = "AT10_45Gd"
     elif case == "gduo2_295_kec1_evol":
         S2_case_name = "gduo2_295_kec1"
+    elif case == "HOM_Gd157_Cst_pow_evol":
+        S2_case_name = "HOM_UOX_Gd157"
 
     if S2_edep == 0:
         set_qfiss = False
     else:
         set_qfiss = False
-    origin_of_S2_data = "pynjoy2016"
-    if correlation == "NOCORR":
-        correlation = "N"
-    elif correlation == "CORR":
-        correlation = "C"
+    origin_of_S2_data = "pynjoy2012_kerma"
 
     if draglib_name == "endfb8r1_295":
         D5_kerma_used = False
@@ -74,7 +72,7 @@ def post_treat_Gd_case_vs_S2_edep_pcc(case, evaluation, draglib_name, self_shiel
                                 areQfissSet = set_qfiss,
                                 isEcaptSet = False,
                                 pcc_id = S2_pcc,
-                                specific_power = 26.5,
+                                specific_power = 38.6,
                                 tracked_nuclides = tracked_nuclides,
                                 save_dir = save_dir_case)
     
@@ -82,13 +80,13 @@ def post_treat_Gd_case_vs_S2_edep_pcc(case, evaluation, draglib_name, self_shiel
     else:
         s2_bu_id = burnup_points.split("_")[0]
         
-        S2_ref_case = S2_case(case_name = f"{S2_case_name}_BU{s2_bu_id}",
+        S2_ref_case = S2_case(case_name = f"{S2_case_name}",
                                 lib_name = f"{evaluation}_{origin_of_S2_data}",
                                 edep_id = S2_edep,
                                 areQfissSet = set_qfiss,
                                 isEcaptSet = False,
                                 pcc_id = S2_pcc,
-                                specific_power = 26.5,
+                                specific_power = 38.6,
                                 tracked_nuclides = tracked_nuclides,
                                 save_dir = save_dir_case)
     
@@ -120,21 +118,22 @@ def post_treat_Gd_case_vs_S2_edep_pcc(case, evaluation, draglib_name, self_shiel
             D5_NOM_case.set_BUscheme(scheme, time_integrator)
             D5_result_cases.append(D5_NOM_case)
         else:
-            CPO_EDP0_NAME =  f"CPO_{draglib_name}E0_{self_shielding_method}_{correlation}_SALT_{burnup_points}_{evo_solver}_NODI_{time_integrator}_GLOB"
-            CPO_NAME =  f"CPO_{draglib_name}_{self_shielding_method}_{correlation}_SALT_{burnup_points}_{evo_solver}_NODI_{time_integrator}_GLOB"
-            print(CPO_EDP0_NAME)
-            CPO_EDP0 = lcm.new('LCM_INP', CPO_EDP0_NAME, impx=0)
+            #CPO_EDP0_NAME =  f"CPO_{draglib_name}E0_{self_shielding_method}_{correlation}_SALT_{burnup_points}_{evo_solver}_NODI_{time_integrator}_GLOB"
+            # _CPO_endfb8r1_295_USS_PT_CORR_BOC_fine_autop5_RUNG_EXTR_DIRA_750K
+            CPO_NAME =  f"CPO_{draglib_name}_USS_{self_shielding_method}_{correlation}_{burnup_points}_RUNG_EXTR_DIRA_750K"
+            print(CPO_NAME)
+            #CPO_EDP0 = lcm.new('LCM_INP', CPO_EDP0_NAME, impx=0)
             CPO = lcm.new('LCM_INP', CPO_NAME, impx=0)
-            D5_EDP0_case = D5_case(pyCOMPO = CPO_EDP0,
-                            dlib_name = f"{draglib_name}E0",
-                            bu_points = burnup_points,
-                            ssh_opt = self_shielding_method,
-                            correlation = correlation,
-                            sat = "NODI",
-                            depl_sol = evo_solver,
-                            tracked_nuclides = tracked_nuclides,
-                            BU_lists = getLists(burnup_points),
-                            save_dir = save_dir_case)
+            #D5_EDP0_case = D5_case(pyCOMPO = CPO_EDP0,
+            #                dlib_name = f"{draglib_name}E0",
+            #                bu_points = burnup_points,
+            #                ssh_opt = self_shielding_method,
+            #                correlation = correlation,
+            #                sat = "NODI",
+            #                depl_sol = evo_solver,
+            #                tracked_nuclides = tracked_nuclides,
+            #                BU_lists = getLists(burnup_points),
+            #                save_dir = save_dir_case)
             
             D5_NOM_case = D5_case(pyCOMPO = CPO,
                             dlib_name = draglib_name,
@@ -153,10 +152,12 @@ def post_treat_Gd_case_vs_S2_edep_pcc(case, evaluation, draglib_name, self_shiel
             else:
                 scheme = "predictor"
             D5_NOM_case.set_BUscheme(scheme, time_integrator)
-            D5_EDP0_case.set_BUscheme(scheme, time_integrator)
+            #D5_EDP0_case.set_BUscheme(scheme, time_integrator)
             D5_result_cases.append(D5_NOM_case)
-            D5_EDP0_result_cases.append(D5_EDP0_case)
+            
+            #D5_EDP0_result_cases.append(D5_EDP0_case)
     os.chdir(path)
+    D5_EDP0_result_cases = []
     if D5_EDP0_result_cases:
         comparisonD5_EDP0_S2 = multiD5S2(f"D5 {self_shielding_method}-{correlation} - S2 : EDP0 vs edep0 with set qfiss, pcc {S2_pcc}", D5_EDP0_result_cases, S2_ref_case, burnup_points, tracked_nuclides, f"{save_dir_case}/{draglib_name}/{self_shielding_method}_{correlation}")
 
@@ -396,8 +397,8 @@ def AT10_45Gd_plot_old_dlib_with_new_EXTR(save_dir_case):
 if __name__ == "__main__":
     # evaluation and origin of S2 data
 
-    evaluation = "J311"
-    origin_of_S2_data = "pynjoy2016"
+    evaluation = "endfb8r1"
+    origin_of_S2_data = "pynjoy2012_kerma"
 
     # isotopes to be tracked 
     tracked_nuclides = ["U235","U238","Pu239","Pu240","Pu241","Pu242","Am241","Xe135","Sm149","Gd155","Gd157"]
@@ -427,6 +428,13 @@ if __name__ == "__main__":
 
 
     ### Begin post treatment of DRAGON and SERPENT2 results
+    
+    post_treat_Gd_case_vs_S2_edep_pcc("HOM_Gd157_Cst_pow_evol", evaluation, "endfb8r1_295", "PT", "noCORR", "KAPS", ["EXTR"], "BOC_fine_autop5", tracked_nuclides, S2_edep=0, S2_pcc=2, save_dir_case=save_dir_HOM_UOX_Gd157)
+    #post_treat_Gd_case_vs_S2_edep_pcc("HOM_Gd157_Cst_pow_evol", evaluation, "endfb8r1_295", "PT", "noCORR", "KAPS", ["EXTR"], "BOC_fine_autop5", tracked_nuclides, S2_edep=0, S2_pcc=2, save_dir_case=save_dir_HOM_UOX_Gd157)
+    post_treat_Gd_case_vs_S2_edep_pcc("HOM_Gd157_Cst_pow_evol", evaluation, "eb81dec0", "PT", "noCORR", "KAPS", ["EXTR"], "BOC_fine_autop5", tracked_nuclides, S2_edep=0, S2_pcc=2, save_dir_case=save_dir_HOM_UOX_Gd157)
+    post_treat_Gd_case_vs_S2_edep_pcc("HOM_Gd157_Cst_pow_evol", evaluation, "eb81dec1", "PT", "noCORR", "KAPS", ["EXTR"], "BOC_fine_autop5", tracked_nuclides, S2_edep=0, S2_pcc=2, save_dir_case=save_dir_HOM_UOX_Gd157)
+    
+    
     # Case 3 : AT10_45Gd, focus on this
     post_treat_AT10_45Gd = False
     # Case 4 : gduo2_295_kec1
@@ -434,5 +442,5 @@ if __name__ == "__main__":
     #custom_plots(save_dir_gduo2_295_kec1)
     #AT10_45Gd_custom_plots(save_dir_AT10_45Gd)
 
-    post_treat_Gd_case_vs_S2_edep_pcc("AT10_45Gd_Cst_pow_evol", evaluation, "J311_295", "PT", "N", "KAPS", time_integrators, "Gd_autop3", tracked_nuclides, S2_edep=0, S2_pcc=2, save_dir_case=save_dir_AT10_45Gd)
+    #post_treat_Gd_case_vs_S2_edep_pcc("AT10_45Gd_Cst_pow_evol", evaluation, "J311_295", "PT", "N", "KAPS", time_integrators, "Gd_autop3", tracked_nuclides, S2_edep=0, S2_pcc=2, save_dir_case=save_dir_AT10_45Gd)
     #AT10_45Gd_plot_old_dlib_with_new_EXTR(save_dir_AT10_45Gd)

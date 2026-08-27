@@ -154,9 +154,9 @@
       DO 120 M=0,L
       IF(MOD(L+M,2).EQ.1) GO TO 120
       IOF=IOF+1
+      IF(IOF.GT.NSCT) GO TO 140
       IL(IOF)=L
       IM(IOF)=M
-      IF(IOF.GT.NSCT) GO TO 140
       DO 100 N=1,M2
       PLZ(IOF,N)=PNSH(L,M,U(N),-SQRT(1.0-U(N)*U(N)),0.0)
   100 CONTINUE

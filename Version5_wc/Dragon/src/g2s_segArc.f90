@@ -1216,8 +1216,8 @@ contains
          .or.(isEqualConst(cx,ex).and.isEqualConst(cy,ey)) )
   end function giveExtremalsAngles
 
-  subroutine drawSegArc(fileNbr,szSA,drawMix,zoomx,zoomy)
-    integer,intent(in) :: fileNbr,szSA,drawMix
+  subroutine drawSegArc(fileNbr,szSA,drawMix,imacro,zoomx,zoomy)
+    integer,intent(in) :: fileNbr,szSA,drawMix,imacro(:)
     real,intent(in)    :: zoomx(2),zoomy(2)
 
     type(t_segArc) :: sa
@@ -1277,6 +1277,9 @@ contains
           else if (drawMix==3) then
              call keknum(cx,cy,tailleNbr,real(i),angl,-1,2)
              call keknum(cx,cy,tailleNbr,real(i),angl,-1,0)
+          else if (drawMix==4) then
+             call keknum(cx,cy,tailleNbr,real(imacro(sa%nodeg)),angl,-1,2)
+             call keknum(cx,cy,tailleNbr,real(imacro(sa%noded)),angl,-1,0)
           end if
        else if (sa%typ==tcer) then
           call arc(sa%x,sa%y,sa%r,0.d0,180.d0)
@@ -1291,6 +1294,9 @@ contains
           else if (drawMix==3) then
              call keknum(cx,cy,tailleNbr,real(i),0.,-1,2)
              call keknum(cx,cy,tailleNbr,real(i),0.,-1,0)
+          else if (drawMix==4) then
+             call keknum(cx,cy,tailleNbr,real(imacro(sa%nodeg)),0.,-1,2)
+             call keknum(cx,cy,tailleNbr,real(imacro(sa%noded)),0.,-1,0)
           end if
        else
           call arc(sa%x,sa%y,sa%r,sa%a*rad2deg,sa%b*rad2deg)
@@ -1310,6 +1316,9 @@ contains
           else if (drawMix==3) then
              call keknum(cx,cy,tailleNbr,real(i),angl,-1,2)
              call keknum(cx,cy,tailleNbr,real(i),angl,-1,0)
+          else if (drawMix==4) then
+             call keknum(cx,cy,tailleNbr,real(imacro(sa%nodeg)),angl,-1,2)
+             call keknum(cx,cy,tailleNbr,real(imacro(sa%noded)),angl,-1,0)
           end if
        end if
     end do

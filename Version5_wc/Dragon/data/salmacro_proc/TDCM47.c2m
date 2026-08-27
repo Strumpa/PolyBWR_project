@@ -53,7 +53,7 @@ GEOM := GEO: ::
 ;
 Fil_SAL Fil_SAL.ps := G2S: GEOM ;
 T_EXC TF_EXC := SALT: Fil_SAL ::
-     EDIT 2
+     EDIT 1
      TISO 8 10.0 REND
 ;
 MACRO := MAC: ::

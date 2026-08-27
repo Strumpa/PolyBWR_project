@@ -249,6 +249,7 @@ $[$ \moc{DEPL} $\{$\dusa{xti} \dusa{xtf} $|$ \dusa{dxt} $\}~\{$ \moc{S} $|$ \moc
 \moc{FLUX} \dusa{flux} $|$ \moc{POWR} \dusa{fpower} $|$ \moc{W/CC} \dusa{apower} $|$ \moc{KEEP} $\}$ $]$ \\
 $[$ \moc{SET} \dusa{xtr} $\{$ \moc{S} $|$ \moc{DAY} $|$ \moc{YEAR} $\}$ $]$ \\
 $[$ \moc{MIXB} $[[$ \dusa{mixbrn} $]] ~]~~~[$ \moc{MIXP} $[[$ \dusa{mixpwr} $]] ~]$ \\
+$[$ \moc{ENERGY} \dusa{enrgyd} $]$ \\
 $[$ \moc{PICK}  {\tt >>} \dusa{burnup} {\tt <<} $]$ \\
 {\tt ;}
 \end{DataStructure}
@@ -461,6 +462,10 @@ with depleting isotopes are set as depleting.
 \end{itemize}
 
 \item[\dusa{mixpwr}] indices of material mixtures producing power.
+
+\item[\moc{ENERGY}]  keyword used to set the incident neutron energy for fission yields. This keyword is not used if the Draglib contains a unique set of fission yields. By default, the most thermal set is used.
+
+\item[\dusa{enrgyd}] energy (eV) of the incident neutron for fission yields. Typical values are 2.53e-2 eV for thermal reactors and 4.0e5 or 5.0e5 eV for fast reactors.
 
 \item[\moc{PICK}]  keyword used to recover the final burnup value (in MW-day/tonne) in a CLE-2000 variable.
 

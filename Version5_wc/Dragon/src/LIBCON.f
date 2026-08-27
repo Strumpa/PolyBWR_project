@@ -1,5 +1,5 @@
 *DECK LIBCON
-      SUBROUTINE LIBCON(IPLIB,IMX,NBISO,ISOMIX,DENISO,DENMIX,IN)
+      SUBROUTINE LIBCON(IPLIB,IMX,NBISO,ISOMIX,DENISO,DENMIX,IN,IMPX)
 *
 *-----------------------------------------------------------------------
 *
@@ -23,12 +23,13 @@
 * IN      type of conversion:
 *         =1 conversion of wgt% to nb atoms with denmix;
 *         =2 conversion of nb atoms to wgt% and denmix.
+* IMPX    print flag.
 *
 *Parameters: input/output
 * DENISO  number density (if IN=1) or weight percent (if IN=2) for
-*         isotopes present in mixture IMX on input. On optput, 
+*         isotopes present in mixture IMX on input. On output, 
 *         number density.
-* DENMIX  mixture density g*cm**(-3) (if IN=2).
+* DENMIX  mixture density g/cc (if IN=2).
 *
 *-----------------------------------------------------------------------
 *
@@ -37,7 +38,7 @@
 *  SUBROUTINE ARGUMENTS
 *----
       TYPE(C_PTR) IPLIB
-      INTEGER IMX,NBISO,ISOMIX(NBISO),IN
+      INTEGER IMX,NBISO,ISOMIX(NBISO),IN,IMPX
       REAL DENISO(NBISO),DENMIX
 *----
 *  LOCAL VARIABLES
@@ -55,7 +56,11 @@
       AVCON=1.0D-24*XDRCST('Avogadro','N/moles')
      >             /XDRCST('Neutron mass','amu')
       IF(IN.EQ.1) THEN
-        IF(DENMIX.EQ.-1.0) CALL XABORT('LIBCON: DENMIX NOT DEFINED')
+         IF(DENMIX.EQ.-1.0) CALL XABORT('LIBCON: DENMIX NOT DEFINED')
+         IF(IMPX.GT.0) THEN
+           WRITE(IOUT,'(31HLIBCON:  INPUT MIXTURE DENSITY=,1P,E12.4,
+     >     16H G/CC IN MIXTURE,I5,1H.)') DENMIX,IMX
+         ENDIF
          TWPC=0.0
          DO 120 ISO=1,NBISO
            IF(ISOMIX(ISO).EQ.IMX) TWPC=DENISO(ISO)+TWPC
@@ -71,6 +76,8 @@
          WMIX=DENMIX*REAL(AVCON)/TWPC
          IF(NBISO.GT.0) THEN
            ALLOCATE(IPISO(NBISO))
+           CALL LCMLEN(IPLIB,'ISOTOPESUSED',ILONG,ITYLCM)
+           IF(ILONG.EQ.0) CALL XABORT('LIBCON: MISSING ISOTOPESUSED.')
            CALL LIBIPS(IPLIB,NBISO,IPISO)
            DO 130 ISO=1,NBISO
              IF(ISOMIX(ISO).EQ.IMX) THEN
@@ -104,6 +111,10 @@
              ENDIF
  220       CONTINUE
            DEALLOCATE(IPISO)
+         ENDIF
+         IF(IMPX.GT.0) THEN
+           WRITE(IOUT,'(31HLIBCON: OUTPUT MIXTURE DENSITY=,1P,E12.4,
+     >     16H G/CC IN MIXTURE,I5,1H.)') DENMIX,IMX
          ENDIF
          IF(DENMIX.NE.0.0) THEN
            DO 230 ISO=1,NBISO

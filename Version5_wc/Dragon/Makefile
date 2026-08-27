@@ -46,6 +46,7 @@ tests :
 	./rdragon -c $(fcompilerSuite) -p $(nomp) -q tmatxs2.x2m
 	./rdragon -c $(fcompilerSuite) -p $(nomp) -q trowland_shem295_jeff3.1.x2m
 	./rdragon -c $(fcompilerSuite) -p $(nomp) -q uo2_kec1_ecco1962_light.x2m
+	./rdragon -c $(fcompilerSuite) -p $(nomp) -q fa1_2level_370.x2m
 	./rdragon -c $(fcompilerSuite) -p $(nomp) -q lumpSS.x2m
 	./rdragon -c $(fcompilerSuite) -p $(nomp) -q ASSBLY_CASEA_1level_multicompo.x2m
 	./rdragon -c $(fcompilerSuite) -p $(nomp) -q OSC_CASEA_1level_rse.x2m
@@ -71,6 +72,13 @@ tests :
 	./rdragon -c $(fcompilerSuite) -p $(nomp) -q pincell_sap.x2m
 	./rdragon -c $(fcompilerSuite) -p $(nomp) -q tapollo1.x2m
 	./rdragon -c $(fcompilerSuite) -p $(nomp) -q tapollo2.x2m
+ifeq ($(salome),1)
+	./rdragon -c $(fcompilerSuite) -p $(nomp) -q glow_sa60.x2m
+	./rdragon -c $(fcompilerSuite) -p $(nomp) -q glow_ra60_ic.x2m
+	./rdragon -c $(fcompilerSuite) -p $(nomp) -q glow_r120.x2m
+	./rdragon -c $(fcompilerSuite) -p $(nomp) -q glow_colorset.x2m
+	./rdragon -c $(fcompilerSuite) -p $(nomp) -q glow_bwr.x2m
+endif
 ifeq ($(hdf5),1)
 	./rdragon -c $(fcompilerSuite) -p $(nomp) -q UOX_5x5_TG6_sym8_multiDom.x2m
 	./rdragon -c $(fcompilerSuite) -p $(nomp) -q uo2_evo_hdf.x2m

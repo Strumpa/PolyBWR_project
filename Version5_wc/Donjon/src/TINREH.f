@@ -32,7 +32,6 @@
 * MIX    Fuel map bundle index
 * IHN    Name of the channel according to the hexagonal position
 * POW    Power distribution.
-* INDEX  Fuel type indice
 * IND    Fuel type indice in the channel to refuel
 * MAXS   Maximum number of power shift
 * IPRT   Flag for printing level
@@ -64,20 +63,21 @@
 *  LOCAL VARIABLES
 *----
       PARAMETER (NSTATE=40,IOUT=6)
-      INTEGER   ISTATE(NSTATE),I,J
+      INTEGER   ISTATE(NSTATE),I,J,N_NONZERO
       CHARACTER HNAM*8,CS*2,HSMG*131
-      INTEGER, ALLOCATABLE, DIMENSION(:) :: NW,NW2,NWU,ISONA,ISOMI,ISHF,
+      INTEGER, ALLOCATABLE, DIMENSION(:) :: NW,NW2,NWU,ISONA,ISOMI,
      + ICHMAP
-      INTEGER, ALLOCATABLE, DIMENSION(:,:) :: INDEX,IWORK
-      REAL, ALLOCATABLE, DIMENSION(:) :: DENIS,NDENS
+      INTEGER, ALLOCATABLE, DIMENSION(:,:) :: INDEX,IWORK,BUNDMIX
+      REAL, ALLOCATABLE, DIMENSION(:) :: DENIS
       REAL, ALLOCATABLE, DIMENSION(:,:) :: WORK
       REAL, ALLOCATABLE, DIMENSION(:,:,:) :: WORKS
       LOGICAL, ALLOCATABLE, DIMENSION(:) :: MASK,MASKL
+      INTEGER, ALLOCATABLE, DIMENSION(:) :: BUNDMIX_1D
 *----
 *  SCRATCH STORAGE ALLOCATION
 *----
       ALLOCATE(NW(NK),NW2(NK),INDEX(NCH,NK),IWORK(NK,2),ICHMAP(NH))
-      ALLOCATE(WORK(NK,2),WORKS(NK,MS,2))
+      ALLOCATE(WORK(NK,2),WORKS(NK,MS,2),BUNDMIX(NCH,NK))
 *----
 *  RECOVER SHIFT VECTOR
 *----
@@ -91,21 +91,11 @@
  18     CONTINUE
       ELSE
         MAXS=0
-        DO 115 I=1,NK
-          DO 15 J=1,NCH
-            ISFT(J,I) = 0
- 15       CONTINUE
-115     CONTINUE
+        ISFT(:NCH,:NK) = 0
       ENDIF
-      DO 1 I=1,NK
-       DO 2 J=1,NCH
-         WINT(J,I) = 0.0
-         DO 3 K=1,MS
-           BS(J,I,K)=0.0
-           PS(J,I,K)=0.0
-  3      CONTINUE
-  2    CONTINUE
-  1   CONTINUE
+      WINT(:NCH,:NK) = 0.0
+      BS(:NCH,:NK,:MS) = 0.0
+      PS(:NCH,:NK,:MS) = 0.0
 *----
 *  RECOVER FUEL BURNUPS
 *----
@@ -147,13 +137,17 @@
       ICHMAP(IH)=ICH
   25  CONTINUE
       IF(ICH.NE.NCH) CALL XABORT('@TINREH: INVALID NUMBER OF CHANNELS')
+      N_NONZERO = COUNT(MIX /= 0)
+      ALLOCATE(BUNDMIX_1D(N_NONZERO))
+      BUNDMIX_1D = PACK(MIX, MIX /= 0)
+      BUNDMIX = RESHAPE(BUNDMIX_1D,(/NCH, NK/))
 *----
 *  SEARCH FOR THE CHANNEL NUMBER FROM ITS NAME
 *----
       IH = 0
       DO 10 I=1,NH
         WRITE(HNAM,'(2A4)') IHN(1,I),IHN(2,I)
-        IF (HNAM.EQ.NAMCHA) THEN
+        IF(HNAM.EQ.NAMCHA) THEN
            IH = I
            GOTO 21
         ENDIF
@@ -169,6 +163,7 @@
      +  NAMCHA
         CALL XABORT(HSMG)
       ENDIF
+* NSS is the value nsh, given as input to TINST: module. # fuel bundle inserted
       IF(NSS(ICH).NE.0) THEN
         IF(ABS(NSS(ICH)).NE.ABS(NS)) THEN
           WRITE(6,'(14H @TINREH: ICH=,I6,5H NSS=,I6,4H NS=,I6)') ICH,
@@ -189,30 +184,30 @@
       II=0
       DO 30 K=1,NK
          KK = K
-         IF (NS.LT.0) THEN
+         IF(NS.LT.0) THEN
             KK = NK - K + 1
          ENDIF
          KA = NW(K)
 *----
 *  INSERTION OF A NEW BUNDLE OR REPOSITIONNING
 *----
-         IF (KA.EQ.0) THEN
+* KRF = 2 when NEWFUEL keyword is used. KA is full of 0 in our case (new fuel in all bundles)
+         IF(KA.EQ.0) THEN
             II=II+1
             WORK(KK,1) = 0.0
             IWORK(KK,1)=0
             IF( KRF.EQ.1 )THEN
-              IWORK(KK,2)=INDEX(ICH,KK)
+              IWORK(KK,2)=BUNDMIX(ICH,KK)
             ELSE
               IWORK(KK,2)=IND(II)
+*               IWORK(KK,2)=INDEX(ICH,KK) can try to put this instead of the line above
             ENDIF
             IF(MAXS.GT.0) THEN
-              DO 39 IS=1,MAXS
-                WORKS(KK,IS,1) = 0.0
-                WORKS(KK,IS,2) = 0.0
-  39          CONTINUE
+              WORKS(KK,:MAXS,1) = 0.0
+              WORKS(KK,:MAXS,2) = 0.0
             ENDIF
          ELSE
-            IF (NS.LT.0) THEN
+            IF(NS.LT.0) THEN
                KA = NK - KA + 1
             ENDIF
             WORK(KK,1) = WINT(ICH,KA)
@@ -232,7 +227,9 @@
         WINT(ICH,K) = WORK(K,1)
         POW(ICH,K) = WORK(K,2)
         ISFT(ICH,K) = IWORK(K,1)
-        INDEX(ICH,K) = IWORK(K,2)
+        IF( KRF.EQ.2 ) THEN
+          INDEX(ICH,K) = IWORK(K,2)
+        ENDIF
         IF(MAXS.GT.0) THEN
           DO 22 IS=1,MAXS
             BS(ICH,K,IS)=WORKS(K,IS,1)
@@ -274,10 +271,8 @@
             NWU(I)=NW2(I)
           ENDIF
         ENDDO
-        ALLOCATE(NDENS(NISO),ISHF(NK))
-        CALL TINMIC(IPMIC,IPMIC2,IPMIC3,NK,NCH,NWU,ICH,NISO,NISO2,
-     1  IWORK,ISHF,NDENS)
-        CALL LCMPUT(IPMIC,'ISOTOPESDENS',NISO,2,NDENS)
+* Both NW and NW2 should be 0 in our case (NEWFUEL keyword)
+        CALL TINMIC(IPMIC,IPMIC2,IPMIC3,NK,NCH,NWU,ICH,IWORK,IPRT)
 *----
 *  COMPUTE THE MACROSCOPIC X-SECTIONS
 *----
@@ -297,14 +292,13 @@
           MASK(IBM)=.TRUE.
   13    CONTINUE
         ITSTMP=0
-        TMPDAY(1)=0.0
-        TMPDAY(2)=0.0
-        TMPDAY(3)=0.0
+        TMPDAY(:3)=0.0
 *       COMPUTATION OF THE MACROSCOPIC XS
+        CALL LCMLEN(IPMIC,'MACROLIB',ILCMLN,ITYLCM)
+        IF(ILCMLN.EQ.-1) CALL LCMDEL(IPMIC,'MACROLIB')
         CALL LIBMIX(IPMIC,MAXMIX,NGRP,NBISO,ISONA,ISOMI,DENIS,MASK,
      1  MASKL,ITSTMP,TMPDAY)
-        DEALLOCATE(DENIS,ISOMI,ISONA,MASKL,MASK)
-        DEALLOCATE(NWU,NDENS,ISHF)
+        DEALLOCATE(DENIS,ISOMI,ISONA,MASKL,MASK,NWU)
       ENDIF
 
       IF( IPRT.GT.3 )THEN

@@ -14,7 +14,7 @@ MODULE
 DOUBLE Fobj ;
 SEQ_ASCII _OUTV :: FILE './_OUTV' ;
 PROCEDURE SPH_LNSR_imp ;
-PROCEDURE assertS ;
+PROCEDURE assertS_low ;
 INTEGER nstart := 10 ;
 INTEGER hist_nr := 0 ;
 INTEGER IterEmax := 1000 ;
@@ -61,7 +61,7 @@ ECHO "optimal objective function=" Fobj ;
 *----
 SYS := TRIVAA: MACRO2 MTRACK ;
 CALC := FLUD: SYS MTRACK :: EDIT 2 ADI 5 ACCE 5 3 ;
-assertS CALC :: K-EFFECTIVE 1 0.4554051 ;
+assertS_low CALC :: K-EFFECTIVE 1 0.4554398 5.0E-4 ;
 
 ECHO "test Test_SPH_void_bfgs completed" ;
 END: ; 

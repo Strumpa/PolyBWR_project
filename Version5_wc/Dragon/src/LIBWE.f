@@ -419,6 +419,7 @@
                   ELSE
                     XSREC(IG,6)=0.0
                   ENDIF
+                  XSREC(IG,10)=1.0 ! infinite dilution flux
  201            CONTINUE
 *----
 *  SAVE ISOTOPE INFORMATION
@@ -542,6 +543,7 @@
                   ELSE
                     XSREC(IG,6)=0.0
                   ENDIF
+                  XSREC(IG,10)=1.0 ! infinite dilution flux
  221            CONTINUE
 *----
 *  SAVE ISOTOPE INFORMATION

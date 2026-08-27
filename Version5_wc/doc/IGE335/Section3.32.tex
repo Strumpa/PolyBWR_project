@@ -74,7 +74,13 @@ $\}$\\
 
 \item[\dusa{iprint}] index used to control the printing in module {\tt PSOUR:}. =0 for no print; =1 for minimum printing (default value).
 
-\item[\moc{PARTICLE}] keyword used to specify the transition type recovered from the {\sc macrolib} (primary state of the transition). This keyword is repeated for each type of companion particles, in the same order as the \dusa{FLUX} objects on the RHS.
+\item[\moc{PARTICLE}] keyword used to specify the companion particle type
+recovered from the {\sc macrolib}, that is, the primary or source state of the
+transition. For a transition $q \rightarrow p$, this keyword specifies the
+incident particle $q$ whose flux contributes to the source of $p$. The particle
+$p$ being solved is defined by the input {\sc macrolib}. This keyword is
+repeated for each type of companion particles, in the same order as the
+\dusa{FLUX} objects on the RHS.
 
 \item[\dusa{htype}] character*1 name of the companion particle. Usual names are {\tt N}: neutrons, {\tt G}: photons, {\tt B}: electrons,
 {\tt C}: positrons and {\tt P}: protons.
@@ -89,7 +95,7 @@ $\}$\\
 
 \item[\dusa{ig}] index of the energy group in which the source is defined.
 
-\item[\dusa{int}] source intensity. With \moc{ISO}, it is defined as the number of particules per volume unit per time unit. With \moc{MONO}, it is defined as the number of particles per surface unit per time unit.
+\item[\dusa{int}] source intensity. With \moc{ISO}, it is defined as the number of particles per volume unit per time unit. With \moc{MONO}, it is defined as the number of particles per surface unit per time unit.
 
 \item[\moc{XLIM}] keywords to specify the \dusa{nsource} source volume (with \moc{ISO}) or surface dimension (with \moc{MONO}) along the $X$-axis.
 

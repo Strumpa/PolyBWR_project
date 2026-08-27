@@ -35,7 +35,11 @@ COMPO := COMPO: ::
        COMM 'Homogenized over all fuel cells, 295g' ENDC
       ISOT 5 U234 U235 U238 Gd155 Gd157
    INIT
-   STEP UP 'H_EDI_REGI_2g'
+   STEP UP 'H_EDI_REGI_1'
+       COMM 'Condensed to 1g, per pin' ENDC
+      ISOT 5 U234 U235 U238 Gd155 Gd157
+   INIT
+   STEP UP 'H_EDI_REGI_2'
        COMM 'Condensed to 2g, per pin' ENDC
       ISOT 5 U234 U235 U238 Gd155 Gd157
    INIT
@@ -123,8 +127,50 @@ COMPO := COMPO: COMPO EDIRATES LIBRARY2 ::
     STEP UP EDIHOM_295
 ;
 EDIRATES := DELETE: EDIRATES ;
+
 * --------------------------------
-*    EDI: CALL FOR H_EDI_REGI_2g
+*    EDI: CALL FOR H_EDI_REGI_1
+* --------------------------------
+EDIRATES := EDI: FLUX LIBRARY2 TRACK ::
+   EDIT 1
+  MICR 5 U234 U235 U238 Gd155 Gd157
+   MERG MIX
+  0 0 0 0 49 49 49 49 48 48 
+48 48 46 46 46 46 43 43 43 43 
+40 40 40 40 37 37 37 37 34 34 
+34 34 27 27 27 27 19 19 19 19 
+10 10 10 10 47 47 47 47 45 45 
+45 45 45 45 42 42 42 42 39 39 
+39 39 39 39 36 36 36 36 33 33 
+33 33 26 26 26 26 26 26 18 18 
+18 18 9 9 9 9 44 44 44 44 
+41 41 41 41 38 38 38 38 35 35 
+35 35 32 32 32 32 25 25 25 25 
+17 17 17 17 17 17 8 8 8 8 
+31 31 31 31 31 31 24 24 24 24 
+16 16 16 16 7 7 7 7 30 30 
+30 30 23 23 23 23 23 23 15 15 
+15 15 6 6 6 6 29 29 29 29 
+22 22 22 22 14 14 14 14 14 14 
+5 5 5 5 28 28 28 28 21 21 
+21 21 13 13 13 13 4 4 4 4 
+20 20 20 20 12 12 12 12 12 12 
+3 3 3 3 11 11 11 11 2 2 
+2 2 1 1 1 1 0
+  COND
+  SAVE ON H_EDI_REGI_1
+;
+* --------------------------------
+*    COMPO: CALL FOR H_EDI_REGI_1
+* --------------------------------
+COMPO := COMPO: COMPO EDIRATES LIBRARY2 ::
+   EDIT 1
+    STEP UP H_EDI_REGI_1
+;
+EDIRATES := DELETE: EDIRATES ;
+
+* --------------------------------
+*    EDI: CALL FOR H_EDI_REGI_2
 * --------------------------------
 EDIRATES := EDI: FLUX LIBRARY2 TRACK ::
    EDIT 1
@@ -153,14 +199,14 @@ EDIRATES := EDI: FLUX LIBRARY2 TRACK ::
 3 3 3 3 11 11 11 11 2 2 
 2 2 1 1 1 1 0
   COND 0.625
-  SAVE ON H_EDI_REGI_2g
+  SAVE ON H_EDI_REGI_2
 ;
 * --------------------------------
-*    COMPO: CALL FOR H_EDI_REGI_2g
+*    COMPO: CALL FOR H_EDI_REGI_2
 * --------------------------------
 COMPO := COMPO: COMPO EDIRATES LIBRARY2 ::
    EDIT 1
-    STEP UP H_EDI_REGI_2g
+    STEP UP H_EDI_REGI_2
 ;
 EDIRATES := DELETE: EDIRATES ;
 * --------------------------------

@@ -13,7 +13,7 @@
 ! License as published by the Free Software Foundation; either
 ! version 2.1 of the License, or (at your option) any later version.
 !
-!Author(s): A. Hebert
+!Author(s): A. Hebert and B.A.H. Meunier
 !
 !Parameters: input
 ! iucccc  file unit
@@ -42,10 +42,13 @@ contains
       real, intent(out), target :: ra(nwds)
       character(len=72) :: text72
       character(len=131) :: hsmg
+      character(len=8) :: hbuf(9)
       !
       type(c_ptr) ra_ptr
       integer, pointer :: ia(:)
       double precision, pointer :: da(:)
+      integer :: idx,nread,nmore,nvals
+      integer, allocatable :: ibuf(:)
       !
       if (numrec.eq.0) then
         call XABORT('LIBEED: record number 0 cannot be read '// &
@@ -65,7 +68,7 @@ contains
         do
           i=i+1
           read(iucccc,'(A72)',end=10) text72
-          if((text72(3:3).eq.'d').or.(text72(3:3).eq.'v')) then
+          if(is_bcd_record(text72)) then
             nbrec=nbrec+1
             if(nbrec.gt.ntoc) call XABORT('LIBEED: ntoc overflow.')
             atoc(nbrec)=i
@@ -111,19 +114,70 @@ contains
         ndr=npart+ntype+nmat
         nir=npart+2*ntype+2*nmat
         if(2*ndr+nir.ne.nwds) call XABORT('LIBEED: invalid nwds(1).')
-        read(iucccc,'(8x,8a8:/(9a8))') (da(jj),jj=1,ndr)
-        ipunit=ipunit+ndr/9
-        read(iucccc,'(12i6)') (ia(2*ndr+i),i=1,nir)
-        ipunit=ipunit+1+(nir-1)/12
+        read(iucccc,'(A72)') text72
+        nread=min(8,ndr)
+        read(text72,'(8x,8a8)') (hbuf(jj),jj=1,nread)
+        do jj=1,nread
+          da(jj)=transfer(hbuf(jj),da(jj))
+        enddo
+        idx=nread
+        do while(idx.lt.ndr)
+          read(iucccc,'(A72)') text72
+          nmore=min(9,ndr-idx)
+          read(text72,'(9a8)') (hbuf(jj),jj=1,nmore)
+          do jj=1,nmore
+            da(idx+jj)=transfer(hbuf(jj),da(idx+jj))
+          enddo
+          idx=idx+nmore
+          ipunit=ipunit+1
+        enddo
+        allocate(ibuf(nir))
+        idx=0
+        do while(idx.lt.nir)
+          read(iucccc,'(A72)') text72
+          ipunit=ipunit+1
+          if(len_trim(text72).eq.0) cycle
+          nmore=min(12,nir-idx)
+          read(text72,'(12i6)') (ibuf(idx+i),i=1,nmore)
+          idx=idx+nmore
+        enddo
+        ia(2*ndr+1:2*ndr+nir)=ibuf(:nir)
+        deallocate(ibuf)
         if(.not.allocated(hmatn)) call XABORT('LIBEED: hmatn not allocated.')
         hmatn(:nmat)=da(npart+ntype+1:ndr)
         nsubm(:nmat)=ia(2*ndr+npart+2*ntype+1:2*ndr+npart+2*ntype+nmat)
       else if(btoc(numrec).eq.' 6d') then
         ndr=nwds/4
-        read(iucccc,'(8x,8a8:/(9a8))') (da(jj),jj=1,ndr)
-        ipunit=ipunit+ndr/9
-        read(iucccc,'(12i6)') (ia(2*ndr+i),i=1,2*ndr)
-        ipunit=ipunit+1+(2*ndr-1)/12
+        read(iucccc,'(A72)') text72
+        nread=min(8,ndr)
+        read(text72,'(8x,8a8)') (hbuf(jj),jj=1,nread)
+        do jj=1,nread
+          da(jj)=transfer(hbuf(jj),da(jj))
+        enddo
+        idx=nread
+        do while(idx.lt.ndr)
+          read(iucccc,'(A72)') text72
+          nmore=min(9,ndr-idx)
+          read(text72,'(9a8)') (hbuf(jj),jj=1,nmore)
+          do jj=1,nmore
+            da(idx+jj)=transfer(hbuf(jj),da(idx+jj))
+          enddo
+          idx=idx+nmore
+          ipunit=ipunit+1
+        enddo
+        nvals=2*ndr
+        allocate(ibuf(nvals))
+        idx=0
+        do while(idx.lt.nvals)
+          read(iucccc,'(A72)') text72
+          ipunit=ipunit+1
+          if(len_trim(text72).eq.0) cycle
+          nmore=min(12,nvals-idx)
+          read(text72,'(12i6)') (ibuf(idx+i),i=1,nmore)
+          idx=idx+nmore
+        enddo
+        ia(2*ndr+1:4*ndr)=ibuf(:2*ndr)
+        deallocate(ibuf)
       else if((btoc(numrec).eq.' 4d').or.(btoc(numrec).eq.' 7d').or. &
               (btoc(numrec).eq.' 9d').or.(btoc(numrec).eq.'10d')) then
         read(iucccc,'(12x,5e12.0:/(6e12.0))') (ra(jj),jj=1,nwds)
@@ -154,6 +208,18 @@ contains
         call XABORT('LIBEED: invalid record type.')
       endif
    end subroutine LIBEED
+   !
+   logical function is_bcd_record(text72)
+      character(len=*), intent(in) :: text72
+      character(len=3) :: hrec
+      hrec=text72(1:3)
+      is_bcd_record=(hrec.eq.' 0v').or.(hrec.eq.' 1d').or. &
+                    (hrec.eq.' 2d').or.(hrec.eq.' 3d').or. &
+                    (hrec.eq.' 4d').or.(hrec.eq.' 5d').or. &
+                    (hrec.eq.' 6d').or.(hrec.eq.' 7d').or. &
+                    (hrec.eq.' 8d').or.(hrec.eq.' 9d').or. &
+                    (hrec.eq.'10d')
+   end function is_bcd_record
    !
    subroutine LIBCLS()
       if(allocated(hmatn)) deallocate(nsubm,hmatn)

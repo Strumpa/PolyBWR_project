@@ -1,0 +1,69 @@
+* MixGd157.c2m
+*----
+*  Type          : DRAGON procedure
+*  Use           : Microlib generation with Draglibs for gduo2 benchmrk cell
+*  Author        : R. Guasch
+
+*  Procedure called as: LIBRARY := MixGd157 <<draglib>>
+*
+*    LIBRARY    : Microlib generated using PT method
+
+PARAMETER  LIBRARY  ::
+  EDIT 0
+    ::: LINKED_LIST LIBRARY  ;
+;
+STRING draglib edpmflag ssh_method ;
+:: >>draglib<< >>edpmflag<< >>ssh_method<< ;
+
+MODULE LIB: END: ;
+
+****************************************************************************
+******************** LIBRARY DEFINTION OF homogeneous Gd pin ***************
+****************************************************************************
+
+IF edpmflag "NONE" = THEN
+LIBRARY := LIB: ::
+    EDIT 1
+    NMIX 1    ! MAXIMUM OF MATERIAL MIXTURES
+    <<ssh_method>>
+
+    DEPL LIB: DRAGON FIL: <<draglib>> 
+    MIXS LIB: DRAGON FIL: <<draglib>>
+
+    MIX 1 600.0
+        O16   = O16     2.955339E-02
+        U234  = U234    3.482587E-06  1
+        U235  = U235    3.664503E-04  1
+        U238  = U238    7.765571E-03  CORR 1
+        Gd157 = Gd157   7.899877E-05  CORR 1
+        Pu239   = Pu239  0.0     1
+        Pu240   = Pu240  0.0     1
+        Pu241   = Pu241  0.0     1
+        Pu242   = Pu242  0.0     1
+        H1    = H1_H2O  2.497844E-02
+;
+ELSE
+LIBRARY := LIB: ::
+    EDIT 1
+    NMIX 1    ! MAXIMUM OF MATERIAL MIXTURES
+    <<edpmflag>> ! Flag to exclude the RER contributions
+    <<ssh_method>>
+
+    DEPL LIB: DRAGON FIL: <<draglib>> 
+    MIXS LIB: DRAGON FIL: <<draglib>>
+
+    MIX 1 600.0
+        O16   = O16     2.955339E-02
+        U234  = U234    3.482587E-06  1
+        U235  = U235    3.664503E-04  1
+        U238  = U238    7.765571E-03  CORR 1
+        Gd157 = Gd157   7.899877E-05  CORR 1
+        Pu239   = Pu239  0.0     1
+        Pu240   = Pu240  0.0     1
+        Pu241   = Pu241  0.0     1
+        Pu242   = Pu242  0.0     1
+        H1    = H1_H2O  2.497844E-02
+;
+
+ENDIF ;
+    

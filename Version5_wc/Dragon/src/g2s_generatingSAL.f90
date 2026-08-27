@@ -43,8 +43,7 @@ contains
 
   subroutine generateSALFile(fileNbr,szSA,nbNode,nbCLP,nbFlux,nbMacro,merg,imacro)
    integer,intent(in) :: fileNbr,szSA,nbNode,nbCLP,nbFlux,nbMacro
-    integer,dimension(nbNode),intent(in) :: merg
-    integer,dimension(nbFlux),intent(in) :: imacro
+    integer,dimension(nbNode),intent(in) :: merg,imacro
 
     type(t_segArc)                   :: sa
     integer                          :: i,j,nmoins,nplus

@@ -91,11 +91,12 @@
       DO 20 I=1,NDEPL-NSUPS
       IF((ISONRF(1,ISOT).EQ.HGAR(1,I)).AND.(ISONRF(2,ISOT).EQ.
      1 HGAR(2,I)).AND.(ISONRF(3,ISOT).EQ.HGAR(3,I))) THEN
+         IF(IEVOL(ISOT).EQ.0) IEVOL(ISOT)=2 ! set as depleting
          ITYP(ISOT)=1
-         IF(IEVOL(ISOT).EQ.2) ITYP(ISOT)=3
-         IF(MOD(IDR(2,I),100).EQ.3) ITYP(ISOT)=2
-         IF(MOD(IDR(2,I),100).EQ.4) ITYP(ISOT)=2
-         IF(MOD(IDR(2,I),100).EQ.5) ITYP(ISOT)=3
+         IF(IEVOL(ISOT).EQ.2) ITYP(ISOT)=3 ! set as fission product
+         IF(MOD(IDR(2,I),100).EQ.3) ITYP(ISOT)=2 ! set as fissile
+         IF(MOD(IDR(2,I),100).EQ.4) ITYP(ISOT)=2 ! set as fissile
+         IF(MOD(IDR(2,I),100).EQ.5) ITYP(ISOT)=3 ! set as fission product
          DO 15 J=1,NCOMB
          IF(IBM.EQ.MILVO(J)) GO TO 30
    15    CONTINUE
@@ -124,6 +125,7 @@
       IFIRST=0
       DO 36 I=1,NBISO
       IF(MIX(I).EQ.IBM) THEN
+         IF(IEVOL(I).EQ.1) GO TO 36
          IFIRST=I
          GO TO 40
       ENDIF
@@ -196,7 +198,7 @@
             ILLIB(NBISO)=ILLIB(IFIRST)
             MIX(NBISO)=IBM
             TN(NBISO)=TN(IFIRST)
-            IEVOL(NBISO)=0
+            IEVOL(NBISO)=2
             ITYP(NBISO)=1
             IF(MOD(IDR(2,INUCL),100).EQ.3) ITYP(NBISO)=2
             IF(MOD(IDR(2,INUCL),100).EQ.4) ITYP(NBISO)=2

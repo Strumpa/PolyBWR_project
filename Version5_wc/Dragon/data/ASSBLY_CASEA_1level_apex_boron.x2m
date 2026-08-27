@@ -181,7 +181,7 @@ WHILE iBoreStep iBoreMax < DO
 
   EDIOBJ := EDI: FLUX2 LIBRARY2 TRACKN2 :: EDIT 5                              
     MERG COMP
-    MICR RES
+    MICR RES REBUILD
     SAVE ON COND2                                                        
     ;
 

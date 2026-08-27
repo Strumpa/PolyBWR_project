@@ -1,0 +1,21 @@
+#!/bin/sh
+#
+if [ $# = 0 ]
+   then
+   echo '$$$ ----- GE14_DEPL.save : script begin' 1>&2
+   exit 1
+fi
+echo '$$$ ----- GE14_DEPL.save : script begin'
+MACH=`uname -s`
+Sysx="`echo $MACH | cut -b -6`"
+if [ $Sysx = "CYGWIN" ]; then
+   MACH=`uname -o`
+elif [ $Sysx = "AIX" ]; then
+   MACH=`uname -s`
+else
+   MACH=`uname -sm | sed 's/[ ]/_/'`
+fi
+
+cp *.ps ./GE14_DEPL_results*
+cp -r GE14_DEPL_results* $1/"$MACH"/
+echo '$$$ ----- GE14_DEPL.save : script finish'

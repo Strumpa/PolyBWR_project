@@ -107,10 +107,12 @@ contains
     integer,intent(in) :: szB
     integer :: i
 
-    do i = 1,szB
-       call destroyCB(tabCelluleBase(i))
-    end do
-    deallocate(tabCelluleBase)
+    if(allocated(tabCelluleBase)) then
+       do i = 1,szB
+          call destroyCB(tabCelluleBase(i))
+       end do
+       deallocate(tabCelluleBase)
+    endif
    end subroutine destroyTabCelluleBase
 
   !fait demarer un tableau de reels a 0.0

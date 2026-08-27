@@ -58,7 +58,7 @@
       IY = 1
       DO 10 I=1,NX
         WRITE(XNAM,'(A4)') IXN(I)
-        IF (XNAM.EQ.TEXT4) THEN
+        IF(XNAM.EQ.TEXT4) THEN
            IX = I
            GOTO 20
         ENDIF
@@ -66,7 +66,7 @@
   20  TEXT4 = NAMCHA(1:1)
       DO 30 I=1,NY
         WRITE(YNAM,'(A4)') IYN(I)
-        IF (YNAM.EQ.TEXT4) THEN
+        IF(YNAM.EQ.TEXT4) THEN
            IY = I
            GOTO 40
         ENDIF

@@ -43,5 +43,5 @@ if [ -f "$pos"/APOLLO2.APOLLO1.CEA861.ED3 ]
    then
     ln -s "$pos"/APOLLO2.APOLLO1.CEA861.ED3 CEA861
 fi
-ls
+ls -l
 echo "tapollo1 access script terminated"

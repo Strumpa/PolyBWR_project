@@ -6,7 +6,7 @@ from collections import defaultdict
 import pandas as pd
 
 
-def parse_COMPO(COMPO_name, assembly_model, fission_isotopes):
+def parse_COMPO(COMPO_name, assembly_model, fission_isotopes, path_to_compo=None):
     """
     Parse DRAGON5 rates from the specified COMPO file.
     
@@ -32,7 +32,11 @@ def parse_COMPO(COMPO_name, assembly_model, fission_isotopes):
     bu=0 # Burnup step to extract from COMPO, should be 0 for initial condition
     # Load the DRAGON rates
     path = os.getcwd()
-    os.chdir(f"DRAGON_RESULTS")
+    if path_to_compo is not None:
+        compo_path = path_to_compo
+        os.chdir(compo_path)
+    else:
+        os.chdir(f"DRAGON_RESULTS")
     print(f"Loading {COMPO_name} rates from {COMPO_name}")
     print(f"Reading from directory : {os.getcwd()}")
     pyCOMPO = lcm.new('LCM_INP', COMPO_name, impx=0)
@@ -46,99 +50,169 @@ def parse_COMPO(COMPO_name, assembly_model, fission_isotopes):
     # For DRAGON, mixture indices are 1-based and should match pin_idx+1 if ordered
     MIXES_idx = [pidx-1 for pidx in ordered_pin_indices]
     unique_mixes_on_diag = [pidx-1 for pidx in pin_idx_on_axis]
-
-    len_isotot = np.shape(pyCOMPO['EDIHOM_COND']['MIXTURES'][0]['CALCULATIONS'][0]['ISOTOPESDENS'])[0] - 1
+    name_2g = "EDIR_2G" #  # "H_EDI_REGI_2"
+    len_isotot = np.shape(pyCOMPO[name_2g]['MIXTURES'][0]['CALCULATIONS'][0]['ISOTOPESDENS'])[0] - 1
     #print(f"len_isotot = {len_isotot}")
     ########## CALCULATIONS ##########
     # Retrieve keff from pyCOMPO
-    keff_D5 = pyCOMPO['EDIHOM_COND']['MIXTURES'][0]['CALCULATIONS'][0]['K-EFFECTIVE'][0]
+    keff_D5 = pyCOMPO[name_2g]['MIXTURES'][0]['CALCULATIONS'][0]['K-EFFECTIVE'][0]
     #print(f"keff_D5 = {keff_D5}")
     isotopes = ["U235", "U238", "Gd155", "Gd157"]
-    fiss_over_abs = np.zeros((2, n_unique_pins))
-    fission_rates = np.zeros((2, n_unique_pins))
+    
+    fission_rates_1g = np.zeros(n_unique_pins)
+    prod_over_abs_1g = np.zeros(n_unique_pins)
+    
+    fission_rates_2g = np.zeros((2, n_unique_pins))
+    prod_over_abs_2g = np.zeros((2, n_unique_pins))
+    
     n_gamma_rates = {}
     for iso in range(len_isotot):
-        isotope = pyCOMPO['EDIHOM_COND']['MIXTURES'][0]['CALCULATIONS'][0]['ISOTOPESLIST'][iso]['ALIAS'][0:5].strip()
+        isotope = pyCOMPO[name_2g]['MIXTURES'][0]['CALCULATIONS'][0]['ISOTOPESLIST'][iso]['ALIAS'][0:5].strip()
         if isotope in isotopes:
             for idx, mix in enumerate(MIXES_idx):
-                NWT0 = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NWT0']
-                N = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESDENS'][iso]
-                vol = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESVOL'][iso]
+                
                 try:
-                    NFTOT = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NFTOT']
+                    NWT0_1g = pyCOMPO['H_EDI_REGI_1']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NWT0']
                 except lcm.PyLcmError:
-                    NFTOT = np.zeros(len(NWT0))
+                    NWT0_1g = np.zeros(1)
+                print(f"mix = {mix+1}, isotope = {isotope}, iso = {iso}")
+                NWT0_2g = pyCOMPO[name_2g]['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NWT0']
+                N = pyCOMPO[name_2g]['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESDENS'][iso]
+                vol = pyCOMPO[name_2g]['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESVOL'][iso]
+                try:
+                    NFTOT_1g = pyCOMPO['H_EDI_REGI_1']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NFTOT']
+                except lcm.PyLcmError:
+                    NFTOT_1g = np.zeros(len(NWT0_1g))
+                try:
+                    NFTOT_2g = pyCOMPO[name_2g]['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NFTOT']
+                except lcm.PyLcmError:
+                    NFTOT_2g = np.zeros(len(NWT0_2g))
+                    
                 #print(f"mix = {mix+1}, NWT0 = {NWT0}, N = {N}, vol = {vol}, NFTOT = {NFTOT}")
                 # absorption = sigma_g - sigma_sigs_g for multigroup keff estimate ?
                 # = NTOT0 - SIGSS0
-                TOT = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NTOT0']
-                #print(f"mix = {mix+1}, TOT = {TOT}")
-                SIGS0 = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['SIGS00']
-                #print(f"mix = {mix+1}, SIGS0 = {SIGS0}")
-                ABS = np.array(TOT) - np.array(SIGS0)
-                #print(f"mix = {mix+1}, ABS = {ABS}")
                 try:
-                    PROD = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NUSIGF']
+                    TOT_1g = pyCOMPO['H_EDI_REGI_1']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NTOT0']
                 except lcm.PyLcmError:
-                    PROD = np.zeros(len(NWT0))
+                    TOT_1g = np.zeros(len(NWT0_1g))
+
+                try:
+                    TOT_2g = pyCOMPO[name_2g]['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NTOT0']
+                except lcm.PyLcmError:
+                    TOT_2g = np.zeros(len(NWT0_2g))
+
+                try:
+                    SIGS0_1g = pyCOMPO['H_EDI_REGI_1']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['SIGS00']
+                except lcm.PyLcmError:
+                    SIGS0_1g = np.zeros(len(NWT0_1g))
+
+                try:
+                    SIGS0_2g = pyCOMPO[name_2g]['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['SIGS00']
+                except lcm.PyLcmError:
+                    SIGS0_2g = np.zeros(len(NWT0_2g))
+
+                ABS_1g = np.array(TOT_1g) - np.array(SIGS0_1g)
+                ABS_2g = np.array(TOT_2g) - np.array(SIGS0_2g)
+
+                try:
+                    PROD_1g = pyCOMPO['H_EDI_REGI_1']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NUSIGF']
+                except lcm.PyLcmError:
+                    PROD_1g = np.zeros(len(NWT0_1g))
+                    
+                try:
+                    PROD_2g = pyCOMPO[name_2g]['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NUSIGF']
+                except lcm.PyLcmError:
+                    PROD_2g = np.zeros(len(NWT0_2g))
                 ### Recover different contributions to absorption to check consistency with TOT-SIGS0 definition of absorption and understand the importance of different reactions in the absorption rate.
                 try:
-                    NP = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NP']
+                    NP_1g = pyCOMPO['H_EDI_REGI_1']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NP']
                 except lcm.PyLcmError:
-                    NP = np.zeros(len(NWT0))
-                try: 
-                    NG = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NG']
-                except lcm.PyLcmError:
-                    NG = np.zeros(len(NWT0))
-                try: 
-                    ND = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['ND']
-                except lcm.PyLcmError:
-                    ND = np.zeros(len(NWT0))
-                try: 
-                    NT = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NT']
-                except lcm.PyLcmError:
-                    NT = np.zeros(len(NWT0))
-                try: 
-                    NA = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NA']
-                except lcm.PyLcmError:
-                    NA = np.zeros(len(NWT0))
-                try: 
-                    N2A = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['N2A']
-                except lcm.PyLcmError:
-                    N2A = np.zeros(len(NWT0))
-                try: 
-                    NNP = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NNP']
-                except lcm.PyLcmError:
-                    NNP = np.zeros(len(NWT0))
-                try:
-                    N2N = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['N2N']
-                except lcm.PyLcmError:
-                    N2N = np.zeros(len(NWT0))
-                try:
-                    N3N = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['N3N']
-                except lcm.PyLcmError:
-                    N3N = np.zeros(len(NWT0))
-                try:
-                    N4N = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['N4N']
-                except lcm.PyLcmError:
-                    N4N = np.zeros(len(NWT0))
+                    NP_1g = np.zeros(len(NWT0_1g))
                 
+                try:
+                    NP_2g = pyCOMPO[name_2g]['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NP']
+                except lcm.PyLcmError:
+                    NP_2g = np.zeros(len(NWT0_2g))
+                
+                try: 
+                    NG_1g = pyCOMPO['H_EDI_REGI_1']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NG']
+                except lcm.PyLcmError:
+                    NG_1g = np.zeros(len(NWT0_1g))
+                try:
+                    NG_2g = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NG']
+                except lcm.PyLcmError:
+                    NG_2g = np.zeros(len(NWT0_2g))
+                try: 
+                    ND_1g = pyCOMPO['H_EDI_REGI_1']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['ND']
+                    ND_2g = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['ND']
+                except lcm.PyLcmError:
+                    ND_1g = np.zeros(len(NWT0_1g))
+                    ND_2g = np.zeros(len(NWT0_2g))
+                try: 
+                    NT_1g = pyCOMPO['H_EDI_REGI_1']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NT']
+                    NT_2g = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NT']
+                except lcm.PyLcmError:
+                    NT_1g = np.zeros(len(NWT0_1g))
+                    NT_2g = np.zeros(len(NWT0_2g))
+                try: 
+                    NA_1g = pyCOMPO['H_EDI_REGI_1']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NA']
+                    NA_2g = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NA']
+                except lcm.PyLcmError:
+                    NA_1g = np.zeros(len(NWT0_1g))
+                    NA_2g = np.zeros(len(NWT0_2g))
+                try: 
+                    N2A_1g = pyCOMPO['H_EDI_REGI_1']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['N2A']
+                    N2A_2g = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['N2A']
+                except lcm.PyLcmError:
+                    N2A_1g = np.zeros(len(NWT0_1g))
+                    N2A_2g = np.zeros(len(NWT0_2g))
+                try: 
+                    NNP_1g = pyCOMPO['H_EDI_REGI_1']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NNP']
+                    NNP_2g = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['NNP']
+                except lcm.PyLcmError:
+                    NNP_1g = np.zeros(len(NWT0_1g))
+                    NNP_2g = np.zeros(len(NWT0_2g))
+                try:
+                    N2N_1g = pyCOMPO['H_EDI_REGI_1']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['N2N']
+                    N2N_2g = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['N2N']
+                except lcm.PyLcmError:
+                    N2N_1g = np.zeros(len(NWT0_1g))
+                    N2N_2g = np.zeros(len(NWT0_2g))
+                try:
+                    N3N_1g = pyCOMPO['H_EDI_REGI_1']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['N3N']
+                    N3N_2g = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['N3N']
+                except lcm.PyLcmError:
+                    N3N_1g = np.zeros(len(NWT0_1g))
+                    N3N_2g = np.zeros(len(NWT0_2g))
+                try:
+                    N4N_1g = pyCOMPO['H_EDI_REGI_1']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['N4N']
+                    N4N_2g = pyCOMPO['H_EDI_REGI_2']['MIXTURES'][mix]['CALCULATIONS'][bu]['ISOTOPESLIST'][iso]['N4N']
+                except lcm.PyLcmError:
+                    N4N_1g = np.zeros(len(NWT0_1g))
+                    N4N_2g = np.zeros(len(NWT0_2g))
+
                 # Use DRAGON definitition of neutronic absorption
                 # ABS = NFTOT + NG + NP + ND + NT + NA + N2A + NNP - N2N - 2*N3N - 3*N4N
-                ABS = np.array(NFTOT) + np.array(NG) + np.array(NP) + np.array(NA) - np.array(N2N) - 2*np.array(N3N) #- 3*N4N
-                ABS_SIGS = np.array(TOT) - np.array(SIGS0)
-                print(f"ABS from TOT-SIGS0 = {ABS_SIGS}, ABS from sum over reactions = {ABS}, difference = {np.array(ABS)-np.array(ABS_SIGS)}")
+                ABS_1g = np.array(NFTOT_1g) + np.array(NG_1g) + np.array(NP_1g) + np.array(NA_1g) - np.array(N2N_1g) - 2*np.array(N3N_1g) #- 3*N4N
+                ABS_2g = np.array(NFTOT_2g) + np.array(NG_2g) + np.array(NP_2g) + np.array(NA_2g) - np.array(N2N_2g) - 2*np.array(N3N_2g) #- 3*N4N
+                ABS_SIGS_1g = np.array(TOT_1g) - np.array(SIGS0_1g)
+                ABS_SIGS_2g = np.array(TOT_2g) - np.array(SIGS0_2g)
+                print(f"ABS from TOT-SIGS0 = {ABS_SIGS_1g}, ABS from sum over reactions = {ABS_1g}, difference = {np.array(ABS_1g)-np.array(ABS_SIGS_1g)}")
+                print(f"ABS from TOT-SIGS0 = {ABS_SIGS_2g}, ABS from sum over reactions = {ABS_2g}, difference = {np.array(ABS_2g)-np.array(ABS_SIGS_2g)}")
                     
                 if mix in unique_mixes_on_diag:
                     sym_factor = 2
                 else:
                     sym_factor = 1
                 
-                fission_rates[0][mix] += NFTOT[1]*NWT0[1]*N*vol*sym_factor
-                fission_rates[1][mix] += NFTOT[0]*NWT0[0]*N*vol*sym_factor
+                fission_rates_1g[mix] += NFTOT_1g[0]*NWT0_1g[0]*N*vol*sym_factor
+                #prod_over_abs_1g[mix] += (np.array(PROD_1g[0])/np.array(ABS_1g[0]))# *N*vol
                 
-                fiss_over_abs[0][mix] += (np.array(NFTOT[1])/np.array(ABS[1]))# *N*vol
-                fiss_over_abs[1][mix] += (np.array(NFTOT[0])/np.array(ABS[0])) # *N*vol
+                fission_rates_2g[0][mix] += NFTOT_2g[1]*NWT0_2g[1]*N*vol*sym_factor
+                fission_rates_2g[1][mix] += NFTOT_2g[0]*NWT0_2g[0]*N*vol*sym_factor
+                
+                prod_over_abs_2g[0][mix] += (np.array(NFTOT_2g[1])/np.array(ABS_2g[1]))# *N*vol
+                prod_over_abs_2g[1][mix] += (np.array(NFTOT_2g[0])/np.array(ABS_2g[0])) # *N*vol
     # Recover 295g absorption rates for U238
     FLUX_spectrum_ngroups = np.array(pyCOMPO['U238_295']['MIXTURES'][0]['CALCULATIONS'][bu]['ISOTOPESLIST'][0]['NWT0'])
     U238_TOT = pyCOMPO['U238_295']['MIXTURES'][0]['CALCULATIONS'][bu]['ISOTOPESLIST'][0]['NTOT0']
@@ -199,4 +273,4 @@ def parse_COMPO(COMPO_name, assembly_model, fission_isotopes):
     energy_mesh = np.array(pyCOMPO['EDIHOM_295']['MIXTURES'][0]['CALCULATIONS'][0]['ENERGY'])
     #print(f"D5 fiss over abs = {fiss_over_abs}")
     
-    return keff_D5, fission_rates, fiss_over_abs, U238_ABS[::-1], FLUX_spectrum_ngroups[::-1], energy_mesh[::-1]
+    return keff_D5, fission_rates_1g, prod_over_abs_1g, fission_rates_2g, prod_over_abs_2g, U238_ABS[::-1], FLUX_spectrum_ngroups[::-1], energy_mesh[::-1]

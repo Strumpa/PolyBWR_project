@@ -14,14 +14,14 @@ REAL keffIC keffMOC ;
 
 STRING exec := "True" ;
 INTEGER o_anis := 4 ;
-STRING name_compo := '_CPO_GE14_DOM-C_1L_MOC_water_rods_cross_submesh_extend' ;
+STRING name_compo := '_CPO_GE14_DOM-C_00_1L_MOC' ;
 ***********************************************
 * TDT files from glow : imports
 ***********************************************
 
 SEQ_ASCII tdt_iso_ssh :: FILE 'GE14_DOM-C_SSH_IC_TISO_MACRO.dat' ;
 !SEQ_ASCII tdt_spc_moc :: FILE 'GE14_DOM-C_FLUXL2_MOC_TSPC.dat' ;
-SEQ_ASCII tdt_spc_moc :: FILE 'GE14_DOM-C_FLUXL2_water_rods_cross_submesh_extend.dat' ;
+SEQ_ASCII tdt_spc_moc :: FILE 'GE14_DOM-C_FLUXL2_MOC_TSPC.dat' ;
 *******************************************************
 * Post script formatted files for plotting with G2S:
 *******************************************************

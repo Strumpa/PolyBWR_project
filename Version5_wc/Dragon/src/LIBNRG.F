@@ -13,7 +13,7 @@
 * License as published by the Free Software Foundation; either
 * version 2.1 of the License, or (at your option) any later version
 *
-*Author(s): G. Marleau
+*Author(s): G. Marleau and B.A.H. Meunier
 *
 *Parameters: input/output
 * IPLIB   pointer to the internal library.
@@ -39,7 +39,7 @@
 *  LOCAL VARIABLES
 *----
       PARAMETER       (IOUT=6,LRIND=256,IACTO=2,IACTC=1,ILIBDA=4,
-     >                 NMTYP=8)
+     >                 NMTYP=10)
       CHARACTER        HSMG*131,HMTYP(NMTYP)*1
 #if defined(HDF5_LIB)
       CHARACTER        CFILNA1*64
@@ -51,7 +51,7 @@
      >                 LMASIN=LMASTB-4,LGENTB=6,LGENIN=LGENTB,
      >                 MAXA=10000,MULT=2)
       TYPE(C_PTR)      IPDRL
-      CHARACTER        HPRT*6,NAMLCM*12,NAMMY*12
+      CHARACTER        HPRT*6,NAMLCM*12,NAMMY*12,HPRT1*1
       LOGICAL          EMPTY,LCM,LEXIST
       INTEGER          ILONG,MASTER(LMASTB),GENINX(LGENTB),NPZ(LPZ),
      >                 IA(MAXA)
@@ -68,7 +68,7 @@
 *  DATA STATEMENTS
 *----
       SAVE HMTYP
-      DATA HMTYP /'N','n','G','g','B','b','C','c'/
+      DATA HMTYP /'N','n','G','g','B','b','C','c','P','p'/
 *
       NGRI=0
       ILIBIN=2
@@ -230,6 +230,12 @@
         CALL XDREED(IUNIT,IREC,RA,NWDS)
         NPART=IA(1)
         NTYPE=IA(2)
+        IF((NPART.LE.0).OR.(NTYPE.LE.0)) THEN
+          WRITE(HSMG,'(A,I6,A,I6,A)')
+     >    'LIBNRG: BAD MATXS CONTROL NPART=',NPART,' NTYPE=',NTYPE,
+     >    '.'
+          CALL XABORT(HSMG)
+        ENDIF
         IREC=4
         NWDS=(NPART+NTYPE)*MULT+6*NTYPE+NPART
         IF(NWDS.GT.MAXA)
@@ -289,6 +295,12 @@
         NPART=IA(1)
         NTYPE=IA(2)
         NMAT=IA(4)
+        IF((NPART.LE.0).OR.(NTYPE.LE.0).OR.(NMAT.LE.0)) THEN
+          WRITE(HSMG,'(A,I6,A,I6,A,I6,A)')
+     >    'LIBNRG: BAD MATXS2 CONTROL NPART=',NPART,' NTYPE=',NTYPE,
+     >    ' NMAT=',NMAT,'.'
+          CALL XABORT(HSMG)
+        ENDIF
         IREC=4
         NWDS=(NPART+NTYPE+NMAT)*MULT+2*NTYPE+NPART+2*NMAT
         IF(NWDS.GT.MAXA)
@@ -299,11 +311,17 @@
         ELSE IF(ILIBIN.EQ.3) THEN
           CALL LIBEED(IUNIT,IREC,RA,NWDS)
         ENDIF
-        NGX=IA(NEX1+1) ! use the energy mesh of the first particle
-        WRITE(HPRT,'(A6)') DA(1) ! name of the first particle
-        IREC=IREC+1
-        DO 195 IMTYP=1,NMTYP
-          IF(HPRT.EQ.HMTYP(IMTYP)) THEN
+        HPRT1=' '
+        CALL LCMLEN(IPLIB,'PARTICLE',ILONG,ITYLCM)
+        IF(ILONG.GT.0) CALL LCMGTC(IPLIB,'PARTICLE',1,HPRT1)
+        DO 195 I=1,NPART
+          NGX=IA(NEX1+I) ! use the energy mesh of the particle
+          WRITE(HPRT,'(A6)') DA(I) ! name of the particle
+          IREC=IREC+1
+          CALL LIBCOV(HPRT)
+          IF(ANY(HMTYP.EQ.HPRT).AND.
+     >      ((HPRT.EQ.HPRT1).OR.(HPRT1.EQ.' '))) THEN
+            IF(HPRT1.EQ.' ') HPRT1=HPRT(:1)
             IF(NGRI.EQ.0) THEN
               NGRI=NGX
               ALLOCATE(ENERG(NGRI+1))
@@ -328,7 +346,12 @@
               DEALLOCATE(TEMPE)
             ENDIF
           ENDIF
- 195    CONTINUE
+  195   CONTINUE
+        IF(NGRI.EQ.0) THEN
+          WRITE(HSMG,'(A,A1,A,A,A)') 'LIBNRG: PARTICLE ',HPRT1,
+     >    ' NOT FOUND IN MATXS2 FILE ',TRIM(NAMFIL),'.'
+          CALL XABORT(HSMG)
+        ENDIF
         IF(ILIBIN.EQ.2) THEN
           CALL XDRCLS(IUNIT)
         ELSE

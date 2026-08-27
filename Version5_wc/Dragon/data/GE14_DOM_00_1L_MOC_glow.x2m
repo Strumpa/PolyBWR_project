@@ -14,16 +14,14 @@ REAL keffIC keffMOC ;
 
 STRING exec := "True" ;
 INTEGER o_anis := 4 ;
-STRING name_compo := '_CPO_GE14_DOM_IC_1L_MOC_ANIS4_finer_water_rods_8_moder_3016_corners4' ;
-STRING Draglib := 'endfb8r1_295' ; !'e81_295_P5'
+STRING name_compo := '_CPO_GE14_DOM_IC_1L_MOC_ANIS4_14_50' ;
+STRING Draglib := 'endfb8r1_295' ;
 ***********************************************
 * TDT files from glow : imports
 ***********************************************
 
 SEQ_ASCII tdt_iso_ssh :: FILE 'GE14_DOM_SSH_IC_TISO_MACRO.dat' ;
-!SEQ_ASCII tdt_spc_moc :: FILE 'GE14_DOM_FLUXL2_MOC_TSPC.dat' ;
-!SEQ_ASCII tdt_spc_moc :: FILE 'GE14_DOM_FLUXL2_finer_water_rods_MOC_TSPC.dat' ;
-SEQ_ASCII tdt_spc_moc :: FILE 'GE14_DOM_FLUXL2_finer_water_rods8_mode3016_subdcoolcorners4_MOC_TSPC.dat' ;
+SEQ_ASCII tdt_spc_moc :: FILE 'GE14_DOM_FLUXL2_MOC_TSPC.dat' ;
 
 *******************************************************
 * Post script formatted files for plotting with G2S:
@@ -62,7 +60,7 @@ TRKMOC TRKFILMOC := SALT: tdt_spc_moc ::
     BATCH 2000
     GAUS
     ANIS <<o_anis>>
-    TSPC EQW2 30 115.0 REND
+    TSPC EQW2 14 50.0 REND
     NOIC
 ;
 
@@ -78,7 +76,7 @@ IF exec 'True' = THEN
 * LIBRARY creation 
 **********************************************
 
-LIBRARY := MIXGE14 :: <<Draglib>> 'RSE' <<o_anis>> 'NONE' 900.0 600.0 600.0 600.0 600.0 600.0 ;
+LIBRARY := MIXGE14 :: <<Draglib>> 'PT' <<o_anis>> 'NONE' 900.0 600.0 600.0 600.0 600.0 600.0 ;
 
 ******************************************************************
 * USS: call to create the self-shielded cross sections library

@@ -27,7 +27,7 @@ MGEO15_G2S := G2S: MGEO15 ;
 *  Tracking
 *----
 MTRACK TRCKFIL := SALT: MGEO15_G2S ::
-  EDIT 4
+  EDIT 1
   ALLG
   ANIS 2 TSPC EQW2 8 20. ;
 

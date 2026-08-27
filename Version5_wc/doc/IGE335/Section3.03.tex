@@ -70,19 +70,19 @@ $\{$ \moc{VIRTUAL} $|$ \\
 \moc{HEXCELZ} \dusa{lr} \dusa{lz} $|$ \\
 \moc{HEXTCEL} \dusa{lr} \dusa{nhr}$|$ \\
 \moc{HEXTCELZ} \dusa{lr} \dusa{nhr} \dusa{lz} $|$ \\
-\moc{GROUP} \dusa{lp} $\}$
+\moc{GROUP} \dusa{lp} $|$ \\
+\moc{MACRO} \dusa{lp} $\}$
 \end{DataStructure}
 
 \begin{DataStructure}{Structure \dstr{descgcnt}}
 $[$ \moc{EDIT} \dusa{iprint} $]$ \\
-\dstr{descBC} \\
-\dstr{descSP} \\
-\dstr{descPP} \\
-\dstr{descDH} \\
-\dstr{descSIJ} \\
+$\{$ \dstr{descBC} \dstr{descSP} \dstr{descPP} \\
+~~~~$|$ \dstr{descSIJ} \\
+~~~~$|$ \dstr{descMACRO} $\}$ \\
 $[[$ \moc{:::} \dusa{SUBGEO} \moc{:=} \moc{GEO:} $\{$ \dstr{descgtyp} $|$
 \dusa{SUBGEO} $|$
-\dusa{OLDGEO} $\}$ \dstr{descgcnt}$]]$ \\
+\dusa{OLDGEO} $\}$ \dstr{descgcnt} $]]$ \\
+$[$ \dstr{descDH} $]$ \\
 \moc{;} 
 \end{DataStructure}
 
@@ -162,7 +162,10 @@ module is used.
 
 \item[\moc{HEXTCELZ}] keyword to specify a single $Z$ directed 3-D hexagonal cell geometry a triangular mesh and containing concentric $Z$ directed cylinders. 
 
-\item[\moc{GROUP}] keyword to specify that a {\sl do-it-yourself} type geometry
+\item[\moc{GROUP}] keyword to specify that a {\sl do-it-yourself} type geometry for the interface current method
+description follows.
+
+\item[\moc{MACRO}] keyword to specify that a {\sl do-it-yourself} type macro-geometry
 description follows.
 
 \item[\dusa{lx}] number of subdivisions along the $X-$axis (before
@@ -210,7 +213,10 @@ with a geometry (see \Sect{descPP}).
 \item[\dstr{descDH}] structure used to specify double-heterogeneity data (see \Sect{descDH}).
 
 \item[\dstr{descSIJ}] structure used to specify the properties of {\sl do-it-yourself}
-geometries (see \Sect{descSIJ}).
+geometries for the interface current method (see \Sect{descSIJ}).
+
+\item[\dstr{descMACRO}] structure used to specify the properties of {\sl do-it-yourself}
+macro-geometries used by edition modules (see \Sect{descMACRO}).
 
 \item[\dusa{SUBGEO}] {\tt character*12} name of the directory  that will
 contain the sub-geometry.
@@ -1187,7 +1193,6 @@ and the real and virtual mixtures are given in the following order
 \end{enumerate}
 \end{itemize}
 
-
 \item \moc{HEXCELZ} geometries.
 
 $$N_{t}=(\textit{lr}+1)\times \textit{lz}$$
@@ -1410,7 +1415,151 @@ mixtures.
 
 \end{ListeDeDescription}
 
-\clearpage
+\subsubsection{Do-it-yourself geometry for the interface current method}\label{sect:descSIJ}
+
+This {\sl do-it-yourself} geometry is an abstract representation of an assembly of arbitrary unit-cells defined in term of their probability of presence and of their probability to have a particular neighbor. This definition is adapted a naive implementation of the interface current method. Structure \dstr{descSIJ} is defined as
+
+\begin{DataStructure}{Structure \dstr{descSIJ}}
+\moc{POURCE} (\dusa{pcinl}(i),i=1,\dusa{lp}) \\
+\moc{PROCEL} ((\dusa{pijcel}(i,j),j=1,\dusa{lp}),i=1,\dusa{lp}) \\
+\moc{CELL}  (\dusa{HCELL}(i),i=1,\dusa{lp})
+\end{DataStructure}
+
+\noindent where
+\begin{ListeDeDescription}{mmmmmmm}
+
+\item[\moc{POURCE}] keyword to specify that a {\sl do-it-yourself} type
+geometry is to be defined, that is to say a geometry resembling the multicell
+geometry seen in APOLLO-1.\cite{apollo1} This option permits the interactions
+between different arbitrarily arranged cells in an infinite lattice to be
+treated. The cells are identified by the information
+following the keyword \moc{CELL}. The user must ensure that the total number of
+regions appearing in all the cells must be less than \dusa{maxreg}.
+
+\item[\dusa{pcinl}] array giving the proportion of each cell type in the
+lattice such that:
+
+$$|\sum_{i=1}^{{\it lp}}{\it pcinl}(i)-1.|<10^{-5}$$
+
+\item[\moc{PROCEL}] keyword to specify that in a {\sl do-it-yourself} type
+geometry rather than using a statistical arrangement of cells, a pre-calculated
+cell distribution is to be considered. If the \moc{POURCE} structure is
+given without the \moc{PROCEL} structure, a {\sl statistical} approximation
+is used, as defined in Ref.~\citen{apollo1}.
+
+\item[\dusa{pijcel}] array giving the pre-calculated probability for a neutron
+leaving a cell of type i to enter a cell of type j without crossing any other
+cell. We require: 
+
+$$|S(i){\it pcinl}(i){\it pijcel}(i,j)-S(j){\it pcinl}(j) {\it
+pijcel}(j,i)|<10^{-4}$$
+
+\noindent where $S(i)$ and $S(j)$ are the exterior surfaces area of the cells of
+type $i$ and $j$ respectively.
+
+\item[\moc{CELL}] keyword to specify the description of the cells.
+
+\item[\dusa{HCELL}] array of sub-geometry {\tt character*12} names containing the
+geometric description of each cell. 
+
+\end{ListeDeDescription}
+
+Examples of geometry definitions can be found in \Sect{ExGEOData}.
+
+\subsubsection{Do-it-yourself macro-geometry}\label{sect:descMACRO}
+
+This {\sl do-it-yourself} macro-geometry is an abstract representation of a 2D or 3D geometry adapted to a simple description of an edition geometry. These geometries cannot be used to perform a tracking with any module in Sect.~\ref{sect:TRKData}. The \dusa{lp} regions are defined in sequential order and can be remixed using the \moc{REMIX} keyword to produce fewer mixtures than regions. Structure \dstr{descMACRO} is defined as
+
+\begin{DataStructure}{Structure \dstr{descMACRO}}
+\moc{REGIONS} $[[~\{$ \\
+\hskip 0.5cm \moc{RECT} \dusa{xm} \dusa{xp} \dusa{ym} \dusa{yp} $[$ \moc{AXIAL} \dusa{zm} \dusa{zp} $]~|$ \moc{TRIA} \dusa{x1} \dusa{y1} \dusa{x2} \dusa{y2} \dusa{x3} \dusa{y3} $[$ \moc{AXIAL} \dusa{zm} \dusa{zp} $]~|$ \\
+\hskip 0.5cm \moc{QUAD} \dusa{x1} \dusa{y1} \dusa{x2} \dusa{y2} \dusa{x3} \dusa{y3} \dusa{x4} \dusa{y4} $[$ \moc{AXIAL} \dusa{zm} \dusa{zp} $]~|$ \\
+\hskip 0.5cm \moc{HEXA} \dusa{x1} \dusa{y1} \dusa{x2} \dusa{y2} \dusa{x3} \dusa{y3} \dusa{x4} \dusa{y4} \dusa{x5} \dusa{y5} \dusa{x6} \dusa{y6} $[$ \moc{AXIAL} \dusa{zm} \dusa{zp} $]~|$ \\
+\hskip 0.5cm \moc{POLY} \dusa{ncorn} (\dusa{x}(i),\dusa{y}(i),i=1,\dusa{ncorn}) $[$ \moc{AXIAL} \dusa{zm} \dusa{zp} $]$ \\
+\hskip 1.35cm $\}~]]$ \\
+$[$ \moc{CENTER} \dusa{x0} \dusa{y0} $[$ $\{$ \moc{NONE} $|$ \moc{REFL} $|$ \moc{ROTA} $\}~]~]$ \\
+$[$ \moc{REMIX} (\dusa{ireg2}(ii),ii=1,\dusa{lp}) $]$
+\end{DataStructure}
+
+\noindent where
+\begin{ListeDeDescription}{mmmmmmm}
+
+\item[\dusa{lp}] number of homogeneous regions to be defined using \moc{RECT}, \moc{TRIA}, \moc{QUAD}, \moc{HEXA} and/or \moc{POLY} data structures. Many regions can be defined by
+repeating the \moc{RECT}, \moc{TRIA}, \moc{QUAD}, \moc{HEXA} and/or \moc{POLY} data structures.
+
+\item[\moc{REGIONS}] keyword used to specify a list of \dusa{lp} user-defined macro regions.
+
+\item[\moc{RECT}] keyword used to specify a unique region based on a rectangular node. 
+
+\item[\dusa{xm}] lower limit of the homogeneous node alonx X--axis.
+
+\item[\dusa{xp}] upper limit of the homogeneous node alonx X--axis.
+
+\item[\dusa{ym}] lower limit of the homogeneous node alonx Y--axis.
+
+\item[\dusa{yp}] upper limit of the homogeneous node alonx Y--axis.
+
+\item[\dusa{zm}] lower limit of the homogeneous node alonx Z--axis.
+
+\item[\dusa{zp}] upper limit of the homogeneous node alonx Z--axis.
+
+\item[\moc{TRIA}] keyword used to specify a unique region based on a triangular node.
+
+\item[\moc{QUAD}] keyword used to specify a unique region based on a quadrilateral node. In this case, the vertex list must be provided in clockwise or anticlockwise order.
+
+\item[\moc{HEXA}] keyword used to specify a unique region based on an hexagonal node. In this case, the vertex list must be provided in clockwise or anticlockwise order.
+
+\item[\dusa{x1}] X--coordinate of the first vertex.
+
+\item[\dusa{y1}] Y--coordinate of the first vertex.
+
+\item[\dusa{x2}] X--coordinate of the second vertex.
+
+\item[\dusa{y2}] Y--coordinate of the second vertex.
+
+\item[\dusa{x3}] X--coordinate of the third vertex.
+
+\item[\dusa{y3}] Y--coordinate of the third vertex.
+
+\item[\dusa{x4}] X--coordinate of the fourth vertex of a quadrilateral or hexagon.
+
+\item[\dusa{y4}] Y--coordinate of the fourth vertex of a quadrilateral or hexagon.
+
+\item[\dusa{x5}] X--coordinate of the fifth vertex of an hexagon.
+
+\item[\dusa{y5}] Y--coordinate of the fifth vertex of an hexagon.
+
+\item[\dusa{x6}] X--coordinate of the sixth vertex of an hexagon.
+
+\item[\dusa{y6}] Y--coordinate of the sixth vertex of an hexagon.
+
+\item[\moc{POLY}] keyword used to specify a unique region based on an arbitrary polygonal node. In this case, the vertex list must be provided in clockwise or anticlockwise order.
+
+\item[\dusa{ncorn}] number of vertices ($\ge 3$) defining the polygon.
+
+\item[\dusa{x}] X--coordinate of a vertex of the polygon.
+
+\item[\dusa{y}] Y--coordinate of a vertex of the polygon.
+
+\item[\moc{AXIAL}] keyword used to set \dusa{zm} and \dusa{zp} in 3D cases.
+
+\item[\moc{CENTER}] keyword used to specify the geometry center in the $X-Y$ plane. This keyword is useful to perform unfolding of a macro-geometry.
+
+\item[\dusa{x0}] center alonx X--axis.
+
+\item[\dusa{y0}] center alonx Y--axis.
+
+\item[\moc{NONE}] no symmetry and no unfolding is to be performed (default option).
+
+\item[\moc{REFL}] reflexion is assumed (adapted to S30 or SA60 symmetries).
+
+\item[\moc{ROTA}] rotation is assumed (adapted to RA60 or R120 symmetries).
+
+\item[\moc{REMIX}] some regions of the macro-geometry are merged according to \dusa{imix2} indices. By default, each region forms a mixture.
+
+\item[\dusa{imix2}] array of redefined mixture indices to which are associated the regions indices created {\sl after} the \moc{MACRO} definition. A value of \dusa{ireg2}=0 allows the corresponding region to be neglected.
+
+\end{ListeDeDescription}
 
 \subsubsection{Double-heterogeneity}\label{sect:descDH}
 
@@ -1467,51 +1616,6 @@ macro-geometry.
 region of the micro-structures. Note that \dusa{mixgr} should be specified only
 for the regions of the micro-structure which have a concentration
 \dusa{fract}$>$0. These values must be $\le$\dusa{maxmix}.
-
-\end{ListeDeDescription}
-
-Examples of geometry definitions can be found in \Sect{ExGEOData}.
-
-\subsubsection{Do-it-yourself geometries}\label{sect:descSIJ}
-
-A {\sl do-it-yourself} geometry is an abstract representation of an assembly of arbitrary unit-cells defined in term of their probability of presence and of their probability to have a particular neighbor. Structure \dstr{descSIJ} is defined as
-
-\begin{DataStructure}{Structure \dstr{descSIJ}}
-$[$ \moc{POURCE} (\dusa{pcinl}(i),i=1,\dusa{lp}) $]$\\
-$[$ \moc{PROCEL} ((\dusa{pijcel}(i,j),j=1,\dusa{lp}),i=1,\dusa{lp}) $]$
-\end{DataStructure}
-
-\noindent where
-\begin{ListeDeDescription}{mmmmmmm}
-
-\item[\moc{POURCE}] keyword to specify that a {\sl do-it-yourself} type
-geometry is to be defined, that is to say a geometry resembling the multicell
-geometry seen in APOLLO-1.\cite{apollo1} This option permits the interactions
-between different arbitrarily arranged cells in an infinite lattice to be
-treated. The cells are identified by the information
-following the keyword \moc{CELL}. The user must ensure that the total number of
-regions appearing in all the cells must be less than \dusa{maxreg}.
-
-\item[\dusa{pcinl}] array giving the proportion of each cell type in the
-lattice such that:
-
-$$|\sum_{i=1}^{{\it lp}}{\it pcinl}(i)-1.|<10^{-5}$$
-
-\item[\moc{PROCEL}] keyword to specify that in a {\sl do-it-yourself} type
-geometry rather than using a statistical arrangement of cells, a pre-calculated
-cell distribution is to be considered. If the \moc{POURCE} structure is
-given without the \moc{PROCEL} structure, a {\sl statistical} approximation
-is used, as defined in Ref.~\citen{apollo1}.
-
-\item[\dusa{pijcel}] array giving the pre-calculated probability for a neutron
-leaving a cell of type i to enter a cell of type j without crossing any other
-cell. We require: 
-
-$$|S(i){\it pcinl}(i){\it pijcel}(i,j)-S(j){\it pcinl}(j) {\it
-pijcel}(j,i)|<10^{-4}$$
-
-\noindent where $S(i)$ and $S(j)$ are the exterior surfaces area of the cells of
-type $i$ and $j$ respectively.
 
 \end{ListeDeDescription}
 

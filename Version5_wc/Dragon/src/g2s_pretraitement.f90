@@ -276,6 +276,9 @@ contains
     if ((ncode(1)/=B_Diag) .and. (ncode(2)/=B_Diag)) &
          return !pas de condition DIAG
     call LCMGET(geoIp,'STATE-VECTOR',sv)
+    if((sv(3)/=sv(4)).or.(sv(6).ne.sv(3)*(sv(3)+1)/2)) then
+      call XABORT("G2S: inconsistent diagonal geometry")
+    endif
     if (sv(8)==0) return !pas de sous cellules
     call LCMLEN(geoIp,'MIX         ',lgAv,ty)
     n = (nint(sqrt(1.+8.*lgAv)) - 1) / 2
@@ -337,10 +340,13 @@ contains
     else
        call XABORT("G2S: internal error in routine traiteConditionDiagonale")
     end if
+    if(pos.ne.n*n) call XABORT('G2S: incorrect number of cells')
 
     call LCMPUT(geoIp,'MIX         ',pos,1,mixAp)
     call LCMPUT(geoIp,'TURN        ',pos,1,turnAp)
     call LCMPUT(geoIp,'MERGE       ',pos,1,mergeAp)
+    sv(6)=pos
+    call LCMPUT(geoIp,'STATE-VECTOR',40,1,sv)
     deallocate(mixAv,turnAv,mixAp,turnAp,mergeAv,mergeAp)
   end subroutine traiteConditionDiagonale
 
@@ -434,7 +440,7 @@ contains
        call LCMNXT(lcIp,carreName)
        cIp=LCMGID(lcIp,carreName)
        call LCMGET(cIp,'STATE-VECTOR',sv)
-       lenMix = sv(3)*sv(4)
+       lenMix = sv(6)
        if ((sv(1)/=G_Car2d).or.(sv(9)==0)) cycle !pas d'info a retirer
        call LCMLEN(cIp,'CELL        ',lenCell,typ)
        lenCell=lenCell/3
@@ -456,7 +462,7 @@ contains
        !on teste si tous les milieux sont bien negatifs
        do i = 1,lenMix
           if (mix(i)<0) cycle
-          call XABORT("G2S: error, meltig MIX and CELL not supported")
+          call XABORT("G2S: error, meltig MIX and CELL not supported(1)")
        end do
        call LCMGTC(cIp,'CELL        ',12,lenCell,cell)
        !travail sur l'axe des x
@@ -1957,7 +1963,7 @@ contains
        !on teste si tous les milieux sont bien negatifs
        do i = 1,lenMix
           if (mix(i)<0) cycle
-          call XABORT("G2S: error, meltig MIX and CELL not supported")
+          call XABORT("G2S: error, meltig MIX and CELL not supported(2)")
        end do
        call LCMGTC(triIp,'CELL        ',12,sv(9),cell)
        !on traite les donnees

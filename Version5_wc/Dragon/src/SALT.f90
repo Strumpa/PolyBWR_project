@@ -181,6 +181,7 @@ SUBROUTINE SALT(NENTRY,HENTRY,IENTRY,JENTRY,KENTRY)
   !----
   ALLOCATE(GG, STAT= OK)
   IF(OK /= 0) CALL XABORT('SALT: failure to allocate GG')
+  NULLIFY(GG%IBC2_ELEM,GG%IBC2_SURF2,GG%BCDATAREAD)
   RCUTOF=DBLE(RSTATT(3))
   !----
   !  Recover options from state vector

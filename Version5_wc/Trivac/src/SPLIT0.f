@@ -78,9 +78,7 @@
    10       CONTINUE
          ENDIF
 *        DETERMINATION OF THE NEW BOUNDARY CONDITIONS.
-         DO 20 I=1,6
-         NEWCOD(I)=.FALSE.
-   20    CONTINUE
+         NEWCOD(:6)=.FALSE.
          IF((NCODE(1).EQ.5).OR.(LL2.AND.(NCODE(3).EQ.5))) THEN
             DEL=XXX(2)-XXX(1)
             IF(MOD(ISPLTX(1),2).EQ.0) THEN

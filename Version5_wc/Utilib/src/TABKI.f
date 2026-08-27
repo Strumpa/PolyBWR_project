@@ -71,7 +71,7 @@ C----
         TABKI=BI4(K,1)+Y*(BI4(K,2)+Y*BI4(K,3))
       ELSE IF(L .EQ. 5) THEN
         K=MIN(NINT(Y*PAS5),MKI5)
-        TABKI=BI5(K,1)+Y*(BI5(K,2)+Y*BI5(K,2))
+        TABKI=BI5(K,1)+Y*(BI5(K,2)+Y*BI5(K,3))
       ELSE
         CALL XABORT(NAMSBR//': L > 5 AND L < 1 ARE INVALID')
       ENDIF

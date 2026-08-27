@@ -31,7 +31,7 @@ REAL densLEAD := 10.503 ;     (*in g/cm^3*)
 REAL densHe := 0.0001663 ;    (*in g/cm^3*)
 
 *-------------------------------------------------------------------------------------------------
-*  Microlib: DRAGLIB ENDFB_VII XMAS 172 energy discr
+*  Microlib: DRAGLIB ENDFB_VII SHEM370 energy discr
 *-------------------------------------------------------------------------------------------------
 MICRO := LIB: ::
     EDIT 2
@@ -39,7 +39,7 @@ MICRO := LIB: ::
     CTRA NONE
     ANIS 2         (*LINEAR ANISOTROPY SCATTERING*)
     ADED 2 NFTOT NINEL 
-    MIXS LIB: DRAGON FIL: DLIB_8R0_315
+    MIXS LIB: DRAGON FIL: DLIB_8R0_370
         MIX 1 <<temp_clad>> <<densHe>> GAS
             He4    = He4   1.0
         MIX 2 <<temp_fuel>> <<densUO2>>
@@ -175,7 +175,7 @@ OUT := EDI: MICRO2 TRACK FLUX ALFR_LATT_b CP ::
     COND
     ;
 
-assertS FLUX :: 'K-EFFECTIVE' 1 0.1612761 ;
+assertS FLUX :: 'K-EFFECTIVE' 1 0.1611705 ;
 ECHO "test TEST_GEO_latt_tspc_S30 completed" ;
 END: ;
 QUIT "LIST" . 

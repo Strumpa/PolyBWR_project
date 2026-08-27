@@ -1,0 +1,110 @@
+*----
+* Author: B.A.H. Meunier
+* Compare a small MATXS2-generated macrolib with the corresponding
+* FMAC macrolib and run a short charged-particle transport test.
+*----
+MODULE GEO: LIB: FMAC: SNT: ASM: FLU: PSOUR: OUT: HEAT: END: ;
+PROCEDURE assertS_pair ;
+LINKED_LIST
+     LIBRARYB LIBRARYG BMACROM GMACROM BMACROF GMACROF
+     BGRPM GGRPM BGRPF GGRPF GEOM BTRACK BSM BSF BSYSM BSYSF
+     BFLUXM BFLUXF BOUTM BOUTF BWTM BWTF HEATM HEATF ;
+SEQ_ASCII FMAC_M :: FILE "./_fmac_bg" ;
+*
+LIBRARYB := LIB: ::
+     EDIT 1
+     NMIX 2
+     ANIS 2
+     CTRA NONE
+     STERN 0
+     PARTICLE B
+     MIXS LIB: MATXS2 FIL: _matxs_bg
+     MIX 1 300.0
+          WAT  = water   1.0
+     MIX 2 300.0
+          AL   = aluminum 2.6989
+     ;
+*
+LIBRARYG := LIB: ::
+     EDIT 1
+     NMIX 2
+     ANIS 2
+     CTRA NONE
+     STERN 0
+     PARTICLE G
+     MIXS LIB: MATXS2 FIL: _matxs_bg
+     MIX 1 300.0
+          WAT  = water   1.0
+     MIX 2 300.0
+          AL   = aluminum 2.6989
+     ;
+*
+BMACROM := LIBRARYB :: STEP UP MACROLIB ;
+GMACROM := LIBRARYG :: STEP UP MACROLIB ;
+BMACROF := FMAC: FMAC_M :: PARTICLE B ;
+GMACROF := FMAC: FMAC_M :: PARTICLE G ;
+*
+*----
+*  Macrolib consistency checks.
+*----
+BGRPM := BMACROM :: STEP UP GROUP STEP AT 1 ;
+BGRPF := BMACROF :: STEP UP GROUP STEP AT 1 ;
+GGRPM := GMACROM :: STEP UP GROUP STEP AT 1 ;
+GGRPF := GMACROF :: STEP UP GROUP STEP AT 1 ;
+*
+assertS_pair BGRPF BGRPM :: 'NTOT0' 1 1.0E-6 ;
+assertS_pair BGRPF BGRPM :: 'H-FACTOR' 1 1.0E-6 ;
+assertS_pair BGRPF BGRPM :: 'EMOMTR' 1 1.0E-6 ;
+assertS_pair BGRPF BGRPM :: 'ESTOPW' 1 1.0E-6 ;
+assertS_pair GGRPF GGRPM :: 'NTOT0' 1 1.0E-6 ;
+assertS_pair GGRPF GGRPM :: 'H-FACTOR' 1 1.0E-6 ;
+*
+*----
+*  Short one-dimensional transport calculation. A mono-directional
+*  B-particle source is transported and both the flux and the total
+*  deposited energy are compared.
+*----
+GEOM := GEO: :: CAR1D 1
+     X- VOID X+ VOID
+     MIX 1
+     MESHX 0.0 1.0
+     SPLITX 2
+     ;
+BTRACK := SNT: GEOM ::
+     MAXR 100
+     NSHT
+     SCHM 2 DIAM 0
+     ESCHM 2 EDIAM 0
+     QUAD 2 GQ 1 SN 4
+     SCAT 2
+     EPSI 1.0E-5
+     MAXI 100
+     BFPG
+     ;
+BSM := PSOUR: BMACROM BTRACK GEOM ::
+     EDIT 0
+     MONO 1
+     X- INTG 1 1.0
+     DIR 1.0 0.0 0.0
+     ;
+BSF := PSOUR: BMACROF BTRACK GEOM ::
+     EDIT 0
+     MONO 1
+     X- INTG 1 1.0
+     DIR 1.0 0.0 0.0
+     ;
+BSYSM := ASM: BMACROM BTRACK :: ARM ;
+BSYSF := ASM: BMACROF BTRACK :: ARM ;
+BFLUXM := FLU: BMACROM BTRACK BSYSM BSM :: TYPE S EXTE 100 ;
+BFLUXF := FLU: BMACROF BTRACK BSYSF BSF :: TYPE S EXTE 100 ;
+BOUTM := OUT: BFLUXM BTRACK BMACROM GEOM :: COND INTG NONE ;
+BOUTF := OUT: BFLUXF BTRACK BMACROF GEOM :: COND INTG NONE ;
+HEATM := HEAT: BOUTM :: EDIT 0 NORM 1.0 ;
+HEATF := HEAT: BOUTF :: EDIT 0 NORM 1.0 ;
+*
+BWTM := BOUTM :: STEP UP GROUP STEP AT 1 ;
+BWTF := BOUTF :: STEP UP GROUP STEP AT 1 ;
+*
+assertS_pair BWTF BWTM :: 'FLUX-INTG' 1 1.0E-6 ;
+assertS_pair HEATF HEATM :: 'EDEPOS_TOT' 1 1.0E-6 ;
+END: ;

@@ -166,9 +166,7 @@
       NFREG    =IEDIMG(23)
       MXGSUR   =IEDIMG(24)
       MAXMSH=MAX(1,MXMSH,MAXMSP,MAXREG)
-      IF(IPRINT .GE. 1) THEN
-        WRITE(IOUT,6011) NFREG,NEREG,NFSUR,NESUR
-      ENDIF
+      IF(IPRINT .GT. 1) WRITE(IOUT,6011) NFREG,NEREG,NFSUR,NESUR
       IF((ITYPBC .EQ. 0).OR.(ITYPBC .EQ. 2)) THEN
 *----
 *  Define Cell for periodicity
@@ -446,7 +444,7 @@
 *----
 *  Standard (isotropic) tracking (white boundary conditions)
 *----
-        IF(IPRINT .GE. 1) WRITE(IOUT,6030) NBANGL*NQUAD,NPOINT
+        IF(IPRINT .GT. 1) WRITE(IOUT,6030) NBANGL*NQUAD,NPOINT
         MAXSUB=1
         CALL SALTLS(IFTEMP,IPRINT,IGTRK ,NFREG ,NBANGL, NQUAD ,
      >              RENO  ,NBDR  ,IFMT  ,DENUSR,DANGLT, DDENWT,
@@ -577,7 +575,7 @@
 *  print routine closing output header if required
 *  and return
 *----
-      IF(IPRINT .GE. 1) THEN
+      IF(IPRINT .GT. 1) THEN
         WRITE(IOUT,6012)
         WRITE(IOUT,6001) NAMSBR
       ENDIF

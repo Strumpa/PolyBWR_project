@@ -174,12 +174,12 @@ WHILE istep nstep < DO
   IF istep 1 = THEN
     BURNUP LIBRARY2 := EVO: LIBRARY2 FLUX TRACK ::
       EDIT 3
-      SAVE <<Tbeg>> DAY POWR <<Norm_f2>>
+      SAVE <<Tbeg>> DAY POWR <<Norm_f2>> EDP0
     ;
   ELSE
     BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX TRACK ::
       EDIT 3
-      SAVE <<Tbeg>> DAY POWR <<Norm_f2>>
+      SAVE <<Tbeg>> DAY POWR <<Norm_f2>> EDP0
     ;
   ENDIF ;
 
@@ -224,14 +224,14 @@ WHILE istep nstep < DO
             EDIT 2
             DEPL <<Tbeg>> <<Tend>> DAY POWR <<Norm_f2>>
             EPS1 1.0E-5  EPS2 1.0E-5
-            EXPM 1.E15 <<depl_sol>> <<rates_extr>> <<sat>> <<DIRA_opt>> GLOB
+            EXPM 1.E15 <<depl_sol>> <<rates_extr>> <<sat>> <<DIRA_opt>> EDP0
         ;
     ELSE
         BURNUP LIBRARY2 := EVO: BURNUP LIBRARY2 FLUX TRACK ::
             EDIT 2
             DEPL <<Tbeg>> <<Tend>> DAY POWR <<Norm_f2>>
             EPS1 1.0E-5  EPS2 1.0E-5
-            EXPM 1.E15 <<depl_sol>> <<rates_extr>> <<DIRA_opt>> GLOB
+            EXPM 1.E15 <<depl_sol>> <<rates_extr>> <<DIRA_opt>> EDP0
         ;
     ENDIF ;
   

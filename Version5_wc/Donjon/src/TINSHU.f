@@ -143,7 +143,7 @@
       IY = 0
       DO 10 I=1,NX
         WRITE(XNAM,'(A4)') IXN(I)
-        IF (XNAM.EQ.TEXT4) THEN
+        IF(XNAM.EQ.TEXT4) THEN
            IX = I
            GOTO 11
         ENDIF
@@ -154,7 +154,7 @@
   11  TEXT4 = NAMCHA(1:1)
       DO 20 I=1,NY
         WRITE(YNAM,'(A4)') IYN(I)
-        IF (YNAM.EQ.TEXT4) THEN
+        IF(YNAM.EQ.TEXT4) THEN
            IY = I
            GOTO 21
         ENDIF
@@ -184,7 +184,7 @@
         IY = 1
         DO 30 I=1,NX
           WRITE(XNAM,'(A4)') IXN(I)
-          IF (XNAM.EQ.TEXT4) THEN
+          IF(XNAM.EQ.TEXT4) THEN
              IX = I
              GOTO 31
           ENDIF
@@ -195,7 +195,7 @@
   31    TEXT4 = NAMCH2(1:1)
         DO 40 I=1,NY
           WRITE(YNAM,'(A4)') IYN(I)
-          IF (YNAM.EQ.TEXT4) THEN
+          IF(YNAM.EQ.TEXT4) THEN
              IY = I
              GOTO 41
           ENDIF
@@ -239,7 +239,7 @@
           WRITE(6,*) ' AFTER ',NAMCH2,(WINT(ICH2,I),I=1,NK)
         ENDIF
       ELSE
-        WRITE(6,*) ' CHANNEL TO POOL '
+        IF(IPRT.GT.0) WRITE(6,*) ' CHANNEL TO POOL '
 *----
 *  RECOVER DISCHARGED FUEL BURNUPS
 *----

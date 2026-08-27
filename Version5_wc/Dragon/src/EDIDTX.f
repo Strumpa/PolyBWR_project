@@ -1,11 +1,11 @@
 *DECK EDIDTX
       SUBROUTINE EDIDTX(IPEDIT,IPFLUX,IPMACR,IADJ,IPRINT,NL,NDEL,NALBP,
      >                  ITRANC,NGROUP,NGCOND,NBMIX,NREGIO,NMERGE,ILEAKS,
-     >                  ILUPS,NW,MATCOD,VOLUME,KEYFLX,IGCOND,IMERGE,
-     >                  FLUXES,AFLUXE,EIGENK,VOLMER,WLETYC,WENERG,
-     >                  RATECM,FLUXCM,FADJCM,FLXINT,SCATTD,SCATTS,
-     >                  NIFISS,NSAVES,CURNAM,NEDMAC,SIGS,B2,IGOVE,
-     >                  CUREIN,TIMEF,NTAUXT,NMLEAK)
+     >                  ILUPS,INORM,NW,MATCOD,VOLUME,KEYFLX,IGCOND,
+     >                  IMERGE,FLUXES,AFLUXE,EIGENK,VOLMER,WLETYC,
+     >                  WENERG,RATECM,FLUXCM,FADJCM,FLXINT,SCATTD,
+     >                  SCATTS,NIFISS,NSAVES,CURNAM,NEDMAC,SIGS,B2,
+     >                  IGOVE,CUREIN,TIMEF,NTAUXT,NMLEAK)
 *
 *-----------------------------------------------------------------------
 *
@@ -48,6 +48,7 @@
 *         = 2 isotropic streaming (Ecco);
 *         = 3 anisotropic streaming (Tibere).
 * ILUPS   flag to remove up-scattering from output.
+* INORM   flag for within-group scattering normalization (0/1: off/on).
 * NW      type of weighting for P1 cross section info (=0 P0; =1 P1).
 * MATCOD  material per region.
 * VOLUME  volume of region.
@@ -63,7 +64,7 @@
 *         and B2(4) is homogeneous.
 * IGOVE   Golfier-Vergain flag (=0/1: don't/use Golfier-Vergain equ'n).
 * CUREIN  infinite multiplication factor.
-* NTAUXT  number of reaction rate edits (=15+2*NDEL).
+* NTAUXT  number of reaction rate edits (=12+NW+2*NDEL).
 * TIMEF   time stamp in day/burnup/irradiation.
 * NMLEAK  number of leakage zones.
 *
@@ -114,7 +115,7 @@
 *----
       TYPE(C_PTR) IPEDIT,IPFLUX,IPMACR
       INTEGER     IADJ,IPRINT,NL,NDEL,NALBP,ITRANC,NGROUP,NGCOND,NBMIX,
-     >            NREGIO,NMERGE,ILEAKS,ILUPS,NW,MATCOD(NREGIO),
+     >            NREGIO,NMERGE,ILEAKS,ILUPS,INORM,NW,MATCOD(NREGIO),
      >            KEYFLX(NREGIO),IGCOND(NGCOND),IMERGE(NREGIO),
      >            NIFISS,NSAVES,NEDMAC,NTAUXT,IGOVE,NMLEAK
       REAL        VOLUME(NREGIO),FLUXES(NREGIO,NGROUP,NW+1),
@@ -133,9 +134,10 @@
       CHARACTER   APG*3
       PARAMETER  (IUNOUT=6,APG=' > ',ILCMUP=1,ILCMDN=2)
       CHARACTER   TEXT12*12,CM*2,OPTION*4
-      LOGICAL     LH,LSPH
+      LOGICAL     LH,LSPH,LSAME
       DOUBLE PRECISION SCATW,CSCAT,TOTFIS,FXSOUR,FLFUEL,FCELL
       INTEGER     IFSKP,ISKP(3)
+      REAL,PARAMETER :: EPS=1.0E-3
 *----
 *  ALLOCATABLE ARRAYS
 *----
@@ -145,7 +147,8 @@
      > ENERG,SIGMAF
       REAL, ALLOCATABLE, DIMENSION(:,:) :: FFUEL,FLDMC,OVERV,HFACT,HSPH,
      > DECAY,ALBPGR,DIFHET
-      REAL, ALLOCATABLE, DIMENSION(:,:,:) :: TAUXE,ALBP,ALBPGR2
+      REAL, ALLOCATABLE, DIMENSION(:,:,:) :: TAUXE,ALBP,ALBPG2,TOTAL2
+      REAL, ALLOCATABLE, DIMENSION(:,:,:,:) :: RFIS,RCHI
       CHARACTER(LEN=8), ALLOCATABLE, DIMENSION(:) :: HVECT
 *----
 *  SCRATCH STORAGE ALLOCATION
@@ -777,10 +780,16 @@
                 DEN=REAL(MAX(ABS(SCATW),ABS(SCATTD(IKK,IGRC,IGRC,IL))))
                 IF(DEN.GT.0.0) THEN
                   ERR=ABS(REAL(SCATW-SCATTD(IKK,IGRC,IGRC,IL)))/DEN
-                  IF(ERR.GT.1.0E-3) THEN
-                    WRITE(IUNOUT,6000) IL,IGRC,IKK,100.0*ERR
+                  IF(INORM.EQ.0) THEN
+                    IF(ERR.GT.1.0E-3) THEN
+                      WRITE(IUNOUT,6000) IL,IGRC,IKK,100.0*ERR
+                    ENDIF
+                  ELSE
+                    IF(ERR.GT.1.0E-3) THEN
+                      WRITE(IUNOUT,6010) IL,IGRC,IKK,100.0*ERR
+                    ENDIF
+                    SCATTD(IKK,IGRC,IGRC,IL)=SCATW
                   ENDIF
-                  SCATTD(IKK,IGRC,IGRC,IL)=SCATW
                 ENDIF
               ELSE
                 SCATW=0.0D0
@@ -881,8 +890,8 @@
           DEALLOCATE(ALBPGR)
         ELSE IF(ILONG.EQ.NALBP*NGROUP*NGROUP) THEN
 *         matrix physical albedos
-          ALLOCATE(ALBPGR2(NALBP,NGROUP,NGROUP))
-          CALL LCMGET(IPMACR,'ALBEDO',ALBPGR2)
+          ALLOCATE(ALBPG2(NALBP,NGROUP,NGROUP))
+          CALL LCMGET(IPMACR,'ALBEDO',ALBPG2)
           IGRFIN=0
           DO 765 IGRC=1,NGCOND
           IGRDEB=IGRFIN+1
@@ -901,7 +910,7 @@
           JGRFIN=IGCOND(JGRC)
           DO 761 JGR=JGRDEB,JGRFIN
           DO 760 IREGIO=1,NREGIO
-          ALBP(IAL,JGRC,IGRC)=ALBP(IAL,JGRC,IGRC)+ALBPGR2(IAL,JGR,IGR)*
+          ALBP(IAL,JGRC,IGRC)=ALBP(IAL,JGRC,IGRC)+ALBPG2(IAL,JGR,IGR)*
      1                   FLXINT(IREGIO,IGR,1)/DENOM
  760      CONTINUE
  761      CONTINUE
@@ -909,15 +918,141 @@
  763      CONTINUE
  764      CONTINUE
  765      CONTINUE
-          DEALLOCATE(ALBPGR2)
+          DEALLOCATE(ALBPG2)
         ELSE
           CALL XABORT('EDIDTX: INCONSISTENT ALBEDO INFORMATION.')
         ENDIF
       ENDIF
 *----
+*  SPECIAL TREATMENT FOR FISSION WITH ISOTOPE-DEPENDENT FISSION SPECTRA
+*----
+      LSAME=.TRUE.
+      ALLOCATE(RFIS(NMERGE,NIFISS,0:NDEL,NGCOND),
+     1         RCHI(NMERGE,NIFISS,0:NDEL,NGCOND),
+     1         TOTAL2(NMERGE,NIFISS,0:NDEL))
+      RFIS(:NMERGE,:NIFISS,0:NDEL,:NGCOND)=0.0
+      RCHI(:NMERGE,:NIFISS,0:NDEL,:NGCOND)=0.0
+      TOTAL2(:NMERGE,:NIFISS,0:NDEL)=0.0
+      ALLOCATE(SIGMA(NBMIX*NIFISS))
+      IGRFIN=0
+      DO 900 IGRC=1,NGCOND
+        IGRDEB=IGRFIN+1
+        IGRFIN=IGCOND(IGRC)
+        DO 890 IGR=IGRDEB,IGRFIN
+          KPMACR=LCMGIL(JPMACR,IGR)
+          CALL LCMLEN(KPMACR,'NUSIGF',ILCMLN,ITYLCM)
+          IF(ILCMLN.GT.0) THEN
+            ALLOCATE(SIGMAF(0:NBMIX))
+            SIGMAF(0)=0.0
+            CALL LCMGET(KPMACR,'NUSIGF',SIGMA)
+            DO 810 IFIS=1,NIFISS
+              DO 800 IBM=1,NBMIX
+                SIGMAF(IBM)=SIGMA((IFIS-1)*NBMIX+IBM)
+ 800          CONTINUE
+              CALL EDIRAT(1,NREGIO,NBMIX,MATCOD,FLXINT(1,IGR,1),
+     >        AFLUXE(1,IGR,1),RFIS(1,IFIS,0,IGRC),SIGMAF(0),IMERGE,
+     >        NMERGE)
+ 810        CONTINUE
+            DEALLOCATE(SIGMAF)
+          ENDIF
+          CALL LCMLEN(KPMACR,'CHI',ILCMLN,ITYLCM)
+          IF(ILCMLN.GT.0) THEN
+            ALLOCATE(SIGMAF(0:NBMIX))
+            SIGMAF(0)=0.0
+            CALL LCMGET(KPMACR,'CHI',SIGMA)
+            DO 830 IFIS=1,NIFISS
+              DO 820 IBM=1,NBMIX
+                SIGMAF(IBM)=SIGMA((IFIS-1)*NBMIX+IBM)
+ 820          CONTINUE
+              CALL EDIRAT(IOP,NREGIO,NBMIX,MATCOD,FFUEL(1,IFIS),
+     >        AFLUXE(1,IGR,1),RCHI(1,IFIS,0,IGRC),SIGMAF(0),IMERGE,
+     >        NMERGE)
+ 830        CONTINUE
+            DEALLOCATE(SIGMAF)
+          ENDIF
+          DO 880 IDEL=1,NDEL
+            WRITE(TEXT12,'(6HNUSIGF,I2.2)') IDEL
+            CALL LCMLEN(KPMACR,TEXT12,ILCMLN,ITYLCM)
+            IF(ILCMLN.GT.0) THEN
+              ALLOCATE(SIGMAF(0:NBMIX))
+              SIGMAF(0)=0.0
+              CALL LCMGET(KPMACR,TEXT12,SIGMA)
+              DO 850 IFIS=1,NIFISS
+                DO 840 IBM=1,NBMIX
+                  SIGMAF(IBM)=SIGMA((IFIS-1)*NBMIX+IBM)
+ 840            CONTINUE
+                CALL EDIRAT(1,NREGIO,NBMIX,MATCOD,FLXINT(1,IGR,1),
+     >          VOLUME(1),RFIS(1,IFIS,IDEL,IGRC),SIGMAF(0),IMERGE,
+     >          NMERGE)
+ 850          CONTINUE
+              DEALLOCATE(SIGMAF)
+            ENDIF
+            WRITE(TEXT12,'(3HCHI,I2.2)') IDEL
+            CALL LCMLEN(KPMACR,TEXT12,ILCMLN,ITYLCM)
+            IF(ILCMLN.GT.0) THEN
+              ALLOCATE(SIGMAF(0:NBMIX))
+              SIGMAF(0)=0.0
+              CALL LCMGET(KPMACR,TEXT12,SIGMA)
+              DO 870 IFIS=1,NIFISS
+                DO 860 IBM=1,NBMIX
+                  SIGMAF(IBM)=SIGMA((IFIS-1)*NBMIX+IBM)
+ 860            CONTINUE
+                CALL EDIRAT(IOP,NREGIO,NBMIX,MATCOD,FFUEL(1,IFIS),
+     >          AFLUXE(1,IGR,1),RCHI(1,IFIS,IDEL,IGRC),SIGMAF(0),
+     >          IMERGE,NMERGE)
+ 870          CONTINUE
+              DEALLOCATE(SIGMAF)
+            ENDIF
+ 880      CONTINUE
+ 890    CONTINUE
+        DO IDEL=0,NDEL
+          DO IFIS=1,NIFISS
+            DO IKK=1,NMERGE
+              IF(IADJ.EQ.0) THEN
+                RFIS(IKK,IFIS,IDEL,IGRC)=RFIS(IKK,IFIS,IDEL,IGRC)/
+     >          FLUXCM(IKK,IGRC,1)
+              ELSE IF(IADJ.EQ.1) THEN
+                RFIS(IKK,IFIS,IDEL,IGRC)=RFIS(IKK,IFIS,IDEL,IGRC)/
+     >          (FLUXCM(IKK,IGRC,1)*FADJCM(IKK,IGRC,1))
+              ENDIF
+              IF(RCHI(IKK,IFIS,IDEL,IGRC).EQ.0.0) CYCLE
+              RCHI(IKK,IFIS,IDEL,IGRC)=RCHI(IKK,IFIS,IDEL,IGRC)/
+     >        FLDMC(IKK,IGRC)
+              TOTAL2(IKK,IFIS,IDEL)=TOTAL2(IKK,IFIS,IDEL)+
+     >        RCHI(IKK,IFIS,IDEL,IGRC)
+            ENDDO
+          ENDDO
+        ENDDO
+ 900  CONTINUE
+      DEALLOCATE(SIGMA)
+      DO 930 IDEL=0,NDEL
+      DO 920 IFIS=1,NIFISS
+      DO 910 IKK=1,NMERGE
+        ZTOT=TOTAL2(IKK,IFIS,IDEL)
+        IF(ZTOT.EQ.0.0) GO TO 910
+        RCHI(IKK,IFIS,IDEL,:NGCOND)=RCHI(IKK,IFIS,IDEL,:NGCOND)/ZTOT
+ 910  CONTINUE
+ 920  CONTINUE
+ 930  CONTINUE
+      DO 940 IGRC=1,NGCOND
+        IF(LSAME) THEN
+          DO IFIS=2,NIFISS
+            DO IKK=1,NMERGE
+              IF(TOTAL2(IKK,IFIS,0).EQ.0.0) CYCLE
+              IF(ABS(RCHI(IKK,IFIS,0,IGRC)-RCHI(IKK,1,0,IGRC)).GE.EPS)
+     >        THEN
+                LSAME=.FALSE.
+                GO TO 950
+              ENDIF
+            ENDDO
+          ENDDO
+        ENDIF
+ 940  CONTINUE
+      DEALLOCATE(TOTAL2)
+*----
 *  PRINT REACTION RATES
 *----
-      ILEAKS=ILEAK2
+ 950  ILEAKS=ILEAK2
       IF(IPRINT.GE.1) THEN
         CALL EDIPRR(IPRINT,NL,ITRANC,NGCOND,NMERGE,ILEAKS,NW,NTAUXT,
      >              B2,VOLMER,NENER,WENERG,RATECM,FLUXCM,SCATTD)
@@ -929,7 +1064,8 @@
      >            NMERGE,ILEAKS,NW,NTAUXT,EIGENK,B2,IGOVE,CUREIN,NIFISS,
      >            CURNAM,NEDMAC,VOLMER,WLETYC,WENERG,SCATTD,RATECM,
      >            FLUXCM,FADJCM,SIGS,SCATTS,DISFCT,ALBP,TAUXE,HVECT,
-     >            OVERV,HFACT,HSPH,NENER,TIMEF,LH,LSPH)
+     >            OVERV,HFACT,HSPH,NENER,TIMEF,LH,LSPH,LSAME,RFIS,RCHI)
+      DEALLOCATE(RCHI,RFIS)
 *----
 *  SCRATCH STORAGE DEALLOCATION
 *----
@@ -939,7 +1075,10 @@
 *----
 *  FORMAT
 *----
- 6000 FORMAT(/53H EDIDTX: *** WARNING *** NORMALIZATION OF THE WITHIN-,
+ 6000 FORMAT(/53H EDIDTX: *** WARNING *** THE WITHIN-GROUP SCATTERING ,
+     > 17HTRANSFER OF ORDER,I3,9H IN GROUP,I4,11H AND REGION,I5,4H IS ,
+     > 11HIN ERROR BY,F6.2,3H %.)
+ 6010 FORMAT(/53H EDIDTX: *** WARNING *** NORMALIZATION OF THE WITHIN-,
      > 34HGROUP SCATTERING TRANSFER OF ORDER,I3,9H IN GROUP,I4,5H AND ,
      > 6HREGION,I5,3H BY,F6.2,3H %.)
       END

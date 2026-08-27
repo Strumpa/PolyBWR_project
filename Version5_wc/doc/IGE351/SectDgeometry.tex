@@ -1,5 +1,4 @@
-\section{Contents of a
-\dir{geometry} directory}\label{sect:geometrydir}
+\section{Contents of a \dir{geometry} directory}\label{sect:geometrydir}
 
 The {\tt L\_GEOM} specification is used to store structured geometric data, i.e., data characterized by some regularity in space. Sub-geometries can be embedded at specific node positions to build a more complex geometry. The following regular geometries can be described with the {\tt L\_GEOM} specification:
 \begin{itemize}
@@ -25,30 +24,31 @@ $\mathcal{S}^{G}$, represent:
 \begin{displaymath}
 F_{t} = \left\{
 \begin{array}{rl}
- 0 & \textrm{Virtual geometry}\\
+ 0 & \textrm{Virtual geometry} \\
  1 & \textrm{Homogeneous geometry} \\ 
- 2 & \textrm{Cartesian 1-D geometry} \\ 
- 3 & \textrm{Tube 1-D geometry}  \\
- 4 & \textrm{Sphere 1-D geometry}  \\
- 5 & \textrm{Cartesian 2-D geometry}  \\
- 6 & \textrm{Tube ($R$-$Z$) geometry}  \\
- 7 & \textrm{Cartesian 3-D geometry}  \\
- 8 & \textrm{Hexagonal 2-D geometry}   \\
- 9 & \textrm{Hexagonal 3-D geometry}  \\
-10 & \textrm{Tube ($R$-$X$) geometry}  \\
-11 & \textrm{Tube ($R$-$Y$) geometry}  \\
-12 & \textrm{hexagonal 2--D geometry with triangular mesh}  \\
-13 & \textrm{$z$-directed hexagonal 3--D geometry with triangular mesh}  \\
-15 & \textrm{Tube ($R$-$\theta$) 2-D geometry}  \\
-16 & \textrm{Triangular 2-D geometry}  \\
-17 & \textrm{Triangular 3-D geometry}  \\
-20 & \textrm{Cartesian 2-D geometry with annular sub-mesh}  \\
-21 & \textrm{Cartesian 3-D geometry with $x-$directed cylindrical sub-mesh}  \\
-22 & \textrm{Cartesian 3-D geometry with $y-$directed cylindrical sub-mesh}  \\
-23 & \textrm{Cartesian 3-D geometry with $z-$directed cylindrical sub-mesh}  \\
-24 & \textrm{Hexagonal 2-D geometry with annular sub-mesh}  \\
-25 & \textrm{Hexagonal 3-D geometry with $z-$directed cylindrical sub-mesh }  \\
-30 & \textrm{Do-it-yourself geometry}  \\
+ 2 & \textrm{Cartesian 1-D geometry}\\ 
+ 3 & \textrm{Tube 1-D geometry} \\
+ 4 & \textrm{Sphere 1-D geometry} \\
+ 5 & \textrm{Cartesian 2-D geometry} \\
+ 6 & \textrm{Tube ($R$-$Z$) geometry} \\
+ 7 & \textrm{Cartesian 3-D geometry} \\
+ 8 & \textrm{Hexagonal 2-D geometry}  \\
+ 9 & \textrm{Hexagonal 3-D geometry} \\
+10 & \textrm{Tube ($R$-$X$) geometry} \\
+11 & \textrm{Tube ($R$-$Y$) geometry} \\
+12 & \textrm{hexagonal 2--D geometry with triangular mesh} \\
+13 & \textrm{$z$-directed hexagonal 3--D geometry with triangular mesh} \\
+15 & \textrm{Tube ($R$-$\theta$) 2-D geometry} \\
+16 & \textrm{Triangular 2-D geometry} \\
+17 & \textrm{Triangular 3-D geometry} \\
+20 & \textrm{Cartesian 2-D geometry with annular sub-mesh} \\
+21 & \textrm{Cartesian 3-D geometry with $x-$directed cylindrical sub-mesh} \\
+22 & \textrm{Cartesian 3-D geometry with $y-$directed cylindrical sub-mesh} \\
+23 & \textrm{Cartesian 3-D geometry with $z-$directed cylindrical sub-mesh} \\
+24 & \textrm{Hexagonal 2-D geometry with annular sub-mesh} \\
+25 & \textrm{Hexagonal 3-D geometry with $z-$directed cylindrical sub-mesh } \\
+30 & \textrm{Do-it-yourself geometryfor the interface current method} \\
+31 & \textrm{Do-it-yourself macro geometry}
 \end{array} \right.
 \end{displaymath}
 \eject
@@ -275,7 +275,10 @@ $\theta_{\text{pin},j}=\theta_{\text{ref}}+2(j-1)\pi/N_{\text{pin}}$}
   {array $Z_{\text{pin},j}$ containing the $z$ positions at which the pins in the cluster are centered with respect to the center of the cell}
 \OptDirEnr
   {BIHET\blank{7}}{$F_{dh}=1$}
-  {Directory containing double-heterogeneity related data. This directory can only be present on the root directory.}
+  {Directory containing double-heterogeneity related data. This directory can only be present on the root directory. This directory is described in Sect.~\ref{sect:geometrybihet}.}
+\OptDirEnr
+  {MACRO-GEOM\blank{2}}{$F_{t}=40$}
+  {Directory containing macro-geometry related data. This directory can only be present on the root directory. This directory is described in Sect.~\ref{sect:geometrymacro}.}
 \OptRealEnr
   {POURCE\blank{6}}{$\mathcal{S}^{G}_{3}$}{$F_{t}=30$}{}
   {The proportion of each cell type in the lattice $P_{j}$}
@@ -534,6 +537,69 @@ $\mathcal{S}^{dh}_{4}=(\mathcal{S}^{dh}_{2}-1)\times \mathcal{S}^{dh}_{1}$
 \begin{array}{rl}
  3 & \textrm{Tubular micro-structure} \\
  4 & \textrm{Spherical micro-structure} \\
+\end{array} \right.
+\end{displaymath}
+\end{itemize}
+
+\goodbreak
+
+\subsection{The \moc{/MACRO-GEOM/} sub-directory in \dir{geometry}}\label{sect:geometrymacro}
+
+The first level of the geometry directory may contains a macro-geometry directory \moc{/MACRO-GEOM/} made of the
+following records:
+
+\begin{DescriptionEnregistrement}{Records in the \moc{/MACRO-GEOM/} sub-directory}{7.5cm}
+\IntEnr
+  {STATE-VECTOR}{$40$}
+  {Vector describing the various parameters associated with this data structure $\mathcal{S}^{mg}_{i}$}
+\IntEnr
+  {ITNODE\blank{6}}{$\mathcal{S}^{mg}_{2}$}
+  {The type $I_m$ of each basic mixture $m$. $I_m=1$: simple rectangle of type {\tt RECT} (the sides of a  rectangle are assumed to be parallel to the $X-$ and $Y-$ axes).
+   $I_m\ge 3$: number of sides of a polygon ($=3$: {\tt TRIA}, $=4$: {\tt QUAD}, $=6$: {\tt HEXA}).
+  }
+\RealEnr
+  {NODE\blank{8}}{$\mathcal{S}^{mg}_{1},\mathcal{S}^{mg}_{2}$}{cm}
+  {The node locations for the basic mixtures in the radial plane. {\tt NODE} is a sequence of $(x,y)$ pairs. If $I_m=1$, four values ($x_-$, $x_+$, $y_-$, $y_+$) are required per mixture.
+  If $I_m\ge 3$, $2\times I_m$ values are required per mixture. The sequence of vertices is given in clockwise or anti-clockwise order.}
+\OptRealEnr
+  {ZNODE\blank{7}}{$2,\mathcal{S}^{mg}_{2}$}{$\mathcal{S}^{mg}_{5}=3$}{cm}
+  {The axial node locations ($z_-$, $z_+$) for the basic mixtures in 3D cases}
+\OptIntEnr
+  {IREMIX\blank{6}}{$\mathcal{S}^{mg}_{2}$}{$\mathcal{S}^{mg}_{4}>0$}
+  {The merge index assigned to each basic mixture}
+\OptRealEnr
+  {CENTER\blank{6}}{2}{*}{cm}
+  {Center of the global macro-geometry}
+\end{DescriptionEnregistrement}
+
+The dimensioning parameters for this data structure, which are stored in the state vector $\mathcal{S}^{mg}$, represent:
+
+\begin{itemize}
+
+\item The first dimension of array {\tt NODE} $\mathcal{S}^{mg}_{1}$ 
+
+\item The number of basic mixtures described with keywords {\tt RECT}, {\tt TRIA}, {\tt QUAD} or {\tt HEXA} $\mathcal{S}^{mg}_{2}$ 
+
+\item Type of symmetry for the global macro-geometry $\mathcal{S}^{mg}_{3}$ 
+\noindent where
+\begin{displaymath}
+\mathcal{S}^{mg}_{3} = \left\{
+\begin{array}{rl}
+ 0 & \textrm{Undefined} \\
+ 1 & \textrm{{\tt NONE} symmetry} \\
+ 2 & \textrm{{\tt REFL} symmetry} \\
+ 3 & \textrm{{\tt ROTA} symmetry} \\
+\end{array} \right.
+\end{displaymath}
+
+\item The number of mixtures remaining after merging of basic mixtures. Equal to zero if no merging is done. $\mathcal{S}^{mg}_{4}$ 
+\item The number of dimensions $\mathcal{S}^{mg}_{5}$ 
+\noindent where
+\begin{displaymath}
+\mathcal{S}^{mg}_{5} = \left\{
+\begin{array}{rl}
+ 2 & \textrm{2D} \\
+ 3 & \textrm{3D} \\
 \end{array} \right.
 \end{displaymath}
 \end{itemize}

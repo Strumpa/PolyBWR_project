@@ -75,10 +75,19 @@ The following records will be found on the \dir{matex} directory:
  {The total number of fuel regions per each fuel type.}
 
 \IntEnr
+ {MAT-INIT\blank{4}}{$N_{tot}$}
+ {The material mixture indices for each region, as defined before the module
+ {\tt RESINI:} is called. The virtual-region indices are set to 0.}
+
+\IntEnr
  {MAT\blank{9}}{$N_{tot}$}
- {The material mixture indices per each region and including the device
+ {The material mixture indices for each region and including the device
   mixtures. The fuel-type indices are set negative; the device indices are
   appended at the end of vector; the virtual-region indices are set to 0.}
+
+\IntEnr
+ {MATEX\blank{7}}{$N_{el}$}
+ {Corresponding region indices in the geometry before the call to module {\tt USPLIT}.}
 
 \IntEnr
  {INDEX\blank{7}}{$N_{el}$}

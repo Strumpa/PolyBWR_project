@@ -35,15 +35,15 @@ from getLists import *
 ########################################################################################################################################################################################
 # run options :
 exec_D5_no_modif = True # True : run DRAGON5 calculations with default depletion chain, False : skip DRAGON5 calculations
-exec_D5_no_NG0 = Fasle # True : run DRAGON5 calculations with NG0 depletion chain, False : skip DRAGON5 calculations
+exec_D5_no_NG0 = False # True : run DRAGON5 calculations with NG0 depletion chain, False : skip DRAGON5 calculations
 #
 # Library = name of the draglib used to build LIB: object
-dlib_name = "endfb8r1_295" # or 'nJ311_295' : new JEFF3.1.1 library with more Gd157 dilutions and finer autolib data 
+dlib_name = "eb81dec1"# "endfb8r1_295" # "eb81dec1" or "eb81dec0" or 'nJ311_295' : new JEFF3.1.1 library with more Gd157 dilutions and finer autolib data 
 
 ssh_module = "USS" #"USS", "AUTO"
 ssh_method = "PT" #"PT", "RSE", "SUBG" all supported for USS: but AUTO: only takes SUBG
 # for RSE method : test with eps_RSE = 1.0E-1, 5.0E-2, 1.0E-2, 5.0E-3, 1.0E-3, 1.0E-4
-correlation = "CORR" # "CORR", "noCORR"
+correlation = "noCORR" # "CORR", "noCORR"
 T_hom = 750.0 # Temperature of the homogeneous fuel cell in K
 
 saturation_option = "" # "NSAT", "SAT", "" for short-lived nuclide saturation or not

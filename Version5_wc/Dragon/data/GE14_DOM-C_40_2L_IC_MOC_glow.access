@@ -1,0 +1,54 @@
+#!/bin/sh
+if [ $# = 0 ]
+   then
+   echo "usage: GE14_DOM-C_40_2L_IC_MOC_glow.access directory" 1>&2
+   exit 1
+fi
+MACH=`uname -s`
+Sysx="`echo $MACH | cut -b -6`"
+if [ $Sysx = "CYGWIN" ]; then
+MACH=`uname -o`
+elif [ $Sysx = "Darwin" ]; then
+MACH=`uname -sm`
+elif [ $Sysx = "SunOS" ]; then
+MACH=`uname -sm`
+fi
+if [ "$MACH" = "Linux" -o "$MACH" = "OSF1" -o "$MACH" = "Cygwin" -o "$MACH" = "SunOS i86pc" -o \
+"$MACH" = "Darwin i386" -o "$MACH" = "Darwin x86_64" -o "$MACH" = "Darwin_arm64" ]
+then 
+  echo 'use little endian libraries'
+  pos=$1/../../../libraries/l_endian
+  ls -la "$pos"
+else
+  echo 'use big endian libraries'
+  pos=$1/../../../libraries/b_endian
+fi
+if [ -f "$pos"/draglibJeff3p1p1SHEM295_v5p1.gz ]
+then
+echo 'gunzipping draglibJeff3p1p1SHEM295_v5p1'
+chmod 755 "$pos"
+gunzip "$pos"/draglibJeff3p1p1SHEM295_v5p1.gz
+fi
+if [ -f "$pos"/draglibJeff3p1p1SHEM295_v5p1 ]
+then
+ln -s "$pos"/draglibJeff3p1p1SHEM295_v5p1 J311_295
+fi
+# import endfb8r1 library
+if [ -f "$pos"/draglibendfb8r1SHEM295_v5p1.gz ]
+then
+echo 'gunzipping draglibendfb8r1SHEM295_v5p1'
+chmod 755 "$pos"
+gunzip "$pos"/draglibendfb8r1SHEM295_v5p1.gz
+fi
+if [ -f "$pos"/draglibendfb8r1SHEM295_v5p1 ]
+then
+ln -s "$pos"/draglibendfb8r1SHEM295_v5p1 endfb8r1_295
+fi
+
+pos2="$1/../../../glow_data/starterDD_outputs/GE14/GE14_DOM-C/2L_scheme/FULL"
+chmod 755 "$pos2"
+ls -la
+
+ln -s "$pos2"/GE14_DOM-C_FULL_SSH_DIAG_IC_TISO_MACRO.dat GE14_DOM-C_SSH_IC_TISO_MACRO.dat
+ln -s "$pos2"/GE14_DOM-C_FULL_FLUXL1_DIAG_IC_TISO_MACRO.dat GE14_DOM-C_FLUXL1_IC_TISO_MACRO.dat
+ln -s "$pos2"/GE14_DOM-C_FULL_FLUXL2_wr_8_cross_submesh_extend_moder308_MOC_TSPC.dat GE14_DOM-C_FLUXL2_MOC_TSPC.dat

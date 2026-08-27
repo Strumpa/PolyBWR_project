@@ -2,10 +2,10 @@
 #
 if [ $# = 0 ]
    then
-   echo "usage: ATRIUM_10_1L_MOC_glow.save directory" 1>&2
+   echo "usage: glow_bwr.save directory" 1>&2
    exit 1
 fi
-echo "access ATRIUM_10_1L_MOC_glow.save"
+echo "access glow_bwr.save"
 MACH=`uname -s`
 Sysx="`echo $MACH | cut -b -6`"
 if [ $Sysx = "CYGWIN" ]; then
@@ -16,8 +16,6 @@ else
    MACH=`uname -sm | sed 's/[ ]/_/'`
 fi
 ls -l
-
-mv *.ps $1/"$MACH"
-mv CPO* $1/"$MACH"
-echo "ATRIUM_10_1L_MOC_glow.save completed"
-
+mv *.eps $1/"$MACH"
+mv *.dat $1/"$MACH"
+echo "glow_bwr.save completed"

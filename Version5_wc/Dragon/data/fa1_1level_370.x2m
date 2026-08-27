@@ -1,0 +1,183 @@
+*-------------------------------------------------------------------------------------------------
+*  Name          : fa1_1level_370.x2m                                                                
+*  Author        : C. De Santis, G. Cirillo
+*-------------------------------------------------------------------------------------------------
+SEQ_ASCII tiso :: 
+       FILE './fa1_tiso_macro.dat' 
+       ;
+SEQ_ASCII tspc_sect :: 
+       FILE './fa1_tspc_sect.dat' 
+       ;
+SEQ_ASCII fa.eps ::  
+       FILE './fa-1level.eps' 
+       ;
+SEQ_BINARY Track_tspc Track_f_ssh ;
+
+*-------------------------------------------------------------------------------------------------
+*  Define STRUCTURES and MODULES used
+*-------------------------------------------------------------------------------------------------
+LINKED_LIST
+    Micro Track2 Track_ssh MicroSS System Flux EdiCond Out
+    ;
+
+MODULE
+    LIB: SALT: MCCGT: G2S: TONE: ASM: FLU: EDI: DELETE: ABORT: UTL: END:
+    ;
+
+PROCEDURE
+    assertS
+    ;
+
+*-------------------------------------------------------------------------------------------------
+*  Temperatures and densities
+*-------------------------------------------------------------------------------------------------
+REAL temp_cool temp_cld_498 temp_cld_475 ;    (*[K]*)
+REAL temp_fuel := 1019.0 ;
+EVALUATE temp_cool := 475.0 273.0 + ;
+EVALUATE temp_cld_498 := 498.0 273.0 + ;
+EVALUATE temp_cld_475 := 475.0 273.0 + ; 
+REAL densMOX1 := 10.327650876353518 ;      (*Fuel_01*)               (*[g/cm3]*)
+REAL densMOX2 := 10.322112389569925 ;      (*Fuel_02*)
+REAL dens_cool := 10.41336958 ;
+REAL dens_cool475 := 10.48374208 ;
+REAL dens_cld_498 := 7.756509317 ; 
+REAL dens_cld_475 := 7.765709065 ;
+REAL densHe_475 := 0.000155929365097611 ;
+REAL densHe_498 := 0.00015129 ; ! calcolata con legge gas perfetti
+REAL densB4C_42 := 2.16754 ;
+REAL densMIXTRANS := 9.910508917136502 ; ! volume-fraction-weighed average between lead and clad
+
+STRING  SPHType := "FixedPt" ;
+INTEGER IterEmax := 10 ;
+INTEGER m := 2 ; ! Anderson window size
+
+*-------------------------------------------------------------------------------------------------
+*  Microlib: DRAGLIB ENDFB_VIII SHEM 370 groups with pseudo Q-values for depletion,
+*            370-groups library for xs preparation
+*-------------------------------------------------------------------------------------------------
+Micro := LIB: ::
+    EDIT 2
+    NMIX 5
+    CTRA NONE
+    ANIS 2
+    MIXS LIB: DRAGON FIL: DLIB_370
+        MIX 1 <<temp_cld_475>> <<dens_cool475>> (*LEAD*)
+            Pb204  = Pb204 0.01377877
+            Pb206  = Pb206 0.23951907
+            Pb207  = Pb207 0.22070984
+            Pb208  = Pb208 0.52584231
+        MIX 2 <<temp_cld_498>> <<dens_cld_498>> (*CLAD1*)
+            Cr50   = Cr50  0.006051845
+            Cr52   = Cr52  0.121364076
+            Cr53   = Cr53  0.014026701
+            Cr54   = Cr54  0.003557378
+            Ni58   = Ni58  0.104156603
+            Ni60   = Ni60  0.041502587
+            Ni61   = Ni61  0.001834207
+            Ni62   = Ni62  0.005944138
+            Ni64   = Ni64  0.001562464
+            Mn55   = Mn55  0.015
+            Mo92   = Mo92  0.002087446
+            Mo94   = Mo94  0.001343111
+            Mo95   = Mo95  0.002349904
+            Mo96   = Mo96  0.002499063
+            Mo97   = Mo97  0.001454200
+            Mo98   = Mo98  0.003732677
+            Mo100  = Mo100 0.003732677
+            Ti46   = Ti46  0.000316803
+            Ti47   = Ti47  0.000291911
+            Ti48   = Ti48  0.002953802
+            Ti49   = Ti49  0.000221288
+            Ti50   = Ti50  0.000216195
+            Fe54   = Fe54  0.036902756
+            Fe56   = Fe56  0.600723533      1
+            Fe57   = Fe57  0.014121466
+            Fe58   = Fe58  0.001912246
+        MIX 3 <<temp_cld_498>> <<densHe_498>> GAS (*HELIUM*)
+            He4    = He4   1.0
+        MIX 4 <<temp_fuel>> <<densMOX1>>  (*FUEL*)
+            O16    = O16   0.118373506
+            U234   = U234  0.001201395
+            U235   = U235  0.132195724      2
+            U238   = U238  0.747907710      2
+        MIX 5 <<temp_cld_475>> <<dens_cld_475>> (*CLAD2*)
+            Cr50   = Cr50  0.006051845
+            Cr52   = Cr52  0.121364076
+            Cr53   = Cr53  0.014026701
+            Cr54   = Cr54  0.003557378
+            Ni58   = Ni58  0.104156603
+            Ni60   = Ni60  0.041502587
+            Ni61   = Ni61  0.001834207
+            Ni62   = Ni62  0.005944139
+            Ni64   = Ni64  0.001562464
+            Mn55   = Mn55  0.015
+            Mo92   = Mo92  0.002087446
+            Mo94   = Mo94  0.001343112
+            Mo95   = Mo95  0.002349904
+            Mo96   = Mo96  0.002499064
+            Mo97   = Mo97  0.001454200
+            Mo98   = Mo98  0.003732677
+            Mo100  = Mo100 0.003732677
+            Ti46   = Ti46  0.000316804
+            Ti47   = Ti47  0.000291911
+            Ti48   = Ti48  0.002953802
+            Ti49   = Ti49  0.000221288
+            Ti50   = Ti50  0.000216195
+            Fe54   = Fe54  0.036902756
+            Fe56   = Fe56  0.600723533      3
+            Fe57   = Fe57  0.014121465
+            Fe58   = Fe58  0.001912246
+            ;
+
+*-------------------------------------------------------------------------------------------------
+*  Plotting and tracking of the imported geometry
+*-------------------------------------------------------------------------------------------------
+fa.eps := G2S: tspc_sect :: 
+    EDIT 2
+    DRAWNOD
+    ;
+
+Track_ssh Track_f_ssh := SALT: tiso ::
+     EDIT 1
+     ALLG 
+     BATCH 300
+     TISO 12 100.0
+     IC
+     ;
+
+*-------------------------------------------------------------------------------------------------
+*  Resonance self-shielding calculation 
+*-------------------------------------------------------------------------------------------------
+MicroSS := TONE: Micro Track_ssh Track_f_ssh ::
+     EDIT 1
+     GRMIN 15     (*2.865 MeV*)
+     GRMAX 281    (*4.63 ev*)
+     PIJ
+     ;
+
+Track2 Track_tspc := SALT: tspc_sect ::
+     EDIT 1
+     ALLG 
+     BATCH 300
+     TSPC 12 100.0
+     ;
+Track2 := MCCGT: Track2 Track_tspc ::
+  CACB 4 AAC 80 TMT EPSI 1E-5 MCU 10000 ;
+
+System := ASM: MicroSS Track2 Track_tspc :: EDIT 1 ARM ;
+Flux := FLU: System MicroSS Track2 Track_tspc :: EDIT 1 TYPE K P1 EXTE 1.0E-6 ;
+
+*-------------------------------------------------------------------------------------------------
+*  Editing 
+*-------------------------------------------------------------------------------------------------
+Out := EDI: MicroSS Track2 Flux System ::
+   EDIT 4
+   MICR ALL
+   MERG COMP 
+   SAVE
+;
+
+assertS Flux :: K-EFFECTIVE 1 1.182374 ;
+ECHO "test fa1_1level_370 completed" ;
+END: ;
+QUIT "LIST" .

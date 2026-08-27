@@ -1,0 +1,21 @@
+#!/bin/sh
+if [ $# = 0 ]
+   then
+   echo "usage: glow_colorset.access directory" 1>&2
+   exit 1
+fi
+if [ -z "$SALOME_DIST" ]; then
+   echo "SALOME_DIST is not set"
+   exit 1
+else
+   echo "SALOME_DIST has the value: $SALOME_DIST"
+fi
+mkdir workdir
+cd workdir
+ln -s $1/data/glow_colorset_proc/colorset.py .
+source $1/../script/start_env_MacOS.sh
+python3 colorset.py 2> /dev/null
+cd ..
+rm -r workdir
+ls -l
+echo "glow_colorset access script terminated"

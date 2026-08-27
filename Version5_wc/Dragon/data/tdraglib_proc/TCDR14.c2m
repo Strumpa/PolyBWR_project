@@ -286,7 +286,7 @@ WHILE Timei Timec < DO
   EVALUATE Timei := Timef ;
 ENDWHILE ;
 saCOMPO := MCOMPO ;
-assertS CALC :: 'K-INFINITY' 1 1.212984 ;
+assertS CALC :: 'K-INFINITY' 1 1.211507 ;
 
 ECHO "test TCDR14 completed" ;
 END: ; 

@@ -297,9 +297,7 @@
       IF(ILEN.GT.0) CALL LCMGET(IPGEOM,'SPLITH',ISPLTH)
       IF((ISPLTL.GT.0).AND.(IHEX.NE.9)) THEN
          ALLOCATE(DPP(MAXPTS),MX(LX*LZ))
-         DO 60 I=1,LX*LZ
-         MX(I)=MAT(I)
-   60    CONTINUE
+         MX(:LX*LZ)=MAT(:LX*LZ)
          LXOLD=LX
          CALL BIVALL(MAXPTS,IHEX,LXOLD,LX,DPP)
          DO 80 KZ=1,LZ
@@ -322,29 +320,21 @@
          ELSE IF(ILEN2.GT.0) THEN
             CALL LCMGET(IPGEOM,'SPLITX',ISPLTX)
          ELSE IF(ITYPE.LE.7) THEN
-            DO 90 I=1,LX
-            ISPLTX(I)=1
-   90       CONTINUE
+            ISPLTX(:LX)=1
          ENDIF
          CALL LCMLEN(IPGEOM,'SPLITY',ILEN,ITYLCM)
          IF(ILEN.GT.0) THEN
             CALL LCMGET(IPGEOM,'SPLITY',ISPLTY)
          ELSE IF(LL1.OR.LL2) THEN
-            DO 100 I=1,LX
-            ISPLTY(I)=ISPLTX(I)
-  100       CONTINUE
+            ISPLTY(:LX)=ISPLTX(:LX)
          ELSE
-            DO 110 I=1,LY
-            ISPLTY(I)=1
-  110       CONTINUE
+            ISPLTY(:LY)=1
          ENDIF
          CALL LCMLEN(IPGEOM,'SPLITZ',ILEN,ITYLCM)
          IF(ILEN.GT.0) THEN
             CALL LCMGET(IPGEOM,'SPLITZ',ISPLTZ)
          ELSE
-            DO 120 I=1,LZ
-            ISPLTZ(I)=1
-  120       CONTINUE
+            ISPLTZ(:LZ)=1
          ENDIF
          IF((ISPLTH.GT.0).AND.(ISPLTL.GT.0)) THEN
             CALL XABORT('READ3D: SPLITH AND SPLITL KEYWORDS ARE EXCLUS'

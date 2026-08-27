@@ -82,7 +82,7 @@ def plot_fluxes_U238_rates_perturbation(rates_and_spectra, assembly_ids, scheme,
     
 
 
-def plot_pinwise_errors_BWR_assembly(errors_rates, assembly_model, assembly_id, name_compo, calculation_opt, fig_name, evaluation, cmap="Spectral"):
+def plot_pinwise_errors_BWR_assembly(errors_rates, assembly_model, assembly_id, name_compo, calculation_opt, fig_name, evaluation, cmap="bwr"):
     """
     plot_pinwise_errors_BWR_assembly: Plot pin-wise relative differences in rates between Dragon5 and Serpent2 for a BWR assembly.
     The function takes in a 2D array of relative differences (errors_rates) for each pin and energy group, the assembly geometry (assembly_map), and saves a heatmap of the relative differences for each energy group.
@@ -196,26 +196,32 @@ def plot_pinwise_errors_BWR_assembly(errors_rates, assembly_model, assembly_id, 
         # Clip the grid strictly to the data area
         ax.set_xlim(-0.5, ncols-0.5)
         ax.set_ylim(-0.5, nrows-0.5)
-                    
-        if gr == 0:
-            group_id = "thermal"
-        elif gr == 1:
-            group_id = "fast"
+        
+        if ngroups == 2: 
+            if gr == 0:
+                group_id = "thermal group"
+                group_id_str = "thermal"
+            elif gr == 1:
+                group_id = "fast group"
+                group_id_str = "fast"
+        elif ngroups == 1:
+            group_id = "energy integrated"
+            group_id_str = "1group"
         if fig_name == "fiss_over_abs_diff":
-            plt.title(f'(D5-S2) Relative differences on $\\tau_f/\\tau_a$, {group_id} group', fontsize=16)
+            plt.title(f'(D5-S2) Relative differences on $\\tau_f/\\tau_a$, {group_id}', fontsize=16)
         elif fig_name == "fission_rates_diff":
-            plt.title(f'(D5-S2) Relative differences on fission rates, {group_id} group', fontsize=16)
+            plt.title(f'(D5-S2) Relative differences on fission rates, {group_id}', fontsize=16)
         # Show the plot
         plt.tight_layout()
-        plt.savefig(f"{results_dir}/assembly_map_{fig_name}_g{gr+1}.png", dpi=300)
+        plt.savefig(f"{results_dir}/assembly_map_{fig_name}_{group_id_str}.png", dpi=300)
         plt.close()
         
 
     return
 
 
-def plot_spectrum_comparison(energy_mesh, FLUX_groups, S2_spectra, assembly_id, CPO_name, calculation_opt, evaluation):
-    n_groups = len(FLUX_groups)
+def plot_spectrum_comparison(energy_mesh, D5_spectrum, S2_spectra, assembly_id, CPO_name, calculation_opt, evaluation):
+    n_groups = len(D5_spectrum)
     try:
         S2_spectrum = S2_spectra[f"{n_groups}g"]
     except KeyError:
@@ -231,12 +237,12 @@ def plot_spectrum_comparison(energy_mesh, FLUX_groups, S2_spectra, assembly_id, 
     # Compute lethargy mesh for plotting spectrum on lethargy scale
     lethargy = np.log(np.max(energy_mesh) / energy_mesh)
     # Normalize DRAGON spectrum to Serpent2 spectrum for better comparison
-    normalization_factor = np.sum(S2_spectrum) / np.sum(FLUX_groups)
-    FLUX_groups = FLUX_groups * normalization_factor
+    S2_spectrum = S2_spectrum / np.sum(S2_spectrum)
+    D5_spectrum = D5_spectrum / np.sum(D5_spectrum)
     # plot flux spectrum
     plt.figure(figsize=(10, 6))
     # FLUX has 295 values = 1 per group, extend so that it is ploted as piecewise constant between energy groups
-    plt.step(np.repeat(energy_mesh, 2)[1:-1], np.repeat(FLUX_groups, 2), where='post', label='DRAGON5 Flux Spectrum', color='blue', linewidth=2)
+    plt.step(np.repeat(energy_mesh, 2)[1:-1], np.repeat(D5_spectrum, 2), where='post', label='DRAGON5 Flux Spectrum', color='blue', linewidth=2)
     plt.plot(np.repeat(energy_mesh, 2)[1:-1], np.repeat(S2_spectrum, 2), label='Serpent2 Flux Spectrum', color='orange', linewidth=2)
     # plot vertical line at 0.625 eV
     #plt.vlines([0.625, 10, 1000], 0.0, 0.032, colors = ["red"])
@@ -254,7 +260,7 @@ def plot_spectrum_comparison(energy_mesh, FLUX_groups, S2_spectra, assembly_id, 
     # plot flux spectrum on lethargy scale
     plt.figure(figsize=(10, 6))
     # FLUX has 295 values = 1 per group, extend so that it is ploted as piecewise constant between energy groups
-    plt.step(np.repeat(lethargy, 2)[1:-1], np.repeat(FLUX_groups, 2), where='post', label='DRAGON5 Flux Spectrum', color='blue', linewidth=2)
+    plt.step(np.repeat(lethargy, 2)[1:-1], np.repeat(D5_spectrum, 2), where='post', label='DRAGON5 Flux Spectrum', color='blue', linewidth=2)
     plt.plot(np.repeat(lethargy, 2)[1:-1], np.repeat(S2_spectrum, 2), label='Serpent2 Flux Spectrum', color='orange', linewidth=2)
     # plot vertical line at 0.625 eV
     #plt.vlines([0.625, 10, 1000], 0.0, 0.032, colors = ["red"])
@@ -269,9 +275,9 @@ def plot_spectrum_comparison(energy_mesh, FLUX_groups, S2_spectra, assembly_id, 
     plt.savefig(f"{results_dir}/flux_spectrum_comparison_lethargy.png")
     plt.close()
 
-    delta_flx = FLUX_groups - S2_spectrum
+    delta_flx = D5_spectrum - S2_spectrum
     absolute_diff = np.abs(delta_flx)
-    delta_rel_flx = (FLUX_groups - S2_spectrum) * 100 / S2_spectrum
+    delta_rel_flx = (D5_spectrum - S2_spectrum) * 100 / S2_spectrum
 
     # Plot relative difference in flux
     plt.figure(figsize=(10, 6))

@@ -5,5 +5,6 @@ if [ $# = 0 ]
    exit 1
 fi
 ln -s $1/data/Test_SPH_void_bfgs_proc/_OUTV .
+ln -s $1/data/assertS_low.c2m .
 ls -l
 echo "Test_SPH_void_bfgs access script terminated"

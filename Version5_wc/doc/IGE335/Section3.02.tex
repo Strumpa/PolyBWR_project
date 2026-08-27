@@ -46,6 +46,7 @@ $[$ \moc{CALENDF} \dusa{ipreci} $]$ \\
 $[$ \moc{CTRA} $\{$ \moc{NONE} $|$ \moc{APOL} $|$ \moc{WIMS} $|$ \moc{OLDW} $|$ \moc{LEAK} $\}$ $]$
 $[$ \moc{ANIS}  \dusa{naniso} $]$ \\
 $[$ \moc{STERN} \dusa{nstern} $]$ \\
+$[$ \moc{PARTICLE} \dusa{htype} $]$ \\
 $[$ \moc{ADJ} $]~[$ \moc{PROM} $]$ \\ 
 $[~\{$ \moc{CDEPCHN} $|$ \moc{RDEPCHN} $\}~]$ \\
 $[~\{$ \moc{SKIP} $|$ \moc{INTR} $|$ \moc{SUBG} $|$ \moc{PT} $|$ \moc{PTMC} $|$ \moc{PTSL} $|$ \moc{RSE} $[$ \dusa{svdeps} $]~|$ \moc{NEWL} $\}~]$ $[$
@@ -185,6 +186,20 @@ applied for both quantities except for specific charged particles cross sections
 applied on macroscopic cross sections. However, the heat deposition cross section contains a microscopic collisional stopping power which has not been
 corrected in ELECTR module of NJOY. This is why the charged particle {\tt H-FACTOR} data $-$ recovered from microscopic libraries produced by ELECTR, but not
 those produced by CEPXS-BFP $-$ should be corrected in DRAGON5.
+
+\item[\moc{PARTICLE}] keyword to specify the particle type associated with the
+{\sc microlib} and its embedded {\sc macrolib}. For coupled particle
+\moc{MATXS2} libraries, this particle is the secondary state of the transition.
+Equivalently, for a transition $q \rightarrow p$, this keyword specifies the
+produced particle $p$. Companion particles are the incident or source particles
+$q$ whose flux contributes to the source of $p$. This option is only compatible
+with a \moc{MATXS2} format library.
+
+\item[\dusa{htype}] character*1 name of the particle. Usual names are {\tt N}:
+neutrons, {\tt G}: photons, {\tt B}: electrons, {\tt C}: positrons and
+{\tt P}: protons. If the \moc{PARTICLE} keyword is not provided with a
+\moc{MATXS2} library, the first supported particle found in the MATXS2 file is
+used. For other library formats, the default particle is the neutron.
 
 \item[\moc{ADJ}] keyword to specify the production of adjoint macroscopic
 cross sections. By default, direct cross sections are produced.
@@ -556,7 +571,7 @@ the physical properties, such as the temperature and density, of a mixture.
 \hskip 2.0cm $[$ \moc{IRSET} $\{$ \dusa{gir} $|~\{$ \moc{PT} $|$ \moc{PTMC} $|$ \moc{PTSL} $|$ \moc{RSE} $\}~\}~\{$
 \dusa{nir} $|$ \moc{NONE} $\}~]~~[~\{$ \moc{NOEV} $|$ \moc{EVOL} $|$ \moc{SAT} $\}~]~]]$ \\
 \hskip 1.0cm $|$ \\
-\hskip 1.0cm \moc{COMB} $[[$ \dusa{mati} \dusa{relvol} $]]~\}$
+\hskip 1.0cm \moc{COMB} $[[~[$ \moc{TEMP} \dusa{tempi} $]$ \dusa{mati} \dusa{relvol} $]]~\}$
 \end{DataStructure}
 
 \vspace{-0.15cm}
@@ -720,8 +735,12 @@ This is the default option.
 \item[\moc{SAT}] keyword to force a nuclide to be at saturation. By default, the saturation approximation is
 automatically set as a function of the half life and capture cross sections of the isotope.
 
-\item[\moc{COMB}]  keyword to specify that this mixture is reset with a
-combination of previously defined mixtures.
+\item[\moc{COMB}]  keyword to specify that this mixture is reset with a combination of previously defined mixtures.
+
+\item[\moc{TEMP}]  keyword to assign a different temperature to the new combination of mixtures.
+By default, the temperature is not modified.
+
+\item[\dusa{tempi}]  temperature (in Kelvin) assigned to the new combination of mixtures.
 
 \item[\dusa{mati}]  number associated with a previously defined mixture. In
 order to insert some void in a mixture use \dusa{mati}=0. If the mixture is not
@@ -835,8 +854,8 @@ Mathematical (CALENDF) probability tables are used in each energy group where Au
 The structure \dstr{descmix2} is used to describe the modifications in the isotopic composition of a mixture.
 
 \begin{DataStructure}{Structure \dstr{descmix2}}
-$\{$ \moc{MIX}  \dusa{matnum} $[$ \dusa{matold} $]$ $[$ \dusa{relden} $]$
-$[$ \dusa{NAMALI} \dusa{dens} $]~[~\{$ \moc{NOEV} $|$ \moc{EVOL} $\}~]~|$ \moc{ALL} $\}$
+$\{$ \moc{MIX} \dusa{matnum} $[~\{$ \dusa{matold} $[$ \dusa{denmix} $]~|$ \moc{COMB} $[[$ \dusa{mati} \dusa{relvol} $]]~\}~]~[~\{$ \moc{NOEV} $|$ \moc{EVOL} $\}~]$ \\
+\hskip 1.0cm $|$ \moc{ALL} $\}$
 \end{DataStructure}
 
 \vspace{-0.15cm}
@@ -846,24 +865,19 @@ where:
 
 \begin{ListeDeDescription}{mmmmmm}
 
-\item[\moc{MIX}] keyword to specify the number identifying the next mixture to
-be updated.
+\item[\moc{MIX}] keyword to specify the number identifying the next mixture to be updated.
 
 \item[\dusa{matnum}] mixture identifier on \dusa{MICLIB}. 
 
 \item[\dusa{matold}] mixture identifier on \dusa{MICRHS}. By default, \dusa{matold}$=$\dusa{matnum}.
 
-\item[\dusa{relden}] relative density of updated mixture. The  concentration
-of each isotope in the mixture is to be multiplied by this factor whether it 
-comes from \dusa{MICLIB}, from \dusa{MICRHS} or is
-specified explicitly using \dusa{dens}. 
+\item[\dusa{denmix}] mixture density in $g \ cm^{-3}$. 
 
-\item[\dusa{NAMALI}] {\tt character*8} alias name for an isotope on
-\dusa{MICLIB} to be modified. 
+\item[\moc{COMB}] keyword to specify that mixture \dusa{matnum} is a combination of previously defined mixtures.
 
-\item[\dusa{dens}] isotopic concentration of the isotope \dusa{NAMISO} in the
-current mixture in $10^{24}cm^{-3}$.  When \dusa{relden} is specified, the
-isotopic concentration becomes \dusa{dens}$\times$\dusa{relden}.
+\item[\dusa{mati}] previously defined mixture identifier on \dusa{MICLIB}.
+
+\item[\dusa{relvol}] relative volume $V_{i}$ occupied by mixture \dusa{mati}=$i$ in \dusa{matnum}.
 
 \item[\moc{NOEV}] keyword to force a mixture to be non-depleting (even in
 cases where it is potentially depleting). Note that the mixture keeps its

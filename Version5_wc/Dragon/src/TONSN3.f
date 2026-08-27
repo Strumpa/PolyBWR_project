@@ -57,7 +57,7 @@
 * SN      estimate of the dilution cross section in each energy group
 *         of each isotope on input and computed dilution cross section
 *         in each energy group of each isotope at output.
-* SIGT2   total macroscopic cross sections on ipput and total 
+* SIGT2   total macroscopic cross sections on input and total 
 *         macroscopic cross sections as modified by Tone's method
 *         at output.
 *

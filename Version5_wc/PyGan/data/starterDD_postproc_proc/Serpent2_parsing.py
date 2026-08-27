@@ -4,8 +4,7 @@ import numpy as np
 import serpentTools as st
 import re
 
-
-def parse_S2_pin_mat_det(assembly_model, assembly_id, XS_lib_S2, fission_isotopes, bu=0):
+def parse_S2_pin_mat_det(assembly_model, assembly_id, XS_lib_S2, fission_isotopes, bu=0, serpent2_file_name=None):
     """
     Serpent2 assembly detector post-treatment for Assembly reaction rates :
     use lattice detector definition
@@ -28,25 +27,37 @@ def parse_S2_pin_mat_det(assembly_model, assembly_id, XS_lib_S2, fission_isotope
 
     MIXES_idx = [pidx for pidx in ordered_pin_indices]
     unique_mixes_on_diag = [pidx for pidx in pin_idx_on_axis]
+    print(f"Attempting to read serpent case with base name : {serpent2_file_name}")
+    if serpent2_file_name is None:
+        if assembly_id == "GE14_DOM":
+            s2_case_name = f"GE14_DOM_assembly_{XS_lib_S2}_00.serp"
+        elif assembly_id == "GE14_DOM-C":
+            s2_case_name = f"GE14_DOM-C_assembly_{XS_lib_S2}_00.serp"
+            
+        # AT10 cases    
+        elif assembly_id == "AT10_NOM_00":
+            s2_case_name = f"AT10_NOM_assembly_00_{XS_lib_S2}.serp"
+            s2_case_name = f"AT10_assembly_starterDD_{XS_lib_S2}.serp"
+        elif assembly_id == "AT10_NOM_40":
+            s2_case_name = f"AT10_NOM_assembly_40_{XS_lib_S2}.serp"
+        elif assembly_id == "AT10_NOM_80":
+            s2_case_name = f"AT10_NOM_assembly_80_{XS_lib_S2}.serp"
 
-    if assembly_id == "GE14_DOM":
-        s2_case_name = f"GE14_DOM_assembly_{XS_lib_S2}_00.serp"
-    elif assembly_id == "AT10":
-        s2_case_name = f"AT10_assembly_starterDD_{XS_lib_S2}.serp"
-    elif assembly_id == "GE14_DOM-C":
-        s2_case_name = f"GE14_DOM-C_assembly_{XS_lib_S2}_00.serp"
-    elif assembly_id == "AT10-C":
-        s2_case_name = f"AT10_assembly_CTRL_00_{XS_lib_S2}.serp"
+        elif assembly_id == "AT10_NOM-C_00":
+            s2_case_name = f"AT10_NOM-C_assembly_00_{XS_lib_S2}.serp"
+    
+    else:
+        s2_case_name = serpent2_file_name
         
     detectorFile = st.read(f"{os.environ['SERPENT_RESULTS']}/{s2_case_name}_det{bu}.m")
     resultsFile = st.read(f"{os.environ['SERPENT_RESULTS']}/{s2_case_name}_res.m")
     keff = resultsFile.resdata["absKeff"].T[0]
     
     # try reading depletion 
-    try:
-        depletionFile = st.read(f"{os.environ['SERPENT_RESULTS']}/{assembly_id}_{XS_lib_S2}_BU_inp_dep.m")
-    except:
-        depletionFile = None
+    #try:
+    #    depletionFile = st.read(f"{os.environ['SERPENT_RESULTS']}/{assembly_id}_{XS_lib_S2}_BU_inp_dep.m")
+    #except:
+    depletionFile = None
 
 
     #print(f"keff = {keff}")
@@ -54,9 +65,9 @@ def parse_S2_pin_mat_det(assembly_model, assembly_id, XS_lib_S2, fission_isotope
 
     # Extracting the detector response
     if assembly_id == "GE14_DOM" or assembly_id == "GE14_DOM-C":
-        ngroups = detectorFile.detectors["det_UOX16_51"].tallies.shape[0] # 2 = n_groups
+        ngroups = detectorFile.detectors["det_2gUOX16_51"].tallies.shape[0] # 2 = n_groups
     elif assembly_id == "AT10" or assembly_id == "AT10-C":
-        ngroups = detectorFile.detectors["det_24UOX_1"].tallies.shape[0] # 2 = n_groups
+        ngroups = detectorFile.detectors["det_2g24UOX_1"].tallies.shape[0] # 2 = n_groups
     vol = np.pi * assembly_model.pin_geometry_dict.get("fuel_radius", None) ** 2
     if XS_lib_S2 == "endfb8r1":
 
@@ -91,13 +102,22 @@ def parse_S2_pin_mat_det(assembly_model, assembly_id, XS_lib_S2, fission_isotope
                             }
         
     npos = n_unique_pins
-    disappearance = np.zeros((ngroups, npos))
-    fission_rates = np.zeros((ngroups, npos))
-    ngamma_rates = np.zeros((ngroups, npos))
-    nproton_rates = np.zeros((ngroups, npos))
-    nalpha_rates = np.zeros((ngroups, npos))
-    n2n_rates = np.zeros((ngroups, npos))
-    n3n_rates = np.zeros((ngroups, npos))
+    disappearance_2g = np.zeros((2, npos))
+    fission_rates_2g = np.zeros((2, npos))
+    ngamma_rates_2g = np.zeros((2, npos))
+    nproton_rates_2g = np.zeros((2, npos))
+    nalpha_rates_2g = np.zeros((2, npos))
+    n2n_rates_2g = np.zeros((2, npos))
+    n3n_rates_2g = np.zeros((2, npos))
+    
+    disappearance_1g = np.zeros(npos)
+    fission_rates_1g = np.zeros(npos)
+    ngamma_rates_1g = np.zeros(npos)
+    nproton_rates_1g = np.zeros(npos)
+    nalpha_rates_1g = np.zeros(npos)
+    n2n_rates_1g = np.zeros(npos)
+    n3n_rates_1g = np.zeros(npos)
+    
     n_isotopes_per_mat = {}
     groups = {}
     pattern = re.compile(r"^(\d{2}(?:UOX|Gd))_([A-Za-z])_(\d+)$")
@@ -141,9 +161,11 @@ def parse_S2_pin_mat_det(assembly_model, assembly_id, XS_lib_S2, fission_isotope
     
     # extract fision rates
     isotopes = ["U235", "U238", "Gd155", "Gd157"]
+    # recover 2g scores
     for pos_idx in MIXES_idx:
         material = pin_idx_to_material[pos_idx]
-        detector_name = f"det_{material}_{pos_idx}"
+        #detector_name = f"det_2g_{material}_{pos_idx}"
+        detector_name = f"det_2g{material}_{pos_idx}"
         n_groups = detectorFile.detectors[detector_name].tallies.shape[0]
         n_reactions = detectorFile.detectors[detector_name].tallies.shape[1]
         for g in range(n_groups):
@@ -169,21 +191,66 @@ def parse_S2_pin_mat_det(assembly_model, assembly_id, XS_lib_S2, fission_isotope
                         N_iso = N_iso_pin
                     ### Now fill the rates arrays
                     if reaction == "fission":
-                        fission_rates[g, pos_idx-1] += rate / symmetry_factor * N_iso 
+                        fission_rates_2g[g, pos_idx-1] += rate / symmetry_factor * N_iso 
                     elif reaction == "n,gamma":
-                        ngamma_rates[g, pos_idx-1] += rate / symmetry_factor * N_iso 
+                        ngamma_rates_2g[g, pos_idx-1] += rate / symmetry_factor * N_iso 
                     elif reaction == "n,proton":
-                        nproton_rates[g, pos_idx-1] += rate / symmetry_factor * N_iso
+                        nproton_rates_2g[g, pos_idx-1] += rate / symmetry_factor * N_iso
                     elif reaction == "n,alpha":
-                        nalpha_rates[g, pos_idx-1] += rate / symmetry_factor * N_iso
+                        nalpha_rates_2g[g, pos_idx-1] += rate / symmetry_factor * N_iso
                     elif reaction == "n,2n":
-                        n2n_rates[g, pos_idx-1] += rate / symmetry_factor * N_iso
+                        n2n_rates_2g[g, pos_idx-1] += rate / symmetry_factor * N_iso
                     elif reaction == "n,3n":
-                        n3n_rates[g, pos_idx-1] += rate / symmetry_factor * N_iso
+                        n3n_rates_2g[g, pos_idx-1] += rate / symmetry_factor * N_iso
                     elif reaction == "disappearance":
-                        disappearance[g, pos_idx-1] += rate / symmetry_factor * N_iso
+                        disappearance_2g[g, pos_idx-1] += rate / symmetry_factor * N_iso
                 #print(f"Group {g+1}, Cell {pos_idx}, Reaction {reaction}, Rate: {rate}, N_iso = {N_iso}")
     #print(n_isotopes_per_mat)
+    
+    # recover 1g scores
+    for pos_idx in MIXES_idx:
+        material = pin_idx_to_material[pos_idx]
+        #detector_name = f"det_full_{material}_{pos_idx}"
+        detector_name = f"det_{material}_{pos_idx}"
+        n_groups = 1
+        n_reactions = detectorFile.detectors[detector_name].tallies.shape[0]
+        for g in range(n_groups):
+            for r in range(n_reactions):
+                rate = detectorFile.detectors[detector_name].tallies[r]
+                reaction,isotope = tally_index_to_react_pin_detectors[r]
+                if isotope in isotopes:
+                    ### Sanity check : compare N_iso from pin definition and from depletion file
+                    symmetry_factor = 1 if pos_idx in unique_mixes_on_diag else 2
+                    try:
+                        N_iso_pin = pin_idx_to_composition[pos_idx][isotope]
+                    except KeyError:
+                        print(f"Warning : isotope {isotope} not found in pin composition for material {material} at position {pos_idx}. Setting N_iso_pin to 0.")
+                        N_iso_pin = 0.0
+                        
+                    if depletionFile is not None:
+                        N_iso_dep = n_isotopes_per_mat[key][isotope] / symmetry_factor
+                        if abs(N_iso_pin - N_iso_dep)/N_iso_pin > 0.1:
+                            print(f"Warning : large discrepancy between N_iso from pin definition and from depletion file for isotope {isotope} in material {material} at position {pos_idx} : N_iso_pin = {N_iso_pin}, N_iso_dep = {N_iso_dep}")
+                        #print(f"Material {material}, Position {pos_idx}, Isotope {isotope}, Rate {rate}, N_iso_pin = {N_iso_pin}, N_iso_dep = {N_iso_dep}")
+                        N_iso = N_iso_dep
+                    else: 
+                        N_iso = N_iso_pin
+                    ### Now fill the rates arrays
+                    if reaction == "fission":
+                        fission_rates_1g[pos_idx-1] += rate / symmetry_factor * N_iso 
+                    elif reaction == "n,gamma":
+                        ngamma_rates_1g[pos_idx-1] += rate / symmetry_factor * N_iso 
+                    elif reaction == "n,proton":
+                        nproton_rates_1g[pos_idx-1] += rate / symmetry_factor * N_iso
+                    elif reaction == "n,alpha":
+                        nalpha_rates_1g[pos_idx-1] += rate / symmetry_factor * N_iso
+                    elif reaction == "n,2n":
+                        n2n_rates_1g[pos_idx-1] += rate / symmetry_factor * N_iso
+                    elif reaction == "n,3n":
+                        n3n_rates_1g[pos_idx-1] += rate / symmetry_factor * N_iso
+                    elif reaction == "disappearance":
+                        disappearance_1g[pos_idx-1] += rate / symmetry_factor * N_iso
+    
     
     # recover 295g / 26g flux spectra
     flux_295g = detectorFile.detectors["flux_295g"].tallies
@@ -269,31 +336,36 @@ def parse_S2_pin_mat_det(assembly_model, assembly_id, XS_lib_S2, fission_isotope
     
     # use Dragon's definitions of neutronic absorption : 
     # abs = fission + (n,gamma) + (n,proton) + (n,deutron) + (n,triton) + (n,alpha) + (n,2alpha) + (n,np) - (n,2n) - 2*(n,3n) - 3*(n,4n)
-    print(f"Fission rates therm : {fission_rates[0]}")
-    print(f"(n,gamma) rates therm : {ngamma_rates[0]}")
-    print(f"(n,proton) rates therm : {nproton_rates[0]}")
-    print(f"(n,alpha) rates therm : {nalpha_rates[0]}")
-    print(f"(n,2n) rates therm : {n2n_rates[0]}")
-    print(f"(n,3n) rates therm : {n3n_rates[0]}")
-    total_absorptions = fission_rates + ngamma_rates + nproton_rates + nalpha_rates - n2n_rates -2*n3n_rates
+    total_abs_1g = fission_rates_1g + ngamma_rates_1g + nproton_rates_1g + nalpha_rates_1g - n2n_rates_1g - 2*n3n_rates_1g
+    total_abs_2g = fission_rates_2g + ngamma_rates_2g + nproton_rates_2g + nalpha_rates_2g - n2n_rates_2g -2*n3n_rates_2g
     total_abs_U238_26g = fission_U238_26g + ngamma_U238_26g + nproton_U238_26g + nalpha_U238_26g - n2n_U238_26g - 2*n3n_U238_26g
     total_abs_U238_295g = fission_U238_295g + ngamma_U238_295g + nproton_U238_295g + nalpha_U238_295g - n2n_U238_295g - 2*n3n_U238_295g
     
     U238_abs = {"26g": total_abs_U238_26g, "295g": total_abs_U238_295g}    
     
     ### Compute fission over absoption on 2G detectors
-    fiss_over_abs = np.zeros((ngroups, npos))
+    ngroups = 2
+    fiss_over_abs_2g = np.zeros((ngroups, npos))
     for g in range(ngroups):
         for pos_idx in MIXES_idx:
-            if total_absorptions[g, pos_idx-1] > 0:
-                fiss_over_abs[g, pos_idx-1] = fission_rates[g, pos_idx-1] / total_absorptions[g, pos_idx-1]
+            if total_abs_2g[g, pos_idx-1] > 0:
+                fiss_over_abs_2g[g, pos_idx-1] = fission_rates_2g[g, pos_idx-1] / total_abs_2g[g, pos_idx-1]
             else:
-                fiss_over_abs[g, pos_idx-1] = 0.0
+                fiss_over_abs_2g[g, pos_idx-1] = 0.0
+
+    print(f"Fission rates : {fission_rates_2g}")
+    print(f"(n,gamma) rates : {ngamma_rates_2g}")
+    print(f"Fission over absorption ratio : {fiss_over_abs_2g}")
+    ### Compute fission over absoption on 1g 
+    fiss_over_abs_1g = np.zeros(npos)
+    for g in range(1):
+        for pos_idx in MIXES_idx:
+            if total_abs_1g[pos_idx-1] > 0:
+                fiss_over_abs_1g[pos_idx-1] = fission_rates_1g[pos_idx-1] / total_abs_1g[pos_idx-1]
+            else:
+                fiss_over_abs_1g[pos_idx-1] = 0.0
     
-    print(f"Fission rates : {fission_rates}")
-    print(f"(n,gamma) rates : {ngamma_rates}")
-    print(f"Fission over absorption ratio : {fiss_over_abs}")
-    return keff, fission_rates, ngamma_rates, fiss_over_abs, fluxes, U238_abs
+    return keff, fission_rates_1g, ngamma_rates_1g, fiss_over_abs_1g, fission_rates_2g, ngamma_rates_2g, fiss_over_abs_2g, fluxes, U238_abs
 
 
 def sum_S2rates_over_iso(rates_dict):

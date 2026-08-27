@@ -14,7 +14,7 @@
 * License as published by the Free Software Foundation; either
 * version 2.1 of the License, or (at your option) any later version
 *
-*Author(s): A. Hebert
+*Author(s): A. Hebert and B.A.H. Meunier
 *
 *Parameters: input
 * MAXDIL  maximum number of dilutions.
@@ -105,6 +105,14 @@
       L2=1+NWDS
       IREC=IREC+NPART
       IRZM=IREC+1
+      ITRES=0
+      DO 5 IT=1,NTYPE
+      WRITE(HTYPE,'(A6)') XHA(NPART+IT)
+      CALL LIBCOV(HTYPE)
+      IF(HTYPE.EQ.'NSCAT') ITRES=IT
+    5 CONTINUE
+      IF(ITRES.EQ.0) CALL XABORT('LIBDI3: UNABLE TO FIND NSCAT DATA'
+     1 //' TYPE.')
 *
       DO 50 IM=1,NMAT
       WRITE (HMAT,'(A6)') XHA(NPART+NTYPE+IM)
@@ -127,6 +135,7 @@
       IF((NWDS/2)*2.NE.NWDS) NWDS=NWDS+1
 *
       DO 40 ISUBM=1,NSUB
+      IF(IA(L2+MULT+6*(ISUBM-1)+3).NE.ITRES) GO TO 40
       DILI=A(L2+MULT+6*(ISUBM-1)+2)
       DO 10 I=1,NDIL
       IF(ABS(DILI-DILUT(I)).LT.1.0E-5*ABS(DILI)) GO TO 40
@@ -150,6 +159,15 @@
       NDIL=NDIL-1
       IF(NDIL.LT.0) CALL XABORT('LIBDI3: UNABLE TO FIND THE TABULATED'
      1 //' DILUTIONS.')
+      IF(NDIL+1.GT.MAXDIL) CALL XABORT('LIBDI3: MAXDIL IS TOO SMALL.')
+      IF(DILUT(NDIL+1).LT.0.9E10) CALL XABORT('LIBDI3: INFINITE DIL'
+     1 //'UTION BRANCH MISSING.')
+      DO 60 I=1,NDIL
+      IF(DILUT(I).LE.0.0) CALL XABORT('LIBDI3: INVALID DILUTION VAL'
+     1 //'UE.')
+      IF((I.GT.1).AND.(DILUT(I).LE.DILUT(I-1))) CALL XABORT('LIBDI3'
+     1 //': INVALID DILUTION ORDER.')
+   60 CONTINUE
 *     --CLOSE CCCC FILE--
       IF(ILIBIN.EQ.2) THEN
          CALL XDRCLS(NIN)

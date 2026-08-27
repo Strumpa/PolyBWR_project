@@ -1,0 +1,28 @@
+*
+* Author: B.A.H. Meunier
+* Assert procedure for non-regression testing.
+* Compare an integer value from an LCM array.
+*
+PARAMETER LCMREF :: ::: LINKED_LIST LCMREF ; ;
+CHARACTER KEY ;
+INTEGER IPOS IREF IVAL ITYPE ;
+:: >>KEY<< >>IPOS<< >>IREF<< ;
+MODULE GREP: ABORT: END: ;
+*
+GREP: LCMREF :: TYPE <<KEY>> >>ITYPE<< ;
+IF ITYPE 1 = THEN
+  GREP: LCMREF :: GETVAL <<KEY>> <<IPOS>> >>IVAL<< ;
+ELSE
+  PRINT "assertI: INVALID REFERENCE TYPE=" ITYPE ;
+  ABORT: ;
+ENDIF ;
+IF IVAL IREF = THEN
+  PRINT "TEST SUCCESSFUL; VALUE=" IVAL ;
+ELSE
+  PRINT "------------" ;
+  PRINT "TEST FAILURE" ;
+  PRINT "------------" ;
+  PRINT "REFERENCE=" IREF " CALCULATED=" IVAL ;
+  ABORT: ;
+ENDIF ;
+END: ;

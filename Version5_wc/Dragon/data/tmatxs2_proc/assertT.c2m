@@ -1,0 +1,22 @@
+*
+* Author: B.A.H. Meunier
+* Assert procedure for non-regression testing.
+* Compare an LCM record type.
+*
+PARAMETER LCMREF :: ::: LINKED_LIST LCMREF ; ;
+CHARACTER KEY ;
+INTEGER IREF ITYPE ;
+:: >>KEY<< >>IREF<< ;
+MODULE GREP: ABORT: END: ;
+*
+GREP: LCMREF :: TYPE <<KEY>> >>ITYPE<< ;
+IF ITYPE IREF = THEN
+  PRINT "TEST SUCCESSFUL; TYPE=" ITYPE ;
+ELSE
+  PRINT "------------" ;
+  PRINT "TEST FAILURE" ;
+  PRINT "------------" ;
+  PRINT "REFERENCE TYPE=" IREF " CALCULATED TYPE=" ITYPE ;
+  ABORT: ;
+ENDIF ;
+END: ;

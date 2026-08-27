@@ -57,7 +57,7 @@
 *----
       TYPE(C_PTR) JPMACR,KPMACR
       CHARACTER HSMG*131
-      DOUBLE PRECISION B1GAMA,DDELN1,DDELN2,DDELD1,B2HOM,ST2,STR,GAMMA
+      DOUBLE PRECISION B1GAMA,DDELN1,DDELN2,DDELD1,B2HOM,STR
 *----
 *  ALLOCATABLE ARRAYS
 *----
@@ -65,6 +65,7 @@
       REAL, ALLOCATABLE, DIMENSION(:) :: WORK
       REAL, ALLOCATABLE, DIMENSION(:,:) :: ST,FLXIN
       REAL, ALLOCATABLE, DIMENSION(:,:,:) :: SCAT1
+      DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:) :: GAMMA
       DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:,:) :: STOD
 *----
 *  SCRATCH STORAGE ALLOCATION
@@ -120,10 +121,26 @@
       ENDDO
       IF((OPTION.EQ.'LKRD').OR.(OPTION.EQ.'RHS')) GO TO 10
 *----
+*  COMPUTE THE GLOBAL GAMMA FACTOR
+*----
+      ALLOCATE(GAMMA(NGRP))
+      B2HOM=DBLE(B2)
+      DO IGR=1,NGRP
+        IF((OPTION.EQ.'B0').OR.(OPTION.EQ.'B1')) THEN
+          DDELN1=0.D0
+          DDELD1=0.D0
+          DO IBM=1,NMAT
+            DDELN1=DDELN1+ST(IBM,IGR)*FLXIN(IBM,IGR)
+            DDELD1=DDELD1+FLXIN(IBM,IGR)
+          ENDDO
+          GAMMA(IGR)=B1GAMA(2,B2HOM,DDELN1/DDELD1)
+        ELSE
+          GAMMA(IGR)=1.0D0
+        ENDIF
+      ENDDO
+*----
 *  MAIN LOOP OVER LEAKAGE ZONES
 *----
-      B2HOM=DBLE(B2)
-      GAMMA=1.0D0
       DO INM=1,NMERG
         IF((OPTION.EQ.'P0').OR.(OPTION.EQ.'B0')) THEN
 *         P0 or B0 approximation
@@ -136,9 +153,7 @@
                 DDELD1=DDELD1+FLXIN(IBM,IGR)
               ENDIF
             ENDDO
-            ST2=DDELN1/DDELD1
-            IF(OPTION.EQ.'B0') GAMMA=B1GAMA(2,B2HOM,ST2)
-            DIFHET(INM,IGR)=REAL(1.0D0/(3.0D0*GAMMA*ST2))
+            DIFHET(INM,IGR)=REAL(1.0D0/(3.0D0*GAMMA(IGR)*DDELN1/DDELD1))
           ENDDO
         ELSE IF((OPTION.EQ.'P0TR').OR.(OPTION.EQ.'B0TR').OR.
      1  (TYPE.EQ.'DIFF')) THEN
@@ -156,9 +171,7 @@
                 DDELD1=DDELD1+FLXIN(IBM,IGR)
               ENDIF
             ENDDO
-            ST2=DDELN1/DDELD1
-            IF(OPTION.EQ.'B0TR') GAMMA=B1GAMA(2,B2HOM,ST2)
-            STR=(GAMMA*DDELN1-DDELN2)/DDELD1
+            STR=(GAMMA(IGR)*DDELN1-DDELN2)/DDELD1
             DIFHET(INM,IGR)=REAL(1.0D0/(3.0D0*STR))
           ENDDO
         ELSE IF((OPTION.EQ.'P1').OR.(OPTION.EQ.'B1')) THEN
@@ -166,21 +179,9 @@
           ALLOCATE(STOD(NGRP,NGRP+1))
           STOD(:NGRP,:NGRP+1)=0.0D0
           DO IGR=1,NGRP
-            IF(OPTION.EQ.'B1') THEN
-              DDELN1=0.D0
-              DDELD1=0.D0
-              DO IBM=1,NMAT
-                IF(IMERG(IBM).EQ.INM) THEN
-                  DDELN1=DDELN1+ST(IBM,IGR)*FLXIN(IBM,IGR)
-                  DDELD1=DDELD1+FLXIN(IBM,IGR)
-                ENDIF
-              ENDDO
-              ST2=DDELN1/DDELD1
-              GAMMA=B1GAMA(2,B2HOM,ST2)
-            ENDIF
             DO IBM=1,NMAT
               IF(IMERG(IBM).EQ.INM) THEN
-                STOD(IGR,IGR)=STOD(IGR,IGR)+GAMMA*ST(IBM,IGR)*
+                STOD(IGR,IGR)=STOD(IGR,IGR)+GAMMA(IGR)*ST(IBM,IGR)*
      1          FLXIN(IBM,IGR)
                 DO JGR=1,NGRP
                   STOD(IGR,JGR)=STOD(IGR,JGR)-SCAT1(IBM,IGR,JGR)*
@@ -202,6 +203,7 @@
           CALL XABORT(HSMG)
         ENDIF
       ENDDO
+      DEALLOCATE(GAMMA)
 *----
 *  COMPUTE THE HOMOGENEOUS LEAKAGE COEFFICIENTS
 *----

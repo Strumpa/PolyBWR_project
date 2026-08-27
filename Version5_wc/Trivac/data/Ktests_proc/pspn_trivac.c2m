@@ -4,14 +4,14 @@
 ***********************************************
 PROCEDURE assertS assertS2 ;
 LINKED_LIST GEOM MACRO TRACK SYSTEM FLUX KINET ;
-MODULE GEO: MAC: TRIVAT: TRIVAA: FLUD: END:
+MODULE GEOD: MAC: TRIVAT: TRIVAA: FLUD: END:
        DELETE: INIKIN: KINSOL: ;
 REAL    epsf prec := 1.E-5 1.E-5 ;
 REAL    delta := 0.01 ;
 INTEGER itr maxItr edit := 0 5 0 ;
 *
 ECHO " *****  test SPN_trivac  *****" ;
-GEOM := GEO: :: CAR1D 10 
+GEOM := GEOD: :: CAR1D 10 
         EDIT 1
       X- ZERO  X+ ZERO
       MIX 2 1 1 1 1 3 3 3 3 2

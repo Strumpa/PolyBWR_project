@@ -88,7 +88,6 @@
      +  //'NUMBER OF PARAMETERS')
       IPMAP=C_NULL_PTR
       IPPOW=C_NULL_PTR
-      IPMIC=C_NULL_PTR
       IPMIC2=C_NULL_PTR
       IPMIC3=C_NULL_PTR
       IF(JENTRY(1).EQ.0) THEN
@@ -98,6 +97,7 @@
         IF(IENTRY(1).GT.2) CALL XABORT('@TINST: LCM OR XSM OBJECT TYPE'
      +  //' FOR ENTRY='//TEXT12//'.')
       ELSE
+        IPMIC=C_NULL_PTR
         I=1
       ENDIF
       DO IEN=I,NENTRY
@@ -116,7 +116,6 @@
         ELSEIF(HSIGN.EQ.'L_LIBRARY') THEN
           IF(.NOT.C_ASSOCIATED(IPMIC2)) THEN
             IPMIC2=KENTRY(IEN)
-            CALL LCMEQU(IPMIC2,IPMIC)
             IF(JENTRY(IEN).NE.2) CALL XABORT('@TINST: READ-ONLY MODE'
      +      //' FOR SECOND L_LIBRARY EXPECTED')
           ELSE
@@ -167,7 +166,7 @@
 *----
 *  READ INPUT DATA
 *----
-      IMPX=0
+      IMPX=1
       LNOTHING=.TRUE.
       LMIC=.FALSE.
       TTIME=0.0
@@ -238,7 +237,10 @@
              IF(ITYP.NE.1)
      +         CALL XABORT('@TINST: INTEGER DATA EXPECTED(2).')
              NS = NITMA
-             CALL TINCHA(IPMAP,NCH,IMPX,NAMCHA,TTIME,RFCHAN)
+             IF(IGEO.EQ.7) 
+     +          CALL TINCHA(IPMAP,NCH,IMPX,NAMCHA,TTIME,RFCHAN)
+             IF(IGEO.EQ.9)
+     +          CALL TINCHH(IPMAP,NCH,IMPX,NAMCHA,TTIME,RFCHAN)
            ELSE
             CALL XABORT('@TINST: INVALID KEYWORD '//TEXT)
            ENDIF
@@ -249,11 +251,17 @@
            LNOTHING=.FALSE.
            CALL REDGET(ITYP,NITMA,FLOT,TEXT,DFLOT)
            IF(ITYP.NE.3)
-     +      CALL XABORT('@TINST: CHARACTER DATA EXPECTED(4).')
+     +       CALL XABORT('@TINST: CHARACTER DATA EXPECTED(3).')
+           IF(TEXT.EQ.'MICRO') THEN
+             LMIC=.TRUE.
+             CALL REDGET(ITYP,NITMA,FLOT,TEXT,DFLOT)
+           IF(ITYP.NE.3)
+     +       CALL XABORT('@TINST: CHARACTER DATA EXPECTED(4).')
+           ENDIF
            IF(TEXT.EQ.'CHAN') THEN
              CALL REDGET(ITYP,NITMA,FLOT,NAMCHA,DFLOT)
              IF(ITYP.NE.3)
-     +        CALL XABORT('@TINST: CHARACTER DATA EXPECTED(5).')
+     +         CALL XABORT('@TINST: CHARACTER DATA EXPECTED(5).')
              CALL REDGET(ITYP,NITMA,FLOT,TEXT,DFLOT)
              IF(ITYP.NE.1)
      +         CALL XABORT('@TINST: INTEGER DATA EXPECTED(3).')
@@ -268,7 +276,7 @@
                  CALL REDGET(ITYP,NITMA,FLOT,TEXT,DFLOT)
                  IF(ITYP.NE.1)
      +             CALL XABORT('@TINST: INTEGER DATA EXPECTED(4).')
-                IF (NITMA.GT.NF)
+                IF(NITMA.GT.NF)
      +             CALL XABORT('@TINST: WRONG NUMBER OF FUEL TYPE. ')
                  IDX(I) = NITMA
  11             CONTINUE
@@ -276,11 +284,9 @@
                 CALL REDGET(ITYP,NITMA,FLOT,TEXT,DFLOT)
                 IF(ITYP.NE.1)
      +             CALL XABORT('@TINST: INTEGER DATA EXPECTED(5).')
-                IF (NITMA.GT.NF)
+                IF(NITMA.GT.NF)
      +             CALL XABORT('@TINST: WRONG NUMBER OF FUEL TYPE. ')
-                DO 12 I=1,NSS
-                 IDX(I) = NITMA
- 12             CONTINUE
+                IDX(:NSS) = NITMA
              ELSE
                CALL XABORT('@TINST: INVALID KEYWORD '//TEXT)
              ENDIF
@@ -289,7 +295,7 @@
            ENDIF
         GOTO 20
 *     SHUFFL
-      ELSEIF (TEXT.EQ.'SHUFF') THEN
+      ELSEIF(TEXT.EQ.'SHUFF') THEN
            KREF = 3
            LNOTHING=.FALSE.
            CALL REDGET(ITYP,NITMA,FLOT,TEXT,DFLOT)
@@ -372,9 +378,7 @@
       ALLOCATE(NSSV(NCH))
       CALL LCMLEN(IPMAP,'REF-SCHEME',ILONG,ITYP)
       IF(ILONG.EQ.0) THEN
-         DO 25 I=1,NCH
-            NSSV(I) = 0
-   25    CONTINUE
+         NSSV(:NCH) = 0
       ELSEIF(ILONG.NE.NCH) THEN
          CALL XABORT('@TINST: REF-SCHEME HAS NOT THE CORRECT LENGHT')
       ELSE

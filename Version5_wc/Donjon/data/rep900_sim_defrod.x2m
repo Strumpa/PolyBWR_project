@@ -20,8 +20,7 @@ LINKED_LIST GeoRes Track MacroRefl Matex Fmap Power PrevPower
 SEQ_ASCII   _Saphyb_UOX :: FILE './_Saphyb_UOX' ;
 SEQ_ASCII   _Saphyb_MOX :: FILE './_Saphyb_MOX' ;
 SEQ_ASCII   _Refl.XS_as :: FILE './_Refl.XS_as' ;
-MODULE      TRIVAT: RESINI: SIM: DELETE: GREP: UTL: EVO: ABORT:
-            ROD: END: ;
+MODULE      TRIVAT: RESINI: SIM: DELETE: GREP: UTL: ABORT: ROD: END: ;
 PROCEDURE   GeoCo SetFuelMap InitSteady ;
 PROCEDURE   assertS ;
 *----

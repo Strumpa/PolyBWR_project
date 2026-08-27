@@ -92,7 +92,7 @@ LatTEST_b := G2S: GT_SAL_iso ::
 *  Surfacic file tracking for S30 type and isotropic reflection
 *----
 TRACKF INTLINS := SALT: GT_SAL_iso ::
-     EDIT 2
+     EDIT 1
      TISO 12 100.0 LONG ;
 
 TDCM63.m := TLM: TRACKF INTLINS ::
@@ -118,7 +118,7 @@ TRACKF INTLINS SYS FLUX := DELETE: TRACKF INTLINS SYS FLUX ;
 *  Surfacic file tracking for S30 type and specular reflection
 *----
 TRACKF INTLINS := SALT: GT_SAL ::
-     EDIT 2
+     EDIT 1
      TSPC 12 100.0 LONG ; ! 3, 6, 12 or 18 is mandatory
 
 TRACKF := MCCGT: TRACKF INTLINS ::

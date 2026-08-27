@@ -53,7 +53,7 @@ IF sol_door "PIJ" = THEN
   TRACK_L1 TF_EXC_L1 := SALT: Geo_G2S ::
     EDIT 1
     BATCH <<batch>>
-    <<refl_type>> EQW2 <<num_ang>> <<densur>>
+    <<refl_type>> <<num_ang>> <<densur>>
     !MERGMIX
   ;
 ELSEIF sol_door "IC" = THEN

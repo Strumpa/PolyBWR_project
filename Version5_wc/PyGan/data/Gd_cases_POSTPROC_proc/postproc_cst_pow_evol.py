@@ -65,6 +65,8 @@ class Serpent2_case:
         self.sigmas_keff = self.res.resdata["absKeff"].T[1] # Retrieve the uncertainties (standard deviation) on the keffs
         self.mat = self.depl.materials['total'] # Retrieve the total, homogenized material
         self.BU = self.mat.burnup # Burnup in MWd/kgU
+        print(f"Serpent2 BU : {self.BU}")
+        print(f"Serpent2 keffs = {self.keff}")
         
         data_frame = self.mat.toDataFrame("adens", names = self.tracked_nuclides, time = "days") # Convert the material to a pandas dataframe
         self.BUdays = data_frame.index.to_numpy() # retrieve the burnup points in days
@@ -130,7 +132,7 @@ class DRAGON_case:
         """
         time step to BU step normalization factor
         """
-        self.specific_power = 26.5 # W/gU
+        self.specific_power = 38.6 # W/gU
         
         """
         Output options

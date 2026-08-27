@@ -8,8 +8,8 @@ my_lcm=lcm.new('LCM_INP','nonfuel',impx=1)
 my_lcm._impx=3
 my_lcm.lib()
 my_lcm.keys()
-sign=my_lcm['SIGNATURE']
-print('object signature=', sign)
+print('object signature=', my_lcm['SIGNATURE'])
+print("shape(STATE-VECTOR)=",my_lcm['REFL']['STATE-VECTOR'].shape[0])
 daughter=my_lcm['REFL']
 daughter.lib()
 o2=lcm.new('LCM_INP','new_branch_of_dictionary',pyobj=daughter,impx=1)
@@ -23,6 +23,7 @@ o2['key1']='new comments for this record'
 o2['key2']=ia
 o2['key3']=ra
 o2['key4']=da
+print("shape(key2)=",o2['key2'].shape[0])
 print('key2=',o2['key2'])
 print('np type of key2=',o2['key2'].dtype)
 print('np type of key3=',o2['key3'].dtype)

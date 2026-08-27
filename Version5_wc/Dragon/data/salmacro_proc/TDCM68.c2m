@@ -80,7 +80,7 @@ TDT_LAT_PS := G2S: TDT_LAT :: DRAWMIX ;
 
 TRACK TRACK_f := SALT: TDT_LAT ::
     TITL 'TEST_GLOW_GEOM imported'
-    EDIT 6
+    EDIT 1
     ANIS 1
     *TSPC 6 10.0
     TISO 8 10.0

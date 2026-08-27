@@ -1,6 +1,6 @@
 *DECK OUTVOX
-      SUBROUTINE OUTVOX (IPMAC1,IPVAL,IPMAC2,NBMIX,NL,NBFIS,NGRP,NALBP,
-     1 TITR)
+      SUBROUTINE OUTVOX (IPGEO2,IPMAC1,IPVAL,IPMAC2,NBMIX,NL,NBFIS,NGRP,
+     1 NALBP,TITR,MACGEO)
 *
 *-----------------------------------------------------------------------
 *
@@ -18,6 +18,7 @@
 *Author(s): A Hebert
 *
 *Parameters: input
+* IPGEO2  L_GEOM pointer to the macrogeometry containing INTG data.
 * IPMAC1  L_MACROLIB pointer to the nuclear properties.
 * IPVAL   L_FVIEW pointer to the interpflux data structure.
 * IPMAC2  L_MACROLIB pointer to the edition information.
@@ -27,6 +28,7 @@
 * NGRP    total number of energy groups.
 * NALBP   number of physical albedos.
 * TITR    title.
+* MACGEO  macrogeometry name.
 *
 *-----------------------------------------------------------------------
 *
@@ -34,8 +36,8 @@
 *----
 *  SUBROUTINE ARGUMENTS
 *----
-      TYPE(C_PTR) IPMAC1,IPMAC2,IPVAL
-      CHARACTER TITR*72
+      TYPE(C_PTR) IPGEO2,IPMAC1,IPMAC2,IPVAL
+      CHARACTER TITR*72,MACGEO*12,HSMG*131
       INTEGER NBMIX,NL,NBFIS,NGRP,NALBP
 *----
 *  LOCAL VARIABLES
@@ -43,9 +45,8 @@
       PARAMETER(NSTATE=20)
       INTEGER ISTATE(NSTATE)
       TYPE(C_PTR) JPMAC1,KPMAC1,JPVAL
-      CHARACTER TEXT4*4
+      CHARACTER TEXT4*4,TEXT12*12
       REAL CXYZ(3)
-      LOGICAL LVAL
       DOUBLE PRECISION DFLOTT,ZNORM
 *----
 *  ALLOCATABLE ARRAYS
@@ -67,7 +68,6 @@
         IGCOND(IGR)=IGR
       ENDDO
       LMOD=0
-      LVAL=.FALSE.
       ZNORM=1.0D0
       CALL KDRCPU(TK1)
 *
@@ -238,15 +238,23 @@
 *        READ THE MERGE INDICES.
          CALL REDGET(INDIC,NITMA,FLOTT,TEXT4,DFLOTT)
          IF((INDIC.EQ.3).AND.(TEXT4.EQ.'VAL')) THEN
-           IF(IMPX.GT.0) WRITE(6,320) TITR
-           LVAL=.TRUE.
-           IF(IMPX.GT.0) WRITE(6,330) (IGCOND(IG),IG=1,NGCOND)
-           CALL OUTVAL(IPMAC1,IPMAC2,IPVAL,NBMIX,NL,NBFIS,NGRP,NALBP,
-     1     NGCOND,IGCOND,ZNORM,IMPX)
-           GO TO 180
+           CALL REDGET(INDIC,NITMA,FLOTT,TEXT12,DFLOTT)
+           IF(TEXT12.NE.MACGEO) THEN
+             WRITE(HSMG,'(27HOUTVOX: MACROGEOMETRY NAME=,A,9H. SHOULD ,
+     1       3HBE=,A,1H.)') TRIM(TEXT12),TRIM(MACGEO)
+             CALL XABORT(HSMG)
+           ENDIF
+           IF(IMPX.GT.0) THEN
+             WRITE(6,320) MACGEO,TITR
+             WRITE(6,330) (IGCOND(IG),IG=1,NGCOND)
+           ENDIF
+           CALL OUTVAL(IPGEO2,IPMAC1,IPMAC2,IPVAL,NBMIX,NL,NBFIS,NGRP,
+     1     NALBP,NGCOND,IGCOND,ZNORM,IMPX)
          ELSE
            CALL XABORT('OUTVOX: INVALID KEY WORD.')
          ENDIF
+      ELSE IF(TEXT4.EQ.';') THEN
+         GO TO 180
       ELSE
          CALL XABORT('OUTVOX: '//TEXT4//' IS AN INVALID KEY WORD.')
       ENDIF
@@ -263,6 +271,6 @@
   300 FORMAT(/9H OUTVOX: ,A7,28H FLUX NORMALIZATION FACTOR =,1P,E13.5)
   305 FORMAT(/9H OUTVOX: ,A7,30H SOURCE NORMALIZATION FACTOR =,1P,E13.5)
   310 FORMAT(/49H OUTVOX: CPU TIME FOR REACTION RATE CALCULATION =,F7.3)
-  320 FORMAT(/12H OUTVOX: ***,A72,3H***)
+  320 FORMAT(/24H OUTVOX: MACROGEOMETRY: ,A,3H***/9X,3H***,A72,3H***)
   330 FORMAT(/20H CONDENSATION INDEX:/(1X,14I5))
       END

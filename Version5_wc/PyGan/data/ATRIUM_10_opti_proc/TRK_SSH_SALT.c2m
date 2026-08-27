@@ -53,7 +53,7 @@ IF sol_door "PIJ" = THEN
   TRACK_SSH TF_EXC_SSH := SALT: Geo_G2S ::
     EDIT 1
     BATCH <<batch>>
-    <<refl_type>> EQW2 <<num_ang>> <<densur>>
+    <<refl_type>> <<num_ang>> <<densur>>
     MERGMIX
   ;
 

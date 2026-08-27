@@ -13,9 +13,9 @@ MODULE GEO: G2S: NXT: SYBILT: SALT: MCCGT: LIB: USS: ASM: FLU: EDI: COMPO: GREP:
 LINKED_LIST GEOM_3x3 GEOM_3x3_SS LIBRARY LIBRARY2 TRACK_SS TRACK SYS FLUX COMPO EDIRATES ;
 
 SEQ_ASCII Geo_G2S GeoSS_G2S ;
-SEQ_ASCII _COMPO :: FILE './_COMPO_AT10_3x3_UOX_Gd_REFL_REFL' ;
+SEQ_ASCII _COMPO :: FILE '_COMPO_AT10_3x3_UOX_Gd' ;
 SEQ_ASCII FIG_main.ps :: FILE './FIG_main_SECT.ps' ;
-SEQ_ASCII FIG_SSH.ps :: FILE './FIG_mselfshielding.ps' ;
+SEQ_ASCII FIG_SSH.ps :: FILE './FIG_selfshielding.ps' ;
 
 SEQ_BINARY TF_EXC TF_EXC_SS ;
 
@@ -186,8 +186,7 @@ GEOM_3x3 := GEO: :: CAR2D 3 3
 LIBRARY := LIB: ::
     EDIT 0
     NMIX 150    ! MAXIMUM OF MATERIAL MIXTURES
-    PT
-    ANIS 2
+    ANIS 4
     ADED 4 NELAS N4N N2N N3N
     CALENDF 3 PT      ! CALENDF TYPE PROBABILITY TABLES
 
@@ -311,11 +310,11 @@ LIBRARY := LIB: ::
 * TRACKING PARAMTERES
 * ---
 
-INTEGER an2d := 24 ;  ! ANGULAR QUADRATURE PARAMETER 
-REAL densur := 75.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
+INTEGER an2d := 14 ;  ! ANGULAR QUADRATURE PARAMETER 
+REAL densur := 50.0 ; ! DENSITY OF INTEGRATION LINES CM^-1
 
 INTEGER an2d_ss := 8 ;  ! ANGULAR QUADRATURE PARAMETER 
-REAL densur_ss := 35.0 ; ! DENSITY OF INTEGRATION LINES CM^-1 
+REAL densur_ss := 15.0 ; ! DENSITY OF INTEGRATION LINES CM^-1 
 
 
 * polar angles for MCCGT:
@@ -334,7 +333,7 @@ TRACK TF_EXC := SALT: Geo_G2S ::
   EDIT 1
   ALLG
   BATCH 300
-  ANIS 2
+  ANIS 4
   TSPC EQW2 <<an2d>> <<densur>> REND LONG
 ;
 
@@ -342,7 +341,7 @@ TRACK TF_EXC := SALT: Geo_G2S ::
 * MOC tracking
 TRACK := MCCGT: TRACK TF_EXC ::
   EDIT 1
-  CACB <<nmu>> AAC 80 TMT EPSI 1E-5 MCU <<mcu>> ! tried CACB but is limited to isotropic ?
+  GAUS 4 AAC 80 TMT EPSI 1E-5 MCU <<mcu>> ! tried CACB but is limited to isotropic ?
 ;
 
 * ---
@@ -352,14 +351,14 @@ TRACK := MCCGT: TRACK TF_EXC ::
 TRACK_SS TF_EXC_SS := SALT: GeoSS_G2S ::
   EDIT 1
   BATCH 200
-  ANIS 2
+  ANIS 4
   TISO EQW <<an2d_ss>> <<densur_ss>>
   IC EPSJ 1.0E-4
 ;
 
-****************************************************************************************
-********************* BEGIN SELF-SHIELDING CALCULATION WITH USS/RSE ********************
-****************************************************************************************
+****************************************************************
+******* BEGIN SELF-SHIELDING CALCULATION WITH USS/RSE **********
+****************************************************************
 
 
 LIBRARY2 := USS: LIBRARY TRACK_SS TF_EXC_SS ::
@@ -374,14 +373,15 @@ FLUX := FLU: LIBRARY2 SYS TRACK TF_EXC ::
 GREP: FLUX :: GETVAL 'K-EFFECTIVE  ' 1 1 1 >>Kinf<< ;
 ECHO "SS tracking = SALT and FLX tracking = SALT TSPC, MOC on 2x2_UOX: Kinf=" Kinf ;
 
-**********************************************************************************************************
-********************          EXPORTS FOR POST-TREATMENT OF REACTION RATES               *****************
-**********************************************************************************************************
+**************************************************************************
+**********      EXPORTS FOR POST-TREATMENT OF REACTION RATES *************
+**************************************************************************
 COMPO := COMPO: ::
     EDIT 1
-    STEP UP 'HOM1g'
+    STEP UP 'HOM2g'
+     ISOT 2 U235 U238
      MAXCAL 5
-     COMM 'Reaction rates- Condensed, Cells' ENDC
+     COMM 'Reaction rates- Condensed to 2g, Homenized per pincell' ENDC
     INIT
   ;
 
@@ -390,21 +390,22 @@ COMPO := COMPO: ::
 *** Condense all rates on 1 group :
 EDIRATES := EDI: FLUX LIBRARY2 TRACK ::
             EDIT 1
+            MICR 2 U235 U238
             MERG MIX 
             1 1 1 1 
             2 2 2 2 
             3 3 3 3 
             4 4 4 4 
-            5 5 5 5 
-            6 6 6 6 6 6 
-            7 8 9
-            COND
-            SAVE ON HOM1g
+            6 6 6 6 
+            5 5 5 5 5 5 
+            0 0 0
+            COND 0.625
+            SAVE ON HOM2g
         ;
 
 COMPO := COMPO: COMPO EDIRATES LIBRARY2 ::
             EDIT 1
-            STEP UP 'HOM1g'
+            STEP UP 'HOM2g'
         ;
 
 EDIRATES := DELETE: EDIRATES ;

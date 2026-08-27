@@ -40,13 +40,13 @@ $[[$ \dstr{specif} $]]$ \\
 \noindent where
 \begin{ListeDeDescription}{mmmmmm}
 
-\item[\dusa{NAME1}] {\tt Character*12} name of a {\sc lcm} object.
+\item[\dusa{NAME1}] {\tt Character*12} name of a \dds{lcm} object.
 
-\item[\dusa{NAME2}] {\tt Character*12} name of an {\sc xsm} file.
+\item[\dusa{NAME2}] {\tt Character*12} name of an \dds{xsm} file.
 
 \item[\dusa{NAME3}] {\tt Character*12} name of a sequential binary file.
 
-\item[\dusa{NAME4}] {\tt Character*12} name of a sequential {\sc ascii} file.
+\item[\dusa{NAME4}] {\tt Character*12} name of a sequential \dds{ascii} file.
 
 \item[\dusa{NAME5}] {\tt Character*12} name of a module.
 
@@ -54,9 +54,9 @@ $[[$ \dstr{specif} $]]$ \\
 
 \end{ListeDeDescription}
 
-The input data always begins with the declaration of each {\sc lcm} object, {\sc xsm}
-file, sequential (binary or {\sc ascii}) file that will be required
-by the following modules. This is followed by the declaration of the modules actually used in the input data deck. The following data describes a sequence of module calls, in the format of the GAN generalized driver. As indicated in Fig.~\fig(trivac3), the modules communicate with each other through {\sc lcm} objects or {\sc xsm} files whose specifications are given in section 2. The TRIVAC user generally has the choice to declare its data structures as {\tt LINKED\_LIST} to reduce CPU time resources or as {\tt XSM\_FILE} to reduce CPU memory resources.
+The input data always begins with the declaration of each \dds{lcm} object, \dds{xsm}
+file, sequential (binary or \dds{ascii}) file that will be required
+by the following modules. This is followed by the declaration of the modules actually used in the input data deck. The following data describes a sequence of module calls, in the format of the GAN generalized driver. As indicated in Fig.~\fig(trivac3), the modules communicate with each other through \dds{lcm} objects or \dds{xsm} files whose specifications are given in section 2. The TRIVAC user generally has the choice to declare its data structures as {\tt LINKED\_LIST} to reduce CPU time resources or as {\tt XSM\_FILE} to reduce CPU memory resources.
 
 \vskip 0.2cm
 
@@ -71,13 +71,13 @@ The input data always ends with a call to the {\tt END:} module.
 \end{center} 
 \end{figure}
 
-\subsection{The {\tt GEO:} module}
+\subsection{The {\tt GEOD:} module}
 
-The {\tt GEO:} module is used to create or modify a geometry. The geometry definition module in TRIVAC permits all the characteristics (coordinates, material mixture type indices and boundary conditions) of a simple or complex geometry to be specified. The method used to specify the geometry is independent of the discretization module to be used subsequently. Each geometry is represented by a name ({\tt character*12}) and is saved in a {\sc lcm} object or an {\sc xsm} file under its given name. It is always possible to modify a given existing geometry or copy it into a neighbouring {\sc lcm} object under a new name. The calling specifications are:
+The {\tt GEOD:} module is used to create or modify a geometry. The geometry definition module in TRIVAC permits all the characteristics (coordinates, material mixture type indices and boundary conditions) of a simple or complex geometry to be specified. The method used to specify the geometry is independent of the discretization module to be used subsequently. Each geometry is represented by a name ({\tt character*12}) and is saved in a \dds{lcm} object or an \dds{xsm} file under its given name. It is always possible to modify a given existing geometry or copy it into a neighbouring \dds{lcm} object under a new name. The calling specifications are:
 
-\begin{DataStructure}{Structure \dstr{GEO:}}
-$\{$ \dusa{GEOM1} \moc{:=} \moc{GEO: ::} \dstr{geo\_data1} $|$ \\
-\dusa{GEOM1} \moc{:=} \moc{GEO:} $\{$ \dusa{GEOM1} $|$ \dusa{GEOM2} $\}$ \moc{::} \dstr{geo\_data2} $\}$
+\begin{DataStructure}{Structure \dstr{GEOD:}}
+$\{$ \dusa{GEOM1} \moc{:=} \moc{GEOD: ::} \dstr{geo\_data1} $|$ \\
+\dusa{GEOM1} \moc{:=} \moc{GEOD:} $\{$ \dusa{GEOM1} $|$ \dusa{GEOM2} $\}$ \moc{::} \dstr{geo\_data2} $\}$
 \end{DataStructure}
 
 \noindent
@@ -85,9 +85,9 @@ $\{$ \dusa{GEOM1} \moc{:=} \moc{GEO: ::} \dstr{geo\_data1} $|$ \\
 \noindent where
 \begin{ListeDeDescription}{mmmmmm}
 
-\item[\dusa{GEOM1}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_GEOM}) that will contain the geometry.
+\item[\dusa{GEOM1}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_GEOM}) that will contain the geometry.
 
-\item[\dusa{GEOM2}] {\tt character*12} name of a {\sc lcm} object (type {\tt L\_GEOM}) containing the existing geometry. The type and all the characteristics of \dusa{GEOM2} will be copied onto \dusa{GEOM1}.
+\item[\dusa{GEOM2}] {\tt character*12} name of a \dds{lcm} object (type {\tt L\_GEOM}) containing the existing geometry. The type and all the characteristics of \dusa{GEOM2} will be copied onto \dusa{GEOM1}.
 
 \item[\dstr{geo\_data1}] structure describing the characteristics of a new geometry (see Sect.~\ref{sect:geo_data1}).
 
@@ -97,7 +97,7 @@ $\{$ \dusa{GEOM1} \moc{:=} \moc{GEO: ::} \dstr{geo\_data1} $|$ \\
 
 \vskip 0.2cm
 
-\subsubsection{Data input for module {\tt GEO:}}\label{sect:geo_data1}
+\subsubsection{Data input for module {\tt GEOD:}}\label{sect:geo_data1}
 
 Structures \dstr{geo\_data1} and \dstr{geo\_data2} serve to define the
 principle components of a geometry (dimensions, materials, boundary
@@ -106,19 +106,15 @@ conditions):
 \begin{DataStructure}{Structure \dstr{geo\_data1}}
 $\{$ \moc{HOMOGE} $|$ \moc{CAR1D} \dusa{lx} $|$ \moc{TUBE} \dusa{lr} $|$ 
 \moc{SPHERE} \dusa{lr} $|$ \moc{CAR2D} \dusa{lx} \dusa{ly} $|$ \moc{TUBEZ} \dusa{lr} \dusa{lz} $|$ \moc{CAR3D} \dusa{lx} \dusa{ly} \dusa{lz} $|$ \\
-~~~~~~ \moc{HEX} \dusa{lh} $|$ \moc{HEXZ} \dusa{lh} \dusa{lz} $\}$ \\
+~~~~~~ \moc{HEX} \dusa{lh} $|$ \moc{HEXZ} \dusa{lh} \dusa{lz} $|$ \moc{MACRO} \dusa{lp} $\}$ \\
 $[$ \moc{EDIT} \dusa{iprint} $]$ \\
-\dstr{descBC} \\
-\dstr{descMC} \\
-\dstr{descPOS} \\
+$\{$ \dstr{descBC} \dstr{descMC} \dstr{descPOS} $|$ \dstr{descMACRO} $\}$
 ;
 \end{DataStructure}
 
 \begin{DataStructure}{Structure \dstr{geo\_data2}}
 $[$ \moc{EDIT} \dusa{iprint} $]$ \\
-\dstr{descBC} \\
-\dstr{descMC} \\
-\dstr{descPOS} \\
+$\{$ \dstr{descBC} \dstr{descMC} \dstr{descPOS} $|$ \dstr{descMACRO} $\}$
 ;
 \end{DataStructure}
 
@@ -156,15 +152,23 @@ mesh-splitting).
 
 \item[\dusa{lh}] number of hexagons in an axial plane (including the virtual hexagons).
 
+\item[\moc{MACRO}] keyword to specify that a {\sl do-it-yourself} type macro-geometry
+description follows.
+
+\item[\dusa{lp}] number of regions in the macro-geometry.
+
 \item[\moc{EDIT}] keyword used to set \dusa{iprint}.
 
-\item[\dusa{iprint}] index used to control the printing in module {\tt GEO:}. =0 for no print; =1 for minimum printing (default value); =2 for printing the geometry state vector.
+\item[\dusa{iprint}] index used to control the printing in module {\tt GEOD:}. =0 for no print; =1 for minimum printing (default value); =2 for printing the geometry state vector.
 
 \item[\dstr{descBC}] structure allowing the boundary conditions surrounding the geometry to be treated.
 
 \item[\dstr{descMC}] structure allowing material mixtures to be associated with a geometry.
 
 \item[\dstr{descPOS}] structure allowing the coordinates of a geometry to be described.
+
+\item[\dstr{descMACRO}] structure used to specify the properties of {\sl do-it-yourself}
+macro-geometries used by edition modules (see \Sect{descMACRO}).
 
 \end{ListeDeDescription}
 
@@ -506,6 +510,101 @@ thus, the limits that must be respected are the following:
 
 \end{itemize}
 
+\subsubsection{Do-it-yourself macro-geometry}\label{sect:descMACRO}
+
+This {\sl do-it-yourself} macro-geometry is an abstract representation of a 2D or 3D geometry adapted to a simple description of an edition geometry. These geometries cannot be used to perform a tracking using any module in Sects.~\ref{sect:bivact},~\ref{sect:trivact} or \ref{sect:nsst}. The \dusa{lp} regions are defined in sequential order and can be remixed using the \moc{REMIX} keyword to produce fewer mixtures than regions. Structure \dstr{descMACRO} is defined as
+
+\begin{DataStructure}{Structure \dstr{descMACRO}}
+\moc{REGIONS} $[[~\{$ \\
+\hskip 0.5cm \moc{RECT} \dusa{xm} \dusa{xp} \dusa{ym} \dusa{yp} $[$ \moc{AXIAL} \dusa{zm} \dusa{zp} $]~|$ \moc{TRIA} \dusa{x1} \dusa{y1} \dusa{x2} \dusa{y2} \dusa{x3} \dusa{y3} $[$ \moc{AXIAL} \dusa{zm} \dusa{zp} $]~|$ \\
+\hskip 0.5cm \moc{QUAD} \dusa{x1} \dusa{y1} \dusa{x2} \dusa{y2} \dusa{x3} \dusa{y3} \dusa{x4} \dusa{y4} $[$ \moc{AXIAL} \dusa{zm} \dusa{zp} $]~|$ \\
+\hskip 0.5cm \moc{HEXA} \dusa{x1} \dusa{y1} \dusa{x2} \dusa{y2} \dusa{x3} \dusa{y3} \dusa{x4} \dusa{y4} \dusa{x5} \dusa{y5} \dusa{x6} \dusa{y6} $[$ \moc{AXIAL} \dusa{zm} \dusa{zp} $]~|$ \\
+\hskip 0.5cm \moc{POLY} \dusa{ncorn} (\dusa{x}(i),\dusa{y}(i),i=1,\dusa{ncorn}) $[$ \moc{AXIAL} \dusa{zm} \dusa{zp} $]$ \\
+\hskip 1.35cm $\}~]]$ \\
+$[$ \moc{CENTER} \dusa{x0} \dusa{y0} $[$ $\{$ \moc{NONE} $|$ \moc{REFL} $|$ \moc{ROTA} $\}~]~]$ \\
+$[$ \moc{REMIX} (\dusa{ireg2}(ii),ii=1,\dusa{lp}) $]$
+\end{DataStructure}
+
+\noindent where
+\begin{ListeDeDescription}{mmmmmmm}
+
+\item[\dusa{lp}] number of homogeneous regions to be defined using \moc{RECT}, \moc{TRIA}, \moc{QUAD}, \moc{HEXA} and/or \moc{POLY} data structures. Many regions can be defined by
+repeating the \moc{RECT}, \moc{TRIA}, \moc{QUAD}, \moc{HEXA} and/or \moc{POLY} data structures.
+
+\item[\moc{REGIONS}] keyword used to specify a list of \dusa{lp} user-defined macro regions.
+
+\item[\moc{RECT}] keyword used to specify a unique region based on a rectangular node. 
+
+\item[\dusa{xm}] lower limit of the homogeneous node alonx X--axis.
+
+\item[\dusa{xp}] upper limit of the homogeneous node alonx X--axis.
+
+\item[\dusa{ym}] lower limit of the homogeneous node alonx Y--axis.
+
+\item[\dusa{yp}] upper limit of the homogeneous node alonx Y--axis.
+
+\item[\dusa{zm}] lower limit of the homogeneous node alonx Z--axis.
+
+\item[\dusa{zp}] upper limit of the homogeneous node alonx Z--axis.
+
+\item[\moc{TRIA}] keyword used to specify a unique region based on a triangular node.
+
+\item[\moc{QUAD}] keyword used to specify a unique region based on a quadrilateral node. In this case, the vertex list must be provided in clockwise or anticlockwise order.
+
+\item[\moc{HEXA}] keyword used to specify a unique region based on an hexagonal node. In this case, the vertex list must be provided in clockwise or anticlockwise order.
+
+\item[\dusa{x1}] X--coordinate of the first vertex.
+
+\item[\dusa{y1}] Y--coordinate of the first vertex.
+
+\item[\dusa{x2}] X--coordinate of the second vertex.
+
+\item[\dusa{y2}] Y--coordinate of the second vertex.
+
+\item[\dusa{x3}] X--coordinate of the third vertex.
+
+\item[\dusa{y3}] Y--coordinate of the third vertex.
+
+\item[\dusa{x4}] X--coordinate of the fourth vertex of a quadrilateral or hexagon.
+
+\item[\dusa{y4}] Y--coordinate of the fourth vertex of a quadrilateral or hexagon.
+
+\item[\dusa{x5}] X--coordinate of the fifth vertex of an hexagon.
+
+\item[\dusa{y5}] Y--coordinate of the fifth vertex of an hexagon.
+
+\item[\dusa{x6}] X--coordinate of the sixth vertex of an hexagon.
+
+\item[\dusa{y6}] Y--coordinate of the sixth vertex of an hexagon.
+
+\item[\moc{POLY}] keyword used to specify a unique region based on an arbitrary polygonal node. In this case, the vertex list must be provided in clockwise or anticlockwise order.
+
+\item[\dusa{ncorn}] number of vertices ($\ge 3$) defining the polygon.
+
+\item[\dusa{x}] X--coordinate of a vertex of the polygon.
+
+\item[\dusa{y}] Y--coordinate of a vertex of the polygon.
+
+\item[\moc{AXIAL}] keyword used to set \dusa{zm} and \dusa{zp} in 3D cases.
+
+\item[\moc{CENTER}] keyword used to specify the geometry center in the $X-Y$ plane. This keyword is useful to perform unfolding of a macro-geometry.
+
+\item[\dusa{x0}] center alonx X--axis.
+
+\item[\dusa{y0}] center alonx Y--axis.
+
+\item[\moc{NONE}] no symmetry and no unfolding is to be performed (default option).
+
+\item[\moc{REFL}] reflexion is assumed (adapted to S30 or SA60 symmetries).
+
+\item[\moc{ROTA}] rotation is assumed (adapted to RA60 or R120 symmetries).
+
+\item[\moc{REMIX}] some regions of the macro-geometry are merged according to \dusa{imix2} indices. By default, each region forms a mixture.
+
+\item[\dusa{imix2}] array of redefined mixture indices to which are associated the regions indices created {\sl after} the \moc{MACRO} definition. A value of \dusa{ireg2}=0 allows the corresponding region to be neglected.
+
+\end{ListeDeDescription}
+
 \vskip 0.2cm
 
 \subsubsection{Examples of geometries}
@@ -517,7 +616,7 @@ We will now give a few examples which will permit users to better understand the
 \item Slab geometry (see Fig. \fig(plaque)):
 
 \begin{verbatim}
-GEOMETRY1 := GEO: :: CAR1D 6
+GEOMETRY1 := GEOD: :: CAR1D 6
  X- VOID X+ ALBE 1.2
  MESHX 0.0 0.1 0.3 0.5 0.6 0.8 1.0
  SPLITX 2 2 2 1 2 1
@@ -537,7 +636,7 @@ GEOMETRY1 := GEO: :: CAR1D 6
 \item Two-dimensional hexagonal geometry (see Fig. \fig(hexcel)):
 
 \begin{verbatim}
-GEOMETRY4 := GEO: :: HEX 12
+GEOMETRY4 := GEOD: :: HEX 12
  HBC S30 ALBE 1.6
  SIDE 1.3
  MIX 1 1 1 2 2 2 3 3 3 4 5 6
@@ -569,13 +668,13 @@ In TRIVAC the macroscopic cross sections and diffusion coefficients are read fro
 
 \begin{ListeDeDescription}{mmmmmm}
 
-\item[\dusa{MACR1}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_MACROLIB}) containing the new Macrolib
+\item[\dusa{MACR1}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_MACROLIB}) containing the new Macrolib
 produced by the module. A Macrolib contains macroscopic cross sections and diffusion coefficients.
 If \dusa{MACR1} appears on both LHS and RHS, it is updated; otherwise, it is
 created. If \dusa{MACR1} is created, all macroscopic cross sections and
 diffusion coefficients are first initialized to zero.
 
-\item[\dusa{MACR2}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_MACROLIB}) containing a read-only
+\item[\dusa{MACR2}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_MACROLIB}) containing a read-only
 Macrolib. The information existing in \dusa{MACR2} is copied into \dusa{MACR1}, but \dusa{MACR2} is not modified.
 
 \item[\dstr{mac\_data}] structure containing the data to module {\tt MAC:} (see Sect.~\ref{sect:mac_data}).
@@ -856,7 +955,7 @@ SCAT  (*L=0*) 2 2 (*2->1*) 0.03 (*1->1*) 0.50
 
 \subsection{The {\tt BIVACT:} module}\label{sect:bivact}
 
-The {\tt BIVACT:} module is used to perform  a BIVAC-type {\sc tracking} on a 1D/2D geometry.\cite{bivac,benaboud,SVAT1}
+The {\tt BIVACT:} module is used to perform  a BIVAC-type \dds{tracking} on a 1D/2D geometry.\cite{bivac,benaboud,SVAT1}
 The geometry is analyzed and a LCM object with signature {\tt L\_BIVAC} is created with the following information:
 \begin{itemize}
 \item Diagonal and hexagonal symmetries are unfolded and the mesh-splitting operations are performed. Volumes, material mixture and averaged flux recovery indices are computed on the resulting geometry.
@@ -874,9 +973,9 @@ The calling specifications are:
 \noindent where
 \begin{ListeDeDescription}{mmmmmm}
 
-\item[\dusa{TRACK}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_BIVAC}) containing the {\sc tracking} information. If \dusa{TRACK} appears on the RHS, the previous settings will be applied by default.
+\item[\dusa{TRACK}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_BIVAC}) containing the \dds{tracking} information. If \dusa{TRACK} appears on the RHS, the previous settings will be applied by default.
 
-\item[\dusa{GEOM}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_GEOM}) containing the geometry.
+\item[\dusa{GEOM}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_GEOM}) containing the geometry.
 
 \item[\dstr{bivact\_data}] structure containing the data to module {\tt BIVACT:} (see Sect.~\ref{sect:bivact_data}).
 
@@ -916,7 +1015,7 @@ title may contain up to 72 characters. The default when \moc{TITL} is not specif
 
 \item[\dusa{maxpts}] maximum dimensions of the problem to be considered.  The
 default value is set to the number of regions previously computed by the {\tt
-GEO:} module but this value is insufficient if symmetries or mesh-splitting
+GEOD:} module but this value is insufficient if symmetries or mesh-splitting
 are specified.
 
 \item[\moc{PRIM}] keyword to set a primal finite element (classical)
@@ -992,9 +1091,9 @@ Various finite element approximations can be obtained by combining different val
 \end{itemize}
 \clearpage
 
-\subsection{The {\tt TRIVAT:} module}
+\subsection{The {\tt TRIVAT:} module}\label{sect:trivact}
 
-The {\tt TRIVAT:} module is used to perform a TRIVAC-type {\sc tracking} on a
+The {\tt TRIVAT:} module is used to perform a TRIVAC-type \dds{tracking} on a
 1D/2D/3D geometry.\cite{SVAT1,SVAT2,MCFD,Trivac,mixte-dual,benaboud} The
 geometry is analyzed and a LCM object with signature {\tt L\_TRIVAC} is
 created with the following information:
@@ -1018,11 +1117,11 @@ The calling specifications are:
 \noindent where
 \begin{ListeDeDescription}{mmmmmm}
 
-\item[\dusa{TRACK}] {\tt character*12} of the {\sc lcm} object (type {\tt L\_TRIVAC}) 
-containing the {\sc tracking} information. If \dusa{TRACK} appears on the RHS, the
+\item[\dusa{TRACK}] {\tt character*12} of the \dds{lcm} object (type {\tt L\_TRIVAC}) 
+containing the \dds{tracking} information. If \dusa{TRACK} appears on the RHS, the
 previous settings will be applied by default.
 
-\item[\dusa{GEOM}] {\tt character*12} of the {\sc lcm} object (type {\tt
+\item[\dusa{GEOM}] {\tt character*12} of the \dds{lcm} object (type {\tt
 L\_GEOM}) containing the geometry.
 
 \item[\dstr{trivat\_data}] structure containing  the data to module {\tt TRIVAT:} (see Sect.~\ref{sect:trivat_data}).
@@ -1062,7 +1161,7 @@ title may contain up to 72 characters. The default when \moc{TITL} is not specif
 
 \item[\dusa{maxpts}] maximum dimensions of the problem to be considered.  The
 default value is set to the number of regions previously computed by the {\tt
-GEO:} module but this value is insufficient if symmetries or mesh-splitting
+GEOD:} module but this value is insufficient if symmetries or mesh-splitting
 are specified.
 
 \item[\moc{PRIM}] keyword to set a discretization based on the variational collocation method.
@@ -1140,7 +1239,7 @@ Various finite element approximations can be obtained with different values of \
 
 \subsection{The {\tt BIVACA:} module}
 
-The {\tt BIVACA:} module is used to compute the finite element system matrices (type {\tt L\_SYSTEM}) corresponding to a BIVAC {\sc tracking} (type {\tt L\_BIVAC}) and to a set of nuclear properties (type {\tt L\_MACROLIB}). The calling specifications are:
+The {\tt BIVACA:} module is used to compute the finite element system matrices (type {\tt L\_SYSTEM}) corresponding to a BIVAC \dds{tracking} (type {\tt L\_BIVAC}) and to a set of nuclear properties (type {\tt L\_MACROLIB}). The calling specifications are:
 
 \begin{DataStructure}{Structure \dstr{BIVACA:}}
 \dusa{SYST} \moc{:=} \moc{BIVACA:} $[$ \dusa{SYST} $]$ \dusa{MACRO}  \dusa{TRACK} \moc{::} \dstr{bivaca\_data}
@@ -1149,11 +1248,11 @@ The {\tt BIVACA:} module is used to compute the finite element system matrices (
 \noindent where
 \begin{ListeDeDescription}{mmmmmm}
 
-\item[\dusa{SYST}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_SYSTEM}) containing the system matrices. If \dusa{SYST} appears on the RHS, the system matrices previously stored in \dusa{SYST} are kept.
+\item[\dusa{SYST}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_SYSTEM}) containing the system matrices. If \dusa{SYST} appears on the RHS, the system matrices previously stored in \dusa{SYST} are kept.
 
-\item[\dusa{MACRO}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_MACROLIB}) containing the macroscopic cross sections and diffusion coefficients.
+\item[\dusa{MACRO}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_MACROLIB}) containing the macroscopic cross sections and diffusion coefficients.
 
-\item[\dusa{TRACK}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_BIVAC}) containing the BIVAC {\sc tracking}.
+\item[\dusa{TRACK}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_BIVAC}) containing the BIVAC \dds{tracking}.
 
 \item[\dstr{bivaca\_data}] structure containing the data to module {\tt BIVACA:} (see Sect.~\ref{sect:bivaca_data}).
 
@@ -1186,7 +1285,7 @@ and~\ref{sect:kinsol}).
 
 \subsection{The {\tt TRIVAA:} module}
 
-The TRIVAA: module is used to compute the finite element system matrices (type {\tt L\_SYSTEM}) corresponding to a TRIVAC {\sc tracking} (type {\tt L\_TRIVAC}) and to a set of nuclear properties (type {\tt L\_MACROLIB}). The calling specifications are:
+The TRIVAA: module is used to compute the finite element system matrices (type {\tt L\_SYSTEM}) corresponding to a TRIVAC \dds{tracking} (type {\tt L\_TRIVAC}) and to a set of nuclear properties (type {\tt L\_MACROLIB}). The calling specifications are:
 
 \begin{DataStructure}{Structure \dstr{TRIVAA:}}
 \dusa{SYST} \moc{:=} \moc{TRIVAA:} $[$ \dusa{SYST} $]$ \dusa{MACRO}  \dusa{TRACK} $[$ \dusa{DMACRO} $]$ \moc{::} \dstr{trivaa\_data}
@@ -1195,13 +1294,13 @@ The TRIVAA: module is used to compute the finite element system matrices (type {
 \noindent where
 \begin{ListeDeDescription}{mmmmmm}
 
-\item[\dusa{SYST}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_SYSTEM}) containing the system matrices. If \dusa{SYST} appears on the RHS, the system matrices previously stored in \dusa{SYST} are kept.
+\item[\dusa{SYST}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_SYSTEM}) containing the system matrices. If \dusa{SYST} appears on the RHS, the system matrices previously stored in \dusa{SYST} are kept.
 
-\item[\dusa{MACRO}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_MACROLIB}) containing the macroscopic cross sections and diffusion coefficients.
+\item[\dusa{MACRO}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_MACROLIB}) containing the macroscopic cross sections and diffusion coefficients.
 
-\item[\dusa{TRACK}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_TRIVAC}) containing the TRIVAC {\sc tracking}.
+\item[\dusa{TRACK}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_TRIVAC}) containing the TRIVAC \dds{tracking}.
 
-\item[\dusa{DMACRO}] {\tt character*12} name of the {\sc lcm} object  (type {\tt
+\item[\dusa{DMACRO}] {\tt character*12} name of the \dds{lcm} object  (type {\tt
 L\_MACROLIB}) containing derivatives or perturbations of the macroscopic cross
 sections and diffusion coefficients. If \dusa{DMACRO} is given, only
 the derivatives or perturbations of the system matrices are computed.
@@ -1244,7 +1343,7 @@ are computed.
 the system matrices in \dusa{SYST} are going to be used by \moc{INIKIN:} or \moc{KINSOL:} modules (see Sects.~\ref{sect:inikin}
 and~\ref{sect:kinsol}).
 
-\item[\moc{OVEL}] The reciprocal neutron velocities for each material mixture are recovered from the input {\sc macrolib} \dusa{MACRO} and used
+\item[\moc{OVEL}] The reciprocal neutron velocities for each material mixture are recovered from the input \dds{macrolib} \dusa{MACRO} and used
 to compute the corresponding system matrices. This capability is deprecated.
 
 \end{ListeDeDescription}
@@ -1261,15 +1360,15 @@ The {\tt FLUD:} module is used to compute the solution to an eigenvalue problem 
 \noindent where
 \begin{ListeDeDescription}{mmmmmm}
 
-\item[\dusa{FLUX}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_FLUX}) containing the solution. If \dusa{FLUX} appears on the RHS, the solution previously stored in \dusa{FLUX} is used to initialize the new iterative process; otherwise, a uniform unknown vector is used.
+\item[\dusa{FLUX}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_FLUX}) containing the solution. If \dusa{FLUX} appears on the RHS, the solution previously stored in \dusa{FLUX} is used to initialize the new iterative process; otherwise, a uniform unknown vector is used.
 
-\item[\dusa{SYST}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_SYSTEM}) containing the system matrices.
+\item[\dusa{SYST}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_SYSTEM}) containing the system matrices.
 
-\item[\dusa{TRACK}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_TRACK}) containing the {\sc tracking}.
+\item[\dusa{TRACK}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_TRACK}) containing the \dds{tracking}.
 
-\item[\dusa{MACRO}] {\tt character*12} name of the optional {\sc lcm} object (type {\tt L\_MACROLIB}) containing the cross sections. This
-object is only used to set a link to the {\sc macrolib} name inside the {\sc flux} object. By default, the name of the {\sc macrolib} is recovered
-from the link in the {\sc system} object.
+\item[\dusa{MACRO}] {\tt character*12} name of the optional \dds{lcm} object (type {\tt L\_MACROLIB}) containing the cross sections. This
+object is only used to set a link to the \dds{macrolib} name inside the \dds{flux} object. By default, the name of the \dds{macrolib} is recovered
+from the link in the \dds{system} object.
 
 \item[\dstr{flud\_data}] structure containing the data to module {\tt FLUD:} (see Sect.~\ref{sect:fld_data}).
 
@@ -1361,7 +1460,7 @@ value (e.g., $nadi=20$) leads to numerical results identical to those of the
 inverse power method where the system matrices are accurately inverted at each
 outer iteration (at a prohibitive CPU cost). In this case, the ACC is almost
 equal to the dominance ratio of the iterative matrix. The default value is
-recovered in the state vector of the {\sc tracking} object \dusa{TRACK}.
+recovered in the state vector of the \dds{tracking} object \dusa{TRACK}.
 
 \item[\moc{ADJ}] keyword used to obtain the solution to both the direct and adjoint eigenvalue problems.
 The adjoint solution is required if we subsequently want to perform a perturbation calculation. This option is limited to Trivac.
@@ -1412,16 +1511,16 @@ The calling specifications are:
 
 \begin{ListeDeDescription}{mmmmmm}
 
-\item[\dusa{GPT}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_SOURCE}) containing the fixed source. If
+\item[\dusa{GPT}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_SOURCE}) containing the fixed source. If
 \dusa{GPT} appears on the RHS, this information is used to initialize the state vector.
 
-\item[\dusa{FLUX0}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_FLUX}) containing the unperturbed flux.
+\item[\dusa{FLUX0}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_FLUX}) containing the unperturbed flux.
 
-\item[\dusa{SYST0}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_SYSTEM}) containing the unperturbed system matrices.
+\item[\dusa{SYST0}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_SYSTEM}) containing the unperturbed system matrices.
 
-\item[\dusa{DSYST}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_SYSTEM}) containing a perturbation to the system matrices.
+\item[\dusa{DSYST}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_SYSTEM}) containing a perturbation to the system matrices.
 
-\item[\dusa{TRACK}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_TRACK}) containing the {\sc tracking}.
+\item[\dusa{TRACK}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_TRACK}) containing the \dds{tracking}.
 
 \item[\dstr{delta\_data}] structure containing the data to module {\tt DELTA:} (see Sect.~\ref{sect:delta_data}).
 
@@ -1479,15 +1578,15 @@ The calling specifications are:
 
 \begin{ListeDeDescription}{mmmmmm}
 
-\item[\dusa{FLUX\_GPT}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_FLUX}) containing the GPT solution. If \dusa{FLUX\_GPT} appears on the RHS, the solution previously stored in \dusa{FLUX\_GPT} is used to initialize the new iterative process; otherwise, a uniform unknown vector is used.
+\item[\dusa{FLUX\_GPT}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_FLUX}) containing the GPT solution. If \dusa{FLUX\_GPT} appears on the RHS, the solution previously stored in \dusa{FLUX\_GPT} is used to initialize the new iterative process; otherwise, a uniform unknown vector is used.
 
-\item[\dusa{GPT}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_SOURCE}) containing the fixed sources.
+\item[\dusa{GPT}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_SOURCE}) containing the fixed sources.
 
-\item[\dusa{FLUX0}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_FLUX}) containing the unperturbed flux used to decontaminate the GPT solution.
+\item[\dusa{FLUX0}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_FLUX}) containing the unperturbed flux used to decontaminate the GPT solution.
 
-\item[\dusa{SYST}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_SYSTEM}) containing the unperturbed system matrices.
+\item[\dusa{SYST}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_SYSTEM}) containing the unperturbed system matrices.
 
-\item[\dusa{TRACK}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_TRACK}) containing the {\sc tracking}.
+\item[\dusa{TRACK}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_TRACK}) containing the \dds{tracking}.
 
 \item[\dstr{gptflu\_data}] structure containing the data to module {\tt GPTFLU:}\label{sect:gptflu_data}.
 
@@ -1582,28 +1681,35 @@ equal to the dominance ratio of the iterative matrix.
 
 \subsection{The {\tt OUT:} module}
 
-The {\tt OUT:} module is used to compute the reaction rates and to store them in an extended {\sc macrolib} (type {\tt L\_MACROLIB}) corresponding to a solution (type {\tt L\_FLUX}) of the matrix system. The calling specifications are:
+The {\tt OUT:} module is used to compute the reaction rates and to store them in an extended \dds{macrolib} (type {\tt L\_MACROLIB}) corresponding to a solution (type {\tt L\_FLUX}) of the matrix system. The calling specifications are:
 
 \begin{DataStructure}{Structure \dstr{OUT:}}
-\dusa{MACRO2} \moc{:=} \moc{OUT:} $[$ \dusa{MACRO2} $]~\{$ \dusa{FLUX} $|$  \dusa{IFLU} $\}$ \dusa{TRACK} \dusa{MACRO} \dusa{GEOM} \moc{::} \dstr{out\_data}
+\dusa{MACRO2} \moc{:=} \moc{OUT:} $[$ \dusa{MACRO2} $]$ \dusa{TRACK} \dusa{MACRO} \dusa{REFGEO} $\{$ \dusa{FLUX} $|$ \dusa{IFLU} \dusa{MACGEO} $\}$ \\
+\hskip 0.5cm $~[$ \dusa{MATEX} $]$ \\
+\hskip 0.5cm \moc{::} \dstr{out\_data}
 \end{DataStructure}
 
 \noindent where
 \begin{ListeDeDescription}{mmmmmm}
 
-\item[\dusa{MACRO2}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_MACROLIB}) containing the extended {\sc macrolib}.
+\item[\dusa{MACRO2}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_MACROLIB}) containing the extended \dds{macrolib}.
 
-\item[\dusa{FLUX}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_FLUX}) containing a solution.
+\item[\dusa{TRACK}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_TRACK}) containing a \dds{tracking}.
 
-\item[\dusa{IFLU}] {\tt character*12} name of the \dds{interpflux} data structure ({\tt L\_FVIEW} signature) where the
-interpolated flux distribution will be stored. This file is required if and only if the keyword \moc{VAL}
-is set in data structure \dstr{out\_data}.
+\item[\dusa{MACRO}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_MACROLIB}) containing the reference \dds{macrolib}.
 
-\item[\dusa{TRACK}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_TRACK}) containing a {\sc tracking}.
+\item[\dusa{REFGEO}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_GEOM}) containing the reference \dds{geometry}.
 
-\item[\dusa{MACRO}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_MACROLIB}) containing the reference {\sc macrolib}.
+\item[\dusa{FLUX}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_FLUX}) containing a solution.
 
-\item[\dusa{GEOM}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_GEOM}) containing the reference {\sc geometry}.
+\item[\dusa{IFLU}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_FVIEW}) where the
+interpolated flux distribution is recovered. This \dds{lcm} object is required if and only if the keyword \moc{VAL}
+is set in data structure \dstr{out\_data} of Sect.~\ref{sect:out_data}.
+
+\item[\dusa{MACGEO}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_GEOM}) containing the macro-\dds{geometry} used
+with the \moc{INTG} \moc{VAL} option. This information is described in Sect.~\ref{sect:descMACRO}.
+
+\item[\dusa{MATEX}] {\tt character*12} name of the optional \dds{lcm} object (type {\tt L\_MATEX}) created by DONJON.
 
 \item[\dstr{out\_data}] structure containing the data to module {\tt OUT:}\label{sect:out_data}.
 
@@ -1619,12 +1725,12 @@ $[$ \moc{MODE} \dusa{imode} $]$ \\
 $[~\{$ \moc{DIRE} $|$ \moc{PROD} $\}~]$ \\
 $[~\{$ \moc{POWR} \dusa{power} $|$ \moc{FISS} \dusa{number} $|$ \moc{SOUR} \dusa{snumb} $\}~]$ \\
 $[$ \moc{COND} $[~\{$ \moc{NONE} $|$ (\dusa{icond}(i), i=1,ngcond) $\}~]~]$ \\
-$[$ \moc{INTG} $\{$ \moc{NONE} $|$ \moc{IN} $|$ \moc{MIX} $|$ (\dusa{ihom}(i), i=1,nreg) $|$ \\
-\hskip 0.5cm \moc{VAL} \dusa{nhom} $[[$ \moc{RECT} \dusa{xm} \dusa{xp} \dusa{ym} \dusa{yp} $[$ \moc{AXIAL} \dusa{zm} \dusa{zp} $]~]]~[[$ \moc{TRIA} \dusa{x1} \dusa{y1} \dusa{x2} \dusa{y2} \dusa{x3} \dusa{y3} $[$ \moc{AXIAL} \dusa{zm} \dusa{zp} $]~]]$ \\
-\hskip 0.5cm $[[$ \moc{QUAD} \dusa{x1} \dusa{y1} \dusa{x2} \dusa{y2} \dusa{x3} \dusa{y3} \dusa{x4} \dusa{y4} $[$ \moc{AXIAL} \dusa{zm} \dusa{zp} $]~]]~[$ \moc{REMIX} (\dusa{imix2}(ii),ii=1,nhom) $]~\}~]$ \\
+$[$ \moc{INTG} $\{$ \moc{NONE} $|$ \moc{COMP} $|$ \moc{MATX} $|$ \moc{IN} $|$ \moc{MIX} $|$ (\dusa{ihom}(i), i=1,nreg) $|$
+\moc{VAL} \dusa{MACGEO}~$\}~]$ \\
+$[$ \moc{PKIN} $]$ \\
 ;
 \end{DataStructure}
-
+\goodbreak
 \noindent where
 \begin{ListeDeDescription}{mmmmmm}
 
@@ -1665,6 +1771,10 @@ and \dusa{icond} is not set, all energy groups are condensed together.
 \item[\moc{NONE}] keyword to specify that no group condensation of the flux is
 to be performed, so that \dusa{ngcond}$=$\dusa{ngroup} (default option).
 
+\item[\moc{COMP}] keyword used to specify that a complete homogenization is to take place. 
+
+\item[\moc{MATX}] keyword for computing the reaction rates on the geometry mesh before the {\tt USPLIT:} module was called in DONJON. In this case, the RHS object \dusa{MATEX} must be provided.
+
 \item[\moc{INTG}] keyword used to compute the reaction rates.
 
 \item[\moc{NONE}] keyword for computing the reaction rates on the geometry mesh (see Sect.~\ref{sect:geo_data1}) after mesh-splitting.
@@ -1675,59 +1785,17 @@ to be performed, so that \dusa{ngcond}$=$\dusa{ngroup} (default option).
 
 \item[\dusa{ihom}] index of the homogenized region corresponding to the each region of the geometry (see Sect.~\ref{sect:geo_data1}) before mesh-splitting.
 
-\item[\moc{VAL}] keyword used to specify that the homogenization will be based on the voxel information available in the \dds{interpflux} data structure \dusa{IFLU}. For
+\item[\moc{VAL}] keyword used to specify that the homogenization will be based on the voxel information available in the data structure named \dusa{IFLU} ({\tt L\_FVIEW} signature) and macrogeometry information available in the data structure named \dusa{MACGEO} ({\tt L\_GEOM} signature). For
 hexagonal geometries, the origin of the radial plane is the center of the central hexagon.
 
-\item[\dusa{nhom}] number of homogeneous nodes to be defined using \moc{RECT} and/or \moc{TRIA} and/or \moc{QUAD} data structures. Many homogeneous mixtures can be defined by
-repeating the \moc{RECT} and/or \moc{TRIA} and/or \moc{QUAD} data structures.
-
-\item[\moc{RECT}] keyword used to specify a unique homogeneous mixture based on a rectangular node. 
-
-\item[\dusa{xm}] lower limit of the homogeneous node alonx X--axis.
-
-\item[\dusa{xp}] upper limit of the homogeneous node alonx X--axis.
-
-\item[\dusa{ym}] lower limit of the homogeneous node alonx Y--axis.
-
-\item[\dusa{yp}] upper limit of the homogeneous node alonx Y--axis.
-
-\item[\dusa{zm}] lower limit of the homogeneous node alonx Z--axis.
-
-\item[\dusa{zp}] upper limit of the homogeneous node alonx Z--axis.
-
-\item[\moc{TRIA}] keyword used to specify a unique homogeneous mixture based on a triangular node.
-
-\item[\moc{QUAD}] keyword used to specify a unique homogeneous mixture based on a quadrilateral node. In this case, the corner list must be provided in clockwise or anticlockwise order.
-
-\item[\dusa{x1}] X--coordinate of the first corner.
-
-\item[\dusa{y1}] Y--coordinate of the first corner.
-
-\item[\dusa{x2}] X--coordinate of the second corner.
-
-\item[\dusa{y2}] Y--coordinate of the second corner.
-
-\item[\dusa{x3}] X--coordinate of the third corner.
-
-\item[\dusa{y3}] Y--coordinate of the third corner.
-
-\item[\dusa{x4}] X--coordinate of the fourth corner of a quadrilateral.
-
-\item[\dusa{y4}] Y--coordinate of the fourth corner of a quadrilateral.
-
-\item[\moc{AXIAL}] keyword used to set \dusa{zm} and \dusa{zp} in 3D cases.
-
-\item[\moc{REMIX}] the homogenization produced by option \moc{VAL} is further homogenized according to \dusa{imix2} indices.
-
-\item[\dusa{imix2}] array of rehomogenized region numbers to which are associated the regions indices created {\sl after} the \moc{VAL} homogenization
-was performed. In the editing routines a value of \dusa{imix2}=0 allows the corresponding region to be neglected.
+\item[\moc{PKIN}] keyword used to compute point kinetics parameters for the full core. This option activates option \moc{PROD} and requires an adjoint flux solution.
 
 \end{ListeDeDescription}
 \clearpage
 
 \subsection{The {\tt ERROR:} module}
 
-The {\tt ERROR:} module is used to compare reaction rates contained into two extended {\sc macrolibs} and to print statistics regarding the comparison.
+The {\tt ERROR:} module is used to compare reaction rates contained into two extended \dds{macrolibs} and to print statistics regarding the comparison.
 
 \vskip 0.2cm
 
@@ -1761,7 +1829,7 @@ $$\epsilon_{{\rm max} \ g}=\max_i {|T_{i,g}^{\rm norm}-T_{i,g}^{{\rm norm}*}| \o
 
 $$\bar\epsilon_g = {1 \over N} \sum_i \left[ {|T_{i,g}^{\rm norm}-T_{i,g}^{{\rm norm}*}| \over T_{i,g}^{{\rm norm}*}}\right]$$
 
-\noindent where $T_{i,g}^{{\rm norm}*}$ is computed using the reference values (stored in \dusa{MACRO1}) and $N$ is the total number of regions in the {\sc macrolib}.
+\noindent where $T_{i,g}^{{\rm norm}*}$ is computed using the reference values (stored in \dusa{MACRO1}) and $N$ is the total number of regions in the \dds{macrolib}.
 
 \vskip 0.2cm
 \goodbreak
@@ -1775,9 +1843,9 @@ The calling specifications are:
 \noindent where
 \begin{ListeDeDescription}{mmmmmm}
 
-\item[\dusa{MACRO1}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_MACROLIB}) containing the extended {\sc macrolib} used to compute the reference reaction rates.
+\item[\dusa{MACRO1}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_MACROLIB}) containing the extended \dds{macrolib} used to compute the reference reaction rates.
 
-\item[\dusa{MACRO2}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_MACROLIB}) containing the extended {\sc macrolib} used to compute the approximate reaction rates.
+\item[\dusa{MACRO2}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_MACROLIB}) containing the extended \dds{macrolib} used to compute the approximate reaction rates.
 
 \item[\moc{HREA}] keyword used to set the character name \dusa{hname}.
 
@@ -1793,7 +1861,7 @@ The calling specifications are:
 \subsection{The {\tt INIKIN:} module}\label{sect:inikin}
 
 The {\tt INIKIN:} module is used  to recover the steady-state solution and to initialize the kinetics parameters.
-The delayed neutron information can be provided directly from the input file or recovered from the {\sc macrolib}
+The delayed neutron information can be provided directly from the input file or recovered from the \dds{macrolib}
 data structure.
 
 The initial presursor concentrations are obtained as a function of the strady-state solution. If $\phi_g(\bff(r),t_0)$ is
@@ -1815,16 +1883,16 @@ The calling specifications are:
 \noindent where
 \begin{ListeDeDescription}{mmmmmm}
 
-\item[\dusa{KINET}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_KINET}) to be created by the module.
+\item[\dusa{KINET}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_KINET}) to be created by the module.
 
-\item[\dusa{MACRO}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_MACROLIB}) containing the {\sc macrolib} information.
+\item[\dusa{MACRO}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_MACROLIB}) containing the \dds{macrolib} information.
 
-\item[\dusa{TRACK}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_TRACK}) containing the {\sc tracking} information.
+\item[\dusa{TRACK}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_TRACK}) containing the \dds{tracking} information.
 
-\item[\dusa{SYST}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_SYSTEM}) corresponding to {\sc macrolib} \dusa{MACRO}
-and {\sc tracking} \dusa{TRACK}.
+\item[\dusa{SYST}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_SYSTEM}) corresponding to \dds{macrolib} \dusa{MACRO}
+and \dds{tracking} \dusa{TRACK}.
 
-\item[\dusa{FLUX}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_FLUX}) containing the initial steady-state solution.
+\item[\dusa{FLUX}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_FLUX}) containing the initial steady-state solution.
 
 \item[\dstr{inikin\_data}] structure containing the data to module {\tt INIKIN:} (see Sect.~\ref{sect:inikin_data}).
 
@@ -1864,17 +1932,17 @@ will produce increasing amounts of output.
 \item[\dusa{ndg}] integer total number of the delayed neutron groups.
 
 \item[\moc{BETA}] keyword used to indicate the reading of \dusa{beta} values from the input file.
-If these values are not provided, they should be recorded in the {\sc macrolib} data structure.
+If these values are not provided, they should be recorded in the \dds{macrolib} data structure.
 
 \item[\dusa{beta}] real array containing the delayed neutron fractions for each delayed group.
 
 \item[\moc{LAMBDA}] keyword used to indicate the reading of \dusa{lambda} values from the input file.
-If these values are not provided, they should be recorded in the {\sc macrolib} data structure.
+If these values are not provided, they should be recorded in the \dds{macrolib} data structure.
 
 \item[\dusa{lambda}] real array containing the precursors decay constants for each delayed group.
 
 \item[\moc{CHID}] keyword used to indicate the reading of \dusa{chid} values from the input file.
-If these values are not provided, they should be recorded in the {\sc macrolib} data structure.
+If these values are not provided, they should be recorded in the \dds{macrolib} data structure.
 
 \item[\dusa{chid}] real array representing the delayed multigroup fission spectrum.
 
@@ -2025,23 +2093,23 @@ The calling specifications are:
 \noindent where
 \begin{ListeDeDescription}{mmmmmm}
 
-\item[\dusa{KINET}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_KINET}) in modification mode.
+\item[\dusa{KINET}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_KINET}) in modification mode.
 
-\item[\dusa{MACRO}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_MACROLIB}) containing the {\sc macrolib}
+\item[\dusa{MACRO}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_MACROLIB}) containing the \dds{macrolib}
 information corresponding to the current time step of a transient.
 
-\item[\dusa{TRACK}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_TRACK}) containing the {\sc tracking} information.
+\item[\dusa{TRACK}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_TRACK}) containing the \dds{tracking} information.
 
-\item[\dusa{SYST}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_SYSTEM}) corresponding to {\sc macrolib} \dusa{MACRO}
-and {\sc tracking} \dusa{TRACK}.
+\item[\dusa{SYST}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_SYSTEM}) corresponding to \dds{macrolib} \dusa{MACRO}
+and \dds{tracking} \dusa{TRACK}.
 
-\item[\dusa{MACRO\_0}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_MACROLIB}) containing the {\sc macrolib}
+\item[\dusa{MACRO\_0}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_MACROLIB}) containing the \dds{macrolib}
 information corresponding to the beginning-of-step conditions in case a ramp variation of the cross sections in set.
 {\sl Beginning-of-step conditions should not be confused with beginning-of-transient or initial conditions.} By default,
 a step variation is set where cross sections are assumed constant and given by \dusa{MACRO}.
 
-\item[\dusa{SYST\_0}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_SYSTEM}) corresponding to {\sc macrolib} \dusa{MACRO\_0}
-and {\sc tracking} \dusa{TRACK}.
+\item[\dusa{SYST\_0}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_SYSTEM}) corresponding to \dds{macrolib} \dusa{MACRO\_0}
+and \dds{tracking} \dusa{TRACK}.
 
 \item[\dstr{kinsol\_data}] structure containing the data to module {\tt KINSOL:} (see Sect.~\ref{sect:kinsol_data}).
 
@@ -2153,7 +2221,7 @@ value (e.g., $nadi=20$) leads to numerical results identical to those obtained b
 inverting the system matrices at each
 outer iteration (at a prohibitive CPU cost). In this case, the ACC is almost
 equal to the dominance ratio of the iterative matrix. The default value is
-recovered in the state vector of the {\sc tracking} object \dusa{TRACK}.
+recovered in the state vector of the \dds{tracking} object \dusa{TRACK}.
 
 \item[\moc{ADJ}] keyword used to perform an adjoint (backward) space-time kinetics calculation. By default, a direct (forward) space-time kinetics calculation
 is performed.
@@ -2180,7 +2248,7 @@ methods. The calling specifications are:
 where
 \begin{ListeDeDescription}{mmmmmmmm}
 
-\item[\dusa{IFLU}] {\tt character*12} name of the \dds{interpflux} data
+\item[\dusa{IFLU}] {\tt character*12} name of the data
 structure ({\tt L\_FVIEW} signature) where the interpolated flux distribution will be stored.
 
 \item[\dusa{TRKNAM}] {\tt character*12} name of the read-only \dds{tracking} data
@@ -2189,7 +2257,7 @@ structure ({\tt L\_TRACK} signature) containing the tracking.
 \item[\dusa{FLUNAM}] {\tt character*12} name of the read-only \dds{fluxunk} data
 structure ({\tt L\_FLUX} signature) containing a transport solution.
 
-\item[\dusa{MACRO}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_MACROLIB}) containing the cross sections and diffusion coefficients.
+\item[\dusa{MACRO}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_MACROLIB}) containing the cross sections and diffusion coefficients.
 This data structure is required with nodal methods and in case the \moc{POWR} keyword is set.
 
 \item[\dstr{descval}] structure containing the input data to this module to compute interpolated flux
@@ -2241,9 +2309,9 @@ will produce increasing amounts of output.
 
 \clearpage
 
-\subsection{The {\tt NSST:} module}
+\subsection{The {\tt NSST:} module}\label{sect:nsst}
 
-The {\tt NSST:} module is used to perform a {\sc tracking} for the Nodal
+The {\tt NSST:} module is used to perform a \dds{tracking} for the Nodal
 Expansion Method (NEM)\cite{nestle} or the Analytic Nodal Method (ANM)\cite{anm08}.
 
 \vskip 0.08cm
@@ -2258,11 +2326,11 @@ The calling specifications are:
 \noindent where
 \begin{ListeDeDescription}{mmmmmm}
 
-\item[\dusa{TRACK}] {\tt character*12} of the {\sc lcm} object (type {\tt L\_TRIVAC}) 
-containing the {\sc tracking} information. If \dusa{TRACK} appears on the RHS, the
+\item[\dusa{TRACK}] {\tt character*12} of the \dds{lcm} object (type {\tt L\_TRIVAC}) 
+containing the \dds{tracking} information. If \dusa{TRACK} appears on the RHS, the
 previous settings will be applied by default.
 
-\item[\dusa{GEOM}] {\tt character*12} of the {\sc lcm} object (type {\tt
+\item[\dusa{GEOM}] {\tt character*12} of the \dds{lcm} object (type {\tt
 L\_GEOM}) containing the geometry.
 
 \item[\dstr{NSST\_data}] structure containing the data to module {\tt NSST:} (see Sect.~\ref{sect:NSST_data}).
@@ -2298,7 +2366,7 @@ title may contain up to 72 characters. The default when \moc{TITL} is not specif
 
 \item[\dusa{maxpts}] maximum dimensions of the problem to be considered.  The
 default value is set to the number of regions previously computed by the {\tt
-GEO:} module but this value is insufficient if symmetries or mesh-splitting
+GEOD:} module but this value is insufficient if symmetries or mesh-splitting
 are specified.
 
 \item[\moc{HYPE}] keyword used to specify the type of nodal expansion base functions used to represent the transverse integrated flux.
@@ -2377,12 +2445,12 @@ The calling specifications are:
 \noindent where
 \begin{ListeDeDescription}{mmmmmm}
 
-\item[\dusa{FLUX}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_FLUX}) containing the solution. If \dusa{FLUX} appears on the RHS, the solution previously stored in \dusa{FLUX}
+\item[\dusa{FLUX}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_FLUX}) containing the solution. If \dusa{FLUX} appears on the RHS, the solution previously stored in \dusa{FLUX}
 is used to initialize the new iterative process; otherwise, a uniform unknown vector is used.
 
-\item[\dusa{TRACK}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_TRACK}) containing the {\sc tracking}.
+\item[\dusa{TRACK}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_TRACK}) containing the \dds{tracking}.
 
-\item[\dusa{MACRO}] {\tt character*12} name of the {\sc lcm} object (type {\tt L\_MACROLIB}) containing the cross sections, diffusion coefficients and discontinuity
+\item[\dusa{MACRO}] {\tt character*12} name of the \dds{lcm} object (type {\tt L\_MACROLIB}) containing the cross sections, diffusion coefficients and discontinuity
 factors.
 
 \item[\dstr{NSSF\_data}] structure containing the data to module {\tt NSSF:} (see Sect.~\ref{sect:nssf_data}).

@@ -56,8 +56,8 @@ IF name_geom "AT10_UOX" = THEN
 
   GEOM := GEO: :: CARCEL 6 
     SECT 4 6
-    X- REFL X+ REFL
-    Y- REFL Y+ REFL
+    X- ALBE 1.0 X+ ALBE 1.0 
+    Y- ALBE 1.0 Y+ ALBE 1.0 
     RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
           <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
     MIX <<COMB0101>> <<COMB0102>> <<COMB0103>> <<COMB0104>>
@@ -68,8 +68,8 @@ IF name_geom "AT10_UOX" = THEN
   ;
 
   GEOM_SS := GEO: :: CARCEL 6 
-    X- REFL  X+ REFL
-    Y- REFL  Y+ REFL 
+    X- REFL X+ REFL
+    Y- REFL Y+ REFL 
     RADIUS 0.0 <<Rcomb1>> <<Rcomb2>>
                <<Rcomb3>> <<Rcomb4>> <<Rgap>> <<Rclad>>
     MIX <<COMB0101>> <<COMB0102>> <<COMB0103>> <<COMB0104>>

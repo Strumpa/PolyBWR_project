@@ -235,9 +235,8 @@ directory:
   {Isotope temperature $T_{i}$}
 \OptIntEnr
   {ISOTOPESTODO}{$N_{I}$}{$\mathcal{M}=1,3$}
-  {=0: automatic detection of depletion for isotope $i$; =1: isotope $i$ is
-  forced to be non depleting (keeps its capability to produce energy); =2: isotope $i$ is
-  forced to be depleting; =3: isotope $i$ is at saturation.}
+  {Depletion flag. =1: isotope $i$ is non depleting (keeps its capability to produce energy); =2: isotope $i$ is depleting;
+  =3: isotope $i$ is at saturation.}
 \IntEnr
   {ISOTOPESTYPE}{$N_{I}$}
   {Type index associated with each isotope $\mathsf{ITYP}_{i}$. $=1$: the isotope is
@@ -302,7 +301,10 @@ directory:
   {PARTICLE\blank{4}}{$*1$}{$I_{\rm part}\ge 1$} 
   {Character name of the particle associated to the microlib. Usual names for
   particles are {\tt N} (neutrons), {\tt G} (photons), {\tt B} (electrons),
-  {\tt C} (positrons) and {\tt P} (protons).}
+  {\tt C} (positrons) and {\tt P} (protons). In coupled sets, this is the
+  selected secondary particle. If no particle is explicitly selected when
+  reading a \moc{MATXS2} library, this record is set to the first supported
+  particle found in the file.}
 \OptCharEnr
   {PARTICLE-NAM}{($I_{\rm part}+1$)$*1$}{$I_{\rm part}\ge 1$} 
   {Character name associated to each particle.}
@@ -316,7 +318,7 @@ directory:
   {\listedir{penergy}}{$G_i+1$}{$I_{\rm part}\ge 1$}{eV}
   {Set of arrays containing energy groups limits for a companion particle. The character name
   of each sub-directory is the concatenation of the character*1 name of the particle with ``{\tt ENERGY}''.
-  For example, {\tt GENERGY} contains the energy mesh of secondary photons ($G_i+1$ values).}
+  For example, {\tt GENERGY} contains the energy mesh of companion photons ($G_i+1$ values).}
 \OptRealEnr
   {TIMESPER\blank{4}}{$2\times 3$}{$\mathcal{M}=2$}{}
   {Array $T_{j,i}$ that contains $T_{j,1}=t$, $T_{j,2}=B$ and $T_{j,3}=w$, the
@@ -473,10 +475,13 @@ The following records and sub-directories will be found on the first level of a
 \RealEnr
   {FISSIONYIELD}{$N_{\mathrm{ndp}} \times N_{\mathrm{dfi}}\times N_{\mathrm{dfp}}$}{1}
   {$Y_{k,{i\to j}}$ is the fission yield for each direct fissile isotope $i$ to each fission fragment $j$ in fission yield
-  macrogroup $k$.}
+  set $k$.}
 \OptRealEnr
-  {ENERGY-YIELD}{$N_{\mathrm{ndp}+1}$}{$N_\mathrm{ndp}\ge 2$}{eV}
-  {$E_{k}^{\rm fiss}$ are the energy limits of fission yield macrogroups.}
+  {ENERGY-YIELD}{$N_{\mathrm{ndp}}+1$}{$N_\mathrm{ndp}\ge 2$}{eV}
+  {$E_{k}^{\rm fiss}$ are the incident neutron energy limits of each fission yield set. This record is present if {\tt FISSIONYIELD} is defined over macrogroups.}
+\OptRealEnr
+  {PENERG-YIELD}{$N_{\mathrm{ndp}}$}{$N_\mathrm{ndp}\ge 2$}{eV}
+  {$E_{k}^{\rm fiss}$ are the incident neutron energies of each fission yield set. This record is present if {\tt FISSIONYIELD} is defined at pointwise energies.}
 \end{DescriptionEnregistrement}
 
 In all cases, the first component $R_{1,:}^{\rm d}$ contains the decay energy of the isotopes present in the burnup chain. The remaining components $r>1$ of the {\tt DEPLETE-ENER} record have different meaning, depending of the object containing the record:
@@ -1213,7 +1218,7 @@ isotopic directory.
    $\sigma_{0,c}^{k}$}
 \OptDirVar
   {\listedir{subiso}}{$I_{\rm part}\ge 1$}
-  {Set of sub-directories containing scattering information towards a companion particle. \listedir{subiso}
+  {Set of sub-directories containing scattering information from a companion particle. \listedir{subiso}
   is the name of the companion particle (set to {\tt N}, {\tt G}, {\tt B}, {\tt C} or {\tt P}). This information
   is used to construct coupled sets of cross sections.}
 \end{DescriptionEnregistrement}

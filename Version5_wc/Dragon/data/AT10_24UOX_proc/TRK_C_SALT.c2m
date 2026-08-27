@@ -52,8 +52,9 @@ UOX_TBH FIG1.ps := G2S: GEOM :: ;
 
 TRACK TF_EXC := SALT: UOX_TBH ::
   EDIT 1
-  ANIS 1
-  TSPC EQW2 <<an2d>> <<densur>>
+  ANIS 4
+  GAUS
+  TISO <<an2d>> <<densur>>
   BATCH 200
   ALLG
   REND
@@ -62,7 +63,7 @@ TRACK TF_EXC := SALT: UOX_TBH ::
 * MOC tracking
 TRACK := MCCGT: TRACK TF_EXC ::
   EDIT 0
-  CACB <<nmu>> AAC 80 TMT EPSI 1E-5 MCU <<mcu>>
+  GAUS <<nmu>> AAC 80 TMT EPSI 1E-5 MCU <<mcu>>
 ;
 
 
@@ -73,7 +74,7 @@ UOX_TBH_SS FIG_SS.ps := G2S: GEOM_SS :: ;
 
 TRACK_SS TF_EXC_SS := SALT: UOX_TBH_SS ::
   EDIT 1
-  ANIS 1
+  ANIS 4
   TSPC <<an2d_SS>> <<densur_SS>>
 ;
 

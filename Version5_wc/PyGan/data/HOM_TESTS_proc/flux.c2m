@@ -1,0 +1,113 @@
+* FLUX.c2m, CLE-2000 script to call Dragon5
+* Purpose : Test depletion of Gd157 on homogeneous geometry
+* Homogeneous UOX + moderator + clad + Gd157
+* Reference Serpen2 case : HOM_UOX_Gd157_mc (PyNjoy2016 and oldlib)
+* Burnup calculation 
+
+
+****************************************************************************
+************************** VARIABLES DEFINITION ****************************
+****************************************************************************
+
+MODULE GEO: SYBILT: LIB: USS: SHI: TONE: AUTO: ASM: 
+        FLU: COMPO: EDI: EVO: GREP: UTL: DELETE: END: ;
+LINKED_LIST GEOM TRACK_SS TRACK SYS FLUX ;
+
+PARAMETER COMPO LIBRARY LIBRARY2 ::
+::: LINKED_LIST COMPO ;
+::: LINKED_LIST LIBRARY ; 
+::: LINKED_LIST LIBRARY2 ; ;
+STRING name_compo ;
+:: >>name_compo<< ;
+
+SEQ_BINARY TF_EXC TF_EXC_SS ;
+
+REAL Kinf ;
+LINKED_LIST EDIRATES ;
+SEQ_ASCII _COMPO :: FILE <<name_compo>> ;
+
+
+****************************************************************************
+***************** GEOMETRY DEFINTION OF HOMOGENEOUS UOX+GD *****************
+****************************************************************************
+
+
+GEOM := GEO: :: HOMOGE 
+    MIX 1
+;
+
+****************************************************************************************
+************************ TRACKING GEOM FOR FLUX/SSH CALCULATION ************************
+****************************************************************************************
+
+* ---
+* FLUX+SSH TRACKING
+* ---
+
+
+TRACK := SYBILT: GEOM ::
+    TITLE 'HOM test case'
+    MAXR 2
+;
+
+
+
+************************************************************************
+*  BEGIN COMPO INITIALIZATION                                          *
+************************************************************************
+COMPO := COMPO: ::
+    EDIT 0
+    STEP UP 'EDIRATES'
+    MAXCAL 5
+    COMM 'RATES - 295g' ENDC
+    ISOT 1 U235
+    INIT
+;
+
+************************************************************************
+*  END COMPO INITIALIZATION                                            *
+************************************************************************
+
+************************************************************************
+*  NOMINAL REFERENCE CALCULATION                                       *
+************************************************************************
+*----
+* USS
+*----
+LIBRARY2 := USS: LIBRARY TRACK ::
+              EDIT 1 PASS 3 MAXST 100
+;
+
+************************************************************************
+*  BEGIN FLUX CALCULATION                                              *
+************************************************************************
+SYS := ASM: LIBRARY2 TRACK :: PIJ ;     
+    FLUX := FLU: LIBRARY2 SYS TRACK :: 
+    EDIT 1 TYPE K ;
+
+SYS := DELETE: SYS ;
+
+EDIRATES := EDI: FLUX LIBRARY2 TRACK ::
+	EDIT 0
+	MICR 1 U235 
+    SAVE ON EDIRATES
+	;
+
+COMPO := COMPO: COMPO EDIRATES LIBRARY2 ::
+	EDIT 10
+	STEP UP 'EDIRATES'
+;
+
+
+GREP: FLUX :: GETVAL 'K-INFINITY  ' 1 1 1 >>Kinf<< ;
+  
+************************************************************************
+*  EXPORT MULTICOMPO IN ASCII FORMAT                                   *
+************************************************************************
+_COMPO := COMPO ;
+
+TRACK FLUX EDIRATES := DELETE: TRACK FLUX EDIRATES ;
+END: ;
+
+
+

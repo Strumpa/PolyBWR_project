@@ -1,0 +1,38 @@
+* MixGd157.c2m
+*----
+*  Type          : DRAGON procedure
+*  Use           : Microlib generation with Draglibs for gduo2 benchmrk cell
+*  Author        : R. Guasch
+
+*  Procedure called as: LIBRARY := MixGd157 <<draglib>>
+*
+*    LIBRARY    : Microlib generated using PT method
+
+PARAMETER  LIBRARY  ::
+  EDIT 0
+    ::: LINKED_LIST LIBRARY  ;
+;
+STRING draglib ;
+:: >>draglib<< ;
+
+
+MODULE LIB: END: ;
+
+****************************************************************************
+******************** LIBRARY DEFINTION OF homogeneous UOX pin ***************
+****************************************************************************
+
+LIBRARY := LIB: ::
+    EDIT 0
+    NMIX 1    ! MAXIMUM OF MATERIAL MIXTURES
+    PT
+    DEPL LIB: DRAGON FIL: <<draglib>> 
+    MIXS LIB: DRAGON FIL: <<draglib>>
+
+    MIX 1 600.0
+      O16   = O16     2.955339E-02
+      U234  = U234    3.482587E-06
+      U235  = U235    3.664503E-04  1
+      H1    = H1_H2O  2.497844E-02
+;
+    

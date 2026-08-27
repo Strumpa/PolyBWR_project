@@ -183,7 +183,8 @@ static PyObject *lcm_new(PyTypeObject *type, PyObject *args, PyObject *kwds) {
        }
        pylcmobject *lcm_object = (pylcmobject *)pyobj;
        char *pytype_rhs = lcm_object->type_lcm;
-       if ((strcmp(pytype_rhs,"LCM") != 0) && (strcmp(pytype_rhs,"XSM") != 0)) {
+       if ((strcmp(pytype_rhs,"LCM") != 0) && (strcmp(pytype_rhs,"XSM") != 0) &&
+           (strcmp(pytype_rhs,"LCM_INP") != 0) && (strcmp(pytype_rhs,"XSM_INP") != 0)) {
          sprintf(AbortString,"%s: invalid pyobj type=%s (LCM, XSM expected)",nomsub,pytype_rhs);
          PyErr_SetString(PyLcmError, AbortString);
          return NULL;
@@ -201,7 +202,7 @@ static PyObject *lcm_new(PyTypeObject *type, PyObject *args, PyObject *kwds) {
          medium = 0;
          imode = 2; /* ascii */
        } else {
-         sprintf(AbortString,"%s: invalid ptype=%s (LCM, XSM, BINARY, ASCII expected)",nomsub,pytype);
+         sprintf(AbortString,"%s: invalid ptype=%s (LCM_INP, XSM_INP, BINARY, ASCII expected)",nomsub,pytype);
          PyErr_SetString(PyLcmError, AbortString);
          return NULL;
        }
@@ -224,7 +225,11 @@ static PyObject *lcm_new(PyTypeObject *type, PyObject *args, PyObject *kwds) {
        } else if (medium == 0) {
          char s2[74];
          FILE *file = NULL;
-         if (name == NULL) sprintf(s2, "_%s", lcm_object->name_lcm);
+         if (name == NULL) {
+          sprintf(s2, "_%s", lcm_object->name_lcm);
+         } else {
+          sprintf(s2, "_%s", name);
+         }
          if (strncmp(s2,"_",1) != 0) {
            sprintf(AbortString,"%s: leading '_' expected in file name %s",nomsub,s2);
            PyErr_SetString(PyLcmError, AbortString);

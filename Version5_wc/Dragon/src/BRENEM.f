@@ -27,6 +27,7 @@
 * IMIX    mix index of each node.
 * ICODE   physical albedo index on each side of the domain.
 * ISPH    SPH flag (=0: use discontinuity factors; =1: use SPH factors).
+* IH      H-FACTOR flag (=0: not used; =1: recovered).
 * ZKEFF   effective multiplication factor.
 * B2      buckling.
 * ENER    energy limits.
@@ -56,7 +57,7 @@
 *  SUBROUTINE ARGUMENTS
 *----
       TYPE(C_PTR) IPMAC1
-      INTEGER NG,LX1,NMIX1,ITRIAL(NG),IMIX(LX1),ICODE(2),ISPH,NGET,
+      INTEGER NG,LX1,NMIX1,ITRIAL(NG),IMIX(LX1),ICODE(2),ISPH,IH,NGET,
      1 IPRINT
       REAL ZKEFF,B2,ENER(NG+1),VOL1(NMIX1),FLX1(NMIX1,NG),DC1(NMIX1,NG),
      1 TOT1(NMIX1,NG),CHI1(NMIX1,NG),SIGF1(NMIX1,NG),

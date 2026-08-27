@@ -7,7 +7,7 @@ this information on a file for further use. The calling specifications are:
 \begin{DataStructure}{Structure \dstr{EDI:}}
 \dusa{EDINAM} \moc{:=} \moc{EDI:} $[$ \dusa{EDINAM} $]$
 \dusa{LIBNAM} $[$ \dusa{TRKNAM} \dusa{FLUNAM} $]$ \\
-~~~~~$[$ \dusa{REFGEO} $[$ \dusa{MACROGEO} $]~]~[$ \dusa{REFPIJ} $]~[$ \dusa{SURFIL} $]$ \moc{::} \dstr{descedi}
+\hskip 0.5cm $[~\{$ \dusa{REFGEO} $[$ \dusa{MACGEO1} $]~|$ \dusa{SURFIL} \dusa{MACGEO2}~$\}~]~[$ \dusa{REFPIJ} $]$ \moc{::} \dstr{descedi}
 \end{DataStructure}
 
 \noindent
@@ -32,19 +32,23 @@ structure ({\tt L\_FLUX} signature) containing a transport solution (see \Sect{F
 \item[\dusa{REFGEO}] {\tt character*12} optional name of the read-only reference \dds{geometry} data
 structure ({\tt L\_GEOM} signature) that was used for the original flux calculation (see \Sect{GEOData}).
 
-\item[\dusa{MACROGEO}] {\tt character*12} optional name of the read-only macro-\dds{geometry} data
+\item[\dusa{MACGEO1}] {\tt character*12} optional name of the read-only macro-\dds{geometry} data
 structure ({\tt L\_GEOM} signature) that is saved in \dusa{EDINAM} and can be used in the homogenization
 process or in the SPH equivalence procedure. In some cases the
 module \moc{EDI:} can automatically build a macro-geometry, however it is always
 possible to specify explicitly the macro-geometry to be saved in \dusa{EDINAM}.
 
+\item[\dusa{SURFIL}] \texttt{character*12} name of the read-only SALOME--formatted sequential {\sc ascii}
+file used to store the surfacic elements of the geometry. This file is required if and only if \moc{MERG} \moc{G2S}
+keywords are set in Sect.~\ref{sect:descedi}.
+
+\item[\dusa{MACGEO2}] {\tt character*12} name of the read-only macro-\dds{geometry} data
+structure ({\tt L\_GEOM} signature) containing the information used with the \moc{MERG} \moc{G2S} option. This
+information is described in Sect.~\ref{sect:descMACRO}.
+
 \item[\dusa{REFPIJ}] {\tt character*12} optional name of the read-only \dds{asmpij} data
 structure ({\tt L\_PIJ} signature) that was used for the reference flux calculation (see \Sect{ASMData}).
 Compulsory if keyword \moc{ALBS} is used in \Sect{descedi}.
-
-\item[\dusa{SURFIL}] \texttt{character*12} name of the read-only SALOME--formatted sequential {\sc ascii}
-file used to store the surfacic elements of the geometry. This file is required if and only if the keyword \moc{G2S}
-is set in data structure \dstr{descedi}.
 
 \item[\dstr{descedi}] structure containing the input data to this module
 (see \Sect{descedi}).
@@ -58,17 +62,13 @@ is set in data structure \dstr{descedi}.
 \begin{DataStructure}{Structure \dstr{descedi}}
 $[$ \moc{EDIT} \dusa{iprint} $]$ \\
 $[$ \moc{UPS} $]$ \\
-$[$ \moc{MERG} $\{$ \moc{NONE} $|$ \moc{COMP} $|$ \moc{GEO} $|$ \moc{HMIX} $|$ \\
-\hskip 0.8cm \moc{G2S} \dusa{nhom} $[[$ \moc{RECT} \dusa{xm} \dusa{xp} \dusa{ym} \dusa{yp} $]]~[[$ \moc{TRIA} \dusa{x1} \dusa{y1} \dusa{x2} \dusa{y2} \dusa{x3} \dusa{y3} $]]$ \\
-\hskip 1.6cm $[[$ \moc{QUAD} \dusa{x1} \dusa{y1} \dusa{x2} \dusa{y2} \dusa{x3} \dusa{y3} \dusa{x4} \dusa{y4} $]]~~[$ \moc{REMIX} (\dusa{imix2}(ii),ii=1,nhom) $]~|$ \\
-\hskip 0.8cm \moc{CELL} $[~\{$ \moc{SYBIL} $|$ \moc{EXCELL} $|$ \moc{NXT} $|$ \moc{DEFAULT} $|$ \moc{UNFOLD} $\}~]~[$ \moc{REMIX} (\dusa{imix2}(ii),ii=1,nbmix2) $]~|$ \\
-\hskip 0.8cm \moc{REGI} (\dusa{iregm}(ii),ii=1,nregio) $|$ \\
+$[$ \moc{MERG} $\{$ \moc{NONE} $|$ \moc{COMP} $|$ \moc{GEO} $|$ \moc{HMIX} $|$ \moc{G2S} \dusa{MACGEO2} $|$ \moc{REGI} (\dusa{iregm}(ii),ii=1,nregio) $|$ \\
 \hskip 0.8cm \moc{MIX} $[$ (\dusa{imixm}(ii),ii=1,nbmix) $]~\}$ $]$ \\
 $[$ \moc{TAKE} $\{$ \\
 \hskip 0.8cm \moc{REGI} (\dusa{iregt}(ii),ii=1,nregio) $|$ \\
 \hskip 0.8cm \moc{MIX} (\dusa{imixt}(ii),ii=1,nbmix) $\}$ $]$  \\
 $[$ $\{$ \moc{P0W} $|$ \moc{P1W\_L} $|$ \moc{P1W\_TO} $|$ \moc{PNW\_SP} $\}$ $]$ \\
-$[$ \moc{EDI\_CURR} $]~[$ \moc{GOLVER} $]$ \\
+$[$ \moc{EDI\_CURR} $]~[$ \moc{GOLVER} $]~[$ \moc{REBUILD} $]~[$ \moc{WNORM} $]~[$ \moc{ONEFIS} $]$ \\
 $[$ \moc{COND} $[~\{$  \moc{NONE} $|$ ( \dusa{icond}(ii), ii=1,ngcond) $|$ ( \dusa{energy}(ii), ii=1,ngcond) $\}~]~]$\\
 $[$ \moc{MICR} $[~\{$ \moc{ALLX} $|$ \moc{NODEPL}$\}~]~[$ \moc{NOMACR} $]~[$ \moc{ISOTXS} $[$ \moc{ASCII} $]~]$ $\{$ \moc{ALL} $|$ \moc{RES} $|$ 
   \dusa{nis} (\dusa{HISO}(i),i=1,\dusa{nis}) $\}$\\
@@ -81,7 +81,7 @@ $[$ \moc{STAT} $\{$ \moc{ALL} $|$ \moc{RATE} $|$ \moc{FLUX} $|$ \moc{DELS} $\}$
 $[$ \moc{NOHF} $]~[$ \moc{NBAL} $]$ \\
 $[$ \moc{MAXR} \dusa{maxpts} $]$ \\
 $[~\{$ \moc{DIRE} $|$ \moc{PROD} $\}~]$ \\
-$[$ \moc{MGEO} \dusa{MACGEO} $]$ \\
+$[$ \moc{MGEO} \dusa{MACGEO1} $]$ \\
 $[~\{$ \moc{NADF} $|$ \moc{ALBS} $|$ \moc{JOUT} $|$ \moc{ADFM} $|$\\
 ~~~~~~~$[[$ \moc{ADF} $[$ \moc{*} $]$ \dusa{TYPE} $\{$ \moc{REGI} (\dusa{ireg}(ii),ii=1,iimax) \moc{ENDR} $|$ \moc{MIX} (\dusa{imix}(ii),ii=1,iimax) \moc{ENDM} $\}~]]~\}~]$ \\
 $[$~\moc{LEAK}~\dusa{b2}~$]$
@@ -155,48 +155,14 @@ new region number associated with this mixture. This option is also useful to ho
 a two-level computational scheme for a PWR assembly. By default, if \moc{MIX} is set and
 \dusa{imixm} is not set, \dusa{imixm(ii)}$=$\dusa{ii} is assumed.
 
-\item[\moc{COMP}] keyword used to specify that the a complete homogenization is to
-take place. 
+\item[\moc{COMP}] keyword used to specify that a complete homogenization is to take place. 
 
 \item[\moc{GEO}] keyword used to specify that a geometry equivalence procedure (equigeom) is to be used. Merging indices
-are automatically computed by comparing the reference geometry \dusa{REFGEO} with the macro-geometry \dusa{MACROGEO}.
+are automatically computed by comparing the reference geometry \dusa{REFGEO} with the macro-geometry \dusa{MACGEO1} ({\tt L\_GEOM} signature).
 This capability is limited to EXCELL--type reference geometries.
 
 \item[\moc{G2S}] keyword used to specify that the homogenization will be based on the geometry definition available in the surfacic
-file \dusa{SURFIL}.
-
-\item[\dusa{nhom}] number of homogeneous nodes to be defined using \moc{RECT} and/or \moc{TRIA} data structures. Many homogeneous mixtures can be defined by
-repeating the \moc{RECT} and/or \moc{TRIA} data structures.
-
-\item[\moc{RECT}] keyword used to specify a unique homogeneous mixture based on a rectangular node. 
-
-\item[\dusa{xm}] lower limit of the homogeneous node alonx X--axis.
-
-\item[\dusa{xp}] upper limit of the homogeneous node alonx X--axis.
-
-\item[\dusa{ym}] lower limit of the homogeneous node alonx Y--axis.
-
-\item[\dusa{yp}] upper limit of the homogeneous node alonx Y--axis.
-
-\item[\moc{TRIA}] keyword used to specify a unique homogeneous mixture based on a triangular node.
-
-\item[\moc{QUAD}] keyword used to specify a unique homogeneous mixture based on a quadrilateral node. In this case, the corner list must be provided in clockwise or anticlockwise order.
-
-\item[\dusa{x1}] X--coordinate of the first corner.
-
-\item[\dusa{y1}] Y--coordinate of the first corner.
-
-\item[\dusa{x2}] X--coordinate of the second corner.
-
-\item[\dusa{y2}] Y--coordinate of the second corner.
-
-\item[\dusa{x3}] X--coordinate of the third corner.
-
-\item[\dusa{y3}] Y--coordinate of the third corner.
-
-\item[\dusa{x4}] X--coordinate of the fourth corner of a quadrilateral.
-
-\item[\dusa{y4}] Y--coordinate of the fourth corner of a quadrilateral.
+file \dusa{SURFIL} and macro-geometry information available in the data structure named \dusa{MACGEO2} ({\tt L\_GEOM} signature).
 
 \item[\moc{HMIX}] keyword used to specify that the homogenization region will be selected using the information provided by the \moc{HMIX} option in the \moc{GEO:} module (see \Sect{descPP}). In this case, all the regions associated with a virtual homogenization mixture will be homogenized. If the virtual homogenization mixtures were not defined in the geometry, the real mixtures are used instead (see \moc{MIX} keyword in \Sect{descPP}). This option is valid only for \moc{NXT:} based \dds{tracking} data structure (this option uses the information stored on the reference \dds{TRKNAM} data structure).
 
@@ -273,7 +239,6 @@ This option is only provided with SN and MOC discretizations. By default, only i
 
 \item[\moc{GOLVER}] keyword used to specify the use of the Golfier-Vergain diffusion coefficient formula. This formula is written
 $$D_{i,g}={\alpha_g\over 3\Sigma_{{\rm tr},i,g}}$$
-
 \noindent with the Golfier-Vergain factors $\alpha_g$ defined as
 $$\alpha_g={\sum_i  \int_{u_{g-1}}^{u_g} du \, {\displaystyle\phi_i(u) \over \displaystyle\left(\Sigma_i(u)-\Sigma_{{\rm s1},i}(u) \right) }
 \over \sum_i {\displaystyle\phi_{i,g} \over \displaystyle\Sigma_{{\rm tr},i,g}} }$$
@@ -284,6 +249,16 @@ $$\Sigma_{{\rm tr},i,g}={\int_{u_{g-1}}^{u_g} du \left(\Sigma(u) -\Sigma_{{\rm s
 
 By default, the diffusion coefficients are obtained by condensation of the fine-group leakage coefficients $d_i(u)$:
 $$D_{i,g}={\int_{u_{g-1}}^{u_g} du \, d_i(u) \, \phi_i(u) \over \int_{u_{g-1}}^{u_g} du \, \phi_i(u) }.$$
+
+\item[\moc{REBUILD}] keyword used to rebuild the embedded macrolib from condensed/homogenized microlib information. By default, the embedded macrolib
+is build without using microlib information. The "\moc{MICR RES REBUILD}" options are useful to create \dds{macrolib} data with a unique fission spectrum
+without making approximations.
+
+\item[\moc{WNORM}] keyword used to normalize the within-group scattering cross sections to be consistent with {\tt SIGS} information. By default,
+the within-group scattering cross sections are not renormalized.
+
+\item[\moc{ONEFIS}] keyword used to average the fission information contained in the embedded macrolib so as to obtain a unique fission spectrum. By
+default, the macrolib information is generated with different fission spectra, one for each fissile isotope.
 
 \item[\moc{COND}] keyword used to specify that a group condensation of the flux is to be performed.
 
@@ -443,7 +418,7 @@ GEONAM := EDINAM :: STEP UP 'MACRO-GEOM' ;
 \end{verbatim}
 \noindent where {\tt GEONAM} and {\tt EDINAM} are {\tt L\_GEOM} and {\tt L\_EDIT} LCM objects, respectively.
 
-\item[\dusa{MACGEO}] character*12 name of the macro-geometry.
+\item[\dusa{MACGEO1}] character*12 name of the macro-geometry.
 
 \item[\moc{NADF}] keyword used to desactivate boundary editions.
 

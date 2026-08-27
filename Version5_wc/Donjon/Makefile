@@ -43,6 +43,7 @@ tests :
 	./rdonjon -c $(fcompilerSuite) -p $(nomp) -q Fessenheim.x2m
 	./rdonjon -c $(fcompilerSuite) -p $(nomp) -q FourChannels.x2m
 	./rdonjon -c $(fcompilerSuite) -p $(nomp) -q Hex_Model3D.x2m
+	./rdonjon -c $(fcompilerSuite) -p $(nomp) -q iaea3d_fuelmap.x2m
 	./rdonjon -c $(fcompilerSuite) -p $(nomp) -q NCRtest.x2m
 	./rdonjon -c $(fcompilerSuite) -p $(nomp) -q SCR_RES_Interp.x2m
 	./rdonjon -c $(fcompilerSuite) -p $(nomp) -q SCWR64Core.x2m

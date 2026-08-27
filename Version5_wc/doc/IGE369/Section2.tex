@@ -13,9 +13,9 @@ The IAEA-2D benchmark is defined in Refs.~\citen{bivac,anl} and its geometry is 
 
 \begin{verbatim}
 LINKED_LIST IAEA MACRO TRACK SYSTEM FLUX EDIT ;
-MODULE GEO: MAC: TRIVAT: TRIVAA: FLUD: OUT: END: ;
+MODULE GEOD: MAC: TRIVAT: TRIVAA: FLUD: OUT: END: ;
 *
-IAEA := GEO: :: CAR2D 9 9
+IAEA := GEOD: :: CAR2D 9 9
            EDIT 2
            X- DIAG X+ VOID
            Y- SYME Y+ DIAG
@@ -90,9 +90,9 @@ The rods-withdrawn configuration of the Biblis-2D benchmark is defined in Ref.~\
 
 \begin{verbatim}
 LINKED_LIST BIBLIS MACRO TRACK SYSTEM FLUX EDIT ;
-MODULE GEO: MAC: TRIVAT: TRIVAA: FLUD: OUT: END: ;
+MODULE GEOD: MAC: TRIVAT: TRIVAA: FLUD: OUT: END: ;
 *
-BIBLIS := GEO: :: CAR2D 9 9
+BIBLIS := GEOD: :: CAR2D 9 9
            EDIT 2
            X- DIAG X+ VOID
            Y- SYME Y+ DIAG
@@ -194,9 +194,9 @@ The IAEA-3D benchmark is defined in Ref.~\citen{anl} and its geometry is represe
 
 \begin{verbatim}
 LINKED_LIST IAEA3D MACRO TRACK SYSTEM FLUX EDIT ;
-MODULE GEO: MAC: TRIVAT: TRIVAA: FLUD: OUT: END: ;
+MODULE GEOD: MAC: TRIVAT: TRIVAA: FLUD: OUT: END: ;
 *
-IAEA3D := GEO: :: CAR3D 9 9 4
+IAEA3D := GEOD: :: CAR3D 9 9 4
           EDIT 2
           X- DIAG  X+ VOID 
           Y- SYME  Y+ DIAG 
@@ -341,9 +341,9 @@ The S30 hexagonal benchmark in 2-D is defined in Ref.~\citen{benaboud}. Its geom
 
 \begin{verbatim}
 LINKED_LIST HEX MACRO TRACK SYSTEM FLUX EDIT ;
-MODULE GEO: MAC: TRIVAT: TRIVAA: FLUD: OUT: END: ;
+MODULE GEOD: MAC: TRIVAT: TRIVAA: FLUD: OUT: END: ;
 *
-HEX := GEO: :: HEX   6
+HEX := GEOD: :: HEX   6
        EDIT 2
        HBC S30 ZERO
        SIDE 13.044
@@ -414,13 +414,13 @@ removed in 26.7 s, causing a negative ramp variation in total cross section.
 *  Define STRUCTURES and MODULES used
 *----
 LINKED_LIST LMW TRACK MACRO1 SYSTEM1 MACRO2 SYSTEM2 FLUX KINET ;
-MODULE GEO: MAC: TRIVAT: TRIVAA: FLUD: INIKIN: KINSOL: GREP: DELETE:
+MODULE GEOD: MAC: TRIVAT: TRIVAA: FLUD: INIKIN: KINSOL: GREP: DELETE:
        END: ;
 REAL fnorm sigt1 sigt2 ;
 REAL TIME := 0.0 ;
 PROCEDURE assertS assertS2 ;
 *
-LMW := GEO: :: CAR2D 6 6
+LMW := GEOD: :: CAR2D 6 6
       X- REFL X+ ZERO
       Y- REFL Y+ ZERO
       MIX 1 1 1 2 3 4

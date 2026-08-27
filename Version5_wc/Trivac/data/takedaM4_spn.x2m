@@ -5,13 +5,13 @@
 * Date : October 2012
 *------------------------
 LINKED_LIST  HEX3D TRACK MACRO SYSTEM FLUX EDIT ;
-MODULE  UTL: GEO: TRIVAT: MAC: TRIVAA: FLUD: OUT: GREP: END: ;
+MODULE  UTL: GEOD: TRIVAT: MAC: TRIVAA: FLUD: OUT: GREP: END: ;
 REAL  Keff ;
 PROCEDURE assertS ;
 *----
 *  Input geometry
 *----
-HEX3D := GEO: :: HEXZ  169 5
+HEX3D := GEOD: :: HEXZ  169 5
        EDIT 2
        HBC  COMPLETE  VOID
        SIDE 7.50

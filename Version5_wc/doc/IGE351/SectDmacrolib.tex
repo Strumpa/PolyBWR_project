@@ -129,6 +129,14 @@ I_{\rm part} = \left\{
 >0 & \textrm{number of companion particles.}
 \end{array} \right.
 \end{displaymath}
+\item Point kinetics information $I_{\rm pkin}=\mathcal{S}^{M}_{18}$:
+\begin{displaymath}
+I_{\rm pkin} = \left\{
+\begin{array}{ll}
+0 & \textrm{no point kinetics information available}\\
+1 & \textrm{point kinetics information is available.}
+\end{array} \right.
+\end{displaymath}
 \end{itemize}
 
 \subsection{The main \dir{macrolib} directory}\label{sect:macrolibdirmain}
@@ -166,9 +174,6 @@ directory:
   {VOLUME\blank{6}}{$N_{m}$}{$\mathcal{M}\ge 2$}{cm$^{3}$~~}
   {Volume of region containing each mixture $V_{m}$}
 \OptRealEnr
-  {MIXTURESDENS}{$N_{m}$}{$\mathcal{M}=1$}{g/cm$^{3}$~~}
-  {Volumetric mass density of each mixture $\rho_{m}$}  
-\OptRealEnr
   {FLUXDISAFACT}{$G$}{$\mathcal{M}=2$}{}
   {Ratio of the flux in the fuel to the flux in the cell $F_{g}$ after homogenization}
 \OptRealEnr
@@ -204,7 +209,10 @@ directory:
   {PARTICLE\blank{4}}{$*1$}{$I_{\rm part}\ge 1$} 
   {Character name of the particle associated to the macrolib. Usual names for
   particles are {\tt N} (neutrons), {\tt G} (photons), {\tt B} (electrons),
-  {\tt C} (positrons) and {\tt P} (protons).}
+  {\tt C} (positrons) and {\tt P} (protons). In coupled sets, this is the
+  selected secondary particle. If no particle is explicitly selected when
+  reading a \moc{MATXS2} library, this record is set to the first supported
+  particle found in the file.}
 \OptCharEnr
   {PARTICLE-NAM}{($I_{\rm part}+1$)$*1$}{$I_{\rm part}\ge 1$} 
   {Character name associated to each particle.}
@@ -218,7 +226,7 @@ directory:
   {\listedir{penergy}}{$G_i+1$}{$I_{\rm part}\ge 1$}{eV}
   {Set of arrays containing energy groups limits for a companion particle. The character name
   of each sub-directory is the concatenation of the character*1 name of the particle with ``{\tt ENERGY}''.
-  For example, {\tt GENERGY} contains the energy mesh of secondary photons ($G_i+1$ values).}
+  For example, {\tt GENERGY} contains the energy mesh of companion photons ($G_i+1$ values).}
 \OptDirlVar
   {\listedir{grpdir}}{$G$}{$I_{\rm part}\ge 1$} 
   {List of energy-group sub-directories. Each component of the list is a directory containing
@@ -240,6 +248,9 @@ directory:
 \OptDirEnr
   {SPH\blank{9}}{$I_{\rm sph} = 1$}
   {SPH--related input data as presented in \Sect{macroSPH}.}
+\OptDirEnr
+  {P-KINETICS\blank{2}}{$I_{\rm pkin} = 1$}
+  {Point kinetics--related input data as presented in \Sect{macroPKIN}.}
 \end{DescriptionEnregistrement}
 
 \subsection{The group sub-directory \moc{GROUP} in \dir{macrolib}}\label{sect:macrolibdirgroup}
@@ -976,5 +987,25 @@ A mean neutron generation time can also be written as
 \nu_j^{\rm ss}(\vec r,E)\ \Sigma_{{\rm f},j}(\vec r,E) \ \phi(\vec r,E)}}={\sum\limits_g <1/v>^g \ \phi^g(\vec r) \over
 \sum\limits_j{\sum\limits_g \nu\Sigma_{{\rm f},j}^g(\vec r) \ \phi^g(\vec r)}} \ \ \ .
 \end{equation}
+
+\subsection{The \moc{/P-KINETICS/} sub-directory in \dir{macrolib}}\label{sect:macroPKIN}
+
+The \moc{P-KINETICS} sub-directory contains point kinetics information.
+
+\vskip 0.08cm
+
+\begin{DescriptionEnregistrement}{Records in \moc{P-KINETICS} sub-directory}{7.5cm}
+
+\RealEnr
+ {LAMBDA\blank{6}}{$1$}{s} {Prompt neutron generation time.}
+
+\RealEnr
+ {BETAI\blank{7}}{$N_{d}$}{} {Delayed neutron fraction vector.}
+
+\RealEnr
+ {LAMBDAI\blank{5}}{$N_{d}$}{s} {Delayed neutron time-constant vector.}
+
+\end{DescriptionEnregistrement}
+
 
 \eject

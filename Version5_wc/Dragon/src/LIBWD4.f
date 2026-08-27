@@ -393,6 +393,7 @@
                   ELSE
                     XSREC(IG,6)=0.0
                   ENDIF
+                  XSREC(IG,10)=1.0 ! infinite dilution flux
  201            CONTINUE
                 IF(IENDF.LT.2) THEN
 *----
@@ -488,6 +489,7 @@
                   ELSE
                     XSREC(IG,6)=0.0
                   ENDIF
+                  XSREC(IG,10)=1.0 ! infinite dilution flux
  221            CONTINUE
                 IF(IENDF.LT.2) THEN
 *----

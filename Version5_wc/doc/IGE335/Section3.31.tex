@@ -1,7 +1,7 @@
 \subsection{The {\tt FMAC:} module}\label{sect:FMACData}
 
-This module is used to extract macrocoscopic cross-section data from a FMAC-M {\sc ascii} file.
-Transition source information from companion particles are recovered from the FMAC-M file and written in the
+This module is used to extract macroscopic cross-section data from a FMAC-M {\sc ascii} file.
+Transition source information from companion particles is recovered from the FMAC-M file and written in the
 output {\sc macrolib}.
 
 \vskip 0.02cm
@@ -40,7 +40,10 @@ $[$~\moc{EDIT} \dusa{iprint}~$]$ \\
 
 \item[\dusa{iprint}] index used to control the printing in module {\tt FMAC:}. =0 for no print; =1 for minimum printing (default value).
 
-\item[\moc{PARTICLE}] keyword used to specify the type of particle corresponding to the {\sc macrolib} (secondary state of the transition).
+\item[\moc{PARTICLE}] keyword used to specify the type of particle
+corresponding to the {\sc macrolib}, that is, the secondary state of the
+transition. For a transition $q \rightarrow p$, this keyword specifies the
+produced particle $p$.
 
 \item[\dusa{htype}] character*1 name of the particle. Usual names are {\tt N}: neutrons, {\tt G}: photons, {\tt B}: electrons,
 {\tt C}: positrons and {\tt P}: protons.

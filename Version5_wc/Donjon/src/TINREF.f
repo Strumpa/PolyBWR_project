@@ -33,7 +33,6 @@
 * IXN    Name of the channel according to X
 * IYN    Name of the channel according to Y
 * POW    Power distribution.
-* INDEX  Fuel type indice
 * IND    Fuel type indice in the channel to refuel
 * MAXS   Maximum number of power shift
 * IPRT   Flag for printing level
@@ -67,9 +66,9 @@
       PARAMETER (NSTATE=40,IOUT=6)
       INTEGER   ISTATE(NSTATE),I,J
       CHARACTER CS*2,HSMG*131
-      INTEGER, ALLOCATABLE, DIMENSION(:) :: NW,NW2,NWU,ISONA,ISOMI,ISHF
+      INTEGER, ALLOCATABLE, DIMENSION(:) :: NW,NW2,NWU,ISONA,ISOMI
       INTEGER, ALLOCATABLE, DIMENSION(:,:) :: ICHMAP,INDEX,IWORK
-      REAL, ALLOCATABLE, DIMENSION(:) :: DENIS,NDENS
+      REAL, ALLOCATABLE, DIMENSION(:) :: DENIS
       REAL, ALLOCATABLE, DIMENSION(:,:) :: WORK
       REAL, ALLOCATABLE, DIMENSION(:,:,:) :: WORKS
       LOGICAL, ALLOCATABLE, DIMENSION(:) :: MASK,MASKL
@@ -91,21 +90,11 @@
  18     CONTINUE
       ELSE
         MAXS=0
-        DO 115 I=1,NK
-          DO 15 J=1,NCH
-            ISFT(J,I) = 0
- 15       CONTINUE
-115     CONTINUE
+        ISFT(:NCH,:NK) = 0
       ENDIF
-      DO 1 I=1,NK
-       DO 2 J=1,NCH
-         WINT(J,I) = 0.0
-         DO 3 K=1,MS
-           BS(J,I,K)=0.0
-           PS(J,I,K)=0.0
-  3      CONTINUE
-  2    CONTINUE
-  1   CONTINUE
+      WINT(:NCH,:NK) = 0.0
+      BS(:NCH,:NK,:MS) = 0.0
+      PS(:NCH,:NK,:MS) = 0.0
 *----
 *  RECOVER FUEL BURNUPS
 *----
@@ -158,7 +147,7 @@
       IY = 0
       DO 10 I=1,NX
         WRITE(XNAM,'(A4)') IXN(I)
-        IF (XNAM.EQ.TEXT4) THEN
+        IF(XNAM.EQ.TEXT4) THEN
            IX = I
            GOTO 11
         ENDIF
@@ -168,7 +157,7 @@
   11  TEXT4 = NAMCHA(1:1)
       DO 20 I=1,NY
         WRITE(YNAM,'(A4)') IYN(I)
-        IF (YNAM.EQ.TEXT4) THEN
+        IF(YNAM.EQ.TEXT4) THEN
            IY = I
            GOTO 21
         ENDIF
@@ -204,14 +193,14 @@
       II=0
       DO 30 K=1,NK
          KK = K
-         IF (NS.LT.0) THEN
+         IF(NS.LT.0) THEN
             KK = NK - K + 1
          ENDIF
          KA = NW(K)
 *----
 *  INSERTION OF A NEW BUNDLE OR REPOSITIONNING
 *----
-         IF (KA.EQ.0) THEN
+         IF(KA.EQ.0) THEN
             II=II+1
             WORK(KK,1) = 0.0
             IWORK(KK,1)=0
@@ -221,13 +210,11 @@
               IWORK(KK,2)=IND(II)
             ENDIF
             IF(MAXS.GT.0) THEN
-              DO 39 IS=1,MAXS
-                WORKS(KK,IS,1) = 0.0
-                WORKS(KK,IS,2) = 0.0
-  39          CONTINUE
+              WORKS(KK,:MAXS,1) = 0.0
+              WORKS(KK,:MAXS,2) = 0.0
             ENDIF
          ELSE
-            IF (NS.LT.0) THEN
+            IF(NS.LT.0) THEN
                KA = NK - KA + 1
             ENDIF
             WORK(KK,1) = WINT(ICH,KA)
@@ -289,10 +276,7 @@
             NWU(I)=NW2(I)
           ENDIF
         ENDDO
-        ALLOCATE(NDENS(NISO),ISHF(NK))
-        CALL TINMIC(IPMIC,IPMIC2,IPMIC3,NK,NCH,NWU,ICH,NISO,NISO2,
-     1  IWORK,ISHF,NDENS)
-        CALL LCMPUT(IPMIC,'ISOTOPESDENS',NISO,2,NDENS)
+        CALL TINMIC(IPMIC,IPMIC2,IPMIC3,NK,NCH,NWU,ICH,IWORK,IPRT)
 *----
 *  COMPUTE THE MACROSCOPIC X-SECTIONS
 *----
@@ -312,14 +296,13 @@
           MASK(IBM)=.TRUE.
   13    CONTINUE
         ITSTMP=0
-        TMPDAY(1)=0.0
-        TMPDAY(2)=0.0
-        TMPDAY(3)=0.0
+        TMPDAY(:3)=0.0
 *       COMPUTATION OF THE MACROSCOPIC XS
+        CALL LCMLEN(IPMIC,'MACROLIB',ILCMLN,ITYLCM)
+        IF(ILCMLN.EQ.-1) CALL LCMDEL(IPMIC,'MACROLIB')
         CALL LIBMIX(IPMIC,MAXMIX,NGRP,NBISO,ISONA,ISOMI,DENIS,MASK,
      1  MASKL,ITSTMP,TMPDAY)
-        DEALLOCATE(DENIS,ISOMI,ISONA,MASKL,MASK)
-        DEALLOCATE(NWU,NDENS,ISHF)
+        DEALLOCATE(DENIS,ISOMI,ISONA,MASKL,MASK,NWU)
       ENDIF
 
       IF( IPRT.GT.3 )THEN

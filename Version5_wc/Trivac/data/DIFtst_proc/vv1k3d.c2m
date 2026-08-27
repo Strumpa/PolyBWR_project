@@ -7,10 +7,10 @@
 * Nuclear Science and Technology, Vol. 54, No. 10, 1085-1094 (2017).
 *------------------------
 LINKED_LIST GEOM XSEC TRACK SYSTEM FLUX RESU ; 
-MODULE GEO: MAC: TRIVAT: TRIVAA: FLUD: OUT: END: ABORT: ;
+MODULE GEOD: MAC: TRIVAT: TRIVAA: FLUD: OUT: END: ABORT: ;
 PROCEDURE assertS ;
 
-GEOM := GEO: :: 
+GEOM := GEOD: :: 
                 HEXZ 169 10
                 EDIT 2
                 Z- ZERO Z+ ZERO HBC COMPLETE ZERO

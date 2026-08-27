@@ -166,7 +166,7 @@
  6000 FORMAT(////5(5X,'REGION',6X,'VOLUME  '))
  6001 FORMAT(1P,5(5X,I4,4X,E12.5))
  6002 FORMAT(/' E N E R G Y   L I M I T S   (EV)'/1P,
-     >6(E12.4,A3,I3,A3))
+     >6(E12.4,A3,I4,A3))
  6003 FORMAT(/' F L U X E S   A N D    R E A C T I O N    R A T E S'/
      >1X,51(1H-))
  6010 FORMAT(/' G R O U P   :',I4/' REGION INTEGRATED FLUX')

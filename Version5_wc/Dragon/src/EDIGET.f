@@ -1,10 +1,10 @@
 *DECK EDIGET
-      SUBROUTINE EDIGET(IPEDIT,IFGEO,NGROUP,NGCOND,NREG,NBMIX,MATCOD,
-     >                  ITMERG,NMERGE,IHF,IFFAC,ILUPS,NSAVES,NSTATS,
-     >                  IGCR,EGCR,IMERGE,CURNAM,OLDNAM,IADF,NW,ICURR,
-     >                  NBMICR,CARISO,NACTI,IACTI,IPRINT,MAXPTS,ICALL,
-     >                  ISOTXS,LISO,LDEPL,LMACR,IADJ,MACGEO,IEUR,NOUT,
-     >                  HVOUT,BB2,IEDCUR,IGOVE)
+      SUBROUTINE EDIGET(IPEDIT,IPGEO2,IFGEO,NGROUP,NGCOND,NREG,NBMIX,
+     >                  MATCOD,ITMERG,NMERGE,IHF,IFFAC,ILUPS,NSAVES,
+     >                  NSTATS,IGCR,EGCR,IMERGE,CURNAM,OLDNAM,IADF,NW,
+     >                  ICURR,NBMICR,CARISO,NACTI,IACTI,IPRINT,MAXPTS,
+     >                  ICALL,ISOTXS,LISO,LDEPL,LMACR,IADJ,MACGEO,IEUR,
+     >                  NOUT,HVOUT,BB2,IEDCUR,IGOVE,IREB,INORM,IONEF)
 *
 *-----------------------------------------------------------------------
 *
@@ -22,6 +22,7 @@
 *
 *Parameters: input
 * IPEDIT  pointer to the edition LCM object.
+* IPGEO2  pointer to the optional macrogeometry LCM object.
 * IFGEO   unit file number of the surfacic file.
 * NGROUP  number of groups.
 * NREG    number of regions.
@@ -105,21 +106,25 @@
 *         =0: flux edition only;
 *         =1: flux and current edition.
 * IGOVE   Golfier-Vergain flag (=0/1: don't/use Golfier-Vergain equ'n).
+* IREB    flag for rebuilding the macrolib:
+*         = 0 macrolib data is produced from input macrolib;
+*         = 1 macrolib data is produced from output microlib.
+* INORM   flag for within-group scattering normalization (0/1: off/on).
+* IONEF   flag for one-fissile isotope averaging (0/1: off/on).
 *
 *-----------------------------------------------------------------------
 *
       USE GANLIB
-      USE EDIG2S_MOD
 *----
 *  SUBROUTINE ARGUMENTS
 *----
       PARAMETER    (MAXED=300,MAXOUT=100)
-      TYPE(C_PTR)   IPEDIT
+      TYPE(C_PTR)   IPEDIT,IPGEO2
       INTEGER       IFGEO,NGROUP,NGCOND,NREG,NBMIX,MATCOD(NREG),ITMERG,
      >              NMERGE,IHF,IFFAC,ILUPS,NSAVES,NSTATS,IGCR(NGROUP),
      >              IMERGE(NREG),IADF,NW,ICURR,NBMICR,NACTI,
      >              IACTI(NBMIX),IPRINT,MAXPTS,ICALL,ISOTXS,IADJ,
-     >              IEUR,NOUT,IEDCUR,IGOVE
+     >              IEUR,NOUT,IEDCUR,IGOVE,IREB,INORM,IONEF
       REAL          EGCR(NGROUP),BB2
       LOGICAL       LISO,LDEPL,LMACR
       CHARACTER     CURNAM*12,OLDNAM*12,CARISO(MAXED)*12,MACGEO*12,
@@ -127,10 +132,10 @@
 *----
 *  LOCAL VARIABLES
 *----
-      CHARACTER     CARLIR*8,HTYPE*8
+      CHARACTER     CARLIR*8,HTYPE*8,TEXT12*12
       REAL          REALIR
       DOUBLE PRECISION DBLLIR
-      INTEGER, ALLOCATABLE, DIMENSION(:) :: MIXMER,INADF,IOFGAP,IREMIX
+      INTEGER, ALLOCATABLE, DIMENSION(:) :: MIXMER,INADF,IOFGAP
       CHARACTER*8, ALLOCATABLE, DIMENSION(:) :: HADF
 *----
 *  SCRATCH STORAGE ALLOCATION
@@ -537,32 +542,16 @@
           ENDIF
           GO TO 40
         ELSE IF(CARLIR.EQ.'G2S') THEN
-          CALL EDIG2S(IPRINT,IFGEO,NREG,NMERGE,IMERGE)
-          CALL REDGET(ITYPLU,INTLIR,REALIR,CARLIR,DBLLIR)
+          CALL REDGET(ITYPLU,INTLIR,REALIR,TEXT12,DBLLIR)
           IF(ITYPLU.NE.3) CALL XABORT('EDIGET: READ ERROR - CHARACTER '
      >    //'VARIABLE EXPECTED')
-          IF(CARLIR.EQ.'REMIX') THEN
-*           REMIX option.
-            NMEOLD=NMERGE
-            NMERGE=0
-            ALLOCATE(IREMIX(NMEOLD))
-            DO II=1,NMEOLD
-              CALL REDGET(ITYPLU,IREMIX(II),REALIR,CARLIR,DBLLIR)
-              IF(ITYPLU.NE.1) CALL XABORT('EDIGET: READ ERROR - INTEGE'
-     >        //'R VARIABLE EXPECTED(5)')
-            ENDDO
-            DO IREG=1,NREG
-              IM=IMERGE(IREG)
-              IF(IM.GT.0) THEN
-                IF(IM.GT.NMEOLD) CALL XABORT('EDIGET: IMERGE OVERFLOW')
-                IMERGE(IREG)=IREMIX(IM)
-                NMERGE=MAX(NMERGE,IMERGE(IREG))
-              ENDIF
-            ENDDO
-            DEALLOCATE(IREMIX)
-          ELSE
-            GO TO 40
+          IF(TEXT12.NE.MACGEO) THEN
+            WRITE(HSMG,'(27HEDIGET: MACROGEOMETRY NAME=,A,9H. SHOULD ,
+     >      3HBE=,A,1H.)') TRIM(TEXT12),TRIM(MACGEO)
+            CALL XABORT(HSMG)
           ENDIF
+          CALL EDIG2S(IPRINT,IPGEO2,IFGEO,NREG,NMERGE,IMERGE)
+          GO TO 20
         ELSE IF(CARLIR.EQ.'NONE') THEN
 *----
 *  NO MERGING
@@ -698,6 +687,12 @@
         IADJ=0
       ELSE IF(CARLIR(:4).EQ.'PROD') THEN
         IADJ=1
+      ELSE IF(CARLIR(:7).EQ.'REBUILD') THEN
+        IREB=1
+      ELSE IF(CARLIR(:7).EQ.'WNORM') THEN
+        INORM=1
+      ELSE IF(CARLIR(:7).EQ.'ONEFIS') THEN
+        IONEF=1
       ELSE IF(CARLIR(:4).EQ.'LEAK') THEN
         CALL REDGET(ITYPLU,INTLIR,BB2,CARLIR,DBLLIR)
         IF(ITYPLU.NE.2) CALL XABORT('EDIGET: REAL DATA EXPECTED.')

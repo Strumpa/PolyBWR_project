@@ -122,6 +122,33 @@ I_{\rm golver} = \left\{
  & \textrm{factors.} \\
 \end{array} \right.
 \end{displaymath}
+\item Building process for the condensed/homogenized embedded macrolib $I_{\rm rebuild}=\mathcal{S}^{\rm edi}_{26}$
+\begin{displaymath}
+I_{\rm rebuild} = \left\{
+\begin{array}{ll}
+0 & \textrm{condense/homogenize the embedded macrolib without using microlib} \\
+ & \textrm{information;} \\
+1 & \textrm{rebuild the embedded macrolib from condensed/homogenized microlib} \\
+ & \textrm{information.} \\
+\end{array} \right.
+\end{displaymath}
+\item Normalization flag for the within-group scattering cross sections $I_{\rm wnorm}=\mathcal{S}^{\rm edi}_{27}$
+\begin{displaymath}
+I_{\rm wnorm} = \left\{
+\begin{array}{ll}
+0 & \textrm{don't normalize the within-group scattering cross sections;} \\
+1 & \textrm{normalize the within-group scattering cross sections to be consistent with {\tt SIGS}} \\
+ & \textrm{information.} \\
+\end{array} \right.
+\end{displaymath}
+\item Flag to average {\tt NUSIGF} and {\tt CHI} values of the macrolib so as to obtain a unique fission spectrum $I_{\rm onefis}=\mathcal{S}^{\rm edi}_{28}$
+\begin{displaymath}
+I_{\rm onefis} = \left\{
+\begin{array}{ll}
+0 & \textrm{keep differents {\tt NUSIGF} and {\tt CHI} values for each fissile isotope;} \\
+1 & \textrm{average {\tt NUSIGF} and {\tt CHI} values to obtain a unique fission spectrum.} \\
+\end{array} \right.
+\end{displaymath}
 
 \end{itemize}
 

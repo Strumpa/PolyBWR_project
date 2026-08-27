@@ -341,6 +341,8 @@
                     SECT(IG)=SECT(IG)+SIGS(IG,1)
                   ENDDO
                   CALL LCMPUT(KPLIB,'NTOT0',NGRO,2,SECT)
+                  SECT(:NGRO)=1.0
+                  CALL LCMPUT(KPLIB,'NWT0',NGRO,2,SECT)
                   CALL LCMLEN(KPLIB,'NXN-TOTA',ILENG,ITYLCM)
                   IF(ILENG.GT.0) THEN
                     CALL LCMGET(KPLIB,'NXN-TOTA',SECT)
@@ -400,7 +402,7 @@
               ENDIF
   550         DEALLOCATE(XS)
             ENDDO
-            IF(IMPX.GT.1) CALL LCMLIB(KPLIB)
+            IF(IMPX.GT.2) CALL LCMLIB(KPLIB)
           ENDIF
         ENDDO
         DO JMX=IMX,NBISO

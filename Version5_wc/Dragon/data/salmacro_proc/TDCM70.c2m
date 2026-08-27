@@ -1,7 +1,7 @@
 *-----------------------------------------------------
 *  Name          : TDCM70.x2m
 *  Author        : Camilla DeSantis
-*  MODEL TO TEST GLOW COLORSET GEOMETRIES
+*  MODEL TO TEST GLOW SA60 COLORSET GEOMETRIES
 *-----------------------------------------------------
 *  Define STRUCTURES and MODULES used
 *-----------------------------------------------------
@@ -120,7 +120,7 @@ MACRO4G2 := MAC: MACRO4G ::
 *-----------------------------------------------------
 TRACK TRACK_f := SALT: TDT_LAT_TISO ::
     TITL 'TDCM70 imported'
-    EDIT 6
+    EDIT 1
     ANIS 1
     TISO 12 20.0
     REND LONG
@@ -158,7 +158,7 @@ TRACK TRACK_f CP FLUX OUT := DELETE: TRACK TRACK_f CP FLUX OUT ;
 
 TRACK TRACK_f := SALT: TDT_LAT_TSPC ::
     TITL 'TDCM70 imported'
-    EDIT 6
+    EDIT 1
     ANIS 1
     TSPC 8 20.0
     REND LONG

@@ -1,0 +1,35 @@
+*----
+* Author: B.A.H. Meunier
+* Check that a MATXS2 rectangular companion reaction is imported.
+*----
+MODULE LIB: GREP: ABORT: END: ;
+PROCEDURE assertI ;
+PROCEDURE assertS_low ;
+PROCEDURE assertT ;
+LINKED_LIST LIBRARYG GMACRO GGRP GGRPN ;
+SEQ_ASCII MATXS_RECT :: FILE "./_matxs_rect" ;
+*
+LIBRARYG := LIB: ::
+     EDIT 1
+     NMIX 1
+     ANIS 2
+     CTRA NONE
+     PARTICLE G
+     MIXS LIB: MATXS2 FIL: _matxs_rect
+     MIX 1 300.0
+          U238 = u238 2.2604E-1
+     ;
+*
+GMACRO := LIBRARYG :: STEP UP MACROLIB ;
+GGRP := GMACRO :: STEP UP GROUP STEP AT 1 ;
+GGRPN := GMACRO :: STEP UP GROUP-N STEP AT 1 ;
+*
+assertI GMACRO :: 'PARTICLE-NGR' 1 6 ;
+assertI GMACRO :: 'PARTICLE-NGR' 2 4 ;
+assertI GMACRO :: 'STATE-VECTOR' 1 4 ;
+assertT GGRPN :: 'SCAT00' 2 ;
+assertI GGRPN :: 'IJJS00' 1 6 ;
+assertS_low GGRP :: 'NTOT0' 1 4.998084E+00 1.0E-5 ;
+assertS_low GGRPN :: 'SCAT00' 1 1.044079E-10 1.0E-5 ;
+assertS_low GGRPN :: 'SIGW00' 1 1.623921E-05 1.0E-5 ;
+END: ;

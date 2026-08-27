@@ -13,7 +13,7 @@ to simulate a single reactor channel.
 The \moc{PKINI:} module specification is:
 
 \begin{DataStructure}{Structure \moc{PKINI:}}
-\dusa{MAPFL} \moc{:=} \moc{PKINI:} \dusa{MAPFL} \moc{::} \dstr{descpkini}
+\dusa{MAPFL} \moc{:=} \moc{PKINI:} \dusa{MAPFL} $[$ \dusa{MACRO} $]$ \moc{::} \dstr{descpkini}
 \end{DataStructure}
 
 \noindent where
@@ -22,6 +22,9 @@ The \moc{PKINI:} module specification is:
 
 \item[\dusa{MAPFL}] \texttt{character*12} name of the \dds{map} 
 object containing fuel regions description and global parameter informations.
+
+\item[\dusa{MACRO}] \texttt{character*12} name of an optional read-only \dds{macrolib} 
+object containing point kinetics parameters (\moc{LAMBDA}, \moc{BETAI} and \moc{LAMBDAI}).
 
 \item[\dstr{descpkini}] structure describing the input data to the \moc{PKINI:} module. 
 
@@ -36,9 +39,9 @@ $[$ \moc{EDIT} \dusa{iprint} $]$ \\
 \moc{POWER} \dusa{power} \\
 $[$ \moc{EPSILON} \dusa{epsilon} $]$ \\
 \moc{TIME} \dusa{t0} \dusa{dt} \\
-\moc{LAMBDA} \dusa{lambda} \\
-\moc{NGROUP} \dusa{ngroup} \\
-\moc{BETAI} (\dusa{beta}(i),i=1,\dusa{ngroup}) \moc{LAMBDAI} (\dusa{dlambda}(i),i=1,\dusa{ngroup}) \\
+$[$ \moc{LAMBDA} \dusa{lambda} \\
+~~~~\moc{NGROUP} \dusa{ngroup} \\
+~~~~\moc{BETAI} (\dusa{beta}(i),i=1,\dusa{ngroup}) \moc{LAMBDAI} (\dusa{dlambda}(i),i=1,\dusa{ngroup}) $]$ \\
 \moc{ALPHA} $[[$ \dusa{PNAME} $\{$ \moc{DIRECT} $|$ \moc{DERIV} $|$ \moc{SQDERIV} $\}$ \\
 ~~~~$[~\{$ \moc{LINEAR} $|$ \moc{CUBIC} $\}~]$ \dusa{nalpha} (\dusa{x}(i) \dusa{y}(i),i=1,\dusa{nalpha}) $]]$ \moc{ENDA} \\
 $[$ \moc{PTIME} $[[$ \dusa{PNAME} $[~\{$ \moc{LINEAR} $|$ \moc{CUBIC} $\}~]~\{$\dusa{ntime} (\dusa{t}(i) \dusa{x}(i),i=1,\dusa{ntime}) $|$ \\
@@ -70,19 +73,23 @@ increasing amounts of output.
 
 \item[\dusa{dt}] stage duration (s).
 
-\item[\moc{LAMBDA}] keyword used to set the prompt neutron generation time.
+\item[\moc{LAMBDA}] keyword used to set the prompt neutron generation time. This information should not be given if object \dusa{MACRO}
+is defined.
 
 \item[\dusa{lambda}] prompt neutron generation time (s).
 
-\item[\moc{NGROUP}] keyword used to set the number of delayed precursor groups.
+\item[\moc{NGROUP}] keyword used to set the number of delayed precursor groups. This information should not be given if object \dusa{MACRO}
+is defined.
 
 \item[\dusa{ngroup}] number of delayed precursor groups.
 
-\item[\moc{BETAI}] keyword used to set the delayed neutron fraction vector.
+\item[\moc{BETAI}] keyword used to set the delayed neutron fraction vector. This information should not be given if object \dusa{MACRO}
+is defined.
 
 \item[\dusa{betai}] value of the delayed neutron fraction in a delayed precursor group.
 
-\item[\moc{LAMBDAI}] keyword used to set the delayed neutron time constant vector.
+\item[\moc{LAMBDAI}] keyword used to set the delayed neutron time constant vector. This information should not be given if object \dusa{MACRO}
+is defined.
 
 \item[\dusa{lambdai}] value of the delayed neutron time constant (s) in a delayed precursor group.
 

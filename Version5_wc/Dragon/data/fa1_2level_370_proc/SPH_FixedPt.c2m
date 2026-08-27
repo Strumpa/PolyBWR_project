@@ -1,0 +1,111 @@
+****************************************************************
+*                                                              *
+* Procedure : SPH_FixedPt.c2m                                  *
+* Purpose   : Compute SPH factors using a fixed point approach *
+* Author    : A. Hebert                                        *
+*                                                              *
+* CALL      :                                                  *
+*  Optim := SPH_FixedPt MicroCond TRACK Track_f                *
+*                     :: (data) ;                              *
+*                                                              *
+*  Output object:                                              *
+*    MicroCond : Corrected microlib                            *
+*                                                              *
+*  Input objects:                                              *
+*    MicroCond : Reference microlib before correction          *
+*    TRACK     : Tracking of the macro-geometry                *
+*    Track_f   : Tracking file                                 *
+*                                                              *
+*  Input data:                                                 *
+*    fmin      : minimum acceptable correction factor          *
+*    fmax      : maximum acceptable correction factor          *
+*    epsout    : convergence criterion for outer iterations    *
+*    IterEmax  : maximum number of iterations                  *
+*    m         : Anderson window size                          *
+*                                                              *
+****************************************************************
+PARAMETER  MicroCond TRACK Track_f ::
+  ::: LINKED_LIST MicroCond TRACK ;
+  ::: SEQ_BINARY Track_f ; ;
+MODULE ASM: FLU: GREP: EDI: FPSPH: MAC: SPH: ERROR: DELETE: UTL: END: ;
+LINKED_LIST OPTIM MACRO1 MACRO2 SYSTEM CALC EDIT OUT ;
+LOGICAL Conv ;
+REAL Keff fmin fmax epsout ;
+DOUBLE rmsval ;
+INTEGER IterE IterEmax m ;
+  :: >>fmin<< >>fmax<< >>epsout<< >>IterEmax<< >>m<< ;
+
+!****************************************
+!****************************************
+!**********   SPH ITERATIONS   **********
+!****************************************
+!****************************************
+
+MACRO1 := MicroCond :: STEP UP MACROLIB ;
+MACRO2 := MACRO1 ;
+
+EVALUATE IterE := 0 ;
+REPEAT
+
+  EVALUATE IterE := IterE 1 + ;
+  ECHO "#------------------------------" ;
+  IF IterE 10 < THEN
+    ECHO "#-------------" IterE "--------------" ;
+  ELSE
+    ECHO "#------------" IterE "--------------" ;
+  ENDIF ;
+  ECHO "#------------------------------" ;
+
+  SYSTEM := ASM: MACRO2 TRACK Track_f :: EDIT 1 PIJ ;
+  IF IterE 1 = THEN
+    CALC := FLU: SYSTEM MACRO2 TRACK Track_f :: EDIT 1 TYPE K P1 ;
+  ELSE
+    CALC := FLU: CALC SYSTEM MACRO2 TRACK Track_f :: EDIT 1 TYPE K P1 ;
+  ENDIF ;
+
+  SYSTEM := DELETE: SYSTEM ;
+      
+  GREP: CALC :: GETVAL 'K-EFFECTIVE ' 1 >>Keff<< ;
+
+  EDIT := EDI: CALC MACRO2 TRACK ::
+      EDIT 0 MERG MIX SAVE ;
+  UTL: EDIT :: DIR ;
+  OUT := EDIT :: STEP UP 'REF-CASE0001' STEP UP MACROLIB ;
+  IF IterE 1 = THEN
+     ECHO "Error statistics before correction" ;
+     ERROR: MACRO1 OUT :: HREA 'NFTOT' ;
+  ENDIF ;
+  IF IterE 1 = THEN
+    OPTIM := FPSPH: OUT MACRO1 :: EDIT 2 SPH PN
+       VAR-VAL-MIN <<fmin>>
+       VAR-VAL-MAX <<fmax>>
+       ANDERSON <<m>>
+       OUT-STEP-EPS <<epsout>> OUT-CONV-TST >>Conv<< >>rmsval<< ;
+  ELSE
+    OPTIM := FPSPH: OPTIM OUT MACRO1 :: EDIT 1
+       VAR-VAL-MIN <<fmin>>
+       VAR-VAL-MAX <<fmax>>
+       ANDERSON <<m>>
+       OUT-CONV-TST >>Conv<< >>rmsval<< ;
+  ENDIF ;
+  ECHO "outer iteration=" IterE "rmsval=" rmsval D_TO_R "Keff=" Keff "Conv=" Conv ;
+  EDIT OUT := DELETE: EDIT OUT ;
+  MACRO2 := MACRO2 MACRO1 ;
+  MACRO2 := MAC: MACRO2 OPTIM ;
+
+UNTIL Conv IterE IterEmax > + ;
+CALC := DELETE: CALC ;
+*----
+* VERIFICATION CALCULATION
+*----
+SYSTEM := ASM: MACRO2 TRACK Track_f :: EDIT 1 PIJ ;
+CALC := FLU: SYSTEM MACRO2 TRACK Track_f :: EDIT 1 TYPE K P1 ;
+
+EDIT := EDI: CALC MACRO2 TRACK ::
+      EDIT 0 MERG MIX SAVE ;
+OUT := EDIT :: STEP UP 'REF-CASE0001' STEP UP MACROLIB ;
+
+MicroCond := SPH: MicroCond OPTIM :: EDIT 1 SPOP ;
+ECHO "Error statistics after correction" ;
+ERROR: MACRO1 OUT :: HREA 'NFTOT' ;
+END: ;

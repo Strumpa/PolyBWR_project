@@ -1,0 +1,23 @@
+#!/bin/sh
+if [ $# = 0 ]
+   then
+   echo "usage: glow_bwr.access directory" 1>&2
+   exit 1
+fi
+if [ -z "$SALOME_DIST" ]; then
+   echo "SALOME_DIST is not set"
+   exit 1
+else
+   echo "SALOME_DIST has the value: $SALOME_DIST"
+fi
+mkdir workdir
+cd workdir
+ln -s $1/data/glow_bwr_proc/PB2_Type6-C_IC_TISO_MACRO_test.py .
+ln -s $1/data/glow_bwr_proc/PB2_Type6-C_MOC_TSPC_test.py .
+source $1/../script/start_env_MacOS.sh
+python3 PB2_Type6-C_IC_TISO_MACRO_test.py 2> /dev/null
+python3 PB2_Type6-C_MOC_TSPC_test.py 2> /dev/null
+cd ..
+rm -r workdir
+ls -l
+echo "glow_bwr access script terminated"

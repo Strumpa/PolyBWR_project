@@ -1,0 +1,11 @@
+#!/bin/sh
+if [ $# = 0 ]
+   then
+   echo "usage: test2_lcm.save directory" 1>&2
+   exit 1
+fi
+echo "access test2_lcm.save"
+ls -l
+diff _EXPORT1 _EXPORT2
+
+echo "test2_lcm save script terminated"

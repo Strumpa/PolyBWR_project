@@ -52,7 +52,7 @@ subroutine G2MC(NENTRY,HENTRY,IENTRY,JENTRY,KENTRY)
   integer,parameter :: dimTabSegArc = 100000
 
   type(c_ptr) :: ipGeo,ipGeo_1
-  integer     :: ipMC,ipSal,ipPs,sizeB,sizeP,sizeSA,nbNode,nbCLP,nbFlux,indic, &
+  integer     :: ipMC,ipSal,ipPs,sizeB,sizeP,sizeSA,nbNode,nbCLP,nbFlux,nbMacro,indic, &
                  & nitma,impx,drawMix
   real :: flott
   double precision :: dflott
@@ -128,6 +128,8 @@ subroutine G2MC(NENTRY,HENTRY,IENTRY,JENTRY,KENTRY)
      drawMix=2
   else if (text12 == 'DRAWELEM') then
      drawMix=3
+  else if (text12 == 'DRAWMACRO') then
+     drawMix=4
   else if (text12 == 'ZOOMX') then
     call REDGET(indic,nitma,zoomx(1),text12,dflott)
     if (indic /= 2) call XABORT('G2S: real data expected(1).')
@@ -188,7 +190,6 @@ subroutine G2MC(NENTRY,HENTRY,IENTRY,JENTRY,KENTRY)
      if (alloc_ok /= 0) call XABORT("G2MC: g2s_g2mc(1) => allocation pb(1)")
      call createNodes(sizeSA,dimTabCelluleBase,lmacro,nbNode,merg,imacro)
      if (sizeSA > dimTabSegArc) call XABORT('g2s_g2mc: sizeSA overflow')
-     deallocate(imacro)
   else
      if (JENTRY(nentry) == 0) call XABORT('G2M: an existing Salomon file is expected')
      !initialisation de TabSegArc
@@ -198,14 +199,15 @@ subroutine G2MC(NENTRY,HENTRY,IENTRY,JENTRY,KENTRY)
      rewind(ipSal)
      allocate(tabSegArc(sizeSA))
      call initializebCData()  
-     allocate(merg(nbNode),stat=alloc_ok)
+     allocate(merg(nbNode),imacro(nbNode),stat=alloc_ok)
      if (alloc_ok /= 0) call XABORT("G2MC: g2s_g2mc => allocation pb")
-     call generateTabSegArc(ipSal,sizeSA,nbNode,nbCLP,nbFlux,merg,impx)
+     call generateTabSegArc(ipSal,sizeSA,nbNode,nbCLP,nbFlux,nbMacro,merg,imacro,impx)
+     imacro(:nbFlux) = 1
   endif
-  deallocate(merg)
 
   !impression des segArc charges
-  if (ipPs /= -1) call drawSegArc(ipPs,sizeSA,drawMix,zoomx,zoomy)
+  if (ipPs /= -1) call drawSegArc(ipPs,sizeSA,drawMix,imacro,zoomx,zoomy)
+  deallocate(imacro,merg)
 
   !creation du fichier de commande Monte-Carlo
   if (index(HENTRY(1),'.tp')/=0) then

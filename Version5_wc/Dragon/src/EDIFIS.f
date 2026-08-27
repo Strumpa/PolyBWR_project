@@ -1,0 +1,146 @@
+*DECK EDIFIS
+      SUBROUTINE EDIFIS(IPMAC)
+*
+*-----------------------------------------------------------------------
+*
+*Purpose:
+* Average NUSIGF and CHI values to obtain a unique fission spectrum.
+*
+*Copyright:
+* Copyright (C) 2026 Ecole Polytechnique de Montreal
+* This library is free software; you can redistribute it and/or
+* modify it under the terms of the GNU Lesser General Public
+* License as published by the Free Software Foundation; either
+* version 2.1 of the License, or (at your option) any later version
+*
+*Author(s): A. Hebert
+*
+*Parameters: input
+* IPMAC   pointer to the macrolib (L_MACROLIB signature).
+*
+*-----------------------------------------------------------------------
+*
+      USE GANLIB
+*----
+*  SUBROUTINE ARGUMENTS
+*----
+      TYPE(C_PTR) IPMAC
+*----
+*  LOCAL VARIABLES
+*----
+      INTEGER NSTATE
+      PARAMETER (NSTATE=40)
+      INTEGER ISTATE(NSTATE)
+      CHARACTER TEXT12*12,HSMG*131
+      TYPE(C_PTR) JPMAC,KPMAC
+*----
+*  ALLOCATABLE ARRAYS
+*----
+      REAL, ALLOCATABLE, DIMENSION(:) :: WRK0
+      REAL, ALLOCATABLE, DIMENSION(:,:) :: FFUEL,WRK1,WRK2
+      REAL, ALLOCATABLE, DIMENSION(:,:,:) :: ZNUS2,ZCHI2
+      REAL, ALLOCATABLE, DIMENSION(:,:,:,:) :: ZNUS,ZCHI
+      DOUBLE PRECISION, ALLOCATABLE, DIMENSION(:) :: DSUM
+*
+      CALL LCMGET(IPMAC,'STATE-VECTOR',ISTATE)
+      NGROUP=ISTATE(1)
+      NBMIX=ISTATE(2)
+      NFISSI=ISTATE(4)
+      NDEL=ISTATE(7)
+      IF(NFISSI.LE.1) RETURN
+      ALLOCATE(FFUEL(NBMIX,NFISSI),ZNUS(NBMIX,NFISSI,NGROUP,0:NDEL),
+     1 ZCHI(NBMIX,NFISSI,NGROUP,0:NDEL),WRK0(NBMIX),WRK1(NBMIX,NFISSI),
+     2 WRK2(NBMIX,NFISSI))
+*----
+*  RECOVER MACROLIB DATA
+*----
+      ZNUS(:NBMIX,:NFISSI,:NGROUP,0:NDEL)=0.0
+      ZCHI(:NBMIX,:NFISSI,:NGROUP,0:NDEL)=0.0
+      FFUEL(:NBMIX,:NFISSI)=0.0
+      JPMAC=LCMGID(IPMAC,'GROUP')
+      DO LLL=1,NGROUP
+        KPMAC=LCMGIL(JPMAC,LLL)
+        CALL LCMLEN(KPMAC,'FLUX-INTG',ILONG,ITYLCM)
+        IF(ILONG.NE.NBMIX) CALL XABORT('EDIFIS: SIZE ERROR(1).')
+        CALL LCMGET(KPMAC,'FLUX-INTG',WRK0)
+        CALL LCMLEN(KPMAC,'NUSIGF',ILONG,ITYLCM)
+        IF(ILONG.NE.NBMIX*NFISSI) CALL XABORT('EDIFIS: SIZE ERROR(2).')
+        CALL LCMGET(KPMAC,'NUSIGF',WRK1)
+        CALL LCMGET(KPMAC,'CHI',WRK2)
+        DO IFIS=1,NFISSI
+          DO IBM=1,NBMIX
+            ZNUS(IBM,IFIS,LLL,0)=WRK1(IBM,IFIS)
+            ZCHI(IBM,IFIS,LLL,0)=WRK2(IBM,IFIS)
+            FFUEL(IBM,IFIS)=FFUEL(IBM,IFIS)+WRK0(IBM)*WRK1(IBM,IFIS)
+          ENDDO
+        ENDDO
+        DO IDEL=1,NDEL
+          WRITE(TEXT12,'(6HNUSIGF,I2.2)') IDEL
+          CALL LCMLEN(KPMAC,TEXT12,ILONG,ITYLCM)
+          IF(ILONG.NE.0) THEN
+            CALL LCMGET(KPMAC,TEXT12,WRK1)
+            WRITE(TEXT12,'(3HCHI,I2.2)') IDEL
+            CALL LCMGET(KPMAC,TEXT12,WRK2)
+            DO IFIS=1,NFISSI
+              DO IBM=1,NBMIX
+                ZNUS(IBM,IFIS,LLL,IDEL)=WRK1(IBM,IFIS)
+                ZCHI(IBM,IFIS,LLL,IDEL)=WRK2(IBM,IFIS)
+              ENDDO
+            ENDDO
+          ENDIF
+        ENDDO ! IDEL
+      ENDDO ! LLL
+      DEALLOCATE(WRK2,WRK1,WRK0)
+*----
+*  AVERAGE FISSION INFORMATION
+*----
+      ALLOCATE(ZNUS2(NBMIX,NGROUP,0:NDEL),ZCHI2(NBMIX,NGROUP,0:NDEL),
+     1 DSUM(NBMIX),WRK0(NBMIX))
+      ZNUS2(:NBMIX,:NGROUP,0:NDEL)=0.0
+      ZCHI2(:NBMIX,:NGROUP,0:NDEL)=0.0
+      DO IDEL=0,NDEL
+        DSUM(:NBMIX)=0.0D0
+        DO LLL=1,NGROUP
+          WRK0(:NBMIX)=0.0
+          DO IFIS=1,NFISSI
+            ZNUS2(:NBMIX,LLL,IDEL)=ZNUS2(:NBMIX,LLL,IDEL)+
+     1      ZNUS(:NBMIX,IFIS,LLL,IDEL)
+            ZCHI2(:NBMIX,LLL,IDEL)=ZCHI2(:NBMIX,LLL,IDEL)+
+     1      ZCHI(:NBMIX,IFIS,LLL,IDEL)*FFUEL(:NBMIX,IFIS)
+            WRK0(:NBMIX)=WRK0(:NBMIX)+FFUEL(:NBMIX,IFIS)
+          ENDDO ! IFIS
+          DO IBM=1,NBMIX
+            IF(WRK0(IBM).EQ.0.0) CYCLE
+            ZCHI2(IBM,LLL,IDEL)=ZCHI2(IBM,LLL,IDEL)/WRK0(IBM)
+            IF(IDEL.EQ.0) DSUM(IBM)=DSUM(IBM)+ZCHI2(IBM,LLL,IDEL)
+          ENDDO ! IBM
+        ENDDO ! LLL
+      ENDDO ! IDEL
+      DO IBM=1,NBMIX
+        IF(DSUM(IBM).EQ.0.0D0) CYCLE
+        IF(ABS(DSUM(IBM)-1.0D0).GT.1.0E-6) THEN
+          WRITE(HSMG,'(42HEDIFIS: WRONG CHI NORMALIZATION IN MIXTURE,
+     1    I6,8H (ERROR=,1P,E12.4,2H).)') IBM,DSUM(IBM)-1.0D0
+          CALL XABORT(HSMG)
+        ENDIF
+      ENDDO ! IBM
+      DEALLOCATE(WRK0,DSUM)
+*----
+*  STORE AVERAGED FISSION INFORMATION ON MACROLIB
+*----
+      DO LLL=1,NGROUP
+        KPMAC=LCMGIL(JPMAC,LLL)
+        CALL LCMPUT(KPMAC,'NUSIGF',NBMIX,2,ZNUS2(1,LLL,0))
+        CALL LCMPUT(KPMAC,'CHI',NBMIX,2,ZCHI2(1,LLL,0))
+        DO IDEL=1,NDEL
+          WRITE(TEXT12,'(6HNUSIGF,I2.2)') IDEL
+          CALL LCMPUT(KPMAC,TEXT12,NBMIX,2,ZNUS2(1,LLL,IDEL))
+          WRITE(TEXT12,'(3HCHI,I2.2)') IDEL
+          CALL LCMPUT(KPMAC,TEXT12,NBMIX,2,ZCHI2(1,LLL,IDEL))
+        ENDDO ! IDEL
+      ENDDO ! LLL
+      ISTATE(4)=1
+      CALL LCMPUT(IPMAC,'STATE-VECTOR',NSTATE,1,ISTATE)
+      DEALLOCATE(ZCHI2,ZNUS2)
+      RETURN
+      END

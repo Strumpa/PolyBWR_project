@@ -82,11 +82,12 @@ contains
   subroutine destroyTabCellulePlaced(szP)
     integer,intent(in) :: szP
     integer :: i
-
-    do i = 1,szP
-       deallocate(tabCellulePlaced(i)%gig,tabCellulePlaced(i)%mrg)
-    end do
-    deallocate(tabCellulePlaced)
+    if(allocated(tabCellulePlaced)) then
+       do i = 1,szP
+          deallocate(tabCellulePlaced(i)%gig,tabCellulePlaced(i)%mrg)
+       end do
+       deallocate(tabCellulePlaced)
+    endif
    end subroutine destroyTabCellulePlaced
 
   subroutine splitCells(szP,szSA)

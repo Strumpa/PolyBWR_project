@@ -17,7 +17,7 @@
 *Parameters: input
 * IPOLD   pointer to the initial macrolib.
 * NL      number of legendre orders (=1 for isotropic scattering).
-* NW      legendre order of NWT information (=0: NTOT0; =1: NTOT1).
+* NW      legendre order of NTOT information (=0: NTOT0; =1: NTOT1).
 * NF      number of fissile isotopes.
 * NGRP    number of energy groups.
 * NMXOLD  number of material mixtures in the initial macrolib.
@@ -28,7 +28,7 @@
 *          =.true. if the fuel map macrolib.
 * IMPX    printing index (=0 for no print).
 *
-*Parameters: output
+*Parameters: input/output
 * IPNEW   pointer to the final macrolib.
 *
 *-----------------------------------------------------------------------
@@ -77,7 +77,7 @@
           DATA2(:NMXNEW)=0.0
           CALL LCMGET(KPOLD,NAME,DATA)
           IF(LMAP)THEN
-*         RECOVER EXISTING DATA
+*           RECOVER EXISTING DATA
             CALL LCMLEN(KPNEW,NAME,LENGT2,ITYP2)
             IF(LENGT2.NE.0)CALL LCMGET(KPNEW,NAME,DATA2)
           ENDIF
@@ -86,11 +86,11 @@
           IF(MIX(IBM).EQ.0)GOTO 20
           ITOT=ITOT+1
           IF(LMAP)THEN
-*         ONLY FUEL DATA WILL BE COPIED
+*           ONLY FUEL DATA WILL BE COPIED
             IF(MIX(IBM).GT.0)GOTO 20
             J=-MIX(IBM)
           ELSE
-*         FUEL DATA WILL NOT BE COPIED
+*           FUEL DATA WILL NOT BE COPIED
             IF(MIX(IBM).LT.0)GOTO 20
             J=MIX(IBM)
           ENDIF
@@ -168,14 +168,18 @@
         ALLOCATE(DATA(NMXOLD),DATA2(NMXNEW))
         DATA(:NMXOLD)=0.0
         DATA2(:NMXNEW)=0.0
-        CALL LCMGET(KPOLD,'NTOT1',DATA)
+        CALL LCMLEN(KPOLD,'NTOT1',LENGT,ITYP)
+        IF(LENGT.NE.0) THEN
+          CALL LCMGET(KPOLD,'NTOT1',DATA)
+        ELSE
+          CALL LCMGET(KPOLD,'NTOT0',DATA)
+        ENDIF
         IF(LMAP)THEN
 *       RECOVER EXISTING DATA
-          CALL LCMLEN(KPNEW,'NTOT0',LENGT1,ITYP1)
-          CALL LCMLEN(KPNEW,'NTOT1',LENGT2,ITYP2)
-          IF(LENGT2.NE.0) THEN
+          CALL LCMLEN(KPNEW,'NTOT1',LENGT,ITYP)
+          IF(LENGT.NE.0) THEN
             CALL LCMGET(KPNEW,'NTOT1',DATA2)
-          ELSE IF(LENGT1.NE.0) THEN
+          ELSE
             CALL LCMGET(KPNEW,'NTOT0',DATA2)
           ENDIF
         ENDIF
@@ -196,7 +200,7 @@
         DATA2(ITOT)=DATA(J)
    50   CONTINUE
 *       STORE DATA
-        CALL LCMPUT(KPNEW,'NTOT1',NMXNEW,ITYP,DATA2)
+        IF(ITYP.NE.99) CALL LCMPUT(KPNEW,'NTOT1',NMXNEW,ITYP,DATA2)
         DEALLOCATE(DATA,DATA2)
       ENDIF
       IF(IMPX.GT.3)CALL LCMLIB(KPNEW)

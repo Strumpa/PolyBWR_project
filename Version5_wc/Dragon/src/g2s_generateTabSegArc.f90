@@ -27,17 +27,17 @@ module generTabSegArc
 
 contains
 
-  subroutine generateTabSegArc(ipSal,sizeSA,nbNode,nbCLP,nbFlux,merg,impx)
+  subroutine generateTabSegArc(ipSal,sizeSA,nbNode,nbCLP,nbFlux,nbMacro,merg,imacro,impx)
     integer,intent(inout) :: ipSal
     integer,intent(in) :: nbNode,sizeSA,impx
-    integer,intent(out) :: nbCLP,nbFlux
-    integer,dimension(nbNode),intent(out) :: merg
+    integer,intent(out) :: nbCLP,nbFlux,nbMacro
+    integer,dimension(nbNode),intent(out) :: merg,imacro
 
     integer, parameter :: n_datain=25, n_datare=20
     integer, dimension (n_datain) :: datain
     real,    dimension (n_datare) :: datare
     real(pdb),    dimension (n_datare) :: datade
-    integer :: type,nber,prec,elem,i,nbMacro,fout0
+    integer :: type,nber,prec,elem,i,fout0
     integer, parameter, dimension(0:4) :: read_bc_len=(/1,1,2,3,3/)
     character(len=12) :: name_geom
     ! internal : albedo
@@ -68,6 +68,9 @@ contains
     allocate(iflux(nbFlux),stat=alloc_ok)
     if (alloc_ok /= 0) call XABORT("G2S: generateTabSegArc(1) => allocation pb")
     call SALGET(iflux,nbFlux,ipSal,fout0,'macro order number per flux region')
+    do i = 1,nbNode
+      imacro(i)=iflux(merg(i))
+    enddo
     deallocate(iflux)
     do elem=1,sizeSA
        call SALGET(datain,3,ipSal,fout0,'integer descriptors')

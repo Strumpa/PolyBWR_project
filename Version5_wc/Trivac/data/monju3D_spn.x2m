@@ -2,7 +2,7 @@
 *  Monju 3D benchmark in SP3 approximation
 *----
 LINKED_LIST HEX3D MACRO TRACK SYSTEM FLUX EDIT ;
-MODULE GEO: MAC: TRIVAT: TRIVAA: FLUD: OUT: GREP: END: ;
+MODULE GEOD: MAC: TRIVAT: TRIVAA: FLUD: OUT: GREP: END: ;
 PROCEDURE assertS ;
 INTEGER IVAL ;
 *
@@ -42,7 +42,7 @@ MACRO := MAC: ::
           3 3 (*3->3*) 1.36811E-01 (*2->3*) 3.571E-03 (*1->3*) 6.718E-05
  ;
 *
-HEX3D := GEO: :: HEXZ  133 4
+HEX3D := GEOD: :: HEXZ  133 4
        EDIT 2
        HBC  R120  VOID
        SIDE 6.67417

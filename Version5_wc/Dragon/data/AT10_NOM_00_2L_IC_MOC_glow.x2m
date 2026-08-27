@@ -50,7 +50,8 @@ TRKSSH TRKFILSSH := SALT: tdt_iso_ssh ::
     EDIT 1
     TITLE 'IC ATRIUM-10 CASE - self-shielding - glow'
     BATCH 200
-    TISO EQW 8 25.0
+    ANIS 1
+    TISO EQW 8 15.0
     IC EPSJ 1.0E-5
 ;
 
@@ -59,7 +60,8 @@ TRKIC TRKFILIC := SALT: tdt_iso_ic ::
 	EDIT 1
 	TITLE 'IC ATRIUM-10 CASE - 1st level - glow'
 	BATCH 200
-	TISO EQW 12 45.0
+    ANIS 1
+	TISO EQW 12 25.0
 	IC EPSJ 1.0E-5
 ;
 
@@ -69,14 +71,14 @@ TRKMOC TRKFILMOC := SALT: tdt_spc_moc ::
     ALLG LONG
     BATCH 2000
     GAUS
-    ANIS 4
-    TSPC EQW2 24 40.0 REND
+    ANIS 1
+    TSPC EQW2 24 50.0 REND
     NOIC
 ;
 
 * MOC tracking
 TRKMOC := MCCGT: TRKMOC TRKFILMOC ::
-    EDIT 2
+    EDIT 1
     GAUS 4 AAC 100 ILU0 
     HDD 0.0 SC KRYL 10
 ;
@@ -85,7 +87,7 @@ TRKMOC := MCCGT: TRKMOC TRKFILMOC ::
 * LIBRARY creation 
 **********************************************
 
-LIBRARY := MIX_AT10 :: 'endfb8r1_295' 'RSE' 4 'NONE' 750.0 559.0 559.0 559.0 559.0 ;
+LIBRARY := MIX_AT10 :: 'endfb8r1_295' 'RSE' 2 'APOL' 900.0 600.0 600.0 600.0 600.0 600.0 ;
 
 ******************************************************************
 * USS: call to create the self-shielded cross sections library
@@ -108,7 +110,7 @@ SYS := ASM: LIBRARY2 TRKIC TRKFILIC ::
 * FLU: call to solve the system at the first level flux calculation
 *******************************************************************
 
-FLUX := FLU:  SYS LIBRARY2 TRKIC :: EDIT 4 TYPE K ;
+FLUX := FLU:  SYS LIBRARY2 TRKIC :: EDIT 1 TYPE K ;
 GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffIC<< ;
 ECHO "ATRIUM10 assembly with glow @level 1, keff=" keffIC ;
 
@@ -127,7 +129,7 @@ EDITION := EDI: FLUX LIBRARY2 TRKIC ::
 
 LIB26G := EDITION :: STEP UP COND26 ;
 
-LIB26G := SPH: LIB26G TRKIC TRKFILIC :: EDIT 1 GRMAX 19 ;
+LIB26G := SPH: LIB26G TRKIC TRKFILIC :: EDIT 1 ITER 1 ;
 
 FLUX SYS EDITION TRKIC TRKFILIC := DELETE: FLUX SYS EDITION TRKIC TRKFILIC ;
 
@@ -137,13 +139,13 @@ FLUX SYS EDITION TRKIC TRKFILIC := DELETE: FLUX SYS EDITION TRKIC TRKFILIC ;
 SYS := ASM: LIB26G TRKMOC TRKFILMOC :: ARM EDIT 1 ;
 
 FLUX := FLU: LIB26G SYS TRKMOC TRKFILMOC ::
-      EDIT 4 TYPE K 
+      EDIT 1 TYPE K 
     ;
 
 GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffMOC<< ;
 ECHO "ATRIUM10 assembly with glow @level 2, keff=" keffMOC ;
 
-EDIRAT10 FLUX LIB26G TRKMOC :: 'CPO_AT10_2L_IC_MOC_glow_Zr_Fe' ;
+EDIRAT10 FLUX LIB26G TRKMOC :: '_CPO_AT10_NOM_00_2L_IC_MOC_glow_P0_CTRA_noGRMAX_iter1' ;
 
 END: ;
 QUIT .

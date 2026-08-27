@@ -239,7 +239,11 @@
          ENDIF
    50    CONTINUE
          DO 60 IRS=1,NBNRS
-         DILAV(IRS,LLL)=REAL(TOT1(IRS)/TOT2(IRS))
+         IF(TOT2(IRS).EQ.0.0) THEN
+           DILAV(IRS,LLL)=1.0E10
+         ELSE
+           DILAV(IRS,LLL)=REAL(TOT1(IRS)/TOT2(IRS))
+         ENDIF
    60    CONTINUE
       ENDIF
    70 CONTINUE

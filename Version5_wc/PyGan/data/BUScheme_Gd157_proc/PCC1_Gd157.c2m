@@ -31,7 +31,7 @@ REAL
 SEQ_ASCII _COMPO :: FILE <<name_compo>> ;
 
 
-REAL Norm_f2 := 38.6 ; ! SPECIFIC POWER MW/t
+REAL Norm_f2 := 25.6 ; ! SPECIFIC POWER MW/t
 REAL BUautop BUcompo := 0.0 0.0 ;
 INTEGER iauto :=  1 ;
 INTEGER iCompo :=  2 ;
@@ -43,7 +43,7 @@ GEOM := GEO: :: HOMOGE
     MIX 1
 ;
 TRACK := SYBILT: GEOM ::
-    TITLE 'HOM_UOX_Gd157 benchmark case'
+    TITLE 'HOM benchmark case'
     MAXR 2
 ;
 

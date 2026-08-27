@@ -8,7 +8,7 @@
 *  Define STRUCTURES and MODULES used
 *----
 LINKED_LIST GEOM MACRO TRACK FLUX ;
-MODULE GEO: MAC: NSST: NSSF: DELETE: END: ;
+MODULE GEOD: MAC: NSST: NSSF: DELETE: END: ;
 PROCEDURE assertS ;
 *----
 *  Macroscopic cross sections
@@ -31,7 +31,7 @@ MACRO := MAC: ::
 *----
 *  Steady-state calculations with the Nodal Expansion Method
 *----
-GEOM := GEO: :: CAR1D 4
+GEOM := GEOD: :: CAR1D 4
            X- ZERO X+ ZERO
            MIX  2 1 1 2
            MESHX 0.0 40.0 350.0 660.0 700.0
@@ -51,7 +51,7 @@ FLUX := NSSF: TRACK MACRO :: EDIT 1 EXTE 1000 1.0E-7 ;
 assertS FLUX :: K-EFFECTIVE 1 0.9976518 ;
 GEOM TRACK FLUX := DELETE: GEOM TRACK FLUX ;
 *
-GEOM := GEO: :: CAR1D 4
+GEOM := GEOD: :: CAR1D 4
            X- VOID X+ VOID
            MIX  2 1 1 2
            MESHX 0.0 40.0 350.0 660.0 700.0
@@ -71,7 +71,7 @@ FLUX := NSSF: TRACK MACRO :: EDIT 1 EXTE 1000 1.0E-7 ;
 assertS FLUX :: K-EFFECTIVE 1 0.9977070 ;
 GEOM TRACK FLUX := DELETE: GEOM TRACK FLUX ;
 *
-GEOM := GEO: :: CAR1D 4
+GEOM := GEOD: :: CAR1D 4
            X- ALBE 0.85 X+ ALBE 0.95
            MIX  2 1 1 2
            MESHX 0.0 40.0 350.0 660.0 700.0
@@ -91,7 +91,7 @@ FLUX := NSSF: TRACK MACRO :: EDIT 1 EXTE 1000 1.0E-7 ;
 assertS FLUX :: K-EFFECTIVE 1 0.9986206 ;
 GEOM TRACK FLUX := DELETE: GEOM TRACK FLUX ;
 *
-GEOM := GEO: :: CAR1D 2
+GEOM := GEOD: :: CAR1D 2
            X- VOID X+ REFL
            MIX  2 1
            MESHX 0.0 40.0 350.0
@@ -114,7 +114,7 @@ GEOM TRACK FLUX := DELETE: GEOM TRACK FLUX ;
 MACRO := MAC: MACRO ::
   ALBP 2 0.8 0.9 0.7 0.75
  ;
-GEOM := GEO: :: CAR1D 4
+GEOM := GEOD: :: CAR1D 4
            X- ALBE 1 X+ ALBE 2
            MIX  2 1 1 2
            MESHX 0.0 40.0 350.0 660.0 700.0
@@ -136,7 +136,7 @@ GEOM TRACK FLUX := DELETE: GEOM TRACK FLUX ;
 *----
 *  Steady-state calculations with the Analytic Nodal Method
 *----
-GEOM := GEO: :: CAR1D 3
+GEOM := GEOD: :: CAR1D 3
            X- ZERO X+ ZERO
            MIX  2 1 2
            MESHX 0.0 40.0 660.0 700.0
@@ -149,7 +149,7 @@ FLUX := NSSF: TRACK MACRO ::
 assertS FLUX :: K-EFFECTIVE 1 0.99773398 ;
 GEOM TRACK FLUX := DELETE: GEOM TRACK FLUX ;
 *
-GEOM := GEO: :: CAR1D 3
+GEOM := GEOD: :: CAR1D 3
            X- ALBE 1 X+ ALBE 2
            MIX  2 1 2
            MESHX 0.0 40.0 660.0 700.0

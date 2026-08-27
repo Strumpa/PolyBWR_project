@@ -32,14 +32,14 @@ REAL densLEAD := 10.503 ;     (*in g/cm^3*)
 REAL densHe := 0.0001663 ;    (*in g/cm^3*)
 
 *-------------------------------------------------------------------------------------------------
-*  Microlib: DRAGLIB ENDFB_VII 315 energy discr
+*  Microlib: DRAGLIB ENDFB_VII 370 energy discr
 *-------------------------------------------------------------------------------------------------
 MICRO := LIB: ::
     EDIT 2
     NMIX 8         (*MAXIMUM OF MATERIAL MIXTURES*)
     CTRA NONE
     ANIS 2         (*LINEAR ANISOTROPY SCATTERING*)
-    MIXS LIB: DRAGON FIL: DLIB_315
+    MIXS LIB: DRAGON FIL: DLIB_370
         MIX 1 <<temp_fuel>> <<densUO2>>
             U235   = U235   1.762963E-03      1              O16    = O16    1.18235352E-01      1
             U238   = U238   8.79681435E-01    1              (*O17    = O17    4.77255E-05*)
@@ -189,7 +189,7 @@ OUT := EDI: MICRO2 TRACK FLUX TDT_LAT_SECT CP ::
     MERG COMP 
     COND
     ;
-assertS FLUX :: 'K-EFFECTIVE' 1 1.342777 ;
+assertS FLUX :: 'K-EFFECTIVE' 1 1.344454 ;
 
 ECHO "test TEST_GEO_hex_sect_tspc completed" ;
 END: ;

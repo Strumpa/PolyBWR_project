@@ -64,7 +64,7 @@ TRKIC TRKFILIC := SALT: tdt_iso_ic ::
 	EDIT 1
 	TITLE 'IC GE14 DOM CASE - 1st level - glow'
 	BATCH 200
-	TISO EQW 12 45.0
+	TISO EQW 12 35.0
 	IC EPSJ 1.0E-5
 ;
 
@@ -72,10 +72,10 @@ TRKIC TRKFILIC := SALT: tdt_iso_ic ::
 TRKMOC TRKFILMOC := SALT: tdt_spc_moc ::
     EDIT 1
     ALLG LONG
-    BATCH 2000
+    BATCH 1000
     GAUS
     ANIS 4
-    TSPC EQW2 24 50.0 REND
+    TSPC EQW2 14 50.0 REND
     NOIC
 ;
 
@@ -140,10 +140,10 @@ FLUX SYS EDITION TRKIC TRKFILIC := DELETE: FLUX SYS EDITION TRKIC TRKFILIC ;
 ***************************************
 * 	2nd LEVEL FLUX CALCULATION
 ***************************************
-SYS := ASM: LIB26G TRKMOC TRKFILMOC :: ARM EDIT 1 ;
+SYS := ASM: LIB26G TRKMOC TRKFILMOC :: ARM EDIT 10 ;
 
 FLUX := FLU: LIB26G SYS TRKMOC TRKFILMOC ::
-      EDIT 1 TYPE K 
+      EDIT 10 TYPE K 
     ;
 
 GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffMOC<< ;

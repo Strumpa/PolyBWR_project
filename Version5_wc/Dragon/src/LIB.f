@@ -13,7 +13,7 @@
 * License as published by the Free Software Foundation; either
 * version 2.1 of the License, or (at your option) any later version.
 *
-*Author(s): A. Hebert and G. Marleau
+*Author(s): A. Hebert, G. Marleau and B.A.H. Meunier
 *
 *Parameters: input/output
 * NENTRY  number of LCM objects or files used by the operator.
@@ -59,13 +59,13 @@
 *  LOCAL PARAMETERS
 *----
       CHARACTER    TEXT12*12,HSIGN*12,HVECT(MAXED)*8,HADD*8,NAMLCM*12,
-     >             NAMMY*12,HHLIB*8,CFILNA*64
+     >             NAMMY*12,HHLIB*8,CFILNA*64,PARTICLER*1
       INTEGER      ISTATE(NSTATE),IPRINT,NBISOX,NBMIXX,MAXMIX,INDREC,
      >             NBISO,NGRO,NGT,NGF,NGFR,NL,ITRANC,ITIME,NLIB,NIDEPL,
      >             NCOMB,NEDMAC,NBMIX,NRES,MAXISM,ILCMLN,ILCMTY,IED,
      >             JED,KED,IDP,IBSTEP,MAXISO,NDEPL,NEDMA0,ITPROC,ISOADD,
      >             NADDXS,IPROB,IPROC,IMAC,NDEL,NFISS,IPRECI,NEL,STERN,
-     >             STERNR
+     >             STERNR,EDPMFLAG
       REAL         TMPDAY(3),DELT,TIMBRN,SVDEPS
       INTEGER      IKSTEP
       LOGICAL      LEXIST,EMPTY,LCM
@@ -125,6 +125,8 @@
         MAXISM=MAXISD
         IPRECI=4
         STERN=1
+        PARTICLER='N'
+        EDPMFLAG=0
       ENDIF
 *----
 *  TRY TO FIND A READ-ONLY LCM OBJECT
@@ -236,6 +238,7 @@
         MAXISM=ISTATE(22)
         IPRECI=ISTATE(23)
         STERN=ISTATE(27)
+        EDPMFLAG=ISTATE(28)
         IF(NEDMAC.GT.0) THEN
           IF(NEDMAC .GT. MAXED) CALL XABORT(NAMSBR//': MAXED OVERFLOW')
           CALL LCMGTC(IPLIB,'ADDXSNAME-P0',8,NEDMAC,HVECT)
@@ -282,6 +285,18 @@
         IF(ITYPLU .NE. 1) CALL XABORT(NAMSBR//
      >  ': VALUE FOR NMIX EXPECTED')
         MAXMIX=MAX(MAXMIX,INTLIR)
+*----
+*  READ THE ENERGY DEPOSITION MODE SELECTED
+*----
+      ELSE IF(CARLIR(1:4) .EQ. 'LUMP') THEN
+        EDPMFLAG=0
+        PRINT *, "SET EDPMFLAG TO 0 : LUMP"
+      ELSE IF(CARLIR(1:4) .EQ. 'EDP0') THEN
+        EDPMFLAG=1
+        PRINT *, "SET EDPMFLAG TO 1 : EDP0"
+      ELSE IF(CARLIR(1:4) .EQ. 'QFIS') THEN
+        EDPMFLAG=2
+        PRINT *, "SET EDPMFLAG TO 1 : QFIS"
       ELSE IF(CARLIR(1:4) .EQ. 'CTRA') THEN
 *----
 *  READ TRANSPORT CORRECTION TYPE
@@ -308,16 +323,47 @@
 *  READ THE STERNHEIMER CORRECTION FLAG
 *----
         CALL REDGET(ITYPLU,STERNR,REALIR,CARLIR,DBLLIR)
-        IF(ITYPLU .EQ. 1) THEN
-            IF (STERNR.NE.0 .AND. STERNR.NE.1) THEN
-               CALL XABORT('LIB: STERN 1 OR STERN 0 EXPECTED.')
-            ELSE
-               STERN=STERNR
-            ENDIF
+        IF(ITYPLU.EQ.1) THEN
+          IF((STERNR.NE.0).AND.(STERNR.NE.1)) THEN
+            CALL XABORT('LIB: STERN 1 OR STERN 0 EXPECTED.')
+          ELSE
+            STERN=STERNR
+          ENDIF
         ENDIF
-        IF(IPRINT . GT. 0) THEN
-          IF(STERN .EQ. 1) PRINT *,'STERNHEIMER CORRECTION ACTIVATED'
-          IF(STERN .EQ. 0) PRINT *,'STERNHEIMER CORRECTION DESACTIVATED'
+        IF(IPRINT.GT.0) THEN
+          IF(STERN.EQ.1) THEN
+            WRITE(IOUT,9020) 'ACTIVATED'
+          ELSE IF(STERN.EQ.0) THEN
+            WRITE(IOUT,9020) 'DEACTIVATED'
+          ENDIF
+        ENDIF
+      ELSE IF(CARLIR(1:8) .EQ. 'PARTICLE') THEN
+*----
+*  READ THE SELECTED PARTICLE TYPE
+*----
+        CALL REDGET(ITYPLU,INTLIR,REALIR,PARTICLER,DBLLIR)
+        IF(ITYPLU.EQ.3) THEN
+          IF((PARTICLER.NE.'N').AND.(PARTICLER.NE.'G').AND.
+     >       (PARTICLER.NE.'P').AND.(PARTICLER.NE.'B').AND.
+     >       (PARTICLER.NE.'C')) THEN
+            CALL XABORT('LIB: PARTICLE N, G, P, B OR C EXPECTED.')
+          ENDIF
+          CALL LCMPTC(IPLIB,'PARTICLE',1,PARTICLER)
+        ELSE
+          CALL XABORT('LIB: CHARACTER DATA EXPECTED AFTER PARTICLE.')
+        ENDIF
+        IF(IPRINT.GT.0) THEN
+          IF(PARTICLER.EQ.'N') THEN
+            WRITE(IOUT,9030) 'NEUTRON'
+          ELSE IF(PARTICLER.EQ.'G') THEN
+            WRITE(IOUT,9030) 'GAMMA'
+          ELSE IF(PARTICLER.EQ.'P') THEN
+            WRITE(IOUT,9030) 'PROTON'
+          ELSE IF(PARTICLER.EQ.'B') THEN
+            WRITE(IOUT,9030) 'ELECTRON'
+          ELSE IF(PARTICLER.EQ.'C') THEN
+            WRITE(IOUT,9030) 'POSITRON'
+          ENDIF
         ENDIF
       ELSE IF(CARLIR(1:4) .EQ. 'ANIS') THEN
 *----
@@ -407,6 +453,7 @@
           CALL REDGET(ITYPLU,INTLIR,REALIR,CARLIR,DBLLIR)
           IF(ITYPLU .NE. 3) CALL XABORT(NAMSBR//
      >    ': TYPE FOR ADED EXPECTED')
+          CALL LIBCOV(CARLIR)
           DO 160 JED=1,NEDMAC
             IF(CARLIR(:8) .EQ. HVECT(JED)) GO TO 170
  160      CONTINUE
@@ -536,12 +583,13 @@
         ISTATE(22)=MAXISM
         ISTATE(23)=IPRECI
         ISTATE(27)=STERN
+        ISTATE(28)=EDPMFLAG
         CALL LCMPUT(IPLIB,'STATE-VECTOR',NSTATE,1,ISTATE)
         GO TO 250
       ELSE
         CALL XABORT(NAMSBR//': '//CARLIR//' IS AN INVALID KEY-WORD.')
       ENDIF
-      GO TO 130
+      GO TO 130 
 *----
 *  PROCESS THE LIB: MODULE INPUT DATA.
 *----
@@ -553,7 +601,8 @@
      >              NBISO ,NGRO  ,NGT   ,NL    ,ITRANC,IPROB ,
      >              ITIME ,NLIB  ,NGF   ,NGFR  ,NIDEPL,NCOMB ,
      >              NEDMAC,NBMIX ,NRES  ,IPROC ,IMAC  ,NDEL  ,
-     >              ISOADD,MAXISM,HVECT ,IPRECI,SVDEPS,STERN)
+     >              ISOADD,MAXISM,HVECT ,IPRECI,SVDEPS,STERN,
+     >              EDPMFLAG)
       ELSE IF(ITPROC .EQ. 2) THEN
         IF(NGRO .EQ. 0) CALL XABORT(NAMSBR//
      >  ': NUMBER OF GROUP REQUIRED FOR MAXS OF BURN')
@@ -584,4 +633,6 @@
  9011 FORMAT(' **** WARNING  *****'/
      >       ' BURNUP STEP TOO LARGE '/
      >       ' USE LAST BURNUP STEP AT ',F20.7,' DAYS')
+ 9020 FORMAT(' LIB: STERNHEIMER CORRECTION ',A,'.')
+ 9030 FORMAT(' LIB: SELECTED PARTICLE IS ',A,'.')
       END

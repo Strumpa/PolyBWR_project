@@ -268,6 +268,7 @@ NMIX 229  ! MAXIMUM OF MATERIAL MIXTURES
 <<ssh_method>>
 ANIS <<anis_level>>
 CTRA <<tran_correc>>
+ADED 4 NELAS N2N N3N N4N
 DEPL LIB: DRAGON FIL: <<Library>>
 MIXS LIB: DRAGON FIL: <<Library>>
     MIX 8 <<TFUEL>> 

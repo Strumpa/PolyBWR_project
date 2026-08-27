@@ -209,7 +209,7 @@
       ENDIF
       RETURN
 *
-  200 FORMAT(4X,4HSPH(,I5,1H,,I3,2H)=,F9.5,:,4X,4HSPH(,I5,1H,,I3,2H)=,
-     > F9.5,:,4X,4HSPH(,I5,1H,,I3,2H)=,F9.5,:,4X,4HSPH(,I5,1H,,I3,2H)=,
-     > F9.5,:,4X,4HSPH(,I5,1H,,I3,2H)=,F9.5)
+  200 FORMAT(4X,4HSPH(,I5,1H,,I4,2H)=,F9.5,:,4X,4HSPH(,I5,1H,,I4,2H)=,
+     > F9.5,:,4X,4HSPH(,I5,1H,,I4,2H)=,F9.5,:,4X,4HSPH(,I5,1H,,I4,2H)=,
+     > F9.5,:,4X,4HSPH(,I5,1H,,I4,2H)=,F9.5)
       END

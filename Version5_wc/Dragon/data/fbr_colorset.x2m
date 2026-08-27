@@ -8,7 +8,7 @@
 MODULE  LIB: GEO: SYBILT: ASM: FLU: TONE: EDI: DELETE: END: ;
 LINKED_LIST MICROLIB ASSMBH TRACK PIJ FLUX EDIOBJ ;
 PROCEDURE rnr_cc rnr_interpol assertS ;
-STRING Library := "DLIB_315" ;
+STRING Library := "DLIB_370" ;
 
 ************************************************************************
 *  SET ISOTOPIC NUMBER DENSITIES                                       *
@@ -278,11 +278,11 @@ EDIOBJ := EDI:  FLUX MICROLIB TRACK ::
     EDIT 0
     MICR RES
     MERG MIX 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1
-    COND  4 9 13 17 21 26 30 35 39 43 46 49 55 59 63 68 73 80 84 90 99
-    106 131 149 157 180 193 205 215 230 283 299 315
+    COND  4 9 13 17 21 28 40 51 61 73 82 89 100 108 117 122 128 135 139 145 154 161 186
+    204 212 235 248 260 270 285 338 354
     SAVE
   ;
 
-assertS FLUX :: 'K-EFFECTIVE' 1 0.1364595 ;
+assertS FLUX :: 'K-EFFECTIVE' 1 0.1360555 ;
 ECHO "test fbr_colorset completed" ;
 END: ;

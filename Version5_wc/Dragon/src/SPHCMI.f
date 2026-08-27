@@ -100,10 +100,7 @@
      >   19HLE IN THE MICROLIB.)') TEXT12
          CALL XABORT(HSMG)
       ENDIF
-      MAXH=MAXH
-      DO 10 J=1,MAXH+NL
-      HMAKE(J)=' '
-   10 CONTINUE
+      HMAKE(:MAXH+NL)=' '
       GAR(:NGCOND,:MAXH)=0.0
       WSCAT(:NGCOND,:NGCOND,:NL)=0.0
 *----

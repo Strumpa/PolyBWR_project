@@ -16,6 +16,7 @@ PROCEDURE hex
           g2s_pincell g2s_test
           tst2016_1 tst2016_2 tst2016_3 tst2016_4 tst2016_5 tst2016_6 
           tst2016_7 tst2019_1 tst2019_2 tst2019_3 tst2019_4 tst2023_1
+          tst2026_1 tst2026_2 tst2026_3
 ;
 *
 hex ;
@@ -70,5 +71,9 @@ tst2019_2 ;
 tst2019_3 ;
 tst2019_4 ;
 tst2023_1 ;
+*
+tst2026_1 ;
+tst2026_2 ;
+tst2026_3 ;
 *
 QUIT "LIST" .

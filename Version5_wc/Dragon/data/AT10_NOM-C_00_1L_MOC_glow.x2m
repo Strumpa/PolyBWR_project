@@ -14,7 +14,6 @@ SEQ_BINARY TRKFILSSH TRKFILMOC ;
 REAL keffIC keffMOC ;
 
 STRING exec := "True" ; 
-INTEGER o_anis := 4 ;
 ***********************************************
 * TDT files from glow : imports
 ***********************************************
@@ -47,7 +46,8 @@ TRKSSH TRKFILSSH := SALT: tdt_iso_ssh ::
     EDIT 1
     TITLE 'IC ATRIUM-10 CTRL CASE - self-shielding - glow'
     BATCH 200
-    TISO EQW 8 25.0
+    ANIS 1
+    TISO EQW 8 15.0
     IC EPSJ 1.0E-5
 ;
 
@@ -57,15 +57,15 @@ TRKMOC TRKFILMOC := SALT: tdt_spc_moc ::
     ALLG LONG
     BATCH 2000
     GAUS
-    ANIS <<o_anis>>
-    TSPC EQW2 30 100.0 REND
+    ANIS 1
+    TSPC EQW2 18 150.0 REND
     NOIC
 ;
 
 * MOC tracking
 TRKMOC := MCCGT: TRKMOC TRKFILMOC ::
     EDIT 1
-    GAUS <<o_anis>> AAC 100 ILU0 
+    GAUS 4 AAC 100 ILU0 
     HDD 0.0 SC KRYL 10
 ;
 
@@ -74,7 +74,7 @@ IF exec "True" = THEN
 * LIBRARY creation 
 **********************************************
 
-LIBRARY := MIXAT10C :: 'endfb8r1_295' 'RSE' <<o_anis>> 'NONE' 750.0 559.0 559.0 559.0 559.0 559.0 ;
+LIBRARY := MIXAT10C :: 'endfb8r1_295' 'RSE' 2 'APOL' 900.0 600.0 600.0 600.0 600.0 600.0 ;
 
 ******************************************************************
 * USS: call to create the self-shielded cross sections library
@@ -102,7 +102,7 @@ GREP: FLUX :: GETVAL 'K-EFFECTIVE' 1 1 1 >>keffMOC<< ;
 ECHO "ATRIUM10 CTRL assembly with 1L_MOC glow , keff=" keffMOC ;
 
 
-EDIRAT10C FLUX LIBRARY2 TRKMOC :: '_CPO_AT10-C_00_RSE_IC_1L_MOC_ANIS4_glow_Zr_Fe' ;
+EDIRAT10C FLUX LIBRARY2 TRKMOC :: '_CPO_AT10_NOM-C_00_1L_MOC_glow_P0_CTRA' ;
 ENDIF ;
 
 END: ;

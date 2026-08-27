@@ -32,8 +32,11 @@ if not os.path.exists(save_dir):
 ########################################################### PARAMETER SELECTION ##########################################################################
 exec = True  # Set to True to execute the full calculation, False to only create the geometry and track it.
 
-solution_door_ssh = "IC" #"IC" # "PIJ" 
-computational_scheme = "1L_MOC" # "1L_MOC", "2L_PIJ_MOC", "2L_IC_MOC", "2L_IC_windmills_MOC"
+solution_door_ssh = "PIJ" #"IC" # "PIJ" 
+reflection_type_ssh = "TISO" # "TISO" and "TSPC" supported for "PIJ", only "TISO" supported for "IC". 
+computational_scheme = "2L_PIJ_MOC" # "1L_MOC", "2L_PIJ_MOC", "2L_IC_MOC", "2L_IC_windmills_MOC"
+
+reflection_type_lvl1 = "TISO" # "TISO" and "TSPC" supported for "PIJ", only "TISO" supported for "IC".
 SPH_GRMAX = 19 # 16, 17, 18, 19, 20, 21, 22, 23.
 # Options from DRAGON calculation setup.
 # Geometry parameters : ATRIUM-10 BWR fuel assembly
@@ -200,9 +203,7 @@ name_geom = "AT10_ASSBLY"
 # Tracking parameters : self-shielding geometry
 num_angles_ssh = 8
 line_density_ssh = 25.0
-if solution_door_ssh == "PIJ":
-    reflection_type_ssh = "TSPC"
-elif solution_door_ssh == "IC":
+if solution_door_ssh == "IC":
     reflection_type_ssh = "TISO"
 else: 
     print(f"Selected self-shielding solution door is not supported")
@@ -211,18 +212,16 @@ postscript_file_ssh = "AT10_FIG_SSH.ps"
 
 # Tracking/flux calculation parameters --> Level 1 geometry :
 if "2L" in computational_scheme:
+    if "IC" in computational_scheme:
+        solution_door_lvl1 = "IC"
     if "PIJ" in computational_scheme:
         solution_door_lvl1 = "PIJ"
-    elif "IC" in computational_scheme:
-        solution_door_lvl1 = "IC"
     else:
         print(f"Selected computational scheme {computational_scheme} is not supported for first level calculation")
     num_angles_lvl1 = 12
     line_density_lvl1 = 45.0
     batch_lvl1 = 750
-    if solution_door_lvl1 == "PIJ":
-        reflection_type_lvl1 = "TSPC"
-    elif solution_door_lvl1 == "IC":
+    if solution_door_lvl1 == "IC":
         reflection_type_lvl1 = "TISO"
     else:
         print(f"Selected first level solution door is not supported")
@@ -245,7 +244,7 @@ else:
 #line_density = 150.0
 #batch = 1500 # 750 was found to be "optimal" with 20 omp procs and (24, 75.0) tracking parameters for MOC. 
 reflection_type_lvl2 = "TSPC"
-anisotropy_level = 4 # Level of anisotropy for the tracking, can be 1 (isotropic), 2 (linearly anisotropic), 3 (anisotropy order P_2), or 4 (anisotropy order P_3). 
+anisotropy_level = 2 # Level of anisotropy for the tracking, can be 1 (isotropic), 2 (linearly anisotropic), 3 (anisotropy order P_2), or 4 (anisotropy order P_3). 
 solution_door_lvl2 = "MOC"  # Flag to indicate whether the tracking should be modified for a MOC solution, 
 src_approx = "SC"  # Source approximation for MOC tracking, can be "SC" (flat) or "LDC" (linear)
 # or set it to "IC" or "PIJ" for Surfacic interface current methods and Collision Probability methods.

@@ -51,6 +51,7 @@ clean :
 	$(MAKE_PY) clean -C src
 tests :
 	./rpython $(options) -c $(fcompilerSuite) test_lcm.py
+	./rpython $(options) -c $(fcompilerSuite) test2_lcm.py
 	./rpython $(options) -c $(fcompilerSuite) test_lifo.py
 	./rpython $(options) -c $(fcompilerSuite) fact.py
 	./rpython $(options) -c $(fcompilerSuite) Exemple_jdd.py

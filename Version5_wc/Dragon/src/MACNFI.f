@@ -180,7 +180,8 @@
             DO 170 ILO=1,NIFISO ! loop over old fissile isotopes
               ISOT=NUMFO(IMIX,ILO) ! a reference to the old microlib
               DO 150 JLN=1,NIFISF ! loop over new fissile isotopes
-                IF(NUMFN(IMXN,JLN).EQ.ISOT) GO TO 170
+*                correction by A. Hebert on June 26, 2026
+*                IF(NUMFN(IMXN,JLN).EQ.ISOT) GO TO 170
  150          CONTINUE
               DO 160 JLN=1,NIFISF
                 IF(NUMFN(IMXN,JLN).EQ.0) THEN

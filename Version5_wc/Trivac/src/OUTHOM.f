@@ -1,6 +1,6 @@
 *DECK OUTHOM
-      SUBROUTINE OUTHOM(MAXNEL,IPGEOM,IMPX,NEL,IELEM,ICOL,HTRACK,MAT,
-     1 NZS,IHOM)
+      SUBROUTINE OUTHOM(MAXNEL,IPGEOM,IPMTX,IMPX,NEL,IELEM,ICOL,HTRACK,
+     1 MAT,NZS,IHOM)
 *
 *-----------------------------------------------------------------------
 *
@@ -19,6 +19,7 @@
 *Parameters: input
 * MAXNEL  maximum number of elements.
 * IPGEOM  L_GEOM pointer to the geometry.
+* IPMTX   L_MATEX pointer to matex information.
 * IMPX    print parameter.
 * NEL     total number of finite elements.
 * IELEM   degree of the Lagrangian finite elements:
@@ -36,7 +37,7 @@
 *----
 *  SUBROUTINE ARGUMENTS
 *----
-      TYPE(C_PTR) IPGEOM
+      TYPE(C_PTR) IPGEOM,IPMTX
       CHARACTER HTRACK*12
       INTEGER MAXNEL,IMPX,NEL,IELEM,ICOL,MAT(NEL),NZS,IHOM(NEL)
 *----
@@ -82,9 +83,9 @@
          LYOLD=LY1
          NELOLD=LXOLD*LYOLD
          LDIAG=.FALSE.
-         DO 30 IC=1,4
+         DO 10 IC=1,4
          LDIAG=LDIAG.OR.(NCODE(IC).EQ.3)
-   30    CONTINUE
+   10    CONTINUE
          IF(LDIAG) NELOLD=(LXOLD+1)*LXOLD/2
       ELSE IF(ITYPE.EQ.6) THEN
 *        2-D CYLINDRICAL GEOMETRY.
@@ -98,9 +99,9 @@
          LZOLD=LZ1
          NELOLD=LXOLD*LYOLD*LZOLD
          LDIAG=.FALSE.
-         DO 40 IC=1,4
+         DO 20 IC=1,4
          LDIAG=LDIAG.OR.(NCODE(IC).EQ.3)
-   40    CONTINUE
+   20    CONTINUE
          IF(LDIAG) NELOLD=(LXOLD+1)*LXOLD*LZOLD/2
       ELSE IF(ITYPE.EQ.8) THEN
 *        2-D HEXAGONAL GEOMETRY.
@@ -117,29 +118,48 @@
 *----
       CALL REDGET(INDIC,NITMA,FLOTT,TEXT4,DFLOTT)
       IF(INDIC.EQ.1) THEN
-        DO 160 K=1,NELOLD
-       IHOM(K)=0
-  160   CONTINUE
+        IHOM(:NELOLD)=0
         IHOM(1)=NITMA
         NZS=NITMA
-        DO 170 K=2,NELOLD
+        DO 30 K=2,NELOLD
         CALL REDGET(INDIC,IHOM(K),FLOTT,TEXT4,DFLOTT)
         IF(INDIC.NE.1) CALL XABORT('OUTHOM: INTEGER EXPECTED.')
         NZS=MAX(NZS,IHOM(K))
-  170   CONTINUE
+   30   CONTINUE
         IF((ITYPE.EQ.8).OR.(ITYPE.EQ.9)) CALL LCMGET(IPGEOM,'IHEX',IHEX)
       ELSE IF((INDIC.EQ.3).AND.(TEXT4.EQ.'NONE')) THEN
         NZS=NEL
-        DO 180 K=1,NEL
+        DO 40 K=1,NEL
         IHOM(K)=K
-  180   CONTINUE
+   40   CONTINUE
+        GO TO 270
+      ELSE IF((INDIC.EQ.3).AND.(TEXT4.EQ.'COMP')) THEN
+        NZS=1
+        IHOM(:NEL)=1
         GO TO 270
       ELSE IF((INDIC.EQ.3).AND.(TEXT4.EQ.'IN')) THEN
-        DO 190 K=1,NELOLD
+        DO 50 K=1,NELOLD
         IHOM(K)=K
-  190   CONTINUE
+   50   CONTINUE
         NZS=NELOLD
         IF((ITYPE.EQ.8).OR.(ITYPE.EQ.9)) CALL LCMGET(IPGEOM,'IHEX',IHEX)
+      ELSE IF((INDIC.EQ.3).AND.(TEXT4.EQ.'MATX')) THEN
+        IF(.NOT.C_ASSOCIATED(IPMTX)) THEN
+          CALL XABORT('OUTHOM: MATEX LCM OBJECT IS MISSING.')
+        ENDIF
+        CALL LCMLEN(IPMTX,'MATEX',ILONG,ITYLCM)
+        IF(ILONG.NE.NEL) THEN
+          WRITE(HSMG,'(42HOUTHOM: INCONSISTENT INTG MATX OPTION (EXP,
+     1    25HECTED NUMBER OF MIXTURES=,I5,23H; VALUE FOUND IN L_GEOM,
+     2    8H OBJECT=,I5,2H).)') NEL,ILONG
+          CALL XABORT(HSMG)
+        ENDIF
+        CALL LCMGET(IPMTX,'MATEX',IHOM)
+        NZS=0
+        DO 60 K=1,NEL
+        NZS=MAX(NZS,IHOM(K))
+   60   CONTINUE
+        GO TO 270
       ELSE IF((INDIC.EQ.3).AND.(TEXT4.EQ.'MIX')) THEN
         CALL LCMLEN(IPGEOM,'MIX',ILONG,ITYLCM)
         IF(ILONG.NE.NELOLD) THEN
@@ -150,9 +170,9 @@
         ENDIF
         CALL LCMGET(IPGEOM,'MIX',IHOM)
         NZS=0
-        DO 200 K=1,NELOLD
+        DO 70 K=1,NELOLD
         NZS=MAX(NZS,IHOM(K))
-  200   CONTINUE
+   70   CONTINUE
         IF((ITYPE.EQ.8).OR.(ITYPE.EQ.9)) CALL LCMGET(IPGEOM,'IHEX',IHEX)
       ELSE
         WRITE(HSMG,'(26HOUTHOM: INVALID KEY WORD (,A,2H).)') TEXT4
@@ -171,19 +191,17 @@
          IF(NELOLD.NE.LXOLD*LZOLD) CALL XABORT('OUTHOM: HEXAGONAL SPLI'
      1   //'T ERROR.')
          ALLOCATE(DPP(MAXNEL),MX(NELOLD))
-         DO 205 I=1,NELOLD
-         MX(I)=IHOM(I)
-  205    CONTINUE
+         MX(:NELOLD)=IHOM(:NELOLD)
          LXOLD=LX1
          CALL BIVALL(MAXNEL,IHEX,LXOLD,LX,DPP)
-         DO 215 KZ=1,LZOLD
-         DO 210 KX=1,LX
+         DO 90 KZ=1,LZOLD
+         DO 80 KX=1,LX
          IHOM(KX+(KZ-1)*LX)=0
          KEL=DPP(KX)+(KZ-1)*LXOLD
          IF(KEL.GT.LXOLD*LZOLD) CALL XABORT('OUTHOM: MX OVERFLOW.')
          IHOM(KX+(KZ-1)*LX)=MX(KEL)
-  210    CONTINUE
-  215    CONTINUE
+   80    CONTINUE
+   90    CONTINUE
          DEALLOCATE(MX,DPP)
          LXOLD=LX
          IHEX=9
@@ -243,7 +261,7 @@
       DO 260 K=1,NEL
       IF(MAT(K).EQ.0) IHOM(K)=0
   260 CONTINUE
-  270 IF(IMPX.GT.0) THEN
+  270 IF(IMPX.GT.1) THEN
         WRITE(6,'(/15H MERGING INDEX:/(1X,14I5))') (IHOM(K),K=1,NEL)
       ENDIF
       RETURN

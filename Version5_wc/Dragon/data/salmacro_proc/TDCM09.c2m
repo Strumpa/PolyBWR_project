@@ -56,7 +56,7 @@ GEOM := GEO: ::
 Fil_SAL09 Fil_SAL09.ps := G2S: GEOM ;
 *----
 TRACK SEQTRK := SALT: Fil_SAL09 ::
-     EDIT 3
+     EDIT 1
      ALLG
      TISO EQW <<an2d>> <<densur>> REND
 ;

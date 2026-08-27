@@ -136,7 +136,7 @@
       IH = 0
       DO 10 I=1,NH
         WRITE(HNAM,'(2A4)') IHN(1,I),IHN(2,I)
-        IF (HNAM.EQ.NAMCHA) THEN
+        IF(HNAM.EQ.NAMCHA) THEN
            IH = I
            GOTO 21
         ENDIF
@@ -164,7 +164,7 @@
         IH = 0
         DO 40 I=1,NH
           WRITE(HNAM,'(2A4)') IHN(1,I),IHN(2,I)
-          IF (HNAM.EQ.NAMCH2) THEN
+          IF(HNAM.EQ.NAMCH2) THEN
              IH = I
              GOTO 41
           ENDIF
@@ -208,7 +208,7 @@
           WRITE(6,*) ' AFTER ',NAMCH2,(WINT(ICH2,I),I=1,NK)
         ENDIF
       ELSE
-        WRITE(6,*) ' CHANNEL TO POOL '
+        IF(IPRT.GT.0) WRITE(6,*) ' CHANNEL TO POOL '
 *----
 *  RECOVER DISCHARGED FUEL BURNUPS
 *----

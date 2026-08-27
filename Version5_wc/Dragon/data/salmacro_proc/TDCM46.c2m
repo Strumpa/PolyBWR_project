@@ -59,7 +59,7 @@ ATBRTHS := GEO: :: HEX 1
 ;
 THO2_DAT Fil_SAL.ps := G2S: ATBRTHS :: DRAWMIX ;
 VOLMATF Track := SALT: THO2_DAT ::                                       
-     EDIT 3
+     EDIT 1
      ALLG
      TISO <<an2d>> <<densur>>
 ;                                                                      

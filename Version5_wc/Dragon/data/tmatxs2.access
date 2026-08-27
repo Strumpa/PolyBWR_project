@@ -49,5 +49,8 @@ ln -s $1/data/tmatxs2_proc/matxsU238.txt _matxsU238
 ln -s $1/data/tmatxs2_proc/matxsW.txt _matxsW
 ln -s $1/data/tmatxs2_proc/matxs_mo_e_Beam_3.0MeV_P2_30_Groups_nc.txt _mobetron
 ln -s $1/data/tmatxs2_proc/matxs_ZrH_295.txt _matxs_H1_ZRH
+ln -s $1/data/tmatxs2_proc/fmac_electron_photon_radiant.txt _fmac_bg
+ln -s $1/data/tmatxs2_proc/matxs_electron_photon_radiant.txt _matxs_bg
+ln -s $1/data/tmatxs2_proc/matxs_rect_u238_6n4g.txt _matxs_rect
 ls -l
 echo "tmatxs2 access script terminated"

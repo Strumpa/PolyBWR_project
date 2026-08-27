@@ -17,7 +17,8 @@ file used to store the surfacic elements of the geometry.
 file used to store a postscript representation of the geometry corresponding to \dusa{SURFIL} or \dusa{GEONAM}.
 
 \item[\dusa{GEONAM}] {\tt character*12} name of the {\sl read-only} \dds{geometry} data
-structure. This structure may be build using the operator {\tt GEO:} (see \Sect{GEOData}).
+structure. This structure may be build using the operator {\tt GEO:} (see \Sect{GEOData}). It is also possible to display
+a macro-geometry, as defined in Sect.~\ref{sect:descMACRO}.
 
 Reflective boundary conditions defined in operator {\tt GEO:} can be represented in two different ways:
 \vspace{-0.2cm}
@@ -45,7 +46,8 @@ in the ALAMOS surfacic file.
 $[$~\moc{EDIT} \dusa{iprint}~$]$ \\
 $[$~\moc{ALAMOS} \dusa{typgeo}~$]$ \\
 $[$~\moc{MACRO} $]$ \\
-$[~\{$~\moc{DRAWNOD} $|$ \moc{DRAWMIX} $|$ \moc{DRAWELEM} $\}~]~[$ \moc{ZOOMX} \dusa{facx1} \dusa{facx2} $]~[$ \moc{ZOOMY} \dusa{facy1} \dusa{facy2} $]$ \\
+$[~\{$~\moc{DRAWNOD} $|$ \moc{DRAWMIX} $|$ \moc{DRAWELEM} $|$ \moc{DRAWMACRO} $\}~]~[$ \moc{ZOOMX} \dusa{facx1} \dusa{facx2}
+$]~[$ \moc{ZOOMY} \dusa{facy1} \dusa{facy2} $]$ \\
 \moc{;}
 \end{DataStructure}
 
@@ -91,6 +93,8 @@ or {\tt HEXCEL} subgeometries. Macro-geometry information is not used by module 
 \item[\moc{DRAWMIX}] keyword used to print the material mixture indices on the LHS postscript plot \dusa{PSFIL}. By default, no indices are printed.
 
 \item[\moc{DRAWELEM}] keyword used to print the surfacic element indices on the LHS postscript plot \dusa{PSFIL}. By default, no indices are printed.
+
+\item[\moc{DRAWMACRO}] keyword used to print the macro indices on the LHS postscript plot \dusa{PSFIL}. By default, no indices are printed.
 
 \item[\moc{ZOOMX}] keyword used to plot a fraction of the $X$--domain. By default, all the $X$--domain is plotted.
 

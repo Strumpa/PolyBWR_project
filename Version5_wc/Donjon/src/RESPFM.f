@@ -85,11 +85,12 @@
 *----
 *  COMPUTE FLMIX AND FTOT
 *----
+      NTOT=0
+      IF(NFUEL.EQ.0) CALL XABORT('@RESPFM: NO FUEL DEFINED.')
       FMIX(:NFUEL)=0
       CALL LCMGET(IPMTX,'FMIX',FMIX)
       FTOT(:NFUEL)=0
       IFLMIX(:NCH*NB)=0
-      NTOT=0
       IB=0
       DO 50 IZ=1,NZ
       DO I=1,NX*NY
